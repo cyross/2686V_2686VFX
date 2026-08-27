@@ -524,22 +524,19 @@ float Opzx7Adddr::updateEnvelopeState(float currentLevel)
 
             // ユニゾン・ハーモニー対応
 
-            // 1. まず現在の進行度でカーブを計算する！ (初回は必ず y(0.0) になる)
-            y = 0.0f;
+            // 1. まず時間を進める
+            // Decay や Release と同じく、進めてからカーブを引く。
+            // 後ろで進めると出力が 1 サンプルぶん遅れて線形パスとずれる。
+            this->m_phaseProgress += this->m_attackInc;
 
-            // 開始の瞬間は確実に 0.0f を保証し、カーブ計算の誤差ジャンプを防ぐ
-            if (this->m_phaseProgress > 0.0f) {
-                y = this->m_curveCore->process(
-                    this->m_positionIndex,
-                    (int)CurveParams::Target::AmpEnv,
-                    (int)CurveParams::TargetAmpEnv::Ar,
-                    this->m_phaseProgress);
-            }
+            // 2. その進行度でカーブを計算する
+            y = this->m_curveCore->process(
+                this->m_positionIndex,
+                (int)CurveParams::Target::AmpEnv,
+                (int)CurveParams::TargetAmpEnv::Ar,
+                this->m_phaseProgress);
 
             outLevel = this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
-
-            // 2. その後で時間を進める
-            this->m_phaseProgress += this->m_attackInc;
 
             if (this->m_phaseProgress >= 1.0f) {
                 this->m_phaseProgress = 0.0f; // Decayに向けて確実に進行度を0にリセット！

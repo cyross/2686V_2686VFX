@@ -348,21 +348,18 @@ float FmRgAdssr::updateEnvelopeState(float currentLevel)
                 this->m_attackStartLevel = currentLevel;
             }
 
-            y = 0.0f;
+            // Decay や Release と同じく、進めてからカーブを引く。
+            // 後ろで進めると出力が 1 サンプルぶん遅れて線形パスとずれる。
+            this->m_phaseProgress += this->attackInc;
 
-            // 開始の瞬間は確実に 0.0f を保証し、カーブ計算の誤差ジャンプを防ぐ
-            if (this->m_phaseProgress > 0.0f) {
-                y = this->m_curveCore->process(
-                    this->positionIndex,
-                    (int)CurveParams::Target::AmpEnv,
-                    (int)CurveParams::TargetAmpEnv::Ar,
-                    this->m_phaseProgress
-                );
-            }
+            y = this->m_curveCore->process(
+                this->positionIndex,
+                (int)CurveParams::Target::AmpEnv,
+                (int)CurveParams::TargetAmpEnv::Ar,
+                this->m_phaseProgress
+            );
 
             outLevel = this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
-
-            this->m_phaseProgress += this->attackInc;
 
             if (this->m_phaseProgress >= 1.0f) {
                 this->m_phaseProgress = 0.0f; // Decayに向けて確実に進行度を0にリセット！
