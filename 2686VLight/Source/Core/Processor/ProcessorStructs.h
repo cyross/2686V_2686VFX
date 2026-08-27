@@ -400,6 +400,7 @@ struct PrPtrsWtBasic {
     std::atomic<float>* wave = nullptr;
     std::atomic<float>* sampleSize = nullptr;
     std::atomic<float>* step = nullptr;
+    std::atomic<float>* interpolate = nullptr;
 };
 
 struct PrPtrsWt2Basic {
@@ -407,6 +408,14 @@ struct PrPtrsWt2Basic {
     std::atomic<float>* wave = nullptr;
     std::atomic<float>* sampleSize = nullptr;
     std::atomic<float>* resolution = nullptr;
+    std::atomic<float>* interpolate = nullptr;
+};
+
+struct PrPtrsWtPlusBasic {
+    std::atomic<float>* level = nullptr;
+    std::atomic<float>* slot = nullptr;
+    std::atomic<float>* steps = nullptr;
+    std::atomic<float>* interpolate = nullptr;
 };
 
 struct PrPtrsWtCustomWave {

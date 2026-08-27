@@ -54,6 +54,16 @@ namespace Global
 		static inline constexpr float real = 10.0f; // 実数レートの最長=10秒
 	}
 
+	namespace WtPlus {
+		// WT+ チャンネルが持つ波形メモリのスロット数
+		static inline constexpr int slots = 32;
+
+		// 読み込んだ波形は内部でこの解像度へ展開して持つ。
+		// WtCore の m_sourceWave と同じ 256 点に揃えておくと、
+		// 再生時のテーブルサイズがいくつでも同じ読み出し方が使える。
+		static inline constexpr int waveResolution = 256;
+	}
+
 	namespace Lfo {
 		// AM(トレモロ)の最大減衰量[dB]。全音源で共通の上限値。
 		//

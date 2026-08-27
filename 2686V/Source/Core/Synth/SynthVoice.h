@@ -15,6 +15,7 @@
 #include "../../Synth/Ssg/SynthSsg.h"
 #include "../../Synth/Wavetable/SynthWt.h"
 #include "../../Synth/Wt2/SynthWt2.h"
+#include "../../Synth/WtPlus/SynthWtPlus.h"
 #include "../../Synth/Rhythm/SynthRhythm.h"
 #include "../../Synth/Adpcm/SynthAdpcm.h"
 #include "../../Synth/Beep/SynthBeep.h"
@@ -60,6 +61,9 @@ public:
     void setOpzx7PcmBuffer(int opIndex, std::vector<float>* pcmData); 
 
     void setOpzx7WtBuffer(int opIndex, std::vector<float>* wtData);
+
+    // WT+ の波形メモリはプロセッサが所有する。ボイスには参照だけを渡す。
+    void setWtPlusWaveSlots(const WtPlusWaveSlots* slots);
 
     void setOpzx7Wt2Buffer(int opIndex, std::vector<float>* wtData);
 
@@ -111,6 +115,7 @@ private:
     Opzx7Core m_opzx7Core;
     SsgCore m_ssgCore;
     WtCore m_wtCore;
+    WtPlusCore m_wtPlusCore;
     Wt2Core m_wt2Core;
     RhythmCore m_rhythmCore;
     AdpcmCore m_adpcmCore;

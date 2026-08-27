@@ -60,6 +60,9 @@ private:
     int m_tableSizeIndex = 0;
     int m_tableSize = 32;            // Playback Size (32 or 64)
     float m_quantizeSteps = 15.0f;   // 4bit=15
+
+    // 波形テーブルの読み出しを線形補間するか
+    bool m_interpolate = true;
     int m_waveform = -1; // for initialize
     int m_prevTableSize = -1; // サイズ変更検知用
     std::array<float, 32> m_customWaveCache32; // for data storage

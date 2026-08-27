@@ -44,6 +44,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	rhythmGui = std::make_unique<GuiRhythm>(context);
 	adpcmGui = std::make_unique<GuiAdpcm>(context);
     beepGui = std::make_unique<GuiBeep>(context);
+    wtPlusGui = std::make_unique<GuiWtPlus>(context);
     presetGui = std::make_unique<GuiPreset>(context);
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
@@ -52,6 +53,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     wtGui->addComponentListener(this);
     wt2Gui->addComponentListener(this);
+    wtPlusGui->addComponentListener(this);
 
     tabs.getTabbedButtonBar().addChangeListener(this);
 
@@ -72,6 +74,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     rhythmGui->setup();
     adpcmGui->setup();
     beepGui->setup();
+    wtPlusGui->setup();
     presetGui->setup();
     fxGui->setup();
     settingsGui->setup();
@@ -310,6 +313,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 
     wtGui->removeComponentListener(this);
     wt2Gui->removeComponentListener(this);
+    wtPlusGui->removeComponentListener(this);
 
     adpcmGui->removeLoadButtonListener(this);
 
@@ -680,6 +684,7 @@ void AudioPlugin2686VEditor::resized()
     rhythmGui->layout(tabContent);
     adpcmGui->layout(tabContent);
     beepGui->layout(tabContent);
+    wtPlusGui->layout(tabContent);
     presetGui->layout(tabContent);
     settingsGui->layout(tabContent);
     aboutGui->layout(tabContent);
@@ -796,6 +801,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(EditorGuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::wt2, juce::Colours::transparentBlack, wt2Gui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::wtPlus, juce::Colours::transparentBlack, wtPlusGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
@@ -986,6 +992,7 @@ void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
     rhythmGui->updatePresetName(pName);
     adpcmGui->updatePresetName(pName);
     beepGui->updatePresetName(pName);
+    wtPlusGui->updatePresetName(pName);
 }
 
 void AudioPlugin2686VEditor::loadWallpaperImage()
@@ -1511,6 +1518,9 @@ void AudioPlugin2686VEditor::initParams()
     case OscMode::ADPCM:
         adpcmGui->initParams();
         break;
+    case OscMode::WTPLUS:
+        wtPlusGui->initParams();
+        break;
     case OscMode::BEEP:
         beepGui->initParams();
         break;
@@ -1573,6 +1583,7 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
     rhythmGui->setLevel(level);
     adpcmGui->setLevel(level);
     beepGui->setLevel(level);
+    wtPlusGui->setLevel(level);
 }
 
 void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {

@@ -31,6 +31,10 @@ struct Wt2Params
     UnisonParams unison;
     SsgHwEnvParams ssgHwEnv;
 
+    // 波形テーブルの読み出しを線形補間するか。
+    // OFF なら実機の波形メモリと同じ階段状の出力になる。
+    bool interpolate = true;
+
     int tableSize = 0; // 0:32, 1:64
     int waveform = 8;  // Waveform Select 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
 

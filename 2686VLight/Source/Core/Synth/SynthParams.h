@@ -13,6 +13,7 @@
 #include "../../Synth/Ssg/SynthSsgParams.h"
 #include "../../Synth/Wavetable/SynthWtParams.h"
 #include "../../Synth/Wt2/SynthWt2Params.h"
+#include "../../Synth/WtPlus/SynthWtPlusParams.h"
 #include "../../Synth/Rhythm/SynthRhythmParams.h"
 #include "../../Synth/Adpcm/SynthAdpcmParams.h"
 #include "../../Synth/Beep/SynthBeepParams.h"
@@ -37,6 +38,7 @@ struct SynthParams
     SsgParams ssg;
     WtParams wt;
     Wt2Params wt2;
+    WtPlusParams wtPlus;
     RhythmParams rhythm;
     AdpcmParams adpcm;
     BeepParams beep;

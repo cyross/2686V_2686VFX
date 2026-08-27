@@ -570,6 +570,14 @@ namespace PrHelper {
 		ptPtrs.wave = apvts.getRawParameterValue(prefix + CPK::Wt::wave);
 		ptPtrs.sampleSize = apvts.getRawParameterValue(prefix + CPK::Wt::sampleSize);
 		ptPtrs.step = apvts.getRawParameterValue(prefix + CPK::Wt::steps);
+		ptPtrs.interpolate = apvts.getRawParameterValue(prefix + CPK::Wt::interpolate);
+	}
+
+	static inline void setupWtPlusBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtPlusBasic& ptPtrs) {
+		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.slot = apvts.getRawParameterValue(prefix + CPK::Wt::slot);
+		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::Wt::steps);
+		ptPtrs.interpolate = apvts.getRawParameterValue(prefix + CPK::Wt::interpolate);
 	}
 
 	static inline void setupWt2BasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWt2Basic& ptPtrs) {
@@ -577,6 +585,7 @@ namespace PrHelper {
 		ptPtrs.wave = apvts.getRawParameterValue(prefix + CPK::Wt2::wave);
 		ptPtrs.sampleSize = apvts.getRawParameterValue(prefix + CPK::Wt2::sampleSize);
 		ptPtrs.resolution = apvts.getRawParameterValue(prefix + CPK::Wt2::resolution);
+		ptPtrs.interpolate = apvts.getRawParameterValue(prefix + CPK::Wt::interpolate);
 	}
 
 	static inline void setupOplAdsrPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOplAdsr& ptPtrs){
@@ -1152,6 +1161,14 @@ namespace PrHelper {
 		params.waveform = PrHelper::getInt(ptPtrs.wave);
 		params.tableSize = PrHelper::getInt(ptPtrs.sampleSize);
 		params.steps = PrHelper::getInt(ptPtrs.step);
+		params.interpolate = PrHelper::getBool(ptPtrs.interpolate);
+	}
+
+	static inline void applyWtPlusBasic(PrPtrsWtPlusBasic& ptPtrs, WtPlusParams& params){
+		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.slot = PrHelper::getInt(ptPtrs.slot);
+		params.steps = PrHelper::getInt(ptPtrs.steps);
+		params.interpolate = PrHelper::getBool(ptPtrs.interpolate);
 	}
 
 	static inline void applyWt2Basic(PrPtrsWt2Basic& ptPtrs, Wt2Params& params){
@@ -1159,6 +1176,7 @@ namespace PrHelper {
 		params.waveform = PrHelper::getInt(ptPtrs.wave);
 		params.tableSize = PrHelper::getInt(ptPtrs.sampleSize);
 		params.customWaveResolution = PrHelper::getInt(ptPtrs.resolution);
+		params.interpolate = PrHelper::getBool(ptPtrs.interpolate);
 	}
 
 	static inline void applyOplAdsr(PrPtrsOplAdsr& ptPtrs, OplAdsrParams& params){
@@ -3307,6 +3325,37 @@ namespace PrHelper {
 			prefixName + CPN::Wt::steps, 
 			CPV::Wt::Steps::min, CPV::Wt::Steps::max, CPV::Wt::Steps::initial
 		);
+		// 波形テーブルの読み出しを線形補間するかどうか
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::Wt::interpolate, 
+			prefixName + CPN::Wt::interpolate, 
+			CPV::Wt::Interpolate::initial
+		);
+	}
+
+	static inline void addWtPlusBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		// 鳴らす波形メモリのスロット。オートメーションで振れる。
+		PrHelper::addInt(
+			layout, 
+			prefix + CPK::Wt::slot, 
+			prefixName + CPN::Wt::slot, 
+			CPV::Wt::Slot::min, CPV::Wt::Slot::max, CPV::Wt::Slot::initial
+		);
+		// Steps : 0:Free, 1:16(+), 2:32(+), 3:64(+), 4:128(+), 5:256(+), 6:16(-), 7:32(-), 8:64(-), 9:128(-), 10:256(-)
+		PrHelper::addInt(
+			layout, 
+			prefix + CPK::Wt::steps, 
+			prefixName + CPN::Wt::steps, 
+			CPV::Wt::Steps::min, CPV::Wt::Steps::max, CPV::Wt::Steps::initial
+		);
+		// 波形テーブルの読み出しを線形補間するかどうか
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::Wt::interpolate, 
+			prefixName + CPN::Wt::interpolate, 
+			CPV::Wt::Interpolate::initial
+		);
 	}
 
 	static inline void addWt2BasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -3330,6 +3379,13 @@ namespace PrHelper {
 			prefix + CPK::Wt2::resolution, 
 			prefixName + CPN::Wt2::resolution, 
 			CPV::Wt2::Resolution::min, CPV::Wt2::Resolution::max, CPV::Wt2::Resolution::initial
+		);
+		// 波形テーブルの読み出しを線形補間するかどうか
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::Wt::interpolate, 
+			prefixName + CPN::Wt::interpolate, 
+			CPV::Wt::Interpolate::initial
 		);
 	}
 

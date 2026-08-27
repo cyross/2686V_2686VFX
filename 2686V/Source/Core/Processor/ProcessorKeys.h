@@ -21,6 +21,8 @@ namespace CPK
 		static inline const juce::String wave = "_WAVE";
 		static inline const juce::String sampleSize = "_SIZE";
 		static inline const juce::String steps = "_STEPS";
+		static inline const juce::String interpolate = "_INTERPOLATE";
+		static inline const juce::String slot = "_SLOT";
 	}
 
 	namespace Wt2

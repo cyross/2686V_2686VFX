@@ -20,6 +20,8 @@ namespace CPN
 		static inline const juce::String waveform = " Waveform";
 		static inline const juce::String sampleSize = " Sample Size";
 		static inline const juce::String steps = " Steps";
+		static inline const juce::String interpolate = " Interpolate";
+		static inline const juce::String slot = " Wave Slot";
 	}
 
 	namespace Wt2

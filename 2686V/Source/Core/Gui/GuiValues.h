@@ -6,7 +6,7 @@
 
 namespace CoreGuiValue
 {
-	static inline constexpr int TabNumber = 15;
+	static inline constexpr int TabNumber = 16;
 
 	namespace MVol
 	{

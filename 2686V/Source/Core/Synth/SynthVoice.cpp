@@ -14,6 +14,7 @@ SynthVoice::SynthVoice()
     coreMap[OscMode::RHYTHM] = &m_rhythmCore;
     coreMap[OscMode::ADPCM] = &m_adpcmCore;
     coreMap[OscMode::BEEP] = &m_beepCore;
+    coreMap[OscMode::WTPLUS] = &m_wtPlusCore;
 }
 
 void SynthVoice::prepare(double sampleRate) {
@@ -29,6 +30,7 @@ void SynthVoice::prepare(double sampleRate) {
     m_rhythmCore.prepare(sampleRate);
     m_adpcmCore.prepare(sampleRate);
     m_beepCore.prepare(sampleRate);
+    m_wtPlusCore.prepare(sampleRate);
 }
 
 void SynthVoice::setParameters(const SynthParams& params)
@@ -46,6 +48,7 @@ void SynthVoice::setParameters(const SynthParams& params)
     m_rhythmCore.setParameters(params);
     m_adpcmCore.setParameters(params);
     m_beepCore.setParameters(params);
+    m_wtPlusCore.setParameters(params);
 }
 
 void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*, int)
@@ -72,6 +75,7 @@ void SynthVoice::stopNote(float, bool allowTailOff)
         m_rhythmCore.noteOff();
         m_adpcmCore.noteOff();
         m_beepCore.noteOff();
+        m_wtPlusCore.noteOff();
     }
     else
     {
@@ -181,6 +185,7 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
         m_rhythmCore.prepare(newRate);
         m_adpcmCore.prepare(newRate);
         m_beepCore.prepare(newRate);
+        m_wtPlusCore.prepare(newRate);
     }
 }
 
@@ -202,6 +207,11 @@ void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
 void SynthVoice::setOpzx7PcmBuffer(int opIndex, std::vector<float>* pcmData)
 {
     m_opzx7Core.setPcmBuffer(opIndex, pcmData);
+}
+
+void SynthVoice::setWtPlusWaveSlots(const WtPlusWaveSlots* slots)
+{
+    m_wtPlusCore.setWaveSlots(slots);
 }
 
 void SynthVoice::setOpzx7WtBuffer(int opIndex, std::vector<float>* wtData)
@@ -243,6 +253,7 @@ void SynthVoice::setCurveCore(CurveCore* p_curveCore)
     m_rhythmCore.setCurveCore(p_curveCore);
     m_adpcmCore.setCurveCore(p_curveCore);
     m_beepCore.setCurveCore(p_curveCore);
+    m_wtPlusCore.setCurveCore(p_curveCore);
 }
 
 bool SynthVoice::isPlaying()

@@ -464,12 +464,12 @@ void GuiWt2::setup()
     modShapeSelector.setWantsKeyboardFocus(true);
     modShapeSelector.setExplicitFocusOrder(++tabOrder);
 
-    modWaveWtBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::Mod::waveWt, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = true });
+    modWaveWtBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::Mod::waveWt, .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
     modWaveWtBtn.setWantsKeyboardFocus(true);
     modWaveWtBtn.setExplicitFocusOrder(++tabOrder);
     modWaveWtBtn.onClick = [this] { importModWave(false); };
 
-    modWaveWt2Btn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::Mod::waveWt2, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = true });
+    modWaveWt2Btn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::Mod::waveWt2, .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
     modWaveWt2Btn.setWantsKeyboardFocus(true);
     modWaveWt2Btn.setExplicitFocusOrder(++tabOrder);
     modWaveWt2Btn.onClick = [this] { importModWave(true); };

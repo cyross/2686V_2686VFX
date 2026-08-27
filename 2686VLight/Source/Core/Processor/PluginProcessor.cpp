@@ -29,6 +29,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     prMap[OscMode::SSG] = &prSsg;
     prMap[OscMode::WAVETABLE] = &prWt;
     prMap[OscMode::WT2] = &prWt2;
+    prMap[OscMode::WTPLUS] = &prWtPlus;
     prMap[OscMode::RHYTHM] = &prRhythm;
     prMap[OscMode::ADPCM] = &prAdpcm;
     prMap[OscMode::BEEP] = &prBeep;
@@ -48,6 +49,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     prSsg.init(apvts);
     prWt.init(apvts);
     prWt2.init(apvts);
+    prWtPlus.init(apvts);
     prRhythm.init(apvts);
     prAdpcm.init(apvts);
     prBeep.init(apvts);
@@ -58,6 +60,10 @@ AudioPlugin2686V::AudioPlugin2686V()
         auto voice = new SynthVoice();
 
         voice->prepare(44100.0);
+
+        // WT+ の波形メモリはプロセッサが所有し続けるので、参照は一度渡せば足りる
+        voice->setWtPlusWaveSlots(&wtPlusWaves);
+
         m_synth.addVoice(voice);
     }
 
@@ -68,6 +74,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     auto prevVoice = new SynthVoice();
 
     prevVoice->prepare(44100.0);
+    prevVoice->setWtPlusWaveSlots(&wtPlusWaves);
     previewSynth.addVoice(prevVoice);
 
 	previewFx.init(apvts);
@@ -101,6 +108,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prSsg.createLayout(layout);
 	prWt.createLayout(layout);
     prWt2.createLayout(layout);
+    prWtPlus.createLayout(layout);
     prRhythm.createLayout(layout);
 	prAdpcm.createLayout(layout);
     prBeep.createLayout(layout);
@@ -393,9 +401,16 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     // サンプルパス保存 (ADPCM)
     xml->setAttribute(PresetKey::adpcmPath, makePathRelative(juce::File(adpcmFilePath)));
 
+    // WT+ の波形メモリは実データをプロセッサが持つので、state には相対パスを保存して復帰させる
+    for (int i = 0; i < Global::WtPlus::slots; ++i) {
+        xml->setAttribute(PresetKey::wtPlusWavePathPrefix + juce::String(i),
+            makeWtPathRelative(juce::File(wtPlusWavePaths[i])));
+    }
+
     // 変調波形は 32 パラメータ側に入っているので、ここではファイル名表示用のパスだけ保存する
     xml->setAttribute(PresetKey::wtModWavePath, makeWtPathRelative(juce::File(wtModWavePath)));
     xml->setAttribute(PresetKey::wt2ModWavePath, makeWtPathRelative(juce::File(wt2ModWavePath)));
+    xml->setAttribute(PresetKey::wtPlusModWavePath, makeWtPathRelative(juce::File(wtPlusModWavePath)));
 
     // サンプルパス保存 (RHYTHM)
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
@@ -432,6 +447,23 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         presetGenre = xmlState->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
         presetPluginVersion = xmlState->getStringAttribute(PresetKey::puginVersion, Global::Plugin::version);
 
+        // WT+ の波形メモリ復帰 (実データはファイルから読み直す)
+        for (int i = 0; i < Global::WtPlus::slots; ++i) {
+            juce::String storedWtPlus =
+                xmlState->getStringAttribute(PresetKey::wtPlusWavePathPrefix + juce::String(i));
+
+            if (storedWtPlus.isEmpty()) {
+                unloadWtPlusWaveFile(i);
+                continue;
+            }
+
+            juce::File wtPlusFile = resolveWtPath(storedWtPlus);
+
+            if (wtPlusFile.existsAsFile()) {
+                loadWtPlusWaveFile(i, wtPlusFile);
+            }
+        }
+
         // 変調波形のファイル名復帰 (波形データはパラメータ側で復元済み)
         {
             juce::String storedWtMod = xmlState->getStringAttribute(PresetKey::wtModWavePath);
@@ -439,6 +471,10 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
 
             wtModWavePath = storedWtMod.isEmpty() ? juce::String() : resolveWtPath(storedWtMod).getFullPathName();
             wt2ModWavePath = storedWt2Mod.isEmpty() ? juce::String() : resolveWtPath(storedWt2Mod).getFullPathName();
+
+            juce::String storedWtPlusMod = xmlState->getStringAttribute(PresetKey::wtPlusModWavePath);
+
+            wtPlusModWavePath = storedWtPlusMod.isEmpty() ? juce::String() : resolveWtPath(storedWtPlusMod).getFullPathName();
         }
 
         // サンプル復帰 (ADPCM)
@@ -1206,6 +1242,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
     case OscMode::SSG:       prSsg.processBlock(m_previewParams, apvts); break;
     case OscMode::WAVETABLE: prWt.processBlock(m_previewParams, apvts); break;
     case OscMode::WT2:       prWt2.processBlock(m_previewParams, apvts); break;
+    case OscMode::WTPLUS:    prWtPlus.processBlock(m_previewParams, apvts); break;
     case OscMode::RHYTHM:    prRhythm.processBlock(m_previewParams, apvts); break;
     case OscMode::ADPCM:     prAdpcm.processBlock(m_previewParams, apvts); break;
     case OscMode::BEEP:      prBeep.processBlock(m_previewParams, apvts); break;
@@ -1399,6 +1436,108 @@ void AudioPlugin2686V::unloadOpzx7Wt2File(int opIndex)
             voice->clearOpzx7Wt2Buffer(opIndex);
         }
     }
+}
+
+// ============================================================================
+// WT+ Wave Memory
+// ============================================================================
+// .wt / .wt2 を読み込み、Global::WtPlus::waveResolution 点へ展開して保持する。
+// 展開はサンプル & ホールド。線形補間しないのは、波形メモリの階段状の質感を
+// そのまま残すためで、WtCore が custom 波形を展開するときと同じ流儀。
+void AudioPlugin2686V::loadWtPlusWaveFile(int slot, const juce::File& file)
+{
+    if (slot < 0 || slot >= Global::WtPlus::slots) return;
+
+    juce::StringArray lines;
+    file.readLines(lines);
+
+    if (lines.size() == 0) return;
+
+    int sampleCount = lines[0].trim().getIntValue();
+
+    if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) return;
+
+    std::vector<float> values(sampleCount, 0.0f);
+
+    if (file.getFileExtension().equalsIgnoreCase(".wt2")) {
+        // .wt2 は 1行目=サンプル数 / 2行目=解像度 / 3行目以降=0〜(解像度-1) の整数。
+        // 中央を 0 として -1.0〜1.0 へ正規化する。
+        int resolution = (lines.size() > 1) ? lines[1].trim().getIntValue() : 0;
+
+        if (resolution != 16 && resolution != 32 && resolution != 64
+            && resolution != 128 && resolution != 256) {
+            return;
+        }
+
+        float center = (float)(resolution >> 1);
+
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 2 < lines.size()) {
+                int raw = std::clamp(lines[i + 2].getIntValue(), 0, resolution - 1);
+
+                values[i] = std::clamp(((float)raw - center) / center, -1.0f, 1.0f);
+            }
+        }
+    }
+    else {
+        // .wt は 1行目=サンプル数 / 2行目以降= -1.0〜1.0 の実数
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 1 < lines.size()) {
+                values[i] = std::clamp(lines[i + 1].getFloatValue(), -1.0f, 1.0f);
+            }
+        }
+    }
+
+    const int resolutionPoints = Global::WtPlus::waveResolution;
+    const int hold = resolutionPoints / sampleCount;
+
+    std::vector<float> expanded(resolutionPoints, 0.0f);
+
+    for (int i = 0; i < resolutionPoints; ++i) {
+        expanded[i] = values[i / hold];
+    }
+
+    // 音源コアはこの配列を直接読むので、差し替えの瞬間だけ処理を止める
+    suspendProcessing(true);
+
+    wtPlusWaves[slot].data = std::move(expanded);
+    wtPlusWaves[slot].sampleCount = sampleCount;
+
+    suspendProcessing(false);
+
+    wtPlusWavePaths[slot] = file.getFullPathName();
+}
+
+void AudioPlugin2686V::unloadWtPlusWaveFile(int slot)
+{
+    if (slot < 0 || slot >= Global::WtPlus::slots) return;
+
+    suspendProcessing(true);
+
+    wtPlusWaves[slot].data.clear();
+    wtPlusWaves[slot].sampleCount = 0;
+
+    suspendProcessing(false);
+
+    wtPlusWavePaths[slot] = juce::String();
+}
+
+// 全ボイスへ波形メモリ配列の参照を渡す。
+// 実体はプロセッサが持ち続けるので、読み込みのたびに配り直す必要はない。
+void AudioPlugin2686V::publishWtPlusWaveSlots()
+{
+    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->setWtPlusWaveSlots(&wtPlusWaves);
+        }
+    }
+}
+
+bool AudioPlugin2686V::isWtPlusWaveLoaded(int slot) const
+{
+    if (slot < 0 || slot >= Global::WtPlus::slots) return false;
+
+    return !wtPlusWaves[slot].data.empty();
 }
 
 void AudioPlugin2686V::resetMidiSettings() {

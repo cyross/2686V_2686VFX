@@ -13,6 +13,7 @@
 #include "../../Processor/Ssg/ProcessorSsg.h"
 #include "../../Processor/Wavetable/ProcessorWt.h"
 #include "../../Processor/Wt2/ProcessorWt2.h"
+#include "../../Processor/WtPlus/ProcessorWtPlus.h"
 #include "../../Processor/Rhythm/ProcessorRhythm.h"
 #include "../../Processor/Adpcm/ProcessorAdpcm.h"
 #include "../../Processor/Beep/ProcessorBeep.h"
@@ -220,6 +221,15 @@ public:
                 isLegato
             );
             break;
+        case OscMode::WTPLUS:
+            voiceUnison(
+                currentParams->wtPlus.unison,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
         case OscMode::RHYTHM:
             voiceUnison(
                 currentParams->rhythm.unison,
@@ -362,6 +372,15 @@ public:
                         true
                     );
                     break;
+                case OscMode::WTPLUS:
+                    voiceUnison(
+                        currentParams->wtPlus.unison,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
                 case OscMode::RHYTHM:
                     voiceUnison(
                         currentParams->rhythm.unison,
@@ -429,6 +448,7 @@ private:
     SsgProcessor prSsg;
     WtProcessor prWt;
     Wt2Processor prWt2;
+    WtPlusProcessor prWtPlus;
     RhythmProcessor prRhythm;
     AdpcmProcessor prAdpcm;
     BeepProcessor prBeep;
@@ -519,6 +539,7 @@ public:
     // ここはファイル名表示のためだけに保持している。
     juce::String wtModWavePath;
     juce::String wt2ModWavePath;
+    juce::String wtPlusModWavePath;
     std::array<juce::String, RhythmPrValue::pads> rhythmFilePaths;
 
     // --- Preset I/O ---
@@ -548,6 +569,17 @@ public:
 
     void loadOpzx7Wt2File(int opIndex, const juce::File& file);
     void unloadOpzx7Wt2File(int opIndex);
+
+    // --- WT+ Wave Memory ---
+    // 実体は WtPlusWaveSlot (Core/Synth/WtPlusWave.h)。
+    // 音源コアはこの配列をポインタで参照するだけで、コピーは持たない。
+    WtPlusWaveSlots wtPlusWaves;
+    std::array<juce::String, Global::WtPlus::slots> wtPlusWavePaths;
+
+    void loadWtPlusWaveFile(int slot, const juce::File& file);
+    void publishWtPlusWaveSlots();
+    void unloadWtPlusWaveFile(int slot);
+    bool isWtPlusWaveLoaded(int slot) const;
 
     // --- Preview(Static) ---
     void generatePreviewWaveform(std::vector<float>* destBuffer);

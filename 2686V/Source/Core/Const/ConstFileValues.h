@@ -23,6 +23,7 @@ namespace Io
 		static inline const juce::String ssgParam = "param.ssg";
 		static inline const juce::String wtParam = "param.wt";
 		static inline const juce::String wt2Param = "param.wt2";
+		static inline const juce::String wtPlusParam = "param.wtplus";
 		static inline const juce::String rhythmParam = "param.rhythm";
 		static inline const juce::String adpcmParam = "param.adpcm";
 		static inline const juce::String beepParam = "param.beep";
@@ -66,6 +67,7 @@ namespace Io
 		static inline const juce::String ssgParam = "*.param.ssg";
 		static inline const juce::String wtParam = "*.param.wt";
 		static inline const juce::String wt2Param = "*.param.wt2";
+		static inline const juce::String wtPlusParam = "*.param.wtplus";
 		static inline const juce::String rhythmParam = "*.param.rhythm";
 		static inline const juce::String adpcmParam = "*.param.adpcm";
 		static inline const juce::String beepParam = "*.param.beep";

@@ -145,6 +145,21 @@ namespace CPV
 			inline constexpr float initial = 0.0f;
 		}
 
+		// 波形テーブルの読み出しを線形補間するかどうか。
+		// OFF にすると実機の波形メモリと同じ階段状の出力になる。
+		namespace Interpolate
+		{
+			inline constexpr bool initial = true;
+		}
+
+		// WT+ が鳴らす波形メモリのスロット番号
+		namespace Slot
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = Global::WtPlus::slots - 1;
+			inline constexpr int initial = 0;
+		}
+
 		inline constexpr int CustomSize32 = 32;
 		inline constexpr int CustomSize64 = 64;
 		inline constexpr int CustomSize128 = 128;

@@ -110,6 +110,8 @@ void Wt2Core::setParameters(const SynthParams& params)
     m_modShape = params.wt2.mod.shape;
     m_modWave = params.wt2.mod.wave;
 
+    m_interpolate = params.wt2.interpolate;
+
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 
     updatePhaseDelta();
@@ -422,8 +424,12 @@ float Wt2Core::getSample()
         float raw1 = m_sourceWave[sourceIdx1];
         float raw2 = m_sourceWave[sourceIdx2];
 
-        // 2つのサンプルの間を滑らかに補間する
-        float rawSample = raw1 * (1.0f - frac) + raw2 * frac;
+        // 2つのサンプルの間を滑らかに補間する。
+        // OFF にすると補間せず手前の値を保持し、実機の波形メモリと同じ
+        // 階段状の出力になる。
+        float rawSample = m_interpolate
+            ? (raw1 * (1.0f - frac) + raw2 * frac)
+            : raw1;
 
         // 量子化(ビットクラッシャー)の前に AM（トレモロ）を適用する
         rawSample *= amMultiplier;

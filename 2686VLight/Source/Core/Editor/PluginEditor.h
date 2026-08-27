@@ -22,6 +22,7 @@
 #include "../../Gui/Rhythm/GuiRhythm.h"
 #include "../../Gui/Adpcm/GuiAdpcm.h"
 #include "../../Gui/Beep/GuiBeep.h"
+#include "../../Gui/WtPlus/GuiWtPlus.h"
 #include "../../Gui/Preset/GuiPreset.h"
 #include "../../Gui/Fx/GuiFx.h"
 #include "../../Gui/Settings/GuiSettings.h"
@@ -200,6 +201,7 @@ private:
     std::unique_ptr<GuiRhythm> rhythmGui; // Rhythm
     std::unique_ptr<GuiAdpcm> adpcmGui; // ADPCM
     std::unique_ptr<GuiBeep> beepGui;
+    std::unique_ptr<GuiWtPlus> wtPlusGui;
     std::unique_ptr<GuiPreset> presetGui;
 
     // 仮想MIDIキーボード用
