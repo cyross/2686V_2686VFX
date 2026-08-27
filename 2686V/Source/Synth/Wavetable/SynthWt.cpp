@@ -117,6 +117,11 @@ void WtCore::setParameters(const SynthParams& params)
     m_modShape = params.wt.mod.shape;
     m_modWave = params.wt.mod.wave;
 
+    if (m_modFdsTable != params.wt.mod.fdsTable) {
+        m_modFdsTable = params.wt.mod.fdsTable;
+        m_modFdsSteps = FdsMod::makeSteps(m_modFdsTable);
+    }
+
     m_interpolate = params.wt.interpolate;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
@@ -386,9 +391,17 @@ float WtCore::getSample()
                 // 実機は変調器の出力 temp(-64〜63) に対して freq * (1 + temp / 64)。
                 // こちらは分周器ではなく周波数そのものを動かす。
                 // Shape 0 が正弦波、1 以降が FdsMod のテーブル番号 0 以降。
-                float modLfoVal = (m_modShape >= 1)
-                    ? FdsMod::value(m_modShape - 1, (float)m_modPhase)
-                    : std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi);
+                float modLfoVal;
+
+                if (m_modShape == (int)WtModShape::FdsUser) {
+                    modLfoVal = FdsMod::valueFromSteps(m_modFdsSteps, (float)m_modPhase);
+                }
+                else if (m_modShape >= 1) {
+                    modLfoVal = FdsMod::value(m_modShape - 1, (float)m_modPhase);
+                }
+                else {
+                    modLfoVal = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi);
+                }
 
                 // 実機も temp = -64 で頭打ちなので、周波数比は負にしない
                 modRatio = std::max(0.0f, 1.0f + modLfoVal * totalModDepth);

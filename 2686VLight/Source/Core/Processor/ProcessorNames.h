@@ -391,6 +391,7 @@ namespace CPN
 		static inline const juce::String speed = " Mod Speed";
 		static inline const juce::String shape = " Mod Shape";
 		static inline const juce::String wave = " Mod Wave ";
+		static inline const juce::String fdsTable = " Mod FDS Table ";
 		static inline const juce::String waveSmooth = " Mod Wave Smooth";
 	}
 

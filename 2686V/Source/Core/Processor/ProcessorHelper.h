@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "../../Generator/Fds/GenFdsModTable.h"
 #include <JuceHeader.h>
 #include <array>
 
@@ -474,6 +475,10 @@ namespace PrHelper {
 
 		for (int i = 0; i < CPV::WtMod::WaveSize::size; ++i) {
 			ptPtrs.wave[i] = apvts.getRawParameterValue(prefix + CPK::WtMod::wave + juce::String(i));
+		}
+
+		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i) {
+			ptPtrs.fdsTable[i] = apvts.getRawParameterValue(prefix + CPK::WtMod::fdsTable + juce::String(i));
 		}
 	}
 
@@ -1070,6 +1075,10 @@ namespace PrHelper {
 
 		for (int i = 0; i < CPV::WtMod::WaveSize::size; ++i) {
 			params.wave[i] = getFloat(ptPtrs.wave[i]);
+		}
+
+		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i) {
+			params.fdsTable[i] = getInt(ptPtrs.fdsTable[i]);
 		}
 	}
 
@@ -3299,6 +3308,17 @@ namespace PrHelper {
 				prefix + CPK::WtMod::wave + juce::String(i),
 				prefixName + CPN::WtMod::wave + juce::String(i),
 				CPV::Wt::CustomValue::min, CPV::Wt::CustomValue::max, CPV::Wt::CustomValue::initial
+			);
+		}
+		// FdsUser モード用の変調テーブル (32 エントリ / 3bit のレジスタ値)。
+		// 初期値は FdsMod の対称三角テーブル。
+		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i)
+		{
+			PrHelper::addInt(
+				layout,
+				prefix + CPK::WtMod::fdsTable + juce::String(i),
+				prefixName + CPN::WtMod::fdsTable + juce::String(i),
+				CPV::WtMod::FdsTable::min, CPV::WtMod::FdsTable::max, FdsMod::tables[0][i]
 			);
 		}
 	}

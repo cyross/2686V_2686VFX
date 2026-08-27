@@ -74,6 +74,9 @@ struct WtModParams {
 
     // HuC6280 モード用の変調波形 (32 サンプル / -1.0〜1.0)
     std::array<float, 32> wave = { 0.0f };
+
+    // FdsUser モード用の変調テーブル (32 エントリ / 実機と同じ 3bit のレジスタ値)
+    std::array<int, 32> fdsTable = { 0 };
 };
 
 // MODULATION の変調方式
@@ -86,6 +89,7 @@ enum class WtModShape {
     WsSweepUp,      // WonderSwan ch3 スイープ (上昇)
     WsSweepDown,    // WonderSwan ch3 スイープ (下降)
     HuC6280Wave,    // PC Engine HuC6280 LFO (波形メモリで分周器を変調)
+    FdsUser,        // FDS(2C33) 32ステップ : ユーザーが編集したテーブル
     Size
 };
 

@@ -112,4 +112,15 @@ namespace FdsMod
 
 		return steps[tableIndex][index];
 	}
+
+	// 積算済みの階段波と位相から変調値を引く。
+	// ユーザーが編集したテーブルは makeSteps() で積算してから渡す。
+	inline float valueFromSteps(const std::array<float, tableSize>& table, float phase) noexcept
+	{
+		int index = (int)(phase * (float)tableSize);
+
+		index &= (tableSize - 1); // 0〜31 に丸める
+
+		return table[index];
+	}
 }

@@ -87,6 +87,11 @@ private:
     float m_modSpeed = 1.0f;
     int m_modShape = 0; // WtModShape を参照
     std::array<float, 32> m_modWave = { 0.0f }; // HuC6280 モード用の変調波形
+
+    // FdsUser モード用。レジスタ値のテーブルと、それを積算した階段波。
+    // 積算はテーブルが変わったときだけ行う。
+    std::array<int, 32> m_modFdsTable = { 0 };
+    std::array<float, 32> m_modFdsSteps = { 0.0f };
     float m_modPhase = 0.0f;
 
     float m_phase = 0.0f;

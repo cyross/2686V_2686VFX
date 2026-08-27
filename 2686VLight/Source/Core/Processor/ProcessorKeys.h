@@ -402,6 +402,7 @@ namespace CPK
 		static inline const juce::String speed = "_MOD_SPEED";
 		static inline const juce::String shape = "_MOD_SHAPE";
 		static inline const juce::String wave = "_MOD_WAVE_";
+		static inline const juce::String fdsTable = "_MOD_FDS_";
 		static inline const juce::String waveSmooth = "_MOD_WAVE_SMOOTH";
 	};
 

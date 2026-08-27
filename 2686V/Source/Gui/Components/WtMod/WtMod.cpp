@@ -7,6 +7,9 @@
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
 #include "../../../Core/Const/ConstFileValues.h"
+#include "../../../Core/Gui/GuiColor.h"
+#include "../../../Core/Gui/GuiValues.h"
+#include "../../../Core/Synth/CommonParams.h"
 
 static std::vector<SelectItem> wtModShapeItems = {
     {.name = "0: Sine",            .value = 1 },
@@ -17,7 +20,221 @@ static std::vector<SelectItem> wtModShapeItems = {
     {.name = "5: WS Sweep Up",     .value = 6 },
     {.name = "6: WS Sweep Down",   .value = 7 },
     {.name = "7: HuC6280 Wave",    .value = 8 },
+    {.name = "8: FDS Table",       .value = 9 },
 };
+
+namespace WtModGuiValue
+{
+	// エディタの高さ。上段が増減値、下段が積算後の階段波。
+	namespace Editor
+	{
+		static inline constexpr int height = 96;
+	}
+}
+
+static const juce::String fdsPresetNames[FdsMod::tableCount] = { "Tri", "Saw", "Rst", "Pls" };
+
+// ==========================================================
+// FdsTableEditor
+// ==========================================================
+// 3bit のレジスタ値を、増減量の小さい順に並べたときの位置へ写す表。
+// 4 (リセット) は増減量の軸に乗らないのでここには入れない。
+static constexpr int fdsLevelToEntry[7] = { 5, 6, 7, 0, 1, 2, 3 };  // -4,-2,-1,0,+1,+2,+4
+static constexpr int fdsEntryToLevel[8] = { 3, 4, 5, 6, -1, 0, 1, 2 };
+
+FdsTableEditor::~FdsTableEditor()
+{
+    for (const auto& id : m_paramIds) {
+        ctx.audioProcessor.apvts.removeParameterListener(id, this);
+    }
+}
+
+void FdsTableEditor::setup(juce::Component& parent, const juce::String& idPrefix)
+{
+    parent.addAndMakeVisible(this);
+
+    for (int i = 0; i < 32; ++i)
+    {
+        juce::String paramId = idPrefix + juce::String(i);
+
+        m_params[i] = ctx.audioProcessor.apvts.getParameter(paramId);
+
+        if (m_params[i] != nullptr) {
+            m_paramIds.add(paramId);
+            ctx.audioProcessor.apvts.addParameterListener(paramId, this);
+        }
+    }
+}
+
+void FdsTableEditor::parameterChanged(const juce::String&, float)
+{
+    juce::MessageManager::callAsync([this] { repaint(); });
+}
+
+void FdsTableEditor::setEditorEnabled(bool shouldBeEnabled)
+{
+    isEnabledState = shouldBeEnabled;
+    repaint();
+}
+
+std::array<int, 32> FdsTableEditor::currentTable() const
+{
+    std::array<int, 32> table = { 0 };
+
+    for (int i = 0; i < 32; ++i) {
+        if (m_params[i] != nullptr) {
+            table[i] = (int)std::round(m_params[i]->convertFrom0to1(m_params[i]->getValue()));
+        }
+    }
+
+    return table;
+}
+
+void FdsTableEditor::loadTable(const std::array<int, 32>& table)
+{
+    ctx.audioProcessor.undoManager.beginNewTransaction();
+
+    for (int i = 0; i < 32; ++i) {
+        if (m_params[i] != nullptr) {
+            m_params[i]->setValueNotifyingHost(m_params[i]->convertTo0to1((float)table[i]));
+        }
+    }
+
+    repaint();
+}
+
+void FdsTableEditor::applyMouse(const juce::MouseEvent& e)
+{
+    if (!isEnabledState) return;
+
+    float stepWidth = (float)getWidth() / 32.0f;
+    int index = std::clamp((int)(e.position.x / stepWidth), 0, 31);
+
+    if (m_params[index] == nullptr) return;
+
+    int entry;
+
+    if (e.mods.isRightButtonDown()) {
+        // 右クリックはリセットエントリの ON/OFF
+        int current = (int)std::round(m_params[index]->convertFrom0to1(m_params[index]->getValue()));
+        entry = (current == 4) ? 0 : 4;
+    }
+    else {
+        // 増減量の段は 7 段。上が +4、下が -4。
+        int barHeight = getHeight() / 2;
+        float t = 1.0f - (e.position.y / (float)barHeight);
+        int level = std::clamp((int)std::round(t * 6.0f), 0, 6);
+        entry = fdsLevelToEntry[level];
+    }
+
+    m_params[index]->setValueNotifyingHost(m_params[index]->convertTo0to1((float)entry));
+}
+
+void FdsTableEditor::paint(juce::Graphics& g)
+{
+    auto table = currentTable();
+
+    int barHeight = getHeight() / 2;
+    float stepWidth = (float)getWidth() / 32.0f;
+
+    juce::Colour track = GuiColor::WaveformContainer::Track;
+    juce::Colour thumb = GuiColor::WaveformContainer::Thumb;
+
+    if (!isEnabledState) {
+        track = track.withAlpha(0.2f);
+        thumb = thumb.withAlpha(0.3f);
+    }
+
+    // ---------------- 上段 : 増減値 ----------------
+    float zeroY = (float)barHeight * 0.5f;
+
+    g.setColour(track);
+    g.drawHorizontalLine((int)zeroY, 0.0f, (float)getWidth());
+
+    for (int i = 0; i < 32; ++i)
+    {
+        float x = i * stepWidth;
+        auto cell = juce::Rectangle<float>(x, 0.0f, stepWidth - 1.0f, (float)barHeight);
+
+        if (i == hoveredIndex) {
+            g.setColour(track.withAlpha(0.15f));
+            g.fillRect(cell);
+        }
+
+        if (table[i] == 4) {
+            // リセットは高さを持たないので、縦棒 1 本で区切りとして描く
+            g.setColour(GuiColor::WaveformContainer::ResetBtn::To1);
+            g.fillRect(x, 0.0f, stepWidth - 1.0f, (float)barHeight);
+            continue;
+        }
+
+        int level = fdsEntryToLevel[table[i]];
+        if (level < 0) continue;
+
+        // level 3 が増減 0。そこから上下に伸ばす。
+        float t = ((float)level - 3.0f) / 3.0f;
+        float y = zeroY - t * zeroY;
+
+        g.setColour(thumb);
+        g.fillRect(juce::Rectangle<float>(x, std::min(y, zeroY), stepWidth - 1.0f,
+                                          std::max(std::fabs(zeroY - y), 1.0f)));
+    }
+
+    // ---------------- 下段 : 積算後の階段波 ----------------
+    auto steps = FdsMod::makeSteps(table);
+
+    float baseY = (float)barHeight;
+    float centerY = baseY + (float)barHeight * 0.5f;
+
+    g.setColour(track);
+    g.drawHorizontalLine((int)centerY, 0.0f, (float)getWidth());
+
+    g.setColour(thumb.withAlpha(isEnabledState ? 0.8f : 0.3f));
+
+    for (int i = 0; i < 32; ++i)
+    {
+        float x = i * stepWidth;
+        float y = centerY - steps[i] * ((float)barHeight * 0.45f);
+
+        g.fillRect(x, y - 1.0f, stepWidth - 1.0f, 2.0f);
+    }
+}
+
+void FdsTableEditor::mouseDown(const juce::MouseEvent& e)
+{
+    ctx.audioProcessor.undoManager.beginNewTransaction();
+
+    applyMouse(e);
+
+    hoveredIndex = std::clamp((int)(e.position.x / ((float)getWidth() / 32.0f)), 0, 31);
+
+    repaint();
+}
+
+void FdsTableEditor::mouseDrag(const juce::MouseEvent& e)
+{
+    applyMouse(e);
+
+    hoveredIndex = std::clamp((int)(e.position.x / ((float)getWidth() / 32.0f)), 0, 31);
+
+    repaint();
+}
+
+void FdsTableEditor::mouseMove(const juce::MouseEvent& e)
+{
+    int index = std::clamp((int)(e.position.x / ((float)getWidth() / 32.0f)), 0, 31);
+
+    if (index != hoveredIndex) {
+        hoveredIndex = index;
+        repaint();
+    }
+}
+
+void FdsTableEditor::mouseExit(const juce::MouseEvent&)
+{
+    hoveredIndex = -1;
+    repaint();
+}
 
 void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, juce::String& wavePath)
 {
@@ -69,6 +286,18 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     for (int i = 0; i < 32; ++i) {
         waveParams[i] = ctx.audioProcessor.apvts.getParameter(code + CPK::WtMod::wave + juce::String(i));
     }
+    fdsCat.setupSwCategory({ .parent = parent, .title = juce::String("") + "[■]--- FDS TABLE ---", .invisibleTitle = juce::String("") + "[□]--- FDS TABLE ---", .enableChangeDetailVisible = true });
+
+    fdsEditor.setup(parent, code + CPK::WtMod::fdsTable);
+
+    // 作り置きのテーブルを流し込むボタン
+    for (int i = 0; i < FdsMod::tableCount; ++i)
+    {
+        fdsPresetBtn[i].setup({ .parent = parent, .title = fdsPresetNames[i], .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+        fdsPresetBtn[i].setWantsKeyboardFocus(true);
+        fdsPresetBtn[i].setExplicitFocusOrder(++tabOrder);
+        fdsPresetBtn[i].onClick = [this, i] { fdsEditor.loadTable(FdsMod::tables[i]); };
+    }
 }
 
 void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
@@ -107,6 +336,42 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     waveClearBtn.setEnabled(isMod);
     waveFileNameLabel.setEnabled(isMod);
     waveSmoothBtn.setEnabled(isMod);
+    // ---------------- FDS TABLE ----------------
+    // MODULATION の中の小見出しなので、親を畳んだらこちらも隠す。
+    fdsCat.setVisible(visible);
+
+    if (visible) {
+        layoutMainCategory({ .mainRect = rect, .label = &fdsCat });
+    }
+
+    bool fdsVisible = visible && fdsCat.isDetailVisible();
+
+    fdsEditor.setVisible(fdsVisible);
+    for (auto& btn : fdsPresetBtn) btn.setVisible(fdsVisible);
+
+    if (fdsVisible)
+    {
+        // プリセット 4 つを 1 行に並べる
+        auto btnRow = rect.removeFromTop(CoreGuiValue::MainGroup::Row::height);
+        rect.removeFromTop(CoreGuiValue::MainGroup::Row::paddingTop);
+
+        int btnWidth = (btnRow.getWidth() - 3 * 4) / 4;
+
+        for (int i = 0; i < FdsMod::tableCount; ++i)
+        {
+            fdsPresetBtn[i].setBounds(btnRow.removeFromLeft(btnWidth));
+            btnRow.removeFromLeft(4);
+        }
+
+        fdsEditor.setBounds(rect.removeFromTop(WtModGuiValue::Editor::height));
+        rect.removeFromTop(CoreGuiValue::MainGroup::Row::paddingTop);
+    }
+
+    // 編集できるのは FdsUser を選んでいるときだけ
+    bool isFdsUser = isMod && (shapeSelector.getSelectedItemIndex() == (int)WtModShape::FdsUser);
+
+    fdsEditor.setEditorEnabled(isFdsUser);
+    for (auto& btn : fdsPresetBtn) btn.setEnabled(isFdsUser);
 }
 
 void GuiComponentWtMod::importWave(bool isWt2)
