@@ -98,7 +98,7 @@ public:
 	bool isIdle() const { return m_state == State::Idle; }
 	bool isRelease() const { return m_state == State::Release; }
 	void setParameters(const Opzx7AdddrParams& params);
-	float noteOn(float velocity);
+	float noteOn(float velocity, int noteNumber);
 	void noteOff();
 	void updateIncrements(int noteNumber);
 	float updateEnvelopeState(float currentLevel);

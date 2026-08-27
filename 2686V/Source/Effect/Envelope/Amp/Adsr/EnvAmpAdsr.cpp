@@ -11,7 +11,7 @@ void AmpAdsrEnv::prepare(double sampleRate) {
 
 void AmpAdsrEnv::updateTargetSampleRate(double newSampleRate)
 {
-    this->sampleRate = sampleRate;
+    this->sampleRate = newSampleRate;
     this->updateIncrements();
 }
 

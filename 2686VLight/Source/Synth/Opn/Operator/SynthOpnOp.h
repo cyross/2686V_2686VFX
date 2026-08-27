@@ -53,7 +53,7 @@ public:
 	void setUnisonPhaseOffset(float offset) { m_unisonPhaseOffset = offset; }
 	void setMonoMode(bool isMono) { m_isMonoMode = isMono; }
 private:
-	float maxAmDepthDb = 11.8f;
+	float maxAmDepthDb = Global::Lfo::maxAmDepthDb;
 	float m_ams = 1.0f;
 	OpnDetune m_detune;
 	FixMode m_fixMode;

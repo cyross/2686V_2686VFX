@@ -53,4 +53,14 @@ namespace Global
 		static inline constexpr float reg = 5.0f; // レジスタレートの最長=5秒
 		static inline constexpr float real = 10.0f; // 実数レートの最長=10秒
 	}
+
+	namespace Lfo {
+		// AM(トレモロ)の最大減衰量[dB]。全音源で共通の上限値。
+		//
+		// 実機の AMS テーブルは OPM で最大 95.6dB、OPZ 系でも 96dB 相当まで下がるが、
+		// そこまで落とすと LFO の谷で完全に無音になり、音が途切れてプチノイズの
+		// 原因になる。そのため実機 OPNA の AMS 最大値 23.9dB を切り上げた 24dB を
+		// 全音源共通の上限とし、AMS の段数比だけを各チップ固有のカーブとして残す。
+		static inline constexpr float maxAmDepthDb = 24.0f;
+	}
 };

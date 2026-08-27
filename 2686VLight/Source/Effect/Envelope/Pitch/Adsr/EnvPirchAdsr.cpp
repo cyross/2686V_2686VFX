@@ -17,7 +17,7 @@ void PitchAdsrEnv::updateSampleRate(double newSampleRate) {
 
 void PitchAdsrEnv::updateTargetSampleRate(double newSampleRate)
 {
-    this->sampleRate = sampleRate;
+    this->sampleRate = newSampleRate;
     this->updateIncrements();
 }
 
@@ -71,6 +71,12 @@ float PitchAdsrEnv::process(float phaseDelta) {
 
     switch (this->state) {
     case State::Idle:
+        // リリースを走り終えた後も、最後に到達したピッチ(rll)を保持する。
+        // ここで phaseDelta を素通しすると 0 セントへ飛んでしまう。
+        if (this->currentCents != 0.0f) {
+            phaseDelta *= std::pow(2.0f, this->currentCents / 1200.0f);
+        }
+
         return phaseDelta;
     case State::Attack:
         this->phaseProgress += this->attackDelta;

@@ -5,7 +5,6 @@
 #include "./KSOpzParams.h"
 
 class KSOpz {
-	static const std::array<float, 8> m_dbPerOcts; // KSLの減衰カーブ定義
 
 	std::array<int, 128> keyRates;
 	std::array<float, 128> octaveDiffs;

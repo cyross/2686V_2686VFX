@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "../../Core/Synth/SynthCore.h"
+#include "../../Generator/Fds/GenFdsModTable.h"
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
@@ -83,6 +84,8 @@ private:
     bool m_modEnable = false;
     float m_modDepth = 0.0f;
     float m_modSpeed = 1.0f;
+    int m_modShape = 0; // WtModShape を参照
+    std::array<float, 32> m_modWave = { 0.0f }; // HuC6280 モード用の変調波形
     float m_modPhase = 0.0f;
 
     float m_phase = 0.0f;

@@ -66,7 +66,7 @@ public:
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }
 	void setParameters(const FmRgAdddrParams& params);
-	float noteOn(float velocity);
+	float noteOn(float velocity, int noteNumber);
 	void noteOff();
 	void updateIncrementsWithKeyScale(int noteNumber);
 	float updateEnvelopeState(float currentLevel);

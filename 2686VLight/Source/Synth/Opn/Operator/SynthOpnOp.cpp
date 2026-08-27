@@ -82,7 +82,7 @@ void OpnOperator::noteOn(float frequency, float velocity, int noteNumber, bool i
 
     if (!isLegato) {
         if (!m_ampAdsr.isBypass()) {
-            m_targetLevel = m_ampAdsr.noteOn(velocity);
+            m_targetLevel = m_ampAdsr.noteOn(velocity, noteNumber);
         }
         else {
             m_targetLevel = velocity;
@@ -225,7 +225,7 @@ void OpnOperator::getSample(float& output, float modulator, float feedbackModula
         float unipolarLfo = (n88Lfo.signDb > 0.0f) ? n88Lfo.value.am : (1.0f - n88Lfo.value.am);
 
         // ==========================================================
-        // 最大減衰量を実機準拠の「11.8dB」に変更
+        // 最大減衰量は全音源共通の Global::Lfo::maxAmDepthDb を使う
         // (95.25dBだと音が完全に途切れてしまい、ブツブツ音の直接の原因になります)
         // ==========================================================
         float attenuationDb = unipolarLfo * (n88Lfo.depthDb * this->m_ams) * maxAmDepthDb;

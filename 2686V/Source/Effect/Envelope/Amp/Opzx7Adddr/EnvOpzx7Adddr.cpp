@@ -173,7 +173,12 @@ float Opzx7Adddr::calcLevelScalingDb() const
     return 0.0f;
 }
 
-float Opzx7Adddr::noteOn(float velocity) {
+float Opzx7Adddr::noteOn(float velocity, int noteNumber) {
+    // KSL はノートナンバーに依存するため、ここで先に確定させる。
+    // (オペレータは noteOn() を updateIncrements() より先に呼ぶので、
+    //  ここで受け取らないと 1音前のノートナンバーで KSL を計算してしまう)
+    m_noteNumber = noteNumber;
+
     this->m_phaseProgress = 0.0f;
 
     if (this->m_bypass) {
@@ -184,25 +189,40 @@ float Opzx7Adddr::noteOn(float velocity) {
 
     float attenuationDb = 0.0f;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
-        // TLレジスタ値から直接減衰量(dB)を計算
+    if (this->m_rgEnable) {
+        // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
         // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-        attenuationDb = (m_rgEnable ? m_rg.tl : m_real.tl) * 0.75f;
+        float tlReg = (this->m_curveCore == nullptr || this->m_curveCore->index == 0)
+            ? (float)this->m_rg.tl
+            : this->m_totalLevel * 63.0f;
+
+        attenuationDb = tlReg * 0.75f;
     }
     else {
-        // TLレジスタ値から直接減衰量(dB)を計算
-        // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-        attenuationDb = (this->m_totalLevel * 63.0f) * 0.75f;
+        // 従来モード: TL はレジスタ値ではなく 0.0〜1.0 の「レベル」(1.0 = 減衰なし)。
+        // 0.75dB/step を掛けるとほとんど効かないうえ向きも逆になるため、
+        // レベルをそのまま dB 減衰へ変換する。
+        float level = std::clamp(this->m_real.tl, 0.0f, 1.0f);
+
+        if (level <= 0.0f) {
+            return 0.0f; // レベル0は無音
+        }
+
+        attenuationDb = -20.0f * std::log10(level);
     }
 
-    float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
     float kslDb = calcLevelScalingDb();
 
-    // マイナス値(+LIN, +EXP等による増幅)でも、最終ゲインが1.0を超えないようサチュレーションさせる
-    float totalDb = std::max(0.0f, attenuationDb + kslDb);
+    // マイナス値(+LIN, +EXP等による増幅)でも、最終ゲインが1.0を超えないようサチュレーションさせる。
+    // TL はこの totalDb に一度だけ含める。tlGain を別に掛けると TL が二重に効いてしまう。
+    //
+    // 実機のレベルスケーリングは TL(出力レベルレジスタ)から引く形で働くので、
+    // TL レジスタの全域 (tlMax × 0.75dB) より深くは減衰しない。同じ上限で頭打ちにする。
+    float maxAttenDb = (this->m_rgMax.tl > 0) ? ((float)this->m_rgMax.tl * 0.75f) : 47.25f;
+    float totalDb = std::clamp(attenuationDb + kslDb, 0.0f, maxAttenDb);
     float finalGain = std::pow(10.0f, -totalDb / 20.0f);
 
-    return velocity * tlGain * finalGain;
+    return velocity * finalGain;
 }
 
 void Opzx7Adddr::noteOff() {

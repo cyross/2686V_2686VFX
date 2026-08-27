@@ -105,7 +105,7 @@ public:
 	bool isRelease() const { return m_state == State::Release; }
 	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void setParameters(const Opzx7AdddrParams& params);
-	float noteOn(float velocity);
+	float noteOn(float velocity, int noteNumber);
 	void noteOff();
 	void updateIncrements(int noteNumber);
 	float updateEnvelopeState(float currentLevel);

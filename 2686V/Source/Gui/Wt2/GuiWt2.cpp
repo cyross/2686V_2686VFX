@@ -44,6 +44,18 @@ static std::vector<SelectItem> wtRsItems = {
     {.name = "5: 256",  .value = 5 },
 };
 
+// MODULATION の変調波形。実機ディスクシステムは 32 段の階段状。
+static std::vector<SelectItem> wtModShapeItems = {
+    {.name = "0: Sine",            .value = 1 },
+    {.name = "1: FDS Triangle",    .value = 2 },
+    {.name = "2: FDS Saw",         .value = 3 },
+    {.name = "3: FDS Reset",       .value = 4 },
+    {.name = "4: FDS Pulse",       .value = 5 },
+    {.name = "5: WS Sweep Up",     .value = 6 },
+    {.name = "6: WS Sweep Down",   .value = 7 },
+    {.name = "7: HuC6280 Wave",    .value = 8 },
+};
+
 static std::vector<SelectItem> lfoPmShapeItems = {
     {.name = "0: Sine",                .value = 1 },
     {.name = "1: Saw Up",              .value = 2 },
@@ -451,6 +463,39 @@ void GuiWt2::setup()
     modSpeedSlider.setWantsKeyboardFocus(true);
     modSpeedSlider.setExplicitFocusOrder(++tabOrder);
 
+    modShapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::shape, .title = Wt2GuiText::Wt::Mod::shape, .items = wtModShapeItems, .isReset = true, .isResized = true });
+    modShapeSelector.setWantsKeyboardFocus(true);
+    modShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    modWaveWtBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::Mod::waveWt, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = true });
+    modWaveWtBtn.setWantsKeyboardFocus(true);
+    modWaveWtBtn.setExplicitFocusOrder(++tabOrder);
+    modWaveWtBtn.onClick = [this] { importModWave(false); };
+
+    modWaveWt2Btn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::Mod::waveWt2, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = true });
+    modWaveWt2Btn.setWantsKeyboardFocus(true);
+    modWaveWt2Btn.setExplicitFocusOrder(++tabOrder);
+    modWaveWt2Btn.onClick = [this] { importModWave(true); };
+
+    modWaveClearBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::Mod::waveClear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
+    modWaveClearBtn.setWantsKeyboardFocus(true);
+    modWaveClearBtn.setExplicitFocusOrder(++tabOrder);
+    modWaveClearBtn.onClick = [this] { clearModWave(); };
+
+    modWaveFileNameLabel.setup({ .parent = mainGroup.contentCanvas, .title = Io::empty });
+    if (ctx.audioProcessor.wt2ModWavePath.isNotEmpty()) {
+        updateModWaveFileName(juce::File(ctx.audioProcessor.wt2ModWavePath).getFileName());
+    }
+
+    modWaveSmoothBtn.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::waveSmooth, .title = Wt2GuiText::Wt::Mod::waveSmooth, .isReset = true, .isResized = true });
+    modWaveSmoothBtn.setWantsKeyboardFocus(true);
+    modWaveSmoothBtn.setExplicitFocusOrder(++tabOrder);
+
+    // HuC6280 モードの変調波形パラメータを引けるようにしておく
+    for (int i = 0; i < 32; ++i) {
+        modWaveParams[i] = ctx.audioProcessor.apvts.getParameter(code + CPK::WtMod::wave + juce::String(i));
+    }
+
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::pitchAdsr + CPK::bypass, Wt2GuiText::PitchAdsr::bypass);
@@ -635,6 +680,12 @@ void GuiWt2::layout(juce::Rectangle<int> content)
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabledWithLabel(isMod);
     modSpeedSlider.setEnabledWithLabel(isMod);
+    modShapeSelector.setEnabledWithLabel(isMod);
+    modWaveWtBtn.setEnabled(isMod);
+    modWaveWt2Btn.setEnabled(isMod);
+    modWaveClearBtn.setEnabled(isMod);
+    modWaveFileNameLabel.setEnabled(isMod);
+    modWaveSmoothBtn.setEnabled(isMod);
 
     // 波形がカスタム以外の時は波形精度選択を Disabled に
     bool isCustomWave = (waveSelector.getSelectedId() == 9);
@@ -734,6 +785,157 @@ void GuiWt2::updatePresetName(const juce::String& name)
 // ==============================================================================
 // Import / Export Logic
 // ==============================================================================
+// ==============================================================================
+// HuC6280 モード用の変調波形の読み込み
+// ==============================================================================
+// 実機の LFO は「もう 1 本のチャンネルの波形メモリ(32 サンプル)」を変調源にする。
+// このプラグインには相手チャンネルが無いので、波形メモリファイルを直接読み込んで
+// 変調源として使う。実機に合わせて 32 サンプルへ落とす。
+//
+// 波形データそのものは 32 個のパラメータ側に入るためプリセットは自己完結する。
+// プロセッサ側に持たせているパスは、ファイル名を表示するためだけのもの。
+void GuiWt2::importModWave(bool isWt2)
+{
+    juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    ctx.editor.openFileChooser(
+        isWt2 ? "Load Mod Wave (.wt2)" : "Load Mod Wave (.wt)",
+        defaultDir,
+        isWt2 ? "*.wt2" : "*.wt",
+        [this, isWt2](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (!file.existsAsFile()) return;
+
+            updateModWaveFileName("Loading...");
+
+            juce::Timer::callAfterDelay(50, [this, isWt2, file]()
+                {
+                    if (!applyModWaveFile(file, isWt2)) {
+                        updateModWaveFileName(Io::empty);
+                        return;
+                    }
+
+                    updateModWaveFileName(file.getFileName());
+                    ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                    ctx.audioProcessor.wt2ModWavePath = file.getFullPathName();
+                });
+        }
+    );
+}
+
+// 読み込んだ波形メモリファイルを 32 サンプルへ落として反映する
+bool GuiWt2::applyModWaveFile(const juce::File& file, bool isWt2)
+{
+    juce::StringArray lines;
+    file.readLines(lines);
+
+    if (lines.size() == 0) return false;
+
+    int sampleCount = lines[0].trim().getIntValue();
+
+    if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) {
+        juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+            "Invalid WT File", "Sample count must be 32, 64, 128, or 256.");
+        return false;
+    }
+
+    std::vector<float> values(sampleCount, 0.0f);
+
+    if (isWt2) {
+        int resNumber = (lines.size() > 1) ? lines[1].trim().getIntValue() : 0;
+
+        if (resNumber != 16 && resNumber != 32 && resNumber != 64 && resNumber != 128 && resNumber != 256) {
+            juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+                "Invalid WT File", "Resolution must be 16, 32, 64, 128, or 256.");
+            return false;
+        }
+
+        // .wt2 は 3 行目以降が 0〜(解像度-1) の整数。中央を 0 として -1.0〜1.0 に正規化する。
+        float center = (float)(resNumber >> 1);
+
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 2 < lines.size()) {
+                int raw = std::clamp(lines[i + 2].getIntValue(), 0, resNumber - 1);
+                values[i] = std::clamp(((float)raw - center) / center, -1.0f, 1.0f);
+            }
+        }
+    }
+    else {
+        // .wt は 2 行目以降が -1.0〜1.0 の実数
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 1 < lines.size()) {
+                values[i] = std::clamp(lines[i + 1].getFloatValue(), -1.0f, 1.0f);
+            }
+        }
+    }
+
+    // 実機の波形メモリは 32 サンプルなので、そこへ落とす。
+    //   Smooth ON  : 区間平均してから元のピークへ正規化する。
+    //                32 点のナイキスト(16 次)より上の成分が低い次数へ
+    //                フルの振幅で折り返すのを抑えつつ、変調の振れ幅は保つ。
+    //   Smooth OFF : 単純間引き。元波形の値をそのまま拾う。
+    const int step = sampleCount / 32;
+    std::array<float, 32> reduced = { 0.0f };
+
+    if (modWaveSmoothBtn.getToggleState() && step > 1) {
+        float srcPeak = 0.0f;
+        for (int i = 0; i < sampleCount; ++i) {
+            srcPeak = std::max(srcPeak, std::fabs(values[i]));
+        }
+
+        float dstPeak = 0.0f;
+        for (int i = 0; i < 32; ++i) {
+            float sum = 0.0f;
+            for (int k = 0; k < step; ++k) sum += values[i * step + k];
+
+            reduced[i] = sum / (float)step;
+            dstPeak = std::max(dstPeak, std::fabs(reduced[i]));
+        }
+
+        // 平均でなまったぶんのピークを戻す (無音の波形はそのまま)
+        if (srcPeak > 1.0e-6f && dstPeak > 1.0e-6f) {
+            float gain = srcPeak / dstPeak;
+
+            for (int i = 0; i < 32; ++i) {
+                reduced[i] = std::clamp(reduced[i] * gain, -1.0f, 1.0f);
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < 32; ++i) reduced[i] = values[i * step];
+    }
+
+    for (int i = 0; i < 32; ++i) {
+        if (modWaveParams[i] != nullptr) {
+            modWaveParams[i]->setValueNotifyingHost(modWaveParams[i]->convertTo0to1(reduced[i]));
+        }
+    }
+
+    return true;
+}
+
+// 変調波形をゼロクリアする (OPZX7S の Clear と同じ扱い)
+void GuiWt2::clearModWave()
+{
+    for (int i = 0; i < 32; ++i) {
+        if (modWaveParams[i] != nullptr) {
+            modWaveParams[i]->setValueNotifyingHost(modWaveParams[i]->convertTo0to1(0.0f));
+        }
+    }
+
+    ctx.audioProcessor.wt2ModWavePath = juce::String();
+
+    updateModWaveFileName(Io::empty);
+}
+
+void GuiWt2::updateModWaveFileName(const juce::String& fileName)
+{
+    modWaveFileNameLabel.setText(fileName, juce::dontSendNotification);
+}
+
 void GuiWt2::importWavetable()
 {
     juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
@@ -781,9 +983,10 @@ void GuiWt2::importWavetable()
                 std::vector<int> values(sampleCount, resCenter);
 
                 // 3行目以降の値を読み込み、0 ~ Resolution-1 にクランプして格納
+                // 書き出しは「サンプル数 / 解像度 / 値...」の順なので、値は lines[2] から。
                 for (int i = 0; i < sampleCount; ++i) {
-                    if (i + 1 < lines.size()) {
-                        int val = lines[i + 1].getIntValue();
+                    if (i + 2 < lines.size()) {
+                        int val = lines[i + 2].getIntValue();
 
                         values[i] = std::clamp(val, 0, resolution - 1);
                     }
@@ -902,12 +1105,21 @@ void GuiWt2::layoutModulationCat(juce::Rectangle<int>& rect)
     modEnableButton.setVisible(visible);
     modDepthSlider.setVisibleWithLabel(visible);
     modSpeedSlider.setVisibleWithLabel(visible);
+    modShapeSelector.setVisibleWithLabel(visible);
+    modWaveWtBtn.setVisible(visible);
+    modWaveWt2Btn.setVisible(visible);
+    modWaveClearBtn.setVisible(visible);
+    modWaveFileNameLabel.setVisible(visible);
+    modWaveSmoothBtn.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &modEnableButton });
         layoutMain({ .mainRect = rect, .label = &modDepthSlider.label, .component = &modDepthSlider });
         layoutMain({ .mainRect = rect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, });
+        layoutMain({ .mainRect = rect, .label = &modShapeSelector.label, .component = &modShapeSelector, });
+        layoutMainWtFiles({ .rect = rect, .loadWtBtn = &modWaveWtBtn, .loadWt2Btn = &modWaveWt2Btn, .fileNameLabel = &modWaveFileNameLabel, .clearBtn = &modWaveClearBtn });
+        layoutMain({ .mainRect = rect, .component = &modWaveSmoothBtn });
     }
 }
 
@@ -1214,6 +1426,13 @@ void GuiWt2::importChParam() {
                     else if (sampleCount == 128) customSliders128.setValues(customValues);
                     else if (sampleCount == 256) customSliders256.setValues(customValues);
                 }
+
+                // Modulation Shape は後から追加したパラメータなので、
+                // 旧フォーマットのファイルと互換を保つためファイル末尾に置いてある。
+                // 行が無ければ既定(正弦波)のままにする。
+                if (index < lines.size()) {
+                    modShapeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                }
             }
         });
 
@@ -1278,6 +1497,9 @@ void GuiWt2::exportChParam() {
                         content += juce::String(val) + "\n";
                     }
                 }
+
+                // Modulation Shape (旧フォーマットと互換を保つため末尾に置く)
+                content += juce::String(modShapeSelector.getSelectedItemIndex()) + "\n";
 
                 file.replaceWithText(content);
             }

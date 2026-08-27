@@ -2,11 +2,15 @@
 #include <algorithm>
 
 #include "./LfoOpm.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 OpmLfoCore::OpmLfoCore() {
 }
 
-const std::array<float, 4> OpmLfoCore::amsDepths = { 0.0f, 0.93622f, 0.99593f, 0.99998f };
+// AMS 段数ごとの深さ (Global::Lfo::maxAmDepthDb に対する割合)。
+// 実機 OPM の AMS は 0 / 23.9 / 47.8 / 95.6dB と 1段ごとに倍になるので、
+// その段数比だけを残し、上限は全音源共通の maxAmDepthDb に合わせる。
+const std::array<float, 4> OpmLfoCore::amsDepths = { 0.0f, 0.25f, 0.5f, 1.0f };
 
 // (2^(Cent/1200) - 1.0)
 // 0: 0cent / 1: ±5cent / 2: ±10cent / 3: ±20cent / 4: ±50cent / 5: ±100cent / 6: ±400cent / 7: ±700cent
@@ -41,18 +45,18 @@ void OpmLfoCore::setParameters(const LfoOpmParams& params)
     this->m_pmWaveIndex = std::clamp(params.pgIndex, 0, 7);
     this->m_isOneshotPm = this->m_pmWaveIndex == 6 || this->m_pmWaveIndex == 7;
 
-    this->m_pmsIndex = std::clamp(params.pmsIndex, 0, 3);
+    this->m_pmsIndex = std::clamp(params.pmsIndex, 0, (int)pmsDepths.size() - 1);
     this->pms = pmsDepths[this->m_pmsIndex];
-    this->pmd = (float)pmd;
+    this->pmd = (float)params.pmd;
 
     this->amEnable = params.am;
     this->m_amFreq = params.amFreq;
     this->m_amWaveIndex = std::clamp(params.egIndex, 0, 7);
     this->m_isOneshotAm = this->m_amWaveIndex == 6 || this->m_amWaveIndex == 7;
 
-    this->m_amsIndex = std::clamp(params.amsIndex, 0, 7);
+    this->m_amsIndex = std::clamp(params.amsIndex, 0, (int)amsDepths.size() - 1);
     this->ams = amsDepths[this->m_amsIndex];
-    this->amd = (float)amd;
+    this->amd = (float)params.amd;
 
     this->depthDb = (this->amd >= 0.0f) ? (this->amd / 127.0f) : 1.0f;
     this->depthCent = (this->pmd >= 0.0f) ? (this->pmd / 127.0f) : 1.0f;
@@ -170,14 +174,14 @@ void OpmLfoCore::getSample()
 
             switch (this->m_amWaveIndex) {
             case 0:
-                amVal = (float)(1.0 - this->m_pmPhase);
+                amVal = (float)(1.0 - this->m_amPhase);
                 break;
             case 1:
-                amVal = (this->m_pmPhase < 0.5) ? 1.0f : 0.0f;
+                amVal = (this->m_amPhase < 0.5) ? 1.0f : 0.0f;
                 break;
             case 2:
-                if (this->m_pmPhase < 0.5) amVal = (float)(1.0 - this->m_pmPhase * 2.0);
-                else                       amVal = (float)((this->m_pmPhase - 0.5) * 2.0);
+                if (this->m_amPhase < 0.5) amVal = (float)(1.0 - this->m_amPhase * 2.0);
+                else                       amVal = (float)((this->m_amPhase - 0.5) * 2.0);
 
                 break;
             case 3:

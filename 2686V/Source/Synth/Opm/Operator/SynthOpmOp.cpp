@@ -91,7 +91,7 @@ void OpmOperator::noteOn(float frequency, float velocity, int noteNumber, bool i
 
     if (!isLegato) {
         if (!m_ampAdsr.isBypass()) {
-            m_targetLevel = m_ampAdsr.noteOn(velocity);
+            m_targetLevel = m_ampAdsr.noteOn(velocity, noteNumber);
         }
         else {
             m_targetLevel = velocity;
@@ -229,17 +229,22 @@ void OpmOperator::getSample(float& output, float modulator, float feedbackModula
     float totalAmDepth = 0.0f;
 
     // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
-    if (hwLfo.amEnable)
+    //    実機 YM2151 の AMS-EN は「そのオペレータに AM を掛けるか」のゲートなので、
+    //    OFF のオペレータには AM が一切掛からない。
+    if (hwLfo.amEnable && m_params.lfo.amsEnable)
     {
-        totalAmDepth += (m_params.lfo.amsEnable ? hwLfo.ams : 1.0f) * hwLfo.depthDb;
+        totalAmDepth += hwLfo.ams * hwLfo.depthDb;
     }
 
     // 上限を1.0(100%)でクリップ
     totalAmDepth = std::min(totalAmDepth, 1.0f);
 
     if (totalAmDepth > 0.0f) {
-        float lfoAmpMod = 1.0f - (hwLfo.value.am * totalAmDepth);
-        envVal *= lfoAmpMod; // 音量に直接適用
+        // 他音源と揃えて dB で減衰させる。リニアで 0 まで落とすと LFO の谷で
+        // 完全に無音になり、音が途切れてプチノイズの原因になる。
+        float attenuationDb = hwLfo.value.am * totalAmDepth * Global::Lfo::maxAmDepthDb;
+
+        envVal *= std::pow(10.0f, -attenuationDb / 20.0f); // 音量に直接適用
     }
 
     // ========================================================

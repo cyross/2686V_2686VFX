@@ -107,6 +107,8 @@ void Wt2Core::setParameters(const SynthParams& params)
     m_modEnable = params.wt2.mod.enable;
     m_modDepth = params.wt2.mod.depth;
     m_modSpeed = params.wt2.mod.speed;
+    m_modShape = params.wt2.mod.shape;
+    m_modWave = params.wt2.mod.wave;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 
@@ -334,26 +336,68 @@ float Wt2Core::getSample()
         // ==========================================
         // Wavetable固有の Modulation (Vibrato / Table Scan)
         // ==========================================
-        float modLfoVal = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi);
-
+        // 変調方式は WtModShape を参照。FDS は「周波数」を、
+        // WonderSwan と HuC6280 は「分周器」を動かすので、比の掛かり方が逆になる。
         float totalModDepth = m_modDepth + (m_modWheel * 0.1f);
 
-        float modOffset = 0.0f;
+        float modRatio = 1.0f;
         if (m_modEnable || m_modWheel > 0.0f) // Apply if enable OR wheel is up
         {
-            modOffset = modLfoVal * totalModDepth;
+            if (m_modShape == (int)WtModShape::WsSweepUp
+                || m_modShape == (int)WtModShape::WsSweepDown)
+            {
+                // --- WonderSwan ch3 のハードウェアスイープ ---
+                // 実機は 375Hz 刻みで符号付き値を 11bit の周波数分周器へ加算し、
+                // 2047 -> 0 でラップする。分周器は周期に比例するので、等間隔に
+                // 足していくとピッチ変化は加速し、ラップした瞬間に反対の端へ飛ぶ。
+                // Depth 1.0 で 2オクターブぶん振れるようスケールを合わせている。
+                float span = 3.0f * totalModDepth;
+                float u = (float)m_modPhase;
 
+                modRatio = (m_modShape == (int)WtModShape::WsSweepUp)
+                    ? 1.0f / (1.0f - u * (span / (1.0f + span)))
+                    : 1.0f / (1.0f + u * span);
+            }
+            else if (m_modShape == (int)WtModShape::HuC6280Wave)
+            {
+                // --- PC Engine HuC6280 の LFO ---
+                // 実機は「もう 1 本のチャンネルの波形メモリ(32 サンプル)」の値を、
+                // 相手チャンネルの周波数レジスタ(=分周器)へ加算する。
+                // 分周器は周期に比例するため、FDS と違って比は逆数側に効く。
+                int index = (int)((float)m_modPhase * 32.0f) & 31;
+
+                // 分周器が 0 以下や極端な値にならないよう頭打ちにする
+                float divider = std::clamp(1.0f + m_modWave[index] * totalModDepth, 0.25f, 4.0f);
+
+                modRatio = 1.0f / divider;
+            }
+            else
+            {
+                // --- ファミコンディスクシステム(2C33) の波形変調 ---
+                // 実機は変調器の出力 temp(-64〜63) に対して freq * (1 + temp / 64)。
+                // こちらは分周器ではなく周波数そのものを動かす。
+                // Shape 0 が正弦波、1 以降が FdsMod のテーブル番号 0 以降。
+                float modLfoVal = (m_modShape >= 1)
+                    ? FdsMod::value(m_modShape - 1, (float)m_modPhase)
+                    : std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi);
+
+                // 実機も temp = -64 で頭打ちなので、周波数比は負にしない
+                modRatio = std::max(0.0f, 1.0f + modLfoVal * totalModDepth);
+            }
+
+            // Mod Speed は搬送波に対する比率。実機でも変調周波数は搬送波と
+            // 噛み合う値に設定して倍音を作るのが通例なので、比率のまま扱う。
             m_modPhase += (newPhaseDelta * m_modSpeed);
-            if (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
+            while (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
         }
 
         // ==========================================
         // 位相 (Phase) の計算
         // ==========================================
-        // PitchBend に加えて Opzx7 の PM 倍率も掛け合わせる
-        float currentDelta = newPhaseDelta * m_pitchBendRatio * opzx7PitchMod;
+        // PitchBend、Opzx7 の PM 倍率、FDS 変調の周波数比を掛け合わせる
+        float currentDelta = newPhaseDelta * m_pitchBendRatio * opzx7PitchMod * modRatio;
 
-        float effectivePhase = m_phase + modOffset;
+        float effectivePhase = m_phase;
         effectivePhase -= std::floor(effectivePhase);
         if (effectivePhase < 0.0f) effectivePhase += 1.0f;
 

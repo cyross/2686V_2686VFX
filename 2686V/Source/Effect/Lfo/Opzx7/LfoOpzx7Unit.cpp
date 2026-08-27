@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "./LfoOpzx7Unit.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 Opzx7LfoCoreUnit::Opzx7LfoCoreUnit() {
 }
@@ -37,7 +38,7 @@ void Opzx7LfoCoreUnit::setParameters(int syncDelay, bool enable, float freq, int
     this->ms = ms;
     this->md = md;
 
-    this->depthDb = (this->ms * this->md) * 96.0f;
+    this->depthDb = (this->ms * this->md) * Global::Lfo::maxAmDepthDb;
     this->depthCent = (this->ms * this->md) * 1200.0f;
 
     this->m_smoothRate = smoothRate;
@@ -198,10 +199,12 @@ float Opzx7LfoCoreUnit::getSamplePm()
 float Opzx7LfoCoreUnit::getSampleAm()
 {
     if (!this->enable) {
-        return 1.0f;
+        return 0.0f; // 減衰なし (呼び出し側は depthDb を掛けて dB 減衰に使う)
     }
 
-    float val = getSample();
+    // 波形は -1.0〜1.0 のバイポーラ。そのまま dB 減衰に使うと
+    // 負の半周期でゲインが 1.0 を超えて爆音になるため、0.0〜1.0 に直す。
+    float val = (getSample() + 1.0f) * 0.5f;
 
     // AMクリックノイズ防止スムージング
     this->m_smooth += (val - this->m_smooth) * this->m_smoothRate;

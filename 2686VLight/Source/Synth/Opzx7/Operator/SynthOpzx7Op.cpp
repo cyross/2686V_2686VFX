@@ -125,7 +125,7 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
 
     if (!isLegato) {
         if (!m_ampAdsr.isBypass()) {
-            m_targetLevel = m_ampAdsr.noteOn(velocity);
+            m_targetLevel = m_ampAdsr.noteOn(velocity, noteNumber);
         }
         else {
             m_targetLevel = velocity;
@@ -303,8 +303,8 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
             // 変更無し
             break;
         case 8:
-            // 08: Alt Saw Down & Hold
-            envVal *= (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+            // 08: Alt Saw Down & Hold (実機 shape 11: 1回下降して最大値で保持)
+            envVal *= (cycle == 0) ? (1.0f - (float)subPos) : 1.0f;
 
             break;
         case 9:
@@ -335,8 +335,8 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
             // 変更無し
             break;
         case 15:
-            // 15: Alt Saw Up & Hold
-            envVal *= (cycle == 0) ? (float)subPos : 1.0f;
+            // 15: Alt Saw Up & Hold (実機 shape 15: 1回上昇して最小値で保持)
+            envVal *= (cycle == 0) ? (float)subPos : 0.0f;
 
             break;
         }
@@ -368,7 +368,7 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // ========================================================
     // 2. Pitch Modulation (Vibrato) の連続計算
     // ========================================================
-    float currentPitchCent = 1.0f;
+    float currentPitchCent = 0.0f;
 
     // ① グローバルPM (最大 ±1200 Cent の揺れ幅 = ±1オクターブ)
     if (glLfo.pm.enable) {

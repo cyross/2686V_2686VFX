@@ -22,8 +22,6 @@ public:
 
 	OplOpParams m_params;
 
-	static const std::array<float, 4> dbPerOcts;
-
 	void prepare(int opIndex, double sampleRate);
 	void setParameters(const OplOpParams& params, int feedback);
 	void setSampleRate(double sampleRate) override;

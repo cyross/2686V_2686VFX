@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "./LfoOpna.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 OpnaLfoCore::OpnaLfoCore() {
 }
@@ -9,7 +10,9 @@ OpnaLfoCore::OpnaLfoCore() {
 const std::array<float, 8> OpnaLfoCore::freqs = { 3.98f, 5.56f, 6.02f, 6.37f, 6.88f, 9.63f, 48.1f, 72.2f };
 // 新しい厳密なPMSデプス値 (0, 3.4, 6.7, 10, 14, 20, 40, 80 cent)
 const std::array<float, 8> OpnaLfoCore::pmsDepths = { 0.0f, 0.001965f, 0.003876f, 0.005793f, 0.008122f, 0.011619f, 0.023374f, 0.047294f };
-const std::array<float, 4> OpnaLfoCore::amsDepths = { 0.0f, 0.14886f, 0.49305f, 0.74296f };
+// AMS 段数ごとの深さ (Global::Lfo::maxAmDepthDb に対する割合)。
+// 実機 OPNA の AMS は 0 / 1.4 / 5.9 / 23.9dB なので、その段数比を保持する。
+const std::array<float, 4> OpnaLfoCore::amsDepths = { 0.0f, 1.4f / 24.0f, 5.9f / 24.0f, 1.0f };
 
 inline void OpnaLfoCore::updatePhaseDelta()
 {
@@ -37,11 +40,11 @@ void OpnaLfoCore::setParameters(const LfoOpnaParams& params)
 
     this->pmEnable = params.pm;
     this->m_pmFreq = freqs[std::clamp(params.pmFreqIndex, 0, 7)];
-    this->pms = pmsDepths[std::clamp((int)pms, 0, 7)];
+    this->pms = pmsDepths[std::clamp((int)params.pms, 0, (int)pmsDepths.size() - 1)];
 
     this->amEnable = params.am;
     this->m_amFreq = freqs[std::clamp(params.amFreqIndex, 0, 7)];
-    this->ams = amsDepths[std::clamp((int)ams, 0, 3)];
+    this->ams = amsDepths[std::clamp((int)params.ams, 0, (int)amsDepths.size() - 1)];
 
     this->m_amSmoothRate = params.amSmoothRate;
 
@@ -85,7 +88,7 @@ void OpnaLfoCore::getSample()
         // AMは「無効な状態(1.0f)」へ向けてスムージングを継続し、完全に到達したら計算をスキップ
         if (std::abs(this->amSmooth) > 0.0001f) {
             this->amSmooth += (0.0f - this->amSmooth) * this->m_amSmoothRate;
-            this->value.am = 1.0f - (this->amSmooth * this->ams);
+            this->value.am = std::pow(10.0f, -(this->amSmooth * this->ams * Global::Lfo::maxAmDepthDb) / 20.0f);
         }
         else {
             this->amSmooth = 0.0f;
@@ -186,5 +189,8 @@ void OpnaLfoCore::getSample()
     // ========================================================
     // 1. Amplitude Modulation (Tremolo) の計算
     // ========================================================
-    this->value.am = this->amEnable ? (1.0f - (this->amSmooth * this->ams)) : 1.0f;
+    // 他音源と揃えて dB で減衰させる (リニアで 0 まで落とすと谷で完全に無音になる)
+    this->value.am = this->amEnable
+        ? std::pow(10.0f, -(this->amSmooth * this->ams * Global::Lfo::maxAmDepthDb) / 20.0f)
+        : 1.0f;
 }

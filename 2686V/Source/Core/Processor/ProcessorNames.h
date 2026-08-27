@@ -387,6 +387,9 @@ namespace CPN
 		static inline const juce::String enable = " Mod Enable";
 		static inline const juce::String depth = " Mod Depth";
 		static inline const juce::String speed = " Mod Speed";
+		static inline const juce::String shape = " Mod Shape";
+		static inline const juce::String wave = " Mod Wave ";
+		static inline const juce::String waveSmooth = " Mod Wave Smooth";
 	}
 
 	namespace SsgDuty

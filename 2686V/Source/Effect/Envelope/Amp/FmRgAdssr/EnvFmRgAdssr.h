@@ -71,7 +71,7 @@ public:
 	bool isRelease() const { return state == State::Release; }
 	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void setParameters(const FmRgAdssrParams& params);
-	float noteOn(float velocity);
+	float noteOn(float velocity, int noteNumber);
 	void noteOff();
 	void updateIncrementsWithKeyScale(int noteNumber);
 	float updateEnvelopeState(float currentLevel);

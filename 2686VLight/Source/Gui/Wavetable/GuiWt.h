@@ -137,6 +137,15 @@ class GuiWt : public GuiBase
 	GuiToggleButton modEnableButton;
     GuiSlider modDepthSlider;
     GuiSlider modSpeedSlider;
+    GuiComboBox modShapeSelector;
+    GuiTextButton modWaveWtBtn;
+    GuiTextButton modWaveWt2Btn;
+    GuiTextButton modWaveClearBtn;
+    GuiLabel modWaveFileNameLabel;
+    GuiToggleButton modWaveSmoothBtn;
+
+    // HuC6280 モードの変調波形 (32 サンプル) を書き込むためのパラメータ
+    std::array<juce::RangedAudioParameter*, 32> modWaveParams = { nullptr };
 
 	// Custom Waveform Reset
     GuiTextButton customWaveResetTo0Btn;
@@ -231,6 +240,12 @@ public:
         modEnableButton(context),
         modDepthSlider(context),
         modSpeedSlider(context),
+        modShapeSelector(context),
+        modWaveWtBtn(context),
+        modWaveWt2Btn(context),
+        modWaveClearBtn(context),
+        modWaveFileNameLabel(context),
+        modWaveSmoothBtn(context),
         customWaveResetTo0Btn(context),
         customWaveResetTo1Btn(context),
         customWaveResetToM1Btn(context),
@@ -250,6 +265,10 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void updatePresetName(const juce::String& name);
     void importWavetable();
+    void importModWave(bool isWt2);
+    bool applyModWaveFile(const juce::File& file, bool isWt2);
+    void clearModWave();
+    void updateModWaveFileName(const juce::String& fileName);
     void exportWavetable();
     void initParams();
     void layoutFormCat(Rectangle<int>& rect);

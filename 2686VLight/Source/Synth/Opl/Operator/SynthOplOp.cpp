@@ -3,8 +3,6 @@
 #include "./SynthOplOp.h"
 #include "../../../Core/Processor/ProcessorValues.h"
 
-const std::array<float, 4> OplOperator::dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
-
 void OplOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);

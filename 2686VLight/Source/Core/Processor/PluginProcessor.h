@@ -508,6 +508,12 @@ public:
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;
+
+    // MODULATION の変調波形として読み込んだファイルのパス。
+    // 波形データ自体は 32 個のパラメータ側に入っているので、
+    // ここはファイル名表示のためだけに保持している。
+    juce::String wtModWavePath;
+    juce::String wt2ModWavePath;
     std::array<juce::String, RhythmPrValue::pads> rhythmFilePaths;
 
     // --- Preset I/O ---

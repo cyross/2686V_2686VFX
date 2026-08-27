@@ -192,6 +192,24 @@ namespace CoreGuiValue
 				static inline constexpr int paddingRight = 0;
 			}
 		}
+
+		namespace WtFiles
+		{
+			namespace LoadBtn
+			{
+				static constexpr int width = 25;
+			}
+
+			namespace FileLabel
+			{
+				static constexpr int width = 155;
+			}
+
+			namespace ClearBtn
+			{
+				static constexpr int width = 35;
+			}
+		}
 	}
 
 	namespace Label
@@ -356,6 +374,24 @@ namespace CoreGuiValue
 		namespace Value
 		{
 			static inline constexpr int width = 190;
+		}
+
+		namespace WtFiles
+		{
+			namespace LoadBtn
+			{
+				static constexpr int width = 25;
+			}
+
+			namespace FileLabel
+			{
+				static constexpr int width = 155;
+			}
+
+			namespace ClearBtn
+			{
+				static constexpr int width = 35;
+			}
 		}
 	}
 }

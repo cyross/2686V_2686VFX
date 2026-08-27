@@ -20,8 +20,6 @@ public:
 
 	Opl3OpParams m_params;
 
-	static const std::array<float, 4> dbPerOcts;
-
 	void prepare(int opIndex, double sampleRate);
 	void setParameters(const Opl3OpParams& params, int feedback);
 	void setSampleRate(double sampleRate) override;

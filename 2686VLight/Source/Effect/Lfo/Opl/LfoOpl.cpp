@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "./LfoOpl.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 inline void OplLfoCore::updatePhaseDelta()
 {
@@ -29,7 +30,9 @@ void OplLfoCore::setParameters(const LfoOplParams& params)
     this->ams = params.ams;
     this->amd = params.amd;
 
-    this->depthDb = 1.0f - std::pow(10.0f, -this->amd / 20.0f);
+    // amd はそのまま「LFO の谷での最大減衰量(dB)」として扱う。
+    // 上限は全音源共通の maxAmDepthDb に合わせる。
+    this->depthDb = std::min(this->amd, Global::Lfo::maxAmDepthDb);
     this->depthCent = std::pow(2.0f, this->pmd / 1200.0f) - 1.0f + this->m_modWheel;
 
     updatePhaseDelta();
@@ -57,7 +60,10 @@ void OplLfoCore::getSample()
         else if (this->m_amPhase < 0.75) amVal = (float)(1.0 - (this->m_amPhase - 0.25) * 4.0);
         else                             amVal = (float)(-1.0 + (this->m_amPhase - 0.75) * 4.0);
 
-        ampMod = 1.0f - (amVal + 1.0f) * 0.5f * this->depthDb;
+        // 実機はアッテネータ(dB)を動かすので、リニア補間ではなく dB で補間する
+        float unipolar = (amVal + 1.0f) * 0.5f;
+
+        ampMod = std::pow(10.0f, -(unipolar * this->depthDb) / 20.0f);
     }
 
     // --- VIB (Vibrato) ---

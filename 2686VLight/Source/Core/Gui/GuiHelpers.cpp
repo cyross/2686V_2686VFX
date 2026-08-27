@@ -584,3 +584,53 @@ void layoutMainViewMode(const MainConfigViewMode& c)
 
     c.rect.removeFromTop(c.paddingBottom);
 }
+
+void layoutRowWtFiles(const RowConfigWtFiles& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    c.loadWtBtn->setBounds(area.removeFromLeft(c.loadBtnWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    c.loadWt2Btn->setBounds(area.removeFromLeft(c.loadBtnWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    int fileNameLabelWidth = area.getWidth() - c.paddingRight - c.clearBtnWidth;
+
+    c.fileNameLabel->setBounds(area.removeFromLeft(fileNameLabelWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    c.clearBtn->setBounds(area.removeFromLeft(c.clearBtnWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}
+
+void layoutMainWtFiles(const MainConfigWtFiles& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    c.loadWtBtn->setBounds(area.removeFromLeft(c.loadBtnWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    c.loadWt2Btn->setBounds(area.removeFromLeft(c.loadBtnWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    int fileNameLabelWidth = area.getWidth() - c.paddingRight - c.clearBtnWidth;
+
+    c.fileNameLabel->setBounds(area.removeFromLeft(fileNameLabelWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    c.clearBtn->setBounds(area.removeFromLeft(c.clearBtnWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}

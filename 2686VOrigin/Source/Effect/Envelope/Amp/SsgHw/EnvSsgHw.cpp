@@ -58,13 +58,23 @@ float SsgHwEnv::process() {
     float hwEnvDelta = m_envFreq / (float)sampleRate;
     m_hwEnvPhase += hwEnvDelta;
 
-    // 位相が無限増大して小数の精度が落ちるのを防ぐラップアラウンド
+    // 位相が無限増大して小数の精度が落ちるのを防ぐラップアラウンド。
+    // 繰り返し形(スロット 0/2/4/6)は 2周期でラップし、
+    // 保持形(スロット 1/3/5/7)は 1周期を走り終えた位置で止める。
     if (m_hwEnvPhase >= 2.0) {
-        if (m_envShape % 2 == 0) m_hwEnvPhase -= 2.0;
-        else m_hwEnvPhase = 2.0;
+        if (m_envShape % 2 == 0) {
+            while (m_hwEnvPhase >= 2.0) m_hwEnvPhase -= 2.0;
+        }
+        else {
+            m_hwEnvPhase = 2.0;
+        }
     }
 
-    float hwEnvGain = this->m_max;
+    // Min / Max は出力レンジ。大小が逆に設定されても破綻しないよう並べ替える。
+    float lo = std::min(this->m_min, this->m_max);
+    float hi = std::max(this->m_min, this->m_max);
+
+    float hwEnvGain = hi;
 
     if (m_useHwEnv)
     {
@@ -72,38 +82,47 @@ float SsgHwEnv::process() {
         bool isEvenCycle = ((int)p % 2 == 0);
         float phaseNorm = (float)(p - std::floor(p));
 
+        // 1周期を走り終えたか (保持形の判定)。
+        // 以前は位相 p を出力レベル m_max と直接比べていたため、
+        // Max を 1.0 未満にすると保持に入るのが早まっていた。
+        bool held = (p >= 1.0);
+
+        // 下降・上昇はどちらも hi と lo の全域を使う
+        auto down = [&](float x) { return hi - x * (hi - lo); };
+        auto up = [&](float x) { return lo + x * (hi - lo); };
+
+        // 実機 AY-3-8910 / YM2149 のエンベロープ形状 (shape 8〜15) に対応する
         switch (m_envShape) {
-        case 0:
-            hwEnvGain = this->m_max - phaseNorm;
+        case 0: // Saw Down            : 実機 shape 8  (下降を繰り返す)
+            hwEnvGain = down(phaseNorm);
             break;
-        case 1:
-            hwEnvGain = (p < this->m_max) ? (this->m_max - phaseNorm) : this->m_min;
+        case 1: // Saw Down & Hold     : 実機 shape 9  (1回下降して最小値で保持)
+            hwEnvGain = held ? lo : down(phaseNorm);
             break;
-        case 2:
-            hwEnvGain = isEvenCycle ? (this->m_max - phaseNorm) : phaseNorm;
+        case 2: // Triangle            : 実機 shape 10 (下降と上昇を繰り返す)
+            hwEnvGain = isEvenCycle ? down(phaseNorm) : up(phaseNorm);
             break;
-        case 3:
-            hwEnvGain = (p < this->m_max) ? (this->m_max - phaseNorm) : this->m_min;
+        case 3: // Alt Saw Down & Hold : 実機 shape 11 (1回下降して最大値で保持)
+            hwEnvGain = held ? hi : down(phaseNorm);
             break;
-        case 4:
-            hwEnvGain = phaseNorm;
+        case 4: // Saw Up              : 実機 shape 12 (上昇を繰り返す)
+            hwEnvGain = up(phaseNorm);
             break;
-        case 5:
-            hwEnvGain = (p < this->m_max) ? phaseNorm : this->m_max;
+        case 5: // Saw Up & Hold       : 実機 shape 13 (1回上昇して最大値で保持)
+            hwEnvGain = held ? hi : up(phaseNorm);
             break;
-        case 6:
-            hwEnvGain = (p < this->m_max) ? phaseNorm : this->m_max;
+        case 6: // Triangle Invert     : 実機 shape 14 (上昇と下降を繰り返す)
+            hwEnvGain = isEvenCycle ? up(phaseNorm) : down(phaseNorm);
             break;
-        case 7:
-            hwEnvGain = isEvenCycle ? phaseNorm : (this->m_max - phaseNorm);
+        case 7: // Alt Saw Up & Hold   : 実機 shape 15 (1回上昇して最小値で保持)
+            hwEnvGain = held ? lo : up(phaseNorm);
             break;
         default:
-            hwEnvGain = phaseNorm;
+            hwEnvGain = up(phaseNorm);
+            break;
         }
 
-        if (hwEnvGain < this->m_min) {
-            hwEnvGain = this->m_min;
-        }
+        hwEnvGain = std::clamp(hwEnvGain, lo, hi);
     }
 
     // ==========================================

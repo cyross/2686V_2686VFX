@@ -69,7 +69,24 @@ struct Opzx7AlgFbParams {
 struct WtModParams {
     bool enable = false;
     float depth = 0.0f;
-    float speed = 1.0f; // Ratio or Hz
+    float speed = 1.0f; // 搬送波の周波数に対する比率
+    int shape = 0;      // WtModShape を参照
+
+    // HuC6280 モード用の変調波形 (32 サンプル / -1.0〜1.0)
+    std::array<float, 32> wave = { 0.0f };
+};
+
+// MODULATION の変調方式
+enum class WtModShape {
+    Sine = 0,       // 正弦波 (FDS の簡易版)
+    FdsTriangle,    // FDS(2C33) 32ステップ : 対称三角
+    FdsSaw,         // FDS(2C33) 32ステップ : 非対称のこぎり
+    FdsReset,       // FDS(2C33) 32ステップ : リセットで断ち切る
+    FdsPulse,       // FDS(2C33) 32ステップ : 上下端で保持する台形
+    WsSweepUp,      // WonderSwan ch3 スイープ (上昇)
+    WsSweepDown,    // WonderSwan ch3 スイープ (下降)
+    HuC6280Wave,    // PC Engine HuC6280 LFO (波形メモリで分周器を変調)
+    Size
 };
 
 struct ToneNoiseParams {

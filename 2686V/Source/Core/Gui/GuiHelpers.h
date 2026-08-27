@@ -402,3 +402,37 @@ struct MainConfigViewMode {
 };
 
 void layoutMainViewMode(const MainConfigViewMode& c);
+
+struct RowConfigWtFiles {
+    juce::Rectangle<int>& rect;
+    juce::Component* loadWtBtn;
+    juce::Component* loadWt2Btn;
+    juce::Component* fileNameLabel;
+    juce::Component* clearBtn;
+    int rowHeight = CoreGuiValue::ParamGroup::Row::height;
+    int paddingTop = CoreGuiValue::ParamGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
+    int paddingRight = CoreGuiValue::ParamGroup::Row::paddingRight;
+    int loadBtnWidth = CoreGuiValue::ParamGroup::WtFiles::LoadBtn::width;
+    int fileNameLabelWidth = CoreGuiValue::ParamGroup::WtFiles::FileLabel::width;
+    int clearBtnWidth = CoreGuiValue::ParamGroup::WtFiles::ClearBtn::width;
+};
+
+void layoutRowWtFiles(const RowConfigWtFiles& c);
+
+struct MainConfigWtFiles {
+    juce::Rectangle<int>& rect;
+    juce::Component* loadWtBtn;
+    juce::Component* loadWt2Btn;
+    juce::Component* fileNameLabel;
+    juce::Component* clearBtn;
+    int rowHeight = CoreGuiValue::MainGroup::Row::height;
+    int paddingTop = CoreGuiValue::MainGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
+    int paddingRight = CoreGuiValue::MainGroup::Row::paddingRight;
+    int loadBtnWidth = CoreGuiValue::MainGroup::WtFiles::LoadBtn::width;
+    int fileNameLabelWidth = CoreGuiValue::MainGroup::WtFiles::FileLabel::width;
+    int clearBtnWidth = CoreGuiValue::MainGroup::WtFiles::ClearBtn::width;
+};
+
+void layoutMainWtFiles(const MainConfigWtFiles& c);

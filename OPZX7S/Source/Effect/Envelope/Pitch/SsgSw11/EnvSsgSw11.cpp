@@ -13,7 +13,7 @@ void SsgSwPEnv11::prepare(int targetIndex, double sampleRate) {
 
 void SsgSwPEnv11::updateTargetSampleRate(double newSampleRate)
 {
-    this->sampleRate = sampleRate;
+    this->sampleRate = newSampleRate;
     this->updateIncrements();
 }
 

@@ -404,6 +404,10 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     // サンプルパス保存 (ADPCM)
     xml->setAttribute(PresetKey::adpcmPath, makePathRelative(juce::File(adpcmFilePath)));
 
+    // 変調波形は 32 パラメータ側に入っているので、ここではファイル名表示用のパスだけ保存する
+    xml->setAttribute(PresetKey::wtModWavePath, makeWtPathRelative(juce::File(wtModWavePath)));
+    xml->setAttribute(PresetKey::wt2ModWavePath, makeWtPathRelative(juce::File(wt2ModWavePath)));
+
     // サンプルパス保存 (RHYTHM)
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
         xml->setAttribute(PresetKey::rhythmPathPrefix + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
@@ -440,6 +444,15 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         presetComment = xmlState->getStringAttribute(PresetKey::comment, PresetValue::MetaData::Initial::comment);
         presetGenre = xmlState->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
         presetPluginVersion = xmlState->getStringAttribute(PresetKey::puginVersion, Global::Plugin::version);
+
+        // 変調波形のファイル名復帰 (波形データはパラメータ側で復元済み)
+        {
+            juce::String storedWtMod = xmlState->getStringAttribute(PresetKey::wtModWavePath);
+            juce::String storedWt2Mod = xmlState->getStringAttribute(PresetKey::wt2ModWavePath);
+
+            wtModWavePath = storedWtMod.isEmpty() ? juce::String() : resolveWtPath(storedWtMod).getFullPathName();
+            wt2ModWavePath = storedWt2Mod.isEmpty() ? juce::String() : resolveWtPath(storedWt2Mod).getFullPathName();
+        }
 
         // サンプル復帰 (ADPCM)
         juce::String storedAdpcm = xmlState->getStringAttribute(PresetKey::adpcmPath);

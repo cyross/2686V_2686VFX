@@ -470,6 +470,11 @@ namespace PrHelper {
 		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::WtMod::enable);
 		ptPtrs.depth = apvts.getRawParameterValue(prefix + CPK::WtMod::depth);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::WtMod::speed);
+		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::WtMod::shape);
+
+		for (int i = 0; i < CPV::WtMod::WaveSize::size; ++i) {
+			ptPtrs.wave[i] = apvts.getRawParameterValue(prefix + CPK::WtMod::wave + juce::String(i));
+		}
 	}
 
 	static inline void setupSsgDuty(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgDuty& ptPtrs){
@@ -1052,6 +1057,11 @@ namespace PrHelper {
 		params.enable = getBool(ptPtrs.enable);
 		params.depth = getFloat(ptPtrs.depth);
 		params.speed = getFloat(ptPtrs.speed);
+		params.shape = getInt(ptPtrs.shape);
+
+		for (int i = 0; i < CPV::WtMod::WaveSize::size; ++i) {
+			params.wave[i] = getFloat(ptPtrs.wave[i]);
+		}
 	}
 
 	static inline void applySsgDuty(PrPtrsSsgDuty& ptPtrs, SsgDutyParams& params){
@@ -3248,6 +3258,31 @@ namespace PrHelper {
 			prefixName + CPN::WtMod::speed, 
 			CPV::WtMod::Speed::min, CPV::WtMod::Speed::max, CPV::WtMod::Speed::initial
 		);
+		PrHelper::addInt(
+			layout, 
+			prefix + CPK::WtMod::shape, 
+			prefixName + CPN::WtMod::shape, 
+			CPV::WtMod::Shape::min, CPV::WtMod::Shape::max, CPV::WtMod::Shape::initial
+		);
+		// 32 点へ落とすときの方法 (音声側では使わず、読み込み時にだけ参照する)
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::WtMod::waveSmooth, 
+			prefixName + CPN::WtMod::waveSmooth, 
+			CPV::WtMod::WaveSmooth::initial
+		);
+		// HuC6280 モード用の変調波形 (32 サンプル)。
+		// PrHelper は名前空間なので、後方に定義された createWtCustomWaveLayout は
+		// ここからは呼べない。同じ内容を直接展開する。
+		for (int i = 0; i < CPV::WtMod::WaveSize::size; ++i)
+		{
+			PrHelper::addFloat(
+				layout,
+				prefix + CPK::WtMod::wave + juce::String(i),
+				prefixName + CPN::WtMod::wave + juce::String(i),
+				CPV::Wt::CustomValue::min, CPV::Wt::CustomValue::max, CPV::Wt::CustomValue::initial
+			);
+		}
 	}
 
 	static inline void addWtBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {

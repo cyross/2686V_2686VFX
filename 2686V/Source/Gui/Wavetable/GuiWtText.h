@@ -89,6 +89,11 @@ namespace WtGuiText
 			static inline const juce::String enable = u8"Enable";
 			static inline const juce::String depth = u8"DPTH";
 			static inline const juce::String speed = u8"SPED";
+			static inline const juce::String shape = u8"SHPE";
+			static inline const juce::String waveWt = u8"WT";
+			static inline const juce::String waveWt2 = u8"W2";
+			static inline const juce::String waveClear = u8"Clear";
+			static inline const juce::String waveSmooth = u8"Smooth";
 		}
 
 		namespace Custom

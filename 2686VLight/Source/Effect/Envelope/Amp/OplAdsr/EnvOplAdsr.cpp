@@ -48,6 +48,7 @@ void OplAdsr::setParameters(const OplAdsrParams& params) {
     this->dr = params.dr;
     this->sl = params.sl;
     this->rr = params.rr;
+    this->tl = params.tl;
 
     this->m_ksOPL.setParameters(params.ksOPL);
 
@@ -88,12 +89,17 @@ float OplAdsr::noteOn(float velocity, int noteNumber) {
     // 目標レベルの計算
     float attenuationDb = tl * 0.75f;
 
-    float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+    // KSL はゲイン(倍率)で返ってくるので、dB に直して TL と合算する
+    float kslGain = m_ksOPL.calcLevelScalingGain(noteNumber);
+    float kslDb = (kslGain > 0.0f) ? (-20.0f * std::log10(kslGain)) : 96.0f;
 
-    float kslAttenuation = m_ksOPL.calcLevelScalingDb(noteNumber);
+    // 実機のレベルスケーリングは TL(出力レベルレジスタ)から引く形で働くので、
+    // TL レジスタの全域 (tlMax × 0.75dB) より深くは減衰しない。同じ上限で頭打ちにする。
+    float maxAttenDb = (this->tlMax > 0) ? ((float)this->tlMax * 0.75f) : 47.25f;
+    float totalDb = std::clamp(attenuationDb + kslDb, 0.0f, maxAttenDb);
 
     // 最終到達レベルを内部に保存する
-    this->m_targetLevel = velocity * tlGain * kslAttenuation;
+    this->m_targetLevel = velocity * std::pow(10.0f, -totalDb / 20.0f);
 
     return this->m_targetLevel;
 }

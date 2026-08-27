@@ -65,7 +65,7 @@ private:
 	SsgSwEnv11 m_ssgSwEnv11;
 	SsgSwPEnv11 m_ssgSwPenv11;
 
-	float maxAmDepthDb = 11.8f;
+	float maxAmDepthDb = Global::Lfo::maxAmDepthDb;
 	float m_ams = 1.0f;
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)

@@ -17,5 +17,7 @@ public:
 
 	void setParameters(const KSOplParams& params);
 	int calcKeyScaleRate(const int noteNumber) const;
-	float calcLevelScalingDb(const int noteNumber) const;
+	// 他の KeyScale クラスは dB を返すが、このクラスだけは
+	// テーブルにゲイン(倍率)を持っているのでゲインを返す。
+	float calcLevelScalingGain(const int noteNumber) const;
 };
