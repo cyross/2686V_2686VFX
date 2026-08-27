@@ -695,6 +695,15 @@ namespace PrHelper {
 		params.feedback8 = getInt(ptPtrs.fb8);
 	}
 
+	static inline void applyAdsrAmpEnv(PrPtrsAdsrAmpEnv& ptPtrs, AmpAdsrParams& params){
+		params.bypass = getBool(ptPtrs.bypass);
+		params.ar = getFloat(ptPtrs.ar);
+		params.dr = getFloat(ptPtrs.dr);
+		params.sl = getFloat(ptPtrs.sl);
+		params.rr = getFloat(ptPtrs.rr);
+		params.kor = getFloat(ptPtrs.kor);
+	}
+
 	static inline void applySsgSwEnv(PrPtrsSsgSwEnv& ptPtrs, SsgSwEnvParams& params){
 		params.bypass = getBool(ptPtrs.bypass);
 		params.steps = getInt(ptPtrs.steps);
@@ -2455,6 +2464,19 @@ namespace PrHelper {
 			prefix + CPK::ssgSwPEnv11 + CPK::bypass, 
 			prefixName + CPN::SsgSwPEnv11::bypass, 
 			CPV::SsgSwPEnv11::Bypass::initial
+		);
+	}
+
+	// AMP ENV のバイパスだけを、初期値を指定して登録する。
+	// FM 音源はオペレータごとに独自のエンベロープを持っているため、
+	// チップ全体へ掛ける AMP ENV は既定でバイパスにしておく。
+	// そうしないと既存のプリセットの鳴りが変わってしまう。
+	static inline void addAdsrBypassParameter(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName, bool initial) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::adsr + CPK::bypass,
+			prefixName + CPN::Adsr::bypass,
+			initial
 		);
 	}
 

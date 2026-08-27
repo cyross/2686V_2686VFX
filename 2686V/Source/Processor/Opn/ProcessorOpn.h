@@ -14,6 +14,7 @@ class OpnProcessor : public PrBase
     PrPtrsQuality pQuality;
     PrPtrsN88Lfo pN88Lfo;
     PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsSsgSwEnv11 pSsgSwEnv11g;
     PrPtrsUnison pUnison;
 

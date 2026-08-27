@@ -10,6 +10,7 @@
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 
@@ -97,6 +98,11 @@ private:
     std::array<float, Opzx7PrValue::ops> m_history2 = { 0.0f };
 
     Opzx7LfoCore m_lfo;
+
+    // チップ全体へ掛かる AMP ENV。オペレータごとのエンベロープとは別に、
+    // 出力段でもう一段掛ける。level は次のサンプルへ持ち越す。
+    AmpAdsrEnv m_ampEnvG;
+    float m_ampEnvGLevel = 0.0f;
 
     SsgHwEnv m_ssgHwEnv;
     SsgSwEnv11 m_ssgSwEnv11g;

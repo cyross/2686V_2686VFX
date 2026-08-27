@@ -24,6 +24,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
+#include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
@@ -51,6 +52,8 @@ class GuiOpl : public GuiBase
     GuiFbSlider feedbackSlider;
 
     // SSG Hw Env
+    // チップ全体へ掛かる AMP ENV
+    GuiComponentAmpEnv ampEnvComponent;
     GuiComponentSsgHwEnv ssgHwEnv;
     // SSG Sw Env
     GuiComponentSsgSwEnv11 ssgSwEnv11g;
@@ -83,6 +86,7 @@ class GuiOpl : public GuiBase
     GuiComponentImport imOpl3OpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep005;
+    GuiComponentImportExport ieAmpEnvG;
     GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieUnison;
@@ -174,6 +178,7 @@ public:
         algSelector(context),
 		algFbSep(context),
         feedbackSlider(context),
+        ampEnvComponent(context),
         ssgHwEnv(context),
         ssgSwEnv11g(context),
         unisonComponent(context),
@@ -200,6 +205,7 @@ public:
 		imOpl3OpChParam(context),
         targerOpSlider(context),
         uSep005(context),
+        ieAmpEnvG(context),
         ieSsgHwEnv(context),
         ieSsgSwEnv11(context),
         ieUnison(context),

@@ -342,6 +342,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     panToCBtn(context),
     panToRBtn(context),
     glLfo(context),
+    ampEnvComponent(context),
     ssgHwEnv(context),
     ssgSwEnv11g(context),
     unisonComponent(context),
@@ -362,6 +363,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
 	ieOpChParam(context),
     targerOpSlider(context),
     uSep003(context),
+    ieAmpEnvG(context),
     ieSsgHwEnv(context),
     ieSsgSwEnv11(context),
     ieLfo(context),
@@ -585,6 +587,7 @@ void GuiOpzx7::setup()
 
     glLfo.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
+    ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
 
@@ -689,6 +692,7 @@ void GuiOpzx7::setup()
     targerOpSlider.setWantsKeyboardFocus(true);
     targerOpSlider.setExplicitFocusOrder(++tabOrder);
 
+    ieAmpEnvG.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
@@ -1129,6 +1133,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     feedback8Nudge.setVisibles(feedback8Slider.isVisibleNudge());
     if (feedback8Slider.isVisibleNudge()) feedback8Nudge.layoutComponent(mRect);
 
+    ampEnvComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
 
@@ -1767,6 +1772,7 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
+    ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -1804,6 +1810,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         uSep003.layoutComponent(rect);
 
+        ieAmpEnvG.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
@@ -2698,6 +2706,12 @@ void GuiOpzx7::importChParam() {
                 for (int i = 0; i < Opzx7PrValue::ops; i++) {
                     getImportingOpParams(i, lines, index);
                 }
+
+                // AMP ENV は後から足したので、旧フォーマットとの互換のため
+                // ファイル末尾から読む。行が無ければ既定のままにする。
+                if (index < lines.size()) {
+                    ampEnvComponent.setImportingParams(lines, index);
+                }
             }
         });
 
@@ -2749,6 +2763,9 @@ void GuiOpzx7::exportChParam() {
                 for (int i = 0; i < Opzx7PrValue::ops; i++) {
                     content += setExportedOpParams(i);
                 }
+
+                // AMP ENV (旧フォーマットと互換を保つため末尾に置く)
+                content += ampEnvComponent.getExportedParams();
 
                 file.replaceWithText(content);
             }

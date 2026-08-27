@@ -171,6 +171,7 @@ void GuiOpn::setup()
     lfoSep1.setupComponent(mainGroup.contentCanvas);
     lfoSep2.setupComponent(mainGroup.contentCanvas);
 
+    ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
 
@@ -281,6 +282,7 @@ void GuiOpn::setup()
     ieLfo.onClickImport = [this] { importLfoParam(); };
     ieLfo.onClickExport = [this] { exportLfoParam(); };
 
+    ieAmpEnvG.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
@@ -434,6 +436,7 @@ void GuiOpn::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
+    ampEnvComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
 
@@ -779,6 +782,7 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
     imOpnaOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep004.setVisible(visible);
+    ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -820,6 +824,8 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         uSep004.layoutComponent(rect);
 
+        ieAmpEnvG.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
@@ -1625,6 +1631,12 @@ void GuiOpn::importChParam() {
                 for (int i = 0; i < OpnPrValue::ops; i++) {
                     getImportingOpParams(i, lines, index);
                 }
+
+                // AMP ENV は後から足したので、旧フォーマットとの互換のため
+                // ファイル末尾から読む。行が無ければ既定のままにする。
+                if (index < lines.size()) {
+                    ampEnvComponent.setImportingParams(lines, index);
+                }
             }
         });
 }
@@ -1672,6 +1684,9 @@ void GuiOpn::exportChParam() {
                 for (int i = 0; i < OpnPrValue::ops; i++) {
                     content += setExportedOpParams(i);
                 }
+
+                // AMP ENV (旧フォーマットと互換を保つため末尾に置く)
+                content += ampEnvComponent.getExportedParams();
 
                 file.replaceWithText(content);
             }

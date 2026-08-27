@@ -13,6 +13,7 @@ class Opl3Processor : public PrBase
     PrPtrsAlgFb pAlgFb;
     PrPtrsQuality pQuality;
     PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsSsgSwEnv11 pSsgSwEnv11g;
     PrPtrsUnison pUnison;
 

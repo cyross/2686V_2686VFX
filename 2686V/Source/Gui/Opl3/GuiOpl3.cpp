@@ -107,6 +107,7 @@ void GuiOpl3::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
+    ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
 
@@ -253,6 +254,7 @@ void GuiOpl3::setup()
     targerOpSlider.setWantsKeyboardFocus(true);
     targerOpSlider.setExplicitFocusOrder(++tabOrder);
 
+    ieAmpEnvG.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
@@ -453,6 +455,7 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
 
     algFbSep.layoutComponent(mRect);
 
+    ampEnvComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
 
@@ -805,6 +808,7 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
     imOplOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep005.setVisible(visible);
+    ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
@@ -854,6 +858,8 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         uSep005.layoutComponent(rect);
 
+        ieAmpEnvG.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
@@ -1505,6 +1511,12 @@ void GuiOpl3::importChParam() {
                 for (int i = 0; i < Opl3PrValue::ops; i++) {
                     getImportingOpParams(i, lines, index);
                 }
+
+                // AMP ENV は後から足したので、旧フォーマットとの互換のため
+                // ファイル末尾から読む。行が無ければ既定のままにする。
+                if (index < lines.size()) {
+                    ampEnvComponent.setImportingParams(lines, index);
+                }
             }
         });
 
@@ -1542,6 +1554,9 @@ void GuiOpl3::exportChParam() {
                 for (int i = 0; i < Opl3PrValue::ops; i++) {
                     content += setExportedOpParams(i);
                 }
+
+                // AMP ENV (旧フォーマットと互換を保つため末尾に置く)
+                content += ampEnvComponent.getExportedParams();
 
                 file.replaceWithText(content);
             }

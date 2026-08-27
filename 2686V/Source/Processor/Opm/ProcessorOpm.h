@@ -14,6 +14,7 @@ class OpmProcessor : public PrBase
     PrPtrsQuality pQuality;
     PrPtrsOpmLfo pGlLfo;
     PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsSsgSwEnv11 pSsgSwEnv11g;
     PrPtrsUnison pUnison;
 

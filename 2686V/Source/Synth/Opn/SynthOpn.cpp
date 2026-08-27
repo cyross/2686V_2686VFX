@@ -69,6 +69,7 @@ void OpnCore::prepare(double sampleRate)
 	m_noiseGen.prepare(target);
     m_n88Lfo.prepare(target);
     m_ssgSwEnv11g.prepare(0, target);
+    m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
 }
 
@@ -79,6 +80,8 @@ void OpnCore::setCurveCore(CurveCore* p_curveCore)
     m_operators[1].setCurveCore(p_curveCore);
     m_operators[2].setCurveCore(p_curveCore);
     m_operators[3].setCurveCore(p_curveCore);
+
+    m_ampEnvG.setCurveCore(p_curveCore);
 }
 
 void OpnCore::setSampleRate(double sampleRate) {
@@ -98,6 +101,7 @@ void OpnCore::setParameters(const SynthParams& params)
 
     m_n88Lfo.setParameters(params.opn.glLfo);
     m_ssgSwEnv11g.setParameters(params.opn.ssgSwEnv11g);
+    m_ampEnvG.setParameters(params.opn.ampEnvG);
     m_ssgHwEnv.setParameters(params.opn.ssgHwEnv);
 
     if (m_rateIndex != params.opn.quality.rate) {
@@ -114,6 +118,7 @@ void OpnCore::setParameters(const SynthParams& params)
         m_noiseGen.updateDelta(target);
         m_n88Lfo.updateTargetSampleRate(target);
         m_ssgSwEnv11g.updateTargetSampleRate(target);
+        m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
     }
 
@@ -170,6 +175,10 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     m_ssgHwEnv.noteOn();
 
     if (!isLegato) {
+        if (!m_ampEnvG.isBypass()) {
+            m_ampEnvGLevel = m_ampEnvG.noteOn();
+        }
+
         if (!m_ssgSwEnv11g.isBypass()) {
             m_ssgSwEnv11g.noteOn();
         }
@@ -183,6 +192,10 @@ void OpnCore::noteOff()
     m_operators[2].noteOff();
     m_operators[3].noteOff();
 
+    if (!m_ampEnvG.isBypass()) {
+        m_ampEnvG.noteOff();
+    }
+
     if (!m_ssgSwEnv11g.isBypass()) {
         m_ssgSwEnv11g.noteOff();
     }
@@ -194,6 +207,7 @@ bool OpnCore::isPlaying() const
     if (m_operators[1].isPlaying()) return true;
     if (m_operators[2].isPlaying()) return true;
     if (m_operators[3].isPlaying()) return true;
+    if (m_ampEnvG.isPlaying()) return true;
     if (m_ssgSwEnv11g.isPlaying()) return true;
 
     return false;
@@ -268,6 +282,15 @@ float OpnCore::getSample() {
 
         // SSGハードウェアエンベロープ(SsgHwEnv)処理
         finalOut *= m_ssgHwEnv.process();
+
+        // チップ全体の AMP ENV 処理
+        if (!m_ampEnvG.isBypass()) {
+            m_ampEnvGLevel = m_ampEnvG.process(m_ampEnvGLevel);
+            finalOut *= m_ampEnvGLevel;
+        }
+        else {
+            if (m_ampEnvG.isRelease()) m_ampEnvG.bypassedReleasedProcess();
+        }
 
         // SSGソフトウェアエンベロープ(SsgSwEnv11)処理
         if (!m_ssgSwEnv11g.isBypass()) {

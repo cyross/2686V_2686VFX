@@ -18,6 +18,9 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addN88LfoParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    // チップ全体へ掛かる AMP ENV。既定はバイパス。
+    PrHelper::addEnvParameters(layout, prefix, prefixName);
+    PrHelper::addAdsrBypassParameter(layout, prefix, prefixName, true);
     PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
     PrHelper::addSsgSwEnv11BypassParameters(layout, prefix, prefixName);
 
@@ -47,6 +50,7 @@ void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupAlgFbPtrs(apvts, prefix, pAlgFb);
     PrHelper::setupN88LfoPtrs(apvts, prefix, pN88Lfo);
     PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
+    PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
     PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
@@ -75,6 +79,7 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     PrHelper::applyN88Lfo(pN88Lfo, params.opn.glLfo);
     PrHelper::applyUnison(pUnison, params.opn.unison);
     PrHelper::applySsgHwEnv(pSsgHwEnv, params.opn.ssgHwEnv);
+    PrHelper::applyAdsrAmpEnv(pAmpEnvG, params.opn.ampEnvG);
     PrHelper::applySsgSwEnv11(pSsgSwEnv11g, params.opn.ssgSwEnv11g);
 
     for (int op = 0; op < OpnPrValue::ops; ++op)

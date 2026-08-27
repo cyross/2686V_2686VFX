@@ -30,6 +30,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
+#include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
@@ -93,6 +94,8 @@ class GuiOpzx7 : public GuiBase
     GuiComponentLfoOpzx7 glLfo;
 
     // SSG Hw Env
+    // チップ全体へ掛かる AMP ENV
+    GuiComponentAmpEnv ampEnvComponent;
     GuiComponentSsgHwEnv ssgHwEnv;
     // SSG Sw Env
     GuiComponentSsgSwEnv11 ssgSwEnv11g;
@@ -119,6 +122,7 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep003;
+    GuiComponentImportExport ieAmpEnvG;
     GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieLfo;

@@ -142,6 +142,9 @@ set(AMP_ENVELOPE_FILES
     "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
     "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
     "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.cpp"
+    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
+    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
+    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.cpp"
 )
 
 set(PITCH_ENVELOPE_FILES

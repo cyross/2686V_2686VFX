@@ -3,6 +3,7 @@
 #include "../../Core/Fm/FmCore.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Processor/Opl/ProcessorOplValues.h"
+#include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 
@@ -73,6 +74,11 @@ private:
     std::array<bool, OplPrValue::ops> m_opMask{ false };
     std::array<float, OplPrValue::ops> m_history1 = { 0.0f };
     std::array<float, OplPrValue::ops> m_history2 = { 0.0f };
+
+    // チップ全体へ掛かる AMP ENV。オペレータごとのエンベロープとは別に、
+    // 出力段でもう一段掛ける。level は次のサンプルへ持ち越す。
+    AmpAdsrEnv m_ampEnvG;
+    float m_ampEnvGLevel = 0.0f;
 
     SsgHwEnv m_ssgHwEnv;
     SsgSwEnv11 m_ssgSwEnv11g;

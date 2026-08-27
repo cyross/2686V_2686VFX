@@ -1775,6 +1775,19 @@ namespace PrHelper {
 		);
 	}
 
+	// AMP ENV のバイパスだけを、初期値を指定して登録する。
+	// FM 音源はオペレータごとに独自のエンベロープを持っているため、
+	// チップ全体へ掛ける AMP ENV は既定でバイパスにしておく。
+	// そうしないと既存のプリセットの鳴りが変わってしまう。
+	static inline void addAdsrBypassParameter(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName, bool initial) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::adsr + CPK::bypass,
+			prefixName + CPN::Adsr::bypass,
+			initial
+		);
+	}
+
 	static inline void addSsgSwEnv11BypassParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		PrHelper::addBool(
 			layout,

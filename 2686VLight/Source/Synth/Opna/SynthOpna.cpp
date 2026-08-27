@@ -70,6 +70,7 @@ void OpnaCore::prepare(double sampleRate) {
 	m_noiseGen.prepare(target);
     m_n88Lfo.prepare(target);
     m_ssgSwEnv11g.prepare(0, target);
+    m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
 }
 
@@ -89,6 +90,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
 
     m_n88Lfo.setParameters(params.opna.glLfo);
     m_ssgSwEnv11g.setParameters(params.opna.ssgSwEnv11g);
+    m_ampEnvG.setParameters(params.opna.ampEnvG);
     m_ssgHwEnv.setParameters(params.opna.ssgHwEnv);
     m_pan = params.opna.pan;
 
@@ -115,6 +117,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
         m_noiseGen.updateDelta(target);
         m_n88Lfo.updateTargetSampleRate(target);
         m_ssgSwEnv11g.updateTargetSampleRate(target);
+        m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
     }
 
@@ -170,6 +173,10 @@ void OpnaCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     m_ssgHwEnv.noteOn();
 
     if (!isLegato) {
+        if (!m_ampEnvG.isBypass()) {
+            m_ampEnvGLevel = m_ampEnvG.noteOn();
+        }
+
         if (!m_ssgSwEnv11g.isBypass()) {
             m_ssgSwEnv11g.noteOn();
         }
@@ -182,6 +189,10 @@ void OpnaCore::noteOff() {
     m_operators[2].noteOff();
     m_operators[3].noteOff();
 
+    if (!m_ampEnvG.isBypass()) {
+        m_ampEnvG.noteOff();
+    }
+
     if (!m_ssgSwEnv11g.isBypass()) {
         m_ssgSwEnv11g.noteOff();
     }
@@ -192,6 +203,7 @@ bool OpnaCore::isPlaying() const {
     if (m_operators[1].isPlaying()) return true;
     if (m_operators[2].isPlaying()) return true;
     if (m_operators[3].isPlaying()) return true;
+    if (m_ampEnvG.isPlaying()) return true;
     if (m_ssgSwEnv11g.isPlaying()) return true;
 
     return false;
@@ -271,6 +283,15 @@ float OpnaCore::getSample() {
 
         // SSGハードウェアエンベロープ(SsgHwEnv)処理
         finalOut *= m_ssgHwEnv.process();
+
+        // チップ全体の AMP ENV 処理
+        if (!m_ampEnvG.isBypass()) {
+            m_ampEnvGLevel = m_ampEnvG.process(m_ampEnvGLevel);
+            finalOut *= m_ampEnvGLevel;
+        }
+        else {
+            if (m_ampEnvG.isRelease()) m_ampEnvG.bypassedReleasedProcess();
+        }
 
         // SSGソフトウェアエンベロープ(SsgSwEnv11)処理
         if (!m_ssgSwEnv11g.isBypass()) {

@@ -234,6 +234,7 @@ void GuiOpl::setup()
 
     uSep005.setupComponent(mainGroup.contentCanvas);
 
+    ieAmpEnvG.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
@@ -251,6 +252,7 @@ void GuiOpl::setup()
     imOpl3ChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "OPL3 CH Params");
     imOpl3ChParam.onClickImport = [this] { importOpl3ChParam(); };
 
+    ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
 
@@ -462,6 +464,7 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
+    ampEnvComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
 
@@ -826,6 +829,7 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
     imOpl3OpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep005.setVisible(visible);
+    ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
@@ -874,6 +878,8 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
 
         uSep005.layoutComponent(rect);
 
+        ieAmpEnvG.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
@@ -1527,6 +1533,12 @@ void GuiOpl::importChParam() {
 				for (int i = 0; i < OplPrValue::ops; i++) {
 					getImportingOpParams(i, lines, index);
 				}
+
+                // AMP ENV は後から足したので、旧フォーマットとの互換のため
+                // ファイル末尾から読む。行が無ければ既定のままにする。
+                if (index < lines.size()) {
+                    ampEnvComponent.setImportingParams(lines, index);
+                }
             }
         });
 }
@@ -1563,6 +1575,9 @@ void GuiOpl::exportChParam() {
                 for (int i = 0; i < OplPrValue::ops; i++) {
                     content += setExportedOpParams(i);
                 }
+
+                // AMP ENV (旧フォーマットと互換を保つため末尾に置く)
+                content += ampEnvComponent.getExportedParams();
 
                 file.replaceWithText(content);
             }

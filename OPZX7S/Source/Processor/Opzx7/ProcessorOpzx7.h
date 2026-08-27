@@ -14,6 +14,7 @@ class Opzx7Processor : public PrBase
     PrPtrsOpzx7AlgFb pAlgFb;
     PrPtrsQuality pQuality;
     PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsSsgSwEnv11 pSsgSwEnv11g;
     PrPtrsOpzx7Lfo pOpzx7Lfo;
     PrPtrsPanpot pPanpot;
