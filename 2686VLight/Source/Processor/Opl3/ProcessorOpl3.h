@@ -15,6 +15,7 @@ class Opl3Processor : public PrBase
     PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsSsgSwEnv11 pSsgSwEnv11g;
+    PrPtrsSsgSwPEnv11 pSsgSwPEnv11g;
     PrPtrsUnison pUnison;
 
     std::array<PrPtrsOplDetune, Opl3PrValue::ops> pOpDetune;

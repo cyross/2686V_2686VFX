@@ -17,6 +17,7 @@ class Opzx7Processor : public PrBase
     PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsSsgSwEnv11 pSsgSwEnv11g;
+    PrPtrsSsgSwPEnv11 pSsgSwPEnv11g;
     PrPtrsPanpot pPanpot;
     PrPtrsUnison pUnison;
     std::array<PrPtrsOpzx7Detune, Opzx7PrValue::ops> pOpzx7Detune;

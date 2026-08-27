@@ -69,6 +69,12 @@ void OpnCore::prepare(double sampleRate)
 	m_noiseGen.prepare(target);
     m_n88Lfo.prepare(target);
     m_ssgSwEnv11g.prepare(0, target);
+    m_ssgSwPEnv11g.prepare(0, target);
+
+    // オペレータにチップ全体のピッチ倍率の在りかを教える
+    for (int i = 0; i < OpnPrValue::ops; ++i) {
+        m_operators[i].setGlobalPitchRatioSource(&m_globalPitchRatio);
+    }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
 }
@@ -90,6 +96,7 @@ void OpnCore::setParameters(const SynthParams& params)
 
     m_n88Lfo.setParameters(params.opn.glLfo);
     m_ssgSwEnv11g.setParameters(params.opn.ssgSwEnv11g);
+    m_ssgSwPEnv11g.setParameters(params.opn.ssgSwPEnv11g);
     m_ampEnvG.setParameters(params.opn.ampEnvG);
     m_ssgHwEnv.setParameters(params.opn.ssgHwEnv);
 
@@ -107,6 +114,7 @@ void OpnCore::setParameters(const SynthParams& params)
         m_noiseGen.updateDelta(target);
         m_n88Lfo.updateTargetSampleRate(target);
         m_ssgSwEnv11g.updateTargetSampleRate(target);
+        m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
     }
@@ -171,6 +179,10 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         if (!m_ssgSwEnv11g.isBypass()) {
             m_ssgSwEnv11g.noteOn();
         }
+
+        if (!m_ssgSwPEnv11g.isBypass()) {
+            m_ssgSwPEnv11g.noteOn();
+        }
     }
 }
 
@@ -188,6 +200,10 @@ void OpnCore::noteOff()
     if (!m_ssgSwEnv11g.isBypass()) {
         m_ssgSwEnv11g.noteOff();
     }
+
+    if (!m_ssgSwPEnv11g.isBypass()) {
+        m_ssgSwPEnv11g.noteOff();
+    }
 }
 
 bool OpnCore::isPlaying() const
@@ -198,6 +214,7 @@ bool OpnCore::isPlaying() const
     if (m_operators[3].isPlaying()) return true;
     if (m_ampEnvG.isPlaying()) return true;
     if (m_ssgSwEnv11g.isPlaying()) return true;
+    if (m_ssgSwPEnv11g.isPlaying()) return true;
 
     return false;
 }
@@ -242,6 +259,9 @@ float OpnCore::getSample() {
         m_rateAccumulator -= 1.0;
 
         m_prevSample = m_lastSample;
+
+        // オペレータより先にチップ全体のピッチ倍率を確定させる
+        updateGlobalPitchRatio();
 
         m_n88Lfo.getSample();
 

@@ -23,6 +23,7 @@
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
@@ -58,6 +59,8 @@ class GuiOpm : public GuiBase
     GuiComponentSsgHwEnv ssgHwEnv;
     // SSG Sw Env
     GuiComponentSsgSwEnv11 ssgSwEnv11g;
+    // チップ全体へ掛かるピッチ側
+    GuiComponentSsgSwPEnv11 ssgSwPEnv11g;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -109,6 +112,7 @@ class GuiOpm : public GuiBase
     GuiComponentImportExport ieAmpEnvG;
     GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
+    GuiComponentImportExport ieSsgSwPEnv11g;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
@@ -211,6 +215,7 @@ public:
         ampEnvComponent(context),
         ssgHwEnv(context),
         ssgSwEnv11g(context),
+        ssgSwPEnv11g(context),
         unisonComponent(context),
         panCat(context),
         panSlider(context),
@@ -253,6 +258,7 @@ public:
         ieAmpEnvG(context),
         ieSsgHwEnv(context),
         ieSsgSwEnv11(context),
+        ieSsgSwPEnv11g(context),
         ieLfo(context),
         ieUnison(context),
         ieQuality(context),

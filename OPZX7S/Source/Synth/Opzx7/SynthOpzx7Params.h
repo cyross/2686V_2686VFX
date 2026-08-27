@@ -9,6 +9,7 @@
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
 
 struct Opzx7Params
 {
@@ -22,6 +23,7 @@ struct Opzx7Params
     AmpAdsrParams ampEnvG;
     SsgHwEnvParams ssgHwEnv;
     SsgSwEnv11Params ssgSwEnv11g;
+    SsgSwPEnv11Params ssgSwPEnv11g;
 
     std::array<Opzx7OpParams, Opzx7PrValue::ops> op;
 };

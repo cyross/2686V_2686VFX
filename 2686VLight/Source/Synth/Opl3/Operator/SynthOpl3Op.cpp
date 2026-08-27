@@ -249,7 +249,7 @@ void Opl3Operator::getSample(float& output, float modulator, float feedbackModul
         feedbackPhaseOffset = feedbackModulator * fVector[m_feedback];
     }
 
-    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * m_lfo.value.pm;
+    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * (*m_p_globalPitchRatio) * m_lfo.value.pm;
     float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
     currentPhaseDelta = m_params.ssgPEnv11Enable ? m_ssgSwPenv11.process(currentPhaseDelta) : currentPhaseDelta;
 

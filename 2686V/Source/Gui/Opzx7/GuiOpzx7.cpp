@@ -345,6 +345,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ampEnvComponent(context),
     ssgHwEnv(context),
     ssgSwEnv11g(context),
+    ssgSwPEnv11g(context),
     unisonComponent(context),
     utilityCat(context),
     broadcastLevelButton(context),
@@ -366,6 +367,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ieAmpEnvG(context),
     ieSsgHwEnv(context),
     ieSsgSwEnv11(context),
+    ieSsgSwPEnv11g(context),
     ieLfo(context),
     ieUnison(context),
     ieQuality(context),
@@ -590,6 +592,7 @@ void GuiOpzx7::setup()
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
+    ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -696,6 +699,7 @@ void GuiOpzx7::setup()
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
+    ieSsgSwPEnv11g.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11g);
 
     ieLfo.setupComponentFor(mainGroup.contentCanvas, tabOrder, "LFO", glLfo);
 
@@ -1135,6 +1139,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     ampEnvComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
+    ssgSwPEnv11g.layoutComponent(mRect);
 
     layoutPanpotCat(mRect);
 
@@ -1774,6 +1779,7 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
+    ieSsgSwPEnv11g.setVisible(visible);
     ieLfo.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
@@ -1816,6 +1822,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieSsgHwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwPEnv11g.layoutComponent(rect);
         rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -2710,6 +2718,10 @@ void GuiOpzx7::importChParam() {
                 if (index < lines.size()) {
                     ampEnvComponent.setImportingParams(lines, index);
                 }
+
+                if (index < lines.size()) {
+                    ssgSwPEnv11g.setImportingParams(lines, index);
+                }
             }
         });
 
@@ -2764,6 +2776,7 @@ void GuiOpzx7::exportChParam() {
 
                 // AMP ENV (旧フォーマットと互換を保つため末尾に置く)
                 content += ampEnvComponent.getExportedParams();
+                content += ssgSwPEnv11g.getExportedParams();
 
                 file.replaceWithText(content);
             }

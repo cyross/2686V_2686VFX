@@ -53,6 +53,12 @@ void OplCore::prepare(double sampleRate) {
     m_rateAccumulator = 1.0;
 
     m_ssgSwEnv11g.prepare(0, target);
+    m_ssgSwPEnv11g.prepare(0, target);
+
+    // オペレータにチップ全体のピッチ倍率の在りかを教える
+    for (int i = 0; i < OplPrValue::ops; ++i) {
+        m_operators[i].setGlobalPitchRatioSource(&m_globalPitchRatio);
+    }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
 }
@@ -78,6 +84,7 @@ void OplCore::setParameters(const SynthParams& params) {
     m_algorithm = params.opl.algFb.algorithm; // 0:Serial(FM), 1:Parallel(AM)
 
     m_ssgSwEnv11g.setParameters(params.opl.ssgSwEnv11g);
+    m_ssgSwPEnv11g.setParameters(params.opl.ssgSwPEnv11g);
     m_ampEnvG.setParameters(params.opl.ampEnvG);
     m_ssgHwEnv.setParameters(params.opl.ssgHwEnv);
 
@@ -91,6 +98,7 @@ void OplCore::setParameters(const SynthParams& params) {
         m_operators[1].setSampleRate(target);
 
         m_ssgSwEnv11g.updateTargetSampleRate(target);
+        m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
     }
@@ -140,6 +148,10 @@ void OplCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
         if (!m_ssgSwEnv11g.isBypass()) {
             m_ssgSwEnv11g.noteOn();
         }
+
+        if (!m_ssgSwPEnv11g.isBypass()) {
+            m_ssgSwPEnv11g.noteOn();
+        }
     }
 }
 
@@ -154,6 +166,10 @@ void OplCore::noteOff() {
     if (!m_ssgSwEnv11g.isBypass()) {
         m_ssgSwEnv11g.noteOff();
     }
+
+    if (!m_ssgSwPEnv11g.isBypass()) {
+        m_ssgSwPEnv11g.noteOff();
+    }
 }
 
 bool OplCore::isPlaying() const {
@@ -162,6 +178,7 @@ bool OplCore::isPlaying() const {
     if (m_operators[1].isPlaying()) return true;
     if (m_ampEnvG.isPlaying()) return true;
     if (m_ssgSwEnv11g.isPlaying()) return true;
+    if (m_ssgSwPEnv11g.isPlaying()) return true;
 
     return false;
 }
@@ -209,6 +226,9 @@ float OplCore::getSample() {
         m_rateAccumulator -= 1.0;
 
         m_prevSample = m_lastSample;
+
+        // オペレータより先にチップ全体のピッチ倍率を確定させる
+        updateGlobalPitchRatio();
 
         m_operators[0].processLfo();
         m_operators[1].processLfo();

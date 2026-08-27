@@ -8,6 +8,7 @@
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 
 #include "./Operator/SynthOpnOp.h"
 
@@ -87,6 +88,25 @@ private:
 
     SsgHwEnv m_ssgHwEnv;
     SsgSwEnv11 m_ssgSwEnv11g;
+
+    // チップ全体へ掛かるピッチ側。オペレータは m_globalPitchRatio を
+    // 参照しているので、ここを毎サンプル更新すれば全オペレータへ届く。
+    SsgSwPEnv11 m_ssgSwPEnv11g;
+    float m_globalPitchRatio = 1.0f;
+
+    // チップ全体のピッチ倍率を 1 サンプルぶん進める
+    inline void updateGlobalPitchRatio() {
+        float ratio = 1.0f;
+
+        if (!m_ssgSwPEnv11g.isBypass()) {
+            ratio *= m_ssgSwPEnv11g.process(1.0f);
+        }
+        else {
+            if (m_ssgSwPEnv11g.isRelease()) m_ssgSwPEnv11g.bypassedReleasedProcess();
+        }
+
+        m_globalPitchRatio = ratio;
+    }
 
     int m_cachedAlgorithm = -1;
     void updateRoutingCache();

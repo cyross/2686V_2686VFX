@@ -70,6 +70,12 @@ void OpnaCore::prepare(double sampleRate) {
 	m_noiseGen.prepare(target);
     m_n88Lfo.prepare(target);
     m_ssgSwEnv11g.prepare(0, target);
+    m_ssgSwPEnv11g.prepare(0, target);
+
+    // オペレータにチップ全体のピッチ倍率の在りかを教える
+    for (int i = 0; i < OpnaPrValue::ops; ++i) {
+        m_operators[i].setGlobalPitchRatioSource(&m_globalPitchRatio);
+    }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
 }
@@ -90,6 +96,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
 
     m_n88Lfo.setParameters(params.opna.glLfo);
     m_ssgSwEnv11g.setParameters(params.opna.ssgSwEnv11g);
+    m_ssgSwPEnv11g.setParameters(params.opna.ssgSwPEnv11g);
     m_ampEnvG.setParameters(params.opna.ampEnvG);
     m_ssgHwEnv.setParameters(params.opna.ssgHwEnv);
     m_pan = params.opna.pan;
@@ -117,6 +124,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
         m_noiseGen.updateDelta(target);
         m_n88Lfo.updateTargetSampleRate(target);
         m_ssgSwEnv11g.updateTargetSampleRate(target);
+        m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
     }
@@ -180,6 +188,10 @@ void OpnaCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
         if (!m_ssgSwEnv11g.isBypass()) {
             m_ssgSwEnv11g.noteOn();
         }
+
+        if (!m_ssgSwPEnv11g.isBypass()) {
+            m_ssgSwPEnv11g.noteOn();
+        }
     }
 }
 
@@ -196,6 +208,10 @@ void OpnaCore::noteOff() {
     if (!m_ssgSwEnv11g.isBypass()) {
         m_ssgSwEnv11g.noteOff();
     }
+
+    if (!m_ssgSwPEnv11g.isBypass()) {
+        m_ssgSwPEnv11g.noteOff();
+    }
 }
 
 bool OpnaCore::isPlaying() const {
@@ -205,6 +221,7 @@ bool OpnaCore::isPlaying() const {
     if (m_operators[3].isPlaying()) return true;
     if (m_ampEnvG.isPlaying()) return true;
     if (m_ssgSwEnv11g.isPlaying()) return true;
+    if (m_ssgSwPEnv11g.isPlaying()) return true;
 
     return false;
 }
@@ -249,6 +266,9 @@ float OpnaCore::getSample() {
         m_rateAccumulator -= 1.0;
 
         m_prevSample = m_lastSample;
+
+        // オペレータより先にチップ全体のピッチ倍率を確定させる
+        updateGlobalPitchRatio();
 
         for (int i = 0; i < 4; i++)
         {

@@ -2481,6 +2481,18 @@ namespace PrHelper {
 		);
 	}
 
+	// SSG SW PENV11 のバイパスだけを、初期値を指定して登録する。
+	// FM 音源はオペレータごとに同じものを持っているため、チップ全体へ
+	// 掛けるぶんは既定でバイパスにしておく。
+	static inline void addSsgSwPEnv11BypassParameter(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName, bool initial) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::ssgSwPEnv11 + CPK::bypass,
+			prefixName + CPN::SsgSwPEnv11::bypass,
+			initial
+		);
+	}
+
 	static inline void addSsgSwEnv11BypassParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		PrHelper::addBool(
 			layout,

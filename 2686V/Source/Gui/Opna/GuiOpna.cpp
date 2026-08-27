@@ -290,6 +290,7 @@ void GuiOpna::setup()
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
+    ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -449,6 +450,7 @@ void GuiOpna::setup()
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
+    ieSsgSwPEnv11g.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11g);
 
     ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
@@ -652,6 +654,7 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     ampEnvComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
+    ssgSwPEnv11g.layoutComponent(mRect);
 
     layoutPanCat(mRect);
 
@@ -1001,6 +1004,7 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
+    ieSsgSwPEnv11g.setVisible(visible);
     ieLfo.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
@@ -1052,6 +1056,8 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieSsgHwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwPEnv11g.layoutComponent(rect);
         rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -2037,6 +2043,10 @@ void GuiOpna::importChParam() {
                 if (index < lines.size()) {
                     ampEnvComponent.setImportingParams(lines, index);
                 }
+
+                if (index < lines.size()) {
+                    ssgSwPEnv11g.setImportingParams(lines, index);
+                }
             }
         });
 
@@ -2091,6 +2101,7 @@ void GuiOpna::exportChParam() {
 
                 // AMP ENV (旧フォーマットと互換を保つため末尾に置く)
                 content += ampEnvComponent.getExportedParams();
+                content += ssgSwPEnv11g.getExportedParams();
 
                 file.replaceWithText(content);
             }

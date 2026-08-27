@@ -30,6 +30,13 @@ public:
     bool virtual isPlaying() const { return m_state != State::Idle; }
     float virtual getCurrentEnvelope() const { return m_currentLevel; }
     void virtual setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
+
+    // チップ全体に掛かるピッチ倍率。コアが毎サンプル書き換える値を参照する。
+    // 毎サンプル全オペレータへ配ると書き込みが増えるので、コア側の 1 つを指す。
+    // 繋がないうちは 1.0 を指しているので素通しになる。
+    void setGlobalPitchRatioSource(const float* source) {
+        m_p_globalPitchRatio = (source != nullptr) ? source : &unityPitchRatio;
+    }
     void virtual setExternalFeedbackMode(bool isExternal) { m_isExternalFeedback = isExternal; }
     void virtual pushFeedback(float fbValue) { m_fb2 = m_fb1; m_fb1 = fbValue; }
     float virtual calcWaveform(double phase, int wave);
@@ -58,6 +65,9 @@ protected:
     float m_fb1 = 0.0f; float m_fb2 = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
+
+    static inline constexpr float unityPitchRatio = 1.0f;
+    const float* m_p_globalPitchRatio = &unityPitchRatio;
 
     float m_susReleaseDec = 0.0f;
     float m_currentReleaseDec = 0.0f;

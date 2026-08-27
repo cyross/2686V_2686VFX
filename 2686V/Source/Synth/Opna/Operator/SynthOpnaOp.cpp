@@ -367,7 +367,7 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
     // ========================================================
     // 3. 位相と波形の生成
     // ========================================================
-    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * (*m_p_globalPitchRatio) * lfoPitchMod;
     float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
     currentPhaseDelta = m_params.ssgPEnv11Enable ? m_ssgSwPenv11.process(currentPhaseDelta) : currentPhaseDelta;
 

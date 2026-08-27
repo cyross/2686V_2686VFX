@@ -29,6 +29,7 @@
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
@@ -96,6 +97,8 @@ class GuiOpzx7 : public GuiBase
     GuiComponentSsgHwEnv ssgHwEnv;
     // SSG Sw Env
     GuiComponentSsgSwEnv11 ssgSwEnv11g;
+    // チップ全体へ掛かるピッチ側
+    GuiComponentSsgSwPEnv11 ssgSwPEnv11g;
 
     // LFO
     GuiComponentLfoOpzx7 glLfo;
@@ -125,6 +128,7 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieAmpEnvG;
     GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
+    GuiComponentImportExport ieSsgSwPEnv11g;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;

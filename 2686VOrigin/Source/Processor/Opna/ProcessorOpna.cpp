@@ -22,6 +22,9 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addAdsrBypassParameter(layout, prefix, prefixName, true);
     PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
+    // チップ全体へ掛かる SSG SW PENV11。既定はバイパス。
+    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv11BypassParameter(layout, prefix, prefixName, true);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
     PrHelper::addSsgSwEnv11BypassParameters(layout, prefix, prefixName);
 
@@ -55,6 +58,7 @@ void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
     PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
+    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11g);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
     for (int op = 0; op < OpnaPrValue::ops; ++op)
@@ -86,6 +90,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     PrHelper::applySsgHwEnv(pSsgHwEnv, params.opna.ssgHwEnv);
     PrHelper::applyAdsrAmpEnv(pAmpEnvG, params.opna.ampEnvG);
     PrHelper::applySsgSwEnv11(pSsgSwEnv11g, params.opna.ssgSwEnv11g);
+    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11g, params.opna.ssgSwPEnv11g);
 
     for (int op = 0; op < OpnaPrValue::ops; ++op)
     {
