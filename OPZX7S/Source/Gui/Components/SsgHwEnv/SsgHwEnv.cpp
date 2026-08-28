@@ -62,7 +62,7 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
 {
     cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "SSG HW ENV",
+        .title = juce::String("") + "SSG HW AMP ENV",
         .enableChangeDetailVisible = true
         });
 

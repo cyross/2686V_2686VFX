@@ -220,7 +220,7 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
 {
     p_wavePath = &wavePath;
 
-    cat.setupHwCategory({ .parent = parent, .title = juce::String("") + "MODULATION", .enableChangeDetailVisible = true });
+    cat.setupHwCategory({ .parent = parent, .title = juce::String("") + "WT PITCH MOD", .enableChangeDetailVisible = true });
 
     enableButton.setup({ .parent = parent, .id = code + CPK::WtMod::enable, .title = "Enable", .isReset = true, .isResized = true });
     enableButton.setWantsKeyboardFocus(true);

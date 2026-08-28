@@ -78,9 +78,9 @@ juce::Colour CustomTabLookAndFeel::getTabHeaderColor(int tabIndex)
     case 4: return juce::Colours::darkgreen;      // OPM
     case 5: return juce::Colours::darkgreen;      // OPZX7
     case 6: return juce::Colours::darkcyan;       // SSG
-    case 7: return juce::Colours::darkcyan;       // WT
-    case 8: return juce::Colours::darkcyan;       // WT2
-    case 9: return juce::Colours::darkcyan;       // WT+
+    case 7: return juce::Colours::darkturquoise;  // WT
+    case 8: return juce::Colours::darkturquoise;  // WT2
+    case 9: return juce::Colours::darkturquoise;  // WT+
     case 10: return juce::Colours::rebeccapurple; // RHYTHM
     case 11: return juce::Colours::rebeccapurple; // ADPCM
     case 12: return juce::Colours::darkcyan;      // BEEP

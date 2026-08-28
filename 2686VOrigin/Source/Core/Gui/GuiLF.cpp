@@ -72,7 +72,7 @@ juce::Colour CustomTabLookAndFeel::getTabHeaderColor(int tabIndex)
     switch (tabIndex)
     {
     case 0: return juce::Colours::darkgreen;     // OPNA
-    case 1: return juce::Colours::darkcyan;      // SSG
+    case 1: return juce::Colours::darkblue;      // SSG
     case 2: return juce::Colours::rebeccapurple; // RHYTHM
     case 3: return juce::Colours::rebeccapurple; // ADPCM
     case 4: return juce::Colours::darkgoldenrod; // PRESET
