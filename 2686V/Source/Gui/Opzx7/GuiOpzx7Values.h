@@ -29,6 +29,12 @@ namespace Opzx7GuiValue
 		{
 			static inline constexpr int height = 20;
 		}
+		// チップ全体のエンベロープを見るグラフ
+		namespace Graph
+		{
+			static inline constexpr int height = 120;
+			static inline constexpr int ButtonHeight = 16;
+		}
 	}
 
 	namespace ParamGroup

@@ -441,6 +441,11 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     midiComponent(context),
+    gGraph(),
+    gGraphBtnAmp(context),
+    gGraphBtnSsg11(context),
+    gGraphBtnSsgP11(context),
+    gGraphSeparator(context),
     graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -596,6 +601,8 @@ void GuiOpzx7::setup()
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
     ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");
+
+    setupGlobalGraph();
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -1068,6 +1075,11 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     mmRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
 
     presetName.layoutComponent(mmRect);
+
+    // グラフはスクロールさせない固定ヘッダに置く。
+    // 他のチャンネルやオペレータと同じく、プリセット名の下に来る。
+    layoutGlobalGraph(mmRect);
+    updateGlobalGraph();
 
     viewModeComp.layoutComponent(mmRect);
 
@@ -1913,6 +1925,83 @@ void GuiOpzx7::layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect)
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
+}
+
+// ============================================================================
+// チップ全体のエンベロープを見るグラフ
+// ============================================================================
+// オペレータごとのグラフと同じ作りで、対象がチップ全体の 3 つになる。
+// 値が変わったときだけ描き直すので、常時の負荷は無い。
+void GuiOpzx7::setupGlobalGraph()
+{
+    addAndMakeVisible(&gGraph);
+
+    gGraphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
+    gGraphBtnAmp.setToggleState(true, juce::dontSendNotification);
+    gGraphBtnAmp.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::Amp); };
+
+    gGraphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    gGraphBtnSsg11.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::SsgSw11); };
+
+    gGraphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    gGraphBtnSsgP11.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::SsgSwP11); };
+
+    auto repaintGraph = [this]() {
+        if (this->isUpdatingGraph) return;
+
+        this->isUpdatingGraph = true;
+        this->updateGlobalGraph();
+        this->isUpdatingGraph = false;
+        };
+
+    ampEnvComponent.setupGraph(repaintGraph);
+    ssgSwEnv11g.setupGraph(repaintGraph);
+    ssgSwPEnv11g.setupGraph(repaintGraph);
+
+    gGraphSeparator.setupComponent(*this);
+}
+
+void GuiOpzx7::layoutGlobalGraph(juce::Rectangle<int>& rect)
+{
+    auto mainArea = rect.removeFromTop(Opzx7GuiValue::MainGroup::Graph::height + NormalSeparator::getHeight());
+
+    gGraphSeparator.layoutComponentBottom(mainArea);
+
+    auto btnArea = mainArea.removeFromBottom(Opzx7GuiValue::MainGroup::Graph::ButtonHeight);
+    int btnWidth = btnArea.getWidth() / 3;
+
+    gGraphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
+    gGraphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    gGraphBtnSsgP11.setBounds(btnArea);
+
+    gGraph.setBounds(mainArea);
+}
+
+void GuiOpzx7::updateGlobalGraph()
+{
+    // OPZX7S はカーブ編集が標準なので常に有効
+    bool isCurveMode = true;
+    if (currentGlobalGraphMode == GlobalGraphMode::SsgSw11) {
+        ssgSwEnv11g.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
+    }
+    else if (currentGlobalGraphMode == GlobalGraphMode::SsgSwP11) {
+        ssgSwPEnv11g.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
+    }
+    else {
+        ampEnvComponent.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
+    }
+}
+
+void GuiOpzx7::setGlobalGraphMode(GlobalGraphMode mode)
+{
+    currentGlobalGraphMode = mode;
+
+    // ラジオボタン的な排他制御
+    gGraphBtnAmp.setToggleState(mode == GlobalGraphMode::Amp, juce::dontSendNotification);
+    gGraphBtnSsg11.setToggleState(mode == GlobalGraphMode::SsgSw11, juce::dontSendNotification);
+    gGraphBtnSsgP11.setToggleState(mode == GlobalGraphMode::SsgSwP11, juce::dontSendNotification);
+
+    updateGlobalGraph();
 }
 
 void GuiOpzx7::setupGraph(int opIndex)

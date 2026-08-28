@@ -155,6 +155,16 @@ class GuiOpn : public GuiBase
 
     void applyMmlString(const juce::String& mml, int opIndex);
 
+    // チップ全体のエンベロープを見るグラフ
+    GuiEnvelopeGraph gGraph;
+    GuiToggleButton gGraphBtnAmp;
+    GuiToggleButton gGraphBtnSsg11;
+    GuiToggleButton gGraphBtnSsgP11;
+    NormalSeparator gGraphSeparator;
+
+    enum class GlobalGraphMode { Amp, SsgSw11, SsgSwP11 };
+    GlobalGraphMode currentGlobalGraphMode = GlobalGraphMode::Amp;
+
     std::array<GuiEnvelopeGraph, OpnPrValue::ops> opGraphs;
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnAmp;
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnPitch;
@@ -261,6 +271,11 @@ public:
         kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
+        gGraph(),
+        gGraphBtnAmp(context),
+        gGraphBtnSsg11(context),
+        gGraphBtnSsgP11(context),
+        gGraphSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -293,6 +308,12 @@ public:
     void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
+
+    // チップ全体のグラフ
+    void setupGlobalGraph();
+    void layoutGlobalGraph(juce::Rectangle<int>& rect);
+    void updateGlobalGraph();
+    void setGlobalGraphMode(GlobalGraphMode mode);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
     void copyParams(CopyOpn& copyObj);

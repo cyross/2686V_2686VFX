@@ -221,6 +221,16 @@ class GuiOpzx7 : public GuiBase
 
     void applyMmlString(const juce::String& mml, int opIndex);
 
+    // チップ全体のエンベロープを見るグラフ
+    GuiEnvelopeGraph gGraph;
+    GuiToggleButton gGraphBtnAmp;
+    GuiToggleButton gGraphBtnSsg11;
+    GuiToggleButton gGraphBtnSsgP11;
+    NormalSeparator gGraphSeparator;
+
+    enum class GlobalGraphMode { Amp, SsgSw11, SsgSwP11 };
+    GlobalGraphMode currentGlobalGraphMode = GlobalGraphMode::Amp;
+
     std::array<GuiEnvelopeGraph, Opzx7PrValue::ops> opGraphs;
     std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnAmp;
     std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnPitch;
@@ -294,6 +304,12 @@ public:
     void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);
     void layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int selectedWs);
     void setupGraph(int opIndex);
+
+    // チップ全体のグラフ
+    void setupGlobalGraph();
+    void layoutGlobalGraph(juce::Rectangle<int>& rect);
+    void updateGlobalGraph();
+    void setGlobalGraphMode(GlobalGraphMode mode);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
     void copyParams(CopyOpzx7& copyObj);
