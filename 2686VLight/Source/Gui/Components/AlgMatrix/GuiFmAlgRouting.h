@@ -29,6 +29,13 @@ public:
     int numOps;
     GuiFmAlgMatrix(const GuiContext& context, int ops = 8);
     void resized() override;
+
+    // マトリックスが必要とする高さ。余白の取りすぎを防ぐために使う。
+    int getNaturalHeight() const { return fbStartY + fbTotalH; }
+
+    // マトリックスは固定寸法なので、必要な幅も外へ出す。
+    // 部品ごと中央へ寄せるために親が使う。
+    int getNaturalWidth() const { return totalW; }
     void paint(juce::Graphics& g) override;
 
     std::vector<std::unique_ptr<GuiToggleButton>> carrierBtns;
