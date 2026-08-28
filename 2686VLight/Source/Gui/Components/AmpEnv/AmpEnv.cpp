@@ -75,6 +75,8 @@ void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
 		layoutMain({ .mainRect = rect, .label = &release.label, .component = &release });
 		separator2.layoutComponent(rect);
 		layoutMain({ .mainRect = rect, .component = &kor });
+
+		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
 }
 
@@ -101,6 +103,8 @@ void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 		layoutRow({ .rowRect = rect, .label = &sustain.label, .component = &sustain });
 		layoutRow({ .rowRect = rect, .label = &release.label, .component = &release });
 		layoutRow({ .rowRect = rect, .component = &kor });
+
+		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
 }
 

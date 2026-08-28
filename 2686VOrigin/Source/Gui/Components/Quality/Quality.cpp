@@ -62,6 +62,8 @@ void Quality::layoutComponent(juce::Rectangle<int>& rect) {
     {
         layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -77,6 +79,8 @@ void Quality::layoutComponentRow(juce::Rectangle<int>& rect) {
     {
         layoutRow({ .rowRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

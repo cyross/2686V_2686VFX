@@ -1,4 +1,5 @@
-﻿#include "./GuiComponents.h"
+﻿#include <map>
+#include "./GuiComponents.h"
 
 #include "../Editor/PluginEditor.h"
 
@@ -508,34 +509,151 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
         };
 }
 
-void GuiCategoryLabel::setupInner(const Config& c, juce::Colour colour)
+// 見出しから旧書式の装飾を落とす。
+// [■] / [□] の開閉マーカーと、前後の "--- " は描画側が持つようになったので、
+// 文字列に埋まっているぶんは捨てる。
+juce::String GuiCategoryLabel::stripLegacyDecoration(const juce::String& src)
 {
-    this->visibleText = c.title;
-    this->invisibleText = c.invisibleTitle.value_or(""); // 詳細テキストがない場合は空文字
+    juce::String s = src;
+
+    s = s.replace(juce::String::fromUTF8("[\xe2\x96\xa0]"), "");
+    s = s.replace(juce::String::fromUTF8("[\xe2\x96\xa1]"), "");
+    s = s.replace("---", "");
+
+    return s.trim();
+}
+
+void GuiCategoryLabel::setupInner(const Config& c, juce::Colour background)
+{
+    this->captionText = stripLegacyDecoration(c.title);
     this->detailVisible = c.detailVisible;
     this->enableChangeDetailVisible = c.enableChangeDetailVisible;
-    this->font = c.font.value_or(juce::Font(juce::FontOptions(16.0f, juce::Font::bold))); // ハードウェアカテゴリは太字の大きめフォントがデフォルト
+    this->bgColor = background;
+    this->font = c.font.value_or(juce::Font(juce::FontOptions(16.0f, juce::Font::bold)));
 
-    GuiLabel::setup({ .parent = c.parent, .title = ((!this->enableChangeDetailVisible || this->detailVisible) ? this->visibleText : this->invisibleText), .font = font, .justification = c.justification, .color = colour });
+    GuiLabel::setup({ .parent = c.parent, .title = this->captionText, .font = font, .justification = c.justification, .color = GuiColor::Category::Text });
 
-    this->setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.4f));
+    // 中身の背後へ敷く板。見出しより先に親へ入れて背面へ送る。
+    c.parent.addAndMakeVisible(backdrop);
+    backdrop.setVisible(false);
+    backdrop.toBack();
 
-    // 切り替え可能なときは、表示・非表示をトグルする関数を追加
+    // 背景はこのクラスが自前で描くので、Label 側の塗りは切っておく
+    this->setColour(juce::Label::backgroundColourId, juce::Colours::transparentBlack);
+
+    // 切り替え可能なときは、表示・非表示をトグルする
     if (this->enableChangeDetailVisible) {
         this->onClick = [this] {
             this->detailVisible = !this->detailVisible;
 
-            if (detailVisible) {
-                this->setText(visibleText, juce::NotificationType::sendNotification);
-            }
-            else {
-                this->setText(invisibleText, juce::NotificationType::sendNotification);
-            }
+            this->repaint();
 
             ctx.editor.resized();
             };
     }
 }
+
+void GuiCategoryLabel::paint(juce::Graphics& g)
+{
+    auto bounds = getLocalBounds().toFloat();
+
+    if (bounds.isEmpty()) return;
+
+    // ---------------- 背景 ----------------
+    g.setColour(bgColor);
+    g.fillRoundedRectangle(bounds, cornerRadius);
+
+    auto textArea = bounds.reduced(paddingX, 0.0f);
+
+    // ---------------- 開閉マーカー ----------------
+    // 位置は左端固定。開いているときはピンク、閉じているときは黒。
+    if (enableChangeDetailVisible) {
+        float side = juce::jmin(markerSize, bounds.getHeight() - 4.0f);
+
+        juce::Rectangle<float> marker(
+            bounds.getX() + paddingX,
+            bounds.getCentreY() - side * 0.5f,
+            side,
+            side);
+
+        g.setColour(detailVisible ? GuiColor::Category::MarkerOpen : GuiColor::Category::MarkerClosed);
+        g.fillRoundedRectangle(marker, 1.5f);
+
+        g.setColour(GuiColor::Category::MarkerBorder);
+        g.drawRoundedRectangle(marker, 1.5f, 1.0f);
+
+        textArea.removeFromLeft(side + paddingX);
+    }
+
+    // ---------------- 見出し ----------------
+    g.setColour(GuiColor::Category::Text);
+    g.setFont(font);
+    g.drawText(captionText, textArea, getJustificationType(), false);
+}
+
+// ----------------------------------------------------------------------------
+// カテゴリの中身に敷く板
+// ----------------------------------------------------------------------------
+// 見出しを置いた時点では中身の高さが分からないので、次の見出しが置かれた
+// ときに 1 つ前の板を閉じる、という繋ぎ方にしてある。最後の 1 枚は欄の
+// 終わり (GuiScrollGroup::setContentHeight) で閉じる。
+namespace
+{
+    // 親コンポーネントごとに「まだ下端が決まっていない板」を覚えておく。
+    // レイアウトはメッセージスレッドでしか走らないので単純な map でよい。
+    std::map<juce::Component*, GuiCategoryLabel*> g_pendingBackdrops;
+}
+
+void GuiCategoryLabel::beginBackdrop(const juce::Rectangle<int>& contentArea)
+{
+    auto* parent = getParentComponent();
+
+    if (parent == nullptr) return;
+
+    if (!isOpen()) {
+        backdrop.setVisible(false);
+        return;
+    }
+
+    // 上端だけ決めておく。高さは closePending で入る。
+    // 板は見出しと同じ幅。中身はこのあと内側へ寄せるので、左右に余白ができる。
+    backdrop.setBounds(contentArea.getX(), contentArea.getY(), contentArea.getWidth(), 0);
+    backdrop.setVisible(false);
+
+    g_pendingBackdrops[parent] = this;
+}
+
+bool GuiCategoryLabel::closePending(juce::Component* parent, int bottom)
+{
+    if (parent == nullptr) return false;
+
+    auto it = g_pendingBackdrops.find(parent);
+
+    if (it == g_pendingBackdrops.end()) return false;
+
+    auto* label = it->second;
+
+    g_pendingBackdrops.erase(it);
+
+    if (label == nullptr) return false;
+
+    auto b = label->backdrop.getBounds();
+
+    // 次の見出しにくっつくと、板が下のカテゴリのものに見えてしまう。
+    int height = (bottom - gapBelow) - b.getY();
+
+    if (height <= 0) {
+        label->backdrop.setVisible(false);
+        return true;
+    }
+
+    label->backdrop.setBounds(b.getX(), b.getY(), b.getWidth(), height);
+    label->backdrop.setVisible(true);
+    label->backdrop.toBack();
+
+    return true;
+}
+
 
 void GuiCategoryLabel::setup(const Config& c)
 {
@@ -544,15 +662,20 @@ void GuiCategoryLabel::setup(const Config& c)
 
 void GuiCategoryLabel::setupHwCategory(const Config& c)
 {
-    setupInner(c, juce::Colours::yellow);
+    setupInner(c, GuiColor::Category::HwBg);
 }
 
 void GuiCategoryLabel::setupSwCategory(const Config& c)
 {
-    setupInner(c, juce::Colours::aqua);
+    setupInner(c, GuiColor::Category::SwBg);
 }
 
 void GuiCategoryLabel::setupOtherCategory(const Config& c)
 {
-    setupInner(c, juce::Colours::lime);
+    setupInner(c, GuiColor::Category::OtherBg);
+}
+
+void closeCategoryBackdrops(juce::Component* parent, int bottom)
+{
+    GuiCategoryLabel::closePending(parent, bottom);
 }

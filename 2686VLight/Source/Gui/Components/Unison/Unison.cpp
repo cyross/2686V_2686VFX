@@ -130,6 +130,8 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &paraDistance.label, .component = &paraDistance });
         paraDetune.layoutComponent(rect);
         if (paraDetune.isVisibleNudge()) paraDetuneButtons.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 void GuiComponentUnison::copyParams(CopyUnison& copyObj) {

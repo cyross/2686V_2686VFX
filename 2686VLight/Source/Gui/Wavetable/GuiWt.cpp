@@ -995,6 +995,8 @@ void GuiWt::layoutFormCat(Rectangle<int>& rect) {
             formSeparator.layoutComponent(rect);
             layoutMain({ .mainRect = rect, .label = &sizeSelector.label, .component = &sizeSelector, });
             layoutMain({ .mainRect = rect, .label = &stepsSelector.label, .component = &stepsSelector, });
+
+            rect.removeFromTop(CoreGuiValue::Category::gapBelow);
         }
     }
 }
@@ -1056,6 +1058,8 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

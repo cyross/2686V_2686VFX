@@ -89,6 +89,8 @@ void QualityPcm::layoutComponent(juce::Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .label = &modeSelector.label, .component = &modeSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutMain({ .mainRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -106,6 +108,8 @@ void QualityPcm::layoutComponentRow(juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &modeSelector.label, .component = &modeSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

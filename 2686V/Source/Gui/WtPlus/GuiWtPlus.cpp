@@ -260,6 +260,8 @@ void GuiWtPlus::layoutWaveCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &slotSlider.label, .component = &slotSlider });
         layoutMain({ .mainRect = rect, .component = &interpolateButton });
         layoutMain({ .mainRect = rect, .label = &stepsSelector.label, .component = &stepsSelector, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -286,6 +288,8 @@ void GuiWtPlus::layoutSlotsCat(juce::Rectangle<int>& rect)
                                 .fileNameLabel = &slotFileNameLabel[i],
                                 .clearBtn = &slotClearBtn[i] });
         }
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -339,6 +343,8 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

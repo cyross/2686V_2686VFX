@@ -395,6 +395,8 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePcmPlay.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -424,6 +426,8 @@ void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
         layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
         layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -446,6 +450,8 @@ void GuiAdpcm::layoutPanCat(juce::Rectangle<int>& rect)
     {
         layoutMain({ .mainRect = rect, .label = &panSlider.label, .component = &panSlider });
         layoutMainThreeComps({ .rect = rect, .comp1 = &panToLBtn, .comp2 = &panToCBtn, .comp3 = &panToRBtn, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -468,6 +474,8 @@ void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .component = &loopPointEnableButton });
         layoutMain({ .mainRect = rect, .label = &loopPointStartSlider.label, .component = &loopPointStartSlider, });
         layoutMain({ .mainRect = rect, .label = &loopPointEndSlider.label, .component = &loopPointEndSlider, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

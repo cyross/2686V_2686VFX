@@ -220,6 +220,8 @@ void GuiComponentLevel::layoutComponent(juce::Rectangle<int>& rect) {
         layoutMainSixComps({ .rect = rect, .comp1 = &levelTo0125, .comp2 = &levelTo0142, .comp3 = &levelTo016, .comp4 = &levelTo033, .comp5 = &levelTo067, .comp6 = &levelTo083 });
         layoutMainFourComps({ .rect = rect, .comp1 = &levelPM001, .comp2 = &levelPM01, .comp3 = &levelP01, .comp4 = &levelP001 });
     }
+
+    rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
 
 void GuiComponentLevel::layoutComponentRow(juce::Rectangle<int>& rect) {
@@ -238,6 +240,8 @@ void GuiComponentLevel::layoutComponentRow(juce::Rectangle<int>& rect) {
         layoutRowSixComps({ .rect = rect, .comp1 = &levelTo0125, .comp2 = &levelTo0142, .comp3 = &levelTo016, .comp4 = &levelTo033, .comp5 = &levelTo067, .comp6 = &levelTo083 });
         layoutRowFourComps({ .rect = rect, .comp1 = &levelPM001, .comp2 = &levelPM01, .comp3 = &levelP01, .comp4 = &levelP001 });
     }
+
+    rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
 
 void GuiComponentLevel::setVisible(bool visible) {

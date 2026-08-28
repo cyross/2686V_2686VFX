@@ -465,6 +465,8 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
+    mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
+
     ampEnvComponent.layoutComponent(mRect);
     modComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
@@ -797,7 +799,13 @@ void GuiOpl::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
     if (visibleMask)
     {
         layoutRow({ .rowRect = rect, .component = &mask[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
+
+    // MASK の後ろには分類の外の行 (セパレータや MML) が続くので、
+    // 板をここで閉じないと 1 行ぶん下まで伸びてしまう。
+    closeCategoryBackdrops(catMask[opIndex].getParentComponent(), rect.getY());
 }
 
 void GuiOpl::layoutQualityCat(juce::Rectangle<int>& rect) {
@@ -900,6 +908,8 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
         ieChParam.layoutComponent(rect);
         imOpl3ChParam.layoutComponent(rect);
         rect.removeFromTop(4);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -940,6 +950,8 @@ void GuiOpl::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
         if (pms[opIndex].isVisibleNudge()) layoutRowTwoComps({ .rect = rect, .comp1 = &pmsTo606[opIndex], .comp2 = &pmsTo64[opIndex] });
         pmd[opIndex].layoutComponentRow(rect);
         if (pmd[opIndex].isVisibleNudge()) layoutRowThreeComps({ .rect = rect, .comp1 = &pmdTo7[opIndex], .comp2 = &pmdTo137[opIndex], .comp3 = &pmdTo14[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -954,6 +966,8 @@ void GuiOpl::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect) {
     if (visible) {
         layoutRow({ .rowRect = rect, .component = &ksr[opIndex] });
         layoutRow({ .rowRect = rect, .label = &ksl[opIndex].label, .component = &ksl[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -966,6 +980,8 @@ void GuiOpl::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &mul[opIndex].label, .component = &mul[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -990,6 +1006,8 @@ void GuiOpl::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &rgTl[opIndex].label, .component = &rgTl[opIndex] });
         layoutRow({ .rowRect = rect, .component = &egType[opIndex] });
         layoutRow({ .rowRect = rect, .component = &sus[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1002,6 +1020,8 @@ void GuiOpl::layoutOpEgCat(int opIndex, juce::Rectangle<int>& rect) {
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &eg[opIndex].label, .component = &eg[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1259,6 +1279,8 @@ void GuiOpl::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
         layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

@@ -131,6 +131,8 @@ void GuiComponentSsgHwEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &minSlider.label, .component = &minSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .component = &smoothEnableButton });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -157,6 +159,8 @@ void GuiComponentSsgHwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &minSlider.label, .component = &minSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .component = &smoothEnableButton });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

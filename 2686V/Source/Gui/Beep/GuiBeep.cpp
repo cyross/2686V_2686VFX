@@ -177,6 +177,8 @@ void GuiBeep::layoutOptionalCat(juce::Rectangle<int>& rect)
     {
         layoutMain({ .mainRect = rect, .component = &antiAliasButton });
         layoutMain({ .mainRect = rect, .label = &timerClockSelector.label, .component = &timerClockSelector, .rowHeight = 13 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -227,6 +229,8 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

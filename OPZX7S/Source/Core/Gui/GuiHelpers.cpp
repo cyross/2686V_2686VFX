@@ -137,7 +137,35 @@ void layoutRow(const RowConfig& c)
 
 void layoutMainCategory(const MainConfigCategory& c)
 {
+    // 見出しは label と component のどちらで渡ってくることもある
+    auto* asComponent = (c.label != nullptr) ? static_cast<juce::Component*>(c.label) : c.component;
+    auto* category = dynamic_cast<GuiCategoryLabel*>(asComponent);
+
+    const int pad = GuiCategoryLabel::contentPadding;
+
+    if (category != nullptr) {
+        // 1 つ前に開いたカテゴリの板を、この見出しの手前で閉じる。
+        // 閉じたときだけ、その中身のために内側へ寄せていた幅を元に戻す。
+        if (GuiCategoryLabel::closePending(category->getParentComponent(), c.mainRect.getY())) {
+            c.mainRect.setX(c.mainRect.getX() - pad);
+            c.mainRect.setWidth(c.mainRect.getWidth() + pad * 2);
+        }
+    }
+
     layoutRow(c.mainRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+
+    if (category != nullptr) {
+        // 畳んでいるときもここを通す。beginBackdrop の中で板を隠すため、
+        // 通さないと前回開いていたときの板が出たままになる。
+        category->beginBackdrop(c.mainRect);
+
+        if (category->isOpen()) {
+            // 中身は板の内側へ寄せる。次の見出しの手前で元に戻す。
+            c.mainRect.setX(c.mainRect.getX() + pad);
+            c.mainRect.setWidth(c.mainRect.getWidth() - pad * 2);
+            c.mainRect.removeFromTop(pad);
+        }
+    }
 }
 
 void layoutMainParamName(const MainConfigParamName& c)
@@ -147,7 +175,35 @@ void layoutMainParamName(const MainConfigParamName& c)
 
 void layoutRowCategory(const RowConfigCategory& c)
 {
+    // 見出しは label と component のどちらで渡ってくることもある
+    auto* asComponent = (c.label != nullptr) ? static_cast<juce::Component*>(c.label) : c.component;
+    auto* category = dynamic_cast<GuiCategoryLabel*>(asComponent);
+
+    const int pad = GuiCategoryLabel::contentPadding;
+
+    if (category != nullptr) {
+        // 1 つ前に開いたカテゴリの板を、この見出しの手前で閉じる。
+        // 閉じたときだけ、その中身のために内側へ寄せていた幅を元に戻す。
+        if (GuiCategoryLabel::closePending(category->getParentComponent(), c.rowRect.getY())) {
+            c.rowRect.setX(c.rowRect.getX() - pad);
+            c.rowRect.setWidth(c.rowRect.getWidth() + pad * 2);
+        }
+    }
+
     layoutRow(c.rowRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+
+    if (category != nullptr) {
+        // 畳んでいるときもここを通す。beginBackdrop の中で板を隠すため、
+        // 通さないと前回開いていたときの板が出たままになる。
+        category->beginBackdrop(c.rowRect);
+
+        if (category->isOpen()) {
+            // 中身は板の内側へ寄せる。次の見出しの手前で元に戻す。
+            c.rowRect.setX(c.rowRect.getX() + pad);
+            c.rowRect.setWidth(c.rowRect.getWidth() - pad * 2);
+            c.rowRect.removeFromTop(pad);
+        }
+    }
 }
 
 void layoutRowOneComp(const RowConfigOneComp& c)

@@ -275,6 +275,8 @@ void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &dt2.label, .component = &dt2 });
         dt3.layoutComponent(rect);
         if (dt3.isVisibleNudge()) dt3Buttons.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -329,6 +331,8 @@ void GuiComponentMulDetune::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &dt2.label, .component = &dt2 });
         dt3.layoutComponentRow(rect);
         if (dt3.isVisibleNudge()) dt3Buttons.layoutComponentRow(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

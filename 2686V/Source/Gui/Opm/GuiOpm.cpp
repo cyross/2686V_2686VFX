@@ -678,6 +678,8 @@ void GuiOpm::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
+    mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
+
     ampEnvComponent.layoutComponent(mRect);
     modComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
@@ -1081,6 +1083,8 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1094,7 +1098,13 @@ void GuiOpm::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
     if (visibleMask)
     {
         layoutRow({ .rowRect = rect, .component = &mask[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
+
+    // MASK の後ろには分類の外の行 (セパレータや MML) が続くので、
+    // 板をここで閉じないと 1 行ぶん下まで伸びてしまう。
+    closeCategoryBackdrops(catMask[opIndex].getParentComponent(), rect.getY());
 }
 
 void GuiOpm::layoutQualityCat(juce::Rectangle<int>& rect) {
@@ -1116,6 +1126,8 @@ void GuiOpm::layoutPanCat(juce::Rectangle<int>& rect)
     {
         layoutMain({ .mainRect = rect, .label = &panSlider.label, .component = &panSlider });
         layoutMainThreeComps({ .rect = rect, .comp1 = &panToLBtn, .comp2 = &panToCBtn, .comp3 = &panToRBtn });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1157,6 +1169,8 @@ void GuiOpm::layoutHwLfoCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &lfoEgShapeSelector.label, .component = &lfoEgShapeSelector });
         layoutMain({ .mainRect = rect, .label = &lfoAmsSelector.label, .component = &lfoAmsSelector });
         layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1171,6 +1185,8 @@ void GuiOpm::layoutOpHwLfoCat(int opIndex, juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &amsEnable[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1197,6 +1213,8 @@ void GuiOpm::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect) {
             layoutRow({ .rowRect = rect, .label = &kslOPP[opIndex].label, .component = &kslOPP[opIndex] });
             break;
         }
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1245,6 +1263,8 @@ void GuiOpm::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
         mulDetSep[opIndex].layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &dt1[opIndex].label, .component = &dt1[opIndex] });
         layoutRow({ .rowRect = rect, .label = &dt2[opIndex].label, .component = &dt2[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1267,6 +1287,8 @@ void GuiOpm::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &rgD2r[opIndex].label, .component = &rgD2r[opIndex] });
         layoutRow({ .rowRect = rect, .label = &rgRr[opIndex].label, .component = &rgRr[opIndex] });
         layoutRow({ .rowRect = rect, .label = &rgTl[opIndex].label, .component = &rgTl[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1548,6 +1570,8 @@ void GuiOpm::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
         layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

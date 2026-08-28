@@ -78,6 +78,15 @@ public:
 // =======================================================
 // スクロールバー付きのグループコンポーネント
 // =======================================================
+// カテゴリの中身に敷く板のうち、下端がまだ決まっていないものを閉じる。
+// GuiCategoryLabel はこの下で定義されるので、ここでは前方宣言と関数だけ置く。
+class GuiCategoryLabel;
+
+// 各タブは中身の高さに末尾の余白を足してから欄の高さを決めるので、
+// 最後の板はそのぶんを差し引いた位置で閉じる。
+inline constexpr int categoryContentTrailingPadding = 20;
+
+void closeCategoryBackdrops(juce::Component* parent, int bottom);
 class GuiScrollGroup : public ColoredGroupComponent, public GuiBaseComponent
 {
     juce::Colour borderColor = GuiColor::Group::Border;
@@ -147,6 +156,10 @@ public:
     {
         // 幅はViewportと同じにする（スクロールバーの幅を考慮）
         contentCanvas.setSize(getContentWidth(), totalHeight);
+
+        // 欄の終わりなので、開きっぱなしのカテゴリ背景をここで閉じる。
+        // 渡ってくる高さには末尾の余白が含まれているため、そのぶんを引く。
+        closeCategoryBackdrops(&contentCanvas, totalHeight - categoryContentTrailingPadding);
     }
 };
 
@@ -611,14 +624,36 @@ public:
     void setupMml(const MmlConfig& c);
 };
 
+// カテゴリを開いたときに、その中身の背後へ敷く半透明の黒。
+// 見出しの下から次の見出し (または欄の終わり) までを覆う。
+// 装飾なのでマウスは素通しにしてある。
+class GuiCategoryBackdrop : public juce::Component
+{
+public:
+    GuiCategoryBackdrop() { setInterceptsMouseClicks(false, false); }
+
+    void paint(juce::Graphics& g) override
+    {
+        g.setColour(GuiColor::Category::ContentBg);
+        g.fillRoundedRectangle(getLocalBounds().toFloat(), 3.0f);
+    }
+};
 class GuiCategoryLabel : public GuiLabel
 {
     bool enableChangeDetailVisible = false;
     bool detailVisible = false;
-    juce::String visibleText = juce::String();
-    juce::String invisibleText = juce::String();
+
+    // 見出しの文字。開閉のマーカーと区切りはこのクラスが描くので、
+    // 呼び出し側はタイトルだけを渡せばよい。
+    juce::String captionText = juce::String();
+
     juce::Font font = juce::Font(juce::FontOptions(16.0f, juce::Font::bold));
-    juce::Colour labelColor = GuiColor::Label::CategoryText;
+
+    // 背景色。カテゴリの種類で決まる。
+    juce::Colour bgColor = GuiColor::Category::HwBg;
+
+    // 中身の背後へ敷く板。開いているときだけ見せる。
+    GuiCategoryBackdrop backdrop;
 public:
     GuiCategoryLabel(const GuiContext& context) : GuiLabel(context) {}
 
@@ -637,9 +672,41 @@ public:
     void setupHwCategory(const Config& c); // ハードウェアカテゴリ用の簡易設定
     void setupSwCategory(const Config& c); // ソフトウェアカテゴリ用の簡易設定
     void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
-    bool isDetailVisible() const { return this->detailVisible; }
+	bool isDetailVisible() const { return this->detailVisible; }
+
+    // 折りたたみを持たないカテゴリ (ALGORITHM/FEEDBACK など) は常に開いている扱い。
+    bool isOpen() const { return this->detailVisible || !this->enableChangeDetailVisible; }
+
+    void paint(juce::Graphics& g) override;
+
+    // 見た目の寸法
+    static inline constexpr float cornerRadius = 3.0f;
+
+    // 中身を板の内側へ寄せる量。左右と上下に効く。
+    static inline constexpr int contentPadding = 4;
+
+    // 板の下端と、次の見出しとの間に空ける量。
+    // ここを詰めすぎると板が下のカテゴリのものに見えてしまう。
+    static inline constexpr int gapBelow = 6;
+
+
+    // ---- 中身の背景 ----
+    // 見出しを置いた直後に呼ぶと、そこから下を覆う板の上端が決まる。
+    // 下端は次の見出しが置かれたとき、または欄の終わりで確定する。
+    void beginBackdrop(const juce::Rectangle<int>& contentArea);
+
+    // 同じ親に対して開きっぱなしの板があれば、指定の位置で閉じる。
+    // 閉じる板があれば true を返す。中身を内側へ寄せていた幅を
+    // 呼び出し側が元に戻せるようにするため。
+    static bool closePending(juce::Component* parent, int bottom);
+    static inline constexpr float paddingX = 4.0f;
+    static inline constexpr float markerSize = 10.0f;
 private:
-    void setupInner(const Config& c, juce::Colour colour);
+    void setupInner(const Config& c, juce::Colour background);
+
+    // 見出しから旧書式の装飾 ([■] や --- ) を落とす。
+    // 呼び出し側の文字列を一斉に直すまでの受け皿。
+    static juce::String stripLegacyDecoration(const juce::String& src);
 };
 
 class GuiSeparator : public juce::Component, public GuiBaseComponent

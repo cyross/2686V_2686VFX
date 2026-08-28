@@ -166,6 +166,8 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &amSmRt.label, .component = &amSmRt, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -218,6 +220,8 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &amSmRt.label, .component = &amSmRt, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

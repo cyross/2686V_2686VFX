@@ -104,6 +104,8 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &monoButton });
         layoutMain({ .mainRect = rect, .component = &polyButton });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -132,6 +134,8 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
 
         layoutRow({ .rowRect = rect, .component = &monoButton });
         layoutRow({ .rowRect = rect, .component = &polyButton });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

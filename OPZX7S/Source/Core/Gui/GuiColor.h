@@ -22,6 +22,26 @@ namespace GuiColor {
 		static inline const juce::Colour Text = defaultFgColor;
 		static inline const juce::Colour CategoryText = juce::Colours::yellow;
 	};
+	namespace Category {
+		// 80〜90 年代を意識したレトロモダン。文字は黒、背景はカテゴリ色。
+		static inline const juce::Colour Text = juce::Colours::black;
+
+		// 黒い文字を載せるので、素の色より明るくして陰にならないようにする。
+		static inline const juce::Colour HwBg = juce::Colours::yellow.brighter(0.5f);
+		static inline const juce::Colour SwBg = juce::Colours::aqua.brighter(0.5f);
+		static inline const juce::Colour OtherBg = juce::Colours::lime.brighter(0.5f);
+
+		// カテゴリを開いたとき、中身の背後へ敷く色。
+		static inline const juce::Colour ContentBg = juce::Colours::black.withAlpha(0.5f);
+
+		// 開閉マーカー。閉じているときは黒、開いているときはピンク。
+		// ピンクは初音ミクの髪留めやイヤホンの色を参照した差し色。
+		static inline const juce::Colour MarkerClosed = juce::Colours::black;
+		static inline const juce::Colour MarkerOpen = juce::Colour::fromRGB(0xFF, 0x33, 0x99);
+
+		// マーカーの縁。背景が黄でも水色でも見えるよう常に暗い色を敷く。
+		static inline const juce::Colour MarkerBorder = juce::Colours::black.withAlpha(0.6f);
+	};
 	namespace Slider {
 		static inline const juce::Colour Track = defaultFgColor;
 		static inline const juce::Colour Thumb = juce::Colour::fromRGB(0x8, 0x8, 0xB3);

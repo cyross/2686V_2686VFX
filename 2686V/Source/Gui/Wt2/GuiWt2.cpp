@@ -782,6 +782,8 @@ void GuiWt2::layoutFormCat(Rectangle<int>& rect) {
             layoutMain({ .mainRect = rect, .label = &sizeSelector.label, .component = &sizeSelector, });
             layoutMain({ .mainRect = rect, .label = &resoSelector.label, .component = &resoSelector, });
         }
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -842,6 +844,8 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

@@ -97,6 +97,8 @@ void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
 		if (sustainLevel.isVisibleNudge()) sustainLevelButtons.layoutComponent(rect, 13);
 		releaseLevel.layoutComponent(rect, 13);
 		if (releaseLevel.isVisibleNudge()) releaseLevelButtons.layoutComponent(rect, 13);
+
+		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
 }
 
@@ -143,6 +145,8 @@ void GuiComponentPitchEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 		if (sustainLevel.isVisibleNudge()) sustainLevelButtons.layoutComponentRow(rect, 12);
 		releaseLevel.layoutComponentRow(rect, 12);
 		if (releaseLevel.isVisibleNudge()) releaseLevelButtons.layoutComponentRow(rect, 12);
+
+		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
 }
 

@@ -27,6 +27,7 @@ namespace CoreGuiValue
 	{
 		static inline constexpr int paddingTop = 4;
 		static inline constexpr int paddingBottom = 3;
+		static inline constexpr int gapBelow = 6;
 	}
 
 	namespace ParamNameRow

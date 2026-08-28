@@ -338,6 +338,8 @@ void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .label = &freqNote.label, .component = &freqNote });
         layoutMainThreeComps({ .rect = rect, .comp1 = &note, .comp2 = &applyNote, .comp3 = &applyToC3 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -446,6 +448,8 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
 
         layoutRow({ .rowRect = rect, .label = &freqNote.label, .component = &freqNote });
         layoutRowThreeComps({ .rect = rect, .comp1 = &note, .comp2 = &applyNote, .comp3 = &applyToC3 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

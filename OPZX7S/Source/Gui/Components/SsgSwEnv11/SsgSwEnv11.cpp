@@ -306,6 +306,8 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
         if (l10.isVisibleNudge()) l10Btns.layoutComponent(rect, 13);
         l11.layoutComponent(rect, 13);
         if (l11.isVisibleNudge()) l11Btns.layoutComponent(rect, 13);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -428,6 +430,8 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
         if (l10.isVisibleNudge()) l10Btns.layoutComponentRow(rect, 12);
         l11.layoutComponentRow(rect, 12);
         if (l11.isVisibleNudge()) l11Btns.layoutComponentRow(rect, 12);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

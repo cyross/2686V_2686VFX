@@ -302,6 +302,8 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, });
         layoutMainWtFiles({ .rect = rect, .loadWtBtn = &waveWtBtn, .loadWt2Btn = &waveWt2Btn, .fileNameLabel = &waveFileNameLabel, .clearBtn = &waveClearBtn });
         layoutMain({ .mainRect = rect, .component = &waveSmoothBtn });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
     // Enable が OFF のときは中身を触れなくする
@@ -343,6 +345,8 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
 
         fdsEditor.setBounds(rect.removeFromTop(WtModGuiValue::Editor::height));
         rect.removeFromTop(CoreGuiValue::MainGroup::Row::paddingTop);
+
+		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
     // 編集できるのは FdsUser を選んでいるときだけ

@@ -335,6 +335,8 @@ void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
         layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
         layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -360,6 +362,8 @@ void RhythmPadGui::layoutPanCat(juce::Rectangle<int>& rect)
             .rect = rect,
             .comp1 = &panToLBtn, .comp2 = &panToCBtn, .comp3 = &panToRBtn
             });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -384,6 +388,8 @@ void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &loopPointStartSlider.label, .component = &loopPointStartSlider, });
         layoutRow({ .rowRect = rect, .label = &loopPointEndSlider.label, .component = &loopPointEndSlider, });
         layoutRow({ .rowRect = rect, .label = &noteSlider.label, .component = &noteSlider, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1264,6 +1270,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
