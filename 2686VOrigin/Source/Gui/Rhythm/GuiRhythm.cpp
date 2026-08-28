@@ -613,6 +613,10 @@ void RhythmPadGui::exportPitchEnvParam() {
     pitchEnvComponent.exportParams();
 }
 
+void RhythmPadGui::importWtModParam() { modComponent.importParams(); }
+
+void RhythmPadGui::exportWtModParam() { modComponent.exportParams(); }
+
 void RhythmPadGui::importSsgHwEnvParam() {
     ssgHwEnv.importParams();
 }
@@ -906,6 +910,7 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     ieAmpEnv(context),
     iePitchEnv(context),
     ieSsgHwEnv(context),
+    ieWtMod(context),
     ieSsgSwEnv(context),
     ieSsgSwEnv11(context),
     ieSsgSwPEnv11(context),
@@ -1016,6 +1021,10 @@ void GuiRhythm::setup()
     ieSsgHwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW Env");
     ieSsgHwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importSsgHwEnvParam(); };
     ieSsgHwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportSsgHwEnvParam(); };
+
+    ieWtMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Modulation");
+    ieWtMod.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importWtModParam(); };
+    ieWtMod.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportWtModParam(); };
 
     ieSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
     ieSsgSwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnvParam(padIndex); };
@@ -1192,6 +1201,7 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieWtMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -1224,6 +1234,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieWtMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);

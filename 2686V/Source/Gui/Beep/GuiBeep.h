@@ -74,6 +74,7 @@ class GuiBeep : public GuiBase {
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -127,6 +128,7 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgHwEnv(context),
+        ieWtMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),

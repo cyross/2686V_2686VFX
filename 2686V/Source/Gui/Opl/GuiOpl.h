@@ -96,6 +96,7 @@ class GuiOpl : public GuiBase
     NormalSeparator uSep005;
     GuiComponentImportExport ieAmpEnvG;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11g;
     GuiComponentImportExport ieUnison;
@@ -221,6 +222,7 @@ public:
         uSep005(context),
         ieAmpEnvG(context),
         ieSsgHwEnv(context),
+        ieWtMod(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11g(context),
         ieUnison(context),

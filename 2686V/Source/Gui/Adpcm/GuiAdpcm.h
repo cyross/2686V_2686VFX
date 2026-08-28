@@ -114,6 +114,7 @@ class GuiAdpcm : public GuiBase
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
     GuiComponentImportExport ieDetune;
@@ -192,6 +193,7 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgHwEnv(context),
+        ieWtMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),

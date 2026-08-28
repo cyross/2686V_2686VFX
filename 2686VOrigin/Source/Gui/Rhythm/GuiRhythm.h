@@ -190,7 +190,9 @@ public:
     void importPitchEnvParam();
     void exportPitchEnvParam();
     void importSsgHwEnvParam();
+    void importWtModParam();
     void exportSsgHwEnvParam();
+    void exportWtModParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
     void importSsgSwEnv11Param();
@@ -235,6 +237,7 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;

@@ -426,6 +426,7 @@ void GuiOpna::setup()
 
     ieAmpEnvG.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
     ieSsgSwPEnv11g.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11g);
@@ -983,6 +984,7 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
     uSep005.setVisible(visible);
     ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieWtMod.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11g.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -1029,6 +1031,8 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieAmpEnvG.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieWtMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
         rect.removeFromTop(4);

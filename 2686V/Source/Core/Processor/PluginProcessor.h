@@ -620,6 +620,7 @@ public:
     juce::String defaultAmpEnvParamDir;
     juce::String defaultPitchEnvParamDir;
     juce::String defaultSsgHwEnvParamDir;
+    juce::String defaultWtModParamDir;
     juce::String defaultSsgSwEnvParamDir;
     juce::String defaultDetuneParamDir;
     juce::String defaultUnisonParamDir;

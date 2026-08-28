@@ -74,6 +74,8 @@ class GuiComponentWtMod : public GuiBase {
     // 読み込んだ変調波形ファイルのパス。実体はタブごとにプロセッサが持つ。
     juce::String* p_wavePath = nullptr;
 
+    std::unique_ptr<juce::FileChooser> fileChooser;
+
     void importWave(bool isWt2);
     bool applyWaveFile(const juce::File& file, bool isWt2);
     void clearWave();
@@ -108,4 +110,11 @@ public:
     juce::String getExportedBaseParams();
     void setImportingShapeParam(juce::StringArray& lines, int& index);
     juce::String getExportedShapeParam();
+
+    // 単体ファイル (.wtmod) での入出力。Enable / Depth / Speed / Shape /
+    // Smooth と、FdsUser 用の 32 エントリをまとめて扱う。
+    void importParams();
+    void exportParams();
+    void setImportingParams(juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 };

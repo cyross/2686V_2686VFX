@@ -41,6 +41,7 @@ namespace Io
 		static inline const juce::String Opzx7LfoParam = "lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "ampEnv";
 		static inline const juce::String SsgHwEnvParam = "ssgHwEnv";
+		static inline const juce::String WtModParam = "wtmod";
 		static inline const juce::String SsgSwEnvParam = "ssgSwEnv";
 		static inline const juce::String PitchEnvParam = "pitchEnv";
 		static inline const juce::String DetuneParam = "detune";
@@ -85,6 +86,7 @@ namespace Io
 		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "*.ampEnv";
 		static inline const juce::String SsgHwEnvParam = "*.ssgHwEnv";
+		static inline const juce::String WtModParam = "*.wtmod";
 		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv";
 		static inline const juce::String PitchEnvParam = "*.pitchEnv";
 		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11";
@@ -139,7 +141,9 @@ namespace Io
 			static inline const juce::String importPitchEnvParamFile = "Import Pitch Env Param";
 			static inline const juce::String exportPitchEnvParamFile = "Export Pitch Env Param";
 			static inline const juce::String importSsgHwEnvParamFile = "Import SSG HW Env Param";
+			static inline const juce::String importWtModParamFile = "Import Modulation Param";
 			static inline const juce::String exportSsgHwEnvParamFile = "Export SSG HW Env Param";
+			static inline const juce::String exportWtModParamFile = "Export Modulation Param";
 			static inline const juce::String importSsgSwEnvParamFile = "Import SSG SW Env Param";
 			static inline const juce::String exportSsgSwEnvParamFile = "Export SSG SW Env Param";
 			static inline const juce::String importDetuneParamFile = "Import Detune Param";

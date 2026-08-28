@@ -522,3 +522,85 @@ juce::String GuiComponentWtMod::getExportedShapeParam()
 {
     return juce::String(shapeSelector.getSelectedItemIndex()) + "\n";
 }
+
+void GuiComponentWtMod::setImportingParams(juce::StringArray& lines, int& index)
+{
+    setImportingBaseParams(lines, index);
+
+    shapeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    waveSmoothBtn.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+    std::array<int, 32> table = { 0 };
+
+    for (int i = 0; i < 32; ++i) {
+        table[i] = std::clamp(lines[index++].getIntValue(), 0, 7);
+    }
+
+    fdsEditor.loadTable(table);
+}
+
+juce::String GuiComponentWtMod::getExportedParams()
+{
+    juce::String content = getExportedBaseParams();
+
+    content += juce::String(shapeSelector.getSelectedItemIndex()) + "\n";
+    content += juce::String(waveSmoothBtn.getToggleState() ? 1 : 0) + "\n";
+
+    auto table = fdsEditor.currentTable();
+
+    for (int i = 0; i < 32; ++i) {
+        content += juce::String(table[i]) + "\n";
+    }
+
+    return content;
+}
+
+void GuiComponentWtMod::importParams()
+{
+    juce::File defaultDir(ctx.audioProcessor.defaultWtModParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importWtModParamFile, defaultDir, Io::ExtensionGlob::WtModParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int index = 0;
+
+                // Enable / Depth / Speed / Shape / Smooth + 32 エントリ
+                if (lines.size() < 37) return;
+
+                setImportingParams(lines, index);
+            }
+        });
+}
+
+void GuiComponentWtMod::exportParams()
+{
+    juce::File defaultDir(ctx.audioProcessor.defaultWtModParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportWtModParamFile, defaultDir.getChildFile("default." + Io::Extension::WtModParam), Io::ExtensionGlob::WtModParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
+
+                file.replaceWithText(getExportedParams());
+            }
+        });
+}
