@@ -102,15 +102,46 @@ void ColoredGroupComponent::setBackgroundColor(juce::Colour c)
 
 void ColoredGroupComponent::paint(juce::Graphics& g)
 {
+    auto bounds = getLocalBounds().toFloat();
+
     // 背景色があれば描画 (角丸で少し柔らかく)
     if (!backgroundColor.isTransparent())
     {
         g.setColour(backgroundColor);
-        g.fillRoundedRectangle(getLocalBounds().toFloat(), 4.0f);
+        g.fillRoundedRectangle(bounds, 4.0f);
     }
 
-    // 親クラス（枠線とテキスト）の描画処理を呼ぶ
-    juce::GroupComponent::paint(g);
+    // ---------------- 枠 ----------------
+    // 上辺は見出しの中ほどを通す。JUCE の既定描画と同じ位置関係。
+    auto frame = bounds.reduced(frameInset).withTrimmedTop(titleHeight * 0.5f - frameInset);
+
+    if (frame.getWidth() > 1.0f && frame.getHeight() > 1.0f) {
+        g.setColour(findColour(juce::GroupComponent::outlineColourId));
+        g.drawRoundedRectangle(frame, cornerRadius, 1.0f);
+    }
+
+    // ---------------- 見出し ----------------
+    // カテゴリ見出しと同じ手触りにする。明るい帯へ黒文字を載せ、
+    // 枠線より後に描くことで、線が文字の後ろを通らないようにする。
+    auto title = getText();
+
+    if (title.isEmpty()) return;
+
+    auto font = juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold);
+
+    float textWidth = (float)juce::GlyphArrangement::getStringWidthInt(font, title);
+    float chipWidth = juce::jmin(textWidth + titlePaddingX * 2.0f, bounds.getWidth() - titleInsetX * 2.0f);
+
+    if (chipWidth <= 0.0f) return;
+
+    juce::Rectangle<float> chip(bounds.getX() + titleInsetX, bounds.getY(), chipWidth, titleHeight);
+
+    g.setColour(GuiColor::Group::TitleBg);
+    g.fillRoundedRectangle(chip, titleCornerRadius);
+
+    g.setColour(GuiColor::Group::TitleText);
+    g.setFont(font);
+    g.drawText(title, chip, juce::Justification::centred, true);
 }
 
 void GuiGroup::setup(juce::Component& parent, const juce::String title)
@@ -134,15 +165,29 @@ void GuiLabel::setup(const Config& c)
     this->setWantsKeyboardFocus(false);
     this->setJustificationType(c.justification);
 
+    this->bgColor = c.bgColor;
+
     if (!c.color.isTransparent())
     {
         this->setColour(juce::Label::textColourId, c.color);
     }
 }
 
+void GuiLabel::paint(juce::Graphics& g)
+{
+    // 地色を渡されたときだけ、カテゴリ見出しと同じ丸みで帯を敷く
+    if (!bgColor.isTransparent())
+    {
+        g.setColour(bgColor);
+        g.fillRoundedRectangle(getLocalBounds().toFloat(), guiCornerRadius);
+    }
+
+    juce::Label::paint(g);
+}
+
 void GuiSlider::setup(const Config& c)
 {
-    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor });
+    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor, .bgColor = GuiColor::Label::RowBg });
 
     c.parent.addAndMakeVisible(*this);
     this->setSliderStyle(juce::Slider::LinearHorizontal);
@@ -188,7 +233,7 @@ void GuiSlider::setup(const Config& c)
 
 void GuiComboBox::setup(const Config& c)
 {
-    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor });
+    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor, .bgColor = GuiColor::Label::RowBg });
 
     c.parent.addAndMakeVisible(*this);
 
@@ -287,12 +332,17 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     float boxY = (bounds.getHeight() - boxH) * 0.5f;
     juce::Rectangle<float> box(startX, boxY, boxW, boxH);
 
+    // 角の丸みは他の部品と揃える。小さな四角なので、辺の半分を上限にする。
+    float boxRadius = juce::jmin(guiCornerRadius, juce::jmin(boxW, boxH) * 0.5f);
+
     g.setColour(textColor.withMultipliedAlpha(alpha));
-    g.drawRect(box, 1.0f);
+    g.drawRoundedRectangle(box, boxRadius, 1.0f);
 
     // 2. ONのときの塗りつぶし (■)
     if (getToggleState()) {
-        g.fillRect(box.reduced(boxGapW, boxGapH)); // 内側を塗りつぶす
+        auto inner = box.reduced(boxGapW, boxGapH);
+
+        g.fillRoundedRectangle(inner, juce::jmin(boxRadius, juce::jmin(inner.getWidth(), inner.getHeight()) * 0.5f));
     }
 
     // 3. テキストの描画
@@ -438,7 +488,7 @@ void GuiTableList::selectedRowsChanged(int lastRowSelected) {
 
 void GuiTextEditor::setup(const Config& c)
 {
-    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor });
+    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor, .bgColor = GuiColor::Label::RowBg });
 
     c.parent.addAndMakeVisible(*this);
 

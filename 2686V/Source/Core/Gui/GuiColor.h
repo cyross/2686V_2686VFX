@@ -14,6 +14,17 @@ namespace GuiColor {
 		static inline const juce::Colour Text = defaultFgColor;
 		static inline const juce::Colour Bg = juce::Colours::black.withAlpha(0.4f);
 		static inline const juce::Colour Border = defaultFgColor;
+
+		// 見出しはカテゴリ見出しと同じく「明るい帯に黒文字」で出す。
+		// ただしカテゴリの 3 色とは役割が違うので、色味を持たない明るい灰にして
+		// 「区分ではなく入れ物」であることが分かるようにする。
+		static inline const juce::Colour TitleBg = juce::Colours::lightgrey.brighter(0.3f);
+		static inline const juce::Colour TitleText = juce::Colours::black;
+	};
+
+	namespace Separator {
+		// 白のベタ線は主張が強すぎるので、カテゴリの板と同じくらいまで落とす
+		static inline const juce::Colour Line = juce::Colours::white.withAlpha(0.45f);
 	};
 	namespace ScrollBar {
 		static inline const juce::Colour Thumb = juce::Colours::darkgrey;
@@ -21,15 +32,23 @@ namespace GuiColor {
 	namespace Label {
 		static inline const juce::Colour Text = defaultFgColor;
 		static inline const juce::Colour CategoryText = juce::Colours::yellow;
+
+		// スライダーやセレクタの左に出るラベルの地色。
+		// 行がひと続きの帯に見えるようにするためのものなので、
+		// 文字が読みにくくならない程度にごく薄く敷く。
+		static inline const juce::Colour RowBg = juce::Colours::white.withAlpha(0.08f);
 	};
 	namespace Category {
 		// 80〜90 年代を意識したレトロモダン。文字は黒、背景はカテゴリ色。
 		static inline const juce::Colour Text = juce::Colours::black;
 
 		// 黒い文字を載せるので、素の色より明るくして陰にならないようにする。
-		static inline const juce::Colour HwBg = juce::Colours::yellow.brighter(0.5f);
-		static inline const juce::Colour SwBg = juce::Colours::aqua.brighter(0.5f);
-		static inline const juce::Colour OtherBg = juce::Colours::lime.brighter(0.5f);
+		// そのうえで白との中間まで退かせ、彩度を落とす。見出しは画面に多数
+		// 並ぶため、鮮やかなままだと中身より目立ってしまう。
+		// 色の役割 (ハード / ソフト / その他) は色相で残る。
+		static inline const juce::Colour HwBg = juce::Colours::yellow.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f);
+		static inline const juce::Colour SwBg = juce::Colours::aqua.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f);
+		static inline const juce::Colour OtherBg = juce::Colours::lime.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f);
 
 		// カテゴリを開いたとき、中身の背後へ敷く色。
 		static inline const juce::Colour ContentBg = juce::Colours::black.withAlpha(0.5f);

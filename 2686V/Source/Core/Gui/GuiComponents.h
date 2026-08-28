@@ -19,10 +19,26 @@ using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
+// カテゴリ見出しから広げた共通の角の丸み。
+// 見出し・板・帯・ボタンで同じ値を使うことで、部品が同じ仲間に見えるようにする。
+inline constexpr float guiCornerRadius = 3.0f;
+
 class ColoredGroupComponent : public juce::GroupComponent
 {
     juce::Colour backgroundColor = GuiColor::Group::Bg;
 public:
+    // 見出しの寸法。JUCE の既定描画と同じ場所へ収まるようにしてあるので、
+    // 各タブが確保している上部の余白はそのままでよい。
+    static inline constexpr float titleHeight = 16.0f;
+    static inline constexpr float titleFontHeight = 13.0f;
+    static inline constexpr float titlePaddingX = 6.0f;
+    static inline constexpr float titleInsetX = 8.0f;
+
+    // 枠の上辺は見出しの中ほどを通す。角の丸みはカテゴリ見出しに合わせる。
+    static inline constexpr float frameInset = 3.0f;
+    static inline constexpr float cornerRadius = 5.0f;
+    static inline constexpr float titleCornerRadius = 3.0f;
+
     void setBackgroundColor(juce::Colour c);
     void paint(juce::Graphics& g) override;
 };
@@ -173,15 +189,23 @@ public:
 
     std::function<void()> onClick = nullptr;
 
+    // 地色。透明なら塗らない。
+    juce::Colour bgColor = juce::Colours::transparentBlack;
+
     struct Config {
         juce::Component& parent;
         juce::String title;
         std::optional<juce::Font> font = std::nullopt;
         juce::Justification justification = juce::Justification::centred;
         juce::Colour color = GuiColor::Label::Text;
+
+        // 地色。既定は透明で、これまでどおり文字だけを出す。
+        // 行の左に置くラベルだけ色を渡して帯にする。
+        juce::Colour bgColor = juce::Colours::transparentBlack;
     };
 
     void setup(const Config& c);
+    void paint(juce::Graphics& g) override;
 
     // =======================================================
     // マウスボタンが押された瞬間のイベントを検知
@@ -430,7 +454,6 @@ protected:
             bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
         {
             auto bounds = button.getLocalBounds().toFloat();
-            float cornerSize = 1.0f; // 角丸のサイズ（お好みで調整してください）
 
             // 背景の塗りつぶし
             juce::Colour baseColour = backgroundColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f);
@@ -440,7 +463,12 @@ protected:
                 baseColour = baseColour.brighter(0.5f);
 
             g.setColour(baseColour);
-            g.fillRoundedRectangle(bounds, cornerSize);
+            g.fillRoundedRectangle(bounds, guiCornerRadius);
+
+            // 縁取りはカテゴリ見出しのマーカーと同じ色。明るい面が背景へ
+            // 溶けないよう、輪郭だけ引き締める。
+            g.setColour(GuiColor::Category::MarkerBorder.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f));
+            g.drawRoundedRectangle(bounds.reduced(0.5f), guiCornerRadius, 1.0f);
         }
     };
 
@@ -715,6 +743,9 @@ public:
         float lineRate = 100.0;
         float lineThick = 1.0;
         juce::Colour lineColour = juce::Colours::grey.withAlpha(0.5f);
+
+        // 角の丸み。太さの半分を超える指定は端が欠けるので頭打ちにする。
+        float cornerRadius = 2.0f;
     };
 
     GuiSeparator(const GuiContext& context) : GuiBaseComponent(context) {}
@@ -724,31 +755,35 @@ public:
         lineRate = c.lineRate;
         lineThick = c.lineThick;
         lineColour = c.lineColour;
+        cornerRadius = c.cornerRadius;
     }
 
     void paint(juce::Graphics& g) override
     {
         g.setColour(lineColour); // 区切り線の色
 
+        // 端を丸めた帯として描く。カテゴリ見出しや板と手触りを揃えるため。
+        float radius = juce::jmin(cornerRadius, lineThick * 0.5f);
+
         if (lineStyle == Style::Horizontal) {
             // 水平線の描画 (中央の高さに引く)
             float realWidth = (float)getWidth();
             float width = realWidth * lineRate;
-            float paddingX = (realWidth - width) / 2.0;
+            float paddingX = (realWidth - width) / 2.0f;
 
-            float y = (getHeight() - lineThick) / 2.0f;
+            float y = ((float)getHeight() - lineThick) / 2.0f;
 
-            g.drawLine(paddingX, y, paddingX + width, y, lineThick);
+            g.fillRoundedRectangle(paddingX, y, width, lineThick, radius);
         }
         else {
             // 垂直線の描画
             float realHeight = (float)getHeight();
             float height = realHeight * lineRate;
-            float paddingY = (realHeight - height) / 2.0;
+            float paddingY = (realHeight - height) / 2.0f;
 
-            float x = (getWidth() - lineThick) / 2.0f;
+            float x = ((float)getWidth() - lineThick) / 2.0f;
 
-            g.drawLine(x, paddingY, x, paddingY + height, lineThick);
+            g.fillRoundedRectangle(x, paddingY, lineThick, height, radius);
         }
     }
 
@@ -756,5 +791,6 @@ private:
     Style lineStyle = Style::Horizontal;
     float lineRate = 100.0f;
     float lineThick = 1.0f;
+    float cornerRadius = 2.0f;
     juce::Colour lineColour = juce::Colours::grey.withAlpha(0.5f);
 };
