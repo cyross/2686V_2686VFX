@@ -25,12 +25,15 @@ class FmRgAdddr
 	KSOpn m_ksOPM;
 	KSOpp m_ksOPP;
 
-	int arMax = 0;
-	int d1rMax = 0;
-	int d2rMax = 0;
-	int d1lMax = 0;
-	int rrMax = 0;
-	int tlMax = 0;
+	// レジスタ幅の既定値。setParamMax() より先に setParameters() が来ても
+	// 0 除算 → LUT の範囲外参照にならないよう、実機の幅を入れてある。
+	// 実際の値はオペレータの prepare() が setParamMax() で上書きする。
+	int arMax = 31;
+	int d1rMax = 31;
+	int d2rMax = 31;
+	int d1lMax = 15;
+	int rrMax = 15;
+	int tlMax = 127;
 
 	bool xof = false;
 	bool kor = false;

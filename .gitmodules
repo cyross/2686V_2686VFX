@@ -4,3 +4,6 @@
 [submodule "external/vst3sdk"]
 	path = external/vst3sdk
 	url = git@github.com:steinbergmedia/vst3sdk.git
+[submodule "external/doctest"]
+	path = external/doctest
+	url = https://github.com/doctest/doctest.git
