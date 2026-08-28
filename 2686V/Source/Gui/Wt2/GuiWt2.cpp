@@ -315,7 +315,7 @@ void GuiWt2::setup()
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
-    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleForm, .invisibleTitle = Wt2GuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
     qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -374,7 +374,7 @@ void GuiWt2::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleUtil, .invisibleTitle = Wt2GuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);

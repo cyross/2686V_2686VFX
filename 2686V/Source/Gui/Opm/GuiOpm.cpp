@@ -156,7 +156,7 @@ void GuiOpm::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
-    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::visiblePan, .invisibleTitle = OpmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::pan, .enableChangeDetailVisible = true });
 
     panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::pan, .title = OpmGuiText::Fm::pan, .isReset = true });
     panSlider.setWantsKeyboardFocus(true);
@@ -183,7 +183,7 @@ void GuiOpm::setup()
         panSlider.setValue(1, juce::sendNotification);
         };
 
-    lfoCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::visibleHwLfo, .invisibleTitle = OpmGuiText::Category::invisibileHwLfo, .enableChangeDetailVisible = true });
+    lfoCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::hwLfo, .enableChangeDetailVisible = true });
 
     lfoFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::freq, .title = OpmGuiText::Fm::lfoFreq, .isReset = true });
     lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -258,7 +258,7 @@ void GuiOpm::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::visibleUtil, .invisibleTitle = OpmGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
@@ -384,8 +384,8 @@ void GuiOpm::setup()
 
         juce::String paramPrefix = opCode + juce::String(i);
 
-        catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleDetune, .invisibleTitle = OpmGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
-        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleAmpEnv, .invisibleTitle = OpmGuiText::Category::invisibleAmpEnv, .detailVisible = true, .enableChangeDetailVisible = true });
+        catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::detune, .enableChangeDetailVisible = true });
+        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::ampEnv, .detailVisible = true, .enableChangeDetailVisible = true });
 
         mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::mul, .title = OpmGuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
@@ -570,7 +570,7 @@ void GuiOpm::setup()
         rgTl[i].setWantsKeyboardFocus(true);
         rgTl[i].setExplicitFocusOrder(++tabOrder);
 
-        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleKs, .invisibleTitle = OpmGuiText::Category::invisibleKs, .enableChangeDetailVisible = true });
+        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::ks, .enableChangeDetailVisible = true });
 
         ksMode[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ksMode, .title = "Mode", .items = ksModeItems, .isReset = true });
         ksMode[i].setWantsKeyboardFocus(true);
@@ -591,7 +591,7 @@ void GuiOpm::setup()
         kslOPP[i].setWantsKeyboardFocus(true);
         kslOPP[i].setExplicitFocusOrder(++tabOrder);
 
-        catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleOptional, .invisibleTitle = OpmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+        catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::optional, .enableChangeDetailVisible = true });
 
         xof[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::xof, .title = OpmGuiText::Fm::Op::xof, .isReset = true });
         xof[i].setWantsKeyboardFocus(true);
@@ -613,7 +613,7 @@ void GuiOpm::setup()
 
         ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, OpmGuiText::SsgSwPEnv11::enable, true);
 
-        cafLfo[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleHwLfo, .invisibleTitle = OpmGuiText::Category::invisibileHwLfo, .enableChangeDetailVisible = true });
+        cafLfo[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::hwLfo, .enableChangeDetailVisible = true });
 
         amsEnable[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::OpmLfo::amsEn, .title = OpmGuiText::Fm::Op::AmsEn, .isReset = true });
         amsEnable[i].setWantsKeyboardFocus(true);
@@ -621,7 +621,7 @@ void GuiOpm::setup()
 
         fix[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, OpmGuiText::Fm::Op::Opzx7FreqTo440, 440, true);
 
-        catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleMask, .invisibleTitle = OpmGuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
+        catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::mask, .enableChangeDetailVisible = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::mask, .title = OpmGuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);

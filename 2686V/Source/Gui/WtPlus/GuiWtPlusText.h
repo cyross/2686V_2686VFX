@@ -8,12 +8,9 @@ namespace WtPlusGuiText
 {
 	namespace Category
 	{
-		static inline const juce::String visibleWave = u8"[■]--- WAVE ---";
-		static inline const juce::String invisibleWave = u8"[□]--- WAVE ---";
-		static inline const juce::String visibleSlots = u8"[■]--- WAVE MEMORY ---";
-		static inline const juce::String invisibleSlots = u8"[□]--- WAVE MEMORY ---";
-		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
-		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
+		static inline const juce::String wave = u8"WAVE";
+		static inline const juce::String slots = u8"WAVE MEMORY";
+		static inline const juce::String util = u8"UTILITY";
 	}
 
 	namespace Group

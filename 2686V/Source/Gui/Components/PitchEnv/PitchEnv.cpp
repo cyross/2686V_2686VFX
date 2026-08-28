@@ -12,8 +12,7 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 
 	cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- PITCH ENV ---",
-        .invisibleTitle = juce::String("") + "[□]--- PITCH ENV ---",
+        .title = juce::String("") + "PITCH ENV",
         .enableChangeDetailVisible = true
         });
 

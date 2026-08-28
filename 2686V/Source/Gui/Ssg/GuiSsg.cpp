@@ -51,7 +51,7 @@ void GuiSsg::setup()
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleForm, .invisibleTitle = SsgGuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
     qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -74,7 +74,7 @@ void GuiSsg::setup()
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    hwEnvCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleHwEnv, .invisibleTitle = SsgGuiText::Category::invisibleHwEnv, .enableChangeDetailVisible = true });
+    hwEnvCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::hwEnv, .enableChangeDetailVisible = true });
 
     lfo.setupComponent(
         mainGroup.contentCanvas,
@@ -84,7 +84,7 @@ void GuiSsg::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleUtil, .invisibleTitle = SsgGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);

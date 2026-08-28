@@ -11,29 +11,18 @@ namespace OpnaGuiText
 
 	namespace Category
 	{
-		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
-		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
-		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
-		static inline const juce::String visibleDetune = u8"[■]--- MUL/DET ---";
-		static inline const juce::String invisibleDetune = u8"[□]--- MUL/DET ---";
-		static inline const juce::String visibleAmpEnv = u8"[■]--- AMP ENV ---";
-		static inline const juce::String invisibleAmpEnv = u8"[□]--- AMP ENV ---";
-		static inline const juce::String visibleHwLfo = u8"[■]--- HW LFO ---";
-		static inline const juce::String invisibleHwLfo = u8"[□]--- HW LFO ---";
-		static inline const juce::String visibleN88Lfo = u8"[■]--- N88 LFO ---";
-		static inline const juce::String invisibleN88Lfo = u8"[□]--- N88 LFO ---";
-		static inline const juce::String visibleSsgEnv = u8"[■]--- SSG HW ENV ---";
-		static inline const juce::String invisibleSsgEnv = u8"[□]--- SSG HW ENV ---";
-		static inline const juce::String visibleKs = u8"[■]--- KEY SCALE ---";
-		static inline const juce::String invisibleKs = u8"[□]--- KEY SCALE ---";
-		static inline const juce::String visibleMask = u8"[■]--- MASK ---";
-		static inline const juce::String invisibleMask = u8"[□]--- MASK ---";
-		static inline const juce::String visiblePan = u8"[■]--- PAN ---";
-		static inline const juce::String invisiblePan = u8"[□]--- PAN ---";
-		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
-		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
-		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
-		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
+		static inline const juce::String quality = u8"QUALITY";
+		static inline const juce::String algFb = u8"ALGORITHM/FEEDBACK";
+		static inline const juce::String detune = u8"MUL/DET";
+		static inline const juce::String ampEnv = u8"AMP ENV";
+		static inline const juce::String hwLfo = u8"HW LFO";
+		static inline const juce::String n88Lfo = u8"N88 LFO";
+		static inline const juce::String ssgEnv = u8"SSG HW ENV";
+		static inline const juce::String ks = u8"KEY SCALE";
+		static inline const juce::String mask = u8"MASK";
+		static inline const juce::String pan = u8"PAN";
+		static inline const juce::String optional = u8"OPTIONAL";
+		static inline const juce::String util = u8"UTILITY";
 	}
 
 	namespace Group

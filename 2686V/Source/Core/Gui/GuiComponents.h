@@ -660,7 +660,6 @@ public:
     struct Config {
         juce::Component& parent;
         juce::String title;
-		std::optional<juce::String> invisibleTitle = std::nullopt; // 詳細テキスト（省略可能）
         std::optional<juce::Font> font = std::nullopt;
         juce::Justification justification = juce::Justification::centred;
         juce::Colour color = GuiColor::Label::CategoryText;
@@ -704,9 +703,6 @@ public:
 private:
     void setupInner(const Config& c, juce::Colour background);
 
-    // 見出しから旧書式の装飾 ([■] や --- ) を落とす。
-    // 呼び出し側の文字列を一斉に直すまでの受け皿。
-    static juce::String stripLegacyDecoration(const juce::String& src);
 };
 
 class GuiSeparator : public juce::Component, public GuiBaseComponent

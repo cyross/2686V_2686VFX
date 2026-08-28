@@ -42,7 +42,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     // メイングループ
     mainGroup.setup(*this, padTitle);
 
-    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleForm, .invisibleTitle = RhythmGuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
     qualityPcmComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
@@ -73,7 +73,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     formSeparator.setupComponent(mainGroup.contentCanvas);
 
-    optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleOptional, .invisibleTitle = RhythmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+    optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::optional, .enableChangeDetailVisible = true });
 
     pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::pcmOffset, .title = RhythmGuiText::Rhythm::Pad::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
@@ -147,7 +147,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
         };
     noteSlider.updateText();
 
-    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visiblePan, .invisibleTitle = RhythmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::pan, .enableChangeDetailVisible = true });
 
     // パンポット
     panSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::pan, .title = RhythmGuiText::Rhythm::Pad::pan, .isReset = true });
@@ -953,7 +953,7 @@ void GuiRhythm::setup()
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleUtil, .invisibleTitle = RhythmGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);

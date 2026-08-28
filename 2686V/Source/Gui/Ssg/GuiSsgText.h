@@ -11,22 +11,17 @@ namespace SsgGuiText
 
 	namespace Category
 	{
-		static inline const juce::String visibleForm = u8"[■]--- FORM ---";
-		static inline const juce::String invisibleForm = u8"[□]--- FORM ---";
-		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
-		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
-		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
-		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
-		static inline const juce::String shape = u8"--- ENVELOPE ---";
-		static inline const juce::String visibleHwEnv = u8"[■]--- HW ENV ---";
-		static inline const juce::String invisibleHwEnv = u8"[□]--- HW ENV ---";
-		static inline const juce::String mix = u8"--- MIX ---";
-		static inline const juce::String ssgTone = u8"--- TONE ---";
-		static inline const juce::String ssgNoise = u8"--- NOISE ---";
-		static inline const juce::String invert = u8"--- INVERT ---";
-		static inline const juce::String peak = u8"--- PEAK ---";
-		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
-		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
+		static inline const juce::String form = u8"FORM";
+		static inline const juce::String quality = u8"QUALITY";
+		static inline const juce::String lfo = u8"LFO";
+		static inline const juce::String shape = u8"ENVELOPE";
+		static inline const juce::String hwEnv = u8"HW ENV";
+		static inline const juce::String mix = u8"MIX";
+		static inline const juce::String ssgTone = u8"TONE";
+		static inline const juce::String ssgNoise = u8"NOISE";
+		static inline const juce::String invert = u8"INVERT";
+		static inline const juce::String peak = u8"PEAK";
+		static inline const juce::String util = u8"UTILITY";
 	}
 
 	namespace File

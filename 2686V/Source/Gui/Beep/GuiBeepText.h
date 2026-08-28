@@ -8,10 +8,8 @@ namespace BeepGuiText
 {
 	namespace Category
 	{
-		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
-		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
-		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
-		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
+		static inline const juce::String optional = u8"OPTIONAL";
+		static inline const juce::String util = u8"UTILITY";
 	}
 
 	namespace Group

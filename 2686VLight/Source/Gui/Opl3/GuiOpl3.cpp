@@ -114,7 +114,7 @@ void GuiOpl3::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Category::visibleUtil, .invisibleTitle = Opl3GuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
@@ -284,8 +284,8 @@ void GuiOpl3::setup()
 
         juce::String paramPrefix = opCode + juce::String(i);
 
-        catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleDetune, .invisibleTitle = Opl3GuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
-        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleAmpEnv, .invisibleTitle = Opl3GuiText::Category::invisibleAmpEnv, .detailVisible = true, .enableChangeDetailVisible = true });
+        catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::detune, .enableChangeDetailVisible = true });
+        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::ampEnv, .detailVisible = true, .enableChangeDetailVisible = true });
 
         mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::mul, .title = Opl3GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
@@ -315,7 +315,7 @@ void GuiOpl3::setup()
         egType[i].setWantsKeyboardFocus(true);
         egType[i].setExplicitFocusOrder(++tabOrder);
 
-        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleKs, .invisibleTitle = Opl3GuiText::Category::invisibleKs, .enableChangeDetailVisible = true });
+        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::ks, .enableChangeDetailVisible = true });
 
         ksr[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ksr, .title = Opl3GuiText::Fm::Op::Ksr, .isReset = true });
         ksr[i].setWantsKeyboardFocus(true);
@@ -325,7 +325,7 @@ void GuiOpl3::setup()
         ksl[i].setWantsKeyboardFocus(true);
         ksl[i].setExplicitFocusOrder(++tabOrder);
 
-        catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleOptional, .invisibleTitle = Opl3GuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+        catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::optional, .enableChangeDetailVisible = true });
 
         xof[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::xof, .title = Opl3GuiText::Fm::Op::xof, .isReset = true });
         xof[i].setWantsKeyboardFocus(true);
@@ -347,13 +347,13 @@ void GuiOpl3::setup()
 
         ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, Opl3GuiText::SsgSwPEnv11::enable, true);
 
-        catShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleEg, .invisibleTitle = Opl3GuiText::Category::invisibleEg, .enableChangeDetailVisible = true });
+        catShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::eg, .enableChangeDetailVisible = true });
 
         eg[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::eg, .title = Opl3GuiText::Fm::Op::Eg, .items = opl3EgItems, .isReset = true });
         eg[i].setWantsKeyboardFocus(true);
         eg[i].setExplicitFocusOrder(++tabOrder);
 
-        catLfo[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleLfo, .invisibleTitle = Opl3GuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
+        catLfo[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::lfo, .enableChangeDetailVisible = true });
 
         am[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::am, .title = Opl3GuiText::Fm::Op::Am, .isReset = true });
         am[i].setWantsKeyboardFocus(true);
@@ -403,7 +403,7 @@ void GuiOpl3::setup()
 
         lfoSep[i].setupComponent(opGroups[i].contentCanvas);
 
-        catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleMask, .invisibleTitle = Opl3GuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
+        catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::mask, .enableChangeDetailVisible = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::mask, .title = Opl3GuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);

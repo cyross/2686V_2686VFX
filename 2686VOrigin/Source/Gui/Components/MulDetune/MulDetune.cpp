@@ -49,16 +49,14 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
     if (isHw) {
         cat.setupHwCategory({
             .parent = parent,
-            .title = juce::String("") + "[■]--- MUL/DET ---",
-            .invisibleTitle = juce::String("") + "[□]--- MUL/DET ---",
+            .title = juce::String("") + "MUL/DET",
             .enableChangeDetailVisible = true
             });
     }
     else {
         cat.setupSwCategory({
             .parent = parent,
-            .title = juce::String("") + "[■]--- MUL/DET ---",
-            .invisibleTitle = juce::String("") + "[□]--- MUL/DET ---",
+            .title = juce::String("") + "MUL/DET",
             .enableChangeDetailVisible = true
             });
     }

@@ -10,8 +10,7 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 {
 	cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- AMP ENV ---",
-        .invisibleTitle = juce::String("") + "[□]--- AMP ENV ---",
+        .title = juce::String("") + "AMP ENV",
         .enableChangeDetailVisible = true
         });
 

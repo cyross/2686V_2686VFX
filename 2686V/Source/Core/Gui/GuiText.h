@@ -9,6 +9,6 @@ namespace CoreGuiText
 	namespace MasterVol
 	{
 		static inline const juce::String title = u8"M.Vol";
-		static inline const juce::String unit = u8" dB";
+		static inline const juce::String unit = u8"dB";
 	}
 }

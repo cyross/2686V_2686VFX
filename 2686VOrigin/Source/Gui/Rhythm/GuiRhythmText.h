@@ -11,16 +11,11 @@ namespace RhythmGuiText
 
 	namespace Category
 	{
-		static inline const juce::String visibleForm = u8"[■]--- FORM ---";
-		static inline const juce::String invisibleForm = u8"[□]--- FORM ---";
-		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
-		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
-		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
-		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
-		static inline const juce::String visiblePan = u8"[■]--- PAN ---";
-		static inline const juce::String invisiblePan = u8"[□]--- PAN ---";
-		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
-		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
+		static inline const juce::String form = u8"FORM";
+		static inline const juce::String optional = u8"OPTIONAL";
+		static inline const juce::String quality = u8"QUALITY";
+		static inline const juce::String pan = u8"PAN";
+		static inline const juce::String util = u8"UTILITY";
 	}
 
 	namespace File

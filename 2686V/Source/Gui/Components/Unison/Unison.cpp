@@ -10,8 +10,7 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
 {
     cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- UNISON/HARMONY ---",
-        .invisibleTitle = juce::String("") + "[□]--- UNISON/HARMONY ---",
+        .title = juce::String("") + "UNISON/HARMONY",
         .enableChangeDetailVisible = true
         });
 

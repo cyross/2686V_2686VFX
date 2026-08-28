@@ -33,8 +33,7 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
 
     cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- SSG SW PENV11 ---",
-        .invisibleTitle = juce::String("") + "[□]--- SSG SW PENV11 ---",
+        .title = juce::String("") + "SSG SW PENV11",
         .enableChangeDetailVisible = true
         });
 

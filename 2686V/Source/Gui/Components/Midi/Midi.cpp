@@ -9,8 +9,7 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
 {
     cat.setupOtherCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- MIDI ---",
-        .invisibleTitle = juce::String("") + "[□]--- MIDI ---",
+        .title = juce::String("") + "MIDI",
         .enableChangeDetailVisible = true
         });
 

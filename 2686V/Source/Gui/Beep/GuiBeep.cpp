@@ -35,7 +35,7 @@ void GuiBeep::setup() {
 
 	fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 2K", 2000);
 
-    optionalCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::visibleOptional, .invisibleTitle = BeepGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+    optionalCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::optional, .enableChangeDetailVisible = true });
 
     antiAliasButton.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::antiAlias, .title = "Anti-Alias", .isReset = true });
     antiAliasButton.setWantsKeyboardFocus(true);
@@ -66,7 +66,7 @@ void GuiBeep::setup() {
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::visibleUtil, .invisibleTitle = BeepGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);

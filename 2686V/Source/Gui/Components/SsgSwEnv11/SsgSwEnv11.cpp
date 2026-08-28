@@ -34,8 +34,7 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 
     cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- SSG SW ENV11 ---",
-        .invisibleTitle = juce::String("") + "[□]--- SSG SW ENV11 ---",
+        .title = juce::String("") + "SSG SW ENV11",
         .enableChangeDetailVisible = true
         });
 

@@ -218,7 +218,7 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
 {
     p_wavePath = &wavePath;
 
-    cat.setupHwCategory({ .parent = parent, .title = juce::String("") + "[■]--- MODULATION ---", .invisibleTitle = juce::String("") + "[□]--- MODULATION ---", .enableChangeDetailVisible = true });
+    cat.setupHwCategory({ .parent = parent, .title = juce::String("") + "MODULATION", .enableChangeDetailVisible = true });
 
     enableButton.setup({ .parent = parent, .id = code + CPK::WtMod::enable, .title = "Enable", .isReset = true, .isResized = true });
     enableButton.setWantsKeyboardFocus(true);
@@ -264,7 +264,7 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     for (int i = 0; i < 32; ++i) {
         waveParams[i] = ctx.audioProcessor.apvts.getParameter(code + CPK::WtMod::wave + juce::String(i));
     }
-    fdsCat.setupSwCategory({ .parent = parent, .title = juce::String("") + "[■]--- FDS TABLE ---", .invisibleTitle = juce::String("") + "[□]--- FDS TABLE ---", .enableChangeDetailVisible = true });
+    fdsCat.setupSwCategory({ .parent = parent, .title = juce::String("") + "FDS TABLE", .enableChangeDetailVisible = true });
 
     fdsEditor.setup(parent, code + CPK::WtMod::fdsTable);
 

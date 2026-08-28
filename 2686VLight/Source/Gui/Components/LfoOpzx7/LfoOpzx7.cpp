@@ -30,8 +30,7 @@ void GuiComponentLfoOpzx7::setupComponent(
 {
     cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- LFO ---",
-        .invisibleTitle = juce::String("") + "[□]--- LFO ---",
+        .title = juce::String("") + "LFO",
         .enableChangeDetailVisible = true
         });
 

@@ -509,23 +509,9 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
         };
 }
 
-// 見出しから旧書式の装飾を落とす。
-// [■] / [□] の開閉マーカーと、前後の "--- " は描画側が持つようになったので、
-// 文字列に埋まっているぶんは捨てる。
-juce::String GuiCategoryLabel::stripLegacyDecoration(const juce::String& src)
-{
-    juce::String s = src;
-
-    s = s.replace(juce::String::fromUTF8("[\xe2\x96\xa0]"), "");
-    s = s.replace(juce::String::fromUTF8("[\xe2\x96\xa1]"), "");
-    s = s.replace("---", "");
-
-    return s.trim();
-}
-
 void GuiCategoryLabel::setupInner(const Config& c, juce::Colour background)
 {
-    this->captionText = stripLegacyDecoration(c.title);
+    this->captionText = c.title;
     this->detailVisible = c.detailVisible;
     this->enableChangeDetailVisible = c.enableChangeDetailVisible;
     this->bgColor = background;

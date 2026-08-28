@@ -58,8 +58,7 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
 {
     cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- SSG HW ENV ---",
-        .invisibleTitle = juce::String("") + "[□]--- SSG HW ENV ---",
+        .title = juce::String("") + "SSG HW ENV",
         .enableChangeDetailVisible = true
         });
 

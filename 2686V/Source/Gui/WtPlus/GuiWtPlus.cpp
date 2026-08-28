@@ -56,7 +56,7 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // WAVE
     // ==========================================================
-    waveCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::visibleWave, .invisibleTitle = WtPlusGuiText::Category::invisibleWave, .enableChangeDetailVisible = true });
+    waveCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::wave, .enableChangeDetailVisible = true });
 
     slotSlider.setup({ .parent = waveGroup.contentCanvas, .id = code + CPK::Wt::slot, .title = WtPlusGuiText::Wt::slot, .isReset = true });
     slotSlider.setWantsKeyboardFocus(true);
@@ -73,7 +73,7 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // WAVE MEMORY (32 スロット)
     // ==========================================================
-    slotsCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::visibleSlots, .invisibleTitle = WtPlusGuiText::Category::invisibleSlots, .enableChangeDetailVisible = true });
+    slotsCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::slots, .enableChangeDetailVisible = true });
 
     for (int i = 0; i < Global::WtPlus::slots; ++i) {
         slotWtBtn[i].setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt, .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true});
@@ -129,7 +129,7 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // UTILITY
     // ==========================================================
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtPlusGuiText::Category::visibleUtil, .invisibleTitle = WtPlusGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtPlusGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = WtPlusGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);

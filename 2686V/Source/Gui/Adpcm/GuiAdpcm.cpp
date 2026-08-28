@@ -35,7 +35,7 @@ void GuiAdpcm::setup()
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
-    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleForm, .invisibleTitle = AdpcmGuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
 	qualityPcmComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -74,7 +74,7 @@ void GuiAdpcm::setup()
     mixSetNoise.setExplicitFocusOrder(++tabOrder);
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
 
-    optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleOptional, .invisibleTitle = AdpcmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+    optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::optional, .enableChangeDetailVisible = true });
 
     // ループトグルボタン
     loopButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
@@ -102,7 +102,7 @@ void GuiAdpcm::setup()
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
     // パンポット設定
-    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visiblePan, .invisibleTitle = AdpcmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::pan, .enableChangeDetailVisible = true });
 
     panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
@@ -179,7 +179,7 @@ void GuiAdpcm::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleUtil, .invisibleTitle = AdpcmGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);

@@ -25,16 +25,14 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     if (isHw) {
         cat.setupHwCategory({
             .parent = parent,
-            .title = juce::String("") + "[■]--- FIX ---",
-            .invisibleTitle = juce::String("") + "[□]--- FIX ---",
+            .title = juce::String("") + "FIX",
             .enableChangeDetailVisible = true
             });
     }
     else {
         cat.setupSwCategory({
             .parent = parent,
-            .title = juce::String("") + "[■]--- FIX ---",
-            .invisibleTitle = juce::String("") + "[□]--- FIX ---",
+            .title = juce::String("") + "FIX",
             .enableChangeDetailVisible = true
             });
     }
