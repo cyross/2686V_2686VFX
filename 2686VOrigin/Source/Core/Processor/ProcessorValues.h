@@ -1490,14 +1490,14 @@ namespace CPV
 		namespace PmShape
 		{
 			inline constexpr int min = 0;
-			inline constexpr int max = 7;
+			inline constexpr int max = 12;
 			inline constexpr int initial = 0;
 		}
 
 		namespace AmShape
 		{
 			inline constexpr int min = 0;
-			inline constexpr int max = 7;
+			inline constexpr int max = 12;
 			inline constexpr int initial = 0;
 		}
 	}

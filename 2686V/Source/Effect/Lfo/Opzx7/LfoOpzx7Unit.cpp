@@ -74,7 +74,11 @@ void Opzx7LfoCoreUnit::noteOn()
     }
 
     this->m_sdCycleCount = 0;
-    this->m_sdPhaseCount = 0;
+
+    // Sample & Hold はキーオンの時点で 1 つ値を持っておく。
+    // ここが 0 のままだと、最初のホールドが終わるまで出力が 0 に張り付く。
+    this->m_currentNoiseSample = m_noiseGen.generate();
+    this->m_currentHoldingSample = this->m_currentNoiseSample;
 }
 
 float Opzx7LfoCoreUnit::getSample()
@@ -140,36 +144,38 @@ float Opzx7LfoCoreUnit::getSample()
                 if (this->m_phase < 0.25)      val = (float)(this->m_phase * 4.0);
                 else if (this->m_phase < 0.5)  val = (float)(1.0 - (this->m_phase - 0.25) * 4.0);
                 else                           val = 0.0;
+
+                break;
             case 8:
-                if (this->m_sdPhaseCount % 4 == 0) {
+                if (this->m_sdCycleCount % 4 == 0) {
                     this->m_currentHoldingSample = this->m_currentNoiseSample;
                 }
                 val = this->m_currentHoldingSample;
 
                 break;
             case 9:
-                if (this->m_sdPhaseCount % 8 == 0) {
+                if (this->m_sdCycleCount % 8 == 0) {
                     this->m_currentHoldingSample = this->m_currentNoiseSample;
                 }
                 val = this->m_currentHoldingSample;
 
                 break;
             case 10:
-                if (this->m_sdPhaseCount % 16 == 0) {
+                if (this->m_sdCycleCount % 16 == 0) {
                     this->m_currentHoldingSample = this->m_currentNoiseSample;
                 }
                 val = this->m_currentHoldingSample;
 
                 break;
             case 11:
-                if (this->m_sdPhaseCount % 32 == 0) {
+                if (this->m_sdCycleCount % 32 == 0) {
                     this->m_currentHoldingSample = this->m_currentNoiseSample;
                 }
                 val = this->m_currentHoldingSample;
 
                 break;
             case 12:
-                if (this->m_sdPhaseCount % 64 == 0) {
+                if (this->m_sdCycleCount % 64 == 0) {
                     this->m_currentHoldingSample = this->m_currentNoiseSample;
                 }
                 val = this->m_currentHoldingSample;
@@ -179,8 +185,6 @@ float Opzx7LfoCoreUnit::getSample()
 
             // ワンショット波形 (6, 7) のミュート処理
             if (this->m_isOneshot && this->m_sdCycleCount > 0) val = 0.0f;
-
-            this->m_sdPhaseCount++;
         }
     }
 

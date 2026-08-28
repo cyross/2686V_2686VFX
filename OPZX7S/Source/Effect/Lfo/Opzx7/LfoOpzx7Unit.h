@@ -25,7 +25,6 @@ class Opzx7LfoCoreUnit {
 
 	float m_sdCounter = 0.0f;
 	uint32_t m_sdCycleCount = 0;
-	uint32_t m_sdPhaseCount = 0;
 
 	float m_currentNoiseSample = 0.0f;
 	float m_currentHoldingSample = 0.0f;
