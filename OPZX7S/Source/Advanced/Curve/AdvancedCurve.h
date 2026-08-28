@@ -14,8 +14,6 @@ private:
 public:
     CurveCore();
 
-    int index = 0; // ロジック切り替えのインデックス
-
 	void setParameters(const CurveParams& params);
     void bakeCurves() {}
     void bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex) {}
