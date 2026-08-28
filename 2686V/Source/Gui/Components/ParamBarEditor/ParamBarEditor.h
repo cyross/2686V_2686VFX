@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+#include <functional>
 #include <vector>
 
 #include "../../../Core/Gui/GuiComponents.h"
@@ -45,6 +46,10 @@ protected:
     virtual void updateHoverState(const juce::MouseEvent& e) = 0;
 public:
     ParamBarEditorBase(const GuiContext& context) : GuiBaseComponent(context) {}
+
+    // 値が変わったときに呼ばれる。棒グラフの見た目とは別に、
+    // 編集結果を使った表示 (プレビューなど) を持つ側がつなぐ。
+    std::function<void()> onParamChanged;
     ~ParamBarEditorBase() override;
 
     void parameterChanged(const juce::String& parameterID, float newValue) override;

@@ -1,5 +1,7 @@
 ﻿#include "./WtMod.h"
 
+#include "../WavePreview/WavePreviewSource.h"
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Editor/PluginEditor.h"
@@ -236,6 +238,16 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
 
+    // setup が .isResized で入れた再レイアウト用の処理を潰さないよう、
+    // 元の呼び出しを拾ってから後ろへつなぐ。
+    auto relayoutOnShapeChange = shapeSelector.onChange;
+
+    shapeSelector.onChange = [this, relayoutOnShapeChange] {
+        if (relayoutOnShapeChange) relayoutOnShapeChange();
+
+        this->updateModPreview();
+        };
+
     waveWtBtn.setup({ .parent = parent, .title = "WT", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
     waveWtBtn.setWantsKeyboardFocus(true);
     waveWtBtn.setExplicitFocusOrder(++tabOrder);
@@ -260,13 +272,31 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     waveSmoothBtn.setWantsKeyboardFocus(true);
     waveSmoothBtn.setExplicitFocusOrder(++tabOrder);
 
+    // setup が .isResized で入れた再レイアウト用の処理を潰さないよう、
+    // 元の呼び出しを拾ってから後ろへつなぐ。
+    //
+    // onStateChange ではなく onClick に付けているのは、パラメータの
+    // 復元でスイッチが動いたときまで取り込み直してしまわないため。
+    auto relayoutOnSmooth = waveSmoothBtn.onClick;
+
+    waveSmoothBtn.onClick = [this, relayoutOnSmooth] {
+        if (relayoutOnSmooth) relayoutOnSmooth();
+
+        this->reapplyWaveFile();
+        };
+
     // HuC6280 モードの変調波形パラメータを引けるようにしておく
     for (int i = 0; i < 32; ++i) {
         waveParams[i] = ctx.audioProcessor.apvts.getParameter(code + CPK::WtMod::wave + juce::String(i));
     }
+
+    modPreview.setup(parent);
+    updateModPreview();
+
     fdsCat.setupSwCategory({ .parent = parent, .title = juce::String("") + "FDS TABLE", .enableChangeDetailVisible = true });
 
     fdsEditor.setup(parent, code + CPK::WtMod::fdsTable);
+    fdsEditor.onParamChanged = [this] { this->updateModPreview(); };
 
     // 作り置きのテーブルを流し込むボタン
     for (int i = 0; i < FdsMod::tableCount; ++i)
@@ -293,6 +323,7 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     waveClearBtn.setVisible(visible);
     waveFileNameLabel.setVisible(visible);
     waveSmoothBtn.setVisible(visible);
+    modPreview.setVisible(visible);
 
     if (visible)
     {
@@ -302,6 +333,9 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, });
         layoutMainWtFiles({ .rect = rect, .loadWtBtn = &waveWtBtn, .loadWt2Btn = &waveWt2Btn, .fileNameLabel = &waveFileNameLabel, .clearBtn = &waveClearBtn });
         layoutMain({ .mainRect = rect, .component = &waveSmoothBtn });
+
+        modPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -478,6 +512,23 @@ bool GuiComponentWtMod::applyWaveFile(const juce::File& file, bool isWt2)
     return true;
 }
 
+// Smooth は「読み込んだ波形を 32 サンプルへ落とす方法」を選ぶスイッチで、
+// 取り込んだあとの値には掛からない。切り替えただけでは何も変わらないと
+// 分かりにくいので、読み込んだファイルを覚えているうちは取り込み直す。
+void GuiComponentWtMod::reapplyWaveFile()
+{
+    if (p_wavePath == nullptr || p_wavePath->isEmpty()) return;
+
+    juce::File file(*p_wavePath);
+
+    if (!file.existsAsFile()) return;
+
+    // .wt か .wt2 かは拡張子で分かる
+    if (!applyWaveFile(file, file.hasFileExtension("wt2"))) return;
+
+    updateModPreview();
+}
+
 void GuiComponentWtMod::clearWave()
 {
     for (int i = 0; i < 32; ++i) {
@@ -494,7 +545,28 @@ void GuiComponentWtMod::clearWave()
 void GuiComponentWtMod::updateWaveFileName(const juce::String& fileName)
 {
     waveFileNameLabel.setText(fileName, juce::dontSendNotification);
+
+    // 名前とプレビューは常に同じ波形を指していてほしいので、ここで揃える
+    updateModPreview();
 }
+
+// 選んでいる Shape の変調波形を折れ線にする。
+// 描画のたびに計算すると重いので、形が変わったときだけここを通す。
+void GuiComponentWtMod::updateModPreview()
+{
+    // HuC6280 モードで使う 32 サンプル
+    std::array<float, 32> wave = { 0.0f };
+
+    for (int i = 0; i < 32; ++i) {
+        if (waveParams[i] != nullptr) wave[i] = waveParams[i]->convertFrom0to1(waveParams[i]->getValue());
+    }
+
+    // 変調の向きは Shape によって上下どちらにも振れるので、両振りで描く
+    modPreview.setPoints(
+        WavePreviewSource::wtMod(shapeSelector.getSelectedItemIndex(), wave, fdsEditor.currentTable()),
+        true);
+}
+
 void GuiComponentWtMod::setImportingBaseParams(juce::StringArray& lines, int& index)
 {
     enableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);

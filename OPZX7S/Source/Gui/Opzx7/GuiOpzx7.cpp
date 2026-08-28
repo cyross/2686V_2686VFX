@@ -2,6 +2,8 @@
 
 #include "./GuiOpzx7.h"
 
+#include "../Components/WavePreview/WavePreviewSource.h"
+
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
@@ -402,6 +404,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     catWaveShape{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
     ws{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
     wsSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
+    wsPreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
     loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
@@ -882,6 +885,8 @@ void GuiOpzx7::setup()
 
         wsSeparator[i].setupComponent(opGroups[i].contentCanvas);
 
+        wsPreview[i].setup(opGroups[i].contentCanvas);
+
         loadPcmBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::Pcm, .isReset = false, .isResized = true });
         loadPcmBtn[i].setWantsKeyboardFocus(true);
         loadPcmBtn[i].setExplicitFocusOrder(++tabOrder);
@@ -939,6 +944,15 @@ void GuiOpzx7::setup()
         loopPointEnd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::lpEnd, .title = Opzx7GuiText::Fm::Op::loopPointEnd, .isReset = true });
         loopPointEnd[i].setWantsKeyboardFocus(true);
         loopPointEnd[i].setExplicitFocusOrder(++tabOrder);
+
+        // 切り出しとループの設定が変わったら、プレビューも合わせる
+        auto refreshWsPreview = [this, i]() { this->updateWsPreview(i); };
+
+        pcmOffset[i].onValueChange = refreshWsPreview;
+        pcmRatio[i].onValueChange = refreshWsPreview;
+        loopPointStart[i].onValueChange = refreshWsPreview;
+        loopPointEnd[i].onValueChange = refreshWsPreview;
+        loopPointEnable[i].onStateChange = refreshWsPreview;
 
         loadWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT", .isReset = false, .isResized = true });
         loadWtBtn[i].setWantsKeyboardFocus(true);
@@ -1544,8 +1558,41 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     graphSeparator[idx].setEnabled(enable);
 }
 
+// 選んでいる WS の波形を折れ線にする。
+// 描画のたびに計算すると重いので、形が変わったときだけここを通す。
+void GuiOpzx7::updateWsPreview(int opIndex)
+{
+    if (opIndex < 0 || opIndex >= Opzx7PrValue::ops) return;
+
+    // 波形メモリと PCM は未読込なら空。音源側と同じくサイン波になる。
+    // PCM のときだけ P.OF / P.RT で切り出す範囲が変わるので、一緒に渡す。
+    wsPreview[opIndex].setPoints(
+        WavePreviewSource::opzx7Ws(
+            ws[opIndex].getSelectedItemIndex(),
+            ctx.audioProcessor.opzx7WtBuffers[opIndex],
+            ctx.audioProcessor.opzx7Wt2Buffers[opIndex],
+            ctx.audioProcessor.opzx7PcmBuffers[opIndex],
+            (float)pcmOffset[opIndex].getValue(),
+            (float)pcmRatio[opIndex].getValue(),
+            ctx.audioProcessor.getSampleRate()),
+        true);
+
+    // ループ位置は PCM のときだけ意味を持つ。切り出した範囲に対する 0.0〜1.0。
+    std::vector<float> markers;
+
+    if (ws[opIndex].getSelectedItemIndex() == Opzx7PrValue::pcmIndex
+        && loopPointEnable[opIndex].getToggleState()) {
+        markers.push_back((float)loopPointStart[opIndex].getValue());
+        markers.push_back((float)loopPointEnd[opIndex].getValue());
+    }
+
+    wsPreview[opIndex].setMarkers(markers);
+}
+
 void GuiOpzx7::updateOnWsChange(int idx)
 {
+    updateWsPreview(idx);
+
     int selectedWs = ws[idx].getSelectedItemIndex();
     bool visible = catWaveShape[idx].isDetailVisible();
     if (selectedWs == Opzx7PrValue::wtIndex)
@@ -2170,6 +2217,7 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
     bool visible = catWaveShape[opIndex].isDetailVisible();
 
     ws[opIndex].setVisibleWithLabel(visible);
+    wsPreview[opIndex].setVisible(visible);
     wsSeparator[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loadPcmBtn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmFileNameLabel[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
@@ -2188,6 +2236,9 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &ws[opIndex].label, .component = &ws[opIndex] });
+
+        wsPreview[opIndex].setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
 
         if (selectedWs == Opzx7PrValue::pcmIndex)
         {

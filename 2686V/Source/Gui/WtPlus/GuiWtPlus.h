@@ -25,6 +25,7 @@
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WavePreview/WavePreview.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
@@ -78,6 +79,9 @@ class GuiWtPlus : public GuiBase {
     std::array<GuiTextButton, Global::WtPlus::slots> slotWt2Btn;
     std::array<GuiTextButton, Global::WtPlus::slots> slotClearBtn;
     std::array<GuiLabel, Global::WtPlus::slots> slotFileNameLabel;
+
+    // 読み込んだ波形がどんな形か見せる。1 スロット 1 本。
+    std::array<GuiWavePreview, Global::WtPlus::slots> slotPreview;
 
     // ---------------- MODULATION ----------------
     GuiComponentWtMod modComponent;
@@ -174,6 +178,14 @@ public:
                            GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
                            GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
                            GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+        slotPreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
+                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
+                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
+                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
+                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
+                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
+                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
+                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
         modComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
@@ -220,6 +232,7 @@ public:
     void importSlotWave(int slot, bool isWt2);
     void clearSlotWave(int slot);
     void updateSlotFileName(int slot);
+    void updateSlotPreview(int slot);
 
     // HuC6280 モード用の変調波形
 };

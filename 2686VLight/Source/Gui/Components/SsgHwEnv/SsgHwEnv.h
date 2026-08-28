@@ -12,6 +12,7 @@
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/WavePreview/WavePreview.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../../Gui/Components/SsgSwButtons/SsgSwButtons.h"
 
@@ -30,6 +31,9 @@ class GuiComponentSsgHwEnv : public GuiBase {
     GuiSlider minSlider;
     GuiSlider maxSlider;
 
+    // 選んだ Shape がどんな形かを見せる
+    GuiWavePreview preview;
+
     std::unique_ptr<juce::FileChooser> fileChooser;
 public:
     GuiComponentSsgHwEnv(const GuiContext& context) :
@@ -41,7 +45,8 @@ public:
         shapeSelector(context),
         periodSlider(context),
         minSlider(context),
-        maxSlider(context)
+        maxSlider(context),
+        preview(context)
     {
     }
 
@@ -55,4 +60,7 @@ public:
     void exportParams();
     void setImportingParams(juce::StringArray& lines, int& index);
     juce::String getExportedParams();
+
+    // Shape / MIN / MAX / Smooth が変わったら折れ線を作り直す
+    void updatePreview();
 };

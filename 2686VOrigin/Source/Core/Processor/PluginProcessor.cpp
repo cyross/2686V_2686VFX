@@ -284,6 +284,10 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
                 voice->getAdpcmCore()->setSampleData(sourceData, audioReader->sampleRate);
             }
         }
+
+        // 画面表示用の控え
+        adpcmPreviewBuffer = std::move(sourceData);
+        adpcmPreviewRate = audioReader->sampleRate;
     }
 }
 
@@ -313,6 +317,12 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
             if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
                 voice->getRhythmCore()->setSampleData(padIndex, sourceData, reader->sampleRate);
             }
+        }
+
+        // 画面表示用の控え
+        if (padIndex >= 0 && padIndex < RhythmPrValue::pads) {
+            rhythmPreviewBuffers[padIndex] = std::move(sourceData);
+            rhythmPreviewRates[padIndex] = audioReader->sampleRate;
         }
     }
 }
@@ -828,6 +838,9 @@ void AudioPlugin2686V::unloadAdpcmFile()
     // パス情報を削除
     adpcmFilePath.clear();
 
+    // 画面表示用の控えも捨てる
+    adpcmPreviewBuffer.clear();
+
     // 空のデータを作成
     std::vector<float> emptyData(1, 0.0f);
 
@@ -849,6 +862,9 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
 
     // パス情報を削除
     rhythmFilePaths[padIndex].clear();
+
+    // 画面表示用の控えも捨てる
+    if (padIndex < RhythmPrValue::pads) rhythmPreviewBuffers[padIndex].clear();
 
     // 空のデータを作成
     std::vector<float> emptyData(1, 0.0f);

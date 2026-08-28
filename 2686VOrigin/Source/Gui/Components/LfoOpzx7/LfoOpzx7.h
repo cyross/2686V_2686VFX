@@ -12,6 +12,7 @@
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../WavePreview/WavePreview.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
@@ -29,6 +30,7 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiTextButton pmSDToZero;
     GuiTextButton pmSDToOne;
     GuiComboBox pgShape;
+    GuiWavePreview pmPreview;
     GuiSlider pms;
     GuiSlider pmd;
     NormalSeparator pmAmSeparator;
@@ -40,6 +42,7 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiTextButton amSDToOne;
     GuiComboBox egShape;
     GuiSlider amSmRt;
+    GuiWavePreview amPreview;
     GuiSlider ams;
     GuiSlider amd;
     std::unique_ptr<juce::FileChooser> fileChooser;
@@ -54,6 +57,7 @@ public:
         pmSDToZero(context),
         pmSDToOne(context),
         pgShape(context),
+        pmPreview(context),
         pms(context),
         pmd(context),
         pmAmSeparator(context),
@@ -65,6 +69,7 @@ public:
         amSDToOne(context),
         egShape(context),
         amSmRt(context),
+        amPreview(context),
         ams(context),
         amd(context)
     {
@@ -76,6 +81,7 @@ public:
         int& tabOrder
     );
     void layoutComponent(juce::Rectangle<int>& rect);
+    void updatePreviews();
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);
     void copyParams(CopyLfoOpzx7& copyObj);

@@ -93,6 +93,9 @@ void GuiWtPlus::setup() {
 
         slotFileNameLabel[i].setup({ .parent = waveGroup.contentCanvas, .title = Io::empty });
 
+        slotPreview[i].setup(waveGroup.contentCanvas);
+
+        // ファイル名の更新から中でプレビューも描き直される
         updateSlotFileName(i);
     }
 
@@ -276,13 +279,28 @@ void GuiWtPlus::layoutSlotsCat(juce::Rectangle<int>& rect)
         slotWt2Btn[i].setVisible(visible);
         slotClearBtn[i].setVisible(visible);
         slotFileNameLabel[i].setVisible(visible);
+        slotPreview[i].setVisible(visible);
     }
 
     if (visible)
     {
-        // 1 スロット 1 行。WT / WT2 / ファイル名 / Clear を横に並べる。
+        // 1 スロット 1 行。左に WT / WT2 / ファイル名 / Clear を並べ、
+        // 右へ波形を置く。波形のほうが行より背が高いので、行は波形の
+        // 高さの中央に合わせる。
         for (int i = 0; i < Global::WtPlus::slots; ++i) {
-            layoutMainWtFiles({ .rect = rect,
+            auto slotArea = rect.removeFromTop(GuiWavePreview::defaultHeight);
+
+            rect.removeFromTop(WtPlusGuiValue::Slots::gap);
+
+            auto controlArea = slotArea.removeFromLeft(WtPlusGuiValue::Slots::rowWidth);
+
+            slotArea.removeFromLeft(WtPlusGuiValue::Slots::gap);
+
+            slotPreview[i].setBounds(slotArea);
+
+            auto rowArea = controlArea.withSizeKeepingCentre(controlArea.getWidth(), CoreGuiValue::MainGroup::Row::height);
+
+            layoutMainWtFiles({ .rect = rowArea,
                                 .loadWtBtn = &slotWtBtn[i],
                                 .loadWt2Btn = &slotWt2Btn[i],
                                 .fileNameLabel = &slotFileNameLabel[i],
@@ -493,6 +511,25 @@ void GuiWtPlus::clearSlotWave(int slot)
     updateSlotFileName(slot);
 }
 
+// 読み込んだ波形を折れ線にする。
+// プロセッサ側が持っているデータは読み込み時に 256 点の階段へ
+// 展開済みなので、そのまま渡せる。
+void GuiWtPlus::updateSlotPreview(int slot)
+{
+    if (slot < 0 || slot >= Global::WtPlus::slots) return;
+
+    const auto& wave = ctx.audioProcessor.wtPlusWaves[slot];
+
+    if (wave.data.empty()) {
+        slotPreview[slot].clear();
+
+        return;
+    }
+
+    // 波形は -1.0〜1.0 の両振り
+    slotPreview[slot].setPoints(wave.data, true);
+}
+
 void GuiWtPlus::updateSlotFileName(int slot)
 {
     if (slot < 0 || slot >= Global::WtPlus::slots) return;
@@ -503,6 +540,9 @@ void GuiWtPlus::updateSlotFileName(int slot)
     // 先頭にスロット番号を出して、どの行がどのスロットか分かるようにする
     slotFileNameLabel[slot].setText(juce::String(slot).paddedLeft('0', 2) + ": " + name,
         juce::dontSendNotification);
+
+    // 名前とプレビューは常に同じ波形を指していてほしいので、ここで揃える
+    updateSlotPreview(slot);
 }
 
 // ==============================================================================

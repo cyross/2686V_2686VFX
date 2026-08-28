@@ -6,6 +6,7 @@
 #include "../../../Core/Gui/GuiComponents.h"
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
+#include "../WavePreview/WavePreview.h"
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Generator/Fds/GenFdsModTable.h"
 
@@ -64,6 +65,9 @@ class GuiComponentWtMod : public GuiBase {
     GuiLabel waveFileNameLabel;
     GuiToggleButton waveSmoothBtn;
 
+    // 選んでいる Shape の変調波形を見せるプレビュー
+    GuiWavePreview modPreview;
+
     // HuC6280 モードの変調波形 (32 サンプル)
     std::array<juce::RangedAudioParameter*, 32> waveParams = { nullptr };
 
@@ -78,8 +82,10 @@ class GuiComponentWtMod : public GuiBase {
 
     void importWave(bool isWt2);
     bool applyWaveFile(const juce::File& file, bool isWt2);
+    void reapplyWaveFile();
     void clearWave();
     void updateWaveFileName(const juce::String& fileName);
+    void updateModPreview();
 public:
     GuiComponentWtMod(const GuiContext& context) :
         GuiBase(context),
@@ -93,6 +99,7 @@ public:
         waveClearBtn(context),
         waveFileNameLabel(context),
         waveSmoothBtn(context),
+        modPreview(context),
         fdsCat(context),
         fdsEditor(context),
         fdsPresetBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) }

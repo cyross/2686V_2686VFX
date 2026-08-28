@@ -624,6 +624,13 @@ set(GUI_COMPONENT_PARAMBAREDITOR_FILES
     "Source/Gui/Components/ParamBarEditor/ParamBarEditor.cpp"
 )
 
+set(GUI_COMPONENT_WAVEPREVIEW_FILES
+    "Source/Gui/Components/WavePreview/WavePreview.h"
+    "Source/Gui/Components/WavePreview/WavePreview.cpp"
+    "Source/Gui/Components/WavePreview/WavePreviewSource.h"
+    "Source/Gui/Components/WavePreview/WavePreviewSource.cpp"
+)
+
 set(GUI_COMPONENT_WTMOD_FILES
     "Source/Gui/Components/WtMod/WtMod.h"
     "Source/Gui/Components/WtMod/WtMod.cpp"
@@ -768,6 +775,7 @@ source_group("2686V\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FIL
 source_group("2686V\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
 source_group("2686V\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
 source_group("2686V\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
+source_group("2686V\\Gui\\Components\\WavePreview" FILES ${GUI_COMPONENT_WAVEPREVIEW_FILES})
 source_group("2686V\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})
 source_group("2686V\\Gui\\Components\\SsgHwEnv" FILES ${GUI_COMPONENT_SSGHWENV_FILES})
 source_group("2686V\\Gui\\Components\\AlgMatrix" FILES ${GUI_COMPONENT_ALG_MATRIX_FILES})

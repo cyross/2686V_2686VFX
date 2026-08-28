@@ -542,6 +542,15 @@ public:
     juce::String wtPlusModWavePath;
     std::array<juce::String, RhythmPrValue::pads> rhythmFilePaths;
 
+    // 画面へ波形を描くために持っておくサンプル。
+    // 音は各ボイスが自分の持ち分で鳴らすので、こちらは表示専用。
+    // 読み込んだままのデータなので、音源側の品質劣化は掛かっていない。
+    std::vector<float> adpcmPreviewBuffer;
+    double adpcmPreviewRate = 44100.0;
+
+    std::array<std::vector<float>, RhythmPrValue::pads> rhythmPreviewBuffers;
+    std::array<double, RhythmPrValue::pads> rhythmPreviewRates{};
+
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);

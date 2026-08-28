@@ -33,6 +33,7 @@
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WavePreview/WavePreview.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
@@ -171,6 +172,9 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catWaveShape;
     std::array<GuiComboBox, Opzx7PrValue::ops> ws;
     std::array<NormalSeparator, Opzx7PrValue::ops> wsSeparator;
+
+    // 選んでいる WS の波形を見せるプレビュー
+    std::array<GuiWavePreview, Opzx7PrValue::ops> wsPreview;
     std::array<GuiTextButton, Opzx7PrValue::ops> loadPcmBtn;
     std::array<GuiTextButton, Opzx7PrValue::ops> clearPcmBtn;
     std::array<GuiLabel, Opzx7PrValue::ops> pcmFileNameLabel;
@@ -256,12 +260,21 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void updatePcmFileName(int opIndex, const juce::String& fileName) {
         pcmFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
+        
+        // 波形メモリ / PCM が入れ替わったので、WS のプレビューも合わせる
+        updateWsPreview(opIndex);
     }
     void updateWtFileName(int opIndex, const juce::String& fileName) {
 		wtFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
+		
+		// 波形メモリ / PCM が入れ替わったので、WS のプレビューも合わせる
+		updateWsPreview(opIndex);
     }
     void updateWt2FileName(int opIndex, const juce::String& fileName) {
         wt2FileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
+        
+        // 波形メモリ / PCM が入れ替わったので、WS のプレビューも合わせる
+        updateWsPreview(opIndex);
     }
     void updateAllPcmFileName(const juce::String& fileName) {
         for (int i = 0; i < Opzx7PrValue::ops; i++)
@@ -284,6 +297,7 @@ public:
     void updateOpVisible(int idx, bool visible);
     void updateOpEnable(int idx, bool enable);
 	void updateOnWsChange(int idx);
+	void updateWsPreview(int opIndex);
     void updateAlgorithmDisplay();
     void updateAlgorithmMatrixDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);

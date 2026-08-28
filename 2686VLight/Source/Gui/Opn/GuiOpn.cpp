@@ -2,6 +2,8 @@
 
 #include "./GuiOpn.h"
 
+#include "../Components/WavePreview/WavePreviewSource.h"
+
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
@@ -128,6 +130,16 @@ void GuiOpn::setup()
     lfoAmSmRtSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::amSmoothRatio, .title = OpnGuiText::Fm::amSmoothRatio, .isReset = true });
     lfoAmSmRtSlider.setWantsKeyboardFocus(true);
     lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmPreview.setup(mainGroup.contentCanvas);
+    lfoAmPreview.setup(mainGroup.contentCanvas);
+
+    auto refreshLfoPreviews = [this]() { this->updateLfoPreviews(); };
+
+    lfoShapeSelector.onChange = refreshLfoPreviews;
+    lfoAmSmRtSlider.onValueChange = refreshLfoPreviews;
+
+    updateLfoPreviews();
 
     lfoSyncDelaySlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::syncDelay, .title = OpnGuiText::Fm::lfoSyncDelay, .isReset = true });
     lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -875,6 +887,20 @@ void GuiOpn::layoutQualityCat(juce::Rectangle<int>& rect) {
     qualityComponent.layoutComponent(rect);
 }
 
+// 選んだ Shape を実際の LFO で走らせ、折れ線にして渡す。
+// 値が変わったときだけ通るので、常時の負荷は無い。
+void GuiOpn::updateLfoPreviews()
+{
+    // Shape は 1 つだが、同じ番号でも PM と AM で波形が違うので両方出す。
+    int shape = lfoShapeSelector.getSelectedItemIndex();
+
+    // PM は -1.0〜1.0 の両振り
+    lfoPmPreview.setPoints(WavePreviewSource::n88LfoPm(shape), true);
+
+    // AM は 0.0〜1.0 の片側。スムースの効きも見えるよう実際の値を渡す。
+    lfoAmPreview.setPoints(WavePreviewSource::n88LfoAm(shape, (float)lfoAmSmRtSlider.getValue()), false);
+}
+
 void GuiOpn::layoutN88LfoCat(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .label = &lfoCat });
@@ -883,6 +909,8 @@ void GuiOpn::layoutN88LfoCat(juce::Rectangle<int>& rect)
 
     lfoFreqSlider.setVisibleWithLabel(visible);
     lfoShapeSelector.setVisibleWithLabel(visible);
+    lfoPmPreview.setVisible(visible);
+    lfoAmPreview.setVisible(visible);
     lfoAmSmRtSlider.setVisibleWithLabel(visible);
     lfoSyncDelaySlider.setVisibleWithLabel(visible);
     lfoSyncDelayToZeroBtn.setVisible(visible);
@@ -904,10 +932,16 @@ void GuiOpn::layoutN88LfoCat(juce::Rectangle<int>& rect)
         layoutMainTwoComps({ .rect = rect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
         lfoSep1.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
+        lfoPmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
         layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
         layoutMain({ .mainRect = rect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
         lfoSep2.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
+        lfoAmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
         layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);

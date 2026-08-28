@@ -1,5 +1,7 @@
 ﻿#include "./LfoOpzx7.h"
 
+#include "../WavePreview/WavePreviewSource.h"
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -119,6 +121,28 @@ void GuiComponentLfoOpzx7::setupComponent(
     amd.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amd, .title = "AMD", .isReset = true });
     amd.setWantsKeyboardFocus(true);
     amd.setExplicitFocusOrder(++tabOrder);
+
+    pmPreview.setup(parent);
+    amPreview.setup(parent);
+
+    auto refreshPreviews = [this]() { this->updatePreviews(); };
+
+    pgShape.onChange = refreshPreviews;
+    egShape.onChange = refreshPreviews;
+    amSmRt.onValueChange = refreshPreviews;
+
+    updatePreviews();
+}
+
+// 選んだ Shape を実際の LFO で走らせ、折れ線にして渡す。
+// 値が変わったときだけ通るので、常時の負荷は無い。
+void GuiComponentLfoOpzx7::updatePreviews()
+{
+    // PM は -1.0〜1.0 の両振り
+    pmPreview.setPoints(WavePreviewSource::opzx7LfoPm(pgShape.getSelectedItemIndex()), true);
+
+    // AM は 0.0〜1.0 の片側。スムースの効きも見えるよう実際の値を渡す。
+    amPreview.setPoints(WavePreviewSource::opzx7LfoAm(egShape.getSelectedItemIndex(), (float)amSmRt.getValue()), false);
 }
 
 void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
@@ -134,6 +158,7 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
     pmSDToZero.setVisible(visible);
     pmSDToOne.setVisible(visible);
     pgShape.setVisibleWithLabel(visible);
+    pmPreview.setVisible(visible);
     pms.setVisibleWithLabel(visible);
     pmd.setVisibleWithLabel(visible);
     pmAmSeparator.setVisible(visible);
@@ -145,6 +170,7 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
     amSDToOne.setVisible(visible);
     egShape.setVisibleWithLabel(visible);
     amSmRt.setVisibleWithLabel(visible);
+    amPreview.setVisible(visible);
     ams.setVisibleWithLabel(visible);
     amd.setVisibleWithLabel(visible);
 
@@ -156,6 +182,10 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &pmSyncDelay.label, .component = &pmSyncDelay, .rowHeight = 12 });
         layoutMainTwoComps({ .rect = rect, .comp1 = &pmSDToZero, .comp2 = &pmSDToOne, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &pgShape.label, .component = &pgShape, .rowHeight = 12 });
+
+        pmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
         layoutMain({ .mainRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
 
@@ -168,6 +198,10 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
         layoutMainTwoComps({ .rect = rect, .comp1 = &amSDToZero, .comp2 = &amSDToOne, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &egShape.label, .component = &egShape, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &amSmRt.label, .component = &amSmRt, .rowHeight = 12 });
+
+        amPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
         layoutMain({ .mainRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
 
@@ -188,6 +222,7 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
     pmSDToZero.setVisible(visible);
     pmSDToOne.setVisible(visible);
     pgShape.setVisibleWithLabel(visible);
+    pmPreview.setVisible(visible);
     pms.setVisibleWithLabel(visible);
     pmd.setVisibleWithLabel(visible);
     pmAmSeparator.setVisible(visible);
@@ -199,6 +234,7 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
     amSDToOne.setVisible(visible);
     egShape.setVisibleWithLabel(visible);
     amSmRt.setVisibleWithLabel(visible);
+    amPreview.setVisible(visible);
     ams.setVisibleWithLabel(visible);
     amd.setVisibleWithLabel(visible);
 
@@ -210,6 +246,10 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &pmSyncDelay.label, .component = &pmSyncDelay, .rowHeight = 12 });
         layoutRowTwoComps({ .rect = rect, .comp1 = &pmSDToZero, .comp2 = &pmSDToOne, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &pgShape.label, .component = &pgShape, .rowHeight = 12 });
+
+        pmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
         layoutRow({ .rowRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
 
@@ -222,6 +262,10 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRowTwoComps({ .rect = rect, .comp1 = &amSDToZero, .comp2 = &amSDToOne, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &egShape.label, .component = &egShape, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &amSmRt.label, .component = &amSmRt, .rowHeight = 12 });
+
+        amPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
         layoutRow({ .rowRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
 

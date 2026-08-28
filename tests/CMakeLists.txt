@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # ユニットテスト
 # ==============================================================================
 # 音を決めているロジック (Effect / Generator / Advanced/Curve) を、JUCE を
@@ -41,6 +41,17 @@ set(UNDER_TEST_SOURCES
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Detune/Opzx7/DetuneOpzx7.cpp"
 
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Feedback/Feedback.cpp"
+
+    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/N88/LfoN88.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opm/LfoOpm.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7Unit.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
+
+    "${TEST_TARGET_SOURCE_ROOT}/Core/Fm/FmOperator.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Synth/Opzx7/Operator/SynthOpzx7Op.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Fm/Fix/FmFix.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Gui/Components/WavePreview/WavePreviewSource.cpp"
 )
 
 # ---- テストコード ----

@@ -1,5 +1,7 @@
 ﻿#include "./GuiAdpcm.h"
 
+#include "../Components/WavePreview/WavePreviewSource.h"
+
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
@@ -97,9 +99,23 @@ void GuiAdpcm::setup()
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
+
     pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::pcmRatio, .title = AdpcmGuiText::Adpcm::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
+
+    // 切り出しとループの設定が変わったら、プレビューも合わせる。
+    // 各コンポーネントの setup() より後に付けること。setup() は APVTS との
+    // 束縛を張り直すので、先に付けると束縛が壊れて操作できなくなる。
+    auto refreshSamplePreview = [this]() { this->updateSamplePreview(); };
+
+    pcmOffsetSlider.onValueChange = refreshSamplePreview;
+    pcmRatioSlider.onValueChange = refreshSamplePreview;
+    loopPointStartSlider.onValueChange = refreshSamplePreview;
+    loopPointEndSlider.onValueChange = refreshSamplePreview;
+    loopPointEnableButton.onStateChange = refreshSamplePreview;
+
+    updateSamplePreview();
 
     // パンポット設定
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::pan, .enableChangeDetailVisible = true });
@@ -159,6 +175,8 @@ void GuiAdpcm::setup()
 
     // ロードしているファイル名
     fileNameLabel.setup({ .parent = mainGroup.contentCanvas, .title = Io::empty });
+
+    samplePreview.setup(mainGroup.contentCanvas);
     fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
@@ -298,6 +316,40 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 void GuiAdpcm::updateFileName(const juce::String& fileName)
 {
     fileNameLabel.setText(fileName, juce::dontSendNotification);
+
+    // 名前とプレビューは常に同じサンプルを指していてほしいので、ここで揃える
+    updateSamplePreview();
+}
+
+// 読み込んだサンプルの、実際に鳴る範囲を描く。
+// 波形は 1 点ずつ拾っても形が分からないので、区間ごとの上下幅で出す。
+void GuiAdpcm::updateSamplePreview()
+{
+    const auto& data = ctx.audioProcessor.adpcmPreviewBuffer;
+
+    if (data.empty()) {
+        samplePreview.clear();
+
+        return;
+    }
+
+    auto env = WavePreviewSource::audioFile(
+        data,
+        ctx.audioProcessor.adpcmPreviewRate,
+        (float)pcmOffsetSlider.getValue(),
+        (float)pcmRatioSlider.getValue());
+
+    samplePreview.setEnvelope(env.mins, env.maxs);
+
+    // ループ位置は切り出した範囲に対する 0.0〜1.0。使うときだけ出す。
+    std::vector<float> markers;
+
+    if (loopPointEnableButton.getToggleState()) {
+        markers.push_back((float)loopPointStartSlider.getValue());
+        markers.push_back((float)loopPointEndSlider.getValue());
+    }
+
+    samplePreview.setMarkers(markers);
 }
 
 bool GuiAdpcm::isThis(juce::Button* button)
@@ -410,6 +462,7 @@ void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
 
     loadButton.setVisible(visible);
     fileNameLabel.setVisible(visible);
+    samplePreview.setVisible(visible);
     clearButton.setVisible(visible);
     formSeparator.setVisible(visible);
     toneSlider.setVisibleWithLabel(visible);
@@ -423,6 +476,10 @@ void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
     if (visible)
     {
         layoutMainPcm({ .rect = rect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
+
+        samplePreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(3);
+
         formSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });

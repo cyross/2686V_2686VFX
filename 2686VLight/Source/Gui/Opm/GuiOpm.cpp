@@ -2,6 +2,8 @@
 
 #include "./GuiOpm.h"
 
+#include "../Components/WavePreview/WavePreviewSource.h"
+
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
@@ -191,6 +193,7 @@ void GuiOpm::setup()
     lfoAmSmRtSlider.setWantsKeyboardFocus(true);
     lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
 
+
     lfoSyncDelaySlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::syncDelay, .title = OpmGuiText::Fm::lfoSyncDelay, .isReset = true });
     lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     lfoSyncDelaySlider.setWantsKeyboardFocus(true);
@@ -233,6 +236,19 @@ void GuiOpm::setup()
     lfoEgShapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::egShape, .title = OpmGuiText::Fm::lfoEgShape, .items = lfoEgShapeItems, .isReset = true });
     lfoEgShapeSelector.setWantsKeyboardFocus(true);
     lfoEgShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmPreview.setup(mainGroup.contentCanvas);
+    lfoAmPreview.setup(mainGroup.contentCanvas);
+
+    // 各コンポーネントの setup() より後に付けること。setup() は APVTS との
+    // 束縛を張り直すので、先に付けると束縛が壊れて操作できなくなる。
+    auto refreshLfoPreviews = [this]() { this->updateLfoPreviews(); };
+
+    lfoPgShapeSelector.onChange = refreshLfoPreviews;
+    lfoEgShapeSelector.onChange = refreshLfoPreviews;
+    lfoAmSmRtSlider.onValueChange = refreshLfoPreviews;
+
+    updateLfoPreviews();
 
     lfoAmsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::ams, .title = OpmGuiText::Fm::ams, .items = amsItems, .isReset = true });
     lfoAmsSelector.setWantsKeyboardFocus(true);
@@ -1135,6 +1151,17 @@ void GuiOpm::layoutPanCat(juce::Rectangle<int>& rect)
     }
 }
 
+// 選んだ Shape を実際の LFO で走らせ、折れ線にして渡す。
+// 値が変わったときだけ通るので、常時の負荷は無い。
+void GuiOpm::updateLfoPreviews()
+{
+    // PM は -1.0〜1.0 の両振り
+    lfoPmPreview.setPoints(WavePreviewSource::opmLfoPm(lfoPgShapeSelector.getSelectedItemIndex()), true);
+
+    // AM は 0.0〜1.0 の片側。スムースの効きも見えるよう実際の値を渡す。
+    lfoAmPreview.setPoints(WavePreviewSource::opmLfoAm(lfoEgShapeSelector.getSelectedItemIndex(), (float)lfoAmSmRtSlider.getValue()), false);
+}
+
 void GuiOpm::layoutHwLfoCat(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .label = &lfoCat });
@@ -1149,11 +1176,13 @@ void GuiOpm::layoutHwLfoCat(juce::Rectangle<int>& rect)
     lfoSep1.setVisible(visible);
     lfoPmToggle.setVisible(visible);
     lfoPgShapeSelector.setVisibleWithLabel(visible);
+    lfoPmPreview.setVisible(visible);
     lfoPmsSelector.setVisibleWithLabel(visible);
     lfoPmdSlider.setVisibleWithLabel(visible);
     lfoSep2.setVisible(visible);
     lfoAmToggle.setVisible(visible);
     lfoEgShapeSelector.setVisibleWithLabel(visible);
+    lfoAmPreview.setVisible(visible);
     lfoAmsSelector.setVisibleWithLabel(visible);
     lfoAmdSlider.setVisibleWithLabel(visible);
 
@@ -1166,11 +1195,17 @@ void GuiOpm::layoutHwLfoCat(juce::Rectangle<int>& rect)
 		lfoSep1.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
         layoutMain({ .mainRect = rect, .label = &lfoPgShapeSelector.label, .component = &lfoPgShapeSelector });
+        lfoPmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
         layoutMain({ .mainRect = rect, .label = &lfoPmsSelector.label, .component = &lfoPmsSelector });
         layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
         lfoSep2.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
         layoutMain({ .mainRect = rect, .label = &lfoEgShapeSelector.label, .component = &lfoEgShapeSelector });
+        lfoAmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
         layoutMain({ .mainRect = rect, .label = &lfoAmsSelector.label, .component = &lfoAmsSelector });
         layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
 

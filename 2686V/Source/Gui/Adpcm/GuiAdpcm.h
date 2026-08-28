@@ -27,6 +27,7 @@
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WavePreview/WavePreview.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -49,6 +50,10 @@ class GuiAdpcm : public GuiBase
     NormalSeparator formSeparator;
 
     GuiCategoryLabel optionalCat;
+
+    // 読み込んだサンプルを見せるプレビュー。
+    // P.OF / P.RT で切り出した範囲を描き、ループ位置を縦線で出す。
+    GuiWavePreview samplePreview;
 
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
@@ -154,6 +159,7 @@ public:
         fileNameLabel(context),
         formSeparator(context),
         optionalCat(context),
+        samplePreview(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         levelComponent(context),
@@ -216,6 +222,7 @@ public:
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
     void updateFileName(const juce::String& fileName);
+    void updateSamplePreview();
     bool isThis(juce::Button* button);
     bool isBtnPanL(juce::Button* button);
     bool isBtnPanC(juce::Button* button);

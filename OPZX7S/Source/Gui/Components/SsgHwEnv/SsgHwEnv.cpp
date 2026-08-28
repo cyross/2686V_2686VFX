@@ -1,5 +1,9 @@
 ﻿#include "./SsgHwEnv.h"
 
+#include "../WavePreview/WavePreviewSource.h"
+
+#include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Processor/ProcessorValues.h"
@@ -92,11 +96,20 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
         if (min > max) {
             maxSlider.setValue(min, juce::sendNotification);
         }
+
+        updatePreview();
         };
 
     maxSlider.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::max, .title = "MAX", .isReset = true });
     maxSlider.setWantsKeyboardFocus(true);
     maxSlider.setExplicitFocusOrder(++tabOrder);
+    preview.setup(parent);
+
+    auto refreshPreview = [this] { updatePreview(); };
+
+    shapeSelector.onChange = refreshPreview;
+    smoothEnableButton.onStateChange = refreshPreview;
+
     maxSlider.onValueChange = [this] {
         float min = minSlider.getValue();
         float max = maxSlider.getValue();
@@ -104,7 +117,11 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
         if (min > max) {
             maxSlider.setValue(min, juce::sendNotification);
         }
+
+        updatePreview();
         };
+
+    updatePreview();
 }
 
 void GuiComponentSsgHwEnv::layoutComponent(juce::Rectangle<int>& rect)
@@ -115,6 +132,7 @@ void GuiComponentSsgHwEnv::layoutComponent(juce::Rectangle<int>& rect)
 
     envEnableButton.setVisible(visible);
     smoothEnableButton.setVisible(visible);
+    preview.setVisible(visible);
     hwEnvSeparator.setVisible(visible);
     shapeSelector.setVisibleWithLabel(visible);
     periodSlider.setVisibleWithLabel(visible);
@@ -131,6 +149,9 @@ void GuiComponentSsgHwEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .component = &smoothEnableButton });
 
+        preview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
@@ -143,6 +164,7 @@ void GuiComponentSsgHwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 
     envEnableButton.setVisible(visible);
     smoothEnableButton.setVisible(visible);
+    preview.setVisible(visible);
     hwEnvSeparator.setVisible(visible);
     shapeSelector.setVisibleWithLabel(visible);
     periodSlider.setVisibleWithLabel(visible);
@@ -158,6 +180,9 @@ void GuiComponentSsgHwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &minSlider.label, .component = &minSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .component = &smoothEnableButton });
+
+        preview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -262,4 +287,18 @@ juce::String GuiComponentSsgHwEnv::getExportedParams() {
     content += juce::String(smoothEnableButton.getToggleState() ? 1 : 0) + "\n";
 
     return content;
+}
+
+// 選んだ Shape を実際のエンベロープで走らせ、折れ線にして渡す。
+// 描画のたびに計算すると重いので、値が変わったときだけここを通す。
+void GuiComponentSsgHwEnv::updatePreview()
+{
+    // エンベロープは 0〜1 の片側なので、下端を 0 として描く
+    preview.setPoints(
+        WavePreviewSource::ssgHwEnv(
+            shapeSelector.getSelectedItemIndex(),
+            (float)minSlider.getValue(),
+            (float)maxSlider.getValue(),
+            smoothEnableButton.getToggleState()),
+        false);
 }

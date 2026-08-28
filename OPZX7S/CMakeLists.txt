@@ -297,6 +297,13 @@ set(GUI_COMPONENT_PARAMBAREDITOR_FILES
     "Source/Gui/Components/ParamBarEditor/ParamBarEditor.cpp"
 )
 
+set(GUI_COMPONENT_WAVEPREVIEW_FILES
+    "Source/Gui/Components/WavePreview/WavePreview.h"
+    "Source/Gui/Components/WavePreview/WavePreview.cpp"
+    "Source/Gui/Components/WavePreview/WavePreviewSource.h"
+    "Source/Gui/Components/WavePreview/WavePreviewSource.cpp"
+)
+
 set(GUI_COMPONENT_WTMOD_FILES
     "Source/Gui/Components/WtMod/WtMod.h"
     "Source/Gui/Components/WtMod/WtMod.cpp"
@@ -433,6 +440,7 @@ source_group("OPZX7S\\Gui\\Core" FILES ${GUI_FILES})
 source_group("OPZX7S\\Generator\\WtMod" FILES ${GENERATOR_WTMOD_FILES})
 source_group("OPZX7S\\Generator\\Fds" FILES ${GENERATOR_FDS_FILES})
 source_group("OPZX7S\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
+source_group("OPZX7S\\Gui\\Components\\WavePreview" FILES ${GUI_COMPONENT_WAVEPREVIEW_FILES})
 source_group("OPZX7S\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})
 source_group("OPZX7S\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
 source_group("OPZX7S\\Gui\\Components\\Fix" FILES ${GUI_COMPONENT_FIX_FILES})

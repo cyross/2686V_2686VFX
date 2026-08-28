@@ -29,6 +29,7 @@
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WavePreview/WavePreview.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -47,6 +48,13 @@ class RhythmPadGui: public GuiBase
 
     GuiCategoryLabel formCat;
     GuiCategoryLabel optionalCat;
+
+    // どのパッドかを覚えておく。プレビューで読むサンプルを選ぶのに使う。
+    int m_padIndex = 0;
+
+    // 読み込んだサンプルを見せるプレビュー。
+    // P.OF / P.RT で切り出した範囲を描き、ループ位置を縦線で出す。
+    GuiWavePreview samplePreview;
 
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
@@ -131,6 +139,7 @@ public:
         formSeparator(context),
         formCat(context),
         optionalCat(context),
+        samplePreview(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         loopPointEnableButton(context),
@@ -173,6 +182,7 @@ public:
     }
 
     void updatePadFileName(const juce::String& fileName);
+    void updateSamplePreview();
     void updatePadVisible(bool visible);
     void setup(juce::Component& parent, int index, juce::String padName, int& tabOrder);
 	void layout(juce::Rectangle<int> content);

@@ -22,6 +22,7 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/WavePreview/WavePreview.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
@@ -73,6 +74,10 @@ class GuiOpn : public GuiBase
     GuiSlider lfoFreqSlider;
     GuiComboBox lfoShapeSelector;
     GuiSlider lfoAmSmRtSlider;
+
+    // Shape がどんな形かを見せるプレビュー
+    GuiWavePreview lfoPmPreview;
+    GuiWavePreview lfoAmPreview;
     GuiSlider lfoSyncDelaySlider;
     GuiTextButton lfoSyncDelayToZeroBtn;
     GuiTextButton lfoSyncDelayToOneBtn;
@@ -206,6 +211,8 @@ public:
         lfoFreqSlider(context),
         lfoShapeSelector(context),
         lfoAmSmRtSlider(context),
+        lfoPmPreview(context),
+        lfoAmPreview(context),
         lfoSyncDelaySlider(context),
         lfoSyncDelayToZeroBtn(context),
         lfoSyncDelayToOneBtn(context),
@@ -307,6 +314,7 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutN88LfoCat(juce::Rectangle<int>& rect);
+    void updateLfoPreviews();
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);

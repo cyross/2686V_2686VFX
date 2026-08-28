@@ -34,7 +34,11 @@ void ParamBarEditorBase::attachParams(const juce::String& idPrefix, int count)
 void ParamBarEditorBase::parameterChanged(const juce::String&, float)
 {
     // 描画を予約 (メッセージスレッドで実行される)
-    juce::MessageManager::callAsync([this] { repaint(); });
+    juce::MessageManager::callAsync([this] {
+        this->repaint();
+
+        if (this->onParamChanged) this->onParamChanged();
+        });
 }
 
 void ParamBarEditorBase::setCustomEnabled(bool shouldBeEnabled)

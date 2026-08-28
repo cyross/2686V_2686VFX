@@ -2,6 +2,8 @@
 
 #include "./GuiRhythm.h"
 
+#include "../Components/WavePreview/WavePreviewSource.h"
+
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
@@ -21,6 +23,40 @@
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {
     fileNameLabel.setText(fileName, juce::dontSendNotification);
+
+    // 名前とプレビューは常に同じサンプルを指していてほしいので、ここで揃える
+    updateSamplePreview();
+}
+
+// 読み込んだサンプルの、実際に鳴る範囲を描く。
+// 波形は 1 点ずつ拾っても形が分からないので、区間ごとの上下幅で出す。
+void RhythmPadGui::updateSamplePreview()
+{
+    const auto& data = ctx.audioProcessor.rhythmPreviewBuffers[m_padIndex];
+
+    if (data.empty()) {
+        samplePreview.clear();
+
+        return;
+    }
+
+    auto env = WavePreviewSource::audioFile(
+        data,
+        ctx.audioProcessor.rhythmPreviewRates[m_padIndex],
+        (float)pcmOffsetSlider.getValue(),
+        (float)pcmRatioSlider.getValue());
+
+    samplePreview.setEnvelope(env.mins, env.maxs);
+
+    // ループ位置は切り出した範囲に対する 0.0〜1.0。使うときだけ出す。
+    std::vector<float> markers;
+
+    if (loopPointEnableButton.getToggleState()) {
+        markers.push_back((float)loopPointStartSlider.getValue());
+        markers.push_back((float)loopPointEndSlider.getValue());
+    }
+
+    samplePreview.setMarkers(markers);
 }
 
 void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName, int& tabOrder)
@@ -57,6 +93,10 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     // ロードしている音声ファイル名
     fileNameLabel.setup({ .parent = mainGroup.contentCanvas, .title = Io::empty });
+
+    m_padIndex = index;
+
+    samplePreview.setup(mainGroup.contentCanvas);
     fileNameLabel.setJustificationType(juce::Justification::centred);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
@@ -82,6 +122,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
+
     pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::pcmRatio, .title = RhythmGuiText::Rhythm::Pad::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
@@ -97,6 +138,19 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     loopPointEndSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::lpEnd, .title = RhythmGuiText::Rhythm::Pad::loopPointEnd, .isReset = true });
     loopPointEndSlider.setWantsKeyboardFocus(true);
     loopPointEndSlider.setExplicitFocusOrder(++tabOrder);
+
+    // 切り出しとループの設定が変わったら、プレビューも合わせる。
+    // 各スライダーの setup() より後に付けること。setup() は APVTS との
+    // 束縛を張り直すので、先に付けると取りこぼす恐れがある。
+    auto refreshSamplePreview = [this]() { this->updateSamplePreview(); };
+
+    pcmOffsetSlider.onValueChange = refreshSamplePreview;
+    pcmRatioSlider.onValueChange = refreshSamplePreview;
+    loopPointStartSlider.onValueChange = refreshSamplePreview;
+    loopPointEndSlider.onValueChange = refreshSamplePreview;
+    loopPointEnableButton.onStateChange = refreshSamplePreview;
+
+    updateSamplePreview();
 
     // Vol
     volSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::vol, .title = RhythmGuiText::Rhythm::Pad::vol, .isReset = true });
@@ -269,6 +323,7 @@ bool RhythmPadGui::isThis(juce::Button* button)
 void RhythmPadGui::updatePadVisible(bool visible) {
     mainGroup.setVisible(visible);
     fileNameLabel.setVisible(visible);
+    samplePreview.setVisible(visible);
     loadButton.setVisible(visible);
     clearButton.setVisible(visible);
     formCat.setVisible(visible);
@@ -316,6 +371,7 @@ void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
 
     loadButton.setVisible(visible);
     fileNameLabel.setVisible(visible);
+    samplePreview.setVisible(visible);
     clearButton.setVisible(visible);
     formSeparator.setVisible(visible);
     toneSlider.setVisibleWithLabel(visible);
@@ -329,6 +385,10 @@ void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
     if (visible)
     {
         layoutRowRhythmPadPcmFile({ .rect = rect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
+
+        samplePreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(3);
+
         formSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
