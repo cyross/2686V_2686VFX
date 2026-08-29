@@ -106,7 +106,10 @@ public:
     {
     }
 
-    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, juce::String& wavePath);
+    // categoryBg は見出しの背景色。WT / WT2 / WT+ チャンネル自身の機能なので、
+    // そこでは HwBg、他チャンネルへ借りて置く場合は既定の SwBg を使う。
+    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, juce::String& wavePath,
+        juce::Colour categoryBg = GuiColor::Category::SwBg);
     void layoutComponent(juce::Rectangle<int>& rect);
 
     // CH パラメータの入出力。

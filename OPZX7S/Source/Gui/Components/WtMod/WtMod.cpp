@@ -216,11 +216,12 @@ void FdsTableEditor::paintOverChildren(juce::Graphics& g)
     paintHoverText(g, text);
 }
 
-void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, juce::String& wavePath)
+void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, juce::String& wavePath,
+    juce::Colour categoryBg)
 {
     p_wavePath = &wavePath;
 
-    cat.setupHwCategory({ .parent = parent, .title = juce::String("") + "WT PITCH MOD", .enableChangeDetailVisible = true });
+    cat.setupCategory({ .parent = parent, .title = juce::String("") + "WT PITCH MOD", .enableChangeDetailVisible = true }, categoryBg);
 
     enableButton.setup({ .parent = parent, .id = code + CPK::WtMod::enable, .title = "Enable", .isReset = true, .isResized = true });
     enableButton.setWantsKeyboardFocus(true);

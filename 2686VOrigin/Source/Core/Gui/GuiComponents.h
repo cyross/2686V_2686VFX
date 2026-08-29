@@ -238,8 +238,52 @@ class GuiSlider : public juce::Slider, public GuiBaseComponent
 {
 protected:
     std::unique_ptr<SliderAttachment> att;
+
+    // =======================================================
+    // 値の表示枠を他の部品と同じ丸みで描くための LookAndFeel
+    // =======================================================
+    class SliderLF : public juce::LookAndFeel_V4
+    {
+    public:
+        // スライダーの値表示は内部の juce::Label が描いている。
+        // JUCE の既定は角の立った四角なので、ここだけ差し替える。
+        void drawLabel(juce::Graphics& g, juce::Label& label) override
+        {
+            auto bounds = label.getLocalBounds().toFloat();
+
+            g.setColour(label.findColour(juce::Label::backgroundColourId));
+            g.fillRoundedRectangle(bounds, guiCornerRadius);
+
+            float alpha = label.isEnabled() ? 1.0f : 0.5f;
+
+            // 編集中は JUCE 側が TextEditor を重ねるので、文字は描かない
+            if (!label.isBeingEdited())
+            {
+                auto area = label.getBorderSize().subtractedFrom(label.getLocalBounds());
+
+                g.setColour(label.findColour(juce::Label::textColourId).withMultipliedAlpha(alpha));
+                g.setFont(label.getFont());
+                g.drawFittedText(label.getText(), area, label.getJustificationType(),
+                    juce::jmax(1, (int)((float)area.getHeight() / label.getFont().getHeight())),
+                    label.getMinimumHorizontalScale());
+            }
+
+            g.setColour(label.findColour(juce::Label::outlineColourId).withMultipliedAlpha(alpha));
+            g.drawRoundedRectangle(bounds.reduced(0.5f), guiCornerRadius, 1.0f);
+        }
+    };
+
+    SliderLF customLF;
 public:
-    GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context) {}
+    GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context) {
+        this->setLookAndFeel(&customLF);
+    }
+
+    ~GuiSlider() override
+    {
+        // メンバの customLF が壊れる前に必ず外す
+        this->setLookAndFeel(nullptr);
+    }
 
     // 束縛先のパラメータを差し替える。
     // 1組のスライダーで複数パラメータを切り替えて編集する用途で使う
@@ -315,6 +359,12 @@ protected:
     {
     public:
         ComboBoxLF() : juce::LookAndFeel_V4() {
+            // ドロップダウンは PopupMenu が描く。コンボボックス本体へ色を
+            // 設定しても伝わらないので、LookAndFeel 側で指定する。
+            setColour(juce::PopupMenu::backgroundColourId, GuiColor::ComboBox::PopupBg);
+            setColour(juce::PopupMenu::textColourId, GuiColor::ComboBox::Text);
+            setColour(juce::PopupMenu::highlightedBackgroundColourId, GuiColor::ComboBox::PopupSelectedBg);
+            setColour(juce::PopupMenu::highlightedTextColourId, GuiColor::ComboBox::Text);
         }
 
         // デフォルトのフォントサイズ（少し大きめの14.0fなどを指定）
@@ -467,7 +517,7 @@ protected:
 
             // 縁取りはカテゴリ見出しのマーカーと同じ色。明るい面が背景へ
             // 溶けないよう、輪郭だけ引き締める。
-            g.setColour(GuiColor::Category::MarkerBorder.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f));
+            g.setColour(GuiColor::Outline.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f));
             g.drawRoundedRectangle(bounds.reduced(0.5f), guiCornerRadius, 1.0f);
         }
     };
@@ -699,6 +749,10 @@ public:
     void setupHwCategory(const Config& c); // ハードウェアカテゴリ用の簡易設定
     void setupSwCategory(const Config& c); // ソフトウェアカテゴリ用の簡易設定
     void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
+
+    // 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって
+    // ハードとソフトのどちらに見せたいかが変わる場合に使う。
+    void setupCategory(const Config& c, juce::Colour bgColor);
 	bool isDetailVisible() const { return this->detailVisible; }
 
     // 折りたたみを持たないカテゴリ (ALGORITHM/FEEDBACK など) は常に開いている扱い。

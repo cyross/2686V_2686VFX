@@ -58,13 +58,14 @@ static std::vector<SelectItem> ssgEnvItems = {
     {.name = "43: Random",                      .value = 44 },
 };
 
-void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder)
+void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder,
+    juce::Colour categoryBg)
 {
-    cat.setupSwCategory({
+    cat.setupCategory({
         .parent = parent,
         .title = juce::String("") + "SSG HW AMP ENV",
         .enableChangeDetailVisible = true
-        });
+        }, categoryBg);
 
     envEnableButton.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::enable, .title = "Enable", .isReset = true});
     envEnableButton.setWantsKeyboardFocus(true);

@@ -255,6 +255,11 @@ void GuiComboBox::setup(const Config& c)
         this->setColour(juce::ComboBox::backgroundColourId, c.bgColor);
     }
 
+    // 明るい面を持つ部品なので、ボタンと同じ輪郭で締める。
+    // 角の丸みは JUCE 側が既に guiCornerRadius と同じ値で描いている。
+    this->setColour(juce::ComboBox::outlineColourId, GuiColor::Outline);
+    this->setColour(juce::ComboBox::arrowColourId, GuiColor::ComboBox::Arrow);
+
     for (SelectItem& item : c.items)
     {
         this->addItem(item.name, item.value);
@@ -335,15 +340,16 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     // 角の丸みは他の部品と揃える。小さな四角なので、辺の半分を上限にする。
     float boxRadius = juce::jmin(guiCornerRadius, juce::jmin(boxW, boxH) * 0.5f);
 
-    g.setColour(textColor.withMultipliedAlpha(alpha));
+    g.setColour(GuiColor::ToggleButton::Box.withMultipliedAlpha(alpha));
     g.drawRoundedRectangle(box, boxRadius, 1.0f);
 
-    // 2. ONのときの塗りつぶし (■)
-    if (getToggleState()) {
-        auto inner = box.reduced(boxGapW, boxGapH);
+    // 2. 中のランプ。消えているときも枠の中を塗って、
+    //    「空か塗りか」ではなく「色が違う」で状態が分かるようにする。
+    auto inner = box.reduced(boxGapW, boxGapH);
 
-        g.fillRoundedRectangle(inner, juce::jmin(boxRadius, juce::jmin(inner.getWidth(), inner.getHeight()) * 0.5f));
-    }
+    g.setColour((getToggleState() ? GuiColor::ToggleButton::LampOn : GuiColor::ToggleButton::LampOff)
+        .withMultipliedAlpha(alpha));
+    g.fillRoundedRectangle(inner, juce::jmin(boxRadius, juce::jmin(inner.getWidth(), inner.getHeight()) * 0.5f));
 
     // 3. テキストの描画
     juce::Rectangle<float> textBounds(box.getRight() + labelGapW, 0.0f, bounds.getWidth() - box.getRight() - labelGapW, bounds.getHeight());
@@ -709,6 +715,11 @@ void GuiCategoryLabel::setupSwCategory(const Config& c)
 void GuiCategoryLabel::setupOtherCategory(const Config& c)
 {
     setupInner(c, GuiColor::Category::OtherBg);
+}
+
+void GuiCategoryLabel::setupCategory(const Config& c, juce::Colour bgColor)
+{
+    setupInner(c, bgColor);
 }
 
 void closeCategoryBackdrops(juce::Component* parent, int bottom)

@@ -69,7 +69,8 @@ void GuiSsg::setup()
 
     ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, SsgGuiText::SsgSwPEnv11::bypass);
 
-    ssgHwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    // SSG チャンネル自身の機能なのでハード扱いにする
+    ssgHwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);

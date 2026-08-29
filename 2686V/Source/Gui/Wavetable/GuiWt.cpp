@@ -555,7 +555,8 @@ void GuiWt::setup()
         ctx.editor.resized();
         };
 
-    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.wtModWavePath);
+    // 波形メモリのチャンネル自身の機能なのでハード扱いにする
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.wtModWavePath, GuiColor::Category::HwBg);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
