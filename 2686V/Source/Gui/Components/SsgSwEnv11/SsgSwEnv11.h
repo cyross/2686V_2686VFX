@@ -84,6 +84,10 @@ class GuiComponentSsgSwEnv11 : public GuiBase {
     GuiComponentSsgSwButtons l11Btns;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
+    // applyLoopValues の入れ子呼び出しを弾くための印。
+    // 中で setValue を呼ぶと onValueChange 経由で自分が呼び返される。
+    bool isApplyingLoopValues = false;
+
     void applyLoopValues(bool enabled);
 public:
     GuiComponentSsgSwEnv11(const GuiContext& context) :

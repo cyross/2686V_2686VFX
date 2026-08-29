@@ -9,6 +9,14 @@
 
 void GuiComponentSsgSwEnv11::applyLoopValues(bool enabled)
 {
+    // setValue は同期で onValueChange を呼び返すので、ここから値を
+    // 直すと自分自身が入れ子で呼ばれる。ドラッグ中はマウスと値の
+    // 押し合いになり、操作を受け付けなくなったように見える。
+    // 外側の 1 回で辻褄は合うので、入れ子ぶんは弾く。
+    if (isApplyingLoopValues) return;
+
+    const juce::ScopedValueSetter<bool> guard(isApplyingLoopValues, true);
+
     if (enabled)
     {
         int stepsValue = static_cast<int>(steps.getValue());
