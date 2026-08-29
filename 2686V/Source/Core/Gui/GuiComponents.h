@@ -23,6 +23,46 @@ using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachmen
 // 見出し・板・帯・ボタンで同じ値を使うことで、部品が同じ仲間に見えるようにする。
 inline constexpr float guiCornerRadius = 3.0f;
 
+// ============================================================================
+// 影
+// ============================================================================
+// 面を持つ部品の右下へ落とす。
+//
+// juce::DropShadow は描くたびに画像を作ってぼかすため、ドラッグ中に何度も
+// 描き直す部品では割に合わない。ここでは輪郭を少しずつ広げながら薄く重ねて、
+// 画像を作らずに柔らかい縁を出している。
+//
+// 部品は自分の領域の外へ描けないので、本体を右下ぶんだけ内側へ寄せて
+// 場所を空ける。レイアウトの寸法は変えずに済む。
+namespace GuiShadow
+{
+    inline constexpr float offsetX = 2.0f;
+    inline constexpr float offsetY = 2.0f;
+
+    // ぼかしの層数。多いほど柔らかいが、そのぶん外へはみ出す。
+    inline constexpr int layers = 2;
+
+    // 本体を描く領域。影のぶんだけ右下を空ける。
+    inline juce::Rectangle<float> reserve(juce::Rectangle<float> bounds)
+    {
+        return bounds.withTrimmedRight(offsetX).withTrimmedBottom(offsetY);
+    }
+
+    inline void drawRounded(juce::Graphics& g, juce::Rectangle<float> face, float cornerRadius)
+    {
+        auto shape = face.translated(offsetX, offsetY);
+
+        // 外へ広げるほど重なりが減り、縁が自然に薄くなる
+        for (int i = layers; i >= 1; --i)
+        {
+            float grow = (float)i - 1.0f;
+
+            g.setColour(GuiColor::Palette::ShadowGray.withMultipliedAlpha(1.0f / (float)layers));
+            g.fillRoundedRectangle(shape.expanded(grow), cornerRadius + grow);
+        }
+    }
+}
+
 class ColoredGroupComponent : public juce::GroupComponent
 {
     juce::Colour backgroundColor = GuiColor::Group::Bg;
@@ -278,10 +318,12 @@ protected:
                 return;
             }
 
-            auto area = juce::Rectangle<float>((float)x, (float)y, (float)width, (float)height);
+            auto area = GuiShadow::reserve(juce::Rectangle<float>((float)x, (float)y, (float)width, (float)height));
             auto bar = area.withSizeKeepingCentre(area.getWidth(), juce::jmin(area.getHeight(), barHeight));
 
             float alpha = slider.isEnabled() ? 1.0f : 0.5f;
+
+            if (slider.isEnabled()) GuiShadow::drawRounded(g, bar, guiCornerRadius);
 
             g.setColour(GuiColor::Slider::Trough.withMultipliedAlpha(alpha));
             g.fillRoundedRectangle(bar, guiCornerRadius);
@@ -441,6 +483,34 @@ protected:
             return selectedFont;
         }
 
+        // 面を持つ部品なので、ボタンと同じ影と縁取りで描く。
+        // JUCE の既定にも角丸はあるが、影を足すため自前で描く。
+        void drawComboBox(juce::Graphics& g, int width, int height, bool,
+            int, int, int, int, juce::ComboBox& box) override
+        {
+            auto face = GuiShadow::reserve(juce::Rectangle<float>(0.0f, 0.0f, (float)width, (float)height));
+            float alpha = box.isEnabled() ? 1.0f : 0.4f;
+
+            if (box.isEnabled()) GuiShadow::drawRounded(g, face, guiCornerRadius);
+
+            g.setColour(box.findColour(juce::ComboBox::backgroundColourId).withMultipliedAlpha(alpha));
+            g.fillRoundedRectangle(face, guiCornerRadius);
+
+            g.setColour(box.findColour(juce::ComboBox::outlineColourId).withMultipliedAlpha(alpha));
+            g.drawRoundedRectangle(face.reduced(0.5f), guiCornerRadius, 1.0f);
+
+            // 右端の矢印
+            auto arrowArea = face.removeFromRight(face.getHeight()).reduced(face.getHeight() * 0.3f);
+
+            juce::Path arrow;
+            arrow.startNewSubPath(arrowArea.getX(), arrowArea.getCentreY() - arrowArea.getHeight() * 0.2f);
+            arrow.lineTo(arrowArea.getCentreX(), arrowArea.getCentreY() + arrowArea.getHeight() * 0.3f);
+            arrow.lineTo(arrowArea.getRight(), arrowArea.getCentreY() - arrowArea.getHeight() * 0.2f);
+
+            g.setColour(box.findColour(juce::ComboBox::arrowColourId).withMultipliedAlpha(alpha));
+            g.strokePath(arrow, juce::PathStrokeType(1.5f));
+        }
+
         juce::PopupMenu::Options getOptionsForComboBoxPopupMenu(juce::ComboBox& box, juce::Label& label) override
         {
             // カスタムフォントの高さに合わせて、ドロップダウン1行の「高さ」を計算
@@ -563,7 +633,9 @@ protected:
             const juce::Colour& backgroundColour,
             bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
         {
-            auto bounds = button.getLocalBounds().toFloat();
+            auto face = GuiShadow::reserve(button.getLocalBounds().toFloat());
+
+            if (button.isEnabled()) GuiShadow::drawRounded(g, face, guiCornerRadius);
 
             // 背景の塗りつぶし
             juce::Colour baseColour = backgroundColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f);
@@ -573,12 +645,12 @@ protected:
                 baseColour = baseColour.brighter(0.5f);
 
             g.setColour(baseColour);
-            g.fillRoundedRectangle(bounds, guiCornerRadius);
+            g.fillRoundedRectangle(face, guiCornerRadius);
 
             // 縁取りはカテゴリ見出しのマーカーと同じ色。明るい面が背景へ
             // 溶けないよう、輪郭だけ引き締める。
             g.setColour(GuiColor::Outline.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f));
-            g.drawRoundedRectangle(bounds.reduced(0.5f), guiCornerRadius, 1.0f);
+            g.drawRoundedRectangle(face.reduced(0.5f), guiCornerRadius, 1.0f);
         }
     };
 

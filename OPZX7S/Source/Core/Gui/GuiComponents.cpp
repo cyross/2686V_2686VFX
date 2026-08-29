@@ -136,6 +136,11 @@ void ColoredGroupComponent::paint(juce::Graphics& g)
 
     juce::Rectangle<float> chip(bounds.getX() + titleInsetX, bounds.getY(), chipWidth, titleHeight);
 
+    // 見出しの帯も面を持つので、同じ影を落とす
+    chip = GuiShadow::reserve(chip);
+
+    GuiShadow::drawRounded(g, chip, titleCornerRadius);
+
     g.setColour(GuiColor::Group::TitleBg);
     g.fillRoundedRectangle(chip, titleCornerRadius);
 
@@ -604,6 +609,11 @@ void GuiCategoryLabel::paint(juce::Graphics& g)
     if (bounds.isEmpty()) return;
 
     // ---------------- 背景 ----------------
+    // 影のぶんだけ右下を空けてから描く
+    bounds = GuiShadow::reserve(bounds);
+
+    GuiShadow::drawRounded(g, bounds, cornerRadius);
+
     g.setColour(bgColor);
     g.fillRoundedRectangle(bounds, cornerRadius);
 

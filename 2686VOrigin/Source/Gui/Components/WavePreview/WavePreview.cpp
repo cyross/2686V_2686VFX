@@ -71,8 +71,12 @@ void GuiWavePreview::paint(juce::Graphics& g)
     if (bounds.isEmpty()) return;
 
     // ---------------- 下地 ----------------
+    bounds = GuiShadow::reserve(bounds);
+
+    GuiShadow::drawRounded(g, bounds, guiCornerRadius);
+
     g.setColour(juce::Colours::black.withAlpha(0.35f));
-    g.fillRoundedRectangle(bounds, 2.0f);
+    g.fillRoundedRectangle(bounds, guiCornerRadius);
 
     auto area = bounds.reduced(2.0f);
 
