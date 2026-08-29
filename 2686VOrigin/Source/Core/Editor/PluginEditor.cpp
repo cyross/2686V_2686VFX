@@ -64,6 +64,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     isPreviewVisible = audioProcessor.apvts.state.getProperty(ProcessorStateKey::isVisiblePreview);
 
+    // ダイアログの色は共有の LookAndFeel に入るので、1 度だけ設定する
+    GuiDialog::applyTheme();
+
     tabs.setLookAndFeel(&customTabLF);
 
     setupTabs(tabs);
@@ -1036,6 +1039,8 @@ void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std:
     // ボタン設定
     w->addButton(juce::String("") + "設定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
     w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+
+    GuiDialog::styleButtons(*w);
 
     // モーダル表示
     w->enterModalState(true, juce::ModalCallbackFunction::create([onValueEntered, w](int result) {

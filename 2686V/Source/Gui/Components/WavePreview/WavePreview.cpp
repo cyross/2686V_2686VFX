@@ -2,9 +2,20 @@
 
 #include "../../../Core/Gui/GuiColor.h"
 
-void GuiWavePreview::setup(juce::Component& parent)
+void GuiWavePreview::setup(juce::Component& parent, juce::Colour lineColour)
 {
     parent.addAndMakeVisible(this);
+
+    m_lineColour = lineColour;
+}
+
+void GuiWavePreview::setLineColour(juce::Colour lineColour)
+{
+    if (m_lineColour == lineColour) return;
+
+    m_lineColour = lineColour;
+
+    repaint();
 }
 
 void GuiWavePreview::setPoints(const std::vector<float>& points, bool bipolar)
@@ -76,7 +87,7 @@ void GuiWavePreview::paint(juce::Graphics& g)
     g.drawHorizontalLine((int)zeroY, area.getX(), area.getRight());
 
     if (m_hasData) {
-        g.setColour(GuiColor::WaveformContainer::Thumb.brighter(0.6f));
+        g.setColour(m_lineColour);
 
         if (m_isEnvelope) {
             // ---------------- 上下幅 ----------------

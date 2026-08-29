@@ -54,6 +54,29 @@ namespace GuiColor {
 		// 白のベタ線は主張が強すぎるので、カテゴリの板と同じくらいまで落とす
 		static inline const juce::Colour Line = juce::Colours::white.withAlpha(0.45f);
 	};
+
+	namespace EnvelopeGraph {
+		// 線の色は波形プレビューと同じ体系。何のエンベロープかで分ける。
+		static inline const juce::Colour AmpLine = juce::Colours::turquoise.interpolatedWith(juce::Colours::white, 0.6f);
+		static inline const juce::Colour PitchLine = juce::Colours::blue.interpolatedWith(juce::Colours::white, 0.6f);
+
+		// リリースだけは別物として読めるよう、テーマの差し色を当てる。
+		static inline const juce::Colour ReleaseLine = Palette::MikuPink;
+
+		// 区間の切れ目に引く縦線。目盛りとして読めればよいので、
+		// 本体より一段引いた白にして色数を増やさない。
+		static inline const juce::Colour PhaseLine = juce::Colours::white.withAlpha(0.35f);
+	};
+
+	namespace WavePreview {
+		// 何を映しているかが色で分かるようにする。どれも白へ 6 割寄せた
+		// 淡い色にして、暗い下地の上で刺さらないようにしてある。
+		static inline const juce::Colour Lfo = juce::Colours::green.interpolatedWith(juce::Colours::white, 0.6f);
+		static inline const juce::Colour AmpEnv = juce::Colours::turquoise.interpolatedWith(juce::Colours::white, 0.6f);
+		static inline const juce::Colour PitchEnv = juce::Colours::blue.interpolatedWith(juce::Colours::white, 0.6f);
+		static inline const juce::Colour WaveMemory = juce::Colours::yellow.interpolatedWith(juce::Colours::white, 0.6f);
+		static inline const juce::Colour AudioFile = juce::Colours::red.interpolatedWith(juce::Colours::white, 0.6f);
+	};
 	namespace ScrollBar {
 		static inline const juce::Colour Thumb = juce::Colours::darkgrey;
 	};
@@ -93,7 +116,16 @@ namespace GuiColor {
 	// 明るい面を持つ部品 (ボタン・コンボボックス) の輪郭。
 	static inline const juce::Colour Outline = Palette::BorderGray;
 	namespace Slider {
-		static inline const juce::Colour Track = defaultFgColor;
+		// FF1 のステータスバーを意識した見た目。枠の中を左から塗る。
+		static inline const juce::Colour Bar = Palette::SliderBarBlue;
+		static inline const juce::Colour Frame = Palette::BorderGray;
+
+		// まだ塗られていない側。暗くしておくと、塗った部分が伸びて見える。
+		static inline const juce::Colour Trough = juce::Colours::black.withAlpha(0.35f);
+
+		// つまみは置かない形になったので Thumb は使っていない。
+		// Track は Config の既定値として残してある。
+		static inline const juce::Colour Track = Bar;
 		static inline const juce::Colour Thumb = juce::Colour::fromRGB(0x8, 0x8, 0xB3);
 		namespace Value {
 			static inline const juce::Colour Text = Palette::OffWhite;

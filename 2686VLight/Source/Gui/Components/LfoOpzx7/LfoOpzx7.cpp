@@ -122,8 +122,8 @@ void GuiComponentLfoOpzx7::setupComponent(
     amd.setWantsKeyboardFocus(true);
     amd.setExplicitFocusOrder(++tabOrder);
 
-    pmPreview.setup(parent);
-    amPreview.setup(parent);
+    pmPreview.setup(parent, GuiColor::WavePreview::Lfo);
+    amPreview.setup(parent, GuiColor::WavePreview::Lfo);
 
     auto refreshPreviews = [this]() { this->updatePreviews(); };
 

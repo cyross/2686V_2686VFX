@@ -237,8 +237,8 @@ void GuiOpm::setup()
     lfoEgShapeSelector.setWantsKeyboardFocus(true);
     lfoEgShapeSelector.setExplicitFocusOrder(++tabOrder);
 
-    lfoPmPreview.setup(mainGroup.contentCanvas);
-    lfoAmPreview.setup(mainGroup.contentCanvas);
+    lfoPmPreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::Lfo);
+    lfoAmPreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::Lfo);
 
     // 各コンポーネントの setup() より後に付けること。setup() は APVTS との
     // 束縛を張り直すので、先に付けると束縛が壊れて操作できなくなる。

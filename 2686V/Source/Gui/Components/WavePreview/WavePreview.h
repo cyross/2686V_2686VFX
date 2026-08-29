@@ -36,6 +36,9 @@ class GuiWavePreview : public juce::Component, public GuiBaseComponent
     bool m_bipolar = true;
     bool m_hasData = false;
     bool m_isEnvelope = false;
+
+    // 折れ線の色。何を映しているかで変える。
+    juce::Colour m_lineColour = GuiColor::WavePreview::AmpEnv;
 public:
     GuiWavePreview(const GuiContext& context) : GuiBaseComponent(context)
     {
@@ -45,7 +48,12 @@ public:
     // 高さの目安。呼び出し側はこれを使って区画を取る。
     static inline constexpr int defaultHeight = 34;
 
-    void setup(juce::Component& parent);
+    // lineColour は GuiColor::WavePreview から用途に合うものを渡す。
+    // 何を映しているかを色で示すので、既定値は用意していない。
+    void setup(juce::Component& parent, juce::Colour lineColour);
+
+    // 同じ枠が別のものを映すとき (OPZX7 の WS など) に切り替える
+    void setLineColour(juce::Colour lineColour);
 
     // 折れ線を差し替える。空を渡すと「データ無し」の表示になる。
     void setPoints(const std::vector<float>& points, bool bipolar = true);

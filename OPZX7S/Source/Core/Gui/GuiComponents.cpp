@@ -543,6 +543,8 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
         w->addButton(juce::String("") + "決定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
         w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
 
+        GuiDialog::styleButtons(*w);
+
         // モーダル表示 (ラムダ式には設定値 c と ウィンドウ w をコピーキャプチャする)
         w->enterModalState(true, juce::ModalCallbackFunction::create([c, w](int result) {
             if (result == 1) {
@@ -725,4 +727,48 @@ void GuiCategoryLabel::setupCategory(const Config& c, juce::Colour bgColor)
 void closeCategoryBackdrops(juce::Component* parent, int bottom)
 {
     GuiCategoryLabel::closePending(parent, bottom);
+}
+
+void GuiDialog::applyTheme()
+{
+    auto& lf = juce::LookAndFeel::getDefaultLookAndFeel();
+
+    lf.setColour(juce::AlertWindow::backgroundColourId, GuiColor::Palette::OffWhite);
+    lf.setColour(juce::AlertWindow::textColourId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::AlertWindow::outlineColourId, GuiColor::Palette::OffBlack);
+
+    // 文章や入力欄も明るい地に黒文字で揃える
+    lf.setColour(juce::Label::textColourId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::TextEditor::backgroundColourId, GuiColor::Palette::OffWhite);
+    lf.setColour(juce::TextEditor::textColourId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::TextEditor::outlineColourId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::TextEditor::highlightedTextColourId, GuiColor::Palette::OffBlack);
+
+    // ボタンの既定は決定ボタンの色にしておく。警告のように OK が 1 つしか
+    // 無いダイアログは中でボタンが作られ、あとから触れないため。
+    lf.setColour(juce::TextButton::buttonColourId, GuiColor::Palette::DialogOkBackBlue);
+    lf.setColour(juce::TextButton::textColourOffId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::TextButton::textColourOnId, GuiColor::Palette::OffBlack);
+
+    // JUCE はボタンの枠を ComboBox の枠色で描く。
+    // 画面側のコンボボックスは自前の LookAndFeel を持つので影響しない。
+    lf.setColour(juce::ComboBox::outlineColourId, GuiColor::Palette::OffBlack);
+}
+
+void GuiDialog::styleButtons(juce::AlertWindow& window)
+{
+    int index = 0;
+
+    for (int i = 0; i < window.getNumChildComponents(); ++i)
+    {
+        auto* button = dynamic_cast<juce::TextButton*>(window.getChildComponent(i));
+
+        if (button == nullptr) continue;
+
+        // 先に addButton した方を決定として扱う。子は追加した順に並ぶ。
+        button->setColour(juce::TextButton::buttonColourId,
+            (index == 0) ? GuiColor::Palette::DialogOkBackBlue : GuiColor::Palette::OffWhite);
+
+        ++index;
+    }
 }

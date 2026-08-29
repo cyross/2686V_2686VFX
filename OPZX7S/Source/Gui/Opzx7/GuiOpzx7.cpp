@@ -885,7 +885,7 @@ void GuiOpzx7::setup()
 
         wsSeparator[i].setupComponent(opGroups[i].contentCanvas);
 
-        wsPreview[i].setup(opGroups[i].contentCanvas);
+        wsPreview[i].setup(opGroups[i].contentCanvas, GuiColor::WavePreview::WaveMemory);
 
         loadPcmBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::Pcm, .isReset = false, .isResized = true });
         loadPcmBtn[i].setWantsKeyboardFocus(true);
@@ -1577,11 +1577,18 @@ void GuiOpzx7::updateWsPreview(int opIndex)
             ctx.audioProcessor.getSampleRate()),
         true);
 
+    // 同じ枠が波形メモリとオーディオファイルの両方を映すので、
+    // 何を出しているかに合わせて線の色も変える。
+    bool isPcm = ws[opIndex].getSelectedItemIndex() == Opzx7PrValue::pcmIndex;
+
+    wsPreview[opIndex].setLineColour(isPcm
+        ? GuiColor::WavePreview::AudioFile
+        : GuiColor::WavePreview::WaveMemory);
+
     // ループ位置は PCM のときだけ意味を持つ。切り出した範囲に対する 0.0〜1.0。
     std::vector<float> markers;
 
-    if (ws[opIndex].getSelectedItemIndex() == Opzx7PrValue::pcmIndex
-        && loopPointEnable[opIndex].getToggleState()) {
+    if (isPcm && loopPointEnable[opIndex].getToggleState()) {
         markers.push_back((float)loopPointStart[opIndex].getValue());
         markers.push_back((float)loopPointEnd[opIndex].getValue());
     }

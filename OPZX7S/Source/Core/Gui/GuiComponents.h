@@ -103,6 +103,22 @@ class GuiCategoryLabel;
 inline constexpr int categoryContentTrailingPadding = 20;
 
 void closeCategoryBackdrops(juce::Component* parent, int bottom);
+
+// ============================================================================
+// ダイアログの見た目
+// ============================================================================
+// AlertWindow は JUCE が共有の LookAndFeel で描く。個々のウィンドウへ
+// 色を設定しても、showMessageBoxAsync のように中でウィンドウを組み立てる
+// ものには手が届かないので、共有の LookAndFeel 側へ入れる。
+namespace GuiDialog
+{
+    // 起動時に 1 度だけ呼ぶ
+    void applyTheme();
+
+    // 自前で組み立てたダイアログのボタンを塗り分ける。
+    // 決定と取り消しで色を変えるため、ウィンドウ単位で呼ぶ必要がある。
+    void styleButtons(juce::AlertWindow& window);
+}
 class GuiScrollGroup : public ColoredGroupComponent, public GuiBaseComponent
 {
     juce::Colour borderColor = GuiColor::Group::Border;
@@ -245,6 +261,50 @@ protected:
     class SliderLF : public juce::LookAndFeel_V4
     {
     public:
+        // 帯の太さ。行の高さいっぱいに塗ると太くなりすぎる。
+        static inline constexpr float barHeight = 10.0f;
+
+        // FF1 のステータスバーを意識した形。つまみは置かず、
+        // 枠の中を左から塗って現在値を示す。
+        void drawLinearSlider(juce::Graphics& g, int x, int y, int width, int height,
+            float sliderPos, float minSliderPos, float maxSliderPos,
+            juce::Slider::SliderStyle style, juce::Slider& slider) override
+        {
+            // 横向き以外は使っていないが、来たときは JUCE の既定へ渡す
+            if (style != juce::Slider::LinearHorizontal) {
+                juce::LookAndFeel_V4::drawLinearSlider(g, x, y, width, height,
+                    sliderPos, minSliderPos, maxSliderPos, style, slider);
+
+                return;
+            }
+
+            auto area = juce::Rectangle<float>((float)x, (float)y, (float)width, (float)height);
+            auto bar = area.withSizeKeepingCentre(area.getWidth(), juce::jmin(area.getHeight(), barHeight));
+
+            float alpha = slider.isEnabled() ? 1.0f : 0.5f;
+
+            g.setColour(GuiColor::Slider::Trough.withMultipliedAlpha(alpha));
+            g.fillRoundedRectangle(bar, guiCornerRadius);
+
+            // sliderPos は絶対座標で来る。左端からの塗り幅に直す。
+            float filled = juce::jlimit(bar.getX(), bar.getRight(), sliderPos) - bar.getX();
+
+            if (filled > 0.0f) {
+                juce::Graphics::ScopedSaveState state(g);
+
+                // 端の丸みを保ったまま塗り量だけを見せたいので、帯全体を
+                // 描いて幅で切り取る。幅で角丸を描くと、値が小さいときに
+                // 左端の丸みまで潰れてしまう。
+                g.reduceClipRegion(juce::Rectangle<float>(bar.getX(), bar.getY(), filled, bar.getHeight()).toNearestInt());
+
+                g.setColour(slider.findColour(juce::Slider::trackColourId).withMultipliedAlpha(alpha));
+                g.fillRoundedRectangle(bar, guiCornerRadius);
+            }
+
+            g.setColour(GuiColor::Slider::Frame.withMultipliedAlpha(alpha));
+            g.drawRoundedRectangle(bar.reduced(0.5f), guiCornerRadius, 1.0f);
+        }
+
         // スライダーの値表示は内部の juce::Label が描いている。
         // JUCE の既定は角の立った四角なので、ここだけ差し替える。
         void drawLabel(juce::Graphics& g, juce::Label& label) override

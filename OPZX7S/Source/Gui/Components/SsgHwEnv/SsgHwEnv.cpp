@@ -111,7 +111,7 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
     maxSlider.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::max, .title = "MAX", .isReset = true });
     maxSlider.setWantsKeyboardFocus(true);
     maxSlider.setExplicitFocusOrder(++tabOrder);
-    preview.setup(parent);
+    preview.setup(parent, GuiColor::WavePreview::AmpEnv);
 
     auto refreshPreview = [this] { updatePreview(); };
 

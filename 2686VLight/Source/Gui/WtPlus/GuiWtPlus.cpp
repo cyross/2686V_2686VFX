@@ -90,7 +90,7 @@ void GuiWtPlus::setup() {
 
         slotFileNameLabel[i].setup({ .parent = waveGroup.contentCanvas, .title = Io::empty });
 
-        slotPreview[i].setup(waveGroup.contentCanvas);
+        slotPreview[i].setup(waveGroup.contentCanvas, GuiColor::WavePreview::WaveMemory);
 
         // ファイル名の更新から中でプレビューも描き直される
         updateSlotFileName(i);

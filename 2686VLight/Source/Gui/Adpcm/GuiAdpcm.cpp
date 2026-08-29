@@ -173,7 +173,7 @@ void GuiAdpcm::setup()
     // ロードしているファイル名
     fileNameLabel.setup({ .parent = mainGroup.contentCanvas, .title = Io::empty });
 
-    samplePreview.setup(mainGroup.contentCanvas);
+    samplePreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::AudioFile);
     fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 

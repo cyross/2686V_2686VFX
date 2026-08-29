@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "./GuiComponents.h"
+#include "./GuiColor.h"
 
 class GuiEnvelopeGraph : public juce::Component
 {
@@ -19,13 +20,13 @@ public:
         float startLevel;
         float endLevel;
         bool isDashed = false;
-        juce::Colour color = juce::Colours::cyan;
+        juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;
 
         // 線の描画を前の終点から繋げず、指定位置から新しく開始するための設定
         bool moveToStart = false;
         float startXOffsetPx = 0.0f; // グラフ左端からの相対X座標 (moveToStart が true の場合のみ使用)
         bool drawPhaseLine = true;
-        juce::Colour phaseLineColor = juce::Colours::white;
+        juce::Colour phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine;
         bool isMax = false; // 値が最大値 = 縦の直線
     };
 

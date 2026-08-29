@@ -96,7 +96,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     m_padIndex = index;
 
-    samplePreview.setup(mainGroup.contentCanvas);
+    samplePreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::AudioFile);
     fileNameLabel.setJustificationType(juce::Justification::centred);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 

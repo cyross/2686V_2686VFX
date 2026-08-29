@@ -247,8 +247,8 @@ void GuiOpna::setup()
     lfoAmSmRtSlider.setWantsKeyboardFocus(true);
     lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoPmPreview.setup(mainGroup.contentCanvas);
-    lfoAmPreview.setup(mainGroup.contentCanvas);
+    lfoPmPreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::Lfo);
+    lfoAmPreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::Lfo);
 
     auto refreshLfoPreviews = [this]() { this->updateLfoPreviews(); };
 

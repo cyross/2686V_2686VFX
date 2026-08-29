@@ -195,24 +195,24 @@ void GuiEnvelopeGraph::updatePitchEnv(
     float rll = pitchReleaseLevelSlider.getValue() / maxCents;
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = juce::Colours::orange;
+    auto color = GuiColor::EnvelopeGraph::PitchLine;
 
     // Attack
     phases.push_back({
         .widthPx = rateToWidth(ar, arMax),
         .startLevel = stl, .endLevel = atl, .color = color,
-        .phaseLineColor = juce::Colours::red
+        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
         });
 
     // Decay
     phases.push_back({
         .widthPx = rateToWidth(dr, drMax),
         .startLevel = atl, .endLevel = ssl, .color = color,
-        .phaseLineColor = juce::Colours::blue
+        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
         });
 
     // Sustain
-    phases.push_back({ .widthPx = 60.0f, .startLevel = ssl, .endLevel = ssl, .color = color, .phaseLineColor = juce::Colours::green });
+    phases.push_back({ .widthPx = 60.0f, .startLevel = ssl, .endLevel = ssl, .color = color, .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine });
 
     // Release
     phases.push_back({
@@ -247,7 +247,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
     int loopCount = (int)ssgSwLoopCountSlider.getValue();
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = juce::Colours::lightgreen;
+    auto color = GuiColor::EnvelopeGraph::AmpLine;
 
     float currentTotalWidth = 0.0f;
     float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
@@ -264,7 +264,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
         if (isLoop && s == steps) {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
-                .phaseLineColor = juce::Colours::lightgreen
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
 
             loopEndWidth = currentTotalWidth;
@@ -275,17 +275,17 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
                     .startLevel = loopToLevel,
                     .endLevel = loopToLevel,
                     .isDashed = true,
-                    .color = juce::Colours::cyan,
+                    .color = color,
                     .drawPhaseLine = false
                     });
                 phases.push_back({
                     .widthPx = width,
                     .startLevel = startL,
                     .endLevel = endL,
-                    .color = juce::Colours::blue,
+                    .color = color.darker(0.3f),
                     .moveToStart = true,
                     .startXOffsetPx = loopEndWidth,
-                    .phaseLineColor = juce::Colours::lightgreen
+                    .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                     });
             }
 
@@ -294,7 +294,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
         else {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
-                .phaseLineColor = juce::Colours::lightgreen
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
         }
         currentTotalWidth += width;
@@ -310,7 +310,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
         .widthPx = rateToWidth(rr, rrMax),
         .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
         .endLevel = rEndL,
-        .color = juce::Colours::yellow,
+        .color = GuiColor::EnvelopeGraph::ReleaseLine,
         .moveToStart = isLoop,
         .startXOffsetPx = loopEndWidth
         });
@@ -342,7 +342,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
     int loopCount = (int)ssgSwLoopCountSlider.getValue();
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = juce::Colours::lightgreen;
+    auto color = GuiColor::EnvelopeGraph::AmpLine;
 
     float currentTotalWidth = 0.0f;
     float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
@@ -359,7 +359,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
         if (isLoop && s == steps) {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
-                .phaseLineColor = juce::Colours::lightgreen
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
 
             loopEndWidth = currentTotalWidth;
@@ -370,17 +370,17 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
                     .startLevel = loopToLevel,
                     .endLevel = loopToLevel,
                     .isDashed = true,
-                    .color = juce::Colours::cyan,
+                    .color = color,
                     .drawPhaseLine = false
                     });
                 phases.push_back({
                     .widthPx = width,
                     .startLevel = startL,
                     .endLevel = endL,
-                    .color = juce::Colours::blue,
+                    .color = color.darker(0.3f),
                     .moveToStart = true,
                     .startXOffsetPx = loopEndWidth,
-                    .phaseLineColor = juce::Colours::lightgreen
+                    .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                     });
             }
 
@@ -389,7 +389,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
         else {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
-                .phaseLineColor = juce::Colours::lightgreen
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
         }
         currentTotalWidth += width;
@@ -405,7 +405,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
         .widthPx = rateToWidth(rr, rrMax),
         .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
         .endLevel = rEndL,
-        .color = juce::Colours::yellow,
+        .color = GuiColor::EnvelopeGraph::ReleaseLine,
         .moveToStart = isLoop,
         .startXOffsetPx = loopEndWidth
         });
@@ -438,7 +438,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
     int loopCount = (int)ssgSwLoopCountSlider.getValue();
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = juce::Colours::orange;
+    auto color = GuiColor::EnvelopeGraph::PitchLine;
 
     float currentTotalWidth = 0.0f;
     float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
@@ -454,7 +454,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
         if (isLoop && s == steps) {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
-                .phaseLineColor = juce::Colours::lightyellow
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
 
             loopEndWidth = currentTotalWidth;
@@ -465,17 +465,17 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
                     .startLevel = loopToLevel,
                     .endLevel = loopToLevel,
                     .isDashed = true,
-                    .color = juce::Colours::cyan,
+                    .color = color,
                     .drawPhaseLine = false
                     });
                 phases.push_back({
                     .widthPx = width,
                     .startLevel = startL,
                     .endLevel = endL,
-                    .color = juce::Colours::blue,
+                    .color = color.darker(0.3f),
                     .moveToStart = true,
                     .startXOffsetPx = loopEndWidth,
-                    .phaseLineColor = juce::Colours::lightyellow
+                    .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                     });
             }
 
@@ -484,7 +484,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
         else {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
-                .phaseLineColor = juce::Colours::lightyellow
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
         }
         currentTotalWidth += width;
@@ -500,7 +500,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
         .widthPx = rateToWidth(rr, rrMax),
         .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
         .endLevel = rEndL,
-        .color = juce::Colours::yellow,
+        .color = GuiColor::EnvelopeGraph::ReleaseLine,
         .moveToStart = isLoop,
         .startXOffsetPx = loopEndWidth
         });
@@ -543,7 +543,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
     bool isKor = korButton.getToggleState();
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = juce::Colours::cyan;
+    auto color = GuiColor::EnvelopeGraph::AmpLine;
 
     float currentTotalWidth = 0.0f;
 
@@ -551,7 +551,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
     float attackWidth = rateToWidth(arVal, arMax);
     phases.push_back({
         .widthPx = attackWidth, .startLevel = stlVal / stlMax, .endLevel = 1.0f, .color = color,
-        .phaseLineColor = juce::Colours::red
+        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
         });
     currentTotalWidth += attackWidth;
 
@@ -559,14 +559,14 @@ void GuiEnvelopeGraph::updateAmpEnv(
     float decayWidth = rateToWidth(drVal, drMax);
     phases.push_back({
         .widthPx = decayWidth, .startLevel = 1.0f, .endLevel = sl, .color = color,
-        .phaseLineColor = juce::Colours::blue
+        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
         });
     currentTotalWidth += decayWidth;
 
     // 3. Sustain
     float keyOnWidth = 60.0f;
 
-    phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl, .endLevel = sl, .color = color, .phaseLineColor = juce::Colours::green });
+    phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl, .endLevel = sl, .color = color, .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine });
 
     currentTotalWidth += keyOnWidth;
     float noteOffPositionX = currentTotalWidth;
@@ -578,7 +578,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
             .widthPx = rateToWidth(rrVal, rrMax),
             .startLevel = sl,
             .endLevel = sl,
-            .color = juce::Colours::yellow
+            .color = GuiColor::EnvelopeGraph::ReleaseLine
             });
     }
     else {
