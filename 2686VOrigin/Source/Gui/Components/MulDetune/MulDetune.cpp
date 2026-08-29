@@ -1,5 +1,18 @@
 ﻿#include "./MulDetune.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat detuneFormat{ "detune", 1 };
+
+	// 古いファイルは行の順番だけで値を持っていた。読むためにその並びを
+	// 残しておく。ここを並べ替えると古いファイルが壊れる。
+	const juce::StringArray detuneLegacyOrder{ "mul", "mulRatio", "dt1", "dt2", "dt3" };
+}
+
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -365,18 +378,17 @@ void GuiComponentMulDetune::importParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, detuneFormat, detuneLegacyOrder);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 5) return;
-
-                mul.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                mulRatio.setValue(lines[1].getFloatValue(), juce::sendNotification);
-                dt1.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
-                dt2.setValue(lines[3].getIntValue(), juce::sendNotification);
-                dt3.setValue(lines[4].getIntValue(), juce::sendNotification);
+                // 古いファイルは項目が欠けていることがあるので、
+                // 読めなかったものは今の値のままにしておく。
+                mul.setSelectedItemIndex(reader->getInt("mul", mul.getSelectedItemIndex()), juce::sendNotification);
+                mulRatio.setValue(reader->getFloat("mulRatio", (float)mulRatio.getValue()), juce::sendNotification);
+                dt1.setSelectedItemIndex(reader->getInt("dt1", dt1.getSelectedItemIndex()), juce::sendNotification);
+                dt2.setValue(reader->getInt("dt2", (int)dt2.getValue()), juce::sendNotification);
+                dt3.setValue(reader->getInt("dt3", (int)dt3.getValue()), juce::sendNotification);
             }
         });
 }
@@ -387,7 +399,7 @@ void GuiComponentMulDetune::exportParams() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile("default.detune"), Io::ExtensionGlob::DetuneParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile("default." + Io::Extension::DetuneParamNew), Io::ExtensionGlob::DetuneParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -396,15 +408,15 @@ void GuiComponentMulDetune::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(detuneFormat);
 
-                content += juce::String(mul.getSelectedItemIndex()) + "\n";
-                content += juce::String(mulRatio.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(dt1.getSelectedItemIndex()) + "\n";
-                content += juce::String(dt2.getValue()) + "\n";
-                content += juce::String(dt3.getValue()) + "\n";
+                writer.set("mul", mul.getSelectedItemIndex());
+                writer.set("mulRatio", (float)mulRatio.getValue());
+                writer.set("dt1", dt1.getSelectedItemIndex());
+                writer.set("dt2", (int)dt2.getValue());
+                writer.set("dt3", (int)dt3.getValue());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

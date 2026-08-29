@@ -22,6 +22,7 @@ namespace Io
 		static inline const juce::String SsgSwEnvParam = "ssgSwEnv";
 		static inline const juce::String PitchEnvParam = "pitchEnv";
 		static inline const juce::String DetuneParam = "detune";
+		static inline const juce::String DetuneParamNew = "detune.json";
 		static inline const juce::String UnisonParam = "unison";
 		static inline const juce::String QualityParam = "quality";
 		static inline const juce::String PcmPlayParam = "pcmPlay";
@@ -47,7 +48,9 @@ namespace Io
 		static inline const juce::String PitchEnvParam = "*.pitchEnv";
 		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11";
 		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11";
-		static inline const juce::String DetuneParam = "*.detune";
+		// 新しい形式には .json を付ける。見て分かるようにするため。
+		// 古いファイルも開けるよう、両方を並べておく。
+		static inline const juce::String DetuneParam = "*.detune;*.detune.json";
 		static inline const juce::String UnisonParam = "*.unison";
 		static inline const juce::String QualityParam = "*.quality";
 		static inline const juce::String PcmPlayParam = "*.pcmPlay";
