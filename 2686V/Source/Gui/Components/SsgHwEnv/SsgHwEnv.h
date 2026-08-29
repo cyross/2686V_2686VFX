@@ -65,5 +65,8 @@ public:
     juce::String getExportedParams();
 
     // Shape / MIN / MAX / Smooth が変わったら折れ線を作り直す
+    // MIN と MAX が互いを押すときの、入れ子呼び出しを弾くための印
+    bool isClampingRange = false;
+
     void updatePreview();
 };

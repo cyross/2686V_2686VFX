@@ -90,12 +90,19 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
     minSlider.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::min, .title = "MIN", .isReset = true });
     minSlider.setWantsKeyboardFocus(true);
     minSlider.setExplicitFocusOrder(++tabOrder);
+    // MIN と MAX は追い越せない。追い越したときは「相手を押す」形にする。
+    // 自分へ書き戻すとドラッグ中にマウスと値の押し合いになり、
+    // つまみが動かせなくなる。
+    //
+    // setValue は同期で onValueChange を呼び返すので、押した相手から
+    // 戻ってくる 1 回は弾く。
     minSlider.onValueChange = [this] {
-        float min = minSlider.getValue();
-        float max = maxSlider.getValue();
+        if (isClampingRange) return;
 
-        if (min > max) {
-            maxSlider.setValue(min, juce::sendNotification);
+        const juce::ScopedValueSetter<bool> guard(isClampingRange, true);
+
+        if (minSlider.getValue() > maxSlider.getValue()) {
+            maxSlider.setValue(minSlider.getValue(), juce::sendNotification);
         }
 
         updatePreview();
@@ -112,11 +119,12 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
     smoothEnableButton.onStateChange = refreshPreview;
 
     maxSlider.onValueChange = [this] {
-        float min = minSlider.getValue();
-        float max = maxSlider.getValue();
+        if (isClampingRange) return;
 
-        if (min > max) {
-            maxSlider.setValue(min, juce::sendNotification);
+        const juce::ScopedValueSetter<bool> guard(isClampingRange, true);
+
+        if (maxSlider.getValue() < minSlider.getValue()) {
+            minSlider.setValue(maxSlider.getValue(), juce::sendNotification);
         }
 
         updatePreview();
