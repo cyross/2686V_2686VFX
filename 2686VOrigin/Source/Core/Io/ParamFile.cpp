@@ -1,5 +1,17 @@
 ﻿#include "./ParamFile.h"
 
+namespace
+{
+	// 古いファイルを選んだときの知らせ
+	void tellLegacyNotSupported(const juce::File& file)
+	{
+		juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+			juce::String("") + "読み込めないファイル",
+			juce::String("") + "3.0.0 より前の形式のファイルは読み込めません。\n\n"
+			+ file.getFileName());
+	}
+}
+
 namespace Io
 {
 	ParamWriter::ParamWriter(ParamFormat format)
@@ -7,29 +19,39 @@ namespace Io
 	{
 	}
 
+	ParamWriter::ParamWriter(const ParamWriter& parent, const juce::String& prefix)
+		: m_values(parent.m_values), m_format(parent.m_format), m_prefix(parent.full(prefix))
+	{
+	}
+
+	juce::String ParamWriter::full(const juce::String& key) const
+	{
+		return m_prefix.isEmpty() ? key : m_prefix + "." + key;
+	}
+
 	void ParamWriter::set(const juce::String& key, int value)
 	{
-		m_values->setProperty(key, value);
+		m_values->setProperty(full(key), value);
 	}
 
 	void ParamWriter::set(const juce::String& key, float value)
 	{
-		m_values->setProperty(key, (double)value);
+		m_values->setProperty(full(key), (double)value);
 	}
 
 	void ParamWriter::set(const juce::String& key, double value)
 	{
-		m_values->setProperty(key, value);
+		m_values->setProperty(full(key), value);
 	}
 
 	void ParamWriter::set(const juce::String& key, bool value)
 	{
-		m_values->setProperty(key, value);
+		m_values->setProperty(full(key), value);
 	}
 
 	void ParamWriter::set(const juce::String& key, const juce::String& value)
 	{
-		m_values->setProperty(key, value);
+		m_values->setProperty(full(key), value);
 	}
 
 	void ParamWriter::setArray(const juce::String& key, const std::vector<float>& values)
@@ -38,7 +60,7 @@ namespace Io
 
 		for (float v : values) out.add((double)v);
 
-		m_values->setProperty(key, out);
+		m_values->setProperty(full(key), out);
 	}
 
 	void ParamWriter::setArray(const juce::String& key, const std::vector<int>& values)
@@ -47,7 +69,7 @@ namespace Io
 
 		for (int v : values) out.add(v);
 
-		m_values->setProperty(key, out);
+		m_values->setProperty(full(key), out);
 	}
 
 	bool ParamWriter::writeTo(const juce::File& file) const
@@ -61,54 +83,50 @@ namespace Io
 		return file.replaceWithText(juce::JSON::toString(juce::var(root)));
 	}
 
-	std::optional<ParamReader> ParamReader::open(const juce::File& file,
-		const ParamFormat& format, const juce::StringArray& legacyOrder)
+	std::optional<ParamReader> ParamReader::open(const juce::File& file, const ParamFormat& format)
 	{
 		if (!file.existsAsFile()) return std::nullopt;
 
-		auto text = file.loadFileAsString();
+		auto parsed = juce::JSON::parse(file.loadFileAsString());
+		auto* root = parsed.getDynamicObject();
+
+		if (root == nullptr)
+		{
+			// JSON として読めないものは古い形式とみなす
+			tellLegacyNotSupported(file);
+
+			return std::nullopt;
+		}
+
+		// 印が違うものは別の種類のファイル。読み違えるより開かないほうがよい。
+		if (root->getProperty(ParamKey::format).toString() != format.name) return std::nullopt;
+
+		auto* values = root->getProperty(ParamKey::values).getDynamicObject();
+
+		if (values == nullptr) return std::nullopt;
 
 		ParamReader reader;
 
-		reader.m_legacyOrder = legacyOrder;
-
-		auto parsed = juce::JSON::parse(text);
-
-		if (auto* root = parsed.getDynamicObject())
-		{
-			// 印が違うものは別のファイル。読み違えるより開かないほうがよい。
-			if (root->getProperty(ParamKey::format).toString() != format.name) return std::nullopt;
-
-			auto* values = root->getProperty(ParamKey::values).getDynamicObject();
-
-			if (values == nullptr) return std::nullopt;
-
-			reader.m_values = values;
-
-			return reader;
-		}
-
-		// JSON として読めなければ古い形式とみなす
-		reader.m_legacy = true;
-		reader.m_lines.addLines(text);
+		reader.m_values = values;
 
 		return reader;
 	}
 
+	ParamReader::ParamReader(const ParamReader& parent, const juce::String& prefix)
+		: m_values(parent.m_values), m_prefix(parent.full(prefix))
+	{
+	}
+
+	juce::String ParamReader::full(const juce::String& key) const
+	{
+		return m_prefix.isEmpty() ? key : m_prefix + "." + key;
+	}
+
 	juce::var ParamReader::find(const juce::String& key) const
 	{
-		if (!m_legacy)
-		{
-			if (m_values == nullptr) return {};
+		if (m_values == nullptr) return {};
 
-			return m_values->getProperty(key);
-		}
-
-		int index = m_legacyOrder.indexOf(key);
-
-		if (index < 0 || index >= m_lines.size()) return {};
-
-		return m_lines[index];
+		return m_values->getProperty(full(key));
 	}
 
 	int ParamReader::getInt(const juce::String& key, int fallback) const
@@ -129,12 +147,7 @@ namespace Io
 	{
 		auto v = find(key);
 
-		if (v.isVoid()) return fallback;
-
-		// 古い形式は 0 と 1 の文字で持っていた
-		if (m_legacy) return v.toString().getIntValue() != 0;
-
-		return (bool)v;
+		return v.isVoid() ? fallback : (bool)v;
 	}
 
 	juce::String ParamReader::getString(const juce::String& key, const juce::String& fallback) const
@@ -148,23 +161,10 @@ namespace Io
 	{
 		std::vector<float> out;
 
-		if (!m_legacy)
+		if (auto* array = find(key).getArray())
 		{
-			auto v = find(key);
-
-			if (auto* array = v.getArray())
-			{
-				for (const auto& e : *array) out.push_back((float)(double)e);
-			}
-
-			return out;
+			for (const auto& e : *array) out.push_back((float)(double)e);
 		}
-
-		int index = m_legacyOrder.indexOf(key);
-
-		if (index < 0) return out;
-
-		for (int i = index; i < m_lines.size(); ++i) out.push_back(m_lines[i].getFloatValue());
 
 		return out;
 	}
@@ -173,23 +173,10 @@ namespace Io
 	{
 		std::vector<int> out;
 
-		if (!m_legacy)
+		if (auto* array = find(key).getArray())
 		{
-			auto v = find(key);
-
-			if (auto* array = v.getArray())
-			{
-				for (const auto& e : *array) out.push_back((int)e);
-			}
-
-			return out;
+			for (const auto& e : *array) out.push_back((int)e);
 		}
-
-		int index = m_legacyOrder.indexOf(key);
-
-		if (index < 0) return out;
-
-		for (int i = index; i < m_lines.size(); ++i) out.push_back(m_lines[i].getIntValue());
 
 		return out;
 	}

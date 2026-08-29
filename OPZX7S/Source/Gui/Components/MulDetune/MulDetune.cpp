@@ -6,10 +6,6 @@ namespace
 {
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat detuneFormat{ "detune", 1 };
-
-	// 古いファイルは行の順番だけで値を持っていた。読むためにその並びを
-	// 残しておく。ここを並べ替えると古いファイルが壊れる。
-	const juce::StringArray detuneLegacyOrder{ "mul", "mulRatio", "dt1", "dt2", "dt3" };
 }
 
 
@@ -378,7 +374,7 @@ void GuiComponentMulDetune::importParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
 
-                auto reader = Io::ParamReader::open(file, detuneFormat, detuneLegacyOrder);
+                auto reader = Io::ParamReader::open(file, detuneFormat);
 
                 if (!reader.has_value()) return;
 

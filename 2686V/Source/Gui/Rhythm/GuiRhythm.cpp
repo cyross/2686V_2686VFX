@@ -3,6 +3,15 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiRhythm.h"
 
+#include "../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat pcmQualityFormat{ "pcmQuality", 1 };
+	const Io::ParamFormat toneNoiseFormat{ "toneNoise", 1 };
+}
+
 #include "../Components/WavePreview/WavePreviewSource.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
@@ -620,17 +629,14 @@ void RhythmPadGui::importToneNoiseParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, toneNoiseFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 4) return;
-
-                toneSlider.setValue(lines[0].getFloatValue(), juce::sendNotification);
-                noiseSlider.setValue(lines[1].getFloatValue(), juce::sendNotification);
-                noiseFreqSlider.setValue(lines[2].getFloatValue(), juce::sendNotification);
-                mixSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
+                toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
+                noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
+                noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+                mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
             }
         });
 }
@@ -641,7 +647,7 @@ void RhythmPadGui::exportToneNoiseParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportToneNoiseParamFile, defaultDir.getChildFile("default.toneNoise"), Io::ExtensionGlob::ToneNoiseParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportToneNoiseParamFile, defaultDir.getChildFile("default.toneNoise.json"), Io::ExtensionGlob::ToneNoiseParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -650,14 +656,14 @@ void RhythmPadGui::exportToneNoiseParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(toneNoiseFormat);
 
-                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("tone", (float)toneSlider.getValue());
+                writer.set("noise", (float)noiseSlider.getValue());
+                writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+                writer.set("mix", (float)mixSlider.getValue());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
@@ -765,7 +771,7 @@ void RhythmPadGui::exportPcmPlayParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.pcmQuality"), Io::ExtensionGlob::PcmQualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.pcmQuality.json"), Io::ExtensionGlob::PcmQualityParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -800,16 +806,13 @@ void RhythmPadGui::importQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, pcmQualityFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 3) return;
-
-                qualityPcmComponent.setMode(lines[0].getIntValue());
-                qualityPcmComponent.setRate(lines[1].getIntValue());
-                qualityPcmComponent.setInterp(lines[2].getIntValue());
+                qualityPcmComponent.setMode(reader->getInt("mode", qualityPcmComponent.getMode()));
+                qualityPcmComponent.setRate(reader->getInt("rate", qualityPcmComponent.getRate()));
+                qualityPcmComponent.setInterp(reader->getInt("interp", qualityPcmComponent.getInterp()));
             }
         });
 }
@@ -820,7 +823,7 @@ void RhythmPadGui::exportQualityParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.pcmQuality"), Io::ExtensionGlob::PcmQualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.pcmQuality.json"), Io::ExtensionGlob::PcmQualityParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -829,13 +832,13 @@ void RhythmPadGui::exportQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(pcmQualityFormat);
 
-                content += juce::String(qualityPcmComponent.getMode()) + "\n";
-                content += juce::String(qualityPcmComponent.getRate()) + "\n";
-                content += juce::String(qualityPcmComponent.getInterp()) + "\n";
+                writer.set("mode", qualityPcmComponent.getMode());
+                writer.set("rate", qualityPcmComponent.getRate());
+                writer.set("interp", qualityPcmComponent.getInterp());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

@@ -25,6 +25,7 @@ namespace Io
 		static inline const juce::String DetuneParamNew = "detune.json";
 		static inline const juce::String UnisonParam = "unison";
 		static inline const juce::String QualityParam = "quality";
+		static inline const juce::String QualityParamNew = "quality.json";
 		static inline const juce::String PcmPlayParam = "pcmPlay";
 
 		// 色の設定。新しく作る形式なので、はじめから JSON にしてある。
@@ -40,21 +41,19 @@ namespace Io
 		static inline const juce::String opzx7sParam = "*.param.opzx7s";
 		static inline const juce::String opzx7sOpParam = "*.param.opzx7s.op";
 		static inline const juce::String curveParam = "*.curve_";
-		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7";
-		static inline const juce::String AmpEnvParam = "*.ampEnv";
+		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7.json";
+		static inline const juce::String AmpEnvParam = "*.ampEnv.json";
 		static inline const juce::String SsgHwEnvParam = "*.ssgHwEnv";
 		static inline const juce::String WtModParam = "*.wtmod";
-		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv";
-		static inline const juce::String PitchEnvParam = "*.pitchEnv";
-		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11";
-		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11";
-		// 新しい形式には .json を付ける。見て分かるようにするため。
-		// 古いファイルも開けるよう、両方を並べておく。
-		static inline const juce::String DetuneParam = "*.detune;*.detune.json";
+		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv.json";
+		static inline const juce::String PitchEnvParam = "*.pitchEnv.json";
+		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11.json";
+		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11.json";
+		static inline const juce::String DetuneParam = "*.detune.json";
 		static inline const juce::String UnisonParam = "*.unison";
-		static inline const juce::String QualityParam = "*.quality";
-		static inline const juce::String PcmPlayParam = "*.pcmPlay";
-		static inline const juce::String ToneNoiseParam = "*.toneNoise";
+		static inline const juce::String QualityParam = "*.quality.json";
+		static inline const juce::String PcmPlayParam = "*.pcmPlay.json";
+		static inline const juce::String ToneNoiseParam = "*.toneNoise.json";
 		static inline const juce::String ColorSetting = "*.ccolor.json";
 	};
 

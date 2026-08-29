@@ -34,7 +34,9 @@ namespace Io
 		static inline const juce::String opmOpParam = "param.opm.op";
 		static inline const juce::String opzx7sOpParam = "param.opzx7s.op";
 		static inline const juce::String rhythmPadParam = "param.rhythm.pad";
-		static inline const juce::String OpnaLfoParam = "lfoOpna";
+		// オペレータごとの HW LFO。音源全体の N88 LFO とは別物なので、
+		// 名前でも見分けられるようにしてある。
+		static inline const juce::String OpnaHwLfoParam = "opnaHwLfo";
 		static inline const juce::String N88LfoParam = "lfoN88";
 		static inline const juce::String OpmLfoParam = "lfoOpm";
 		static inline const juce::String OplLfoParam = "lfoOpl";
@@ -48,6 +50,7 @@ namespace Io
 		static inline const juce::String DetuneParamNew = "detune.json";
 		static inline const juce::String UnisonParam = "unison";
 		static inline const juce::String QualityParam = "quality";
+		static inline const juce::String QualityParamNew = "quality.json";
 		static inline const juce::String PcmQualityParam = "pcmQuality";
 		static inline const juce::String PcmPlayParam = "pcmPlay";
 		static inline const juce::String ToneNoiseParam = "toneNoise";
@@ -83,26 +86,24 @@ namespace Io
 		static inline const juce::String opzx7sOpParam = "*.param.opzx7s.op";
 		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad";
 		static inline const juce::String curveParam = "*.curve*";
-		static inline const juce::String OpnaLfoParam = "*.lfoOpna";
-		static inline const juce::String N88LfoParam = "*.lfoN88";
+		static inline const juce::String OpnaHwLfoParam = "*.opnaHwLfo.json";
+		static inline const juce::String N88LfoParam = "*.lfoN88.json";
 		static inline const juce::String OpmLfoParam = "*.lfoOpm";
-		static inline const juce::String OplLfoParam = "*.lfoOpl";
-		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7";
-		static inline const juce::String AmpEnvParam = "*.ampEnv";
+		static inline const juce::String OplLfoParam = "*.lfoOpl.json";
+		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7.json";
+		static inline const juce::String AmpEnvParam = "*.ampEnv.json";
 		static inline const juce::String SsgHwEnvParam = "*.ssgHwEnv";
 		static inline const juce::String WtModParam = "*.wtmod";
-		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv";
-		static inline const juce::String PitchEnvParam = "*.pitchEnv";
-		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11";
-		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11";
-		// 新しい形式には .json を付ける。見て分かるようにするため。
-		// 古いファイルも開けるよう、両方を並べておく。
-		static inline const juce::String DetuneParam = "*.detune;*.detune.json";
+		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv.json";
+		static inline const juce::String PitchEnvParam = "*.pitchEnv.json";
+		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11.json";
+		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11.json";
+		static inline const juce::String DetuneParam = "*.detune.json";
 		static inline const juce::String UnisonParam = "*.unison";
-		static inline const juce::String QualityParam = "*.quality";
-		static inline const juce::String PcmQualityParam = "*.pcmQuality";
-		static inline const juce::String PcmPlayParam = "*.pcmPlay";
-		static inline const juce::String ToneNoiseParam = "*.toneNoise";
+		static inline const juce::String QualityParam = "*.quality.json";
+		static inline const juce::String PcmQualityParam = "*.pcmQuality.json";
+		static inline const juce::String PcmPlayParam = "*.pcmPlay.json";
+		static inline const juce::String ToneNoiseParam = "*.toneNoise.json";
 		static inline const juce::String ColorSetting = "*.ccolor.json";
 	};
 

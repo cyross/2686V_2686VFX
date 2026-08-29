@@ -3,6 +3,14 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpm.h"
 
+#include "../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat qualityFormat{ "quality", 1 };
+}
+
 #include "../Components/WavePreview/WavePreviewSource.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
@@ -2014,15 +2022,12 @@ void GuiOpm::importQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, qualityFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 2) return;
-
-                qualityComponent.setBit(lines[0].getIntValue());
-                qualityComponent.setRate(lines[1].getIntValue());
+                qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
+                qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
             }
         });
 }
@@ -2033,7 +2038,7 @@ void GuiOpm::exportQualityParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default." + Io::Extension::QualityParamNew), Io::ExtensionGlob::QualityParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -2042,12 +2047,12 @@ void GuiOpm::exportQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(qualityFormat);
 
-                content += juce::String(qualityComponent.getBit()) + "\n";
-                content += juce::String(qualityComponent.getRate()) + "\n";
+                writer.set("bit", qualityComponent.getBit());
+                writer.set("rate", qualityComponent.getRate());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

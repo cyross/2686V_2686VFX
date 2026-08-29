@@ -1,5 +1,13 @@
 ﻿#include "./AmpEnv.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat ampEnvFormat{ "ampEnv", 1 };
+}
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -178,20 +186,17 @@ void GuiComponentAmpEnv::importParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::StringArray lines;
-				file.readLines(lines);
+				auto reader = Io::ParamReader::open(file, ampEnvFormat);
 
-				int size = lines.size();
+				if (!reader.has_value()) return;
 
-				if (size < 7) return;
-
-				bypass.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
-				startLevel.setValue(lines[1].getFloatValue(), juce::sendNotification);
-				attack.setValue(lines[2].getFloatValue(), juce::sendNotification);
-				decay.setValue(lines[3].getFloatValue(), juce::sendNotification);
-				sustain.setValue(lines[4].getFloatValue(), juce::sendNotification);
-				release.setValue(lines[5].getFloatValue(), juce::sendNotification);
-				kor.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
+				bypass.setToggleState(reader->getBool("bypass", bypass.getToggleState()), juce::sendNotification);
+				startLevel.setValue(reader->getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+				attack.setValue(reader->getFloat("attack", (float)attack.getValue()), juce::sendNotification);
+				decay.setValue(reader->getFloat("decay", (float)decay.getValue()), juce::sendNotification);
+				sustain.setValue(reader->getFloat("sustain", (float)sustain.getValue()), juce::sendNotification);
+				release.setValue(reader->getFloat("release", (float)release.getValue()), juce::sendNotification);
+				kor.setToggleState(reader->getBool("kor", kor.getToggleState()), juce::sendNotification);
 			}
 		});
 }
@@ -202,7 +207,7 @@ void GuiComponentAmpEnv::exportParams() {
 		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 	}
 
-	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile("default.ampEnv"), Io::ExtensionGlob::AmpEnvParam);
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile("default.ampEnv.json"), Io::ExtensionGlob::AmpEnvParam);
 	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
 		[this](const juce::FileChooser& fc) {
 			auto file = fc.getResult();
@@ -211,17 +216,17 @@ void GuiComponentAmpEnv::exportParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::String content = "";
+				Io::ParamWriter writer(ampEnvFormat);
 
-				content += juce::String(bypass.getToggleState() ? 1 : 0) + "\n";
-				content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(attack.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(decay.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(sustain.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(release.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(kor.getToggleState() ? 1 : 0) + "\n";
+				writer.set("bypass", bypass.getToggleState());
+				writer.set("startLevel", (float)startLevel.getValue());
+				writer.set("attack", (float)attack.getValue());
+				writer.set("decay", (float)decay.getValue());
+				writer.set("sustain", (float)sustain.getValue());
+				writer.set("release", (float)release.getValue());
+				writer.set("kor", kor.getToggleState());
 
-				file.replaceWithText(content);
+				writer.writeTo(file);
 			}
 		});
 }

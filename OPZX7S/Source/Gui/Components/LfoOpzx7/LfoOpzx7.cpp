@@ -1,5 +1,13 @@
 ﻿#include "./LfoOpzx7.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat opzx7LfoFormat{ "opzx7Lfo", 1 };
+}
+
 #include "../WavePreview/WavePreviewSource.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
@@ -344,26 +352,23 @@ void GuiComponentLfoOpzx7::importParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, opzx7LfoFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 13) return;
-
-                pmEnable.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
-                pmFreq.setValue(lines[1].getFloatValue(), juce::sendNotification);
-                pmSyncDelay.setValue(lines[2].getIntValue(), juce::sendNotification);
-                pgShape.setSelectedItemIndex(lines[3].getIntValue(), juce::sendNotification);
-                pms.setValue(lines[4].getFloatValue(), juce::sendNotification);
-                pmd.setValue(lines[5].getFloatValue(), juce::sendNotification);
-                amEnable.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
-                amFreq.setValue(lines[7].getFloatValue(), juce::sendNotification);
-                egShape.setSelectedItemIndex(lines[8].getIntValue(), juce::sendNotification);
-                amSyncDelay.setValue(lines[9].getIntValue(), juce::sendNotification);
-                amSmRt.setValue(lines[10].getIntValue(), juce::sendNotification);
-                ams.setValue(lines[11].getFloatValue(), juce::sendNotification);
-                amd.setValue(lines[12].getFloatValue(), juce::sendNotification);
+                pmEnable.setToggleState(reader->getBool("pmEnable", pmEnable.getToggleState()), juce::sendNotification);
+                pmFreq.setValue(reader->getFloat("pmFreq", (float)pmFreq.getValue()), juce::sendNotification);
+                pmSyncDelay.setValue(reader->getInt("pmSyncDelay", (int)pmSyncDelay.getValue()), juce::sendNotification);
+                pgShape.setSelectedItemIndex(reader->getInt("pgShape", pgShape.getSelectedItemIndex()), juce::sendNotification);
+                pms.setValue(reader->getFloat("pms", (float)pms.getValue()), juce::sendNotification);
+                pmd.setValue(reader->getFloat("pmd", (float)pmd.getValue()), juce::sendNotification);
+                amEnable.setToggleState(reader->getBool("amEnable", amEnable.getToggleState()), juce::sendNotification);
+                amFreq.setValue(reader->getFloat("amFreq", (float)amFreq.getValue()), juce::sendNotification);
+                egShape.setSelectedItemIndex(reader->getInt("egShape", egShape.getSelectedItemIndex()), juce::sendNotification);
+                amSyncDelay.setValue(reader->getInt("amSyncDelay", (int)amSyncDelay.getValue()), juce::sendNotification);
+                amSmRt.setValue(reader->getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
+                ams.setValue(reader->getFloat("ams", (float)ams.getValue()), juce::sendNotification);
+                amd.setValue(reader->getFloat("amd", (float)amd.getValue()), juce::sendNotification);
             }
         });
 }
@@ -374,7 +379,7 @@ void GuiComponentLfoOpzx7::exportParams() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpzx7"), Io::ExtensionGlob::Opzx7LfoParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpzx7.json"), Io::ExtensionGlob::Opzx7LfoParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -383,23 +388,23 @@ void GuiComponentLfoOpzx7::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(opzx7LfoFormat);
 
-                content += juce::String(pmEnable.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(pmFreq.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(pmSyncDelay.getValue()) + "\n";
-                content += juce::String(pgShape.getSelectedItemIndex()) + "\n";
-                content += juce::String(pms.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(pmd.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(amEnable.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(amFreq.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(egShape.getSelectedItemIndex()) + "\n";
-                content += juce::String(amSyncDelay.getValue()) + "\n";
-                content += juce::String(amSmRt.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(ams.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(amd.getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("pmEnable", pmEnable.getToggleState());
+                writer.set("pmFreq", (float)pmFreq.getValue());
+                writer.set("pmSyncDelay", (float)pmSyncDelay.getValue());
+                writer.set("pgShape", pgShape.getSelectedItemIndex());
+                writer.set("pms", (float)pms.getValue());
+                writer.set("pmd", (float)pmd.getValue());
+                writer.set("amEnable", amEnable.getToggleState());
+                writer.set("amFreq", (float)amFreq.getValue());
+                writer.set("egShape", egShape.getSelectedItemIndex());
+                writer.set("amSyncDelay", (float)amSyncDelay.getValue());
+                writer.set("amSmRt", (float)amSmRt.getValue());
+                writer.set("ams", (float)ams.getValue());
+                writer.set("amd", (float)amd.getValue());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

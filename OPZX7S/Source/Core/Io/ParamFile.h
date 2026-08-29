@@ -11,9 +11,13 @@ namespace Io
 	// ========================================================================
 	// 値を名前で持つ。
 	//
-	// 従来の形式は値を行の順番だけで並べていた。そのため項目を足すと古い
+	// 3.0.0 より前は値を行の順番だけで並べていた。そのため項目を足すと古い
 	// ファイルが読めなくなり、並べ間違えると黙って別の値が入る。名前で
 	// 持てばどちらも起きない。
+	//
+	// 古い形式は読まない。並び順を全部覚えておく必要があり、項目を足す
+	// たびにその重みが増えるため。代わりに、古いファイルを選んだときは
+	// 黙って何も起きるのではなく、読めないことを画面で伝える。
 	//
 	// 中身は JSON。将来 YAML へ移すときも、読み書きする側はこの入れ物を
 	// 通しているので手を入れずに済む。
@@ -29,8 +33,15 @@ namespace Io
 	{
 		juce::DynamicObject::Ptr m_values;
 		ParamFormat m_format;
+
+		// 入れ子にした部品の置き場。名前の頭に部品の名を付けて区別する。
+		juce::String m_prefix;
 	public:
 		explicit ParamWriter(ParamFormat format);
+
+		// 部品ごとに頭を付けたい場合に使う。同じ種類の部品が複数あっても
+		// 名前がぶつからない。
+		ParamWriter(const ParamWriter& parent, const juce::String& prefix);
 
 		void set(const juce::String& key, int value);
 		void set(const juce::String& key, float value);
@@ -42,41 +53,38 @@ namespace Io
 		void setArray(const juce::String& key, const std::vector<int>& values);
 
 		bool writeTo(const juce::File& file) const;
+	private:
+		juce::String full(const juce::String& key) const;
 	};
 
-	// 新しい形式と古い形式のどちらも読む。
-	//
-	// 古いファイルは行の順番でしか意味が決まらないので、開くときに並び順を
-	// 渡してもらう。以後は新旧どちらでも名前で読めるようになる。
 	class ParamReader
 	{
 		juce::DynamicObject::Ptr m_values;
-
-		juce::StringArray m_lines;
-		juce::StringArray m_legacyOrder;
-
-		bool m_legacy = false;
+		juce::String m_prefix;
 
 		juce::var find(const juce::String& key) const;
 	public:
-		// 読めなければ空を返す。中身が期待した印でなくても空を返す。
-		static std::optional<ParamReader> open(const juce::File& file,
-			const ParamFormat& format, const juce::StringArray& legacyOrder);
+		// 読めない、または印が違う場合は空を返す。
+		//
+		// 3.0.0 より前の形式だったときは、読めないことを画面で伝えてから
+		// 空を返す。黙って何も起きないと、壊れたのか使い方を誤ったのかが
+		// 分からないため。
+		static std::optional<ParamReader> open(const juce::File& file, const ParamFormat& format);
 
-		bool isLegacy() const { return m_legacy; }
+		ParamReader() = default;
 
-		// 古いファイルで行数を確かめたいときに使う
-		int legacyLineCount() const { return m_lines.size(); }
+		// 部品ごとに頭を付けて読む
+		ParamReader(const ParamReader& parent, const juce::String& prefix);
 
 		int getInt(const juce::String& key, int fallback = 0) const;
 		float getFloat(const juce::String& key, float fallback = 0.0f) const;
 		bool getBool(const juce::String& key, bool fallback = false) const;
 		juce::String getString(const juce::String& key, const juce::String& fallback = {}) const;
 
-		// 古いファイルでは、その名前の位置から終わりまでを並びとして読む。
-		// 従来は末尾へまとめて並べていたため。
 		std::vector<float> getFloatArray(const juce::String& key) const;
 		std::vector<int> getIntArray(const juce::String& key) const;
+	private:
+		juce::String full(const juce::String& key) const;
 	};
 
 	namespace ParamKey

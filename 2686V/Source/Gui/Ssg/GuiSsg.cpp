@@ -3,6 +3,15 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiSsg.h"
 
+#include "../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat qualityFormat{ "quality", 1 };
+	const Io::ParamFormat toneNoiseFormat{ "toneNoise", 1 };
+}
+
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
@@ -628,17 +637,14 @@ void GuiSsg::importToneNoiseParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, toneNoiseFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 4) return;
-
-                toneSlider.setValue(lines[0].getFloatValue(), juce::sendNotification);
-                noiseSlider.setValue(lines[1].getFloatValue(), juce::sendNotification);
-                noiseFreqSlider.setValue(lines[2].getFloatValue(), juce::sendNotification);
-                mixSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
+                toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
+                noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
+                noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+                mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
             }
         });
 }
@@ -649,7 +655,7 @@ void GuiSsg::exportToneNoiseParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportToneNoiseParamFile, defaultDir.getChildFile("default.toneNoise"), Io::ExtensionGlob::ToneNoiseParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportToneNoiseParamFile, defaultDir.getChildFile("default.toneNoise.json"), Io::ExtensionGlob::ToneNoiseParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -658,14 +664,14 @@ void GuiSsg::exportToneNoiseParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(toneNoiseFormat);
 
-                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("tone", (float)toneSlider.getValue());
+                writer.set("noise", (float)noiseSlider.getValue());
+                writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+                writer.set("mix", (float)mixSlider.getValue());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
@@ -685,15 +691,12 @@ void GuiSsg::importQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, qualityFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 2) return;
-
-                qualityComponent.setBit(lines[0].getIntValue());
-                qualityComponent.setRate(lines[1].getIntValue());
+                qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
+                qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
             }
         });
 }
@@ -704,7 +707,7 @@ void GuiSsg::exportQualityParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default." + Io::Extension::QualityParamNew), Io::ExtensionGlob::QualityParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -713,12 +716,12 @@ void GuiSsg::exportQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(qualityFormat);
 
-                content += juce::String(qualityComponent.getBit()) + "\n";
-                content += juce::String(qualityComponent.getRate()) + "\n";
+                writer.set("bit", qualityComponent.getBit());
+                writer.set("rate", qualityComponent.getRate());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

@@ -1,5 +1,13 @@
 ﻿#include "./PitchEnv.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat pitchEnvFormat{ "pitchEnv", 1 };
+}
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -223,21 +231,18 @@ void GuiComponentPitchEnv::importParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultPitchEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::StringArray lines;
-				file.readLines(lines);
+				auto reader = Io::ParamReader::open(file, pitchEnvFormat);
 
-				int size = lines.size();
+				if (!reader.has_value()) return;
 
-				if (size < 8) return;
-
-				flag.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
-				attack.setValue(lines[1].getFloatValue(), juce::sendNotification);
-				decay.setValue(lines[2].getFloatValue(), juce::sendNotification);
-				release.setValue(lines[3].getFloatValue(), juce::sendNotification);
-				startLevel.setValue(lines[4].getFloatValue(), juce::sendNotification);
-				attackLevel.setValue(lines[5].getFloatValue(), juce::sendNotification);
-				sustainLevel.setValue(lines[6].getFloatValue(), juce::sendNotification);
-				releaseLevel.setValue(lines[7].getFloatValue(), juce::sendNotification);
+				flag.setToggleState(reader->getBool("flag", flag.getToggleState()), juce::sendNotification);
+				attack.setValue(reader->getFloat("attack", (float)attack.getValue()), juce::sendNotification);
+				decay.setValue(reader->getFloat("decay", (float)decay.getValue()), juce::sendNotification);
+				release.setValue(reader->getFloat("release", (float)release.getValue()), juce::sendNotification);
+				startLevel.setValue(reader->getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+				attackLevel.setValue(reader->getFloat("attackLevel", (float)attackLevel.getValue()), juce::sendNotification);
+				sustainLevel.setValue(reader->getFloat("sustainLevel", (float)sustainLevel.getValue()), juce::sendNotification);
+				releaseLevel.setValue(reader->getFloat("releaseLevel", (float)releaseLevel.getValue()), juce::sendNotification);
 			}
 		});
 }
@@ -248,7 +253,7 @@ void GuiComponentPitchEnv::exportParams() {
 		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 	}
 
-	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPitchEnvParamFile, defaultDir.getChildFile("default.pitchEnv"), Io::ExtensionGlob::PitchEnvParam);
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPitchEnvParamFile, defaultDir.getChildFile("default.pitchEnv.json"), Io::ExtensionGlob::PitchEnvParam);
 	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
 		[this](const juce::FileChooser& fc) {
 			auto file = fc.getResult();
@@ -257,18 +262,18 @@ void GuiComponentPitchEnv::exportParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultPitchEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::String content = "";
+				Io::ParamWriter writer(pitchEnvFormat);
 
-				content += juce::String(flag.getToggleState() ? 1 : 0) + "\n";
-				content += juce::String(attack.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(decay.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(release.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(attackLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(sustainLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(releaseLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+				writer.set("flag", flag.getToggleState());
+				writer.set("attack", (float)attack.getValue());
+				writer.set("decay", (float)decay.getValue());
+				writer.set("release", (float)release.getValue());
+				writer.set("startLevel", (float)startLevel.getValue());
+				writer.set("attackLevel", (float)attackLevel.getValue());
+				writer.set("sustainLevel", (float)sustainLevel.getValue());
+				writer.set("releaseLevel", (float)releaseLevel.getValue());
 
-				file.replaceWithText(content);
+				writer.writeTo(file);
 			}
 		});
 }

@@ -1,5 +1,13 @@
 ﻿#include "./SsgSwPEnv11.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat ssgSwPEnv11Format{ "ssgSwPEnv11", 1 };
+}
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -645,41 +653,38 @@ void GuiComponentSsgSwPEnv11::importParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, ssgSwPEnv11Format);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 28) return;
-
-                flag.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
-                steps.setValue(lines[1].getIntValue(), juce::sendNotification);
-                loop.setToggleState(lines[2].getIntValue() == 1, juce::sendNotification);
-                loopTo.setValue(lines[3].getIntValue(), juce::sendNotification);
-                loopCount.setValue(lines[4].getIntValue(), juce::sendNotification);
-                startLevel.setValue(lines[5].getFloatValue(), juce::sendNotification);
-                r1.setValue(lines[6].getFloatValue(), juce::sendNotification);
-                l1.setValue(lines[7].getFloatValue(), juce::sendNotification);
-                r2.setValue(lines[8].getFloatValue(), juce::sendNotification);
-                l2.setValue(lines[9].getFloatValue(), juce::sendNotification);
-                r3.setValue(lines[10].getFloatValue(), juce::sendNotification);
-                l3.setValue(lines[11].getFloatValue(), juce::sendNotification);
-                r4.setValue(lines[12].getFloatValue(), juce::sendNotification);
-                l4.setValue(lines[13].getFloatValue(), juce::sendNotification);
-                r5.setValue(lines[14].getFloatValue(), juce::sendNotification);
-                l5.setValue(lines[15].getFloatValue(), juce::sendNotification);
-                r6.setValue(lines[16].getFloatValue(), juce::sendNotification);
-                l6.setValue(lines[17].getFloatValue(), juce::sendNotification);
-                r7.setValue(lines[18].getFloatValue(), juce::sendNotification);
-                l7.setValue(lines[19].getFloatValue(), juce::sendNotification);
-                r8.setValue(lines[20].getFloatValue(), juce::sendNotification);
-                l8.setValue(lines[21].getFloatValue(), juce::sendNotification);
-                r9.setValue(lines[22].getFloatValue(), juce::sendNotification);
-                l9.setValue(lines[23].getFloatValue(), juce::sendNotification);
-                r10.setValue(lines[24].getFloatValue(), juce::sendNotification);
-                l10.setValue(lines[25].getFloatValue(), juce::sendNotification);
-                r11.setValue(lines[26].getFloatValue(), juce::sendNotification);
-                l11.setValue(lines[27].getFloatValue(), juce::sendNotification);
+                flag.setToggleState(reader->getBool("flag", flag.getToggleState()), juce::sendNotification);
+                steps.setValue(reader->getInt("steps", (int)steps.getValue()), juce::sendNotification);
+                loop.setToggleState(reader->getBool("loop", loop.getToggleState()), juce::sendNotification);
+                loopTo.setValue(reader->getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
+                loopCount.setValue(reader->getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+                startLevel.setValue(reader->getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+                r1.setValue(reader->getFloat("r1", (float)r1.getValue()), juce::sendNotification);
+                l1.setValue(reader->getFloat("l1", (float)l1.getValue()), juce::sendNotification);
+                r2.setValue(reader->getFloat("r2", (float)r2.getValue()), juce::sendNotification);
+                l2.setValue(reader->getFloat("l2", (float)l2.getValue()), juce::sendNotification);
+                r3.setValue(reader->getFloat("r3", (float)r3.getValue()), juce::sendNotification);
+                l3.setValue(reader->getFloat("l3", (float)l3.getValue()), juce::sendNotification);
+                r4.setValue(reader->getFloat("r4", (float)r4.getValue()), juce::sendNotification);
+                l4.setValue(reader->getFloat("l4", (float)l4.getValue()), juce::sendNotification);
+                r5.setValue(reader->getFloat("r5", (float)r5.getValue()), juce::sendNotification);
+                l5.setValue(reader->getFloat("l5", (float)l5.getValue()), juce::sendNotification);
+                r6.setValue(reader->getFloat("r6", (float)r6.getValue()), juce::sendNotification);
+                l6.setValue(reader->getFloat("l6", (float)l6.getValue()), juce::sendNotification);
+                r7.setValue(reader->getFloat("r7", (float)r7.getValue()), juce::sendNotification);
+                l7.setValue(reader->getFloat("l7", (float)l7.getValue()), juce::sendNotification);
+                r8.setValue(reader->getFloat("r8", (float)r8.getValue()), juce::sendNotification);
+                l8.setValue(reader->getFloat("l8", (float)l8.getValue()), juce::sendNotification);
+                r9.setValue(reader->getFloat("r9", (float)r9.getValue()), juce::sendNotification);
+                l9.setValue(reader->getFloat("l9", (float)l9.getValue()), juce::sendNotification);
+                r10.setValue(reader->getFloat("r10", (float)r10.getValue()), juce::sendNotification);
+                l10.setValue(reader->getFloat("l10", (float)l10.getValue()), juce::sendNotification);
+                r11.setValue(reader->getFloat("r11", (float)r11.getValue()), juce::sendNotification);
+                l11.setValue(reader->getFloat("l11", (float)l11.getValue()), juce::sendNotification);
             }
         });
 }
@@ -690,7 +695,7 @@ void GuiComponentSsgSwPEnv11::exportParams() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportSsgSwEnvParamFile, defaultDir.getChildFile("default.ssgSwPEnv11"), Io::ExtensionGlob::SsgSwPEnvParam11);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportSsgSwEnvParamFile, defaultDir.getChildFile("default.ssgSwPEnv11.json"), Io::ExtensionGlob::SsgSwPEnvParam11);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -699,38 +704,38 @@ void GuiComponentSsgSwPEnv11::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(ssgSwPEnv11Format);
 
-                content += juce::String(flag.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(steps.getValue()) + "\n";
-                content += juce::String(loop.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(loopTo.getValue()) + "\n";
-                content += juce::String(loopCount.getValue()) + "\n";
-                content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r1.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l1.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r2.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l2.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r3.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l3.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r4.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l4.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r5.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l5.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r6.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l6.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r7.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l7.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r8.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l8.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r9.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l9.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r10.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l10.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(r11.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(l11.getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("flag", flag.getToggleState());
+                writer.set("steps", (float)steps.getValue());
+                writer.set("loop", loop.getToggleState());
+                writer.set("loopTo", (float)loopTo.getValue());
+                writer.set("loopCount", (float)loopCount.getValue());
+                writer.set("startLevel", (float)startLevel.getValue());
+                writer.set("r1", (float)r1.getValue());
+                writer.set("l1", (float)l1.getValue());
+                writer.set("r2", (float)r2.getValue());
+                writer.set("l2", (float)l2.getValue());
+                writer.set("r3", (float)r3.getValue());
+                writer.set("l3", (float)l3.getValue());
+                writer.set("r4", (float)r4.getValue());
+                writer.set("l4", (float)l4.getValue());
+                writer.set("r5", (float)r5.getValue());
+                writer.set("l5", (float)l5.getValue());
+                writer.set("r6", (float)r6.getValue());
+                writer.set("l6", (float)l6.getValue());
+                writer.set("r7", (float)r7.getValue());
+                writer.set("l7", (float)l7.getValue());
+                writer.set("r8", (float)r8.getValue());
+                writer.set("l8", (float)l8.getValue());
+                writer.set("r9", (float)r9.getValue());
+                writer.set("l9", (float)l9.getValue());
+                writer.set("r10", (float)r10.getValue());
+                writer.set("l10", (float)l10.getValue());
+                writer.set("r11", (float)r11.getValue());
+                writer.set("l11", (float)l11.getValue());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

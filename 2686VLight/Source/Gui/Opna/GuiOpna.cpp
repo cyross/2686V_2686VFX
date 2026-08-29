@@ -3,6 +3,16 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpna.h"
 
+#include "../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat n88LfoFormat{ "n88Lfo", 1 };
+	const Io::ParamFormat opnaHwLfoFormat{ "opnaHwLfo", 1 };
+	const Io::ParamFormat qualityFormat{ "quality", 1 };
+}
+
 #include "../Components/WavePreview/WavePreviewSource.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
@@ -1903,7 +1913,7 @@ void GuiOpna::importHwLfoParam(int opIndex) {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::OpnaLfoParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::OpnaHwLfoParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
         [this, opIndex](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -1912,19 +1922,16 @@ void GuiOpna::importHwLfoParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, opnaHwLfoFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 6) return;
-
-                freqs[opIndex].setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                syncDelay[opIndex].setValue(lines[1].getIntValue(), juce::sendNotification);
-                pm[opIndex].setToggleState(lines[2].getIntValue() == 1, juce::sendNotification);
-                pms[opIndex].setSelectedItemIndex(lines[3].getIntValue(), juce::sendNotification);
-                am[opIndex].setToggleState(lines[4].getIntValue() == 1, juce::sendNotification);
-                ams[opIndex].setSelectedItemIndex(lines[5].getIntValue(), juce::sendNotification);
+                freqs[opIndex].setSelectedItemIndex(reader->getInt("freq", freqs[opIndex].getSelectedItemIndex()), juce::sendNotification);
+                syncDelay[opIndex].setValue(reader->getInt("syncDelay", (int)syncDelay[opIndex].getValue()), juce::sendNotification);
+                pm[opIndex].setToggleState(reader->getBool("pm", pm[opIndex].getToggleState()), juce::sendNotification);
+                pms[opIndex].setSelectedItemIndex(reader->getInt("pms", pms[opIndex].getSelectedItemIndex()), juce::sendNotification);
+                am[opIndex].setToggleState(reader->getBool("am", am[opIndex].getToggleState()), juce::sendNotification);
+                ams[opIndex].setSelectedItemIndex(reader->getInt("ams", ams[opIndex].getSelectedItemIndex()), juce::sendNotification);
             }
         });
 }
@@ -1935,7 +1942,7 @@ void GuiOpna::exportHwLfoParam(int opIndex) {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpna"), Io::ExtensionGlob::OpnaLfoParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default." + Io::Extension::OpnaHwLfoParam + ".json"), Io::ExtensionGlob::OpnaHwLfoParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this, opIndex](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -1944,16 +1951,16 @@ void GuiOpna::exportHwLfoParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "\n";
+                Io::ParamWriter writer(opnaHwLfoFormat);
 
-                content += juce::String(freqs[opIndex].getSelectedItemIndex()) + "\n";
-                content += juce::String(syncDelay[opIndex].getValue()) + "\n";
-                content += juce::String(pm[opIndex].getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(pms[opIndex].getSelectedItemIndex()) + "\n";
-                content += juce::String(am[opIndex].getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(ams[opIndex].getSelectedItemIndex()) + "\n";
+                writer.set("freq", freqs[opIndex].getSelectedItemIndex());
+                writer.set("syncDelay", (int)syncDelay[opIndex].getValue());
+                writer.set("pm", pm[opIndex].getToggleState());
+                writer.set("pms", pms[opIndex].getSelectedItemIndex());
+                writer.set("am", am[opIndex].getToggleState());
+                writer.set("ams", ams[opIndex].getSelectedItemIndex());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
@@ -1989,25 +1996,24 @@ void GuiOpna::importLfoParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, n88LfoFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 13) return;
+                lfoFreqSlider.setValue(reader->getInt("lfoFreq", (int)lfoFreqSlider.getValue()), juce::sendNotification);
+                lfoShapeSelector.setSelectedItemIndex(reader->getInt("lfoShape", lfoShapeSelector.getSelectedItemIndex()), juce::sendNotification);
+                lfoSyncDelaySlider.setValue(reader->getInt("lfoSyncDelay", (int)lfoSyncDelaySlider.getValue()), juce::sendNotification);
+                lfoPmToggle.setToggleState(reader->getBool("lfoPm", lfoPmToggle.getToggleState()), juce::sendNotification);
+                lfoPmsSlider.setValue(reader->getInt("lfoPms", (int)lfoPmsSlider.getValue()), juce::sendNotification);
+                lfoPmdSlider.setValue(reader->getInt("lfoPmd", (int)lfoPmdSlider.getValue()), juce::sendNotification);
+                lfoAmToggle.setToggleState(reader->getBool("lfoAm", lfoAmToggle.getToggleState()), juce::sendNotification);
+                lfoAmSmRtSlider.setValue(reader->getFloat("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue()), juce::sendNotification);
+                lfoAmdSlider.setValue(reader->getInt("lfoAmd", (int)lfoAmdSlider.getValue()), juce::sendNotification);
 
-                lfoFreqSlider.setValue(lines[0].getIntValue(), juce::sendNotification);
-                lfoShapeSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
-                lfoSyncDelaySlider.setValue(lines[2].getIntValue(), juce::sendNotification);
-                lfoPmToggle.setToggleState(lines[3].getIntValue() == 1, juce::sendNotification);
-                lfoPmsSlider.setValue(lines[4].getIntValue(), juce::sendNotification);
-                lfoPmdSlider.setValue(lines[5].getIntValue(), juce::sendNotification);
-                lfoAmToggle.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
-                lfoAmSmRtSlider.setValue(lines[7].getFloatValue(), juce::sendNotification);
-                lfoAmdSlider.setValue(lines[8].getIntValue(), juce::sendNotification);
+                auto amsValues = reader->getIntArray("n88Ams");
 
-                for (int i = 0; i < OpmPrValue::ops; i++) {
-                    n88Ams[i].setValue(lines[9 + i].getIntValue(), juce::sendNotification);
+                for (int i = 0; i < OpmPrValue::ops && i < (int)amsValues.size(); i++) {
+                    n88Ams[i].setValue(amsValues[(size_t)i], juce::sendNotification);
                 }
             }
         });
@@ -2019,7 +2025,7 @@ void GuiOpna::exportLfoParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoN88"), Io::ExtensionGlob::N88LfoParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default." + Io::Extension::N88LfoParam + ".json"), Io::ExtensionGlob::N88LfoParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -2028,23 +2034,27 @@ void GuiOpna::exportLfoParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "\n";
+                Io::ParamWriter writer(n88LfoFormat);
 
-                content += juce::String(lfoFreqSlider.getValue()) + "\n";
-                content += juce::String(lfoShapeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(lfoSyncDelaySlider.getValue()) + "\n";
-                content += juce::String(lfoPmToggle.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(lfoPmsSlider.getValue()) + "\n";
-                content += juce::String(lfoPmdSlider.getValue()) + "\n";
-                content += juce::String(lfoAmToggle.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(lfoAmSmRtSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(lfoAmdSlider.getValue()) + "\n";
+                writer.set("lfoFreq", (int)lfoFreqSlider.getValue());
+                writer.set("lfoShape", lfoShapeSelector.getSelectedItemIndex());
+                writer.set("lfoSyncDelay", (int)lfoSyncDelaySlider.getValue());
+                writer.set("lfoPm", lfoPmToggle.getToggleState());
+                writer.set("lfoPms", (int)lfoPmsSlider.getValue());
+                writer.set("lfoPmd", (int)lfoPmdSlider.getValue());
+                writer.set("lfoAm", lfoAmToggle.getToggleState());
+                writer.set("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue());
+                writer.set("lfoAmd", (int)lfoAmdSlider.getValue());
+
+                std::vector<int> amsValues;
 
                 for (int i = 0; i < OpmPrValue::ops; i++) {
-                    content += juce::String(n88Ams[i].getValue()) + "\n";
+                    amsValues.push_back((int)n88Ams[i].getValue());
                 }
 
-                file.replaceWithText(content);
+                writer.setArray("n88Ams", amsValues);
+
+                writer.writeTo(file);
             }
         });
 }
@@ -2064,15 +2074,12 @@ void GuiOpna::importQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, qualityFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 2) return;
-
-                qualityComponent.setBit(lines[0].getIntValue());
-                qualityComponent.setRate(lines[1].getIntValue());
+                qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
+                qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
             }
         });
 }
@@ -2083,7 +2090,7 @@ void GuiOpna::exportQualityParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default." + Io::Extension::QualityParamNew), Io::ExtensionGlob::QualityParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -2092,12 +2099,12 @@ void GuiOpna::exportQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(qualityFormat);
 
-                content += juce::String(qualityComponent.getBit()) + "\n";
-                content += juce::String(qualityComponent.getRate()) + "\n";
+                writer.set("bit", qualityComponent.getBit());
+                writer.set("rate", qualityComponent.getRate());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

@@ -3,6 +3,15 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpl3.h"
 
+#include "../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat oplLfoFormat{ "oplLfo", 1 };
+	const Io::ParamFormat qualityFormat{ "quality", 1 };
+}
+
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
@@ -1464,19 +1473,16 @@ void GuiOpl3::importLfoParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, oplLfoFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 6) return;
-
-                vib[opIndex].setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
-                pms[opIndex].setValue(lines[1].getFloatValue(), juce::sendNotification);
-                pmd[opIndex].setValue(lines[2].getFloatValue(), juce::sendNotification);
-                am[opIndex].setToggleState(lines[3].getIntValue() == 1, juce::sendNotification);
-                ams[opIndex].setValue(lines[4].getFloatValue(), juce::sendNotification);
-                amd[opIndex].setValue(lines[5].getFloatValue(), juce::sendNotification);
+                vib[opIndex].setToggleState(reader->getBool("vib", vib[opIndex].getToggleState()), juce::sendNotification);
+                pms[opIndex].setValue(reader->getFloat("pms", (float)pms[opIndex].getValue()), juce::sendNotification);
+                pmd[opIndex].setValue(reader->getFloat("pmd", (float)pmd[opIndex].getValue()), juce::sendNotification);
+                am[opIndex].setToggleState(reader->getBool("am", am[opIndex].getToggleState()), juce::sendNotification);
+                ams[opIndex].setValue(reader->getFloat("ams", (float)ams[opIndex].getValue()), juce::sendNotification);
+                amd[opIndex].setValue(reader->getFloat("amd", (float)amd[opIndex].getValue()), juce::sendNotification);
             }
         });
 }
@@ -1487,7 +1493,7 @@ void GuiOpl3::exportLfoParam(int opIndex) {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpl"), Io::ExtensionGlob::OplLfoParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpl.json"), Io::ExtensionGlob::OplLfoParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this, opIndex](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -1496,16 +1502,16 @@ void GuiOpl3::exportLfoParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(oplLfoFormat);
 
-                content += juce::String(vib[opIndex].getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(pms[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(pmd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(am[opIndex].getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(ams[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(amd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("vib", vib[opIndex].getToggleState());
+                writer.set("pms", (float)pms[opIndex].getValue());
+                writer.set("pmd", (float)pmd[opIndex].getValue());
+                writer.set("am", am[opIndex].getToggleState());
+                writer.set("ams", (float)ams[opIndex].getValue());
+                writer.set("amd", (float)amd[opIndex].getValue());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
@@ -1541,15 +1547,12 @@ void GuiOpl3::importQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, qualityFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 2) return;
-
-                qualityComponent.setBit(lines[0].getIntValue());
-                qualityComponent.setRate(lines[1].getIntValue());
+                qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
+                qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
             }
         });
 }
@@ -1560,7 +1563,7 @@ void GuiOpl3::exportQualityParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default." + Io::Extension::QualityParamNew), Io::ExtensionGlob::QualityParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -1569,12 +1572,12 @@ void GuiOpl3::exportQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(qualityFormat);
 
-                content += juce::String(qualityComponent.getBit()) + "\n";
-                content += juce::String(qualityComponent.getRate()) + "\n";
+                writer.set("bit", qualityComponent.getBit());
+                writer.set("rate", qualityComponent.getRate());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
