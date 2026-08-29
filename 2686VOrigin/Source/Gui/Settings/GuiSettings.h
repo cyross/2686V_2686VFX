@@ -36,6 +36,9 @@ class GuiSettings : public GuiBase
     NormalSeparator separator2;
 
     // Directories
+    // 17 行あって画面を占めるので、まとめて畳めるようにしている。
+    // 見出しはカテゴリラベルを流用するが、板は敷かない。
+    GuiCategoryLabel dirCat;
     GuiLabel sampleDirLabel;
     GuiLabel sampleDirPathLabel;
     GuiTextButton sampleDirBrowseBtn;
@@ -135,6 +138,7 @@ public:
         wallpaperClearBtn(context),
         wallpaperModeSelector(context),
         separator2(context),
+        dirCat(context),
         sampleDirLabel(context),
         sampleDirPathLabel(context),
         sampleDirBrowseBtn(context),

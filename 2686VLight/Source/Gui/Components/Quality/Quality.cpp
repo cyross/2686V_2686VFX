@@ -39,7 +39,7 @@ std::vector<SelectItem> Quality::rateItems = {
 };
 
 void Quality::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
-    qualityCat.setupHwCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true});
+    qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
 
     bitSelector.setup({ .parent = parent, .id = code + CPK::Quality::bit, .title = "BIT", .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);

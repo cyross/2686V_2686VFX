@@ -1,4 +1,5 @@
-﻿#include "./GuiAdpcm.h"
+﻿#include "../../Core/Editor/EditorGuiValues.h"
+#include "./GuiAdpcm.h"
 
 #include "../Components/WavePreview/WavePreviewSource.h"
 
@@ -249,6 +250,10 @@ void GuiAdpcm::setup()
 void GuiAdpcm::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
+
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
 
     auto mainArea = pageArea.removeFromLeft(AdpcmGuiValue::MainGroup::width);
     mainArea.removeFromBottom(40);

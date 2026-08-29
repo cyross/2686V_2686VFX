@@ -1,6 +1,7 @@
 ﻿#include <array>
 #include <vector>
 
+#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiSettings.h"
 
 #include "../../Core/Editor/PluginEditor.h"
@@ -136,6 +137,10 @@ void GuiSettings::setup()
     separator2.setupComponent(*this);
 
     // --- ADPCM Dir ---
+    // フォルダ設定はまとめて畳めるようにする。板は敷かないので、
+    // 見出しの下に中身が続くだけの形になる。
+    dirCat.setupCategory({ .parent = *this, .title = juce::String("") + "フォルダ設定(開閉)", .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
+    
     setupFolderRow(sampleDirLabel, juce::String("") + "サンプルファイルディレクトリ:", sampleDirPathLabel, sampleDirBrowseBtn);
     sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
     sampleDirPathLabel.setWantsKeyboardFocus(false);
@@ -653,6 +658,10 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     int separatorHeight = 20;
     auto pageArea = content.withZeroOrigin();
 
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
+
     mainGroup.setBounds(pageArea);
 
     auto sRect = pageArea.reduced(SettingsGuiValue::Group::Padding::width, SettingsGuiValue::Group::Padding::height);
@@ -681,116 +690,176 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     separator2.layoutComponent(sRect);
 
-    // 4. ADPCM Dir
-    auto rowAdpcmDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    sampleDirPathLabel.setBounds(rowAdpcmDir);
+    // ---------------- フォルダ設定 ----------------
+    // 行数が多いので、まとめて畳めるようにしてある。閉じているときは
+    // 隠すだけでなく、場所も取らないようにする。
+    auto dirCatRow = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+    // 見出しだけラベル幅では窮屈なので、行の中で広めに取る
+    dirCat.setBounds(dirCatRow.removeFromLeft(SettingsGuiValue::Settings::LabelWidth * 3));
 
     sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 5. Preset Dir
-    auto rowPresetDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    presetDirLabel.setBounds(rowPresetDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    presetDirPathLabel.setBounds(rowPresetDir);
+    bool dirVisible = dirCat.isDetailVisible();
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+    ampEnvParamDirLabel.setVisible(dirVisible);
+    ampEnvParamDirPathLabel.setVisible(dirVisible);
+    ampEnvParamDirBrowseBtn.setVisible(dirVisible);
+    detuneParamDirLabel.setVisible(dirVisible);
+    detuneParamDirPathLabel.setVisible(dirVisible);
+    detuneParamDirBrowseBtn.setVisible(dirVisible);
+    fxOrderDirLabel.setVisible(dirVisible);
+    fxOrderDirPathLabel.setVisible(dirVisible);
+    fxOrderDirBrowseBtn.setVisible(dirVisible);
+    fxParamDirLabel.setVisible(dirVisible);
+    fxParamDirPathLabel.setVisible(dirVisible);
+    fxParamDirBrowseBtn.setVisible(dirVisible);
+    lfoParamDirLabel.setVisible(dirVisible);
+    lfoParamDirPathLabel.setVisible(dirVisible);
+    lfoParamDirBrowseBtn.setVisible(dirVisible);
+    pcmPlayParamDirLabel.setVisible(dirVisible);
+    pcmPlayParamDirPathLabel.setVisible(dirVisible);
+    pcmPlayParamDirBrowseBtn.setVisible(dirVisible);
+    pitchEnvParamDirLabel.setVisible(dirVisible);
+    pitchEnvParamDirPathLabel.setVisible(dirVisible);
+    pitchEnvParamDirBrowseBtn.setVisible(dirVisible);
+    presetDirLabel.setVisible(dirVisible);
+    presetDirPathLabel.setVisible(dirVisible);
+    presetDirBrowseBtn.setVisible(dirVisible);
+    qualityParamDirLabel.setVisible(dirVisible);
+    qualityParamDirPathLabel.setVisible(dirVisible);
+    qualityParamDirBrowseBtn.setVisible(dirVisible);
+    sampleDirLabel.setVisible(dirVisible);
+    sampleDirPathLabel.setVisible(dirVisible);
+    sampleDirBrowseBtn.setVisible(dirVisible);
+    ssgHwEnvParamDirLabel.setVisible(dirVisible);
+    ssgHwEnvParamDirPathLabel.setVisible(dirVisible);
+    ssgHwEnvParamDirBrowseBtn.setVisible(dirVisible);
+    ssgSwEnvParamDirLabel.setVisible(dirVisible);
+    ssgSwEnvParamDirPathLabel.setVisible(dirVisible);
+    ssgSwEnvParamDirBrowseBtn.setVisible(dirVisible);
+    toneNoiseParamDirLabel.setVisible(dirVisible);
+    toneNoiseParamDirPathLabel.setVisible(dirVisible);
+    toneNoiseParamDirBrowseBtn.setVisible(dirVisible);
+    unisonParamDirLabel.setVisible(dirVisible);
+    unisonParamDirPathLabel.setVisible(dirVisible);
+    unisonParamDirBrowseBtn.setVisible(dirVisible);
 
-    // 6. FX Order Dir
-    auto rowFxOrderDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    fxOrderDirLabel.setBounds(rowFxOrderDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    fxOrderDirBrowseBtn.setBounds(rowFxOrderDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    fxOrderDirPathLabel.setBounds(rowFxOrderDir);
+    if (dirVisible)
+    {
+        // 4. ADPCM Dir
+        auto rowAdpcmDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        sampleDirPathLabel.setBounds(rowAdpcmDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 7. FX Param Dir
-    auto rowFxParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    fxParamDirLabel.setBounds(rowFxParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    fxParamDirBrowseBtn.setBounds(rowFxParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    fxParamDirPathLabel.setBounds(rowFxParamDir);
+        // 5. Preset Dir
+        auto rowPresetDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        presetDirLabel.setBounds(rowPresetDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        presetDirPathLabel.setBounds(rowPresetDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 8. LFO Param Dir
-    auto rowLfoParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    lfoParamDirLabel.setBounds(rowLfoParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    lfoParamDirBrowseBtn.setBounds(rowLfoParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    lfoParamDirPathLabel.setBounds(rowLfoParamDir);
+        // 6. FX Order Dir
+        auto rowFxOrderDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        fxOrderDirLabel.setBounds(rowFxOrderDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        fxOrderDirBrowseBtn.setBounds(rowFxOrderDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        fxOrderDirPathLabel.setBounds(rowFxOrderDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 9. Amp Env Param Dir
-    auto rowAmpEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    ampEnvParamDirLabel.setBounds(rowAmpEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    ampEnvParamDirBrowseBtn.setBounds(rowAmpEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    ampEnvParamDirPathLabel.setBounds(rowAmpEnvParamDir);
+        // 7. FX Param Dir
+        auto rowFxParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        fxParamDirLabel.setBounds(rowFxParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        fxParamDirBrowseBtn.setBounds(rowFxParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        fxParamDirPathLabel.setBounds(rowFxParamDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 10. Pitch Env Param Dir
-    auto rowPitchEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    pitchEnvParamDirLabel.setBounds(rowPitchEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    pitchEnvParamDirBrowseBtn.setBounds(rowPitchEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    pitchEnvParamDirPathLabel.setBounds(rowPitchEnvParamDir);
+        // 8. LFO Param Dir
+        auto rowLfoParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        lfoParamDirLabel.setBounds(rowLfoParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        lfoParamDirBrowseBtn.setBounds(rowLfoParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        lfoParamDirPathLabel.setBounds(rowLfoParamDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 11. Ssg Sw Env Param Dir
-    auto rowSsgSwEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    ssgSwEnvParamDirLabel.setBounds(rowSsgSwEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    ssgSwEnvParamDirBrowseBtn.setBounds(rowSsgSwEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    ssgSwEnvParamDirPathLabel.setBounds(rowSsgSwEnvParamDir);
+        // 9. Amp Env Param Dir
+        auto rowAmpEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        ampEnvParamDirLabel.setBounds(rowAmpEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        ampEnvParamDirBrowseBtn.setBounds(rowAmpEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        ampEnvParamDirPathLabel.setBounds(rowAmpEnvParamDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 12. Ssg Hw Env Param Dir
-    auto rowSsgHwEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    ssgHwEnvParamDirLabel.setBounds(rowSsgHwEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    ssgHwEnvParamDirBrowseBtn.setBounds(rowSsgHwEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    ssgHwEnvParamDirPathLabel.setBounds(rowSsgHwEnvParamDir);
+        // 10. Pitch Env Param Dir
+        auto rowPitchEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        pitchEnvParamDirLabel.setBounds(rowPitchEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        pitchEnvParamDirBrowseBtn.setBounds(rowPitchEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        pitchEnvParamDirPathLabel.setBounds(rowPitchEnvParamDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 13. Detune Param Dir
-    auto rowDetuneParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    detuneParamDirLabel.setBounds(rowDetuneParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    detuneParamDirBrowseBtn.setBounds(rowDetuneParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    detuneParamDirPathLabel.setBounds(rowDetuneParamDir);
+        // 11. Ssg Sw Env Param Dir
+        auto rowSsgSwEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        ssgSwEnvParamDirLabel.setBounds(rowSsgSwEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        ssgSwEnvParamDirBrowseBtn.setBounds(rowSsgSwEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        ssgSwEnvParamDirPathLabel.setBounds(rowSsgSwEnvParamDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 14. Unison Param Dir
-    auto rowUnisonParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    unisonParamDirLabel.setBounds(rowUnisonParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    unisonParamDirBrowseBtn.setBounds(rowUnisonParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    unisonParamDirPathLabel.setBounds(rowUnisonParamDir);
+        // 12. Ssg Hw Env Param Dir
+        auto rowSsgHwEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        ssgHwEnvParamDirLabel.setBounds(rowSsgHwEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        ssgHwEnvParamDirBrowseBtn.setBounds(rowSsgHwEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        ssgHwEnvParamDirPathLabel.setBounds(rowSsgHwEnvParamDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 15. Quality Param Dir
-    auto rowQualityParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    qualityParamDirLabel.setBounds(rowQualityParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    qualityParamDirBrowseBtn.setBounds(rowQualityParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    qualityParamDirPathLabel.setBounds(rowQualityParamDir);
+        // 13. Detune Param Dir
+        auto rowDetuneParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        detuneParamDirLabel.setBounds(rowDetuneParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        detuneParamDirBrowseBtn.setBounds(rowDetuneParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        detuneParamDirPathLabel.setBounds(rowDetuneParamDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 16. PCM Play Param Dir
-    auto rowPcmPlayParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    pcmPlayParamDirLabel.setBounds(rowPcmPlayParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    pcmPlayParamDirBrowseBtn.setBounds(rowPcmPlayParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    pcmPlayParamDirPathLabel.setBounds(rowPcmPlayParamDir);
+        // 14. Unison Param Dir
+        auto rowUnisonParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        unisonParamDirLabel.setBounds(rowUnisonParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        unisonParamDirBrowseBtn.setBounds(rowUnisonParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        unisonParamDirPathLabel.setBounds(rowUnisonParamDir);
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 17. Tone / Noise Param Dir
-    auto rowToneNoiseParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    toneNoiseParamDirLabel.setBounds(rowToneNoiseParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    toneNoiseParamDirBrowseBtn.setBounds(rowToneNoiseParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    toneNoiseParamDirPathLabel.setBounds(rowToneNoiseParamDir);
+        // 15. Quality Param Dir
+        auto rowQualityParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        qualityParamDirLabel.setBounds(rowQualityParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        qualityParamDirBrowseBtn.setBounds(rowQualityParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        qualityParamDirPathLabel.setBounds(rowQualityParamDir);
 
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 16. PCM Play Param Dir
+        auto rowPcmPlayParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        pcmPlayParamDirLabel.setBounds(rowPcmPlayParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        pcmPlayParamDirBrowseBtn.setBounds(rowPcmPlayParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        pcmPlayParamDirPathLabel.setBounds(rowPcmPlayParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 17. Tone / Noise Param Dir
+        auto rowToneNoiseParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        toneNoiseParamDirLabel.setBounds(rowToneNoiseParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        toneNoiseParamDirBrowseBtn.setBounds(rowToneNoiseParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        toneNoiseParamDirPathLabel.setBounds(rowToneNoiseParamDir);
+
+    }
+
+    // 区切り線はフォルダ設定の外。畳んでも下の設定との境目は残す。
     separator3.layoutComponent(sRect);
 
     // 18. Tooltip Visible Row

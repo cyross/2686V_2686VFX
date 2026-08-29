@@ -1,5 +1,6 @@
 ﻿#include <vector>
 
+#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiCurve.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
@@ -535,6 +536,10 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     const int graphWidth = 400;
     const int graphHeight = 400;
     auto pageArea = content.withZeroOrigin();
+
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
     int t = target.getSelectedItemIndex();
     int vpLen = paramLengthes[t];
     int px = CurveGuiValue::CurveGroup::Row::Padding::x;

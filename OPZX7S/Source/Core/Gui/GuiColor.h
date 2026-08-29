@@ -29,6 +29,33 @@ namespace GuiColor {
 		// ダイアログの OK ボタンで同じ色を共有する。
 		static inline const juce::Colour SliderBarBlue = juce::Colours::blue.interpolatedWith(juce::Colours::white, 0.8f);
 		static inline const juce::Colour DialogOkBackBlue = SliderBarBlue;
+
+		// ------------------------------------------------------------------
+		// 実機由来の色
+		// ------------------------------------------------------------------
+		// 当時の機種の筐体やラベルから採った色。UI の既定では使わないが、
+		// 色をカスタマイズするときの選択肢として名前を与えておく。
+		// 行末のコメントは画面に出す表示名。
+		namespace Retro {
+			static inline const juce::Colour P66mk2Body   = juce::Colour::fromRGB(0xB0, 0xB9, 0xBE); // P66mk2 Body    PC-6601mk2 の筐体色
+			static inline const juce::Colour P66mk2Label  = juce::Colour::fromRGB(0x61, 0x68, 0x70); // P66mk2 Label   PC-6601mk2 のラベル背景色
+			static inline const juce::Colour P66mk2Key    = juce::Colour::fromRGB(0xB6, 0xB1, 0x94); // P66mk2 Key     PC-6601mk2 のキー色
+			static inline const juce::Colour P66mk2FncKey = juce::Colour::fromRGB(0x5D, 0x58, 0x52); // P66mk2 FncKey  PC-6601mk2 のファンクションキー色
+			static inline const juce::Colour Pc88Ma2Hd    = juce::Colour::fromRGB(0xF7, 0xA1, 0x0C); // PC88MA2 2HD    PC-8801MA2 の「2HD」ラベル背景色
+			static inline const juce::Colour Pc98FBody2   = juce::Colour::fromRGB(0x47, 0x42, 0x3E); // PC98F Body2    PC-9801F の筐体に入っていた灰色
+			static inline const juce::Colour Pc98RxBody   = juce::Colour::fromRGB(0xB1, 0xB2, 0xAB); // PC98RX Body    PC-9801RX21 の筐体色
+			static inline const juce::Colour Pc98RxLogo   = juce::Colour::fromRGB(0x36, 0x35, 0x39); // PC98RX Logo    PC-9801RX21 のロゴ色
+			static inline const juce::Colour MdGold       = juce::Colour::fromRGB(0xD0, 0xA6, 0x70); // MD Gold        メガドライブの「16-BIT」の文字色
+			static inline const juce::Colour MdBody2      = juce::Colour::fromRGB(0x9E, 0x2B, 0x58); // MD Body2       メガドライブの差し色のマゼンタ
+			static inline const juce::Colour MdSwitch     = juce::Colour::fromRGB(0x00, 0x68, 0xAB); // MD Switch      メガドライブのスイッチの青
+			static inline const juce::Colour PceLogo      = juce::Colour::fromRGB(0xFF, 0x5C, 0x42); // PCE Logo       PC エンジンのロゴのオレンジ
+			static inline const juce::Colour PceBody2     = juce::Colour::fromRGB(0x65, 0x64, 0x64); // PCE Body2      PC エンジンのコントローラーの灰色
+			static inline const juce::Colour PceBody      = juce::Colour::fromRGB(0xE8, 0xE7, 0xE4); // PCE Body       初代 PC エンジンの筐体の白
+			static inline const juce::Colour FcLabel      = juce::Colour::fromRGB(0xCF, 0x29, 0x37); // FC Label       初代ファミコンのレバーやカバーの赤
+			static inline const juce::Colour FcGold       = juce::Colour::fromRGB(0xD1, 0xB6, 0x8C); // FC Gold        初代ファミコンのロゴの金
+			static inline const juce::Colour GbScrOn      = juce::Colour::fromRGB(0x33, 0x52, 0x3A); // GB SCR ON      初代ゲームボーイの液晶 (点灯)
+			static inline const juce::Colour GbScrOff     = juce::Colour::fromRGB(0x89, 0x97, 0x28); // GB SCR OFF     初代ゲームボーイの液晶 (消灯)
+		};
 	};
 
 	static inline const juce::Colour defaultFgColor = juce::Colours::white.withAlpha(0.8f);
@@ -100,6 +127,14 @@ namespace GuiColor {
 		static inline const juce::Colour HwBg = juce::Colours::yellow.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f);
 		static inline const juce::Colour SwBg = juce::Colours::aqua.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f);
 		static inline const juce::Colour OtherBg = juce::Colours::lime.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f);
+
+		// 音質にかかわるカテゴリ。他の区分と並んだときに一目で分かるよう、
+		// ハード / ソフト / その他とは別の色相を当てる。
+		static inline const juce::Colour QualityBg = juce::Colours::red.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f);
+
+		// SETTINGS の見出し。設定画面はカテゴリの色分けを持たないので、
+		// 色味のない明るい地に置く。
+		static inline const juce::Colour SettingsBg = Palette::OffWhite;
 
 		// カテゴリを開いたとき、中身の背後へ敷く色。
 		static inline const juce::Colour ContentBg = juce::Colours::black.withAlpha(0.5f);

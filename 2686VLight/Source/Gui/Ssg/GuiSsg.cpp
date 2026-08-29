@@ -1,5 +1,6 @@
 ﻿#include <vector>
 
+#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiSsg.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
@@ -236,6 +237,10 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 {
     juce::String code = SsgPrKey::prefix;
     auto pageArea = content.withZeroOrigin();
+
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
 
     auto mainArea = pageArea.removeFromLeft(SsgGuiValue::MainGroup::width);
     mainArea.removeFromBottom(40);

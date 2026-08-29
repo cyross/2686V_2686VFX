@@ -60,7 +60,7 @@ std::vector<SelectItem> QualityPcm::interpItems = {
 };
 
 void QualityPcm::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
-    qualityCat.setupHwCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true });
+    qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
 
     modeSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::mode, .title = "BIT", .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
