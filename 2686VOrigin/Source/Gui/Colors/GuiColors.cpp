@@ -1,5 +1,7 @@
 ﻿#include "./GuiColors.h"
 
+#include "./RetroPalette.h"
+
 #include "../../Core/Editor/PluginEditor.h"
 
 void GuiColors::setup()
@@ -90,10 +92,149 @@ void GuiColors::rebuildRows()
 	table.updateContent();
 }
 
-// 1 行ぶんの色を変えるダイアログ。
+// ============================================================================
+// 色の変更ダイアログの中身
+// ============================================================================
+// 色を決める道を 3 つ並べる。
 //
-// JUCE の ColourSelector が RGB と色空間 (HSV) を持っているので、
-// 色の指定そのものはそれに任せる。名前から選ぶ道も併せて用意する。
+//   1. 色名から選ぶ    … 名前の付いた色をそのまま当てる
+//   2. 実機のパレット  … 当時の機種が出せた色から選ぶ
+//   3. ColourSelector … RGB と色空間で好きに作る
+//
+// どれで選んでも行き先は ColourSelector なので、最後は必ずそこの色が
+// 採用される。上の 2 つは入口を増やしているだけ。
+class ColorEditorPanel : public juce::Component
+{
+	juce::ColourSelector selector;
+
+	juce::Label nameLabel;
+	juce::ComboBox nameBox;
+
+	juce::Label paletteLabel;
+	juce::ComboBox paletteBox;
+
+	juce::Viewport paletteView;
+	RetroPalette palette;
+
+	// 名前の一覧。選択肢の番号から引くために持っておく。
+	std::vector<std::pair<juce::String, juce::Colour>> names;
+public:
+	ColorEditorPanel(juce::Colour initial) :
+		selector(juce::ColourSelector::showColourAtTop
+			| juce::ColourSelector::showSliders
+			| juce::ColourSelector::showColourspace)
+	{
+		addAndMakeVisible(selector);
+		selector.setCurrentColour(initial);
+
+		// ---- 色名から選ぶ ----
+		addAndMakeVisible(nameLabel);
+		nameLabel.setText(ColorsGuiText::Dialog::nameList, juce::dontSendNotification);
+		nameLabel.setJustificationType(juce::Justification::centredLeft);
+
+		addAndMakeVisible(nameBox);
+		nameBox.addItem(ColorsGuiText::Dialog::nameNone, 1);
+
+		names = GuiColor::namedColours();
+
+		for (int i = 0; i < (int)names.size(); ++i) {
+			nameBox.addItem(names[(size_t)i].first, i + 2);
+		}
+
+		nameBox.setSelectedId(1, juce::dontSendNotification);
+
+		nameBox.onChange = [this] {
+			int index = nameBox.getSelectedId() - 2;
+
+			if (index < 0 || index >= (int)names.size()) return;
+
+			selector.setCurrentColour(names[(size_t)index].second);
+			};
+
+		// ---- 実機のパレットから選ぶ ----
+		addAndMakeVisible(paletteLabel);
+		paletteLabel.setText(ColorsGuiText::Dialog::palette, juce::dontSendNotification);
+		paletteLabel.setJustificationType(juce::Justification::centredLeft);
+
+		addAndMakeVisible(paletteBox);
+
+		for (int i = 0; i < (int)machines.size(); ++i) {
+			paletteBox.addItem(RetroPalette::name(machines[(size_t)i]), i + 1);
+		}
+
+		paletteBox.setSelectedId(1, juce::dontSendNotification);
+
+		paletteBox.onChange = [this] {
+			int index = paletteBox.getSelectedId() - 1;
+
+			if (index < 0 || index >= (int)machines.size()) return;
+
+			setPalette(machines[(size_t)index]);
+			};
+
+		addAndMakeVisible(paletteView);
+		paletteView.setViewedComponent(&palette, false);
+		paletteView.setScrollBarsShown(true, true);
+
+		palette.onColourPicked = [this](juce::Colour colour) {
+			selector.setCurrentColour(colour);
+			};
+
+		setPalette(machines[0]);
+
+		setSize(ColorsGuiValue::Editor::width,
+			ColorsGuiValue::Row::height * 2
+			+ ColorsGuiValue::Row::padding * 3
+			+ ColorsGuiValue::Editor::selectorHeight
+			+ ColorsGuiValue::Editor::paletteHeight);
+	}
+
+	juce::Colour currentColour() const { return selector.getCurrentColour(); }
+
+	void resized() override
+	{
+		auto area = getLocalBounds();
+
+		auto nameRow = area.removeFromTop(ColorsGuiValue::Row::height);
+		nameLabel.setBounds(nameRow.removeFromLeft(ColorsGuiValue::Editor::labelWidth));
+		nameBox.setBounds(nameRow);
+
+		area.removeFromTop(ColorsGuiValue::Row::padding);
+
+		auto paletteRow = area.removeFromTop(ColorsGuiValue::Row::height);
+		paletteLabel.setBounds(paletteRow.removeFromLeft(ColorsGuiValue::Editor::labelWidth));
+		paletteBox.setBounds(paletteRow);
+
+		area.removeFromTop(ColorsGuiValue::Row::padding);
+
+		paletteView.setBounds(area.removeFromTop(ColorsGuiValue::Editor::paletteHeight));
+
+		area.removeFromTop(ColorsGuiValue::Row::padding);
+
+		selector.setBounds(area);
+	}
+private:
+	// 並べる順番。色数の少ないものから。
+	static inline const std::vector<RetroPalette::Machine> machines = {
+		RetroPalette::Machine::Pc8801,
+		RetroPalette::Machine::PcEngine,
+		RetroPalette::Machine::MegaDrive,
+		RetroPalette::Machine::Pc9801,
+		RetroPalette::Machine::X68000,
+	};
+
+	void setPalette(RetroPalette::Machine machine)
+	{
+		palette.setMachine(machine);
+
+		// 窓より大きいときは中で送れるよう、実寸で置く
+		int width = RetroPalette::columns(machine) * 10;
+
+		palette.setSize(width, palette.preferredHeight(width));
+	}
+};
+
+// 1 行ぶんの色を変えるダイアログ。
 void GuiColors::openEditor(int row)
 {
 	if (row < 0 || row >= (int)ids.size()) return;
@@ -109,20 +250,9 @@ void GuiColors::openEditor(int row)
 		juce::String(),
 		juce::MessageBoxIconType::NoIcon);
 
-	auto selector = std::make_unique<juce::ColourSelector>(
-		juce::ColourSelector::showColourAtTop
-		| juce::ColourSelector::showSliders
-		| juce::ColourSelector::showColourspace);
+	auto panel = std::make_shared<ColorEditorPanel>(it->second->get());
 
-	selector->setCurrentColour(it->second->get());
-	selector->setSize(300, 300);
-
-	auto* selectorPtr = selector.get();
-
-	window->addCustomComponent(selectorPtr);
-
-	// 所有権はダイアログへ渡らないので、閉じるまでこちらで抱える
-	auto keep = std::shared_ptr<juce::ColourSelector>(selector.release());
+	window->addCustomComponent(panel.get());
 
 	window->addButton(ColorsGuiText::Dialog::apply, 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
 	window->addButton(ColorsGuiText::Dialog::reset, 2);
@@ -130,9 +260,10 @@ void GuiColors::openEditor(int row)
 
 	GuiDialog::styleButtons(*window);
 
+	// 所有権はダイアログへ渡らないので、閉じるまでこちらで抱える
 	window->enterModalState(true, juce::ModalCallbackFunction::create(
-		[this, id, keep, selectorPtr](int result) {
-			if (result == 1) GuiColor::setColour(id, selectorPtr->getCurrentColour());
+		[this, id, panel](int result) {
+			if (result == 1) GuiColor::setColour(id, panel->currentColour());
 			else if (result == 2) GuiColor::resetColour(id);
 
 			table.updateContent();

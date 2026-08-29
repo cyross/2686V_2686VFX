@@ -29,4 +29,19 @@ namespace ColorsGuiValue
 	{
 		static inline constexpr int width = 140;
 	}
+
+	// 色の変更ダイアログ
+	namespace Editor
+	{
+		static inline constexpr int width = 620;
+
+		// JUCE の ColourSelector に渡す高さ
+		static inline constexpr int selectorHeight = 260;
+
+		// パレットを覗く窓の高さ。全部は入らないので中で送る。
+		static inline constexpr int paletteHeight = 150;
+
+		// 選択肢の左に置く見出しの幅
+		static inline constexpr int labelWidth = 170;
+	}
 }

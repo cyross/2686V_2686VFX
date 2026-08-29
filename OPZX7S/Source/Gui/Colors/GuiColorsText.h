@@ -20,6 +20,10 @@ namespace ColorsGuiText
 	{
 		static inline const juce::String title = u8"色の変更";
 		static inline const juce::String nameList = u8"色名から選ぶ";
+		static inline const juce::String palette = u8"実機のパレットから選ぶ";
+
+		// 色名リストの先頭に置く、何も選んでいない状態
+		static inline const juce::String nameNone = u8"(選択なし)";
 		static inline const juce::String apply = u8"決定";
 		static inline const juce::String cancel = u8"キャンセル";
 		static inline const juce::String reset = u8"既定へ戻す";

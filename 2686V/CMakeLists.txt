@@ -569,6 +569,8 @@ set(COLORS_GUI_FILES
     "Source/Gui/Colors/GuiColors.cpp"
     "Source/Gui/Colors/GuiColorsText.h"
     "Source/Gui/Colors/GuiColorsValues.h"
+    "Source/Gui/Colors/RetroPalette.h"
+    "Source/Gui/Colors/RetroPalette.cpp"
 )
 
 set(ABOUT_GUI_FILES
