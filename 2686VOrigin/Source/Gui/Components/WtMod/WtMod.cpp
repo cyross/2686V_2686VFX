@@ -252,26 +252,30 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
         this->updateModPreview();
         };
 
-    waveWtBtn.setup({ .parent = parent, .title = "WT", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
-    waveWtBtn.setWantsKeyboardFocus(true);
-    waveWtBtn.setExplicitFocusOrder(++tabOrder);
-    waveWtBtn.onClick = [this] { importWave(false); };
+    // 読み込み行とプレビューをスロットの数だけ作る
+    for (int i = 0; i < Global::WtMod::slots; ++i)
+    {
+        slotWtBtn[i].setup({ .parent = parent, .title = "WT", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+        slotWtBtn[i].setWantsKeyboardFocus(true);
+        slotWtBtn[i].setExplicitFocusOrder(++tabOrder);
+        slotWtBtn[i].onClick = [this, i] { importWave(i, false); };
 
-    waveWt2Btn.setup({ .parent = parent, .title = "W2", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
-    waveWt2Btn.setWantsKeyboardFocus(true);
-    waveWt2Btn.setExplicitFocusOrder(++tabOrder);
-    waveWt2Btn.onClick = [this] { importWave(true); };
+        slotWt2Btn[i].setup({ .parent = parent, .title = "W2", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+        slotWt2Btn[i].setWantsKeyboardFocus(true);
+        slotWt2Btn[i].setExplicitFocusOrder(++tabOrder);
+        slotWt2Btn[i].onClick = [this, i] { importWave(i, true); };
 
-    waveClearBtn.setup({ .parent = parent, .title = "Clear", .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
-    waveClearBtn.setWantsKeyboardFocus(true);
-    waveClearBtn.setExplicitFocusOrder(++tabOrder);
-    waveClearBtn.onClick = [this] { clearWave(); };
+        slotClearBtn[i].setup({ .parent = parent, .title = "Clear", .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
+        slotClearBtn[i].setWantsKeyboardFocus(true);
+        slotClearBtn[i].setExplicitFocusOrder(++tabOrder);
+        slotClearBtn[i].onClick = [this, i] { clearWave(i); };
 
-    waveFileNameLabel.setup({ .parent = parent, .title = Io::empty });
+        slotFileNameLabel[i].setup({ .parent = parent, .title = Io::empty });
 
-    updateWaveFileName(currentWavePath().isEmpty()
-        ? Io::empty
-        : juce::File(currentWavePath()).getFileName());
+        slotPreview[i].setup(parent, GuiColor::WavePreview::WaveMemory);
+
+        updateSlotFileName(i);
+    }
 
     waveSmoothBtn.setup({ .parent = parent, .id = code + CPK::WtMod::waveSmooth, .title = "Smooth", .isReset = true, .isResized = true });
     waveSmoothBtn.setWantsKeyboardFocus(true);
@@ -287,8 +291,16 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     waveSmoothBtn.onClick = [this, relayoutOnSmooth] {
         if (relayoutOnSmooth) relayoutOnSmooth();
 
-        this->reapplyWaveFile();
+        this->reapplyWaveFiles();
         };
+
+    // 使うスロットの切り替え。パラメータなので演奏中でも動かせる。
+    waveSlotSlider.setup({ .parent = parent, .id = code + CPK::WtMod::waveSlot, .title = "SLOT", .isReset = true });
+    waveSlotSlider.setWantsKeyboardFocus(true);
+    waveSlotSlider.setExplicitFocusOrder(++tabOrder);
+
+    // 切り替えたら Shape のプレビューもその波形に合わせる
+    waveSlotSlider.onValueChange = [this] { this->updateModPreview(); };
 
 
     modPreview.setup(parent, GuiColor::WavePreview::PitchEnv);
@@ -319,12 +331,17 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     depthSlider.setVisibleWithLabel(visible);
     speedSlider.setVisibleWithLabel(visible);
     shapeSelector.setVisibleWithLabel(visible);
-    waveWtBtn.setVisible(visible);
-    waveWt2Btn.setVisible(visible);
-    waveClearBtn.setVisible(visible);
-    waveFileNameLabel.setVisible(visible);
     waveSmoothBtn.setVisible(visible);
+    waveSlotSlider.setVisibleWithLabel(visible);
     modPreview.setVisible(visible);
+
+    for (int i = 0; i < Global::WtMod::slots; ++i) {
+        slotWtBtn[i].setVisible(visible);
+        slotWt2Btn[i].setVisible(visible);
+        slotClearBtn[i].setVisible(visible);
+        slotFileNameLabel[i].setVisible(visible);
+        slotPreview[i].setVisible(visible);
+    }
 
     if (visible)
     {
@@ -332,11 +349,26 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &depthSlider.label, .component = &depthSlider });
         layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider, });
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, });
-        layoutMainWtFiles({ .rect = rect, .loadWtBtn = &waveWtBtn, .loadWt2Btn = &waveWt2Btn, .fileNameLabel = &waveFileNameLabel, .clearBtn = &waveClearBtn });
-        layoutMain({ .mainRect = rect, .component = &waveSmoothBtn });
 
+        // 選んでいる Shape の形。9 種すべてに効くので、読み込み行より前に置く。
         modPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
         rect.removeFromTop(2);
+
+        layoutMain({ .mainRect = rect, .component = &waveSmoothBtn });
+        layoutMain({ .mainRect = rect, .label = &waveSlotSlider.label, .component = &waveSlotSlider });
+
+        // 読み込み行とプレビューを 1 組にして、スロットの数だけ並べる
+        for (int i = 0; i < Global::WtMod::slots; ++i)
+        {
+            layoutMainWtFiles({ .rect = rect,
+                                .loadWtBtn = &slotWtBtn[i],
+                                .loadWt2Btn = &slotWt2Btn[i],
+                                .fileNameLabel = &slotFileNameLabel[i],
+                                .clearBtn = &slotClearBtn[i] });
+
+            slotPreview[i].setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+            rect.removeFromTop(2);
+        }
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -346,11 +378,15 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     depthSlider.setEnabledWithLabel(isMod);
     speedSlider.setEnabledWithLabel(isMod);
     shapeSelector.setEnabledWithLabel(isMod);
-    waveWtBtn.setEnabled(isMod);
-    waveWt2Btn.setEnabled(isMod);
-    waveClearBtn.setEnabled(isMod);
-    waveFileNameLabel.setEnabled(isMod);
     waveSmoothBtn.setEnabled(isMod);
+    waveSlotSlider.setEnabledWithLabel(isMod);
+
+    for (int i = 0; i < Global::WtMod::slots; ++i) {
+        slotWtBtn[i].setEnabled(isMod);
+        slotWt2Btn[i].setEnabled(isMod);
+        slotClearBtn[i].setEnabled(isMod);
+        slotFileNameLabel[i].setEnabled(isMod);
+    }
     // ---------------- FDS TABLE ----------------
     // MODULATION の中の小見出しなので、親を畳んだらこちらも隠す。
     fdsCat.setVisible(visible);
@@ -391,7 +427,7 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     for (auto& btn : fdsPresetBtn) btn.setEnabled(isFdsUser);
 }
 
-void GuiComponentWtMod::importWave(bool isWt2)
+void GuiComponentWtMod::importWave(int slot, bool isWt2)
 {
     juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
     if (!defaultDir.isDirectory()) {
@@ -402,21 +438,19 @@ void GuiComponentWtMod::importWave(bool isWt2)
         isWt2 ? "Load Mod Wave (.wt2)" : "Load Mod Wave (.wt)",
         defaultDir,
         isWt2 ? "*.wt2" : "*.wt",
-        [this, isWt2](const juce::FileChooser& fc) {
+        [this, slot](const juce::FileChooser& fc) {
             auto file = fc.getResult();
             if (!file.existsAsFile()) return;
 
-            updateWaveFileName("Loading...");
+            slotFileNameLabel[(size_t)slot].setText("Loading...", juce::dontSendNotification);
 
-            juce::Timer::callAfterDelay(50, [this, file]()
+            juce::Timer::callAfterDelay(50, [this, slot, file]()
                 {
                     // 読み込みと 32 サンプルへの落とし込みはプロセッサが行う。
                     // 実データを持っているのがあちら側だから。
-                    ctx.audioProcessor.loadWtModWaveFile(m_code, currentSlot(), file);
+                    ctx.audioProcessor.loadWtModWaveFile(m_code, slot, file);
 
-                    updateWaveFileName(currentWavePath().isEmpty()
-                        ? Io::empty
-                        : file.getFileName());
+                    updateSlotFileName(slot);
 
                     ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
                 });
@@ -428,23 +462,7 @@ void GuiComponentWtMod::importWave(bool isWt2)
 // Smooth は「読み込んだ波形を 32 サンプルへ落とす方法」を選ぶスイッチで、
 // 取り込んだあとの値には掛からない。切り替えただけでは何も変わらないと
 // 分かりにくいので、読み込んだファイルを覚えているうちは取り込み直す。
-void GuiComponentWtMod::reapplyWaveFile()
-{
-    juce::File file(currentWavePath());
 
-    if (!file.existsAsFile()) return;
-
-    ctx.audioProcessor.loadWtModWaveFile(m_code, currentSlot(), file);
-
-    updateModPreview();
-}
-
-void GuiComponentWtMod::clearWave()
-{
-    ctx.audioProcessor.unloadWtModWaveFile(m_code, currentSlot());
-
-    updateWaveFileName(Io::empty);
-}
 
 // 今どのスロットを触っているか。
 // 演奏中に切り替えられるよう、パラメータとして持っている。
@@ -456,23 +474,86 @@ int GuiComponentWtMod::currentSlot() const
 
     return 0;
 }
+void GuiComponentWtMod::clearWave(int slot)
+{
+    ctx.audioProcessor.unloadWtModWaveFile(m_code, slot);
 
-juce::String GuiComponentWtMod::currentWavePath() const
+    updateSlotFileName(slot);
+}
+
+// Smooth は「読み込んだ波形を 32 サンプルへ落とす方法」を選ぶスイッチで、
+// 取り込んだあとの値には掛からない。切り替えたら、覚えているファイルから
+// 読み込み直す。
+void GuiComponentWtMod::reapplyWaveFiles()
+{
+    for (int i = 0; i < Global::WtMod::slots; ++i)
+    {
+        juce::File file(wavePath(i));
+
+        if (!file.existsAsFile()) continue;
+
+        ctx.audioProcessor.loadWtModWaveFile(m_code, i, file);
+
+        updateSlotPreview(i);
+    }
+
+    updateModPreview();
+}
+
+void GuiComponentWtMod::updateSlotFileName(int slot)
+{
+    juce::String path = wavePath(slot);
+
+    // 何番のスロットかが分かるよう、先頭に番号を出す
+    slotFileNameLabel[(size_t)slot].setText(
+        juce::String(slot) + ": " + (path.isEmpty() ? Io::empty : juce::File(path).getFileName()),
+        juce::dontSendNotification);
+
+    // 名前とプレビューは常に同じ波形を指していてほしいので、ここで揃える
+    updateSlotPreview(slot);
+
+    // 使っているスロットが変わったのなら、Shape のプレビューも合わせる
+    if (slot == currentSlot()) updateModPreview();
+}
+
+// 読み込んだ 32 サンプルを折れ線にする。
+// 音源側は補間せず index で拾うので、階段として描く。
+void GuiComponentWtMod::updateSlotPreview(int slot)
+{
+    auto it = ctx.audioProcessor.modWaveSlots.find(m_code);
+
+    if (it == ctx.audioProcessor.modWaveSlots.end() || !it->second[(size_t)slot].hasData) {
+        slotPreview[(size_t)slot].clear();
+
+        return;
+    }
+
+    // 1 サンプルを平らに伸ばして階段にする
+    constexpr int holdWidth = 8;
+
+    const auto& wave = it->second[(size_t)slot].data;
+
+    std::vector<float> points;
+    points.reserve(wave.size() * holdWidth);
+
+    for (float v : wave) {
+        for (int k = 0; k < holdWidth; ++k) points.push_back(v);
+    }
+
+    // 変調波形は -1.0〜1.0 の両振り
+    slotPreview[(size_t)slot].setPoints(points, true);
+}
+
+juce::String GuiComponentWtMod::wavePath(int slot) const
 {
     auto it = ctx.audioProcessor.modWavePaths.find(m_code);
 
     if (it == ctx.audioProcessor.modWavePaths.end()) return juce::String();
 
-    return it->second[(size_t)currentSlot()];
+    return it->second[(size_t)slot];
 }
 
-void GuiComponentWtMod::updateWaveFileName(const juce::String& fileName)
-{
-    waveFileNameLabel.setText(fileName, juce::dontSendNotification);
 
-    // 名前とプレビューは常に同じ波形を指していてほしいので、ここで揃える
-    updateModPreview();
-}
 
 // 選んでいる Shape の変調波形を折れ線にする。
 // 描画のたびに計算すると重いので、形が変わったときだけここを通す。

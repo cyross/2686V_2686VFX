@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include <array>
 
+#include "../../../Core/Const/ConstGlobal.h"
 #include "../../../Core/Gui/GuiComponents.h"
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
@@ -59,11 +60,17 @@ class GuiComponentWtMod : public GuiBase {
     GuiSlider depthSlider;
     GuiSlider speedSlider;
     GuiComboBox shapeSelector;
-    GuiTextButton waveWtBtn;
-    GuiTextButton waveWt2Btn;
-    GuiTextButton waveClearBtn;
-    GuiLabel waveFileNameLabel;
     GuiToggleButton waveSmoothBtn;
+
+    // どのスロットを使うか。演奏中に切り替えられるようパラメータにしてある。
+    GuiSlider waveSlotSlider;
+
+    // 変調波形スロット。読み込み行とプレビューを枚数ぶん持つ。
+    std::array<GuiTextButton, Global::WtMod::slots> slotWtBtn;
+    std::array<GuiTextButton, Global::WtMod::slots> slotWt2Btn;
+    std::array<GuiTextButton, Global::WtMod::slots> slotClearBtn;
+    std::array<GuiLabel, Global::WtMod::slots> slotFileNameLabel;
+    std::array<GuiWavePreview, Global::WtMod::slots> slotPreview;
 
     // 選んでいる Shape の変調波形を見せるプレビュー
     GuiWavePreview modPreview;
@@ -80,14 +87,18 @@ class GuiComponentWtMod : public GuiBase {
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     // 波形の読み書きはプロセッサ側で行う。ここは指示と表示だけ。
-    void importWave(bool isWt2);
-    void reapplyWaveFile();
-    void clearWave();
-    void updateWaveFileName(const juce::String& fileName);
+    void importWave(int slot, bool isWt2);
+    void clearWave(int slot);
 
-    // 今触っているスロットと、そこへ読み込んだファイルのパス
+    // Smooth は読み込み時の落とし方を決めるので、切り替えたら取り込み直す
+    void reapplyWaveFiles();
+
+    void updateSlotFileName(int slot);
+    void updateSlotPreview(int slot);
+
+    // 今どのスロットを使っているか。Shape のプレビューが参照する。
     int currentSlot() const;
-    juce::String currentWavePath() const;
+    juce::String wavePath(int slot) const;
     void updateModPreview();
 public:
     GuiComponentWtMod(const GuiContext& context) :
@@ -97,11 +108,13 @@ public:
         depthSlider(context),
         speedSlider(context),
         shapeSelector(context),
-        waveWtBtn(context),
-        waveWt2Btn(context),
-        waveClearBtn(context),
-        waveFileNameLabel(context),
         waveSmoothBtn(context),
+        waveSlotSlider(context),
+        slotWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        slotWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        slotClearBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        slotFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+        slotPreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
         modPreview(context),
         fdsCat(context),
         fdsEditor(context),
