@@ -10,48 +10,99 @@ namespace
 			juce::String("") + "3.0.0 より前の形式のファイルは読み込めません。\n\n"
 			+ file.getFileName());
 	}
+
+	// 名前の下にある入れ物を取り出す。無ければ作る。
+	juce::DynamicObject* ensureObject(juce::DynamicObject& parent, const juce::String& key)
+	{
+		auto existing = parent.getProperty(key);
+
+		if (auto* obj = existing.getDynamicObject()) return obj;
+
+		auto* created = new juce::DynamicObject();
+
+		parent.setProperty(key, juce::var(created));
+
+		return created;
+	}
+
+	// 名前の下にある並びを取り出す。無ければ作る。
+	juce::Array<juce::var>* ensureArray(juce::DynamicObject& parent, const juce::String& key)
+	{
+		auto existing = parent.getProperty(key);
+
+		if (!existing.isArray())
+		{
+			parent.setProperty(key, juce::var(juce::Array<juce::var>()));
+			existing = parent.getProperty(key);
+		}
+
+		return existing.getArray();
+	}
 }
 
 namespace Io
 {
 	ParamWriter::ParamWriter(ParamFormat format)
-		: m_values(new juce::DynamicObject()), m_format(std::move(format))
+		: m_root(new juce::DynamicObject()), m_values(new juce::DynamicObject()), m_format(std::move(format))
+	{
+		m_root->setProperty(ParamKey::format, m_format.name);
+		m_root->setProperty(ParamKey::version, m_format.version);
+		m_root->setProperty(ParamKey::values, juce::var(m_values.get()));
+	}
+
+	ParamWriter::ParamWriter(juce::DynamicObject::Ptr root, juce::DynamicObject::Ptr values, ParamFormat format)
+		: m_root(std::move(root)), m_values(std::move(values)), m_format(std::move(format))
 	{
 	}
 
-	ParamWriter::ParamWriter(const ParamWriter& parent, const juce::String& prefix)
-		: m_values(parent.m_values), m_format(parent.m_format), m_prefix(parent.full(prefix))
+	ParamWriter ParamWriter::child(const juce::String& key)
 	{
+		return ParamWriter(m_root, ensureObject(*m_values, key), m_format);
 	}
 
-	juce::String ParamWriter::full(const juce::String& key) const
+	ParamWriter ParamWriter::arrayItem(const juce::String& key, int index)
 	{
-		return m_prefix.isEmpty() ? key : m_prefix + "." + key;
+		auto* array = ensureArray(*m_values, key);
+
+		// 飛び番で置かれても形が崩れないよう、そこまで埋めておく
+		while (array->size() <= index) array->add(juce::var(new juce::DynamicObject()));
+
+		auto item = (*array)[index];
+		auto* obj = item.getDynamicObject();
+
+		if (obj == nullptr)
+		{
+			obj = new juce::DynamicObject();
+
+			array->set(index, juce::var(obj));
+		}
+
+		return ParamWriter(m_root, obj, m_format);
 	}
 
 	void ParamWriter::set(const juce::String& key, int value)
 	{
-		m_values->setProperty(full(key), value);
+		m_values->setProperty(key, value);
 	}
 
 	void ParamWriter::set(const juce::String& key, float value)
 	{
-		m_values->setProperty(full(key), (double)value);
+		m_values->setProperty(key, (double)value);
 	}
 
 	void ParamWriter::set(const juce::String& key, double value)
 	{
-		m_values->setProperty(full(key), value);
+		m_values->setProperty(key, value);
 	}
 
 	void ParamWriter::set(const juce::String& key, bool value)
 	{
-		m_values->setProperty(full(key), value);
+		m_values->setProperty(key, value);
 	}
 
 	void ParamWriter::set(const juce::String& key, const juce::String& value)
 	{
-		m_values->setProperty(full(key), value);
+		m_values->setProperty(key, value);
 	}
 
 	void ParamWriter::setArray(const juce::String& key, const std::vector<float>& values)
@@ -60,7 +111,7 @@ namespace Io
 
 		for (float v : values) out.add((double)v);
 
-		m_values->setProperty(full(key), out);
+		m_values->setProperty(key, out);
 	}
 
 	void ParamWriter::setArray(const juce::String& key, const std::vector<int>& values)
@@ -69,18 +120,16 @@ namespace Io
 
 		for (int v : values) out.add(v);
 
-		m_values->setProperty(full(key), out);
+		m_values->setProperty(key, out);
 	}
 
 	bool ParamWriter::writeTo(const juce::File& file) const
 	{
-		auto* root = new juce::DynamicObject();
+		return file.replaceWithText(juce::JSON::toString(juce::var(m_root.get())));
+	}
 
-		root->setProperty(ParamKey::format, m_format.name);
-		root->setProperty(ParamKey::version, m_format.version);
-		root->setProperty(ParamKey::values, juce::var(m_values.get()));
-
-		return file.replaceWithText(juce::JSON::toString(juce::var(root)));
+	ParamReader::ParamReader(juce::DynamicObject::Ptr values) : m_values(std::move(values))
+	{
 	}
 
 	std::optional<ParamReader> ParamReader::open(const juce::File& file, const ParamFormat& format)
@@ -105,28 +154,41 @@ namespace Io
 
 		if (values == nullptr) return std::nullopt;
 
-		ParamReader reader;
-
-		reader.m_values = values;
-
-		return reader;
+		return ParamReader(values);
 	}
 
-	ParamReader::ParamReader(const ParamReader& parent, const juce::String& prefix)
-		: m_values(parent.m_values), m_prefix(parent.full(prefix))
+	ParamReader ParamReader::child(const juce::String& key) const
 	{
+		if (m_values == nullptr) return {};
+
+		return ParamReader(m_values->getProperty(key).getDynamicObject());
 	}
 
-	juce::String ParamReader::full(const juce::String& key) const
+	ParamReader ParamReader::arrayItem(const juce::String& key, int index) const
 	{
-		return m_prefix.isEmpty() ? key : m_prefix + "." + key;
+		if (m_values == nullptr) return {};
+
+		auto* array = m_values->getProperty(key).getArray();
+
+		if (array == nullptr || index < 0 || index >= array->size()) return {};
+
+		return ParamReader((*array)[index].getDynamicObject());
+	}
+
+	int ParamReader::arraySize(const juce::String& key) const
+	{
+		if (m_values == nullptr) return 0;
+
+		auto* array = m_values->getProperty(key).getArray();
+
+		return array == nullptr ? 0 : array->size();
 	}
 
 	juce::var ParamReader::find(const juce::String& key) const
 	{
 		if (m_values == nullptr) return {};
 
-		return m_values->getProperty(full(key));
+		return m_values->getProperty(key);
 	}
 
 	int ParamReader::getInt(const juce::String& key, int fallback) const

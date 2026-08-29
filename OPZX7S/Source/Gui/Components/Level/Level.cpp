@@ -312,9 +312,9 @@ void GuiComponentLevel::setImportingParams(juce::StringArray& lines, int& index)
     levelSlider.setValue(lines[index++].getFloatValue());
 }
 
-void GuiComponentLevel::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+void GuiComponentLevel::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
-    Io::ParamReader r(reader, prefix);
+    auto r = reader.child(key);
 
     levelSlider.setValue(r.getFloat("level", (float)levelSlider.getValue()));
 }
@@ -327,9 +327,9 @@ juce::String GuiComponentLevel::getExportedParams() {
     return content;
 }
 
-void GuiComponentLevel::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+void GuiComponentLevel::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
-    Io::ParamWriter w(writer, prefix);
+    auto w = writer.child(key);
 
     w.set("level", (float)levelSlider.getValue());
 }

@@ -425,9 +425,9 @@ void GuiComponentLfoOpzx7::setImportingParams(juce::StringArray& lines, int& ind
     amd.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 }
 
-void GuiComponentLfoOpzx7::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+void GuiComponentLfoOpzx7::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
-    Io::ParamReader r(reader, prefix);
+    auto r = reader.child(key);
 
     pmEnable.setToggleState(r.getBool("pmEnable", pmEnable.getToggleState()), juce::sendNotification);
     pmFreq.setValue(r.getFloat("pmFreq", (float)pmFreq.getValue()), juce::sendNotification);
@@ -464,9 +464,9 @@ juce::String GuiComponentLfoOpzx7::getExportedParams() {
     return content;
 }
 
-void GuiComponentLfoOpzx7::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+void GuiComponentLfoOpzx7::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
-    Io::ParamWriter w(writer, prefix);
+    auto w = writer.child(key);
 
     w.set("pmEnable", pmEnable.getToggleState());
     w.set("pmFreq", (float)pmFreq.getValue());

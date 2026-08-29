@@ -121,9 +121,9 @@ void QualityPcm::setImportingParams(juce::StringArray& lines, int& index) {
     interpSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
 }
 
-void QualityPcm::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+void QualityPcm::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
-    Io::ParamReader r(reader, prefix);
+    auto r = reader.child(key);
 
     modeSelector.setSelectedItemIndex(r.getInt("mode", modeSelector.getSelectedItemIndex()), juce::sendNotification);
     rateSelector.setSelectedItemIndex(r.getInt("rate", rateSelector.getSelectedItemIndex()), juce::sendNotification);
@@ -140,9 +140,9 @@ juce::String QualityPcm::getExportedParams() {
     return content;
 }
 
-void QualityPcm::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+void QualityPcm::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
-    Io::ParamWriter w(writer, prefix);
+    auto w = writer.child(key);
 
     w.set("mode", modeSelector.getSelectedItemIndex());
     w.set("rate", rateSelector.getSelectedItemIndex());

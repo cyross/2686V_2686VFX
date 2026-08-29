@@ -569,9 +569,9 @@ void GuiComponentSsgSwEnv::setImportingParams(juce::StringArray& lines, int& ind
     l6.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 }
 
-void GuiComponentSsgSwEnv::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+void GuiComponentSsgSwEnv::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
-    Io::ParamReader r(reader, prefix);
+    auto r = reader.child(key);
 
     flag.setToggleState(r.getBool("flag", flag.getToggleState()), juce::sendNotification);
     steps.setValue(r.getInt("steps", (int)steps.getValue()), juce::sendNotification);
@@ -618,9 +618,9 @@ juce::String GuiComponentSsgSwEnv::getExportedParams() {
     return content;
 }
 
-void GuiComponentSsgSwEnv::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+void GuiComponentSsgSwEnv::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
-    Io::ParamWriter w(writer, prefix);
+    auto w = writer.child(key);
 
     w.set("flag", flag.getToggleState());
     w.set("steps", (float)steps.getValue());

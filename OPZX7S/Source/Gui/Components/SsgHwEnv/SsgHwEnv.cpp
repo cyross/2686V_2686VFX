@@ -287,9 +287,9 @@ void GuiComponentSsgHwEnv::setImportingParams(juce::StringArray& lines, int& ind
     smoothEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
 }
 
-void GuiComponentSsgHwEnv::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+void GuiComponentSsgHwEnv::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
-    Io::ParamReader r(reader, prefix);
+    auto r = reader.child(key);
 
     envEnableButton.setToggleState(r.getBool("envEnable", envEnableButton.getToggleState()), juce::sendNotification);
     shapeSelector.setSelectedItemIndex(r.getInt("shape", shapeSelector.getSelectedItemIndex()), juce::sendNotification);
@@ -312,9 +312,9 @@ juce::String GuiComponentSsgHwEnv::getExportedParams() {
     return content;
 }
 
-void GuiComponentSsgHwEnv::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+void GuiComponentSsgHwEnv::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
-    Io::ParamWriter w(writer, prefix);
+    auto w = writer.child(key);
 
     w.set("envEnable", envEnableButton.getToggleState());
     w.set("shape", shapeSelector.getSelectedItemIndex());

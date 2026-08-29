@@ -510,9 +510,9 @@ void GuiComponentFix::setImportingParams(juce::StringArray& lines, int& index) {
     freq.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 }
 
-void GuiComponentFix::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+void GuiComponentFix::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
-    Io::ParamReader r(reader, prefix);
+    auto r = reader.child(key);
 
     enable.setToggleState(r.getBool("enable", enable.getToggleState()), juce::sendNotification);
     freq.setValue(r.getFloat("freq", (float)freq.getValue()), juce::sendNotification);
@@ -527,9 +527,9 @@ juce::String GuiComponentFix::getExportedParams() {
     return content;
 }
 
-void GuiComponentFix::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+void GuiComponentFix::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
-    Io::ParamWriter w(writer, prefix);
+    auto w = writer.child(key);
 
     w.set("enable", enable.getToggleState());
     w.set("freq", (float)freq.getValue());

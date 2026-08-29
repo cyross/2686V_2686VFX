@@ -488,9 +488,9 @@ void GuiComponentMulDetune::setImportingParams(juce::StringArray& lines, int& in
     dt3.setValue(lines[index++].getIntValue(), juce::sendNotification);
 }
 
-void GuiComponentMulDetune::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+void GuiComponentMulDetune::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
-    Io::ParamReader r(reader, prefix);
+    auto r = reader.child(key);
 
     mul.setSelectedItemIndex(r.getInt("mul", mul.getSelectedItemIndex()), juce::sendNotification);
     mulRatio.setValue(r.getFloat("mulRatio", (float)mulRatio.getValue()), juce::sendNotification);
@@ -511,9 +511,9 @@ juce::String GuiComponentMulDetune::getExportedParams() {
     return content;
 }
 
-void GuiComponentMulDetune::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+void GuiComponentMulDetune::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
-    Io::ParamWriter w(writer, prefix);
+    auto w = writer.child(key);
 
     w.set("mul", mul.getSelectedItemIndex());
     w.set("mulRatio", (float)mulRatio.getValue());

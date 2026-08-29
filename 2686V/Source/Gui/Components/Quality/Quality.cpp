@@ -92,9 +92,9 @@ void Quality::setImportingParams(juce::StringArray& lines, int& index) {
     rateSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
 }
 
-void Quality::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+void Quality::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
-    Io::ParamReader r(reader, prefix);
+    auto r = reader.child(key);
 
     bitSelector.setSelectedItemIndex(r.getInt("bit", bitSelector.getSelectedItemIndex()), juce::sendNotification);
     rateSelector.setSelectedItemIndex(r.getInt("rate", rateSelector.getSelectedItemIndex()), juce::sendNotification);
@@ -109,9 +109,9 @@ juce::String Quality::getExportedParams() {
     return content;
 }
 
-void Quality::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+void Quality::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
-    Io::ParamWriter w(writer, prefix);
+    auto w = writer.child(key);
 
     w.set("bit", bitSelector.getSelectedItemIndex());
     w.set("rate", rateSelector.getSelectedItemIndex());

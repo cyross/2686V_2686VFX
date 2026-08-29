@@ -15,6 +15,10 @@ namespace Io
 	// ファイルが読めなくなり、並べ間違えると黙って別の値が入る。名前で
 	// 持てばどちらも起きない。
 	//
+	// 部品ごとに入れ子にできる。オペレータのように同じものが複数あるときは
+	// 並びとして持つので、名前に番号を混ぜずに済み、開いたときに何番目かが
+	// 構造で分かる。
+	//
 	// 古い形式は読まない。並び順を全部覚えておく必要があり、項目を足す
 	// たびにその重みが増えるため。代わりに、古いファイルを選んだときは
 	// 黙って何も起きるのではなく、読めないことを画面で伝える。
@@ -31,17 +35,23 @@ namespace Io
 
 	class ParamWriter
 	{
+		// 書き出す全体。入れ子の先からでも書き出せるように持っておく。
+		juce::DynamicObject::Ptr m_root;
+
+		// このまとまりの値
 		juce::DynamicObject::Ptr m_values;
+
 		ParamFormat m_format;
 
-		// 入れ子にした部品の置き場。名前の頭に部品の名を付けて区別する。
-		juce::String m_prefix;
+		ParamWriter(juce::DynamicObject::Ptr root, juce::DynamicObject::Ptr values, ParamFormat format);
 	public:
 		explicit ParamWriter(ParamFormat format);
 
-		// 部品ごとに頭を付けたい場合に使う。同じ種類の部品が複数あっても
-		// 名前がぶつからない。
-		ParamWriter(const ParamWriter& parent, const juce::String& prefix);
+		// 入れ子のまとまりを作る。部品ごとに区切って持たせるため。
+		ParamWriter child(const juce::String& key);
+
+		// 並びの中のひとつ。足りなければそこまで作る。
+		ParamWriter arrayItem(const juce::String& key, int index);
 
 		void set(const juce::String& key, int value);
 		void set(const juce::String& key, float value);
@@ -53,14 +63,13 @@ namespace Io
 		void setArray(const juce::String& key, const std::vector<int>& values);
 
 		bool writeTo(const juce::File& file) const;
-	private:
-		juce::String full(const juce::String& key) const;
 	};
 
 	class ParamReader
 	{
 		juce::DynamicObject::Ptr m_values;
-		juce::String m_prefix;
+
+		explicit ParamReader(juce::DynamicObject::Ptr values);
 
 		juce::var find(const juce::String& key) const;
 	public:
@@ -73,8 +82,13 @@ namespace Io
 
 		ParamReader() = default;
 
-		// 部品ごとに頭を付けて読む
-		ParamReader(const ParamReader& parent, const juce::String& prefix);
+		// 入れ子のまとまり。無ければ空のものを返すので、読む側は既定値を
+		// 受け取ることになる。
+		ParamReader child(const juce::String& key) const;
+
+		// 並びの中のひとつ。範囲の外なら空のものを返す。
+		ParamReader arrayItem(const juce::String& key, int index) const;
+		int arraySize(const juce::String& key) const;
 
 		int getInt(const juce::String& key, int fallback = 0) const;
 		float getFloat(const juce::String& key, float fallback = 0.0f) const;
@@ -83,8 +97,6 @@ namespace Io
 
 		std::vector<float> getFloatArray(const juce::String& key) const;
 		std::vector<int> getIntArray(const juce::String& key) const;
-	private:
-		juce::String full(const juce::String& key) const;
 	};
 
 	namespace ParamKey
@@ -92,5 +104,9 @@ namespace Io
 		static inline const juce::String format = "format";
 		static inline const juce::String version = "version";
 		static inline const juce::String values = "values";
+
+		// オペレータのように同じものが並ぶときの名前
+		static inline const juce::String ops = "ops";
+		static inline const juce::String pads = "pads";
 	}
 }

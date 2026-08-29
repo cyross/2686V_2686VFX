@@ -289,9 +289,9 @@ void GuiComponentPitchEnv::setImportingParams(juce::StringArray& lines, int& ind
 	releaseLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 }
 
-void GuiComponentPitchEnv::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+void GuiComponentPitchEnv::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
-    Io::ParamReader r(reader, prefix);
+    auto r = reader.child(key);
 
 	flag.setToggleState(r.getBool("flag", flag.getToggleState()), juce::sendNotification);
 	attack.setValue(r.getFloat("attack", (float)attack.getValue()), juce::sendNotification);
@@ -318,9 +318,9 @@ juce::String GuiComponentPitchEnv::getExportedParams() {
 	return content;
 }
 
-void GuiComponentPitchEnv::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+void GuiComponentPitchEnv::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
-    Io::ParamWriter w(writer, prefix);
+    auto w = writer.child(key);
 
 	w.set("flag", flag.getToggleState());
 	w.set("attack", (float)attack.getValue());
