@@ -187,7 +187,7 @@ void FdsTableEditor::paint(juce::Graphics& g)
 
     // 積算後の階段波は「変調のかかり方」を示すものなので、
     // WT PITCH MOD のプレビューと同じ色で描く。
-    g.setColour(GuiColor::WavePreview::PitchEnv.withAlpha(isEnabledState ? 0.8f : 0.3f));
+    g.setColour(GuiColor::WavePreview::PitchEnv.get().withAlpha(isEnabledState ? 0.8f : 0.3f));
 
     for (int i = 0; i < 32; ++i)
     {

@@ -345,15 +345,19 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     // 角の丸みは他の部品と揃える。小さな四角なので、辺の半分を上限にする。
     float boxRadius = juce::jmin(guiCornerRadius, juce::jmin(boxW, boxH) * 0.5f);
 
-    g.setColour(GuiColor::ToggleButton::Box.withMultipliedAlpha(alpha));
+    g.setColour(GuiColor::ToggleButton::Box.get().withMultipliedAlpha(alpha));
     g.drawRoundedRectangle(box, boxRadius, 1.0f);
 
     // 2. 中のランプ。消えているときも枠の中を塗って、
     //    「空か塗りか」ではなく「色が違う」で状態が分かるようにする。
     auto inner = box.reduced(boxGapW, boxGapH);
 
-    g.setColour((getToggleState() ? GuiColor::ToggleButton::LampOn : GuiColor::ToggleButton::LampOff)
-        .withMultipliedAlpha(alpha));
+    // 三項演算子の両側が Entry なので、いったん色にしてから透明度を掛ける
+    juce::Colour lamp = getToggleState()
+        ? GuiColor::ToggleButton::LampOn.get()
+        : GuiColor::ToggleButton::LampOff.get();
+
+    g.setColour(lamp.withMultipliedAlpha(alpha));
     g.fillRoundedRectangle(inner, juce::jmin(boxRadius, juce::jmin(inner.getWidth(), inner.getHeight()) * 0.5f));
 
     // 3. テキストの描画

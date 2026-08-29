@@ -87,7 +87,7 @@ void GuiWavePreview::paint(juce::Graphics& g)
     float zeroY = m_bipolar ? area.getCentreY() : area.getBottom();
     float scale = m_bipolar ? (area.getHeight() * 0.5f) : area.getHeight();
 
-    g.setColour(GuiColor::WaveformContainer::Track.withAlpha(0.35f));
+    g.setColour(GuiColor::WaveformContainer::Track.get().withAlpha(0.35f));
     g.drawHorizontalLine((int)zeroY, area.getX(), area.getRight());
 
     if (m_hasData) {

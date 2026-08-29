@@ -57,6 +57,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     tabs.getTabbedButtonBar().addChangeListener(this);
 
+    // 色の差し替えを受けて描き直す
+    GuiColor::changeBroadcaster().addChangeListener(this);
+
     audioProcessor.apvts.addParameterListener(CPK::mode, this);
 
     setupLogo();
@@ -313,6 +316,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 {
     tabs.setLookAndFeel(nullptr);
     tabs.getTabbedButtonBar().removeChangeListener(this);
+    GuiColor::changeBroadcaster().removeChangeListener(this);
 
     wtGui->removeComponentListener(this);
     wt2Gui->removeComponentListener(this);
@@ -366,6 +370,15 @@ void AudioPlugin2686VEditor::showMinimumView() {
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
+    if (source == &GuiColor::changeBroadcaster())
+    {
+        // 色が差し替わった。どの部品が使っているかは追えないので、
+        // 画面全体を描き直す。頻度は設定を触ったときだけ。
+        repaint();
+
+        return;
+    }
+
     if (source == &tabs.getTabbedButtonBar())
     {
         // 0:OPNA, 1:OPN, 2:OPL, ...

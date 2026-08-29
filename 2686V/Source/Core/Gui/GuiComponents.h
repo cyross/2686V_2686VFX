@@ -57,7 +57,7 @@ namespace GuiShadow
         {
             float grow = (float)i - 1.0f;
 
-            g.setColour(GuiColor::Palette::ShadowGray.withMultipliedAlpha(1.0f / (float)layers));
+            g.setColour(GuiColor::Palette::ShadowGray.get().withMultipliedAlpha(1.0f / (float)layers));
             g.fillRoundedRectangle(shape.expanded(grow), cornerRadius + grow);
         }
     }
@@ -325,7 +325,7 @@ protected:
 
             if (slider.isEnabled()) GuiShadow::drawRounded(g, bar, guiCornerRadius);
 
-            g.setColour(GuiColor::Slider::Trough.withMultipliedAlpha(alpha));
+            g.setColour(GuiColor::Slider::Trough.get().withMultipliedAlpha(alpha));
             g.fillRoundedRectangle(bar, guiCornerRadius);
 
             // sliderPos は絶対座標で来る。左端からの塗り幅に直す。
@@ -343,7 +343,7 @@ protected:
                 g.fillRoundedRectangle(bar, guiCornerRadius);
             }
 
-            g.setColour(GuiColor::Slider::Frame.withMultipliedAlpha(alpha));
+            g.setColour(GuiColor::Slider::Frame.get().withMultipliedAlpha(alpha));
             g.drawRoundedRectangle(bar.reduced(0.5f), guiCornerRadius, 1.0f);
         }
 
@@ -649,7 +649,7 @@ protected:
 
             // 縁取りはカテゴリ見出しのマーカーと同じ色。明るい面が背景へ
             // 溶けないよう、輪郭だけ引き締める。
-            g.setColour(GuiColor::Outline.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f));
+            g.setColour(GuiColor::Outline.get().withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f));
             g.drawRoundedRectangle(face.reduced(0.5f), guiCornerRadius, 1.0f);
         }
     };

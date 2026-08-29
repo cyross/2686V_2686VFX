@@ -91,6 +91,7 @@ set(FM_FILES
 set(GUI_FILES
     "Source/Core/Gui/GuiBase.h"
     "Source/Core/Gui/GuiColor.h"
+    "Source/Core/Gui/GuiColor.cpp"
     "Source/Core/Gui/GuiComponents.h"
     "Source/Core/Gui/GuiComponents.cpp"
     "Source/Core/Gui/GuiContext.h"

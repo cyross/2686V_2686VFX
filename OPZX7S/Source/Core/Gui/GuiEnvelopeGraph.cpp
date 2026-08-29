@@ -226,7 +226,7 @@ void GuiEnvelopeGraph::updatePitchEnv(
     float rll = pitchReleaseLevelSlider.getValue() / maxCents;
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = GuiColor::EnvelopeGraph::PitchLine;
+    juce::Colour color = GuiColor::EnvelopeGraph::PitchLine;
     int targetIdx = (int)CurveParams::Target::PitchEnv;
 
     // Attack
@@ -295,7 +295,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
     int loopCount = (int)ssgSwLoopCountSlider.getValue();
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = GuiColor::EnvelopeGraph::AmpLine;
+    juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;
     int targetIdx = (int)CurveParams::Target::SsgSwEnv;
 
     float currentTotalWidth = 0.0f;
@@ -409,7 +409,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
     int loopCount = (int)ssgSwLoopCountSlider.getValue();
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = GuiColor::EnvelopeGraph::AmpLine;
+    juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;
     int targetIdx = (int)CurveParams::Target::SsgSwEnv11;
 
     float currentTotalWidth = 0.0f;
@@ -524,7 +524,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
     int loopCount = (int)ssgSwLoopCountSlider.getValue();
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = GuiColor::EnvelopeGraph::PitchLine;
+    juce::Colour color = GuiColor::EnvelopeGraph::PitchLine;
     int targetIdx = (int)CurveParams::Target::SsgSwPEnv11;
 
     float currentTotalWidth = 0.0f;
@@ -649,7 +649,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
     bool isKor = korButton.getToggleState();
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    auto color = GuiColor::EnvelopeGraph::AmpLine;
+    juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;
     int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
 
     float currentTotalWidth = 0.0f;
