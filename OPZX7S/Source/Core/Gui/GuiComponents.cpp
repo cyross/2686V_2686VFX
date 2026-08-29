@@ -170,6 +170,11 @@ void GuiLabel::setup(const Config& c)
     this->setWantsKeyboardFocus(false);
     this->setJustificationType(c.justification);
 
+    if (c.font.has_value())
+    {
+        this->setFont(c.font.value());
+    }
+
     this->bgColor = c.bgColor;
 
     if (!c.color.isTransparent())

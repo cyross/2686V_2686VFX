@@ -18,8 +18,9 @@ namespace GuiColor
 		return broadcaster;
 	}
 
-	Entry::Entry(const char* id, juce::Colour defaultColour)
-		: m_default(defaultColour), m_current(defaultColour)
+	// 既定値はここでは作らない。名前を控えるだけにして、色を作るのは
+	// 最初に使うときまで遅らせる。
+	Entry::Entry(const char* id, Maker make) : m_make(make)
 	{
 		registry()[juce::String(id)] = this;
 	}

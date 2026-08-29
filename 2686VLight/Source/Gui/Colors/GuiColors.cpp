@@ -309,10 +309,8 @@ void GuiColors::setup()
 	int tabOrder = 0;
 
 	titleLabel.setup({ .parent = *this, .title = ColorsGuiText::title,
+		.font = juce::Font(juce::FontOptions(16.0f)).withStyle(juce::Font::bold),
 		.justification = juce::Justification::centredLeft });
-
-	// GuiLabel::setup は Config の font を見ないので、ここで直接指定する
-	titleLabel.setFont(juce::Font(juce::FontOptions(16.0f)).withStyle(juce::Font::bold));
 
 	hintLabel.setup({ .parent = *this, .title = ColorsGuiText::hint,
 		.justification = juce::Justification::centredLeft });
