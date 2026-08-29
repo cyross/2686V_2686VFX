@@ -614,20 +614,24 @@ void GuiSettings::setup()
             if (xml.writeTo(file))
             {
                 // 成功メッセージ
-                juce::NativeMessageBox::showMessageBoxAsync(
-                    juce::AlertWindow::InfoIcon,
+                // OS 標準のダイアログはテーマの色が当たらないので、
+                // 他と同じ AlertWindow で出す。
+                juce::AlertWindow::showMessageBoxAsync(
+                    juce::MessageBoxIconType::InfoIcon,
                     juce::String("") + "成功",
                     juce::String("") + "現在の設定は標準設定として以下のファイルに保存されました。\n\nファイル名: " + file.getFullPathName(),
+                    juce::String(),
                     this
                 );
             }
             else
             {
                 // 失敗メッセージ
-                juce::NativeMessageBox::showMessageBoxAsync(
-                    juce::AlertWindow::WarningIcon,
+                juce::AlertWindow::showMessageBoxAsync(
+                    juce::MessageBoxIconType::WarningIcon,
                     juce::String("") + "失敗",
                     juce::String("") + "標準設定の保存に失敗しました。",
+                    juce::String(),
                     this
                 );
             }
