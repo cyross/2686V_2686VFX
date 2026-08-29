@@ -536,10 +536,18 @@ public:
     // チャンネルごとの MODULATION 変調波形ファイルのパス。
     // キーは APVTS のプレフィックス (OPL / SSG / WT など)。
     // 波形そのものは 32 個のパラメータ側に入っているので、ここは表示用。
-    std::map<juce::String, juce::String> modWavePaths;
-    juce::String wtModWavePath;
-    juce::String wt2ModWavePath;
-    juce::String wtPlusModWavePath;
+    // 1 チャンネルにつきスロットの数だけ持つ。
+    using WtModWavePaths = std::array<juce::String, Global::WtMod::slots>;
+    std::map<juce::String, WtModWavePaths> modWavePaths;
+
+    // WT PITCH MOD の変調波形。チャンネルごとに複数スロット持つ。
+    // 32 サンプル × 枚数をパラメータで持つと数が膨大になるため、
+    // 実データはここが所有し、state には相対パスだけを保存する。
+    WtModWaveStore modWaveSlots;
+    // 変調波形の読み書き。実データは modWaveSlots が持ち、
+    // state へは相対パスだけを保存して読み直す。
+    void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file);
+    void unloadWtModWaveFile(const juce::String& code, int slot);
     std::array<juce::String, RhythmPrValue::pads> rhythmFilePaths;
 
     // 画面へ波形を描くために持っておくサンプル。

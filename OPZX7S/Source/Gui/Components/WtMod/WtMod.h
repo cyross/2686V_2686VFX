@@ -68,23 +68,26 @@ class GuiComponentWtMod : public GuiBase {
     // 選んでいる Shape の変調波形を見せるプレビュー
     GuiWavePreview modPreview;
 
-    // HuC6280 モードの変調波形 (32 サンプル)
-    std::array<juce::RangedAudioParameter*, 32> waveParams = { nullptr };
+    // どのチャンネルの持ち分かを覚えておく。
+    // 変調波形の実データはプロセッサが持っており、これが引き当ての鍵になる。
+    juce::String m_code;
 
     // FdsUser モードの変調テーブル
     GuiCategoryLabel fdsCat;
     FdsTableEditor fdsEditor;
     std::array<GuiTextButton, FdsMod::tableCount> fdsPresetBtn;
-    // 読み込んだ変調波形ファイルのパス。実体はタブごとにプロセッサが持つ。
-    juce::String* p_wavePath = nullptr;
 
     std::unique_ptr<juce::FileChooser> fileChooser;
 
+    // 波形の読み書きはプロセッサ側で行う。ここは指示と表示だけ。
     void importWave(bool isWt2);
-    bool applyWaveFile(const juce::File& file, bool isWt2);
     void reapplyWaveFile();
     void clearWave();
     void updateWaveFileName(const juce::String& fileName);
+
+    // 今触っているスロットと、そこへ読み込んだファイルのパス
+    int currentSlot() const;
+    juce::String currentWavePath() const;
     void updateModPreview();
 public:
     GuiComponentWtMod(const GuiContext& context) :
@@ -108,7 +111,7 @@ public:
 
     // categoryBg は見出しの背景色。WT / WT2 / WT+ チャンネル自身の機能なので、
     // そこでは HwBg、他チャンネルへ借りて置く場合は既定の SwBg を使う。
-    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, juce::String& wavePath,
+    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
         juce::Colour categoryBg = GuiColor::Category::SwBg);
     void layoutComponent(juce::Rectangle<int>& rect);
 

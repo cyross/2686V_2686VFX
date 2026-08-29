@@ -445,15 +445,15 @@ namespace PrHelper {
 		ptPtrs.end = apvts.getRawParameterValue(prefix + CPK::lpEnd);
 	}
 
-	static inline void setupWtMod(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtMod& ptPtrs){
+	static inline void setupWtMod(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtMod& ptPtrs, WtModWaveStore& store){
 		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::WtMod::enable);
 		ptPtrs.depth = apvts.getRawParameterValue(prefix + CPK::WtMod::depth);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::WtMod::speed);
 		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::WtMod::shape);
+		ptPtrs.waveSlot = apvts.getRawParameterValue(prefix + CPK::WtMod::waveSlot);
 
-		for (int i = 0; i < CPV::WtMod::WaveSize::size; ++i) {
-			ptPtrs.wave[i] = apvts.getRawParameterValue(prefix + CPK::WtMod::wave + juce::String(i));
-		}
+		// このチャンネルの持ち分を押さえる。無ければここで作られる。
+		ptPtrs.slots = &store[prefix];
 
 		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i) {
 			ptPtrs.fdsTable[i] = apvts.getRawParameterValue(prefix + CPK::WtMod::fdsTable + juce::String(i));
@@ -975,8 +975,12 @@ namespace PrHelper {
 		params.speed = getFloat(ptPtrs.speed);
 		params.shape = getInt(ptPtrs.shape);
 
-		for (int i = 0; i < CPV::WtMod::WaveSize::size; ++i) {
-			params.wave[i] = getFloat(ptPtrs.wave[i]);
+		// 選ばれているスロットの波形を渡す。読み込んでいなければ
+		// 中身は 0 のままで、音源側では変調が掛からない。
+		if (ptPtrs.slots != nullptr) {
+			int slot = std::clamp(getInt(ptPtrs.waveSlot), 0, Global::WtMod::slots - 1);
+
+			params.wave = (*ptPtrs.slots)[slot].data;
 		}
 
 		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i) {
@@ -3038,18 +3042,14 @@ namespace PrHelper {
 			prefixName + CPN::WtMod::waveSmooth, 
 			CPV::WtMod::WaveSmooth::initial
 		);
-		// HuC6280 モード用の変調波形 (32 サンプル)。
-		// PrHelper は名前空間なので、後方に定義された createWtCustomWaveLayout は
-		// ここからは呼べない。同じ内容を直接展開する。
-		for (int i = 0; i < CPV::WtMod::WaveSize::size; ++i)
-		{
-			PrHelper::addFloat(
-				layout,
-				prefix + CPK::WtMod::wave + juce::String(i),
-				prefixName + CPN::WtMod::wave + juce::String(i),
-				CPV::Wt::CustomValue::min, CPV::Wt::CustomValue::max, CPV::Wt::CustomValue::initial
-			);
-		}
+		// HuC6280 モードで使う変調波形スロットの番号。
+		// 波形そのものはプロセッサが持つので、ここには出てこない。
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::WtMod::waveSlot,
+			prefixName + CPN::WtMod::waveSlot,
+			CPV::WtMod::WaveSlot::min, CPV::WtMod::WaveSlot::max, CPV::WtMod::WaveSlot::initial
+		);
 		// FdsUser モード用の変調テーブル (32 エントリ / 3bit のレジスタ値)。
 		// 初期値は FdsMod の対称三角テーブル。
 		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i)

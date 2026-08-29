@@ -101,7 +101,7 @@ void GuiWtPlus::setup() {
     // MODULATION
     // ==========================================================
     // 波形メモリのチャンネル自身の機能なのでハード扱いにする
-    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.wtPlusModWavePath, GuiColor::Category::HwBg);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
 
     // ==========================================================
     // 共通コンポーネント

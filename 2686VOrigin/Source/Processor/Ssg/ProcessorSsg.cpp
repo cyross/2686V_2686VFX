@@ -33,13 +33,13 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
 }
 
-void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
     const juce::String prefix = SsgPrKey::prefix;
 
     PrHelper::setupSsgBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
-    PrHelper::setupWtMod(apvts, prefix, pWtMod);
+    PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
     PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);

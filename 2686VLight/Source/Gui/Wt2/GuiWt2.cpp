@@ -349,7 +349,7 @@ void GuiWt2::setup()
         };
 
     // 波形メモリのチャンネル自身の機能なのでハード扱いにする
-    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.wt2ModWavePath, GuiColor::Category::HwBg);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 

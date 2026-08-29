@@ -598,7 +598,7 @@ void GuiOpzx7::setup()
     glLfo.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
-    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
     ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");

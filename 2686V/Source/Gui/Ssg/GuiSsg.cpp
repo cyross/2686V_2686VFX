@@ -72,7 +72,7 @@ void GuiSsg::setup()
 
     // SSG チャンネル自身の機能なのでハード扱いにする
     ssgHwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
-    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 

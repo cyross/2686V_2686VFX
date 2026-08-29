@@ -40,19 +40,19 @@ AudioPlugin2686V::AudioPlugin2686V()
     pPitchResetOnLegato = apvts.getRawParameterValue(CPK::Midi::pitchResetOnLegato);
     pFixedVelocity = apvts.getRawParameterValue(CPK::Midi::fixedVelocity);
 
-    prOpna.init(apvts);
-    prOpn.init(apvts);
-    prOpl.init(apvts);
-    prOpl3.init(apvts);
-    prOpm.init(apvts);
-    prOpzx7.init(apvts);
-    prSsg.init(apvts);
-    prWt.init(apvts);
-    prWt2.init(apvts);
-    prWtPlus.init(apvts);
-    prRhythm.init(apvts);
-    prAdpcm.init(apvts);
-    prBeep.init(apvts);
+    prOpna.init(apvts, modWaveSlots);
+    prOpn.init(apvts, modWaveSlots);
+    prOpl.init(apvts, modWaveSlots);
+    prOpl3.init(apvts, modWaveSlots);
+    prOpm.init(apvts, modWaveSlots);
+    prOpzx7.init(apvts, modWaveSlots);
+    prSsg.init(apvts, modWaveSlots);
+    prWt.init(apvts, modWaveSlots);
+    prWt2.init(apvts, modWaveSlots);
+    prWtPlus.init(apvts, modWaveSlots);
+    prRhythm.init(apvts, modWaveSlots);
+    prAdpcm.init(apvts, modWaveSlots);
+    prBeep.init(apvts, modWaveSlots);
     prFx.init(apvts);
 
     m_synth.addSound(new SynthSound());
@@ -418,14 +418,15 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     }
 
     // 変調波形は 32 パラメータ側に入っているので、ここではファイル名表示用のパスだけ保存する
-    xml->setAttribute(PresetKey::wtModWavePath, makeWtPathRelative(juce::File(wtModWavePath)));
-    xml->setAttribute(PresetKey::wt2ModWavePath, makeWtPathRelative(juce::File(wt2ModWavePath)));
-    xml->setAttribute(PresetKey::wtPlusModWavePath, makeWtPathRelative(juce::File(wtPlusModWavePath)));
-
-
-    // チャンネルごとの MODULATION 変調波形パス
+    // チャンネルごとの WT PITCH MOD 変調波形パス。
+    // 属性名の末尾にスロット番号を付ける。
     for (const auto& kv : modWavePaths) {
-        xml->setAttribute(PresetKey::modWavePathPrefix + kv.first, makeWtPathRelative(juce::File(kv.second)));
+        for (int i = 0; i < Global::WtMod::slots; ++i) {
+            if (kv.second[i].isEmpty()) continue;
+
+            xml->setAttribute(PresetKey::modWavePathPrefix + kv.first + "_" + juce::String(i),
+                makeWtPathRelative(juce::File(kv.second[i])));
+        }
     }
 
     // サンプルパス保存 (RHYTHM)
@@ -480,33 +481,45 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
             }
         }
 
-        // 変調波形のファイル名復帰 (波形データはパラメータ側で復元済み)
-        {
-            juce::String storedWtMod = xmlState->getStringAttribute(PresetKey::wtModWavePath);
-            juce::String storedWt2Mod = xmlState->getStringAttribute(PresetKey::wt2ModWavePath);
-
-            wtModWavePath = storedWtMod.isEmpty() ? juce::String() : resolveWtPath(storedWtMod).getFullPathName();
-            wt2ModWavePath = storedWt2Mod.isEmpty() ? juce::String() : resolveWtPath(storedWt2Mod).getFullPathName();
-
-            juce::String storedWtPlusMod = xmlState->getStringAttribute(PresetKey::wtPlusModWavePath);
-
-            wtPlusModWavePath = storedWtPlusMod.isEmpty() ? juce::String() : resolveWtPath(storedWtPlusMod).getFullPathName();
-        }
 
 
-        // チャンネルごとの MODULATION 変調波形パス。
+        // チャンネルごとの WT PITCH MOD 変調波形。
         // エディタが開いていないと map は空なので、属性側から拾って作る。
+        // 実データはファイルから読み直す。
         modWavePaths.clear();
+
+        // modWaveSlots は音源側へ要素のポインタを配ってあるので、
+        // 要素そのものを消してはいけない。中身だけ空にする。
+        for (auto& kv : modWaveSlots) {
+            for (auto& slot : kv.second) {
+                slot.data.fill(0.0f);
+                slot.hasData = false;
+            }
+        }
 
         for (int i = 0; i < xmlState->getNumAttributes(); ++i) {
             const juce::String& name = xmlState->getAttributeName(i);
 
             if (!name.startsWith(PresetKey::modWavePathPrefix)) continue;
 
+            // 「プレフィックス + コード + _ + スロット番号」から後ろ 2 つを外す
+            juce::String tail = name.substring(PresetKey::modWavePathPrefix.length());
+            int sep = tail.lastIndexOfChar('_');
+
+            if (sep < 0) continue;
+
+            juce::String code = tail.substring(0, sep);
+            int slot = tail.substring(sep + 1).getIntValue();
+
+            if (slot < 0 || slot >= Global::WtMod::slots) continue;
+
             juce::String stored = xmlState->getAttributeValue(i);
 
-            modWavePaths[name.substring(PresetKey::modWavePathPrefix.length())] =
-                stored.isEmpty() ? juce::String() : resolveWtPath(stored).getFullPathName();
+            if (stored.isEmpty()) continue;
+
+            juce::File file = resolveWtPath(stored);
+
+            if (file.existsAsFile()) loadWtModWaveFile(code, slot, file);
         }
 
         // サンプル復帰 (ADPCM)
@@ -1544,6 +1557,124 @@ void AudioPlugin2686V::loadWtPlusWaveFile(int slot, const juce::File& file)
     suspendProcessing(false);
 
     wtPlusWavePaths[slot] = file.getFullPathName();
+}
+
+// WT PITCH MOD (HuC6280 モード) の変調波形を読み込む。
+//
+// 実機の波形メモリは 32 サンプルなので、そこへ落としてから持つ。
+// 落とし方は Smooth の設定で変わる。
+//   Smooth ON  : 区間平均してから元のピークへ正規化する。
+//                32 点のナイキストより上の成分が低い次数へフルの振幅で
+//                折り返すのを抑えつつ、変調の振れ幅は保つ。
+//   Smooth OFF : 単純間引き。元波形の値をそのまま拾う。
+void AudioPlugin2686V::loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file)
+{
+    if (slot < 0 || slot >= Global::WtMod::slots) return;
+
+    juce::StringArray lines;
+    file.readLines(lines);
+
+    if (lines.size() == 0) return;
+
+    int sampleCount = lines[0].trim().getIntValue();
+
+    if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) return;
+
+    std::vector<float> values((size_t)sampleCount, 0.0f);
+
+    if (file.getFileExtension().equalsIgnoreCase(".wt2")) {
+        // .wt2 は 2 行目が解像度、3 行目以降が 0〜(解像度-1) の整数。
+        // 中央を 0 として -1.0〜1.0 へ正規化する。
+        int resolution = (lines.size() > 1) ? lines[1].trim().getIntValue() : 0;
+
+        if (resolution != 16 && resolution != 32 && resolution != 64
+            && resolution != 128 && resolution != 256) {
+            return;
+        }
+
+        float center = (float)(resolution >> 1);
+
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 2 < lines.size()) {
+                int raw = std::clamp(lines[i + 2].getIntValue(), 0, resolution - 1);
+
+                values[(size_t)i] = std::clamp(((float)raw - center) / center, -1.0f, 1.0f);
+            }
+        }
+    }
+    else {
+        // .wt は 2 行目以降が -1.0〜1.0 の実数
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 1 < lines.size()) {
+                values[(size_t)i] = std::clamp(lines[i + 1].getFloatValue(), -1.0f, 1.0f);
+            }
+        }
+    }
+
+    const int step = sampleCount / Global::WtMod::waveSize;
+
+    bool smooth = false;
+
+    if (auto* p = apvts.getRawParameterValue(code + CPK::WtMod::waveSmooth)) {
+        smooth = p->load() > 0.5f;
+    }
+
+    std::array<float, Global::WtMod::waveSize> reduced = { 0.0f };
+
+    if (smooth && step > 1) {
+        float srcPeak = 0.0f;
+
+        for (float v : values) srcPeak = std::max(srcPeak, std::fabs(v));
+
+        float dstPeak = 0.0f;
+
+        for (int i = 0; i < Global::WtMod::waveSize; ++i) {
+            float sum = 0.0f;
+
+            for (int k = 0; k < step; ++k) sum += values[(size_t)(i * step + k)];
+
+            reduced[(size_t)i] = sum / (float)step;
+            dstPeak = std::max(dstPeak, std::fabs(reduced[(size_t)i]));
+        }
+
+        // 平均でなまったぶんのピークを戻す (無音の波形はそのまま)
+        if (srcPeak > 1.0e-6f && dstPeak > 1.0e-6f) {
+            float gain = srcPeak / dstPeak;
+
+            for (auto& v : reduced) v = std::clamp(v * gain, -1.0f, 1.0f);
+        }
+    }
+    else {
+        for (int i = 0; i < Global::WtMod::waveSize; ++i) reduced[(size_t)i] = values[(size_t)(i * step)];
+    }
+
+    // 音源コアはこの配列を直接読むので、差し替えの瞬間だけ処理を止める
+    suspendProcessing(true);
+
+    auto& slots = modWaveSlots[code];
+
+    slots[(size_t)slot].data = reduced;
+    slots[(size_t)slot].hasData = true;
+
+    suspendProcessing(false);
+
+    modWavePaths[code][(size_t)slot] = file.getFullPathName();
+}
+
+void AudioPlugin2686V::unloadWtModWaveFile(const juce::String& code, int slot)
+{
+    if (slot < 0 || slot >= Global::WtMod::slots) return;
+
+    suspendProcessing(true);
+
+    auto& slots = modWaveSlots[code];
+
+    slots[(size_t)slot].data.fill(0.0f);
+    slots[(size_t)slot].hasData = false;
+
+    suspendProcessing(false);
+
+    modWavePaths[code][(size_t)slot].clear();
 }
 
 void AudioPlugin2686V::unloadWtPlusWaveFile(int slot)

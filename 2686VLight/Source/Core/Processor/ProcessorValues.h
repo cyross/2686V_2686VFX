@@ -1631,6 +1631,14 @@ namespace CPV
 		// FDS(2C33) の変調テーブル。32 エントリ・各 3bit の増減値で、
 		// 0 = +0 / 1 = +1 / 2 = +2 / 3 = +4 / 4 = カウンタをリセット /
 		// 5 = -4 / 6 = -2 / 7 = -1 を表す。初期値は対称三角のテーブル。
+		// 使う変調波形スロットの番号
+		namespace WaveSlot
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = Global::WtMod::slots - 1;
+			inline constexpr int initial = 0;
+		}
+
 		namespace FdsTable
 		{
 			inline constexpr int size = 32;

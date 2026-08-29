@@ -251,7 +251,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     lfoComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
-    modComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, ctx.audioProcessor.modWavePaths[padPrefix]);
+    modComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     setupGraph();
     updateGraph();

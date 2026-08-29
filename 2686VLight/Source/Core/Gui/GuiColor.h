@@ -55,6 +55,25 @@ namespace GuiColor {
 			static inline const juce::Colour FcGold       = juce::Colour::fromRGB(0xD1, 0xB6, 0x8C); // FC Gold        初代ファミコンのロゴの金
 			static inline const juce::Colour GbScrOn      = juce::Colour::fromRGB(0x33, 0x52, 0x3A); // GB SCR ON      初代ゲームボーイの液晶 (点灯)
 			static inline const juce::Colour GbScrOff     = juce::Colour::fromRGB(0x89, 0x97, 0x28); // GB SCR OFF     初代ゲームボーイの液晶 (消灯)
+			static inline const juce::Colour TownsBody     = juce::Colour::fromRGB(0x45, 0x4E, 0x5C); // TOWNS Body     初代 FM-TOWNS の筐体色
+			static inline const juce::Colour TownsLogo     = juce::Colour::fromRGB(0x34, 0x81, 0x78); // TOWNS Logo     初代 FM-TOWNS のロゴ
+		};
+
+		// ------------------------------------------------------------------
+		// キャラクター由来の色
+		// ------------------------------------------------------------------
+		// 作者の個人的なイメージで付けた色。公式の設定とは関係が無いので、
+		// 画面に出すときは必ずその旨のただし書きを添えること。
+		namespace Chara {
+			static inline const juce::Colour MikuTurquoise = juce::Colour::fromRGB(0x90, 0xCB, 0xCB); // Miku Turquoise 初音ミクの髪色
+			static inline const juce::Colour RinOrange     = juce::Colour::fromRGB(0xEB, 0xA2, 0x39); // Rin Orange     鏡音リンのイメージカラー
+			static inline const juce::Colour LenYellow     = juce::Colour::fromRGB(0xF6, 0xD9, 0x57); // Len Yellow     鏡音レンのイメージカラー
+			static inline const juce::Colour LukaPink      = juce::Colour::fromRGB(0xC3, 0xA1, 0x9E); // Luka Pink      巡音ルカの髪色
+			static inline const juce::Colour LukaBrown     = juce::Colour::fromRGB(0x58, 0x38, 0x30); // Luka Brown     巡音ルカの腕章の色
+			static inline const juce::Colour LukaGold      = juce::Colour::fromRGB(0xC1, 0xAC, 0x60); // Luka Gold      巡音ルカのブーツの色
+			static inline const juce::Colour MeikoRed      = juce::Colour::fromRGB(0xBA, 0x2B, 0x3C); // MEIKO Red      MEIKO のイメージカラー
+			static inline const juce::Colour KaitoBlue     = juce::Colour::fromRGB(0x38, 0x3F, 0x8B); // KAITO Blue     KAITO のイメージカラー
+			static inline const juce::Colour ZundaGreen    = juce::Colour::fromRGB(0xB4, 0xF7, 0x42); // Zunda Green    ずんだもんのイメージカラー
 		};
 	};
 

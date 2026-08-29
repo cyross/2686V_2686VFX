@@ -50,7 +50,7 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     }
 }
 
-void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
     const juce::String prefix = OpmPrKey::prefix;
 
     PrHelper::setupOpmBasicPtrs(apvts, prefix, pBasic);
@@ -59,7 +59,7 @@ void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupOpmLfoPtrs(apvts, prefix, pGlLfo);
     PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
-    PrHelper::setupWtMod(apvts, prefix, pWtMod);
+    PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
     PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11g);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);

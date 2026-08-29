@@ -218,10 +218,11 @@ void FdsTableEditor::paintOverChildren(juce::Graphics& g)
     paintHoverText(g, text);
 }
 
-void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, juce::String& wavePath,
+void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
     juce::Colour categoryBg)
 {
-    p_wavePath = &wavePath;
+    // 変調波形はプロセッサが持っているので、引き当ての鍵だけ覚えておく
+    m_code = code;
 
     cat.setupCategory({ .parent = parent, .title = juce::String("") + "WT PITCH MOD", .enableChangeDetailVisible = true }, categoryBg);
 
@@ -267,9 +268,10 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     waveClearBtn.onClick = [this] { clearWave(); };
 
     waveFileNameLabel.setup({ .parent = parent, .title = Io::empty });
-    if (p_wavePath->isNotEmpty()) {
-        updateWaveFileName(juce::File(*p_wavePath).getFileName());
-    }
+
+    updateWaveFileName(currentWavePath().isEmpty()
+        ? Io::empty
+        : juce::File(currentWavePath()).getFileName());
 
     waveSmoothBtn.setup({ .parent = parent, .id = code + CPK::WtMod::waveSmooth, .title = "Smooth", .isReset = true, .isResized = true });
     waveSmoothBtn.setWantsKeyboardFocus(true);
@@ -288,10 +290,6 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
         this->reapplyWaveFile();
         };
 
-    // HuC6280 モードの変調波形パラメータを引けるようにしておく
-    for (int i = 0; i < 32; ++i) {
-        waveParams[i] = ctx.audioProcessor.apvts.getParameter(code + CPK::WtMod::wave + juce::String(i));
-    }
 
     modPreview.setup(parent, GuiColor::WavePreview::PitchEnv);
     updateModPreview();
@@ -410,139 +408,62 @@ void GuiComponentWtMod::importWave(bool isWt2)
 
             updateWaveFileName("Loading...");
 
-            juce::Timer::callAfterDelay(50, [this, isWt2, file]()
+            juce::Timer::callAfterDelay(50, [this, file]()
                 {
-                    if (!applyWaveFile(file, isWt2)) {
-                        updateWaveFileName(Io::empty);
-                        return;
-                    }
+                    // 読み込みと 32 サンプルへの落とし込みはプロセッサが行う。
+                    // 実データを持っているのがあちら側だから。
+                    ctx.audioProcessor.loadWtModWaveFile(m_code, currentSlot(), file);
 
-                    updateWaveFileName(file.getFileName());
+                    updateWaveFileName(currentWavePath().isEmpty()
+                        ? Io::empty
+                        : file.getFileName());
+
                     ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
-                    (*p_wavePath) = file.getFullPathName();
                 });
         }
     );
 }
 
-bool GuiComponentWtMod::applyWaveFile(const juce::File& file, bool isWt2)
-{
-    juce::StringArray lines;
-    file.readLines(lines);
-
-    if (lines.size() == 0) return false;
-
-    int sampleCount = lines[0].trim().getIntValue();
-
-    if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) {
-        juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-            "Invalid WT File", "Sample count must be 32, 64, 128, or 256.");
-        return false;
-    }
-
-    std::vector<float> values(sampleCount, 0.0f);
-
-    if (isWt2) {
-        int resNumber = (lines.size() > 1) ? lines[1].trim().getIntValue() : 0;
-
-        if (resNumber != 16 && resNumber != 32 && resNumber != 64 && resNumber != 128 && resNumber != 256) {
-            juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-                "Invalid WT File", "Resolution must be 16, 32, 64, 128, or 256.");
-            return false;
-        }
-
-        // .wt2 は 3 行目以降が 0〜(解像度-1) の整数。中央を 0 として -1.0〜1.0 に正規化する。
-        float center = (float)(resNumber >> 1);
-
-        for (int i = 0; i < sampleCount; ++i) {
-            if (i + 2 < lines.size()) {
-                int raw = std::clamp(lines[i + 2].getIntValue(), 0, resNumber - 1);
-                values[i] = std::clamp(((float)raw - center) / center, -1.0f, 1.0f);
-            }
-        }
-    }
-    else {
-        // .wt は 2 行目以降が -1.0〜1.0 の実数
-        for (int i = 0; i < sampleCount; ++i) {
-            if (i + 1 < lines.size()) {
-                values[i] = std::clamp(lines[i + 1].getFloatValue(), -1.0f, 1.0f);
-            }
-        }
-    }
-
-    // 実機の波形メモリは 32 サンプルなので、そこへ落とす。
-    //   Smooth ON  : 区間平均してから元のピークへ正規化する。
-    //                32 点のナイキスト(16 次)より上の成分が低い次数へ
-    //                フルの振幅で折り返すのを抑えつつ、変調の振れ幅は保つ。
-    //   Smooth OFF : 単純間引き。元波形の値をそのまま拾う。
-    const int step = sampleCount / 32;
-    std::array<float, 32> reduced = { 0.0f };
-
-    if (waveSmoothBtn.getToggleState() && step > 1) {
-        float srcPeak = 0.0f;
-        for (int i = 0; i < sampleCount; ++i) {
-            srcPeak = std::max(srcPeak, std::fabs(values[i]));
-        }
-
-        float dstPeak = 0.0f;
-        for (int i = 0; i < 32; ++i) {
-            float sum = 0.0f;
-            for (int k = 0; k < step; ++k) sum += values[i * step + k];
-
-            reduced[i] = sum / (float)step;
-            dstPeak = std::max(dstPeak, std::fabs(reduced[i]));
-        }
-
-        // 平均でなまったぶんのピークを戻す (無音の波形はそのまま)
-        if (srcPeak > 1.0e-6f && dstPeak > 1.0e-6f) {
-            float gain = srcPeak / dstPeak;
-
-            for (int i = 0; i < 32; ++i) {
-                reduced[i] = std::clamp(reduced[i] * gain, -1.0f, 1.0f);
-            }
-        }
-    }
-    else {
-        for (int i = 0; i < 32; ++i) reduced[i] = values[i * step];
-    }
-
-    for (int i = 0; i < 32; ++i) {
-        if (waveParams[i] != nullptr) {
-            waveParams[i]->setValueNotifyingHost(waveParams[i]->convertTo0to1(reduced[i]));
-        }
-    }
-
-    return true;
-}
 
 // Smooth は「読み込んだ波形を 32 サンプルへ落とす方法」を選ぶスイッチで、
 // 取り込んだあとの値には掛からない。切り替えただけでは何も変わらないと
 // 分かりにくいので、読み込んだファイルを覚えているうちは取り込み直す。
 void GuiComponentWtMod::reapplyWaveFile()
 {
-    if (p_wavePath == nullptr || p_wavePath->isEmpty()) return;
-
-    juce::File file(*p_wavePath);
+    juce::File file(currentWavePath());
 
     if (!file.existsAsFile()) return;
 
-    // .wt か .wt2 かは拡張子で分かる
-    if (!applyWaveFile(file, file.hasFileExtension("wt2"))) return;
+    ctx.audioProcessor.loadWtModWaveFile(m_code, currentSlot(), file);
 
     updateModPreview();
 }
 
 void GuiComponentWtMod::clearWave()
 {
-    for (int i = 0; i < 32; ++i) {
-        if (waveParams[i] != nullptr) {
-            waveParams[i]->setValueNotifyingHost(waveParams[i]->convertTo0to1(0.0f));
-        }
-    }
-
-    (*p_wavePath) = juce::String();
+    ctx.audioProcessor.unloadWtModWaveFile(m_code, currentSlot());
 
     updateWaveFileName(Io::empty);
+}
+
+// 今どのスロットを触っているか。
+// 演奏中に切り替えられるよう、パラメータとして持っている。
+int GuiComponentWtMod::currentSlot() const
+{
+    if (auto* p = ctx.audioProcessor.apvts.getRawParameterValue(m_code + CPK::WtMod::waveSlot)) {
+        return std::clamp((int)p->load(), 0, Global::WtMod::slots - 1);
+    }
+
+    return 0;
+}
+
+juce::String GuiComponentWtMod::currentWavePath() const
+{
+    auto it = ctx.audioProcessor.modWavePaths.find(m_code);
+
+    if (it == ctx.audioProcessor.modWavePaths.end()) return juce::String();
+
+    return it->second[(size_t)currentSlot()];
 }
 
 void GuiComponentWtMod::updateWaveFileName(const juce::String& fileName)
@@ -557,11 +478,13 @@ void GuiComponentWtMod::updateWaveFileName(const juce::String& fileName)
 // 描画のたびに計算すると重いので、形が変わったときだけここを通す。
 void GuiComponentWtMod::updateModPreview()
 {
-    // HuC6280 モードで使う 32 サンプル
-    std::array<float, 32> wave = { 0.0f };
+    // HuC6280 モードで使う 32 サンプル。実データはプロセッサが持つ。
+    std::array<float, Global::WtMod::waveSize> wave = { 0.0f };
 
-    for (int i = 0; i < 32; ++i) {
-        if (waveParams[i] != nullptr) wave[i] = waveParams[i]->convertFrom0to1(waveParams[i]->getValue());
+    auto it = ctx.audioProcessor.modWaveSlots.find(m_code);
+
+    if (it != ctx.audioProcessor.modWaveSlots.end()) {
+        wave = it->second[(size_t)currentSlot()].data;
     }
 
     // 変調の向きは Shape によって上下どちらにも振れるので、両振りで描く

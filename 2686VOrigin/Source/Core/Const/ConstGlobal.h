@@ -54,6 +54,14 @@ namespace Global
 		static inline constexpr float real = 10.0f; // 実数レートの最長=10秒
 	}
 
+	namespace WtMod {
+		// HuC6280 モードの変調波形。実機と同じ 32 サンプル。
+		static inline constexpr int waveSize = 32;
+
+		// 持てる枚数。演奏中に切り替えられる。
+		static inline constexpr int slots = 8;
+	}
+
 	namespace Lfo {
 		// AM(トレモロ)の最大減衰量[dB]。全音源で共通の上限値。
 		//

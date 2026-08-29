@@ -4,6 +4,7 @@
 #include <atomic>
 
 #include "../Const/ConstGlobal.h"
+#include "../Synth/WtModWave.h"
 
 struct PrPtrsAlgFb {
     std::atomic<float>* alg = nullptr;
@@ -313,8 +314,12 @@ struct PrPtrsWtMod {
     std::atomic<float>* depth = nullptr;
     std::atomic<float>* speed = nullptr;
     std::atomic<float>* shape = nullptr;
-    std::array<std::atomic<float>*, 32> wave = { nullptr };
+    std::atomic<float>* waveSlot = nullptr;
     std::array<std::atomic<float>*, 32> fdsTable = { nullptr };
+
+    // 変調波形の置き場所。プロセッサが持っているものを指す。
+    // map の要素なので、一度引いたら差し替わらない。
+    const WtModWaveSlots* slots = nullptr;
 };
 
 struct PrPtrsSsgDuty {

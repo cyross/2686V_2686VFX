@@ -42,7 +42,7 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     }
 }
 
-void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
     const juce::String prefix = RhythmPrKey::prefix;
 
     PrHelper::setupRhythmBasicPtrs(apvts, prefix, pBasic);
@@ -54,7 +54,7 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         PrHelper::setupRhythmPadBasicPtrs(apvts, padPrefix, pPadBasic[i]);
         PrHelper::setupQualityPcmPtrs(apvts, padPrefix, pQuality[i]);
         PrHelper::setupAdsrAmpEnvPtrs(apvts, padPrefix, pAmpEnv[i]);
-        PrHelper::setupWtMod(apvts, padPrefix, pWtMod[i]);
+        PrHelper::setupWtMod(apvts, padPrefix, pWtMod[i], modWaves);
         PrHelper::setupPitchEnvPtrs(apvts, padPrefix, pPitchEnv[i]);
         PrHelper::setupSsgSwEnvPtrs(apvts, padPrefix, pSsgSwEnv[i]);
         PrHelper::setupSsgSwEnv11Ptrs(apvts, padPrefix, pSsgSwEnv11[i]);

@@ -164,7 +164,7 @@ void GuiAdpcm::setup()
     fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
-    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 

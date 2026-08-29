@@ -40,14 +40,14 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
 }
 
-void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
     const juce::String prefix = BeepPrKey::prefix;
 
     PrHelper::setupBeepBasicPtrs(apvts, prefix, pBasic);
     pBasic.antiAlias = apvts.getRawParameterValue(prefix + BeepPrKey::antiAlias);
     pBasic.timerClock = apvts.getRawParameterValue(prefix + BeepPrKey::timerClock);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
-    PrHelper::setupWtMod(apvts, prefix, pWtMod);
+    PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
     PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);

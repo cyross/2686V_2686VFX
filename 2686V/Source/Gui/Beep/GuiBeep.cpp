@@ -61,7 +61,7 @@ void GuiBeep::setup() {
     lfoComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
-    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 

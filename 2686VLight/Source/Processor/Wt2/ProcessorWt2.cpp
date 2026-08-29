@@ -31,7 +31,7 @@ void Wt2Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addWt2CustomParameters(layout, prefix, prefixName);
 }
 
-void Wt2Processor::init(juce::AudioProcessorValueTreeState& apvts) {
+void Wt2Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
     const juce::String prefix = Wt2PrKey::prefix;
 
     PrHelper::setupWt2BasicPtrs(apvts, prefix, pBasic);
@@ -45,7 +45,7 @@ void Wt2Processor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
-    PrHelper::setupWtMod(apvts, prefix, pMod);
+    PrHelper::setupWtMod(apvts, prefix, pMod, modWaves);
     PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 }
