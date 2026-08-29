@@ -241,6 +241,19 @@ void GuiComponentAmpEnv::setImportingParams(juce::StringArray& lines, int& index
 	kor.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
 }
 
+void GuiComponentAmpEnv::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+{
+    Io::ParamReader r(reader, prefix);
+
+	bypass.setToggleState(r.getBool("bypass", bypass.getToggleState()), juce::sendNotification);
+	startLevel.setValue(r.getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+	attack.setValue(r.getFloat("attack", (float)attack.getValue()), juce::sendNotification);
+	decay.setValue(r.getFloat("decay", (float)decay.getValue()), juce::sendNotification);
+	sustain.setValue(r.getFloat("sustain", (float)sustain.getValue()), juce::sendNotification);
+	release.setValue(r.getFloat("release", (float)release.getValue()), juce::sendNotification);
+	kor.setToggleState(r.getBool("kor", kor.getToggleState()), juce::sendNotification);
+}
+
 juce::String GuiComponentAmpEnv::getExportedParams() {
 	juce::String content = "";
 
@@ -253,4 +266,17 @@ juce::String GuiComponentAmpEnv::getExportedParams() {
 	content += juce::String(kor.getToggleState() ? 1 : 0) + "\n";
 
 	return content;
+}
+
+void GuiComponentAmpEnv::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+{
+    Io::ParamWriter w(writer, prefix);
+
+	w.set("bypass", bypass.getToggleState());
+	w.set("startLevel", (float)startLevel.getValue());
+	w.set("attack", (float)attack.getValue());
+	w.set("decay", (float)decay.getValue());
+	w.set("sustain", (float)sustain.getValue());
+	w.set("release", (float)release.getValue());
+	w.set("kor", kor.getToggleState());
 }

@@ -1,5 +1,7 @@
 ﻿#include "./Quality.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 
@@ -89,6 +91,14 @@ void Quality::setImportingParams(juce::StringArray& lines, int& index) {
     rateSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
 }
 
+void Quality::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+{
+    Io::ParamReader r(reader, prefix);
+
+    bitSelector.setSelectedItemIndex(r.getInt("bit", bitSelector.getSelectedItemIndex()), juce::sendNotification);
+    rateSelector.setSelectedItemIndex(r.getInt("rate", rateSelector.getSelectedItemIndex()), juce::sendNotification);
+}
+
 juce::String Quality::getExportedParams() {
     juce::String content = "";
 
@@ -96,4 +106,12 @@ juce::String Quality::getExportedParams() {
     content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
 
     return content;
+}
+
+void Quality::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+{
+    Io::ParamWriter w(writer, prefix);
+
+    w.set("bit", bitSelector.getSelectedItemIndex());
+    w.set("rate", rateSelector.getSelectedItemIndex());
 }

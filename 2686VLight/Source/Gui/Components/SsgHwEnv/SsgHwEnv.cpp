@@ -1,5 +1,7 @@
 ﻿#include "./SsgHwEnv.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
 #include "../WavePreview/WavePreviewSource.h"
 
 #include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
@@ -285,6 +287,18 @@ void GuiComponentSsgHwEnv::setImportingParams(juce::StringArray& lines, int& ind
     smoothEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
 }
 
+void GuiComponentSsgHwEnv::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+{
+    Io::ParamReader r(reader, prefix);
+
+    envEnableButton.setToggleState(r.getBool("envEnable", envEnableButton.getToggleState()), juce::sendNotification);
+    shapeSelector.setSelectedItemIndex(r.getInt("shape", shapeSelector.getSelectedItemIndex()), juce::sendNotification);
+    periodSlider.setValue(r.getFloat("period", (float)periodSlider.getValue()), juce::sendNotification);
+    minSlider.setValue(r.getFloat("min", (float)minSlider.getValue()), juce::sendNotification);
+    maxSlider.setValue(r.getFloat("max", (float)maxSlider.getValue()), juce::sendNotification);
+    smoothEnableButton.setToggleState(r.getBool("smoothEnable", smoothEnableButton.getToggleState()), juce::sendNotification);
+}
+
 juce::String GuiComponentSsgHwEnv::getExportedParams() {
     juce::String content = "";
 
@@ -296,6 +310,18 @@ juce::String GuiComponentSsgHwEnv::getExportedParams() {
     content += juce::String(smoothEnableButton.getToggleState() ? 1 : 0) + "\n";
 
     return content;
+}
+
+void GuiComponentSsgHwEnv::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+{
+    Io::ParamWriter w(writer, prefix);
+
+    w.set("envEnable", envEnableButton.getToggleState());
+    w.set("shape", shapeSelector.getSelectedItemIndex());
+    w.set("period", (float)periodSlider.getValue());
+    w.set("min", (float)minSlider.getValue());
+    w.set("max", (float)maxSlider.getValue());
+    w.set("smoothEnable", smoothEnableButton.getToggleState());
 }
 
 // 選んだ Shape を実際のエンベロープで走らせ、折れ線にして渡す。

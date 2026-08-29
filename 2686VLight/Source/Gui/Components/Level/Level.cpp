@@ -1,5 +1,7 @@
 ﻿#include "./Level.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Const/ConstGlobal.h"
@@ -310,10 +312,24 @@ void GuiComponentLevel::setImportingParams(juce::StringArray& lines, int& index)
     levelSlider.setValue(lines[index++].getFloatValue());
 }
 
+void GuiComponentLevel::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+{
+    Io::ParamReader r(reader, prefix);
+
+    levelSlider.setValue(r.getFloat("level", (float)levelSlider.getValue()));
+}
+
 juce::String GuiComponentLevel::getExportedParams() {
     juce::String content = "";
 
     content += juce::String(levelSlider.getValue(), Global::floatDecimalPlaces) + "\n";
 
     return content;
+}
+
+void GuiComponentLevel::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+{
+    Io::ParamWriter w(writer, prefix);
+
+    w.set("level", (float)levelSlider.getValue());
 }

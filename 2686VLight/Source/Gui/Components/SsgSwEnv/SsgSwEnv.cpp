@@ -569,6 +569,30 @@ void GuiComponentSsgSwEnv::setImportingParams(juce::StringArray& lines, int& ind
     l6.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 }
 
+void GuiComponentSsgSwEnv::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+{
+    Io::ParamReader r(reader, prefix);
+
+    flag.setToggleState(r.getBool("flag", flag.getToggleState()), juce::sendNotification);
+    steps.setValue(r.getInt("steps", (int)steps.getValue()), juce::sendNotification);
+    loop.setToggleState(r.getBool("loop", loop.getToggleState()), juce::sendNotification);
+    loopTo.setValue(r.getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
+    loopCount.setValue(r.getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+    startLevel.setValue(r.getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+    r1.setValue(r.getFloat("r1", (float)r1.getValue()), juce::sendNotification);
+    l1.setValue(r.getFloat("l1", (float)l1.getValue()), juce::sendNotification);
+    r2.setValue(r.getFloat("r2", (float)r2.getValue()), juce::sendNotification);
+    l2.setValue(r.getFloat("l2", (float)l2.getValue()), juce::sendNotification);
+    r3.setValue(r.getFloat("r3", (float)r3.getValue()), juce::sendNotification);
+    l3.setValue(r.getFloat("l3", (float)l3.getValue()), juce::sendNotification);
+    r4.setValue(r.getFloat("r4", (float)r4.getValue()), juce::sendNotification);
+    l4.setValue(r.getFloat("l4", (float)l4.getValue()), juce::sendNotification);
+    r5.setValue(r.getFloat("r5", (float)r5.getValue()), juce::sendNotification);
+    l5.setValue(r.getFloat("l5", (float)l5.getValue()), juce::sendNotification);
+    r6.setValue(r.getFloat("r6", (float)r6.getValue()), juce::sendNotification);
+    l6.setValue(r.getFloat("l6", (float)l6.getValue()), juce::sendNotification);
+}
+
 juce::String GuiComponentSsgSwEnv::getExportedParams() {
     juce::String content = "";
 
@@ -592,4 +616,28 @@ juce::String GuiComponentSsgSwEnv::getExportedParams() {
     content += juce::String(l6.getValue(), Global::floatDecimalPlaces) + "\n";
 
     return content;
+}
+
+void GuiComponentSsgSwEnv::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+{
+    Io::ParamWriter w(writer, prefix);
+
+    w.set("flag", flag.getToggleState());
+    w.set("steps", (float)steps.getValue());
+    w.set("loop", loop.getToggleState());
+    w.set("loopTo", (float)loopTo.getValue());
+    w.set("loopCount", (float)loopCount.getValue());
+    w.set("startLevel", (float)startLevel.getValue());
+    w.set("r1", (float)r1.getValue());
+    w.set("l1", (float)l1.getValue());
+    w.set("r2", (float)r2.getValue());
+    w.set("l2", (float)l2.getValue());
+    w.set("r3", (float)r3.getValue());
+    w.set("l3", (float)l3.getValue());
+    w.set("r4", (float)r4.getValue());
+    w.set("l4", (float)l4.getValue());
+    w.set("r5", (float)r5.getValue());
+    w.set("l5", (float)l5.getValue());
+    w.set("r6", (float)r6.getValue());
+    w.set("l6", (float)l6.getValue());
 }

@@ -1,5 +1,7 @@
 ﻿#include "./Fix.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -508,6 +510,14 @@ void GuiComponentFix::setImportingParams(juce::StringArray& lines, int& index) {
     freq.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 }
 
+void GuiComponentFix::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+{
+    Io::ParamReader r(reader, prefix);
+
+    enable.setToggleState(r.getBool("enable", enable.getToggleState()), juce::sendNotification);
+    freq.setValue(r.getFloat("freq", (float)freq.getValue()), juce::sendNotification);
+}
+
 juce::String GuiComponentFix::getExportedParams() {
     juce::String content = "";
 
@@ -515,4 +525,12 @@ juce::String GuiComponentFix::getExportedParams() {
     content += juce::String(freq.getValue(), Global::floatDecimalPlaces) + "\n";
 
     return content;
+}
+
+void GuiComponentFix::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+{
+    Io::ParamWriter w(writer, prefix);
+
+    w.set("enable", enable.getToggleState());
+    w.set("freq", (float)freq.getValue());
 }

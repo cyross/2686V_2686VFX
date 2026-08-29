@@ -1,5 +1,7 @@
 ﻿#include "./QualityPcm.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 
@@ -119,6 +121,15 @@ void QualityPcm::setImportingParams(juce::StringArray& lines, int& index) {
     interpSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
 }
 
+void QualityPcm::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+{
+    Io::ParamReader r(reader, prefix);
+
+    modeSelector.setSelectedItemIndex(r.getInt("mode", modeSelector.getSelectedItemIndex()), juce::sendNotification);
+    rateSelector.setSelectedItemIndex(r.getInt("rate", rateSelector.getSelectedItemIndex()), juce::sendNotification);
+    interpSelector.setSelectedItemIndex(r.getInt("interp", interpSelector.getSelectedItemIndex()), juce::sendNotification);
+}
+
 juce::String QualityPcm::getExportedParams() {
     juce::String content = "";
 
@@ -127,4 +138,13 @@ juce::String QualityPcm::getExportedParams() {
     content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
 
     return content;
+}
+
+void QualityPcm::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+{
+    Io::ParamWriter w(writer, prefix);
+
+    w.set("mode", modeSelector.getSelectedItemIndex());
+    w.set("rate", rateSelector.getSelectedItemIndex());
+    w.set("interp", interpSelector.getSelectedItemIndex());
 }

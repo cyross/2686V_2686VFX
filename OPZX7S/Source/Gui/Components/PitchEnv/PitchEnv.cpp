@@ -292,6 +292,20 @@ void GuiComponentPitchEnv::setImportingParams(juce::StringArray& lines, int& ind
 	releaseLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 }
 
+void GuiComponentPitchEnv::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+{
+    Io::ParamReader r(reader, prefix);
+
+	flag.setToggleState(r.getBool("flag", flag.getToggleState()), juce::sendNotification);
+	attack.setValue(r.getFloat("attack", (float)attack.getValue()), juce::sendNotification);
+	decay.setValue(r.getFloat("decay", (float)decay.getValue()), juce::sendNotification);
+	release.setValue(r.getFloat("release", (float)release.getValue()), juce::sendNotification);
+	startLevel.setValue(r.getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+	attackLevel.setValue(r.getFloat("attackLevel", (float)attackLevel.getValue()), juce::sendNotification);
+	sustainLevel.setValue(r.getFloat("sustainLevel", (float)sustainLevel.getValue()), juce::sendNotification);
+	releaseLevel.setValue(r.getFloat("releaseLevel", (float)releaseLevel.getValue()), juce::sendNotification);
+}
+
 juce::String GuiComponentPitchEnv::getExportedParams() {
 	juce::String content = "";
 
@@ -305,4 +319,18 @@ juce::String GuiComponentPitchEnv::getExportedParams() {
 	content += juce::String(releaseLevel.getValue(), Global::floatDecimalPlaces) + "\n";
 
 	return content;
+}
+
+void GuiComponentPitchEnv::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+{
+    Io::ParamWriter w(writer, prefix);
+
+	w.set("flag", flag.getToggleState());
+	w.set("attack", (float)attack.getValue());
+	w.set("decay", (float)decay.getValue());
+	w.set("release", (float)release.getValue());
+	w.set("startLevel", (float)startLevel.getValue());
+	w.set("attackLevel", (float)attackLevel.getValue());
+	w.set("sustainLevel", (float)sustainLevel.getValue());
+	w.set("releaseLevel", (float)releaseLevel.getValue());
 }

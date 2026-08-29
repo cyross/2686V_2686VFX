@@ -425,6 +425,25 @@ void GuiComponentLfoOpzx7::setImportingParams(juce::StringArray& lines, int& ind
     amd.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 }
 
+void GuiComponentLfoOpzx7::readParams(const Io::ParamReader& reader, const juce::String& prefix)
+{
+    Io::ParamReader r(reader, prefix);
+
+    pmEnable.setToggleState(r.getBool("pmEnable", pmEnable.getToggleState()), juce::sendNotification);
+    pmFreq.setValue(r.getFloat("pmFreq", (float)pmFreq.getValue()), juce::sendNotification);
+    pmSyncDelay.setValue(r.getInt("pmSyncDelay", (int)pmSyncDelay.getValue()), juce::sendNotification);
+    pgShape.setSelectedItemIndex(r.getInt("pgShape", pgShape.getSelectedItemIndex()), juce::sendNotification);
+    pms.setValue(r.getFloat("pms", (float)pms.getValue()), juce::sendNotification);
+    pmd.setValue(r.getFloat("pmd", (float)pmd.getValue()), juce::sendNotification);
+    amEnable.setToggleState(r.getBool("amEnable", amEnable.getToggleState()), juce::sendNotification);
+    amFreq.setValue(r.getFloat("amFreq", (float)amFreq.getValue()), juce::sendNotification);
+    egShape.setSelectedItemIndex(r.getInt("egShape", egShape.getSelectedItemIndex()), juce::sendNotification);
+    amSyncDelay.setValue(r.getInt("amSyncDelay", (int)amSyncDelay.getValue()), juce::sendNotification);
+    amSmRt.setValue(r.getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
+    ams.setValue(r.getFloat("ams", (float)ams.getValue()), juce::sendNotification);
+    amd.setValue(r.getFloat("amd", (float)amd.getValue()), juce::sendNotification);
+}
+
 juce::String GuiComponentLfoOpzx7::getExportedParams() {
     juce::String content = "";
 
@@ -443,4 +462,23 @@ juce::String GuiComponentLfoOpzx7::getExportedParams() {
     content += juce::String(amd.getValue(), Global::floatDecimalPlaces) + "\n";
 
     return content;
+}
+
+void GuiComponentLfoOpzx7::writeParams(Io::ParamWriter& writer, const juce::String& prefix)
+{
+    Io::ParamWriter w(writer, prefix);
+
+    w.set("pmEnable", pmEnable.getToggleState());
+    w.set("pmFreq", (float)pmFreq.getValue());
+    w.set("pmSyncDelay", (float)pmSyncDelay.getValue());
+    w.set("pgShape", pgShape.getSelectedItemIndex());
+    w.set("pms", (float)pms.getValue());
+    w.set("pmd", (float)pmd.getValue());
+    w.set("amEnable", amEnable.getToggleState());
+    w.set("amFreq", (float)amFreq.getValue());
+    w.set("egShape", egShape.getSelectedItemIndex());
+    w.set("amSyncDelay", (float)amSyncDelay.getValue());
+    w.set("amSmRt", (float)amSmRt.getValue());
+    w.set("ams", (float)ams.getValue());
+    w.set("amd", (float)amd.getValue());
 }
