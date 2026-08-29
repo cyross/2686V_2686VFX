@@ -42,6 +42,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
 	aboutGui = std::make_unique<GuiAbout>(context);
+	colorsGui = std::make_unique<GuiColors>(context);
 
     tabs.getTabbedButtonBar().addChangeListener(this);
 
@@ -60,6 +61,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     presetGui->setup();
     fxGui->setup();
     settingsGui->setup();
+    colorsGui->setup();
     aboutGui->setup();
 
     // Initial Wallpaper Load
@@ -666,6 +668,7 @@ void AudioPlugin2686VEditor::resized()
     adpcmGui->layout(tabContent);
     presetGui->layout(tabContent);
     settingsGui->layout(tabContent);
+    colorsGui->layout(tabContent);
     aboutGui->layout(tabContent);
 
     content.removeFromTop(tabs.getTabBarDepth());
@@ -776,6 +779,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
 }
 

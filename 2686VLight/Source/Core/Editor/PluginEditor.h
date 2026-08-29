@@ -27,6 +27,7 @@
 #include "../../Gui/Fx/GuiFx.h"
 #include "../../Gui/Settings/GuiSettings.h"
 #include "../../Gui/About/GuiAbout.h"
+#include "../../Gui/Colors/GuiColors.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -235,6 +236,7 @@ private:
     std::unique_ptr<GuiFx> fxGui; // FX
     std::unique_ptr<GuiSettings> settingsGui;
     std::unique_ptr<GuiAbout> aboutGui;
+    std::unique_ptr<GuiColors> colorsGui;
 
     juce::Image backgroundImage; // Cache for wallpaper
     juce::Image blurredBackgroundImage; // ぼかし背景用のキャッシュ

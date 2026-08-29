@@ -475,6 +475,9 @@ void GuiTableList::paintRowBackground(juce::Graphics& g, int rowNumber, int widt
 }
 
 void GuiTableList::paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) {
+    // 自分で描くと言っているセルは任せる
+    if (onPaintCell && onPaintCell(g, rowNumber, columnId, width, height, rowIsSelected)) return;
+
     // 文字色
     g.setColour(rowIsSelected ? juce::Colours::white : juce::Colours::lightgrey);
 

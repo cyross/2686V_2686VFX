@@ -87,7 +87,8 @@ juce::Colour CustomTabLookAndFeel::getTabHeaderColor(int tabIndex)
     case 13: return juce::Colours::darkred;       // ADVANCED
     case 14: return juce::Colours::darkgoldenrod; // PRESET
     case 15: return juce::Colours::darkgoldenrod; // SETTINGS
-    case 16: return juce::Colours::darkgoldenrod; // ABOUT
+    case 16: return juce::Colours::darkgoldenrod; // COLORS
+    case 17: return juce::Colours::darkgoldenrod; // ABOUT
     default: return juce::Colours::darkgrey;      // OTHER
     }
 }

@@ -50,4 +50,27 @@ namespace GuiColor
 
 		changeBroadcaster().sendChangeMessage();
 	}
+
+	std::vector<std::pair<juce::String, juce::Colour>> namedColours()
+	{
+		std::vector<std::pair<juce::String, juce::Colour>> out;
+
+		for (const auto& kv : registry()) {
+			if (!kv.first.startsWith("Palette.")) continue;
+
+			// 表示名は名前空間を外したもの
+			out.push_back({ kv.first.fromLastOccurrenceOf(".", false, false), kv.second->defaultColour() });
+		}
+
+		return out;
+	}
+
+	juce::String describe(juce::Colour colour)
+	{
+		for (const auto& kv : namedColours()) {
+			if (kv.second == colour) return kv.first;
+		}
+
+		return "#" + colour.toDisplayString(true);
+	}
 }

@@ -550,6 +550,13 @@ set(SETTINGS_GUI_FILES
     "Source/Gui/Settings/GuiSettings.cpp"
 )
 
+set(COLORS_GUI_FILES
+    "Source/Gui/Colors/GuiColors.h"
+    "Source/Gui/Colors/GuiColors.cpp"
+    "Source/Gui/Colors/GuiColorsText.h"
+    "Source/Gui/Colors/GuiColorsValues.h"
+)
+
 set(ABOUT_GUI_FILES
     "Source/Gui/About/GuiAboutText.h"
     "Source/Gui/About/GuiAboutValues.h"
@@ -772,5 +779,6 @@ source_group("2686VL\\Gui\\Pane\\Fx" FILES ${FX_GUI_FILES})
 source_group("2686VL\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})
 source_group("2686VL\\Gui\\Dialog\\Settings" FILES ${SETTINGS_GUI_FILES})
 source_group("2686VL\\Gui\\Dialog\\About" FILES ${ABOUT_GUI_FILES})
+source_group("2686VLight\\Gui\\Tab\\Colors" FILES ${COLORS_GUI_FILES})
 
 create_cyross_plugin("2686VLight" "28VL")

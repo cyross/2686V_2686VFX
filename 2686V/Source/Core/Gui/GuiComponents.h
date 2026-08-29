@@ -731,6 +731,9 @@ public:
     std::function<void(int lastRowSelected)> onSelectionChanged = nullptr;
     std::function<juce::String(int row, int columnId)> onGetCellTooltip = nullptr;
 
+    // セルを自分で描きたいときに使う。true を返すと既定の文字描画を行わない。
+    std::function<bool(juce::Graphics&, int row, int columnId, int width, int height, bool selected)> onPaintCell = nullptr;
+
     struct Config {
         juce::Component& parent;
         juce::String id = "";

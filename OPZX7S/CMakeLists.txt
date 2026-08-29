@@ -269,6 +269,13 @@ set(SETTINGS_GUI_FILES
     "Source/Gui/Settings/GuiSettings.cpp"
 )
 
+set(COLORS_GUI_FILES
+    "Source/Gui/Colors/GuiColors.h"
+    "Source/Gui/Colors/GuiColors.cpp"
+    "Source/Gui/Colors/GuiColorsText.h"
+    "Source/Gui/Colors/GuiColorsValues.h"
+)
+
 set(ABOUT_GUI_FILES
     "Source/Gui/About/GuiAboutText.h"
     "Source/Gui/About/GuiAboutValues.h"
@@ -471,5 +478,6 @@ source_group("OPZX7S\\Gui\\Pane\\Fx" FILES ${FX_GUI_FILES})
 source_group("OPZX7S\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})
 source_group("OPZX7S\\Gui\\Dialog\\Settings" FILES ${SETTINGS_GUI_FILES})
 source_group("OPZX7S\\Gui\\Dialog\\About" FILES ${ABOUT_GUI_FILES})
+source_group("OPZX7S\\Gui\\Tab\\Colors" FILES ${COLORS_GUI_FILES})
 
 create_cyross_plugin("OPZX7S" "ZX7S")

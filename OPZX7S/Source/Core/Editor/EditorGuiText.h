@@ -13,6 +13,7 @@ namespace EditorGuiText
 		static inline const juce::String preset = u8"PRESET";
 		static inline const juce::String settings = u8"SETTINGS";
 		static inline const juce::String about = u8"ABOUT";
+		static inline const juce::String colors = u8"COLORS";
 		static inline const juce::String advanced = u8"ADV";
 	}
 

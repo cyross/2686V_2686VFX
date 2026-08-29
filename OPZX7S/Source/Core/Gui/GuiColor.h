@@ -3,6 +3,8 @@
 #include <JuceHeader.h>
 
 #include <map>
+#include <utility>
+#include <vector>
 
 namespace GuiColor {
 	// ============================================================================
@@ -43,6 +45,13 @@ namespace GuiColor {
 	void setColour(const juce::String& id, juce::Colour colour);
 	void resetColour(const juce::String& id);
 	void resetAllColours();
+
+	// 色に付いている名前を返す。名前の付いていない色は #RRGGBBAA で返す。
+	// 名前として扱うのは Palette 以下のものだけで、部品ごとの割り当ては含めない。
+	juce::String describe(juce::Colour colour);
+
+	// 名前の付いた色の一覧 (表示名 → 色)。COLORS タブの選択肢に使う。
+	std::vector<std::pair<juce::String, juce::Colour>> namedColours();
 
 	// ============================================================================
 	// 色の名前
