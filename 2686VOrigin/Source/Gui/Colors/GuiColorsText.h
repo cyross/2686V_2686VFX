@@ -11,10 +11,34 @@ namespace ColorsGuiText
 		static inline const juce::String swatch = u8"色";
 		static inline const juce::String item = u8"項目";
 		static inline const juce::String value = u8"設定値";
+		static inline const juce::String reset = u8"既定";
 	}
 
 	static inline const juce::String hint = u8"行をダブルクリックすると色を変更できます";
 	static inline const juce::String resetAll = u8"すべて既定へ戻す";
+	static inline const juce::String resetRow = u8"戻す";
+	static inline const juce::String load = u8"読み込み";
+	static inline const juce::String save = u8"書き出し";
+
+	namespace File
+	{
+		static inline const juce::String openTitle = u8"色の設定を読み込み";
+		static inline const juce::String saveTitle = u8"色の設定を書き出し";
+		static inline const juce::String defaultName = "default.ccolor.json";
+
+		// ファイルの中身を見分けるための印。4 つのプラグインで共通に
+		// してあるので、書き出した設定はどれでも読める。
+		static inline const juce::String format = "2686V color settings";
+
+		static inline constexpr int version = 1;
+
+		namespace Key
+		{
+			static inline const juce::String format = "format";
+			static inline const juce::String version = "version";
+			static inline const juce::String colors = "colors";
+		}
+	}
 
 	namespace Dialog
 	{
@@ -24,6 +48,9 @@ namespace ColorsGuiText
 
 		// 色名リストの先頭に置く、何も選んでいない状態
 		static inline const juce::String nameNone = u8"(選択なし)";
+
+		static inline const juce::String ownNames = u8"このプラグインの色名";
+		static inline const juce::String juceNames = u8"JUCE の色名";
 		static inline const juce::String apply = u8"決定";
 		static inline const juce::String cancel = u8"キャンセル";
 		static inline const juce::String reset = u8"既定へ戻す";

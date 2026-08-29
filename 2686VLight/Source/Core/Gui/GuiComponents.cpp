@@ -260,10 +260,6 @@ void GuiComboBox::setup(const Config& c)
         this->setColour(juce::ComboBox::backgroundColourId, c.bgColor);
     }
 
-    // 明るい面を持つ部品なので、ボタンと同じ輪郭で締める。
-    // 角の丸みは JUCE 側が既に guiCornerRadius と同じ値で描いている。
-    this->setColour(juce::ComboBox::outlineColourId, GuiColor::Outline);
-    this->setColour(juce::ComboBox::arrowColourId, GuiColor::ComboBox::Arrow);
 
     for (SelectItem& item : c.items)
     {

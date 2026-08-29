@@ -103,6 +103,10 @@ class GuiSettings : public GuiBase
     GuiLabel toneNoiseParamDirPathLabel;
     GuiTextButton toneNoiseParamDirBrowseBtn;
 
+    GuiLabel colorSettingDirLabel;
+    GuiLabel colorSettingDirPathLabel;
+    GuiTextButton colorSettingDirBrowseBtn;
+
     NormalSeparator separator3;
 
     // Tooltip Visible Switch
@@ -191,6 +195,9 @@ public:
         toneNoiseParamDirLabel(context),
         toneNoiseParamDirPathLabel(context),
         toneNoiseParamDirBrowseBtn(context),
+        colorSettingDirLabel(context),
+        colorSettingDirPathLabel(context),
+        colorSettingDirBrowseBtn(context),
         separator3(context),
         tooltipToggle(context),
         separator4(context),
@@ -227,7 +234,8 @@ public:
         const juce::String& unisonParamDirPath,
         const juce::String& qualityParamDirPath,
         const juce::String& pcmPlayParamDirPath,
-        const juce::String& toneNoiseParamDirPath
+        const juce::String& toneNoiseParamDirPath,
+        const juce::String& colorSettingDirPath
         );
 	void setWallpaperPath(const juce::String& wallpaperPath);
     float getUiScale(int index);

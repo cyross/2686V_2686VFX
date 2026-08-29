@@ -180,9 +180,17 @@ public:
         // スクロールバーを常に表示させ、常に幅を占有させる
         // (表示・非表示が切り替わるたびにレイアウト可能幅が変動し、中身が見切れるのを防ぐ)
         viewport.getVerticalScrollBar().setAutoHide(false);
-        viewport.getVerticalScrollBar().setColour(juce::ScrollBar::thumbColourId, GuiColor::ScrollBar::Thumb);
+        applyScrollBarColour();
         viewport.setViewedComponent(&contentCanvas, false); // キャンバスをセット(所有権は持たせない)
     }
+
+    // つまみの色は部品へ写すので、色が変わったら写し直す
+    void applyScrollBarColour()
+    {
+        viewport.getVerticalScrollBar().setColour(juce::ScrollBar::thumbColourId, GuiColor::ScrollBar::Thumb);
+    }
+
+    GuiColor::Refresher colourRefresher{ [this] { applyScrollBarColour(); } };
 
     void setup(juce::Component& parent, const juce::String title)
     {
@@ -461,13 +469,27 @@ protected:
     {
     public:
         ComboBoxLF(): juce::LookAndFeel_V4() {
-            // ドロップダウンは PopupMenu が描く。コンボボックス本体へ色を
-            // 設定しても伝わらないので、LookAndFeel 側で指定する。
+            applyColours();
+        }
+
+        // ドロップダウンは PopupMenu が描く。コンボボックス本体へ色を
+        // 設定しても伝わらないので、LookAndFeel 側で指定する。
+        //
+        // 本体の枠と矢印もここへ置く。部品に色が無ければ JUCE は
+        // LookAndFeel を見にくるので、これで両方に効く。
+        void applyColours()
+        {
             setColour(juce::PopupMenu::backgroundColourId, GuiColor::ComboBox::PopupBg);
             setColour(juce::PopupMenu::textColourId, GuiColor::ComboBox::Text);
             setColour(juce::PopupMenu::highlightedBackgroundColourId, GuiColor::ComboBox::PopupSelectedBg);
             setColour(juce::PopupMenu::highlightedTextColourId, GuiColor::ComboBox::Text);
+
+            setColour(juce::ComboBox::outlineColourId, GuiColor::Outline);
+            setColour(juce::ComboBox::arrowColourId, GuiColor::ComboBox::Arrow);
         }
+
+        // 色が変わったら写し直す
+        GuiColor::Refresher colourRefresher{ [this] { applyColours(); } };
 
         // デフォルトのフォントサイズ（少し大きめの14.0fなどを指定）
         juce::Font selectedFont = juce::Font(juce::FontOptions(13.0f));
@@ -733,6 +755,26 @@ public:
 
     // セルを自分で描きたいときに使う。true を返すと既定の文字描画を行わない。
     std::function<bool(juce::Graphics&, int row, int columnId, int width, int height, bool selected)> onPaintCell = nullptr;
+
+    // セルへ部品を置きたいときに使う。ボタンのように押せるものは
+    // 描くだけでは足りないため。
+    //
+    // existing には前に作った部品が渡ってくる。行を送るたびに作り直さず
+    // 使い回すための仕組みなので、中身だけ入れ替えてそのまま返すとよい。
+    // 返した部品はテーブルが持ち、要らなくなれば消す。
+    std::function<juce::Component*(int row, int columnId, bool selected, juce::Component* existing)> onRefreshCellComponent = nullptr;
+
+    juce::Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected,
+        juce::Component* existingComponentToUpdate) override
+    {
+        if (onRefreshCellComponent != nullptr) {
+            return onRefreshCellComponent(rowNumber, columnId, isRowSelected, existingComponentToUpdate);
+        }
+
+        delete existingComponentToUpdate;
+
+        return nullptr;
+    }
 
     struct Config {
         juce::Component& parent;

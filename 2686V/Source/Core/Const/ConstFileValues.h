@@ -51,6 +51,9 @@ namespace Io
 		static inline const juce::String PcmQualityParam = "pcmQuality";
 		static inline const juce::String PcmPlayParam = "pcmPlay";
 		static inline const juce::String ToneNoiseParam = "toneNoise";
+
+		// 色の設定。新しく作る形式なので、はじめから JSON にしてある。
+		static inline const juce::String ColorSetting = "ccolor.json";
 	};
 
 	namespace ExtensionGlob
@@ -98,6 +101,7 @@ namespace Io
 		static inline const juce::String PcmQualityParam = "*.pcmQuality";
 		static inline const juce::String PcmPlayParam = "*.pcmPlay";
 		static inline const juce::String ToneNoiseParam = "*.toneNoise";
+		static inline const juce::String ColorSetting = "*.ccolor.json";
 	};
 
 	namespace Folder
@@ -121,6 +125,7 @@ namespace Io
 		static inline const juce::String qualityParam = "QualityParams";
 		static inline const juce::String pcmPlayParam = "PcmPlayParams";
 		static inline const juce::String toneNoiseParam = "ToneNoiseParams";
+		static inline const juce::String colorSetting = "CustomizeColorSettings";
 	};
 
 	namespace Dialog

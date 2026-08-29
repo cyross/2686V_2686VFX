@@ -27,12 +27,22 @@ class GuiColors : public GuiBase
 	GuiLabel noticeLabel;
 	GuiTableList table;
 	GuiTextButton resetAllButton;
+	GuiTextButton loadButton;
+	GuiTextButton saveButton;
+
+	std::unique_ptr<juce::FileChooser> fileChooser;
 
 	// 表示している行。registry を並べ替えたもの。
 	std::vector<juce::String> ids;
 
 	void rebuildRows();
+
+	// その色が既定から変わっているか
+	bool isChanged(int row) const;
 	void openEditor(int row);
+
+	void loadFromFile();
+	void saveToFile();
 public:
 	GuiColors(const GuiContext& context) :
 		GuiBase(context),
@@ -40,7 +50,9 @@ public:
 		hintLabel(context),
 		noticeLabel(context),
 		table(context),
-		resetAllButton(context)
+		resetAllButton(context),
+		loadButton(context),
+		saveButton(context)
 	{
 	}
 

@@ -639,6 +639,7 @@ public:
     juce::String defaultQualityParamDir;
     juce::String defaultPcmPlayParamDir;
     juce::String defaultToneNoiseParamDir;
+    juce::String defaultColorSettingDir;
     bool showTooltips = true; // For show Parameter Range Tooltop
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値

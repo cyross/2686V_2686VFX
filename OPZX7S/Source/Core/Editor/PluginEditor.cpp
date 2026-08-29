@@ -338,6 +338,11 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
     {
         // 色が差し替わった。どの部品が使っているかは追えないので、
         // 画面全体を描き直す。頻度は設定を触ったときだけ。
+        //
+        // ダイアログの配色は既定の LookAndFeel へ写してあるので、
+        // 描き直しでは変わらない。ここで写し直す。
+        GuiDialog::applyTheme();
+
         repaint();
 
         return;
@@ -820,7 +825,8 @@ void AudioPlugin2686VEditor::loadSettingsFile()
                     audioProcessor.defaultUnisonParamDir,
                     audioProcessor.defaultQualityParamDir,
                     audioProcessor.defaultPcmPlayParamDir,
-                    audioProcessor.defaultToneNoiseParamDir
+                    audioProcessor.defaultToneNoiseParamDir,
+                    audioProcessor.defaultColorSettingDir
                     );
 
                 // 壁紙再描画

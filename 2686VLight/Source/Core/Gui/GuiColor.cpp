@@ -1,5 +1,7 @@
 ﻿#include "./GuiColor.h"
 
+#include "./GuiColorJuceNames.h"
+
 namespace GuiColor
 {
 	std::map<juce::String, Entry*>& registry()
@@ -51,6 +53,16 @@ namespace GuiColor
 		changeBroadcaster().sendChangeMessage();
 	}
 
+	Refresher::Refresher(std::function<void()> apply) : m_apply(std::move(apply))
+	{
+		changeBroadcaster().addChangeListener(this);
+	}
+
+	Refresher::~Refresher()
+	{
+		changeBroadcaster().removeChangeListener(this);
+	}
+
 	std::vector<std::pair<juce::String, juce::Colour>> namedColours()
 	{
 		std::vector<std::pair<juce::String, juce::Colour>> out;
@@ -65,9 +77,34 @@ namespace GuiColor
 		return out;
 	}
 
+	// 数値の表から juce::Colour を作る。最初に呼ばれたときだけ作れば
+	// よいので、関数の中の静的変数に置く。
+	const std::vector<std::pair<juce::String, juce::Colour>>& juceColours()
+	{
+		static const std::vector<std::pair<juce::String, juce::Colour>> table = [] {
+			std::vector<std::pair<juce::String, juce::Colour>> out;
+
+			for (const auto& e : juceColourTable) {
+				out.push_back({ juce::String(e.name), juce::Colour(e.argb) });
+			}
+
+			return out;
+		}();
+
+		return table;
+	}
+
+	// 名前が付いていればそれを、無ければ 16 進で返す。
+	//
+	// こちらで付けた名前を先に見る。同じ色に JUCE の名前も当たる場合、
+	// この画面ではこちらの名前のほうが分かりやすいため。
 	juce::String describe(juce::Colour colour)
 	{
 		for (const auto& kv : namedColours()) {
+			if (kv.second == colour) return kv.first;
+		}
+
+		for (const auto& kv : juceColours()) {
 			if (kv.second == colour) return kv.first;
 		}
 

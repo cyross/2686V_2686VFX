@@ -9,6 +9,12 @@ namespace ColorsGuiValue
 		static inline constexpr int ItemWidth = 240;
 		static inline constexpr int ValueWidth = 200;
 
+		// 行ごとの「既定へ戻す」ボタンを置く列
+		static inline constexpr int ResetWidth = 90;
+
+		// セルの中でボタンの周りに取る余白
+		static inline constexpr int CellPadding = 3;
+
 		static inline constexpr int PaddingWidth = 10;
 		static inline constexpr int PaddingHeight = 10;
 	}
@@ -28,6 +34,9 @@ namespace ColorsGuiValue
 	namespace Button
 	{
 		static inline constexpr int width = 140;
+
+		// 読み込み・書き出しは字が短いので狭くてよい
+		static inline constexpr int fileWidth = 90;
 	}
 
 	// 色の変更ダイアログ
@@ -43,5 +52,9 @@ namespace ColorsGuiValue
 
 		// 選択肢の左に置く見出しの幅
 		static inline constexpr int labelWidth = 170;
+
+		// 色名の左へ出す色見本
+		static inline constexpr int swatchWidth = 26;
+		static inline constexpr int swatchPadding = 3;
 	}
 }

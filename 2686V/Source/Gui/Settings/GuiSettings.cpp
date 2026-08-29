@@ -481,6 +481,27 @@ void GuiSettings::setup()
         };
 
     // --- Tone / Noise Param Dir ---
+    setupFolderRow(colorSettingDirLabel, juce::String("") + "色の設定ファイルディレクトリ:", colorSettingDirPathLabel, colorSettingDirBrowseBtn);
+    colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
+    colorSettingDirPathLabel.setWantsKeyboardFocus(false);
+
+    colorSettingDirBrowseBtn.setWantsKeyboardFocus(true);
+    colorSettingDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    colorSettingDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "色の設定ファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultColorSettingDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultColorSettingDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultColorSettingDir = file.getFullPathName();
+                    colorSettingDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- Tone / Noise Param Dir ---
     setupFolderRow(toneNoiseParamDirLabel, juce::String("") + "トーン/ノイズファイルディレクトリ:", toneNoiseParamDirPathLabel, toneNoiseParamDirBrowseBtn);
     toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
     toneNoiseParamDirPathLabel.setWantsKeyboardFocus(false);
@@ -797,6 +818,10 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     toneNoiseParamDirPathLabel.setVisible(dirVisible);
     toneNoiseParamDirBrowseBtn.setVisible(dirVisible);
 
+    colorSettingDirLabel.setVisible(dirVisible);
+    colorSettingDirPathLabel.setVisible(dirVisible);
+    colorSettingDirBrowseBtn.setVisible(dirVisible);
+
     if (dirVisible)
     {
         // 4. ADPCM Dir
@@ -933,6 +958,14 @@ void GuiSettings::layout(juce::Rectangle<int> content)
         toneNoiseParamDirBrowseBtn.setBounds(rowToneNoiseParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
         toneNoiseParamDirPathLabel.setBounds(rowToneNoiseParamDir);
 
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 色の設定ファイルディレクトリ
+        auto rowColorSettingDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        colorSettingDirLabel.setBounds(rowColorSettingDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        colorSettingDirBrowseBtn.setBounds(rowColorSettingDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        colorSettingDirPathLabel.setBounds(rowColorSettingDir);
+
     }
 
     // 区切り線はフォルダ設定の外。畳んでも下の設定との境目は残す。
@@ -992,25 +1025,27 @@ void GuiSettings::setSettings(
     const juce::String& unisonParamDirPath,
     const juce::String& qualityParamDirPath,
     const juce::String& pcmPlayParamDirPath,
-    const juce::String& toneNoiseParamDirPath
+    const juce::String& toneNoiseParamDirPath,
+    const juce::String& colorSettingDirPath
 )
 {
     uiScaleSelector.setSelectedId(uiScaleIndex + 1, juce::dontSendNotification);
     wallpaperPathLabel.setText(wallpaperPath, juce::dontSendNotification);
     sampleDirPathLabel.setText(sampleDirPath, juce::dontSendNotification);
     presetDirPathLabel.setText(presetDirPath, juce::dontSendNotification);
-	wavetableDirLabel.setText(wavetableDirPath, juce::dontSendNotification);
-    fxOrderDirLabel.setText(fxOrderDirPath, juce::dontSendNotification);
-    fxParamDirLabel.setText(fxParamDirPath, juce::dontSendNotification);
-    lfoParamDirLabel.setText(lfoParamDirPath, juce::dontSendNotification);
-    ampEnvParamDirLabel.setText(ampEnvParamDirPath, juce::dontSendNotification);
-    pitchEnvParamDirLabel.setText(pitchEnvParamDirPath, juce::dontSendNotification);
-    ssgSwEnvParamDirLabel.setText(ssgSwEnvParamDirPath, juce::dontSendNotification);
-    detuneParamDirLabel.setText(detuneParamDirPath, juce::dontSendNotification);
-    unisonParamDirLabel.setText(unisonParamDirPath, juce::dontSendNotification);
-    qualityParamDirLabel.setText(qualityParamDirPath, juce::dontSendNotification);
-    pcmPlayParamDirLabel.setText(pcmPlayParamDirPath, juce::dontSendNotification);
-    toneNoiseParamDirLabel.setText(toneNoiseParamDirPath, juce::dontSendNotification);
+	wavetableDirPathLabel.setText(wavetableDirPath, juce::dontSendNotification);
+    fxOrderDirPathLabel.setText(fxOrderDirPath, juce::dontSendNotification);
+    fxParamDirPathLabel.setText(fxParamDirPath, juce::dontSendNotification);
+    lfoParamDirPathLabel.setText(lfoParamDirPath, juce::dontSendNotification);
+    ampEnvParamDirPathLabel.setText(ampEnvParamDirPath, juce::dontSendNotification);
+    pitchEnvParamDirPathLabel.setText(pitchEnvParamDirPath, juce::dontSendNotification);
+    ssgSwEnvParamDirPathLabel.setText(ssgSwEnvParamDirPath, juce::dontSendNotification);
+    detuneParamDirPathLabel.setText(detuneParamDirPath, juce::dontSendNotification);
+    unisonParamDirPathLabel.setText(unisonParamDirPath, juce::dontSendNotification);
+    qualityParamDirPathLabel.setText(qualityParamDirPath, juce::dontSendNotification);
+    pcmPlayParamDirPathLabel.setText(pcmPlayParamDirPath, juce::dontSendNotification);
+    toneNoiseParamDirPathLabel.setText(toneNoiseParamDirPath, juce::dontSendNotification);
+    colorSettingDirPathLabel.setText(colorSettingDirPath, juce::dontSendNotification);
 }
 
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)

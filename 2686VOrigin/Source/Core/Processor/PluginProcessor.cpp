@@ -713,6 +713,7 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
     xml.setAttribute(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
     xml.setAttribute(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
+    xml.setAttribute(SettingsKey::defaultColorSettingDir, defaultColorSettingDir);
     xml.setAttribute(SettingsKey::showTooltips, showTooltips);
     xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
     xml.setAttribute(SettingsKey::headroomGain, headroomGain);
@@ -746,6 +747,7 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         defaultQualityParamDir = xml->getStringAttribute(SettingsKey::defaultQualityParamDir);
         defaultPcmPlayParamDir = xml->getStringAttribute(SettingsKey::defaultPcmPlayParamDir);
         defaultToneNoiseParamDir = xml->getStringAttribute(SettingsKey::defaultToneNoiseParamDir);
+        defaultColorSettingDir = xml->getStringAttribute(SettingsKey::defaultColorSettingDir);
         showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
         useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
         headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
@@ -973,6 +975,18 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultToneNoiseParamDir = newToneNoiseParamDir.getFullPathName();
+    }
+
+    if (defaultColorSettingDir.isEmpty() || !juce::File(defaultColorSettingDir).isDirectory())
+    {
+        auto newColorSettingDir = pluginDir.getChildFile(Io::Folder::colorSetting);
+
+        // 存在していなければ作成
+        if (!newColorSettingDir.exists()) {
+            newColorSettingDir.createDirectory();
+        }
+
+        defaultColorSettingDir = newColorSettingDir.getFullPathName();
     }
 }
 

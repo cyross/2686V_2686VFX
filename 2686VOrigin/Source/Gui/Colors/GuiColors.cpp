@@ -2,96 +2,135 @@
 
 #include "./RetroPalette.h"
 
+#include "../../Core/Const/ConstFileValues.h"
+
+#include <optional>
+
 #include "../../Core/Editor/PluginEditor.h"
 
-void GuiColors::setup()
+// ============================================================================
+// 行ごとの「既定へ戻す」
+// ============================================================================
+// ボタンをセルいっぱいに広げると窮屈なので、入れ物を挟んで余白を取る。
+// テーブルはセルの大きさしか決めないため、余白はこちらで持つしかない。
+class ResetCell : public juce::Component
 {
-	int tabOrder = 0;
+public:
+	GuiTextButton button;
 
-	titleLabel.setup({ .parent = *this, .title = ColorsGuiText::title,
-		.justification = juce::Justification::centredLeft });
+	// どの行のものかは差し替わる。押されたときに読むので、値を
+	// 捕まえずここを見ること。
+	int row = -1;
 
-	// GuiLabel::setup は Config の font を見ないので、ここで直接指定する
-	titleLabel.setFont(juce::Font(juce::FontOptions(16.0f)).withStyle(juce::Font::bold));
+	explicit ResetCell(const GuiContext& context) : button(context)
+	{
+		addAndMakeVisible(button);
+		button.setButtonText(ColorsGuiText::resetRow);
+	}
 
-	hintLabel.setup({ .parent = *this, .title = ColorsGuiText::hint,
-		.justification = juce::Justification::centredLeft });
+	// 色は部品へ写るので、行を差し替えるたびに写し直す
+	void applyColours()
+	{
+		button.setColour(juce::TextButton::textColourOffId, GuiColor::TextButton::Text);
+		button.setColour(juce::TextButton::textColourOnId, GuiColor::TextButton::TextOn);
+		button.setColour(juce::TextButton::buttonColourId, GuiColor::TextButton::Bg);
+	}
 
-	// 断り書きは常に見えるところへ置く。ダイアログを開かないと
-	// 読めないのでは意味が無い。
-	noticeLabel.setup({ .parent = *this, .title = ColorsGuiText::Dialog::notice,
-		.justification = juce::Justification::topLeft });
+	void resized() override
+	{
+		button.setBounds(getLocalBounds().reduced(ColorsGuiValue::Table::CellPadding));
+	}
+};
+// ============================================================================
+// 色名のドロップダウン
+// ============================================================================
+// 名前だけでは何色か分からないので、左へ色見本を出す。閉じているときの
+// 表示にも同じものを出す。
+//
+// 見本の色は名前から引く。引けない名前 (見出しなど) では何も足さず、
+// そのまま JUCE に描かせる。
+class ColourNameLF : public juce::LookAndFeel_V4
+{
+public:
+	std::function<std::optional<juce::Colour>(const juce::String&)> lookup;
 
-	resetAllButton.setup({ .parent = *this, .title = ColorsGuiText::resetAll, .isReset = false });
-	resetAllButton.setExplicitFocusOrder(++tabOrder);
-	resetAllButton.onClick = [this] {
-		GuiColor::resetAllColours();
+	void drawPopupMenuItem(juce::Graphics& g, const juce::Rectangle<int>& area,
+		bool isSeparator, bool isActive, bool isHighlighted, bool isTicked, bool hasSubMenu,
+		const juce::String& text, const juce::String& shortcutKeyText,
+		const juce::Drawable* icon, const juce::Colour* textColour) override
+	{
+		auto colour = lookup ? lookup(text) : std::nullopt;
 
-		table.updateContent();
-		};
+		if (!colour.has_value()) {
+			juce::LookAndFeel_V4::drawPopupMenuItem(g, area, isSeparator, isActive, isHighlighted,
+				isTicked, hasSubMenu, text, shortcutKeyText, icon, textColour);
 
-	table.setup({ .parent = *this, .title = ColorsGuiText::title });
-	table.setWantsKeyboardFocus(false);
-	table.addColumn(ColorsGuiText::Table::swatch, 1, ColorsGuiValue::Table::SwatchWidth);
-	table.addColumn(ColorsGuiText::Table::item, 2, ColorsGuiValue::Table::ItemWidth);
-	table.addColumn(ColorsGuiText::Table::value, 3, ColorsGuiValue::Table::ValueWidth);
-
-	rebuildRows();
-
-	table.onGetNumRows = [this]() { return (int)ids.size(); };
-
-	table.onGetCellText = [this](int row, int columnId) -> juce::String {
-		if (row < 0 || row >= (int)ids.size()) return {};
-
-		const juce::String& id = ids[(size_t)row];
-
-		if (columnId == 2) return id;
-
-		if (columnId == 3) {
-			auto it = GuiColor::registry().find(id);
-
-			if (it == GuiColor::registry().end()) return {};
-
-			return GuiColor::describe(it->second->get());
+			return;
 		}
 
-		return {};
-		};
+		auto rest = area;
+		auto gutter = rest.removeFromLeft(ColorsGuiValue::Editor::swatchWidth);
 
-	// 1 列目は文字ではなく色そのものを見せる
-	table.onPaintCell = [this](juce::Graphics& g, int row, int columnId, int width, int height, bool) {
-		if (columnId != 1) return false;
+		// 強調の帯は JUCE が渡された範囲にしか塗らない。見本の脇だけ
+		// 色が抜けて見えるので、先に全体を塗っておく。
+		if (isHighlighted && isActive) {
+			g.setColour(findColour(juce::PopupMenu::highlightedBackgroundColourId));
+			g.fillRect(area);
+		}
 
-		if (row < 0 || row >= (int)ids.size()) return true;
+		juce::LookAndFeel_V4::drawPopupMenuItem(g, rest, isSeparator, isActive, isHighlighted,
+			isTicked, hasSubMenu, text, shortcutKeyText, icon, textColour);
 
-		auto it = GuiColor::registry().find(ids[(size_t)row]);
+		drawSwatch(g, gutter, *colour);
+	}
 
-		if (it == GuiColor::registry().end()) return true;
+	// 見本のぶんだけ幅を足す
+	void getIdealPopupMenuItemSize(const juce::String& text, bool isSeparator,
+		int standardMenuItemHeight, int& idealWidth, int& idealHeight) override
+	{
+		juce::LookAndFeel_V4::getIdealPopupMenuItemSize(text, isSeparator, standardMenuItemHeight,
+			idealWidth, idealHeight);
 
-		auto area = juce::Rectangle<float>(2.0f, 2.0f, (float)width - 4.0f, (float)height - 4.0f);
+		idealWidth += ColorsGuiValue::Editor::swatchWidth;
+	}
 
-		g.setColour(it->second->get());
-		g.fillRoundedRectangle(area, guiCornerRadius);
+	void drawComboBox(juce::Graphics& g, int width, int height, bool isButtonDown,
+		int buttonX, int buttonY, int buttonW, int buttonH, juce::ComboBox& box) override
+	{
+		juce::LookAndFeel_V4::drawComboBox(g, width, height, isButtonDown,
+			buttonX, buttonY, buttonW, buttonH, box);
+
+		auto colour = lookup ? lookup(box.getText()) : std::nullopt;
+
+		if (!colour.has_value()) return;
+
+		drawSwatch(g, { 0, 0, ColorsGuiValue::Editor::swatchWidth, height }, *colour);
+	}
+
+	// 閉じているときの文字も見本のぶんだけ右へ寄せる。
+	//
+	// 見本の有無で場所を変えてはいけない。JUCE がこれを呼ぶのは
+	// 大きさが変わったときだけで、選び直しても呼ばれない。選ぶ前に
+	// 寄せていないと、あとから見本と名前が重なる。
+	void positionComboBoxText(juce::ComboBox& box, juce::Label& label) override
+	{
+		juce::LookAndFeel_V4::positionComboBoxText(box, label);
+
+		label.setBounds(label.getBounds().withTrimmedLeft(ColorsGuiValue::Editor::swatchWidth));
+	}
+private:
+	static void drawSwatch(juce::Graphics& g, juce::Rectangle<int> area, juce::Colour colour)
+	{
+		auto box = area.reduced(ColorsGuiValue::Editor::swatchPadding).toFloat();
+
+		g.setColour(colour);
+		g.fillRoundedRectangle(box, guiCornerRadius);
 
 		// 明るい色でも輪郭が分かるように縁を引く
 		g.setColour(GuiColor::Outline);
-		g.drawRoundedRectangle(area.reduced(0.5f), guiCornerRadius, 1.0f);
-
-		return true;
-		};
-
-	table.onDoubleClicked = [this](int row) { openEditor(row); };
-}
-
-void GuiColors::rebuildRows()
-{
-	ids.clear();
-
-	for (const auto& kv : GuiColor::registry()) ids.push_back(kv.first);
-
-	table.updateContent();
-}
-
+		g.drawRoundedRectangle(box.reduced(0.5f), guiCornerRadius, 1.0f);
+	}
+};
 // ============================================================================
 // 色の変更ダイアログの中身
 // ============================================================================
@@ -109,6 +148,7 @@ class ColorEditorPanel : public juce::Component
 
 	juce::Label nameLabel;
 	juce::ComboBox nameBox;
+	ColourNameLF nameBoxLF;
 
 	juce::Label paletteLabel;
 	juce::ComboBox paletteBox;
@@ -135,13 +175,38 @@ public:
 		addAndMakeVisible(nameBox);
 		nameBox.addItem(ColorsGuiText::Dialog::nameNone, 1);
 
+		// こちらで付けた名前と JUCE の名前は見出しで分ける。
+		// 数が違いすぎて混ぜると探しにくいため。
 		names = GuiColor::namedColours();
+
+		nameBox.addSectionHeading(ColorsGuiText::Dialog::ownNames);
 
 		for (int i = 0; i < (int)names.size(); ++i) {
 			nameBox.addItem(names[(size_t)i].first, i + 2);
 		}
 
+		nameBox.addSectionHeading(ColorsGuiText::Dialog::juceNames);
+
+		for (const auto& kv : GuiColor::juceColours()) {
+			names.push_back(kv);
+			nameBox.addItem(kv.first, (int)names.size() + 1);
+		}
+
 		nameBox.setSelectedId(1, juce::dontSendNotification);
+
+		// 見本を出すのに名前から色を引けるようにする
+		nameBoxLF.lookup = [this](const juce::String& text) -> std::optional<juce::Colour> {
+			for (const auto& kv : names) {
+				if (kv.first == text) return kv.second;
+			}
+
+			return std::nullopt;
+			};
+
+
+
+
+		nameBox.setLookAndFeel(&nameBoxLF);
 
 		nameBox.onChange = [this] {
 			int index = nameBox.getSelectedId() - 2;
@@ -189,6 +254,11 @@ public:
 			+ ColorsGuiValue::Editor::paletteHeight);
 	}
 
+	~ColorEditorPanel() override
+	{
+		nameBox.setLookAndFeel(nullptr);
+	}
+
 	juce::Colour currentColour() const { return selector.getCurrentColour(); }
 
 	void resized() override
@@ -233,6 +303,149 @@ private:
 		palette.setSize(width, palette.preferredHeight(width));
 	}
 };
+
+void GuiColors::setup()
+{
+	int tabOrder = 0;
+
+	titleLabel.setup({ .parent = *this, .title = ColorsGuiText::title,
+		.justification = juce::Justification::centredLeft });
+
+	// GuiLabel::setup は Config の font を見ないので、ここで直接指定する
+	titleLabel.setFont(juce::Font(juce::FontOptions(16.0f)).withStyle(juce::Font::bold));
+
+	hintLabel.setup({ .parent = *this, .title = ColorsGuiText::hint,
+		.justification = juce::Justification::centredLeft });
+
+	// 断り書きは常に見えるところへ置く。ダイアログを開かないと
+	// 読めないのでは意味が無い。
+	noticeLabel.setup({ .parent = *this, .title = ColorsGuiText::Dialog::notice,
+		.justification = juce::Justification::topLeft });
+
+	resetAllButton.setup({ .parent = *this, .title = ColorsGuiText::resetAll, .isReset = false });
+	resetAllButton.setExplicitFocusOrder(++tabOrder);
+	resetAllButton.onClick = [this] {
+		GuiColor::resetAllColours();
+
+		table.updateContent();
+		};
+
+	loadButton.setup({ .parent = *this, .title = ColorsGuiText::load, .isReset = false });
+	loadButton.setExplicitFocusOrder(++tabOrder);
+	loadButton.onClick = [this] { loadFromFile(); };
+
+	saveButton.setup({ .parent = *this, .title = ColorsGuiText::save, .isReset = false });
+	saveButton.setExplicitFocusOrder(++tabOrder);
+	saveButton.onClick = [this] { saveToFile(); };
+
+	table.setup({ .parent = *this, .title = ColorsGuiText::title });
+	table.setWantsKeyboardFocus(false);
+	table.addColumn(ColorsGuiText::Table::swatch, 1, ColorsGuiValue::Table::SwatchWidth);
+	table.addColumn(ColorsGuiText::Table::item, 2, ColorsGuiValue::Table::ItemWidth);
+	table.addColumn(ColorsGuiText::Table::value, 3, ColorsGuiValue::Table::ValueWidth);
+	table.addColumn(ColorsGuiText::Table::reset, 4, ColorsGuiValue::Table::ResetWidth);
+
+	rebuildRows();
+
+	table.onGetNumRows = [this]() { return (int)ids.size(); };
+
+	table.onGetCellText = [this](int row, int columnId) -> juce::String {
+		if (row < 0 || row >= (int)ids.size()) return {};
+
+		const juce::String& id = ids[(size_t)row];
+
+		if (columnId == 2) return id;
+
+		if (columnId == 3) {
+			auto it = GuiColor::registry().find(id);
+
+			if (it == GuiColor::registry().end()) return {};
+
+			return GuiColor::describe(it->second->get());
+		}
+
+		return {};
+		};
+
+	// 1 列目は文字ではなく色そのものを見せる
+	table.onPaintCell = [this](juce::Graphics& g, int row, int columnId, int width, int height, bool) {
+		if (columnId != 1) return false;
+
+		if (row < 0 || row >= (int)ids.size()) return true;
+
+		auto it = GuiColor::registry().find(ids[(size_t)row]);
+
+		if (it == GuiColor::registry().end()) return true;
+
+		auto area = juce::Rectangle<float>(2.0f, 2.0f, (float)width - 4.0f, (float)height - 4.0f);
+
+		g.setColour(it->second->get());
+		g.fillRoundedRectangle(area, guiCornerRadius);
+
+		// 明るい色でも輪郭が分かるように縁を引く
+		g.setColour(GuiColor::Outline);
+		g.drawRoundedRectangle(area.reduced(0.5f), guiCornerRadius, 1.0f);
+
+		return true;
+		};
+
+	// 4 列目は行ごとの「既定へ戻す」。ダイアログを開かなくても
+	// 1 色だけ戻せるようにする。
+	table.onRefreshCellComponent = [this](int row, int columnId, bool, juce::Component* existing) -> juce::Component* {
+		if (columnId != 4) {
+			delete existing;
+
+			return nullptr;
+		}
+
+		auto* cell = dynamic_cast<ResetCell*>(existing);
+
+		if (cell == nullptr) {
+			delete existing;
+
+			cell = new ResetCell(ctx);
+
+			cell->button.onClick = [this, cell] {
+				if (cell->row < 0 || cell->row >= (int)ids.size()) return;
+
+				GuiColor::resetColour(ids[(size_t)cell->row]);
+
+				table.updateContent();
+				};
+		}
+
+		cell->row = row;
+		cell->applyColours();
+
+		// 既定のままの色は戻す先が無いので押せなくする。
+		// どの色を変えたかがひと目で分かる利点もある。
+		cell->button.setEnabled(isChanged(row));
+
+		return cell;
+		};
+
+	table.onDoubleClicked = [this](int row) { openEditor(row); };
+}
+
+bool GuiColors::isChanged(int row) const
+{
+	if (row < 0 || row >= (int)ids.size()) return false;
+
+	auto it = GuiColor::registry().find(ids[(size_t)row]);
+
+	if (it == GuiColor::registry().end()) return false;
+
+	return it->second->get() != it->second->defaultColour();
+}
+
+void GuiColors::rebuildRows()
+{
+	ids.clear();
+
+	for (const auto& kv : GuiColor::registry()) ids.push_back(kv.first);
+
+	table.updateContent();
+}
 
 // 1 行ぶんの色を変えるダイアログ。
 void GuiColors::openEditor(int row)
@@ -295,6 +508,13 @@ void GuiColors::layout(juce::Rectangle<int> content)
 
 	resetAllButton.setBounds(hintRow.removeFromRight(ColorsGuiValue::Button::width));
 	hintRow.removeFromRight(ColorsGuiValue::Row::padding);
+
+	saveButton.setBounds(hintRow.removeFromRight(ColorsGuiValue::Button::fileWidth));
+	hintRow.removeFromRight(ColorsGuiValue::Row::padding);
+
+	loadButton.setBounds(hintRow.removeFromRight(ColorsGuiValue::Button::fileWidth));
+	hintRow.removeFromRight(ColorsGuiValue::Row::padding);
+
 	hintLabel.setBounds(hintRow);
 
 	header.removeFromTop(ColorsGuiValue::Row::padding);
@@ -314,4 +534,96 @@ void GuiColors::paint(juce::Graphics& g)
 
 	g.setColour(GuiColor::Category::ContentBg);
 	g.fillRoundedRectangle(headerArea.toFloat(), guiCornerRadius);
+}
+
+// ============================================================================
+// ファイルへの読み書き
+// ============================================================================
+// 形式は JSON。新しく作るものなので、値の並び順に頼る古い形式は使わない。
+//
+// 書き出すのは既定から変えた色だけにしてある。全部書くと、後から色を
+// 足したときに古いファイルが「既定のまま」を上書きしてしまい、新しい
+// 既定が反映されなくなるため。
+void GuiColors::saveToFile()
+{
+	juce::File defaultDir(ctx.audioProcessor.defaultColorSettingDir);
+
+	if (!defaultDir.isDirectory()) {
+		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+	}
+
+	fileChooser = std::make_unique<juce::FileChooser>(ColorsGuiText::File::saveTitle,
+		defaultDir.getChildFile(ColorsGuiText::File::defaultName),
+		Io::ExtensionGlob::ColorSetting);
+
+	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+		[this](const juce::FileChooser& fc) {
+			auto file = fc.getResult();
+
+			if (file == juce::File{}) return;
+
+			// 次回のダイアログ用にディレクトリを保存
+			ctx.audioProcessor.defaultColorSettingDir = file.getParentDirectory().getFullPathName();
+
+			auto* colors = new juce::DynamicObject();
+
+			for (const auto& kv : GuiColor::registry()) {
+				if (kv.second->get() == kv.second->defaultColour()) continue;
+
+				colors->setProperty(kv.first, kv.second->get().toDisplayString(true));
+			}
+
+			auto* root = new juce::DynamicObject();
+
+			root->setProperty(ColorsGuiText::File::Key::format, ColorsGuiText::File::format);
+			root->setProperty(ColorsGuiText::File::Key::version, ColorsGuiText::File::version);
+			root->setProperty(ColorsGuiText::File::Key::colors, juce::var(colors));
+
+			file.replaceWithText(juce::JSON::toString(juce::var(root)));
+		});
+}
+
+// 知らない名前は読み飛ばす。色を減らした版で書いたファイルでも
+// 読めるようにするため。
+void GuiColors::loadFromFile()
+{
+	juce::File defaultDir(ctx.audioProcessor.defaultColorSettingDir);
+
+	if (!defaultDir.isDirectory()) {
+		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+	}
+
+	fileChooser = std::make_unique<juce::FileChooser>(ColorsGuiText::File::openTitle,
+		defaultDir, Io::ExtensionGlob::ColorSetting);
+
+	fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+		[this](const juce::FileChooser& fc) {
+			auto file = fc.getResult();
+
+			if (!file.existsAsFile()) return;
+
+			ctx.audioProcessor.defaultColorSettingDir = file.getParentDirectory().getFullPathName();
+
+			auto parsed = juce::JSON::parse(file.loadFileAsString());
+			auto* root = parsed.getDynamicObject();
+
+			if (root == nullptr) return;
+
+			// 印が違うものは色の設定ではないので触らない
+			if (root->getProperty(ColorsGuiText::File::Key::format).toString() != ColorsGuiText::File::format) return;
+
+			auto* colors = root->getProperty(ColorsGuiText::File::Key::colors).getDynamicObject();
+
+			if (colors == nullptr) return;
+
+			// 書かれていない色は既定へ戻す。読み込んだ結果が、書き出した
+			// ときの見た目とそろうようにするため。
+			GuiColor::resetAllColours();
+
+			for (const auto& kv : colors->getProperties()) {
+				GuiColor::setColour(kv.name.toString(), juce::Colour::fromString(kv.value.toString()));
+			}
+
+			table.updateContent();
+		});
 }
