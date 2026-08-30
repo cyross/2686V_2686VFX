@@ -370,6 +370,63 @@ namespace Io
 		return directory.getChildFile(baseName + "." + fileFormatExtension());
 	}
 
+	bool isLegacyFile(const juce::File& file)
+	{
+		if (!file.existsAsFile()) return false;
+
+		auto text = file.loadFileAsString();
+
+		// 名前式として読めるものは古い形式ではない
+		if (parseAny(text).getDynamicObject() != nullptr) return false;
+
+		// 古い形式は数の並びだった。最初の中身のある行で見分ける。
+		// これを見ないと、壊れたファイルまで変換にかけてしまう。
+		for (const auto& line : juce::StringArray::fromLines(text))
+		{
+			auto trimmed = line.trim();
+
+			if (trimmed.isEmpty()) continue;
+
+			bool isInteger = false;
+
+			return looksLikeNumber(trimmed, isInteger);
+		}
+
+		return false;
+	}
+
+	juce::File convertedFileFor(const juce::File& file)
+	{
+		return file.getSiblingFile(file.getFileName() + "." + fileFormatExtension());
+	}
+
+	bool writeConverted(const juce::File& file, const ParamWriter& writer)
+	{
+		auto target = convertedFileFor(file);
+
+		// 同じファイルを読み込むたびに変換が走るので、既にあるものは
+		// 触らない。書き換えたあとの内容を戻してしまわないため。
+		if (target.existsAsFile()) return false;
+
+		if (!writer.writeTo(target))
+		{
+			juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+				juce::String("") + "変換できませんでした",
+				juce::String("") + "読み込みはできましたが、新しい形式で保存できませんでした。\n\n"
+				+ target.getFullPathName());
+
+			return false;
+		}
+
+		juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,
+			juce::String("") + "形式を変換しました",
+			juce::String("") + "3.0.0 より前の形式のファイルを読み込み、新しい形式で保存しました。\n\n"
+			+ juce::String("") + "元のファイル: " + file.getFileName() + "\n"
+			+ juce::String("") + "保存先: " + target.getFileName());
+
+		return true;
+	}
+
 	ParamWriter::ParamWriter(ParamFormat format)
 		: m_root(new juce::DynamicObject()), m_values(new juce::DynamicObject()), m_format(std::move(format))
 	{
@@ -454,6 +511,23 @@ namespace Io
 		for (int v : values) out.add(v);
 
 		m_values->setProperty(key, out);
+	}
+
+	void ParamWriter::hoist(const juce::String& key)
+	{
+		auto* obj = m_values->getProperty(key).getDynamicObject();
+
+		if (obj == nullptr) return;
+
+		// 先に外してから移す。同じ名前が残っていると入れ子のままになる。
+		juce::DynamicObject::Ptr held(obj);
+
+		m_values->removeProperty(key);
+
+		for (const auto& kv : held->getProperties())
+		{
+			m_values->setProperty(kv.name, kv.value);
+		}
 	}
 
 	bool ParamWriter::writeTo(const juce::File& file) const

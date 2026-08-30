@@ -412,3 +412,104 @@ TEST_CASE("パラメータファイル: 独自の形の中身も選んだ形で�
 		CHECK((int)restored->getProperty("count") == 3);
 	}
 }
+
+TEST_CASE("パラメータファイル: 入れ子を外側の中身へ引き上げる")
+{
+	// 部品ごとの単体ファイルは、チャンネルのファイルの中に入っている
+	// まとまりと中身が同じなので、writeParams をそのまま使えるようにする
+	for (auto format : { Io::FileFormat::json, Io::FileFormat::yaml })
+	{
+		ScopedFormat scoped(format);
+		TempFile temp;
+
+		{
+			Io::ParamWriter writer(testFormat);
+
+			auto child = writer.child("ampEnv");
+
+			child.set("attack", 0.25f);
+			child.set("kor", true);
+
+			writer.hoist("ampEnv");
+
+			REQUIRE(writer.writeTo(temp.file));
+		}
+
+		auto reader = Io::ParamReader::open(temp.file, testFormat, false);
+
+		REQUIRE(reader.has_value());
+
+		// 引き上げたので、入れ子ではなく直に読める
+		CHECK(reader->getFloat("attack") == doctest::Approx(0.25f));
+		CHECK(reader->getBool("kor") == true);
+		CHECK(reader->child("ampEnv").getFloat("attack", -1.0f) == doctest::Approx(-1.0f));
+	}
+}
+
+TEST_CASE("パラメータファイル: 3.0.0 より前のファイルを見分ける")
+{
+	TempFile temp;
+
+	SUBCASE("数の並びだけのもの")
+	{
+		temp.file.replaceWithText("1\n0.5\n0.25\n0\n");
+
+		CHECK(Io::isLegacyFile(temp.file));
+	}
+
+	SUBCASE("空行から始まっていても見分ける")
+	{
+		temp.file.replaceWithText("\n\n12\n34\n");
+
+		CHECK(Io::isLegacyFile(temp.file));
+	}
+
+	SUBCASE("名前式で読めるものは違う")
+	{
+		Io::ParamWriter writer(testFormat);
+
+		writer.set("count", 1);
+
+		REQUIRE(writer.writeTo(temp.file));
+		CHECK_FALSE(Io::isLegacyFile(temp.file));
+	}
+
+	SUBCASE("XML は違う")
+	{
+		temp.file.replaceWithText("<?xml version=\"1.0\"?>\n<Parameters presetName=\"a\"/>\n");
+
+		CHECK_FALSE(Io::isLegacyFile(temp.file));
+	}
+
+	SUBCASE("数で始まらない文字はただの壊れたファイル")
+	{
+		temp.file.replaceWithText("hello\nworld\n");
+
+		CHECK_FALSE(Io::isLegacyFile(temp.file));
+	}
+
+	SUBCASE("空のファイル")
+	{
+		temp.file.replaceWithText("");
+
+		CHECK_FALSE(Io::isLegacyFile(temp.file));
+	}
+}
+
+TEST_CASE("パラメータファイル: 変換したものの置き場")
+{
+	auto dir = juce::File::getSpecialLocation(juce::File::tempDirectory);
+
+	// 元の名前を残したまま拡張子を足す。元のファイルは消さない。
+	{
+		ScopedFormat scoped(Io::FileFormat::json);
+
+		CHECK(Io::convertedFileFor(dir.getChildFile("bass.ampEnv")).getFileName() == "bass.ampEnv.json");
+	}
+
+	{
+		ScopedFormat scoped(Io::FileFormat::yaml);
+
+		CHECK(Io::convertedFileFor(dir.getChildFile("bass.ampEnv")).getFileName() == "bass.ampEnv.yaml");
+	}
+}

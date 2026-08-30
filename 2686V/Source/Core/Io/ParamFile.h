@@ -72,6 +72,27 @@ namespace Io
 	// 書き出す先。今の形の名前になる。
 	juce::File fileToWrite(const juce::File& directory, const juce::String& baseName);
 
+	// ========================================================================
+	// 3.0.0 より前の形式からの変換
+	// ========================================================================
+	// 読み込みそのものは当時の処理をそのまま使い、ここは書き出しだけを
+	// 引き受ける。並び順を写し直すと取り違えるおそれがあるためで、実際に
+	// 移行のときに並びが変わっている部品がある。
+
+	// 書き出しを引き受けるので、先に名前だけ知らせておく
+	class ParamWriter;
+
+	// 行の並びだけで持っていたファイルかどうか
+	bool isLegacyFile(const juce::File& file);
+
+	// 変換したものを置く先。元の名前へ拡張子を足しただけにする。
+	// 元のファイルは残す。
+	juce::File convertedFileFor(const juce::File& file);
+
+	// 変換したものを書き出し、書けたことを画面で伝える。
+	// 既にあるものは上書きしない。読み込むたびに変換が走るため。
+	bool writeConverted(const juce::File& file, const ParamWriter& writer);
+
 	// 何のファイルかを表す印と、その版
 	struct ParamFormat
 	{
@@ -110,6 +131,13 @@ namespace Io
 
 		void setArray(const juce::String& key, const std::vector<float>& values);
 		void setArray(const juce::String& key, const std::vector<int>& values);
+
+		// 入れ子で書いたまとまりを、そのまま外側の中身にする。
+		//
+		// 部品ごとの単体ファイルは、チャンネルのファイルの中に入っている
+		// まとまりと中身が同じなので、writeParams をそのまま使えるように
+		// するために置いてある。
+		void hoist(const juce::String& key);
 
 		bool writeTo(const juce::File& file) const;
 	};

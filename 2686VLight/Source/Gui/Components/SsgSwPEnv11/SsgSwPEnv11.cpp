@@ -652,6 +652,34 @@ void GuiComponentSsgSwPEnv11::importParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                	juce::StringArray lines;
+
+                	file.readLines(lines);
+
+                	int index = 0;
+
+                	{
+                		// 読み終えてからまとめて描き直す
+                		GuiRefresh::Batch batch;
+
+                		setImportingParams(lines, index);
+                	}
+
+                	// 単体のファイルは入れ子にせず、そのまま中身として書く
+                	Io::ParamWriter writer(ssgSwPEnv11Format);
+
+                	writeParams(writer, Io::ParamKey::values);
+                	writer.hoist(Io::ParamKey::values);
+
+                	Io::writeConverted(file, writer);
+
+                	return;
+                }
+
                 auto reader = Io::ParamReader::open(file, ssgSwPEnv11Format);
 
                 if (!reader.has_value()) return;
