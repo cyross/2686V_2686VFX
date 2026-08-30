@@ -1,5 +1,7 @@
 ﻿#include "./WtMod.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
 #include "../WavePreview/WavePreviewSource.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
@@ -686,4 +688,44 @@ void GuiComponentWtMod::exportParams()
                 file.replaceWithText(getExportedParams());
             }
         });
+}
+
+// 名前で持つので、後から足した項目を末尾へ置く必要がなくなった。
+// 基本の値と Shape を分けて渡していたのも、まとめて 1 つで足りる。
+void GuiComponentWtMod::readParams(const Io::ParamReader& reader, const juce::String& key)
+{
+    auto r = reader.child(key);
+
+    enableButton.setToggleState(r.getBool("enable", enableButton.getToggleState()), juce::sendNotification);
+    depthSlider.setValue(r.getFloat("depth", (float)depthSlider.getValue()), juce::sendNotification);
+    speedSlider.setValue(r.getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
+    shapeSelector.setSelectedItemIndex(r.getInt("shape", shapeSelector.getSelectedItemIndex()), juce::sendNotification);
+    waveSmoothBtn.setToggleState(r.getBool("waveSmooth", waveSmoothBtn.getToggleState()), juce::sendNotification);
+
+    auto values = r.getIntArray("table");
+
+    if (values.empty()) return;
+
+    auto table = fdsEditor.currentTable();
+
+    for (int i = 0; i < (int)table.size() && i < (int)values.size(); ++i) {
+        table[(size_t)i] = std::clamp(values[(size_t)i], 0, 7);
+    }
+
+    fdsEditor.loadTable(table);
+}
+
+void GuiComponentWtMod::writeParams(Io::ParamWriter& writer, const juce::String& key)
+{
+    auto w = writer.child(key);
+
+    w.set("enable", enableButton.getToggleState());
+    w.set("depth", (float)depthSlider.getValue());
+    w.set("speed", (float)speedSlider.getValue());
+    w.set("shape", shapeSelector.getSelectedItemIndex());
+    w.set("waveSmooth", waveSmoothBtn.getToggleState());
+
+    auto table = fdsEditor.currentTable();
+
+    w.setArray("table", std::vector<int>(table.begin(), table.end()));
 }

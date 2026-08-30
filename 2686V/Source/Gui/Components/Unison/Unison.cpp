@@ -1,5 +1,7 @@
 ﻿#include "./Unison.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -278,4 +280,48 @@ juce::String GuiComponentUnison::getExportedParams() {
     }
 
     return content;
+}
+
+// ボイスごとの設定は並びとして持つ。名前に番号を混ぜずに済み、
+// 書かれていないボイスは今の値のままになる。
+void GuiComponentUnison::readParams(const Io::ParamReader& reader, const juce::String& key)
+{
+    auto r = reader.child(key);
+
+    voices.setValue(r.getInt("voices", (int)voices.getValue()), juce::sendNotification);
+    detune.setValue(r.getInt("detune", (int)detune.getValue()), juce::sendNotification);
+    spread.setValue(r.getFloat("spread", (float)spread.getValue()), juce::sendNotification);
+
+    arpEnable.setToggleState(r.getBool("arpEnable", arpEnable.getToggleState()), juce::sendNotification);
+    arpFreq.setValue(r.getInt("arpFreq", (int)arpFreq.getValue()), juce::sendNotification);
+    arpSmooth.setToggleState(r.getBool("arpSmooth", arpSmooth.getToggleState()), juce::sendNotification);
+
+    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+        auto voice = r.arrayItem("paraVoices", i);
+
+        setParaValue(CPK::Unison::paraDistance, i,
+            voice.getFloat("distance", getParaValue(CPK::Unison::paraDistance, i)));
+        setParaValue(CPK::Unison::paraDetune, i,
+            (float)voice.getInt("detune", (int)getParaValue(CPK::Unison::paraDetune, i)));
+    }
+}
+
+void GuiComponentUnison::writeParams(Io::ParamWriter& writer, const juce::String& key)
+{
+    auto w = writer.child(key);
+
+    w.set("voices", (int)voices.getValue());
+    w.set("detune", (int)detune.getValue());
+    w.set("spread", (float)spread.getValue());
+
+    w.set("arpEnable", arpEnable.getToggleState());
+    w.set("arpFreq", (int)arpFreq.getValue());
+    w.set("arpSmooth", arpSmooth.getToggleState());
+
+    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+        auto voice = w.arrayItem("paraVoices", i);
+
+        voice.set("distance", getParaValue(CPK::Unison::paraDistance, i));
+        voice.set("detune", (int)getParaValue(CPK::Unison::paraDetune, i));
+    }
 }
