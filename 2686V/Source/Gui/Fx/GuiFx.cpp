@@ -1013,7 +1013,7 @@ void GuiFx::exportFxOrder()
         defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxOrderFile, defaultDir.getChildFile("default.fxo.json"), Io::ExtensionGlob::fxOrder);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxOrderFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::fxOrder)), Io::saveGlob(Io::Extension::fxOrder));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -1150,7 +1150,7 @@ void GuiFx::exportFxParam()
         defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxParamFile, defaultDir.getChildFile("default.2fx.json"), Io::ExtensionGlob::fxParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::fxParam)), Io::saveGlob(Io::Extension::fxParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();

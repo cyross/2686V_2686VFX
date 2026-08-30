@@ -687,7 +687,7 @@ void GuiComponentWtMod::exportParams()
         defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportWtModParamFile, defaultDir.getChildFile("default." + Io::Extension::WtModParam), Io::ExtensionGlob::WtModParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportWtModParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::WtModParam)), Io::saveGlob(Io::Extension::WtModParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();

@@ -34,51 +34,49 @@ namespace Io
 
 	namespace Extension
 	{
-		static inline const juce::String fxOrder = "fxo.json";
-		static inline const juce::String fxParam = "2fx.json";
-		static inline const juce::String opzx7sParam = "param.opzx7s.json";
-		static inline const juce::String opzx7sOpParam = "param.opzx7s.op.json";
-		static inline const juce::String curveParam = "curve_.json";
+		static inline const juce::String fxOrder = "fxo";
+		static inline const juce::String fxParam = "2fx";
+		static inline const juce::String opzx7sParam = "param.opzx7s";
+		static inline const juce::String opzx7sOpParam = "param.opzx7s.op";
+		static inline const juce::String curveParam = "curve_";
 		static inline const juce::String Opzx7LfoParam = "lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "ampEnv";
-		static inline const juce::String SsgHwEnvParam = "ssgHwEnv.json";
-		static inline const juce::String WtModParam = "wtmod.json";
+		static inline const juce::String SsgHwEnvParam = "ssgHwEnv";
+		static inline const juce::String WtModParam = "wtmod";
 		static inline const juce::String SsgSwEnvParam = "ssgSwEnv";
+		static inline const juce::String SsgSwEnvParam11 = "ssgSwEnv11";
+		static inline const juce::String SsgSwPEnvParam11 = "ssgSwPEnv11";
 		static inline const juce::String PitchEnvParam = "pitchEnv";
 		static inline const juce::String DetuneParam = "detune";
-		static inline const juce::String DetuneParamNew = "detune.json";
-		static inline const juce::String UnisonParam = "unison.json";
+		static inline const juce::String UnisonParam = "unison";
 		static inline const juce::String QualityParam = "quality";
-		static inline const juce::String QualityParamNew = "quality.json";
 		static inline const juce::String PcmPlayParam = "pcmPlay";
 
-		// 色の設定。新しく作る形式なので、はじめから JSON にしてある。
-		static inline const juce::String ColorSetting = "ccolor.json";
+		static inline const juce::String ColorSetting = "ccolor";
 	};
 
 	namespace ExtensionGlob
 	{
 		static inline const juce::String wavetable = "*.wt";
 		static inline const juce::String wt2 = "*.wt2";
-		static inline const juce::String fxOrder = "*.fxo.json";
-		static inline const juce::String fxParam = "*.2fx.json";
-		static inline const juce::String opzx7sParam = "*.param.opzx7s.json";
-		static inline const juce::String opzx7sOpParam = "*.param.opzx7s.op.json";
-		static inline const juce::String curveParam = "*.curve_.json";
-		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7.json";
-		static inline const juce::String AmpEnvParam = "*.ampEnv.json";
-		static inline const juce::String SsgHwEnvParam = "*.ssgHwEnv.json";
-		static inline const juce::String WtModParam = "*.wtmod.json";
-		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv.json";
-		static inline const juce::String PitchEnvParam = "*.pitchEnv.json";
-		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11.json";
-		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11.json";
-		static inline const juce::String DetuneParam = "*.detune.json";
-		static inline const juce::String UnisonParam = "*.unison.json";
-		static inline const juce::String QualityParam = "*.quality.json";
-		static inline const juce::String PcmPlayParam = "*.pcmPlay.json";
-		static inline const juce::String ToneNoiseParam = "*.toneNoise.json";
-		static inline const juce::String ColorSetting = "*.ccolor.json";
+		static inline const juce::String fxOrder = "*.fxo.json;*.fxo.yaml";
+		static inline const juce::String fxParam = "*.2fx.json;*.2fx.yaml";
+		static inline const juce::String opzx7sParam = "*.param.opzx7s.json;*.param.opzx7s.yaml";
+		static inline const juce::String opzx7sOpParam = "*.param.opzx7s.op.json;*.param.opzx7s.op.yaml";
+		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7.json;*.lfoOpzx7.yaml";
+		static inline const juce::String AmpEnvParam = "*.ampEnv.json;*.ampEnv.yaml";
+		static inline const juce::String SsgHwEnvParam = "*.ssgHwEnv.json;*.ssgHwEnv.yaml";
+		static inline const juce::String WtModParam = "*.wtmod.json;*.wtmod.yaml";
+		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv.json;*.ssgSwEnv.yaml";
+		static inline const juce::String PitchEnvParam = "*.pitchEnv.json;*.pitchEnv.yaml";
+		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11.json;*.ssgSwEnv11.yaml";
+		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11.json;*.ssgSwPEnv11.yaml";
+		static inline const juce::String DetuneParam = "*.detune.json;*.detune.yaml";
+		static inline const juce::String UnisonParam = "*.unison.json;*.unison.yaml";
+		static inline const juce::String QualityParam = "*.quality.json;*.quality.yaml";
+		static inline const juce::String PcmPlayParam = "*.pcmPlay.json;*.pcmPlay.yaml";
+		static inline const juce::String ToneNoiseParam = "*.toneNoise.json;*.toneNoise.yaml";
+		static inline const juce::String ColorSetting = "*.ccolor.json;*.ccolor.yaml";
 	};
 
 	namespace Folder

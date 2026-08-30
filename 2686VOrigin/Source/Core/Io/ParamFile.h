@@ -23,8 +23,47 @@ namespace Io
 	// たびにその重みが増えるため。代わりに、古いファイルを選んだときは
 	// 黙って何も起きるのではなく、読めないことを画面で伝える。
 	//
-	// 中身は JSON。将来 YAML へ移すときも、読み書きする側はこの入れ物を
-	// 通しているので手を入れずに済む。
+	// 中身は JSON と YAML のどちらでもよい。書き出す形は設定で選び、
+	// 読み込みは中身を見て振り分ける。読み書きする側はこの入れ物を
+	// 通しているので、どちらであるかを気にしなくてよい。
+
+	// ========================================================================
+	// 書き出す形
+	// ========================================================================
+	// 読むときは名前ではなく中身で見分けるので、拡張子を付け替えられて
+	// いても読める。選べるようにしてあるのは書き出す側だけ。
+	enum class FileFormat
+	{
+		json,
+		yaml
+	};
+
+	// 今どちらで書き出すか。設定から変える。
+	FileFormat getFileFormat();
+	void setFileFormat(FileFormat format);
+
+	// 形に対応する拡張子。先頭の点は含まない。
+	juce::String fileFormatExtension(FileFormat format);
+	juce::String fileFormatExtension();
+
+	// 保存のダイアログへ出す既定のファイル名。base は "param.opna" のような
+	// 種類ごとの名前で、拡張子は今の形に合わせて付ける。
+	juce::String defaultFileName(const juce::String& base);
+
+	// 保存のダイアログの絞り込み。今の形のものだけを出す。
+	juce::String saveGlob(const juce::String& base);
+
+	// 読み込みのダイアログの絞り込み。どちらの形も選べるようにする。
+	// 種類の決まっているものは ExtensionGlob に並べてあるので、これを
+	// 使うのは Curve のように名前を組み立てる場合だけ。
+	juce::String openGlob(const juce::String& base);
+
+	// ParamWriter を通さない中身を、選ばれている形で書き出す。色の設定の
+	// ように、独自の形を持つものから使う。
+	bool writeValueTo(const juce::File& file, const juce::var& value);
+
+	// 同じく、JSON でも YAML でも読める形で読む。読めなければ空を返す。
+	juce::var readValueFrom(const juce::File& file);
 
 	// 何のファイルかを表す印と、その版
 	struct ParamFormat

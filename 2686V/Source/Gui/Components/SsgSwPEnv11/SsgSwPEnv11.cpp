@@ -701,7 +701,7 @@ void GuiComponentSsgSwPEnv11::exportParams() {
         defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportSsgSwEnvParamFile, defaultDir.getChildFile("default.ssgSwPEnv11.json"), Io::ExtensionGlob::SsgSwPEnvParam11);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportSsgSwEnvParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::SsgSwPEnvParam11)), Io::saveGlob(Io::Extension::SsgSwPEnvParam11));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();

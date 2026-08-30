@@ -14,12 +14,16 @@ namespace SettingsValue
 
 	namespace File
 	{
-		static inline const juce::String glob = "*.settings.json";
+		// 読み込みは JSON でも YAML でもよい
+		static inline const juce::String glob = "*.settings.json;*.settings.yaml";
 
 		namespace Name
 		{
-			static inline const juce::String initial = "init.settings.json";
-			static inline const juce::String def = "2686VLight.settings.json";
+			// 拡張子は書き出す形で決まるので、ここでは名前だけを持つ。
+			// 起動時に読むファイルは AudioPlugin2686V::getStartupSettingsFile
+			// が、あるほうを選ぶ。
+			static inline const juce::String initial = "init.settings";
+			static inline const juce::String def = "2686VLight.settings";
 		}
 	}
 };

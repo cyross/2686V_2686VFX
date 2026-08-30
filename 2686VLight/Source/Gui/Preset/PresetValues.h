@@ -4,6 +4,8 @@
 
 #include <JuceHeader.h>
 
+#include "../../Core/Io/ParamFile.h"
+
 namespace PresetValue
 {
 	namespace MetaData
@@ -46,8 +48,13 @@ namespace PresetValue
 	namespace File
 	{
 		// 3.0.0 より前の XML も一覧に出す。読み込みだけは残してあるため。
-		static inline const juce::String glob = "*.2686vl.json;*.xml";
-		static inline const juce::String ext = ".2686vl.json";
+		static inline const juce::String glob = "*.2686vl.json;*.2686vl.yaml;*.xml";
+
+		// 書き出すときの拡張子。選ばれている形に合わせる。
+		static inline juce::String extension()
+		{
+			return ".2686vl." + Io::fileFormatExtension();
+		}
 		static inline const juce::String def = "Untitled";
 
 		namespace Name

@@ -6,6 +6,7 @@ namespace SettingsKey
 {
 	static inline const juce::String envCode = "PREF_OPZX7S";
 	static inline const juce::String uiScaleIndex = "uiScaleIndex";
+	static inline const juce::String fileFormat = "fileFormat";
 	static inline const juce::String wallpaperPath = "wallpaperPath";
 	static inline const juce::String wallpaperMode = "wallpaperMode";
 	static inline const juce::String defaultSampleDir = "defaultSampleDir";

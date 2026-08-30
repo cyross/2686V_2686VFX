@@ -76,6 +76,32 @@ void GuiSettings::setup()
 
         };
 
+    // パラメータファイルの形
+    //
+    // 読み込みは中身を見て振り分けるので、ここを変えても今までに
+    // 書き出したファイルはそのまま読める。変わるのは書き出す形と
+    // 拡張子だけ。
+    std::vector<SelectItem> fileFormatItems = {
+        {.name = "JSON", .value = 1 },
+        {.name = "YAML", .value = 2 },
+    };
+
+    fileFormatSelector.setup({
+        .parent = *this,
+        .id = "",
+        .title = juce::String("") + "ファイル形式",
+        .items = fileFormatItems,
+        .isReset = false,
+        .labelColor = juce::Colours::yellow
+        });
+    fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
+    fileFormatSelector.setWantsKeyboardFocus(true);
+    fileFormatSelector.setExplicitFocusOrder(++tabOrder);
+    fileFormatSelector.onChange = [this] {
+        ctx.audioProcessor.fileFormatIndex = fileFormatSelector.getSelectedItemIndex();
+        ctx.audioProcessor.applyFileFormat();
+        };
+
     separator1.setupComponent(*this);
 
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = juce::String("") + "ファイル選択") {
@@ -562,7 +588,7 @@ void GuiSettings::setup()
     saveSettingsBtn.onClick = [this] {
         ctx.editor.openWriteFileChooser(
             juce::String("") + "設定ファイルを選択してください",
-            ctx.audioProcessor.getPluginDirectory().getChildFile(SettingsValue::File::Name::initial),
+            ctx.audioProcessor.getStartupSettingsFileToWrite(),
             SettingsValue::File::glob,
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -587,21 +613,9 @@ void GuiSettings::setup()
                 if (file.existsAsFile()) {
                     ctx.audioProcessor.loadEnvironment(file);
 
-                    // UI反映
-                    wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty() ? Io::empty : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
-                    wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1);
-                    sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
-                    presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
-                    wavetableDirLabel.setText(ctx.audioProcessor.defaultWavetableDir, juce::dontSendNotification);
-                    fxOrderDirLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
-                    fxParamDirLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
-                    lfoParamDirLabel.setText(ctx.audioProcessor.defaultLfoParamDir, juce::dontSendNotification);
-                    ampEnvParamDirLabel.setText(ctx.audioProcessor.defaultAmpEnvParamDir, juce::dontSendNotification);
-                    pitchEnvParamDirLabel.setText(ctx.audioProcessor.defaultPitchEnvParamDir, juce::dontSendNotification);
-                    ssgSwEnvParamDirLabel.setText(ctx.audioProcessor.defaultSsgSwEnvParamDir, juce::dontSendNotification);
-                    ssgHwEnvParamDirLabel.setText(ctx.audioProcessor.defaultSsgHwEnvParamDir, juce::dontSendNotification);
-                    detuneParamDirLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
-                    unisonParamDirLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
+                    // 反映は 1 か所へ寄せる。ここに並べ直していたため、
+                    // 足した項目が読み込みのときだけ画面に出なかった。
+                    setSettings();
 
                     // 壁紙再描画
                     ctx.editor.loadWallpaperImage();
@@ -628,8 +642,7 @@ void GuiSettings::setup()
         {
             // 保存は 1 か所へ寄せる。ここで項目を並べ直していたため、
             // 足した項目が標準設定にだけ入らないことが起きていた。
-            auto file = ctx.audioProcessor.getPluginDirectory()
-                .getChildFile(SettingsValue::File::Name::initial);
+            auto file = ctx.audioProcessor.getStartupSettingsFileToWrite();
 
             if (ctx.audioProcessor.saveEnvironment(file))
             {
@@ -690,6 +703,11 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto rowUiScale = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     uiScaleSelector.label.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     uiScaleSelector.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::UiScaleSelectorWidth));
+
+    // 同じ行の余白へ置く。行を増やすと下がすべてずれるため。
+    rowUiScale.removeFromLeft(SettingsGuiValue::Settings::PaddingHeight);
+    fileFormatSelector.label.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::FileFormatLabelWidth));
+    fileFormatSelector.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::FileFormatSelectorWidth));
 
     separator1.layoutComponent(sRect);
 
@@ -946,6 +964,8 @@ void GuiSettings::setSettings()
     // プロセッサから直に読む。引数を 18 個も並べていたときは、順番を
     // 間違えても、行を足し忘れても気づけなかった。
     uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
+    fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
+    wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
 
     wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty()
         ? Io::empty : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);

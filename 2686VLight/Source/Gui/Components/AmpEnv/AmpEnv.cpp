@@ -210,7 +210,7 @@ void GuiComponentAmpEnv::exportParams() {
 		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
-	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile("default.ampEnv.json"), Io::ExtensionGlob::AmpEnvParam);
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::AmpEnvParam)), Io::saveGlob(Io::Extension::AmpEnvParam));
 	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
 		[this](const juce::FileChooser& fc) {
 			auto file = fc.getResult();

@@ -705,6 +705,9 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
 
     visitEnvironment(visit);
 
+    // 読んだ番号を書き出し先へ映す
+    applyFileFormat();
+
     // 内部変数の更新
     if (juce::File(defaultSampleDir).isDirectory()) {
         lastSampleDirectory = juce::File(defaultSampleDir);
@@ -719,7 +722,7 @@ void AudioPlugin2686V::loadStartupSettings()
     // 例: マイドキュメントフォルダ内の "2686V" フォルダにある "init_settings_opzx7s.xml"
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     auto pluginDir = docDir.getChildFile(Io::Folder::asset);
-    auto presetFile = pluginDir.getChildFile(SettingsValue::File::Name::initial);
+    auto presetFile = getStartupSettingsFile();
 
     if (!pluginDir.exists()) {
         pluginDir.createDirectory();

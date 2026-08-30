@@ -95,3 +95,45 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/doctest/scripts/cmak
 include(doctest)
 
 doctest_discover_tests(RetroSynthsTests)
+
+# ==============================================================================
+# パラメータファイルの読み書き
+# ==============================================================================
+# ParamFile は juce::var と yaml-cpp の上に載っているため、上のテストのように
+# JUCE を差し替えられない。別の実行ファイルにして本物の JUCE を読み込む。
+#
+# 見ているのは主に、JSON と YAML のどちらで書いても同じ値へ戻ることと、
+# 数に見える文字列が数として読み戻されないこと。
+juce_add_console_app(IoTests PRODUCT_NAME "IoTests")
+
+juce_generate_juce_header(IoTests)
+
+target_sources(IoTests PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/io/ParamFileTests.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Core/Io/ParamFile.cpp"
+)
+
+target_include_directories(IoTests PRIVATE
+    "${TEST_TARGET_SOURCE_ROOT}"
+    "${CMAKE_SOURCE_DIR}/external/doctest"
+)
+
+target_link_libraries(IoTests PRIVATE
+    yaml-cpp::yaml-cpp
+    juce::juce_gui_basics
+    juce::juce_recommended_config_flags
+)
+
+target_compile_definitions(IoTests PRIVATE
+    JUCE_WEB_BROWSER=0
+    JUCE_USE_CURL=0
+    DOCTEST_CONFIG_USE_STD_HEADERS
+)
+
+target_compile_features(IoTests PRIVATE cxx_std_20)
+
+if(MSVC)
+    target_compile_options(IoTests PRIVATE /utf-8 /FS)
+endif()
+
+doctest_discover_tests(IoTests)

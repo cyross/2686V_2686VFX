@@ -401,7 +401,7 @@ void GuiComponentMulDetune::exportParams() {
         defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile("default." + Io::Extension::DetuneParamNew), Io::ExtensionGlob::DetuneParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::DetuneParam)), Io::saveGlob(Io::Extension::DetuneParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();

@@ -551,7 +551,7 @@ void GuiColors::saveToFile()
 	}
 
 	fileChooser = std::make_unique<juce::FileChooser>(ColorsGuiText::File::saveTitle,
-		defaultDir.getChildFile(ColorsGuiText::File::defaultName),
+		defaultDir.getChildFile(ColorsGuiText::File::defaultName()),
 		Io::ExtensionGlob::ColorSetting);
 
 	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
@@ -577,7 +577,8 @@ void GuiColors::saveToFile()
 			root->setProperty(ColorsGuiText::File::Key::version, ColorsGuiText::File::version);
 			root->setProperty(ColorsGuiText::File::Key::colors, juce::var(colors));
 
-			file.replaceWithText(juce::JSON::toString(juce::var(root)));
+			// 書き出す形は設定で決まる
+			Io::writeValueTo(file, juce::var(root));
 		});
 }
 
@@ -602,7 +603,8 @@ void GuiColors::loadFromFile()
 
 			ctx.audioProcessor.defaultColorSettingDir = file.getParentDirectory().getFullPathName();
 
-			auto parsed = juce::JSON::parse(file.loadFileAsString());
+			// JSON でも YAML でも読める
+			auto parsed = Io::readValueFrom(file);
 			auto* root = parsed.getDynamicObject();
 
 			if (root == nullptr) return;

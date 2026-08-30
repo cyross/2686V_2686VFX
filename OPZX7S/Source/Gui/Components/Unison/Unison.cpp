@@ -206,7 +206,7 @@ void GuiComponentUnison::exportParams() {
         defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportUnisonParamFile, defaultDir.getChildFile("default.unison.json"), Io::ExtensionGlob::UnisonParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportUnisonParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::UnisonParam)), Io::saveGlob(Io::Extension::UnisonParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();

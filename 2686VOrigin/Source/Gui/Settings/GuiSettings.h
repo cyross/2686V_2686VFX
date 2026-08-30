@@ -17,6 +17,7 @@ class GuiSettings : public GuiBase
 
     // 高解像度対応
     GuiComboBox uiScaleSelector;
+    GuiComboBox fileFormatSelector;
 
     NormalSeparator separator1;
 
@@ -135,6 +136,7 @@ public:
         GuiBase(context),
         mainGroup(context),
         uiScaleSelector(context),
+        fileFormatSelector(context),
         separator1(context),
         wallpaperLabel(context),
         wallpaperPathLabel(context),

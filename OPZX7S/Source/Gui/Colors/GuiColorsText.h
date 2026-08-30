@@ -2,6 +2,9 @@
 
 #include <JuceHeader.h>
 
+#include "../../Core/Io/ParamFile.h"
+#include "../../Core/Const/ConstFileValues.h"
+
 namespace ColorsGuiText
 {
 	static inline const juce::String title = u8"色の設定";
@@ -24,7 +27,11 @@ namespace ColorsGuiText
 	{
 		static inline const juce::String openTitle = u8"色の設定を読み込み";
 		static inline const juce::String saveTitle = u8"色の設定を書き出し";
-		static inline const juce::String defaultName = "default.ccolor.json";
+		// 拡張子は書き出す形で決まるので、その都度組み立てる
+		static inline juce::String defaultName()
+		{
+			return Io::defaultFileName(Io::Extension::ColorSetting);
+		}
 
 		// ファイルの中身を見分けるための印。4 つのプラグインで共通に
 		// してあるので、書き出した設定はどれでも読める。

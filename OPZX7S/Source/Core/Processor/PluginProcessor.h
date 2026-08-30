@@ -4,6 +4,7 @@
 
 #include "../Io/ParamFile.h"
 #include "../../Gui/Settings/SettingsKeys.h"
+#include "../../Gui/Settings/SettingsValues.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
@@ -334,6 +335,17 @@ public:
 
     // --- Settings Data ---
     int uiScaleIndex = 7; // 高解像度対応(0ベース、初期値: 80%)
+
+    // パラメータファイルを書き出す形。0 = JSON, 1 = YAML。
+    // 設定として持ち回るので番号で持つ。
+    int fileFormatIndex = 0;
+
+    // 番号を実際の書き出し先へ映す。設定を読んだ後と、画面で
+    // 変えたときに呼ぶ。
+    void applyFileFormat() const
+    {
+        Io::setFileFormat(fileFormatIndex == 1 ? Io::FileFormat::yaml : Io::FileFormat::json);
+    }
     // チャンネルごとの MODULATION 変調波形ファイルのパス。
     // キーは APVTS のプレフィックス (OPNA / SSG / OPZX7 など)。
     // 波形そのものは 32 個のパラメータ側に入っているので、ここは表示用。
@@ -380,6 +392,7 @@ public:
     void visitEnvironment(Visitor& visit)
     {
         visit(SettingsKey::uiScaleIndex, uiScaleIndex);
+        visit(SettingsKey::fileFormat, fileFormatIndex);
         visit(SettingsKey::wallpaperPath, wallpaperPath);
         visit(SettingsKey::wallpaperMode, wallpaperMode);
 
@@ -424,6 +437,35 @@ public:
 
         return dir;
     }
+
+    // 起動時に読む設定ファイル。JSON と YAML のどちらで保存されていても
+    // 拾えるよう、あるほうを返す。両方あれば新しいほう。どちらも無ければ
+    // 今の形で作る名前を返す。
+    juce::File getStartupSettingsFile() const
+    {
+        auto dir = getPluginDirectory();
+
+        auto asJson = dir.getChildFile(SettingsValue::File::Name::initial + ".json");
+        auto asYaml = dir.getChildFile(SettingsValue::File::Name::initial + ".yaml");
+
+        if (asJson.existsAsFile() && asYaml.existsAsFile())
+        {
+            return asJson.getLastModificationTime() >= asYaml.getLastModificationTime() ? asJson : asYaml;
+        }
+
+        if (asYaml.existsAsFile()) return asYaml;
+        if (asJson.existsAsFile()) return asJson;
+
+        return getStartupSettingsFileToWrite();
+    }
+
+    // 標準設定を書き出す先。今の形の名前になる。
+    juce::File getStartupSettingsFileToWrite() const
+    {
+        return getPluginDirectory()
+            .getChildFile(SettingsValue::File::Name::initial + "." + Io::fileFormatExtension());
+    }
+
     bool loadEnvironment(const juce::File& file, bool tellIfLegacy = true); 
 
     void panic();

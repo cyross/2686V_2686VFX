@@ -1,5 +1,9 @@
 ﻿#include "./ParamFile.h"
 
+#include <yaml-cpp/yaml.h>
+
+#include <limits>
+
 namespace
 {
 	// 古いファイルを選んだときの知らせ
@@ -38,10 +42,277 @@ namespace
 
 		return existing.getArray();
 	}
+
+	// 今どちらの形で書き出すか。設定から変えるだけなので素の値で持つ。
+	Io::FileFormat g_fileFormat = Io::FileFormat::json;
+
+	// ====================================================================
+	// YAML
+	// ====================================================================
+	// 文字列は必ず引用符で囲む。囲まないと "123" や "true" が数や真偽に
+	// 見えてしまい、読み戻したときに元の文字列へ戻らない。数と真偽は
+	// 引用符を付けずに書くので、読むときは引用符の有無で見分けられる。
+	void emitYaml(YAML::Emitter& out, const juce::var& value)
+	{
+		if (auto* obj = value.getDynamicObject())
+		{
+			out << YAML::BeginMap;
+
+			for (const auto& kv : obj->getProperties())
+			{
+				out << YAML::Key << kv.name.toString().toStdString() << YAML::Value;
+
+				emitYaml(out, kv.value);
+			}
+
+			out << YAML::EndMap;
+
+			return;
+		}
+
+		if (auto* array = value.getArray())
+		{
+			out << YAML::BeginSeq;
+
+			for (const auto& e : *array) emitYaml(out, e);
+
+			out << YAML::EndSeq;
+
+			return;
+		}
+
+		if (value.isVoid() || value.isUndefined())
+		{
+			out << YAML::Null;
+
+			return;
+		}
+
+		if (value.isBool())
+		{
+			out << (bool)value;
+
+			return;
+		}
+
+		if (value.isInt() || value.isInt64())
+		{
+			out << (long long)(juce::int64)value;
+
+			return;
+		}
+
+		if (value.isDouble())
+		{
+			// yaml-cpp は元の値へ戻る最短の書き方を選ぶので、そのまま渡す
+			out << (double)value;
+
+			return;
+		}
+
+		out << YAML::DoubleQuoted << value.toString().toStdString();
+	}
+
+	juce::String toYamlText(const juce::var& root)
+	{
+		YAML::Emitter out;
+
+		emitYaml(out, root);
+
+		return juce::String(juce::CharPointer_UTF8(out.c_str()));
+	}
+
+	// 引用符の付いていない値が数かどうか。手で書き足した値も読めるよう、
+	// 書き出す側が使わない書き方 (指数など) も通す。
+	bool looksLikeNumber(const juce::String& text, bool& isInteger)
+	{
+		if (text.isEmpty()) return false;
+
+		int i = (text[0] == '+' || text[0] == '-') ? 1 : 0;
+
+		bool digits = false;
+		bool dot = false;
+		bool exponent = false;
+
+		for (; i < text.length(); ++i)
+		{
+			auto c = text[i];
+
+			if (c >= '0' && c <= '9')
+			{
+				digits = true;
+
+				continue;
+			}
+
+			if (c == '.' && !dot && !exponent)
+			{
+				dot = true;
+
+				continue;
+			}
+
+			if ((c == 'e' || c == 'E') && digits && !exponent)
+			{
+				exponent = true;
+
+				if (i + 1 < text.length() && (text[i + 1] == '+' || text[i + 1] == '-')) ++i;
+
+				continue;
+			}
+
+			return false;
+		}
+
+		isInteger = digits && !dot && !exponent;
+
+		return digits;
+	}
+
+	// 引用符の付いていない値を見た目から決める
+	juce::var plainToVar(const std::string& raw)
+	{
+		juce::String text(juce::CharPointer_UTF8(raw.c_str()));
+
+		auto trimmed = text.trim();
+		auto lower = trimmed.toLowerCase();
+
+		// 手で書いたときのために YAML でよく使われる書き方も受ける
+		if (lower == "true" || lower == "yes" || lower == "on") return true;
+		if (lower == "false" || lower == "no" || lower == "off") return false;
+		if (lower.isEmpty() || lower == "~" || lower == "null") return {};
+
+		bool isInteger = false;
+
+		if (looksLikeNumber(trimmed, isInteger))
+		{
+			if (!isInteger) return trimmed.getDoubleValue();
+
+			auto n = trimmed.getLargeIntValue();
+
+			if (n >= std::numeric_limits<int>::min() && n <= std::numeric_limits<int>::max())
+			{
+				return (int)n;
+			}
+
+			return juce::var(n);
+		}
+
+		return text;
+	}
+
+	juce::var fromYaml(const YAML::Node& node)
+	{
+		if (node.IsMap())
+		{
+			auto* obj = new juce::DynamicObject();
+
+			for (const auto& kv : node)
+			{
+				juce::String key(juce::CharPointer_UTF8(kv.first.Scalar().c_str()));
+
+				if (key.isEmpty()) continue;
+
+				obj->setProperty(key, fromYaml(kv.second));
+			}
+
+			return juce::var(obj);
+		}
+
+		if (node.IsSequence())
+		{
+			juce::Array<juce::var> out;
+
+			for (const auto& e : node) out.add(fromYaml(e));
+
+			return out;
+		}
+
+		if (node.IsScalar())
+		{
+			// 引用符が付いていたものは文字列。書くときに必ず囲んでいる。
+			if (node.Tag() == "!") return juce::String(juce::CharPointer_UTF8(node.Scalar().c_str()));
+
+			return plainToVar(node.Scalar());
+		}
+
+		return {};
+	}
+
+	// JSON か YAML か。名前ではなく中身で見分ける。
+	juce::var parseAny(const juce::String& text)
+	{
+		// JSON のほうが速いので先に試す
+		auto parsed = juce::JSON::parse(text);
+
+		if (parsed.getDynamicObject() != nullptr) return parsed;
+
+		try
+		{
+			auto node = YAML::Load(text.toStdString());
+
+			if (node.IsMap()) return fromYaml(node);
+		}
+		catch (const std::exception&)
+		{
+			// 読めなければ古い形式として扱う。ここで落とさない。
+		}
+
+		return {};
+	}
 }
 
 namespace Io
 {
+	FileFormat getFileFormat()
+	{
+		return g_fileFormat;
+	}
+
+	void setFileFormat(FileFormat format)
+	{
+		g_fileFormat = format;
+	}
+
+	juce::String fileFormatExtension(FileFormat format)
+	{
+		return format == FileFormat::yaml ? "yaml" : "json";
+	}
+
+	juce::String fileFormatExtension()
+	{
+		return fileFormatExtension(g_fileFormat);
+	}
+
+	juce::String defaultFileName(const juce::String& base)
+	{
+		return "default." + base + "." + fileFormatExtension();
+	}
+
+	juce::String saveGlob(const juce::String& base)
+	{
+		return "*." + base + "." + fileFormatExtension();
+	}
+
+	juce::String openGlob(const juce::String& base)
+	{
+		return "*." + base + ".json;*." + base + ".yaml";
+	}
+
+	bool writeValueTo(const juce::File& file, const juce::var& value)
+	{
+		if (g_fileFormat == FileFormat::yaml) return file.replaceWithText(toYamlText(value));
+
+		return file.replaceWithText(juce::JSON::toString(value));
+	}
+
+	juce::var readValueFrom(const juce::File& file)
+	{
+		if (!file.existsAsFile()) return {};
+
+		return parseAny(file.loadFileAsString());
+	}
+
 	ParamWriter::ParamWriter(ParamFormat format)
 		: m_root(new juce::DynamicObject()), m_values(new juce::DynamicObject()), m_format(std::move(format))
 	{
@@ -125,7 +396,11 @@ namespace Io
 
 	bool ParamWriter::writeTo(const juce::File& file) const
 	{
-		return file.replaceWithText(juce::JSON::toString(juce::var(m_root.get())));
+		juce::var root(m_root.get());
+
+		if (g_fileFormat == FileFormat::yaml) return file.replaceWithText(toYamlText(root));
+
+		return file.replaceWithText(juce::JSON::toString(root));
 	}
 
 	ParamReader::ParamReader(juce::DynamicObject::Ptr values) : m_values(std::move(values))
@@ -136,12 +411,12 @@ namespace Io
 	{
 		if (!file.existsAsFile()) return std::nullopt;
 
-		auto parsed = juce::JSON::parse(file.loadFileAsString());
+		auto parsed = parseAny(file.loadFileAsString());
 		auto* root = parsed.getDynamicObject();
 
 		if (root == nullptr)
 		{
-			// JSON として読めないものは古い形式とみなす
+			// JSON としても YAML としても読めないものは古い形式とみなす
 			if (tellIfLegacy) tellLegacyNotSupported(file);
 
 			return std::nullopt;

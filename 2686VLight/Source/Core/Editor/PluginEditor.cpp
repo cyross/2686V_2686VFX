@@ -979,7 +979,7 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
 
     // ファイル名として使えない文字を安全に置換
     filename = filename.replaceCharacter(':', '_').replaceCharacter('/', '_').replaceCharacter('\\', '_');
-    filename = filename + PresetValue::File::ext;
+    filename = filename + PresetValue::File::extension();
 
     juce::File defaultFile = presetGui->currentFolder.getChildFile(filename);
 

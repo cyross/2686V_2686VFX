@@ -262,7 +262,7 @@ void GuiComponentPitchEnv::exportParams() {
 		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
-	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPitchEnvParamFile, defaultDir.getChildFile("default.pitchEnv.json"), Io::ExtensionGlob::PitchEnvParam);
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPitchEnvParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::PitchEnvParam)), Io::saveGlob(Io::Extension::PitchEnvParam));
 	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
 		[this](const juce::FileChooser& fc) {
 			auto file = fc.getResult();
