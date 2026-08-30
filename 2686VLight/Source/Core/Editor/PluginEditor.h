@@ -93,6 +93,10 @@ public:
     void loadSettingsFile();
     void loadPresetFile(const juce::File& file);
     void scanPresets();
+
+    // 一覧の作り直し用の覚え書き。場所と大きさと更新日時が変わって
+    // いなければ、そのファイルは開き直さない。
+    std::map<juce::String, PresetItem> presetCache;
     void saveCurrentPreset();
     void saveCurrentPresetAs();
     void updatePresetNameToTabs(const juce::String& pName);

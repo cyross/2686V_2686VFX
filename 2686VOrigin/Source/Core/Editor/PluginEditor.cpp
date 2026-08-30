@@ -855,8 +855,13 @@ void AudioPlugin2686VEditor::scanPresets()
 {
     presetGui->clearTable();
 
-    // XMLファイルを探す
     auto files = presetGui->currentFolder.findChildFiles(juce::File::findFiles, true, PresetValue::File::glob);
+
+    // 前回読んだぶんを引き継ぐ。作り直しは保存や削除のたびに走るので、
+    // 変わっていないファイルまで開き直すと、数が増えたときに待たされる。
+    auto previous = std::move(presetCache);
+
+    presetCache.clear();
 
     for (const auto& file : files)
     {
@@ -865,6 +870,20 @@ void AudioPlugin2686VEditor::scanPresets()
         item.fileName = file.getFileName();
         item.fullPath = file.getFullPathName();
         item.lastModificationTime = file.getLastModificationTime();
+
+        auto found = previous.find(item.fullPath);
+
+        if (found != previous.end()
+            && found->second.lastModificationTime == item.lastModificationTime
+            && found->second.fileSize == file.getSize())
+        {
+            presetCache.emplace(item.fullPath, found->second);
+            presetGui->items.push_back(found->second);
+
+            continue;
+        }
+
+        item.fileSize = file.getSize();
 
         // 一覧に出すのは見出しだけなので、meta のまとまりだけを見る。
         // 3.0.0 より前の XML も一覧に出す。読み込みだけは残してあるため。
@@ -879,7 +898,9 @@ void AudioPlugin2686VEditor::scanPresets()
             item.modeName = meta.getString(PresetKey::mode, PresetValue::MetaData::Initial::mode);
             item.genre = meta.getString(PresetKey::genre, PresetValue::MetaData::Initial::genre);
         }
-        else if (auto xml = juce::XmlDocument(file).getDocumentElement())
+        // 一覧に出すのは根に付いている見出しだけなので、最後まで読まない。
+        // プリセット 1 つが数百 KB あるため、全部読むと数だけ時間がかかる。
+        else if (auto xml = juce::XmlDocument(file).getDocumentElement(true))
         {
             item.name = xml->getStringAttribute(PresetKey::name, audioProcessor.presetName);
             item.author = xml->getStringAttribute(PresetKey::author, audioProcessor.presetAuthor);
@@ -893,6 +914,7 @@ void AudioPlugin2686VEditor::scanPresets()
             item.name = PresetValue::File::Message::invalidXmlNotice;
         }
 
+        presetCache.emplace(item.fullPath, item);
         presetGui->items.push_back(item);
     }
 

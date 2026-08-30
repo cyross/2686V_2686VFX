@@ -239,6 +239,33 @@ namespace
 		return {};
 	}
 
+	// 先頭だけを見て、読む価値があるかを決める。
+	//
+	// 一覧を作るときはフォルダの中を 1 件ずつ開く。プリセットは 1 つが
+	// 数百 KB あるので、3.0.0 より前の XML が並んでいると、読んでから
+	// 捨てるだけで待たされる。
+	bool looksLikeOurFile(const juce::File& file)
+	{
+		juce::FileInputStream in(file);
+
+		if (!in.openedOk()) return false;
+
+		char buffer[64] = {};
+
+		auto read = in.read(buffer, (int)sizeof(buffer) - 1);
+
+		if (read <= 0) return false;
+
+		auto head = juce::String::fromUTF8(buffer, (int)read);
+
+		// 書き出す側は付けないが、手で用意されたものには付いていることがある
+		if (head.startsWithChar((juce::juce_wchar)0xfeff)) head = head.substring(1);
+
+		head = head.trimStart();
+
+		return head.isNotEmpty() && head[0] != '<';
+	}
+
 	// JSON か YAML か。名前ではなく中身で見分ける。
 	juce::var parseAny(const juce::String& text)
 	{
@@ -246,6 +273,15 @@ namespace
 		auto parsed = juce::JSON::parse(text);
 
 		if (parsed.getDynamicObject() != nullptr) return parsed;
+
+		// 明らかに違うものへ YAML 解析をかけない。
+		//
+		// 一覧を作るときはフォルダの中を 1 件ずつ開くので、3.0.0 より前の
+		// XML が並んでいると、その数だけ解析と例外が起きる。読めないと
+		// 分かっているものにその手間をかける意味はない。
+		auto head = text.trimStart();
+
+		if (head.isEmpty() || head[0] == '<') return {};
 
 		try
 		{
@@ -410,6 +446,13 @@ namespace Io
 	std::optional<ParamReader> ParamReader::open(const juce::File& file, const ParamFormat& format, bool tellIfLegacy)
 	{
 		if (!file.existsAsFile()) return std::nullopt;
+
+		if (!looksLikeOurFile(file))
+		{
+			if (tellIfLegacy) tellLegacyNotSupported(file);
+
+			return std::nullopt;
+		}
 
 		auto parsed = parseAny(file.loadFileAsString());
 		auto* root = parsed.getDynamicObject();
