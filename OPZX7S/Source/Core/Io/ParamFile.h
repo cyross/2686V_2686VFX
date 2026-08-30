@@ -65,6 +65,13 @@ namespace Io
 	// 同じく、JSON でも YAML でも読める形で読む。読めなければ空を返す。
 	juce::var readValueFrom(const juce::File& file);
 
+	// 拡張子違いで同じ名前のファイルがあり得る置き場から、読むべきものを
+	// 選ぶ。両方あれば新しいほう。どちらも無ければ今の形の名前を返す。
+	juce::File resolveFile(const juce::File& directory, const juce::String& baseName);
+
+	// 書き出す先。今の形の名前になる。
+	juce::File fileToWrite(const juce::File& directory, const juce::String& baseName);
+
 	// 何のファイルかを表す印と、その版
 	struct ParamFormat
 	{
@@ -93,6 +100,9 @@ namespace Io
 		ParamWriter arrayItem(const juce::String& key, int index);
 
 		void set(const juce::String& key, int value);
+
+		// 日時のように int へ収まらない値のため
+		void set(const juce::String& key, juce::int64 value);
 		void set(const juce::String& key, float value);
 		void set(const juce::String& key, double value);
 		void set(const juce::String& key, bool value);
@@ -133,6 +143,7 @@ namespace Io
 		int arraySize(const juce::String& key) const;
 
 		int getInt(const juce::String& key, int fallback = 0) const;
+		juce::int64 getInt64(const juce::String& key, juce::int64 fallback = 0) const;
 		float getFloat(const juce::String& key, float fallback = 0.0f) const;
 		bool getBool(const juce::String& key, bool fallback = false) const;
 		juce::String getString(const juce::String& key, const juce::String& fallback = {}) const;

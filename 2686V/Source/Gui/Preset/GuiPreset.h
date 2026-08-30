@@ -17,6 +17,9 @@ class GuiPreset : public GuiBase
     // UI Components
     GuiLabel pathLabel; // パス表示用
 
+    GuiComboBox viewSelector; // すべて / お気に入り / 履歴
+    GuiTextButton clearHistoryButton;
+
     GuiTextEditor searchBox; // 検索ボックス
     GuiTextButton clearSearchButton; // 検索クリアボタン
 
@@ -56,6 +59,8 @@ public:
         mainGroup(context),
         metaGroup(context),
         pathLabel(context),
+        viewSelector(context),
+        clearHistoryButton(context),
         searchBox(context),
         clearSearchButton(context),
         table(context),
@@ -78,6 +83,12 @@ public:
     }
 
     // Data
+    // 一覧の見方。お気に入りと履歴は今見ているフォルダの外も指すので、
+    // 元になる並びごと切り替える。
+    enum class View { all = 0, favourites, history };
+
+    View view = View::all;
+
     juce::File currentFolder;
     std::vector<PresetItem> items; // 読み込んだプリセット一覧
     std::vector<PresetItem> filteredItems; // 検索で絞り込まれた表示用のプリセット一覧

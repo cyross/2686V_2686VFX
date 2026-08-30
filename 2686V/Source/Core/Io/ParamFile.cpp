@@ -349,6 +349,27 @@ namespace Io
 		return parseAny(file.loadFileAsString());
 	}
 
+	juce::File resolveFile(const juce::File& directory, const juce::String& baseName)
+	{
+		auto asJson = directory.getChildFile(baseName + ".json");
+		auto asYaml = directory.getChildFile(baseName + ".yaml");
+
+		if (asJson.existsAsFile() && asYaml.existsAsFile())
+		{
+			return asJson.getLastModificationTime() >= asYaml.getLastModificationTime() ? asJson : asYaml;
+		}
+
+		if (asYaml.existsAsFile()) return asYaml;
+		if (asJson.existsAsFile()) return asJson;
+
+		return fileToWrite(directory, baseName);
+	}
+
+	juce::File fileToWrite(const juce::File& directory, const juce::String& baseName)
+	{
+		return directory.getChildFile(baseName + "." + fileFormatExtension());
+	}
+
 	ParamWriter::ParamWriter(ParamFormat format)
 		: m_root(new juce::DynamicObject()), m_values(new juce::DynamicObject()), m_format(std::move(format))
 	{
@@ -388,6 +409,11 @@ namespace Io
 	}
 
 	void ParamWriter::set(const juce::String& key, int value)
+	{
+		m_values->setProperty(key, value);
+	}
+
+	void ParamWriter::set(const juce::String& key, juce::int64 value)
 	{
 		m_values->setProperty(key, value);
 	}
@@ -514,6 +540,13 @@ namespace Io
 		auto v = find(key);
 
 		return v.isVoid() ? fallback : (int)v;
+	}
+
+	juce::int64 ParamReader::getInt64(const juce::String& key, juce::int64 fallback) const
+	{
+		auto v = find(key);
+
+		return v.isVoid() ? fallback : (juce::int64)v;
 	}
 
 	float ParamReader::getFloat(const juce::String& key, float fallback) const

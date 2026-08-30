@@ -122,6 +122,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // 2. 保存された設定に基づいてON/OFF初期化
     setTooltipState(audioProcessor.showTooltips);
 
+    // お気に入りと履歴を読む。一覧を作る前に済ませておく。
+    presetLibrary.openIn(audioProcessor.getPluginDirectory(), PresetValue::File::Name::library);
+
     if (presetGui->currentFolder.isDirectory()) {
         scanPresets();
     }
@@ -866,6 +869,17 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 
     // 4. 各タブのプリセット名を更新
     updatePresetNameToTabs(audioProcessor.presetName);
+
+    // 履歴へ積む。見出しも一緒に覚えるので、今見ているフォルダの外に
+    // あるプリセットでも、開き直さずに一覧へ出せる。
+    PresetItem item;
+
+    readPresetMeta(file, item);
+
+    presetLibrary.addHistory(item);
+
+    presetGui->updateTableContent();
+    presetGui->repaintTable();
 }
 
 void AudioPlugin2686VEditor::loadSettingsFile()
@@ -901,6 +915,52 @@ void AudioPlugin2686VEditor::loadSettingsFile()
 
 }
 
+// プリセット 1 件ぶんの見出しを読む。
+//
+// 一覧に出すのは見出しだけなので、中身は最後まで読まない。プリセット 1 つが
+// 数百 KB あるため、全部読むと件数だけ時間がかかる。
+//
+// 3.0.0 より前の XML も読む。読み込みだけは残してあるため。
+bool AudioPlugin2686VEditor::readPresetMeta(const juce::File& file, PresetItem& item)
+{
+    item.file = file;
+    item.fileName = file.getFileName();
+    item.fullPath = file.getFullPathName();
+    item.lastModificationTime = file.getLastModificationTime();
+    item.fileSize = file.getSize();
+    item.format = file.getFileExtension().substring(1).toUpperCase();
+
+    if (auto reader = Io::ParamReader::open(file, presetFormat, false))
+    {
+        auto meta = reader->child(Io::StateKey::meta);
+
+        item.name = meta.getString(PresetKey::name, audioProcessor.presetName);
+        item.author = meta.getString(PresetKey::author, audioProcessor.presetAuthor);
+        item.version = meta.getString(PresetKey::version, audioProcessor.presetVersion);
+        item.comment = meta.getString(PresetKey::comment, audioProcessor.presetComment);
+        item.modeName = meta.getString(PresetKey::mode, PresetValue::MetaData::Initial::mode);
+        item.genre = meta.getString(PresetKey::genre, PresetValue::MetaData::Initial::genre);
+
+        return true;
+    }
+
+    if (auto xml = juce::XmlDocument(file).getDocumentElement(true))
+    {
+        item.name = xml->getStringAttribute(PresetKey::name, audioProcessor.presetName);
+        item.author = xml->getStringAttribute(PresetKey::author, audioProcessor.presetAuthor);
+        item.version = xml->getStringAttribute(PresetKey::version, audioProcessor.presetVersion);
+        item.comment = xml->getStringAttribute(PresetKey::comment, audioProcessor.presetComment);
+        item.modeName = xml->getStringAttribute(PresetKey::mode, PresetValue::MetaData::Initial::mode);
+        item.genre = xml->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
+
+        return true;
+    }
+
+    item.name = PresetValue::File::Message::invalidXmlNotice;
+
+    return false;
+}
+
 void AudioPlugin2686VEditor::scanPresets()
 {
     presetGui->clearTable();
@@ -933,36 +993,7 @@ void AudioPlugin2686VEditor::scanPresets()
             continue;
         }
 
-        item.fileSize = file.getSize();
-
-        // 一覧に出すのは見出しだけなので、meta のまとまりだけを見る。
-        // 3.0.0 より前の XML も一覧に出す。読み込みだけは残してあるため。
-        if (auto reader = Io::ParamReader::open(file, presetFormat, false))
-        {
-            auto meta = reader->child(Io::StateKey::meta);
-
-            item.name = meta.getString(PresetKey::name, audioProcessor.presetName);
-            item.author = meta.getString(PresetKey::author, audioProcessor.presetAuthor);
-            item.version = meta.getString(PresetKey::version, audioProcessor.presetVersion);
-            item.comment = meta.getString(PresetKey::comment, audioProcessor.presetComment);
-            item.modeName = meta.getString(PresetKey::mode, PresetValue::MetaData::Initial::mode);
-            item.genre = meta.getString(PresetKey::genre, PresetValue::MetaData::Initial::genre);
-        }
-        // 一覧に出すのは根に付いている見出しだけなので、最後まで読まない。
-        // プリセット 1 つが数百 KB あるため、全部読むと数だけ時間がかかる。
-        else if (auto xml = juce::XmlDocument(file).getDocumentElement(true))
-        {
-            item.name = xml->getStringAttribute(PresetKey::name, audioProcessor.presetName);
-            item.author = xml->getStringAttribute(PresetKey::author, audioProcessor.presetAuthor);
-            item.version = xml->getStringAttribute(PresetKey::version, audioProcessor.presetVersion);
-            item.comment = xml->getStringAttribute(PresetKey::comment, audioProcessor.presetComment);
-            item.modeName = xml->getStringAttribute(PresetKey::mode, PresetValue::MetaData::Initial::mode);
-            item.genre = xml->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
-        }
-        else
-        {
-            item.name = PresetValue::File::Message::invalidXmlNotice;
-        }
+        readPresetMeta(file, item);
 
         presetCache.emplace(item.fullPath, item);
         presetGui->items.push_back(item);

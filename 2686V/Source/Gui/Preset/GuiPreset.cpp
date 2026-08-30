@@ -14,6 +14,39 @@
 #include "./GuiPresetText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
+// ============================================================================
+// お気に入りの印
+// ============================================================================
+// 押せるものは描くだけでは足りないので、セルへ部品を置く。入れ物を挟んで
+// いるのは、ボタンをセルいっぱいに広げると窮屈なため。
+class FavouriteCell : public juce::Component
+{
+public:
+	GuiTextButton button;
+
+	// どの行のものかは差し替わる。押されたときに読むので、値を捕まえず
+	// ここを見ること。
+	int row = -1;
+
+	explicit FavouriteCell(const GuiContext& context) : button(context)
+	{
+		addAndMakeVisible(button);
+	}
+
+	// 色は部品へ写るので、行を差し替えるたびに写し直す
+	void applyColours()
+	{
+		button.setColour(juce::TextButton::textColourOffId, GuiColor::TextButton::Text);
+		button.setColour(juce::TextButton::textColourOnId, GuiColor::TextButton::TextOn);
+		button.setColour(juce::TextButton::buttonColourId, GuiColor::TextButton::Bg);
+	}
+
+	void resized() override
+	{
+		button.setBounds(getLocalBounds().reduced(PresetGuiValue::Table::CellPadding));
+	}
+};
+
 juce::File GuiPreset::getSelectedFile() const
 {
     int row = table.getSelectedRow();
@@ -59,6 +92,53 @@ void GuiPreset::setup()
     *
     *********************/
 
+    // 一覧の見方。お気に入りと履歴は今見ているフォルダの外も指すので、
+    // 元になる並びごと切り替える。
+    std::vector<SelectItem> viewItems = {
+        {.name = PresetKey::View::all, .value = 1 },
+        {.name = PresetKey::View::favourites, .value = 2 },
+        {.name = PresetKey::View::history, .value = 3 },
+    };
+
+    viewSelector.setup({ .parent = *this, .id = "", .title = PresetKey::View::title,
+        .items = viewItems, .isReset = false });
+    viewSelector.setSelectedId(1, juce::dontSendNotification);
+    viewSelector.setWantsKeyboardFocus(true);
+    viewSelector.setExplicitFocusOrder(++tabOrder);
+
+    viewSelector.onChange = [this] {
+        view = (View)viewSelector.getSelectedItemIndex();
+
+        // 履歴を消せるのは履歴を見ているときだけ。ほかの見方で出して
+        // いると、何が消えるのか分かりにくい。
+        clearHistoryButton.setVisible(view == View::history);
+
+        applyFilter();
+        };
+
+    clearHistoryButton.setup({ .parent = *this, .title = PresetKey::View::clearHistory,
+        .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
+    clearHistoryButton.setWantsKeyboardFocus(true);
+    clearHistoryButton.setExplicitFocusOrder(++tabOrder);
+    clearHistoryButton.setVisible(false);
+
+    clearHistoryButton.onClick = [this] {
+        // 戻せないので確かめる
+        juce::AlertWindow::showAsync(juce::MessageBoxOptions()
+            .withIconType(juce::MessageBoxIconType::WarningIcon)
+            .withTitle(PresetKey::View::Dialog::clearTitle)
+            .withMessage(PresetKey::View::Dialog::clearMessage)
+            .withButton(PresetKey::View::Dialog::clearOk)
+            .withButton(PresetKey::View::Dialog::clearCancel),
+            [this](int result) {
+                if (result != 1) return;
+
+                ctx.editor.presetLibrary.clearHistory();
+
+                applyFilter();
+            });
+        };
+
     searchBox.setup({ .parent = *this, .title = PresetKey::Search::title, .isMultiLine = false });
     searchBox.setWantsKeyboardFocus(true);
     searchBox.setExplicitFocusOrder(++tabOrder);
@@ -76,12 +156,14 @@ void GuiPreset::setup()
 
 	table.setup({ .parent = *this, .title = PresetKey::Table::title, .canMultipleSelection = false });
     table.setWantsKeyboardFocus(false);
-    table.addColumn(PresetKey::Table::ColName::genre, 1, PresetGuiValue::Table::ColWidth::Genre);
-    table.addColumn(PresetKey::Table::ColName::name, 2, PresetGuiValue::Table::ColWidth::PresetName);
-    table.addColumn(PresetKey::Table::ColName::author, 3, PresetGuiValue::Table::ColWidth::Author);
-    table.addColumn(PresetKey::Table::ColName::version, 4, PresetGuiValue::Table::ColWidth::Version);
-    table.addColumn(PresetKey::Table::ColName::mode, 5, PresetGuiValue::Table::ColWidth::Mode);
-    table.addColumn(PresetKey::Table::ColName::lastModified, 6, PresetGuiValue::Table::ColWidth::LastModified);
+    table.addColumn(PresetKey::Table::ColName::favourite, 1, PresetGuiValue::Table::ColWidth::Favourite);
+    table.addColumn(PresetKey::Table::ColName::genre, 2, PresetGuiValue::Table::ColWidth::Genre);
+    table.addColumn(PresetKey::Table::ColName::name, 3, PresetGuiValue::Table::ColWidth::PresetName);
+    table.addColumn(PresetKey::Table::ColName::author, 4, PresetGuiValue::Table::ColWidth::Author);
+    table.addColumn(PresetKey::Table::ColName::version, 5, PresetGuiValue::Table::ColWidth::Version);
+    table.addColumn(PresetKey::Table::ColName::mode, 6, PresetGuiValue::Table::ColWidth::Mode);
+    table.addColumn(PresetKey::Table::ColName::lastModified, 7, PresetGuiValue::Table::ColWidth::LastModified);
+    table.addColumn(PresetKey::Table::ColName::format, 8, PresetGuiValue::Table::ColWidth::Format);
 
     table.onGetNumRows = [this]() {
         return (int)filteredItems.size();
@@ -91,15 +173,62 @@ void GuiPreset::setup()
         if (row >= filteredItems.size()) return juce::String();
         const auto& item = filteredItems[row];
         switch (columnId) {
-        case 1: return item.genre;
-        case 2: return item.name;
-        case 3: return item.author;
-        case 4: return item.version;
-        case 5: return item.modeName;
-        case 6: return item.lastModificationTime.formatted("%Y-%m-%d %H:%M");
+        // 1 列目は押せる印なので、文字ではなく部品を置く
+        case 2: return item.genre;
+        case 3: return item.name;
+        case 4: return item.author;
+        case 5: return item.version;
+        case 6: return item.modeName;
+        case 7: return item.lastModificationTime.formatted("%Y-%m-%d %H:%M");
+        case 8: return item.format;
         }
         return juce::String();
     };
+
+    // お気に入りの印は押せるので、描くだけでは足りない
+    table.onRefreshCellComponent = [this](int row, int columnId, bool, juce::Component* existing)
+        -> juce::Component* {
+        if (columnId != 1 || row < 0 || row >= (int)filteredItems.size()) {
+            delete existing;
+
+            return nullptr;
+        }
+
+        auto* cell = dynamic_cast<FavouriteCell*>(existing);
+
+        if (cell == nullptr) {
+            delete existing;
+
+            cell = new FavouriteCell(ctx);
+
+            cell->button.onClick = [this, cell] {
+                if (cell->row < 0 || cell->row >= (int)filteredItems.size()) return;
+
+                // 写しを取る。この後で並びを作り直すので、参照のままだと
+                // 指す先が消える。
+                auto target = filteredItems[cell->row];
+
+                ctx.editor.presetLibrary.setFavourite(target,
+                    !ctx.editor.presetLibrary.isFavourite(target.fullPath));
+
+                // お気に入りを見ているときは、外したものが一覧から消える。
+                // 作り直すと今押しているボタンごと片付けられてしまうので、
+                // この処理から抜けてから行う。
+                juce::Component::SafePointer<GuiPreset> safe(this);
+
+                juce::MessageManager::callAsync([safe] {
+                    if (safe != nullptr) safe->applyFilter();
+                    });
+                };
+        }
+
+        cell->row = row;
+        cell->applyColours();
+        cell->button.setButtonText(ctx.editor.presetLibrary.isFavourite(filteredItems[row].fullPath)
+            ? PresetKey::View::Mark::on : PresetKey::View::Mark::off);
+
+        return cell;
+        };
 
     // ホバー時にコメント文字列をツールチップとして返す
     table.onGetCellTooltip = [this](int row, int columnId) {
@@ -157,18 +286,24 @@ void GuiPreset::setup()
     table.onSortOrderChanged = [this](int newSortColumnId, bool isForwards) {
         // 並び替え処理
         std::sort(filteredItems.begin(), filteredItems.end(),
-            [newSortColumnId, isForwards](const PresetItem& a, const PresetItem& b) -> bool
+            [this, newSortColumnId, isForwards](const PresetItem& a, const PresetItem& b) -> bool
             {
                 int result = 0;
+
+                bool favouriteA = ctx.editor.presetLibrary.isFavourite(a.fullPath);
+                bool favouriteB = ctx.editor.presetLibrary.isFavourite(b.fullPath);
                 switch (newSortColumnId)
                 {
-                case 1: result = a.fileName.compareNatural(b.fileName); break;
-                case 2: result = a.name.compareNatural(b.name); break;
-                case 3: result = a.author.compareNatural(b.author); break;
-                case 4: result = a.version.compareNatural(b.version); break;
-                case 5: result = a.modeName.compareNatural(b.modeName); break;
+                    // お気に入りが先へ来るように、入っているほうを小さく扱う
+                case 1: result = (int)favouriteB - (int)favouriteA; break;
+                case 2: result = a.genre.compareNatural(b.genre); break;
+                case 3: result = a.name.compareNatural(b.name); break;
+                case 4: result = a.author.compareNatural(b.author); break;
+                case 5: result = a.version.compareNatural(b.version); break;
+                case 6: result = a.modeName.compareNatural(b.modeName); break;
                     // 日時の比較
-                case 6: result = (a.lastModificationTime < b.lastModificationTime) ? -1 : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
+                case 7: result = (a.lastModificationTime < b.lastModificationTime) ? -1 : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
+                case 8: result = a.format.compareNatural(b.format); break;
                 default: break;
                 }
 
@@ -412,6 +547,16 @@ void GuiPreset::layout(juce::Rectangle<int> content)
     // リストのすぐ上に検索ボックスを配置する
     auto searchArea = listArea.removeFromTop(PresetGuiValue::Search::Row::Height).reduced(PresetGuiValue::Table::PaddingWidth, 0);
 
+    // 見方の切り替えを左端に置く。検索はどの見方でも効く。
+    viewSelector.label.setBounds(searchArea.removeFromLeft(PresetGuiValue::View::LabelWidth));
+    viewSelector.setBounds(searchArea.removeFromLeft(PresetGuiValue::View::Width));
+
+    searchArea.removeFromLeft(PresetGuiValue::View::PaddingRight);
+
+    clearHistoryButton.setBounds(searchArea.removeFromRight(PresetGuiValue::View::ClearHistoryWidth));
+
+    searchArea.removeFromRight(PresetGuiValue::Search::Row::Padding::Right);
+
     searchBox.label.setBounds(searchArea.removeFromLeft(PresetGuiValue::Search::Row::Button::Search::Width)); // "Search" というラベルの幅
 
     clearSearchButton.setBounds(searchArea.removeFromRight(PresetGuiValue::Search::Row::Button::Clear::Width));
@@ -549,26 +694,34 @@ void GuiPreset::updatePresetPath()
 void GuiPreset::applyFilter()
 {
     filteredItems.clear();
+
+    // 見方によって元になる並びが変わる。お気に入りと履歴は今見ている
+    // フォルダの外も指すので、覚えてあるものをそのまま使う。
+    const std::vector<PresetItem>& source =
+        view == View::favourites ? ctx.editor.presetLibrary.getFavourites() :
+        view == View::history ? ctx.editor.presetLibrary.getHistory() :
+        items;
+
     juce::String query = searchBox.getText().trim().toLowerCase();
 
-    // 検索窓が空なら全件表示
-    if (query.isEmpty()) {
-        filteredItems = items;
-    }
-    else {
-        // ファイル名、プリセット名、作者名、コメント、モード名のどれかに合致したら表示
-        for (const auto& item : items) {
-            if (item.name.toLowerCase().contains(query) ||
-                item.genre.toLowerCase().contains(query) ||
-                item.author.toLowerCase().contains(query) ||
-                item.comment.toLowerCase().contains(query) ||
-                item.modeName.toLowerCase().contains(query))
-            {
-                filteredItems.push_back(item);
-            }
+    // ファイル名、プリセット名、ジャンル、作者名、コメント、チャンネルの
+    // どれかに合っていたら出す。検索窓が空ならすべて出す。
+    for (const auto& item : source) {
+        if (query.isNotEmpty()
+            && !item.name.toLowerCase().contains(query)
+            && !item.genre.toLowerCase().contains(query)
+            && !item.author.toLowerCase().contains(query)
+            && !item.comment.toLowerCase().contains(query)
+            && !item.modeName.toLowerCase().contains(query)
+            && !item.fileName.toLowerCase().contains(query))
+        {
+            continue;
         }
+
+        filteredItems.push_back(item);
     }
 
     // テーブルに更新を通知
     table.updateContent();
+    table.repaint();
 }

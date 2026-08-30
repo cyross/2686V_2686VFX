@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
+#include "../../Gui/Preset/PresetLibrary.h"
 #include <array>
 #include <vector>
 #include <span>
@@ -83,9 +84,17 @@ public:
     void loadPresetFile(const juce::File& file);
     void scanPresets();
 
+    // プリセット 1 件ぶんの見出しを読む。一覧を作るときと、履歴へ積む
+    // ときの両方から使う。読めなければ false を返す。
+    bool readPresetMeta(const juce::File& file, PresetItem& item);
+
     // 一覧の作り直し用の覚え書き。場所と大きさと更新日時が変わって
     // いなければ、そのファイルは開き直さない。
     std::map<juce::String, PresetItem> presetCache;
+
+    // お気に入りと履歴。プリセットの一覧とは別の情報なので、
+    // プラグインのフォルダへ別のファイルとして持つ。
+    PresetLibrary presetLibrary;
     void saveCurrentPreset();
     void saveCurrentPresetAs();
     void updatePresetNameToTabs(const juce::String& pName);

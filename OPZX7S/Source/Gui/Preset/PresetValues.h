@@ -60,6 +60,10 @@ namespace PresetValue
 		namespace Name
 		{
 			static inline const juce::String initial = "init_preset_opzx7s.xml";
+
+			// お気に入りと履歴の置き場。プラグインごとに分ける。
+			// プリセットの置き場も拡張子もプラグインで違うため。
+			static inline const juce::String library = "OPZX7S.library";
 		}
 
 		namespace Message

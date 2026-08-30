@@ -716,27 +716,13 @@ public:
     // 今の形で作る名前を返す。
     juce::File getStartupSettingsFile() const
     {
-        auto dir = getPluginDirectory();
-
-        auto asJson = dir.getChildFile(SettingsValue::File::Name::initial + ".json");
-        auto asYaml = dir.getChildFile(SettingsValue::File::Name::initial + ".yaml");
-
-        if (asJson.existsAsFile() && asYaml.existsAsFile())
-        {
-            return asJson.getLastModificationTime() >= asYaml.getLastModificationTime() ? asJson : asYaml;
-        }
-
-        if (asYaml.existsAsFile()) return asYaml;
-        if (asJson.existsAsFile()) return asJson;
-
-        return getStartupSettingsFileToWrite();
+        return Io::resolveFile(getPluginDirectory(), SettingsValue::File::Name::initial);
     }
 
     // 標準設定を書き出す先。今の形の名前になる。
     juce::File getStartupSettingsFileToWrite() const
     {
-        return getPluginDirectory()
-            .getChildFile(SettingsValue::File::Name::initial + "." + Io::fileFormatExtension());
+        return Io::fileToWrite(getPluginDirectory(), SettingsValue::File::Name::initial);
     }
 
     bool loadEnvironment(const juce::File& file, bool tellIfLegacy = true); 
