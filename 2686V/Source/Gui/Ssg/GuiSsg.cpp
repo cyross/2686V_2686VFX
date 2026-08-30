@@ -10,6 +10,7 @@
 namespace
 {
 	// ファイルの中身を見分ける印
+	const Io::ParamFormat ssgFormat{ "ssg", 1 };
 	const Io::ParamFormat qualityFormat{ "quality", 1 };
 	const Io::ParamFormat toneNoiseFormat{ "toneNoise", 1 };
 }
@@ -753,55 +754,52 @@ void GuiSsg::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, ssgFormat);
 
-                int size = lines.size();
-                int index = 0;
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 // Level
-                levelComponent.setImportingParams(lines, index);
+                levelComponent.readParams(*reader, "level");
 
                 // Form / Tone / Noise
-                waveSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
-                toneSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                noiseSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                noiseFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                noiseOnNoteButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                mixSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                waveSelector.setSelectedItemIndex(reader->getInt("wave", waveSelector.getSelectedItemIndex()), juce::sendNotification);
+                toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
+                noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
+                noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+                noiseOnNoteButton.setToggleState(reader->getBool("noiseOnNote", noiseOnNoteButton.getToggleState()), juce::sendNotification);
+                mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
 
                 // Duty
-                dutyModeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
-                dutyPresetSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
-                dutyVarSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                dutyInvertButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                dutyFcButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                dutyFcFlucSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                dutyModeSelector.setSelectedItemIndex(reader->getInt("dutyMode", dutyModeSelector.getSelectedItemIndex()), juce::sendNotification);
+                dutyPresetSelector.setSelectedItemIndex(reader->getInt("dutyPreset", dutyPresetSelector.getSelectedItemIndex()), juce::sendNotification);
+                dutyVarSlider.setValue(reader->getFloat("dutyVar", (float)dutyVarSlider.getValue()), juce::sendNotification);
+                dutyInvertButton.setToggleState(reader->getBool("dutyInvert", dutyInvertButton.getToggleState()), juce::sendNotification);
+                dutyFcButton.setToggleState(reader->getBool("dutyFc", dutyFcButton.getToggleState()), juce::sendNotification);
+                dutyFcFlucSlider.setValue(reader->getFloat("dutyFcFluc", (float)dutyFcFlucSlider.getValue()), juce::sendNotification);
 
                 // Triangle
-                triKeyTrackButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                triFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                triPeakSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                triKeyTrackButton.setToggleState(reader->getBool("triKeyTrack", triKeyTrackButton.getToggleState()), juce::sendNotification);
+                triFreqSlider.setValue(reader->getFloat("triFreq", (float)triFreqSlider.getValue()), juce::sendNotification);
+                triPeakSlider.setValue(reader->getFloat("triPeak", (float)triPeakSlider.getValue()), juce::sendNotification);
 
                 // Components
-                ssgHwEnvComponent.setImportingParams(lines, index);
-                fixComponent.setImportingParams(lines, index);
-                ampEnvComponent.setImportingParams(lines, index);
-                pitchEnvComponent.setImportingParams(lines, index);
-                ssgSwEnvComponent.setImportingParams(lines, index);
-                ssgSwEnv11Component.setImportingParams(lines, index);
-                ssgSwPEnv11Component.setImportingParams(lines, index);
-                mulDetuneComponent.setImportingParams(lines, index);
-                lfo.setImportingParams(lines, index);
-                qualityComponent.setImportingParams(lines, index);
-                unisonComponent.setImportingParams(lines, index);
+                ssgHwEnvComponent.readParams(*reader, "ssgHwEnv");
+                fixComponent.readParams(*reader, "fix");
+                ampEnvComponent.readParams(*reader, "ampEnv");
+                pitchEnvComponent.readParams(*reader, "pitchEnv");
+                ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
+                ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
+                ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
+                mulDetuneComponent.readParams(*reader, "mulDetune");
+                lfo.readParams(*reader, "lfo");
+                qualityComponent.readParams(*reader, "quality");
+                unisonComponent.readParams(*reader, "unison");
 
-                // MODULATION は後から足したので、旧フォーマットとの互換のため
-                // 行が無ければ既定のままにする。
-                if (index < lines.size()) {
-                    modComponent.setImportingBaseParams(lines, index);
-                    modComponent.setImportingShapeParam(lines, index);
-                }
+                modComponent.readParams(*reader, "wtMod");
             }
         });
 
@@ -821,50 +819,49 @@ void GuiSsg::exportChParam() {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(ssgFormat);
 
                 // Level
-                content += levelComponent.getExportedParams();
+                levelComponent.writeParams(writer, "level");
 
                 // Form / Tone / Noise
-                content += juce::String(waveSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(noiseOnNoteButton.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("wave", waveSelector.getSelectedItemIndex());
+                writer.set("tone", (float)toneSlider.getValue());
+                writer.set("noise", (float)noiseSlider.getValue());
+                writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+                writer.set("noiseOnNote", noiseOnNoteButton.getToggleState());
+                writer.set("mix", (float)mixSlider.getValue());
 
                 // Duty
-                content += juce::String(dutyModeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(dutyPresetSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(dutyVarSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(dutyInvertButton.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(dutyFcButton.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(dutyFcFlucSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("dutyMode", dutyModeSelector.getSelectedItemIndex());
+                writer.set("dutyPreset", dutyPresetSelector.getSelectedItemIndex());
+                writer.set("dutyVar", (float)dutyVarSlider.getValue());
+                writer.set("dutyInvert", dutyInvertButton.getToggleState());
+                writer.set("dutyFc", dutyFcButton.getToggleState());
+                writer.set("dutyFcFluc", (float)dutyFcFlucSlider.getValue());
 
                 // Triangle
-                content += juce::String(triKeyTrackButton.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(triFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(triPeakSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("triKeyTrack", triKeyTrackButton.getToggleState());
+                writer.set("triFreq", (float)triFreqSlider.getValue());
+                writer.set("triPeak", (float)triPeakSlider.getValue());
 
                 // Components
-                content += ssgHwEnvComponent.getExportedParams();
-                content += fixComponent.getExportedParams();
-                content += ampEnvComponent.getExportedParams();
-                content += pitchEnvComponent.getExportedParams();
-                content += ssgSwEnvComponent.getExportedParams();
-                content += ssgSwEnv11Component.getExportedParams();
-                content += ssgSwPEnv11Component.getExportedParams();
-                content += mulDetuneComponent.getExportedParams();
-                content += lfo.getExportedParams();
-                content += qualityComponent.getExportedParams();
-                content += unisonComponent.getExportedParams();
+                ssgHwEnvComponent.writeParams(writer, "ssgHwEnv");
+                fixComponent.writeParams(writer, "fix");
+                ampEnvComponent.writeParams(writer, "ampEnv");
+                pitchEnvComponent.writeParams(writer, "pitchEnv");
+                ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
+                ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
+                ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+                mulDetuneComponent.writeParams(writer, "mulDetune");
+                lfo.writeParams(writer, "lfo");
+                qualityComponent.writeParams(writer, "quality");
+                unisonComponent.writeParams(writer, "unison");
 
                 // MODULATION (旧フォーマットと互換を保つため末尾に置く)
-                content += modComponent.getExportedBaseParams();
-                content += modComponent.getExportedShapeParam();
+                modComponent.writeParams(writer, "wtMod");
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 

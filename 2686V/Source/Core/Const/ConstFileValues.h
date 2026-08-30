@@ -20,7 +20,7 @@ namespace Io
 		static inline const juce::String opl3Param = "param.opl3.json";
 		static inline const juce::String opmParam = "param.opm.json";
 		static inline const juce::String opzx7sParam = "param.opzx7s.json";
-		static inline const juce::String ssgParam = "param.ssg";
+		static inline const juce::String ssgParam = "param.ssg.json";
 		static inline const juce::String wtParam = "param.wt";
 		static inline const juce::String wt2Param = "param.wt2";
 		static inline const juce::String wtPlusParam = "param.wtplus";
@@ -72,7 +72,7 @@ namespace Io
 		static inline const juce::String opl3Param = "*.param.opl3.json";
 		static inline const juce::String opmParam = "*.param.opm.json";
 		static inline const juce::String opzx7sParam = "*.param.opzx7s.json";
-		static inline const juce::String ssgParam = "*.param.ssg";
+		static inline const juce::String ssgParam = "*.param.ssg.json";
 		static inline const juce::String wtParam = "*.param.wt";
 		static inline const juce::String wt2Param = "*.param.wt2";
 		static inline const juce::String wtPlusParam = "*.param.wtplus";
