@@ -174,7 +174,7 @@ void GuiComponentUnison::pasteParams(CopyUnison& copyObj) {
 void GuiComponentUnison::importParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultUnisonParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importUnisonParamFile, defaultDir, Io::ExtensionGlob::UnisonParam);
@@ -203,7 +203,7 @@ void GuiComponentUnison::importParams() {
 void GuiComponentUnison::exportParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultUnisonParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportUnisonParamFile, defaultDir.getChildFile("default.unison.json"), Io::ExtensionGlob::UnisonParam);

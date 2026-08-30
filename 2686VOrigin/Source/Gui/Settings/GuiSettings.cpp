@@ -171,7 +171,7 @@ void GuiSettings::setup()
     presetDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "プリセットファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultPresetDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultPresetDir),
+            ctx.audioProcessor.defaultPresetDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPresetDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -196,7 +196,7 @@ void GuiSettings::setup()
     fxOrderDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "エフェクトオーダーファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultFxOrderDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultFxOrderDir),
+            ctx.audioProcessor.defaultFxOrderDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxOrderDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -217,7 +217,7 @@ void GuiSettings::setup()
     fxParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "FXファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultFxParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultFxParamDir),
+            ctx.audioProcessor.defaultFxParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -238,7 +238,7 @@ void GuiSettings::setup()
     channelParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "CHパラメータファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultChannelParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultChannelParamDir),
+            ctx.audioProcessor.defaultChannelParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultChannelParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -259,7 +259,7 @@ void GuiSettings::setup()
     lfoParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "LFOファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultLfoParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultLfoParamDir),
+            ctx.audioProcessor.defaultLfoParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultLfoParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -280,7 +280,7 @@ void GuiSettings::setup()
     ampEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "AMP ENVファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultAmpEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultAmpEnvParamDir),
+            ctx.audioProcessor.defaultAmpEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultAmpEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -301,7 +301,7 @@ void GuiSettings::setup()
     pitchEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "PITCH ENVファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultPitchEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultPitchEnvParamDir),
+            ctx.audioProcessor.defaultPitchEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPitchEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -322,7 +322,7 @@ void GuiSettings::setup()
     ssgSwEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "SSG SW ENVファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultSsgSwEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultSsgSwEnvParamDir),
+            ctx.audioProcessor.defaultSsgSwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgSwEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -343,7 +343,7 @@ void GuiSettings::setup()
     ssgHwEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "SSG HW ENVファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultSsgHwEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultSsgHwEnvParamDir),
+            ctx.audioProcessor.defaultSsgHwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgHwEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -364,7 +364,7 @@ void GuiSettings::setup()
     detuneParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "DETUNE ファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultDetuneParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultDetuneParamDir),
+            ctx.audioProcessor.defaultDetuneParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultDetuneParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -385,7 +385,7 @@ void GuiSettings::setup()
     unisonParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "UNISON ファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultUnisonParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultUnisonParamDir),
+            ctx.audioProcessor.defaultUnisonParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultUnisonParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -406,7 +406,7 @@ void GuiSettings::setup()
     qualityParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "音質ファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultQualityParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultQualityParamDir),
+            ctx.audioProcessor.defaultQualityParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultQualityParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -427,7 +427,7 @@ void GuiSettings::setup()
     pcmPlayParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "PCM再生ファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultPcmPlayParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultPcmPlayParamDir),
+            ctx.audioProcessor.defaultPcmPlayParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPcmPlayParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -448,7 +448,7 @@ void GuiSettings::setup()
     colorSettingDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "色の設定ファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultColorSettingDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultColorSettingDir),
+            ctx.audioProcessor.defaultColorSettingDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultColorSettingDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -469,7 +469,7 @@ void GuiSettings::setup()
     toneNoiseParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "トーン/ノイズファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultToneNoiseParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultToneNoiseParamDir),
+            ctx.audioProcessor.defaultToneNoiseParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultToneNoiseParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -541,8 +541,8 @@ void GuiSettings::setup()
     saveSettingsBtn.onClick = [this] {
         ctx.editor.openWriteFileChooser(
             juce::String("") + "設定ファイルを選択してください",
-            juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile(SettingsValue::File::Name::initial),
-            "*.xml",
+            ctx.audioProcessor.getPluginDirectory().getChildFile(SettingsValue::File::Name::initial),
+            SettingsValue::File::glob,
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file != juce::File()) {
@@ -559,8 +559,8 @@ void GuiSettings::setup()
     loadSettingsBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "設定ファイルを選択してください",
-            juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
-            "*.xml",
+            ctx.audioProcessor.getPluginDirectory(),
+            SettingsValue::File::glob,
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.existsAsFile()) {
@@ -604,59 +604,35 @@ void GuiSettings::setup()
     saveStartupSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveStartupSettingsBtn.onClick = [this]
         {
-            auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-            auto pluginDir = docDir.getChildFile(Io::Folder::asset);
+            // 保存は 1 か所へ寄せる。ここで項目を並べ直していたため、
+            // 足した項目が標準設定にだけ入らないことが起きていた。
+            auto file = ctx.audioProcessor.getPluginDirectory()
+                .getChildFile(SettingsValue::File::Name::initial);
 
-            // フォルダがなければ作る
-            if (!pluginDir.exists()) pluginDir.createDirectory();
-
-            // 初期設定ファイル名を指定
-            auto file = pluginDir.getChildFile(SettingsValue::File::Name::initial);
-
-            // 2. XMLデータの作成
-            juce::XmlElement xml(SettingsKey::envCode);
-
-            xml.setAttribute(SettingsKey::uiScaleIndex, ctx.audioProcessor.uiScaleIndex);
-            xml.setAttribute(SettingsKey::wallpaperPath, ctx.audioProcessor.wallpaperPath);
-            xml.setAttribute(SettingsKey::wallpaperMode, ctx.audioProcessor.wallpaperMode);
-            xml.setAttribute(SettingsKey::defaultSampleDir, ctx.audioProcessor.defaultSampleDir);
-            xml.setAttribute(SettingsKey::defaultPresetDir, ctx.audioProcessor.defaultPresetDir);
-            xml.setAttribute(SettingsKey::defaultWavetableDir, ctx.audioProcessor.defaultWavetableDir);
-            xml.setAttribute(SettingsKey::defaultFxOrderDir, ctx.audioProcessor.defaultFxOrderDir);
-            xml.setAttribute(SettingsKey::defaultFxParamDir, ctx.audioProcessor.defaultFxParamDir);
-            xml.setAttribute(SettingsKey::defaultLfoParamDir, ctx.audioProcessor.defaultLfoParamDir);
-            xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, ctx.audioProcessor.defaultAmpEnvParamDir);
-            xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, ctx.audioProcessor.defaultPitchEnvParamDir);
-            xml.setAttribute(SettingsKey::defaultSsgSwEnvParamDir, ctx.audioProcessor.defaultSsgSwEnvParamDir);
-            xml.setAttribute(SettingsKey::defaultSsgHwEnvParamDir, ctx.audioProcessor.defaultSsgHwEnvParamDir);
-            xml.setAttribute(SettingsKey::defaultDetuneParamDir, ctx.audioProcessor.defaultDetuneParamDir);
-            xml.setAttribute(SettingsKey::defaultUnisonParamDir, ctx.audioProcessor.defaultUnisonParamDir);
-            xml.setAttribute(SettingsKey::showTooltips, ctx.audioProcessor.showTooltips);
-            xml.setAttribute(SettingsKey::useHeadroom, ctx.audioProcessor.useHeadroom);
-            xml.setAttribute(SettingsKey::headroomGain, ctx.audioProcessor.headroomGain);
-            xml.setAttribute(SettingsKey::showVirtualKeyboard, ctx.audioProcessor.showVirtualKeyboard);
-
-            // 3. 書き出し実行
-            if (xml.writeTo(file))
+            if (ctx.audioProcessor.saveEnvironment(file))
             {
-                // 成功メッセージ
                 // OS 標準のダイアログはテーマの色が当たらないので、
                 // 他と同じ AlertWindow で出す。
                 juce::AlertWindow::showMessageBoxAsync(
                     juce::MessageBoxIconType::InfoIcon,
                     juce::String("") + "成功",
-                    juce::String("") + "現在の設定は標準設定として以下のファイルに保存されました。\n\nファイル名: " + file.getFullPathName(),
+                    // 場所と名前を分けて出す。ダイアログの本文は折り返らないので、
+                    // 長いパスを 1 行で置くと末尾が見切れる。
+                    juce::String("") + "現在の設定を標準設定として保存しました。\n\n"
+                    + "場所: " + file.getParentDirectory().getFullPathName() + "\n"
+                    + "ファイル名: " + file.getFileName(),
                     juce::String(),
                     this
                 );
             }
             else
             {
-                // 失敗メッセージ
                 juce::AlertWindow::showMessageBoxAsync(
                     juce::MessageBoxIconType::WarningIcon,
                     juce::String("") + "失敗",
-                    juce::String("") + "標準設定の保存に失敗しました。",
+                    juce::String("") + "標準設定を保存できませんでした。\n\n"
+                    + "場所: " + file.getParentDirectory().getFullPathName() + "\n"
+                    + "ファイル名: " + file.getFileName(),
                     juce::String(),
                     this
                 );
@@ -932,43 +908,31 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = rowClearHistoryBtns, .component = &clearUndoHistoryBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight});
 }
 
-void GuiSettings::setSettings(
-    int uiScaleIndex,
-    const juce::String& wallpaperPath,
-    const juce::String& sampleDirPath,
-    const juce::String& presetDirPath,
-    const juce::String& wavetableDirPath,
-    const juce::String& fxOrderDirPath,
-    const juce::String& fxParamDirPath,
-    const juce::String& lfoParamDirPath,
-    const juce::String& ampEnvParamDirPath,
-    const juce::String& pitchEnvParamDirPath,
-    const juce::String& ssgSwEnvParamDirPath,
-    const juce::String& ssgHwEnvParamDirPath,
-    const juce::String& detuneParamDirPath,
-    const juce::String& unisonParamDirPath,
-    const juce::String& qualityParamDirPath,
-    const juce::String& pcmPlayParamDirPath,
-    const juce::String& toneNoiseParamDirPath,
-    const juce::String& colorSettingDirPath
-)
+void GuiSettings::setSettings()
 {
-    uiScaleSelector.setSelectedId(uiScaleIndex + 1, juce::dontSendNotification);
-    wallpaperPathLabel.setText(wallpaperPath, juce::dontSendNotification);
-    sampleDirPathLabel.setText(sampleDirPath, juce::dontSendNotification);
-    presetDirPathLabel.setText(presetDirPath, juce::dontSendNotification);
-    fxOrderDirPathLabel.setText(fxOrderDirPath, juce::dontSendNotification);
-    fxParamDirPathLabel.setText(fxParamDirPath, juce::dontSendNotification);
-    lfoParamDirPathLabel.setText(lfoParamDirPath, juce::dontSendNotification);
-    ampEnvParamDirPathLabel.setText(ampEnvParamDirPath, juce::dontSendNotification);
-    pitchEnvParamDirPathLabel.setText(pitchEnvParamDirPath, juce::dontSendNotification);
-    ssgSwEnvParamDirPathLabel.setText(ssgSwEnvParamDirPath, juce::dontSendNotification);
-    detuneParamDirPathLabel.setText(detuneParamDirPath, juce::dontSendNotification);
-    unisonParamDirPathLabel.setText(unisonParamDirPath, juce::dontSendNotification);
-    qualityParamDirPathLabel.setText(qualityParamDirPath, juce::dontSendNotification);
-    pcmPlayParamDirPathLabel.setText(pcmPlayParamDirPath, juce::dontSendNotification);
-    toneNoiseParamDirPathLabel.setText(toneNoiseParamDirPath, juce::dontSendNotification);
-    colorSettingDirPathLabel.setText(colorSettingDirPath, juce::dontSendNotification);
+    // プロセッサから直に読む。引数を 18 個も並べていたときは、順番を
+    // 間違えても、行を足し忘れても気づけなかった。
+    uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
+
+    wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty()
+        ? Io::empty : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
+
+    sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
+    presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
+    fxOrderDirPathLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
+    fxParamDirPathLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
+    channelParamDirPathLabel.setText(ctx.audioProcessor.defaultChannelParamDir, juce::dontSendNotification);
+    lfoParamDirPathLabel.setText(ctx.audioProcessor.defaultLfoParamDir, juce::dontSendNotification);
+    ampEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultAmpEnvParamDir, juce::dontSendNotification);
+    pitchEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultPitchEnvParamDir, juce::dontSendNotification);
+    ssgSwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgSwEnvParamDir, juce::dontSendNotification);
+    ssgHwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgHwEnvParamDir, juce::dontSendNotification);
+    detuneParamDirPathLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
+    unisonParamDirPathLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
+    qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
+    pcmPlayParamDirPathLabel.setText(ctx.audioProcessor.defaultPcmPlayParamDir, juce::dontSendNotification);
+    toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
+    colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
 }
 
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)

@@ -441,7 +441,7 @@ void GuiComponentWtMod::importWave(int slot, bool isWt2)
 {
     juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     ctx.editor.openFileChooser(
@@ -655,7 +655,7 @@ void GuiComponentWtMod::importParams()
 {
     juce::File defaultDir(ctx.audioProcessor.defaultWtModParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importWtModParamFile, defaultDir, Io::ExtensionGlob::WtModParam);
@@ -684,7 +684,7 @@ void GuiComponentWtMod::exportParams()
 {
     juce::File defaultDir(ctx.audioProcessor.defaultWtModParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportWtModParamFile, defaultDir.getChildFile("default." + Io::Extension::WtModParam), Io::ExtensionGlob::WtModParam);

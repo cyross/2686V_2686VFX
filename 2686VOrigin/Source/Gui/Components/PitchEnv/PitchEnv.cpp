@@ -221,7 +221,7 @@ void GuiComponentPitchEnv::pasteParams(CopyEnvPitchAdsr& copyObj) {
 void GuiComponentPitchEnv::importParams() {
 	juce::File defaultDir(ctx.audioProcessor.defaultPitchEnvParamDir);
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
 	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importPitchEnvParamFile, defaultDir, Io::ExtensionGlob::PitchEnvParam);
@@ -256,7 +256,7 @@ void GuiComponentPitchEnv::importParams() {
 void GuiComponentPitchEnv::exportParams() {
 	juce::File defaultDir(ctx.audioProcessor.defaultPitchEnvParamDir);
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
 	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPitchEnvParamFile, defaultDir.getChildFile("default.pitchEnv.json"), Io::ExtensionGlob::PitchEnvParam);

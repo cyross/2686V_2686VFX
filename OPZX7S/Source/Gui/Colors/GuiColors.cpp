@@ -547,7 +547,7 @@ void GuiColors::saveToFile()
 	juce::File defaultDir(ctx.audioProcessor.defaultColorSettingDir);
 
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
 	fileChooser = std::make_unique<juce::FileChooser>(ColorsGuiText::File::saveTitle,
@@ -588,7 +588,7 @@ void GuiColors::loadFromFile()
 	juce::File defaultDir(ctx.audioProcessor.defaultColorSettingDir);
 
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
 	fileChooser = std::make_unique<juce::FileChooser>(ColorsGuiText::File::openTitle,

@@ -224,26 +224,8 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void setSettings(
-        int uiScaleIndex,
-        const juce::String& wallpaperPath,
-        const juce::String& sampleDirPath,
-        const juce::String& presetDirPath,
-        const juce::String& wavetableDirPath,
-        const juce::String& fxOrderDirPath,
-        const juce::String& fxParamDirPath,
-        const juce::String& lfoParamDirPath,
-        const juce::String& ampEnvParamDirPath,
-        const juce::String& pitchEnvParamDirPath,
-        const juce::String& ssgSwEnvParamDirPath,
-        const juce::String& ssgHwEnvParamDirPath,
-        const juce::String& detuneParamDirPath,
-        const juce::String& unisonParamDirPath,
-        const juce::String& qualityParamDirPath,
-        const juce::String& pcmPlayParamDirPath,
-        const juce::String& toneNoiseParamDirPath,
-        const juce::String& colorSettingDirPath
-        );
+    // 設定を画面へ反映する。値はプロセッサから直に読む。
+    void setSettings();
 	void setWallpaperPath(const juce::String& wallpaperPath);
     float getUiScale(int index);
 };

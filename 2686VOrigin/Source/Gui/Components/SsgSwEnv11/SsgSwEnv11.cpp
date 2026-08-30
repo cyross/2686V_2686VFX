@@ -641,7 +641,7 @@ void GuiComponentSsgSwEnv11::pasteParams(CopyEnvSsgSw11& copyObj) {
 void GuiComponentSsgSwEnv11::importParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultSsgSwEnvParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importSsgSwEnvParamFile, defaultDir, Io::ExtensionGlob::SsgSwEnvParam11);
@@ -696,7 +696,7 @@ void GuiComponentSsgSwEnv11::importParams() {
 void GuiComponentSsgSwEnv11::exportParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultSsgSwEnvParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportSsgSwEnvParamFile, defaultDir.getChildFile("default.ssgSwEnv11.json"), Io::ExtensionGlob::SsgSwEnvParam11);

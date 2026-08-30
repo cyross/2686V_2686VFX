@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include <map>
 #include <JuceHeader.h>
+
+#include "../Io/ParamFile.h"
+#include "../../Gui/Settings/SettingsKeys.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
@@ -420,12 +423,60 @@ public:
     juce::String defaultPcmPlayParamDir;
     juce::String defaultToneNoiseParamDir;
     juce::String defaultColorSettingDir;
+
+    // ------------------------------------------------------------------
+    // 環境設定の項目
+    // ------------------------------------------------------------------
+    // 保存と読み込みをこの 1 つの並びから作る。同じ項目を 2 か所に書くと、
+    // 片方だけ書き忘れて値が失われる。実際に起きていた。
+    template <typename Visitor>
+    void visitEnvironment(Visitor& visit)
+    {
+        visit(SettingsKey::uiScaleIndex, uiScaleIndex);
+        visit(SettingsKey::wallpaperPath, wallpaperPath);
+        visit(SettingsKey::wallpaperMode, wallpaperMode);
+
+        visit(SettingsKey::defaultSampleDir, defaultSampleDir);
+        visit(SettingsKey::defaultPresetDir, defaultPresetDir);
+        visit(SettingsKey::defaultWavetableDir, defaultWavetableDir);
+        visit(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
+        visit(SettingsKey::defaultFxParamDir, defaultFxParamDir);
+        visit(SettingsKey::defaultChannelParamDir, defaultChannelParamDir);
+        visit(SettingsKey::defaultCurveParamDir, defaultCurveParamDir);
+        visit(SettingsKey::defaultLfoParamDir, defaultLfoParamDir);
+        visit(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
+        visit(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
+        visit(SettingsKey::defaultSsgSwEnvParamDir, defaultSsgSwEnvParamDir);
+        visit(SettingsKey::defaultSsgHwEnvParamDir, defaultSsgHwEnvParamDir);
+        visit(SettingsKey::defaultDetuneParamDir, defaultDetuneParamDir);
+        visit(SettingsKey::defaultUnisonParamDir, defaultUnisonParamDir);
+        visit(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
+        visit(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
+        visit(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
+        visit(SettingsKey::defaultColorSettingDir, defaultColorSettingDir);
+
+        visit(SettingsKey::showTooltips, showTooltips);
+        visit(SettingsKey::useHeadroom, useHeadroom);
+        visit(SettingsKey::headroomGain, headroomGain);
+        visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
+    }
     bool showTooltips = true; // For show Parameter Range Tooltop
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）
 
-    void saveEnvironment(const juce::File& file);
+    bool saveEnvironment(const juce::File& file);
+    // プラグインが使うフォルダ。ドキュメントの下に 1 つ作り、
+    // 既定の保存先はすべてこの中にする。
+    juce::File getPluginDirectory() const
+    {
+        auto dir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
+            .getChildFile(Io::Folder::asset);
+
+        if (!dir.exists()) dir.createDirectory();
+
+        return dir;
+    }
     void loadEnvironment(const juce::File& file); 
 
     void panic();

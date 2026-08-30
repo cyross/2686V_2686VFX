@@ -7,6 +7,34 @@
 
 #include "../Gui/GuiValues.h"
 
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat settingsFormat{ "settings", 1 };
+
+	// 環境設定を書き出す側。項目の型ごとに受け口を分けてある。
+	struct EnvironmentWriter
+	{
+		Io::ParamWriter& writer;
+
+		void operator()(const juce::String& key, int value) { writer.set(key, value); }
+		void operator()(const juce::String& key, bool value) { writer.set(key, value); }
+		void operator()(const juce::String& key, float value) { writer.set(key, value); }
+		void operator()(const juce::String& key, const juce::String& value) { writer.set(key, value); }
+	};
+
+	// 読み込む側。書かれていない項目は今の値のまま残す。
+	struct EnvironmentReader
+	{
+		const Io::ParamReader& reader;
+
+		void operator()(const juce::String& key, int& value) { value = reader.getInt(key, value); }
+		void operator()(const juce::String& key, bool& value) { value = reader.getBool(key, value); }
+		void operator()(const juce::String& key, float& value) { value = reader.getFloat(key, value); }
+		void operator()(const juce::String& key, juce::String& value) { value = reader.getString(key, value); }
+	};
+}
+
 // ============================================================================
 // Constructor
 // ============================================================================
@@ -638,76 +666,31 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 }
 
 // 環境設定を保存
-void AudioPlugin2686V::saveEnvironment(const juce::File& file)
+bool AudioPlugin2686V::saveEnvironment(const juce::File& file)
 {
-    juce::XmlElement xml(SettingsKey::envCode);
+    Io::ParamWriter writer(settingsFormat);
 
-    xml.setAttribute(SettingsKey::uiScaleIndex, uiScaleIndex);
-    xml.setAttribute(SettingsKey::wallpaperPath, wallpaperPath);
-    xml.setAttribute(SettingsKey::wallpaperMode, wallpaperMode);
-    xml.setAttribute(SettingsKey::defaultSampleDir, defaultSampleDir);
-    xml.setAttribute(SettingsKey::defaultPresetDir, defaultPresetDir);
-    xml.setAttribute(SettingsKey::defaultWavetableDir, defaultWavetableDir);
-    xml.setAttribute(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
-    xml.setAttribute(SettingsKey::defaultFxParamDir, defaultFxParamDir);
-    xml.setAttribute(SettingsKey::defaultChannelParamDir, defaultChannelParamDir);
-    xml.setAttribute(SettingsKey::defaultCurveParamDir, defaultCurveParamDir);
-    xml.setAttribute(SettingsKey::defaultLfoParamDir, defaultLfoParamDir);
-    xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
-    xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
-    xml.setAttribute(SettingsKey::defaultSsgSwEnvParamDir, defaultSsgSwEnvParamDir);
-    xml.setAttribute(SettingsKey::defaultSsgHwEnvParamDir, defaultSsgHwEnvParamDir);
-    xml.setAttribute(SettingsKey::defaultDetuneParamDir, defaultDetuneParamDir);
-    xml.setAttribute(SettingsKey::defaultUnisonParamDir, defaultUnisonParamDir);
-    xml.setAttribute(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
-    xml.setAttribute(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
-    xml.setAttribute(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
-    xml.setAttribute(SettingsKey::defaultColorSettingDir, defaultColorSettingDir);
-    xml.setAttribute(SettingsKey::showTooltips, showTooltips);
-    xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
-    xml.setAttribute(SettingsKey::headroomGain, headroomGain);
-    xml.setAttribute(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
+    EnvironmentWriter visit{ writer };
 
-    xml.writeTo(file);
+    visitEnvironment(visit);
+
+    return writer.writeTo(file);
 }
 
 // 環境設定を読み込み
 void AudioPlugin2686V::loadEnvironment(const juce::File& file)
 {
-    juce::XmlDocument xmlDoc(file);
-    std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
+    auto reader = Io::ParamReader::open(file, settingsFormat);
 
-    if (xml.get() != nullptr && xml->hasTagName(SettingsKey::envCode))
-    {
-        uiScaleIndex = xml->getIntAttribute(SettingsKey::uiScaleIndex, 7);
-        wallpaperPath = xml->getStringAttribute(SettingsKey::wallpaperPath);
-        wallpaperMode = xml->getIntAttribute(SettingsKey::wallpaperMode);
-        defaultSampleDir = xml->getStringAttribute(SettingsKey::defaultSampleDir);
-        defaultPresetDir = xml->getStringAttribute(SettingsKey::defaultPresetDir);
-		defaultWavetableDir = xml->getStringAttribute(SettingsKey::defaultWavetableDir);
-        defaultFxOrderDir = xml->getStringAttribute(SettingsKey::defaultFxOrderDir);
-        defaultFxParamDir = xml->getStringAttribute(SettingsKey::defaultFxParamDir);
-        defaultChannelParamDir = xml->getStringAttribute(SettingsKey::defaultChannelParamDir);
-        defaultCurveParamDir = xml->getStringAttribute(SettingsKey::defaultCurveParamDir);
-        defaultLfoParamDir = xml->getStringAttribute(SettingsKey::defaultLfoParamDir);
-        defaultAmpEnvParamDir = xml->getStringAttribute(SettingsKey::defaultAmpEnvParamDir);
-        defaultPitchEnvParamDir = xml->getStringAttribute(SettingsKey::defaultPitchEnvParamDir);
-        defaultSsgSwEnvParamDir = xml->getStringAttribute(SettingsKey::defaultSsgSwEnvParamDir);
-        defaultSsgHwEnvParamDir = xml->getStringAttribute(SettingsKey::defaultSsgHwEnvParamDir);
-        defaultDetuneParamDir = xml->getStringAttribute(SettingsKey::defaultDetuneParamDir);
-        defaultQualityParamDir = xml->getStringAttribute(SettingsKey::defaultQualityParamDir);
-        defaultPcmPlayParamDir = xml->getStringAttribute(SettingsKey::defaultPcmPlayParamDir);
-        defaultToneNoiseParamDir = xml->getStringAttribute(SettingsKey::defaultToneNoiseParamDir);
-        defaultColorSettingDir = xml->getStringAttribute(SettingsKey::defaultColorSettingDir);
-        showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
-        useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
-        headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
-        showVirtualKeyboard = xml->getBoolAttribute(SettingsKey::showVirtualKeyboard, SettingsValue::Initial::showVirtualKeyboard);
+    if (!reader.has_value()) return;
 
-        // 内部変数の更新
-        if (juce::File(defaultSampleDir).isDirectory()) {
-            lastSampleDirectory = juce::File(defaultSampleDir);
-        }
+    EnvironmentReader visit{ *reader };
+
+    visitEnvironment(visit);
+
+    // 内部変数の更新
+    if (juce::File(defaultSampleDir).isDirectory()) {
+        lastSampleDirectory = juce::File(defaultSampleDir);
     }
 }
 

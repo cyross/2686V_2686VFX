@@ -133,7 +133,7 @@ namespace Io
 
 	namespace Folder
 	{
-		static inline const juce::String asset = "2686V";
+		static inline const juce::String asset = "2686";
 		static inline const juce::String preset = "2686VLPresets";
 		static inline const juce::String resource = "Resources";
 		static inline const juce::String sample = "Samples";

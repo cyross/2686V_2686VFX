@@ -345,7 +345,7 @@ void GuiComponentLfoOpzx7::pasteParams(CopyLfoOpzx7& copyObj) {
 void GuiComponentLfoOpzx7::importParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::Opzx7LfoParam);
@@ -385,7 +385,7 @@ void GuiComponentLfoOpzx7::importParams() {
 void GuiComponentLfoOpzx7::exportParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpzx7.json"), Io::ExtensionGlob::Opzx7LfoParam);

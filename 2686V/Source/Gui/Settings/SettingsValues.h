@@ -14,12 +14,12 @@ namespace SettingsValue
 
 	namespace File
 	{
-		static inline const juce::String glob = "*.xml";
+		static inline const juce::String glob = "*.settings.json";
 
 		namespace Name
 		{
-			static inline const juce::String initial = "init_settings.xml";
-			static inline const juce::String def = "2686V_Config.xml";
+			static inline const juce::String initial = "init.settings.json";
+			static inline const juce::String def = "2686V.settings.json";
 		}
 	}
 };

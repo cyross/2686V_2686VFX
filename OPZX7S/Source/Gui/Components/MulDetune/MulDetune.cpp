@@ -364,7 +364,7 @@ void GuiComponentMulDetune::pasteParams(CopyDetuneOpzx7& copyObj) {
 void GuiComponentMulDetune::importParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importDetuneParamFile, defaultDir, Io::ExtensionGlob::DetuneParam);
@@ -398,7 +398,7 @@ void GuiComponentMulDetune::importParams() {
 void GuiComponentMulDetune::exportParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile("default." + Io::Extension::DetuneParamNew), Io::ExtensionGlob::DetuneParam);

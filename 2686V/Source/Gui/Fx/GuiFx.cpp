@@ -970,7 +970,7 @@ void GuiFx::importFxOrder()
 {
     juce::File defaultDir(ctx.audioProcessor.defaultFxOrderDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxOrderFile, defaultDir, Io::ExtensionGlob::fxOrder);
@@ -1010,7 +1010,7 @@ void GuiFx::exportFxOrder()
 {
     juce::File defaultDir(ctx.audioProcessor.defaultFxOrderDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxOrderFile, defaultDir.getChildFile("default.fxo.json"), Io::ExtensionGlob::fxOrder);
@@ -1036,7 +1036,7 @@ void GuiFx::importFxParam()
 {
     juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxParamFile, defaultDir, Io::ExtensionGlob::fxParam);
@@ -1147,7 +1147,7 @@ void GuiFx::exportFxParam()
 {
     juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxParamFile, defaultDir.getChildFile("default.2fx.json"), Io::ExtensionGlob::fxParam);

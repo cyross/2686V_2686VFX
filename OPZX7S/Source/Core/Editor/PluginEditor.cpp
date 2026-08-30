@@ -1,9 +1,11 @@
-﻿#include <cstdio>
+﻿#include "../Gui/GuiRefresh.h"
+#include <cstdio>
 #include <vector>
 #include <initializer_list>
 #include <utility>
 
 #include "./PluginEditor.h"
+#include "../../Gui/Settings/SettingsValues.h"
 
 #include "../Processor/PluginProcessor.h"
 
@@ -799,35 +801,20 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 void AudioPlugin2686VEditor::loadSettingsFile()
 {
     fileChooser = std::make_unique<juce::FileChooser>(juce::String("") + "ファイルから環境設定を読み込み",
-        juce::File::getSpecialLocation(juce::File::userDocumentsDirectory), "*.xml");
+        audioProcessor.getPluginDirectory(), SettingsValue::File::glob);
 
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
             if (file.existsAsFile()) {
+                // 読み終えてからまとめて描き直す。設定は画面全体に効くので、
+                // 1 つずつ反映すると待たされる。
+                GuiRefresh::Batch batch;
+
                 audioProcessor.loadEnvironment(file);
 
                 // UI反映
-                settingsGui->setSettings(
-                    audioProcessor.uiScaleIndex,
-                    audioProcessor.wallpaperPath.isEmpty() ? Io::empty : juce::File(audioProcessor.wallpaperPath).getFileName(),
-                    audioProcessor.defaultSampleDir,
-                    audioProcessor.defaultPresetDir,
-                    audioProcessor.defaultWavetableDir,
-                    audioProcessor.defaultFxOrderDir,
-                    audioProcessor.defaultFxParamDir,
-                    audioProcessor.defaultLfoParamDir,
-                    audioProcessor.defaultAmpEnvParamDir,
-                    audioProcessor.defaultPitchEnvParamDir,
-                    audioProcessor.defaultSsgSwEnvParamDir,
-                    audioProcessor.defaultSsgHwEnvParamDir,
-                    audioProcessor.defaultDetuneParamDir,
-                    audioProcessor.defaultUnisonParamDir,
-                    audioProcessor.defaultQualityParamDir,
-                    audioProcessor.defaultPcmPlayParamDir,
-                    audioProcessor.defaultToneNoiseParamDir,
-                    audioProcessor.defaultColorSettingDir
-                    );
+                settingsGui->setSettings();
 
                 // 壁紙再描画
                 loadWallpaperImage();

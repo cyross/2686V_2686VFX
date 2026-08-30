@@ -173,7 +173,7 @@ void GuiComponentAmpEnv::pasteParams(CopyEnvAmpAdsr& copyObj) {
 void GuiComponentAmpEnv::importParams() {
 	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
 	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importAmpEnvParamFile, defaultDir, Io::ExtensionGlob::AmpEnvParam);
@@ -207,7 +207,7 @@ void GuiComponentAmpEnv::importParams() {
 void GuiComponentAmpEnv::exportParams() {
 	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
 	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile("default.ampEnv.json"), Io::ExtensionGlob::AmpEnvParam);

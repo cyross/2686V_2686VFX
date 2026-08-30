@@ -660,7 +660,7 @@ void GuiCurve::initParams()
 void GuiCurve::importCurveParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultCurveParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     int posIndex = position.getSelectedItemIndex();
@@ -724,7 +724,7 @@ void GuiCurve::importCurveParam() {
 void GuiCurve::exportCurveParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultCurveParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     int posIndex = position.getSelectedItemIndex();
