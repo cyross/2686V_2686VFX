@@ -332,7 +332,8 @@ namespace Io
 
 	juce::String openGlob(const juce::String& base)
 	{
-		return "*." + base + ".json;*." + base + ".yaml";
+		// 3.0.0 より前の拡張子なしのものも選べるようにする
+		return "*." + base + ".json;*." + base + ".yaml;*." + base;
 	}
 
 	bool writeValueTo(const juce::File& file, const juce::var& value)

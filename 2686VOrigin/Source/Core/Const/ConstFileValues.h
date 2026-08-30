@@ -68,33 +68,33 @@ namespace Io
 
 	namespace ExtensionGlob
 	{
-		static inline const juce::String fxOrder = "*.fxo.json;*.fxo.yaml";
-		static inline const juce::String fxParam = "*.2fx.json;*.2fx.yaml";
-		static inline const juce::String opnaParam = "*.param.opna.json;*.param.opna.yaml";
-		static inline const juce::String opnParam = "*.param.opn.json;*.param.opn.yaml";
-		static inline const juce::String ssgParam = "*.param.ssg.json;*.param.ssg.yaml";
-		static inline const juce::String rhythmParam = "*.param.rhythm.json;*.param.rhythm.yaml";
-		static inline const juce::String adpcmParam = "*.param.adpcm.json;*.param.adpcm.yaml";
-		static inline const juce::String opnaOpParam = "*.param.opna.op.json;*.param.opna.op.yaml";
-		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad.json;*.param.rhythm.pad.yaml";
-		static inline const juce::String OpnaHwLfoParam = "*.opnaHwLfo.json;*.opnaHwLfo.yaml";
-		static inline const juce::String opnOpParam = "*.param.opn.op.json;*.param.opn.op.yaml";
-		static inline const juce::String N88LfoParam = "*.lfoN88.json;*.lfoN88.yaml";
-		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7.json;*.lfoOpzx7.yaml";
-		static inline const juce::String AmpEnvParam = "*.ampEnv.json;*.ampEnv.yaml";
-		static inline const juce::String SsgHwEnvParam = "*.ssgHwEnv.json;*.ssgHwEnv.yaml";
-		static inline const juce::String WtModParam = "*.wtmod.json;*.wtmod.yaml";
-		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv.json;*.ssgSwEnv.yaml";
-		static inline const juce::String PitchEnvParam = "*.pitchEnv.json;*.pitchEnv.yaml";
-		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11.json;*.ssgSwEnv11.yaml";
-		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11.json;*.ssgSwPEnv11.yaml";
-		static inline const juce::String DetuneParam = "*.detune.json;*.detune.yaml";
-		static inline const juce::String UnisonParam = "*.unison.json;*.unison.yaml";
-		static inline const juce::String QualityParam = "*.quality.json;*.quality.yaml";
-		static inline const juce::String PcmQualityParam = "*.pcmQuality.json;*.pcmQuality.yaml";
-		static inline const juce::String PcmPlayParam = "*.pcmPlay.json;*.pcmPlay.yaml";
-		static inline const juce::String ToneNoiseParam = "*.toneNoise.json;*.toneNoise.yaml";
-		static inline const juce::String ColorSetting = "*.ccolor.json;*.ccolor.yaml";
+		static inline const juce::String fxOrder = "*.fxo.json;*.fxo.yaml;*.fxo";
+		static inline const juce::String fxParam = "*.2fx.json;*.2fx.yaml;*.2fx";
+		static inline const juce::String opnaParam = "*.param.opna.json;*.param.opna.yaml;*.param.opna";
+		static inline const juce::String opnParam = "*.param.opn.json;*.param.opn.yaml;*.param.opn";
+		static inline const juce::String ssgParam = "*.param.ssg.json;*.param.ssg.yaml;*.param.ssg";
+		static inline const juce::String rhythmParam = "*.param.rhythm.json;*.param.rhythm.yaml;*.param.rhythm";
+		static inline const juce::String adpcmParam = "*.param.adpcm.json;*.param.adpcm.yaml;*.param.adpcm";
+		static inline const juce::String opnaOpParam = "*.param.opna.op.json;*.param.opna.op.yaml;*.param.opna.op";
+		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad.json;*.param.rhythm.pad.yaml;*.param.rhythm.pad";
+		static inline const juce::String OpnaHwLfoParam = "*.opnaHwLfo.json;*.opnaHwLfo.yaml;*.opnaHwLfo";
+		static inline const juce::String opnOpParam = "*.param.opn.op.json;*.param.opn.op.yaml;*.param.opn.op";
+		static inline const juce::String N88LfoParam = "*.lfoN88.json;*.lfoN88.yaml;*.lfoN88";
+		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7.json;*.lfoOpzx7.yaml;*.lfoOpzx7";
+		static inline const juce::String AmpEnvParam = "*.ampEnv.json;*.ampEnv.yaml;*.ampEnv";
+		static inline const juce::String SsgHwEnvParam = "*.ssgHwEnv.json;*.ssgHwEnv.yaml;*.ssgHwEnv";
+		static inline const juce::String WtModParam = "*.wtmod.json;*.wtmod.yaml;*.wtmod";
+		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv.json;*.ssgSwEnv.yaml;*.ssgSwEnv";
+		static inline const juce::String PitchEnvParam = "*.pitchEnv.json;*.pitchEnv.yaml;*.pitchEnv";
+		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11.json;*.ssgSwEnv11.yaml;*.ssgSwEnv11";
+		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11.json;*.ssgSwPEnv11.yaml;*.ssgSwPEnv11";
+		static inline const juce::String DetuneParam = "*.detune.json;*.detune.yaml;*.detune";
+		static inline const juce::String UnisonParam = "*.unison.json;*.unison.yaml;*.unison";
+		static inline const juce::String QualityParam = "*.quality.json;*.quality.yaml;*.quality";
+		static inline const juce::String PcmQualityParam = "*.pcmQuality.json;*.pcmQuality.yaml;*.pcmQuality";
+		static inline const juce::String PcmPlayParam = "*.pcmPlay.json;*.pcmPlay.yaml;*.pcmPlay";
+		static inline const juce::String ToneNoiseParam = "*.toneNoise.json;*.toneNoise.yaml;*.toneNoise";
+		static inline const juce::String ColorSetting = "*.ccolor.json;*.ccolor.yaml;*.ccolor";
 	};
 
 	namespace Folder

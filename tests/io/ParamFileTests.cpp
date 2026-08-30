@@ -311,7 +311,7 @@ TEST_CASE("パラメータファイル: 拡張子が選んだ形に付く")
 	}
 
 	// 読み込みはどちらの形も選べる
-	CHECK(Io::openGlob("param.opna") == "*.param.opna.json;*.param.opna.yaml");
+	CHECK(Io::openGlob("param.opna") == "*.param.opna.json;*.param.opna.yaml;*.param.opna");
 }
 
 TEST_CASE("パラメータファイル: プリセットの中身が往復する")
