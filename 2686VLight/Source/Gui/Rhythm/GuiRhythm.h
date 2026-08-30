@@ -126,6 +126,7 @@ class RhythmPadGui: public GuiBase
     void updateGraph();
     void setGraphMode(GraphMode mode);
 public:
+    void setImportingParams(int p, juce::StringArray& lines, int& index);
     RhythmPadGui(const GuiContext& context) :
 		GuiBase(context),
         mainGroup(context),
@@ -303,6 +304,13 @@ public:
     void importPcmPlayParam(int p);
     void exportPcmPlayParam(int p);
     void importChParam();
+
+    // 3.0.0 より前の形式を読む
+    void getImportingPadParams(int p, juce::StringArray& lines, int& index);
+    void setImportingChParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
     void importPadChParam(int p);
     void exportPadChParam(int p);

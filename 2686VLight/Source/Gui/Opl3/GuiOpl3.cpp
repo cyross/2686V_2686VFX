@@ -1614,6 +1614,32 @@ void GuiOpl3::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingChParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(opl3Format);
+
+                    writeChParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, opl3Format);
 
                 if (!reader.has_value()) return;
@@ -1642,30 +1668,7 @@ void GuiOpl3::exportChParam() {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(opl3Format);
-
-                // Level
-                levelComponent.writeParams(writer, "level");
-
-                // Algorithm & Feedback
-                writer.set("alg", algSelector.getSelectedId());
-                writer.set("feedback", (float)feedbackSlider.getValue());
-
-                // Components
-                ssgHwEnv.writeParams(writer, "ssgHwEnv");
-                ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
-                qualityComponent.writeParams(writer, "quality");
-                unisonComponent.writeParams(writer, "unison");
-
-                for (int i = 0; i < Opl3PrValue::ops; i++) {
-                    auto op = writer.arrayItem(Io::ParamKey::ops, i);
-
-                    writeOpParams(i, op);
-                }
-
-                // 名前で持つので、置き場所に意味は無い
-                ampEnvComponent.writeParams(writer, "ampEnv");
-                ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
-                modComponent.writeParams(writer, "wtMod");
+                writeChParams(writer);
 
                 writer.writeTo(file);
             }
@@ -1938,3 +1941,112 @@ void GuiOpl3::importOplOpChParam(int opIndex) {
         });
 }
 
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。並び順を写し直すより確実で、
+// 当時の互換の工夫もそのまま残る。
+void GuiOpl3::setImportingChParams(juce::StringArray& lines, int& index) {
+	// Level
+	levelComponent.setImportingParams(lines, index);
+
+	// Algorithm & Feedback
+	algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+	feedbackSlider.setValue(lines[index++].getIntValue(), juce::sendNotification);
+
+	updateAlgorithmDisplay();
+
+	// Components
+	ssgHwEnv.setImportingParams(lines, index);
+	ssgSwEnv11g.setImportingParams(lines, index);
+	qualityComponent.setImportingParams(lines, index);
+	unisonComponent.setImportingParams(lines, index);
+
+	for (int i = 0; i < Opl3PrValue::ops; i++) { // OPL3のOP1,OP2のみ反映
+	    getImportingOpParams(i, lines, index);
+	}
+
+	// AMP ENV は後から足したので、旧フォーマットとの互換のため
+	// ファイル末尾から読む。行が無ければ既定のままにする。
+	if (index < lines.size()) {
+	    ampEnvComponent.setImportingParams(lines, index);
+	}
+
+	if (index < lines.size()) {
+	    ssgSwPEnv11g.setImportingParams(lines, index);
+	}
+
+	if (index < lines.size()) {
+	    modComponent.setImportingBaseParams(lines, index);
+	    modComponent.setImportingShapeParam(lines, index);
+	}
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpl3::writeChParams(Io::ParamWriter& writer) {
+	// Level
+	levelComponent.writeParams(writer, "level");
+
+	// Algorithm & Feedback
+	writer.set("alg", algSelector.getSelectedId());
+	writer.set("feedback", (float)feedbackSlider.getValue());
+
+	// Components
+	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
+	qualityComponent.writeParams(writer, "quality");
+	unisonComponent.writeParams(writer, "unison");
+
+	for (int i = 0; i < Opl3PrValue::ops; i++) {
+	    auto op = writer.arrayItem(Io::ParamKey::ops, i);
+
+	    writeOpParams(i, op);
+	}
+
+	// 名前で持つので、置き場所に意味は無い
+	ampEnvComponent.writeParams(writer, "ampEnv");
+	ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
+	modComponent.writeParams(writer, "wtMod");
+
+	
+}
+
+// 3.0.0 より前の形式を読むための補助。履歴から戻したもの。
+void GuiOpl3::getImportingOpParams(int opIndex, juce::StringArray& lines, int& index) {
+    // Mul
+    mul[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+    // Env
+    rgAr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgDr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgSl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgRr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgTl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Key Scale & EG Type
+    ksr[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    ksl[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    egType[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+    // Optional / Mask
+    bypass[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    kor[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    xof[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    mask[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+    // Wave Shape
+    eg[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+    // LFO (AM / VIB)
+    am[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    amd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ams[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    vib[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    pmd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    pms[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Components
+    pitchEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv11[opIndex].setImportingParams(lines, index);
+    ssgSwPEnv11[opIndex].setImportingParams(lines, index);
+}

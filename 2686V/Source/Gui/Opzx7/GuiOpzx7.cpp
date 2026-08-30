@@ -2876,6 +2876,32 @@ void GuiOpzx7::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingChParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(opzx7Format);
+
+                    writeChParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, opzx7Format);
 
                 if (!reader.has_value()) return;
@@ -2905,44 +2931,7 @@ void GuiOpzx7::exportChParam() {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(opzx7Format);
-
-                // Level
-                levelComponent.writeParams(writer, "level");
-
-                // Algorithm & Feedback
-                writer.set("algMode", algModeSelector.getSelectedItemIndex());
-                writer.set("alg", algSelector.getSelectedId());
-                algMatrixComp.writeParams(writer, "algMatrixComp");
-                writer.set("feedback1", (float)feedback1Slider.getValue());
-                writer.set("feedback2", (float)feedback2Slider.getValue());
-                writer.set("feedback3", (float)feedback3Slider.getValue());
-                writer.set("feedback4", (float)feedback4Slider.getValue());
-                writer.set("feedback5", (float)feedback5Slider.getValue());
-                writer.set("feedback6", (float)feedback6Slider.getValue());
-                writer.set("feedback7", (float)feedback7Slider.getValue());
-                writer.set("feedback8", (float)feedback8Slider.getValue());
-
-                // Panpot
-                writer.set("panpotEnable", panpotEnableToggle.getToggleState());
-                writer.set("panpot", (float)panpotSlider.getValue());
-
-                // Components (Global)
-                ssgHwEnv.writeParams(writer, "ssgHwEnv");
-                ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
-                glLfo.writeParams(writer, "glLfo");
-                qualityComponent.writeParams(writer, "quality");
-                unisonComponent.writeParams(writer, "unison");
-
-                for (int i = 0; i < Opzx7PrValue::ops; i++) {
-                    auto op = writer.arrayItem(Io::ParamKey::ops, i);
-
-                    writeOpParams(i, op);
-                }
-
-                // 名前で持つので、置き場所に意味は無い
-                ampEnvComponent.writeParams(writer, "ampEnv");
-                ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
-                modComponent.writeParams(writer, "wtMod");
+                writeChParams(writer);
 
                 writer.writeTo(file);
             }
@@ -3226,4 +3215,203 @@ void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwEnv[opIndex].writeParams(w, "ssgSwEnv");
     ssgSwEnv11[opIndex].writeParams(w, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].writeParams(w, "ssgSwPEnv11");
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。並び順を写し直すより確実で、
+// 当時の互換の工夫もそのまま残る。
+void GuiOpzx7::setImportingChParams(juce::StringArray& lines, int& index) {
+	// Level
+	levelComponent.setImportingParams(lines, index);
+
+	// Algorithm & Feedback
+	algModeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+	algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+	algMatrixComp.setImportingParams(lines, index);
+	feedback1Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback2Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback3Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback4Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback5Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback6Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback7Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback8Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+	int mode = algModeSelector.getSelectedItemIndex();
+	if (mode == 0) {
+	    updateAlgorithmDisplay();
+	}
+	else {
+	    updateAlgorithmMatrixDisplay();
+	}
+
+	// Panpot
+	panpotEnableToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	panpotSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+	// Components (Global)
+	ssgHwEnv.setImportingParams(lines, index);
+	ssgSwEnv11g.setImportingParams(lines, index);
+	glLfo.setImportingParams(lines, index);
+	qualityComponent.setImportingParams(lines, index);
+	unisonComponent.setImportingParams(lines, index);
+
+	for (int i = 0; i < Opzx7PrValue::ops; i++) {
+	    getImportingOpParams(i, lines, index);
+	}
+
+	// AMP ENV は後から足したので、旧フォーマットとの互換のため
+	// ファイル末尾から読む。行が無ければ既定のままにする。
+	if (index < lines.size()) {
+	    ampEnvComponent.setImportingParams(lines, index);
+	}
+
+	if (index < lines.size()) {
+	    ssgSwPEnv11g.setImportingParams(lines, index);
+	}
+
+	if (index < lines.size()) {
+	    modComponent.setImportingBaseParams(lines, index);
+	    modComponent.setImportingShapeParam(lines, index);
+	}
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpzx7::writeChParams(Io::ParamWriter& writer) {
+	// Level
+	levelComponent.writeParams(writer, "level");
+
+	// Algorithm & Feedback
+	writer.set("algMode", algModeSelector.getSelectedItemIndex());
+	writer.set("alg", algSelector.getSelectedId());
+	algMatrixComp.writeParams(writer, "algMatrixComp");
+	writer.set("feedback1", (float)feedback1Slider.getValue());
+	writer.set("feedback2", (float)feedback2Slider.getValue());
+	writer.set("feedback3", (float)feedback3Slider.getValue());
+	writer.set("feedback4", (float)feedback4Slider.getValue());
+	writer.set("feedback5", (float)feedback5Slider.getValue());
+	writer.set("feedback6", (float)feedback6Slider.getValue());
+	writer.set("feedback7", (float)feedback7Slider.getValue());
+	writer.set("feedback8", (float)feedback8Slider.getValue());
+
+	// Panpot
+	writer.set("panpotEnable", panpotEnableToggle.getToggleState());
+	writer.set("panpot", (float)panpotSlider.getValue());
+
+	// Components (Global)
+	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
+	glLfo.writeParams(writer, "glLfo");
+	qualityComponent.writeParams(writer, "quality");
+	unisonComponent.writeParams(writer, "unison");
+
+	for (int i = 0; i < Opzx7PrValue::ops; i++) {
+	    auto op = writer.arrayItem(Io::ParamKey::ops, i);
+
+	    writeOpParams(i, op);
+	}
+
+	// 名前で持つので、置き場所に意味は無い
+	ampEnvComponent.writeParams(writer, "ampEnv");
+	ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
+	modComponent.writeParams(writer, "wtMod");
+
+	
+}
+
+// 3.0.0 より前の形式を読むための補助。履歴から戻したもの。
+void GuiOpzx7::getImportingOpParams(int opIndex, juce::StringArray& lines, int& index) {
+    // Detune / Multiplier
+    mulDetune[opIndex].setImportingParams(lines, index);
+
+    // RG Env
+    rgEn[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    rgAr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgD1r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgD1l[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgD2r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgRr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgTl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Normal Env
+    ar[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    d1r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    d1l[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    d2r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    tl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Key Scale
+    ksEn[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    ksMode[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ksrMA7[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    kslMA7[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ksrOPZ[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    kslOPZ[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ksBp[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ksLc[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ksRc[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ksLd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ksRd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ksRs[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Optional
+    bypass[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    sus[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    xof[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    kor[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    mask[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+    // Wave Shape
+    ws[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+    ctx.audioProcessor.unloadOpzx7PcmFile(opIndex);
+    ctx.audioProcessor.unloadOpzx7WtFile(opIndex);
+    ctx.audioProcessor.unloadOpzx7Wt2File(opIndex);
+
+    int wsIdx = ws[opIndex].getSelectedItemIndex();
+
+    if (wsIdx == Opzx7PrValue::pcmIndex) {
+        pcmFileNameLabel[opIndex].setText(lines[index++], juce::dontSendNotification);
+
+        if (pcmFileNameLabel[opIndex].getText().isNotEmpty()) {
+            ctx.audioProcessor.loadOpzx7PcmFile(opIndex, pcmFileNameLabel[opIndex].getText());
+        }
+    }
+    else if (wsIdx == Opzx7PrValue::wtIndex) {
+        wtFileNameLabel[opIndex].setText(lines[index++], juce::dontSendNotification);
+
+        if (wtFileNameLabel[opIndex].getText().isNotEmpty()) {
+            ctx.audioProcessor.loadOpzx7WtFile(opIndex, wtFileNameLabel[opIndex].getText());
+        }
+
+    }
+    else if (wsIdx == Opzx7PrValue::wt2Index) {
+        wt2FileNameLabel[opIndex].setText(lines[index++], juce::dontSendNotification);
+
+        if (wt2FileNameLabel[opIndex].getText().isNotEmpty()) {
+            ctx.audioProcessor.loadOpzx7Wt2File(opIndex, wt2FileNameLabel[opIndex].getText());
+        }
+    }
+
+    // PCM Play / Loop Point
+    pcmOffset[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    pcmRatio[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    loopPointEnable[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    loopPointStart[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    loopPointEnd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // SSG Env
+    se[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    seFreq[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Components
+    fix[opIndex].setImportingParams(lines, index);
+    lfo[opIndex].setImportingParams(lines, index);
+    pitchEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv11[opIndex].setImportingParams(lines, index);
+    ssgSwPEnv11[opIndex].setImportingParams(lines, index);
 }

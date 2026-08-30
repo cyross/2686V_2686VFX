@@ -1314,8 +1314,8 @@ void GuiOpm::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
         mulRatio[opIndex].layoutComponentRow(rect);
 		if (mulRatio[opIndex].isVisibleNudge())
 		{
-    		layoutRowFiveComps({ .rect = rect, .comp1 = &mulRatioTo001[opIndex], .comp2 = &mulRatioTo005[opIndex], .comp3 = &mulRatioTo1[opIndex], .comp4 = &mulRatioTo10[opIndex], .comp5 = &mulRatioTo2757[opIndex] });
-    		layoutRowThreeComps({ .rect = rect, .comp1 = &mulRatioTo025[opIndex], .comp2 = &mulRatioTo05[opIndex], .comp3 = &mulRatioTo075[opIndex] });
+            layoutRowFiveComps({ .rect = rect, .comp1 = &mulRatioTo001[opIndex], .comp2 = &mulRatioTo005[opIndex], .comp3 = &mulRatioTo1[opIndex], .comp4 = &mulRatioTo10[opIndex], .comp5 = &mulRatioTo2757[opIndex] });
+            layoutRowThreeComps({ .rect = rect, .comp1 = &mulRatioTo025[opIndex], .comp2 = &mulRatioTo05[opIndex], .comp3 = &mulRatioTo075[opIndex] });
             layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioTo02[opIndex], .comp2 = &mulRatioTo04[opIndex], .comp3 = &mulRatioTo06[opIndex], .comp4 = &mulRatioTo08[opIndex] });
             layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM10[opIndex], .comp2 = &mulRatioPM1[opIndex], .comp3 = &mulRatioP1[opIndex], .comp4 = &mulRatioP10[opIndex] });
             layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM001[opIndex], .comp2 = &mulRatioPM01[opIndex], .comp3 = &mulRatioP01[opIndex], .comp4 = &mulRatioP001[opIndex] });
@@ -2110,6 +2110,32 @@ void GuiOpm::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingChParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(opmFormat);
+
+                    writeChParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, opmFormat);
 
                 if (!reader.has_value()) return;
@@ -2139,46 +2165,7 @@ void GuiOpm::exportChParam() {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(opmFormat);
-
-                // Level
-                levelComponent.writeParams(writer, "level");
-
-                // Algorithm & Feedback
-                writer.set("alg", algSelector.getSelectedId());
-                writer.set("feedback", (float)feedbackSlider.getValue());
-
-                // Panpot
-                writer.set("pan", (float)panSlider.getValue());
-
-                // OPM LFO
-                writer.set("lfoFreq", (float)lfoFreqSlider.getValue());
-                writer.set("lfoSyncDelay", (float)lfoSyncDelaySlider.getValue());
-                writer.set("lfoPm", lfoPmToggle.getToggleState());
-                writer.set("lfoPgShape", lfoPgShapeSelector.getSelectedId());
-                writer.set("lfoPms", lfoPmsSelector.getSelectedId());
-                writer.set("lfoPmd", (float)lfoPmdSlider.getValue());
-                writer.set("lfoAm", lfoAmToggle.getToggleState());
-                writer.set("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue());
-                writer.set("lfoEgShape", lfoEgShapeSelector.getSelectedId());
-                writer.set("lfoAms", lfoAmsSelector.getSelectedId());
-                writer.set("lfoAmd", (float)lfoAmdSlider.getValue());
-
-                // Components (Global)
-                ssgHwEnv.writeParams(writer, "ssgHwEnv");
-                ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
-                qualityComponent.writeParams(writer, "quality");
-                unisonComponent.writeParams(writer, "unison");
-
-                for (int i = 0; i < OpmPrValue::ops; i++) {
-                    auto op = writer.arrayItem(Io::ParamKey::ops, i);
-
-                    writeOpParams(i, op);
-                }
-
-                // 名前で持つので、置き場所に意味は無い
-                ampEnvComponent.writeParams(writer, "ampEnv");
-                ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
-                modComponent.writeParams(writer, "wtMod");
+                writeChParams(writer);
 
                 writer.writeTo(file);
             }
@@ -2357,4 +2344,142 @@ void GuiOpm::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwEnv[opIndex].writeParams(w, "ssgSwEnv");
     ssgSwEnv11[opIndex].writeParams(w, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].writeParams(w, "ssgSwPEnv11");
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。並び順を写し直すより確実で、
+// 当時の互換の工夫もそのまま残る。
+void GuiOpm::setImportingChParams(juce::StringArray& lines, int& index) {
+	// Level
+	levelComponent.setImportingParams(lines, index);
+
+	// Algorithm & Feedback
+	algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+	feedbackSlider.setValue(lines[index++].getIntValue(), juce::sendNotification);
+
+	updateAlgorithmDisplay();
+
+	// Panpot
+	panSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+	// OPM LFO
+	lfoFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	lfoSyncDelaySlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	lfoPmToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	lfoPgShapeSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+	lfoPmsSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+	lfoPmdSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	lfoAmToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	lfoAmSmRtSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	lfoEgShapeSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+	lfoAmsSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+	lfoAmdSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+	// Components (Global)
+	ssgHwEnv.setImportingParams(lines, index);
+	ssgSwEnv11g.setImportingParams(lines, index);
+	qualityComponent.setImportingParams(lines, index);
+	unisonComponent.setImportingParams(lines, index);
+
+	for (int i = 0; i < OpmPrValue::ops; i++) {
+	    getImportingOpParams(i, lines, index);
+	}
+
+	// AMP ENV は後から足したので、旧フォーマットとの互換のため
+	// ファイル末尾から読む。行が無ければ既定のままにする。
+	if (index < lines.size()) {
+	    ampEnvComponent.setImportingParams(lines, index);
+	}
+
+	if (index < lines.size()) {
+	    ssgSwPEnv11g.setImportingParams(lines, index);
+	}
+
+	if (index < lines.size()) {
+	    modComponent.setImportingBaseParams(lines, index);
+	    modComponent.setImportingShapeParam(lines, index);
+	}
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpm::writeChParams(Io::ParamWriter& writer) {
+	// Level
+	levelComponent.writeParams(writer, "level");
+
+	// Algorithm & Feedback
+	writer.set("alg", algSelector.getSelectedId());
+	writer.set("feedback", (float)feedbackSlider.getValue());
+
+	// Panpot
+	writer.set("pan", (float)panSlider.getValue());
+
+	// OPM LFO
+	writer.set("lfoFreq", (float)lfoFreqSlider.getValue());
+	writer.set("lfoSyncDelay", (float)lfoSyncDelaySlider.getValue());
+	writer.set("lfoPm", lfoPmToggle.getToggleState());
+	writer.set("lfoPgShape", lfoPgShapeSelector.getSelectedId());
+	writer.set("lfoPms", lfoPmsSelector.getSelectedId());
+	writer.set("lfoPmd", (float)lfoPmdSlider.getValue());
+	writer.set("lfoAm", lfoAmToggle.getToggleState());
+	writer.set("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue());
+	writer.set("lfoEgShape", lfoEgShapeSelector.getSelectedId());
+	writer.set("lfoAms", lfoAmsSelector.getSelectedId());
+	writer.set("lfoAmd", (float)lfoAmdSlider.getValue());
+
+	// Components (Global)
+	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
+	qualityComponent.writeParams(writer, "quality");
+	unisonComponent.writeParams(writer, "unison");
+
+	for (int i = 0; i < OpmPrValue::ops; i++) {
+	    auto op = writer.arrayItem(Io::ParamKey::ops, i);
+
+	    writeOpParams(i, op);
+	}
+
+	// 名前で持つので、置き場所に意味は無い
+	ampEnvComponent.writeParams(writer, "ampEnv");
+	ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
+	modComponent.writeParams(writer, "wtMod");
+
+	
+}
+
+// 3.0.0 より前の形式を読むための補助。履歴から戻したもの。
+void GuiOpm::getImportingOpParams(int opIndex, juce::StringArray& lines, int& index) {
+    // Mul / Dt
+    mul[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    mulRatio[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    dt1[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    dt2[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Env
+    rgAr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgD1r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgD1l[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgD2r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgRr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgTl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Key Scale
+    ksMode[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ks[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ksrOPP[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    kslOPP[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Optional / AM / Mask
+    amsEnable[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    bypass[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    xof[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    kor[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    mask[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+    // Components
+    fix[opIndex].setImportingParams(lines, index);
+    pitchEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv11[opIndex].setImportingParams(lines, index);
+    ssgSwPEnv11[opIndex].setImportingParams(lines, index);
 }

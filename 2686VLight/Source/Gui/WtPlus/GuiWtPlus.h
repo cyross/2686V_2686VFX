@@ -221,6 +221,12 @@ public:
     void importQualityParam();
     void exportQualityParam();
     void importChParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingChParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
 
     // 波形メモリスロットのロード / クリア

@@ -1054,6 +1054,32 @@ void GuiWt2::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingChParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(wt2Format);
+
+                    writeChParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, wt2Format);
 
                 if (!reader.has_value()) return;
@@ -1123,51 +1149,123 @@ void GuiWt2::exportChParam() {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(wt2Format);
-
-                // Level
-                levelComponent.writeParams(writer, "level");
-
-                // Form
-                writer.set("size", sizeSelector.getSelectedItemIndex());
-                writer.set("reso", resoSelector.getSelectedItemIndex());
-                writer.set("wave", waveSelector.getSelectedItemIndex());
-
-                // Modulation
-                // 名前で持つので、後から足した項目を末尾へ置く必要はない。
-                modComponent.writeParams(writer, "wtMod");
-
-                // Components
-                fixComponent.writeParams(writer, "fix");
-                ampEnvComponent.writeParams(writer, "ampEnv");
-                pitchEnvComponent.writeParams(writer, "pitchEnv");
-                ssgHwEnv.writeParams(writer, "ssgHwEnv");
-                ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
-                ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
-                ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
-                mulDetuneComponent.writeParams(writer, "mulDetune");
-                lfo.writeParams(writer, "lfo");
-                qualityComponent.writeParams(writer, "quality");
-                unisonComponent.writeParams(writer, "unison");
-
-                // 自分で描いた波形。使っている段数のものだけを書く。
-                if (waveSelector.getSelectedItemIndex() == customWaveIndex)
-                {
-                    std::vector<int> customValues;
-
-                    switch (sizeSelector.getSelectedItemIndex())
-                    {
-                    case 0: customValues = customSliders32.getValues(); break;
-                    case 1: customValues = customSliders64.getValues(); break;
-                    case 2: customValues = customSliders128.getValues(); break;
-                    case 3: customValues = customSliders256.getValues(); break;
-                    default: break;
-                    }
-
-                    writer.setArray("customWave", customValues);
-                }
+                writeChParams(writer);
 
                 writer.writeTo(file);
             }
         });
 
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。並び順を写し直すより確実で、
+// 当時の互換の工夫もそのまま残る。
+void GuiWt2::setImportingChParams(juce::StringArray& lines, int& index) {
+	// Level
+	levelComponent.setImportingParams(lines, index);
+
+	// Form
+	int selectedSizeIdx = lines[index++].getIntValue();
+	int selectedResoIdx = lines[index++].getIntValue();
+	int selectedWaveIdx = lines[index++].getIntValue();
+
+	sizeSelector.setSelectedItemIndex(selectedSizeIdx, juce::sendNotification);
+	resoSelector.setSelectedItemIndex(selectedResoIdx, juce::sendNotification);
+	waveSelector.setSelectedItemIndex(selectedWaveIdx, juce::sendNotification);
+
+	// Moduration
+	modComponent.setImportingBaseParams(lines, index);
+
+	// Components
+	fixComponent.setImportingParams(lines, index);
+	ampEnvComponent.setImportingParams(lines, index);
+	pitchEnvComponent.setImportingParams(lines, index);
+	ssgHwEnv.setImportingParams(lines, index);
+	ssgSwEnvComponent.setImportingParams(lines, index);
+	ssgSwEnv11Component.setImportingParams(lines, index);
+	ssgSwPEnv11Component.setImportingParams(lines, index);
+	mulDetuneComponent.setImportingParams(lines, index);
+	lfo.setImportingParams(lines, index);
+	qualityComponent.setImportingParams(lines, index);
+	unisonComponent.setImportingParams(lines, index);
+
+	if (selectedWaveIdx == 8)
+	{
+	    // sizeSelectorの戻り値インデックス(0: 32, 1: 64, 2: 128, 3: 256)に依存してステップ数を変更
+	    int sampleCount = 32;
+	    if (selectedSizeIdx == 1)      sampleCount = 64;
+	    else if (selectedSizeIdx == 2) sampleCount = 128;
+	    else if (selectedSizeIdx == 3) sampleCount = 256;
+
+	    // 現在の解像度(resolution)の範囲に合わせて安全にクランプするための最大値上限を計算
+	    int currentReso = 16 << selectedResoIdx;
+
+	    std::vector<int> customValues(sampleCount, currentReso >> 1);
+	    for (int i = 0; i < sampleCount; ++i)
+	    {
+	        if (index < lines.size()) {
+	            int val = lines[index++].getIntValue();
+	            customValues[i] = std::clamp(val, 0, currentReso - 1);
+	        }
+	    }
+
+	    // 適切なWaveform2Containerへ整数配列を一括反映
+	    if (sampleCount == 32)       customSliders32.setValues(customValues);
+	    else if (sampleCount == 64)  customSliders64.setValues(customValues);
+	    else if (sampleCount == 128) customSliders128.setValues(customValues);
+	    else if (sampleCount == 256) customSliders256.setValues(customValues);
+	}
+
+	// Modulation Shape は後から追加したパラメータなので、
+	// 旧フォーマットとの互換のためファイル末尾から読む。
+	modComponent.setImportingShapeParam(lines, index);
+
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiWt2::writeChParams(Io::ParamWriter& writer) {
+	// Level
+	levelComponent.writeParams(writer, "level");
+
+	// Form
+	writer.set("size", sizeSelector.getSelectedItemIndex());
+	writer.set("reso", resoSelector.getSelectedItemIndex());
+	writer.set("wave", waveSelector.getSelectedItemIndex());
+
+	// Modulation
+	// 名前で持つので、後から足した項目を末尾へ置く必要はない。
+	modComponent.writeParams(writer, "wtMod");
+
+	// Components
+	fixComponent.writeParams(writer, "fix");
+	ampEnvComponent.writeParams(writer, "ampEnv");
+	pitchEnvComponent.writeParams(writer, "pitchEnv");
+	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
+	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
+	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+	mulDetuneComponent.writeParams(writer, "mulDetune");
+	lfo.writeParams(writer, "lfo");
+	qualityComponent.writeParams(writer, "quality");
+	unisonComponent.writeParams(writer, "unison");
+
+	// 自分で描いた波形。使っている段数のものだけを書く。
+	if (waveSelector.getSelectedItemIndex() == customWaveIndex)
+	{
+	    std::vector<int> customValues;
+
+	    switch (sizeSelector.getSelectedItemIndex())
+	    {
+	    case 0: customValues = customSliders32.getValues(); break;
+	    case 1: customValues = customSliders64.getValues(); break;
+	    case 2: customValues = customSliders128.getValues(); break;
+	    case 3: customValues = customSliders256.getValues(); break;
+	    default: break;
+	    }
+
+	    writer.setArray("customWave", customValues);
+	}
+
+	
 }

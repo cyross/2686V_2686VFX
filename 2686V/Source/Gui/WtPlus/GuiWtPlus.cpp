@@ -635,6 +635,32 @@ void GuiWtPlus::importChParam() {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingChParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(wtPlusFormat);
+
+                    writeChParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, wtPlusFormat);
 
                 if (!reader.has_value()) return;
@@ -685,32 +711,72 @@ void GuiWtPlus::exportChParam() {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(wtPlusFormat);
-
-                // Level
-                levelComponent.writeParams(writer, "level");
-
-                // Wave
-                writer.set("slot", (float)slotSlider.getValue());
-                writer.set("interpolate", interpolateButton.getToggleState());
-                writer.set("steps", stepsSelector.getSelectedItemIndex());
-
-                // Modulation
-                modComponent.writeParams(writer, "wtMod");
-
-                // Components
-                fixComponent.writeParams(writer, "fix");
-                ampEnvComponent.writeParams(writer, "ampEnv");
-                pitchEnvComponent.writeParams(writer, "pitchEnv");
-                ssgHwEnv.writeParams(writer, "ssgHwEnv");
-                ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
-                ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
-                ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
-                mulDetuneComponent.writeParams(writer, "mulDetune");
-                lfoComponent.writeParams(writer, "lfo");
-                qualityComponent.writeParams(writer, "quality");
-                unisonComponent.writeParams(writer, "unison");
+                writeChParams(writer);
 
                 writer.writeTo(file);
             }
         });
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。並び順を写し直すより確実で、
+// 当時の互換の工夫もそのまま残る。
+void GuiWtPlus::setImportingChParams(juce::StringArray& lines, int& index) {
+	if (lines.size() == 0) return;
+
+
+	// Level
+	levelComponent.setImportingParams(lines, index);
+
+	// Wave
+	slotSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	interpolateButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	stepsSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+
+	// Modulation
+	modComponent.setImportingBaseParams(lines, index);
+	modComponent.setImportingShapeParam(lines, index);
+
+	// Components
+	fixComponent.setImportingParams(lines, index);
+	ampEnvComponent.setImportingParams(lines, index);
+	pitchEnvComponent.setImportingParams(lines, index);
+	ssgHwEnv.setImportingParams(lines, index);
+	ssgSwEnvComponent.setImportingParams(lines, index);
+	ssgSwEnv11Component.setImportingParams(lines, index);
+	ssgSwPEnv11Component.setImportingParams(lines, index);
+	mulDetuneComponent.setImportingParams(lines, index);
+	lfoComponent.setImportingParams(lines, index);
+	qualityComponent.setImportingParams(lines, index);
+	unisonComponent.setImportingParams(lines, index);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiWtPlus::writeChParams(Io::ParamWriter& writer) {
+	// Level
+	levelComponent.writeParams(writer, "level");
+
+	// Wave
+	writer.set("slot", (float)slotSlider.getValue());
+	writer.set("interpolate", interpolateButton.getToggleState());
+	writer.set("steps", stepsSelector.getSelectedItemIndex());
+
+	// Modulation
+	modComponent.writeParams(writer, "wtMod");
+
+	// Components
+	fixComponent.writeParams(writer, "fix");
+	ampEnvComponent.writeParams(writer, "ampEnv");
+	pitchEnvComponent.writeParams(writer, "pitchEnv");
+	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
+	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
+	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+	mulDetuneComponent.writeParams(writer, "mulDetune");
+	lfoComponent.writeParams(writer, "lfo");
+	qualityComponent.writeParams(writer, "quality");
+	unisonComponent.writeParams(writer, "unison");
+
+	
 }

@@ -389,6 +389,32 @@ void GuiBeep::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingChParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(beepFormat);
+
+                    writeChParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, beepFormat);
 
                 if (!reader.has_value()) return;
@@ -436,31 +462,69 @@ void GuiBeep::exportChParam() {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(beepFormat);
-
-                // Level
-                levelComponent.writeParams(writer, "level");
-
-                // Components
-                fixComponent.writeParams(writer, "fix");
-                ampEnvComponent.writeParams(writer, "ampEnv");
-                pitchEnvComponent.writeParams(writer, "pitchEnv");
-                ssgHwEnv.writeParams(writer, "ssgHwEnv");
-                ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
-                ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
-                ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
-                mulDetuneComponent.writeParams(writer, "mulDetune");
-                lfoComponent.writeParams(writer, "lfo");
-                unisonComponent.writeParams(writer, "unison");
-
-                // MODULATION (旧フォーマットと互換を保つため末尾に置く)
-                modComponent.writeParams(writer, "wtMod");
-
-                // 末尾に追加した項目
-                writer.set("antiAlias", antiAliasButton.getToggleState());
-                writer.set("timerClock", timerClockSelector.getSelectedItemIndex());
+                writeChParams(writer);
 
                 writer.writeTo(file);
             }
         });
 
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。並び順を写し直すより確実で、
+// 当時の互換の工夫もそのまま残る。
+void GuiBeep::setImportingChParams(juce::StringArray& lines, int& index) {
+	// Level
+	levelComponent.setImportingParams(lines, index);
+
+	// Components
+	fixComponent.setImportingParams(lines, index);
+	ampEnvComponent.setImportingParams(lines, index);
+	pitchEnvComponent.setImportingParams(lines, index);
+	ssgHwEnv.setImportingParams(lines, index);
+	ssgSwEnvComponent.setImportingParams(lines, index);
+	ssgSwEnv11Component.setImportingParams(lines, index);
+	ssgSwPEnv11Component.setImportingParams(lines, index);
+	mulDetuneComponent.setImportingParams(lines, index);
+	lfoComponent.setImportingParams(lines, index);
+	unisonComponent.setImportingParams(lines, index);
+
+	// MODULATION は後から足したので、旧フォーマットとの互換のため
+	// 行が無ければ既定のままにする。
+	if (index < lines.size()) {
+	    modComponent.setImportingBaseParams(lines, index);
+	    modComponent.setImportingShapeParam(lines, index);
+	}
+
+	// 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
+	antiAliasButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	timerClockSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiBeep::writeChParams(Io::ParamWriter& writer) {
+	// Level
+	levelComponent.writeParams(writer, "level");
+
+	// Components
+	fixComponent.writeParams(writer, "fix");
+	ampEnvComponent.writeParams(writer, "ampEnv");
+	pitchEnvComponent.writeParams(writer, "pitchEnv");
+	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
+	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
+	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+	mulDetuneComponent.writeParams(writer, "mulDetune");
+	lfoComponent.writeParams(writer, "lfo");
+	unisonComponent.writeParams(writer, "unison");
+
+	// MODULATION (旧フォーマットと互換を保つため末尾に置く)
+	modComponent.writeParams(writer, "wtMod");
+
+	// 末尾に追加した項目
+	writer.set("antiAlias", antiAliasButton.getToggleState());
+	writer.set("timerClock", timerClockSelector.getSelectedItemIndex());
+
+	
 }
