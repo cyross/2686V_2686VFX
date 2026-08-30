@@ -642,6 +642,32 @@ void GuiSsg::importToneNoiseParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingToneNoiseParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(toneNoiseFormat);
+
+                    writeToneNoiseParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, toneNoiseFormat);
 
                 if (!reader.has_value()) return;
@@ -674,11 +700,7 @@ void GuiSsg::exportToneNoiseParam() {
                 ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(toneNoiseFormat);
-
-                writer.set("tone", (float)toneSlider.getValue());
-                writer.set("noise", (float)noiseSlider.getValue());
-                writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
-                writer.set("mix", (float)mixSlider.getValue());
+                writeToneNoiseParams(writer);
 
                 writer.writeTo(file);
             }
@@ -699,6 +721,32 @@ void GuiSsg::importQualityParam() {
 
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingQualityParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(qualityFormat);
+
+                    writeQualityParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
 
                 auto reader = Io::ParamReader::open(file, qualityFormat);
 
@@ -730,9 +778,7 @@ void GuiSsg::exportQualityParam() {
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(qualityFormat);
-
-                writer.set("bit", qualityComponent.getBit());
-                writer.set("rate", qualityComponent.getRate());
+                writeQualityParams(writer);
 
                 writer.writeTo(file);
             }
@@ -945,6 +991,56 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 
 	// MODULATION (旧フォーマットと互換を保つため末尾に置く)
 	modComponent.writeParams(writer, "wtMod");
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiSsg::setImportingToneNoiseParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 4) return;
+
+	toneSlider.setValue(lines[0].getFloatValue(), juce::sendNotification);
+	noiseSlider.setValue(lines[1].getFloatValue(), juce::sendNotification);
+	noiseFreqSlider.setValue(lines[2].getFloatValue(), juce::sendNotification);
+	mixSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiSsg::writeToneNoiseParams(Io::ParamWriter& writer) {
+	writer.set("tone", (float)toneSlider.getValue());
+	writer.set("noise", (float)noiseSlider.getValue());
+	writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+	writer.set("mix", (float)mixSlider.getValue());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiSsg::setImportingQualityParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 2) return;
+
+	qualityComponent.setBit(lines[0].getIntValue());
+	qualityComponent.setRate(lines[1].getIntValue());
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiSsg::writeQualityParams(Io::ParamWriter& writer) {
+	writer.set("bit", qualityComponent.getBit());
+	writer.set("rate", qualityComponent.getRate());
 
 	
 }

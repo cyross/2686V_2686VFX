@@ -2038,6 +2038,32 @@ void GuiOpna::importLfoParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingLfoParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(n88LfoFormat);
+
+                    writeLfoParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, n88LfoFormat);
 
                 if (!reader.has_value()) return;
@@ -2081,24 +2107,7 @@ void GuiOpna::exportLfoParam() {
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(n88LfoFormat);
-
-                writer.set("lfoFreq", (int)lfoFreqSlider.getValue());
-                writer.set("lfoShape", lfoShapeSelector.getSelectedItemIndex());
-                writer.set("lfoSyncDelay", (int)lfoSyncDelaySlider.getValue());
-                writer.set("lfoPm", lfoPmToggle.getToggleState());
-                writer.set("lfoPms", (int)lfoPmsSlider.getValue());
-                writer.set("lfoPmd", (int)lfoPmdSlider.getValue());
-                writer.set("lfoAm", lfoAmToggle.getToggleState());
-                writer.set("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue());
-                writer.set("lfoAmd", (int)lfoAmdSlider.getValue());
-
-                std::vector<int> amsValues;
-
-                for (int i = 0; i < OpmPrValue::ops; i++) {
-                    amsValues.push_back((int)n88Ams[i].getValue());
-                }
-
-                writer.setArray("n88Ams", amsValues);
+                writeLfoParams(writer);
 
                 writer.writeTo(file);
             }
@@ -2119,6 +2128,32 @@ void GuiOpna::importQualityParam() {
 
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingQualityParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(qualityFormat);
+
+                    writeQualityParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
 
                 auto reader = Io::ParamReader::open(file, qualityFormat);
 
@@ -2150,9 +2185,7 @@ void GuiOpna::exportQualityParam() {
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(qualityFormat);
-
-                writer.set("bit", qualityComponent.getBit());
-                writer.set("rate", qualityComponent.getRate());
+                writeQualityParams(writer);
 
                 writer.writeTo(file);
             }
@@ -2638,4 +2671,76 @@ void GuiOpna::getImportingOpParams(int opIndex, juce::StringArray& lines, int& i
     ssgSwEnv[opIndex].setImportingParams(lines, index);
     ssgSwEnv11[opIndex].setImportingParams(lines, index);
     ssgSwPEnv11[opIndex].setImportingParams(lines, index);
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpna::setImportingLfoParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 13) return;
+
+	lfoFreqSlider.setValue(lines[0].getIntValue(), juce::sendNotification);
+	lfoShapeSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+	lfoSyncDelaySlider.setValue(lines[2].getIntValue(), juce::sendNotification);
+	lfoPmToggle.setToggleState(lines[3].getIntValue() == 1, juce::sendNotification);
+	lfoPmsSlider.setValue(lines[4].getIntValue(), juce::sendNotification);
+	lfoPmdSlider.setValue(lines[5].getIntValue(), juce::sendNotification);
+	lfoAmToggle.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
+	lfoAmSmRtSlider.setValue(lines[7].getFloatValue(), juce::sendNotification);
+	lfoAmdSlider.setValue(lines[8].getIntValue(), juce::sendNotification);
+
+	for (int i = 0; i < OpmPrValue::ops; i++) {
+	    n88Ams[i].setValue(lines[9 + i].getIntValue(), juce::sendNotification);
+	}
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpna::writeLfoParams(Io::ParamWriter& writer) {
+	writer.set("lfoFreq", (int)lfoFreqSlider.getValue());
+	writer.set("lfoShape", lfoShapeSelector.getSelectedItemIndex());
+	writer.set("lfoSyncDelay", (int)lfoSyncDelaySlider.getValue());
+	writer.set("lfoPm", lfoPmToggle.getToggleState());
+	writer.set("lfoPms", (int)lfoPmsSlider.getValue());
+	writer.set("lfoPmd", (int)lfoPmdSlider.getValue());
+	writer.set("lfoAm", lfoAmToggle.getToggleState());
+	writer.set("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue());
+	writer.set("lfoAmd", (int)lfoAmdSlider.getValue());
+
+	std::vector<int> amsValues;
+
+	for (int i = 0; i < OpmPrValue::ops; i++) {
+	    amsValues.push_back((int)n88Ams[i].getValue());
+	}
+
+	writer.setArray("n88Ams", amsValues);
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpna::setImportingQualityParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 2) return;
+
+	qualityComponent.setBit(lines[0].getIntValue());
+	qualityComponent.setRate(lines[1].getIntValue());
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpna::writeQualityParams(Io::ParamWriter& writer) {
+	writer.set("bit", qualityComponent.getBit());
+	writer.set("rate", qualityComponent.getRate());
+
+	
 }

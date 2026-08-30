@@ -200,6 +200,12 @@ public:
     void copyParams(CopyRhythmPad& copyObj);
     void pasteParams(CopyRhythmPad& copyObj);
     void importToneNoiseParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingToneNoiseParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeToneNoiseParams(Io::ParamWriter& writer);
     void exportToneNoiseParam();
     void importLfoParam();
     void exportLfoParam();
@@ -220,8 +226,20 @@ public:
     void importDetuneParam();
     void exportDetuneParam();
     void importQualityParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingQualityParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
     void importPcmPlayParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingPcmPlayParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writePcmPlayParams(Io::ParamWriter& writer);
     void exportPcmPlayParam();
     // 名前で受け渡す。パッドは並びの中のひとつを渡す。
     void readParams(int p, const Io::ParamReader& r);

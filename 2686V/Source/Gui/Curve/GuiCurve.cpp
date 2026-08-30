@@ -682,6 +682,32 @@ void GuiCurve::importCurveParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingCurveParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(curveFormat);
+
+                    writeCurveParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, curveFormat);
 
                 if (!reader.has_value()) return;
@@ -747,28 +773,76 @@ void GuiCurve::exportCurveParam() {
                 ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(curveFormat);
-
-                int p = position.getSelectedItemIndex();
-                int t = target.getSelectedItemIndex();
-                int vpLen = paramLengthes[t];
-
-                // 今出している Position と Target のぶんだけ書く
-                for (int vp = 0; vp < vpLen; vp++) {
-                    auto item = writer.arrayItem("params", vp);
-
-                    item.set("logic", ctx.audioProcessor.prCurve.getLogic(p, t, vp));
-                    item.set("k", ctx.audioProcessor.prCurve.getK(p, t, vp));
-
-                    std::vector<float> values;
-
-                    for (int vv = 0; vv < CurvePrValue::values; vv++) {
-                        values.push_back(ctx.audioProcessor.prCurve.getValue(p, t, vp, vv));
-                    }
-
-                    item.setArray("values", values);
-                }
+                writeCurveParams(writer);
 
                 writer.writeTo(file);
             }
         });
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiCurve::setImportingCurveParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	int p = position.getSelectedItemIndex();
+	int t = target.getSelectedItemIndex();
+	int vpLen = paramLengthes[t];
+
+	// 現在表示中の Position と Target に該当するパラメータ群のみ復元
+	for (int vp = 0; vp < vpLen; vp++) {
+	    if (index < size) {
+	        int logicVal = lines[index++].getIntValue();
+	        ctx.audioProcessor.prCurve.setLogic(p, t, vp, logicVal);
+	    }
+	    if (index < size) {
+	        float kVal = lines[index++].getFloatValue();
+	        ctx.audioProcessor.prCurve.setK(p, t, vp, kVal);
+	    }
+
+	    // Value配列は使われていない分も含め、常に最大要素数(16)分を安全に読み込む
+	    for (int vv = 0; vv < CurvePrValue::values; vv++) {
+	        if (index < size) {
+	            float val = lines[index++].getFloatValue();
+	            ctx.audioProcessor.prCurve.setValue(p, t, vp, vv, val);
+	        }
+	    }
+	}
+
+	// プロセッサ側でカーブ計算を再実行し、コアに反映
+	ctx.audioProcessor.bakeCurves();
+	ctx.audioProcessor.getCurveCore()->setParameters(ctx.audioProcessor.prCurve.m_curveParams);
+
+	// GUIのコンポーネント（スライダーや表示状態）を最新値に更新
+	updateVisible();
+	ctx.editor.resized();
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiCurve::writeCurveParams(Io::ParamWriter& writer) {
+	int p = position.getSelectedItemIndex();
+	int t = target.getSelectedItemIndex();
+	int vpLen = paramLengthes[t];
+
+	// 今出している Position と Target のぶんだけ書く
+	for (int vp = 0; vp < vpLen; vp++) {
+	    auto item = writer.arrayItem("params", vp);
+
+	    item.set("logic", ctx.audioProcessor.prCurve.getLogic(p, t, vp));
+	    item.set("k", ctx.audioProcessor.prCurve.getK(p, t, vp));
+
+	    std::vector<float> values;
+
+	    for (int vv = 0; vv < CurvePrValue::values; vv++) {
+	        values.push_back(ctx.audioProcessor.prCurve.getValue(p, t, vp, vv));
+	    }
+
+	    item.setArray("values", values);
+	}
+
+	
 }

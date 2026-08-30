@@ -235,8 +235,20 @@ public:
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
     void importToneNoiseParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingToneNoiseParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeToneNoiseParams(Io::ParamWriter& writer);
     void exportToneNoiseParam();
     void importQualityParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingQualityParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
     void importChParam();
 

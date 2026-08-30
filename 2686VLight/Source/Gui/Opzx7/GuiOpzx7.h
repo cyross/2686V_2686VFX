@@ -340,6 +340,12 @@ public:
     void importDetuneParam(int opIndex);
     void exportDetuneParam(int opIndex);
     void importQualityParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingQualityParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
     void importOpPcmPlayParam(int opIndex);
     void exportOpPcmPlayParam(int opIndex);

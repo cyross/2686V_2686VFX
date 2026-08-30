@@ -671,28 +671,28 @@ void GuiComponentWtMod::importParams()
                 // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
                 // 読み込みは当時のものをそのまま使う。
                 if (Io::isLegacyFile(file)) {
-                	juce::StringArray lines;
+                    juce::StringArray lines;
 
-                	file.readLines(lines);
+                    file.readLines(lines);
 
-                	int index = 0;
+                    int index = 0;
 
-                	{
-                		// 読み終えてからまとめて描き直す
-                		GuiRefresh::Batch batch;
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
 
-                		setImportingParams(lines, index);
-                	}
+                        setImportingParams(lines, index);
+                    }
 
-                	// 単体のファイルは入れ子にせず、そのまま中身として書く
-                	Io::ParamWriter writer(wtmodFormat);
+                    // 単体のファイルは入れ子にせず、そのまま中身として書く
+                    Io::ParamWriter writer(wtmodFormat);
 
-                	writeParams(writer, Io::ParamKey::values);
-                	writer.hoist(Io::ParamKey::values);
+                    writeParams(writer, Io::ParamKey::values);
+                    writer.hoist(Io::ParamKey::values);
 
-                	Io::writeConverted(file, writer);
+                    Io::writeConverted(file, writer);
 
-                	return;
+                    return;
                 }
 
                 auto reader = Io::ParamReader::open(file, wtmodFormat);

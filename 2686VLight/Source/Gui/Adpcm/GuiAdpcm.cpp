@@ -690,6 +690,32 @@ void GuiAdpcm::importToneNoiseParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingToneNoiseParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(toneNoiseFormat);
+
+                    writeToneNoiseParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, toneNoiseFormat);
 
                 if (!reader.has_value()) return;
@@ -722,11 +748,7 @@ void GuiAdpcm::exportToneNoiseParam() {
                 ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(toneNoiseFormat);
-
-                writer.set("tone", (float)toneSlider.getValue());
-                writer.set("noise", (float)noiseSlider.getValue());
-                writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
-                writer.set("mix", (float)mixSlider.getValue());
+                writeToneNoiseParams(writer);
 
                 writer.writeTo(file);
             }
@@ -747,6 +769,32 @@ void GuiAdpcm::importQualityParam() {
 
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingQualityParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(pcmQualityFormat);
+
+                    writeQualityParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
 
                 auto reader = Io::ParamReader::open(file, pcmQualityFormat);
 
@@ -779,10 +827,7 @@ void GuiAdpcm::exportQualityParam() {
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(pcmQualityFormat);
-
-                writer.set("mode", qualityPcmComponent.getMode());
-                writer.set("rate", qualityPcmComponent.getRate());
-                writer.set("interp", qualityPcmComponent.getInterp());
+                writeQualityParams(writer);
 
                 writer.writeTo(file);
             }
@@ -803,6 +848,32 @@ void GuiAdpcm::importPcmPlayParam() {
 
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
+
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingPcmPlayParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(pcmPlayFormat);
+
+                    writePcmPlayParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
 
                 auto reader = Io::ParamReader::open(file, pcmPlayFormat);
 
@@ -837,12 +908,7 @@ void GuiAdpcm::exportPcmPlayParam() {
                 ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(pcmPlayFormat);
-
-                writer.set("pcmOffset", (float)pcmOffsetSlider.getValue());
-                writer.set("pcmRatio", (float)pcmRatioSlider.getValue());
-                writer.set("loopPointEnable", loopPointEnableButton.getToggleState());
-                writer.set("loopPointStart", (float)loopPointStartSlider.getValue());
-                writer.set("loopPointEnd", (float)loopPointEndSlider.getValue());
+                writePcmPlayParams(writer);
 
                 writer.writeTo(file);
             }
@@ -1085,6 +1151,87 @@ void GuiAdpcm::writeChParams(Io::ParamWriter& writer) {
 
 	// MODULATION (旧フォーマットと互換を保つため末尾に置く)
 	modComponent.writeParams(writer, "wtMod");
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiAdpcm::setImportingToneNoiseParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 4) return;
+
+	toneSlider.setValue(lines[0].getFloatValue(), juce::sendNotification);
+	noiseSlider.setValue(lines[1].getFloatValue(), juce::sendNotification);
+	noiseFreqSlider.setValue(lines[2].getFloatValue(), juce::sendNotification);
+	mixSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiAdpcm::writeToneNoiseParams(Io::ParamWriter& writer) {
+	writer.set("tone", (float)toneSlider.getValue());
+	writer.set("noise", (float)noiseSlider.getValue());
+	writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+	writer.set("mix", (float)mixSlider.getValue());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiAdpcm::setImportingQualityParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	            if (size < 3) return;
+
+	qualityPcmComponent.setMode(lines[0].getIntValue());
+	            qualityPcmComponent.setRate(lines[1].getIntValue());
+	            qualityPcmComponent.setInterp(lines[2].getIntValue());
+	        
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiAdpcm::writeQualityParams(Io::ParamWriter& writer) {
+	writer.set("mode", qualityPcmComponent.getMode());
+	writer.set("rate", qualityPcmComponent.getRate());
+	writer.set("interp", qualityPcmComponent.getInterp());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiAdpcm::setImportingPcmPlayParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 5) return;
+
+	pcmOffsetSlider.setValue(lines[0].getFloatValue(), juce::sendNotification);
+	pcmRatioSlider.setValue(lines[1].getFloatValue(), juce::sendNotification);
+	loopPointEnableButton.setToggleState(lines[2].getIntValue() == 1, juce::sendNotification);
+	loopPointStartSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
+	loopPointEndSlider.setValue(lines[4].getFloatValue(), juce::sendNotification);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiAdpcm::writePcmPlayParams(Io::ParamWriter& writer) {
+	writer.set("pcmOffset", (float)pcmOffsetSlider.getValue());
+	writer.set("pcmRatio", (float)pcmRatioSlider.getValue());
+	writer.set("loopPointEnable", loopPointEnableButton.getToggleState());
+	writer.set("loopPointStart", (float)loopPointStartSlider.getValue());
+	writer.set("loopPointEnd", (float)loopPointEndSlider.getValue());
 
 	
 }

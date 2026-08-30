@@ -347,8 +347,20 @@ public:
     void importSsgSwPEnv11Param(int opIndex);
     void exportSsgSwPEnv11Param(int opIndex);
     void importLfoParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingLfoParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeLfoParams(Io::ParamWriter& writer);
     void exportLfoParam();
     void importQualityParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingQualityParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
     void importChParam();
 

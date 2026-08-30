@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../Core/Io/ParamFile.h"
 #include <array>
 
 #include "../../Processor/Curve/ProcessorCurveValues.h"
@@ -51,5 +53,11 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void initParams();
     void importCurveParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingCurveParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeCurveParams(Io::ParamWriter& writer);
     void exportCurveParam();
 };
