@@ -3107,22 +3107,35 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
 
     // 波形の場所は種類ごとに別の名前で持つ。以前は選んでいる種類のものしか
     // 書いていなかったので、切り替えて保存し直すと他の場所が失われていた。
-    pcmFileNameLabel[opIndex].setText(r.getString("pcmFile", pcmFileNameLabel[opIndex].getText()), juce::dontSendNotification);
-    wtFileNameLabel[opIndex].setText(r.getString("wtFile", wtFileNameLabel[opIndex].getText()), juce::dontSendNotification);
-    wt2FileNameLabel[opIndex].setText(r.getString("wt2File", wt2FileNameLabel[opIndex].getText()), juce::dontSendNotification);
+    //
+    // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
+    // 出しているので、そこから File を作ることはできない。
+    auto pcmPath = r.getString("pcmFile", ctx.audioProcessor.opzx7PcmFilePaths[opIndex]);
+    auto wtPath = r.getString("wtFile", ctx.audioProcessor.opzx7WtFilePaths[opIndex]);
+    auto wt2Path = r.getString("wt2File", ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]);
 
-    // 実際に読み込むのは選んでいる種類のものだけ。他は名前を覚えておくに
+    auto showName = [](const juce::String& path) {
+        return Io::isFilePath(path) ? juce::File(path).getFileName() : Io::empty;
+        };
+
+    // 名前は update...FileName を通す。ラベルだけを書き換えると、
+    // WS のプレビューが前の波形を指したまま残るため。
+    updatePcmFileName(opIndex, showName(pcmPath));
+    updateWtFileName(opIndex, showName(wtPath));
+    updateWt2FileName(opIndex, showName(wt2Path));
+
+    // 実際に読み込むのは選んでいる種類のものだけ。他は場所を覚えておくに
     // とどめる。使わない波形まで読み込むと、そのぶん待たされるため。
     int wsIdx = ws[opIndex].getSelectedItemIndex();
 
-    if (wsIdx == Opzx7PrValue::pcmIndex && pcmFileNameLabel[opIndex].getText().isNotEmpty()) {
-        ctx.audioProcessor.loadOpzx7PcmFile(opIndex, pcmFileNameLabel[opIndex].getText());
+    if (wsIdx == Opzx7PrValue::pcmIndex && Io::isFilePath(pcmPath)) {
+        ctx.audioProcessor.loadOpzx7PcmFile(opIndex, juce::File(pcmPath));
     }
-    else if (wsIdx == Opzx7PrValue::wtIndex && wtFileNameLabel[opIndex].getText().isNotEmpty()) {
-        ctx.audioProcessor.loadOpzx7WtFile(opIndex, wtFileNameLabel[opIndex].getText());
+    else if (wsIdx == Opzx7PrValue::wtIndex && Io::isFilePath(wtPath)) {
+        ctx.audioProcessor.loadOpzx7WtFile(opIndex, juce::File(wtPath));
     }
-    else if (wsIdx == Opzx7PrValue::wt2Index && wt2FileNameLabel[opIndex].getText().isNotEmpty()) {
-        ctx.audioProcessor.loadOpzx7Wt2File(opIndex, wt2FileNameLabel[opIndex].getText());
+    else if (wsIdx == Opzx7PrValue::wt2Index && Io::isFilePath(wt2Path)) {
+        ctx.audioProcessor.loadOpzx7Wt2File(opIndex, juce::File(wt2Path));
     }
 
     // PCM Play / Loop Point

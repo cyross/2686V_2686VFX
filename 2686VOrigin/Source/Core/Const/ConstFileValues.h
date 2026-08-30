@@ -8,6 +8,30 @@ namespace Io
 {
 	static inline const juce::String empty = "(Empty)";
 
+	// 表示用の「無し」をファイル名として扱わないための判定。
+	//
+	// juce::File は絶対パスでない文字列を渡されると止まる。"(Empty)" の
+	// ような表示文字をそのまま読み込みへ回してはいけない。
+	static inline bool isFileName(const juce::String& text)
+	{
+		return text.isNotEmpty() && text != empty;
+	}
+
+	// 書き出すときは表示用の「無し」を残さない
+	static inline juce::String toStoredFileName(const juce::String& text)
+	{
+		return isFileName(text) ? text : juce::String();
+	}
+
+	// juce::File を作ってよい文字列かどうか。
+	//
+	// 画面のラベルはファイル名だけを出しているので、そこから File を
+	// 作ってはいけない。場所はプロセッサが持っているものを使うこと。
+	static inline bool isFilePath(const juce::String& text)
+	{
+		return isFileName(text) && juce::File::isAbsolutePath(text);
+	}
+
 	namespace Extension
 	{
 		static inline const juce::String fxOrder = "fxo";
@@ -16,7 +40,7 @@ namespace Io
 		static inline const juce::String opnParam = "param.opn.json";
 		static inline const juce::String ssgParam = "param.ssg.json";
 		static inline const juce::String rhythmParam = "param.rhythm";
-		static inline const juce::String adpcmParam = "param.adpcm";
+		static inline const juce::String adpcmParam = "param.adpcm.json";
 		static inline const juce::String opnaOpParam = "param.opna.op.json";
 		static inline const juce::String opnOpParam = "param.opn.op.json";
 		static inline const juce::String rhythmPadParam = "param.rhythm.pad";
@@ -51,7 +75,7 @@ namespace Io
 		static inline const juce::String opnParam = "*.param.opn.json";
 		static inline const juce::String ssgParam = "*.param.ssg.json";
 		static inline const juce::String rhythmParam = "*.param.rhythm";
-		static inline const juce::String adpcmParam = "*.param.adpcm";
+		static inline const juce::String adpcmParam = "*.param.adpcm.json";
 		static inline const juce::String opnaOpParam = "*.param.opna.op.json";
 		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad";
 		static inline const juce::String OpnaHwLfoParam = "*.opnaHwLfo.json";

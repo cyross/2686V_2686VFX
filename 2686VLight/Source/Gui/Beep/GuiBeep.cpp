@@ -1,6 +1,9 @@
 ﻿#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiBeep.h"
 
+#include "../../Core/Io/ParamFile.h"
+#include "../../Core/Gui/GuiRefresh.h"
+
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
@@ -12,6 +15,12 @@
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiBeepValues.h"
 #include "./GuiBeepText.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat beepFormat{ "beep", 1 };
+}
 
 // 実機のタイマ基準クロック。Free は分周せず連続した音程で鳴らす。
 static std::vector<SelectItem> beepTimerClockItems = {
@@ -380,37 +389,34 @@ void GuiBeep::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, beepFormat);
 
-                int size = lines.size();
-                int index = 0;
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 // Level
-                levelComponent.setImportingParams(lines, index);
+                levelComponent.readParams(*reader, "level");
 
                 // Components
-                fixComponent.setImportingParams(lines, index);
-                ampEnvComponent.setImportingParams(lines, index);
-                pitchEnvComponent.setImportingParams(lines, index);
-                ssgHwEnv.setImportingParams(lines, index);
-                ssgSwEnvComponent.setImportingParams(lines, index);
-                ssgSwEnv11Component.setImportingParams(lines, index);
-                ssgSwPEnv11Component.setImportingParams(lines, index);
-                mulDetuneComponent.setImportingParams(lines, index);
-                lfoComponent.setImportingParams(lines, index);
-                unisonComponent.setImportingParams(lines, index);
+                fixComponent.readParams(*reader, "fix");
+                ampEnvComponent.readParams(*reader, "ampEnv");
+                pitchEnvComponent.readParams(*reader, "pitchEnv");
+                ssgHwEnv.readParams(*reader, "ssgHwEnv");
+                ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
+                ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
+                ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
+                mulDetuneComponent.readParams(*reader, "mulDetune");
+                lfoComponent.readParams(*reader, "lfo");
+                unisonComponent.readParams(*reader, "unison");
 
-                // MODULATION は後から足したので、旧フォーマットとの互換のため
-                // 行が無ければ既定のままにする。
-                if (index < lines.size()) {
-                    modComponent.setImportingBaseParams(lines, index);
-                    modComponent.setImportingShapeParam(lines, index);
-                }
+                modComponent.readParams(*reader, "wtMod");
 
                 // 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
-                antiAliasButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                timerClockSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                antiAliasButton.setToggleState(reader->getBool("antiAlias", antiAliasButton.getToggleState()), juce::sendNotification);
+                timerClockSelector.setSelectedItemIndex(reader->getInt("timerClock", timerClockSelector.getSelectedItemIndex()), juce::sendNotification);
             }
         });
 }
@@ -429,32 +435,31 @@ void GuiBeep::exportChParam() {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(beepFormat);
 
                 // Level
-                content += levelComponent.getExportedParams();
+                levelComponent.writeParams(writer, "level");
 
                 // Components
-                content += fixComponent.getExportedParams();
-                content += ampEnvComponent.getExportedParams();
-                content += pitchEnvComponent.getExportedParams();
-                content += ssgHwEnv.getExportedParams();
-                content += ssgSwEnvComponent.getExportedParams();
-                content += ssgSwEnv11Component.getExportedParams();
-                content += ssgSwPEnv11Component.getExportedParams();
-                content += mulDetuneComponent.getExportedParams();
-                content += lfoComponent.getExportedParams();
-                content += unisonComponent.getExportedParams();
+                fixComponent.writeParams(writer, "fix");
+                ampEnvComponent.writeParams(writer, "ampEnv");
+                pitchEnvComponent.writeParams(writer, "pitchEnv");
+                ssgHwEnv.writeParams(writer, "ssgHwEnv");
+                ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
+                ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
+                ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+                mulDetuneComponent.writeParams(writer, "mulDetune");
+                lfoComponent.writeParams(writer, "lfo");
+                unisonComponent.writeParams(writer, "unison");
 
                 // MODULATION (旧フォーマットと互換を保つため末尾に置く)
-                content += modComponent.getExportedBaseParams();
-                content += modComponent.getExportedShapeParam();
+                modComponent.writeParams(writer, "wtMod");
 
                 // 末尾に追加した項目
-                content += juce::String(antiAliasButton.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(timerClockSelector.getSelectedItemIndex()) + "\n";
+                writer.set("antiAlias", antiAliasButton.getToggleState());
+                writer.set("timerClock", timerClockSelector.getSelectedItemIndex());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 

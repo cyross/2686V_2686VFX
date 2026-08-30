@@ -8,6 +8,7 @@
 namespace
 {
 	// ファイルの中身を見分ける印
+	const Io::ParamFormat adpcmFormat{ "adpcm", 1 };
 	const Io::ParamFormat pcmPlayFormat{ "pcmPlay", 1 };
 	const Io::ParamFormat pcmQualityFormat{ "pcmQuality", 1 };
 	const Io::ParamFormat toneNoiseFormat{ "toneNoise", 1 };
@@ -111,7 +112,6 @@ void GuiAdpcm::setup()
     pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::pcmOffset, .title = AdpcmGuiText::Adpcm::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
-
 
     pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::pcmRatio, .title = AdpcmGuiText::Adpcm::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
@@ -870,64 +870,72 @@ void GuiAdpcm::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, adpcmFormat);
 
-                int size = lines.size();
-                int index = 0;
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 // Level
-				levelComponent.setImportingParams(lines, index);
+				levelComponent.readParams(*reader, "level");
 
                 // Form
-				if (fileNameLabel.getText() != lines[index]) {
+				// 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
+				// 出しているので、そこから File を作ることはできない。
+				auto path = reader->getString("filePath", ctx.audioProcessor.adpcmFilePath);
+
+				// 別のファイルへ変わるなら、いま持っているものを先に外す
+				if (ctx.audioProcessor.adpcmFilePath != path) {
 					ctx.audioProcessor.unloadAdpcmFile();
 				}
 
-				fileNameLabel.setText(lines[index++], juce::dontSendNotification);
+				// 名前は updateFileName を通す。ラベルだけを書き換えると、
+				// 波形プレビューが前のサンプルを指したまま残るため。
+				if (Io::isFilePath(path)) {
+					juce::File target(path);
 
-				if (fileNameLabel.getText().isNotEmpty()) {
-					ctx.audioProcessor.loadAdpcmFile(fileNameLabel.getText());
+					ctx.audioProcessor.loadAdpcmFile(target);
+					updateFileName(target.getFileName());
+				}
+				else {
+					updateFileName(Io::empty);
 				}
 
                 // Optional
-				loopButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+				loopButton.setToggleState(reader->getBool("loop", loopButton.getToggleState()), juce::sendNotification);
 
                 // Tone/Noise
-                toneSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                noiseSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                noiseFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                mixSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
+                noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
+                noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+                mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
 
                 // Pan
-				panSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+				panSlider.setValue(reader->getFloat("pan", (float)panSlider.getValue()), juce::sendNotification);
 
                 // PCM Play
-                pcmOffsetSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                pcmRatioSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                loopPointEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                loopPointStartSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                loopPointEndSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                pcmOffsetSlider.setValue(reader->getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
+                pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
+                loopPointEnableButton.setToggleState(reader->getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
+                loopPointStartSlider.setValue(reader->getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
+                loopPointEndSlider.setValue(reader->getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
 
                 // Components
-				fixComponent.setImportingParams(lines, index);
-				ampEnvComponent.setImportingParams(lines, index);
-				pitchEnvComponent.setImportingParams(lines, index);
-                ssgHwEnv.setImportingParams(lines, index);
-                ssgSwEnvComponent.setImportingParams(lines, index);
-				ssgSwEnv11Component.setImportingParams(lines, index);
-				ssgSwPEnv11Component.setImportingParams(lines, index);
-				mulDetuneComponent.setImportingParams(lines, index);
-				lfoComponent.setImportingParams(lines, index);
-				qualityPcmComponent.setImportingParams(lines, index);
-                unisonComponent.setImportingParams(lines, index);
+				fixComponent.readParams(*reader, "fix");
+				ampEnvComponent.readParams(*reader, "ampEnv");
+				pitchEnvComponent.readParams(*reader, "pitchEnv");
+                ssgHwEnv.readParams(*reader, "ssgHwEnv");
+                ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
+				ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
+				ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
+				mulDetuneComponent.readParams(*reader, "mulDetune");
+				lfoComponent.readParams(*reader, "lfo");
+				qualityPcmComponent.readParams(*reader, "qualityPcm");
+                unisonComponent.readParams(*reader, "unison");
 
-                // MODULATION は後から足したので、旧フォーマットとの互換のため
-                // 行が無ければ既定のままにする。
-                if (index < lines.size()) {
-                    modComponent.setImportingBaseParams(lines, index);
-                    modComponent.setImportingShapeParam(lines, index);
-                }
+                modComponent.readParams(*reader, "wtMod");
             }
         });
 }
@@ -946,51 +954,51 @@ void GuiAdpcm::exportChParam() {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(adpcmFormat);
 
                 // Level
-                content += levelComponent.getExportedParams();
+                levelComponent.writeParams(writer, "level");
 
                 // Form
-				content += fileNameLabel.getText() + "\n";
+				// 名前ではなく場所を残す。読み戻すときに File を作れるようにするため。
+				writer.set("filePath", Io::toStoredFileName(ctx.audioProcessor.adpcmFilePath));
 
                 // Optional
-				content += juce::String(loopButton.getToggleState() ? 1 : 0) + "\n";
+				writer.set("loop", loopButton.getToggleState());
 
                 // Tone/Noise
-                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("tone", (float)toneSlider.getValue());
+                writer.set("noise", (float)noiseSlider.getValue());
+                writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+                writer.set("mix", (float)mixSlider.getValue());
 
 				// Pan
-				content += juce::String(panSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+				writer.set("pan", (float)panSlider.getValue());
 
                 // PCM Play
-                content += juce::String(pcmOffsetSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(pcmRatioSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(loopPointEnableButton.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(loopPointStartSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(loopPointEndSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                writer.set("pcmOffset", (float)pcmOffsetSlider.getValue());
+                writer.set("pcmRatio", (float)pcmRatioSlider.getValue());
+                writer.set("loopPointEnable", loopPointEnableButton.getToggleState());
+                writer.set("loopPointStart", (float)loopPointStartSlider.getValue());
+                writer.set("loopPointEnd", (float)loopPointEndSlider.getValue());
                 
                 // Components
-				content += fixComponent.getExportedParams();
-				content += ampEnvComponent.getExportedParams();
-				content += pitchEnvComponent.getExportedParams();
-                content += ssgHwEnv.getExportedParams();
-                content += ssgSwEnvComponent.getExportedParams();
-				content += ssgSwEnv11Component.getExportedParams();
-				content += ssgSwPEnv11Component.getExportedParams();
-				content += mulDetuneComponent.getExportedParams();
-				content += lfoComponent.getExportedParams();
-                content += qualityPcmComponent.getExportedParams();
-                content += unisonComponent.getExportedParams();
+				fixComponent.writeParams(writer, "fix");
+				ampEnvComponent.writeParams(writer, "ampEnv");
+				pitchEnvComponent.writeParams(writer, "pitchEnv");
+                ssgHwEnv.writeParams(writer, "ssgHwEnv");
+                ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
+				ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
+				ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+				mulDetuneComponent.writeParams(writer, "mulDetune");
+				lfoComponent.writeParams(writer, "lfo");
+                qualityPcmComponent.writeParams(writer, "qualityPcm");
+                unisonComponent.writeParams(writer, "unison");
 
                 // MODULATION (旧フォーマットと互換を保つため末尾に置く)
-                content += modComponent.getExportedBaseParams();
-                content += modComponent.getExportedShapeParam();
+                modComponent.writeParams(writer, "wtMod");
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 

@@ -8,6 +8,7 @@
 namespace
 {
 	// ファイルの中身を見分ける印
+	const Io::ParamFormat wtPlusFormat{ "wtPlus", 1 };
 	const Io::ParamFormat qualityFormat{ "quality", 1 };
 }
 
@@ -634,37 +635,37 @@ void GuiWtPlus::importChParam() {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, wtPlusFormat);
 
-                if (lines.size() == 0) return;
+                if (!reader.has_value()) return;
 
-                int index = 0;
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 // Level
-                levelComponent.setImportingParams(lines, index);
+                levelComponent.readParams(*reader, "level");
 
                 // Wave
-                slotSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                interpolateButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                stepsSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                slotSlider.setValue(reader->getFloat("slot", (float)slotSlider.getValue()), juce::sendNotification);
+                interpolateButton.setToggleState(reader->getBool("interpolate", interpolateButton.getToggleState()), juce::sendNotification);
+                stepsSelector.setSelectedItemIndex(reader->getInt("steps", stepsSelector.getSelectedItemIndex()), juce::sendNotification);
 
                 // Modulation
-                modComponent.setImportingBaseParams(lines, index);
-                modComponent.setImportingShapeParam(lines, index);
+                modComponent.readParams(*reader, "wtMod");
 
                 // Components
-                fixComponent.setImportingParams(lines, index);
-                ampEnvComponent.setImportingParams(lines, index);
-                pitchEnvComponent.setImportingParams(lines, index);
-                ssgHwEnv.setImportingParams(lines, index);
-                ssgSwEnvComponent.setImportingParams(lines, index);
-                ssgSwEnv11Component.setImportingParams(lines, index);
-                ssgSwPEnv11Component.setImportingParams(lines, index);
-                mulDetuneComponent.setImportingParams(lines, index);
-                lfoComponent.setImportingParams(lines, index);
-                qualityComponent.setImportingParams(lines, index);
-                unisonComponent.setImportingParams(lines, index);
+                fixComponent.readParams(*reader, "fix");
+                ampEnvComponent.readParams(*reader, "ampEnv");
+                pitchEnvComponent.readParams(*reader, "pitchEnv");
+                ssgHwEnv.readParams(*reader, "ssgHwEnv");
+                ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
+                ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
+                ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
+                mulDetuneComponent.readParams(*reader, "mulDetune");
+                lfoComponent.readParams(*reader, "lfo");
+                qualityComponent.readParams(*reader, "quality");
+                unisonComponent.readParams(*reader, "unison");
             }
         });
 }
@@ -683,34 +684,33 @@ void GuiWtPlus::exportChParam() {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(wtPlusFormat);
 
                 // Level
-                content += levelComponent.getExportedParams();
+                levelComponent.writeParams(writer, "level");
 
                 // Wave
-                content += juce::String(slotSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(interpolateButton.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(stepsSelector.getSelectedItemIndex()) + "\n";
+                writer.set("slot", (float)slotSlider.getValue());
+                writer.set("interpolate", interpolateButton.getToggleState());
+                writer.set("steps", stepsSelector.getSelectedItemIndex());
 
                 // Modulation
-                content += modComponent.getExportedBaseParams();
-                content += modComponent.getExportedShapeParam();
+                modComponent.writeParams(writer, "wtMod");
 
                 // Components
-                content += fixComponent.getExportedParams();
-                content += ampEnvComponent.getExportedParams();
-                content += pitchEnvComponent.getExportedParams();
-                content += ssgHwEnv.getExportedParams();
-                content += ssgSwEnvComponent.getExportedParams();
-                content += ssgSwEnv11Component.getExportedParams();
-                content += ssgSwPEnv11Component.getExportedParams();
-                content += mulDetuneComponent.getExportedParams();
-                content += lfoComponent.getExportedParams();
-                content += qualityComponent.getExportedParams();
-                content += unisonComponent.getExportedParams();
+                fixComponent.writeParams(writer, "fix");
+                ampEnvComponent.writeParams(writer, "ampEnv");
+                pitchEnvComponent.writeParams(writer, "pitchEnv");
+                ssgHwEnv.writeParams(writer, "ssgHwEnv");
+                ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
+                ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
+                ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+                mulDetuneComponent.writeParams(writer, "mulDetune");
+                lfoComponent.writeParams(writer, "lfo");
+                qualityComponent.writeParams(writer, "quality");
+                unisonComponent.writeParams(writer, "unison");
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

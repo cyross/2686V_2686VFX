@@ -8,6 +8,30 @@ namespace Io
 {
 	static inline const juce::String empty = "(Empty)";
 
+	// 表示用の「無し」をファイル名として扱わないための判定。
+	//
+	// juce::File は絶対パスでない文字列を渡されると止まる。"(Empty)" の
+	// ような表示文字をそのまま読み込みへ回してはいけない。
+	static inline bool isFileName(const juce::String& text)
+	{
+		return text.isNotEmpty() && text != empty;
+	}
+
+	// 書き出すときは表示用の「無し」を残さない
+	static inline juce::String toStoredFileName(const juce::String& text)
+	{
+		return isFileName(text) ? text : juce::String();
+	}
+
+	// juce::File を作ってよい文字列かどうか。
+	//
+	// 画面のラベルはファイル名だけを出しているので、そこから File を
+	// 作ってはいけない。場所はプロセッサが持っているものを使うこと。
+	static inline bool isFilePath(const juce::String& text)
+	{
+		return isFileName(text) && juce::File::isAbsolutePath(text);
+	}
+
 	namespace Extension
 	{
 		static inline const juce::String fxOrder = "fxo";

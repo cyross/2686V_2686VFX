@@ -8,6 +8,30 @@ namespace Io
 {
 	static inline const juce::String empty = "(Empty)";
 
+	// 表示用の「無し」をファイル名として扱わないための判定。
+	//
+	// juce::File は絶対パスでない文字列を渡されると止まる。"(Empty)" の
+	// ような表示文字をそのまま読み込みへ回してはいけない。
+	static inline bool isFileName(const juce::String& text)
+	{
+		return text.isNotEmpty() && text != empty;
+	}
+
+	// 書き出すときは表示用の「無し」を残さない
+	static inline juce::String toStoredFileName(const juce::String& text)
+	{
+		return isFileName(text) ? text : juce::String();
+	}
+
+	// juce::File を作ってよい文字列かどうか。
+	//
+	// 画面のラベルはファイル名だけを出しているので、そこから File を
+	// 作ってはいけない。場所はプロセッサが持っているものを使うこと。
+	static inline bool isFilePath(const juce::String& text)
+	{
+		return isFileName(text) && juce::File::isAbsolutePath(text);
+	}
+
 	namespace Extension
 	{
 		static inline const juce::String wavetable = "wt";
@@ -23,10 +47,10 @@ namespace Io
 		static inline const juce::String ssgParam = "param.ssg.json";
 		static inline const juce::String wtParam = "param.wt";
 		static inline const juce::String wt2Param = "param.wt2";
-		static inline const juce::String wtPlusParam = "param.wtplus";
+		static inline const juce::String wtPlusParam = "param.wtplus.json";
 		static inline const juce::String rhythmParam = "param.rhythm";
-		static inline const juce::String adpcmParam = "param.adpcm";
-		static inline const juce::String beepParam = "param.beep";
+		static inline const juce::String adpcmParam = "param.adpcm.json";
+		static inline const juce::String beepParam = "param.beep.json";
 		static inline const juce::String opnaOpParam = "param.opna.op.json";
 		static inline const juce::String opnOpParam = "param.opn.op.json";
 		static inline const juce::String oplOpParam = "param.opl.op.json";
@@ -75,10 +99,10 @@ namespace Io
 		static inline const juce::String ssgParam = "*.param.ssg.json";
 		static inline const juce::String wtParam = "*.param.wt";
 		static inline const juce::String wt2Param = "*.param.wt2";
-		static inline const juce::String wtPlusParam = "*.param.wtplus";
+		static inline const juce::String wtPlusParam = "*.param.wtplus.json";
 		static inline const juce::String rhythmParam = "*.param.rhythm";
-		static inline const juce::String adpcmParam = "*.param.adpcm";
-		static inline const juce::String beepParam = "*.param.beep";
+		static inline const juce::String adpcmParam = "*.param.adpcm.json";
+		static inline const juce::String beepParam = "*.param.beep.json";
 		static inline const juce::String opnaOpParam = "*.param.opna.op.json";
 		static inline const juce::String opnOpParam = "*.param.opn.op.json";
 		static inline const juce::String oplOpParam = "*.param.opl.op.json";
