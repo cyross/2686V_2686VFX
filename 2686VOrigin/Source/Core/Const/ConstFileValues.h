@@ -39,11 +39,11 @@ namespace Io
 		static inline const juce::String opnaParam = "param.opna.json";
 		static inline const juce::String opnParam = "param.opn.json";
 		static inline const juce::String ssgParam = "param.ssg.json";
-		static inline const juce::String rhythmParam = "param.rhythm";
+		static inline const juce::String rhythmParam = "param.rhythm.json";
 		static inline const juce::String adpcmParam = "param.adpcm.json";
 		static inline const juce::String opnaOpParam = "param.opna.op.json";
 		static inline const juce::String opnOpParam = "param.opn.op.json";
-		static inline const juce::String rhythmPadParam = "param.rhythm.pad";
+		static inline const juce::String rhythmPadParam = "param.rhythm.pad.json";
 		// オペレータごとの HW LFO。音源全体の N88 LFO とは別物なので、
 		// 名前でも見分けられるようにしてある。
 		static inline const juce::String OpnaHwLfoParam = "opnaHwLfo";
@@ -74,10 +74,10 @@ namespace Io
 		static inline const juce::String opnaParam = "*.param.opna.json";
 		static inline const juce::String opnParam = "*.param.opn.json";
 		static inline const juce::String ssgParam = "*.param.ssg.json";
-		static inline const juce::String rhythmParam = "*.param.rhythm";
+		static inline const juce::String rhythmParam = "*.param.rhythm.json";
 		static inline const juce::String adpcmParam = "*.param.adpcm.json";
 		static inline const juce::String opnaOpParam = "*.param.opna.op.json";
-		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad";
+		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad.json";
 		static inline const juce::String OpnaHwLfoParam = "*.opnaHwLfo.json";
 		static inline const juce::String opnOpParam = "*.param.opn.op.json";
 		static inline const juce::String N88LfoParam = "*.lfoN88.json";

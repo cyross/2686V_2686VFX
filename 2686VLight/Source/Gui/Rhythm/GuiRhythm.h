@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../Core/Io/ParamFile.h"
 #include <array>
 
 #include "../../Core/Gui/GuiComponents.h"
@@ -214,8 +216,9 @@ public:
     void exportQualityParam();
     void importPcmPlayParam();
     void exportPcmPlayParam();
-    void setImportingParams(int p, juce::StringArray& lines, int& index);
-    juce::String getExportedParams();
+    // 名前で受け渡す。パッドは並びの中のひとつを渡す。
+    void readParams(int p, const Io::ParamReader& r);
+    void writeParams(int p, Io::ParamWriter& w);
 };
 
 class GuiRhythm : public GuiBase
@@ -303,6 +306,4 @@ public:
     void exportChParam();
     void importPadChParam(int p);
     void exportPadChParam(int p);
-    void getImportingPadParams(int p, juce::StringArray& lines, int& index);
-    juce::String setExportedPadParams(int p);
 };
