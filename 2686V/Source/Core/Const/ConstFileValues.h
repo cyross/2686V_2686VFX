@@ -18,7 +18,7 @@ namespace Io
 		static inline const juce::String opnParam = "param.opn.json";
 		static inline const juce::String oplParam = "param.opl";
 		static inline const juce::String opl3Param = "param.opl3";
-		static inline const juce::String opmParam = "param.opm";
+		static inline const juce::String opmParam = "param.opm.json";
 		static inline const juce::String opzx7sParam = "param.opzx7s";
 		static inline const juce::String ssgParam = "param.ssg";
 		static inline const juce::String wtParam = "param.wt";
@@ -31,7 +31,7 @@ namespace Io
 		static inline const juce::String opnOpParam = "param.opn.op.json";
 		static inline const juce::String oplOpParam = "param.opl.op";
 		static inline const juce::String opl3OpParam = "param.opl3.op";
-		static inline const juce::String opmOpParam = "param.opm.op";
+		static inline const juce::String opmOpParam = "param.opm.op.json";
 		static inline const juce::String opzx7sOpParam = "param.opzx7s.op";
 		static inline const juce::String rhythmPadParam = "param.rhythm.pad";
 		static inline const juce::String curveParam = "curve_";
@@ -70,7 +70,7 @@ namespace Io
 		static inline const juce::String opnParam = "*.param.opn.json";
 		static inline const juce::String oplParam = "*.param.opl";
 		static inline const juce::String opl3Param = "*.param.opl3";
-		static inline const juce::String opmParam = "*.param.opm";
+		static inline const juce::String opmParam = "*.param.opm.json";
 		static inline const juce::String opzx7sParam = "*.param.opzx7s";
 		static inline const juce::String ssgParam = "*.param.ssg";
 		static inline const juce::String wtParam = "*.param.wt";
@@ -83,7 +83,7 @@ namespace Io
 		static inline const juce::String opnOpParam = "*.param.opn.op.json";
 		static inline const juce::String oplOpParam = "*.param.opl.op";
 		static inline const juce::String opl3OpParam = "*.param.opl3.op";
-		static inline const juce::String opmOpParam = "*.param.opm.op";
+		static inline const juce::String opmOpParam = "*.param.opm.op.json";
 		static inline const juce::String opzx7sOpParam = "*.param.opzx7s.op";
 		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad";
 		static inline const juce::String curveParam = "*.curve_";
