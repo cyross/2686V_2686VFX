@@ -1,5 +1,7 @@
 ﻿#include "./SsgSwEnv.h"
 
+#include "../../../Core/Gui/GuiRefresh.h"
+
 #include "../../../Core/Io/ParamFile.h"
 
 namespace
@@ -484,6 +486,10 @@ void GuiComponentSsgSwEnv::importParams() {
                 auto reader = Io::ParamReader::open(file, ssgSwEnvFormat);
 
                 if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 flag.setToggleState(reader->getBool("flag", flag.getToggleState()), juce::sendNotification);
                 steps.setValue(reader->getInt("steps", (int)steps.getValue()), juce::sendNotification);

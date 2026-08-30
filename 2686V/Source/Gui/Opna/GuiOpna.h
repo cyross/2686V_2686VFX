@@ -404,10 +404,12 @@ public:
     void exportChParam();
     void importOpChParam(int opIndex);
     void exportOpChParam(int opIndex);
+    // チャンネル 1 つぶん。OPN のファイルを読むときにも使う。
+    void readChParams(const Io::ParamReader& reader);
+
     // オペレータ 1 つぶんを名前で受け渡す
     void readOpParams(int opIndex, const Io::ParamReader& r);
     void writeOpParams(int opIndex, Io::ParamWriter& w);
     void importOpnChParam();
     void importOpnOpChParam(int opIndex);
-    void getImportingOpnOpParams(int opIndex, juce::StringArray& lines, int& index);
 };

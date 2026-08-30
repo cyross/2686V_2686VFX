@@ -92,6 +92,8 @@ set(GUI_FILES
     "Source/Core/Gui/GuiBase.h"
     "Source/Core/Io/ParamFile.h"
     "Source/Core/Io/ParamFile.cpp"
+    "Source/Core/Gui/GuiRefresh.h"
+    "Source/Core/Gui/GuiRefresh.cpp"
     "Source/Core/Gui/GuiColor.h"
     "Source/Core/Gui/GuiColorJuceNames.h"
     "Source/Core/Gui/GuiColor.cpp"

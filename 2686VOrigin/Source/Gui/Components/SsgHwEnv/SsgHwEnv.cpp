@@ -1,5 +1,7 @@
 ﻿#include "./SsgHwEnv.h"
 
+#include "../../../Core/Gui/GuiRefresh.h"
+
 #include "../../../Core/Io/ParamFile.h"
 
 #include "../WavePreview/WavePreviewSource.h"
@@ -328,6 +330,9 @@ void GuiComponentSsgHwEnv::writeParams(Io::ParamWriter& writer, const juce::Stri
 // 描画のたびに計算すると重いので、値が変わったときだけここを通す。
 void GuiComponentSsgHwEnv::updatePreview()
 {
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
+    if (GuiRefresh::defer(this, [this] { updatePreview(); })) return;
+
     // エンベロープは 0〜1 の片側なので、下端を 0 として描く
     preview.setPoints(
         WavePreviewSource::ssgHwEnv(

@@ -14,8 +14,8 @@ namespace Io
 		static inline const juce::String wt2 = "wt2";
 		static inline const juce::String fxOrder = "fxo";
 		static inline const juce::String fxParam = "2fx";
-		static inline const juce::String opnaParam = "param.opna";
-		static inline const juce::String opnParam = "param.opn";
+		static inline const juce::String opnaParam = "param.opna.json";
+		static inline const juce::String opnParam = "param.opn.json";
 		static inline const juce::String oplParam = "param.opl";
 		static inline const juce::String opl3Param = "param.opl3";
 		static inline const juce::String opmParam = "param.opm";
@@ -27,8 +27,8 @@ namespace Io
 		static inline const juce::String rhythmParam = "param.rhythm";
 		static inline const juce::String adpcmParam = "param.adpcm";
 		static inline const juce::String beepParam = "param.beep";
-		static inline const juce::String opnaOpParam = "param.opna.op";
-		static inline const juce::String opnOpParam = "param.opn.op";
+		static inline const juce::String opnaOpParam = "param.opna.op.json";
+		static inline const juce::String opnOpParam = "param.opn.op.json";
 		static inline const juce::String oplOpParam = "param.opl.op";
 		static inline const juce::String opl3OpParam = "param.opl3.op";
 		static inline const juce::String opmOpParam = "param.opm.op";
@@ -65,8 +65,8 @@ namespace Io
 		static inline const juce::String wt2 = "*.wt2";
 		static inline const juce::String fxOrder = "*.fxo";
 		static inline const juce::String fxParam = "*.2fx";
-		static inline const juce::String opnaParam = "*.param.opna";
-		static inline const juce::String opnParam = "*.param.opn";
+		static inline const juce::String opnaParam = "*.param.opna.json";
+		static inline const juce::String opnParam = "*.param.opn.json";
 		static inline const juce::String oplParam = "*.param.opl";
 		static inline const juce::String opl3Param = "*.param.opl3";
 		static inline const juce::String opmParam = "*.param.opm";
@@ -78,8 +78,8 @@ namespace Io
 		static inline const juce::String rhythmParam = "*.param.rhythm";
 		static inline const juce::String adpcmParam = "*.param.adpcm";
 		static inline const juce::String beepParam = "*.param.beep";
-		static inline const juce::String opnaOpParam = "*.param.opna.op";
-		static inline const juce::String opnOpParam = "*.param.opn.op";
+		static inline const juce::String opnaOpParam = "*.param.opna.op.json";
+		static inline const juce::String opnOpParam = "*.param.opn.op.json";
 		static inline const juce::String oplOpParam = "*.param.opl.op";
 		static inline const juce::String opl3OpParam = "*.param.opl3.op";
 		static inline const juce::String opmOpParam = "*.param.opm.op";

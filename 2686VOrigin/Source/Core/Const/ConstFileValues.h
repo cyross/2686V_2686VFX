@@ -12,13 +12,13 @@ namespace Io
 	{
 		static inline const juce::String fxOrder = "fxo";
 		static inline const juce::String fxParam = "2fx";
-		static inline const juce::String opnaParam = "param.opna";
-		static inline const juce::String opnParam = "param.opn";
+		static inline const juce::String opnaParam = "param.opna.json";
+		static inline const juce::String opnParam = "param.opn.json";
 		static inline const juce::String ssgParam = "param.ssg";
 		static inline const juce::String rhythmParam = "param.rhythm";
 		static inline const juce::String adpcmParam = "param.adpcm";
-		static inline const juce::String opnaOpParam = "param.opna.op";
-		static inline const juce::String opnOpParam = "param.opn.op";
+		static inline const juce::String opnaOpParam = "param.opna.op.json";
+		static inline const juce::String opnOpParam = "param.opn.op.json";
 		static inline const juce::String rhythmPadParam = "param.rhythm.pad";
 		// オペレータごとの HW LFO。音源全体の N88 LFO とは別物なので、
 		// 名前でも見分けられるようにしてある。
@@ -47,15 +47,15 @@ namespace Io
 	{
 		static inline const juce::String fxOrder = "*.fxo";
 		static inline const juce::String fxParam = "*.2fx";
-		static inline const juce::String opnaParam = "*.param.opna";
-		static inline const juce::String opnParam = "*.param.opn";
+		static inline const juce::String opnaParam = "*.param.opna.json";
+		static inline const juce::String opnParam = "*.param.opn.json";
 		static inline const juce::String ssgParam = "*.param.ssg";
 		static inline const juce::String rhythmParam = "*.param.rhythm";
 		static inline const juce::String adpcmParam = "*.param.adpcm";
-		static inline const juce::String opnaOpParam = "*.param.opna.op";
+		static inline const juce::String opnaOpParam = "*.param.opna.op.json";
 		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad";
 		static inline const juce::String OpnaHwLfoParam = "*.opnaHwLfo.json";
-		static inline const juce::String opnOpParam = "*.param.opn.op";
+		static inline const juce::String opnOpParam = "*.param.opn.op.json";
 		static inline const juce::String N88LfoParam = "*.lfoN88.json";
 		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7.json";
 		static inline const juce::String AmpEnvParam = "*.ampEnv.json";

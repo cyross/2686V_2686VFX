@@ -1,6 +1,8 @@
 ﻿#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiAdpcm.h"
 
+#include "../../Core/Gui/GuiRefresh.h"
+
 #include "../../Core/Io/ParamFile.h"
 
 namespace
@@ -340,6 +342,9 @@ void GuiAdpcm::updateFileName(const juce::String& fileName)
 // 波形は 1 点ずつ拾っても形が分からないので、区間ごとの上下幅で出す。
 void GuiAdpcm::updateSamplePreview()
 {
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
+    if (GuiRefresh::defer(this, [this] { updateSamplePreview(); })) return;
+
     const auto& data = ctx.audioProcessor.adpcmPreviewBuffer;
 
     if (data.empty()) {
@@ -693,6 +698,10 @@ void GuiAdpcm::importToneNoiseParam() {
 
                 if (!reader.has_value()) return;
 
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
                 toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
                 noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
                 noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
@@ -747,6 +756,10 @@ void GuiAdpcm::importQualityParam() {
 
                 if (!reader.has_value()) return;
 
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
 				qualityPcmComponent.setMode(reader->getInt("mode", qualityPcmComponent.getMode()));
                 qualityPcmComponent.setRate(reader->getInt("rate", qualityPcmComponent.getRate()));
                 qualityPcmComponent.setInterp(reader->getInt("interp", qualityPcmComponent.getInterp()));
@@ -798,6 +811,10 @@ void GuiAdpcm::importPcmPlayParam() {
                 auto reader = Io::ParamReader::open(file, pcmPlayFormat);
 
                 if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 pcmOffsetSlider.setValue(reader->getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
                 pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);

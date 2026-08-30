@@ -3,6 +3,8 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiSsg.h"
 
+#include "../../Core/Gui/GuiRefresh.h"
+
 #include "../../Core/Io/ParamFile.h"
 
 namespace
@@ -635,6 +637,10 @@ void GuiSsg::importToneNoiseParam() {
 
                 if (!reader.has_value()) return;
 
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
                 toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
                 noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
                 noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
@@ -688,6 +694,10 @@ void GuiSsg::importQualityParam() {
                 auto reader = Io::ParamReader::open(file, qualityFormat);
 
                 if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
                 qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));

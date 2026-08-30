@@ -1,6 +1,8 @@
 ﻿#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiWtPlus.h"
 
+#include "../../Core/Gui/GuiRefresh.h"
+
 #include "../../Core/Io/ParamFile.h"
 
 namespace
@@ -580,6 +582,10 @@ void GuiWtPlus::importQualityParam() {
                 auto reader = Io::ParamReader::open(file, qualityFormat);
 
                 if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
                 qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));

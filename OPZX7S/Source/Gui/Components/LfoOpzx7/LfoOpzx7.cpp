@@ -1,5 +1,7 @@
 ﻿#include "./LfoOpzx7.h"
 
+#include "../../../Core/Gui/GuiRefresh.h"
+
 #include "../../../Core/Io/ParamFile.h"
 
 namespace
@@ -146,6 +148,9 @@ void GuiComponentLfoOpzx7::setupComponent(
 // 値が変わったときだけ通るので、常時の負荷は無い。
 void GuiComponentLfoOpzx7::updatePreviews()
 {
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
+    if (GuiRefresh::defer(this, [this] { updatePreviews(); })) return;
+
     // PM は -1.0〜1.0 の両振り
     pmPreview.setPoints(WavePreviewSource::opzx7LfoPm(pgShape.getSelectedItemIndex()), true);
 
@@ -355,6 +360,10 @@ void GuiComponentLfoOpzx7::importParams() {
                 auto reader = Io::ParamReader::open(file, opzx7LfoFormat);
 
                 if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 pmEnable.setToggleState(reader->getBool("pmEnable", pmEnable.getToggleState()), juce::sendNotification);
                 pmFreq.setValue(reader->getFloat("pmFreq", (float)pmFreq.getValue()), juce::sendNotification);

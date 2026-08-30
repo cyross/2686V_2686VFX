@@ -3,6 +3,8 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpm.h"
 
+#include "../../Core/Gui/GuiRefresh.h"
+
 #include "../../Core/Io/ParamFile.h"
 
 namespace
@@ -1171,6 +1173,9 @@ void GuiOpm::layoutPanCat(juce::Rectangle<int>& rect)
 // 値が変わったときだけ通るので、常時の負荷は無い。
 void GuiOpm::updateLfoPreviews()
 {
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
+    if (GuiRefresh::defer(this, [this] { updateLfoPreviews(); })) return;
+
     // PM は -1.0〜1.0 の両振り
     lfoPmPreview.setPoints(WavePreviewSource::opmLfoPm(lfoPgShapeSelector.getSelectedItemIndex()), true);
 
@@ -2048,6 +2053,10 @@ void GuiOpm::importQualityParam() {
                 auto reader = Io::ParamReader::open(file, qualityFormat);
 
                 if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
                 qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));

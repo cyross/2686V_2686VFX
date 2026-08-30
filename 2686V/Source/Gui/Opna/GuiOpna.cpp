@@ -3,6 +3,8 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpna.h"
 
+#include "../../Core/Gui/GuiRefresh.h"
+
 #include "../../Core/Io/ParamFile.h"
 
 namespace
@@ -10,6 +12,10 @@ namespace
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat opnaFormat{ "opna", 1 };
 	const Io::ParamFormat opnaOpFormat{ "opnaOp", 1 };
+
+	// OPN のファイルを読み込む口があるため、その印も要る
+	const Io::ParamFormat opnFormat{ "opn", 1 };
+	const Io::ParamFormat opnOpFormat{ "opnOp", 1 };
 	const Io::ParamFormat n88LfoFormat{ "n88Lfo", 1 };
 	const Io::ParamFormat opnaHwLfoFormat{ "opnaHwLfo", 1 };
 	const Io::ParamFormat qualityFormat{ "quality", 1 };
@@ -1164,6 +1170,9 @@ void GuiOpna::layoutPanCat(juce::Rectangle<int>& rect)
 // 値が変わったときだけ通るので、常時の負荷は無い。
 void GuiOpna::updateLfoPreviews()
 {
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
+    if (GuiRefresh::defer(this, [this] { updateLfoPreviews(); })) return;
+
     // Shape は 1 つだが、同じ番号でも PM と AM で波形が違うので両方出す。
     int shape = lfoShapeSelector.getSelectedItemIndex();
 
@@ -1951,6 +1960,10 @@ void GuiOpna::importHwLfoParam(int opIndex) {
 
                 if (!reader.has_value()) return;
 
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
                 freqs[opIndex].setSelectedItemIndex(reader->getInt("freq", freqs[opIndex].getSelectedItemIndex()), juce::sendNotification);
                 syncDelay[opIndex].setValue(reader->getInt("syncDelay", (int)syncDelay[opIndex].getValue()), juce::sendNotification);
                 pm[opIndex].setToggleState(reader->getBool("pm", pm[opIndex].getToggleState()), juce::sendNotification);
@@ -2024,6 +2037,10 @@ void GuiOpna::importLfoParam() {
                 auto reader = Io::ParamReader::open(file, n88LfoFormat);
 
                 if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 lfoFreqSlider.setValue(reader->getInt("lfoFreq", (int)lfoFreqSlider.getValue()), juce::sendNotification);
                 lfoShapeSelector.setSelectedItemIndex(reader->getInt("lfoShape", lfoShapeSelector.getSelectedItemIndex()), juce::sendNotification);
@@ -2103,6 +2120,10 @@ void GuiOpna::importQualityParam() {
 
                 if (!reader.has_value()) return;
 
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
                 qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
                 qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
             }
@@ -2169,41 +2190,11 @@ void GuiOpna::importChParam() {
 
                 if (!reader.has_value()) return;
 
-                // Level
-                levelComponent.readParams(*reader, "level");
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
-                // Algorithm & Feedback
-                algSelector.setSelectedId(reader->getInt("alg", algSelector.getSelectedId()), juce::sendNotification);
-                feedbackSlider.setValue(reader->getInt("feedback", (int)feedbackSlider.getValue()), juce::sendNotification);
-
-                updateAlgorithmDisplay();
-
-                // Pan
-                panSlider.setValue(reader->getFloat("pan", (float)panSlider.getValue()), juce::sendNotification);
-
-                // N88 LFO
-                lfoFreqSlider.setValue(reader->getFloat("lfoFreq", (float)lfoFreqSlider.getValue()), juce::sendNotification);
-                lfoShapeSelector.setSelectedId(reader->getInt("lfoShape", lfoShapeSelector.getSelectedId()), juce::sendNotification);
-                lfoAmSmRtSlider.setValue(reader->getFloat("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue()), juce::sendNotification);
-                lfoSyncDelaySlider.setValue(reader->getFloat("lfoSyncDelay", (float)lfoSyncDelaySlider.getValue()), juce::sendNotification);
-                lfoPmToggle.setToggleState(reader->getBool("lfoPm", lfoPmToggle.getToggleState()), juce::sendNotification);
-                lfoPmsSlider.setValue(reader->getFloat("lfoPms", (float)lfoPmsSlider.getValue()), juce::sendNotification);
-                lfoPmdSlider.setValue(reader->getFloat("lfoPmd", (float)lfoPmdSlider.getValue()), juce::sendNotification);
-                lfoAmToggle.setToggleState(reader->getBool("lfoAm", lfoAmToggle.getToggleState()), juce::sendNotification);
-                lfoAmdSlider.setValue(reader->getFloat("lfoAmd", (float)lfoAmdSlider.getValue()), juce::sendNotification);
-
-                // Components (Global)
-                ssgHwEnv.readParams(*reader, "ssgHwEnv");
-                ssgSwEnv11g.readParams(*reader, "ssgSwEnv11");
-                qualityComponent.readParams(*reader, "quality");
-                unisonComponent.readParams(*reader, "unison");
-                ampEnvComponent.readParams(*reader, "ampEnv");
-                ssgSwPEnv11g.readParams(*reader, "ssgSwPEnv11");
-                modComponent.readParams(*reader, "wtMod");
-
-                for (int i = 0; i < OpnaPrValue::ops; i++) {
-                    readOpParams(i, reader->arrayItem(Io::ParamKey::ops, i));
-                }
+                readChParams(*reader);
             }
         });
 
@@ -2287,6 +2278,10 @@ void GuiOpna::importOpChParam(int opIndex) {
 
                 if (!reader.has_value()) return;
 
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
                 updateAlgorithmDisplay();
 
                 readOpParams(opIndex, *reader);
@@ -2316,6 +2311,46 @@ void GuiOpna::exportOpChParam(int opIndex) {
             }
         });
 
+}
+
+
+// チャンネル 1 つぶん。OPN のファイルを読むときにも使う。
+void GuiOpna::readChParams(const Io::ParamReader& reader) {
+    // Level
+    levelComponent.readParams(reader, "level");
+
+    // Algorithm & Feedback
+    algSelector.setSelectedId(reader.getInt("alg", algSelector.getSelectedId()), juce::sendNotification);
+    feedbackSlider.setValue(reader.getInt("feedback", (int)feedbackSlider.getValue()), juce::sendNotification);
+
+    updateAlgorithmDisplay();
+
+    // Pan
+    panSlider.setValue(reader.getFloat("pan", (float)panSlider.getValue()), juce::sendNotification);
+
+    // N88 LFO
+    lfoFreqSlider.setValue(reader.getFloat("lfoFreq", (float)lfoFreqSlider.getValue()), juce::sendNotification);
+    lfoShapeSelector.setSelectedId(reader.getInt("lfoShape", lfoShapeSelector.getSelectedId()), juce::sendNotification);
+    lfoAmSmRtSlider.setValue(reader.getFloat("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue()), juce::sendNotification);
+    lfoSyncDelaySlider.setValue(reader.getFloat("lfoSyncDelay", (float)lfoSyncDelaySlider.getValue()), juce::sendNotification);
+    lfoPmToggle.setToggleState(reader.getBool("lfoPm", lfoPmToggle.getToggleState()), juce::sendNotification);
+    lfoPmsSlider.setValue(reader.getFloat("lfoPms", (float)lfoPmsSlider.getValue()), juce::sendNotification);
+    lfoPmdSlider.setValue(reader.getFloat("lfoPmd", (float)lfoPmdSlider.getValue()), juce::sendNotification);
+    lfoAmToggle.setToggleState(reader.getBool("lfoAm", lfoAmToggle.getToggleState()), juce::sendNotification);
+    lfoAmdSlider.setValue(reader.getFloat("lfoAmd", (float)lfoAmdSlider.getValue()), juce::sendNotification);
+
+    // Components (Global)
+    ssgHwEnv.readParams(reader, "ssgHwEnv");
+    ssgSwEnv11g.readParams(reader, "ssgSwEnv11");
+    qualityComponent.readParams(reader, "quality");
+    unisonComponent.readParams(reader, "unison");
+    ampEnvComponent.readParams(reader, "ampEnv");
+    ssgSwPEnv11g.readParams(reader, "ssgSwPEnv11");
+    modComponent.readParams(reader, "wtMod");
+
+    for (int i = 0; i < OpnaPrValue::ops; i++) {
+        readOpParams(i, reader.arrayItem(Io::ParamKey::ops, i));
+}
 }
 
 // オペレータ 1 つぶん。並びの中のひとつを渡してもらう。
@@ -2424,39 +2459,17 @@ void GuiOpna::importOpnChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // OPN のファイル。こちらにしか無い項目は名前で引けないので
+                // 今の値のまま残る。
+                auto reader = Io::ParamReader::open(file, opnFormat);
 
-                int size = lines.size();
-                int index = 0;
+                if (!reader.has_value()) return;
 
-                // Level
-                levelComponent.setImportingParams(lines, index);
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
-                // Algorithm & Feedback
-                algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
-                feedbackSlider.setValue(lines[index++].getIntValue(), juce::sendNotification);
-
-                updateAlgorithmDisplay();
-
-                // N88 LFO
-                lfoFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                lfoShapeSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
-                lfoAmSmRtSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                lfoSyncDelaySlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                lfoPmToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                lfoPmsSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                lfoPmdSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                lfoAmToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                lfoAmdSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-
-                // Components (Global)
-                qualityComponent.setImportingParams(lines, index);
-                unisonComponent.setImportingParams(lines, index);
-
-                for (int i = 0; i < OpnPrValue::ops; i++) {
-                    getImportingOpnOpParams(i, lines, index);
-                }
+                readChParams(*reader);
             }
         });
 }
@@ -2476,52 +2489,18 @@ void GuiOpna::importOpnOpChParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, opnOpFormat);
 
-                int size = lines.size();
-                int index = 0;
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 updateAlgorithmDisplay();
 
-                getImportingOpnOpParams(opIndex, lines, index);
+                readOpParams(opIndex, *reader);
             }
         });
 }
 
-void GuiOpna::getImportingOpnOpParams(int opIndex, juce::StringArray& lines, int& index) {
-    // Mul / Dt
-    mul[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
-    dt[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
-
-    // Env
-    rgAr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgDr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgSl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgSr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgRr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgTl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-
-    // Key Scale
-    ks[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
-
-    // HW LFO はスキップ
-
-    // N88 AMS
-    n88Ams[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-
-    // SSG Env はスキップ
-
-    // Optional / Mask
-    bypass[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-    xof[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-    kor[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-    mask[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-
-    // Components
-    fix[opIndex].setImportingParams(lines, index);
-    pitchEnv[opIndex].setImportingParams(lines, index);
-    ssgSwEnv[opIndex].setImportingParams(lines, index);
-    ssgSwEnv11[opIndex].setImportingParams(lines, index);
-    ssgSwPEnv11[opIndex].setImportingParams(lines, index);
-}

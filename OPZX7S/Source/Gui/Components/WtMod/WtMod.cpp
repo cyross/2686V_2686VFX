@@ -1,5 +1,7 @@
 ﻿#include "./WtMod.h"
 
+#include "../../../Core/Gui/GuiRefresh.h"
+
 #include "../../../Core/Io/ParamFile.h"
 
 #include "../WavePreview/WavePreviewSource.h"
@@ -561,6 +563,9 @@ juce::String GuiComponentWtMod::wavePath(int slot) const
 // 描画のたびに計算すると重いので、形が変わったときだけここを通す。
 void GuiComponentWtMod::updateModPreview()
 {
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
+    if (GuiRefresh::defer(this, [this] { updateModPreview(); })) return;
+
     // HuC6280 モードで使う 32 サンプル。実データはプロセッサが持つ。
     std::array<float, Global::WtMod::waveSize> wave = { 0.0f };
 

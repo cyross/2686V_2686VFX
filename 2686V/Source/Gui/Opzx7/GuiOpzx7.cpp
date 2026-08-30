@@ -3,6 +3,8 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpzx7.h"
 
+#include "../../Core/Gui/GuiRefresh.h"
+
 #include "../../Core/Io/ParamFile.h"
 
 namespace
@@ -1575,6 +1577,10 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
 // 描画のたびに計算すると重いので、形が変わったときだけここを通す。
 void GuiOpzx7::updateWsPreview(int opIndex)
 {
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す。
+    // オペレータごとに別々に溜まるよう、番号を目印に混ぜる。
+    if (GuiRefresh::defer((const char*)this + opIndex, [this, opIndex] { updateWsPreview(opIndex); })) return;
+
     if (opIndex < 0 || opIndex >= Opzx7PrValue::ops) return;
 
     // 波形メモリと PCM は未読込なら空。音源側と同じくサイン波になる。
@@ -2736,6 +2742,10 @@ void GuiOpzx7::importQualityParam() {
                 auto reader = Io::ParamReader::open(file, qualityFormat);
 
                 if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
                 qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
