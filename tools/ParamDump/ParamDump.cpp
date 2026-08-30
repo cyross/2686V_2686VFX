@@ -16,6 +16,7 @@
 #include <cmath>
 
 #include "Core/Processor/PluginProcessor.h"
+#include "Advanced/Curve/AdvancedCurveParams.h"
 
 namespace
 {
@@ -157,6 +158,10 @@ int main(int argc, char* argv[])
 
 		return 1;
 	}
+
+	// カーブは 1 ブロックごとにまるごと写しているので、その大きさも見ておく
+	std::printf("CurveParams: 1 枠 %zu バイト / 全体 %zu バイト (%.1f KB)\n",
+		sizeof(BaseCurveParams), sizeof(CurveParams), sizeof(CurveParams) / 1024.0);
 
 	std::printf("%d 件を書き出しました: %s\n", list.size(), target.getFullPathName().toRawUTF8());
 

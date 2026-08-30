@@ -1093,13 +1093,13 @@ namespace PrHelper {
 		PrHelper::addFloat(
 			layout, 
 			prefix + CPK::Adsr::stl, 
-			prefixName + CPK::Adsr::stl, 
+			prefixName + CPN::Adsr::stl, 
 			CPV::Adsr::Stl::min, CPV::Adsr::Stl::max, CPV::Adsr::Stl::initial
 		);
 		PrHelper::addBool(
 			layout, 
 			prefix + CPK::Adsr::kor, 
-			prefixName + CPK::Adsr::kor, 
+			prefixName + CPN::Adsr::kor, 
 			CPV::Adsr::Kor::initial
 		);
 	}
@@ -1133,13 +1133,13 @@ namespace PrHelper {
 		PrHelper::addFloat(
 			layout, 
 			prefix + CPK::Adsr::stl, 
-			namePrefix + CPK::Adsr::stl, 
+			namePrefix + CPN::Adsr::stl, 
 			CPV::Adsr::Stl::min, CPV::Adsr::Stl::max, CPV::Adsr::Stl::initial
 		);
 		PrHelper::addBool(
 			layout, 
 			prefix + CPK::Adsr::kor, 
-			namePrefix + CPK::Adsr::kor, 
+			namePrefix + CPN::Adsr::kor, 
 			CPV::Adsr::Kor::initial
 		);
 	}

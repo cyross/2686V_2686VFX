@@ -62,7 +62,7 @@
     },
     {
       "id": "OPNA_LFO_FREQ",
-      "name": "OPNA_LFO_FREQ",
+      "name": "OPNA LFO Freq",
       "type": "Int",
       "min": 0,
       "max": 16383,
@@ -70,7 +70,7 @@
     },
     {
       "id": "OPNA_LFO_SHAPE",
-      "name": "OPNA_LFO_SHAPE",
+      "name": "OPNA LFO Shape",
       "type": "Int",
       "min": 0,
       "max": 5,
@@ -78,7 +78,7 @@
     },
     {
       "id": "OPNA_LFO_ASMRT",
-      "name": "OPNA_LFO_ASMRT",
+      "name": "OPNA LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -87,7 +87,7 @@
     },
     {
       "id": "OPNA_LFO_AM",
-      "name": "OPNA_LFO_AM",
+      "name": "OPNA LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -95,7 +95,7 @@
     },
     {
       "id": "OPNA_LFO_PM",
-      "name": "OPNA_LFO_PM",
+      "name": "OPNA LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -103,7 +103,7 @@
     },
     {
       "id": "OPNA_LFO_PMS",
-      "name": "OPNA_LFO_PMS",
+      "name": "OPNA LFO PMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -111,7 +111,7 @@
     },
     {
       "id": "OPNA_LFO_PMD",
-      "name": "OPNA_LFO_PMD",
+      "name": "OPNA LFO PMD",
       "type": "Int",
       "min": -127,
       "max": 127,
@@ -119,7 +119,7 @@
     },
     {
       "id": "OPNA_LFO_AMD",
-      "name": "OPNA_LFO_AMD",
+      "name": "OPNA LFO AMD",
       "type": "Int",
       "min": -127,
       "max": 127,
@@ -127,7 +127,7 @@
     },
     {
       "id": "OPNA_LFO_SYNC_DELAY",
-      "name": "OPNA_LFO_SYNC_DELAY",
+      "name": "OPNA LFO Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -222,7 +222,7 @@
     },
     {
       "id": "OPNA_STL",
-      "name": "OPNA_STL",
+      "name": "OPNA Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -231,7 +231,7 @@
     },
     {
       "id": "OPNA_KOR",
-      "name": "OPNA_KOR",
+      "name": "OPNA KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -1236,7 +1236,7 @@
     },
     {
       "id": "OPNA_OP0_N88AMS",
-      "name": "OPNA Op1_N88AMS",
+      "name": "OPNA Op1 N88 AMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -1244,7 +1244,7 @@
     },
     {
       "id": "OPNA_OP0_LFO_FREQS",
-      "name": "OPNA Op1_LFO_FREQS",
+      "name": "OPNA Op1 LFO Freqs",
       "type": "Int",
       "min": 0,
       "max": 7,
@@ -1252,7 +1252,7 @@
     },
     {
       "id": "OPNA_OP0_LFO_AM",
-      "name": "OPNA Op1_LFO_AM",
+      "name": "OPNA Op1 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -1260,7 +1260,7 @@
     },
     {
       "id": "OPNA_OP0_LFO_VIB",
-      "name": "OPNA Op1_LFO_VIB",
+      "name": "OPNA Op1 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -1268,7 +1268,7 @@
     },
     {
       "id": "OPNA_OP0_LFO_PMS",
-      "name": "OPNA Op1_LFO_PMS",
+      "name": "OPNA Op1 LFO PMS",
       "type": "Int",
       "min": 0,
       "max": 7,
@@ -1276,7 +1276,7 @@
     },
     {
       "id": "OPNA_OP0_LFO_SYNC_DELAY",
-      "name": "OPNA Op1_LFO_SYNC_DELAY",
+      "name": "OPNA Op1 LFO Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -1284,7 +1284,7 @@
     },
     {
       "id": "OPNA_OP0_LFO_AMS",
-      "name": "OPNA Op1_LFO_AMS",
+      "name": "OPNA Op1 LFO AMS",
       "type": "Int",
       "min": 0,
       "max": 3,
@@ -2136,7 +2136,7 @@
     },
     {
       "id": "OPNA_OP1_N88AMS",
-      "name": "OPNA Op2_N88AMS",
+      "name": "OPNA Op2 N88 AMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -2144,7 +2144,7 @@
     },
     {
       "id": "OPNA_OP1_LFO_FREQS",
-      "name": "OPNA Op2_LFO_FREQS",
+      "name": "OPNA Op2 LFO Freqs",
       "type": "Int",
       "min": 0,
       "max": 7,
@@ -2152,7 +2152,7 @@
     },
     {
       "id": "OPNA_OP1_LFO_AM",
-      "name": "OPNA Op2_LFO_AM",
+      "name": "OPNA Op2 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2160,7 +2160,7 @@
     },
     {
       "id": "OPNA_OP1_LFO_VIB",
-      "name": "OPNA Op2_LFO_VIB",
+      "name": "OPNA Op2 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2168,7 +2168,7 @@
     },
     {
       "id": "OPNA_OP1_LFO_PMS",
-      "name": "OPNA Op2_LFO_PMS",
+      "name": "OPNA Op2 LFO PMS",
       "type": "Int",
       "min": 0,
       "max": 7,
@@ -2176,7 +2176,7 @@
     },
     {
       "id": "OPNA_OP1_LFO_SYNC_DELAY",
-      "name": "OPNA Op2_LFO_SYNC_DELAY",
+      "name": "OPNA Op2 LFO Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -2184,7 +2184,7 @@
     },
     {
       "id": "OPNA_OP1_LFO_AMS",
-      "name": "OPNA Op2_LFO_AMS",
+      "name": "OPNA Op2 LFO AMS",
       "type": "Int",
       "min": 0,
       "max": 3,
@@ -3036,7 +3036,7 @@
     },
     {
       "id": "OPNA_OP2_N88AMS",
-      "name": "OPNA Op3_N88AMS",
+      "name": "OPNA Op3 N88 AMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -3044,7 +3044,7 @@
     },
     {
       "id": "OPNA_OP2_LFO_FREQS",
-      "name": "OPNA Op3_LFO_FREQS",
+      "name": "OPNA Op3 LFO Freqs",
       "type": "Int",
       "min": 0,
       "max": 7,
@@ -3052,7 +3052,7 @@
     },
     {
       "id": "OPNA_OP2_LFO_AM",
-      "name": "OPNA Op3_LFO_AM",
+      "name": "OPNA Op3 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -3060,7 +3060,7 @@
     },
     {
       "id": "OPNA_OP2_LFO_VIB",
-      "name": "OPNA Op3_LFO_VIB",
+      "name": "OPNA Op3 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -3068,7 +3068,7 @@
     },
     {
       "id": "OPNA_OP2_LFO_PMS",
-      "name": "OPNA Op3_LFO_PMS",
+      "name": "OPNA Op3 LFO PMS",
       "type": "Int",
       "min": 0,
       "max": 7,
@@ -3076,7 +3076,7 @@
     },
     {
       "id": "OPNA_OP2_LFO_SYNC_DELAY",
-      "name": "OPNA Op3_LFO_SYNC_DELAY",
+      "name": "OPNA Op3 LFO Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -3084,7 +3084,7 @@
     },
     {
       "id": "OPNA_OP2_LFO_AMS",
-      "name": "OPNA Op3_LFO_AMS",
+      "name": "OPNA Op3 LFO AMS",
       "type": "Int",
       "min": 0,
       "max": 3,
@@ -3936,7 +3936,7 @@
     },
     {
       "id": "OPNA_OP3_N88AMS",
-      "name": "OPNA Op4_N88AMS",
+      "name": "OPNA Op4 N88 AMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -3944,7 +3944,7 @@
     },
     {
       "id": "OPNA_OP3_LFO_FREQS",
-      "name": "OPNA Op4_LFO_FREQS",
+      "name": "OPNA Op4 LFO Freqs",
       "type": "Int",
       "min": 0,
       "max": 7,
@@ -3952,7 +3952,7 @@
     },
     {
       "id": "OPNA_OP3_LFO_AM",
-      "name": "OPNA Op4_LFO_AM",
+      "name": "OPNA Op4 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -3960,7 +3960,7 @@
     },
     {
       "id": "OPNA_OP3_LFO_VIB",
-      "name": "OPNA Op4_LFO_VIB",
+      "name": "OPNA Op4 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -3968,7 +3968,7 @@
     },
     {
       "id": "OPNA_OP3_LFO_PMS",
-      "name": "OPNA Op4_LFO_PMS",
+      "name": "OPNA Op4 LFO PMS",
       "type": "Int",
       "min": 0,
       "max": 7,
@@ -3976,7 +3976,7 @@
     },
     {
       "id": "OPNA_OP3_LFO_SYNC_DELAY",
-      "name": "OPNA Op4_LFO_SYNC_DELAY",
+      "name": "OPNA Op4 LFO Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -3984,7 +3984,7 @@
     },
     {
       "id": "OPNA_OP3_LFO_AMS",
-      "name": "OPNA Op4_LFO_AMS",
+      "name": "OPNA Op4 LFO AMS",
       "type": "Int",
       "min": 0,
       "max": 3,
@@ -4844,7 +4844,7 @@
     },
     {
       "id": "OPN_LFO_FREQ",
-      "name": "OPN_LFO_FREQ",
+      "name": "OPN LFO Freq",
       "type": "Int",
       "min": 0,
       "max": 16383,
@@ -4852,7 +4852,7 @@
     },
     {
       "id": "OPN_LFO_SHAPE",
-      "name": "OPN_LFO_SHAPE",
+      "name": "OPN LFO Shape",
       "type": "Int",
       "min": 0,
       "max": 5,
@@ -4860,7 +4860,7 @@
     },
     {
       "id": "OPN_LFO_ASMRT",
-      "name": "OPN_LFO_ASMRT",
+      "name": "OPN LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -4869,7 +4869,7 @@
     },
     {
       "id": "OPN_LFO_AM",
-      "name": "OPN_LFO_AM",
+      "name": "OPN LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -4877,7 +4877,7 @@
     },
     {
       "id": "OPN_LFO_PM",
-      "name": "OPN_LFO_PM",
+      "name": "OPN LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -4885,7 +4885,7 @@
     },
     {
       "id": "OPN_LFO_PMS",
-      "name": "OPN_LFO_PMS",
+      "name": "OPN LFO PMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -4893,7 +4893,7 @@
     },
     {
       "id": "OPN_LFO_PMD",
-      "name": "OPN_LFO_PMD",
+      "name": "OPN LFO PMD",
       "type": "Int",
       "min": -127,
       "max": 127,
@@ -4901,7 +4901,7 @@
     },
     {
       "id": "OPN_LFO_AMD",
-      "name": "OPN_LFO_AMD",
+      "name": "OPN LFO AMD",
       "type": "Int",
       "min": -127,
       "max": 127,
@@ -4909,7 +4909,7 @@
     },
     {
       "id": "OPN_LFO_SYNC_DELAY",
-      "name": "OPN_LFO_SYNC_DELAY",
+      "name": "OPN LFO Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -5004,7 +5004,7 @@
     },
     {
       "id": "OPN_STL",
-      "name": "OPN_STL",
+      "name": "OPN Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -5013,7 +5013,7 @@
     },
     {
       "id": "OPN_KOR",
-      "name": "OPN_KOR",
+      "name": "OPN KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -6001,7 +6001,7 @@
     },
     {
       "id": "OPN_OP0_N88AMS",
-      "name": "OPN Op1_N88AMS",
+      "name": "OPN Op1 N88 AMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -6836,7 +6836,7 @@
     },
     {
       "id": "OPN_OP1_N88AMS",
-      "name": "OPN Op2_N88AMS",
+      "name": "OPN Op2 N88 AMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -7671,7 +7671,7 @@
     },
     {
       "id": "OPN_OP2_N88AMS",
-      "name": "OPN Op3_N88AMS",
+      "name": "OPN Op3 N88 AMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -8506,7 +8506,7 @@
     },
     {
       "id": "OPN_OP3_N88AMS",
-      "name": "OPN Op4_N88AMS",
+      "name": "OPN Op4 N88 AMS",
       "type": "Int",
       "min": 0,
       "max": 15,
@@ -9453,7 +9453,7 @@
     },
     {
       "id": "OPL_STL",
-      "name": "OPL_STL",
+      "name": "OPL Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -9462,7 +9462,7 @@
     },
     {
       "id": "OPL_KOR",
-      "name": "OPL_KOR",
+      "name": "OPL KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -10442,7 +10442,7 @@
     },
     {
       "id": "OPL_OP0_LFO_AM",
-      "name": "OPL Op1_LFO_AM",
+      "name": "OPL Op1 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -10450,7 +10450,7 @@
     },
     {
       "id": "OPL_OP0_LFO_VIB",
-      "name": "OPL Op1_LFO_VIB",
+      "name": "OPL Op1 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -10458,7 +10458,7 @@
     },
     {
       "id": "OPL_OP0_LFO_AMS",
-      "name": "OPL Op1_LFO_AMS",
+      "name": "OPL Op1 LFO AMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -10467,7 +10467,7 @@
     },
     {
       "id": "OPL_OP0_LFO_AMD",
-      "name": "OPL Op1_LFO_AMD",
+      "name": "OPL Op1 LFO AMD",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 10.0,
@@ -10476,7 +10476,7 @@
     },
     {
       "id": "OPL_OP0_LFO_PMS",
-      "name": "OPL Op1_LFO_PMS",
+      "name": "OPL Op1 LFO PMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -10485,7 +10485,7 @@
     },
     {
       "id": "OPL_OP0_LFO_PMD",
-      "name": "OPL Op1_LFO_PMD",
+      "name": "OPL Op1 LFO PMD",
       "type": "Float",
       "min": 1.0,
       "max": 100.0,
@@ -11320,7 +11320,7 @@
     },
     {
       "id": "OPL_OP1_LFO_AM",
-      "name": "OPL Op2_LFO_AM",
+      "name": "OPL Op2 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -11328,7 +11328,7 @@
     },
     {
       "id": "OPL_OP1_LFO_VIB",
-      "name": "OPL Op2_LFO_VIB",
+      "name": "OPL Op2 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -11336,7 +11336,7 @@
     },
     {
       "id": "OPL_OP1_LFO_AMS",
-      "name": "OPL Op2_LFO_AMS",
+      "name": "OPL Op2 LFO AMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -11345,7 +11345,7 @@
     },
     {
       "id": "OPL_OP1_LFO_AMD",
-      "name": "OPL Op2_LFO_AMD",
+      "name": "OPL Op2 LFO AMD",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 10.0,
@@ -11354,7 +11354,7 @@
     },
     {
       "id": "OPL_OP1_LFO_PMS",
-      "name": "OPL Op2_LFO_PMS",
+      "name": "OPL Op2 LFO PMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -11363,7 +11363,7 @@
     },
     {
       "id": "OPL_OP1_LFO_PMD",
-      "name": "OPL Op2_LFO_PMD",
+      "name": "OPL Op2 LFO PMD",
       "type": "Float",
       "min": 1.0,
       "max": 100.0,
@@ -12318,7 +12318,7 @@
     },
     {
       "id": "OPL3_STL",
-      "name": "OPL3_STL",
+      "name": "OPL3 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -12327,7 +12327,7 @@
     },
     {
       "id": "OPL3_KOR",
-      "name": "OPL3_KOR",
+      "name": "OPL3 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -13307,7 +13307,7 @@
     },
     {
       "id": "OPL3_OP0_LFO_AM",
-      "name": "OPL3 Op1_LFO_AM",
+      "name": "OPL3 Op1 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -13315,7 +13315,7 @@
     },
     {
       "id": "OPL3_OP0_LFO_VIB",
-      "name": "OPL3 Op1_LFO_VIB",
+      "name": "OPL3 Op1 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -13323,7 +13323,7 @@
     },
     {
       "id": "OPL3_OP0_LFO_AMS",
-      "name": "OPL3 Op1_LFO_AMS",
+      "name": "OPL3 Op1 LFO AMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -13332,7 +13332,7 @@
     },
     {
       "id": "OPL3_OP0_LFO_AMD",
-      "name": "OPL3 Op1_LFO_AMD",
+      "name": "OPL3 Op1 LFO AMD",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 10.0,
@@ -13341,7 +13341,7 @@
     },
     {
       "id": "OPL3_OP0_LFO_PMS",
-      "name": "OPL3 Op1_LFO_PMS",
+      "name": "OPL3 Op1 LFO PMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -13350,7 +13350,7 @@
     },
     {
       "id": "OPL3_OP0_LFO_PMD",
-      "name": "OPL3 Op1_LFO_PMD",
+      "name": "OPL3 Op1 LFO PMD",
       "type": "Float",
       "min": 1.0,
       "max": 100.0,
@@ -14177,7 +14177,7 @@
     },
     {
       "id": "OPL3_OP1_LFO_AM",
-      "name": "OPL3 Op2_LFO_AM",
+      "name": "OPL3 Op2 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -14185,7 +14185,7 @@
     },
     {
       "id": "OPL3_OP1_LFO_VIB",
-      "name": "OPL3 Op2_LFO_VIB",
+      "name": "OPL3 Op2 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -14193,7 +14193,7 @@
     },
     {
       "id": "OPL3_OP1_LFO_AMS",
-      "name": "OPL3 Op2_LFO_AMS",
+      "name": "OPL3 Op2 LFO AMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -14202,7 +14202,7 @@
     },
     {
       "id": "OPL3_OP1_LFO_AMD",
-      "name": "OPL3 Op2_LFO_AMD",
+      "name": "OPL3 Op2 LFO AMD",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 10.0,
@@ -14211,7 +14211,7 @@
     },
     {
       "id": "OPL3_OP1_LFO_PMS",
-      "name": "OPL3 Op2_LFO_PMS",
+      "name": "OPL3 Op2 LFO PMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -14220,7 +14220,7 @@
     },
     {
       "id": "OPL3_OP1_LFO_PMD",
-      "name": "OPL3 Op2_LFO_PMD",
+      "name": "OPL3 Op2 LFO PMD",
       "type": "Float",
       "min": 1.0,
       "max": 100.0,
@@ -15047,7 +15047,7 @@
     },
     {
       "id": "OPL3_OP2_LFO_AM",
-      "name": "OPL3 Op3_LFO_AM",
+      "name": "OPL3 Op3 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -15055,7 +15055,7 @@
     },
     {
       "id": "OPL3_OP2_LFO_VIB",
-      "name": "OPL3 Op3_LFO_VIB",
+      "name": "OPL3 Op3 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -15063,7 +15063,7 @@
     },
     {
       "id": "OPL3_OP2_LFO_AMS",
-      "name": "OPL3 Op3_LFO_AMS",
+      "name": "OPL3 Op3 LFO AMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -15072,7 +15072,7 @@
     },
     {
       "id": "OPL3_OP2_LFO_AMD",
-      "name": "OPL3 Op3_LFO_AMD",
+      "name": "OPL3 Op3 LFO AMD",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 10.0,
@@ -15081,7 +15081,7 @@
     },
     {
       "id": "OPL3_OP2_LFO_PMS",
-      "name": "OPL3 Op3_LFO_PMS",
+      "name": "OPL3 Op3 LFO PMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -15090,7 +15090,7 @@
     },
     {
       "id": "OPL3_OP2_LFO_PMD",
-      "name": "OPL3 Op3_LFO_PMD",
+      "name": "OPL3 Op3 LFO PMD",
       "type": "Float",
       "min": 1.0,
       "max": 100.0,
@@ -15917,7 +15917,7 @@
     },
     {
       "id": "OPL3_OP3_LFO_AM",
-      "name": "OPL3 Op4_LFO_AM",
+      "name": "OPL3 Op4 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -15925,7 +15925,7 @@
     },
     {
       "id": "OPL3_OP3_LFO_VIB",
-      "name": "OPL3 Op4_LFO_VIB",
+      "name": "OPL3 Op4 LFO Vibrato",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -15933,7 +15933,7 @@
     },
     {
       "id": "OPL3_OP3_LFO_AMS",
-      "name": "OPL3 Op4_LFO_AMS",
+      "name": "OPL3 Op4 LFO AMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -15942,7 +15942,7 @@
     },
     {
       "id": "OPL3_OP3_LFO_AMD",
-      "name": "OPL3 Op4_LFO_AMD",
+      "name": "OPL3 Op4 LFO AMD",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 10.0,
@@ -15951,7 +15951,7 @@
     },
     {
       "id": "OPL3_OP3_LFO_PMS",
-      "name": "OPL3 Op4_LFO_PMS",
+      "name": "OPL3 Op4 LFO PMS",
       "type": "Float",
       "min": 1.0,
       "max": 20.0,
@@ -15960,7 +15960,7 @@
     },
     {
       "id": "OPL3_OP3_LFO_PMD",
-      "name": "OPL3 Op4_LFO_PMD",
+      "name": "OPL3 Op4 LFO PMD",
       "type": "Float",
       "min": 1.0,
       "max": 100.0,
@@ -16828,7 +16828,7 @@
     },
     {
       "id": "OPM_LFO_FREQ",
-      "name": "OPM_LFO_FREQ",
+      "name": "OPM LFO Freq",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -16836,7 +16836,7 @@
     },
     {
       "id": "OPM_LFO_ASMRT",
-      "name": "OPM_LFO_ASMRT",
+      "name": "OPM LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -16845,7 +16845,7 @@
     },
     {
       "id": "OPM_LFO_PG_SHAPE",
-      "name": "OPM_LFO_PG_SHAPE",
+      "name": "OPM LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 3,
@@ -16853,7 +16853,7 @@
     },
     {
       "id": "OPM_LFO_EG_SHAPE",
-      "name": "OPM_LFO_EG_SHAPE",
+      "name": "OPM LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 3,
@@ -16861,7 +16861,7 @@
     },
     {
       "id": "OPM_LFO_AM",
-      "name": "OPM_LFO_AM",
+      "name": "OPM LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -16869,7 +16869,7 @@
     },
     {
       "id": "OPM_LFO_PM",
-      "name": "OPM_LFO_PM",
+      "name": "OPM LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -16877,7 +16877,7 @@
     },
     {
       "id": "OPM_LFO_PMS",
-      "name": "OPM_LFO_PMS",
+      "name": "OPM LFO PMS",
       "type": "Int",
       "min": 0,
       "max": 7,
@@ -16885,7 +16885,7 @@
     },
     {
       "id": "OPM_LFO_AMS",
-      "name": "OPM_LFO_AMS",
+      "name": "OPM LFO AMS",
       "type": "Int",
       "min": 0,
       "max": 3,
@@ -16893,7 +16893,7 @@
     },
     {
       "id": "OPM_LFO_PMD",
-      "name": "OPM_LFO_PMD",
+      "name": "OPM LFO PMD",
       "type": "Int",
       "min": 0,
       "max": 127,
@@ -16901,7 +16901,7 @@
     },
     {
       "id": "OPM_LFO_AMD",
-      "name": "OPM_LFO_AMD",
+      "name": "OPM LFO AMD",
       "type": "Int",
       "min": 0,
       "max": 127,
@@ -16909,7 +16909,7 @@
     },
     {
       "id": "OPM_LFO_SYNC_DELAY",
-      "name": "OPM_LFO_SYNC_DELAY",
+      "name": "OPM LFO Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 127,
@@ -17004,7 +17004,7 @@
     },
     {
       "id": "OPM_STL",
-      "name": "OPM_STL",
+      "name": "OPM Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -17013,7 +17013,7 @@
     },
     {
       "id": "OPM_KOR",
-      "name": "OPM_KOR",
+      "name": "OPM KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -18044,7 +18044,7 @@
     },
     {
       "id": "OPM_OP0_AMS_EN",
-      "name": "OPM Op1_AMS_EN",
+      "name": "OPM Op1 AMS Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -18929,7 +18929,7 @@
     },
     {
       "id": "OPM_OP1_AMS_EN",
-      "name": "OPM Op2_AMS_EN",
+      "name": "OPM Op2 AMS Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -19814,7 +19814,7 @@
     },
     {
       "id": "OPM_OP2_AMS_EN",
-      "name": "OPM Op3_AMS_EN",
+      "name": "OPM Op3 AMS Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -20699,7 +20699,7 @@
     },
     {
       "id": "OPM_OP3_AMS_EN",
-      "name": "OPM Op4_AMS_EN",
+      "name": "OPM Op4 AMS Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -21814,7 +21814,7 @@
     },
     {
       "id": "OPZX7_LFO_PM_FREQ",
-      "name": "OPZX7S_LFO_PM_FREQ",
+      "name": "OPZX7S LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -21823,7 +21823,7 @@
     },
     {
       "id": "OPZX7_LFO_AM_FREQ",
-      "name": "OPZX7S_LFO_AM_FREQ",
+      "name": "OPZX7S LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -21832,7 +21832,7 @@
     },
     {
       "id": "OPZX7_LFO_PM_SYNC_DELAY",
-      "name": "OPZX7S_LFO_PM_SYNC_DELAY",
+      "name": "OPZX7S LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -21840,7 +21840,7 @@
     },
     {
       "id": "OPZX7_LFO_AM_SYNC_DELAY",
-      "name": "OPZX7S_LFO_AM_SYNC_DELAY",
+      "name": "OPZX7S LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -21848,7 +21848,7 @@
     },
     {
       "id": "OPZX7_LFO_ASMRT",
-      "name": "OPZX7S_LFO_ASMRT",
+      "name": "OPZX7S LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -21857,7 +21857,7 @@
     },
     {
       "id": "OPZX7_LFO_PG_SHAPE",
-      "name": "OPZX7S_LFO_PG_SHAPE",
+      "name": "OPZX7S LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -21865,7 +21865,7 @@
     },
     {
       "id": "OPZX7_LFO_EG_SHAPE",
-      "name": "OPZX7S_LFO_EG_SHAPE",
+      "name": "OPZX7S LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -21873,7 +21873,7 @@
     },
     {
       "id": "OPZX7_LFO_AM",
-      "name": "OPZX7S_LFO_AM",
+      "name": "OPZX7S LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -21881,7 +21881,7 @@
     },
     {
       "id": "OPZX7_LFO_PM",
-      "name": "OPZX7S_LFO_PM",
+      "name": "OPZX7S LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -21889,7 +21889,7 @@
     },
     {
       "id": "OPZX7_LFO_PMS",
-      "name": "OPZX7S_LFO_PMS",
+      "name": "OPZX7S LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -21898,7 +21898,7 @@
     },
     {
       "id": "OPZX7_LFO_AMS",
-      "name": "OPZX7S_LFO_AMS",
+      "name": "OPZX7S LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -21907,7 +21907,7 @@
     },
     {
       "id": "OPZX7_LFO_PMD",
-      "name": "OPZX7S_LFO_PMD",
+      "name": "OPZX7S LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -21916,7 +21916,7 @@
     },
     {
       "id": "OPZX7_LFO_AMD",
-      "name": "OPZX7S_LFO_AMD",
+      "name": "OPZX7S LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -22012,7 +22012,7 @@
     },
     {
       "id": "OPZX7_STL",
-      "name": "OPZX7S_STL",
+      "name": "OPZX7S Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -22021,7 +22021,7 @@
     },
     {
       "id": "OPZX7_KOR",
-      "name": "OPZX7S_KOR",
+      "name": "OPZX7S KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -23898,7 +23898,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_PM_FREQ",
-      "name": "OPZX7S Op1_LFO_PM_FREQ",
+      "name": "OPZX7S Op1 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -23907,7 +23907,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_AM_FREQ",
-      "name": "OPZX7S Op1_LFO_AM_FREQ",
+      "name": "OPZX7S Op1 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -23916,7 +23916,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_PM_SYNC_DELAY",
-      "name": "OPZX7S Op1_LFO_PM_SYNC_DELAY",
+      "name": "OPZX7S Op1 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -23924,7 +23924,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_AM_SYNC_DELAY",
-      "name": "OPZX7S Op1_LFO_AM_SYNC_DELAY",
+      "name": "OPZX7S Op1 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -23932,7 +23932,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_ASMRT",
-      "name": "OPZX7S Op1_LFO_ASMRT",
+      "name": "OPZX7S Op1 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -23941,7 +23941,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_PG_SHAPE",
-      "name": "OPZX7S Op1_LFO_PG_SHAPE",
+      "name": "OPZX7S Op1 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -23949,7 +23949,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_EG_SHAPE",
-      "name": "OPZX7S Op1_LFO_EG_SHAPE",
+      "name": "OPZX7S Op1 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -23957,7 +23957,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_AM",
-      "name": "OPZX7S Op1_LFO_AM",
+      "name": "OPZX7S Op1 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -23965,7 +23965,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_PM",
-      "name": "OPZX7S Op1_LFO_PM",
+      "name": "OPZX7S Op1 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -23973,7 +23973,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_PMS",
-      "name": "OPZX7S Op1_LFO_PMS",
+      "name": "OPZX7S Op1 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -23982,7 +23982,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_AMS",
-      "name": "OPZX7S Op1_LFO_AMS",
+      "name": "OPZX7S Op1 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -23991,7 +23991,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_PMD",
-      "name": "OPZX7S Op1_LFO_PMD",
+      "name": "OPZX7S Op1 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -24000,7 +24000,7 @@
     },
     {
       "id": "OPZX7_OP0_LFO_AMD",
-      "name": "OPZX7S Op1_LFO_AMD",
+      "name": "OPZX7S Op1 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -25090,7 +25090,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_PM_FREQ",
-      "name": "OPZX7S Op2_LFO_PM_FREQ",
+      "name": "OPZX7S Op2 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -25099,7 +25099,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_AM_FREQ",
-      "name": "OPZX7S Op2_LFO_AM_FREQ",
+      "name": "OPZX7S Op2 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -25108,7 +25108,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_PM_SYNC_DELAY",
-      "name": "OPZX7S Op2_LFO_PM_SYNC_DELAY",
+      "name": "OPZX7S Op2 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -25116,7 +25116,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_AM_SYNC_DELAY",
-      "name": "OPZX7S Op2_LFO_AM_SYNC_DELAY",
+      "name": "OPZX7S Op2 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -25124,7 +25124,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_ASMRT",
-      "name": "OPZX7S Op2_LFO_ASMRT",
+      "name": "OPZX7S Op2 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -25133,7 +25133,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_PG_SHAPE",
-      "name": "OPZX7S Op2_LFO_PG_SHAPE",
+      "name": "OPZX7S Op2 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -25141,7 +25141,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_EG_SHAPE",
-      "name": "OPZX7S Op2_LFO_EG_SHAPE",
+      "name": "OPZX7S Op2 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -25149,7 +25149,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_AM",
-      "name": "OPZX7S Op2_LFO_AM",
+      "name": "OPZX7S Op2 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25157,7 +25157,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_PM",
-      "name": "OPZX7S Op2_LFO_PM",
+      "name": "OPZX7S Op2 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25165,7 +25165,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_PMS",
-      "name": "OPZX7S Op2_LFO_PMS",
+      "name": "OPZX7S Op2 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -25174,7 +25174,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_AMS",
-      "name": "OPZX7S Op2_LFO_AMS",
+      "name": "OPZX7S Op2 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -25183,7 +25183,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_PMD",
-      "name": "OPZX7S Op2_LFO_PMD",
+      "name": "OPZX7S Op2 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -25192,7 +25192,7 @@
     },
     {
       "id": "OPZX7_OP1_LFO_AMD",
-      "name": "OPZX7S Op2_LFO_AMD",
+      "name": "OPZX7S Op2 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -26282,7 +26282,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_PM_FREQ",
-      "name": "OPZX7S Op3_LFO_PM_FREQ",
+      "name": "OPZX7S Op3 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -26291,7 +26291,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_AM_FREQ",
-      "name": "OPZX7S Op3_LFO_AM_FREQ",
+      "name": "OPZX7S Op3 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -26300,7 +26300,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_PM_SYNC_DELAY",
-      "name": "OPZX7S Op3_LFO_PM_SYNC_DELAY",
+      "name": "OPZX7S Op3 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -26308,7 +26308,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_AM_SYNC_DELAY",
-      "name": "OPZX7S Op3_LFO_AM_SYNC_DELAY",
+      "name": "OPZX7S Op3 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -26316,7 +26316,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_ASMRT",
-      "name": "OPZX7S Op3_LFO_ASMRT",
+      "name": "OPZX7S Op3 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -26325,7 +26325,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_PG_SHAPE",
-      "name": "OPZX7S Op3_LFO_PG_SHAPE",
+      "name": "OPZX7S Op3 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -26333,7 +26333,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_EG_SHAPE",
-      "name": "OPZX7S Op3_LFO_EG_SHAPE",
+      "name": "OPZX7S Op3 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -26341,7 +26341,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_AM",
-      "name": "OPZX7S Op3_LFO_AM",
+      "name": "OPZX7S Op3 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -26349,7 +26349,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_PM",
-      "name": "OPZX7S Op3_LFO_PM",
+      "name": "OPZX7S Op3 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -26357,7 +26357,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_PMS",
-      "name": "OPZX7S Op3_LFO_PMS",
+      "name": "OPZX7S Op3 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -26366,7 +26366,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_AMS",
-      "name": "OPZX7S Op3_LFO_AMS",
+      "name": "OPZX7S Op3 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -26375,7 +26375,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_PMD",
-      "name": "OPZX7S Op3_LFO_PMD",
+      "name": "OPZX7S Op3 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -26384,7 +26384,7 @@
     },
     {
       "id": "OPZX7_OP2_LFO_AMD",
-      "name": "OPZX7S Op3_LFO_AMD",
+      "name": "OPZX7S Op3 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -27474,7 +27474,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_PM_FREQ",
-      "name": "OPZX7S Op4_LFO_PM_FREQ",
+      "name": "OPZX7S Op4 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -27483,7 +27483,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_AM_FREQ",
-      "name": "OPZX7S Op4_LFO_AM_FREQ",
+      "name": "OPZX7S Op4 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -27492,7 +27492,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_PM_SYNC_DELAY",
-      "name": "OPZX7S Op4_LFO_PM_SYNC_DELAY",
+      "name": "OPZX7S Op4 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -27500,7 +27500,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_AM_SYNC_DELAY",
-      "name": "OPZX7S Op4_LFO_AM_SYNC_DELAY",
+      "name": "OPZX7S Op4 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -27508,7 +27508,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_ASMRT",
-      "name": "OPZX7S Op4_LFO_ASMRT",
+      "name": "OPZX7S Op4 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -27517,7 +27517,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_PG_SHAPE",
-      "name": "OPZX7S Op4_LFO_PG_SHAPE",
+      "name": "OPZX7S Op4 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -27525,7 +27525,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_EG_SHAPE",
-      "name": "OPZX7S Op4_LFO_EG_SHAPE",
+      "name": "OPZX7S Op4 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -27533,7 +27533,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_AM",
-      "name": "OPZX7S Op4_LFO_AM",
+      "name": "OPZX7S Op4 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -27541,7 +27541,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_PM",
-      "name": "OPZX7S Op4_LFO_PM",
+      "name": "OPZX7S Op4 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -27549,7 +27549,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_PMS",
-      "name": "OPZX7S Op4_LFO_PMS",
+      "name": "OPZX7S Op4 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -27558,7 +27558,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_AMS",
-      "name": "OPZX7S Op4_LFO_AMS",
+      "name": "OPZX7S Op4 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -27567,7 +27567,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_PMD",
-      "name": "OPZX7S Op4_LFO_PMD",
+      "name": "OPZX7S Op4 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -27576,7 +27576,7 @@
     },
     {
       "id": "OPZX7_OP3_LFO_AMD",
-      "name": "OPZX7S Op4_LFO_AMD",
+      "name": "OPZX7S Op4 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -28666,7 +28666,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_PM_FREQ",
-      "name": "OPZX7S Op5_LFO_PM_FREQ",
+      "name": "OPZX7S Op5 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -28675,7 +28675,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_AM_FREQ",
-      "name": "OPZX7S Op5_LFO_AM_FREQ",
+      "name": "OPZX7S Op5 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -28684,7 +28684,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_PM_SYNC_DELAY",
-      "name": "OPZX7S Op5_LFO_PM_SYNC_DELAY",
+      "name": "OPZX7S Op5 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -28692,7 +28692,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_AM_SYNC_DELAY",
-      "name": "OPZX7S Op5_LFO_AM_SYNC_DELAY",
+      "name": "OPZX7S Op5 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -28700,7 +28700,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_ASMRT",
-      "name": "OPZX7S Op5_LFO_ASMRT",
+      "name": "OPZX7S Op5 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -28709,7 +28709,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_PG_SHAPE",
-      "name": "OPZX7S Op5_LFO_PG_SHAPE",
+      "name": "OPZX7S Op5 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -28717,7 +28717,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_EG_SHAPE",
-      "name": "OPZX7S Op5_LFO_EG_SHAPE",
+      "name": "OPZX7S Op5 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -28725,7 +28725,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_AM",
-      "name": "OPZX7S Op5_LFO_AM",
+      "name": "OPZX7S Op5 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -28733,7 +28733,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_PM",
-      "name": "OPZX7S Op5_LFO_PM",
+      "name": "OPZX7S Op5 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -28741,7 +28741,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_PMS",
-      "name": "OPZX7S Op5_LFO_PMS",
+      "name": "OPZX7S Op5 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -28750,7 +28750,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_AMS",
-      "name": "OPZX7S Op5_LFO_AMS",
+      "name": "OPZX7S Op5 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -28759,7 +28759,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_PMD",
-      "name": "OPZX7S Op5_LFO_PMD",
+      "name": "OPZX7S Op5 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -28768,7 +28768,7 @@
     },
     {
       "id": "OPZX7_OP4_LFO_AMD",
-      "name": "OPZX7S Op5_LFO_AMD",
+      "name": "OPZX7S Op5 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -29858,7 +29858,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_PM_FREQ",
-      "name": "OPZX7S Op6_LFO_PM_FREQ",
+      "name": "OPZX7S Op6 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -29867,7 +29867,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_AM_FREQ",
-      "name": "OPZX7S Op6_LFO_AM_FREQ",
+      "name": "OPZX7S Op6 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -29876,7 +29876,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_PM_SYNC_DELAY",
-      "name": "OPZX7S Op6_LFO_PM_SYNC_DELAY",
+      "name": "OPZX7S Op6 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -29884,7 +29884,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_AM_SYNC_DELAY",
-      "name": "OPZX7S Op6_LFO_AM_SYNC_DELAY",
+      "name": "OPZX7S Op6 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -29892,7 +29892,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_ASMRT",
-      "name": "OPZX7S Op6_LFO_ASMRT",
+      "name": "OPZX7S Op6 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -29901,7 +29901,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_PG_SHAPE",
-      "name": "OPZX7S Op6_LFO_PG_SHAPE",
+      "name": "OPZX7S Op6 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -29909,7 +29909,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_EG_SHAPE",
-      "name": "OPZX7S Op6_LFO_EG_SHAPE",
+      "name": "OPZX7S Op6 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -29917,7 +29917,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_AM",
-      "name": "OPZX7S Op6_LFO_AM",
+      "name": "OPZX7S Op6 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -29925,7 +29925,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_PM",
-      "name": "OPZX7S Op6_LFO_PM",
+      "name": "OPZX7S Op6 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -29933,7 +29933,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_PMS",
-      "name": "OPZX7S Op6_LFO_PMS",
+      "name": "OPZX7S Op6 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -29942,7 +29942,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_AMS",
-      "name": "OPZX7S Op6_LFO_AMS",
+      "name": "OPZX7S Op6 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -29951,7 +29951,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_PMD",
-      "name": "OPZX7S Op6_LFO_PMD",
+      "name": "OPZX7S Op6 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -29960,7 +29960,7 @@
     },
     {
       "id": "OPZX7_OP5_LFO_AMD",
-      "name": "OPZX7S Op6_LFO_AMD",
+      "name": "OPZX7S Op6 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -31050,7 +31050,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_PM_FREQ",
-      "name": "OPZX7S Op7_LFO_PM_FREQ",
+      "name": "OPZX7S Op7 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -31059,7 +31059,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_AM_FREQ",
-      "name": "OPZX7S Op7_LFO_AM_FREQ",
+      "name": "OPZX7S Op7 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -31068,7 +31068,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_PM_SYNC_DELAY",
-      "name": "OPZX7S Op7_LFO_PM_SYNC_DELAY",
+      "name": "OPZX7S Op7 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -31076,7 +31076,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_AM_SYNC_DELAY",
-      "name": "OPZX7S Op7_LFO_AM_SYNC_DELAY",
+      "name": "OPZX7S Op7 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -31084,7 +31084,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_ASMRT",
-      "name": "OPZX7S Op7_LFO_ASMRT",
+      "name": "OPZX7S Op7 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -31093,7 +31093,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_PG_SHAPE",
-      "name": "OPZX7S Op7_LFO_PG_SHAPE",
+      "name": "OPZX7S Op7 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -31101,7 +31101,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_EG_SHAPE",
-      "name": "OPZX7S Op7_LFO_EG_SHAPE",
+      "name": "OPZX7S Op7 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -31109,7 +31109,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_AM",
-      "name": "OPZX7S Op7_LFO_AM",
+      "name": "OPZX7S Op7 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -31117,7 +31117,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_PM",
-      "name": "OPZX7S Op7_LFO_PM",
+      "name": "OPZX7S Op7 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -31125,7 +31125,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_PMS",
-      "name": "OPZX7S Op7_LFO_PMS",
+      "name": "OPZX7S Op7 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -31134,7 +31134,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_AMS",
-      "name": "OPZX7S Op7_LFO_AMS",
+      "name": "OPZX7S Op7 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -31143,7 +31143,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_PMD",
-      "name": "OPZX7S Op7_LFO_PMD",
+      "name": "OPZX7S Op7 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -31152,7 +31152,7 @@
     },
     {
       "id": "OPZX7_OP6_LFO_AMD",
-      "name": "OPZX7S Op7_LFO_AMD",
+      "name": "OPZX7S Op7 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -32242,7 +32242,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_PM_FREQ",
-      "name": "OPZX7S Op8_LFO_PM_FREQ",
+      "name": "OPZX7S Op8 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -32251,7 +32251,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_AM_FREQ",
-      "name": "OPZX7S Op8_LFO_AM_FREQ",
+      "name": "OPZX7S Op8 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -32260,7 +32260,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_PM_SYNC_DELAY",
-      "name": "OPZX7S Op8_LFO_PM_SYNC_DELAY",
+      "name": "OPZX7S Op8 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -32268,7 +32268,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_AM_SYNC_DELAY",
-      "name": "OPZX7S Op8_LFO_AM_SYNC_DELAY",
+      "name": "OPZX7S Op8 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -32276,7 +32276,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_ASMRT",
-      "name": "OPZX7S Op8_LFO_ASMRT",
+      "name": "OPZX7S Op8 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -32285,7 +32285,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_PG_SHAPE",
-      "name": "OPZX7S Op8_LFO_PG_SHAPE",
+      "name": "OPZX7S Op8 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -32293,7 +32293,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_EG_SHAPE",
-      "name": "OPZX7S Op8_LFO_EG_SHAPE",
+      "name": "OPZX7S Op8 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -32301,7 +32301,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_AM",
-      "name": "OPZX7S Op8_LFO_AM",
+      "name": "OPZX7S Op8 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -32309,7 +32309,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_PM",
-      "name": "OPZX7S Op8_LFO_PM",
+      "name": "OPZX7S Op8 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -32317,7 +32317,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_PMS",
-      "name": "OPZX7S Op8_LFO_PMS",
+      "name": "OPZX7S Op8 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -32326,7 +32326,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_AMS",
-      "name": "OPZX7S Op8_LFO_AMS",
+      "name": "OPZX7S Op8 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -32335,7 +32335,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_PMD",
-      "name": "OPZX7S Op8_LFO_PMD",
+      "name": "OPZX7S Op8 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -32344,7 +32344,7 @@
     },
     {
       "id": "OPZX7_OP7_LFO_AMD",
-      "name": "OPZX7S Op8_LFO_AMD",
+      "name": "OPZX7S Op8 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -33115,7 +33115,7 @@
     },
     {
       "id": "SSG_STL",
-      "name": "SSG_STL",
+      "name": "SSG Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -33124,7 +33124,7 @@
     },
     {
       "id": "SSG_KOR",
-      "name": "SSG_KOR",
+      "name": "SSG KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33806,7 +33806,7 @@
     },
     {
       "id": "SSG_LFO_PM_FREQ",
-      "name": "SSG_LFO_PM_FREQ",
+      "name": "SSG LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -33815,7 +33815,7 @@
     },
     {
       "id": "SSG_LFO_AM_FREQ",
-      "name": "SSG_LFO_AM_FREQ",
+      "name": "SSG LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -33824,7 +33824,7 @@
     },
     {
       "id": "SSG_LFO_PM_SYNC_DELAY",
-      "name": "SSG_LFO_PM_SYNC_DELAY",
+      "name": "SSG LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -33832,7 +33832,7 @@
     },
     {
       "id": "SSG_LFO_AM_SYNC_DELAY",
-      "name": "SSG_LFO_AM_SYNC_DELAY",
+      "name": "SSG LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -33840,7 +33840,7 @@
     },
     {
       "id": "SSG_LFO_ASMRT",
-      "name": "SSG_LFO_ASMRT",
+      "name": "SSG LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -33849,7 +33849,7 @@
     },
     {
       "id": "SSG_LFO_PG_SHAPE",
-      "name": "SSG_LFO_PG_SHAPE",
+      "name": "SSG LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -33857,7 +33857,7 @@
     },
     {
       "id": "SSG_LFO_EG_SHAPE",
-      "name": "SSG_LFO_EG_SHAPE",
+      "name": "SSG LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -33865,7 +33865,7 @@
     },
     {
       "id": "SSG_LFO_AM",
-      "name": "SSG_LFO_AM",
+      "name": "SSG LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33873,7 +33873,7 @@
     },
     {
       "id": "SSG_LFO_PM",
-      "name": "SSG_LFO_PM",
+      "name": "SSG LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33881,7 +33881,7 @@
     },
     {
       "id": "SSG_LFO_PMS",
-      "name": "SSG_LFO_PMS",
+      "name": "SSG LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -33890,7 +33890,7 @@
     },
     {
       "id": "SSG_LFO_AMS",
-      "name": "SSG_LFO_AMS",
+      "name": "SSG LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -33899,7 +33899,7 @@
     },
     {
       "id": "SSG_LFO_PMD",
-      "name": "SSG_LFO_PMD",
+      "name": "SSG LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -33908,7 +33908,7 @@
     },
     {
       "id": "SSG_LFO_AMD",
-      "name": "SSG_LFO_AMD",
+      "name": "SSG LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -34582,7 +34582,7 @@
     },
     {
       "id": "WT_STL",
-      "name": "WT_STL",
+      "name": "WT Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -34591,7 +34591,7 @@
     },
     {
       "id": "WT_KOR",
-      "name": "WT_KOR",
+      "name": "WT KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -35273,7 +35273,7 @@
     },
     {
       "id": "WT_LFO_PM_FREQ",
-      "name": "WT_LFO_PM_FREQ",
+      "name": "WT LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -35282,7 +35282,7 @@
     },
     {
       "id": "WT_LFO_AM_FREQ",
-      "name": "WT_LFO_AM_FREQ",
+      "name": "WT LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -35291,7 +35291,7 @@
     },
     {
       "id": "WT_LFO_PM_SYNC_DELAY",
-      "name": "WT_LFO_PM_SYNC_DELAY",
+      "name": "WT LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -35299,7 +35299,7 @@
     },
     {
       "id": "WT_LFO_AM_SYNC_DELAY",
-      "name": "WT_LFO_AM_SYNC_DELAY",
+      "name": "WT LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -35307,7 +35307,7 @@
     },
     {
       "id": "WT_LFO_ASMRT",
-      "name": "WT_LFO_ASMRT",
+      "name": "WT LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -35316,7 +35316,7 @@
     },
     {
       "id": "WT_LFO_PG_SHAPE",
-      "name": "WT_LFO_PG_SHAPE",
+      "name": "WT LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -35324,7 +35324,7 @@
     },
     {
       "id": "WT_LFO_EG_SHAPE",
-      "name": "WT_LFO_EG_SHAPE",
+      "name": "WT LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -35332,7 +35332,7 @@
     },
     {
       "id": "WT_LFO_AM",
-      "name": "WT_LFO_AM",
+      "name": "WT LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -35340,7 +35340,7 @@
     },
     {
       "id": "WT_LFO_PM",
-      "name": "WT_LFO_PM",
+      "name": "WT LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -35348,7 +35348,7 @@
     },
     {
       "id": "WT_LFO_PMS",
-      "name": "WT_LFO_PMS",
+      "name": "WT LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -35357,7 +35357,7 @@
     },
     {
       "id": "WT_LFO_AMS",
-      "name": "WT_LFO_AMS",
+      "name": "WT LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -35366,7 +35366,7 @@
     },
     {
       "id": "WT_LFO_PMD",
-      "name": "WT_LFO_PMD",
+      "name": "WT LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -35375,7 +35375,7 @@
     },
     {
       "id": "WT_LFO_AMD",
-      "name": "WT_LFO_AMD",
+      "name": "WT LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -40420,7 +40420,7 @@
     },
     {
       "id": "WT2_STL",
-      "name": "WT2_STL",
+      "name": "WT2 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -40429,7 +40429,7 @@
     },
     {
       "id": "WT2_KOR",
-      "name": "WT2_KOR",
+      "name": "WT2 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -41111,7 +41111,7 @@
     },
     {
       "id": "WT2_LFO_PM_FREQ",
-      "name": "WT2_LFO_PM_FREQ",
+      "name": "WT2 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -41120,7 +41120,7 @@
     },
     {
       "id": "WT2_LFO_AM_FREQ",
-      "name": "WT2_LFO_AM_FREQ",
+      "name": "WT2 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -41129,7 +41129,7 @@
     },
     {
       "id": "WT2_LFO_PM_SYNC_DELAY",
-      "name": "WT2_LFO_PM_SYNC_DELAY",
+      "name": "WT2 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -41137,7 +41137,7 @@
     },
     {
       "id": "WT2_LFO_AM_SYNC_DELAY",
-      "name": "WT2_LFO_AM_SYNC_DELAY",
+      "name": "WT2 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -41145,7 +41145,7 @@
     },
     {
       "id": "WT2_LFO_ASMRT",
-      "name": "WT2_LFO_ASMRT",
+      "name": "WT2 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -41154,7 +41154,7 @@
     },
     {
       "id": "WT2_LFO_PG_SHAPE",
-      "name": "WT2_LFO_PG_SHAPE",
+      "name": "WT2 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -41162,7 +41162,7 @@
     },
     {
       "id": "WT2_LFO_EG_SHAPE",
-      "name": "WT2_LFO_EG_SHAPE",
+      "name": "WT2 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -41170,7 +41170,7 @@
     },
     {
       "id": "WT2_LFO_AM",
-      "name": "WT2_LFO_AM",
+      "name": "WT2 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -41178,7 +41178,7 @@
     },
     {
       "id": "WT2_LFO_PM",
-      "name": "WT2_LFO_PM",
+      "name": "WT2 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -41186,7 +41186,7 @@
     },
     {
       "id": "WT2_LFO_PMS",
-      "name": "WT2_LFO_PMS",
+      "name": "WT2 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -41195,7 +41195,7 @@
     },
     {
       "id": "WT2_LFO_AMS",
-      "name": "WT2_LFO_AMS",
+      "name": "WT2 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -41204,7 +41204,7 @@
     },
     {
       "id": "WT2_LFO_PMD",
-      "name": "WT2_LFO_PMD",
+      "name": "WT2 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -41213,7 +41213,7 @@
     },
     {
       "id": "WT2_LFO_AMD",
-      "name": "WT2_LFO_AMD",
+      "name": "WT2 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -45770,7 +45770,7 @@
     },
     {
       "id": "WTPLUS_STL",
-      "name": "WT+_STL",
+      "name": "WT+ Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -45779,7 +45779,7 @@
     },
     {
       "id": "WTPLUS_KOR",
-      "name": "WT+_KOR",
+      "name": "WT+ KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -46461,7 +46461,7 @@
     },
     {
       "id": "WTPLUS_LFO_PM_FREQ",
-      "name": "WT+_LFO_PM_FREQ",
+      "name": "WT+ LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -46470,7 +46470,7 @@
     },
     {
       "id": "WTPLUS_LFO_AM_FREQ",
-      "name": "WT+_LFO_AM_FREQ",
+      "name": "WT+ LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -46479,7 +46479,7 @@
     },
     {
       "id": "WTPLUS_LFO_PM_SYNC_DELAY",
-      "name": "WT+_LFO_PM_SYNC_DELAY",
+      "name": "WT+ LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -46487,7 +46487,7 @@
     },
     {
       "id": "WTPLUS_LFO_AM_SYNC_DELAY",
-      "name": "WT+_LFO_AM_SYNC_DELAY",
+      "name": "WT+ LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -46495,7 +46495,7 @@
     },
     {
       "id": "WTPLUS_LFO_ASMRT",
-      "name": "WT+_LFO_ASMRT",
+      "name": "WT+ LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -46504,7 +46504,7 @@
     },
     {
       "id": "WTPLUS_LFO_PG_SHAPE",
-      "name": "WT+_LFO_PG_SHAPE",
+      "name": "WT+ LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -46512,7 +46512,7 @@
     },
     {
       "id": "WTPLUS_LFO_EG_SHAPE",
-      "name": "WT+_LFO_EG_SHAPE",
+      "name": "WT+ LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -46520,7 +46520,7 @@
     },
     {
       "id": "WTPLUS_LFO_AM",
-      "name": "WT+_LFO_AM",
+      "name": "WT+ LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -46528,7 +46528,7 @@
     },
     {
       "id": "WTPLUS_LFO_PM",
-      "name": "WT+_LFO_PM",
+      "name": "WT+ LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -46536,7 +46536,7 @@
     },
     {
       "id": "WTPLUS_LFO_PMS",
-      "name": "WT+_LFO_PMS",
+      "name": "WT+ LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -46545,7 +46545,7 @@
     },
     {
       "id": "WTPLUS_LFO_AMS",
-      "name": "WT+_LFO_AMS",
+      "name": "WT+ LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -46554,7 +46554,7 @@
     },
     {
       "id": "WTPLUS_LFO_PMD",
-      "name": "WT+_LFO_PMD",
+      "name": "WT+ LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -46563,7 +46563,7 @@
     },
     {
       "id": "WTPLUS_LFO_AMD",
-      "name": "WT+_LFO_AMD",
+      "name": "WT+ LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -47056,7 +47056,7 @@
     },
     {
       "id": "RHYTHM_PAD0_STL",
-      "name": "RHYTHM Pad1_STL",
+      "name": "RHYTHM Pad1 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -47065,7 +47065,7 @@
     },
     {
       "id": "RHYTHM_PAD0_KOR",
-      "name": "RHYTHM Pad1_KOR",
+      "name": "RHYTHM Pad1 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -47747,7 +47747,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_PM_FREQ",
-      "name": "RHYTHM Pad1_LFO_PM_FREQ",
+      "name": "RHYTHM Pad1 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -47756,7 +47756,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_AM_FREQ",
-      "name": "RHYTHM Pad1_LFO_AM_FREQ",
+      "name": "RHYTHM Pad1 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -47765,7 +47765,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_PM_SYNC_DELAY",
-      "name": "RHYTHM Pad1_LFO_PM_SYNC_DELAY",
+      "name": "RHYTHM Pad1 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -47773,7 +47773,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_AM_SYNC_DELAY",
-      "name": "RHYTHM Pad1_LFO_AM_SYNC_DELAY",
+      "name": "RHYTHM Pad1 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -47781,7 +47781,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_ASMRT",
-      "name": "RHYTHM Pad1_LFO_ASMRT",
+      "name": "RHYTHM Pad1 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -47790,7 +47790,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_PG_SHAPE",
-      "name": "RHYTHM Pad1_LFO_PG_SHAPE",
+      "name": "RHYTHM Pad1 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -47798,7 +47798,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_EG_SHAPE",
-      "name": "RHYTHM Pad1_LFO_EG_SHAPE",
+      "name": "RHYTHM Pad1 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -47806,7 +47806,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_AM",
-      "name": "RHYTHM Pad1_LFO_AM",
+      "name": "RHYTHM Pad1 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -47814,7 +47814,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_PM",
-      "name": "RHYTHM Pad1_LFO_PM",
+      "name": "RHYTHM Pad1 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -47822,7 +47822,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_PMS",
-      "name": "RHYTHM Pad1_LFO_PMS",
+      "name": "RHYTHM Pad1 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -47831,7 +47831,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_AMS",
-      "name": "RHYTHM Pad1_LFO_AMS",
+      "name": "RHYTHM Pad1 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -47840,7 +47840,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_PMD",
-      "name": "RHYTHM Pad1_LFO_PMD",
+      "name": "RHYTHM Pad1 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -47849,7 +47849,7 @@
     },
     {
       "id": "RHYTHM_PAD0_LFO_AMD",
-      "name": "RHYTHM Pad1_LFO_AMD",
+      "name": "RHYTHM Pad1 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -47940,7 +47940,7 @@
     },
     {
       "id": "RHYTHM_PAD0_SSGHWENV_ENABLE",
-      "name": "RHYTHM Hardware Env Enable",
+      "name": "RHYTHM Pad1 Hardware Env Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -47948,7 +47948,7 @@
     },
     {
       "id": "RHYTHM_PAD0_SSGHWENV_SHAPE",
-      "name": "RHYTHM Hardware Env Shape",
+      "name": "RHYTHM Pad1 Hardware Env Shape",
       "type": "Int",
       "min": 0,
       "max": 43,
@@ -47956,7 +47956,7 @@
     },
     {
       "id": "RHYTHM_PAD0_SSGHWENV_PERIOD",
-      "name": "RHYTHM Hardware Env Period",
+      "name": "RHYTHM Pad1 Hardware Env Period",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 200.0,
@@ -47965,7 +47965,7 @@
     },
     {
       "id": "RHYTHM_PAD0_SSGHWENV_MIN",
-      "name": "RHYTHM Hardware Env Min",
+      "name": "RHYTHM Pad1 Hardware Env Min",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -47974,7 +47974,7 @@
     },
     {
       "id": "RHYTHM_PAD0_SSGHWENV_MAX",
-      "name": "RHYTHM Hardware Env Max",
+      "name": "RHYTHM Pad1 Hardware Env Max",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -47983,7 +47983,7 @@
     },
     {
       "id": "RHYTHM_PAD0_SSGHWENV_SMOOTH",
-      "name": "RHYTHM Hardware Env Smooth",
+      "name": "RHYTHM Pad1 Hardware Env Smooth",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -48495,7 +48495,7 @@
     },
     {
       "id": "RHYTHM_PAD1_STL",
-      "name": "RHYTHM Pad2_STL",
+      "name": "RHYTHM Pad2 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -48504,7 +48504,7 @@
     },
     {
       "id": "RHYTHM_PAD1_KOR",
-      "name": "RHYTHM Pad2_KOR",
+      "name": "RHYTHM Pad2 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -49186,7 +49186,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_PM_FREQ",
-      "name": "RHYTHM Pad2_LFO_PM_FREQ",
+      "name": "RHYTHM Pad2 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -49195,7 +49195,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_AM_FREQ",
-      "name": "RHYTHM Pad2_LFO_AM_FREQ",
+      "name": "RHYTHM Pad2 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -49204,7 +49204,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_PM_SYNC_DELAY",
-      "name": "RHYTHM Pad2_LFO_PM_SYNC_DELAY",
+      "name": "RHYTHM Pad2 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -49212,7 +49212,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_AM_SYNC_DELAY",
-      "name": "RHYTHM Pad2_LFO_AM_SYNC_DELAY",
+      "name": "RHYTHM Pad2 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -49220,7 +49220,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_ASMRT",
-      "name": "RHYTHM Pad2_LFO_ASMRT",
+      "name": "RHYTHM Pad2 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -49229,7 +49229,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_PG_SHAPE",
-      "name": "RHYTHM Pad2_LFO_PG_SHAPE",
+      "name": "RHYTHM Pad2 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -49237,7 +49237,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_EG_SHAPE",
-      "name": "RHYTHM Pad2_LFO_EG_SHAPE",
+      "name": "RHYTHM Pad2 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -49245,7 +49245,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_AM",
-      "name": "RHYTHM Pad2_LFO_AM",
+      "name": "RHYTHM Pad2 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -49253,7 +49253,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_PM",
-      "name": "RHYTHM Pad2_LFO_PM",
+      "name": "RHYTHM Pad2 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -49261,7 +49261,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_PMS",
-      "name": "RHYTHM Pad2_LFO_PMS",
+      "name": "RHYTHM Pad2 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -49270,7 +49270,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_AMS",
-      "name": "RHYTHM Pad2_LFO_AMS",
+      "name": "RHYTHM Pad2 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -49279,7 +49279,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_PMD",
-      "name": "RHYTHM Pad2_LFO_PMD",
+      "name": "RHYTHM Pad2 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -49288,7 +49288,7 @@
     },
     {
       "id": "RHYTHM_PAD1_LFO_AMD",
-      "name": "RHYTHM Pad2_LFO_AMD",
+      "name": "RHYTHM Pad2 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -49379,7 +49379,7 @@
     },
     {
       "id": "RHYTHM_PAD1_SSGHWENV_ENABLE",
-      "name": "RHYTHM Hardware Env Enable",
+      "name": "RHYTHM Pad2 Hardware Env Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -49387,7 +49387,7 @@
     },
     {
       "id": "RHYTHM_PAD1_SSGHWENV_SHAPE",
-      "name": "RHYTHM Hardware Env Shape",
+      "name": "RHYTHM Pad2 Hardware Env Shape",
       "type": "Int",
       "min": 0,
       "max": 43,
@@ -49395,7 +49395,7 @@
     },
     {
       "id": "RHYTHM_PAD1_SSGHWENV_PERIOD",
-      "name": "RHYTHM Hardware Env Period",
+      "name": "RHYTHM Pad2 Hardware Env Period",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 200.0,
@@ -49404,7 +49404,7 @@
     },
     {
       "id": "RHYTHM_PAD1_SSGHWENV_MIN",
-      "name": "RHYTHM Hardware Env Min",
+      "name": "RHYTHM Pad2 Hardware Env Min",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -49413,7 +49413,7 @@
     },
     {
       "id": "RHYTHM_PAD1_SSGHWENV_MAX",
-      "name": "RHYTHM Hardware Env Max",
+      "name": "RHYTHM Pad2 Hardware Env Max",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -49422,7 +49422,7 @@
     },
     {
       "id": "RHYTHM_PAD1_SSGHWENV_SMOOTH",
-      "name": "RHYTHM Hardware Env Smooth",
+      "name": "RHYTHM Pad2 Hardware Env Smooth",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -49934,7 +49934,7 @@
     },
     {
       "id": "RHYTHM_PAD2_STL",
-      "name": "RHYTHM Pad3_STL",
+      "name": "RHYTHM Pad3 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -49943,7 +49943,7 @@
     },
     {
       "id": "RHYTHM_PAD2_KOR",
-      "name": "RHYTHM Pad3_KOR",
+      "name": "RHYTHM Pad3 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -50625,7 +50625,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_PM_FREQ",
-      "name": "RHYTHM Pad3_LFO_PM_FREQ",
+      "name": "RHYTHM Pad3 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -50634,7 +50634,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_AM_FREQ",
-      "name": "RHYTHM Pad3_LFO_AM_FREQ",
+      "name": "RHYTHM Pad3 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -50643,7 +50643,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_PM_SYNC_DELAY",
-      "name": "RHYTHM Pad3_LFO_PM_SYNC_DELAY",
+      "name": "RHYTHM Pad3 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -50651,7 +50651,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_AM_SYNC_DELAY",
-      "name": "RHYTHM Pad3_LFO_AM_SYNC_DELAY",
+      "name": "RHYTHM Pad3 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -50659,7 +50659,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_ASMRT",
-      "name": "RHYTHM Pad3_LFO_ASMRT",
+      "name": "RHYTHM Pad3 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -50668,7 +50668,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_PG_SHAPE",
-      "name": "RHYTHM Pad3_LFO_PG_SHAPE",
+      "name": "RHYTHM Pad3 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -50676,7 +50676,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_EG_SHAPE",
-      "name": "RHYTHM Pad3_LFO_EG_SHAPE",
+      "name": "RHYTHM Pad3 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -50684,7 +50684,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_AM",
-      "name": "RHYTHM Pad3_LFO_AM",
+      "name": "RHYTHM Pad3 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -50692,7 +50692,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_PM",
-      "name": "RHYTHM Pad3_LFO_PM",
+      "name": "RHYTHM Pad3 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -50700,7 +50700,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_PMS",
-      "name": "RHYTHM Pad3_LFO_PMS",
+      "name": "RHYTHM Pad3 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -50709,7 +50709,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_AMS",
-      "name": "RHYTHM Pad3_LFO_AMS",
+      "name": "RHYTHM Pad3 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -50718,7 +50718,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_PMD",
-      "name": "RHYTHM Pad3_LFO_PMD",
+      "name": "RHYTHM Pad3 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -50727,7 +50727,7 @@
     },
     {
       "id": "RHYTHM_PAD2_LFO_AMD",
-      "name": "RHYTHM Pad3_LFO_AMD",
+      "name": "RHYTHM Pad3 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -50818,7 +50818,7 @@
     },
     {
       "id": "RHYTHM_PAD2_SSGHWENV_ENABLE",
-      "name": "RHYTHM Hardware Env Enable",
+      "name": "RHYTHM Pad3 Hardware Env Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -50826,7 +50826,7 @@
     },
     {
       "id": "RHYTHM_PAD2_SSGHWENV_SHAPE",
-      "name": "RHYTHM Hardware Env Shape",
+      "name": "RHYTHM Pad3 Hardware Env Shape",
       "type": "Int",
       "min": 0,
       "max": 43,
@@ -50834,7 +50834,7 @@
     },
     {
       "id": "RHYTHM_PAD2_SSGHWENV_PERIOD",
-      "name": "RHYTHM Hardware Env Period",
+      "name": "RHYTHM Pad3 Hardware Env Period",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 200.0,
@@ -50843,7 +50843,7 @@
     },
     {
       "id": "RHYTHM_PAD2_SSGHWENV_MIN",
-      "name": "RHYTHM Hardware Env Min",
+      "name": "RHYTHM Pad3 Hardware Env Min",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -50852,7 +50852,7 @@
     },
     {
       "id": "RHYTHM_PAD2_SSGHWENV_MAX",
-      "name": "RHYTHM Hardware Env Max",
+      "name": "RHYTHM Pad3 Hardware Env Max",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -50861,7 +50861,7 @@
     },
     {
       "id": "RHYTHM_PAD2_SSGHWENV_SMOOTH",
-      "name": "RHYTHM Hardware Env Smooth",
+      "name": "RHYTHM Pad3 Hardware Env Smooth",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -51373,7 +51373,7 @@
     },
     {
       "id": "RHYTHM_PAD3_STL",
-      "name": "RHYTHM Pad4_STL",
+      "name": "RHYTHM Pad4 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -51382,7 +51382,7 @@
     },
     {
       "id": "RHYTHM_PAD3_KOR",
-      "name": "RHYTHM Pad4_KOR",
+      "name": "RHYTHM Pad4 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -52064,7 +52064,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_PM_FREQ",
-      "name": "RHYTHM Pad4_LFO_PM_FREQ",
+      "name": "RHYTHM Pad4 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -52073,7 +52073,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_AM_FREQ",
-      "name": "RHYTHM Pad4_LFO_AM_FREQ",
+      "name": "RHYTHM Pad4 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -52082,7 +52082,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_PM_SYNC_DELAY",
-      "name": "RHYTHM Pad4_LFO_PM_SYNC_DELAY",
+      "name": "RHYTHM Pad4 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -52090,7 +52090,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_AM_SYNC_DELAY",
-      "name": "RHYTHM Pad4_LFO_AM_SYNC_DELAY",
+      "name": "RHYTHM Pad4 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -52098,7 +52098,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_ASMRT",
-      "name": "RHYTHM Pad4_LFO_ASMRT",
+      "name": "RHYTHM Pad4 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -52107,7 +52107,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_PG_SHAPE",
-      "name": "RHYTHM Pad4_LFO_PG_SHAPE",
+      "name": "RHYTHM Pad4 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -52115,7 +52115,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_EG_SHAPE",
-      "name": "RHYTHM Pad4_LFO_EG_SHAPE",
+      "name": "RHYTHM Pad4 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -52123,7 +52123,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_AM",
-      "name": "RHYTHM Pad4_LFO_AM",
+      "name": "RHYTHM Pad4 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -52131,7 +52131,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_PM",
-      "name": "RHYTHM Pad4_LFO_PM",
+      "name": "RHYTHM Pad4 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -52139,7 +52139,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_PMS",
-      "name": "RHYTHM Pad4_LFO_PMS",
+      "name": "RHYTHM Pad4 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -52148,7 +52148,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_AMS",
-      "name": "RHYTHM Pad4_LFO_AMS",
+      "name": "RHYTHM Pad4 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -52157,7 +52157,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_PMD",
-      "name": "RHYTHM Pad4_LFO_PMD",
+      "name": "RHYTHM Pad4 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -52166,7 +52166,7 @@
     },
     {
       "id": "RHYTHM_PAD3_LFO_AMD",
-      "name": "RHYTHM Pad4_LFO_AMD",
+      "name": "RHYTHM Pad4 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -52257,7 +52257,7 @@
     },
     {
       "id": "RHYTHM_PAD3_SSGHWENV_ENABLE",
-      "name": "RHYTHM Hardware Env Enable",
+      "name": "RHYTHM Pad4 Hardware Env Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -52265,7 +52265,7 @@
     },
     {
       "id": "RHYTHM_PAD3_SSGHWENV_SHAPE",
-      "name": "RHYTHM Hardware Env Shape",
+      "name": "RHYTHM Pad4 Hardware Env Shape",
       "type": "Int",
       "min": 0,
       "max": 43,
@@ -52273,7 +52273,7 @@
     },
     {
       "id": "RHYTHM_PAD3_SSGHWENV_PERIOD",
-      "name": "RHYTHM Hardware Env Period",
+      "name": "RHYTHM Pad4 Hardware Env Period",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 200.0,
@@ -52282,7 +52282,7 @@
     },
     {
       "id": "RHYTHM_PAD3_SSGHWENV_MIN",
-      "name": "RHYTHM Hardware Env Min",
+      "name": "RHYTHM Pad4 Hardware Env Min",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -52291,7 +52291,7 @@
     },
     {
       "id": "RHYTHM_PAD3_SSGHWENV_MAX",
-      "name": "RHYTHM Hardware Env Max",
+      "name": "RHYTHM Pad4 Hardware Env Max",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -52300,7 +52300,7 @@
     },
     {
       "id": "RHYTHM_PAD3_SSGHWENV_SMOOTH",
-      "name": "RHYTHM Hardware Env Smooth",
+      "name": "RHYTHM Pad4 Hardware Env Smooth",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -52812,7 +52812,7 @@
     },
     {
       "id": "RHYTHM_PAD4_STL",
-      "name": "RHYTHM Pad5_STL",
+      "name": "RHYTHM Pad5 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -52821,7 +52821,7 @@
     },
     {
       "id": "RHYTHM_PAD4_KOR",
-      "name": "RHYTHM Pad5_KOR",
+      "name": "RHYTHM Pad5 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -53503,7 +53503,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_PM_FREQ",
-      "name": "RHYTHM Pad5_LFO_PM_FREQ",
+      "name": "RHYTHM Pad5 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -53512,7 +53512,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_AM_FREQ",
-      "name": "RHYTHM Pad5_LFO_AM_FREQ",
+      "name": "RHYTHM Pad5 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -53521,7 +53521,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_PM_SYNC_DELAY",
-      "name": "RHYTHM Pad5_LFO_PM_SYNC_DELAY",
+      "name": "RHYTHM Pad5 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -53529,7 +53529,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_AM_SYNC_DELAY",
-      "name": "RHYTHM Pad5_LFO_AM_SYNC_DELAY",
+      "name": "RHYTHM Pad5 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -53537,7 +53537,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_ASMRT",
-      "name": "RHYTHM Pad5_LFO_ASMRT",
+      "name": "RHYTHM Pad5 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -53546,7 +53546,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_PG_SHAPE",
-      "name": "RHYTHM Pad5_LFO_PG_SHAPE",
+      "name": "RHYTHM Pad5 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -53554,7 +53554,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_EG_SHAPE",
-      "name": "RHYTHM Pad5_LFO_EG_SHAPE",
+      "name": "RHYTHM Pad5 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -53562,7 +53562,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_AM",
-      "name": "RHYTHM Pad5_LFO_AM",
+      "name": "RHYTHM Pad5 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -53570,7 +53570,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_PM",
-      "name": "RHYTHM Pad5_LFO_PM",
+      "name": "RHYTHM Pad5 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -53578,7 +53578,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_PMS",
-      "name": "RHYTHM Pad5_LFO_PMS",
+      "name": "RHYTHM Pad5 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -53587,7 +53587,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_AMS",
-      "name": "RHYTHM Pad5_LFO_AMS",
+      "name": "RHYTHM Pad5 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -53596,7 +53596,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_PMD",
-      "name": "RHYTHM Pad5_LFO_PMD",
+      "name": "RHYTHM Pad5 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -53605,7 +53605,7 @@
     },
     {
       "id": "RHYTHM_PAD4_LFO_AMD",
-      "name": "RHYTHM Pad5_LFO_AMD",
+      "name": "RHYTHM Pad5 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -53696,7 +53696,7 @@
     },
     {
       "id": "RHYTHM_PAD4_SSGHWENV_ENABLE",
-      "name": "RHYTHM Hardware Env Enable",
+      "name": "RHYTHM Pad5 Hardware Env Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -53704,7 +53704,7 @@
     },
     {
       "id": "RHYTHM_PAD4_SSGHWENV_SHAPE",
-      "name": "RHYTHM Hardware Env Shape",
+      "name": "RHYTHM Pad5 Hardware Env Shape",
       "type": "Int",
       "min": 0,
       "max": 43,
@@ -53712,7 +53712,7 @@
     },
     {
       "id": "RHYTHM_PAD4_SSGHWENV_PERIOD",
-      "name": "RHYTHM Hardware Env Period",
+      "name": "RHYTHM Pad5 Hardware Env Period",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 200.0,
@@ -53721,7 +53721,7 @@
     },
     {
       "id": "RHYTHM_PAD4_SSGHWENV_MIN",
-      "name": "RHYTHM Hardware Env Min",
+      "name": "RHYTHM Pad5 Hardware Env Min",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -53730,7 +53730,7 @@
     },
     {
       "id": "RHYTHM_PAD4_SSGHWENV_MAX",
-      "name": "RHYTHM Hardware Env Max",
+      "name": "RHYTHM Pad5 Hardware Env Max",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -53739,7 +53739,7 @@
     },
     {
       "id": "RHYTHM_PAD4_SSGHWENV_SMOOTH",
-      "name": "RHYTHM Hardware Env Smooth",
+      "name": "RHYTHM Pad5 Hardware Env Smooth",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -54251,7 +54251,7 @@
     },
     {
       "id": "RHYTHM_PAD5_STL",
-      "name": "RHYTHM Pad6_STL",
+      "name": "RHYTHM Pad6 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -54260,7 +54260,7 @@
     },
     {
       "id": "RHYTHM_PAD5_KOR",
-      "name": "RHYTHM Pad6_KOR",
+      "name": "RHYTHM Pad6 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -54942,7 +54942,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_PM_FREQ",
-      "name": "RHYTHM Pad6_LFO_PM_FREQ",
+      "name": "RHYTHM Pad6 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -54951,7 +54951,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_AM_FREQ",
-      "name": "RHYTHM Pad6_LFO_AM_FREQ",
+      "name": "RHYTHM Pad6 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -54960,7 +54960,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_PM_SYNC_DELAY",
-      "name": "RHYTHM Pad6_LFO_PM_SYNC_DELAY",
+      "name": "RHYTHM Pad6 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -54968,7 +54968,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_AM_SYNC_DELAY",
-      "name": "RHYTHM Pad6_LFO_AM_SYNC_DELAY",
+      "name": "RHYTHM Pad6 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -54976,7 +54976,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_ASMRT",
-      "name": "RHYTHM Pad6_LFO_ASMRT",
+      "name": "RHYTHM Pad6 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -54985,7 +54985,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_PG_SHAPE",
-      "name": "RHYTHM Pad6_LFO_PG_SHAPE",
+      "name": "RHYTHM Pad6 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -54993,7 +54993,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_EG_SHAPE",
-      "name": "RHYTHM Pad6_LFO_EG_SHAPE",
+      "name": "RHYTHM Pad6 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -55001,7 +55001,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_AM",
-      "name": "RHYTHM Pad6_LFO_AM",
+      "name": "RHYTHM Pad6 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -55009,7 +55009,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_PM",
-      "name": "RHYTHM Pad6_LFO_PM",
+      "name": "RHYTHM Pad6 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -55017,7 +55017,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_PMS",
-      "name": "RHYTHM Pad6_LFO_PMS",
+      "name": "RHYTHM Pad6 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -55026,7 +55026,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_AMS",
-      "name": "RHYTHM Pad6_LFO_AMS",
+      "name": "RHYTHM Pad6 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -55035,7 +55035,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_PMD",
-      "name": "RHYTHM Pad6_LFO_PMD",
+      "name": "RHYTHM Pad6 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -55044,7 +55044,7 @@
     },
     {
       "id": "RHYTHM_PAD5_LFO_AMD",
-      "name": "RHYTHM Pad6_LFO_AMD",
+      "name": "RHYTHM Pad6 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -55135,7 +55135,7 @@
     },
     {
       "id": "RHYTHM_PAD5_SSGHWENV_ENABLE",
-      "name": "RHYTHM Hardware Env Enable",
+      "name": "RHYTHM Pad6 Hardware Env Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -55143,7 +55143,7 @@
     },
     {
       "id": "RHYTHM_PAD5_SSGHWENV_SHAPE",
-      "name": "RHYTHM Hardware Env Shape",
+      "name": "RHYTHM Pad6 Hardware Env Shape",
       "type": "Int",
       "min": 0,
       "max": 43,
@@ -55151,7 +55151,7 @@
     },
     {
       "id": "RHYTHM_PAD5_SSGHWENV_PERIOD",
-      "name": "RHYTHM Hardware Env Period",
+      "name": "RHYTHM Pad6 Hardware Env Period",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 200.0,
@@ -55160,7 +55160,7 @@
     },
     {
       "id": "RHYTHM_PAD5_SSGHWENV_MIN",
-      "name": "RHYTHM Hardware Env Min",
+      "name": "RHYTHM Pad6 Hardware Env Min",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -55169,7 +55169,7 @@
     },
     {
       "id": "RHYTHM_PAD5_SSGHWENV_MAX",
-      "name": "RHYTHM Hardware Env Max",
+      "name": "RHYTHM Pad6 Hardware Env Max",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -55178,7 +55178,7 @@
     },
     {
       "id": "RHYTHM_PAD5_SSGHWENV_SMOOTH",
-      "name": "RHYTHM Hardware Env Smooth",
+      "name": "RHYTHM Pad6 Hardware Env Smooth",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -55690,7 +55690,7 @@
     },
     {
       "id": "RHYTHM_PAD6_STL",
-      "name": "RHYTHM Pad7_STL",
+      "name": "RHYTHM Pad7 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -55699,7 +55699,7 @@
     },
     {
       "id": "RHYTHM_PAD6_KOR",
-      "name": "RHYTHM Pad7_KOR",
+      "name": "RHYTHM Pad7 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -56381,7 +56381,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_PM_FREQ",
-      "name": "RHYTHM Pad7_LFO_PM_FREQ",
+      "name": "RHYTHM Pad7 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -56390,7 +56390,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_AM_FREQ",
-      "name": "RHYTHM Pad7_LFO_AM_FREQ",
+      "name": "RHYTHM Pad7 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -56399,7 +56399,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_PM_SYNC_DELAY",
-      "name": "RHYTHM Pad7_LFO_PM_SYNC_DELAY",
+      "name": "RHYTHM Pad7 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -56407,7 +56407,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_AM_SYNC_DELAY",
-      "name": "RHYTHM Pad7_LFO_AM_SYNC_DELAY",
+      "name": "RHYTHM Pad7 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -56415,7 +56415,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_ASMRT",
-      "name": "RHYTHM Pad7_LFO_ASMRT",
+      "name": "RHYTHM Pad7 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -56424,7 +56424,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_PG_SHAPE",
-      "name": "RHYTHM Pad7_LFO_PG_SHAPE",
+      "name": "RHYTHM Pad7 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -56432,7 +56432,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_EG_SHAPE",
-      "name": "RHYTHM Pad7_LFO_EG_SHAPE",
+      "name": "RHYTHM Pad7 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -56440,7 +56440,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_AM",
-      "name": "RHYTHM Pad7_LFO_AM",
+      "name": "RHYTHM Pad7 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -56448,7 +56448,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_PM",
-      "name": "RHYTHM Pad7_LFO_PM",
+      "name": "RHYTHM Pad7 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -56456,7 +56456,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_PMS",
-      "name": "RHYTHM Pad7_LFO_PMS",
+      "name": "RHYTHM Pad7 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -56465,7 +56465,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_AMS",
-      "name": "RHYTHM Pad7_LFO_AMS",
+      "name": "RHYTHM Pad7 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -56474,7 +56474,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_PMD",
-      "name": "RHYTHM Pad7_LFO_PMD",
+      "name": "RHYTHM Pad7 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -56483,7 +56483,7 @@
     },
     {
       "id": "RHYTHM_PAD6_LFO_AMD",
-      "name": "RHYTHM Pad7_LFO_AMD",
+      "name": "RHYTHM Pad7 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -56574,7 +56574,7 @@
     },
     {
       "id": "RHYTHM_PAD6_SSGHWENV_ENABLE",
-      "name": "RHYTHM Hardware Env Enable",
+      "name": "RHYTHM Pad7 Hardware Env Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -56582,7 +56582,7 @@
     },
     {
       "id": "RHYTHM_PAD6_SSGHWENV_SHAPE",
-      "name": "RHYTHM Hardware Env Shape",
+      "name": "RHYTHM Pad7 Hardware Env Shape",
       "type": "Int",
       "min": 0,
       "max": 43,
@@ -56590,7 +56590,7 @@
     },
     {
       "id": "RHYTHM_PAD6_SSGHWENV_PERIOD",
-      "name": "RHYTHM Hardware Env Period",
+      "name": "RHYTHM Pad7 Hardware Env Period",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 200.0,
@@ -56599,7 +56599,7 @@
     },
     {
       "id": "RHYTHM_PAD6_SSGHWENV_MIN",
-      "name": "RHYTHM Hardware Env Min",
+      "name": "RHYTHM Pad7 Hardware Env Min",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -56608,7 +56608,7 @@
     },
     {
       "id": "RHYTHM_PAD6_SSGHWENV_MAX",
-      "name": "RHYTHM Hardware Env Max",
+      "name": "RHYTHM Pad7 Hardware Env Max",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -56617,7 +56617,7 @@
     },
     {
       "id": "RHYTHM_PAD6_SSGHWENV_SMOOTH",
-      "name": "RHYTHM Hardware Env Smooth",
+      "name": "RHYTHM Pad7 Hardware Env Smooth",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -57129,7 +57129,7 @@
     },
     {
       "id": "RHYTHM_PAD7_STL",
-      "name": "RHYTHM Pad8_STL",
+      "name": "RHYTHM Pad8 Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -57138,7 +57138,7 @@
     },
     {
       "id": "RHYTHM_PAD7_KOR",
-      "name": "RHYTHM Pad8_KOR",
+      "name": "RHYTHM Pad8 KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -57820,7 +57820,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_PM_FREQ",
-      "name": "RHYTHM Pad8_LFO_PM_FREQ",
+      "name": "RHYTHM Pad8 LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -57829,7 +57829,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_AM_FREQ",
-      "name": "RHYTHM Pad8_LFO_AM_FREQ",
+      "name": "RHYTHM Pad8 LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -57838,7 +57838,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_PM_SYNC_DELAY",
-      "name": "RHYTHM Pad8_LFO_PM_SYNC_DELAY",
+      "name": "RHYTHM Pad8 LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -57846,7 +57846,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_AM_SYNC_DELAY",
-      "name": "RHYTHM Pad8_LFO_AM_SYNC_DELAY",
+      "name": "RHYTHM Pad8 LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -57854,7 +57854,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_ASMRT",
-      "name": "RHYTHM Pad8_LFO_ASMRT",
+      "name": "RHYTHM Pad8 LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -57863,7 +57863,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_PG_SHAPE",
-      "name": "RHYTHM Pad8_LFO_PG_SHAPE",
+      "name": "RHYTHM Pad8 LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -57871,7 +57871,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_EG_SHAPE",
-      "name": "RHYTHM Pad8_LFO_EG_SHAPE",
+      "name": "RHYTHM Pad8 LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -57879,7 +57879,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_AM",
-      "name": "RHYTHM Pad8_LFO_AM",
+      "name": "RHYTHM Pad8 LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -57887,7 +57887,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_PM",
-      "name": "RHYTHM Pad8_LFO_PM",
+      "name": "RHYTHM Pad8 LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -57895,7 +57895,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_PMS",
-      "name": "RHYTHM Pad8_LFO_PMS",
+      "name": "RHYTHM Pad8 LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -57904,7 +57904,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_AMS",
-      "name": "RHYTHM Pad8_LFO_AMS",
+      "name": "RHYTHM Pad8 LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -57913,7 +57913,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_PMD",
-      "name": "RHYTHM Pad8_LFO_PMD",
+      "name": "RHYTHM Pad8 LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -57922,7 +57922,7 @@
     },
     {
       "id": "RHYTHM_PAD7_LFO_AMD",
-      "name": "RHYTHM Pad8_LFO_AMD",
+      "name": "RHYTHM Pad8 LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -58013,7 +58013,7 @@
     },
     {
       "id": "RHYTHM_PAD7_SSGHWENV_ENABLE",
-      "name": "RHYTHM Hardware Env Enable",
+      "name": "RHYTHM Pad8 Hardware Env Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -58021,7 +58021,7 @@
     },
     {
       "id": "RHYTHM_PAD7_SSGHWENV_SHAPE",
-      "name": "RHYTHM Hardware Env Shape",
+      "name": "RHYTHM Pad8 Hardware Env Shape",
       "type": "Int",
       "min": 0,
       "max": 43,
@@ -58029,7 +58029,7 @@
     },
     {
       "id": "RHYTHM_PAD7_SSGHWENV_PERIOD",
-      "name": "RHYTHM Hardware Env Period",
+      "name": "RHYTHM Pad8 Hardware Env Period",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 200.0,
@@ -58038,7 +58038,7 @@
     },
     {
       "id": "RHYTHM_PAD7_SSGHWENV_MIN",
-      "name": "RHYTHM Hardware Env Min",
+      "name": "RHYTHM Pad8 Hardware Env Min",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -58047,7 +58047,7 @@
     },
     {
       "id": "RHYTHM_PAD7_SSGHWENV_MAX",
-      "name": "RHYTHM Hardware Env Max",
+      "name": "RHYTHM Pad8 Hardware Env Max",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -58056,7 +58056,7 @@
     },
     {
       "id": "RHYTHM_PAD7_SSGHWENV_SMOOTH",
-      "name": "RHYTHM Hardware Env Smooth",
+      "name": "RHYTHM Pad8 Hardware Env Smooth",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -58560,7 +58560,7 @@
     },
     {
       "id": "ADPCM_STL",
-      "name": "ADPCM_STL",
+      "name": "ADPCM Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -58569,7 +58569,7 @@
     },
     {
       "id": "ADPCM_KOR",
-      "name": "ADPCM_KOR",
+      "name": "ADPCM KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -59251,7 +59251,7 @@
     },
     {
       "id": "ADPCM_LFO_PM_FREQ",
-      "name": "ADPCM_LFO_PM_FREQ",
+      "name": "ADPCM LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -59260,7 +59260,7 @@
     },
     {
       "id": "ADPCM_LFO_AM_FREQ",
-      "name": "ADPCM_LFO_AM_FREQ",
+      "name": "ADPCM LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -59269,7 +59269,7 @@
     },
     {
       "id": "ADPCM_LFO_PM_SYNC_DELAY",
-      "name": "ADPCM_LFO_PM_SYNC_DELAY",
+      "name": "ADPCM LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -59277,7 +59277,7 @@
     },
     {
       "id": "ADPCM_LFO_AM_SYNC_DELAY",
-      "name": "ADPCM_LFO_AM_SYNC_DELAY",
+      "name": "ADPCM LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -59285,7 +59285,7 @@
     },
     {
       "id": "ADPCM_LFO_ASMRT",
-      "name": "ADPCM_LFO_ASMRT",
+      "name": "ADPCM LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -59294,7 +59294,7 @@
     },
     {
       "id": "ADPCM_LFO_PG_SHAPE",
-      "name": "ADPCM_LFO_PG_SHAPE",
+      "name": "ADPCM LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -59302,7 +59302,7 @@
     },
     {
       "id": "ADPCM_LFO_EG_SHAPE",
-      "name": "ADPCM_LFO_EG_SHAPE",
+      "name": "ADPCM LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -59310,7 +59310,7 @@
     },
     {
       "id": "ADPCM_LFO_AM",
-      "name": "ADPCM_LFO_AM",
+      "name": "ADPCM LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -59318,7 +59318,7 @@
     },
     {
       "id": "ADPCM_LFO_PM",
-      "name": "ADPCM_LFO_PM",
+      "name": "ADPCM LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -59326,7 +59326,7 @@
     },
     {
       "id": "ADPCM_LFO_PMS",
-      "name": "ADPCM_LFO_PMS",
+      "name": "ADPCM LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -59335,7 +59335,7 @@
     },
     {
       "id": "ADPCM_LFO_AMS",
-      "name": "ADPCM_LFO_AMS",
+      "name": "ADPCM LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -59344,7 +59344,7 @@
     },
     {
       "id": "ADPCM_LFO_PMD",
-      "name": "ADPCM_LFO_PMD",
+      "name": "ADPCM LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -59353,7 +59353,7 @@
     },
     {
       "id": "ADPCM_LFO_AMD",
-      "name": "ADPCM_LFO_AMD",
+      "name": "ADPCM LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -60070,7 +60070,7 @@
     },
     {
       "id": "BEEP_STL",
-      "name": "BEEP_STL",
+      "name": "BEEP Stl",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -60079,7 +60079,7 @@
     },
     {
       "id": "BEEP_KOR",
-      "name": "BEEP_KOR",
+      "name": "BEEP KOR",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -60761,7 +60761,7 @@
     },
     {
       "id": "BEEP_LFO_PM_FREQ",
-      "name": "BEEP_LFO_PM_FREQ",
+      "name": "BEEP LFO PM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -60770,7 +60770,7 @@
     },
     {
       "id": "BEEP_LFO_AM_FREQ",
-      "name": "BEEP_LFO_AM_FREQ",
+      "name": "BEEP LFO AM Freq",
       "type": "Float",
       "min": 0.100000001490116,
       "max": 50.0,
@@ -60779,7 +60779,7 @@
     },
     {
       "id": "BEEP_LFO_PM_SYNC_DELAY",
-      "name": "BEEP_LFO_PM_SYNC_DELAY",
+      "name": "BEEP LFO PM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -60787,7 +60787,7 @@
     },
     {
       "id": "BEEP_LFO_AM_SYNC_DELAY",
-      "name": "BEEP_LFO_AM_SYNC_DELAY",
+      "name": "BEEP LFO AM Sync Delay",
       "type": "Int",
       "min": 0,
       "max": 255,
@@ -60795,7 +60795,7 @@
     },
     {
       "id": "BEEP_LFO_ASMRT",
-      "name": "BEEP_LFO_ASMRT",
+      "name": "BEEP LFO AM Smooth Ratio",
       "type": "Float",
       "min": 0.004999999888241,
       "max": 0.5,
@@ -60804,7 +60804,7 @@
     },
     {
       "id": "BEEP_LFO_PG_SHAPE",
-      "name": "BEEP_LFO_PG_SHAPE",
+      "name": "BEEP LFO PG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -60812,7 +60812,7 @@
     },
     {
       "id": "BEEP_LFO_EG_SHAPE",
-      "name": "BEEP_LFO_EG_SHAPE",
+      "name": "BEEP LFO EG Shape",
       "type": "Int",
       "min": 0,
       "max": 12,
@@ -60820,7 +60820,7 @@
     },
     {
       "id": "BEEP_LFO_AM",
-      "name": "BEEP_LFO_AM",
+      "name": "BEEP LFO AM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -60828,7 +60828,7 @@
     },
     {
       "id": "BEEP_LFO_PM",
-      "name": "BEEP_LFO_PM",
+      "name": "BEEP LFO PM",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -60836,7 +60836,7 @@
     },
     {
       "id": "BEEP_LFO_PMS",
-      "name": "BEEP_LFO_PMS",
+      "name": "BEEP LFO PMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -60845,7 +60845,7 @@
     },
     {
       "id": "BEEP_LFO_AMS",
-      "name": "BEEP_LFO_AMS",
+      "name": "BEEP LFO AMS",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -60854,7 +60854,7 @@
     },
     {
       "id": "BEEP_LFO_PMD",
-      "name": "BEEP_LFO_PMD",
+      "name": "BEEP LFO PMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -60863,7 +60863,7 @@
     },
     {
       "id": "BEEP_LFO_AMD",
-      "name": "BEEP_LFO_AMD",
+      "name": "BEEP LFO AMD",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,

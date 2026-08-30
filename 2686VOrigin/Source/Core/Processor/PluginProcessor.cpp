@@ -1,4 +1,5 @@
 ﻿#include "PluginProcessor.h"
+#include <set>
 
 #include "../Processor/ProcessorNames.h"
 #include "../Processor/ProcessorHelper.h"
@@ -641,6 +642,9 @@ void AudioPlugin2686V::getStateInformation(juce::MemoryBlock& destData) {
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
 
+    // 使われていない項目を落としてから書く
+    removeUnknownParams(*xml);
+
     setPresetToXml(xml);
 
     copyXmlToBinary(*xml, destData);
@@ -703,6 +707,9 @@ void AudioPlugin2686V::savePreset(const juce::File& file)
 {
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
+
+    // 使われていない項目を落としてから書く
+    removeUnknownParams(*xml);
 
     setPresetToXml(xml);
 
@@ -1376,4 +1383,32 @@ OscMode AudioPlugin2686V::getCurrentMode()
     int m = PrHelper::getInt(pMode);
 
     return (OscMode)m;
+}
+
+void AudioPlugin2686V::removeUnknownParams(juce::XmlElement& xml) const
+{
+    // 7,000 を超えるので、端から順に見比べると保存のたびに数千万回の
+    // 文字列比較になる。引ける形に入れておく。
+    std::set<juce::String> known;
+
+    for (auto* param : getParameters())
+    {
+        if (auto* withId = dynamic_cast<const juce::AudioProcessorParameterWithID*>(param))
+        {
+            known.insert(withId->paramID);
+        }
+    }
+
+    juce::Array<juce::XmlElement*> doomed;
+
+    for (auto* child : xml.getChildWithTagNameIterator(Io::StateKey::param))
+    {
+        if (known.find(child->getStringAttribute(Io::StateKey::id)) == known.end())
+        {
+            doomed.add(child);
+        }
+    }
+
+    // 回している最中に消さない
+    for (auto* child : doomed) xml.removeChildElement(child, true);
 }

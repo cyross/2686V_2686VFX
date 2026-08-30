@@ -318,70 +318,70 @@ namespace CPN
 
 	namespace Opzx7Lfo
 	{
-		static inline const juce::String pmFreq = "_LFO_PM_FREQ";
-		static inline const juce::String amFreq = "_LFO_AM_FREQ";
-		static inline const juce::String shape = "_LFO_SHAPE";
-		static inline const juce::String pgShape = "_LFO_PG_SHAPE";
-		static inline const juce::String egShape = "_LFO_EG_SHAPE";
-		static inline const juce::String am = "_LFO_AM";
-		static inline const juce::String pm = "_LFO_PM";
-		static inline const juce::String vib = "_LFO_VIB";
-		static inline const juce::String pms = "_LFO_PMS";
-		static inline const juce::String ams = "_LFO_AMS";
-		static inline const juce::String pmd = "_LFO_PMD";
-		static inline const juce::String amd = "_LFO_AMD";
-		static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
-		static inline const juce::String pmSyncDelay = "_LFO_PM_SYNC_DELAY";
-		static inline const juce::String amSyncDelay = "_LFO_AM_SYNC_DELAY";
+		static inline const juce::String pmFreq = " LFO PM Freq";
+		static inline const juce::String amFreq = " LFO AM Freq";
+		static inline const juce::String shape = " LFO Shape";
+		static inline const juce::String pgShape = " LFO PG Shape";
+		static inline const juce::String egShape = " LFO EG Shape";
+		static inline const juce::String am = " LFO AM";
+		static inline const juce::String pm = " LFO PM";
+		static inline const juce::String vib = " LFO Vibrato";
+		static inline const juce::String pms = " LFO PMS";
+		static inline const juce::String ams = " LFO AMS";
+		static inline const juce::String pmd = " LFO PMD";
+		static inline const juce::String amd = " LFO AMD";
+		static inline const juce::String amSmoothRatio = " LFO AM Smooth Ratio";
+		static inline const juce::String pmSyncDelay = " LFO PM Sync Delay";
+		static inline const juce::String amSyncDelay = " LFO AM Sync Delay";
 	};
 
 	namespace OplLfo {
-		static inline const juce::String am = "_LFO_AM";
-		static inline const juce::String vib = "_LFO_VIB";
-		static inline const juce::String pms = "_LFO_PMS";
-		static inline const juce::String ams = "_LFO_AMS";
-		static inline const juce::String pmd = "_LFO_PMD";
-		static inline const juce::String amd = "_LFO_AMD";
+		static inline const juce::String am = " LFO AM";
+		static inline const juce::String vib = " LFO Vibrato";
+		static inline const juce::String pms = " LFO PMS";
+		static inline const juce::String ams = " LFO AMS";
+		static inline const juce::String pmd = " LFO PMD";
+		static inline const juce::String amd = " LFO AMD";
 	}
 
 	namespace OpmLfo {
-		static inline const juce::String freq = "_LFO_FREQ";
-		static inline const juce::String shape = "_LFO_SHAPE";
-		static inline const juce::String pgShape = "_LFO_PG_SHAPE";
-		static inline const juce::String egShape = "_LFO_EG_SHAPE";
-		static inline const juce::String am = "_LFO_AM";
-		static inline const juce::String pm = "_LFO_PM";
-		static inline const juce::String pms = "_LFO_PMS";
-		static inline const juce::String ams = "_LFO_AMS";
-		static inline const juce::String pmd = "_LFO_PMD";
-		static inline const juce::String amd = "_LFO_AMD";
-		static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
-		static inline const juce::String syncDelay = "_LFO_SYNC_DELAY";
-		static inline const juce::String amsEn = "_AMS_EN";
+		static inline const juce::String freq = " LFO Freq";
+		static inline const juce::String shape = " LFO Shape";
+		static inline const juce::String pgShape = " LFO PG Shape";
+		static inline const juce::String egShape = " LFO EG Shape";
+		static inline const juce::String am = " LFO AM";
+		static inline const juce::String pm = " LFO PM";
+		static inline const juce::String pms = " LFO PMS";
+		static inline const juce::String ams = " LFO AMS";
+		static inline const juce::String pmd = " LFO PMD";
+		static inline const juce::String amd = " LFO AMD";
+		static inline const juce::String amSmoothRatio = " LFO AM Smooth Ratio";
+		static inline const juce::String syncDelay = " LFO Sync Delay";
+		static inline const juce::String amsEn = " AMS Enable";
 	}
 
 	namespace OpnaLfo {
-		static inline const juce::String freqs = "_LFO_FREQS";
-		static inline const juce::String am = "_LFO_AM";
-		static inline const juce::String vib = "_LFO_VIB";
-		static inline const juce::String pms = "_LFO_PMS";
-		static inline const juce::String ams = "_LFO_AMS";
-		static inline const juce::String syncDelay = "_LFO_SYNC_DELAY";
+		static inline const juce::String freqs = " LFO Freqs";
+		static inline const juce::String am = " LFO AM";
+		static inline const juce::String vib = " LFO Vibrato";
+		static inline const juce::String pms = " LFO PMS";
+		static inline const juce::String ams = " LFO AMS";
+		static inline const juce::String syncDelay = " LFO Sync Delay";
 	}
 
 	namespace N88Lfo {
-		static inline const juce::String freq = "_LFO_FREQ";
-		static inline const juce::String shape = "_LFO_SHAPE";
-		static inline const juce::String pgShape = "_LFO_PG_SHAPE";
-		static inline const juce::String egShape = "_LFO_EG_SHAPE";
-		static inline const juce::String am = "_LFO_AM";
-		static inline const juce::String pm = "_LFO_PM";
-		static inline const juce::String pms = "_LFO_PMS";
-		static inline const juce::String pmd = "_LFO_PMD";
-		static inline const juce::String amd = "_LFO_AMD";
-		static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
-		static inline const juce::String syncDelay = "_LFO_SYNC_DELAY";
-		static inline const juce::String ams = "_N88AMS";
+		static inline const juce::String freq = " LFO Freq";
+		static inline const juce::String shape = " LFO Shape";
+		static inline const juce::String pgShape = " LFO PG Shape";
+		static inline const juce::String egShape = " LFO EG Shape";
+		static inline const juce::String am = " LFO AM";
+		static inline const juce::String pm = " LFO PM";
+		static inline const juce::String pms = " LFO PMS";
+		static inline const juce::String pmd = " LFO PMD";
+		static inline const juce::String amd = " LFO AMD";
+		static inline const juce::String amSmoothRatio = " LFO AM Smooth Ratio";
+		static inline const juce::String syncDelay = " LFO Sync Delay";
+		static inline const juce::String ams = " N88 AMS";
 	}
 
 	namespace WtMod

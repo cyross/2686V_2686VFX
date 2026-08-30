@@ -36,7 +36,7 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         PrHelper::addOpzx7LfoParameters(layout, padPrefix, padPrefixName);
         PrHelper::addFixParameters(layout, padPrefix, padPrefixName);
         PrHelper::addOpzx7DetuneParameters(layout, padPrefix, padPrefixName);
-        PrHelper::addSsgHwEnvParameters(layout, padPrefix, prefixName);
+        PrHelper::addSsgHwEnvParameters(layout, padPrefix, padPrefixName);
         PrHelper::addWtModParameters(layout, padPrefix, padPrefixName);
         PrHelper::addQualityPcmParameters(layout, padPrefix, padPrefixName);
     }
