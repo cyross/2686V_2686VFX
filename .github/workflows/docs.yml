@@ -1,0 +1,61 @@
+# マニュアルサイトを GitHub Pages へ出す
+#
+# docs/ の下だけを見る。プラグイン本体を触っただけでは動かない。
+# リポジトリの設定 → Pages で、Source を「GitHub Actions」にしておくこと。
+name: docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+  # 手で動かせるようにしておく
+  workflow_dispatch:
+
+# 出来上がったものを Pages へ載せるために要る権限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時に走らせない。あとから来たほうを待たせる。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs
+    steps:
+      - uses: actions/checkout@v4
+        # サブモジュールはマニュアルに要らないので取りに行かない
+        with:
+          submodules: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

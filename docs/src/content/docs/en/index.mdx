@@ -1,0 +1,36 @@
+---
+title: 2686V Manual
+description: How to use the 2686V series of retro sound-chip VST instruments
+template: splash
+hero:
+  tagline: Sound chips from the 80s and 90s, playable in a modern DAW.
+  actions:
+    - text: Get started
+      link: /2686V_2686VFX/en/guide/about/
+      icon: right-arrow
+    - text: GitHub
+      link: https://github.com/cyross/2686V_2686VFX
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+	<Card title="Four plugins" icon="puzzle">
+		The four builds differ only in which sound chips they carry. See
+		[Choosing a plugin](/2686V_2686VFX/en/plugins/compare/).
+	</Card>
+	<Card title="File formats" icon="document">
+		Version 3.0.0 moved parameter files to a named schema. You can choose
+		JSON or YAML. [Formats and locations](/2686V_2686VFX/en/files/format/)
+	</Card>
+	<Card title="Converting old files" icon="seti:shell">
+		Files written before 3.0.0 are converted simply by opening them.
+		[Converting older files](/2686V_2686VFX/en/files/convert/)
+	</Card>
+	<Card title="New here?" icon="open-book">
+		Start with installation and the layout of the window.
+		[Get started](/2686V_2686VFX/en/guide/about/)
+	</Card>
+</CardGrid>

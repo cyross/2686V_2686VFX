@@ -1,0 +1,4 @@
+# Astro / npm
+node_modules/
+dist/
+.astro/

@@ -1,0 +1,16 @@
+{
+  "name": "2686v-docs",
+  "type": "module",
+  "private": true,
+  "version": "3.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.41.10",
+    "astro": "^7.2.9",
+    "sharp": "^0.35.4"
+  }
+}
