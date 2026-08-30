@@ -1641,6 +1641,10 @@ void AudioPlugin2686VEditor::resetMidiSettings() {
 
 // 現在のチャンネルのレベルを全チャンネルに伝播
 void AudioPlugin2686VEditor::breadcastLevel(float level) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     opnaGui->setLevel(level);
     opnGui->setLevel(level);
     oplGui->setLevel(level);
@@ -1657,6 +1661,10 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
 }
 
 void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyRhythmPad padParams;
 
     rhythmGui->copyPadParams(from, padParams);
@@ -1665,6 +1673,10 @@ void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {
 }
 
 void AudioPlugin2686VEditor::copyOplOpParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOplOp opParams;
 
     oplGui->copyOpParams(from, opParams);
@@ -1674,6 +1686,10 @@ void AudioPlugin2686VEditor::copyOplOpParams(int from, int to) {
 
 
 void AudioPlugin2686VEditor::copyOpl3OpParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpl3Op opParams;
 
     opl3Gui->copyOpParams(from, opParams);
@@ -1683,6 +1699,10 @@ void AudioPlugin2686VEditor::copyOpl3OpParams(int from, int to) {
 
 
 void AudioPlugin2686VEditor::copyOpmOpParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpmOp opParams;
 
     opmGui->copyOpParams(from, opParams);
@@ -1692,6 +1712,10 @@ void AudioPlugin2686VEditor::copyOpmOpParams(int from, int to) {
 
 
 void AudioPlugin2686VEditor::copyOpnOpParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpnOp opParams;
 
     opnGui->copyOpParams(from, opParams);
@@ -1701,6 +1725,10 @@ void AudioPlugin2686VEditor::copyOpnOpParams(int from, int to) {
 
 
 void AudioPlugin2686VEditor::copyOpnaOpParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpnaOp opParams;
 
     opnaGui->copyOpParams(from, opParams);
@@ -1710,6 +1738,10 @@ void AudioPlugin2686VEditor::copyOpnaOpParams(int from, int to) {
 
 
 void AudioPlugin2686VEditor::copyOpzx7OpParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpzx7Op opParams;
 
     opzx7Gui->copyOpParams(from, opParams);
@@ -1718,6 +1750,10 @@ void AudioPlugin2686VEditor::copyOpzx7OpParams(int from, int to) {
 }
 
 void AudioPlugin2686VEditor::copyOplParamsToOpl3() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpl oplParams;
     CopyOpl3 opl3Params;
 
@@ -1751,6 +1787,10 @@ void AudioPlugin2686VEditor::copyOplParamsToOpl3() {
 }
 
 void AudioPlugin2686VEditor::copyOplParamsToOpl312() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     for (int i = 0; i < 2; i++) {
         CopyOplOp oplOpParams;
         CopyOpl3Op opl3OpParams;
@@ -1770,6 +1810,10 @@ void AudioPlugin2686VEditor::copyOplParamsToOpl312() {
 }
 
 void AudioPlugin2686VEditor::copyOplParamsToOpl334() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     for (int i = 0; i < 2; i++) {
         CopyOplOp oplOpParams;
         CopyOpl3Op opl3OpParams;
@@ -1789,6 +1833,10 @@ void AudioPlugin2686VEditor::copyOplParamsToOpl334() {
 }
 
 void AudioPlugin2686VEditor::copyOpl3ParamsToOpl() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpl3 opl3Params;
     CopyOpl oplParams;
 
@@ -1823,6 +1871,10 @@ void AudioPlugin2686VEditor::copyOpl3ParamsToOpl() {
 }
 
 void AudioPlugin2686VEditor::copyOpl312ParamsToOpl() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     // OPL3 の OP1, OP2 のパラメータを OPL にコピー
     for (int i = 0; i < 2; i++) {
         CopyOpl3Op opl3OpParams;
@@ -1844,6 +1896,10 @@ void AudioPlugin2686VEditor::copyOpl312ParamsToOpl() {
 }
 
 void AudioPlugin2686VEditor::copyOpl334ParamsToOpl() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     // OPL3 の OP3, OP4 のパラメータを OPL にコピー
     for (int i = 0; i < 2; i++) {
         CopyOpl3Op opl3OpParams;
@@ -1865,6 +1921,10 @@ void AudioPlugin2686VEditor::copyOpl334ParamsToOpl() {
 }
 
 void AudioPlugin2686VEditor::copyOpnParamsToOpna() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpn opnParams;
     CopyOpna opnaParams;
 
@@ -1908,6 +1968,10 @@ void AudioPlugin2686VEditor::copyOpnParamsToOpna() {
 }
 
 void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpna opnaParams;
     CopyOpn opnParams;
 
@@ -1939,6 +2003,10 @@ void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
 }
 
 void AudioPlugin2686VEditor::copyOpnaParamsToOpm() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpnaOpnOpm params;
 
     opnaGui->copyParamsOpnOpm(params);
@@ -1955,6 +2023,10 @@ void AudioPlugin2686VEditor::copyOpnaParamsToOpm() {
 }
 
 void AudioPlugin2686VEditor::copyOpmParamsToOpna() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpnaOpnOpm params;
 
     opmGui->copyParamsOpnaOpn(params);
@@ -1971,6 +2043,10 @@ void AudioPlugin2686VEditor::copyOpmParamsToOpna() {
 }
 
 void AudioPlugin2686VEditor::copyOpnParamsToOpm() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpnaOpnOpm params;
 
     opnGui->copyParamsOpnaOpm(params);
@@ -1987,6 +2063,10 @@ void AudioPlugin2686VEditor::copyOpnParamsToOpm() {
 }
 
 void AudioPlugin2686VEditor::copyOpmParamsToOpn() {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpnaOpnOpm params;
 
     opmGui->copyParamsOpnaOpn(params);

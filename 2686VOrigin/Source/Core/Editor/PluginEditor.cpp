@@ -1477,6 +1477,10 @@ void AudioPlugin2686VEditor::resetMidiSettings() {
 
 // 現在のチャンネルのレベルを全チャンネルに伝播
 void AudioPlugin2686VEditor::breadcastLevel(float level) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     opnaGui->setLevel(level);
     ssgGui->setLevel(level);
     rhythmGui->setLevel(level);
@@ -1484,6 +1488,10 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
 }
 
 void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyRhythmPad padParams;
 
     rhythmGui->copyPadParams(from, padParams);
@@ -1492,6 +1500,10 @@ void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {
 }
 
 void AudioPlugin2686VEditor::copyOpnaOpParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpnaOp opParams;
 
     opnaGui->copyOpParams(from, opParams);
