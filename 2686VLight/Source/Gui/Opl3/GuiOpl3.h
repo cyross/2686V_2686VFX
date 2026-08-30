@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../Core/Io/ParamFile.h"
 #include <array>
 
 #include "../../Core/Const/ConstGlobal.h"
@@ -16,12 +18,19 @@
 #include "../../Processor/Opl3/ProcessorOpl3Values.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
+#include "../../Gui/Components/Import/Import.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
+#include "../../Gui/Components/AmpEnv/AmpEnv.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -30,29 +39,6 @@ class AudioPlugin2686VEditor;
 
 class GuiOpl3 : public GuiBase
 {
-    /*
-     * アルゴリズムのオペレータ表記凡例
-     * 2026.3.7 CYROSS
-     *
-     * [C] : キャリアー(出力はオーディオ出力)
-     * [M->n] : n番オペレータへ出力するモジュレーター
-     * [C:FB] : 自身へフィードバックもするキャリアー
-     * [M:FB->n] : 自身へフィードバックもする、n番オペレーターへ出力するモジュレーター
-     * [C:FBm] : m番オペレータへフィードバックもするキャリア―
-     * [M:FBm->n] : m番オペレータへフィードバックもする、n番オペレーターへ出力するモジュレーター
-     * /を挟んでnが複数ある場合: それぞれのオペレータに出力する
-     * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
-     */
-    static inline const std::array<std::array<juce::String, Opl3PrValue::ops>, Opl3PrValue::algorithms> algOpPrefix = { {
-        { {"([M:FB->2])", "([M->3])", "([M->4])", "([C])"} },   // 00
-        { {"([C:FB])", "([M->3])", "([M->4])", "([C])"} },      // 01
-        { {"([M:FB->2])", "([C])", "([M->4])", "([C])"} },      // 02
-        { {"([C:FB])", "([M->3])", "([C])", "([C])"} },         // 03
-        { { "([C:FB])", "([C])", "([C])", "([C])" } },          // 04
-        { { "([M:FB->2])", "([C])", "([M:FB->4])", "([C])" } }, // 05
-        { { "([C:FB])", "([C])", "([C:FB])", "([C])" } }        // 06
-    } };
-
     GuiScrollGroup mainGroup;
 
     GuiComponentPresetName presetName;
@@ -64,8 +50,21 @@ class GuiOpl3 : public GuiBase
     Quality qualityComponent;
 
     GuiComboBox algSelector;
+    // 従来のアルゴリズム図用のグラフコンポーネント (画像から置き換え)
+    GuiFmAlgGraph algStaticGraphComp;
     NormalSeparator algFbSep;
     GuiFbSlider feedbackSlider;
+
+    // SSG Hw Env
+    // チップ全体へ掛かる AMP ENV
+    GuiComponentAmpEnv ampEnvComponent;
+    // チップ全体へ掛かる MODULATION
+    GuiComponentWtMod modComponent;
+    GuiComponentSsgHwEnv ssgHwEnv;
+    // SSG Sw Env
+    GuiComponentSsgSwEnv11 ssgSwEnv11g;
+    // チップ全体へ掛かるピッチ側
+    GuiComponentSsgSwPEnv11 ssgSwPEnv11g;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -92,15 +91,20 @@ class GuiOpl3 : public GuiBase
     GuiComponentImportExport ieOpSsgSwEnv11;
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpChParam;
+    GuiComponentImport imOplOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep005;
+    GuiComponentImportExport ieAmpEnvG;
+    GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieWtMod;
+    GuiComponentImportExport ieSsgSwEnv11;
+    GuiComponentImportExport ieSsgSwPEnv11g;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport ieChParam;
+    GuiComponentImport imOplChParam;
+    GuiComponentImport imOplChAllOpParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
-
-    juce::ImageComponent algImageComp;
-    std::array<juce::Image, Opl3PrValue::algorithms> algImages;
 
     std::array<GuiScrollGroup, Opl3PrValue::ops> opGroups;
     std::array<GuiCategoryLabel, Opl3PrValue::ops> catDet;
@@ -130,10 +134,10 @@ class GuiOpl3 : public GuiBase
     std::array<NormalSeparator, Opl3PrValue::ops> mmlSeparator;
     std::array<GuiMmlButton, Opl3PrValue::ops> mml;
     std::array<NormalSeparator, Opl3PrValue::ops> lfoSep;
-    std::array<GuiSlider, Opl3PrValue::ops> ams;
-    std::array<GuiSlider, Opl3PrValue::ops> amd;
-    std::array<GuiSlider, Opl3PrValue::ops> pms;
-    std::array<GuiSlider, Opl3PrValue::ops> pmd;
+    std::array<GuiComponentNudgeSliderFloat, Opl3PrValue::ops> ams;
+    std::array<GuiComponentNudgeSliderFloat, Opl3PrValue::ops> amd;
+    std::array<GuiComponentNudgeSliderFloat, Opl3PrValue::ops> pms;
+    std::array<GuiComponentNudgeSliderFloat, Opl3PrValue::ops> pmd;
     std::array<GuiTextButton, Opl3PrValue::ops> amsTo37;
     std::array<GuiTextButton, Opl3PrValue::ops> amdTo1;
     std::array<GuiTextButton, Opl3PrValue::ops> amdTo48;
@@ -152,6 +156,16 @@ class GuiOpl3 : public GuiBase
     std::array<GuiToggleButton, Opl3PrValue::ops> bypass;
 
     void applyMmlString(const juce::String& mml, int opIndex);
+
+    // チップ全体のエンベロープを見るグラフ
+    GuiEnvelopeGraph gGraph;
+    GuiToggleButton gGraphBtnAmp;
+    GuiToggleButton gGraphBtnSsg11;
+    GuiToggleButton gGraphBtnSsgP11;
+    NormalSeparator gGraphSeparator;
+
+    enum class GlobalGraphMode { Amp, SsgSw11, SsgSwP11 };
+    GlobalGraphMode currentGlobalGraphMode = GlobalGraphMode::Amp;
 
     std::array<GuiEnvelopeGraph, Opl3PrValue::ops> opGraphs;
     std::array<GuiToggleButton, Opl3PrValue::ops> graphBtnAmp;
@@ -179,6 +193,11 @@ public:
         algSelector(context),
         algFbSep(context),
         feedbackSlider(context),
+        ampEnvComponent(context),
+        modComponent(context),
+        ssgHwEnv(context),
+        ssgSwEnv11g(context),
+        ssgSwPEnv11g(context),
         unisonComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
@@ -200,11 +219,19 @@ public:
         ieOpSsgSwEnv11(context),
         ieOpSsgSwPEnv11(context),
 		ieOpChParam(context),
+		imOplOpChParam(context),
         targerOpSlider(context),
         uSep005(context),
+        ieAmpEnvG(context),
+        ieSsgHwEnv(context),
+        ieWtMod(context),
+        ieSsgSwEnv11(context),
+        ieSsgSwPEnv11g(context),
         ieUnison(context),
         ieQuality(context),
 		ieChParam(context),
+		imOplChParam(context),
+        imOplChAllOpParam(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         catDet{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -227,10 +254,10 @@ public:
         mmlSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
         lfoSep{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
-        ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        pms{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        pmd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        ams{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        amd{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        pms{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        pmd{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
         amsTo37{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         amdTo1{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         amdTo48{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
@@ -247,6 +274,11 @@ public:
         kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
+        gGraph(),
+        gGraphBtnAmp(context),
+        gGraphBtnSsg11(context),
+        gGraphBtnSsgP11(context),
+        gGraphSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -279,6 +311,12 @@ public:
     void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpEgCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
+
+    // チップ全体のグラフ
+    void setupGlobalGraph();
+    void layoutGlobalGraph(juce::Rectangle<int>& rect);
+    void updateGlobalGraph();
+    void setGlobalGraphMode(GlobalGraphMode mode);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
     void copyParams(CopyOpl3& copyObj);
@@ -286,6 +324,12 @@ public:
     void pasteParams(CopyOpl3& copyObj);
     void pasteOpParams(int p, CopyOpl3Op& copyObj);
     void importLfoParam(int opIndex);
+
+    // 3.0.0 より前の形式を読む
+    void setImportingLfoParams(int opIndex, juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeLfoParams(int opIndex, Io::ParamWriter& writer);
     void exportLfoParam(int opIndex);
     void importPitchEnvParam(int opIndex);
     void exportPitchEnvParam(int opIndex);
@@ -295,14 +339,38 @@ public:
     void exportSsgSwEnv11Param(int opIndex);
     void importSsgSwPEnv11Param(int opIndex);
     void exportSsgSwPEnv11Param(int opIndex);
-    void importUnisonParam();
-    void exportUnisonParam();
     void importQualityParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingQualityParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
     void importChParam();
+
+    // 3.0.0 より前の形式を読む
+    void getImportingOpParams(int opIndex, juce::StringArray& lines, int& index);
+    void setImportingChParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
     void importOpChParam(int opIndex);
+
+    // 3.0.0 より前の形式を読む
+    void setImportingOpChFileParams(int opIndex, juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeOpChFileParams(int opIndex, Io::ParamWriter& writer);
     void exportOpChParam(int opIndex);
-    void getImportingOpParams(int opIndex, juce::StringArray& lines, int& index);
-    juce::String setExportedOpParams(int opIndex);
+    // 名前で受け渡す。オペレータは並びの中のひとつを渡す。
+    void readOpParams(int opIndex, const Io::ParamReader& r);
+    void writeOpParams(int opIndex, Io::ParamWriter& w);
+
+    // チャンネル 1 つぶん。相手の音源のファイルを読むときにも使う。
+    void readChParams(const Io::ParamReader& reader);
+    void importOplChParam();
+    void importOplChAllOpParam();
+    void importOplOpChParam(int opIndex);
 };

@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "../../Generator/Fds/GenFdsModTable.h"
 #include <JuceHeader.h>
 #include <array>
 
@@ -13,6 +14,7 @@
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
 #include "../../Effect/Detune/Opn/DetuneOpnParams.h"
@@ -373,6 +375,16 @@ namespace PrHelper {
 		ptPtrs.voices = apvts.getRawParameterValue(prefix + CPK::Unison::voices);
 		ptPtrs.detuneCents = apvts.getRawParameterValue(prefix + CPK::Unison::detune);
 		ptPtrs.spread = apvts.getRawParameterValue(prefix + CPK::Unison::spread);
+		ptPtrs.arpEnable = apvts.getRawParameterValue(prefix + CPK::Unison::arpEnable);
+		ptPtrs.arpFreq = apvts.getRawParameterValue(prefix + CPK::Unison::arpFreq);
+		ptPtrs.arpSmooth = apvts.getRawParameterValue(prefix + CPK::Unison::arpSmooth);
+
+		// ボイス単位の設定 (キー末尾は 1〜7 のボイス番号)
+		for (int i = 0; i < Global::unisonParaVoices; ++i) {
+			const juce::String no = juce::String(i + 1);
+			ptPtrs.paraDistance[i] = apvts.getRawParameterValue(prefix + CPK::Unison::paraDistance + no);
+			ptPtrs.paraDetune[i] = apvts.getRawParameterValue(prefix + CPK::Unison::paraDetune + no);
+		}
 	}
 
 	static inline void setupToneNoise(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsToneNoise& ptPtrs){
@@ -394,6 +406,21 @@ namespace PrHelper {
 		ptPtrs.end = apvts.getRawParameterValue(prefix + CPK::lpEnd);
 	}
 
+	static inline void setupWtMod(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtMod& ptPtrs, WtModWaveStore& store){
+		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::WtMod::enable);
+		ptPtrs.depth = apvts.getRawParameterValue(prefix + CPK::WtMod::depth);
+		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::WtMod::speed);
+		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::WtMod::shape);
+		ptPtrs.waveSlot = apvts.getRawParameterValue(prefix + CPK::WtMod::waveSlot);
+
+		// このチャンネルの持ち分を押さえる。無ければここで作られる。
+		ptPtrs.slots = &store[prefix];
+
+		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i) {
+			ptPtrs.fdsTable[i] = apvts.getRawParameterValue(prefix + CPK::WtMod::fdsTable + juce::String(i));
+		}
+	}
+
 	static inline void setupSsgDuty(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgDuty& ptPtrs){
 		ptPtrs.mode = apvts.getRawParameterValue(prefix + CPK::SsgDuty::mode);
 		ptPtrs.preset = apvts.getRawParameterValue(prefix + CPK::SsgDuty::preset);
@@ -413,6 +440,9 @@ namespace PrHelper {
 		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::enable);
 		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::shape);
 		ptPtrs.period = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::period);
+		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::min);
+		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::max);
+		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::smooth);
 	}
 
 	static inline void setupPanpot(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPanpot& ptPtrs){
@@ -489,6 +519,7 @@ namespace PrHelper {
 
 	static inline void applyAdsrAmpEnv(PrPtrsAdsrAmpEnv& ptPtrs, AmpAdsrParams& params){
 		params.bypass = getBool(ptPtrs.bypass);
+		params.stl = getFloat(ptPtrs.stl);
 		params.ar = getFloat(ptPtrs.ar);
 		params.dr = getFloat(ptPtrs.dr);
 		params.sl = getFloat(ptPtrs.sl);
@@ -754,6 +785,14 @@ namespace PrHelper {
 		params.voices = getInt(ptPtrs.voices);
 		params.detuneCents = getInt(ptPtrs.detuneCents);
 		params.spread = getFloat(ptPtrs.spread);
+		params.arpEnable = getBool(ptPtrs.arpEnable);
+		params.arpFreq = getInt(ptPtrs.arpFreq);
+		params.arpSmooth = getBool(ptPtrs.arpSmooth);
+
+		for (int i = 0; i < Global::unisonParaVoices; ++i) {
+			params.paraDistance[i] = getFloat(ptPtrs.paraDistance[i]);
+			params.paraDetune[i] = getInt(ptPtrs.paraDetune[i]);
+		}
 	}
 
 	static inline void applyToneNoise(PrPtrsToneNoise& ptPtrs, ToneNoiseParams& params){
@@ -775,6 +814,25 @@ namespace PrHelper {
 		params.end = getFloat(ptPtrs.end);
 	}
 
+	static inline void applyWtMod(PrPtrsWtMod& ptPtrs, WtModParams& params){
+		params.enable = getBool(ptPtrs.enable);
+		params.depth = getFloat(ptPtrs.depth);
+		params.speed = getFloat(ptPtrs.speed);
+		params.shape = getInt(ptPtrs.shape);
+
+		// 選ばれているスロットの波形を渡す。読み込んでいなければ
+		// 中身は 0 のままで、音源側では変調が掛からない。
+		if (ptPtrs.slots != nullptr) {
+			int slot = std::clamp(getInt(ptPtrs.waveSlot), 0, Global::WtMod::slots - 1);
+
+			params.wave = (*ptPtrs.slots)[slot].data;
+		}
+
+		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i) {
+			params.fdsTable[i] = getInt(ptPtrs.fdsTable[i]);
+		}
+	}
+
 	static inline void applySsgDuty(PrPtrsSsgDuty& ptPtrs, SsgDutyParams& params){
 		params.mode = getInt(ptPtrs.mode);
 		params.preset = getInt(ptPtrs.preset);
@@ -794,6 +852,9 @@ namespace PrHelper {
 		params.enable = getBool(ptPtrs.enable);
 		params.shape = getInt(ptPtrs.shape);
 		params.period = getFloat(ptPtrs.period);
+		params.min = getFloat(ptPtrs.min);
+		params.max = getFloat(ptPtrs.max);
+		params.smooth = getBool(ptPtrs.smooth);
 	}
 
 	static inline void applyPanpot(PrPtrsPanpot& ptPtrs, PanpotParams& params){
@@ -1680,6 +1741,41 @@ namespace PrHelper {
 			prefixName + CPN::Unison::spread, 
 			CPV::Unison::Spread::min, CPV::Unison::Spread::max, CPV::Unison::Spread::initial
 		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::Unison::arpEnable,
+			prefixName + CPN::Unison::arpEnable,
+			CPV::Unison::ArpEnable::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::Unison::arpFreq,
+			prefixName + CPN::Unison::arpFreq,
+			CPV::Unison::ArpFreq::min, CPV::Unison::ArpFreq::max, CPV::Unison::ArpFreq::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::Unison::arpSmooth,
+			prefixName + CPN::Unison::arpSmooth,
+			CPV::Unison::ArpSmooth::initial
+		);
+
+		// ボイス単位の設定 (ボイス0はメインなので 1〜7 のみ)
+		for (int i = 0; i < Global::unisonParaVoices; ++i) {
+			const juce::String no = juce::String(i + 1);
+			PrHelper::addFloat(
+				layout,
+				prefix + CPK::Unison::paraDistance + no,
+				prefixName + CPN::Unison::paraDistance + no,
+				CPV::Unison::ParaDistance::min, CPV::Unison::ParaDistance::max, CPV::Unison::ParaDistance::initial
+			);
+			PrHelper::addInt(
+				layout,
+				prefix + CPK::Unison::paraDetune + no,
+				prefixName + CPN::Unison::paraDetune + no,
+				CPV::Unison::ParaDetune::min, CPV::Unison::ParaDetune::max, CPV::Unison::ParaDetune::initial
+			);
+		}
 	}
 
 	static inline void addEnvBypassParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -1712,6 +1808,40 @@ namespace PrHelper {
 			prefix + CPK::ssgSwPEnv11 + CPK::bypass, 
 			prefixName + CPN::SsgSwPEnv11::bypass, 
 			CPV::SsgSwPEnv11::Bypass::initial
+		);
+	}
+
+	// AMP ENV のバイパスだけを、初期値を指定して登録する。
+	// FM 音源はオペレータごとに独自のエンベロープを持っているため、
+	// チップ全体へ掛ける AMP ENV は既定でバイパスにしておく。
+	// そうしないと既存のプリセットの鳴りが変わってしまう。
+	static inline void addAdsrBypassParameter(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName, bool initial) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::adsr + CPK::bypass,
+			prefixName + CPN::Adsr::bypass,
+			initial
+		);
+	}
+
+	// SSG SW PENV11 のバイパスだけを、初期値を指定して登録する。
+	// FM 音源はオペレータごとに同じものを持っているため、チップ全体へ
+	// 掛けるぶんは既定でバイパスにしておく。
+	static inline void addSsgSwPEnv11BypassParameter(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName, bool initial) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::ssgSwPEnv11 + CPK::bypass,
+			prefixName + CPN::SsgSwPEnv11::bypass,
+			initial
+		);
+	}
+
+	static inline void addSsgSwEnv11BypassParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::ssgSwEnv11 + CPK::bypass,
+			prefixName + CPN::SsgSwEnv11::bypass,
+			CPV::SsgSwEnv11::Bypass::initial
 		);
 	}
 
@@ -2089,6 +2219,59 @@ namespace PrHelper {
 		); // 0:Pulse, 1:Triangle
 	}
 
+	static inline void addWtModParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::WtMod::enable, 
+			prefixName + CPN::WtMod::enable, 
+			CPV::WtMod::Enable::initial
+		);
+		PrHelper::addFloat(
+			layout, 
+			prefix + CPK::WtMod::depth, 
+			prefixName + CPN::WtMod::depth, 
+			CPV::WtMod::Depth::min, CPV::WtMod::Depth::max, CPV::WtMod::Depth::initial
+		);
+		PrHelper::addFloat(
+			layout, 
+			prefix + CPK::WtMod::speed, 
+			prefixName + CPN::WtMod::speed, 
+			CPV::WtMod::Speed::min, CPV::WtMod::Speed::max, CPV::WtMod::Speed::initial
+		);
+		PrHelper::addInt(
+			layout, 
+			prefix + CPK::WtMod::shape, 
+			prefixName + CPN::WtMod::shape, 
+			CPV::WtMod::Shape::min, CPV::WtMod::Shape::max, CPV::WtMod::Shape::initial
+		);
+		// 32 点へ落とすときの方法 (音声側では使わず、読み込み時にだけ参照する)
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::WtMod::waveSmooth, 
+			prefixName + CPN::WtMod::waveSmooth, 
+			CPV::WtMod::WaveSmooth::initial
+		);
+		// HuC6280 モードで使う変調波形スロットの番号。
+		// 波形そのものはプロセッサが持つので、ここには出てこない。
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::WtMod::waveSlot,
+			prefixName + CPN::WtMod::waveSlot,
+			CPV::WtMod::WaveSlot::min, CPV::WtMod::WaveSlot::max, CPV::WtMod::WaveSlot::initial
+		);
+		// FdsUser モード用の変調テーブル (32 エントリ / 3bit のレジスタ値)。
+		// 初期値は FdsMod の対称三角テーブル。
+		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i)
+		{
+			PrHelper::addInt(
+				layout,
+				prefix + CPK::WtMod::fdsTable + juce::String(i),
+				prefixName + CPN::WtMod::fdsTable + juce::String(i),
+				CPV::WtMod::FdsTable::min, CPV::WtMod::FdsTable::max, FdsMod::tables[0][i]
+			);
+		}
+	}
+
 	static inline void addSsgDutyParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		PrHelper::addInt(
 			layout, 
@@ -2172,5 +2355,24 @@ namespace PrHelper {
 			prefixName + CPN::SsgHwEnv::period, 
 			CPV::SsgHwEnv::Period::min, CPV::SsgHwEnv::Period::max, CPV::SsgHwEnv::Period::initial
 		); // Period: ここでは周波数(Hz)として扱います (0.1Hz ~ 200Hz)
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::SsgHwEnv::min,
+			prefixName + CPN::SsgHwEnv::min,
+			CPV::SsgHwEnv::Min::min, CPV::SsgHwEnv::Min::max, CPV::SsgHwEnv::Min::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::SsgHwEnv::max,
+			prefixName + CPN::SsgHwEnv::max,
+			CPV::SsgHwEnv::Max::min, CPV::SsgHwEnv::Max::max, CPV::SsgHwEnv::Max::initial
+		);
+		// Period を大きくしたときのブツブツ音を和らげるスムース処理の ON/OFF
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgHwEnv::smooth,
+			prefixName + CPN::SsgHwEnv::smooth,
+			CPV::SsgHwEnv::Smooth::initial
+		);
 	}
 }

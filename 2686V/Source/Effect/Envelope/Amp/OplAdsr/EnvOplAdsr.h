@@ -30,11 +30,14 @@ class OplAdsr
 	bool kor = false;
 	bool bypass = false;
 
-	int arMax = 0;
-	int drMax = 0;
-	int slMax = 0;
-	int rrMax = 0;
-	int tlMax = 0;
+	// レジスタ幅の既定値。setParamMax() より先に setParameters() が来ても
+	// 0 除算 → LUT の範囲外参照にならないよう、実機の幅を入れてある。
+	// 実際の値はオペレータの prepare() が setParamMax() で上書きする。
+	int arMax = 15;
+	int drMax = 15;
+	int slMax = 15;
+	int rrMax = 15;
+	int tlMax = 63;
 
 	int m_noteNumber = 60; // C3
 

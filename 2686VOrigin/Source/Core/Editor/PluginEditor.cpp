@@ -1,9 +1,11 @@
-﻿#include <cstdio>
+﻿#include "../Gui/GuiRefresh.h"
+#include <cstdio>
 #include <vector>
 #include <initializer_list>
 #include <utility>
 
 #include "./PluginEditor.h"
+#include "../../Gui/Settings/SettingsValues.h"
 
 #include "../Processor/PluginProcessor.h"
 
@@ -21,6 +23,12 @@
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 
 #include "AppIconForAbout.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat presetFormat{ "preset", 1 };
+}
 
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     : AudioProcessorEditor(&p), audioProcessor(p)
@@ -42,8 +50,12 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
 	aboutGui = std::make_unique<GuiAbout>(context);
+	colorsGui = std::make_unique<GuiColors>(context);
 
     tabs.getTabbedButtonBar().addChangeListener(this);
+
+    // 色の差し替えを受けて描き直す
+    GuiColor::changeBroadcaster().addChangeListener(this);
 
     audioProcessor.apvts.addParameterListener(CPK::mode, this);
 
@@ -57,12 +69,16 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     presetGui->setup();
     fxGui->setup();
     settingsGui->setup();
+    colorsGui->setup();
     aboutGui->setup();
 
     // Initial Wallpaper Load
     loadWallpaperImage();
 
     isPreviewVisible = audioProcessor.apvts.state.getProperty(ProcessorStateKey::isVisiblePreview);
+
+    // ダイアログの色は共有の LookAndFeel に入るので、1 度だけ設定する
+    GuiDialog::applyTheme();
 
     tabs.setLookAndFeel(&customTabLF);
 
@@ -83,6 +99,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     // 2. 保存された設定に基づいてON/OFF初期化
     setTooltipState(audioProcessor.showTooltips);
+
+    // お気に入りと履歴を読む。一覧を作る前に済ませておく。
+    presetLibrary.openIn(audioProcessor.getPluginDirectory(), PresetValue::File::Name::library);
 
     if (presetGui->currentFolder.isDirectory()) {
         scanPresets();
@@ -286,6 +305,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 {
     tabs.setLookAndFeel(nullptr);
     tabs.getTabbedButtonBar().removeChangeListener(this);
+    GuiColor::changeBroadcaster().removeChangeListener(this);
 
     adpcmGui->removeLoadButtonListener(this);
 
@@ -335,6 +355,20 @@ void AudioPlugin2686VEditor::showMinimumView() {
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
+    if (source == &GuiColor::changeBroadcaster())
+    {
+        // 色が差し替わった。どの部品が使っているかは追えないので、
+        // 画面全体を描き直す。頻度は設定を触ったときだけ。
+        //
+        // ダイアログの配色は既定の LookAndFeel へ写してあるので、
+        // 描き直しでは変わらない。ここで写し直す。
+        GuiDialog::applyTheme();
+
+        repaint();
+
+        return;
+    }
+
     if (source == &tabs.getTabbedButtonBar())
     {
         // 0:OPNA, 1:OPN, 2:OPL, ...
@@ -650,6 +684,7 @@ void AudioPlugin2686VEditor::resized()
     adpcmGui->layout(tabContent);
     presetGui->layout(tabContent);
     settingsGui->layout(tabContent);
+    colorsGui->layout(tabContent);
     aboutGui->layout(tabContent);
 
     content.removeFromTop(tabs.getTabBarDepth());
@@ -760,6 +795,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
 }
 
@@ -783,38 +819,36 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 
     // 4. 各タブのプリセット名を更新
     updatePresetNameToTabs(audioProcessor.presetName);
+
+    // 履歴へ積む。見出しも一緒に覚えるので、今見ているフォルダの外に
+    // あるプリセットでも、開き直さずに一覧へ出せる。
+    PresetItem item;
+
+    readPresetMeta(file, item);
+
+    presetLibrary.addHistory(item);
+
+    presetGui->updateTableContent();
+    presetGui->repaintTable();
 }
 
 void AudioPlugin2686VEditor::loadSettingsFile()
 {
     fileChooser = std::make_unique<juce::FileChooser>(juce::String("") + "ファイルから環境設定を読み込み",
-        juce::File::getSpecialLocation(juce::File::userDocumentsDirectory), "*.xml");
+        audioProcessor.getPluginDirectory(), SettingsValue::File::glob);
 
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
             if (file.existsAsFile()) {
+                // 読み終えてからまとめて描き直す。設定は画面全体に効くので、
+                // 1 つずつ反映すると待たされる。
+                GuiRefresh::Batch batch;
+
                 audioProcessor.loadEnvironment(file);
 
                 // UI反映
-                settingsGui->setSettings(
-                    audioProcessor.uiScaleIndex,
-                    audioProcessor.wallpaperPath.isEmpty() ? Io::empty : juce::File(audioProcessor.wallpaperPath).getFileName(),
-                    audioProcessor.defaultSampleDir,
-                    audioProcessor.defaultPresetDir,
-                    audioProcessor.defaultWavetableDir,
-                    audioProcessor.defaultFxOrderDir,
-                    audioProcessor.defaultFxParamDir,
-                    audioProcessor.defaultLfoParamDir,
-                    audioProcessor.defaultAmpEnvParamDir,
-                    audioProcessor.defaultPitchEnvParamDir,
-                    audioProcessor.defaultSsgSwEnvParamDir,
-                    audioProcessor.defaultDetuneParamDir,
-                    audioProcessor.defaultUnisonParamDir,
-                    audioProcessor.defaultQualityParamDir,
-                    audioProcessor.defaultPcmPlayParamDir,
-                    audioProcessor.defaultToneNoiseParamDir
-                    );
+                settingsGui->setSettings();
 
                 // 壁紙再描画
                 loadWallpaperImage();
@@ -831,12 +865,63 @@ void AudioPlugin2686VEditor::loadSettingsFile()
 
 }
 
+// プリセット 1 件ぶんの見出しを読む。
+//
+// 一覧に出すのは見出しだけなので、中身は最後まで読まない。プリセット 1 つが
+// 数百 KB あるため、全部読むと件数だけ時間がかかる。
+//
+// 3.0.0 より前の XML も読む。読み込みだけは残してあるため。
+bool AudioPlugin2686VEditor::readPresetMeta(const juce::File& file, PresetItem& item)
+{
+    item.file = file;
+    item.fileName = file.getFileName();
+    item.fullPath = file.getFullPathName();
+    item.lastModificationTime = file.getLastModificationTime();
+    item.fileSize = file.getSize();
+    item.format = file.getFileExtension().substring(1).toUpperCase();
+
+    if (auto reader = Io::ParamReader::open(file, presetFormat, false))
+    {
+        auto meta = reader->child(Io::StateKey::meta);
+
+        item.name = meta.getString(PresetKey::name, audioProcessor.presetName);
+        item.author = meta.getString(PresetKey::author, audioProcessor.presetAuthor);
+        item.version = meta.getString(PresetKey::version, audioProcessor.presetVersion);
+        item.comment = meta.getString(PresetKey::comment, audioProcessor.presetComment);
+        item.modeName = meta.getString(PresetKey::mode, PresetValue::MetaData::Initial::mode);
+        item.genre = meta.getString(PresetKey::genre, PresetValue::MetaData::Initial::genre);
+
+        return true;
+    }
+
+    if (auto xml = juce::XmlDocument(file).getDocumentElement(true))
+    {
+        item.name = xml->getStringAttribute(PresetKey::name, audioProcessor.presetName);
+        item.author = xml->getStringAttribute(PresetKey::author, audioProcessor.presetAuthor);
+        item.version = xml->getStringAttribute(PresetKey::version, audioProcessor.presetVersion);
+        item.comment = xml->getStringAttribute(PresetKey::comment, audioProcessor.presetComment);
+        item.modeName = xml->getStringAttribute(PresetKey::mode, PresetValue::MetaData::Initial::mode);
+        item.genre = xml->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
+
+        return true;
+    }
+
+    item.name = PresetValue::File::Message::invalidXmlNotice;
+
+    return false;
+}
+
 void AudioPlugin2686VEditor::scanPresets()
 {
     presetGui->clearTable();
 
-    // XMLファイルを探す
     auto files = presetGui->currentFolder.findChildFiles(juce::File::findFiles, true, PresetValue::File::glob);
+
+    // 前回読んだぶんを引き継ぐ。作り直しは保存や削除のたびに走るので、
+    // 変わっていないファイルまで開き直すと、数が増えたときに待たされる。
+    auto previous = std::move(presetCache);
+
+    presetCache.clear();
 
     for (const auto& file : files)
     {
@@ -846,23 +931,21 @@ void AudioPlugin2686VEditor::scanPresets()
         item.fullPath = file.getFullPathName();
         item.lastModificationTime = file.getLastModificationTime();
 
-        // XMLをパースしてメタデータを取得
-        juce::XmlDocument xmlDoc(file);
-        auto xml = xmlDoc.getDocumentElement();
-        if (xml != nullptr)
+        auto found = previous.find(item.fullPath);
+
+        if (found != previous.end()
+            && found->second.lastModificationTime == item.lastModificationTime
+            && found->second.fileSize == file.getSize())
         {
-            item.name = xml->getStringAttribute(PresetKey::name, audioProcessor.presetName);
-            item.author = xml->getStringAttribute(PresetKey::author, audioProcessor.presetAuthor);
-            item.version = xml->getStringAttribute(PresetKey::version, audioProcessor.presetVersion);
-            item.comment = xml->getStringAttribute(PresetKey::comment, audioProcessor.presetComment);
-            item.modeName = xml->getStringAttribute(PresetKey::mode, PresetValue::MetaData::Initial::mode);
-            item.genre = xml->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
-        }
-        else
-        {
-            item.name = PresetValue::File::Message::invalidXmlNotice;
+            presetCache.emplace(item.fullPath, found->second);
+            presetGui->items.push_back(found->second);
+
+            continue;
         }
 
+        readPresetMeta(file, item);
+
+        presetCache.emplace(item.fullPath, item);
         presetGui->items.push_back(item);
     }
 
@@ -903,11 +986,11 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
 
     // ファイル名として使えない文字を安全に置換
     filename = filename.replaceCharacter(':', '_').replaceCharacter('/', '_').replaceCharacter('\\', '_');
-    filename = filename + PresetValue::File::ext;
+    filename = filename + PresetValue::File::extension();
 
     juce::File defaultFile = presetGui->currentFolder.getChildFile(filename);
 
-    openWriteFileChooser(juce::String("") + "ファイルを指定してプリセットを保存", defaultFile, "*.xml", [this](const juce::FileChooser& fc) {
+    openWriteFileChooser(juce::String("") + "ファイルを指定してプリセットを保存", defaultFile, PresetValue::File::glob, [this](const juce::FileChooser& fc) {
         auto file = fc.getResult();
         if (file != juce::File{}) {
             // 保存したファイルパスを記録
@@ -1035,6 +1118,8 @@ void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std:
     // ボタン設定
     w->addButton(juce::String("") + "設定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
     w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+
+    GuiDialog::styleButtons(*w);
 
     // モーダル表示
     w->enterModalState(true, juce::ModalCallbackFunction::create([onValueEntered, w](int result) {

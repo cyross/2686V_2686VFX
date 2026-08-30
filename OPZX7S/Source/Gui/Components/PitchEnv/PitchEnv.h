@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../../Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
 #include <functional>
@@ -16,6 +18,8 @@
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../PitchButtons/PitchButtons.h"
+#include "../NudgeButtons/NudgeButtons.h"
+#include "../NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -27,17 +31,20 @@ class GuiComponentPitchEnv : public GuiBase {
     GuiCategoryLabel cat;
     GuiToggleButton flag; // Bypass or Enable
     NormalSeparator flagSeparator;
-    GuiSlider attack;
-    GuiSlider decay;
-    GuiSlider release;
+    GuiComponentNudgeSliderFloat attack;
+    GuiComponentNudgeButtons attackNudge;
+    GuiComponentNudgeSliderFloat decay;
+    GuiComponentNudgeButtons decayNudge;
+    GuiComponentNudgeSliderFloat release;
+    GuiComponentNudgeButtons releaseNudge;
     NormalSeparator rateSeparator;
-    GuiSlider startLevel;
+    GuiComponentNudgeSliderFloat startLevel;
     GuiComponentPitchButtons startLevelButtons;
-    GuiSlider attackLevel;
+    GuiComponentNudgeSliderFloat attackLevel;
     GuiComponentPitchButtons attackLevelButtons;
-    GuiSlider sustainLevel;
+    GuiComponentNudgeSliderFloat sustainLevel;
     GuiComponentPitchButtons sustainLevelButtons;
-    GuiSlider releaseLevel;
+    GuiComponentNudgeSliderFloat releaseLevel;
     GuiComponentPitchButtons releaseLevelButtons;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -48,8 +55,11 @@ public:
         flag(context),
         flagSeparator(context),
         attack(context),
+        attackNudge(context),
         decay(context),
+        decayNudge(context),
         release(context),
+        releaseNudge(context),
 		rateSeparator(context),
         startLevel(context),
         startLevelButtons(context),
@@ -73,5 +83,10 @@ public:
     void importParams();
     void exportParams();
     void setImportingParams(juce::StringArray& lines, int& index);
+
+    // 名前で受け渡す。行の並びに頼ると、呼ぶ順番を間違えたときに
+    // 黙って別の値が入り、項目を足すと後ろが全部ずれるため。
+    void readParams(const Io::ParamReader& reader, const juce::String& key);
+    void writeParams(Io::ParamWriter& writer, const juce::String& key);
     juce::String getExportedParams();
 };

@@ -224,6 +224,27 @@ struct RowConfigSixComps {
 
 void layoutRowSixComps(const RowConfigSixComps& c);
 
+struct RowConfigSevenComps {
+    juce::Rectangle<int>& rect;
+    juce::Component* comp1;
+    juce::Component* comp2;
+    juce::Component* comp3;
+    juce::Component* comp4;
+    juce::Component* comp5;
+    juce::Component* comp6;
+    juce::Component* comp7;
+    int rowHeight = CoreGuiValue::ParamGroup::Row::height;
+    int paddingLeft = 0;
+    int paddingTop = CoreGuiValue::ParamGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
+    int compWidth = CoreGuiValue::ParamGroup::Comps::Seven::width;
+    int compPaddingRight = CoreGuiValue::ParamGroup::Comps::Seven::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Seven::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Seven::paddingLeft;
+};
+
+void layoutRowSevenComps(const RowConfigSevenComps& c);
+
 struct MainConfigOneComp {
     juce::Rectangle<int>& rect;
     juce::Component* comp;
@@ -233,7 +254,7 @@ struct MainConfigOneComp {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::One::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::One::paddingRight;
-    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::One::paddingLeft;
+    int compPaddingLeft = CoreGuiValue::MainGroup::Comps::One::paddingLeft;
 };
 
 void layoutMainOneComp(const MainConfigOneComp& c);
@@ -248,8 +269,8 @@ struct MainConfigTwoComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Two::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Two::paddingRight;
-    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Two::paddingInner;
-    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Two::paddingLeft;
+    int compPaddingInner = CoreGuiValue::MainGroup::Comps::Two::paddingInner;
+    int compPaddingLeft = CoreGuiValue::MainGroup::Comps::Two::paddingLeft;
 };
 
 void layoutMainTwoComps(const MainConfigTwoComps& c);
@@ -265,8 +286,8 @@ struct MainConfigThreeComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Three::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Three::paddingRight;
-    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Three::paddingInner;
-    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Three::paddingLeft;
+    int compPaddingInner = CoreGuiValue::MainGroup::Comps::Three::paddingInner;
+    int compPaddingLeft = CoreGuiValue::MainGroup::Comps::Three::paddingLeft;
 };
 
 void layoutMainThreeComps(const MainConfigThreeComps& c);
@@ -283,8 +304,8 @@ struct MainConfigFourComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Four::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Four::paddingRight;
-    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Four::paddingInner;
-    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Four::paddingLeft;
+    int compPaddingInner = CoreGuiValue::MainGroup::Comps::Four::paddingInner;
+    int compPaddingLeft = CoreGuiValue::MainGroup::Comps::Four::paddingLeft;
 };
 
 void layoutMainFourComps(const MainConfigFourComps& c);
@@ -302,8 +323,8 @@ struct MainConfigFiveComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Five::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Five::paddingRight;
-    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Five::paddingInner;
-    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Five::paddingLeft;
+    int compPaddingInner = CoreGuiValue::MainGroup::Comps::Five::paddingInner;
+    int compPaddingLeft = CoreGuiValue::MainGroup::Comps::Five::paddingLeft;
 };
 
 void layoutMainFiveComps(const MainConfigFiveComps& c);
@@ -322,11 +343,32 @@ struct MainConfigSixComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Six::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Six::paddingRight;
-    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Six::paddingInner;
-    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Six::paddingLeft;
+    int compPaddingInner = CoreGuiValue::MainGroup::Comps::Six::paddingInner;
+    int compPaddingLeft = CoreGuiValue::MainGroup::Comps::Six::paddingLeft;
 };
 
 void layoutMainSixComps(const MainConfigSixComps& c);
+
+struct MainConfigSevenComps {
+    juce::Rectangle<int>& rect;
+    juce::Component* comp1;
+    juce::Component* comp2;
+    juce::Component* comp3;
+    juce::Component* comp4;
+    juce::Component* comp5;
+    juce::Component* comp6;
+    juce::Component* comp7;
+    int rowHeight = CoreGuiValue::MainGroup::Row::height;
+    int paddingLeft = 0;
+    int paddingTop = CoreGuiValue::MainGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
+    int compWidth = CoreGuiValue::MainGroup::Comps::Seven::width;
+    int compPaddingRight = CoreGuiValue::MainGroup::Comps::Seven::paddingRight;
+    int compPaddingInner = CoreGuiValue::MainGroup::Comps::Seven::paddingInner;
+    int compPaddingLeft = CoreGuiValue::MainGroup::Comps::Seven::paddingLeft;
+};
+
+void layoutMainSevenComps(const MainConfigSevenComps& c);
 
 struct MainConfigFxOrder {
     juce::Rectangle<int>& rect;
@@ -360,3 +402,37 @@ struct MainConfigViewMode {
 };
 
 void layoutMainViewMode(const MainConfigViewMode& c);
+
+struct RowConfigWtFiles {
+    juce::Rectangle<int>& rect;
+    juce::Component* loadWtBtn;
+    juce::Component* loadWt2Btn;
+    juce::Component* fileNameLabel;
+    juce::Component* clearBtn;
+    int rowHeight = CoreGuiValue::ParamGroup::Row::height;
+    int paddingTop = CoreGuiValue::ParamGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
+    int paddingRight = CoreGuiValue::ParamGroup::Row::paddingRight;
+    int loadBtnWidth = CoreGuiValue::ParamGroup::WtFiles::LoadBtn::width;
+    int fileNameLabelWidth = CoreGuiValue::ParamGroup::WtFiles::FileLabel::width;
+    int clearBtnWidth = CoreGuiValue::ParamGroup::WtFiles::ClearBtn::width;
+};
+
+void layoutRowWtFiles(const RowConfigWtFiles& c);
+
+struct MainConfigWtFiles {
+    juce::Rectangle<int>& rect;
+    juce::Component* loadWtBtn;
+    juce::Component* loadWt2Btn;
+    juce::Component* fileNameLabel;
+    juce::Component* clearBtn;
+    int rowHeight = CoreGuiValue::MainGroup::Row::height;
+    int paddingTop = CoreGuiValue::MainGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
+    int paddingRight = CoreGuiValue::MainGroup::Row::paddingRight;
+    int loadBtnWidth = CoreGuiValue::MainGroup::WtFiles::LoadBtn::width;
+    int fileNameLabelWidth = CoreGuiValue::MainGroup::WtFiles::FileLabel::width;
+    int clearBtnWidth = CoreGuiValue::MainGroup::WtFiles::ClearBtn::width;
+};
+
+void layoutMainWtFiles(const MainConfigWtFiles& c);

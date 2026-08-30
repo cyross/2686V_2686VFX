@@ -23,6 +23,8 @@
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -72,6 +74,8 @@ class GuiSsg : public GuiBase
 
     // Amp ADSR
     GuiComponentAmpEnv ampEnvComponent;
+    // MODULATION (FDS / WonderSwan / HuC6280)
+    GuiComponentWtMod modComponent;
 
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnvComponent;
@@ -81,6 +85,7 @@ class GuiSsg : public GuiBase
 
     GuiComponentSsgSwEnv11 ssgSwEnv11Component;
     GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
+    GuiComponentSsgHwEnv ssgHwEnvComponent;
 
     // Detune
     GuiComponentMulDetune mulDetuneComponent;
@@ -104,12 +109,6 @@ class GuiSsg : public GuiBase
     GuiTextButton triSetTri;     // 0.5
     GuiTextButton triSetSawUp;   // 1.0
 
-    // HW Env
-    GuiToggleButton envEnableButton;
-	NormalSeparator hwEnvSeparator;
-    GuiComboBox shapeSelector;
-    GuiSlider periodSlider;
-
     GuiComponentMidi midiComponent;
 
     GuiCategoryLabel utilityCat;
@@ -119,6 +118,8 @@ class GuiSsg : public GuiBase
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -170,10 +171,12 @@ public:
         fixComponent(context),
         unisonComponent(context),
         ampEnvComponent(context),
+        modComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
         ssgSwEnv11Component(context),
         ssgSwPEnv11Component(context),
+        ssgHwEnvComponent(context),
         mulDetuneComponent(context),
         lfo(context),
         dutyModeSelector(context),
@@ -188,10 +191,6 @@ public:
         triSetSawDown(context),
         triSetTri(context),
         triSetSawUp(context),
-        envEnableButton(context),
-		hwEnvSeparator(context),
-        shapeSelector(context),
-        periodSlider(context),
         midiComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
@@ -200,6 +199,8 @@ public:
         ieLfo(context),
         ieAmpEnv(context),
         iePitchEnv(context),
+        ieSsgHwEnv(context),
+        ieWtMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),
@@ -224,31 +225,32 @@ public:
     void initParams();
     void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutHwEnvCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
     void importToneNoiseParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingToneNoiseParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeToneNoiseParams(Io::ParamWriter& writer);
     void exportToneNoiseParam();
-    void importLfoParam();
-    void exportLfoParam();
-    void importAmpEnvParam();
-    void exportAmpEnvParam();
-    void importPitchEnvParam();
-    void exportPitchEnvParam();
-    void importSsgSwEnvParam();
-    void exportSsgSwEnvParam();
-    void importSsgSwEnv11Param();
-    void exportSsgSwEnv11Param();
-    void importSsgSwPEnv11Param();
-    void exportSsgSwPEnv11Param();
-    void importDetuneParam();
-    void exportDetuneParam();
-    void importUnisonParam();
-    void exportUnisonParam();
     void importQualityParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingQualityParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
     void importChParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingChParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
 };

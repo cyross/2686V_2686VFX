@@ -1,5 +1,16 @@
 ﻿#include "./MulDetune.h"
 
+#include "../../../Core/Gui/GuiRefresh.h"
+
+#include "../../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat detuneFormat{ "detune", 1 };
+}
+
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -49,16 +60,14 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
     if (isHw) {
         cat.setupHwCategory({
             .parent = parent,
-            .title = juce::String("") + "[■]--- MUL/DET ---",
-            .invisibleTitle = juce::String("") + "[□]--- MUL/DET ---",
+            .title = juce::String("") + "MUL/DET",
             .enableChangeDetailVisible = true
             });
     }
     else {
         cat.setupSwCategory({
             .parent = parent,
-            .title = juce::String("") + "[■]--- MUL/DET ---",
-            .invisibleTitle = juce::String("") + "[□]--- MUL/DET ---",
+            .title = juce::String("") + "MUL/DET",
             .enableChangeDetailVisible = true
             });
     }
@@ -67,9 +76,7 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
     mul.setWantsKeyboardFocus(true);
     mul.setExplicitFocusOrder(++tabOrder);
 
-    mulRatio.setup({ .parent = parent, .id = code + CPK::mulRatio, .title = "MURT", .isReset = true });
-    mulRatio.setWantsKeyboardFocus(true);
-    mulRatio.setExplicitFocusOrder(++tabOrder);
+    mulRatio.setupComponent(parent, code + CPK::mulRatio, "MURT", tabOrder, std::nullopt);
 
     mulRatioTo001.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = "0.01", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
     mulRatioTo001.setWantsKeyboardFocus(true);
@@ -221,11 +228,9 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    dt3.setup({ .parent = parent, .id = code + CPK::dt3, .title = "DT3", .isReset = true });
-    dt3.setWantsKeyboardFocus(true);
-    dt3.setExplicitFocusOrder(++tabOrder);
+    dt3.setupComponent(parent, code + CPK::dt3, "DT3", tabOrder, std::nullopt);
 
-    dt3Buttons.setupComponent(parent, dt3, tabOrder);
+    dt3Buttons.setupComponent(parent, dt3.getSlider(), tabOrder);
 }
 
 void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
@@ -236,46 +241,51 @@ void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
 
     mul.setVisibleWithLabel(visible);
     mulRatio.setVisibleWithLabel(visible);
-    mulRatioTo001.setVisible(visible);
-    mulRatioTo005.setVisible(visible);
-    mulRatioTo1.setVisible(visible);
-	mulRatioTo10.setVisible(visible);
-    mulRatioTo2757.setVisible(visible);
-    mulRatioTo02.setVisible(visible);
-    mulRatioTo025.setVisible(visible);
-    mulRatioTo04.setVisible(visible);
-    mulRatioTo05.setVisible(visible);
-    mulRatioTo06.setVisible(visible);
-    mulRatioTo075.setVisible(visible);
-    mulRatioTo08.setVisible(visible);
-    mulRatioPM10.setVisible(visible);
-    mulRatioP10.setVisible(visible);
-    mulRatioPM1.setVisible(visible);
-    mulRatioP1.setVisible(visible);
-    mulRatioPM01.setVisible(visible);
-    mulRatioP01.setVisible(visible);
-    mulRatioPM001.setVisible(visible);
-    mulRatioP001.setVisible(visible);
+    mulRatioTo001.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo005.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo1.setVisible(visible && mulRatio.isVisibleNudge());
+	mulRatioTo10.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo2757.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo02.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo025.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo04.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo05.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo06.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo075.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo08.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioPM10.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioP10.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioPM1.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioP1.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioPM01.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioP01.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioPM001.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioP001.setVisible(visible && mulRatio.isVisibleNudge());
     mulDetSep.setVisible(visible);
 	dt1.setVisibleWithLabel(visible);
 	dt2.setVisibleWithLabel(visible);
     dt3.setVisibleWithLabel(visible);
-    dt3Buttons.setVisibles(visible);
+    dt3Buttons.setVisibles(visible && dt3.isVisibleNudge());
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &mul.label, .component = &mul });
-        layoutMain({ .mainRect = rect, .label = &mulRatio.label, .component = &mulRatio });
-        layoutMainFiveComps({ .rect = rect, .comp1 = &mulRatioTo001, .comp2 = &mulRatioTo005, .comp3 = &mulRatioTo1, .comp4 = &mulRatioTo10, .comp5 = &mulRatioTo2757 });
-        layoutMainThreeComps({ .rect = rect, .comp1 = &mulRatioTo025, .comp2 = &mulRatioTo05, .comp3 = &mulRatioTo075 });
-        layoutMainFourComps({ .rect = rect, .comp1 = &mulRatioTo02, .comp2 = &mulRatioTo04, .comp3 = &mulRatioTo06, .comp4 = &mulRatioTo08 });
-        layoutMainFourComps({ .rect = rect, .comp1 = &mulRatioPM10, .comp2 = &mulRatioPM1, .comp3 = &mulRatioP1, .comp4 = &mulRatioP10 });
-        layoutMainFourComps({ .rect = rect, .comp1 = &mulRatioPM001, .comp2 = &mulRatioPM01, .comp3 = &mulRatioP01, .comp4 = &mulRatioP001 });
+        mulRatio.layoutComponent(rect);
+        if (mulRatio.isVisibleNudge())
+        {
+            layoutMainFiveComps({ .rect = rect, .comp1 = &mulRatioTo001, .comp2 = &mulRatioTo005, .comp3 = &mulRatioTo1, .comp4 = &mulRatioTo10, .comp5 = &mulRatioTo2757 });
+            layoutMainThreeComps({ .rect = rect, .comp1 = &mulRatioTo025, .comp2 = &mulRatioTo05, .comp3 = &mulRatioTo075 });
+            layoutMainFourComps({ .rect = rect, .comp1 = &mulRatioTo02, .comp2 = &mulRatioTo04, .comp3 = &mulRatioTo06, .comp4 = &mulRatioTo08 });
+            layoutMainFourComps({ .rect = rect, .comp1 = &mulRatioPM10, .comp2 = &mulRatioPM1, .comp3 = &mulRatioP1, .comp4 = &mulRatioP10 });
+            layoutMainFourComps({ .rect = rect, .comp1 = &mulRatioPM001, .comp2 = &mulRatioPM01, .comp3 = &mulRatioP01, .comp4 = &mulRatioP001 });
+        }
         mulDetSep.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &dt1.label, .component = &dt1 });
         layoutMain({ .mainRect = rect, .label = &dt2.label, .component = &dt2 });
-        layoutMain({ .mainRect = rect, .label = &dt3.label, .component = &dt3 });
-        dt3Buttons.layoutComponent(rect);
+        dt3.layoutComponent(rect);
+        if (dt3.isVisibleNudge()) dt3Buttons.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -287,46 +297,51 @@ void GuiComponentMulDetune::layoutComponentRow(juce::Rectangle<int>& rect)
 
     mul.setVisibleWithLabel(visible);
     mulRatio.setVisibleWithLabel(visible);
-    mulRatioTo001.setVisible(visible);
-    mulRatioTo005.setVisible(visible);
-    mulRatioTo1.setVisible(visible);
-    mulRatioTo10.setVisible(visible);
-    mulRatioTo2757.setVisible(visible);
-    mulRatioTo02.setVisible(visible);
-    mulRatioTo025.setVisible(visible);
-    mulRatioTo04.setVisible(visible);
-    mulRatioTo05.setVisible(visible);
-    mulRatioTo06.setVisible(visible);
-    mulRatioTo075.setVisible(visible);
-    mulRatioTo08.setVisible(visible);
-    mulRatioPM10.setVisible(visible);
-    mulRatioP10.setVisible(visible);
-    mulRatioPM1.setVisible(visible);
-    mulRatioP1.setVisible(visible);
-    mulRatioPM01.setVisible(visible);
-    mulRatioP01.setVisible(visible);
-    mulRatioPM001.setVisible(visible);
-    mulRatioP001.setVisible(visible);
+    mulRatioTo001.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo005.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo1.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo10.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo2757.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo02.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo025.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo04.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo05.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo06.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo075.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioTo08.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioPM10.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioP10.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioPM1.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioP1.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioPM01.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioP01.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioPM001.setVisible(visible && mulRatio.isVisibleNudge());
+    mulRatioP001.setVisible(visible && mulRatio.isVisibleNudge());
     mulDetSep.setVisible(visible);
     dt1.setVisibleWithLabel(visible);
     dt2.setVisibleWithLabel(visible);
     dt3.setVisibleWithLabel(visible);
-    dt3Buttons.setVisibles(visible);
+    dt3Buttons.setVisibles(visible && dt3.isVisibleNudge());
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .label = &mul.label, .component = &mul });
-        layoutRow({ .rowRect = rect, .label = &mulRatio.label, .component = &mulRatio });
-        layoutRowFiveComps({ .rect = rect, .comp1 = &mulRatioTo001, .comp2 = &mulRatioTo005, .comp3 = &mulRatioTo1, .comp4 = &mulRatioTo10, .comp5 = &mulRatioTo2757 });
-        layoutRowThreeComps({ .rect = rect, .comp1 = &mulRatioTo025, .comp2 = &mulRatioTo05, .comp3 = &mulRatioTo075 });
-        layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioTo02, .comp2 = &mulRatioTo04, .comp3 = &mulRatioTo06, .comp4 = &mulRatioTo08 });
-        layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM10, .comp2 = &mulRatioPM1, .comp3 = &mulRatioP1, .comp4 = &mulRatioP10 });
-        layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM001, .comp2 = &mulRatioPM01, .comp3 = &mulRatioP01, .comp4 = &mulRatioP001 });
+        mulRatio.layoutComponentRow(rect);
+        if (mulRatio.isVisibleNudge())
+        {
+            layoutRowFiveComps({ .rect = rect, .comp1 = &mulRatioTo001, .comp2 = &mulRatioTo005, .comp3 = &mulRatioTo1, .comp4 = &mulRatioTo10, .comp5 = &mulRatioTo2757 });
+            layoutRowThreeComps({ .rect = rect, .comp1 = &mulRatioTo025, .comp2 = &mulRatioTo05, .comp3 = &mulRatioTo075 });
+            layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioTo02, .comp2 = &mulRatioTo04, .comp3 = &mulRatioTo06, .comp4 = &mulRatioTo08 });
+            layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM10, .comp2 = &mulRatioPM1, .comp3 = &mulRatioP1, .comp4 = &mulRatioP10 });
+            layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM001, .comp2 = &mulRatioPM01, .comp3 = &mulRatioP01, .comp4 = &mulRatioP001 });
+        }
         mulDetSep.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &dt1.label, .component = &dt1 });
         layoutRow({ .rowRect = rect, .label = &dt2.label, .component = &dt2 });
-        layoutRow({ .rowRect = rect, .label = &dt3.label, .component = &dt3 });
-        dt3Buttons.layoutComponentRow(rect);
+        dt3.layoutComponentRow(rect);
+        if (dt3.isVisibleNudge()) dt3Buttons.layoutComponentRow(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -349,7 +364,7 @@ void GuiComponentMulDetune::pasteParams(CopyDetuneOpzx7& copyObj) {
 void GuiComponentMulDetune::importParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importDetuneParamFile, defaultDir, Io::ExtensionGlob::DetuneParam);
@@ -361,18 +376,49 @@ void GuiComponentMulDetune::importParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
 
-                int size = lines.size();
+                    file.readLines(lines);
 
-                if (size < 5) return;
+                    int index = 0;
 
-                mul.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                mulRatio.setValue(lines[1].getFloatValue(), juce::sendNotification);
-                dt1.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
-                dt2.setValue(lines[3].getIntValue(), juce::sendNotification);
-                dt3.setValue(lines[4].getIntValue(), juce::sendNotification);
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingParams(lines, index);
+                    }
+
+                    // 単体のファイルは入れ子にせず、そのまま中身として書く
+                    Io::ParamWriter writer(detuneFormat);
+
+                    writeParams(writer, Io::ParamKey::values);
+                    writer.hoist(Io::ParamKey::values);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, detuneFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
+                // 古いファイルは項目が欠けていることがあるので、
+                // 読めなかったものは今の値のままにしておく。
+                mul.setSelectedItemIndex(reader->getInt("mul", mul.getSelectedItemIndex()), juce::sendNotification);
+                mulRatio.setValue(reader->getFloat("mulRatio", (float)mulRatio.getValue()), juce::sendNotification);
+                dt1.setSelectedItemIndex(reader->getInt("dt1", dt1.getSelectedItemIndex()), juce::sendNotification);
+                dt2.setValue(reader->getInt("dt2", (int)dt2.getValue()), juce::sendNotification);
+                dt3.setValue(reader->getInt("dt3", (int)dt3.getValue()), juce::sendNotification);
             }
         });
 }
@@ -380,10 +426,10 @@ void GuiComponentMulDetune::importParams() {
 void GuiComponentMulDetune::exportParams() {
     juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile("default.detune"), Io::ExtensionGlob::DetuneParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::DetuneParam)), Io::saveGlob(Io::Extension::DetuneParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -392,15 +438,15 @@ void GuiComponentMulDetune::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(detuneFormat);
 
-                content += juce::String(mul.getSelectedItemIndex()) + "\n";
-                content += juce::String(mulRatio.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(dt1.getSelectedItemIndex()) + "\n";
-                content += juce::String(dt2.getValue()) + "\n";
-                content += juce::String(dt3.getValue()) + "\n";
+                writer.set("mul", mul.getSelectedItemIndex());
+                writer.set("mulRatio", (float)mulRatio.getValue());
+                writer.set("dt1", dt1.getSelectedItemIndex());
+                writer.set("dt2", (int)dt2.getValue());
+                writer.set("dt3", (int)dt3.getValue());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
@@ -451,7 +497,7 @@ void GuiComponentMulDetune::setVisibles(bool visible){
     dt1.setVisibleWithLabel(visible);
     dt2.setVisibleWithLabel(visible);
     dt3.setVisibleWithLabel(visible);
-    dt3Buttons.setVisibles(visible);
+    dt3Buttons.setVisibles(visible && dt3.isVisibleNudge());
 }
 
 void GuiComponentMulDetune::setEnables(bool enable) {
@@ -476,6 +522,17 @@ void GuiComponentMulDetune::setImportingParams(juce::StringArray& lines, int& in
     dt3.setValue(lines[index++].getIntValue(), juce::sendNotification);
 }
 
+void GuiComponentMulDetune::readParams(const Io::ParamReader& reader, const juce::String& key)
+{
+    auto r = reader.child(key);
+
+    mul.setSelectedItemIndex(r.getInt("mul", mul.getSelectedItemIndex()), juce::sendNotification);
+    mulRatio.setValue(r.getFloat("mulRatio", (float)mulRatio.getValue()), juce::sendNotification);
+    dt1.setSelectedItemIndex(r.getInt("dt1", dt1.getSelectedItemIndex()), juce::sendNotification);
+    dt2.setValue(r.getInt("dt2", (int)dt2.getValue()), juce::sendNotification);
+    dt3.setValue(r.getInt("dt3", (int)dt3.getValue()), juce::sendNotification);
+}
+
 juce::String GuiComponentMulDetune::getExportedParams() {
     juce::String content = "";
 
@@ -486,4 +543,15 @@ juce::String GuiComponentMulDetune::getExportedParams() {
     content += juce::String(dt3.getValue()) + "\n";
 
     return content;
+}
+
+void GuiComponentMulDetune::writeParams(Io::ParamWriter& writer, const juce::String& key)
+{
+    auto w = writer.child(key);
+
+    w.set("mul", mul.getSelectedItemIndex());
+    w.set("mulRatio", (float)mulRatio.getValue());
+    w.set("dt1", dt1.getSelectedItemIndex());
+    w.set("dt2", (float)dt2.getValue());
+    w.set("dt3", (float)dt3.getValue());
 }

@@ -2,9 +2,6 @@
 
 #include "./KSOpz.h"
 
-// KSLの減衰カーブ定義 (OPZ用: 8段階) ※値は仮の近似値です
-const std::array<float, 8> KSOpz::m_dbPerOcts = { 0.0f, 1.5f, 3.0f, 4.5f, 6.0f, 7.5f, 9.0f, 12.0f };
-
 KSOpz::KSOpz() {
     for (int i = 0; i < 128; i++) {
         int octave = (i / 12) - 1;

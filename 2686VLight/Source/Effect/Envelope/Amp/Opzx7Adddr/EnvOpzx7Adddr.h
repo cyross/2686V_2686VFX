@@ -37,7 +37,11 @@ class Opzx7Adddr
 
 	Opzx7RealAdssrParams m_real;
 	Opzx7RgAdssrParams m_rg;
-	Opzx7RgAdssrParams m_rgMax;
+	// レジスタ幅の既定値。setParamMax() より先に setParameters() が来ても
+	// 0 除算 → LUT の範囲外参照にならないよう、実機の幅を入れてある。
+	// 実際の値はオペレータの prepare() が setParamMax() で上書きする。
+	// 並びは ar / d1r / d2r / d1l / rr / tl。
+	Opzx7RgAdssrParams m_rgMax{ 31, 31, 31, 15, 31, 63 };
 
 	std::array<float, 64> timeInSecondsLut;
 	std::array<float, 64> attcckTimeInSecondsLut;
@@ -98,7 +102,7 @@ public:
 	bool isIdle() const { return m_state == State::Idle; }
 	bool isRelease() const { return m_state == State::Release; }
 	void setParameters(const Opzx7AdddrParams& params);
-	float noteOn(float velocity);
+	float noteOn(float velocity, int noteNumber);
 	void noteOff();
 	void updateIncrements(int noteNumber);
 	float updateEnvelopeState(float currentLevel);

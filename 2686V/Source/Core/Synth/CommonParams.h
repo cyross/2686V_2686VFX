@@ -50,10 +50,47 @@ struct AlgFbParams {
     AlgMatrixParams matrix; // マトリックスモードのパラメータ
 };
 
+struct Opzx7AlgFbParams {
+    // --- Algorithm ---
+    int algorithm = 0;
+    // --- Feedback ---
+    float feedback1 = 0.0f;
+    float feedback2 = 0.0f;
+    float feedback3 = 0.0f;
+    float feedback4 = 0.0f;
+    float feedback5 = 0.0f;
+    float feedback6 = 0.0f;
+    float feedback7 = 0.0f;
+    float feedback8 = 0.0f;
+
+    AlgMatrixParams matrix; // マトリックスモードのパラメータ
+};
+
 struct WtModParams {
     bool enable = false;
     float depth = 0.0f;
-    float speed = 1.0f; // Ratio or Hz
+    float speed = 1.0f; // 搬送波の周波数に対する比率
+    int shape = 0;      // WtModShape を参照
+
+    // HuC6280 モード用の変調波形 (32 サンプル / -1.0〜1.0)
+    std::array<float, 32> wave = { 0.0f };
+
+    // FdsUser モード用の変調テーブル (32 エントリ / 実機と同じ 3bit のレジスタ値)
+    std::array<int, 32> fdsTable = { 0 };
+};
+
+// MODULATION の変調方式
+enum class WtModShape {
+    Sine = 0,       // 正弦波 (FDS の簡易版)
+    FdsTriangle,    // FDS(2C33) 32ステップ : 対称三角
+    FdsSaw,         // FDS(2C33) 32ステップ : 非対称のこぎり
+    FdsReset,       // FDS(2C33) 32ステップ : リセットで断ち切る
+    FdsPulse,       // FDS(2C33) 32ステップ : 上下端で保持する台形
+    WsSweepUp,      // WonderSwan ch3 スイープ (上昇)
+    WsSweepDown,    // WonderSwan ch3 スイープ (下降)
+    HuC6280Wave,    // PC Engine HuC6280 LFO (波形メモリで分周器を変調)
+    FdsUser,        // FDS(2C33) 32ステップ : ユーザーが編集したテーブル
+    Size
 };
 
 struct ToneNoiseParams {
@@ -124,15 +161,4 @@ struct SsgTriParams {
 
     // Triangle Manual Spped Freq
     float freq = 440.0f;
-};
-
-struct SsgHwEnvParams {
-    // Hardware Envelope Enable Switch
-    bool enable = false;
-
-    // Hardware Envelope Shape Index
-    int shape = 0;
-
-    // Hardware Envelope Period Freq
-    float period = 1.0f;
 };

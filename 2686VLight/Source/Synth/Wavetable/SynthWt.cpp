@@ -21,6 +21,8 @@ void WtCore::prepare(double sampleRate)
     m_ssgSwEnv.prepare(0, m_sampleRate);
     m_ssgSwEnv11.prepare(0, m_sampleRate);
     m_ssgSwPenv11.prepare(0, m_sampleRate);
+    m_ssgHwEnv.prepare(m_sampleRate);
+
     m_targetRate = getTargetRate(m_rateIndex);
 
     m_lfo.prepare(m_targetRate);
@@ -37,6 +39,7 @@ void WtCore::setSampleRate(double sampleRate)
 	m_ssgSwEnv.updateSampleRate(m_sampleRate);
     m_ssgSwEnv11.updateSampleRate(m_sampleRate);
     m_ssgSwPenv11.updateSampleRate(m_sampleRate);
+    m_ssgHwEnv.updateSampleRate(m_sampleRate);
 
     updatePhaseDelta();
 }
@@ -57,6 +60,7 @@ void WtCore::setParameters(const SynthParams& params)
     m_ssgSwPenv11.setParameters(params.wt.ssgSwPEnv11);
     m_detune.setParameters(params.wt.detune);
     m_lfo.setParameters(params.wt.lfo);
+    m_ssgHwEnv.setParameters(params.wt.ssgHwEnv);
 
     // Bit Depth & Table Size
     m_quantizeSteps = getTargetBitDepth(params.wt.quality.bit);
@@ -98,9 +102,9 @@ void WtCore::setParameters(const SynthParams& params)
         generateWaveform(m_waveform);
     }
 
-    m_modEnable = params.wt.mod.enable;
-    m_modDepth = params.wt.mod.depth;
-    m_modSpeed = params.wt.mod.speed;
+    m_wtMod.setParameters(params.wt.mod);
+
+    m_interpolate = params.wt.interpolate;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 
@@ -121,27 +125,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
-    float finalFreq = freq;
-
-    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
-    m_unisonPhaseOffset = 0.0f;
-
-    if (m_unisonTotal > 1) {
-        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
-        // 例(3ボイス): -1.0,  0.0,  1.0
-        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-
-        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
-        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-
-        // セント値(Cents) を周波数倍率(Ratio)に変換する
-        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
-        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
-
-        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
-        m_unisonPhaseOffset = (float)m_unisonIndex / (float)m_unisonTotal;
-    }
+    float finalFreq = m_unison.applyDetune(freq);
  
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
@@ -150,7 +134,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     if (!isLegato) {
         if (!m_isMonoMode) {
-            m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+            m_phase = (m_unison.getPhaseOffset() * juce::MathConstants<float>::twoPi);
 
             // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
             while (m_phase >= juce::MathConstants<float>::twoPi) {
@@ -159,7 +143,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
             m_lfo.noteOn();
         }
 
-        m_modPhase = 0.0f;
+        m_wtMod.reset();
         m_rateAccumulator = 0.0;
         m_lastSample = 0.0f;
     }
@@ -184,6 +168,8 @@ void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         if (!m_ssgSwPenv11.isBypass()) {
             m_ssgSwPenv11.noteOn();
         }
+
+        m_ssgHwEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -240,7 +226,7 @@ void WtCore::setPitchBend(int pitchWheelValue)
 void WtCore::setModulationWheel(int wheelValue)
 {
     // 0.0 ～ 1.0 に正規化
-    m_modWheel = (float)wheelValue / 127.0f;
+    m_wtMod.setModWheel((float)wheelValue / 127.0f);
 }
 
 void WtCore::setPitchBendRatio(float ratio)
@@ -346,26 +332,19 @@ float WtCore::getSample()
         // ==========================================
         // Wavetable固有の Modulation (Vibrato / Table Scan)
         // ==========================================
-        float modLfoVal = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi);
-
-        float totalModDepth = m_modDepth + (m_modWheel * 0.1f);
-
-        float modOffset = 0.0f;
-        if (m_modEnable || m_modWheel > 0.0f) // Apply if enable OR wheel is up
-        {
-            modOffset = modLfoVal * totalModDepth;
-
-            m_modPhase += (newPhaseDelta * m_modSpeed);
-            if (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
-        }
+        // MODULATION
+        // ==========================================
+        // 計算は WtModulator (Generator/WtMod) にある。
+        // FM 音源のチップ全体にも同じものを掛けている。
+        float modRatio = m_wtMod.process(newPhaseDelta);
 
         // ==========================================
         // 位相 (Phase) の計算
         // ==========================================
-        // PitchBend に加えて Opzx7 の PM 倍率も掛け合わせる
-        float currentDelta = newPhaseDelta * m_pitchBendRatio * opzx7PitchMod;
+        // PitchBend、Opzx7 の PM 倍率、FDS 変調の周波数比を掛け合わせる
+        float currentDelta = newPhaseDelta * m_pitchBendRatio * opzx7PitchMod * modRatio;
 
-        float effectivePhase = m_phase + modOffset;
+        float effectivePhase = m_phase;
         effectivePhase -= std::floor(effectivePhase);
         if (effectivePhase < 0.0f) effectivePhase += 1.0f;
 
@@ -390,8 +369,12 @@ float WtCore::getSample()
         float raw1 = m_sourceWave[sourceIdx1];
         float raw2 = m_sourceWave[sourceIdx2];
 
-        // 2つのサンプルの間を滑らかに補間する
-        float rawSample = raw1 * (1.0f - frac) + raw2 * frac;
+        // 2つのサンプルの間を滑らかに補間する。
+        // OFF にすると補間せず手前の値を保持し、実機の波形メモリと同じ
+        // 階段状の出力になる。
+        float rawSample = m_interpolate
+            ? (raw1 * (1.0f - frac) + raw2 * frac)
+            : raw1;
 
         // 量子化(ビットクラッシャー)の前に AM（トレモロ）を適用する
         rawSample *= amMultiplier;
@@ -438,7 +421,10 @@ float WtCore::getSample()
         if (m_phase >= 1.0f) m_phase -= 1.0f;
     }
 
-    return m_lastSample * finalEnv * m_level * m_baseLevel * 8.0f;
+    // SSGハードウェアエンベロープ(SsgHwEnv)処理
+    float sshHwEnvVal = m_ssgHwEnv.process();
+
+    return m_lastSample * finalEnv * sshHwEnvVal * m_level * m_baseLevel * 8.0f;
  }
 
 // 波形データ生成
@@ -505,20 +491,8 @@ void WtCore::renderNextBlock(float* outR, float* outL, int startSample, int samp
     float basePanL = 1.0f;
     float basePanR = 1.0f;
 
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
-
-        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
-        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
-
-        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
-        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
-
-        // 音量補正 (ボイス数が増えると爆音になるため下げる)
-        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
-        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
-        sample *= gainComp;
-    }
+    m_unison.applyPan(basePanL, basePanR);
+    sample *= m_unison.getGainComp();
 
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;

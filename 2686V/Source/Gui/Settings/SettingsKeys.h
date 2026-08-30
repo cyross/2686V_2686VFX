@@ -6,6 +6,7 @@ namespace SettingsKey
 {
 	static inline const juce::String envCode = "PREF_2686V";
 	static inline const juce::String uiScaleIndex = "uiScaleIndex";
+	static inline const juce::String fileFormat = "fileFormat";
 	static inline const juce::String wallpaperPath = "wallpaperPath";
 	static inline const juce::String wallpaperMode = "wallpaperMode";
 	static inline const juce::String defaultSampleDir = "defaultSampleDir";
@@ -19,11 +20,13 @@ namespace SettingsKey
 	static inline const juce::String defaultAmpEnvParamDir = "defaultAmpEnvParamDir";
 	static inline const juce::String defaultPitchEnvParamDir = "defaultPitchEnvParamDir";
 	static inline const juce::String defaultSsgSwEnvParamDir = "defaultSsgSwEnvParamDir";
+	static inline const juce::String defaultSsgHwEnvParamDir = "defaultSsgHwEnvParamDir";
 	static inline const juce::String defaultDetuneParamDir = "defaultDetuneParamDir";
 	static inline const juce::String defaultUnisonParamDir = "defaultUnisonParamDir";
 	static inline const juce::String defaultQualityParamDir = "defaultQualityParamDir";
 	static inline const juce::String defaultPcmPlayParamDir = "defaultPcmPlayParamDir";
 	static inline const juce::String defaultToneNoiseParamDir = "defaultToneNoiseParamDir";
+	static inline const juce::String defaultColorSettingDir = "defaultColorSettingDir";
 	static inline const juce::String showTooltips = "showTooltips";
 	static inline const juce::String useHeadroom = "useHeadRoom";
 	static inline const juce::String headroomGain = "headRoomGain";

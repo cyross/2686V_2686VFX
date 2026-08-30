@@ -1,6 +1,21 @@
 ﻿#include <vector>
 
+#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiWt.h"
+
+#include "../../Core/Gui/GuiRefresh.h"
+
+#include "../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// 自分で描いた波形を表す選択肢の番号
+	constexpr int customWaveIndex = 8;
+
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat wtFormat{ "wt", 1 };
+	const Io::ParamFormat qualityFormat{ "quality", 1 };
+}
 
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
@@ -51,6 +66,7 @@ static std::vector<SelectItem> wtStepsItems = {
     {.name = juce::String("") + "256段階(128 / 127)", .value = 11 },
 };
 
+// MODULATION の変調波形。実機ディスクシステムは 32 段の階段状。
 static std::vector<SelectItem> lfoPmShapeItems = {
     {.name = "0: Sine",                .value = 1 },
     {.name = "1: Saw Up",              .value = 2 },
@@ -74,26 +90,9 @@ static std::vector<SelectItem> lfoAmShapeItems = {
 };
 
 template <size_t tableSize>
-WaveformContainer<tableSize>::WaveformContainer(const GuiContext& context) : GuiBaseComponent(context)
+WaveformContainer<tableSize>::WaveformContainer(const GuiContext& context) : ParamBarEditorBase(context)
 {
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-}
-
-template <size_t tableSize>
-WaveformContainer<tableSize>::~WaveformContainer()
-{
-    // PluginProcessorの完全な定義を読み込んでいるので、エラーなくアクセスできる
-    for (const auto& id : m_paramIds) {
-        ctx.audioProcessor.apvts.removeParameterListener(id, this);
-    }
-}
-
-// パラメータが外部(Undoなど)から変更されたときに呼ばれる
-template <size_t tableSize>
-void WaveformContainer<tableSize>::parameterChanged(const juce::String& parameterID, float newValue)
-{
-    // 描画を予約（メッセージスレッドで実行される）
-    juce::MessageManager::callAsync([this] { repaint(); });
 }
 
 template <size_t tableSize>
@@ -101,22 +100,7 @@ void WaveformContainer<tableSize>::setup(const Config& c)
 {
     c.parent.addAndMakeVisible(this);
 
-    m_params.clear();
-    for (size_t i = 0; i < tableSize; ++i)
-    {
-        juce::String paramId = c.idPrefix + juce::String(i);
-
-        // PluginProcessor側のAPVTSからパラメータの直接ポインタを取得
-        auto* param = ctx.audioProcessor.apvts.getParameter(paramId);
-
-        if (param != nullptr) {
-            m_params.push_back(param);
-            m_paramIds.add(paramId);
-
-            // パラメータごとにリスナーを登録
-            ctx.audioProcessor.apvts.addParameterListener(paramId, this);
-        }
-    }
+    attachParams(c.idPrefix, (int)tableSize);
 }
 
 template <size_t tableSize>
@@ -145,13 +129,6 @@ void WaveformContainer<tableSize>::applySmoothing()
     {
         if (m_params[i]) m_params[i]->setValueNotifyingHost(m_params[i]->convertTo0to1(temp[i]));
     }
-    repaint();
-}
-
-template <size_t tableSize>
-void WaveformContainer<tableSize>::setCustomEnabled(bool shouldBeEnabled)
-{
-    isEnabledState = shouldBeEnabled;
     repaint();
 }
 
@@ -239,39 +216,6 @@ void WaveformContainer<tableSize>::paint(juce::Graphics& g)
 
         g.fillRect(x, halfHeight, drawW, 1.0f);
     }
-}
-
-// =======================================================
-// マウス操作の自前処理
-// =======================================================
-template <size_t tableSize>
-void WaveformContainer<tableSize>::mouseMove(const juce::MouseEvent& e) {
-    updateHoverState(e);
-}
-
-template <size_t tableSize>
-void WaveformContainer<tableSize>::mouseDown(const juce::MouseEvent& e) {
-    if (!e.mods.isLeftButtonDown()) return; // 左クリック以外は無視する
-
-    // マウスをクリックした瞬間に「新しいUndoの区切り」を作る
-    ctx.audioProcessor.undoManager.beginNewTransaction();
-
-    updateSliderValue(e);
-    updateHoverState(e);
-}
-
-template <size_t tableSize>
-void WaveformContainer<tableSize>::mouseDrag(const juce::MouseEvent& e) {
-    if (!e.mods.isLeftButtonDown()) return; // 左クリック以外は無視する
-
-    updateSliderValue(e);
-    updateHoverState(e);
-}
-
-template <size_t tableSize>
-void WaveformContainer<tableSize>::mouseExit(const juce::MouseEvent& e) {
-    hoveredIndex = -1;
-    repaint();
 }
 
 template <size_t tableSize>
@@ -481,21 +425,7 @@ void WaveformContainer<tableSize>::paintOverChildren(juce::Graphics& g)
             text = "[" + juce::String(hoveredIndex) + "] " + juce::String(potentialVal, 3);
         }
 
-        g.setFont(14.0f);
-        int textW = (int)juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), juce::StringRef(text)) + 12;
-        int textH = 22;
-
-        int drawX = lastMousePos.x + 12;
-        int drawY = lastMousePos.y - 24;
-
-        if (drawX + textW > getWidth()) drawX = getWidth() - textW;
-        if (drawY < 0) drawY = lastMousePos.y + 12;
-
-        g.setColour(juce::Colours::black.withAlpha(0.8f));
-        g.fillRoundedRectangle((float)drawX, (float)drawY, (float)textW, (float)textH, 4.0f);
-
-        g.setColour(juce::Colours::white);
-        g.drawText(text, drawX, drawY, textW, textH, juce::Justification::centred, false);
+        paintHoverText(g, text);
     }
 }
 
@@ -559,11 +489,13 @@ void GuiWt::setup()
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
-    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleForm, .invisibleTitle = WtGuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
     qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
+
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -638,20 +570,8 @@ void GuiWt::setup()
         ctx.editor.resized();
         };
 
-    modCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleMod, .invisibleTitle = WtGuiText::Category::invisibileMod, .enableChangeDetailVisible = true });
-
-    // Modulation
-    modEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::enable, .title = WtGuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
-    modEnableButton.setWantsKeyboardFocus(true);
-    modEnableButton.setExplicitFocusOrder(++tabOrder);
-
-    modDepthSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::depth, .title = WtGuiText::Wt::Mod::depth, .isReset = true });
-    modDepthSlider.setWantsKeyboardFocus(true);
-    modDepthSlider.setExplicitFocusOrder(++tabOrder);
-
-    modSpeedSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::speed, .title = WtGuiText::Wt::Mod::speed, .isReset = true });
-    modSpeedSlider.setWantsKeyboardFocus(true);
-    modSpeedSlider.setExplicitFocusOrder(++tabOrder);
+    // 波形メモリのチャンネル自身の機能なのでハード扱いにする
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -671,7 +591,7 @@ void GuiWt::setup()
         tabOrder
     );
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleUtil, .invisibleTitle = WtGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
@@ -696,37 +616,24 @@ void GuiWt::setup()
 
     uSep002.setupComponent(mainGroup.contentCanvas);
 
-    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
-    ieLfo.onClickImport = [this] { importLfoParam(); };
-    ieLfo.onClickExport = [this] { exportLfoParam(); };
+    ieLfo.setupComponentFor(mainGroup.contentCanvas, tabOrder, "LFO", lfo);
 
-    ieDetune.setupComponent(mainGroup.contentCanvas, tabOrder, "Detune");
-    ieDetune.onClickImport = [this] { importDetuneParam(); };
-    ieDetune.onClickExport = [this] { exportDetuneParam(); };
+    ieDetune.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Detune", mulDetuneComponent);
 
-    ieAmpEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
-    ieAmpEnv.onClickImport = [this] { importAmpEnvParam(); };
-    ieAmpEnv.onClickExport = [this] { exportAmpEnvParam(); };
+    ieAmpEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
 
-    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Pitch Env");
-    iePitchEnv.onClickImport = [this] { importPitchEnvParam(); };
-    iePitchEnv.onClickExport = [this] { exportPitchEnvParam(); };
+    iePitchEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Pitch Env", pitchEnvComponent);
 
-    ieSsgSwEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
-    ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
-    ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
+    ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
 
-    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
-    ieSsgSwEnv11.onClickImport = [this] { importSsgSwEnv11Param(); };
-    ieSsgSwEnv11.onClickExport = [this] { exportSsgSwEnv11Param(); };
+    ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
-    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
-    ieSsgSwPEnv11.onClickImport = [this] { importSsgSwPEnv11Param(); };
-    ieSsgSwPEnv11.onClickExport = [this] { exportSsgSwPEnv11Param(); };
+    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11Component);
 
-    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] { importUnisonParam(); };
-    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+    ieSsgSwPEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11Component);
+
+    ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
     ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
     ieQuality.onClickImport = [this] { importQualityParam(); };
@@ -802,6 +709,10 @@ void GuiWt::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
 
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
+
     auto mainArea = pageArea.removeFromLeft(WtGuiValue::MainGroup::width);
     mainArea.removeFromBottom(40);
     mainGroup.setBounds(mainArea);
@@ -819,13 +730,15 @@ void GuiWt::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     levelComponent.layoutComponent(mRect);
 
     layoutFormCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
+
+    ssgHwEnv.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -837,7 +750,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     mulDetuneComponent.layoutComponent(mRect);
 
-    layoutModulationCat(mRect);
+    modComponent.layoutComponent(mRect);
 
     lfo.layoutComponent(mRect);
 
@@ -855,10 +768,6 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
-
-    bool isMod = modEnableButton.getToggleState();
-    modDepthSlider.setEnabledWithLabel(isMod);
-    modSpeedSlider.setEnabledWithLabel(isMod);
 
     // 波形がカスタム以外の時は波形精度選択を Disabled に
     bool isCustomWave = (waveSelector.getSelectedId() == 9);
@@ -979,14 +888,11 @@ void GuiWt::updatePresetName(const juce::String& name)
     presetName.updatePresetName(name);
 }
 
-// ==============================================================================
-// Import / Export Logic
-// ==============================================================================
 void GuiWt::importWavetable()
 {
     juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importWavetableFile, defaultDir, Io::ExtensionGlob::wavetable);
@@ -1049,7 +955,7 @@ void GuiWt::exportWavetable()
 {
     juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportWavetableFile, defaultDir.getChildFile("custom_wave.wt"), Io::ExtensionGlob::wavetable);
@@ -1112,30 +1018,14 @@ void GuiWt::layoutFormCat(Rectangle<int>& rect) {
             formSeparator.layoutComponent(rect);
             layoutMain({ .mainRect = rect, .label = &sizeSelector.label, .component = &sizeSelector, });
             layoutMain({ .mainRect = rect, .label = &stepsSelector.label, .component = &stepsSelector, });
+
+            rect.removeFromTop(CoreGuiValue::Category::gapBelow);
         }
     }
 }
 
 void GuiWt::layoutQualityCat(juce::Rectangle<int>& rect) {
     qualityComponent.layoutComponent(rect);
-}
-
-void GuiWt::layoutModulationCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &modCat });
-
-    bool visible = modCat.isDetailVisible();
-
-    modEnableButton.setVisible(visible);
-    modDepthSlider.setVisibleWithLabel(visible);
-    modSpeedSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &modEnableButton });
-        layoutMain({ .mainRect = rect, .label = &modDepthSlider.label, .component = &modDepthSlider });
-        layoutMain({ .mainRect = rect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, });
-    }
 }
 
 void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
@@ -1153,6 +1043,8 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieDetune.setVisible(visible);
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
+    ieSsgHwEnv.setVisible(visible);
+    ieWtMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -1172,6 +1064,10 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
+        ieSsgHwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieWtMod.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
@@ -1185,6 +1081,8 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1211,9 +1109,11 @@ void GuiWt::setupGraph()
     auto repaintGraph = [this]() {
         if (this->isUpdatingGraph) return; // 既に更新中なら無視
 
-        this->isUpdatingGraph = true;
+        // 旗は必ず下ろす。途中で抜けたときに立ちっぱなしになると、
+        // 以後グラフの更新が全部素通りしてしまうため。
+        const juce::ScopedValueSetter<bool> guard(this->isUpdatingGraph, true);
+
         this->updateGraph();
-        this->isUpdatingGraph = false;
         };
 
     ampEnvComponent.setupGraph(repaintGraph);
@@ -1308,58 +1208,10 @@ void GuiWt::setLevel(float level) {
     levelComponent.setLevel(level);
 }
 
-void GuiWt::importLfoParam() {
-    lfo.importParams();
-}
-
-void GuiWt::exportLfoParam() {
-    lfo.exportParams();
-}
-
-void GuiWt::importAmpEnvParam() {
-    ampEnvComponent.importParams();
-}
-
-void GuiWt::exportAmpEnvParam() {
-    ampEnvComponent.exportParams();
-}
-
-void GuiWt::importPitchEnvParam() {
-    pitchEnvComponent.importParams();
-}
-
-void GuiWt::exportPitchEnvParam() {
-    pitchEnvComponent.exportParams();
-}
-
-void GuiWt::importSsgSwEnvParam() {
-    ssgSwEnvComponent.importParams();
-}
-
-void GuiWt::exportSsgSwEnvParam() {
-    ssgSwEnvComponent.exportParams();
-}
-
-void GuiWt::importDetuneParam() {
-    mulDetuneComponent.importParams();
-}
-
-void GuiWt::exportDetuneParam() {
-    mulDetuneComponent.exportParams();
-}
-
-void GuiWt::importUnisonParam() {
-    unisonComponent.importParams();
-}
-
-void GuiWt::exportUnisonParam() {
-    unisonComponent.exportParams();
-}
-
 void GuiWt::importQualityParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
@@ -1371,15 +1223,42 @@ void GuiWt::importQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
 
-                int size = lines.size();
+                    file.readLines(lines);
 
-                if (size < 2) return;
+                    int index = 0;
 
-                qualityComponent.setBit(lines[0].getIntValue());
-                qualityComponent.setRate(lines[1].getIntValue());
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingQualityParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(qualityFormat);
+
+                    writeQualityParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, qualityFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
+                qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
+                qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
             }
         });
 }
@@ -1387,10 +1266,10 @@ void GuiWt::importQualityParam() {
 void GuiWt::exportQualityParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::QualityParam)), Io::saveGlob(Io::Extension::QualityParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -1399,36 +1278,18 @@ void GuiWt::exportQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(qualityFormat);
+                writeQualityParams(writer);
 
-                content += juce::String(qualityComponent.getBit()) + "\n";
-                content += juce::String(qualityComponent.getRate()) + "\n";
-
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
-}
-
-void GuiWt::importSsgSwEnv11Param() {
-    ssgSwEnv11Component.importParams();
-}
-
-void GuiWt::exportSsgSwEnv11Param() {
-    ssgSwEnv11Component.exportParams();
-}
-
-void GuiWt::importSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.importParams();
-}
-
-void GuiWt::exportSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.exportParams();
 }
 
 void GuiWt::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::wtParam);
@@ -1439,61 +1300,77 @@ void GuiWt::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
 
-                int size = lines.size();
-                int index = 0;
+                    file.readLines(lines);
 
-                // Level
-                levelComponent.setImportingParams(lines, index);
+                    int index = 0;
 
-                // Form
-                int selectedSizeIdx = lines[index++].getIntValue();
-                int selectedStepsIdx = lines[index++].getIntValue();
-                int selectedWaveIdx = lines[index++].getIntValue();
-
-                sizeSelector.setSelectedItemIndex(selectedSizeIdx, juce::sendNotification);
-                stepsSelector.setSelectedItemIndex(selectedStepsIdx, juce::sendNotification);
-                waveSelector.setSelectedItemIndex(selectedWaveIdx, juce::sendNotification);
-
-                // Moduration
-                modEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                modDepthSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                modSpeedSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-
-                // Components
-                fixComponent.setImportingParams(lines, index);
-                ampEnvComponent.setImportingParams(lines, index);
-                pitchEnvComponent.setImportingParams(lines, index);
-                ssgSwEnvComponent.setImportingParams(lines, index);
-                ssgSwEnv11Component.setImportingParams(lines, index);
-                ssgSwPEnv11Component.setImportingParams(lines, index);
-                mulDetuneComponent.setImportingParams(lines, index);
-                lfo.setImportingParams(lines, index);
-                qualityComponent.setImportingParams(lines, index);
-                unisonComponent.setImportingParams(lines, index);
-
-                if (selectedWaveIdx == 8)
-                {
-                    int sampleCount = 32;
-                    if (selectedSizeIdx == 1)      sampleCount = 64;
-                    else if (selectedSizeIdx == 2) sampleCount = 128;
-                    else if (selectedSizeIdx == 3) sampleCount = 256;
-
-                    std::vector<float> customValues(sampleCount, 0.0f);
-                    for (int i = 0; i < sampleCount; ++i)
                     {
-                        if (index < lines.size()) {
-                            customValues[i] = std::clamp(lines[index++].getFloatValue(), -1.0f, 1.0f);
-                        }
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingChParams(lines, index);
                     }
 
-                    // 適切なWaveformContainerへ値を一括反映
-                    if (sampleCount == 32)       customSliders32.setValues(customValues);
-                    else if (sampleCount == 64)  customSliders64.setValues(customValues);
-                    else if (sampleCount == 128) customSliders128.setValues(customValues);
-                    else if (sampleCount == 256) customSliders256.setValues(customValues);
+                    Io::ParamWriter writer(wtFormat);
+
+                    writeChParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, wtFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
+                // Level
+                levelComponent.readParams(*reader, "level");
+
+                // Form
+                sizeSelector.setSelectedItemIndex(reader->getInt("size", sizeSelector.getSelectedItemIndex()), juce::sendNotification);
+                stepsSelector.setSelectedItemIndex(reader->getInt("steps", stepsSelector.getSelectedItemIndex()), juce::sendNotification);
+                waveSelector.setSelectedItemIndex(reader->getInt("wave", waveSelector.getSelectedItemIndex()), juce::sendNotification);
+
+                // Modulation
+                modComponent.readParams(*reader, "wtMod");
+
+                // Components
+                fixComponent.readParams(*reader, "fix");
+                ampEnvComponent.readParams(*reader, "ampEnv");
+                pitchEnvComponent.readParams(*reader, "pitchEnv");
+                ssgHwEnv.readParams(*reader, "ssgHwEnv");
+                ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
+                ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
+                ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
+                mulDetuneComponent.readParams(*reader, "mulDetune");
+                lfo.readParams(*reader, "lfo");
+                qualityComponent.readParams(*reader, "quality");
+                unisonComponent.readParams(*reader, "unison");
+
+                // 自分で描いた波形。並びの長さがそのまま段数になるので、
+                // どの入れ物へ入れるかを別の項目から導く必要は無い。
+                auto customValues = reader->getFloatArray("customWave");
+
+                for (auto& value : customValues) value = std::clamp(value, -1.0f, 1.0f);
+
+                switch ((int)customValues.size())
+                {
+                case 32:  customSliders32.setValues(customValues); break;
+                case 64:  customSliders64.setValues(customValues); break;
+                case 128: customSliders128.setValues(customValues); break;
+                case 256: customSliders256.setValues(customValues); break;
+                default: break;
                 }
             }
         });
@@ -1503,10 +1380,10 @@ void GuiWt::importChParam() {
 void GuiWt::exportChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::wtParam), Io::ExtensionGlob::wtParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::wtParam)), Io::saveGlob(Io::Extension::wtParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -1514,52 +1391,142 @@ void GuiWt::exportChParam() {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(wtFormat);
+                writeChParams(writer);
 
-                // Level
-                content += levelComponent.getExportedParams();
-
-                // Form
-                int selectedSizeIdx = sizeSelector.getSelectedItemIndex();
-                int selectedWaveIdx = waveSelector.getSelectedItemIndex();
-
-                content += juce::String(selectedSizeIdx) + "\n";
-                content += juce::String(stepsSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(selectedWaveIdx) + "\n";
-
-                // Moduration
-                content += juce::String(modEnableButton.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(modDepthSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(modSpeedSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-
-                // Components
-                content += fixComponent.getExportedParams();
-                content += ampEnvComponent.getExportedParams();
-                content += pitchEnvComponent.getExportedParams();
-                content += ssgSwEnvComponent.getExportedParams();
-                content += ssgSwEnv11Component.getExportedParams();
-                content += ssgSwPEnv11Component.getExportedParams();
-                content += mulDetuneComponent.getExportedParams();
-                content += lfo.getExportedParams();
-                content += qualityComponent.getExportedParams();
-                content += unisonComponent.getExportedParams();
-
-                if (selectedWaveIdx == 8)
-                {
-                    std::vector<float> customValues;
-                    if (selectedSizeIdx == 0)      customValues = customSliders32.getValues();
-                    else if (selectedSizeIdx == 1) customValues = customSliders64.getValues();
-                    else if (selectedSizeIdx == 2) customValues = customSliders128.getValues();
-                    else if (selectedSizeIdx == 3) customValues = customSliders256.getValues();
-
-                    for (float val : customValues)
-                    {
-                        content += juce::String(val, Global::floatDecimalPlaces) + "\n";
-                    }
-                }
-
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。並び順を写し直すより確実で、
+// 当時の互換の工夫もそのまま残る。
+void GuiWt::setImportingChParams(juce::StringArray& lines, int& index) {
+	// Level
+	levelComponent.setImportingParams(lines, index);
+
+	// Form
+	int selectedSizeIdx = lines[index++].getIntValue();
+	int selectedStepsIdx = lines[index++].getIntValue();
+	int selectedWaveIdx = lines[index++].getIntValue();
+
+	sizeSelector.setSelectedItemIndex(selectedSizeIdx, juce::sendNotification);
+	stepsSelector.setSelectedItemIndex(selectedStepsIdx, juce::sendNotification);
+	waveSelector.setSelectedItemIndex(selectedWaveIdx, juce::sendNotification);
+
+	// Moduration
+	modComponent.setImportingBaseParams(lines, index);
+
+	// Components
+	fixComponent.setImportingParams(lines, index);
+	ampEnvComponent.setImportingParams(lines, index);
+	pitchEnvComponent.setImportingParams(lines, index);
+	ssgHwEnv.setImportingParams(lines, index);
+	ssgSwEnvComponent.setImportingParams(lines, index);
+	ssgSwEnv11Component.setImportingParams(lines, index);
+	ssgSwPEnv11Component.setImportingParams(lines, index);
+	mulDetuneComponent.setImportingParams(lines, index);
+	lfo.setImportingParams(lines, index);
+	qualityComponent.setImportingParams(lines, index);
+	unisonComponent.setImportingParams(lines, index);
+
+	if (selectedWaveIdx == 8)
+	{
+	    int sampleCount = 32;
+	    if (selectedSizeIdx == 1)      sampleCount = 64;
+	    else if (selectedSizeIdx == 2) sampleCount = 128;
+	    else if (selectedSizeIdx == 3) sampleCount = 256;
+
+	    std::vector<float> customValues(sampleCount, 0.0f);
+	    for (int i = 0; i < sampleCount; ++i)
+	    {
+	        if (index < lines.size()) {
+	            customValues[i] = std::clamp(lines[index++].getFloatValue(), -1.0f, 1.0f);
+	        }
+	    }
+
+	    // 適切なWaveformContainerへ値を一括反映
+	    if (sampleCount == 32)       customSliders32.setValues(customValues);
+	    else if (sampleCount == 64)  customSliders64.setValues(customValues);
+	    else if (sampleCount == 128) customSliders128.setValues(customValues);
+	    else if (sampleCount == 256) customSliders256.setValues(customValues);
+	}
+
+	// Modulation Shape は後から追加したパラメータなので、
+	// 旧フォーマットとの互換のためファイル末尾から読む。
+	modComponent.setImportingShapeParam(lines, index);
+
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiWt::writeChParams(Io::ParamWriter& writer) {
+	// Level
+	levelComponent.writeParams(writer, "level");
+
+	// Form
+	writer.set("size", sizeSelector.getSelectedItemIndex());
+	writer.set("steps", stepsSelector.getSelectedItemIndex());
+	writer.set("wave", waveSelector.getSelectedItemIndex());
+
+	// Modulation
+	// 名前で持つので、後から足した項目を末尾へ置く必要はない。
+	modComponent.writeParams(writer, "wtMod");
+
+	// Components
+	fixComponent.writeParams(writer, "fix");
+	ampEnvComponent.writeParams(writer, "ampEnv");
+	pitchEnvComponent.writeParams(writer, "pitchEnv");
+	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
+	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
+	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+	mulDetuneComponent.writeParams(writer, "mulDetune");
+	lfo.writeParams(writer, "lfo");
+	qualityComponent.writeParams(writer, "quality");
+	unisonComponent.writeParams(writer, "unison");
+
+	// 自分で描いた波形。使っている段数のものだけを書く。
+	if (waveSelector.getSelectedItemIndex() == customWaveIndex)
+	{
+	    std::vector<float> customValues;
+
+	    switch (sizeSelector.getSelectedItemIndex())
+	    {
+	    case 0: customValues = customSliders32.getValues(); break;
+	    case 1: customValues = customSliders64.getValues(); break;
+	    case 2: customValues = customSliders128.getValues(); break;
+	    case 3: customValues = customSliders256.getValues(); break;
+	    default: break;
+	    }
+
+	    writer.setArray("customWave", customValues);
+	}
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiWt::setImportingQualityParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 2) return;
+
+	qualityComponent.setBit(lines[0].getIntValue());
+	qualityComponent.setRate(lines[1].getIntValue());
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiWt::writeQualityParams(Io::ParamWriter& writer) {
+	writer.set("bit", qualityComponent.getBit());
+	writer.set("rate", qualityComponent.getRate());
+
+	
 }

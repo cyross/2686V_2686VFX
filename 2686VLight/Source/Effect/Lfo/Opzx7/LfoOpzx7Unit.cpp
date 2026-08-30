@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "./LfoOpzx7Unit.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 Opzx7LfoCoreUnit::Opzx7LfoCoreUnit() {
 }
@@ -31,13 +32,13 @@ void Opzx7LfoCoreUnit::setParameters(int syncDelay, bool enable, float freq, int
 
     this->enable = enable;
     this->m_freq = freq;
-    this->m_waveIndex = std::clamp(index, 0, 7);
+    this->m_waveIndex = std::clamp(index, 0, 12);
     this->m_isOneshot = this->m_waveIndex == 6 || this->m_waveIndex == 7;
 
     this->ms = ms;
     this->md = md;
 
-    this->depthDb = (this->ms * this->md) * 96.0f;
+    this->depthDb = (this->ms * this->md) * Global::Lfo::maxAmDepthDb;
     this->depthCent = (this->ms * this->md) * 1200.0f;
 
     this->m_smoothRate = smoothRate;
@@ -73,6 +74,11 @@ void Opzx7LfoCoreUnit::noteOn()
     }
 
     this->m_sdCycleCount = 0;
+
+    // Sample & Hold はキーオンの時点で 1 つ値を持っておく。
+    // ここが 0 のままだと、最初のホールドが終わるまで出力が 0 に張り付く。
+    this->m_currentNoiseSample = m_noiseGen.generate();
+    this->m_currentHoldingSample = this->m_currentNoiseSample;
 }
 
 float Opzx7LfoCoreUnit::getSample()
@@ -138,6 +144,43 @@ float Opzx7LfoCoreUnit::getSample()
                 if (this->m_phase < 0.25)      val = (float)(this->m_phase * 4.0);
                 else if (this->m_phase < 0.5)  val = (float)(1.0 - (this->m_phase - 0.25) * 4.0);
                 else                           val = 0.0;
+
+                break;
+            case 8:
+                if (this->m_sdCycleCount % 4 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
+            case 9:
+                if (this->m_sdCycleCount % 8 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
+            case 10:
+                if (this->m_sdCycleCount % 16 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
+            case 11:
+                if (this->m_sdCycleCount % 32 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
+            case 12:
+                if (this->m_sdCycleCount % 64 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
             }
 
             // ワンショット波形 (6, 7) のミュート処理
@@ -160,10 +203,12 @@ float Opzx7LfoCoreUnit::getSamplePm()
 float Opzx7LfoCoreUnit::getSampleAm()
 {
     if (!this->enable) {
-        return 1.0f;
+        return 0.0f; // 減衰なし (呼び出し側は depthDb を掛けて dB 減衰に使う)
     }
 
-    float val = getSample();
+    // 波形は -1.0〜1.0 のバイポーラ。そのまま dB 減衰に使うと
+    // 負の半周期でゲインが 1.0 を超えて爆音になるため、0.0〜1.0 に直す。
+    float val = (getSample() + 1.0f) * 0.5f;
 
     // AMクリックノイズ防止スムージング
     this->m_smooth += (val - this->m_smooth) * this->m_smoothRate;

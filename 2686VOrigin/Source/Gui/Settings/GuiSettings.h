@@ -17,6 +17,7 @@ class GuiSettings : public GuiBase
 
     // 高解像度対応
     GuiComboBox uiScaleSelector;
+    GuiComboBox fileFormatSelector;
 
     NormalSeparator separator1;
 
@@ -36,6 +37,9 @@ class GuiSettings : public GuiBase
     NormalSeparator separator2;
 
     // Directories
+    // 17 行あって画面を占めるので、まとめて畳めるようにしている。
+    // 見出しはカテゴリラベルを流用するが、板は敷かない。
+    GuiCategoryLabel dirCat;
     GuiLabel sampleDirLabel;
     GuiLabel sampleDirPathLabel;
     GuiTextButton sampleDirBrowseBtn;
@@ -72,6 +76,10 @@ class GuiSettings : public GuiBase
     GuiLabel ssgSwEnvParamDirPathLabel;
     GuiTextButton ssgSwEnvParamDirBrowseBtn;
 
+    GuiLabel ssgHwEnvParamDirLabel;
+    GuiLabel ssgHwEnvParamDirPathLabel;
+    GuiTextButton ssgHwEnvParamDirBrowseBtn;
+
     GuiLabel detuneParamDirLabel;
     GuiLabel detuneParamDirPathLabel;
     GuiTextButton detuneParamDirBrowseBtn;
@@ -91,6 +99,10 @@ class GuiSettings : public GuiBase
     GuiLabel toneNoiseParamDirLabel;
     GuiLabel toneNoiseParamDirPathLabel;
     GuiTextButton toneNoiseParamDirBrowseBtn;
+
+    GuiLabel colorSettingDirLabel;
+    GuiLabel colorSettingDirPathLabel;
+    GuiTextButton colorSettingDirBrowseBtn;
 
     NormalSeparator separator3;
 
@@ -124,6 +136,7 @@ public:
         GuiBase(context),
         mainGroup(context),
         uiScaleSelector(context),
+        fileFormatSelector(context),
         separator1(context),
         wallpaperLabel(context),
         wallpaperPathLabel(context),
@@ -131,6 +144,7 @@ public:
         wallpaperClearBtn(context),
         wallpaperModeSelector(context),
         separator2(context),
+        dirCat(context),
         sampleDirLabel(context),
         sampleDirPathLabel(context),
         sampleDirBrowseBtn(context),
@@ -158,6 +172,9 @@ public:
         ssgSwEnvParamDirLabel(context),
         ssgSwEnvParamDirPathLabel(context),
         ssgSwEnvParamDirBrowseBtn(context),
+        ssgHwEnvParamDirLabel(context),
+        ssgHwEnvParamDirPathLabel(context),
+        ssgHwEnvParamDirBrowseBtn(context),
         detuneParamDirLabel(context),
         detuneParamDirPathLabel(context),
         detuneParamDirBrowseBtn(context),
@@ -173,6 +190,9 @@ public:
         toneNoiseParamDirLabel(context),
         toneNoiseParamDirPathLabel(context),
         toneNoiseParamDirBrowseBtn(context),
+        colorSettingDirLabel(context),
+        colorSettingDirPathLabel(context),
+        colorSettingDirBrowseBtn(context),
         separator3(context),
         tooltipToggle(context),
         separator4(context),
@@ -192,24 +212,8 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void setSettings(
-        int uiScaleIndex,
-        const juce::String& wallpaperPath,
-        const juce::String& sampleDirPath,
-        const juce::String& presetDirPath,
-        const juce::String& wavetableDirPath,
-        const juce::String& fxOrderDirPath,
-        const juce::String& fxParamDirPath,
-        const juce::String& lfoParamDirPath,
-        const juce::String& ampEnvParamDirPath,
-        const juce::String& pitchEnvParamDirPath,
-        const juce::String& ssgSwEnvParamDirPath,
-        const juce::String& detuneParamDirPath,
-        const juce::String& unisonParamDirPath,
-        const juce::String& qualityParamDirPath,
-        const juce::String& pcmPlayParamDirPath,
-        const juce::String& toneNoiseParamDirPath
-        );
+    // 設定を画面へ反映する。値はプロセッサから直に読む。
+    void setSettings();
 	void setWallpaperPath(const juce::String& wallpaperPath);
     float getUiScale(int index);
 };

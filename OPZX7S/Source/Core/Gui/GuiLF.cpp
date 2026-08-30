@@ -1,5 +1,7 @@
 ﻿#include "./GuiLF.h"
 
+#include "./GuiColor.h"
+
 #include "./GuiText.h"
 
 void CustomTabLookAndFeel::drawTabButton(juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver, bool isMouseDown)
@@ -39,8 +41,28 @@ void CustomTabLookAndFeel::drawTabButton(juce::TabBarButton& button, juce::Graph
     g.setColour(contentColour); // 色を確定
 
     // テキスト描画
-    g.setFont(juce::Font(juce::FontOptions(16.0f)).withStyle(button.isFrontTab() ? juce::Font::bold : juce::Font::plain));
+    g.setFont(juce::Font(juce::FontOptions(tabFontHeight)).withStyle(button.isFrontTab() ? juce::Font::bold : juce::Font::plain));
     g.drawText(name, area, juce::Justification::centred, true);
+}
+
+// タブの幅を決める。
+//
+// 既定の実装はタブの高さから割り出した文字サイズで測るため、ここで
+// 実際に描いている大きさとずれる。しかも選択中のタブだけ太字で描くので、
+// 細字で測ると選択した瞬間に文字が入りきらず "..." で省略されてしまう。
+// いちばん広くなる状態 (太字) で測って、そこへ余白を足す。
+int CustomTabLookAndFeel::getTabButtonBestWidth(juce::TabBarButton& button, int tabDepth)
+{
+    auto font = juce::Font(juce::FontOptions(tabFontHeight)).withStyle(juce::Font::bold);
+
+    int textWidth = juce::GlyphArrangement::getStringWidthInt(font, button.getButtonText().trim());
+
+    // 描画は getActiveArea() の中で行われ、左右から画像用の余白が引かれる。
+    // そのぶんも足しておかないと、足した余白が食われてしまう。
+    int width = textWidth + getTabButtonSpaceAroundImage() * 2 + tabPaddingX * 2;
+
+    // 短い名前のタブが細くなりすぎないよう、下限だけ既定と同じにしておく
+    return juce::jmax(tabDepth * 2, width);
 }
 
 // =======================================================
@@ -48,14 +70,16 @@ void CustomTabLookAndFeel::drawTabButton(juce::TabBarButton& button, juce::Graph
 // =======================================================
 juce::Colour CustomTabLookAndFeel::getTabHeaderColor(int tabIndex)
 {
-    // お好みの色を指定してください（アルファ値で濃さを調整すると綺麗です）
+    // 色そのものは GuiColor::Tab にある。タブの並びはプラグインごとに
+    // 違うので、どの番号がどの系統かだけをここで決める。
     switch (tabIndex)
     {
-    case 0: return juce::Colours::darkgreen;     // OPZX7S
-    case 1: return juce::Colours::darkred;       // ADVANCED
-    case 2: return juce::Colours::darkgoldenrod; // PRESET
-    case 3: return juce::Colours::darkgoldenrod; // SETTINGS
-    case 4: return juce::Colours::darkgoldenrod; // ABOUT
-    default: return juce::Colours::darkgrey;     // OTHER
+    case  0: return GuiColor::Tab::Fm;       // OPZX7S
+    case  1: return GuiColor::Tab::Advanced; // ADVANCED
+    case  2: return GuiColor::Tab::Utility;  // PRESET
+    case  3: return GuiColor::Tab::Utility;  // SETTINGS
+    case  4: return GuiColor::Tab::Utility;  // COLORS
+    case  5: return GuiColor::Tab::Utility;  // ABOUT
+    default: return GuiColor::Tab::Other;    // OTHER
     }
 }

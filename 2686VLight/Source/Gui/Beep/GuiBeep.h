@@ -20,6 +20,8 @@
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -38,6 +40,8 @@ class GuiBeep : public GuiBase {
 
     // Amp ADSR
     GuiComponentAmpEnv ampEnvComponent;
+    // MODULATION (FDS / WonderSwan / HuC6280)
+    GuiComponentWtMod modComponent;
 
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnvComponent;
@@ -53,14 +57,22 @@ class GuiBeep : public GuiBase {
 
     GuiComponentLfoOpzx7 lfoComponent;
 
+    // SSG Hw Env
+    GuiComponentSsgHwEnv ssgHwEnv;
+
     GuiComponentMidi midiComponent;
 
+    GuiCategoryLabel optionalCat;
+    GuiToggleButton antiAliasButton;
+    GuiComboBox timerClockSelector;
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     NormalSeparator uSep001;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -90,8 +102,10 @@ public:
         presetName(context),
         levelComponent(context),
         fixComponent(context),
+        ssgHwEnv(context),
         unisonComponent(context),
         ampEnvComponent(context),
+        modComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
         ssgSwEnv11Component(context),
@@ -99,12 +113,17 @@ public:
         mulDetuneComponent(context),
         lfoComponent(context),
         midiComponent(context),
+        optionalCat(context),
+        antiAliasButton(context),
+        timerClockSelector(context),
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
         ieLfo(context),
         ieAmpEnv(context),
         iePitchEnv(context),
+        ieSsgHwEnv(context),
+        ieWtMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),
@@ -126,25 +145,16 @@ public:
     void updatePresetName(const juce::String& name);
     void initParams();
     void setupGraph();
+    void layoutOptionalCat(Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
-    void importLfoParam();
-    void exportLfoParam();
-    void importAmpEnvParam();
-    void exportAmpEnvParam();
-    void importPitchEnvParam();
-    void exportPitchEnvParam();
-    void importSsgSwEnvParam();
-    void exportSsgSwEnvParam();
-    void importSsgSwEnv11Param();
-    void exportSsgSwEnv11Param();
-    void importSsgSwPEnv11Param();
-    void exportSsgSwPEnv11Param();
-    void importDetuneParam();
-    void exportDetuneParam();
-    void importUnisonParam();
-    void exportUnisonParam();
     void importChParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingChParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
 };

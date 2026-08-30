@@ -11,6 +11,8 @@
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "../../Generator/WtMod/GenWtModulator.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
@@ -36,16 +38,7 @@ public:
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 
     // ユニゾン・ハーモニー用
-    void setUnisonParams(int index, int total, float detune, float spread) {
-        m_unisonIndex = index;
-        m_unisonTotal = total;
-        m_unisonDetuneAmt = detune;
-        m_unisonSpreadAmt = spread;
-
-        // ユニゾンのインデックスに応じて位相を均等にずらす (0.0 〜 1.0)
-        // (例: 3ボイスなら 0.0, 0.33, 0.66)
-        m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
-    }
+    // ユニゾン・ハーモニーは SynthCore::m_unison に集約
 private:
     double m_sampleRate = 44100.0;
 
@@ -64,12 +57,7 @@ private:
     FixMode m_fixMode;
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
-
-    // HW Env Params
-    bool m_useHwEnv = false;
-    int m_envShape = 0;
-    float m_envFreq = 1.0f;
-    double m_hwEnvPhase = 0.0;
+    SsgHwEnv m_ssgHwEnv;
 
     // Duty Params
     int m_dutyMode = 0;
@@ -102,13 +90,11 @@ private:
     float m_baseLevel = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
+    // MODULATION (FDS / WonderSwan / HuC6280)
+    WtModulator m_wtMod;
+
     float m_modWheel = 0.0f;
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
-    int m_unisonIndex = 0;
-    int m_unisonTotal = 1;
-    float m_unisonDetuneAmt = 0.0f;
-    float m_unisonSpreadAmt = 0.0f;
-    float m_unisonPhaseOffset = 0.0f;
 };

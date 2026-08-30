@@ -1,6 +1,7 @@
 ﻿#include <array>
 #include <vector>
 
+#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiSettings.h"
 
 #include "../../Core/Editor/PluginEditor.h"
@@ -75,6 +76,32 @@ void GuiSettings::setup()
 
         };
 
+    // パラメータファイルの形
+    //
+    // 読み込みは中身を見て振り分けるので、ここを変えても今までに
+    // 書き出したファイルはそのまま読める。変わるのは書き出す形と
+    // 拡張子だけ。
+    std::vector<SelectItem> fileFormatItems = {
+        {.name = "JSON", .value = 1 },
+        {.name = "YAML", .value = 2 },
+    };
+
+    fileFormatSelector.setup({
+        .parent = *this,
+        .id = "",
+        .title = juce::String("") + "ファイル形式",
+        .items = fileFormatItems,
+        .isReset = false,
+        .labelColor = juce::Colours::yellow
+        });
+    fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
+    fileFormatSelector.setWantsKeyboardFocus(true);
+    fileFormatSelector.setExplicitFocusOrder(++tabOrder);
+    fileFormatSelector.onChange = [this] {
+        ctx.audioProcessor.fileFormatIndex = fileFormatSelector.getSelectedItemIndex();
+        ctx.audioProcessor.applyFileFormat();
+        };
+
     separator1.setupComponent(*this);
 
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = juce::String("") + "ファイル選択") {
@@ -136,6 +163,10 @@ void GuiSettings::setup()
     separator2.setupComponent(*this);
 
     // --- ADPCM Dir ---
+    // フォルダ設定はまとめて畳めるようにする。板は敷かないので、
+    // 見出しの下に中身が続くだけの形になる。
+    dirCat.setupCategory({ .parent = *this, .title = juce::String("") + "フォルダ設定(開閉)", .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
+    
     setupFolderRow(sampleDirLabel, juce::String("") + "サンプルファイルディレクトリ:", sampleDirPathLabel, sampleDirBrowseBtn);
     sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
     sampleDirPathLabel.setWantsKeyboardFocus(false);
@@ -166,7 +197,7 @@ void GuiSettings::setup()
     presetDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "プリセットファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultPresetDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultPresetDir),
+            ctx.audioProcessor.defaultPresetDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPresetDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -191,7 +222,7 @@ void GuiSettings::setup()
     wavetableDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "波形メモリファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultWavetableDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultWavetableDir),
+            ctx.audioProcessor.defaultWavetableDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultWavetableDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -212,7 +243,7 @@ void GuiSettings::setup()
     fxOrderDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "エフェクトオーダーファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultFxOrderDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultFxOrderDir),
+            ctx.audioProcessor.defaultFxOrderDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxOrderDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -233,7 +264,7 @@ void GuiSettings::setup()
     fxParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "FXファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultFxParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultFxParamDir),
+            ctx.audioProcessor.defaultFxParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -254,7 +285,7 @@ void GuiSettings::setup()
     channelParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "CHパラメータファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultChannelParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultChannelParamDir),
+            ctx.audioProcessor.defaultChannelParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultChannelParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -275,7 +306,7 @@ void GuiSettings::setup()
     curveParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "カーブ編集パラメータファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultCurveParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultCurveParamDir),
+            ctx.audioProcessor.defaultCurveParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultCurveParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -296,7 +327,7 @@ void GuiSettings::setup()
     lfoParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "LFOファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultLfoParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultLfoParamDir),
+            ctx.audioProcessor.defaultLfoParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultLfoParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -317,7 +348,7 @@ void GuiSettings::setup()
     ampEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "AMP ENVファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultAmpEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultAmpEnvParamDir),
+            ctx.audioProcessor.defaultAmpEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultAmpEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -338,7 +369,7 @@ void GuiSettings::setup()
     pitchEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "PITCH ENVファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultPitchEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultPitchEnvParamDir),
+            ctx.audioProcessor.defaultPitchEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPitchEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -359,12 +390,33 @@ void GuiSettings::setup()
     ssgSwEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "SSG SW ENVファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultSsgSwEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultSsgSwEnvParamDir),
+            ctx.audioProcessor.defaultSsgSwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgSwEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
                     ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getFullPathName();
                     ssgSwEnvParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- SSG HW Env Param Dir ---
+    setupFolderRow(ssgHwEnvParamDirLabel, juce::String("") + "SSG HW ENVファイルディレクトリ:", ssgHwEnvParamDirPathLabel, ssgHwEnvParamDirBrowseBtn);
+    ssgHwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgHwEnvParamDir, juce::dontSendNotification);
+    ssgHwEnvParamDirPathLabel.setWantsKeyboardFocus(false);
+
+    ssgHwEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
+    ssgHwEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    ssgHwEnvParamDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "SSG HW ENVファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultSsgHwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgHwEnvParamDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getFullPathName();
+                    ssgHwEnvParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
         );
@@ -380,7 +432,7 @@ void GuiSettings::setup()
     detuneParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "DETUNE ファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultDetuneParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultDetuneParamDir),
+            ctx.audioProcessor.defaultDetuneParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultDetuneParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -401,7 +453,7 @@ void GuiSettings::setup()
     unisonParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "UNISON ファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultUnisonParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultUnisonParamDir),
+            ctx.audioProcessor.defaultUnisonParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultUnisonParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -422,7 +474,7 @@ void GuiSettings::setup()
     qualityParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "音質ファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultQualityParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultQualityParamDir),
+            ctx.audioProcessor.defaultQualityParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultQualityParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -443,12 +495,33 @@ void GuiSettings::setup()
     pcmPlayParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "PCM再生ファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultPcmPlayParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultPcmPlayParamDir),
+            ctx.audioProcessor.defaultPcmPlayParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPcmPlayParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
                     ctx.audioProcessor.defaultPcmPlayParamDir = file.getFullPathName();
                     pcmPlayParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- Tone / Noise Param Dir ---
+    setupFolderRow(colorSettingDirLabel, juce::String("") + "色の設定ファイルディレクトリ:", colorSettingDirPathLabel, colorSettingDirBrowseBtn);
+    colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
+    colorSettingDirPathLabel.setWantsKeyboardFocus(false);
+
+    colorSettingDirBrowseBtn.setWantsKeyboardFocus(true);
+    colorSettingDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    colorSettingDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "色の設定ファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultColorSettingDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultColorSettingDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultColorSettingDir = file.getFullPathName();
+                    colorSettingDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
         );
@@ -464,7 +537,7 @@ void GuiSettings::setup()
     toneNoiseParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "トーン/ノイズファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultToneNoiseParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultToneNoiseParamDir),
+            ctx.audioProcessor.defaultToneNoiseParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultToneNoiseParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
@@ -536,8 +609,8 @@ void GuiSettings::setup()
     saveSettingsBtn.onClick = [this] {
         ctx.editor.openWriteFileChooser(
             juce::String("") + "設定ファイルを選択してください",
-            juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile(SettingsValue::File::Name::initial),
-            "*.xml",
+            ctx.audioProcessor.getStartupSettingsFileToWrite(),
+            SettingsValue::File::glob,
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file != juce::File()) {
@@ -554,27 +627,16 @@ void GuiSettings::setup()
     loadSettingsBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             juce::String("") + "設定ファイルを選択してください",
-            juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
-            "*.xml",
+            ctx.audioProcessor.getPluginDirectory(),
+            SettingsValue::File::glob,
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.existsAsFile()) {
                     ctx.audioProcessor.loadEnvironment(file);
 
-                    // UI反映
-                    wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty() ? Io::empty : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
-                    wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1);
-                    sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
-                    presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
-                    wavetableDirLabel.setText(ctx.audioProcessor.defaultWavetableDir, juce::dontSendNotification);
-                    fxOrderDirLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
-                    fxParamDirLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
-                    lfoParamDirLabel.setText(ctx.audioProcessor.defaultLfoParamDir, juce::dontSendNotification);
-                    ampEnvParamDirLabel.setText(ctx.audioProcessor.defaultAmpEnvParamDir, juce::dontSendNotification);
-                    pitchEnvParamDirLabel.setText(ctx.audioProcessor.defaultPitchEnvParamDir, juce::dontSendNotification);
-                    ssgSwEnvParamDirLabel.setText(ctx.audioProcessor.defaultSsgSwEnvParamDir, juce::dontSendNotification);
-                    detuneParamDirLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
-                    unisonParamDirLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
+                    // 反映は 1 か所へ寄せる。ここに並べ直していたため、
+                    // 足した項目が読み込みのときだけ画面に出なかった。
+                    setSettings();
 
                     // 壁紙再描画
                     ctx.editor.loadWallpaperImage();
@@ -599,55 +661,35 @@ void GuiSettings::setup()
     saveStartupSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveStartupSettingsBtn.onClick = [this]
         {
-            auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-            auto pluginDir = docDir.getChildFile(Io::Folder::asset);
+            // 保存は 1 か所へ寄せる。ここで項目を並べ直していたため、
+            // 足した項目が標準設定にだけ入らないことが起きていた。
+            auto file = ctx.audioProcessor.getStartupSettingsFileToWrite();
 
-            // フォルダがなければ作る
-            if (!pluginDir.exists()) pluginDir.createDirectory();
-
-            // 初期設定ファイル名を指定
-            auto file = pluginDir.getChildFile(SettingsValue::File::Name::initial);
-
-            // 2. XMLデータの作成
-            juce::XmlElement xml(SettingsKey::envCode);
-
-            xml.setAttribute(SettingsKey::uiScaleIndex, ctx.audioProcessor.uiScaleIndex);
-            xml.setAttribute(SettingsKey::wallpaperPath, ctx.audioProcessor.wallpaperPath);
-            xml.setAttribute(SettingsKey::wallpaperMode, ctx.audioProcessor.wallpaperMode);
-            xml.setAttribute(SettingsKey::defaultSampleDir, ctx.audioProcessor.defaultSampleDir);
-            xml.setAttribute(SettingsKey::defaultPresetDir, ctx.audioProcessor.defaultPresetDir);
-            xml.setAttribute(SettingsKey::defaultWavetableDir, ctx.audioProcessor.defaultWavetableDir);
-            xml.setAttribute(SettingsKey::defaultFxOrderDir, ctx.audioProcessor.defaultFxOrderDir);
-            xml.setAttribute(SettingsKey::defaultFxParamDir, ctx.audioProcessor.defaultFxParamDir);
-            xml.setAttribute(SettingsKey::defaultLfoParamDir, ctx.audioProcessor.defaultLfoParamDir);
-            xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, ctx.audioProcessor.defaultAmpEnvParamDir);
-            xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, ctx.audioProcessor.defaultPitchEnvParamDir);
-            xml.setAttribute(SettingsKey::defaultSsgSwEnvParamDir, ctx.audioProcessor.defaultSsgSwEnvParamDir);
-            xml.setAttribute(SettingsKey::defaultDetuneParamDir, ctx.audioProcessor.defaultDetuneParamDir);
-            xml.setAttribute(SettingsKey::defaultUnisonParamDir, ctx.audioProcessor.defaultUnisonParamDir);
-            xml.setAttribute(SettingsKey::showTooltips, ctx.audioProcessor.showTooltips);
-            xml.setAttribute(SettingsKey::useHeadroom, ctx.audioProcessor.useHeadroom);
-            xml.setAttribute(SettingsKey::headroomGain, ctx.audioProcessor.headroomGain);
-            xml.setAttribute(SettingsKey::showVirtualKeyboard, ctx.audioProcessor.showVirtualKeyboard);
-
-            // 3. 書き出し実行
-            if (xml.writeTo(file))
+            if (ctx.audioProcessor.saveEnvironment(file))
             {
-                // 成功メッセージ
-                juce::NativeMessageBox::showMessageBoxAsync(
-                    juce::AlertWindow::InfoIcon,
+                // OS 標準のダイアログはテーマの色が当たらないので、
+                // 他と同じ AlertWindow で出す。
+                juce::AlertWindow::showMessageBoxAsync(
+                    juce::MessageBoxIconType::InfoIcon,
                     juce::String("") + "成功",
-                    juce::String("") + "現在の設定は標準設定として以下のファイルに保存されました。\n\nファイル名: " + file.getFullPathName(),
+                    // 場所と名前を分けて出す。ダイアログの本文は折り返らないので、
+                    // 長いパスを 1 行で置くと末尾が見切れる。
+                    juce::String("") + "現在の設定を標準設定として保存しました。\n\n"
+                    + "場所: " + file.getParentDirectory().getFullPathName() + "\n"
+                    + "ファイル名: " + file.getFileName(),
+                    juce::String(),
                     this
                 );
             }
             else
             {
-                // 失敗メッセージ
-                juce::NativeMessageBox::showMessageBoxAsync(
-                    juce::AlertWindow::WarningIcon,
+                juce::AlertWindow::showMessageBoxAsync(
+                    juce::MessageBoxIconType::WarningIcon,
                     juce::String("") + "失敗",
-                    juce::String("") + "標準設定の保存に失敗しました。",
+                    juce::String("") + "標準設定を保存できませんでした。\n\n"
+                    + "場所: " + file.getParentDirectory().getFullPathName() + "\n"
+                    + "ファイル名: " + file.getFileName(),
+                    juce::String(),
                     this
                 );
             }
@@ -669,6 +711,10 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     int separatorHeight = 20;
     auto pageArea = content.withZeroOrigin();
 
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
+
     mainGroup.setBounds(pageArea);
 
     auto sRect = pageArea.reduced(SettingsGuiValue::Group::Padding::width, SettingsGuiValue::Group::Padding::height);
@@ -678,6 +724,11 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto rowUiScale = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     uiScaleSelector.label.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     uiScaleSelector.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::UiScaleSelectorWidth));
+
+    // 同じ行の余白へ置く。行を増やすと下がすべてずれるため。
+    rowUiScale.removeFromLeft(SettingsGuiValue::Settings::PaddingHeight);
+    fileFormatSelector.label.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::FileFormatLabelWidth));
+    fileFormatSelector.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::FileFormatSelectorWidth));
 
     separator1.layoutComponent(sRect);
 
@@ -697,180 +748,289 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     separator2.layoutComponent(sRect);
 
-    // 4. ADPCM Dir
-    auto rowAdpcmDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    sampleDirPathLabel.setBounds(rowAdpcmDir);
+    // ---------------- フォルダ設定 ----------------
+    // 17 行あるので、まとめて畳めるようにしてある。閉じているときは
+    // 隠すだけでなく、場所も取らないようにする。
+    auto dirCatRow = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+    // 見出しだけラベル幅では窮屈なので、行の中で広めに取る
+    dirCat.setBounds(dirCatRow.removeFromLeft(SettingsGuiValue::Settings::LabelWidth * 3));
 
     sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 5. Preset Dir
-    auto rowPresetDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    presetDirLabel.setBounds(rowPresetDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    presetDirPathLabel.setBounds(rowPresetDir);
+    bool dirVisible = dirCat.isDetailVisible();
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+    sampleDirLabel.setVisible(dirVisible);
+    sampleDirPathLabel.setVisible(dirVisible);
+    sampleDirBrowseBtn.setVisible(dirVisible);
+    presetDirLabel.setVisible(dirVisible);
+    presetDirPathLabel.setVisible(dirVisible);
+    presetDirBrowseBtn.setVisible(dirVisible);
+    wavetableDirLabel.setVisible(dirVisible);
+    wavetableDirPathLabel.setVisible(dirVisible);
+    wavetableDirBrowseBtn.setVisible(dirVisible);
+    fxOrderDirLabel.setVisible(dirVisible);
+    fxOrderDirPathLabel.setVisible(dirVisible);
+    fxOrderDirBrowseBtn.setVisible(dirVisible);
+    fxParamDirLabel.setVisible(dirVisible);
+    fxParamDirPathLabel.setVisible(dirVisible);
+    fxParamDirBrowseBtn.setVisible(dirVisible);
+    channelParamDirLabel.setVisible(dirVisible);
+    channelParamDirPathLabel.setVisible(dirVisible);
+    channelParamDirBrowseBtn.setVisible(dirVisible);
+    curveParamDirLabel.setVisible(dirVisible);
+    curveParamDirPathLabel.setVisible(dirVisible);
+    curveParamDirBrowseBtn.setVisible(dirVisible);
+    lfoParamDirLabel.setVisible(dirVisible);
+    lfoParamDirPathLabel.setVisible(dirVisible);
+    lfoParamDirBrowseBtn.setVisible(dirVisible);
+    ampEnvParamDirLabel.setVisible(dirVisible);
+    ampEnvParamDirPathLabel.setVisible(dirVisible);
+    ampEnvParamDirBrowseBtn.setVisible(dirVisible);
+    pitchEnvParamDirLabel.setVisible(dirVisible);
+    pitchEnvParamDirPathLabel.setVisible(dirVisible);
+    pitchEnvParamDirBrowseBtn.setVisible(dirVisible);
+    ssgSwEnvParamDirLabel.setVisible(dirVisible);
+    ssgSwEnvParamDirPathLabel.setVisible(dirVisible);
+    ssgSwEnvParamDirBrowseBtn.setVisible(dirVisible);
+    ssgHwEnvParamDirLabel.setVisible(dirVisible);
+    ssgHwEnvParamDirPathLabel.setVisible(dirVisible);
+    ssgHwEnvParamDirBrowseBtn.setVisible(dirVisible);
+    detuneParamDirLabel.setVisible(dirVisible);
+    detuneParamDirPathLabel.setVisible(dirVisible);
+    detuneParamDirBrowseBtn.setVisible(dirVisible);
+    unisonParamDirLabel.setVisible(dirVisible);
+    unisonParamDirPathLabel.setVisible(dirVisible);
+    unisonParamDirBrowseBtn.setVisible(dirVisible);
+    qualityParamDirLabel.setVisible(dirVisible);
+    qualityParamDirPathLabel.setVisible(dirVisible);
+    qualityParamDirBrowseBtn.setVisible(dirVisible);
+    pcmPlayParamDirLabel.setVisible(dirVisible);
+    pcmPlayParamDirPathLabel.setVisible(dirVisible);
+    pcmPlayParamDirBrowseBtn.setVisible(dirVisible);
+    toneNoiseParamDirLabel.setVisible(dirVisible);
+    toneNoiseParamDirPathLabel.setVisible(dirVisible);
+    toneNoiseParamDirBrowseBtn.setVisible(dirVisible);
 
-    // 6. Wavetable Dir
-    auto rowWavetableDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    wavetableDirLabel.setBounds(rowWavetableDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    wavetableDirBrowseBtn.setBounds(rowWavetableDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    wavetableDirPathLabel.setBounds(rowWavetableDir);
+    colorSettingDirLabel.setVisible(dirVisible);
+    colorSettingDirPathLabel.setVisible(dirVisible);
+    colorSettingDirBrowseBtn.setVisible(dirVisible);
 
-    // 7. FX Order Dir
-    auto rowFxOrderDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    fxOrderDirLabel.setBounds(rowFxOrderDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    fxOrderDirBrowseBtn.setBounds(rowFxOrderDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    fxOrderDirPathLabel.setBounds(rowFxOrderDir);
+    if (dirVisible)
+    {
+        // 4. ADPCM Dir
+        auto rowAdpcmDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        sampleDirPathLabel.setBounds(rowAdpcmDir);
 
-    // 7. FX Param Dir
-    auto rowFxParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    fxParamDirLabel.setBounds(rowFxParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    fxParamDirBrowseBtn.setBounds(rowFxParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    fxParamDirPathLabel.setBounds(rowFxParamDir);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 7. Channel Param Dir
-    auto rowChannelParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    channelParamDirLabel.setBounds(rowChannelParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    channelParamDirBrowseBtn.setBounds(rowChannelParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    channelParamDirPathLabel.setBounds(rowChannelParamDir);
+        // 5. Preset Dir
+        auto rowPresetDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        presetDirLabel.setBounds(rowPresetDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        presetDirPathLabel.setBounds(rowPresetDir);
 
-    // 7. Curve Param Dir
-    auto rowCurveParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    curveParamDirLabel.setBounds(rowCurveParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    curveParamDirBrowseBtn.setBounds(rowCurveParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    curveParamDirPathLabel.setBounds(rowCurveParamDir);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 7. LFO Param Dir
-    auto rowLfoParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    lfoParamDirLabel.setBounds(rowLfoParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    lfoParamDirBrowseBtn.setBounds(rowLfoParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    lfoParamDirPathLabel.setBounds(rowLfoParamDir);
+        // 6. Wavetable Dir
+        auto rowWavetableDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        wavetableDirLabel.setBounds(rowWavetableDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        wavetableDirBrowseBtn.setBounds(rowWavetableDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        wavetableDirPathLabel.setBounds(rowWavetableDir);
 
-    // 7. Amp Env Param Dir
-    auto rowAmpEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    ampEnvParamDirLabel.setBounds(rowAmpEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    ampEnvParamDirBrowseBtn.setBounds(rowAmpEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    ampEnvParamDirPathLabel.setBounds(rowAmpEnvParamDir);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 7. Amp Env Param Dir
-    auto rowPitchEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    pitchEnvParamDirLabel.setBounds(rowPitchEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    pitchEnvParamDirBrowseBtn.setBounds(rowPitchEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    pitchEnvParamDirPathLabel.setBounds(rowPitchEnvParamDir);
+        // 7. FX Order Dir
+        auto rowFxOrderDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        fxOrderDirLabel.setBounds(rowFxOrderDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        fxOrderDirBrowseBtn.setBounds(rowFxOrderDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        fxOrderDirPathLabel.setBounds(rowFxOrderDir);
 
-    // 7. Amp Env Param Dir
-    auto rowSsgSwEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    ssgSwEnvParamDirLabel.setBounds(rowSsgSwEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    ssgSwEnvParamDirBrowseBtn.setBounds(rowSsgSwEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    ssgSwEnvParamDirPathLabel.setBounds(rowSsgSwEnvParamDir);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 7. Detune Param Dir
-    auto rowDetuneParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    detuneParamDirLabel.setBounds(rowDetuneParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    detuneParamDirBrowseBtn.setBounds(rowDetuneParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    detuneParamDirPathLabel.setBounds(rowDetuneParamDir);
+        // 8. FX Param Dir
+        auto rowFxParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        fxParamDirLabel.setBounds(rowFxParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        fxParamDirBrowseBtn.setBounds(rowFxParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        fxParamDirPathLabel.setBounds(rowFxParamDir);
 
-    // 7. Unison Param Dir
-    auto rowUnisonParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    unisonParamDirLabel.setBounds(rowUnisonParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    unisonParamDirBrowseBtn.setBounds(rowUnisonParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    unisonParamDirPathLabel.setBounds(rowUnisonParamDir);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 7. Quality Param Dir
-    auto rowQualityParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    qualityParamDirLabel.setBounds(rowQualityParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    qualityParamDirBrowseBtn.setBounds(rowQualityParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    qualityParamDirPathLabel.setBounds(rowQualityParamDir);
+        // 9. Channel Param Dir
+        auto rowChannelParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        channelParamDirLabel.setBounds(rowChannelParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        channelParamDirBrowseBtn.setBounds(rowChannelParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        channelParamDirPathLabel.setBounds(rowChannelParamDir);
 
-    // 7. PCM Play Param Dir
-    auto rowPcmPlayParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    pcmPlayParamDirLabel.setBounds(rowPcmPlayParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    pcmPlayParamDirBrowseBtn.setBounds(rowPcmPlayParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    pcmPlayParamDirPathLabel.setBounds(rowPcmPlayParamDir);
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 7. Tone / Noise Param Dir
-    auto rowToneNoiseParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    toneNoiseParamDirLabel.setBounds(rowToneNoiseParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    toneNoiseParamDirBrowseBtn.setBounds(rowToneNoiseParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    toneNoiseParamDirPathLabel.setBounds(rowToneNoiseParamDir);
+        // 10. Curve Param Dir
+        auto rowCurveParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        curveParamDirLabel.setBounds(rowCurveParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        curveParamDirBrowseBtn.setBounds(rowCurveParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        curveParamDirPathLabel.setBounds(rowCurveParamDir);
 
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 11. LFO Param Dir
+        auto rowLfoParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        lfoParamDirLabel.setBounds(rowLfoParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        lfoParamDirBrowseBtn.setBounds(rowLfoParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        lfoParamDirPathLabel.setBounds(rowLfoParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 12. Amp Env Param Dir
+        auto rowAmpEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        ampEnvParamDirLabel.setBounds(rowAmpEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        ampEnvParamDirBrowseBtn.setBounds(rowAmpEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        ampEnvParamDirPathLabel.setBounds(rowAmpEnvParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 13. Pitch Env Param Dir
+        auto rowPitchEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        pitchEnvParamDirLabel.setBounds(rowPitchEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        pitchEnvParamDirBrowseBtn.setBounds(rowPitchEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        pitchEnvParamDirPathLabel.setBounds(rowPitchEnvParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 14. Ssg Sw Env Param Dir
+        auto rowSsgSwEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        ssgSwEnvParamDirLabel.setBounds(rowSsgSwEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        ssgSwEnvParamDirBrowseBtn.setBounds(rowSsgSwEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        ssgSwEnvParamDirPathLabel.setBounds(rowSsgSwEnvParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 15. Ssg Hw Env Param Dir
+        auto rowSsgHwEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        ssgHwEnvParamDirLabel.setBounds(rowSsgHwEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        ssgHwEnvParamDirBrowseBtn.setBounds(rowSsgHwEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        ssgHwEnvParamDirPathLabel.setBounds(rowSsgHwEnvParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 16. Detune Param Dir
+        auto rowDetuneParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        detuneParamDirLabel.setBounds(rowDetuneParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        detuneParamDirBrowseBtn.setBounds(rowDetuneParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        detuneParamDirPathLabel.setBounds(rowDetuneParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 17. Unison Param Dir
+        auto rowUnisonParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        unisonParamDirLabel.setBounds(rowUnisonParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        unisonParamDirBrowseBtn.setBounds(rowUnisonParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        unisonParamDirPathLabel.setBounds(rowUnisonParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 18. Quality Param Dir
+        auto rowQualityParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        qualityParamDirLabel.setBounds(rowQualityParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        qualityParamDirBrowseBtn.setBounds(rowQualityParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        qualityParamDirPathLabel.setBounds(rowQualityParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 19. PCM Play Param Dir
+        auto rowPcmPlayParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        pcmPlayParamDirLabel.setBounds(rowPcmPlayParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        pcmPlayParamDirBrowseBtn.setBounds(rowPcmPlayParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        pcmPlayParamDirPathLabel.setBounds(rowPcmPlayParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 20. Tone / Noise Param Dir
+        auto rowToneNoiseParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        toneNoiseParamDirLabel.setBounds(rowToneNoiseParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        toneNoiseParamDirBrowseBtn.setBounds(rowToneNoiseParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        toneNoiseParamDirPathLabel.setBounds(rowToneNoiseParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        // 色の設定ファイルディレクトリ
+        auto rowColorSettingDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        colorSettingDirLabel.setBounds(rowColorSettingDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        colorSettingDirBrowseBtn.setBounds(rowColorSettingDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        colorSettingDirPathLabel.setBounds(rowColorSettingDir);
+
+    }
+
+    // 区切り線はフォルダ設定の外。畳んでも下の設定との境目は残す。
     separator3.layoutComponent(sRect);
 
-    // 8. Tooltip Visible Row
+    // 21. Tooltip Visible Row
     auto rowTooltip = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
     separator4.layoutComponent(sRect);
 
-    // 9. Headroom Row
+    // 22. Headroom Row
     auto rowHeadroom = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
     sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 10. Headroom Gain Row
+    // 23. Headroom Gain Row
     auto rowHeadroomGain = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::HeadroomGainSliderWidth));
 
     separator5.layoutComponent(sRect);
 
-    // 11. Virtual Keyboard Row
+    // 24. Virtual Keyboard Row
     auto rowVirtualMidiKeyboard = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     virtualMidiKeyboardToggle.setBounds(rowVirtualMidiKeyboard.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
     separator6.layoutComponent(sRect);
 
-    // 12. Config IO Buttons (Fixed Layout)
+    // 25. Config IO Buttons (Fixed Layout)
     auto rowIoBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
 
     layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight });
 
     separator7.layoutComponent(sRect);
 
-    // 13. Clear Undo/Redo History Button
+    // 26. Clear Undo/Redo History Button
     auto rowClearHistoryBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     layoutRow({ .rowRect = rowClearHistoryBtns, .component = &clearUndoHistoryBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight});
 }
 
-void GuiSettings::setSettings(
-    int uiScaleIndex,
-    const juce::String& wallpaperPath,
-    const juce::String& sampleDirPath,
-    const juce::String& presetDirPath,
-    const juce::String& wavetableDirPath,
-    const juce::String& fxOrderDirPath,
-    const juce::String& fxParamDirPath,
-    const juce::String& lfoParamDirPath,
-    const juce::String& ampEnvParamDirPath,
-    const juce::String& pitchEnvParamDirPath,
-    const juce::String& ssgSwEnvParamDirPath,
-    const juce::String& detuneParamDirPath,
-    const juce::String& unisonParamDirPath,
-    const juce::String& qualityParamDirPath,
-    const juce::String& pcmPlayParamDirPath,
-    const juce::String& toneNoiseParamDirPath
-)
+void GuiSettings::setSettings()
 {
-    uiScaleSelector.setSelectedId(uiScaleIndex + 1, juce::dontSendNotification);
-    wallpaperPathLabel.setText(wallpaperPath, juce::dontSendNotification);
-    sampleDirPathLabel.setText(sampleDirPath, juce::dontSendNotification);
-    presetDirPathLabel.setText(presetDirPath, juce::dontSendNotification);
-	wavetableDirLabel.setText(wavetableDirPath, juce::dontSendNotification);
-    fxOrderDirLabel.setText(fxOrderDirPath, juce::dontSendNotification);
-    fxParamDirLabel.setText(fxParamDirPath, juce::dontSendNotification);
-    lfoParamDirLabel.setText(lfoParamDirPath, juce::dontSendNotification);
-    ampEnvParamDirLabel.setText(ampEnvParamDirPath, juce::dontSendNotification);
-    pitchEnvParamDirLabel.setText(pitchEnvParamDirPath, juce::dontSendNotification);
-    ssgSwEnvParamDirLabel.setText(ssgSwEnvParamDirPath, juce::dontSendNotification);
-    detuneParamDirLabel.setText(detuneParamDirPath, juce::dontSendNotification);
-    unisonParamDirLabel.setText(unisonParamDirPath, juce::dontSendNotification);
-    qualityParamDirLabel.setText(qualityParamDirPath, juce::dontSendNotification);
-    pcmPlayParamDirLabel.setText(pcmPlayParamDirPath, juce::dontSendNotification);
-    toneNoiseParamDirLabel.setText(toneNoiseParamDirPath, juce::dontSendNotification);
+    // プロセッサから直に読む。引数を 18 個も並べていたときは、順番を
+    // 間違えても、行を足し忘れても気づけなかった。
+    uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
+    fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
+    wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
+
+    wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty()
+        ? Io::empty : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
+
+    sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
+    presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
+    wavetableDirPathLabel.setText(ctx.audioProcessor.defaultWavetableDir, juce::dontSendNotification);
+    fxOrderDirPathLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
+    fxParamDirPathLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
+    channelParamDirPathLabel.setText(ctx.audioProcessor.defaultChannelParamDir, juce::dontSendNotification);
+    curveParamDirPathLabel.setText(ctx.audioProcessor.defaultCurveParamDir, juce::dontSendNotification);
+    lfoParamDirPathLabel.setText(ctx.audioProcessor.defaultLfoParamDir, juce::dontSendNotification);
+    ampEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultAmpEnvParamDir, juce::dontSendNotification);
+    pitchEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultPitchEnvParamDir, juce::dontSendNotification);
+    ssgSwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgSwEnvParamDir, juce::dontSendNotification);
+    ssgHwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgHwEnvParamDir, juce::dontSendNotification);
+    detuneParamDirPathLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
+    unisonParamDirPathLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
+    qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
+    pcmPlayParamDirPathLabel.setText(ctx.audioProcessor.defaultPcmPlayParamDir, juce::dontSendNotification);
+    toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
+    colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
 }
 
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)

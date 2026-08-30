@@ -62,11 +62,32 @@ public:
     std::map<OscMode, SynthCore *> coreMap;
 
     // ユニゾン・ハーモニー用
-    void setUnisonParams(int index, int total, float detune, float spread) 
+    void setUnisonParams(int index, int total, float detune, float spread,
+                         float paraDetune = 0.0f, float paraDistance = 0.0f)
     {
-        coreMap[m_mode]->setUnisonParams(index, total, detune, spread);
+        coreMap[m_mode]->setUnisonParams(index, total, detune, spread, paraDetune, paraDistance);
+    }
+
+    // 疑似高速アルペジオ用
+    // ユニゾンの各ボイスを arpFreq[Hz] のスロットで順番に鳴らす。
+    // ボイスは全て voiceUnison() の同一ループで発音されるため、
+    // ここで位相をリセットしておけば各ボイスのスロットが自動的に揃う。
+    void setArpParams(bool enable, int freq, bool smooth)
+    {
+        m_arpEnable = enable;
+        m_arpFreq = freq;
+        m_arpSmooth = smooth;
+        m_arpPhase = 0.0;
     }
 private:
+    // 現在のサンプルがこのボイスのスロットかどうかを 0.0〜1.0 のゲインで返す
+    float getArpGain() const;
+
+    bool m_arpEnable = false;
+    int m_arpFreq = 60;
+    bool m_arpSmooth = true;
+    double m_arpPhase = 0.0; // スロット単位の位相 (1.0 で次のボイスへ)
+
     OscMode m_mode = OscMode::OPZX7;
     Opzx7Core m_opzx7Core;
 };

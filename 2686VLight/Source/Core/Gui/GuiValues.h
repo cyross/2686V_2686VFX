@@ -6,7 +6,7 @@
 
 namespace CoreGuiValue
 {
-	static inline constexpr int TabNumber = 14;
+	static inline constexpr int TabNumber = 15;
 
 	namespace MVol
 	{
@@ -27,6 +27,7 @@ namespace CoreGuiValue
 	{
 		static inline constexpr int paddingTop = 4;
 		static inline constexpr int paddingBottom = 3;
+		static inline constexpr int gapBelow = 6;
 	}
 
 	namespace ParamNameRow
@@ -183,6 +184,32 @@ namespace CoreGuiValue
 				static inline constexpr int paddingInner = 1;
 				static inline constexpr int paddingRight = 0;
 			}
+
+			namespace Seven
+			{
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
+			}
+		}
+
+		namespace WtFiles
+		{
+			namespace LoadBtn
+			{
+				static constexpr int width = 25;
+			}
+
+			namespace FileLabel
+			{
+				static constexpr int width = 155;
+			}
+
+			namespace ClearBtn
+			{
+				static constexpr int width = 35;
+			}
 		}
 	}
 
@@ -283,6 +310,14 @@ namespace CoreGuiValue
 				static inline constexpr int paddingInner = 1;
 				static inline constexpr int paddingRight = 0;
 			}
+
+			namespace Seven
+			{
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
+			}
 		}
 
 		namespace Opzx7Pcm
@@ -340,6 +375,24 @@ namespace CoreGuiValue
 		namespace Value
 		{
 			static inline constexpr int width = 190;
+		}
+
+		namespace WtFiles
+		{
+			namespace LoadBtn
+			{
+				static constexpr int width = 25;
+			}
+
+			namespace FileLabel
+			{
+				static constexpr int width = 155;
+			}
+
+			namespace ClearBtn
+			{
+				static constexpr int width = 35;
+			}
 		}
 	}
 }

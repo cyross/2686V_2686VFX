@@ -13,6 +13,11 @@ class OpmProcessor : public PrBase
     PrPtrsAlgFb pAlgFb;
     PrPtrsQuality pQuality;
     PrPtrsOpmLfo pGlLfo;
+    PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsAdsrAmpEnv pAmpEnvG;
+    PrPtrsWtMod pWtMod;
+    PrPtrsSsgSwEnv11 pSsgSwEnv11g;
+    PrPtrsSsgSwPEnv11 pSsgSwPEnv11g;
     PrPtrsUnison pUnison;
 
     std::array<PrPtrsOpmDetune, OpmPrValue::ops> pOpDetune;
@@ -27,5 +32,7 @@ class OpmProcessor : public PrBase
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;
-    void init(juce::AudioProcessorValueTreeState& apvts);
+    // modWaves は WT PITCH MOD の変調波形の置き場所。
+    // パラメータではなくプロセッサが持つので、ここで受け取る。
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
 };

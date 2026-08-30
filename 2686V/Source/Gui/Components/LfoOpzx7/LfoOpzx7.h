@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../../Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
 #include <functional>
@@ -14,6 +16,7 @@
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../WavePreview/WavePreview.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
@@ -31,6 +34,7 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiTextButton pmSDToZero;
     GuiTextButton pmSDToOne;
     GuiComboBox pgShape;
+    GuiWavePreview pmPreview;
     GuiSlider pms;
     GuiSlider pmd;
     NormalSeparator pmAmSeparator;
@@ -42,6 +46,7 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiTextButton amSDToOne;
     GuiComboBox egShape;
     GuiSlider amSmRt;
+    GuiWavePreview amPreview;
     GuiSlider ams;
     GuiSlider amd;
     std::unique_ptr<juce::FileChooser> fileChooser;
@@ -56,6 +61,7 @@ public:
         pmSDToZero(context),
         pmSDToOne(context),
         pgShape(context),
+        pmPreview(context),
         pms(context),
         pmd(context),
         pmAmSeparator(context),
@@ -67,6 +73,7 @@ public:
         amSDToOne(context),
         egShape(context),
         amSmRt(context),
+        amPreview(context),
         ams(context),
         amd(context)
     {
@@ -78,6 +85,7 @@ public:
         int& tabOrder
     );
     void layoutComponent(juce::Rectangle<int>& rect);
+    void updatePreviews();
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);
     void copyParams(CopyLfoOpzx7& copyObj);
@@ -85,5 +93,10 @@ public:
     void importParams();
     void exportParams();
     void setImportingParams(juce::StringArray& lines, int& index);
+
+    // 名前で受け渡す。行の並びに頼ると、呼ぶ順番を間違えたときに
+    // 黙って別の値が入り、項目を足すと後ろが全部ずれるため。
+    void readParams(const Io::ParamReader& reader, const juce::String& key);
+    void writeParams(Io::ParamWriter& writer, const juce::String& key);
     juce::String getExportedParams();
 };

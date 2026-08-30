@@ -11,10 +11,36 @@ set(JUCE_VST3_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/vst3sdk" CACHE PATH
 # JUCEの読み込み (ここで1回だけJUCEが構成・ビルドされます)
 add_subdirectory(external/JUCE)
 
+# yaml-cpp の読み込み
+# パラメータファイルを YAML でも読み書きするために使う。
+# 部品と道具は要らないので切っておく。テストも同様。
+set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_INSTALL OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
+set(YAML_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/yaml-cpp)
+
+# yaml-cpp は自前の警告設定を持たないので、こちらの厳しい設定に
+# 巻き込まれないようにする。外から持ってきたものは直せないため。
+if(MSVC)
+    target_compile_options(yaml-cpp PRIVATE /W0)
+endif()
+
 # ==============================================================================
 # プラグイン生成共通関数
 # ==============================================================================
+# 第3引数で出力名(PRODUCT_NAME)を指定できます。省略するとターゲット名がそのまま使われます。
+# VST3の識別子はメーカーコードとプラグインコードから生成されるため、
+# 出力名を変えても既存プロジェクトのプラグイン解決には影響しません。
 function(create_cyross_plugin TARGET_NAME CY_PLUGIN_CODE)
+    if(ARGC GREATER 2)
+        set(CY_PRODUCT_NAME ${ARGV2})
+    else()
+        set(CY_PRODUCT_NAME ${TARGET_NAME})
+    endif()
+
     juce_add_plugin(${TARGET_NAME}
         COMPANY_NAME "CYROSS"
         IS_SYNTH TRUE
@@ -27,7 +53,7 @@ function(create_cyross_plugin TARGET_NAME CY_PLUGIN_CODE)
         PLUGIN_CODE ${CY_PLUGIN_CODE}
         FORMATS VST3 Standalone
         ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
-        PRODUCT_NAME ${TARGET_NAME}
+        PRODUCT_NAME ${CY_PRODUCT_NAME}
         VST3_AUTO_MANIFEST FALSE
     )
 
@@ -48,6 +74,7 @@ function(create_cyross_plugin TARGET_NAME CY_PLUGIN_CODE)
     target_link_libraries(${TARGET_NAME} PRIVATE
         AppIconForAbout_${TARGET_NAME}
         VstLogoForAbout_${TARGET_NAME}
+        yaml-cpp::yaml-cpp
         juce::juce_audio_utils
         juce::juce_recommended_config_flags
         juce::juce_dsp
@@ -70,3 +97,7 @@ add_subdirectory(2686V)
 add_subdirectory(2686VLight)
 add_subdirectory(2686VOrigin)
 add_subdirectory(OPZX7S)
+
+# ユニットテスト (JUCE を読み込まずロジック層だけを検証する)
+enable_testing()
+add_subdirectory(tests)

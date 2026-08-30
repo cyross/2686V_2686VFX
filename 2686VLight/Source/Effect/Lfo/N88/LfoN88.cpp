@@ -35,15 +35,15 @@ void N88LfoCore::setParameters(const LfoN88Params& params)
     this->m_pmWaveIndex = std::clamp(params.pmIndex, 0, 5);
     this->m_isOneshotPm = this->m_pmWaveIndex == 4 || this->m_pmWaveIndex == 5;
 
-    this->pms = pms;
-    this->pmd = pmd;
+    this->pms = params.pms;
+    this->pmd = params.pmd;
 
     this->amEnable = params.am;
     this->m_amFreq = params.amFreq;
     this->m_amWaveIndex = std::clamp(params.amIndex, 0, 5);
     this->m_isOneshotAm = this->m_amWaveIndex == 4 || this->m_amWaveIndex == 5;
     this->ams = 0.0f;
-    this->amd = amd;
+    this->amd = params.amd;
 
     this->signDb = (this->amd < 0.0f) ? -1.0f : 1.0f;
     this->depthDb = std::abs(this->amd / 127.0f);

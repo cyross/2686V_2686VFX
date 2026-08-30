@@ -78,6 +78,14 @@ namespace CPN
 	{
 		static inline const juce::String alg = " Algorithm";
 		static inline const juce::String fb = " Feedback";
+		static inline const juce::String fb1 = " Feedback1";
+		static inline const juce::String fb2 = " Feedback2";
+		static inline const juce::String fb3 = " Feedback3";
+		static inline const juce::String fb4 = " Feedback4";
+		static inline const juce::String fb5 = " Feedback5";
+		static inline const juce::String fb6 = " Feedback6";
+		static inline const juce::String fb7 = " Feedback7";
+		static inline const juce::String fb8 = " Feedback8";
 
 		static inline const juce::String ar = " AR";
 		static inline const juce::String dr = " DR";
@@ -186,6 +194,11 @@ namespace CPN
 		static inline const juce::String voices = " Unison Voices";
 		static inline const juce::String detune = " Unison Detune";
 		static inline const juce::String spread = " Unison Spread";
+		static inline const juce::String arpEnable = " Unison Arpeggio";
+		static inline const juce::String arpFreq = " Unison Arpeggio Freq";
+		static inline const juce::String arpSmooth = " Unison Arpeggio Smooth";
+		static inline const juce::String paraDistance = " Unison Para Distance ";
+		static inline const juce::String paraDetune = " Unison Para Detune ";
 	}
 
 	namespace Adsr
@@ -374,6 +387,10 @@ namespace CPN
 		static inline const juce::String enable = " Mod Enable";
 		static inline const juce::String depth = " Mod Depth";
 		static inline const juce::String speed = " Mod Speed";
+		static inline const juce::String shape = " Mod Shape";
+		static inline const juce::String waveSlot = " Mod Wave Slot";
+		static inline const juce::String fdsTable = " Mod FDS Table ";
+		static inline const juce::String waveSmooth = " Mod Wave Smooth";
 	}
 
 	namespace SsgDuty
@@ -398,5 +415,8 @@ namespace CPN
 		static inline const juce::String enable = " Hardware Env Enable";
 		static inline const juce::String shape = " Hardware Env Shape";
 		static inline const juce::String period = " Hardware Env Period";
+		static inline const juce::String min = " Hardware Env Min";
+		static inline const juce::String max = " Hardware Env Max";
+		static inline const juce::String smooth = " Hardware Env Smooth";
 	}
 }

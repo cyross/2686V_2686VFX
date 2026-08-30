@@ -50,6 +50,7 @@ void OplAdsr::setParameters(const OplAdsrParams& params) {
     this->dr = params.dr;
     this->sl = params.sl;
     this->rr = params.rr;
+    this->tl = params.tl;
 
     this->m_ksOPL.setParameters(params.ksOPL);
 
@@ -62,7 +63,7 @@ void OplAdsr::setParameters(const OplAdsrParams& params) {
 
     this->m_zeroDecay = this->dr == 0;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         // サステインレベル (SL) の計算
         if (this->sl == 15) {
             this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
@@ -113,16 +114,21 @@ float OplAdsr::noteOn(float velocity, int noteNumber) {
     this->state = State::Attack;
 
     // 目標レベルの計算 (Linear / Curve 共通)
-    float attenuationDb = (this->m_curveCore == nullptr || this->m_curveCore->index == 0)
+    float attenuationDb = (this->m_curveCore == nullptr)
         ? tl * 0.75f
         : (this->totalLevel * 63.0f) * 0.75f;
 
-    float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+    // KSL はゲイン(倍率)で返ってくるので、dB に直して TL と合算する
+    float kslGain = m_ksOPL.calcLevelScalingGain(noteNumber);
+    float kslDb = (kslGain > 0.0f) ? (-20.0f * std::log10(kslGain)) : 96.0f;
 
-    float kslAttenuation = m_ksOPL.calcLevelScalingDb(noteNumber);
+    // 実機のレベルスケーリングは TL(出力レベルレジスタ)から引く形で働くので、
+    // TL レジスタの全域 (tlMax × 0.75dB) より深くは減衰しない。同じ上限で頭打ちにする。
+    float maxAttenDb = (this->tlMax > 0) ? ((float)this->tlMax * 0.75f) : 47.25f;
+    float totalDb = std::clamp(attenuationDb + kslDb, 0.0f, maxAttenDb);
 
     // 最終到達レベルを内部に保存する
-    this->m_targetLevel = velocity * tlGain * kslAttenuation;
+    this->m_targetLevel = velocity * std::pow(10.0f, -totalDb / 20.0f);
 
     return this->m_targetLevel;
 }
@@ -148,7 +154,7 @@ void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
         return;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         // ====================================================================
         // 実機のアルゴリズムで増減量を計算
         // ====================================================================
@@ -250,37 +256,40 @@ void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
 
 float OplAdsr::updateEnvelopeState(float currentLevel)
 {
+    // 返すのは 0.0〜1.0 の包絡線。
+    // 音量 (velocity / TL / KSL) はオペレータ側が m_targetLevel を掛けて反映するので、
+    // ここで掛けると二重になる (FmRgAdssr / FmRgAdddr と同じ扱い)。
     if (this->bypass) {
         return 1.0f;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         float limitLevel = 0.0f;
 
         switch (this->state) {
         case State::Idle:
             return currentLevel;
         case State::Attack:
-            currentLevel += attackInc * this->m_targetLevel;
+            currentLevel += attackInc * 1.0f;
 
-            if (currentLevel >= this->m_targetLevel) {
-                currentLevel = this->m_targetLevel;
+            if (currentLevel >= 1.0f) {
+                currentLevel = 1.0f;
                 state = State::Decay;
             }
 
             return currentLevel;
         case State::Decay:
-            limitLevel = this->m_sustain * this->m_targetLevel;
+            limitLevel = this->m_sustain * 1.0f;
 
             // DR(Decay Rate)が0の時は、減衰せずに1.0を永遠に維持する
             if (this->m_zeroDecay) {
-                currentLevel = this->m_targetLevel;
+                currentLevel = 1.0f;
                 this->state = State::Sustain;
             }
             else if (currentLevel > limitLevel) {
                 if (this->decayDec > 0.0f) {
                     // 減衰量も targetLevel 基準にする
-                    currentLevel -= this->decayDec * this->m_targetLevel;
+                    currentLevel -= this->decayDec * 1.0f;
                     if (currentLevel <= limitLevel) {
                         currentLevel = limitLevel;
                         this->state = State::Sustain;
@@ -300,7 +309,7 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
                 // 何もしない
             }
             else { // EG-TYPE = 0 (減衰音／パーカッシブ・タイプ)
-                currentLevel -= this->releaseDec * this->m_targetLevel;
+                currentLevel -= this->releaseDec * 1.0f;
                 if (currentLevel <= 0.001f) {
                     currentLevel = 0.0f;
                     this->state = State::Idle;
@@ -319,7 +328,7 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
                 return 0.0f;
             }
 
-            currentLevel -= this->releaseDec * this->m_targetLevel;
+            currentLevel -= this->releaseDec * 1.0f;
 
             if (currentLevel <= 0.001f) {
                 currentLevel = 0.0f;
@@ -344,39 +353,36 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
                 this->m_attackStartLevel = currentLevel;
             }
 
-            y = 0.0f;
-
-            // 開始の瞬間は確実に 0.0f を保証し、カーブ計算の誤差ジャンプを防ぐ
-            if (this->m_phaseProgress > 0.0f) {
-                y = this->m_curveCore->process(
-                    this->positionIndex,
-                    (int)CurveParams::Target::AmpEnv,
-                    (int)CurveParams::TargetAmpEnv::Ar,
-                    this->m_phaseProgress
-                );
-            }
-
-            outLevel = this->m_attackStartLevel + (this->m_targetLevel - this->m_attackStartLevel) * y;
-
+            // Decay や Release と同じく、進めてからカーブを引く。
+            // 後ろで進めると出力が 1 サンプルぶん遅れて線形パスとずれる。
             this->m_phaseProgress += this->attackInc;
+
+            y = this->m_curveCore->process(
+                this->positionIndex,
+                (int)CurveParams::Target::AmpEnv,
+                (int)CurveParams::TargetAmpEnv::Ar,
+                this->m_phaseProgress
+            );
+
+            outLevel = this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
 
             if (this->m_phaseProgress >= 1.0f) {
                 this->m_phaseProgress = 0.0f; // Decayに向けて確実に進行度を0にリセット！
                 this->state = State::Decay;
-                outLevel = this->m_targetLevel; // 最後のサンプルは必ずtargetLevelを返す
+                outLevel = 1.0f; // 最後のサンプルは必ずtargetLevelを返す
             }
 
             return outLevel;
         case State::Decay:
-            limitLevel = this->m_sustain * this->m_targetLevel;
+            limitLevel = this->m_sustain * 1.0f;
 
             if (this->m_zeroDecay) {
                 this->state = State::Sustain;
                 this->m_phaseProgress = 0.0f;
-                return this->m_targetLevel;
+                return 1.0f;
             }
 
-            totalDecayRange = this->m_targetLevel - limitLevel;
+            totalDecayRange = 1.0f - limitLevel;
 
             if (totalDecayRange <= 0.001f) {
                 this->state = State::Sustain;
@@ -402,7 +408,7 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
                 this->m_phaseProgress
             );
 
-            return this->m_targetLevel - (y * totalDecayRange); // targetLevel から SL へ向かって減衰
+            return 1.0f - (y * totalDecayRange); // targetLevel から SL へ向かって減衰
         case State::Sustain:
             // ====================================================================
             // パーカッシブモード(EG-TYP=OFF)の判定
@@ -413,7 +419,7 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
                 return currentLevel;
             }
             else { // EG-TYPE = 0 (減衰音／パーカッシブ・タイプ)
-                startLevel = this->m_sustain * this->m_targetLevel;
+                startLevel = this->m_sustain * 1.0f;
 
                 // ゼロ除算防止
                 if (startLevel <= 0.001f) {

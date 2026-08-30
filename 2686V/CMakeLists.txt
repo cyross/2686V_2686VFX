@@ -21,7 +21,7 @@ juce_add_binary_data(AppIconForAbout_2686V
 )
 
 # 定義
-file(GLOB_RECURSE ALL_SOURCES 
+file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS 
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h"
 )
@@ -42,6 +42,7 @@ set(SYNTH_FILES
     "Source/Core/Synth/SynthHelpers.h"
     "Source/Core/Synth/SynthHelpers.cpp"
     "Source/Core/Synth/UnisonParams.h"
+    "Source/Core/Synth/UnisonState.h"
     "Source/Core/Synth/CommonParams.h"
 )
 
@@ -61,6 +62,10 @@ set(SSG_NOISE_GEN_FILES
     "Source/Generator/Noise/Ssg/GenNoiseSsgParams.h"
     "Source/Generator/Noise/Ssg/GenNoiseSsg.h"
     "Source/Generator/Noise/Ssg/GenNoiseSsg.cpp"
+)
+
+set(GENERATOR_WTMOD_FILES
+    "Source/Generator/WtMod/GenWtModulator.h"
 )
 
 set(PCM_GENERATOR_FILES
@@ -87,7 +92,13 @@ set(FM_FILES
 
 set(GUI_FILES
     "Source/Core/Gui/GuiBase.h"
+    "Source/Core/Io/ParamFile.h"
+    "Source/Core/Io/ParamFile.cpp"
+    "Source/Core/Gui/GuiRefresh.h"
+    "Source/Core/Gui/GuiRefresh.cpp"
     "Source/Core/Gui/GuiColor.h"
+    "Source/Core/Gui/GuiColorJuceNames.h"
+    "Source/Core/Gui/GuiColor.cpp"
     "Source/Core/Gui/GuiComponents.h"
     "Source/Core/Gui/GuiComponents.cpp"
     "Source/Core/Gui/GuiContext.h"
@@ -148,6 +159,9 @@ set(AMP_ENVELOPE_FILES
     "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
     "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
     "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.cpp"
+    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.cpp"
 )
 
 set(PITCH_ENVELOPE_FILES
@@ -555,6 +569,15 @@ set(SETTINGS_GUI_FILES
     "Source/Gui/Settings/GuiSettings.cpp"
 )
 
+set(COLORS_GUI_FILES
+    "Source/Gui/Colors/GuiColors.h"
+    "Source/Gui/Colors/GuiColors.cpp"
+    "Source/Gui/Colors/GuiColorsText.h"
+    "Source/Gui/Colors/GuiColorsValues.h"
+    "Source/Gui/Colors/RetroPalette.h"
+    "Source/Gui/Colors/RetroPalette.cpp"
+)
+
 set(ABOUT_GUI_FILES
     "Source/Gui/About/GuiAboutText.h"
     "Source/Gui/About/GuiAboutValues.h"
@@ -611,6 +634,28 @@ set(GUI_COMPONENT_SSGSWPENV11_FILES
     "Source/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.cpp"
 )
 
+set(GUI_COMPONENT_PARAMBAREDITOR_FILES
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.h"
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.cpp"
+)
+
+set(GUI_COMPONENT_WAVEPREVIEW_FILES
+    "Source/Gui/Components/WavePreview/WavePreview.h"
+    "Source/Gui/Components/WavePreview/WavePreview.cpp"
+    "Source/Gui/Components/WavePreview/WavePreviewSource.h"
+    "Source/Gui/Components/WavePreview/WavePreviewSource.cpp"
+)
+
+set(GUI_COMPONENT_WTMOD_FILES
+    "Source/Gui/Components/WtMod/WtMod.h"
+    "Source/Gui/Components/WtMod/WtMod.cpp"
+)
+
+set(GUI_COMPONENT_SSGHWENV_FILES
+    "Source/Gui/Components/SsgHwEnv/SsgHwEnv.h"
+    "Source/Gui/Components/SsgHwEnv/SsgHwEnv.cpp"
+)
+
 set(GUI_COMPONENT_PITCHBUTTONS_FILES
     "Source/Gui/Components/PitchButtons/PitchButtons.h"
     "Source/Gui/Components/PitchButtons/PitchButtons.cpp"
@@ -646,6 +691,11 @@ set(GUI_COMPONENT_IMPORT_EXPORT_FILES
     "Source/Gui/Components/ImportExport/ImportExport.cpp"
 )
 
+set(GUI_COMPONENT_IMPORT_FILES
+    "Source/Gui/Components/Import/Import.h"
+    "Source/Gui/Components/Import/Import.cpp"
+)
+
 set(GUI_COMPONENT_LEVEL_FILES
     "Source/Gui/Components/Level/Level.h"
     "Source/Gui/Components/Level/Level.cpp"
@@ -666,9 +716,9 @@ set(GUI_COMPONENT_QUALITY_FILES
 )
 
 set(GUI_COMPONENT_ALG_MATRIX_FILES
-    "Source/Gui/Components/AlgMatrix/AlgMatrixState.h"
-    "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.h"
-    "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.cpp"
+    "Source/Gui/Components/AlgMatrix/FmAlgState.h"
+    "Source/Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
+    "Source/Gui/Components/AlgMatrix/GuiFmAlgRouting.cpp"
 )
 
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
@@ -677,6 +727,7 @@ set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 source_group("2686V\\Constants" FILES ${CONST_FILES})
 source_group("2686V\\Documents" FILES ${DOCUMENT_FILES})
 source_group("2686V\\Advanced\\Curve" FILES ${CURVE_FILES})
+source_group("2686V\\Generator\\WtMod" FILES ${GENERATOR_WTMOD_FILES})
 source_group("2686V\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
 source_group("2686V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
 source_group("2686V\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
@@ -732,11 +783,16 @@ source_group("2686V\\Gui\\Components\\SsgSwButtons" FILES ${GUI_COMPONENT_SSGSWB
 source_group("2686V\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
 source_group("2686V\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
 source_group("2686V\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
+source_group("2686V\\Gui\\Components\\Import" FILES ${GUI_COMPONENT_IMPORT_FILES})
 source_group("2686V\\Gui\\Components\\Level" FILES ${GUI_COMPONENT_LEVEL_FILES})
 source_group("2686V\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATOR_FILES})
 source_group("2686V\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})
 source_group("2686V\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
 source_group("2686V\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
+source_group("2686V\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
+source_group("2686V\\Gui\\Components\\WavePreview" FILES ${GUI_COMPONENT_WAVEPREVIEW_FILES})
+source_group("2686V\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})
+source_group("2686V\\Gui\\Components\\SsgHwEnv" FILES ${GUI_COMPONENT_SSGHWENV_FILES})
 source_group("2686V\\Gui\\Components\\AlgMatrix" FILES ${GUI_COMPONENT_ALG_MATRIX_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
@@ -756,5 +812,6 @@ source_group("2686V\\Gui\\Pane\\Fx" FILES ${FX_GUI_FILES})
 source_group("2686V\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})
 source_group("2686V\\Gui\\Dialog\\Settings" FILES ${SETTINGS_GUI_FILES})
 source_group("2686V\\Gui\\Dialog\\About" FILES ${ABOUT_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Colors" FILES ${COLORS_GUI_FILES})
 
 create_cyross_plugin("2686V" "2686")

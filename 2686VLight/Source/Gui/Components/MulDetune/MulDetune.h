@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../../Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
 
@@ -11,6 +13,7 @@
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../PitchButtons/PitchButtons.h"
+#include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 
@@ -20,7 +23,7 @@ class GuiComponentMulDetune : public GuiBase {
     // MULTIPLE/DETUNE
     GuiCategoryLabel cat;
     GuiComboBox mul;
-    GuiSlider mulRatio;
+    GuiComponentNudgeSliderFloat mulRatio;
     GuiTextButton mulRatioTo001;
     GuiTextButton mulRatioTo005;
     GuiTextButton mulRatioTo1;
@@ -44,7 +47,7 @@ class GuiComponentMulDetune : public GuiBase {
     NormalSeparator mulDetSep;
     GuiComboBox dt1;
     GuiSlider dt2;
-    GuiSlider dt3;
+    GuiComponentNudgeSliderFloat dt3;
     GuiComponentPitchButtons dt3Buttons;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -102,5 +105,10 @@ public:
     void setVisibles(bool visible);
     void setEnables(bool enable);
     void setImportingParams(juce::StringArray& lines, int& index);
+
+    // 名前で受け渡す。行の並びに頼ると、呼ぶ順番を間違えたときに
+    // 黙って別の値が入り、項目を足すと後ろが全部ずれるため。
+    void readParams(const Io::ParamReader& reader, const juce::String& key);
+    void writeParams(Io::ParamWriter& writer, const juce::String& key);
     juce::String getExportedParams();
 };

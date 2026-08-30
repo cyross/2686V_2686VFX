@@ -15,6 +15,7 @@ void RhythmPad::prepare(double hostSampleRate)
     m_ssgSwPenv11.prepare(0, m_sampleRate);
     m_lfo.prepare(m_sampleRate);
     m_noiseGen.prepare(m_sampleRate);
+    m_ssgHwEnv.prepare(m_sampleRate);
 }
 
 void RhythmPad::setCurveCore(CurveCore* p_curveCore)
@@ -80,6 +81,8 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_detune.setParameters(params.detune);
     m_lfo.setParameters(params.lfo);
     m_noiseGen.setParameters({ .level = params.tn.noiseLevel, .noiseOnNote = params.tn.noiseOnNote, .baseFreq = params.tn.noiseFreq });
+    m_ssgHwEnv.setParameters(params.ssgHwEnv);
+    m_wtMod.setParameters(params.wtMod);
 
     bool needRefresh = false;
     if (m_qualityMode != params.quality.mode) {
@@ -120,6 +123,8 @@ void RhythmPad::setPitchBend(float pitchBend) {
 
 void RhythmPad::setModulationWheel(float modWheel) {
     m_modWheel = modWheel;
+
+    m_wtMod.setModWheel(modWheel);
 }
 
 void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, int uTotal)
@@ -128,7 +133,7 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
     m_unisonTotal = uTotal;
 
     // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
-    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
     float finalFreq = freq;
     float oldBaseLevel = m_baseLevel;
@@ -175,6 +180,8 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
         if (!m_ssgSwPenv11.isBypass()) {
             m_ssgSwPenv11.noteOn();
         }
+
+        m_ssgHwEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -280,7 +287,7 @@ float RhythmPad::getSample()
     }
 
     float output = 0.0f;
-    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = m_sampleRate;
 
     // ノイズを出すために、バッファが空でも最後まで通す
@@ -604,6 +611,9 @@ float RhythmPad::getSample()
         output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
 
+    // SSGハードウェアエンベロープ(SsgHwEnv)処理
+    float sshHwEnvVal = m_ssgHwEnv.process();
+
     // ==========================================
     // Opzx7 LFO の計算 (AM / PM)
     // ==========================================
@@ -636,7 +646,9 @@ float RhythmPad::getSample()
     // 周波数倍率の決定
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
-    float freqMult = m_pitchBendRatio * opzx7PitchMod;
+    // MODULATION は搬送波の周波数比として掛ける
+    float freqMult = m_pitchBendRatio * opzx7PitchMod
+        * m_wtMod.process((float)(m_currentFrequency / m_sampleRate));
 
     // Advance position
     m_position += currentIncrement * freqMult;
@@ -653,7 +665,7 @@ float RhythmPad::getSample()
     float noiseGain = m_mix;
     float rawMixed = (output * m_tone * toneGain * 4.0f) + m_noiseGen.generateSample(noiseGain) * 0.4f;
 
-    return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier;
+    return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier * sshHwEnvVal;
 }
 
 void RhythmPad::refreshPcmBuffer()
@@ -676,37 +688,8 @@ void RhythmPad::refreshPcmBuffer()
 
     double step = m_sourceRate / targetRate;
 
-    m_pcmBuffer.clear();
-    m_pcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
-
-    double pos = 0;
-
-    if (m_qualityMode == dpcmMode) {
-        DpcmCodec codec;
-        codec.reset();
-
-        while (pos < m_rawBuffer.size()) {
-            int index = (int)pos;
-            if (index >= m_rawBuffer.size()) break;
-            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-            pos += step;
-        }
-    }
-    else { // adpcmMode
-        Ym2608AdpcmCodec codec;
-        codec.reset();
-
-        while (pos < m_rawBuffer.size()) {
-            int index = (int)pos;
-            if (index >= m_rawBuffer.size()) break;
-            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-            pos += step;
-        }
-    }
-
-    GenPcmHelper::lowPassFilter(m_pcmBuffer);
+    // 圧縮の種類ごとの処理は GenPcmHelper に集約している
+    GenPcmHelper::encodeBuffer(m_rawBuffer, step, m_qualityMode, m_pcmBuffer);
 }
 
 void RhythmPad::clearBuffer() {
@@ -760,33 +743,14 @@ void RhythmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
-    float finalFreq = freq;
-
-    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
-    float phaseOffsetNorm = 0.0f;
-
-    if (m_unisonTotal > 1) {
-        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
-        // 例(3ボイス): -1.0,  0.0,  1.0
-        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-
-        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
-        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-
-        // セント値(Cents) を周波数倍率(Ratio)に変換する
-        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
-        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
-
-        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
-        phaseOffsetNorm = (float)m_unisonIndex / (float)m_unisonTotal;
-    }
+    float finalFreq = m_unison.applyDetune(freq);
+    const float phaseOffsetNorm = m_unison.getPhaseOffset();
 
     for (auto& pad : pads) {
         if (pad.m_noteNumber == midiNote) {
             // ユニゾン・ハーモニー向けに変更
             // 計算した位相のズレをオペレータに渡す
-            pad.start(velocity, isLegato, finalFreq, phaseOffsetNorm, m_unisonTotal);
+            pad.start(velocity, isLegato, finalFreq, phaseOffsetNorm, m_unison.getTotal());
         }
     }
 }
@@ -857,19 +821,12 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
             float basePanL = pad.m_panL;
             float basePanR = pad.m_panR;
 
-            if (m_unisonTotal > 1) {
-                float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
+            m_unison.applyPan(basePanL, basePanR);
 
-                // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
-                float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
-
-                basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
-                basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
-
-                // 音量補正 (ボイス数が増えると爆音になるため下げる)
-                // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
-                float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
-            }
+            // 注: 他チャンネルは m_unison.getGainComp() による音量補正を掛けているが、
+            // Rhythm は元々その補正が適用されていなかったため、現状の音量を維持している。
+            // 揃える場合は下記を有効にする (既存プリセットの音量が下がる点に注意)。
+            // sample *= m_unison.getGainComp();
 
             float sample = pad.getSample() * 4.0f;
 

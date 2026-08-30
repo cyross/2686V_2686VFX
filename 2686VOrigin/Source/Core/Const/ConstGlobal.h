@@ -7,6 +7,9 @@
 namespace Global
 {
 	static inline const int unisonVoices = 8; // ユニゾン発音数
+	// Para-Distance / Para-Detune の設定対象数。
+	// ボイス0はメイン(素の音程・定位)なので対象外となり、ボイス数-1 になる。
+	static inline const int unisonParaVoices = unisonVoices - 1;
 	static inline const int voices = 10; // 最大同時発音数
 	static inline const int totalVoices = voices * unisonVoices; // 最大同時発音数 * ユニゾン発音数
 	static inline constexpr int floatDecimalPlaces = 6; // パラメータ書き出し時の小数点以下の桁数
@@ -49,5 +52,23 @@ namespace Global
 	namespace RateMaxSeconds {
 		static inline constexpr float reg = 5.0f; // レジスタレートの最長=5秒
 		static inline constexpr float real = 10.0f; // 実数レートの最長=10秒
+	}
+
+	namespace WtMod {
+		// HuC6280 モードの変調波形。実機と同じ 32 サンプル。
+		static inline constexpr int waveSize = 32;
+
+		// 持てる枚数。演奏中に切り替えられる。
+		static inline constexpr int slots = 8;
+	}
+
+	namespace Lfo {
+		// AM(トレモロ)の最大減衰量[dB]。全音源で共通の上限値。
+		//
+		// 実機の AMS テーブルは OPM で最大 95.6dB、OPZ 系でも 96dB 相当まで下がるが、
+		// そこまで落とすと LFO の谷で完全に無音になり、音が途切れてプチノイズの
+		// 原因になる。そのため実機 OPNA の AMS 最大値 23.9dB を切り上げた 24dB を
+		// 全音源共通の上限とし、AMS の段数比だけを各チップ固有のカーブとして残す。
+		static inline constexpr float maxAmDepthDb = 24.0f;
 	}
 };

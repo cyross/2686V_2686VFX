@@ -98,6 +98,10 @@ void GuiAbout::setup()
 void GuiAbout::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
+
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
     pageArea.removeFromTop(AboutGuiValue::Group::TitlePaddingTop);
 
     auto iconArea = pageArea.removeFromTop(AboutGuiValue::LogoImage::areaHeight); 

@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../../Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
 #include <functional>
@@ -16,6 +18,8 @@
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../PitchButtons/PitchButtons.h"
+#include "../NudgeButtons/NudgeButtons.h"
+#include "../NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -33,43 +37,58 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
     GuiSlider loopTo;
     GuiSlider loopCount;
 	NormalSeparator loopSeparator;
-    GuiSlider r1;
-    GuiSlider r2;
-    GuiSlider r3;
-    GuiSlider r4;
-    GuiSlider r5;
-    GuiSlider r6;
-    GuiSlider r7;
-    GuiSlider r8;
-    GuiSlider r9;
-    GuiSlider r10;
-    GuiSlider r11;
+    GuiComponentNudgeSliderFloat r1;
+    GuiComponentNudgeButtons r1Nudge;
+    GuiComponentNudgeSliderFloat r2;
+    GuiComponentNudgeButtons r2Nudge;
+    GuiComponentNudgeSliderFloat r3;
+    GuiComponentNudgeButtons r3Nudge;
+    GuiComponentNudgeSliderFloat r4;
+    GuiComponentNudgeButtons r4Nudge;
+    GuiComponentNudgeSliderFloat r5;
+    GuiComponentNudgeButtons r5Nudge;
+    GuiComponentNudgeSliderFloat r6;
+    GuiComponentNudgeButtons r6Nudge;
+    GuiComponentNudgeSliderFloat r7;
+    GuiComponentNudgeButtons r7Nudge;
+    GuiComponentNudgeSliderFloat r8;
+    GuiComponentNudgeButtons r8Nudge;
+    GuiComponentNudgeSliderFloat r9;
+    GuiComponentNudgeButtons r9Nudge;
+    GuiComponentNudgeSliderFloat r10;
+    GuiComponentNudgeButtons r10Nudge;
+    GuiComponentNudgeSliderFloat r11;
+    GuiComponentNudgeButtons r11Nudge;
     NormalSeparator rateSeparator;
-    GuiSlider startLevel;
+    GuiComponentNudgeSliderFloat startLevel;
     GuiComponentPitchButtons startLevelButtons;
-    GuiSlider l1;
+    GuiComponentNudgeSliderFloat l1;
     GuiComponentPitchButtons l1Buttons;
-    GuiSlider l2;
+    GuiComponentNudgeSliderFloat l2;
     GuiComponentPitchButtons l2Buttons;
-    GuiSlider l3;
+    GuiComponentNudgeSliderFloat l3;
     GuiComponentPitchButtons l3Buttons;
-    GuiSlider l4;
+    GuiComponentNudgeSliderFloat l4;
     GuiComponentPitchButtons l4Buttons;
-    GuiSlider l5;
+    GuiComponentNudgeSliderFloat l5;
     GuiComponentPitchButtons l5Buttons;
-    GuiSlider l6;
+    GuiComponentNudgeSliderFloat l6;
     GuiComponentPitchButtons l6Buttons;
-    GuiSlider l7;
+    GuiComponentNudgeSliderFloat l7;
     GuiComponentPitchButtons l7Buttons;
-    GuiSlider l8;
+    GuiComponentNudgeSliderFloat l8;
     GuiComponentPitchButtons l8Buttons;
-    GuiSlider l9;
+    GuiComponentNudgeSliderFloat l9;
     GuiComponentPitchButtons l9Buttons;
-    GuiSlider l10;
+    GuiComponentNudgeSliderFloat l10;
     GuiComponentPitchButtons l10Buttons;
-    GuiSlider l11;
+    GuiComponentNudgeSliderFloat l11;
     GuiComponentPitchButtons l11Buttons;
     std::unique_ptr<juce::FileChooser> fileChooser;
+
+    // applyLoopValues の入れ子呼び出しを弾くための印。
+    // 中で setValue を呼ぶと onValueChange 経由で自分が呼び返される。
+    bool isApplyingLoopValues = false;
 
     void applyLoopValues(bool enabled);
 public:
@@ -85,16 +104,27 @@ public:
 		loopCount(context),
 		loopSeparator(context),
         r1(context),
+        r1Nudge(context),
         r2(context),
+        r2Nudge(context),
         r3(context),
+        r3Nudge(context),
         r4(context),
+        r4Nudge(context),
         r5(context),
+        r5Nudge(context),
         r6(context),
+        r6Nudge(context),
         r7(context),
+        r7Nudge(context),
         r8(context),
+        r8Nudge(context),
         r9(context),
+        r9Nudge(context),
         r10(context),
+        r10Nudge(context),
         r11(context),
+        r11Nudge(context),
         rateSeparator(context),
         startLevel(context),
         startLevelButtons(context),
@@ -134,5 +164,10 @@ public:
     void importParams();
     void exportParams();
     void setImportingParams(juce::StringArray& lines, int& index);
+
+    // 名前で受け渡す。行の並びに頼ると、呼ぶ順番を間違えたときに
+    // 黙って別の値が入り、項目を足すと後ろが全部ずれるため。
+    void readParams(const Io::ParamReader& reader, const juce::String& key);
+    void writeParams(Io::ParamWriter& writer, const juce::String& key);
     juce::String getExportedParams();
 };

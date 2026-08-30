@@ -16,6 +16,17 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addAlgFbParameters(layout, prefix, prefixName, Opl3PrValue::Alg::max, Opl3PrValue::Alg::initial);
     PrHelper::addQualityParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    // チップ全体へ掛かる AMP ENV。既定はバイパス。
+    PrHelper::addEnvParameters(layout, prefix, prefixName);
+    PrHelper::addAdsrBypassParameter(layout, prefix, prefixName, true);
+    // チップ全体へ掛かる MODULATION
+    PrHelper::addWtModParameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
+    // チップ全体へ掛かる SSG SW PENV11。既定はバイパス。
+    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv11BypassParameter(layout, prefix, prefixName, true);
+    PrHelper::addSsgSwEnv11BypassParameters(layout, prefix, prefixName);
 
     for (int op = 0; op < Opl3PrValue::ops; ++op)
     {
@@ -35,12 +46,17 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     }
 }
 
-void Opl3Processor::init(juce::AudioProcessorValueTreeState& apvts) {
+void Opl3Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
     const juce::String prefix = Opl3PrKey::prefix;
 
     PrHelper::setupOpl3BasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAlgFbPtrs(apvts, prefix, pAlgFb);
+    PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
+    PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
+    PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
+    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
+    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11g);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
     for (int op = 0; op < Opl3PrValue::ops; ++op)
@@ -66,6 +82,11 @@ void Opl3Processor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     PrHelper::applyQuality(pQuality, params.opl3.quality);
     PrHelper::applyAlgFb(pAlgFb, params.opl3.algFb);
     PrHelper::applyUnison(pUnison, params.opl3.unison);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, params.opl3.ssgHwEnv);
+    PrHelper::applyAdsrAmpEnv(pAmpEnvG, params.opl3.ampEnvG);
+    PrHelper::applyWtMod(pWtMod, params.opl3.wtMod);
+    PrHelper::applySsgSwEnv11(pSsgSwEnv11g, params.opl3.ssgSwEnv11g);
+    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11g, params.opl3.ssgSwPEnv11g);
 
     for (int op = 0; op < Opl3PrValue::ops; ++op)
     {

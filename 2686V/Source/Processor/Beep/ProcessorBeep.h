@@ -9,6 +9,7 @@
 class BeepProcessor : public PrBase {
     PrPtrsBeepBasic pBasic;
     PrPtrsAdsrAmpEnv pAmpEnv;
+    PrPtrsWtMod pWtMod;
     PrPtrsPitchEnv pPitchEnv;
     PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv11 pSsgSwEnv11;
@@ -16,9 +17,12 @@ class BeepProcessor : public PrBase {
     PrPtrsOpzx7Detune pOpzx7Detune;
     PrPtrsOpzx7Lfo pOpzx7Lfo;
     PrPtrsFix pFix;
+    PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsUnison pUnison;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;
-    void init(juce::AudioProcessorValueTreeState& apvts);
+    // modWaves は WT PITCH MOD の変調波形の置き場所。
+    // パラメータではなくプロセッサが持つので、ここで受け取る。
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
 };

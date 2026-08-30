@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../Core/Io/ParamFile.h"
 #include <array>
 
 #include "../../Core/Gui/GuiComponents.h"
@@ -27,6 +29,9 @@
 #include "../../Gui/Components/Quality/QualityPcm.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WavePreview/WavePreview.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -45,6 +50,13 @@ class RhythmPadGui: public GuiBase
 
     GuiCategoryLabel formCat;
     GuiCategoryLabel optionalCat;
+
+    // どのパッドかを覚えておく。プレビューで読むサンプルを選ぶのに使う。
+    int m_padIndex = 0;
+
+    // 読み込んだサンプルを見せるプレビュー。
+    // P.OF / P.RT で切り出した範囲を描き、ループ位置を縦線で出す。
+    GuiWavePreview samplePreview;
 
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
@@ -79,6 +91,8 @@ class RhythmPadGui: public GuiBase
 
     // Amp ADSR
     GuiComponentAmpEnv ampEnvComponent;
+    // パッドごとの MODULATION
+    GuiComponentWtMod modComponent;
 
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnvComponent;
@@ -93,6 +107,10 @@ class RhythmPadGui: public GuiBase
     GuiComponentMulDetune mulDetuneComponent;
 
     GuiComponentLfoOpzx7 lfoComponent;
+
+    // SSG Hw Env
+    GuiComponentSsgHwEnv ssgHwEnv;
+
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiEnvelopeGraph graph;
@@ -114,6 +132,7 @@ class RhythmPadGui: public GuiBase
     void updateGraph();
     void setGraphMode(GraphMode mode);
 public:
+    void setImportingParams(int p, juce::StringArray& lines, int& index);
     RhythmPadGui(const GuiContext& context) :
 		GuiBase(context),
         mainGroup(context),
@@ -123,6 +142,7 @@ public:
         formSeparator(context),
         formCat(context),
         optionalCat(context),
+        samplePreview(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         loopPointEnableButton(context),
@@ -146,12 +166,14 @@ public:
         oneShotButton(context),
         fixComponent(context),
         ampEnvComponent(context),
+        modComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
         ssgSwEnv11Component(context),
         ssgSwPEnv11Component(context),
         mulDetuneComponent(context),
         lfoComponent(context),
+        ssgHwEnv(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -163,6 +185,7 @@ public:
     }
 
     void updatePadFileName(const juce::String& fileName);
+    void updateSamplePreview();
     void updatePadVisible(bool visible);
     void setup(juce::Component& parent, int index, juce::String padName, int& tabOrder);
 	void layout(juce::Rectangle<int> content);
@@ -177,6 +200,12 @@ public:
     void copyParams(CopyRhythmPad& copyObj);
     void pasteParams(CopyRhythmPad& copyObj);
     void importToneNoiseParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingToneNoiseParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeToneNoiseParams(Io::ParamWriter& writer);
     void exportToneNoiseParam();
     void importLfoParam();
     void exportLfoParam();
@@ -184,6 +213,10 @@ public:
     void exportAmpEnvParam();
     void importPitchEnvParam();
     void exportPitchEnvParam();
+    void importSsgHwEnvParam();
+    void importWtModParam();
+    void exportSsgHwEnvParam();
+    void exportWtModParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
     void importSsgSwEnv11Param();
@@ -193,11 +226,24 @@ public:
     void importDetuneParam();
     void exportDetuneParam();
     void importQualityParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingQualityParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
     void importPcmPlayParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingPcmPlayParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writePcmPlayParams(Io::ParamWriter& writer);
     void exportPcmPlayParam();
-    void setImportingParams(int p, juce::StringArray& lines, int& index);
-    juce::String getExportedParams();
+    // 名前で受け渡す。パッドは並びの中のひとつを渡す。
+    void readParams(int p, const Io::ParamReader& r);
+    void writeParams(int p, Io::ParamWriter& w);
 };
 
 class GuiRhythm : public GuiBase
@@ -227,6 +273,8 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -279,12 +327,21 @@ public:
     void exportQualityParam(int p);
     void importPcmPlayParam(int p);
     void exportPcmPlayParam(int p);
-    void importUnisonParam();
-    void exportUnisonParam();
     void importChParam();
+
+    // 3.0.0 より前の形式を読む
+    void getImportingPadParams(int p, juce::StringArray& lines, int& index);
+    void setImportingChParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
     void importPadChParam(int p);
+
+    // 3.0.0 より前の形式を読む
+    void setImportingPadChParams(int p, juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writePadChParams(int p, Io::ParamWriter& writer);
     void exportPadChParam(int p);
-    void getImportingPadParams(int p, juce::StringArray& lines, int& index);
-    juce::String setExportedPadParams(int p);
 };

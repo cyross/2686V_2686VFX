@@ -5,7 +5,7 @@
 void NormalSeparator::setupComponent(juce::Component& parent) {
     parent.addAndMakeVisible(*this);
 
-    this->setup({ .lineThick = (float)thick, .lineColour = juce::Colours::white });
+    this->setup({ .lineThick = (float)thick, .lineColour = GuiColor::Separator::Line });
     this->setEnabled(true);
 }
 

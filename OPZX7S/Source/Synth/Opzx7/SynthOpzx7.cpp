@@ -168,7 +168,7 @@ const std::array<Opzx7Core::AlgRouting, Opzx7PrValue::algorithms> Opzx7Core::rou
         makeAlgOpzx7({ 1, 3, 5, 7 }, { {0,1},{2,3},{4,5},{6,7} }, { {0,0} }), // 127
         makeAlgOpzx7({ 1, 3, 5, 6, 7 }, { {0,1},{2,3},{4,5} }, { {0,0} }), // 128
         makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6, 7 }, {}, { {0,0} }), // 129
-    } };
+} };
 
 void Opzx7Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
@@ -176,20 +176,29 @@ void Opzx7Core::prepare(double sampleRate) {
     double target = getTargetRate(m_rateIndex);
 
     // 高速化のためのループアンローリング
-    m_operators[0].prepare(0, target);
-    m_operators[1].prepare(1, target);
-    m_operators[2].prepare(2, target);
-    m_operators[3].prepare(3, target);
-    m_operators[4].prepare(4, target);
-    m_operators[5].prepare(5, target);
-    m_operators[6].prepare(6, target);
-    m_operators[7].prepare(7, target);
+    m_operators[0].prepare(1, target);
+    m_operators[1].prepare(2, target);
+    m_operators[2].prepare(3, target);
+    m_operators[3].prepare(4, target);
+    m_operators[4].prepare(5, target);
+    m_operators[5].prepare(6, target);
+    m_operators[6].prepare(7, target);
+    m_operators[7].prepare(8, target);
 
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
     m_amSmooth = 0.0f;
 
     m_lfo.prepare(target);
+    m_ssgSwEnv11g.prepare(0, target);
+    m_ssgSwPEnv11g.prepare(0, target);
+
+    // オペレータにチップ全体のピッチ倍率の在りかを教える
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        m_operators[i].setGlobalPitchRatioSource(&m_globalPitchRatio);
+    }
+    m_ampEnvG.prepare(target);
+    m_ssgHwEnv.prepare(target);
 }
 
 void Opzx7Core::setCurveCore(CurveCore* p_curveCore)
@@ -203,6 +212,8 @@ void Opzx7Core::setCurveCore(CurveCore* p_curveCore)
     m_operators[5].setCurveCore(p_curveCore);
     m_operators[6].setCurveCore(p_curveCore);
     m_operators[7].setCurveCore(p_curveCore);
+
+    m_ampEnvG.setCurveCore(p_curveCore);
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {
@@ -222,6 +233,11 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     m_isMonoMode = params.monoMode;
 
     m_lfo.setParameters(params.opzx7.glLfo);
+    m_ssgSwEnv11g.setParameters(params.opzx7.ssgSwEnv11g);
+    m_ssgSwPEnv11g.setParameters(params.opzx7.ssgSwPEnv11g);
+    m_ampEnvG.setParameters(params.opzx7.ampEnvG);
+    m_wtMod.setParameters(params.opzx7.wtMod);
+    m_ssgHwEnv.setParameters(params.opzx7.ssgHwEnv);
 
     m_panpot = params.opzx7.panpot.pan;
     m_panpot_enable = params.opzx7.panpot.enable;
@@ -253,40 +269,44 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_operators[7].setSampleRate(target);
 
         m_lfo.updateTargetSampleRate(target);
+        m_ssgSwEnv11g.updateTargetSampleRate(target);
+        m_ssgSwPEnv11g.updateTargetSampleRate(target);
+        m_ampEnvG.updateTargetSampleRate(target);
+        m_ssgHwEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opzx7.quality.bit);
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opzx7.op[0], params.opzx7.algFb.feedback);
+    m_operators[0].setParameters(params.opzx7.op[0], params.opzx7.algFb.feedback1);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opzx7.op[0].mask;
-    m_operators[1].setParameters(params.opzx7.op[1], params.opzx7.algFb.feedback);
+    m_operators[1].setParameters(params.opzx7.op[1], params.opzx7.algFb.feedback2);
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opzx7.op[1].mask;
-    m_operators[2].setParameters(params.opzx7.op[2], params.opzx7.algFb.feedback);
+    m_operators[2].setParameters(params.opzx7.op[2], params.opzx7.algFb.feedback3);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[2] = params.opzx7.op[2].mask;
-    m_operators[3].setParameters(params.opzx7.op[3], params.opzx7.algFb.feedback);
+    m_operators[3].setParameters(params.opzx7.op[3], params.opzx7.algFb.feedback4);
     m_operators[3].setMonoMode(m_isMonoMode);
     m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[3] = params.opzx7.op[3].mask;
-    m_operators[4].setParameters(params.opzx7.op[4], params.opzx7.algFb.feedback);
+    m_operators[4].setParameters(params.opzx7.op[4], params.opzx7.algFb.feedback5);
     m_operators[4].setMonoMode(m_isMonoMode);
     m_operators[4].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[4] = params.opzx7.op[4].mask;
-    m_operators[5].setParameters(params.opzx7.op[5], params.opzx7.algFb.feedback);
+    m_operators[5].setParameters(params.opzx7.op[5], params.opzx7.algFb.feedback6);
     m_operators[5].setMonoMode(m_isMonoMode);
     m_operators[5].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[5] = params.opzx7.op[5].mask;
-    m_operators[6].setParameters(params.opzx7.op[6], params.opzx7.algFb.feedback);
+    m_operators[6].setParameters(params.opzx7.op[6], params.opzx7.algFb.feedback7);
     m_operators[6].setMonoMode(m_isMonoMode);
     m_operators[6].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[6] = params.opzx7.op[6].mask;
-    m_operators[7].setParameters(params.opzx7.op[7], params.opzx7.algFb.feedback);
+    m_operators[7].setParameters(params.opzx7.op[7], params.opzx7.algFb.feedback8);
     m_operators[7].setMonoMode(m_isMonoMode);
     m_operators[7].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[7] = params.opzx7.op[7].mask;
@@ -301,27 +321,10 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
 
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
-    float finalFreq = freq;
+    float finalFreq = m_unison.applyDetune(freq);
 
-    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
-    float phaseOffsetNorm = 0.0f;
-
-    if (m_unisonTotal > 1) {
-        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
-        // 例(3ボイス): -1.0,  0.0,  1.0
-        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-
-        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
-        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-
-        // セント値(Cents) を周波数倍率(Ratio)に変換する
-        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
-        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
-
-        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
-        phaseOffsetNorm = (float)m_unisonIndex / (float)m_unisonTotal;
-    }
+    m_noteFreq = finalFreq;
+    const float phaseOffsetNorm = m_unison.getPhaseOffset();
 
     // ユニゾン・ハーモニー向けに変更
     // 計算した位相のズレをオペレータに渡す
@@ -347,6 +350,23 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
     m_rateAccumulator = 0.0;
  
     m_lfo.noteOn();
+    m_ssgHwEnv.noteOn();
+
+    if (!isLegato) {
+        m_wtMod.reset();
+
+        if (!m_ampEnvG.isBypass()) {
+            m_ampEnvGLevel = m_ampEnvG.noteOn();
+        }
+
+        if (!m_ssgSwEnv11g.isBypass()) {
+            m_ssgSwEnv11g.noteOn();
+        }
+
+        if (!m_ssgSwPEnv11g.isBypass()) {
+            m_ssgSwPEnv11g.noteOn();
+        }
+    }
 }
 
 void Opzx7Core::noteOff()
@@ -359,6 +379,18 @@ void Opzx7Core::noteOff()
     m_operators[5].noteOff();
     m_operators[6].noteOff();
     m_operators[7].noteOff();
+
+    if (!m_ampEnvG.isBypass()) {
+        m_ampEnvG.noteOff();
+    }
+
+    if (!m_ssgSwEnv11g.isBypass()) {
+        m_ssgSwEnv11g.noteOff();
+    }
+
+    if (!m_ssgSwPEnv11g.isBypass()) {
+        m_ssgSwPEnv11g.noteOff();
+    }
 }
 
 bool Opzx7Core::isPlaying() const
@@ -371,6 +403,9 @@ bool Opzx7Core::isPlaying() const
     if (m_operators[5].isPlaying()) return true;
     if (m_operators[6].isPlaying()) return true;
     if (m_operators[7].isPlaying()) return true;
+
+    if (m_ampEnvG.isPlaying()) return true;
+    if (m_ssgSwPEnv11g.isPlaying()) return true;
 
     return false;
 }
@@ -394,10 +429,15 @@ void Opzx7Core::setPitchBend(int pitchWheelValue)
 void Opzx7Core::setModulationWheel(int wheelValue)
 {
     m_modWheel = (float)wheelValue / 127.0f;
+
+    m_wtMod.setModWheel((float)wheelValue / 127.0f);
 }
 
 float Opzx7Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
+
+    // MODULATION の速度は搬送波に対する比なので、ノートの位相増分を渡す
+    float notePhaseDelta = (float)(m_noteFreq / targetRate);
     double stepSize = targetRate / m_hostSampleRate;
 
     m_rateAccumulator += stepSize;
@@ -409,6 +449,9 @@ float Opzx7Core::getSample() {
         m_rateAccumulator -= 1.0;
 
         m_prevSample = m_lastSample;
+
+        // オペレータより先にチップ全体のピッチ倍率を確定させる
+        updateGlobalPitchRatio(notePhaseDelta);
 
         m_lfo.getSample();
 
@@ -444,14 +487,38 @@ float Opzx7Core::getSample() {
         m_history1[6] = currentOut[6];
         m_history1[7] = currentOut[7];
 
+        // SSGハードウェアエンベロープ(SsgHwEnv)処理
+        finalOut *= m_ssgHwEnv.process();
+
+        // チップ全体の AMP ENV 処理
+        if (!m_ampEnvG.isBypass()) {
+            m_ampEnvGLevel = m_ampEnvG.process(m_ampEnvGLevel);
+            finalOut *= m_ampEnvGLevel;
+        }
+        else {
+            if (m_ampEnvG.isRelease()) m_ampEnvG.bypassedReleasedProcess();
+        }
+
+        // SSGソフトウェアエンベロープ(SsgSwEnv11)処理
+        if (!m_ssgSwEnv11g.isBypass()) {
+            finalOut *= m_ssgSwEnv11g.process();
+        }
+        else {
+            if (m_ssgSwEnv11g.isRelease()) m_ssgSwEnv11g.bypassedReleasedProcess();
+        }
+
         finalOut *= 2.0f; // ゲイン補正
+
+        // 量子化 (BIT)。Raw のときは quantizeSample が素通しする
+        finalOut = quantizeSample(finalOut, m_quantizeSteps);
 
         m_lastSample = finalOut;
     }
 
-    float fraction = (float)(m_rateAccumulator / stepSize);
-
-    if (fraction > 1.0f) fraction = 1.0f;
+    // m_rateAccumulator は直近に生成したサンプルからの進み具合を
+    // ソースサンプル単位 (0.0〜1.0) で保持しているので、そのまま補間係数になる。
+    // prev→last を補間する形なので、出力はソース 1 サンプル分だけ遅れる。
+    float fraction = (float)m_rateAccumulator;
 
     return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
 }
@@ -485,20 +552,8 @@ void Opzx7Core::renderNextBlock(float* outR, float* outL, int startSample, int s
     float basePanL = m_panpot_l_rate;
     float basePanR = m_panpot_r_rate;
 
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
-
-        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
-        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
-
-        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
-        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
-
-        // 音量補正 (ボイス数が増えると爆音になるため下げる)
-        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
-        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
-        sample *= gainComp;
-    }
+    m_unison.applyPan(basePanL, basePanR);
+    sample *= m_unison.getGainComp();
 
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;
@@ -523,9 +578,11 @@ void Opzx7Core::clearWt2Buffer(int opIndex) {
         m_operators[opIndex].clearWt2Buffer();
     }
 }
-
 void Opzx7Core::updateRoutingCache()
 {
+    bool modeChanged = (m_algMatrix.mode != m_cachedAlgMode);
+    bool algChanged = (m_algorithm != m_cachedAlgorithm);
+
     if (m_algMatrix.mode == 1) {
         Opzx7Core::AlgRouting customRouting;
         customRouting.out.fill(0.0f);
@@ -557,16 +614,17 @@ void Opzx7Core::updateRoutingCache()
             }
         }
 
-        // キャッシュへ適用する関数（既存のロジックを別関数化したもの）
         applyRoutingToCache(customRouting);
+        m_cachedAlgMode = 1;
     }
     else {
-        if (m_algorithm == m_cachedAlgorithm) return;
+        // マトリックスモードから戻ってきたか、アルゴリズムが変わった場合のみ更新
+        if (!modeChanged && !algChanged) return;
 
+        m_cachedAlgMode = 0;
         m_cachedAlgorithm = m_algorithm;
 
         int algIndex = std::clamp(m_algorithm, 0, Opzx7PrValue::algorithms - 1);
-
         applyRoutingToCache(routings[algIndex]);
     }
 }

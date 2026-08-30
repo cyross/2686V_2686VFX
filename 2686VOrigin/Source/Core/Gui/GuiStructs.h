@@ -21,4 +21,10 @@ struct PresetItem
     juce::String genre;
     juce::String fullPath;
     juce::Time lastModificationTime;
+
+    // 覚え書きが今のファイルのものかを見分けるために持つ
+    juce::int64 fileSize = 0;
+
+    // JSON / YAML / XML のどれか。一覧の列に出す。
+    juce::String format;
 };

@@ -87,6 +87,14 @@ namespace CPK
 	{
 		static inline const juce::String alg = "_ALG";
 		static inline const juce::String fb = "_FB1";
+		static inline const juce::String fb1 = "_FB1";
+		static inline const juce::String fb2 = "_FB2";
+		static inline const juce::String fb3 = "_FB3";
+		static inline const juce::String fb4 = "_FB4";
+		static inline const juce::String fb5 = "_FB5";
+		static inline const juce::String fb6 = "_FB6";
+		static inline const juce::String fb7 = "_FB7";
+		static inline const juce::String fb8 = "_FB8";
 
 		static inline const juce::String tl = "_TL";
 
@@ -199,6 +207,12 @@ namespace CPK
 		static inline const juce::String voices = "_UNI_VOICES";
 		static inline const juce::String detune = "_UNI_DETUNE";
 		static inline const juce::String spread = "_UNI_SPREAD";
+		static inline const juce::String arpEnable = "_UNI_ARP";
+		static inline const juce::String arpFreq = "_UNI_ARPFREQ";
+		static inline const juce::String arpSmooth = "_UNI_ARPSMTH";
+		// ボイス単位の設定 (末尾に 1〜7 のボイス番号が付く)
+		static inline const juce::String paraDistance = "_UNI_PDIST";
+		static inline const juce::String paraDetune = "_UNI_PDET";
 	}
 
 	namespace Adsr
@@ -384,6 +398,12 @@ namespace CPK
 		static inline const juce::String enable = "_MOD_ENABLE";
 		static inline const juce::String depth = "_MOD_DEPTH";
 		static inline const juce::String speed = "_MOD_SPEED";
+		static inline const juce::String shape = "_MOD_SHAPE";
+		// 変調波形そのものはプロセッサが持つので、パラメータは
+		// 「どのスロットを使うか」だけ。
+		static inline const juce::String waveSlot = "_MOD_WAVE_SLOT";
+		static inline const juce::String fdsTable = "_MOD_FDS_";
+		static inline const juce::String waveSmooth = "_MOD_WAVE_SMOOTH";
 	};
 
 	namespace SsgDuty
@@ -405,9 +425,11 @@ namespace CPK
 
 	namespace SsgHwEnv
 	{
-		static inline const juce::String enable = "_ENV_ENABLE";
-		static inline const juce::String shape = "_ENV_SHAPE";
-		static inline const juce::String period = "_ENV_PERIOD";
+		static inline const juce::String enable = "_SSGHWENV_ENABLE";
+		static inline const juce::String shape = "_SSGHWENV_SHAPE";
+		static inline const juce::String period = "_SSGHWENV_PERIOD";
+		static inline const juce::String min = "_SSGHWENV_MIN";
+		static inline const juce::String max = "_SSGHWENV_MAX";
+		static inline const juce::String smooth = "_SSGHWENV_SMOOTH";
 	};
 };
-

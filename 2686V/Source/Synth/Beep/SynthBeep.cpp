@@ -2,6 +2,40 @@
 
 #include "./SynthBeep.h"
 
+// タイマの基準クロック(Hz)。実機はこれを整数で分周して矩形波を作る。
+static inline double getBeepTimerClock(int index)
+{
+    switch (index) {
+    case 2: return 1193182.0;  // IBM PC / PC-AT  (14.31818MHz / 12)
+    case 3: return 1996800.0;  // PC-9801 8MHz系  (7.9872MHz / 4)
+    case 4: return 2457600.0;  // PC-9801 5MHz系  (9.8304MHz / 4)
+    }
+
+    return 0.0; // 1: Free (分周しない)
+}
+
+// PolyBLEP (Polynomial Band-Limited Step)
+// 不連続点の前後 1 サンプルだけ多項式で段差を補正し、
+// 折り返しノイズを目立たなくする。
+// t  : 不連続点からの正規化位相 (0.0〜1.0)
+// dt : 1 サンプルあたりの位相の進み
+static inline float polyBlep(float t, float dt)
+{
+    if (t < dt) {
+        // 立ち上がり直後
+        t /= dt;
+        return t + t - t * t - 1.0f;
+    }
+
+    if (t > 1.0f - dt) {
+        // 次の不連続点の直前
+        t = (t - 1.0f) / dt;
+        return t * t + t + t + 1.0f;
+    }
+
+    return 0.0f;
+}
+
 void BeepCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
 
@@ -12,6 +46,7 @@ void BeepCore::prepare(double sampleRate) {
     m_ssgSwPenv11.prepare(0, 44100.0);
     m_fixMode.setParameters({ .enable = false, .freq = 2000.0f });
     m_lfo.prepare(44100.0);
+    m_ssgHwEnv.prepare(44100.0);
 }
 
 void BeepCore::setCurveCore(CurveCore* p_curveCore)
@@ -31,6 +66,7 @@ void BeepCore::setSampleRate(double sampleRate) {
 	m_ssgSwEnv.updateSampleRate(sampleRate);
     m_ssgSwEnv11.updateSampleRate(sampleRate);
     m_ssgSwPenv11.updateSampleRate(sampleRate);
+    m_ssgHwEnv.updateSampleRate(m_sampleRate);
 }
 
 void BeepCore::setParameters(const SynthParams& params) {
@@ -49,6 +85,10 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_detune.setParameters(params.beep.detune);
     m_fixMode.setParameters(params.beep.fix);
     m_lfo.setParameters(params.beep.lfo);
+    m_ssgHwEnv.setParameters(params.beep.ssgHwEnv);
+    m_wtMod.setParameters(params.beep.wtMod);
+    m_antiAlias = params.beep.antiAlias;
+    m_timerClock = getBeepTimerClock(params.beep.timerClock);
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -64,27 +104,7 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
 
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
-    float finalFreq = freq;
-
-    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
-    m_unisonPhaseOffset = 0.0f;
-
-    if (m_unisonTotal > 1) {
-        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
-        // 例(3ボイス): -1.0,  0.0,  1.0
-        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-
-        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
-        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-
-        // セント値(Cents) を周波数倍率(Ratio)に変換する
-        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
-        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
-
-        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
-        m_unisonPhaseOffset = (float)m_unisonIndex / (float)m_unisonTotal;
-    }
+    float finalFreq = m_unison.applyDetune(freq);
 
     float baseFreq = m_fixMode.noteOn(finalFreq);
     m_baseFreq = m_detune.noteOn(baseFreq);
@@ -93,7 +113,7 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
 
     if (!isLegato) {
         if (!m_isMonoMode) {
-            m_phase = m_unisonPhaseOffset;
+            m_phase = m_unison.getPhaseOffset();
 
             // 安全のためのラップアラウンド (1.0基準)
             while (m_phase >= 1.0f) {
@@ -120,6 +140,7 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
         }
 
         m_lfo.noteOn();
+        m_ssgHwEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -219,8 +240,9 @@ float BeepCore::getSample() {
         }
     }
 
-    // 究極にシンプルな1-bit矩形波（50% Duty）
-    float output = (m_phase < 0.5f) ? 1.0f : -1.0f;
+
+    // SSGハードウェアエンベロープ(SsgHwEnv)処理
+    float sshHwEnvVal = m_ssgHwEnv.process();
 
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
     newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
@@ -257,18 +279,53 @@ float BeepCore::getSample() {
     // 周波数倍率の決定
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
-    float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod;
+    // MODULATION は搬送波の周波数比として掛ける
+    float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta);
 
     float phaseInc = 0.0f;
 
     phaseInc = newPhaseDelta * freqMult;
 
+    // ==========================================
+    // タイマの整数分周による音程のスナップ
+    // ==========================================
+    // 実機は 基準クロック / 整数 でしか周波数を作れないため、
+    // 高音ほど出せる音程が飛び飛びになる。
+    if (m_timerClock > 0.0 && phaseInc > 0.0f) {
+        // phaseInc = 周波数 / サンプリングレート なので、いったん周波数に戻す
+        double freq = (double)phaseInc * m_sampleRate;
+        double divisor = std::floor(m_timerClock / freq + 0.5);
+
+        // 分周値は 16bit カウンタの範囲に収める
+        if (divisor < 1.0) divisor = 1.0;
+        if (divisor > 65535.0) divisor = 65535.0;
+
+        phaseInc = (float)((m_timerClock / divisor) / m_sampleRate);
+    }
+
+    // ==========================================
+    // 波形生成 (50% Duty の矩形波)
+    // ==========================================
+    // 素の矩形波は帯域無制限なので、高音ではナイキストを超えた倍音が
+    // 折り返してエイリアスノイズになる。PolyBLEP は不連続点の前後 1 サンプルを
+    // 多項式で補正して段差をなまし、これを抑える。
+    float output = (m_phase < 0.5f) ? 1.0f : -1.0f;
+
+    if (m_antiAlias && phaseInc > 0.0f && phaseInc < 0.5f) {
+        // 位相 0 の立ち上がりと、位相 0.5 の立ち下がりの 2 箇所を補正する
+        output += polyBlep(m_phase, phaseInc);
+        output -= polyBlep(std::fmod(m_phase + 0.5f, 1.0f), phaseInc);
+    }
+
     m_phase += phaseInc;
 
-    if (m_phase >= 1.0f) m_phase -= 1.0f;
+    // ピッチエンベロープや PM で 1 サンプルの進みが 1.0 を超えても
+    // 破綻しないよう while で回す
+    while (m_phase >= 1.0f) m_phase -= 1.0f;
+    while (m_phase < 0.0f) m_phase += 1.0f;
 
     // 音量に変換
-    return output * finalEnv * m_baseLevel * m_level * amMultiplier;
+    return output * finalEnv * m_baseLevel * m_level * amMultiplier * sshHwEnvVal;
 }
 
 // モジュレーションホイール (0 - 127)
@@ -276,6 +333,8 @@ void BeepCore::setModulationWheel(int wheelValue)
 {
     // 0.0 ～ 1.0 に正規化
     m_modWheel = (float)wheelValue / 127.0f;
+
+    m_wtMod.setModWheel(m_modWheel);
 }
 
 void BeepCore::setPitchBendRatio(float ratio)
@@ -291,20 +350,8 @@ void BeepCore::renderNextBlock(float* outR, float* outL, int startSample, int sa
     float basePanL = 1.0f;
     float basePanR = 1.0f;
 
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
-
-        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
-        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
-
-        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
-        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
-
-        // 音量補正 (ボイス数が増えると爆音になるため下げる)
-        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
-        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
-        sample *= gainComp;
-    }
+    m_unison.applyPan(basePanL, basePanR);
+    sample *= m_unison.getGainComp();
 
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;

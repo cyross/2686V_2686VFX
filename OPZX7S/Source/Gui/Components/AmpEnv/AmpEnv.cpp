@@ -1,5 +1,15 @@
 ﻿#include "./AmpEnv.h"
 
+#include "../../../Core/Gui/GuiRefresh.h"
+
+#include "../../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat ampEnvFormat{ "ampEnv", 1 };
+}
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -10,8 +20,7 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 {
 	cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- AMP ENV ---",
-        .invisibleTitle = juce::String("") + "[□]--- AMP ENV ---",
+        .title = juce::String("") + "AMP ENV",
         .enableChangeDetailVisible = true
         });
 
@@ -75,6 +84,8 @@ void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
 		layoutMain({ .mainRect = rect, .label = &release.label, .component = &release });
 		separator2.layoutComponent(rect);
 		layoutMain({ .mainRect = rect, .component = &kor });
+
+		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
 }
 
@@ -101,6 +112,8 @@ void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 		layoutRow({ .rowRect = rect, .label = &sustain.label, .component = &sustain });
 		layoutRow({ .rowRect = rect, .label = &release.label, .component = &release });
 		layoutRow({ .rowRect = rect, .component = &kor });
+
+		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
 }
 
@@ -163,7 +176,7 @@ void GuiComponentAmpEnv::pasteParams(CopyEnvAmpAdsr& copyObj) {
 void GuiComponentAmpEnv::importParams() {
 	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
 	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importAmpEnvParamFile, defaultDir, Io::ExtensionGlob::AmpEnvParam);
@@ -175,20 +188,49 @@ void GuiComponentAmpEnv::importParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::StringArray lines;
-				file.readLines(lines);
+				// 3.0.0 より前のファイルは、当時の処理で読み込んでから
+				// 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+				// 読み込みは当時のものをそのまま使う。
+				if (Io::isLegacyFile(file)) {
+					juce::StringArray lines;
 
-				int size = lines.size();
+					file.readLines(lines);
 
-				if (size < 7) return;
+					int index = 0;
 
-				bypass.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
-				startLevel.setValue(lines[1].getFloatValue(), juce::sendNotification);
-				attack.setValue(lines[2].getFloatValue(), juce::sendNotification);
-				decay.setValue(lines[3].getFloatValue(), juce::sendNotification);
-				sustain.setValue(lines[4].getFloatValue(), juce::sendNotification);
-				release.setValue(lines[5].getFloatValue(), juce::sendNotification);
-				kor.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
+					{
+						// 読み終えてからまとめて描き直す
+						GuiRefresh::Batch batch;
+
+						setImportingParams(lines, index);
+					}
+
+					// 単体のファイルは入れ子にせず、そのまま中身として書く
+					Io::ParamWriter writer(ampEnvFormat);
+
+					writeParams(writer, Io::ParamKey::values);
+					writer.hoist(Io::ParamKey::values);
+
+					Io::writeConverted(file, writer);
+
+					return;
+				}
+
+				auto reader = Io::ParamReader::open(file, ampEnvFormat);
+
+				if (!reader.has_value()) return;
+
+				// 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+				// 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+				GuiRefresh::Batch batch;
+
+				bypass.setToggleState(reader->getBool("bypass", bypass.getToggleState()), juce::sendNotification);
+				startLevel.setValue(reader->getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+				attack.setValue(reader->getFloat("attack", (float)attack.getValue()), juce::sendNotification);
+				decay.setValue(reader->getFloat("decay", (float)decay.getValue()), juce::sendNotification);
+				sustain.setValue(reader->getFloat("sustain", (float)sustain.getValue()), juce::sendNotification);
+				release.setValue(reader->getFloat("release", (float)release.getValue()), juce::sendNotification);
+				kor.setToggleState(reader->getBool("kor", kor.getToggleState()), juce::sendNotification);
 			}
 		});
 }
@@ -196,10 +238,10 @@ void GuiComponentAmpEnv::importParams() {
 void GuiComponentAmpEnv::exportParams() {
 	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
-	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile("default.ampEnv"), Io::ExtensionGlob::AmpEnvParam);
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::AmpEnvParam)), Io::saveGlob(Io::Extension::AmpEnvParam));
 	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
 		[this](const juce::FileChooser& fc) {
 			auto file = fc.getResult();
@@ -208,17 +250,17 @@ void GuiComponentAmpEnv::exportParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::String content = "";
+				Io::ParamWriter writer(ampEnvFormat);
 
-				content += juce::String(bypass.getToggleState() ? 1 : 0) + "\n";
-				content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(attack.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(decay.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(sustain.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(release.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(kor.getToggleState() ? 1 : 0) + "\n";
+				writer.set("bypass", bypass.getToggleState());
+				writer.set("startLevel", (float)startLevel.getValue());
+				writer.set("attack", (float)attack.getValue());
+				writer.set("decay", (float)decay.getValue());
+				writer.set("sustain", (float)sustain.getValue());
+				writer.set("release", (float)release.getValue());
+				writer.set("kor", kor.getToggleState());
 
-				file.replaceWithText(content);
+				writer.writeTo(file);
 			}
 		});
 }
@@ -233,6 +275,19 @@ void GuiComponentAmpEnv::setImportingParams(juce::StringArray& lines, int& index
 	kor.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
 }
 
+void GuiComponentAmpEnv::readParams(const Io::ParamReader& reader, const juce::String& key)
+{
+    auto r = reader.child(key);
+
+	bypass.setToggleState(r.getBool("bypass", bypass.getToggleState()), juce::sendNotification);
+	startLevel.setValue(r.getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+	attack.setValue(r.getFloat("attack", (float)attack.getValue()), juce::sendNotification);
+	decay.setValue(r.getFloat("decay", (float)decay.getValue()), juce::sendNotification);
+	sustain.setValue(r.getFloat("sustain", (float)sustain.getValue()), juce::sendNotification);
+	release.setValue(r.getFloat("release", (float)release.getValue()), juce::sendNotification);
+	kor.setToggleState(r.getBool("kor", kor.getToggleState()), juce::sendNotification);
+}
+
 juce::String GuiComponentAmpEnv::getExportedParams() {
 	juce::String content = "";
 
@@ -245,4 +300,17 @@ juce::String GuiComponentAmpEnv::getExportedParams() {
 	content += juce::String(kor.getToggleState() ? 1 : 0) + "\n";
 
 	return content;
+}
+
+void GuiComponentAmpEnv::writeParams(Io::ParamWriter& writer, const juce::String& key)
+{
+    auto w = writer.child(key);
+
+	w.set("bypass", bypass.getToggleState());
+	w.set("startLevel", (float)startLevel.getValue());
+	w.set("attack", (float)attack.getValue());
+	w.set("decay", (float)decay.getValue());
+	w.set("sustain", (float)sustain.getValue());
+	w.set("release", (float)release.getValue());
+	w.set("kor", kor.getToggleState());
 }

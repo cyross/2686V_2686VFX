@@ -11,19 +11,12 @@ namespace WtGuiText
 
 	namespace Category
 	{
-		static inline const juce::String visibleForm = u8"[■]--- FORM ---";
-		static inline const juce::String invisibleForm = u8"[□]--- FORM ---";
-		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
-		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
-		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
-		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
-		static inline const juce::String shape = u8"--- SHAPE ---";
-		static inline const juce::String visibleMod = u8"[■]--- MODULATION ---";
-		static inline const juce::String invisibileMod = u8"[□]--- MODULATION ---";
-		static inline const juce::String visibleWaveFile = u8"[■]--- WAVE FILE ---";
-		static inline const juce::String invisibleWaveFile = u8"[□]--- WAVE FILE ---";
-		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
-		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
+		static inline const juce::String form = u8"FORM";
+		static inline const juce::String quality = u8"QUALITY";
+		static inline const juce::String lfo = u8"LFO";
+		static inline const juce::String shape = u8"SHAPE";
+		static inline const juce::String waveFile = u8"WAVE FILE";
+		static inline const juce::String util = u8"UTILITY";
 	}
 
 	namespace Group
@@ -84,12 +77,6 @@ namespace WtGuiText
 		static inline const juce::String fileImport = u8"Import (.wt)";
 		static inline const juce::String fileExport = u8"Export (.wt)";
 
-		namespace Mod
-		{
-			static inline const juce::String enable = u8"Enable";
-			static inline const juce::String depth = u8"DPTH";
-			static inline const juce::String speed = u8"SPED";
-		}
 
 		namespace Custom
 		{

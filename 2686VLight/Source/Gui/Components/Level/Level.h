@@ -4,12 +4,16 @@
 
 #include <JuceHeader.h>
 
+#include "../../../Core/Io/ParamFile.h"
+
 #include "../../../Core/Gui/GuiComponents.h"
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Core/Gui/GuiContext.h"
 
+#include "../NudgeSlider/NudgeSliderFloat.h"
+
 class GuiComponentLevel : public GuiBase {
-    GuiSlider levelSlider;
+    GuiComponentNudgeSliderFloat levelSlider;
 
     GuiComboBox stepSelector;
 
@@ -58,7 +62,7 @@ public:
     GuiComponentLevel(const GuiContext& context) :
         GuiBase(context),
         levelSlider(context),
-        stepSelector(context),
+		stepSelector(context),
         levelTo1(context),
         levelPM1(context),
         levelP1(context),
@@ -90,5 +94,10 @@ public:
     float getLevel();
     void setLevel(float level);
     void setImportingParams(juce::StringArray& lines, int& index);
+
+    // 名前で受け渡す。行の並びに頼ると、呼ぶ順番を間違えたときに
+    // 黙って別の値が入り、項目を足すと後ろが全部ずれるため。
+    void readParams(const Io::ParamReader& reader, const juce::String& key);
+    void writeParams(Io::ParamWriter& writer, const juce::String& key);
     juce::String getExportedParams();
 };

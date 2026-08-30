@@ -12,13 +12,41 @@ namespace PresetKey
 		static inline const juce::String clear = "X";
 	}
 
+	// 一覧の見方
+	namespace View
+	{
+		static inline const juce::String title = juce::String("") + "表示";
+		static inline const juce::String all = juce::String("") + "すべて";
+		static inline const juce::String favourites = juce::String("") + "お気に入り";
+		static inline const juce::String history = juce::String("") + "履歴";
+
+		static inline const juce::String clearHistory = juce::String("") + "履歴を消す";
+
+		namespace Mark
+		{
+			// お気に入りの入り切り。押せる印なので文字で出す。
+			static inline const juce::String on = juce::String("") + "★";
+			static inline const juce::String off = juce::String("") + "☆";
+		}
+
+		namespace Dialog
+		{
+			static inline const juce::String clearTitle = juce::String("") + "履歴を消す";
+			static inline const juce::String clearMessage = juce::String("") + "読み込んだプリセットの履歴をすべて消します。よろしいですか？";
+			static inline const juce::String clearOk = juce::String("") + "消す";
+			static inline const juce::String clearCancel = juce::String("") + "キャンセル";
+		}
+	}
+
 	namespace Table
 	{
 		static inline const juce::String title = juce::String("") + "プリセット一覧";
 
 		namespace ColName
 		{
+			static inline const juce::String favourite = juce::String("") + "★";
 			static inline const juce::String genre = juce::String("") + "ジャンル";
+			static inline const juce::String format = juce::String("") + "形式";
 			static inline const juce::String fileName = juce::String("") + "ファイル名";
 			static inline const juce::String mode = juce::String("") + "チャンネル";
 			static inline const juce::String name = juce::String("") + "プリセット名";
@@ -66,4 +94,6 @@ namespace PresetKey
 	static inline const juce::String opzx7PathPrefix = "opzx7PcmPath";
 	static inline const juce::String opzx7WtPathPrefix = "opzx7WtPath";
 	static inline const juce::String opzx7Wt2PathPrefix = "opzx7Wt2Path";
+	// チャンネルごとの MODULATION 変調波形パス。キーは APVTS のプレフィックス。
+	static inline const juce::String modWavePathPrefix = "modWavePath_";
 };

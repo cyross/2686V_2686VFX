@@ -15,10 +15,11 @@ enum class OscMode
     SSG = 6,
     WAVETABLE = 7,
     WT2 = 8,
-    RHYTHM = 9,
-    ADPCM = 10,
-    BEEP = 11,
-    Count = 12, // カウント用
+    WTPLUS = 9, // 波形メモリを 32 スロット持つ拡張ウェーブテーブル
+    RHYTHM = 10,
+    ADPCM = 11,
+    BEEP = 12,
+    Count = 13, // カウント用
 };
 
 static juce::String getModeName(OscMode mode) {
@@ -35,6 +36,7 @@ static juce::String getModeName(OscMode mode) {
     case OscMode::RHYTHM: return "RHYTHM";
     case OscMode::ADPCM:  return "ADPCM";
     case OscMode::BEEP:  return "BEEP";
+    case OscMode::WTPLUS: return "WTPLUS";
     default: return "Unknown";
     }
 }
@@ -52,5 +54,6 @@ static OscMode getModeFromString(const juce::String& name) {
     if (name == "RHYTHM") return OscMode::RHYTHM;
     if (name == "ADPCM")  return OscMode::ADPCM;
     if (name == "BEEP")  return OscMode::BEEP;
+    if (name == "WTPLUS") return OscMode::WTPLUS;
     return OscMode::OPNA; // Default
 }

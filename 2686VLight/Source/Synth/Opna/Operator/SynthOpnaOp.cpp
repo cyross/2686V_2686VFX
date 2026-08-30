@@ -60,11 +60,11 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber, bool 
         if (!m_isMonoMode) {
             // ユニゾン・ハーモニー向け対応
             // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
-            m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+            m_phase = m_unisonPhaseOffset;
 
             // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-            while (m_phase >= juce::MathConstants<float>::twoPi) {
-                m_phase -= juce::MathConstants<float>::twoPi;
+            while (m_phase >= 1.0) {
+                m_phase -= 1.0;
             }
 
             m_currentLevel = 0.0f;
@@ -80,11 +80,12 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber, bool 
     // 基本周波数にデチューン成分を加算
     float finalFreq = m_detune.noteOn(baseFreq);
 
-    m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
+    // 1 サンプルあたり何周進むか (サイクル単位)
+    m_phaseDelta = finalFreq / m_sampleRate;
 
     if (!isLegato) {
         if (!m_ampAdsr.isBypass()) {
-            m_targetLevel = m_ampAdsr.noteOn(velocity);
+            m_targetLevel = m_ampAdsr.noteOn(velocity, noteNumber);
         }
         else {
             m_targetLevel = velocity;
@@ -265,8 +266,8 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
             // 変更無し
             break;
         case 8:
-            // 08: Alt Saw Down & Hold
-            envVal *= (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+            // 08: Alt Saw Down & Hold (実機 shape 11: 1回下降して最大値で保持)
+            envVal *= (cycle == 0) ? (1.0f - (float)subPos) : 1.0f;
 
             break;
         case 9:
@@ -297,8 +298,8 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
             // 変更無し
             break;
         case 15:
-            // 15: Alt Saw Up & Hold
-            envVal *= (cycle == 0) ? (float)subPos : 1.0f;
+            // 15: Alt Saw Up & Hold (実機 shape 15: 1回上昇して最小値で保持)
+            envVal *= (cycle == 0) ? (float)subPos : 0.0f;
 
             break;
         }
@@ -317,7 +318,7 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
         float unipolarLfo = (n88Lfo.signDb > 0.0f) ? n88Lfo.value.am : (1.0f - n88Lfo.value.am);
 
         // ==========================================================
-        // 最大減衰量を実機準拠の「11.8dB」に変更
+        // 最大減衰量は全音源共通の Global::Lfo::maxAmDepthDb を使う
         // (95.25dBだと音が完全に途切れてしまい、ブツブツ音の直接の原因になります)
         // ==========================================================
         float attenuationDb = unipolarLfo * (n88Lfo.depthDb * this->m_ams) * maxAmDepthDb;
@@ -357,14 +358,14 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
     // ========================================================
     // 3. 位相と波形の生成
     // ========================================================
-    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * (*m_p_globalPitchRatio) * lfoPitchMod;
     float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
     currentPhaseDelta = m_params.ssgPEnv11Enable ? m_ssgSwPenv11.process(currentPhaseDelta) : currentPhaseDelta;
 
     // 位相の変調
     float feedbackPhaseOffset = 0.0f;
     if (m_feedback > 0 && feedbackModulator != 0.0f) {
-        feedbackPhaseOffset = feedbackModulator * fVector[m_feedback] * juce::MathConstants<float>::pi * 2.0f;
+        feedbackPhaseOffset = feedbackModulator * fVector[m_feedback];
     }
 
     // --------------------------------------------------------
@@ -372,23 +373,26 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
     // --------------------------------------------------------
     // Modulator からの入力 (変調インデックスは実機では通常 4π ではなく 2π〜8πの範囲ですが、
     // ここは既存のシステムに合わせておきます)
-    float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
+    // 変調指数。従来の 4π ラジアンは 2 サイクルに相当する
+    float fmModIndex = 2.0f;
 
     // 位相の変調
-    float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackPhaseOffset;
+    double modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackPhaseOffset;
 
     // エンベロープが「掛かる前」の生の波形を取得
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
 
-    m_fb2 = m_fb1;
-    m_fb1 = rawWave; // outputではなくrawWaveを保存！
-
     // 最後にエンベロープを掛けて出力とする
     output = rawWave * envVal * m_targetLevel;
+
+    // 実機はエンベロープ適用後の出力をフィードバックに戻すため、
+    // 音が減衰するとフィードバックも弱まり、倍音が落ち着いていく
+    m_fb2 = m_fb1;
+    m_fb1 = output;
 
     // m_phase の更新とラップアラウンドもラジアンで行う
     m_phase += currentPhaseDelta;
 
-    while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
-    while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
+    while (m_phase >= 1.0) m_phase -= 1.0;
+    while (m_phase < 0.0) m_phase += 1.0;
 }

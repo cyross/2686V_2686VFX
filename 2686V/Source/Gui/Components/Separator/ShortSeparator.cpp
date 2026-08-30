@@ -5,7 +5,7 @@
 void ShortSeparator::setupComponent(juce::Component& parent) {
     parent.addAndMakeVisible(*this);
 
-    this->setup({ .lineRate = widthRate, .lineThick = (float)thick, .lineColour = juce::Colours::white });
+    this->setup({ .lineRate = widthRate, .lineThick = (float)thick, .lineColour = GuiColor::Separator::Line });
     this->setEnabled(true);
 }
 

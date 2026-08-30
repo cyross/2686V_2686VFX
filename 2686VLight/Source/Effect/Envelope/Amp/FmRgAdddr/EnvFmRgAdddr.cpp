@@ -49,6 +49,7 @@ void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
     this->d1l = params.d1l;
     this->d2r = params.d2r;
     this->rr = params.rr;
+    this->tl = params.tl;
     this->m_ksMode = params.ksMode;
     this->m_ksOPM.setParameters(params.ksOPM);
     this->m_ksOPP.setParameters(params.ksOPP);
@@ -103,7 +104,12 @@ float FmRgAdddr::calcLevelScalingDb() const
     return 0.0f;
 }
 
-float FmRgAdddr::noteOn(float velocity) {
+float FmRgAdddr::noteOn(float velocity, int noteNumber) {
+    // KSL はノートナンバーに依存するため、ここで先に確定させる。
+    // (オペレータは noteOn() を updateIncrementsWithKeyScale() より先に呼ぶので、
+    //  ここで受け取らないと 1音前のノートナンバーで KSL を計算してしまう)
+    m_noteNumber = noteNumber;
+
     this->m_phaseProgress = 0.0f;
 
     if (this->bypass) {
@@ -114,15 +120,19 @@ float FmRgAdddr::noteOn(float velocity) {
 
     // TLレジスタ値から直接減衰量(dB)を計算
     // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-    float attenuationDb = tl * 0.75f;
-    float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+    float attenuationDb = this->tl * 0.75f;
     float kslDb = calcLevelScalingDb();
 
-    // マイナス値(+LIN, +EXP等による増幅)でも、最終ゲインが1.0を超えないようサチュレーションさせる
-    float totalDb = std::max(0.0f, attenuationDb + kslDb);
+    // マイナス値(+LIN, +EXP等による増幅)でも、最終ゲインが1.0を超えないようサチュレーションさせる。
+    // TL はこの totalDb に一度だけ含める。tlGain を別に掛けると TL が二重に効いてしまう。
+    //
+    // 実機のレベルスケーリングは TL(出力レベルレジスタ)から引く形で働くので、
+    // TL レジスタの全域 (tlMax × 0.75dB) より深くは減衰しない。同じ上限で頭打ちにする。
+    float maxAttenDb = (this->tlMax > 0) ? ((float)this->tlMax * 0.75f) : 95.25f;
+    float totalDb = std::clamp(attenuationDb + kslDb, 0.0f, maxAttenDb);
     float finalGain = std::pow(10.0f, -totalDb / 20.0f);
 
-    return velocity * tlGain * finalGain;
+    return velocity * finalGain;
 }
 
 void FmRgAdddr::noteOff() {

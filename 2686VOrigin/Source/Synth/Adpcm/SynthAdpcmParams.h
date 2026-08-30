@@ -12,6 +12,7 @@
 #include "../../Core/Synth/UnisonParams.h"
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 
 struct AdpcmParams
 {
@@ -19,6 +20,7 @@ struct AdpcmParams
 
     ToneNoiseParams tn;
     AmpAdsrParams adsr;
+    WtModParams wtMod;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;
     PitchAdsrParams pitchAdsr;
@@ -30,6 +32,7 @@ struct AdpcmParams
     LoopPointParams lp;
     QualityPcmParams quality;
     UnisonParams unison;
+    SsgHwEnvParams ssgHwEnv;
 
     float pan = 0.5f; // ADDED: Pan
     bool loop = false; // Default false for drums

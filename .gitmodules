@@ -4,3 +4,9 @@
 [submodule "external/vst3sdk"]
 	path = external/vst3sdk
 	url = git@github.com:steinbergmedia/vst3sdk.git
+[submodule "external/doctest"]
+	path = external/doctest
+	url = https://github.com/doctest/doctest.git
+[submodule "external/yaml-cpp"]
+	path = external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git

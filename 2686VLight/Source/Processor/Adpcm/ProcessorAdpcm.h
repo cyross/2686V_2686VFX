@@ -11,6 +11,7 @@ class AdpcmProcessor : public PrBase
     PrPtrsAdpcmBasic pBasic;
     PrPtrsQualityPcm pQuality;
     PrPtrsAdsrAmpEnv pAmpEnv;
+    PrPtrsWtMod pWtMod;
     PrPtrsPitchEnv pPitchEnv;
     PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv11 pSsgSwEnv11;
@@ -21,9 +22,12 @@ class AdpcmProcessor : public PrBase
     PrPtrsToneNoise pToneNoise;
     PrPtrsPcm pPcm;
     PrPtrsLp pLp;
+    PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsUnison pUnison;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;
-    void init(juce::AudioProcessorValueTreeState& apvts);
+    // modWaves は WT PITCH MOD の変調波形の置き場所。
+    // パラメータではなくプロセッサが持つので、ここで受け取る。
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
 };

@@ -13,7 +13,7 @@ void SsgSwEnv::prepare(int targetIndex, double sampleRate) {
 
 void SsgSwEnv::updateTargetSampleRate(double newSampleRate)
 {
-    this->sampleRate = sampleRate;
+    this->sampleRate = newSampleRate;
     this->updateIncrements();
 }
 
@@ -87,7 +87,7 @@ void SsgSwEnv::updateSampleRate(double newSampleRate) {
 }
 
 void SsgSwEnv::noteOn() {
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         this->state = State::S1;
         this->loopCounter = 0;
         this->currentLevel = this->l[0]; // Start Level から開始
@@ -101,7 +101,7 @@ void SsgSwEnv::noteOn() {
 }
 
 void SsgSwEnv::noteOff() {
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         this->state = State::S6;
         float r = std::max(0.001f, this->r[6]);
         // 現在のレベルからV6に向けて減衰・上昇する傾きを計算
@@ -121,7 +121,7 @@ float SsgSwEnv::process() {
     if (this->bypass) return 1.0f; // バイパス時は音量1.0(影響なし)を返す
     if (this->state == State::Idle) return this->currentLevel;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         auto countUpLoopCounter = [&]() {
             if (loopCount > 0) {
                 loopCounter++;

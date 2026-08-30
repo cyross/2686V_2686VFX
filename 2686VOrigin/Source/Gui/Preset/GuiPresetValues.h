@@ -39,15 +39,28 @@ namespace PresetGuiValue
 		}
 	}
 
+	namespace View
+	{
+		static inline constexpr int LabelWidth = 50;
+		static inline constexpr int Width = 110;
+		static inline constexpr int PaddingRight = 10;
+		static inline constexpr int ClearHistoryWidth = 110;
+	}
+
 	namespace Table
 	{
 		static inline constexpr float WidthRate = 0.6f;
 		static inline constexpr int PaddingWidth = 4;
 		static inline constexpr int PaddingHeight = 4;
 
+		// セルの中に置く部品まわりの余白
+		static inline constexpr int CellPadding = 2;
+
 		namespace ColWidth
 		{
+			static inline constexpr int Favourite = 36;
 			static inline constexpr int Genre = 80;
+			static inline constexpr int Format = 60;
 			static inline constexpr int FileName = 200;
 			static inline constexpr int Mode = 80;
 			static inline constexpr int PresetName = 300;

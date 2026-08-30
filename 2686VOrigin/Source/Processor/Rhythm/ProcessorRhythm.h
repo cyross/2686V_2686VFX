@@ -15,6 +15,7 @@ class RhythmProcessor : public PrBase
     std::array<PrPtrsRhythmPadBasic, RhythmPrValue::pads> pPadBasic;
     std::array<PrPtrsQualityPcm, RhythmPrValue::pads> pQuality;
     std::array<PrPtrsAdsrAmpEnv, RhythmPrValue::pads> pAmpEnv;
+    std::array<PrPtrsWtMod, RhythmPrValue::pads> pWtMod;
     std::array<PrPtrsPitchEnv, RhythmPrValue::pads> pPitchEnv;
     std::array<PrPtrsSsgSwEnv, RhythmPrValue::pads> pSsgSwEnv;
     std::array<PrPtrsSsgSwEnv11, RhythmPrValue::pads> pSsgSwEnv11;
@@ -25,8 +26,11 @@ class RhythmProcessor : public PrBase
     std::array<PrPtrsToneNoise, RhythmPrValue::pads> pToneNoise;
     std::array<PrPtrsPcm, RhythmPrValue::pads> pPcm;
     std::array<PrPtrsLp, RhythmPrValue::pads> pLp;
+    std::array<PrPtrsSsgHwEnv, RhythmPrValue::pads> pSsgHwEnv;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;
-    void init(juce::AudioProcessorValueTreeState& apvts);
+    // modWaves は WT PITCH MOD の変調波形の置き場所。
+    // パラメータではなくプロセッサが持つので、ここで受け取る。
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
 };

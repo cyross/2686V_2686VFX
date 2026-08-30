@@ -3,7 +3,9 @@
 
 #include "./KSOpl.h"
 
-const std::array<float, 4> KSOpl::dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
+// 実機 YM3812 / YMF262 の KSL レジスタは 01 と 10 が直感と逆に並んでいる。
+//   00 = 0dB/oct / 01 = 3.0dB/oct / 10 = 1.5dB/oct / 11 = 6.0dB/oct
+const std::array<float, 4> KSOpl::dbPerOcts = { 0.0f, 3.0f, 1.5f, 6.0f };
 
 KSOpl::KSOpl() {
     for (int i = 0; i < 128; i++) {
@@ -39,6 +41,6 @@ int KSOpl::calcKeyScaleRate(const int noteNumber) const {
     return  m_ksr ? keyRate : (keyRate >> 2);
 }
 
-float KSOpl::calcLevelScalingDb(const int noteNumber) const {
+float KSOpl::calcLevelScalingGain(const int noteNumber) const {
     return m_ksl > 0 ? kslAttenuations[noteNumber][m_ksl] : 1.0f;
 }

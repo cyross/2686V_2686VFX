@@ -6,6 +6,11 @@
 #include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/Opm/LfoOpm.h"
 #include "../../Processor/Opm/ProcessorOpmValues.h"
+#include "../../Generator/WtMod/GenWtModulator.h"
+#include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 
 #include "./Operator/SynthOpmOp.h"
 
@@ -25,16 +30,7 @@ public:
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 
     // ユニゾン・ハーモニー用
-    void setUnisonParams(int index, int total, float detune, float spread) {
-        m_unisonIndex = index;
-        m_unisonTotal = total;
-        m_unisonDetuneAmt = detune;
-        m_unisonSpreadAmt = spread;
-
-        // ユニゾンのインデックスに応じて位相を均等にずらす (0.0 〜 1.0)
-        // (例: 3ボイスなら 0.0, 0.33, 0.66)
-        m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
-    }
+    // ユニゾン・ハーモニーは SynthCore::m_unison に集約
 
     struct AlgRouting {
         std::array<float, OpmPrValue::ops> out;                // 最終出力へのミックス割合
@@ -69,9 +65,10 @@ public:
         // Fold Expression を用いて関数呼び出しをベタ書き展開する
         (processSingleOperator<Is>(currentOut, finalOut), ...);
     }
-private:
+
     static const std::array<AlgRouting, OpmPrValue::algorithms> routings;
     std::array<OpRoutingConfig, OpmPrValue::ops> m_activeRoutings;
+private:
     std::array<OpmOperator, OpmPrValue::ops> m_operators;
     std::array<bool, OpmPrValue::ops> m_opMask{ false };
     std::array<float, OpmPrValue::ops> m_history1 = { 0.0f };
@@ -79,6 +76,38 @@ private:
 
     LfsrNoiseGen m_noiseGen;
     OpmLfoCore m_lfo;
+
+    // チップ全体へ掛かる AMP ENV。オペレータごとのエンベロープとは別に、
+    // 出力段でもう一段掛ける。level は次のサンプルへ持ち越す。
+    AmpAdsrEnv m_ampEnvG;
+    float m_ampEnvGLevel = 0.0f;
+
+    SsgHwEnv m_ssgHwEnv;
+    SsgSwEnv11 m_ssgSwEnv11g;
+
+    // チップ全体へ掛かるピッチ側。オペレータは m_globalPitchRatio を
+    // 参照しているので、ここを毎サンプル更新すれば全オペレータへ届く。
+    SsgSwPEnv11 m_ssgSwPEnv11g;
+    float m_globalPitchRatio = 1.0f;
+
+    // チップ全体へ掛かる MODULATION。変調速度は搬送波との比なので、
+    // 発音中のノートの位相増分を渡す。
+    WtModulator m_wtMod;
+    float m_noteFreq = 440.0f;
+
+    // チップ全体のピッチ倍率を 1 サンプルぶん進める
+    inline void updateGlobalPitchRatio(float notePhaseDelta) {
+        float ratio = m_wtMod.process(notePhaseDelta);
+
+        if (!m_ssgSwPEnv11g.isBypass()) {
+            ratio *= m_ssgSwPEnv11g.process(1.0f);
+        }
+        else {
+            if (m_ssgSwPEnv11g.isRelease()) m_ssgSwPEnv11g.bypassedReleasedProcess();
+        }
+
+        m_globalPitchRatio = ratio;
+    }
 
     int m_cachedAlgorithm = -1;
     void updateRoutingCache();
@@ -103,9 +132,4 @@ private:
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
-    int m_unisonIndex = 0;
-    int m_unisonTotal = 1;
-    float m_unisonDetuneAmt = 0.0f;
-    float m_unisonSpreadAmt = 0.0f;
-    float m_unisonPhaseOffset = 0.0f;
 };

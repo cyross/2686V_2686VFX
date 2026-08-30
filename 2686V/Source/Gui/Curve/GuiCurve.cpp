@@ -1,5 +1,6 @@
 ﻿#include <vector>
 
+#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiCurve.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
@@ -11,6 +12,14 @@
 #include "./GuiCurveValues.h"
 #include "./GuiCurveText.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "../../Core/Io/ParamFile.h"
+#include "../../Core/Gui/GuiRefresh.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat curveFormat{ "curve", 1 };
+}
 
 static std::vector<SelectItem> positionItems = {
     {.name = "Common", .value = 1 },
@@ -535,6 +544,10 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     const int graphWidth = 400;
     const int graphHeight = 400;
     auto pageArea = content.withZeroOrigin();
+
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
     int t = target.getSelectedItemIndex();
     int vpLen = paramLengthes[t];
     int px = CurveGuiValue::CurveGroup::Row::Padding::x;
@@ -572,7 +585,7 @@ void GuiCurve::layout(juce::Rectangle<int> content)
 
     curveGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
-    juce::Rectangle<int> mRect(0, 0, curveGroup.viewport.getMaximumVisibleWidth(), scrollHeight);
+    juce::Rectangle<int> mRect(0, 0, curveGroup.getContentWidth(), scrollHeight);
 
     auto layoutValue = [this, titleWidth, valueWidth, lw, px, py](juce::Rectangle<int>& valueArea, int valNum, int vp, int vv) {
         auto vvRect = valueArea.removeFromTop(CurveGuiValue::CurveGroup::Row::height);
@@ -647,7 +660,7 @@ void GuiCurve::initParams()
 void GuiCurve::importCurveParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultCurveParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     int posIndex = position.getSelectedItemIndex();
@@ -660,7 +673,7 @@ void GuiCurve::importCurveParam() {
 
     juce::String ext = posExt + "_" + targetExt;
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importCurveParamFile, defaultDir, Io::ExtensionGlob::curveParam + ext);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importCurveParamFile, defaultDir, Io::openGlob(Io::Extension::curveParam + ext));
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -669,33 +682,57 @@ void GuiCurve::importCurveParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
 
-                int size = lines.size();
-                int index = 0;
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingCurveParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(curveFormat);
+
+                    writeCurveParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, curveFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
 
                 int p = position.getSelectedItemIndex();
                 int t = target.getSelectedItemIndex();
                 int vpLen = paramLengthes[t];
 
-                // 現在表示中の Position と Target に該当するパラメータ群のみ復元
+                // 今出している Position と Target のぶんだけ戻す。
+                // パラメータごとに入れ子で持つので、数が違っても後ろがずれない。
                 for (int vp = 0; vp < vpLen; vp++) {
-                    if (index < size) {
-                        int logicVal = lines[index++].getIntValue();
-                        ctx.audioProcessor.prCurve.setLogic(p, t, vp, logicVal);
-                    }
-                    if (index < size) {
-                        float kVal = lines[index++].getFloatValue();
-                        ctx.audioProcessor.prCurve.setK(p, t, vp, kVal);
-                    }
+                    auto item = reader->arrayItem("params", vp);
 
-                    // Value配列は使われていない分も含め、常に最大要素数(16)分を安全に読み込む
-                    for (int vv = 0; vv < CurvePrValue::values; vv++) {
-                        if (index < size) {
-                            float val = lines[index++].getFloatValue();
-                            ctx.audioProcessor.prCurve.setValue(p, t, vp, vv, val);
-                        }
+                    ctx.audioProcessor.prCurve.setLogic(p, t, vp,
+                        item.getInt("logic", ctx.audioProcessor.prCurve.getLogic(p, t, vp)));
+                    ctx.audioProcessor.prCurve.setK(p, t, vp,
+                        item.getFloat("k", ctx.audioProcessor.prCurve.getK(p, t, vp)));
+
+                    auto values = item.getFloatArray("values");
+
+                    for (int vv = 0; vv < CurvePrValue::values && vv < (int)values.size(); vv++) {
+                        ctx.audioProcessor.prCurve.setValue(p, t, vp, vv, values[(size_t)vv]);
                     }
                 }
 
@@ -713,7 +750,7 @@ void GuiCurve::importCurveParam() {
 void GuiCurve::exportCurveParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultCurveParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     int posIndex = position.getSelectedItemIndex();
@@ -726,7 +763,7 @@ void GuiCurve::exportCurveParam() {
 
     juce::String ext = posExt + "_" + targetExt;
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default." + Io::Extension::curveParam + ext), Io::ExtensionGlob::curveParam + ext);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::curveParam + ext)), Io::saveGlob(Io::Extension::curveParam + ext));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -735,23 +772,77 @@ void GuiCurve::exportCurveParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(curveFormat);
+                writeCurveParams(writer);
 
-                int p = position.getSelectedItemIndex();
-                int t = target.getSelectedItemIndex();
-                int vpLen = paramLengthes[t];
-
-                // 現在表示中の Position と Target に該当するパラメータ群のみ保存
-                for (int vp = 0; vp < vpLen; vp++) {
-                    content += juce::String(ctx.audioProcessor.prCurve.getLogic(p, t, vp)) + "\n";
-                    content += juce::String(ctx.audioProcessor.prCurve.getK(p, t, vp), Global::floatDecimalPlaces) + "\n";
-
-                    for (int vv = 0; vv < CurvePrValue::values; vv++) {
-                        content += juce::String(ctx.audioProcessor.prCurve.getValue(p, t, vp, vv), Global::floatDecimalPlaces) + "\n";
-                    }
-                }
-
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiCurve::setImportingCurveParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	int p = position.getSelectedItemIndex();
+	int t = target.getSelectedItemIndex();
+	int vpLen = paramLengthes[t];
+
+	// 現在表示中の Position と Target に該当するパラメータ群のみ復元
+	for (int vp = 0; vp < vpLen; vp++) {
+	    if (index < size) {
+	        int logicVal = lines[index++].getIntValue();
+	        ctx.audioProcessor.prCurve.setLogic(p, t, vp, logicVal);
+	    }
+	    if (index < size) {
+	        float kVal = lines[index++].getFloatValue();
+	        ctx.audioProcessor.prCurve.setK(p, t, vp, kVal);
+	    }
+
+	    // Value配列は使われていない分も含め、常に最大要素数(16)分を安全に読み込む
+	    for (int vv = 0; vv < CurvePrValue::values; vv++) {
+	        if (index < size) {
+	            float val = lines[index++].getFloatValue();
+	            ctx.audioProcessor.prCurve.setValue(p, t, vp, vv, val);
+	        }
+	    }
+	}
+
+	// プロセッサ側でカーブ計算を再実行し、コアに反映
+	ctx.audioProcessor.bakeCurves();
+	ctx.audioProcessor.getCurveCore()->setParameters(ctx.audioProcessor.prCurve.m_curveParams);
+
+	// GUIのコンポーネント（スライダーや表示状態）を最新値に更新
+	updateVisible();
+	ctx.editor.resized();
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiCurve::writeCurveParams(Io::ParamWriter& writer) {
+	int p = position.getSelectedItemIndex();
+	int t = target.getSelectedItemIndex();
+	int vpLen = paramLengthes[t];
+
+	// 今出している Position と Target のぶんだけ書く
+	for (int vp = 0; vp < vpLen; vp++) {
+	    auto item = writer.arrayItem("params", vp);
+
+	    item.set("logic", ctx.audioProcessor.prCurve.getLogic(p, t, vp));
+	    item.set("k", ctx.audioProcessor.prCurve.getK(p, t, vp));
+
+	    std::vector<float> values;
+
+	    for (int vv = 0; vv < CurvePrValue::values; vv++) {
+	        values.push_back(ctx.audioProcessor.prCurve.getValue(p, t, vp, vv));
+	    }
+
+	    item.setArray("values", values);
+	}
+
+	
 }

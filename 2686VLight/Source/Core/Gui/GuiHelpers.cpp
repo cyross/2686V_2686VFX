@@ -137,7 +137,35 @@ void layoutRow(const RowConfig& c)
 
 void layoutMainCategory(const MainConfigCategory& c)
 {
+    // 見出しは label と component のどちらで渡ってくることもある
+    auto* asComponent = (c.label != nullptr) ? static_cast<juce::Component*>(c.label) : c.component;
+    auto* category = dynamic_cast<GuiCategoryLabel*>(asComponent);
+
+    const int pad = GuiCategoryLabel::contentPadding;
+
+    if (category != nullptr) {
+        // 1 つ前に開いたカテゴリの板を、この見出しの手前で閉じる。
+        // 閉じたときだけ、その中身のために内側へ寄せていた幅を元に戻す。
+        if (GuiCategoryLabel::closePending(category->getParentComponent(), c.mainRect.getY())) {
+            c.mainRect.setX(c.mainRect.getX() - pad);
+            c.mainRect.setWidth(c.mainRect.getWidth() + pad * 2);
+        }
+    }
+
     layoutRow(c.mainRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+
+    if (category != nullptr) {
+        // 畳んでいるときもここを通す。beginBackdrop の中で板を隠すため、
+        // 通さないと前回開いていたときの板が出たままになる。
+        category->beginBackdrop(c.mainRect);
+
+        if (category->isOpen()) {
+            // 中身は板の内側へ寄せる。次の見出しの手前で元に戻す。
+            c.mainRect.setX(c.mainRect.getX() + pad);
+            c.mainRect.setWidth(c.mainRect.getWidth() - pad * 2);
+            c.mainRect.removeFromTop(pad);
+        }
+    }
 }
 
 void layoutMainParamName(const MainConfigParamName& c)
@@ -147,7 +175,35 @@ void layoutMainParamName(const MainConfigParamName& c)
 
 void layoutRowCategory(const RowConfigCategory& c)
 {
+    // 見出しは label と component のどちらで渡ってくることもある
+    auto* asComponent = (c.label != nullptr) ? static_cast<juce::Component*>(c.label) : c.component;
+    auto* category = dynamic_cast<GuiCategoryLabel*>(asComponent);
+
+    const int pad = GuiCategoryLabel::contentPadding;
+
+    if (category != nullptr) {
+        // 1 つ前に開いたカテゴリの板を、この見出しの手前で閉じる。
+        // 閉じたときだけ、その中身のために内側へ寄せていた幅を元に戻す。
+        if (GuiCategoryLabel::closePending(category->getParentComponent(), c.rowRect.getY())) {
+            c.rowRect.setX(c.rowRect.getX() - pad);
+            c.rowRect.setWidth(c.rowRect.getWidth() + pad * 2);
+        }
+    }
+
     layoutRow(c.rowRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+
+    if (category != nullptr) {
+        // 畳んでいるときもここを通す。beginBackdrop の中で板を隠すため、
+        // 通さないと前回開いていたときの板が出たままになる。
+        category->beginBackdrop(c.rowRect);
+
+        if (category->isOpen()) {
+            // 中身は板の内側へ寄せる。次の見出しの手前で元に戻す。
+            c.rowRect.setX(c.rowRect.getX() + pad);
+            c.rowRect.setWidth(c.rowRect.getWidth() - pad * 2);
+            c.rowRect.removeFromTop(pad);
+        }
+    }
 }
 
 void layoutRowOneComp(const RowConfigOneComp& c)
@@ -297,6 +353,46 @@ void layoutRowSixComps(const RowConfigSixComps& c)
     area.removeFromLeft(c.compPaddingInner);
 
     c.comp6->setBounds(area.removeFromLeft(cWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}
+
+// パラメータグループに7つのコンポーネントを均等に貼り付け
+void layoutRowSevenComps(const RowConfigSevenComps& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 6) / 7 : c.compWidth;
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    area.removeFromLeft(c.compPaddingLeft);
+
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp4->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp5->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp6->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp7->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -457,6 +553,46 @@ void layoutMainSixComps(const MainConfigSixComps& c)
     c.rect.removeFromTop(c.paddingBottom);
 }
 
+// メイングループに7つのコンポーネントを均等に貼り付け
+void layoutMainSevenComps(const MainConfigSevenComps& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 6) / 7 : c.compWidth;
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    area.removeFromLeft(c.compPaddingLeft);
+
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp4->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp5->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp6->setBounds(area.removeFromLeft(cWidth));
+
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp7->setBounds(area.removeFromLeft(cWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}
+
 // メイングループに3つのコンポーネントを均等に貼り付け
 void layoutMainFxOrder(const MainConfigFxOrder& c)
 {
@@ -501,6 +637,56 @@ void layoutMainViewMode(const MainConfigViewMode& c)
     area.removeFromRight(c.compPaddingRight);
 
     c.label.setBounds(area);
+
+    c.rect.removeFromTop(c.paddingBottom);
+}
+
+void layoutRowWtFiles(const RowConfigWtFiles& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    c.loadWtBtn->setBounds(area.removeFromLeft(c.loadBtnWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    c.loadWt2Btn->setBounds(area.removeFromLeft(c.loadBtnWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    int fileNameLabelWidth = area.getWidth() - c.paddingRight - c.clearBtnWidth;
+
+    c.fileNameLabel->setBounds(area.removeFromLeft(fileNameLabelWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    c.clearBtn->setBounds(area.removeFromLeft(c.clearBtnWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}
+
+void layoutMainWtFiles(const MainConfigWtFiles& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    c.loadWtBtn->setBounds(area.removeFromLeft(c.loadBtnWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    c.loadWt2Btn->setBounds(area.removeFromLeft(c.loadBtnWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    int fileNameLabelWidth = area.getWidth() - c.paddingRight - c.clearBtnWidth;
+
+    c.fileNameLabel->setBounds(area.removeFromLeft(fileNameLabelWidth));
+
+    area.removeFromLeft(c.paddingRight);
+
+    c.clearBtn->setBounds(area.removeFromLeft(c.clearBtnWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }

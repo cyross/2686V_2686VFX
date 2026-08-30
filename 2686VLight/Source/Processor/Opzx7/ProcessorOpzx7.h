@@ -11,9 +11,14 @@
 class Opzx7Processor : public PrBase
 {
     PrPtrsOpzx7Basic pBasic;
-    PrPtrsAlgFb pAlgFb;
+    PrPtrsOpzx7AlgFb pAlgFb;
     PrPtrsQuality pQuality;
     PrPtrsOpzx7Lfo pOpzx7Lfo;
+    PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsAdsrAmpEnv pAmpEnvG;
+    PrPtrsWtMod pWtMod;
+    PrPtrsSsgSwEnv11 pSsgSwEnv11g;
+    PrPtrsSsgSwPEnv11 pSsgSwPEnv11g;
     PrPtrsPanpot pPanpot;
     PrPtrsUnison pUnison;
     std::array<PrPtrsOpzx7Detune, Opzx7PrValue::ops> pOpzx7Detune;
@@ -32,5 +37,7 @@ class Opzx7Processor : public PrBase
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;
-    void init(juce::AudioProcessorValueTreeState& apvts);
+    // modWaves は WT PITCH MOD の変調波形の置き場所。
+    // パラメータではなくプロセッサが持つので、ここで受け取る。
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
 };

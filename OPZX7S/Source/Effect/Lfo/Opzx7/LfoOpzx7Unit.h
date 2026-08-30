@@ -27,6 +27,7 @@ class Opzx7LfoCoreUnit {
 	uint32_t m_sdCycleCount = 0;
 
 	float m_currentNoiseSample = 0.0f;
+	float m_currentHoldingSample = 0.0f;
 
 	LfsrNoiseGen m_noiseGen;
 

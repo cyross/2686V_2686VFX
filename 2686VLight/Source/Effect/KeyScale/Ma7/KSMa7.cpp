@@ -4,7 +4,9 @@
 #include "./KSMa7.h"
 
 // KSLの減衰カーブ定義 (MA-7用: 4段階)
-const std::array<float, 4> KSMa7::m_dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
+// MA-3/MA-5/MA-7 は OPL 系の派生なので、KSL のレジスタ順も OPL と同じく
+//   00 = 0dB/oct / 01 = 3.0dB/oct / 10 = 1.5dB/oct / 11 = 6.0dB/oct
+const std::array<float, 4> KSMa7::m_dbPerOcts = { 0.0f, 3.0f, 1.5f, 6.0f };
 
 KSMa7::KSMa7() {
     for (int i = 0; i < 128; i++) {

@@ -9,8 +9,7 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
 {
     cat.setupOtherCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- MIDI ---",
-        .invisibleTitle = juce::String("") + "[□]--- MIDI ---",
+        .title = juce::String("") + "MIDI",
         .enableChangeDetailVisible = true
         });
 
@@ -104,6 +103,8 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &monoButton });
         layoutMain({ .mainRect = rect, .component = &polyButton });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -132,6 +133,8 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
 
         layoutRow({ .rowRect = rect, .component = &monoButton });
         layoutRow({ .rowRect = rect, .component = &polyButton });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 

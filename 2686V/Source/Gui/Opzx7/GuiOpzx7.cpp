@@ -1,6 +1,22 @@
 ﻿#include <vector>
 
+#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpzx7.h"
+
+#include "../../Core/Gui/GuiRefresh.h"
+
+#include "../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat qualityFormat{ "quality", 1 };
+	const Io::ParamFormat opzx7Format{ "opzx7", 1 };
+	const Io::ParamFormat opzx7OpFormat{ "opzx7Op", 1 };
+	const Io::ParamFormat pcmPlayFormat{ "pcmPlay", 1 };
+}
+
+#include "../Components/WavePreview/WavePreviewSource.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
@@ -303,7 +319,7 @@ static std::vector<SelectItem> ksCurveItems = {
 };
 
 static std::vector<SelectItem> algModeItems = {
-    {.name = juce::String("") + "0: 従来のアルゴリズム", .value = 1 },
+    {.name = juce::String("") + "0: 組み込みアルゴリズム", .value = 1 },
     {.name = juce::String("") + "1: アルゴリズムマトリックス", .value = 2 }
 };
 
@@ -314,12 +330,27 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     viewModeComp(context),
     algFbCat(context),
     algModeSelector(context),
-    algMatrixComp(context),
+    algMatrixComp(context, Opzx7PrValue::ops), // 引数でオペレータ数を渡す
     levelComponent(context),
     qualityComponent(context),
     algSelector(context),
     algFbSep(context),
-    feedbackSlider(context),
+    feedback1Slider(context),
+    feedback1Nudge(context),
+    feedback2Slider(context),
+    feedback2Nudge(context),
+    feedback3Slider(context),
+    feedback3Nudge(context),
+    feedback4Slider(context),
+    feedback4Nudge(context),
+    feedback5Slider(context),
+    feedback5Nudge(context),
+    feedback6Slider(context),
+    feedback6Nudge(context),
+    feedback7Slider(context),
+    feedback7Nudge(context),
+    feedback8Slider(context),
+    feedback8Nudge(context),
     panCat(context),
     panpotEnableToggle(context),
     panpotSlider(context),
@@ -327,6 +358,11 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     panToCBtn(context),
     panToRBtn(context),
     glLfo(context),
+    ampEnvComponent(context),
+    modComponent(context),
+    ssgHwEnv(context),
+    ssgSwEnv11g(context),
+    ssgSwPEnv11g(context),
     unisonComponent(context),
     utilityCat(context),
     broadcastLevelButton(context),
@@ -345,6 +381,11 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
 	ieOpChParam(context),
     targerOpSlider(context),
     uSep003(context),
+    ieAmpEnvG(context),
+    ieSsgHwEnv(context),
+    ieWtMod(context),
+    ieSsgSwEnv11(context),
+    ieSsgSwPEnv11g(context),
     ieLfo(context),
     ieUnison(context),
     ieQuality(context),
@@ -377,6 +418,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     catWaveShape{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
     ws{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
     wsSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
+    wsPreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
     loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
@@ -416,6 +458,11 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     midiComponent(context),
+    gGraph(),
+    gGraphBtnAmp(context),
+    gGraphBtnSsg11(context),
+    gGraphBtnSsgP11(context),
+    gGraphSeparator(context),
     graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -475,6 +522,7 @@ void GuiOpzx7::setup()
 
     mainGroup.contentCanvas.addAndMakeVisible(&algMatrixComp);
     mainGroup.contentCanvas.addAndMakeVisible(&algGraphComp);
+    mainGroup.contentCanvas.addAndMakeVisible(&algStaticGraphComp);
 
     AlgMatrixState initialState = ctx.audioProcessor.getOpzx7AlgMatrix();
     algMatrixComp.setState(initialState);
@@ -484,6 +532,8 @@ void GuiOpzx7::setup()
         algGraphComp.updateState(state);
 
         ctx.audioProcessor.setOpzx7AlgMatrix(state);
+
+        updateAlgorithmMatrixDisplay();
         };
 
     algSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::alg, .title = Opzx7GuiText::Fm::alg, .items = opzx7AlgItems, .isReset = true });
@@ -495,11 +545,39 @@ void GuiOpzx7::setup()
 
     algFbSep.setupComponent(mainGroup.contentCanvas);
 
-    feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb, .title = Opzx7GuiText::Fm::fb, .isReset = true });
-    feedbackSlider.setWantsKeyboardFocus(true);
-    feedbackSlider.setExplicitFocusOrder(++tabOrder);
+    feedback1Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb1, Opzx7GuiText::Fm::fb + "1", tabOrder, std::nullopt);
 
-    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::visiblePanpot, .invisibleTitle = Opzx7GuiText::Category::invisiblePanpot , .enableChangeDetailVisible = true });
+    feedback1Nudge.setupComponent(mainGroup.contentCanvas, feedback1Slider.getSlider(), tabOrder);
+
+    feedback2Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb2, Opzx7GuiText::Fm::fb + "2", tabOrder, std::nullopt);
+
+    feedback2Nudge.setupComponent(mainGroup.contentCanvas, feedback2Slider.getSlider(), tabOrder);
+
+    feedback3Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb3, Opzx7GuiText::Fm::fb + "3", tabOrder, std::nullopt);
+
+    feedback3Nudge.setupComponent(mainGroup.contentCanvas, feedback3Slider.getSlider(), tabOrder);
+
+    feedback4Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb4, Opzx7GuiText::Fm::fb + "4", tabOrder, std::nullopt);
+
+    feedback4Nudge.setupComponent(mainGroup.contentCanvas, feedback4Slider.getSlider(), tabOrder);
+
+    feedback5Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb5, Opzx7GuiText::Fm::fb + "5", tabOrder, std::nullopt);
+
+    feedback5Nudge.setupComponent(mainGroup.contentCanvas, feedback5Slider.getSlider(), tabOrder);
+
+    feedback6Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb6, Opzx7GuiText::Fm::fb + "6", tabOrder, std::nullopt);
+
+    feedback6Nudge.setupComponent(mainGroup.contentCanvas, feedback6Slider.getSlider(), tabOrder);
+
+    feedback7Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb7, Opzx7GuiText::Fm::fb + "7", tabOrder, std::nullopt);
+
+    feedback7Nudge.setupComponent(mainGroup.contentCanvas, feedback7Slider.getSlider(), tabOrder);
+
+    feedback8Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb8, Opzx7GuiText::Fm::fb + "8", tabOrder, std::nullopt);
+
+    feedback8Nudge.setupComponent(mainGroup.contentCanvas, feedback8Slider.getSlider(), tabOrder);
+
+    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::panpot, .enableChangeDetailVisible = true });
 
     panpotEnableToggle.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::panpot_en, .title = Opzx7GuiText::Fm::panpotEnable, .isReset = true });
     panpotEnableToggle.setWantsKeyboardFocus(true);
@@ -535,11 +613,19 @@ void GuiOpzx7::setup()
 
     glLfo.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
+    ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
+    ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");
+
+    setupGlobalGraph();
+
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::visibleUtil, .invisibleTitle = Opzx7GuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
@@ -636,13 +722,16 @@ void GuiOpzx7::setup()
     targerOpSlider.setWantsKeyboardFocus(true);
     targerOpSlider.setExplicitFocusOrder(++tabOrder);
 
-    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
-    ieLfo.onClickImport = [this] { importLfoParam(); };
-    ieLfo.onClickExport = [this] { exportLfoParam(); };
+    ieAmpEnvG.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
+    ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
 
-    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] { importUnisonParam(); };
-    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
+    ieSsgSwPEnv11g.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11g);
+
+    ieLfo.setupComponentFor(mainGroup.contentCanvas, tabOrder, "LFO", glLfo);
+
+    ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
     ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
     ieQuality.onClickImport = [this] { importQualityParam(); };
@@ -659,21 +748,6 @@ void GuiOpzx7::setup()
         ctx.editor.resized();
         };
 
-    auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-
-    for (int i = 0; i < Opzx7PrValue::algorithms; ++i)
-    {
-        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPZX7_%03d.png", i);
-        auto imgFile = docDir.getChildFile(fileName);
-
-        if (imgFile.existsAsFile()) {
-            algImages[i] = juce::ImageFileFormat::loadFrom(imgFile);
-        }
-    }
-
-    // 画像コンポーネントを画面に追加
-    mainGroup.contentCanvas.addAndMakeVisible(algImageComp);
-
     // Operators
     const juce::String opCode = code + CPK::op;
 
@@ -685,7 +759,7 @@ void GuiOpzx7::setup()
 
         mulDetune[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, true);
 
-        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleAmpEnv, .invisibleTitle = Opzx7GuiText::Category::invisibleAmpEnv, .detailVisible = true, .enableChangeDetailVisible = true });
+        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::ampEnv, .detailVisible = true, .enableChangeDetailVisible = true });
 
         rgEn[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgEn, .title = Opzx7GuiText::Fm::Op::RgEn, .isReset = true });
         rgEn[i].setWantsKeyboardFocus(true);
@@ -745,7 +819,7 @@ void GuiOpzx7::setup()
         tl[i].setWantsKeyboardFocus(true);
         tl[i].setExplicitFocusOrder(++tabOrder);
 
-        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleKs, .invisibleTitle = Opzx7GuiText::Category::invisibleKs, .enableChangeDetailVisible = true });
+        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::ks, .enableChangeDetailVisible = true });
 
         ksEn[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ksEn, .title = Opzx7GuiText::Fm::Op::KsEn, .isReset = true });
         ksEn[i].setWantsKeyboardFocus(true);
@@ -812,7 +886,7 @@ void GuiOpzx7::setup()
         kor[i].setWantsKeyboardFocus(true);
         kor[i].setExplicitFocusOrder(++tabOrder);
 
-        catWaveShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleWaveShape, .invisibleTitle = Opzx7GuiText::Category::invisibleWaveShape, .enableChangeDetailVisible = true });
+        catWaveShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::waveShape, .enableChangeDetailVisible = true });
 
         ws[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ws, .title = Opzx7GuiText::Fm::Op::Ws, .items = opzx7WsItems, .isReset = true });
         ws[i].setWantsKeyboardFocus(true);
@@ -824,6 +898,8 @@ void GuiOpzx7::setup()
             };
 
         wsSeparator[i].setupComponent(opGroups[i].contentCanvas);
+
+        wsPreview[i].setup(opGroups[i].contentCanvas, GuiColor::WavePreview::WaveMemory);
 
         loadPcmBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::Pcm, .isReset = false, .isResized = true });
         loadPcmBtn[i].setWantsKeyboardFocus(true);
@@ -882,6 +958,15 @@ void GuiOpzx7::setup()
         loopPointEnd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::lpEnd, .title = Opzx7GuiText::Fm::Op::loopPointEnd, .isReset = true });
         loopPointEnd[i].setWantsKeyboardFocus(true);
         loopPointEnd[i].setExplicitFocusOrder(++tabOrder);
+
+        // 切り出しとループの設定が変わったら、プレビューも合わせる
+        auto refreshWsPreview = [this, i]() { this->updateWsPreview(i); };
+
+        pcmOffset[i].onValueChange = refreshWsPreview;
+        pcmRatio[i].onValueChange = refreshWsPreview;
+        loopPointStart[i].onValueChange = refreshWsPreview;
+        loopPointEnd[i].onValueChange = refreshWsPreview;
+        loopPointEnable[i].onStateChange = refreshWsPreview;
 
         loadWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT", .isReset = false, .isResized = true });
         loadWtBtn[i].setWantsKeyboardFocus(true);
@@ -957,13 +1042,13 @@ void GuiOpzx7::setup()
             updateWt2FileName(i, juce::File(ctx.audioProcessor.opzx7Wt2FilePaths[i]).getFileName());
         }
 
-        catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleOptional, .invisibleTitle = Opzx7GuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+        catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::optional, .enableChangeDetailVisible = true });
 
         bypass[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::bypass, .title = Opzx7GuiText::Fm::Op::bypass, .isReset = true });
         bypass[i].setWantsKeyboardFocus(true);
         bypass[i].setExplicitFocusOrder(++tabOrder);
 
-        catSsgEnv[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleSsgEnv, .invisibleTitle = Opzx7GuiText::Category::invisibleSsgEnv, .enableChangeDetailVisible = true });
+        catSsgEnv[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::ssgEnv, .enableChangeDetailVisible = true });
 
         se[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::se, .title = Opzx7GuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
         se[i].setWantsKeyboardFocus(true);
@@ -985,7 +1070,7 @@ void GuiOpzx7::setup()
 
         fix[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, Opzx7GuiText::Fm::Op::Opzx7FreqTo440, 440);
 
-        catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleMask, .invisibleTitle = Opzx7GuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
+        catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::mask, .enableChangeDetailVisible = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::mask, .title = Opzx7GuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);
@@ -1011,6 +1096,10 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
 
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
+
     auto mainArea = pageArea.removeFromLeft(Opzx7GuiValue::MainGroup::width);
     mainArea.removeFromBottom(40);
     mainGroup.setBounds(mainArea);
@@ -1019,6 +1108,11 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     presetName.layoutComponent(mmRect);
 
+    // グラフはスクロールさせない固定ヘッダに置く。
+    // 他のチャンネルやオペレータと同じく、プリセット名の下に来る。
+    layoutGlobalGraph(mmRect);
+    updateGlobalGraph();
+
     viewModeComp.layoutComponent(mmRect);
 
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
@@ -1026,10 +1120,11 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     levelComponent.layoutComponent(mRect);
 
+    layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
 
     layoutMain({ .mainRect = mRect, .label = &algModeSelector.label, .component = &algModeSelector });
 
@@ -1040,24 +1135,30 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         algMatrixComp.setVisible(false);
         algGraphComp.setVisible(false);
         algSelector.setVisibleWithLabel(true);
-        algImageComp.setVisible(true);
+        algStaticGraphComp.setVisible(true);
 
         layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
         mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
-        auto imgArea = mRect.removeFromTop(120);
-        algImageComp.setBounds(imgArea);
+        auto graphArea = mRect.removeFromTop(260); // 描画領域確保
+        algStaticGraphComp.setBounds(graphArea.reduced(10));
     }
     else {
         // マトリックスモード
         algSelector.setVisibleWithLabel(false);
-        algImageComp.setVisible(false);
+        algStaticGraphComp.setVisible(false);
         algMatrixComp.setVisible(true);
         algGraphComp.setVisible(true);
 
         mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
 
-        auto matrixArea = mRect.removeFromTop(320);
-        algMatrixComp.setBounds(matrixArea);
+        // マトリックスが必要とする高さぶんだけ取る。
+        // 固定値で取ると下に余白が残り、グラフとの間が空きすぎる。
+        auto matrixArea = mRect.removeFromTop(algMatrixComp.getNaturalHeight());
+
+        // マトリックスは固定寸法なので、部品ごとグループの中央へ置く。
+        // 中で座標をずらすと本体と枠がばらばらに動いてしまう。
+        algMatrixComp.setBounds(matrixArea.withSizeKeepingCentre(
+            algMatrixComp.getNaturalWidth(), matrixArea.getHeight()));
 
         auto graphArea = mRect.removeFromTop(260);
         algGraphComp.setBounds(graphArea.reduced(10));
@@ -1065,7 +1166,38 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     algFbSep.layoutComponent(mRect);
 
-    layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
+    feedback1Slider.layoutComponent(mRect);
+    feedback1Nudge.setVisibles(feedback1Slider.isVisibleNudge());
+    if (feedback1Slider.isVisibleNudge()) feedback1Nudge.layoutComponent(mRect);
+    feedback2Slider.layoutComponent(mRect);
+    feedback2Nudge.setVisibles(feedback2Slider.isVisibleNudge());
+    if (feedback2Slider.isVisibleNudge()) feedback2Nudge.layoutComponent(mRect);
+    feedback3Slider.layoutComponent(mRect);
+    feedback3Nudge.setVisibles(feedback3Slider.isVisibleNudge());
+    if (feedback3Slider.isVisibleNudge()) feedback3Nudge.layoutComponent(mRect);
+    feedback4Slider.layoutComponent(mRect);
+    feedback4Nudge.setVisibles(feedback4Slider.isVisibleNudge());
+    if (feedback4Slider.isVisibleNudge()) feedback4Nudge.layoutComponent(mRect);
+    feedback5Slider.layoutComponent(mRect);
+    feedback5Nudge.setVisibles(feedback5Slider.isVisibleNudge());
+    if (feedback5Slider.isVisibleNudge()) feedback5Nudge.layoutComponent(mRect);
+    feedback6Slider.layoutComponent(mRect);
+    feedback6Nudge.setVisibles(feedback6Slider.isVisibleNudge());
+    if (feedback6Slider.isVisibleNudge()) feedback6Nudge.layoutComponent(mRect);
+    feedback7Slider.layoutComponent(mRect);
+    feedback7Nudge.setVisibles(feedback7Slider.isVisibleNudge());
+    if (feedback7Slider.isVisibleNudge()) feedback7Nudge.layoutComponent(mRect);
+    feedback8Slider.layoutComponent(mRect);
+    feedback8Nudge.setVisibles(feedback8Slider.isVisibleNudge());
+    if (feedback8Slider.isVisibleNudge()) feedback8Nudge.layoutComponent(mRect);
+
+    mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
+
+    ampEnvComponent.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
+    ssgHwEnv.layoutComponent(mRect);
+    ssgSwEnv11g.layoutComponent(mRect);
+    ssgSwPEnv11g.layoutComponent(mRect);
 
     layoutPanpotCat(mRect);
 
@@ -1164,7 +1296,7 @@ void GuiOpzx7::layoutOp(int opIndex, int width, juce::Rectangle<int>& rect) {
     opGroups[opIndex].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> innerRect(0, 0, opGroups[opIndex].viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> innerRect(0, 0, opGroups[opIndex].getContentWidth(), 2000);
 
     bool rgMode = rgEn[opIndex].getToggleState();
     int selectedWs = ws[opIndex].getSelectedItemIndex();
@@ -1444,8 +1576,52 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     graphSeparator[idx].setEnabled(enable);
 }
 
+// 選んでいる WS の波形を折れ線にする。
+// 描画のたびに計算すると重いので、形が変わったときだけここを通す。
+void GuiOpzx7::updateWsPreview(int opIndex)
+{
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す。
+    // オペレータごとに別々に溜まるよう、番号を目印に混ぜる。
+    if (GuiRefresh::defer((const char*)this + opIndex, [this, opIndex] { updateWsPreview(opIndex); })) return;
+
+    if (opIndex < 0 || opIndex >= Opzx7PrValue::ops) return;
+
+    // 波形メモリと PCM は未読込なら空。音源側と同じくサイン波になる。
+    // PCM のときだけ P.OF / P.RT で切り出す範囲が変わるので、一緒に渡す。
+    wsPreview[opIndex].setPoints(
+        WavePreviewSource::opzx7Ws(
+            ws[opIndex].getSelectedItemIndex(),
+            ctx.audioProcessor.opzx7WtBuffers[opIndex],
+            ctx.audioProcessor.opzx7Wt2Buffers[opIndex],
+            ctx.audioProcessor.opzx7PcmBuffers[opIndex],
+            (float)pcmOffset[opIndex].getValue(),
+            (float)pcmRatio[opIndex].getValue(),
+            ctx.audioProcessor.getSampleRate()),
+        true);
+
+    // 同じ枠が波形メモリとオーディオファイルの両方を映すので、
+    // 何を出しているかに合わせて線の色も変える。
+    bool isPcm = ws[opIndex].getSelectedItemIndex() == Opzx7PrValue::pcmIndex;
+
+    wsPreview[opIndex].setLineColour(isPcm
+        ? GuiColor::WavePreview::AudioFile
+        : GuiColor::WavePreview::WaveMemory);
+
+    // ループ位置は PCM のときだけ意味を持つ。切り出した範囲に対する 0.0〜1.0。
+    std::vector<float> markers;
+
+    if (isPcm && loopPointEnable[opIndex].getToggleState()) {
+        markers.push_back((float)loopPointStart[opIndex].getValue());
+        markers.push_back((float)loopPointEnd[opIndex].getValue());
+    }
+
+    wsPreview[opIndex].setMarkers(markers);
+}
+
 void GuiOpzx7::updateOnWsChange(int idx)
 {
+    updateWsPreview(idx);
+
     int selectedWs = ws[idx].getSelectedItemIndex();
     bool visible = catWaveShape[idx].isDetailVisible();
     if (selectedWs == Opzx7PrValue::wtIndex)
@@ -1532,44 +1708,40 @@ void GuiOpzx7::updateAlgorithmDisplay()
     if (algIndex < 0 || algIndex > Opzx7PrValue::Alg::max)
         return;
 
+    // Coreのルーティング情報から FmAlgState を生成
+    const auto& routing = Opzx7Core::routings[algIndex];
+    FmAlgState s;
+    s.numOps = Opzx7PrValue::ops;
+
+    for (int i = 0; i < s.numOps; ++i) { // i = src
+        s.isCarrier[i] = (routing.out[i] > 0.0f);
+        for (int j = 0; j < s.numOps; ++j) { // j = dest
+            s.mod[i][j] = (routing.mod[j][i] > 0.0f);
+            s.fbMod[i][j] = (routing.fbMod[j][i] > 0.0f);
+        }
+    }
+
+    // 生成したステートでグラフを描画
+    algStaticGraphComp.updateState(s);
+
+    // AlgRouting から出力に到達可能なオペレータを動的に判定
+    auto activeOps = s.getActiveOperators();
+
     for (int i = 0; i < Opzx7PrValue::ops; ++i)
     {
-        juce::String newTitle = Opzx7GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
-
-        opGroups[i].setText(newTitle);
-
-        bool enable = opEnableOnAlg[algIndex][i];
-
-        updateOpEnable(i, enable);
-    }
-
-    // ==========================================================
-    // 画像の切り替え
-    // ==========================================================
-    if (algImages[algIndex].isValid())
-    {
-        // 読み込めている場合はその画像をセット
-        // centred | onlyReduceInSize を指定すると、アスペクト比を保ったまま綺麗に収まります
-        algImageComp.setImage(algImages[algIndex], juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize);
-    }
-    else
-    {
-        // 画像がない場合（ファイルが見つからなかった時など）はクリア
-        algImageComp.setImage(juce::Image());
+        // 配列を使わず、到達可能性から判定したフラグをセット
+        updateOpEnable(i, activeOps[i]);
     }
 }
 
 void GuiOpzx7::updateAlgorithmMatrixDisplay()
 {
+    FmAlgState s = algMatrixComp.getState();
+    auto activeOps = s.getActiveOperators();
+
     for (int i = 0; i < Opzx7PrValue::ops; ++i)
     {
-        juce::String newTitle = Opzx7GuiText::Group::opPrefix + juce::String(i + 1) + algMatrixOpPrefix[i];
-
-        opGroups[i].setText(newTitle);
-
-        bool enable = opEnableOnAlgMatrix[i];
-
-        updateOpEnable(i, enable);
+        updateOpEnable(i, activeOps[i]);
     }
 }
 
@@ -1706,6 +1878,11 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
+    ieAmpEnvG.setVisible(visible);
+    ieSsgHwEnv.setVisible(visible);
+    ieWtMod.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
+    ieSsgSwPEnv11g.setVisible(visible);
     ieLfo.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
@@ -1743,6 +1920,16 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         uSep003.layoutComponent(rect);
 
+        ieAmpEnvG.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgHwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieWtMod.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwPEnv11g.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
@@ -1750,6 +1937,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1763,7 +1952,13 @@ void GuiOpzx7::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
     if (visibleMask)
     {
         layoutRow({ .rowRect = rect, .component = &mask[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
+
+    // MASK の後ろには分類の外の行 (セパレータや MML) が続くので、
+    // 板をここで閉じないと 1 行ぶん下まで伸びてしまう。
+    closeCategoryBackdrops(catMask[opIndex].getParentComponent(), rect.getY());
 }
 
 void GuiOpzx7::layoutQualityCat(juce::Rectangle<int>& rect) {
@@ -1787,6 +1982,8 @@ void GuiOpzx7::layoutPanpotCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &panpotEnableToggle });
         layoutMain({ .mainRect = rect, .label = &panpotSlider.label, .component = &panpotSlider });
         layoutMainThreeComps({ .rect = rect, .comp1 = &panToLBtn, .comp2 = &panToCBtn, .comp3 = &panToRBtn });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1803,7 +2000,88 @@ void GuiOpzx7::layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect)
     {
         layoutRow({ .rowRect = rect, .label = &se[opIndex].label, .component = &se[opIndex] });
         layoutRow({ .rowRect = rect, .label = &seFreq[opIndex].label, .component = &seFreq[opIndex], });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
+}
+
+// ============================================================================
+// チップ全体のエンベロープを見るグラフ
+// ============================================================================
+// オペレータごとのグラフと同じ作りで、対象がチップ全体の 3 つになる。
+// 値が変わったときだけ描き直すので、常時の負荷は無い。
+void GuiOpzx7::setupGlobalGraph()
+{
+    addAndMakeVisible(&gGraph);
+
+    gGraphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
+    gGraphBtnAmp.setToggleState(true, juce::dontSendNotification);
+    gGraphBtnAmp.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::Amp); };
+
+    gGraphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    gGraphBtnSsg11.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::SsgSw11); };
+
+    gGraphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    gGraphBtnSsgP11.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::SsgSwP11); };
+
+    auto repaintGraph = [this]() {
+        if (this->isUpdatingGraph) return;
+
+        // 旗は必ず下ろす。途中で抜けたときに立ちっぱなしになると、
+        // 以後グラフの更新が全部素通りしてしまうため。
+        const juce::ScopedValueSetter<bool> guard(this->isUpdatingGraph, true);
+
+        this->updateGlobalGraph();
+        };
+
+    ampEnvComponent.setupGraph(repaintGraph);
+    ssgSwEnv11g.setupGraph(repaintGraph);
+    ssgSwPEnv11g.setupGraph(repaintGraph);
+
+    gGraphSeparator.setupComponent(*this);
+}
+
+void GuiOpzx7::layoutGlobalGraph(juce::Rectangle<int>& rect)
+{
+    auto mainArea = rect.removeFromTop(Opzx7GuiValue::MainGroup::Graph::height + NormalSeparator::getHeight());
+
+    gGraphSeparator.layoutComponentBottom(mainArea);
+
+    auto btnArea = mainArea.removeFromBottom(Opzx7GuiValue::MainGroup::Graph::ButtonHeight);
+    int btnWidth = btnArea.getWidth() / 3;
+
+    gGraphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
+    gGraphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    gGraphBtnSsgP11.setBounds(btnArea);
+
+    gGraph.setBounds(mainArea);
+}
+
+void GuiOpzx7::updateGlobalGraph()
+{
+    // カーブモードが有効かどうかを判定
+    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    if (currentGlobalGraphMode == GlobalGraphMode::SsgSw11) {
+        ssgSwEnv11g.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
+    }
+    else if (currentGlobalGraphMode == GlobalGraphMode::SsgSwP11) {
+        ssgSwPEnv11g.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
+    }
+    else {
+        ampEnvComponent.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
+    }
+}
+
+void GuiOpzx7::setGlobalGraphMode(GlobalGraphMode mode)
+{
+    currentGlobalGraphMode = mode;
+
+    // ラジオボタン的な排他制御
+    gGraphBtnAmp.setToggleState(mode == GlobalGraphMode::Amp, juce::dontSendNotification);
+    gGraphBtnSsg11.setToggleState(mode == GlobalGraphMode::SsgSw11, juce::dontSendNotification);
+    gGraphBtnSsgP11.setToggleState(mode == GlobalGraphMode::SsgSwP11, juce::dontSendNotification);
+
+    updateGlobalGraph();
 }
 
 void GuiOpzx7::setupGraph(int opIndex)
@@ -1829,9 +2107,11 @@ void GuiOpzx7::setupGraph(int opIndex)
     auto repaintGraph = [this, opIndex]() {
         if (this->isUpdatingGraph) return; // 既に更新中なら無視
 
-        this->isUpdatingGraph = true;
+        // 旗は必ず下ろす。途中で抜けたときに立ちっぱなしになると、
+        // 以後グラフの更新が全部素通りしてしまうため。
+        const juce::ScopedValueSetter<bool> guard(this->isUpdatingGraph, true);
+
         this->updateOpGraph(opIndex);
-        this->isUpdatingGraph = false;
         };
 
     bypass[opIndex].onStateChange = repaintGraph;
@@ -1905,6 +2185,8 @@ void GuiOpzx7::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMod
             layoutRow({ .rowRect = rect, .label = &ksRs[opIndex].label, .component = &ksRs[opIndex] });
             break;
         }
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1959,6 +2241,8 @@ void GuiOpzx7::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect, bool rgMo
         layoutRow({ .rowRect = rect, .component = &sus[opIndex] });
         layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
         layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -1968,6 +2252,7 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
     bool visible = catWaveShape[opIndex].isDetailVisible();
 
     ws[opIndex].setVisibleWithLabel(visible);
+    wsPreview[opIndex].setVisible(visible);
     wsSeparator[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loadPcmBtn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmFileNameLabel[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
@@ -1986,6 +2271,9 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &ws[opIndex].label, .component = &ws[opIndex] });
+
+        wsPreview[opIndex].setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
 
         if (selectedWs == Opzx7PrValue::pcmIndex)
         {
@@ -2009,6 +2297,8 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
             wsSeparator[opIndex].layoutComponent(rect);
             layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadWt2Btn[opIndex], .pcmFileNameLabel = &wt2FileNameLabel[opIndex], .clearPcmBtn = &clearWt2Btn[opIndex] });
         }
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -2267,6 +2557,8 @@ void GuiOpzx7::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -2279,7 +2571,14 @@ void GuiOpzx7::copyParams(CopyOpzx7& copyObj) {
     copyObj.quality.rate = qualityComponent.getRate();
     copyObj.fmBase.level = levelComponent.getLevel();
     copyObj.fmBase.algorithm = algSelector.getSelectedId();
-    copyObj.fmBase.feedback = feedbackSlider.getValue();
+    copyObj.fmBase.feedback1 = feedback1Slider.getValue();
+    copyObj.fmBase.feedback2 = feedback2Slider.getValue();
+    copyObj.fmBase.feedback3 = feedback3Slider.getValue();
+    copyObj.fmBase.feedback4 = feedback4Slider.getValue();
+    copyObj.fmBase.feedback5 = feedback5Slider.getValue();
+    copyObj.fmBase.feedback6 = feedback6Slider.getValue();
+    copyObj.fmBase.feedback7 = feedback7Slider.getValue();
+    copyObj.fmBase.feedback8 = feedback8Slider.getValue();
     copyObj.panpot.enable = panpotEnableToggle.getToggleState();
     copyObj.panpot.panpot = panpotSlider.getValue();
 
@@ -2339,7 +2638,14 @@ void GuiOpzx7::pasteParams(CopyOpzx7& copyObj) {
     qualityComponent.setRate(copyObj.quality.rate);
     levelComponent.setLevel(copyObj.fmBase.level);
     algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
-    feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
+    feedback1Slider.setValue(copyObj.fmBase.feedback1, juce::sendNotification);
+    feedback2Slider.setValue(copyObj.fmBase.feedback2, juce::sendNotification);
+    feedback3Slider.setValue(copyObj.fmBase.feedback3, juce::sendNotification);
+    feedback4Slider.setValue(copyObj.fmBase.feedback4, juce::sendNotification);
+    feedback5Slider.setValue(copyObj.fmBase.feedback5, juce::sendNotification);
+    feedback6Slider.setValue(copyObj.fmBase.feedback6, juce::sendNotification);
+    feedback7Slider.setValue(copyObj.fmBase.feedback7, juce::sendNotification);
+    feedback8Slider.setValue(copyObj.fmBase.feedback8, juce::sendNotification);
     panpotEnableToggle.setToggleState(copyObj.panpot.enable, juce::sendNotification);
     panpotSlider.setValue(copyObj.panpot.panpot, juce::sendNotification);
     glLfo.pasteParams(copyObj.lfo);
@@ -2425,26 +2731,10 @@ void GuiOpzx7::exportSsgSwEnvParam(int opIndex) {
     ssgSwEnv[opIndex].exportParams();
 }
 
-void GuiOpzx7::importLfoParam() {
-    glLfo.importParams();
-}
-
-void GuiOpzx7::exportLfoParam() {
-    glLfo.exportParams();
-}
-
-void GuiOpzx7::importUnisonParam() {
-    unisonComponent.importParams();
-}
-
-void GuiOpzx7::exportUnisonParam() {
-    unisonComponent.exportParams();
-}
-
 void GuiOpzx7::importQualityParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
@@ -2456,15 +2746,42 @@ void GuiOpzx7::importQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
 
-                int size = lines.size();
+                    file.readLines(lines);
 
-                if (size < 2) return;
+                    int index = 0;
 
-                qualityComponent.setBit(lines[0].getIntValue());
-                qualityComponent.setRate(lines[1].getIntValue());
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingQualityParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(qualityFormat);
+
+                    writeQualityParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, qualityFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
+                qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
+                qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
             }
         });
 }
@@ -2472,10 +2789,10 @@ void GuiOpzx7::importQualityParam() {
 void GuiOpzx7::exportQualityParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::QualityParam)), Io::saveGlob(Io::Extension::QualityParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -2484,12 +2801,10 @@ void GuiOpzx7::exportQualityParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(qualityFormat);
+                writeQualityParams(writer);
 
-                content += juce::String(qualityComponent.getBit()) + "\n";
-                content += juce::String(qualityComponent.getRate()) + "\n";
-
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
@@ -2497,7 +2812,7 @@ void GuiOpzx7::exportQualityParam() {
 void GuiOpzx7::importOpPcmPlayParam(int opIndex) {
     juce::File defaultDir(ctx.audioProcessor.defaultPcmPlayParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importPcmPlayParamFile, defaultDir, Io::ExtensionGlob::PcmPlayParam);
@@ -2509,19 +2824,44 @@ void GuiOpzx7::importOpPcmPlayParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
 
-                int size = lines.size();
-                int index = 0;
+                    file.readLines(lines);
 
-                if (size < 5) return;
+                    int index = 0;
 
-                pcmOffset[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                pcmRatio[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                loopPointEnable[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                loopPointStart[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-                loopPointEnd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingOpPcmPlayParams(opIndex, lines, index);
+                    }
+
+                    Io::ParamWriter writer(pcmPlayFormat);
+
+                    writeOpPcmPlayParams(opIndex, writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, pcmPlayFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
+
+                pcmOffset[opIndex].setValue(reader->getFloat("pcmOffset", (float)pcmOffset[opIndex].getValue()), juce::sendNotification);
+                pcmRatio[opIndex].setValue(reader->getFloat("pcmRatio", (float)pcmRatio[opIndex].getValue()), juce::sendNotification);
+                loopPointEnable[opIndex].setToggleState(reader->getBool("loopPointEnable", loopPointEnable[opIndex].getToggleState()), juce::sendNotification);
+                loopPointStart[opIndex].setValue(reader->getFloat("loopPointStart", (float)loopPointStart[opIndex].getValue()), juce::sendNotification);
+                loopPointEnd[opIndex].setValue(reader->getFloat("loopPointEnd", (float)loopPointEnd[opIndex].getValue()), juce::sendNotification);
             }
         });
 
@@ -2530,10 +2870,10 @@ void GuiOpzx7::importOpPcmPlayParam(int opIndex) {
 void GuiOpzx7::exportOpPcmPlayParam(int opIndex) {
     juce::File defaultDir(ctx.audioProcessor.defaultPcmPlayParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPcmPlayParamFile, defaultDir.getChildFile("default.pcmPlay"), Io::ExtensionGlob::PcmPlayParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPcmPlayParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::PcmPlayParam)), Io::saveGlob(Io::Extension::PcmPlayParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this, opIndex](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -2542,16 +2882,10 @@ void GuiOpzx7::exportOpPcmPlayParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(pcmPlayFormat);
+                writeOpPcmPlayParams(opIndex, writer);
 
-                content += juce::String(pcmOffset[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(pcmRatio[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(loopPointEnable[opIndex].getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(loopPointStart[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(loopPointEnd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-
-
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
@@ -2575,7 +2909,7 @@ void GuiOpzx7::exportSsgSwPEnv11Param(int opIndex) {
 void GuiOpzx7::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opzx7sParam);
@@ -2587,42 +2921,41 @@ void GuiOpzx7::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
 
-                int size = lines.size();
-                int index = 0;
+                    file.readLines(lines);
 
-                // Level
-                levelComponent.setImportingParams(lines, index);
+                    int index = 0;
 
-                // Algorithm & Feedback
-                algModeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
-                algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
 
-                algMatrixComp.setImportingParams(lines, index);
-                feedbackSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                        setImportingChParams(lines, index);
+                    }
 
-                int mode = algModeSelector.getSelectedItemIndex();
-                if (mode == 0) {
-                    updateAlgorithmDisplay();
+                    Io::ParamWriter writer(opzx7Format);
+
+                    writeChParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
                 }
-                else {
-                    updateAlgorithmMatrixDisplay();
-                }
 
-                // Panpot
-                panpotEnableToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                panpotSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                auto reader = Io::ParamReader::open(file, opzx7Format);
 
-                // Components (Global)
-                glLfo.setImportingParams(lines, index);
-                qualityComponent.setImportingParams(lines, index);
-                unisonComponent.setImportingParams(lines, index);
+                if (!reader.has_value()) return;
 
-                for (int i = 0; i < Opzx7PrValue::ops; i++) {
-                    getImportingOpParams(i, lines, index);
-                }
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
+                readChParams(*reader);
             }
         });
 
@@ -2631,10 +2964,10 @@ void GuiOpzx7::importChParam() {
 void GuiOpzx7::exportChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::opzx7sParam), Io::ExtensionGlob::opzx7sParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::opzx7sParam)), Io::saveGlob(Io::Extension::opzx7sParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -2642,31 +2975,10 @@ void GuiOpzx7::exportChParam() {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(opzx7Format);
+                writeChParams(writer);
 
-                // Level
-                content += levelComponent.getExportedParams();
-
-                // Algorithm & Feedback
-                content += juce::String(algModeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(algSelector.getSelectedId()) + "\n";
-                content += algMatrixComp.getExportedParams();
-                content += juce::String(feedbackSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-
-                // Panpot
-                content += juce::String(panpotEnableToggle.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(panpotSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-
-                // Components (Global)
-                content += glLfo.getExportedParams();
-                content += qualityComponent.getExportedParams();
-                content += unisonComponent.getExportedParams();
-
-                for (int i = 0; i < Opzx7PrValue::ops; i++) {
-                    content += setExportedOpParams(i);
-                }
-
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 
@@ -2675,7 +2987,7 @@ void GuiOpzx7::exportChParam() {
 void GuiOpzx7::importOpChParam(int opIndex) {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opzx7sOpParam);
@@ -2687,13 +2999,40 @@ void GuiOpzx7::importOpChParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
 
-                int size = lines.size();
-                int index = 0;
+                    file.readLines(lines);
 
-                getImportingOpParams(opIndex, lines, index);
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingOpChFileParams(opIndex, lines, index);
+                    }
+
+                    Io::ParamWriter writer(opzx7OpFormat);
+
+                    writeOpChFileParams(opIndex, writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, opzx7OpFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
+
+                readOpParams(opIndex, *reader);
             }
         });
 
@@ -2702,10 +3041,10 @@ void GuiOpzx7::importOpChParam(int opIndex) {
 void GuiOpzx7::exportOpChParam(int opIndex) {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::opzx7sOpParam), Io::ExtensionGlob::opzx7sOpParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::opzx7sOpParam)), Io::saveGlob(Io::Extension::opzx7sOpParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this, opIndex](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -2713,16 +3052,346 @@ void GuiOpzx7::exportOpChParam(int opIndex) {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(opzx7OpFormat);
+                writeOpChFileParams(opIndex, writer);
 
-                content += setExportedOpParams(opIndex);
-
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 
 }
 
+
+// チャンネル 1 つぶん。
+void GuiOpzx7::readChParams(const Io::ParamReader& reader) {
+    // Level
+    levelComponent.readParams(reader, "level");
+
+    // Algorithm & Feedback
+    algModeSelector.setSelectedItemIndex(reader.getInt("algMode", algModeSelector.getSelectedItemIndex()), juce::sendNotification);
+    algSelector.setSelectedId(reader.getInt("alg", algSelector.getSelectedId()), juce::sendNotification);
+
+    algMatrixComp.readParams(reader, "algMatrixComp");
+    feedback1Slider.setValue(reader.getFloat("feedback1", (float)feedback1Slider.getValue()), juce::sendNotification);
+    feedback2Slider.setValue(reader.getFloat("feedback2", (float)feedback2Slider.getValue()), juce::sendNotification);
+    feedback3Slider.setValue(reader.getFloat("feedback3", (float)feedback3Slider.getValue()), juce::sendNotification);
+    feedback4Slider.setValue(reader.getFloat("feedback4", (float)feedback4Slider.getValue()), juce::sendNotification);
+    feedback5Slider.setValue(reader.getFloat("feedback5", (float)feedback5Slider.getValue()), juce::sendNotification);
+    feedback6Slider.setValue(reader.getFloat("feedback6", (float)feedback6Slider.getValue()), juce::sendNotification);
+    feedback7Slider.setValue(reader.getFloat("feedback7", (float)feedback7Slider.getValue()), juce::sendNotification);
+    feedback8Slider.setValue(reader.getFloat("feedback8", (float)feedback8Slider.getValue()), juce::sendNotification);
+
+    int mode = algModeSelector.getSelectedItemIndex();
+    if (mode == 0) {
+        updateAlgorithmDisplay();
+    }
+    else {
+        updateAlgorithmMatrixDisplay();
+    }
+
+    // Panpot
+    panpotEnableToggle.setToggleState(reader.getBool("panpotEnable", panpotEnableToggle.getToggleState()), juce::sendNotification);
+    panpotSlider.setValue(reader.getFloat("panpot", (float)panpotSlider.getValue()), juce::sendNotification);
+
+    // Components (Global)
+    ssgHwEnv.readParams(reader, "ssgHwEnv");
+    ssgSwEnv11g.readParams(reader, "ssgSwEnv11");
+    glLfo.readParams(reader, "glLfo");
+    qualityComponent.readParams(reader, "quality");
+    unisonComponent.readParams(reader, "unison");
+
+    for (int i = 0; i < Opzx7PrValue::ops; i++) {
+        readOpParams(i, reader.arrayItem(Io::ParamKey::ops, i));
+    }
+
+    ampEnvComponent.readParams(reader, "ampEnv");
+
+    ssgSwPEnv11g.readParams(reader, "ssgSwPEnv11");
+
+    modComponent.readParams(reader, "wtMod");
+}
+
+// オペレータ 1 つぶん。並びの中のひとつを渡してもらう。
+//
+// 名前で引くので、他の音源のファイルを読ませても、こちらに無い
+// 項目は勝手に読み飛ばされる。行数を数えて飛ばす細工が要らない。
+void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
+    // Detune / Multiplier
+    mulDetune[opIndex].readParams(r, "mulDetune");
+
+    // RG Env
+    rgEn[opIndex].setToggleState(r.getBool("rgEn", rgEn[opIndex].getToggleState()), juce::sendNotification);
+    rgAr[opIndex].setValue(r.getFloat("rgAr", (float)rgAr[opIndex].getValue()), juce::sendNotification);
+    rgD1r[opIndex].setValue(r.getFloat("rgD1r", (float)rgD1r[opIndex].getValue()), juce::sendNotification);
+    rgD1l[opIndex].setValue(r.getFloat("rgD1l", (float)rgD1l[opIndex].getValue()), juce::sendNotification);
+    rgD2r[opIndex].setValue(r.getFloat("rgD2r", (float)rgD2r[opIndex].getValue()), juce::sendNotification);
+    rgRr[opIndex].setValue(r.getFloat("rgRr", (float)rgRr[opIndex].getValue()), juce::sendNotification);
+    rgTl[opIndex].setValue(r.getFloat("rgTl", (float)rgTl[opIndex].getValue()), juce::sendNotification);
+
+    // Normal Env
+    ar[opIndex].setValue(r.getFloat("ar", (float)ar[opIndex].getValue()), juce::sendNotification);
+    d1r[opIndex].setValue(r.getFloat("d1r", (float)d1r[opIndex].getValue()), juce::sendNotification);
+    d1l[opIndex].setValue(r.getFloat("d1l", (float)d1l[opIndex].getValue()), juce::sendNotification);
+    d2r[opIndex].setValue(r.getFloat("d2r", (float)d2r[opIndex].getValue()), juce::sendNotification);
+    rr[opIndex].setValue(r.getFloat("rr", (float)rr[opIndex].getValue()), juce::sendNotification);
+    tl[opIndex].setValue(r.getFloat("tl", (float)tl[opIndex].getValue()), juce::sendNotification);
+
+    // Key Scale
+    ksEn[opIndex].setToggleState(r.getBool("ksEn", ksEn[opIndex].getToggleState()), juce::sendNotification);
+    ksMode[opIndex].setSelectedId(r.getInt("ksMode", ksMode[opIndex].getSelectedId()), juce::sendNotification);
+    ksrMA7[opIndex].setToggleState(r.getBool("ksrMA7", ksrMA7[opIndex].getToggleState()), juce::sendNotification);
+    kslMA7[opIndex].setSelectedId(r.getInt("kslMA7", kslMA7[opIndex].getSelectedId()), juce::sendNotification);
+    ksrOPZ[opIndex].setValue(r.getFloat("ksrOPZ", (float)ksrOPZ[opIndex].getValue()), juce::sendNotification);
+    kslOPZ[opIndex].setValue(r.getFloat("kslOPZ", (float)kslOPZ[opIndex].getValue()), juce::sendNotification);
+    ksBp[opIndex].setValue(r.getFloat("ksBp", (float)ksBp[opIndex].getValue()), juce::sendNotification);
+    ksLc[opIndex].setSelectedId(r.getInt("ksLc", ksLc[opIndex].getSelectedId()), juce::sendNotification);
+    ksRc[opIndex].setSelectedId(r.getInt("ksRc", ksRc[opIndex].getSelectedId()), juce::sendNotification);
+    ksLd[opIndex].setValue(r.getFloat("ksLd", (float)ksLd[opIndex].getValue()), juce::sendNotification);
+    ksRd[opIndex].setValue(r.getFloat("ksRd", (float)ksRd[opIndex].getValue()), juce::sendNotification);
+    ksRs[opIndex].setValue(r.getFloat("ksRs", (float)ksRs[opIndex].getValue()), juce::sendNotification);
+
+    // Optional
+    bypass[opIndex].setToggleState(r.getBool("bypass", bypass[opIndex].getToggleState()), juce::sendNotification);
+    sus[opIndex].setToggleState(r.getBool("sus", sus[opIndex].getToggleState()), juce::sendNotification);
+    xof[opIndex].setToggleState(r.getBool("xof", xof[opIndex].getToggleState()), juce::sendNotification);
+    kor[opIndex].setToggleState(r.getBool("kor", kor[opIndex].getToggleState()), juce::sendNotification);
+    mask[opIndex].setToggleState(r.getBool("mask", mask[opIndex].getToggleState()), juce::sendNotification);
+
+    // Wave Shape
+    ws[opIndex].setSelectedId(r.getInt("ws", ws[opIndex].getSelectedId()), juce::sendNotification);
+
+    ctx.audioProcessor.unloadOpzx7PcmFile(opIndex);
+    ctx.audioProcessor.unloadOpzx7WtFile(opIndex);
+    ctx.audioProcessor.unloadOpzx7Wt2File(opIndex);
+
+    // 波形の場所は種類ごとに別の名前で持つ。以前は選んでいる種類のものしか
+    // 書いていなかったので、切り替えて保存し直すと他の場所が失われていた。
+    //
+    // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
+    // 出しているので、そこから File を作ることはできない。
+    auto pcmPath = r.getString("pcmFile", ctx.audioProcessor.opzx7PcmFilePaths[opIndex]);
+    auto wtPath = r.getString("wtFile", ctx.audioProcessor.opzx7WtFilePaths[opIndex]);
+    auto wt2Path = r.getString("wt2File", ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]);
+
+    auto showName = [](const juce::String& path) {
+        return Io::isFilePath(path) ? juce::File(path).getFileName() : Io::empty;
+        };
+
+    // 名前は update...FileName を通す。ラベルだけを書き換えると、
+    // WS のプレビューが前の波形を指したまま残るため。
+    updatePcmFileName(opIndex, showName(pcmPath));
+    updateWtFileName(opIndex, showName(wtPath));
+    updateWt2FileName(opIndex, showName(wt2Path));
+
+    // 実際に読み込むのは選んでいる種類のものだけ。他は場所を覚えておくに
+    // とどめる。使わない波形まで読み込むと、そのぶん待たされるため。
+    int wsIdx = ws[opIndex].getSelectedItemIndex();
+
+    if (wsIdx == Opzx7PrValue::pcmIndex && Io::isFilePath(pcmPath)) {
+        ctx.audioProcessor.loadOpzx7PcmFile(opIndex, juce::File(pcmPath));
+    }
+    else if (wsIdx == Opzx7PrValue::wtIndex && Io::isFilePath(wtPath)) {
+        ctx.audioProcessor.loadOpzx7WtFile(opIndex, juce::File(wtPath));
+    }
+    else if (wsIdx == Opzx7PrValue::wt2Index && Io::isFilePath(wt2Path)) {
+        ctx.audioProcessor.loadOpzx7Wt2File(opIndex, juce::File(wt2Path));
+    }
+
+    // PCM Play / Loop Point
+    pcmOffset[opIndex].setValue(r.getFloat("pcmOffset", (float)pcmOffset[opIndex].getValue()), juce::sendNotification);
+    pcmRatio[opIndex].setValue(r.getFloat("pcmRatio", (float)pcmRatio[opIndex].getValue()), juce::sendNotification);
+    loopPointEnable[opIndex].setToggleState(r.getBool("loopPointEnable", loopPointEnable[opIndex].getToggleState()), juce::sendNotification);
+    loopPointStart[opIndex].setValue(r.getFloat("loopPointStart", (float)loopPointStart[opIndex].getValue()), juce::sendNotification);
+    loopPointEnd[opIndex].setValue(r.getFloat("loopPointEnd", (float)loopPointEnd[opIndex].getValue()), juce::sendNotification);
+
+    // SSG Env
+    se[opIndex].setSelectedId(r.getInt("se", se[opIndex].getSelectedId()), juce::sendNotification);
+    seFreq[opIndex].setValue(r.getFloat("seFreq", (float)seFreq[opIndex].getValue()), juce::sendNotification);
+
+    // Components
+    fix[opIndex].readParams(r, "fix");
+    lfo[opIndex].readParams(r, "lfo");
+    pitchEnv[opIndex].readParams(r, "pitchEnv");
+    ssgSwEnv[opIndex].readParams(r, "ssgSwEnv");
+    ssgSwEnv11[opIndex].readParams(r, "ssgSwEnv11");
+    ssgSwPEnv11[opIndex].readParams(r, "ssgSwPEnv11");
+}
+
+void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
+    // Detune / Multiplier
+    mulDetune[opIndex].writeParams(w, "mulDetune");
+
+    // RG Env
+    w.set("rgEn", rgEn[opIndex].getToggleState());
+    w.set("rgAr", (float)rgAr[opIndex].getValue());
+    w.set("rgD1r", (float)rgD1r[opIndex].getValue());
+    w.set("rgD1l", (float)rgD1l[opIndex].getValue());
+    w.set("rgD2r", (float)rgD2r[opIndex].getValue());
+    w.set("rgRr", (float)rgRr[opIndex].getValue());
+    w.set("rgTl", (float)rgTl[opIndex].getValue());
+
+    // Normal Env
+    w.set("ar", (float)ar[opIndex].getValue());
+    w.set("d1r", (float)d1r[opIndex].getValue());
+    w.set("d1l", (float)d1l[opIndex].getValue());
+    w.set("d2r", (float)d2r[opIndex].getValue());
+    w.set("rr", (float)rr[opIndex].getValue());
+    w.set("tl", (float)tl[opIndex].getValue());
+
+    // Key Scale
+    w.set("ksEn", ksEn[opIndex].getToggleState());
+    w.set("ksMode", ksMode[opIndex].getSelectedId());
+    w.set("ksrMA7", ksrMA7[opIndex].getToggleState());
+    w.set("kslMA7", kslMA7[opIndex].getSelectedId());
+    w.set("ksrOPZ", (float)ksrOPZ[opIndex].getValue());
+    w.set("kslOPZ", (float)kslOPZ[opIndex].getValue());
+    w.set("ksBp", (float)ksBp[opIndex].getValue());
+    w.set("ksLc", ksLc[opIndex].getSelectedId());
+    w.set("ksRc", ksRc[opIndex].getSelectedId());
+    w.set("ksLd", (float)ksLd[opIndex].getValue());
+    w.set("ksRd", (float)ksRd[opIndex].getValue());
+    w.set("ksRs", (float)ksRs[opIndex].getValue());
+
+    // Optional
+    w.set("bypass", bypass[opIndex].getToggleState());
+    w.set("sus", sus[opIndex].getToggleState());
+    w.set("xof", xof[opIndex].getToggleState());
+    w.set("kor", kor[opIndex].getToggleState());
+    w.set("mask", mask[opIndex].getToggleState());
+
+    // Wave Shape
+    w.set("ws", ws[opIndex].getSelectedId());
+
+    // 種類ごとに別の名前で持つので、切り替えて保存し直しても互いを壊さない
+    w.set("pcmFile", ctx.audioProcessor.opzx7PcmFilePaths[opIndex]);
+    w.set("wtFile", ctx.audioProcessor.opzx7WtFilePaths[opIndex]);
+    w.set("wt2File", ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]);
+
+    // PCM Play / Loop Point
+    w.set("pcmOffset", (float)pcmOffset[opIndex].getValue());
+    w.set("pcmRatio", (float)pcmRatio[opIndex].getValue());
+    w.set("loopPointEnable", loopPointEnable[opIndex].getToggleState());
+    w.set("loopPointStart", (float)loopPointStart[opIndex].getValue());
+    w.set("loopPointEnd", (float)loopPointEnd[opIndex].getValue());
+
+    // SSG Env
+    w.set("se", se[opIndex].getSelectedId());
+    w.set("seFreq", (float)seFreq[opIndex].getValue());
+
+    // Components
+    fix[opIndex].writeParams(w, "fix");
+    lfo[opIndex].writeParams(w, "lfo");
+    pitchEnv[opIndex].writeParams(w, "pitchEnv");
+    ssgSwEnv[opIndex].writeParams(w, "ssgSwEnv");
+    ssgSwEnv11[opIndex].writeParams(w, "ssgSwEnv11");
+    ssgSwPEnv11[opIndex].writeParams(w, "ssgSwPEnv11");
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。並び順を写し直すより確実で、
+// 当時の互換の工夫もそのまま残る。
+void GuiOpzx7::setImportingChParams(juce::StringArray& lines, int& index) {
+	// Level
+	levelComponent.setImportingParams(lines, index);
+
+	// Algorithm & Feedback
+	algModeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+	algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+	algMatrixComp.setImportingParams(lines, index);
+	feedback1Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback2Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback3Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback4Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback5Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback6Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback7Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	feedback8Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+	int mode = algModeSelector.getSelectedItemIndex();
+	if (mode == 0) {
+	    updateAlgorithmDisplay();
+	}
+	else {
+	    updateAlgorithmMatrixDisplay();
+	}
+
+	// Panpot
+	panpotEnableToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	panpotSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+	// Components (Global)
+	ssgHwEnv.setImportingParams(lines, index);
+	ssgSwEnv11g.setImportingParams(lines, index);
+	glLfo.setImportingParams(lines, index);
+	qualityComponent.setImportingParams(lines, index);
+	unisonComponent.setImportingParams(lines, index);
+
+	for (int i = 0; i < Opzx7PrValue::ops; i++) {
+	    getImportingOpParams(i, lines, index);
+	}
+
+	// AMP ENV は後から足したので、旧フォーマットとの互換のため
+	// ファイル末尾から読む。行が無ければ既定のままにする。
+	if (index < lines.size()) {
+	    ampEnvComponent.setImportingParams(lines, index);
+	}
+
+	if (index < lines.size()) {
+	    ssgSwPEnv11g.setImportingParams(lines, index);
+	}
+
+	if (index < lines.size()) {
+	    modComponent.setImportingBaseParams(lines, index);
+	    modComponent.setImportingShapeParam(lines, index);
+	}
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpzx7::writeChParams(Io::ParamWriter& writer) {
+	// Level
+	levelComponent.writeParams(writer, "level");
+
+	// Algorithm & Feedback
+	writer.set("algMode", algModeSelector.getSelectedItemIndex());
+	writer.set("alg", algSelector.getSelectedId());
+	algMatrixComp.writeParams(writer, "algMatrixComp");
+	writer.set("feedback1", (float)feedback1Slider.getValue());
+	writer.set("feedback2", (float)feedback2Slider.getValue());
+	writer.set("feedback3", (float)feedback3Slider.getValue());
+	writer.set("feedback4", (float)feedback4Slider.getValue());
+	writer.set("feedback5", (float)feedback5Slider.getValue());
+	writer.set("feedback6", (float)feedback6Slider.getValue());
+	writer.set("feedback7", (float)feedback7Slider.getValue());
+	writer.set("feedback8", (float)feedback8Slider.getValue());
+
+	// Panpot
+	writer.set("panpotEnable", panpotEnableToggle.getToggleState());
+	writer.set("panpot", (float)panpotSlider.getValue());
+
+	// Components (Global)
+	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
+	glLfo.writeParams(writer, "glLfo");
+	qualityComponent.writeParams(writer, "quality");
+	unisonComponent.writeParams(writer, "unison");
+
+	for (int i = 0; i < Opzx7PrValue::ops; i++) {
+	    auto op = writer.arrayItem(Io::ParamKey::ops, i);
+
+	    writeOpParams(i, op);
+	}
+
+	// 名前で持つので、置き場所に意味は無い
+	ampEnvComponent.writeParams(writer, "ampEnv");
+	ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
+	modComponent.writeParams(writer, "wtMod");
+
+	
+}
+
+// 3.0.0 より前の形式を読むための補助。履歴から戻したもの。
 void GuiOpzx7::getImportingOpParams(int opIndex, juce::StringArray& lines, int& index) {
     // Detune / Multiplier
     mulDetune[opIndex].setImportingParams(lines, index);
@@ -2817,83 +3486,73 @@ void GuiOpzx7::getImportingOpParams(int opIndex, juce::StringArray& lines, int& 
     ssgSwPEnv11[opIndex].setImportingParams(lines, index);
 }
 
-juce::String GuiOpzx7::setExportedOpParams(int opIndex) {
-    juce::String content = "";
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpzx7::setImportingQualityParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
 
-    // Detune / Multiplier
-    content += mulDetune[opIndex].getExportedParams();
+    juce::ignoreUnused(index, size);
 
-    // RG Env
-    content += juce::String(rgEn[opIndex].getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(rgAr[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(rgD1r[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(rgD1l[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(rgD2r[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(rgRr[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(rgTl[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+	if (size < 2) return;
 
-    // Normal Env
-    content += juce::String(ar[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(d1r[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(d1l[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(d2r[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(rr[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(tl[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+	qualityComponent.setBit(lines[0].getIntValue());
+	qualityComponent.setRate(lines[1].getIntValue());
 
-    // Key Scale
-    content += juce::String(ksEn[opIndex].getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(ksMode[opIndex].getSelectedId()) + "\n";
-    content += juce::String(ksrMA7[opIndex].getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(kslMA7[opIndex].getSelectedId()) + "\n";
-    content += juce::String(ksrOPZ[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(kslOPZ[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(ksBp[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(ksLc[opIndex].getSelectedId()) + "\n";
-    content += juce::String(ksRc[opIndex].getSelectedId()) + "\n";
-    content += juce::String(ksLd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(ksRd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(ksRs[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+}
 
-    // Optional
-    content += juce::String(bypass[opIndex].getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(sus[opIndex].getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(xof[opIndex].getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(kor[opIndex].getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(mask[opIndex].getToggleState() ? 1 : 0) + "\n";
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpzx7::writeQualityParams(Io::ParamWriter& writer) {
+	writer.set("bit", qualityComponent.getBit());
+	writer.set("rate", qualityComponent.getRate());
 
-    // Wave Shape
-    content += juce::String(ws[opIndex].getSelectedId()) + "\n";
+	
+}
 
-    int wsIdx = ws[opIndex].getSelectedItemIndex();
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpzx7::setImportingOpPcmPlayParams(int opIndex, juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
 
-    if (wsIdx == Opzx7PrValue::pcmIndex) {
-        content += juce::String(ctx.audioProcessor.opzx7PcmFilePaths[opIndex]) + "\n";
-    }
-    else if (wsIdx == Opzx7PrValue::wtIndex) {
-        content += juce::String(ctx.audioProcessor.opzx7WtFilePaths[opIndex]) + "\n";
-    }
-    else if (wsIdx == Opzx7PrValue::wt2Index) {
-        content += juce::String(ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]) + "\n";
-    }
+    juce::ignoreUnused(index, size);
 
-    // PCM Play / Loop Point
-    content += juce::String(pcmOffset[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(pcmRatio[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(loopPointEnable[opIndex].getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(loopPointStart[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(loopPointEnd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+	if (size < 5) return;
 
-    // SSG Env
-    content += juce::String(se[opIndex].getSelectedId()) + "\n";
-    content += juce::String(seFreq[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+	pcmOffset[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	pcmRatio[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	loopPointEnable[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	loopPointStart[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	loopPointEnd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
 
-    // Components
-    content += fix[opIndex].getExportedParams();
-    content += lfo[opIndex].getExportedParams();
-    content += pitchEnv[opIndex].getExportedParams();
-    content += ssgSwEnv[opIndex].getExportedParams();
-    content += ssgSwEnv11[opIndex].getExportedParams();
-    content += ssgSwPEnv11[opIndex].getExportedParams();
+}
 
-    return content;
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpzx7::writeOpPcmPlayParams(int opIndex, Io::ParamWriter& writer) {
+	writer.set("pcmOffset", (float)pcmOffset[opIndex].getValue());
+	writer.set("pcmRatio", (float)pcmRatio[opIndex].getValue());
+	writer.set("loopPointEnable", loopPointEnable[opIndex].getToggleState());
+	writer.set("loopPointStart", (float)loopPointStart[opIndex].getValue());
+	writer.set("loopPointEnd", (float)loopPointEnd[opIndex].getValue());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpzx7::setImportingOpChFileParams(int opIndex, juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	getImportingOpParams(opIndex, lines, index);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpzx7::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
+	writeOpParams(opIndex, writer);
+
+	
 }

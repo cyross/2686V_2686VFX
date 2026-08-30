@@ -1,8 +1,26 @@
 ﻿#pragma once
 
+#include <array>
+#include <atomic>
+
+#include "../Const/ConstGlobal.h"
+#include "../Synth/WtModWave.h"
+
 struct PrPtrsAlgFb {
     std::atomic<float>* alg = nullptr;
     std::atomic<float>* fb = nullptr;
+};
+
+struct PrPtrsOpzx7AlgFb {
+    std::atomic<float>* alg = nullptr;
+    std::atomic<float>* fb1 = nullptr;
+    std::atomic<float>* fb2 = nullptr;
+    std::atomic<float>* fb3 = nullptr;
+    std::atomic<float>* fb4 = nullptr;
+    std::atomic<float>* fb5 = nullptr;
+    std::atomic<float>* fb6 = nullptr;
+    std::atomic<float>* fb7 = nullptr;
+    std::atomic<float>* fb8 = nullptr;
 };
 
 struct PrPtrsQuality {
@@ -315,6 +333,11 @@ struct PrPtrsUnison {
     std::atomic<float>* voices = nullptr;
     std::atomic<float>* detuneCents = nullptr;
     std::atomic<float>* spread = nullptr;
+    std::atomic<float>* arpEnable = nullptr;
+    std::atomic<float>* arpFreq = nullptr;
+    std::atomic<float>* arpSmooth = nullptr;
+    std::array<std::atomic<float>*, Global::unisonParaVoices> paraDistance{};
+    std::array<std::atomic<float>*, Global::unisonParaVoices> paraDetune{};
 };
 
 struct PrPtrsToneNoise {
@@ -340,6 +363,13 @@ struct PrPtrsWtMod {
     std::atomic<float>* enable = nullptr;
     std::atomic<float>* depth = nullptr;
     std::atomic<float>* speed = nullptr;
+    std::atomic<float>* shape = nullptr;
+    std::atomic<float>* waveSlot = nullptr;
+    std::array<std::atomic<float>*, 32> fdsTable = { nullptr };
+
+    // 変調波形の置き場所。プロセッサが持っているものを指す。
+    // map の要素なので、一度引いたら差し替わらない。
+    const WtModWaveSlots* slots = nullptr;
 };
 
 struct PrPtrsSsgDuty {
@@ -361,6 +391,9 @@ struct PrPtrsSsgHwEnv {
     std::atomic<float>* enable = nullptr;
     std::atomic<float>* shape = nullptr;
     std::atomic<float>* period = nullptr;
+    std::atomic<float>* min = nullptr;
+    std::atomic<float>* max = nullptr;
+    std::atomic<float>* smooth = nullptr;
 };
 
 struct PrPtrsPanpot {

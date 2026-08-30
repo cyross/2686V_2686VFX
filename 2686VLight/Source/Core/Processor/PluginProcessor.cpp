@@ -7,6 +7,35 @@
 
 #include "../Gui/GuiValues.h"
 
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat settingsFormat{ "settings", 1 };
+	const Io::ParamFormat presetFormat{ "preset", 1 };
+
+	// 環境設定を書き出す側。項目の型ごとに受け口を分けてある。
+	struct EnvironmentWriter
+	{
+		Io::ParamWriter& writer;
+
+		void operator()(const juce::String& key, int value) { writer.set(key, value); }
+		void operator()(const juce::String& key, bool value) { writer.set(key, value); }
+		void operator()(const juce::String& key, float value) { writer.set(key, value); }
+		void operator()(const juce::String& key, const juce::String& value) { writer.set(key, value); }
+	};
+
+	// 読み込む側。書かれていない項目は今の値のまま残す。
+	struct EnvironmentReader
+	{
+		const Io::ParamReader& reader;
+
+		void operator()(const juce::String& key, int& value) { value = reader.getInt(key, value); }
+		void operator()(const juce::String& key, bool& value) { value = reader.getBool(key, value); }
+		void operator()(const juce::String& key, float& value) { value = reader.getFloat(key, value); }
+		void operator()(const juce::String& key, juce::String& value) { value = reader.getString(key, value); }
+	};
+}
+
 // ============================================================================
 // Constructor
 // ============================================================================
@@ -29,6 +58,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     prMap[OscMode::SSG] = &prSsg;
     prMap[OscMode::WAVETABLE] = &prWt;
     prMap[OscMode::WT2] = &prWt2;
+    prMap[OscMode::WTPLUS] = &prWtPlus;
     prMap[OscMode::RHYTHM] = &prRhythm;
     prMap[OscMode::ADPCM] = &prAdpcm;
     prMap[OscMode::BEEP] = &prBeep;
@@ -39,18 +69,19 @@ AudioPlugin2686V::AudioPlugin2686V()
     pPitchResetOnLegato = apvts.getRawParameterValue(CPK::Midi::pitchResetOnLegato);
     pFixedVelocity = apvts.getRawParameterValue(CPK::Midi::fixedVelocity);
 
-    prOpna.init(apvts);
-    prOpn.init(apvts);
-    prOpl.init(apvts);
-    prOpl3.init(apvts);
-    prOpm.init(apvts);
-    prOpzx7.init(apvts);
-    prSsg.init(apvts);
-    prWt.init(apvts);
-    prWt2.init(apvts);
-    prRhythm.init(apvts);
-    prAdpcm.init(apvts);
-    prBeep.init(apvts);
+    prOpna.init(apvts, modWaveSlots);
+    prOpn.init(apvts, modWaveSlots);
+    prOpl.init(apvts, modWaveSlots);
+    prOpl3.init(apvts, modWaveSlots);
+    prOpm.init(apvts, modWaveSlots);
+    prOpzx7.init(apvts, modWaveSlots);
+    prSsg.init(apvts, modWaveSlots);
+    prWt.init(apvts, modWaveSlots);
+    prWt2.init(apvts, modWaveSlots);
+    prWtPlus.init(apvts, modWaveSlots);
+    prRhythm.init(apvts, modWaveSlots);
+    prAdpcm.init(apvts, modWaveSlots);
+    prBeep.init(apvts, modWaveSlots);
     prFx.init(apvts);
 
     m_synth.addSound(new SynthSound());
@@ -58,6 +89,10 @@ AudioPlugin2686V::AudioPlugin2686V()
         auto voice = new SynthVoice();
 
         voice->prepare(44100.0);
+
+        // WT+ の波形メモリはプロセッサが所有し続けるので、参照は一度渡せば足りる
+        voice->setWtPlusWaveSlots(&wtPlusWaves);
+
         m_synth.addVoice(voice);
     }
 
@@ -68,6 +103,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     auto prevVoice = new SynthVoice();
 
     prevVoice->prepare(44100.0);
+    prevVoice->setWtPlusWaveSlots(&wtPlusWaves);
     previewSynth.addVoice(prevVoice);
 
 	previewFx.init(apvts);
@@ -101,6 +137,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prSsg.createLayout(layout);
 	prWt.createLayout(layout);
     prWt2.createLayout(layout);
+    prWtPlus.createLayout(layout);
     prRhythm.createLayout(layout);
 	prAdpcm.createLayout(layout);
     prBeep.createLayout(layout);
@@ -325,6 +362,10 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
                 voice->getAdpcmCore()->setSampleData(sourceData, audioReader->sampleRate);
             }
         }
+
+        // 画面表示用の控え
+        adpcmPreviewBuffer = std::move(sourceData);
+        adpcmPreviewRate = audioReader->sampleRate;
     }
 }
 
@@ -354,6 +395,12 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
             if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
                 voice->getRhythmCore()->setSampleData(padIndex, sourceData, reader->sampleRate);
             }
+        }
+
+        // 画面表示用の控え
+        if (padIndex >= 0 && padIndex < RhythmPrValue::pads) {
+            rhythmPreviewBuffers[padIndex] = std::move(sourceData);
+            rhythmPreviewRates[padIndex] = audioReader->sampleRate;
         }
     }
 }
@@ -393,6 +440,24 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     // サンプルパス保存 (ADPCM)
     xml->setAttribute(PresetKey::adpcmPath, makePathRelative(juce::File(adpcmFilePath)));
 
+    // WT+ の波形メモリは実データをプロセッサが持つので、state には相対パスを保存して復帰させる
+    for (int i = 0; i < Global::WtPlus::slots; ++i) {
+        xml->setAttribute(PresetKey::wtPlusWavePathPrefix + juce::String(i),
+            makeWtPathRelative(juce::File(wtPlusWavePaths[i])));
+    }
+
+    // 変調波形は 32 パラメータ側に入っているので、ここではファイル名表示用のパスだけ保存する
+    // チャンネルごとの WT PITCH MOD 変調波形パス。
+    // 属性名の末尾にスロット番号を付ける。
+    for (const auto& kv : modWavePaths) {
+        for (int i = 0; i < Global::WtMod::slots; ++i) {
+            if (kv.second[i].isEmpty()) continue;
+
+            xml->setAttribute(PresetKey::modWavePathPrefix + kv.first + "_" + juce::String(i),
+                makeWtPathRelative(juce::File(kv.second[i])));
+        }
+    }
+
     // サンプルパス保存 (RHYTHM)
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
         xml->setAttribute(PresetKey::rhythmPathPrefix + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
@@ -427,6 +492,64 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         presetComment = xmlState->getStringAttribute(PresetKey::comment, PresetValue::MetaData::Initial::comment);
         presetGenre = xmlState->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
         presetPluginVersion = xmlState->getStringAttribute(PresetKey::puginVersion, Global::Plugin::version);
+
+        // WT+ の波形メモリ復帰 (実データはファイルから読み直す)
+        for (int i = 0; i < Global::WtPlus::slots; ++i) {
+            juce::String storedWtPlus =
+                xmlState->getStringAttribute(PresetKey::wtPlusWavePathPrefix + juce::String(i));
+
+            if (storedWtPlus.isEmpty()) {
+                unloadWtPlusWaveFile(i);
+                continue;
+            }
+
+            juce::File wtPlusFile = resolveWtPath(storedWtPlus);
+
+            if (wtPlusFile.existsAsFile()) {
+                loadWtPlusWaveFile(i, wtPlusFile);
+            }
+        }
+
+
+
+        // チャンネルごとの WT PITCH MOD 変調波形。
+        // エディタが開いていないと map は空なので、属性側から拾って作る。
+        // 実データはファイルから読み直す。
+        modWavePaths.clear();
+
+        // modWaveSlots は音源側へ要素のポインタを配ってあるので、
+        // 要素そのものを消してはいけない。中身だけ空にする。
+        for (auto& kv : modWaveSlots) {
+            for (auto& slot : kv.second) {
+                slot.data.fill(0.0f);
+                slot.hasData = false;
+            }
+        }
+
+        for (int i = 0; i < xmlState->getNumAttributes(); ++i) {
+            const juce::String& name = xmlState->getAttributeName(i);
+
+            if (!name.startsWith(PresetKey::modWavePathPrefix)) continue;
+
+            // 「プレフィックス + コード + _ + スロット番号」から後ろ 2 つを外す
+            juce::String tail = name.substring(PresetKey::modWavePathPrefix.length());
+            int sep = tail.lastIndexOfChar('_');
+
+            if (sep < 0) continue;
+
+            juce::String code = tail.substring(0, sep);
+            int slot = tail.substring(sep + 1).getIntValue();
+
+            if (slot < 0 || slot >= Global::WtMod::slots) continue;
+
+            juce::String stored = xmlState->getAttributeValue(i);
+
+            if (stored.isEmpty()) continue;
+
+            juce::File file = resolveWtPath(stored);
+
+            if (file.existsAsFile()) loadWtModWaveFile(code, slot, file);
+        }
 
         // サンプル復帰 (ADPCM)
         juce::String storedAdpcm = xmlState->getStringAttribute(PresetKey::adpcmPath);
@@ -568,11 +691,27 @@ void AudioPlugin2686V::savePreset(const juce::File& file)
 
     setPresetToXml(xml);
 
-    xml->writeTo(file);
+    // 中身の組み立ては今までどおり。書き出す形だけを名前式にする。
+    Io::ParamWriter writer(presetFormat);
+
+    Io::writeStateXml(writer, *xml);
+
+    writer.writeTo(file);
 }
 
 void AudioPlugin2686V::loadPreset(const juce::File& file)
 {
+    // 3.0.0 より前のプリセットは XML。作り溜めたものが読めなくなると困るので、
+    // 読み込みだけは残してある。書き出しは新しい形式だけ。
+    if (auto reader = Io::ParamReader::open(file, presetFormat, false))
+    {
+        auto xmlState = Io::readStateXml(*reader, apvts.state.getType().toString());
+
+        getPresetFromXml(xmlState);
+
+        return;
+    }
+
     juce::XmlDocument xmlDoc(file);
     std::unique_ptr<juce::XmlElement> xmlState = xmlDoc.getDocumentElement();
 
@@ -580,73 +719,37 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 }
 
 // 環境設定を保存
-void AudioPlugin2686V::saveEnvironment(const juce::File& file)
+bool AudioPlugin2686V::saveEnvironment(const juce::File& file)
 {
-    juce::XmlElement xml(SettingsKey::envCode);
+    Io::ParamWriter writer(settingsFormat);
 
-    xml.setAttribute(SettingsKey::uiScaleIndex, uiScaleIndex);
-    xml.setAttribute(SettingsKey::wallpaperPath, wallpaperPath);
-    xml.setAttribute(SettingsKey::wallpaperMode, wallpaperMode);
-    xml.setAttribute(SettingsKey::defaultSampleDir, defaultSampleDir);
-    xml.setAttribute(SettingsKey::defaultPresetDir, defaultPresetDir);
-    xml.setAttribute(SettingsKey::defaultWavetableDir, defaultWavetableDir);
-    xml.setAttribute(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
-    xml.setAttribute(SettingsKey::defaultFxParamDir, defaultFxParamDir);
-    xml.setAttribute(SettingsKey::defaultChannelParamDir, defaultChannelParamDir);
-    xml.setAttribute(SettingsKey::defaultCurveParamDir, defaultCurveParamDir);
-    xml.setAttribute(SettingsKey::defaultLfoParamDir, defaultLfoParamDir);
-    xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
-    xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
-    xml.setAttribute(SettingsKey::defaultSsgSwEnvParamDir, defaultSsgSwEnvParamDir);
-    xml.setAttribute(SettingsKey::defaultDetuneParamDir, defaultDetuneParamDir);
-    xml.setAttribute(SettingsKey::defaultUnisonParamDir, defaultUnisonParamDir);
-    xml.setAttribute(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
-    xml.setAttribute(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
-    xml.setAttribute(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
-    xml.setAttribute(SettingsKey::showTooltips, showTooltips);
-    xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
-    xml.setAttribute(SettingsKey::headroomGain, headroomGain);
-    xml.setAttribute(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
+    EnvironmentWriter visit{ writer };
 
-    xml.writeTo(file);
+    visitEnvironment(visit);
+
+    return writer.writeTo(file);
 }
 
 // 環境設定を読み込み
-void AudioPlugin2686V::loadEnvironment(const juce::File& file)
+bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy)
 {
-    juce::XmlDocument xmlDoc(file);
-    std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
+    auto reader = Io::ParamReader::open(file, settingsFormat, tellIfLegacy);
 
-    if (xml.get() != nullptr && xml->hasTagName(SettingsKey::envCode))
-    {
-        uiScaleIndex = xml->getIntAttribute(SettingsKey::uiScaleIndex, 7);
-        wallpaperPath = xml->getStringAttribute(SettingsKey::wallpaperPath);
-        wallpaperMode = xml->getIntAttribute(SettingsKey::wallpaperMode);
-        defaultSampleDir = xml->getStringAttribute(SettingsKey::defaultSampleDir);
-        defaultPresetDir = xml->getStringAttribute(SettingsKey::defaultPresetDir);
-		defaultWavetableDir = xml->getStringAttribute(SettingsKey::defaultWavetableDir);
-        defaultFxOrderDir = xml->getStringAttribute(SettingsKey::defaultFxOrderDir);
-        defaultFxParamDir = xml->getStringAttribute(SettingsKey::defaultFxParamDir);
-        defaultChannelParamDir = xml->getStringAttribute(SettingsKey::defaultChannelParamDir);
-        defaultCurveParamDir = xml->getStringAttribute(SettingsKey::defaultCurveParamDir);
-        defaultLfoParamDir = xml->getStringAttribute(SettingsKey::defaultLfoParamDir);
-        defaultAmpEnvParamDir = xml->getStringAttribute(SettingsKey::defaultAmpEnvParamDir);
-        defaultPitchEnvParamDir = xml->getStringAttribute(SettingsKey::defaultPitchEnvParamDir);
-        defaultSsgSwEnvParamDir = xml->getStringAttribute(SettingsKey::defaultSsgSwEnvParamDir);
-        defaultDetuneParamDir = xml->getStringAttribute(SettingsKey::defaultDetuneParamDir);
-        defaultQualityParamDir = xml->getStringAttribute(SettingsKey::defaultQualityParamDir);
-        defaultPcmPlayParamDir = xml->getStringAttribute(SettingsKey::defaultPcmPlayParamDir);
-        defaultToneNoiseParamDir = xml->getStringAttribute(SettingsKey::defaultToneNoiseParamDir);
-        showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
-        useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
-        headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
-        showVirtualKeyboard = xml->getBoolAttribute(SettingsKey::showVirtualKeyboard, SettingsValue::Initial::showVirtualKeyboard);
+    if (!reader.has_value()) return false;
 
-        // 内部変数の更新
-        if (juce::File(defaultSampleDir).isDirectory()) {
-            lastSampleDirectory = juce::File(defaultSampleDir);
-        }
+    EnvironmentReader visit{ *reader };
+
+    visitEnvironment(visit);
+
+    // 読んだ番号を書き出し先へ映す
+    applyFileFormat();
+
+    // 内部変数の更新
+    if (juce::File(defaultSampleDir).isDirectory()) {
+        lastSampleDirectory = juce::File(defaultSampleDir);
     }
+
+    return true;
 }
 
 void AudioPlugin2686V::loadStartupSettings()
@@ -655,7 +758,7 @@ void AudioPlugin2686V::loadStartupSettings()
     // 例: マイドキュメントフォルダ内の "2686V" フォルダにある "init_preset_vl.xml"
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     auto pluginDir = docDir.getChildFile(Io::Folder::asset);
-    auto presetFile = pluginDir.getChildFile(SettingsValue::File::Name::initial);
+    auto presetFile = getStartupSettingsFile();
 
     if (!pluginDir.exists()) {
         pluginDir.createDirectory();
@@ -666,22 +769,12 @@ void AudioPlugin2686V::loadStartupSettings()
     // 2. ファイルが存在するかチェック
     if (presetFile.existsAsFile())
     {
-        juce::XmlDocument xmlDoc(presetFile);
-        std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
-
-        // XMLとして不正、またはルートタグが期待するものでない場合は破損とみなす
-        if (xml == nullptr || !xml->hasTagName(SettingsKey::envCode))
-        {
-            DBG("Startup settings file is corrupted. Deleting...");
-            presetFile.deleteFile(); // 破損ファイルを削除
-            // loadSuccess = false のまま
-        }
-        else
-        {
-            // 正常なら読み込む
-            loadEnvironment(presetFile);
-            loadSuccess = true;
-        }
+        // 読めるかどうかは読み込み側が判断する。ここで形を決め打ちすると、
+        // 形式を変えたときに正しいファイルまで壊れていると見なしてしまう。
+        //
+        // 読めなくても消さない。こちらから開いたわけではないので黙って
+        // 見送り、初期値で立ち上げる。
+        loadSuccess = loadEnvironment(presetFile, false);
     }
 
     // プリセットディレクトリ・ADPCMディレクトリが空の時は初期値を設定する
@@ -806,6 +899,18 @@ void AudioPlugin2686V::loadStartupSettings()
         defaultSsgSwEnvParamDir = newSsgSwEnvParamDir.getFullPathName();
     }
 
+    if (defaultSsgHwEnvParamDir.isEmpty() || !juce::File(defaultSsgHwEnvParamDir).isDirectory())
+    {
+        auto newSsgHwEnvParamDir = pluginDir.getChildFile(Io::Folder::ssgHwEnvParam);
+
+        // 存在していなければ作成
+        if (!newSsgHwEnvParamDir.exists()) {
+            newSsgHwEnvParamDir.createDirectory();
+        }
+
+        defaultSsgHwEnvParamDir = newSsgHwEnvParamDir.getFullPathName();
+    }
+
     if (defaultDetuneParamDir.isEmpty() || !juce::File(defaultDetuneParamDir).isDirectory())
     {
         auto newDetuneParamDir = pluginDir.getChildFile(Io::Folder::detuneParam);
@@ -865,6 +970,18 @@ void AudioPlugin2686V::loadStartupSettings()
 
         defaultToneNoiseParamDir = newToneNoiseParamDir.getFullPathName();
     }
+
+    if (defaultColorSettingDir.isEmpty() || !juce::File(defaultColorSettingDir).isDirectory())
+    {
+        auto newColorSettingDir = pluginDir.getChildFile(Io::Folder::colorSetting);
+
+        // 存在していなければ作成
+        if (!newColorSettingDir.exists()) {
+            newColorSettingDir.createDirectory();
+        }
+
+        defaultColorSettingDir = newColorSettingDir.getFullPathName();
+    }
 }
 
 juce::String AudioPlugin2686V::getDefaultPresetDir()
@@ -876,6 +993,9 @@ void AudioPlugin2686V::unloadAdpcmFile()
 {
     // パス情報を削除
     adpcmFilePath.clear();
+
+    // 画面表示用の控えも捨てる
+    adpcmPreviewBuffer.clear();
 
     // 空のデータを作成
     std::vector<float> emptyData(1, 0.0f);
@@ -898,6 +1018,9 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
 
     // パス情報を削除
     rhythmFilePaths[padIndex].clear();
+
+    // 画面表示用の控えも捨てる
+    if (padIndex < RhythmPrValue::pads) rhythmPreviewBuffers[padIndex].clear();
 
     // 空のデータを作成
     std::vector<float> emptyData(1, 0.0f);
@@ -1179,6 +1302,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
     case OscMode::SSG:       prSsg.processBlock(m_previewParams, apvts); break;
     case OscMode::WAVETABLE: prWt.processBlock(m_previewParams, apvts); break;
     case OscMode::WT2:       prWt2.processBlock(m_previewParams, apvts); break;
+    case OscMode::WTPLUS:    prWtPlus.processBlock(m_previewParams, apvts); break;
     case OscMode::RHYTHM:    prRhythm.processBlock(m_previewParams, apvts); break;
     case OscMode::ADPCM:     prAdpcm.processBlock(m_previewParams, apvts); break;
     case OscMode::BEEP:      prBeep.processBlock(m_previewParams, apvts); break;
@@ -1374,6 +1498,226 @@ void AudioPlugin2686V::unloadOpzx7Wt2File(int opIndex)
     }
 }
 
+// ============================================================================
+// WT+ Wave Memory
+// ============================================================================
+// .wt / .wt2 を読み込み、Global::WtPlus::waveResolution 点へ展開して保持する。
+// 展開はサンプル & ホールド。線形補間しないのは、波形メモリの階段状の質感を
+// そのまま残すためで、WtCore が custom 波形を展開するときと同じ流儀。
+void AudioPlugin2686V::loadWtPlusWaveFile(int slot, const juce::File& file)
+{
+    if (slot < 0 || slot >= Global::WtPlus::slots) return;
+
+    juce::StringArray lines;
+    file.readLines(lines);
+
+    if (lines.size() == 0) return;
+
+    int sampleCount = lines[0].trim().getIntValue();
+
+    if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) return;
+
+    std::vector<float> values(sampleCount, 0.0f);
+
+    if (file.getFileExtension().equalsIgnoreCase(".wt2")) {
+        // .wt2 は 1行目=サンプル数 / 2行目=解像度 / 3行目以降=0〜(解像度-1) の整数。
+        // 中央を 0 として -1.0〜1.0 へ正規化する。
+        int resolution = (lines.size() > 1) ? lines[1].trim().getIntValue() : 0;
+
+        if (resolution != 16 && resolution != 32 && resolution != 64
+            && resolution != 128 && resolution != 256) {
+            return;
+        }
+
+        float center = (float)(resolution >> 1);
+
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 2 < lines.size()) {
+                int raw = std::clamp(lines[i + 2].getIntValue(), 0, resolution - 1);
+
+                values[i] = std::clamp(((float)raw - center) / center, -1.0f, 1.0f);
+            }
+        }
+    }
+    else {
+        // .wt は 1行目=サンプル数 / 2行目以降= -1.0〜1.0 の実数
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 1 < lines.size()) {
+                values[i] = std::clamp(lines[i + 1].getFloatValue(), -1.0f, 1.0f);
+            }
+        }
+    }
+
+    const int resolutionPoints = Global::WtPlus::waveResolution;
+    const int hold = resolutionPoints / sampleCount;
+
+    std::vector<float> expanded(resolutionPoints, 0.0f);
+
+    for (int i = 0; i < resolutionPoints; ++i) {
+        expanded[i] = values[i / hold];
+    }
+
+    // 音源コアはこの配列を直接読むので、差し替えの瞬間だけ処理を止める
+    suspendProcessing(true);
+
+    wtPlusWaves[slot].data = std::move(expanded);
+    wtPlusWaves[slot].sampleCount = sampleCount;
+
+    suspendProcessing(false);
+
+    wtPlusWavePaths[slot] = file.getFullPathName();
+}
+
+// WT PITCH MOD (HuC6280 モード) の変調波形を読み込む。
+//
+// 実機の波形メモリは 32 サンプルなので、そこへ落としてから持つ。
+// 落とし方は Smooth の設定で変わる。
+//   Smooth ON  : 区間平均してから元のピークへ正規化する。
+//                32 点のナイキストより上の成分が低い次数へフルの振幅で
+//                折り返すのを抑えつつ、変調の振れ幅は保つ。
+//   Smooth OFF : 単純間引き。元波形の値をそのまま拾う。
+void AudioPlugin2686V::loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file)
+{
+    if (slot < 0 || slot >= Global::WtMod::slots) return;
+
+    juce::StringArray lines;
+    file.readLines(lines);
+
+    if (lines.size() == 0) return;
+
+    int sampleCount = lines[0].trim().getIntValue();
+
+    if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) return;
+
+    std::vector<float> values((size_t)sampleCount, 0.0f);
+
+    if (file.getFileExtension().equalsIgnoreCase(".wt2")) {
+        // .wt2 は 2 行目が解像度、3 行目以降が 0〜(解像度-1) の整数。
+        // 中央を 0 として -1.0〜1.0 へ正規化する。
+        int resolution = (lines.size() > 1) ? lines[1].trim().getIntValue() : 0;
+
+        if (resolution != 16 && resolution != 32 && resolution != 64
+            && resolution != 128 && resolution != 256) {
+            return;
+        }
+
+        float center = (float)(resolution >> 1);
+
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 2 < lines.size()) {
+                int raw = std::clamp(lines[i + 2].getIntValue(), 0, resolution - 1);
+
+                values[(size_t)i] = std::clamp(((float)raw - center) / center, -1.0f, 1.0f);
+            }
+        }
+    }
+    else {
+        // .wt は 2 行目以降が -1.0〜1.0 の実数
+        for (int i = 0; i < sampleCount; ++i) {
+            if (i + 1 < lines.size()) {
+                values[(size_t)i] = std::clamp(lines[i + 1].getFloatValue(), -1.0f, 1.0f);
+            }
+        }
+    }
+
+    const int step = sampleCount / Global::WtMod::waveSize;
+
+    bool smooth = false;
+
+    if (auto* p = apvts.getRawParameterValue(code + CPK::WtMod::waveSmooth)) {
+        smooth = p->load() > 0.5f;
+    }
+
+    std::array<float, Global::WtMod::waveSize> reduced = { 0.0f };
+
+    if (smooth && step > 1) {
+        float srcPeak = 0.0f;
+
+        for (float v : values) srcPeak = std::max(srcPeak, std::fabs(v));
+
+        float dstPeak = 0.0f;
+
+        for (int i = 0; i < Global::WtMod::waveSize; ++i) {
+            float sum = 0.0f;
+
+            for (int k = 0; k < step; ++k) sum += values[(size_t)(i * step + k)];
+
+            reduced[(size_t)i] = sum / (float)step;
+            dstPeak = std::max(dstPeak, std::fabs(reduced[(size_t)i]));
+        }
+
+        // 平均でなまったぶんのピークを戻す (無音の波形はそのまま)
+        if (srcPeak > 1.0e-6f && dstPeak > 1.0e-6f) {
+            float gain = srcPeak / dstPeak;
+
+            for (auto& v : reduced) v = std::clamp(v * gain, -1.0f, 1.0f);
+        }
+    }
+    else {
+        for (int i = 0; i < Global::WtMod::waveSize; ++i) reduced[(size_t)i] = values[(size_t)(i * step)];
+    }
+
+    // 音源コアはこの配列を直接読むので、差し替えの瞬間だけ処理を止める
+    suspendProcessing(true);
+
+    auto& slots = modWaveSlots[code];
+
+    slots[(size_t)slot].data = reduced;
+    slots[(size_t)slot].hasData = true;
+
+    suspendProcessing(false);
+
+    modWavePaths[code][(size_t)slot] = file.getFullPathName();
+}
+
+void AudioPlugin2686V::unloadWtModWaveFile(const juce::String& code, int slot)
+{
+    if (slot < 0 || slot >= Global::WtMod::slots) return;
+
+    suspendProcessing(true);
+
+    auto& slots = modWaveSlots[code];
+
+    slots[(size_t)slot].data.fill(0.0f);
+    slots[(size_t)slot].hasData = false;
+
+    suspendProcessing(false);
+
+    modWavePaths[code][(size_t)slot].clear();
+}
+
+void AudioPlugin2686V::unloadWtPlusWaveFile(int slot)
+{
+    if (slot < 0 || slot >= Global::WtPlus::slots) return;
+
+    suspendProcessing(true);
+
+    wtPlusWaves[slot].data.clear();
+    wtPlusWaves[slot].sampleCount = 0;
+
+    suspendProcessing(false);
+
+    wtPlusWavePaths[slot] = juce::String();
+}
+
+// 全ボイスへ波形メモリ配列の参照を渡す。
+// 実体はプロセッサが持ち続けるので、読み込みのたびに配り直す必要はない。
+void AudioPlugin2686V::publishWtPlusWaveSlots()
+{
+    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->setWtPlusWaveSlots(&wtPlusWaves);
+        }
+    }
+}
+
+bool AudioPlugin2686V::isWtPlusWaveLoaded(int slot) const
+{
+    if (slot < 0 || slot >= Global::WtPlus::slots) return false;
+
+    return !wtPlusWaves[slot].data.empty();
+}
+
 void AudioPlugin2686V::resetMidiSettings() {
     m_synth.isMonoMode = false;
     m_synth.useVelocity = false;
@@ -1430,7 +1774,7 @@ int AudioPlugin2686V::getOpzx7AlgMode() const
     return m_opzx7AlgMode.load();
 }
 
-void AudioPlugin2686V::setOpzx7AlgMatrix(const AlgMatrixState& state)
+void AudioPlugin2686V::setOpzx7AlgMatrix(const FmAlgState& state)
 {
     {
         // DSPスレッドと競合しないようにロックしてキャッシュを更新
@@ -1464,7 +1808,7 @@ void AudioPlugin2686V::setOpzx7AlgMatrix(const AlgMatrixState& state)
     apvts.state.setProperty("OPZX7_ALG_MATRIX_F", fStr, nullptr);
 }
 
-AlgMatrixState AudioPlugin2686V::getOpzx7AlgMatrix()
+FmAlgState AudioPlugin2686V::getOpzx7AlgMatrix()
 {
     juce::ScopedLock lock(m_matrixLock);
     return m_opzx7AlgMatrixState;
@@ -1483,6 +1827,9 @@ void AudioPlugin2686V::updateAlgMatrixCacheFromState()
 
     juce::ScopedLock lock(m_matrixLock);
 
+    // メンバ変数の初期化サイズを設定
+    m_opzx7AlgMatrixState.numOps = Opzx7PrValue::ops; // OPZX7S用なので一旦8固定
+
     // 文字列から構造体へ復元
     for (int i = 0; i < 8 && i < cStr.length(); ++i) {
         m_opzx7AlgMatrixState.isCarrier[i] = (cStr[i] == '1');
@@ -1491,10 +1838,8 @@ void AudioPlugin2686V::updateAlgMatrixCacheFromState()
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
             int index = i * 8 + j;
-            if (index < mStr.length()) {
-                if (index < mStr.length()) m_opzx7AlgMatrixState.mod[i][j] = (mStr[index] == '1');
-                if (index < fStr.length()) m_opzx7AlgMatrixState.fbMod[i][j] = (fStr[index] == '1');
-            }
+            if (index < mStr.length()) m_opzx7AlgMatrixState.mod[i][j] = (mStr[index] == '1');
+            if (index < fStr.length()) m_opzx7AlgMatrixState.fbMod[i][j] = (fStr[index] == '1');
         }
     }
 }

@@ -8,6 +8,16 @@ void DpcmCodec::reset()
     counter = 64; // 中心値へリセット
 }
 
+void DpcmCodec::process(std::vector<int16_t>& samples)
+{
+    DpcmCodec codec;
+    codec.reset();
+
+    for (auto& s : samples) {
+        s = codec.decode(codec.encode(s));
+    }
+}
+
 // Encode: 16bit PCM -> 1bit DPCM (ファミコン風デルタ変調)
 uint8_t DpcmCodec::encode(int16_t pcmSample) {
     // 16bit PCM (-32768〜32767) を、FCの7bitカウンタ (0〜127) スケールに変換して目標値を算出
@@ -23,8 +33,7 @@ uint8_t DpcmCodec::encode(int16_t pcmSample) {
         bit = 0;
     }
 
-    decodeAndUpdateState(bit); // 内部状態を更新
-
+    // 状態の更新は decode() 側で 1 回だけ行う
     return bit;
 }
 

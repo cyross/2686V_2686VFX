@@ -51,6 +51,7 @@ void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
     this->d1l = params.d1l;
     this->d2r = params.d2r;
     this->rr = params.rr;
+    this->tl = params.tl;
     this->m_ksMode = params.ksMode;
     this->m_ksOPM.setParameters(params.ksOPM);
     this->m_ksOPP.setParameters(params.ksOPP);
@@ -62,7 +63,7 @@ void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
 
     this->m_zeroDecay = this->d1r == 0;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         // サステインレベル (SL) の計算
         if (this->d1l == 15) {
             this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
@@ -129,7 +130,12 @@ float FmRgAdddr::calcLevelScalingDb() const
     return 0.0f;
 }
 
-float FmRgAdddr::noteOn(float velocity) {
+float FmRgAdddr::noteOn(float velocity, int noteNumber) {
+    // KSL はノートナンバーに依存するため、ここで先に確定させる。
+    // (オペレータは noteOn() を updateIncrementsWithKeyScale() より先に呼ぶので、
+    //  ここで受け取らないと 1音前のノートナンバーで KSL を計算してしまう)
+    m_noteNumber = noteNumber;
+
     this->m_phaseProgress = 0.0f;
 
     if (this->bypass) {
@@ -138,33 +144,24 @@ float FmRgAdddr::noteOn(float velocity) {
 
     state = State::Attack;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
-        // TLレジスタ値から直接減衰量(dB)を計算
-        // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-        float attenuationDb = tl * 0.75f;
-        float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
-        float kslDb = calcLevelScalingDb();
+    // TLレジスタ値から直接減衰量(dB)を計算
+    // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
+    float attenuationDb = (this->m_curveCore == nullptr)
+        ? this->tl * 0.75f
+        : (this->totalLevel * 127.0f) * 0.75f;
 
-        // マイナス値(+LIN, +EXP等による増幅)でも、最終ゲインが1.0を超えないようサチュレーションさせる
-        float totalDb = std::max(0.0f, attenuationDb + kslDb);
-        float finalGain = std::pow(10.0f, -totalDb / 20.0f);
+    float kslDb = calcLevelScalingDb();
 
-        return velocity * tlGain * finalGain;
-    }
-    else {
-        // TLレジスタ値から直接減衰量(dB)を計算
-        // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-        float attenuationDb = (this->totalLevel * 127.0f) * 0.75f;
-        float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
-        float kslDb = calcLevelScalingDb();
+    // マイナス値(+LIN, +EXP等による増幅)でも、最終ゲインが1.0を超えないようサチュレーションさせる。
+    // TL はこの totalDb に一度だけ含める。tlGain を別に掛けると TL が二重に効いてしまう。
+    //
+    // 実機のレベルスケーリングは TL(出力レベルレジスタ)から引く形で働くので、
+    // TL レジスタの全域 (tlMax × 0.75dB) より深くは減衰しない。同じ上限で頭打ちにする。
+    float maxAttenDb = (this->tlMax > 0) ? ((float)this->tlMax * 0.75f) : 95.25f;
+    float totalDb = std::clamp(attenuationDb + kslDb, 0.0f, maxAttenDb);
+    float finalGain = std::pow(10.0f, -totalDb / 20.0f);
 
-        // マイナス値(+LIN, +EXP等による増幅)でも、最終ゲインが1.0を超えないようサチュレーションさせる
-        float totalDb = std::max(0.0f, attenuationDb + kslDb);
-        float finalGain = std::pow(10.0f, -totalDb / 20.0f);
-
-        return velocity * tlGain * finalGain;
-    }
-
+    return velocity * finalGain;
 }
 
 void FmRgAdddr::noteOff() {
@@ -187,7 +184,7 @@ void FmRgAdddr::updateIncrementsWithKeyScale(int noteNumber)
         return;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         // ====================================================================
         // 実機のアルゴリズムで増減量を計算
         // ====================================================================
@@ -292,7 +289,7 @@ float FmRgAdddr::updateEnvelopeState(float currentLevel)
         return 1.0f;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         float limitLevel = 0.0f;
 
         switch (this->state) {
@@ -378,21 +375,18 @@ float FmRgAdddr::updateEnvelopeState(float currentLevel)
                 this->m_attackStartLevel = currentLevel;
             }
 
-            y = 0.0f;
+            // Decay や Release と同じく、進めてからカーブを引く。
+            // 後ろで進めると出力が 1 サンプルぶん遅れて線形パスとずれる。
+            this->m_phaseProgress += this->attackInc;
 
-            // 開始の瞬間は確実に 0.0f を保証し、カーブ計算の誤差ジャンプを防ぐ
-            if (this->m_phaseProgress > 0.0f) {
-                y = this->m_curveCore->process(
-                    this->positionIndex,
-                    (int)CurveParams::Target::AmpEnv,
-                    (int)CurveParams::TargetAmpEnv::Ar,
-                    this->m_phaseProgress
-                );
-            }
+            y = this->m_curveCore->process(
+                this->positionIndex,
+                (int)CurveParams::Target::AmpEnv,
+                (int)CurveParams::TargetAmpEnv::Ar,
+                this->m_phaseProgress
+            );
 
             outLevel = this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
-
-            this->m_phaseProgress += this->attackInc;
 
             if (this->m_phaseProgress >= 1.0f) {
                 this->m_phaseProgress = 0.0f; // Decayに向けて確実に進行度を0にリセット！

@@ -18,6 +18,17 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addQualityParameters(layout, prefix, prefixName);
     PrHelper::addN88LfoParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    // チップ全体へ掛かる AMP ENV。既定はバイパス。
+    PrHelper::addEnvParameters(layout, prefix, prefixName);
+    PrHelper::addAdsrBypassParameter(layout, prefix, prefixName, true);
+    // チップ全体へ掛かる MODULATION
+    PrHelper::addWtModParameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
+    // チップ全体へ掛かる SSG SW PENV11。既定はバイパス。
+    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv11BypassParameter(layout, prefix, prefixName, true);
+    PrHelper::addSsgSwEnv11BypassParameters(layout, prefix, prefixName);
 
     for (int op = 0; op < OpnaPrValue::ops; ++op)
     {
@@ -39,13 +50,18 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     }
 }
 
-void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
     const juce::String prefix = OpnaPrKey::prefix;
 
     PrHelper::setupOpnaBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAlgFbPtrs(apvts, prefix, pAlgFb);
     PrHelper::setupN88LfoPtrs(apvts, prefix, pN88Lfo);
+    PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
+    PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
+    PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
+    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
+    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11g);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
     for (int op = 0; op < OpnaPrValue::ops; ++op)
@@ -74,6 +90,11 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     PrHelper::applyAlgFb(pAlgFb, params.opna.algFb);
     PrHelper::applyN88Lfo(pN88Lfo, params.opna.glLfo);
     PrHelper::applyUnison(pUnison, params.opna.unison);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, params.opna.ssgHwEnv);
+    PrHelper::applyAdsrAmpEnv(pAmpEnvG, params.opna.ampEnvG);
+    PrHelper::applyWtMod(pWtMod, params.opna.wtMod);
+    PrHelper::applySsgSwEnv11(pSsgSwEnv11g, params.opna.ssgSwEnv11g);
+    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11g, params.opna.ssgSwPEnv11g);
 
     for (int op = 0; op < OpnaPrValue::ops; ++op)
     {

@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
 #include "../../Core/Gui/GuiComponents.h"
@@ -128,8 +130,20 @@ class GuiFx : public GuiBase
     void updateEq3bEnabled();
     void updateSfcEchoEnabled();
     void importFxOrder();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingFxOrder(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeFxOrder(Io::ParamWriter& writer);
     void exportFxOrder();
     void importFxParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingFxParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeFxParams(Io::ParamWriter& writer);
     void exportFxParam();
 public:
     GuiFx(const GuiContext& context);

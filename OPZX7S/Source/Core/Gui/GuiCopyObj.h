@@ -3,6 +3,8 @@
 #include <JuceHeader.h>
 #include <array>
 
+#include "../Const/ConstGlobal.h"
+
 #include "../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 
 struct CopyBase {
@@ -13,6 +15,19 @@ struct CopyFmBase {
 	float level;
 	int algorithm;
 	int feedback;
+};
+
+struct CopyOpzx7Base {
+	float level;
+	int algorithm;
+	float feedback1;
+	float feedback2;
+	float feedback3;
+	float feedback4;
+	float feedback5;
+	float feedback6;
+	float feedback7;
+	float feedback8;
 };
 
 struct CopyKSOpl {
@@ -79,6 +94,15 @@ struct CopyEnvOpzx7Adddr {
 	bool xof;
 	bool kor;
 	bool bypass;
+};
+
+struct CopyEnvSsgHw {
+	bool enable;
+	int shape;
+	float period;
+	float min;
+	float max;
+	bool smooth;
 };
 
 struct CopyEnvSsgSw {
@@ -158,6 +182,11 @@ struct CopyUnison {
 	int voices;
 	int detune;
 	float spread;
+	bool arpEnable;
+	int arpFreq;
+	bool arpSmooth;
+	std::array<float, Global::unisonParaVoices> paraDistance;
+	std::array<int, Global::unisonParaVoices> paraDetune;
 };
 
 struct CopyQuality {
@@ -203,7 +232,7 @@ struct CopySsgEg {
 };
 
 struct CopyOpzx7 {
-	CopyFmBase fmBase;
+	CopyOpzx7Base fmBase;
 	CopyPanpot panpot;
 	CopyLfoOpzx7 lfo;
 	CopyQuality quality;

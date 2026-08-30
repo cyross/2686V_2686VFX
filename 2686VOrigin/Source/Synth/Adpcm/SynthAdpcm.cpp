@@ -23,6 +23,8 @@ void AdpcmCore::prepare(double sampleRate)
     m_ssgSwPenv11.prepare(0, m_sampleRate);
     m_noiseGen.prepare(m_sampleRate);
     m_lfo.prepare(m_sampleRate);
+    m_ssgHwEnv.prepare(m_sampleRate);
+
     m_phaseDelta = m_currentFrequency / m_sampleRate;
 
     m_targetRate = getTargetRate(m_rateIndex);
@@ -38,6 +40,8 @@ void AdpcmCore::setSampleRate(double sampleRate)
     m_ssgSwPenv11.updateSampleRate(m_sampleRate);
     m_noiseGen.updateTargetRate(m_sampleRate);
     m_lfo.updateTargetSampleRate(m_sampleRate);
+    m_ssgHwEnv.updateSampleRate(m_sampleRate);
+
     m_phaseDelta = m_currentFrequency / m_sampleRate;
 }
 
@@ -84,6 +88,8 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_detune.setParameters(params.adpcm.detune);
     m_lfo.setParameters(params.adpcm.lfo);
     m_noiseGen.setParameters({ .level = params.adpcm.tn.noiseLevel, .noiseOnNote = false, .baseFreq = params.adpcm.tn.noiseFreq });
+    m_ssgHwEnv.setParameters(params.adpcm.ssgHwEnv);
+    m_wtMod.setParameters(params.adpcm.wtMod);
 
     m_rootNote = params.adpcm.rootNote;
 
@@ -130,46 +136,8 @@ void AdpcmCore::setSampleData(const std::vector<float>& sourceData, double sourc
 
     double step = sourceRate / targetRate;
 
-    m_pcmBuffer.clear();
-    m_pcmBuffer.reserve((size_t)(sourceData.size() / step));
-
-    double pos = 0;
-
-    // --- ロード時もDPCM/ADPCM設定に従ってエンコードする ---
-    if (m_qualityMode == dpcmMode)
-    {
-        DpcmCodec codec;
-        codec.reset();
-        while (pos < sourceData.size()) {
-            int index = (int)pos;
-
-            if (index >= sourceData.size()) break;
-
-            int16_t input = (int16_t)(sourceData[index] * 32767.0f);
-
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-
-            pos += step;
-        }
-    }
-    else
-    {
-        Ym2608AdpcmCodec codec;
-        codec.reset();
-        while (pos < sourceData.size()) {
-            int index = (int)pos;
-
-            if (index >= sourceData.size()) break;
-
-            int16_t input = (int16_t)(sourceData[index] * 32767.0f);
-
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-
-            pos += step;
-        }
-    }
-
-    GenPcmHelper::lowPassFilter(m_pcmBuffer);
+    // 圧縮の種類ごとの処理は GenPcmHelper に集約している
+    GenPcmHelper::encodeBuffer(m_rawBuffer, step, m_qualityMode, m_pcmBuffer);
 }
 
 void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
@@ -187,20 +155,9 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     float rootFreq = (float)juce::MidiMessage::getMidiNoteInHertz(m_rootNote);
 
     // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
-    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
-    float finalFreq = freq;
-
-    m_unisonPhaseOffset = 0.0f;
-
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
-
-        // ADPCMでは直接波形の位相としては使いませんが、計算自体は残しておきます
-        m_unisonPhaseOffset = (float)m_unisonIndex / (float)m_unisonTotal;
-    }
+    float finalFreq = m_unison.applyDetune(freq);
 
     // ホストDAWのレートとの比率を加味した再生速度レシオの更新
     double rateRatio = currentBufferRate / m_sampleRate;
@@ -221,7 +178,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
         m_hasFinished = false;
         m_isReleased = false;
-        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+        m_phase = (m_unison.getPhaseOffset() * juce::MathConstants<float>::twoPi);
 
         // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
         while (m_phase >= juce::MathConstants<float>::twoPi) {
@@ -248,6 +205,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         }
 
         m_lfo.noteOn();
+        m_ssgHwEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -308,6 +266,8 @@ void AdpcmCore::setModulationWheel(int wheelValue)
 {
     // 0.0 ～ 1.0 に正規化
     m_modWheel = (float)wheelValue / 127.0f;
+
+    m_wtMod.setModWheel(m_modWheel);
 }
 
 float AdpcmCore::getCurrentPan() const
@@ -381,7 +341,7 @@ float AdpcmCore::getSample()
     }
 
     float output = 0.0f;
-    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = m_sampleRate;
 
     // ノイズを出すために、バッファが空でも最後まで通す
@@ -685,6 +645,9 @@ float AdpcmCore::getSample()
         output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
 
+    // SSGハードウェアエンベロープ(SsgHwEnv)処理
+    float sshHwEnvVal = m_ssgHwEnv.process();
+
     // ==========================================
     // Opzx7 LFO の計算 (AM / PM)
     // ==========================================
@@ -717,7 +680,8 @@ float AdpcmCore::getSample()
     // 周波数倍率の決定
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
-    float freqMult = m_pitchBendRatio * opzx7PitchMod;
+    // MODULATION は搬送波の周波数比として掛ける
+    float freqMult = m_pitchBendRatio * opzx7PitchMod * m_wtMod.process(m_phaseDelta);
 
     // Advance position
     m_position += currentIncrement * freqMult;
@@ -734,7 +698,7 @@ float AdpcmCore::getSample()
     float noiseGain = m_mix;
     float rawMixed = (output * m_tone * toneGain * 4.0f) + m_noiseGen.generateSample(noiseGain) * 0.4f;
 
-    return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier;
+    return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier * sshHwEnvVal;
 }
 
 void AdpcmCore::refreshPcmBuffer()
@@ -759,48 +723,8 @@ void AdpcmCore::refreshPcmBuffer()
     double step = m_sourceRate / targetRate;
     if (step <= 0.0) step = 1.0;
 
-    m_pcmBuffer.clear();
-    m_pcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
-
-    double pos = 0;
-
-    // --- DPCMとADPCMの分岐エンコード ---
-    if (m_qualityMode == dpcmMode)
-    {
-        DpcmCodec codec;
-        codec.reset();
-
-        while (pos < m_rawBuffer.size()) {
-            int index = (int)pos;
-
-            if (index >= m_rawBuffer.size()) break;
-
-            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
-
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-
-            pos += step;
-        }
-    }
-    else
-    {
-        Ym2608AdpcmCodec codec;
-        codec.reset();
-
-        while (pos < m_rawBuffer.size()) {
-            int index = (int)pos;
-
-            if (index >= m_rawBuffer.size()) break;
-
-            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
-
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-
-            pos += step;
-        }
-    }
-
-    GenPcmHelper::lowPassFilter(m_pcmBuffer);
+    // 圧縮の種類ごとの処理は GenPcmHelper に集約している
+    GenPcmHelper::encodeBuffer(m_rawBuffer, step, m_qualityMode, m_pcmBuffer);
 }
 
 void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
@@ -812,20 +736,8 @@ void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int s
     float basePanL = m_panL;
     float basePanR = m_panR;
 
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
-
-        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
-        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
-
-        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
-        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
-
-        // 音量補正 (ボイス数が増えると爆音になるため下げる)
-        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
-        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
-        sample *= gainComp;
-    }
+    m_unison.applyPan(basePanL, basePanR);
+    sample *= m_unison.getGainComp();
 
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;

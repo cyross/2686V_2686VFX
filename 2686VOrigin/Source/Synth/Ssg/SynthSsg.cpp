@@ -22,6 +22,7 @@ void SsgCore::prepare(double sampleRate) {
 
     m_lfo.prepare(m_targetRate);
     m_noiseGen.prepare(m_targetRate);
+    m_ssgHwEnv.prepare(m_targetRate);
     m_phaseDelta = m_currentFrequency / m_targetRate;
 }
 
@@ -51,15 +52,13 @@ void SsgCore::setParameters(const SynthParams& params)
 	m_ssgSwEnv.setParameters(params.ssg.ssgSwEnv);
     m_ssgSwEnv11.setParameters(params.ssg.ssgSwEnv11);
     m_ssgSwPenv11.setParameters(params.ssg.ssgSwPEnv11);
+    m_ssgHwEnv.setParameters(params.ssg.env);
+    m_wtMod.setParameters(params.ssg.wtMod);
     m_lfo.setParameters(params.ssg.lfo);
 
     m_fixMode.setParameters(params.ssg.fix);
 
     m_waveform = params.ssg.waveform;
-
-    m_useHwEnv = params.ssg.env.enable;
-    m_envShape = params.ssg.env.shape;
-    m_envFreq = params.ssg.env.period;
 
     m_dutyMode = params.ssg.duty.mode;
     m_dutyPreset = params.ssg.duty.preset;
@@ -81,6 +80,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
         m_noiseGen.updateTargetRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
+        m_ssgHwEnv.updateTargetSampleRate(m_targetRate);
         m_phaseDelta = m_currentFrequency / m_targetRate;
     }
 
@@ -106,27 +106,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
-    float finalFreq = freq;
-
-    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
-    m_unisonPhaseOffset = 0.0f;
-
-    if (m_unisonTotal > 1) {
-        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
-        // 例(3ボイス): -1.0,  0.0,  1.0
-        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-
-        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
-        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-
-        // セント値(Cents) を周波数倍率(Ratio)に変換する
-        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
-        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
-
-        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
-        m_unisonPhaseOffset = (float)m_unisonIndex / (float)m_unisonTotal;
-    }
+    float finalFreq = m_unison.applyDetune(freq);
 
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
@@ -138,7 +118,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     if (!isLegato) {
         if (!m_isMonoMode) {
-            m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+            m_phase = (m_unison.getPhaseOffset() * juce::MathConstants<float>::twoPi);
 
             // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
             while (m_phase >= juce::MathConstants<float>::twoPi) {
@@ -147,8 +127,8 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
             m_lfo.noteOn();
         }
 
+        m_ssgHwEnv.noteOn();
         m_rateAccumulator = 0.0;
-        m_hwEnvPhase = 0.0f;
         m_lastSample = 0.0f;
     }
 
@@ -225,6 +205,8 @@ void SsgCore::setModulationWheel(int wheelValue)
 {
     // 0.0 ～ 1.0 に正規化
     m_modWheel = (float)wheelValue / 127.0f;
+
+    m_wtMod.setModWheel(m_modWheel);
 }
 
 void SsgCore::setPitchBendRatio(float ratio)
@@ -340,7 +322,8 @@ float SsgCore::getSample()
         // 周波数倍率の決定
         // (PitchBend × Opzx7のPM × ModWheelのPM)
         // ==========================================
-        float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod;
+        // MODULATION は搬送波の周波数比として掛ける
+        float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta);
 
         float phaseInc = 0.0f;
         if (m_waveform == 1 && !m_triKeyTrack) {
@@ -353,51 +336,7 @@ float SsgCore::getSample()
         // ==========================================
         // 1. Hardware Envelope Update
         // ==========================================
-        float hwEnvDelta = m_envFreq / (float)m_targetRate;
-        m_hwEnvPhase += hwEnvDelta;
-
-        // 位相が無限増大して小数の精度が落ちるのを防ぐラップアラウンド
-        if (m_hwEnvPhase >= 2.0) {
-            if (m_envShape % 2 == 0) m_hwEnvPhase -= 2.0;
-            else m_hwEnvPhase = 2.0;
-        }
-
-        float hwEnvGain = 1.0f;
-        if (m_useHwEnv)
-        {
-            double p = m_hwEnvPhase;
-            bool isEvenCycle = ((int)p % 2 == 0);
-            float phaseNorm = (float)(p - std::floor(p));
-
-            switch (m_envShape) {
-            case 0:
-                hwEnvGain = 1.0f - phaseNorm;
-                break;
-            case 1:
-                hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f;
-                break;
-            case 2:
-                hwEnvGain = isEvenCycle ? (1.0f - phaseNorm) : phaseNorm;
-                break;
-            case 3:
-                hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f;
-                break;
-            case 4:
-                hwEnvGain = phaseNorm;
-                break;
-            case 5:
-                hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f;
-                break;
-            case 6:
-                hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f;
-                break;
-            case 7:
-                hwEnvGain = isEvenCycle ? phaseNorm : (1.0f - phaseNorm);
-                break;
-            default:
-                hwEnvGain = phaseNorm;
-            }
-        }
+        float hwEnvGain = m_ssgHwEnv.process();
 
         // ==========================================
         // 2. Waveform Generation
@@ -445,7 +384,10 @@ float SsgCore::getSample()
         }
 
         m_phase += phaseInc;
-        if (m_phase >= 1.0f) m_phase -= 1.0f;
+        // ピッチエンベロープや PM で 1 サンプルの進みが 1.0 を超えても
+        // 破綻しないよう while で回す
+        while (m_phase >= 1.0f) m_phase -= 1.0f;
+        while (m_phase < 0.0f) m_phase += 1.0f;
 
         // ==========================================
         // 3. Noise Generator
@@ -471,9 +413,9 @@ float SsgCore::getSample()
             if (rawMixed < -1.0f) rawMixed = -1.0f;
 
             // ディザ(dither)を削除し、実機DACと同じ純粋な四捨五入にする(プレビューのゴミ解消)
-            float norm = (rawMixed + 1.0f) * 0.5f;
-            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
-            finalOut = (quantized * 2.0f) - 1.0f;
+            // 0〜1 に詰め替えてから丸めると 0.0 が中央ステップから外れて
+            // 直流オフセットになるため、バイポーラのまま量子化する
+            finalOut = quantizeSample(rawMixed, m_quantizeSteps);
         }
         else {
             finalOut = rawMixed;
@@ -483,8 +425,10 @@ float SsgCore::getSample()
     }
 
     // 線形補間を適用して波形を滑らかに出力する
-    float fraction = (float)(m_rateAccumulator / stepSize);
-    if (fraction > 1.0f) fraction = 1.0f;
+    // m_rateAccumulator は直近に生成したサンプルからの進み具合を
+    // ソースサンプル単位 (0.0〜1.0) で保持しているので、そのまま補間係数になる。
+    // prev→last を補間する形なので、出力はソース 1 サンプル分だけ遅れる。
+    float fraction = (float)m_rateAccumulator;
 
     float interpolatedSample = m_prevSample + (m_lastSample - m_prevSample) * fraction;
 
@@ -499,20 +443,8 @@ void SsgCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
     float basePanL = 1.0f;
     float basePanR = 1.0f;
 
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
-
-        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
-        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
-
-        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
-        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
-
-        // 音量補正 (ボイス数が増えると爆音になるため下げる)
-        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
-        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
-        sample *= gainComp;
-    }
+    m_unison.applyPan(basePanL, basePanR);
+    sample *= m_unison.getGainComp();
 
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;

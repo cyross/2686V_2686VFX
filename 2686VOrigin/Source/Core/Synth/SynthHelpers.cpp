@@ -55,14 +55,21 @@ float getTargetBitDepth(int index)
     case 5: return 127.0f;       // 8-bit (-127 ~ 0 ~ +127 の255段階)
     case 6: return 255.0f;       // 9-bit
     case 7: return 511.0f;       // 10-bit
-    case 8: return 4095.0f;      // 12-bit
-    case 9: return 16383.0f;     // 16-bit
+    case 8: return 2047.0f;      // 12-bit (-2047 ~ 0 ~ +2047 の4095段階)
+    case 9: return 32767.0f;     // 16-bit (-32767 ~ 0 ~ +32767 の65535段階)
     case 10: return 524287.0f;   // 20-bit
     case 11: return 8388607.0f;  // 24-bit
     case 12: return 0.0f;        // Raw (32-bit float / 量子化なし)
     }
 
     return 127.0f;
+}
+
+float quantizeSample(float input, float steps)
+{
+    if (steps <= 0.0f) return input;
+
+    return std::round(input * steps) / steps;
 }
 
 float getTargetMaxVal(int index)
@@ -84,7 +91,7 @@ float getTargetMaxVal(int index)
         return 32767.0f;   
     // 12bit Float
     case 5:
-        return 4095.0f;
+        return 2047.0f;
     // 10bit Float
     case 6:
         return 511.0f;

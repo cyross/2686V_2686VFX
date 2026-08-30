@@ -1,5 +1,7 @@
 ﻿#include "./Quality.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 
@@ -39,7 +41,7 @@ std::vector<SelectItem> Quality::rateItems = {
 };
 
 void Quality::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
-    qualityCat.setupHwCategory({ .parent = parent, .title = juce::String("") + "[■]--- QUALITY ---", .invisibleTitle = juce::String("") + "[□]--- QUALITY ---", .enableChangeDetailVisible = true});
+    qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
 
     bitSelector.setup({ .parent = parent, .id = code + CPK::Quality::bit, .title = "BIT", .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
@@ -62,6 +64,8 @@ void Quality::layoutComponent(juce::Rectangle<int>& rect) {
     {
         layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -77,12 +81,22 @@ void Quality::layoutComponentRow(juce::Rectangle<int>& rect) {
     {
         layoutRow({ .rowRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
 void Quality::setImportingParams(juce::StringArray& lines, int& index) {
     bitSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
     rateSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+}
+
+void Quality::readParams(const Io::ParamReader& reader, const juce::String& key)
+{
+    auto r = reader.child(key);
+
+    bitSelector.setSelectedItemIndex(r.getInt("bit", bitSelector.getSelectedItemIndex()), juce::sendNotification);
+    rateSelector.setSelectedItemIndex(r.getInt("rate", rateSelector.getSelectedItemIndex()), juce::sendNotification);
 }
 
 juce::String Quality::getExportedParams() {
@@ -92,4 +106,12 @@ juce::String Quality::getExportedParams() {
     content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
 
     return content;
+}
+
+void Quality::writeParams(Io::ParamWriter& writer, const juce::String& key)
+{
+    auto w = writer.child(key);
+
+    w.set("bit", bitSelector.getSelectedItemIndex());
+    w.set("rate", rateSelector.getSelectedItemIndex());
 }

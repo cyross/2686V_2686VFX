@@ -59,6 +59,16 @@ void Opl3Core::prepare(double sampleRate) {
     m_operators[3].prepare(4, target);
 
     m_rateAccumulator = 1.0;
+
+    m_ssgSwEnv11g.prepare(0, target);
+    m_ssgSwPEnv11g.prepare(0, target);
+
+    // オペレータにチップ全体のピッチ倍率の在りかを教える
+    for (int i = 0; i < Opl3PrValue::ops; ++i) {
+        m_operators[i].setGlobalPitchRatioSource(&m_globalPitchRatio);
+    }
+    m_ampEnvG.prepare(target);
+    m_ssgHwEnv.prepare(target);
 }
 
 void Opl3Core::setSampleRate(double sampleRate) {
@@ -74,6 +84,12 @@ void Opl3Core::setParameters(const SynthParams& params) {
 
     m_algorithm = params.opl3.algFb.algorithm;
 
+    m_ssgSwEnv11g.setParameters(params.opl3.ssgSwEnv11g);
+    m_ssgSwPEnv11g.setParameters(params.opl3.ssgSwPEnv11g);
+    m_ampEnvG.setParameters(params.opl3.ampEnvG);
+    m_wtMod.setParameters(params.opl3.wtMod);
+    m_ssgHwEnv.setParameters(params.opl3.ssgHwEnv);
+
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
@@ -87,6 +103,11 @@ void Opl3Core::setParameters(const SynthParams& params) {
 		m_operators[1].setSampleRate(target);
 		m_operators[2].setSampleRate(target);
 		m_operators[3].setSampleRate(target);
+
+        m_ssgSwEnv11g.updateTargetSampleRate(target);
+        m_ssgSwPEnv11g.updateTargetSampleRate(target);
+        m_ampEnvG.updateTargetSampleRate(target);
+        m_ssgHwEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl3.quality.bit);
@@ -121,27 +142,10 @@ void Opl3Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
 
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
-    float finalFreq = freq;
+    float finalFreq = m_unison.applyDetune(freq);
 
-    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
-    float phaseOffsetNorm = 0.0f;
-
-    if (m_unisonTotal > 1) {
-        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
-        // 例(3ボイス): -1.0,  0.0,  1.0
-        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-
-        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
-        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-
-        // セント値(Cents) を周波数倍率(Ratio)に変換する
-        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
-        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
-
-        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
-        phaseOffsetNorm = (float)m_unisonIndex / (float)m_unisonTotal;
-    }
+    m_noteFreq = finalFreq;
+    const float phaseOffsetNorm = m_unison.getPhaseOffset();
 
     // ユニゾン・ハーモニー向けに変更
     // 計算した位相のズレをオペレータに渡す
@@ -156,21 +160,57 @@ void Opl3Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     m_operators[3].noteOn(finalFreq, gain, noteNum, isLegato);
 
     m_rateAccumulator = 0.0; // レートの余りもリセット
+
+    m_ssgHwEnv.noteOn();
+
+    if (!isLegato) {
+        m_wtMod.reset();
+
+        if (!m_ampEnvG.isBypass()) {
+            m_ampEnvGLevel = m_ampEnvG.noteOn();
+        }
+
+        if (!m_ssgSwEnv11g.isBypass()) {
+            m_ssgSwEnv11g.noteOn();
+        }
+
+        if (!m_ssgSwPEnv11g.isBypass()) {
+            m_ssgSwPEnv11g.noteOn();
+        }
+    }
 }
+
 void Opl3Core::noteOff() {
     m_operators[0].noteOff();
     m_operators[1].noteOff();
     m_operators[2].noteOff();
     m_operators[3].noteOff();
+
+    if (!m_ampEnvG.isBypass()) {
+        m_ampEnvG.noteOff();
+    }
+
+    if (!m_ssgSwEnv11g.isBypass()) {
+        m_ssgSwEnv11g.noteOff();
+    }
+
+    if (!m_ssgSwPEnv11g.isBypass()) {
+        m_ssgSwPEnv11g.noteOff();
+    }
 }
+
 bool Opl3Core::isPlaying() const {
     if (m_operators[0].isPlaying()) return true;
     if (m_operators[1].isPlaying()) return true;
     if (m_operators[2].isPlaying()) return true;
     if (m_operators[3].isPlaying()) return true;
+    if (m_ampEnvG.isPlaying()) return true;
+    if (m_ssgSwEnv11g.isPlaying()) return true;
+    if (m_ssgSwPEnv11g.isPlaying()) return true;
 
     return false;
 }
+
 // ピッチベンド (0 - 16383, Center=8192)
 void Opl3Core::setPitchBend(int pitchWheelValue)
 {
@@ -201,12 +241,17 @@ void Opl3Core::setModulationWheel(int wheelValue)
     m_operators[1].setModWheel(modWheel);
     m_operators[2].setModWheel(modWheel);
     m_operators[3].setModWheel(modWheel);
+
+    m_wtMod.setModWheel((float)wheelValue / 127.0f);
 }
 
 // --- Opl3Core.cpp : getSample() の全体 ---
 
 float Opl3Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
+
+    // MODULATION の速度は搬送波に対する比なので、ノートの位相増分を渡す
+    float notePhaseDelta = (float)(m_noteFreq / targetRate);
     double stepSize = targetRate / m_hostSampleRate;
 
     m_rateAccumulator += stepSize;
@@ -217,6 +262,9 @@ float Opl3Core::getSample() {
     {
         m_rateAccumulator -= 1.0;
         m_prevSample = m_lastSample;
+
+        // オペレータより先にチップ全体のピッチ倍率を確定させる
+        updateGlobalPitchRatio(notePhaseDelta);
 
         m_operators[0].processLfo();
         m_operators[1].processLfo();
@@ -247,14 +295,38 @@ float Opl3Core::getSample() {
         m_history1[2] = currentOut[2];
         m_history1[3] = currentOut[3];
 
+        // SSGハードウェアエンベロープ(SsgHwEnv)処理
+        finalOut *= m_ssgHwEnv.process();
+
+        // チップ全体の AMP ENV 処理
+        if (!m_ampEnvG.isBypass()) {
+            m_ampEnvGLevel = m_ampEnvG.process(m_ampEnvGLevel);
+            finalOut *= m_ampEnvGLevel;
+        }
+        else {
+            if (m_ampEnvG.isRelease()) m_ampEnvG.bypassedReleasedProcess();
+        }
+
+        // SSGソフトウェアエンベロープ(SsgSwEnv11)処理
+        if (!m_ssgSwEnv11g.isBypass()) {
+            finalOut *= m_ssgSwEnv11g.process();
+        }
+        else {
+            if (m_ssgSwEnv11g.isRelease()) m_ssgSwEnv11g.bypassedReleasedProcess();
+        }
+
         finalOut *= 2.0f; // ゲイン補正
+
+        // 量子化 (BIT)。Raw のときは quantizeSample が素通しする
+        finalOut = quantizeSample(finalOut, m_quantizeSteps);
 
         m_lastSample = finalOut;
     }
 
-    float fraction = (float)(m_rateAccumulator / stepSize);
-
-    if (fraction > 1.0f) fraction = 1.0f;
+    // m_rateAccumulator は直近に生成したサンプルからの進み具合を
+    // ソースサンプル単位 (0.0〜1.0) で保持しているので、そのまま補間係数になる。
+    // prev→last を補間する形なので、出力はソース 1 サンプル分だけ遅れる。
+    float fraction = (float)m_rateAccumulator;
 
     return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
 }
@@ -267,20 +339,8 @@ void Opl3Core::renderNextBlock(float* outR, float* outL, int startSample, int sa
     float basePanL = 1.0f;
     float basePanR = 1.0f;
 
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
-
-        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
-        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
-
-        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
-        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
-
-        // 音量補正 (ボイス数が増えると爆音になるため下げる)
-        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
-        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
-        sample *= gainComp;
-    }
+    m_unison.applyPan(basePanL, basePanR);
+    sample *= m_unison.getGainComp();
 
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;

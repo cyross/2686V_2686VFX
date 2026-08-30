@@ -11,7 +11,7 @@ void SsgSwEnv::prepare(int targetIndex, double sampleRate) {
 
 void SsgSwEnv::updateTargetSampleRate(double newSampleRate)
 {
-    this->sampleRate = sampleRate;
+    this->sampleRate = newSampleRate;
     this->updateIncrements();
 }
 

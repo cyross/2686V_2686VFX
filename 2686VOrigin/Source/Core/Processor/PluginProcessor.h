@@ -1,5 +1,10 @@
 ﻿#pragma once
+#include <map>
 #include <JuceHeader.h>
+
+#include "../Io/ParamFile.h"
+#include "../../Gui/Settings/SettingsKeys.h"
+#include "../../Gui/Settings/SettingsValues.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
@@ -40,13 +45,29 @@ public:
 
     SynthParams* currentParams = nullptr;
 
-    void voiceUnison(int voices, int detune, float spread, int midiChannel, int midiNoteNumber, float velocity, bool isLegato)
+    void voiceUnison(const UnisonParams& unison, int midiChannel, int midiNoteNumber, float velocity, bool isLegato)
     {
+        const int voices = unison.voices;
+        const int detune = unison.detuneCents;
+        const float spread = unison.spread;
+
+        // ボイス0はメイン(素の音程・定位)なので Para は適用しない。
+        // ボイス1以降が paraXxx[0..] に対応する。
+        auto paraDetuneOf = [&unison](int i) -> float {
+            if (i < 1 || i > Global::unisonParaVoices) return 0.0f;
+            return (float)unison.paraDetune[i - 1];
+            };
+        auto paraDistanceOf = [&unison](int i) -> float {
+            if (i < 1 || i > Global::unisonParaVoices) return 0.0f;
+            return unison.paraDistance[i - 1];
+            };
+
         int uVoices = voices; // (※モードに応じて切り替えるように後で調整)
 
         if (!isMonoMode && uVoices <= 1) {
             if (auto* voice = dynamic_cast<SynthVoice*>(findFreeVoice(getSound(0).get(), midiChannel, midiNoteNumber, true))) {
                 voice->setUnisonParams(0, 1, 0.0f, 0.0f);
+                voice->setArpParams(false, unison.arpFreq, unison.arpSmooth);
                 startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
             }
             return;
@@ -57,7 +78,8 @@ public:
             if (isMonoMode) {
                 // モノフォニック時は、ユニゾン数ぶんの専用ボイス(0番目から順)を使用する
                 if (auto* voice = dynamic_cast<SynthVoice*>(getVoice(i))) {
-                    voice->setUnisonParams(i, uVoices, detune, spread);
+                    voice->setUnisonParams(i, uVoices, detune, spread, paraDetuneOf(i), paraDistanceOf(i));
+                    voice->setArpParams(unison.arpEnable, unison.arpFreq, unison.arpSmooth);
 
                     // 真のレガート処理: JUCEの startVoice は呼ばず、直接コアを叩く！
                     // これにより、波形が強制キルされず、位相や音量が完全に引き継がれます。
@@ -75,7 +97,8 @@ public:
                 // ポリフォニック時 (既存のまま)
                 juce::SynthesiserVoice* rawVoice = findFreeVoice(getSound(0).get(), midiChannel, midiNoteNumber, true);
                 if (auto* voice = dynamic_cast<SynthVoice*>(rawVoice)) {
-                    voice->setUnisonParams(i, uVoices, detune, spread);
+                    voice->setUnisonParams(i, uVoices, detune, spread, paraDetuneOf(i), paraDistanceOf(i));
+                    voice->setArpParams(unison.arpEnable, unison.arpFreq, unison.arpSmooth);
                     startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
                 }
             }
@@ -110,9 +133,7 @@ public:
         switch (currentParams->mode) {
         case OscMode::OPNA:
             voiceUnison(
-                currentParams->opna.unison.voices,
-                currentParams->opna.unison.detuneCents,
-                currentParams->opna.unison.spread,
+                currentParams->opna.unison,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -121,9 +142,7 @@ public:
             break;
         case OscMode::SSG:
             voiceUnison(
-                currentParams->ssg.unison.voices,
-                currentParams->ssg.unison.detuneCents,
-                currentParams->ssg.unison.spread,
+                currentParams->ssg.unison,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -132,9 +151,7 @@ public:
             break;
         case OscMode::RHYTHM:
             voiceUnison(
-                currentParams->rhythm.unison.voices,
-                currentParams->rhythm.unison.detuneCents,
-                currentParams->rhythm.unison.spread,
+                currentParams->rhythm.unison,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -143,9 +160,7 @@ public:
             break;
         case OscMode::ADPCM:
             voiceUnison(
-                currentParams->adpcm.unison.voices,
-                currentParams->adpcm.unison.detuneCents,
-                currentParams->adpcm.unison.spread,
+                currentParams->adpcm.unison,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -188,9 +203,7 @@ public:
                 switch (currentParams->mode) {
                 case OscMode::OPNA:
                     voiceUnison(
-                        currentParams->opna.unison.voices,
-                        currentParams->opna.unison.detuneCents,
-                        currentParams->opna.unison.spread,
+                        currentParams->opna.unison,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -199,9 +212,7 @@ public:
                     break;
                 case OscMode::SSG:
                     voiceUnison(
-                        currentParams->ssg.unison.voices,
-                        currentParams->ssg.unison.detuneCents,
-                        currentParams->ssg.unison.spread,
+                        currentParams->ssg.unison,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -210,9 +221,7 @@ public:
                     break;
                 case OscMode::RHYTHM:
                     voiceUnison(
-                        currentParams->rhythm.unison.voices,
-                        currentParams->rhythm.unison.detuneCents,
-                        currentParams->rhythm.unison.spread,
+                        currentParams->rhythm.unison,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -221,9 +230,7 @@ public:
                     break;
                 case OscMode::ADPCM:
                     voiceUnison(
-                        currentParams->adpcm.unison.voices,
-                        currentParams->adpcm.unison.detuneCents,
-                        currentParams->adpcm.unison.spread,
+                        currentParams->adpcm.unison,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -341,8 +348,32 @@ public:
     OscMode lastActiveSynthMode = OscMode::OPNA;
 
     // --- File Paths (To restore samples) ---
+    // チャンネルごとの MODULATION 変調波形ファイルのパス。
+    // キーは APVTS のプレフィックス (OPNA / SSG / OPZX7 など)。
+    // 波形そのものは 32 個のパラメータ側に入っているので、ここは表示用。
+    // 1 チャンネルにつきスロットの数だけ持つ。
+    using WtModWavePaths = std::array<juce::String, Global::WtMod::slots>;
+    std::map<juce::String, WtModWavePaths> modWavePaths;
+
+    // WT PITCH MOD の変調波形。チャンネルごとに複数スロット持つ。
+    // 32 サンプル × 枚数をパラメータで持つと数が膨大になるため、
+    // 実データはここが所有し、state には相対パスだけを保存する。
+    WtModWaveStore modWaveSlots;
+    // 変調波形の読み書き。実データは modWaveSlots が持ち、
+    // state へは相対パスだけを保存して読み直す。
+    void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file);
+    void unloadWtModWaveFile(const juce::String& code, int slot);
     juce::String adpcmFilePath;
     std::array<juce::String, RhythmPrValue::pads> rhythmFilePaths;
+
+    // 画面へ波形を描くために持っておくサンプル。
+    // 音は各ボイスが自分の持ち分で鳴らすので、こちらは表示専用。
+    // 読み込んだままのデータなので、音源側の品質劣化は掛かっていない。
+    std::vector<float> adpcmPreviewBuffer;
+    double adpcmPreviewRate = 44100.0;
+
+    std::array<std::vector<float>, RhythmPrValue::pads> rhythmPreviewBuffers;
+    std::array<double, RhythmPrValue::pads> rhythmPreviewRates{};
 
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
@@ -372,6 +403,17 @@ public:
 
     // --- Settings Data ---
     int uiScaleIndex = 7; // 高解像度対応(0ベース、初期値: 80%)
+
+    // パラメータファイルを書き出す形。0 = JSON, 1 = YAML。
+    // 設定として持ち回るので番号で持つ。
+    int fileFormatIndex = 0;
+
+    // 番号を実際の書き出し先へ映す。設定を読んだ後と、画面で
+    // 変えたときに呼ぶ。
+    void applyFileFormat() const
+    {
+        Io::setFileFormat(fileFormatIndex == 1 ? Io::FileFormat::yaml : Io::FileFormat::json);
+    }
     juce::String wallpaperPath;
     int wallpaperMode = 0; // 0=Stretch, 1=Fill, 2=Fit, 3=Original
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
@@ -384,19 +426,86 @@ public:
     juce::String defaultLfoParamDir;
     juce::String defaultAmpEnvParamDir;
     juce::String defaultPitchEnvParamDir;
+    juce::String defaultSsgHwEnvParamDir;
+    juce::String defaultWtModParamDir;
     juce::String defaultSsgSwEnvParamDir;
     juce::String defaultDetuneParamDir;
     juce::String defaultUnisonParamDir;
     juce::String defaultQualityParamDir;
     juce::String defaultPcmPlayParamDir;
     juce::String defaultToneNoiseParamDir;
+    juce::String defaultColorSettingDir;
+
+    // ------------------------------------------------------------------
+    // 環境設定の項目
+    // ------------------------------------------------------------------
+    // 保存と読み込みをこの 1 つの並びから作る。同じ項目を 2 か所に書くと、
+    // 片方だけ書き忘れて値が失われる。実際に起きていた。
+    template <typename Visitor>
+    void visitEnvironment(Visitor& visit)
+    {
+        visit(SettingsKey::uiScaleIndex, uiScaleIndex);
+        visit(SettingsKey::fileFormat, fileFormatIndex);
+        visit(SettingsKey::wallpaperPath, wallpaperPath);
+        visit(SettingsKey::wallpaperMode, wallpaperMode);
+
+        visit(SettingsKey::defaultSampleDir, defaultSampleDir);
+        visit(SettingsKey::defaultPresetDir, defaultPresetDir);
+        visit(SettingsKey::defaultWavetableDir, defaultWavetableDir);
+        visit(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
+        visit(SettingsKey::defaultFxParamDir, defaultFxParamDir);
+        visit(SettingsKey::defaultChannelParamDir, defaultChannelParamDir);
+        visit(SettingsKey::defaultCurveParamDir, defaultCurveParamDir);
+        visit(SettingsKey::defaultLfoParamDir, defaultLfoParamDir);
+        visit(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
+        visit(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
+        visit(SettingsKey::defaultSsgSwEnvParamDir, defaultSsgSwEnvParamDir);
+        visit(SettingsKey::defaultSsgHwEnvParamDir, defaultSsgHwEnvParamDir);
+        visit(SettingsKey::defaultDetuneParamDir, defaultDetuneParamDir);
+        visit(SettingsKey::defaultUnisonParamDir, defaultUnisonParamDir);
+        visit(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
+        visit(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
+        visit(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
+        visit(SettingsKey::defaultColorSettingDir, defaultColorSettingDir);
+
+        visit(SettingsKey::showTooltips, showTooltips);
+        visit(SettingsKey::useHeadroom, useHeadroom);
+        visit(SettingsKey::headroomGain, headroomGain);
+        visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
+    }
     bool showTooltips = true; // For show Parameter Range Tooltop
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）
 
-    void saveEnvironment(const juce::File& file);
-    void loadEnvironment(const juce::File& file); 
+    bool saveEnvironment(const juce::File& file);
+    // プラグインが使うフォルダ。ドキュメントの下に 1 つ作り、
+    // 既定の保存先はすべてこの中にする。
+    juce::File getPluginDirectory() const
+    {
+        auto dir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
+            .getChildFile(Io::Folder::asset);
+
+        if (!dir.exists()) dir.createDirectory();
+
+        return dir;
+    }
+
+    // 起動時に読む設定ファイル。JSON と YAML のどちらで保存されていても
+    // 拾えるよう、あるほうを返す。両方あれば新しいほう。どちらも無ければ
+    // 今の形で作る名前を返す。
+    juce::File getStartupSettingsFile() const
+    {
+        return Io::resolveFile(getPluginDirectory(), SettingsValue::File::Name::initial);
+    }
+
+    // 標準設定を書き出す先。今の形の名前になる。
+    juce::File getStartupSettingsFileToWrite() const
+    {
+        return Io::fileToWrite(getPluginDirectory(), SettingsValue::File::Name::initial);
+    }
+
+    bool loadEnvironment(const juce::File& file, bool tellIfLegacy = true); 
 
     void panic();
 

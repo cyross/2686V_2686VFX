@@ -14,6 +14,18 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     const juce::String prefixName = BeepPrName::prefix;
 
     PrHelper::addLevelParameters(layout, prefix, prefixName);
+    PrHelper::addBool(
+        layout,
+        prefix + BeepPrKey::antiAlias,
+        prefixName + BeepPrName::antiAlias,
+        BeepPrValue::AntiAlias::initial
+    );
+    PrHelper::addInt(
+        layout,
+        prefix + BeepPrKey::timerClock,
+        prefixName + BeepPrName::timerClock,
+        BeepPrValue::TimerClock::min, BeepPrValue::TimerClock::max, BeepPrValue::TimerClock::initial
+    );
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
@@ -23,14 +35,19 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
 }
 
-void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
     const juce::String prefix = BeepPrKey::prefix;
 
     PrHelper::setupBeepBasicPtrs(apvts, prefix, pBasic);
+    pBasic.antiAlias = apvts.getRawParameterValue(prefix + BeepPrKey::antiAlias);
+    pBasic.timerClock = apvts.getRawParameterValue(prefix + BeepPrKey::timerClock);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
+    PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
     PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);
@@ -38,6 +55,7 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
+    PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 }
 
@@ -45,6 +63,7 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
 {
     PrHelper::applyBeepBasic(pBasic, params.beep);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.beep.adsr);
+    PrHelper::applyWtMod(pWtMod, params.beep.wtMod);
     PrHelper::applySsgSwEnv(pSsgSwEnv, params.beep.ssgSwEnv);
     PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.beep.ssgSwEnv11);
     PrHelper::applyPitchEnv(pPitchEnv, params.beep.pitchAdsr);
@@ -52,5 +71,6 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     PrHelper::applyOpzx7Detune(pOpzx7Detune, params.beep.detune);
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.beep.lfo);
     PrHelper::applyFix(pFix, params.beep.fix);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, params.beep.ssgHwEnv);
     PrHelper::applyUnison(pUnison, params.beep.unison);
 }

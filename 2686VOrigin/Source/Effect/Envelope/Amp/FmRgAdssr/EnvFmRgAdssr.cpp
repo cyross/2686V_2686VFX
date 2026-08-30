@@ -46,6 +46,7 @@ void FmRgAdssr::updateSampleRate(double newSampleRate) {
 void FmRgAdssr::setParameters(const FmRgAdssrParams& params) {
     this->ar = params.ar;
     this->dr = params.dr;
+    this->sr = params.sr;
     this->sl = params.sl;
     this->rr = params.rr;
     this->tl = params.tl;
@@ -72,7 +73,11 @@ void FmRgAdssr::setParameters(const FmRgAdssrParams& params) {
     this->updateIncrementsWithKeyScale(m_noteNumber);
 }
 
-float FmRgAdssr::noteOn(float velocity) {
+float FmRgAdssr::noteOn(float velocity, int noteNumber) {
+    // OPN/OPNA に KSL は無いが、他系統(OplAdsr / FmRgAdddr / Opzx7Adddr)と
+    // 呼び出し方を揃えるため、ここでもノートナンバーを受け取っておく。
+    m_noteNumber = noteNumber;
+
     this->m_phaseProgress = 0.0f;
 
     if (this->bypass) {

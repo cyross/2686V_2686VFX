@@ -23,7 +23,7 @@ juce_add_binary_data(AppIconForAbout_OPZX7S
 )
 
 # 定義
-file(GLOB_RECURSE ALL_SOURCES 
+file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS 
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h"
 )
@@ -44,6 +44,7 @@ set(SYNTH_FILES
     "Source/Core/Synth/SynthHelpers.h"
     "Source/Core/Synth/SynthHelpers.cpp"
     "Source/Core/Synth/UnisonParams.h"
+    "Source/Core/Synth/UnisonState.h"
     "Source/Core/Synth/CommonParams.h"
 )
 
@@ -89,7 +90,13 @@ set(FM_FILES
 
 set(GUI_FILES
     "Source/Core/Gui/GuiBase.h"
+    "Source/Core/Io/ParamFile.h"
+    "Source/Core/Io/ParamFile.cpp"
+    "Source/Core/Gui/GuiRefresh.h"
+    "Source/Core/Gui/GuiRefresh.cpp"
     "Source/Core/Gui/GuiColor.h"
+    "Source/Core/Gui/GuiColorJuceNames.h"
+    "Source/Core/Gui/GuiColor.cpp"
     "Source/Core/Gui/GuiComponents.h"
     "Source/Core/Gui/GuiComponents.cpp"
     "Source/Core/Gui/GuiContext.h"
@@ -138,6 +145,12 @@ set(AMP_ENVELOPE_FILES
     "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
     "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
     "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.cpp"
+    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.cpp"
+    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
+    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
+    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.cpp"
 )
 
 set(PITCH_ENVELOPE_FILES
@@ -261,6 +274,15 @@ set(SETTINGS_GUI_FILES
     "Source/Gui/Settings/GuiSettings.cpp"
 )
 
+set(COLORS_GUI_FILES
+    "Source/Gui/Colors/GuiColors.h"
+    "Source/Gui/Colors/GuiColors.cpp"
+    "Source/Gui/Colors/GuiColorsText.h"
+    "Source/Gui/Colors/GuiColorsValues.h"
+    "Source/Gui/Colors/RetroPalette.h"
+    "Source/Gui/Colors/RetroPalette.cpp"
+)
+
 set(ABOUT_GUI_FILES
     "Source/Gui/About/GuiAboutText.h"
     "Source/Gui/About/GuiAboutValues.h"
@@ -275,6 +297,31 @@ set(CURVE_GUI_FILES
     "Source/Gui/Curve/GuiCurveGraph.cpp"
     "Source/Gui/Curve/GuiCurve.h"
     "Source/Gui/Curve/GuiCurve.cpp"
+)
+
+set(GENERATOR_WTMOD_FILES
+    "Source/Generator/WtMod/GenWtModulator.h"
+)
+
+set(GENERATOR_FDS_FILES
+    "Source/Generator/Fds/GenFdsModTable.h"
+)
+
+set(GUI_COMPONENT_PARAMBAREDITOR_FILES
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.h"
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.cpp"
+)
+
+set(GUI_COMPONENT_WAVEPREVIEW_FILES
+    "Source/Gui/Components/WavePreview/WavePreview.h"
+    "Source/Gui/Components/WavePreview/WavePreview.cpp"
+    "Source/Gui/Components/WavePreview/WavePreviewSource.h"
+    "Source/Gui/Components/WavePreview/WavePreviewSource.cpp"
+)
+
+set(GUI_COMPONENT_WTMOD_FILES
+    "Source/Gui/Components/WtMod/WtMod.h"
+    "Source/Gui/Components/WtMod/WtMod.cpp"
 )
 
 set(GUI_COMPONENT_UNISON_FILES
@@ -312,6 +359,11 @@ set(GUI_COMPONENT_SSGSWPENV11_FILES
     "Source/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.cpp"
 )
 
+set(GUI_COMPONENT_SSGHWENV_FILES
+    "Source/Gui/Components/SsgHwEnv/SsgHwEnv.h"
+    "Source/Gui/Components/SsgHwEnv/SsgHwEnv.cpp"
+)
+
 set(GUI_COMPONENT_PITCHBUTTONS_FILES
     "Source/Gui/Components/PitchButtons/PitchButtons.h"
     "Source/Gui/Components/PitchButtons/PitchButtons.cpp"
@@ -347,6 +399,11 @@ set(GUI_COMPONENT_IMPORT_EXPORT_FILES
     "Source/Gui/Components/ImportExport/ImportExport.cpp"
 )
 
+set(GUI_COMPONENT_IMPORT_FILES
+    "Source/Gui/Components/Import/Import.h"
+    "Source/Gui/Components/Import/Import.cpp"
+)
+
 set(GUI_COMPONENT_LEVEL_FILES
     "Source/Gui/Components/Level/Level.h"
     "Source/Gui/Components/Level/Level.cpp"
@@ -365,9 +422,9 @@ set(GUI_COMPONENT_QUALITY_FILES
 )
 
 set(GUI_COMPONENT_ALG_MATRIX_FILES
-    "Source/Gui/Components/AlgMatrix/AlgMatrixState.h"
-    "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.h"
-    "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.cpp"
+    "Source/Gui/Components/AlgMatrix/FmAlgState.h"
+    "Source/Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
+    "Source/Gui/Components/AlgMatrix/GuiFmAlgRouting.cpp"
 )
 
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
@@ -395,6 +452,11 @@ source_group("OPZX7S\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("OPZX7S\\Processor\\Opzx7" FILES ${OPZX7_PROCESSOR_FILES})
 source_group("OPZX7S\\Processor\\Curve" FILES ${CURVE_PROCESSOR_FILES})
 source_group("OPZX7S\\Gui\\Core" FILES ${GUI_FILES})
+source_group("OPZX7S\\Generator\\WtMod" FILES ${GENERATOR_WTMOD_FILES})
+source_group("OPZX7S\\Generator\\Fds" FILES ${GENERATOR_FDS_FILES})
+source_group("OPZX7S\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
+source_group("OPZX7S\\Gui\\Components\\WavePreview" FILES ${GUI_COMPONENT_WAVEPREVIEW_FILES})
+source_group("OPZX7S\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})
 source_group("OPZX7S\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
 source_group("OPZX7S\\Gui\\Components\\Fix" FILES ${GUI_COMPONENT_FIX_FILES})
 source_group("OPZX7S\\Gui\\Components\\MulDetune" FILES ${GUI_COMPONENT_MULDETUNE_FILES})
@@ -408,11 +470,13 @@ source_group("OPZX7S\\Gui\\Components\\SsgSwButtons" FILES ${GUI_COMPONENT_SSGSW
 source_group("OPZX7S\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
 source_group("OPZX7S\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
 source_group("OPZX7S\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
+source_group("OPZX7S\\Gui\\Components\\Import" FILES ${GUI_COMPONENT_IMPORT_FILES})
 source_group("OPZX7S\\Gui\\Components\\Level" FILES ${GUI_COMPONENT_LEVEL_FILES})
 source_group("OPZX7S\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATOR_FILES})
 source_group("OPZX7S\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})
 source_group("OPZX7S\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
 source_group("OPZX7S\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
+source_group("OPZX7S\\Gui\\Components\\SsgHwEnv" FILES ${GUI_COMPONENT_SSGHWENV_FILES})
 source_group("OPZX7S\\Gui\\Components\\AlgMatrix" FILES ${GUI_COMPONENT_ALG_MATRIX_FILES})
 source_group("OPZX7S\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("OPZX7S\\Gui\\Tab\\Opzx7" FILES ${OPZX7_GUI_FILES})
@@ -421,5 +485,6 @@ source_group("OPZX7S\\Gui\\Pane\\Fx" FILES ${FX_GUI_FILES})
 source_group("OPZX7S\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})
 source_group("OPZX7S\\Gui\\Dialog\\Settings" FILES ${SETTINGS_GUI_FILES})
 source_group("OPZX7S\\Gui\\Dialog\\About" FILES ${ABOUT_GUI_FILES})
+source_group("OPZX7S\\Gui\\Tab\\Colors" FILES ${COLORS_GUI_FILES})
 
 create_cyross_plugin("OPZX7S" "ZX7S")

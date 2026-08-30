@@ -23,12 +23,15 @@ class FmRgAdssr
 
 	KSOpn m_ksOPN;
 
-	int arMax = 0;
-	int drMax = 0;
-	int srMax = 0;
-	int slMax = 0;
-	int rrMax = 0;
-	int tlMax = 0;
+	// レジスタ幅の既定値。setParamMax() より先に setParameters() が来ても
+	// 0 除算 → LUT の範囲外参照にならないよう、実機の幅を入れてある。
+	// 実際の値はオペレータの prepare() が setParamMax() で上書きする。
+	int arMax = 31;
+	int drMax = 31;
+	int srMax = 31;
+	int slMax = 15;
+	int rrMax = 15;
+	int tlMax = 127;
 
 	bool xof = false;
 	bool kor = false;
@@ -71,7 +74,7 @@ public:
 	bool isRelease() const { return state == State::Release; }
 	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void setParameters(const FmRgAdssrParams& params);
-	float noteOn(float velocity);
+	float noteOn(float velocity, int noteNumber);
 	void noteOff();
 	void updateIncrementsWithKeyScale(int noteNumber);
 	float updateEnvelopeState(float currentLevel);

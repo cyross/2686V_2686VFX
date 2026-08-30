@@ -14,12 +14,16 @@ namespace SettingsValue
 
 	namespace File
 	{
-		static inline const juce::String glob = "*.xml";
+		// 読み込みは JSON でも YAML でもよい
+		static inline const juce::String glob = "*.settings.json;*.settings.yaml";
 
 		namespace Name
 		{
-			static inline const juce::String initial = "init_settings_opzx7s.xml";
-			static inline const juce::String def = "OPZX7S_Config.xml";
+			// 拡張子は書き出す形で決まるので、ここでは名前だけを持つ。
+			// 起動時に読むファイルは AudioPlugin2686V::getStartupSettingsFile
+			// が、あるほうを選ぶ。
+			static inline const juce::String initial = "init.settings";
+			static inline const juce::String def = "OPZX7S.settings";
 		}
 	}
 };

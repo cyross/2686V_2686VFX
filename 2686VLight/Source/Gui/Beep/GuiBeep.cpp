@@ -1,4 +1,8 @@
-﻿#include "./GuiBeep.h"
+﻿#include "../../Core/Editor/EditorGuiValues.h"
+#include "./GuiBeep.h"
+
+#include "../../Core/Io/ParamFile.h"
+#include "../../Core/Gui/GuiRefresh.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
@@ -12,6 +16,20 @@
 #include "./GuiBeepValues.h"
 #include "./GuiBeepText.h"
 
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat beepFormat{ "beep", 1 };
+}
+
+// 実機のタイマ基準クロック。Free は分周せず連続した音程で鳴らす。
+static std::vector<SelectItem> beepTimerClockItems = {
+    {.name = "1: Free",                  .value = 1 },
+    {.name = "2: IBM PC 1.1932MHz",      .value = 2 },
+    {.name = "3: PC-9801 1.9968MHz",     .value = 3 },
+    {.name = "4: PC-9801 2.4576MHz",     .value = 4 },
+};
+
 void GuiBeep::setup() {
     juce::String code = BeepPrKey::prefix;
     int tabOrder = 1;
@@ -23,6 +41,16 @@ void GuiBeep::setup() {
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
 	fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 2K", 2000);
+
+    optionalCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::optional, .enableChangeDetailVisible = true });
+
+    antiAliasButton.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::antiAlias, .title = "Anti-Alias", .isReset = true });
+    antiAliasButton.setWantsKeyboardFocus(true);
+    antiAliasButton.setExplicitFocusOrder(++tabOrder);
+
+    timerClockSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::timerClock, .title = "CLK", .items = beepTimerClockItems, .isReset = true });
+    timerClockSelector.setWantsKeyboardFocus(true);
+    timerClockSelector.setExplicitFocusOrder(++tabOrder);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -38,11 +66,14 @@ void GuiBeep::setup() {
 
     lfoComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::visibleUtil, .invisibleTitle = BeepGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
@@ -55,37 +86,24 @@ void GuiBeep::setup() {
 
     uSep001.setupComponent(mainGroup.contentCanvas);
 
-    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
-    ieLfo.onClickImport = [this] { importLfoParam(); };
-    ieLfo.onClickExport = [this] { exportLfoParam(); };
+    ieLfo.setupComponentFor(mainGroup.contentCanvas, tabOrder, "LFO", lfoComponent);
 
-    ieDetune.setupComponent(mainGroup.contentCanvas, tabOrder, "Detune");
-    ieDetune.onClickImport = [this] { importDetuneParam(); };
-    ieDetune.onClickExport = [this] { exportDetuneParam(); };
+    ieDetune.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Detune", mulDetuneComponent);
 
-    ieAmpEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
-    ieAmpEnv.onClickImport = [this] { importAmpEnvParam(); };
-    ieAmpEnv.onClickExport = [this] { exportAmpEnvParam(); };
+    ieAmpEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
 
-    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Pitch Env");
-    iePitchEnv.onClickImport = [this] { importPitchEnvParam(); };
-    iePitchEnv.onClickExport = [this] { exportPitchEnvParam(); };
+    iePitchEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Pitch Env", pitchEnvComponent);
 
-    ieSsgSwEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
-    ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
-    ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
+    ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
 
-    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
-    ieSsgSwEnv11.onClickImport = [this] { importSsgSwEnv11Param(); };
-    ieSsgSwEnv11.onClickExport = [this] { exportSsgSwEnv11Param(); };
+    ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
-    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
-    ieSsgSwPEnv11.onClickImport = [this] { importSsgSwPEnv11Param(); };
-    ieSsgSwPEnv11.onClickExport = [this] { exportSsgSwPEnv11Param(); };
+    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11Component);
 
-    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] { importUnisonParam(); };
-    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+    ieSsgSwPEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11Component);
+
+    ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
     ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
     ieChParam.onClickImport = [this] { importChParam(); };
@@ -97,6 +115,10 @@ void GuiBeep::setup() {
 
 void GuiBeep::layout(juce::Rectangle<int> content) {
     auto pageArea = content.withZeroOrigin();
+
+    // タブの下辺とグループの見出しが詰まって見えるので、少しだけ離す。
+    // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
+    pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
 
     auto mainArea = pageArea.removeFromLeft(BeepGuiValue::MainGroup::width);
     mainArea.removeFromBottom(40);
@@ -116,11 +138,16 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     levelComponent.layoutComponent(mRect);
 
+    layoutOptionalCat(mRect);
+
     ampEnvComponent.layoutComponent(mRect);
+
+    ssgHwEnv.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -148,6 +175,24 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     mainGroup.setContentHeight(usedHeight + 20);
 }
 
+void GuiBeep::layoutOptionalCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    antiAliasButton.setVisible(visible);
+    timerClockSelector.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &antiAliasButton });
+        layoutMain({ .mainRect = rect, .label = &timerClockSelector.label, .component = &timerClockSelector, .rowHeight = 13 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
+}
+
 void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
@@ -160,6 +205,8 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieDetune.setVisible(visible);
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
+    ieSsgHwEnv.setVisible(visible);
+    ieWtMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -178,6 +225,10 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
+        ieSsgHwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieWtMod.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
@@ -189,6 +240,8 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
@@ -225,9 +278,11 @@ void GuiBeep::setupGraph()
     auto repaintGraph = [this]() {
         if (this->isUpdatingGraph) return;
 
-        this->isUpdatingGraph = true;
+        // 旗は必ず下ろす。途中で抜けたときに立ちっぱなしになると、
+        // 以後グラフの更新が全部素通りしてしまうため。
+        const juce::ScopedValueSetter<bool> guard(this->isUpdatingGraph, true);
+
         this->updateGraph();
-        this->isUpdatingGraph = false;
         };
 
     ampEnvComponent.setupGraph(repaintGraph);
@@ -319,73 +374,10 @@ void GuiBeep::setLevel(float level) {
     levelComponent.setLevel(level);
 }
 
-void GuiBeep::importLfoParam() {
-    lfoComponent.importParams();
-}
-void GuiBeep::exportLfoParam() {
-    lfoComponent.exportParams();
-}
-
-void GuiBeep::importAmpEnvParam() {
-    ampEnvComponent.importParams();
-}
-
-void GuiBeep::exportAmpEnvParam() {
-    ampEnvComponent.exportParams();
-}
-
-void GuiBeep::importPitchEnvParam() {
-    pitchEnvComponent.importParams();
-}
-
-void GuiBeep::exportPitchEnvParam() {
-    pitchEnvComponent.exportParams();
-}
-
-void GuiBeep::importSsgSwEnvParam() {
-    ssgSwEnvComponent.importParams();
-}
-
-void GuiBeep::exportSsgSwEnvParam() {
-    ssgSwEnvComponent.exportParams();
-}
-
-void GuiBeep::importDetuneParam() {
-    mulDetuneComponent.importParams();
-}
-
-void GuiBeep::exportDetuneParam() {
-    mulDetuneComponent.exportParams();
-}
-
-void GuiBeep::importUnisonParam() {
-    unisonComponent.importParams();
-}
-
-void GuiBeep::exportUnisonParam() {
-    unisonComponent.exportParams();
-}
-
-void GuiBeep::importSsgSwEnv11Param() {
-    ssgSwEnv11Component.importParams();
-}
-
-void GuiBeep::exportSsgSwEnv11Param() {
-    ssgSwEnv11Component.exportParams();
-}
-
-void GuiBeep::importSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.importParams();
-}
-
-void GuiBeep::exportSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.exportParams();
-}
-
 void GuiBeep::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::beepParam);
@@ -397,25 +389,60 @@ void GuiBeep::importChParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
 
-                int size = lines.size();
-                int index = 0;
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingChParams(lines, index);
+                    }
+
+                    Io::ParamWriter writer(beepFormat);
+
+                    writeChParams(writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, beepFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
 
                 // Level
-                levelComponent.setImportingParams(lines, index);
+                levelComponent.readParams(*reader, "level");
 
                 // Components
-                fixComponent.setImportingParams(lines, index);
-                ampEnvComponent.setImportingParams(lines, index);
-                pitchEnvComponent.setImportingParams(lines, index);
-                ssgSwEnvComponent.setImportingParams(lines, index);
-                ssgSwEnv11Component.setImportingParams(lines, index);
-                ssgSwPEnv11Component.setImportingParams(lines, index);
-                mulDetuneComponent.setImportingParams(lines, index);
-                lfoComponent.setImportingParams(lines, index);
-                unisonComponent.setImportingParams(lines, index);
+                fixComponent.readParams(*reader, "fix");
+                ampEnvComponent.readParams(*reader, "ampEnv");
+                pitchEnvComponent.readParams(*reader, "pitchEnv");
+                ssgHwEnv.readParams(*reader, "ssgHwEnv");
+                ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
+                ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
+                ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
+                mulDetuneComponent.readParams(*reader, "mulDetune");
+                lfoComponent.readParams(*reader, "lfo");
+                unisonComponent.readParams(*reader, "unison");
+
+                modComponent.readParams(*reader, "wtMod");
+
+                // 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
+                antiAliasButton.setToggleState(reader->getBool("antiAlias", antiAliasButton.getToggleState()), juce::sendNotification);
+                timerClockSelector.setSelectedItemIndex(reader->getInt("timerClock", timerClockSelector.getSelectedItemIndex()), juce::sendNotification);
             }
         });
 }
@@ -423,10 +450,10 @@ void GuiBeep::importChParam() {
 void GuiBeep::exportChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::beepParam), Io::ExtensionGlob::beepParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::beepParam)), Io::saveGlob(Io::Extension::beepParam));
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -434,24 +461,70 @@ void GuiBeep::exportChParam() {
 
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(beepFormat);
+                writeChParams(writer);
 
-                // Level
-                content += levelComponent.getExportedParams();
-
-                // Components
-                content += fixComponent.getExportedParams();
-                content += ampEnvComponent.getExportedParams();
-                content += pitchEnvComponent.getExportedParams();
-                content += ssgSwEnvComponent.getExportedParams();
-                content += ssgSwEnv11Component.getExportedParams();
-                content += ssgSwPEnv11Component.getExportedParams();
-                content += mulDetuneComponent.getExportedParams();
-                content += lfoComponent.getExportedParams();
-                content += unisonComponent.getExportedParams();
-
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。並び順を写し直すより確実で、
+// 当時の互換の工夫もそのまま残る。
+void GuiBeep::setImportingChParams(juce::StringArray& lines, int& index) {
+	// Level
+	levelComponent.setImportingParams(lines, index);
+
+	// Components
+	fixComponent.setImportingParams(lines, index);
+	ampEnvComponent.setImportingParams(lines, index);
+	pitchEnvComponent.setImportingParams(lines, index);
+	ssgHwEnv.setImportingParams(lines, index);
+	ssgSwEnvComponent.setImportingParams(lines, index);
+	ssgSwEnv11Component.setImportingParams(lines, index);
+	ssgSwPEnv11Component.setImportingParams(lines, index);
+	mulDetuneComponent.setImportingParams(lines, index);
+	lfoComponent.setImportingParams(lines, index);
+	unisonComponent.setImportingParams(lines, index);
+
+	// MODULATION は後から足したので、旧フォーマットとの互換のため
+	// 行が無ければ既定のままにする。
+	if (index < lines.size()) {
+	    modComponent.setImportingBaseParams(lines, index);
+	    modComponent.setImportingShapeParam(lines, index);
+	}
+
+	// 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
+	antiAliasButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	timerClockSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiBeep::writeChParams(Io::ParamWriter& writer) {
+	// Level
+	levelComponent.writeParams(writer, "level");
+
+	// Components
+	fixComponent.writeParams(writer, "fix");
+	ampEnvComponent.writeParams(writer, "ampEnv");
+	pitchEnvComponent.writeParams(writer, "pitchEnv");
+	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
+	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
+	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+	mulDetuneComponent.writeParams(writer, "mulDetune");
+	lfoComponent.writeParams(writer, "lfo");
+	unisonComponent.writeParams(writer, "unison");
+
+	// MODULATION (旧フォーマットと互換を保つため末尾に置く)
+	modComponent.writeParams(writer, "wtMod");
+
+	// 末尾に追加した項目
+	writer.set("antiAlias", antiAliasButton.getToggleState());
+	writer.set("timerClock", timerClockSelector.getSelectedItemIndex());
+
+	
 }

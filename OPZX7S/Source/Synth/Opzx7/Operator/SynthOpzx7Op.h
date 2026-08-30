@@ -17,14 +17,13 @@ class Opzx7Operator : public FmOperator
 {
 public:
 	Opzx7Operator() : FmOperator(), m_detune() {
-		Feedback::setFeedbackVector(fVector, 5.0f);
 	}
 
 	Opzx7OpParams m_params;
 
 	void prepare(int opIndex, double sampleRate);
 	void setSampleRate(double sampleRate) override;
-	void setParameters(const Opzx7OpParams& params, int feedback);
+	void setParameters(const Opzx7OpParams& params, float feedback);
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
 
@@ -73,8 +72,6 @@ private:
 	SsgSwEnv11 m_ssgSwEnv11;
 	SsgSwPEnv11 m_ssgSwPenv11;
 
-	std::array<float, 8> fVector = { 0.0f };
-
 	// OPZX7 の外部 PCM データ用
 	std::vector<float>* m_pcmBuffer = nullptr;
 	// OPZX7 の波形データ用
@@ -87,6 +84,9 @@ private:
 	float m_loopPointStart = 0.0f; // 0.0 to 1.0
 	float m_loopPointEnd = 1.0f;   // 0.0 to 1.0
 	bool m_isReleased = false;
+
+	float m_fbx = 0.0f;
+	float m_fbScale = 0.0f;
 
 	// ユニゾン・ハーモニー用
 	bool m_isMonoMode = false;

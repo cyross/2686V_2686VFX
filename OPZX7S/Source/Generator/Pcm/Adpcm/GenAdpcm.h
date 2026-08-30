@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <cstdint>
+#include <vector>
 
 // --- YM2608 ADPCM Algorithm Implementation ---
 namespace OpnaAdpcm {
@@ -21,6 +22,10 @@ private:
 
 public:
     void reset();
+
+    // int16 列をまとめてエンコード → デコードして上書きする
+    static void process(std::vector<int16_t>& samples);
+
     uint8_t encode(int16_t pcmSample);
     int16_t decode(uint8_t nibble);
 private:

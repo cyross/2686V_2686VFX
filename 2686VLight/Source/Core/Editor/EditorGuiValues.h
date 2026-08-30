@@ -114,4 +114,11 @@ namespace EditorGuiValue
 	{
 		static inline constexpr int width = 400;
 	}
+
+	namespace Group
+	{
+		// タブの下辺とグループの見出しのあいだ。
+		// 詰まっていると見出しがタブの一部に見えてしまう。
+		static inline constexpr int gapFromTabBar = 4;
+	}
 }

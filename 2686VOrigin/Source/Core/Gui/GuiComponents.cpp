@@ -1,4 +1,5 @@
-﻿#include "./GuiComponents.h"
+﻿#include <map>
+#include "./GuiComponents.h"
 
 #include "../Editor/PluginEditor.h"
 
@@ -101,15 +102,51 @@ void ColoredGroupComponent::setBackgroundColor(juce::Colour c)
 
 void ColoredGroupComponent::paint(juce::Graphics& g)
 {
+    auto bounds = getLocalBounds().toFloat();
+
     // 背景色があれば描画 (角丸で少し柔らかく)
     if (!backgroundColor.isTransparent())
     {
         g.setColour(backgroundColor);
-        g.fillRoundedRectangle(getLocalBounds().toFloat(), 4.0f);
+        g.fillRoundedRectangle(bounds, 4.0f);
     }
 
-    // 親クラス（枠線とテキスト）の描画処理を呼ぶ
-    juce::GroupComponent::paint(g);
+    // ---------------- 枠 ----------------
+    // 上辺は見出しの中ほどを通す。JUCE の既定描画と同じ位置関係。
+    auto frame = bounds.reduced(frameInset).withTrimmedTop(titleHeight * 0.5f - frameInset);
+
+    if (frame.getWidth() > 1.0f && frame.getHeight() > 1.0f) {
+        g.setColour(findColour(juce::GroupComponent::outlineColourId));
+        g.drawRoundedRectangle(frame, cornerRadius, 1.0f);
+    }
+
+    // ---------------- 見出し ----------------
+    // カテゴリ見出しと同じ手触りにする。明るい帯へ黒文字を載せ、
+    // 枠線より後に描くことで、線が文字の後ろを通らないようにする。
+    auto title = getText();
+
+    if (title.isEmpty()) return;
+
+    auto font = juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold);
+
+    float textWidth = (float)juce::GlyphArrangement::getStringWidthInt(font, title);
+    float chipWidth = juce::jmin(textWidth + titlePaddingX * 2.0f, bounds.getWidth() - titleInsetX * 2.0f);
+
+    if (chipWidth <= 0.0f) return;
+
+    juce::Rectangle<float> chip(bounds.getX() + titleInsetX, bounds.getY(), chipWidth, titleHeight);
+
+    // 見出しの帯も面を持つので、同じ影を落とす
+    chip = GuiShadow::reserve(chip);
+
+    GuiShadow::drawRounded(g, chip, titleCornerRadius);
+
+    g.setColour(GuiColor::Group::TitleBg);
+    g.fillRoundedRectangle(chip, titleCornerRadius);
+
+    g.setColour(GuiColor::Group::TitleText);
+    g.setFont(font);
+    g.drawText(title, chip, juce::Justification::centred, true);
 }
 
 void GuiGroup::setup(juce::Component& parent, const juce::String title)
@@ -133,15 +170,34 @@ void GuiLabel::setup(const Config& c)
     this->setWantsKeyboardFocus(false);
     this->setJustificationType(c.justification);
 
+    if (c.font.has_value())
+    {
+        this->setFont(c.font.value());
+    }
+
+    this->bgColor = c.bgColor;
+
     if (!c.color.isTransparent())
     {
         this->setColour(juce::Label::textColourId, c.color);
     }
 }
 
+void GuiLabel::paint(juce::Graphics& g)
+{
+    // 地色を渡されたときだけ、カテゴリ見出しと同じ丸みで帯を敷く
+    if (!bgColor.isTransparent())
+    {
+        g.setColour(bgColor);
+        g.fillRoundedRectangle(getLocalBounds().toFloat(), guiCornerRadius);
+    }
+
+    juce::Label::paint(g);
+}
+
 void GuiSlider::setup(const Config& c)
 {
-    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor });
+    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor, .bgColor = GuiColor::Label::RowBg });
 
     c.parent.addAndMakeVisible(*this);
     this->setSliderStyle(juce::Slider::LinearHorizontal);
@@ -187,7 +243,7 @@ void GuiSlider::setup(const Config& c)
 
 void GuiComboBox::setup(const Config& c)
 {
-    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor });
+    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor, .bgColor = GuiColor::Label::RowBg });
 
     c.parent.addAndMakeVisible(*this);
 
@@ -208,6 +264,7 @@ void GuiComboBox::setup(const Config& c)
     {
         this->setColour(juce::ComboBox::backgroundColourId, c.bgColor);
     }
+
 
     for (SelectItem& item : c.items)
     {
@@ -286,13 +343,23 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     float boxY = (bounds.getHeight() - boxH) * 0.5f;
     juce::Rectangle<float> box(startX, boxY, boxW, boxH);
 
-    g.setColour(textColor.withMultipliedAlpha(alpha));
-    g.drawRect(box, 1.0f);
+    // 角の丸みは他の部品と揃える。小さな四角なので、辺の半分を上限にする。
+    float boxRadius = juce::jmin(guiCornerRadius, juce::jmin(boxW, boxH) * 0.5f);
 
-    // 2. ONのときの塗りつぶし (■)
-    if (getToggleState()) {
-        g.fillRect(box.reduced(boxGapW, boxGapH)); // 内側を塗りつぶす
-    }
+    g.setColour(GuiColor::ToggleButton::Box.get().withMultipliedAlpha(alpha));
+    g.drawRoundedRectangle(box, boxRadius, 1.0f);
+
+    // 2. 中のランプ。消えているときも枠の中を塗って、
+    //    「空か塗りか」ではなく「色が違う」で状態が分かるようにする。
+    auto inner = box.reduced(boxGapW, boxGapH);
+
+    // 三項演算子の両側が Entry なので、いったん色にしてから透明度を掛ける
+    juce::Colour lamp = getToggleState()
+        ? GuiColor::ToggleButton::LampOn.get()
+        : GuiColor::ToggleButton::LampOff.get();
+
+    g.setColour(lamp.withMultipliedAlpha(alpha));
+    g.fillRoundedRectangle(inner, juce::jmin(boxRadius, juce::jmin(inner.getWidth(), inner.getHeight()) * 0.5f));
 
     // 3. テキストの描画
     juce::Rectangle<float> textBounds(box.getRight() + labelGapW, 0.0f, bounds.getWidth() - box.getRight() - labelGapW, bounds.getHeight());
@@ -409,6 +476,9 @@ void GuiTableList::paintRowBackground(juce::Graphics& g, int rowNumber, int widt
 }
 
 void GuiTableList::paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) {
+    // 自分で描くと言っているセルは任せる
+    if (onPaintCell && onPaintCell(g, rowNumber, columnId, width, height, rowIsSelected)) return;
+
     // 文字色
     g.setColour(rowIsSelected ? juce::Colours::white : juce::Colours::lightgrey);
 
@@ -437,7 +507,7 @@ void GuiTableList::selectedRowsChanged(int lastRowSelected) {
 
 void GuiTextEditor::setup(const Config& c)
 {
-    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor });
+    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor, .bgColor = GuiColor::Label::RowBg });
 
     c.parent.addAndMakeVisible(*this);
 
@@ -486,6 +556,8 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
         w->addButton(juce::String("") + "決定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
         w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
 
+        GuiDialog::styleButtons(*w);
+
         // モーダル表示 (ラムダ式には設定値 c と ウィンドウ w をコピーキャプチャする)
         w->enterModalState(true, juce::ModalCallbackFunction::create([c, w](int result) {
             if (result == 1) {
@@ -508,34 +580,142 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
         };
 }
 
-void GuiCategoryLabel::setupInner(const Config& c, juce::Colour colour)
+void GuiCategoryLabel::setupInner(const Config& c, juce::Colour background)
 {
-    this->visibleText = c.title;
-    this->invisibleText = c.invisibleTitle.value_or(""); // 詳細テキストがない場合は空文字
+    this->captionText = c.title;
     this->detailVisible = c.detailVisible;
     this->enableChangeDetailVisible = c.enableChangeDetailVisible;
-    this->font = c.font.value_or(juce::Font(juce::FontOptions(16.0f, juce::Font::bold))); // ハードウェアカテゴリは太字の大きめフォントがデフォルト
+    this->bgColor = background;
+    this->font = c.font.value_or(juce::Font(juce::FontOptions(16.0f, juce::Font::bold)));
 
-    GuiLabel::setup({ .parent = c.parent, .title = ((!this->enableChangeDetailVisible || this->detailVisible) ? this->visibleText : this->invisibleText), .font = font, .justification = c.justification, .color = colour });
+    GuiLabel::setup({ .parent = c.parent, .title = this->captionText, .font = font, .justification = c.justification, .color = GuiColor::Category::Text });
 
-    this->setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.4f));
+    // 中身の背後へ敷く板。見出しより先に親へ入れて背面へ送る。
+    c.parent.addAndMakeVisible(backdrop);
+    backdrop.setVisible(false);
+    backdrop.toBack();
 
-    // 切り替え可能なときは、表示・非表示をトグルする関数を追加
+    // 背景はこのクラスが自前で描くので、Label 側の塗りは切っておく
+    this->setColour(juce::Label::backgroundColourId, juce::Colours::transparentBlack);
+
+    // 切り替え可能なときは、表示・非表示をトグルする
     if (this->enableChangeDetailVisible) {
         this->onClick = [this] {
             this->detailVisible = !this->detailVisible;
 
-            if (detailVisible) {
-                this->setText(visibleText, juce::NotificationType::sendNotification);
-            }
-            else {
-                this->setText(invisibleText, juce::NotificationType::sendNotification);
-            }
+            this->repaint();
 
             ctx.editor.resized();
             };
     }
 }
+
+void GuiCategoryLabel::paint(juce::Graphics& g)
+{
+    auto bounds = getLocalBounds().toFloat();
+
+    if (bounds.isEmpty()) return;
+
+    // ---------------- 背景 ----------------
+    // 影のぶんだけ右下を空けてから描く
+    bounds = GuiShadow::reserve(bounds);
+
+    GuiShadow::drawRounded(g, bounds, cornerRadius);
+
+    g.setColour(bgColor);
+    g.fillRoundedRectangle(bounds, cornerRadius);
+
+    auto textArea = bounds.reduced(paddingX, 0.0f);
+
+    // ---------------- 開閉マーカー ----------------
+    // 位置は左端固定。開いているときはピンク、閉じているときは黒。
+    if (enableChangeDetailVisible) {
+        float side = juce::jmin(markerSize, bounds.getHeight() - 4.0f);
+
+        juce::Rectangle<float> marker(
+            bounds.getX() + paddingX,
+            bounds.getCentreY() - side * 0.5f,
+            side,
+            side);
+
+        g.setColour(detailVisible ? GuiColor::Category::MarkerOpen : GuiColor::Category::MarkerClosed);
+        g.fillRoundedRectangle(marker, 1.5f);
+
+        g.setColour(GuiColor::Category::MarkerBorder);
+        g.drawRoundedRectangle(marker, 1.5f, 1.0f);
+
+        textArea.removeFromLeft(side + paddingX);
+    }
+
+    // ---------------- 見出し ----------------
+    g.setColour(GuiColor::Category::Text);
+    g.setFont(font);
+    g.drawText(captionText, textArea, getJustificationType(), false);
+}
+
+// ----------------------------------------------------------------------------
+// カテゴリの中身に敷く板
+// ----------------------------------------------------------------------------
+// 見出しを置いた時点では中身の高さが分からないので、次の見出しが置かれた
+// ときに 1 つ前の板を閉じる、という繋ぎ方にしてある。最後の 1 枚は欄の
+// 終わり (GuiScrollGroup::setContentHeight) で閉じる。
+namespace
+{
+    // 親コンポーネントごとに「まだ下端が決まっていない板」を覚えておく。
+    // レイアウトはメッセージスレッドでしか走らないので単純な map でよい。
+    std::map<juce::Component*, GuiCategoryLabel*> g_pendingBackdrops;
+}
+
+void GuiCategoryLabel::beginBackdrop(const juce::Rectangle<int>& contentArea)
+{
+    auto* parent = getParentComponent();
+
+    if (parent == nullptr) return;
+
+    if (!isOpen()) {
+        backdrop.setVisible(false);
+        return;
+    }
+
+    // 上端だけ決めておく。高さは closePending で入る。
+    // 板は見出しと同じ幅。中身はこのあと内側へ寄せるので、左右に余白ができる。
+    backdrop.setBounds(contentArea.getX(), contentArea.getY(), contentArea.getWidth(), 0);
+    backdrop.setVisible(false);
+
+    g_pendingBackdrops[parent] = this;
+}
+
+bool GuiCategoryLabel::closePending(juce::Component* parent, int bottom)
+{
+    if (parent == nullptr) return false;
+
+    auto it = g_pendingBackdrops.find(parent);
+
+    if (it == g_pendingBackdrops.end()) return false;
+
+    auto* label = it->second;
+
+    g_pendingBackdrops.erase(it);
+
+    if (label == nullptr) return false;
+
+    auto b = label->backdrop.getBounds();
+
+    // 次の見出しにくっつくと、板が下のカテゴリのものに見えてしまう。
+    int height = (bottom - gapBelow) - b.getY();
+
+    if (height <= 0) {
+        label->backdrop.setVisible(false);
+        return true;
+    }
+
+    label->backdrop.setBounds(b.getX(), b.getY(), b.getWidth(), height);
+    label->backdrop.setVisible(true);
+    label->backdrop.toBack();
+
+    return true;
+}
+
 
 void GuiCategoryLabel::setup(const Config& c)
 {
@@ -544,15 +724,69 @@ void GuiCategoryLabel::setup(const Config& c)
 
 void GuiCategoryLabel::setupHwCategory(const Config& c)
 {
-    setupInner(c, juce::Colours::yellow);
+    setupInner(c, GuiColor::Category::HwBg);
 }
 
 void GuiCategoryLabel::setupSwCategory(const Config& c)
 {
-    setupInner(c, juce::Colours::aqua);
+    setupInner(c, GuiColor::Category::SwBg);
 }
 
 void GuiCategoryLabel::setupOtherCategory(const Config& c)
 {
-    setupInner(c, juce::Colours::lime);
+    setupInner(c, GuiColor::Category::OtherBg);
+}
+
+void GuiCategoryLabel::setupCategory(const Config& c, juce::Colour bgColor)
+{
+    setupInner(c, bgColor);
+}
+
+void closeCategoryBackdrops(juce::Component* parent, int bottom)
+{
+    GuiCategoryLabel::closePending(parent, bottom);
+}
+
+void GuiDialog::applyTheme()
+{
+    auto& lf = juce::LookAndFeel::getDefaultLookAndFeel();
+
+    lf.setColour(juce::AlertWindow::backgroundColourId, GuiColor::Palette::OffWhite);
+    lf.setColour(juce::AlertWindow::textColourId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::AlertWindow::outlineColourId, GuiColor::Palette::OffBlack);
+
+    // 文章や入力欄も明るい地に黒文字で揃える
+    lf.setColour(juce::Label::textColourId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::TextEditor::backgroundColourId, GuiColor::Palette::OffWhite);
+    lf.setColour(juce::TextEditor::textColourId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::TextEditor::outlineColourId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::TextEditor::highlightedTextColourId, GuiColor::Palette::OffBlack);
+
+    // ボタンの既定は決定ボタンの色にしておく。警告のように OK が 1 つしか
+    // 無いダイアログは中でボタンが作られ、あとから触れないため。
+    lf.setColour(juce::TextButton::buttonColourId, GuiColor::Palette::DialogOkBackBlue);
+    lf.setColour(juce::TextButton::textColourOffId, GuiColor::Palette::OffBlack);
+    lf.setColour(juce::TextButton::textColourOnId, GuiColor::Palette::OffBlack);
+
+    // JUCE はボタンの枠を ComboBox の枠色で描く。
+    // 画面側のコンボボックスは自前の LookAndFeel を持つので影響しない。
+    lf.setColour(juce::ComboBox::outlineColourId, GuiColor::Palette::OffBlack);
+}
+
+void GuiDialog::styleButtons(juce::AlertWindow& window)
+{
+    int index = 0;
+
+    for (int i = 0; i < window.getNumChildComponents(); ++i)
+    {
+        auto* button = dynamic_cast<juce::TextButton*>(window.getChildComponent(i));
+
+        if (button == nullptr) continue;
+
+        // 先に addButton した方を決定として扱う。子は追加した順に並ぶ。
+        button->setColour(juce::TextButton::buttonColourId,
+            (index == 0) ? GuiColor::Palette::DialogOkBackBlue : GuiColor::Palette::OffWhite);
+
+        ++index;
+    }
 }

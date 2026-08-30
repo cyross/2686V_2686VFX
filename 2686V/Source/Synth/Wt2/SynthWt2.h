@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "../../Core/Synth/SynthCore.h"
+#include "../../Generator/WtMod/GenWtModulator.h"
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
@@ -16,6 +17,7 @@
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 
 class Wt2Core : public SynthCore
 {
@@ -36,16 +38,7 @@ public:
     void setCurveCore(CurveCore* p_curveCore);
 
     // ユニゾン・ハーモニー用
-    void setUnisonParams(int index, int total, float detune, float spread) {
-        m_unisonIndex = index;
-        m_unisonTotal = total;
-        m_unisonDetuneAmt = detune;
-        m_unisonSpreadAmt = spread;
-
-        // ユニゾンのインデックスに応じて位相を均等にずらす (0.0 〜 1.0)
-        // (例: 3ボイスなら 0.0, 0.33, 0.66)
-        m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
-    }
+    // ユニゾン・ハーモニーは SynthCore::m_unison に集約
 private:
     void generateWaveform(int type);
     void updatePhaseDelta();
@@ -60,6 +53,7 @@ private:
     FixMode m_fixMode;
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
+    SsgHwEnv m_ssgHwEnv;
 
     float m_level = 1.0f;
 
@@ -68,6 +62,9 @@ private:
     int m_tableSizeIndex = 0;
     int m_tableSize = 32;            // Playback Size (32 or 64)
     float m_quantizeSteps = 15.0f;   // 4bit=15
+
+    // 波形テーブルの読み出しを線形補間するか
+    bool m_interpolate = true;
     int m_waveform = -1; // for initialize
     int m_prevTableSize = -1; // サイズ変更検知用
     int m_customWaveResolution = 0; // 現在の解像度(0〜4)
@@ -87,10 +84,8 @@ private:
     float m_currentFrequency = 440.0f;
 
     // Modulation
-    bool m_modEnable = false;
-    float m_modDepth = 0.0f;
-    float m_modSpeed = 1.0f;
-    float m_modPhase = 0.0f;
+    // 変調計算は WtModulator へまとめてある
+    WtModulator m_wtMod;
 
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;
@@ -98,13 +93,7 @@ private:
     float m_baseLevel = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
-    float m_modWheel = 0.0f;
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
-    int m_unisonIndex = 0;
-    int m_unisonTotal = 1;
-    float m_unisonDetuneAmt = 0.0f;
-    float m_unisonSpreadAmt = 0.0f;
-    float m_unisonPhaseOffset = 0.0f;
 };

@@ -1,5 +1,15 @@
 ﻿#include "./PitchEnv.h"
 
+#include "../../../Core/Gui/GuiRefresh.h"
+
+#include "../../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat pitchEnvFormat{ "pitchEnv", 1 };
+}
+
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
@@ -12,8 +22,7 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 
 	cat.setupSwCategory({
         .parent = parent,
-        .title = juce::String("") + "[■]--- PITCH ENV ---",
-        .invisibleTitle = juce::String("") + "[□]--- PITCH ENV ---",
+        .title = juce::String("") + "PITCH ENV",
         .enableChangeDetailVisible = true
         });
 
@@ -23,43 +32,35 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 
 	flagSeparator.setupComponent(parent);
 
-	attack.setup({ .parent = parent, .id = code + CPK::PitchAdsr::ar, .title = "AR", .isReset = true, .labelFont = labelFont });
-	attack.setWantsKeyboardFocus(true);
-	attack.setExplicitFocusOrder(++tabOrder);
+	attack.setupComponent(parent, code + CPK::PitchAdsr::ar, "AR", tabOrder, std::nullopt, labelFont);
 
-	decay.setup({ .parent = parent, .id = code + CPK::PitchAdsr::dr, .title = "DR", .isReset = true, .labelFont = labelFont });
-	decay.setWantsKeyboardFocus(true);
-	decay.setExplicitFocusOrder(++tabOrder);
+	attackNudge.setupComponent(parent, attack.getSlider(), tabOrder);
 
-	release.setup({ .parent = parent, .id = code + CPK::PitchAdsr::rr, .title = "RR", .isReset = true, .labelFont = labelFont });
-	release.setWantsKeyboardFocus(true);
-	release.setExplicitFocusOrder(++tabOrder);
+	decay.setupComponent(parent, code + CPK::PitchAdsr::dr, "DR", tabOrder, std::nullopt, labelFont);
+
+	decayNudge.setupComponent(parent, decay.getSlider(), tabOrder);
+
+	release.setupComponent(parent, code + CPK::PitchAdsr::rr, "RR", tabOrder, std::nullopt, labelFont);
+
+	releaseNudge.setupComponent(parent, release.getSlider(), tabOrder);
 
 	rateSeparator.setupComponent(parent);
 
-	startLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::stl, .title = "STL", .isReset = true, .labelFont = labelFont });
-	startLevel.setWantsKeyboardFocus(true);
-	startLevel.setExplicitFocusOrder(++tabOrder);
+	startLevel.setupComponent(parent, code + CPK::PitchAdsr::stl, "STL", tabOrder, std::nullopt, labelFont);
 
-	startLevelButtons.setupComponent(parent, startLevel, tabOrder, labelFont);
+	startLevelButtons.setupComponent(parent, startLevel.getSlider(), tabOrder, labelFont);
 
-	attackLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::atl, .title = "ATL", .isReset = true, .labelFont = labelFont });
-	attackLevel.setWantsKeyboardFocus(true);
-	attackLevel.setExplicitFocusOrder(++tabOrder);
+	attackLevel.setupComponent(parent, code + CPK::PitchAdsr::atl, "ATL", tabOrder, std::nullopt, labelFont);
 
-	attackLevelButtons.setupComponent(parent, attackLevel, tabOrder, labelFont);
+	attackLevelButtons.setupComponent(parent, attackLevel.getSlider(), tabOrder, labelFont);
 
-	sustainLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::ssl, .title = "SSL", .isReset = true, .labelFont = labelFont });
-	sustainLevel.setWantsKeyboardFocus(true);
-	sustainLevel.setExplicitFocusOrder(++tabOrder);
+	sustainLevel.setupComponent(parent, code + CPK::PitchAdsr::ssl, "SSL", tabOrder, std::nullopt, labelFont);
 
-	sustainLevelButtons.setupComponent(parent, sustainLevel, tabOrder, labelFont);
+	sustainLevelButtons.setupComponent(parent, sustainLevel.getSlider(), tabOrder, labelFont);
 
-	releaseLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::rll, .title = "RLL", .isReset = true, .labelFont = labelFont });
-	releaseLevel.setWantsKeyboardFocus(true);
-	releaseLevel.setExplicitFocusOrder(++tabOrder);
+	releaseLevel.setupComponent(parent, code + CPK::PitchAdsr::rll, "RLL", tabOrder, std::nullopt, labelFont);
 
-	releaseLevelButtons.setupComponent(parent, releaseLevel, tabOrder, labelFont);
+	releaseLevelButtons.setupComponent(parent, releaseLevel.getSlider(), tabOrder, labelFont);
 }
 
 void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
@@ -71,34 +72,42 @@ void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
 	flag.setVisible(visible);
 	flagSeparator.setVisible(visible);
 	attack.setVisibleWithLabel(visible);
+	attackNudge.setVisibles(visible && attack.isVisibleNudge());
 	decay.setVisibleWithLabel(visible);
+	decayNudge.setVisibles(visible && decay.isVisibleNudge());
 	release.setVisibleWithLabel(visible);
+	releaseNudge.setVisibles(visible && release.isVisibleNudge());
 	rateSeparator.setVisible(visible);
 	startLevel.setVisibleWithLabel(visible);
-	startLevelButtons.setVisibles(visible);
+	startLevelButtons.setVisibles(visible && startLevel.isVisibleNudge());
 	attackLevel.setVisibleWithLabel(visible);
-	attackLevelButtons.setVisibles(visible);
+	attackLevelButtons.setVisibles(visible && attackLevel.isVisibleNudge());
 	sustainLevel.setVisibleWithLabel(visible);
-	sustainLevelButtons.setVisibles(visible);
+	sustainLevelButtons.setVisibles(visible && sustainLevel.isVisibleNudge());
 	releaseLevel.setVisibleWithLabel(visible);
-	releaseLevelButtons.setVisibles(visible);
+	releaseLevelButtons.setVisibles(visible && releaseLevel.isVisibleNudge());
 
     if (visible)
     {
 		layoutMain({ .mainRect = rect, .component = &flag });
 		flagSeparator.layoutComponent(rect);
-		layoutMain({ .mainRect = rect, .label = &attack.label, .component = &attack, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &decay.label, .component = &decay, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &release.label, .component = &release, .rowHeight = 13 });
+		attack.layoutComponent(rect, 13);
+		if (attack.isVisibleNudge()) attackNudge.layoutComponent(rect, 13);
+        decay.layoutComponent(rect, 13);
+        if (decay.isVisibleNudge()) decayNudge.layoutComponent(rect, 13);
+        release.layoutComponent(rect, 13);
+        if (release.isVisibleNudge()) releaseNudge.layoutComponent(rect, 13);
 		rateSeparator.layoutComponent(rect);
-		layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 13 });
-		startLevelButtons.layoutComponent(rect, 13);
-		layoutMain({ .mainRect = rect, .label = &attackLevel.label, .component = &attackLevel, .rowHeight = 13 });
-		attackLevelButtons.layoutComponent(rect, 13);
-		layoutMain({ .mainRect = rect, .label = &sustainLevel.label, .component = &sustainLevel, .rowHeight = 13 });
-		sustainLevelButtons.layoutComponent(rect, 13);
-		layoutMain({ .mainRect = rect, .label = &releaseLevel.label, .component = &releaseLevel, .rowHeight = 13 });
-		releaseLevelButtons.layoutComponent(rect, 13);
+		startLevel.layoutComponent(rect, 13);
+		if (startLevel.isVisibleNudge()) startLevelButtons.layoutComponent(rect, 13);
+		attackLevel.layoutComponent(rect, 13);
+		if (attackLevel.isVisibleNudge()) attackLevelButtons.layoutComponent(rect, 13);
+		sustainLevel.layoutComponent(rect, 13);
+		if (sustainLevel.isVisibleNudge()) sustainLevelButtons.layoutComponent(rect, 13);
+		releaseLevel.layoutComponent(rect, 13);
+		if (releaseLevel.isVisibleNudge()) releaseLevelButtons.layoutComponent(rect, 13);
+
+		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
 }
 
@@ -111,59 +120,67 @@ void GuiComponentPitchEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	flag.setVisible(visible);
 	flagSeparator.setVisible(visible);
 	attack.setVisibleWithLabel(visible);
+	attackNudge.setVisibles(visible && attack.isVisibleNudge());
 	decay.setVisibleWithLabel(visible);
+	decayNudge.setVisibles(visible && decay.isVisibleNudge());
 	release.setVisibleWithLabel(visible);
+	releaseNudge.setVisibles(visible && release.isVisibleNudge());
 	rateSeparator.setVisible(visible);
 	startLevel.setVisibleWithLabel(visible);
-	startLevelButtons.setVisibles(visible);
+	startLevelButtons.setVisibles(visible && startLevel.isVisibleNudge());
 	attackLevel.setVisibleWithLabel(visible);
-	attackLevelButtons.setVisibles(visible);
+	attackLevelButtons.setVisibles(visible && attackLevel.isVisibleNudge());
 	sustainLevel.setVisibleWithLabel(visible);
-	sustainLevelButtons.setVisibles(visible);
+	sustainLevelButtons.setVisibles(visible && sustainLevel.isVisibleNudge());
 	releaseLevel.setVisibleWithLabel(visible);
-	releaseLevelButtons.setVisibles(visible);
+	releaseLevelButtons.setVisibles(visible && releaseLevel.isVisibleNudge());
 
 	if (visible)
 	{
 		layoutRow({ .rowRect = rect, .component = &flag });
 		flagSeparator.layoutComponent(rect);
-		layoutRow({ .rowRect = rect, .label = &attack.label, .component = &attack, .rowHeight = 12 });
-		layoutRow({ .rowRect = rect, .label = &decay.label, .component = &decay, .rowHeight = 12 });
-		layoutRow({ .rowRect = rect, .label = &release.label, .component = &release, .rowHeight = 12 });
+		attack.layoutComponentRow(rect, 12);
+		if (attack.isVisibleNudge()) attackNudge.layoutComponentRow(rect, 12);
+		decay.layoutComponentRow(rect, 12);
+		if (decay.isVisibleNudge()) decayNudge.layoutComponentRow(rect, 12);
+		release.layoutComponentRow(rect, 12);
+		if (release.isVisibleNudge()) releaseNudge.layoutComponentRow(rect, 12);
 		rateSeparator.layoutComponent(rect);
-		layoutRow({ .rowRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 12 });
-		startLevelButtons.layoutComponentRow(rect, 12);
-		layoutRow({ .rowRect = rect, .label = &attackLevel.label, .component = &attackLevel, .rowHeight = 12 });
-		attackLevelButtons.layoutComponentRow(rect, 12);
-		layoutRow({ .rowRect = rect, .label = &sustainLevel.label, .component = &sustainLevel, .rowHeight = 12 });
-		sustainLevelButtons.layoutComponentRow(rect, 12);
-		layoutRow({ .rowRect = rect, .label = &releaseLevel.label, .component = &releaseLevel, .rowHeight = 12 });
-		releaseLevelButtons.layoutComponentRow(rect, 12);
+		startLevel.layoutComponentRow(rect, 12);
+		if (startLevel.isVisibleNudge()) startLevelButtons.layoutComponentRow(rect, 12);
+		attackLevel.layoutComponentRow(rect, 12);
+		if (attackLevel.isVisibleNudge()) attackLevelButtons.layoutComponentRow(rect, 12);
+		sustainLevel.layoutComponentRow(rect, 12);
+		if (sustainLevel.isVisibleNudge()) sustainLevelButtons.layoutComponentRow(rect, 12);
+		releaseLevel.layoutComponentRow(rect, 12);
+		if (releaseLevel.isVisibleNudge()) releaseLevelButtons.layoutComponentRow(rect, 12);
+
+		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
 }
 
 void GuiComponentPitchEnv::setupGraph(std::function<void()> repaintGraph) {
 	flag.onStateChange = repaintGraph;
-	attack.onValueChange = repaintGraph;
-	decay.onValueChange = repaintGraph;
-	release.onValueChange = repaintGraph;
-	startLevel.onValueChange = repaintGraph;
-	attackLevel.onValueChange = repaintGraph;
-	sustainLevel.onValueChange = repaintGraph;
-	releaseLevel.onValueChange = repaintGraph;
+	attack.getSlider().onValueChange = repaintGraph;
+	decay.getSlider().onValueChange = repaintGraph;
+	release.getSlider().onValueChange = repaintGraph;
+	startLevel.getSlider().onValueChange = repaintGraph;
+	attackLevel.getSlider().onValueChange = repaintGraph;
+	sustainLevel.getSlider().onValueChange = repaintGraph;
+	releaseLevel.getSlider().onValueChange = repaintGraph;
 }
 
 void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph) {
 	graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
 
 	graph.updatePitchEnv(
-		attack,
-		decay,
-		release,
-		startLevel,
-		attackLevel,
-		sustainLevel,
-		releaseLevel
+		attack.getSlider(),
+		decay.getSlider(),
+		release.getSlider(),
+		startLevel.getSlider(),
+		attackLevel.getSlider(),
+		sustainLevel.getSlider(),
+		releaseLevel.getSlider()
 	);
 }
 
@@ -204,7 +221,7 @@ void GuiComponentPitchEnv::pasteParams(CopyEnvPitchAdsr& copyObj) {
 void GuiComponentPitchEnv::importParams() {
 	juce::File defaultDir(ctx.audioProcessor.defaultPitchEnvParamDir);
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
 	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importPitchEnvParamFile, defaultDir, Io::ExtensionGlob::PitchEnvParam);
@@ -216,21 +233,50 @@ void GuiComponentPitchEnv::importParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultPitchEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::StringArray lines;
-				file.readLines(lines);
+				// 3.0.0 より前のファイルは、当時の処理で読み込んでから
+				// 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+				// 読み込みは当時のものをそのまま使う。
+				if (Io::isLegacyFile(file)) {
+					juce::StringArray lines;
 
-				int size = lines.size();
+					file.readLines(lines);
 
-				if (size < 8) return;
+					int index = 0;
 
-				flag.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
-				attack.setValue(lines[1].getFloatValue(), juce::sendNotification);
-				decay.setValue(lines[2].getFloatValue(), juce::sendNotification);
-				release.setValue(lines[3].getFloatValue(), juce::sendNotification);
-				startLevel.setValue(lines[4].getFloatValue(), juce::sendNotification);
-				attackLevel.setValue(lines[5].getFloatValue(), juce::sendNotification);
-				sustainLevel.setValue(lines[6].getFloatValue(), juce::sendNotification);
-				releaseLevel.setValue(lines[7].getFloatValue(), juce::sendNotification);
+					{
+						// 読み終えてからまとめて描き直す
+						GuiRefresh::Batch batch;
+
+						setImportingParams(lines, index);
+					}
+
+					// 単体のファイルは入れ子にせず、そのまま中身として書く
+					Io::ParamWriter writer(pitchEnvFormat);
+
+					writeParams(writer, Io::ParamKey::values);
+					writer.hoist(Io::ParamKey::values);
+
+					Io::writeConverted(file, writer);
+
+					return;
+				}
+
+				auto reader = Io::ParamReader::open(file, pitchEnvFormat);
+
+				if (!reader.has_value()) return;
+
+				// 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+				// 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+				GuiRefresh::Batch batch;
+
+				flag.setToggleState(reader->getBool("flag", flag.getToggleState()), juce::sendNotification);
+				attack.setValue(reader->getFloat("attack", (float)attack.getValue()), juce::sendNotification);
+				decay.setValue(reader->getFloat("decay", (float)decay.getValue()), juce::sendNotification);
+				release.setValue(reader->getFloat("release", (float)release.getValue()), juce::sendNotification);
+				startLevel.setValue(reader->getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+				attackLevel.setValue(reader->getFloat("attackLevel", (float)attackLevel.getValue()), juce::sendNotification);
+				sustainLevel.setValue(reader->getFloat("sustainLevel", (float)sustainLevel.getValue()), juce::sendNotification);
+				releaseLevel.setValue(reader->getFloat("releaseLevel", (float)releaseLevel.getValue()), juce::sendNotification);
 			}
 		});
 }
@@ -238,10 +284,10 @@ void GuiComponentPitchEnv::importParams() {
 void GuiComponentPitchEnv::exportParams() {
 	juce::File defaultDir(ctx.audioProcessor.defaultPitchEnvParamDir);
 	if (!defaultDir.isDirectory()) {
-		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
-	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPitchEnvParamFile, defaultDir.getChildFile("default.pitchEnv"), Io::ExtensionGlob::PitchEnvParam);
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPitchEnvParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::PitchEnvParam)), Io::saveGlob(Io::Extension::PitchEnvParam));
 	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
 		[this](const juce::FileChooser& fc) {
 			auto file = fc.getResult();
@@ -250,18 +296,18 @@ void GuiComponentPitchEnv::exportParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultPitchEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::String content = "";
+				Io::ParamWriter writer(pitchEnvFormat);
 
-				content += juce::String(flag.getToggleState() ? 1 : 0) + "\n";
-				content += juce::String(attack.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(decay.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(release.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(attackLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(sustainLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-				content += juce::String(releaseLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+				writer.set("flag", flag.getToggleState());
+				writer.set("attack", (float)attack.getValue());
+				writer.set("decay", (float)decay.getValue());
+				writer.set("release", (float)release.getValue());
+				writer.set("startLevel", (float)startLevel.getValue());
+				writer.set("attackLevel", (float)attackLevel.getValue());
+				writer.set("sustainLevel", (float)sustainLevel.getValue());
+				writer.set("releaseLevel", (float)releaseLevel.getValue());
 
-				file.replaceWithText(content);
+				writer.writeTo(file);
 			}
 		});
 }
@@ -277,6 +323,20 @@ void GuiComponentPitchEnv::setImportingParams(juce::StringArray& lines, int& ind
 	releaseLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 }
 
+void GuiComponentPitchEnv::readParams(const Io::ParamReader& reader, const juce::String& key)
+{
+    auto r = reader.child(key);
+
+	flag.setToggleState(r.getBool("flag", flag.getToggleState()), juce::sendNotification);
+	attack.setValue(r.getFloat("attack", (float)attack.getValue()), juce::sendNotification);
+	decay.setValue(r.getFloat("decay", (float)decay.getValue()), juce::sendNotification);
+	release.setValue(r.getFloat("release", (float)release.getValue()), juce::sendNotification);
+	startLevel.setValue(r.getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+	attackLevel.setValue(r.getFloat("attackLevel", (float)attackLevel.getValue()), juce::sendNotification);
+	sustainLevel.setValue(r.getFloat("sustainLevel", (float)sustainLevel.getValue()), juce::sendNotification);
+	releaseLevel.setValue(r.getFloat("releaseLevel", (float)releaseLevel.getValue()), juce::sendNotification);
+}
+
 juce::String GuiComponentPitchEnv::getExportedParams() {
 	juce::String content = "";
 
@@ -290,4 +350,18 @@ juce::String GuiComponentPitchEnv::getExportedParams() {
 	content += juce::String(releaseLevel.getValue(), Global::floatDecimalPlaces) + "\n";
 
 	return content;
+}
+
+void GuiComponentPitchEnv::writeParams(Io::ParamWriter& writer, const juce::String& key)
+{
+    auto w = writer.child(key);
+
+	w.set("flag", flag.getToggleState());
+	w.set("attack", (float)attack.getValue());
+	w.set("decay", (float)decay.getValue());
+	w.set("release", (float)release.getValue());
+	w.set("startLevel", (float)startLevel.getValue());
+	w.set("attackLevel", (float)attackLevel.getValue());
+	w.set("sustainLevel", (float)sustainLevel.getValue());
+	w.set("releaseLevel", (float)releaseLevel.getValue());
 }

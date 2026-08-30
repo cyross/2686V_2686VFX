@@ -11,6 +11,7 @@
 #include "../../Core/Synth/UnisonParams.h"
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 
 struct RhythmPadParams
 {
@@ -18,6 +19,7 @@ struct RhythmPadParams
 
     ToneNoiseParams tn;
     AmpAdsrParams adsr;
+    WtModParams wtMod;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;
     PitchAdsrParams pitchAdsr;
@@ -28,6 +30,7 @@ struct RhythmPadParams
     PcmParams pcm;
     LoopPointParams lp;
     QualityPcmParams quality;
+    SsgHwEnvParams ssgHwEnv;
 
     float pan = 0.5f;     // 0.0(L) - 1.0(R)
     int noteNumber = 36;  // MIDI Note Number (e.g., 36=C1)

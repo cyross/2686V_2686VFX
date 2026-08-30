@@ -6,6 +6,7 @@
 #include "../../Core/Gui/GuiColor.h"
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
+#include "../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/GuiCurve.h"
@@ -24,8 +25,10 @@
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -34,47 +37,28 @@ class AudioPlugin2686VEditor;
 // Waveform Drawing Container (Super Lightweight Custom Paint)
 // ==========================================================
 template <size_t tableSize>
-class WaveformContainer :
-    public juce::Component,
-    public GuiBaseComponent,
-    public juce::AudioProcessorValueTreeState::Listener // リスナーを継承
+class WaveformContainer : public ParamBarEditorBase
 {
-    // APVTSのパラメータへの直接ポインタを保持して高速にアクセスする
-    std::vector<juce::RangedAudioParameter*> m_params;
-    juce::StringArray m_paramIds; // リスナー削除用にIDを格納
-
-    bool isEnabledState = false;
-    int hoveredIndex = -1;
-    juce::Point<int> lastMousePos;
-    juce::ModifierKeys lastModifiers;
 
 public:
     int steps = 0;
 
     WaveformContainer(const GuiContext& context);
-    ~WaveformContainer() override;
 
     struct Config {
         juce::Component& parent;
         juce::String idPrefix;
     };
 
-    void parameterChanged(const juce::String& parameterID, float newValue) override;
     void setup(const Config& c);
     void applySmoothing();
-    void setCustomEnabled(bool shouldBeEnabled);
     void setAllValues(float val);
     void setValues(const std::vector<float>& values);
     std::vector<float> getValues();
     void paint(juce::Graphics& g) override;
 
-    void mouseMove(const juce::MouseEvent& e) override;
-    void mouseDown(const juce::MouseEvent& e) override;
-    void mouseDrag(const juce::MouseEvent& e) override;
-    void mouseExit(const juce::MouseEvent& e) override;
-
-    void updateSliderValue(const juce::MouseEvent& e);
-    void updateHoverState(const juce::MouseEvent& e);
+    void updateSliderValue(const juce::MouseEvent& e) override;
+    void updateHoverState(const juce::MouseEvent& e) override;
     void paintOverChildren(juce::Graphics& g) override;
 };
 
@@ -99,7 +83,7 @@ class GuiWt : public GuiBase
     Quality qualityComponent;
 
     GuiCategoryLabel formCat;
-    GuiCategoryLabel modCat;
+    GuiComponentWtMod modComponent;
 
     GuiComponentFix fixComponent;
 
@@ -124,6 +108,9 @@ class GuiWt : public GuiBase
     // LFO
     GuiComponentLfoOpzx7 lfo;
 
+    // SSG Hw Env
+    GuiComponentSsgHwEnv ssgHwEnv;
+
     GuiComboBox sizeSelector;
     GuiComboBox stepsSelector;
 
@@ -131,10 +118,7 @@ class GuiWt : public GuiBase
 
     NormalSeparator formSeparator;
 
-    // Moduration
-	GuiToggleButton modEnableButton;
-    GuiSlider modDepthSlider;
-    GuiSlider modSpeedSlider;
+
 
 	// Custom Waveform Reset
     GuiTextButton customWaveResetTo0Btn;
@@ -153,6 +137,8 @@ class GuiWt : public GuiBase
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -195,8 +181,9 @@ public:
         levelComponent(context),
         qualityComponent(context),
         formCat(context),
-        modCat(context),
+        modComponent(context),
         fixComponent(context),
+        ssgHwEnv(context),
         unisonComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),
@@ -215,6 +202,8 @@ public:
         ieLfo(context),
         ieAmpEnv(context),
         iePitchEnv(context),
+        ieSsgHwEnv(context),
+        ieWtMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),
@@ -226,9 +215,6 @@ public:
         stepsSelector(context),
         waveSelector(context),
         formSeparator(context),
-        modEnableButton(context),
-        modDepthSlider(context),
-        modSpeedSlider(context),
         customWaveResetTo0Btn(context),
         customWaveResetTo1Btn(context),
         customWaveResetToM1Btn(context),
@@ -252,29 +238,24 @@ public:
     void initParams();
     void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutModulationCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
-    void importLfoParam();
-    void exportLfoParam();
-    void importAmpEnvParam();
-    void exportAmpEnvParam();
-    void importPitchEnvParam();
-    void exportPitchEnvParam();
-    void importSsgSwEnvParam();
-    void exportSsgSwEnvParam();
-    void importSsgSwEnv11Param();
-    void exportSsgSwEnv11Param();
-    void importSsgSwPEnv11Param();
-    void exportSsgSwPEnv11Param();
-    void importDetuneParam();
-    void exportDetuneParam();
-    void importUnisonParam();
-    void exportUnisonParam();
     void importQualityParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingQualityParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
     void importChParam();
+
+    // 3.0.0 より前の形式を読む
+    void setImportingChParams(juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
 };
