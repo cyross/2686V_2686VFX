@@ -1,0 +1,36 @@
+---
+title: 2686V マニュアル
+description: レトロ音源風 VST「2686V」シリーズの使い方
+template: splash
+hero:
+  tagline: 80〜90 年代の音源チップを、今の DAW で鳴らすための道具です。
+  actions:
+    - text: はじめに
+      link: /2686V_2686VFX/guide/about/
+      icon: right-arrow
+    - text: GitHub
+      link: https://github.com/cyross/2686V_2686VFX
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+	<Card title="4 つのプラグイン" icon="puzzle">
+		収録する音源の数だけが違う 4 つを用意しています。どれを選べばよいかは
+		[プラグインの選び方](/2686V_2686VFX/plugins/compare/) を参照してください。
+	</Card>
+	<Card title="ファイルの形式" icon="document">
+		3.0.0 でパラメータファイルを名前式へ移しました。JSON と YAML を選べます。
+		[ファイルの形式と置き場所](/2686V_2686VFX/files/format/)
+	</Card>
+	<Card title="古いファイルの変換" icon="seti:shell">
+		3.0.0 より前のファイルは、読み込むだけで新しい形式へ変換されます。
+		[旧形式からの変換](/2686V_2686VFX/files/convert/)
+	</Card>
+	<Card title="はじめて使う方へ" icon="open-book">
+		導入と画面の見かたから始めてください。
+		[はじめに](/2686V_2686VFX/guide/about/)
+	</Card>
+</CardGrid>

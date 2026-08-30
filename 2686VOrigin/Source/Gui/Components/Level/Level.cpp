@@ -1,5 +1,7 @@
 ﻿#include "./Level.h"
 
+#include <cmath>
+
 #include "../../../Core/Io/ParamFile.h"
 
 #include "../../../Core/Processor/ProcessorKeys.h"
@@ -41,8 +43,13 @@ void GuiComponentLevel::applyStepSnap()
     // スライダーの最小・最大値の範囲内にクランプする
     snappedVal = std::clamp(snappedVal, (float)levelSlider.getMinimum(), (float)levelSlider.getMaximum());
 
-    // 再帰呼び出しを防ぐため、dontSendNotification で更新
-    levelSlider.setValue(snappedVal);
+    // 既に丸まっているなら書き戻さない。書き戻すと知らせがもう一巡して、
+    // 1 回の変更で画面の作り直しが二重に走る。
+    if (std::abs((float)levelSlider.getValue() - snappedVal) < 1.0e-6f) return;
+
+    // ここは知らせを止められない。止めると、丸めた値がパラメータへ
+    // 伝わらず、画面の見た目と音がずれる。
+    levelSlider.setValue(snappedVal, juce::sendNotification);
 }
 
 void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& prefix) {
@@ -304,7 +311,10 @@ float GuiComponentLevel::getLevel() {
 }
 
 void GuiComponentLevel::setLevel(float level) {
-	levelSlider.setValue(level);
+    // 知らせ方を決めて渡す。既定は後回しにする形なので、まとめの外で
+    // 描き直しが走ってしまい、まとめた意味が無くなる。
+    levelSlider.setValue(level, juce::sendNotification);
+
     applyStepSnap();
 }
 

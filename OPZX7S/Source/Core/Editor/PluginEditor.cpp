@@ -1431,10 +1431,18 @@ void AudioPlugin2686VEditor::resetMidiSettings() {
 
 // 現在のチャンネルのレベルを全チャンネルに伝播
 void AudioPlugin2686VEditor::breadcastLevel(float level) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     opzx7Gui->setLevel(level);
 }
 
 void AudioPlugin2686VEditor::copyOpzx7OpParams(int from, int to) {
+    // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
+    // 入れ終えてからまとめて 1 度だけ描き直す。
+    GuiRefresh::Batch batch;
+
     CopyOpzx7Op opParams;
 
     opzx7Gui->copyOpParams(from, opParams);

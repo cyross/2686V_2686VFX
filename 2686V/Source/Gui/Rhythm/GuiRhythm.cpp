@@ -1150,11 +1150,11 @@ void GuiRhythm::setup()
     ieSsgSwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnvParam(padIndex); };
     ieSsgSwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnvParam(padIndex); };
 
-    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
     ieSsgSwEnv11.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnv11Param(padIndex); };
     ieSsgSwEnv11.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnv11Param(padIndex); };
 
-    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
     ieSsgSwPEnv11.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwPEnv11Param(padIndex); };
     ieSsgSwPEnv11.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwPEnv11Param(padIndex); };
 
