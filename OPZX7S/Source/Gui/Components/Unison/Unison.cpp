@@ -1,5 +1,7 @@
 ﻿#include "./Unison.h"
 
+#include "../../../Core/Gui/GuiRefresh.h"
+
 #include "../../../Core/Io/ParamFile.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
@@ -7,6 +9,12 @@
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat unisonFormat{ "unison", 1 };
+}
 
 void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder)
 {
@@ -178,31 +186,15 @@ void GuiComponentUnison::importParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultUnisonParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, unisonFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 3) return;
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
 
-                voices.setValue(lines[0].getIntValue(), juce::sendNotification);
-                detune.setValue(lines[1].getIntValue(), juce::sendNotification);
-                spread.setValue(lines[2].getFloatValue(), juce::sendNotification);
-
-                // アルペジオは後から追加したため、旧フォーマットのファイルも読めるようにする
-                if (size < 6) return;
-
-                arpEnable.setToggleState(lines[3].getIntValue() != 0, juce::sendNotification);
-                arpFreq.setValue(lines[4].getIntValue(), juce::sendNotification);
-                arpSmooth.setToggleState(lines[5].getIntValue() != 0, juce::sendNotification);
-
-                // ボイス単位の設定も後から追加したため、無ければ既定値のままにする
-                if (size < 6 + Global::unisonParaVoices * 2) return;
-
-                for (int i = 0; i < Global::unisonParaVoices; ++i) {
-                    setParaValue(CPK::Unison::paraDistance, i, lines[6 + i * 2].getFloatValue());
-                    setParaValue(CPK::Unison::paraDetune, i, (float)lines[7 + i * 2].getIntValue());
-                }
+                // チャンネルファイルの中に入る形と同じ中身にしてある
+                readParams(*reader, "unison");
             }
         });
 
@@ -223,21 +215,11 @@ void GuiComponentUnison::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultUnisonParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(unisonFormat);
 
-                content += juce::String(voices.getValue()) + "\n";
-                content += juce::String(detune.getValue()) + "\n";
-                content += juce::String(spread.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(arpEnable.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(arpFreq.getValue()) + "\n";
-                content += juce::String(arpSmooth.getToggleState() ? 1 : 0) + "\n";
+                writeParams(writer, "unison");
 
-                for (int i = 0; i < Global::unisonParaVoices; ++i) {
-                    content += juce::String(getParaValue(CPK::Unison::paraDistance, i), Global::floatDecimalPlaces) + "\n";
-                    content += juce::String((int)getParaValue(CPK::Unison::paraDetune, i)) + "\n";
-                }
-
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

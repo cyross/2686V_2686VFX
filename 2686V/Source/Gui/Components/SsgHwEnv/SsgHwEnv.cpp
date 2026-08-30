@@ -15,6 +15,12 @@
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat ssgHwEnvFormat{ "ssgHwEnv", 1 };
+}
+
 static std::vector<SelectItem> ssgEnvItems = {
     {.name = "0: Saw Down",                     .value =  1 },
     {.name = "1: Saw Down & Hold",              .value =  2 },
@@ -245,15 +251,15 @@ void GuiComponentSsgHwEnv::importParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, ssgHwEnvFormat);
 
-                int size = lines.size();
-                int index = 0;
+                if (!reader.has_value()) return;
 
-                if (size < 6) return;
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
 
-                setImportingParams(lines, index);
+                // チャンネルファイルの中に入る形と同じ中身にしてある
+                readParams(*reader, "ssgHwEnv");
             }
         });
 }
@@ -273,9 +279,11 @@ void GuiComponentSsgHwEnv::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = getExportedParams();
+                Io::ParamWriter writer(ssgHwEnvFormat);
 
-                file.replaceWithText(content);
+                writeParams(writer, "ssgHwEnv");
+
+                writer.writeTo(file);
             }
         });
 }

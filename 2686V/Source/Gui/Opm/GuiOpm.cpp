@@ -11,6 +11,7 @@ namespace
 {
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat qualityFormat{ "quality", 1 };
+	const Io::ParamFormat opmLfoFormat{ "opmLfo", 1 };
 	const Io::ParamFormat opmFormat{ "opm", 1 };
 	const Io::ParamFormat opmOpFormat{ "opmOp", 1 };
 }
@@ -1977,27 +1978,29 @@ void GuiOpm::importLfoParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, opmLfoFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 15) return;
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
 
-                lfoFreqSlider.setValue(lines[0].getIntValue(), juce::sendNotification);
-                lfoSyncDelaySlider.setValue(lines[1].getIntValue(), juce::sendNotification);
-                lfoPmToggle.setToggleState(lines[2].getIntValue() == 1, juce::sendNotification);
-                lfoPgShapeSelector.setSelectedItemIndex(lines[3].getIntValue(), juce::sendNotification);
-                lfoPmsSelector.setSelectedItemIndex(lines[4].getIntValue(), juce::sendNotification);
-                lfoPmdSlider.setValue(lines[5].getIntValue(), juce::sendNotification);
-                lfoAmToggle.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
-                lfoAmSmRtSlider.setValue(lines[7].getFloatValue(), juce::sendNotification);
-                lfoEgShapeSelector.setSelectedItemIndex(lines[8].getIntValue(), juce::sendNotification);
-                lfoAmsSelector.setSelectedItemIndex(lines[9].getIntValue(), juce::sendNotification);
-                lfoAmdSlider.setValue(lines[10].getIntValue(), juce::sendNotification);
+                lfoFreqSlider.setValue(reader->getInt("lfoFreq", (int)lfoFreqSlider.getValue()), juce::sendNotification);
+                lfoSyncDelaySlider.setValue(reader->getInt("lfoSyncDelay", (int)lfoSyncDelaySlider.getValue()), juce::sendNotification);
+                lfoPmToggle.setToggleState(reader->getBool("lfoPm", lfoPmToggle.getToggleState()), juce::sendNotification);
+                lfoPgShapeSelector.setSelectedItemIndex(reader->getInt("lfoPgShape", lfoPgShapeSelector.getSelectedItemIndex()), juce::sendNotification);
+                lfoPmsSelector.setSelectedItemIndex(reader->getInt("lfoPms", lfoPmsSelector.getSelectedItemIndex()), juce::sendNotification);
+                lfoPmdSlider.setValue(reader->getInt("lfoPmd", (int)lfoPmdSlider.getValue()), juce::sendNotification);
+                lfoAmToggle.setToggleState(reader->getBool("lfoAm", lfoAmToggle.getToggleState()), juce::sendNotification);
+                lfoAmSmRtSlider.setValue(reader->getFloat("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue()), juce::sendNotification);
+                lfoEgShapeSelector.setSelectedItemIndex(reader->getInt("lfoEgShape", lfoEgShapeSelector.getSelectedItemIndex()), juce::sendNotification);
+                lfoAmsSelector.setSelectedItemIndex(reader->getInt("lfoAms", lfoAmsSelector.getSelectedItemIndex()), juce::sendNotification);
+                lfoAmdSlider.setValue(reader->getInt("lfoAmd", (int)lfoAmdSlider.getValue()), juce::sendNotification);
 
-                for (int i = 0; i < OpmPrValue::ops; i++) {
-                    amsEnable[i].setToggleState(lines[11 + i].getIntValue() == 1, juce::sendNotification);
+                auto amsValues = reader->getIntArray("amsEnable");
+
+                for (int i = 0; i < OpmPrValue::ops && i < (int)amsValues.size(); i++) {
+                    amsEnable[i].setToggleState(amsValues[(size_t)i] != 0, juce::sendNotification);
                 }
             }
         });
@@ -2018,25 +2021,29 @@ void GuiOpm::exportLfoParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(opmLfoFormat);
 
-                content += juce::String(lfoFreqSlider.getValue()) + "\n";
-                content += juce::String(lfoSyncDelaySlider.getValue()) + "\n";
-                content += juce::String(lfoPmToggle.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(lfoPgShapeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(lfoPmsSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(lfoPmdSlider.getValue()) + "\n";
-                content += juce::String(lfoAmToggle.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(lfoAmSmRtSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(lfoEgShapeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(lfoAmsSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(lfoAmdSlider.getValue()) + "\n";
+                writer.set("lfoFreq", (int)lfoFreqSlider.getValue());
+                writer.set("lfoSyncDelay", (int)lfoSyncDelaySlider.getValue());
+                writer.set("lfoPm", lfoPmToggle.getToggleState());
+                writer.set("lfoPgShape", lfoPgShapeSelector.getSelectedItemIndex());
+                writer.set("lfoPms", lfoPmsSelector.getSelectedItemIndex());
+                writer.set("lfoPmd", (int)lfoPmdSlider.getValue());
+                writer.set("lfoAm", lfoAmToggle.getToggleState());
+                writer.set("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue());
+                writer.set("lfoEgShape", lfoEgShapeSelector.getSelectedItemIndex());
+                writer.set("lfoAms", lfoAmsSelector.getSelectedItemIndex());
+                writer.set("lfoAmd", (int)lfoAmdSlider.getValue());
+
+                std::vector<int> amsValues;
 
                 for (int i = 0; i < OpmPrValue::ops; i++) {
-                    content += juce::String(amsEnable[i].getToggleState() ? 1 : 0) + "\n";
+                    amsValues.push_back(amsEnable[i].getToggleState() ? 1 : 0);
                 }
 
-                file.replaceWithText(content);
+                writer.setArray("amsEnable", amsValues);
+
+                writer.writeTo(file);
             }
         });
 }
