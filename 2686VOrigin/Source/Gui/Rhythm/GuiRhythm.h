@@ -332,5 +332,11 @@ public:
     void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
     void importPadChParam(int p);
+
+    // 3.0.0 より前の形式を読む
+    void setImportingPadChParams(int p, juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writePadChParams(int p, Io::ParamWriter& writer);
     void exportPadChParam(int p);
 };

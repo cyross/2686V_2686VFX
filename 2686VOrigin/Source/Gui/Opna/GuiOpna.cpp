@@ -1787,6 +1787,32 @@ void GuiOpna::importHwLfoParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingHwLfoParams(opIndex, lines, index);
+                    }
+
+                    Io::ParamWriter writer(opnaHwLfoFormat);
+
+                    writeHwLfoParams(opIndex, writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, opnaHwLfoFormat);
 
                 if (!reader.has_value()) return;
@@ -1821,13 +1847,7 @@ void GuiOpna::exportHwLfoParam(int opIndex) {
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(opnaHwLfoFormat);
-
-                writer.set("freq", freqs[opIndex].getSelectedItemIndex());
-                writer.set("syncDelay", (int)syncDelay[opIndex].getValue());
-                writer.set("pm", pm[opIndex].getToggleState());
-                writer.set("pms", pms[opIndex].getSelectedItemIndex());
-                writer.set("am", am[opIndex].getToggleState());
-                writer.set("ams", ams[opIndex].getSelectedItemIndex());
+                writeHwLfoParams(opIndex, writer);
 
                 writer.writeTo(file);
             }
@@ -2112,6 +2132,32 @@ void GuiOpna::importOpChParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingOpChFileParams(opIndex, lines, index);
+                    }
+
+                    Io::ParamWriter writer(opnaOpFormat);
+
+                    writeOpChFileParams(opIndex, writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, opnaOpFormat);
 
                 if (!reader.has_value()) return;
@@ -2143,8 +2189,7 @@ void GuiOpna::exportOpChParam(int opIndex) {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(opnaOpFormat);
-
-                writeOpParams(opIndex, writer);
+                writeOpChFileParams(opIndex, writer);
 
                 writer.writeTo(file);
             }
@@ -2504,6 +2549,58 @@ void GuiOpna::setImportingQualityParams(juce::StringArray& lines, int& index) {
 void GuiOpna::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("bit", qualityComponent.getBit());
 	writer.set("rate", qualityComponent.getRate());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpna::setImportingHwLfoParams(int opIndex, juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 6) return;
+
+	freqs[opIndex].setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+	syncDelay[opIndex].setValue(lines[1].getIntValue(), juce::sendNotification);
+	pm[opIndex].setToggleState(lines[2].getIntValue() == 1, juce::sendNotification);
+	pms[opIndex].setSelectedItemIndex(lines[3].getIntValue(), juce::sendNotification);
+	am[opIndex].setToggleState(lines[4].getIntValue() == 1, juce::sendNotification);
+	ams[opIndex].setSelectedItemIndex(lines[5].getIntValue(), juce::sendNotification);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpna::writeHwLfoParams(int opIndex, Io::ParamWriter& writer) {
+	writer.set("freq", freqs[opIndex].getSelectedItemIndex());
+	writer.set("syncDelay", (int)syncDelay[opIndex].getValue());
+	writer.set("pm", pm[opIndex].getToggleState());
+	writer.set("pms", pms[opIndex].getSelectedItemIndex());
+	writer.set("am", am[opIndex].getToggleState());
+	writer.set("ams", ams[opIndex].getSelectedItemIndex());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpna::setImportingOpChFileParams(int opIndex, juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	updateAlgorithmDisplay();
+
+	getImportingOpParams(opIndex, lines, index);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpna::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
+	writeOpParams(opIndex, writer);
 
 	
 }

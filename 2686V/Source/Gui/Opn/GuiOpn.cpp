@@ -1918,6 +1918,32 @@ void GuiOpn::importOpChParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingOpChFileParams(opIndex, lines, index);
+                    }
+
+                    Io::ParamWriter writer(opnOpFormat);
+
+                    writeOpChFileParams(opIndex, writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, opnOpFormat);
 
                 if (!reader.has_value()) return;
@@ -1949,8 +1975,7 @@ void GuiOpn::exportOpChParam(int opIndex) {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(opnOpFormat);
-
-                writeOpParams(opIndex, writer);
+                writeOpChFileParams(opIndex, writer);
 
                 writer.writeTo(file);
             }
@@ -2314,6 +2339,25 @@ void GuiOpn::setImportingQualityParams(juce::StringArray& lines, int& index) {
 void GuiOpn::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("bit", qualityComponent.getBit());
 	writer.set("rate", qualityComponent.getRate());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpn::setImportingOpChFileParams(int opIndex, juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	getImportingOpParams(opIndex, lines, index);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpn::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
+	writeOpParams(opIndex, writer);
 
 	
 }

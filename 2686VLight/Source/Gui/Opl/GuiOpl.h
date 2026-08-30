@@ -333,6 +333,12 @@ public:
     void pasteParams(CopyOpl& copyObj);
     void pasteOpParams(int p, CopyOplOp& copyObj);
     void importLfoParam(int opIndex);
+
+    // 3.0.0 より前の形式を読む
+    void setImportingLfoParams(int opIndex, juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeLfoParams(int opIndex, Io::ParamWriter& writer);
     void exportLfoParam(int opIndex);
     void importPitchEnvParam(int opIndex);
     void exportPitchEnvParam(int opIndex);
@@ -360,6 +366,12 @@ public:
     void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
     void importOpChParam(int opIndex);
+
+    // 3.0.0 より前の形式を読む
+    void setImportingOpChFileParams(int opIndex, juce::StringArray& lines, int& index);
+
+    // 書き出す中身。エクスポートと変換の両方から使う。
+    void writeOpChFileParams(int opIndex, Io::ParamWriter& writer);
     void exportOpChParam(int opIndex);
     // 名前で受け渡す。オペレータは並びの中のひとつを渡す。
     void readOpParams(int opIndex, const Io::ParamReader& r);

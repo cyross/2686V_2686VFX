@@ -1652,6 +1652,32 @@ void GuiRhythm::importPadChParam(int p) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingPadChParams(p, lines, index);
+                    }
+
+                    Io::ParamWriter writer(rhythmPadFormat);
+
+                    writePadChParams(p, writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, rhythmPadFormat);
 
                 if (!reader.has_value()) return;
@@ -1680,8 +1706,7 @@ void GuiRhythm::exportPadChParam(int p) {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(rhythmPadFormat);
-
-                pads[p].writeParams(p, writer);
+                writePadChParams(p, writer);
 
                 writer.writeTo(file);
             }
@@ -1886,6 +1911,25 @@ void RhythmPadGui::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("mode", qualityPcmComponent.getMode());
 	writer.set("rate", qualityPcmComponent.getRate());
 	writer.set("interp", qualityPcmComponent.getInterp());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiRhythm::setImportingPadChParams(int p, juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	getImportingPadParams(p, lines, index);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiRhythm::writePadChParams(int p, Io::ParamWriter& writer) {
+	pads[p].writeParams(p, writer);
 
 	
 }

@@ -2824,6 +2824,32 @@ void GuiOpzx7::importOpPcmPlayParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingOpPcmPlayParams(opIndex, lines, index);
+                    }
+
+                    Io::ParamWriter writer(pcmPlayFormat);
+
+                    writeOpPcmPlayParams(opIndex, writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, pcmPlayFormat);
 
                 if (!reader.has_value()) return;
@@ -2857,12 +2883,7 @@ void GuiOpzx7::exportOpPcmPlayParam(int opIndex) {
                 ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(pcmPlayFormat);
-
-                writer.set("pcmOffset", (float)pcmOffset[opIndex].getValue());
-                writer.set("pcmRatio", (float)pcmRatio[opIndex].getValue());
-                writer.set("loopPointEnable", loopPointEnable[opIndex].getToggleState());
-                writer.set("loopPointStart", (float)loopPointStart[opIndex].getValue());
-                writer.set("loopPointEnd", (float)loopPointEnd[opIndex].getValue());
+                writeOpPcmPlayParams(opIndex, writer);
 
                 writer.writeTo(file);
             }
@@ -2978,6 +2999,32 @@ void GuiOpzx7::importOpChParam(int opIndex) {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingOpChFileParams(opIndex, lines, index);
+                    }
+
+                    Io::ParamWriter writer(opzx7OpFormat);
+
+                    writeOpChFileParams(opIndex, writer);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
                 auto reader = Io::ParamReader::open(file, opzx7OpFormat);
 
                 if (!reader.has_value()) return;
@@ -3006,8 +3053,7 @@ void GuiOpzx7::exportOpChParam(int opIndex) {
                 ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(opzx7OpFormat);
-
-                writeOpParams(opIndex, writer);
+                writeOpChFileParams(opIndex, writer);
 
                 writer.writeTo(file);
             }
@@ -3459,6 +3505,54 @@ void GuiOpzx7::setImportingQualityParams(juce::StringArray& lines, int& index) {
 void GuiOpzx7::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("bit", qualityComponent.getBit());
 	writer.set("rate", qualityComponent.getRate());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpzx7::setImportingOpPcmPlayParams(int opIndex, juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 5) return;
+
+	pcmOffset[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	pcmRatio[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	loopPointEnable[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	loopPointStart[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	loopPointEnd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpzx7::writeOpPcmPlayParams(int opIndex, Io::ParamWriter& writer) {
+	writer.set("pcmOffset", (float)pcmOffset[opIndex].getValue());
+	writer.set("pcmRatio", (float)pcmRatio[opIndex].getValue());
+	writer.set("loopPointEnable", loopPointEnable[opIndex].getToggleState());
+	writer.set("loopPointStart", (float)loopPointStart[opIndex].getValue());
+	writer.set("loopPointEnd", (float)loopPointEnd[opIndex].getValue());
+
+	
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpzx7::setImportingOpChFileParams(int opIndex, juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	getImportingOpParams(opIndex, lines, index);
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpzx7::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
+	writeOpParams(opIndex, writer);
 
 	
 }
