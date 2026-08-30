@@ -40,6 +40,12 @@ export default defineConfig({
 					],
 				},
 				{
+					label: '音源タブ',
+					translations: { en: 'Sound chips' },
+					// 章ごとに並べ直さずに済むよう、フォルダの中身をそのまま出す
+					items: [{ autogenerate: { directory: 'chips' } }],
+				},
+				{
 					label: 'ファイル',
 					translations: { en: 'Files' },
 					items: [
