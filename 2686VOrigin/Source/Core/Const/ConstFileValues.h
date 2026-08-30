@@ -34,8 +34,8 @@ namespace Io
 
 	namespace Extension
 	{
-		static inline const juce::String fxOrder = "fxo";
-		static inline const juce::String fxParam = "2fx";
+		static inline const juce::String fxOrder = "fxo.json";
+		static inline const juce::String fxParam = "2fx.json";
 		static inline const juce::String opnaParam = "param.opna.json";
 		static inline const juce::String opnParam = "param.opn.json";
 		static inline const juce::String ssgParam = "param.ssg.json";
@@ -69,8 +69,8 @@ namespace Io
 
 	namespace ExtensionGlob
 	{
-		static inline const juce::String fxOrder = "*.fxo";
-		static inline const juce::String fxParam = "*.2fx";
+		static inline const juce::String fxOrder = "*.fxo.json";
+		static inline const juce::String fxParam = "*.2fx.json";
 		static inline const juce::String opnaParam = "*.param.opna.json";
 		static inline const juce::String opnParam = "*.param.opn.json";
 		static inline const juce::String ssgParam = "*.param.ssg.json";

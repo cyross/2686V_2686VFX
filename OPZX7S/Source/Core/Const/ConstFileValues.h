@@ -34,11 +34,11 @@ namespace Io
 
 	namespace Extension
 	{
-		static inline const juce::String fxOrder = "fxo";
-		static inline const juce::String fxParam = "2fx";
+		static inline const juce::String fxOrder = "fxo.json";
+		static inline const juce::String fxParam = "2fx.json";
 		static inline const juce::String opzx7sParam = "param.opzx7s.json";
 		static inline const juce::String opzx7sOpParam = "param.opzx7s.op.json";
-		static inline const juce::String curveParam = "curve_";
+		static inline const juce::String curveParam = "curve_.json";
 		static inline const juce::String Opzx7LfoParam = "lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "ampEnv";
 		static inline const juce::String SsgHwEnvParam = "ssgHwEnv.json";
@@ -60,11 +60,11 @@ namespace Io
 	{
 		static inline const juce::String wavetable = "*.wt";
 		static inline const juce::String wt2 = "*.wt2";
-		static inline const juce::String fxOrder = "*.fxo";
-		static inline const juce::String fxParam = "*.2fx";
+		static inline const juce::String fxOrder = "*.fxo.json";
+		static inline const juce::String fxParam = "*.2fx.json";
 		static inline const juce::String opzx7sParam = "*.param.opzx7s.json";
 		static inline const juce::String opzx7sOpParam = "*.param.opzx7s.op.json";
-		static inline const juce::String curveParam = "*.curve_";
+		static inline const juce::String curveParam = "*.curve_.json";
 		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7.json";
 		static inline const juce::String AmpEnvParam = "*.ampEnv.json";
 		static inline const juce::String SsgHwEnvParam = "*.ssgHwEnv.json";

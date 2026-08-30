@@ -11,6 +11,7 @@ namespace
 {
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat pcmQualityFormat{ "pcmQuality", 1 };
+	const Io::ParamFormat pcmPlayFormat{ "pcmPlay", 1 };
 	const Io::ParamFormat rhythmFormat{ "rhythm", 1 };
 	const Io::ParamFormat rhythmPadFormat{ "rhythmPad", 1 };
 	const Io::ParamFormat toneNoiseFormat{ "toneNoise", 1 };
@@ -754,7 +755,7 @@ void RhythmPadGui::importPcmPlayParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::PcmQualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importPcmPlayParamFile, defaultDir, Io::ExtensionGlob::PcmPlayParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -763,16 +764,18 @@ void RhythmPadGui::importPcmPlayParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, pcmPlayFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 3) return;
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
 
-                qualityPcmComponent.setMode(lines[0].getIntValue());
-                qualityPcmComponent.setRate(lines[1].getIntValue());
-                qualityPcmComponent.setInterp(lines[2].getIntValue());
+                pcmOffsetSlider.setValue(reader->getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
+                pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
+                loopPointEnableButton.setToggleState(reader->getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
+                loopPointStartSlider.setValue(reader->getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
+                loopPointEndSlider.setValue(reader->getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
             }
         });
 }
@@ -783,7 +786,7 @@ void RhythmPadGui::exportPcmPlayParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.pcmQuality.json"), Io::ExtensionGlob::PcmQualityParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPcmPlayParamFile, defaultDir.getChildFile("default.pcmPlay.json"), Io::ExtensionGlob::PcmPlayParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -792,13 +795,15 @@ void RhythmPadGui::exportPcmPlayParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(pcmPlayFormat);
 
-                content += juce::String(qualityPcmComponent.getMode()) + "\n";
-                content += juce::String(qualityPcmComponent.getRate()) + "\n";
-                content += juce::String(qualityPcmComponent.getInterp()) + "\n";
+                writer.set("pcmOffset", (float)pcmOffsetSlider.getValue());
+                writer.set("pcmRatio", (float)pcmRatioSlider.getValue());
+                writer.set("loopPointEnable", loopPointEnableButton.getToggleState());
+                writer.set("loopPointStart", (float)loopPointStartSlider.getValue());
+                writer.set("loopPointEnd", (float)loopPointEndSlider.getValue());
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }

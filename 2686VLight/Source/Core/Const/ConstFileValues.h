@@ -36,8 +36,8 @@ namespace Io
 	{
 		static inline const juce::String wavetable = "wt";
 		static inline const juce::String wt2 = "wt2";
-		static inline const juce::String fxOrder = "fxo";
-		static inline const juce::String fxParam = "2fx";
+		static inline const juce::String fxOrder = "fxo.json";
+		static inline const juce::String fxParam = "2fx.json";
 		static inline const juce::String opnaParam = "param.opna.json";
 		static inline const juce::String opnParam = "param.opn.json";
 		static inline const juce::String oplParam = "param.opl.json";
@@ -87,8 +87,8 @@ namespace Io
 	{
 		static inline const juce::String wavetable = "*.wt";
 		static inline const juce::String wt2 = "*.wt2";
-		static inline const juce::String fxOrder = "*.fxo";
-		static inline const juce::String fxParam = "*.2fx";
+		static inline const juce::String fxOrder = "*.fxo.json";
+		static inline const juce::String fxParam = "*.2fx.json";
 		static inline const juce::String opnaParam = "*.param.opna.json";
 		static inline const juce::String opnParam = "*.param.opn.json";
 		static inline const juce::String oplParam = "*.param.opl.json";

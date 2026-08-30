@@ -11,6 +11,15 @@
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiFxValues.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "../../Core/Gui/GuiRefresh.h"
+#include "../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat fxOrderFormat{ "fxOrder", 1 };
+	const Io::ParamFormat fxParamFormat{ "fxParam", 1 };
+}
 
 static std::vector<SelectItem> flTypeItems = {
     {.name = "LPF", .value = 1 },
@@ -973,26 +982,21 @@ void GuiFx::importFxOrder()
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, fxOrderFormat);
 
-                if (lines.size() == 0) return;
+                if (!reader.has_value()) return;
 
-                // 1行目のサンプル数を取得
-                int fxCount = lines[0].trim().getIntValue();
-                int readFxCount = std::min(fxCount, NumEffects);
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
+
+                // 並びの長さがそのまま数になるので、いくつ入っているかを
+                // 先頭に書いておく必要が無い。
+                auto stored = reader->getIntArray("order");
 
                 std::vector<int> newOrders;
 
-                for (int i = 0; i < readFxCount; i++) {
-                    newOrders.push_back(lines[i + 1].trim().getIntValue());
-                }
-
-                // 保存していたエフェクト数より少ない場合は新しい値で埋める
-                if (readFxCount < NumEffects) {
-                    for (int j = readFxCount; j < NumEffects; j++) {
-                        newOrders.push_back(j);
-                    }
+                for (int i = 0; i < NumEffects; i++) {
+                    newOrders.push_back(i < (int)stored.size() ? stored[(size_t)i] : i);
                 }
 
                 ctx.audioProcessor.updateFxOrder(newOrders);
@@ -1009,7 +1013,7 @@ void GuiFx::exportFxOrder()
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxOrderFile, defaultDir.getChildFile("default.fxo"), Io::ExtensionGlob::fxOrder);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxOrderFile, defaultDir.getChildFile("default.fxo.json"), Io::ExtensionGlob::fxOrder);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -1019,14 +1023,11 @@ void GuiFx::exportFxOrder()
                 ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
                 // 1行目にサンプル数
-                juce::String content = juce::String(NumEffects) + "\n";
+                Io::ParamWriter writer(fxOrderFormat);
 
-                // 2行目以降に値を書き込む
-                for (int v : order) {
-                    content += juce::String(v) + "\n";
-                }
+                writer.setArray("order", order);
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
@@ -1047,93 +1048,97 @@ void GuiFx::importFxParam()
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, fxParamFormat);
 
-                int size = lines.size();
+                if (!reader.has_value()) return;
 
-                if (size < 1) return;
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
 
-                int num = lines[0].getIntValue();
+                bypassToggle.setToggleState(reader->getBool("bypass", bypassToggle.getToggleState()), juce::sendNotification);
 
-                if (size < 2) return;
+                {
+                    auto tremolo = reader->child("tremolo");
 
-                bypassToggle.setToggleState(lines[1].getIntValue() == 1, juce::sendNotification);
+                    tBypassBtn.setToggleState(tremolo.getBool("bypass", tBypassBtn.getToggleState()), juce::sendNotification);
+                    tRateSlider.setValue(tremolo.getFloat("rate", (float)tRateSlider.getValue()), juce::sendNotification);
+                    tDepthSlider.setValue(tremolo.getFloat("depth", (float)tDepthSlider.getValue()), juce::sendNotification);
+                    tMixSlider.setValue(tremolo.getFloat("mix", (float)tMixSlider.getValue()), juce::sendNotification);
+                }
 
-                if (num == 0 || size < 6) return;
+                {
+                    auto vibrato = reader->child("vibrato");
 
-                // Tremollo
-                tBypassBtn.setToggleState(lines[2].getIntValue() == 1, juce::sendNotification);
-                tRateSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
-                tDepthSlider.setValue(lines[4].getFloatValue(), juce::sendNotification);
-                tMixSlider.setValue(lines[5].getFloatValue(), juce::sendNotification);
+                    vBypassBtn.setToggleState(vibrato.getBool("bypass", vBypassBtn.getToggleState()), juce::sendNotification);
+                    vRateSlider.setValue(vibrato.getFloat("rate", (float)vRateSlider.getValue()), juce::sendNotification);
+                    vDepthSlider.setValue(vibrato.getFloat("depth", (float)vDepthSlider.getValue()), juce::sendNotification);
+                    vMixSlider.setValue(vibrato.getFloat("mix", (float)vMixSlider.getValue()), juce::sendNotification);
+                }
 
-                if (num == 1 || size < 10) return;
+                {
+                    auto bitCrusher = reader->child("bitCrusher");
 
-                // Vibrato
-                vBypassBtn.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
-                vRateSlider.setValue(lines[7].getFloatValue(), juce::sendNotification);
-                vDepthSlider.setValue(lines[8].getFloatValue(), juce::sendNotification);
-                vMixSlider.setValue(lines[9].getFloatValue(), juce::sendNotification);
+                    mbcBypassBtn.setToggleState(bitCrusher.getBool("bypass", mbcBypassBtn.getToggleState()), juce::sendNotification);
+                    mbcRateSlider.setValue(bitCrusher.getFloat("rate", (float)mbcRateSlider.getValue()), juce::sendNotification);
+                    mbcBitsSlider.setValue(bitCrusher.getFloat("bits", (float)mbcBitsSlider.getValue()), juce::sendNotification);
+                    mbcMixSlider.setValue(bitCrusher.getFloat("mix", (float)mbcMixSlider.getValue()), juce::sendNotification);
+                }
 
-                if (num == 2 || size < 14) return;
+                {
+                    auto delay = reader->child("delay");
 
-                // Modern Bit Crusher
-                mbcBypassBtn.setToggleState(lines[10].getIntValue() == 1, juce::sendNotification);
-                mbcRateSlider.setValue(lines[11].getFloatValue(), juce::sendNotification);
-                mbcBitsSlider.setValue(lines[12].getFloatValue(), juce::sendNotification);
-                mbcMixSlider.setValue(lines[13].getFloatValue(), juce::sendNotification);
+                    dBypassBtn.setToggleState(delay.getBool("bypass", dBypassBtn.getToggleState()), juce::sendNotification);
+                    dTimeSlider.setValue(delay.getFloat("time", (float)dTimeSlider.getValue()), juce::sendNotification);
+                    dFbSlider.setValue(delay.getFloat("fb", (float)dFbSlider.getValue()), juce::sendNotification);
+                    dMixSlider.setValue(delay.getFloat("mix", (float)dMixSlider.getValue()), juce::sendNotification);
+                }
 
-                if (num == 3 || size < 18) return;
+                {
+                    auto reverb = reader->child("reverb");
 
-                // Delay
-                dBypassBtn.setToggleState(lines[14].getIntValue() == 1, juce::sendNotification);
-                dTimeSlider.setValue(lines[15].getFloatValue(), juce::sendNotification);
-                dFbSlider.setValue(lines[16].getFloatValue(), juce::sendNotification);
-                dMixSlider.setValue(lines[17].getFloatValue(), juce::sendNotification);
+                    rBypassBtn.setToggleState(reverb.getBool("bypass", rBypassBtn.getToggleState()), juce::sendNotification);
+                    rSizeSlider.setValue(reverb.getFloat("size", (float)rSizeSlider.getValue()), juce::sendNotification);
+                    rDampSlider.setValue(reverb.getFloat("damp", (float)rDampSlider.getValue()), juce::sendNotification);
+                    rMixSlider.setValue(reverb.getFloat("mix", (float)rMixSlider.getValue()), juce::sendNotification);
+                }
 
-                if (num == 4 || size < 22) return;
+                {
+                    auto filter = reader->child("filter");
 
-                // Reverb
-                rBypassBtn.setToggleState(lines[18].getIntValue() == 1, juce::sendNotification);
-                rSizeSlider.setValue(lines[19].getFloatValue(), juce::sendNotification);
-                rDampSlider.setValue(lines[20].getFloatValue(), juce::sendNotification);
-                rMixSlider.setValue(lines[21].getFloatValue(), juce::sendNotification);
+                    flBypassBtn.setToggleState(filter.getBool("bypass", flBypassBtn.getToggleState()), juce::sendNotification);
+                    flTypeSelector.setSelectedItemIndex(filter.getInt("type", flTypeSelector.getSelectedItemIndex()), juce::sendNotification);
+                    flFreqSlider.setValue(filter.getFloat("freq", (float)flFreqSlider.getValue()), juce::sendNotification);
+                    flQSlider.setValue(filter.getFloat("q", (float)flQSlider.getValue()), juce::sendNotification);
+                    flMixSlider.setValue(filter.getFloat("mix", (float)flMixSlider.getValue()), juce::sendNotification);
+                }
 
-                if (num == 5 || size < 27) return;
+                {
+                    auto eq3band = reader->child("eq3band");
 
-                // Filter
-                flBypassBtn.setToggleState(lines[22].getIntValue() == 1, juce::sendNotification);
-                flTypeSelector.setSelectedItemIndex(lines[23].getIntValue(), juce::sendNotification);
-                flFreqSlider.setValue(lines[24].getFloatValue(), juce::sendNotification);
-                flQSlider.setValue(lines[25].getFloatValue(), juce::sendNotification);
-                flMixSlider.setValue(lines[26].getFloatValue(), juce::sendNotification);
+                    eq3bBypassBtn.setToggleState(eq3band.getBool("bypass", eq3bBypassBtn.getToggleState()), juce::sendNotification);
+                    eq3bLowGainDbSlider.setValue(eq3band.getFloat("lowGainDb", (float)eq3bLowGainDbSlider.getValue()), juce::sendNotification);
+                    eq3bMidFreqSlider.setValue(eq3band.getFloat("midFreq", (float)eq3bMidFreqSlider.getValue()), juce::sendNotification);
+                    eq3bMidGainDbSlider.setValue(eq3band.getFloat("midGainDb", (float)eq3bMidGainDbSlider.getValue()), juce::sendNotification);
+                    eq3bHighGainDbSlider.setValue(eq3band.getFloat("highGainDb", (float)eq3bHighGainDbSlider.getValue()), juce::sendNotification);
+                    eq3bMixSlider.setValue(eq3band.getFloat("mix", (float)eq3bMixSlider.getValue()), juce::sendNotification);
+                }
 
-                if (num == 6 || size < 33) return;
+                {
+                    auto sfcEcho = reader->child("sfcEcho");
 
-                // 3Band EQ
-                eq3bBypassBtn.setToggleState(lines[27].getIntValue() == 1, juce::sendNotification);
-                eq3bLowGainDbSlider.setValue(lines[28].getFloatValue(), juce::sendNotification);
-                eq3bMidFreqSlider.setValue(lines[29].getFloatValue(), juce::sendNotification);
-                eq3bMidGainDbSlider.setValue(lines[30].getFloatValue(), juce::sendNotification);
-                eq3bHighGainDbSlider.setValue(lines[31].getFloatValue(), juce::sendNotification);
-                eq3bMixSlider.setValue(lines[32].getFloatValue(), juce::sendNotification);
-
-                if (num == 7 || size < 45) return;
-
-                // SFC Echo
-                sfceBypassBtn.setToggleState(lines[33].getIntValue() == 1, juce::sendNotification);
-                sfceTimeSlider.setValue(lines[34].getFloatValue(), juce::sendNotification);
-                sfceFbSlider.setValue(lines[35].getFloatValue(), juce::sendNotification);
-                sfceFirCoef0Slider.setValue(lines[36].getFloatValue(), juce::sendNotification);
-                sfceFirCoef1Slider.setValue(lines[37].getFloatValue(), juce::sendNotification);
-                sfceFirCoef2Slider.setValue(lines[38].getFloatValue(), juce::sendNotification);
-                sfceFirCoef3Slider.setValue(lines[39].getFloatValue(), juce::sendNotification);
-                sfceFirCoef4Slider.setValue(lines[40].getFloatValue(), juce::sendNotification);
-                sfceFirCoef5Slider.setValue(lines[41].getFloatValue(), juce::sendNotification);
-                sfceFirCoef6Slider.setValue(lines[42].getFloatValue(), juce::sendNotification);
-                sfceFirCoef7Slider.setValue(lines[43].getFloatValue(), juce::sendNotification);
-                sfceMixSlider.setValue(lines[44].getFloatValue(), juce::sendNotification);
+                    sfceBypassBtn.setToggleState(sfcEcho.getBool("bypass", sfceBypassBtn.getToggleState()), juce::sendNotification);
+                    sfceTimeSlider.setValue(sfcEcho.getFloat("time", (float)sfceTimeSlider.getValue()), juce::sendNotification);
+                    sfceFbSlider.setValue(sfcEcho.getFloat("fb", (float)sfceFbSlider.getValue()), juce::sendNotification);
+                    sfceFirCoef0Slider.setValue(sfcEcho.getFloat("firCoef0", (float)sfceFirCoef0Slider.getValue()), juce::sendNotification);
+                    sfceFirCoef1Slider.setValue(sfcEcho.getFloat("firCoef1", (float)sfceFirCoef1Slider.getValue()), juce::sendNotification);
+                    sfceFirCoef2Slider.setValue(sfcEcho.getFloat("firCoef2", (float)sfceFirCoef2Slider.getValue()), juce::sendNotification);
+                    sfceFirCoef3Slider.setValue(sfcEcho.getFloat("firCoef3", (float)sfceFirCoef3Slider.getValue()), juce::sendNotification);
+                    sfceFirCoef4Slider.setValue(sfcEcho.getFloat("firCoef4", (float)sfceFirCoef4Slider.getValue()), juce::sendNotification);
+                    sfceFirCoef5Slider.setValue(sfcEcho.getFloat("firCoef5", (float)sfceFirCoef5Slider.getValue()), juce::sendNotification);
+                    sfceFirCoef6Slider.setValue(sfcEcho.getFloat("firCoef6", (float)sfceFirCoef6Slider.getValue()), juce::sendNotification);
+                    sfceFirCoef7Slider.setValue(sfcEcho.getFloat("firCoef7", (float)sfceFirCoef7Slider.getValue()), juce::sendNotification);
+                    sfceMixSlider.setValue(sfcEcho.getFloat("mix", (float)sfceMixSlider.getValue()), juce::sendNotification);
+                }
             }
         });
 }
@@ -1145,7 +1150,7 @@ void GuiFx::exportFxParam()
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxParamFile, defaultDir.getChildFile("default.2fx"), Io::ExtensionGlob::fxParam);
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxParamFile, defaultDir.getChildFile("default.2fx.json"), Io::ExtensionGlob::fxParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
         [this](const juce::FileChooser& fc) {
             auto file = fc.getResult();
@@ -1154,71 +1159,94 @@ void GuiFx::exportFxParam()
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = juce::String(NumEffects) + "\n";
+                Io::ParamWriter writer(fxParamFormat);
 
-                // Master Bypass
-                content += juce::String(bypassToggle.getToggleState() ? 1 : 0) + "\n";
+                writer.set("bypass", bypassToggle.getToggleState());
 
-                // Tremollo
-                content += juce::String(tBypassBtn.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(tRateSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(tDepthSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(tMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                {
+                    auto tremolo = writer.child("tremolo");
 
-                // Vibrato
-                content += juce::String(vBypassBtn.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(vRateSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(vDepthSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(vMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                    tremolo.set("bypass", tBypassBtn.getToggleState());
+                    tremolo.set("rate", (float)tRateSlider.getValue());
+                    tremolo.set("depth", (float)tDepthSlider.getValue());
+                    tremolo.set("mix", (float)tMixSlider.getValue());
+                }
 
-                // Modern Bit Crusher
-                content += juce::String(mbcBypassBtn.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(mbcRateSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(mbcBitsSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(mbcMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                {
+                    auto vibrato = writer.child("vibrato");
 
-                // Delay
-                content += juce::String(dBypassBtn.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(dTimeSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(dFbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(dMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                    vibrato.set("bypass", vBypassBtn.getToggleState());
+                    vibrato.set("rate", (float)vRateSlider.getValue());
+                    vibrato.set("depth", (float)vDepthSlider.getValue());
+                    vibrato.set("mix", (float)vMixSlider.getValue());
+                }
 
-                // Reverb
-                content += juce::String(rBypassBtn.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(rSizeSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(rDampSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(rMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                {
+                    auto bitCrusher = writer.child("bitCrusher");
 
-                // Filter
-                content += juce::String(flBypassBtn.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(flTypeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(flFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(flQSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(flMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                    bitCrusher.set("bypass", mbcBypassBtn.getToggleState());
+                    bitCrusher.set("rate", (float)mbcRateSlider.getValue());
+                    bitCrusher.set("bits", (float)mbcBitsSlider.getValue());
+                    bitCrusher.set("mix", (float)mbcMixSlider.getValue());
+                }
 
-                // 3Band EQ
-                content += juce::String(eq3bBypassBtn.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(eq3bLowGainDbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(eq3bMidFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(eq3bMidGainDbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(eq3bHighGainDbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(eq3bMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                {
+                    auto delay = writer.child("delay");
 
-                // SFC Echo
-                content += juce::String(sfceBypassBtn.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(sfceTimeSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceFbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceFirCoef0Slider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceFirCoef1Slider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceFirCoef2Slider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceFirCoef3Slider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceFirCoef4Slider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceFirCoef5Slider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceFirCoef6Slider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceFirCoef7Slider.getValue(), Global::floatDecimalPlaces) + "\n";
-                content += juce::String(sfceMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                    delay.set("bypass", dBypassBtn.getToggleState());
+                    delay.set("time", (float)dTimeSlider.getValue());
+                    delay.set("fb", (float)dFbSlider.getValue());
+                    delay.set("mix", (float)dMixSlider.getValue());
+                }
 
-                file.replaceWithText(content);
+                {
+                    auto reverb = writer.child("reverb");
+
+                    reverb.set("bypass", rBypassBtn.getToggleState());
+                    reverb.set("size", (float)rSizeSlider.getValue());
+                    reverb.set("damp", (float)rDampSlider.getValue());
+                    reverb.set("mix", (float)rMixSlider.getValue());
+                }
+
+                {
+                    auto filter = writer.child("filter");
+
+                    filter.set("bypass", flBypassBtn.getToggleState());
+                    filter.set("type", flTypeSelector.getSelectedItemIndex());
+                    filter.set("freq", (float)flFreqSlider.getValue());
+                    filter.set("q", (float)flQSlider.getValue());
+                    filter.set("mix", (float)flMixSlider.getValue());
+                }
+
+                {
+                    auto eq3band = writer.child("eq3band");
+
+                    eq3band.set("bypass", eq3bBypassBtn.getToggleState());
+                    eq3band.set("lowGainDb", (float)eq3bLowGainDbSlider.getValue());
+                    eq3band.set("midFreq", (float)eq3bMidFreqSlider.getValue());
+                    eq3band.set("midGainDb", (float)eq3bMidGainDbSlider.getValue());
+                    eq3band.set("highGainDb", (float)eq3bHighGainDbSlider.getValue());
+                    eq3band.set("mix", (float)eq3bMixSlider.getValue());
+                }
+
+                {
+                    auto sfcEcho = writer.child("sfcEcho");
+
+                    sfcEcho.set("bypass", sfceBypassBtn.getToggleState());
+                    sfcEcho.set("time", (float)sfceTimeSlider.getValue());
+                    sfcEcho.set("fb", (float)sfceFbSlider.getValue());
+                    sfcEcho.set("firCoef0", (float)sfceFirCoef0Slider.getValue());
+                    sfcEcho.set("firCoef1", (float)sfceFirCoef1Slider.getValue());
+                    sfcEcho.set("firCoef2", (float)sfceFirCoef2Slider.getValue());
+                    sfcEcho.set("firCoef3", (float)sfceFirCoef3Slider.getValue());
+                    sfcEcho.set("firCoef4", (float)sfceFirCoef4Slider.getValue());
+                    sfcEcho.set("firCoef5", (float)sfceFirCoef5Slider.getValue());
+                    sfcEcho.set("firCoef6", (float)sfceFirCoef6Slider.getValue());
+                    sfcEcho.set("firCoef7", (float)sfceFirCoef7Slider.getValue());
+                    sfcEcho.set("mix", (float)sfceMixSlider.getValue());
+                }
+
+                writer.writeTo(file);
             }
         });
 }

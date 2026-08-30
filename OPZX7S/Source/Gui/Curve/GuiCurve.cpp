@@ -12,6 +12,14 @@
 #include "./GuiCurveValues.h"
 #include "./GuiCurveText.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "../../Core/Io/ParamFile.h"
+#include "../../Core/Gui/GuiRefresh.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat curveFormat{ "curve", 1 };
+}
 
 static std::vector<SelectItem> positionItems = {
     {.name = "Common",    .value = 1 },
@@ -628,33 +636,31 @@ void GuiCurve::importCurveParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::StringArray lines;
-                file.readLines(lines);
+                auto reader = Io::ParamReader::open(file, curveFormat);
 
-                int size = lines.size();
-                int index = 0;
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
 
                 int p = position.getSelectedItemIndex();
                 int t = target.getSelectedItemIndex();
                 int vpLen = paramLengthes[t];
 
-                // 現在表示中の Position と Target に該当するパラメータ群のみ復元
+                // 今出している Position と Target のぶんだけ戻す。
+                // パラメータごとに入れ子で持つので、数が違っても後ろがずれない。
                 for (int vp = 0; vp < vpLen; vp++) {
-                    if (index < size) {
-                        int logicVal = lines[index++].getIntValue();
-                        ctx.audioProcessor.prCurve.setLogic(p, t, vp, logicVal);
-                    }
-                    if (index < size) {
-                        float kVal = lines[index++].getFloatValue();
-                        ctx.audioProcessor.prCurve.setK(p, t, vp, kVal);
-                    }
+                    auto item = reader->arrayItem("params", vp);
 
-                    // Value配列は使われていない分も含め、常に最大要素数(16)分を安全に読み込む
-                    for (int vv = 0; vv < CurvePrValue::values; vv++) {
-                        if (index < size) {
-                            float val = lines[index++].getFloatValue();
-                            ctx.audioProcessor.prCurve.setValue(p, t, vp, vv, val);
-                        }
+                    ctx.audioProcessor.prCurve.setLogic(p, t, vp,
+                        item.getInt("logic", ctx.audioProcessor.prCurve.getLogic(p, t, vp)));
+                    ctx.audioProcessor.prCurve.setK(p, t, vp,
+                        item.getFloat("k", ctx.audioProcessor.prCurve.getK(p, t, vp)));
+
+                    auto values = item.getFloatArray("values");
+
+                    for (int vv = 0; vv < CurvePrValue::values && vv < (int)values.size(); vv++) {
+                        ctx.audioProcessor.prCurve.setValue(p, t, vp, vv, values[(size_t)vv]);
                     }
                 }
 
@@ -694,23 +700,29 @@ void GuiCurve::exportCurveParam() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "";
+                Io::ParamWriter writer(curveFormat);
 
                 int p = position.getSelectedItemIndex();
                 int t = target.getSelectedItemIndex();
                 int vpLen = paramLengthes[t];
 
-                // 現在表示中の Position と Target に該当するパラメータ群のみ保存
+                // 今出している Position と Target のぶんだけ書く
                 for (int vp = 0; vp < vpLen; vp++) {
-                    content += juce::String(ctx.audioProcessor.prCurve.getLogic(p, t, vp)) + "\n";
-                    content += juce::String(ctx.audioProcessor.prCurve.getK(p, t, vp), Global::floatDecimalPlaces) + "\n";
+                    auto item = writer.arrayItem("params", vp);
+
+                    item.set("logic", ctx.audioProcessor.prCurve.getLogic(p, t, vp));
+                    item.set("k", ctx.audioProcessor.prCurve.getK(p, t, vp));
+
+                    std::vector<float> values;
 
                     for (int vv = 0; vv < CurvePrValue::values; vv++) {
-                        content += juce::String(ctx.audioProcessor.prCurve.getValue(p, t, vp, vv), Global::floatDecimalPlaces) + "\n";
+                        values.push_back(ctx.audioProcessor.prCurve.getValue(p, t, vp, vv));
                     }
+
+                    item.setArray("values", values);
                 }
 
-                file.replaceWithText(content);
+                writer.writeTo(file);
             }
         });
 }
