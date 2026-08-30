@@ -98,6 +98,9 @@ add_subdirectory(2686VLight)
 add_subdirectory(2686VOrigin)
 add_subdirectory(OPZX7S)
 
+# マニュアル用の道具 (出荷するものではない)
+add_subdirectory(tools)
+
 # ユニットテスト (JUCE を読み込まずロジック層だけを検証する)
 enable_testing()
 add_subdirectory(tests)
