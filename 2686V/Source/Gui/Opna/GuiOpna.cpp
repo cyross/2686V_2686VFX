@@ -1369,9 +1369,11 @@ void GuiOpna::setupGlobalGraph()
     auto repaintGraph = [this]() {
         if (this->isUpdatingGraph) return;
 
-        this->isUpdatingGraph = true;
+        // 旗は必ず下ろす。途中で抜けたときに立ちっぱなしになると、
+        // 以後グラフの更新が全部素通りしてしまうため。
+        const juce::ScopedValueSetter<bool> guard(this->isUpdatingGraph, true);
+
         this->updateGlobalGraph();
-        this->isUpdatingGraph = false;
         };
 
     ampEnvComponent.setupGraph(repaintGraph);
@@ -1447,9 +1449,11 @@ void GuiOpna::setupGraph(int opIndex)
     auto repaintGraph = [this, opIndex]() {
         if (this->isUpdatingGraph) return; // 既に更新中なら無視
 
-        this->isUpdatingGraph = true;
+        // 旗は必ず下ろす。途中で抜けたときに立ちっぱなしになると、
+        // 以後グラフの更新が全部素通りしてしまうため。
+        const juce::ScopedValueSetter<bool> guard(this->isUpdatingGraph, true);
+
         this->updateOpGraph(opIndex);
-        this->isUpdatingGraph = false;
         };
 
     bypass[opIndex].onStateChange = repaintGraph;

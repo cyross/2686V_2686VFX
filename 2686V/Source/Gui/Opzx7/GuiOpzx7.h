@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+
+#include "../../Core/Io/ParamFile.h"
 #include <array>
 
 #include "../../Core/Const/ConstGlobal.h"
@@ -350,6 +352,10 @@ public:
     void exportChParam();
     void importOpChParam(int opIndex);
     void exportOpChParam(int opIndex);
-    void getImportingOpParams(int opIndex, juce::StringArray& lines, int& index);
-    juce::String setExportedOpParams(int opIndex);
+    // 名前で受け渡す。オペレータは並びの中のひとつを渡す。
+    void readOpParams(int opIndex, const Io::ParamReader& r);
+    void writeOpParams(int opIndex, Io::ParamWriter& w);
+
+    // チャンネル 1 つぶん。
+    void readChParams(const Io::ParamReader& reader);
 };

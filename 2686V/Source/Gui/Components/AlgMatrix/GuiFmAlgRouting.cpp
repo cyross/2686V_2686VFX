@@ -1,5 +1,7 @@
 ﻿#include "./GuiFmAlgRouting.h"
 
+#include "../../../Core/Io/ParamFile.h"
+
 static const juce::Colour crrColor = juce::Colours::cyan.withAlpha(0.8f);
 static const juce::Colour modColor = juce::Colours::white.withAlpha(0.8f);
 static const juce::Colour disabledModColor = juce::Colours::grey.withAlpha(0.25f);
@@ -547,4 +549,56 @@ juce::String GuiFmAlgMatrix::getExportedParams() {
         }
     }
     return content;
+}
+
+// つながり方はオペレータごとの並びとして持つ。行の順番で持つと、
+// オペレータ数の違う音源のあいだで意味がずれるため。
+void GuiFmAlgMatrix::readParams(const Io::ParamReader& reader, const juce::String& key)
+{
+    auto r = reader.child(key);
+
+    // 書かれていないものは今の状態のままにする
+    FmAlgState s = getState();
+
+    s.numOps = numOps;
+
+    for (int i = 0; i < numOps; ++i) {
+        auto op = r.arrayItem("ops", i);
+
+        s.isCarrier[i] = op.getBool("isCarrier", s.isCarrier[i]);
+
+        auto mod = op.getIntArray("mod");
+        auto fbMod = op.getIntArray("fbMod");
+
+        for (int j = 0; j < numOps; ++j) {
+            if (j < (int)mod.size()) s.mod[i][j] = mod[(size_t)j] != 0;
+            if (j < (int)fbMod.size()) s.fbMod[i][j] = fbMod[(size_t)j] != 0;
+        }
+    }
+
+    setState(s);
+}
+
+void GuiFmAlgMatrix::writeParams(Io::ParamWriter& writer, const juce::String& key)
+{
+    auto w = writer.child(key);
+
+    FmAlgState s = getState();
+
+    for (int i = 0; i < numOps; ++i) {
+        auto op = w.arrayItem("ops", i);
+
+        op.set("isCarrier", s.isCarrier[i]);
+
+        std::vector<int> mod;
+        std::vector<int> fbMod;
+
+        for (int j = 0; j < numOps; ++j) {
+            mod.push_back(s.mod[i][j] ? 1 : 0);
+            fbMod.push_back(s.fbMod[i][j] ? 1 : 0);
+        }
+
+        op.setArray("mod", mod);
+        op.setArray("fbMod", fbMod);
+    }
 }

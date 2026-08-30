@@ -113,8 +113,15 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
 
         float actualWidth = phase.widthPx * scaleX;
 
+        // 有限でない幅は描かない。無限や NaN の座標を点線にすると、
+        // 長さを刻む処理が終わらなくなり、画面ごと固まってしまう。
+        if (!std::isfinite(actualWidth)) continue;
+
         juce::Path envPath;
         float startY = basePixelY - (phase.startLevel * heightScale);
+
+        if (!std::isfinite(startY)) continue;
+
         envPath.startNewSubPath(currentPixelX, startY);
 
         int resolution = std::max(10, (int)actualWidth / 2);
@@ -130,6 +137,8 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
 
             float px = currentPixelX + localProgress * actualWidth;
             float py = basePixelY - (currentLevel * heightScale);
+
+            if (!std::isfinite(px) || !std::isfinite(py)) continue;
 
             envPath.lineTo(px, py);
         }
