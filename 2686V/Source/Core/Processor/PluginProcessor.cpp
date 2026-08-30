@@ -11,6 +11,7 @@ namespace
 {
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat settingsFormat{ "settings", 1 };
+	const Io::ParamFormat presetFormat{ "preset", 1 };
 
 	// 環境設定を書き出す側。項目の型ごとに受け口を分けてある。
 	struct EnvironmentWriter
@@ -704,11 +705,27 @@ void AudioPlugin2686V::savePreset(const juce::File& file)
 
     setPresetToXml(xml);
 
-    xml->writeTo(file);
+    // 中身の組み立ては今までどおり。書き出す形だけを名前式にする。
+    Io::ParamWriter writer(presetFormat);
+
+    Io::writeStateXml(writer, *xml);
+
+    writer.writeTo(file);
 }
 
 void AudioPlugin2686V::loadPreset(const juce::File& file)
 {
+    // 3.0.0 より前のプリセットは XML。作り溜めたものが読めなくなると困るので、
+    // 読み込みだけは残してある。書き出しは新しい形式だけ。
+    if (auto reader = Io::ParamReader::open(file, presetFormat, false))
+    {
+        auto xmlState = Io::readStateXml(*reader, apvts.state.getType().toString());
+
+        getPresetFromXml(xmlState);
+
+        return;
+    }
+
     juce::XmlDocument xmlDoc(file);
     std::unique_ptr<juce::XmlElement> xmlState = xmlDoc.getDocumentElement();
 
@@ -728,11 +745,11 @@ bool AudioPlugin2686V::saveEnvironment(const juce::File& file)
 }
 
 // 環境設定を読み込み
-void AudioPlugin2686V::loadEnvironment(const juce::File& file)
+bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy)
 {
-    auto reader = Io::ParamReader::open(file, settingsFormat);
+    auto reader = Io::ParamReader::open(file, settingsFormat, tellIfLegacy);
 
-    if (!reader.has_value()) return;
+    if (!reader.has_value()) return false;
 
     EnvironmentReader visit{ *reader };
 
@@ -742,6 +759,8 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
     if (juce::File(defaultSampleDir).isDirectory()) {
         lastSampleDirectory = juce::File(defaultSampleDir);
     }
+
+    return true;
 }
 
 void AudioPlugin2686V::loadStartupSettings()
@@ -761,22 +780,12 @@ void AudioPlugin2686V::loadStartupSettings()
     // 2. ファイルが存在するかチェック
     if (presetFile.existsAsFile())
     {
-        juce::XmlDocument xmlDoc(presetFile);
-        std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
-
-        // XMLとして不正、またはルートタグが期待するものでない場合は破損とみなす
-        if (xml == nullptr || !xml->hasTagName(SettingsKey::envCode))
-        {
-            DBG("Startup settings file is corrupted. Deleting...");
-            presetFile.deleteFile(); // 破損ファイルを削除
-            // loadSuccess = false のまま
-        }
-        else
-        {
-            // 正常なら読み込む
-            loadEnvironment(presetFile);
-            loadSuccess = true;
-        }
+        // 読めるかどうかは読み込み側が判断する。ここで形を決め打ちすると、
+        // 形式を変えたときに正しいファイルまで壊れていると見なしてしまう。
+        //
+        // 読めなくても消さない。こちらから開いたわけではないので黙って
+        // 見送り、初期値で立ち上げる。
+        loadSuccess = loadEnvironment(presetFile, false);
     }
 
     // プリセットディレクトリ・ADPCMディレクトリが空の時は初期値を設定する

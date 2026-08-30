@@ -22,6 +22,12 @@
 
 #include "AppIconForAbout.h"
 
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat presetFormat{ "preset", 1 };
+}
+
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     : AudioProcessorEditor(&p), audioProcessor(p)
 {
@@ -846,10 +852,20 @@ void AudioPlugin2686VEditor::scanPresets()
         item.fullPath = file.getFullPathName();
         item.lastModificationTime = file.getLastModificationTime();
 
-        // XMLをパースしてメタデータを取得
-        juce::XmlDocument xmlDoc(file);
-        auto xml = xmlDoc.getDocumentElement();
-        if (xml != nullptr)
+        // 一覧に出すのは見出しだけなので、meta のまとまりだけを見る。
+        // 3.0.0 より前の XML も一覧に出す。読み込みだけは残してあるため。
+        if (auto reader = Io::ParamReader::open(file, presetFormat, false))
+        {
+            auto meta = reader->child(Io::StateKey::meta);
+
+            item.name = meta.getString(PresetKey::name, audioProcessor.presetName);
+            item.author = meta.getString(PresetKey::author, audioProcessor.presetAuthor);
+            item.version = meta.getString(PresetKey::version, audioProcessor.presetVersion);
+            item.comment = meta.getString(PresetKey::comment, audioProcessor.presetComment);
+            item.modeName = meta.getString(PresetKey::mode, PresetValue::MetaData::Initial::mode);
+            item.genre = meta.getString(PresetKey::genre, PresetValue::MetaData::Initial::genre);
+        }
+        else if (auto xml = juce::XmlDocument(file).getDocumentElement())
         {
             item.name = xml->getStringAttribute(PresetKey::name, audioProcessor.presetName);
             item.author = xml->getStringAttribute(PresetKey::author, audioProcessor.presetAuthor);
@@ -907,7 +923,7 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
 
     juce::File defaultFile = presetGui->currentFolder.getChildFile(filename);
 
-    openWriteFileChooser(juce::String("") + "ファイルを指定してプリセットを保存", defaultFile, "*.xml", [this](const juce::FileChooser& fc) {
+    openWriteFileChooser(juce::String("") + "ファイルを指定してプリセットを保存", defaultFile, PresetValue::File::glob, [this](const juce::FileChooser& fc) {
         auto file = fc.getResult();
         if (file != juce::File{}) {
             // 保存したファイルパスを記録

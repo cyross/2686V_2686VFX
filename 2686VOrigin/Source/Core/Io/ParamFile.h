@@ -78,7 +78,10 @@ namespace Io
 		// 3.0.0 より前の形式だったときは、読めないことを画面で伝えてから
 		// 空を返す。黙って何も起きないと、壊れたのか使い方を誤ったのかが
 		// 分からないため。
-		static std::optional<ParamReader> open(const juce::File& file, const ParamFormat& format);
+		// tellIfLegacy を false にすると、古い形式でも知らせを出さずに空を返す。
+		// 起動時のように、こちらから開いたわけではない場面で使う。
+		static std::optional<ParamReader> open(const juce::File& file, const ParamFormat& format,
+			bool tellIfLegacy = true);
 
 		ParamReader() = default;
 
@@ -97,7 +100,38 @@ namespace Io
 
 		std::vector<float> getFloatArray(const juce::String& key) const;
 		std::vector<int> getIntArray(const juce::String& key) const;
+
+		// このまとまりが持つ名前を並べる。中身の決まっていない対応表を
+		// 写すときに使う。
+		juce::StringArray keys() const;
 	};
+
+	// ========================================================================
+	// プリセットの中身
+	// ========================================================================
+	// APVTS の状態は XML で組み立てている。項目が 1 万を超えるため、組み立て
+	// 直すのではなく、書き出す形だけを名前式へ置き換える。
+	//
+	// パラメータは id と値だけの並びなので平らな対応表にする。カーブのように
+	// 形のあるまとまりは、そのまま写す。
+	void writeStateXml(ParamWriter& writer, const juce::XmlElement& xml);
+
+	// 読み戻して XML を組み立て直す。根の名前は呼び出し側が知っている。
+	std::unique_ptr<juce::XmlElement> readStateXml(const ParamReader& reader, const juce::String& rootType);
+
+	namespace StateKey
+	{
+		static inline const juce::String meta = "meta";
+		static inline const juce::String params = "params";
+		static inline const juce::String nodes = "nodes";
+		static inline const juce::String type = "type";
+		static inline const juce::String attributes = "attributes";
+
+		// APVTS がパラメータへ付けている名前
+		static inline const juce::String param = "PARAM";
+		static inline const juce::String id = "id";
+		static inline const juce::String value = "value";
+	}
 
 	namespace ParamKey
 	{

@@ -424,7 +424,7 @@ public:
 
         return dir;
     }
-    void loadEnvironment(const juce::File& file); 
+    bool loadEnvironment(const juce::File& file, bool tellIfLegacy = true); 
 
     void panic();
 

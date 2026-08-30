@@ -132,7 +132,7 @@ namespace Io
 	{
 	}
 
-	std::optional<ParamReader> ParamReader::open(const juce::File& file, const ParamFormat& format)
+	std::optional<ParamReader> ParamReader::open(const juce::File& file, const ParamFormat& format, bool tellIfLegacy)
 	{
 		if (!file.existsAsFile()) return std::nullopt;
 
@@ -142,7 +142,7 @@ namespace Io
 		if (root == nullptr)
 		{
 			// JSON として読めないものは古い形式とみなす
-			tellLegacyNotSupported(file);
+			if (tellIfLegacy) tellLegacyNotSupported(file);
 
 			return std::nullopt;
 		}
@@ -242,4 +242,131 @@ namespace Io
 
 		return out;
 	}
+
+	juce::StringArray ParamReader::keys() const
+	{
+		juce::StringArray out;
+
+		if (m_values == nullptr) return out;
+
+		for (const auto& kv : m_values->getProperties())
+		{
+			out.add(kv.name.toString());
+		}
+
+		return out;
+	}
+
+	namespace
+	{
+		// まとまりを 1 つ写す。中に子があれば同じ形で潜る。
+		void writeNode(ParamWriter& writer, const juce::XmlElement& xml)
+		{
+			writer.set(StateKey::type, xml.getTagName());
+
+			auto attributes = writer.child(StateKey::attributes);
+
+			for (int i = 0; i < xml.getNumAttributes(); ++i)
+			{
+				attributes.set(xml.getAttributeName(i), xml.getAttributeValue(i));
+			}
+
+			int index = 0;
+
+			for (auto* child : xml.getChildIterator())
+			{
+				auto item = writer.arrayItem(StateKey::nodes, index++);
+
+				writeNode(item, *child);
+			}
+		}
+
+		void readNode(const ParamReader& reader, juce::XmlElement& xml)
+		{
+			auto attributes = reader.child(StateKey::attributes);
+
+			for (const auto& key : attributes.keys())
+			{
+				xml.setAttribute(key, attributes.getString(key));
+			}
+
+			int count = reader.arraySize(StateKey::nodes);
+
+			for (int i = 0; i < count; ++i)
+			{
+				auto item = reader.arrayItem(StateKey::nodes, i);
+				auto type = item.getString(StateKey::type);
+
+				if (type.isEmpty()) continue;
+
+				readNode(item, *xml.createNewChildElement(type));
+			}
+		}
+	}
+
+	void writeStateXml(ParamWriter& writer, const juce::XmlElement& xml)
+	{
+		auto meta = writer.child(StateKey::meta);
+
+		for (int i = 0; i < xml.getNumAttributes(); ++i)
+		{
+			meta.set(xml.getAttributeName(i), xml.getAttributeValue(i));
+		}
+
+		auto params = writer.child(StateKey::params);
+
+		int index = 0;
+
+		for (auto* child : xml.getChildIterator())
+		{
+			if (child->hasTagName(StateKey::param))
+			{
+				params.set(child->getStringAttribute(StateKey::id),
+					child->getStringAttribute(StateKey::value));
+
+				continue;
+			}
+
+			auto item = writer.arrayItem(StateKey::nodes, index++);
+
+			writeNode(item, *child);
+		}
+	}
+
+	std::unique_ptr<juce::XmlElement> readStateXml(const ParamReader& reader, const juce::String& rootType)
+	{
+		auto xml = std::make_unique<juce::XmlElement>(rootType);
+
+		auto meta = reader.child(StateKey::meta);
+
+		for (const auto& key : meta.keys())
+		{
+			xml->setAttribute(key, meta.getString(key));
+		}
+
+		auto params = reader.child(StateKey::params);
+
+		for (const auto& key : params.keys())
+		{
+			auto* param = xml->createNewChildElement(StateKey::param);
+
+			param->setAttribute(StateKey::id, key);
+			param->setAttribute(StateKey::value, params.getString(key));
+		}
+
+		int count = reader.arraySize(StateKey::nodes);
+
+		for (int i = 0; i < count; ++i)
+		{
+			auto item = reader.arrayItem(StateKey::nodes, i);
+			auto type = item.getString(StateKey::type);
+
+			if (type.isEmpty()) continue;
+
+			readNode(item, *xml->createNewChildElement(type));
+		}
+
+		return xml;
+	}
+
 }

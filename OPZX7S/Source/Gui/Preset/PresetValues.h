@@ -45,8 +45,9 @@ namespace PresetValue
 	// ファイルに関する値
 	namespace File
 	{
-		static inline const juce::String glob = "*.xml";
-		static inline const juce::String ext = ".xml";
+		// 3.0.0 より前の XML も一覧に出す。読み込みだけは残してあるため。
+		static inline const juce::String glob = "*.opzx7s.json;*.xml";
+		static inline const juce::String ext = ".opzx7s.json";
 		static inline const juce::String def = "Untitled";
 
 		namespace Name
