@@ -15,6 +15,8 @@
 #include "../Components/PitchEnv/PitchEnv.h"
 #include "../Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../Components/WtMod/WtMod.h"
+#include "../Components/MulDetune/MulDetune.h"
+#include "../Components/Unison/Unison.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
@@ -46,6 +48,7 @@ class GuiFx : public GuiBase
     GuiToggleButton envEnableToggle;
     GuiToggleButton lfoEnableToggle;
     GuiToggleButton pitchEnableToggle;
+    GuiToggleButton shiftEnableToggle;
 
     GuiScrollGroup modAmpEnvGroup;
     GuiScrollGroup modSsgHwEnvGroup;
@@ -55,6 +58,8 @@ class GuiFx : public GuiBase
     GuiScrollGroup modPitchEnvGroup;
     GuiScrollGroup modSsgSwPEnv11Group;
     GuiScrollGroup modWtModGroup;
+    GuiScrollGroup modMulDetuneGroup;
+    GuiScrollGroup modUnisonGroup;
 
     GuiComponentAmpEnv ampEnvComponent;
     GuiComponentSsgHwEnv ssgHwEnvComponent;
@@ -64,6 +69,8 @@ class GuiFx : public GuiBase
     GuiComponentPitchEnv pitchEnvComponent;
     GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
     GuiComponentWtMod wtModComponent;
+    GuiComponentMulDetune mulDetuneComponent;
+    GuiComponentUnison unisonComponent;
 
     // WT PITCH MOD の速さは実機では搬送波との比。エフェクトには搬送波が
     // 無いので、その代わりの周波数をここで決められるようにしてある。

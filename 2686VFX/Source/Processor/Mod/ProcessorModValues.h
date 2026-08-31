@@ -30,4 +30,9 @@ namespace ModPrValue
 		inline constexpr float baseFreqMax = 2000.0f;
 		inline constexpr float baseFreqInitial = 440.0f;
 	}
+
+	namespace Shift
+	{
+		inline constexpr bool enableInitial = false;
+	}
 }

@@ -40,4 +40,11 @@ namespace ModPrKey
 	{
 		static inline const juce::String baseFreq = "_WTMOD_BASEFREQ";
 	}
+
+	// 音程を一定量ずらすもの。鍵盤を押さなくても掛かるので、
+	// 押し離しで動くエンベロープとは別に入り切りできるようにしてある。
+	namespace Shift
+	{
+		static inline const juce::String enable = "_SHIFT_ENABLE";
+	}
 }

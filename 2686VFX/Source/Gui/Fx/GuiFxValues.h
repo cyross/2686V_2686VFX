@@ -49,9 +49,9 @@ namespace FxGuiValue
 		static inline constexpr int ModHeaderGap = 6;
 		static inline constexpr int ModToggleWidth = 220;
 
-		// 4 列 2 段に並べる。上段が音量側、下段が音程側。
-		// 4 列と隙間で 1330px になり、空いている幅に収まる。
-		static inline constexpr int ModColWidth = 325;
+		// 5 列 2 段に並べる。上段が音量側と LFO、下段が音程側。
+		// 5 列と隙間で 1340px になり、空いている幅に収まる。
+		static inline constexpr int ModColWidth = 260;
 		static inline constexpr int ModColGap = 10;
 		static inline constexpr int ModRowGap = 8;
 

@@ -14,7 +14,11 @@
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
+#include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
+
+#include "../../Core/Synth/UnisonParams.h"
+#include "../../Core/Synth/UnisonState.h"
 
 #include "./ModPitchShifter.h"
 #include "./ProcessorModKeys.h"
@@ -47,10 +51,15 @@ class ModProcessor
 	PrPtrsSsgSwPEnv11 ptSsgSwPEnv11;
 	PrPtrsWtMod ptWtMod;
 
+	// --- 音程を一定量ずらすもの ---
+	PrPtrsOpzx7Detune ptDetune;
+	PrPtrsUnison ptUnison;
+
 	std::atomic<float>* pEnvEnable = nullptr;
 	std::atomic<float>* pLfoEnable = nullptr;
 	std::atomic<float>* pPitchEnable = nullptr;
 	std::atomic<float>* pWtModBaseFreq = nullptr;
+	std::atomic<float>* pShiftEnable = nullptr;
 
 	AmpAdsrEnv ampEnv;
 	SsgHwEnv ssgHwEnv;
@@ -62,9 +71,18 @@ class ModProcessor
 	SsgSwPEnv11 ssgSwPEnv11;
 	WtModulator wtMod;
 
-	// 左右で別に持つ。音程を動かすと溜めた音の読み口がずれるので、
-	// 共用すると左右が混ざってしまう。
-	std::array<ModPitchShifter, 2> shifters;
+	Opzx7Detune detune;
+	UnisonParams unisonParams;
+
+	// ボイスごと・左右ごとに持つ。ユニゾンはボイスで音程が違い、
+	// 音程が違えば溜めた音の読み口も別々になる。共用はできない。
+	std::array<std::array<ModPitchShifter, 2>, Global::unisonVoices> shifters;
+
+	// 疑似高速アルペジオ。今どのボイスを鳴らしているかと、
+	// 切り替わり目でクリック音を出さないための渡り具合。
+	int arpVoice = 0;
+	double arpPhase = 0.0;
+	std::array<float, Global::unisonVoices> arpGains{};
 
 	// 今の音量。滑らかに動かすため、毎サンプル更新する。
 	float ampLevel = 1.0f;
@@ -72,6 +90,7 @@ class ModProcessor
 	bool envEnabled = false;
 	bool lfoEnabled = false;
 	bool pitchEnabled = false;
+	bool shiftEnabled = false;
 
 	// 前の塊で音程を動かしていたか。切り替わり目で溜めた音を捨てる。
 	bool wasShifting = false;

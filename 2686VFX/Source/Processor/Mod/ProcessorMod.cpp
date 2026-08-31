@@ -100,6 +100,19 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 		ModPrValue::WtMod::baseFreqMax,
 		ModPrValue::WtMod::baseFreqInitial
 	);
+
+	// ------------------------------------------------------------------
+	// 音程を一定量ずらすもの
+	// ------------------------------------------------------------------
+	PrHelper::addBool(
+		layout,
+		prefix + ModPrKey::Shift::enable,
+		displayName + " Shift Enable",
+		ModPrValue::Shift::enableInitial
+	);
+
+	PrHelper::addOpzx7DetuneParameters(layout, prefix, displayName);
+	PrHelper::addUnisonParameters(layout, prefix, displayName);
 }
 
 void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store)
@@ -118,6 +131,11 @@ void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 	PrHelper::setupPitchEnvPtrs(apvts, ModPrKey::prefix, ptPitchEnv);
 	PrHelper::setupSsgSwPEnv11Ptrs(apvts, ModPrKey::prefix, ptSsgSwPEnv11);
 	PrHelper::setupWtMod(apvts, ModPrKey::prefix, ptWtMod, store);
+
+	pShiftEnable = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Shift::enable);
+
+	PrHelper::setupOpzx7DetunePtrs(apvts, ModPrKey::prefix, ptDetune);
+	PrHelper::setupUnisonPtrs(apvts, ModPrKey::prefix, ptUnison);
 }
 
 void ModProcessor::prepare(double sampleRate)
@@ -138,7 +156,15 @@ void ModProcessor::prepare(double sampleRate)
 	ssgSwPEnv11.prepare(0, sampleRate);
 	wtMod.reset();
 
-	for (auto& shifter : shifters) shifter.prepare(sampleRate);
+	for (auto& voice : shifters)
+	{
+		for (auto& shifter : voice) shifter.prepare(sampleRate);
+	}
+
+	arpVoice = 0;
+	arpPhase = 0.0;
+	arpGains.fill(0.0f);
+	arpGains[0] = 1.0f;
 
 	ampLevel = 1.0f;
 	wasShifting = false;
@@ -194,9 +220,10 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 	envEnabled = PrHelper::getBool(pEnvEnable);
 	lfoEnabled = PrHelper::getBool(pLfoEnable);
 	pitchEnabled = PrHelper::getBool(pPitchEnable);
+	shiftEnabled = PrHelper::getBool(pShiftEnable);
 
 	// どれも切なら何もしない。素通しにする。
-	if (!envEnabled && !lfoEnabled && !pitchEnabled)
+	if (!envEnabled && !lfoEnabled && !pitchEnabled && !shiftEnabled)
 	{
 		wasShifting = false;
 
@@ -251,18 +278,99 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 		wtModDelta = (float)(PrHelper::getFloat(pWtModBaseFreq) / rate);
 	}
 
+	// MUL・DET は音程を一定量ずらすだけなので、倍率を 1 度求めれば足りる。
+	// 基準に 1.0 を渡すと、返ってくる値がそのまま倍率になる。
+	float shiftRatio = 1.0f;
+	int voices = 1;
+
+	if (shiftEnabled)
+	{
+		Opzx7DetuneParams detuneParams;
+
+		PrHelper::applyOpzx7Detune(ptDetune, detuneParams);
+
+		detune.setParameters(detuneParams);
+
+		shiftRatio = detune.noteOn(1.0f);
+
+		PrHelper::applyUnison(ptUnison, unisonParams);
+
+		voices = juce::jlimit(1, Global::unisonVoices, unisonParams.voices);
+	}
+
 	// 音程を動かすかどうかは、この塊のあいだ変えない。1 サンプルごとに
 	// 出し入れすると、溜めてある音との継ぎ目で音が飛ぶ。
-	bool shifting = pitchEnabled || (lfoEnabled && lfo.pm.enable);
+	bool shifting = pitchEnabled
+		|| (lfoEnabled && lfo.pm.enable)
+		|| (shiftEnabled && (voices > 1 || shiftRatio < 0.9999f || shiftRatio > 1.0001f));
 
 	// 使い始めるときは溜めてある古い音を捨てる。前に鳴っていたものが
 	// 尾を引いて出てきてしまう。
 	if (shifting && !wasShifting)
 	{
-		for (auto& shifter : shifters) shifter.reset();
+		for (auto& voice : shifters)
+		{
+			for (auto& shifter : voice) shifter.reset();
+		}
 	}
 
 	wasShifting = shifting;
+
+	// ボイスごとの音程・左右の振り分け・音量を先に出しておく。
+	// 1 サンプルごとに求め直しても結果は変わらない。
+	std::array<float, Global::unisonVoices> voiceRatio{};
+	std::array<float, Global::unisonVoices> voicePanL{};
+	std::array<float, Global::unisonVoices> voicePanR{};
+
+	float voiceGain = 1.0f;
+
+	for (int v = 0; v < voices; ++v)
+	{
+		voiceRatio[(size_t)v] = shiftRatio;
+		voicePanL[(size_t)v] = 1.0f;
+		voicePanR[(size_t)v] = 1.0f;
+	}
+
+	if (shiftEnabled && voices > 1)
+	{
+		for (int v = 0; v < voices; ++v)
+		{
+			UnisonState state;
+
+			// 添字 0 はメインなので、ボイス単位の上乗せを持たない。
+			float paraDetune = (v > 0) ? (float)unisonParams.paraDetune[(size_t)(v - 1)] : 0.0f;
+			float paraDistance = (v > 0) ? unisonParams.paraDistance[(size_t)(v - 1)] : 0.0f;
+
+			state.setParams(v, voices, (float)unisonParams.detuneCents, unisonParams.spread,
+				paraDetune, paraDistance);
+
+			// 基準に 1.0 を渡して、返ってきた値をそのまま倍率として使う。
+			voiceRatio[(size_t)v] = shiftRatio * state.applyDetune(1.0f);
+
+			float panL = 1.0f;
+			float panR = 1.0f;
+
+			state.applyPan(panL, panR);
+
+			voicePanL[(size_t)v] = panL;
+			voicePanR[(size_t)v] = panR;
+
+			voiceGain = state.getGainComp();
+		}
+	}
+
+	// 疑似高速アルペジオ。全部を重ねずに 1 つずつ切り替えて鳴らす。
+	bool arpeggio = shiftEnabled && voices > 1 && unisonParams.arpEnable;
+
+	double arpStep = arpeggio ? ((double)juce::jmax(1, unisonParams.arpFreq) / rate) : 0.0;
+
+	// 切り替わり目のクリック音対策。1 ミリ秒ほどかけて渡す。
+	float arpRamp = (float)(1.0 / juce::jmax(1.0, rate * 0.001));
+
+	if (!arpeggio)
+	{
+		arpGains.fill(1.0f);
+	}
 
 	int channels = buffer.getNumChannels();
 	int samples = buffer.getNumSamples();
@@ -320,18 +428,66 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 			ratio *= wtMod.process(wtModDelta);
 		}
 
-		for (int ch = 0; ch < channels; ++ch)
+		if (arpeggio)
 		{
-			auto* data = buffer.getWritePointer(ch);
+			arpPhase += arpStep;
 
-			float sample = data[i] * gain;
-
-			if (shifting && ch < (int)shifters.size())
+			while (arpPhase >= 1.0)
 			{
-				sample = shifters[(size_t)ch].process(sample, ratio);
+				arpPhase -= 1.0;
+
+				if (++arpVoice >= voices) arpVoice = 0;
 			}
 
-			data[i] = sample;
+			// 鳴らすボイスへ寄せ、他は下げる。滑らかさを切ってあるときは
+			// 一気に切り替える。
+			for (int v = 0; v < voices; ++v)
+			{
+				float target = (v == arpVoice) ? 1.0f : 0.0f;
+				float& g = arpGains[(size_t)v];
+
+				if (!unisonParams.arpSmooth) g = target;
+				else if (g < target) g = juce::jmin(target, g + arpRamp);
+				else if (g > target) g = juce::jmax(target, g - arpRamp);
+			}
+		}
+
+		// 元の音をいったん控える。ボイスごとに読み直すため。
+		float dryL = buffer.getWritePointer(0)[i] * gain;
+		float dryR = (channels > 1) ? buffer.getWritePointer(1)[i] * gain : dryL;
+
+		float outL = 0.0f;
+		float outR = 0.0f;
+
+		for (int v = 0; v < voices; ++v)
+		{
+			float g = arpGains[(size_t)v] * voiceGain;
+
+			if (g <= 0.0f) continue;
+
+			float voiceRate = ratio * voiceRatio[(size_t)v];
+
+			float sL = dryL;
+			float sR = dryR;
+
+			if (shifting)
+			{
+				sL = shifters[(size_t)v][0].process(dryL, voiceRate);
+				sR = shifters[(size_t)v][1].process(dryR, voiceRate);
+			}
+
+			outL += sL * voicePanL[(size_t)v] * g;
+			outR += sR * voicePanR[(size_t)v] * g;
+		}
+
+		buffer.getWritePointer(0)[i] = outL;
+
+		if (channels > 1) buffer.getWritePointer(1)[i] = outR;
+
+		// 3 本以上あるときは、余りへ左右を混ぜたものを入れる。
+		for (int ch = 2; ch < channels; ++ch)
+		{
+			buffer.getWritePointer(ch)[i] = (outL + outR) * 0.5f;
 		}
 	}
 }

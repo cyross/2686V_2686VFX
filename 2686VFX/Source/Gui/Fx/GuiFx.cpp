@@ -35,6 +35,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     envEnableToggle(context),
     lfoEnableToggle(context),
     pitchEnableToggle(context),
+    shiftEnableToggle(context),
     modAmpEnvGroup(context),
     modSsgHwEnvGroup(context),
     modSsgSwEnvGroup(context),
@@ -43,6 +44,8 @@ GuiFx::GuiFx(const GuiContext& context) :
     modPitchEnvGroup(context),
     modSsgSwPEnv11Group(context),
     modWtModGroup(context),
+    modMulDetuneGroup(context),
+    modUnisonGroup(context),
     ampEnvComponent(context),
     ssgHwEnvComponent(context),
     ssgSwEnvComponent(context),
@@ -51,6 +54,8 @@ GuiFx::GuiFx(const GuiContext& context) :
     pitchEnvComponent(context),
     ssgSwPEnv11Component(context),
     wtModComponent(context),
+    mulDetuneComponent(context),
+    unisonComponent(context),
     wtModBaseFreqSlider(context),
     tremGroup(context),
     vibGroup(context),
@@ -228,6 +233,21 @@ void GuiFx::setup()
         .isReset = true });
     wtModBaseFreqSlider.setWantsKeyboardFocus(true);
     wtModBaseFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    // 音程を一定量ずらすもの。鍵盤を押さなくても掛かるので、
+    // 押し離しで動くエンベロープとは別の札にしてある。
+    shiftEnableToggle.setup({ .parent = *this,
+        .id = ModPrKey::prefix + ModPrKey::Shift::enable,
+        .title = juce::String("") + "音程をずらす",
+        .isReset = true });
+    shiftEnableToggle.setWantsKeyboardFocus(true);
+    shiftEnableToggle.setExplicitFocusOrder(++tabOrder);
+
+    modMulDetuneGroup.setup(*this, juce::String("") + "MUL・DET");
+    modUnisonGroup.setup(*this, juce::String("") + "UNISON・HARMONY");
+
+    mulDetuneComponent.setupComponent(modMulDetuneGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+    unisonComponent.setupComponent(modUnisonGroup.contentCanvas, ModPrKey::prefix, tabOrder);
     mainGroup.setBackgroundColor(groupBgColour);
 
 	bypassToggle.setup({ .parent = *this, .id = code + FxPrKey::bypass, .title = FxGuiText::Fx::masterBypass, .isReset = true });
@@ -728,6 +748,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
         lfoEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
         headerRect.removeFromLeft(FxGuiValue::Fx::ModColGap);
         pitchEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
+        headerRect.removeFromLeft(FxGuiValue::Fx::ModColGap);
+        shiftEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
 
         modArea.removeFromTop(FxGuiValue::Fx::ModHeaderGap);
 
@@ -767,8 +789,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
         layoutModColumn(upperRow, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
         layoutModColumn(upperRow, modSsgSwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgSwEnvComponent.layoutComponent(rect); });
         layoutModColumn(upperRow, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
+        layoutModColumn(upperRow, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
 
-        layoutModColumn(lowerRow, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
         layoutModColumn(lowerRow, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
         layoutModColumn(lowerRow, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
         layoutModColumn(lowerRow, modWtModGroup, [&](juce::Rectangle<int>& rect)
@@ -777,6 +799,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
             wtModBaseFreqSlider.setBounds(rect.removeFromTop(FxGuiValue::Fx::ModBaseFreqHeight));
         });
+
+        layoutModColumn(lowerRow, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); });
+        layoutModColumn(lowerRow, modUnisonGroup, [&](juce::Rectangle<int>& rect) { unisonComponent.layoutComponent(rect); });
     }
 
     auto mainArea = fxArea.removeFromTop(isShowRoute ? FxGuiValue::Fx::MainHeightRoute : FxGuiValue::Fx::MainHeight);
