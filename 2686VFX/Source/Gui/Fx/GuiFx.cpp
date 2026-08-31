@@ -34,16 +34,24 @@ GuiFx::GuiFx(const GuiContext& context) :
     mainGroup(context),
     envEnableToggle(context),
     lfoEnableToggle(context),
+    pitchEnableToggle(context),
     modAmpEnvGroup(context),
     modSsgHwEnvGroup(context),
     modSsgSwEnvGroup(context),
     modSsgSwEnv11Group(context),
     modLfoGroup(context),
+    modPitchEnvGroup(context),
+    modSsgSwPEnv11Group(context),
+    modWtModGroup(context),
     ampEnvComponent(context),
     ssgHwEnvComponent(context),
     ssgSwEnvComponent(context),
     ssgSwEnv11Component(context),
     lfoComponent(context),
+    pitchEnvComponent(context),
+    ssgSwPEnv11Component(context),
+    wtModComponent(context),
+    wtModBaseFreqSlider(context),
     tremGroup(context),
     vibGroup(context),
     mbcGroup(context),
@@ -192,6 +200,34 @@ void GuiFx::setup()
         CPK::ssgSwEnv11 + CPK::bypass, FxGuiText::Mod::SsgSwEnv11::bypass);
 
     lfoComponent.setupComponent(modLfoGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+
+    // 音程側。入ってきた音を溜めてから読み出す速さを変えるので、
+    // 音量側とは別に入り切りできるようにしてある。
+    pitchEnableToggle.setup({ .parent = *this,
+        .id = ModPrKey::prefix + ModPrKey::Pitch::enable,
+        .title = juce::String("") + "ピッチで変調する",
+        .isReset = true });
+    pitchEnableToggle.setWantsKeyboardFocus(true);
+    pitchEnableToggle.setExplicitFocusOrder(++tabOrder);
+
+    modPitchEnvGroup.setup(*this, juce::String("") + "PITCH ENV");
+    modSsgSwPEnv11Group.setup(*this, juce::String("") + "SSG SW PITCH ENV[11]");
+    modWtModGroup.setup(*this, juce::String("") + "WT PITCH MOD");
+
+    pitchEnvComponent.setupComponent(modPitchEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
+        CPK::pitchAdsr + CPK::bypass, FxGuiText::Mod::PitchEnv::bypass);
+
+    ssgSwPEnv11Component.setupComponent(modSsgSwPEnv11Group.contentCanvas, ModPrKey::prefix, tabOrder,
+        CPK::ssgSwPEnv11 + CPK::bypass, FxGuiText::Mod::SsgSwPEnv11::bypass);
+
+    wtModComponent.setupComponent(modWtModGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+
+    wtModBaseFreqSlider.setup({ .parent = modWtModGroup.contentCanvas,
+        .id = ModPrKey::prefix + ModPrKey::WtMod::baseFreq,
+        .title = FxGuiText::Mod::WtMod::baseFreq,
+        .isReset = true });
+    wtModBaseFreqSlider.setWantsKeyboardFocus(true);
+    wtModBaseFreqSlider.setExplicitFocusOrder(++tabOrder);
     mainGroup.setBackgroundColor(groupBgColour);
 
 	bypassToggle.setup({ .parent = *this, .id = code + FxPrKey::bypass, .title = FxGuiText::Fx::masterBypass, .isReset = true });
@@ -690,16 +726,27 @@ void GuiFx::layout(juce::Rectangle<int> content)
         envEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
         headerRect.removeFromLeft(FxGuiValue::Fx::ModColGap);
         lfoEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
+        headerRect.removeFromLeft(FxGuiValue::Fx::ModColGap);
+        pitchEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
 
         modArea.removeFromTop(FxGuiValue::Fx::ModHeaderGap);
 
+        // 上段が音量側、下段が音程側。横に 8 列は並ばないので 2 段に折る。
+        int rowHeight = (modArea.getHeight() - FxGuiValue::Fx::ModRowGap) / 2;
+
+        auto upperRow = modArea.removeFromTop(rowHeight);
+
+        modArea.removeFromTop(FxGuiValue::Fx::ModRowGap);
+
+        auto lowerRow = modArea;
+
         // 列を 1 つ切り出して、中身を上から積む。積んだ高さをそのまま
         // キャンバスの高さにするので、はみ出したぶんはスクロールで届く。
-        auto layoutModColumn = [&](GuiScrollGroup& group, auto&& layoutBody)
+        auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody)
         {
-            auto colArea = modArea.removeFromLeft(FxGuiValue::Fx::ModColWidth);
+            auto colArea = row.removeFromLeft(FxGuiValue::Fx::ModColWidth);
 
-            modArea.removeFromLeft(FxGuiValue::Fx::ModColGap);
+            row.removeFromLeft(FxGuiValue::Fx::ModColGap);
 
             group.setBounds(colArea);
 
@@ -716,11 +763,20 @@ void GuiFx::layout(juce::Rectangle<int> content)
             group.setContentHeight(rect.getY() + categoryContentTrailingPadding);
         };
 
-        layoutModColumn(modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modSsgSwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgSwEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
-        layoutModColumn(modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
+        layoutModColumn(upperRow, modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); });
+        layoutModColumn(upperRow, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
+        layoutModColumn(upperRow, modSsgSwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgSwEnvComponent.layoutComponent(rect); });
+        layoutModColumn(upperRow, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
+
+        layoutModColumn(lowerRow, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
+        layoutModColumn(lowerRow, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
+        layoutModColumn(lowerRow, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
+        layoutModColumn(lowerRow, modWtModGroup, [&](juce::Rectangle<int>& rect)
+        {
+            wtModComponent.layoutComponent(rect);
+
+            wtModBaseFreqSlider.setBounds(rect.removeFromTop(FxGuiValue::Fx::ModBaseFreqHeight));
+        });
     }
 
     auto mainArea = fxArea.removeFromTop(isShowRoute ? FxGuiValue::Fx::MainHeightRoute : FxGuiValue::Fx::MainHeight);

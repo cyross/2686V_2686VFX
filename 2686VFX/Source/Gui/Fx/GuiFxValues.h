@@ -49,9 +49,14 @@ namespace FxGuiValue
 		static inline constexpr int ModHeaderGap = 6;
 		static inline constexpr int ModToggleWidth = 220;
 
-		// 1 列の幅。5 列と隙間で 1340px になり、空いている幅に収まる。
-		static inline constexpr int ModColWidth = 260;
+		// 4 列 2 段に並べる。上段が音量側、下段が音程側。
+		// 4 列と隙間で 1330px になり、空いている幅に収まる。
+		static inline constexpr int ModColWidth = 325;
 		static inline constexpr int ModColGap = 10;
+		static inline constexpr int ModRowGap = 8;
+
+		// WT PITCH MOD の基準周波数。実機には無い、こちらで足したもの。
+		static inline constexpr int ModBaseFreqHeight = 40;
 		static inline constexpr int MainHeight = 120;
 		static inline constexpr int MainHeightRoute = 320;
 		static inline constexpr int AreaWidth = 200;

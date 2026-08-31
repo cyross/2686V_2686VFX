@@ -19,6 +19,22 @@ namespace FxGuiText
 		{
 			static inline const juce::String bypass = juce::String("") + "使わない";
 		}
+
+		namespace PitchEnv
+		{
+			static inline const juce::String bypass = juce::String("") + "使わない";
+		}
+
+		namespace SsgSwPEnv11
+		{
+			static inline const juce::String bypass = juce::String("") + "使わない";
+		}
+
+		// 実機の搬送波にあたる周波数。実機には無い、こちらで足したもの。
+		namespace WtMod
+		{
+			static inline const juce::String baseFreq = juce::String("") + "基準周波数";
+		}
 	}
 
 	namespace Group

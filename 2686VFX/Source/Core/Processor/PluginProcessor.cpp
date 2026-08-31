@@ -62,7 +62,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     prFx.init(apvts);
     prFx.prepare(44100.0);
 
-    prMod.init(apvts);
+    prMod.init(apvts, modWaveSlots);
     prMod.prepare(44100.0);
 
 	previewFx.init(apvts);

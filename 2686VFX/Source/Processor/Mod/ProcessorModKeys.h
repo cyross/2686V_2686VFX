@@ -26,4 +26,18 @@ namespace ModPrKey
 	{
 		static inline const juce::String enable = "_LFO_ENABLE";
 	}
+
+	// 音程側。入ってきた音を溜めてから読み出す速さを変えるので、
+	// 音量側とは別に入り切りできるようにしてある。
+	namespace Pitch
+	{
+		static inline const juce::String enable = "_PITCH_ENABLE";
+	}
+
+	// WT PITCH MOD の速さは、実機では搬送波の周波数に対する比で決まる。
+	// エフェクトには搬送波が無いので、その代わりの周波数を持つ。
+	namespace WtMod
+	{
+		static inline const juce::String baseFreq = "_WTMOD_BASEFREQ";
+	}
 }

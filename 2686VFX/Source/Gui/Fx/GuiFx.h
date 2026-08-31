@@ -12,6 +12,9 @@
 #include "../Components/SsgSwEnv/SsgSwEnv.h"
 #include "../Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../Components/LfoOpzx7/LfoOpzx7.h"
+#include "../Components/PitchEnv/PitchEnv.h"
+#include "../Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../Components/WtMod/WtMod.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
@@ -42,18 +45,29 @@ class GuiFx : public GuiBase
     // スクロールできるので、中身が伸びても見切れない。
     GuiToggleButton envEnableToggle;
     GuiToggleButton lfoEnableToggle;
+    GuiToggleButton pitchEnableToggle;
 
     GuiScrollGroup modAmpEnvGroup;
     GuiScrollGroup modSsgHwEnvGroup;
     GuiScrollGroup modSsgSwEnvGroup;
     GuiScrollGroup modSsgSwEnv11Group;
     GuiScrollGroup modLfoGroup;
+    GuiScrollGroup modPitchEnvGroup;
+    GuiScrollGroup modSsgSwPEnv11Group;
+    GuiScrollGroup modWtModGroup;
 
     GuiComponentAmpEnv ampEnvComponent;
     GuiComponentSsgHwEnv ssgHwEnvComponent;
     GuiComponentSsgSwEnv ssgSwEnvComponent;
     GuiComponentSsgSwEnv11 ssgSwEnv11Component;
     GuiComponentLfoOpzx7 lfoComponent;
+    GuiComponentPitchEnv pitchEnvComponent;
+    GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
+    GuiComponentWtMod wtModComponent;
+
+    // WT PITCH MOD の速さは実機では搬送波との比。エフェクトには搬送波が
+    // 無いので、その代わりの周波数をここで決められるようにしてある。
+    GuiSlider wtModBaseFreqSlider;
 
     GuiGroup tremGroup;
     GuiGroup vibGroup;

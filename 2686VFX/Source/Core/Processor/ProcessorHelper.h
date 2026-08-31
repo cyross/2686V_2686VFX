@@ -2057,4 +2057,66 @@ namespace PrHelper {
 		params.l10 = getFloat(ptPtrs.l10);
 		params.l11 = getFloat(ptPtrs.l11);
 	}
+	// 音程側の変調で使う補助。音源のパラメータには触らない。
+
+	static inline void setupSsgSwPEnv11Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwPEnv11& ptPtrs){
+		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::bypass);
+		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::steps);
+		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::loop);
+		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::loopTo);
+		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::loopCount);
+		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r1);
+		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r2);
+		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r3);
+		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r4);
+		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r5);
+		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r6);
+		ptPtrs.r7 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r7);
+		ptPtrs.r8 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r8);
+		ptPtrs.r9 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r9);
+		ptPtrs.r10 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r10);
+		ptPtrs.r11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r11);
+		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::stl);
+		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l1);
+		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l2);
+		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l3);
+		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l4);
+		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l5);
+		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l6);
+		ptPtrs.l7 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l7);
+		ptPtrs.l8 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l8);
+		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l9);
+		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l10);
+		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l11);
+	}
+	static inline void applySsgSwPEnv11(PrPtrsSsgSwPEnv11& ptPtrs, SsgSwPEnv11Params& params){
+		params.bypass = getBool(ptPtrs.bypass);
+		params.steps = getInt(ptPtrs.steps);
+		params.loop = getBool(ptPtrs.loop);
+		params.loopTo = getInt(ptPtrs.loopTo);
+		params.loopCount = getInt(ptPtrs.loopCount);
+		params.r1 = getFloat(ptPtrs.r1);
+		params.r2 = getFloat(ptPtrs.r2);
+		params.r3 = getFloat(ptPtrs.r3);
+		params.r4 = getFloat(ptPtrs.r4);
+		params.r5 = getFloat(ptPtrs.r5);
+		params.r6 = getFloat(ptPtrs.r6);
+		params.r7 = getFloat(ptPtrs.r7);
+		params.r8 = getFloat(ptPtrs.r8);
+		params.r9 = getFloat(ptPtrs.r9);
+		params.r10 = getFloat(ptPtrs.r10);
+		params.r11 = getFloat(ptPtrs.r11);
+		params.stl = getInt(ptPtrs.stl);
+		params.l1 = getInt(ptPtrs.l1);
+		params.l2 = getInt(ptPtrs.l2);
+		params.l3 = getInt(ptPtrs.l3);
+		params.l4 = getInt(ptPtrs.l4);
+		params.l5 = getInt(ptPtrs.l5);
+		params.l6 = getInt(ptPtrs.l6);
+		params.l7 = getInt(ptPtrs.l7);
+		params.l8 = getInt(ptPtrs.l8);
+		params.l9 = getInt(ptPtrs.l9);
+		params.l10 = getInt(ptPtrs.l10);
+		params.l11 = getInt(ptPtrs.l11);
+	}
 }
