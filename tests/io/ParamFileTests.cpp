@@ -545,3 +545,45 @@ TEST_CASE("パラメータファイル: 文字列の並びが往復する")
 		CHECK(reader->getStringArray("missing").empty());
 	}
 }
+
+TEST_CASE("パラメータファイル: 知らないまとまりは読み飛ばし、無いものは既定値のまま")
+{
+	// FX をプラグイン間で読み合うための土台。
+	//
+	// 相手にしか無い効果が書かれていても、こちらは触らないので何も起きない。
+	// こちらにしか無い効果は書かれていないので、今の値が残る。
+	for (auto format : { Io::FileFormat::json, Io::FileFormat::yaml })
+	{
+		ScopedFormat scoped(format);
+		TempFile temp;
+
+		{
+			Io::ParamWriter writer(testFormat);
+
+			auto known = writer.child("delay");
+
+			known.set("mix", 0.75f);
+
+			// 相手にしか無い効果のつもり
+			auto other = writer.child("pcmBitCrusher");
+
+			other.set("bits", 4);
+
+			REQUIRE(writer.writeTo(temp.file));
+		}
+
+		auto reader = Io::ParamReader::open(temp.file, testFormat, false);
+
+		REQUIRE(reader.has_value());
+
+		// 知っている効果は読める
+		CHECK(reader->child("delay").getFloat("mix", 0.0f) == doctest::Approx(0.75f));
+
+		// 書かれていない効果は、今の値がそのまま残る
+		CHECK(reader->child("reverb").getFloat("mix", 0.3f) == doctest::Approx(0.3f));
+		CHECK(reader->child("reverb").getBool("bypass", true) == true);
+
+		// 知らない効果には触らないので、読み込みそのものは何事もなく終わる
+		CHECK(reader->child("pcmBitCrusher").getInt("bits", 0) == 4);
+	}
+}
