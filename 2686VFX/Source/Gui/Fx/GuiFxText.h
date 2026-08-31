@@ -12,22 +12,22 @@ namespace FxGuiText
 	{
 		namespace SsgSwEnv
 		{
-			static inline const juce::String bypass = juce::String("") + "使わない";
+			static inline const juce::String bypass = juce::String("") + "バイパス";
 		}
 
 		namespace SsgSwEnv11
 		{
-			static inline const juce::String bypass = juce::String("") + "使わない";
+			static inline const juce::String bypass = juce::String("") + "バイパス";
 		}
 
 		namespace PitchEnv
 		{
-			static inline const juce::String bypass = juce::String("") + "使わない";
+			static inline const juce::String bypass = juce::String("") + "バイパス";
 		}
 
 		namespace SsgSwPEnv11
 		{
-			static inline const juce::String bypass = juce::String("") + "使わない";
+			static inline const juce::String bypass = juce::String("") + "バイパス";
 		}
 
 		// 実機の搬送波にあたる周波数。実機には無い、こちらで足したもの。

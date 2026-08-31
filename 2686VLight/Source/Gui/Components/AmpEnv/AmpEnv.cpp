@@ -16,7 +16,8 @@ namespace
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
-void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder)
+void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder,
+    const juce::String& bypassText)
 {
 	cat.setupSwCategory({
         .parent = parent,
@@ -24,7 +25,7 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
         .enableChangeDetailVisible = true
         });
 
-    bypass.setup({ .parent = parent, .id = code + CPK::adsr + CPK::bypass, .title = "Bypass", .isReset = true });
+    bypass.setup({ .parent = parent, .id = code + CPK::adsr + CPK::bypass, .title = bypassText, .isReset = true });
     bypass.setWantsKeyboardFocus(true);
     bypass.setExplicitFocusOrder(++tabOrder);
 

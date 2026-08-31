@@ -48,7 +48,10 @@ public:
     {
     }
 
-    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder);
+    // 札の文言は外から渡せる。置いた先によって、英語のままがよいか
+    // 日本語にそろえたいかが変わるため。既定は今までどおり。
+    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
+        const juce::String& bypassText = "Bypass");
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);

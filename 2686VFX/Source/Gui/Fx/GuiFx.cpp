@@ -235,7 +235,8 @@ void GuiFx::setup()
         group->setBackgroundColor(groupBgColour);
     }
 
-    ampEnvComponent.setupComponent(modAmpEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+    ampEnvComponent.setupComponent(modAmpEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
+        FxGuiText::Fx::bypass);
 
     // 見出しの色は、実機の機能か独自の機能かで塗り分けている。
     // ここは SSG チャンネルではなく出力へ借りて置くので、既定のままにする。
