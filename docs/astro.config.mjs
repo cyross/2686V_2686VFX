@@ -54,6 +54,11 @@ export default defineConfig({
 					],
 				},
 				{
+					label: '各種仕様',
+					translations: { en: 'Reference' },
+					items: [{ autogenerate: { directory: 'reference/automation' } }],
+				},
+				{
 					label: 'プラグイン別',
 					translations: { en: 'Per plugin' },
 					items: [

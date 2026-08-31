@@ -1,0 +1,72 @@
+---
+// オートメーション一覧の表。
+//
+// 中身は docs/src/data/parameters.json から組み立て時に作る。派生した
+// Markdown を置くとパラメータを増減したときにずれるので、元を 1 つに保つ。
+import { parametersOf, formatRange, formatDefault, type Group } from '../lib/parameters';
+
+interface Props {
+	group: Group;
+	lang?: 'ja' | 'en';
+}
+
+const { group, lang = 'ja' } = Astro.props;
+
+const rows = parametersOf(group);
+
+const head = lang === 'ja'
+	? { name: 'オートメーション名', id: 'ID', type: '型', range: '範囲', def: '初期値' }
+	: { name: 'Automation name', id: 'ID', type: 'Type', range: 'Range', def: 'Default' };
+
+const count = lang === 'ja'
+	? `${rows.length} 件`
+	: `${rows.length} parameters`;
+---
+
+<p class="count">{count}</p>
+
+<div class="table-scroll">
+	<table>
+		<thead>
+			<tr>
+				<th>{head.name}</th>
+				<th>{head.id}</th>
+				<th>{head.type}</th>
+				<th>{head.range}</th>
+				<th>{head.def}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{rows.map((p) => (
+				<tr>
+					<td>{p.name}</td>
+					<td><code>{p.id}</code></td>
+					<td>{p.type}</td>
+					<td>{formatRange(p, lang)}</td>
+					<td>{formatDefault(p)}</td>
+				</tr>
+			))}
+		</tbody>
+	</table>
+</div>
+
+<style>
+	.count {
+		color: var(--sl-color-gray-3);
+		font-size: var(--sl-text-sm);
+	}
+
+	/* 列が 5 つあるので、狭い画面では表だけ横へ流す */
+	.table-scroll {
+		overflow-x: auto;
+	}
+
+	table {
+		font-size: var(--sl-text-sm);
+	}
+
+	/* ID は折り返さない。途中で切れると探しにくい。 */
+	td code {
+		white-space: nowrap;
+	}
+</style>
