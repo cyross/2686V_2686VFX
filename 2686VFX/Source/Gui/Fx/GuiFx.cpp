@@ -3,6 +3,8 @@
 #include <algorithm>
 #include "./GuiFx.h"
 
+#include <functional>
+
 #include "../../Core/Processor/PluginProcessor.h"
 
 #include "../../Processor/Fx/ProcessorFxKeys.h"
@@ -313,7 +315,12 @@ void GuiFx::setup()
     resetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::reset, .textColor = juce::Colours::white, .bgColor = juce::Colours::grey });
     resetBtn.setWantsKeyboardFocus(true);
     resetBtn.setExplicitFocusOrder(++tabOrder);
-    resetBtn.onClick = [&] { this->ctx.audioProcessor.initParams("FX_"); };
+    resetBtn.onClick = [&] {
+        // 変調もこのタブの一部なので一緒に戻す。効果とは接頭辞が違うため、
+        // まとめて 1 回では拾えず、二度に分けて呼ぶ。
+        this->ctx.audioProcessor.initParams(FxPrKey::prefix + "_");
+        this->ctx.audioProcessor.initParams(ModPrKey::prefix + "_");
+    };
 
     routeSeparator.setupComponent(*this);
 
@@ -861,16 +868,62 @@ void GuiFx::layout(juce::Rectangle<int> content)
     {
         auto modArea = pageArea;
 
-        // 6 列 2 段。1 枠目は使う・使わないの札をまとめたもので、
-        // 残り 10 枠に各機能が入る。
-        int rowHeight = (modArea.getHeight() - FxGuiValue::Fx::SectionGap) / FxGuiValue::Fx::ModRows;
+        // 5 列 2 段。段の高さは、その段に入るものが欲しがる高さの比で分ける。
+        // 半分ずつにすると、中身の少ない段に余りが残ったまま、多い段だけが
+        // 延々とスクロールすることになる。
+        //
+        // 幅は段の高さに左右されないので、先に中身の幅だけを求めておけば
+        // 置く前に高さを測れる。
+        int contentWidth = FxGuiValue::Fx::ColWidth
+            - FxGuiValue::Group::Padding::width * 2
+            - modAmpEnvGroup.viewport.getScrollBarThickness();
 
-        auto upperRow = modArea.removeFromTop(rowHeight);
+        auto measureRow = [&](std::initializer_list<std::function<void(juce::Rectangle<int>&)>> bodies)
+        {
+            int tallest = 1;
+
+            for (const auto& body : bodies)
+            {
+                juce::Rectangle<int> probe(0, 0, contentWidth, 8000);
+
+                body(probe);
+
+                tallest = juce::jmax(tallest, probe.getY() + categoryContentTrailingPadding);
+            }
+
+            return tallest;
+        };
+
+        int upperWant = measureRow({
+            [&](juce::Rectangle<int>& r) { ampEnvComponent.layoutComponent(r); },
+            [&](juce::Rectangle<int>& r) { ssgHwEnvComponent.layoutComponent(r); },
+            [&](juce::Rectangle<int>& r) { ssgSwEnvComponent.layoutComponent(r); },
+            [&](juce::Rectangle<int>& r) { ssgSwEnv11Component.layoutComponent(r); },
+            [&](juce::Rectangle<int>& r) { lfoComponent.layoutComponent(r); } });
+
+        int lowerWant = measureRow({
+            [&](juce::Rectangle<int>& r) { pitchEnvComponent.layoutComponent(r); },
+            [&](juce::Rectangle<int>& r) { ssgSwPEnv11Component.layoutComponent(r); },
+            [&](juce::Rectangle<int>& r) { wtModComponent.layoutComponent(r); },
+            [&](juce::Rectangle<int>& r) { mulDetuneComponent.layoutComponent(r); },
+            [&](juce::Rectangle<int>& r) { unisonComponent.layoutComponent(r); } });
+
+        int available = modArea.getHeight() - FxGuiValue::Fx::SectionGap;
+
+        // 欲しがる高さの比で分ける。どちらかが極端に短くならないよう、
+        // 見出しと数行ぶんは必ず残す。
+        int upperHeight = (int)((juce::int64)available * upperWant / juce::jmax(1, upperWant + lowerWant));
+
+        upperHeight = juce::jlimit(
+            FxGuiValue::Fx::ModRowMinHeight,
+            available - FxGuiValue::Fx::ModRowMinHeight,
+            upperHeight);
+
+        auto upperRow = modArea.removeFromTop(upperHeight);
 
         modArea.removeFromTop(FxGuiValue::Fx::SectionGap);
 
         auto lowerRow = modArea;
-
 
         // 列を 1 つ切り出して、中身を上から積む。積んだ高さをそのまま
         // キャンバスの高さにするので、はみ出したぶんはスクロールで届く。

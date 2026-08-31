@@ -57,8 +57,10 @@ namespace FxGuiValue
 		static inline constexpr int ModHeaderGap = 6;
 		static inline constexpr int ModToggleWidth = 220;
 
-		// 変調は 5 列 2 段。段が短いぶんは列ごとのスクロールが吸う。
+		// 変調は 5 列 2 段。段の高さは中身が欲しがる比で分けるので、
+		// ここでは段の数と、短くなりすぎないための下限だけを持つ。
 		static inline constexpr int ModRows = 2;
+		static inline constexpr int ModRowMinHeight = 120;
 
 		// WT PITCH MOD の基準周波数。実機には無い、こちらで足したもの。
 		static inline constexpr int ModBaseFreqHeight = 40;
