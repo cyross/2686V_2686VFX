@@ -19,7 +19,7 @@ of them. The differences are listed in
 | --- | --- |
 | **2686V** | The full build, with every chip |
 | **2686VLight** | 2686V without curve editing |
-| **2686VOrigin** | Limited to the chips of the PC-9801-86 sound board |
+| **86V** | Matched to the PC-9801-86 sound board |
 | **OPZX7S** | Focused on the OPZX7 chip. Curve editing is standard |
 
 ## Requirements

@@ -8,7 +8,7 @@ sidebar:
 The four plugins differ **only in which tabs they carry.** Everything else —
 the shared screens and the way you work — is identical.
 
-| Tab | 2686V | 2686VLight | 2686VOrigin | OPZX7S |
+| Tab | 2686V | 2686VLight | 86V | OPZX7S |
 | --- | :---: | :---: | :---: | :---: |
 | OPNA | ✔ | ✔ | ✔ | — |
 | OPN | ✔ | ✔ | — | — |
@@ -20,8 +20,8 @@ the shared screens and the way you work — is identical.
 | WAVETABLE | ✔ | ✔ | — | — |
 | WT2 | ✔ | ✔ | — | — |
 | WTPLUS | ✔ | ✔ | — | — |
-| RHYTHM | ✔ | ✔ | ✔ | — |
-| ADPCM | ✔ | ✔ | ✔ | — |
+| RHYTHM | ✔ | ✔ | ✔ (6 pads) | — |
+| ADPCM | ✔ | ✔ | ✔ (as PCM) | — |
 | BEEP | ✔ | ✔ | — | — |
 | FX | ✔ | ✔ | ✔ | ✔ |
 | CURVE | ✔ | — | — | ✔ |
@@ -31,8 +31,9 @@ the shared screens and the way you work — is identical.
 
 - **When in doubt, 2686V** — it has everything
 - **2686VLight** — 2686V without curve editing. Lighter if you do not use curves
-- **2686VOrigin** — limited to the chips of the PC-9801-86 board, so you are not
-  offered anything that board did not have
+- **86V** — matched to the PC-9801-86 board. ADPCM is named **PCM** and rhythm
+  has **6** pads rather than 8, so you are not offered anything that board did
+  not have
 - **OPZX7S** — for working with OPZX7 alone. **Curve editing is included**
 
 :::note

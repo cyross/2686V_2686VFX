@@ -3,7 +3,10 @@
 //
 // 中身は docs/src/data/parameters.json から組み立て時に作る。派生した
 // Markdown を置くとパラメータを増減したときにずれるので、元を 1 つに保つ。
-import { parametersOf, formatRange, formatDefault, type Group } from '../lib/parameters';
+//
+// オペレータやパッドのように番号だけが違うものは 1 行へまとめる。
+// そのまま並べると、リズムだけで 1,381 行になって読めない。
+import { rowsOf, parametersOf, type Group } from '../lib/parameters';
 
 interface Props {
 	group: Group;
@@ -12,15 +15,20 @@ interface Props {
 
 const { group, lang = 'ja' } = Astro.props;
 
-const rows = parametersOf(group);
+const rows = rowsOf(group, lang);
+const actual = parametersOf(group).length;
 
 const head = lang === 'ja'
-	? { name: 'オートメーション名', id: 'ID', type: '型', range: '範囲', def: '初期値' }
-	: { name: 'Automation name', id: 'ID', type: 'Type', range: 'Range', def: 'Default' };
+	? { name: 'オートメーション名', id: 'ID', type: '型', range: '範囲', def: '初期値', note: '備考' }
+	: { name: 'Automation name', id: 'ID', type: 'Type', range: 'Range', def: 'Default', note: 'Notes' };
 
 const count = lang === 'ja'
-	? `${rows.length} 件`
-	: `${rows.length} parameters`;
+	? (rows.length === actual
+		? `${actual} 件`
+		: `${actual} 件（番号だけが違うものをまとめて ${rows.length} 行）`)
+	: (rows.length === actual
+		? `${actual} parameters`
+		: `${actual} parameters, shown as ${rows.length} rows (indexed sets are folded together)`);
 ---
 
 <p class="count">{count}</p>
@@ -34,16 +42,18 @@ const count = lang === 'ja'
 				<th>{head.type}</th>
 				<th>{head.range}</th>
 				<th>{head.def}</th>
+				<th>{head.note}</th>
 			</tr>
 		</thead>
 		<tbody>
-			{rows.map((p) => (
+			{rows.map((r) => (
 				<tr>
-					<td>{p.name}</td>
-					<td><code>{p.id}</code></td>
-					<td>{p.type}</td>
-					<td>{formatRange(p, lang)}</td>
-					<td>{formatDefault(p)}</td>
+					<td>{r.name}</td>
+					<td><code>{r.id}</code></td>
+					<td>{r.type}</td>
+					<td>{r.range}</td>
+					<td>{r.def}</td>
+					<td></td>
 				</tr>
 			))}
 		</tbody>
@@ -56,7 +66,7 @@ const count = lang === 'ja'
 		font-size: var(--sl-text-sm);
 	}
 
-	/* 列が 5 つあるので、狭い画面では表だけ横へ流す */
+	/* 列が多いので、狭い画面では表だけ横へ流す */
 	.table-scroll {
 		overflow-x: auto;
 	}
