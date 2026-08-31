@@ -951,7 +951,22 @@ void GuiFx::layout(juce::Rectangle<int> content)
         {
             wtModComponent.layoutComponent(rect);
 
-            wtModBaseFreqSlider.setBounds(rect.removeFromTop(FxGuiValue::Fx::ModBaseFreqHeight));
+            // このつまみだけは部品の外に足したものなので、見出しを閉じても
+            // 一緒に隠れてくれない。見出しの開き具合を見て自分で消す。
+            bool opened = true;
+
+            for (auto* child : modWtModGroup.contentCanvas.getChildren())
+            {
+                if (auto* cat = dynamic_cast<GuiCategoryLabel*>(child)) opened = cat->isOpen();
+            }
+
+            wtModBaseFreqSlider.setVisible(opened);
+            wtModBaseFreqSlider.label.setVisible(opened);
+
+            if (opened)
+            {
+                wtModBaseFreqSlider.setBounds(rect.removeFromTop(FxGuiValue::Fx::ModBaseFreqHeight));
+            }
         });
 
         layoutModColumn(modArea, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); });

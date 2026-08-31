@@ -284,6 +284,10 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         // 最新の書き込み位置を保存 (GUI側がここを読み取る)
         realTimeWritePos.store(pos, std::memory_order_release);
     }
+    // 画面の鍵盤ぶんを混ぜたので、入ってきたときより数が増えている。
+    // MIDI は出さない宣言なので、ここで片付けておかないと、受け皿が
+    // 「送るつもりの音が捨てられている」と見なして止まる。
+    midiMessages.clear();
 }
 
 // ============================================================================
