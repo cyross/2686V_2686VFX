@@ -8,6 +8,10 @@
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../Components/AmpEnv/AmpEnv.h"
+#include "../Components/SsgHwEnv/SsgHwEnv.h"
+#include "../Components/SsgSwEnv/SsgSwEnv.h"
+#include "../Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "../Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
@@ -31,10 +35,25 @@ class GuiFx : public GuiBase
 
     GuiGroup mainGroup;
 
-    // 出力へ掛ける変調。音源ではチャンネルごとに持っていたもの。
-    GuiGroup modGroup;
-    GuiToggleButton ampEnvEnableToggle;
+    // 出力へ掛ける変調。音源ではチャンネルごとに持っていたものを、
+    // ここでは出力に対して 1 組だけ持つ。
+    //
+    // 縦に積むと入りきらないので、機能ごとに列を分ける。列の中は
+    // スクロールできるので、中身が伸びても見切れない。
+    GuiToggleButton envEnableToggle;
+    GuiToggleButton lfoEnableToggle;
+
+    GuiScrollGroup modAmpEnvGroup;
+    GuiScrollGroup modSsgHwEnvGroup;
+    GuiScrollGroup modSsgSwEnvGroup;
+    GuiScrollGroup modSsgSwEnv11Group;
+    GuiScrollGroup modLfoGroup;
+
     GuiComponentAmpEnv ampEnvComponent;
+    GuiComponentSsgHwEnv ssgHwEnvComponent;
+    GuiComponentSsgSwEnv ssgSwEnvComponent;
+    GuiComponentSsgSwEnv11 ssgSwEnv11Component;
+    GuiComponentLfoOpzx7 lfoComponent;
 
     GuiGroup tremGroup;
     GuiGroup vibGroup;

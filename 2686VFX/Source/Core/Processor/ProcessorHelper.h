@@ -1938,4 +1938,123 @@ namespace PrHelper {
 			CPV::SsgHwEnv::Smooth::initial
 		);
 	}
+	// SSG 系のエンベロープ。音源のパラメータには触らないので、
+	// エフェクトでもそのまま使える。
+
+	static inline void setupSsgHwEnv(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgHwEnv& ptPtrs){
+		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::enable);
+		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::shape);
+		ptPtrs.period = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::period);
+		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::min);
+		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::max);
+		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::smooth);
+	}
+	static inline void applySsgHwEnv(PrPtrsSsgHwEnv& ptPtrs, SsgHwEnvParams& params){
+		params.enable = getBool(ptPtrs.enable);
+		params.shape = getInt(ptPtrs.shape);
+		params.period = getFloat(ptPtrs.period);
+		params.min = getFloat(ptPtrs.min);
+		params.max = getFloat(ptPtrs.max);
+		params.smooth = getBool(ptPtrs.smooth);
+	}
+	static inline void setupSsgSwEnvPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv& ptPtrs){
+		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::ssgSwEnv + CPK::bypass);
+		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::steps);
+		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loop);
+		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopTo);
+		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopCount);
+		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r1);
+		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r2);
+		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r3);
+		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r4);
+		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r5);
+		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r6);
+		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::stl);
+		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l1);
+		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l2);
+		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l3);
+		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l4);
+		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l5);
+		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l6);
+	}
+	static inline void applySsgSwEnv(PrPtrsSsgSwEnv& ptPtrs, SsgSwEnvParams& params){
+		params.bypass = getBool(ptPtrs.bypass);
+		params.steps = getInt(ptPtrs.steps);
+		params.loop = getBool(ptPtrs.loop);
+		params.loopTo = getInt(ptPtrs.loopTo);
+		params.loopCount = getInt(ptPtrs.loopCount);
+		params.r1 = getFloat(ptPtrs.r1);
+		params.r2 = getFloat(ptPtrs.r2);
+		params.r3 = getFloat(ptPtrs.r3);
+		params.r4 = getFloat(ptPtrs.r4);
+		params.r5 = getFloat(ptPtrs.r5);
+		params.r6 = getFloat(ptPtrs.r6);
+		params.stl = getFloat(ptPtrs.stl);
+		params.l1 = getFloat(ptPtrs.l1);
+		params.l2 = getFloat(ptPtrs.l2);
+		params.l3 = getFloat(ptPtrs.l3);
+		params.l4 = getFloat(ptPtrs.l4);
+		params.l5 = getFloat(ptPtrs.l5);
+		params.l6 = getFloat(ptPtrs.l6);
+	}
+	static inline void setupSsgSwEnv11Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv11& ptPtrs){
+		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::bypass);
+		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::steps);
+		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::loop);
+		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::loopTo);
+		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::loopCount);
+		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r1);
+		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r2);
+		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r3);
+		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r4);
+		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r5);
+		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r6);
+		ptPtrs.r7 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r7);
+		ptPtrs.r8 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r8);
+		ptPtrs.r9 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r9);
+		ptPtrs.r10 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r10);
+		ptPtrs.r11 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r11);
+		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::stl);
+		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l1);
+		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l2);
+		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l3);
+		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l4);
+		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l5);
+		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l6);
+		ptPtrs.l7 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l7);
+		ptPtrs.l8 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l8);
+		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l9);
+		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l10);
+		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l11);
+	}
+	static inline void applySsgSwEnv11(PrPtrsSsgSwEnv11& ptPtrs, SsgSwEnv11Params& params){
+		params.bypass = getBool(ptPtrs.bypass);
+		params.steps = getInt(ptPtrs.steps);
+		params.loop = getBool(ptPtrs.loop);
+		params.loopTo = getInt(ptPtrs.loopTo);
+		params.loopCount = getInt(ptPtrs.loopCount);
+		params.r1 = getFloat(ptPtrs.r1);
+		params.r2 = getFloat(ptPtrs.r2);
+		params.r3 = getFloat(ptPtrs.r3);
+		params.r4 = getFloat(ptPtrs.r4);
+		params.r5 = getFloat(ptPtrs.r5);
+		params.r6 = getFloat(ptPtrs.r6);
+		params.r7 = getFloat(ptPtrs.r7);
+		params.r8 = getFloat(ptPtrs.r8);
+		params.r9 = getFloat(ptPtrs.r9);
+		params.r10 = getFloat(ptPtrs.r10);
+		params.r11 = getFloat(ptPtrs.r11);
+		params.stl = getFloat(ptPtrs.stl);
+		params.l1 = getFloat(ptPtrs.l1);
+		params.l2 = getFloat(ptPtrs.l2);
+		params.l3 = getFloat(ptPtrs.l3);
+		params.l4 = getFloat(ptPtrs.l4);
+		params.l5 = getFloat(ptPtrs.l5);
+		params.l6 = getFloat(ptPtrs.l6);
+		params.l7 = getFloat(ptPtrs.l7);
+		params.l8 = getFloat(ptPtrs.l8);
+		params.l9 = getFloat(ptPtrs.l9);
+		params.l10 = getFloat(ptPtrs.l10);
+		params.l11 = getFloat(ptPtrs.l11);
+	}
 }

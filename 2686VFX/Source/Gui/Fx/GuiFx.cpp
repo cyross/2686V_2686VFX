@@ -32,9 +32,18 @@ static std::vector<SelectItem> flTypeItems = {
 GuiFx::GuiFx(const GuiContext& context) :
     GuiBase(context),
     mainGroup(context),
-    modGroup(context),
-    ampEnvEnableToggle(context),
+    envEnableToggle(context),
+    lfoEnableToggle(context),
+    modAmpEnvGroup(context),
+    modSsgHwEnvGroup(context),
+    modSsgSwEnvGroup(context),
+    modSsgSwEnv11Group(context),
+    modLfoGroup(context),
     ampEnvComponent(context),
+    ssgHwEnvComponent(context),
+    ssgSwEnvComponent(context),
+    ssgSwEnv11Component(context),
+    lfoComponent(context),
     tremGroup(context),
     vibGroup(context),
     mbcGroup(context),
@@ -147,16 +156,42 @@ void GuiFx::setup()
 
     // 出力へ掛ける変調。音源ではチャンネルごとに持っていたものを、
     // ここでは出力に対して 1 組だけ持つ。
-    modGroup.setup(*this, juce::String("") + "出力への変調");
-
-    ampEnvEnableToggle.setup({ .parent = *this,
-        .id = ModPrKey::prefix + ModPrKey::AmpEnv::enable,
-        .title = juce::String("") + "AMP ENV を使う",
+    //
+    // エンベロープは MIDI の押し離しで動くので、鍵盤を触らなければ
+    // 素通しになる。LFO は押さなくても回るため、札を分けてある。
+    envEnableToggle.setup({ .parent = *this,
+        .id = ModPrKey::prefix + ModPrKey::Env::enable,
+        .title = juce::String("") + "エンベロープで変調する",
         .isReset = true });
-    ampEnvEnableToggle.setWantsKeyboardFocus(true);
-    ampEnvEnableToggle.setExplicitFocusOrder(++tabOrder);
+    envEnableToggle.setWantsKeyboardFocus(true);
+    envEnableToggle.setExplicitFocusOrder(++tabOrder);
 
-    ampEnvComponent.setupComponent(*this, ModPrKey::prefix, tabOrder);
+    lfoEnableToggle.setup({ .parent = *this,
+        .id = ModPrKey::prefix + ModPrKey::Lfo::enable,
+        .title = juce::String("") + "LFO で変調する",
+        .isReset = true });
+    lfoEnableToggle.setWantsKeyboardFocus(true);
+    lfoEnableToggle.setExplicitFocusOrder(++tabOrder);
+
+    modAmpEnvGroup.setup(*this, juce::String("") + "AMP ENV");
+    modSsgHwEnvGroup.setup(*this, juce::String("") + "SSG HW AMP ENV");
+    modSsgSwEnvGroup.setup(*this, juce::String("") + "SSG SW AMP ENV");
+    modSsgSwEnv11Group.setup(*this, juce::String("") + "SSG SW AMP ENV[11]");
+    modLfoGroup.setup(*this, juce::String("") + "LFO");
+
+    ampEnvComponent.setupComponent(modAmpEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+
+    // 見出しの色は、実機の機能か独自の機能かで塗り分けている。
+    // ここは SSG チャンネルではなく出力へ借りて置くので、既定のままにする。
+    ssgHwEnvComponent.setupComponent(modSsgHwEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+
+    ssgSwEnvComponent.setupComponent(modSsgSwEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
+        CPK::ssgSwEnv + CPK::bypass, FxGuiText::Mod::SsgSwEnv::bypass);
+
+    ssgSwEnv11Component.setupComponent(modSsgSwEnv11Group.contentCanvas, ModPrKey::prefix, tabOrder,
+        CPK::ssgSwEnv11 + CPK::bypass, FxGuiText::Mod::SsgSwEnv11::bypass);
+
+    lfoComponent.setupComponent(modLfoGroup.contentCanvas, ModPrKey::prefix, tabOrder);
     mainGroup.setBackgroundColor(groupBgColour);
 
 	bypassToggle.setup({ .parent = *this, .id = code + FxPrKey::bypass, .title = FxGuiText::Fx::masterBypass, .isReset = true });
@@ -647,19 +682,45 @@ void GuiFx::layout(juce::Rectangle<int> content)
         auto modArea = pageArea;
 
         modArea.removeFromLeft(FxGuiValue::Fx::ModLeft);
+        modArea.removeFromRight(FxGuiValue::Fx::ModRight);
+        modArea.removeFromBottom(FxGuiValue::Fx::ModBottom);
 
-        modArea = modArea.removeFromLeft(FxGuiValue::Fx::ModWidth)
-            .removeFromTop(FxGuiValue::Fx::ModHeight);
+        auto headerRect = modArea.removeFromTop(FxGuiValue::Fx::ModHeaderHeight);
 
-        modGroup.setBounds(modArea);
+        envEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
+        headerRect.removeFromLeft(FxGuiValue::Fx::ModColGap);
+        lfoEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
 
-        auto modRect = modArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+        modArea.removeFromTop(FxGuiValue::Fx::ModHeaderGap);
 
-        modRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+        // 列を 1 つ切り出して、中身を上から積む。積んだ高さをそのまま
+        // キャンバスの高さにするので、はみ出したぶんはスクロールで届く。
+        auto layoutModColumn = [&](GuiScrollGroup& group, auto&& layoutBody)
+        {
+            auto colArea = modArea.removeFromLeft(FxGuiValue::Fx::ModColWidth);
 
-        layoutMain({ .mainRect = modRect, .component = &ampEnvEnableToggle });
+            modArea.removeFromLeft(FxGuiValue::Fx::ModColGap);
 
-        ampEnvComponent.layoutComponent(modRect);
+            group.setBounds(colArea);
+
+            auto inner = colArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+            inner.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+            group.setViewportCustomBounds(inner.translated(-colArea.getX(), -colArea.getY()));
+
+            juce::Rectangle<int> rect(0, 0, group.getContentWidth(), 4000);
+
+            layoutBody(rect);
+
+            group.setContentHeight(rect.getY() + categoryContentTrailingPadding);
+        };
+
+        layoutModColumn(modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); });
+        layoutModColumn(modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
+        layoutModColumn(modSsgSwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgSwEnvComponent.layoutComponent(rect); });
+        layoutModColumn(modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
+        layoutModColumn(modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
     }
 
     auto mainArea = fxArea.removeFromTop(isShowRoute ? FxGuiValue::Fx::MainHeightRoute : FxGuiValue::Fx::MainHeight);

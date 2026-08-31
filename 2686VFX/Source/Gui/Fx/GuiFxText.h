@@ -6,6 +6,21 @@
 
 namespace FxGuiText
 {
+	// 出力へ掛ける変調。SSG のソフトウェアエンベロープは、
+	// どれを止めるかの札を外から渡す作りなので、ここで文言を持つ。
+	namespace Mod
+	{
+		namespace SsgSwEnv
+		{
+			static inline const juce::String bypass = juce::String("") + "使わない";
+		}
+
+		namespace SsgSwEnv11
+		{
+			static inline const juce::String bypass = juce::String("") + "使わない";
+		}
+	}
+
 	namespace Group
 	{
 		static inline const juce::String mainGroup = juce::String("") + "エフェクター";

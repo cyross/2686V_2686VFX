@@ -16,8 +16,14 @@ namespace ModPrKey
 
 	// エンベロープは MIDI の押し離しで動く。鍵盤を押している間だけ
 	// 音量が変わるので、押さなければ素通しになる。
-	namespace AmpEnv
+	namespace Env
 	{
-		static inline const juce::String enable = "_AMPENV_ENABLE";
+		static inline const juce::String enable = "_ENV_ENABLE";
+	}
+
+	// LFO は鍵盤を押さなくても回り続ける。入り切りだけで使える。
+	namespace Lfo
+	{
+		static inline const juce::String enable = "_LFO_ENABLE";
 	}
 }

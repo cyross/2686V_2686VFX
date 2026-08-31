@@ -41,8 +41,17 @@ namespace FxGuiValue
 		// 出力へ掛ける変調を置く領域。FX は左 400px しか使っていないので、
 		// その右の空きへ詰める。タブは増やさない。
 		static inline constexpr int ModLeft = 20;
-		static inline constexpr int ModWidth = 260;
-		static inline constexpr int ModHeight = 260;
+		static inline constexpr int ModRight = 20;
+		static inline constexpr int ModBottom = 40;
+
+		// 入り切りの札を並べる帯。列の見出しの上に置く。
+		static inline constexpr int ModHeaderHeight = 30;
+		static inline constexpr int ModHeaderGap = 6;
+		static inline constexpr int ModToggleWidth = 220;
+
+		// 1 列の幅。5 列と隙間で 1340px になり、空いている幅に収まる。
+		static inline constexpr int ModColWidth = 260;
+		static inline constexpr int ModColGap = 10;
 		static inline constexpr int MainHeight = 120;
 		static inline constexpr int MainHeightRoute = 320;
 		static inline constexpr int AreaWidth = 200;
