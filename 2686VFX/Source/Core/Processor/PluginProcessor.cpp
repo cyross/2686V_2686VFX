@@ -43,7 +43,9 @@ namespace
 AudioPlugin2686V::AudioPlugin2686V()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
-        // シンセモード: 入力なし、ステレオ出力あり
+        // エフェクトなので、入ってきた音を加工する。入力が無いと
+        // ホストは音を渡してくれず、何も鳴らないままになる。
+        .withInput(Global::Audio::input, juce::AudioChannelSet::stereo(), true)
         .withOutput(Global::Audio::output, juce::AudioChannelSet::stereo(), true)
     ),
     // Initialize APVTS (Parameters are created here)
@@ -146,6 +148,17 @@ void AudioPlugin2686V::releaseResources()
 // 音源のプラグインと違い、ここでは音を作らない。入力をそのまま加工する
 // ので、バッファを消してはいけない。MIDI は受け取るが、鳴らすためではなく、
 // 鍵盤の押し離しでエンベロープや LFO を動かすために使う。
+// 入力と出力は同じ並びだけを受ける。モノラルとステレオに対応する。
+// 数が食い違うと、加工した先を書き戻せない。
+bool AudioPlugin2686V::isBusesLayoutSupported(const BusesLayout& layouts) const
+{
+    const auto& out = layouts.getMainOutputChannelSet();
+
+    if (out != juce::AudioChannelSet::mono() && out != juce::AudioChannelSet::stereo()) return false;
+
+    return layouts.getMainInputChannelSet() == out;
+}
+
 void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
