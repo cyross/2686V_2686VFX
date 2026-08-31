@@ -994,6 +994,10 @@ public:
     void setupCategory(const Config& c, juce::Colour bgColor);
 	bool isDetailVisible() const { return this->detailVisible; }
 
+    // 折りたたみを外から開いておく。置いた先によっては、最初から
+    // 中身が見えているほうが都合のよいことがある。
+    void setDetailVisible(bool visible) { this->detailVisible = visible; }
+
     // 折りたたみを持たないカテゴリ (ALGORITHM/FEEDBACK など) は常に開いている扱い。
     bool isOpen() const { return this->detailVisible || !this->enableChangeDetailVisible; }
 

@@ -30,26 +30,36 @@ static std::vector<SelectItem> flTypeItems = {
 };
 
 // QUALITY のビット一覧から、流れてくる音でも扱える頭の 12 個だけを採る。
-std::vector<SelectItem> GuiFx::pcmBitItems = [] {
-    std::vector<SelectItem> items;
+//
+// 借りてくる QualityPcm::qualityItems は別のファイルにある静的な変数で、
+// どちらが先に作られるかは決まっていない。ここを静的な変数にすると、
+// 相手がまだ空のうちに絞り込んでしまい、一覧が空になる。
+// 最初に呼ばれたときに作れば、相手は必ずできあがっている。
+std::vector<SelectItem>& GuiFx::getPcmBitItems() {
+    static std::vector<SelectItem> items = [] {
+        std::vector<SelectItem> list;
 
-    for (const auto& item : QualityPcm::qualityItems)
-    {
-        if (item.value > FxPrValue::Pcm::Bit::max) continue;
+        for (const auto& item : QualityPcm::qualityItems)
+        {
+            if (item.value > FxPrValue::Pcm::Bit::max) continue;
 
-        items.push_back(item);
-    }
+            list.push_back(item);
+        }
+
+        return list;
+    }();
 
     return items;
-}();
+}
 
 GuiFx::GuiFx(const GuiContext& context) :
     GuiBase(context),
     mainGroup(context),
-    envEnableToggle(context),
-    lfoEnableToggle(context),
-    pitchEnableToggle(context),
-    shiftEnableToggle(context),
+    modSwitchGroup(context),
+    envBypassToggle(context),
+    lfoBypassToggle(context),
+    pitchBypassToggle(context),
+    shiftBypassToggle(context),
     modAmpEnvGroup(context),
     modSsgHwEnvGroup(context),
     modSsgSwEnvGroup(context),
@@ -196,25 +206,36 @@ void GuiFx::setup()
     //
     // エンベロープは MIDI の押し離しで動くので、鍵盤を触らなければ
     // 素通しになる。LFO は押さなくても回るため、札を分けてある。
-    envEnableToggle.setup({ .parent = *this,
-        .id = ModPrKey::prefix + ModPrKey::Env::enable,
-        .title = juce::String("") + "エンベロープで変調する",
-        .isReset = true });
-    envEnableToggle.setWantsKeyboardFocus(true);
-    envEnableToggle.setExplicitFocusOrder(++tabOrder);
+    // 使う・使わないの札は 1 つの枠へまとめる。色は他の効果と同じ青系統。
+    modSwitchGroup.setup(*this, juce::String("") + "変調の使用");
+    modSwitchGroup.setBackgroundColor(groupBgColour);
 
-    lfoEnableToggle.setup({ .parent = *this,
-        .id = ModPrKey::prefix + ModPrKey::Lfo::enable,
-        .title = juce::String("") + "LFO で変調する",
+    envBypassToggle.setup({ .parent = *this,
+        .id = ModPrKey::prefix + ModPrKey::Env::bypass,
+        .title = juce::String("") + "エンベロープをバイパス",
         .isReset = true });
-    lfoEnableToggle.setWantsKeyboardFocus(true);
-    lfoEnableToggle.setExplicitFocusOrder(++tabOrder);
+    envBypassToggle.setWantsKeyboardFocus(true);
+    envBypassToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoBypassToggle.setup({ .parent = *this,
+        .id = ModPrKey::prefix + ModPrKey::Lfo::bypass,
+        .title = juce::String("") + "LFO をバイパス",
+        .isReset = true });
+    lfoBypassToggle.setWantsKeyboardFocus(true);
+    lfoBypassToggle.setExplicitFocusOrder(++tabOrder);
 
     modAmpEnvGroup.setup(*this, juce::String("") + "AMP ENV");
     modSsgHwEnvGroup.setup(*this, juce::String("") + "SSG HW AMP ENV");
     modSsgSwEnvGroup.setup(*this, juce::String("") + "SSG SW AMP ENV");
     modSsgSwEnv11Group.setup(*this, juce::String("") + "SSG SW AMP ENV[11]");
     modLfoGroup.setup(*this, juce::String("") + "LFO");
+
+    // 変調の枠も、他の効果と同じ青系統に塗る。
+    for (auto* group : {
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup })
+    {
+        group->setBackgroundColor(groupBgColour);
+    }
 
     ampEnvComponent.setupComponent(modAmpEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
 
@@ -232,16 +253,21 @@ void GuiFx::setup()
 
     // 音程側。入ってきた音を溜めてから読み出す速さを変えるので、
     // 音量側とは別に入り切りできるようにしてある。
-    pitchEnableToggle.setup({ .parent = *this,
-        .id = ModPrKey::prefix + ModPrKey::Pitch::enable,
-        .title = juce::String("") + "ピッチで変調する",
+    pitchBypassToggle.setup({ .parent = *this,
+        .id = ModPrKey::prefix + ModPrKey::Pitch::bypass,
+        .title = juce::String("") + "ピッチ変調をバイパス",
         .isReset = true });
-    pitchEnableToggle.setWantsKeyboardFocus(true);
-    pitchEnableToggle.setExplicitFocusOrder(++tabOrder);
+    pitchBypassToggle.setWantsKeyboardFocus(true);
+    pitchBypassToggle.setExplicitFocusOrder(++tabOrder);
 
     modPitchEnvGroup.setup(*this, juce::String("") + "PITCH ENV");
     modSsgSwPEnv11Group.setup(*this, juce::String("") + "SSG SW PITCH ENV[11]");
     modWtModGroup.setup(*this, juce::String("") + "WT PITCH MOD");
+
+    for (auto* group : { &modPitchEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup })
+    {
+        group->setBackgroundColor(groupBgColour);
+    }
 
     pitchEnvComponent.setupComponent(modPitchEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
         CPK::pitchAdsr + CPK::bypass, FxGuiText::Mod::PitchEnv::bypass);
@@ -260,15 +286,20 @@ void GuiFx::setup()
 
     // 音程を一定量ずらすもの。鍵盤を押さなくても掛かるので、
     // 押し離しで動くエンベロープとは別の札にしてある。
-    shiftEnableToggle.setup({ .parent = *this,
-        .id = ModPrKey::prefix + ModPrKey::Shift::enable,
-        .title = juce::String("") + "音程をずらす",
+    shiftBypassToggle.setup({ .parent = *this,
+        .id = ModPrKey::prefix + ModPrKey::Shift::bypass,
+        .title = juce::String("") + "音程ずらしをバイパス",
         .isReset = true });
-    shiftEnableToggle.setWantsKeyboardFocus(true);
-    shiftEnableToggle.setExplicitFocusOrder(++tabOrder);
+    shiftBypassToggle.setWantsKeyboardFocus(true);
+    shiftBypassToggle.setExplicitFocusOrder(++tabOrder);
 
     modMulDetuneGroup.setup(*this, juce::String("") + "MUL・DET");
     modUnisonGroup.setup(*this, juce::String("") + "UNISON・HARMONY");
+
+    for (auto* group : { &modMulDetuneGroup, &modUnisonGroup })
+    {
+        group->setBackgroundColor(groupBgColour);
+    }
 
     mulDetuneComponent.setupComponent(modMulDetuneGroup.contentCanvas, ModPrKey::prefix, tabOrder);
     unisonComponent.setupComponent(modUnisonGroup.contentCanvas, ModPrKey::prefix, tabOrder);
@@ -751,7 +782,7 @@ void GuiFx::setup()
 
     pcmSeparator.setupComponent(*this);
 
-    pcmBitSelector.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::Pcm::bit, .title = FxGuiText::Fx::Pcm::bit, .items = pcmBitItems, .isReset = true });
+    pcmBitSelector.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::Pcm::bit, .title = FxGuiText::Fx::Pcm::bit, .items = getPcmBitItems(), .isReset = true });
     pcmBitSelector.setWantsKeyboardFocus(true);
     pcmBitSelector.setExplicitFocusOrder(++tabOrder);
 
@@ -782,6 +813,18 @@ void GuiFx::setup()
     pcmWetBtn.setExplicitFocusOrder(++tabOrder);
     pcmWetBtn.onClick = [&] { pcmMixSlider.setValue(1.0f); };
 
+    // 変調の中身は最初から開いておく。FX タブでは 1 枠が小さく、
+    // たたまれていると何が入っているのか分からないため。
+    for (auto* group : {
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup,
+        &modPitchEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup, &modMulDetuneGroup, &modUnisonGroup })
+    {
+        for (auto* child : group->contentCanvas.getChildren())
+        {
+            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(child)) cat->setDetailVisible(true);
+        }
+    }
+
     updateFilterEnabled();
     updateTremoloEnabled();
     updateVibratoEnabled();
@@ -801,49 +844,58 @@ void GuiFx::layout(juce::Rectangle<int> content)
     // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
     pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
 
-    auto fxArea = pageArea.removeFromLeft(FxGuiValue::Fx::MainWidth);
+    pageArea.removeFromLeft(FxGuiValue::Fx::SideMargin);
+    pageArea.removeFromRight(FxGuiValue::Fx::SideMargin);
+
+    // 一番左がメイン。順番の一覧が縦に伸びるので、丈をいっぱいに使う。
+    auto mainArea = pageArea.removeFromLeft(FxGuiValue::Fx::ColWidth);
+
+    pageArea.removeFromLeft(FxGuiValue::Fx::ColGap);
+
+    // その右を、上が FX の段、下が変調の段。
+    auto fxArea = pageArea.removeFromTop(
+        FxGuiValue::Fx::AreaHeightRow1 + FxGuiValue::Fx::SectionGap + FxGuiValue::Fx::AreaHeightRow2);
+
+    pageArea.removeFromTop(FxGuiValue::Fx::SectionGap);
 
     // FX の右の空きへ変調を置く。タブを増やさずに収める。
     {
         auto modArea = pageArea;
 
-        modArea.removeFromLeft(FxGuiValue::Fx::ModLeft);
-        modArea.removeFromRight(FxGuiValue::Fx::ModRight);
-        modArea.removeFromBottom(FxGuiValue::Fx::ModBottom);
-
-        auto headerRect = modArea.removeFromTop(FxGuiValue::Fx::ModHeaderHeight);
-
-        envEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
-        headerRect.removeFromLeft(FxGuiValue::Fx::ModColGap);
-        lfoEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
-        headerRect.removeFromLeft(FxGuiValue::Fx::ModColGap);
-        pitchEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
-        headerRect.removeFromLeft(FxGuiValue::Fx::ModColGap);
-        shiftEnableToggle.setBounds(headerRect.removeFromLeft(FxGuiValue::Fx::ModToggleWidth));
-
-        modArea.removeFromTop(FxGuiValue::Fx::ModHeaderGap);
-
-        // 横に 10 列は並ばないので 4 列 3 段に折る。
-        // 1 段目が音量側、2 段目が LFO と音程の変調、3 段目が音程のずらし。
-        int rowHeight = (modArea.getHeight() - FxGuiValue::Fx::ModRowGap * (FxGuiValue::Fx::ModRows - 1)) / FxGuiValue::Fx::ModRows;
+        // 6 列 2 段。1 枠目は使う・使わないの札をまとめたもので、
+        // 残り 10 枠に各機能が入る。
+        int rowHeight = (modArea.getHeight() - FxGuiValue::Fx::SectionGap) / FxGuiValue::Fx::ModRows;
 
         auto upperRow = modArea.removeFromTop(rowHeight);
 
-        modArea.removeFromTop(FxGuiValue::Fx::ModRowGap);
-
-        auto middleRow = modArea.removeFromTop(rowHeight);
-
-        modArea.removeFromTop(FxGuiValue::Fx::ModRowGap);
+        modArea.removeFromTop(FxGuiValue::Fx::SectionGap);
 
         auto lowerRow = modArea;
+
+        // 使う・使わないの札。ここだけは中身が札だけなので、
+        // スクロールを持たない普通の枠にしてある。
+        auto switchArea = upperRow.removeFromLeft(FxGuiValue::Fx::ColWidth);
+
+        upperRow.removeFromLeft(FxGuiValue::Fx::ColGap);
+
+        modSwitchGroup.setBounds(switchArea);
+
+        auto switchRect = switchArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+        switchRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+        layoutMain({ .mainRect = switchRect, .component = &envBypassToggle });
+        layoutMain({ .mainRect = switchRect, .component = &lfoBypassToggle });
+        layoutMain({ .mainRect = switchRect, .component = &pitchBypassToggle });
+        layoutMain({ .mainRect = switchRect, .component = &shiftBypassToggle });
 
         // 列を 1 つ切り出して、中身を上から積む。積んだ高さをそのまま
         // キャンバスの高さにするので、はみ出したぶんはスクロールで届く。
         auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody)
         {
-            auto colArea = row.removeFromLeft(FxGuiValue::Fx::ModColWidth);
+            auto colArea = row.removeFromLeft(FxGuiValue::Fx::ColWidth);
 
-            row.removeFromLeft(FxGuiValue::Fx::ModColGap);
+            row.removeFromLeft(FxGuiValue::Fx::ColGap);
 
             group.setBounds(colArea);
 
@@ -865,10 +917,11 @@ void GuiFx::layout(juce::Rectangle<int> content)
         layoutModColumn(upperRow, modSsgSwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgSwEnvComponent.layoutComponent(rect); });
         layoutModColumn(upperRow, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
 
-        layoutModColumn(middleRow, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
-        layoutModColumn(middleRow, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
-        layoutModColumn(middleRow, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
-        layoutModColumn(middleRow, modWtModGroup, [&](juce::Rectangle<int>& rect)
+        layoutModColumn(upperRow, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
+
+        layoutModColumn(lowerRow, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
+        layoutModColumn(lowerRow, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
+        layoutModColumn(lowerRow, modWtModGroup, [&](juce::Rectangle<int>& rect)
         {
             wtModComponent.layoutComponent(rect);
 
@@ -878,8 +931,6 @@ void GuiFx::layout(juce::Rectangle<int> content)
         layoutModColumn(lowerRow, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); });
         layoutModColumn(lowerRow, modUnisonGroup, [&](juce::Rectangle<int>& rect) { unisonComponent.layoutComponent(rect); });
     }
-
-    auto mainArea = fxArea.removeFromTop(isShowRoute ? FxGuiValue::Fx::MainHeightRoute : FxGuiValue::Fx::MainHeight);
 
     mainGroup.setBounds(mainArea);
 
@@ -895,16 +946,15 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutFxOrder(mRect);
 
+    // 1 段目は背の低いもの 6 つ、2 段目は背の高いもの 3 つ。
     auto row1 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightRow1);
-    pageArea.removeFromTop(FxGuiValue::PaddingBottom::block);
-    auto row2 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightRow2);
-    pageArea.removeFromTop(FxGuiValue::PaddingBottom::block);
-    auto row3 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightRow3);
-    pageArea.removeFromTop(FxGuiValue::PaddingBottom::block);
-    auto row4 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightRow4);
+
+    fxArea.removeFromTop(FxGuiValue::Fx::SectionGap);
+
+    auto row2 = fxArea;
 
     // Filter
-    auto rect1 = row1.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    auto rect1 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto flArea = rect1.removeFromTop(FxGuiValue::Fx::HeightFilter);
 
     filterGroup.setBounds(flArea);
@@ -925,7 +975,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn });
 
     // 3-Band EQ
-    auto rect2 = row1.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect2 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto eq3bArea = rect2.removeFromTop(FxGuiValue::Fx::HeightEq3b);
 
     eq3bGroup.setBounds(eq3bArea);
@@ -947,7 +998,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = eq3bRect, .comp1 = &eq3bDryBtn, .comp2 = &eq3bHalfBtn, .comp3 = &eq3bWetBtn });
 
     // Tremolo
-    auto rect3 = row2.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect3 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto trmArea = rect3.removeFromTop(FxGuiValue::Fx::HeightTremoro);
 
     tremGroup.setBounds(trmArea);
@@ -967,7 +1019,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = trmRect, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn });
 
     // Vibrato
-    auto rect4 = row2.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect4 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto vibArea = rect4.removeFromTop(FxGuiValue::Fx::HeightVibrato);
 
     vibGroup.setBounds(vibArea);
@@ -987,7 +1040,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = vibRect, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn });
 
     // Modern Bit Crusher
-    auto rect5 = row3.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect5 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto mbcArea = rect5.removeFromTop(FxGuiValue::Fx::HeightMbc);
 
     mbcGroup.setBounds(mbcArea);
@@ -1007,7 +1061,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn });
 
     // Delay
-    auto rect6 = row3.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect6 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto dlyArea = rect6.removeFromTop(FxGuiValue::Fx::HeightDelay);
 
     delayGroup.setBounds(dlyArea);
@@ -1027,7 +1082,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = dlyRect, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn });
 
     // Reverb
-    auto rect7 = row4.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    row2.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect7 = row2.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto rvbArea = rect7.removeFromTop(FxGuiValue::Fx::HeightReverb);
 
     reverbGroup.setBounds(rvbArea);
@@ -1047,7 +1103,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn });
 
     // SfcEcho
-    auto rect8 = row4.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    row2.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect8 = row2.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto sfceArea = rect8.removeFromTop(FxGuiValue::Fx::HeightSfcEcho);
 
     sfceGroup.setBounds(sfceArea);
@@ -1077,7 +1134,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     // 2686V PCM Bit Crusher
     // 9 個目なので、3 列目の一番下へ置く。
-    auto rect9 = row4.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    row2.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect9 = row2.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto pcmArea = rect9.removeFromTop(FxGuiValue::Fx::HeightPcm);
 
     pcmGroup.setBounds(pcmArea);

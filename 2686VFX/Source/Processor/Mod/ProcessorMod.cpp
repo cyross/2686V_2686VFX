@@ -26,9 +26,9 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	// ------------------------------------------------------------------
 	PrHelper::addBool(
 		layout,
-		prefix + ModPrKey::Env::enable,
-		displayName + " Env Enable",
-		ModPrValue::Env::enableInitial
+		prefix + ModPrKey::Env::bypass,
+		displayName + " Env Bypass",
+		ModPrValue::Env::bypassInitial
 	);
 
 	PrHelper::addAdsrBypassParameter(layout, prefix, displayName, CPV::Adsr::Bypass::initial);
@@ -59,9 +59,9 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	// ------------------------------------------------------------------
 	PrHelper::addBool(
 		layout,
-		prefix + ModPrKey::Lfo::enable,
-		displayName + " LFO Enable",
-		ModPrValue::Lfo::enableInitial
+		prefix + ModPrKey::Lfo::bypass,
+		displayName + " LFO Bypass",
+		ModPrValue::Lfo::bypassInitial
 	);
 
 	PrHelper::addOpzx7LfoParameters(layout, prefix, displayName);
@@ -71,9 +71,9 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	// ------------------------------------------------------------------
 	PrHelper::addBool(
 		layout,
-		prefix + ModPrKey::Pitch::enable,
-		displayName + " Pitch Enable",
-		ModPrValue::Pitch::enableInitial
+		prefix + ModPrKey::Pitch::bypass,
+		displayName + " Pitch Bypass",
+		ModPrValue::Pitch::bypassInitial
 	);
 
 	PrHelper::addPitchEnvParameters(layout, prefix, displayName);
@@ -106,9 +106,9 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	// ------------------------------------------------------------------
 	PrHelper::addBool(
 		layout,
-		prefix + ModPrKey::Shift::enable,
-		displayName + " Shift Enable",
-		ModPrValue::Shift::enableInitial
+		prefix + ModPrKey::Shift::bypass,
+		displayName + " Shift Bypass",
+		ModPrValue::Shift::bypassInitial
 	);
 
 	PrHelper::addOpzx7DetuneParameters(layout, prefix, displayName);
@@ -117,9 +117,9 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store)
 {
-	pEnvEnable = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Env::enable);
-	pLfoEnable = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Lfo::enable);
-	pPitchEnable = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Pitch::enable);
+	pEnvBypass = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Env::bypass);
+	pLfoBypass = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Lfo::bypass);
+	pPitchBypass = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Pitch::bypass);
 	pWtModBaseFreq = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::WtMod::baseFreq);
 
 	PrHelper::setupAdsrAmpEnvPtrs(apvts, ModPrKey::prefix, ptAmpEnv);
@@ -132,7 +132,7 @@ void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 	PrHelper::setupSsgSwPEnv11Ptrs(apvts, ModPrKey::prefix, ptSsgSwPEnv11);
 	PrHelper::setupWtMod(apvts, ModPrKey::prefix, ptWtMod, store);
 
-	pShiftEnable = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Shift::enable);
+	pShiftBypass = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Shift::bypass);
 
 	PrHelper::setupOpzx7DetunePtrs(apvts, ModPrKey::prefix, ptDetune);
 	PrHelper::setupUnisonPtrs(apvts, ModPrKey::prefix, ptUnison);
@@ -217,10 +217,11 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 {
 	juce::ignoreUnused(apvts);
 
-	envEnabled = PrHelper::getBool(pEnvEnable);
-	lfoEnabled = PrHelper::getBool(pLfoEnable);
-	pitchEnabled = PrHelper::getBool(pPitchEnable);
-	shiftEnabled = PrHelper::getBool(pShiftEnable);
+	// 札はバイパス。中では「使うかどうか」で持つので、ここで裏返す。
+	envEnabled = !PrHelper::getBool(pEnvBypass);
+	lfoEnabled = !PrHelper::getBool(pLfoBypass);
+	pitchEnabled = !PrHelper::getBool(pPitchBypass);
+	shiftEnabled = !PrHelper::getBool(pShiftBypass);
 
 	// どれも切なら何もしない。素通しにする。
 	if (!envEnabled && !lfoEnabled && !pitchEnabled && !shiftEnabled)

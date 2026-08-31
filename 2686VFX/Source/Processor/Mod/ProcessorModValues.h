@@ -8,18 +8,18 @@ namespace ModPrValue
 {
 	namespace Env
 	{
-		// 初期は切。鍵盤を触らない使い方でも素通しになるようにしておく。
-		inline constexpr bool enableInitial = false;
+		// 初期はバイパス。鍵盤を触らない使い方でも素通しになるようにしておく。
+		inline constexpr bool bypassInitial = true;
 	}
 
 	namespace Lfo
 	{
-		inline constexpr bool enableInitial = false;
+		inline constexpr bool bypassInitial = true;
 	}
 
 	namespace Pitch
 	{
-		inline constexpr bool enableInitial = false;
+		inline constexpr bool bypassInitial = true;
 	}
 
 	namespace WtMod
@@ -33,6 +33,6 @@ namespace ModPrValue
 
 	namespace Shift
 	{
-		inline constexpr bool enableInitial = false;
+		inline constexpr bool bypassInitial = true;
 	}
 }

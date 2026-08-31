@@ -26,7 +26,8 @@
 
 class GuiFx : public GuiBase
 {
-    bool isShowRoute = false;
+    // 順番の設定は最初から開いておく。メインが縦長の 1 列になり、丈が足りる。
+    bool isShowRoute = true;
     std::vector<int> order = { 0 };
     static inline const std::array<juce::String, NumEffects> effectNames = {
             juce::String("") + "フィルター",         // 0: FxType::Filter
@@ -47,10 +48,13 @@ class GuiFx : public GuiBase
     //
     // 縦に積むと入りきらないので、機能ごとに列を分ける。列の中は
     // スクロールできるので、中身が伸びても見切れない。
-    GuiToggleButton envEnableToggle;
-    GuiToggleButton lfoEnableToggle;
-    GuiToggleButton pitchEnableToggle;
-    GuiToggleButton shiftEnableToggle;
+    // 使う・使わないの札をまとめる枠。格子の 1 枠を使う。
+    GuiGroup modSwitchGroup;
+
+    GuiToggleButton envBypassToggle;
+    GuiToggleButton lfoBypassToggle;
+    GuiToggleButton pitchBypassToggle;
+    GuiToggleButton shiftBypassToggle;
 
     GuiScrollGroup modAmpEnvGroup;
     GuiScrollGroup modSsgHwEnvGroup;
@@ -155,7 +159,7 @@ class GuiFx : public GuiBase
     // 13 以降は ADPCM などの圧縮で、曲の頭から順に符号化するもの。
     // 流れてくる音を塊ごとに切って符号化すると継ぎ目で音が飛ぶため、
     // ここでは扱わない。
-    static std::vector<SelectItem> pcmBitItems;
+    static std::vector<SelectItem>& getPcmBitItems();
     GuiSlider pcmMixSlider;
     GuiTextButton pcmDryBtn, pcmHalfBtn, pcmWetBtn;
     GuiSlider flFreqSlider;

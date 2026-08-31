@@ -18,20 +18,20 @@ namespace ModPrKey
 	// 音量が変わるので、押さなければ素通しになる。
 	namespace Env
 	{
-		static inline const juce::String enable = "_ENV_ENABLE";
+		static inline const juce::String bypass = "_ENV_BYPASS";
 	}
 
 	// LFO は鍵盤を押さなくても回り続ける。入り切りだけで使える。
 	namespace Lfo
 	{
-		static inline const juce::String enable = "_LFO_ENABLE";
+		static inline const juce::String bypass = "_LFO_BYPASS";
 	}
 
 	// 音程側。入ってきた音を溜めてから読み出す速さを変えるので、
 	// 音量側とは別に入り切りできるようにしてある。
 	namespace Pitch
 	{
-		static inline const juce::String enable = "_PITCH_ENABLE";
+		static inline const juce::String bypass = "_PITCH_BYPASS";
 	}
 
 	// WT PITCH MOD の速さは、実機では搬送波の周波数に対する比で決まる。
@@ -45,6 +45,6 @@ namespace ModPrKey
 	// 押し離しで動くエンベロープとは別に入り切りできるようにしてある。
 	namespace Shift
 	{
-		static inline const juce::String enable = "_SHIFT_ENABLE";
+		static inline const juce::String bypass = "_SHIFT_BYPASS";
 	}
 }

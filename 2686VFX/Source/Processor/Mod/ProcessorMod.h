@@ -55,11 +55,11 @@ class ModProcessor
 	PrPtrsOpzx7Detune ptDetune;
 	PrPtrsUnison ptUnison;
 
-	std::atomic<float>* pEnvEnable = nullptr;
-	std::atomic<float>* pLfoEnable = nullptr;
-	std::atomic<float>* pPitchEnable = nullptr;
+	std::atomic<float>* pEnvBypass = nullptr;
+	std::atomic<float>* pLfoBypass = nullptr;
+	std::atomic<float>* pPitchBypass = nullptr;
 	std::atomic<float>* pWtModBaseFreq = nullptr;
-	std::atomic<float>* pShiftEnable = nullptr;
+	std::atomic<float>* pShiftBypass = nullptr;
 
 	AmpAdsrEnv ampEnv;
 	SsgHwEnv ssgHwEnv;
