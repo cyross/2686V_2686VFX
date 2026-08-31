@@ -9,6 +9,7 @@
 
 
 #include "../../Processor/Fx/ProcessorFx.h"
+#include "../../Processor/Mod/ProcessorMod.h"
 
 #include "../Const/ConstGlobal.h"
 #include "../Processor/ProcessorKeys.h"
@@ -28,6 +29,7 @@ class AudioPlugin2686V : public juce::AudioProcessor
 {
 private:
     FxProcessor prFx;
+    ModProcessor prMod;
 
     SynthParams m_currentParams;
     SynthParams m_previewParams;

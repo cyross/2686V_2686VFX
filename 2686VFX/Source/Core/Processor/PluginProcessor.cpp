@@ -60,6 +60,9 @@ AudioPlugin2686V::AudioPlugin2686V()
     prFx.init(apvts);
     prFx.prepare(44100.0);
 
+    prMod.init(apvts);
+    prMod.prepare(44100.0);
+
 	previewFx.init(apvts);
     previewFx.prepare(44100.0);
 
@@ -84,6 +87,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 
 
 	prFx.createLayout(layout);
+	prMod.createLayout(layout);
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
         CPK::Midi::monoMode,
@@ -122,6 +126,7 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
     juce::ignoreUnused(samplesPerBlock);
 
     prFx.prepare(sampleRate);
+    prMod.prepare(sampleRate);
 }
 
 // ============================================================================
@@ -147,6 +152,16 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     // 画面の鍵盤から入った音も混ぜる
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
+
+    // 鍵盤の押し離しで変調を動かす。音を鳴らすためではないので、
+    // どの音程かは見ない。
+    for (const auto meta : midiMessages)
+    {
+        const auto message = meta.getMessage();
+
+        if (message.isNoteOn()) prMod.noteOn();
+        else if (message.isNoteOff() || message.isAllNotesOff()) prMod.noteOff();
+    }
 
     // 使わない出力は消しておく。入力より出力が多いときに、前の中身が残る。
     for (int ch = getTotalNumInputChannels(); ch < getTotalNumOutputChannels(); ++ch)
@@ -179,6 +194,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     {
         buffer.applyGain(headroomGain);
     }
+
+    // 変調は FX より前へ掛ける。音量の動きも FX に通したいため。
+    prMod.processBlock(buffer, apvts);
 
     prFx.processBlock(buffer, m_currentParams, apvts);
 
