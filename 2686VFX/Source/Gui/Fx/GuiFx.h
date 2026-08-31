@@ -48,8 +48,9 @@ class GuiFx : public GuiBase
     //
     // 縦に積むと入りきらないので、機能ごとに列を分ける。列の中は
     // スクロールできるので、中身が伸びても見切れない。
-    // 使う・使わないの札をまとめる枠。格子の 1 枠を使う。
-    GuiGroup modSwitchGroup;
+    // 変調の入り切り。効果と同じくバイパスなので、エフェクターの枠へ
+    // 一緒に置く。区切り線で本体のバイパスと分ける。
+    NormalSeparator modSwitchSeparator;
 
     GuiToggleButton envBypassToggle;
     GuiToggleButton lfoBypassToggle;

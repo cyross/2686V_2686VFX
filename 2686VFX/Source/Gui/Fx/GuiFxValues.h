@@ -37,14 +37,14 @@ namespace FxGuiValue
 		static inline constexpr int Width = 1000;
 		static inline constexpr int Height = 720;
 		// 画面全体を同じ幅の列で組む。メインも FX も変調も同じ幅。
-		// 左右の余白を引いた 1740px を、メイン 1 列＋残り 6 列で割る。
+		// 左右の余白を引いた 1740px を、メイン 1 列＋残り 5 列で割る。
 		static inline constexpr int SideMargin = 20;
-		static inline constexpr int ColWidth = 240;
+		static inline constexpr int ColWidth = 281;
 		static inline constexpr int ColGap = 10;
 		static inline constexpr int SectionGap = 8;
 
 		// メインの右に並ぶ列の数。FX も変調もこの数で折り返す。
-		static inline constexpr int Cols = 6;
+		static inline constexpr int Cols = 5;
 
 		// 出力へ掛ける変調を置く領域。FX は左 400px しか使っていないので、
 		// その右の空きへ詰める。タブは増やさない。
@@ -57,8 +57,7 @@ namespace FxGuiValue
 		static inline constexpr int ModHeaderGap = 6;
 		static inline constexpr int ModToggleWidth = 220;
 
-		// 変調は 6 列 2 段。1 枠目は使う・使わないの札をまとめたもので、
-		// 残り 10 枠に各機能が入る。段が短いぶんは列ごとのスクロールが吸う。
+		// 変調は 5 列 2 段。段が短いぶんは列ごとのスクロールが吸う。
 		static inline constexpr int ModRows = 2;
 
 		// WT PITCH MOD の基準周波数。実機には無い、こちらで足したもの。

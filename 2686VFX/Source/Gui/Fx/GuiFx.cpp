@@ -55,7 +55,7 @@ std::vector<SelectItem>& GuiFx::getPcmBitItems() {
 GuiFx::GuiFx(const GuiContext& context) :
     GuiBase(context),
     mainGroup(context),
-    modSwitchGroup(context),
+    modSwitchSeparator(context),
     envBypassToggle(context),
     lfoBypassToggle(context),
     pitchBypassToggle(context),
@@ -206,9 +206,8 @@ void GuiFx::setup()
     //
     // エンベロープは MIDI の押し離しで動くので、鍵盤を触らなければ
     // 素通しになる。LFO は押さなくても回るため、札を分けてある。
-    // 使う・使わないの札は 1 つの枠へまとめる。色は他の効果と同じ青系統。
-    modSwitchGroup.setup(*this, juce::String("") + "変調の使用");
-    modSwitchGroup.setBackgroundColor(groupBgColour);
+    // 変調の入り切りは、効果と同じくバイパス。エフェクターの枠へ一緒に置く。
+    modSwitchSeparator.setupComponent(*this);
 
     envBypassToggle.setup({ .parent = *this,
         .id = ModPrKey::prefix + ModPrKey::Env::bypass,
@@ -872,22 +871,6 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
         auto lowerRow = modArea;
 
-        // 使う・使わないの札。ここだけは中身が札だけなので、
-        // スクロールを持たない普通の枠にしてある。
-        auto switchArea = upperRow.removeFromLeft(FxGuiValue::Fx::ColWidth);
-
-        upperRow.removeFromLeft(FxGuiValue::Fx::ColGap);
-
-        modSwitchGroup.setBounds(switchArea);
-
-        auto switchRect = switchArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
-
-        switchRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
-
-        layoutMain({ .mainRect = switchRect, .component = &envBypassToggle });
-        layoutMain({ .mainRect = switchRect, .component = &lfoBypassToggle });
-        layoutMain({ .mainRect = switchRect, .component = &pitchBypassToggle });
-        layoutMain({ .mainRect = switchRect, .component = &shiftBypassToggle });
 
         // 列を 1 つ切り出して、中身を上から積む。積んだ高さをそのまま
         // キャンバスの高さにするので、はみ出したぶんはスクロールで届く。
@@ -944,9 +927,17 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .component = &resetBtn });
 
+    // 変調の入り切り。効果と同じくバイパスなので、ここへ一緒に置く。
+    modSwitchSeparator.layoutComponent(mRect);
+
+    layoutMain({ .mainRect = mRect, .component = &envBypassToggle });
+    layoutMain({ .mainRect = mRect, .component = &lfoBypassToggle });
+    layoutMain({ .mainRect = mRect, .component = &pitchBypassToggle });
+    layoutMain({ .mainRect = mRect, .component = &shiftBypassToggle });
+
     layoutFxOrder(mRect);
 
-    // 1 段目は背の低いもの 6 つ、2 段目は背の高いもの 3 つ。
+    // 1 段目は背の低いもの 5 つ、2 段目は背の高いもの 4 つ。
     auto row1 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightRow1);
 
     fxArea.removeFromTop(FxGuiValue::Fx::SectionGap);
@@ -1061,8 +1052,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn });
 
     // Delay
-    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect6 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto rect6 = row2.removeFromLeft(FxGuiValue::Fx::ColWidth);
     auto dlyArea = rect6.removeFromTop(FxGuiValue::Fx::HeightDelay);
 
     delayGroup.setBounds(dlyArea);
