@@ -25,8 +25,25 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 	// --- SSG 系エンベロープ ---
 	PrHelper::addSsgHwEnvParameters(layout, prefix, displayName);
+
+	// SSG のソフトウェアエンベロープは、入り切りの札だけが別の関数で
+	// まとめて登録される作りになっている。ここは音量側しか使わないので、
+	// まとめてではなく必要なぶんだけ登録する。
 	PrHelper::addSsgSwEnvParameters(layout, prefix, displayName);
+	PrHelper::addBool(
+		layout,
+		prefix + CPK::ssgSwEnv + CPK::bypass,
+		displayName + CPN::SsgSwEnv::bypass,
+		CPV::SsgSwEnv::Bypass::initial
+	);
+
 	PrHelper::addSsgSwEnv11Parameters(layout, prefix, displayName);
+	PrHelper::addBool(
+		layout,
+		prefix + CPK::ssgSwEnv11 + CPK::bypass,
+		displayName + CPN::SsgSwEnv11::bypass,
+		CPV::SsgSwEnv11::Bypass::initial
+	);
 
 	// --- LFO ---
 	PrHelper::addBool(
