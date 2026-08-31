@@ -154,6 +154,27 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         buffer.clear(ch, 0, buffer.getNumSamples());
     }
 
+    // 加工前を控えておく。FX を通したあとと並べて見せるため。
+    // 位置は加工後と共用するので、ここでは進めない。
+    if (previewVisiblity && buffer.getNumChannels() >= 2)
+    {
+        auto* dryL = buffer.getReadPointer(0);
+        auto* dryR = buffer.getReadPointer(1);
+
+        int pos = realTimeWritePos.load(std::memory_order_relaxed);
+
+        for (int i = 0; i < buffer.getNumSamples(); ++i)
+        {
+            dryBufferL[pos] = dryL[i];
+            dryBufferR[pos] = dryR[i];
+            dryBufferMono[pos] = (dryL[i] + dryR[i]) * 0.5f;
+
+            pos++;
+
+            if (pos >= ringBufferSize) pos = 0;
+        }
+    }
+
     if (useHeadroom)
     {
         buffer.applyGain(headroomGain);

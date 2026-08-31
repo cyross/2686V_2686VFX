@@ -890,6 +890,11 @@ void AudioPlugin2686VEditor::timerCallback()
         static std::array<float, AudioPlugin2686V::previewBufferSize> localMono;
         static std::array<float, AudioPlugin2686V::previewBufferSize> localR;
 
+        // 加工前のぶん
+        static std::array<float, AudioPlugin2686V::previewBufferSize> dryL;
+        static std::array<float, AudioPlugin2686V::previewBufferSize> dryMono;
+        static std::array<float, AudioPlugin2686V::previewBufferSize> dryR;
+
         // オーディオスレッドの最新の書き込み位置を取得
         int currentPos = audioProcessor.realTimeWritePos.load(std::memory_order_acquire);
         int ringSize = AudioPlugin2686V::ringBufferSize;
@@ -905,11 +910,22 @@ void AudioPlugin2686VEditor::timerCallback()
             localMono[i] = audioProcessor.realTimeBufferMono[readPos];
             localR[i] = audioProcessor.realTimeBufferR[readPos];
 
+            dryL[i] = audioProcessor.dryBufferL[readPos];
+            dryMono[i] = audioProcessor.dryBufferMono[readPos];
+            dryR[i] = audioProcessor.dryBufferR[readPos];
+
             readPos++;
             if (readPos >= ringSize) readPos = 0;
         }
 
-        // 描画コンポーネントへ渡す
+        // 描画コンポーネントへ渡す。
+        //
+        // 加工前を先に渡す。加工後を渡した側が描き直しを起こすので、
+        // 順番を逆にすると 1 回ぶん古い加工前が描かれてしまう。
+        realtimePreviewL.pushDryBuffer(dryL.data(), bufSize);
+        realtimePreviewMono.pushDryBuffer(dryMono.data(), bufSize);
+        realtimePreviewR.pushDryBuffer(dryR.data(), bufSize);
+
         realtimePreviewL.pushBuffer(localL.data(), bufSize);
         realtimePreviewMono.pushBuffer(localMono.data(), bufSize);
         realtimePreviewR.pushBuffer(localR.data(), bufSize);

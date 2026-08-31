@@ -91,12 +91,26 @@ public:
     juce::Colour borderColor;
     juce::Colour axisColor;
 
+    // 加工前の線の色。エフェクトのプラグインで、加工前と加工後を
+    // 重ねて見せるときに使う。
+    juce::Colour dryColor = juce::Colours::grey.withAlpha(0.6f);
+
     // コンストラクタで色を受け取る
     GuiWaveformPreview(juce::Colour background, juce::Colour line, juce::Colour border = juce::Colours::white, juce::Colour axis = juce::Colours::yellow);
     void pushBuffer(const float* data, int numSamples);
+
+    // 加工前の波形。渡さなければ描かないので、音源のプラグインでは
+    // 今までどおり 1 本だけになる。
+    void pushDryBuffer(const float* data, int numSamples);
+
     void paint(juce::Graphics& g) override;
 private:
+    // 線を 1 本描く。加工前と加工後で太さと色だけを変える。
+    void strokeWave(juce::Graphics& g, const std::vector<float>& buffer,
+        juce::Colour colour, float thickness);
+
     std::vector<float> m_displayBuffer;
+    std::vector<float> m_dryBuffer;
 };
 
 class GuiStateView : public juce::Component

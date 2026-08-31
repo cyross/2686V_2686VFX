@@ -150,6 +150,12 @@ public:
     float realTimeBufferMono[ringBufferSize] = { 0.0f };
     float realTimeBufferR[ringBufferSize] = { 0.0f };
 
+    // 加工前の音。エフェクトなので、入ってきたものと出ていくものを
+    // 並べて見せる。書き込む数は加工後と同じなので、位置は共用する。
+    float dryBufferL[ringBufferSize] = { 0.0f };
+    float dryBufferMono[ringBufferSize] = { 0.0f };
+    float dryBufferR[ringBufferSize] = { 0.0f };
+
     // 現在の書き込み位置だけをスレッドセーフに管理
     std::atomic<int> realTimeWritePos{ 0 };
 

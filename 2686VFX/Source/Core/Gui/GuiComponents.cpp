@@ -11,11 +11,47 @@ GuiWaveformPreview::GuiWaveformPreview(juce::Colour background, juce::Colour lin
 {
 }
 
+// 線を 1 本描く。
+//
+// もとは 1 本ぶんが paint へ直に書かれていて、最初の点だけ縦の倍率が
+// 半分になっていた。切り出すついでにそろえてある。
+void GuiWaveformPreview::strokeWave(juce::Graphics& g, const std::vector<float>& buffer,
+    juce::Colour colour, float thickness)
+{
+    if (buffer.size() < 2) return;
+
+    float halfHeight = getHeight() / 2.0f;
+    float xStep = (float)getWidth() / (buffer.size() - 1);
+
+    auto yOf = [halfHeight](float v) { return halfHeight - (v * halfHeight * 2.0f); };
+
+    juce::Path wavePath;
+
+    wavePath.startNewSubPath(0.0f, yOf(buffer[0]));
+
+    for (size_t i = 1; i < buffer.size(); ++i)
+    {
+        wavePath.lineTo(i * xStep, yOf(buffer[i]));
+    }
+
+    g.setColour(colour);
+    g.strokePath(wavePath, juce::PathStrokeType(thickness));
+}
+
 void GuiWaveformPreview::pushBuffer(const float* data, int numSamples)
 {
     if (numSamples <= 0) return;
     m_displayBuffer.assign(data, data + numSamples);
     repaint(); // データが来たら再描画
+}
+
+void GuiWaveformPreview::pushDryBuffer(const float* data, int numSamples)
+{
+    if (numSamples <= 0) return;
+
+    m_dryBuffer.assign(data, data + numSamples);
+
+    // 描き直しは加工後の側から起こす。両方でやると二度描きになる。
 }
 
 void GuiWaveformPreview::paint(juce::Graphics& g)
@@ -46,27 +82,9 @@ void GuiWaveformPreview::paint(juce::Graphics& g)
     g.drawLine(xAxis * 5.0f, 0.0f, xAxis * 5.0f, yAxis * 8.0f);
     g.drawLine(xAxis * 7.0f, 0.0f, xAxis * 7.0f, yAxis * 8.0f);
 
-    if (m_displayBuffer.empty()) return;
-
-    juce::Path wavePath;
-    float halfHeight = getHeight() / 2.0f;
-
-    float xStep = 0.0f;
-    if (m_displayBuffer.size() > 1) {
-        xStep = (float)getWidth() / (m_displayBuffer.size() - 1);
-    }
-
-    wavePath.startNewSubPath(0, halfHeight - (m_displayBuffer[0] * halfHeight));
-
-    for (size_t i = 1; i < m_displayBuffer.size(); ++i) {
-        float x = i * xStep;
-        float y = halfHeight - (m_displayBuffer[i] * halfHeight * 2.0f);
-        wavePath.lineTo(x, y);
-    }
-
-    // カスタム波形色で描画
-    g.setColour(lineColor);
-    g.strokePath(wavePath, juce::PathStrokeType(2.0f));
+    // 加工前を先に、細く薄く描く。加工後を上に重ねて違いを見せる。
+    strokeWave(g, m_dryBuffer, dryColor, 1.0f);
+    strokeWave(g, m_displayBuffer, lineColor, 2.0f);
 
     g.setColour(borderColor);
     g.drawRect(getLocalBounds(), 1);
