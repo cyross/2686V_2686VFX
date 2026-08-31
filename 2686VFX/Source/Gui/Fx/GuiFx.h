@@ -146,6 +146,8 @@ class GuiFx : public GuiBase
     void writeFxParams(Io::ParamWriter& writer);
     void exportFxParam();
 public:
+    // FX のパラメータを初期値へ戻す。編集画面の INIT から呼ぶ。
+    void initParams();
     GuiFx(const GuiContext& context);
 
     void setup() override;

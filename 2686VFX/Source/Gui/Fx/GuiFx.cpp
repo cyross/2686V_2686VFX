@@ -1466,3 +1466,12 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
 
 
 }
+
+// FX のパラメータを初期値へ戻す。
+//
+// 接頭辞で選ぶので、FX_ で始まるものだけが対象になる。順番は
+// パラメータではないので、ここでは戻らない。
+void GuiFx::initParams()
+{
+    ctx.audioProcessor.initParams(FxPrKey::prefix + "_");
+}

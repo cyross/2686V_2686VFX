@@ -187,29 +187,6 @@ void GuiSettings::setup()
         );
     };
 
-    // --- Preset Dir ---
-    setupFolderRow(presetDirLabel, juce::String("") + "プリセットファイルディレクトリ:", presetDirPathLabel, presetDirBrowseBtn);
-    presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
-    presetDirPathLabel.setWantsKeyboardFocus(false);
-
-    presetDirBrowseBtn.setWantsKeyboardFocus(true);
-    presetDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
-    presetDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
-            juce::String("") + "プリセットファイルディレクトリを選択してください",
-            ctx.audioProcessor.defaultPresetDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPresetDir),
-            [this](const juce::FileChooser& fc) {
-                auto file = fc.getResult();
-                if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultPresetDir = file.getFullPathName();
-                    presetDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
-
-                    // プリセットの一覧はこのプラグインには無い
-                }
-            }
-        );
-    };
-
     // --- Fx Order Dir ---
     setupFolderRow(fxOrderDirLabel, juce::String("") + "FX順番ファイルディレクトリ:", fxOrderDirPathLabel, fxOrderDirBrowseBtn);
     fxOrderDirPathLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
@@ -731,9 +708,6 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     pitchEnvParamDirLabel.setVisible(dirVisible);
     pitchEnvParamDirPathLabel.setVisible(dirVisible);
     pitchEnvParamDirBrowseBtn.setVisible(dirVisible);
-    presetDirLabel.setVisible(dirVisible);
-    presetDirPathLabel.setVisible(dirVisible);
-    presetDirBrowseBtn.setVisible(dirVisible);
     qualityParamDirLabel.setVisible(dirVisible);
     qualityParamDirPathLabel.setVisible(dirVisible);
     qualityParamDirBrowseBtn.setVisible(dirVisible);
@@ -764,14 +738,6 @@ void GuiSettings::layout(juce::Rectangle<int> content)
         sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
         sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
         sampleDirPathLabel.setBounds(rowAdpcmDir);
-
-        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
-
-        // 5. Preset Dir
-        auto rowPresetDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-        presetDirLabel.setBounds(rowPresetDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-        presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-        presetDirPathLabel.setBounds(rowPresetDir);
 
         sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
@@ -931,7 +897,6 @@ void GuiSettings::setSettings()
         ? Io::empty : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
 
     sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
-    presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
     fxOrderDirPathLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
     fxParamDirPathLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
     channelParamDirPathLabel.setText(ctx.audioProcessor.defaultChannelParamDir, juce::dontSendNotification);

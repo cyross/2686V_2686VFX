@@ -1047,14 +1047,14 @@ void AudioPlugin2686VEditor::updateUndoRedoButtons()
 // このプラグインでは FX だけなので、先頭のタブかどうかを見る。
 void AudioPlugin2686VEditor::updateParameterInitializeButtons()
 {
-    initParamsButton.setEnabled(false);
+    initParamsButton.setEnabled(tabs.getCurrentTabIndex() == 0);
 }
 
 
-// FX の初期化はまだ用意していない。GuiFx に初期化の口が無いので、
-// 足すまでは何もしない。ボタンも押せないようにしてある。
 void AudioPlugin2686VEditor::initParams()
 {
+    // 触れるのは FX だけ
+    fxGui->initParams();
 }
 
 inline juce::String AudioPlugin2686VEditor::getPreviewButtonText()

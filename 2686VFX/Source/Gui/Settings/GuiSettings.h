@@ -44,9 +44,6 @@ class GuiSettings : public GuiBase
     GuiLabel sampleDirPathLabel;
     GuiTextButton sampleDirBrowseBtn;
 
-    GuiLabel presetDirLabel;
-    GuiLabel presetDirPathLabel;
-    GuiTextButton presetDirBrowseBtn;
 
     GuiLabel fxOrderDirLabel;
     GuiLabel fxOrderDirPathLabel;
@@ -148,9 +145,6 @@ public:
         sampleDirLabel(context),
         sampleDirPathLabel(context),
         sampleDirBrowseBtn(context),
-        presetDirLabel(context),
-        presetDirPathLabel(context),
-        presetDirBrowseBtn(context),
         fxOrderDirLabel(context),
         fxOrderDirPathLabel(context),
         fxOrderDirBrowseBtn(context),
