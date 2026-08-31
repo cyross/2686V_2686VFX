@@ -34,16 +34,35 @@ endif()
 # 第3引数で出力名(PRODUCT_NAME)を指定できます。省略するとターゲット名がそのまま使われます。
 # VST3の識別子はメーカーコードとプラグインコードから生成されるため、
 # 出力名を変えても既存プロジェクトのプラグイン解決には影響しません。
+# 音源として作る (既定)。中身は create_cyross_target が持つ。
 function(create_cyross_plugin TARGET_NAME CY_PLUGIN_CODE)
     if(ARGC GREATER 2)
-        set(CY_PRODUCT_NAME ${ARGV2})
+        create_cyross_target(${TARGET_NAME} ${CY_PLUGIN_CODE} TRUE ${ARGV2})
+    else()
+        create_cyross_target(${TARGET_NAME} ${CY_PLUGIN_CODE} TRUE)
+    endif()
+endfunction()
+
+# エフェクトとして作る。入力された音を加工するので IS_SYNTH は立てない。
+# MIDI は受け取る。鍵盤の押し離しでエンベロープや LFO を動かすため。
+function(create_cyross_effect TARGET_NAME CY_PLUGIN_CODE)
+    if(ARGC GREATER 2)
+        create_cyross_target(${TARGET_NAME} ${CY_PLUGIN_CODE} FALSE ${ARGV2})
+    else()
+        create_cyross_target(${TARGET_NAME} ${CY_PLUGIN_CODE} FALSE)
+    endif()
+endfunction()
+
+function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
+    if(ARGC GREATER 3)
+        set(CY_PRODUCT_NAME ${ARGV3})
     else()
         set(CY_PRODUCT_NAME ${TARGET_NAME})
     endif()
 
     juce_add_plugin(${TARGET_NAME}
         COMPANY_NAME "CYROSS"
-        IS_SYNTH TRUE
+        IS_SYNTH ${CY_IS_SYNTH}
         NEEDS_MIDI_INPUT TRUE
         NEEDS_MIDI_OUTPUT FALSE
         IS_MIDI_EFFECT FALSE
@@ -97,6 +116,7 @@ add_subdirectory(2686V)
 add_subdirectory(2686VLight)
 add_subdirectory(2686VOrigin)
 add_subdirectory(OPZX7S)
+add_subdirectory(2686VFX)
 
 # マニュアル用の道具 (出荷するものではない)
 add_subdirectory(tools)
