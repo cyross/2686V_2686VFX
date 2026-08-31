@@ -717,11 +717,38 @@ public:
         juce::Colour textOnColor = GuiColor::TextButton::TextOn;
         juce::Colour bgColor = GuiColor::TextButton::Bg;
         juce::Colour borderColor = GuiColor::TextButton::Border;
+
+        // 使えないときの文字色。
+        //
+        // 濃い地色を持たないボタンは、使えるときと使えないときで地の明るさが
+        // 変わるため、同じ文字色だと片方で読めなくなる。指定しなければ
+        // 今までどおり、状態によらず textColor のままになる。
+        std::optional<juce::Colour> disabledTextColor = std::nullopt;
+
         bool isReset = false;
         bool isResized = false;
     };
 
     void setup(const Config& c);
+
+    // 使える／使えないが変わったときに JUCE から呼ばれる
+    void enablementChanged() override
+    {
+        applyTextColour();
+    }
+
+private:
+    juce::Colour enabledTextColor;
+    std::optional<juce::Colour> disabledTextColor;
+
+    // 状態に合わせて文字色を入れ替える。指定が無ければ何もしない。
+    void applyTextColour()
+    {
+        if (!disabledTextColor.has_value()) return;
+
+        this->setColour(juce::TextButton::textColourOffId,
+            isEnabled() ? enabledTextColor : disabledTextColor.value());
+    }
 };
 
 class GuiHyperLink : public juce::HyperlinkButton, public GuiBaseComponent

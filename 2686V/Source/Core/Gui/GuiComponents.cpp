@@ -430,6 +430,12 @@ void GuiTextButton::setup(const Config& c)
         this->setColour(juce::TextButton::buttonColourId, c.bgColor);
     }
 
+    // 状態で文字色を変えるものは、今の状態に合わせておく
+    enabledTextColor = c.textColor;
+    disabledTextColor = c.disabledTextColor;
+
+    applyTextColour();
+
     if (c.isReset) {
         att.reset(new ButtonAttachment(ctx.apvts, c.id, *this));
     }

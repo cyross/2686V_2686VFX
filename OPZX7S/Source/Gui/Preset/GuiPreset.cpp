@@ -429,7 +429,8 @@ void GuiPreset::setup()
     };
 
     // --- Load Preset Info Button ---
-	loadButton.setup({ .parent = *this, .title = PresetKey::Button::loadPreset, .font = buttonFont, .textColor = juce::Colours::white, .isReset = false });
+	loadButton.setup({ .parent = *this, .title = PresetKey::Button::loadPreset, .font = buttonFont,
+		.textColor = juce::Colours::black, .disabledTextColor = juce::Colours::white, .isReset = false });
     loadButton.setEnabled(false);
     loadButton.setWantsKeyboardFocus(true);
     loadButton.setExplicitFocusOrder(++tabOrder);
@@ -508,7 +509,8 @@ void GuiPreset::setup()
     };
 
     // --- Copy Preset Info to Clipboard Button ---
-	copyButton.setup({ .parent = *this, .title = PresetKey::Button::copyPresetInfoToClipboard, .font = buttonFont, .textColor = juce::Colours::white, .isReset = false });
+	copyButton.setup({ .parent = *this, .title = PresetKey::Button::copyPresetInfoToClipboard, .font = buttonFont,
+		.textColor = juce::Colours::black, .disabledTextColor = juce::Colours::white, .isReset = false });
     copyButton.setWantsKeyboardFocus(true);
     copyButton.setExplicitFocusOrder(++tabOrder);
     copyButton.setEnabled(false);
