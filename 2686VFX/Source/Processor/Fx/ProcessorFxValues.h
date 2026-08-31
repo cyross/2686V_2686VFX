@@ -76,6 +76,37 @@ namespace FxPrValue
 		}
 	}
 
+	// 2686V PCM Bit Crusher。刻みは音源の QUALITY と同じものを使う。
+	namespace Pcm
+	{
+		namespace Bit
+		{
+			// 1:32bit ～ 12:4bit PCM。
+			// 13 以降の ADPCM などの圧縮は入れていない。あれは曲の頭から
+			// 順に符号化するもので、塊ごとに切ると継ぎ目で音が飛ぶ。
+			inline constexpr int min = 1;
+			inline constexpr int max = 12;
+			inline constexpr int initial = 12;
+		}
+
+		namespace Rate
+		{
+			// 1:96k ～ 15:2k
+			inline constexpr int min = 1;
+			inline constexpr int max = 15;
+			inline constexpr int initial = 9; // 16kHz
+		}
+
+		namespace Interp
+		{
+			// 0:Nearest 1:Linear 2:Gaussian 3:Zero-Order Hold
+			// 4:Cosine 5:B-Spline 6:Lagrange
+			inline constexpr int min = 0;
+			inline constexpr int max = 6;
+			inline constexpr int initial = 1;
+		}
+	}
+
 	namespace Delay
 	{
 		namespace Time

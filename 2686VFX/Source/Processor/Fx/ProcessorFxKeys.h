@@ -17,6 +17,7 @@ namespace FxPrKey
 	static inline const juce::String dly = "_DLY";
 	static inline const juce::String rvb = "_RVB";
 	static inline const juce::String mbc = "_MBC";
+	static inline const juce::String pcm = "_PCMBC";
 	static inline const juce::String fil = "_FIL";
 	static inline const juce::String scl = "_SCL";
 	static inline const juce::String eq3b = "_EQ3B";
@@ -52,6 +53,13 @@ namespace FxPrKey
 	{
 		static inline const juce::String rate = "_RATE";
 		static inline const juce::String bit = "_BITS";
+	};
+
+	namespace Pcm
+	{
+		static inline const juce::String rate = "_RATE";
+		static inline const juce::String bit = "_BITS";
+		static inline const juce::String interp = "_INTP";
 	};
 
 	namespace Filter

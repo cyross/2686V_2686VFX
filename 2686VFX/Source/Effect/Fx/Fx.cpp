@@ -4,6 +4,73 @@
 #include "./Fx.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Synth/SynthHelpers.h"
+#include "../../Generator/Pcm/Helper/GenPcmHelper.h"
+
+namespace
+{
+    // 間引いたものを読み戻すときの埋め方。音源の QUALITY と同じ式を使う。
+    // 音源では波形を読む場所に直接書いてあり、まとまった形になっていない
+    // ので、ここでは効果の中だけで持つ。
+    //
+    // hist は間引いた直近 4 つ。frac は hist[1] と hist[2] の間のどこか。
+    float interpolateHistory(const float* hist, float frac, int mode)
+    {
+        float s_m1 = hist[0];
+        float s_0 = hist[1];
+        float s_1 = hist[2];
+        float s_2 = hist[3];
+
+        switch (mode)
+        {
+        case 0: // 補間なし。エイリアスノイズが出るオールドスクール
+            return (frac < 0.5f) ? s_0 : s_1;
+
+        case 2: // Gaussian/Cubic。SFC 風の丸みのある補間
+        {
+            float c0 = s_0;
+            float c1 = 0.5f * (s_1 - s_m1);
+            float c2 = s_m1 - 2.5f * s_0 + 2.0f * s_1 - 0.5f * s_2;
+            float c3 = 0.5f * (s_2 - s_m1) + 1.5f * (s_0 - s_1);
+
+            return ((c3 * frac + c2) * frac + c1) * frac + c0;
+        }
+
+        case 3: // Zero-Order Hold。最も粗い Lo-Fi サンプラー風
+            return s_0;
+
+        case 4: // Cosine。Linear と Cubic の中間的な滑らかさ
+        {
+            float mu2 = (1.0f - std::cos(frac * juce::MathConstants<float>::pi)) / 2.0f;
+
+            return s_0 * (1.0f - mu2) + s_1 * mu2;
+        }
+
+        case 5: // B-Spline。強烈なローパス効果でこもり感を強調
+        {
+            float c0 = (s_m1 + 4.0f * s_0 + s_1) / 6.0f;
+            float c1 = (s_1 - s_m1) / 2.0f;
+            float c2 = (s_m1 - 2.0f * s_0 + s_1) / 2.0f;
+            float c3 = (s_2 - 3.0f * s_1 + 3.0f * s_0 - s_m1) / 6.0f;
+
+            return ((c3 * frac + c2) * frac + c1) * frac + c0;
+        }
+
+        case 6: // Lagrange。4 点補間で Cubic とは異なる倍音特性
+        {
+            float l_m1 = -frac * (frac - 1.0f) * (frac - 2.0f) / 6.0f;
+            float l_0 = (frac + 1.0f) * (frac - 1.0f) * (frac - 2.0f) / 2.0f;
+            float l_1 = -(frac + 1.0f) * frac * (frac - 2.0f) / 2.0f;
+            float l_2 = (frac + 1.0f) * frac * (frac - 1.0f) / 6.0f;
+
+            return s_m1 * l_m1 + s_0 * l_0 + s_1 * l_1 + s_2 * l_2;
+        }
+
+        default: // 1: Linear。線形補間
+            return s_0 * (1.0f - frac) + s_1 * frac;
+        }
+    }
+}
 
 void FxTremolo::prepare(double sampleRate)
 {
@@ -579,6 +646,78 @@ void FxSfcEcho::clear()
 
 
 // --- EffectChain への組み込み ---
+// ======================================================
+// 2686V PCM Bit Crusher
+// ======================================================
+void FxPcm::prepare(double sampleRate)
+{
+    hostRate = sampleRate;
+
+    setPcmParameters(bitIndex, rateIndex, interpMode, wetLevel);
+
+    clear();
+}
+
+void FxPcm::clear()
+{
+    for (auto& ch : history)
+    {
+        for (auto& v : ch) v = 0.0f;
+    }
+
+    phase[0] = 0.0;
+    phase[1] = 0.0;
+}
+
+void FxPcm::setPcmParameters(int newBitIndex, int newRateIndex, int newInterpMode, float mix)
+{
+    bitIndex = newBitIndex;
+    rateIndex = newRateIndex;
+    interpMode = newInterpMode;
+    wetLevel = mix;
+
+    double targetRate = getTargetRate(rateIndex);
+
+    // 出力 1 つにつき、間引いた側がどれだけ進むか。
+    // 元より高いレートを選んだときは 1 を超え、間引かれなくなる。
+    stepPerSample = (hostRate > 0.0) ? (targetRate / hostRate) : 1.0;
+}
+
+void FxPcm::process(juce::AudioBuffer<float>& buffer)
+{
+    int channels = juce::jmin(buffer.getNumChannels(), 2);
+    int samples = buffer.getNumSamples();
+
+    for (int ch = 0; ch < channels; ++ch)
+    {
+        auto* data = buffer.getWritePointer(ch);
+        auto* hist = history[ch];
+
+        for (int i = 0; i < samples; ++i)
+        {
+            float dry = data[i];
+
+            phase[ch] += stepPerSample;
+
+            // 進んだぶんだけ新しい値を取り込む。取り込むときに
+            // ビットを落とすので、間引きと丸めが同じ場所で起きる。
+            while (phase[ch] >= 1.0)
+            {
+                phase[ch] -= 1.0;
+
+                hist[0] = hist[1];
+                hist[1] = hist[2];
+                hist[2] = hist[3];
+                hist[3] = GenPcmHelper::bitReduction(dry, bitIndex);
+            }
+
+            float wet = interpolateHistory(hist, (float)phase[ch], interpMode);
+
+            data[i] = dry * (1.0f - wetLevel) + wet * wetLevel;
+        }
+    }
+}
+
 EffectChain::EffectChain()
 {
     fxMap[static_cast<int>(FxType::Filter)] = &filter;
@@ -589,6 +728,7 @@ EffectChain::EffectChain()
     fxMap[static_cast<int>(FxType::Delay)] = &delay;
     fxMap[static_cast<int>(FxType::Reverb)] = &reverb;
     fxMap[static_cast<int>(FxType::SfcEcho)] = &sfcEcho;
+    fxMap[static_cast<int>(FxType::PcmBitCrusher)] = &pcmBitCrusher;
 
     // 処理順序配列の初期化 (デフォルトは定義順)
     processChain = fxMap;
@@ -610,6 +750,7 @@ void EffectChain::setReverbParams(float size, float damp, float width, float mix
 void EffectChain::setFilterParams(int type, float freq, float q, float mix) { filter.setParameters((float)type, freq, q, mix); }
 void EffectChain::setEq3bParams(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix) { eq3b.setParameters(lowGainDb, midFreq, midGainDb, highGainDb, mix); }
 void EffectChain::setSfcEchoParams(float time, float fb, float mix, const std::array<float, 8>& firCoefs) { sfcEcho.setParameters(time, fb, mix, firCoefs); }
+void EffectChain::setPcmBitCrusherParams(int bit, int rate, int interp, float mix) { pcmBitCrusher.setPcmParameters(bit, rate, interp, mix); }
 
 void EffectChain::process(juce::AudioBuffer<float>& buffer)
 {
@@ -623,7 +764,7 @@ void EffectChain::process(juce::AudioBuffer<float>& buffer)
 }
 
 // バイパス状態のセット
-void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc)
+void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc, bool pcm)
 {
     filter.setBypass(fl);
     eq3b.setBypass(e3);
@@ -633,12 +774,17 @@ void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d,
     delay.setBypass(d);
     reverb.setBypass(r);
     sfcEcho.setBypass(sfc);
+    pcmBitCrusher.setBypass(pcm);
 }
 
 // 順番更新
 void EffectChain::updateOrder(const std::vector<int>& newOrders)
 {
-    for (int i = 0; i < NumEffects; ++i)
+    // 渡された数が足りないことがある。効果の数はプラグインごとに違い、
+    // 他のプラグインで書いた順番のファイルは短いことがあるため。
+    int count = std::min((int)newOrders.size(), NumEffects);
+
+    for (int i = 0; i < count; ++i)
     {
         if (newOrders[i] >= 0 && newOrders[i] < NumEffects)
         {

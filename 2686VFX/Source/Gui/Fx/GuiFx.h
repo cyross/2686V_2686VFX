@@ -17,6 +17,7 @@
 #include "../Components/WtMod/WtMod.h"
 #include "../Components/MulDetune/MulDetune.h"
 #include "../Components/Unison/Unison.h"
+#include "../Components/Quality/QualityPcm.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
@@ -35,7 +36,8 @@ class GuiFx : public GuiBase
             juce::String("") + "ビットクラッシャー", // 4: FxType::ModernBitCrusher
             juce::String("") + "ディレイ",           // 5: FxType::Delay
             juce::String("") + "リバーブ",           // 6: FxType::Reverb
-            juce::String("") + "SFCエコー"           // 7: FxType::SpcEcho
+            juce::String("") + "SFCエコー",          // 7: FxType::SpcEcho
+            juce::String("") + "PCMビットクラッシャー"  // 8: FxType::PcmBitCrusher
     };
 
     GuiGroup mainGroup;
@@ -84,6 +86,9 @@ class GuiFx : public GuiBase
     GuiGroup filterGroup;
     GuiGroup eq3bGroup;
     GuiGroup sfceGroup;
+
+    // 2686V PCM Bit Crusher。実機のレートとビットの刻みで落とす。
+    GuiGroup pcmGroup;
 
     GuiToggleButton bypassToggle;
     NormalSeparator mainSeparator;
@@ -141,6 +146,18 @@ class GuiFx : public GuiBase
     GuiToggleButton flBypassBtn;
     NormalSeparator flSeparator;
     GuiComboBox flTypeSelector;
+
+    GuiToggleButton pcmBypassBtn;
+    NormalSeparator pcmSeparator;
+    GuiComboBox pcmBitSelector, pcmRateSelector, pcmInterpSelector;
+
+    // ビットの一覧は QUALITY のものを借りるが、頭の 12 個だけを出す。
+    // 13 以降は ADPCM などの圧縮で、曲の頭から順に符号化するもの。
+    // 流れてくる音を塊ごとに切って符号化すると継ぎ目で音が飛ぶため、
+    // ここでは扱わない。
+    static std::vector<SelectItem> pcmBitItems;
+    GuiSlider pcmMixSlider;
+    GuiTextButton pcmDryBtn, pcmHalfBtn, pcmWetBtn;
     GuiSlider flFreqSlider;
     GuiSlider flQSlider;
     GuiSlider flMixSlider;
@@ -171,6 +188,7 @@ class GuiFx : public GuiBase
     void updateTremoloEnabled();
     void updateVibratoEnabled();
     void updateMBCEnabled();
+    void updatePcmEnabled();
     void updateDelayEnabled();
     void updateReverbEnabled();
     void updateEq3bEnabled();

@@ -32,6 +32,12 @@ class FxProcessor : public PrBase
     std::atomic<float>* pMbcRate = nullptr;
     std::atomic<float>* pMbcBits = nullptr;
     std::atomic<float>* pMbcMix = nullptr;
+
+    std::atomic<float>* pPcmBypass = nullptr;
+    std::atomic<float>* pPcmRate = nullptr;
+    std::atomic<float>* pPcmBits = nullptr;
+    std::atomic<float>* pPcmInterp = nullptr;
+    std::atomic<float>* pPcmMix = nullptr;
     std::atomic<float>* pDBypass = nullptr;
     std::atomic<float>* pDTime = nullptr;
     std::atomic<float>* pDFb = nullptr;

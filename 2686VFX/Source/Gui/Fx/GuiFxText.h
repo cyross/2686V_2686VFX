@@ -37,6 +37,17 @@ namespace FxGuiText
 		}
 	}
 
+	namespace Fx
+	{
+		// 2686V PCM Bit Crusher。刻みは音源の QUALITY と同じもの。
+		namespace Pcm
+		{
+			static inline const juce::String bit = "BIT";
+			static inline const juce::String rate = "RATE";
+			static inline const juce::String interp = "INTP";
+		}
+	}
+
 	namespace Group
 	{
 		static inline const juce::String mainGroup = juce::String("") + "エフェクター";
@@ -48,6 +59,7 @@ namespace FxGuiText
 		static inline const juce::String fxFilter = juce::String("") + "フィルター";
 		static inline const juce::String fxEq3B = juce::String("") + "3バンドイコライザー";
 		static inline const juce::String sfcEcho = juce::String("") + "SFCエコー";
+		static inline const juce::String fxPcm = juce::String("") + "PCMビットクラッシャー";
 	}
 
 	namespace Fx

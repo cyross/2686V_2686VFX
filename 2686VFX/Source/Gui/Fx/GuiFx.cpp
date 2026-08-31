@@ -29,6 +29,20 @@ static std::vector<SelectItem> flTypeItems = {
     {.name = "BPF", .value = 3 }
 };
 
+// QUALITY のビット一覧から、流れてくる音でも扱える頭の 12 個だけを採る。
+std::vector<SelectItem> GuiFx::pcmBitItems = [] {
+    std::vector<SelectItem> items;
+
+    for (const auto& item : QualityPcm::qualityItems)
+    {
+        if (item.value > FxPrValue::Pcm::Bit::max) continue;
+
+        items.push_back(item);
+    }
+
+    return items;
+}();
+
 GuiFx::GuiFx(const GuiContext& context) :
     GuiBase(context),
     mainGroup(context),
@@ -65,14 +79,24 @@ GuiFx::GuiFx(const GuiContext& context) :
     filterGroup(context),
     eq3bGroup(context),
     sfceGroup(context),
+    pcmGroup(context),
+    pcmBypassBtn(context),
+    pcmSeparator(context),
+    pcmBitSelector(context),
+    pcmRateSelector(context),
+    pcmInterpSelector(context),
+    pcmMixSlider(context),
+    pcmDryBtn(context),
+    pcmHalfBtn(context),
+    pcmWetBtn(context),
     bypassToggle(context),
     mainSeparator(context),
     resetBtn(context),
     routeSeparator(context),
     showRouteBtn(context),
-    routeFx{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-    routeUp{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-    routeDown{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    routeFx{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+    routeUp{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    routeDown{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     fileSeparator(context),
     importFxOrderBtn(context),
     exportFxOrderBtn(context),
@@ -713,6 +737,51 @@ void GuiFx::setup()
     sfceWetBtn.setExplicitFocusOrder(++tabOrder);
     sfceWetBtn.onClick = [&] { sfceMixSlider.setValue(1.0f); };
 
+    // 2686V PCM Bit Crusher
+    pcmGroup.setup(*this, FxGuiText::Group::fxPcm);
+    pcmGroup.setBackgroundColor(groupBgColour);
+    const juce::String pcmPrefix = code + FxPrKey::pcm;
+
+    pcmBypassBtn.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    pcmBypassBtn.setWantsKeyboardFocus(true);
+    pcmBypassBtn.setExplicitFocusOrder(++tabOrder);
+    pcmBypassBtn.onStateChange = [this] {
+        updatePcmEnabled();
+    };
+
+    pcmSeparator.setupComponent(*this);
+
+    pcmBitSelector.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::Pcm::bit, .title = FxGuiText::Fx::Pcm::bit, .items = pcmBitItems, .isReset = true });
+    pcmBitSelector.setWantsKeyboardFocus(true);
+    pcmBitSelector.setExplicitFocusOrder(++tabOrder);
+
+    pcmRateSelector.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::Pcm::rate, .title = FxGuiText::Fx::Pcm::rate, .items = QualityPcm::rateItems, .isReset = true });
+    pcmRateSelector.setWantsKeyboardFocus(true);
+    pcmRateSelector.setExplicitFocusOrder(++tabOrder);
+
+    pcmInterpSelector.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::Pcm::interp, .title = FxGuiText::Fx::Pcm::interp, .items = QualityPcm::interpItems, .isReset = true });
+    pcmInterpSelector.setWantsKeyboardFocus(true);
+    pcmInterpSelector.setExplicitFocusOrder(++tabOrder);
+
+    pcmMixSlider.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    pcmMixSlider.setWantsKeyboardFocus(true);
+    pcmMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    pcmDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    pcmDryBtn.setWantsKeyboardFocus(true);
+    pcmDryBtn.setExplicitFocusOrder(++tabOrder);
+    pcmDryBtn.onClick = [&] { pcmMixSlider.setValue(0.0f); };
+
+    pcmHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    pcmHalfBtn.setWantsKeyboardFocus(true);
+    pcmHalfBtn.setExplicitFocusOrder(++tabOrder);
+    pcmHalfBtn.onClick = [&] { pcmMixSlider.setValue(0.5f); };
+
+    pcmWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    pcmWetBtn.setWantsKeyboardFocus(true);
+    pcmWetBtn.setExplicitFocusOrder(++tabOrder);
+    pcmWetBtn.onClick = [&] { pcmMixSlider.setValue(1.0f); };
+
     updateFilterEnabled();
     updateTremoloEnabled();
     updateVibratoEnabled();
@@ -721,6 +790,7 @@ void GuiFx::setup()
     updateReverbEnabled();
     updateEq3bEnabled();
     updateSfcEchoEnabled();
+    updatePcmEnabled();
 }
 
 void GuiFx::layout(juce::Rectangle<int> content)
@@ -753,10 +823,15 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
         modArea.removeFromTop(FxGuiValue::Fx::ModHeaderGap);
 
-        // 上段が音量側、下段が音程側。横に 8 列は並ばないので 2 段に折る。
-        int rowHeight = (modArea.getHeight() - FxGuiValue::Fx::ModRowGap) / 2;
+        // 横に 10 列は並ばないので 4 列 3 段に折る。
+        // 1 段目が音量側、2 段目が LFO と音程の変調、3 段目が音程のずらし。
+        int rowHeight = (modArea.getHeight() - FxGuiValue::Fx::ModRowGap * (FxGuiValue::Fx::ModRows - 1)) / FxGuiValue::Fx::ModRows;
 
         auto upperRow = modArea.removeFromTop(rowHeight);
+
+        modArea.removeFromTop(FxGuiValue::Fx::ModRowGap);
+
+        auto middleRow = modArea.removeFromTop(rowHeight);
 
         modArea.removeFromTop(FxGuiValue::Fx::ModRowGap);
 
@@ -789,11 +864,11 @@ void GuiFx::layout(juce::Rectangle<int> content)
         layoutModColumn(upperRow, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
         layoutModColumn(upperRow, modSsgSwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgSwEnvComponent.layoutComponent(rect); });
         layoutModColumn(upperRow, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
-        layoutModColumn(upperRow, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
 
-        layoutModColumn(lowerRow, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
-        layoutModColumn(lowerRow, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
-        layoutModColumn(lowerRow, modWtModGroup, [&](juce::Rectangle<int>& rect)
+        layoutModColumn(middleRow, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
+        layoutModColumn(middleRow, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
+        layoutModColumn(middleRow, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
+        layoutModColumn(middleRow, modWtModGroup, [&](juce::Rectangle<int>& rect)
         {
             wtModComponent.layoutComponent(rect);
 
@@ -999,6 +1074,28 @@ void GuiFx::layout(juce::Rectangle<int> content)
     sfceRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = sfceRect, .label = &sfceMixSlider.label, .component = &sfceMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRowThreeComps({ .rect = sfceRect, .comp1 = &sfceDryBtn, .comp2 = &sfceHalfBtn, .comp3 = &sfceWetBtn });
+
+    // 2686V PCM Bit Crusher
+    // 9 個目なので、3 列目の一番下へ置く。
+    auto rect9 = row4.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    auto pcmArea = rect9.removeFromTop(FxGuiValue::Fx::HeightPcm);
+
+    pcmGroup.setBounds(pcmArea);
+
+    auto pcmRect = pcmArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    pcmRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutRow({ .rowRect = pcmRect, .component = &pcmBypassBtn });
+
+    pcmSeparator.layoutComponent(pcmRect);
+
+    layoutRow({ .rowRect = pcmRect, .label = &pcmBitSelector.label, .component = &pcmBitSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = pcmRect, .label = &pcmRateSelector.label, .component = &pcmRateSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = pcmRect, .label = &pcmInterpSelector.label, .component = &pcmInterpSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    pcmRect.removeFromTop(FxGuiValue::Padding::space);
+    layoutRow({ .rowRect = pcmRect, .label = &pcmMixSlider.label, .component = &pcmMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRowThreeComps({ .rect = pcmRect, .comp1 = &pcmDryBtn, .comp2 = &pcmHalfBtn, .comp3 = &pcmWetBtn });
 }
 
 void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
@@ -1088,6 +1185,19 @@ void GuiFx::updateMBCEnabled() {
     mbcHalfBtn.setEnabled(!bypassed);
     mbcWetBtn.setEnabled(!bypassed);
 }
+void GuiFx::updatePcmEnabled() {
+    bool bypassed = pcmBypassBtn.getToggleState();
+
+    pcmSeparator.setEnabled(!bypassed);
+    pcmBitSelector.setEnabledWithLabel(!bypassed);
+    pcmRateSelector.setEnabledWithLabel(!bypassed);
+    pcmInterpSelector.setEnabledWithLabel(!bypassed);
+    pcmMixSlider.setEnabledWithLabel(!bypassed);
+    pcmDryBtn.setEnabled(!bypassed);
+    pcmHalfBtn.setEnabled(!bypassed);
+    pcmWetBtn.setEnabled(!bypassed);
+}
+
 void GuiFx::updateDelayEnabled() {
     bool bypassed = dBypassBtn.getToggleState();
 

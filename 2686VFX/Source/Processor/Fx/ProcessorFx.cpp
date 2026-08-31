@@ -50,6 +50,15 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(std::make_unique<juce::AudioParameterFloat>(mbcPrefix + FxPrKey::Mbc::bit, mbcLPrefix + FxPrName::Mbc::bit, FxPrValue::Mbc::Bit::min, FxPrValue::Mbc::Bit::max, FxPrValue::Mbc::Bit::initial)); // Bits: 24(Clean) ～ 2(Noisy)
     layout.add(std::make_unique<juce::AudioParameterFloat>(mbcPrefix + FxPrKey::mix, mbcLPrefix + FxPrName::Mbc::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 
+    // 2686V PCM Bit Crusher。実機のレートとビットの刻みで落とす。
+    const juce::String pcmPrefix = prefix + FxPrKey::pcm;
+    const juce::String pcmLPrefix = prefixName + FxPrName::pcm;
+    layout.add(std::make_unique<juce::AudioParameterBool>(pcmPrefix + FxPrKey::bypass, pcmLPrefix + FxPrName::Pcm::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(pcmPrefix + FxPrKey::Pcm::bit, pcmLPrefix + FxPrName::Pcm::bit, FxPrValue::Pcm::Bit::min, FxPrValue::Pcm::Bit::max, FxPrValue::Pcm::Bit::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(pcmPrefix + FxPrKey::Pcm::rate, pcmLPrefix + FxPrName::Pcm::rate, FxPrValue::Pcm::Rate::min, FxPrValue::Pcm::Rate::max, FxPrValue::Pcm::Rate::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(pcmPrefix + FxPrKey::Pcm::interp, pcmLPrefix + FxPrName::Pcm::interp, FxPrValue::Pcm::Interp::min, FxPrValue::Pcm::Interp::max, FxPrValue::Pcm::Interp::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(pcmPrefix + FxPrKey::mix, pcmLPrefix + FxPrName::Pcm::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
+
     // --- Delay ---
     const juce::String dlyPrefix = prefix + FxPrKey::dly;
     const juce::String dlyLPrefix = prefixName + FxPrName::delay;
@@ -136,6 +145,13 @@ void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pMbcBits = apvts.getRawParameterValue(mbcPrefix + FxPrKey::Mbc::bit);
     pMbcMix = apvts.getRawParameterValue(mbcPrefix + FxPrKey::mix);
 
+    const juce::String pcmPrefix = prefix + FxPrKey::pcm;
+    pPcmBypass = apvts.getRawParameterValue(pcmPrefix + FxPrKey::bypass);
+    pPcmRate = apvts.getRawParameterValue(pcmPrefix + FxPrKey::Pcm::rate);
+    pPcmBits = apvts.getRawParameterValue(pcmPrefix + FxPrKey::Pcm::bit);
+    pPcmInterp = apvts.getRawParameterValue(pcmPrefix + FxPrKey::Pcm::interp);
+    pPcmMix = apvts.getRawParameterValue(pcmPrefix + FxPrKey::mix);
+
     // Delay
     const juce::String dlyPrefix = prefix + FxPrKey::dly;
     pDBypass = apvts.getRawParameterValue(dlyPrefix + FxPrKey::bypass);
@@ -211,6 +227,13 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     float mbcMix = pMbcMix->load(std::memory_order_relaxed);
     effects.setModernBitCrusherParams(mbcRate, mbcBits, mbcMix);
 
+    bool pcmB = pPcmBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    int pcmRate = (int)pPcmRate->load(std::memory_order_relaxed);
+    int pcmBits = (int)pPcmBits->load(std::memory_order_relaxed);
+    int pcmInterp = (int)pPcmInterp->load(std::memory_order_relaxed);
+    float pcmMix = pPcmMix->load(std::memory_order_relaxed);
+    effects.setPcmBitCrusherParams(pcmBits, pcmRate, pcmInterp, pcmMix);
+
     // Delay
     bool dB = pDBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
     float dTime = pDTime->load(std::memory_order_relaxed);
@@ -245,7 +268,7 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     effects.setSfcEchoParams(scfeTime, scfeFb, scfeMix, sfcEFirCoefs);
 
     // バイパス設定
-    effects.setBypasses(flB, eq3bB, tB, vB, mcB, dB, rB, scfeB);
+    effects.setBypasses(flB, eq3bB, tB, vB, mcB, dB, rB, scfeB, pcmB);
 
     // エフェクト処理実行
     effects.process(buffer);

@@ -36,7 +36,8 @@ namespace FxGuiValue
 	{
 		static inline constexpr int Width = 1000;
 		static inline constexpr int Height = 720;
-		static inline constexpr int MainWidth = 400;
+		// 効果が 9 個になり、2 列では縦に収まらなくなったので 3 列にする。
+		static inline constexpr int MainWidth = 600;
 
 		// 出力へ掛ける変調を置く領域。FX は左 400px しか使っていないので、
 		// その右の空きへ詰める。タブは増やさない。
@@ -49,11 +50,14 @@ namespace FxGuiValue
 		static inline constexpr int ModHeaderGap = 6;
 		static inline constexpr int ModToggleWidth = 220;
 
-		// 5 列 2 段に並べる。上段が音量側と LFO、下段が音程側。
-		// 5 列と隙間で 1340px になり、空いている幅に収まる。
-		static inline constexpr int ModColWidth = 260;
+		// 4 列 3 段に並べる。FX 欄へ幅を譲ったぶん列は減るが、
+		// 1 列あたりはむしろ広くなる。段が短くなるぶんは、
+		// 列ごとのスクロールが吸う。
+		// 4 列と隙間で 1130px になり、空いている幅に収まる。
+		static inline constexpr int ModColWidth = 275;
 		static inline constexpr int ModColGap = 10;
 		static inline constexpr int ModRowGap = 8;
+		static inline constexpr int ModRows = 3;
 
 		// WT PITCH MOD の基準周波数。実機には無い、こちらで足したもの。
 		static inline constexpr int ModBaseFreqHeight = 40;
@@ -75,6 +79,7 @@ namespace FxGuiValue
 		static inline constexpr int AreaHeightRow4 = 280;
 		static inline constexpr int HeightReverb = 166;
 		static inline constexpr int HeightSfcEcho = 280;
+		static inline constexpr int HeightPcm = 260;
 		static inline constexpr int AreaLabelWidth = 40;
 		static inline constexpr int MixBtnWidth = 40;
 		static inline constexpr int GlobalBypassHeight = 120;

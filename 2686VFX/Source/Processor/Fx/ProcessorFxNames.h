@@ -14,6 +14,7 @@ namespace FxPrName
 	static inline const juce::String tremolo = " Tremolo";
 	static inline const juce::String vibrato = " Vibrato";
 	static inline const juce::String mbc = " Modern BC";
+	static inline const juce::String pcm = " PCM BC";
 	static inline const juce::String delay = " Delay";
 	static inline const juce::String reverb = " Reverb";
 	static inline const juce::String filter = " Filter";
@@ -41,6 +42,15 @@ namespace FxPrName
 		static inline const juce::String bypass = " Bypass";
 		static inline const juce::String rate = " Rate";
 		static inline const juce::String bit = " Bit";
+		static inline const juce::String mix = " Mix";
+	}
+
+	namespace Pcm
+	{
+		static inline const juce::String bypass = " Bypass";
+		static inline const juce::String rate = " Rate";
+		static inline const juce::String bit = " Bit";
+		static inline const juce::String interp = " Interpolation";
 		static inline const juce::String mix = " Mix";
 	}
 

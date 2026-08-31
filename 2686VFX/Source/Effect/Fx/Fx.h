@@ -20,6 +20,7 @@ enum class FxType
     Delay,
     Reverb,
     SfcEcho,
+    PcmBitCrusher,
     Count // Total Count
 };
 
@@ -40,6 +41,7 @@ static inline const juce::String fxTypeNames[NumEffects] = {
     "delay",
     "reverb",
     "sfcEcho",
+    "pcmBitCrusher",
 };
 
 static inline juce::String fxTypeName(int index)
@@ -236,6 +238,39 @@ private:
 };
 
 // --- Effect Manager ---
+// ======================================================
+// 9. 2686V PCM Bit Crusher (実機のレートとビットで落とす)
+// ======================================================
+// 音源の QUALITY と同じ刻みを使う。指定のレートまで間引いてから
+// 指定のビット数へ丸め、読み戻すときに選んだ補間で埋める。
+//
+// 間引いたものを補間するには前後の値が要る。流れてくる音では先の値が
+// まだ来ていないので、間引いた 2 つぶんだけ遅らせて出す。16kHz なら
+// 0.1 ミリ秒ほどで、耳では分からない。
+//
+// ビットの一覧のうち ADPCM などの圧縮は入れていない。あれは曲の頭から
+// 順に符号化するもので、塊ごとに切ると継ぎ目で音が飛ぶ。
+class FxPcm : public FxCore
+{
+public:
+    void prepare(double sampleRate) override;
+    void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
+
+    void setPcmParameters(int bitIndex, int rateIndex, int interpMode, float mix);
+private:
+    // 間引いた直近 4 つ。補間はこの 4 点を使う。
+    float history[2][4] = { { 0.0f } };
+
+    double hostRate = 44100.0;
+    double stepPerSample = 1.0;
+    double phase[2] = { 0.0, 0.0 };
+
+    int bitIndex = 12;
+    int rateIndex = 9;
+    int interpMode = 1;
+};
+
 class EffectChain
 {
 public:
@@ -248,10 +283,11 @@ public:
     void setFilterParams(int type, float freq, float q, float mix);
     void setEq3bParams(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix);
     void setSfcEchoParams(float time, float fb, float mix, const std::array<float, 8>& firCoefs);
+    void setPcmBitCrusherParams(int bit, int rate, int interp, float mix);
 
     void prepare(double sampleRate);
     void process(juce::AudioBuffer<float>& buffer);
-    void setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc);
+    void setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc, bool pcm);
     void updateOrder(const std::vector<int>& newOrders);
     std::vector<int> getOrder();
     int getEffectsNumber();
@@ -266,10 +302,11 @@ private:
     FxDelay delay;
     FxReverb reverb;
     FxSfcEcho sfcEcho;
+    FxPcm pcmBitCrusher;
 
     // エフェクトの適応順
-    std::array<int, NumEffects> orderIndex{ { 0, 1, 2, 3, 4, 5, 6, 7 } };
-    std::vector<FxCore*> fxs{ &filter, &eq3b, &tremolo, &vibrato, &modernBitCrusher, &delay, &reverb, &sfcEcho };
+    std::array<int, NumEffects> orderIndex{ { 0, 1, 2, 3, 4, 5, 6, 7, 8 } };
+    std::vector<FxCore*> fxs{ &filter, &eq3b, &tremolo, &vibrato, &modernBitCrusher, &delay, &reverb, &sfcEcho, &pcmBitCrusher };
 
     std::array<FxCore*, NumEffects> fxMap;
     std::array<FxCore*, NumEffects> processChain;
