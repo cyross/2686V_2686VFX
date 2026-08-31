@@ -37,6 +37,12 @@ namespace FxGuiValue
 		static inline constexpr int Width = 1000;
 		static inline constexpr int Height = 720;
 		static inline constexpr int MainWidth = 400;
+
+		// 出力へ掛ける変調を置く領域。FX は左 400px しか使っていないので、
+		// その右の空きへ詰める。タブは増やさない。
+		static inline constexpr int ModLeft = 20;
+		static inline constexpr int ModWidth = 260;
+		static inline constexpr int ModHeight = 260;
 		static inline constexpr int MainHeight = 120;
 		static inline constexpr int MainHeightRoute = 320;
 		static inline constexpr int AreaWidth = 200;

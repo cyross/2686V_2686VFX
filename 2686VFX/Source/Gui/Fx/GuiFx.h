@@ -7,6 +7,7 @@
 #include <vector>
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
+#include "../Components/AmpEnv/AmpEnv.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
@@ -29,6 +30,11 @@ class GuiFx : public GuiBase
     };
 
     GuiGroup mainGroup;
+
+    // 出力へ掛ける変調。音源ではチャンネルごとに持っていたもの。
+    GuiGroup modGroup;
+    GuiToggleButton ampEnvEnableToggle;
+    GuiComponentAmpEnv ampEnvComponent;
 
     GuiGroup tremGroup;
     GuiGroup vibGroup;

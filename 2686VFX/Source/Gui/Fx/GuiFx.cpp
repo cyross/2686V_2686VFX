@@ -1,4 +1,5 @@
 ﻿#include "../../Core/Editor/EditorGuiValues.h"
+#include "../../Processor/Mod/ProcessorModKeys.h"
 #include <algorithm>
 #include "./GuiFx.h"
 
@@ -31,6 +32,9 @@ static std::vector<SelectItem> flTypeItems = {
 GuiFx::GuiFx(const GuiContext& context) :
     GuiBase(context),
     mainGroup(context),
+    modGroup(context),
+    ampEnvEnableToggle(context),
+    ampEnvComponent(context),
     tremGroup(context),
     vibGroup(context),
     mbcGroup(context),
@@ -140,6 +144,19 @@ void GuiFx::setup()
 
     // MainGroup
     mainGroup.setup(*this, FxGuiText::Group::mainGroup);
+
+    // 出力へ掛ける変調。音源ではチャンネルごとに持っていたものを、
+    // ここでは出力に対して 1 組だけ持つ。
+    modGroup.setup(*this, juce::String("") + "出力への変調");
+
+    ampEnvEnableToggle.setup({ .parent = *this,
+        .id = ModPrKey::prefix + ModPrKey::AmpEnv::enable,
+        .title = juce::String("") + "AMP ENV を使う",
+        .isReset = true });
+    ampEnvEnableToggle.setWantsKeyboardFocus(true);
+    ampEnvEnableToggle.setExplicitFocusOrder(++tabOrder);
+
+    ampEnvComponent.setupComponent(*this, ModPrKey::prefix, tabOrder);
     mainGroup.setBackgroundColor(groupBgColour);
 
 	bypassToggle.setup({ .parent = *this, .id = code + FxPrKey::bypass, .title = FxGuiText::Fx::masterBypass, .isReset = true });
@@ -624,6 +641,26 @@ void GuiFx::layout(juce::Rectangle<int> content)
     pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
 
     auto fxArea = pageArea.removeFromLeft(FxGuiValue::Fx::MainWidth);
+
+    // FX の右の空きへ変調を置く。タブを増やさずに収める。
+    {
+        auto modArea = pageArea;
+
+        modArea.removeFromLeft(FxGuiValue::Fx::ModLeft);
+
+        modArea = modArea.removeFromLeft(FxGuiValue::Fx::ModWidth)
+            .removeFromTop(FxGuiValue::Fx::ModHeight);
+
+        modGroup.setBounds(modArea);
+
+        auto modRect = modArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+        modRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+        layoutMain({ .mainRect = modRect, .component = &ampEnvEnableToggle });
+
+        ampEnvComponent.layoutComponent(modRect);
+    }
 
     auto mainArea = fxArea.removeFromTop(isShowRoute ? FxGuiValue::Fx::MainHeightRoute : FxGuiValue::Fx::MainHeight);
 
