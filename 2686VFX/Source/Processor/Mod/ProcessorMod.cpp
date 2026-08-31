@@ -464,6 +464,12 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 			float voiceRate = ratio * voiceRatio[(size_t)v];
 
+			// 変調の元がおかしな値を返すことがあるので、渡す前に音程として
+			// ありえる幅へ収める。下は 5 オクターブ下、上は 5 オクターブ上。
+			if (!std::isfinite(voiceRate)) voiceRate = 1.0f;
+
+			voiceRate = juce::jlimit(0.03125f, 32.0f, voiceRate);
+
 			float sL = dryL;
 			float sR = dryR;
 

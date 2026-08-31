@@ -107,6 +107,16 @@ void SsgSwPEnv11::noteOn() {
 
 void SsgSwPEnv11::noteOff() {
     this->state = State::S11;
+
+    // 傾きを出すのに割り算を使うので、割る数が 0 にならないようにする。
+    // updateIncrements のほうは同じ守りを持っているが、ここだけ抜けていた。
+    // 0 で割ると傾きが数でなくなり、以後の音程がすべて壊れる。
+    if (this->sampleRate <= 0.0) {
+        this->rInc[11] = this->l[11] - this->currentLevel;
+
+        return;
+    }
+
     float r = std::max(0.001f, this->r[11]);
     // 現在のレベルからV11に向けて減衰・上昇する傾きを計算
     this->rInc[11] = (this->l[11] - this->currentLevel) / (r * (float)this->sampleRate);

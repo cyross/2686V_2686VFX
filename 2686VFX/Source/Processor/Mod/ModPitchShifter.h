@@ -37,15 +37,22 @@ class ModPitchShifter
 
 	float readAt(float delay) const
 	{
+		if (size <= 0) return 0.0f;
+
 		float pos = (float)writePos - delay;
 
 		while (pos < 0.0f) pos += (float)size;
 
 		int i0 = (int)pos;
-		int i1 = (i0 + 1 >= size) ? 0 : i0 + 1;
-		float frac = pos - (float)i0;
 
-		return buffer[i0] + (buffer[i1] - buffer[i0]) * frac;
+		// 音を作っている最中は、外れた場所を読むわけにいかない。
+		// 渡された遅れがおかしくても、必ず溜めてある範囲に収める。
+		i0 = juce::jlimit(0, size - 1, i0);
+
+		int i1 = (i0 + 1 >= size) ? 0 : i0 + 1;
+		float frac = juce::jlimit(0.0f, 1.0f, pos - (float)i0);
+
+		return buffer[(size_t)i0] + (buffer[(size_t)i1] - buffer[(size_t)i0]) * frac;
 	}
 public:
 	void prepare(double sampleRate)
@@ -70,6 +77,14 @@ public:
 	// ratio は音程の倍率。1.0 でそのまま、2.0 で 1 オクターブ上。
 	float process(float input, float ratio)
 	{
+		if (size <= 0) return input;
+
+		// 変調の元がおかしな値を返すことがある。そのまま溜め込むと
+		// 読み口の位置が壊れ、以後ずっと直らなくなる。ここで断つ。
+		if (!std::isfinite(ratio)) ratio = 1.0f;
+		if (!std::isfinite(input)) input = 0.0f;
+		if (!std::isfinite(phase)) phase = 0.0f;
+
 		buffer[(size_t)writePos] = input;
 
 		// 読み口の遅れは、書き口との速さの差ぶんだけ増えていく。
