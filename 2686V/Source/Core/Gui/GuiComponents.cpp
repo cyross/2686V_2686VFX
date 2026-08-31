@@ -419,6 +419,11 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     g.fillRoundedRectangle(inner, juce::jmin(boxRadius, juce::jmin(inner.getWidth(), inner.getHeight()) * 0.5f));
 
     // 3. テキストの描画
+    //
+    // 直前でランプを塗っているので、色を戻さないと文字までランプの色で
+    // 描いてしまう。消えているときのランプは暗いため、文字が読めなくなる。
+    g.setColour(textColor.withMultipliedAlpha(alpha));
+
     juce::Rectangle<float> textBounds(box.getRight() + labelGapW, 0.0f, bounds.getWidth() - box.getRight() - labelGapW, bounds.getHeight());
     g.drawFittedText(text, textBounds.toNearestInt(), juce::Justification::centredLeft, 1);
 }
