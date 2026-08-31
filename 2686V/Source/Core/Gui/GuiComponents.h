@@ -381,6 +381,19 @@ protected:
             g.setColour(label.findColour(juce::Label::outlineColourId).withMultipliedAlpha(alpha));
             g.drawRoundedRectangle(bounds.reduced(0.5f), guiCornerRadius, 1.0f);
         }
+
+        // 数値の文字を既定より少し小さくする。
+        //
+        // 周波数のように桁の多い値は、既定の大きさだと枠へ収まらず
+        // 省略されてしまう。枠も広げるが、まず文字で稼ぐ。
+        juce::Label* createSliderTextBox(juce::Slider& slider) override
+        {
+            auto* box = juce::LookAndFeel_V4::createSliderTextBox(slider);
+
+            box->setFont(juce::Font(juce::FontOptions(CoreGuiValue::Slider::ValueBox::fontHeight)));
+
+            return box;
+        }
     };
 
     SliderLF customLF;
@@ -398,6 +411,14 @@ public:
     // 束縛先のパラメータを差し替える。
     // 1組のスライダーで複数パラメータを切り替えて編集する用途で使う
     // (例: UNISON の対象ボイス切り替え)。
+    // 数値欄の幅を、実際に出る文字に合わせる。
+    //
+    // 範囲や小数桁は setup の後で決められることがあるので、置き場所が
+    // 決まってから数える。
+    void updateValueBoxWidth();
+
+    void resized() override;
+
     void rebind(const juce::String& id)
     {
         // 必ず古い束縛を先に破棄すること。

@@ -195,13 +195,52 @@ void GuiLabel::paint(juce::Graphics& g)
     juce::Label::paint(g);
 }
 
+// 数値欄の幅を、実際に出る文字に合わせる。
+//
+// 以前は 42px の決め打ちだった。周波数のように 5 桁を超える値や、小数を
+// 出すものが「30000...」のように省略されていた。
+void GuiSlider::updateValueBoxWidth()
+{
+    // 範囲の両端を、実際の書式で作ってみる。単位が付くものも含めて、
+    // これが画面に出る文字そのものになる。
+    auto low = getTextFromValue(getMinimum());
+    auto high = getTextFromValue(getMaximum());
+
+    const auto& widest = high.length() >= low.length() ? high : low;
+
+    // 波括弧で初期化する。丸括弧だと関数の宣言として読まれてしまう。
+    juce::Font font{ juce::FontOptions(CoreGuiValue::Slider::ValueBox::fontHeight) };
+
+    int needed = (int)std::ceil(juce::GlyphArrangement::getStringWidth(font, widest))
+        + CoreGuiValue::Slider::ValueBox::padding;
+
+    int width = juce::jlimit(CoreGuiValue::Slider::ValueBox::minWidth,
+        CoreGuiValue::Slider::ValueBox::maxWidth, needed);
+
+    // 同じ幅で呼び直すと置き直しがもう一巡するので、変わるときだけ触る
+    if (width == getTextBoxWidth()) return;
+
+    setTextBoxStyle(juce::Slider::TextBoxRight, false, width,
+        CoreGuiValue::Slider::ValueBox::height);
+}
+
+void GuiSlider::resized()
+{
+    updateValueBoxWidth();
+
+    juce::Slider::resized();
+}
+
 void GuiSlider::setup(const Config& c)
 {
     label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor, .bgColor = GuiColor::Label::RowBg });
 
     c.parent.addAndMakeVisible(*this);
     this->setSliderStyle(juce::Slider::LinearHorizontal);
-    this->setTextBoxStyle(juce::Slider::TextBoxRight, false, 42, 20);
+    // 幅は置き場所が決まってから updateValueBoxWidth が決め直す。
+    // ここでは下限で置いておく。
+    this->setTextBoxStyle(juce::Slider::TextBoxRight, false,
+        CoreGuiValue::Slider::ValueBox::minWidth, CoreGuiValue::Slider::ValueBox::height);
 
     if (!c.trackColor.isTransparent())
     {

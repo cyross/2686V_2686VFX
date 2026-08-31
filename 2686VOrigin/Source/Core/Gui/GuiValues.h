@@ -228,6 +228,24 @@ namespace CoreGuiValue
 			static inline constexpr int width = 50;
 			static inline constexpr int height = 20;
 		}
+
+		// 値を出す枠。
+		//
+		// 幅を決め打ちにすると、周波数のように桁の多い値が入らず
+		// 省略されてしまう。実際に出る文字から決めるので、ここでは
+		// 下限と上限だけを持つ。
+		namespace ValueBox
+		{
+			static inline constexpr int minWidth = 42;
+			static inline constexpr int maxWidth = 80;
+			static inline constexpr int height = 20;
+
+			// 文字の左右へ置く余白
+			static inline constexpr int padding = 10;
+
+			// 既定より少し小さくして、桁数を稼ぐ
+			static inline constexpr float fontHeight = 12.0f;
+		}
 	}
 
 	namespace ComboBox
