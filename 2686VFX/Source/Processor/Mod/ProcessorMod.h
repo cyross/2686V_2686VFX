@@ -9,7 +9,6 @@
 
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-#include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
@@ -42,7 +41,6 @@ class ModProcessor
 	// --- 音量側 ---
 	PrPtrsAdsrAmpEnv ptAmpEnv;
 	PrPtrsSsgHwEnv ptSsgHwEnv;
-	PrPtrsSsgSwEnv ptSsgSwEnv;
 	PrPtrsSsgSwEnv11 ptSsgSwEnv11;
 	PrPtrsOpzx7Lfo ptLfo;
 
@@ -63,7 +61,6 @@ class ModProcessor
 
 	AmpAdsrEnv ampEnv;
 	SsgHwEnv ssgHwEnv;
-	SsgSwEnv ssgSwEnv;
 	SsgSwEnv11 ssgSwEnv11;
 	Opzx7LfoCore lfo;
 
@@ -96,6 +93,9 @@ class ModProcessor
 	bool wasShifting = false;
 
 	double rate = 44100.0;
+
+	// 入り切りの札を読み直す。押し離しは音を作るより先に届くため。
+	void refreshSwitches();
 public:
 	void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
 

@@ -38,14 +38,6 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 	// SSG のソフトウェアエンベロープは、入り切りの札だけが別の関数で
 	// まとめて登録される作りになっている。ここは必要なぶんだけ登録する。
-	PrHelper::addSsgSwEnvParameters(layout, prefix, displayName);
-	PrHelper::addBool(
-		layout,
-		prefix + CPK::ssgSwEnv + CPK::bypass,
-		displayName + CPN::SsgSwEnv::bypass,
-		CPV::SsgSwEnv::Bypass::initial
-	);
-
 	PrHelper::addSsgSwEnv11Parameters(layout, prefix, displayName);
 	PrHelper::addBool(
 		layout,
@@ -124,7 +116,6 @@ void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
 	PrHelper::setupAdsrAmpEnvPtrs(apvts, ModPrKey::prefix, ptAmpEnv);
 	PrHelper::setupSsgHwEnv(apvts, ModPrKey::prefix, ptSsgHwEnv);
-	PrHelper::setupSsgSwEnvPtrs(apvts, ModPrKey::prefix, ptSsgSwEnv);
 	PrHelper::setupSsgSwEnv11Ptrs(apvts, ModPrKey::prefix, ptSsgSwEnv11);
 	PrHelper::setupOpzx7LfoPtrs(apvts, ModPrKey::prefix, ptLfo);
 
@@ -147,7 +138,6 @@ void ModProcessor::prepare(double sampleRate)
 
 	// SSG のソフトウェアエンベロープは、どの対象へ掛けるかを番号で受ける。
 	// ここでは 1 組しか持たないので 0 を渡す。
-	ssgSwEnv.prepare(0, sampleRate);
 	ssgSwEnv11.prepare(0, sampleRate);
 
 	lfo.prepare(sampleRate);
@@ -170,14 +160,27 @@ void ModProcessor::prepare(double sampleRate)
 	wasShifting = false;
 }
 
+// 入り切りの札を読み直す。
+//
+// 鍵盤の押し離しは、この塊の音を作るより先に届く。札の読み取りを
+// 音を作るところに任せると、札を入れた直後の 1 音目だけが取りこぼされる。
+void ModProcessor::refreshSwitches()
+{
+	envEnabled = !PrHelper::getBool(pEnvBypass);
+	lfoEnabled = !PrHelper::getBool(pLfoBypass);
+	pitchEnabled = !PrHelper::getBool(pPitchBypass);
+	shiftEnabled = !PrHelper::getBool(pShiftBypass);
+}
+
 void ModProcessor::noteOn()
 {
+	refreshSwitches();
+
 	if (envEnabled)
 	{
 		ampLevel = ampEnv.noteOn();
 
 		ssgHwEnv.noteOn();
-		ssgSwEnv.noteOn();
 		ssgSwEnv11.noteOn();
 	}
 
@@ -193,11 +196,12 @@ void ModProcessor::noteOn()
 
 void ModProcessor::noteOff()
 {
+	refreshSwitches();
+
 	if (envEnabled)
 	{
 		ampEnv.noteOff();
 		ssgHwEnv.noteOff();
-		ssgSwEnv.noteOff();
 		ssgSwEnv11.noteOff();
 	}
 
@@ -217,11 +221,7 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 {
 	juce::ignoreUnused(apvts);
 
-	// 札はバイパス。中では「使うかどうか」で持つので、ここで裏返す。
-	envEnabled = !PrHelper::getBool(pEnvBypass);
-	lfoEnabled = !PrHelper::getBool(pLfoBypass);
-	pitchEnabled = !PrHelper::getBool(pPitchBypass);
-	shiftEnabled = !PrHelper::getBool(pShiftBypass);
+	refreshSwitches();
 
 	// どれも切なら何もしない。素通しにする。
 	if (!envEnabled && !lfoEnabled && !pitchEnabled && !shiftEnabled)
@@ -235,17 +235,14 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 	{
 		AmpAdsrParams ampParams;
 		SsgHwEnvParams hwParams;
-		SsgSwEnvParams swParams;
 		SsgSwEnv11Params sw11Params;
 
 		PrHelper::applyAdsrAmpEnv(ptAmpEnv, ampParams);
 		PrHelper::applySsgHwEnv(ptSsgHwEnv, hwParams);
-		PrHelper::applySsgSwEnv(ptSsgSwEnv, swParams);
 		PrHelper::applySsgSwEnv11(ptSsgSwEnv11, sw11Params);
 
 		ampEnv.setParameters(ampParams);
 		ssgHwEnv.setParameters(hwParams);
-		ssgSwEnv.setParameters(swParams);
 		ssgSwEnv11.setParameters(sw11Params);
 	}
 
@@ -391,7 +388,6 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 			gain *= ssgHwEnv.process();
 
-			if (!ssgSwEnv.isBypass()) gain *= ssgSwEnv.process();
 			if (!ssgSwEnv11.isBypass()) gain *= ssgSwEnv11.process();
 		}
 

@@ -9,7 +9,6 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../Components/AmpEnv/AmpEnv.h"
 #include "../Components/SsgHwEnv/SsgHwEnv.h"
-#include "../Components/SsgSwEnv/SsgSwEnv.h"
 #include "../Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../Components/LfoOpzx7/LfoOpzx7.h"
 #include "../Components/PitchEnv/PitchEnv.h"
@@ -43,6 +42,14 @@ class GuiFx : public GuiBase
 
     GuiGroup mainGroup;
 
+    // メイン以外はここへ入れて、横へまとめてスクロールさせる。
+    // 1 つの枠を上下いっぱいに使うので、縦には送らない。
+    juce::Viewport stripViewport;
+    juce::Component stripCanvas;
+
+    // 作り終えた部品を、メインに残すもの以外まとめて移す。
+    void moveToStrip();
+
     // 出力へ掛ける変調。音源ではチャンネルごとに持っていたものを、
     // ここでは出力に対して 1 組だけ持つ。
     //
@@ -59,7 +66,6 @@ class GuiFx : public GuiBase
 
     GuiScrollGroup modAmpEnvGroup;
     GuiScrollGroup modSsgHwEnvGroup;
-    GuiScrollGroup modSsgSwEnvGroup;
     GuiScrollGroup modSsgSwEnv11Group;
     GuiScrollGroup modLfoGroup;
     GuiScrollGroup modPitchEnvGroup;
@@ -70,7 +76,6 @@ class GuiFx : public GuiBase
 
     GuiComponentAmpEnv ampEnvComponent;
     GuiComponentSsgHwEnv ssgHwEnvComponent;
-    GuiComponentSsgSwEnv ssgSwEnvComponent;
     GuiComponentSsgSwEnv11 ssgSwEnv11Component;
     GuiComponentLfoOpzx7 lfoComponent;
     GuiComponentPitchEnv pitchEnvComponent;

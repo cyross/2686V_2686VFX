@@ -64,7 +64,6 @@ GuiFx::GuiFx(const GuiContext& context) :
     shiftBypassToggle(context),
     modAmpEnvGroup(context),
     modSsgHwEnvGroup(context),
-    modSsgSwEnvGroup(context),
     modSsgSwEnv11Group(context),
     modLfoGroup(context),
     modPitchEnvGroup(context),
@@ -74,7 +73,6 @@ GuiFx::GuiFx(const GuiContext& context) :
     modUnisonGroup(context),
     ampEnvComponent(context),
     ssgHwEnvComponent(context),
-    ssgSwEnvComponent(context),
     ssgSwEnv11Component(context),
     lfoComponent(context),
     pitchEnvComponent(context),
@@ -227,13 +225,12 @@ void GuiFx::setup()
 
     modAmpEnvGroup.setup(*this, juce::String("") + "AMP ENV");
     modSsgHwEnvGroup.setup(*this, juce::String("") + "SSG HW AMP ENV");
-    modSsgSwEnvGroup.setup(*this, juce::String("") + "SSG SW AMP ENV");
     modSsgSwEnv11Group.setup(*this, juce::String("") + "SSG SW AMP ENV[11]");
     modLfoGroup.setup(*this, juce::String("") + "LFO");
 
     // 変調の枠も、他の効果と同じ青系統に塗る。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup })
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup })
     {
         group->setBackgroundColor(groupBgColour);
     }
@@ -244,8 +241,6 @@ void GuiFx::setup()
     // ここは SSG チャンネルではなく出力へ借りて置くので、既定のままにする。
     ssgHwEnvComponent.setupComponent(modSsgHwEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
 
-    ssgSwEnvComponent.setupComponent(modSsgSwEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
-        CPK::ssgSwEnv + CPK::bypass, FxGuiText::Mod::SsgSwEnv::bypass);
 
     ssgSwEnv11Component.setupComponent(modSsgSwEnv11Group.contentCanvas, ModPrKey::prefix, tabOrder,
         CPK::ssgSwEnv11 + CPK::bypass, FxGuiText::Mod::SsgSwEnv11::bypass);
@@ -822,7 +817,7 @@ void GuiFx::setup()
     // 変調の中身は最初から開いておく。FX タブでは 1 枠が小さく、
     // たたまれていると何が入っているのか分からないため。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup,
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup,
         &modPitchEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup, &modMulDetuneGroup, &modUnisonGroup })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -840,6 +835,45 @@ void GuiFx::setup()
     updateEq3bEnabled();
     updateSfcEchoEnabled();
     updatePcmEnabled();
+
+    // 横へ送る板を用意して、メイン以外をその中へ移す。
+    stripViewport.setViewedComponent(&stripCanvas, false);
+    stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setOpaque(false);
+
+    addAndMakeVisible(stripViewport);
+
+    moveToStrip();
+}
+
+// メインに残すもの以外を、横へ送る板の子にする。
+//
+// つまみ類はどれもこの画面の直接の子として作られている。作り終えてから
+// まとめて移すほうが、作るところを一つずつ書き換えるより取りこぼしが無い。
+void GuiFx::moveToStrip()
+{
+    std::set<juce::Component*> keep = {
+        &mainGroup, &bypassToggle, &mainSeparator, &resetBtn,
+        &modSwitchSeparator, &envBypassToggle, &lfoBypassToggle,
+        &pitchBypassToggle, &shiftBypassToggle,
+        &routeSeparator, &showRouteBtn, &fileSeparator,
+        &importFxOrderBtn, &exportFxOrderBtn, &importFxParamBtn, &exportFxParamBtn,
+        &stripViewport };
+
+    for (int i = 0; i < NumEffects; ++i)
+    {
+        keep.insert(&routeFx[i]);
+        keep.insert(&routeUp[i]);
+        keep.insert(&routeDown[i]);
+    }
+
+    // 移すと子の一覧が変わるので、控えを取ってから回す。
+    juce::Array<juce::Component*> children = getChildren();
+
+    for (auto* child : children)
+    {
+        if (keep.find(child) == keep.end()) stripCanvas.addAndMakeVisible(child);
+    }
 }
 
 void GuiFx::layout(juce::Rectangle<int> content)
@@ -858,73 +892,30 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     pageArea.removeFromLeft(FxGuiValue::Fx::ColGap);
 
-    // その右を、上が FX の段、下が変調の段。
-    auto fxArea = pageArea.removeFromTop(
-        FxGuiValue::Fx::AreaHeightRow1 + FxGuiValue::Fx::SectionGap + FxGuiValue::Fx::AreaHeightRow2);
+    // その右はまとめて横へ送る。効果も変調も 1 つずつ、上下いっぱいの
+    // 縦長の枠にして横へ並べるので、縦には送らない。
+    stripViewport.setBounds(pageArea);
 
-    pageArea.removeFromTop(FxGuiValue::Fx::SectionGap);
+    int columns = NumEffects + FxGuiValue::Fx::ModPanels;
 
-    // FX の右の空きへ変調を置く。タブを増やさずに収める。
+    int canvasWidth = columns * FxGuiValue::Fx::ColWidth
+        + (columns - 1) * FxGuiValue::Fx::ColGap;
+
+    // 横の送り棒が出るぶんだけ、中身の丈を短くする。
+    int canvasHeight = juce::jmax(1, pageArea.getHeight() - stripViewport.getScrollBarThickness());
+
+    stripCanvas.setSize(canvasWidth, canvasHeight);
+
+    juce::Rectangle<int> strip(0, 0, canvasWidth, canvasHeight);
+
+    // 変調は効果の右へ続くので、そのぶんだけ進めた位置から始める。
+    juce::Rectangle<int> modStrip = strip;
+
+    modStrip.removeFromLeft(NumEffects * (FxGuiValue::Fx::ColWidth + FxGuiValue::Fx::ColGap));
+
+    // 変調は効果の右へ続けて並べる。
     {
-        auto modArea = pageArea;
-
-        // 5 列 2 段。段の高さは、その段に入るものが欲しがる高さの比で分ける。
-        // 半分ずつにすると、中身の少ない段に余りが残ったまま、多い段だけが
-        // 延々とスクロールすることになる。
-        //
-        // 幅は段の高さに左右されないので、先に中身の幅だけを求めておけば
-        // 置く前に高さを測れる。
-        int contentWidth = FxGuiValue::Fx::ColWidth
-            - FxGuiValue::Group::Padding::width * 2
-            - modAmpEnvGroup.viewport.getScrollBarThickness();
-
-        auto measureRow = [&](std::initializer_list<std::function<void(juce::Rectangle<int>&)>> bodies)
-        {
-            int tallest = 1;
-
-            for (const auto& body : bodies)
-            {
-                juce::Rectangle<int> probe(0, 0, contentWidth, 8000);
-
-                body(probe);
-
-                tallest = juce::jmax(tallest, probe.getY() + categoryContentTrailingPadding);
-            }
-
-            return tallest;
-        };
-
-        int upperWant = measureRow({
-            [&](juce::Rectangle<int>& r) { ampEnvComponent.layoutComponent(r); },
-            [&](juce::Rectangle<int>& r) { ssgHwEnvComponent.layoutComponent(r); },
-            [&](juce::Rectangle<int>& r) { ssgSwEnvComponent.layoutComponent(r); },
-            [&](juce::Rectangle<int>& r) { ssgSwEnv11Component.layoutComponent(r); },
-            [&](juce::Rectangle<int>& r) { lfoComponent.layoutComponent(r); } });
-
-        int lowerWant = measureRow({
-            [&](juce::Rectangle<int>& r) { pitchEnvComponent.layoutComponent(r); },
-            [&](juce::Rectangle<int>& r) { ssgSwPEnv11Component.layoutComponent(r); },
-            [&](juce::Rectangle<int>& r) { wtModComponent.layoutComponent(r); },
-            [&](juce::Rectangle<int>& r) { mulDetuneComponent.layoutComponent(r); },
-            [&](juce::Rectangle<int>& r) { unisonComponent.layoutComponent(r); } });
-
-        int available = modArea.getHeight() - FxGuiValue::Fx::SectionGap;
-
-        // 欲しがる高さの比で分ける。どちらかが極端に短くならないよう、
-        // 見出しと数行ぶんは必ず残す。
-        int upperHeight = (int)((juce::int64)available * upperWant / juce::jmax(1, upperWant + lowerWant));
-
-        upperHeight = juce::jlimit(
-            FxGuiValue::Fx::ModRowMinHeight,
-            available - FxGuiValue::Fx::ModRowMinHeight,
-            upperHeight);
-
-        auto upperRow = modArea.removeFromTop(upperHeight);
-
-        modArea.removeFromTop(FxGuiValue::Fx::SectionGap);
-
-        auto lowerRow = modArea;
-
+        auto modArea = modStrip;
         // 列を 1 つ切り出して、中身を上から積む。積んだ高さをそのまま
         // キャンバスの高さにするので、はみ出したぶんはスクロールで届く。
         auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody)
@@ -948,24 +939,23 @@ void GuiFx::layout(juce::Rectangle<int> content)
             group.setContentHeight(rect.getY() + categoryContentTrailingPadding);
         };
 
-        layoutModColumn(upperRow, modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); });
-        layoutModColumn(upperRow, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
-        layoutModColumn(upperRow, modSsgSwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgSwEnvComponent.layoutComponent(rect); });
-        layoutModColumn(upperRow, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
+        layoutModColumn(modArea, modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
 
-        layoutModColumn(upperRow, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
 
-        layoutModColumn(lowerRow, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
-        layoutModColumn(lowerRow, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
-        layoutModColumn(lowerRow, modWtModGroup, [&](juce::Rectangle<int>& rect)
+        layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
+        layoutModColumn(modArea, modWtModGroup, [&](juce::Rectangle<int>& rect)
         {
             wtModComponent.layoutComponent(rect);
 
             wtModBaseFreqSlider.setBounds(rect.removeFromTop(FxGuiValue::Fx::ModBaseFreqHeight));
         });
 
-        layoutModColumn(lowerRow, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); });
-        layoutModColumn(lowerRow, modUnisonGroup, [&](juce::Rectangle<int>& rect) { unisonComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modUnisonGroup, [&](juce::Rectangle<int>& rect) { unisonComponent.layoutComponent(rect); });
     }
 
     mainGroup.setBounds(mainArea);
@@ -990,16 +980,11 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutFxOrder(mRect);
 
-    // 1 段目は背の低いもの 5 つ、2 段目は背の高いもの 4 つ。
-    auto row1 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightRow1);
 
-    fxArea.removeFromTop(FxGuiValue::Fx::SectionGap);
-
-    auto row2 = fxArea;
 
     // Filter
-    auto rect1 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto flArea = rect1.removeFromTop(FxGuiValue::Fx::HeightFilter);
+    auto rect1 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto flArea = rect1;
 
     filterGroup.setBounds(flArea);
 
@@ -1019,9 +1004,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn });
 
     // 3-Band EQ
-    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect2 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto eq3bArea = rect2.removeFromTop(FxGuiValue::Fx::HeightEq3b);
+    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect2 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto eq3bArea = rect2;
 
     eq3bGroup.setBounds(eq3bArea);
 
@@ -1042,9 +1027,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = eq3bRect, .comp1 = &eq3bDryBtn, .comp2 = &eq3bHalfBtn, .comp3 = &eq3bWetBtn });
 
     // Tremolo
-    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect3 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto trmArea = rect3.removeFromTop(FxGuiValue::Fx::HeightTremoro);
+    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect3 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto trmArea = rect3;
 
     tremGroup.setBounds(trmArea);
 
@@ -1063,9 +1048,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = trmRect, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn });
 
     // Vibrato
-    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect4 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto vibArea = rect4.removeFromTop(FxGuiValue::Fx::HeightVibrato);
+    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect4 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto vibArea = rect4;
 
     vibGroup.setBounds(vibArea);
 
@@ -1084,9 +1069,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = vibRect, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn });
 
     // Modern Bit Crusher
-    row1.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect5 = row1.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto mbcArea = rect5.removeFromTop(FxGuiValue::Fx::HeightMbc);
+    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect5 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto mbcArea = rect5;
 
     mbcGroup.setBounds(mbcArea);
 
@@ -1105,8 +1090,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn });
 
     // Delay
-    auto rect6 = row2.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto dlyArea = rect6.removeFromTop(FxGuiValue::Fx::HeightDelay);
+    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect6 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto dlyArea = rect6;
 
     delayGroup.setBounds(dlyArea);
 
@@ -1125,9 +1111,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = dlyRect, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn });
 
     // Reverb
-    row2.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect7 = row2.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto rvbArea = rect7.removeFromTop(FxGuiValue::Fx::HeightReverb);
+    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect7 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto rvbArea = rect7;
 
     reverbGroup.setBounds(rvbArea);
 
@@ -1146,9 +1132,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn });
 
     // SfcEcho
-    row2.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect8 = row2.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto sfceArea = rect8.removeFromTop(FxGuiValue::Fx::HeightSfcEcho);
+    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect8 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto sfceArea = rect8;
 
     sfceGroup.setBounds(sfceArea);
 
@@ -1177,9 +1163,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     // 2686V PCM Bit Crusher
     // 9 個目なので、3 列目の一番下へ置く。
-    row2.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect9 = row2.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto pcmArea = rect9.removeFromTop(FxGuiValue::Fx::HeightPcm);
+    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
+    auto rect9 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+    auto pcmArea = rect9;
 
     pcmGroup.setBounds(pcmArea);
 
