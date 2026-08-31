@@ -513,3 +513,35 @@ TEST_CASE("パラメータファイル: 変換したものの置き場")
 		CHECK(Io::convertedFileFor(dir.getChildFile("bass.ampEnv")).getFileName() == "bass.ampEnv.yaml");
 	}
 }
+
+TEST_CASE("パラメータファイル: 文字列の並びが往復する")
+{
+	// FX の順番を名前で持つために使う
+	for (auto format : { Io::FileFormat::json, Io::FileFormat::yaml })
+	{
+		ScopedFormat scoped(format);
+		TempFile temp;
+
+		{
+			Io::ParamWriter writer(testFormat);
+
+			writer.setArray("order", std::vector<juce::String>{ "filter", "delay", "sfcEcho" });
+
+			REQUIRE(writer.writeTo(temp.file));
+		}
+
+		auto reader = Io::ParamReader::open(temp.file, testFormat, false);
+
+		REQUIRE(reader.has_value());
+
+		auto names = reader->getStringArray("order");
+
+		REQUIRE(names.size() == 3);
+		CHECK(names[0] == "filter");
+		CHECK(names[1] == "delay");
+		CHECK(names[2] == "sfcEcho");
+
+		// 数として書かれていたものも、文字列として読み出せる
+		CHECK(reader->getStringArray("missing").empty());
+	}
+}

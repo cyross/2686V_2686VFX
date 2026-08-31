@@ -26,6 +26,38 @@ enum class FxType
 // 型変換の手間を省くための定数
 static constexpr int NumEffects = static_cast<int>(FxType::Count);
 
+// ファイルへ書くときの名前。
+//
+// 順番を番号で持つと、効果を足したときに位置がずれ、他のプラグインで
+// 書いたファイルが別の効果へ化ける。名前なら、足しても消しても
+// 取り違えない。画面に出す名前と違い、訳さないし変えないこと。
+static inline const juce::String fxTypeNames[NumEffects] = {
+    "filter",
+    "eq3b",
+    "tremolo",
+    "vibrato",
+    "modernBitCrusher",
+    "delay",
+    "reverb",
+    "sfcEcho",
+};
+
+static inline juce::String fxTypeName(int index)
+{
+    return (index >= 0 && index < NumEffects) ? fxTypeNames[index] : juce::String();
+}
+
+// 知らない名前は -1 を返す。他のプラグインにしかない効果のため。
+static inline int fxTypeFromName(const juce::String& name)
+{
+    for (int i = 0; i < NumEffects; ++i)
+    {
+        if (fxTypeNames[i] == name) return i;
+    }
+
+    return -1;
+}
+
 class FxCore
 {
 public:

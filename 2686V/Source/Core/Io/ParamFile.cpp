@@ -505,6 +505,15 @@ namespace Io
 		m_values->setProperty(key, out);
 	}
 
+	void ParamWriter::setArray(const juce::String& key, const std::vector<juce::String>& values)
+	{
+		juce::Array<juce::var> out;
+
+		for (const auto& v : values) out.add(v);
+
+		m_values->setProperty(key, out);
+	}
+
 	void ParamWriter::setArray(const juce::String& key, const std::vector<int>& values)
 	{
 		juce::Array<juce::var> out;
@@ -652,6 +661,18 @@ namespace Io
 		if (auto* array = find(key).getArray())
 		{
 			for (const auto& e : *array) out.push_back((float)(double)e);
+		}
+
+		return out;
+	}
+
+	std::vector<juce::String> ParamReader::getStringArray(const juce::String& key) const
+	{
+		std::vector<juce::String> out;
+
+		if (auto* array = find(key).getArray())
+		{
+			for (const auto& e : *array) out.push_back(e.toString());
 		}
 
 		return out;

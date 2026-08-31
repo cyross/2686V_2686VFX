@@ -1,4 +1,5 @@
 ﻿#include "../../Core/Editor/EditorGuiValues.h"
+#include <algorithm>
 #include "./GuiFx.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
@@ -1015,14 +1016,33 @@ void GuiFx::importFxOrder()
                 // 読み終えてからまとめて描き直す
                 GuiRefresh::Batch batch;
 
-                // 並びの長さがそのまま数になるので、いくつ入っているかを
-                // 先頭に書いておく必要が無い。
-                auto stored = reader->getIntArray("order");
+                // 名前で読む。3.0.0 のはじめの形は番号だったので、
+                // 名前として読めなければ番号として読み直す。
+                auto storedNames = reader->getStringArray("order");
 
                 std::vector<int> newOrders;
 
+                for (const auto& name : storedNames) {
+                    int id = fxTypeFromName(name);
+
+                    // 数で書かれていたときはここへ来る
+                    if (id < 0 && name.containsOnly("0123456789")) id = name.getIntValue();
+
+                    // このプラグインに無い効果は読み飛ばす。
+                    // 他のプラグインにしかないものが混ざっていても壊れない。
+                    if (id < 0 || id >= NumEffects) continue;
+
+                    // 同じものが二度出てきたら後のほうは捨てる
+                    if (std::find(newOrders.begin(), newOrders.end(), id) != newOrders.end()) continue;
+
+                    newOrders.push_back(id);
+                }
+
+                // 書かれていなかった効果を後ろへ足す。必ず全部そろえる。
                 for (int i = 0; i < NumEffects; i++) {
-                    newOrders.push_back(i < (int)stored.size() ? stored[(size_t)i] : i);
+                    if (std::find(newOrders.begin(), newOrders.end(), i) == newOrders.end()) {
+                        newOrders.push_back(i);
+                    }
                 }
 
                 ctx.audioProcessor.updateFxOrder(newOrders);
@@ -1253,7 +1273,13 @@ void GuiFx::setImportingFxOrder(juce::StringArray& lines, int& index) {
 
 // 書き出す中身。エクスポートと変換の両方から使う。
 void GuiFx::writeFxOrder(Io::ParamWriter& writer) {
-    writer.setArray("order", order);
+    // 名前で書く。番号だと、効果を足したプラグインとの間で位置がずれて
+    // 別の効果として読まれてしまう。
+    std::vector<juce::String> names;
+
+    for (int id : order) names.push_back(fxTypeName(id));
+
+    writer.setArray("order", names);
 
 
 }
