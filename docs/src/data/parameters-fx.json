@@ -1,0 +1,1803 @@
+{
+  "plugin": "ParamDumpFx",
+  "version": "3.0.0",
+  "count": 212,
+  "parameters": [
+    {
+      "id": "MODE",
+      "name": "Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "FX_BYPASS",
+      "name": "FX Master Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "FX_FIL_BYPASS",
+      "name": "FX Filter Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FX_FIL_TYPE",
+      "name": "FX Filter Type",
+      "type": "Int",
+      "min": 1,
+      "max": 3,
+      "default": 1
+    },
+    {
+      "id": "FX_FIL_FREQ",
+      "name": "FX Filter Freq",
+      "type": "Float",
+      "min": 0.0,
+      "max": 20000.0,
+      "step": 0.009999999776483,
+      "default": 20000.0
+    },
+    {
+      "id": "FX_FIL_Q",
+      "name": "FX Filter Q",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.710000038146973
+    },
+    {
+      "id": "FX_FIL_MIX",
+      "name": "FX Filter Mix",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_TRM_BYPASS",
+      "name": "FX Tremolo Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FX_TRM_RATE",
+      "name": "FX Tremolo Rate",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 20.0,
+      "step": 0.009999999776483,
+      "default": 5.0
+    },
+    {
+      "id": "FX_TRM_DEPTH",
+      "name": "FX Tremolo Depth",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "FX_TRM_MIX",
+      "name": "FX Tremolo Mix",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_VIB_BYPASS",
+      "name": "FX Vibrato Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FX_VIB_RATE",
+      "name": "FX Vibrato Rate",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 2.0
+    },
+    {
+      "id": "FX_VIB_DEPTH",
+      "name": "FX Vibrato Depth",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.5
+    },
+    {
+      "id": "FX_VIB_MIX",
+      "name": "FX Vibrato Mix",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_MBC_BYPASS",
+      "name": "FX Modern BC Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FX_MBC_RATE",
+      "name": "FX Modern BC Rate",
+      "type": "Float",
+      "min": 1.0,
+      "max": 50.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "FX_MBC_BITS",
+      "name": "FX Modern BC Bit",
+      "type": "Float",
+      "min": 2.0,
+      "max": 24.0,
+      "step": 0.009999999776483,
+      "default": 24.0
+    },
+    {
+      "id": "FX_MBC_MIX",
+      "name": "FX Modern BC Mix",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_PCMBC_BYPASS",
+      "name": "FX PCM BC Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FX_PCMBC_BITS",
+      "name": "FX PCM BC Bit",
+      "type": "Int",
+      "min": 1,
+      "max": 12,
+      "default": 12
+    },
+    {
+      "id": "FX_PCMBC_RATE",
+      "name": "FX PCM BC Rate",
+      "type": "Int",
+      "min": 1,
+      "max": 15,
+      "default": 9
+    },
+    {
+      "id": "FX_PCMBC_INTP",
+      "name": "FX PCM BC Interpolation",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
+    },
+    {
+      "id": "FX_PCMBC_MIX",
+      "name": "FX PCM BC Mix",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_DLY_BYPASS",
+      "name": "FX Delay Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FX_DLY_TIME",
+      "name": "FX Delay Time",
+      "type": "Float",
+      "min": 10.0,
+      "max": 1000.0,
+      "step": 0.009999999776483,
+      "default": 375.0
+    },
+    {
+      "id": "FX_DLY_FB",
+      "name": "FX Delay Feedback",
+      "type": "Float",
+      "min": 0.0,
+      "max": 0.949999988079071,
+      "step": 0.009999999776483,
+      "default": 0.399999976158142
+    },
+    {
+      "id": "FX_DLY_MIX",
+      "name": "FX Delay Mix",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_RVB_BYPASS",
+      "name": "FX Reverb Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FX_RVB_SIZE",
+      "name": "FX Reverb Size",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.5
+    },
+    {
+      "id": "FX_RVB_DAMP",
+      "name": "FX Reverb Damp",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.5
+    },
+    {
+      "id": "FX_RVB_MIX",
+      "name": "FX Reverb Mix",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_EQ3B_BYPASS",
+      "name": "FX 3Band EQ Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FX_EQ3B_LGDB",
+      "name": "FX 3Band EQ Low Gain dB",
+      "type": "Float",
+      "min": -15.0,
+      "max": 15.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_EQ3B_MFREQ",
+      "name": "FX 3Band EQ Mid Freq",
+      "type": "Float",
+      "min": 500.0,
+      "max": 3000.0,
+      "step": 0.009999999776483,
+      "default": 2000.0
+    },
+    {
+      "id": "FX_EQ3B_MGDB",
+      "name": "FX 3Band EQ Mid Gain dB",
+      "type": "Float",
+      "min": -15.0,
+      "max": 15.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_EQ3B_HGDB",
+      "name": "FX 3Band EQ High Gain dB",
+      "type": "Float",
+      "min": -15.0,
+      "max": 15.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_EQ3B_MIX",
+      "name": "FX 3Band EQ Mix",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_BYPASS",
+      "name": "FX SFC Echo Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FX_SFCECHO_TIME",
+      "name": "FX SFC Echo Time",
+      "type": "Float",
+      "min": 0.0,
+      "max": 240.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_FB",
+      "name": "FX SFC Echo Feedback",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_FIR_COEF0",
+      "name": "FX SFC Echo Fir Coef[0]",
+      "type": "Float",
+      "min": -128.0,
+      "max": 127.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_FIR_COEF1",
+      "name": "FX SFC Echo Fir Coef[1]",
+      "type": "Float",
+      "min": -128.0,
+      "max": 127.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_FIR_COEF2",
+      "name": "FX SFC Echo Fir Coef[2]",
+      "type": "Float",
+      "min": -128.0,
+      "max": 127.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_FIR_COEF3",
+      "name": "FX SFC Echo Fir Coef[3]",
+      "type": "Float",
+      "min": -128.0,
+      "max": 127.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_FIR_COEF4",
+      "name": "FX SFC Echo Fir Coef[4]",
+      "type": "Float",
+      "min": -128.0,
+      "max": 127.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_FIR_COEF5",
+      "name": "FX SFC Echo Fir Coef[5]",
+      "type": "Float",
+      "min": -128.0,
+      "max": 127.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_FIR_COEF6",
+      "name": "FX SFC Echo Fir Coef[6]",
+      "type": "Float",
+      "min": -128.0,
+      "max": 127.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_FIR_COEF7",
+      "name": "FX SFC Echo Fir Coef[7]",
+      "type": "Float",
+      "min": -128.0,
+      "max": 127.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "FX_SFCECHO_MIX",
+      "name": "FX SFC Echo Mix",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_ENV_BYPASS",
+      "name": "MOD Env Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "MOD_ADSR_BYPASS",
+      "name": "MOD ADSR Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_AR",
+      "name": "MOD Ar",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_DR",
+      "name": "MOD Dr",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SL",
+      "name": "MOD Sl",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_RR",
+      "name": "MOD Rr",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_STL",
+      "name": "MOD Stl",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_KOR",
+      "name": "MOD KOR",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_SSGHWENV_ENABLE",
+      "name": "MOD Hardware Env Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_SSGHWENV_SHAPE",
+      "name": "MOD Hardware Env Shape",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGHWENV_PERIOD",
+      "name": "MOD Hardware Env Period",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 200.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGHWENV_MIN",
+      "name": "MOD Hardware Env Min",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_SSGHWENV_MAX",
+      "name": "MOD Hardware Env Max",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGHWENV_SMOOTH",
+      "name": "MOD Hardware Env Smooth",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_SSGSW11_STEPS",
+      "name": "MOD SSG SwEnv11 Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 10,
+      "default": 10
+    },
+    {
+      "id": "MOD_SSGSW11_LOOP",
+      "name": "MOD SSG SwEnv11 Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_SSGSW11_LOOPTO",
+      "name": "MOD SSG SwEnv11 Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 8,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSW11_LOOPCNT",
+      "name": "MOD SSG SwEnv11 Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSW11_STL",
+      "name": "MOD SSG SwEnv11 STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_SSGSW11_R1",
+      "name": "MOD SSG SwEnv11 R1",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L1",
+      "name": "MOD SSG SwEnv11 L1",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R2",
+      "name": "MOD SSG SwEnv11 R2",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L2",
+      "name": "MOD SSG SwEnv11 L2",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R3",
+      "name": "MOD SSG SwEnv11 R3",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L3",
+      "name": "MOD SSG SwEnv11 L3",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R4",
+      "name": "MOD SSG SwEnv11 R4",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L4",
+      "name": "MOD SSG SwEnv11 L4",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R5",
+      "name": "MOD SSG SwEnv11 R5",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L5",
+      "name": "MOD SSG SwEnv11 L5",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R6",
+      "name": "MOD SSG SwEnv11 R6",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L6",
+      "name": "MOD SSG SwEnv11 L6",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R7",
+      "name": "MOD SSG SwEnv11 R7",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L7",
+      "name": "MOD SSG SwEnv11 L7",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R8",
+      "name": "MOD SSG SwEnv11 R8",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L8",
+      "name": "MOD SSG SwEnv11 L8",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R9",
+      "name": "MOD SSG SwEnv11 R9",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L9",
+      "name": "MOD SSG SwEnv11 L9",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R10",
+      "name": "MOD SSG SwEnv11 R10",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L10",
+      "name": "MOD SSG SwEnv11 L10",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGSW11_R11",
+      "name": "MOD SSG SwEnv11 R11",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW11_L11",
+      "name": "MOD SSG SwEnv11 L11",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_SSGSW11_BYPASS",
+      "name": "MOD SSG SwEnv11 Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "MOD_LFO_BYPASS",
+      "name": "MOD LFO Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "MOD_LFO_PM_FREQ",
+      "name": "MOD LFO PM Freq",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 50.0,
+      "step": 0.009999999776483,
+      "default": 5.0
+    },
+    {
+      "id": "MOD_LFO_AM_FREQ",
+      "name": "MOD LFO AM Freq",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 50.0,
+      "step": 0.009999999776483,
+      "default": 5.0
+    },
+    {
+      "id": "MOD_LFO_PM_SYNC_DELAY",
+      "name": "MOD LFO PM Sync Delay",
+      "type": "Int",
+      "min": 0,
+      "max": 255,
+      "default": 0
+    },
+    {
+      "id": "MOD_LFO_AM_SYNC_DELAY",
+      "name": "MOD LFO AM Sync Delay",
+      "type": "Int",
+      "min": 0,
+      "max": 255,
+      "default": 0
+    },
+    {
+      "id": "MOD_LFO_ASMRT",
+      "name": "MOD LFO AM Smooth Ratio",
+      "type": "Float",
+      "min": 0.004999999888241,
+      "max": 0.5,
+      "step": 0.009999999776483,
+      "default": 0.004999999888241
+    },
+    {
+      "id": "MOD_LFO_PG_SHAPE",
+      "name": "MOD LFO PG Shape",
+      "type": "Int",
+      "min": 0,
+      "max": 12,
+      "default": 0
+    },
+    {
+      "id": "MOD_LFO_EG_SHAPE",
+      "name": "MOD LFO EG Shape",
+      "type": "Int",
+      "min": 0,
+      "max": 12,
+      "default": 0
+    },
+    {
+      "id": "MOD_LFO_AM",
+      "name": "MOD LFO AM",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_LFO_PM",
+      "name": "MOD LFO PM",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_LFO_PMS",
+      "name": "MOD LFO PMS",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_LFO_AMS",
+      "name": "MOD LFO AMS",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_LFO_PMD",
+      "name": "MOD LFO PMD",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_LFO_AMD",
+      "name": "MOD LFO AMD",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_PITCH_BYPASS",
+      "name": "MOD Pitch Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "MOD_PITCH_AR",
+      "name": "MOD PitchEnv Ar",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_PITCH_DR",
+      "name": "MOD PitchEnv Dr",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_PITCH_RR",
+      "name": "MOD PitchEnv Rr",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_PITCH_STL",
+      "name": "MOD PitchEnv Stl",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_PITCH_ATL",
+      "name": "MOD PitchEnv Atl",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_PITCH_SSL",
+      "name": "MOD PitchEnv Ssl",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_PITCH_RLL",
+      "name": "MOD PitchEnv Rll",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_PITCHENV_BYPASS",
+      "name": "MOD PitchEnv Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_SSGSWP11_STEPS",
+      "name": "MOD SSG SwPEnv11 Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 10,
+      "default": 10
+    },
+    {
+      "id": "MOD_SSGSWP11_LOOP",
+      "name": "MOD SSG SwPEnv11 Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_SSGSWP11_LOOPTO",
+      "name": "MOD SSG SwPEnv11 Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 8,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_LOOPCNT",
+      "name": "MOD SSG SwPEnv11 Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_STL",
+      "name": "MOD SSG SwPEnv11 STL",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R1",
+      "name": "MOD SSG SwPEnv11 R1",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L1",
+      "name": "MOD SSG SwPEnv11 L1",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R2",
+      "name": "MOD SSG SwPEnv11 R2",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L2",
+      "name": "MOD SSG SwPEnv11 L2",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R3",
+      "name": "MOD SSG SwPEnv11 R3",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L3",
+      "name": "MOD SSG SwPEnv11 L3",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R4",
+      "name": "MOD SSG SwPEnv11 R4",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L4",
+      "name": "MOD SSG SwPEnv11 L4",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R5",
+      "name": "MOD SSG SwPEnv11 R5",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L5",
+      "name": "MOD SSG SwPEnv11 L5",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R6",
+      "name": "MOD SSG SwPEnv11 R6",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L6",
+      "name": "MOD SSG SwPEnv11 L6",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R7",
+      "name": "MOD SSG SwPEnv11 R7",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L7",
+      "name": "MOD SSG SwPEnv11 L7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R8",
+      "name": "MOD SSG SwPEnv11 R8",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L8",
+      "name": "MOD SSG SwPEnv11 L8",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R9",
+      "name": "MOD SSG SwPEnv11 R9",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L9",
+      "name": "MOD SSG SwPEnv11 L9",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R10",
+      "name": "MOD SSG SwPEnv11 R10",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L10",
+      "name": "MOD SSG SwPEnv11 L10",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_R11",
+      "name": "MOD SSG SwPEnv11 R11",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSWP11_L11",
+      "name": "MOD SSG SwPEnv11 L11",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP11_BYPASS",
+      "name": "MOD SSG SwPEnv11 Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "MOD_MOD_ENABLE",
+      "name": "MOD Mod Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_MOD_DEPTH",
+      "name": "MOD Mod Depth",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.199999988079071
+    },
+    {
+      "id": "MOD_MOD_SPEED",
+      "name": "MOD Mod Speed",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_MOD_SHAPE",
+      "name": "MOD Mod Shape",
+      "type": "Int",
+      "min": 0,
+      "max": 8,
+      "default": 0
+    },
+    {
+      "id": "MOD_MOD_WAVE_SMOOTH",
+      "name": "MOD Mod Wave Smooth",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "MOD_MOD_WAVE_SLOT",
+      "name": "MOD Mod Wave Slot",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "MOD_MOD_FDS_0",
+      "name": "MOD Mod FDS Table 0",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_1",
+      "name": "MOD Mod FDS Table 1",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_2",
+      "name": "MOD Mod FDS Table 2",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_3",
+      "name": "MOD Mod FDS Table 3",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_4",
+      "name": "MOD Mod FDS Table 4",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_5",
+      "name": "MOD Mod FDS Table 5",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_6",
+      "name": "MOD Mod FDS Table 6",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_7",
+      "name": "MOD Mod FDS Table 7",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_8",
+      "name": "MOD Mod FDS Table 8",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_9",
+      "name": "MOD Mod FDS Table 9",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_10",
+      "name": "MOD Mod FDS Table 10",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_11",
+      "name": "MOD Mod FDS Table 11",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_12",
+      "name": "MOD Mod FDS Table 12",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_13",
+      "name": "MOD Mod FDS Table 13",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_14",
+      "name": "MOD Mod FDS Table 14",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_15",
+      "name": "MOD Mod FDS Table 15",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_16",
+      "name": "MOD Mod FDS Table 16",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_17",
+      "name": "MOD Mod FDS Table 17",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_18",
+      "name": "MOD Mod FDS Table 18",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_19",
+      "name": "MOD Mod FDS Table 19",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_20",
+      "name": "MOD Mod FDS Table 20",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_21",
+      "name": "MOD Mod FDS Table 21",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_22",
+      "name": "MOD Mod FDS Table 22",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_23",
+      "name": "MOD Mod FDS Table 23",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_MOD_FDS_24",
+      "name": "MOD Mod FDS Table 24",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_25",
+      "name": "MOD Mod FDS Table 25",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_26",
+      "name": "MOD Mod FDS Table 26",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_27",
+      "name": "MOD Mod FDS Table 27",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_28",
+      "name": "MOD Mod FDS Table 28",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_29",
+      "name": "MOD Mod FDS Table 29",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_30",
+      "name": "MOD Mod FDS Table 30",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_MOD_FDS_31",
+      "name": "MOD Mod FDS Table 31",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_WTMOD_BASEFREQ",
+      "name": "MOD WT Mod Base Freq",
+      "type": "Float",
+      "min": 1.0,
+      "max": 2000.0,
+      "step": 0.009999999776483,
+      "default": 440.0
+    },
+    {
+      "id": "MOD_SHIFT_BYPASS",
+      "name": "MOD Shift Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "MOD_MUL",
+      "name": "MOD MUL",
+      "type": "Int",
+      "min": 0,
+      "max": 21,
+      "default": 2
+    },
+    {
+      "id": "MOD_MUL_RATIO",
+      "name": "MOD MUL Ratio",
+      "type": "Float",
+      "min": 0.009999999776483,
+      "max": 100.0,
+      "step": 0.009999999776483,
+      "default": 0.999999940395355
+    },
+    {
+      "id": "MOD_DT",
+      "name": "MOD DT1",
+      "type": "Int",
+      "min": 0,
+      "max": 15,
+      "default": 0
+    },
+    {
+      "id": "MOD_DT2",
+      "name": "MOD DT2",
+      "type": "Int",
+      "min": 0,
+      "max": 3,
+      "default": 0
+    },
+    {
+      "id": "MOD_DT3",
+      "name": "MOD DT3",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_UNI_VOICES",
+      "name": "MOD Unison Voices",
+      "type": "Int",
+      "min": 1,
+      "max": 8,
+      "default": 1
+    },
+    {
+      "id": "MOD_UNI_DETUNE",
+      "name": "MOD Unison Detune",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_UNI_SPREAD",
+      "name": "MOD Unison Spread",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.5
+    },
+    {
+      "id": "MOD_UNI_ARP",
+      "name": "MOD Unison Arpeggio",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_UNI_ARPFREQ",
+      "name": "MOD Unison Arpeggio Freq",
+      "type": "Int",
+      "min": 1,
+      "max": 4000,
+      "default": 60
+    },
+    {
+      "id": "MOD_UNI_ARPSMTH",
+      "name": "MOD Unison Arpeggio Smooth",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "MOD_UNI_PDIST1",
+      "name": "MOD Unison Para Distance 1",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_UNI_PDET1",
+      "name": "MOD Unison Para Detune 1",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_UNI_PDIST2",
+      "name": "MOD Unison Para Distance 2",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_UNI_PDET2",
+      "name": "MOD Unison Para Detune 2",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_UNI_PDIST3",
+      "name": "MOD Unison Para Distance 3",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_UNI_PDET3",
+      "name": "MOD Unison Para Detune 3",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_UNI_PDIST4",
+      "name": "MOD Unison Para Distance 4",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_UNI_PDET4",
+      "name": "MOD Unison Para Detune 4",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_UNI_PDIST5",
+      "name": "MOD Unison Para Distance 5",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_UNI_PDET5",
+      "name": "MOD Unison Para Detune 5",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_UNI_PDIST6",
+      "name": "MOD Unison Para Distance 6",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_UNI_PDET6",
+      "name": "MOD Unison Para Detune 6",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_UNI_PDIST7",
+      "name": "MOD Unison Para Distance 7",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_UNI_PDET7",
+      "name": "MOD Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MONO_MODE",
+      "name": "Monophony Mode",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "USE_VELICITY",
+      "name": "Use Velocity",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "PITCH_RESET_LEGATO",
+      "name": "Pitch Reset On Legato",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "FIXED_VELICITY",
+      "name": "Fixed Velocity",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    }
+  ]
+}

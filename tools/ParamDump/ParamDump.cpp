@@ -16,7 +16,11 @@
 #include <cmath>
 
 #include "Core/Processor/PluginProcessor.h"
+// カーブはプラグインによっては持っていない。持っている的だけが
+// CY_HAS_CURVE を立てるので、無ければ丸ごと飛ばす。
+#if CY_HAS_CURVE
 #include "Advanced/Curve/AdvancedCurveParams.h"
+#endif
 
 namespace
 {
@@ -160,8 +164,10 @@ int main(int argc, char* argv[])
 	}
 
 	// カーブは 1 ブロックごとにまるごと写しているので、その大きさも見ておく
+#if CY_HAS_CURVE
 	std::printf("CurveParams: 1 枠 %zu バイト / 全体 %zu バイト (%.1f KB)\n",
 		sizeof(BaseCurveParams), sizeof(CurveParams), sizeof(CurveParams) / 1024.0);
+#endif
 
 	std::printf("%d 件を書き出しました: %s\n", list.size(), target.getFullPathName().toRawUTF8());
 

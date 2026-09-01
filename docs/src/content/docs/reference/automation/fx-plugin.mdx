@@ -1,0 +1,28 @@
+---
+title: 2686VFX
+description: 2686VFX のオートメーション一覧
+sidebar:
+  order: 16
+---
+
+import ParameterTable from '../../../../components/ParameterTable.astro';
+
+2686VFX が DAW へ出すパラメータの一覧です。音源のものとは別に持っています。
+
+## FX
+
+効果そのものの設定です。音源側の FX と同じ並びに、2686VFX だけの
+PCM ビットクラッシャー (`FX_PCMBC_*`) が加わります。
+
+<ParameterTable group="FX" lang="ja" plugin="2686VFX" />
+
+## MOD (出力への変調)
+
+2686VFX だけの機能です。音源側のエンベロープや LFO を出力そのものへ掛けます。
+MIDI の鍵盤で動きます。
+
+<ParameterTable group="MOD" lang="ja" plugin="2686VFX" />
+
+## 全体
+
+<ParameterTable group="global" lang="ja" plugin="2686VFX" />

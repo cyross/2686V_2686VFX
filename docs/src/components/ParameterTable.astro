@@ -13,9 +13,9 @@ interface Props {
 	lang?: 'ja' | 'en';
 }
 
-const { group, lang = 'ja' } = Astro.props;
+const { group, lang = 'ja', plugin = '2686V' } = Astro.props;
 
-const rows = rowsOf(group, lang);
+const rows = rowsOf(group, lang, plugin);
 const actual = parametersOf(group).length;
 
 const head = lang === 'ja'
