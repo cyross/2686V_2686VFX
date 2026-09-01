@@ -173,7 +173,7 @@ void GuiSettings::setup()
     sampleDirBrowseBtn.setWantsKeyboardFocus(true);
     sampleDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     sampleDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "サンプルファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultSampleDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userHomeDirectory) : juce::File(ctx.audioProcessor.defaultSampleDir),
             [this](const juce::FileChooser& fc) {
@@ -195,7 +195,7 @@ void GuiSettings::setup()
     presetDirBrowseBtn.setWantsKeyboardFocus(true);
     presetDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     presetDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "プリセットファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultPresetDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPresetDir),
             [this](const juce::FileChooser& fc) {
@@ -220,7 +220,7 @@ void GuiSettings::setup()
     wavetableDirBrowseBtn.setWantsKeyboardFocus(true);
     wavetableDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     wavetableDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "波形メモリファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultWavetableDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultWavetableDir),
             [this](const juce::FileChooser& fc) {
@@ -241,7 +241,7 @@ void GuiSettings::setup()
     fxOrderDirBrowseBtn.setWantsKeyboardFocus(true);
     fxOrderDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     fxOrderDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "エフェクトオーダーファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultFxOrderDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxOrderDir),
             [this](const juce::FileChooser& fc) {
@@ -262,7 +262,7 @@ void GuiSettings::setup()
     fxParamDirBrowseBtn.setWantsKeyboardFocus(true);
     fxParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     fxParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "FXファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultFxParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxParamDir),
             [this](const juce::FileChooser& fc) {
@@ -283,7 +283,7 @@ void GuiSettings::setup()
     channelParamDirBrowseBtn.setWantsKeyboardFocus(true);
     channelParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     channelParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "CHパラメータファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultChannelParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultChannelParamDir),
             [this](const juce::FileChooser& fc) {
@@ -304,7 +304,7 @@ void GuiSettings::setup()
     curveParamDirBrowseBtn.setWantsKeyboardFocus(true);
     curveParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     curveParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "カーブ編集パラメータファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultCurveParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultCurveParamDir),
             [this](const juce::FileChooser& fc) {
@@ -325,7 +325,7 @@ void GuiSettings::setup()
     lfoParamDirBrowseBtn.setWantsKeyboardFocus(true);
     lfoParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     lfoParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "LFOファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultLfoParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultLfoParamDir),
             [this](const juce::FileChooser& fc) {
@@ -346,7 +346,7 @@ void GuiSettings::setup()
     ampEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
     ampEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ampEnvParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "AMP ENVファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultAmpEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultAmpEnvParamDir),
             [this](const juce::FileChooser& fc) {
@@ -367,7 +367,7 @@ void GuiSettings::setup()
     pitchEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
     pitchEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     pitchEnvParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "PITCH ENVファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultPitchEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPitchEnvParamDir),
             [this](const juce::FileChooser& fc) {
@@ -388,7 +388,7 @@ void GuiSettings::setup()
     ssgSwEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
     ssgSwEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ssgSwEnvParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "SSG SW ENVファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultSsgSwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgSwEnvParamDir),
             [this](const juce::FileChooser& fc) {
@@ -409,7 +409,7 @@ void GuiSettings::setup()
     ssgHwEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
     ssgHwEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ssgHwEnvParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "SSG HW ENVファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultSsgHwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgHwEnvParamDir),
             [this](const juce::FileChooser& fc) {
@@ -430,7 +430,7 @@ void GuiSettings::setup()
     detuneParamDirBrowseBtn.setWantsKeyboardFocus(true);
     detuneParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     detuneParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "DETUNE ファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultDetuneParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultDetuneParamDir),
             [this](const juce::FileChooser& fc) {
@@ -451,7 +451,7 @@ void GuiSettings::setup()
     unisonParamDirBrowseBtn.setWantsKeyboardFocus(true);
     unisonParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     unisonParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "UNISON ファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultUnisonParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultUnisonParamDir),
             [this](const juce::FileChooser& fc) {
@@ -472,7 +472,7 @@ void GuiSettings::setup()
     qualityParamDirBrowseBtn.setWantsKeyboardFocus(true);
     qualityParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     qualityParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "音質ファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultQualityParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultQualityParamDir),
             [this](const juce::FileChooser& fc) {
@@ -493,7 +493,7 @@ void GuiSettings::setup()
     pcmPlayParamDirBrowseBtn.setWantsKeyboardFocus(true);
     pcmPlayParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     pcmPlayParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "PCM再生ファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultPcmPlayParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPcmPlayParamDir),
             [this](const juce::FileChooser& fc) {
@@ -514,7 +514,7 @@ void GuiSettings::setup()
     colorSettingDirBrowseBtn.setWantsKeyboardFocus(true);
     colorSettingDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     colorSettingDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "色の設定ファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultColorSettingDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultColorSettingDir),
             [this](const juce::FileChooser& fc) {
@@ -535,7 +535,7 @@ void GuiSettings::setup()
     toneNoiseParamDirBrowseBtn.setWantsKeyboardFocus(true);
     toneNoiseParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     toneNoiseParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        ctx.editor.openFolderChooser(
             juce::String("") + "トーン/ノイズファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultToneNoiseParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultToneNoiseParamDir),
             [this](const juce::FileChooser& fc) {
