@@ -226,9 +226,24 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     // --- Global ---
     int m = PrHelper::getInt(pMode);
-    m_currentParams.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
 
-    prMap[m_currentParams.mode]->processBlock(m_currentParams, apvts);
+    // 持っていないチャンネルの番号が来ることがある。チャンネルを全部持つ
+    // プラグインで作ったプリセットを読み込んだときで、MODE の上限はタブの
+    // 数なので、チャンネルの少ないプラグインでは通ってしまう。
+    //
+    // そのまま引くと、prMap が無いキーへ空のポインタを挿し込んで返す。
+    // 辿った先で落ちるので、知らない番号は先頭のチャンネルへ戻す。
+    if (m < 0 || m >= (int)OscMode::Count) m = 0;
+
+    m_currentParams.mode = (OscMode)m;
+
+    // map を [] で引くと、無いキーのときに空のポインタを挿し込んでしまう。
+    // 上で丸めてあるので届かないはずだが、辿る前に確かめておく。
+    auto found = prMap.find(m_currentParams.mode);
+
+    if (found == prMap.end() || found->second == nullptr) return;
+
+    found->second->processBlock(m_currentParams, apvts);
 
     if (m_currentParams.mode == OscMode::OPZX7)
     {
@@ -1301,6 +1316,9 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
 {
     // 1. パラメータの取得と設定
     int m = PrHelper::getInt(pMode);
+
+    if (m < 0 || m >= (int)OscMode::Count) m = 0;
+
     m_previewParams.mode = (OscMode)m;
 
     switch (m_previewParams.mode) {
