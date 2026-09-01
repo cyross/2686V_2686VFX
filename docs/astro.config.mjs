@@ -61,6 +61,10 @@ export default defineConfig({
 					items: [
 						{ slug: 'reference/features' },
 						{ slug: 'reference/signal-flow' },
+						{ slug: 'reference/mml' },
+						{ slug: 'reference/shortcuts' },
+						{ slug: 'reference/colors' },
+						{ slug: 'reference/license' },
 						{ autogenerate: { directory: 'reference/automation' } },
 					],
 				},
