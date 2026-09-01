@@ -146,6 +146,10 @@ class GuiOpna : public GuiBase
     std::array<GuiComboBox, OpnaPrValue::ops> se;
     std::array<GuiSlider, OpnaPrValue::ops> seFreq;
 
+    // 選んだ形を見せる。チャンネル全体のほうには前からあるが、
+    // オペレータごとのものには無かった。
+    std::array<GuiWavePreview, OpnaPrValue::ops> sePreview;
+
     // Pitch ADSR
     std::array<GuiComponentPitchEnv, OpnaPrValue::ops> pitchEnv;
     // SSG SW Env
@@ -294,6 +298,7 @@ public:
         catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        sePreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
         pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
         ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
         ssgSwEnv11{ GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context) },
@@ -358,6 +363,7 @@ public:
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutN88LfoCat(juce::Rectangle<int>& rect);
     void updateLfoPreviews();
+    void updateSePreview(int opIndex);
     void layoutOpSsgEnvelopeCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpHwLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);

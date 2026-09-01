@@ -70,7 +70,12 @@ export default defineConfig({
 						{ slug: 'reference/lists-waveform' },
 						{ slug: 'reference/lists-quality' },
 						{ slug: 'reference/color-names' },
-						{ autogenerate: { directory: 'reference/automation' } },
+						{
+							label: 'オートメーション一覧',
+							translations: { en: 'Automation reference' },
+							collapsed: true,
+							items: [{ autogenerate: { directory: 'reference/automation' } }],
+						},
 					],
 				},
 				{

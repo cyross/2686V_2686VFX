@@ -16,7 +16,54 @@ sidebar:
 
 先頭の 8 種類が実機のもので、それ以降は**独自に足した波形**です。すべてのチャンネルで使えます。
 
-**0〜43 の 44 種類**です。名前は付いておらず、画面では結線図として出ます。
+**44 種類**あります。
+
+| 値 | 名前 |
+| ---: | --- |
+| 0 | Saw Down |
+| 1 | Saw Down & Hold |
+| 2 | Triangle |
+| 3 | Alternative Saw Down & Hold |
+| 4 | Saw Up |
+| 5 | Saw Up & Hold |
+| 6 | Triangle Invert |
+| 7 | Alternative Saw Up & Hold |
+| 8 | Square 75% |
+| 9 | Square 50% |
+| 10 | Square 25% |
+| 11 | Square 12.5% |
+| 12 | Square -75% |
+| 13 | Square -50% |
+| 14 | Square -25% |
+| 15 | Square -12.5% |
+| 16 | Step Up 4 |
+| 17 | Step Up 5 |
+| 18 | Step Up 6 |
+| 19 | Step Up 11 |
+| 20 | Step Down 4 |
+| 21 | Step Down 5 |
+| 22 | Step Down 6 |
+| 23 | Step Down 11 |
+| 24 | Step Peak 4 |
+| 25 | Step Peak 5 |
+| 26 | Step Peak 6 |
+| 27 | Step Peak 11 |
+| 28 | Step Valley 4 |
+| 29 | Step Valley 5 |
+| 30 | Step Valley 6 |
+| 31 | Step Valley 11 |
+| 32 | Sample & Hold |
+| 33 | Sample & Hold 4 |
+| 34 | Sample & Hold 8 |
+| 35 | Sample & Hold 16 |
+| 36 | Sample & Hold 32 |
+| 37 | Sample & Hold 64 |
+| 38 | Exp Decay |
+| 39 | Exp Attack |
+| 40 | Sine |
+| 41 | Attack & Decay |
+| 42 | Double Pulse |
+| 43 | Random |
 
 ## OPZX7S — WAVE SHAPE
 
@@ -104,37 +151,101 @@ sidebar:
 
 AM と PM で共通の波形です。
 
-**0〜12 の 13 種類**です。名前は付いておらず、画面では結線図として出ます。
+**13 種類**あります。
+
+| 値 | 名前 |
+| ---: | --- |
+| 0 | Sine |
+| 1 | Saw Up |
+| 2 | Saw Down |
+| 3 | Square |
+| 4 | Triangle |
+| 5 | Sample & Hold |
+| 6 | Saw Down & One Shot |
+| 7 | Triangle & One Shot |
+| 8 | Sample & Hold  4 |
+| 9 | Sample & Hold  8 |
+| 10 | Sample & Hold 16 |
+| 11 | Sample & Hold 32 |
+| 12 | Sample & Hold 64 |
 
 ## OPNA — HW LFO
 
 YM2608 のハードウェア LFO です。
 
-**0〜5 の 6 種類**です。名前は付いておらず、画面では結線図として出ます。
+**6 種類**あります。
+
+| 値 | 名前 |
+| ---: | --- |
+| 0 | Saw Up |
+| 1 | Square |
+| 2 | Triangle |
+| 3 | Sample & Hold |
+| 4 | Saw Down & One Shot |
+| 5 | Triangle & One Shot |
 
 ## OPNA — N88 LFO
 
 N88-BASIC が使っていたソフトウェア LFO です。
 
-**0〜3 の 4 種類**です。名前は付いておらず、画面では結線図として出ます。
+**4 種類**あります。
+
+| 値 | 名前 |
+| ---: | --- |
+| 0 | Saw Up |
+| 1 | Square |
+| 2 | Triangle |
+| 3 | Noise |
 
 ## OPM — HW LFO
 
 YM2151 のハードウェア LFO です。
 
-**0〜4 の 5 種類**です。名前は付いておらず、画面では結線図として出ます。
+**5 種類**あります。
+
+| 値 | 名前 |
+| ---: | --- |
+| 0 | Sine |
+| 1 | Saw Down |
+| 2 | Square |
+| 3 | Triangle |
+| 4 | Noise |
 
 ## WT / WT2 — プリセット波形
 
 描く前の出発点として用意してある波形です。
 
-**0〜8 の 9 種類**です。名前は付いておらず、画面では結線図として出ます。
+**9 種類**あります。
+
+| 値 | 名前 |
+| ---: | --- |
+| 0 | Sine |
+| 1 | Triangle |
+| 2 | Saw Up |
+| 3 | Saw Down |
+| 4 | Square (50%) |
+| 5 | Pulse (25%) |
+| 6 | Pulse (12.5%) |
+| 7 | Digital Noise |
+| 8 | Custom(Draw) |
 
 ## WT PITCH MOD — 変調のしかた
 
 波形メモリによる音程の変調です。すべてのチャンネルで使えます。
 
-**0〜8 の 9 種類**です。名前は付いておらず、画面では結線図として出ます。
+**9 種類**あります。
+
+| 値 | 名前 |
+| ---: | --- |
+| 0 | Sine |
+| 1 | FDS Triangle |
+| 2 | FDS Saw |
+| 3 | FDS Reset |
+| 4 | FDS Pulse |
+| 5 | WS Sweep Up |
+| 6 | WS Sweep Down |
+| 7 | HuC6280 Wave |
+| 8 | FDS Table |
 
 ## SSG — 波形
 

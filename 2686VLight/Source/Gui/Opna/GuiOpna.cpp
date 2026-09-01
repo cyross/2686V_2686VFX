@@ -578,6 +578,14 @@ void GuiOpna::setup()
         seFreq[i].setWantsKeyboardFocus(true);
         seFreq[i].setExplicitFocusOrder(++tabOrder);
 
+        sePreview[i].setup(opGroups[i].contentCanvas, GuiColor::WavePreview::AmpEnv);
+
+        // 形と周期のどちらが変わっても描き直す
+        se[i].onChange = [this, i] { updateSePreview(i); };
+        seFreq[i].onValueChange = [this, i] { updateSePreview(i); };
+
+        updateSePreview(i);
+
         catLfo[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnaGuiText::Category::hwLfo, .enableChangeDetailVisible = true });
 
         freqs[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::freqs, .title = OpnaGuiText::Fm::Op::Freqs, .items = lfoFreqsItems, .isReset = true });
@@ -1227,6 +1235,26 @@ void GuiOpna::layoutN88LfoCat(juce::Rectangle<int>& rect)
     }
 }
 
+// オペレータの SSG HW ENV の形を描き直す。
+//
+// 選べる並びは先頭が「掛けない」で、そのあとに実機の 8 種類が続く。
+// 実際の形の番号は 1 つずれるので、そのぶんを引いて渡す。
+void GuiOpna::updateSePreview(int opIndex)
+{
+    int selected = se[opIndex].getSelectedItemIndex();
+
+    if (selected <= 0)
+    {
+        // 掛けないときは平らな線にする
+        sePreview[opIndex].setPoints(std::vector<float>(2, 1.0f), false);
+
+        return;
+    }
+
+    sePreview[opIndex].setPoints(
+        WavePreviewSource::ssgHwEnv(selected - 1, 0.0f, 1.0f, false), false);
+}
+
 void GuiOpna::layoutOpSsgEnvelopeCat(int opIndex, juce::Rectangle<int>& rect)
 {
     layoutRowCategory({ .rowRect = rect, .component = &catSsgEnv[opIndex] });
@@ -1235,11 +1263,15 @@ void GuiOpna::layoutOpSsgEnvelopeCat(int opIndex, juce::Rectangle<int>& rect)
 
     se[opIndex].setVisibleWithLabel(visible);
     seFreq[opIndex].setVisibleWithLabel(visible);
+    sePreview[opIndex].setVisible(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .label = &se[opIndex].label, .component = &se[opIndex] });
         layoutRow({ .rowRect = rect, .label = &seFreq[opIndex].label, .component = &seFreq[opIndex] });
+
+        sePreview[opIndex].setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(3);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }

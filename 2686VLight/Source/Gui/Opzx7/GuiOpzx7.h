@@ -193,6 +193,10 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiComboBox, Opzx7PrValue::ops> se;
     std::array<GuiSlider, Opzx7PrValue::ops> seFreq;
 
+    // 選んだ形を見せる。チャンネル全体のほうには前からあるが、
+    // オペレータごとのものには無かった。
+    std::array<GuiWavePreview, Opzx7PrValue::ops> sePreview;
+
     // LFO
     std::array<GuiComponentLfoOpzx7, Opzx7PrValue::ops> lfo;
 
@@ -309,6 +313,7 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);
+    void updateSePreview(int opIndex);
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);
