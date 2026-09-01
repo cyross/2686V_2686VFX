@@ -234,7 +234,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - 4-bit ADPCM supported
       - 1-bit DPCM supported
     - Playback start position, playback ratio and loop points are supported.
-  - 8 pads (6 in Origin)
+  - 8 pads (6 in 86V)
     - The YM-2608B had 6; this is extended to 8.
       - Can also stand in for the 8-voice SSGPCM (PSGPCM) used by PPZ8 and the like.
       - 86V keeps 6 to follow the 86 sound board.
