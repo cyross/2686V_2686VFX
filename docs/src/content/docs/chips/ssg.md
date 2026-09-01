@@ -2,7 +2,7 @@
 title: SSG
 description: 矩形波・三角波とノイズを鳴らす SSG チャンネルの使い方
 sidebar:
-  order: 1
+  order: 7
 ---
 
 SSG は、AY-3-8910 系のいわゆる PSG にあたるチャンネルです。矩形波とノイズを
