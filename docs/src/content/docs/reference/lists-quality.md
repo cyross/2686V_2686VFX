@@ -6,7 +6,7 @@ sidebar:
 ---
 
 **QUALITY** は、音のビット数とサンプリング周波数を落として当時の質感を
-作るところです。チャンネルによって選べるものが違います。
+作るところです。**何番を選ぶと何になるか**をここで確かめられます。
 
 | 種類 | 使うチャンネル |
 | --- | --- |
@@ -19,20 +19,20 @@ sidebar:
 
 **12 種類**あります。
 
-| 値 | 名前 |
-| ---: | --- |
-| 1 | 4-bit (16 steps) |
-| 2 | 5-bit (32 steps) |
-| 3 | 6-bit (64 steps) |
-| 4 | 7-bit (128 steps) |
-| 5 | 8-bit (256 steps) |
-| 6 | 9-bit (512 steps) |
-| 7 | 10-bit (1024 steps) |
-| 8 | 12-bit (4096 steps) |
-| 9 | 16-bit (32768 steps) |
-| 10 | 20-bit (1048576 steps) |
-| 11 | 24-bit (16777216 steps) |
-| 12 | Raw |
+| 値 | 名前 | 備考 |
+| ---: | --- | --- |
+| 1 | 4-bit (16 steps) | |
+| 2 | 5-bit (32 steps) | |
+| 3 | 6-bit (64 steps) | |
+| 4 | 7-bit (128 steps) | |
+| 5 | 8-bit (256 steps) | |
+| 6 | 9-bit (512 steps) | |
+| 7 | 10-bit (1024 steps) | |
+| 8 | 12-bit (4096 steps) | |
+| 9 | 16-bit (32768 steps) | |
+| 10 | 20-bit (1048576 steps) | |
+| 11 | 24-bit (16777216 steps) | |
+| 12 | Raw | |
 
 ## BIT — ビット数（PCM 系）
 
@@ -40,29 +40,29 @@ sidebar:
 
 **21 種類**あります。
 
-| 値 | 名前 |
-| ---: | --- |
-| 1 | Raw (32bit) |
-| 2 | 24-bit PCM |
-| 3 | 20-bit PCM |
-| 4 | 16-bit PCM |
-| 5 | 12-bit PCM |
-| 6 | 10-bit PCM |
-| 7 | 9-bit PCM |
-| 8 | 8-bit PCM |
-| 9 | 7-bit PCM |
-| 10 | 6-bit PCM |
-| 11 | 5-bit PCM |
-| 12 | 4-bit PCM |
-| 13 | 4-bit ADPCM |
-| 14 | 1-bit DPCM |
-| 15 | SNES BRR |
-| 16 | PS1 VAG |
-| 17 | IMA ADPCM |
-| 18 | CD-ROM XA |
-| 19 | YMZ280B |
-| 20 | K053260 |
-| 21 | K054539 |
+| 値 | 名前 | 備考 |
+| ---: | --- | --- |
+| 1 | Raw (32bit) | |
+| 2 | 24-bit PCM | |
+| 3 | 20-bit PCM | |
+| 4 | 16-bit PCM | |
+| 5 | 12-bit PCM | |
+| 6 | 10-bit PCM | |
+| 7 | 9-bit PCM | |
+| 8 | 8-bit PCM | |
+| 9 | 7-bit PCM | |
+| 10 | 6-bit PCM | |
+| 11 | 5-bit PCM | |
+| 12 | 4-bit PCM | |
+| 13 | 4-bit ADPCM | |
+| 14 | 1-bit DPCM | |
+| 15 | SNES BRR | |
+| 16 | PS1 VAG | |
+| 17 | IMA ADPCM | |
+| 18 | CD-ROM XA | |
+| 19 | YMZ280B | |
+| 20 | K053260 | |
+| 21 | K054539 | |
 
 ## RATE — サンプリング周波数
 
@@ -70,23 +70,23 @@ sidebar:
 
 **15 種類**あります。
 
-| 値 | 名前 |
-| ---: | --- |
-| 1 | 96kHz |
-| 2 | 55.5kHz |
-| 3 | 49.7kHz |
-| 4 | 48kHz |
-| 5 | 44.1kHz |
-| 6 | 33.08kHz |
-| 7 | 32kHz |
-| 8 | 22.05kHz |
-| 9 | 16kHz |
-| 10 | 12kHz |
-| 11 | 11kHz |
-| 12 | 8kHz |
-| 12 | 5.5kHz |
-| 13 | 4kHz |
-| 15 | 2kHz |
+| 値 | 名前 | 備考 |
+| ---: | --- | --- |
+| 1 | 96kHz | |
+| 2 | 55.5kHz | |
+| 3 | 49.7kHz | |
+| 4 | 48kHz | |
+| 5 | 44.1kHz | |
+| 6 | 33.08kHz | |
+| 7 | 32kHz | |
+| 8 | 22.05kHz | |
+| 9 | 16kHz | |
+| 10 | 12kHz | |
+| 11 | 11kHz | |
+| 12 | 8kHz | |
+| 12 | 5.5kHz | |
+| 13 | 4kHz | |
+| 15 | 2kHz | |
 
 ## INTP — 補間のしかた（PCM 系）
 
@@ -94,12 +94,12 @@ sidebar:
 
 **7 種類**あります。
 
-| 値 | 名前 |
-| ---: | --- |
-| 1 | 補完なし (Nearest) |
-| 2 | 線形補間 (Linear) |
-| 3 | ガウス補完 (Gaussian) |
-| 4 | ZOH (Zero-Order Hold) |
-| 5 | コサイン補間 (Cosine) |
-| 6 | B-スプライン補間 (B-Spline) |
-| 7 | ラグランジュ補間 (Lagrange) |
+| 値 | 名前 | 備考 |
+| ---: | --- | --- |
+| 1 | 補完なし (Nearest) | |
+| 2 | 線形補間 (Linear) | |
+| 3 | ガウス補完 (Gaussian) | |
+| 4 | ZOH (Zero-Order Hold) | |
+| 5 | コサイン補間 (Cosine) | |
+| 6 | B-スプライン補間 (B-Spline) | |
+| 7 | ラグランジュ補間 (Lagrange) | |
