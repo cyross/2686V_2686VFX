@@ -60,6 +60,7 @@ export default defineConfig({
 					translations: { en: 'Reference' },
 					items: [
 						{ slug: 'reference/features' },
+						{ slug: 'reference/signal-flow' },
 						{ autogenerate: { directory: 'reference/automation' } },
 					],
 				},
