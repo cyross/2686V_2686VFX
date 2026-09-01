@@ -60,6 +60,14 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
         set(CY_PRODUCT_NAME ${TARGET_NAME})
     endif()
 
+    # 出す形。macOS では AU も求められることが多いので、そこでだけ足す。
+    # 音源か効果かは IS_SYNTH から JUCE が判断し、AU の種別を決めてくれる。
+    set(CY_PLUGIN_FORMATS VST3 Standalone)
+
+    if(APPLE)
+        list(APPEND CY_PLUGIN_FORMATS AU)
+    endif()
+
     juce_add_plugin(${TARGET_NAME}
         COMPANY_NAME "CYROSS"
         IS_SYNTH ${CY_IS_SYNTH}
@@ -70,7 +78,7 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
         COPY_PLUGIN_AFTER_BUILD FALSE
         PLUGIN_MANUFACTURER_CODE "CYRS"
         PLUGIN_CODE ${CY_PLUGIN_CODE}
-        FORMATS VST3 Standalone
+        FORMATS ${CY_PLUGIN_FORMATS}
         ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
         PRODUCT_NAME ${CY_PRODUCT_NAME}
         VST3_AUTO_MANIFEST FALSE
