@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+﻿cmake_minimum_required(VERSION 3.22)
 
 # ソリューション（ワークスペース）全体の名前
 project(RetroSynthsBundle VERSION 3.0.0 LANGUAGES C CXX)
@@ -122,5 +122,14 @@ add_subdirectory(2686VFX)
 add_subdirectory(tools)
 
 # ユニットテスト (JUCE を読み込まずロジック層だけを検証する)
-enable_testing()
-add_subdirectory(tests)
+#
+# 別の CPU 向けに組むときは、出来た実行ファイルをこの機械で走らせられない。
+# それでも組むこと自体には意味がある (その CPU で通らない書き方に気づける)
+# ので、既定では組んで、走らせる登録だけを飛ばす。まるごと外したいときは
+# CY_BUILD_TESTS を切る。
+option(CY_BUILD_TESTS "ユニットテストを組む" ON)
+
+if(CY_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
