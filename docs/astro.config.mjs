@@ -63,6 +63,7 @@ export default defineConfig({
 					translations: { en: 'Per plugin' },
 					items: [
 						{ slug: 'plugins/compare' },
+						{ slug: 'plugins/fx-plugin' },
 					],
 				},
 			],
