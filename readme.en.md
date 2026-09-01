@@ -236,7 +236,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - Playback start position, playback ratio and loop points are supported.
   - 8 pads (6 in Origin)
     - The YM-2608B had 6; this is extended to 8.
-      - 2686V Origin keeps 6 to follow the 86 sound board.
+      - Can also stand in for the 8-voice SSGPCM (PSGPCM) used by PPZ8 and the like.
+      - 86V keeps 6 to follow the 86 sound board.
     - An audio file can be assigned to each pad.
     - MIDI key assignment can be customised.
   - As software features, envelopes on each pad
