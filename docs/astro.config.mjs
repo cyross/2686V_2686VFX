@@ -38,6 +38,7 @@ export default defineConfig({
 						{ slug: 'guide/about' },
 						{ slug: 'guide/features' },
 						{ slug: 'guide/install' },
+						{ slug: 'guide/changes' },
 					],
 				},
 				{
