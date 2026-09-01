@@ -11,9 +11,10 @@ sidebar:
 ## 音源の 4 つ
 
 音源どうしは、**収録するタブの数だけが違います。** 共通の画面と操作は
-すべて同じです。
+すべて同じです。 FX は音源側ではタブではなく、右端に出しっぱなしの
+ペインです（[画面の見かた](/2686V_2686VFX/guide/screen/)）。
 
-| タブ | 2686V | 2686VLight | 86V | OPZX7S |
+| タブ | <img src="/2686V_2686VFX/logos/2686V.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686V | <img src="/2686V_2686VFX/logos/2686VLight.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686VLight | <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />86V | <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />OPZX7S |
 | --- | :---: | :---: | :---: | :---: |
 | OPNA | ✔ | ✔ | ✔ | — |
 | OPN | ✔ | ✔ | — | — |
@@ -28,7 +29,7 @@ sidebar:
 | RHYTHM | ✔ | ✔ | ✔ (6 パッド) | — |
 | ADPCM | ✔ | ✔ | ✔ (PCM) | — |
 | BEEP | ✔ | ✔ | — | — |
-| FX | ✔ | ✔ | ✔ | ✔ |
+| FX (ペイン) | ✔ | ✔ | ✔ | ✔ |
 | CURVE | ✔ | — | — | ✔ |
 | PRESET / SETTINGS / COLORS / ABOUT | ✔ | ✔ | ✔ | ✔ |
 
@@ -47,7 +48,7 @@ sidebar:
 **2686VFX** だけは毛色が違います。音を作らず、**入ってきた音を加工します。**
 音源に付いている FX タブを取り出して、単体で使えるようにしたものです。
 
-| | 音源の 4 つ | 2686VFX |
+| | 音源の 4 つ | <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686VFX |
 | --- | :---: | :---: |
 | 種類 | 音源 (シンセ) | エフェクト |
 | 音声入力 | なし | ステレオ |

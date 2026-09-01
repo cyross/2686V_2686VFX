@@ -37,6 +37,7 @@ export default defineConfig({
 					items: [
 						{ slug: 'guide/about' },
 						{ slug: 'guide/features' },
+						{ slug: 'guide/screen' },
 						{ slug: 'guide/install' },
 						{ slug: 'guide/changes' },
 					],

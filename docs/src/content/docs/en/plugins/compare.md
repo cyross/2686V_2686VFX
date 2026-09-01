@@ -11,9 +11,10 @@ remaining one, **2686VFX, is an effect** that processes sound you feed it.
 ## The four instruments
 
 Among the instruments, the plugins differ **only in which tabs they carry.**
-Everything else — the shared screens and the way you work — is identical.
+Everything else — the shared screens and the way you work — is identical. On the instruments FX is not a tab but a pane that stays
+put at the right ([Reading the screen](/2686V_2686VFX/en/guide/screen/)).
 
-| Tab | 2686V | 2686VLight | 86V | OPZX7S |
+| Tab | <img src="/2686V_2686VFX/logos/2686V.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686V | <img src="/2686V_2686VFX/logos/2686VLight.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686VLight | <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />86V | <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />OPZX7S |
 | --- | :---: | :---: | :---: | :---: |
 | OPNA | ✔ | ✔ | ✔ | — |
 | OPN | ✔ | ✔ | — | — |
@@ -28,7 +29,7 @@ Everything else — the shared screens and the way you work — is identical.
 | RHYTHM | ✔ | ✔ | ✔ (6 pads) | — |
 | ADPCM | ✔ | ✔ | ✔ (PCM) | — |
 | BEEP | ✔ | ✔ | — | — |
-| FX | ✔ | ✔ | ✔ | ✔ |
+| FX (pane) | ✔ | ✔ | ✔ | ✔ |
 | CURVE | ✔ | — | — | ✔ |
 | PRESET / SETTINGS / COLORS / ABOUT | ✔ | ✔ | ✔ | ✔ |
 
@@ -48,7 +49,7 @@ Everything else — the shared screens and the way you work — is identical.
 audio you feed into it.** It is the FX tab from the instruments, lifted out so
 you can use it on its own.
 
-| | The four instruments | 2686VFX |
+| | The four instruments | <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686VFX |
 | --- | :---: | :---: |
 | Kind | Instrument (synth) | Effect |
 | Audio input | none | stereo |

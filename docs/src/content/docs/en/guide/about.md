@@ -16,13 +16,13 @@ many sound chips they carry — the shared screens and the way you work are the
 same — so most of this manual applies to all of them. The differences are
 collected in [Choosing a plugin](/2686V_2686VFX/en/plugins/compare/).
 
-| Plugin | What it is |
-| --- | --- |
-| **2686V** | the full one, with every sound chip |
-| **2686VLight** | 2686V with curve editing removed, so it runs lighter |
-| **86V** | matched to the PC-9801-86 layout |
-| **OPZX7S** | focused on the OPZX7 chip. Curve editing is standard |
-| **2686VFX** | makes no sound; processes audio you feed it |
+| | Plugin | What it is |
+| :---: | --- | --- |
+| <img src="/2686V_2686VFX/logos/2686V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686V** | the full one, with every sound chip |
+| <img src="/2686V_2686VFX/logos/2686VLight.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686VLight** | 2686V with curve editing removed, so it runs lighter |
+| <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **86V** | matched to the PC-9801-86 layout |
+| <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPZX7S** | focused on the OPZX7 chip. Curve editing is standard |
+| <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686VFX** | makes no sound; processes audio you feed it |
 
 ## Requirements
 

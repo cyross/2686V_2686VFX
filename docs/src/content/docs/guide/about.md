@@ -15,13 +15,13 @@ sidebar:
 マニュアルの大半はどれにも当てはまります。違いは
 [プラグインの選び方](/2686V_2686VFX/plugins/compare/) にまとめてあります。
 
-| プラグイン | 位置づけ |
-| --- | --- |
-| **2686V** | すべての音源を収録した本体 |
-| **2686VLight** | 2686V からカーブ編集を外した軽い版 |
-| **86V** | PC-9801-86 に構成を合わせた版 |
-| **OPZX7S** | OPZX7 音源に特化した版。カーブ編集は標準で付く |
-| **2686VFX** | 音を作らず、入ってきた音を加工するエフェクト |
+| | プラグイン | 位置づけ |
+| :---: | --- | --- |
+| <img src="/2686V_2686VFX/logos/2686V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686V** | すべての音源を収録した本体 |
+| <img src="/2686V_2686VFX/logos/2686VLight.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686VLight** | 2686V からカーブ編集を外した軽い版 |
+| <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **86V** | PC-9801-86 に構成を合わせた版 |
+| <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPZX7S** | OPZX7 音源に特化した版。カーブ編集は標準で付く |
+| <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686VFX** | 音を作らず、入ってきた音を加工するエフェクト |
 
 ## 動作環境
 

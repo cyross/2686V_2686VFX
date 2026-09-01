@@ -2,7 +2,7 @@
 title: What changed since v2.5.1
 description: What is different in 3.0.0, and what to watch for when you move over
 sidebar:
-  order: 4
+  order: 5
 ---
 
 A summary of everything between 2.5.1 and 3.0.0. **The part worth reading first
