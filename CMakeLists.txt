@@ -83,9 +83,14 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
     # ALL_SOURCES は呼び出し元のディレクトリスコープで定義されたものが使われます
     target_sources(${TARGET_NAME} PRIVATE ${ALL_SOURCES})
 
+    # Linux で必要になる部品。JUCE が挙げているものをそのまま並べる。
+    # Xext と Xrender は他の部品づてに入ることが多いが、それに頼ると
+    # 素の環境で結びつけに失敗する。
     if(UNIX AND NOT APPLE)
         target_link_libraries(${TARGET_NAME} PRIVATE
-            freetype fontconfig X11 Xcursor Xinerama Xrandr Xcomposite asound GL
+            freetype fontconfig
+            X11 Xext Xrender Xcursor Xinerama Xrandr Xcomposite
+            asound GL
         )
     endif()
 

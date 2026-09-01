@@ -100,8 +100,15 @@ endif()
 # x64 の親から ARM64 を組んだときだけが、走らせられない組み合わせになる。
 set(CY_TESTS_RUNNABLE ON)
 
-# 綴りはプリセットに書いたものがそのまま入る (arm64 とも ARM64 とも来る)
-# ので、大文字にそろえてから比べる。
+# 別の OS 向けに組むときは CMake が教えてくれる。Linux の載せ替えは
+# こちらで拾える。
+if(CMAKE_CROSSCOMPILING)
+    set(CY_TESTS_RUNNABLE OFF)
+endif()
+
+# Visual Studio で CPU だけを変えるときは、同じ OS のままなので上では
+# 拾えない。綴りはプリセットに書いたものがそのまま入る (arm64 とも
+# ARM64 とも来る) ので、大文字にそろえてから比べる。
 string(TOUPPER "${CMAKE_VS_PLATFORM_NAME}" CY_TARGET_PLATFORM)
 string(TOUPPER "${CMAKE_HOST_SYSTEM_PROCESSOR}" CY_HOST_PLATFORM)
 
