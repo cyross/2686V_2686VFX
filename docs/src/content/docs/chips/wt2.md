@@ -98,3 +98,9 @@ WT と同じものが使えます。FDS / WonderSwan / HuC6280 の 3 系統の�
 
 - [WT](/2686V_2686VFX/chips/wt/) — 実数で値を決める版
 - [WT+](/2686V_2686VFX/chips/wtplus/) — 複数の波形を切り替えて鳴らす
+
+## オートメーション
+
+WT2 が DAW へ出すパラメータの一覧は
+[WT2 のオートメーション](/2686V_2686VFX/reference/automation/wt2/) に
+あります。ID・型・範囲・初期値が並びます。

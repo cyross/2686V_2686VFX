@@ -122,3 +122,9 @@ OPM と同じ系統の記号を受け付けます。`AR` `D1R` `D1L` `D2R` `RR` 
 `MUL` `MASK` `DT1`（`DT` / `DTO`）`DT2`（`DTT`）。
 
 書き方は [MML 入力](/2686V_2686VFX/reference/mml/) を参照してください。
+
+## オートメーション
+
+OPZX7S が DAW へ出すパラメータの一覧は
+[OPZX7S のオートメーション](/2686V_2686VFX/reference/automation/opzx7/) に
+あります。ID・型・範囲・初期値が並びます。

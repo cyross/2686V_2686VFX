@@ -84,3 +84,9 @@ WT / WT2 と同じ変調が使えます。FDS / WonderSwan / HuC6280 の 3 系�
 
 - [WT](/2686V_2686VFX/chips/wt/) — 波形を実数で描く
 - [WT2](/2686V_2686VFX/chips/wt2/) — 波形を段階で描く
+
+## オートメーション
+
+WT+ が DAW へ出すパラメータの一覧は
+[WT+ のオートメーション](/2686V_2686VFX/reference/automation/wtplus/) に
+あります。ID・型・範囲・初期値が並びます。

@@ -107,3 +107,9 @@ SSG のハードウェアエンベロープを FM 側でも使えます。実機
 `TL` `MUL` `DT` `KS` `MASK` を受け付けます。
 
 書き方は [MML 入力](/2686V_2686VFX/reference/mml/) を参照してください。
+
+## オートメーション
+
+OPNA が DAW へ出すパラメータの一覧は
+[OPNA のオートメーション](/2686V_2686VFX/reference/automation/opna/) に
+あります。ID・型・範囲・初期値が並びます。

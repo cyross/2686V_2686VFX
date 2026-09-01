@@ -94,3 +94,9 @@ OPM では `AR` `D1R` `D1L` `D2R` `RR` `TL` `MUL` `MASK` に加えて、
 `DT1`（`DT` / `DTO`）と `DT2`（`DTT`）、`KS` を受け付けます。
 
 書き方は [MML 入力](/2686V_2686VFX/reference/mml/) を参照してください。
+
+## オートメーション
+
+OPM が DAW へ出すパラメータの一覧は
+[OPM のオートメーション](/2686V_2686VFX/reference/automation/opm/) に
+あります。ID・型・範囲・初期値が並びます。

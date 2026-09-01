@@ -98,3 +98,9 @@ OPL では `AR` `DR` `RR` `SL` `TL` `MUL` `MASK` に加えて、この系統特�
 `KSL` `KSR` `AM` `PM`（`VIB`）`EGTYPE` を受け付けます。
 
 書き方は [MML 入力](/2686V_2686VFX/reference/mml/) を参照してください。
+
+## オートメーション
+
+OPL が DAW へ出すパラメータの一覧は
+[OPL のオートメーション](/2686V_2686VFX/reference/automation/opl/) に
+あります。ID・型・範囲・初期値が並びます。

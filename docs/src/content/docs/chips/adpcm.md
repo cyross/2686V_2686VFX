@@ -101,3 +101,9 @@ B-Spline はこもるので、遠くで鳴っている感じを作れます。
 `M-M-Pro` に、音声合成をリズム音源と ADPCM で組んだ例が入っています。
 
 扱いは [ライセンス](/2686V_2686VFX/reference/license/) を参照してください。
+
+## オートメーション
+
+ADPCM が DAW へ出すパラメータの一覧は
+[ADPCM のオートメーション](/2686V_2686VFX/reference/automation/adpcm/) に
+あります。ID・型・範囲・初期値が並びます。

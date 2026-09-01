@@ -121,3 +121,9 @@ PITCH ENV・SSG SW ENV・DETUNE・UNISON・QUALITY・TONE/NOISE と、チャン�
 
 ファイルの形式と置き場所は
 [ファイルの形式と置き場所](/2686V_2686VFX/files/format/) を参照してください。
+
+## オートメーション
+
+SSG が DAW へ出すパラメータの一覧は
+[SSG のオートメーション](/2686V_2686VFX/reference/automation/ssg/) に
+あります。ID・型・範囲・初期値が並びます。

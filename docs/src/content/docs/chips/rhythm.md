@@ -113,3 +113,9 @@ RATE を下げるほど粗くなります。
 `SSG RHYTHM Sample` プリセットがそれを使う組み方の例です。
 
 扱いは [ライセンス](/2686V_2686VFX/reference/license/) を参照してください。
+
+## オートメーション
+
+RHYTHM が DAW へ出すパラメータの一覧は
+[RHYTHM のオートメーション](/2686V_2686VFX/reference/automation/rhythm/) に
+あります。ID・型・範囲・初期値が並びます。

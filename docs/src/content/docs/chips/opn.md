@@ -93,3 +93,9 @@ OPNA と同じく `AR` `DR` `SR` `SL` `RR` `TL` `MUL` `DT` `KS` `MASK` を
 受け付けます。
 
 書き方は [MML 入力](/2686V_2686VFX/reference/mml/) を参照してください。
+
+## オートメーション
+
+OPN が DAW へ出すパラメータの一覧は
+[OPN のオートメーション](/2686V_2686VFX/reference/automation/opn/) に
+あります。ID・型・範囲・初期値が並びます。

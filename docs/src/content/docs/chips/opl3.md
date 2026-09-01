@@ -100,3 +100,9 @@ OPL と同じ記号を受け付けます。`AR` `DR` `RR` `SL` `TL` `MUL` `MASK`
 `KSL` `KSR` `AM` `PM`（`VIB`）`EGTYPE`。
 
 書き方は [MML 入力](/2686V_2686VFX/reference/mml/) を参照してください。
+
+## オートメーション
+
+OPL3 が DAW へ出すパラメータの一覧は
+[OPL3 のオートメーション](/2686V_2686VFX/reference/automation/opl3/) に
+あります。ID・型・範囲・初期値が並びます。
