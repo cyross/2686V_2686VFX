@@ -2,7 +2,7 @@
 title: Installation
 description: Where to put the plugin, and what happens on first launch
 sidebar:
-  order: 2
+  order: 3
 ---
 
 ## Where to put it

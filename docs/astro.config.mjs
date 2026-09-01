@@ -36,6 +36,7 @@ export default defineConfig({
 					translations: { en: 'Getting started' },
 					items: [
 						{ slug: 'guide/about' },
+						{ slug: 'guide/features' },
 						{ slug: 'guide/install' },
 					],
 				},
@@ -56,7 +57,10 @@ export default defineConfig({
 				{
 					label: '各種仕様',
 					translations: { en: 'Reference' },
-					items: [{ autogenerate: { directory: 'reference/automation' } }],
+					items: [
+						{ slug: 'reference/features' },
+						{ autogenerate: { directory: 'reference/automation' } },
+					],
 				},
 				{
 					label: 'プラグイン別',

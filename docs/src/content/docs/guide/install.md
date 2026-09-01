@@ -2,7 +2,7 @@
 title: 導入
 description: プラグインの置き場所と、はじめて起動したときの動き
 sidebar:
-  order: 2
+  order: 3
 ---
 
 ## 置き場所
