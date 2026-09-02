@@ -12,21 +12,21 @@ A list of what is included, and which plugin carries it.
 
 ## Channels (sound chips)
 
-| Channel | What it is | 2686V | 2686VLight | 86V | OPZX7S |
-| --- | --- | :---: | :---: | :---: | :---: |
-| OPNA | FM, with hardware LFO and the SSG hardware envelope | ✔ | ✔ | ✔ | — |
-| OPN | FM, with the N88-BASIC software LFO | ✔ | ✔ | — | — |
-| OPL | FM, with a hardware LFO per operator | ✔ | ✔ | — | — |
-| OPL3 | FM, with original algorithms (2OPx2) added | ✔ | ✔ | — | — |
-| OPM | FM, with the OPP key scale added | ✔ | ✔ | — | — |
-| OPZX7 | an original modern FM chip, up to 8 operators | ✔ | ✔ | — | ✔ |
-| SSG | square, triangle and noise | ✔ | ✔ | ✔ | — |
-| WAVETABLE | wave memory, set as real numbers | ✔ | ✔ | — | — |
-| WT2 | wave memory, set in steps | ✔ | ✔ | — | — |
-| WTPLUS | switching between wave memories (up to 32) | ✔ | ✔ | — | — |
-| RHYTHM | drum machine, 8 pads (6 on 86V) | ✔ | ✔ | ✔ | — |
-| ADPCM | a sampler for one audio file (called PCM on 86V) | ✔ | ✔ | ✔ | — |
-| BEEP | the beeper | ✔ | ✔ | — | — |
+| Channel | What it is | 2686V | 2686VLight | 26V | 86V | OPZX7S |
+| --- | --- | :---: | :---: | :---: | :---: | :---: |
+| OPNA | FM, with hardware LFO and the SSG hardware envelope | ✔ | ✔ | — | ✔ | — |
+| OPN | FM, with the N88-BASIC software LFO | ✔ | ✔ | ✔ | — | — |
+| OPL | FM, with a hardware LFO per operator | ✔ | ✔ | — | — | — |
+| OPL3 | FM, with original algorithms (2OPx2) added | ✔ | ✔ | — | — | — |
+| OPM | FM, with the OPP key scale added | ✔ | ✔ | — | — | — |
+| OPZX7 | an original modern FM chip, up to 8 operators | ✔ | ✔ | — | — | ✔ |
+| SSG | square, triangle and noise | ✔ | ✔ | ✔ | ✔ | — |
+| WAVETABLE | wave memory, set as real numbers | ✔ | ✔ | — | — | — |
+| WT2 | wave memory, set in steps | ✔ | ✔ | — | — | — |
+| WTPLUS | switching between wave memories (up to 32) | ✔ | ✔ | — | — | — |
+| RHYTHM | drum machine, 8 pads (6 on 86V) | ✔ | ✔ | — | ✔ | — |
+| ADPCM | a sampler for one audio file (called PCM on 86V) | ✔ | ✔ | — | ✔ | — |
+| BEEP | the beeper | ✔ | ✔ | — | — | — |
 
 :::note
 2686VFX has no channels, because it makes no sound.
@@ -59,7 +59,7 @@ Available on every channel, operator and rhythm pad.
 
 ## Effects (FX)
 
-| Effect | The four instruments | 2686VFX |
+| Effect | The five instruments | 2686VFX |
 | --- | :---: | :---: |
 | Filter | ✔ | ✔ |
 | 3-band EQ | ✔ | ✔ |

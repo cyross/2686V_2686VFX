@@ -57,6 +57,9 @@ text editor or diff them.
 **86V** is the short path. It matches the PC-9801-86 layout, so choices that
 never existed back then never appear. There is less to be distracted by.
 
+**26V** matches the PC-9801-26(K) layout. With only OPN and SSG, it is the
+one to reach for when you want the sound of the earliest PC-98 machines.
+
 For a wider range of period sounds use **2686V**; if you don't need curve
 editing and want it to run lighter, **2686VLight**.
 

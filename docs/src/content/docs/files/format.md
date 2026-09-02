@@ -72,6 +72,7 @@ SETTINGS タブの **「ファイル形式」** で JSON と YAML を選べま�
 | --- | --- |
 | 2686V | `.2686v.json` |
 | 2686VLight | `.2686vl.json` |
+| 26V | `.26v.json` |
 | 86V | `.86v.json` |
 | OPZX7S | `.opzx7s.json` |
 | 2686VFX | プリセットなし |

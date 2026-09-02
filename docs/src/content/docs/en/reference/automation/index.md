@@ -11,6 +11,11 @@ split into one page per channel.
 The list is written out from what the plugin actually registers, so it cannot
 drift from the plugin the way a hand-written list would.
 
+That count is for **2686V / 2686VLight**. A plugin with fewer channels registers
+only what it carries: **26V** has OPN and SSG, **86V** has OPNA, SSG, RHYTHM and
+ADPCM, and **OPZX7S** has OPZX7 alone. The names and ranges are the same, so the
+page for that channel still applies.
+
 ## Reading the tables
 
 | Column | Meaning |

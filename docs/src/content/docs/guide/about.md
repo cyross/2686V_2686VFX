@@ -8,9 +8,9 @@ sidebar:
 2686V は、1980〜90 年代のパソコンやゲーム機に載っていた音源チップの鳴り方を
 再現するソフトウェア音源です。VST3 とスタンドアロンの両方で動きます。
 
-## 5 つのプラグイン
+## 6 つのプラグイン
 
-**4 つは音を作る音源**で、残る 1 つ **2686VFX は音を加工するエフェクト**です。
+**5 つは音を作る音源**で、残る 1 つ **2686VFX は音を加工するエフェクト**です。
 音源どうしは収録する音源の数だけが違い、共通の画面と操作は同じなので、この
 マニュアルの大半はどれにも当てはまります。違いは
 [プラグインの選び方](/2686V_2686VFX/plugins/compare/) にまとめてあります。
@@ -19,6 +19,7 @@ sidebar:
 | :---: | --- | --- |
 | <img src="/2686V_2686VFX/logos/2686V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686V** | すべての音源を収録した本体 |
 | <img src="/2686V_2686VFX/logos/2686VLight.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686VLight** | 2686V からカーブ編集を外した軽い版 |
+| <img src="/2686V_2686VFX/logos/26V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **26V** | PC-9801-26(K) に構成を合わせた版 |
 | <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **86V** | PC-9801-86 に構成を合わせた版 |
 | <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPZX7S** | OPZX7 音源に特化した版。カーブ編集は標準で付く |
 | <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686VFX** | 音を作らず、入ってきた音を加工するエフェクト |

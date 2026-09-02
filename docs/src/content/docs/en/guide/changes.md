@@ -10,7 +10,7 @@ is [What to watch for when you move over](#what-to-watch-for-when-you-move-over)
 
 ## The biggest changes
 
-### One plugin became five
+### One plugin became six
 
 2.5.1 shipped only **2686V**. In 3.0.0 the work is split by role.
 
@@ -18,6 +18,7 @@ is [What to watch for when you move over](#what-to-watch-for-when-you-move-over)
 | --- | --- |
 | 2686V | the full one |
 | 2686VLight | curve editing removed, runs lighter |
+| 26V | matched to the PC-9801-26(K) layout |
 | 86V | matched to the PC-9801-86 layout |
 | OPZX7S | focused on the OPZX7 chip; curve editing is standard |
 | 2686VFX | an effect that processes audio |
