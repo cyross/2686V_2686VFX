@@ -10,7 +10,7 @@ QUALITY の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.quality.json` / `.quality.yaml` |
-| **印（format）** | `quality` |
+| **表記（format）** | `quality` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]Quality / [IM]Quality |
 

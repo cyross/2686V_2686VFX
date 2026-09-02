@@ -5,6 +5,11 @@ sidebar:
   order: 7
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_delay.png" alt="ディレイ" style="width:400px;" />
+	<figcaption>ディレイ</figcaption>
+</figure>
+
 音を遅らせて繰り返します。
 
 ## つまみ

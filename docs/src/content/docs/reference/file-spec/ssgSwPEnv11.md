@@ -10,7 +10,7 @@ SSG SW PITCH ENV[11] の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.ssgSwPEnv11.json` / `.ssgSwPEnv11.yaml` |
-| **印（format）** | `ssgSwPEnv11` |
+| **表記（format）** | `ssgSwPEnv11` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | SSG SW PITCH ENV[11] の [EX] / [IM] |
 

@@ -33,8 +33,8 @@ sidebar:
 | `ShadowGray` | 影 |
 | `SliderBarBlue` | スライダーのバー |
 | `DialogOkBackBlue` | ダイアログの決定ボタン |
-| `MikuPink` | カテゴリの開いている印 |
-| `MikuBlack` | カテゴリの閉じている印 |
+| `MikuPink` | カテゴリの開いている表記 |
+| `MikuBlack` | カテゴリの閉じている表記 |
 
 :::note
 最後の 2 つは、初音ミクの髪留めとヘッドホンの色をなぞったものです。カテゴリ

@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.param.wtplus.json` / `.param.wtplus.yaml` |
-| **印（format）** | `wtPlus` |
+| **表記（format）** | `wtPlus` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX] / [IM] |
 | **音源の説明** | [wtplus](/2686V_2686VFX/chips/wtplus/) |

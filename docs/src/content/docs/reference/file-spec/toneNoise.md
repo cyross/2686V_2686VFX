@@ -10,7 +10,7 @@ TONE / NOISE / MIX の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.toneNoise.json` / `.toneNoise.yaml` |
-| **印（format）** | `toneNoise` |
+| **表記（format）** | `toneNoise` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]Tone/Noise / [IM]Tone/Noise |
 

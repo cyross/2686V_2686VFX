@@ -10,7 +10,7 @@ OPNA のオペレータごとのハードウェア LFO。
 | | |
 | --- | --- |
 | **拡張子** | `.opnaHwLfo.json` / `.opnaHwLfo.yaml` |
-| **印（format）** | `opnaHwLfo` |
+| **表記（format）** | `opnaHwLfo` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]HW LFO / [IM]HW LFO |
 

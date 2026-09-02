@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.ccolor.json` / `.ccolor.yaml` |
-| **印（format）** | `2686V color settings` |
+| **表記（format）** | `2686V color settings` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | COLORS の「書き出し」「読み込み」 |
 

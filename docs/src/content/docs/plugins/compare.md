@@ -50,7 +50,7 @@ sidebar:
 **2686VFX** だけは毛色が違います。音を作らず、**入ってきた音を加工します。**
 音源に付いている FX タブを取り出して、単体で使えるようにしたものです。
 
-| | 音源の 5 つ | <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686VFX |
+| | 音源の 5 つ | <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686VFX |  |
 | --- | :---: | :---: | :---: |
 | 種類 | 音源 (シンセ) | エフェクト |
 | 音声入力 | なし | ステレオ |

@@ -5,11 +5,28 @@ sidebar:
   order: 2
 ---
 
+<figure class="shot shot--sm">
+  <img src="/2686V_2686VFX/logos/2686VFX.png" alt="2686VFX ロゴ" width="128" height="128" />
+	<figcaption>ロゴ</figcaption>
+</figure>
+
 **2686VFX** は、このシリーズで唯一のエフェクトです。音源に付いている FX タブ
 を取り出して単体で使えるようにしたうえで、音源側にしかなかったエンベロープや
 LFO を、**出力そのものへ掛けられる**ようにしてあります。
 
 音源のトラックにも、ドラムのループにも、ギターにも挿せます。
+
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/2686VFX.png" alt="2686VFX プラグイン全景" width="1426" height="738" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/2686VFX.png" alt="2686VFX ABOUTタブ" width="379" height="494" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
 
 ## 画面の作り
 
@@ -34,6 +51,8 @@ FX タブは横一列に並びます。一番左が **エフェクター**（全
 | SFCエコー | スーパーファミコンのエコー (8 タップの FIR 付き) |
 | **PCMビットクラッシャー** | 実機のレートとビットの刻みで落とす |
 
+つまみ 1 つずつの説明は [FX について](/2686V_2686VFX/fx/) にあります。
+
 最後の **PCMビットクラッシャー** は 2686VFX で足したものです。音源の QUALITY
 と同じ刻みを使い、指定のレートまで間引いてから指定のビット数へ丸め、読み戻す
 ときに選んだ補間で埋めます。補間は 7 種類（Nearest / Linear / Gaussian /
@@ -53,6 +72,8 @@ Zero-Order Hold / Cosine / B-Spline / Lagrange）から選べます。
 
 動かすきっかけは **MIDI** です。鍵盤を押すとエンベロープが始まり、離すと戻り
 ます。鍵盤を触らなければ何も掛からず、そのまま素通しになります。
+
+つまみ 1 つずつの説明は [出力への変調](/2686V_2686VFX/fx/mod/) にあります。
 
 ### 音量を動かすもの
 

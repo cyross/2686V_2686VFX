@@ -10,7 +10,7 @@ OPL のオペレータごとの LFO。
 | | |
 | --- | --- |
 | **拡張子** | `.lfoOpl.json` / `.lfoOpl.yaml` |
-| **印（format）** | `oplLfo` |
+| **表記（format）** | `oplLfo` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]LFO / [IM]LFO |
 

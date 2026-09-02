@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.param.ssg.json` / `.param.ssg.yaml` |
-| **印（format）** | `ssg` |
+| **表記（format）** | `ssg` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX] / [IM] |
 | **音源の説明** | [ssg](/2686V_2686VFX/chips/ssg/) |

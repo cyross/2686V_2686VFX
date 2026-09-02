@@ -10,7 +10,7 @@ N88-BASIC 由来のソフトウェア LFO。
 | | |
 | --- | --- |
 | **拡張子** | `.lfoN88.json` / `.lfoN88.yaml` |
-| **印（format）** | `n88Lfo` |
+| **表記（format）** | `n88Lfo` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]LFO / [IM]LFO |
 

@@ -32,6 +32,11 @@ LFO と音程ずらしは、押さなくても掛かります。だから入り�
 
 ## 音量 — AMP ENV
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_amp_env.png" alt="AMP ENV" style="width:400px;" />
+	<figcaption>AMP ENV</figcaption>
+</figure>
+
 音の大きさを、押してから離すまでの流れで動かします。
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
@@ -49,7 +54,22 @@ LFO と音程ずらしは、押さなくても掛かります。だから入り�
 [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) の枠もあります。中身は
 音源のものと同じです。
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_hw_amp_env.png" alt="SSG HW AMP ENV" style="width:400px;" />
+	<figcaption>SSG HW AMP ENV</figcaption>
+</figure>
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_amp_env_11.png" alt="SSG SW AMP ENV[11]" style="width:400px;" />
+	<figcaption>SSG SW AMP ENV[11]</figcaption>
+</figure>
+
 ## LFO
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_lfo.png" alt="LFO" style="width:400px;" />
+	<figcaption>LFO</figcaption>
+</figure>
 
 音量と音程を、周期的に揺らします。中身は音源の [LFO](/2686V_2686VFX/chips/common/#lfo) と同じで、
 AM 側が音量、PM 側が音程へ掛かります。
@@ -57,6 +77,11 @@ AM 側が音量、PM 側が音程へ掛かります。
 押さなくても回り続けるので、入り切りは **LFO をバイパス** で別に持っています。
 
 ## 音程 — PITCH ENV
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_pitch_env.png" alt="PITCH ENV" style="width:400px;" />
+	<figcaption>PITCH ENV</figcaption>
+</figure>
 
 音の高さを、押してから離すまでの流れで動かします。
 
@@ -75,6 +100,16 @@ AM 側が音量、PM 側が音程へ掛かります。
 [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) と
 [WT PITCH MOD](/2686V_2686VFX/chips/common/#wt-pitch-mod) の枠もあります。
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_pitch_env_11.png" alt="SSG SW PITCH ENV[11]" style="width:400px;" />
+	<figcaption>SSG SW PITCH ENV[11]</figcaption>
+</figure>
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_wt_pitch_mod.png" alt="WT PITCH MOD" style="width:400px;" />
+	<figcaption>WT PITCH MOD</figcaption>
+</figure>
+
 ### WT PITCH MOD の基準周波数
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
@@ -85,6 +120,11 @@ AM 側が音量、PM 側が音程へ掛かります。
 高さがないので、**基準周波数**で決めます。実機には無い、こちらで足したものです。
 
 ## 音程ずらし — MUL・DET
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_mul_det.png" alt="MUL/DET" style="width:400px;" />
+	<figcaption>MUL/DET</figcaption>
+</figure>
 
 音の高さを、一定の量だけずらします。
 
@@ -99,6 +139,11 @@ AM 側が音量、PM 側が音程へ掛かります。
 同じ「音程ずらしをバイパス」の下に
 [UNISON・HARMONY](/2686V_2686VFX/chips/common/#unisonharmony) の枠もあります。入ってきた音を
 複数に分け、それぞれをずらして重ねます。
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_unison_harmony.png" alt="UNISON/HARMONY" style="width:400px;" />
+	<figcaption>UNISON/HARMONY</figcaption>
+</figure>
 
 :::caution[音程を動かすということ]
 エフェクトには発振器がありません。音程側の変調は、入ってきた音を溜めてから

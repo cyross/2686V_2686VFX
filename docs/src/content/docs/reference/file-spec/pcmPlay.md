@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.pcmPlay.json` / `.pcmPlay.yaml` |
-| **印（format）** | `pcmPlay` |
+| **表記（format）** | `pcmPlay` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]PCM Play / [IM]PCM Play |
 

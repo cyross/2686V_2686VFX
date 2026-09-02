@@ -1,5 +1,5 @@
 ---
-title: オートメーション一覧
+title: 概要
 description: DAW から自動化できるパラメータの一覧
 sidebar:
   order: 0

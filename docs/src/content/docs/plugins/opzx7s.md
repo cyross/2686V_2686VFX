@@ -5,7 +5,10 @@ sidebar:
   order: 6
 ---
 
-<img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="72" height="72" style="float:right;margin:0 0 1rem 1rem;" />
+<figure class="shot shot--sm">
+  <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="OPZX7S ロゴ" width="128" height="128" />
+	<figcaption>ロゴ</figcaption>
+</figure>
 
 **OPZX7 音源だけ**に絞ったものです。最大 8 オペレータ、アルゴリズム
 マトリックスによる自由な結線、オペレータごとの独立したフィードバックまで

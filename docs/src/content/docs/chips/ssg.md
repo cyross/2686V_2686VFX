@@ -1,18 +1,23 @@
 ---
-title: SSG
+title: SSGチャンネル
 description: 矩形波・三角波とノイズを鳴らす SSG チャンネルの使い方
 sidebar:
   order: 7
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_ssg.png" alt="SSGチャンネル" style="width:600px;" />
+	<figcaption>SSGチャンネル</figcaption>
+</figure>
+
 SSG は、YM-2203/YM-2608B の SSG 部分(ルーツは、 AY-3-8910 系のいわゆる PSG )にあたるチャンネルです。矩形波とノイズを鳴らし、ハードウェアエンベロープで音量を動かします。実機に無い拡張として、三角波・鋸波と、より細かい音作りのための項目を足してあります。
 
-## 印について
+## 表記について
 
-このマニュアルでは、画面の区分ごとに次の印を付けています。**画面上の見出しの
+このマニュアルでは、画面の区分ごとに次の表記を付けています。**画面上の見出しの
 色と対応しています。**
 
-| 印 | 意味 |
+| 表記 | 意味 |
 | --- | --- |
 | **実機** | 実機にある機能。実機の仕様どおりに動きます |
 | **独自** | 実機に無い、このプラグイン独自の拡張 |
@@ -130,7 +135,7 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 以下は音源に依らない部分です。それぞれの詳しい説明は
 [共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
 
-| 区分 | 印 | 内容 |
+| 区分 | 表記 | 内容 |
 | --- | --- | --- |
 | [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | 独自 | [AMP ENV](/2686V_2686VFX/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/chips/common/#pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) |
 | [**LFO**](/2686V_2686VFX/chips/common/#lfo) | 独自 | 音量・音程を周期的に揺らす |

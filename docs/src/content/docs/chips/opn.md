@@ -1,9 +1,14 @@
 ---
-title: OPN
+title: OPNチャンネル
 description: YM2203 にあたる 4 オペレータ FM チャンネル
 sidebar:
   order: 2
 ---
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_opn.png" alt="OPNチャンネル" style="width:600px;" />
+	<figcaption>OPNチャンネル</figcaption>
+</figure>
 
 OPN は **YM2203** の FM 音源部分にあたるチャンネルです。PC-9801-26 に載っていた音源で、
 OPNA より前の世代にあたります。
@@ -12,9 +17,9 @@ OPNA より前の世代にあたります。
 実機がそれらを持っていなかったためです。当時の 26 音源の構成に寄せたいときは、
 OPNA ではなくこちらを選びます。
 
-## 印について
+## 表記について
 
-| 印 | 意味 |
+| 表記 | 意味 |
 | --- | --- |
 | **実機** | 実機にある機能。実機の仕様どおりに動きます |
 | **独自** | 実機に無い、このプラグイン独自の拡張 |

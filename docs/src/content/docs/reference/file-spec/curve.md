@@ -11,7 +11,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `curve_<common または op>_<Target>.json` |
-| **印（format）** | `curve` |
+| **表記（format）** | `curve` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | ADV の [EX] / [IM] |
 

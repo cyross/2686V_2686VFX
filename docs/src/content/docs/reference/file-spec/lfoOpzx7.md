@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.lfoOpzx7.json` / `.lfoOpzx7.yaml` |
-| **印（format）** | `opzx7Lfo` |
+| **表記（format）** | `opzx7Lfo` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]LFO / [IM]LFO |
 

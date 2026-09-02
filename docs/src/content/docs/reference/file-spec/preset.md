@@ -16,7 +16,7 @@ sidebar:
 | 86V | `.86v.json` |
 | OPZX7S | `.opzx7s.json` |
 
-印（format）はどれも `preset`、版は `1` です。拡張子が違うので、`Presets`
+表記（format）はどれも `preset`、版は `1` です。拡張子が違うので、`Presets`
 フォルダへまとめて置いても、そのプラグインのものだけが一覧に出ます。
 
 ## かたち

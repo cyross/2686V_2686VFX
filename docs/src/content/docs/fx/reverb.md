@@ -5,6 +5,11 @@ sidebar:
   order: 8
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_reverb.png" alt="リバーブ" style="width:400px;" />
+	<figcaption>リバーブ</figcaption>
+</figure>
+
 広さの響きを足します。
 
 ## つまみ

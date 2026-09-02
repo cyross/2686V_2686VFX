@@ -21,8 +21,8 @@ sidebar:
 | <span style="display:inline-block;width:44px;height:18px;border-radius:3px;border:1px solid var(--sl-color-gray-4);background:rgba(128,128,128,0.50);vertical-align:middle;"></span> | `ShadowGray` | `#808080（透明度 50%）` | 影 |
 | <span style="display:inline-block;width:44px;height:18px;border-radius:3px;border:1px solid var(--sl-color-gray-4);background:#CCCCFF;vertical-align:middle;"></span> | `SliderBarBlue` | `#CCCCFF` | スライダーのバー |
 | <span style="display:inline-block;width:44px;height:18px;border-radius:3px;border:1px solid var(--sl-color-gray-4);background:#CCCCFF;vertical-align:middle;"></span> | `DialogOkBackBlue` | `#CCCCFF` | ダイアログの決定ボタン |
-| <span style="display:inline-block;width:44px;height:18px;border-radius:3px;border:1px solid var(--sl-color-gray-4);background:#FF3399;vertical-align:middle;"></span> | `MikuPink` | `#FF3399` | カテゴリの開いている印 |
-| <span style="display:inline-block;width:44px;height:18px;border-radius:3px;border:1px solid var(--sl-color-gray-4);background:#000000;vertical-align:middle;"></span> | `MikuBlack` | `#000000` | カテゴリの閉じている印 |
+| <span style="display:inline-block;width:44px;height:18px;border-radius:3px;border:1px solid var(--sl-color-gray-4);background:#FF3399;vertical-align:middle;"></span> | `MikuPink` | `#FF3399` | カテゴリの開いている表記 |
+| <span style="display:inline-block;width:44px;height:18px;border-radius:3px;border:1px solid var(--sl-color-gray-4);background:#000000;vertical-align:middle;"></span> | `MikuBlack` | `#000000` | カテゴリの閉じている表記 |
 
 :::note[透明度を持つもの]
 `BorderGray` と `ShadowGray` は透明度を持ちます。下の色が透けるので、

@@ -129,7 +129,7 @@ export default defineConfig({
 					],
 				},
 				{
-					label: '音源タブ',
+					label: 'チャンネル',
 					translations: { en: 'Sound chips' },
 					// 章ごとに並べ直さずに済むよう、フォルダの中身をそのまま出す
 					items: [{ autogenerate: { directory: 'chips' } }],

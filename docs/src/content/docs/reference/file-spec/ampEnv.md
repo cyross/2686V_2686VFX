@@ -10,7 +10,7 @@ AMP ENV の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.ampEnv.json` / `.ampEnv.yaml` |
-| **印（format）** | `ampEnv` |
+| **表記（format）** | `ampEnv` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | AMP ENV の [EX] / [IM] |
 

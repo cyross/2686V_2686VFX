@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.param.rhythm.json` / `.param.rhythm.yaml` |
-| **印（format）** | `rhythm` |
+| **表記（format）** | `rhythm` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX] / [IM] |
 | **音源の説明** | [rhythm](/2686V_2686VFX/chips/rhythm/) |

@@ -1,9 +1,14 @@
 ---
-title: WT+
+title: WT+チャンネル
 description: 読み込んだ波形を切り替えながら鳴らすチャンネル
 sidebar:
   order: 10
 ---
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_wtp.png" alt="WT+チャンネル" style="width:600px;" />
+	<figcaption>WT+チャンネル</figcaption>
+</figure>
 
 WT+ は、**すでにある波形ファイルを並べておいて、演奏しながら切り替える**ための
 チャンネルです。3.0.0 で新しく足しました。

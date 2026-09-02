@@ -5,6 +5,11 @@ sidebar:
   order: 5
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_mbc.png" alt="ビットクラッシャー" style="width:400px;" />
+	<figcaption>ビットクラッシャー</figcaption>
+</figure>
+
 ビット数とサンプリング周波数を落として、粗さを作ります。
 
 ## つまみ

@@ -1,9 +1,14 @@
 ---
-title: OPNA
+title: OPNAチャンネル
 description: YM2608 にあたる 4 オペレータ FM チャンネル
 sidebar:
   order: 1
 ---
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_opna.png" alt="OPNAチャンネル" style="width:600px;" />
+	<figcaption>OPNAチャンネル</figcaption>
+</figure>
 
 OPNA は **YM2608B** の FM 音源部分にあたるチャンネルです。PC-9801-86 に載っていた音源で、
 このシリーズの名前の由来にもなっています。
@@ -12,9 +17,9 @@ OPNA は **YM2608B** の FM 音源部分にあたるチャンネルです。PC-9
 と **ハードウェア LFO**、そして当時 N88-BASIC が使っていた**ソフトウェア LFO**
 まで揃っています。FM チャンネルの中では最も機能が多い部類です。
 
-## 印について
+## 表記について
 
-| 印 | 意味 |
+| 表記 | 意味 |
 | --- | --- |
 | **実機** | 実機にある機能。実機の仕様どおりに動きます |
 | **独自** | 実機に無い、このプラグイン独自の拡張 |

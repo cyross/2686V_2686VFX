@@ -10,7 +10,7 @@ FX を掛ける順番だけを持つファイルです。
 | | |
 | --- | --- |
 | **拡張子** | `.fxo.json` / `.fxo.yaml` |
-| **印（format）** | `fxOrder` |
+| **表記（format）** | `fxOrder` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | FX の Order の [EX] / [IM] |
 

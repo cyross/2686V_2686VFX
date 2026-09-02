@@ -10,7 +10,7 @@ OPM のハードウェア LFO。
 | | |
 | --- | --- |
 | **拡張子** | `.lfoOpm.json` / `.lfoOpm.yaml` |
-| **印（format）** | `opmLfo` |
+| **表記（format）** | `opmLfo` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]LFO / [IM]LFO |
 

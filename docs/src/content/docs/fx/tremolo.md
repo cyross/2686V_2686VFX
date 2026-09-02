@@ -5,6 +5,11 @@ sidebar:
   order: 3
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_tremollo.png" alt="トレモロ" style="width:400px;" />
+	<figcaption>トレモロ</figcaption>
+</figure>
+
 音量を周期的に揺らします。
 
 ## つまみ

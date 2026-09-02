@@ -10,7 +10,7 @@ PITCH ENV の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.pitchEnv.json` / `.pitchEnv.yaml` |
-| **印（format）** | `pitchEnv` |
+| **表記（format）** | `pitchEnv` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | PITCH ENV の [EX] / [IM] |
 

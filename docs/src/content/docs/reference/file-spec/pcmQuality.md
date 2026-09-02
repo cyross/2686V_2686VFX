@@ -10,7 +10,7 @@ QUALITY(PCM) の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.pcmQuality.json` / `.pcmQuality.yaml` |
-| **印（format）** | `pcmQuality` |
+| **表記（format）** | `pcmQuality` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]Quality / [IM]Quality |
 

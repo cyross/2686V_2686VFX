@@ -5,7 +5,10 @@ sidebar:
   order: 3
 ---
 
-<img src="/2686V_2686VFX/logos/2686VLight.png" alt="" width="72" height="72" style="float:right;margin:0 0 1rem 1rem;" />
+<figure class="shot shot--sm">
+  <img src="/2686V_2686VFX/logos/2686VLight.png" alt="2686VLight ロゴ" width="128" height="128" />
+	<figcaption>ロゴ</figcaption>
+</figure>
 
 2686V から**カーブ編集（ADV）を外した**ものです。音源タブの構成は 2686V と
 まったく同じで、そのぶん軽く動きます。

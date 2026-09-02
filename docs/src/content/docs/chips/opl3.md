@@ -1,9 +1,14 @@
 ---
-title: OPL3
+title: OPL3チャンネル
 description: YMF262 にあたる 4 オペレータ FM チャンネル
 sidebar:
   order: 4
 ---
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_opl3.png" alt="OPL3チャンネル" style="width:600px;" />
+	<figcaption>OPL3チャンネル</figcaption>
+</figure>
 
 OPL3 は **YMF262** の FM 音源部分にあたるチャンネルです。OPL の系譜を継ぎつつ、オペレータが
 4 つに増え、波形の種類も倍になりました。DOS 時代のサウンドカードでおなじみの
@@ -11,9 +16,9 @@ OPL3 は **YMF262** の FM 音源部分にあたるチャンネルです。OPL �
 
 OPL の「波形を選べる」という持ち味に、OPN 系の 4 オペレータが加わった形です。
 
-## 印について
+## 表記について
 
-| 印 | 意味 |
+| 表記 | 意味 |
 | --- | --- |
 | **実機** | 実機にある機能。実機の仕様どおりに動きます |
 | **独自** | 実機に無い、このプラグイン独自の拡張 |

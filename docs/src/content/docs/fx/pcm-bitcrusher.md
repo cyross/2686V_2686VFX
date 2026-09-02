@@ -5,6 +5,11 @@ sidebar:
   order: 6
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_pcmbc.png" alt="PCMビットクラッシャー" style="width:400px;" />
+	<figcaption>PCMビットクラッシャー</figcaption>
+</figure>
+
 音源の [QUALITY(PCM)](/2686V_2686VFX/chips/common/#qualitypcm) と同じ刻みで粗くします。**2686VFX だけ**の効果です。
 
 ## つまみ

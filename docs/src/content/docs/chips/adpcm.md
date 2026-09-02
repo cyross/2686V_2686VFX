@@ -1,9 +1,14 @@
 ---
-title: ADPCM
+title: ADPCMチャンネル
 description: 音声ファイル 1 つをサンプラーのように鳴らすチャンネル
 sidebar:
   order: 12
 ---
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_adpcm.png" alt="ADPCMチャンネル" style="width:600px;" />
+	<figcaption>ADPCMチャンネル</figcaption>
+</figure>
 
 ADPCM は、**音声ファイルを 1 つ読み込んで、サンプラーのように鳴らす**
 チャンネルです。YM2608B が持っていた ADPCM 再生にあたります。
@@ -17,9 +22,14 @@ RHYTHM が複数のパッドに短い音を並べるのに対し、こちらは*
 となっています。中身と操作は同じです。
 :::
 
-## 印について
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_adpcm_86.png" alt="86VのPCMチャンネル" style="width:600px;" />
+	<figcaption>86VのPCMチャンネル</figcaption>
+</figure>
 
-| 印 | 意味 |
+## 表記について
+
+| 表記 | 意味 |
 | --- | --- |
 | **実機** | 実機にある機能。実機の仕様どおりに動きます |
 | **独自** | 実機に無い、このプラグイン独自の拡張 |

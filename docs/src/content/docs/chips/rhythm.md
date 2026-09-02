@@ -1,9 +1,14 @@
 ---
-title: RHYTHM
+title: RHYTHMチャンネル
 description: 音声ファイルをパッドへ割り当てて鳴らすドラムマシン
 sidebar:
   order: 11
 ---
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_rhythm.png" alt="RHYTHMチャンネル" style="width:600px;" />
+	<figcaption>RHYTHMチャンネル</figcaption>
+</figure>
 
 RHYTHM は **YM2608B のリズム音源**にあたるチャンネルです。実機は 6 つの
 ドラム音を ROM で持っていましたが、こちらは**好きな音声ファイルをパッドへ割り当てて**鳴らします。
@@ -11,9 +16,9 @@ RHYTHM は **YM2608B のリズム音源**にあたるチャンネルです。実
 音質を落とす仕組みが付いているので、読み込んだ音を当時のドラム音源らしい
 質感に寄せられます。
 
-## 印について
+## 表記について
 
-| 印 | 意味 |
+| 表記 | 意味 |
 | --- | --- |
 | **実機** | 実機にある機能。実機の仕様どおりに動きます |
 | **独自** | 実機に無い、このプラグイン独自の拡張 |
@@ -27,6 +32,11 @@ RHYTHM は **YM2608B のリズム音源**にあたるチャンネルです。実
 
 実機（YM2608B）は 6 つでしたが、**8 つに拡張**してあります（**独自**）。
 86V は 86 音源の構成に合わせて 6 つのままです。
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_rhythm_86.png" alt="86VのRHYTHMチャンネル" style="width:600px;" />
+	<figcaption>86VのRHYTHMチャンネル</figcaption>
+</figure>
 
 パッドの名前は実機のドラム構成に沿っています。
 

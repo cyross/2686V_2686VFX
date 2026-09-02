@@ -5,6 +5,11 @@ sidebar:
   order: 0
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/parts/fx_pane.png" alt="FXペイン" style="width:200px;" />
+	<figcaption>FXペイン</figcaption>
+</figure>
+
 **FX** は、音源が鳴らした音を加工する部分です。音源側ではタブではなく、
 **右端に出しっぱなしのペイン**として並んでいます。2686VFX ではこれが本体で、
 入ってきた音へ同じものを掛けられます。
@@ -47,6 +52,11 @@ MIX を上げてから、つまみを触ってください。バイパスを外�
 **パラメータリセット** を押すと、この区分のつまみがすべて初期値へ戻ります。
 
 ## 掛かる順番
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_order.png" alt="FXオーダー" style="width:400px;" />
+	<figcaption>FXオーダー</figcaption>
+</figure>
 
 効果は上から順に掛かります。**歪ませてから響かせる**か、**響かせてから
 歪ませる**かで、出てくる音はまるで変わります。

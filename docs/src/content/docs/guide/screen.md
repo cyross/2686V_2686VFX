@@ -11,6 +11,11 @@ sidebar:
 
 音源のプラグインは、**左のタブと右の FX ペイン**に分かれています。
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/parts/tab_area.png" alt="画面の大きな区分け" />
+	<figcaption>タブとペイン</figcaption>
+</figure>
+
 | 場所 | 中身 |
 | --- | --- |
 | 左（タブ） | 音源チャンネルと、ADV / PRESET / SETTINGS / COLORS / ABOUT |
@@ -25,6 +30,11 @@ FX が常に見えているのは、どの音源を触っていてもエフェ�
 :::
 
 ## タブ
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/parts/tabs.png" alt="各種タブ" />
+	<figcaption>タブの一覧(2686V)</figcaption>
+</figure>
 
 左から順に並びます。収録されるものはプラグインによって違います
 （[プラグインの選び方](/2686V_2686VFX/plugins/compare/)）。
@@ -85,10 +95,20 @@ LEVEL には **Steps** による段階入力もあります。
 
 ### 波形プレビュー
 
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/parts/wave_preview.png" alt="波形プレビュー" />
+	<figcaption>波形プレビュー</figcaption>
+</figure>
+
 読み込んだ音声ファイル、波形メモリ、エンベロープの動きが図で出ます。数値だけ
 で組み立てずに済みます。
 
 ## 画面の右上
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/parts/buttons.png" alt="画面右上ボタン群" />
+	<figcaption>画面右上ボタン群</figcaption>
+</figure>
 
 | ボタン | はたらき |
 | --- | --- |
@@ -99,6 +119,16 @@ LEVEL には **Steps** による段階入力もあります。
 | 表示モード | 3 つの表示を切り替えます |
 
 ## 表示モード
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/parts/mini_player_view.png" alt="ミニプレイヤーモード" />
+	<figcaption>ミニプレイヤーモード</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/parts/minimum_view.png" alt="ミニマムモード" />
+	<figcaption>ミニマムモード</figcaption>
+</figure>
 
 | モード | 使いどころ |
 | --- | --- |

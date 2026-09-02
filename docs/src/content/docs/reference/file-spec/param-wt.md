@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.param.wt.json` / `.param.wt.yaml` |
-| **印（format）** | `wt` |
+| **表記（format）** | `wt` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX] / [IM] |
 | **音源の説明** | [wt](/2686V_2686VFX/chips/wt/) |

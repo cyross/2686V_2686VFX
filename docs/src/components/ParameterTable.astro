@@ -19,7 +19,7 @@ const rows = rowsOf(group, lang, plugin);
 
 // 音源タブのページから、つまみごとにここへ飛べるようにする。
 // ID をそのまま使うと OPNA_OP[0-3]_AR のように記号が混ざるので、
-// 英数字以外をハイフンへ寄せて目印にする。
+// 英数字以外をハイフンへ寄せて目表記にする。
 const anchorOf = (id: string) =>
 	id.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const actual = parametersOf(group).length;

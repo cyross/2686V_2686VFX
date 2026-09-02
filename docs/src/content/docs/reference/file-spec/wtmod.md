@@ -10,7 +10,7 @@ WT PITCH MOD の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.wtmod.json` / `.wtmod.yaml` |
-| **印（format）** | `wtmod` |
+| **表記（format）** | `wtmod` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | WT PITCH MOD の [EX] / [IM] |
 

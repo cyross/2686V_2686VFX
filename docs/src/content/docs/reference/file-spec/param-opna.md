@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.param.opna.json` / `.param.opna.yaml` |
-| **印（format）** | `opna` |
+| **表記（format）** | `opna` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX] / [IM] |
 | **音源の説明** | [opna](/2686V_2686VFX/chips/opna/) |

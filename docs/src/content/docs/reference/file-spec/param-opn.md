@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.param.opn.json` / `.param.opn.yaml` |
-| **印（format）** | `opn` |
+| **表記（format）** | `opn` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX] / [IM] |
 | **音源の説明** | [opn](/2686V_2686VFX/chips/opn/) |

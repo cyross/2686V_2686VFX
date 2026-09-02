@@ -54,15 +54,15 @@ sidebar:
 | 10 | 6-bit PCM | |
 | 11 | 5-bit PCM | |
 | 12 | 4-bit PCM | |
-| 13 | 4-bit ADPCM | |
-| 14 | 1-bit DPCM | |
-| 15 | SNES BRR | |
-| 16 | PS1 VAG | |
-| 17 | IMA ADPCM | |
-| 18 | CD-ROM XA | |
-| 19 | YMZ280B | |
-| 20 | K053260 | |
-| 21 | K054539 | |
+| 13 | 4-bit ADPCM | YM-2608B の ADPCM による再生音質 |
+| 14 | 1-bit DPCM | ファミコンで採用されている DPCM による再生音質 |
+| 15 | SNES BRR | スーパーファミコンの SPC-700 で採用されている Bit Rate Reduction 圧縮による再生音質 |
+| 16 | PS1 VAG | PS1/PS2/PSP で採用されている VAG 圧縮による再生音質 |
+| 17 | IMA ADPCM | IMA ADPCM 圧縮による再生音質 |
+| 18 | CD-ROM XA | CD-ROM で採用されている CD-XA による再生音質 |
+| 19 | YMZ280B | YMZ280B で採用されている PCM による再生音質 |
+| 20 | K053260 | KONAMI K053260 PCM/ADPCM チップによる再生音質 |
+| 21 | K054539 | KONAMI K054539 PCM/ADPCM チップによる再生音質 |
 
 ## RATE — サンプリング周波数
 
@@ -98,7 +98,7 @@ sidebar:
 | ---: | --- | --- |
 | 1 | 補完なし (Nearest) | |
 | 2 | 線形補間 (Linear) | |
-| 3 | ガウス補完 (Gaussian) | |
+| 3 | ガウス補完 (Gaussian) | スーパーファミコンのSPC-700で採用されている補完アルゴリズム |
 | 4 | ZOH (Zero-Order Hold) | |
 | 5 | コサイン補間 (Cosine) | |
 | 6 | B-スプライン補間 (B-Spline) | |

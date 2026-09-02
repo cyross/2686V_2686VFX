@@ -8,7 +8,7 @@ sidebar:
 FM 音源の**オペレータ 1 つぶん**を出し入れするファイルです。チャンネルの
 ファイルの `ops` の並びの、1 つぶんと同じかたちをしています。
 
-| 音源 | 拡張子 | 印（format） | 中身 |
+| 音源 | 拡張子 | 表記（format） | 中身 |
 | --- | --- | --- | --- |
 | OPNA | `.param.opna.op.json` | `opnaOp` | [OPNA チャンネル](/2686V_2686VFX/reference/file-spec/param-opna/#ops-の並び) |
 | OPN | `.param.opn.op.json` | `opnOp` | [OPN チャンネル](/2686V_2686VFX/reference/file-spec/param-opn/#ops-の並び) |

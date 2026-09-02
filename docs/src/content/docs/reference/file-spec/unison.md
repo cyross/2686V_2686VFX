@@ -10,7 +10,7 @@ UNISON/HARMONY の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.unison.json` / `.unison.yaml` |
-| **印（format）** | `unison` |
+| **表記（format）** | `unison` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]Unison / [IM]Unison |
 

@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.param.opl.json` / `.param.opl.yaml` |
-| **印（format）** | `opl` |
+| **表記（format）** | `opl` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX] / [IM] |
 | **音源の説明** | [opl](/2686V_2686VFX/chips/opl/) |

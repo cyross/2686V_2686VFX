@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.param.beep.json` / `.param.beep.yaml` |
-| **印（format）** | `beep` |
+| **表記（format）** | `beep` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX] / [IM] |
 | **音源の説明** | [beep](/2686V_2686VFX/chips/beep/) |

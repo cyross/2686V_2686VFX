@@ -10,7 +10,7 @@ sidebar:
 | | |
 | --- | --- |
 | **拡張子** | `.param.adpcm.json` / `.param.adpcm.yaml` |
-| **印（format）** | `adpcm` |
+| **表記（format）** | `adpcm` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX] / [IM] |
 | **音源の説明** | [adpcm](/2686V_2686VFX/chips/adpcm/) |

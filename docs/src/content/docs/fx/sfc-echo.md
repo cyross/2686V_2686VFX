@@ -5,7 +5,12 @@ sidebar:
   order: 9
 ---
 
-スーパーファミコンの音源が持っていたエコーを再現したものです。ディレイに**8 つの係数のフィルター**が付いた作りで、繰り返すたびに音色が変わります。
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_sfc_echo.png" alt="SFCエコー" style="width:400px;" />
+	<figcaption>SFCエコー</figcaption>
+</figure>
+
+スーパーファミコンの音源(SPC-700)が持っていたエコーを再現したものです。ディレイに**8 つの係数のフィルター**が付いた作りで、繰り返すたびに音色が変わります。
 
 ## つまみ
 

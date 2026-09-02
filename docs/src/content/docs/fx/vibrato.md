@@ -5,6 +5,11 @@ sidebar:
   order: 4
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_vibrato.png" alt="ビブラート" style="width:400px;" />
+	<figcaption>ビブラート</figcaption>
+</figure>
+
 音程を周期的に揺らします。
 
 ## つまみ

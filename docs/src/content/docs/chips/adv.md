@@ -5,6 +5,11 @@ sidebar:
   order: 14
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/tab_curve.png" alt="カーブ編集モード" style="width:600px;" />
+	<figcaption>カーブ編集モード</figcaption>
+</figure>
+
 **ADV** タブは、値が時間とともに**どう変わっていくか**を決めるところです。
 
 実機のエンベロープは、レート（速さ）を決めると変化のしかたも決まっていました。

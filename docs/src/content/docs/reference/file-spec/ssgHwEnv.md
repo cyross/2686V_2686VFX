@@ -1,5 +1,5 @@
 ---
-title: SSG ハードウェアエンベロープ
+title: SSG ハードウェア音量エンベロープ
 description: .ssgHwEnv.json の中身
 sidebar:
   order: 3
@@ -10,7 +10,7 @@ SSG HW AMP ENV の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.ssgHwEnv.json` / `.ssgHwEnv.yaml` |
-| **印（format）** | `ssgHwEnv` |
+| **表記（format）** | `ssgHwEnv` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | SSG HW AMP ENV の [EX] / [IM] |
 

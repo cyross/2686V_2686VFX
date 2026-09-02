@@ -10,7 +10,7 @@ MUL/DET の設定。
 | | |
 | --- | --- |
 | **拡張子** | `.detune.json` / `.detune.yaml` |
-| **印（format）** | `detune` |
+| **表記（format）** | `detune` |
 | **版（version）** | `1` |
 | **書き出し・読み込み** | UTILITY の [EX]Detune / [IM]Detune |
 

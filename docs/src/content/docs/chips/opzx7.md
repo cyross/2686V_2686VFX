@@ -1,9 +1,14 @@
 ---
-title: OPZX7S
+title: OPZX7Sチャンネル
 description: OPZ / OPX / MA-7 / OPS のいいところを集めた、独自の 8 オペレータ FM
 sidebar:
   order: 6
 ---
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_opzx7s.png" alt="OPZX7Sチャンネル" style="width:600px;" />
+	<figcaption>OPZX7Sチャンネル</figcaption>
+</figure>
 
 OPZX7S は、**実機には存在しない独自のチャンネル**です。OPZ・OPX・MA-7・OPS の FM 音源部分の
 それぞれから良いところを取り、そこへ独自の拡張を足したものです。

@@ -5,6 +5,11 @@ sidebar:
   order: 1
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_filter.png" alt="フィルター" style="width:400px;" />
+	<figcaption>フィルター</figcaption>
+</figure>
+
 決めた高さから上、または下を削ります。音の明るさを決める、いちばん基本の道具です。
 
 ## つまみ

@@ -5,6 +5,11 @@ sidebar:
   order: 2
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_3beq.png" alt="3バンドイコライザー" style="width:400px;" />
+	<figcaption>3バンドイコライザー</figcaption>
+</figure>
+
 低い・真ん中・高いの 3 つに分けて、それぞれの量を上げ下げします。
 
 ## つまみ

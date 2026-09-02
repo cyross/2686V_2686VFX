@@ -1,9 +1,14 @@
 ---
-title: OPL
+title: OPLチャンネル
 description: YM3812 / YM2413 にあたる 2 オペレータ FM チャンネル
 sidebar:
   order: 3
 ---
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_opl.png" alt="OPLチャンネル" style="width:600px;" />
+	<figcaption>OPLチャンネル</figcaption>
+</figure>
 
 OPL は **YM3812（OPL2）** と **YM2413（OPLL）** の FM 音源部分にあたるチャンネルです。
 MSX-MUSIC やゲーム基板でよく使われた系統で、OPN 系とは音の作りがはっきり
@@ -12,9 +17,9 @@ MSX-MUSIC やゲーム基板でよく使われた系統で、OPN 系とは音の
 いちばんの違いは **オペレータが 2 つ**しかないことです。そのぶん組み合わせは
 限られますが、**波形を選べる**という別の武器があります。
 
-## 印について
+## 表記について
 
-| 印 | 意味 |
+| 表記 | 意味 |
 | --- | --- |
 | **実機** | 実機にある機能。実機の仕様どおりに動きます |
 | **独自** | 実機に無い、このプラグイン独自の拡張 |
