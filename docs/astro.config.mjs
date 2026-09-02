@@ -54,6 +54,7 @@ export default defineConfig({
 					items: [
 						{ slug: 'files/format' },
 						{ slug: 'files/convert' },
+						{ slug: 'files/wavetables' },
 					],
 				},
 				{
