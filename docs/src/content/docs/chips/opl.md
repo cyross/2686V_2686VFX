@@ -37,34 +37,81 @@ MSX-MUSIC やゲーム基板でよく使われた系統で、OPN 系とは音の
 
 FM か加算かを選びます。図はここに出ます。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **ALG** | オペレータのつなぎ方 | [`OPL_ALG`](/2686V_2686VFX/reference/automation/opl/#opl-alg) |
+| **FB** | OP1 が自分自身へ戻す量 | [`OPL_FB1`](/2686V_2686VFX/reference/automation/opl/#opl-fb1) |
+
 ### SHAPE（実機）
 
 **この系統の要です。** サイン波を切ったり折り返したりした波形を選べます。
 OPN 系がサイン波しか出せないのに対し、OPL は波形そのものを変えて音色を作り
 ます。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **WS** | オペレータの波形。正弦をどう削るかを選ぶ | [`OPL_OP[0-1]_EG`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-eg) |
+
 ### AMP ENV（実機・独自）
 
 オペレータごとの音量エンベロープです。**KOR / XOF / Bypass** の独自オプション
 が付きます。
 
+OPL 系は SR を持ちません。減衰の続き方は EG TYPE で決めます。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **AR** | アタックレート | [`OPL_OP[0-1]_R_AR`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-r-ar) |
+| **DR** | ディケイレート | [`OPL_OP[0-1]_R_DR`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-r-dr) |
+| **SL** | サステインレベル | [`OPL_OP[0-1]_R_SL`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-r-sl) |
+| **RR** | リリースレート | [`OPL_OP[0-1]_R_RR`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-r-rr) |
+| **TL** | トータルレベル。**大きいほど音が小さくなる** | [`OPL_OP[0-1]_R_TL`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-r-tl) |
+| **Bypass** | 音量エンベロープを通さない（**独自**） | [`OPL_OP[0-1]_AMP_BYPASS`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-amp-bypass) |
+
 ### EG SHAPE（実機）
 
 エンベロープの型を選びます。減衰し切る型と、押している間持続する型があります。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **EG TYPE** | 押しているあいだ音量を保つ（オン）か、減らし続ける（オフ）か | [`OPL_OP[0-1]_EG_TYP`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-eg-typ) |
+| **SUS** | キーオフのあとも保つ | [`OPL_OP[0-1]_SUS`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-sus) |
 
 ### LFO（実機）
 
 **オペレータごとに独立した**ハードウェア LFO です。OPN 系のチャンネル全体に
 掛かる LFO とは違い、片方のオペレータだけを揺らすといった使い方ができます。
 
+OPL 系の LFO は**オペレータごと**です。速さも深さも別々に決められます。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **VIB** | 音程側の揺れを掛ける | [`OPL_OP[0-1]_LFO_VIB`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-lfo-vib) |
+| **PMS** | 音程の揺れの速さ（Hz） | [`OPL_OP[0-1]_LFO_PMS`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-lfo-pms) |
+| **PMD** | 音程の揺れの深さ（セント） | [`OPL_OP[0-1]_LFO_PMD`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-lfo-pmd) |
+| **AM** | 音量側の揺れを掛ける | [`OPL_OP[0-1]_LFO_AM`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-lfo-am) |
+| **AMS** | 音量の揺れの速さ（Hz） | [`OPL_OP[0-1]_LFO_AMS`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-lfo-ams) |
+| **AMD** | 音量の揺れの深さ（dB） | [`OPL_OP[0-1]_LFO_AMD`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-lfo-amd) |
+
 ### MUL / DET（実機）
 
 逓倍とデチューンです。
+
+OPL 系にはデチューンがありません。ずらしたいときは [MUL / DET](/2686V_2686VFX/chips/common/#mul--det) の DT3 を使います。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **MUL** | 逓倍 | [`OPL_OP[0-1]_MUL`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-mul) |
 
 ### KEY SCALE（実機）
 
 **KSL（レベル）と KSR（レート）**を別々に設定します。OPL 系はこの 2 つが
 分かれているのが特徴です。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **KSR** | 音が高いほどエンベロープを速める | [`OPL_OP[0-1]_KSR`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-ksr) |
+| **KSL** | 音が高いほど音量を下げる度合い。OFF / 1.5 / 3.0 / 6.0 dB/oct | [`OPL_OP[0-1]_KSL`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-ksl) |
 
 ### SSG HW ENV（独自）
 
@@ -74,9 +121,18 @@ SSG のハードウェアエンベロープを OPL でも使えます。実機�
 
 オペレータごとに音を止めます。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **MASK** | このオペレータを鳴らさない | [`OPL_OP[0-1]_MASK`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-mask) |
+
 ### INITIALIZE / OPTIONAL
 
 初期化と、実機が持っていた追加の動作です。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **KOR** | 鍵を離しても減衰させない（**独自**） | [`OPL_OP[0-1]_KOR`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-kor) |
+| **XOF** | RR を無視して減衰させない（**独自**） | [`OPL_OP[0-1]_XOF`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-xof) |
 
 ## 共通の区分
 

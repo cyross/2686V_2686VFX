@@ -37,6 +37,15 @@ RHYTHM が複数のパッドに短い音を並べるのに対し、こちらは*
 **LPST / LPED を波形の途中に置く**と、押している間そこだけを繰り返します。
 持続する音を短い素材から作れます。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **LOOP** | ファイル全体を繰り返す | [`ADPCM_LOOP`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-loop) |
+| **PAN** | 定位。0 が左、0.5 が中央、1 が右 | [`ADPCM_PAN`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pan) |
+| **PCM OFFSET** | 頭出し（ミリ秒） | [`ADPCM_PCM_OFFSET`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-offset) |
+| **PCM RATIO** | 再生の速さ | [`ADPCM_PCM_RATIO`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-ratio) |
+| **LOOP POINT** | 繰り返す範囲を指定する | [`ADPCM_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-looppoint-en) |
+| **LOOP START / END** | その範囲。全体を 0.0〜1.0 とした位置 | [`ADPCM_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-looppoint-st) |
+
 ## QUALITY — 音質（実機・独自）
 
 読み込んだ音のビット数とサンプリング周波数を落とします。**このチャンネルの
@@ -86,6 +95,13 @@ B-Spline はこもるので、遠くで鳴っている感じを作れます。
 | **Tone / Noise** | ノイズを混ぜる（`T.LV` / `N.LV` / `N.FQ` / `MIX`） |
 | **PAN** | 左右の定位 |
 | [**FIX**](/2686V_2686VFX/chips/common/#fix) | 音程を固定する |
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **TONE** | 読み込んだ音の側の量 | [`ADPCM_TONE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-tone) |
+| **NOISE** | ざらつきの側の量 | [`ADPCM_NOISE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noise) |
+| **NOISE FREQ** | ざらつきの高さ | [`ADPCM_NOISEFREQ`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisefreq) |
+| **MIX** | 2 つの混ぜ具合 | [`ADPCM_NOISEMIX`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisemix) |
 
 ## 共通の区分
 

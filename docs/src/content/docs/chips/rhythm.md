@@ -64,6 +64,10 @@ RHYTHM は **YM2608B のリズム音源**にあたるチャンネルです。実
 そのパッドを鳴らす MIDI ノート番号です（0〜127、初期値はパッドごとに異なる）。
 **割り当てを自由に変えられる**ので、手持ちのドラムマップに合わせられます。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **NOTE** | そのパッドを鳴らすノート番号 | [`RHYTHM_PAD7_NOTE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad7-note) |
+
 ### QUALITY — 音質（実機・独自）
 
 読み込んだ音のビット数とサンプリング周波数を落とします。ここが**当時らしさを
@@ -99,6 +103,17 @@ QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご
 | **T.LV** / **N.LV** / **N.FQ** / **MIX** | トーンとノイズの混ぜ方 |
 | **MUL / DET** | 音程をずらす |
 | **LFO** | 周期的に揺らす |
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **VOL** | パッドごとの音量 | [`RHYTHM_PAD[0-7]_VOL`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-vol) |
+| **PAN** | パッドごとの定位 | [`RHYTHM_PAD[0-7]_PAN`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pan) |
+| **ONE SHOT** | 鍵を離しても最後まで鳴らす | [`RHYTHM_PAD[0-7]_ONESHOT`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-oneshot) |
+| **PCM OFFSET** | 頭出し（ミリ秒） | [`RHYTHM_PAD[0-7]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-offset) |
+| **PCM RATIO** | 再生の速さ | [`RHYTHM_PAD[0-7]_PCM_RATIO`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-ratio) |
+| **LOOP POINT** | 繰り返す範囲を指定する | [`RHYTHM_PAD[0-7]_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-en) |
+| **LOOP START / END** | その範囲。全体を 0.0〜1.0 とした位置 | [`RHYTHM_PAD[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-st) |
+| **TONE / NOISE / FREQ / MIX** | 読み込んだ音とざらつきの混ぜ方 | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
 
 ## 共通の区分
 

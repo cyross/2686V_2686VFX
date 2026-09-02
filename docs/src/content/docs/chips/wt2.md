@@ -43,6 +43,12 @@ WT2 は [WT](/2686V_2686VFX/chips/wt/) と同じ波形メモリのチャンネ�
 | 2 | 128 |
 | 3 | 256 |
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **SIZE** | 1 周期のサンプル数 | [`WT2_SIZE`](/2686V_2686VFX/reference/automation/wt2/#wt2-size) |
+| **RES** | 値の段数。16 / 32 / 64 / 128 / 256 | [`WT2_RES`](/2686V_2686VFX/reference/automation/wt2/#wt2-res) |
+| **WAVE** | 組み込みの波形か、自分で描いたものか | [`WT2_WAVE`](/2686V_2686VFX/reference/automation/wt2/#wt2-wave) |
+
 ### 波形の描き方
 
 グラフを直接ドラッグして描きます。**WT と違い、値そのものが段階で決まっている

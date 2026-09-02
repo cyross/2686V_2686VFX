@@ -16,6 +16,12 @@ interface Props {
 const { group, lang = 'ja', plugin = '2686V' } = Astro.props;
 
 const rows = rowsOf(group, lang, plugin);
+
+// 音源タブのページから、つまみごとにここへ飛べるようにする。
+// ID をそのまま使うと OPNA_OP[0-3]_AR のように記号が混ざるので、
+// 英数字以外をハイフンへ寄せて目印にする。
+const anchorOf = (id: string) =>
+	id.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const actual = parametersOf(group).length;
 
 const head = lang === 'ja'
@@ -47,7 +53,7 @@ const count = lang === 'ja'
 		</thead>
 		<tbody>
 			{rows.map((r) => (
-				<tr>
+				<tr id={anchorOf(r.id)}>
 					<td>{r.name}</td>
 					<td><code>{r.id}</code></td>
 					<td>{r.type}</td>
@@ -78,5 +84,15 @@ const count = lang === 'ja'
 	/* ID は折り返さない。途中で切れると探しにくい。 */
 	td code {
 		white-space: nowrap;
+	}
+
+	/* 飛んできた行が見出しの下に隠れないようにする */
+	tbody tr {
+		scroll-margin-top: 5rem;
+	}
+
+	/* 飛んできた行が分かるように、少しのあいだ色を残す */
+	tbody tr:target {
+		background: var(--sl-color-accent-low);
 	}
 </style>

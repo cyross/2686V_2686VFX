@@ -47,31 +47,79 @@ OPNA ではなくこちらを選びます。
 
 アルゴリズムとフィードバックを選びます。図はここに出ます。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **ALG** | オペレータのつなぎ方。実機と同じ 8 種類 | [`OPN_ALG`](/2686V_2686VFX/reference/automation/opn/#opn-alg) |
+| **FB** | OP1 が自分自身へ戻す量 | [`OPN_FB1`](/2686V_2686VFX/reference/automation/opn/#opn-fb1) |
+
 ### AMP ENV（実機・独自）
 
 オペレータごとの音量エンベロープです。実機の **AR / DR / SR / SL / RR / TL**
 に、**KOR / XOF / Bypass** の独自オプションが付きます。SSG ソフトウェア
 エンベロープを主役にしたいときに使います。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **AR** | アタックレート。大きいほど速く立ち上がる | [`OPN_OP[0-3]_R_AR`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-r-ar) |
+| **DR** | ディケイレート。大きいほど速く減る | [`OPN_OP[0-3]_R_DR`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-r-dr) |
+| **SL** | サステインレベル。DR で下がりきる高さ | [`OPN_OP[0-3]_R_SL`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-r-sl) |
+| **SR** | サステインレート。押しているあいだ減り続ける速さ | [`OPN_OP[0-3]_R_SR`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-r-sr) |
+| **RR** | リリースレート。鍵を離してから消えるまでの速さ | [`OPN_OP[0-3]_R_RR`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-r-rr) |
+| **TL** | トータルレベル。**大きいほど音が小さくなる** | [`OPN_OP[0-3]_R_TL`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-r-tl) |
+
 ### MUL / DET（実機）
 
 逓倍とデチューンです。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **MUL** | 逓倍。0 が 0.5 倍、1〜15 がそのままの倍数 | [`OPN_OP[0-3]_MUL`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-mul) |
+| **DT** | デチューン。実機と同じ 8 段 | [`OPN_OP[0-3]_DT`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-dt) |
 
 ### N88 LFO（実機由来）
 
 N88-BASIC が使っていたソフトウェア LFO を再現したものです。
 
+OPN にはハードウェア LFO がないので、揺らしはここで作ります。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **SPEED** | 揺れの速さ | [`OPN_LFO_FREQ`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-freq) |
+| **SHAPE** | 揺れる形 | [`OPN_LFO_SHAPE`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-shape) |
+| **SYNC DELAY** | 押してから揺れ始めるまでの待ち | [`OPN_LFO_SYNC_DELAY`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-sync-delay) |
+| **PM** | 音程側の揺れを掛ける | [`OPN_LFO_PM`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-pm) |
+| **PMS** | 音程の効き | [`OPN_LFO_PMS`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-pms) |
+| **PMD** | 音程の深さ。負の値で向きが反転する | [`OPN_LFO_PMD`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-pmd) |
+| **AM** | 音量側の揺れを掛ける | [`OPN_LFO_AM`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-am) |
+| **AMD** | 音量の深さ | [`OPN_LFO_AMD`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-amd) |
+| **AM SMOOTH** | 音量側の角の丸め | [`OPN_LFO_ASMRT`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-asmrt) |
+| **AMS（OP ごと）** | オペレータごとの音量の効き | [`OPN_OP[0-3]_N88AMS`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-n88ams) |
+
 ### KEY SCALE（実機）
 
 音の高さによって音量やレートを変えます。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **KS** | 音が高いほどエンベロープを速める度合い | [`OPN_OP[0-3]_KS`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-ks) |
 
 ### MASK（実機）
 
 オペレータごとに音を止めます。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **MASK** | このオペレータを鳴らさない | [`OPN_OP[0-3]_MASK`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-mask) |
+
 ### OPTIONAL（実機）
 
 効果音モードなど、実機が持っていた追加の動作です。
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **Bypass** | このオペレータの音量エンベロープを通さない（**独自**） | [`OPN_OP[0-3]_AMP_BYPASS`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-amp-bypass) |
+| **KOR** | 鍵を離しても、指定の時間まで減衰させない（**独自**） | [`OPN_OP[0-3]_KOR`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-kor) |
+| **XOF** | RR を無視して減衰させない（**独自**） | [`OPN_OP[0-3]_XOF`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-xof) |
 
 ## 共通の区分
 

@@ -35,6 +35,11 @@ BEEP は、**パソコン本体のビープ音**を鳴らすチャンネルで�
 **ANTIALIAS を入れると角が丸まり、今風の聞きやすい矩形波**になります。実機の
 音を狙うなら切ったままにします。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **TIMER CLOCK** | もとにするクロック。実機の 4 種 | [`BEEP_TIMERCLOCK`](/2686V_2686VFX/reference/automation/beep/#beep-timerclock) |
+| **ANTI ALIAS** | 高い音の折り返しを抑える（**独自**） | [`BEEP_ANTIALIAS`](/2686V_2686VFX/reference/automation/beep/#beep-antialias) |
+
 ## OPTIONAL — 効果音モード（実機）
 
 効果音モードには **2000Hz へ切り替えるボタン**があります。当時のプログラムが

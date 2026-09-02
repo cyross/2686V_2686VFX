@@ -30,6 +30,12 @@ WT や WT2 が「ひと山を描く」ためのものなのに対し、WT+ は�
 読み込んだ波形は画面で確認できます。どの枠に何が入っているか、目で見て分かり
 ます。
 
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **SLOT** | 鳴らす枠。0〜31。オートメーションから切り替えられる | [`WTPLUS_SLOT`](/2686V_2686VFX/reference/automation/wtplus/#wtplus-slot) |
+| **INTERPOLATE** | 枠の切り替わりをつなぐ | [`WTPLUS_INTERPOLATE`](/2686V_2686VFX/reference/automation/wtplus/#wtplus-interpolate) |
+| **STEPS** | 描くときの値の刻み | [`WTPLUS_STEPS`](/2686V_2686VFX/reference/automation/wtplus/#wtplus-steps) |
+
 ## 切り替え方
 
 **SLOT のスライダーを動かすと、その場で音色が変わります。**
