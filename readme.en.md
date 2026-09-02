@@ -662,7 +662,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 ## 12. Operation manual
 
 - Provided on GitHub Pages.
-  - [2686V Operation manual](https://github.com/cyross/2686V_2686VFX/wiki/2686V-2686VFX-Operation-manual)
+  - [2686V Series Users manual](https://cyross.github.io/2686V_2686VFX/)
 
 ## 13. License
 

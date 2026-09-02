@@ -612,7 +612,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 ## 12. 操作マニュアル
 
 - GitHub Pagesで提供いたします。
-  - [2686V オペレーションマニュアル](https://github.com/cyross/2686V_2686VFX/wiki/2686V-2686VFX-Operation-manual)
+  - [2686Vファミリー ユーザーズマニュアル](https://cyross.github.io/2686V_2686VFX/)
 
 ## 13. ライセンス / License
 
