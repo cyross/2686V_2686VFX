@@ -46,7 +46,6 @@ void OpnOperator::setSampleRate(double sampleRate)
 {
     m_sampleRate = sampleRate;
 
-    m_lfo.updateTargetSampleRate(sampleRate);
     m_ampAdsr.updateTargetSampleRate(sampleRate);
     m_pitchAdsr.updateSampleRate(sampleRate);
     m_ssgSwEnv.updateTargetSampleRate(sampleRate);
