@@ -128,6 +128,7 @@ endfunction()
 add_subdirectory(2686V)
 add_subdirectory(2686VLight)
 add_subdirectory(2686VOrigin)
+add_subdirectory(26V)
 add_subdirectory(OPZX7S)
 add_subdirectory(2686VFX)
 
