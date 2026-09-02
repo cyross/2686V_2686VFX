@@ -4,7 +4,7 @@
 
 ## 1. はじめに
 
-「2686V」(以降、合わせて「本ソフト」と表記します)は、レトロ音源(FM/SSG/ADPCM等)風の音を出すプラグイン「2686V」「2686VLight」「86V」「OPZX7S」とエフェクトプラグイン「2686VFX」を提供します。
+「2686V」(以降、合わせて「本ソフト」と表記します)は、レトロ音源(FM/SSG/ADPCM等)風の音を出すプラグイン「2686V」「2686VLight」「26V」「86V」「OPZX7S」とエフェクトプラグイン「2686VFX」を提供します。
 
 ## 2. 目的
 
@@ -22,6 +22,9 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 - **2686VLight**:
   - 2686Vの軽量版
   - 2686Vからカーブ編集モードを省いて負荷を下げたもの
+- **26V**:
+  - 2686V Lightの構成を「PC-9801-26(K)」に近づけたもの
+    - チャンネルはOPN、SSGのみ
 - **86V**:
   - 2686V Lightの構成を「PC-9801-86」に近づけたもの
     - チャンネルはOPNA、SSG、RHYTHM、PCMのみ
@@ -187,7 +190,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
       - OPZX7Sのものを使用
       - **オリジナル波形追加**
     - 効果音モード
-- 波形メモリチャンネル(WT/WT2)
+- YM2303/YM2608には無いけど、やっぱりレトロゲーム音源としては外せない！　波形メモリチャンネル(WT/WT2)
   - プリセット波形メモリとカスタム波形メモリを用意
   - 実数で値を設定する WT と、段階で指定する WT2 を搭載
   - カスタム波形メモリは、32/64/128/256サンプルに対応
@@ -210,7 +213,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
       - **オリジナル波形追加**
     - 効果音モード
   - **ロードした各ファイルの波形をプレビュー可能**
-- **波形メモリ切り替え再生チャンネル(WT+)**
+- **WT/WT2では1波形しか再生できない人のため！　波形メモリ切り替え再生チャンネル(WT+)**
   - 既存の `.wt`, `.wt2` ファイルを使用した波形を再生
   - 最大32まで読み込み可能、スライダーでリアルタイム切り替え
   - DAWのオートメーションからもリアルタイム切り替え可能
@@ -449,18 +452,22 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 
 - 本プラグインは、以下のファイルで構成されています。
 
+※各プリセット・パラメータファイルは多数のため、内包しているファイル名の一覧は省略
+
 ```plaintext
 - Windows
   - x86-64
     - VST3
       - 2686V.vst3 : シンセプラグイン「2686V」
       - 2686VLight.vst3 : シンセプラグイン「2686VLight」
+      - 26V.vst3 : シンセプラグイン「26V」
       - 86V.vst3 : シンセプラグイン「86V」
       - OPZX7S.vst3 : シンセプラグイン「OPZX7S」
       - 2686VFX.vst3 : エフェクトプラグイン「2686VFX」
     - Standalone
       - 2686V.exe : 2686V のスタンドアロンプログラム
       - 2686VLight.exe : 2686VLight のスタンドアロンプログラム
+      - 26V.exe : 26V のスタンドアロンプログラム
       - 86V.exe : 86V のスタンドアロンプログラム
       - OPZX7S.exe : OPZX7S のスタンドアロンプログラム
       - 2686VFX.exe : 2686VFX のスタンドアロンプログラム
@@ -468,37 +475,84 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
     - VST3
       - 2686V.vst3 : シンセプラグイン「2686V」
       - 2686VLight.vst3 : シンセプラグイン「2686VLight」
+      - 26V.vst3 : シンセプラグイン「26V」
       - 86V.vst3 : シンセプラグイン「86V」
       - OPZX7S.vst3 : シンセプラグイン「OPZX7S」
       - 2686VFX.vst3 : エフェクトプラグイン「2686VFX」
     - Standalone
       - 2686V.exe : 2686V のスタンドアロンプログラム
       - 2686VLight.exe : 2686VLight のスタンドアロンプログラム
+      - 26V.exe : 26V のスタンドアロンプログラム
       - 86V.exe : 86V のスタンドアロンプログラム
       - OPZX7S.exe : OPZX7S のスタンドアロンプログラム
       - 2686VFX.exe : 2686VFX のスタンドアロンプログラム
 - Readme.md : 簡易ドキュメント
 - Readme.en.md : 簡易ドキュメント(英語版)
 - COPYING.txt : GPLv3ライセンス条項
-- Assets : アセットファイルフォルダ
-  - 2686V
-    - Presets                 : 2686V用プリセットファイルフォルダ
-      - OPLL Roms             : OPLLのROMプリセット音色(ご利用に関しては、必ず「"OPLL Roms" フォルダ内のプリセットに関して」をご確認ください！)
-      - SSG Drums             : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイルのもとになったプリセットファイル群
-      - WT Samples            : 波形メモリの参考用プリセットファイル群
-      - SSG RHYTHM Sample.xml : リズム音源サンプル用のプリセットです。
-      - Tekitou PSG.xml       : 適当に作った、参考用PSGプリセットです。
-      - M-M-Pro               : 某野球ゲーム音声合成のリズム音源・ADPCM(DPCM品質)チャンネル用プリセット
-    - Resources               : リソースファイル(**フォルダ名や中のファイルは絶対に変更・編集・削除しないでください！**)
-    - Samples                 : 初期サンプル(音声)ファイルフォルダ
-      - Noise Close HiHat.wav : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
-      - Noise Open HiHat.wav  : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
-      - Noise Snare.wav       : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
-      - SSG Cymbal.wav        : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
-      - SSG Kick.wav          : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
-      - SSG Perc.wav          : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
-      - M-Pro                 : 某野球ゲーム音声合成(feat.某バーチャルシンガー)
-    - sample_bg.png           : サンプル用壁紙
+- [Dir]Assets : アセットファイルフォルダ
+  - [Dir]2686V
+    - [Dir]Presets                 : 2686V用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+        - [Dir]26V                 : 26V用プリセットファイルフォルダ
+        - [Dir]86V                 : 86V用プリセットファイルフォルダ
+        - [Dir]2686V               : 2686V用プリセットファイルフォルダ
+        - [Dir]2686VLight          : 2686VLight用プリセットファイルフォルダ
+        - [Dir]OPZX7S              : OPZX7S用プリセットファイルフォルダ
+      - [Dir]OPLL Roms             : OPLLのROMプリセット音色(ご利用に関しては、必ず「"OPLL Roms" フォルダ内のプリセットに関して」をご確認ください！)
+      - [Dir]SSG Drums             : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイルのもとになったプリセットファイル群
+      - [Dir]WT Samples            : 波形メモリの参考用プリセットファイル群
+      - SSG RHYTHM Sample.xml      : リズム音源サンプル用のプリセット
+      - Tekitou PSG.xml            : 適当に作った、参考用PSGプリセット
+      - M-M-Pro                    : 某野球ゲーム音声合成のリズム音源・ADPCM(DPCM品質)チャンネル用プリセット
+    - [Dir]Resources               : リソースファイル(**フォルダ名や中のファイルは絶対に変更・編集・削除しないでください！**)
+    - [Dir]Samples                 : 初期サンプル(音声)ファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+      - [Dir]M-Pro                 : 某野球ゲーム音声合成(feat.某バーチャルシンガー)
+      - Noise Close HiHat.wav      : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
+      - Noise Open HiHat.wav       : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
+      - Noise Snare.wav            : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
+      - SSG Cymbal.wav             : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
+      - SSG Kick.wav               : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
+      - SSG Perc.wav               : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイル
+    - [Dir]AmpEnvParams            : グローバルAmp Env用パラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]ChannelParams           : 各チャンネルのパラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]CustomizeColorSettings  : 色情報のカスタマイズファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]DetuneParams            : MUL/DET用パラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]FxOrders                : エフェクトの順番を保存するファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]FxParams                : エフェクトのパラメータを保存するファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]LfoParams               : LFOのパラメータを保存するファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]PcmPlayParams           : PCMファイルの再生位置などを指定するパラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]PitchEnvParams          : ピッチエンベロープ用のパラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+        - [Dir]PitchEnv            : 従来のピッチエンベロープ用のパラメータファイルフォルダ
+        - [Dir]SsgSwPenv11         : SSG SW Pitch ENV11用のパラメータファイルフォルダ
+    - [Dir]QualityParams           : 音質用のパラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]SsgHwEnvParams          : SSG HW ENV用のパラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]SsgSwEnvParams          : SSG SW ENV(11)用のパラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+        - [Dir]SsgSwEnv            : 従来のSSG SW AMP ENV用のパラメータファイルフォルダ
+        - [Dir]SsgSwEnv11          : SSG SW AMP ENV(11)用のパラメータファイルフォルダ
+    - [Dir]ToneNoiseParams         : Tone/Noiseミックスなどのパラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]UnisonParams            : UNISON/HARMONY用のパラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]Wavetables              : 波形ファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+        - [Dir]wt                  : .wt ファイル群
+        - [Dir]wt2                 : .wt2 ファイル群
+    - [Dir]WtModParams             : WT PITCH MOD で使用できるパラメータファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - sample_bg.png                : サンプル用壁紙
 ```
 
 ### 8-1. 添付のプリセットファイルについて
@@ -524,7 +578,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 
 - アーカイブファイルを展開すると、「構成」で示したファイルが作成されますので、以下のように操作します。
 
-### 9-1. 2686V.vst3 / 2686VLight.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
+### 9-1. 2686V.vst3 / 2686VLight.vst3 / 26V.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
 
 - VST3フォルダ内にコピーします
   - VST3フォルダは大体以下の場所にあります
@@ -535,7 +589,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 
 - `Assets`フォルダの直下に `2686V` フォルダがありますので、このファイルを**ドキュメントフォルダの直下**に**必ず**コピーしてください
 
-### 9-3. 2686V.exe / 2686VLight.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
+### 9-3. 2686V.exe / 2686VLight.exe / 26V.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
 
 - 適当なフォルダにコピーしてください。
 
@@ -545,12 +599,12 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 
 ## 11. 起動方法
 
-### 11-1. 2686V.vst3 / 2686VLight.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
+### 11-1. 2686V.vst3 / 2686VLight.vst3 / 26V.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
 
 - DAWを立ち上げて、トラックやエフェクト枠にそれぞれのプラグインを差し込んでください。
 - 詳細な立ち上げ方は、DAWの使用に則ってください。
 
-### 11-2. 2686V.exe / 2686VLight.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
+### 11-2. 2686V.exe / 2686VLight.exe / 26V.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
 
 - Windowsのエクスプローラーで、それぞれの実行ファイルをダブルクリックしてください。
 - ショートカットを作成しておくと便利です。

@@ -4,7 +4,7 @@
 
 ## 1. Introduction
 
-"2686V" (hereafter referred to collectively as "this software") provides plugins that produce retro sound chip (FM/SSG/ADPCM, etc.) style audio — "2686V", "2686VLight", "86V" and "OPZX7S" — plus the effect plugin "2686VFX".
+"2686V" (hereafter referred to collectively as "this software") provides plugins that produce retro sound chip (FM/SSG/ADPCM, etc.) style audio — "2686V", "2686VLight", "26V", "86V" and "OPZX7S" — plus the effect plugin "2686VFX".
 
 ## 2. Purpose
 
@@ -22,6 +22,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **2686VLight**:
   - A lightweight version of 2686V.
   - Curve Edit Mode is removed from 2686V to lower the CPU load.
+- **26V**:
+  - 2686VLight brought closer to the "PC-9801-26(K)" configuration.
+    - Channels are OPN and SSG only.
 - **86V**:
   - 2686VLight brought closer to the "PC-9801-86" configuration.
     - Channels are OPNA, SSG, RHYTHM and PCM only.
@@ -187,7 +190,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - Uses the one from OPZX7S.
       - **Original waveforms added.**
     - Sound effect mode
-- Wave memory channels (WT/WT2)
+- The YM2303 and YM2608 never had it, but no retro game sound is complete without it! Wave memory channels (WT/WT2)
   - Preset wave memory and custom wave memory are provided.
   - WT sets values as real numbers; WT2 sets them in steps.
   - Custom wave memory supports 32/64/128/256 samples.
@@ -210,7 +213,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - **Original waveforms added.**
     - Sound effect mode
   - **The waveform of each loaded file can be previewed.**
-- **A wave memory switching channel (WT+)**
+- **For anyone who cannot live with only one waveform in WT/WT2! A wave memory switching channel (WT+)**
   - Plays waveforms from existing `.wt` and `.wt2` files.
   - Up to 32 can be loaded, switched in real time with a slider.
   - They can also be switched in real time from DAW automation.
@@ -449,6 +452,107 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 - This plugin consists of the following files.
 
+*There are far too many preset and parameter files to list individually, so the file names inside those folders are omitted.*
+
+```plaintext
+- Windows
+  - x86-64
+    - VST3
+      - 2686V.vst3 : the "2686V" synth plugin
+      - 2686VLight.vst3 : the "2686VLight" synth plugin
+      - 26V.vst3 : the "26V" synth plugin
+      - 86V.vst3 : the "86V" synth plugin
+      - OPZX7S.vst3 : the "OPZX7S" synth plugin
+      - 2686VFX.vst3 : the "2686VFX" effect plugin
+    - Standalone
+      - 2686V.exe : the standalone program for 2686V
+      - 2686VLight.exe : the standalone program for 2686VLight
+      - 26V.exe : the standalone program for 26V
+      - 86V.exe : the standalone program for 86V
+      - OPZX7S.exe : the standalone program for OPZX7S
+      - 2686VFX.exe : the standalone program for 2686VFX
+  - ARM64
+    - VST3
+      - 2686V.vst3 : the "2686V" synth plugin
+      - 2686VLight.vst3 : the "2686VLight" synth plugin
+      - 26V.vst3 : the "26V" synth plugin
+      - 86V.vst3 : the "86V" synth plugin
+      - OPZX7S.vst3 : the "OPZX7S" synth plugin
+      - 2686VFX.vst3 : the "2686VFX" effect plugin
+    - Standalone
+      - 2686V.exe : the standalone program for 2686V
+      - 2686VLight.exe : the standalone program for 2686VLight
+      - 26V.exe : the standalone program for 26V
+      - 86V.exe : the standalone program for 86V
+      - OPZX7S.exe : the standalone program for OPZX7S
+      - 2686VFX.exe : the standalone program for 2686VFX
+- Readme.md : brief documentation
+- Readme.en.md : brief documentation (English)
+- COPYING.txt : the GPLv3 licence terms
+- [Dir]Assets : the asset file folder
+  - [Dir]2686V
+    - [Dir]Presets                 : the preset file folder for 2686V
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+        - [Dir]26V                 : the preset file folder for 26V
+        - [Dir]86V                 : the preset file folder for 86V
+        - [Dir]2686V               : the preset file folder for 2686V
+        - [Dir]2686VLight          : the preset file folder for 2686VLight
+        - [Dir]OPZX7S              : the preset file folder for OPZX7S
+      - [Dir]OPLL Roms             : OPLL ROM preset voices (before using these, please be sure to read "About the presets in the OPLL Roms folder"!)
+      - [Dir]SSG Drums             : the preset files the drum samples used by "SSG RHYTHM Sample.xml" were made from
+      - [Dir]WT Samples            : reference preset files for wave memory
+      - SSG RHYTHM Sample.xml      : a preset for the rhythm sound source sample
+      - Tekitou PSG.xml            : a rough-and-ready PSG preset, for reference
+      - M-M-Pro                    : presets for the rhythm and ADPCM (DPCM quality) channels doing the voice synthesis from a certain baseball game
+    - [Dir]Resources               : resource files (**never rename, edit or delete this folder or its contents!**)
+    - [Dir]Samples                 : the folder for the initial sample (audio) files
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]M-Pro                 : voice synthesis from a certain baseball game (feat. a certain virtual singer)
+      - Noise Close HiHat.wav      : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - Noise Open HiHat.wav       : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - Noise Snare.wav            : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - SSG Cymbal.wav             : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - SSG Kick.wav               : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - SSG Perc.wav               : a drum sample file used by "SSG RHYTHM Sample.xml"
+    - [Dir]AmpEnvParams            : the parameter file folder for the global Amp Env
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]ChannelParams           : the parameter file folder for each channel
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]CustomizeColorSettings  : the folder for colour customisation files
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]DetuneParams            : the parameter file folder for MUL/DET
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]FxOrders                : the folder for files that store the effect order
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]FxParams                : the folder for files that store the effect parameters
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]LfoParams               : the folder for files that store the LFO parameters
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]PcmPlayParams           : the parameter file folder for the PCM playback position and so on
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]PitchEnvParams          : the parameter file folder for pitch envelopes
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+        - [Dir]PitchEnv            : the parameter file folder for the traditional pitch envelope
+        - [Dir]SsgSwPenv11         : the parameter file folder for SSG SW Pitch ENV11
+    - [Dir]QualityParams           : the parameter file folder for audio quality
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]SsgHwEnvParams          : the parameter file folder for SSG HW ENV
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]SsgSwEnvParams          : the parameter file folder for SSG SW ENV(11)
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+        - [Dir]SsgSwEnv            : the parameter file folder for the traditional SSG SW AMP ENV
+        - [Dir]SsgSwEnv11          : the parameter file folder for SSG SW AMP ENV(11)
+    - [Dir]ToneNoiseParams         : the parameter file folder for the Tone/Noise mix and so on
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]UnisonParams            : the parameter file folder for UNISON/HARMONY
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]Wavetables              : the waveform file folder
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+        - [Dir]wt                  : the `.wt` files
+        - [Dir]wt2                 : the `.wt2` files
+    - [Dir]WtModParams             : the parameter file folder for WT PITCH MOD
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - sample_bg.png                : a sample wallpaper
 ```plaintext
 - Windows
   - x86-64
@@ -524,7 +628,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 - Extracting the archive creates the files listed under "Contents". Then do the following.
 
-### 9-1. 2686V.vst3 / 2686VLight.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
+### 9-1. 2686V.vst3 / 2686VLight.vst3 / 26V.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
 
 - Copy them into your VST3 folder.
   - The VST3 folder is usually here:
@@ -535,7 +639,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 - Directly under the `Assets` folder there is a `2686V` folder. You **must** copy it **directly into your Documents folder**.
 
-### 9-3. 2686V.exe / 2686VLight.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
+### 9-3. 2686V.exe / 2686VLight.exe / 26V.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
 
 - Copy them into any folder you like.
 
@@ -545,12 +649,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 11. Launching
 
-### 11-1. 2686V.vst3 / 2686VLight.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
+### 11-1. 2686V.vst3 / 2686VLight.vst3 / 26V.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
 
 - Start your DAW and insert each plugin into a track or an effect slot.
 - For the details of how to do that, follow your DAW's own instructions.
 
-### 11-2. 2686V.exe / 2686VLight.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
+### 11-2. 2686V.exe / 2686VLight.exe / 26V.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
 
 - Double-click each executable in Windows Explorer.
 - Creating a shortcut is handy.
