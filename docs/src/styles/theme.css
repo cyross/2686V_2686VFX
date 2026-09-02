@@ -316,6 +316,46 @@ body {
 	letter-spacing: 0.02em;
 }
 
+/* ------------------------------------------------------------------ 図 */
+
+/* 画面のキャプチャと、その説明。
+ *
+ * 画像と説明は 1 つのまとまりなので figure で括ってある。中身をまとめて
+ * 中央へ寄せ、説明は画像のすぐ下へ置く。
+ *
+ * 大きさは figure の側で決める。画像には width / height の属性が入って
+ * いるので、読み込む前から場所が取れて、あとから文字が飛ばない。 */
+.sl-markdown-content figure.shot {
+	--shot-width: 512px;
+
+	margin: 1.75rem auto;
+	text-align: center;
+}
+
+.sl-markdown-content figure.shot--sm {
+	--shot-width: 256px;
+}
+
+.sl-markdown-content figure.shot img {
+	display: block;
+	width: var(--shot-width);
+
+	/* 画面が狭いときは、はみ出さずに縮める */
+	max-width: 100%;
+	height: auto;
+
+	margin-inline: auto;
+	border: 1px solid var(--sl-color-hairline);
+	border-radius: 6px;
+}
+
+.sl-markdown-content figure.shot figcaption {
+	margin-top: 0.5rem;
+	font-size: var(--sl-text-sm);
+	color: var(--sl-color-gray-3);
+	line-height: 1.6;
+}
+
 /* ------------------------------------------------------------------ 周り */
 
 /* サイドバー。文字を小さく、間を詰めて一覧性を上げる */

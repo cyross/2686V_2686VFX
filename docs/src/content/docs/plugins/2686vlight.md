@@ -10,6 +10,18 @@ sidebar:
 2686V から**カーブ編集（ADV）を外した**ものです。音源タブの構成は 2686V と
 まったく同じで、そのぶん軽く動きます。
 
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/2686VLight.png" alt="2686VLight プラグイン全景" width="1426" height="737" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/2686VLight.png" alt="2686VLight ABOUTタブ" width="386" height="500" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
 ## 収録しているチャンネル
 
 | チャンネル | |

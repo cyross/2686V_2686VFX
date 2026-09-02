@@ -11,6 +11,18 @@ sidebar:
 マトリックスによる自由な結線、オペレータごとの独立したフィードバックまで
 踏み込めます。
 
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/OPZX7S.png" alt="OPZX7S プラグイン全景" width="1426" height="738" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/OPZX7S.png" alt="OPZX7S ABOUTタブ" width="379" height="494" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
 ## 収録しているチャンネル
 
 | チャンネル | |
