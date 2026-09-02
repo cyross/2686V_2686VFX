@@ -1,0 +1,385 @@
+/* ページの見た目。
+ *
+ * 近ごろの技術ドキュメントの作りに合わせてある。要点は 4 つ。
+ *
+ * 1. 文字を先に決める … 読む文章が主役なので、字の大きさと行の高さを先に
+ *    決め、余白や部品はそれに合わせる。日本語は行間を広めに取る。
+ * 2. 色は 1 つだけ … 差し色を 1 色に絞り、あとは無彩色に近い灰で組む。
+ *    明るい側と暗い側の両方を、同じ考え方で別々に作る。
+ * 3. 飾りを減らす … 影を使わず 1px の細い線で仕切る。角丸も小さくする。
+ * 4. 情報の密度を上げる … 罫線を減らし、表や一覧を詰めて読ませる。
+ *
+ * 差し色は、このプラグインの画面と同じ琥珀色にしてある。ドキュメントと
+ * 本体で見た目の系統をそろえるため。
+ *
+ * 並び (幅・余白) は layout.css、サイドバーの開閉は sidebar-toggle.css。
+ * ここでは色と文字だけを扱う。 */
+
+/* ------------------------------------------------------------------ 文字 */
+
+:root {
+	/* 追加のフォントは読み込まない。表示が遅れると、読むことの邪魔になる。
+	 * 端末が持っているものから、日本語の見やすいものを順に選ぶ。 */
+	--sl-font:
+		ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Hiragino Kaku Gothic ProN',
+		'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic UI', 'Yu Gothic', Meiryo, sans-serif;
+
+	--sl-font-mono:
+		ui-monospace, 'Cascadia Mono', 'Cascadia Code', 'SF Mono', 'JetBrains Mono',
+		Consolas, 'Noto Sans Mono', 'BIZ UDGothic', monospace;
+
+	/* 日本語は英語より行間を取らないと詰まって見える */
+	--sl-line-height: 1.85;
+	--sl-line-height-headings: 1.45;
+}
+
+/* 和欧混植のとき、かなの間が空いて見える。詰め組みで整える。
+ * 数字と記号は詰めないので、表や ID の見え方は変わらない。 */
+body {
+	font-feature-settings: 'palt' 1;
+	font-optical-sizing: auto;
+	text-rendering: optimizeLegibility;
+}
+
+/* 行の折り返し。約物が行頭へ来ないようにする */
+.sl-markdown-content {
+	line-break: strict;
+	overflow-wrap: break-word;
+}
+
+/* ------------------------------------------------------------------ 色 */
+
+/* 暗い側。Starlight はこちらが既定。
+ *
+ * 真っ黒は使わない。少し緑に寄せた黒にしてあるのは、当時の単色ディスプレイの
+ * 落ち着きを借りるため。差し色は琥珀色ひとつ。 */
+:root {
+	--sl-hue-orange: 38;
+
+	--sl-color-accent-low: #3a2a10;
+	--sl-color-accent: #b47b28;
+	--sl-color-accent-high: #f0c073;
+
+	--sl-color-white: #f4f2ed;
+	--sl-color-gray-1: #e4e1d9;
+	--sl-color-gray-2: #c2c0b9;
+	--sl-color-gray-3: #94958f;
+	--sl-color-gray-4: #5d615e;
+	--sl-color-gray-5: #3a403d;
+	--sl-color-gray-6: #232928;
+	--sl-color-gray-7: #1a201f;
+	--sl-color-black: #101514;
+
+	--sl-color-bg: #101514;
+	--sl-color-bg-nav: #0d1211;
+	--sl-color-bg-sidebar: #0d1211;
+	--sl-color-bg-inline-code: #1e2523;
+	--sl-color-bg-accent: var(--sl-color-accent-high);
+
+	--sl-color-hairline: #232a28;
+	--sl-color-hairline-light: #2c3432;
+	--sl-color-hairline-shade: #171d1c;
+
+	--sl-color-text: var(--sl-color-gray-2);
+	--sl-color-text-accent: var(--sl-color-accent-high);
+	--sl-color-text-invert: var(--sl-color-black);
+
+	/* 囲み (:::note など) の色。彩度を落として地に馴染ませる */
+	--doc-note: #7f9db3;
+	--doc-note-text: #a9c4d6;
+	--doc-tip: #86a883;
+	--doc-tip-text: #aecbab;
+	--doc-caution: #c99a3f;
+	--doc-caution-text: #e6bd72;
+	--doc-danger: #c08078;
+	--doc-danger-text: #dba79f;
+
+	/* 影は使わない。仕切りは線でつける */
+	--sl-shadow-sm: 0 0 0 1px var(--sl-color-hairline);
+	--sl-shadow-md: 0 0 0 1px var(--sl-color-hairline);
+	--sl-shadow-lg: 0 0 0 1px var(--sl-color-hairline);
+}
+
+/* 明るい側。暗い側をそのまま反転させず、別に組む。
+ *
+ * 紙のような温かみのある白にして、差し色は濃い琥珀色にする。薄い琥珀色は
+ * 白地の上で読めなくなるため。 */
+:root[data-theme='light'] {
+	--sl-color-accent-low: #f0e6d4;
+	--sl-color-accent: #8a5a12;
+	--sl-color-accent-high: #6b4308;
+
+	--sl-color-white: #14201d;
+	--sl-color-gray-1: #1d2926;
+	--sl-color-gray-2: #384340;
+	--sl-color-gray-3: #626b68;
+	--sl-color-gray-4: #8b918e;
+	--sl-color-gray-5: #c9ccc9;
+	--sl-color-gray-6: #e6e6e1;
+	--sl-color-gray-7: #f1f0eb;
+	--sl-color-black: #fbfaf6;
+
+	--sl-color-bg: #fbfaf6;
+	--sl-color-bg-nav: #f5f4ef;
+	--sl-color-bg-sidebar: #f5f4ef;
+	--sl-color-bg-inline-code: #eceae3;
+
+	--sl-color-hairline: #e0dfd7;
+	--sl-color-hairline-light: #d5d4cb;
+	--sl-color-hairline-shade: #ebeae3;
+
+	--sl-color-text: var(--sl-color-gray-2);
+	--sl-color-text-accent: var(--sl-color-accent);
+	--sl-color-text-invert: #fbfaf6;
+
+	/* 囲みの色。白地では濃くしないと読めない */
+	--doc-note: #4a6d86;
+	--doc-note-text: #2f5266;
+	--doc-tip: #4a7a52;
+	--doc-tip-text: #2f5a37;
+	--doc-caution: #a6741f;
+	--doc-caution-text: #7a5210;
+	--doc-danger: #a85448;
+	--doc-danger-text: #83372c;
+}
+
+/* ------------------------------------------------------------------ 見出し */
+
+.sl-markdown-content :is(h2, h3, h4) {
+	color: var(--sl-color-white);
+	letter-spacing: 0.01em;
+}
+
+/* 章の切れ目を線で見せる。文字を大きくするより静かに効く */
+.sl-markdown-content h2 {
+	margin-top: 2.75rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid var(--sl-color-hairline);
+}
+
+.sl-markdown-content h2:first-of-type {
+	border-top: 0;
+	padding-top: 0;
+}
+
+.sl-markdown-content h3 {
+	margin-top: 2rem;
+}
+
+.sl-markdown-content h4 {
+	margin-top: 1.5rem;
+	color: var(--sl-color-gray-1);
+}
+
+/* 題は大きくしすぎない。読み始めの位置が下がると、内容が見えにくくなる */
+.sl-markdown-content h1,
+.content-panel h1 {
+	letter-spacing: 0.005em;
+}
+
+/* ------------------------------------------------------------------ 本文 */
+
+.sl-markdown-content :is(p, li) {
+	color: var(--sl-color-text);
+}
+
+/* 太字は色でも差をつける。日本語は太さだけだと分かりにくい */
+.sl-markdown-content :is(strong, b) {
+	color: var(--sl-color-white);
+	font-weight: 700;
+}
+
+/* 下線は文字から離す。日本語の下に付くと読みにくいため */
+.sl-markdown-content a:not(:where(.not-content *)) {
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.25em;
+	text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+	transition: text-decoration-color 0.12s ease;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)):hover {
+	text-decoration-color: currentColor;
+}
+
+/* 箇条書きの点を小さく、静かにする */
+.sl-markdown-content :is(ul, ol) {
+	padding-inline-start: 1.35rem;
+}
+
+.sl-markdown-content li::marker {
+	color: var(--sl-color-gray-4);
+}
+
+.sl-markdown-content li + li {
+	margin-top: 0.35rem;
+}
+
+/* ------------------------------------------------------------------ 表 */
+
+/* 縦の罫線を引かず、横だけで整える。行が多い表でも目が滑らない */
+.sl-markdown-content table {
+	border-collapse: collapse;
+	font-size: var(--sl-text-sm);
+	line-height: 1.7;
+}
+
+.sl-markdown-content :is(th, td) {
+	border: 0;
+	border-bottom: 1px solid var(--sl-color-hairline);
+	padding: 0.5rem 0.75rem;
+	vertical-align: top;
+}
+
+.sl-markdown-content th {
+	color: var(--sl-color-white);
+	font-weight: 600;
+	white-space: nowrap;
+	border-bottom: 1px solid var(--sl-color-gray-4);
+	background: none;
+}
+
+.sl-markdown-content tbody tr:last-child :is(th, td) {
+	border-bottom: 0;
+}
+
+/* 1 列目は見出しの役目をすることが多いので、少しだけ強くする */
+.sl-markdown-content tbody td:first-child {
+	color: var(--sl-color-gray-1);
+}
+
+/* 表の中のコードは、地の文と混ざらないよう控えめに */
+.sl-markdown-content :is(th, td) code {
+	font-size: 0.9em;
+	padding: 0.1em 0.35em;
+}
+
+/* ------------------------------------------------------------------ コード */
+
+.sl-markdown-content :not(pre) > code {
+	border: 1px solid var(--sl-color-hairline);
+	border-radius: 4px;
+	padding: 0.15em 0.4em;
+	font-size: 0.875em;
+	color: var(--sl-color-gray-1);
+}
+
+.expressive-code .frame pre,
+.sl-markdown-content pre {
+	border-radius: 6px;
+	border: 1px solid var(--sl-color-hairline);
+}
+
+/* ------------------------------------------------------------------ 補足 */
+
+/* :::note などの囲み。左の線だけで示し、背景は薄く敷く。
+ *
+ * 既定の色は彩度が高く、地の落ち着いた配色から浮いてしまう。同じ意味の
+ * まま彩度を落とし、地色と混ぜて薄く敷く。混ぜ先が明暗で変わるので、
+ * 1 つの書き方で両方に効く。 */
+.sl-markdown-content .starlight-aside {
+	border-inline-start-width: 3px;
+	border-radius: 0 6px 6px 0;
+	padding: 0.9rem 1.1rem;
+	background-color: color-mix(in srgb, var(--doc-aside) 10%, var(--sl-color-bg));
+	border-inline-start-color: var(--doc-aside);
+	--sl-color-asides-text-accent: var(--doc-aside-text);
+}
+
+.sl-markdown-content .starlight-aside--note {
+	--doc-aside: var(--doc-note);
+	--doc-aside-text: var(--doc-note-text);
+}
+
+.sl-markdown-content .starlight-aside--tip {
+	--doc-aside: var(--doc-tip);
+	--doc-aside-text: var(--doc-tip-text);
+}
+
+.sl-markdown-content .starlight-aside--caution {
+	--doc-aside: var(--doc-caution);
+	--doc-aside-text: var(--doc-caution-text);
+}
+
+.sl-markdown-content .starlight-aside--danger {
+	--doc-aside: var(--doc-danger);
+	--doc-aside-text: var(--doc-danger-text);
+}
+
+/* 囲みの中のコードは、地色が変わるぶん枠を消して馴染ませる */
+.sl-markdown-content .starlight-aside :not(pre) > code {
+	background-color: color-mix(in srgb, var(--doc-aside) 14%, transparent);
+	border-color: transparent;
+}
+
+.sl-markdown-content .starlight-aside__title {
+	font-size: var(--sl-text-sm);
+	letter-spacing: 0.02em;
+}
+
+/* ------------------------------------------------------------------ 周り */
+
+/* サイドバー。文字を小さく、間を詰めて一覧性を上げる */
+.sidebar-content a {
+	font-size: var(--sl-text-sm);
+	padding-block: 0.3rem;
+}
+
+/* いま開いているページ。塗りつぶすと目に刺さるので、
+ * 薄い地色と左の線で示す。 */
+.sidebar-content a[aria-current='page'],
+.sidebar-content a[aria-current='page']:hover,
+.sidebar-content a[aria-current='page']:focus {
+	background-color: var(--sl-color-accent-low);
+	color: var(--sl-color-text-accent);
+	font-weight: 600;
+	border-radius: 0 4px 4px 0;
+	border-inline-start: 2px solid var(--sl-color-accent);
+	padding-inline-start: calc(var(--sl-sidebar-item-padding-inline) - 2px);
+}
+
+.sidebar-content .large {
+	font-size: var(--sl-text-sm);
+	letter-spacing: 0.04em;
+	text-transform: none;
+	color: var(--sl-color-gray-3);
+}
+
+/* 右の目次。本文より一段静かにする */
+.right-sidebar-panel h2 {
+	font-size: var(--sl-text-xs);
+	letter-spacing: 0.08em;
+	color: var(--sl-color-gray-3);
+	text-transform: uppercase;
+}
+
+.right-sidebar-panel a {
+	line-height: 1.5;
+	padding-block: 0.25rem;
+}
+
+/* 上の帯。線 1 本で本文と分ける */
+.header {
+	border-bottom: 1px solid var(--sl-color-hairline);
+	box-shadow: none;
+}
+
+/* ------------------------------------------------------------------ 操作 */
+
+/* どこを触っているかが分かるようにする。キーボードで辿る人のため */
+:where(a, button, summary, input, select):focus-visible {
+	outline: 2px solid var(--sl-color-accent-high);
+	outline-offset: 2px;
+	border-radius: 3px;
+}
+
+/* 動きを控える設定の人には、動かさない */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

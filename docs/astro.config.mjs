@@ -57,7 +57,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: {
-				ja: '2686V マニュアル',
+				ja: '2686Vファミリー ユーザーズマニュアル',
 				en: '2686V Manual',
 			},
 			// description は言語別に分けられないので、各ページ側で書き分ける
@@ -76,7 +76,11 @@ export default defineConfig({
 					content: sidebarToggleScript,
 				},
 			],
-			customCss: ['./src/styles/layout.css', './src/styles/sidebar-toggle.css'],
+			customCss: [
+				'./src/styles/theme.css',
+				'./src/styles/layout.css',
+				'./src/styles/sidebar-toggle.css',
+			],
 			// ヘッダーの右端へ、サイドバーの表示切り替えを足す
 			components: {
 				SocialIcons: './src/components/SocialIcons.astro',
@@ -103,49 +107,7 @@ export default defineConfig({
 					],
 				},
 				{
-					label: '音源タブ',
-					translations: { en: 'Sound chips' },
-					// 章ごとに並べ直さずに済むよう、フォルダの中身をそのまま出す
-					items: [{ autogenerate: { directory: 'chips' } }],
-				},
-				{
-					label: 'ファイル',
-					translations: { en: 'Files' },
-					items: [
-						{ slug: 'files/format' },
-						{ slug: 'files/convert' },
-					],
-				},
-				{
-					label: '各種仕様',
-					translations: { en: 'Reference' },
-					items: [
-						{ slug: 'reference/features' },
-						{ slug: 'reference/signal-flow' },
-						{ slug: 'reference/mml' },
-						{ slug: 'reference/shortcuts' },
-						{ slug: 'reference/colors' },
-						{ slug: 'reference/license' },
-						{ slug: 'reference/lists-algorithm' },
-						{ slug: 'reference/lists-waveform' },
-						{ slug: 'reference/lists-quality' },
-						{ slug: 'reference/color-names' },
-						{
-							label: 'ファイル仕様',
-							translations: { en: 'File formats' },
-							collapsed: true,
-							items: [{ autogenerate: { directory: 'reference/file-spec' } }],
-						},
-						{
-							label: 'オートメーション一覧',
-							translations: { en: 'Automation reference' },
-							collapsed: true,
-							items: [{ autogenerate: { directory: 'reference/automation' } }],
-						},
-					],
-				},
-				{
-					label: 'プラグイン別',
+					label: '各プラグインの紹介',
 					translations: { en: 'Per plugin' },
 					items: [
 						{ slug: 'plugins/compare' },
@@ -155,6 +117,67 @@ export default defineConfig({
 						{ slug: 'plugins/86v' },
 						{ slug: 'plugins/opzx7s' },
 						{ slug: 'plugins/fx-plugin' },
+					],
+				},
+				{
+					label: '基本仕様',
+					translations: { en: 'Basic specifications' },
+					items: [
+						{ slug: 'reference/features' },
+						{ slug: 'reference/signal-flow' },
+						{ slug: 'reference/colors' },
+					],
+				},
+				{
+					label: '音源タブ',
+					translations: { en: 'Sound chips' },
+					// 章ごとに並べ直さずに済むよう、フォルダの中身をそのまま出す
+					items: [{ autogenerate: { directory: 'chips' } }],
+				},
+				{
+					label: '詳細仕様',
+					translations: { en: 'Specification reference' },
+					items: [
+						{
+							label: '各種一覧',
+							translations: { en: 'List of features' },
+							items: [
+								{ slug: 'reference/lists-algorithm' },
+								{ slug: 'reference/lists-waveform' },
+								{ slug: 'reference/lists-quality' },
+								{ slug: 'reference/color-names' },
+								{ slug: 'reference/shortcuts' },
+							],
+						},
+						{
+							label: 'ファイル構成',
+							translations: { en: 'File structure' },
+							items: [
+								{ slug: 'files/format' },
+								{ slug: 'files/convert' },
+							],
+						},
+						{
+							label: 'ファイル仕様',
+							translations: { en: 'File formats' },
+							collapsed: true,
+							items: [{ autogenerate: { directory: 'reference/file-spec' } }],
+						},
+						{
+							label: 'オートメーション仕様',
+							translations: { en: 'Automation formats' },
+							collapsed: true,
+							items: [{ autogenerate: { directory: 'reference/automation' } }],
+						},
+						{ slug: 'reference/mml' },
+					],
+				},
+				{
+					label: 'その他',
+					translations: { en: 'Other specifications' },
+					items: [
+						{ slug: 'reference/license' },
+						{ slug: 'reference/references' },
 					],
 				},
 			],
