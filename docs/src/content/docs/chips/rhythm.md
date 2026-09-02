@@ -46,74 +46,56 @@ RHYTHM は **YM2608B のリズム音源**にあたるチャンネルです。実
 ドラム以外の音を並べてることによる切り替え再生の再現にも便利です。
 :::
 
-## パッドごとの設定
+## 画面の区分
 
-### 音声ファイル
+パッド 1 つずつに、次の区分があります。
+
+### FORM — 音声ファイルの設定
 
 **Load** でファイルを読み込みます。読み込んだ波形は画面で確認できます。
 
-| 項目 | 内容 |
-| --- | --- |
-| **P.RT** / **P.OF** | 再生の割合と開始位置 |
-| **Loop Point Enable** | ループを使うか |
-| **LPST** / **LPED** | ループの始まりと終わり |
-| **One Shot** | 押した長さに関わらず最後まで鳴らす |
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **One Shot** | 鍵を離しても最後まで鳴らす | [`RHYTHM_PAD[0-7]_ONESHOT`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-oneshot) |
+| **POFF** | 頭出し（ミリ秒） | [`RHYTHM_PAD[0-7]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-offset) |
+| **PRT** | 再生の速さ | [`RHYTHM_PAD[0-7]_PCM_RATIO`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-ratio) |
+| **Loop Point Enable** | 繰り返す範囲を指定する | [`RHYTHM_PAD[0-7]_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-en) |
+| **LPST / LPED** | その範囲。全体を 0.0〜1.0 とした位置 | [`RHYTHM_PAD[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-st) |
 
 ### NOTE — MIDI キーの割り当て
 
-そのパッドを鳴らす MIDI ノート番号です（0〜127、初期値はパッドごとに異なる）。
-**割り当てを自由に変えられる**ので、手持ちのドラムマップに合わせられます。
+そのパッドを鳴らす MIDI ノート番号です。**割り当てを自由に変えられる**ので、
+手持ちのドラムマップに合わせられます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **NOTE** | そのパッドを鳴らすノート番号 | [`RHYTHM_PAD7_NOTE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad7-note) |
+| **NOTE** | そのパッドを鳴らすノート番号 | [`RHYTHM_PAD0_NOTE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad0-note) |
 
-### QUALITY — 音質（実機・独自）
+### OPTIONAL
 
-読み込んだ音のビット数とサンプリング周波数を落とします。ここが**当時らしさを
-作る要**です。
+読み込んだ音へ、ざらつきを混ぜられます（**独自**）。
 
-| 項目 | 内容 | 範囲 |
+| つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **BIT** | ビット数。32bit から 4bit PCM、さらに **4bit ADPCM** や **1bit DPCM** などの圧縮方式 | — |
-| **RATE** | サンプリング周波数。96kHz から 2kHz まで | 1〜15（初期 9 ＝ 16kHz） |
-| **INTP** | 読み戻すときの補間のしかた | 7 種類 |
+| **T.LV** | 読み込んだ音の側の量 | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
+| **N.LV** | ざらつきの側の量 | [`RHYTHM_PAD[0-7]_NOISE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noise) |
+| **N.FQ** | ざらつきの高さ | [`RHYTHM_PAD[0-7]_NOISEFREQ`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noisefreq) |
+| **MIX** | 2 つの混ぜ具合 | [`RHYTHM_PAD[0-7]_NOISEMIX`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noisemix) |
 
-**BIT を 4bit ADPCM にすると、実機のリズム音源に近い質感**になります。
-RATE を下げるほど粗くなります。
+### LEVEL / PAN
 
-QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **LV** | パッドごとの音量 | [`RHYTHM_PAD[0-7]_VOL`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-vol) |
+| **PAN** | パッドごとの定位 | [`RHYTHM_PAD[0-7]_PAN`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pan) |
 
 ### エンベロープ
 
-パッド 1 つずつに、次のエンベロープを持てます。
-
-- AMP ENV（音量）
-- SSG HW AMP ENV / SSG SW ENV（6・11 タップ）
-- PITCH ENV（3・11 タップ）
-- WT PITCH MOD
-
+パッド 1 つずつに、[共通の区分](/2686V_2686VFX/chips/common/#envelope) のエンベロープを持てます。
 ドラムの 1 打ごとに音程を動かす、といった作り込みができます。
 
-### そのほか
-
-| 項目 | 内容 |
-| --- | --- |
-| **PAN** | 左右の定位 |
-| **T.LV** / **N.LV** / **N.FQ** / **MIX** | トーンとノイズの混ぜ方 |
-| **MUL / DET** | 音程をずらす |
-| **LFO** | 周期的に揺らす |
-
-| つまみ | 内容 | オートメーション |
-| --- | --- | --- |
-| **VOL** | パッドごとの音量 | [`RHYTHM_PAD[0-7]_VOL`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-vol) |
-| **PAN** | パッドごとの定位 | [`RHYTHM_PAD[0-7]_PAN`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pan) |
-| **ONE SHOT** | 鍵を離しても最後まで鳴らす | [`RHYTHM_PAD[0-7]_ONESHOT`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-oneshot) |
-| **PCM OFFSET** | 頭出し（ミリ秒） | [`RHYTHM_PAD[0-7]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-offset) |
-| **PCM RATIO** | 再生の速さ | [`RHYTHM_PAD[0-7]_PCM_RATIO`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-ratio) |
-| **LOOP POINT** | 繰り返す範囲を指定する | [`RHYTHM_PAD[0-7]_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-en) |
-| **LOOP START / END** | その範囲。全体を 0.0〜1.0 とした位置 | [`RHYTHM_PAD[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-st) |
-| **TONE / NOISE / FREQ / MIX** | 読み込んだ音とざらつきの混ぜ方 | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
+音程をずらす [MUL/DET](/2686V_2686VFX/chips/common/#muldet) と、周期的に揺らす [LFO](/2686V_2686VFX/chips/common/#lfo) も
+パッドごとに置かれています。
 
 ## 共通の区分
 
@@ -122,7 +104,8 @@ QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご
 
 | 区分 | 内容 |
 | --- | --- |
-| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**QUALITY(PCM)**](/2686V_2686VFX/chips/common/#qualitypcm) | ビット数・記録方式・サンプリング周波数と、読み戻すときの補間 |
+| [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 同じ音を重ねて厚くする |
 | [**OPTIONAL**](/2686V_2686VFX/chips/common/#optional) | 追加の動作 |
 | [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
 

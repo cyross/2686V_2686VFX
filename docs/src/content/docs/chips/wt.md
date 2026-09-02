@@ -47,11 +47,12 @@ FM のように変調で音を作るのではなく、**波形の形がそのま
 **点が多いほど細かい波形**を描けますが、当時の実機は 32 点前後が普通でした。
 実機らしさを狙うなら少なめにします。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **SIZE** | 1 周期のサンプル数。32 / 64 / 128 / 256 | [`WT_SIZE`](/2686V_2686VFX/reference/automation/wt/#wt-size) |
-| **STEPS** | 描くときの値の刻み | [`WT_STEPS`](/2686V_2686VFX/reference/automation/wt/#wt-steps) |
-| **WAVE** | 組み込みの波形か、自分で描いたものか | [`WT_WAVE`](/2686V_2686VFX/reference/automation/wt/#wt-wave) |
+| **STEP** | 描くときの値の刻み | [`WT_STEPS`](/2686V_2686VFX/reference/automation/wt/#wt-steps) |
+| **FORM** | 組み込みの波形か、自分で描いたものか | [`WT_WAVE`](/2686V_2686VFX/reference/automation/wt/#wt-wave) |
 
 ### 波形の描き方
 
@@ -124,10 +125,10 @@ SPEED が搬送波との比なのは実機どおりです。**整数比にする
 | 区分 | 内容 |
 | --- | --- |
 | [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
-| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | AMP / SSG HW / SSG SW（6・11 タップ）/ PITCH（3・11 タップ） |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | [AMP ENV](/2686V_2686VFX/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/chips/common/#pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) |
 | [**LFO**](/2686V_2686VFX/chips/common/#lfo) | 音量・音程を周期的に揺らす（OPZX7S のものを使用） |
-| [**MUL / DET**](/2686V_2686VFX/chips/common/#mul--det) | 音程をずらす |
-| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**MUL/DET**](/2686V_2686VFX/chips/common/#muldet) | 音程をずらす |
+| [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 同じ音を重ねて厚くする |
 | [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
 
 QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。

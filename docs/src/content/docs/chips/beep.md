@@ -35,10 +35,11 @@ BEEP は、**パソコン本体のビープ音**を鳴らすチャンネルで�
 **ANTIALIAS を入れると角が丸まり、今風の聞きやすい矩形波**になります。実機の
 音を狙うなら切ったままにします。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **TIMER CLOCK** | もとにするクロック。実機の 4 種 | [`BEEP_TIMERCLOCK`](/2686V_2686VFX/reference/automation/beep/#beep-timerclock) |
-| **ANTI ALIAS** | 高い音の折り返しを抑える（**独自**） | [`BEEP_ANTIALIAS`](/2686V_2686VFX/reference/automation/beep/#beep-antialias) |
+| **CLK** | もとにするクロック。実機の 4 種 | [`BEEP_TIMERCLOCK`](/2686V_2686VFX/reference/automation/beep/#beep-timerclock) |
+| **Anti Alias** | 高い音の折り返しを抑える（**独自**） | [`BEEP_ANTIALIAS`](/2686V_2686VFX/reference/automation/beep/#beep-antialias) |
 
 ## OPTIONAL — 効果音モード（実機）
 
@@ -57,11 +58,11 @@ BEEP は、**パソコン本体のビープ音**を鳴らすチャンネルで�
 
 | 区分 | 内容 |
 | --- | --- |
-| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | AMP / SSG HW / SSG SW（6・11 タップ）/ PITCH（3・11 タップ） |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | [AMP ENV](/2686V_2686VFX/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/chips/common/#pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) |
 | [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
 | [**LFO**](/2686V_2686VFX/chips/common/#lfo) | 音量・音程を周期的に揺らす |
-| [**MUL / DET**](/2686V_2686VFX/chips/common/#mul--det) | 音程をずらす |
-| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**MUL/DET**](/2686V_2686VFX/chips/common/#muldet) | 音程をずらす |
+| [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 同じ音を重ねて厚くする |
 | [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
 
 :::tip[素朴な音ほど動かしがい]

@@ -46,6 +46,7 @@ OPL の「波形を選べる」という持ち味に、OPN 系の 4 オペレー
 
 アルゴリズムとフィードバックを選びます。2OPx2 はここから選びます。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **ALG** | オペレータのつなぎ方 | [`OPL3_ALG`](/2686V_2686VFX/reference/automation/opl3/#opl3-alg) |
@@ -56,16 +57,18 @@ OPL の「波形を選べる」という持ち味に、OPN 系の 4 オペレー
 OPL の 4 種類から **8 種類**へ増えています。サイン波を切る・折り返す・
 半分だけ使うといった変形が並びます。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **WS** | オペレータの波形。正弦をどう削るかを選ぶ | [`OPL3_OP[0-3]_EG`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-eg) |
+| **EG** | オペレータの波形。正弦をどう削るかを選ぶ | [`OPL3_OP[0-3]_EG`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-eg) |
 
 ### AMP ENV（実機・独自）
 
 オペレータごとの音量エンベロープです。**KOR / XOF / Bypass** の独自オプション
 が付きます。
 
-OPL 系は SR を持ちません。減衰の続き方は EG TYPE で決めます。
+
+OPL 系は SR を持ちません。減衰の続き方は EG SHAPE の EGTP で決めます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -74,21 +77,23 @@ OPL 系は SR を持ちません。減衰の続き方は EG TYPE で決めます
 | **SL** | サステインレベル | [`OPL3_OP[0-3]_R_SL`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-r-sl) |
 | **RR** | リリースレート | [`OPL3_OP[0-3]_R_RR`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-r-rr) |
 | **TL** | トータルレベル。**大きいほど音が小さくなる** | [`OPL3_OP[0-3]_R_TL`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-r-tl) |
-| **Bypass** | 音量エンベロープを通さない（**独自**） | [`OPL3_OP[0-3]_AMP_BYPASS`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-amp-bypass) |
+| **XOF** | RR を無視して減衰させない（**独自**） | [`OPL3_OP[0-3]_XOF`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-xof) |
+| **KOR** | 鍵を離しても、指定の時間まで減衰させない（**独自**） | [`OPL3_OP[0-3]_KOR`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-kor) |
+| **Bypass** | このオペレータの音量エンベロープを通さない（**独自**） | [`OPL3_OP[0-3]_AMP_BYPASS`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-amp-bypass) |
 
 ### EG SHAPE（実機）
 
 エンベロープの型を選びます。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **EG TYPE** | 押しているあいだ音量を保つ（オン）か、減らし続ける（オフ）か | [`OPL3_OP[0-3]_EG_TYP`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-eg-typ) |
+| **EGTP** | 押しているあいだ音量を保つ（オン）か、減らし続ける（オフ）か | [`OPL3_OP[0-3]_EG_TYP`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-eg-typ) |
 
 ### LFO（実機）
 
 オペレータごとに独立した LFO です。
 
-OPL 系の LFO は**オペレータごと**です。速さも深さも別々に決められます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -103,7 +108,8 @@ OPL 系の LFO は**オペレータごと**です。速さも深さも別々に�
 
 逓倍とデチューンです。
 
-OPL 系にはデチューンがありません。ずらしたいときは [MUL / DET](/2686V_2686VFX/chips/common/#mul--det) の DT3 を使います。
+
+OPL 系にはデチューンがありません。ずらしたいときは [MUL/DET](/2686V_2686VFX/chips/common/#muldet) の DT3 を使います。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -112,6 +118,7 @@ OPL 系にはデチューンがありません。ずらしたいときは [MUL /
 ### KEY SCALE（実機）
 
 **KSL（レベル）と KSR（レート）**を別々に設定します。
+
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -122,6 +129,7 @@ OPL 系にはデチューンがありません。ずらしたいときは [MUL /
 
 オペレータごとに音を止めます。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **MASK** | このオペレータを鳴らさない | [`OPL3_OP[0-3]_MASK`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-mask) |
@@ -129,11 +137,6 @@ OPL 系にはデチューンがありません。ずらしたいときは [MUL /
 ### OPTIONAL（実機）
 
 実機が持っていた追加の動作です。
-
-| つまみ | 内容 | オートメーション |
-| --- | --- | --- |
-| **KOR** | 鍵を離しても減衰させない（**独自**） | [`OPL3_OP[0-3]_KOR`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-kor) |
-| **XOF** | RR を無視して減衰させない（**独自**） | [`OPL3_OP[0-3]_XOF`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-xof) |
 
 ## 共通の区分
 
@@ -143,9 +146,9 @@ OPL 系にはデチューンがありません。ずらしたいときは [MUL /
 | 区分 | 内容 |
 | --- | --- |
 | [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
-| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope)（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | [AMP ENV](/2686V_2686VFX/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/chips/common/#pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) |
 | [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
-| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 同じ音を重ねて厚くする |
 | [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
 
 QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。

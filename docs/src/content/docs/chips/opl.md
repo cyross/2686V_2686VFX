@@ -37,6 +37,7 @@ MSX-MUSIC やゲーム基板でよく使われた系統で、OPN 系とは音の
 
 FM か加算かを選びます。図はここに出ます。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **ALG** | オペレータのつなぎ方 | [`OPL_ALG`](/2686V_2686VFX/reference/automation/opl/#opl-alg) |
@@ -48,16 +49,18 @@ FM か加算かを選びます。図はここに出ます。
 OPN 系がサイン波しか出せないのに対し、OPL は波形そのものを変えて音色を作り
 ます。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **WS** | オペレータの波形。正弦をどう削るかを選ぶ | [`OPL_OP[0-1]_EG`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-eg) |
+| **EG** | オペレータの波形。正弦をどう削るかを選ぶ | [`OPL_OP[0-1]_EG`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-eg) |
 
 ### AMP ENV（実機・独自）
 
 オペレータごとの音量エンベロープです。**KOR / XOF / Bypass** の独自オプション
 が付きます。
 
-OPL 系は SR を持ちません。減衰の続き方は EG TYPE で決めます。
+
+OPL 系は SR を持ちません。減衰の続き方は EG SHAPE の EGTP で決めます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -66,23 +69,25 @@ OPL 系は SR を持ちません。減衰の続き方は EG TYPE で決めます
 | **SL** | サステインレベル | [`OPL_OP[0-1]_R_SL`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-r-sl) |
 | **RR** | リリースレート | [`OPL_OP[0-1]_R_RR`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-r-rr) |
 | **TL** | トータルレベル。**大きいほど音が小さくなる** | [`OPL_OP[0-1]_R_TL`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-r-tl) |
-| **Bypass** | 音量エンベロープを通さない（**独自**） | [`OPL_OP[0-1]_AMP_BYPASS`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-amp-bypass) |
+| **SUS** | キーオフのあとも音を保つ | [`OPL_OP[0-1]_SUS`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-sus) |
+| **XOF** | RR を無視して減衰させない（**独自**） | [`OPL_OP[0-1]_XOF`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-xof) |
+| **KOR** | 鍵を離しても、指定の時間まで減衰させない（**独自**） | [`OPL_OP[0-1]_KOR`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-kor) |
+| **Bypass** | このオペレータの音量エンベロープを通さない（**独自**） | [`OPL_OP[0-1]_AMP_BYPASS`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-amp-bypass) |
 
 ### EG SHAPE（実機）
 
 エンベロープの型を選びます。減衰し切る型と、押している間持続する型があります。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **EG TYPE** | 押しているあいだ音量を保つ（オン）か、減らし続ける（オフ）か | [`OPL_OP[0-1]_EG_TYP`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-eg-typ) |
-| **SUS** | キーオフのあとも保つ | [`OPL_OP[0-1]_SUS`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-sus) |
+| **EGTP** | 押しているあいだ音量を保つ（オン）か、減らし続ける（オフ）か | [`OPL_OP[0-1]_EG_TYP`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-eg-typ) |
 
 ### LFO（実機）
 
 **オペレータごとに独立した**ハードウェア LFO です。OPN 系のチャンネル全体に
 掛かる LFO とは違い、片方のオペレータだけを揺らすといった使い方ができます。
 
-OPL 系の LFO は**オペレータごと**です。速さも深さも別々に決められます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -97,7 +102,8 @@ OPL 系の LFO は**オペレータごと**です。速さも深さも別々に�
 
 逓倍とデチューンです。
 
-OPL 系にはデチューンがありません。ずらしたいときは [MUL / DET](/2686V_2686VFX/chips/common/#mul--det) の DT3 を使います。
+
+OPL 系にはデチューンがありません。ずらしたいときは [MUL/DET](/2686V_2686VFX/chips/common/#muldet) の DT3 を使います。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -108,18 +114,16 @@ OPL 系にはデチューンがありません。ずらしたいときは [MUL /
 **KSL（レベル）と KSR（レート）**を別々に設定します。OPL 系はこの 2 つが
 分かれているのが特徴です。
 
+
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **KSR** | 音が高いほどエンベロープを速める | [`OPL_OP[0-1]_KSR`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-ksr) |
 | **KSL** | 音が高いほど音量を下げる度合い。OFF / 1.5 / 3.0 / 6.0 dB/oct | [`OPL_OP[0-1]_KSL`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-ksl) |
 
-### SSG HW ENV（独自）
-
-SSG のハードウェアエンベロープを OPL でも使えます。実機には無い組み合わせです。
-
 ### MASK（実機）
 
 オペレータごとに音を止めます。
+
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -129,11 +133,6 @@ SSG のハードウェアエンベロープを OPL でも使えます。実機�
 
 初期化と、実機が持っていた追加の動作です。
 
-| つまみ | 内容 | オートメーション |
-| --- | --- | --- |
-| **KOR** | 鍵を離しても減衰させない（**独自**） | [`OPL_OP[0-1]_KOR`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-kor) |
-| **XOF** | RR を無視して減衰させない（**独自**） | [`OPL_OP[0-1]_XOF`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-xof) |
-
 ## 共通の区分
 
 以下は音源に依らない部分です。それぞれの詳しい説明は
@@ -142,9 +141,9 @@ SSG のハードウェアエンベロープを OPL でも使えます。実機�
 | 区分 | 内容 |
 | --- | --- |
 | [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
-| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope)（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | [AMP ENV](/2686V_2686VFX/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/chips/common/#pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) |
 | [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
-| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 同じ音を重ねて厚くする |
 | [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
 
 QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。

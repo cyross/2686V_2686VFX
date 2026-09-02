@@ -71,6 +71,12 @@ export default defineConfig({
 						{ slug: 'reference/lists-quality' },
 						{ slug: 'reference/color-names' },
 						{
+							label: 'ファイル仕様',
+							translations: { en: 'File formats' },
+							collapsed: true,
+							items: [{ autogenerate: { directory: 'reference/file-spec' } }],
+						},
+						{
 							label: 'オートメーション一覧',
 							translations: { en: 'Automation reference' },
 							collapsed: true,
@@ -83,6 +89,11 @@ export default defineConfig({
 					translations: { en: 'Per plugin' },
 					items: [
 						{ slug: 'plugins/compare' },
+						{ slug: 'plugins/2686v' },
+						{ slug: 'plugins/2686vlight' },
+						{ slug: 'plugins/26v' },
+						{ slug: 'plugins/86v' },
+						{ slug: 'plugins/opzx7s' },
 						{ slug: 'plugins/fx-plugin' },
 					],
 				},

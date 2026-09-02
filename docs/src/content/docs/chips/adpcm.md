@@ -24,15 +24,11 @@ RHYTHM が複数のパッドに短い音を並べるのに対し、こちらは*
 | **実機** | 実機にある機能。実機の仕様どおりに動きます |
 | **独自** | 実機に無い、このプラグイン独自の拡張 |
 
-## FORM — 音声ファイルの設定
+## 画面の区分
+
+### FORM — 音声ファイルの設定
 
 **Load** でファイルを読み込みます。読み込んだ波形は画面で確認できます。
-
-| 項目 | 内容 |
-| --- | --- |
-| **P.RT** / **P.OF** | 再生の割合と開始位置 |
-| **LOOP** | ループを使うか |
-| **LPST** / **LPED** | ループの始まりと終わり |
 
 **LPST / LPED を波形の途中に置く**と、押している間そこだけを繰り返します。
 持続する音を短い素材から作れます。
@@ -40,68 +36,34 @@ RHYTHM が複数のパッドに短い音を並べるのに対し、こちらは*
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **LOOP** | ファイル全体を繰り返す | [`ADPCM_LOOP`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-loop) |
-| **PAN** | 定位。0 が左、0.5 が中央、1 が右 | [`ADPCM_PAN`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pan) |
-| **PCM OFFSET** | 頭出し（ミリ秒） | [`ADPCM_PCM_OFFSET`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-offset) |
-| **PCM RATIO** | 再生の速さ | [`ADPCM_PCM_RATIO`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-ratio) |
-| **LOOP POINT** | 繰り返す範囲を指定する | [`ADPCM_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-looppoint-en) |
-| **LOOP START / END** | その範囲。全体を 0.0〜1.0 とした位置 | [`ADPCM_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-looppoint-st) |
+| **P.OF** | 頭出し（ミリ秒） | [`ADPCM_PCM_OFFSET`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-offset) |
+| **P.RT** | 再生の速さ | [`ADPCM_PCM_RATIO`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-ratio) |
+| **Loop Point Enable** | 繰り返す範囲を指定する | [`ADPCM_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-looppoint-en) |
+| **LPST / LPED** | その範囲。全体を 0.0〜1.0 とした位置 | [`ADPCM_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-looppoint-st) |
 
-## QUALITY — 音質（実機・独自）
+### OPTIONAL
 
-読み込んだ音のビット数とサンプリング周波数を落とします。**このチャンネルの
-性格を決めるところ**です。
-
-| 項目 | 内容 | 範囲 |
-| --- | --- | --- |
-| **BIT** | ビット数と圧縮方式 | 下表 |
-| **RATE** | サンプリング周波数。96kHz から 2kHz まで | 1〜15（初期 9 ＝ 16kHz） |
-| **INTP** | 読み戻すときの補間のしかた | 0〜6（初期 1 ＝ Linear） |
-
-QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
-
-### BIT で選べるもの
-
-| 種類 | 内容 |
-| --- | --- |
-| 32bit 〜 4bit PCM | 単純にビット数を落とす |
-| **4bit ADPCM** | YM2608 の ADPCM（**実機**） |
-| **1bit DPCM** | ファミコンの DPCM |
-| SNES BRR / PS1 VAG / IMA ADPCM / CD-ROM XA / YMZ280B / K053260 / K054539 | 各機の圧縮方式（**独自**） |
-
-**圧縮方式は、単にビット数を落とすのとは歪み方が違います。** 実機の質感を
-狙うなら、その機種が使っていた方式を選びます。
-
-### INTP — 補間のしかた
-
-サンプリング周波数を落としたあと、読み戻すときの埋め方です。
-
-| 値 | 方式 | 傾向 |
-| --- | --- | --- |
-| 0 | Nearest | 補間なし。エイリアスノイズが出る |
-| 1 | Linear | 標準 |
-| 2 | Gaussian | SFC 風の丸み |
-| 3 | Zero-Order Hold | 最も粗い |
-| 4 | Cosine | Linear と Gaussian の中間 |
-| 5 | B-Spline | 強いローパス。こもった感じ |
-| 6 | Lagrange | Gaussian とは違う倍音 |
-
-**RATE を下げて Nearest にすると、いちばん当時らしい粗さ**になります。逆に
-B-Spline はこもるので、遠くで鳴っている感じを作れます。
-
-## そのほかの区分
-
-| 項目 | 内容 |
-| --- | --- |
-| **Tone / Noise** | ノイズを混ぜる（`T.LV` / `N.LV` / `N.FQ` / `MIX`） |
-| **PAN** | 左右の定位 |
-| [**FIX**](/2686V_2686VFX/chips/common/#fix) | 音程を固定する |
+読み込んだ音へ、ざらつきを混ぜられます（**独自**）。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **TONE** | 読み込んだ音の側の量 | [`ADPCM_TONE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-tone) |
-| **NOISE** | ざらつきの側の量 | [`ADPCM_NOISE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noise) |
-| **NOISE FREQ** | ざらつきの高さ | [`ADPCM_NOISEFREQ`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisefreq) |
+| **T.LV** | 読み込んだ音の側の量 | [`ADPCM_TONE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-tone) |
+| **N.LV** | ざらつきの側の量 | [`ADPCM_NOISE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noise) |
+| **N.FQ** | ざらつきの高さ | [`ADPCM_NOISEFREQ`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisefreq) |
 | **MIX** | 2 つの混ぜ具合 | [`ADPCM_NOISEMIX`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisemix) |
+
+### PAN
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **PAN** | 定位。0 が左、0.5 が中央、1 が右 | [`ADPCM_PAN`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pan) |
+
+### FIX — 音程の固定
+
+鍵盤の音程を無視して、決まった高さで鳴らします。打楽器のように、どの鍵を
+押しても同じ高さで鳴ってほしいときに使います。
+
+つまみは [FIX](/2686V_2686VFX/chips/common/#fix) を参照してください。
 
 ## 共通の区分
 
@@ -110,11 +72,12 @@ B-Spline はこもるので、遠くで鳴っている感じを作れます。
 
 | 区分 | 内容 |
 | --- | --- |
-| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | AMP / SSG HW / SSG SW（6・11 タップ）/ PITCH（3・11 タップ） |
+| [**QUALITY(PCM)**](/2686V_2686VFX/chips/common/#qualitypcm) | ビット数・記録方式・サンプリング周波数と、読み戻すときの補間 |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | [AMP ENV](/2686V_2686VFX/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/chips/common/#pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) |
 | [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
 | [**LFO**](/2686V_2686VFX/chips/common/#lfo) | 音量・音程を周期的に揺らす |
-| [**MUL / DET**](/2686V_2686VFX/chips/common/#mul--det) | 音程をずらす |
-| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**MUL/DET**](/2686V_2686VFX/chips/common/#muldet) | 音程をずらす |
+| [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 同じ音を重ねて厚くする |
 | [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
 
 ## 付属のプリセット
