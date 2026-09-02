@@ -135,6 +135,11 @@ export default defineConfig({
 					items: [{ autogenerate: { directory: 'chips' } }],
 				},
 				{
+					label: 'FX',
+					translations: { en: 'FX' },
+					items: [{ autogenerate: { directory: 'fx' } }],
+				},
+				{
 					label: '詳細仕様',
 					translations: { en: 'Specification reference' },
 					items: [
