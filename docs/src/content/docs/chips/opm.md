@@ -5,7 +5,7 @@ sidebar:
   order: 5
 ---
 
-OPM は **YM2151** にあたるチャンネルです。X68000 やアーケード基板で広く使われ、
+OPM は **YM2151** の FM 音源部分にあたるチャンネルです。X68000 やアーケード基板で広く使われ、
 FM 音源の音といえばこれを思い浮かべる人も多い音源です。
 
 OPN 系と同じ 4 オペレータですが、**エンベロープの持ち方とデチューンの細かさ**
@@ -26,6 +26,8 @@ OPN 系と同じ 4 オペレータですが、**エンベロープの持ち方�
 | オペレータ数 | **4** |
 | アルゴリズム | **0〜7**（実機と同じ 8 種類） |
 | フィードバック | OP1 のみ（実機と同じ） |
+
+詳細は、[リファレンス](../reference/lists-algorithm.md#opm) をご参照ください。
 
 ## OPN 系との違い
 
@@ -80,13 +82,18 @@ YM2151 のハードウェア LFO です。波形・速度・掛かり具合を�
 
 ## 共通の区分
 
+以下は音源に依らない部分です。それぞれの詳しい説明は
+[共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
 | 区分 | 内容 |
 | --- | --- |
-| **QUALITY** | ビット数とサンプリング周波数を落として質感を作る |
-| **ENVELOPE**（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
-| **WT PITCH MOD** | 波形メモリによる音程の変調 |
-| **UNISON / HARMONY** | 同じ音を重ねて厚くする |
-| **UTILITY** | パラメータの読み書き |
+| [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope)（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
+| [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
+| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
+
+QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 
 ## MML 入力
 

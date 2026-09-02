@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-OPN は **YM2203** にあたるチャンネルです。PC-9801-26 に載っていた音源で、
+OPN は **YM2203** の FM 音源部分にあたるチャンネルです。PC-9801-26 に載っていた音源で、
 OPNA より前の世代にあたります。
 
 作りは OPNA とほぼ同じですが、**ハードウェア LFO と定位（PAN）がありません。**
@@ -26,6 +26,8 @@ OPNA ではなくこちらを選びます。
 | オペレータ数 | **4** |
 | アルゴリズム | **0〜7**（実機と同じ 8 種類） |
 | フィードバック | OP1 のみ（実機と同じ） |
+
+詳細は、[リファレンス](../reference/lists-algorithm.md#opn) をご参照ください。
 
 ## OPNA との違い
 
@@ -73,13 +75,18 @@ N88-BASIC が使っていたソフトウェア LFO を再現したものです�
 
 ## 共通の区分
 
+以下は音源に依らない部分です。それぞれの詳しい説明は
+[共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
 | 区分 | 内容 |
 | --- | --- |
-| **QUALITY** | ビット数とサンプリング周波数を落として質感を作る |
-| **ENVELOPE**（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
-| **WT PITCH MOD** | 波形メモリによる音程の変調 |
-| **UNISON / HARMONY** | 同じ音を重ねて厚くする |
-| **UTILITY** | パラメータの読み書き |
+| [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope)（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
+| [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
+| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
+
+QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 
 :::tip[OPNA との行き来]
 UTILITY から、**OPN と OPNA のあいだでパラメータをやりとりできます。** OPN で

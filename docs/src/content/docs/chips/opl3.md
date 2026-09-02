@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-OPL3 は **YMF262** にあたるチャンネルです。OPL の系譜を継ぎつつ、オペレータが
+OPL3 は **YMF262** の FM 音源部分にあたるチャンネルです。OPL の系譜を継ぎつつ、オペレータが
 4 つに増え、波形の種類も倍になりました。DOS 時代のサウンドカードでおなじみの
 音源です。
 
@@ -28,6 +28,8 @@ OPL の「波形を選べる」という持ち味に、OPN 系の 4 オペレー
 実機の 4 種類に加えて、**2OPx2**（2 オペレータの組を 2 つ並べる）という独自
 アルゴリズムを足してあります（**独自**）。1 つのチャンネルで 2 音色を重ねる
 ような使い方ができます。
+
+詳細は、[リファレンス](../reference/lists-algorithm.md#opl3) をご参照ください。
 
 ## OPL との違い
 
@@ -80,13 +82,18 @@ OPL の 4 種類から **8 種類**へ増えています。サイン波を切る
 
 ## 共通の区分
 
+以下は音源に依らない部分です。それぞれの詳しい説明は
+[共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
 | 区分 | 内容 |
 | --- | --- |
-| **QUALITY** | ビット数とサンプリング周波数を落として質感を作る |
-| **ENVELOPE**（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
-| **WT PITCH MOD** | 波形メモリによる音程の変調 |
-| **UNISON / HARMONY** | 同じ音を重ねて厚くする |
-| **UTILITY** | パラメータの読み書き |
+| [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope)（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
+| [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
+| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
+
+QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 
 :::tip[OPL との行き来]
 UTILITY から、**OPL と OPL3 のあいだでパラメータをやりとりできます。** OPL で

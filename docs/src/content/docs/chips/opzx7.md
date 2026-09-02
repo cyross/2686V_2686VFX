@@ -5,7 +5,7 @@ sidebar:
   order: 6
 ---
 
-OPZX7S は、**実機には存在しない独自のチャンネル**です。OPZ・OPX・MA-7・OPS の
+OPZX7S は、**実機には存在しない独自のチャンネル**です。OPZ・OPX・MA-7・OPS の FM 音源部分の
 それぞれから良いところを取り、そこへ独自の拡張を足したものです。
 
 このシリーズで**最も自由度が高い**チャンネルで、専用プラグインの
@@ -27,6 +27,8 @@ OPZX7S は、**実機には存在しない独自のチャンネル**です。OPZ
 
 フィードバックが**オペレータごとに実数で**設定できるのは、元になったどの音源
 にもない点です。負の値も入れられます。
+
+詳細は、[リファレンス](../reference/lists-algorithm.md#opzx7s) をご参照ください。
 
 ### アルゴリズムマトリックス
 
@@ -101,13 +103,18 @@ OPNA の SSG ハードウェアエンベロープをここでも使えます。�
 
 ## 共通の区分
 
+以下は音源に依らない部分です。それぞれの詳しい説明は
+[共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
 | 区分 | 内容 |
 | --- | --- |
-| **QUALITY** | ビット数とサンプリング周波数を落として質感を作る |
-| **ENVELOPE**（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
-| **WT PITCH MOD** | 波形メモリによる音程の変調 |
-| **UNISON / HARMONY** | 同じ音を重ねて厚くする |
-| **UTILITY** | パラメータの読み書き |
+| [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope)（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
+| [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
+| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
+
+QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 
 ## カーブ編集
 

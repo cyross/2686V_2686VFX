@@ -12,7 +12,7 @@ sidebar:
 **その途中の形を自分で描けるようにしたもの**です。
 
 :::note[使えるプラグイン]
-カーブ編集は **2686V** と **OPZX7S** にあります。2686VLight と 86V は負荷を
+カーブ編集は **2686V** と **OPZX7S** にあります。2686VLight と 86V 、 26V では負荷を
 下げるために外してあります。
 
 **OPZX7S プラグインではカーブ編集が標準**で、従来の線形モードには戻せません。
@@ -34,13 +34,15 @@ sidebar:
 | 対象 | 変えられる値 |
 | --- | --- |
 | **RegValue** | AR / DR(D1R) / SL(D1L) / RR / SR(D2R) / TL |
-| **AmpEnv** | AR / DR / RR / SR |
-| **PitchEnv** | AR / DR / RR |
-| **SsgSwEnv** | R1〜R6 と LoopTo |
-| **SsgSwEnv11** | R1〜R11 と LoopTo |
-| **SsgSwPEnv11** | R1〜R11 と LoopTo |
+| [**AmpEnv**](/2686V_2686VFX/chips/common/#amp-env) | AR / DR / RR / SR |
+| [**PitchEnv**](/2686V_2686VFX/chips/common/#pitch-env) | AR / DR / RR |
+| [**SsgSwEnv**](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) | R1〜R6 と LoopTo |
+| [**SsgSwEnv11**](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) | R1〜R11 と LoopTo |
+| [**SsgSwPEnv11**](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) | R1〜R11 と LoopTo |
 
 レジスタの値そのものにも、各エンベロープのレートにも掛けられます。
+それぞれのエンベロープの中身は
+[共通の区分](/2686V_2686VFX/chips/common/) を参照してください。
 
 ## Logic — どう変えるか
 

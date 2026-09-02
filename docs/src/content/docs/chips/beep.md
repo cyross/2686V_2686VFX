@@ -45,17 +45,19 @@ BEEP は、**パソコン本体のビープ音**を鳴らすチャンネルで�
 
 ## 共通の区分
 
+以下は音源に依らない部分です。それぞれの詳しい説明は
+[共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
 音色は単純ですが、**動かす仕組みはひととおり揃っています。**
 
 | 区分 | 内容 |
 | --- | --- |
-| **ENVELOPE** | AMP / SSG HW / SSG SW（6・11 タップ）/ PITCH（3・11 タップ） |
-| **WT PITCH MOD** | 波形メモリによる音程の変調 |
-| **LFO** | 音量・音程を周期的に揺らす |
-| **MUL / DET** | 音程をずらす |
-| **UNISON / HARMONY** | 同じ音を重ねて厚くする |
-| **QUALITY** | ビット数とサンプリング周波数を落として質感を作る |
-| **UTILITY** | パラメータの読み書き |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | AMP / SSG HW / SSG SW（6・11 タップ）/ PITCH（3・11 タップ） |
+| [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
+| [**LFO**](/2686V_2686VFX/chips/common/#lfo) | 音量・音程を周期的に揺らす |
+| [**MUL / DET**](/2686V_2686VFX/chips/common/#mul--det) | 音程をずらす |
+| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
 
 :::tip[素朴な音ほど動かしがい]
 BEEP は元の音が単純なぶん、**エンベロープの効果がそのまま聞こえます。**

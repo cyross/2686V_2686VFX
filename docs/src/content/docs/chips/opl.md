@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-OPL は **YM3812（OPL2）** と **YM2413（OPLL）** にあたるチャンネルです。
+OPL は **YM3812（OPL2）** と **YM2413（OPLL）** の FM 音源部分にあたるチャンネルです。
 MSX-MUSIC やゲーム基板でよく使われた系統で、OPN 系とは音の作りがはっきり
 違います。
 
@@ -28,6 +28,8 @@ MSX-MUSIC やゲーム基板でよく使われた系統で、OPN 系とは音の
 
 アルゴリズムが 2 つしかないのは実機どおりです。OP2 が OP1 を変調する（FM）か、
 2 つを足す（加算）かの選択になります。
+
+詳細は、[リファレンス](../reference/lists-algorithm.md#opl) をご参照ください。
 
 ## 画面の区分
 
@@ -78,13 +80,18 @@ SSG のハードウェアエンベロープを OPL でも使えます。実機�
 
 ## 共通の区分
 
+以下は音源に依らない部分です。それぞれの詳しい説明は
+[共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
 | 区分 | 内容 |
 | --- | --- |
-| **QUALITY** | ビット数とサンプリング周波数を落として質感を作る |
-| **ENVELOPE**（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
-| **WT PITCH MOD** | 波形メモリによる音程の変調 |
-| **UNISON / HARMONY** | 同じ音を重ねて厚くする |
-| **UTILITY** | パラメータの読み書き |
+| [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope)（チップ全体） | AMP / PITCH / SSG SW / SSG SW11 |
+| [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
+| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
+
+QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 
 :::tip[OPLL の音色を試す]
 付属のプリセットに `OPLL Roms` フォルダがあります。OPLL の ROM 音色をなぞった

@@ -85,14 +85,19 @@ WT と同じものが使えます。FDS / WonderSwan / HuC6280 の 3 系統の�
 
 ## 共通の区分
 
+以下は音源に依らない部分です。それぞれの詳しい説明は
+[共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
 | 区分 | 内容 |
 | --- | --- |
-| **QUALITY** | ビット数とサンプリング周波数を落として質感を作る |
-| **ENVELOPE** | AMP / SSG HW / SSG SW（6・11 タップ）/ PITCH（3・11 タップ） |
-| **LFO** | 音量・音程を周期的に揺らす（OPZX7S のものを使用） |
-| **MUL / DET** | 音程をずらす |
-| **UNISON / HARMONY** | 同じ音を重ねて厚くする |
-| **UTILITY** | パラメータの読み書き |
+| [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | AMP / SSG HW / SSG SW（6・11 タップ）/ PITCH（3・11 タップ） |
+| [**LFO**](/2686V_2686VFX/chips/common/#lfo) | 音量・音程を周期的に揺らす（OPZX7S のものを使用） |
+| [**MUL / DET**](/2686V_2686VFX/chips/common/#mul--det) | 音程をずらす |
+| [**UNISON / HARMONY**](/2686V_2686VFX/chips/common/#unison--harmony) | 同じ音を重ねて厚くする |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
+
+QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 
 ## 関連するページ
 
