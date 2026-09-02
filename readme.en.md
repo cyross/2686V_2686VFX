@@ -4,395 +4,692 @@
 
 ## 1. Introduction
 
-"2686V" (hereafter referred to collectively as "this software") provides retro sound (FM/SSG/ADPCM, etc.) style VST plugins: "2686V", "2686V Light", "2686V Origin", and "OPZX7S".
+"2686V" (hereafter referred to collectively as "this software") provides plugins that produce retro sound chip (FM/SSG/ADPCM, etc.) style audio — "2686V", "2686VLight", "26V", "86V" and "OPZX7S" — plus the effect plugin "2686VFX".
 
 ## 2. Purpose
 
-I wanted to create tracks in my DAW that sounded like they were made on the "PC-9801-26" and "PC-9801-86" sound boards. Since I couldn't find anything that met my standards, I decided to build a plugin myself... or at least, that was the plan...
+I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26" or a "PC-9801-86", and nothing out there met my standards. So I set out to build a plugin... or at least, that was the plan...
 
 ## 3. Overview
 
-- **2686V**:
+*Bold entries are new or extended in v3.0.0.*
+
+- 2686V:
   - My dream ultimate retro sound VST plugin.
-  - Since a 100% accurate reproduction was impossible with my current tech stack, I created a plugin that approximates the sound of various retro sound chips to the best of my ability.
-  - Also, because my main goal was "to make music," the code during early development was almost entirely implemented with the help of `Gemini3`.
-- **2686V Light**:
+  - A 100% accurate reproduction was impossible with my tech stack, so instead I built a plugin that gets as close as it can to the character of a range of sound chips.
+  - Since the goal was "to make music", early development was written almost entirely by `Gemini3`.
+    - **To work faster still, development now uses `Claude Code`.**
+- **2686VLight**:
   - A lightweight version of 2686V.
-  - Omitted the Curve Edit Mode from 2686V to reduce CPU load.
-- **2686V Origin**:
-  - A version of 2686V Light structured closer to the "PC-9801-86" hardware.
-    - Channels are limited to OPNA, SSG, RHYTHM, and PCM only.
-    - Renamed the "ADPCM" channel to "PCM" and changed its initial audio quality to "4-bit PCM".
-    - Changed the number of RHYTHM channels to 6.
+  - Curve Edit Mode is removed from 2686V to lower the CPU load.
+- **26V**:
+  - 2686VLight brought closer to the "PC-9801-26(K)" configuration.
+    - Channels are OPN and SSG only.
+- **86V**:
+  - 2686VLight brought closer to the "PC-9801-86" configuration.
+    - Channels are OPNA, SSG, RHYTHM and PCM only.
+    - The "ADPCM" channel is renamed "PCM", and its initial audio quality is changed to "4-bit PCM".
+    - The RHYTHM channel has 6 pads.
+      - Parameter file compatibility is preserved.
 - **OPZX7S**:
   - A plugin positioned as a modern FM synthesis operator.
-  - Extracted the OPZX7S channel and Curve Edit Mode from 2686V to reduce CPU load.
-  - Applies Curve Edit Mode by default (the traditional linear mode is omitted).
+  - The OPZX7S channel and Curve Edit Mode extracted from 2686V, with a lower load.
+  - Curve Edit Mode applies by default (the traditional linear mode is omitted).
+- **2686VFX**:
+  - An effect plugin derived from 2686V.
+  - The effects and modulation used in 2686V, now usable on your DAW's instrument and audio tracks.
+  - Omitted in v2.x.x; brought back for v3.0.0.
+  - Carries the FX pane from 2686V as its main effect section.
+    - The UI is adjusted to match.
+  - Carries an FX unique to 2686VFX: the "PCM Bit Crusher".
+    - The "QUALITY" section from the PCM-family channels, repurposed as an effect.
+    - Only part of the BIT list is available.
+  - Reordering applies to the FX only (including the PCM Bit Crusher).
+  - On top of that, the following modulation from 2686V's sound engine has been added:
+    - AMP ENV
+      - Based on the one used in SSG and elsewhere.
+    - SSG HW AMP ENV
+      - Based on the one used in SSG and elsewhere.
+    - SSG SW AMP ENV11
+      - Based on the one used in SSG and elsewhere.
+    - PITCH ENV
+      - Based on the one used in SSG and elsewhere.
+    - SSG SW PITCH ENV11
+      - Based on the one used in SSG and elsewhere.
+    - WT PITCH MOD
+      - Based on the one used in WT/WT2/WT+ and elsewhere.
+    - LFO
+      - Based on the one used in OPZX7S.
+    - MUL/DET
+      - Based on the one used in OPZX7S.
+      - Simplified version.
+    - UNISON/HARMONY
+      - Based on the one used in the sound channels.
+      - Simplified version.
+    - *Switched on and off by MIDI input.*
+    - *The UI follows the FX groups.*
+    - *Bypass can be set per modulation, and all together from the main group.*
+  - The FX and modulation groups sit in a single horizontal row; use the scroll bar to bring each into view.
 
 ## 4. Features
 
-- **Enjoy a wide variety of retro game sound sources (channels)**
-  - *Each sound source is categorized by a "channel".*
+*Bold entries are new or extended in v3.0.0.*
+
+- Enjoy a wide variety of retro game sound sources (channels)
+  - *Each sound source is divided into a unit called a "channel".*
   - Channels can be switched via tabs.
-  - **However, only 1 channel can be played simultaneously per plugin instance.**
-    - Designed with the philosophy that routing and structuring are more flexible when handled via DAW tracks.
-- **Numerous hardware-derived FM synthesis channels (OPNA/OPN/OPL/OPL3/OPM)**
-  - Added extensions to various FM operators that (probably) don't break their original design philosophies.
-  - OPL/OPL3/OPM/OPNA
-    - Includes their respective hardware LFOs.
-  - OPN/OPNA
-    - Includes the software LFO used in N88-BASIC.
-  - OPM
-    - Added OPP key scale settings.
-  - OPL3
-    - Added custom algorithms (2OPx2).
-  - Amp Envelope optional features built into operators:
+  - **However, only one channel can sound at a time per plugin.**
+    - Designed on the idea that a DAW's tracks give you more flexibility in arranging the setup.
+- A hand-picked (and invented) set of FM channels, from traditional to modern
+  - Numerous hardware-derived FM channels
+    - Reproductions of many FM operators, with extensions that stay within the original design philosophy
+      - OPNA
+        - Covers OPNA's basic features.
+        - Carries the software LFO used in N88-BASIC.
+        - Carries the hardware LFO and the SSG hardware amp envelope.
+      - OPN
+        - Covers OPN's basic features.
+        - Carries the software LFO used in N88-BASIC.
+      - OPL
+        - Covers the basic features of OPL/OPLL.
+        - Carries a hardware LFO per operator.
+      - OPL3
+        - Covers OPL3's basic features.
+        - Adds original algorithms (2OPx2).
+        - Carries a hardware LFO per operator.
+      - OPM
+        - Covers OPM's basic features, hardware LFO included.
+        - Adds OPP's key scale setting.
+  - An original modern-style FM channel: OPZX7S
+    - My dream ultimate FM operator
+      - An operator that takes the best of OPZ/OPX/MA-7/OPS and adds original features.
+        - A lot of it is still a mystery (OPX especially), so this is an approximation, driven by the wish that **even if 100% reproduction is out of reach, whatever can be reproduced should be.**
+    - Up to 8 operators
+      - OPX/OPZ/MA-7/OPS algorithms are selectable.
+      - Original 1OP–8OP algorithms are selectable.
+      - **The algorithm diagram is now drawn in real time instead of from an image.**
+    - **Feedback can be set independently per operator.**
+      - The value is a real number in the range -8.0 to 8.0 (default: 0.0).
+    - **Algorithm Matrix**
+      - Customise algorithms freely, from 1OP to 8OP.
+      - You specify the modulation and feedback routing with checkboxes.
+      - Feedback settings that the original specs could never express are possible.
+    - The per-operator amp envelope follows MA-7.
+      - A switch also lets you set it with real numbers.
+    - Key scale switches between the MA-7/OPZ/OPS settings.
+    - MUL combines MA-7 with an extended OPZ version.
+      - MA-7 compliant MUL selection.
+      - The OPZ MUL value (MulRatio) setting is extended, with a much higher upper limit.
+    - DT adds a freely settable DT3 on top of OPZ's DT/DT2.
+    - A wide range of waveforms
+      - The MA-7/OPZ waveforms, plus original ones.
+        - *The MA-3-like waveforms Gemini first brought in (which look nothing like the real MA-7 ones) seemed fun, so they went in as extra waveforms.*
+      - Audio files can be used as waveforms (reproducing OPX).
+        - Playback start position and playback ratio are supported.
+      - Wave memory can be used as waveforms (`.wt` and `.wt2` files are supported, reproducing MA-7).
+      - **Waveforms in loaded files can be previewed.**
+    - A powerful LFO
+      - Independent frequency and sync settings for AM and PM.
+      - A wide range of D/S values.
+      - Settable per channel and per operator.
+      - **Original waveforms added.**
+    - OPNA's hardware SSG envelope is available.
+    - Software envelopes per operator
+      - SSG software amp envelope (6-tap / **11-tap**)
+      - Pitch envelope (3-tap / **11-tap**)
+    - **Global software envelopes**
+      - Amp envelope
+      - SSG hardware amp envelope
+      - SSG software amp envelope (11-tap)
+      - Pitch envelope (3-tap / 11-tap)
+      - WT pitch modulation
+      - A parameter graph for the global set
+    - As a special feature, MML input per operator.
+  - Original options on the per-operator amp envelope of every FM channel
     - KOR (Keep On Release)
-      - Volume does not decay until a specified time after release.
-      - Used when prioritizing the SSG software envelope.
+      - The level does not decay until the specified time after release.
+      - Used when you want the SSG software envelope to take priority.
     - XOF
-      - Ignores RR and never decays infinitely.
-      - Used when prioritizing the SSG software envelope.
+      - Ignores RR and never decays.
+      - Used when you want the SSG software envelope to take priority.
     - Bypass
       - Bypasses the amp envelope.
-      - Used when prioritizing the SSG software envelope.
-  - Hardware features: Sound Effect (SE) mode and Operator Mask available per operator.
-  - Software features: Pitch Envelope (3-tap/11-tap) and SSG Software Envelope (6-tap/11-tap) available per operator.
-  - Special feature: MML input function available per operator.
-- **Original modern-style FM synthesis channel: OPZX7S**
-  - My ideal ultimate FM synthesis operator.
-    - Combines the best of OPZ/OPX/MA-7/OPS along with original features.
-      - Packed with the desire to "reproduce as much as possible, even if 100% reproduction is impossible due to many mysteries (especially OPX)," resulting in an approximate implementation.
-  - Up to 8 operators.
-    - Selectable OPX/OPZ/MA-7/OPS algorithms.
-    - Selectable custom 1OP to 8OP algorithms.
-  - Algorithm Matrix.
-    - Flexibly customize algorithms from 1OP to 8OP.
-    - Users can specify modulation and feedback routing via checkboxes.
-    - Allows feedback settings impossible in traditional specs.
-    - *Only one type of feedback value can be set.
-  - Amp Envelope is MA-7 compliant.
-    - Can also be set using real numbers via a switch.
-  - Key Scale can be switched between MA-7/OPZ/OPS settings.
-  - MUL is a combination of MA-7 and an extended OPZ version.
-    - MA-7 compliant MUL selection.
-    - Extended OPZ MUL value (MulRatio) settings, with a significantly increased upper limit.
-  - DT includes OPZ's DT/DT2, plus an added DT3 for freely setting values.
-  - Wide variety of selectable waveforms.
-    - MA-7/OPZ waveforms + custom waveforms.
-      - *I also included a fake MA-3 waveform that Gemini originally brought up (which looks nothing like the actual MA-7 waveform) because it seemed interesting.*
-    - Audio files can be used as waveforms (OPX reproduction).
-      - Supports playback start position and playback ratio.
-    - Wavetable memory (`.wt`, `.wt2` files supported, MA-7 reproduction).
-  - Powerful LFO.
-    - Independent frequency/sync settings for AM/PM.
-    - Wide range of D/S setting values.
-    - Configurable per CH and per operator.
-  - Can use OPNA hardware SSG envelope.
-  - Software features: SE mode, operator mask, pitch envelope (3-tap/11-tap), and SSG software envelope (6-tap/11-tap) available per operator.
-    - *Pitch envelopes and SSG software envelopes are detailed below.*
-  - Special feature: MML input function available per operator.
-- **SSG (PSG) Channel**
-  - Not a perfect reproduction, but an enhanced version incorporating PSG features.
-  - Provides square and triangle waves.
-  - Pulse waves support not only SSG but also Famicom and KONAMI VRC VI duty cycles.
-  - Arbitrary duty cycle settings are also possible.
-  - Phase inversion capable.
-  - Includes a switch to change to a Famicom-style waveform.
-  - Triangle wave peak position can be adjusted.
-    - This allows for creating sawtooth waves.
-  - Custom LFO included.
-  - SE mode, OPZX7S LFO, OPZX7S MUL/DT, pitch envelope (3-tap/11-tap), and SSG software envelope (6-tap/11-tap) included.
-- **Wavetable Channel (WT/WT2)**
-  - Provides preset wavetables and custom wavetables.
-  - Includes WT (set with real numbers) and WT2 (set by discrete steps).
-  - Custom wavetable memory supports 32/64/128/256 samples.
-  - Various auxiliary buttons provided.
-  - Supports value alignment via simultaneous key presses.
-    - 0.01, 0.05, 0.1, 16 steps, 32 steps, 64 steps.
-  - Wavetable import/export.
-    - Uses `.wt`, `.wt2` files (text files).
-  - Custom modulation included.
-  - SE mode, OPZX7S LFO, OPZX7S MUL/DT, operator mask, pitch env, and SSG sw env included.
-- **Rhythm Sound Channel (RHYTHM)**
-  - Drum machine with a bitcrusher.
-    - Multiple bit rates and sampling rates selectable.
-      - Supports 4bit-ADPCM.
-      - Supports 1bit-DPCM.
-    - Supports playback start position, playback ratio, and loop points.
-  - Includes 8 pads (6 in Origin).
-    - Expanded to 8 pads (YM-2608B originally had 6).
-      - Remains 6 in 2686V Origin to comply with the 86 sound board.
-    - Supports audio file assignment per pad.
-    - Custom MIDI key assignment support.
-  - SE mode, OPZX7S LFO, OPZX7S MUL/DT, operator mask, pitch env, and SSG sw env per pad.
-- **Audio File Channel (ADPCM/PCM)**
-  - Play a single audio file like a sampler.
-    - Multiple bit rates and sampling rates selectable.
-      - Supports 4bit-ADPCM.
-      - Supports 1bit-DPCM.
-    - Supports playback start position, playback ratio, and loop points.
-  - SE mode, OPZX7S LFO, OPZX7S MUL/DT, operator mask, pitch env, and SSG sw env included.
-- **BEEP Channel**
-  - Reproduces beep sounds (fixed duty cycle square wave).
-    - SE mode includes a button to change to 2000Hz.
-  - SE mode, OPZX7S LFO, OPZX7S MUL/DT, operator mask, pitch env, and SSG sw env included.
-- **Various Additional Envelopes**
-  - Added the following 4 envelopes (treated as software envelopes):
-    - **6-Tap SSG Software Envelope (SSG SW ENV)**
-      - Based on and improved from FMP7's 6-tap SSG software envelope.
-      - Uses R1–R6, STL, L1–L6 parameters (R6, L6 are release parameters, same as FMP7).
-        - Rate configurable from 0.0s to 10.0s.
-        - Level configurable from 0.0 to 1.0.
-      - Supports looping between specified taps (number of loops can be specified).
+      - Used when you want the SSG software envelope to take priority.
+  - As hardware features, a sound effect mode and an operator mask per operator.
+  - As software features, envelopes per operator
+    - SSG software amp envelope (6-tap / **11-tap**)
+    - Pitch envelope (3-tap / **11-tap**)
+  - **As software features, global envelopes**
+    - Amp envelope
+    - SSG hardware amp envelope
+    - SSG software amp envelope (11-tap)
+    - Pitch envelope (3-tap / **11-tap**)
+    - WT pitch modulation
+    - A parameter graph for the global set
+  - As a special feature, MML input per operator.
+  - **The algorithm diagram is now drawn in real time instead of from an image.**
+- The SSG (PSG) channel, familiar from the YM2303/YM2608
+  - Not an exact reproduction, but an enhanced version that folds in PSG features.
+  - Square and triangle waves are provided.
+  - The pulse wave covers the duty ratios of the SSG, the Famicom and the KONAMI VRC VI.
+  - The duty ratio can also be set freely.
+  - The phase can be inverted.
+  - A switch changes the waveform to a Famicom-like one.
+  - The triangle wave's peak position can be adjusted.
+    - This also gives you a sawtooth.
+  - As software features, global envelopes
+    - Amp envelope
+    - SSG hardware amp envelope
+      - **Original waveforms added.**
+    - SSG software amp envelope (6-tap / **11-tap**)
+    - Pitch envelope (3-tap / **11-tap**)
+    - **WT pitch modulation**
+    - MUL/DET
+      - Uses the one from OPZX7S.
+    - LFO
+      - Uses the one from OPZX7S.
+      - **Original waveforms added.**
+    - Sound effect mode
+- The YM2303 and YM2608 never had it, but no retro game sound is complete without it! Wave memory channels (WT/WT2)
+  - Preset wave memory and custom wave memory are provided.
+  - WT sets values as real numbers; WT2 sets them in steps.
+  - Custom wave memory supports 32/64/128/256 samples.
+  - A range of helper buttons is provided.
+  - Value alignment while holding a key
+    - 0.01, 0.05, 0.1, 16 steps, 32 steps, 64 steps
+  - Import and export of wave memory
+    - Uses `.wt` and `.wt2` files (text files).
+  - As software features, global envelopes
+    - Amp envelope
+    - SSG hardware amp envelope
+      - **Original waveforms added.**
+    - SSG software amp envelope (6-tap / **11-tap**)
+    - Pitch envelope (3-tap / **11-tap**)
+    - **WT pitch modulation**
+    - MUL/DET
+      - Uses the one from OPZX7S.
+    - LFO
+      - Uses the one from OPZX7S.
+      - **Original waveforms added.**
+    - Sound effect mode
+  - **The waveform of each loaded file can be previewed.**
+- **For anyone who cannot live with only one waveform in WT/WT2! A wave memory switching channel (WT+)**
+  - Plays waveforms from existing `.wt` and `.wt2` files.
+  - Up to 32 can be loaded, switched in real time with a slider.
+  - They can also be switched in real time from DAW automation.
+  - As software features, global envelopes
+    - Amp envelope
+    - SSG hardware amp envelope
+      - **Original waveforms added.**
+    - SSG software amp envelope (6-tap / **11-tap**)
+    - Pitch envelope (3-tap / **11-tap**)
+    - **WT pitch modulation**
+    - MUL/DET
+      - Uses the one from OPZX7S.
+    - LFO
+      - Uses the one from OPZX7S.
+      - **Original waveforms added.**
+    - Sound effect mode
+  - **The waveform of each loaded file can be previewed.**
+- The rhythm channel (RHYTHM)
+  - A drum machine with a bit crusher
+    - A wide choice of bit rates and sampling rates
+      - 4-bit ADPCM supported
+      - 1-bit DPCM supported
+    - Playback start position, playback ratio and loop points are supported.
+  - 8 pads (6 in 86V)
+    - The YM-2608B had 6; this is extended to 8.
+      - Can also stand in for the 8-voice SSGPCM (PSGPCM) used by PPZ8 and the like.
+      - 86V keeps 6 to follow the 86 sound board.
+    - An audio file can be assigned to each pad.
+    - MIDI key assignment can be customised.
+  - As software features, envelopes on each pad
+    - Amp envelope
+    - SSG hardware amp envelope
+      - **Original waveforms added.**
+    - SSG software amp envelope (6-tap / **11-tap**)
+    - Pitch envelope (3-tap / **11-tap**)
+    - **WT pitch modulation**
+    - MUL/DET
+      - Uses the one from OPZX7S.
+    - LFO
+      - Uses the one from OPZX7S.
+      - **Original waveforms added.**
+    - Sound effect mode
+  - **The waveform loaded on each pad can be previewed.**
+- The audio file channel (ADPCM/PCM)
+  - Plays a single audio file like a sampler
+    - A wide choice of bit rates and sampling rates
+      - 4-bit ADPCM supported
+      - 1-bit DPCM supported
+    - Playback start position, playback ratio and loop points are supported.
+  - As software features, global envelopes
+    - Amp envelope
+    - SSG hardware amp envelope
+      - **Original waveforms added.**
+    - SSG software amp envelope (6-tap / **11-tap**)
+    - Pitch envelope (3-tap / **11-tap**)
+    - **WT pitch modulation**
+    - MUL/DET
+      - Uses the one from OPZX7S.
+    - LFO
+      - Uses the one from OPZX7S.
+      - **Original waveforms added.**
+    - Sound effect mode
+  - **The waveform of the loaded file can be previewed.**
+- The BEEP channel
+  - Reproduces the beep (a square wave at a fixed duty ratio).
+    - Sound effect mode carries a button to switch to 2000Hz.
+  - As software features, global envelopes
+    - Amp envelope
+    - SSG hardware amp envelope
+      - **Original waveforms added.**
+    - SSG software amp envelope (6-tap / **11-tap**)
+    - Pitch envelope (3-tap / **11-tap**)
+    - **WT pitch modulation**
+    - MUL/DET
+      - Uses the one from OPZX7S.
+    - LFO
+      - Uses the one from OPZX7S.
+      - **Original waveforms added.**
+    - Sound effect mode
+- Additional envelopes
+  - The following four envelopes are added (treated as software envelopes)
+    - 6-tap SSG software envelope (SSG SW ENV)
+      - Based on FMP7's 6-tap SSG software envelope, with improvements.
+      - Same as FMP7 in having R1–R6, STL and L1–L6, with R6 and L6 as the release parameters.
+        - Rates can be set from 0.0 to 10.0 seconds.
+        - Levels can be set from 0.0 to 1.0.
+      - Looping between chosen taps is supported (the loop count is settable).
         - Up to 200 loops.
-        - Set to 0 for infinite loop.
-    - **11-Tap SSG Software Envelope (SSG SW ENV11)**
-      - Expands SSG SW ENV to 11 taps.
-        - Rate: 0.0s to 10.0s.
-        - Level: 0.0 to 1.0.
-      - Release parameters changed to R11/L11.
-      - Inherits looping function from SSG SW ENV.
-    - **3-Tap Pitch Envelope (Pitch Env)**
-      - Envelope to change pitch across 3 taps.
-      - Rates: AR/DR/RR.
-        - 0.0s to 10.0s.
-      - Levels: STL/ATL/SSL/RLL.
-        - -4800 cents to 4800 cents.
-    - **11-Tap Pitch Envelope (SSG SW PENV11)**
-      - Pitch envelope version of SSG SW ENV11.
-      - Allows for richer pitch variations.
-        - Rate/Level usage is the same as Pitch Env.
-          - Rate: 0.0s to 10.0s.
-          - Level: -4800 cents to 4800 cents.
-  - Applicable to all channels, operators, and rhythm pads.
-- **Independent Effects Support**
-  - Comes standard with many modern effects.
+        - 0 means loop forever.
+    - **SSG hardware amp envelope**
+      - The SSG HW ENV carried by OPNA/OPZX7S/SSG, considerably extended.
+      - Original waveforms added.
+      - The MIN/MAX of the range can be set.
+      - Waveform preview.
+    - 11-tap SSG software envelope (SSG SW ENV11)
+      - Extends the tap count to 11.
+        - Rates can be set from 0.0 to 10.0 seconds.
+        - Levels can be set from 0.0 to 1.0.
+      - The release parameters move to R11/L11.
+      - The loop feature is inherited from SSG SW ENV.
+    - 3-tap pitch envelope (Pitch Env)
+      - A 3-tap envelope that changes pitch.
+      - Three rates: AR/DR/RR
+        - Settable from 0.0 to 10.0 seconds.
+      - Four levels: STL/ATL/SSL/RLL
+        - Each settable from -4800 to 4800 cents.
+    - 11-tap pitch envelope (SSG SW PENV11)
+      - The pitch envelope version of SSG SW ENV11.
+      - Richer pitch movement.
+        - Rates and levels match the existing pitch envelope.
+          - Rates from 0.0 to 10.0 seconds.
+          - Levels from -4800 to 4800 cents.
+    - **Wave memory pitch modulation**
+      - The MODULATION carried by WT/WT, considerably extended.
+        - Many more waveforms to choose from.
+      - Also carries the PCE feature where the wave memory itself is used as the modulator.
+        - Switchable between 8 waveforms in real time.
+      - The FDS feature of customising the waveform on the spot is available.
+  - Applies to every channel, operator and rhythm pad.
+- Independent effects
+  - A set of modern effects is built in
     - Filter
-    - 3-Band EQ
+    - 3-band EQ
     - Vibrato
     - Tremolo
     - Reverb
     - Delay
-    - Modern Bitcrusher
-    - SFC Echo
-      - SPC-700 equivalent 8-tap FIR filter.
-  - Bypass support.
-- **Advanced Settings / Curve Edit Mode (2686V/OPZX7S)**
-  - Mode to flexibly change register value variations and envelope level variations.
-    - Switchable from the traditional mode via a toggle.
-    - OPZX7S supports Curve Edit Mode by default (traditional mode omitted).
-    - 2686V Light and 2686V Origin do not include Curve Edit Mode.
-      - (To reduce CPU load).
-  - Expands the traditional linear variation mode.
-    - Over 30 variation logics.
-      - Supports different variation ratios based on pass-through points, exponential curves, logarithmic curves, and spline curves (1-point, 2-point).
-- **Value Range Confirmation**
-  - Hovering over a slide bar button displays its parameter range.
-  - Can be toggled ON/OFF in the settings screen.
-- **Unison / Harmony Mode**
-  - Supports up to 8 voices.
-  - Harmony support via detune and spatial spread.
-- **Polyphonic Playback**
-  - Switchable with Monophonic mode.
+    - Modern bit crusher
+    - SFC echo
+      - An 8-tap FIR filter equivalent to the SPC-700.
+  - Bypass supported.
+- Extended settings and Curve Edit Mode (2686V/OPZX7S)
+  - A mode that gives you flexible control over how register values and envelope levels change
+    - A switch returns you to the traditional mode.
+    - OPZX7 uses Curve Edit Mode as standard (it cannot be switched back).
+    - 2686VLight and 86V do not carry Curve Edit Mode.
+      - To keep the load down.
+  - Extends the traditional linear mode
+    - Over 30 kinds of change logic
+      - Splitting the rate of change by pass-through points, and changes based on exponential curves, logarithmic curves and splines (one or two points).
+- Value ranges can be checked
+  - Hover over a slider's button to show its range.
+  - Can be switched on and off in the settings screen.
+- Unison / harmony mode
+  - Up to 8 voices.
+  - Harmony through detune and stereo spread.
+  - **Arpeggio**
+    - A fast arpeggio can be reproduced by frequency.
+    - The arpeggio content is fixed (Voice0 -> Voice1 -> ... -> VoiceN -> Voice0 -> ...).
+  - **Detune and spread can be set per voice.**
+- Chords can be played
+  - Switchable with monophonic mode.
   - Up to 10 simultaneous voices.
-    - Combined with Unison/Harmony, allows up to 80 voices.
-  - Configurable headroom gain.
-- **Full Automation Support**
-- **Supports MIDI keyboard Pitch Bend and Modulation functions**
-- **3 Display Modes**
-  - Full display
-  - Mini-player display
-  - Minimum display
-- **Save and Load Presets**
-  - Loaded audio/waveform files are saved with relative paths.
-  - Includes a simple preset search function.
-- **Import/Export Parameters per Channel**
-  - I/O via text files.
-  - I/O per envelope also possible.
-  - Curve editing parameters can be imported/exported.
-- **Customizable Wallpaper**
-  - Multiple display modes available.
+    - Combined with unison/harmony, up to 80 voices.
+  - The headroom gain can be changed.
+- Automation, of course.
+- Supports the pitch bend and modulation features of a MIDI keyboard.
+- Plenty of ways to nudge LEVEL
+  - Nudge buttons
+  - **Stepped input via Steps**
+- Three screen modes
+  - Full view
+  - Mini player view
+  - Minimum view
+- Presets can be saved and loaded
+  - Loaded audio and waveform files are saved as relative paths.
+  - A simple preset search is built in.
+  - **Reading and writing in `JSON` and `YAML` is supported.**
+    - `XML` is now read-only.
+  - **Favourites**
+    - Unlimited in theory.
+  - **Load history**
+    - Unlimited in theory.
+  - **Filtering by favourites and history while searching**
+- Each channel's parameters can be imported and exported
+  - **Input and output through `JSON` or `YAML` files**
+    - Plain text files are now read-only.
+  - Import and export per envelope is also possible.
+  - Curve Edit parameters can be imported and exported.
+- A wallpaper can be set
+  - Several display modes are provided.
+- The UTILITY category has been extended
+  - **Import and export of channel, operator and pad parameters**
+- **The file format used for presets, settings and parameters has moved to `JSON` and `YAML`**
+  - `JSON` or `YAML` is switchable in the settings.
+  - The previous formats are read-only.
+    - Reading a parameter file converts it to `JSON` or `YAML` automatically.
+  - `.wt` and `.wt2` keep their previous format.
+    - Because of how they are used by OPZX7S/WT+/WT PITCH MOD.
+- **The COLORS tab**
+  - Customise the colours used in the UI.
+  - One button restores the defaults.
+  - Besides RGB/HSV, colours can be taken from colour names (JUCE plus original ones) and palettes (PC-8801/PC-9801/X68000/PC Engine/Mega Drive).
+  - Take a look through the entries — you may spot a few names you recognise...
+- **A major UI overhaul**
+  - The tabs are a little wider.
+  - The group title style has changed.
+  - Category labels have changed considerably.
+    - The open/closed state is now shown by a lamp rather than text.
+      - The colours are an homage to Hatsune Miku's hair clip and headphones.
+    - The style of the various components has changed.
+  - Shadows have been added to the components.
+  - Nudge buttons can be shown or hidden.
+    - Toggled with the "N" button.
+  - Many more waveform previews
+    - The global envelope graph on the FM channels
+    - The waveform loaded into SSG HW AMP ENV
+    - OPZX7S waveforms (WT, WT2, PCM)
+    - The audio files loaded into RHYTHM pads and ADPCM (PCM)
+    - The WS PITCH MOD waveform
+    - The waveforms loaded into WT+
 
 ## 5. Supported OS
 
 - Windows 11 (x64/ARM64) or later
-  - ARM64 version behavior is unconfirmed.
-- Linux version distribution is temporarily paused.
-- Mac... sorry!
-  - I have received reports that it can be built on macOS using `clang++` with minor modifications.
-  - In version 1.2.0, the received patches have been integrated.
+  - The ARM64 build is untested.
+- Linux builds are on hold for the time being.
+  - Build settings are provided, however.
+- Mac — sorry!
+  - I have received a report that it builds with `clang++` on macOS with only small changes.
+  - The patch I was given was folded in for 1.2.0.
+  - Build settings are provided (untested).
 
-## 6. Plugin Format / Version
+## 6. Plugin format and version
 
 - VST3 (3.8)
 
-## 7. Tested DAWs
+## 7. DAWs verified
 
 - Steinberg Cubase Pro 15 (Windows)
 - Image-Line FL Studio 2025 V25.2.4 (Windows)
+- Ableton Live 12 Lite (Windows)
+- Bandlab Cakewalk Sonar (Windows)
 
-## 8. Directory Structure
+## 8. Contents
 
-- This plugin consists of the following files:
+- This plugin consists of the following files.
+
+*There are far too many preset and parameter files to list individually, so the file names inside those folders are omitted.*
 
 ```plaintext
 - Windows
   - x86-64
-    - 2686V.vst3 : Synth plugin "2686V"
-    - 2686V.exe : Standalone program for 2686V
-    - 2686VLight.vst3 : Synth plugin "2686VLight"
-    - 2686VLight.exe : Standalone program for 2686VLight
-    - 2686VOrigin.vst3 : Synth plugin "2686VOrigin"
-    - 2686VOrigin.exe : Standalone program for 2686VOrigin
-    - OPZX7S.vst3 : Synth plugin "OPZX7S"
-    - OPZX7S.exe : Standalone program for OPZX7S
+    - VST3
+      - 2686V.vst3 : the "2686V" synth plugin
+      - 2686VLight.vst3 : the "2686VLight" synth plugin
+      - 26V.vst3 : the "26V" synth plugin
+      - 86V.vst3 : the "86V" synth plugin
+      - OPZX7S.vst3 : the "OPZX7S" synth plugin
+      - 2686VFX.vst3 : the "2686VFX" effect plugin
+    - Standalone
+      - 2686V.exe : the standalone program for 2686V
+      - 2686VLight.exe : the standalone program for 2686VLight
+      - 26V.exe : the standalone program for 26V
+      - 86V.exe : the standalone program for 86V
+      - OPZX7S.exe : the standalone program for OPZX7S
+      - 2686VFX.exe : the standalone program for 2686VFX
   - ARM64
-    - 2686V.vst3 : Synth plugin "2686V"
-    - 2686V.exe : Standalone program for 2686V
-    - 2686VLight.vst3 : Synth plugin "2686VLight"
-    - 2686VLight.exe : Standalone program for 2686VLight
-    - 2686VOrigin.vst3 : Synth plugin "2686VOrigin"
-    - 2686VOrigin.exe : Standalone program for 2686VOrigin
-    - OPZX7S.vst3 : Synth plugin "OPZX7S"
-    - OPZX7S.exe : Standalone program for OPZX7S
-- Readme.md : Quick documentation (Japanese)
-- Readme.en.md : Quick documentation (English)
-- COPYING.txt : GPLv3 License terms
-- Assets : Asset files folder
+    - VST3
+      - 2686V.vst3 : the "2686V" synth plugin
+      - 2686VLight.vst3 : the "2686VLight" synth plugin
+      - 26V.vst3 : the "26V" synth plugin
+      - 86V.vst3 : the "86V" synth plugin
+      - OPZX7S.vst3 : the "OPZX7S" synth plugin
+      - 2686VFX.vst3 : the "2686VFX" effect plugin
+    - Standalone
+      - 2686V.exe : the standalone program for 2686V
+      - 2686VLight.exe : the standalone program for 2686VLight
+      - 26V.exe : the standalone program for 26V
+      - 86V.exe : the standalone program for 86V
+      - OPZX7S.exe : the standalone program for OPZX7S
+      - 2686VFX.exe : the standalone program for 2686VFX
+- Readme.md : brief documentation
+- Readme.en.md : brief documentation (English)
+- COPYING.txt : the GPLv3 licence terms
+- [Dir]Assets : the asset file folder
+  - [Dir]2686V
+    - [Dir]Presets                 : the preset file folder for 2686V
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+        - [Dir]26V                 : the preset file folder for 26V
+        - [Dir]86V                 : the preset file folder for 86V
+        - [Dir]2686V               : the preset file folder for 2686V
+        - [Dir]2686VLight          : the preset file folder for 2686VLight
+        - [Dir]OPZX7S              : the preset file folder for OPZX7S
+      - [Dir]OPLL Roms             : OPLL ROM preset voices (before using these, please be sure to read "About the presets in the OPLL Roms folder"!)
+      - [Dir]SSG Drums             : the preset files the drum samples used by "SSG RHYTHM Sample.xml" were made from
+      - [Dir]WT Samples            : reference preset files for wave memory
+      - SSG RHYTHM Sample.xml      : a preset for the rhythm sound source sample
+      - Tekitou PSG.xml            : a rough-and-ready PSG preset, for reference
+      - M-M-Pro                    : presets for the rhythm and ADPCM (DPCM quality) channels doing the voice synthesis from a certain baseball game
+    - [Dir]Resources               : resource files (**never rename, edit or delete this folder or its contents!**)
+    - [Dir]Samples                 : the folder for the initial sample (audio) files
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]M-Pro                 : voice synthesis from a certain baseball game (feat. a certain virtual singer)
+      - Noise Close HiHat.wav      : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - Noise Open HiHat.wav       : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - Noise Snare.wav            : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - SSG Cymbal.wav             : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - SSG Kick.wav               : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - SSG Perc.wav               : a drum sample file used by "SSG RHYTHM Sample.xml"
+    - [Dir]AmpEnvParams            : the parameter file folder for the global Amp Env
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]ChannelParams           : the parameter file folder for each channel
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]CustomizeColorSettings  : the folder for colour customisation files
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]DetuneParams            : the parameter file folder for MUL/DET
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]FxOrders                : the folder for files that store the effect order
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]FxParams                : the folder for files that store the effect parameters
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]LfoParams               : the folder for files that store the LFO parameters
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]PcmPlayParams           : the parameter file folder for the PCM playback position and so on
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]PitchEnvParams          : the parameter file folder for pitch envelopes
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+        - [Dir]PitchEnv            : the parameter file folder for the traditional pitch envelope
+        - [Dir]SsgSwPenv11         : the parameter file folder for SSG SW Pitch ENV11
+    - [Dir]QualityParams           : the parameter file folder for audio quality
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]SsgHwEnvParams          : the parameter file folder for SSG HW ENV
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]SsgSwEnvParams          : the parameter file folder for SSG SW ENV(11)
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+        - [Dir]SsgSwEnv            : the parameter file folder for the traditional SSG SW AMP ENV
+        - [Dir]SsgSwEnv11          : the parameter file folder for SSG SW AMP ENV(11)
+    - [Dir]ToneNoiseParams         : the parameter file folder for the Tone/Noise mix and so on
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]UnisonParams            : the parameter file folder for UNISON/HARMONY
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]Wavetables              : the waveform file folder
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+        - [Dir]wt                  : the `.wt` files
+        - [Dir]wt2                 : the `.wt2` files
+    - [Dir]WtModParams             : the parameter file folder for WT PITCH MOD
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - sample_bg.png                : a sample wallpaper
+```plaintext
+- Windows
+  - x86-64
+    - VST3
+      - 2686V.vst3 : the "2686V" synth plugin
+      - 2686VLight.vst3 : the "2686VLight" synth plugin
+      - 86V.vst3 : the "86V" synth plugin
+      - OPZX7S.vst3 : the "OPZX7S" synth plugin
+      - 2686VFX.vst3 : the "2686VFX" effect plugin
+    - Standalone
+      - 2686V.exe : the standalone program for 2686V
+      - 2686VLight.exe : the standalone program for 2686VLight
+      - 86V.exe : the standalone program for 86V
+      - OPZX7S.exe : the standalone program for OPZX7S
+      - 2686VFX.exe : the standalone program for 2686VFX
+  - ARM64
+    - VST3
+      - 2686V.vst3 : the "2686V" synth plugin
+      - 2686VLight.vst3 : the "2686VLight" synth plugin
+      - 86V.vst3 : the "86V" synth plugin
+      - OPZX7S.vst3 : the "OPZX7S" synth plugin
+      - 2686VFX.vst3 : the "2686VFX" effect plugin
+    - Standalone
+      - 2686V.exe : the standalone program for 2686V
+      - 2686VLight.exe : the standalone program for 2686VLight
+      - 86V.exe : the standalone program for 86V
+      - OPZX7S.exe : the standalone program for OPZX7S
+      - 2686VFX.exe : the standalone program for 2686VFX
+- Readme.md : brief documentation
+- Readme.en.md : brief documentation (English)
+- COPYING.txt : the GPLv3 licence terms
+- Assets : the asset file folder
   - 2686V
-    - Presets                 : Preset files folder for 2686V
-      - OPLL Roms             : OPLL ROM preset patches (Please make sure to read "Regarding Presets in the OPLL Roms Folder" before use!)
-      - SSG Drums             : Base preset files used for the drum samples in "SSG RHYTHM Sample.xml"
-      - WT Samples            : Reference preset files for wavetables
-      - SSG RHYTHM Sample.xml : Preset for rhythm sound samples.
-      - Tekitou PSG.xml       : An arbitrarily created reference PSG preset.
-      - M-M-Pro               : Rhythm/ADPCM (DPCM quality) channel preset mimicking a certain baseball game's voice synthesis.
-    - 2686VLPresets           : Preset files folder for 2686V Light
-    - 2686VOPresets           : Preset files folder for 2686V Origin
-    - OPZX7Presets            : Preset files folder for OPZX7S
-    - Resources               : Resource files (**NEVER rename, edit, or delete the folder or files inside!**)
-    - Samples                 : Initial sample (audio) files folder
-      - Noise Close HiHat.wav : Drum sample file used in "SSG RHYTHM Sample.xml"
-      - Noise Open HiHat.wav  : Drum sample file used in "SSG RHYTHM Sample.xml"
-      - Noise Snare.wav       : Drum sample file used in "SSG RHYTHM Sample.xml"
-      - SSG Cymbal.wav        : Drum sample file used in "SSG RHYTHM Sample.xml"
-      - SSG Kick.wav          : Drum sample file used in "SSG RHYTHM Sample.xml"
-      - SSG Perc.wav          : Drum sample file used in "SSG RHYTHM Sample.xml"
-      - M-Pro                 : A certain baseball game voice synthesis (feat. a certain virtual singer)
-    - Wavetables              : Folder for managing wavetable memory files
-    - ChannelParams           : Folder for managing parameter files for each sound channel (operator/pad)
-    - FxOrders                : Folder for managing FX pane effect order files
-    - FxParams                : Folder for managing FX pane parameter files
-    - AmpEnvParams            : Folder for managing SSG/RHYTHM/WT/WT2/ADPCM/PCM/BEEP amp envelope parameter files
-    - DetuneParams            : Folder for managing OPZX7S MUL/DT parameter files
-    - LfoParams               : Folder for managing various LFO parameter files
-    - PcmPlayParams           : Folder for managing PCM playback setting parameter files
-    - PitchEnvParams          : Folder for managing pitch envelope (incl. 11-tap) parameter files
-    - QualityParams           : Folder for managing audio quality parameter files
-    - SshSwEnvParams          : Folder for managing SSG software envelope (incl. 11-tap) parameter files
-    - ToneNoiseParams         : Folder for managing tone/noise mix parameter files
-    - UnisonParams            : Folder for managing unison/harmony parameter files
-    - CurveParams             : Folder for managing Curve Edit Mode parameter files
-    - sample_bg.png           : Sample wallpaper
+    - Presets                 : the preset file folder for 2686V
+      - OPLL Roms             : OPLL ROM preset voices (before using these, please be sure to read "About the presets in the OPLL Roms folder"!)
+      - SSG Drums             : the preset files the drum samples used by "SSG RHYTHM Sample.xml" were made from
+      - WT Samples            : reference preset files for wave memory
+      - SSG RHYTHM Sample.xml : a preset for the rhythm sound source sample.
+      - Tekitou PSG.xml       : a rough-and-ready PSG preset, for reference.
+      - M-M-Pro               : presets for the rhythm and ADPCM (DPCM quality) channels doing the voice synthesis from a certain baseball game
+    - Resources               : resource files (**never rename, edit or delete this folder or its contents!**)
+    - Samples                 : the folder for the initial sample (audio) files
+      - Noise Close HiHat.wav : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - Noise Open HiHat.wav  : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - Noise Snare.wav       : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - SSG Cymbal.wav        : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - SSG Kick.wav          : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - SSG Perc.wav          : a drum sample file used by "SSG RHYTHM Sample.xml"
+      - M-Pro                 : voice synthesis from a certain baseball game (feat. a certain virtual singer)
+    - sample_bg.png           : a sample wallpaper
 ```
 
-### 8-1. About Included Preset Files
+### 8-1. About the bundled preset files
 
-Unauthorized reproduction of the included preset files (excluding those in the OPLL Roms folder) is strictly prohibited (However, you are free to use and modify them for your own works/music).
+- Except for the presets in the `OPLL Roms` folder, **redistribution of the bundled preset files without permission is strictly prohibited** (you are free to use and modify them in your own work).
 
-#### 8-1-1. Regarding Presets in the OPLL Roms Folder
+#### 8-1-1. About the presets in the `OPLL Roms` folder
 
-The presets in the OPLL Roms folder are based on the patch data published by David (Plogue) on GitHub: [Copyright free OPLL(x) ROM patches](https://github.com/plgDavid/misc/wiki/Copyright-free-OPLL(x)-ROM-patches).
+- The presets in the `OPLL Roms` folder are based on the patch data in [Copyright free OPLL(x) ROM patches](https://github.com/plgDavid/misc/wiki/Copyright-free-OPLL(x)-ROM-patches), published on GitHub by David of Plogue.
+- That patch data is published under `CC BY-SA`, so these presets may be redistributed and reused under `CC BY-SA 4.0`.
+  - [CC-BY SA 4.0 (English)](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
+  - [CC-BY SA 4.0 (Japanese)](https://creativecommons.org/licenses/by-sa/4.0/deed.ja)
 
-Since these patch data are released under CC BY-SA, these specific presets can be redistributed and reused under CC BY-SA 4.0.
+### 8-2. About the bundled sample files
 
-[CC-BY SA 4.0 (English)](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
-[CC-BY SA 4.0 (日本語)](https://creativecommons.org/licenses/by-sa/4.0/deed.ja)
+- **Redistribution of the bundled sample files without permission is strictly prohibited** (you are free to use and modify them in your own work).
 
-### 8-2. About Included Sample Files
+### 8-3. About using the bundled presets and samples
 
-Unauthorized reproduction of the included sample files is strictly prohibited (However, you are free to use and modify them for your own works/music).
-
-### 8-3. Usage of Included Presets and Samples
-
-You do not need prior permission or copyright attribution to use the included presets and samples (unless otherwise specified) for your works. However, the author would be delighted if you let them know when you use them, so please feel free to drop a message!
+- You do not need to apply to the author in advance or credit them to use the bundled presets and samples (except where explicitly stated otherwise), but **the author would be delighted to hear from you**, so please do get in touch.
 
 ## 9. Installation
 
-Extract the archive file to reveal the files listed in the "Directory Structure" section, and proceed as follows:
+- Extracting the archive creates the files listed under "Contents". Then do the following.
 
-### 9-1. 2686V.vst3 / 2686VLight.vst3 / 2686VOrigin.vst3 / OPZX7S.vst3
+### 9-1. 2686V.vst3 / 2686VLight.vst3 / 26V.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
 
-Copy them into your VST3 folder.
+- Copy them into your VST3 folder.
+  - The VST3 folder is usually here:
+    - `C:\Program Files\Common Files\VST3`
+  - **Copying into the VST3 folder requires administrator rights.**
 
-The VST3 folder is usually located at:
+### 9-2. The Assets folder
 
-C:\Program Files\Common Files\VST3
+- Directly under the `Assets` folder there is a `2686V` folder. You **must** copy it **directly into your Documents folder**.
 
-Administrator privileges are required to copy files into the VST3 folder.
+### 9-3. 2686V.exe / 2686VLight.exe / 26V.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
 
-### 9-2. Assets Folder
-
-Inside the Assets folder, there is a 2686V folder. You MUST copy this 2686V folder directly into your Documents folder.
-
-### 9-3. 2686V.exe / 2686VLight.exe / 2686VOrigin.exe / OPZX7S.exe
-
-Copy these standalone executables to any folder of your choice.
+- Copy them into any folder you like.
 
 ## 10. Uninstallation
 
-Simply delete the .vst3 files from your VST3 folder to complete the uninstallation.
+- Deleting each `.vst3` from the VST3 folder completes the uninstall.
 
-## 11. How to Start
+## 11. Launching
 
-### 11-1. 2686V.vst3 / 2686VLight.vst3 / 2686VOrigin.vst3 / OPZX7S.vst3
+### 11-1. 2686V.vst3 / 2686VLight.vst3 / 26V.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
 
-Launch your DAW and insert the respective plugin into an instrument track or effect slot.
+- Start your DAW and insert each plugin into a track or an effect slot.
+- For the details of how to do that, follow your DAW's own instructions.
 
-For detailed instructions, please refer to your DAW's manual.
+### 11-2. 2686V.exe / 2686VLight.exe / 26V.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
 
-### 11-2. 2686V.exe / 2686VLight.exe / 2686VOrigin.exe / OPZX7S.exe
+- Double-click each executable in Windows Explorer.
+- Creating a shortcut is handy.
 
-Double-click the respective executable file from Windows Explorer.
+## 12. Operation manual
 
-It is convenient to create a shortcut for them.
-
-## 12. Operation Manual
-
-The manual is provided on the GitHub Wiki:
-
-[2686V オペレーションマニュアル](https://github.com/cyross/2686V_2686VFX/wiki/2686V-2686VFX-Operation-manual)
+- Provided on GitHub Pages.
+  - [2686V Series Users manual](https://cyross.github.io/2686V_2686VFX/)
 
 ## 13. License
 
-本ソフトウェア（VST3プラグイン）には GPLv3 (GNU General Public License v3) が適用されます。 これは、本ソフトウェアが「JUCE」フレームワークおよび「VST3 SDK」とリンクしており、それらのライセンス（GPLv3/AGPLv3）を継承するためです。
+This software (the VST3 plugins) is covered by the GPLv3 (GNU General Public License v3). This is because it links against the "JUCE" framework and the "VST3 SDK", and inherits their licences (GPLv3/AGPLv3).
 
 Source code in this repository is available under the MIT License. However, the compiled binary links against the JUCE framework and VST3 SDK, which are subject to the GPLv3. Therefore, any distributed binaries must comply with the GPLv3 terms.
 
-禁止事項: 本ソフトウェア、または本ソフトウェアに含まれる素材ファイル等を、著作者を偽って再配布すること、および著作者の許諾なく商用製品として販売することを禁じます（GPLv3の規定に基づく著作権表示の改変・削除は認められません）。
+Prohibited: redistributing this software, or the material files it contains, while misrepresenting its authorship, and selling it as a commercial product without the author's permission (altering or removing the copyright notice is not permitted under the terms of the GPLv3).
 
-## 14. Terms of Use & Disclaimer
+## 14. Terms of use and disclaimer
 
-[Regarding Use in Music/Audio]
-Audio works (music, sound effects, etc.) created using this software can be used freely and royalty-free, whether for commercial or non-commercial purposes. The copyright of the works generated or created using this software belongs to the creator of that work (the user).
+**On using it in your music.** Music, sound effects and other audio works produced with this software may be used freely and royalty-free, commercially or otherwise. The copyright in works created with this software belongs to the person who created them — that is, to you.
 
-[Disclaimer]
-This software is provided "as is". The author assumes no responsibility for any damages, disadvantages, or troubles arising from the use of this software.
+**Disclaimer.** This software is provided as is. The author accepts no responsibility whatsoever for any damage, disadvantage or trouble arising from its use.
 
-[Trademarks]
-VST is a trademark of Steinberg Media Technologies GmbH.
+**Trademarks.** VST is a trademark of Steinberg Media Technologies GmbH.
 
 ## 15. Contact
 
-Please send any inquiries to the following address:
+Please contact me at:
 
-`cyross4github_at_gmail.com`
+- `cyross4github_at_gmail.com`
 
-## 16. SNS & Links
+## 16. Social and elsewhere
 
 - [X](https://x.com/cyross4fortnite)
 - [Youtube](https://www.youtube.com/@%E3%81%95%E3%81%84%E3%82%8D%E3%81%99)
-- [ニコニコ動画](https://www.nicovideo.jp/user/3223933)
+- [Niconico](https://www.nicovideo.jp/user/3223933)
 - [Piapro](https://piapro.jp/cyross\_p)
 - [Booth](https://cyross.booth.pm/)

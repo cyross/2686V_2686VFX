@@ -123,6 +123,14 @@ public:
         fileChooser = std::make_unique<juce::FileChooser>(title, file, filter);
         fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, callback);
     }
+    // フォルダを選ぶための開き方。
+    //
+    // ファイルを選ぶ開き方のままだと、Windows のダイアログはフォルダを
+    // 開いても中へ入るだけで、そのフォルダ自体を決められない。
+    void openFolderChooser(const juce::String title, const juce::File& file, const std::function<void(const FileChooser&)>& callback) {
+        fileChooser = std::make_unique<juce::FileChooser>(title, file);
+        fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories, callback);
+    }
     void openWriteFileChooser(const juce::String title, const juce::String filter, const std::function<void(const FileChooser&)>& callback) {
         fileChooser = std::make_unique<juce::FileChooser>(title, juce::File(), filter);
         fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting, callback);

@@ -131,6 +131,7 @@ namespace Io
 
 		void setArray(const juce::String& key, const std::vector<float>& values);
 		void setArray(const juce::String& key, const std::vector<int>& values);
+		void setArray(const juce::String& key, const std::vector<juce::String>& values);
 
 		// 入れ子で書いたまとまりを、そのまま外側の中身にする。
 		//
@@ -178,6 +179,7 @@ namespace Io
 
 		std::vector<float> getFloatArray(const juce::String& key) const;
 		std::vector<int> getIntArray(const juce::String& key) const;
+		std::vector<juce::String> getStringArray(const juce::String& key) const;
 
 		// このまとまりが持つ名前を並べる。中身の決まっていない対応表を
 		// 写すときに使う。

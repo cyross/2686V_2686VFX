@@ -1,0 +1,56 @@
+/* サイドバーの表示・非表示。
+ *
+ * 画面の狭いときサイドバーは引き出し式になるので、切り替えが要るのは
+ * 横に並ぶ広さのときだけ。Starlight が段組みへ切り替える幅に合わせてある。
+ *
+ * 幅は --sl-sidebar-width を 0 にして畳む。本文側の余白はこの値から
+ * 作られているので、これだけで本文が左端まで広がる。 */
+
+.sidebar-toggle {
+	display: none;
+}
+
+@media (min-width: 50rem) {
+	.sidebar-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		/* テーマ切り替えのボタンと同じ見た目にそろえる */
+		width: 2.5rem;
+		height: 2.5rem;
+		padding: 0;
+
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.25rem;
+		background-color: var(--sl-color-black);
+		color: var(--sl-color-gray-1);
+
+		cursor: pointer;
+	}
+
+	.sidebar-toggle:hover {
+		border-color: var(--sl-color-gray-2);
+		color: var(--sl-color-white);
+	}
+
+	.sidebar-toggle:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 2px;
+	}
+
+	/* 閉じているあいだは、押されている状態として見せる */
+	.sidebar-toggle[aria-pressed='true'] {
+		border-color: var(--sl-color-accent);
+		color: var(--sl-color-accent-high);
+	}
+
+	:root[data-sidebar='hidden'] {
+		--sl-sidebar-width: 0rem;
+		--sl-content-inline-start: 0rem;
+	}
+
+	:root[data-sidebar='hidden'] .sidebar-pane {
+		display: none;
+	}
+}

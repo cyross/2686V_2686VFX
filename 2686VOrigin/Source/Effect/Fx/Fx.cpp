@@ -638,7 +638,11 @@ void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d,
 // 順番更新
 void EffectChain::updateOrder(const std::vector<int>& newOrders)
 {
-    for (int i = 0; i < NumEffects; ++i)
+    // 渡された数が足りないことがある。効果の数はプラグインごとに違い、
+    // 他のプラグインで書いた順番のファイルは短いことがあるため。
+    int count = std::min((int)newOrders.size(), NumEffects);
+
+    for (int i = 0; i < count; ++i)
     {
         if (newOrders[i] >= 0 && newOrders[i] < NumEffects)
         {

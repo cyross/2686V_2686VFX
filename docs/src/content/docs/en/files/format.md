@@ -72,11 +72,34 @@ Each plugin uses its own preset extension.
 | --- | --- |
 | 2686V | `.2686v.json` |
 | 2686VLight | `.2686vl.json` |
-| 2686VOrigin | `.86v.json` |
+| 26V | `.26v.json` |
+| 86V | `.86v.json` |
 | OPZX7S | `.opzx7s.json` |
+| 2686VFX | no presets |
 
 Parameter files have an extension per kind: OPNA channel parameters are
 `.param.opna.json`, an amplitude envelope is `.ampEnv.json`, and so on.
+
+## Files that cross between plugins
+
+Unlike presets, **FX files can be read by any plugin.**
+
+| Kind | Extension |
+| --- | --- |
+| FX order | `.fxo.json` |
+| FX parameters | `.2fx.json` |
+
+The order file stores effects by **name**. Storing them by number would mean
+that adding an effect shifts every position, turning one effect into another.
+Names survive a differing effect count between plugins.
+
+- Unknown names are **skipped** — an effect the plugin doesn't have won't break
+  anything
+- Effects that weren't listed are **appended** — the set always ends up complete
+
+For example the PCM bit crusher, which only 2686VFX has, is skipped when an
+instrument reads the file; and a file written by an instrument gains it at the
+end when 2686VFX reads it.
 
 :::caution
 **Wave data (`.wt` / `.wt2`) was not migrated.** These hold waveforms rather

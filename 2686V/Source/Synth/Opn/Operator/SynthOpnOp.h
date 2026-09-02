@@ -4,7 +4,6 @@
 #include "../../../Core/Fm/FmOperator.h"
 #include "../../../Effect/Detune/Opn/DetuneOpn.h"
 #include "../../../Generator/Fm/Fix/FmFix.h"
-#include "../../../Effect/Lfo/Opna/LfoOpna.h"
 #include "../../../Effect/Lfo/N88/LfoN88.h"
 #include "../../../Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
@@ -58,7 +57,6 @@ private:
 	float m_ams = 1.0f;
 	OpnDetune m_detune;
 	FixMode m_fixMode;
-	OpnaLfoCore m_lfo;
 	FmRgAdssr m_ampAdsr;
 	PitchAdsrEnv m_pitchAdsr;
 	SsgSwEnv m_ssgSwEnv;

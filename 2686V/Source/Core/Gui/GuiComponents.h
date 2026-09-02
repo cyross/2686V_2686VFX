@@ -91,12 +91,26 @@ public:
     juce::Colour borderColor;
     juce::Colour axisColor;
 
+    // 加工前の線の色。エフェクトのプラグインで、加工前と加工後を
+    // 重ねて見せるときに使う。
+    juce::Colour dryColor = juce::Colours::grey.withAlpha(0.6f);
+
     // コンストラクタで色を受け取る
     GuiWaveformPreview(juce::Colour background, juce::Colour line, juce::Colour border = juce::Colours::white, juce::Colour axis = juce::Colours::yellow);
     void pushBuffer(const float* data, int numSamples);
+
+    // 加工前の波形。渡さなければ描かないので、音源のプラグインでは
+    // 今までどおり 1 本だけになる。
+    void pushDryBuffer(const float* data, int numSamples);
+
     void paint(juce::Graphics& g) override;
 private:
+    // 線を 1 本描く。加工前と加工後で太さと色だけを変える。
+    void strokeWave(juce::Graphics& g, const std::vector<float>& buffer,
+        juce::Colour colour, float thickness);
+
     std::vector<float> m_displayBuffer;
+    std::vector<float> m_dryBuffer;
 };
 
 class GuiStateView : public juce::Component
@@ -381,6 +395,19 @@ protected:
             g.setColour(label.findColour(juce::Label::outlineColourId).withMultipliedAlpha(alpha));
             g.drawRoundedRectangle(bounds.reduced(0.5f), guiCornerRadius, 1.0f);
         }
+
+        // 数値の文字を既定より少し小さくする。
+        //
+        // 周波数のように桁の多い値は、既定の大きさだと枠へ収まらず
+        // 省略されてしまう。枠も広げるが、まず文字で稼ぐ。
+        juce::Label* createSliderTextBox(juce::Slider& slider) override
+        {
+            auto* box = juce::LookAndFeel_V4::createSliderTextBox(slider);
+
+            box->setFont(juce::Font(juce::FontOptions(CoreGuiValue::Slider::ValueBox::fontHeight)));
+
+            return box;
+        }
     };
 
     SliderLF customLF;
@@ -398,6 +425,14 @@ public:
     // 束縛先のパラメータを差し替える。
     // 1組のスライダーで複数パラメータを切り替えて編集する用途で使う
     // (例: UNISON の対象ボイス切り替え)。
+    // 数値欄の幅を、実際に出る文字に合わせる。
+    //
+    // 範囲や小数桁は setup の後で決められることがあるので、置き場所が
+    // 決まってから数える。
+    void updateValueBoxWidth();
+
+    void resized() override;
+
     void rebind(const juce::String& id)
     {
         // 必ず古い束縛を先に破棄すること。
@@ -696,11 +731,38 @@ public:
         juce::Colour textOnColor = GuiColor::TextButton::TextOn;
         juce::Colour bgColor = GuiColor::TextButton::Bg;
         juce::Colour borderColor = GuiColor::TextButton::Border;
+
+        // 使えないときの文字色。
+        //
+        // 濃い地色を持たないボタンは、使えるときと使えないときで地の明るさが
+        // 変わるため、同じ文字色だと片方で読めなくなる。指定しなければ
+        // 今までどおり、状態によらず textColor のままになる。
+        std::optional<juce::Colour> disabledTextColor = std::nullopt;
+
         bool isReset = false;
         bool isResized = false;
     };
 
     void setup(const Config& c);
+
+    // 使える／使えないが変わったときに JUCE から呼ばれる
+    void enablementChanged() override
+    {
+        applyTextColour();
+    }
+
+private:
+    juce::Colour enabledTextColor;
+    std::optional<juce::Colour> disabledTextColor;
+
+    // 状態に合わせて文字色を入れ替える。指定が無ければ何もしない。
+    void applyTextColour()
+    {
+        if (!disabledTextColor.has_value()) return;
+
+        this->setColour(juce::TextButton::textColourOffId,
+            isEnabled() ? enabledTextColor : disabledTextColor.value());
+    }
 };
 
 class GuiHyperLink : public juce::HyperlinkButton, public GuiBaseComponent
@@ -931,6 +993,10 @@ public:
 	// ハードとソフトのどちらに見せたいかが変わる場合に使う。
 	void setupCategory(const Config& c, juce::Colour bgColor);
 	bool isDetailVisible() const { return this->detailVisible; }
+
+    // 折りたたみを外から開いておく。置いた先によっては、最初から
+    // 中身が見えているほうが都合のよいことがある。
+    void setDetailVisible(bool visible) { this->detailVisible = visible; }
 
     // 折りたたみを持たないカテゴリ (ALGORITHM/FEEDBACK など) は常に開いている扱い。
     bool isOpen() const { return this->detailVisible || !this->enableChangeDetailVisible; }

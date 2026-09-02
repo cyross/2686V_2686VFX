@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+﻿cmake_minimum_required(VERSION 3.22)
 
 # ソリューション（ワークスペース）全体の名前
 project(RetroSynthsBundle VERSION 3.0.0 LANGUAGES C CXX)
@@ -34,16 +34,43 @@ endif()
 # 第3引数で出力名(PRODUCT_NAME)を指定できます。省略するとターゲット名がそのまま使われます。
 # VST3の識別子はメーカーコードとプラグインコードから生成されるため、
 # 出力名を変えても既存プロジェクトのプラグイン解決には影響しません。
+# 音源として作る (既定)。中身は create_cyross_target が持つ。
 function(create_cyross_plugin TARGET_NAME CY_PLUGIN_CODE)
     if(ARGC GREATER 2)
-        set(CY_PRODUCT_NAME ${ARGV2})
+        create_cyross_target(${TARGET_NAME} ${CY_PLUGIN_CODE} TRUE ${ARGV2})
+    else()
+        create_cyross_target(${TARGET_NAME} ${CY_PLUGIN_CODE} TRUE)
+    endif()
+endfunction()
+
+# エフェクトとして作る。入力された音を加工するので IS_SYNTH は立てない。
+# MIDI は受け取る。鍵盤の押し離しでエンベロープや LFO を動かすため。
+function(create_cyross_effect TARGET_NAME CY_PLUGIN_CODE)
+    if(ARGC GREATER 2)
+        create_cyross_target(${TARGET_NAME} ${CY_PLUGIN_CODE} FALSE ${ARGV2})
+    else()
+        create_cyross_target(${TARGET_NAME} ${CY_PLUGIN_CODE} FALSE)
+    endif()
+endfunction()
+
+function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
+    if(ARGC GREATER 3)
+        set(CY_PRODUCT_NAME ${ARGV3})
     else()
         set(CY_PRODUCT_NAME ${TARGET_NAME})
     endif()
 
+    # 出す形。macOS では AU も求められることが多いので、そこでだけ足す。
+    # 音源か効果かは IS_SYNTH から JUCE が判断し、AU の種別を決めてくれる。
+    set(CY_PLUGIN_FORMATS VST3 Standalone)
+
+    if(APPLE)
+        list(APPEND CY_PLUGIN_FORMATS AU)
+    endif()
+
     juce_add_plugin(${TARGET_NAME}
         COMPANY_NAME "CYROSS"
-        IS_SYNTH TRUE
+        IS_SYNTH ${CY_IS_SYNTH}
         NEEDS_MIDI_INPUT TRUE
         NEEDS_MIDI_OUTPUT FALSE
         IS_MIDI_EFFECT FALSE
@@ -51,7 +78,7 @@ function(create_cyross_plugin TARGET_NAME CY_PLUGIN_CODE)
         COPY_PLUGIN_AFTER_BUILD FALSE
         PLUGIN_MANUFACTURER_CODE "CYRS"
         PLUGIN_CODE ${CY_PLUGIN_CODE}
-        FORMATS VST3 Standalone
+        FORMATS ${CY_PLUGIN_FORMATS}
         ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
         PRODUCT_NAME ${CY_PRODUCT_NAME}
         VST3_AUTO_MANIFEST FALSE
@@ -64,9 +91,14 @@ function(create_cyross_plugin TARGET_NAME CY_PLUGIN_CODE)
     # ALL_SOURCES は呼び出し元のディレクトリスコープで定義されたものが使われます
     target_sources(${TARGET_NAME} PRIVATE ${ALL_SOURCES})
 
+    # Linux で必要になる部品。JUCE が挙げているものをそのまま並べる。
+    # Xext と Xrender は他の部品づてに入ることが多いが、それに頼ると
+    # 素の環境で結びつけに失敗する。
     if(UNIX AND NOT APPLE)
         target_link_libraries(${TARGET_NAME} PRIVATE
-            freetype fontconfig X11 Xcursor Xinerama Xrandr Xcomposite asound GL
+            freetype fontconfig
+            X11 Xext Xrender Xcursor Xinerama Xrandr Xcomposite
+            asound GL
         )
     endif()
 
@@ -96,8 +128,22 @@ endfunction()
 add_subdirectory(2686V)
 add_subdirectory(2686VLight)
 add_subdirectory(2686VOrigin)
+add_subdirectory(26V)
 add_subdirectory(OPZX7S)
+add_subdirectory(2686VFX)
+
+# マニュアル用の道具 (出荷するものではない)
+add_subdirectory(tools)
 
 # ユニットテスト (JUCE を読み込まずロジック層だけを検証する)
-enable_testing()
-add_subdirectory(tests)
+#
+# 別の CPU 向けに組むときは、出来た実行ファイルをこの機械で走らせられない。
+# それでも組むこと自体には意味がある (その CPU で通らない書き方に気づける)
+# ので、既定では組んで、走らせる登録だけを飛ばす。まるごと外したいときは
+# CY_BUILD_TESTS を切る。
+option(CY_BUILD_TESTS "ユニットテストを組む" ON)
+
+if(CY_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()

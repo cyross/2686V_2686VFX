@@ -35,7 +35,7 @@
     {
       "name": "linux-wsl-x64",
       "displayName": "Linux WSL2 x64",
-      "generator": "Ninja",
+      "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/V1": {
@@ -46,7 +46,7 @@
     {
       "name": "linux-wsl-arm64-cross",
       "displayName": "Linux WSL2 ARM64",
-      "generator": "Ninja",
+      "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/arm64-linux-toolchain.cmake"
@@ -55,6 +55,37 @@
         "microsoft.com/VisualStudioSettings/CMake/V1": {
           "intelliSenseMode": "linux-gcc-arm64"
         }
+      }
+    },
+    {
+      "name": "macos-xcode",
+      "displayName": "macOS (Xcode, universal)",
+      "description": "Builds all plugins as a universal binary (arm64 + x86_64)",
+      "generator": "Xcode",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0",
+        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64"
+      }
+    },
+    {
+      "name": "macos-ninja",
+      "displayName": "macOS (Ninja, native)",
+      "description": "Builds for the machine's own architecture only",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0"
       }
     }
   ],
@@ -108,6 +139,46 @@
       "name": "linux-arm64-release",
       "configurePreset": "linux-wsl-arm64-cross",
       "configuration": "Release"
+    },
+    {
+      "name": "macos-xcode-debug",
+      "configurePreset": "macos-xcode",
+      "configuration": "Debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-xcode-release",
+      "configurePreset": "macos-xcode",
+      "configuration": "Release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-ninja-debug",
+      "configurePreset": "macos-ninja",
+      "configuration": "Debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-ninja-release",
+      "configurePreset": "macos-ninja",
+      "configuration": "Release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
     }
   ],
   "testPresets": [
@@ -199,6 +270,62 @@
       "configuration": "Release",
       "output": {
         "outputOnFailure": true
+      }
+    },
+    {
+      "name": "macos-xcode-debug",
+      "displayName": "macOS Xcode (Debug)",
+      "configurePreset": "macos-xcode",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-xcode-release",
+      "displayName": "macOS Xcode (Release)",
+      "configurePreset": "macos-xcode",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-ninja-debug",
+      "displayName": "macOS Ninja (Debug)",
+      "configurePreset": "macos-ninja",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-ninja-release",
+      "displayName": "macOS Ninja (Release)",
+      "configurePreset": "macos-ninja",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
       }
     }
   ]

@@ -1,0 +1,53 @@
+/* 画面の広いときの並び。
+ *
+ * 既定では、本文の幅が 45rem で頭打ちになる。そのぶんの余りが左右へ回るので、
+ * 広い画面ほど本文が右へ寄って見え、右の目次が横に広がっていく。
+ *
+ * 本文は左端から使い、目次は決まった幅に固定する。
+ *
+ * 目次の幅は、もともと左のサイドバーと同じ --sl-sidebar-width から作られて
+ * いる。左を畳んだときに目次まで潰れてしまうので、目次側は別の名前で持つ。 */
+
+:root {
+	/* 右の目次の幅。ここだけ直せば広さを変えられる。 */
+	--sl-toc-width: 14.375rem;
+
+	/* 本文の左右の余白。指を置く幅の要る狭い画面では、少し広げておく。
+	 * 詰めるのは、横に並べて見る広さになってから。 */
+	--sl-content-pad-x: 1rem;
+}
+
+@media (width>=50rem) {
+	:root {
+		--sl-content-pad-x: 8px;
+	}
+
+	/* 本文は真ん中へ寄せず、左端から広げる。
+	 * 目次の側にも同じ名前の入れ物があるので、本文側だけに効かせる。 */
+	:root .content-panel .sl-container {
+		max-width: 100%;
+		margin-inline: 0;
+	}
+}
+
+@media (width>=72rem) {
+	:root {
+		--sl-content-pad-x: 8px;
+	}
+
+	/* 目次を詰めたぶん、本文を広げる */
+	:root .main-pane {
+		width: calc(100% - var(--sl-toc-width));
+	}
+
+	:root .right-sidebar-container {
+		width: var(--sl-toc-width);
+	}
+
+	/* 目次の中身。既定は左のサイドバーの幅から作られているので、
+	 * 目次用の幅で置き換える。 */
+	:root .right-sidebar-panel .sl-container {
+		width: calc(var(--sl-toc-width) - 2 * var(--sl-sidebar-pad-x));
+		max-width: none;
+	}
+}

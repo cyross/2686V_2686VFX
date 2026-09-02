@@ -1,0 +1,105 @@
+---
+title: OPM チャンネル
+description: .param.opm.json の中身
+sidebar:
+  order: 34
+---
+
+チャンネル 1 つぶんの設定をまとめたファイルです。
+
+| | |
+| --- | --- |
+| **拡張子** | `.param.opm.json` / `.param.opm.yaml` |
+| **表記（format）** | `opm` |
+| **版（version）** | `1` |
+| **書き出し・読み込み** | UTILITY の [EX] / [IM] |
+| **音源の説明** | [opm](/2686V_2686VFX/chips/opm/) |
+
+## かたち
+
+```json
+{
+  "format": "opm",
+  "version": 1,
+  "values": { ... }
+}
+```
+
+読む側は根の `format` を見て、合わないファイルは開きません。**書かれていない
+項目はそのままの値が残ります**（初期値へは戻りません）。
+
+## チャンネルのつまみ
+
+| 鍵 | 型 | 範囲 | 初期値 |
+| --- | --- | --- | ---: |
+| `alg` | 整数 | 1 〜 8（選択肢の番号 + 1） | 1 |
+| `feedback` | 整数 | 0 〜 7 | 0 |
+| `pan` | 整数 | -1 〜 1 | 0 |
+| `lfoFreq` | 整数 | 0 〜 255 | 0 |
+| `lfoSyncDelay` | 整数 | 0 〜 127 | 0 |
+| `lfoPm` | 真偽 | false / true | false |
+| `lfoPgShape` | 整数 | 1 〜 4（選択肢の番号 + 1） | 1 |
+| `lfoPms` | 整数 | 1 〜 8（選択肢の番号 + 1） | 1 |
+| `lfoPmd` | 整数 | 0 〜 127 | 0 |
+| `lfoAm` | 真偽 | false / true | false |
+| `lfoAmSmRt` | 小数 | 0.005 〜 0.5 | 0.005 |
+| `lfoEgShape` | 整数 | 1 〜 4（選択肢の番号 + 1） | 1 |
+| `lfoAms` | 整数 | 1 〜 4（選択肢の番号 + 1） | 1 |
+| `lfoAmd` | 整数 | 0 〜 127 | 0 |
+
+## チャンネルの中の入れ子
+
+| 鍵 | 中身 |
+| --- | --- |
+| `level` | チャンネルの音量。`level` ひとつだけを持ちます |
+| `ssgHwEnv` | [ssgHwEnv](/2686V_2686VFX/reference/file-spec/ssghwenv/) と同じ |
+| `ssgSwEnv11` | [ssgSwEnv11](/2686V_2686VFX/reference/file-spec/ssgswenv11/) と同じ |
+| `quality` | [quality](/2686V_2686VFX/reference/file-spec/quality/) と同じ |
+| `unison` | [unison](/2686V_2686VFX/reference/file-spec/unison/) と同じ |
+| `ampEnv` | [ampEnv](/2686V_2686VFX/reference/file-spec/ampenv/) と同じ |
+| `ssgSwPEnv11` | [ssgSwPEnv11](/2686V_2686VFX/reference/file-spec/ssgswpenv11/) と同じ |
+| `wtMod` | [wtMod](/2686V_2686VFX/reference/file-spec/wtmod/) と同じ |
+
+## `ops` の並び
+
+オペレータ 4 つぶんが並びます。それぞれ次を持ちます。
+
+| 鍵 | 型 | 範囲 | 初期値 |
+| --- | --- | --- | ---: |
+| `mul` | 整数 | 1 〜 17（選択肢の番号 + 1） | 2 |
+| `mulRatio` | 小数 | 0.01 〜 100 | 1 |
+| `dt1` | 整数 | 0 〜 7 | 0 |
+| `dt2` | 整数 | 0 〜 3 | 0 |
+| `ar` | 整数 | 0 〜 31 | 31 |
+| `d1r` | 整数 | 0 〜 31 | 31 |
+| `d1l` | 整数 | 0 〜 15 | 0 |
+| `d2r` | 整数 | 0 〜 31 | 0 |
+| `rr` | 整数 | 0 〜 15 | 15 |
+| `tl` | 整数 | 0 〜 127 | 0 |
+| `ksMode` | 整数 | 1 〜 2（選択肢の番号 + 1） | 1 |
+| `ks` | 整数 | 1 〜 4（選択肢の番号 + 1） | 1 |
+| `ksrOPP` | 整数 | 0 〜 3 | 0 |
+| `kslOPP` | 整数 | 0 〜 99 | 0 |
+| `amsEnable` | 真偽 | false / true | true |
+| `bypass` | 真偽 | false / true | false |
+| `xof` | 真偽 | false / true | false |
+| `kor` | 真偽 | false / true | false |
+| `mask` | 真偽 | false / true | false |
+
+さらに、次の入れ子を持ちます。
+
+| 鍵 | 中身 |
+| --- | --- |
+| `fix` | 音程の固定。`enable` と `freq` を持ちます |
+| `pitchEnv` | [pitchEnv](/2686V_2686VFX/reference/file-spec/pitchenv/) と同じ |
+| `ssgSwEnv` | [ssgSwEnv](/2686V_2686VFX/reference/file-spec/ssgswenv/) と同じ |
+| `ssgSwEnv11` | [ssgSwEnv11](/2686V_2686VFX/reference/file-spec/ssgswenv11/) と同じ |
+| `ssgSwPEnv11` | [ssgSwPEnv11](/2686V_2686VFX/reference/file-spec/ssgswpenv11/) と同じ |
+
+:::note
+`ops` の中の**ファイルの場所**（`filePath` / `pcmFile` /
+`wtFile` / `wt2File`）は、`Samples` フォルダからの相対でも書けます。
+絶対パスで書かれていればそのまま使います。
+:::
+
+置き場所は [ファイルの形式と置き場所](/2686V_2686VFX/files/format/) を参照してください。

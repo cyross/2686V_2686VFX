@@ -91,10 +91,44 @@ endif()
 # ------------------------------------------------------------------------------
 # doctest_discover_tests を使うと TEST_CASE が 1 件ずつ CTest に並ぶので、
 # Visual Studio のテストエクスプローラーでも個別に実行・結果確認ができる。
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/doctest/scripts/cmake")
-include(doctest)
+#
+# ただしこの仕組みは、並べる中身を知るために「組んだ実行ファイルをその場で
+# 走らせる」。別の CPU 向けに組んでいるときは走らせられず、そこで組み立て
+# 全体が止まってしまう。走らせられるときだけ登録する。
+#
+# ARM64 の Windows は x64 のものも動かせるので、そちらが親なら何でも走る。
+# x64 の親から ARM64 を組んだときだけが、走らせられない組み合わせになる。
+set(CY_TESTS_RUNNABLE ON)
 
-doctest_discover_tests(RetroSynthsTests)
+# 別の OS 向けに組むときは CMake が教えてくれる。Linux の載せ替えは
+# こちらで拾える。
+if(CMAKE_CROSSCOMPILING)
+    set(CY_TESTS_RUNNABLE OFF)
+endif()
+
+# Visual Studio で CPU だけを変えるときは、同じ OS のままなので上では
+# 拾えない。綴りはプリセットに書いたものがそのまま入る (arm64 とも
+# ARM64 とも来る) ので、大文字にそろえてから比べる。
+string(TOUPPER "${CMAKE_VS_PLATFORM_NAME}" CY_TARGET_PLATFORM)
+string(TOUPPER "${CMAKE_HOST_SYSTEM_PROCESSOR}" CY_HOST_PLATFORM)
+
+if(CY_TARGET_PLATFORM AND NOT CY_HOST_PLATFORM STREQUAL "ARM64")
+    if(CY_TARGET_PLATFORM MATCHES "^ARM")
+        set(CY_TESTS_RUNNABLE OFF)
+    endif()
+endif()
+
+if(CY_TESTS_RUNNABLE)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/doctest/scripts/cmake")
+    include(doctest)
+
+    doctest_discover_tests(RetroSynthsTests)
+else()
+    message(STATUS
+        "テストは組むが CTest へは登録しない: "
+        "${CMAKE_VS_PLATFORM_NAME} 向けの実行ファイルを "
+        "${CMAKE_HOST_SYSTEM_PROCESSOR} のこの機械では走らせられないため")
+endif()
 
 # ==============================================================================
 # パラメータファイルの読み書き
@@ -136,4 +170,6 @@ if(MSVC)
     target_compile_options(IoTests PRIVATE /utf-8 /FS)
 endif()
 
-doctest_discover_tests(IoTests)
+if(CY_TESTS_RUNNABLE)
+    doctest_discover_tests(IoTests)
+endif()

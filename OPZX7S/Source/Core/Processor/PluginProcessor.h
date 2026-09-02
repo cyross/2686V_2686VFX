@@ -231,6 +231,13 @@ private:
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
+    // 今のパラメータに無い項目を状態から落とす。
+    //
+    // かつて登録していたパラメータは、古いファイルを読み込むと状態へ入り、
+    // そのまま保存で書き戻され続ける。Curve を APVTS から外したときの名残が
+    // 実際に 2,000 件近く残っていた。動きはしないが、ファイルを太らせる。
+    void removeUnknownParams(juce::XmlElement& xml) const;
+
     RetroSynthesiser m_synth;
 
     // 波形プレビュー用

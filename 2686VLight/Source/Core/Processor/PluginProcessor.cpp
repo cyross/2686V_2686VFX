@@ -1,4 +1,5 @@
 ﻿#include "PluginProcessor.h"
+#include <set>
 
 #include "../Processor/ProcessorNames.h"
 #include "../Processor/ProcessorHelper.h"
@@ -225,9 +226,24 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     // --- Global ---
     int m = PrHelper::getInt(pMode);
-    m_currentParams.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
 
-    prMap[m_currentParams.mode]->processBlock(m_currentParams, apvts);
+    // 持っていないチャンネルの番号が来ることがある。チャンネルを全部持つ
+    // プラグインで作ったプリセットを読み込んだときで、MODE の上限はタブの
+    // 数なので、チャンネルの少ないプラグインでは通ってしまう。
+    //
+    // そのまま引くと、prMap が無いキーへ空のポインタを挿し込んで返す。
+    // 辿った先で落ちるので、知らない番号は先頭のチャンネルへ戻す。
+    if (m < 0 || m >= (int)OscMode::Count) m = 0;
+
+    m_currentParams.mode = (OscMode)m;
+
+    // map を [] で引くと、無いキーのときに空のポインタを挿し込んでしまう。
+    // 上で丸めてあるので届かないはずだが、辿る前に確かめておく。
+    auto found = prMap.find(m_currentParams.mode);
+
+    if (found == prMap.end() || found->second == nullptr) return;
+
+    found->second->processBlock(m_currentParams, apvts);
 
     if (m_currentParams.mode == OscMode::OPZX7)
     {
@@ -313,6 +329,10 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         // 最新の書き込み位置を保存 (GUI側がここを読み取る)
         realTimeWritePos.store(pos, std::memory_order_release);
     }
+    // 画面の鍵盤ぶんを混ぜたので、入ってきたときより数が増えている。
+    // MIDI は出さない宣言なので、ここで片付けておかないと、受け皿が
+    // 「送るつもりの音が捨てられている」と見なして止まる。
+    midiMessages.clear();
 }
 
 // ============================================================================
@@ -624,6 +644,9 @@ void AudioPlugin2686V::getStateInformation(juce::MemoryBlock& destData) {
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
 
+    // 使われていない項目を落としてから書く
+    removeUnknownParams(*xml);
+
     setPresetToXml(xml);
 
     copyXmlToBinary(*xml, destData);
@@ -688,6 +711,9 @@ void AudioPlugin2686V::savePreset(const juce::File& file)
 {
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
+
+    // 使われていない項目を落としてから書く
+    removeUnknownParams(*xml);
 
     setPresetToXml(xml);
 
@@ -1290,6 +1316,9 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
 {
     // 1. パラメータの取得と設定
     int m = PrHelper::getInt(pMode);
+
+    if (m < 0 || m >= (int)OscMode::Count) m = 0;
+
     m_previewParams.mode = (OscMode)m;
 
     switch (m_previewParams.mode) {
@@ -1842,4 +1871,32 @@ void AudioPlugin2686V::updateAlgMatrixCacheFromState()
             if (index < fStr.length()) m_opzx7AlgMatrixState.fbMod[i][j] = (fStr[index] == '1');
         }
     }
+}
+
+void AudioPlugin2686V::removeUnknownParams(juce::XmlElement& xml) const
+{
+    // 7,000 を超えるので、端から順に見比べると保存のたびに数千万回の
+    // 文字列比較になる。引ける形に入れておく。
+    std::set<juce::String> known;
+
+    for (auto* param : getParameters())
+    {
+        if (auto* withId = dynamic_cast<const juce::AudioProcessorParameterWithID*>(param))
+        {
+            known.insert(withId->paramID);
+        }
+    }
+
+    juce::Array<juce::XmlElement*> doomed;
+
+    for (auto* child : xml.getChildWithTagNameIterator(Io::StateKey::param))
+    {
+        if (known.find(child->getStringAttribute(Io::StateKey::id)) == known.end())
+        {
+            doomed.add(child);
+        }
+    }
+
+    // 回している最中に消さない
+    for (auto* child : doomed) xml.removeChildElement(child, true);
 }

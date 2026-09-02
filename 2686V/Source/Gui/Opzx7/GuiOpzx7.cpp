@@ -436,6 +436,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
     se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
     seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) , GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    sePreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
     lfo{ GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context) },
     pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
     ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
@@ -1057,6 +1058,14 @@ void GuiOpzx7::setup()
         seFreq[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::seFreq, .title = Opzx7GuiText::Fm::Op::SFreq, .isReset = true });
         seFreq[i].setWantsKeyboardFocus(true);
         seFreq[i].setExplicitFocusOrder(++tabOrder);
+
+        sePreview[i].setup(opGroups[i].contentCanvas, GuiColor::WavePreview::AmpEnv);
+
+        // 形と周期のどちらが変わっても描き直す
+        se[i].onChange = [this, i] { updateSePreview(i); };
+        seFreq[i].onValueChange = [this, i] { updateSePreview(i); };
+
+        updateSePreview(i);
 
         pitchEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::PitchAdsr::enable, Opzx7GuiText::PitchAdsr::enable, true);
 
@@ -1987,6 +1996,26 @@ void GuiOpzx7::layoutPanpotCat(juce::Rectangle<int>& rect)
     }
 }
 
+// オペレータの SSG HW ENV の形を描き直す。
+//
+// 選べる並びは先頭が「掛けない」で、そのあとに実機の 8 種類が続く。
+// 実際の形の番号は 1 つずれるので、そのぶんを引いて渡す。
+void GuiOpzx7::updateSePreview(int opIndex)
+{
+    int selected = se[opIndex].getSelectedItemIndex();
+
+    if (selected <= 0)
+    {
+        // 掛けないときは平らな線にする
+        sePreview[opIndex].setPoints(std::vector<float>(2, 1.0f), false);
+
+        return;
+    }
+
+    sePreview[opIndex].setPoints(
+        WavePreviewSource::ssgHwEnv(selected - 1, 0.0f, 1.0f, false), false);
+}
+
 void GuiOpzx7::layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect)
 {
     layoutRowCategory({ .rowRect = rect, .component = &catSsgEnv[opIndex] });
@@ -1995,11 +2024,15 @@ void GuiOpzx7::layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect)
 
     se[opIndex].setVisibleWithLabel(visible);
     seFreq[opIndex].setVisibleWithLabel(visible);
+    sePreview[opIndex].setVisible(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .label = &se[opIndex].label, .component = &se[opIndex] });
         layoutRow({ .rowRect = rect, .label = &seFreq[opIndex].label, .component = &seFreq[opIndex], });
+
+        sePreview[opIndex].setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(3);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -3169,9 +3202,9 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     //
     // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
     // 出しているので、そこから File を作ることはできない。
-    auto pcmPath = r.getString("pcmFile", ctx.audioProcessor.opzx7PcmFilePaths[opIndex]);
-    auto wtPath = r.getString("wtFile", ctx.audioProcessor.opzx7WtFilePaths[opIndex]);
-    auto wt2Path = r.getString("wt2File", ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]);
+    auto pcmPath = Io::resolveSamplePath(r.getString("pcmFile", ctx.audioProcessor.opzx7PcmFilePaths[opIndex]), ctx.audioProcessor.defaultSampleDir);
+    auto wtPath = Io::resolveSamplePath(r.getString("wtFile", ctx.audioProcessor.opzx7WtFilePaths[opIndex]), ctx.audioProcessor.defaultSampleDir);
+    auto wt2Path = Io::resolveSamplePath(r.getString("wt2File", ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]), ctx.audioProcessor.defaultSampleDir);
 
     auto showName = [](const juce::String& path) {
         return Io::isFilePath(path) ? juce::File(path).getFileName() : Io::empty;

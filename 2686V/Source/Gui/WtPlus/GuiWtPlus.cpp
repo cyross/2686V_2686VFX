@@ -68,7 +68,7 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // WAVE
     // ==========================================================
-    waveCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::wave, .enableChangeDetailVisible = true });
+    waveCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::wave, .detailVisible = true, .enableChangeDetailVisible = true });
 
     slotSlider.setup({ .parent = waveGroup.contentCanvas, .id = code + CPK::Wt::slot, .title = WtPlusGuiText::Wt::slot, .isReset = true });
     slotSlider.setWantsKeyboardFocus(true);
@@ -85,7 +85,7 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // WAVE MEMORY (32 スロット)
     // ==========================================================
-    slotsCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::slots, .enableChangeDetailVisible = true });
+    slotsCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::slots, .detailVisible = true, .enableChangeDetailVisible = true });
 
     for (int i = 0; i < Global::WtPlus::slots; ++i) {
         slotWtBtn[i].setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt, .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true});

@@ -1,0 +1,29 @@
+---
+title: 2686VFX
+description: The automation list for 2686VFX
+sidebar:
+  order: 16
+---
+
+import ParameterTable from '../../../../../components/ParameterTable.astro';
+
+The parameters 2686VFX exposes to the DAW. It carries its own set, separate
+from the instruments.
+
+## FX
+
+The effects themselves. Same lineup as the instruments, plus the PCM bit
+crusher (`FX_PCMBC_*`) that only 2686VFX has.
+
+<ParameterTable group="FX" lang="en" plugin="2686VFX" />
+
+## MOD (modulating the output)
+
+Unique to 2686VFX. The instruments' envelopes and LFO applied to the output
+itself, driven from a MIDI keyboard.
+
+<ParameterTable group="MOD" lang="en" plugin="2686VFX" />
+
+## Global
+
+<ParameterTable group="global" lang="en" plugin="2686VFX" />

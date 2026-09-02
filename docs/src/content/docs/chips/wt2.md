@@ -1,0 +1,123 @@
+---
+title: WT2チャンネル
+description: 段階で値を決める波形メモリチャンネル
+sidebar:
+  order: 9
+---
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_wt2.png" alt="WT2チャンネル" style="width:600px;" />
+	<figcaption>WT2チャンネル</figcaption>
+</figure>
+
+WT2 は [WT](/2686V_2686VFX/chips/wt/) と同じ波形メモリのチャンネルですが、
+**値を段階（整数の目盛り）で決めます。**
+
+実機の波形メモリは、どれも決まったビット数で値を持っていました。4bit なら
+16 段、5bit なら 32 段です。WT2 はその持ち方をそのまま写したもので、**当時の
+解像度に合わせた波形**を作れます。
+
+## 表記について
+
+| 表記 | 意味 |
+| --- | --- |
+| **実機** | 実機にある機能。実機の仕様どおりに動きます |
+| **独自** | 実機に無い、このプラグイン独自の拡張 |
+
+## WT との使い分け
+
+| | WT | WT2 |
+| --- | --- | --- |
+| 値の持ち方 | 実数（-1.0〜1.0） | **段階（整数の目盛り）** |
+| 向いていること | なめらかな波形 | **実機の解像度に合わせた波形** |
+| ファイル | `.wt` | `.wt2` |
+
+**実機らしさを狙うなら WT2 です。** 段の数が少ないほど、当時の粗さが出ます。
+逆に、細かい形をなめらかに作りたいときは WT を使います。
+
+## FORM — 波形の設定
+
+### SIZE — サンプル数
+
+ひと山を何点で表すかを決めます。
+
+| 値 | サンプル数 |
+| --- | --- |
+| 0 | 32 |
+| 1 | 64 |
+| 2 | 128 |
+| 3 | 256 |
+
+
+| つまみ | 内容 | オートメーション |
+| --- | --- | --- |
+| **SIZE** | 1 周期のサンプル数 | [`WT2_SIZE`](/2686V_2686VFX/reference/automation/wt2/#wt2-size) |
+| **RESO** | 値の段数。16 / 32 / 64 / 128 / 256 | [`WT2_RES`](/2686V_2686VFX/reference/automation/wt2/#wt2-res) |
+| **FORM** | 組み込みの波形か、自分で描いたものか | [`WT2_WAVE`](/2686V_2686VFX/reference/automation/wt2/#wt2-wave) |
+
+### 波形の描き方
+
+グラフを直接ドラッグして描きます。**WT と違い、値そのものが段階で決まっている
+ので、修飾キーによる刻みはありません。** 段の数は画面から選びます。
+
+### 補助ボタン
+
+| ボタン | はたらき |
+| --- | --- |
+| `-> Max` / `-> Center` / `-> 0` | すべての点をその値にそろえる |
+| **STEP** | 段階の数を指定する |
+| **Interpolate** | 点と点のあいだをなめらかにつなぐ（初期は入） |
+
+**Interpolate を切ると階段のまま鳴ります。** 段の数を少なくして Interpolate を
+切ると、実機に近い粗さになります。
+
+### WAVE FILE — ファイルの読み書き
+
+`.wt2` ファイルとして読み書きできます。テキストファイルです。
+
+:::note
+`.wt` / `.wt2` は **3.0.0 でも形式が変わっていません。** 以前作ったファイルを
+そのまま読めます。
+:::
+
+## MOD — 波形メモリのピッチ変調（実機・独自）
+
+WT と同じものが使えます。FDS / WonderSwan / HuC6280 の 3 系統の変調方式を
+選べます。
+
+| 項目 | 内容 | 範囲 |
+| --- | --- | --- |
+| **Enable** | 変調を使うか | 入 / 切 |
+| **DEPTH** | 掛かり具合 | 0.1〜1.0（初期 0.2） |
+| **SPEED** | 速さ。搬送波の周波数に対する比 | 0.1〜10.0（初期 1.0） |
+| **SHAPE** | 変調のしかた | 9 種類 |
+
+詳しくは [WT の MOD](/2686V_2686VFX/chips/wt/#mod--波形メモリのピッチ変調実機独自)
+を参照してください。
+
+## 共通の区分
+
+以下は音源に依らない部分です。それぞれの詳しい説明は
+[共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
+| 区分 | 内容 |
+| --- | --- |
+| [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | ビット数とサンプリング周波数を落として質感を作る |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | [AMP ENV](/2686V_2686VFX/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/chips/common/#pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) |
+| [**LFO**](/2686V_2686VFX/chips/common/#lfo) | 音量・音程を周期的に揺らす（OPZX7S のものを使用） |
+| [**MUL/DET**](/2686V_2686VFX/chips/common/#muldet) | 音程をずらす |
+| [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 同じ音を重ねて厚くする |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
+
+QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
+
+## 関連するページ
+
+- [WT](/2686V_2686VFX/chips/wt/) — 実数で値を決める版
+- [WT+](/2686V_2686VFX/chips/wtplus/) — 複数の波形を切り替えて鳴らす
+
+## オートメーション
+
+WT2 が DAW へ出すパラメータの一覧は
+[WT2 のオートメーション](/2686V_2686VFX/reference/automation/wt2/) に
+あります。ID・型・範囲・初期値が並びます。

@@ -324,7 +324,7 @@ namespace GuiColor {
 		// 四角の枠は常に同じ色で、中のランプだけが状態で入れ替わる。
 		inline Entry Box{ "ToggleButton.Box", []() -> juce::Colour { return Palette::OffWhite; } };
 		inline Entry LampOn{ "ToggleButton.LampOn", []() -> juce::Colour { return Palette::OffWhite; } };
-		inline Entry LampOff{ "ToggleButton.LampOff", []() -> juce::Colour { return Palette::OffBlack; } };
+		inline Entry LampOff{ "ToggleButton.LampOff", []() -> juce::Colour { return Palette::OffBlack.get().brighter(0.3f); } };
 	};
 	namespace TextButton {
 		inline Entry Text{ "TextButton.Text", []() -> juce::Colour { return Palette::OffBlack; } };

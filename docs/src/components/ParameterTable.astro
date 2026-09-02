@@ -1,0 +1,98 @@
+---
+// オートメーション一覧の表。
+//
+// 中身は docs/src/data/parameters.json から組み立て時に作る。派生した
+// Markdown を置くとパラメータを増減したときにずれるので、元を 1 つに保つ。
+//
+// オペレータやパッドのように番号だけが違うものは 1 行へまとめる。
+// そのまま並べると、リズムだけで 1,381 行になって読めない。
+import { rowsOf, parametersOf, type Group } from '../lib/parameters';
+
+interface Props {
+	group: Group;
+	lang?: 'ja' | 'en';
+}
+
+const { group, lang = 'ja', plugin = '2686V' } = Astro.props;
+
+const rows = rowsOf(group, lang, plugin);
+
+// 音源タブのページから、つまみごとにここへ飛べるようにする。
+// ID をそのまま使うと OPNA_OP[0-3]_AR のように記号が混ざるので、
+// 英数字以外をハイフンへ寄せて目表記にする。
+const anchorOf = (id: string) =>
+	id.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const actual = parametersOf(group).length;
+
+const head = lang === 'ja'
+	? { name: 'オートメーション名', id: 'ID', type: '型', range: '範囲', def: '初期値', note: '備考' }
+	: { name: 'Automation name', id: 'ID', type: 'Type', range: 'Range', def: 'Default', note: 'Notes' };
+
+const count = lang === 'ja'
+	? (rows.length === actual
+		? `${actual} 件`
+		: `${actual} 件（番号だけが違うものをまとめて ${rows.length} 行）`)
+	: (rows.length === actual
+		? `${actual} parameters`
+		: `${actual} parameters, shown as ${rows.length} rows (indexed sets are folded together)`);
+---
+
+<p class="count">{count}</p>
+
+<div class="table-scroll">
+	<table>
+		<thead>
+			<tr>
+				<th>{head.name}</th>
+				<th>{head.id}</th>
+				<th>{head.type}</th>
+				<th>{head.range}</th>
+				<th>{head.def}</th>
+				<th>{head.note}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{rows.map((r) => (
+				<tr id={anchorOf(r.id)}>
+					<td>{r.name}</td>
+					<td><code>{r.id}</code></td>
+					<td>{r.type}</td>
+					<td>{r.range}</td>
+					<td>{r.def}</td>
+					<td>{r.note}</td>
+				</tr>
+			))}
+		</tbody>
+	</table>
+</div>
+
+<style>
+	.count {
+		color: var(--sl-color-gray-3);
+		font-size: var(--sl-text-sm);
+	}
+
+	/* 列が多いので、狭い画面では表だけ横へ流す */
+	.table-scroll {
+		overflow-x: auto;
+	}
+
+	table {
+		font-size: var(--sl-text-sm);
+	}
+
+	/* ID は折り返さない。途中で切れると探しにくい。 */
+	td code {
+		white-space: nowrap;
+	}
+
+	/* 飛んできた行が見出しの下に隠れないようにする */
+	tbody tr {
+		scroll-margin-top: 5rem;
+	}
+
+	/* 飛んできた行が分かるように、少しのあいだ色を残す */
+	tbody tr:target {
+		background: var(--sl-color-accent-low);
+	}
+</style>

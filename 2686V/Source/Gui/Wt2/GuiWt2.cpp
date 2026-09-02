@@ -721,9 +721,9 @@ void GuiWt2::importWavetable()
                 int resId = 1;
                 if (resolution == 16) resId = 1;
                 else if (resolution == 32) resId = 2;
-                else if (sampleCount == 64) resId = 3;
-                else if (sampleCount == 128) resId = 4;
-                else if (sampleCount == 256) resId = 5;
+                else if (resolution == 64) resId = 3;
+                else if (resolution == 128) resId = 4;
+                else if (resolution == 256) resId = 5;
                 resoSelector.setSelectedId(resId, juce::sendNotification);
 
                 // --- 値をAPVTS(スライダー)に反映 ---
