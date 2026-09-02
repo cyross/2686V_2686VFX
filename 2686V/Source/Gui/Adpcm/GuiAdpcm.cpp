@@ -976,7 +976,7 @@ void GuiAdpcm::importChParam() {
                 // Form
 				// 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
 				// 出しているので、そこから File を作ることはできない。
-				auto path = reader->getString("filePath", ctx.audioProcessor.adpcmFilePath);
+				auto path = Io::resolveSamplePath(reader->getString("filePath", ctx.audioProcessor.adpcmFilePath), ctx.audioProcessor.defaultSampleDir);
 
 				// 別のファイルへ変わるなら、いま持っているものを先に外す
 				if (ctx.audioProcessor.adpcmFilePath != path) {

@@ -23,6 +23,20 @@ namespace Io
 		return isFileName(text) ? text : juce::String();
 	}
 
+	// パラメータファイルに書かれた音声ファイルの場所を、実際に開ける形へ直す。
+	//
+	// 配布するパラメータファイルは、置き場所が人それぞれなので絶対パスを
+	// 書けない。Samples フォルダからの相対で書いておき、読むときにここで
+	// 組み立てる。絶対パスで書かれたものはそのまま返す。
+	static inline juce::String resolveSamplePath(const juce::String& text, const juce::String& sampleDir)
+	{
+		if (!isFileName(text)) return text;
+		if (juce::File::isAbsolutePath(text)) return text;
+		if (sampleDir.isEmpty() || !juce::File::isAbsolutePath(sampleDir)) return text;
+
+		return juce::File(sampleDir).getChildFile(text).getFullPathName();
+	}
+
 	// juce::File を作ってよい文字列かどうか。
 	//
 	// 画面のラベルはファイル名だけを出しているので、そこから File を

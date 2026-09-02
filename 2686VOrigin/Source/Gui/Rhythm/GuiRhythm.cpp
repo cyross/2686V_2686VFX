@@ -928,7 +928,7 @@ void RhythmPadGui::exportQualityParam() {
 void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
     // 出しているので、そこから File を作ることはできない。
-    auto path = r.getString("filePath", ctx.audioProcessor.rhythmFilePaths[p]);
+    auto path = Io::resolveSamplePath(r.getString("filePath", ctx.audioProcessor.rhythmFilePaths[p]), ctx.audioProcessor.defaultSampleDir);
 
     // 別のファイルへ変わるなら、いま持っているものを先に外す
     if (ctx.audioProcessor.rhythmFilePaths[p] != path) {

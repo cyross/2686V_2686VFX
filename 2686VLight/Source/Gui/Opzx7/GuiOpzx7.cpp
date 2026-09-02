@@ -3180,9 +3180,9 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     //
     // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
     // 出しているので、そこから File を作ることはできない。
-    auto pcmPath = r.getString("pcmFile", ctx.audioProcessor.opzx7PcmFilePaths[opIndex]);
-    auto wtPath = r.getString("wtFile", ctx.audioProcessor.opzx7WtFilePaths[opIndex]);
-    auto wt2Path = r.getString("wt2File", ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]);
+    auto pcmPath = Io::resolveSamplePath(r.getString("pcmFile", ctx.audioProcessor.opzx7PcmFilePaths[opIndex]), ctx.audioProcessor.defaultSampleDir);
+    auto wtPath = Io::resolveSamplePath(r.getString("wtFile", ctx.audioProcessor.opzx7WtFilePaths[opIndex]), ctx.audioProcessor.defaultSampleDir);
+    auto wt2Path = Io::resolveSamplePath(r.getString("wt2File", ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]), ctx.audioProcessor.defaultSampleDir);
 
     auto showName = [](const juce::String& path) {
         return Io::isFilePath(path) ? juce::File(path).getFileName() : Io::empty;
