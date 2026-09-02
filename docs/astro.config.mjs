@@ -4,6 +4,53 @@ import starlight from '@astrojs/starlight';
 
 // GitHub Pages はリポジトリ名の下に置かれるので base が要る。
 // https://cyross.github.io/2686V_2686VFX/
+// サイドバーの表示・非表示。
+//
+// 描き直す前に当てないと、閉じている人の画面で一瞬サイドバーが見えてしまう
+// ので、head へ入れて先に動かす。押したときの動きも同じところに置き、
+// document へ 1 つだけ聞き手を付ける。ボタンはページごとに作り直されるため。
+const sidebarToggleScript = `
+(function () {
+	var root = document.documentElement;
+
+	function mark(hidden) {
+		var list = document.querySelectorAll('.sidebar-toggle');
+
+		for (var i = 0; i < list.length; i++) {
+			list[i].setAttribute('aria-pressed', String(hidden));
+		}
+	}
+
+	try {
+		if (localStorage.getItem('sidebar') === 'hidden') root.dataset.sidebar = 'hidden';
+	} catch (e) {}
+
+	document.addEventListener('click', function (ev) {
+		var button = ev.target.closest && ev.target.closest('.sidebar-toggle');
+
+		if (!button) return;
+
+		var hidden = root.dataset.sidebar !== 'hidden';
+
+		if (hidden) {
+			root.dataset.sidebar = 'hidden';
+		} else {
+			delete root.dataset.sidebar;
+		}
+
+		mark(hidden);
+
+		try {
+			localStorage.setItem('sidebar', hidden ? 'hidden' : 'shown');
+		} catch (e) {}
+	});
+
+	document.addEventListener('DOMContentLoaded', function () {
+		mark(root.dataset.sidebar === 'hidden');
+	});
+})();
+`;
+
 export default defineConfig({
 	site: 'https://cyross.github.io',
 	base: '/2686V_2686VFX',
@@ -20,6 +67,19 @@ export default defineConfig({
 			locales: {
 				root: { label: '日本語', lang: 'ja' },
 				en: { label: 'English', lang: 'en' },
+			},
+			// サイドバーの開き具合。描き直す前に当てないと、閉じている人の画面で
+			// 一瞬サイドバーが見えてしまう。
+			head: [
+				{
+					tag: 'script',
+					content: sidebarToggleScript,
+				},
+			],
+			customCss: ['./src/styles/layout.css', './src/styles/sidebar-toggle.css'],
+			// ヘッダーの右端へ、サイドバーの表示切り替えを足す
+			components: {
+				SocialIcons: './src/components/SocialIcons.astro',
 			},
 			social: [
 				{
