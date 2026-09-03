@@ -119,6 +119,7 @@ class GuiSettings : public GuiBase
     // 区分の一部を隠して画面を短くする。カスタマイズは、隠す対象のうち
     // 「これは出したままにする」ものを選ぶためのもの。
     GuiToggleButton simpleViewToggle;
+    GuiTextButton bypassHiddenBtn;
     GuiCategoryLabel simpleViewCat;
     std::array<GuiToggleButton, SimpleView::Size> simpleViewShowToggles;
 
@@ -220,6 +221,7 @@ public:
         separator3(context),
         tooltipToggle(context),
         simpleViewToggle(context),
+        bypassHiddenBtn(context),
         simpleViewCat(context),
         simpleViewShowToggles{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         separatorSimple(context),

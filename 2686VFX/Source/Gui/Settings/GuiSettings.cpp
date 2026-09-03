@@ -494,7 +494,18 @@ void GuiSettings::setup()
     simpleViewToggle.onClick = [this] {
         ctx.audioProcessor.simpleView = simpleViewToggle.getToggleState();
 
+        bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
+
         ctx.editor.resized();
+        };
+
+    // 隠れている区分をまとめて切る。簡易表示モードのときだけ押せる。
+    bypassHiddenBtn.setup({ .parent = *this, .title = juce::String("") + "非表示中の区分をバイパス", .isReset = false });
+    bypassHiddenBtn.setWantsKeyboardFocus(true);
+    bypassHiddenBtn.setExplicitFocusOrder(++tabOrder);
+    bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
+    bypassHiddenBtn.onClick = [this] {
+        ctx.editor.bypassHiddenCategories();
         };
 
     simpleViewCat.setupCategory({ .parent = *this, .title = juce::String("") + "簡易表示モードカスタマイズ(開閉)", .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
@@ -889,6 +900,10 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     // ---------------- 簡易表示モード ----------------
     auto rowSimpleView = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     simpleViewToggle.setBounds(rowSimpleView.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+
+    rowSimpleView.removeFromLeft(SettingsGuiValue::Settings::PaddingWidth);
+
+    bypassHiddenBtn.setBounds(rowSimpleView.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
 
     // カスタマイズは、簡易表示モードを入れているときだけ出す。
     bool simpleOn = ctx.audioProcessor.simpleView;

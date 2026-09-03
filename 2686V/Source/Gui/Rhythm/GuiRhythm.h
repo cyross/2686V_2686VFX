@@ -194,6 +194,11 @@ public:
     void updateSamplePreview();
     void updatePadVisible(bool visible);
     void setup(juce::Component& parent, int index, juce::String padName, int& tabOrder);
+
+    // 簡易表示モードで隠す区分への一括操作
+    void bypassHiddenCategories() override;
+    void openEnabledCategories() override;
+    void closeBypassedCategories() override;
 	void layout(juce::Rectangle<int> content);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     bool isThis(juce::Button* button);
@@ -306,6 +311,11 @@ public:
     GuiRhythm(const GuiContext& context);
                      
     void setup() override;
+
+    // 簡易表示モードで隠す区分への一括操作
+    void bypassHiddenCategories() override;
+    void openEnabledCategories() override;
+    void closeBypassedCategories() override;
     void layout(juce::Rectangle<int> content) override;
     void layoutPad(int padIndex, juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);

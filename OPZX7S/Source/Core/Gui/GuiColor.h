@@ -392,6 +392,16 @@ namespace GuiColor {
 	// ============================================================================
 	// 効果と変調が横に並ぶので、枠の地色で系統を分ける。
 	// 濃さの付け方は 3.0.0 までの効果の枠に合わせてある。
+	// ============================================================================
+	// 画面右上のシステムボタン
+	// ============================================================================
+	// 区分をまとめて開閉するボタン。効くのが表示だけなので、
+	// 他のシステムボタンとは色味を分けて群青にしてある。
+	namespace SystemBtn {
+		inline Entry CategoryToggleBg{ "SystemBtn.CategoryToggleBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x1B, 0x1F, 0x8A); } };
+		inline Entry CategoryToggleText{ "SystemBtn.CategoryToggleText", []() -> juce::Colour { return Palette::OffWhite; } };
+	};
+
 	namespace FxGroup {
 		// 効果そのもの。PCM ビットクラッシャーも含めてこの色。
 		inline Entry Fx{ "FxGroup.Fx", []() -> juce::Colour { return juce::Colours::darkblue.darker(0.3f).withAlpha(0.5f); } };

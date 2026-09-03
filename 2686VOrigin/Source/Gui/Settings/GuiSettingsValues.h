@@ -80,6 +80,9 @@ namespace SettingsGuiValue
 	namespace Settings
 	{
 		static inline constexpr int PaddingHeight = 4;
+
+		// 同じ行にボタンを並べるときの間隔
+		static inline constexpr int PaddingWidth = 8;
 		static inline constexpr int RowHeight = 20;
 		static inline constexpr int LabelWidth = 180;
 		static inline constexpr int LongLabelWidth = 220;

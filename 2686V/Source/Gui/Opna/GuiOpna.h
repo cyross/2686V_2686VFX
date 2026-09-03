@@ -373,6 +373,11 @@ public:
     }
 
     void setup() override;
+
+    // 簡易表示モードで隠す区分への一括操作
+    void bypassHiddenCategories() override;
+    void openEnabledCategories() override;
+    void closeBypassedCategories() override;
     void layout(juce::Rectangle<int> content) override;
     void updateOpEnable(int idx, bool enable);
     void updateAlgorithmDisplay();

@@ -44,6 +44,21 @@ public:
         cat.setHidden(!visible);
         cat.setVisible(visible);
     }
+
+    // 簡易表示モードの一括操作で使う口。
+    //
+    // 区分によって「バイパス」だったり「有効」だったりするので、
+    // ここで意味を揃えて「切ってあるか」で答える。
+    bool hasBypassSwitch() const { return true; }
+
+    bool isCategoryBypassed() const { return bypass.getToggleState(); }
+
+    void setCategoryBypassed(bool bypassed) {
+        bypass.setToggleState(bypassed, juce::sendNotification);
+    }
+
+    // 見出しの開閉
+    void setCategoryOpen(bool open) { cat.setDetailVisible(open); }
     GuiComponentAmpEnv(const GuiContext& context) :
         GuiBase(context),
         cat(context),

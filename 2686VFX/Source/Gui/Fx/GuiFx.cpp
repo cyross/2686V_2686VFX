@@ -1897,3 +1897,51 @@ void GuiFx::initParams()
 {
     ctx.audioProcessor.initParams(FxPrKey::prefix + "_");
 }
+
+void GuiFx::bypassHiddenCategories()
+{
+    // いま隠れている枠だけを切る。出したままの枠は触らない。
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+}
+
+void GuiFx::openEnabledCategories()
+{
+    // 効いている枠を開く。札を持たない枠は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
+    if (ssgHwEnvComponent.hasBypassSwitch() && !ssgHwEnvComponent.isCategoryBypassed()) ssgHwEnvComponent.setCategoryOpen(true);
+    if (wtAmpModComponent.hasBypassSwitch() && !wtAmpModComponent.isCategoryBypassed()) wtAmpModComponent.setCategoryOpen(true);
+    if (ssgSwEnv11Component.hasBypassSwitch() && !ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(true);
+    if (pitchEnvComponent.hasBypassSwitch() && !pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(true);
+    if (ssgHwPEnvComponent.hasBypassSwitch() && !ssgHwPEnvComponent.isCategoryBypassed()) ssgHwPEnvComponent.setCategoryOpen(true);
+    if (ssgSwPEnv11Component.hasBypassSwitch() && !ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(true);
+    if (wtModComponent.hasBypassSwitch() && !wtModComponent.isCategoryBypassed()) wtModComponent.setCategoryOpen(true);
+    if (lfoComponent.hasBypassSwitch() && !lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(true);
+    if (mulDetuneComponent.hasBypassSwitch() && !mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(true);
+    if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
+}
+
+void GuiFx::closeBypassedCategories()
+{
+    // 切ってある枠を閉じる。札を持たない枠は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
+    if (ssgHwEnvComponent.hasBypassSwitch() && ssgHwEnvComponent.isCategoryBypassed()) ssgHwEnvComponent.setCategoryOpen(false);
+    if (wtAmpModComponent.hasBypassSwitch() && wtAmpModComponent.isCategoryBypassed()) wtAmpModComponent.setCategoryOpen(false);
+    if (ssgSwEnv11Component.hasBypassSwitch() && ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(false);
+    if (pitchEnvComponent.hasBypassSwitch() && pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(false);
+    if (ssgHwPEnvComponent.hasBypassSwitch() && ssgHwPEnvComponent.isCategoryBypassed()) ssgHwPEnvComponent.setCategoryOpen(false);
+    if (ssgSwPEnv11Component.hasBypassSwitch() && ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(false);
+    if (wtModComponent.hasBypassSwitch() && wtModComponent.isCategoryBypassed()) wtModComponent.setCategoryOpen(false);
+    if (lfoComponent.hasBypassSwitch() && lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(false);
+    if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
+    if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
+}

@@ -128,6 +128,12 @@ public:
         fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting, callback);
     }
     void setTooltipState(bool enabled);
+
+    // 区分の一括操作。SETTINGS のボタンと、画面右上の OP / CL から呼ぶ。
+    // どのタブが対象になるかはタブ側が決める。
+    void bypassHiddenCategories();
+    void openEnabledCategories();
+    void closeBypassedCategories();
     void assignTooltipsRecursive(juce::Component* parentComponent);
     void setPresetDir(const juce::File& dir)
     {
@@ -205,6 +211,14 @@ private:
     ViewMode viewMode = ViewMode::Full;
     juce::Label miniPresetLabel;
     juce::Label miniModeLabel;
+    // 区分の一括開閉。簡易表示モードで隠す区分が対象。
+    SystemButtonLF categoryToggleBtnLF;
+    juce::TextButton openCategoriesBtn;
+    juce::TextButton closeCategoriesBtn;
+
+    // 開いているタブに限らず、持っているタブすべてへ配る。
+    void forEachTabGui(const std::function<void(GuiBase&)>& fn);
+
     SystemButtonLF miniToggleBtnLF;
     juce::TextButton toggleMiniBtn;
     juce::ImageComponent mainIconImage;

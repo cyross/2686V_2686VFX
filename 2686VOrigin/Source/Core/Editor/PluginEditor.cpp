@@ -235,6 +235,26 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     miniPresetLabel.setVisible(false);
 
     // ミニプレイヤー表示切替ボタン
+    // --- 区分の一括開閉 ---
+    // 表示を整えるだけなので、他のシステムボタンとは色味を分けてある。
+    for (auto* button : { &openCategoriesBtn, &closeCategoriesBtn })
+    {
+        addAndMakeVisible(button);
+        button->setLookAndFeel(&categoryToggleBtnLF);
+        button->setColour(juce::TextButton::textColourOnId, GuiColor::SystemBtn::CategoryToggleText);
+        button->setColour(juce::TextButton::textColourOffId, GuiColor::SystemBtn::CategoryToggleText);
+        button->setColour(juce::TextButton::buttonColourId, GuiColor::SystemBtn::CategoryToggleBg);
+        button->setColour(juce::TextButton::buttonOnColourId, GuiColor::SystemBtn::CategoryToggleBg);
+    }
+
+    openCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleOpen);
+    openCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipOpen);
+    openCategoriesBtn.onClick = [this] { openEnabledCategories(); };
+
+    closeCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleClose);
+    closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
+    closeCategoriesBtn.onClick = [this] { closeBypassedCategories(); };
+
     addAndMakeVisible(toggleMiniBtn);
     toggleMiniBtn.setVisible(true);
     toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
@@ -664,6 +684,12 @@ void AudioPlugin2686VEditor::resized()
 
     x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::miniButtonWidth;
     toggleMiniBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::miniButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::miniButtonWidth;
+    closeCategoriesBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::miniButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::miniButtonWidth;
+    openCategoriesBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::miniButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
     auto reducedArea = area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
     int mainIconWidth = EditorGuiValue::Preview::logoWidth;
@@ -1513,4 +1539,43 @@ void AudioPlugin2686VEditor::copyOpnaOpParams(int from, int to) {
 
 void AudioPlugin2686VEditor::updateFxOrder(){
     fxGui->updateFxOrder();
+}
+
+// タブは持っているものが プラグインごとに違うので、あるものだけ回す。
+// 中身を持たないタブは、土台の空実装がそのまま呼ばれる。
+void AudioPlugin2686VEditor::forEachTabGui(const std::function<void(GuiBase&)>& fn)
+{
+    if (opnaGui != nullptr) fn(*opnaGui);
+    if (ssgGui != nullptr) fn(*ssgGui);
+    if (rhythmGui != nullptr) fn(*rhythmGui);
+    if (adpcmGui != nullptr) fn(*adpcmGui);
+    if (presetGui != nullptr) fn(*presetGui);
+    if (fxGui != nullptr) fn(*fxGui);
+    if (settingsGui != nullptr) fn(*settingsGui);
+    if (aboutGui != nullptr) fn(*aboutGui);
+    if (colorsGui != nullptr) fn(*colorsGui);
+}
+
+// 簡易表示モードで隠れている区分を、まとめて切る。
+void AudioPlugin2686VEditor::bypassHiddenCategories()
+{
+    forEachTabGui([](GuiBase& gui) { gui.bypassHiddenCategories(); });
+
+    resized();
+}
+
+// 効いている区分をまとめて開く
+void AudioPlugin2686VEditor::openEnabledCategories()
+{
+    forEachTabGui([](GuiBase& gui) { gui.openEnabledCategories(); });
+
+    resized();
+}
+
+// 切ってある区分をまとめて閉じる
+void AudioPlugin2686VEditor::closeBypassedCategories()
+{
+    forEachTabGui([](GuiBase& gui) { gui.closeBypassedCategories(); });
+
+    resized();
 }

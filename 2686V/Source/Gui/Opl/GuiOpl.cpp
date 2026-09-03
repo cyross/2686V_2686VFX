@@ -2287,3 +2287,78 @@ void GuiOpl::writeLfoParams(int opIndex, Io::ParamWriter& writer) {
 
 	
 }
+
+void GuiOpl::bypassHiddenCategories()
+{
+    // いま隠れている区分だけを切る。出したままの区分は触らない。
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+
+    for (int i = 0; i < OplPrValue::ops; ++i)
+    {
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnv[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModOp[i].setCategoryBypassed(true);
+    }
+}
+
+void GuiOpl::openEnabledCategories()
+{
+    // 効いている区分を開く。札を持たない区分は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
+    if (ssgHwEnv.hasBypassSwitch() && !ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(true);
+    if (ssgSwEnv11g.hasBypassSwitch() && !ssgSwEnv11g.isCategoryBypassed()) ssgSwEnv11g.setCategoryOpen(true);
+    if (ampModComponent.hasBypassSwitch() && !ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(true);
+    if (ssgHwPEnv.hasBypassSwitch() && !ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(true);
+    if (ssgSwPEnv11g.hasBypassSwitch() && !ssgSwPEnv11g.isCategoryBypassed()) ssgSwPEnv11g.setCategoryOpen(true);
+    if (modComponent.hasBypassSwitch() && !modComponent.isCategoryBypassed()) modComponent.setCategoryOpen(true);
+    if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
+
+    for (int i = 0; i < OplPrValue::ops; ++i)
+    {
+        if (ssgHwEnvOp[i].hasBypassSwitch() && !ssgHwEnvOp[i].isCategoryBypassed()) ssgHwEnvOp[i].setCategoryOpen(true);
+        if (ssgSwEnv[i].hasBypassSwitch() && !ssgSwEnv[i].isCategoryBypassed()) ssgSwEnv[i].setCategoryOpen(true);
+        if (ssgSwEnv11[i].hasBypassSwitch() && !ssgSwEnv11[i].isCategoryBypassed()) ssgSwEnv11[i].setCategoryOpen(true);
+        if (wtAmpModOp[i].hasBypassSwitch() && !wtAmpModOp[i].isCategoryBypassed()) wtAmpModOp[i].setCategoryOpen(true);
+        if (pitchEnv[i].hasBypassSwitch() && !pitchEnv[i].isCategoryBypassed()) pitchEnv[i].setCategoryOpen(true);
+        if (ssgHwPEnvOp[i].hasBypassSwitch() && !ssgHwPEnvOp[i].isCategoryBypassed()) ssgHwPEnvOp[i].setCategoryOpen(true);
+        if (ssgSwPEnv11[i].hasBypassSwitch() && !ssgSwPEnv11[i].isCategoryBypassed()) ssgSwPEnv11[i].setCategoryOpen(true);
+        if (wtModOp[i].hasBypassSwitch() && !wtModOp[i].isCategoryBypassed()) wtModOp[i].setCategoryOpen(true);
+    }
+}
+
+void GuiOpl::closeBypassedCategories()
+{
+    // 切ってある区分を閉じる。札を持たない区分は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
+    if (ssgHwEnv.hasBypassSwitch() && ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(false);
+    if (ssgSwEnv11g.hasBypassSwitch() && ssgSwEnv11g.isCategoryBypassed()) ssgSwEnv11g.setCategoryOpen(false);
+    if (ampModComponent.hasBypassSwitch() && ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(false);
+    if (ssgHwPEnv.hasBypassSwitch() && ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(false);
+    if (ssgSwPEnv11g.hasBypassSwitch() && ssgSwPEnv11g.isCategoryBypassed()) ssgSwPEnv11g.setCategoryOpen(false);
+    if (modComponent.hasBypassSwitch() && modComponent.isCategoryBypassed()) modComponent.setCategoryOpen(false);
+    if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
+
+    for (int i = 0; i < OplPrValue::ops; ++i)
+    {
+        if (ssgHwEnvOp[i].hasBypassSwitch() && ssgHwEnvOp[i].isCategoryBypassed()) ssgHwEnvOp[i].setCategoryOpen(false);
+        if (ssgSwEnv[i].hasBypassSwitch() && ssgSwEnv[i].isCategoryBypassed()) ssgSwEnv[i].setCategoryOpen(false);
+        if (ssgSwEnv11[i].hasBypassSwitch() && ssgSwEnv11[i].isCategoryBypassed()) ssgSwEnv11[i].setCategoryOpen(false);
+        if (wtAmpModOp[i].hasBypassSwitch() && wtAmpModOp[i].isCategoryBypassed()) wtAmpModOp[i].setCategoryOpen(false);
+        if (pitchEnv[i].hasBypassSwitch() && pitchEnv[i].isCategoryBypassed()) pitchEnv[i].setCategoryOpen(false);
+        if (ssgHwPEnvOp[i].hasBypassSwitch() && ssgHwPEnvOp[i].isCategoryBypassed()) ssgHwPEnvOp[i].setCategoryOpen(false);
+        if (ssgSwPEnv11[i].hasBypassSwitch() && ssgSwPEnv11[i].isCategoryBypassed()) ssgSwPEnv11[i].setCategoryOpen(false);
+        if (wtModOp[i].hasBypassSwitch() && wtModOp[i].isCategoryBypassed()) wtModOp[i].setCategoryOpen(false);
+    }
+}
