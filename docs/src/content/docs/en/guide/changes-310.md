@@ -155,6 +155,21 @@ Within the level group the order is SSG HW AMP ENV → SSG SW AMP ENV →
 SSG SW AMP ENV[11] → WT AMP MOD; within the pitch group it is PITCH ENV →
 SSG HW PITCH ENV → SSG SW PITCH ENV[11] → WT PITCH MOD.
 
+### The window opens faster
+
+With so many more sections, a single tab now holds several hundred controls.
+Until now every tab was built the moment the window opened, so opening it took
+a while.
+
+**Only the tab you are on is built; the others are built when you switch to
+them.** Nothing looks or behaves differently. The first switch to a tab takes a
+moment while it is built; after that it is instant.
+
+"Bypass hidden sections" still builds every tab when pressed, because it turns
+parameters off and would otherwise miss the tabs you have not visited. OP and
+CL only change how things look, so a tab opened later comes up in the same
+state.
+
 ## Fixed
 
 - On RHYTHM pads, a change of sample rate was not passed on to SSG HW AMP ENV

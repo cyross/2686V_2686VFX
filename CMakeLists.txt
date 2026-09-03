@@ -3,6 +3,14 @@
 # ソリューション（ワークスペース）全体の名前
 project(RetroSynthsBundle VERSION 3.1.0 LANGUAGES C CXX)
 
+# Debug ビルドの起動が遅すぎるので、インライン展開だけは許す。
+# 既定の /Ob0 では JUCE の Component や String のような小さなヘッダ関数が
+# 一切展開されず、GUI の生成に数十秒かかっていた。
+# JUCE や yaml-cpp にも効かせたいので add_subdirectory より前に置く。
+if(MSVC)
+    add_compile_options($<$<CONFIG:Debug>:/Ob1>)
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 

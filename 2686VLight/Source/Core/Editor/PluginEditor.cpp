@@ -20,6 +20,21 @@
 #include "../Gui/GuiColor.h"
 #include "../Gui/GuiContext.h"
 
+// チャンネルごとのパラメータ名の頭。開いていないタブへ値を入れるときに使う。
+#include "../../Processor/Opna/ProcessorOpnaKeys.h"
+#include "../../Processor/Opn/ProcessorOpnKeys.h"
+#include "../../Processor/Opl/ProcessorOplKeys.h"
+#include "../../Processor/Opl3/ProcessorOpl3Keys.h"
+#include "../../Processor/Opm/ProcessorOpmKeys.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Keys.h"
+#include "../../Processor/Ssg/ProcessorSsgKeys.h"
+#include "../../Processor/Wavetable/ProcessorWtKeys.h"
+#include "../../Processor/Wt2/ProcessorWt2Keys.h"
+#include "../../Processor/WtPlus/ProcessorWtPlusKeys.h"
+#include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
+#include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
+#include "../../Processor/Beep/ProcessorBeepKeys.h"
+
 #include "AppIconForAbout.h"
 
 namespace
@@ -40,28 +55,14 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     GuiContext context(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
 
-    opnaGui = std::make_unique<GuiOpna>(context);
-	opnGui = std::make_unique<GuiOpn>(context);
-	oplGui = std::make_unique<GuiOpl>(context);
-	opl3Gui = std::make_unique<GuiOpl3>(context);
-	opmGui = std::make_unique<GuiOpm>(context);
-	opzx7Gui = std::make_unique<GuiOpzx7>(context);
-	ssgGui = std::make_unique<GuiSsg>(context);
-	wtGui = std::make_unique<GuiWt>(context);
-    wt2Gui = std::make_unique<GuiWt2>(context);
-	rhythmGui = std::make_unique<GuiRhythm>(context);
-	adpcmGui = std::make_unique<GuiAdpcm>(context);
-    beepGui = std::make_unique<GuiBeep>(context);
-    wtPlusGui = std::make_unique<GuiWtPlus>(context);
+    // タブの中身は開かれるまで作らない。作り方だけ先に入れておく。
+    setupLazyTabs();
     presetGui = std::make_unique<GuiPreset>(context);
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
 	aboutGui = std::make_unique<GuiAbout>(context);
 	colorsGui = std::make_unique<GuiColors>(context);
 
-    wtGui->addComponentListener(this);
-    wt2Gui->addComponentListener(this);
-    wtPlusGui->addComponentListener(this);
 
     tabs.getTabbedButtonBar().addChangeListener(this);
 
@@ -73,19 +74,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     setupLogo();
     setupMiniLogo();
 
-    opnaGui->setup();
-    opnGui->setup();
-    oplGui->setup();
-    opl3Gui->setup();
-    opmGui->setup();
-    opzx7Gui->setup();
-    ssgGui->setup();
-    wtGui->setup();
-    wt2Gui->setup();
-    rhythmGui->setup();
-    adpcmGui->setup();
-    beepGui->setup();
-    wtPlusGui->setup();
     presetGui->setup();
     fxGui->setup();
     settingsGui->setup();
@@ -106,6 +94,10 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
     tabs.setCurrentTabIndex(currentMode);
+
+    // 開いているタブだけは、ここで作っておく。
+    // タブの切り替えの知らせは後回しで届くので、待つと一瞬空になる。
+    materializeTab(currentMode);
 
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
@@ -349,13 +341,13 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     tabs.getTabbedButtonBar().removeChangeListener(this);
     GuiColor::changeBroadcaster().removeChangeListener(this);
 
-    wtGui->removeComponentListener(this);
-    wt2Gui->removeComponentListener(this);
-    wtPlusGui->removeComponentListener(this);
+    if (auto* gui = wtGui.peek()) gui->removeComponentListener(this);
+    if (auto* gui = wt2Gui.peek()) gui->removeComponentListener(this);
+    if (auto* gui = wtPlusGui.peek()) gui->removeComponentListener(this);
 
-    adpcmGui->removeLoadButtonListener(this);
+    if (auto* gui = adpcmGui.peek()) gui->removeLoadButtonListener(this);
 
-    rhythmGui->removeLoadButtonListener(this);
+    if (auto* gui = rhythmGui.peek()) gui->removeLoadButtonListener(this);
 
     audioProcessor.apvts.removeParameterListener(CPK::mode, this);
 
@@ -419,6 +411,9 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
     {
         // 0:OPNA, 1:OPN, 2:OPL, ...
         int targetMode = tabs.getCurrentTabIndex();
+
+        // 中身をまだ作っていないタブなら、ここで作る。
+        materializeTab(targetMode);
 
         if (targetMode >= 0 && targetMode < (int)OscMode::Count) // BEEP is 11
         {
@@ -730,19 +725,23 @@ void AudioPlugin2686VEditor::resized()
     auto tabContent = content.removeFromLeft(content.getWidth() - EditorGuiValue::Fx::width);
     tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
 
-    opnaGui->layout(tabContent);
-    opnGui->layout(tabContent);
-    oplGui->layout(tabContent);
-    opl3Gui->layout(tabContent);
-    opmGui->layout(tabContent);
-    opzx7Gui->layout(tabContent);
-    ssgGui->layout(tabContent);
-    wtGui->layout(tabContent);
-    wt2Gui->layout(tabContent);
-    rhythmGui->layout(tabContent);
-    adpcmGui->layout(tabContent);
-    beepGui->layout(tabContent);
-    wtPlusGui->layout(tabContent);
+    // 後から作るタブが、resized() を待たずに位置を決められるようにする。
+    lastTabContent = tabContent;
+
+    if (auto* gui = opnaGui.peek()) gui->layout(tabContent);
+    if (auto* gui = opnGui.peek()) gui->layout(tabContent);
+    if (auto* gui = oplGui.peek()) gui->layout(tabContent);
+    if (auto* gui = opl3Gui.peek()) gui->layout(tabContent);
+    if (auto* gui = opmGui.peek()) gui->layout(tabContent);
+    if (auto* gui = opzx7Gui.peek()) gui->layout(tabContent);
+    if (auto* gui = ssgGui.peek()) gui->layout(tabContent);
+    if (auto* gui = wtGui.peek()) gui->layout(tabContent);
+    if (auto* gui = wt2Gui.peek()) gui->layout(tabContent);
+    if (auto* gui = wtPlusGui.peek()) gui->layout(tabContent);
+    if (auto* gui = rhythmGui.peek()) gui->layout(tabContent);
+    if (auto* gui = adpcmGui.peek()) gui->layout(tabContent);
+    if (auto* gui = beepGui.peek()) gui->layout(tabContent);
+
     presetGui->layout(tabContent);
     settingsGui->layout(tabContent);
     colorsGui->layout(tabContent);
@@ -849,20 +848,21 @@ void AudioPlugin2686VEditor::setupMiniLogo()
 
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
+    // 中身を後から作るタブは、空の器だけ先に登録する。
     addAndMakeVisible(tabs);
-    tabs.addTab(EditorGuiText::Tab::opna, juce::Colours::transparentBlack, opnaGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::opn, juce::Colours::transparentBlack, opnGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::opl, juce::Colours::transparentBlack, oplGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::opl3, juce::Colours::transparentBlack, opl3Gui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::opm, juce::Colours::transparentBlack, opmGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::opzx7, juce::Colours::transparentBlack, opzx7Gui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::wt2, juce::Colours::transparentBlack, wt2Gui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::wtPlus, juce::Colours::transparentBlack, wtPlusGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::opna, juce::Colours::transparentBlack, &tabHosts[tabOpna], false);
+    tabs.addTab(EditorGuiText::Tab::opn, juce::Colours::transparentBlack, &tabHosts[tabOpn], false);
+    tabs.addTab(EditorGuiText::Tab::opl, juce::Colours::transparentBlack, &tabHosts[tabOpl], false);
+    tabs.addTab(EditorGuiText::Tab::opl3, juce::Colours::transparentBlack, &tabHosts[tabOpl3], false);
+    tabs.addTab(EditorGuiText::Tab::opm, juce::Colours::transparentBlack, &tabHosts[tabOpm], false);
+    tabs.addTab(EditorGuiText::Tab::opzx7, juce::Colours::transparentBlack, &tabHosts[tabOpzx7], false);
+    tabs.addTab(EditorGuiText::Tab::ssg, juce::Colours::transparentBlack, &tabHosts[tabSsg], false);
+    tabs.addTab(EditorGuiText::Tab::wt, juce::Colours::transparentBlack, &tabHosts[tabWt], false);
+    tabs.addTab(EditorGuiText::Tab::wt2, juce::Colours::transparentBlack, &tabHosts[tabWt2], false);
+    tabs.addTab(EditorGuiText::Tab::wtPlus, juce::Colours::transparentBlack, &tabHosts[tabWtPlus], false);
+    tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, &tabHosts[tabRhythm], false);
+    tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, &tabHosts[tabAdpcm], false);
+    tabs.addTab(EditorGuiText::Tab::beep, juce::Colours::transparentBlack, &tabHosts[tabBeep], false);
     tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), true);
@@ -1084,19 +1084,19 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
 
 void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
     // 4. 各タブのプリセット名を更新
-    opnaGui->updatePresetName(pName);
-    opnGui->updatePresetName(pName);
-    oplGui->updatePresetName(pName);
-    opl3Gui->updatePresetName(pName);
-    opmGui->updatePresetName(pName);
-    opzx7Gui->updatePresetName(pName);
-    ssgGui->updatePresetName(pName);
-    wtGui->updatePresetName(pName);
-    wt2Gui->updatePresetName(pName);
-    rhythmGui->updatePresetName(pName);
-    adpcmGui->updatePresetName(pName);
-    beepGui->updatePresetName(pName);
-    wtPlusGui->updatePresetName(pName);
+    if (auto* gui = opnaGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = opnGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = oplGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = opl3Gui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = opmGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = opzx7Gui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = ssgGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = wtGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = wt2Gui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = rhythmGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = adpcmGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = beepGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = wtPlusGui.peek()) gui->updatePresetName(pName);
 }
 
 void AudioPlugin2686VEditor::loadWallpaperImage()
@@ -1139,7 +1139,7 @@ void AudioPlugin2686VEditor::loadWallpaperImage()
 void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized)
 {
     // wtPage のサイズが変わったときだけレイアウトを実行
-    if (&component == wtGui.get() && wasResized)
+    if (&component == wtGui.peek() && wasResized)
     {
         auto content = tabs.getLocalBounds();
         content.removeFromTop(tabs.getTabBarDepth());
@@ -1153,8 +1153,12 @@ void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component,
 
 void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
 {
+    // 押されたボタンはどちらかのタブの中にある。どちらもまだ作って
+    // いなければ、この呼び出しは来ないはずだが、念のため何もしない。
+    if (adpcmGui.peek() == nullptr && rhythmGui.peek() == nullptr) return;
+
     // ADPCM Load Buttons
-    if (adpcmGui->isThis(button))
+    if (adpcmGui.peek() != nullptr && adpcmGui->isThis(button))
     {
         // ... (Existing ADPCM load logic) ...
         auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
@@ -1180,11 +1184,11 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
         );
     }
     // ADPCM Pan Buttons
-    else if (adpcmGui->isBtnPanL(button)) { adpcmGui->setPan(0.0); }
-    else if (adpcmGui->isBtnPanC(button)) { adpcmGui->setPan(0.5); }
-    else if (adpcmGui->isBtnPanR(button)) { adpcmGui->setPan(1.0); }
+    else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanL(button)) { adpcmGui->setPan(0.0); }
+    else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanC(button)) { adpcmGui->setPan(0.5); }
+    else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanR(button)) { adpcmGui->setPan(1.0); }
     // Rhythm Pads Buttons
-    else
+    else if (rhythmGui.peek() != nullptr)
     {
         auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
         fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::openAudioFile, audioProcessor.lastSampleDirectory, fileFilter);
@@ -1281,6 +1285,9 @@ void AudioPlugin2686VEditor::setTooltipState(bool enabled)
 
 void AudioPlugin2686VEditor::updateRhythmFileNames(const juce::String filename)
 {
+    // まだ作っていないタブには映せない。作るときに読み直す。
+    if (rhythmGui.peek() == nullptr) return;
+
     if (filename == Io::empty) {
         for (int i = 0; i < 8; ++i)
         {
@@ -1309,6 +1316,9 @@ void AudioPlugin2686VEditor::updateRhythmFileNames(const juce::String filename)
 
 void AudioPlugin2686VEditor::updateOpzx7PcmFileNames(const juce::String filename)
 {
+    // まだ作っていないタブには映せない。作るときに読み直す。
+    if (opzx7Gui.peek() == nullptr) return;
+
     if (filename == Io::empty) {
         for (int i = 0; i < 4; ++i)
         {
@@ -1337,6 +1347,9 @@ void AudioPlugin2686VEditor::updateOpzx7PcmFileNames(const juce::String filename
 
 void AudioPlugin2686VEditor::updateOpzx7WtFileNames(const juce::String filename)
 {
+    // まだ作っていないタブには映せない。作るときに読み直す。
+    if (opzx7Gui.peek() == nullptr) return;
+
     if (filename == Io::empty) {
         for (int i = 0; i < 4; ++i)
         {
@@ -1365,6 +1378,9 @@ void AudioPlugin2686VEditor::updateOpzx7WtFileNames(const juce::String filename)
 
 void AudioPlugin2686VEditor::updateAdpcmFileNames(const juce::String filename)
 {
+    // まだ作っていないタブには映せない。作るときに読み直す。
+    if (adpcmGui.peek() == nullptr) return;
+
     if (filename == Io::empty) {
         adpcmGui->updateFileName(filename);
     }
@@ -1671,19 +1687,27 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
     // 入れ終えてからまとめて 1 度だけ描き直す。
     GuiRefresh::Batch batch;
 
-    opnaGui->setLevel(level);
-    opnGui->setLevel(level);
-    oplGui->setLevel(level);
-    opl3Gui->setLevel(level);
-    opmGui->setLevel(level);
-    opzx7Gui->setLevel(level);
-    ssgGui->setLevel(level);
-    wtGui->setLevel(level);
-    wt2Gui->setLevel(level);
-    rhythmGui->setLevel(level);
-    adpcmGui->setLevel(level);
-    beepGui->setLevel(level);
-    wtPlusGui->setLevel(level);
+    // 開いていないタブは中身を作らず、値だけ入れる。
+    // 配るためだけに全部のタブを作ると、そこで待たされてしまう。
+    auto apply = [this, level](auto& slot, const juce::String& code) {
+        if (auto* gui = slot.peek()) gui->setLevel(level);
+        else setLevelParam(code, level);
+        };
+
+    apply(opnaGui, OpnaPrKey::prefix);
+    apply(opnGui, OpnPrKey::prefix);
+    apply(oplGui, OplPrKey::prefix);
+    apply(opl3Gui, Opl3PrKey::prefix);
+    apply(opmGui, OpmPrKey::prefix);
+    apply(opzx7Gui, Opzx7PrKey::prefix);
+    apply(ssgGui, SsgPrKey::prefix);
+    apply(wtGui, WtPrKey::prefix);
+    apply(wt2Gui, Wt2PrKey::prefix);
+    apply(rhythmGui, RhythmPrKey::prefix);
+    apply(adpcmGui, AdpcmPrKey::prefix);
+    apply(beepGui, BeepPrKey::prefix);
+    apply(wtPlusGui, WtPlusPrKey::prefix);
+
 }
 
 void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {
@@ -2114,21 +2138,94 @@ void AudioPlugin2686VEditor::updateFxOrder(){
 
 // タブは持っているものが プラグインごとに違うので、あるものだけ回す。
 // 中身を持たないタブは、土台の空実装がそのまま呼ばれる。
+GuiContext AudioPlugin2686VEditor::makeGuiContext()
+{
+    return GuiContext(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
+}
+
+juce::String AudioPlugin2686VEditor::currentPresetName() const
+{
+    return audioProcessor.presetName;
+}
+
+// ============================================================================
+// タブの後作り
+// ============================================================================
+// 作り方だけを入れておく。実際に作られるのは、そのタブが開かれたときか、
+// 中身を触る操作 (チャンネル間のコピーなど) が来たとき。
+void AudioPlugin2686VEditor::setupLazyTabs()
+{
+    prepareLazyTab<GuiOpna>(opnaGui, tabOpna);
+    prepareLazyTab<GuiOpn>(opnGui, tabOpn);
+    prepareLazyTab<GuiOpl>(oplGui, tabOpl);
+    prepareLazyTab<GuiOpl3>(opl3Gui, tabOpl3);
+    prepareLazyTab<GuiOpm>(opmGui, tabOpm);
+    prepareLazyTab<GuiOpzx7>(opzx7Gui, tabOpzx7);
+    prepareLazyTab<GuiSsg>(ssgGui, tabSsg);
+    prepareLazyTab<GuiWt>(wtGui, tabWt, [this](GuiWt& gui) { gui.addComponentListener(this); });
+    prepareLazyTab<GuiWt2>(wt2Gui, tabWt2, [this](GuiWt2& gui) { gui.addComponentListener(this); });
+    prepareLazyTab<GuiWtPlus>(wtPlusGui, tabWtPlus, [this](GuiWtPlus& gui) { gui.addComponentListener(this); });
+    prepareLazyTab<GuiRhythm>(rhythmGui, tabRhythm);
+    prepareLazyTab<GuiAdpcm>(adpcmGui, tabAdpcm);
+    prepareLazyTab<GuiBeep>(beepGui, tabBeep);
+}
+
+void AudioPlugin2686VEditor::materializeAllTabs()
+{
+    for (int i = 0; i < tabCount; ++i) materializeTab(i);
+}
+
+void AudioPlugin2686VEditor::materializeTab(int tabIndex)
+{
+    switch (tabIndex)
+    {
+    case tabOpna: opnaGui.ref(); break;
+    case tabOpn: opnGui.ref(); break;
+    case tabOpl: oplGui.ref(); break;
+    case tabOpl3: opl3Gui.ref(); break;
+    case tabOpm: opmGui.ref(); break;
+    case tabOpzx7: opzx7Gui.ref(); break;
+    case tabSsg: ssgGui.ref(); break;
+    case tabWt: wtGui.ref(); break;
+    case tabWt2: wt2Gui.ref(); break;
+    case tabWtPlus: wtPlusGui.ref(); break;
+    case tabRhythm: rhythmGui.ref(); break;
+    case tabAdpcm: adpcmGui.ref(); break;
+    case tabBeep: beepGui.ref(); break;
+    default: break; // 先に作ってあるタブ
+    }
+}
+
+// 開いていないタブのレベルを、GUI を通さずに入れる。
+//
+// 画面のつまみは値を持たない (パラメータの写し) ので、ここへ入れておけば
+// 後でそのタブを開いたときにそのまま出る。
+void AudioPlugin2686VEditor::setLevelParam(const juce::String& prefix, float level)
+{
+    auto* param = audioProcessor.apvts.getParameter(prefix + CPK::level);
+
+    if (param == nullptr) return;
+
+    param->beginChangeGesture();
+    param->setValueNotifyingHost(param->getNormalisableRange().convertTo0to1(level));
+    param->endChangeGesture();
+}
+
 void AudioPlugin2686VEditor::forEachTabGui(const std::function<void(GuiBase&)>& fn)
 {
-    if (opnaGui != nullptr) fn(*opnaGui);
-    if (opnGui != nullptr) fn(*opnGui);
-    if (oplGui != nullptr) fn(*oplGui);
-    if (opl3Gui != nullptr) fn(*opl3Gui);
-    if (opmGui != nullptr) fn(*opmGui);
-    if (opzx7Gui != nullptr) fn(*opzx7Gui);
-    if (ssgGui != nullptr) fn(*ssgGui);
-    if (wtGui != nullptr) fn(*wtGui);
-    if (wt2Gui != nullptr) fn(*wt2Gui);
-    if (rhythmGui != nullptr) fn(*rhythmGui);
-    if (adpcmGui != nullptr) fn(*adpcmGui);
-    if (beepGui != nullptr) fn(*beepGui);
-    if (wtPlusGui != nullptr) fn(*wtPlusGui);
+    if (auto* gui = opnaGui.peek()) fn(*gui);
+    if (auto* gui = opnGui.peek()) fn(*gui);
+    if (auto* gui = oplGui.peek()) fn(*gui);
+    if (auto* gui = opl3Gui.peek()) fn(*gui);
+    if (auto* gui = opmGui.peek()) fn(*gui);
+    if (auto* gui = opzx7Gui.peek()) fn(*gui);
+    if (auto* gui = ssgGui.peek()) fn(*gui);
+    if (auto* gui = wtGui.peek()) fn(*gui);
+    if (auto* gui = wt2Gui.peek()) fn(*gui);
+    if (auto* gui = rhythmGui.peek()) fn(*gui);
+    if (auto* gui = adpcmGui.peek()) fn(*gui);
+    if (auto* gui = beepGui.peek()) fn(*gui);
+    if (auto* gui = wtPlusGui.peek()) fn(*gui);
     if (presetGui != nullptr) fn(*presetGui);
     if (fxGui != nullptr) fn(*fxGui);
     if (settingsGui != nullptr) fn(*settingsGui);
@@ -2139,6 +2236,11 @@ void AudioPlugin2686VEditor::forEachTabGui(const std::function<void(GuiBase&)>& 
 // 簡易表示モードで隠れている区分を、まとめて切る。
 void AudioPlugin2686VEditor::bypassHiddenCategories()
 {
+    // これはパラメータを切る操作なので、開いていないタブにも効かせる。
+    // 音を出しているのはタブではなくパラメータのほうなので、
+    // 見ていないタブを飛ばすと、そこだけ鳴り続けてしまう。
+    materializeAllTabs();
+
     forEachTabGui([](GuiBase& gui) { gui.bypassHiddenCategories(); });
 
     resized();
@@ -2147,6 +2249,8 @@ void AudioPlugin2686VEditor::bypassHiddenCategories()
 // 効いている区分をまとめて開く
 void AudioPlugin2686VEditor::openEnabledCategories()
 {
+    lastCategoryBulk = CategoryBulk::open;
+
     forEachTabGui([](GuiBase& gui) { gui.openEnabledCategories(); });
 
     resized();
@@ -2155,6 +2259,8 @@ void AudioPlugin2686VEditor::openEnabledCategories()
 // 切ってある区分をまとめて閉じる
 void AudioPlugin2686VEditor::closeBypassedCategories()
 {
+    lastCategoryBulk = CategoryBulk::close;
+
     forEachTabGui([](GuiBase& gui) { gui.closeBypassedCategories(); });
 
     resized();

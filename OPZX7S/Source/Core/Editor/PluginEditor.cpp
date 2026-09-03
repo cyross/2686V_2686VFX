@@ -20,6 +20,9 @@
 #include "../Gui/GuiColor.h"
 #include "../Gui/GuiContext.h"
 
+// チャンネルごとのパラメータ名の頭。開いていないタブへ値を入れるときに使う。
+#include "../../Processor/Opzx7/ProcessorOpzx7Keys.h"
+
 #include "AppIconForAbout.h"
 
 namespace
@@ -40,13 +43,13 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     GuiContext context(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
 
-	opzx7Gui = std::make_unique<GuiOpzx7>(context);
+    // タブの中身は開かれるまで作らない。作り方だけ先に入れておく。
+    setupLazyTabs();
     presetGui = std::make_unique<GuiPreset>(context);
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
 	aboutGui = std::make_unique<GuiAbout>(context);
 	colorsGui = std::make_unique<GuiColors>(context);
-    curveGui = std::make_unique<GuiCurve>(context);
 
     tabs.getTabbedButtonBar().addChangeListener(this);
 
@@ -58,13 +61,11 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     setupLogo();
     setupMiniLogo();
 
-    opzx7Gui->setup();
     presetGui->setup();
     fxGui->setup();
     settingsGui->setup();
     colorsGui->setup();
     aboutGui->setup();
-    curveGui->setup();
 
     // Initial Wallpaper Load
     loadWallpaperImage();
@@ -80,6 +81,10 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
     tabs.setCurrentTabIndex(currentMode);
+
+    // 開いているタブだけは、ここで作っておく。
+    // タブの切り替えの知らせは後回しで届くので、待つと一瞬空になる。
+    materializeTab(currentMode);
 
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
@@ -383,6 +388,9 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
     {
         // 0:OPNA, 1:OPN, 2:OPL, ...
         int targetMode = tabs.getCurrentTabIndex();
+
+        // 中身をまだ作っていないタブなら、ここで作る。
+        materializeTab(targetMode);
 
         if (targetMode >= 0 && targetMode < (int)OscMode::Count) // BEEP is 11
         {
@@ -694,12 +702,16 @@ void AudioPlugin2686VEditor::resized()
     auto tabContent = content.removeFromLeft(content.getWidth() - EditorGuiValue::Fx::width);
     tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
 
-    opzx7Gui->layout(tabContent);
+    // 後から作るタブが、resized() を待たずに位置を決められるようにする。
+    lastTabContent = tabContent;
+
+    if (auto* gui = opzx7Gui.peek()) gui->layout(tabContent);
+    if (auto* gui = curveGui.peek()) gui->layout(tabContent);
+
     presetGui->layout(tabContent);
     settingsGui->layout(tabContent);
     colorsGui->layout(tabContent);
     aboutGui->layout(tabContent);
-    curveGui->layout(tabContent);
 
     content.removeFromTop(tabs.getTabBarDepth());
     fxGui->setBounds(content);
@@ -802,9 +814,10 @@ void AudioPlugin2686VEditor::setupMiniLogo()
 
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
+    // 中身を後から作るタブは、空の器だけ先に登録する。
     addAndMakeVisible(tabs);
-    tabs.addTab(EditorGuiText::Tab::opzx7, juce::Colours::transparentBlack, opzx7Gui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::advanced, juce::Colours::transparentBlack, curveGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::opzx7, juce::Colours::transparentBlack, &tabHosts[tabOpzx7], false);
+    tabs.addTab(EditorGuiText::Tab::advanced, juce::Colours::transparentBlack, &tabHosts[tabCurve], false);
     tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), true);
@@ -1024,7 +1037,7 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
 
 void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
     // 4. 各タブのプリセット名を更新
-    opzx7Gui->updatePresetName(pName);
+    if (auto* gui = opzx7Gui.peek()) gui->updatePresetName(pName);
 }
 
 void AudioPlugin2686VEditor::loadWallpaperImage()
@@ -1161,6 +1174,9 @@ void AudioPlugin2686VEditor::setTooltipState(bool enabled)
 
 void AudioPlugin2686VEditor::updateOpzx7PcmFileNames(const juce::String filename)
 {
+    // まだ作っていないタブには映せない。作るときに読み直す。
+    if (opzx7Gui.peek() == nullptr) return;
+
     if (filename == Io::empty) {
         for (int i = 0; i < 4; ++i)
         {
@@ -1189,6 +1205,9 @@ void AudioPlugin2686VEditor::updateOpzx7PcmFileNames(const juce::String filename
 
 void AudioPlugin2686VEditor::updateOpzx7WtFileNames(const juce::String filename)
 {
+    // まだ作っていないタブには映せない。作るときに読み直す。
+    if (opzx7Gui.peek() == nullptr) return;
+
     if (filename == Io::empty) {
         for (int i = 0; i < 4; ++i)
         {
@@ -1434,7 +1453,7 @@ inline juce::String AudioPlugin2686VEditor::getRedoTooltipText()
 }
 
 GuiCurve* AudioPlugin2686VEditor::getCurveGui() {
-    return curveGui.get();
+    return &curveGui.ref();
 }
 
 void AudioPlugin2686VEditor::parentHierarchyChanged()
@@ -1461,7 +1480,15 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
     // 入れ終えてからまとめて 1 度だけ描き直す。
     GuiRefresh::Batch batch;
 
-    opzx7Gui->setLevel(level);
+    // 開いていないタブは中身を作らず、値だけ入れる。
+    // 配るためだけに全部のタブを作ると、そこで待たされてしまう。
+    auto apply = [this, level](auto& slot, const juce::String& code) {
+        if (auto* gui = slot.peek()) gui->setLevel(level);
+        else setLevelParam(code, level);
+        };
+
+    apply(opzx7Gui, Opzx7PrKey::prefix);
+
 }
 
 void AudioPlugin2686VEditor::copyOpzx7OpParams(int from, int to) {
@@ -1482,11 +1509,62 @@ void AudioPlugin2686VEditor::updateFxOrder(){
 
 // タブは持っているものが プラグインごとに違うので、あるものだけ回す。
 // 中身を持たないタブは、土台の空実装がそのまま呼ばれる。
+GuiContext AudioPlugin2686VEditor::makeGuiContext()
+{
+    return GuiContext(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
+}
+
+juce::String AudioPlugin2686VEditor::currentPresetName() const
+{
+    return audioProcessor.presetName;
+}
+
+// ============================================================================
+// タブの後作り
+// ============================================================================
+// 作り方だけを入れておく。実際に作られるのは、そのタブが開かれたときか、
+// 中身を触る操作 (チャンネル間のコピーなど) が来たとき。
+void AudioPlugin2686VEditor::setupLazyTabs()
+{
+    prepareLazyTab<GuiOpzx7>(opzx7Gui, tabOpzx7);
+    prepareLazyTab<GuiCurve>(curveGui, tabCurve);
+}
+
+void AudioPlugin2686VEditor::materializeAllTabs()
+{
+    for (int i = 0; i < tabCount; ++i) materializeTab(i);
+}
+
+void AudioPlugin2686VEditor::materializeTab(int tabIndex)
+{
+    switch (tabIndex)
+    {
+    case tabOpzx7: opzx7Gui.ref(); break;
+    case tabCurve: curveGui.ref(); break;
+    default: break; // 先に作ってあるタブ
+    }
+}
+
+// 開いていないタブのレベルを、GUI を通さずに入れる。
+//
+// 画面のつまみは値を持たない (パラメータの写し) ので、ここへ入れておけば
+// 後でそのタブを開いたときにそのまま出る。
+void AudioPlugin2686VEditor::setLevelParam(const juce::String& prefix, float level)
+{
+    auto* param = audioProcessor.apvts.getParameter(prefix + CPK::level);
+
+    if (param == nullptr) return;
+
+    param->beginChangeGesture();
+    param->setValueNotifyingHost(param->getNormalisableRange().convertTo0to1(level));
+    param->endChangeGesture();
+}
+
 void AudioPlugin2686VEditor::forEachTabGui(const std::function<void(GuiBase&)>& fn)
 {
-    if (opzx7Gui != nullptr) fn(*opzx7Gui);
+    if (auto* gui = opzx7Gui.peek()) fn(*gui);
     if (presetGui != nullptr) fn(*presetGui);
-    if (curveGui != nullptr) fn(*curveGui);
+    if (auto* gui = curveGui.peek()) fn(*gui);
     if (fxGui != nullptr) fn(*fxGui);
     if (settingsGui != nullptr) fn(*settingsGui);
     if (aboutGui != nullptr) fn(*aboutGui);
@@ -1496,6 +1574,11 @@ void AudioPlugin2686VEditor::forEachTabGui(const std::function<void(GuiBase&)>& 
 // 簡易表示モードで隠れている区分を、まとめて切る。
 void AudioPlugin2686VEditor::bypassHiddenCategories()
 {
+    // これはパラメータを切る操作なので、開いていないタブにも効かせる。
+    // 音を出しているのはタブではなくパラメータのほうなので、
+    // 見ていないタブを飛ばすと、そこだけ鳴り続けてしまう。
+    materializeAllTabs();
+
     forEachTabGui([](GuiBase& gui) { gui.bypassHiddenCategories(); });
 
     resized();
@@ -1504,6 +1587,8 @@ void AudioPlugin2686VEditor::bypassHiddenCategories()
 // 効いている区分をまとめて開く
 void AudioPlugin2686VEditor::openEnabledCategories()
 {
+    lastCategoryBulk = CategoryBulk::open;
+
     forEachTabGui([](GuiBase& gui) { gui.openEnabledCategories(); });
 
     resized();
@@ -1512,6 +1597,8 @@ void AudioPlugin2686VEditor::openEnabledCategories()
 // 切ってある区分をまとめて閉じる
 void AudioPlugin2686VEditor::closeBypassedCategories()
 {
+    lastCategoryBulk = CategoryBulk::close;
+
     forEachTabGui([](GuiBase& gui) { gui.closeBypassedCategories(); });
 
     resized();

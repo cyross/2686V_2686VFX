@@ -8,6 +8,8 @@
 #include "../Processor/PluginProcessor.h"
 #include "../Fm/FmSliderRegMap.h"
 #include "../Gui/GuiLF.h"
+#include "../Gui/GuiLazy.h"
+#include "../Gui/GuiContext.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
 
@@ -189,10 +191,10 @@ private:
 
     SliderRegMap sliderRegMap;
 
-    std::unique_ptr<GuiOpna> opnaGui;  // OPNA
-    std::unique_ptr<GuiSsg> ssgGui; // SSG
-    std::unique_ptr<GuiRhythm> rhythmGui; // Rhythm
-    std::unique_ptr<GuiAdpcm> adpcmGui; // ADPCM
+    GuiLazy<GuiOpna> opnaGui;  // OPNA
+    GuiLazy<GuiSsg> ssgGui; // SSG
+    GuiLazy<GuiRhythm> rhythmGui; // Rhythm
+    GuiLazy<GuiAdpcm> adpcmGui; // ADPCM
     std::unique_ptr<GuiPreset> presetGui;
 
     // 仮想MIDIキーボード用
@@ -225,6 +227,98 @@ private:
 
     // 開いているタブに限らず、持っているタブすべてへ配る。
     void forEachTabGui(const std::function<void(GuiBase&)>& fn);
+
+    // ------------------------------------------------------------------
+    // タブの後作り
+    // ------------------------------------------------------------------
+    // タブの並び。setupTabs の登録順と揃えてある。
+    enum TabIndex
+    {
+        tabOpna,
+        tabSsg,
+        tabRhythm,
+        tabAdpcm,
+        tabPreset,
+        tabSettings,
+        tabColors,
+        tabAbout,
+
+        tabCount
+    };
+
+    // 中身を入れる器。中身が出来るまでは空のまま置いておく。
+    std::array<GuiTabHost, tabCount> tabHosts;
+
+    // 直近の resized() で決めたタブの中身の矩形。
+    // 後から作ったタブは resized() を待たずにここへ合わせる。
+    juce::Rectangle<int> lastTabContent;
+
+    // 作り方を仕込む。ここで入れた手順が、そのタブが最初に要るときに走る。
+    void setupLazyTabs();
+
+    // 音源側の実体をここで触ると、取り込みの順によっては型が揃っていない。
+    // 触るところは .cpp へ逃がしてある。
+    GuiContext makeGuiContext();
+    juce::String currentPresetName() const;
+
+    // 1 つぶんの仕込み。extra には、そのタブだけに要る後始末を入れる。
+    template <typename T>
+    void prepareLazyTab(GuiLazy<T>& slot, int tabIndex, std::function<void(T&)> extra = {})
+    {
+        slot.onConstruct = [this] {
+            return std::make_unique<T>(makeGuiContext());
+            };
+
+        slot.onSetup = [this, tabIndex, extra](T& gui) {
+            finishTabGui(gui, tabIndex);
+
+            if (extra) extra(gui);
+            };
+    }
+
+    // そのタブの中身を作る。すでに出来ていれば何もしない。
+    void materializeTab(int tabIndex);
+
+    // すべてのタブの中身を作る。パラメータを書き換える一括操作は、
+    // 開いていないタブにも効かないと困るので、そこだけはここを通す。
+    void materializeAllTabs();
+
+    // OP / CL の押し下げを覚えておく。
+    //
+    // これは見た目だけの操作なので、開いていないタブへ先回りして
+    // 作りに行く必要はない。後でそのタブを開いたときに同じ形にする。
+    enum class CategoryBulk { none, open, close };
+    CategoryBulk lastCategoryBulk = CategoryBulk::none;
+
+    // 開いていないタブのレベルを、GUI を作らずに入れる。
+    void setLevelParam(const juce::String& prefix, float level);
+
+    // 作った直後にやること。
+    //
+    // setup を済ませ、ツールチップを付け、器へ入れて位置を決める。
+    // ここで resized() を呼ばないのは、まだ出来上がっていない自分自身を
+    // 触りに来てしまうため。位置は覚えてある矩形から直に決める。
+    template <typename T>
+    void finishTabGui(T& gui, int tabIndex)
+    {
+        gui.setup();
+
+        if constexpr (requires (T& g) { g.updatePresetName(juce::String()); })
+        {
+            gui.updatePresetName(currentPresetName());
+        }
+
+        assignTooltipsRecursive(&gui);
+
+        // 一括で開け閉めした後に作られたタブも、同じ形で出す。
+        if (lastCategoryBulk == CategoryBulk::open) gui.openEnabledCategories();
+        else if (lastCategoryBulk == CategoryBulk::close) gui.closeBypassedCategories();
+
+        tabHosts[(size_t)tabIndex].setContent(gui);
+
+        if (!lastTabContent.isEmpty()) gui.layout(lastTabContent);
+    }
+
 
     SystemButtonLF miniToggleBtnLF;
     juce::TextButton toggleMiniBtn;
