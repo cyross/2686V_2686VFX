@@ -54,6 +54,18 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
         WT AMP MOD / PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] /
         WT PITCH MOD / LFO / MUL・DET / FIX / UNISON・HARMONY の13区分
     - 設定は設定ファイルへ保存
+  - **区分の一括バイパス・一括開閉ボタン**
+    - 「非表示中の区分をバイパス」ボタン
+      - SETTINGSタブ、「簡易表示モード」の右隣
+      - いま非表示になっている区分だけをbypass/disabledにする
+      - 「簡易表示モード」がOFFのときはDisabled
+    - 画面右上の表示モードボタンの左に「OP」「CL」を配置
+      - 背景は群青、文字はオフホワイト
+      - 「OP」: bypassがオフ/enabledの区分をすべて開く
+      - 「CL」: bypassがオン/disabledの区分をすべて閉じる
+      - 対象は簡易表示モードで非表示になる区分。全チャンネル・全オペレーター・全パッドに一括で適用
+    - いずれも、入り切りの札を持たないMUL・DETとUNISON・HARMONYは対象外
+    - LFOはPMとAMの両方をまとめて扱う
   - **ソフトウェア系区分の色分けを細分化**
     - 音量系→青、ピッチ系→ターコイズブルー、LFO→紫
     - OPTIONAL / UNISON・HARMONY / FIX / MUL・DET はシアンのまま

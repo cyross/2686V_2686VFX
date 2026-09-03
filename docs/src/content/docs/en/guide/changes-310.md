@@ -122,6 +122,22 @@ SSG SW PITCH ENV[11] / WT PITCH MOD / LFO / MUL・DET / FIX / UNISON・HARMONY.
 
 The setting is saved to the settings file along with everything else.
 
+### Buttons to switch off and to fold sections in bulk
+
+Hiding is display only and the sound stays as it was, so there are now buttons
+to switch the hidden sections off.
+
+- **[Bypass hidden sections]** — next to the simple view switch in SETTINGS.
+  Switches off only what is currently hidden. Disabled while simple view is
+  off.
+- **[OP]** — expands every section that is not switched off. Top right, to the
+  left of the view mode button.
+- **[CL]** — collapses every section that is switched off. Same place.
+
+OP and CL **apply to every channel, every operator and every pad at once.**
+None of the buttons touch MUL・DET or UNISON・HARMONY, which carry no on/off
+switch. On the LFO, PM and AM are handled together.
+
 ### Sections are in a tidier order
 
 There were enough sections that the order had become ad hoc, so they are grouped

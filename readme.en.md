@@ -55,6 +55,18 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
         SSG SW PITCH ENV[11] / WT PITCH MOD / LFO / MUL・DET / FIX /
         UNISON・HARMONY.
     - The setting is saved to the settings file.
+  - **Buttons to bypass and to fold sections in bulk**
+    - "Bypass hidden sections" button
+      - SETTINGS tab, to the right of the simple view switch.
+      - Switches off only the sections that are currently hidden.
+      - Disabled while simple view is off.
+    - "OP" and "CL" sit to the left of the view mode button, top right.
+      - Ultramarine background, off-white text.
+      - "OP": expands every section that is not switched off.
+      - "CL": collapses every section that is switched off.
+      - They cover the sections simple view hides, and apply to every channel, operator and pad at once.
+    - None of them touch MUL・DET or UNISON・HARMONY, which carry no on/off switch.
+    - On the LFO, PM and AM are handled together.
   - **Software-side section colours split more finely**
     - Level → blue, pitch → turquoise, LFO → purple.
     - OPTIONAL / UNISON・HARMONY / FIX / MUL・DET stay cyan.

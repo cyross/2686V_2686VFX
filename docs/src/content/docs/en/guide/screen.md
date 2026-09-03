@@ -103,6 +103,33 @@ there is kept on screen even while simple view is on.
 
 The setting is saved to the settings file along with everything else.
 
+#### Bypassing what is hidden
+
+Hiding is display only, so **the sound is the same as before you hid
+anything**. To switch the hidden sections off in one go, press
+**[Bypass hidden sections]**, which sits to the right of the simple view
+switch. Only the sections currently hidden are switched off; anything you kept
+on screen through customisation is left alone. The button is disabled while
+simple view is off.
+
+**MUL・DET** and **UNISON・HARMONY** carry no on/off switch — only values — so
+they are left alone. On the **LFO** both PM and AM are switched off.
+
+#### Opening and closing sections in bulk — OP / CL
+
+**[OP]** and **[CL]** at the top right tidy up which sections are expanded.
+They cover the same sections as simple view, and **apply to every channel,
+every operator and every pad at once.**
+
+| Button | What it does |
+| --- | --- |
+| **OP** | expands the sections that are not switched off |
+| **CL** | collapses the sections that are switched off |
+
+Use them to get to "only what I am actually using is open" in one press. They
+work whether or not simple view is on. Sections with no on/off switch are left
+alone by both.
+
 ### Sliders
 
 Drag the control, or type a number in directly.
@@ -132,6 +159,7 @@ are never assembling something from numbers alone.
 | Initialise | resets the open tab's parameters to their defaults |
 | Panic | stops any note that got stuck on |
 | Preview | shows and hides the waveform preview strip |
+| OP / CL | opens and closes sections in bulk (see below) |
 | View mode | cycles the three views |
 
 ## View modes
