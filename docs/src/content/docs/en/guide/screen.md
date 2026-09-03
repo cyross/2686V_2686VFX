@@ -80,6 +80,29 @@ single cyan to stay readable, so 3.1.0 splits them by role.
 The order follows the same grouping: **hardware-derived sections come first**,
 then level, then pitch, then the LFO.
 
+### Simple view
+
+There are enough sections that a tab runs long, so SETTINGS carries a switch
+that **keeps the ones you use and folds the rest away**. It only hides what is
+on screen — **the sound does not change**, and the values of the hidden
+sections stay as they were.
+
+What gets hidden is decided per tab, and **a section the channel has as a
+feature of the real chip stays**. That is why SSG keeps SSG HW AMP ENV, and
+WT / WT2 / WT+ keep WT PITCH MOD. In 2686VFX the modulation panels are hidden
+and the effect panels stay.
+
+Turning it on reveals **Simple view customisation** below it. Anything ticked
+there is kept on screen even while simple view is on.
+
+| Sections |
+| --- |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
+| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| LFO / MUL・DET / FIX / UNISON・HARMONY |
+
+The setting is saved to the settings file along with everything else.
+
 ### Sliders
 
 Drag the control, or type a number in directly.

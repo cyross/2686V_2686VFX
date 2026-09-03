@@ -40,6 +40,21 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - 2686VFX
   - **SSG HW PITCH ENV and WT AMP MOD added as modulation.**
 - On screen
+  - **Simple view**
+    - Hides some of the sections on screen to keep the layout short.
+      - Display only; the sound is unaffected.
+    - Sits above "Show tooltips" in the SETTINGS tab. Off by default.
+    - What gets hidden is decided per tab.
+      - A section the channel has as a feature of the real chip stays.
+        - SSG keeps SSG HW AMP ENV; WT/WT2/WT+ keep WT PITCH MOD.
+      - 2686VFX hides the modulation panels and keeps the effect panels.
+    - Turning it on reveals "Simple view customisation" (collapsed at first).
+      - Anything ticked there stays on screen even while simple view is on.
+      - The thirteen sections are AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV /
+        SSG SW AMP ENV[11] / WT AMP MOD / PITCH ENV / SSG HW PITCH ENV /
+        SSG SW PITCH ENV[11] / WT PITCH MOD / LFO / MUL・DET / FIX /
+        UNISON・HARMONY.
+    - The setting is saved to the settings file.
   - **Software-side section colours split more finely**
     - Level → blue, pitch → turquoise, LFO → purple.
     - OPTIONAL / UNISON・HARMONY / FIX / MUL・DET stay cyan.

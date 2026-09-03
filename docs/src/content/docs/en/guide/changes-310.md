@@ -100,6 +100,28 @@ colours above when borrowed onto another channel.
 | LFO | green |
 | MUL・DET / UNISON・HARMONY | cyan |
 
+### Simple view was added
+
+There are enough sections that a tab runs long, so SETTINGS now carries a
+switch that **keeps the ones you use and folds the rest away**. It sits above
+"Show tooltips" and is off by default.
+
+**It only hides what is on screen — the sound does not change**, and the values
+of the hidden sections stay as they were.
+
+What gets hidden is decided per tab, and **a section the channel has as a
+feature of the real chip stays**. SSG keeps SSG HW AMP ENV; WT / WT2 / WT+ keep
+WT PITCH MOD. In 2686VFX the modulation panels are hidden and the effect panels
+stay.
+
+Turning it on reveals **Simple view customisation** below it (collapsed at
+first). Anything ticked there is kept on screen even while simple view is on.
+The thirteen sections are AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV /
+SSG SW AMP ENV[11] / WT AMP MOD / PITCH ENV / SSG HW PITCH ENV /
+SSG SW PITCH ENV[11] / WT PITCH MOD / LFO / MUL・DET / FIX / UNISON・HARMONY.
+
+The setting is saved to the settings file along with everything else.
+
 ### Sections are in a tidier order
 
 There were enough sections that the order had become ad hoc, so they are grouped

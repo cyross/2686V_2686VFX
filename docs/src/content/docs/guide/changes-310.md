@@ -95,6 +95,27 @@ SSG HW AMP ENV と SSG HW PITCH ENV、WT PITCH MOD と WT AMP MOD は、自分�
 | LFO | 緑系統 |
 | MUL・DET / UNISON・HARMONY | シアン系統 |
 
+### 簡易表示モードを足しました
+
+区分が増えて 1 つのタブが縦に長くなったので、**よく使うものだけ残して畳む**
+切り替えを SETTINGS へ置きました。「ツールチップを表示」の上にあります。
+初期状態は OFF です。
+
+**出しているものを隠すだけで、音は変わりません。** 隠した区分の値もそのまま
+残ります。
+
+何を隠すかはタブごとに決めてあり、**そのチャンネルが実機の機能として持って
+いる区分は残します。** SSG では SSG HW AMP ENV が、WT / WT2 / WT+ では
+WT PITCH MOD が残ります。2686VFX では変調の枠が隠れ、効果の枠は残ります。
+
+スイッチを入れると下に **簡易表示モードカスタマイズ** が出ます (初期状態は
+閉じています)。ここで入れた区分は簡易表示モードでも隠れません。対象は
+AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD /
+PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD / LFO /
+MUL・DET / FIX / UNISON・HARMONY の 13 区分です。
+
+設定は他の項目と同じく設定ファイルへ保存されます。
+
 ### 区分の並び順を整えました
 
 区分が増えて並びが場当たりになっていたので、系統ごとにまとめ直しました。

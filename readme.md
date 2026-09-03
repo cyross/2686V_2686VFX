@@ -40,6 +40,20 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 - 2686VFX
   - **SSG HW PITCH ENV と WT AMP MOD を変調として追加**
 - 画面
+  - **簡易表示モード**
+    - GUIの一部の区分を隠して、表示をシンプルにする機能
+      - GUI表示だけの対応で、音には影響しない
+    - SETTINGSタブの「ツールチップを表示」の上に設置。初期状態はOFF
+    - 隠す区分はタブごとに設定
+      - そのチャンネルが実機の機能として持つ区分は残す
+        - SSGでは SSG HW AMP ENV、WT/WT2/WT+ では WT PITCH MOD が残る
+      - 2686VFXは変調の枠を隠し、効果の枠は残す
+    - ONにすると「簡易表示モードカスタマイズ(開閉)」が出現(初期状態は閉)
+      - ここでONにした区分は簡易表示モードでも隠れない
+      - 対象は AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] /
+        WT AMP MOD / PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] /
+        WT PITCH MOD / LFO / MUL・DET / FIX / UNISON・HARMONY の13区分
+    - 設定は設定ファイルへ保存
   - **ソフトウェア系区分の色分けを細分化**
     - 音量系→青、ピッチ系→ターコイズブルー、LFO→紫
     - OPTIONAL / UNISON・HARMONY / FIX / MUL・DET はシアンのまま
