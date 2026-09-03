@@ -115,7 +115,7 @@ public:
     // categoryBg は見出しの背景色。実機由来ではなくこちらの追加分なので、
     // 既定はソフトウェア区分の色を使う。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
-        juce::Colour categoryBg = GuiColor::Category::SwBg);
+        juce::Colour categoryBg = GuiColor::Category::SwAmpBg);
     void layoutComponent(juce::Rectangle<int>& rect);
 
     // 単体ファイル (.wtampmod) での入出力。

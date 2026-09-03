@@ -55,7 +55,7 @@ public:
     // categoryBg は見出しの背景色。SSG チャンネル自身の機能なので、
     // SSG では HwBg、他チャンネルへ借りて置く場合は既定の SwBg を使う。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
-        juce::Colour categoryBg = GuiColor::Category::SwBg);
+        juce::Colour categoryBg = GuiColor::Category::SwAmpBg);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);

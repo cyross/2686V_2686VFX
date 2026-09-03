@@ -800,6 +800,21 @@ void GuiCategoryLabel::setupSwCategory(const Config& c)
     setupInner(c, GuiColor::Category::SwBg);
 }
 
+void GuiCategoryLabel::setupSwAmpCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::SwAmpBg);
+}
+
+void GuiCategoryLabel::setupSwPitchCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::SwPitchBg);
+}
+
+void GuiCategoryLabel::setupSwLfoCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::SwLfoBg);
+}
+
 void GuiCategoryLabel::setupOtherCategory(const Config& c)
 {
     setupInner(c, GuiColor::Category::OtherBg);

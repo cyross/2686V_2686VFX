@@ -65,7 +65,7 @@ public:
     // categoryBg は見出しの背景色。実機由来ではなくこちらの追加分なので、
     // 既定はソフトウェア区分 (ピッチ系) の色を使う。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
-        juce::Colour categoryBg = GuiColor::Category::SwBg);
+        juce::Colour categoryBg = GuiColor::Category::SwPitchBg);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);

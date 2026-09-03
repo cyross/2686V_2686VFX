@@ -134,7 +134,7 @@ void GuiOpn::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
+    lfoCat.setupSwLfoCategory({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
 
     lfoFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::freq, .title = OpnGuiText::Fm::lfoSpeed, .isReset = true });
     lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -428,7 +428,7 @@ void GuiOpn::setup()
         ssgHwEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
         wtModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
 
-        catN88Lfo[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
+        catN88Lfo[i].setupSwLfoCategory({ .parent = opGroups[i].contentCanvas, .title = OpnGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
 
         n88Ams[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::N88Lfo::ams, .title = OpnGuiText::Fm::Op::Ams, .isReset = true });
         n88Ams[i].setWantsKeyboardFocus(true);

@@ -40,7 +40,7 @@ void GuiComponentLfoOpzx7::setupComponent(
     int& tabOrder
 )
 {
-    cat.setupSwCategory({
+    cat.setupSwLfoCategory({
         .parent = parent,
         .title = juce::String("") + "LFO",
         .enableChangeDetailVisible = true

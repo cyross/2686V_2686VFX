@@ -50,7 +50,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
 {
     this->isEnable = isEnable;
 
-    cat.setupSwCategory({
+    cat.setupSwAmpCategory({
         .parent = parent,
         .title = juce::String("") + "SSG SW AMP ENV",
         .enableChangeDetailVisible = true

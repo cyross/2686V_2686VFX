@@ -49,7 +49,7 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
 {
     this->isEnable = isEnable;
 
-    cat.setupSwCategory({
+    cat.setupSwPitchCategory({
         .parent = parent,
         .title = juce::String("") + "SSG SW PITCH ENV[11]",
         .enableChangeDetailVisible = true

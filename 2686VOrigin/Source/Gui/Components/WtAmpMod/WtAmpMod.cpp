@@ -157,7 +157,7 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     modPreview.setup(parent, GuiColor::WavePreview::AmpEnv);
     updateModPreview();
 
-    fdsCat.setupSwCategory({ .parent = parent, .title = juce::String("") + "FDS AMP TABLE", .enableChangeDetailVisible = true });
+    fdsCat.setupSwAmpCategory({ .parent = parent, .title = juce::String("") + "FDS AMP TABLE", .enableChangeDetailVisible = true });
 
     // 積算後の階段波は音量側の色で描く
     fdsEditor.stepColourEntry = &GuiColor::WavePreview::AmpEnv;

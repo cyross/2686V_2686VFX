@@ -316,7 +316,7 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     modPreview.setup(parent, GuiColor::WavePreview::PitchEnv);
     updateModPreview();
 
-    fdsCat.setupSwCategory({ .parent = parent, .title = juce::String("") + "FDS PITCH TABLE", .enableChangeDetailVisible = true });
+    fdsCat.setupSwPitchCategory({ .parent = parent, .title = juce::String("") + "FDS PITCH TABLE", .enableChangeDetailVisible = true });
 
     fdsEditor.setup(parent, code + CPK::WtMod::fdsTable);
     fdsEditor.onParamChanged = [this] { this->updateModPreview(); };

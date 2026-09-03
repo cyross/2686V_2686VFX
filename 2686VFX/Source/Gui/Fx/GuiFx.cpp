@@ -200,7 +200,11 @@ void GuiFx::setup()
 {
     const juce::String code = FxPrKey::prefix;
     int tabOrder = 1;
-    const juce::Colour groupBgColour = juce::Colours::darkblue.darker(0.3f).withAlpha(0.5f);
+    // 枠の地色は系統ごとに分ける。実体は GuiColor にあり、SETTINGS から差し替えられる。
+    const juce::Colour groupBgColour = GuiColor::FxGroup::Fx;
+    const juce::Colour modBgColour = GuiColor::FxGroup::Mod;
+    const juce::Colour lfoBgColour = GuiColor::FxGroup::Lfo;
+    const juce::Colour otherBgColour = GuiColor::FxGroup::Other;
 
     // MainGroup
     mainGroup.setup(*this, FxGuiText::Group::mainGroup);
@@ -233,12 +237,15 @@ void GuiFx::setup()
     modSsgSwEnv11Group.setup(*this, juce::String("") + "SSG SW AMP ENV[11]");
     modLfoGroup.setup(*this, juce::String("") + "LFO");
 
-    // 変調の枠も、他の効果と同じ青系統に塗る。
+    // 変調の枠は赤系統。効果の青と見分けが付くようにする。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modWtAmpModGroup, &modLfoGroup })
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modWtAmpModGroup })
     {
-        group->setBackgroundColor(groupBgColour);
+        group->setBackgroundColor(modBgColour);
     }
+
+    // LFO は音量と音程の両方へ掛かるので、変調とも別の緑系統にする。
+    modLfoGroup.setBackgroundColor(lfoBgColour);
 
     ampEnvComponent.setupComponent(modAmpEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
         FxGuiText::Fx::bypass);
@@ -270,7 +277,7 @@ void GuiFx::setup()
 
     for (auto* group : { &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup })
     {
-        group->setBackgroundColor(groupBgColour);
+        group->setBackgroundColor(modBgColour);
     }
 
     pitchEnvComponent.setupComponent(modPitchEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
@@ -301,9 +308,10 @@ void GuiFx::setup()
     modMulDetuneGroup.setup(*this, juce::String("") + "MUL・DET");
     modUnisonGroup.setup(*this, juce::String("") + "UNISON・HARMONY");
 
+    // 音程を一定量ずらすものは変調とも LFO とも違うので、シアン系統にする。
     for (auto* group : { &modMulDetuneGroup, &modUnisonGroup })
     {
-        group->setBackgroundColor(groupBgColour);
+        group->setBackgroundColor(otherBgColour);
     }
 
     mulDetuneComponent.setupComponent(modMulDetuneGroup.contentCanvas, ModPrKey::prefix, tabOrder);

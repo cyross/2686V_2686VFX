@@ -987,6 +987,9 @@ public:
     void setup(const Config& c);
     void setupHwCategory(const Config& c); // ハードウェアカテゴリ用の簡易設定
     void setupSwCategory(const Config& c); // ソフトウェアカテゴリ用の簡易設定
+    void setupSwAmpCategory(const Config& c);   // ソフトウェア(音量系)カテゴリ用
+    void setupSwPitchCategory(const Config& c); // ソフトウェア(ピッチ系)カテゴリ用
+    void setupSwLfoCategory(const Config& c);   // ソフトウェア(LFO)カテゴリ用
     void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
 
     // 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって

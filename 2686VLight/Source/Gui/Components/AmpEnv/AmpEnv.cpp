@@ -19,7 +19,7 @@ namespace
 void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder,
     const juce::String& bypassText)
 {
-	cat.setupSwCategory({
+	cat.setupSwAmpCategory({
         .parent = parent,
         .title = juce::String("") + "AMP ENV",
         .enableChangeDetailVisible = true
