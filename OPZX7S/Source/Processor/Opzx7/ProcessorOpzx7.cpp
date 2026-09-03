@@ -51,6 +51,8 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         PrHelper::addOpSsgSwPEnv11Parameters(layout, opPrefix, opPrefixName);
         PrHelper::addSsgHwPEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addWtAmpModParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addSsgHwEnvParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addWtModParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpOpzx7LfoParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpMaskParameters(layout, opPrefix, opPrefixName);
     }
@@ -91,6 +93,8 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
         PrHelper::setupSsgSwPEnv11PtrsOp(apvts, p, pOpSsgSwPEnv11[op]);
         PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);
         PrHelper::setupWtAmpMod(apvts, p, pOpWtAmpMod[op], modWaves);
+        PrHelper::setupSsgHwEnv(apvts, p, pOpSsgHwEnv[op]);
+        PrHelper::setupWtMod(apvts, p, pOpWtMod[op], modWaves);
 
         pOpMask[op] = PrHelper::setupOpMaskPtr(apvts, p);
     }
@@ -127,6 +131,8 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         PrHelper::applySsgSwPEnv11Op(pOpSsgSwPEnv11[op], params.opzx7.op[op].ssgSwPEnv11, params.opzx7.op[op].ssgPEnv11Enable);
         PrHelper::applySsgHwPEnv(pOpSsgHwPEnv[op], params.opzx7.op[op].ssgHwPEnv);
         PrHelper::applyWtAmpMod(pOpWtAmpMod[op], params.opzx7.op[op].wtAmpMod);
+        PrHelper::applySsgHwEnv(pOpSsgHwEnv[op], params.opzx7.op[op].ssgHwEnv);
+        PrHelper::applyWtMod(pOpWtMod[op], params.opzx7.op[op].wtMod);
 
         params.opzx7.op[op].waveSelect = PrHelper::getInt(pOpWs[op].waveSelect);
         params.opzx7.op[op].mask = PrHelper::getBool(pOpMask[op]);

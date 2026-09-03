@@ -264,6 +264,12 @@ void GuiOpl3::setup()
     ieOpWtAmpMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Amp Mod");
     ieOpWtAmpMod.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpWtAmpModParam(opIndex); };
     ieOpWtAmpMod.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpWtAmpModParam(opIndex); };
+    ieOpSsgHwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW Env");
+    ieOpSsgHwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpSsgHwEnvParam(opIndex); };
+    ieOpSsgHwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpSsgHwEnvParam(opIndex); };
+    ieOpWtMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Modulation");
+    ieOpWtMod.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpWtModParam(opIndex); };
+    ieOpWtMod.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpWtModParam(opIndex); };
 
     ieOpChParam.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP Params");
     ieOpChParam.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpChParam(opIndex); };
@@ -378,6 +384,8 @@ void GuiOpl3::setup()
         ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, Opl3GuiText::SsgSwPEnv11::enable, true);
         ssgHwPEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
         wtAmpModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
+        ssgHwEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
+        wtModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
 
         catShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::eg, .enableChangeDetailVisible = true });
 
@@ -558,6 +566,8 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
         ssgSwPEnv11[i].layoutComponentRow(innerRect);
         ssgHwPEnvOp[i].layoutComponentRow(innerRect);
         wtAmpModOp[i].layoutComponent(innerRect);
+        ssgHwEnvOp[i].layoutComponentRow(innerRect);
+        wtModOp[i].layoutComponent(innerRect);
 
         layoutOpEgCat(i, innerRect);
 
@@ -856,6 +866,8 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpSsgSwPEnv11.setVisible(visible);
     ieOpSsgHwPEnv.setVisible(visible);
     ieOpWtAmpMod.setVisible(visible);
+    ieOpSsgHwEnv.setVisible(visible);
+    ieOpWtMod.setVisible(visible);
     ieOpChParam.setVisible(visible);
     imOplOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
@@ -907,6 +919,8 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieOpSsgSwPEnv11.layoutComponent(rect);
         ieOpSsgHwPEnv.layoutComponent(rect);
         ieOpWtAmpMod.layoutComponent(rect);
+        ieOpSsgHwEnv.layoutComponent(rect);
+        ieOpWtMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpChParam.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1683,6 +1697,22 @@ void GuiOpl3::exportOpWtAmpModParam(int opIndex) {
     wtAmpModOp[opIndex].exportParams();
 }
 
+void GuiOpl3::importOpSsgHwEnvParam(int opIndex) {
+    ssgHwEnvOp[opIndex].importParams();
+}
+
+void GuiOpl3::exportOpSsgHwEnvParam(int opIndex) {
+    ssgHwEnvOp[opIndex].exportParams();
+}
+
+void GuiOpl3::importOpWtModParam(int opIndex) {
+    wtModOp[opIndex].importParams();
+}
+
+void GuiOpl3::exportOpWtModParam(int opIndex) {
+    wtModOp[opIndex].exportParams();
+}
+
 void GuiOpl3::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
@@ -1909,6 +1939,8 @@ void GuiOpl3::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgSwPEnv11[opIndex].readParams(r, "ssgSwPEnv11");
     ssgHwPEnvOp[opIndex].readParams(r, "ssgHwPEnv");
     wtAmpModOp[opIndex].readParams(r, "wtAmpMod");
+    ssgHwEnvOp[opIndex].readParams(r, "ssgHwEnv");
+    wtModOp[opIndex].readParams(r, "wtMod");
 }
 
 void GuiOpl3::writeOpParams(int opIndex, Io::ParamWriter& w) {
@@ -1951,6 +1983,8 @@ void GuiOpl3::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwPEnv11[opIndex].writeParams(w, "ssgSwPEnv11");
     ssgHwPEnvOp[opIndex].writeParams(w, "ssgHwPEnv");
     wtAmpModOp[opIndex].writeParams(w, "wtAmpMod");
+    ssgHwEnvOp[opIndex].writeParams(w, "ssgHwEnv");
+    wtModOp[opIndex].writeParams(w, "wtMod");
 }
 
 void GuiOpl3::importOplChParam() {

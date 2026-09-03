@@ -124,6 +124,8 @@ class GuiOpm : public GuiBase
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpSsgHwPEnv;
     GuiComponentImportExport ieOpWtAmpMod;
+    GuiComponentImportExport ieOpSsgHwEnv;
+    GuiComponentImportExport ieOpWtMod;
     GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep004;
@@ -187,6 +189,8 @@ class GuiOpm : public GuiBase
     std::array<GuiComponentSsgSwPEnv11, OpmPrValue::ops> ssgSwPEnv11;
     std::array<GuiComponentSsgHwPEnv, OpmPrValue::ops> ssgHwPEnvOp;
     std::array<GuiComponentWtAmpMod, OpmPrValue::ops> wtAmpModOp;
+    std::array<GuiComponentSsgHwEnv, OpmPrValue::ops> ssgHwEnvOp;
+    std::array<GuiComponentWtMod, OpmPrValue::ops> wtModOp;
 
     std::array<GuiCategoryLabel, OpmPrValue::ops> cafLfo;
     std::array<GuiToggleButton, OpmPrValue::ops> amsEnable;
@@ -295,6 +299,8 @@ public:
         ieOpSsgSwPEnv11(context),
         ieOpSsgHwPEnv(context),
         ieOpWtAmpMod(context),
+        ieOpSsgHwEnv(context),
+        ieOpWtMod(context),
         ieOpChParam(context),
         targerOpSlider(context),
         uSep004(context),
@@ -348,6 +354,8 @@ public:
         ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
         ssgHwPEnvOp{ GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context) },
         wtAmpModOp{ GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context) },
+        ssgHwEnvOp{ GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context) },
+        wtModOp{ GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context) },
         cafLfo{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         amsEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         fix{ GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context) },
@@ -437,6 +445,10 @@ public:
     void exportOpSsgHwPEnvParam(int opIndex);
     void importOpWtAmpModParam(int opIndex);
     void exportOpWtAmpModParam(int opIndex);
+    void importOpSsgHwEnvParam(int opIndex);
+    void exportOpSsgHwEnvParam(int opIndex);
+    void importOpWtModParam(int opIndex);
+    void exportOpWtModParam(int opIndex);
     void importLfoParam();
 
     // 3.0.0 より前の形式を読む

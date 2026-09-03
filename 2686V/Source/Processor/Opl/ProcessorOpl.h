@@ -31,6 +31,8 @@ class OplProcessor : public PrBase
     std::array<PrPtrsSsgSwPEnv11Op, OplPrValue::ops> pSsgSwPEnv11;
     std::array<PrPtrsSsgHwPEnv, OplPrValue::ops> pOpSsgHwPEnv;
     std::array<PrPtrsWtAmpMod, OplPrValue::ops> pOpWtAmpMod;
+    std::array<PrPtrsSsgHwEnv, OplPrValue::ops> pOpSsgHwEnv;
+    std::array<PrPtrsWtMod, OplPrValue::ops> pOpWtMod;
     std::array<std::atomic<float>*, OplPrValue::ops> pOpMask = { nullptr };
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

@@ -133,6 +133,8 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpSsgHwPEnv;
     GuiComponentImportExport ieOpWtAmpMod;
+    GuiComponentImportExport ieOpSsgHwEnv;
+    GuiComponentImportExport ieOpWtMod;
     GuiComponentImportExport ieOpPcmPlay;
     GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
@@ -219,6 +221,8 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiComponentSsgSwPEnv11, Opzx7PrValue::ops> ssgSwPEnv11;
     std::array<GuiComponentSsgHwPEnv, Opzx7PrValue::ops> ssgHwPEnvOp;
     std::array<GuiComponentWtAmpMod, Opzx7PrValue::ops> wtAmpModOp;
+    std::array<GuiComponentSsgHwEnv, Opzx7PrValue::ops> ssgHwEnvOp;
+    std::array<GuiComponentWtMod, Opzx7PrValue::ops> wtModOp;
 
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catMask;
     std::array<GuiToggleButton, Opzx7PrValue::ops> mask; // Mask
@@ -361,6 +365,10 @@ public:
     void exportOpSsgHwPEnvParam(int opIndex);
     void importOpWtAmpModParam(int opIndex);
     void exportOpWtAmpModParam(int opIndex);
+    void importOpSsgHwEnvParam(int opIndex);
+    void exportOpSsgHwEnvParam(int opIndex);
+    void importOpWtModParam(int opIndex);
+    void exportOpWtModParam(int opIndex);
     void importDetuneParam(int opIndex);
     void exportDetuneParam(int opIndex);
     void importQualityParam();

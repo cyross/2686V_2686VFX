@@ -119,6 +119,8 @@ class GuiOpna : public GuiBase
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpSsgHwPEnv;
     GuiComponentImportExport ieOpWtAmpMod;
+    GuiComponentImportExport ieOpSsgHwEnv;
+    GuiComponentImportExport ieOpWtMod;
     GuiComponentImportExport ieOpChParam;
     GuiComponentImport imOpnOpChParam;
     GuiSlider targerOpSlider;
@@ -162,6 +164,8 @@ class GuiOpna : public GuiBase
     std::array<GuiComponentSsgSwPEnv11, OpnaPrValue::ops> ssgSwPEnv11;
     std::array<GuiComponentSsgHwPEnv, OpnaPrValue::ops> ssgHwPEnvOp;
     std::array<GuiComponentWtAmpMod, OpnaPrValue::ops> wtAmpModOp;
+    std::array<GuiComponentSsgHwEnv, OpnaPrValue::ops> ssgHwEnvOp;
+    std::array<GuiComponentWtMod, OpnaPrValue::ops> wtModOp;
 
     std::array<GuiComponentFix, OpnaPrValue::ops> fix;
     std::array<GuiCategoryLabel, OpnaPrValue::ops> catDet;
@@ -277,6 +281,8 @@ public:
         ieOpSsgSwPEnv11(context),
         ieOpSsgHwPEnv(context),
         ieOpWtAmpMod(context),
+        ieOpSsgHwEnv(context),
+        ieOpWtMod(context),
 		ieOpChParam(context),
 		imOpnOpChParam(context),
         targerOpSlider(context),
@@ -310,6 +316,8 @@ public:
         ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
         ssgHwPEnvOp{ GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context) },
         wtAmpModOp{ GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context) },
+        ssgHwEnvOp{ GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context) },
+        wtModOp{ GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context) },
         fix{ GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         freqs{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -411,6 +419,10 @@ public:
     void exportOpSsgHwPEnvParam(int opIndex);
     void importOpWtAmpModParam(int opIndex);
     void exportOpWtAmpModParam(int opIndex);
+    void importOpSsgHwEnvParam(int opIndex);
+    void exportOpSsgHwEnvParam(int opIndex);
+    void importOpWtModParam(int opIndex);
+    void exportOpWtModParam(int opIndex);
     void importLfoParam();
     void exportLfoParam();
     void importQualityParam();

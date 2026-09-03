@@ -96,6 +96,8 @@ class GuiOpl3 : public GuiBase
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpSsgHwPEnv;
     GuiComponentImportExport ieOpWtAmpMod;
+    GuiComponentImportExport ieOpSsgHwEnv;
+    GuiComponentImportExport ieOpWtMod;
     GuiComponentImportExport ieOpChParam;
     GuiComponentImport imOplOpChParam;
     GuiSlider targerOpSlider;
@@ -136,6 +138,8 @@ class GuiOpl3 : public GuiBase
     std::array<GuiComponentSsgSwPEnv11, Opl3PrValue::ops> ssgSwPEnv11;
     std::array<GuiComponentSsgHwPEnv, Opl3PrValue::ops> ssgHwPEnvOp;
     std::array<GuiComponentWtAmpMod, Opl3PrValue::ops> wtAmpModOp;
+    std::array<GuiComponentSsgHwEnv, Opl3PrValue::ops> ssgHwEnvOp;
+    std::array<GuiComponentWtMod, Opl3PrValue::ops> wtModOp;
 
     std::array<GuiCategoryLabel, Opl3PrValue::ops> catShape;
     std::array<GuiComboBox, Opl3PrValue::ops> eg; // Envlope Generator
@@ -232,6 +236,8 @@ public:
         ieOpSsgSwPEnv11(context),
         ieOpSsgHwPEnv(context),
         ieOpWtAmpMod(context),
+        ieOpSsgHwEnv(context),
+        ieOpWtMod(context),
 		ieOpChParam(context),
 		imOplOpChParam(context),
         targerOpSlider(context),
@@ -265,6 +271,8 @@ public:
         ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
         ssgHwPEnvOp{ GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context) },
         wtAmpModOp{ GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context) },
+        ssgHwEnvOp{ GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context) },
+        wtModOp{ GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context) },
         catShape{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         eg{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -361,6 +369,10 @@ public:
     void exportOpSsgHwPEnvParam(int opIndex);
     void importOpWtAmpModParam(int opIndex);
     void exportOpWtAmpModParam(int opIndex);
+    void importOpSsgHwEnvParam(int opIndex);
+    void exportOpSsgHwEnvParam(int opIndex);
+    void importOpWtModParam(int opIndex);
+    void exportOpWtModParam(int opIndex);
     void importQualityParam();
 
     // 3.0.0 より前の形式を読む

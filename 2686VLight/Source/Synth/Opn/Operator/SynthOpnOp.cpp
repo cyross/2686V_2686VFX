@@ -8,6 +8,7 @@ void OpnOperator::prepare(int opIndex, double sampleRate) {
     m_ssgSwEnv11.prepare(opIndex, sampleRate);
     m_ssgSwPenv11.prepare(opIndex, sampleRate);
     m_ssgHwPEnv.prepare(sampleRate);
+    m_ssgHwEnv.prepare(sampleRate);
 
     m_ampAdsr.setParamMax(
         CPV::OpnRg::Ar::max,
@@ -32,6 +33,8 @@ void OpnOperator::setParameters(const OpnOpParams& params, int feedback)
     m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
     m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
     m_wtAmpMod.setParameters(params.wtAmpMod);
+    m_ssgHwEnv.setParameters(params.ssgHwEnv);
+    m_wtMod.setParameters(params.wtMod);
     m_fixMode.setParameters(params.fix);
     m_detune.setParameters(params.detune);
 }
@@ -46,6 +49,7 @@ void OpnOperator::setSampleRate(double sampleRate)
     m_ssgSwEnv11.updateSampleRate(sampleRate);
     m_ssgSwPenv11.updateSampleRate(sampleRate);
     m_ssgHwPEnv.updateSampleRate(sampleRate);
+    m_ssgHwEnv.updateSampleRate(sampleRate);
 }
 
 void OpnOperator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
@@ -56,6 +60,8 @@ void OpnOperator::noteOn(float frequency, float velocity, int noteNumber, bool i
     // 押し直したときだけ頭から流し直す。
     if (!isLegato) m_ssgHwPEnv.noteOn();
     if (!isLegato) m_wtAmpMod.reset();
+    if (!isLegato) m_ssgHwEnv.noteOn();
+    if (!isLegato) m_wtMod.reset();
 
     if (!isLegato)
     {
@@ -275,8 +281,14 @@ void OpnOperator::getSample(float& output, float modulator, float feedbackModula
     // 位相を進める意味でも毎サンプル通しておく。
     currentPhaseDelta = m_ssgHwPEnv.process(currentPhaseDelta);
 
+    // WT PITCH MOD。速さは搬送波との比なので、素の位相増分を渡す。
+    currentPhaseDelta *= m_wtMod.process(m_phaseDelta);
+
     // WT AMP MOD。切ってあるときは MAX がそのまま返る。
     envVal *= m_wtAmpMod.process(m_phaseDelta);
+
+    // SSG HW AMP ENV。切ってあるときは MAX がそのまま返る。
+    envVal *= m_ssgHwEnv.process();
 
     // 位相の変調
     float feedbackPhaseOffset = 0.0f;

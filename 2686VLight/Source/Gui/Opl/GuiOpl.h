@@ -96,6 +96,8 @@ class GuiOpl : public GuiBase
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpSsgHwPEnv;
     GuiComponentImportExport ieOpWtAmpMod;
+    GuiComponentImportExport ieOpSsgHwEnv;
+    GuiComponentImportExport ieOpWtMod;
     GuiComponentImportExport ieOpChParam;
     GuiComponentImport imOpl3OpChParam;
     GuiSlider targerOpSlider;
@@ -136,6 +138,8 @@ class GuiOpl : public GuiBase
     std::array<GuiComponentSsgSwPEnv11, OplPrValue::ops> ssgSwPEnv11;
     std::array<GuiComponentSsgHwPEnv, OplPrValue::ops> ssgHwPEnvOp;
     std::array<GuiComponentWtAmpMod, OplPrValue::ops> wtAmpModOp;
+    std::array<GuiComponentSsgHwEnv, OplPrValue::ops> ssgHwEnvOp;
+    std::array<GuiComponentWtMod, OplPrValue::ops> wtModOp;
 
     std::array<GuiCategoryLabel, OplPrValue::ops> catShape;
     std::array<GuiComboBox, OplPrValue::ops> eg; // Envlope Generator
@@ -237,6 +241,8 @@ public:
         ieOpSsgSwPEnv11(context),
         ieOpSsgHwPEnv(context),
         ieOpWtAmpMod(context),
+        ieOpSsgHwEnv(context),
+        ieOpWtMod(context),
 		ieOpChParam(context),
 		imOpl3OpChParam(context),
         targerOpSlider(context),
@@ -269,6 +275,8 @@ public:
         ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
         ssgHwPEnvOp{ GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context) },
         wtAmpModOp{ GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context) },
+        ssgHwEnvOp{ GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context) },
+        wtModOp{ GuiComponentWtMod(context), GuiComponentWtMod(context) },
         catShape{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         eg{ GuiComboBox(context), GuiComboBox(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -370,6 +378,10 @@ public:
     void exportOpSsgHwPEnvParam(int opIndex);
     void importOpWtAmpModParam(int opIndex);
     void exportOpWtAmpModParam(int opIndex);
+    void importOpSsgHwEnvParam(int opIndex);
+    void exportOpSsgHwEnvParam(int opIndex);
+    void importOpWtModParam(int opIndex);
+    void exportOpWtModParam(int opIndex);
     void importQualityParam();
 
     // 3.0.0 より前の形式を読む
