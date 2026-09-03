@@ -64,20 +64,24 @@ GuiFx::GuiFx(const GuiContext& context) :
     shiftBypassToggle(context),
     modAmpEnvGroup(context),
     modSsgHwEnvGroup(context),
+    modWtAmpModGroup(context),
     modSsgSwEnv11Group(context),
     modLfoGroup(context),
     modPitchEnvGroup(context),
     modSsgSwPEnv11Group(context),
     modWtModGroup(context),
+    modSsgHwPEnvGroup(context),
     modMulDetuneGroup(context),
     modUnisonGroup(context),
     ampEnvComponent(context),
     ssgHwEnvComponent(context),
+    wtAmpModComponent(context),
     ssgSwEnv11Component(context),
     lfoComponent(context),
     pitchEnvComponent(context),
     ssgSwPEnv11Component(context),
     wtModComponent(context),
+    ssgHwPEnvComponent(context),
     mulDetuneComponent(context),
     unisonComponent(context),
     wtModBaseFreqSlider(context),
@@ -225,12 +229,13 @@ void GuiFx::setup()
 
     modAmpEnvGroup.setup(*this, juce::String("") + "AMP ENV");
     modSsgHwEnvGroup.setup(*this, juce::String("") + "SSG HW AMP ENV");
+    modWtAmpModGroup.setup(*this, juce::String("") + "WT AMP MOD");
     modSsgSwEnv11Group.setup(*this, juce::String("") + "SSG SW AMP ENV[11]");
     modLfoGroup.setup(*this, juce::String("") + "LFO");
 
     // 変調の枠も、他の効果と同じ青系統に塗る。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup })
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modWtAmpModGroup, &modLfoGroup })
     {
         group->setBackgroundColor(groupBgColour);
     }
@@ -241,6 +246,7 @@ void GuiFx::setup()
     // 見出しの色は、実機の機能か独自の機能かで塗り分けている。
     // ここは SSG チャンネルではなく出力へ借りて置くので、既定のままにする。
     ssgHwEnvComponent.setupComponent(modSsgHwEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+    wtAmpModComponent.setupComponent(modWtAmpModGroup.contentCanvas, ModPrKey::prefix, tabOrder);
 
 
     ssgSwEnv11Component.setupComponent(modSsgSwEnv11Group.contentCanvas, ModPrKey::prefix, tabOrder,
@@ -260,8 +266,9 @@ void GuiFx::setup()
     modPitchEnvGroup.setup(*this, juce::String("") + "PITCH ENV");
     modSsgSwPEnv11Group.setup(*this, juce::String("") + "SSG SW PITCH ENV[11]");
     modWtModGroup.setup(*this, juce::String("") + "WT PITCH MOD");
+    modSsgHwPEnvGroup.setup(*this, juce::String("") + "SSG HW PITCH ENV");
 
-    for (auto* group : { &modPitchEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup })
+    for (auto* group : { &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup })
     {
         group->setBackgroundColor(groupBgColour);
     }
@@ -273,6 +280,7 @@ void GuiFx::setup()
         CPK::ssgSwPEnv11 + CPK::bypass, FxGuiText::Mod::SsgSwPEnv11::bypass);
 
     wtModComponent.setupComponent(modWtModGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+    ssgHwPEnvComponent.setupComponent(modSsgHwPEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
 
     wtModBaseFreqSlider.setup({ .parent = modWtModGroup.contentCanvas,
         .id = ModPrKey::prefix + ModPrKey::WtMod::baseFreq,
@@ -818,8 +826,9 @@ void GuiFx::setup()
     // 変調の中身は最初から開いておく。FX タブでは 1 枠が小さく、
     // たたまれていると何が入っているのか分からないため。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup,
-        &modPitchEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup, &modMulDetuneGroup, &modUnisonGroup })
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modWtAmpModGroup, &modLfoGroup,
+        &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup,
+        &modMulDetuneGroup, &modUnisonGroup })
     {
         for (auto* child : group->contentCanvas.getChildren())
         {
@@ -942,11 +951,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
         layoutModColumn(modArea, modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); });
         layoutModColumn(modArea, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modWtAmpModGroup, [&](juce::Rectangle<int>& rect) { wtAmpModComponent.layoutComponent(rect); });
         layoutModColumn(modArea, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
 
         layoutModColumn(modArea, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
 
         layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modSsgHwPEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwPEnvComponent.layoutComponent(rect); });
         layoutModColumn(modArea, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
         layoutModColumn(modArea, modWtModGroup, [&](juce::Rectangle<int>& rect)
         {

@@ -9,11 +9,13 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../Components/AmpEnv/AmpEnv.h"
 #include "../Components/SsgHwEnv/SsgHwEnv.h"
+#include "../Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "../Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../Components/LfoOpzx7/LfoOpzx7.h"
 #include "../Components/PitchEnv/PitchEnv.h"
 #include "../Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../Components/WtMod/WtMod.h"
+#include "../Components/WtAmpMod/WtAmpMod.h"
 #include "../Components/MulDetune/MulDetune.h"
 #include "../Components/Unison/Unison.h"
 #include "../Components/Quality/QualityPcm.h"
@@ -66,21 +68,25 @@ class GuiFx : public GuiBase
 
     GuiScrollGroup modAmpEnvGroup;
     GuiScrollGroup modSsgHwEnvGroup;
+    GuiScrollGroup modWtAmpModGroup;
     GuiScrollGroup modSsgSwEnv11Group;
     GuiScrollGroup modLfoGroup;
     GuiScrollGroup modPitchEnvGroup;
     GuiScrollGroup modSsgSwPEnv11Group;
     GuiScrollGroup modWtModGroup;
+    GuiScrollGroup modSsgHwPEnvGroup;
     GuiScrollGroup modMulDetuneGroup;
     GuiScrollGroup modUnisonGroup;
 
     GuiComponentAmpEnv ampEnvComponent;
     GuiComponentSsgHwEnv ssgHwEnvComponent;
+    GuiComponentWtAmpMod wtAmpModComponent;
     GuiComponentSsgSwEnv11 ssgSwEnv11Component;
     GuiComponentLfoOpzx7 lfoComponent;
     GuiComponentPitchEnv pitchEnvComponent;
     GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
     GuiComponentWtMod wtModComponent;
+    GuiComponentSsgHwPEnv ssgHwPEnvComponent;
     GuiComponentMulDetune mulDetuneComponent;
     GuiComponentUnison unisonComponent;
 

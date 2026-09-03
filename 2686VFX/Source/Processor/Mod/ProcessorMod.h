@@ -12,9 +12,11 @@
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
+#include "../../Generator/WtMod/GenWtAmpModulator.h"
 
 #include "../../Core/Synth/UnisonParams.h"
 #include "../../Core/Synth/UnisonState.h"
@@ -42,12 +44,14 @@ class ModProcessor
 	PrPtrsAdsrAmpEnv ptAmpEnv;
 	PrPtrsSsgHwEnv ptSsgHwEnv;
 	PrPtrsSsgSwEnv11 ptSsgSwEnv11;
+	PrPtrsWtAmpMod ptWtAmpMod;
 	PrPtrsOpzx7Lfo ptLfo;
 
 	// --- 音程側 ---
 	PrPtrsPitchEnv ptPitchEnv;
 	PrPtrsSsgSwPEnv11 ptSsgSwPEnv11;
 	PrPtrsWtMod ptWtMod;
+	PrPtrsSsgHwPEnv ptSsgHwPEnv;
 
 	// --- 音程を一定量ずらすもの ---
 	PrPtrsOpzx7Detune ptDetune;
@@ -62,11 +66,13 @@ class ModProcessor
 	AmpAdsrEnv ampEnv;
 	SsgHwEnv ssgHwEnv;
 	SsgSwEnv11 ssgSwEnv11;
+	WtAmpModulator wtAmpMod;
 	Opzx7LfoCore lfo;
 
 	PitchAdsrEnv pitchEnv;
 	SsgSwPEnv11 ssgSwPEnv11;
 	WtModulator wtMod;
+	SsgHwPEnv ssgHwPEnv;
 
 	Opzx7Detune detune;
 	UnisonParams unisonParams;

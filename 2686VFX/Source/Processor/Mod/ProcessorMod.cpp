@@ -35,6 +35,7 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	PrHelper::addEnvParameters(layout, prefix, displayName);
 
 	PrHelper::addSsgHwEnvParameters(layout, prefix, displayName);
+	PrHelper::addWtAmpModParameters(layout, prefix, displayName);
 
 	// SSG のソフトウェアエンベロープは、入り切りの札だけが別の関数で
 	// まとめて登録される作りになっている。ここは必要なぶんだけ登録する。
@@ -80,6 +81,7 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	PrHelper::addSsgSwPEnv11BypassParameter(layout, prefix, displayName, CPV::SsgSwPEnv11::Bypass::initial);
 
 	PrHelper::addWtModParameters(layout, prefix, displayName);
+	PrHelper::addSsgHwPEnvParameters(layout, prefix, displayName);
 
 	// WT PITCH MOD の速さは、実機では搬送波の周波数に対する比で決まる。
 	// エフェクトには搬送波が無いので、その代わりになる周波数をここで決める。
@@ -116,12 +118,14 @@ void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
 	PrHelper::setupAdsrAmpEnvPtrs(apvts, ModPrKey::prefix, ptAmpEnv);
 	PrHelper::setupSsgHwEnv(apvts, ModPrKey::prefix, ptSsgHwEnv);
+	PrHelper::setupWtAmpMod(apvts, ModPrKey::prefix, ptWtAmpMod, store);
 	PrHelper::setupSsgSwEnv11Ptrs(apvts, ModPrKey::prefix, ptSsgSwEnv11);
 	PrHelper::setupOpzx7LfoPtrs(apvts, ModPrKey::prefix, ptLfo);
 
 	PrHelper::setupPitchEnvPtrs(apvts, ModPrKey::prefix, ptPitchEnv);
 	PrHelper::setupSsgSwPEnv11Ptrs(apvts, ModPrKey::prefix, ptSsgSwPEnv11);
 	PrHelper::setupWtMod(apvts, ModPrKey::prefix, ptWtMod, store);
+	PrHelper::setupSsgHwPEnv(apvts, ModPrKey::prefix, ptSsgHwPEnv);
 
 	pShiftBypass = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Shift::bypass);
 
@@ -135,6 +139,7 @@ void ModProcessor::prepare(double sampleRate)
 
 	ampEnv.prepare(sampleRate);
 	ssgHwEnv.prepare(sampleRate);
+	wtAmpMod.reset();
 
 	// SSG のソフトウェアエンベロープは、どの対象へ掛けるかを番号で受ける。
 	// ここでは 1 組しか持たないので 0 を渡す。
@@ -145,6 +150,7 @@ void ModProcessor::prepare(double sampleRate)
 	pitchEnv.prepare(0, sampleRate);
 	ssgSwPEnv11.prepare(0, sampleRate);
 	wtMod.reset();
+	ssgHwPEnv.prepare(sampleRate);
 
 	for (auto& voice : shifters)
 	{
@@ -181,6 +187,7 @@ void ModProcessor::noteOn()
 		ampLevel = ampEnv.noteOn();
 
 		ssgHwEnv.noteOn();
+		wtAmpMod.reset();
 		ssgSwEnv11.noteOn();
 	}
 
@@ -191,6 +198,7 @@ void ModProcessor::noteOn()
 		pitchEnv.noteOn();
 		ssgSwPEnv11.noteOn();
 		wtMod.reset();
+		ssgHwPEnv.noteOn();
 	}
 }
 
@@ -202,6 +210,7 @@ void ModProcessor::noteOff()
 	{
 		ampEnv.noteOff();
 		ssgHwEnv.noteOff();
+		ssgHwPEnv.noteOff();
 		ssgSwEnv11.noteOff();
 	}
 
@@ -239,6 +248,11 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 		PrHelper::applyAdsrAmpEnv(ptAmpEnv, ampParams);
 		PrHelper::applySsgHwEnv(ptSsgHwEnv, hwParams);
+
+		WtAmpModParams ampModParams;
+
+		PrHelper::applyWtAmpMod(ptWtAmpMod, ampModParams);
+		wtAmpMod.setParameters(ampModParams);
 		PrHelper::applySsgSwEnv11(ptSsgSwEnv11, sw11Params);
 
 		ampEnv.setParameters(ampParams);
@@ -257,6 +271,9 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 	float wtModDelta = nominalDelta;
 
+	// WT AMP MOD も速さは搬送波との比なので、同じ基準周波数から作る。
+	const float ampModDelta = (float)(PrHelper::getFloat(pWtModBaseFreq) / rate);
+
 	if (pitchEnabled)
 	{
 		PitchAdsrParams pitchParams;
@@ -266,6 +283,11 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 		PrHelper::applyPitchEnv(ptPitchEnv, pitchParams);
 		PrHelper::applySsgSwPEnv11(ptSsgSwPEnv11, pEnv11Params);
 		PrHelper::applyWtMod(ptWtMod, wtModParams);
+
+		SsgHwPEnvParams hwPEnvParams;
+
+		PrHelper::applySsgHwPEnv(ptSsgHwPEnv, hwPEnvParams);
+		ssgHwPEnv.setParameters(hwPEnvParams);
 
 		pitchEnv.setParameters(pitchParams);
 		ssgSwPEnv11.setParameters(pEnv11Params);
@@ -387,6 +409,7 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 			}
 
 			gain *= ssgHwEnv.process();
+			gain *= wtAmpMod.process(ampModDelta);
 
 			if (!ssgSwEnv11.isBypass()) gain *= ssgSwEnv11.process();
 		}
@@ -420,6 +443,7 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 			delta = pitchEnv.process(delta);
 			delta = ssgSwPEnv11.process(delta);
+			delta = ssgHwPEnv.process(delta);
 
 			ratio *= delta / nominalDelta;
 			ratio *= wtMod.process(wtModDelta);
