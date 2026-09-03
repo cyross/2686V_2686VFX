@@ -5,6 +5,7 @@
 #include "../Io/ParamFile.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
+#include "../Gui/GuiSimpleView.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
@@ -424,11 +425,29 @@ public:
         visit(SettingsKey::defaultColorSettingDir, defaultColorSettingDir);
 
         visit(SettingsKey::showTooltips, showTooltips);
+        visit(SettingsKey::simpleView, simpleView);
+
+        // 隠さない区分。項目の並びを変えても迷子にならないよう名前で持つ。
+        for (int i = 0; i < SimpleView::Size; ++i) {
+            visit(juce::String(SimpleView::items()[(size_t)i].key), simpleViewShow[(size_t)i]);
+        }
         visit(SettingsKey::useHeadroom, useHeadroom);
         visit(SettingsKey::headroomGain, headroomGain);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
+
+    // 簡易表示モード。区分の一部を隠して画面を短くする。表示だけの話で、
+    // 音には影響しない。
+    bool simpleView = false;
+
+    // 簡易表示モードでも隠さない区分。既定はどれも隠す。
+    std::array<bool, SimpleView::Size> simpleViewShow{};
+
+    // 隠す対象の区分を、いま出すかどうか
+    bool isSimpleShown(SimpleView::Cat cat) const {
+        return SimpleView::isShown(simpleView, simpleViewShow, cat);
+    }
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）

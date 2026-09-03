@@ -90,6 +90,9 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
 
     void applyLoopValues(bool enabled);
 public:
+
+    // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
+    void setCategoryVisible(bool visible) { cat.setHidden(!visible); }
     GuiComponentSsgSwPEnv11(const GuiContext& context) :
         GuiBase(context),
         cat(context),

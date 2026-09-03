@@ -7,6 +7,7 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Core/Gui/GuiSimpleView.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 
 class GuiSettings : public GuiBase
@@ -114,6 +115,15 @@ class GuiSettings : public GuiBase
 
     NormalSeparator separator3;
 
+    // ---------------- 簡易表示モード ----------------
+    // 区分の一部を隠して画面を短くする。カスタマイズは、隠す対象のうち
+    // 「これは出したままにする」ものを選ぶためのもの。
+    GuiToggleButton simpleViewToggle;
+    GuiCategoryLabel simpleViewCat;
+    std::array<GuiToggleButton, SimpleView::Size> simpleViewShowToggles;
+
+    NormalSeparator separatorSimple;
+
     // Tooltip Visible Switch
     GuiToggleButton tooltipToggle;
 
@@ -209,6 +219,10 @@ public:
         colorSettingDirBrowseBtn(context),
         separator3(context),
         tooltipToggle(context),
+        simpleViewToggle(context),
+        simpleViewCat(context),
+        simpleViewShowToggles{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        separatorSimple(context),
         separator4(context),
         useHeadroomToggle(context),
         headroomGainSlider(context),

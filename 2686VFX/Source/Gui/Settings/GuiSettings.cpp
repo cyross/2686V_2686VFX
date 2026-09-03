@@ -483,6 +483,43 @@ void GuiSettings::setup()
 
     separator3.setupComponent(*this);
 
+
+    // --- 簡易表示モード ---
+    // 区分を隠すだけの切り替え。音には影響しない。
+    // 切り替えたら画面を組み直して、その場で反映する。
+    simpleViewToggle.setup({ .parent = *this, .title = juce::String("") + "簡易表示モード", .font = toggleFont, .isReset = false });
+    simpleViewToggle.setToggleState(ctx.audioProcessor.simpleView, juce::dontSendNotification);
+    simpleViewToggle.setWantsKeyboardFocus(true);
+    simpleViewToggle.setExplicitFocusOrder(++tabOrder);
+    simpleViewToggle.onClick = [this] {
+        ctx.audioProcessor.simpleView = simpleViewToggle.getToggleState();
+
+        ctx.editor.resized();
+        };
+
+    simpleViewCat.setupCategory({ .parent = *this, .title = juce::String("") + "簡易表示モードカスタマイズ(開閉)", .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
+
+    // 隠す対象のうち、出したままにするものを選ぶ。
+    // 入れておくと簡易表示モードでもその区分が残る。
+    for (int i = 0; i < SimpleView::Size; ++i)
+    {
+        auto& toggle = simpleViewShowToggles[(size_t)i];
+
+        toggle.setup({ .parent = *this,
+            .title = juce::String(SimpleView::items()[(size_t)i].title) + juce::String("") + " を表示",
+            .font = toggleFont, .isReset = false });
+        toggle.setToggleState(ctx.audioProcessor.simpleViewShow[(size_t)i], juce::dontSendNotification);
+        toggle.setWantsKeyboardFocus(true);
+        toggle.setExplicitFocusOrder(++tabOrder);
+        toggle.onClick = [this, i] {
+            ctx.audioProcessor.simpleViewShow[(size_t)i] = simpleViewShowToggles[(size_t)i].getToggleState();
+
+            ctx.editor.resized();
+            };
+    }
+
+    separatorSimple.setupComponent(*this);
+
     // --- Toggle Tooltip Visible Toggle Button ---
     tooltipToggle.setup({ .parent = *this, .title = juce::String("") + "ツールチップを表示", .font = toggleFont, .isReset = false });
     tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
@@ -847,6 +884,46 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     // 区切り線はフォルダ設定の外。畳んでも下の設定との境目は残す。
     separator3.layoutComponent(sRect);
+
+
+    // ---------------- 簡易表示モード ----------------
+    auto rowSimpleView = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    simpleViewToggle.setBounds(rowSimpleView.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+
+    // カスタマイズは、簡易表示モードを入れているときだけ出す。
+    bool simpleOn = ctx.audioProcessor.simpleView;
+
+    simpleViewCat.setVisible(simpleOn);
+
+    bool simpleCustomVisible = false;
+
+    if (simpleOn)
+    {
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        auto simpleCatRow = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        // 見出しだけラベル幅では窮屈なので、行の中で広めに取る
+        simpleViewCat.setBounds(simpleCatRow.removeFromLeft(SettingsGuiValue::Settings::LabelWidth * 3));
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        simpleCustomVisible = simpleViewCat.isDetailVisible();
+    }
+
+    for (int i = 0; i < SimpleView::Size; ++i)
+    {
+        auto& toggle = simpleViewShowToggles[(size_t)i];
+
+        toggle.setVisible(simpleCustomVisible);
+
+        if (!simpleCustomVisible) continue;
+
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        toggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+    }
+
+    separatorSimple.layoutComponent(sRect);
 
     // 18. Tooltip Visible Row
     auto rowTooltip = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);

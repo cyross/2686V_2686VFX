@@ -969,6 +969,9 @@ class GuiCategoryLabel : public GuiLabel
     // 背景色。カテゴリの種類で決まる。
     juce::Colour bgColor = GuiColor::Category::HwBg;
 
+    // 簡易表示モードで隠しているか
+    bool hidden = false;
+
     // 中身の背後へ敷く板。開いているときだけ見せる。
     GuiCategoryBackdrop backdrop;
 public:
@@ -995,14 +998,25 @@ public:
     // 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって
     // ハードとソフトのどちらに見せたいかが変わる場合に使う。
     void setupCategory(const Config& c, juce::Colour bgColor);
-	bool isDetailVisible() const { return this->detailVisible; }
+	// 隠しているあいだは中身も畳んだ扱いにする。部品はここを見て
+	// 子の表示を決めているので、これだけで丸ごと消える。
+	bool isDetailVisible() const { return !this->hidden && this->detailVisible; }
 
     // 折りたたみを外から開いておく。置いた先によっては、最初から
     // 中身が見えているほうが都合のよいことがある。
     void setDetailVisible(bool visible) { this->detailVisible = visible; }
 
+    // 簡易表示モードで丸ごと隠すための札。立てると見出しも中身も出さず、
+    // 縦の場所も取らない。開閉の状態は覚えたままなので、戻したときに
+    // 前と同じ開き具合で出る。
+    void setHidden(bool value) { this->hidden = value; }
+    bool isHidden() const { return this->hidden; }
+
+    // 隠すときに、開いていた板を片付ける。
+    void hideBackdrop();
+
     // 折りたたみを持たないカテゴリ (ALGORITHM/FEEDBACK など) は常に開いている扱い。
-    bool isOpen() const { return this->detailVisible || !this->enableChangeDetailVisible; }
+    bool isOpen() const { return !this->hidden && (this->detailVisible || !this->enableChangeDetailVisible); }
 
     void paint(juce::Graphics& g) override;
 

@@ -936,8 +936,19 @@ void GuiFx::layout(juce::Rectangle<int> content)
         auto modArea = modStrip;
         // 列を 1 つ切り出して、中身を上から積む。積んだ高さをそのまま
         // キャンバスの高さにするので、はみ出したぶんはスクロールで届く。
-        auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody)
+        // 簡易表示モードで隠す枠は、列ごと出さない。
+        // 隠した枠のぶんだけ右の枠が左へ詰まる。
+        auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody,
+            SimpleView::Cat cat)
         {
+            if (!ctx.audioProcessor.isSimpleShown(cat)) {
+                group.setVisible(false);
+
+                return;
+            }
+
+            group.setVisible(true);
+
             auto colArea = row.removeFromLeft(FxGuiValue::Fx::ColWidth);
 
             row.removeFromLeft(FxGuiValue::Fx::ColGap);
@@ -957,16 +968,16 @@ void GuiFx::layout(juce::Rectangle<int> content)
             group.setContentHeight(rect.getY() + categoryContentTrailingPadding);
         };
 
-        layoutModColumn(modArea, modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modWtAmpModGroup, [&](juce::Rectangle<int>& rect) { wtAmpModComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
+        layoutModColumn(modArea, modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); }, SimpleView::AmpEnv);
+        layoutModColumn(modArea, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwAmpEnv);
+        layoutModColumn(modArea, modWtAmpModGroup, [&](juce::Rectangle<int>& rect) { wtAmpModComponent.layoutComponent(rect); }, SimpleView::WtAmpMod);
+        layoutModColumn(modArea, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); }, SimpleView::SsgSwAmpEnv11);
 
-        layoutModColumn(modArea, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); }, SimpleView::Lfo);
 
-        layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modSsgHwPEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwPEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
+        layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); }, SimpleView::PitchEnv);
+        layoutModColumn(modArea, modSsgHwPEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwPEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwPitchEnv);
+        layoutModColumn(modArea, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); }, SimpleView::SsgSwPitchEnv11);
         layoutModColumn(modArea, modWtModGroup, [&](juce::Rectangle<int>& rect)
         {
             wtModComponent.layoutComponent(rect);
@@ -987,10 +998,10 @@ void GuiFx::layout(juce::Rectangle<int> content)
             {
                 wtModBaseFreqSlider.setBounds(rect.removeFromTop(FxGuiValue::Fx::ModBaseFreqHeight));
             }
-        });
+        }, SimpleView::WtPitchMod);
 
-        layoutModColumn(modArea, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modUnisonGroup, [&](juce::Rectangle<int>& rect) { unisonComponent.layoutComponent(rect); });
+        layoutModColumn(modArea, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); }, SimpleView::MulDet);
+        layoutModColumn(modArea, modUnisonGroup, [&](juce::Rectangle<int>& rect) { unisonComponent.layoutComponent(rect); }, SimpleView::Unison);
     }
 
     mainGroup.setBounds(mainArea);

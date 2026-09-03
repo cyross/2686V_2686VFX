@@ -84,6 +84,9 @@ class GuiComponentWtAmpMod : public GuiBase {
     juce::String wavePath(int slot) const;
     void updateModPreview();
 public:
+
+    // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
+    void setCategoryVisible(bool visible) { cat.setHidden(!visible); }
     GuiComponentWtAmpMod(const GuiContext& context) :
         GuiBase(context),
         cat(context),

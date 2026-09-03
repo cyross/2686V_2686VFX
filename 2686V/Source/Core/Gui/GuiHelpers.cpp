@@ -141,6 +141,15 @@ void layoutMainCategory(const MainConfigCategory& c)
     auto* asComponent = (c.label != nullptr) ? static_cast<juce::Component*>(c.label) : c.component;
     auto* category = dynamic_cast<GuiCategoryLabel*>(asComponent);
 
+    // 隠している見出しは、場所も取らずに何も出さない。
+    // 閉じ待ちはそのまま次の見出しへ引き継ぐ。
+    if (category != nullptr && category->isHidden()) {
+        category->setVisible(false);
+        category->hideBackdrop();
+
+        return;
+    }
+
     const int pad = GuiCategoryLabel::contentPadding;
 
     if (category != nullptr) {
@@ -178,6 +187,15 @@ void layoutRowCategory(const RowConfigCategory& c)
     // 見出しは label と component のどちらで渡ってくることもある
     auto* asComponent = (c.label != nullptr) ? static_cast<juce::Component*>(c.label) : c.component;
     auto* category = dynamic_cast<GuiCategoryLabel*>(asComponent);
+
+    // 隠している見出しは、場所も取らずに何も出さない。
+    // 閉じ待ちはそのまま次の見出しへ引き継ぐ。
+    if (category != nullptr && category->isHidden()) {
+        category->setVisible(false);
+        category->hideBackdrop();
+
+        return;
+    }
 
     const int pad = GuiCategoryLabel::contentPadding;
 

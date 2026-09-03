@@ -65,6 +65,9 @@ class GuiComponentFix : public GuiBase {
     GuiTextButton applyNote;
     GuiTextButton applyToC3;
 public:
+
+    // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
+    void setCategoryVisible(bool visible) { cat.setHidden(!visible); }
     GuiComponentFix(const GuiContext& context) :
         GuiBase(context),
         cat(context),

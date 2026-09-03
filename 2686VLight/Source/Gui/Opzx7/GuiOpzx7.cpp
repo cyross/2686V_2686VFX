@@ -1231,20 +1231,28 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
 
+    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
 
+    ssgHwEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
+    ssgSwEnv11g.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11g.layoutComponent(mRect);
+    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
+    ssgHwPEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
+    ssgSwPEnv11g.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11g.layoutComponent(mRect);
+    modComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
     glLfo.layoutComponent(mRect);
 
     layoutPanpotCat(mRect);
 
+    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -1350,14 +1358,22 @@ void GuiOpzx7::layoutOp(int opIndex, int width, juce::Rectangle<int>& rect) {
     layoutOpWsCat(opIndex, innerRect, selectedWs);
 
     layoutOpSsgEnvCat(opIndex, innerRect);
+    ssgHwEnvOp[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnvOp[opIndex].layoutComponentRow(innerRect);
+    ssgSwEnv[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnv[opIndex].layoutComponentRow(innerRect);
+    ssgSwEnv11[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11[opIndex].layoutComponentRow(innerRect);
+    wtAmpModOp[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
     wtAmpModOp[opIndex].layoutComponent(innerRect);
 
+    pitchEnv[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
     pitchEnv[opIndex].layoutComponentRow(innerRect);
+    ssgHwPEnvOp[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnvOp[opIndex].layoutComponentRow(innerRect);
+    ssgSwPEnv11[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11[opIndex].layoutComponentRow(innerRect);
+    wtModOp[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
     wtModOp[opIndex].layoutComponent(innerRect);
 
     layoutOpKsCat(opIndex, innerRect, rgMode);

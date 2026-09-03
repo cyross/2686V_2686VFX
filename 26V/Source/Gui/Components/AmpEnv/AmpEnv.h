@@ -33,6 +33,9 @@ class GuiComponentAmpEnv : public GuiBase {
     std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
+
+    // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
+    void setCategoryVisible(bool visible) { cat.setHidden(!visible); }
     GuiComponentAmpEnv(const GuiContext& context) :
         GuiBase(context),
         cat(context),

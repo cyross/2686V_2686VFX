@@ -299,21 +299,32 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     layoutPanCat(padRect);
 
+    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(padRect);
+    ssgHwEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(padRect);
+    ssgSwEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnvComponent.layoutComponent(padRect);
+    ssgSwEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11Component.layoutComponent(padRect);
+    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(padRect);
 
+    pitchEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
     pitchEnvComponent.layoutComponent(padRect);
+    ssgHwPEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(padRect);
+    ssgSwPEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11Component.layoutComponent(padRect);
     modComponent.layoutComponent(padRect);
 
+    lfoComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
     lfoComponent.layoutComponent(padRect);
 
+    mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
     mulDetuneComponent.layoutComponent(padRect);
 
+    fixComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Fix));
     fixComponent.layoutComponent(padRect);
 
     layoutQualityCat(padRect);
@@ -1249,6 +1260,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     levelComponent.layoutComponent(mRect);
     
+    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     midiComponent.layoutComponent(mRect);

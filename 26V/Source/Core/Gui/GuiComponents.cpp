@@ -753,6 +753,24 @@ void GuiCategoryLabel::beginBackdrop(const juce::Rectangle<int>& contentArea)
     g_pendingBackdrops[parent] = this;
 }
 
+
+// 隠している見出しの板を片付ける。閉じ待ちに登録したままだと、
+// 次の見出しのところで自分の板が閉じられてしまう。
+void GuiCategoryLabel::hideBackdrop()
+{
+    backdrop.setVisible(false);
+
+    auto* parent = getParentComponent();
+
+    if (parent == nullptr) return;
+
+    auto it = g_pendingBackdrops.find(parent);
+
+    if (it != g_pendingBackdrops.end() && it->second == this) {
+        g_pendingBackdrops.erase(it);
+    }
+}
+
 bool GuiCategoryLabel::closePending(juce::Component* parent, int bottom)
 {
     if (parent == nullptr) return false;
