@@ -65,7 +65,13 @@ class GuiComponentFix : public GuiBase {
 public:
 
     // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
-    void setCategoryVisible(bool visible) { cat.setHidden(!visible); }
+    //
+    // 見出しを見せるかどうかはレイアウト側では戻らない (あちらは場所を
+    // 決めるだけ) ので、ここで両方向とも面倒を見る。
+    void setCategoryVisible(bool visible) {
+        cat.setHidden(!visible);
+        cat.setVisible(visible);
+    }
     GuiComponentFix(const GuiContext& context) :
         GuiBase(context),
         cat(context),
