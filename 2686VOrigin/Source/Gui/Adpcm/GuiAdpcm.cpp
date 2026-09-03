@@ -299,23 +299,19 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutPanCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
-
     ssgHwEnv.layoutComponent(mRect);
-    ssgHwPEnv.layoutComponent(mRect);
-    modComponent.layoutComponent(mRect);
+    ssgSwEnvComponent.layoutComponent(mRect);
+    ssgSwEnv11Component.layoutComponent(mRect);
     ampModComponent.layoutComponent(mRect);
 
-    ssgSwEnvComponent.layoutComponent(mRect);
-
-    ssgSwEnv11Component.layoutComponent(mRect);
-
     pitchEnvComponent.layoutComponent(mRect);
-
+    ssgHwPEnv.layoutComponent(mRect);
     ssgSwPEnv11Component.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
+
+    lfoComponent.layoutComponent(mRect);
 
     mulDetuneComponent.layoutComponent(mRect);
-    
-    lfoComponent.layoutComponent(mRect);
 
     fixComponent.layoutComponent(mRect);
 

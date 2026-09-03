@@ -303,23 +303,19 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     layoutPanCat(padRect);
 
     ampEnvComponent.layoutComponent(padRect);
-    modComponent.layoutComponent(padRect);
+    ssgHwEnv.layoutComponent(padRect);
+    ssgSwEnvComponent.layoutComponent(padRect);
+    ssgSwEnv11Component.layoutComponent(padRect);
     ampModComponent.layoutComponent(padRect);
 
-    ssgHwEnv.layoutComponent(padRect);
-    ssgHwPEnv.layoutComponent(padRect);
-
-    ssgSwEnvComponent.layoutComponent(padRect);
-
-    ssgSwEnv11Component.layoutComponent(padRect);
-
     pitchEnvComponent.layoutComponent(padRect);
-
+    ssgHwPEnv.layoutComponent(padRect);
     ssgSwPEnv11Component.layoutComponent(padRect);
-
-    mulDetuneComponent.layoutComponent(padRect);
+    modComponent.layoutComponent(padRect);
 
     lfoComponent.layoutComponent(padRect);
+
+    mulDetuneComponent.layoutComponent(padRect);
 
     fixComponent.layoutComponent(padRect);
 

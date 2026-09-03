@@ -523,24 +523,19 @@ void GuiWt2::layout(juce::Rectangle<int> content)
     layoutFormCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
-
+    ampModComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
-    ssgHwPEnv.layoutComponent(mRect);
-
     ssgSwEnvComponent.layoutComponent(mRect);
-
     ssgSwEnv11Component.layoutComponent(mRect);
 
+    modComponent.layoutComponent(mRect);
     pitchEnvComponent.layoutComponent(mRect);
-
+    ssgHwPEnv.layoutComponent(mRect);
     ssgSwPEnv11Component.layoutComponent(mRect);
 
-    mulDetuneComponent.layoutComponent(mRect);
-
-    modComponent.layoutComponent(mRect);
-    ampModComponent.layoutComponent(mRect);
-
     lfo.layoutComponent(mRect);
+
+    mulDetuneComponent.layoutComponent(mRect);
 
     fixComponent.layoutComponent(mRect);
 

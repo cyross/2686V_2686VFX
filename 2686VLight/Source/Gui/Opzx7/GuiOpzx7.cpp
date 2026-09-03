@@ -1232,16 +1232,18 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
 
     ampEnvComponent.layoutComponent(mRect);
-    modComponent.layoutComponent(mRect);
-    ampModComponent.layoutComponent(mRect);
-    ssgHwEnv.layoutComponent(mRect);
-    ssgHwPEnv.layoutComponent(mRect);
-    ssgSwEnv11g.layoutComponent(mRect);
-    ssgSwPEnv11g.layoutComponent(mRect);
 
-    layoutPanpotCat(mRect);
+    ssgHwEnv.layoutComponent(mRect);
+    ssgSwEnv11g.layoutComponent(mRect);
+    ampModComponent.layoutComponent(mRect);
+
+    ssgHwPEnv.layoutComponent(mRect);
+    ssgSwPEnv11g.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
 
     glLfo.layoutComponent(mRect);
+
+    layoutPanpotCat(mRect);
 
     unisonComponent.layoutComponent(mRect);
 
@@ -1345,25 +1347,22 @@ void GuiOpzx7::layoutOp(int opIndex, int width, juce::Rectangle<int>& rect) {
 
     layoutOpOptionalCat(opIndex, innerRect);
 
-    ssgSwEnv[opIndex].layoutComponentRow(innerRect);
-
-    ssgSwEnv11[opIndex].layoutComponentRow(innerRect);
-
-    pitchEnv[opIndex].layoutComponentRow(innerRect);
-
-    ssgSwPEnv11[opIndex].layoutComponentRow(innerRect);
-    ssgHwPEnvOp[opIndex].layoutComponentRow(innerRect);
-    wtAmpModOp[opIndex].layoutComponent(innerRect);
-    ssgHwEnvOp[opIndex].layoutComponentRow(innerRect);
-    wtModOp[opIndex].layoutComponent(innerRect);
-
     layoutOpWsCat(opIndex, innerRect, selectedWs);
 
     layoutOpSsgEnvCat(opIndex, innerRect);
+    ssgHwEnvOp[opIndex].layoutComponentRow(innerRect);
+    ssgSwEnv[opIndex].layoutComponentRow(innerRect);
+    ssgSwEnv11[opIndex].layoutComponentRow(innerRect);
+    wtAmpModOp[opIndex].layoutComponent(innerRect);
 
-    mulDetune[opIndex].layoutComponentRow(innerRect);
+    pitchEnv[opIndex].layoutComponentRow(innerRect);
+    ssgHwPEnvOp[opIndex].layoutComponentRow(innerRect);
+    ssgSwPEnv11[opIndex].layoutComponentRow(innerRect);
+    wtModOp[opIndex].layoutComponent(innerRect);
 
     layoutOpKsCat(opIndex, innerRect, rgMode);
+
+    mulDetune[opIndex].layoutComponentRow(innerRect);
 
     lfo[opIndex].layoutComponentRow(innerRect);
 

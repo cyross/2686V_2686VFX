@@ -282,23 +282,19 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutFormCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
-
     ssgHwEnvComponent.layoutComponent(mRect);
-    ssgHwPEnvComponent.layoutComponent(mRect);
-    modComponent.layoutComponent(mRect);
+    ssgSwEnvComponent.layoutComponent(mRect);
+    ssgSwEnv11Component.layoutComponent(mRect);
     ampModComponent.layoutComponent(mRect);
 
-    ssgSwEnvComponent.layoutComponent(mRect);
-
-    ssgSwEnv11Component.layoutComponent(mRect);
-
     pitchEnvComponent.layoutComponent(mRect);
-
+    ssgHwPEnvComponent.layoutComponent(mRect);
     ssgSwPEnv11Component.layoutComponent(mRect);
-
-    mulDetuneComponent.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
 
     lfo.layoutComponent(mRect);
+
+    mulDetuneComponent.layoutComponent(mRect);
 
     fixComponent.layoutComponent(mRect);
 

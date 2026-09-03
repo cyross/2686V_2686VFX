@@ -517,12 +517,14 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
 
     ampEnvComponent.layoutComponent(mRect);
-    modComponent.layoutComponent(mRect);
-    ampModComponent.layoutComponent(mRect);
+
     ssgHwEnv.layoutComponent(mRect);
-    ssgHwPEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
+    ampModComponent.layoutComponent(mRect);
+
+    ssgHwPEnv.layoutComponent(mRect);
     ssgSwPEnv11g.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 
@@ -565,23 +567,21 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
         layoutOpOptionalCat(i, innerRect);
 
-        ssgSwEnv[i].layoutComponentRow(innerRect);
+        layoutOpEgCat(i, innerRect);
 
+        ssgHwEnvOp[i].layoutComponentRow(innerRect);
+        ssgSwEnv[i].layoutComponentRow(innerRect);
         ssgSwEnv11[i].layoutComponentRow(innerRect);
+        wtAmpModOp[i].layoutComponent(innerRect);
 
         pitchEnv[i].layoutComponentRow(innerRect);
-
-        ssgSwPEnv11[i].layoutComponentRow(innerRect);
         ssgHwPEnvOp[i].layoutComponentRow(innerRect);
-        wtAmpModOp[i].layoutComponent(innerRect);
-        ssgHwEnvOp[i].layoutComponentRow(innerRect);
+        ssgSwPEnv11[i].layoutComponentRow(innerRect);
         wtModOp[i].layoutComponent(innerRect);
-
-        layoutOpDetCat(i, innerRect);
 
         layoutOpKsCat(i, innerRect);
 
-        layoutOpEgCat(i, innerRect);
+        layoutOpDetCat(i, innerRect);
 
         layoutOpLfoCat(i, innerRect);
 
