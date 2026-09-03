@@ -21,6 +21,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
 
 class AudioPlugin2686V;
@@ -59,6 +60,7 @@ class GuiBeep : public GuiBase {
 
     // SSG Hw Env
     GuiComponentSsgHwEnv ssgHwEnv;
+    GuiComponentSsgHwPEnv ssgHwPEnv;
 
     GuiComponentMidi midiComponent;
 
@@ -72,6 +74,7 @@ class GuiBeep : public GuiBase {
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
@@ -103,6 +106,7 @@ public:
         levelComponent(context),
         fixComponent(context),
         ssgHwEnv(context),
+        ssgHwPEnv(context),
         unisonComponent(context),
         ampEnvComponent(context),
         modComponent(context),
@@ -123,6 +127,7 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgHwEnv(context),
+        ieSsgHwPEnv(context),
         ieWtMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),

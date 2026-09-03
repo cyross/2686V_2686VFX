@@ -77,6 +77,7 @@ void OpnCore::prepare(double sampleRate)
     }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
+    m_ssgHwPEnv.prepare(target);
 }
 
 void OpnCore::setCurveCore(CurveCore* p_curveCore)
@@ -111,6 +112,7 @@ void OpnCore::setParameters(const SynthParams& params)
     m_ampEnvG.setParameters(params.opn.ampEnvG);
     m_wtMod.setParameters(params.opn.wtMod);
     m_ssgHwEnv.setParameters(params.opn.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.opn.ssgHwPEnv);
 
     if (m_rateIndex != params.opn.quality.rate) {
         m_rateIndex = params.opn.quality.rate;
@@ -129,6 +131,7 @@ void OpnCore::setParameters(const SynthParams& params)
         m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
+        m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opn.quality.bit);
@@ -184,6 +187,7 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     m_n88Lfo.noteOn();
     m_ssgHwEnv.noteOn();
+    m_ssgHwPEnv.noteOn();
 
     if (!isLegato) {
         m_wtMod.reset();

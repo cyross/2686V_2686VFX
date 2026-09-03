@@ -13,6 +13,7 @@
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 
 struct WtParams
 {
@@ -30,6 +31,7 @@ struct WtParams
     QualityParams quality;
     UnisonParams unison;
     SsgHwEnvParams ssgHwEnv;
+    SsgHwPEnvParams ssgHwPEnv;
 
     // 波形テーブルの読み出しを線形補間するか。
     // OFF なら実機の波形メモリと同じ階段状の出力になる。

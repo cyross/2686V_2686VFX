@@ -29,6 +29,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -114,6 +115,7 @@ class GuiWt2 : public GuiBase
 
     // SSG Hw Env
     GuiComponentSsgHwEnv ssgHwEnv;
+    GuiComponentSsgHwPEnv ssgHwPEnv;
 
     GuiComboBox sizeSelector;
     GuiComboBox resoSelector;
@@ -139,6 +141,7 @@ class GuiWt2 : public GuiBase
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
@@ -185,6 +188,7 @@ public:
         modComponent(context),
         fixComponent(context),
         ssgHwEnv(context),
+        ssgHwPEnv(context),
         unisonComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),
@@ -203,6 +207,7 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgHwEnv(context),
+        ieSsgHwPEnv(context),
         ieWtMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),

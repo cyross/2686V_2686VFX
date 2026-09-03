@@ -29,6 +29,11 @@ namespace WavePreviewSource
     // ---- SSG HW ENV ---- (0.0〜1.0 の片側)
     std::vector<float> ssgHwEnv(int shapeIndex, float minLevel, float maxLevel, bool smooth);
 
+    // ---- SSG HW PITCH ENV ---- (-1.0〜1.0 の両振り)
+    // MIN / MAX はセント。振れ幅の大きい方で割って正規化したものを返すので、
+    // setPoints の bipolar は true で渡すこと。
+    std::vector<float> ssgHwPEnv(int shapeIndex, int minCent, int maxCent, bool smooth);
+
     // ---- WT MODULATION ----
     // 変調の深さは最大で回すので、Depth の設定は渡さなくてよい。
     // wave は HuC6280 モードの 32 サンプル、fdsTable は FdsUser モードの

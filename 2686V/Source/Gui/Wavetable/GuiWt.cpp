@@ -496,6 +496,7 @@ void GuiWt::setup()
     fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgHwPEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -625,6 +626,7 @@ void GuiWt::setup()
     iePitchEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Pitch Env", pitchEnvComponent);
 
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
 
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
@@ -739,6 +741,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
     ampEnvComponent.layoutComponent(mRect);
 
     ssgHwEnv.layoutComponent(mRect);
+    ssgHwPEnv.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -1044,6 +1047,7 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
@@ -1065,6 +1069,7 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1350,6 +1355,7 @@ void GuiWt::importChParam() {
                 ampEnvComponent.readParams(*reader, "ampEnv");
                 pitchEnvComponent.readParams(*reader, "pitchEnv");
                 ssgHwEnv.readParams(*reader, "ssgHwEnv");
+                ssgHwPEnv.readParams(*reader, "ssgHwPEnv");
                 ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
                 ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
                 ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
@@ -1480,6 +1486,7 @@ void GuiWt::writeChParams(Io::ParamWriter& writer) {
 	ampEnvComponent.writeParams(writer, "ampEnv");
 	pitchEnvComponent.writeParams(writer, "pitchEnv");
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
 	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
 	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");

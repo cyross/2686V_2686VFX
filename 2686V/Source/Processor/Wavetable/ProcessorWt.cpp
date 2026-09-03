@@ -28,6 +28,7 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);
     PrHelper::addWtCustomParameters(layout, prefix, prefixName);
 }
 
@@ -47,6 +48,7 @@ void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
     PrHelper::setupWtMod(apvts, prefix, pMod, modWaves);
     PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
+    PrHelper::setupSsgHwPEnv(apvts, prefix, pSsgHwPEnv);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 }
 
@@ -64,6 +66,7 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     PrHelper::applyFix(pFix, params.wt.fix);
     PrHelper::applyWtMod(pMod, params.wt.mod);
     PrHelper::applySsgHwEnv(pSsgHwEnv, params.wt.ssgHwEnv);
+    PrHelper::applySsgHwPEnv(pSsgHwPEnv, params.wt.ssgHwPEnv);
     PrHelper::applyUnison(pUnison, params.wt.unison);
     PrHelper::applyWtCustomWave(pc, params.wt);
 }

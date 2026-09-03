@@ -199,6 +199,7 @@ void Opzx7Core::prepare(double sampleRate) {
     }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
+    m_ssgHwPEnv.prepare(target);
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {
@@ -223,6 +224,7 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     m_ampEnvG.setParameters(params.opzx7.ampEnvG);
     m_wtMod.setParameters(params.opzx7.wtMod);
     m_ssgHwEnv.setParameters(params.opzx7.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.opzx7.ssgHwPEnv);
 
     m_panpot = params.opzx7.panpot.pan;
     m_panpot_enable = params.opzx7.panpot.enable;
@@ -258,6 +260,7 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
+        m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opzx7.quality.bit);
@@ -336,6 +339,7 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
  
     m_lfo.noteOn();
     m_ssgHwEnv.noteOn();
+    m_ssgHwPEnv.noteOn();
 
     if (!isLegato) {
         m_wtMod.reset();

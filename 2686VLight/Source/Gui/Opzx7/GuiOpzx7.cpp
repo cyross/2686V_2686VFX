@@ -361,6 +361,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ampEnvComponent(context),
     modComponent(context),
     ssgHwEnv(context),
+    ssgHwPEnv(context),
     ssgSwEnv11g(context),
     ssgSwPEnv11g(context),
     unisonComponent(context),
@@ -377,12 +378,14 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ieOpSsgSwEnv(context),
     ieOpSsgSwEnv11(context),
     ieOpSsgSwPEnv11(context),
+    ieOpSsgHwPEnv(context),
     ieOpPcmPlay(context),
     ieOpChParam(context),
     targerOpSlider(context),
     uSep003(context),
     ieAmpEnvG(context),
     ieSsgHwEnv(context),
+    ieSsgHwPEnv(context),
     ieWtMod(context),
     ieSsgSwEnv11(context),
     ieSsgSwPEnv11g(context),
@@ -442,6 +445,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
 	ssgSwEnv11{ GuiComponentSsgSwEnv11(context),GuiComponentSsgSwEnv11(context),GuiComponentSsgSwEnv11(context),GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context) },
     ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
+        ssgHwPEnvOp{ GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context) },
     catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
     mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     mmlSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
@@ -614,6 +618,7 @@ void GuiOpzx7::setup()
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgHwPEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
     ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");
 
@@ -702,6 +707,9 @@ void GuiOpzx7::setup()
     ieOpSsgSwPEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
     ieOpSsgSwPEnv11.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwPEnv11Param(opIndex); };
     ieOpSsgSwPEnv11.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwPEnv11Param(opIndex); };
+    ieOpSsgHwPEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv");
+    ieOpSsgHwPEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpSsgHwPEnvParam(opIndex); };
+    ieOpSsgHwPEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpSsgHwPEnvParam(opIndex); };
 
     ieOpPcmPlay.setupComponentOp(mainGroup.contentCanvas, tabOrder, "PCM Play");
     ieOpPcmPlay.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpPcmPlayParam(opIndex); };
@@ -722,6 +730,7 @@ void GuiOpzx7::setup()
 
     ieAmpEnvG.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
@@ -1071,6 +1080,7 @@ void GuiOpzx7::setup()
         ssgSwEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv11::enable, Opzx7GuiText::SsgSwEnv11::enable, true);
 
         ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, Opzx7GuiText::SsgSwPEnv11::enable, true);
+        ssgHwPEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
 
         lfo[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
 
@@ -1202,6 +1212,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     ampEnvComponent.layoutComponent(mRect);
     modComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
+    ssgHwPEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
     ssgSwPEnv11g.layoutComponent(mRect);
 
@@ -1318,6 +1329,7 @@ void GuiOpzx7::layoutOp(int opIndex, int width, juce::Rectangle<int>& rect) {
     pitchEnv[opIndex].layoutComponentRow(innerRect);
 
     ssgSwPEnv11[opIndex].layoutComponentRow(innerRect);
+    ssgHwPEnvOp[opIndex].layoutComponentRow(innerRect);
 
     layoutOpWsCat(opIndex, innerRect, selectedWs);
 
@@ -1880,12 +1892,14 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpSsgSwEnv.setVisible(visible);
     ieOpSsgSwEnv11.setVisible(visible);
     ieOpSsgSwPEnv11.setVisible(visible);
+    ieOpSsgHwPEnv.setVisible(visible);
     ieOpPcmPlay.setVisible(visible);
     ieOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
     ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11g.setVisible(visible);
@@ -1917,6 +1931,7 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieOpSsgSwEnv11.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpSsgSwPEnv11.layoutComponent(rect);
+        ieOpSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpPcmPlay.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1929,6 +1944,7 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieAmpEnvG.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -2917,6 +2933,14 @@ void GuiOpzx7::exportSsgSwPEnv11Param(int opIndex) {
     ssgSwPEnv11[opIndex].exportParams();
 }
 
+void GuiOpzx7::importOpSsgHwPEnvParam(int opIndex) {
+    ssgHwPEnvOp[opIndex].importParams();
+}
+
+void GuiOpzx7::exportOpSsgHwPEnvParam(int opIndex) {
+    ssgHwPEnvOp[opIndex].exportParams();
+}
+
 void GuiOpzx7::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
@@ -3106,6 +3130,7 @@ void GuiOpzx7::readChParams(const Io::ParamReader& reader) {
 
     // Components (Global)
     ssgHwEnv.readParams(reader, "ssgHwEnv");
+    ssgHwPEnv.readParams(reader, "ssgHwPEnv");
     ssgSwEnv11g.readParams(reader, "ssgSwEnv11");
     glLfo.readParams(reader, "glLfo");
     qualityComponent.readParams(reader, "quality");
@@ -3226,6 +3251,7 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgSwEnv[opIndex].readParams(r, "ssgSwEnv");
     ssgSwEnv11[opIndex].readParams(r, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].readParams(r, "ssgSwPEnv11");
+    ssgHwPEnvOp[opIndex].readParams(r, "ssgHwPEnv");
 }
 
 void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
@@ -3296,6 +3322,7 @@ void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwEnv[opIndex].writeParams(w, "ssgSwEnv");
     ssgSwEnv11[opIndex].writeParams(w, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].writeParams(w, "ssgSwPEnv11");
+    ssgHwPEnvOp[opIndex].writeParams(w, "ssgHwPEnv");
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
@@ -3383,6 +3410,7 @@ void GuiOpzx7::writeChParams(Io::ParamWriter& writer) {
 
 	// Components (Global)
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
 	glLfo.writeParams(writer, "glLfo");
 	qualityComponent.writeParams(writer, "quality");

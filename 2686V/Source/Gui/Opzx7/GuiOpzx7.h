@@ -37,6 +37,7 @@
 #include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
@@ -104,6 +105,7 @@ class GuiOpzx7 : public GuiBase
     // チップ全体へ掛かる MODULATION
     GuiComponentWtMod modComponent;
     GuiComponentSsgHwEnv ssgHwEnv;
+    GuiComponentSsgHwPEnv ssgHwPEnv;
     // SSG Sw Env
     GuiComponentSsgSwEnv11 ssgSwEnv11g;
     // チップ全体へ掛かるピッチ側
@@ -127,12 +129,14 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpSsgSwEnv;
     GuiComponentImportExport ieOpSsgSwEnv11;
     GuiComponentImportExport ieOpSsgSwPEnv11;
+    GuiComponentImportExport ieOpSsgHwPEnv;
     GuiComponentImportExport ieOpPcmPlay;
     GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep003;
     GuiComponentImportExport ieAmpEnvG;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11g;
@@ -209,6 +213,7 @@ class GuiOpzx7 : public GuiBase
 
     std::array<GuiComponentSsgSwEnv11, Opzx7PrValue::ops> ssgSwEnv11;
     std::array<GuiComponentSsgSwPEnv11, Opzx7PrValue::ops> ssgSwPEnv11;
+    std::array<GuiComponentSsgHwPEnv, Opzx7PrValue::ops> ssgHwPEnvOp;
 
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catMask;
     std::array<GuiToggleButton, Opzx7PrValue::ops> mask; // Mask
@@ -347,6 +352,8 @@ public:
     void exportSsgSwEnv11Param(int opIndex);
     void importSsgSwPEnv11Param(int opIndex);
     void exportSsgSwPEnv11Param(int opIndex);
+    void importOpSsgHwPEnvParam(int opIndex);
+    void exportOpSsgHwPEnvParam(int opIndex);
     void importDetuneParam(int opIndex);
     void exportDetuneParam(int opIndex);
     void importQualityParam();

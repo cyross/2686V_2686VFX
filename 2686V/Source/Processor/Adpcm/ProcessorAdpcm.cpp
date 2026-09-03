@@ -29,6 +29,7 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);
     PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addQualityPcmParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
@@ -52,6 +53,7 @@ void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
     PrHelper::setupPcm(apvts, prefix, pPcm);
     PrHelper::setupLp(apvts, prefix, pLp);
     PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
+    PrHelper::setupSsgHwPEnv(apvts, prefix, pSsgHwPEnv);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 }
 
@@ -72,5 +74,6 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     PrHelper::applyPcm(pPcm, params.adpcm.pcm);
     PrHelper::applyLp(pLp, params.adpcm.lp);
     PrHelper::applySsgHwEnv(pSsgHwEnv, params.adpcm.ssgHwEnv);
+    PrHelper::applySsgHwPEnv(pSsgHwPEnv, params.adpcm.ssgHwPEnv);
     PrHelper::applyUnison(pUnison, params.adpcm.unison);
 }

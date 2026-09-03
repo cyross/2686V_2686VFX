@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdint>
 #include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../../Generator/WtMod/GenWtModulator.h"
 #include "../../../Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
 #include "../../../Effect/Lfo/N88/LfoN88.h"
@@ -165,6 +166,53 @@ std::vector<float> WavePreviewSource::ssgHwEnv(int shapeIndex, float minLevel, f
 
     for (int i = 0; i < totalSamples; ++i) {
         float v = env.process();
+
+        if ((i % step) == 0) out.push_back(v);
+    }
+
+    return out;
+}
+
+// ============================================================================
+// SSG HW PITCH ENV
+// ============================================================================
+// 走らせ方は音量版と同じで、拾う値がセントになるところだけが違う。
+// 表示は上下に振れるので、絶対値の大きい側で割って -1.0〜1.0 へ直す。
+std::vector<float> WavePreviewSource::ssgHwPEnv(int shapeIndex, int minCent, int maxCent, bool smooth)
+{
+    const bool steppy = isSsgHwSampleHold(shapeIndex);
+
+    const int samplesPerPeriod = steppy ? steppySamplesPerPeriod : points;
+    const int totalSamples = steppy ? (samplesPerPeriod / 2 * steppyPeriods) : samplesPerPeriod;
+
+    constexpr float previewFreq = 375.0f;
+    const double previewRate = (double)previewFreq * samplesPerPeriod / 2.0;
+
+    SsgHwPEnvParams p;
+
+    p.enable = true;
+    p.shape = shapeIndex;
+    p.period = previewFreq;
+    p.min = minCent;
+    p.max = maxCent;
+    p.smooth = smooth;
+
+    SsgHwPEnv env;
+
+    env.prepare(previewRate);
+    env.setParameters(p);
+    env.noteOn();
+
+    // 0 セント (音程を動かさない位置) が中央に来るよう、両端の広い方で割る
+    const float scale = std::max({ std::abs((float)minCent), std::abs((float)maxCent), 1.0f });
+
+    const int step = decimation(totalSamples);
+
+    std::vector<float> out;
+    out.reserve((size_t)(totalSamples / step) + 1);
+
+    for (int i = 0; i < totalSamples; ++i) {
+        float v = env.processCent() / scale;
 
         if ((i % step) == 0) out.push_back(v);
     }

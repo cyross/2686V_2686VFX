@@ -27,6 +27,7 @@ class RhythmProcessor : public PrBase
     std::array<PrPtrsPcm, RhythmPrValue::pads> pPcm;
     std::array<PrPtrsLp, RhythmPrValue::pads> pLp;
     std::array<PrPtrsSsgHwEnv, RhythmPrValue::pads> pSsgHwEnv;
+    std::array<PrPtrsSsgHwPEnv, RhythmPrValue::pads> pSsgHwPEnv;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;

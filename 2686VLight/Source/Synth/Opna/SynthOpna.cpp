@@ -78,6 +78,7 @@ void OpnaCore::prepare(double sampleRate) {
     }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
+    m_ssgHwPEnv.prepare(target);
 }
 
 void OpnaCore::setSampleRate(double sampleRate) {
@@ -100,6 +101,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
     m_ampEnvG.setParameters(params.opna.ampEnvG);
     m_wtMod.setParameters(params.opna.wtMod);
     m_ssgHwEnv.setParameters(params.opna.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.opna.ssgHwPEnv);
     m_pan = params.opna.pan;
 
     if (m_pan == 0) {
@@ -128,6 +130,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
         m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
+        m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opna.quality.bit);
@@ -182,6 +185,7 @@ void OpnaCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
 
     m_n88Lfo.noteOn();
     m_ssgHwEnv.noteOn();
+    m_ssgHwPEnv.noteOn();
 
     if (!isLegato) {
         m_wtMod.reset();

@@ -16,6 +16,7 @@ void RhythmPad::prepare(double hostSampleRate)
     m_lfo.prepare(m_sampleRate);
     m_noiseGen.prepare(m_sampleRate);
     m_ssgHwEnv.prepare(m_sampleRate);
+    m_ssgHwPEnv.prepare(m_sampleRate);
 }
 
 void RhythmPad::setSampleRate(double sampleRate)
@@ -23,6 +24,8 @@ void RhythmPad::setSampleRate(double sampleRate)
     m_sampleRate = sampleRate;
     m_adsr.updateTargetSampleRate(m_sampleRate);
     m_pitchAdsr.updateTargetSampleRate(m_sampleRate);
+    m_ssgHwEnv.updateSampleRate(m_sampleRate);
+    m_ssgHwPEnv.updateSampleRate(m_sampleRate);
     m_ssgSwEnv.updateSampleRate(m_sampleRate);
     m_ssgSwEnv11.updateSampleRate(m_sampleRate);
     m_ssgSwPenv11.updateSampleRate(m_sampleRate);
@@ -74,6 +77,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_lfo.setParameters(params.lfo);
     m_noiseGen.setParameters({ .level = params.tn.noiseLevel, .noiseOnNote = params.tn.noiseOnNote, .baseFreq = params.tn.noiseFreq });
     m_ssgHwEnv.setParameters(params.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
     m_wtMod.setParameters(params.wtMod);
 
     bool needRefresh = false;
@@ -174,6 +178,7 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
         }
 
         m_ssgHwEnv.noteOn();
+        m_ssgHwPEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -640,7 +645,7 @@ float RhythmPad::getSample()
     // ==========================================
     // MODULATION は搬送波の周波数比として掛ける
     float freqMult = m_pitchBendRatio * opzx7PitchMod
-        * m_wtMod.process((float)(m_currentFrequency / m_sampleRate));
+        * m_wtMod.process((float)(m_currentFrequency / m_sampleRate)) * m_ssgHwPEnv.process(1.0f);
 
     // Advance position
     m_position += currentIncrement * freqMult;

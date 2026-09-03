@@ -161,6 +161,16 @@ struct CopyEnvSsgHw {
 	bool smooth;
 };
 
+// SSG HW PITCH ENV。min / max はセント値なので整数で持つ。
+struct CopyPEnvSsgHw {
+	bool enable;
+	int shape;
+	float period;
+	int min;
+	int max;
+	bool smooth;
+};
+
 struct CopyEnvSsgSw {
 	bool flag;
 

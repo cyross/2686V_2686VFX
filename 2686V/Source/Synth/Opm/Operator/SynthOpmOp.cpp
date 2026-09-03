@@ -7,6 +7,7 @@ void OpmOperator::prepare(int opIndex, double sampleRate) {
     m_ssgSwEnv.prepare(opIndex, sampleRate);
     m_ssgSwEnv11.prepare(opIndex, sampleRate);
     m_ssgSwPenv11.prepare(opIndex, sampleRate);
+    m_ssgHwPEnv.prepare(sampleRate);
 
     m_ampAdsr.setParamMax(
         CPV::OpmRg::Ar::max,
@@ -39,6 +40,7 @@ void OpmOperator::setParameters(const OpmOpParams& params, int feedback)
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
     m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
     m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
+    m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
     m_detune.setParameters(params.detune);
 	m_fixMode.setParameters(params.fix);
 }
@@ -52,11 +54,16 @@ void OpmOperator::setSampleRate(double sampleRate)
     m_ssgSwEnv.updateTargetSampleRate(sampleRate);
     m_ssgSwEnv11.updateSampleRate(sampleRate);
     m_ssgSwPenv11.updateSampleRate(sampleRate);
+    m_ssgHwPEnv.updateSampleRate(sampleRate);
 }
 
 void OpmOperator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
     m_noteNumber = noteNumber;
+
+    // ハードウェアエンベロープは位相を持つだけなので、
+    // 押し直したときだけ頭から流し直す。
+    if (!isLegato) m_ssgHwPEnv.noteOn();
 
     if (!isLegato)
     {
@@ -274,6 +281,10 @@ void OpmOperator::getSample(float& output, float modulator, float feedbackModula
     float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * (*m_p_globalPitchRatio) * lfoPitchMod;
     float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
     currentPhaseDelta = m_params.ssgPEnv11Enable ? m_ssgSwPenv11.process(currentPhaseDelta) : currentPhaseDelta;
+
+    // SSG HW PITCH ENV。切ってあるときは倍率 1.0 が返るので、
+    // 位相を進める意味でも毎サンプル通しておく。
+    currentPhaseDelta = m_ssgHwPEnv.process(currentPhaseDelta);
 
     // 位相の変調
     float feedbackPhaseOffset = 0.0f;

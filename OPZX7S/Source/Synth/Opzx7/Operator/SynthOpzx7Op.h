@@ -12,6 +12,7 @@
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 
 class Opzx7Operator : public FmOperator
 {
@@ -71,6 +72,9 @@ private:
 	SsgSwEnv m_ssgSwEnv;
 	SsgSwEnv11 m_ssgSwEnv11;
 	SsgSwPEnv11 m_ssgSwPenv11;
+
+	// SSG HW PITCH ENV。オペレーターごとに 1 つ持つ。
+	SsgHwPEnv m_ssgHwPEnv;
 
 	// OPZX7 の外部 PCM データ用
 	std::vector<float>* m_pcmBuffer = nullptr;

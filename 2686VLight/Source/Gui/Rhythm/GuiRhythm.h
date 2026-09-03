@@ -28,6 +28,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
 
@@ -87,6 +88,7 @@ class RhythmPadGui: public GuiBase
 
     // SSG Hw Env
     GuiComponentSsgHwEnv ssgHwEnv;
+    GuiComponentSsgHwPEnv ssgHwPEnv;
 
     GuiComponentFix fixComponent;
 
@@ -168,6 +170,7 @@ public:
         mulDetuneComponent(context),
         lfoComponent(context),
         ssgHwEnv(context),
+        ssgHwPEnv(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -208,8 +211,10 @@ public:
     void importPitchEnvParam();
     void exportPitchEnvParam();
     void importSsgHwEnvParam();
+    void importSsgHwPEnvParam();
     void importWtModParam();
     void exportSsgHwEnvParam();
+    void exportSsgHwPEnvParam();
     void exportWtModParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
@@ -268,6 +273,7 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;

@@ -137,6 +137,7 @@ void GuiWtPlus::setup() {
     lfoComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgHwPEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -163,6 +164,7 @@ void GuiWtPlus::setup() {
     ieAmpEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
     iePitchEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Pitch Env", pitchEnvComponent);
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11Component);
@@ -216,6 +218,7 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
     ampEnvComponent.layoutComponent(mRect);
 
     ssgHwEnv.layoutComponent(mRect);
+    ssgHwPEnv.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -341,6 +344,7 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
@@ -362,6 +366,7 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -709,6 +714,7 @@ void GuiWtPlus::importChParam() {
                 ampEnvComponent.readParams(*reader, "ampEnv");
                 pitchEnvComponent.readParams(*reader, "pitchEnv");
                 ssgHwEnv.readParams(*reader, "ssgHwEnv");
+                ssgHwPEnv.readParams(*reader, "ssgHwPEnv");
                 ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
                 ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
                 ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
@@ -794,6 +800,7 @@ void GuiWtPlus::writeChParams(Io::ParamWriter& writer) {
 	ampEnvComponent.writeParams(writer, "ampEnv");
 	pitchEnvComponent.writeParams(writer, "pitchEnv");
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
 	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
 	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");

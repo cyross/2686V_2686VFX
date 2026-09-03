@@ -16,6 +16,7 @@
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 
 // --- Core Class ---
 
@@ -82,6 +83,9 @@ private:
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
     SsgHwEnv m_ssgHwEnv;
+
+    // 音量側と同じ形をピッチへ当てるもの。両方を同時に掛けられる。
+    SsgHwPEnv m_ssgHwPEnv;
 
     float m_tone = 1.0f;
     float m_noiseLevel = 0.0f; // Noise

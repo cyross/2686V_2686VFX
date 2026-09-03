@@ -47,6 +47,7 @@ void BeepCore::prepare(double sampleRate) {
     m_fixMode.setParameters({ .enable = false, .freq = 2000.0f });
     m_lfo.prepare(44100.0);
     m_ssgHwEnv.prepare(44100.0);
+    m_ssgHwPEnv.prepare(44100.0);
 }
 
 void BeepCore::setSampleRate(double sampleRate) {
@@ -58,6 +59,7 @@ void BeepCore::setSampleRate(double sampleRate) {
     m_ssgSwEnv11.updateSampleRate(sampleRate);
     m_ssgSwPenv11.updateSampleRate(sampleRate);
     m_ssgHwEnv.updateSampleRate(m_sampleRate);
+    m_ssgHwPEnv.updateSampleRate(m_sampleRate);
 }
 
 void BeepCore::setParameters(const SynthParams& params) {
@@ -77,6 +79,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_fixMode.setParameters(params.beep.fix);
     m_lfo.setParameters(params.beep.lfo);
     m_ssgHwEnv.setParameters(params.beep.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.beep.ssgHwPEnv);
     m_wtMod.setParameters(params.beep.wtMod);
     m_antiAlias = params.beep.antiAlias;
     m_timerClock = getBeepTimerClock(params.beep.timerClock);
@@ -132,6 +135,7 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
 
         m_lfo.noteOn();
         m_ssgHwEnv.noteOn();
+        m_ssgHwPEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -271,7 +275,7 @@ float BeepCore::getSample() {
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
     // MODULATION は搬送波の周波数比として掛ける
-    float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta);
+    float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
     float phaseInc = 0.0f;
 

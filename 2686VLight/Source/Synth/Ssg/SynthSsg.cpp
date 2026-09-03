@@ -23,6 +23,7 @@ void SsgCore::prepare(double sampleRate) {
     m_lfo.prepare(m_targetRate);
     m_noiseGen.prepare(m_targetRate);
     m_ssgHwEnv.prepare(m_targetRate);
+    m_ssgHwPEnv.prepare(m_targetRate);
     m_phaseDelta = m_currentFrequency / m_targetRate;
 }
 
@@ -54,6 +55,7 @@ void SsgCore::setParameters(const SynthParams& params)
     m_ssgSwPenv11.setParameters(params.ssg.ssgSwPEnv11);
     m_lfo.setParameters(params.ssg.lfo);
     m_ssgHwEnv.setParameters(params.ssg.env);
+    m_ssgHwPEnv.setParameters(params.ssg.ssgHwPEnv);
     m_wtMod.setParameters(params.ssg.wtMod);
 
     m_fixMode.setParameters(params.ssg.fix);
@@ -81,6 +83,7 @@ void SsgCore::setParameters(const SynthParams& params)
         m_noiseGen.updateTargetRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
         m_ssgHwEnv.updateTargetSampleRate(m_targetRate);
+        m_ssgHwPEnv.updateTargetSampleRate(m_targetRate);
         m_phaseDelta = m_currentFrequency / m_targetRate;
     }
 
@@ -128,6 +131,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         }
 
         m_ssgHwEnv.noteOn();
+        m_ssgHwPEnv.noteOn();
         m_rateAccumulator = 0.0;
         m_lastSample = 0.0f;
     }
@@ -323,7 +327,7 @@ float SsgCore::getSample()
         // (PitchBend × Opzx7のPM × ModWheelのPM)
         // ==========================================
         // MODULATION は搬送波の周波数比として掛ける
-        float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta);
+        float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
         float phaseInc = 0.0f;
         if (m_waveform == 1 && !m_triKeyTrack) {

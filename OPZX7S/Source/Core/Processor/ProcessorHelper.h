@@ -16,6 +16,7 @@
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7Params.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7Params.h"
 #include "../../Core/Synth/UnisonParams.h"
@@ -482,6 +483,15 @@ namespace PrHelper {
 		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::min);
 		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::max);
 		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::smooth);
+	}
+
+	static inline void setupSsgHwPEnv(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgHwPEnv& ptPtrs) {
+		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::enable);
+		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::shape);
+		ptPtrs.period = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::period);
+		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::min);
+		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::max);
+		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::smooth);
 	}
 
 	static inline void setupPanpot(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPanpot& ptPtrs){
@@ -1009,6 +1019,15 @@ namespace PrHelper {
 		params.period = getFloat(ptPtrs.period);
 		params.min = getFloat(ptPtrs.min);
 		params.max = getFloat(ptPtrs.max);
+		params.smooth = getBool(ptPtrs.smooth);
+	}
+
+	static inline void applySsgHwPEnv(PrPtrsSsgHwPEnv& ptPtrs, SsgHwPEnvParams& params) {
+		params.enable = getBool(ptPtrs.enable);
+		params.shape = getInt(ptPtrs.shape);
+		params.period = getFloat(ptPtrs.period);
+		params.min = getInt(ptPtrs.min);
+		params.max = getInt(ptPtrs.max);
 		params.smooth = getBool(ptPtrs.smooth);
 	}
 
@@ -3289,6 +3308,50 @@ namespace PrHelper {
 			prefix + CPK::SsgHwEnv::smooth,
 			prefixName + CPN::SsgHwEnv::smooth,
 			CPV::SsgHwEnv::Smooth::initial
+		);
+	}
+
+	// SSG HW PITCH ENV。波形スロットは音量版と同じで、Min / Max だけが
+	// セント値になる。音量版と同じチャンネル・オペレーターへ同時に置ける。
+	static inline void addSsgHwPEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgHwPEnv::enable,
+			prefixName + CPN::SsgHwPEnv::enable,
+			CPV::SsgHwPEnv::Enable::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::SsgHwPEnv::shape,
+			prefixName + CPN::SsgHwPEnv::shape,
+			CPV::SsgHwPEnv::Shape::min, CPV::SsgHwPEnv::Shape::max, CPV::SsgHwPEnv::Shape::initial
+		);
+		// 音量版と同じく、値が大きいほど速くなる周波数(Hz)として扱う
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::SsgHwPEnv::period,
+			prefixName + CPN::SsgHwPEnv::period,
+			CPV::SsgHwPEnv::Period::min, CPV::SsgHwPEnv::Period::max, CPV::SsgHwPEnv::Period::initial
+		);
+		// Min / Max はセント。1200 セントが 1 オクターブ。
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::SsgHwPEnv::min,
+			prefixName + CPN::SsgHwPEnv::min,
+			CPV::SsgHwPEnv::Min::min, CPV::SsgHwPEnv::Min::max, CPV::SsgHwPEnv::Min::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::SsgHwPEnv::max,
+			prefixName + CPN::SsgHwPEnv::max,
+			CPV::SsgHwPEnv::Max::min, CPV::SsgHwPEnv::Max::max, CPV::SsgHwPEnv::Max::initial
+		);
+		// 段差がそのまま音程の飛びになるので、鈍らせるスイッチを付けておく
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgHwPEnv::smooth,
+			prefixName + CPN::SsgHwPEnv::smooth,
+			CPV::SsgHwPEnv::Smooth::initial
 		);
 	}
 }

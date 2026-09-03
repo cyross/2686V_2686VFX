@@ -27,6 +27,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -62,6 +63,7 @@ class GuiWtPlus : public GuiBase {
     GuiComponentLfoOpzx7 lfoComponent;
 
     GuiComponentSsgHwEnv ssgHwEnv;
+    GuiComponentSsgHwPEnv ssgHwPEnv;
 
     GuiComponentMidi midiComponent;
 
@@ -93,6 +95,7 @@ class GuiWtPlus : public GuiBase {
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
@@ -135,6 +138,7 @@ public:
         mulDetuneComponent(context),
         lfoComponent(context),
         ssgHwEnv(context),
+        ssgHwPEnv(context),
         midiComponent(context),
         waveCat(context),
         slotSlider(context),
@@ -189,6 +193,7 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgHwEnv(context),
+        ieSsgHwPEnv(context),
         ieWtMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),

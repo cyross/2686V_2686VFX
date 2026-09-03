@@ -14,6 +14,7 @@ class OpnaProcessor : public PrBase
     PrPtrsQuality pQuality;
     PrPtrsN88Lfo pN88Lfo;
     PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsWtMod pWtMod;
     PrPtrsSsgSwEnv11 pSsgSwEnv11g;
@@ -30,6 +31,7 @@ class OpnaProcessor : public PrBase
     std::array<PrPtrsSsgSwEnvOp, OpnaPrValue::ops> pSsgSwEnv;
     std::array<PrPtrsSsgSwEnv11Op, OpnaPrValue::ops> pSsgSwEnv11;
     std::array<PrPtrsSsgSwPEnv11Op, OpnaPrValue::ops> pSsgSwPEnv11;
+    std::array<PrPtrsSsgHwPEnv, OpnaPrValue::ops> pOpSsgHwPEnv;
     std::array<std::atomic<float>*, OpnaPrValue::ops> pOpMask = { nullptr };
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

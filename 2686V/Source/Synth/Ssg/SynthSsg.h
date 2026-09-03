@@ -13,6 +13,7 @@
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
@@ -59,6 +60,9 @@ private:
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
     SsgHwEnv m_ssgHwEnv;
+
+    // 音量側と同じ形をピッチへ当てるもの。両方を同時に掛けられる。
+    SsgHwPEnv m_ssgHwPEnv;
 
     // Duty Params
     int m_dutyMode = 0;

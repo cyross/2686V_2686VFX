@@ -1745,6 +1745,51 @@ namespace CPV
 		}
 	}
 
+	// SSG HW PITCH ENV。波形スロットは SSG HW AMP ENV と同じものを使うので、
+	// Shape と Period の範囲は音量版に合わせてある。
+	// Min / Max だけがセント値で、こちらは音程の振れ幅になる。
+	namespace SsgHwPEnv
+	{
+		namespace Enable
+		{
+			inline constexpr bool initial = false;
+		}
+
+		namespace Shape
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 43;
+			inline constexpr int initial = 0;
+		}
+
+		namespace Period
+		{
+			inline constexpr float min = 0.1f;
+			inline constexpr float max = 200.0f;
+			inline constexpr float initial = 1.0f;
+		}
+
+		// 単位はセント。振れ幅は他のピッチ系と同じく ±4 オクターブ。
+		namespace Min
+		{
+			inline constexpr int min = CPV::pitchLevelMin;
+			inline constexpr int max = CPV::pitchLevelMax;
+			inline constexpr int initial = 0;
+		}
+
+		namespace Max
+		{
+			inline constexpr int min = CPV::pitchLevelMin;
+			inline constexpr int max = CPV::pitchLevelMax;
+			inline constexpr int initial = 1200;
+		}
+
+		namespace Smooth
+		{
+			inline constexpr bool initial = false;
+		}
+	}
+
 	namespace OplEg {
 		inline constexpr int min = 0;
 		inline constexpr int max = 3;

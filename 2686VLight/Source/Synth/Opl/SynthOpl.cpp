@@ -61,6 +61,7 @@ void OplCore::prepare(double sampleRate) {
     }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
+    m_ssgHwPEnv.prepare(target);
 }
 
 void OplCore::setSampleRate(double sampleRate) {
@@ -79,6 +80,7 @@ void OplCore::setParameters(const SynthParams& params) {
     m_ampEnvG.setParameters(params.opl.ampEnvG);
     m_wtMod.setParameters(params.opl.wtMod);
     m_ssgHwEnv.setParameters(params.opl.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.opl.ssgHwPEnv);
 
     if (m_rateIndex != params.opl.quality.rate) {
         m_rateIndex = params.opl.quality.rate;
@@ -93,6 +95,7 @@ void OplCore::setParameters(const SynthParams& params) {
         m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
+        m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl.quality.bit);
@@ -133,6 +136,7 @@ void OplCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     m_rateAccumulator = 0.0; // レートの余りもリセット
 
     m_ssgHwEnv.noteOn();
+    m_ssgHwPEnv.noteOn();
 
     if (!isLegato) {
         m_wtMod.reset();

@@ -9,6 +9,7 @@
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../../Effect/Detune/Opl/DetuneOpl.h"
 #include "../../../Effect/Feedback/Feedback.h"
 #include "../../../Core/Fm/FmOperator.h"
@@ -64,6 +65,9 @@ private:
 	SsgSwEnv m_ssgSwEnv;
 	SsgSwEnv11 m_ssgSwEnv11;
 	SsgSwPEnv11 m_ssgSwPenv11;
+
+	// SSG HW PITCH ENV。オペレーターごとに 1 つ持つ。
+	SsgHwPEnv m_ssgHwPEnv;
 
 	std::array<float, 8> fVector = { 0.0f };
 

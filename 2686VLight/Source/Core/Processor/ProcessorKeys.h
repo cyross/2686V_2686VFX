@@ -434,5 +434,17 @@ namespace CPK
 		static inline const juce::String max = "_SSGHWENV_MAX";
 		static inline const juce::String smooth = "_SSGHWENV_SMOOTH";
 	};
+
+	// SSG HW ENV の形をピッチへ当てるもの。音量版とは別のパラメータとして
+	// 持たせ、同じチャンネル・オペレーターの中で共存できるようにする。
+	namespace SsgHwPEnv
+	{
+		static inline const juce::String enable = "_SSGHWPENV_ENABLE";
+		static inline const juce::String shape = "_SSGHWPENV_SHAPE";
+		static inline const juce::String period = "_SSGHWPENV_PERIOD";
+		static inline const juce::String min = "_SSGHWPENV_MIN";
+		static inline const juce::String max = "_SSGHWPENV_MAX";
+		static inline const juce::String smooth = "_SSGHWPENV_SMOOTH";
+	};
 };
 

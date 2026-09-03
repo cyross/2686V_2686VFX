@@ -13,6 +13,7 @@
 #include "../../Generator/WtMod/GenWtModulator.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 
@@ -107,6 +108,9 @@ private:
     float m_ampEnvGLevel = 0.0f;
 
     SsgHwEnv m_ssgHwEnv;
+
+    // 音量側と同じ形をピッチへ当てるもの。チップ全体のピッチ倍率へ掛ける。
+    SsgHwPEnv m_ssgHwPEnv;
     SsgSwEnv11 m_ssgSwEnv11g;
 
     // チップ全体へ掛かるピッチ側。オペレータは m_globalPitchRatio を
@@ -121,7 +125,7 @@ private:
 
     // チップ全体のピッチ倍率を 1 サンプルぶん進める
     inline void updateGlobalPitchRatio(float notePhaseDelta) {
-        float ratio = m_wtMod.process(notePhaseDelta);
+        float ratio = m_wtMod.process(notePhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
         if (!m_ssgSwPEnv11g.isBypass()) {
             ratio *= m_ssgSwPEnv11g.process(1.0f);

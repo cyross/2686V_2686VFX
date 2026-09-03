@@ -13,6 +13,7 @@
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 
 struct AdpcmParams
 {
@@ -33,6 +34,7 @@ struct AdpcmParams
     QualityPcmParams quality;
     UnisonParams unison;
     SsgHwEnvParams ssgHwEnv;
+    SsgHwPEnvParams ssgHwPEnv;
 
     float pan = 0.5f; // ADDED: Pan
     bool loop = false; // Default false for drums

@@ -411,4 +411,14 @@ namespace CPN
 		static inline const juce::String max = " Hardware Env Max";
 		static inline const juce::String smooth = " Hardware Env Smooth";
 	}
+
+	namespace SsgHwPEnv
+	{
+		static inline const juce::String enable = " Hardware Pitch Env Enable";
+		static inline const juce::String shape = " Hardware Pitch Env Shape";
+		static inline const juce::String period = " Hardware Pitch Env Period";
+		static inline const juce::String min = " Hardware Pitch Env Min";
+		static inline const juce::String max = " Hardware Pitch Env Max";
+		static inline const juce::String smooth = " Hardware Pitch Env Smooth";
+	}
 }

@@ -69,6 +69,7 @@ void Opl3Core::prepare(double sampleRate) {
     }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
+    m_ssgHwPEnv.prepare(target);
 }
 
 void Opl3Core::setCurveCore(CurveCore* p_curveCore)
@@ -100,6 +101,7 @@ void Opl3Core::setParameters(const SynthParams& params) {
     m_ampEnvG.setParameters(params.opl3.ampEnvG);
     m_wtMod.setParameters(params.opl3.wtMod);
     m_ssgHwEnv.setParameters(params.opl3.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.opl3.ssgHwPEnv);
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
@@ -119,6 +121,7 @@ void Opl3Core::setParameters(const SynthParams& params) {
         m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
+        m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl3.quality.bit);
@@ -173,6 +176,7 @@ void Opl3Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     m_rateAccumulator = 0.0; // レートの余りもリセット
 
     m_ssgHwEnv.noteOn();
+    m_ssgHwPEnv.noteOn();
 
     if (!isLegato) {
         m_wtMod.reset();

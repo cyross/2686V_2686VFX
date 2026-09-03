@@ -24,6 +24,7 @@ void AdpcmCore::prepare(double sampleRate)
     m_noiseGen.prepare(m_sampleRate);
     m_lfo.prepare(m_sampleRate);
     m_ssgHwEnv.prepare(m_sampleRate);
+    m_ssgHwPEnv.prepare(m_sampleRate);
 
     m_phaseDelta = m_currentFrequency / m_sampleRate;
 
@@ -41,6 +42,7 @@ void AdpcmCore::setSampleRate(double sampleRate)
     m_noiseGen.updateTargetRate(m_sampleRate);
     m_lfo.updateTargetSampleRate(m_sampleRate);
     m_ssgHwEnv.updateSampleRate(m_sampleRate);
+    m_ssgHwPEnv.updateSampleRate(m_sampleRate);
 
     m_phaseDelta = m_currentFrequency / m_sampleRate;
 }
@@ -89,6 +91,7 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_lfo.setParameters(params.adpcm.lfo);
     m_noiseGen.setParameters({ .level = params.adpcm.tn.noiseLevel, .noiseOnNote = false, .baseFreq = params.adpcm.tn.noiseFreq });
     m_ssgHwEnv.setParameters(params.adpcm.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.adpcm.ssgHwPEnv);
     m_wtMod.setParameters(params.adpcm.wtMod);
 
     m_rootNote = params.adpcm.rootNote;
@@ -206,6 +209,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
         m_lfo.noteOn();
         m_ssgHwEnv.noteOn();
+        m_ssgHwPEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -681,7 +685,7 @@ float AdpcmCore::getSample()
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
     // MODULATION は搬送波の周波数比として掛ける
-    float freqMult = m_pitchBendRatio * opzx7PitchMod * m_wtMod.process(m_phaseDelta);
+    float freqMult = m_pitchBendRatio * opzx7PitchMod * m_wtMod.process(m_phaseDelta) * m_ssgHwPEnv.process(1.0f);
 
     // Advance position
     m_position += currentIncrement * freqMult;

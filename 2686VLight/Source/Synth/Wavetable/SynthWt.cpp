@@ -22,6 +22,7 @@ void WtCore::prepare(double sampleRate)
     m_ssgSwEnv11.prepare(0, m_sampleRate);
     m_ssgSwPenv11.prepare(0, m_sampleRate);
     m_ssgHwEnv.prepare(m_sampleRate);
+    m_ssgHwPEnv.prepare(m_sampleRate);
 
     m_targetRate = getTargetRate(m_rateIndex);
 
@@ -40,6 +41,7 @@ void WtCore::setSampleRate(double sampleRate)
     m_ssgSwEnv11.updateSampleRate(m_sampleRate);
     m_ssgSwPenv11.updateSampleRate(m_sampleRate);
     m_ssgHwEnv.updateSampleRate(m_sampleRate);
+    m_ssgHwPEnv.updateSampleRate(m_sampleRate);
 
     updatePhaseDelta();
 }
@@ -61,6 +63,7 @@ void WtCore::setParameters(const SynthParams& params)
     m_detune.setParameters(params.wt.detune);
     m_lfo.setParameters(params.wt.lfo);
     m_ssgHwEnv.setParameters(params.wt.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.wt.ssgHwPEnv);
 
     // Bit Depth & Table Size
     m_quantizeSteps = getTargetBitDepth(params.wt.quality.bit);
@@ -170,6 +173,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         }
 
         m_ssgHwEnv.noteOn();
+        m_ssgHwPEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -336,7 +340,7 @@ float WtCore::getSample()
         // ==========================================
         // 計算は WtModulator (Generator/WtMod) にある。
         // FM 音源のチップ全体にも同じものを掛けている。
-        float modRatio = m_wtMod.process(newPhaseDelta);
+        float modRatio = m_wtMod.process(newPhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
         // ==========================================
         // 位相 (Phase) の計算

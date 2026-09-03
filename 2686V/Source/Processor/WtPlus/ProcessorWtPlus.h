@@ -20,6 +20,7 @@ class WtPlusProcessor : public PrBase
     PrPtrsFix pFix;
     PrPtrsWtMod pMod;
     PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsUnison pUnison;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

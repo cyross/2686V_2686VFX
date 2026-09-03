@@ -18,6 +18,7 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addSsgDutyParameters(layout, prefix, prefixName);
     PrHelper::addSsgTriParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);
     PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addQualityParameters(layout, prefix, prefixName);
     PrHelper::addTnParameters(layout, prefix, prefixName);
@@ -51,6 +52,7 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
     PrHelper::setupSsgDuty(apvts, prefix, pDuty);
     PrHelper::setupSsgTri(apvts, prefix, pTri);
     PrHelper::setupSsgHwEnv(apvts, prefix, pHwEnv);
+    PrHelper::setupSsgHwPEnv(apvts, prefix, pHwPEnv);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 }
 
@@ -71,5 +73,6 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     PrHelper::applySsgDuty(pDuty, params.ssg.duty);
     PrHelper::applySsgTri(pTri, params.ssg.tri);
     PrHelper::applySsgHwEnv(pHwEnv, params.ssg.env);
+    PrHelper::applySsgHwPEnv(pHwPEnv, params.ssg.ssgHwPEnv);
     PrHelper::applyUnison(pUnison, params.ssg.unison);
 }
