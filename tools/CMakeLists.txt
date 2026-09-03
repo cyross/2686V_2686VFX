@@ -46,7 +46,7 @@ target_compile_definitions(ParamDump PRIVATE
     CY_HAS_CURVE=1
 
     JucePlugin_Name="2686V"
-    JucePlugin_VersionString="3.0.0"
+    JucePlugin_VersionString="3.1.0"
 )
 
 target_compile_features(ParamDump PRIVATE cxx_std_20)
@@ -97,7 +97,7 @@ target_compile_definitions(ParamDumpFx PRIVATE
     CY_HAS_CURVE=0
 
     JucePlugin_Name="2686VFX"
-    JucePlugin_VersionString="3.0.0"
+    JucePlugin_VersionString="3.1.0"
 )
 
 target_compile_features(ParamDumpFx PRIVATE cxx_std_20)

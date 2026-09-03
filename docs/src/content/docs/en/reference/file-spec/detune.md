@@ -2,7 +2,7 @@
 title: Multiple and detune
 description: What is inside .detune.json
 sidebar:
-  order: 8
+  order: 10
 ---
 
 The MUL/DET settings.

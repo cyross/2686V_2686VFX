@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDumpFx",
-  "version": "3.0.0",
-  "count": 212,
+  "version": "3.1.0",
+  "count": 258,
   "parameters": [
     {
       "id": "MODE",
@@ -557,6 +557,330 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "MOD_AMPMOD_ENABLE",
+      "name": "MOD Amp Mod Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_AMPMOD_DEPTH",
+      "name": "MOD Amp Mod Depth",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.5
+    },
+    {
+      "id": "MOD_AMPMOD_SPEED",
+      "name": "MOD Amp Mod Speed",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 10.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_AMPMOD_SHAPE",
+      "name": "MOD Amp Mod Shape",
+      "type": "Int",
+      "min": 0,
+      "max": 8,
+      "default": 0
+    },
+    {
+      "id": "MOD_AMPMOD_MIN",
+      "name": "MOD Amp Mod Min",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_AMPMOD_MAX",
+      "name": "MOD Amp Mod Max",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_AMPMOD_WAVE_SMOOTH",
+      "name": "MOD Amp Mod Wave Smooth",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": true
+    },
+    {
+      "id": "MOD_AMPMOD_WAVE_SLOT",
+      "name": "MOD Amp Mod Wave Slot",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_0",
+      "name": "MOD Amp Mod FDS Table 0",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_1",
+      "name": "MOD Amp Mod FDS Table 1",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_2",
+      "name": "MOD Amp Mod FDS Table 2",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_3",
+      "name": "MOD Amp Mod FDS Table 3",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_4",
+      "name": "MOD Amp Mod FDS Table 4",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_5",
+      "name": "MOD Amp Mod FDS Table 5",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_6",
+      "name": "MOD Amp Mod FDS Table 6",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_7",
+      "name": "MOD Amp Mod FDS Table 7",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_8",
+      "name": "MOD Amp Mod FDS Table 8",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_9",
+      "name": "MOD Amp Mod FDS Table 9",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_10",
+      "name": "MOD Amp Mod FDS Table 10",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_11",
+      "name": "MOD Amp Mod FDS Table 11",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_12",
+      "name": "MOD Amp Mod FDS Table 12",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_13",
+      "name": "MOD Amp Mod FDS Table 13",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_14",
+      "name": "MOD Amp Mod FDS Table 14",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_15",
+      "name": "MOD Amp Mod FDS Table 15",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_16",
+      "name": "MOD Amp Mod FDS Table 16",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_17",
+      "name": "MOD Amp Mod FDS Table 17",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_18",
+      "name": "MOD Amp Mod FDS Table 18",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_19",
+      "name": "MOD Amp Mod FDS Table 19",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_20",
+      "name": "MOD Amp Mod FDS Table 20",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_21",
+      "name": "MOD Amp Mod FDS Table 21",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_22",
+      "name": "MOD Amp Mod FDS Table 22",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_23",
+      "name": "MOD Amp Mod FDS Table 23",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 5
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_24",
+      "name": "MOD Amp Mod FDS Table 24",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_25",
+      "name": "MOD Amp Mod FDS Table 25",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_26",
+      "name": "MOD Amp Mod FDS Table 26",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_27",
+      "name": "MOD Amp Mod FDS Table 27",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_28",
+      "name": "MOD Amp Mod FDS Table 28",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_29",
+      "name": "MOD Amp Mod FDS Table 29",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_30",
+      "name": "MOD Amp Mod FDS Table 30",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
+    },
+    {
+      "id": "MOD_AMPMOD_FDS_31",
+      "name": "MOD Amp Mod FDS Table 31",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 3
     },
     {
       "id": "MOD_SSGSW11_STEPS",
@@ -1539,6 +1863,55 @@
       "min": 0,
       "max": 7,
       "default": 3
+    },
+    {
+      "id": "MOD_SSGHWPENV_ENABLE",
+      "name": "MOD Hardware Pitch Env Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_SSGHWPENV_SHAPE",
+      "name": "MOD Hardware Pitch Env Shape",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGHWPENV_PERIOD",
+      "name": "MOD Hardware Pitch Env Period",
+      "type": "Float",
+      "min": 0.100000001490116,
+      "max": 200.0,
+      "step": 0.009999999776483,
+      "default": 1.0
+    },
+    {
+      "id": "MOD_SSGHWPENV_MIN",
+      "name": "MOD Hardware Pitch Env Min",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGHWPENV_MAX",
+      "name": "MOD Hardware Pitch Env Max",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 1200
+    },
+    {
+      "id": "MOD_SSGHWPENV_SMOOTH",
+      "name": "MOD Hardware Pitch Env Smooth",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "MOD_WTMOD_BASEFREQ",

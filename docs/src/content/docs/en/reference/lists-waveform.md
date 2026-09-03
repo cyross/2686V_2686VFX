@@ -16,6 +16,10 @@ picture here, select it and look at the shape yourself.
 
 The first eight are the hardware's; everything after that is **ours**. They are available on every channel.
 
+**SSG HW AMP ENV and SSG HW PITCH ENV share this list.** Only the destination
+differs: on the level side MIN and MAX are a gain, on the pitch side they are
+cents.
+
 **44 ** of them.
 
 | Value | Name | Picture | Notes |
@@ -221,9 +225,13 @@ On the AM side there are **4**.
 | 2 | Triangle | <img src="/2686V_2686VFX/figures/wave/opm-hw-lfo/am_02.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
 | 3 | Noise | <img src="/2686V_2686VFX/figures/wave/opm-hw-lfo/am_03.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
 
-## WT PITCH MOD — how it modulates
+## WT PITCH MOD / WT AMP MOD — how it modulates
 
-Pitch modulation from wavetable memory. Available on every channel.
+Modulation from wavetable memory. Available on every channel.
+
+**WT PITCH MOD and WT AMP MOD share this list.** Only the destination differs:
+the pitch side is a frequency ratio, the level side is a gain between MIN and
+MAX.
 
 **9 ** of them.
 

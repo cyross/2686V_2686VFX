@@ -108,6 +108,7 @@ The parts that move level or pitch over time. Several kinds can run at once.
 | [SSG SW AMP ENV](#ssg-sw-amp-env) | level | 6 taps | ours |
 | [SSG SW AMP ENV\[11\]](#ssg-sw-amp-env11) | level | 11 taps | ours |
 | [PITCH ENV](#pitch-env) | pitch | 3 taps | ours |
+| [SSG HW PITCH ENV](#ssg-hw-pitch-env) | pitch | 44 shapes | ours |
 | [SSG SW PITCH ENV\[11\]](#ssg-sw-pitch-env11) | pitch | 11 taps | ours |
 
 On the level side they multiply together. The usual arrangement is to shape the
@@ -233,6 +234,30 @@ Moves the pitch over time. Values are in **cents**, from **−4800 to +4800**
 Use it to lift the pitch at the very start of a note, or to drop it away like a
 laser.
 
+### SSG HW PITCH ENV
+
+**Ours.** It drives pitch with the **same shapes** as
+[SSG HW AMP ENV](#ssg-hw-amp-env). The hardware envelope on the real chip only
+touched level, but pointing the same shape at pitch gives repeating arpeggios
+and trills.
+
+| Knob | What it does | Range | Default | Automation |
+| --- | --- | --- | ---: | --- |
+| **Enable** | Use it or not | False / True | False | [`SSG_SSGHWPENV_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-enable) |
+| **SHPE** | Shape. The same 44 as SSG HW AMP ENV | 0 – 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-shape) |
+| **PERD** | How fast it repeats | 0.1 – 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-period) |
+| **MIN** | Bottom of the range, in cents | -4800 – 4800 | 0 | [`SSG_SSGHWPENV_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-min) |
+| **MAX** | Top of the range, in cents | -4800 – 4800 | 1200 | [`SSG_SSGHWPENV_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-max) |
+| **Smooth** | Round off the corners of the steps | False / True | False | [`SSG_SSGHWPENV_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-smooth) |
+
+MIN and MAX are in **cents**; 1200 cents is one octave, so enabling it with the
+defaults sweeps the pitch over an octave. Swapping the two numbers flips the
+direction.
+
+A step in pitch is heard as a jump, so turn Smooth on once PERD is high.
+
+The shapes are listed under [Waveforms](/2686V_2686VFX/en/reference/lists-waveform/).
+
 ### SSG SW PITCH ENV[11]
 
 The **11-tap** version on the pitch side. It is built like
@@ -294,6 +319,36 @@ modulation the Famicom Disk System, the WonderSwan and the PC Engine chips
 could apply.
 
 You can also load a `.wt` or `.wt2` file and wobble with a shape of your own.
+
+When SHPE is **FDS Table**, the **FDS PITCH TABLE** below lets you draw the
+32 register values directly. It is kept separately from the FDS AMP TABLE on
+the level side.
+
+## WT AMP MOD
+
+**Ours.** It uses the **same modulation shapes** as WT PITCH MOD, but drives
+level instead of pitch. The output moves **between MIN and MAX**.
+
+| Knob | What it does | Range | Default | Automation |
+| --- | --- | --- | ---: | --- |
+| **Enable** | Use it or not | False / True | False | [`SSG_AMPMOD_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-enable) |
+| **DPTH** | How far the level is pulled down from MAX | 0 – 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-depth) |
+| **SPED** | How fast it wobbles | 0.1 – 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-speed) |
+| **SHPE** | Shape it wobbles with. The same 9 as WT PITCH MOD | 0 – 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-shape) |
+| **MIN** | Bottom of the range | 0 – 1 | 0 | [`SSG_AMPMOD_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-min) |
+| **MAX** | Top of the range | 0 – 1 | 1 | [`SSG_AMPMOD_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-max) |
+| **Smooth** | Round off the corners of the steps | False / True | True | [`SSG_AMPMOD_WAVE_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-wave-smooth) |
+
+**DPTH is how far the level is pulled down from MAX.** Left at 0 nothing
+moves and the sound is unchanged; at 1 the whole MIN to MAX range is used.
+This mirrors WT PITCH MOD, where a DPTH of 0 leaves the pitch alone.
+
+MIN and MAX are held **once for the whole modulator**, not per wave slot.
+Switching slots or shapes does not change the range it swings over.
+
+When SHPE is **FDS Table**, the **FDS AMP TABLE** below lets you draw the
+32 register values directly. It is kept separately from the FDS PITCH TABLE
+on the pitch side.
 
 ## LFO
 

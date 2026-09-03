@@ -2,7 +2,7 @@
 title: ユニゾンとハーモニー
 description: .unison.json の中身
 sidebar:
-  order: 9
+  order: 11
 ---
 
 UNISON/HARMONY の設定。

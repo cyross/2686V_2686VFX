@@ -2,7 +2,7 @@
 title: Quality
 description: What is inside .quality.json
 sidebar:
-  order: 10
+  order: 12
 ---
 
 The QUALITY settings.

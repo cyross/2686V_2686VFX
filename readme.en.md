@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v3.0.0 README
+# Retro Sound VST "2686V" v3.1.0 README
 
 (C)2026 CYROSS
 
@@ -11,6 +11,50 @@
 I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26" or a "PC-9801-86", and nothing out there met my standards. So I set out to build a plugin... or at least, that was the plan...
 
 ## 3. Overview
+
+### 3-0. What v3.1.0 adds and changes
+
+- New modulation
+  - **SSG HW PITCH ENV**
+    - The SSG HW AMP ENV shapes pointed at pitch instead of level.
+    - MIN/MAX are in cents (-4800 to 4800; MIN=0 / MAX=1200 by default).
+    - Nudge buttons included.
+    - Available on every channel (FM included), every operator and every RHYTHM pad.
+    - Import / export supported (`.ssgHwPEnv`).
+  - **WT AMP MOD**
+    - The WT PITCH MOD shapes pointed at level instead of pitch.
+    - Swings between MIN and MAX (MIN=0.0 / MAX=1.0 by default).
+      - MIN/MAX apply across every wave and every SLOT it carries.
+    - Nudge buttons included.
+    - HuC6280 and FDS TABLE supported.
+    - Available on every channel (FM included), every operator and every RHYTHM pad.
+    - Import / export supported (`.wtampmod`).
+  - **FDS TABLE is now two tables**
+    - `FDS PITCH TABLE` on the WT PITCH MOD side, `FDS AMP TABLE` on the WT AMP MOD side.
+- Now available per operator
+  - **SSG HW AMP ENV on every operator**
+    - Coexists with the existing SSG HW ENV on OPNA and OPZX7S.
+  - **WT PITCH MOD on every operator**
+    - The wave slots are per operator too.
+  - Both support import / export.
+- 2686VFX
+  - **SSG HW PITCH ENV and WT AMP MOD added as modulation.**
+- On screen
+  - **Software-side section colours split more finely**
+    - Level → blue, pitch → turquoise, LFO → purple.
+    - OPTIONAL / UNISON・HARMONY / FIX / MUL・DET stay cyan.
+    - Hardware-derived, quality and other sections are unchanged.
+  - **2686VFX panel colours split by section**
+    - Effects (including the PCM bit crusher) stay blue.
+    - Modulation → red, LFO → green, everything else → cyan.
+  - **Sections put in a tidier order**
+    - Where hardware- and software-derived sections both exist, the hardware one comes first.
+    - Level, then pitch, then the LFO.
+- Fixed
+  - On RHYTHM pads, a change of sample rate was not passed on to SSG HW AMP ENV.
+  - WT PITCH MOD was missing from the RHYTHM pad parameter files.
+
+### 3-1. Overall
 
 *Bold entries are new or extended in v3.0.0.*
 
@@ -50,6 +94,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - Based on the one used in SSG and elsewhere.
     - SSG HW AMP ENV
       - Based on the one used in SSG and elsewhere.
+    - SSG HW PITCH ENV
+      - Based on the one used in SSG and elsewhere.
     - SSG SW AMP ENV11
       - Based on the one used in SSG and elsewhere.
     - PITCH ENV
@@ -57,6 +103,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - SSG SW PITCH ENV11
       - Based on the one used in SSG and elsewhere.
     - WT PITCH MOD
+      - Based on the one used in WT/WT2/WT+ and elsewhere.
+    - WT AMP MOD
       - Based on the one used in WT/WT2/WT+ and elsewhere.
     - LFO
       - Based on the one used in OPZX7S.
@@ -536,7 +584,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
         - [Dir]SsgSwPenv11         : the parameter file folder for SSG SW Pitch ENV11
     - [Dir]QualityParams           : the parameter file folder for audio quality
       - [Dir]fromCC                : the folder of files made for me by Claude Code
-    - [Dir]SsgHwEnvParams          : the parameter file folder for SSG HW ENV
+    - [Dir]SsgHwEnvParams          : the parameter file folder for SSG HW AMP ENV and SSG HW PITCH ENV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
     - [Dir]SsgSwEnvParams          : the parameter file folder for SSG SW ENV(11)
       - [Dir]fromCC                : the folder of files made for me by Claude Code
@@ -550,7 +598,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - [Dir]fromCC                : the folder of files made for me by Claude Code
         - [Dir]wt                  : the `.wt` files
         - [Dir]wt2                 : the `.wt2` files
-    - [Dir]WtModParams             : the parameter file folder for WT PITCH MOD
+    - [Dir]WtModParams             : the parameter file folder for WT PITCH MOD and WT AMP MOD
       - [Dir]fromCC                : the folder of files made for me by Claude Code
     - sample_bg.png                : a sample wallpaper
 ```plaintext

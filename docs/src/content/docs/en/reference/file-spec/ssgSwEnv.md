@@ -2,7 +2,7 @@
 title: SSG software level envelope (6 taps)
 description: What is inside .ssgSwEnv.json
 sidebar:
-  order: 4
+  order: 5
 ---
 
 SSG SW The AMP ENV settings.

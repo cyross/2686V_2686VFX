@@ -44,7 +44,9 @@ sidebar:
 | SSG SW ENV11 | 音量 | 11 タップ |
 | PITCH ENV | 音程 | 3 タップ。±4800 セント |
 | SSG SW PENV11 | 音程 | 11 タップ。±4800 セント |
+| SSG HW PITCH ENV | 音程 | SSG HW AMP ENV と同じ形を音程へ。±4800 セント |
 | WT PITCH MOD | 音程 | 波形メモリによる変調。FDS / WonderSwan / HuC6280 |
+| WT AMP MOD | 音量 | 同じ変調波形を音量へ。MIN〜MAX の範囲で振れる |
 
 ## そのほかの音づくり
 
@@ -81,9 +83,9 @@ sidebar:
 
 | 枠 | 動かすもの |
 | --- | --- |
-| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[11] | 音量 |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD | 音量 |
 | LFO | 音量 (AM) と音程 (PM) |
-| PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD | 音程 |
+| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD | 音程 |
 | MUL・DET / UNISON・HARMONY | 音程を一定量ずらす |
 
 ## 演奏

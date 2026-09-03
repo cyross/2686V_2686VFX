@@ -1,4 +1,4 @@
-# レトロ音源風VST「2686V」v3.0.0 README
+# レトロ音源風VST「2686V」v3.1.0 README
 
 (C)2026 CYROSS
 
@@ -11,6 +11,50 @@
 DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作りたかったけど眼鏡にかなうものがなかったので、プラグインを作ろう…としたはずだったが…
 
 ## 3. 概要
+
+### 3-0. v3.1.0での追加・変更
+
+- 変調の追加
+  - **SSG HW PITCH ENV**
+    - SSG HW AMP ENV と同じ波形を、音量ではなく音程へ当てる
+    - MIN/MAX はセントで指定可能(-4800～4800、初期値 MIN=0 / MAX=1200)
+    - ナッジボタン付属
+    - 全チャンネル(FM含む)・全オペレーター・RHYTHMの全パッドで使用可能
+    - インポート・エクスポート対応(`.ssgHwPEnv`)
+  - **WT AMP MOD**
+    - WT PITCH MOD と同じ変調波形を、音程ではなく音量へ当てる
+    - MIN～MAXの範囲で変調(初期値 MIN=0.0 / MAX=1.0)
+      - MIN/MAX は受け持つ波形・SLOT全てに適用
+    - ナッジボタン付属
+    - HuC6280 / FDS TABLE 対応
+    - 全チャンネル(FM含む)・全オペレーター・RHYTHMの全パッドで使用可能
+    - インポート・エクスポート対応(`.wtampmod`)
+  - **FDS TABLE の名称を分離**
+    - WT PITCH MOD 側を `FDS PITCH TABLE`、WT AMP MOD 側を `FDS AMP TABLE` と表記
+- 全オペレーターへ展開
+  - **SSG HW AMP ENV をオペレーターごとに搭載**
+    - OPNA/OPZX7S は既存の SSG HW ENV と共存
+  - **WT PITCH MOD をオペレーターごとに搭載**
+    - 変調波形スロットもオペレーターごとに独立
+  - いずれもインポート・エクスポート対応
+- 2686VFX
+  - **SSG HW PITCH ENV と WT AMP MOD を変調として追加**
+- 画面
+  - **ソフトウェア系区分の色分けを細分化**
+    - 音量系→青、ピッチ系→ターコイズブルー、LFO→紫
+    - OPTIONAL / UNISON・HARMONY / FIX / MUL・DET はシアンのまま
+    - ハードウェア由来・音質系・その他系統は従来通り
+  - **2686VFXのグループ配色を細分化**
+    - FX(PCMビットクラッシャー含む)は従来通り青色系統
+    - 変調系→赤色系統、LFO→緑色系統、その他→シアン系統
+  - **区分の表示順を整頓**
+    - HW由来とSW由来が両方存在するときは、HW由来の区分を上に表示
+    - 音量系→ピッチ系→LFO の順にまとめて配置
+- 修正
+  - RHYTHMのパッドで、サンプリング周波数の変更が SSG HW AMP ENV へ伝わっていなかった
+  - RHYTHMのパッドのパラメータファイルに WT PITCH MOD が含まれていなかった
+
+### 3-1. 全体
 
 ※太字はv3.0.0からの新規・拡張
 
@@ -50,6 +94,8 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
       - SSG等で使用しているものがベース
     - SSG HW AMP ENV
       - SSG等で使用しているものがベース
+    - SSG HW PITCH ENV
+      - SSG等で使用しているものがベース
     - SSG SW AMP ENV11
       - SSG等で使用しているものがベース
     - PITCH ENV
@@ -57,6 +103,8 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
     - SSG SW PITCH ENV11
       - SSG等で使用しているものがベース
     - WT PITCH MOD
+      - WT/WT2/WT+等で使用しているものがベース
+    - WT AMP MOD
       - WT/WT2/WT+等で使用しているものがベース
     - LFO
       - OPZX7Sで使用しているものがベース
@@ -536,7 +584,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
         - [Dir]SsgSwPenv11         : SSG SW Pitch ENV11用のパラメータファイルフォルダ
     - [Dir]QualityParams           : 音質用のパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
-    - [Dir]SsgHwEnvParams          : SSG HW ENV用のパラメータファイルフォルダ
+    - [Dir]SsgHwEnvParams          : SSG HW AMP ENV / SSG HW PITCH ENV用のパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
     - [Dir]SsgSwEnvParams          : SSG SW ENV(11)用のパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
@@ -550,7 +598,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
         - [Dir]wt                  : .wt ファイル群
         - [Dir]wt2                 : .wt2 ファイル群
-    - [Dir]WtModParams             : WT PITCH MOD で使用できるパラメータファイルフォルダ
+    - [Dir]WtModParams             : WT PITCH MOD / WT AMP MOD で使用できるパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
     - sample_bg.png                : サンプル用壁紙
 ```

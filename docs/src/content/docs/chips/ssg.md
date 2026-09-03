@@ -137,7 +137,7 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 
 | 区分 | 表記 | 内容 |
 | --- | --- | --- |
-| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | 独自 | [AMP ENV](/2686V_2686VFX/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/chips/common/#pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) |
+| [**ENVELOPE**](/2686V_2686VFX/chips/common/#envelope) | 独自 | [AMP ENV](/2686V_2686VFX/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/chips/common/#pitch-env) / [SSG HW PITCH ENV](/2686V_2686VFX/chips/common/#ssg-hw-pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) |
 | [**LFO**](/2686V_2686VFX/chips/common/#lfo) | 独自 | 音量・音程を周期的に揺らす |
 | [**MUL/DET**](/2686V_2686VFX/chips/common/#muldet) | 実機・独自 | 音程をずらす |
 | [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 独自 | 同じ音を重ねて厚くする |

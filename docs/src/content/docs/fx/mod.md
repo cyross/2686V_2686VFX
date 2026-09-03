@@ -25,9 +25,9 @@ LFO と音程ずらしは、押さなくても掛かります。だから入り�
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **エンベロープをバイパス** | AMP ENV・SSG HW AMP ENV・SSG SW AMP ENV[11] をまとめて通さない | オン / オフ | オン | [`MOD_ENV_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-env-bypass) |
+| **エンベロープをバイパス** | AMP ENV・SSG HW AMP ENV・SSG SW AMP ENV[11]・WT AMP MOD をまとめて通さない | オン / オフ | オン | [`MOD_ENV_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-env-bypass) |
 | **LFO をバイパス** | LFO を通さない | オン / オフ | オン | [`MOD_LFO_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-lfo-bypass) |
-| **ピッチ変調をバイパス** | PITCH ENV・SSG SW PITCH ENV[11]・WT PITCH MOD をまとめて通さない | オン / オフ | オン | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-pitch-bypass) |
+| **ピッチ変調をバイパス** | PITCH ENV・SSG HW PITCH ENV・SSG SW PITCH ENV[11]・WT PITCH MOD をまとめて通さない | オン / オフ | オン | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-pitch-bypass) |
 | **音程ずらしをバイパス** | MUL・DET と UNISON・HARMONY をまとめて通さない | オン / オフ | オン | [`MOD_SHIFT_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-shift-bypass) |
 
 ## 音量 — AMP ENV
@@ -50,8 +50,9 @@ LFO と音程ずらしは、押さなくても掛かります。だから入り�
 | **KOR** | 離しても、最後まで鳴らし切る | オン / オフ | オフ | [`MOD_KOR`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-kor) |
 
 同じ「エンベロープをバイパス」の下に、
-[SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env) と
-[SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) の枠もあります。中身は
+[SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env)、
+[SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11)、
+[WT AMP MOD](/2686V_2686VFX/chips/common/#wt-amp-mod) の枠もあります。中身は
 音源のものと同じです。
 
 <figure class="shot">
@@ -97,7 +98,8 @@ AM 側が音量、PM 側が音程へ掛かります。
 | **RLL** | 離したあと落ち着く音程（セント） | -4800 〜 4800 | 0 | [`MOD_PITCH_RLL`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-pitch-rll) |
 
 同じ「ピッチ変調をバイパス」の下に、
-[SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) と
+[SSG HW PITCH ENV](/2686V_2686VFX/chips/common/#ssg-hw-pitch-env)、
+[SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11)、
 [WT PITCH MOD](/2686V_2686VFX/chips/common/#wt-pitch-mod) の枠もあります。
 
 <figure class="shot">
@@ -110,7 +112,7 @@ AM 側が音量、PM 側が音程へ掛かります。
 	<figcaption>WT PITCH MOD</figcaption>
 </figure>
 
-### WT PITCH MOD の基準周波数
+### WT PITCH MOD / WT AMP MOD の基準周波数
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
@@ -118,6 +120,10 @@ AM 側が音量、PM 側が音程へ掛かります。
 
 音源では、鳴っている音の高さがそのまま基準になります。2686VFX には決まった
 高さがないので、**基準周波数**で決めます。実機には無い、こちらで足したものです。
+
+この基準周波数は WT PITCH MOD と WT AMP MOD で共通です。**枠の地色**でも
+系統が分かるようにしてあり、効果は青、変調は赤、LFO は緑、MUL・DET と
+UNISON・HARMONY はシアンで塗り分けています。
 
 ## 音程ずらし — MUL・DET
 

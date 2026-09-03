@@ -107,6 +107,9 @@ RHYTHM は **YM2608B のリズム音源**にあたるチャンネルです。実
 音程をずらす [MUL/DET](/2686V_2686VFX/chips/common/#muldet) と、周期的に揺らす [LFO](/2686V_2686VFX/chips/common/#lfo) も
 パッドごとに置かれています。
 
+波形メモリの形で揺らす [WT PITCH MOD](/2686V_2686VFX/chips/common/#wt-pitch-mod) と
+[WT AMP MOD](/2686V_2686VFX/chips/common/#wt-amp-mod) も、パッドごとに持てます。
+
 ## 共通の区分
 
 以下は音源に依らない部分です。それぞれの詳しい説明は

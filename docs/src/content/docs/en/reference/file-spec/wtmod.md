@@ -2,7 +2,7 @@
 title: Pitch modulation from wavetable memory
 description: What is inside .wtmod.json
 sidebar:
-  order: 7
+  order: 8
 ---
 
 The WT PITCH MOD settings.

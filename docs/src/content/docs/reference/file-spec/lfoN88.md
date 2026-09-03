@@ -2,7 +2,7 @@
 title: N88 LFO
 description: .lfoN88.json の中身
 sidebar:
-  order: 16
+  order: 18
 ---
 
 N88-BASIC 由来のソフトウェア LFO。

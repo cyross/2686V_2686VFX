@@ -2,7 +2,7 @@
 title: OPL LFO
 description: What is inside .lfoOpl.json
 sidebar:
-  order: 18
+  order: 20
 ---
 
 OPL's per-operator LFO.

@@ -44,7 +44,9 @@ Available on every channel, operator and rhythm pad.
 | SSG SW ENV11 | level | 11-tap |
 | PITCH ENV | pitch | 3-tap, ±4800 cents |
 | SSG SW PENV11 | pitch | 11-tap, ±4800 cents |
+| SSG HW PITCH ENV | pitch | the SSG HW AMP ENV shapes pointed at pitch, ±4800 cents |
 | WT PITCH MOD | pitch | modulation from wave memory: FDS / WonderSwan / HuC6280 |
+| WT AMP MOD | level | the same modulation shapes pointed at level, swinging between MIN and MAX |
 
 ## Other sound-shaping
 
@@ -82,9 +84,9 @@ to the output itself, driven from a MIDI keyboard. See
 
 | Panel | What it moves |
 | --- | --- |
-| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[11] | level |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD | level |
 | LFO | level (AM) and pitch (PM) |
-| PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD | pitch |
+| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD | pitch |
 | MUL・DET / UNISON・HARMONY | pitch, by a fixed amount |
 
 ## Playing

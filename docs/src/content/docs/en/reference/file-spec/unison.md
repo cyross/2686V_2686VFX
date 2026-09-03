@@ -2,7 +2,7 @@
 title: Unison and harmony
 description: What is inside .unison.json
 sidebar:
-  order: 9
+  order: 11
 ---
 
 The UNISON/HARMONY settings.

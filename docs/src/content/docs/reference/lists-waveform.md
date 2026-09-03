@@ -16,6 +16,9 @@ sidebar:
 
 先頭の 8 種類が実機のもので、それ以降は**独自に足した波形**です。すべてのチャンネルで使えます。
 
+**SSG HW AMP ENV と SSG HW PITCH ENV は同じ一覧を使います。** 違うのは当て先だけで、
+音量側は MIN〜MAX が音量の倍率、音程側はセントになります。
+
 **44 種類**あります。
 
 | 値 | 名前 | 図 | 備考 |
@@ -221,9 +224,12 @@ AM側では **4 種類**あります。
 | 2 | Triangle | <img src="/2686V_2686VFX/figures/wave/opm-hw-lfo/am_02.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
 | 3 | Noise | <img src="/2686V_2686VFX/figures/wave/opm-hw-lfo/am_03.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
 
-## WT PITCH MOD — 変調のしかた
+## WT PITCH MOD / WT AMP MOD — 変調のしかた
 
-波形メモリによる音程の変調です。すべてのチャンネルで使えます。
+波形メモリによる変調です。すべてのチャンネルで使えます。
+
+**WT PITCH MOD と WT AMP MOD は同じ一覧を使います。** 違うのは当て先だけで、
+音程側は周波数の比、音量側は MIN〜MAX の間の音量になります。
 
 **9 種類**あります。
 

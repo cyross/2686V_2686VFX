@@ -2,7 +2,7 @@
 title: トーンとノイズ
 description: .toneNoise.json の中身
 sidebar:
-  order: 13
+  order: 15
 ---
 
 TONE / NOISE / MIX の設定。

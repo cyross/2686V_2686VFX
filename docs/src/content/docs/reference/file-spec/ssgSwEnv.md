@@ -2,7 +2,7 @@
 title: SSG ソフトウェア音量エンベロープ（6 タップ）
 description: .ssgSwEnv.json の中身
 sidebar:
-  order: 4
+  order: 5
 ---
 
 SSG SW AMP ENV の設定。

@@ -101,6 +101,9 @@ Every pad can carry the envelopes from [Shared sections](/2686V_2686VFX/en/chips
 
 [MUL/DET](/2686V_2686VFX/en/chips/common/#muldet) for shifting the pitch and [LFO](/2686V_2686VFX/en/chips/common/#lfo) for wobbling it are also placed per pad.
 
+[WT PITCH MOD](/2686V_2686VFX/en/chips/common/#wt-pitch-mod) and
+[WT AMP MOD](/2686V_2686VFX/en/chips/common/#wt-amp-mod), which wobble with a shape held in wavetable memory, are per pad as well.
+
 ## Shared sections
 
 The following do not belong to any one chip. They are all described under

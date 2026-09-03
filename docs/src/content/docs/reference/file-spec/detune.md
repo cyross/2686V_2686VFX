@@ -2,7 +2,7 @@
 title: 逓倍とデチューン
 description: .detune.json の中身
 sidebar:
-  order: 8
+  order: 10
 ---
 
 MUL/DET の設定。

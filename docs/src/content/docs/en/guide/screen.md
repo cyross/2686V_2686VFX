@@ -65,9 +65,20 @@ category ends.
 
 | Colour | Meaning |
 | --- | --- |
-| Hardware | a feature the real chip had |
-| Software | something the drivers of the day did in software |
-| Other | something added by this plugin |
+| Yellow | a feature the real chip had |
+| Blue | something that moves level (AMP ENV, SSG SW AMP ENV, WT AMP MOD, …) |
+| Turquoise | something that moves pitch (PITCH ENV, SSG SW PITCH ENV, WT PITCH MOD, …) |
+| Purple | the LFO |
+| Cyan | anything else (OPTIONAL, UNISON・HARMONY, FIX, MUL・DET) |
+| Red | sound quality (QUALITY) |
+| Lime | other things this plugin adds |
+
+Blue, turquoise, purple and cyan are all either **things the drivers of the
+day did in software** or additions of ours. There were too many of them for a
+single cyan to stay readable, so 3.1.0 splits them by role.
+
+The order follows the same grouping: **hardware-derived sections come first**,
+then level, then pitch, then the LFO.
 
 ### Sliders
 

@@ -2,7 +2,7 @@
 title: Tone and noise
 description: What is inside .toneNoise.json
 sidebar:
-  order: 13
+  order: 15
 ---
 
 The TONE / NOISE / MIX settings.

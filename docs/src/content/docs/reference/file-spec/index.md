@@ -34,11 +34,13 @@ sidebar:
 | --- | --- |
 | [`.ampEnv.json`](/2686V_2686VFX/reference/file-spec/ampenv/) | 音量エンベロープ |
 | [`.pitchEnv.json`](/2686V_2686VFX/reference/file-spec/pitchenv/) | 音程エンベロープ |
-| [`.ssgHwEnv.json`](/2686V_2686VFX/reference/file-spec/ssghwenv/) | SSG ハードウェアエンベロープ |
+| [`.ssgHwEnv.json`](/2686V_2686VFX/reference/file-spec/ssghwenv/) | SSG ハードウェア音量エンベロープ |
+| [`.ssgHwPEnv.json`](/2686V_2686VFX/reference/file-spec/ssghwpenv/) | SSG ハードウェア音程エンベロープ |
 | [`.ssgSwEnv.json`](/2686V_2686VFX/reference/file-spec/ssgswenv/) | SSG ソフトウェアエンベロープ（6 タップ） |
 | [`.ssgSwEnv11.json`](/2686V_2686VFX/reference/file-spec/ssgswenv11/) | 同（11 タップ） |
 | [`.ssgSwPEnv11.json`](/2686V_2686VFX/reference/file-spec/ssgswpenv11/) | SSG ソフトウェア音程エンベロープ（11 タップ） |
 | [`.wtmod.json`](/2686V_2686VFX/reference/file-spec/wtmod/) | 波形メモリによる音程変調 |
+| [`.wtampmod.json`](/2686V_2686VFX/reference/file-spec/wtampmod/) | 波形メモリによる音量変調 |
 | [`.detune.json`](/2686V_2686VFX/reference/file-spec/detune/) | 逓倍とデチューン |
 | [`.unison.json`](/2686V_2686VFX/reference/file-spec/unison/) | ユニゾンとハーモニー |
 | [`.quality.json`](/2686V_2686VFX/reference/file-spec/quality/) | 音質 |

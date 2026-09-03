@@ -2,7 +2,7 @@
 title: OPM LFO
 description: What is inside .lfoOpm.json
 sidebar:
-  order: 17
+  order: 19
 ---
 
 The OPM's hardware LFO.

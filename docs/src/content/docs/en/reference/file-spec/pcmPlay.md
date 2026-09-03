@@ -2,7 +2,7 @@
 title: PCM playback position
 description: What is inside .pcmPlay.json
 sidebar:
-  order: 12
+  order: 14
 ---
 
 How a loaded audio file is played.

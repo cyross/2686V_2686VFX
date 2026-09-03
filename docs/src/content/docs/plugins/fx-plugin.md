@@ -82,6 +82,7 @@ Zero-Order Hold / Cosine / B-Spline / Lagrange）から選べます。
 | AMP ENV | 音量の ADSR |
 | SSG HW AMP ENV | SSG のハードウェアエンベロープ |
 | SSG SW AMP ENV[11] | SSG のソフトウェアエンベロープ (11 ステップ) |
+| WT AMP MOD | 波形メモリ系の音量変調 (FDS / WonderSwan / HuC6280) |
 | LFO | OPZX7 の LFO のうち AM 側 |
 
 ### 音程を動かすもの
@@ -89,6 +90,7 @@ Zero-Order Hold / Cosine / B-Spline / Lagrange）から選べます。
 | 枠 | 元 |
 | --- | --- |
 | PITCH ENV | 音程の ADSR |
+| SSG HW PITCH ENV | SSG のハードウェアエンベロープの形を音程へ |
 | SSG SW PITCH ENV[11] | 音程のソフトウェアエンベロープ (11 ステップ) |
 | WT PITCH MOD | 波形メモリ系の音程変調 (FDS / WonderSwan / HuC6280) |
 | LFO | OPZX7 の LFO のうち PM 側 |
@@ -127,13 +129,27 @@ Zero-Order Hold / Cosine / B-Spline / Lagrange）から選べます。
 したときや、ユニゾンの幅を広げたときは、耳で確かめながら使ってください。
 :::
 
-### WT PITCH MOD の基準周波数
+### WT PITCH MOD / WT AMP MOD の基準周波数
 
-WT PITCH MOD の速さは、実機では**搬送波の周波数に対する比**で決まります。
-エフェクトには搬送波がないので、その代わりになる**基準周波数**を枠の中で
-決められるようにしてあります（1〜2000Hz、初期値 440Hz）。
+WT PITCH MOD と WT AMP MOD の速さは、実機では**搬送波の周波数に対する比**で
+決まります。エフェクトには搬送波がないので、その代わりになる**基準周波数**を
+枠の中で決められるようにしてあります（1〜2000Hz、初期値 440Hz）。2 つの変調は
+この基準を共有します。
 
 **実機にはない、こちらで足したものです。** 低くするほどゆっくり揺れます。
+
+### 枠の色
+
+枠が横に並ぶので、**地色で系統が分かる**ようにしてあります。
+
+| 系統 | 色 |
+| --- | --- |
+| 効果 (PCM ビットクラッシャーを含む) | 青系統 |
+| 出力への変調 | 赤系統 |
+| LFO | 緑系統 |
+| MUL・DET / UNISON・HARMONY | シアン系統 |
+
+色は SETTINGS の COLORS から差し替えられます。
 
 ## ファイル
 
