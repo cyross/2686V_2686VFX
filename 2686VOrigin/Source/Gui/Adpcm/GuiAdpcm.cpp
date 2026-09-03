@@ -175,6 +175,7 @@ void GuiAdpcm::setup()
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwPEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -236,6 +237,7 @@ void GuiAdpcm::setup()
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
     ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
+    ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
@@ -301,6 +303,7 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     ssgHwEnv.layoutComponent(mRect);
     ssgHwPEnv.layoutComponent(mRect);
     modComponent.layoutComponent(mRect);
+    ampModComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -430,6 +433,7 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgHwEnv.setVisible(visible);
     ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -456,6 +460,7 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1028,6 +1033,7 @@ void GuiAdpcm::importChParam() {
                 unisonComponent.readParams(*reader, "unison");
 
                 modComponent.readParams(*reader, "wtMod");
+                ampModComponent.readParams(*reader, "wtAmpMod");
             }
         });
 }
@@ -1158,6 +1164,7 @@ void GuiAdpcm::writeChParams(Io::ParamWriter& writer) {
 
 	// MODULATION (旧フォーマットと互換を保つため末尾に置く)
 	modComponent.writeParams(writer, "wtMod");
+	ampModComponent.writeParams(writer, "wtAmpMod");
 
 	
 }

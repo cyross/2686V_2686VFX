@@ -14,6 +14,7 @@
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
+#include "../../Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 
@@ -45,6 +46,11 @@ private:
     float m_pitchBendRatio = 1.0f;
     // MODULATION (FDS / WonderSwan / HuC6280)
     WtModulator m_wtMod;
+
+    // WT PITCH MOD と同じ変調波形を音量へ当てるもの。
+    // 速さは搬送波との比なので、ノートの位相増分を覚えておいて渡す。
+    WtAmpModulator m_wtAmpMod;
+    float m_ampModDelta = 0.0f;
 
     float m_modWheel = 0.0f;
 

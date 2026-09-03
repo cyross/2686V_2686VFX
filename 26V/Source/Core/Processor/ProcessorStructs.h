@@ -372,6 +372,20 @@ struct PrPtrsWtMod {
     const WtModWaveSlots* slots = nullptr;
 };
 
+struct PrPtrsWtAmpMod {
+    std::atomic<float>* enable = nullptr;
+    std::atomic<float>* depth = nullptr;
+    std::atomic<float>* speed = nullptr;
+    std::atomic<float>* shape = nullptr;
+    std::atomic<float>* waveSlot = nullptr;
+    std::atomic<float>* min = nullptr;
+    std::atomic<float>* max = nullptr;
+    std::array<std::atomic<float>*, 32> fdsTable = { nullptr };
+
+    // 変調波形の置き場所。ピッチ版とは別の鍵で引く。
+    const WtModWaveSlots* slots = nullptr;
+};
+
 struct PrPtrsSsgDuty {
     std::atomic<float>* mode = nullptr;
     std::atomic<float>* preset = nullptr;

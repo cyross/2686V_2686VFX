@@ -117,6 +117,7 @@ void Wt2Core::setParameters(const SynthParams& params)
     }
 
     m_wtMod.setParameters(params.wt2.mod);
+    m_wtAmpMod.setParameters(params.wt2.wtAmpMod);
 
     m_interpolate = params.wt2.interpolate;
 
@@ -351,6 +352,7 @@ float Wt2Core::getSample()
         // ==========================================
         // 計算は WtModulator (Generator/WtMod) にある。
         // FM 音源のチップ全体にも同じものを掛けている。
+        m_ampModDelta = newPhaseDelta;
         float modRatio = m_wtMod.process(newPhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
         // ==========================================
@@ -437,7 +439,7 @@ float Wt2Core::getSample()
     }
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
-    float sshHwEnvVal = m_ssgHwEnv.process();
+    float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
     return m_lastSample * finalEnv * sshHwEnvVal * m_level * m_baseLevel * 8.0f;
  }

@@ -12,6 +12,7 @@ class SsgProcessor : public PrBase
     PrPtrsQuality pQuality;
     PrPtrsAdsrAmpEnv pAmpEnv;
     PrPtrsWtMod pWtMod;
+    PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsPitchEnv pPitchEnv;
     PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv11 pSsgSwEnv11;

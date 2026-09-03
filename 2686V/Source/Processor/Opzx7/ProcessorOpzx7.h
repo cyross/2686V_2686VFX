@@ -18,6 +18,7 @@ class Opzx7Processor : public PrBase
     PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsWtMod pWtMod;
+    PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsSsgSwEnv11 pSsgSwEnv11g;
     PrPtrsSsgSwPEnv11 pSsgSwPEnv11g;
     PrPtrsPanpot pPanpot;
@@ -35,6 +36,7 @@ class Opzx7Processor : public PrBase
     std::array<PrPtrsSsgSwEnv11Op, Opzx7PrValue::ops> pOpSsgSwEnv11;
     std::array<PrPtrsSsgSwPEnv11Op, Opzx7PrValue::ops> pOpSsgSwPEnv11;
     std::array<PrPtrsSsgHwPEnv, Opzx7PrValue::ops> pOpSsgHwPEnv;
+    std::array<PrPtrsWtAmpMod, Opzx7PrValue::ops> pOpWtAmpMod;
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpMask = { nullptr };
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

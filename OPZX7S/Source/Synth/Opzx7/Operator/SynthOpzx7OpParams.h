@@ -10,6 +10,7 @@
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "../../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../../Core/Synth/CommonParams.h"
+#include "../../../Generator/WtMod/GenWtAmpModulator.h"
 
 struct Opzx7OpParams
 {
@@ -23,6 +24,7 @@ struct Opzx7OpParams
     bool ssgPEnv11Enable = true;
     SsgSwPEnv11Params ssgSwPEnv11;
     SsgHwPEnvParams ssgHwPEnv;
+    WtAmpModParams wtAmpMod;
     Opzx7DetuneParams detune;
     LfoOpzx7Params lfo;
     FixModeParams fix;

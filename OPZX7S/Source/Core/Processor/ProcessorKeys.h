@@ -406,6 +406,24 @@ namespace CPK
 		static inline const juce::String waveSmooth = "_MOD_WAVE_SMOOTH";
 	};
 
+	// WT PITCH MOD と同じ変調波形を音量へ当てるもの。
+	// 変調波形スロットはピッチ版と別に持てるよう、置き場所の鍵も分けてある。
+	namespace WtAmpMod {
+		static inline const juce::String enable = "_AMPMOD_ENABLE";
+		static inline const juce::String depth = "_AMPMOD_DEPTH";
+		static inline const juce::String speed = "_AMPMOD_SPEED";
+		static inline const juce::String shape = "_AMPMOD_SHAPE";
+		static inline const juce::String waveSlot = "_AMPMOD_WAVE_SLOT";
+		static inline const juce::String fdsTable = "_AMPMOD_FDS_";
+		static inline const juce::String waveSmooth = "_AMPMOD_WAVE_SMOOTH";
+		static inline const juce::String min = "_AMPMOD_MIN";
+		static inline const juce::String max = "_AMPMOD_MAX";
+
+		// 変調波形の置き場所を引く鍵に付ける尻尾。
+		// APVTS のパラメータ名ではなく、プロセッサが持つ表の鍵に使う。
+		static inline const juce::String waveStoreSuffix = "_AMPMOD";
+	};
+
 	namespace SsgDuty
 	{
 		static inline const juce::String mode = "_DUTY_MODE";

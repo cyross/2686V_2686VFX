@@ -10,6 +10,7 @@
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "../../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../../Core/Synth/CommonParams.h"
+#include "../../../Generator/WtMod/GenWtAmpModulator.h"
 
 struct OpnOpParams
 {
@@ -23,6 +24,7 @@ struct OpnOpParams
     bool ssgPEnv11Enable = true;
     SsgSwPEnv11Params ssgSwPEnv11;
     SsgHwPEnvParams ssgHwPEnv;
+    WtAmpModParams wtAmpMod;
     OpnDetuneParams detune;
     LfoN88OpParams n88Lfo;
     FixModeParams fix;

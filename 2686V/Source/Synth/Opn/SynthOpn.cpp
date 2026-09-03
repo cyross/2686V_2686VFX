@@ -111,6 +111,7 @@ void OpnCore::setParameters(const SynthParams& params)
     m_ssgSwPEnv11g.setParameters(params.opn.ssgSwPEnv11g);
     m_ampEnvG.setParameters(params.opn.ampEnvG);
     m_wtMod.setParameters(params.opn.wtMod);
+    m_wtAmpMod.setParameters(params.opn.wtAmpMod);
     m_ssgHwEnv.setParameters(params.opn.ssgHwEnv);
     m_ssgHwPEnv.setParameters(params.opn.ssgHwPEnv);
 
@@ -191,6 +192,7 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     if (!isLegato) {
         m_wtMod.reset();
+        m_wtAmpMod.reset();
 
         if (!m_ampEnvG.isBypass()) {
             m_ampEnvGLevel = m_ampEnvG.noteOn();
@@ -266,6 +268,7 @@ void OpnCore::setModulationWheel(int wheelValue)
     m_modWheel = (float)wheelValue / 127.0f;
 
     m_wtMod.setModWheel((float)wheelValue / 127.0f);
+    m_wtAmpMod.setModWheel((float)wheelValue / 127.0f);
 }
 
 float OpnCore::getSample() {
@@ -316,6 +319,9 @@ float OpnCore::getSample() {
 
         // SSGハードウェアエンベロープ(SsgHwEnv)処理
         finalOut *= m_ssgHwEnv.process();
+
+        // WT AMP MOD。速さは搬送波との比なので、ノートの位相増分を渡す。
+        finalOut *= m_wtAmpMod.process(notePhaseDelta);
 
         // チップ全体の AMP ENV 処理
         if (!m_ampEnvG.isBypass()) {

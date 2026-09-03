@@ -45,6 +45,7 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
     m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
     m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
     m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
+    m_wtAmpMod.setParameters(params.wtAmpMod);
     m_lfo.setParameters(params.lfo);
     m_loopPointEnable = params.lp.enable;
     m_loopPointStart = std::clamp(params.lp.start, 0.0f, 0.999999f);
@@ -70,6 +71,7 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
     // ハードウェアエンベロープは位相を持つだけなので、
     // 押し直したときだけ頭から流し直す。
     if (!isLegato) m_ssgHwPEnv.noteOn();
+    if (!isLegato) m_wtAmpMod.reset();
 
     if (!isLegato)
     {
@@ -407,6 +409,9 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // SSG HW PITCH ENV。切ってあるときは倍率 1.0 が返るので、
     // 位相を進める意味でも毎サンプル通しておく。
     currentPhaseDelta = m_ssgHwPEnv.process(currentPhaseDelta);
+
+    // WT AMP MOD。切ってあるときは MAX がそのまま返る。
+    envVal *= m_wtAmpMod.process(m_phaseDelta);
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング

@@ -40,6 +40,12 @@ namespace WavePreviewSource
     // 32 エントリ。それぞれ使わない Shape では無視される。
     std::vector<float> wtMod(int shapeIndex, const std::array<float, 32>& wave, const std::array<int, 32>& fdsTable);
 
+    // ---- WT AMP MOD ---- (MIN〜MAX の片側)
+    // 深さは最大で回すので Depth は渡さなくてよい。返すのは音量の倍率で、
+    // MIN / MAX の値がそのまま上下の位置になる。
+    std::vector<float> wtAmpMod(int shapeIndex, const std::array<float, 32>& wave,
+        const std::array<int, 32>& fdsTable, float minLevel, float maxLevel);
+
     // ---- OPZX7 LFO ----
     std::vector<float> opzx7LfoPm(int shapeIndex);
     std::vector<float> opzx7LfoAm(int shapeIndex, float smoothRate);

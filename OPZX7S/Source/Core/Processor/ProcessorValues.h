@@ -1646,6 +1646,72 @@ namespace CPV
 		}
 	}
 
+	// WT AMP MOD。変調波形の種類と速さはピッチ版と同じで、
+	// 当て先が音量になる。DEPTH は MAX からどれだけ下げるかの割合。
+	namespace WtAmpMod
+	{
+		namespace Enable
+		{
+			inline constexpr float initial = false;
+		}
+
+		namespace Depth
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.5f;
+		}
+
+		namespace Speed
+		{
+			inline constexpr float min = CPV::WtMod::Speed::min;
+			inline constexpr float max = CPV::WtMod::Speed::max;
+			inline constexpr float initial = CPV::WtMod::Speed::initial;
+		}
+
+		// 変調方式はピッチ版と同じ WtModShape を使う
+		namespace Shape
+		{
+			inline constexpr int min = CPV::WtMod::Shape::min;
+			inline constexpr int max = CPV::WtMod::Shape::max;
+			inline constexpr int initial = CPV::WtMod::Shape::initial;
+		}
+
+		namespace WaveSlot
+		{
+			inline constexpr int min = CPV::WtMod::WaveSlot::min;
+			inline constexpr int max = CPV::WtMod::WaveSlot::max;
+			inline constexpr int initial = CPV::WtMod::WaveSlot::initial;
+		}
+
+		namespace FdsTable
+		{
+			inline constexpr int size = CPV::WtMod::FdsTable::size;
+			inline constexpr int min = CPV::WtMod::FdsTable::min;
+			inline constexpr int max = CPV::WtMod::FdsTable::max;
+		}
+
+		namespace WaveSmooth
+		{
+			inline constexpr bool initial = CPV::WtMod::WaveSmooth::initial;
+		}
+
+		// 音量の倍率。波形スロットをまたいで 1 組だけ持つ。
+		namespace Min
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace Max
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
+		}
+	}
+
 	namespace SsgDuty
 	{
 		namespace Mode

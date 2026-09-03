@@ -25,6 +25,7 @@
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
@@ -87,6 +88,7 @@ class GuiWtPlus : public GuiBase {
 
     // ---------------- MODULATION ----------------
     GuiComponentWtMod modComponent;
+    GuiComponentWtAmpMod ampModComponent;
 
 
     // ---------------- UTILITY ----------------
@@ -99,6 +101,7 @@ class GuiWtPlus : public GuiBase {
     GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
+    GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -191,6 +194,7 @@ public:
                      GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
                      GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
         modComponent(context),
+        ampModComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
@@ -200,6 +204,7 @@ public:
         ieSsgHwEnv(context),
         ieSsgHwPEnv(context),
         ieWtMod(context),
+        ieWtAmpMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),

@@ -43,6 +43,10 @@ class FdsTableEditor : public ParamBarEditorBase
 public:
     FdsTableEditor(const GuiContext& context) : ParamBarEditorBase(context) {}
 
+    // 下段の階段波を描く色。どの変調へ付いているかで変える。
+    // 実体は SETTINGS から差し替えられるので、色そのものではなく登録を指す。
+    const GuiColor::Entry* stepColourEntry = &GuiColor::WavePreview::PitchEnv;
+
     void setup(juce::Component& parent, const juce::String& idPrefix);
     void loadTable(const std::array<int, 32>& table);
     std::array<int, 32> currentTable() const;

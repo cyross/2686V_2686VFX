@@ -5,6 +5,7 @@
 #include "../../Effect/Lfo/N88/LfoN88.h"
 #include "../../Processor/Opna/ProcessorOpnaValues.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
+#include "../../Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
@@ -100,6 +101,9 @@ private:
     // チップ全体へ掛かる MODULATION。変調速度は搬送波との比なので、
     // 発音中のノートの位相増分を渡す。
     WtModulator m_wtMod;
+
+    // WT PITCH MOD と同じ変調波形を、チップ全体の音量へ当てるもの。
+    WtAmpModulator m_wtAmpMod;
     float m_noteFreq = 440.0f;
 
     // チップ全体のピッチ倍率を 1 サンプルぶん進める

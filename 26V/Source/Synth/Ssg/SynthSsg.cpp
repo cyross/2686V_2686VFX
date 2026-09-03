@@ -57,6 +57,7 @@ void SsgCore::setParameters(const SynthParams& params)
     m_ssgHwEnv.setParameters(params.ssg.env);
     m_ssgHwPEnv.setParameters(params.ssg.ssgHwPEnv);
     m_wtMod.setParameters(params.ssg.wtMod);
+    m_wtAmpMod.setParameters(params.ssg.wtAmpMod);
 
     m_fixMode.setParameters(params.ssg.fix);
 
@@ -211,6 +212,7 @@ void SsgCore::setModulationWheel(int wheelValue)
     m_modWheel = (float)wheelValue / 127.0f;
 
     m_wtMod.setModWheel(m_modWheel);
+    m_wtAmpMod.setModWheel(m_modWheel);
 }
 
 void SsgCore::setPitchBendRatio(float ratio)
@@ -327,6 +329,7 @@ float SsgCore::getSample()
         // (PitchBend × Opzx7のPM × ModWheelのPM)
         // ==========================================
         // MODULATION は搬送波の周波数比として掛ける
+        m_ampModDelta = newPhaseDelta;
         float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
         float phaseInc = 0.0f;
@@ -340,7 +343,7 @@ float SsgCore::getSample()
         // ==========================================
         // 1. Hardware Envelope Update
         // ==========================================
-        float hwEnvGain = m_ssgHwEnv.process();
+        float hwEnvGain = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
         // ==========================================
         // 2. Waveform Generation

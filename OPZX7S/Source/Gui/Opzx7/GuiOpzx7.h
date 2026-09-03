@@ -35,6 +35,7 @@
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
@@ -101,6 +102,7 @@ class GuiOpzx7 : public GuiBase
     GuiComponentAmpEnv ampEnvComponent;
     // チップ全体へ掛かる MODULATION
     GuiComponentWtMod modComponent;
+    GuiComponentWtAmpMod ampModComponent;
     GuiComponentSsgHwEnv ssgHwEnv;
     GuiComponentSsgHwPEnv ssgHwPEnv;
     // SSG Sw Env
@@ -130,6 +132,7 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpSsgSwEnv11;
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpSsgHwPEnv;
+    GuiComponentImportExport ieOpWtAmpMod;
     GuiComponentImportExport ieOpPcmPlay;
     GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
@@ -138,6 +141,7 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
+    GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11g;
     GuiComponentImportExport ieLfo;
@@ -214,6 +218,7 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiComponentSsgSwEnv11, Opzx7PrValue::ops> ssgSwEnv11;
     std::array<GuiComponentSsgSwPEnv11, Opzx7PrValue::ops> ssgSwPEnv11;
     std::array<GuiComponentSsgHwPEnv, Opzx7PrValue::ops> ssgHwPEnvOp;
+    std::array<GuiComponentWtAmpMod, Opzx7PrValue::ops> wtAmpModOp;
 
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catMask;
     std::array<GuiToggleButton, Opzx7PrValue::ops> mask; // Mask
@@ -354,6 +359,8 @@ public:
     void exportSsgSwPEnv11Param(int opIndex);
     void importOpSsgHwPEnvParam(int opIndex);
     void exportOpSsgHwPEnvParam(int opIndex);
+    void importOpWtAmpModParam(int opIndex);
+    void exportOpWtAmpModParam(int opIndex);
     void importDetuneParam(int opIndex);
     void exportDetuneParam(int opIndex);
     void importQualityParam();

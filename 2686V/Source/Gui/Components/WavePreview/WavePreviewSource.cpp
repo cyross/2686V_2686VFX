@@ -5,6 +5,7 @@
 #include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../../Generator/WtMod/GenWtModulator.h"
+#include "../../../Generator/WtMod/GenWtAmpModulator.h"
 #include "../../../Synth/Opzx7/Operator/SynthOpzx7Op.h"
 #include "../../../Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
 #include "../../../Effect/Lfo/N88/LfoN88.h"
@@ -269,6 +270,43 @@ std::vector<float> WavePreviewSource::wtMod(int shapeIndex, const std::array<flo
     // まったく振れない (波形未読込の HuC6280 など) ときは 0 のまま。
     if (peak > 1.0e-6f) {
         for (auto& v : out) v /= peak;
+    }
+
+    return out;
+}
+
+// ============================================================================
+// WT AMP MOD
+// ============================================================================
+std::vector<float> WavePreviewSource::wtAmpMod(int shapeIndex, const std::array<float, 32>& wave,
+    const std::array<int, 32>& fdsTable, float minLevel, float maxLevel)
+{
+    WtAmpModParams p;
+
+    p.enable = true;
+
+    // ここで見せたいのは Shape の形なので、深さは最大で回す
+    p.depth = 1.0f;
+    p.speed = 1.0f;
+    p.shape = shapeIndex;
+    p.min = minLevel;
+    p.max = maxLevel;
+    p.wave = wave;
+    p.fdsTable = fdsTable;
+
+    WtAmpModulator mod;
+
+    mod.setParameters(p);
+    mod.reset();
+
+    // 変調 1 周ぶん
+    const float delta = 1.0f / (float)points;
+
+    std::vector<float> out;
+    out.reserve((size_t)points);
+
+    for (int i = 0; i < points; ++i) {
+        out.push_back(mod.process(delta));
     }
 
     return out;

@@ -28,6 +28,7 @@ struct WtParams
     LfoOpzx7Params lfo;
     FixModeParams fix;
     WtModParams mod;
+    WtAmpModParams wtAmpMod;
     QualityParams quality;
     UnisonParams unison;
     SsgHwEnvParams ssgHwEnv;

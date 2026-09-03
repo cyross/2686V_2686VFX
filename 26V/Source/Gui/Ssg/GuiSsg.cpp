@@ -83,6 +83,7 @@ void GuiSsg::setup()
     ssgHwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
     ssgHwPEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -124,6 +125,7 @@ void GuiSsg::setup()
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnvComponent);
     ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnvComponent);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
+    ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
@@ -284,6 +286,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     ssgHwEnvComponent.layoutComponent(mRect);
     ssgHwPEnvComponent.layoutComponent(mRect);
     modComponent.layoutComponent(mRect);
+    ampModComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -465,6 +468,7 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgHwEnv.setVisible(visible);
     ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -488,6 +492,7 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -872,6 +877,7 @@ void GuiSsg::importChParam() {
                 unisonComponent.readParams(*reader, "unison");
 
                 modComponent.readParams(*reader, "wtMod");
+                ampModComponent.readParams(*reader, "wtAmpMod");
             }
         });
 
@@ -992,6 +998,7 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 
 	// MODULATION (旧フォーマットと互換を保つため末尾に置く)
 	modComponent.writeParams(writer, "wtMod");
+	ampModComponent.writeParams(writer, "wtAmpMod");
 
 	
 }

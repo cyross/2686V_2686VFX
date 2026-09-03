@@ -79,6 +79,27 @@ struct WtModParams {
     std::array<int, 32> fdsTable = { 0 };
 };
 
+// WT AMP MOD のパラメータ。
+//
+// 変調波形の種類 (shape) は WT PITCH MOD と同じ WtModShape を使う。
+// 違うのは当て先で、こちらは MIN〜MAX の間で音量へ掛かる。
+// MIN / MAX は波形スロットをまたいで 1 組だけ持つ。
+struct WtAmpModParams {
+    bool enable = false;
+    float depth = 0.0f;
+    float speed = 1.0f; // 搬送波の周波数に対する比率
+    int shape = 0;      // WtModShape を参照
+
+    // 出力の下端と上端 (音量の倍率)
+    float min = 0.0f;
+    float max = 1.0f;
+
+    // HuC6280 モード用の変調波形 (32 サンプル / -1.0〜1.0)
+    std::array<float, 32> wave = { 0.0f };
+
+    // FdsUser モード用の変調テーブル (32 エントリ / 実機と同じ 3bit のレジスタ値)
+    std::array<int, 32> fdsTable = { 0 };
+};
 // MODULATION の変調方式
 enum class WtModShape {
     Sine = 0,       // 正弦波 (FDS の簡易版)

@@ -41,6 +41,7 @@ void OpmOperator::setParameters(const OpmOpParams& params, int feedback)
     m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
     m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
     m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
+    m_wtAmpMod.setParameters(params.wtAmpMod);
     m_detune.setParameters(params.detune);
 	m_fixMode.setParameters(params.fix);
 }
@@ -64,6 +65,7 @@ void OpmOperator::noteOn(float frequency, float velocity, int noteNumber, bool i
     // ハードウェアエンベロープは位相を持つだけなので、
     // 押し直したときだけ頭から流し直す。
     if (!isLegato) m_ssgHwPEnv.noteOn();
+    if (!isLegato) m_wtAmpMod.reset();
 
     if (!isLegato)
     {
@@ -285,6 +287,9 @@ void OpmOperator::getSample(float& output, float modulator, float feedbackModula
     // SSG HW PITCH ENV。切ってあるときは倍率 1.0 が返るので、
     // 位相を進める意味でも毎サンプル通しておく。
     currentPhaseDelta = m_ssgHwPEnv.process(currentPhaseDelta);
+
+    // WT AMP MOD。切ってあるときは MAX がそのまま返る。
+    envVal *= m_wtAmpMod.process(m_phaseDelta);
 
     // 位相の変調
     float feedbackPhaseOffset = 0.0f;

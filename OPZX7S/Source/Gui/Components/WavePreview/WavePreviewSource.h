@@ -44,6 +44,12 @@ namespace WavePreviewSource
     // 32 エントリ。それぞれ使わない Shape では無視される。
     std::vector<float> wtMod(int shapeIndex, const std::array<float, 32>& wave, const std::array<int, 32>& fdsTable);
 
+    // ---- WT AMP MOD ---- (MIN〜MAX の片側)
+    // 深さは最大で回すので Depth は渡さなくてよい。返すのは音量の倍率で、
+    // MIN / MAX の値がそのまま上下の位置になる。
+    std::vector<float> wtAmpMod(int shapeIndex, const std::array<float, 32>& wave,
+        const std::array<int, 32>& fdsTable, float minLevel, float maxLevel);
+
     // ---- OPZX7 WS (オペレータの波形) ----
     // 波形メモリ (WT / WT2) と PCM を選ぶ番号があるので、その中身も渡す。
     // 未読込のときは空を渡してよい (音源側と同じくサイン波が返る)。

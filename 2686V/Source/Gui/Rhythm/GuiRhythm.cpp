@@ -269,6 +269,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
     ssgHwPEnv.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     setupGraph();
     updateGraph();
@@ -303,6 +304,7 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     ampEnvComponent.layoutComponent(padRect);
     modComponent.layoutComponent(padRect);
+    ampModComponent.layoutComponent(padRect);
 
     ssgHwEnv.layoutComponent(padRect);
     ssgHwPEnv.layoutComponent(padRect);
@@ -733,6 +735,10 @@ void RhythmPadGui::importWtModParam() { modComponent.importParams(); }
 
 void RhythmPadGui::exportWtModParam() { modComponent.exportParams(); }
 
+void RhythmPadGui::importWtAmpModParam() { ampModComponent.importParams(); }
+
+void RhythmPadGui::exportWtAmpModParam() { ampModComponent.exportParams(); }
+
 void RhythmPadGui::importSsgHwEnvParam() {
     ssgHwEnv.importParams();
 }
@@ -983,6 +989,8 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     pitchEnvComponent.readParams(r, "pitchEnv");
     ssgHwEnv.readParams(r, "ssgHwEnv");
     ssgHwPEnv.readParams(r, "ssgHwPEnv");
+    modComponent.readParams(r, "wtMod");
+    ampModComponent.readParams(r, "wtAmpMod");
     ssgSwEnvComponent.readParams(r, "ssgSwEnv");
     ssgSwEnv11Component.readParams(r, "ssgSwEnv11");
     ssgSwPEnv11Component.readParams(r, "ssgSwPEnv11");
@@ -1015,6 +1023,8 @@ void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     pitchEnvComponent.writeParams(w, "pitchEnv");
     ssgHwEnv.writeParams(w, "ssgHwEnv");
     ssgHwPEnv.writeParams(w, "ssgHwPEnv");
+    modComponent.writeParams(w, "wtMod");
+    ampModComponent.writeParams(w, "wtAmpMod");
     ssgSwEnvComponent.writeParams(w, "ssgSwEnv");
     ssgSwEnv11Component.writeParams(w, "ssgSwEnv11");
     ssgSwPEnv11Component.writeParams(w, "ssgSwPEnv11");
@@ -1045,6 +1055,7 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     ieSsgHwEnv(context),
     ieSsgHwPEnv(context),
     ieWtMod(context),
+    ieWtAmpMod(context),
     ieSsgSwEnv(context),
     ieSsgSwEnv11(context),
     ieSsgSwPEnv11(context),
@@ -1161,6 +1172,9 @@ void GuiRhythm::setup()
     ieWtMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Modulation");
     ieWtMod.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importWtModParam(); };
     ieWtMod.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportWtModParam(); };
+    ieWtAmpMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Amp Mod");
+    ieWtAmpMod.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importWtAmpModParam(); };
+    ieWtAmpMod.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportWtAmpModParam(); };
 
     ieSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
     ieSsgSwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnvParam(padIndex); };
@@ -1342,6 +1356,7 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgHwEnv.setVisible(visible);
     ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -1377,6 +1392,7 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);

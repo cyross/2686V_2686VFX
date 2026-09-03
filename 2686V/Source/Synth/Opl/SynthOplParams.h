@@ -21,6 +21,7 @@ struct OplParams
     UnisonParams unison;
     AmpAdsrParams ampEnvG;
     WtModParams wtMod;
+    WtAmpModParams wtAmpMod;
     SsgHwEnvParams ssgHwEnv;
     SsgHwPEnvParams ssgHwPEnv;
     SsgSwEnv11Params ssgSwEnv11g;

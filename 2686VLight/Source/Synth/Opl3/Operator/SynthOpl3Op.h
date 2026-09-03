@@ -9,6 +9,7 @@
 #include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
+#include "../../../Generator/WtMod/GenWtAmpModulator.h"
 #include "../../../Effect/Feedback/Feedback.h"
 #include "../../../Effect/Detune/Opl/DetuneOpl.h"
 
@@ -65,6 +66,9 @@ private:
 
 	// SSG HW PITCH ENV。オペレーターごとに 1 つ持つ。
 	SsgHwPEnv m_ssgHwPEnv;
+
+	// WT AMP MOD。オペレーターごとに 1 つ持つ。
+	WtAmpModulator m_wtAmpMod;
 
 	std::array<float, 8> fVector = { 0.0f };
 

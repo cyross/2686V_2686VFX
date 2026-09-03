@@ -20,6 +20,7 @@ class WtProcessor : public PrBase
     PrPtrsOpzx7Lfo pOpzx7Lfo;
     PrPtrsFix pFix;
     PrPtrsWtMod pMod;
+    PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsUnison pUnison;

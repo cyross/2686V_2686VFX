@@ -79,6 +79,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_ssgHwEnv.setParameters(params.ssgHwEnv);
     m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
     m_wtMod.setParameters(params.wtMod);
+    m_wtAmpMod.setParameters(params.wtAmpMod);
 
     bool needRefresh = false;
     if (m_qualityMode != params.quality.mode) {
@@ -121,6 +122,7 @@ void RhythmPad::setModulationWheel(float modWheel) {
     m_modWheel = modWheel;
 
     m_wtMod.setModWheel(modWheel);
+    m_wtAmpMod.setModWheel(modWheel);
 }
 
 void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, int uTotal)
@@ -609,7 +611,7 @@ float RhythmPad::getSample()
     }
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
-    float sshHwEnvVal = m_ssgHwEnv.process();
+    float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
     // ==========================================
     // Opzx7 LFO の計算 (AM / PM)
@@ -646,6 +648,8 @@ float RhythmPad::getSample()
     // MODULATION は搬送波の周波数比として掛ける
     float freqMult = m_pitchBendRatio * opzx7PitchMod
         * m_wtMod.process((float)(m_currentFrequency / m_sampleRate)) * m_ssgHwPEnv.process(1.0f);
+
+    m_ampModDelta = (float)(m_currentFrequency / m_sampleRate);
 
     // Advance position
     m_position += currentIncrement * freqMult;

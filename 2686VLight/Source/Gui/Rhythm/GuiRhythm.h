@@ -30,6 +30,7 @@
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
@@ -96,6 +97,7 @@ class RhythmPadGui: public GuiBase
     GuiComponentAmpEnv ampEnvComponent;
     // パッドごとの MODULATION
     GuiComponentWtMod modComponent;
+    GuiComponentWtAmpMod ampModComponent;
 
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnvComponent;
@@ -163,6 +165,7 @@ public:
         fixComponent(context),
         ampEnvComponent(context),
         modComponent(context),
+        ampModComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
         ssgSwEnv11Component(context),
@@ -213,9 +216,11 @@ public:
     void importSsgHwEnvParam();
     void importSsgHwPEnvParam();
     void importWtModParam();
+    void importWtAmpModParam();
     void exportSsgHwEnvParam();
     void exportSsgHwPEnvParam();
     void exportWtModParam();
+    void exportWtAmpModParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
     void importSsgSwEnv11Param();
@@ -275,6 +280,7 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
+    GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;

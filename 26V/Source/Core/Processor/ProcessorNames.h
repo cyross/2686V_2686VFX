@@ -395,6 +395,19 @@ namespace CPN
 		static inline const juce::String waveSmooth = " Mod Wave Smooth";
 	}
 
+	namespace WtAmpMod
+	{
+		static inline const juce::String enable = " Amp Mod Enable";
+		static inline const juce::String depth = " Amp Mod Depth";
+		static inline const juce::String speed = " Amp Mod Speed";
+		static inline const juce::String shape = " Amp Mod Shape";
+		static inline const juce::String waveSlot = " Amp Mod Wave Slot";
+		static inline const juce::String fdsTable = " Amp Mod FDS Table ";
+		static inline const juce::String waveSmooth = " Amp Mod Wave Smooth";
+		static inline const juce::String min = " Amp Mod Min";
+		static inline const juce::String max = " Amp Mod Max";
+	}
+
 	namespace SsgDuty
 	{
 		static inline const juce::String mode = " Duty Mode";

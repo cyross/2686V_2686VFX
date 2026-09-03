@@ -90,6 +90,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_ssgHwEnv.setParameters(params.beep.ssgHwEnv);
     m_ssgHwPEnv.setParameters(params.beep.ssgHwPEnv);
     m_wtMod.setParameters(params.beep.wtMod);
+    m_wtAmpMod.setParameters(params.beep.wtAmpMod);
     m_antiAlias = params.beep.antiAlias;
     m_timerClock = getBeepTimerClock(params.beep.timerClock);
 }
@@ -246,7 +247,7 @@ float BeepCore::getSample() {
 
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
-    float sshHwEnvVal = m_ssgHwEnv.process();
+    float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
     newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
@@ -284,6 +285,7 @@ float BeepCore::getSample() {
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
     // MODULATION は搬送波の周波数比として掛ける
+    m_ampModDelta = newPhaseDelta;
     float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
     float phaseInc = 0.0f;

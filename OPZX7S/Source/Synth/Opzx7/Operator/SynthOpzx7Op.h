@@ -13,6 +13,7 @@
 #include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
+#include "../../../Generator/WtMod/GenWtAmpModulator.h"
 
 class Opzx7Operator : public FmOperator
 {
@@ -75,6 +76,9 @@ private:
 
 	// SSG HW PITCH ENV。オペレーターごとに 1 つ持つ。
 	SsgHwPEnv m_ssgHwPEnv;
+
+	// WT AMP MOD。オペレーターごとに 1 つ持つ。
+	WtAmpModulator m_wtAmpMod;
 
 	// OPZX7 の外部 PCM データ用
 	std::vector<float>* m_pcmBuffer = nullptr;

@@ -86,6 +86,7 @@ void WtPlusCore::setParameters(const SynthParams& params)
     m_slot = std::clamp(params.wtPlus.slot, 0, Global::WtPlus::slots - 1);
 
     m_wtMod.setParameters(params.wtPlus.mod);
+    m_wtAmpMod.setParameters(params.wtPlus.wtAmpMod);
 
     m_interpolate = params.wtPlus.interpolate;
 
@@ -320,6 +321,7 @@ float WtPlusCore::getSample()
         // ==========================================
         // 計算は WtModulator (Generator/WtMod) にある。
         // FM 音源のチップ全体にも同じものを掛けている。
+        m_ampModDelta = newPhaseDelta;
         float modRatio = m_wtMod.process(newPhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
         // ==========================================
@@ -425,7 +427,7 @@ float WtPlusCore::getSample()
     }
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
-    float sshHwEnvVal = m_ssgHwEnv.process();
+    float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
     return m_lastSample * finalEnv * sshHwEnvVal * m_level * m_baseLevel * 8.0f;
  }

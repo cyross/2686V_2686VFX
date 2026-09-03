@@ -45,6 +45,7 @@ void Opl3Operator::setParameters(const Opl3OpParams& params, int feedback)
     m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
     m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
     m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
+    m_wtAmpMod.setParameters(params.wtAmpMod);
     m_lfo.setParameters(params.lfo);
 }
 
@@ -55,6 +56,7 @@ void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber, bool 
     // ハードウェアエンベロープは位相を持つだけなので、
     // 押し直したときだけ頭から流し直す。
     if (!isLegato) m_ssgHwPEnv.noteOn();
+    if (!isLegato) m_wtAmpMod.reset();
 
     float oldTargetLevel = m_targetLevel;
 
@@ -263,6 +265,9 @@ void Opl3Operator::getSample(float& output, float modulator, float feedbackModul
     // SSG HW PITCH ENV。切ってあるときは倍率 1.0 が返るので、
     // 位相を進める意味でも毎サンプル通しておく。
     currentPhaseDelta = m_ssgHwPEnv.process(currentPhaseDelta);
+
+    // WT AMP MOD。切ってあるときは MAX がそのまま返る。
+    envVal *= m_wtAmpMod.process(m_phaseDelta);
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング

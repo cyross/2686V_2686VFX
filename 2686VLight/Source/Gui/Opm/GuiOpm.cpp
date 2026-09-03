@@ -277,6 +277,7 @@ void GuiOpm::setup()
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwPEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
@@ -373,6 +374,9 @@ void GuiOpm::setup()
     ieOpSsgHwPEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv");
     ieOpSsgHwPEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpSsgHwPEnvParam(opIndex); };
     ieOpSsgHwPEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpSsgHwPEnvParam(opIndex); };
+    ieOpWtAmpMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Amp Mod");
+    ieOpWtAmpMod.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpWtAmpModParam(opIndex); };
+    ieOpWtAmpMod.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpWtAmpModParam(opIndex); };
 
     ieOpChParam.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP Params");
     ieOpChParam.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpChParam(opIndex); };
@@ -395,6 +399,7 @@ void GuiOpm::setup()
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
     ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
+    ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
     ieSsgSwPEnv11g.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11g);
@@ -647,6 +652,7 @@ void GuiOpm::setup()
 
         ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, OpmGuiText::SsgSwPEnv11::enable, true);
         ssgHwPEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
+        wtAmpModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
 
         cafLfo[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::hwLfo, .enableChangeDetailVisible = true });
 
@@ -726,6 +732,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
 
     ampEnvComponent.layoutComponent(mRect);
     modComponent.layoutComponent(mRect);
+    ampModComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
     ssgHwPEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
@@ -787,6 +794,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
 
         ssgSwPEnv11[i].layoutComponentRow(innerRect);
         ssgHwPEnvOp[i].layoutComponentRow(innerRect);
+        wtAmpModOp[i].layoutComponent(innerRect);
 
         layoutOpDetCat(i, innerRect);
 
@@ -1069,6 +1077,7 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpSsgSwEnv11.setVisible(visible);
     ieOpSsgSwPEnv11.setVisible(visible);
     ieOpSsgHwPEnv.setVisible(visible);
+    ieOpWtAmpMod.setVisible(visible);
     ieOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep004.setVisible(visible);
@@ -1076,6 +1085,7 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgHwEnv.setVisible(visible);
     ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11g.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -1108,6 +1118,7 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieOpSsgSwPEnv11.layoutComponent(rect);
         ieOpSsgHwPEnv.layoutComponent(rect);
+        ieOpWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpChParam.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1121,6 +1132,7 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -2146,6 +2158,14 @@ void GuiOpm::exportOpSsgHwPEnvParam(int opIndex) {
     ssgHwPEnvOp[opIndex].exportParams();
 }
 
+void GuiOpm::importOpWtAmpModParam(int opIndex) {
+    wtAmpModOp[opIndex].importParams();
+}
+
+void GuiOpm::exportOpWtAmpModParam(int opIndex) {
+    wtAmpModOp[opIndex].exportParams();
+}
+
 void GuiOpm::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
@@ -2345,6 +2365,7 @@ void GuiOpm::readChParams(const Io::ParamReader& reader) {
     ssgSwPEnv11g.readParams(reader, "ssgSwPEnv11");
 
     modComponent.readParams(reader, "wtMod");
+    ampModComponent.readParams(reader, "wtAmpMod");
 }
 
 // オペレータ 1 つぶん。並びの中のひとつを渡してもらう。
@@ -2386,6 +2407,7 @@ void GuiOpm::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgSwEnv11[opIndex].readParams(r, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].readParams(r, "ssgSwPEnv11");
     ssgHwPEnvOp[opIndex].readParams(r, "ssgHwPEnv");
+    wtAmpModOp[opIndex].readParams(r, "wtAmpMod");
 }
 
 void GuiOpm::writeOpParams(int opIndex, Io::ParamWriter& w) {
@@ -2423,6 +2445,7 @@ void GuiOpm::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwEnv11[opIndex].writeParams(w, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].writeParams(w, "ssgSwPEnv11");
     ssgHwPEnvOp[opIndex].writeParams(w, "ssgHwPEnv");
+    wtAmpModOp[opIndex].writeParams(w, "wtAmpMod");
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
@@ -2523,6 +2546,7 @@ void GuiOpm::writeChParams(Io::ParamWriter& writer) {
 	ampEnvComponent.writeParams(writer, "ampEnv");
 	ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
 	modComponent.writeParams(writer, "wtMod");
+	ampModComponent.writeParams(writer, "wtAmpMod");
 
 	
 }

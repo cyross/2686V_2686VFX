@@ -22,6 +22,7 @@ struct SsgParams
     ToneNoiseParams tn;
     AmpAdsrParams adsr;
     WtModParams wtMod;
+    WtAmpModParams wtAmpMod;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;
     PitchAdsrParams pitchAdsr;

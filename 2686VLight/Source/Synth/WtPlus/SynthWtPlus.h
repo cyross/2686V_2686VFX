@@ -8,6 +8,7 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Core/Synth/WtPlusWave.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
+#include "../../Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
@@ -86,6 +87,11 @@ private:
     // Modulation
     // 変調計算は WtModulator へまとめてある
     WtModulator m_wtMod;
+
+    // WT PITCH MOD と同じ変調波形を音量へ当てるもの。
+    // 速さは搬送波との比なので、ノートの位相増分を覚えておいて渡す。
+    WtAmpModulator m_wtAmpMod;
+    float m_ampModDelta = 0.0f;
 
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;

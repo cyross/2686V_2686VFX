@@ -113,6 +113,7 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // 波形メモリのチャンネル自身の機能なのでハード扱いにする
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     // ==========================================================
     // 共通コンポーネント
@@ -163,6 +164,7 @@ void GuiWtPlus::setup() {
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
     ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
+    ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11Component);
     ieSsgSwPEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11Component);
@@ -209,6 +211,7 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
     levelComponent.layoutComponent(mRect);
 
     modComponent.layoutComponent(mRect);
+    ampModComponent.layoutComponent(mRect);
 
     qualityComponent.layoutComponent(mRect);
 
@@ -343,6 +346,7 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgHwEnv.setVisible(visible);
     ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -366,6 +370,7 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -703,6 +708,7 @@ void GuiWtPlus::importChParam() {
 
                 // Modulation
                 modComponent.readParams(*reader, "wtMod");
+                ampModComponent.readParams(*reader, "wtAmpMod");
 
                 // Components
                 fixComponent.readParams(*reader, "fix");
@@ -789,6 +795,7 @@ void GuiWtPlus::writeChParams(Io::ParamWriter& writer) {
 
 	// Modulation
 	modComponent.writeParams(writer, "wtMod");
+	ampModComponent.writeParams(writer, "wtAmpMod");
 
 	// Components
 	fixComponent.writeParams(writer, "fix");

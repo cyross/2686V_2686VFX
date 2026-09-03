@@ -483,6 +483,23 @@ namespace PrHelper {
 		}
 	}
 
+	// 変調波形はピッチ版と別に持てるよう、置き場所の鍵に尻尾を付ける。
+	static inline void setupWtAmpMod(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtAmpMod& ptPtrs, WtModWaveStore& store){
+		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::enable);
+		ptPtrs.depth = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::depth);
+		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::speed);
+		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::shape);
+		ptPtrs.waveSlot = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::waveSlot);
+		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::min);
+		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::max);
+
+		ptPtrs.slots = &store[prefix + CPK::WtAmpMod::waveStoreSuffix];
+
+		for (int i = 0; i < CPV::WtAmpMod::FdsTable::size; ++i) {
+			ptPtrs.fdsTable[i] = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::fdsTable + juce::String(i));
+		}
+	}
+
 	static inline void setupSsgDuty(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgDuty& ptPtrs){
 		ptPtrs.mode = apvts.getRawParameterValue(prefix + CPK::SsgDuty::mode);
 		ptPtrs.preset = apvts.getRawParameterValue(prefix + CPK::SsgDuty::preset);
@@ -1093,6 +1110,25 @@ namespace PrHelper {
 		}
 
 		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i) {
+			params.fdsTable[i] = getInt(ptPtrs.fdsTable[i]);
+		}
+	}
+
+	static inline void applyWtAmpMod(PrPtrsWtAmpMod& ptPtrs, WtAmpModParams& params){
+		params.enable = getBool(ptPtrs.enable);
+		params.depth = getFloat(ptPtrs.depth);
+		params.speed = getFloat(ptPtrs.speed);
+		params.shape = getInt(ptPtrs.shape);
+		params.min = getFloat(ptPtrs.min);
+		params.max = getFloat(ptPtrs.max);
+
+		if (ptPtrs.slots != nullptr) {
+			int slot = std::clamp(getInt(ptPtrs.waveSlot), 0, Global::WtMod::slots - 1);
+
+			params.wave = (*ptPtrs.slots)[slot].data;
+		}
+
+		for (int i = 0; i < CPV::WtAmpMod::FdsTable::size; ++i) {
 			params.fdsTable[i] = getInt(ptPtrs.fdsTable[i]);
 		}
 	}
@@ -3364,6 +3400,68 @@ namespace PrHelper {
 				prefix + CPK::WtMod::fdsTable + juce::String(i),
 				prefixName + CPN::WtMod::fdsTable + juce::String(i),
 				CPV::WtMod::FdsTable::min, CPV::WtMod::FdsTable::max, FdsMod::tables[0][i]
+			);
+		}
+	}
+
+	// WT AMP MOD。中身はピッチ版と同じ並びで、MIN / MAX だけが増える。
+	static inline void addWtAmpModParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::WtAmpMod::enable,
+			prefixName + CPN::WtAmpMod::enable,
+			CPV::WtAmpMod::Enable::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WtAmpMod::depth,
+			prefixName + CPN::WtAmpMod::depth,
+			CPV::WtAmpMod::Depth::min, CPV::WtAmpMod::Depth::max, CPV::WtAmpMod::Depth::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WtAmpMod::speed,
+			prefixName + CPN::WtAmpMod::speed,
+			CPV::WtAmpMod::Speed::min, CPV::WtAmpMod::Speed::max, CPV::WtAmpMod::Speed::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::WtAmpMod::shape,
+			prefixName + CPN::WtAmpMod::shape,
+			CPV::WtAmpMod::Shape::min, CPV::WtAmpMod::Shape::max, CPV::WtAmpMod::Shape::initial
+		);
+		// 出力の下端と上端。波形スロットをまたいで 1 組だけ持つ。
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WtAmpMod::min,
+			prefixName + CPN::WtAmpMod::min,
+			CPV::WtAmpMod::Min::min, CPV::WtAmpMod::Min::max, CPV::WtAmpMod::Min::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WtAmpMod::max,
+			prefixName + CPN::WtAmpMod::max,
+			CPV::WtAmpMod::Max::min, CPV::WtAmpMod::Max::max, CPV::WtAmpMod::Max::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::WtAmpMod::waveSmooth,
+			prefixName + CPN::WtAmpMod::waveSmooth,
+			CPV::WtAmpMod::WaveSmooth::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::WtAmpMod::waveSlot,
+			prefixName + CPN::WtAmpMod::waveSlot,
+			CPV::WtAmpMod::WaveSlot::min, CPV::WtAmpMod::WaveSlot::max, CPV::WtAmpMod::WaveSlot::initial
+		);
+		for (int i = 0; i < CPV::WtAmpMod::FdsTable::size; ++i)
+		{
+			PrHelper::addInt(
+				layout,
+				prefix + CPK::WtAmpMod::fdsTable + juce::String(i),
+				prefixName + CPN::WtAmpMod::fdsTable + juce::String(i),
+				CPV::WtAmpMod::FdsTable::min, CPV::WtAmpMod::FdsTable::max, FdsMod::tables[0][i]
 			);
 		}
 	}

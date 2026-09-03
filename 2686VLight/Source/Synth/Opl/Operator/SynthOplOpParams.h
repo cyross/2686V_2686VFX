@@ -9,6 +9,7 @@
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "../../../Core/Synth/CommonParams.h"
+#include "../../../Generator/WtMod/GenWtAmpModulator.h"
 
 struct OplOpParams
 {
@@ -22,6 +23,7 @@ struct OplOpParams
     bool ssgPEnv11Enable = true;
     SsgSwPEnv11Params ssgSwPEnv11;
     SsgHwPEnvParams ssgHwPEnv;
+    WtAmpModParams wtAmpMod;
     OplDetuneParams detune;
     LfoOplParams lfo;
 

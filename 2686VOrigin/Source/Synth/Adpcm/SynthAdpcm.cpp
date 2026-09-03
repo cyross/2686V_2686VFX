@@ -93,6 +93,7 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_ssgHwEnv.setParameters(params.adpcm.ssgHwEnv);
     m_ssgHwPEnv.setParameters(params.adpcm.ssgHwPEnv);
     m_wtMod.setParameters(params.adpcm.wtMod);
+    m_wtAmpMod.setParameters(params.adpcm.wtAmpMod);
 
     m_rootNote = params.adpcm.rootNote;
 
@@ -650,7 +651,7 @@ float AdpcmCore::getSample()
     }
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
-    float sshHwEnvVal = m_ssgHwEnv.process();
+    float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
     // ==========================================
     // Opzx7 LFO の計算 (AM / PM)
@@ -685,6 +686,7 @@ float AdpcmCore::getSample()
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
     // MODULATION は搬送波の周波数比として掛ける
+    m_ampModDelta = m_phaseDelta;
     float freqMult = m_pitchBendRatio * opzx7PitchMod * m_wtMod.process(m_phaseDelta) * m_ssgHwPEnv.process(1.0f);
 
     // Advance position

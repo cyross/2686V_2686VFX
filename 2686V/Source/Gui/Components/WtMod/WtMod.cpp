@@ -196,8 +196,8 @@ void FdsTableEditor::paint(juce::Graphics& g)
     g.drawHorizontalLine((int)centerY, 0.0f, (float)getWidth());
 
     // 積算後の階段波は「変調のかかり方」を示すものなので、
-    // WT PITCH MOD のプレビューと同じ色で描く。
-    g.setColour(GuiColor::WavePreview::PitchEnv.get().withAlpha(isEnabledState ? 0.8f : 0.3f));
+    // 付いている変調のプレビューと同じ色で描く。
+    g.setColour(stepColourEntry->get().withAlpha(isEnabledState ? 0.8f : 0.3f));
 
     for (int i = 0; i < 32; ++i)
     {
@@ -316,7 +316,7 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     modPreview.setup(parent, GuiColor::WavePreview::PitchEnv);
     updateModPreview();
 
-    fdsCat.setupSwCategory({ .parent = parent, .title = juce::String("") + "FDS TABLE", .enableChangeDetailVisible = true });
+    fdsCat.setupSwCategory({ .parent = parent, .title = juce::String("") + "FDS PITCH TABLE", .enableChangeDetailVisible = true });
 
     fdsEditor.setup(parent, code + CPK::WtMod::fdsTable);
     fdsEditor.onParamChanged = [this] { this->updateModPreview(); };
