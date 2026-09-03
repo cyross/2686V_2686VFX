@@ -319,7 +319,7 @@ namespace PrHelper {
 		ptPtrs.l8 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l8);
 		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l9);
 		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l10);
-		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l1);
+		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l11);
 	}
 
 	static inline void setupOplDetunePtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOplDetune& ptPtrs){
