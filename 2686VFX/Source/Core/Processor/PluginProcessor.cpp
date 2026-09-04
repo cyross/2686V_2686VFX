@@ -67,9 +67,6 @@ AudioPlugin2686V::AudioPlugin2686V()
     prMod.init(apvts, modWaveSlots);
     prMod.prepare(44100.0);
 
-	previewFx.init(apvts);
-    previewFx.prepare(44100.0);
-
     formatManager.registerBasicFormats();
     loadStartupSettings();
 }
@@ -1077,21 +1074,6 @@ void AudioPlugin2686V::initParams(const juce::String& code)
 // 音源のプラグインでは、実際に音を作って線を引いていた。エフェクトには
 // 作る音が無いので、加工前と加工後を並べて見せる形にする。作りは別に
 // 用意するので、ここでは何も返さない。
-void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
-{
-    juce::ignoreUnused(destBuffer);
-}
-// 鳴りっぱなしを止める。音を作っていないので、FX の中身を洗うだけ。
-void AudioPlugin2686V::panic()
-{
-    keyboardState.allNotesOff(0);
-
-}
-void AudioPlugin2686V::resetMidiSettings()
-{
-    keyboardState.allNotesOff(0);
-}
-
 std::vector<int> AudioPlugin2686V::getFxOrder() {
     return prFx.getOrder();
 }

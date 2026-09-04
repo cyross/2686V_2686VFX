@@ -76,16 +76,6 @@ AudioPlugin2686V::AudioPlugin2686V()
 
     prFx.prepare(44100.0);
 
-    previewSynth.addSound(new SynthSound());
-
-    auto prevVoice = new SynthVoice();
-
-    prevVoice->prepare(44100.0);
-    previewSynth.addVoice(prevVoice);
-
-	previewFx.init(apvts);
-    previewFx.prepare(44100.0);
-
     formatManager.registerBasicFormats();
     loadStartupSettings();
 }
@@ -151,16 +141,7 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
         }
     }
 
-    previewSynth.setCurrentPlaybackSampleRate(sampleRate);
-
-    for (int i = 0; i < previewSynth.getNumVoices(); ++i) {
-        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->prepare(sampleRate);
-        }
-    }
-
     prFx.prepare(sampleRate);
-    previewFx.prepare(sampleRate);
 }
 
 // ============================================================================
@@ -997,92 +978,6 @@ void AudioPlugin2686V::initParams(const juce::String& code)
     }
 }
 
-
-void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
-{
-    // 1. パラメータの取得と設定
-    int m = PrHelper::getInt(pMode);
-
-    if (m < 0 || m >= (int)OscMode::Count) m = 0;
-
-    m_previewParams.mode = (OscMode)m;
-
-    switch (m_previewParams.mode) {
-    case OscMode::OPN:       prOpn.processBlock(m_previewParams, apvts); break;
-    case OscMode::SSG:       prSsg.processBlock(m_previewParams, apvts); break;
-    }
-
-    if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
-        voice->setParameters(m_previewParams);
-
-        // ユニゾン・ハーモニー向けに追加
-        voice->stopNote(0.0f, false);
-    }
-
-    // 2. 1周期をピッタリ整数サンプルにするため、SampleRateを44000Hzに偽装する
-    previewSynth.setCurrentPlaybackSampleRate(44000.0);
-    previewSynth.noteOn(1, 69, 1.0f); // 69 = A3 (440.0Hz)
-
-    // 3. アタックフェーズのスキップ (エンベロープを安定させる)
-    juce::AudioBuffer<float> skipBuffer(2, previewBufferSize);
-    for (int i = 0; i < 40; ++i) {
-        skipBuffer.clear();
-        previewSynth.renderNextBlock(skipBuffer, juce::MidiBuffer(), 0, previewBufferSize);
-    }
-
-    // 4. 1周期をピッタリ100サンプルにする
-    int samplesPerCycle = 100; // 44000 / 440 = 100
-    int renderSamples = samplesPerCycle * 3;
-    juce::AudioBuffer<float> renderBuffer(2, renderSamples);
-    renderBuffer.clear();
-    previewSynth.renderNextBlock(renderBuffer, juce::MidiBuffer(), 0, renderSamples);
-
-	previewFx.processBlock(renderBuffer, m_previewParams, apvts);
-
-    auto* readPtr = renderBuffer.getReadPointer(0);
-
-    // 5. DCオフセット（波形の全体的な上下のズレ）を計算
-    float dcOffset = 0.0f;
-    for (int i = 0; i < renderSamples; ++i) {
-        dcOffset += readPtr[i];
-    }
-    dcOffset /= renderSamples;
-
-    // 6. オシロスコープのトリガー（ゼロクロッシング）を探す
-    int startIndex = 0;
-    for (int i = 0; i < renderSamples - samplesPerCycle; ++i) {
-        float current = readPtr[i] - dcOffset;
-        float next = readPtr[i + 1] - dcOffset;
-
-        if (current <= 0.0f && next > 0.0f) {
-            startIndex = i;
-            break;
-        }
-    }
-
-    // 1周期分 ＋ 1サンプル（次の周期の始まりの0）を取得する
-    int drawSamples = samplesPerCycle + 1;
-    destBuffer->assign(drawSamples, 0.0f);
-
-    float maxAmplitude = 0.0001f;
-    for (int i = 0; i < drawSamples; ++i) {
-        float val = readPtr[startIndex + i] - dcOffset;
-        maxAmplitude = std::max(maxAmplitude, std::abs(val));
-    }
-
-    for (int i = 0; i < drawSamples; ++i) {
-        float val = readPtr[startIndex + i] - dcOffset;
-        (*destBuffer)[i] = val / maxAmplitude;
-    }
-
-    // 8. 停止
-    previewSynth.noteOff(1, 69, 0.0f, false);
-
-    // ユニゾン・ハーモニー向けに追加
-    if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
-        voice->stopNote(0.0f, false);
-    }
-}
 
 void AudioPlugin2686V::panic()
 {

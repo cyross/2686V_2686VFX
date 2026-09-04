@@ -119,6 +119,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     addAndMakeVisible(playingState);
 
+    // 再生ランプは画面が開いている間ずっと見る。中身は状態が変わったときだけ描く。
+    startTimer(playingLampTimer, 1000 / playingLampHz);
+
     // プレビュー表示切替ボタン
     addAndMakeVisible(togglePreviewBtn);
     togglePreviewBtn.setButtonText(getPreviewButtonText());
@@ -147,7 +150,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         updateUiScale(uiScale);
 
         // タイマーのON/OFFを切り替え
-        updateTimerState(true);
+        updateTimerState();
     };
 
     // パニックボタン
@@ -298,7 +301,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     updateUiScale(uiScale);
 
 
-    updateTimerState(true);
+    updateTimerState();
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
@@ -313,7 +316,8 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 
     audioProcessor.undoManager.removeChangeListener(this);
 
-    stopTimer();
+    stopTimer(previewTimer);
+    stopTimer(playingLampTimer);
 }
 
 void AudioPlugin2686VEditor::updateWindowSize()
@@ -337,18 +341,18 @@ void AudioPlugin2686VEditor::updateWindowSize()
 
 void AudioPlugin2686VEditor::showFullView() {
     updateWindowSize();
-    updateTimerState(true);
+    updateTimerState();
 }
 
 void AudioPlugin2686VEditor::showMiniPlayerView() {
     updatePreviewVisibilityToProcessor();
     updateWindowSize();
-    updateTimerState(true);
+    updateTimerState();
 }
 
 void AudioPlugin2686VEditor::showMinimumView() {
     updateWindowSize();
-    updateTimerState(true);
+    updateTimerState();
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -397,7 +401,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
             playingState.setVisible(false);
         }
 
-        updateTimerState(true);
+        updateTimerState();
         updateParameterInitializeButtons();
     }
 
@@ -904,8 +908,23 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
     updateWindowSize();
 }
 
-void AudioPlugin2686VEditor::timerCallback()
+void AudioPlugin2686VEditor::timerCallback(int timerID)
 {
+    if (timerID == playingLampTimer)
+    {
+        // 再生ランプ。変わったときだけ描き直す。
+        // 以前は毎回 repaint していて、しかも矩形を getHeight() から
+        // 出していたのに配置は定数基準だったため、仮想キーボードを出すと
+        // 実体と重ならず更新されなくなっていた。部品ごと描き直せばずれない。
+        const bool playing = audioProcessor.isPlaying() || audioProcessor.isMidiProcessing();
+
+        if (playing != playingState.state) {
+            playingState.updateState(playing);
+        }
+
+        return;
+    }
+
     if (isPreviewVisible || viewMode == ViewMode::MiniPlayer)
     {
         // ここで generatePreviewWaveform を呼んで staticData を埋めていたが、
@@ -963,25 +982,25 @@ void AudioPlugin2686VEditor::timerCallback()
         realtimePreviewR.pushBuffer(localR.data(), bufSize);
     }
 
-    playingState.state = audioProcessor.isPlaying() || audioProcessor.isMidiProcessing();
-
-    repaint(
-        EditorGuiValue::StateBtns::paddingLeft,
-        getHeight() - EditorGuiValue::StateBtns::paddingBottom - EditorGuiValue::StateBtns::height,
-        EditorGuiValue::StateBtns::width,
-        EditorGuiValue::StateBtns::height
-    );
 }
 
-void AudioPlugin2686VEditor::updateTimerState(bool start = false)
+void AudioPlugin2686VEditor::updateTimerState()
 {
-    // プレビューが開いていている時だけタイマーを動かす
-    if (start) {
-        startTimerHz(previewHz);
-        timerCallback(); // タイマー開始時に即座に1回強制描画する！
+    // 波形を出しているときだけ動かす。中の条件は timerCallback と同じなので、
+    // 止まっている間にやることは元から無い。
+    //
+    // 以前は引数で入切を受けていたが、呼び出しが全て true だったため
+    // 「設定・About 画面では負荷ゼロにする」というこの関数の目的は
+    // 果たされていなかった。呼ぶ側に判断させず、ここで見て決める。
+    if (isPreviewVisible || viewMode == ViewMode::MiniPlayer) {
+        if (!isTimerRunning(previewTimer)) {
+            startTimer(previewTimer, 1000 / previewHz);
+        }
+
+        timerCallback(previewTimer); // 開始時に即座に 1 回描く
     }
     else {
-        stopTimer(); // 閉じてる時、または設定・About画面では負荷ゼロにする
+        stopTimer(previewTimer);
     }
 }
 

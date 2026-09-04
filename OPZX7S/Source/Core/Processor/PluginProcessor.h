@@ -222,7 +222,6 @@ private:
     CurveCore m_curveCore;
 
     SynthParams m_currentParams;
-    SynthParams m_previewParams;
 
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
@@ -242,11 +241,6 @@ private:
     void removeUnknownParams(juce::XmlElement& xml) const;
 
     RetroSynthesiser m_synth;
-
-    // 波形プレビュー用
-    juce::Synthesiser previewSynth;
-    std::unique_ptr<SynthSound> previewSound;
-    FxProcessor previewFx;
 
     void loadStartupSettings(); // 設定の自動読み込み用関数
     void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
@@ -325,7 +319,6 @@ public:
     void unloadOpzx7Wt2File(int opIndex);
 
     // --- Preview(Static) ---
-    void generatePreviewWaveform(std::vector<float>* destBuffer);
 
     // --- 仮想キーボード ---
     juce::MidiKeyboardState keyboardState;

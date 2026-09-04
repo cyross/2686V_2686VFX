@@ -33,7 +33,6 @@ private:
     ModProcessor prMod;
 
     SynthParams m_currentParams;
-    SynthParams m_previewParams;
 
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
@@ -51,9 +50,6 @@ private:
     // 実際に 2,000 件近く残っていた。動きはしないが、ファイルを太らせる。
     void removeUnknownParams(juce::XmlElement& xml) const;
 
-
-    // 波形プレビュー用
-    FxProcessor previewFx;
 
     void loadStartupSettings(); // 設定の自動読み込み用関数
     void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
@@ -139,7 +135,6 @@ public:
     void initParams(const juce::String& code);
 
     // --- Preview(Static) ---
-    void generatePreviewWaveform(std::vector<float>* destBuffer);
 
     // --- 仮想キーボード ---
     juce::MidiKeyboardState keyboardState;

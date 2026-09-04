@@ -61,7 +61,7 @@ class AudioPlugin2686VEditor :
     public juce::ComponentListener,
     public juce::Button::Listener,
     public juce::AudioProcessorValueTreeState::Listener,
-    public juce::Timer,
+    public juce::MultiTimer,
     public juce::AsyncUpdater
 {
 public:
@@ -157,8 +157,15 @@ public:
     void updateKeyboardVisibility();
 
     // 波形プレビュー用
-    void timerCallback() override;
-    void updateTimerState(bool start);
+    // タイマーは 2 つに分ける。波形はプレビューを出している間だけ、
+    // 再生ランプは画面が開いている間ずっと。以前は 1 つで兼ねていたため、
+    // 波形を止めるとランプも止まってしまい、結局止められなかった。
+    enum TimerId { previewTimer = 0, playingLampTimer = 1 };
+
+    void timerCallback(int timerID) override;
+
+    // いまの表示状態を見て、波形用タイマーの入切を決める。
+    void updateTimerState();
     void updatePreviewVisibilityToProcessor();
     bool keyPressed(const juce::KeyPress& key) override;
     void updateUiScale(float newScale);
@@ -170,6 +177,7 @@ private:
     AudioPlugin2686V& audioProcessor;
 
     static inline constexpr int previewHz = 30;
+    static inline constexpr int playingLampHz = 30;
     float uiScale = 1.0f;
     bool lastPlayingState = false; // 再生状態が変わったか判定するためのキャッシュ
 

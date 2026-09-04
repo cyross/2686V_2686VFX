@@ -116,7 +116,7 @@ private:
 class GuiStateView : public juce::Component
 {
 public:
-    bool state;
+    bool state = false; // 初期化しないと最初の paint が不定値を読む
     juce::Colour trueColor;
     juce::Colour falseColor;
     juce::Colour borderColor;
