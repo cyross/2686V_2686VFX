@@ -2,7 +2,9 @@
 
 #include <JuceHeader.h>
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <vector>
 #include <atomic>
 #include <functional>
