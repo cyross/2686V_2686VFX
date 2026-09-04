@@ -944,8 +944,15 @@ void GuiOpzx7::setup()
                     if (file.existsAsFile()) {
                         updatePcmFileName(i, "Loading...");
 
-                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                        // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                        juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                        juce::Timer::callAfterDelay(50, [this, safe, i, file]()
                             {
+                                // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                                // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                                if (safe == nullptr) return;
+
                                 ctx.audioProcessor.loadOpzx7PcmFile(i, file);
                                 updatePcmFileName(i, file.getFileName());
                                 ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
@@ -1010,8 +1017,15 @@ void GuiOpzx7::setup()
                     if (file.existsAsFile()) {
                         updateWtFileName(i, "Loading...");
 
-                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                        // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                        juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                        juce::Timer::callAfterDelay(50, [this, safe, i, file]()
                             {
+                                // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                                // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                                if (safe == nullptr) return;
+
                                 ctx.audioProcessor.loadOpzx7WtFile(i, file);
                                 updateWtFileName(i, file.getFileName());
                                 ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
@@ -1047,8 +1061,15 @@ void GuiOpzx7::setup()
                     if (file.existsAsFile()) {
                         updateWt2FileName(i, "Loading...");
 
-                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                        // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                        juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                        juce::Timer::callAfterDelay(50, [this, safe, i, file]()
                             {
+                                // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                                // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                                if (safe == nullptr) return;
+
                                 ctx.audioProcessor.loadOpzx7Wt2File(i, file);
                                 updateWt2FileName(i, file.getFileName());
                                 ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();

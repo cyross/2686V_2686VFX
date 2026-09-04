@@ -1449,8 +1449,15 @@ void GuiRhythm::buttonClicked(juce::Button* button, juce::AudioFormatManager& fo
                     {
                         pads[i].updatePadFileName("Loading...");
 
-                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                        // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                        juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                        juce::Timer::callAfterDelay(50, [this, safe, i, file]()
                             {
+                                // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                                // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                                if (safe == nullptr) return;
+
                                 // Load to specific pad index
                                 ctx.audioProcessor.loadRhythmFile(file, i);
 

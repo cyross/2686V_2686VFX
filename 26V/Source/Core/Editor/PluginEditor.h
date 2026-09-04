@@ -61,7 +61,8 @@ class AudioPlugin2686VEditor :
     public juce::ComponentListener,
     public juce::Button::Listener,
     public juce::AudioProcessorValueTreeState::Listener,
-    public juce::Timer
+    public juce::Timer,
+    public juce::AsyncUpdater
 {
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
@@ -74,6 +75,12 @@ public:
     void buttonClicked(juce::Button* button) override;
     void showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered);
     void parameterChanged(const juce::String& parameterID, float newValue) override;
+
+    // parameterChanged はホストのオートメーション中はオーディオスレッドで走る。
+    // 番号だけここへ預けて、実際の切り替えはメッセージスレッド側で行う。
+    std::atomic<int> m_pendingModeTab{ -1 };
+    void handleAsyncUpdate() override;
+
     void setupLogo();
     void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);

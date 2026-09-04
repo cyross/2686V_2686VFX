@@ -1119,8 +1119,15 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
                 {
                     adpcmGui->updateFileName("Loading...");
 
-                    juce::Timer::callAfterDelay(50, [this, file]()
+                    // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                    juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                    juce::Timer::callAfterDelay(50, [this, safe, file]()
                         {
+                            // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                            // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                            if (safe == nullptr) return;
+
                             audioProcessor.loadAdpcmFile(file);
                             adpcmGui->updateFileName(file.getFileName());
                             audioProcessor.lastSampleDirectory = file.getParentDirectory();
@@ -1364,16 +1371,28 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
         int idx = (int)newValue;
 
         if (idx >= 0 && idx <= (int)OscMode::ADPCM) {
-            audioProcessor.lastActiveSynthMode = (OscMode)idx;
+            // ホストがオートメーションを流している間、ここはオーディオスレッドで走る。
+            // 番号だけ預けて、触るのはメッセージスレッド側に任せる。
+            //
+            // 以前はここから生の this を握った callAsync を積んでいて、積んだ後に
+            // 画面が閉じられると解放済みの領域を触っていた。lastActiveSynthMode への
+            // 書き込みも、保存側と同時に走る可能性があった。
+            m_pendingModeTab.store(idx, std::memory_order_relaxed);
+            triggerAsyncUpdate();
         }
+    }
+}
 
-        // UIスレッドで実行するために callAsync を使用
-        juce::MessageManager::callAsync([this, idx]() {
-            // 現在のタブと違えば切り替える（ループ防止）
-            if (tabs.getCurrentTabIndex() != idx) {
-                tabs.setCurrentTabIndex(idx);
-            }
-            });
+void AudioPlugin2686VEditor::handleAsyncUpdate()
+{
+    const int idx = m_pendingModeTab.exchange(-1, std::memory_order_relaxed);
+    if (idx < 0) return;
+
+    audioProcessor.lastActiveSynthMode = (OscMode)idx;
+
+    // 現在のタブと違えば切り替える（ループ防止）
+    if (tabs.getCurrentTabIndex() != idx) {
+        tabs.setCurrentTabIndex(idx);
     }
 }
 

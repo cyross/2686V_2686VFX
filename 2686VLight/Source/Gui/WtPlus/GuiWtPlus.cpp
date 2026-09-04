@@ -524,8 +524,15 @@ void GuiWtPlus::importSlotWave(int slot, bool isWt2)
 
             slotFileNameLabel[slot].setText("Loading...", juce::dontSendNotification);
 
-            juce::Timer::callAfterDelay(50, [this, slot, file]()
+            // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+            juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+            juce::Timer::callAfterDelay(50, [this, safe, slot, file]()
                 {
+                    // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                    // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                    if (safe == nullptr) return;
+
                     ctx.audioProcessor.loadWtPlusWaveFile(slot, file);
                     ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
 

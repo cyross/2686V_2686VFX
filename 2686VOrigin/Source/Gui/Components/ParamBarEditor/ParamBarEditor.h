@@ -24,7 +24,8 @@
 class ParamBarEditorBase :
     public juce::Component,
     public GuiBaseComponent,
-    public juce::AudioProcessorValueTreeState::Listener
+    public juce::AudioProcessorValueTreeState::Listener,
+    public juce::AsyncUpdater
 {
 protected:
     // APVTS のパラメータへの直接ポインタを保持して高速にアクセスする
@@ -44,6 +45,9 @@ protected:
 
     virtual void updateSliderValue(const juce::MouseEvent& e) = 0;
     virtual void updateHoverState(const juce::MouseEvent& e) = 0;
+
+    // parameterChanged から起こされて、メッセージスレッドで描き直す。
+    void handleAsyncUpdate() override;
 public:
     ParamBarEditorBase(const GuiContext& context) : GuiBaseComponent(context) {}
 

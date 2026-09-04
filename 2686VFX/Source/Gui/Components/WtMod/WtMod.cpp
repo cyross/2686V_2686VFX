@@ -454,8 +454,15 @@ void GuiComponentWtMod::importWave(int slot, bool isWt2)
 
             slotFileNameLabel[(size_t)slot].setText("Loading...", juce::dontSendNotification);
 
-            juce::Timer::callAfterDelay(50, [this, slot, file]()
+            // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+            juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+            juce::Timer::callAfterDelay(50, [this, safe, slot, file]()
                 {
+                    // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                    // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                    if (safe == nullptr) return;
+
                     // 読み込みと 32 サンプルへの落とし込みはプロセッサが行う。
                     // 実データを持っているのがあちら側だから。
                     ctx.audioProcessor.loadWtModWaveFile(m_code, slot, file);
