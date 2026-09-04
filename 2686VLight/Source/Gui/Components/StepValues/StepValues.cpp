@@ -11,14 +11,21 @@ void GuiStepValues::paint(juce::Graphics& g)
     g.setColour(GuiColor::StepValues::Bg.get());
     g.fillRect(area);
 
-    // 桁が増えても崩れないよう、幅は段の数で等分する。
-    const float cellW = area.getWidth() / (float)count;
+    const int rows = getRowCount();
 
-    juce::Font font(juce::FontOptions(juce::jmin(11.0f, area.getHeight() * 0.45f)));
+    const float cellW = area.getWidth() / (float)columns;
+    const float cellH = area.getHeight() / (float)rows;
+
+    juce::Font font(juce::FontOptions(juce::jmin(11.0f, cellH * 0.8f)));
 
     for (int i = 0; i < count; ++i)
     {
-        auto cell = juce::Rectangle<float>(area.getX() + cellW * (float)i, area.getY(), cellW, area.getHeight());
+        const int col = i % columns;
+        const int row = i / columns;
+
+        auto cell = juce::Rectangle<float>(area.getX() + cellW * (float)col,
+                                           area.getY() + cellH * (float)row,
+                                           cellW, cellH);
 
         const bool isSelected = (i == selected);
         const bool isActive = (activeCount < 0) || (i < activeCount);
@@ -35,14 +42,16 @@ void GuiStepValues::paint(juce::Graphics& g)
 
         g.setFont(font);
 
-        auto upper = cell.removeFromTop(cell.getHeight() * 0.5f);
+        // 見出しは左、値は右。値のほうが桁を食うので広く取る。
+        auto inner = cell.reduced(2.0f, 0.0f);
+        auto labelArea = inner.removeFromLeft(inner.getWidth() * 0.4f);
 
         if (i < (int)labels.size()) {
-            g.drawFittedText(labels[(size_t)i], upper.toNearestInt(), juce::Justification::centred, 1, 0.7f);
+            g.drawFittedText(labels[(size_t)i], labelArea.toNearestInt(), juce::Justification::centredLeft, 1, 0.7f);
         }
 
-        g.drawFittedText(juce::String(values[(size_t)i], decimals), cell.toNearestInt(),
-                         juce::Justification::centred, 1, 0.7f);
+        g.drawFittedText(juce::String(values[(size_t)i], decimals), inner.toNearestInt(),
+                         juce::Justification::centredRight, 1, 0.7f);
     }
 
     g.setColour(GuiColor::StepValues::Frame.get());

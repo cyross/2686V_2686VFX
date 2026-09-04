@@ -28,10 +28,10 @@ namespace
     constexpr int rateCount = 11;
     constexpr int levelCount = 11 + 1; // 先頭の STL のぶん
 
-    // 値の帯を 1 行ぶん置く。段の数が多いので、行の高さは少し多めに取る。
-    void layoutStrip(juce::Rectangle<int>& rect, juce::Component& strip, int height)
+    // 値の帯を置く。1 行に 4 個までなので、段の数だけ折り返した行数ぶんを取る。
+    void layoutStrip(juce::Rectangle<int>& rect, GuiStepValues& strip)
     {
-        strip.setBounds(rect.removeFromTop(height));
+        strip.setBounds(rect.removeFromTop(strip.getNaturalHeight()));
     }
 }
 
@@ -273,12 +273,12 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &rateTarget.label, .component = &rateTarget, .rowHeight = 13 });
         rate.layoutComponent(rect, 13);
         if (rate.isVisibleNudge()) rateNudge.layoutComponent(rect, 13);
-        layoutStrip(rect, rateValues, 26);
+        layoutStrip(rect, rateValues);
         rateSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = 13 });
         level.layoutComponent(rect, 13);
         if (level.isVisibleNudge()) levelBtns.layoutComponent(rect, 13);
-        layoutStrip(rect, levelValues, 26);
+        layoutStrip(rect, levelValues);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -322,12 +322,12 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &rateTarget.label, .component = &rateTarget, .rowHeight = 12 });
         rate.layoutComponentRow(rect, 12);
         if (rate.isVisibleNudge()) rateNudge.layoutComponentRow(rect, 12);
-        layoutStrip(rect, rateValues, 24);
+        layoutStrip(rect, rateValues);
         rateSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = 12 });
         level.layoutComponentRow(rect, 12);
         if (level.isVisibleNudge()) levelBtns.layoutComponentRow(rect, 12);
-        layoutStrip(rect, levelValues, 24);
+        layoutStrip(rect, levelValues);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
