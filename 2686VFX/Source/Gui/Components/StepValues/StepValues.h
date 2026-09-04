@@ -36,6 +36,11 @@ public:
     // 負なら全部を通常の濃さで出す。
     int activeCount = -1;
 
+    // 最後の段がリリースかどうか。SSG SW エンベロープでは R11 と L11
+    // (6 段なら R6 と L6) がリリースで、STEP がいくつでも必ず使われる。
+    // ここを立てておくと、STEP の外にあっても薄くしない。
+    bool lastIsRelease = false;
+
     // 値の小数桁。
     int decimals = 2;
 

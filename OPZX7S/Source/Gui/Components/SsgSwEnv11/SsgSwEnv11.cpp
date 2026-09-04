@@ -82,6 +82,7 @@ void GuiComponentSsgSwEnv11::refreshStepValues()
 
     rateValues.selected = juce::jlimit(0, rateCount - 1, (int)rateTarget.getValue() - 1);
     rateValues.activeCount = usedSteps;
+    rateValues.lastIsRelease = true; // 最後の段はリリース。STEP の外でも必ず使う。
     rateValues.decimals = Global::floatDecimalPlaces;
     rateValues.repaint();
 
@@ -96,6 +97,7 @@ void GuiComponentSsgSwEnv11::refreshStepValues()
     // STL は段数に関わらず使うので、薄くする境目は 1 つ後ろ。
     levelValues.selected = juce::jlimit(0, levelCount - 1, (int)levelTarget.getValue());
     levelValues.activeCount = usedSteps + 1;
+    levelValues.lastIsRelease = true;
     levelValues.decimals = Global::floatDecimalPlaces;
     levelValues.repaint();
 }

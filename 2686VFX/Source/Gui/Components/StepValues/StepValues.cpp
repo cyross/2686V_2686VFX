@@ -29,7 +29,8 @@ void GuiStepValues::paint(juce::Graphics& g)
                                            cellW, cellH);
 
         const bool isSelected = (i == selected);
-        const bool isActive = (activeCount < 0) || (i < activeCount);
+        const bool isRelease = lastIsRelease && (i == count - 1);
+        const bool isActive = (activeCount < 0) || (i < activeCount) || isRelease;
 
         if (isSelected)
         {
