@@ -1078,6 +1078,15 @@ std::vector<int> AudioPlugin2686V::getFxOrder() {
     return prFx.getOrder();
 }
 
+void AudioPlugin2686V::panic()
+{
+    keyboardState.allNotesOff(0);
+}
+void AudioPlugin2686V::resetMidiSettings()
+{
+    keyboardState.allNotesOff(0);
+}
+
 void AudioPlugin2686V::updateFxOrder(std::vector<int> newOrder)
 {
     prFx.updateOrder(newOrder);
