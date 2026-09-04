@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../../Generator/Pcm/Helper/GenPcmShared.h"
 
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
@@ -32,6 +33,10 @@ struct RhythmPadParams
     PcmParams pcm;
     LoopPointParams lp;
     QualityPcmParams quality;
+
+    // 符号化した素材。プロセッサがパッドごとに 1 つだけ持ち、ここは指すだけ。
+    const PcmSharedData* source = nullptr;
+
     SsgHwEnvParams ssgHwEnv;
     SsgHwPEnvParams ssgHwPEnv;
 

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../../Generator/Pcm/Helper/GenPcmShared.h"
 
 #include <JuceHeader.h>
 #include <vector>
@@ -24,13 +25,15 @@
 class RhythmPad
 {
 public:
-    std::vector<float> m_rawBuffer;     // Raw Data (32bit)
-    std::vector<int16_t> m_pcmBuffer;   // Processed Data (4bit ADPCM/DPCM)
+    // 素材と符号化したものはプロセッサがパッドごとに 1 つだけ持ち、ここは指すだけ。
+    // 以前はボイスごと・パッドごとに丸ごと複製していた。
+    const PcmSharedData* m_pcm = nullptr;
+
+    // エンベロープを整えたときの標本化周波数。変わったときだけ整え直す。
+    double m_preparedRate = 0.0;
 
     double m_position = 0.0;
     double m_sampleRate = 44100.0; // DAW Host Sample Rate
-    double m_bufferSampleRate = 16000.0;
-    double m_sourceRate = 44100.0;
 
     bool m_pitchResetOnLegato = false;
 
@@ -67,7 +70,8 @@ public:
 
 	void prepare(double hostSampleRate);
     void setSampleRate(double sampleRate);
-    void setSampleData(const std::vector<float>& sourceData, double sourceRate);
+    // プロセッサが毎ブロック渡してくる。差すだけで、中身は触らない。
+    void setPcmSource(const PcmSharedData* pcm) noexcept { m_pcm = pcm; }
     void setParameters(const RhythmPadParams& params);
     void triggerRelease(double hostSampleRate);
     void setPitchBend(float pitchBend);
@@ -76,7 +80,6 @@ public:
     void stop();
     bool isPlaying() const;
     float getSample();
-    void clearBuffer();
 
     // ユニゾン・ハーモニー用
     void setMonoMode(bool isMono) { m_isMonoMode = isMono; }
@@ -107,7 +110,6 @@ private:
     float m_currentFrequency = 440.0f;
     float m_pitchRatio = 1.0f;
 
-    void refreshPcmBuffer();
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
@@ -126,7 +128,6 @@ public:
     void prepare(double sampleRate);
     void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params) override;
-    void setSampleData(int padIndex, const std::vector<float>& data, double rate);
     void noteOn(float freq, float velocity, int midiNote, bool isLegato = false) override;
     void noteOff() override;
     bool isPlaying() const override;
@@ -135,7 +136,6 @@ public:
     void setPitchBendRatio(float ratio) override;
     void getSampleStereo(float& outL, float& outR);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
-    void clearBuffer(int padIndex);
 
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;

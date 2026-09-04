@@ -260,6 +260,25 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     m_adpcmPcm.acquireForAudio();
     m_currentParams.adpcm.source = &m_adpcmPcm.forAudio();
 
+    for (int i = 0; i < RhythmPrValue::pads; ++i) {
+        m_rhythmPcm[(size_t)i].acquireForAudio();
+        m_currentParams.rhythm.pads[(size_t)i].source = &m_rhythmPcm[(size_t)i].forAudio();
+    }
+
+    if (m_currentParams.mode == OscMode::RHYTHM)
+    {
+        for (int i = 0; i < RhythmPrValue::pads; ++i) {
+            const auto& q = m_currentParams.rhythm.pads[(size_t)i].quality;
+
+            if (m_rhythmPcm[(size_t)i].needsRebuild(q.mode, q.rate)) {
+                m_rhythmWantQuality[(size_t)i].store(q.mode, std::memory_order_relaxed);
+                m_rhythmWantRate[(size_t)i].store(q.rate, std::memory_order_relaxed);
+
+                triggerAsyncUpdate();
+            }
+        }
+    }
+
     if (m_currentParams.mode == OscMode::ADPCM)
     {
         const int q = m_currentParams.adpcm.quality.mode;
@@ -425,11 +444,13 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
             sourceData[i] = channelData[i];
         }
 
-        // Set data to the specified pad of RhythmCore for all voices
-        for (int i = 0; i < m_synth.getNumVoices(); ++i) {
-            if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
-                voice->getRhythmCore()->setSampleData(padIndex, sourceData, reader->sampleRate);
-            }
+        // 素材はパッドごとに 1 つだけ持ち、ボイスへは指させるだけにする。
+        if (padIndex >= 0 && padIndex < RhythmPrValue::pads) {
+            m_rhythmPcm[(size_t)padIndex].setSource(sourceData, audioReader->sampleRate);
+            m_rhythmPcm[(size_t)padIndex].rebuildIfNeeded(
+                m_rhythmWantQuality[(size_t)padIndex].load(std::memory_order_relaxed),
+                m_rhythmWantRate[(size_t)padIndex].load(std::memory_order_relaxed),
+                55500.0);
         }
 
         // 画面表示用の控え
@@ -810,6 +831,12 @@ void AudioPlugin2686V::handleAsyncUpdate()
     m_adpcmPcm.rebuildIfNeeded(m_adpcmWantQuality.load(std::memory_order_relaxed),
                                m_adpcmWantRate.load(std::memory_order_relaxed),
                                16000.0);
+
+    for (size_t i = 0; i < (size_t)RhythmPrValue::pads; ++i) {
+        m_rhythmPcm[i].rebuildIfNeeded(m_rhythmWantQuality[i].load(std::memory_order_relaxed),
+                                       m_rhythmWantRate[i].load(std::memory_order_relaxed),
+                                       55500.0);
+    }
 }
 
 void AudioPlugin2686V::loadStartupSettings()
@@ -1071,17 +1098,7 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
     // 画面表示用の控えも捨てる
     if (padIndex < RhythmPrValue::pads) rhythmPreviewBuffers[padIndex].clear();
 
-    // 空のデータを作成
-    std::vector<float> emptyData(1, 0.0f);
-
-    // 全ボイスの Rhythm Core の該当パッドに空データをセット
-    for (int i = 0; i < m_synth.getNumVoices(); ++i)
-    {
-        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
-        {
-            voice->getRhythmCore()->clearBuffer(padIndex);
-        }
-    }
+    if (padIndex < RhythmPrValue::pads) m_rhythmPcm[(size_t)padIndex].clear();
 }
 
 // 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する

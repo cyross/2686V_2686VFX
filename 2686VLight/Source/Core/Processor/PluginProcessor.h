@@ -473,6 +473,11 @@ private:
     std::atomic<int> m_adpcmWantQuality{ -1 };
     std::atomic<int> m_adpcmWantRate{ -1 };
 
+    // RHYTHM も同じ。パッドごとに 1 つずつ持つ。
+    std::array<PcmSharedStore, RhythmPrValue::pads> m_rhythmPcm;
+    std::array<std::atomic<int>, RhythmPrValue::pads> m_rhythmWantQuality{};
+    std::array<std::atomic<int>, RhythmPrValue::pads> m_rhythmWantRate{};
+
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
     std::atomic<float>* pUseVelocity = nullptr;
