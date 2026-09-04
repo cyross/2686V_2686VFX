@@ -435,7 +435,7 @@ void GuiTextButton::setup(const Config& c)
     this->setButtonText(c.title);
 
     if (c.font.has_value()) {
-        customLF.customFont = c.font.value();
+        customFont = c.font.value();
     }
 
     if (!c.textColor.isTransparent())

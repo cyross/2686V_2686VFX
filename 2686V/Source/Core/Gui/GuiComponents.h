@@ -410,15 +410,21 @@ protected:
         }
     };
 
-    SliderLF customLF;
+    // SliderLF は値を持たず、渡された slider と label からしか描かない。
+    // 実体ごとに持つ必要がないので 1 つを分け合う。
+    //
+    // LookAndFeel_V4 の組み立ては約 170 回の setColour を伴い、その 1 回ずつが
+    // 色表の線形探索になる。部品 1 つあたり 1.4KB ほどの確保も付く。
+    // 画面 1 枚で数百個できるので、そこが起動時間として出ていた。
+    juce::SharedResourcePointer<SliderLF> sharedLF;
 public:
     GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context) {
-        this->setLookAndFeel(&customLF);
+        this->setLookAndFeel(&sharedLF.get());
     }
 
     ~GuiSlider() override
     {
-        // メンバの customLF が壊れる前に必ず外す
+        // 分け合っているものを指したままにしない
         this->setLookAndFeel(nullptr);
     }
 
@@ -671,13 +677,19 @@ protected:
     class TextButtonLF : public juce::LookAndFeel_V4
     {
     public:
-        std::optional<juce::Font> customFont = juce::Font(juce::FontOptions(13.0f));
+        static inline const juce::Font defaultFont = juce::Font(juce::FontOptions(13.0f));
 
         // テキストボタンのフォントを要求された時に呼ばれる関数をオーバーライド
-        juce::Font getTextButtonFont(juce::TextButton&, int buttonHeight) override
+        //
+        // この LookAndFeel は 1 つを皆で分け合うので、フォントはここではなく
+        // 部品の側が持つ。渡されたボタンから引く。
+        juce::Font getTextButtonFont(juce::TextButton& button, int buttonHeight) override
         {
-            if (customFont.has_value()) {
-                return customFont.value();
+            if (auto* own = dynamic_cast<GuiTextButton*>(&button)) {
+                if (own->customFont.has_value()) return own->customFont.value();
+            }
+            else {
+                return defaultFont;
             }
             // 指定がない場合は、ボタンの高さに合わせたJUCEの標準フォントを返す
             return juce::Font(juce::FontOptions(juce::jmin(16.0f, (float)buttonHeight * 0.6f)));
@@ -711,10 +723,13 @@ protected:
         }
     };
 
-    TextButtonLF customLF;
+    juce::SharedResourcePointer<TextButtonLF> sharedLF;
 public:
+    // 描き方は皆で分け合い、フォントの指定だけここで持つ。
+    std::optional<juce::Font> customFont = juce::Font(juce::FontOptions(13.0f));
+
     GuiTextButton(const GuiContext& context) : GuiBaseComponent(context) {
-        this->setLookAndFeel(&customLF);
+        this->setLookAndFeel(&sharedLF.get());
     }
 
     ~GuiTextButton() override
