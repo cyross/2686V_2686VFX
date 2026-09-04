@@ -243,6 +243,10 @@ void CurveProcessor::updateCurveParamStructure(int p, int t, int vp) {
 void CurveProcessor::saveToXml(juce::XmlElement* xml) {
     auto* curveXml = new juce::XmlElement("CURVE_DATA");
 
+    // カーブモードの入切。これを保存していなかったので、読み直すたびに
+    // 切れた状態に戻っていた (以前は DSP が見ていなかったので表に出なかった)。
+    curveXml->setAttribute("enable", enable ? 1 : 0);
+
     for (int p = 0; p < CurvePrValue::positions; p++) {
         for (int t = 0; t < CurvePrValue::targets; t++) {
             for (int vp = 0; vp < CurvePrValue::params; vp++) {
@@ -293,6 +297,15 @@ void CurveProcessor::loadFromXml(juce::XmlElement* xml) {
 
     auto* curveXml = xml->getChildByName("CURVE_DATA");
     if (curveXml != nullptr) {
+        // enable を持たないのは 3.1.0 より前に書かれたファイル。
+        // そのころはカーブが常に掛かっていたので、中身があるなら入とみなす。
+        if (curveXml->hasAttribute("enable")) {
+            setEnable(curveXml->getIntAttribute("enable") != 0);
+        }
+        else {
+            setEnable(curveXml->getFirstChildElement() != nullptr);
+        }
+
         for (auto* paramXml : curveXml->getChildIterator()) {
             if (paramXml->hasTagName("CP")) {
                 int p = paramXml->getIntAttribute("p");

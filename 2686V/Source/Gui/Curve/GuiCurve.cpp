@@ -232,7 +232,7 @@ void GuiCurve::setup()
     curveGroup.setup(*this, CurveGuiText::curveGroup);
 
     enable.setup({ .parent = *this, .id = "", .title = CurveGuiText::enable, .isReset = false });
-    enable.setToggleState(false, juce::dontSendNotification);
+    enable.setToggleState(ctx.audioProcessor.prCurve.getEnable(), juce::dontSendNotification);
     enable.setWantsKeyboardFocus(true);
     enable.setExplicitFocusOrder(++tabOrder);
     enable.onStateChange = [this] {

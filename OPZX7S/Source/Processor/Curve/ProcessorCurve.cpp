@@ -4,6 +4,10 @@
 
 CurveProcessor::CurveProcessor() {
     resetToDefault();
+
+    // このプラグインはカーブ編集が標準で、入切の切り替えを持たない。
+    // CurveCore は enable を見て素通しするので、ここで立てておく。
+    m_curveParams.enable = true;
 }
 
 void CurveProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {

@@ -44,6 +44,11 @@ private:
         float safeX = std::clamp(x, 0.0f, 1.0f);
         if (std::isnan(safeX)) return 0.0f;
 
+        // カーブモードが切れていれば何もしない。
+        // 以前はここを見ておらず、画面で切っても設定済みのカーブが
+        // 音に掛かり続け、評価の手間も毎サンプル払っていた。
+        if (!src.enable) return safeX;
+
         // LUT配列を参照せず、直接計算する（最新のCPUではこの方が安全で速い）
         float result = processRawWith(src, positionIndex, targetIndex, paramIndex, safeX);
 
