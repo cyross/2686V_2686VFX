@@ -339,6 +339,22 @@ namespace GuiColor {
 		inline Entry LampOn{ "ToggleButton.LampOn", []() -> juce::Colour { return Palette::OffWhite; } };
 		inline Entry LampOff{ "ToggleButton.LampOff", []() -> juce::Colour { return Palette::OffBlack.get().brighter(0.3f); } };
 	};
+
+	// 段ごとの値を並べて描く帯 (SSG SW エンベロープなど)。
+	// 段の数だけつまみを置く代わりに、選んでいない段はここへ描く。
+	namespace StepValues {
+		inline Entry Bg{ "StepValues.Bg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.25f); } };
+		inline Entry Text{ "StepValues.Text", []() -> juce::Colour { return defaultFgColor; } };
+
+		// STEP で使われていない段。消さずに薄く出して、増やしたときの行き先が分かるようにする。
+		inline Entry DimText{ "StepValues.DimText", []() -> juce::Colour { return defaultFgColor.get().withAlpha(0.35f); } };
+
+		// いま値のつまみが束縛されている段。
+		inline Entry Selected{ "StepValues.Selected", []() -> juce::Colour { return juce::Colours::yellow; } };
+		inline Entry SelectedBg{ "StepValues.SelectedBg", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.18f); } };
+		inline Entry Frame{ "StepValues.Frame", []() -> juce::Colour { return Palette::BorderGray; } };
+	};
+
 	namespace TextButton {
 		inline Entry Text{ "TextButton.Text", []() -> juce::Colour { return Palette::OffBlack; } };
 		inline Entry TextOn{ "TextButton.TextOn", []() -> juce::Colour { return Palette::OffBlack; } };

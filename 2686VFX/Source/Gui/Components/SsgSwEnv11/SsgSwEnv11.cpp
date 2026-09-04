@@ -17,6 +17,89 @@ namespace
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
+namespace
+{
+    // 段ごとのパラメータ名。並びが番号と一致していることが前提。
+    const juce::String rateKeys[] = { CPK::SsgSwEnv11::r1, CPK::SsgSwEnv11::r2, CPK::SsgSwEnv11::r3, CPK::SsgSwEnv11::r4, CPK::SsgSwEnv11::r5, CPK::SsgSwEnv11::r6, CPK::SsgSwEnv11::r7, CPK::SsgSwEnv11::r8, CPK::SsgSwEnv11::r9, CPK::SsgSwEnv11::r10, CPK::SsgSwEnv11::r11 };
+
+    // 先頭は STL。画面の対象つまみで 0 を選んだときがこれ。
+    const juce::String levelKeys[] = { CPK::SsgSwEnv11::stl, CPK::SsgSwEnv11::l1, CPK::SsgSwEnv11::l2, CPK::SsgSwEnv11::l3, CPK::SsgSwEnv11::l4, CPK::SsgSwEnv11::l5, CPK::SsgSwEnv11::l6, CPK::SsgSwEnv11::l7, CPK::SsgSwEnv11::l8, CPK::SsgSwEnv11::l9, CPK::SsgSwEnv11::l10, CPK::SsgSwEnv11::l11 };
+
+    constexpr int rateCount = 11;
+    constexpr int levelCount = 11 + 1; // 先頭の STL のぶん
+
+    // 値の帯を 1 行ぶん置く。段の数が多いので、行の高さは少し多めに取る。
+    void layoutStrip(juce::Rectangle<int>& rect, juce::Component& strip, int height)
+    {
+        strip.setBounds(rect.removeFromTop(height));
+    }
+}
+
+float GuiComponentSsgSwEnv11::getStepValue(const juce::String& key) const
+{
+    auto* v = ctx.apvts.getRawParameterValue(paramCode + key);
+
+    return (v != nullptr) ? v->load() : 0.0f;
+}
+
+void GuiComponentSsgSwEnv11::setStepValue(const juce::String& key, float value)
+{
+    if (auto* p = ctx.apvts.getParameter(paramCode + key)) {
+        p->setValueNotifyingHost(p->convertTo0to1(value));
+    }
+}
+
+void GuiComponentSsgSwEnv11::rebindRate()
+{
+    const int idx = juce::jlimit(0, rateCount - 1, (int)rateTarget.getValue() - 1);
+
+    rate.getSlider().rebind(paramCode + rateKeys[idx]);
+
+    refreshStepValues();
+}
+
+void GuiComponentSsgSwEnv11::rebindLevel()
+{
+    // 対象は 0 が STL、1 以降が L1 以降。表の並びと同じ。
+    const int idx = juce::jlimit(0, levelCount - 1, (int)levelTarget.getValue());
+
+    level.getSlider().rebind(paramCode + levelKeys[idx]);
+
+    refreshStepValues();
+}
+
+void GuiComponentSsgSwEnv11::refreshStepValues()
+{
+    const int usedSteps = (int)steps.getValue();
+
+    rateValues.labels.clear();
+    rateValues.values.clear();
+
+    for (int i = 0; i < rateCount; ++i) {
+        rateValues.labels.push_back("R" + juce::String(i + 1));
+        rateValues.values.push_back(getStepValue(rateKeys[i]));
+    }
+
+    rateValues.selected = juce::jlimit(0, rateCount - 1, (int)rateTarget.getValue() - 1);
+    rateValues.activeCount = usedSteps;
+    rateValues.decimals = Global::floatDecimalPlaces;
+    rateValues.repaint();
+
+    levelValues.labels.clear();
+    levelValues.values.clear();
+
+    for (int i = 0; i < levelCount; ++i) {
+        levelValues.labels.push_back(i == 0 ? juce::String("STL") : ("L" + juce::String(i)));
+        levelValues.values.push_back(getStepValue(levelKeys[i]));
+    }
+
+    // STL は段数に関わらず使うので、薄くする境目は 1 つ後ろ。
+    levelValues.selected = juce::jlimit(0, levelCount - 1, (int)levelTarget.getValue());
+    levelValues.activeCount = usedSteps + 1;
+    levelValues.decimals = Global::floatDecimalPlaces;
+    levelValues.repaint();
+}
+
 void GuiComponentSsgSwEnv11::applyLoopValues(bool enabled)
 {
     // setValue は同期で onValueChange を呼び返すので、ここから値を
@@ -109,99 +192,47 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 
     loopSeparator.setupComponent(parent);
 
-    r1.setupComponent(parent, code + CPK::SsgSwEnv11::r1, "R1", tabOrder, std::nullopt, labelFont);
+    // 段ごとにつまみを並べる代わりに、対象を選ぶつまみと値のつまみを 1 組ずつ置く。
+    // 並びは 対象 → 値 → 各段の値。
+    paramCode = code;
 
-    r1Nudge.setupComponent(parent, r1.getSlider(), tabOrder);
+    rateTarget.setup({ .parent = parent, .title = "R.TG", .isReset = false, .labelFont = labelFont });
+    rateTarget.setRange(1.0, (double)rateCount, 1.0);
+    rateTarget.setNumDecimalPlacesToDisplay(0);
+    rateTarget.setWantsKeyboardFocus(true);
+    rateTarget.setExplicitFocusOrder(++tabOrder);
+    rateTarget.onValueChange = [this] { rebindRate(); };
 
-    r2.setupComponent(parent, code + CPK::SsgSwEnv11::r2, "R2", tabOrder, std::nullopt, labelFont);
+    rate.setupComponent(parent, "", "RATE", tabOrder, std::nullopt, labelFont);
+    rate.getSlider().onValueChange = [this] { refreshStepValues(); };
 
-    r2Nudge.setupComponent(parent, r2.getSlider(), tabOrder);
+    rateNudge.setupComponent(parent, rate.getSlider(), tabOrder);
 
-    r3.setupComponent(parent, code + CPK::SsgSwEnv11::r3, "R3", tabOrder, std::nullopt, labelFont);
-
-    r3Nudge.setupComponent(parent, r3.getSlider(), tabOrder);
-
-    r4.setupComponent(parent, code + CPK::SsgSwEnv11::r4, "R4", tabOrder, std::nullopt, labelFont);
-
-    r4Nudge.setupComponent(parent, r4.getSlider(), tabOrder);
-
-    r5.setupComponent(parent, code + CPK::SsgSwEnv11::r5, "R5", tabOrder, std::nullopt, labelFont);
-
-    r5Nudge.setupComponent(parent, r5.getSlider(), tabOrder);
-
-    r6.setupComponent(parent, code + CPK::SsgSwEnv11::r6, "R6", tabOrder, std::nullopt, labelFont);
-
-    r6Nudge.setupComponent(parent, r6.getSlider(), tabOrder);
-
-    r7.setupComponent(parent, code + CPK::SsgSwEnv11::r7, "R7", tabOrder, std::nullopt, labelFont);
-
-    r7Nudge.setupComponent(parent, r7.getSlider(), tabOrder);
-
-    r8.setupComponent(parent, code + CPK::SsgSwEnv11::r8, "R8", tabOrder, std::nullopt, labelFont);
-
-    r8Nudge.setupComponent(parent, r8.getSlider(), tabOrder);
-
-    r9.setupComponent(parent, code + CPK::SsgSwEnv11::r9, "R9", tabOrder, std::nullopt, labelFont);
-
-    r9Nudge.setupComponent(parent, r9.getSlider(), tabOrder);
-
-    r10.setupComponent(parent, code + CPK::SsgSwEnv11::r10, "R10", tabOrder, std::nullopt, labelFont);
-
-    r10Nudge.setupComponent(parent, r10.getSlider(), tabOrder);
-
-    r11.setupComponent(parent, code + CPK::SsgSwEnv11::r11, "R11", tabOrder, std::nullopt, labelFont);
-
-    r11Nudge.setupComponent(parent, r11.getSlider(), tabOrder);
+    parent.addAndMakeVisible(rateValues);
 
     rateSeparator.setupComponent(parent);
 
-    startLevel.setupComponent(parent, code + CPK::SsgSwEnv11::stl, "STL", tabOrder, std::nullopt, labelFont);
+    // 対象の 0 が STL、1 以降が L1 以降。
+    levelTarget.setup({ .parent = parent, .title = "L.TG", .isReset = false, .labelFont = labelFont });
+    levelTarget.setRange(0.0, (double)(levelCount - 1), 1.0);
+    levelTarget.setNumDecimalPlacesToDisplay(0);
+    levelTarget.setWantsKeyboardFocus(true);
+    levelTarget.setExplicitFocusOrder(++tabOrder);
+    levelTarget.onValueChange = [this] { rebindLevel(); };
 
-    stlBtns.setupComponent(parent, startLevel.getSlider(), tabOrder, labelFont);
+    level.setupComponent(parent, "", "LEVL", tabOrder, std::nullopt, labelFont);
+    level.getSlider().onValueChange = [this] { refreshStepValues(); };
 
-    l1.setupComponent(parent, code + CPK::SsgSwEnv11::l1, "L1", tabOrder, std::nullopt, labelFont);
+    levelBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
 
-    l1Btns.setupComponent(parent, l1.getSlider(), tabOrder, labelFont);
+    parent.addAndMakeVisible(levelValues);
 
-    l2.setupComponent(parent, code + CPK::SsgSwEnv11::l2, "L2", tabOrder, std::nullopt, labelFont);
+    // onValueChange は値が変わらないと呼ばれないので、最初の束縛はここで明示的に行う。
+    rateTarget.setValue(1, juce::dontSendNotification);
+    levelTarget.setValue(0, juce::dontSendNotification);
 
-    l2Btns.setupComponent(parent, l2.getSlider(), tabOrder, labelFont);
-
-    l3.setupComponent(parent, code + CPK::SsgSwEnv11::l3, "L3", tabOrder, std::nullopt, labelFont);
-
-    l3Btns.setupComponent(parent, l3.getSlider(), tabOrder, labelFont);
-
-    l4.setupComponent(parent, code + CPK::SsgSwEnv11::l4, "L4", tabOrder, std::nullopt, labelFont);
-
-    l4Btns.setupComponent(parent, l4.getSlider(), tabOrder, labelFont);
-
-    l5.setupComponent(parent, code + CPK::SsgSwEnv11::l5, "L5", tabOrder, std::nullopt, labelFont);
-
-    l5Btns.setupComponent(parent, l5.getSlider(), tabOrder, labelFont);
-
-    l6.setupComponent(parent, code + CPK::SsgSwEnv11::l6, "L6", tabOrder, std::nullopt, labelFont);
-
-    l6Btns.setupComponent(parent, l6.getSlider(), tabOrder, labelFont);
-
-    l7.setupComponent(parent, code + CPK::SsgSwEnv11::l7, "L7", tabOrder, std::nullopt, labelFont);
-
-    l7Btns.setupComponent(parent, l7.getSlider(), tabOrder, labelFont);
-
-    l8.setupComponent(parent, code + CPK::SsgSwEnv11::l8, "L8", tabOrder, std::nullopt, labelFont);
-
-    l8Btns.setupComponent(parent, l8.getSlider(), tabOrder, labelFont);
-
-    l9.setupComponent(parent, code + CPK::SsgSwEnv11::l9, "L9", tabOrder, std::nullopt, labelFont);
-
-    l9Btns.setupComponent(parent, l9.getSlider(), tabOrder, labelFont);
-
-    l10.setupComponent(parent, code + CPK::SsgSwEnv11::l10, "L10", tabOrder, std::nullopt, labelFont);
-
-    l10Btns.setupComponent(parent, l10.getSlider(), tabOrder, labelFont);
-
-    l11.setupComponent(parent, code + CPK::SsgSwEnv11::l11, "L11", tabOrder, std::nullopt, labelFont);
-
-    l11Btns.setupComponent(parent, l11.getSlider(), tabOrder, labelFont);
+    rebindRate();
+    rebindLevel();
 }
 
 void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
@@ -218,53 +249,15 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
     loopTo.setVisibleWithLabel(visible);
     loopCount.setVisibleWithLabel(visible);
 	loopSeparator.setVisible(visible);
-    r1.setVisibleWithLabel(visible);
-    r1Nudge.setVisibles(visible && r1.isVisibleNudge());
-    r2.setVisibleWithLabel(visible);
-    r2Nudge.setVisibles(visible && r2.isVisibleNudge());
-    r3.setVisibleWithLabel(visible);
-    r3Nudge.setVisibles(visible && r3.isVisibleNudge());
-    r4.setVisibleWithLabel(visible);
-    r4Nudge.setVisibles(visible && r4.isVisibleNudge());
-    r5.setVisibleWithLabel(visible);
-    r5Nudge.setVisibles(visible && r5.isVisibleNudge());
-    r6.setVisibleWithLabel(visible);
-    r6Nudge.setVisibles(visible && r6.isVisibleNudge());
-	r7.setVisibleWithLabel(visible);
-	r7Nudge.setVisibles(visible && r7.isVisibleNudge());
-	r8.setVisibleWithLabel(visible);
-	r8Nudge.setVisibles(visible && r8.isVisibleNudge());
-	r9.setVisibleWithLabel(visible);
-	r9Nudge.setVisibles(visible && r9.isVisibleNudge());
-	r10.setVisibleWithLabel(visible);
-	r10Nudge.setVisibles(visible && r10.isVisibleNudge());
-	r11.setVisibleWithLabel(visible);
-	r11Nudge.setVisibles(visible && r11.isVisibleNudge());
-	rateSeparator.setVisible(visible);
-    startLevel.setVisibleWithLabel(visible);
-    stlBtns.setVisibles(visible && startLevel.isVisibleNudge());
-    l1.setVisibleWithLabel(visible);
-    l1Btns.setVisibles(visible && l1.isVisibleNudge());
-    l2.setVisibleWithLabel(visible);
-    l2Btns.setVisibles(visible && l2.isVisibleNudge());
-    l3.setVisibleWithLabel(visible);
-    l3Btns.setVisibles(visible && l3.isVisibleNudge());
-    l4.setVisibleWithLabel(visible);
-    l4Btns.setVisibles(visible && l4.isVisibleNudge());
-    l5.setVisibleWithLabel(visible);
-    l5Btns.setVisibles(visible && l5.isVisibleNudge());
-    l6.setVisibleWithLabel(visible);
-    l6Btns.setVisibles(visible && l6.isVisibleNudge());
-    l7.setVisibleWithLabel(visible);
-    l7Btns.setVisibles(visible && l7.isVisibleNudge());
-    l8.setVisibleWithLabel(visible);
-    l8Btns.setVisibles(visible && l8.isVisibleNudge());
-    l9.setVisibleWithLabel(visible);
-    l9Btns.setVisibles(visible && l9.isVisibleNudge());
-    l10.setVisibleWithLabel(visible);
-    l10Btns.setVisibles(visible && l10.isVisibleNudge());
-    l11.setVisibleWithLabel(visible);
-    l11Btns.setVisibles(visible && l11.isVisibleNudge());
+    rateTarget.setVisibleWithLabel(visible);
+    rate.setVisibleWithLabel(visible);
+    rateNudge.setVisibles(visible && rate.isVisibleNudge());
+    rateValues.setVisible(visible);
+    rateSeparator.setVisible(visible);
+    levelTarget.setVisibleWithLabel(visible);
+    level.setVisibleWithLabel(visible);
+    levelBtns.setVisibles(visible && level.isVisibleNudge());
+    levelValues.setVisible(visible);
 
     if (visible)
     {
@@ -276,53 +269,16 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 13 });
         loopSeparator.layoutComponent(rect);
-        r1.layoutComponent(rect, 13);
-        if (r1.isVisibleNudge()) r1Nudge.layoutComponent(rect, 13);
-        r2.layoutComponent(rect, 13);
-        if (r2.isVisibleNudge()) r2Nudge.layoutComponent(rect, 13);
-        r3.layoutComponent(rect, 13);
-        if (r3.isVisibleNudge()) r3Nudge.layoutComponent(rect, 13);
-        r4.layoutComponent(rect, 13);
-        if (r4.isVisibleNudge()) r4Nudge.layoutComponent(rect, 13);
-        r5.layoutComponent(rect, 13);
-        if (r5.isVisibleNudge()) r5Nudge.layoutComponent(rect, 13);
-        r6.layoutComponent(rect, 13);
-        if (r6.isVisibleNudge()) r6Nudge.layoutComponent(rect, 13);
-        r7.layoutComponent(rect, 13);
-        if (r7.isVisibleNudge()) r7Nudge.layoutComponent(rect, 13);
-        r8.layoutComponent(rect, 13);
-        if (r8.isVisibleNudge()) r8Nudge.layoutComponent(rect, 13);
-        r9.layoutComponent(rect, 13);
-        if (r9.isVisibleNudge()) r9Nudge.layoutComponent(rect, 13);
-        r10.layoutComponent(rect, 13);
-        if (r10.isVisibleNudge()) r10Nudge.layoutComponent(rect, 13);
-        r11.layoutComponent(rect, 13);
-        if (r11.isVisibleNudge()) r11Nudge.layoutComponent(rect, 13);
+        // 対象 → 値 → 各段の値、の順。
+        layoutMain({ .mainRect = rect, .label = &rateTarget.label, .component = &rateTarget, .rowHeight = 13 });
+        rate.layoutComponent(rect, 13);
+        if (rate.isVisibleNudge()) rateNudge.layoutComponent(rect, 13);
+        layoutStrip(rect, rateValues, 26);
         rateSeparator.layoutComponent(rect);
-        startLevel.layoutComponent(rect, 13);
-        if (startLevel.isVisibleNudge()) stlBtns.layoutComponent(rect, 13);
-        l1.layoutComponent(rect, 13);
-        if (l1.isVisibleNudge()) l1Btns.layoutComponent(rect, 13);
-        l2.layoutComponent(rect, 13);
-        if (l2.isVisibleNudge()) l2Btns.layoutComponent(rect, 13);
-        l3.layoutComponent(rect, 13);
-        if (l3.isVisibleNudge()) l3Btns.layoutComponent(rect, 13);
-        l4.layoutComponent(rect, 13);
-        if (l4.isVisibleNudge()) l4Btns.layoutComponent(rect, 13);
-        l5.layoutComponent(rect, 13);
-        if (l5.isVisibleNudge()) l5Btns.layoutComponent(rect, 13);
-        l6.layoutComponent(rect, 13);
-        if (l6.isVisibleNudge()) l6Btns.layoutComponent(rect, 13);
-        l7.layoutComponent(rect, 13);
-        if (l7.isVisibleNudge()) l7Btns.layoutComponent(rect, 13);
-        l8.layoutComponent(rect, 13);
-        if (l8.isVisibleNudge()) l8Btns.layoutComponent(rect, 13);
-        l9.layoutComponent(rect, 13);
-        if (l9.isVisibleNudge()) l9Btns.layoutComponent(rect, 13);
-        l10.layoutComponent(rect, 13);
-        if (l10.isVisibleNudge()) l10Btns.layoutComponent(rect, 13);
-        l11.layoutComponent(rect, 13);
-        if (l11.isVisibleNudge()) l11Btns.layoutComponent(rect, 13);
+        layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = 13 });
+        level.layoutComponent(rect, 13);
+        if (level.isVisibleNudge()) levelBtns.layoutComponent(rect, 13);
+        layoutStrip(rect, levelValues, 26);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -342,53 +298,15 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
     loopTo.setVisibleWithLabel(visible);
     loopCount.setVisibleWithLabel(visible);
     loopSeparator.setVisible(visible);
-    r1.setVisibleWithLabel(visible);
-    r1Nudge.setVisibles(visible && r1.isVisibleNudge());
-    r2.setVisibleWithLabel(visible);
-    r2Nudge.setVisibles(visible && r2.isVisibleNudge());
-    r3.setVisibleWithLabel(visible);
-    r3Nudge.setVisibles(visible && r3.isVisibleNudge());
-    r4.setVisibleWithLabel(visible);
-    r4Nudge.setVisibles(visible && r4.isVisibleNudge());
-    r5.setVisibleWithLabel(visible);
-    r5Nudge.setVisibles(visible && r5.isVisibleNudge());
-    r6.setVisibleWithLabel(visible);
-    r6Nudge.setVisibles(visible && r6.isVisibleNudge());
-    r7.setVisibleWithLabel(visible);
-    r7Nudge.setVisibles(visible && r7.isVisibleNudge());
-    r8.setVisibleWithLabel(visible);
-    r8Nudge.setVisibles(visible && r8.isVisibleNudge());
-    r9.setVisibleWithLabel(visible);
-    r9Nudge.setVisibles(visible && r9.isVisibleNudge());
-    r10.setVisibleWithLabel(visible);
-    r10Nudge.setVisibles(visible && r10.isVisibleNudge());
-    r11.setVisibleWithLabel(visible);
-    r11Nudge.setVisibles(visible && r11.isVisibleNudge());
+    rateTarget.setVisibleWithLabel(visible);
+    rate.setVisibleWithLabel(visible);
+    rateNudge.setVisibles(visible && rate.isVisibleNudge());
+    rateValues.setVisible(visible);
     rateSeparator.setVisible(visible);
-    startLevel.setVisibleWithLabel(visible);
-    stlBtns.setVisibles(visible && startLevel.isVisibleNudge());
-    l1.setVisibleWithLabel(visible);
-    l1Btns.setVisibles(visible && l1.isVisibleNudge());
-    l2.setVisibleWithLabel(visible);
-    l2Btns.setVisibles(visible && l2.isVisibleNudge());
-    l3.setVisibleWithLabel(visible);
-    l3Btns.setVisibles(visible && l3.isVisibleNudge());
-    l4.setVisibleWithLabel(visible);
-    l4Btns.setVisibles(visible && l4.isVisibleNudge());
-    l5.setVisibleWithLabel(visible);
-    l5Btns.setVisibles(visible && l5.isVisibleNudge());
-    l6.setVisibleWithLabel(visible);
-    l6Btns.setVisibles(visible && l6.isVisibleNudge());
-    l7.setVisibleWithLabel(visible);
-    l7Btns.setVisibles(visible && l7.isVisibleNudge());
-    l8.setVisibleWithLabel(visible);
-    l8Btns.setVisibles(visible && l8.isVisibleNudge());
-    l9.setVisibleWithLabel(visible);
-    l9Btns.setVisibles(visible && l9.isVisibleNudge());
-    l10.setVisibleWithLabel(visible);
-    l10Btns.setVisibles(visible && l10.isVisibleNudge());
-    l11.setVisibleWithLabel(visible);
-    l11Btns.setVisibles(visible && l11.isVisibleNudge());
+    levelTarget.setVisibleWithLabel(visible);
+    level.setVisibleWithLabel(visible);
+    levelBtns.setVisibles(visible && level.isVisibleNudge());
+    levelValues.setVisible(visible);
 
     if (visible)
     {
@@ -400,53 +318,16 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 12 });
         loopSeparator.layoutComponent(rect);
-        r1.layoutComponentRow(rect, 12);
-        if (r1.isVisibleNudge()) r1Nudge.layoutComponentRow(rect, 12);
-        r2.layoutComponentRow(rect, 12);
-        if (r2.isVisibleNudge()) r2Nudge.layoutComponentRow(rect, 12);
-        r3.layoutComponentRow(rect, 12);
-        if (r3.isVisibleNudge()) r3Nudge.layoutComponentRow(rect, 12);
-        r4.layoutComponentRow(rect, 12);
-        if (r4.isVisibleNudge()) r4Nudge.layoutComponentRow(rect, 12);
-        r5.layoutComponentRow(rect, 12);
-        if (r5.isVisibleNudge()) r5Nudge.layoutComponentRow(rect, 12);
-        r6.layoutComponentRow(rect, 12);
-        if (r6.isVisibleNudge()) r6Nudge.layoutComponentRow(rect, 12);
-        r7.layoutComponentRow(rect, 12);
-        if (r7.isVisibleNudge()) r7Nudge.layoutComponentRow(rect, 12);
-        r8.layoutComponentRow(rect, 12);
-        if (r8.isVisibleNudge()) r8Nudge.layoutComponentRow(rect, 12);
-        r9.layoutComponentRow(rect, 12);
-        if (r9.isVisibleNudge()) r9Nudge.layoutComponentRow(rect, 12);
-        r10.layoutComponentRow(rect, 12);
-        if (r10.isVisibleNudge()) r10Nudge.layoutComponentRow(rect, 12);
-        r11.layoutComponentRow(rect, 12);
-        if (r11.isVisibleNudge()) r11Nudge.layoutComponentRow(rect, 12);
+        // 対象 → 値 → 各段の値、の順。
+        layoutMain({ .mainRect = rect, .label = &rateTarget.label, .component = &rateTarget, .rowHeight = 12 });
+        rate.layoutComponentRow(rect, 12);
+        if (rate.isVisibleNudge()) rateNudge.layoutComponentRow(rect, 12);
+        layoutStrip(rect, rateValues, 24);
         rateSeparator.layoutComponent(rect);
-        startLevel.layoutComponentRow(rect, 12);
-        if (startLevel.isVisibleNudge()) stlBtns.layoutComponentRow(rect, 12);
-        l1.layoutComponentRow(rect, 12);
-        if (l1.isVisibleNudge()) l1Btns.layoutComponentRow(rect, 12);
-        l2.layoutComponentRow(rect, 12);
-        if (l2.isVisibleNudge()) l2Btns.layoutComponentRow(rect, 12);
-        l3.layoutComponentRow(rect, 12);
-        if (l3.isVisibleNudge()) l3Btns.layoutComponentRow(rect, 12);
-        l4.layoutComponentRow(rect, 12);
-        if (l4.isVisibleNudge()) l4Btns.layoutComponentRow(rect, 12);
-        l5.layoutComponentRow(rect, 12);
-        if (l5.isVisibleNudge()) l5Btns.layoutComponentRow(rect, 12);
-        l6.layoutComponentRow(rect, 12);
-        if (l6.isVisibleNudge()) l6Btns.layoutComponentRow(rect, 12);
-        l7.layoutComponentRow(rect, 12);
-        if (l7.isVisibleNudge()) l7Btns.layoutComponentRow(rect, 12);
-        l8.layoutComponentRow(rect, 12);
-        if (l8.isVisibleNudge()) l8Btns.layoutComponentRow(rect, 12);
-        l9.layoutComponentRow(rect, 12);
-        if (l9.isVisibleNudge()) l9Btns.layoutComponentRow(rect, 12);
-        l10.layoutComponentRow(rect, 12);
-        if (l10.isVisibleNudge()) l10Btns.layoutComponentRow(rect, 12);
-        l11.layoutComponentRow(rect, 12);
-        if (l11.isVisibleNudge()) l11Btns.layoutComponentRow(rect, 12);
+        layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = 12 });
+        level.layoutComponentRow(rect, 12);
+        if (level.isVisibleNudge()) levelBtns.layoutComponentRow(rect, 12);
+        layoutStrip(rect, levelValues, 24);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -476,33 +357,20 @@ void GuiComponentSsgSwEnv11::setupGraph(std::function<void()> repaintGraph) {
         repaintGraph();
         };
 
-    r1.getSlider().onValueChange = repaintGraph;
-    r2.getSlider().onValueChange = repaintGraph;
-    r3.getSlider().onValueChange = repaintGraph;
-    r4.getSlider().onValueChange = repaintGraph;
-    r5.getSlider().onValueChange = repaintGraph;
-    r6.getSlider().onValueChange = repaintGraph;
-    r7.getSlider().onValueChange = repaintGraph;
-    r8.getSlider().onValueChange = repaintGraph;
-    r9.getSlider().onValueChange = repaintGraph;
-    r10.getSlider().onValueChange = repaintGraph;
-    r11.getSlider().onValueChange = repaintGraph;
-
-    startLevel.getSlider().onValueChange = repaintGraph;
-    l1.getSlider().onValueChange = repaintGraph;
-    l2.getSlider().onValueChange = repaintGraph;
-    l3.getSlider().onValueChange = repaintGraph;
-    l4.getSlider().onValueChange = repaintGraph;
-    l5.getSlider().onValueChange = repaintGraph;
-    l6.getSlider().onValueChange = repaintGraph;
-    l7.getSlider().onValueChange = repaintGraph;
-    l8.getSlider().onValueChange = repaintGraph;
-    l9.getSlider().onValueChange = repaintGraph;
-    l10.getSlider().onValueChange = repaintGraph;
-    l11.getSlider().onValueChange = repaintGraph;
+    // 値のつまみは 1 組しかないので、そこに繋ぐだけで全段ぶんを見たことになる。
+    rate.getSlider().onValueChange = [this, repaintGraph] { refreshStepValues(); repaintGraph(); };
+    level.getSlider().onValueChange = [this, repaintGraph] { refreshStepValues(); repaintGraph(); };
 }
 
 void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph) {
+    // つまみは 1 組しかないので、値を並べ直して渡す。
+    // R 側の [0] は使わない (元のつまみ配列と同じ並び)。
+    std::array<float, (size_t)levelCount> rArr{};
+    std::array<float, (size_t)levelCount> lArr{};
+
+    for (int i = 0; i < rateCount; ++i) rArr[(size_t)i + 1] = getStepValue(rateKeys[i]);
+    for (int i = 0; i < levelCount; ++i) lArr[(size_t)i] = getStepValue(levelKeys[i]);
+
     graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
 
     graph.updateSsgSwEnv11(
@@ -510,8 +378,8 @@ void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph) {
         loop,
         loopTo,
         loopCount,
-        { nullptr, &r1.getSlider(), &r2.getSlider(), &r3.getSlider(), &r4.getSlider(), &r5.getSlider(), &r6.getSlider(), &r7.getSlider(), &r8.getSlider(), &r9.getSlider(), &r10.getSlider(), &r11.getSlider() },
-        { &startLevel.getSlider(), &l1.getSlider(), &l2.getSlider(), &l3.getSlider(), &l4.getSlider(), &l5.getSlider(), &l6.getSlider(), &l7.getSlider(), &l8.getSlider(), &l9.getSlider(), &l10.getSlider(), &l11.getSlider() }
+        rArr, (float)rate.getSlider().getMaximum(),
+        lArr, (float)level.getSlider().getMaximum()
     );
 }
 
@@ -527,53 +395,13 @@ void GuiComponentSsgSwEnv11::setEnabled(bool enabled) {
     loopTo.setEnabled(enabled && ssgEnvLoopEnable);
     loopCount.setEnabled(enabled && ssgEnvLoopEnable);
 	loopSeparator.setEnabled(enabled);
-	rateSeparator.setEnabled(enabled);
-    startLevel.setEnabled(enabled);
-    stlBtns.setEnables(enabled);
-    r1.setEnabled(enabled);
-    r1Nudge.setEnables(enabled);
-    l1.setEnabled(enabled);
-    l1Btns.setEnables(enabled);
-    r2.setEnabled(enabled);
-    r2Nudge.setEnables(enabled);
-    l2.setEnabled(enabled);
-    l3Btns.setEnables(enabled);
-    r3.setEnabled(enabled);
-    r3Nudge.setEnables(enabled);
-    l3.setEnabled(enabled);
-    l3Btns.setEnables(enabled);
-    r4.setEnabled(enabled);
-    r4Nudge.setEnables(enabled);
-    l4.setEnabled(enabled);
-    l4Btns.setEnables(enabled);
-    r5.setEnabled(enabled);
-    r5Nudge.setEnables(enabled);
-    l5.setEnabled(enabled);
-    l5Btns.setEnables(enabled);
-    r6.setEnabled(enabled);
-    r6Nudge.setEnables(enabled);
-    l6.setEnabled(enabled);
-    l6Btns.setEnables(enabled);
-    r7.setEnabled(enabled);
-    r7Nudge.setEnables(enabled);
-    l7.setEnabled(enabled);
-    l7Btns.setEnables(enabled);
-    r8.setEnabled(enabled);
-    r8Nudge.setEnables(enabled);
-    l8.setEnabled(enabled);
-    l8Btns.setEnables(enabled);
-    r9.setEnabled(enabled);
-    r9Nudge.setEnables(enabled);
-    l9.setEnabled(enabled);
-    l9Btns.setEnables(enabled);
-    r10.setEnabled(enabled);
-    r10Nudge.setEnables(enabled);
-    l10.setEnabled(enabled);
-    l10Btns.setEnables(enabled);
-    r11.setEnabled(enabled);
-    r11Nudge.setEnables(enabled);
-    l11.setEnabled(enabled);
-    l11Btns.setEnables(enabled);
+    rateTarget.setEnabled(enabled);
+    rate.setEnabled(enabled);
+    rateNudge.setEnables(enabled);
+    rateSeparator.setEnabled(enabled);
+    levelTarget.setEnabled(enabled);
+    level.setEnabled(enabled);
+    levelBtns.setEnables(enabled);
 }
 
 void GuiComponentSsgSwEnv11::copyParams(CopyEnvSsgSw11& copyObj) {
@@ -582,29 +410,12 @@ void GuiComponentSsgSwEnv11::copyParams(CopyEnvSsgSw11& copyObj) {
     copyObj.loop = loop.getToggleState();
     copyObj.loopTo = loopTo.getValue();
     copyObj.loopCount = loopCount.getValue();
-    copyObj.stl = startLevel.getValue();
-    copyObj.r[0] = r1.getValue();
-    copyObj.l[0] = l1.getValue();
-    copyObj.r[1] = r2.getValue();
-    copyObj.l[1] = l2.getValue();
-    copyObj.r[2] = r3.getValue();
-    copyObj.l[2] = l3.getValue();
-    copyObj.r[3] = r4.getValue();
-    copyObj.l[3] = l4.getValue();
-    copyObj.r[4] = r5.getValue();
-    copyObj.l[4] = l5.getValue();
-    copyObj.r[5] = r6.getValue();
-    copyObj.l[5] = l6.getValue();
-	copyObj.r[6] = r7.getValue();
-    copyObj.l[6] = l7.getValue();
-    copyObj.r[7] = r8.getValue();
-    copyObj.l[7] = l8.getValue();
-    copyObj.r[8] = r9.getValue();
-    copyObj.l[8] = l9.getValue();
-    copyObj.r[9] = r10.getValue();
-    copyObj.l[9] = l10.getValue();
-    copyObj.r[10] = r11.getValue();
-    copyObj.l[10] = l11.getValue();
+    copyObj.stl = getStepValue(levelKeys[0]);
+
+    for (int i = 0; i < rateCount; ++i) {
+        copyObj.r[i] = getStepValue(rateKeys[i]);
+        copyObj.l[i] = getStepValue(levelKeys[i + 1]);
+    }
 }
 
 void GuiComponentSsgSwEnv11::pasteParams(CopyEnvSsgSw11& copyObj) {
@@ -613,29 +424,14 @@ void GuiComponentSsgSwEnv11::pasteParams(CopyEnvSsgSw11& copyObj) {
     loop.setToggleState(copyObj.loop, juce::sendNotification);
     loopTo.setValue(copyObj.loopTo, juce::sendNotification);
     loopCount.setValue(copyObj.loopCount, juce::sendNotification);
-    startLevel.setValue(copyObj.stl, juce::sendNotification);
-    r1.setValue(copyObj.r[0], juce::sendNotification);
-    l1.setValue(copyObj.l[0], juce::sendNotification);
-    r2.setValue(copyObj.r[1], juce::sendNotification);
-    l2.setValue(copyObj.l[1], juce::sendNotification);
-    r3.setValue(copyObj.r[2], juce::sendNotification);
-    l3.setValue(copyObj.l[2], juce::sendNotification);
-    r4.setValue(copyObj.r[3], juce::sendNotification);
-    l4.setValue(copyObj.l[3], juce::sendNotification);
-    r5.setValue(copyObj.r[4], juce::sendNotification);
-    l5.setValue(copyObj.l[4], juce::sendNotification);
-    r6.setValue(copyObj.r[5], juce::sendNotification);
-    l6.setValue(copyObj.l[5], juce::sendNotification);
-	r7.setValue(copyObj.r[6], juce::sendNotification);
-	l7.setValue(copyObj.l[6], juce::sendNotification);
-	r8.setValue(copyObj.r[7], juce::sendNotification);
-	l8.setValue(copyObj.l[7], juce::sendNotification);
-	r9.setValue(copyObj.r[8], juce::sendNotification);
-	l9.setValue(copyObj.l[8], juce::sendNotification);
-	r10.setValue(copyObj.r[9], juce::sendNotification);
-	l10.setValue(copyObj.l[9], juce::sendNotification);
-	r11.setValue(copyObj.r[10], juce::sendNotification);
-	l11.setValue(copyObj.l[10], juce::sendNotification);
+    setStepValue(levelKeys[0], copyObj.stl);
+
+    for (int i = 0; i < rateCount; ++i) {
+        setStepValue(rateKeys[i], copyObj.r[i]);
+        setStepValue(levelKeys[i + 1], copyObj.l[i]);
+    }
+
+    refreshStepValues();
 }
 
 void GuiComponentSsgSwEnv11::importParams() {
@@ -694,29 +490,16 @@ void GuiComponentSsgSwEnv11::importParams() {
                 loop.setToggleState(reader->getBool("loop", loop.getToggleState()), juce::sendNotification);
                 loopTo.setValue(reader->getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
                 loopCount.setValue(reader->getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
-                startLevel.setValue(reader->getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
-                r1.setValue(reader->getFloat("r1", (float)r1.getValue()), juce::sendNotification);
-                l1.setValue(reader->getFloat("l1", (float)l1.getValue()), juce::sendNotification);
-                r2.setValue(reader->getFloat("r2", (float)r2.getValue()), juce::sendNotification);
-                l2.setValue(reader->getFloat("l2", (float)l2.getValue()), juce::sendNotification);
-                r3.setValue(reader->getFloat("r3", (float)r3.getValue()), juce::sendNotification);
-                l3.setValue(reader->getFloat("l3", (float)l3.getValue()), juce::sendNotification);
-                r4.setValue(reader->getFloat("r4", (float)r4.getValue()), juce::sendNotification);
-                l4.setValue(reader->getFloat("l4", (float)l4.getValue()), juce::sendNotification);
-                r5.setValue(reader->getFloat("r5", (float)r5.getValue()), juce::sendNotification);
-                l5.setValue(reader->getFloat("l5", (float)l5.getValue()), juce::sendNotification);
-                r6.setValue(reader->getFloat("r6", (float)r6.getValue()), juce::sendNotification);
-                l6.setValue(reader->getFloat("l6", (float)l6.getValue()), juce::sendNotification);
-                r7.setValue(reader->getFloat("r7", (float)r7.getValue()), juce::sendNotification);
-                l7.setValue(reader->getFloat("l7", (float)l7.getValue()), juce::sendNotification);
-                r8.setValue(reader->getFloat("r8", (float)r8.getValue()), juce::sendNotification);
-                l8.setValue(reader->getFloat("l8", (float)l8.getValue()), juce::sendNotification);
-                r9.setValue(reader->getFloat("r9", (float)r9.getValue()), juce::sendNotification);
-                l9.setValue(reader->getFloat("l9", (float)l9.getValue()), juce::sendNotification);
-                r10.setValue(reader->getFloat("r10", (float)r10.getValue()), juce::sendNotification);
-                l10.setValue(reader->getFloat("l10", (float)l10.getValue()), juce::sendNotification);
-                r11.setValue(reader->getFloat("r11", (float)r11.getValue()), juce::sendNotification);
-                l11.setValue(reader->getFloat("l11", (float)l11.getValue()), juce::sendNotification);
+                setStepValue(levelKeys[0], reader->getFloat("startLevel", getStepValue(levelKeys[0])));
+
+                for (int i = 0; i < rateCount; ++i) {
+                    const juce::String no(i + 1);
+
+                    setStepValue(rateKeys[i], reader->getFloat("r" + no, getStepValue(rateKeys[i])));
+                    setStepValue(levelKeys[i + 1], reader->getFloat("l" + no, getStepValue(levelKeys[i + 1])));
+                }
+
+                refreshStepValues();
             }
         });
 }
@@ -743,29 +526,14 @@ void GuiComponentSsgSwEnv11::exportParams() {
                 writer.set("loop", loop.getToggleState());
                 writer.set("loopTo", (float)loopTo.getValue());
                 writer.set("loopCount", (float)loopCount.getValue());
-                writer.set("startLevel", (float)startLevel.getValue());
-                writer.set("r1", (float)r1.getValue());
-                writer.set("l1", (float)l1.getValue());
-                writer.set("r2", (float)r2.getValue());
-                writer.set("l2", (float)l2.getValue());
-                writer.set("r3", (float)r3.getValue());
-                writer.set("l3", (float)l3.getValue());
-                writer.set("r4", (float)r4.getValue());
-                writer.set("l4", (float)l4.getValue());
-                writer.set("r5", (float)r5.getValue());
-                writer.set("l5", (float)l5.getValue());
-                writer.set("r6", (float)r6.getValue());
-                writer.set("l6", (float)l6.getValue());
-                writer.set("r7", (float)r7.getValue());
-                writer.set("l7", (float)l7.getValue());
-                writer.set("r8", (float)r8.getValue());
-                writer.set("l8", (float)l8.getValue());
-                writer.set("r9", (float)r9.getValue());
-                writer.set("l9", (float)l9.getValue());
-                writer.set("r10", (float)r10.getValue());
-                writer.set("l10", (float)l10.getValue());
-                writer.set("r11", (float)r11.getValue());
-                writer.set("l11", (float)l11.getValue());
+                writer.set("startLevel", getStepValue(levelKeys[0]));
+
+                for (int i = 0; i < rateCount; ++i) {
+                    const juce::String no(i + 1);
+
+                    writer.set("r" + no, getStepValue(rateKeys[i]));
+                    writer.set("l" + no, getStepValue(levelKeys[i + 1]));
+                }
 
                 writer.writeTo(file);
             }
@@ -778,29 +546,14 @@ void GuiComponentSsgSwEnv11::setImportingParams(juce::StringArray& lines, int& i
     loop.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
     loopTo.setValue(lines[index++].getIntValue(), juce::sendNotification);
     loopCount.setValue(lines[index++].getIntValue(), juce::sendNotification);
-    startLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r1.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l1.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r2.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l2.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r3.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l3.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r4.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l4.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r5.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l5.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r6.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l6.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r7.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l7.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r8.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l8.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r9.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l9.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r10.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l10.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    r11.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    l11.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    setStepValue(levelKeys[0], lines[index++].getFloatValue());
+
+    for (int i = 0; i < rateCount; ++i) {
+        setStepValue(rateKeys[i], lines[index++].getFloatValue());
+        setStepValue(levelKeys[i + 1], lines[index++].getFloatValue());
+    }
+
+    refreshStepValues();
 }
 
 void GuiComponentSsgSwEnv11::readParams(const Io::ParamReader& reader, const juce::String& key)
@@ -812,29 +565,16 @@ void GuiComponentSsgSwEnv11::readParams(const Io::ParamReader& reader, const juc
     loop.setToggleState(r.getBool("loop", loop.getToggleState()), juce::sendNotification);
     loopTo.setValue(r.getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
     loopCount.setValue(r.getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
-    startLevel.setValue(r.getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
-    r1.setValue(r.getFloat("r1", (float)r1.getValue()), juce::sendNotification);
-    l1.setValue(r.getFloat("l1", (float)l1.getValue()), juce::sendNotification);
-    r2.setValue(r.getFloat("r2", (float)r2.getValue()), juce::sendNotification);
-    l2.setValue(r.getFloat("l2", (float)l2.getValue()), juce::sendNotification);
-    r3.setValue(r.getFloat("r3", (float)r3.getValue()), juce::sendNotification);
-    l3.setValue(r.getFloat("l3", (float)l3.getValue()), juce::sendNotification);
-    r4.setValue(r.getFloat("r4", (float)r4.getValue()), juce::sendNotification);
-    l4.setValue(r.getFloat("l4", (float)l4.getValue()), juce::sendNotification);
-    r5.setValue(r.getFloat("r5", (float)r5.getValue()), juce::sendNotification);
-    l5.setValue(r.getFloat("l5", (float)l5.getValue()), juce::sendNotification);
-    r6.setValue(r.getFloat("r6", (float)r6.getValue()), juce::sendNotification);
-    l6.setValue(r.getFloat("l6", (float)l6.getValue()), juce::sendNotification);
-    r7.setValue(r.getFloat("r7", (float)r7.getValue()), juce::sendNotification);
-    l7.setValue(r.getFloat("l7", (float)l7.getValue()), juce::sendNotification);
-    r8.setValue(r.getFloat("r8", (float)r8.getValue()), juce::sendNotification);
-    l8.setValue(r.getFloat("l8", (float)l8.getValue()), juce::sendNotification);
-    r9.setValue(r.getFloat("r9", (float)r9.getValue()), juce::sendNotification);
-    l9.setValue(r.getFloat("l9", (float)l9.getValue()), juce::sendNotification);
-    r10.setValue(r.getFloat("r10", (float)r10.getValue()), juce::sendNotification);
-    l10.setValue(r.getFloat("l10", (float)l10.getValue()), juce::sendNotification);
-    r11.setValue(r.getFloat("r11", (float)r11.getValue()), juce::sendNotification);
-    l11.setValue(r.getFloat("l11", (float)l11.getValue()), juce::sendNotification);
+    setStepValue(levelKeys[0], r.getFloat("startLevel", getStepValue(levelKeys[0])));
+
+    for (int i = 0; i < rateCount; ++i) {
+        const juce::String no(i + 1);
+
+        setStepValue(rateKeys[i], r.getFloat("r" + no, getStepValue(rateKeys[i])));
+        setStepValue(levelKeys[i + 1], r.getFloat("l" + no, getStepValue(levelKeys[i + 1])));
+    }
+
+    refreshStepValues();
 }
 
 juce::String GuiComponentSsgSwEnv11::getExportedParams() {
@@ -845,29 +585,12 @@ juce::String GuiComponentSsgSwEnv11::getExportedParams() {
     content += juce::String(loop.getToggleState() ? 1 : 0) + "\n";
     content += juce::String(loopTo.getValue()) + "\n";
     content += juce::String(loopCount.getValue()) + "\n";
-    content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r1.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l1.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r2.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l2.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r3.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l3.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r4.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l4.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r5.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l5.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r6.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l6.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r7.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l7.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r8.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l8.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r9.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l9.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r10.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l10.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(r11.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(l11.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(getStepValue(levelKeys[0]), Global::floatDecimalPlaces) + "\n";
+
+    for (int i = 0; i < rateCount; ++i) {
+        content += juce::String(getStepValue(rateKeys[i]), Global::floatDecimalPlaces) + "\n";
+        content += juce::String(getStepValue(levelKeys[i + 1]), Global::floatDecimalPlaces) + "\n";
+    }
 
     return content;
 }
@@ -881,27 +604,12 @@ void GuiComponentSsgSwEnv11::writeParams(Io::ParamWriter& writer, const juce::St
     w.set("loop", loop.getToggleState());
     w.set("loopTo", (float)loopTo.getValue());
     w.set("loopCount", (float)loopCount.getValue());
-    w.set("startLevel", (float)startLevel.getValue());
-    w.set("r1", (float)r1.getValue());
-    w.set("l1", (float)l1.getValue());
-    w.set("r2", (float)r2.getValue());
-    w.set("l2", (float)l2.getValue());
-    w.set("r3", (float)r3.getValue());
-    w.set("l3", (float)l3.getValue());
-    w.set("r4", (float)r4.getValue());
-    w.set("l4", (float)l4.getValue());
-    w.set("r5", (float)r5.getValue());
-    w.set("l5", (float)l5.getValue());
-    w.set("r6", (float)r6.getValue());
-    w.set("l6", (float)l6.getValue());
-    w.set("r7", (float)r7.getValue());
-    w.set("l7", (float)l7.getValue());
-    w.set("r8", (float)r8.getValue());
-    w.set("l8", (float)l8.getValue());
-    w.set("r9", (float)r9.getValue());
-    w.set("l9", (float)l9.getValue());
-    w.set("r10", (float)r10.getValue());
-    w.set("l10", (float)l10.getValue());
-    w.set("r11", (float)r11.getValue());
-    w.set("l11", (float)l11.getValue());
+    w.set("startLevel", getStepValue(levelKeys[0]));
+
+    for (int i = 0; i < rateCount; ++i) {
+        const juce::String no(i + 1);
+
+        w.set("r" + no, getStepValue(rateKeys[i]));
+        w.set("l" + no, getStepValue(levelKeys[i + 1]));
+    }
 }

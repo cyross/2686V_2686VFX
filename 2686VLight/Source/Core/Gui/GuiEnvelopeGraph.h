@@ -45,24 +45,30 @@ public:
         const GuiToggleButton& ssgSwEnvLoopButton,
         const GuiSlider& ssgSwLoopToSlider,
         const GuiSlider& ssgSwLoopCountSlider,
-        const std::array<juce::Slider*, 7>& rSl,
-        const std::array<juce::Slider*, 7>& lSl
+        // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
+        // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
+        const std::array<float, 7>& rVal, float rMax,
+        const std::array<float, 7>& lVal, float lMax
     );
     void updateSsgSwEnv11(
         const GuiSlider& ssgSwStepsSlider,
         const GuiToggleButton& ssgSwEnvLoopButton,
         const GuiSlider& ssgSwLoopToSlider,
         const GuiSlider& ssgSwLoopCountSlider,
-        const std::array<juce::Slider*, 12>& rSl,
-        const std::array<juce::Slider*, 12>& lSl
+        // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
+        // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
+        const std::array<float, 12>& rVal, float rMax,
+        const std::array<float, 12>& lVal, float lMax
     );
     void updateSsgSwPEnv11(
         const GuiSlider& ssgSwStepsSlider,
         const GuiToggleButton& ssgSwEnvLoopButton,
         const GuiSlider& ssgSwLoopToSlider,
         const GuiSlider& ssgSwLoopCountSlider,
-        const std::array<juce::Slider*, 12>& rSl,
-        const std::array<juce::Slider*, 12>& lSl
+        // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
+        // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
+        const std::array<float, 12>& rVal, float rMax,
+        const std::array<float, 12>& lVal, float lMax
     );
     void updateAmpEnv(
         const GuiSlider& startLevelSlider,

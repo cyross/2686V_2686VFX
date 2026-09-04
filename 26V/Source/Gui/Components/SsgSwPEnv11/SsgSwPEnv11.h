@@ -18,6 +18,7 @@
 #include "../PitchButtons/PitchButtons.h"
 #include "../NudgeButtons/NudgeButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
+#include "../StepValues/StepValues.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -35,53 +36,21 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
     GuiSlider loopTo;
     GuiSlider loopCount;
 	NormalSeparator loopSeparator;
-    GuiComponentNudgeSliderFloat r1;
-    GuiComponentNudgeButtons r1Nudge;
-    GuiComponentNudgeSliderFloat r2;
-    GuiComponentNudgeButtons r2Nudge;
-    GuiComponentNudgeSliderFloat r3;
-    GuiComponentNudgeButtons r3Nudge;
-    GuiComponentNudgeSliderFloat r4;
-    GuiComponentNudgeButtons r4Nudge;
-    GuiComponentNudgeSliderFloat r5;
-    GuiComponentNudgeButtons r5Nudge;
-    GuiComponentNudgeSliderFloat r6;
-    GuiComponentNudgeButtons r6Nudge;
-    GuiComponentNudgeSliderFloat r7;
-    GuiComponentNudgeButtons r7Nudge;
-    GuiComponentNudgeSliderFloat r8;
-    GuiComponentNudgeButtons r8Nudge;
-    GuiComponentNudgeSliderFloat r9;
-    GuiComponentNudgeButtons r9Nudge;
-    GuiComponentNudgeSliderFloat r10;
-    GuiComponentNudgeButtons r10Nudge;
-    GuiComponentNudgeSliderFloat r11;
-    GuiComponentNudgeButtons r11Nudge;
+    // 段ごとにつまみを並べる代わりに、対象を選ぶつまみと値のつまみを 1 組ずつ置く。
+    // 選んだ段へその場で束縛し直し、選んでいない段の値は帯へまとめて描く。
+    // 以前は段の数だけつまみと補正ボタンが並んでいて、この区分ひとつで
+    // 200 個近い部品になっていた。
+    GuiSlider rateTarget;
+    GuiComponentNudgeSliderFloat rate;
+    GuiComponentNudgeButtons rateNudge;
+    GuiStepValues rateValues;
+
     NormalSeparator rateSeparator;
-    GuiComponentNudgeSliderFloat startLevel;
-    GuiComponentPitchButtons startLevelButtons;
-    GuiComponentNudgeSliderFloat l1;
-    GuiComponentPitchButtons l1Buttons;
-    GuiComponentNudgeSliderFloat l2;
-    GuiComponentPitchButtons l2Buttons;
-    GuiComponentNudgeSliderFloat l3;
-    GuiComponentPitchButtons l3Buttons;
-    GuiComponentNudgeSliderFloat l4;
-    GuiComponentPitchButtons l4Buttons;
-    GuiComponentNudgeSliderFloat l5;
-    GuiComponentPitchButtons l5Buttons;
-    GuiComponentNudgeSliderFloat l6;
-    GuiComponentPitchButtons l6Buttons;
-    GuiComponentNudgeSliderFloat l7;
-    GuiComponentPitchButtons l7Buttons;
-    GuiComponentNudgeSliderFloat l8;
-    GuiComponentPitchButtons l8Buttons;
-    GuiComponentNudgeSliderFloat l9;
-    GuiComponentPitchButtons l9Buttons;
-    GuiComponentNudgeSliderFloat l10;
-    GuiComponentPitchButtons l10Buttons;
-    GuiComponentNudgeSliderFloat l11;
-    GuiComponentPitchButtons l11Buttons;
+
+    GuiSlider levelTarget;
+    GuiComponentNudgeSliderFloat level;
+    GuiComponentPitchButtons levelBtns;
+    GuiStepValues levelValues;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     // applyLoopValues の入れ子呼び出しを弾くための印。
@@ -89,6 +58,20 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
     bool isApplyingLoopValues = false;
 
     void applyLoopValues(bool enabled);
+
+    // 選んだ段へ値のつまみを束縛し直す。帯の描き直しもここでやる。
+    void rebindRate();
+    void rebindLevel();
+
+    // 帯に出す値を今の状態から作り直す。
+    void refreshStepValues();
+
+    // 段ごとの値。つまみは 1 組しか束縛されていないので、APVTS から直に読み書きする。
+    float getStepValue(const juce::String& key) const;
+    void setStepValue(const juce::String& key, float value);
+
+    // setup で受け取った接頭辞。束縛し直すときに使う。
+    juce::String paramCode;
 public:
 
     // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
@@ -125,53 +108,13 @@ public:
 		loopTo(context), 
 		loopCount(context),
 		loopSeparator(context),
-        r1(context),
-        r1Nudge(context),
-        r2(context),
-        r2Nudge(context),
-        r3(context),
-        r3Nudge(context),
-        r4(context),
-        r4Nudge(context),
-        r5(context),
-        r5Nudge(context),
-        r6(context),
-        r6Nudge(context),
-        r7(context),
-        r7Nudge(context),
-        r8(context),
-        r8Nudge(context),
-        r9(context),
-        r9Nudge(context),
-        r10(context),
-        r10Nudge(context),
-        r11(context),
-        r11Nudge(context),
+        rateTarget(context),
+        rate(context),
+        rateNudge(context),
         rateSeparator(context),
-        startLevel(context),
-        startLevelButtons(context),
-		l1(context),
-        l1Buttons(context),
-		l2(context),
-		l2Buttons(context),
-		l3(context),
-		l3Buttons(context),
-		l4(context),
-		l4Buttons(context),
-		l5(context),
-		l5Buttons(context),
-		l6(context),
-		l6Buttons(context),
-        l7(context),
-        l7Buttons(context),
-        l8(context),
-		l8Buttons(context),
-        l9(context),
-		l9Buttons(context),
-        l10(context),
-		l10Buttons(context),
-        l11(context),
-		l11Buttons(context)
+        levelTarget(context),
+        level(context),
+        levelBtns(context)
     {
     }
 
