@@ -30,6 +30,27 @@ set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
 set(YAML_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/yaml-cpp)
 
+# ==============================================================================
+# 先読みヘッダ (PCH) の準備
+# ==============================================================================
+# 自前のソースはほぼ全部が JuceHeader.h ごしに JUCE を丸ごと読み込む。
+# その読み込みだけで 1 ファイルにつき 5 秒強かかっていた。中身はどの
+# ファイルでも同じなので、一度だけ解釈して使い回す。
+# 手元 (28 並列・Release) で 2686VFX の 80 ファイルが 41 秒から 19 秒
+# (PCH の作成込み) になった。
+#
+# 代わりに 1 つ 400MB 前後の PCH が的とビルド構成の数だけ出来る。
+# 置き場所が厳しいときは切る。
+option(CY_USE_PCH "先読みヘッダ (PCH) を使ってビルドを速くする" ON)
+
+# JUCE 自身のモジュール実装ファイル。これらは PCH から外すので先に集めておく。
+file(GLOB CY_JUCE_MODULE_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/JUCE/modules/*/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/JUCE/modules/*/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/JUCE/modules/*/*.mm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/JUCE/modules/*/*.m"
+)
+
 # yaml-cpp は自前の警告設定を持たないので、こちらの厳しい設定に
 # 巻き込まれないようにする。外から持ってきたものは直せないため。
 if(MSVC)
@@ -130,6 +151,20 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
     )
 
     juce_generate_juce_header(${TARGET_NAME})
+
+    # 先読みヘッダを当てる。自前のソースはどれも JuceHeader.h から始まるので、
+    # 全ファイルに効く。
+    if(CY_USE_PCH)
+        target_precompile_headers(${TARGET_NAME} PRIVATE "<JuceHeader.h>")
+
+        # JUCE のモジュール実装は「他のヘッダより先に置くこと」を前提に書かれて
+        # いて、先頭で二重取り込みを #error で弾く。PCH は各ファイルの頭へ
+        # 差し込まれるのでそのまま当たってしまう。ここだけ外す。
+        set_source_files_properties(${CY_JUCE_MODULE_SOURCES}
+            TARGET_DIRECTORY ${TARGET_NAME}
+            PROPERTIES SKIP_PRECOMPILE_HEADERS ON
+        )
+    endif()
 endfunction()
 
 # 4つのプラグインを一括でビルド対象に追加
