@@ -1,4 +1,5 @@
 ﻿#include "PluginProcessor.h"
+#include "../../Effect/Fx/FxOrder.h"
 #include <limits>
 #include <algorithm>
 #include <cmath>
@@ -536,9 +537,13 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     }
 
     // FXルーティング
+    //
+    // 名前で書く。番号だと、効果の数が違うプラグインとの間で位置がずれ、
+    // 別の効果として読まれてしまう。専用の書き出し (GuiFx) は既に名前で
+    // 書いているのに、状態のほうだけ番号のままだった。
     juce::StringArray sa;
     for (int fxId : prFx.getOrder())
-        sa.add(juce::String(fxId));
+        sa.add(fxTypeName(fxId));
 
     xml->setAttribute(SettingsKey::fxOrder, sa.joinIntoString(" "));
 
@@ -656,30 +661,34 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         }
 
         // FXルーティング
-        juce::String fxOrderStr = xmlState->getStringAttribute(SettingsKey::fxOrder);
-
-        // 2. スペースで分割して StringArray に展開
+        //
+        // 名前で読む。3.1.0 より前は番号で書いていたので、名前として
+        // 読めなければ番号として読み直す。効果の数が違うプラグインで
+        // 書かれたものが来ても、知らない名前は読み飛ばし、足りないものは
+        // 後ろへ足して必ず全部そろえる。
+        //
+        // 以前は生の番号をそのまま流し込んでいたため、例えば 2686VFX で
+        // 9 番目の効果を途中へ動かした状態を他のプラグインで読むと、
+        // その位置だけ更新されず、ある効果が処理から抜け落ちて別の効果が
+        // 二重に掛かっていた。
         juce::StringArray sa;
-        sa.addTokens(fxOrderStr, " ", "");
+        sa.addTokens(xmlState->getStringAttribute(SettingsKey::fxOrder), " ", "");
 
-        // 3. int 配列に復元
+        const int effectSize = prFx.getEffectsNumber();
+
         std::vector<int> loadedFxOrder;
+
         for (const auto& token : sa)
         {
-            loadedFxOrder.push_back(token.getIntValue());
+            int id = fxTypeFromName(token);
+
+            // 数で書かれていたときはここへ来る
+            if (id < 0 && token.containsOnly("0123456789")) id = token.getIntValue();
+
+            loadedFxOrder.push_back(id);
         }
 
-        int loadedSize = loadedFxOrder.size();
-        int effectSize = prFx.getEffectsNumber();
-
-        // プリセットのエフェクト数とプラグイン内のエフェクト数にズレがあるときは、残りを埋める
-        if (loadedSize < effectSize) {
-            for (int i = loadedSize; i < effectSize; i++) {
-                loadedFxOrder.push_back(i);
-            }
-        }
-
-        prFx.updateOrder(loadedFxOrder);
+        prFx.updateOrder(normalizeFxOrder(loadedFxOrder, effectSize));
         prCurve.loadFromXml(xmlState.get());
         m_curveCore.setParameters(prCurve.m_curveParams);
     }

@@ -2,6 +2,7 @@
 #include "../../Processor/Mod/ProcessorModKeys.h"
 #include <algorithm>
 #include "./GuiFx.h"
+#include "../../Effect/Fx/FxOrder.h"
 
 #include <functional>
 
@@ -1450,24 +1451,11 @@ void GuiFx::importFxOrder()
                     // 数で書かれていたときはここへ来る
                     if (id < 0 && name.containsOnly("0123456789")) id = name.getIntValue();
 
-                    // このプラグインに無い効果は読み飛ばす。
-                    // 他のプラグインにしかないものが混ざっていても壊れない。
-                    if (id < 0 || id >= NumEffects) continue;
-
-                    // 同じものが二度出てきたら後のほうは捨てる
-                    if (std::find(newOrders.begin(), newOrders.end(), id) != newOrders.end()) continue;
-
                     newOrders.push_back(id);
                 }
 
-                // 書かれていなかった効果を後ろへ足す。必ず全部そろえる。
-                for (int i = 0; i < NumEffects; i++) {
-                    if (std::find(newOrders.begin(), newOrders.end(), i) == newOrders.end()) {
-                        newOrders.push_back(i);
-                    }
-                }
-
-                ctx.audioProcessor.updateFxOrder(newOrders);
+                // 範囲外・重複・取りこぼしのならしは 1 箇所にまとめてある。
+                ctx.audioProcessor.updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
 
                 updateFxOrder();
             }
