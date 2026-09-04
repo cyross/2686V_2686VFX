@@ -1,4 +1,6 @@
 ﻿#include "PluginProcessor.h"
+#include <algorithm>
+#include <cmath>
 #include <set>
 
 #include "../Processor/ProcessorNames.h"
@@ -553,6 +555,17 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
     EnvironmentReader visit{ *reader };
 
     visitEnvironment(visit);
+
+    // ファイルから来た値は画面の制限を通っていない。音に直に掛かるものと
+    // 表を引くものだけ、ここで妥当な範囲へ丸める。
+    // headroomGain は processBlock で buffer.applyGain に渡るので、
+    // 桁違いの値や NaN が入ると爆音や NaN 汚染になる。
+    if (std::isfinite(headroomGain)) {
+        headroomGain = std::clamp(headroomGain, 0.0f, 1.0f);
+    }
+    else {
+        headroomGain = SettingsValue::Initial::headroomGain;
+    }
 
     // 読んだ番号を書き出し先へ映す
     applyFileFormat();

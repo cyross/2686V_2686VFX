@@ -1,4 +1,5 @@
 ﻿#include <array>
+#include <algorithm>
 #include <vector>
 
 #include "../../Core/Editor/EditorGuiValues.h"
@@ -1054,5 +1055,9 @@ void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)
 }
 
 float GuiSettings::getUiScale(int index) {
-    return uiScaleLUT[index];
+    // 番号は設定ファイルから来ることがあり、表の範囲内とは限らない。
+    // std::array の [] は範囲を見ないので、ここで丸めておく。
+    // 壊れた設定ファイルを一度読むと、以後画面を開くたびに落ちていた。
+    const int last = (int)uiScaleLUT.size() - 1;
+    return uiScaleLUT[(size_t)std::clamp(index, 0, last)];
 }

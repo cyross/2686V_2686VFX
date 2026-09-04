@@ -1,4 +1,7 @@
 ﻿#include "PluginProcessor.h"
+#include <limits>
+#include <algorithm>
+#include <cmath>
 #include <set>
 
 #include "../Processor/ProcessorNames.h"
@@ -13,6 +16,17 @@ namespace
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat settingsFormat{ "settings", 1 };
 	const Io::ParamFormat presetFormat{ "preset", 1 };
+
+	// 読み込んだ音声ファイルが、そのまま扱える大きさかどうか。
+	// createReaderFor は「形式が分かった」ことしか言わない。チャンネル数 0 や、
+	// int に収まらない長さがそのまま来ることがある。AudioBuffer::setSize は
+	// 負の大きさを、getReadPointer(0) は無いチャンネルを、どちらも黙って受け取る。
+	inline bool isLoadableAudio(const juce::AudioFormatReader& reader)
+	{
+		return reader.numChannels > 0
+			&& reader.lengthInSamples > 0
+			&& reader.lengthInSamples <= (juce::int64)std::numeric_limits<int>::max();
+	}
 
 	// 環境設定を書き出す側。項目の型ごとに受け口を分けてある。
 	struct EnvironmentWriter
@@ -251,7 +265,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         m_currentParams.opzx7.algFb.matrix.mode = getOpzx7AlgMode();
 
         // DSP用に定義した AlgMatrixParams へ移し替える
-        AlgMatrixState guiState = getOpzx7AlgMatrix();
+        const AlgMatrixState& guiState = getOpzx7AlgMatrixForAudio();
         for (int i = 0; i < 8; ++i) {
             m_currentParams.opzx7.algFb.matrix.isCarrier[i] = guiState.isCarrier[i];
             for (int j = 0; j < 8; ++j) {
@@ -349,9 +363,11 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
     auto* reader = formatManager.createReaderFor(file);
     if (reader != nullptr)
     {
-        adpcmFilePath = file.getFullPathName();
-
         std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+
+        if (!isLoadableAudio(*audioReader)) return;
+
+        adpcmFilePath = file.getFullPathName();
 
         // Buffer to load the entire file
         juce::AudioBuffer<float> fileBuffer;
@@ -400,6 +416,9 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
         }
 
         std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+
+        if (!isLoadableAudio(*audioReader)) return;
+
         juce::AudioBuffer<float> fileBuffer;
         fileBuffer.setSize(audioReader->numChannels, (int)audioReader->lengthInSamples);
         audioReader->read(&fileBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
@@ -766,6 +785,17 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
     EnvironmentReader visit{ *reader };
 
     visitEnvironment(visit);
+
+    // ファイルから来た値は画面の制限を通っていない。音に直に掛かるものと
+    // 表を引くものだけ、ここで妥当な範囲へ丸める。
+    // headroomGain は processBlock で buffer.applyGain に渡るので、
+    // 桁違いの値や NaN が入ると爆音や NaN 汚染になる。
+    if (std::isfinite(headroomGain)) {
+        headroomGain = std::clamp(headroomGain, 0.0f, 1.0f);
+    }
+    else {
+        headroomGain = SettingsValue::Initial::headroomGain;
+    }
 
     // 読んだ番号を書き出し先へ映す
     applyFileFormat();
@@ -1282,9 +1312,12 @@ void AudioPlugin2686V::loadOpzx7PcmFile(int opIndex, const juce::File& file)
 
     if (auto* reader = formatManager.createReaderFor(file))
     {
-        juce::AudioBuffer<float> tempBuffer(1, (int)reader->lengthInSamples);
-        reader->read(&tempBuffer, 0, (int)reader->lengthInSamples, 0, true, true);
-        delete reader;
+        std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+
+        if (!isLoadableAudio(*audioReader)) return;
+
+        juce::AudioBuffer<float> tempBuffer(1, (int)audioReader->lengthInSamples);
+        audioReader->read(&tempBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
 
         auto* readPtr = tempBuffer.getReadPointer(0);
         opzx7PcmBuffers[opIndex].assign(readPtr, readPtr + tempBuffer.getNumSamples());
@@ -1805,11 +1838,9 @@ int AudioPlugin2686V::getOpzx7AlgMode() const
 
 void AudioPlugin2686V::setOpzx7AlgMatrix(const FmAlgState& state)
 {
-    {
-        // DSPスレッドと競合しないようにロックしてキャッシュを更新
-        juce::ScopedLock lock(m_matrixLock);
-        m_opzx7AlgMatrixState = state;
-    }
+    // 正本を書き換えて、オーディオスレッドへ渡す。ここはメッセージスレッド。
+    m_opzx7AlgMatrixState = state;
+    publishAlgMatrix();
 
     // 状態を 1 と 0 の文字列にシリアライズしてAPVTSに保存
     // 例: キャリア "10000000" / モジュレータ "010000000010..."
@@ -1837,10 +1868,30 @@ void AudioPlugin2686V::setOpzx7AlgMatrix(const FmAlgState& state)
     apvts.state.setProperty("OPZX7_ALG_MATRIX_F", fStr, nullptr);
 }
 
-FmAlgState AudioPlugin2686V::getOpzx7AlgMatrix()
+FmAlgState AudioPlugin2686V::getOpzx7AlgMatrix() const
 {
-    juce::ScopedLock lock(m_matrixLock);
+    // 正本を触るのはメッセージスレッドだけなので、そのまま返せる。
     return m_opzx7AlgMatrixState;
+}
+
+void AudioPlugin2686V::publishAlgMatrix()
+{
+    m_algMatrixSlots[(size_t)m_algMatrixWriteSlot] = m_opzx7AlgMatrixState;
+
+    // 書き終えた枠を差し出し、代わりに前に差し出されていた枠を受け取る。
+    // 受け取った枠が次に書く枠になる。
+    m_algMatrixWriteSlot = m_algMatrixReady.exchange(m_algMatrixWriteSlot, std::memory_order_acq_rel);
+    m_algMatrixDirty.store(true, std::memory_order_release);
+}
+
+const FmAlgState& AudioPlugin2686V::getOpzx7AlgMatrixForAudio()
+{
+    // 新しい枠が出ていたときだけ持ち替える。出ていなければ前の枠をそのまま使う。
+    if (m_algMatrixDirty.exchange(false, std::memory_order_acquire)) {
+        m_algMatrixReadSlot = m_algMatrixReady.exchange(m_algMatrixReadSlot, std::memory_order_acq_rel);
+    }
+
+    return m_algMatrixSlots[(size_t)m_algMatrixReadSlot];
 }
 
 void AudioPlugin2686V::updateAlgMatrixCacheFromState()
@@ -1853,8 +1904,6 @@ void AudioPlugin2686V::updateAlgMatrixCacheFromState()
     juce::String cStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_C", "00000000").toString();
     juce::String mStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_M", "0000000000000000000000000000000000000000000000000000000000000000").toString();
     juce::String fStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_F", "0000000000000000000000000000000000000000000000000000000000000000").toString();
-
-    juce::ScopedLock lock(m_matrixLock);
 
     // メンバ変数の初期化サイズを設定
     m_opzx7AlgMatrixState.numOps = Opzx7PrValue::ops; // OPZX7S用なので一旦8固定
@@ -1871,6 +1920,9 @@ void AudioPlugin2686V::updateAlgMatrixCacheFromState()
             if (index < fStr.length()) m_opzx7AlgMatrixState.fbMod[i][j] = (fStr[index] == '1');
         }
     }
+
+    // 読み込んだ中身をオーディオスレッドへ渡す。
+    publishAlgMatrix();
 }
 
 void AudioPlugin2686V::removeUnknownParams(juce::XmlElement& xml) const

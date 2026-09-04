@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <array>
+#include <atomic>
 #include <map>
 #include <JuceHeader.h>
 
@@ -509,15 +511,39 @@ public:
     int getOpzx7AlgMode() const;
 
     void setOpzx7AlgMatrix(const FmAlgState& state);
-    FmAlgState getOpzx7AlgMatrix();
+
+    // 画面から読むほう。メッセージスレッド専用。
+    FmAlgState getOpzx7AlgMatrix() const;
+
+    // processBlock から読むほう。錠を取らないので待たされない。
+    const FmAlgState& getOpzx7AlgMatrixForAudio();
 
     // プリセットロード時などにAPVTSからキャッシュを復元するための関数
     void updateAlgMatrixCacheFromState();
 private:
+    // 出来上がった中身をオーディオスレッドへ渡す。
+    void publishAlgMatrix();
+
     // オーディオスレッドから安全に読み取るためのキャッシュ
     std::atomic<int> m_opzx7AlgMode{ 0 };
+
+    // 正本。触るのはメッセージスレッドだけ (画面の操作と、状態の読み込み)。
     FmAlgState m_opzx7AlgMatrixState;
-    juce::CriticalSection m_matrixLock; // マトリックス配列読み書き時のスレッドセーフ用
+
+    // オーディオスレッドへの受け渡し。枠を 3 枚回す。
+    //
+    // 以前は juce::CriticalSection を processBlock の中で取っていた。
+    // 画面側が同じ錠を持っている間に OS が画面スレッドを止めると、
+    // オーディオが解放待ちで止まる (優先度の逆転)。数ミリ秒でも音が途切れる。
+    //
+    // 書き手は書き枠へ書いてから ready と入れ替え、読み手は読み枠を
+    // ready と入れ替える。枠は 3 枚あるので、書き手と読み手が同じ枠に
+    // 触ることがない。待ちも確保も無い。
+    std::array<FmAlgState, 3> m_algMatrixSlots;
+    std::atomic<int> m_algMatrixReady{ 0 };       // 出来上がっている枠
+    std::atomic<bool> m_algMatrixDirty{ false };  // 新しい枠があるか
+    int m_algMatrixWriteSlot = 1;                 // 書き手だけが触る
+    int m_algMatrixReadSlot = 2;                  // 読み手だけが触る
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

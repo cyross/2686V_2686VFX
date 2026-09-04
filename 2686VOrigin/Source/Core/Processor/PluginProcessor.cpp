@@ -1,4 +1,7 @@
 ﻿#include "PluginProcessor.h"
+#include <limits>
+#include <algorithm>
+#include <cmath>
 #include <set>
 
 #include "../Processor/ProcessorNames.h"
@@ -13,6 +16,17 @@ namespace
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat settingsFormat{ "settings", 1 };
 	const Io::ParamFormat presetFormat{ "preset", 1 };
+
+	// 読み込んだ音声ファイルが、そのまま扱える大きさかどうか。
+	// createReaderFor は「形式が分かった」ことしか言わない。チャンネル数 0 や、
+	// int に収まらない長さがそのまま来ることがある。AudioBuffer::setSize は
+	// 負の大きさを、getReadPointer(0) は無いチャンネルを、どちらも黙って受け取る。
+	inline bool isLoadableAudio(const juce::AudioFormatReader& reader)
+	{
+		return reader.numChannels > 0
+			&& reader.lengthInSamples > 0
+			&& reader.lengthInSamples <= (juce::int64)std::numeric_limits<int>::max();
+	}
 
 	// 環境設定を書き出す側。項目の型ごとに受け口を分けてある。
 	struct EnvironmentWriter
@@ -300,9 +314,11 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
     auto* reader = formatManager.createReaderFor(file);
     if (reader != nullptr)
     {
-        adpcmFilePath = file.getFullPathName();
-
         std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+
+        if (!isLoadableAudio(*audioReader)) return;
+
+        adpcmFilePath = file.getFullPathName();
 
         // Buffer to load the entire file
         juce::AudioBuffer<float> fileBuffer;
@@ -351,6 +367,9 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
         }
 
         std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+
+        if (!isLoadableAudio(*audioReader)) return;
+
         juce::AudioBuffer<float> fileBuffer;
         fileBuffer.setSize(audioReader->numChannels, (int)audioReader->lengthInSamples);
         audioReader->read(&fileBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
@@ -781,6 +800,17 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
     EnvironmentReader visit{ *reader };
 
     visitEnvironment(visit);
+
+    // ファイルから来た値は画面の制限を通っていない。音に直に掛かるものと
+    // 表を引くものだけ、ここで妥当な範囲へ丸める。
+    // headroomGain は processBlock で buffer.applyGain に渡るので、
+    // 桁違いの値や NaN が入ると爆音や NaN 汚染になる。
+    if (std::isfinite(headroomGain)) {
+        headroomGain = std::clamp(headroomGain, 0.0f, 1.0f);
+    }
+    else {
+        headroomGain = SettingsValue::Initial::headroomGain;
+    }
 
     // 読んだ番号を書き出し先へ映す
     applyFileFormat();
