@@ -16,7 +16,8 @@ void GuiStepValues::paint(juce::Graphics& g)
     const float cellW = area.getWidth() / (float)columns;
     const float cellH = area.getHeight() / (float)rows;
 
-    juce::Font font(juce::FontOptions(juce::jmin(11.0f, cellH * 0.8f)));
+    // 行の高さから決める。上限は、行を詰めたときに潰れない大きさ。
+    juce::Font font(juce::FontOptions(juce::jmin(13.0f, cellH * 0.8f)));
 
     for (int i = 0; i < count; ++i)
     {

@@ -19,11 +19,11 @@
 class GuiStepValues : public juce::Component
 {
 public:
-    // 1 行に並べる数。
-    static inline constexpr int columns = 4;
+    // 1 行に並べる数。詰めすぎると桁が省略されて読めなくなる。
+    static inline constexpr int columns = 3;
 
     // 1 行の高さ。見出しと値を横に並べるので 1 行ぶんで足りる。
-    static inline constexpr int rowHeight = 14;
+    static inline constexpr int rowHeight = 16;
 
     // 段の見出し (R1, L2, STL など)。values と同じ数だけ入れる。
     std::vector<juce::String> labels;
