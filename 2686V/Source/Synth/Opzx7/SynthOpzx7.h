@@ -40,7 +40,7 @@ public:
 
     void prepare(double sampleRate) override;
     void setSampleRate(double sampleRate) override;
-    void setParameters(const SynthParams& params);
+    void setParameters(const SynthParams& params) override;
     void noteOn(float freq, float velocity, int midiNote, bool isLegato = false) override;
     void noteOff() override;
     bool isPlaying() const override;

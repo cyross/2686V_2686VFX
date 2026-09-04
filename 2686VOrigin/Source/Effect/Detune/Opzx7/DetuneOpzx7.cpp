@@ -27,6 +27,18 @@ const std::array<float, 16> Opzx7Detune::dtScales = {
 // 3: x1.78 (950 cent up)
 const std::array<float, 4> Opzx7Detune::dt2Scales = { 1.0f, 1.414f, 1.581f, 1.781f };
 
+// DT3 (セント指定の微調整)
+// -4800 〜 +4800 セントぶんの周波数比を並べたもの。パラメータに依らない定数なので、
+// 実体ごとに作らず static で 1 つだけ持つ。式は元のまま (float へ落とす順番も含めて)
+// 変えていないので、出来る値はビット単位で以前と同じ。
+const std::array<float, 9601> Opzx7Detune::dt3Scales = [] {
+    std::array<float, 9601> table{};
+    for (int i = 0; i < 9601; i++) {
+        table[i] = std::pow(2.0, (float)(i - 4800) / 1200.0);
+    }
+    return table;
+}();
+
 Opzx7Detune::Opzx7Detune()
 {
 	mulScales = {
@@ -53,10 +65,6 @@ Opzx7Detune::Opzx7Detune()
 		15.0f,  // 20: x 15.0
 		0.0f    // 21: x mulRatio
 	};
-
-	for (int i = 0; i < 10000; i++) {
-		dt3Scales[i] = std::pow(2.0, (float)(i - 4800) / 1200.0);
-	}
 
 	detune = 0;
 	realDetune = dtScales[detune];

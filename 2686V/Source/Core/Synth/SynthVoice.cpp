@@ -36,19 +36,19 @@ void SynthVoice::prepare(double sampleRate) {
 void SynthVoice::setParameters(const SynthParams& params)
 {
     m_mode = params.mode;
-    m_opnaCore.setParameters(params);
-    m_opnCore.setParameters(params);
-    m_oplCore.setParameters(params);
-    m_opl3Core.setParameters(params);
-    m_opmCore.setParameters(params);
-    m_opzx7Core.setParameters(params);
-    m_ssgCore.setParameters(params);
-    m_wtCore.setParameters(params);
-    m_wt2Core.setParameters(params);
-    m_rhythmCore.setParameters(params);
-    m_adpcmCore.setParameters(params);
-    m_beepCore.setParameters(params);
-    m_wtPlusCore.setParameters(params);
+
+    // 鳴らすのは m_mode のコアだけ。renderNextBlock も startNote も
+    // coreMap[m_mode] しか見ないので、残りへ配っても捨てられる。
+    // params は WtMod の波形表だけで 25KB あり、これを毎ブロック・全ボイス分、
+    // コアの数だけ配っていた。
+    //
+    // 音は変わらない。この関数はブロックごとに renderNextBlock より先に呼ばれるので、
+    // 音源を切り替えた直後でも、新しいコアは鳴る前に必ず最新の値を受け取る。
+    // 各コアの setParameters は代入と派生値の作り直しだけで、値を溜め込まない
+    // (refreshPcmBuffer や updatePhaseDelta も、そのとき持っている値から作り直すだけ)。
+    if (auto it = coreMap.find(m_mode); it != coreMap.end()) {
+        it->second->setParameters(params);
+    }
 }
 
 void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*, int)

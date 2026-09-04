@@ -127,7 +127,7 @@ public:
 
     void prepare(double sampleRate);
     void setSampleRate(double sampleRate) override;
-    void setParameters(const SynthParams& params);
+    void setParameters(const SynthParams& params) override;
     void setSampleData(int padIndex, const std::vector<float>& data, double rate);
     void noteOn(float freq, float velocity, int midiNote, bool isLegato = false) override;
     void noteOff() override;

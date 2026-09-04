@@ -179,6 +179,8 @@ private:
     int currentType = 0;
     float currentFreq = 20000.0f;
     float currentQ = 0.707f;
+    // 上の 3 つで係数を作った後かどうか。prepare で寝かせて作り直させる。
+    bool coefsReady = false;
 };
 
 // ======================================================
@@ -204,6 +206,13 @@ private:
     IIRFilter lowShelfL, lowShelfR;
     IIRFilter midBellL, midBellR;
     IIRFilter highShelfL, highShelfR;
+
+    // 係数を作ったときの値。同じ値で呼ばれたら作り直さない。
+    bool coefsReady = false;
+    float lastLowGainDb = 0.0f;
+    float lastMidFreq = 0.0f;
+    float lastMidGainDb = 0.0f;
+    float lastHighGainDb = 0.0f;
 };
 
 // ======================================================
