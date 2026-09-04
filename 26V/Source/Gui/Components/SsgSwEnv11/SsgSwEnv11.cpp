@@ -70,6 +70,9 @@ void GuiComponentSsgSwEnv11::rebindLevel()
 
 void GuiComponentSsgSwEnv11::refreshStepValues()
 {
+    // setup の途中で呼ばれることがある。束縛先が決まる前は出すものがない。
+    if (paramCode.isEmpty()) return;
+
     const int usedSteps = (int)steps.getValue();
 
     rateValues.labels.clear();
@@ -129,6 +132,10 @@ void GuiComponentSsgSwEnv11::applyLoopValues(bool enabled)
             loopTo.setValue(stepsValue - 2);
         }
     }
+
+    // STEP が変わると、帯の「使っていない段」の境目も変わる。
+    // LOOP の調整でここから STEP を動かすこともあるので、まとめてここで直す。
+    refreshStepValues();
 }
 
 void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder, const juce::String& flagKey, const juce::String& flagText, bool isEnable)
