@@ -59,7 +59,7 @@ namespace PresetValue
 
 		namespace Name
 		{
-			static inline const juce::String initial = "init_preset_light.xml";
+			static inline const juce::String initial = "init_preset_26v.xml";
 
 			// お気に入りと履歴の置き場。プラグインごとに分ける。
 			// プリセットの置き場も拡張子もプラグインで違うため。

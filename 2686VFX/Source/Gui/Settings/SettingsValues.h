@@ -23,7 +23,7 @@ namespace SettingsValue
 			// 起動時に読むファイルは AudioPlugin2686V::getStartupSettingsFile
 			// が、あるほうを選ぶ。
 			static inline const juce::String initial = "init.settings";
-			static inline const juce::String def = "2686VOrigin.settings";
+			static inline const juce::String def = "2686VFX.settings";
 		}
 	}
 };
