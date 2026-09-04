@@ -67,6 +67,21 @@ public:
     }
 };
 
+// タブが切り替わったことを外へ知らせるだけの薄い被せもの。
+// juce::TabbedComponent は切り替えを知らせる口を持たないので、ここで足す。
+class GuiTabs : public juce::TabbedComponent
+{
+public:
+    using juce::TabbedComponent::TabbedComponent;
+
+    std::function<void(int)> onTabChanged;
+
+    void currentTabChanged(int newIndex, const juce::String&) override
+    {
+        if (onTabChanged) onTabChanged(newIndex);
+    }
+};
+
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
     public juce::ChangeListener,
@@ -217,7 +232,7 @@ private:
     bool lastPlayingState = false; // 再生状態が変わったか判定するためのキャッシュ
 
     CustomTabLookAndFeel customTabLF;
-    juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
+    GuiTabs tabs{ juce::TabbedButtonBar::TabsAtTop };
 
     SystemButtonLF panicButtonLF;
     juce::TextButton panicButton;
@@ -298,6 +313,12 @@ private:
 
     // 中身を入れる器。中身が出来るまでは空のまま置いておく。
     std::array<GuiTabHost, tabCount> tabHosts;
+
+    // 配置し直しが要るタブの印。裏に隠れている間は溜めておく。
+    std::array<bool, tabCount> tabNeedsLayout{};
+
+    // 指定のタブ 1 枚だけ配置する。
+    void layoutTab(int tabIndex);
 
     // 直近の resized() で決めたタブの中身の矩形。
     // 後から作ったタブは resized() を待たずにここへ合わせる。

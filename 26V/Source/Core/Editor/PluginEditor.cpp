@@ -80,6 +80,13 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     setupTabs(tabs);
 
+    // 裏で溜めておいた配置を、そのタブが前へ出たときに 1 回だけ流す。
+    tabs.onTabChanged = [this](int newIndex) {
+        if (newIndex >= 0 && newIndex < tabCount && tabNeedsLayout[(size_t)newIndex]) {
+            layoutTab(newIndex);
+        }
+    };
+
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
     tabs.setCurrentTabIndex(currentMode);
 
@@ -706,13 +713,14 @@ void AudioPlugin2686VEditor::resized()
     // 後から作るタブが、resized() を待たずに位置を決められるようにする。
     lastTabContent = tabContent;
 
-    if (auto* gui = opnGui.peek()) gui->layout(tabContent);
-    if (auto* gui = ssgGui.peek()) gui->layout(tabContent);
+    // 配置は中でエンベロープのグラフまで作り直す。区分を 1 つ開け閉めしただけで
+    // 裏に隠れているタブぶんまで走ると、そのぶん待たされる。表に出ているものだけ
+    // 今やって、残りは印を立てておき、そのタブが前へ出たときに 1 回だけ流す。
+    const int currentTab = tabs.getCurrentTabIndex();
 
-    presetGui->layout(tabContent);
-    settingsGui->layout(tabContent);
-    colorsGui->layout(tabContent);
-    aboutGui->layout(tabContent);
+    for (int i = 0; i < tabCount; ++i) tabNeedsLayout[(size_t)i] = true;
+
+    layoutTab(currentTab);
 
     content.removeFromTop(tabs.getTabBarDepth());
     fxGui->setBounds(content);
@@ -1498,6 +1506,25 @@ void AudioPlugin2686VEditor::setupLazyTabs()
 void AudioPlugin2686VEditor::materializeAllTabs()
 {
     for (int i = 0; i < tabCount; ++i) materializeTab(i);
+}
+
+// 指定のタブ 1 枚だけ配置する。まだ作られていないタブは何もしない。
+void AudioPlugin2686VEditor::layoutTab(int tabIndex)
+{
+    if (lastTabContent.isEmpty()) return;
+
+    switch (tabIndex)
+    {
+    case tabOpn: if (auto* gui = opnGui.peek()) gui->layout(lastTabContent); break;
+    case tabSsg: if (auto* gui = ssgGui.peek()) gui->layout(lastTabContent); break;
+    case tabPreset: presetGui->layout(lastTabContent); break;
+    case tabSettings: settingsGui->layout(lastTabContent); break;
+    case tabColors: colorsGui->layout(lastTabContent); break;
+    case tabAbout: aboutGui->layout(lastTabContent); break;
+    default: break;
+    }
+
+    if (tabIndex >= 0 && tabIndex < tabCount) tabNeedsLayout[(size_t)tabIndex] = false;
 }
 
 void AudioPlugin2686VEditor::materializeTab(int tabIndex)
