@@ -32,7 +32,7 @@ Everything is kept in the shared folder under your Documents folder:
 
 | Folder | Contents |
 | --- | --- |
-| `Presets` | Presets |
+| (preset folder) | Presets (see the table below) |
 | `Samples` | Audio samples you have loaded |
 | `Wavetables` | Wave tables (.wt / .wt2) |
 | `FxOrders` | Effect ordering |
@@ -51,6 +51,20 @@ Everything is kept in the shared folder under your Documents folder:
 | `ToneNoiseParams` | Tone and noise settings |
 | `CustomizeColorSettings` | Colour schemes |
 | `Resources` | Wallpapers and other assets |
+
+The preset folder is the one place each plugin keeps to itself. The extensions
+differ too, so one folder can hold them all without a mix-up, but on first
+launch each plugin creates its own:
+
+| Plugin | Preset folder |
+| --- | --- |
+| 2686V | `Presets` |
+| 2686VLight | `2686VLPresets` |
+| 26V | `26VPresets` |
+| 86V | `2686VOPresets` |
+| OPZX7S | `OPZX7Presets` |
+
+2686VFX has no presets, so it never uses one.
 
 Two files sit directly in that folder:
 

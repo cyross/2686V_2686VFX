@@ -159,6 +159,8 @@ never causes a mix-up.
   doesn't exist there, so it is skipped
 
 :::tip
-2686VFX has no PRESET tab. To keep a set of settings, use your DAW's own plugin
-preset feature.
+2686VFX has no PRESET tab. **Import and export take its place:** write the
+effect order, the effect parameters and each modulation section out to files
+and you can put the same setup back later. Your DAW's own plugin preset feature
+works too.
 :::
