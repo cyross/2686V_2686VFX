@@ -256,6 +256,26 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         }
     }
 
+    // ADPCM の素材。新しく符号化されたものが出ていれば持ち替える。
+    m_adpcmPcm.acquireForAudio();
+    m_currentParams.adpcm.source = &m_adpcmPcm.forAudio();
+
+    if (m_currentParams.mode == OscMode::ADPCM)
+    {
+        const int q = m_currentParams.adpcm.quality.mode;
+        const int r = m_currentParams.adpcm.quality.rate;
+
+        // 符号化は素材まるごとを舐める上に中で確保する。ここでやると音が途切れる
+        // ので、指定だけ置いてメッセージスレッドへ頼む。出来上がるまでは
+        // 前の符号化で鳴らし続ける (数ミリ秒遅れて切り替わる)。
+        if (m_adpcmPcm.needsRebuild(q, r)) {
+            m_adpcmWantQuality.store(q, std::memory_order_relaxed);
+            m_adpcmWantRate.store(r, std::memory_order_relaxed);
+
+            triggerAsyncUpdate();
+        }
+    }
+
     bool isMono = PrHelper::getBool(pMonoMode);
 
     m_synth.isMonoMode = isMono;
@@ -368,16 +388,12 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
             // Add mixing logic here if stereo support is needed
         }
 
-        // --- Set data to AdpcmCore for all voices ---
-        // Important: Distribute data to all Voices
-        for (int i = 0; i < m_synth.getNumVoices(); ++i)
-        {
-            if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
-            {
-                // Set while letting AdpcmCore handle "Resampling & 4bit degradation"
-                voice->getAdpcmCore()->setSampleData(sourceData, audioReader->sampleRate);
-            }
-        }
+        // 素材はここで 1 つだけ持ち、ボイスへは指させるだけにする。
+        // 以前は全ボイスへ丸ごと複製し、その場で符号化までしていた。
+        m_adpcmPcm.setSource(sourceData, audioReader->sampleRate);
+        m_adpcmPcm.rebuildIfNeeded(m_adpcmWantQuality.load(std::memory_order_relaxed),
+                                   m_adpcmWantRate.load(std::memory_order_relaxed),
+                                   16000.0);
 
         // 画面表示用の控え
         adpcmPreviewBuffer = std::move(sourceData);
@@ -788,6 +804,14 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
     return true;
 }
 
+// オーディオスレッドから頼まれた符号化を、ここ (メッセージスレッド) で行う。
+void AudioPlugin2686V::handleAsyncUpdate()
+{
+    m_adpcmPcm.rebuildIfNeeded(m_adpcmWantQuality.load(std::memory_order_relaxed),
+                               m_adpcmWantRate.load(std::memory_order_relaxed),
+                               16000.0);
+}
+
 void AudioPlugin2686V::loadStartupSettings()
 {
     // 1. 読み込むディレクトリとファイル名を指定
@@ -1033,18 +1057,7 @@ void AudioPlugin2686V::unloadAdpcmFile()
     // 画面表示用の控えも捨てる
     adpcmPreviewBuffer.clear();
 
-    // 空のデータを作成
-    std::vector<float> emptyData(1, 0.0f);
-
-    // 全ボイスの ADPCM Core に空データをセット（＝クリア）
-    for (int i = 0; i < m_synth.getNumVoices(); ++i)
-    {
-        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
-        {
-            // レートはなんでも良いので適当な値(44100)を渡す
-            voice->getAdpcmCore()->clearBuffer();
-        }
-    }
+    m_adpcmPcm.clear();
 }
 
 void AudioPlugin2686V::unloadRhythmFile(int padIndex)

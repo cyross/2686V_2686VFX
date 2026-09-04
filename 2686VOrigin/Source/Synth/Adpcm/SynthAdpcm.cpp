@@ -97,52 +97,34 @@ void AdpcmCore::setParameters(const SynthParams& params)
 
     m_rootNote = params.adpcm.rootNote;
 
-    bool needRefresh = false;
-
-    if (m_qualityMode != params.adpcm.quality.mode) {
-        m_qualityMode = params.adpcm.quality.mode;
-
-        needRefresh = true; // ADPCM <-> DPCM <-> PCMの切り替えで再生成が必要
-    }
+    m_qualityMode = params.adpcm.quality.mode;
 
     if (m_rateIndex != params.adpcm.quality.rate) {
         m_rateIndex = params.adpcm.quality.rate;
         m_targetRate = getTargetRate(m_rateIndex);
-
-        needRefresh = true;
     }
 
     m_interpolationMode = params.adpcm.quality.interp;
 
-    if (needRefresh) {
-        refreshPcmBuffer();
+    // 符号化はプロセッサがメッセージスレッドで行い、出来たものを差してくる。
+    // ここでは受け取った標本化周波数にエンベロープを合わせるだけ。
+    m_pcm = params.adpcm.source;
+
+    const double rate = (m_pcm != nullptr) ? m_pcm->encodedRate : 16000.0;
+
+    if (rate != m_preparedRate) {
+        m_preparedRate = rate;
+
+        m_adsr.prepare(rate);
+        m_pitchAdsr.prepare(0, rate);
+        m_ssgSwEnv.prepare(0, rate);
+        m_ssgSwEnv11.prepare(0, rate);
+        m_ssgSwPenv11.prepare(0, rate);
+        m_noiseGen.prepare(rate);
     }
 }
 
 // Set sample data from external source
-void AdpcmCore::setSampleData(const std::vector<float>& sourceData, double sourceRate)
-{
-    // 1. Rawデータ (32bit float) をそのまま保持
-    m_rawBuffer = sourceData;
-    m_sourceRate = sourceRate;
-
-    // 2. ADPCMデータ (4bit emulation) も事前に作っておく
-    // OPNAのレート(約16kHz)にリサンプリングして変換
-    double targetRate = 16000.0;
-
-    m_bufferSampleRate = targetRate;
-
-    m_adsr.prepare(m_bufferSampleRate);
-    m_pitchAdsr.prepare(0, m_bufferSampleRate);
-    m_ssgSwEnv.prepare(0, m_bufferSampleRate);
-    m_ssgSwEnv11.prepare(0, m_bufferSampleRate);
-    m_ssgSwPenv11.prepare(0, m_bufferSampleRate);
-
-    double step = sourceRate / targetRate;
-
-    // 圧縮の種類ごとの処理は GenPcmHelper に集約している
-    GenPcmHelper::encodeBuffer(m_rawBuffer, step, m_qualityMode, m_pcmBuffer);
-}
 
 void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
@@ -158,9 +140,13 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     // =====================================================================
     float rootFreq = (float)juce::MidiMessage::getMidiNoteInHertz(m_rootNote);
 
+    // 素材がまだ差さっていなければ何もしない。読み込み前や、
+    // 音源が ADPCM でないときはプロセッサが渡してこない。
+    if (m_pcm == nullptr) return;
+
     // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
     bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
-    double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
+    double currentBufferRate = isEncodedMode ? m_pcm->encodedRate : m_pcm->sourceRate;
     float finalFreq = m_unison.applyDetune(freq);
 
     // ホストDAWのレートとの比率を加味した再生速度レシオの更新
@@ -287,6 +273,9 @@ void AdpcmCore::setPitchBendRatio(float ratio)
 
 float AdpcmCore::getSample()
 {
+    // 素材がまだ差さっていなければ鳴らすものがない。
+    if (m_pcm == nullptr) return 0.0f;
+
     // すべてのアンプエンベロープがバイパスされているかどうかを判定
     bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
 
@@ -350,12 +339,12 @@ float AdpcmCore::getSample()
     double currentBufferRate = m_sampleRate;
 
     // ノイズを出すために、バッファが空でも最後まで通す
-    if (isEncodedMode && !m_pcmBuffer.empty()) {
+    if (isEncodedMode && !m_pcm->encoded.empty()) {
         if (m_hasFinished) return 0.0f;
 
-        size_t totalSize = m_pcmBuffer.size();
+        size_t totalSize = m_pcm->encoded.size();
 
-        currentBufferRate = m_bufferSampleRate;
+        currentBufferRate = m_pcm->encodedRate;
 
         // 終端位置の計算
         double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
@@ -442,10 +431,10 @@ float AdpcmCore::getSample()
         float s_m1, s_0, s_1, s_2;
 
         // エンコードバッファ (int16_t) から読み込み、正規化
-        s_m1 = m_pcmBuffer[idx_m1] / 32768.0f;
-        s_0 = m_pcmBuffer[idx_0] / 32768.0f;
-        s_1 = m_pcmBuffer[idx_1] / 32768.0f;
-        s_2 = m_pcmBuffer[idx_2] / 32768.0f;
+        s_m1 = m_pcm->encoded[idx_m1] / 32768.0f;
+        s_0 = m_pcm->encoded[idx_0] / 32768.0f;
+        s_1 = m_pcm->encoded[idx_1] / 32768.0f;
+        s_2 = m_pcm->encoded[idx_2] / 32768.0f;
 
         // =========================================================
         // 補間処理 (Interpolation)
@@ -498,12 +487,12 @@ float AdpcmCore::getSample()
         }
         }
     }
-    else if (!isEncodedMode && !m_rawBuffer.empty()) {
+    else if (!isEncodedMode && !m_pcm->raw.empty()) {
         if (m_hasFinished) return 0.0f;
 
-        size_t totalSize = m_rawBuffer.size();
+        size_t totalSize = m_pcm->raw.size();
 
-        currentBufferRate = m_sourceRate;
+        currentBufferRate = m_pcm->sourceRate;
 
         // 終端位置の計算
         double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
@@ -590,10 +579,10 @@ float AdpcmCore::getSample()
         float s_m1, s_0, s_1, s_2;
 
         // Rawバッファから読み込み
-        s_m1 = m_rawBuffer[idx_m1];
-        s_0 = m_rawBuffer[idx_0];
-        s_1 = m_rawBuffer[idx_1];
-        s_2 = m_rawBuffer[idx_2];
+        s_m1 = m_pcm->raw[idx_m1];
+        s_0 = m_pcm->raw[idx_0];
+        s_1 = m_pcm->raw[idx_1];
+        s_2 = m_pcm->raw[idx_2];
 
         // =========================================================
         // 補間処理 (Interpolation)
@@ -707,31 +696,6 @@ float AdpcmCore::getSample()
     return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier * sshHwEnvVal;
 }
 
-void AdpcmCore::refreshPcmBuffer()
-{
-    if (m_rawBuffer.empty()) return;
-
-    double targetRate = getTargetRate(m_rateIndex, 16000.0f);
-
-    // Do not upsample beyond source rate for the ADPCM buffer gen
-    if (targetRate > m_sourceRate) targetRate = m_sourceRate;
-
-    m_bufferSampleRate = targetRate;
-
-    m_adsr.prepare(m_bufferSampleRate);
-    m_pitchAdsr.prepare(0, m_bufferSampleRate);
-    m_ssgSwEnv.prepare(0, m_bufferSampleRate);
-    m_ssgSwEnv11.prepare(0, m_bufferSampleRate);
-    m_ssgSwPenv11.prepare(0, m_bufferSampleRate);
-    m_noiseGen.prepare(m_bufferSampleRate);
-
-    // Resample & Encode
-    double step = m_sourceRate / targetRate;
-    if (step <= 0.0) step = 1.0;
-
-    // 圧縮の種類ごとの処理は GenPcmHelper に集約している
-    GenPcmHelper::encodeBuffer(m_rawBuffer, step, m_qualityMode, m_pcmBuffer);
-}
 
 void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
 {
@@ -751,7 +715,3 @@ void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int s
     isActive = isPlaying();
 }
 
-void AdpcmCore::clearBuffer() {
-    m_pcmBuffer.clear();
-    m_rawBuffer.clear();
-}

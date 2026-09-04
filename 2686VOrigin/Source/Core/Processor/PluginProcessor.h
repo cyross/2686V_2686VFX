@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../../Generator/Pcm/Helper/GenPcmShared.h"
 #include <map>
 #include <JuceHeader.h>
 
@@ -266,7 +267,8 @@ public:
     }
 };
 
-class AudioPlugin2686V : public juce::AudioProcessor
+class AudioPlugin2686V : public juce::AudioProcessor,
+    public juce::AsyncUpdater
 {
 private:
     OpnaProcessor prOpna;
@@ -276,6 +278,14 @@ private:
     FxProcessor prFx;
 
     SynthParams m_currentParams;
+
+    // ADPCM の素材と符号化したもの。ボイスごとに複製せず、ここで 1 つだけ持つ。
+    // 符号化はメッセージスレッドで行い、オーディオスレッドは出来たものを指すだけ。
+    PcmSharedStore m_adpcmPcm;
+
+    // オーディオスレッドが「この指定で作り直してほしい」と置いていく場所。
+    std::atomic<int> m_adpcmWantQuality{ -1 };
+    std::atomic<int> m_adpcmWantRate{ -1 };
 
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
@@ -297,6 +307,9 @@ private:
     RetroSynthesiser m_synth;
 
     void loadStartupSettings(); // 設定の自動読み込み用関数
+
+    // オーディオスレッドから頼まれた符号化をここで行う (メッセージスレッド)
+    void handleAsyncUpdate() override;
     void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
     void getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState);
 public:

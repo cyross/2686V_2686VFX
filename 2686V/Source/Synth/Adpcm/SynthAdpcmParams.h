@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../../Generator/Pcm/Helper/GenPcmShared.h"
 
 #include <array>
 
@@ -33,6 +34,11 @@ struct AdpcmParams
     PcmParams pcm;
     LoopPointParams lp;
     QualityPcmParams quality;
+
+    // 符号化した素材。プロセッサが 1 つだけ持っていて、ここは指すだけ。
+    // 中身を作るのはメッセージスレッドで、オーディオスレッドは読むだけ。
+    const PcmSharedData* source = nullptr;
+
     UnisonParams unison;
     SsgHwEnvParams ssgHwEnv;
     SsgHwPEnvParams ssgHwPEnv;
