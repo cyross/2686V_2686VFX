@@ -402,6 +402,7 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     xml->setAttribute(PresetKey::genre, sanitizeString(presetGenre, PresetValue::MetaData::Length::genre));
     xml->setAttribute(PresetKey::mode, getModeName(lastActiveSynthMode));
     xml->setAttribute(PresetKey::puginVersion, Global::Plugin::version);
+    xml->setAttribute(PresetKey::plugin, JucePlugin_Name);
 
 
     // チャンネルごとの MODULATION 変調波形パス
@@ -605,6 +606,31 @@ void AudioPlugin2686V::savePreset(const juce::File& file)
     writer.writeTo(file);
 }
 
+// 別のプラグインで書かれたプリセットかどうか。
+//
+// 6 製品はプリセットの印が同じなので、これまで拒めなかった。読ませると
+// 名前の一致するパラメータだけが上書きされ、こちらにしかないものは
+// 初期化されずに前の値が残るため、中途半端な状態になる。しかもその旨は
+// どこにも出ない。
+//
+// 3.1.0 より前のファイルは印を持たないので、そのときは今までどおり読ませる。
+bool AudioPlugin2686V::isPresetForThisPlugin(const juce::XmlElement* xmlState, const juce::File& file)
+{
+    if (xmlState == nullptr) return true;
+
+    const juce::String owner = xmlState->getStringAttribute(PresetKey::plugin);
+
+    if (owner.isEmpty() || owner == JucePlugin_Name) return true;
+
+    juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+        juce::String("") + "別のプラグインのプリセット",
+        juce::String("") + "このファイルは " + owner + " のプリセットです。\n"
+        + JucePlugin_Name + " では読み込めません。\n\n"
+        + file.getFileName());
+
+    return false;
+}
+
 void AudioPlugin2686V::loadPreset(const juce::File& file)
 {
     // 3.0.0 より前のプリセットは XML。作り溜めたものが読めなくなると困るので、
@@ -613,6 +639,8 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
     {
         auto xmlState = Io::readStateXml(*reader, apvts.state.getType().toString());
 
+        if (!isPresetForThisPlugin(xmlState.get(), file)) return;
+
         getPresetFromXml(xmlState);
 
         return;
@@ -620,6 +648,8 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 
     juce::XmlDocument xmlDoc(file);
     std::unique_ptr<juce::XmlElement> xmlState = xmlDoc.getDocumentElement();
+
+    if (!isPresetForThisPlugin(xmlState.get(), file)) return;
 
     getPresetFromXml(xmlState);
 }

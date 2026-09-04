@@ -588,6 +588,9 @@ public:
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);
+
+    // 別のプラグインで書かれたプリセットなら、断って false を返す。
+    bool isPresetForThisPlugin(const juce::XmlElement* xmlState, const juce::File& file);
     void initPreset();
 
     void initParams(const juce::String& code);

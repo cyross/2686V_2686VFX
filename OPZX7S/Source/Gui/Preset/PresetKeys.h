@@ -91,6 +91,11 @@ namespace PresetKey
 	static inline const juce::String genre = "presetGenre";
 	static inline const juce::String mode = "activeModeName";
 	static inline const juce::String puginVersion = "pluginVersion";
+
+	// どのプラグインで書かれたものか。6 製品はプリセットの印 ("preset") が
+	// 同じで、拡張子を変えるだけでは読み違えを止められなかった。
+	// 3.1.0 より前のファイルはこれを持たないので、そのときは読ませる。
+	static inline const juce::String plugin = "pluginName";
 	static inline const juce::String opzx7PathPrefix = "opzx7PcmPath";
 	static inline const juce::String opzx7WtPathPrefix = "opzx7WtPath";
 	static inline const juce::String opzx7Wt2PathPrefix = "opzx7Wt2Path";
