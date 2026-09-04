@@ -453,7 +453,7 @@ float SsgSwPEnv11::process(float phaseDelta) {
                 this->state = State::Idle;
             }
             else {
-                float y = m_curveCore->process(
+                float y = m_curveCore->processAudio(
                     this->targetIndex,
                     (int)CurveParams::Target::SsgSwPEnv11,
                     (int)CurveParams::TargetSsgSwPEnv11::R11,
@@ -481,7 +481,7 @@ float SsgSwPEnv11::process(float phaseDelta) {
                 this->m_phaseProgress = 1.0f;
             }
 
-            float y = m_curveCore->process(
+            float y = m_curveCore->processAudio(
                 this->targetIndex,
                 (int)CurveParams::Target::SsgSwPEnv11,
                 doLoop ? (int)CurveParams::TargetSsgSwPEnv11::LoopTo : (s - 1),

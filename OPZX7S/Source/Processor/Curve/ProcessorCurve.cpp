@@ -14,11 +14,6 @@ void CurveProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     // APVTSからのポインタ取得を廃止！
 }
 
-void CurveProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) {
-    // 独自に管理しているパラメータ構造体をオーディオスレッドにコピーするだけ
-    params.curve = m_curveParams;
-    params.curve.enable = true;
-}
 
 void CurveProcessor::resetProcessBlock() {
     // 何もしない

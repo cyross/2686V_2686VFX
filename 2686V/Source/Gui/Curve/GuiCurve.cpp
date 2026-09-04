@@ -239,6 +239,7 @@ void GuiCurve::setup()
         if (isUpdatingUI) return;
 
 		ctx.audioProcessor.prCurve.setEnable(enable.getToggleState());
+		ctx.audioProcessor.getCurveCore()->setParameters(ctx.audioProcessor.prCurve.m_curveParams);
 
         updateEnabled();
 
@@ -654,6 +655,7 @@ void GuiCurve::layout(juce::Rectangle<int> content)
 void GuiCurve::initParams()
 {
     ctx.audioProcessor.prCurve.resetToDefault();
+    ctx.audioProcessor.getCurveCore()->setParameters(ctx.audioProcessor.prCurve.m_curveParams);
     updateVisible();
 }
 

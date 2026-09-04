@@ -79,7 +79,7 @@ void FmRgAdssr::setParameters(const FmRgAdssrParams& params) {
         auto calcLevel = [this](int prmIdx, int value, float maxValue) -> float {
             float normRate = (float)value / maxValue;
 
-            return m_curveCore->process(positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
+            return m_curveCore->processAudio(positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
 
             };
 
@@ -225,7 +225,7 @@ void FmRgAdssr::updateIncrementsWithKeyScale(int noteNumber)
 
             float timeInSeconds = isAttack ? attcckTimeInSecondsLut[effectiveRate] : timeInSecondsLut[effectiveRate];
             float normRate = (float)effectiveRate / 63.0f;
-            float curveFactor = m_curveCore->process(positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
+            float curveFactor = m_curveCore->processAudio(positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
 
             // カーブの影響を反映 (0.5倍〜2.0倍の範囲など、調整可能)
             float modulatedTime = timeInSeconds * (2.0f - (curveFactor * 2.0f));
@@ -352,7 +352,7 @@ float FmRgAdssr::updateEnvelopeState(float currentLevel)
             // 後ろで進めると出力が 1 サンプルぶん遅れて線形パスとずれる。
             this->m_phaseProgress += this->attackInc;
 
-            y = this->m_curveCore->process(
+            y = this->m_curveCore->processAudio(
                 this->positionIndex,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Ar,
@@ -396,7 +396,7 @@ float FmRgAdssr::updateEnvelopeState(float currentLevel)
             }
 
             // 2. カーブ取得
-            y = this->m_curveCore->process(
+            y = this->m_curveCore->processAudio(
                 this->positionIndex,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Dr,
@@ -431,7 +431,7 @@ float FmRgAdssr::updateEnvelopeState(float currentLevel)
             }
 
             // 2. カーブ取得
-            y = this->m_curveCore->process(
+            y = this->m_curveCore->processAudio(
                 this->positionIndex,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Sr,
@@ -466,7 +466,7 @@ float FmRgAdssr::updateEnvelopeState(float currentLevel)
             }
 
             // 2. カーブ取得
-            y = this->m_curveCore->process(
+            y = this->m_curveCore->processAudio(
                 this->positionIndex,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Rr,

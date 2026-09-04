@@ -43,5 +43,4 @@ struct SynthParams
     RhythmParams rhythm;
     AdpcmParams adpcm;
     BeepParams beep;
-	CurveParams curve; 
 };

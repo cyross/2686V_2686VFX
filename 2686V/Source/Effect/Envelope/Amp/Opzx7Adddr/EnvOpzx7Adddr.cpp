@@ -104,7 +104,7 @@ void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
             auto calcLevel = [this](int prmIdx, int value, float maxValue) -> float {
                 float normRate = (float)value / maxValue;
 
-                return m_curveCore->process(m_positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
+                return m_curveCore->processAudio(m_positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
 
                 };
 
@@ -359,7 +359,7 @@ void Opzx7Adddr::updateIncrements(int noteNumber)
 
                 float timeInSeconds = isAttack ? attcckTimeInSecondsLut[effectiveRate] : timeInSecondsLut[effectiveRate];
                 float normRate = (float)effectiveRate / 63.0f;
-                float curveFactor = m_curveCore->process(m_positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
+                float curveFactor = m_curveCore->processAudio(m_positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
 
                 // カーブの影響を反映 (0.5倍〜2.0倍の範囲など、調整可能)
                 float modulatedTime = timeInSeconds * (2.0f - (curveFactor * 2.0f));
@@ -530,7 +530,7 @@ float Opzx7Adddr::updateEnvelopeState(float currentLevel)
             this->m_phaseProgress += this->m_attackInc;
 
             // 2. その進行度でカーブを計算する
-            y = this->m_curveCore->process(
+            y = this->m_curveCore->processAudio(
                 this->m_positionIndex,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Ar,
@@ -575,7 +575,7 @@ float Opzx7Adddr::updateEnvelopeState(float currentLevel)
             }
 
             // 2. カーブ取得
-            y = this->m_curveCore->process(
+            y = this->m_curveCore->processAudio(
                 this->m_positionIndex,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Dr,
@@ -609,7 +609,7 @@ float Opzx7Adddr::updateEnvelopeState(float currentLevel)
             }
 
             // 2. カーブ取得
-            y = this->m_curveCore->process(
+            y = this->m_curveCore->processAudio(
                 this->m_positionIndex,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Sr,
@@ -644,7 +644,7 @@ float Opzx7Adddr::updateEnvelopeState(float currentLevel)
             }
 
             // 2. カーブ取得
-            y = this->m_curveCore->process(
+            y = this->m_curveCore->processAudio(
                 this->m_positionIndex,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Rr,

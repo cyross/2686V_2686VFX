@@ -80,76 +80,76 @@ CurveCore::CurveCore() {
 	// -------------------------------------------------------------
 	// 2. ロジックごとの関数マッピング
 	// -------------------------------------------------------------
-	logics[CurveParams::Logic::Linear] = [=](int pIdx, int tIdx, int prmIdx, float x) {
+	logics[(size_t)CurveParams::Logic::Linear] = [=](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
 		return calcLinear(x);
 		};
 
-	logics[CurveParams::Logic::ArcExp] = [=](int pIdx, int tIdx, int prmIdx, float x) {
+	logics[(size_t)CurveParams::Logic::ArcExp] = [=](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
 		return calcArcExp(x);
 		};
 
-	logics[CurveParams::Logic::ArcLog] = [=](int pIdx, int tIdx, int prmIdx, float x) {
+	logics[(size_t)CurveParams::Logic::ArcLog] = [=](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
 		return calcArcLog(x);
 		};
 
-	logics[CurveParams::Logic::Exp] = [this, calcExp](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].expCurve;
-		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+	logics[(size_t)CurveParams::Logic::Exp] = [calcExp](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].expCurve;
+		float k = src.params[pIdx][tIdx][prmIdx].k;
 		return calcExp(x, p.rate * k); // ★kを適用
 		};
 
-	logics[CurveParams::Logic::Log] = [this, calcLog](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].logCurve;
-		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+	logics[(size_t)CurveParams::Logic::Log] = [calcLog](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].logCurve;
+		float k = src.params[pIdx][tIdx][prmIdx].k;
 		return calcLog(x, p.rate * k); // ★kを適用
 		};
 
-	logics[CurveParams::Logic::Sp1] = [this, calcSp1](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].sp1Curve;
+	logics[(size_t)CurveParams::Logic::Sp1] = [calcSp1](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].sp1Curve;
 		return calcSp1(x, p.cp1.x, p.cp1.y);
 		};
 
-	logics[CurveParams::Logic::Sp2] = [this, calcSp2](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].sp2Curve;
+	logics[(size_t)CurveParams::Logic::Sp2] = [calcSp2](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].sp2Curve;
 		return calcSp2(x, p.cp1.x, p.cp1.y, p.cp2.x, p.cp2.y);
 		};
 
-	logics[CurveParams::Logic::LinearArcExp] = [this, calcLinear, calcArcExp](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1ArcExp;
+	logics[(size_t)CurveParams::Logic::LinearArcExp] = [calcLinear, calcArcExp](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear1ArcExp;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
 		else         return mapRange(calcArcExp(mapRange(x, px1, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py1, 1.0f);
 		};
 
-	logics[CurveParams::Logic::LinearArcLog] = [this, calcLinear, calcArcLog](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1ArcLog;
+	logics[(size_t)CurveParams::Logic::LinearArcLog] = [calcLinear, calcArcLog](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear1ArcLog;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
 		else         return mapRange(calcArcLog(mapRange(x, px1, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py1, 1.0f);
 		};
 
-	logics[CurveParams::Logic::LinearExp] = [this, calcLinear, calcExp](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1Exp;
-		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+	logics[(size_t)CurveParams::Logic::LinearExp] = [calcLinear, calcExp](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear1Exp;
+		float k = src.params[pIdx][tIdx][prmIdx].k;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
 		else         return mapRange(calcExp(mapRange(x, px1, 1.0f, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, py1, 1.0f);
 		};
 
-	logics[CurveParams::Logic::LinearLog] = [this, calcLinear, calcLog](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1Log;
-		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+	logics[(size_t)CurveParams::Logic::LinearLog] = [calcLinear, calcLog](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear1Log;
+		float k = src.params[pIdx][tIdx][prmIdx].k;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
 		else         return mapRange(calcLog(mapRange(x, px1, 1.0f, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, py1, 1.0f);
 		};
 
-	logics[CurveParams::Logic::LinearSp1] = [this, calcLinear, calcSp1](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1Sp1;
+	logics[(size_t)CurveParams::Logic::LinearSp1] = [calcLinear, calcSp1](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear1Sp1;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) {
@@ -163,8 +163,8 @@ CurveCore::CurveCore() {
 		}
 		};
 
-	logics[CurveParams::Logic::LinearSp2] = [this, calcLinear, calcSp2](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1Sp2;
+	logics[(size_t)CurveParams::Logic::LinearSp2] = [calcLinear, calcSp2](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear1Sp2;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) {
@@ -179,42 +179,42 @@ CurveCore::CurveCore() {
 		}
 		};
 
-	logics[CurveParams::Logic::ArcExpLinear] = [this, calcLinear, calcArcExp](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].arcExpLinear1;
+	logics[(size_t)CurveParams::Logic::ArcExpLinear] = [calcLinear, calcArcExp](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].arcExpLinear1;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) return mapRange(calcArcExp(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
 		else         return mapRange(calcLinear(mapRange(x, px1, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py1, 1.0f);
 		};
 
-	logics[CurveParams::Logic::ArcLogLinear] = [this, calcLinear, calcArcLog](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].arcLogLinear1;
+	logics[(size_t)CurveParams::Logic::ArcLogLinear] = [calcLinear, calcArcLog](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].arcLogLinear1;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) return mapRange(calcArcLog(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
 		else         return mapRange(calcLinear(mapRange(x, px1, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py1, 1.0f);
 		};
 
-	logics[CurveParams::Logic::ExpLinear] = [this, calcLinear, calcExp](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].expLinear1;
-		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+	logics[(size_t)CurveParams::Logic::ExpLinear] = [calcLinear, calcExp](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].expLinear1;
+		float k = src.params[pIdx][tIdx][prmIdx].k;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) return mapRange(calcExp(mapRange(x, 0.0f, px1, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, 0.0f, py1);
 		else         return mapRange(calcLinear(mapRange(x, px1, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py1, 1.0f);
 		};
 
-	logics[CurveParams::Logic::LogLinear] = [this, calcLinear, calcLog](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].logLinear1;
-		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+	logics[(size_t)CurveParams::Logic::LogLinear] = [calcLinear, calcLog](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].logLinear1;
+		float k = src.params[pIdx][tIdx][prmIdx].k;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) return mapRange(calcLog(mapRange(x, 0.0f, px1, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, 0.0f, py1);
 		else         return mapRange(calcLinear(mapRange(x, px1, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py1, 1.0f);
 		};
 
-	logics[CurveParams::Logic::Sp1Linear] = [this, calcLinear, calcSp1](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].sp1Linear1;
+	logics[(size_t)CurveParams::Logic::Sp1Linear] = [calcLinear, calcSp1](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].sp1Linear1;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) {
@@ -227,8 +227,8 @@ CurveCore::CurveCore() {
 		}
 		};
 
-	logics[CurveParams::Logic::Sp2Linear] = [this, calcLinear, calcSp2](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].sp2Linear1;
+	logics[(size_t)CurveParams::Logic::Sp2Linear] = [calcLinear, calcSp2](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].sp2Linear1;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 		if (x <= px1) {
@@ -243,8 +243,8 @@ CurveCore::CurveCore() {
 		}
 		};
 
-	logics[CurveParams::Logic::Linear2ArcExp] = [this, calcLinear, calcArcExp](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2ArcExp;
+	logics[(size_t)CurveParams::Logic::Linear2ArcExp] = [calcLinear, calcArcExp](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear2ArcExp;
 		// ユーザー操作による破綻を防ぐため、px1とpx2の順序を補正
 		float px1 = std::min(p.pos1.x, p.pos2.x);
 		float px2 = std::max(p.pos1.x, p.pos2.x);
@@ -256,8 +256,8 @@ CurveCore::CurveCore() {
 		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
-	logics[CurveParams::Logic::Linear2ArcLog] = [this, calcLinear, calcArcLog](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2ArcLog;
+	logics[(size_t)CurveParams::Logic::Linear2ArcLog] = [calcLinear, calcArcLog](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear2ArcLog;
 		float px1 = std::min(p.pos1.x, p.pos2.x);
 		float px2 = std::max(p.pos1.x, p.pos2.x);
 		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y :
@@ -268,9 +268,9 @@ CurveCore::CurveCore() {
 		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
-	logics[CurveParams::Logic::Linear2Exp] = [this, calcLinear, calcExp](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2Exp;
-		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+	logics[(size_t)CurveParams::Logic::Linear2Exp] = [calcLinear, calcExp](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear2Exp;
+		float k = src.params[pIdx][tIdx][prmIdx].k;
 		float px1 = std::min(p.pos1.x, p.pos2.x);
 		float px2 = std::max(p.pos1.x, p.pos2.x);
 		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y;
@@ -281,9 +281,9 @@ CurveCore::CurveCore() {
 		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
-	logics[CurveParams::Logic::Linear2Log] = [this, calcLinear, calcLog](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2Log;
-		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+	logics[(size_t)CurveParams::Logic::Linear2Log] = [calcLinear, calcLog](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear2Log;
+		float k = src.params[pIdx][tIdx][prmIdx].k;
 		float px1 = std::min(p.pos1.x, p.pos2.x);
 		float px2 = std::max(p.pos1.x, p.pos2.x);
 		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y;
@@ -294,8 +294,8 @@ CurveCore::CurveCore() {
 		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
-	logics[CurveParams::Logic::Linear2Sp1] = [this, calcLinear, calcSp1](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2Sp1;
+	logics[(size_t)CurveParams::Logic::Linear2Sp1] = [calcLinear, calcSp1](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear2Sp1;
 		float px1 = std::min(p.pos1.x, p.pos2.x);
 		float px2 = std::max(p.pos1.x, p.pos2.x);
 		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y;
@@ -310,8 +310,8 @@ CurveCore::CurveCore() {
 		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
-	logics[CurveParams::Logic::Linear2Sp2] = [this, calcLinear, calcSp2](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2Sp2;
+	logics[(size_t)CurveParams::Logic::Linear2Sp2] = [calcLinear, calcSp2](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear2Sp2;
 		float px1 = std::min(p.pos1.x, p.pos2.x);
 		float px2 = std::max(p.pos1.x, p.pos2.x);
 		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y;
@@ -328,8 +328,8 @@ CurveCore::CurveCore() {
 		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
-	logics[CurveParams::Logic::Linear2] = [this, calcLinear](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2;
+	logics[(size_t)CurveParams::Logic::Linear2] = [calcLinear](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear2;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 
@@ -337,8 +337,8 @@ CurveCore::CurveCore() {
 		else return mapRange(calcLinear(mapRange(x, px1, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py1, 1.0f);
 		};
 
-	logics[CurveParams::Logic::Linear3] = [this, calcLinear](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear3;
+	logics[(size_t)CurveParams::Logic::Linear3] = [calcLinear](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].linear3;
 		float px1 = std::min(p.pos1.x, p.pos2.x);
 		float px2 = std::max(p.pos1.x, p.pos2.x);
 		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y;
@@ -351,8 +351,8 @@ CurveCore::CurveCore() {
 		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
-	logics[CurveParams::Logic::Sprine12] = [this, calcSp1](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].sprine12;
+	logics[(size_t)CurveParams::Logic::Sprine12] = [calcSp1](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].sprine12;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 
@@ -368,8 +368,8 @@ CurveCore::CurveCore() {
 		}
 		};
 
-	logics[CurveParams::Logic::Sprine22] = [this, calcSp2](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].sprine22;
+	logics[(size_t)CurveParams::Logic::Sprine22] = [calcSp2](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].sprine22;
 		float px1 = p.pos1.x;
 		float py1 = p.pos1.y;
 
@@ -388,8 +388,8 @@ CurveCore::CurveCore() {
 			return mapRange(calcSp2(mapRange(x, px1, 1.0f, 0.0f, 1.0f), localCX1, localCY1, localCX2, localCY2), 0.0f, 1.0f, py1, 1.0f);
 		}
 		};
-	logics[CurveParams::Logic::Sprine13] = [this, calcSp1](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].sprine13;
+	logics[(size_t)CurveParams::Logic::Sprine13] = [calcSp1](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].sprine13;
 		float px1 = std::min(p.pos1.x, p.pos2.x);
 		float px2 = std::max(p.pos1.x, p.pos2.x);
 		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y;
@@ -412,8 +412,8 @@ CurveCore::CurveCore() {
 		}
 		};
 
-	logics[CurveParams::Logic::Sprine23] = [this, calcSp2](int pIdx, int tIdx, int prmIdx, float x) {
-		auto& p = m_params.params[pIdx][tIdx][prmIdx].sprine23;
+	logics[(size_t)CurveParams::Logic::Sprine23] = [calcSp2](const CurveParams& src, int pIdx, int tIdx, int prmIdx, float x) {
+		auto& p = src.params[pIdx][tIdx][prmIdx].sprine23;
 		float px1 = std::min(p.pos1.x, p.pos2.x);
 		float px2 = std::max(p.pos1.x, p.pos2.x);
 		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y;
@@ -445,20 +445,28 @@ CurveCore::CurveCore() {
 
 void CurveCore::setParameters(const CurveParams& params)
 {
+	// 正本を書き換える。ここはメッセージスレッド (画面の操作と、状態の読み込み)。
 	this->m_params = params;
+
+	// 書き終えた枠を差し出し、代わりに前に差し出されていた枠を受け取る。
+	// 受け取った枠が次に書く枠になる。
+	m_slots[(size_t)m_writeSlot] = m_params;
+	m_writeSlot = m_ready.exchange(m_writeSlot, std::memory_order_acq_rel);
+	m_dirty.store(true, std::memory_order_release);
 }
 
-float CurveCore::processRaw(int positionIndex, int targetIndex, int paramIndex, float x) const
+float CurveCore::processRawWith(const CurveParams& src, int positionIndex, int targetIndex, int paramIndex, float x) const
 {
 	if (x <= 1e-5f) return 0.0f;
 	if (x >= 1.0f - 1e-5f) return 1.0f;
 
-	int logicIndex = m_params.params[positionIndex][targetIndex][paramIndex].logic;
-	auto logic = static_cast<CurveParams::Logic>(logicIndex);
+	int logicIndex = src.params[positionIndex][targetIndex][paramIndex].logic;
 
-	// logics マップからの検索を安全に行う
-	auto it = logics.find(logic);
-	if (it == logics.end()) return x; // 見つからなければ線形
+	// 添字がずれていたら線形として扱う
+	if (logicIndex < 0 || logicIndex >= (int)CurveParams::Logic::Size) return x;
 
-	return it->second(positionIndex, targetIndex, paramIndex, x);
+	const auto& fn = logics[(size_t)logicIndex];
+	if (!fn) return x; // 埋まっていなければ線形
+
+	return fn(src, positionIndex, targetIndex, paramIndex, x);
 }

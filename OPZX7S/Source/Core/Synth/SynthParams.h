@@ -19,5 +19,4 @@ struct SynthParams
     float fixedVelocity = 1.0f;
 
     Opzx7Params opzx7;
-	CurveParams curve; 
 };

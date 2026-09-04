@@ -75,6 +75,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     prOpzx7.init(apvts, modWaveSlots);
     prFx.init(apvts);
     prCurve.init(apvts);
+    m_curveCore.setParameters(prCurve.m_curveParams);
 
     m_synth.addSound(new SynthSound());
     for (int i = 0; i < Global::totalVoices; i++) {
@@ -241,9 +242,6 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         }
     }
 
-	// エンベロープカーブの処理は、シンセモードに関わらず常に行う
-	prCurve.processBlock(m_currentParams, apvts);
-
     bool isMono = PrHelper::getBool(pMonoMode);
 
     m_synth.isMonoMode = isMono;
@@ -273,7 +271,8 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         }
     }
 
-    m_curveCore.setParameters(m_currentParams.curve);
+    // 画面から新しい枠が出ていたら持ち替える。中身のコピーはしない。
+    m_curveCore.acquireForAudio();
 
     // シンセの発音
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
@@ -610,6 +609,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         prFx.updateOrder(loadedFxOrder);
 
         prCurve.loadFromXml(xmlState.get());
+        m_curveCore.setParameters(prCurve.m_curveParams);
         m_curveCore.bakeCurves();
     }
 };

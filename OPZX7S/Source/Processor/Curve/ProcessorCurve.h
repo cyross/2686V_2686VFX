@@ -21,7 +21,6 @@ public:
     CurveProcessor();
     void init(juce::AudioProcessorValueTreeState& apvts);
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
-    void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;
     void resetProcessBlock();
 
     // GUI / XML 用のセッターとゲッター

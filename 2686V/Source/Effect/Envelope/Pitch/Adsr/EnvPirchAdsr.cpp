@@ -202,7 +202,7 @@ float PitchAdsrEnv::process(float phaseDelta) {
                 this->state = State::Decay;
             }
             else {
-                float y = m_curveCore->process(
+                float y = m_curveCore->processAudio(
                     this->targetIndex,
                     (int)CurveParams::Target::PitchEnv,
                     (int)CurveParams::TargetPitchEnv::Ar,
@@ -237,7 +237,7 @@ float PitchAdsrEnv::process(float phaseDelta) {
                     this->state = State::Sustain;
                 }
                 else {
-                    float y = m_curveCore->process(
+                    float y = m_curveCore->processAudio(
                         this->targetIndex,
                         (int)CurveParams::Target::PitchEnv,
                         (int)CurveParams::TargetPitchEnv::Dr,
@@ -279,7 +279,7 @@ float PitchAdsrEnv::process(float phaseDelta) {
                 this->state = State::Idle;
             }
             else {
-                float y = m_curveCore->process(
+                float y = m_curveCore->processAudio(
                     this->targetIndex,
                     (int)CurveParams::Target::PitchEnv,
                     (int)CurveParams::TargetPitchEnv::Rr,

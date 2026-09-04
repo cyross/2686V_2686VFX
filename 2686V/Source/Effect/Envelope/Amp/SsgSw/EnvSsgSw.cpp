@@ -323,7 +323,7 @@ float SsgSwEnv::process() {
                 return this->currentLevel;
             }
 
-            float y = m_curveCore->process(
+            float y = m_curveCore->processAudio(
                 this->targetIndex,
                 (int)CurveParams::Target::SsgSwEnv,
                 (int)CurveParams::TargetSsgSwEnv::R6,
@@ -357,7 +357,7 @@ float SsgSwEnv::process() {
 
         // 3. カーブ取得 (y)
         // (TargetSsgSwEnv::R1 = 0, R2 = 1 ... LoopTo = 6)
-        float y = m_curveCore->process(
+        float y = m_curveCore->processAudio(
             this->targetIndex,
             (int)CurveParams::Target::SsgSwEnv,
             doLoop ? (int)CurveParams::TargetSsgSwEnv::LoopTo : (s - 1),
