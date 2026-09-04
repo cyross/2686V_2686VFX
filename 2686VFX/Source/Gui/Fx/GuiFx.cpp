@@ -1578,6 +1578,18 @@ void GuiFx::importFxParam()
                 }
 
                 {
+                    // 3.0.0 のファイルにはこのまとまりが無い。
+                    // 無ければ既定として今の値をそのまま使う。
+                    auto pcmBitCrusher = reader->child("pcmBitCrusher");
+
+                    pcmBypassBtn.setToggleState(pcmBitCrusher.getBool("bypass", pcmBypassBtn.getToggleState()), juce::sendNotification);
+                    pcmBitSelector.setSelectedItemIndex(pcmBitCrusher.getInt("bits", pcmBitSelector.getSelectedItemIndex()), juce::sendNotification);
+                    pcmRateSelector.setSelectedItemIndex(pcmBitCrusher.getInt("rate", pcmRateSelector.getSelectedItemIndex()), juce::sendNotification);
+                    pcmInterpSelector.setSelectedItemIndex(pcmBitCrusher.getInt("interp", pcmInterpSelector.getSelectedItemIndex()), juce::sendNotification);
+                    pcmMixSlider.setValue(pcmBitCrusher.getFloat("mix", (float)pcmMixSlider.getValue()), juce::sendNotification);
+                }
+
+                {
                     auto delay = reader->child("delay");
 
                     dBypassBtn.setToggleState(delay.getBool("bypass", dBypassBtn.getToggleState()), juce::sendNotification);
@@ -1828,6 +1840,18 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
         bitCrusher.set("rate", (float)mbcRateSlider.getValue());
         bitCrusher.set("bits", (float)mbcBitsSlider.getValue());
         bitCrusher.set("mix", (float)mbcMixSlider.getValue());
+    }
+
+    {
+        // このプラグインにしかない効果。音源で読んだときは、この
+        // まとまりが無いものとして飛ばされる。
+        auto pcmBitCrusher = writer.child("pcmBitCrusher");
+
+        pcmBitCrusher.set("bypass", pcmBypassBtn.getToggleState());
+        pcmBitCrusher.set("bits", pcmBitSelector.getSelectedItemIndex());
+        pcmBitCrusher.set("rate", pcmRateSelector.getSelectedItemIndex());
+        pcmBitCrusher.set("interp", pcmInterpSelector.getSelectedItemIndex());
+        pcmBitCrusher.set("mix", (float)pcmMixSlider.getValue());
     }
 
     {

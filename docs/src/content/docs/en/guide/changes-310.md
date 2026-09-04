@@ -170,6 +170,16 @@ parameters off and would otherwise miss the tabs you have not visited. OP and
 CL only change how things look, so a tab opened later comes up in the same
 state.
 
+### The PCM bit crusher is now in the FX parameter file
+
+The PCM bit crusher, which only 2686VFX has, was the one effect missing from
+the FX parameter file (`.2fx`). It was in the order file, so its position could
+be kept but its settings could not. A `pcmBitCrusher` block has been added.
+
+A file written before 3.1.0 has no such block; the current values are then kept,
+so nothing stops loading. An instrument never looks for the block, so it simply
+passes it by.
+
 ## Fixed
 
 - On RHYTHM pads, a change of sample rate was not passed on to SSG HW AMP ENV
