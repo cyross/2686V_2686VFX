@@ -1247,8 +1247,14 @@ void AudioPlugin2686VEditor::timerCallback()
 {
     if (isPreviewVisible || viewMode == ViewMode::MiniPlayer)
     {
-        std::vector<float> staticData;
-        audioProcessor.generatePreviewWaveform(&staticData);
+        // ここで generatePreviewWaveform を呼んで staticData を埋めていたが、
+        // 中身はどこからも読まれていなかった。下の描画はリングバッファから
+        // 写すだけで完結している。
+        //
+        // 中では捨てるためだけに 40 ブロック (8000 サンプル) を空レンダリング
+        // した上で 300 サンプルを組み立て、FX まで通していた。それを秒 30 回。
+        // ユニゾン 8 ボイスの重い音色だと、波形を出しているだけで
+        // メッセージスレッドが 1 コア近くを食っていた。
 
         // メモリ再確保を防ぐため static を付ける、もしくは std::array を使う
         static std::array<float, AudioPlugin2686V::previewBufferSize> localL;
