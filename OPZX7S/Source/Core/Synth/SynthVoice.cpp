@@ -91,35 +91,41 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         ? ((double)m_arpFreq / getSampleRate())
         : 0.0;
 
+    // アルペジオが要らないときは、ブロックぶんをまとめてコアへ任せる。
+    // 1 サンプルごとに仮想呼び出しを通していたのを、1 ブロックに 1 回にする。
+    if (!useArp)
+    {
+        bool isActive = false;
+
+        core->renderRange(outR, outL, startSample, numSamples, isActive);
+
+        if (!isActive) clearCurrentNote();
+
+        return;
+    }
+
     for (int i = 0; i < numSamples; ++i)
     {
         bool isActive = false;
 
-        if (useArp)
-        {
-            // コアは outX[startSample + sampleIdx] へ加算するだけなので、
-            // (0, 0) を渡せば単一の float へ書かせることができる。
-            // 消音中もコアを回すことで位相とエンベロープは走り続ける。
-            float scratchL = 0.0f;
-            float scratchR = 0.0f;
+        // コアは outX[startSample + sampleIdx] へ加算するだけなので、
+        // (0, 0) を渡せば単一の float へ書かせることができる。
+        // 消音中もコアを回すことで位相とエンベロープは走り続ける。
+        float scratchL = 0.0f;
+        float scratchR = 0.0f;
 
-            core->renderNextBlock(&scratchR, &scratchL, 0, 0, isActive);
+        core->renderNextBlock(&scratchR, &scratchL, 0, 0, isActive);
 
-            const float gain = getArpGain();
+        const float gain = getArpGain();
 
-            outL[startSample + i] += scratchL * gain;
-            outR[startSample + i] += scratchR * gain;
+        outL[startSample + i] += scratchL * gain;
+        outR[startSample + i] += scratchR * gain;
 
-            m_arpPhase += arpDelta;
+        m_arpPhase += arpDelta;
 
-            // total スロットで一巡するので、そこで折り返して精度落ちを防ぐ
-            const double cycle = (double)core->m_unison.getTotal();
-            if (m_arpPhase >= cycle) m_arpPhase -= cycle;
-        }
-        else
-        {
-            core->renderNextBlock(outR, outL, startSample, i, isActive);
-        }
+        // total スロットで一巡するので、そこで折り返して精度落ちを防ぐ
+        const double cycle = (double)core->m_unison.getTotal();
+        if (m_arpPhase >= cycle) m_arpPhase -= cycle;
 
         if (!isActive)
         {

@@ -50,6 +50,11 @@ public:
     void setWtBuffer(int opIndex, std::vector<float>* wtData);
     void setWt2Buffer(int opIndex, std::vector<float>* wtData);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+
+    void renderRange(float* outR, float* outL, int startSample, int count, bool& isActive) override
+    {
+        synthRenderRange(*this, outR, outL, startSample, count, isActive);
+    }
     void clearPcmBuffer(int opIndex);
     void clearWtBuffer(int opIndex);
     void clearWt2Buffer(int opIndex);

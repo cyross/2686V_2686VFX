@@ -294,13 +294,6 @@ void GuiSlider::setup(const Config& c)
     {
         att.reset(new SliderAttachment(ctx.apvts, c.id, *this));
     }
-
-    if (c.regType != RegisterType::None)
-    {
-        ctx.sliderRegMap[this] = c.regType;
-
-        this->addMouseListener(&ctx.editor, false);
-    }
 }
 
 void GuiComboBox::setup(const Config& c)
@@ -341,13 +334,6 @@ void GuiComboBox::setup(const Config& c)
     if (c.isResized)
     {
         this->onChange = [this] { ctx.editor.resized(); };
-    }
-
-    if (c.regType != RegisterType::None)
-    {
-        ctx.sliderRegMap[this] = c.regType;
-
-        this->addMouseListener(&ctx.editor, false);
     }
 }
 
@@ -861,6 +847,17 @@ void closeCategoryBackdrops(juce::Component* parent, int bottom)
 
 void GuiDialog::applyTheme()
 {
+    // ここだけは共有の LookAndFeel を直接触っている。
+    //
+    // JUCE の AlertWindow は TopLevelWindow なので、親をたどらず
+    // 既定の LookAndFeel を見る。showMessageBoxAsync に部品を渡しても
+    // 位置合わせに使われるだけで、色には効かない。
+    // つまり、自前の LookAndFeel を差し込めるのは自分で new した
+    // ダイアログだけで、JUCE が中で作る確認・警告のダイアログには届かない。
+    //
+    // 既定を自前のものに差し替える手もあるが、プラグインが外されたあとに
+    // 消えたオブジェクトを指したままになるので、そちらの方が危ない。
+    // すべてのダイアログを自前で組み直すまでは、この形のままにしておく。
     auto& lf = juce::LookAndFeel::getDefaultLookAndFeel();
 
     lf.setColour(juce::AlertWindow::backgroundColourId, GuiColor::Palette::OffWhite);

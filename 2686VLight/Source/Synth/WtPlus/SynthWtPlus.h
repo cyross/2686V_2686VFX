@@ -38,6 +38,11 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 
+    void renderRange(float* outR, float* outL, int startSample, int count, bool& isActive) override
+    {
+        synthRenderRange(*this, outR, outL, startSample, count, isActive);
+    }
+
     // 波形メモリはプロセッサが所有する。コアは参照だけを受け取る。
     void setWaveSlots(const WtPlusWaveSlots* slots) { m_waveSlots = slots; }
 

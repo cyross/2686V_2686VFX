@@ -137,6 +137,11 @@ public:
     void getSampleStereo(float& outL, float& outR);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 
+    void renderRange(float* outR, float* outL, int startSample, int count, bool& isActive) override
+    {
+        synthRenderRange(*this, outR, outL, startSample, count, isActive);
+    }
+
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;
 

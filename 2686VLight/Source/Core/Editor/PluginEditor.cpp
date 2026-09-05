@@ -13,7 +13,6 @@
 #include "../Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 
-#include "../Fm/FmSliderRegMap.h"
 #include "../Fm/FmRegisterConverter.h"
 
 #include "./EditorGuiValues.h"
@@ -53,7 +52,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     int mode = audioProcessor.apvts.state.getProperty(ProcessorStateKey::windowMode, (int)ViewMode::Full);
     viewMode = (ViewMode)mode;
 
-    GuiContext context(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
+    GuiContext context(audioProcessor, *this, audioProcessor.apvts);
 
     // タブの中身は開かれるまで作らない。作り方だけ先に入れておく。
     setupLazyTabs();
@@ -1217,37 +1216,6 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
     }
 }
 
-void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered)
-{
-    // AlertWindowをヒープに確保 (enterModalState(true) で自動的に削除されます)
-    auto* w = new juce::AlertWindow(
-        juce::String("") + "レジスタ値の設定",
-        juce::String("") + "入力している値:",
-        juce::AlertWindow::QuestionIcon);
-
-    // テキストエディタを追加
-    w->addTextEditor(
-        "regInput",
-        "",
-        "0"
-    );
-
-    // ボタン設定
-    w->addButton(juce::String("") + "設定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
-    w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
-
-    GuiDialog::styleButtons(*w);
-
-    // モーダル表示
-    w->enterModalState(true, juce::ModalCallbackFunction::create([onValueEntered, w](int result) {
-        if (result == 1) { // OK clicked
-            // 入力値を取得してコールバックを実行
-            int val = w->getTextEditorContents("regInput").getIntValue();
-            onValueEntered(val);
-        }
-        }), true);
-}
-
 // 再帰的に全ての子コンポーネントを探索し、スライダーなら範囲をツールチップにセット
 void AudioPlugin2686VEditor::assignTooltipsRecursive(juce::Component* parentComponent)
 {
@@ -2194,7 +2162,7 @@ void AudioPlugin2686VEditor::updateFxOrder(){
 // 中身を持たないタブは、土台の空実装がそのまま呼ばれる。
 GuiContext AudioPlugin2686VEditor::makeGuiContext()
 {
-    return GuiContext(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
+    return GuiContext(audioProcessor, *this, audioProcessor.apvts);
 }
 
 juce::String AudioPlugin2686VEditor::currentPresetName() const

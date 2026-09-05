@@ -13,7 +13,7 @@
 #include "./GuiValues.h"
 #include "./GuiText.h"
 
-#include "../../Core/Fm/FmSliderRegMap.h"
+#include "../../Core/Fm/FmRegisterType.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
@@ -469,6 +469,8 @@ public:
         std::optional<juce::Font> labelFont = std::nullopt;
         juce::Justification labelJustification = juce::Justification::centred;
         juce::Colour labelColor = GuiColor::Label::Text;
+        // どのレジスタに当たる値かの覚書。いまはどこも読んでいないが、
+        // 手で入れた対応表なので消さずに残してある。
         RegisterType regType = RegisterType::None;
     };
 
@@ -623,6 +625,8 @@ public:
         juce::Colour labelColor = GuiColor::Label::Text;
         std::optional<juce::Font> selectedFont = juce::Font(juce::FontOptions(13.0f));
         std::optional<juce::Font> dropdownFont = juce::Font(juce::FontOptions(16.0f));
+        // どのレジスタに当たる値かの覚書。いまはどこも読んでいないが、
+        // 手で入れた対応表なので消さずに残してある。
         RegisterType regType = RegisterType::None;
     };
 

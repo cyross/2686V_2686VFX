@@ -22,11 +22,31 @@ namespace
 	// createReaderFor は「形式が分かった」ことしか言わない。チャンネル数 0 や、
 	// int に収まらない長さがそのまま来ることがある。AudioBuffer::setSize は
 	// 負の大きさを、getReadPointer(0) は無いチャンネルを、どちらも黙って受け取る。
+	// 読み込みの上限。音色の素材なので、何十分もある音声を丸ごと抱える必要は無い。
+	// 上限が int の最大値のままだと、間違えて大きなファイルを選んだときに
+	// そのぶんだけメモリを取ってしまう。
+	// 32bit float へ展開するので、1 チャンネル 64M サンプルでおよそ 256MB。
+	// 44.1kHz なら 25 分ぶんにあたる。
+	constexpr juce::int64 maxLoadableSamples = 64ll * 1024 * 1024;
+
 	inline bool isLoadableAudio(const juce::AudioFormatReader& reader)
 	{
 		return reader.numChannels > 0
 			&& reader.lengthInSamples > 0
-			&& reader.lengthInSamples <= (juce::int64)std::numeric_limits<int>::max();
+			&& reader.lengthInSamples <= maxLoadableSamples;
+	}
+
+	// 読めないファイルを選んだときの断り。黙って何も起きないと、
+	// 読み込めたのか失敗したのか分からない。
+	inline void tellAudioNotLoadable(const juce::File& file, const juce::AudioFormatReader& reader)
+	{
+		const juce::String reason = (reader.lengthInSamples > maxLoadableSamples)
+			? juce::String("") + "長すぎて読み込めません。"
+			: juce::String("") + "音声として読み取れませんでした。";
+
+		juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+			juce::String("") + "音声ファイルを読み込めません",
+			reason + "\n\n" + file.getFileName());
 	}
 
 	// 環境設定を書き出す側。項目の型ごとに受け口を分けてある。
@@ -1238,7 +1258,11 @@ void AudioPlugin2686V::loadOpzx7PcmFile(int opIndex, const juce::File& file)
     {
         std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
 
-        if (!isLoadableAudio(*audioReader)) return;
+        if (!isLoadableAudio(*audioReader)) {
+            tellAudioNotLoadable(file, *audioReader);
+
+            return;
+        }
 
         juce::AudioBuffer<float> tempBuffer(1, (int)audioReader->lengthInSamples);
         audioReader->read(&tempBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);

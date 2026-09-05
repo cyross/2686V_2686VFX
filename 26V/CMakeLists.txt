@@ -76,8 +76,6 @@ set(FM_FILES
     "Source/Core/Fm/FmRegisterType.h"
     "Source/Core/Fm/FmRegisterConverter.h"
     "Source/Core/Fm/FmRegisterConverter.cpp"
-    "Source/Core/Fm/FmSliderRegMap.h"
-    "Source/Core/Fm/FmSliderRegMap.cpp"
     "Source/Core/Fm/FmMmlFormatter.h"
 )
 

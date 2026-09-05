@@ -5,7 +5,6 @@
 #include <span>
 
 #include "../Processor/PluginProcessor.h"
-#include "../Fm/FmSliderRegMap.h"
 #include "../Gui/GuiLF.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
@@ -67,7 +66,6 @@ public:
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
     void buttonClicked(juce::Button* button) override;
-    void showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered);
     void parameterChanged(const juce::String& parameterID, float newValue) override;
 
     // parameterChanged はホストのオートメーション中はオーディオスレッドで走る。
@@ -173,7 +171,6 @@ private:
     std::unique_ptr<juce::FileChooser> fileChooser;
     std::unique_ptr<juce::TooltipWindow> tooltipWindow;
 
-    SliderRegMap sliderRegMap;
 
 
     // 仮想MIDIキーボード用
