@@ -50,7 +50,8 @@ const std::array<OpmCore::AlgRouting, OpmPrValue::algorithms> OpmCore::routings 
 void OpmCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
-    double target = getTargetRate(m_rateIndex);
+    m_targetRate = getTargetRate(m_rateIndex);
+    double target = m_targetRate;
 
     // 高速化のためのループアンローリング
     m_operators[0].prepare(1, target);
@@ -122,7 +123,8 @@ void OpmCore::setParameters(const SynthParams& params) {
     if (m_rateIndex != params.opm.quality.rate) {
         m_rateIndex = params.opm.quality.rate;
 
-		double target = getTargetRate(m_rateIndex);
+		m_targetRate = getTargetRate(m_rateIndex);
+		double target = m_targetRate;
 
         // 高速化のためのループアンローリング
         m_operators[0].setSampleRate(target);
@@ -272,7 +274,7 @@ void OpmCore::setModulationWheel(int wheelValue)
 }
 
 float OpmCore::getSample() {
-    double targetRate = getTargetRate(m_rateIndex);
+    const double targetRate = m_targetRate;
 
     // MODULATION の速度は搬送波に対する比なので、ノートの位相増分を渡す
     float notePhaseDelta = (float)(m_noteFreq / targetRate);
@@ -309,7 +311,6 @@ float OpmCore::getSample() {
         // =================================================================
         // 履歴 (History) のシフト
         // =================================================================
-        m_history2 = m_history1;
 
         // 生配列から std::array へのコピー
         m_history1[0] = currentOut[0];

@@ -134,7 +134,6 @@ set(EDITOR_FILES
 )
 
 set(EFFECT_CORE_FILES
-    "Source/Core/Effect/RateLUT.h"
 )
 
 set(AMP_ENVELOPE_FILES

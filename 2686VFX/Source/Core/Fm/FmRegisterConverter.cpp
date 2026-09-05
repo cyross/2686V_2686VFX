@@ -130,14 +130,6 @@ int RegisterConverter::convertFmDt(int regValue)
     return std::clamp(regValue, 0, 7);
 }
 
-// --- Detune (DT2) ---
-// Register: 0-3
-// VST Param: Integer 0-3
-int RegisterConverter::convertFmDt2(int regValue)
-{
-    return std::clamp(regValue, 0, 3);
-}
-
 // --- 0-15 ---
 int RegisterConverter::convertFmRg15(int regValue)
 {
@@ -166,62 +158,11 @@ int RegisterConverter::convertFmRg127(int regValue)
 // OPL / OPL3 Parameters (YM3812 / YMF262 Standard)
 // ==============================================================================
 
-// --- OPL: Attack Rate (AR) ---
-// Register: 0 (Slowest) - 15 (Fastest)
-// VST Param: Time in Seconds (0.03s - 5.0s)
-float RegisterConverter::convertOplAr(int regValue)
-{
-    return convertFmParam15(regValue).value_or(Global::RateMaxSeconds::reg);
-}
-
-// --- OPL: Decay Rate (DR) ---
-// Register: 0 (Slowest) - 15 (Fastest)
-// VST Param: Time in Seconds (0.0s - 5.0s)
-float RegisterConverter::convertOplDr(int regValue)
-{
-    return convertFmParam15(regValue).value_or(Global::RateMaxSeconds::reg);
-}
-
-// --- OPL: Release Rate (RR) ---
-// Register: 0 (Slowest) - 15 (Fastest)
-// VST Param: Time in Seconds (0.03s - 5.0s)
-float RegisterConverter::convertOplRr(int regValue)
-{
-    return convertFmParam15(regValue).value_or(Global::RateMaxSeconds::reg);
-}
-
-// --- OPL: Sustain Level (SL) ---
-// Register: 0 (Max Level) - 15 (Min Level / Silent)
-// VST Param: 0.0 (Silent) - 1.0 (Max)
-float RegisterConverter::convertOplSl(int regValue)
-{
-    return convertFmParamSl(regValue).value_or(1.0f);
-}
-
-// --- OPL: Total Level (TL) ---
-// Register: 0 (Max Volume) - 63 (Min Volume / -47dB)
-// VST Param: 0.0 (Max) - 1.0 (Min)
-float RegisterConverter::convertOplTl(int regValue)
-{
-    int v = std::clamp(regValue, 0, 63);
-
-    // OPLのTLは最大63なので、それをVST用の0.0〜1.0スケールに正規化する
-    return (float)v / 63.0f;
-}
-
 // --- OPL: Multiple (MUL) ---
 // Register: 0-15
 int RegisterConverter::convertOplMul(int regValue)
 {
     return std::clamp(regValue, 0, 15);
-}
-
-// --- OPL: Detune (DT) ---
-// Register: 0-7
-// VST Param: Integer 0-7
-int RegisterConverter::convertOplDt(int regValue)
-{
-    return std::clamp(regValue, 0, 7);
 }
 
 // MMLの -3 ～ +3 を、レジスタ値 0 ～ 7 に変換する
@@ -323,20 +264,6 @@ std::vector<RegisterUnit> RegisterConverter::convertToRegisterUnit(const juce::S
     }
 
     return units;
-}
-
-float RegisterConverter::convertFmRrOpzx7(int regValue)
-{
-    return convertFmParam31(regValue).value_or(Global::RateMaxSeconds::reg);
-}
-
-float RegisterConverter::convertFmTlOpzx7(int regValue)
-{
-    int v = std::clamp(regValue, 0, 63);
-    // Reg 0 -> Param 0.0 (Max Gain)
-    // Reg 63 -> Param 1.0 (Min Gain)
-    // 線形でOK
-    return (float)v / 63.0f;
 }
 
 int RegisterConverter::convertFmMulOpzx7(int regValue)

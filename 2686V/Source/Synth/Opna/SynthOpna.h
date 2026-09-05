@@ -79,7 +79,6 @@ private:
     std::array<OpnaOperator, OpnaPrValue::ops> m_operators;
     std::array<bool, OpnaPrValue::ops> m_opMask{ false, false };
     std::array<float, OpnaPrValue::ops> m_history1 = { 0.0f };
-    std::array<float, OpnaPrValue::ops> m_history2 = { 0.0f };
 
     LfsrNoiseGen m_noiseGen;
     N88LfoCore m_n88Lfo;
@@ -132,6 +131,9 @@ private:
 
     // Rate & Quality
     int m_rateIndex = 1;
+
+    // 目標レートは 1 サンプルごとに要るので、変わったときだけ求めて持っておく
+    double m_targetRate = 96000.0; // m_rateIndex = 1 (96kHz) に合わせた初期値
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
     float m_prevSample = 0.0f;

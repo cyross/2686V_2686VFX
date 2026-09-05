@@ -77,13 +77,24 @@ public:
 
     bool isPlaying();
 
-    std::map<OscMode, SynthCore *> coreMap;
+    // 音源はモード番号で引くだけなので、木ではなく素の配列にする。
+    // 1 サンプルごとに引く場所があり、std::map では毎回木をたどることになる。
+    std::array<SynthCore*, (size_t)OscMode::Count> coreMap{};
+
+    // いま鳴らすコア。モードは列挙の範囲に収まっている前提だが、
+    // 外れていたら先頭 (既定の音源) を返して落ちないようにする。
+    SynthCore* activeCore() const
+    {
+        const size_t i = (size_t)m_mode;
+
+        return (i < coreMap.size() && coreMap[i] != nullptr) ? coreMap[i] : coreMap[0];
+    }
 
     // ユニゾン・ハーモニー用
     void setUnisonParams(int index, int total, float detune, float spread,
                          float paraDetune = 0.0f, float paraDistance = 0.0f)
     {
-        coreMap[m_mode]->setUnisonParams(index, total, detune, spread, paraDetune, paraDistance);
+        activeCore()->setUnisonParams(index, total, detune, spread, paraDetune, paraDistance);
     }
 
     // 疑似高速アルペジオ用

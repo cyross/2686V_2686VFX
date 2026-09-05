@@ -102,7 +102,7 @@ public:
                     // これにより、波形が強制キルされず、位相や音量が完全に引き継がれます。
                     if (voice->isVoiceActive()) {
                         auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-                        voice->coreMap[currentParams->mode]->noteOn(cyclesPerSecond, velocity, midiNoteNumber, isLegato);
+                        voice->coreMap[(size_t)currentParams->mode]->noteOn(cyclesPerSecond, velocity, midiNoteNumber, isLegato);
                     }
                     else {
                         // 完全に音が消えている時だけ、通常の startVoice でボイスを起こす

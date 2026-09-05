@@ -283,7 +283,7 @@ float WtPlusCore::getSample()
     newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
 
     // --- Sample Rate Emulation ---
-    double targetRate = getTargetRate(m_rateIndex);
+    const double targetRate = m_targetRate;
     double step = targetRate / m_sampleRate;
     m_rateAccumulator += step;
 

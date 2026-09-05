@@ -2,8 +2,8 @@
 
 SynthVoice::SynthVoice()
 {
-    coreMap[OscMode::OPN] = &m_opnCore;
-    coreMap[OscMode::SSG] = &m_ssgCore;
+    coreMap[(size_t)OscMode::OPN] = &m_opnCore;
+    coreMap[(size_t)OscMode::SSG] = &m_ssgCore;
 }
 
 void SynthVoice::prepare(double sampleRate) {
@@ -16,7 +16,7 @@ void SynthVoice::setParameters(const SynthParams& params)
     m_mode = params.mode;
 
     // 鳴らすのは m_mode のコアだけ。renderNextBlock も startNote も
-    // coreMap[m_mode] しか見ないので、残りへ配っても捨てられる。
+    // activeCore() しか見ないので、残りへ配っても捨てられる。
     // params は WtMod の波形表だけで 25KB あり、これを毎ブロック・全ボイス分、
     // コアの数だけ配っていた。
     //
@@ -24,9 +24,7 @@ void SynthVoice::setParameters(const SynthParams& params)
     // 音源を切り替えた直後でも、新しいコアは鳴る前に必ず最新の値を受け取る。
     // 各コアの setParameters は代入と派生値の作り直しだけで、値を溜め込まない
     // (refreshPcmBuffer や updatePhaseDelta も、そのとき持っている値から作り直すだけ)。
-    if (auto it = coreMap.find(m_mode); it != coreMap.end()) {
-        it->second->setParameters(params);
-    }
+    if (auto* core = activeCore()) core->setParameters(params);
 }
 
 void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*, int)
@@ -34,7 +32,7 @@ void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*
     // 周波数計算
     auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNote);
 
-    coreMap[m_mode]->noteOn(cyclesPerSecond, velocity, midiNote);
+    activeCore()->noteOn(cyclesPerSecond, velocity, midiNote);
 }
 
 void SynthVoice::stopNote(float, bool allowTailOff)
@@ -55,7 +53,7 @@ void SynthVoice::stopNote(float, bool allowTailOff)
 // 低速時のクリックノイズを抑える (高速時は実質ハードゲートのまま)。
 float SynthVoice::getArpGain() const
 {
-    const auto& unison = coreMap.at(m_mode)->m_unison;
+    const auto& unison = activeCore()->m_unison;
     const int total = unison.getTotal();
 
     if (total <= 1) return 1.0f;
@@ -86,7 +84,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
     float* outL = outputBuffer.getWritePointer(0);
     float* outR = outputBuffer.getWritePointer(1);
 
-    auto* core = coreMap[m_mode];
+    auto* core = activeCore();
 
     // アルペジオはユニゾンが2ボイス以上のときだけ意味を持つ
     const bool useArp = m_arpEnable && core->m_unison.getTotal() > 1;
@@ -148,7 +146,7 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
 // ピッチベンド
 void SynthVoice::pitchWheelMoved(int newPitchWheelValue)
 {
-    coreMap[m_mode]->setPitchBend(newPitchWheelValue);
+    activeCore()->setPitchBend(newPitchWheelValue);
 }
 
 void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
@@ -156,11 +154,11 @@ void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
     // CC #1 = Modulation Wheel
     if (controllerNumber == 1)
     {
-        coreMap[m_mode]->setModulationWheel(newControllerValue);
+        activeCore()->setModulationWheel(newControllerValue);
     }
 }
 
 bool SynthVoice::isPlaying()
 {
-    return coreMap[m_mode]->isPlaying();
+    return activeCore()->isPlaying();
 }

@@ -99,7 +99,6 @@ private:
     std::array<Opzx7Operator, Opzx7PrValue::ops> m_operators;
     std::array<bool, Opzx7PrValue::ops> m_opMask{ false };
     std::array<float, Opzx7PrValue::ops> m_history1 = { 0.0f };
-    std::array<float, Opzx7PrValue::ops> m_history2 = { 0.0f };
 
     Opzx7LfoCore m_lfo;
 
@@ -156,6 +155,9 @@ private:
 
     // Rate & Quality
     int m_rateIndex = 1;
+
+    // 目標レートは 1 サンプルごとに要るので、変わったときだけ求めて持っておく
+    double m_targetRate = 96000.0; // m_rateIndex = 1 (96kHz) に合わせた初期値
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
     float m_prevSample = 0.0f;

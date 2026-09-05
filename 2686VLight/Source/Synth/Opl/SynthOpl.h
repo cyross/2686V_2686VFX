@@ -75,7 +75,6 @@ private:
     std::array<OplOperator, OplPrValue::ops> m_operators;
     std::array<bool, OplPrValue::ops> m_opMask{ false };
     std::array<float, OplPrValue::ops> m_history1 = { 0.0f };
-    std::array<float, OplPrValue::ops> m_history2 = { 0.0f };
 
     // チップ全体へ掛かる AMP ENV。オペレータごとのエンベロープとは別に、
     // 出力段でもう一段掛ける。level は次のサンプルへ持ち越す。
@@ -123,6 +122,9 @@ private:
     int m_algorithm = 0;
     double m_hostSampleRate = 44100.0;
     int m_rateIndex = 1;
+
+    // 目標レートは 1 サンプルごとに要るので、変わったときだけ求めて持っておく
+    double m_targetRate = 96000.0; // m_rateIndex = 1 (96kHz) に合わせた初期値
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
     float m_prevSample = 0.0f;

@@ -3,27 +3,45 @@
 
 #include "./KSOps.h"
 
-KSOps::KSOps() {
-    for (int i = 0; i < 128; i++) {
-        int octave = (i / 12) - 1;
+namespace
+{
+    // 表の中身は音符から決まるだけで、どの実体でも同じになる。
+    // 1 実体あたり 2.5KB あり、オペレータの数だけ抱えると数 MB になるので、
+    // 1 組だけ作って皆で見る。
+    struct KSOpsTables
+    {
+        std::array<int, 128> keyRates{};
+        std::array<float, 256> xs{};
+        std::array<float, 256> xpows{};
 
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
+        KSOpsTables()
+        {
+            for (int i = 0; i < 128; i++) {
+                int octave = (i / 12) - 1;
 
-        int noteOffset = i % 12;
+                if (octave < 0) octave = 0;
+                if (octave > 7) octave = 7;
 
-        keyRates[i] = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-    }
+                int noteOffset = i % 12;
 
-    for (int xx = -127; xx < 127; xx++) { // noteNumber(0～127) - m_ksBp(0～127)
-        int xd = xx + 127;
-        float diff = (float)xx;
-        float x = std::abs(diff) / 12.0f; // 1オクターブを1.0とする
-        float maxDbPerOct = 48.0f; // 1オクターブあたりの最大変化量
+                keyRates[i] = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+            }
 
-        xs[xd] = maxDbPerOct * x;
-        xpows[xd] = maxDbPerOct * (std::pow(2.0f, x) - 1.0f);
-    }
+            // noteNumber(0〜127) - m_ksBp(0〜127) は -127〜+127 になる。
+            // +127 でずらした 0〜254 を全部埋める (以前は末尾が空のままだった)。
+            for (int xx = -127; xx <= 127; xx++) {
+                int xd = xx + 127;
+                float diff = (float)xx;
+                float x = std::abs(diff) / 12.0f; // 1オクターブを1.0とする
+                float maxDbPerOct = 48.0f; // 1オクターブあたりの最大変化量
+
+                xs[xd] = maxDbPerOct * x;
+                xpows[xd] = maxDbPerOct * (std::pow(2.0f, x) - 1.0f);
+            }
+        }
+    };
+
+    const KSOpsTables tables;
 }
 
 void KSOps::setParameters(const KSOpsParams& params) {
@@ -60,13 +78,13 @@ float KSOps::calcLevelScalingDb(const int noteNumber) const {
 
     switch (curve) {
     case 0: // -LIN (距離に応じて直線的に減衰)
-        return xs[xd] * depth;
+        return tables.xs[xd] * depth;
     case 1: // -EXP (距離に応じて指数的に減衰)
-        return xpows[xd] * depth;
+        return tables.xpows[xd] * depth;
     case 2: // +EXP (距離に応じて指数的に増幅)
-        return -xpows[xd] * depth;
+        return -tables.xpows[xd] * depth;
     case 3: // +LIN (距離に応じて直線的に増幅)
-        return -xs[xd] * depth;
+        return -tables.xs[xd] * depth;
     }
 
     return 0.0f;
