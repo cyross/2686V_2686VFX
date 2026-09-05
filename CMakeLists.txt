@@ -188,6 +188,7 @@ add_subdirectory(2686VOrigin)
 add_subdirectory(26V)
 add_subdirectory(OPZX7S)
 add_subdirectory(2686VFX)
+add_subdirectory(OPMV)
 
 # マニュアル用の道具 (出荷するものではない)
 add_subdirectory(tools)
