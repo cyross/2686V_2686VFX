@@ -435,6 +435,11 @@ public:
     //
     // 範囲や小数桁は setup の後で決められることがあるので、置き場所が
     // 決まってから数える。
+    // 直前に測った文字。同じなら測り直さない。
+    // 値の枠幅は範囲と書式だけで決まるので、置き直しのたびに
+    // 文字の幅を測るのは無駄になる。
+    juce::String measuredText;
+
     void updateValueBoxWidth();
 
     void resized() override;

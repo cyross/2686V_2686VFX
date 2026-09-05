@@ -35,7 +35,6 @@ void GuiBeep::setup() {
     int tabOrder = 1;
 
     p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
 
     mainGroup.setup(*this, BeepGuiText::Group::mainGroup); // GuiText 等に置換
 
@@ -361,7 +360,9 @@ void GuiBeep::updateGraph()
     GraphMode mode = currentGraphMode;
 
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
 
     // =============================================================
     // Pitch Env

@@ -200,7 +200,6 @@ class GuiOpl : public GuiBase
     std::array<GraphMode, OplPrValue::ops> currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
-    GuiCurve* p_guiCurve = nullptr;
 
     bool isUpdatingGraph = false;
 

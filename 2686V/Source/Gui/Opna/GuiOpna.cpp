@@ -197,7 +197,6 @@ void GuiOpna::setup()
     int tabOrder = 1;
 
     p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
 
     mainGroup.setup(*this, OpnaGuiText::Group::mainGroup);
 
@@ -1486,7 +1485,9 @@ void GuiOpna::layoutGlobalGraph(juce::Rectangle<int>& rect)
 void GuiOpna::updateGlobalGraph()
 {
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
     if (currentGlobalGraphMode == GlobalGraphMode::SsgSw11) {
         ssgSwEnv11g.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
     }
@@ -1600,7 +1601,9 @@ void GuiOpna::updateOpGraph(int opIndex)
     GraphMode mode = currentGraphMode[opIndex];
 
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
 
     // -------------------------------------------------------------
     // Helper: 幅の計算 (Amp 用)

@@ -367,23 +367,52 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     stopTimer(playingLampTimer);
 }
 
+juce::Point<int> AudioPlugin2686VEditor::getExpectedSize() const
+{
+    // MiniPlayer は波形を 3 つ横に並べる。幅はその並びで決まる
+    const int miniWidth = EditorGuiValue::MiniPreview::paddingLeft
+        + EditorGuiValue::MiniPreview::drawWidth * 3
+        + EditorGuiValue::MiniPreview::paddingInnerX * 2
+        + EditorGuiValue::MiniPreview::paddingRight;
+
+    const int miniHeight = EditorGuiValue::MiniPreview::paddingTop
+        + EditorGuiValue::MiniPreview::presetLabelHeight
+        + EditorGuiValue::MiniPreview::paddingInnerY
+        + EditorGuiValue::MiniPreview::labelHeight
+        + EditorGuiValue::MiniPreview::paddingDrawSpaceY
+        + EditorGuiValue::MiniPreview::drawHeight
+        + EditorGuiValue::MiniPreview::paddingInnerY
+        + EditorGuiValue::MinimumPreview::logoHeight
+        + EditorGuiValue::MiniPreview::paddingBottom;
+
+    if (viewMode == ViewMode::Minimum) {
+        // 一番小さい表示はロゴと名前だけなので高さを固定にする
+        return { miniWidth, 100 };
+    }
+
+    if (viewMode == ViewMode::Full) {
+        const int width = isPreviewVisible
+            ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth
+            : EditorGuiValue::Window::width;
+
+        const int height = audioProcessor.showVirtualKeyboard
+            ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight
+            : EditorGuiValue::Window::height;
+
+        return { width, height };
+    }
+
+    return { miniWidth, miniHeight };
+}
+
 void AudioPlugin2686VEditor::updateWindowSize()
 {
     // スケールを適用
     setScaleFactor(uiScale);
 
-    // viewMode に応じたウィンドウサイズを計算して適用
-    if (viewMode == ViewMode::MiniPlayer) {
-        setSize(640, 300);
-    }
-    else if (viewMode == ViewMode::Minimum) {
-        setSize(640, 100);
-    }
-    else {
-        int targetWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
-        int targetHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
-        setSize(targetWidth, targetHeight);
-    }
+    const auto expected = getExpectedSize();
+
+    setSize(expected.x, expected.y);
 }
 
 void AudioPlugin2686VEditor::showFullView() {
@@ -494,29 +523,11 @@ void AudioPlugin2686VEditor::resized()
     // =========================================================================
     // 0. DAWによる不意なサイズ変更（キャッシュによる強制上書き）を防ぐガード
     // =========================================================================
-    int expectedW = EditorGuiValue::MiniPreview::paddingLeft + EditorGuiValue::MiniPreview::drawWidth * 3 + EditorGuiValue::MiniPreview::paddingInnerX * 2 + EditorGuiValue::MiniPreview::paddingRight; // 期待する幅の初期値 (MiniPlayer)
-    int expectedH = EditorGuiValue::MiniPreview::paddingTop
-        + EditorGuiValue::MiniPreview::presetLabelHeight
-        + EditorGuiValue::MiniPreview::paddingInnerY
-        + EditorGuiValue::MiniPreview::labelHeight
-        + EditorGuiValue::MiniPreview::paddingDrawSpaceY
-        + EditorGuiValue::MiniPreview::drawHeight
-        + EditorGuiValue::MiniPreview::paddingInnerY
-        + EditorGuiValue::MinimumPreview::logoHeight
-        + EditorGuiValue::MiniPreview::paddingBottom; // 期待する高さの初期値 (MiniPlayer)
-
-    if (viewMode == ViewMode::Minimum) {
-        expectedW = expectedW;
-        expectedH = 100;
-    }
-    else if (viewMode == ViewMode::Full) {
-        expectedW = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
-        expectedH = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
-    }
+    const auto expected = getExpectedSize();
 
     // DAWが勝手に期待サイズ以外のサイズに変更してきた場合、強制的に正しいサイズに戻す
-    if (getWidth() != expectedW || getHeight() != expectedH) {
-        setSize(expectedW, expectedH);
+    if (getWidth() != expected.x || getHeight() != expected.y) {
+        setSize(expected.x, expected.y);
 
         return; // setSize を呼ぶと再び resized() が走るため、ここで処理を中断して無限ループを防ぐ
     }

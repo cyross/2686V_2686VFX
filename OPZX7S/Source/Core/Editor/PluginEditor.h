@@ -185,7 +185,6 @@ public:
     void updateTimerState();
     void updatePreviewVisibilityToProcessor();
     bool keyPressed(const juce::KeyPress& key) override;
-    GuiCurve* getCurveGui();
     void updateUiScale(float newScale);
     void resetMidiSettings();
     void breadcastLevel(float level);
@@ -373,6 +372,11 @@ private:
     void showMiniPlayerView();
     void showMinimumView();
     void updateWindowSize();
+
+    // いまの表示モードで本来あるべき窓の大きさ。
+    // updateWindowSize と resized の両方がこれを見る。別々に書いていたころは
+    // 値が食い違い、切り替えた直後に一度違う大きさで置いてから直していた。
+    juce::Point<int> getExpectedSize() const;
 
     inline juce::String getPreviewButtonText();
     inline juce::String getPreviewTooltipText();

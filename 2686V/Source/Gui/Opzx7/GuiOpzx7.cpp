@@ -531,7 +531,6 @@ void GuiOpzx7::refreshFeedbackValues()
 void GuiOpzx7::setup()
 {
     p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
 
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
@@ -2188,7 +2187,9 @@ void GuiOpzx7::layoutGlobalGraph(juce::Rectangle<int>& rect)
 void GuiOpzx7::updateGlobalGraph()
 {
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
     if (currentGlobalGraphMode == GlobalGraphMode::SsgSw11) {
         ssgSwEnv11g.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
     }
@@ -2471,7 +2472,9 @@ void GuiOpzx7::updateOpGraph(int opIndex)
     GraphMode mode = currentGraphMode[opIndex];
 
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
 
     int posIdx = opIndex + 1; // Position::Op1 = 1, Op2 = 2 ... (Common=0) に合わせる
 

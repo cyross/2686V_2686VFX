@@ -258,7 +258,6 @@ class GuiOpzx7 : public GuiBase
     std::array<GraphMode, Opzx7PrValue::ops> currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
-    GuiCurve* p_guiCurve = nullptr;
 
     bool isUpdatingGraph = false;
 

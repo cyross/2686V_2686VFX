@@ -53,7 +53,6 @@ static std::vector<SelectItem> ssgDmItems = {
 void GuiSsg::setup()
 {
     p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
 
     const juce::String code = SsgPrKey::prefix;
     int tabOrder = 1;
@@ -607,7 +606,9 @@ void GuiSsg::updateGraph()
     GraphMode mode = currentGraphMode;
 
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
 
     // =============================================================
     // Pitch Env

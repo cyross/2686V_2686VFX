@@ -226,6 +226,11 @@ void GuiSlider::updateValueBoxWidth()
 
     const auto& widest = high.length() >= low.length() ? high : low;
 
+    // 出る文字が前と同じなら幅も同じ。測り直さない。
+    if (widest == measuredText) return;
+
+    measuredText = widest;
+
     // 波括弧で初期化する。丸括弧だと関数の宣言として読まれてしまう。
     juce::Font font{ juce::FontOptions(CoreGuiValue::Slider::ValueBox::fontHeight) };
 

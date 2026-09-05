@@ -54,7 +54,6 @@ void GuiWtPlus::setup() {
     int tabOrder = 1;
 
     p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
 
     mainGroup.setup(*this, WtPlusGuiText::Group::mainGroup);
     waveGroup.setup(*this, WtPlusGuiText::Group::waveGroup);
@@ -488,7 +487,9 @@ void GuiWtPlus::updateGraph()
 {
     GraphMode mode = currentGraphMode;
 
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
 
     if (mode == GraphMode::Pitch) {
         pitchEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);

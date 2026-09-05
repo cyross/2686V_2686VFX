@@ -531,7 +531,6 @@ void GuiOpzx7::refreshFeedbackValues()
 void GuiOpzx7::setup()
 {
     p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
 
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {

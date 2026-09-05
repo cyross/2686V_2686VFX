@@ -80,7 +80,6 @@ void RhythmPadGui::updateSamplePreview()
 void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName, int& tabOrder)
 {
     p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
 
     auto setupPanBtn = [this](juce::Component& parent, GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
@@ -564,7 +563,9 @@ void RhythmPadGui::updateGraph()
     GraphMode mode = currentGraphMode;
 
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
 
     // =============================================================
     // Pitch Env

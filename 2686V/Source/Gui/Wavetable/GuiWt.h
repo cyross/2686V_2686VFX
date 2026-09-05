@@ -168,7 +168,6 @@ class GuiWt : public GuiBase
     GraphMode currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
-    GuiCurve* p_guiCurve = nullptr;
 
     bool isUpdatingGraph = false;
 

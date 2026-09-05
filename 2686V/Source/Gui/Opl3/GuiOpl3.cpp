@@ -96,7 +96,6 @@ void GuiOpl3::setup()
     setWantsKeyboardFocus(true);
 
     p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
 
     const juce::String code = Opl3PrKey::prefix;
     int tabOrder = 1;
@@ -1159,7 +1158,9 @@ void GuiOpl3::layoutGlobalGraph(juce::Rectangle<int>& rect)
 void GuiOpl3::updateGlobalGraph()
 {
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
     if (currentGlobalGraphMode == GlobalGraphMode::SsgSw11) {
         ssgSwEnv11g.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
     }
@@ -1272,7 +1273,9 @@ void GuiOpl3::updateOpGraph(int opIndex)
     GraphMode mode = currentGraphMode[opIndex];
 
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
 
     // -------------------------------------------------------------
     // Helper: 幅の計算 (Amp 用)
