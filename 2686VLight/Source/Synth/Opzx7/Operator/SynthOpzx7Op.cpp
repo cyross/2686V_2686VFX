@@ -370,12 +370,15 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     float totalAmpMod = 1.0f;
 
     // ① グローバルAM (最大 96dB の減衰)
+    // 揺れ幅が 0 のときは 1 倍なので、1 サンプルごとの pow を省く
     if (glLfo.am.enable) {
-        totalAmpMod *= std::pow(10.0f, -(glLfo.value.am * glLfo.am.depthDb) / 20.0f);
+        const float amDb = glLfo.value.am * glLfo.am.depthDb;
+        if (amDb != 0.0f) totalAmpMod *= std::pow(10.0f, -amDb / 20.0f);
     }
 
     if (m_lfo.am.enable) {
-        totalAmpMod *= std::pow(10.0f, -(m_lfo.value.am * m_lfo.am.depthDb) / 20.0f);
+        const float amDb = m_lfo.value.am * m_lfo.am.depthDb;
+        if (amDb != 0.0f) totalAmpMod *= std::pow(10.0f, -amDb / 20.0f);
     }
 
     envVal *= totalAmpMod;
@@ -397,8 +400,10 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // ③ モジュレーションホイール (Global LFO を使用、最大200セント)
     currentPitchCent += glLfo.value.pm * (modWheel * 200.0f);
 
-    // 蓄積した Cent を周波数倍率に変換
-    float lfoPitchMod = std::pow(2.0f, currentPitchCent / 1200.0f);
+    // 蓄積した Cent を周波数倍率に変換。0 セントなら 1 倍なので pow を省く
+    float lfoPitchMod = (currentPitchCent != 0.0f)
+        ? std::pow(2.0f, currentPitchCent / 1200.0f)
+        : 1.0f;
 
     // ========================================================
     // 3. 位相と波形の生成
@@ -777,7 +782,10 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
         return normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f;
     case 33:
         sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
-        return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
+        val = 1.0f - std::abs(s);
+        val *= val;   // 2 乗
+        val *= val;   // 4 乗。pow より速く、値は同じ
+        return sign * (1.0f - val);
     case 34:
         return 1.0f - normPhase * 2.0f;
     case 35:
@@ -793,7 +801,8 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     case 40:
         return std::tanh(s * 5.0f);
     case 41:
-        return std::exp(-100.0f * std::pow(normPhase - 0.5f, 2.0f)) * 2.0f - 1.0f;
+        val = normPhase - 0.5f;
+        return std::exp(-100.0f * val * val) * 2.0f - 1.0f;
     case 42:
         return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f;
     case 43:

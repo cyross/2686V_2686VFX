@@ -827,10 +827,12 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     addAndMakeVisible(tabs);
     tabs.addTab(EditorGuiText::Tab::opn, juce::Colours::transparentBlack, &tabHosts[tabOpn], false);
     tabs.addTab(EditorGuiText::Tab::ssg, juce::Colours::transparentBlack, &tabHosts[tabSsg], false);
-    tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
+    // 画面は unique_ptr が持っているので、タブ側へは所有権を渡さない。
+    // true にすると閉じるときに二重で消してしまう。
+    tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), false);
+    tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), false);
+    tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), false);
+    tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), false);
 }
 
 void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)

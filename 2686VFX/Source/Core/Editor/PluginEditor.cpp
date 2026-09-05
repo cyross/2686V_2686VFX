@@ -1169,10 +1169,12 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     addAndMakeVisible(tabs);
     // FX はもともと画面の下へ敷いていたが、このプラグインでは主役なので
     // 独立したタブにする。
-    tabs.addTab(EditorGuiText::Tab::fx, juce::Colours::transparentBlack, fxGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
+    // 画面は unique_ptr が持っているので、タブ側へは所有権を渡さない。
+    // true にすると閉じるときに二重で消してしまう。
+    tabs.addTab(EditorGuiText::Tab::fx, juce::Colours::transparentBlack, fxGui.get(), false);
+    tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), false);
+    tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), false);
+    tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), false);
 }
 
 

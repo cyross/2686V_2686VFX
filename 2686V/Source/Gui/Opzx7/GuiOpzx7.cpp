@@ -1115,7 +1115,8 @@ void GuiOpzx7::setup()
             };
 
         wt2FileNameLabel[i].setup({ .parent = opGroups[i].contentCanvas, .title = Io::empty });
-        if (ctx.audioProcessor.opzx7WtFilePaths[i].isNotEmpty()) {
+        // 出すのは WT2 の名前なので、有無も WT2 側で見る
+        if (ctx.audioProcessor.opzx7Wt2FilePaths[i].isNotEmpty()) {
             updateWt2FileName(i, juce::File(ctx.audioProcessor.opzx7Wt2FilePaths[i]).getFileName());
         }
 

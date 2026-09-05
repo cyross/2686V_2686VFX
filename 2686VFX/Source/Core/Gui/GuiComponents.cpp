@@ -613,7 +613,7 @@ void GuiMasterVolumeSlider::setup(const GuiSlider::Config& c)
 void GuiMmlButton::setupMml(const MmlConfig& c)
 {
     // ボタンがクリックされた時の処理をここに閉じ込める
-    this->onClick = [c] {
+    this->onClick = [this, c] {
         // オペレーター番号は 0始まりを想定しているので +1 して表示
         auto* w = new juce::AlertWindow(
             juce::String("") + "MML風入力(オペレーター" + juce::String(c.opIndex + 1) + ")",
@@ -626,8 +626,14 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
 
         GuiDialog::styleButtons(*w);
 
+        // 画面が閉じたあとに答えが返ってくることがある。c.onMmlApplied は
+        // 音源の画面を捕まえているので、このボタンが生きているかを見てから呼ぶ。
+        juce::Component::SafePointer<GuiMmlButton> safeThis(this);
+
         // モーダル表示 (ラムダ式には設定値 c と ウィンドウ w をコピーキャプチャする)
-        w->enterModalState(true, juce::ModalCallbackFunction::create([c, w](int result) {
+        w->enterModalState(true, juce::ModalCallbackFunction::create([c, w, safeThis](int result) {
+            if (safeThis == nullptr) return;
+
             if (result == 1) {
                 juce::String mmlText = w->getTextEditorContents("mmlInput");
 

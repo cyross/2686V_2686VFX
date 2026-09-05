@@ -376,8 +376,9 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
     lfoPitchMod += m_hwLfo.value.pm;
 
     // ③ モジュレーションホイール (Global LFO を使う)
+    // ホイールを触っていなければ 1 倍。1 サンプルごとの pow を省く
     float wheelCent = n88Lfo.value.pm * (modWheel * 200.0f);
-    lfoPitchMod *= std::pow(2.0f, wheelCent / 1200.0f);
+    if (wheelCent != 0.0f) lfoPitchMod *= std::pow(2.0f, wheelCent / 1200.0f);
 
     // ========================================================
     // 3. 位相と波形の生成

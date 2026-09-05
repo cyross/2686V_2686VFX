@@ -471,13 +471,17 @@ void GuiColors::openEditor(int row)
 
 	GuiDialog::styleButtons(*window);
 
+	// 画面が閉じたあとに答えが返ってくることがあるので、表を触る前に生死を見る。
+	// 色そのものは共有の入れ物なので、画面が無くなっていても入れて構わない。
+	juce::Component::SafePointer<GuiColors> safeThis(this);
+
 	// 所有権はダイアログへ渡らないので、閉じるまでこちらで抱える
 	window->enterModalState(true, juce::ModalCallbackFunction::create(
-		[this, id, panel](int result) {
+		[safeThis, id, panel](int result) {
 			if (result == 1) GuiColor::setColour(id, panel->currentColour());
 			else if (result == 2) GuiColor::resetColour(id);
 
-			table.updateContent();
+			if (safeThis != nullptr) safeThis->table.updateContent();
 		}), true);
 }
 
