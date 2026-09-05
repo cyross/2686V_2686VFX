@@ -644,23 +644,32 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - [Dir]2686V
     - [Dir]Presets                 : 2686V用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
-        - [Dir]26V                 : 26V用プリセットファイルフォルダ
-        - [Dir]86V                 : 86V用プリセットファイルフォルダ
-        - [Dir]2686V               : 2686V用プリセットファイルフォルダ
-        - [Dir]2686VLight          : 2686VLight用プリセットファイルフォルダ
-        - [Dir]OPNV                : OPNV用プリセットファイルフォルダ
-        - [Dir]OPLV                : OPLV用プリセットファイルフォルダ
-        - [Dir]OPMV                : OPMV用プリセットファイルフォルダ
-        - [Dir]OPZX7S              : OPZX7S用プリセットファイルフォルダ
-        - [Dir]PULSEV              : PULSEV用プリセットファイルフォルダ
-        - [Dir]WTV                 : WTV用プリセットファイルフォルダ
-        - [Dir]PCMV                : PCMV用プリセットファイルフォルダ
       - [Dir]OPLL Roms             : OPLLのROMプリセット音色(ご利用に関しては、必ず「"OPLL Roms" フォルダ内のプリセットに関して」をご確認ください！)
       - [Dir]SSG Drums             : "SSG RHYTHM Sample.xml" で使用するドラムサンプルファイルのもとになったプリセットファイル群
       - [Dir]WT Samples            : 波形メモリの参考用プリセットファイル群
       - SSG RHYTHM Sample.xml      : リズム音源サンプル用のプリセット
       - Tekitou PSG.xml            : 適当に作った、参考用PSGプリセット
       - M-M-Pro                    : 某野球ゲーム音声合成のリズム音源・ADPCM(DPCM品質)チャンネル用プリセット
+    - [Dir]2686VLPresets           : 2686VLight用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]26VPresets              : 26V用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]2686VOPresets           : 86V用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]OPZX7Presets            : OPZX7S用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]OPNVPresets             : OPNV用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]OPLVPresets             : OPLV用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]OPMVPresets             : OPMV用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]WTVPresets              : WTV用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]PCMVPresets             : PCMV用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
+    - [Dir]PULSEVPresets           : PULSEV用プリセットファイルフォルダ
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
     - [Dir]Resources               : リソースファイル(**フォルダ名や中のファイルは絶対に変更・編集・削除しないでください！**)
     - [Dir]Samples                 : 初期サンプル(音声)ファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
@@ -745,6 +754,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 ### 9-2. Assetsフォルダ
 
 - `Assets`フォルダの直下に `2686V` フォルダがありますので、このファイルを**ドキュメントフォルダの直下**に**必ず**コピーしてください
+  - `2686V` フォルダの中は、プラグインが読みに行く形そのままになっています。プリセットはプラグインごとにフォルダが分かれており(`Presets` は 2686V 用、`26VPresets` は 26V 用…)、そのままコピーすればそれぞれのプラグインの一覧に出ます
 
 ### 9-3. *.exe
 

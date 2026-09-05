@@ -645,23 +645,32 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - [Dir]2686V
     - [Dir]Presets                 : the preset file folder for 2686V
       - [Dir]fromCC                : the folder of files made for me by Claude Code
-        - [Dir]26V                 : the preset file folder for 26V
-        - [Dir]86V                 : the preset file folder for 86V
-        - [Dir]2686V               : the preset file folder for 2686V
-        - [Dir]2686VLight          : the preset file folder for 2686VLight
-        - [Dir]OPNV                : the preset file folder for OPNV
-        - [Dir]OPLV                : the preset file folder for OPLV
-        - [Dir]OPMV                : the preset file folder for OPMV
-        - [Dir]OPZX7S              : the preset file folder for OPZX7S
-        - [Dir]PULSEV              : the preset file folder for PULSEV
-        - [Dir]WTV                 : the preset file folder for WTV
-        - [Dir]PCMV                : the preset file folder for PCMV
       - [Dir]OPLL Roms             : OPLL ROM preset voices (before using these, please be sure to read "About the presets in the OPLL Roms folder"!)
       - [Dir]SSG Drums             : the preset files the drum samples used by "SSG RHYTHM Sample.xml" were made from
       - [Dir]WT Samples            : reference preset files for wave memory
       - SSG RHYTHM Sample.xml      : a preset for the rhythm sound source sample
       - Tekitou PSG.xml            : a rough-and-ready PSG preset, for reference
       - M-M-Pro                    : presets for the rhythm and ADPCM (DPCM quality) channels doing the voice synthesis from a certain baseball game
+    - [Dir]2686VLPresets           : the preset file folder for 2686VLight
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]26VPresets              : the preset file folder for 26V
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]2686VOPresets           : the preset file folder for 86V
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]OPZX7Presets            : the preset file folder for OPZX7S
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]OPNVPresets             : the preset file folder for OPNV
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]OPLVPresets             : the preset file folder for OPLV
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]OPMVPresets             : the preset file folder for OPMV
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]WTVPresets              : the preset file folder for WTV
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]PCMVPresets             : the preset file folder for PCMV
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
+    - [Dir]PULSEVPresets           : the preset file folder for PULSEV
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
     - [Dir]Resources               : resource files (**never rename, edit or delete this folder or its contents!**)
     - [Dir]Samples                 : the folder for the initial sample (audio) files
       - [Dir]fromCC                : the folder of files made for me by Claude Code
@@ -746,6 +755,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 ### 9-2. The Assets folder
 
 - Directly under the `Assets` folder there is a `2686V` folder. You **must** copy it **directly into your Documents folder**.
+  - What is inside the `2686V` folder already matches the layout each plugin reads. Presets are split per plugin (`Presets` for 2686V, `26VPresets` for 26V, and so on), so copying it as-is makes them show up in each plugin's list.
 
 ### 9-3. *.exe
 
