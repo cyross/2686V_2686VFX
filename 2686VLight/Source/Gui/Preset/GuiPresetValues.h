@@ -39,6 +39,13 @@ namespace PresetGuiValue
 		}
 	}
 
+	namespace Format
+	{
+		static inline constexpr int LabelWidth = 40;
+		static inline constexpr int Width = 90;
+		static inline constexpr int PaddingRight = 10;
+	}
+
 	namespace View
 	{
 		static inline constexpr int LabelWidth = 50;

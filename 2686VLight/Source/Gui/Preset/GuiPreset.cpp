@@ -116,6 +116,27 @@ void GuiPreset::setup()
         applyFilter();
         };
 
+    // 形式での絞り込み。同じフォルダに JSON と YAML と XML が混ざると
+    // 目で追いにくいので、出すものを絞れるようにしてある。
+    std::vector<SelectItem> formatItems = {
+        {.name = PresetKey::Format::all, .value = 1 },
+        {.name = PresetKey::Format::xml, .value = 2 },
+        {.name = PresetKey::Format::json, .value = 3 },
+        {.name = PresetKey::Format::yaml, .value = 4 },
+    };
+
+    formatSelector.setup({ .parent = *this, .id = "", .title = PresetKey::Format::title,
+        .items = formatItems, .isReset = false });
+    formatSelector.setSelectedId(1, juce::dontSendNotification);
+    formatSelector.setWantsKeyboardFocus(true);
+    formatSelector.setExplicitFocusOrder(++tabOrder);
+
+    formatSelector.onChange = [this] {
+        formatFilter = (Format)formatSelector.getSelectedItemIndex();
+
+        applyFilter();
+        };
+
     clearHistoryButton.setup({ .parent = *this, .title = PresetKey::View::clearHistory,
         .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
     clearHistoryButton.setWantsKeyboardFocus(true);
@@ -555,6 +576,12 @@ void GuiPreset::layout(juce::Rectangle<int> content)
 
     searchArea.removeFromLeft(PresetGuiValue::View::PaddingRight);
 
+    // 形式の絞り込みは見方の右隣。どちらも一覧の元を決めるものなので並べる。
+    formatSelector.label.setBounds(searchArea.removeFromLeft(PresetGuiValue::Format::LabelWidth));
+    formatSelector.setBounds(searchArea.removeFromLeft(PresetGuiValue::Format::Width));
+
+    searchArea.removeFromLeft(PresetGuiValue::Format::PaddingRight);
+
     clearHistoryButton.setBounds(searchArea.removeFromRight(PresetGuiValue::View::ClearHistoryWidth));
 
     searchArea.removeFromRight(PresetGuiValue::Search::Row::Padding::Right);
@@ -706,9 +733,17 @@ void GuiPreset::applyFilter()
 
     juce::String query = searchBox.getText().trim().toLowerCase();
 
+    // PresetItem::format は拡張子を大文字にしたもの。空なら形式で絞らない。
+    const juce::String wantFormat =
+        formatFilter == Format::xml ? PresetKey::Format::xml :
+        formatFilter == Format::json ? PresetKey::Format::json :
+        formatFilter == Format::yaml ? PresetKey::Format::yaml : juce::String();
+
     // ファイル名、プリセット名、ジャンル、作者名、コメント、チャンネルの
     // どれかに合っていたら出す。検索窓が空ならすべて出す。
     for (const auto& item : source) {
+        if (wantFormat.isNotEmpty() && item.format != wantFormat) continue;
+
         if (query.isNotEmpty()
             && !item.name.toLowerCase().contains(query)
             && !item.genre.toLowerCase().contains(query)
