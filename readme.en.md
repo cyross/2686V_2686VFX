@@ -4,11 +4,28 @@
 
 ## 1. Introduction
 
-"2686V" (hereafter referred to collectively as "this software") provides plugins that produce retro sound chip (FM/SSG/ADPCM, etc.) style audio — "2686V", "2686VLight", "26V", "86V" and "OPZX7S" — plus the effect plugin "2686VFX".
+"2686V" (hereafter referred to collectively as "this software") provides the "2686V" family, a set of plugins that produce retro sound chip (FM/SSG/ADPCM, etc.) style audio.
+
+The "2686V" family is made up of the following plugins.
+
+- **2686V**: my dream ultimate retro sound VST plugin
+- **2686VLight**: a lightweight version of 2686V
+- **26V**: 2686VLight brought closer to the "PC-9801-26(K)" configuration
+- **86V**: 2686VLight brought closer to the "PC-9801-86" configuration
+- **OPNV**: the OPN-family channels lifted out of 2686V
+- **OPLV**: the OPL-family channels lifted out of 2686V
+- **OPMV**: the OPM-family channels lifted out of 2686V
+- **OPZX7S**: a plugin positioned as a modern FM synthesis operator
+- **PULSEV**: the pulse channels (SSG, BEEP) lifted out of 2686V
+- **WTV**: the wave memory channels (WT/WT2/WT+) lifted out of 2686V
+- **PCMV**: the PCM channels (ADPCM/PCM) lifted out of 2686V
+- **2686VFX**: an effect plugin derived from 2686V
 
 ## 2. Purpose
 
 I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26" or a "PC-9801-86", and nothing out there met my standards. So I set out to build a plugin... or at least, that was the plan...
+
+*The original goal was met in v3.0.0.*
 
 ## 3. Overview
 
@@ -102,10 +119,34 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - The "ADPCM" channel is renamed "PCM", and its initial audio quality is changed to "4-bit PCM".
     - The RHYTHM channel has 6 pads.
       - Parameter file compatibility is preserved.
+- **OPNV**:
+  - The OPN-family channels lifted out of 2686V.
+  - Carries OPNA and OPN.
+  - Curve Edit Mode can be switched on and off.
+- **OPLV**:
+  - The OPL-family channels lifted out of 2686V.
+  - Carries OPL and OPL3.
+  - Curve Edit Mode can be switched on and off.
+- **OPMV**:
+  - The OPM-family channels lifted out of 2686V.
+  - Carries OPM.
+  - Curve Edit Mode can be switched on and off.
 - **OPZX7S**:
   - A plugin positioned as a modern FM synthesis operator.
   - The OPZX7S channel and Curve Edit Mode extracted from 2686V, with a lower load.
   - Curve Edit Mode applies by default (the traditional linear mode is omitted).
+- **PULSEV**:
+  - The pulse channels (SSG, BEEP) lifted out of 2686V.
+  - Carries SSG and BEEP.
+  - Curve Edit Mode can be switched on and off.
+- **WTV**:
+  - The wave memory channels (WT/WT2/WT+) lifted out of 2686V.
+  - Carries WT, WT2 and WT+.
+  - Curve Edit Mode can be switched on and off.
+- **PCMV**:
+  - The PCM channels (ADPCM/PCM) lifted out of 2686V.
+  - Carries RHYTHM and PCM.
+  - Curve Edit Mode can be switched on and off.
 - **2686VFX**:
   - An effect plugin derived from 2686V.
   - The effects and modulation used in 2686V, now usable on your DAW's instrument and audio tracks.
@@ -383,6 +424,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - Original waveforms added.
       - The MIN/MAX of the range can be set.
       - Waveform preview.
+    - **SSG hardware pitch envelope (v3.1.0 onwards)**
+      - The pitch version of the SSG hardware amp envelope.
     - 11-tap SSG software envelope (SSG SW ENV11)
       - Extends the tap count to 11.
         - Rates can be set from 0.0 to 10.0 seconds.
@@ -407,6 +450,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - Also carries the PCE feature where the wave memory itself is used as the modulator.
         - Switchable between 8 waveforms in real time.
       - The FDS feature of customising the waveform on the spot is available.
+    - **Wave memory amp modulation (v3.1.0 onwards)**
+      - Wave memory pitch modulation, applied to level instead.
   - Applies to every channel, operator and rhythm pad.
 - Independent effects
   - A set of modern effects is built in
@@ -500,6 +545,14 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - The audio files loaded into RHYTHM pads and ADPCM (PCM)
     - The WS PITCH MOD waveform
     - The waveforms loaded into WT+
+  - **Controls rationalised (v3.1.0 onwards)**
+    - The layout of sliders and load buttons has been tidied up.
+    - Values and waveform lists are shown separately.
+    - A considerably lighter load.
+  - **Simple view (v3.1.0 onwards)**
+    - A mode that shows only the sections you need.
+    - A lighter load, and fewer sections to read.
+    - Which sections stay visible can be customised.
 
 ## 5. Supported OS
 
@@ -537,14 +590,26 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - 2686VLight.vst3 : the "2686VLight" synth plugin
       - 26V.vst3 : the "26V" synth plugin
       - 86V.vst3 : the "86V" synth plugin
+      - OPNV.vst3 : the "OPNV" synth plugin
+      - OPLV.vst3 : the "OPLV" synth plugin
+      - OPMV.vst3 : the "OPMV" synth plugin
       - OPZX7S.vst3 : the "OPZX7S" synth plugin
+      - PULSEV.vst3 : the "PULSEV" synth plugin
+      - WTV.vst3 : the "WTV" synth plugin
+      - PCMV.vst3 : the "PCMV" synth plugin
       - 2686VFX.vst3 : the "2686VFX" effect plugin
     - Standalone
       - 2686V.exe : the standalone program for 2686V
       - 2686VLight.exe : the standalone program for 2686VLight
       - 26V.exe : the standalone program for 26V
       - 86V.exe : the standalone program for 86V
+      - OPNV.exe : the standalone program for OPNV
+      - OPLV.exe : the standalone program for OPLV
+      - OPMV.exe : the standalone program for OPMV
       - OPZX7S.exe : the standalone program for OPZX7S
+      - PULSEV.exe : the standalone program for PULSEV
+      - WTV.exe : the standalone program for WTV
+      - PCMV.exe : the standalone program for PCMV
       - 2686VFX.exe : the standalone program for 2686VFX
   - ARM64
     - VST3
@@ -552,14 +617,26 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - 2686VLight.vst3 : the "2686VLight" synth plugin
       - 26V.vst3 : the "26V" synth plugin
       - 86V.vst3 : the "86V" synth plugin
+      - OPNV.vst3 : the "OPNV" synth plugin
+      - OPLV.vst3 : the "OPLV" synth plugin
+      - OPMV.vst3 : the "OPMV" synth plugin
       - OPZX7S.vst3 : the "OPZX7S" synth plugin
+      - PULSEV.vst3 : the "PULSEV" synth plugin
+      - WTV.vst3 : the "WTV" synth plugin
+      - PCMV.vst3 : the "PCMV" synth plugin
       - 2686VFX.vst3 : the "2686VFX" effect plugin
     - Standalone
       - 2686V.exe : the standalone program for 2686V
       - 2686VLight.exe : the standalone program for 2686VLight
       - 26V.exe : the standalone program for 26V
       - 86V.exe : the standalone program for 86V
+      - OPNV.exe : the standalone program for OPNV
+      - OPLV.exe : the standalone program for OPLV
+      - OPMV.exe : the standalone program for OPMV
       - OPZX7S.exe : the standalone program for OPZX7S
+      - PULSEV.exe : the standalone program for PULSEV
+      - WTV.exe : the standalone program for WTV
+      - PCMV.exe : the standalone program for PCMV
       - 2686VFX.exe : the standalone program for 2686VFX
 - Readme.md : brief documentation
 - Readme.en.md : brief documentation (English)
@@ -572,7 +649,13 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
         - [Dir]86V                 : the preset file folder for 86V
         - [Dir]2686V               : the preset file folder for 2686V
         - [Dir]2686VLight          : the preset file folder for 2686VLight
+        - [Dir]OPNV                : the preset file folder for OPNV
+        - [Dir]OPLV                : the preset file folder for OPLV
+        - [Dir]OPMV                : the preset file folder for OPMV
         - [Dir]OPZX7S              : the preset file folder for OPZX7S
+        - [Dir]PULSEV              : the preset file folder for PULSEV
+        - [Dir]WTV                 : the preset file folder for WTV
+        - [Dir]PCMV                : the preset file folder for PCMV
       - [Dir]OPLL Roms             : OPLL ROM preset voices (before using these, please be sure to read "About the presets in the OPLL Roms folder"!)
       - [Dir]SSG Drums             : the preset files the drum samples used by "SSG RHYTHM Sample.xml" were made from
       - [Dir]WT Samples            : reference preset files for wave memory
@@ -628,56 +711,6 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - [Dir]WtModParams             : the parameter file folder for WT PITCH MOD and WT AMP MOD
       - [Dir]fromCC                : the folder of files made for me by Claude Code
     - sample_bg.png                : a sample wallpaper
-```plaintext
-- Windows
-  - x86-64
-    - VST3
-      - 2686V.vst3 : the "2686V" synth plugin
-      - 2686VLight.vst3 : the "2686VLight" synth plugin
-      - 86V.vst3 : the "86V" synth plugin
-      - OPZX7S.vst3 : the "OPZX7S" synth plugin
-      - 2686VFX.vst3 : the "2686VFX" effect plugin
-    - Standalone
-      - 2686V.exe : the standalone program for 2686V
-      - 2686VLight.exe : the standalone program for 2686VLight
-      - 86V.exe : the standalone program for 86V
-      - OPZX7S.exe : the standalone program for OPZX7S
-      - 2686VFX.exe : the standalone program for 2686VFX
-  - ARM64
-    - VST3
-      - 2686V.vst3 : the "2686V" synth plugin
-      - 2686VLight.vst3 : the "2686VLight" synth plugin
-      - 86V.vst3 : the "86V" synth plugin
-      - OPZX7S.vst3 : the "OPZX7S" synth plugin
-      - 2686VFX.vst3 : the "2686VFX" effect plugin
-    - Standalone
-      - 2686V.exe : the standalone program for 2686V
-      - 2686VLight.exe : the standalone program for 2686VLight
-      - 86V.exe : the standalone program for 86V
-      - OPZX7S.exe : the standalone program for OPZX7S
-      - 2686VFX.exe : the standalone program for 2686VFX
-- Readme.md : brief documentation
-- Readme.en.md : brief documentation (English)
-- COPYING.txt : the GPLv3 licence terms
-- Assets : the asset file folder
-  - 2686V
-    - Presets                 : the preset file folder for 2686V
-      - OPLL Roms             : OPLL ROM preset voices (before using these, please be sure to read "About the presets in the OPLL Roms folder"!)
-      - SSG Drums             : the preset files the drum samples used by "SSG RHYTHM Sample.xml" were made from
-      - WT Samples            : reference preset files for wave memory
-      - SSG RHYTHM Sample.xml : a preset for the rhythm sound source sample.
-      - Tekitou PSG.xml       : a rough-and-ready PSG preset, for reference.
-      - M-M-Pro               : presets for the rhythm and ADPCM (DPCM quality) channels doing the voice synthesis from a certain baseball game
-    - Resources               : resource files (**never rename, edit or delete this folder or its contents!**)
-    - Samples                 : the folder for the initial sample (audio) files
-      - Noise Close HiHat.wav : a drum sample file used by "SSG RHYTHM Sample.xml"
-      - Noise Open HiHat.wav  : a drum sample file used by "SSG RHYTHM Sample.xml"
-      - Noise Snare.wav       : a drum sample file used by "SSG RHYTHM Sample.xml"
-      - SSG Cymbal.wav        : a drum sample file used by "SSG RHYTHM Sample.xml"
-      - SSG Kick.wav          : a drum sample file used by "SSG RHYTHM Sample.xml"
-      - SSG Perc.wav          : a drum sample file used by "SSG RHYTHM Sample.xml"
-      - M-Pro                 : voice synthesis from a certain baseball game (feat. a certain virtual singer)
-    - sample_bg.png           : a sample wallpaper
 ```
 
 ### 8-1. About the bundled preset files
@@ -703,7 +736,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 - Extracting the archive creates the files listed under "Contents". Then do the following.
 
-### 9-1. 2686V.vst3 / 2686VLight.vst3 / 26V.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
+### 9-1. *.vst3
 
 - Copy them into your VST3 folder.
   - The VST3 folder is usually here:
@@ -714,7 +747,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 - Directly under the `Assets` folder there is a `2686V` folder. You **must** copy it **directly into your Documents folder**.
 
-### 9-3. 2686V.exe / 2686VLight.exe / 26V.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
+### 9-3. *.exe
 
 - Copy them into any folder you like.
 
@@ -724,12 +757,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 11. Launching
 
-### 11-1. 2686V.vst3 / 2686VLight.vst3 / 26V.vst3 / 86V.vst3 / OPZX7S.vst3 / 2686VFX.vst3
+### 11-1. *.vst3
 
 - Start your DAW and insert each plugin into a track or an effect slot.
 - For the details of how to do that, follow your DAW's own instructions.
 
-### 11-2. 2686V.exe / 2686VLight.exe / 26V.exe / 86V.exe / OPZX7S.exe / 2686VFX.exe
+### 11-2. *.exe
 
 - Double-click each executable in Windows Explorer.
 - Creating a shortcut is handy.
