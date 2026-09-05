@@ -664,9 +664,11 @@ void layoutRowWtFiles(const RowConfigWtFiles& c)
 
     c.rect.removeFromTop(c.paddingTop);
 
+    c.loadWtBtn->setBounds(area.removeFromLeft(c.loadBtnWidth));
 
     area.removeFromLeft(c.paddingRight);
 
+    c.loadWt2Btn->setBounds(area.removeFromLeft(c.loadBtnWidth));
 
     area.removeFromLeft(c.paddingRight);
 
@@ -687,9 +689,11 @@ void layoutMainWtFiles(const MainConfigWtFiles& c)
 
     c.rect.removeFromTop(c.paddingTop);
 
+    c.loadWtBtn->setBounds(area.removeFromLeft(c.loadBtnWidth));
 
     area.removeFromLeft(c.paddingRight);
 
+    c.loadWt2Btn->setBounds(area.removeFromLeft(c.loadBtnWidth));
 
     area.removeFromLeft(c.paddingRight);
 

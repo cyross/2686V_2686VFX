@@ -405,6 +405,8 @@ void layoutMainViewMode(const MainConfigViewMode& c);
 
 struct RowConfigWtFiles {
     juce::Rectangle<int>& rect;
+    juce::Component* loadWtBtn;
+    juce::Component* loadWt2Btn;
     juce::Component* fileNameLabel;
     juce::Component* clearBtn;
     int rowHeight = CoreGuiValue::ParamGroup::Row::height;
@@ -420,6 +422,8 @@ void layoutRowWtFiles(const RowConfigWtFiles& c);
 
 struct MainConfigWtFiles {
     juce::Rectangle<int>& rect;
+    juce::Component* loadWtBtn;
+    juce::Component* loadWt2Btn;
     juce::Component* fileNameLabel;
     juce::Component* clearBtn;
     int rowHeight = CoreGuiValue::MainGroup::Row::height;

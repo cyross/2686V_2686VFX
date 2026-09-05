@@ -2191,6 +2191,9 @@ void GuiOpna::importLfoParam() {
 
                 auto amsValues = reader->getIntArray("n88Ams");
 
+                for (int i = 0; i < OpnaPrValue::ops && i < (int)amsValues.size(); i++) {
+                    n88Ams[i].setValue(amsValues[(size_t)i], juce::sendNotification);
+                }
             }
         });
 }
@@ -2866,6 +2869,9 @@ void GuiOpna::setImportingLfoParams(juce::StringArray& lines, int& index) {
 	lfoAmSmRtSlider.setValue(lines[7].getFloatValue(), juce::sendNotification);
 	lfoAmdSlider.setValue(lines[8].getIntValue(), juce::sendNotification);
 
+	for (int i = 0; i < OpnaPrValue::ops; i++) {
+	    n88Ams[i].setValue(lines[9 + i].getIntValue(), juce::sendNotification);
+	}
 
 }
 
@@ -2883,6 +2889,9 @@ void GuiOpna::writeLfoParams(Io::ParamWriter& writer) {
 
 	std::vector<int> amsValues;
 
+	for (int i = 0; i < OpnaPrValue::ops; i++) {
+	    amsValues.push_back((int)n88Ams[i].getValue());
+	}
 
 	writer.setArray("n88Ams", amsValues);
 

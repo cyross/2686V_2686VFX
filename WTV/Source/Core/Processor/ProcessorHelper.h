@@ -946,10 +946,32 @@ namespace PrHelper {
 
 
 
+	static inline void applyOpzx7Detune(PrPtrsOpzx7Detune& ptPtrs, Opzx7DetuneParams& params){
+		params.multiple = getInt(ptPtrs.multiple);
+		params.mulRatio = getFloat(ptPtrs.mulRatio);
+		params.detune = getInt(ptPtrs.detune);
+		params.detune2 = getInt(ptPtrs.detune2);
+		params.detune3 = getInt(ptPtrs.detune3);
+	}
 
 
 
 
+	static inline void applyOpzx7Lfo(PrPtrsOpzx7Lfo& ptPtrs, LfoOpzx7Params& params){
+		params.pmFreq = getFloat(ptPtrs.pmFreq);
+		params.amFreq = getFloat(ptPtrs.amFreq);
+		params.pgIndex = getInt(ptPtrs.pmShape);
+		params.egIndex = getInt(ptPtrs.amShape);
+		params.amSmoothRate = getFloat(ptPtrs.amSmoothRatio);
+		params.amEnable = getBool(ptPtrs.am);
+		params.pmEnable = getBool(ptPtrs.pm);
+		params.pms = getFloat(ptPtrs.pms);
+		params.ams = getFloat(ptPtrs.ams);
+		params.pmd = getFloat(ptPtrs.pmd);
+		params.amd = getFloat(ptPtrs.amd);
+		params.pmSyncDelay = getFloat(ptPtrs.pmSyncDelay);
+		params.amSyncDelay = getFloat(ptPtrs.amSyncDelay);
+	}
 
 	static inline void applyN88Lfo(PrPtrsN88Lfo& ptPtrs, LfoN88Params& params){
 		// Int(0〜16383) として読み込み、Hzに変換する

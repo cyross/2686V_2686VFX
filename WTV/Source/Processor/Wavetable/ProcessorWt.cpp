@@ -63,6 +63,8 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.wt.ssgSwEnv11);
     PrHelper::applyPitchEnv(pPitchEnv, params.wt.pitchAdsr);
     PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.wt.ssgSwPEnv11);
+    PrHelper::applyOpzx7Detune(pOpzx7Detune, params.wt.detune);
+    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.wt.lfo);
     PrHelper::applyFix(pFix, params.wt.fix);
     PrHelper::applyWtMod(pMod, params.wt.mod);
     PrHelper::applyWtAmpMod(pWtAmpMod, params.wt.wtAmpMod);

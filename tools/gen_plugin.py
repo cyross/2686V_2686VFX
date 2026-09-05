@@ -19,6 +19,7 @@ import os
 import re
 import shutil
 import sys
+import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCE_PLUGIN = "2686V"
@@ -89,6 +90,23 @@ PLUGINS = {
 # ---------------------------------------------------------------------------
 # 入出力 (BOM 付き UTF-8・CRLF を守る)
 # ---------------------------------------------------------------------------
+def retry(fn, *args):
+    """ウイルス対策ソフトやインデクサがファイルを掴んでいることがある。
+
+    少し待ってやり直せば通るので、何度か試してから諦める。
+    """
+    for wait in (0.0, 0.5, 1.0, 2.0, 4.0):
+        if wait:
+            time.sleep(wait)
+
+        try:
+            return fn(*args)
+        except (PermissionError, OSError) as e:
+            last = e
+
+    raise last
+
+
 def read_text(path):
     data = open(path, "rb").read()
 
@@ -162,16 +180,27 @@ def owned_symbols(src_root, chips, keep_dirs=()):
                if not any(os.path.normpath(p).startswith(d + os.sep) for d in chip_dirs)]
 
     core = os.path.normpath(os.path.join(src_root, "Core"))
+    comp_dirs = tuple(os.path.normpath(os.path.join(src_root, d.rstrip("/")))
+                      for d in SHARED_DIRS)
 
     # 共有部品に出てくる名前。Effect や Gui/Components に一度でも出てくる
     # ものは、音源の名前を含んでいても皆で使うもの (ssgSwStepsSlider など)。
     shared = set()
 
+    # そのうち Effect / Generator / Advanced / Gui/Components にあるもの。
+    # ここに出てくる名前は「動詞 + 音源名」に見えても共有部品のもの
+    # (WT MODULATION の loadWtBtn など)。
+    components = set()
+
     for path in outside:
         if os.path.normpath(path).startswith(core + os.sep):
             continue
 
-        shared |= set(IDENT.findall(read_text(path)))
+        words = set(IDENT.findall(read_text(path)))
+        shared |= words
+
+        if os.path.normpath(path).startswith(comp_dirs):
+            components |= words
 
     # 共有ファイルで宣言されている型は、名前に音源の綴りを含んでいても
     # 皆のもの (WtModWaveSlot など)。
@@ -186,7 +215,7 @@ def owned_symbols(src_root, chips, keep_dirs=()):
             for path in all_sources(base):
                 shared |= set(IDENT.findall(read_text(path)))
 
-    return declared_names(inside) - declared_names(outside), shared
+    return declared_names(inside) - declared_names(outside), shared, components
 
 
 def drop_patterns(chip):
@@ -212,6 +241,10 @@ def drop_patterns(chip):
 
 IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
+# どの音源からも使う共有部品の置き場。名前だけで音源のものと
+# 決めつけると、ここにある部品を巻き込んでしまう。
+SHARED_DIRS = ("Effect/", "Generator/", "Advanced/", "Gui/Components/")
+
 # 音源の綴りを含んでいても、皆で使う機能の名前。
 # SSG 風のエンベロープや WT 変調は、SSG や WT の音源が無くても
 # どの音源からも使えるので、音源の持ち物と間違えないようにする。
@@ -224,10 +257,14 @@ CHIP_VERBS = (
 SHARED_FEATURES = (
     "SsgSw", "SsgHw", "SsgEg", "OpSsg", "EnvSsg", "PEnvSsg",
     "WtMod", "WtAmpMod", "WtPitchMod",
+
+    # OPZX7 風の LFO と DETUNE (MUL/DET) は、OPZX7 の音源が無くても
+    # WT や ADPCM など多くのチャンネルが使う共有の効果。
+    "Opzx7Lfo", "Opzx7Detune", "LfoOpzx7", "DetuneOpzx7",
 )
 
 
-def chip_member_hit(code, camels, lowers, shared, verbs_only=False):
+def chip_member_hit(code, camels, lowers, shared, components, verbs_only=False):
     """Core 配下で「音源の名前を含む識別子」に触っているか。
 
     setOpzx7PcmBuffer や updateRhythmFileNames のような、共有ファイルへ
@@ -242,6 +279,9 @@ def chip_member_hit(code, camels, lowers, shared, verbs_only=False):
         low = word.lower()
 
         if any(f.lower() in low for f in SHARED_FEATURES):
+            continue
+
+        if word in components:
             continue
 
         # setOpzx7PcmBuffer / updateRhythmFileNames のような、
@@ -622,10 +662,11 @@ def generate(name):
     keep_res = os.path.isdir(res_dir)
 
     if os.path.isdir(dst_root):
-        shutil.rmtree(dst_root)
+        retry(shutil.rmtree, dst_root)
 
     os.makedirs(dst_dir, exist_ok=True)
-    shutil.copytree(os.path.join(ROOT, SOURCE_PLUGIN, "Source"), dst_root)
+    retry(shutil.copytree,
+          os.path.join(ROOT, SOURCE_PLUGIN, "Source"), dst_root)
 
     if not keep_res:
         shutil.copytree(os.path.join(ROOT, SOURCE_PLUGIN, "Resources"), res_dir)
@@ -634,7 +675,8 @@ def generate(name):
 
     # 2. 消す音源の持ち物を調べてから、ディレクトリごと落とす
     keep_dirs = [d for k in keep for d in CHIPS[k]["dirs"]]
-    symbols, shared = owned_symbols(dst_root, [CHIPS[k] for k in drop], keep_dirs)
+    symbols, shared, components = owned_symbols(
+        dst_root, [CHIPS[k] for k in drop], keep_dirs)
     camels = [CHIPS[k]["camel"] for k in drop]
     lowers = [CHIPS[k]["lower"] for k in drop]
 
@@ -643,7 +685,7 @@ def generate(name):
             path = os.path.join(dst_root, rel.replace("/", os.sep))
 
             if os.path.isdir(path):
-                shutil.rmtree(path)
+                retry(shutil.rmtree, path)
 
     # 3. 並びで決まるものは、削るより先に作り直す。
     #    先に整えておけば、このあとの削りが引っかからない。
@@ -702,10 +744,17 @@ def generate(name):
             # 外まで広げると LfoOpm のような共有部品を巻き込む。
             # 「動詞 + 音源名」の関数はどこにあっても消す。呼び出し側が
             # 別のディレクトリに散っているため。
+            #
+            # ただし共有部品の中では当てない。WT MODULATION の
+            # loadWtBtn のように、音源とは関係のない名前を巻き込む。
             in_core = rel.startswith("Core/")
-            extra = (lambda code, c=in_core:
-                     chip_member_hit(code, camels, lowers, shared,
-                                     verbs_only=not c))
+            in_shared = rel.startswith(SHARED_DIRS)
+            extra = None
+
+            if not in_shared:
+                extra = (lambda code, c=in_core:
+                         chip_member_hit(code, camels, lowers, shared, components,
+                                         verbs_only=not c))
 
             text = read_text(path)
             new = strip_lines(text, pats, include_pat, mode_pat,

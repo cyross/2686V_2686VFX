@@ -70,6 +70,8 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.adpcm.ssgSwEnv11);
     PrHelper::applyPitchEnv(pPitchEnv, params.adpcm.pitchAdsr);
     PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.adpcm.ssgSwPEnv11);
+    PrHelper::applyOpzx7Detune(pOpzx7Detune, params.adpcm.detune);
+    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.adpcm.lfo);
     PrHelper::applyFix(pFix, params.adpcm.fix);
     PrHelper::applyToneNoise(pToneNoise, params.adpcm.tn);
     PrHelper::applyPcm(pPcm, params.adpcm.pcm);

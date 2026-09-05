@@ -236,6 +236,11 @@ void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
         // 読み込み行とプレビューを 1 組にして、スロットの数だけ並べる
         layoutMain({ .mainRect = rect, .label = &slotTarget.label, .component = &slotTarget });
 
+        layoutMainWtFiles({ .rect = rect,
+                            .loadWtBtn = &slotWtBtn,
+                            .loadWt2Btn = &slotWt2Btn,
+                            .fileNameLabel = &slotFileNameLabel,
+                            .clearBtn = &slotClearBtn });
 
         slotPreviews.setBounds(rect.removeFromTop(slotPreviews.getNaturalHeight()));
         rect.removeFromTop(2);

@@ -90,6 +90,8 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         PrHelper::applySsgSwEnv11(pSsgSwEnv11[i], pad.ssgSwEnv11);
         PrHelper::applyPitchEnv(pPitchEnv[i], pad.pitchAdsr);
         PrHelper::applySsgSwPEnv11(pSsgSwPEnv11[i], pad.ssgSwPEnv11);
+        PrHelper::applyOpzx7Detune(pOpzx7Detune[i], pad.detune);
+        PrHelper::applyOpzx7Lfo(pOpzx7Lfo[i], pad.lfo);
         PrHelper::applyToneNoise(pToneNoise[i], pad.tn);
         PrHelper::applyPcm(pPcm[i], pad.pcm);
         PrHelper::applyLp(pLp[i], pad.lp);

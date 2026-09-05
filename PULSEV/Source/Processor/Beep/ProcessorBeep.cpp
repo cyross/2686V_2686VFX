@@ -73,6 +73,8 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.beep.ssgSwEnv11);
     PrHelper::applyPitchEnv(pPitchEnv, params.beep.pitchAdsr);
     PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.beep.ssgSwPEnv11);
+    PrHelper::applyOpzx7Detune(pOpzx7Detune, params.beep.detune);
+    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.beep.lfo);
     PrHelper::applyFix(pFix, params.beep.fix);
     PrHelper::applySsgHwEnv(pSsgHwEnv, params.beep.ssgHwEnv);
     PrHelper::applySsgHwPEnv(pSsgHwPEnv, params.beep.ssgHwPEnv);

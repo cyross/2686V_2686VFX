@@ -70,6 +70,8 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.ssg.ssgSwEnv11);
     PrHelper::applyPitchEnv(pPitchEnv, params.ssg.pitchAdsr);
     PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.ssg.ssgSwPEnv11);
+    PrHelper::applyOpzx7Detune(pOpzx7Detune, params.ssg.detune);
+    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.ssg.lfo);
     PrHelper::applyToneNoise(pToneNoise, params.ssg.tn);
     PrHelper::applySsgDuty(pDuty, params.ssg.duty);
     PrHelper::applySsgTri(pTri, params.ssg.tri);
