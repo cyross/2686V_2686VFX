@@ -708,6 +708,8 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
         - [Dir]SsgSwEnv            : 従来のSSG SW AMP ENV用のパラメータファイルフォルダ
         - [Dir]SsgSwEnv11          : SSG SW AMP ENV(11)用のパラメータファイルフォルダ
+    - [Dir]CurveParams             : カーブ編集用のパラメータファイルフォルダ(カーブ編集を持つプラグインのみ)
+      - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
     - [Dir]ToneNoiseParams         : Tone/Noiseミックスなどのパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
     - [Dir]UnisonParams            : UNISON/HARMONY用のパラメータファイルフォルダ

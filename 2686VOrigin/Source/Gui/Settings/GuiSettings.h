@@ -101,6 +101,10 @@ class GuiSettings : public GuiBase
     GuiLabel toneNoiseParamDirPathLabel;
     GuiTextButton toneNoiseParamDirBrowseBtn;
 
+    GuiLabel wtModParamDirLabel;
+    GuiLabel wtModParamDirPathLabel;
+    GuiTextButton wtModParamDirBrowseBtn;
+
     GuiLabel colorSettingDirLabel;
     GuiLabel colorSettingDirPathLabel;
     GuiTextButton colorSettingDirBrowseBtn;
@@ -201,6 +205,9 @@ public:
         toneNoiseParamDirLabel(context),
         toneNoiseParamDirPathLabel(context),
         toneNoiseParamDirBrowseBtn(context),
+        wtModParamDirLabel(context),
+        wtModParamDirPathLabel(context),
+        wtModParamDirBrowseBtn(context),
         colorSettingDirLabel(context),
         colorSettingDirPathLabel(context),
         colorSettingDirBrowseBtn(context),

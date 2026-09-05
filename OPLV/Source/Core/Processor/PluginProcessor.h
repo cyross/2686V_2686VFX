@@ -449,6 +449,7 @@ public:
         visit(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
         visit(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
         visit(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
+        visit(SettingsKey::defaultWtModParamDir, defaultWtModParamDir);
         visit(SettingsKey::defaultColorSettingDir, defaultColorSettingDir);
 
         visit(SettingsKey::showTooltips, showTooltips);

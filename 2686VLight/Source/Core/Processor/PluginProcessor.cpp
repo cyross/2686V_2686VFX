@@ -1125,6 +1125,18 @@ void AudioPlugin2686V::loadStartupSettings()
         defaultToneNoiseParamDir = newToneNoiseParamDir.getFullPathName();
     }
 
+    if (defaultWtModParamDir.isEmpty() || !juce::File(defaultWtModParamDir).isDirectory())
+    {
+        auto newWtModParamDir = pluginDir.getChildFile(Io::Folder::wtModParam);
+
+        // 存在していなければ作成
+        if (!newWtModParamDir.exists()) {
+            newWtModParamDir.createDirectory();
+        }
+
+        defaultWtModParamDir = newWtModParamDir.getFullPathName();
+    }
+
     if (defaultColorSettingDir.isEmpty() || !juce::File(defaultColorSettingDir).isDirectory())
     {
         auto newColorSettingDir = pluginDir.getChildFile(Io::Folder::colorSetting);

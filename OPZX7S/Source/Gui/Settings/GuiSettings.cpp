@@ -465,7 +465,7 @@ void GuiSettings::setup()
         );
         };
 
-    // --- Quyality Param Dir ---
+    // --- Quality Param Dir ---
     setupFolderRow(qualityParamDirLabel, juce::String("") + "音質ファイルディレクトリ:", qualityParamDirPathLabel, qualityParamDirBrowseBtn);
     qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
     qualityParamDirPathLabel.setWantsKeyboardFocus(false);
@@ -507,7 +507,7 @@ void GuiSettings::setup()
         );
         };
 
-    // --- Tone / Noise Param Dir ---
+    // --- Color Setting Dir ---
     setupFolderRow(colorSettingDirLabel, juce::String("") + "色の設定ファイルディレクトリ:", colorSettingDirPathLabel, colorSettingDirBrowseBtn);
     colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
     colorSettingDirPathLabel.setWantsKeyboardFocus(false);
@@ -544,6 +544,27 @@ void GuiSettings::setup()
                 if (file.isDirectory()) {
                     ctx.audioProcessor.defaultToneNoiseParamDir = file.getFullPathName();
                     toneNoiseParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- WT MOD Param Dir ---
+    setupFolderRow(wtModParamDirLabel, juce::String("") + "WT MODファイルディレクトリ:", wtModParamDirPathLabel, wtModParamDirBrowseBtn);
+    wtModParamDirPathLabel.setText(ctx.audioProcessor.defaultWtModParamDir, juce::dontSendNotification);
+    wtModParamDirPathLabel.setWantsKeyboardFocus(false);
+
+    wtModParamDirBrowseBtn.setWantsKeyboardFocus(true);
+    wtModParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    wtModParamDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFolderChooser(
+            juce::String("") + "WT MODファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultWtModParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultWtModParamDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultWtModParamDir = file.getFullPathName();
+                    wtModParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
         );
@@ -848,6 +869,9 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     toneNoiseParamDirLabel.setVisible(dirVisible);
     toneNoiseParamDirPathLabel.setVisible(dirVisible);
     toneNoiseParamDirBrowseBtn.setVisible(dirVisible);
+    wtModParamDirLabel.setVisible(dirVisible);
+    wtModParamDirPathLabel.setVisible(dirVisible);
+    wtModParamDirBrowseBtn.setVisible(dirVisible);
 
     colorSettingDirLabel.setVisible(dirVisible);
     colorSettingDirPathLabel.setVisible(dirVisible);
@@ -979,6 +1003,14 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
         sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
+        // 21. WT MOD Param Dir
+        auto rowWtModParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        wtModParamDirLabel.setBounds(rowWtModParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        wtModParamDirBrowseBtn.setBounds(rowWtModParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        wtModParamDirPathLabel.setBounds(rowWtModParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
         // 色の設定ファイルディレクトリ
         auto rowColorSettingDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
         colorSettingDirLabel.setBounds(rowColorSettingDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
@@ -1099,6 +1131,7 @@ void GuiSettings::setSettings()
     qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
     pcmPlayParamDirPathLabel.setText(ctx.audioProcessor.defaultPcmPlayParamDir, juce::dontSendNotification);
     toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
+    wtModParamDirPathLabel.setText(ctx.audioProcessor.defaultWtModParamDir, juce::dontSendNotification);
     colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
 }
 

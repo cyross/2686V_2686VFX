@@ -141,6 +141,7 @@ namespace Io
 		static inline const juce::String qualityParam = "QualityParams";
 		static inline const juce::String pcmPlayParam = "PcmPlayParams";
 		static inline const juce::String toneNoiseParam = "ToneNoiseParams";
+		static inline const juce::String wtModParam = "WtModParams";
 		static inline const juce::String colorSetting = "CustomizeColorSettings";
 	};
 

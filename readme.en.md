@@ -709,6 +709,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - [Dir]fromCC                : the folder of files made for me by Claude Code
         - [Dir]SsgSwEnv            : the parameter file folder for the traditional SSG SW AMP ENV
         - [Dir]SsgSwEnv11          : the parameter file folder for SSG SW AMP ENV(11)
+    - [Dir]CurveParams             : the parameter file folder for curve editing (only on plugins that have it)
+      - [Dir]fromCC                : the folder of files made for me by Claude Code
     - [Dir]ToneNoiseParams         : the parameter file folder for the Tone/Noise mix and so on
       - [Dir]fromCC                : the folder of files made for me by Claude Code
     - [Dir]UnisonParams            : the parameter file folder for UNISON/HARMONY
