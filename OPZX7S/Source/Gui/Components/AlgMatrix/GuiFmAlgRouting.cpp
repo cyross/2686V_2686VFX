@@ -281,71 +281,33 @@ GuiFmAlgMatrix::GuiFmAlgMatrix(const GuiContext& context, int ops)
     fbChkStartY = fbStartY + labelH * 2;
     fbTotalH = rectRadius + labelH * 2 + numOps * cellH + rectRadius;
 
-    carrierBtns.resize(numOps);
-    modBtns.resize(numOps);
-    fbBtns.resize(numOps);
+    m_state.numOps = numOps;
 
-    for (int src = 0; src < numOps; ++src) {
-        carrierBtns[src] = std::make_unique<GuiToggleButton>(context);
-        carrierBtns[src]->setSize(chkW, chkH);
-        carrierBtns[src]->setBoxSize(chkW, chkH);
-        carrierBtns[src]->setBoxGap(0.0f, 0.0f);
-        carrierBtns[src]->setLabelGap(0.0f);
-        carrierBtns[src]->setColour(juce::ToggleButton::tickColourId, crrColor);
-        carrierBtns[src]->setColour(juce::ToggleButton::textColourId, crrColor);
+    m_modEnabled.assign((size_t)numOps, std::vector<bool>((size_t)numOps, false));
+    m_fbEnabled.assign((size_t)numOps, std::vector<bool>((size_t)numOps, false));
 
-        addAndMakeVisible(carrierBtns[src].get());
-        carrierBtns[src]->onClick = [this] { updateValidity(); };
-
-        modBtns[src].resize(numOps);
-        fbBtns[src].resize(numOps);
-
-        for (int dest = 0; dest < numOps; ++dest) {
-            modBtns[src][dest] = std::make_unique<GuiToggleButton>(context);
-            addAndMakeVisible(modBtns[src][dest].get());
-            modBtns[src][dest]->setSize(chkW, chkH);
-            modBtns[src][dest]->setBoxSize(chkW, chkH);
-            modBtns[src][dest]->setBoxGap(0.0f, 0.0f);
-            modBtns[src][dest]->setLabelGap(0.0f);
-            modBtns[src][dest]->setColour(juce::ToggleButton::tickColourId, modColor);
-            modBtns[src][dest]->setColour(juce::ToggleButton::textColourId, modColor);
-            modBtns[src][dest]->onClick = [this] { updateValidity(); };
-
-            if (dest == 0) modBtns[src][dest]->setVisible(false);
-
-            fbBtns[src][dest] = std::make_unique<GuiToggleButton>(context);
-            addAndMakeVisible(fbBtns[src][dest].get());
-            fbBtns[src][dest]->setSize(chkW, chkH);
-            fbBtns[src][dest]->setBoxSize(chkW, chkH);
-            fbBtns[src][dest]->setBoxGap(0.0f, 0.0f);
-            fbBtns[src][dest]->setLabelGap(0.0f);
-            fbBtns[src][dest]->setColour(juce::ToggleButton::tickColourId, fbModColor);
-            fbBtns[src][dest]->setColour(juce::ToggleButton::textColourId, fbModColor);
-            fbBtns[src][dest]->onClick = [this] { updateValidity(); };
-        }
-    }
-}
-
-void GuiFmAlgMatrix::resized() {
-    for (int src = 0; src < numOps; ++src) {
-        int x = chkStartX + src * cellW + margin;
-        for (int dest = 1; dest < numOps; ++dest) {
-            int y = modChkStartY + cellH * (dest - 1) + margin;
-            modBtns[src][dest]->setBounds(x, y, chkW, chkH);
-        }
-        int outY = modChkStartY + cellH * (numOps - 1) + margin;
-        carrierBtns[src]->setBounds(x, outY, chkW, chkH);
-    }
-    for (int src = 0; src < numOps; ++src) {
-        int x = chkStartX + src * cellW + margin;
-        for (int dest = 0; dest < numOps; ++dest) {
-            int y = fbChkStartY + cellH * dest + margin;
-            fbBtns[src][dest]->setBounds(x, y, chkW, chkH);
-        }
-    }
+    updateValidity();
 }
 
 void GuiFmAlgMatrix::paint(juce::Graphics& g) {
+    // マス目の四角。トグルを置く代わりにここで描く。
+    // 枠と中のランプ、消えているときの薄さは、これまでのトグルと同じ出方にしてある。
+    auto drawCell = [&g](int x, int y, bool on, bool enabled) {
+        const float radius = juce::jmin(guiCornerRadius, juce::jmin((float)chkW, (float)chkH) * 0.5f);
+        const float alpha = enabled ? 1.0f : 0.5f;
+
+        juce::Rectangle<float> box((float)(x + margin), (float)(y + margin), (float)chkW, (float)chkH);
+
+        g.setColour(GuiColor::ToggleButton::Box.get().withMultipliedAlpha(alpha));
+        g.drawRoundedRectangle(box, radius, 1.0f);
+
+        juce::Colour lamp = on ? GuiColor::ToggleButton::LampOn.get()
+                               : GuiColor::ToggleButton::LampOff.get();
+
+        g.setColour(lamp.withMultipliedAlpha(alpha));
+        g.fillRoundedRectangle(box, radius);
+        };
+
     g.setColour(juce::Colours::black.withAlpha(0.5f));
     g.fillRoundedRectangle(rectRadius, rectRadius, totalW, modTotalH, rectRadius);
     g.fillRoundedRectangle(rectRadius, fbStartY + rectRadius, totalW, fbTotalH, rectRadius);
@@ -354,12 +316,26 @@ void GuiFmAlgMatrix::paint(juce::Graphics& g) {
         int y = modChkStartY + cellH * (dest - 1);
         for (int src = 0; src < numOps; ++src) {
             int x = chkStartX + src * cellW;
-            if (src >= dest) {
+            const bool permDisabled = (src >= dest);
+            const bool enabled = !permDisabled && m_modEnabled[(size_t)src][(size_t)dest];
+
+            if (permDisabled) {
                 g.setColour(permanentDisabledModColor); g.fillRect(x, y, cellW, cellH);
             }
-            else if (!modBtns[src][dest]->isEnabled()) {
+            else if (!enabled) {
                 g.setColour(disabledModColor); g.fillRect(x, y, cellW, cellH);
             }
+
+            if (!permDisabled) drawCell(x, y, m_state.mod[(size_t)src][(size_t)dest], enabled);
+        }
+    }
+
+    // 一番下の行は「出力へ出すか」。
+    {
+        int y = modChkStartY + cellH * (numOps - 1);
+
+        for (int src = 0; src < numOps; ++src) {
+            drawCell(chkStartX + src * cellW, y, m_state.isCarrier[(size_t)src], true);
         }
     }
 
@@ -367,12 +343,17 @@ void GuiFmAlgMatrix::paint(juce::Graphics& g) {
         int y = fbChkStartY + cellH * dest;
         for (int src = 0; src < numOps; ++src) {
             int x = chkStartX + src * cellW;
-            if (src < dest) {
+            const bool permDisabled = (src < dest);
+            const bool enabled = !permDisabled && m_fbEnabled[(size_t)src][(size_t)dest];
+
+            if (permDisabled) {
                 g.setColour(permanentDisabledModColor); g.fillRect(x, y, cellW, cellH);
             }
-            else if (!fbBtns[src][dest]->isEnabled()) {
+            else if (!enabled) {
                 g.setColour(disabledModColor); g.fillRect(x, y, cellW, cellH);
             }
+
+            if (!permDisabled) drawCell(x, y, m_state.fbMod[(size_t)src][(size_t)dest], enabled);
         }
     }
 
@@ -412,12 +393,12 @@ void GuiFmAlgMatrix::paint(juce::Graphics& g) {
 
 void GuiFmAlgMatrix::updateValidity() {
     std::vector<bool> canReach(numOps, false);
-    for (int i = 0; i < numOps; ++i) canReach[i] = carrierBtns[i]->getToggleState();
+    for (int i = 0; i < numOps; ++i) canReach[i] = m_state.isCarrier[(size_t)i];
 
     for (int dest = numOps - 1; dest >= 1; --dest) {
         if (!canReach[dest]) continue;
         for (int src = dest - 1; src >= 0; --src) {
-            if (modBtns[src][dest]->getToggleState()) canReach[src] = true;
+            if (m_state.mod[(size_t)src][(size_t)dest]) canReach[src] = true;
         }
     }
 
@@ -426,7 +407,7 @@ void GuiFmAlgMatrix::updateValidity() {
         std::vector<std::vector<bool>> undir(numOps, std::vector<bool>(numOps, false));
         for (int s = 0; s < numOps; ++s) {
             for (int d = 1; d < numOps; ++d) {
-                if (modBtns[s][d]->getToggleState()) {
+                if (m_state.mod[(size_t)s][(size_t)d]) {
                     undir[s][d] = true;
                     undir[d][s] = true;
                 }
@@ -450,49 +431,30 @@ void GuiFmAlgMatrix::updateValidity() {
         return false;
         };
 
+    // 通らなくなった経路は落とす
     for (int src = 0; src < numOps; ++src) {
         for (int dest = 1; dest < numOps; ++dest) {
             bool isModPermDisabled = (src >= dest);
-            if (modBtns[src][dest]->getToggleState() && (!canReach[dest] || isModPermDisabled)) {
-                modBtns[src][dest]->setToggleState(false, juce::dontSendNotification);
+            if (m_state.mod[(size_t)src][(size_t)dest] && (!canReach[dest] || isModPermDisabled)) {
+                m_state.mod[(size_t)src][(size_t)dest] = false;
             }
         }
         for (int dest = 0; dest < numOps; ++dest) {
             bool isFbPermDisabled = (src < dest) || !isInSameChain(src, dest);
-            if (fbBtns[src][dest]->getToggleState() && (!canReach[src] || !canReach[dest] || isFbPermDisabled)) {
-                fbBtns[src][dest]->setToggleState(false, juce::dontSendNotification);
+            if (m_state.fbMod[(size_t)src][(size_t)dest] && (!canReach[src] || !canReach[dest] || isFbPermDisabled)) {
+                m_state.fbMod[(size_t)src][(size_t)dest] = false;
             }
         }
     }
 
-    auto updateBtnColor = [](GuiToggleButton* btn, bool permDisabled, bool enabled, juce::Colour activeColor) {
-        if (permDisabled) {
-            btn->setEnabled(false);
-            btn->setColour(juce::ToggleButton::textColourId, permanentDisabledModColor);
-            btn->setColour(juce::ToggleButton::tickColourId, permanentDisabledModColor);
-        }
-        else if (!enabled) {
-            btn->setEnabled(false);
-            btn->setColour(juce::ToggleButton::textColourId, disabledModColor);
-            btn->setColour(juce::ToggleButton::tickColourId, disabledModColor);
-        }
-        else {
-            btn->setEnabled(true);
-            btn->setColour(juce::ToggleButton::textColourId, activeColor);
-            btn->setColour(juce::ToggleButton::tickColourId, activeColor);
-        }
-        };
-
+    // 押せるマスを組み立て直す。描くときと押されたときの両方で使う。
     for (int src = 0; src < numOps; ++src) {
-        for (int dest = 1; dest < numOps; ++dest) {
-            bool isModPermDisabled = (src >= dest);
-            bool modEnabled = canReach[dest] && !isModPermDisabled;
-            updateBtnColor(modBtns[src][dest].get(), isModPermDisabled, modEnabled, modColor);
-        }
         for (int dest = 0; dest < numOps; ++dest) {
-            bool isFbPermDisabled = (src < dest) || !isInSameChain(src, dest);
-            bool fbEnabled = canReach[src] && canReach[dest] && !isFbPermDisabled;
-            updateBtnColor(fbBtns[src][dest].get(), isFbPermDisabled, fbEnabled, fbModColor);
+            const bool modPerm = (src >= dest) || dest == 0;
+            m_modEnabled[(size_t)src][(size_t)dest] = !modPerm && canReach[dest];
+
+            const bool fbPerm = (src < dest) || !isInSameChain(src, dest);
+            m_fbEnabled[(size_t)src][(size_t)dest] = !fbPerm && canReach[src] && canReach[dest];
         }
     }
 
@@ -501,27 +463,59 @@ void GuiFmAlgMatrix::updateValidity() {
     if (onMatrixChanged) onMatrixChanged(getState());
 }
 
-FmAlgState GuiFmAlgMatrix::getState() const {
-    FmAlgState s;
-    s.numOps = numOps;
-    for (int i = 0; i < numOps; ++i) {
-        s.isCarrier[i] = carrierBtns[i]->getToggleState();
-        for (int j = 0; j < numOps; ++j) {
-            s.mod[i][j] = modBtns[i][j]->getToggleState();
-            s.fbMod[i][j] = fbBtns[i][j]->getToggleState();
+void GuiFmAlgMatrix::mouseDown(const juce::MouseEvent& e) {
+    const auto pos = e.getPosition();
+
+    // 横位置からどのオペレータの列かを出す
+    const int src = (pos.getX() - chkStartX) / cellW;
+
+    if (src < 0 || src >= numOps) return;
+    if (pos.getX() < chkStartX) return;
+
+    // モジュレーションの升目 (最後の 1 行は出力へ出すかどうか)
+    if (pos.getY() >= modChkStartY && pos.getY() < modChkStartY + cellH * numOps) {
+        const int row = (pos.getY() - modChkStartY) / cellH;
+
+        if (row == numOps - 1) {
+            m_state.isCarrier[(size_t)src] = !m_state.isCarrier[(size_t)src];
+
+            updateValidity();
+
+            return;
         }
+
+        const int dest = row + 1;
+
+        if (!m_modEnabled[(size_t)src][(size_t)dest]) return;
+
+        m_state.mod[(size_t)src][(size_t)dest] = !m_state.mod[(size_t)src][(size_t)dest];
+
+        updateValidity();
+
+        return;
     }
-    return s;
+
+    // フィードバックの升目
+    if (pos.getY() >= fbChkStartY && pos.getY() < fbChkStartY + cellH * numOps) {
+        const int dest = (pos.getY() - fbChkStartY) / cellH;
+
+        if (dest < 0 || dest >= numOps) return;
+        if (!m_fbEnabled[(size_t)src][(size_t)dest]) return;
+
+        m_state.fbMod[(size_t)src][(size_t)dest] = !m_state.fbMod[(size_t)src][(size_t)dest];
+
+        updateValidity();
+    }
+}
+
+FmAlgState GuiFmAlgMatrix::getState() const {
+    return m_state;
 }
 
 void GuiFmAlgMatrix::setState(const FmAlgState& s) {
-    for (int i = 0; i < numOps; ++i) {
-        carrierBtns[i]->setToggleState(s.isCarrier[i], juce::dontSendNotification);
-        for (int j = 0; j < numOps; ++j) {
-            modBtns[i][j]->setToggleState(s.mod[i][j], juce::dontSendNotification);
-            fbBtns[i][j]->setToggleState(s.fbMod[i][j], juce::dontSendNotification);
-        }
-    }
+    m_state = s;
+    m_state.numOps = numOps;
+
     updateValidity();
 }
 
