@@ -263,29 +263,36 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
         };
 
     // 読み込み行とプレビューをスロットの数だけ作る
-    for (int i = 0; i < Global::WtMod::slots; ++i)
-    {
-        slotWtBtn[i].setup({ .parent = parent, .title = "WT", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
-        slotWtBtn[i].setWantsKeyboardFocus(true);
-        slotWtBtn[i].setExplicitFocusOrder(++tabOrder);
-        slotWtBtn[i].onClick = [this, i] { importWave(i, false); };
+    // 並びは 対象 → 読み込み / 名前 / 消去 → 各スロットの波形。
+    slotTarget.setup({ .parent = parent, .title = "TGT", .isReset = false });
+    slotTarget.setRange(0.0, (double)(Global::WtMod::slots - 1), 1.0);
+    slotTarget.setNumDecimalPlacesToDisplay(0);
+    slotTarget.setWantsKeyboardFocus(true);
+    slotTarget.setExplicitFocusOrder(++tabOrder);
+    slotTarget.onValueChange = [this] { applySlotTarget(); };
 
-        slotWt2Btn[i].setup({ .parent = parent, .title = "W2", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
-        slotWt2Btn[i].setWantsKeyboardFocus(true);
-        slotWt2Btn[i].setExplicitFocusOrder(++tabOrder);
-        slotWt2Btn[i].onClick = [this, i] { importWave(i, true); };
+    slotWtBtn.setup({ .parent = parent, .title = "WT", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+    slotWtBtn.setWantsKeyboardFocus(true);
+    slotWtBtn.setExplicitFocusOrder(++tabOrder);
+    slotWtBtn.onClick = [this] { importWave(targetSlot(), false); };
 
-        slotClearBtn[i].setup({ .parent = parent, .title = "Clear", .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
-        slotClearBtn[i].setWantsKeyboardFocus(true);
-        slotClearBtn[i].setExplicitFocusOrder(++tabOrder);
-        slotClearBtn[i].onClick = [this, i] { clearWave(i); };
+    slotWt2Btn.setup({ .parent = parent, .title = "W2", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+    slotWt2Btn.setWantsKeyboardFocus(true);
+    slotWt2Btn.setExplicitFocusOrder(++tabOrder);
+    slotWt2Btn.onClick = [this] { importWave(targetSlot(), true); };
 
-        slotFileNameLabel[i].setup({ .parent = parent, .title = Io::empty });
+    slotClearBtn.setup({ .parent = parent, .title = "Clear", .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
+    slotClearBtn.setWantsKeyboardFocus(true);
+    slotClearBtn.setExplicitFocusOrder(++tabOrder);
+    slotClearBtn.onClick = [this] { clearWave(targetSlot()); };
 
-        slotPreview[i].setup(parent, GuiColor::WavePreview::WaveMemory);
+    slotFileNameLabel.setup({ .parent = parent, .title = Io::empty });
 
-        updateSlotFileName(i);
-    }
+    slotPreviews.setup(parent, GuiColor::WavePreview::WaveMemory, Global::WtMod::slots);
+
+    for (int i = 0; i < Global::WtMod::slots; ++i) updateSlotPreview(i);
+
+    applySlotTarget();
 
     waveSmoothBtn.setup({ .parent = parent, .id = code + CPK::WtMod::waveSmooth, .title = "Smooth", .isReset = true, .isResized = true });
     waveSmoothBtn.setWantsKeyboardFocus(true);
@@ -345,13 +352,12 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     waveSlotSlider.setVisibleWithLabel(visible);
     modPreview.setVisible(visible);
 
-    for (int i = 0; i < Global::WtMod::slots; ++i) {
-        slotWtBtn[i].setVisible(visible);
-        slotWt2Btn[i].setVisible(visible);
-        slotClearBtn[i].setVisible(visible);
-        slotFileNameLabel[i].setVisible(visible);
-        slotPreview[i].setVisible(visible);
-    }
+    slotTarget.setVisibleWithLabel(visible);
+    slotWtBtn.setVisible(visible);
+    slotWt2Btn.setVisible(visible);
+    slotClearBtn.setVisible(visible);
+    slotFileNameLabel.setVisible(visible);
+    slotPreviews.setVisible(visible);
 
     if (visible)
     {
@@ -368,17 +374,16 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &waveSlotSlider.label, .component = &waveSlotSlider });
 
         // 読み込み行とプレビューを 1 組にして、スロットの数だけ並べる
-        for (int i = 0; i < Global::WtMod::slots; ++i)
-        {
-            layoutMainWtFiles({ .rect = rect,
-                                .loadWtBtn = &slotWtBtn[i],
-                                .loadWt2Btn = &slotWt2Btn[i],
-                                .fileNameLabel = &slotFileNameLabel[i],
-                                .clearBtn = &slotClearBtn[i] });
+        layoutMain({ .mainRect = rect, .label = &slotTarget.label, .component = &slotTarget });
 
-            slotPreview[i].setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
-            rect.removeFromTop(2);
-        }
+        layoutMainWtFiles({ .rect = rect,
+                            .loadWtBtn = &slotWtBtn,
+                            .loadWt2Btn = &slotWt2Btn,
+                            .fileNameLabel = &slotFileNameLabel,
+                            .clearBtn = &slotClearBtn });
+
+        slotPreviews.setBounds(rect.removeFromTop(slotPreviews.getNaturalHeight()));
+        rect.removeFromTop(2);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -391,12 +396,11 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     waveSmoothBtn.setEnabled(isMod);
     waveSlotSlider.setEnabledWithLabel(isMod);
 
-    for (int i = 0; i < Global::WtMod::slots; ++i) {
-        slotWtBtn[i].setEnabled(isMod);
-        slotWt2Btn[i].setEnabled(isMod);
-        slotClearBtn[i].setEnabled(isMod);
-        slotFileNameLabel[i].setEnabled(isMod);
-    }
+    slotTarget.setEnabledWithLabel(isMod);
+    slotWtBtn.setEnabled(isMod);
+    slotWt2Btn.setEnabled(isMod);
+    slotClearBtn.setEnabled(isMod);
+    slotFileNameLabel.setEnabled(isMod);
     // ---------------- FDS TABLE ----------------
     // MODULATION の中の小見出しなので、親を畳んだらこちらも隠す。
     fdsCat.setVisible(visible);
@@ -452,7 +456,8 @@ void GuiComponentWtMod::importWave(int slot, bool isWt2)
             auto file = fc.getResult();
             if (!file.existsAsFile()) return;
 
-            slotFileNameLabel[(size_t)slot].setText("Loading...", juce::dontSendNotification);
+            // 出すのは対象のスロットのときだけ。読み込み中は名前欄で示す。
+            if (slot == targetSlot()) slotFileNameLabel.setText("Loading...", juce::dontSendNotification);
 
             // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
             juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
@@ -517,14 +522,25 @@ void GuiComponentWtMod::reapplyWaveFiles()
     updateModPreview();
 }
 
+void GuiComponentWtMod::applySlotTarget()
+{
+    const int slot = targetSlot();
+
+    slotPreviews.setSelected(slot);
+
+    updateSlotFileName(slot);
+}
+
 void GuiComponentWtMod::updateSlotFileName(int slot)
 {
     juce::String path = wavePath(slot);
 
-    // 何番のスロットかが分かるよう、先頭に番号を出す
-    slotFileNameLabel[(size_t)slot].setText(
-        juce::String(slot) + ": " + (path.isEmpty() ? Io::empty : juce::File(path).getFileName()),
-        juce::dontSendNotification);
+    // 名前を出すのは対象のスロットだけ。他は帯の波形で分かる。
+    if (slot == targetSlot()) {
+        slotFileNameLabel.setText(
+            juce::String(slot) + ": " + (path.isEmpty() ? Io::empty : juce::File(path).getFileName()),
+            juce::dontSendNotification);
+    }
 
     // 名前とプレビューは常に同じ波形を指していてほしいので、ここで揃える
     updateSlotPreview(slot);
@@ -540,7 +556,7 @@ void GuiComponentWtMod::updateSlotPreview(int slot)
     auto it = ctx.audioProcessor.modWaveSlots.find(m_code);
 
     if (it == ctx.audioProcessor.modWaveSlots.end() || !it->second[(size_t)slot].hasData) {
-        slotPreview[(size_t)slot].clear();
+        slotPreviews.setPoints(slot, {});
 
         return;
     }
@@ -558,7 +574,7 @@ void GuiComponentWtMod::updateSlotPreview(int slot)
     }
 
     // 変調波形は -1.0〜1.0 の両振り
-    slotPreview[(size_t)slot].setPoints(points, true);
+    slotPreviews.setPoints(slot, points);
 }
 
 juce::String GuiComponentWtMod::wavePath(int slot) const

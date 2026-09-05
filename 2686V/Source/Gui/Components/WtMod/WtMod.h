@@ -10,6 +10,7 @@
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
 #include "../WavePreview/WavePreview.h"
+#include "../WavePreview/WavePreviewGrid.h"
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Generator/Fds/GenFdsModTable.h"
 
@@ -72,11 +73,14 @@ class GuiComponentWtMod : public GuiBase {
     GuiSlider waveSlotSlider;
 
     // 変調波形スロット。読み込み行とプレビューを枚数ぶん持つ。
-    std::array<GuiTextButton, Global::WtMod::slots> slotWtBtn;
-    std::array<GuiTextButton, Global::WtMod::slots> slotWt2Btn;
-    std::array<GuiTextButton, Global::WtMod::slots> slotClearBtn;
-    std::array<GuiLabel, Global::WtMod::slots> slotFileNameLabel;
-    std::array<GuiWavePreview, Global::WtMod::slots> slotPreview;
+    // スロットごとに読み込みボタンを並べる代わりに、対象を選ぶつまみと
+    // 1 組のボタンを置く。波形はまとめて 1 つの区画へ描く。
+    GuiSlider slotTarget;
+    GuiTextButton slotWtBtn;
+    GuiTextButton slotWt2Btn;
+    GuiTextButton slotClearBtn;
+    GuiLabel slotFileNameLabel;
+    GuiWavePreviewGrid slotPreviews;
 
     // 選んでいる Shape の変調波形を見せるプレビュー
     GuiWavePreview modPreview;
@@ -100,6 +104,12 @@ class GuiComponentWtMod : public GuiBase {
     void reapplyWaveFiles();
 
     void updateSlotFileName(int slot);
+
+    // 対象のスロットが変わったときに、ボタンと名前の指す先をそろえる。
+    void applySlotTarget();
+
+    // いま読み込み・クリアの対象になっているスロット。
+    int targetSlot() const { return juce::jlimit(0, Global::WtMod::slots - 1, (int)slotTarget.getValue()); }
     void updateSlotPreview(int slot);
 
     // 今どのスロットを使っているか。Shape のプレビューが参照する。
@@ -140,11 +150,12 @@ public:
         shapeSelector(context),
         waveSmoothBtn(context),
         waveSlotSlider(context),
-        slotWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        slotWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        slotClearBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        slotFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-        slotPreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
+        slotTarget(context),
+        slotWtBtn(context),
+        slotWt2Btn(context),
+        slotClearBtn(context),
+        slotFileNameLabel(context),
+        slotPreviews(context),
         modPreview(context),
         fdsCat(context),
         fdsEditor(context),
