@@ -181,14 +181,21 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
     endif()
 endfunction()
 
-# 4つのプラグインを一括でビルド対象に追加
+# ビルド対象のプラグイン
 add_subdirectory(2686V)
 add_subdirectory(2686VLight)
 add_subdirectory(2686VOrigin)
 add_subdirectory(26V)
 add_subdirectory(OPZX7S)
 add_subdirectory(2686VFX)
+
+# 音源を絞ったもの (tools/gen_plugin.py が作る)
+add_subdirectory(OPNV)
+add_subdirectory(OPLV)
 add_subdirectory(OPMV)
+add_subdirectory(WTV)
+add_subdirectory(PCMV)
+add_subdirectory(PULSEV)
 
 # マニュアル用の道具 (出荷するものではない)
 add_subdirectory(tools)

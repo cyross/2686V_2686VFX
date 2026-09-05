@@ -1,0 +1,337 @@
+﻿#include "./Unison.h"
+
+#include "../../../Core/Gui/GuiRefresh.h"
+
+#include "../../../Core/Io/ParamFile.h"
+
+#include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
+#include "../../../Core/Gui/GuiHelpers.h"
+#include "../../../Core/Gui/GuiStructs.h"
+#include "../../../Core/Const/ConstGlobal.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat unisonFormat{ "unison", 1 };
+}
+
+void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder)
+{
+    cat.setupSwCategory({
+        .parent = parent,
+        .title = juce::String("") + "UNISON/HARMONY",
+        .enableChangeDetailVisible = true
+        });
+
+    voices.setup({ .parent = parent, .id = code + CPK::Unison::voices, .title = "VOIC", .isReset = true });
+    voices.setWantsKeyboardFocus(true);
+    voices.setExplicitFocusOrder(++tabOrder);
+
+    detune.setupComponent(parent, code + CPK::Unison::detune, "DT", tabOrder, std::nullopt);
+
+    detuneButtons.setupComponent(parent, detune.getSlider(), tabOrder);
+
+    spread.setup({ .parent = parent, .id = code + CPK::Unison::spread, .title = "SPR", .isReset = true });
+    spread.setWantsKeyboardFocus(true);
+    spread.setExplicitFocusOrder(++tabOrder);
+
+    // 疑似高速アルペジオ
+    arpSeparator.setupComponent(parent);
+
+    arpEnable.setup({ .parent = parent, .id = code + CPK::Unison::arpEnable, .title = "Arpeggio", .isReset = true });
+    arpEnable.setWantsKeyboardFocus(true);
+    arpEnable.setExplicitFocusOrder(++tabOrder);
+
+    arpFreq.setup({ .parent = parent, .id = code + CPK::Unison::arpFreq, .title = "ARFQ", .isReset = true });
+    arpFreq.setWantsKeyboardFocus(true);
+    arpFreq.setExplicitFocusOrder(++tabOrder);
+
+    arpSmooth.setup({ .parent = parent, .id = code + CPK::Unison::arpSmooth, .title = "Arp Smooth", .isReset = true });
+    arpSmooth.setWantsKeyboardFocus(true);
+    arpSmooth.setExplicitFocusOrder(++tabOrder);
+
+    // ボイス単位の設定
+    // ボイス0はメイン(素の音程・定位)なので対象外。1〜7 を切り替えて編集する
+    paraSeparator.setupComponent(parent);
+
+    paramCode = code;
+
+    targetVoice.setup({ .parent = parent, .title = "VOIC", .isReset = false });
+    targetVoice.setRange(1.0, (double)Global::unisonParaVoices, 1.0);
+    targetVoice.setNumDecimalPlacesToDisplay(0);
+    targetVoice.setWantsKeyboardFocus(true);
+    targetVoice.setExplicitFocusOrder(++tabOrder);
+
+    paraDistance.setup({ .parent = parent, .title = "P-SP", .isReset = false });
+    paraDistance.setWantsKeyboardFocus(true);
+    paraDistance.setExplicitFocusOrder(++tabOrder);
+
+    paraDetune.setupComponent(parent, "", "P-DT", tabOrder, std::nullopt, std::nullopt, false);
+
+    // DT と同じ補正ボタン群。スライダー参照経由で値を動かすので、
+    // 対象ボイスを切り替えても常に現在の束縛先へ反映される。
+    paraDetuneButtons.setupComponent(parent, paraDetune.getSlider(), tabOrder);
+
+    targetVoice.onValueChange = [this] { rebindParaSliders(); };
+    targetVoice.setValue(1, juce::sendNotification);
+
+    // onValueChange は値が変わらないと呼ばれないため、初期束縛はここで明示的に行う
+    rebindParaSliders();
+}
+
+void GuiComponentUnison::rebindParaSliders()
+{
+    const juce::String no = juce::String((int)targetVoice.getValue());
+
+    paraDistance.rebind(paramCode + CPK::Unison::paraDistance + no);
+    paraDetune.getSlider().rebind(paramCode + CPK::Unison::paraDetune + no);
+}
+
+// ボイス単位の設定はスライダーに1組しか束縛されていないため、
+// 保存・読込・コピーでは APVTS から全ボイス分を直接読み書きする。
+float GuiComponentUnison::getParaValue(const juce::String& key, int voiceIndex)
+{
+    auto* v = ctx.apvts.getRawParameterValue(paramCode + key + juce::String(voiceIndex + 1));
+    return (v != nullptr) ? v->load() : 0.0f;
+}
+
+void GuiComponentUnison::setParaValue(const juce::String& key, int voiceIndex, float value)
+{
+    if (auto* p = ctx.apvts.getParameter(paramCode + key + juce::String(voiceIndex + 1)))
+    {
+        p->setValueNotifyingHost(p->convertTo0to1(value));
+    }
+}
+
+void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .component = &cat });
+
+    bool visible = cat.isDetailVisible();
+
+    voices.setVisibleWithLabel(visible);
+    detune.setVisibleWithLabel(visible);
+    detuneButtons.setVisibles(visible && detune.isVisibleNudge());
+    spread.setVisibleWithLabel(visible);
+    arpSeparator.setVisible(visible);
+    arpEnable.setVisible(visible);
+    arpFreq.setVisibleWithLabel(visible);
+    arpSmooth.setVisible(visible);
+    paraSeparator.setVisible(visible);
+    targetVoice.setVisibleWithLabel(visible);
+    paraDistance.setVisibleWithLabel(visible);
+    paraDetune.setVisibleWithLabel(visible);
+    paraDetuneButtons.setVisibles(visible && paraDetune.isVisibleNudge());
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &voices.label, .component = &voices });
+        layoutMain({ .mainRect = rect, .label = &spread.label, .component = &spread });
+        detune.layoutComponent(rect);
+        if (detune.isVisibleNudge()) detuneButtons.layoutComponent(rect);
+        arpSeparator.layoutComponent(rect);
+        layoutMain({ .mainRect = rect, .component = &arpEnable });
+        layoutMain({ .mainRect = rect, .label = &arpFreq.label, .component = &arpFreq });
+        layoutMain({ .mainRect = rect, .component = &arpSmooth });
+        paraSeparator.layoutComponent(rect);
+        layoutMain({ .mainRect = rect, .label = &targetVoice.label, .component = &targetVoice });
+        layoutMain({ .mainRect = rect, .label = &paraDistance.label, .component = &paraDistance });
+        paraDetune.layoutComponent(rect);
+        if (paraDetune.isVisibleNudge()) paraDetuneButtons.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
+}
+void GuiComponentUnison::copyParams(CopyUnison& copyObj) {
+    copyObj.voices = voices.getValue();
+    copyObj.detune = detune.getValue();
+    copyObj.spread = spread.getValue();
+    copyObj.arpEnable = arpEnable.getToggleState();
+    copyObj.arpFreq = arpFreq.getValue();
+    copyObj.arpSmooth = arpSmooth.getToggleState();
+
+    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+        copyObj.paraDistance[i] = getParaValue(CPK::Unison::paraDistance, i);
+        copyObj.paraDetune[i] = (int)getParaValue(CPK::Unison::paraDetune, i);
+    }
+}
+
+void GuiComponentUnison::pasteParams(CopyUnison& copyObj) {
+    voices.setValue(copyObj.voices, juce::sendNotification);
+    detune.setValue(copyObj.detune, juce::sendNotification);
+    spread.setValue(copyObj.spread, juce::sendNotification);
+    arpEnable.setToggleState(copyObj.arpEnable, juce::sendNotification);
+    arpFreq.setValue(copyObj.arpFreq, juce::sendNotification);
+    arpSmooth.setToggleState(copyObj.arpSmooth, juce::sendNotification);
+
+    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+        setParaValue(CPK::Unison::paraDistance, i, copyObj.paraDistance[i]);
+        setParaValue(CPK::Unison::paraDetune, i, (float)copyObj.paraDetune[i]);
+    }
+}
+
+void GuiComponentUnison::importParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultUnisonParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importUnisonParamFile, defaultDir, Io::ExtensionGlob::UnisonParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultUnisonParamDir = file.getParentDirectory().getFullPathName();
+
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingParams(lines, index);
+                    }
+
+                    // 単体のファイルは入れ子にせず、そのまま中身として書く
+                    Io::ParamWriter writer(unisonFormat);
+
+                    writeParams(writer, Io::ParamKey::values);
+                    writer.hoist(Io::ParamKey::values);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, unisonFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す
+                GuiRefresh::Batch batch;
+
+                // チャンネルファイルの中に入る形と同じ中身にしてある
+                readParams(*reader, "unison");
+            }
+        });
+
+}
+
+void GuiComponentUnison::exportParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultUnisonParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportUnisonParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::UnisonParam)), Io::saveGlob(Io::Extension::UnisonParam));
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultUnisonParamDir = file.getParentDirectory().getFullPathName();
+
+                Io::ParamWriter writer(unisonFormat);
+
+                writeParams(writer, "unison");
+
+                writer.writeTo(file);
+            }
+        });
+}
+
+void GuiComponentUnison::setImportingParams(juce::StringArray& lines, int& index) {
+    voices.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    detune.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    spread.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // アルペジオは後から追加した項目で、チャンネルパラメータの末尾に置いている。
+    // 旧フォーマットのファイルにはこの3行が無いため、足りなければ既定値のままにする。
+    if (index + 2 >= lines.size()) return;
+
+    arpEnable.setToggleState(lines[index++].getIntValue() != 0, juce::sendNotification);
+    arpFreq.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    arpSmooth.setToggleState(lines[index++].getIntValue() != 0, juce::sendNotification);
+
+    // ボイス単位の設定も後から追加したため、無ければ既定値のままにする
+    if (index + Global::unisonParaVoices * 2 - 1 >= lines.size()) return;
+
+    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+        setParaValue(CPK::Unison::paraDistance, i, lines[index++].getFloatValue());
+        setParaValue(CPK::Unison::paraDetune, i, (float)lines[index++].getIntValue());
+    }
+}
+
+juce::String GuiComponentUnison::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(voices.getValue()) + "\n";
+    content += juce::String(detune.getValue()) + "\n";
+    content += juce::String(spread.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(arpEnable.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(arpFreq.getValue()) + "\n";
+    content += juce::String(arpSmooth.getToggleState() ? 1 : 0) + "\n";
+
+    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+        content += juce::String(getParaValue(CPK::Unison::paraDistance, i), Global::floatDecimalPlaces) + "\n";
+        content += juce::String((int)getParaValue(CPK::Unison::paraDetune, i)) + "\n";
+    }
+
+    return content;
+}
+
+// ボイスごとの設定は並びとして持つ。名前に番号を混ぜずに済み、
+// 書かれていないボイスは今の値のままになる。
+void GuiComponentUnison::readParams(const Io::ParamReader& reader, const juce::String& key)
+{
+    auto r = reader.child(key);
+
+    voices.setValue(r.getInt("voices", (int)voices.getValue()), juce::sendNotification);
+    detune.setValue(r.getInt("detune", (int)detune.getValue()), juce::sendNotification);
+    spread.setValue(r.getFloat("spread", (float)spread.getValue()), juce::sendNotification);
+
+    arpEnable.setToggleState(r.getBool("arpEnable", arpEnable.getToggleState()), juce::sendNotification);
+    arpFreq.setValue(r.getInt("arpFreq", (int)arpFreq.getValue()), juce::sendNotification);
+    arpSmooth.setToggleState(r.getBool("arpSmooth", arpSmooth.getToggleState()), juce::sendNotification);
+
+    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+        auto voice = r.arrayItem("paraVoices", i);
+
+        setParaValue(CPK::Unison::paraDistance, i,
+            voice.getFloat("distance", getParaValue(CPK::Unison::paraDistance, i)));
+        setParaValue(CPK::Unison::paraDetune, i,
+            (float)voice.getInt("detune", (int)getParaValue(CPK::Unison::paraDetune, i)));
+    }
+}
+
+void GuiComponentUnison::writeParams(Io::ParamWriter& writer, const juce::String& key)
+{
+    auto w = writer.child(key);
+
+    w.set("voices", (int)voices.getValue());
+    w.set("detune", (int)detune.getValue());
+    w.set("spread", (float)spread.getValue());
+
+    w.set("arpEnable", arpEnable.getToggleState());
+    w.set("arpFreq", (int)arpFreq.getValue());
+    w.set("arpSmooth", arpSmooth.getToggleState());
+
+    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+        auto voice = w.arrayItem("paraVoices", i);
+
+        voice.set("distance", getParaValue(CPK::Unison::paraDistance, i));
+        voice.set("detune", (int)getParaValue(CPK::Unison::paraDetune, i));
+    }
+}

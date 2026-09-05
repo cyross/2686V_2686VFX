@@ -1,0 +1,30 @@
+﻿#pragma once
+
+#include <JuceHeader.h>
+
+struct SelectItem
+{
+    const juce::String name;
+    const int value;
+};
+
+// プリセット1つ分の情報を保持する構造体
+struct PresetItem
+{
+    juce::File file;
+    juce::String fileName;
+    juce::String name;
+    juce::String author;
+    juce::String version;
+    juce::String comment;
+    juce::String modeName;
+    juce::String genre;
+    juce::String fullPath;
+    juce::Time lastModificationTime;
+
+    // 覚え書きが今のファイルのものかを見分けるために持つ
+    juce::int64 fileSize = 0;
+
+    // JSON / YAML / XML のどれか。一覧の列に出す。
+    juce::String format;
+};

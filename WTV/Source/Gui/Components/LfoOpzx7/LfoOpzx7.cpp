@@ -1,0 +1,521 @@
+﻿#include "./LfoOpzx7.h"
+
+#include "../../../Core/Gui/GuiRefresh.h"
+
+#include "../../../Core/Io/ParamFile.h"
+
+namespace
+{
+	// ファイルの中身を見分ける印
+	const Io::ParamFormat opzx7LfoFormat{ "opzx7Lfo", 1 };
+}
+
+#include "../WavePreview/WavePreviewSource.h"
+
+#include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
+#include "../../../Core/Gui/GuiHelpers.h"
+#include "../../../Core/Gui/GuiStructs.h"
+#include "../../../Core/Const/ConstGlobal.h"
+
+static std::vector<SelectItem> lfoShapeItems = {
+    {.name = " 0: Sine",                .value = 1 },
+    {.name = " 1: Saw Up",              .value = 2 },
+    {.name = " 2: Saw Down",            .value = 3 },
+    {.name = " 3: Square",              .value = 4 },
+    {.name = " 4: Triangle",            .value = 5 },
+    {.name = " 5: Sample & Hold",       .value = 6 },
+    {.name = " 6: Saw Down & One Shot", .value = 7 },
+    {.name = " 7: Triangle & One Shot", .value = 8 },
+    {.name = " 8: Sample & Hold  4",    .value = 9 },
+    {.name = " 9: Sample & Hold  8",    .value = 10 },
+    {.name = "10: Sample & Hold 16",    .value = 11 },
+    {.name = "11: Sample & Hold 32",    .value = 12 },
+    {.name = "12: Sample & Hold 64",    .value = 13 },
+};
+
+void GuiComponentLfoOpzx7::setupComponent(
+    juce::Component& parent,
+    const juce::String& code,
+    int& tabOrder
+)
+{
+    cat.setupSwLfoCategory({
+        .parent = parent,
+        .title = juce::String("") + "LFO",
+        .enableChangeDetailVisible = true
+        });
+
+    pmLabel.setup({ .parent = parent, .title = "[PM]" });
+
+    pmEnable.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pm, .title = "Enable", .isReset = true });
+    pmEnable.setWantsKeyboardFocus(true);
+    pmEnable.setExplicitFocusOrder(++tabOrder);
+
+    pmFreq.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmFreq, .title = "FQ", .isReset = true });
+    pmFreq.setWantsKeyboardFocus(true);
+    pmFreq.setExplicitFocusOrder(++tabOrder);
+
+    pmSyncDelay.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmSyncDelay, .title = "SDLY", .isReset = true });
+    pmSyncDelay.setWantsKeyboardFocus(true);
+    pmSyncDelay.setExplicitFocusOrder(++tabOrder);
+
+    pmSDToZero.setup(GuiTextButton::Config{ .parent = parent, .title = "Async", .isReset = false, .isResized = false });
+    pmSDToZero.setWantsKeyboardFocus(true);
+    pmSDToZero.setExplicitFocusOrder(++tabOrder);
+    pmSDToZero.onClick = [this] {
+        pmSyncDelay.setValue(0.0f);
+        };
+
+    pmSDToOne.setup(GuiTextButton::Config{ .parent = parent, .title = "Sync", .isReset = false, .isResized = false });
+    pmSDToOne.setWantsKeyboardFocus(true);
+    pmSDToOne.setExplicitFocusOrder(++tabOrder);
+    pmSDToOne.onClick = [this] {
+        pmSyncDelay.setValue(1.0f);
+        };
+
+    pgShape.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pgShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
+    pgShape.setWantsKeyboardFocus(true);
+    pgShape.setExplicitFocusOrder(++tabOrder);
+
+    pms.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pms, .title = "PMS", .isReset = true });
+    pms.setWantsKeyboardFocus(true);
+    pms.setExplicitFocusOrder(++tabOrder);
+
+    pmd.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmd, .title = "PMD", .isReset = true });
+    pmd.setWantsKeyboardFocus(true);
+    pmd.setExplicitFocusOrder(++tabOrder);
+
+	pmAmSeparator.setupComponent(parent);
+
+    amLabel.setup({ .parent = parent, .title = "[AM]" });
+
+    amEnable.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::am, .title = "Enable", .isReset = true });
+    amEnable.setWantsKeyboardFocus(true);
+    amEnable.setExplicitFocusOrder(++tabOrder);
+
+    amFreq.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amFreq, .title = "FQ", .isReset = true });
+    amFreq.setWantsKeyboardFocus(true);
+    amFreq.setExplicitFocusOrder(++tabOrder);
+
+    amSyncDelay.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amSyncDelay, .title = "SDLY", .isReset = true });
+    amSyncDelay.setWantsKeyboardFocus(true);
+    amSyncDelay.setExplicitFocusOrder(++tabOrder);
+
+    amSDToZero.setup(GuiTextButton::Config{ .parent = parent, .title = "Async", .isReset = false, .isResized = false });
+    amSDToZero.setWantsKeyboardFocus(true);
+    amSDToZero.setExplicitFocusOrder(++tabOrder);
+    amSDToZero.onClick = [this] {
+        amSyncDelay.setValue(0.0f);
+        };
+
+    amSDToOne.setup(GuiTextButton::Config{ .parent = parent, .title = "Sync", .isReset = false, .isResized = false });
+    amSDToOne.setWantsKeyboardFocus(true);
+    amSDToOne.setExplicitFocusOrder(++tabOrder);
+    amSDToOne.onClick = [this] {
+        amSyncDelay.setValue(1.0f);
+        };
+
+    egShape.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::egShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
+    egShape.setWantsKeyboardFocus(true);
+    egShape.setExplicitFocusOrder(++tabOrder);
+
+    amSmRt.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amSmoothRatio, .title = "SR", .isReset = true });
+    amSmRt.setWantsKeyboardFocus(true);
+    amSmRt.setExplicitFocusOrder(++tabOrder);
+
+    ams.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::ams, .title = "AMS", .isReset = true });
+    ams.setWantsKeyboardFocus(true);
+    ams.setExplicitFocusOrder(++tabOrder);
+
+    amd.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amd, .title = "AMD", .isReset = true });
+    amd.setWantsKeyboardFocus(true);
+    amd.setExplicitFocusOrder(++tabOrder);
+
+    pmPreview.setup(parent, GuiColor::WavePreview::Lfo);
+    amPreview.setup(parent, GuiColor::WavePreview::Lfo);
+
+    auto refreshPreviews = [this]() { this->updatePreviews(); };
+
+    pgShape.onChange = refreshPreviews;
+    egShape.onChange = refreshPreviews;
+    amSmRt.onValueChange = refreshPreviews;
+
+    updatePreviews();
+}
+
+// 選んだ Shape を実際の LFO で走らせ、折れ線にして渡す。
+// 値が変わったときだけ通るので、常時の負荷は無い。
+void GuiComponentLfoOpzx7::updatePreviews()
+{
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
+    if (GuiRefresh::defer(this, [this] { updatePreviews(); })) return;
+
+    // PM は -1.0〜1.0 の両振り
+    pmPreview.setPoints(WavePreviewSource::opzx7LfoPm(pgShape.getSelectedItemIndex()), true);
+
+    // AM は 0.0〜1.0 の片側。スムースの効きも見えるよう実際の値を渡す。
+    amPreview.setPoints(WavePreviewSource::opzx7LfoAm(egShape.getSelectedItemIndex(), (float)amSmRt.getValue()), false);
+}
+
+void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .component = &cat });
+
+    bool visible = cat.isDetailVisible();
+
+    pmLabel.setVisible(visible);
+    pmEnable.setVisible(visible);
+    pmFreq.setVisibleWithLabel(visible);
+    pmSyncDelay.setVisibleWithLabel(visible);
+    pmSDToZero.setVisible(visible);
+    pmSDToOne.setVisible(visible);
+    pgShape.setVisibleWithLabel(visible);
+    pmPreview.setVisible(visible);
+    pms.setVisibleWithLabel(visible);
+    pmd.setVisibleWithLabel(visible);
+    pmAmSeparator.setVisible(visible);
+    amLabel.setVisible(visible);
+    amEnable.setVisible(visible);
+    amFreq.setVisibleWithLabel(visible);
+    amSyncDelay.setVisibleWithLabel(visible);
+    amSDToZero.setVisible(visible);
+    amSDToOne.setVisible(visible);
+    egShape.setVisibleWithLabel(visible);
+    amSmRt.setVisibleWithLabel(visible);
+    amPreview.setVisible(visible);
+    ams.setVisibleWithLabel(visible);
+    amd.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &pmLabel, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .component = &pmEnable, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .label = &pmFreq.label, .component = &pmFreq, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .label = &pmSyncDelay.label, .component = &pmSyncDelay, .rowHeight = 12 });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &pmSDToZero, .comp2 = &pmSDToOne, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .label = &pgShape.label, .component = &pgShape, .rowHeight = 12 });
+
+        pmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
+        layoutMain({ .mainRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
+
+		pmAmSeparator.layoutComponent(rect);
+
+        layoutMain({ .mainRect = rect, .component = &amLabel, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .component = &amEnable, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .label = &amFreq.label, .component = &amFreq, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .label = &amSyncDelay.label, .component = &amSyncDelay, .rowHeight = 12 });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &amSDToZero, .comp2 = &amSDToOne, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .label = &egShape.label, .component = &egShape, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .label = &amSmRt.label, .component = &amSmRt, .rowHeight = 12 });
+
+        amPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
+        layoutMain({ .mainRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
+}
+
+void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .component = &cat });
+
+    bool visible = cat.isDetailVisible();
+
+    pmLabel.setVisible(visible);
+    pmEnable.setVisible(visible);
+    pmFreq.setVisibleWithLabel(visible);
+    pmSyncDelay.setVisibleWithLabel(visible);
+    pmSDToZero.setVisible(visible);
+    pmSDToOne.setVisible(visible);
+    pgShape.setVisibleWithLabel(visible);
+    pmPreview.setVisible(visible);
+    pms.setVisibleWithLabel(visible);
+    pmd.setVisibleWithLabel(visible);
+    pmAmSeparator.setVisible(visible);
+    amLabel.setVisible(visible);
+    amEnable.setVisible(visible);
+    amFreq.setVisibleWithLabel(visible);
+    amSyncDelay.setVisibleWithLabel(visible);
+    amSDToZero.setVisible(visible);
+    amSDToOne.setVisible(visible);
+    egShape.setVisibleWithLabel(visible);
+    amSmRt.setVisibleWithLabel(visible);
+    amPreview.setVisible(visible);
+    ams.setVisibleWithLabel(visible);
+    amd.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .component = &pmLabel, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .component = &pmEnable, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &pmFreq.label, .component = &pmFreq, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &pmSyncDelay.label, .component = &pmSyncDelay, .rowHeight = 12 });
+        layoutRowTwoComps({ .rect = rect, .comp1 = &pmSDToZero, .comp2 = &pmSDToOne, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &pgShape.label, .component = &pgShape, .rowHeight = 12 });
+
+        pmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
+        layoutRow({ .rowRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
+
+        pmAmSeparator.layoutComponent(rect);
+
+        layoutRow({ .rowRect = rect, .component = &amLabel, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .component = &amEnable, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &amFreq.label, .component = &amFreq, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &amSyncDelay.label, .component = &amSyncDelay, .rowHeight = 12 });
+        layoutRowTwoComps({ .rect = rect, .comp1 = &amSDToZero, .comp2 = &amSDToOne, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &egShape.label, .component = &egShape, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &amSmRt.label, .component = &amSmRt, .rowHeight = 12 });
+
+        amPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(2);
+
+        layoutRow({ .rowRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
+}
+
+void GuiComponentLfoOpzx7::setEnabled(bool enabled) {
+    cat.setEnabled(enabled);
+    pmLabel.setEnabled(enabled);
+    pmEnable.setEnabled(enabled);
+    pmFreq.setEnabled(enabled);
+    pmSyncDelay.setEnabled(enabled);
+    pmSDToZero.setEnabled(enabled);
+    pmSDToOne.setEnabled(enabled);
+    pgShape.setEnabled(enabled);
+    pms.setEnabled(enabled);
+    pmd.setEnabled(enabled);
+    pmAmSeparator.setEnabled(enabled);
+    amLabel.setEnabled(enabled);
+    amEnable.setEnabled(enabled);
+    amFreq.setEnabled(enabled);
+    amSyncDelay.setEnabled(enabled);
+    amSDToZero.setEnabled(enabled);
+    amSDToOne.setEnabled(enabled);
+    egShape.setEnabled(enabled);
+    amSmRt.setEnabled(enabled);
+    ams.setEnabled(enabled);
+    amd.setEnabled(enabled);
+}
+
+void GuiComponentLfoOpzx7::copyParams(CopyLfoOpzx7& copyObj) {
+    copyObj.pmEnable = pmEnable.getToggleState();
+    copyObj.pmFreq = pmFreq.getValue();
+    copyObj.pmSyncDelay = pmSyncDelay.getValue();
+    copyObj.pmIndex = pgShape.getSelectedId();
+    copyObj.pms = pms.getValue();
+    copyObj.pmd = pmd.getValue();
+    copyObj.amEnable = amEnable.getToggleState();
+    copyObj.amFreq = amFreq.getValue();
+    copyObj.amSyncDelay = amSyncDelay.getValue();
+    copyObj.amIndex = egShape.getSelectedId();
+    copyObj.amSmoothRate = amSmRt.getValue();
+    copyObj.ams = ams.getValue();
+    copyObj.amd = amd.getValue();
+}
+
+void GuiComponentLfoOpzx7::pasteParams(CopyLfoOpzx7& copyObj) {
+    pmEnable.setToggleState(copyObj.pmEnable, juce::sendNotification);
+    pmFreq.setValue(copyObj.pmFreq, juce::sendNotification);
+    pmSyncDelay.setValue(copyObj.pmSyncDelay, juce::sendNotification);
+    pgShape.setSelectedId(copyObj.pmIndex, juce::sendNotification);
+    pms.setValue(copyObj.pms, juce::sendNotification);
+    pmd.setValue(copyObj.pmd, juce::sendNotification);
+    amEnable.setToggleState(copyObj.amEnable, juce::sendNotification);
+    amFreq.setValue(copyObj.amFreq, juce::sendNotification);
+    amSyncDelay.setValue(copyObj.amSyncDelay, juce::sendNotification);
+    egShape.setSelectedId(copyObj.amIndex, juce::sendNotification);
+    amSmRt.setValue(copyObj.amSmoothRate, juce::sendNotification);
+    ams.setValue(copyObj.ams, juce::sendNotification);
+    amd.setValue(copyObj.amd, juce::sendNotification);
+}
+
+void GuiComponentLfoOpzx7::importParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::Opzx7LfoParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+                // 読み込みは当時のものをそのまま使う。
+                if (Io::isLegacyFile(file)) {
+                    juce::StringArray lines;
+
+                    file.readLines(lines);
+
+                    int index = 0;
+
+                    {
+                        // 読み終えてからまとめて描き直す
+                        GuiRefresh::Batch batch;
+
+                        setImportingParams(lines, index);
+                    }
+
+                    // 単体のファイルは入れ子にせず、そのまま中身として書く
+                    Io::ParamWriter writer(opzx7LfoFormat);
+
+                    writeParams(writer, Io::ParamKey::values);
+                    writer.hoist(Io::ParamKey::values);
+
+                    Io::writeConverted(file, writer);
+
+                    return;
+                }
+
+                auto reader = Io::ParamReader::open(file, opzx7LfoFormat);
+
+                if (!reader.has_value()) return;
+
+                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+                GuiRefresh::Batch batch;
+
+                pmEnable.setToggleState(reader->getBool("pmEnable", pmEnable.getToggleState()), juce::sendNotification);
+                pmFreq.setValue(reader->getFloat("pmFreq", (float)pmFreq.getValue()), juce::sendNotification);
+                pmSyncDelay.setValue(reader->getInt("pmSyncDelay", (int)pmSyncDelay.getValue()), juce::sendNotification);
+                pgShape.setSelectedItemIndex(reader->getInt("pgShape", pgShape.getSelectedItemIndex()), juce::sendNotification);
+                pms.setValue(reader->getFloat("pms", (float)pms.getValue()), juce::sendNotification);
+                pmd.setValue(reader->getFloat("pmd", (float)pmd.getValue()), juce::sendNotification);
+                amEnable.setToggleState(reader->getBool("amEnable", amEnable.getToggleState()), juce::sendNotification);
+                amFreq.setValue(reader->getFloat("amFreq", (float)amFreq.getValue()), juce::sendNotification);
+                egShape.setSelectedItemIndex(reader->getInt("egShape", egShape.getSelectedItemIndex()), juce::sendNotification);
+                amSyncDelay.setValue(reader->getInt("amSyncDelay", (int)amSyncDelay.getValue()), juce::sendNotification);
+                amSmRt.setValue(reader->getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
+                ams.setValue(reader->getFloat("ams", (float)ams.getValue()), juce::sendNotification);
+                amd.setValue(reader->getFloat("amd", (float)amd.getValue()), juce::sendNotification);
+            }
+        });
+}
+
+void GuiComponentLfoOpzx7::exportParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::Opzx7LfoParam)), Io::saveGlob(Io::Extension::Opzx7LfoParam));
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                Io::ParamWriter writer(opzx7LfoFormat);
+
+                writer.set("pmEnable", pmEnable.getToggleState());
+                writer.set("pmFreq", (float)pmFreq.getValue());
+                writer.set("pmSyncDelay", (float)pmSyncDelay.getValue());
+                writer.set("pgShape", pgShape.getSelectedItemIndex());
+                writer.set("pms", (float)pms.getValue());
+                writer.set("pmd", (float)pmd.getValue());
+                writer.set("amEnable", amEnable.getToggleState());
+                writer.set("amFreq", (float)amFreq.getValue());
+                writer.set("egShape", egShape.getSelectedItemIndex());
+                writer.set("amSyncDelay", (float)amSyncDelay.getValue());
+                writer.set("amSmRt", (float)amSmRt.getValue());
+                writer.set("ams", (float)ams.getValue());
+                writer.set("amd", (float)amd.getValue());
+
+                writer.writeTo(file);
+            }
+        });
+}
+
+void GuiComponentLfoOpzx7::setImportingParams(juce::StringArray& lines, int& index) {
+    pmEnable.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    pmFreq.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    pmSyncDelay.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    pgShape.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    pms.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    pmd.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    amEnable.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    amFreq.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    egShape.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    amSyncDelay.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    amSmRt.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    ams.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    amd.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+void GuiComponentLfoOpzx7::readParams(const Io::ParamReader& reader, const juce::String& key)
+{
+    auto r = reader.child(key);
+
+    pmEnable.setToggleState(r.getBool("pmEnable", pmEnable.getToggleState()), juce::sendNotification);
+    pmFreq.setValue(r.getFloat("pmFreq", (float)pmFreq.getValue()), juce::sendNotification);
+    pmSyncDelay.setValue(r.getInt("pmSyncDelay", (int)pmSyncDelay.getValue()), juce::sendNotification);
+    pgShape.setSelectedItemIndex(r.getInt("pgShape", pgShape.getSelectedItemIndex()), juce::sendNotification);
+    pms.setValue(r.getFloat("pms", (float)pms.getValue()), juce::sendNotification);
+    pmd.setValue(r.getFloat("pmd", (float)pmd.getValue()), juce::sendNotification);
+    amEnable.setToggleState(r.getBool("amEnable", amEnable.getToggleState()), juce::sendNotification);
+    amFreq.setValue(r.getFloat("amFreq", (float)amFreq.getValue()), juce::sendNotification);
+    egShape.setSelectedItemIndex(r.getInt("egShape", egShape.getSelectedItemIndex()), juce::sendNotification);
+    amSyncDelay.setValue(r.getInt("amSyncDelay", (int)amSyncDelay.getValue()), juce::sendNotification);
+    amSmRt.setValue(r.getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
+    ams.setValue(r.getFloat("ams", (float)ams.getValue()), juce::sendNotification);
+    amd.setValue(r.getFloat("amd", (float)amd.getValue()), juce::sendNotification);
+}
+
+juce::String GuiComponentLfoOpzx7::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(pmEnable.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(pmFreq.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(pmSyncDelay.getValue()) + "\n";
+    content += juce::String(pgShape.getSelectedItemIndex()) + "\n";
+    content += juce::String(pms.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(pmd.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(amEnable.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(amFreq.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(egShape.getSelectedItemIndex()) + "\n";
+    content += juce::String(amSyncDelay.getValue()) + "\n";
+    content += juce::String(amSmRt.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(ams.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(amd.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    return content;
+}
+
+void GuiComponentLfoOpzx7::writeParams(Io::ParamWriter& writer, const juce::String& key)
+{
+    auto w = writer.child(key);
+
+    w.set("pmEnable", pmEnable.getToggleState());
+    w.set("pmFreq", (float)pmFreq.getValue());
+    w.set("pmSyncDelay", (float)pmSyncDelay.getValue());
+    w.set("pgShape", pgShape.getSelectedItemIndex());
+    w.set("pms", (float)pms.getValue());
+    w.set("pmd", (float)pmd.getValue());
+    w.set("amEnable", amEnable.getToggleState());
+    w.set("amFreq", (float)amFreq.getValue());
+    w.set("egShape", egShape.getSelectedItemIndex());
+    w.set("amSyncDelay", (float)amSyncDelay.getValue());
+    w.set("amSmRt", (float)amSmRt.getValue());
+    w.set("ams", (float)ams.getValue());
+    w.set("amd", (float)amd.getValue());
+}

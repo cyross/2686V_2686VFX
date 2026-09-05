@@ -615,13 +615,22 @@ def generate(name):
 
     print("[%s] 元: %s / 残す音源: %s" % (name, SOURCE_PLUGIN, ", ".join(keep)))
 
-    # 1. まるごと写す
-    if os.path.isdir(dst_dir):
-        shutil.rmtree(dst_dir)
+    # 1. まるごと写す。
+    #    Resources (アイコンと VST ロゴ) は、すでに置いてあれば残す。
+    #    プラグインごとの絵を用意したときに、作り直しで消えないようにするため。
+    res_dir = os.path.join(dst_dir, "Resources")
+    keep_res = os.path.isdir(res_dir)
 
+    if os.path.isdir(dst_root):
+        shutil.rmtree(dst_root)
+
+    os.makedirs(dst_dir, exist_ok=True)
     shutil.copytree(os.path.join(ROOT, SOURCE_PLUGIN, "Source"), dst_root)
-    shutil.copytree(os.path.join(ROOT, SOURCE_PLUGIN, "Resources"),
-                    os.path.join(dst_dir, "Resources"))
+
+    if not keep_res:
+        shutil.copytree(os.path.join(ROOT, SOURCE_PLUGIN, "Resources"), res_dir)
+    else:
+        print("  Resources は置いてあるものをそのまま使います")
 
     # 2. 消す音源の持ち物を調べてから、ディレクトリごと落とす
     keep_dirs = [d for k in keep for d in CHIPS[k]["dirs"]]
