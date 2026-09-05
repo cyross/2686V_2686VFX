@@ -80,7 +80,6 @@ set(FM_FILES
     "Source/Core/Fm/FmOperator.h"
     "Source/Core/Fm/FmOperator.cpp"
     "Source/Core/Fm/FmOpParams.h"
-    "Source/Core/Fm/FmRegisterType.h"
     "Source/Core/Fm/FmRegisterConverter.h"
     "Source/Core/Fm/FmRegisterConverter.cpp"
     "Source/Core/Fm/FmMmlFormatter.h"
