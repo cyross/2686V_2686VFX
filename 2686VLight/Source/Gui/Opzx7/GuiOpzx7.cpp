@@ -335,22 +335,9 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     qualityComponent(context),
     algSelector(context),
     algFbSep(context),
-    feedback1Slider(context),
-    feedback1Nudge(context),
-    feedback2Slider(context),
-    feedback2Nudge(context),
-    feedback3Slider(context),
-    feedback3Nudge(context),
-    feedback4Slider(context),
-    feedback4Nudge(context),
-    feedback5Slider(context),
-    feedback5Nudge(context),
-    feedback6Slider(context),
-    feedback6Nudge(context),
-    feedback7Slider(context),
-    feedback7Nudge(context),
-    feedback8Slider(context),
-    feedback8Nudge(context),
+    feedbackTarget(context),
+    feedbackSlider(context),
+    feedbackNudge(context),
     panCat(context),
     panpotEnableToggle(context),
     panpotSlider(context),
@@ -490,6 +477,57 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     viewMode = (GuiComponentViewModes)mode;
 }
 
+float GuiOpzx7::getFeedbackValue(int opIndex) const
+{
+    static const juce::String keys[] = { CPK::Fm::fb1, CPK::Fm::fb2, CPK::Fm::fb3, CPK::Fm::fb4,
+                                         CPK::Fm::fb5, CPK::Fm::fb6, CPK::Fm::fb7, CPK::Fm::fb8 };
+
+    if (opIndex < 0 || opIndex >= Opzx7PrValue::ops) return 0.0f;
+
+    auto* v = ctx.apvts.getRawParameterValue(Opzx7PrKey::prefix + keys[opIndex]);
+
+    return (v != nullptr) ? v->load() : 0.0f;
+}
+
+void GuiOpzx7::setFeedbackValue(int opIndex, float value)
+{
+    static const juce::String keys[] = { CPK::Fm::fb1, CPK::Fm::fb2, CPK::Fm::fb3, CPK::Fm::fb4,
+                                         CPK::Fm::fb5, CPK::Fm::fb6, CPK::Fm::fb7, CPK::Fm::fb8 };
+
+    if (opIndex < 0 || opIndex >= Opzx7PrValue::ops) return;
+
+    if (auto* p = ctx.apvts.getParameter(Opzx7PrKey::prefix + keys[opIndex])) {
+        p->setValueNotifyingHost(p->convertTo0to1(value));
+    }
+}
+
+void GuiOpzx7::rebindFeedback()
+{
+    static const juce::String keys[] = { CPK::Fm::fb1, CPK::Fm::fb2, CPK::Fm::fb3, CPK::Fm::fb4,
+                                         CPK::Fm::fb5, CPK::Fm::fb6, CPK::Fm::fb7, CPK::Fm::fb8 };
+
+    const int idx = juce::jlimit(0, Opzx7PrValue::ops - 1, (int)feedbackTarget.getValue() - 1);
+
+    feedbackSlider.getSlider().rebind(Opzx7PrKey::prefix + keys[idx]);
+
+    refreshFeedbackValues();
+}
+
+void GuiOpzx7::refreshFeedbackValues()
+{
+    feedbackValues.labels.clear();
+    feedbackValues.values.clear();
+
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        feedbackValues.labels.push_back("OP" + juce::String(i + 1));
+        feedbackValues.values.push_back(getFeedbackValue(i));
+    }
+
+    feedbackValues.selected = juce::jlimit(0, Opzx7PrValue::ops - 1, (int)feedbackTarget.getValue() - 1);
+    feedbackValues.decimals = Global::floatDecimalPlaces;
+    feedbackValues.repaint();
+}
+
 void GuiOpzx7::setup()
 {
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
@@ -555,37 +593,26 @@ void GuiOpzx7::setup()
 
     algFbSep.setupComponent(mainGroup.contentCanvas);
 
-    feedback1Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb1, Opzx7GuiText::Fm::fb + "1", tabOrder, std::nullopt);
+    // OP ごとにつまみを並べる代わりに、対象を選ぶつまみと値のつまみを 1 組ずつ置く。
+    // 並びは 対象 → 値 → 各 OP の値。
+    feedbackTarget.setup({ .parent = mainGroup.contentCanvas, .title = "F.OP", .isReset = false });
+    feedbackTarget.setRange(1.0, (double)Opzx7PrValue::ops, 1.0);
+    feedbackTarget.setNumDecimalPlacesToDisplay(0);
+    feedbackTarget.setWantsKeyboardFocus(true);
+    feedbackTarget.setExplicitFocusOrder(++tabOrder);
+    feedbackTarget.onValueChange = [this] { rebindFeedback(); };
 
-    feedback1Nudge.setupComponent(mainGroup.contentCanvas, feedback1Slider.getSlider(), tabOrder);
+    feedbackSlider.setupComponent(mainGroup.contentCanvas, "", Opzx7GuiText::Fm::fb, tabOrder, std::nullopt);
+    feedbackSlider.getSlider().onValueChange = [this] { refreshFeedbackValues(); };
 
-    feedback2Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb2, Opzx7GuiText::Fm::fb + "2", tabOrder, std::nullopt);
+    feedbackNudge.setupComponent(mainGroup.contentCanvas, feedbackSlider.getSlider(), tabOrder);
 
-    feedback2Nudge.setupComponent(mainGroup.contentCanvas, feedback2Slider.getSlider(), tabOrder);
+    mainGroup.contentCanvas.addAndMakeVisible(feedbackValues);
 
-    feedback3Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb3, Opzx7GuiText::Fm::fb + "3", tabOrder, std::nullopt);
+    // onValueChange は値が変わらないと呼ばれないので、最初の束縛はここで明示的に行う。
+    feedbackTarget.setValue(1, juce::dontSendNotification);
 
-    feedback3Nudge.setupComponent(mainGroup.contentCanvas, feedback3Slider.getSlider(), tabOrder);
-
-    feedback4Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb4, Opzx7GuiText::Fm::fb + "4", tabOrder, std::nullopt);
-
-    feedback4Nudge.setupComponent(mainGroup.contentCanvas, feedback4Slider.getSlider(), tabOrder);
-
-    feedback5Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb5, Opzx7GuiText::Fm::fb + "5", tabOrder, std::nullopt);
-
-    feedback5Nudge.setupComponent(mainGroup.contentCanvas, feedback5Slider.getSlider(), tabOrder);
-
-    feedback6Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb6, Opzx7GuiText::Fm::fb + "6", tabOrder, std::nullopt);
-
-    feedback6Nudge.setupComponent(mainGroup.contentCanvas, feedback6Slider.getSlider(), tabOrder);
-
-    feedback7Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb7, Opzx7GuiText::Fm::fb + "7", tabOrder, std::nullopt);
-
-    feedback7Nudge.setupComponent(mainGroup.contentCanvas, feedback7Slider.getSlider(), tabOrder);
-
-    feedback8Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb8, Opzx7GuiText::Fm::fb + "8", tabOrder, std::nullopt);
-
-    feedback8Nudge.setupComponent(mainGroup.contentCanvas, feedback8Slider.getSlider(), tabOrder);
+    rebindFeedback();
 
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::panpot, .enableChangeDetailVisible = true });
 
@@ -1225,30 +1252,11 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     algFbSep.layoutComponent(mRect);
 
-    feedback1Slider.layoutComponent(mRect);
-    feedback1Nudge.setVisibles(feedback1Slider.isVisibleNudge());
-    if (feedback1Slider.isVisibleNudge()) feedback1Nudge.layoutComponent(mRect);
-    feedback2Slider.layoutComponent(mRect);
-    feedback2Nudge.setVisibles(feedback2Slider.isVisibleNudge());
-    if (feedback2Slider.isVisibleNudge()) feedback2Nudge.layoutComponent(mRect);
-    feedback3Slider.layoutComponent(mRect);
-    feedback3Nudge.setVisibles(feedback3Slider.isVisibleNudge());
-    if (feedback3Slider.isVisibleNudge()) feedback3Nudge.layoutComponent(mRect);
-    feedback4Slider.layoutComponent(mRect);
-    feedback4Nudge.setVisibles(feedback4Slider.isVisibleNudge());
-    if (feedback4Slider.isVisibleNudge()) feedback4Nudge.layoutComponent(mRect);
-    feedback5Slider.layoutComponent(mRect);
-    feedback5Nudge.setVisibles(feedback5Slider.isVisibleNudge());
-    if (feedback5Slider.isVisibleNudge()) feedback5Nudge.layoutComponent(mRect);
-    feedback6Slider.layoutComponent(mRect);
-    feedback6Nudge.setVisibles(feedback6Slider.isVisibleNudge());
-    if (feedback6Slider.isVisibleNudge()) feedback6Nudge.layoutComponent(mRect);
-    feedback7Slider.layoutComponent(mRect);
-    feedback7Nudge.setVisibles(feedback7Slider.isVisibleNudge());
-    if (feedback7Slider.isVisibleNudge()) feedback7Nudge.layoutComponent(mRect);
-    feedback8Slider.layoutComponent(mRect);
-    feedback8Nudge.setVisibles(feedback8Slider.isVisibleNudge());
-    if (feedback8Slider.isVisibleNudge()) feedback8Nudge.layoutComponent(mRect);
+    layoutMain({ .mainRect = mRect, .label = &feedbackTarget.label, .component = &feedbackTarget });
+    feedbackSlider.layoutComponent(mRect);
+    feedbackNudge.setVisibles(feedbackSlider.isVisibleNudge());
+    if (feedbackSlider.isVisibleNudge()) feedbackNudge.layoutComponent(mRect);
+    feedbackValues.setBounds(mRect.removeFromTop(feedbackValues.getNaturalHeight()));
 
     mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
 
@@ -2668,14 +2676,14 @@ void GuiOpzx7::copyParams(CopyOpzx7& copyObj) {
     copyObj.quality.rate = qualityComponent.getRate();
     copyObj.fmBase.level = levelComponent.getLevel();
     copyObj.fmBase.algorithm = algSelector.getSelectedId();
-    copyObj.fmBase.feedback1 = feedback1Slider.getValue();
-    copyObj.fmBase.feedback2 = feedback2Slider.getValue();
-    copyObj.fmBase.feedback3 = feedback3Slider.getValue();
-    copyObj.fmBase.feedback4 = feedback4Slider.getValue();
-    copyObj.fmBase.feedback5 = feedback5Slider.getValue();
-    copyObj.fmBase.feedback6 = feedback6Slider.getValue();
-    copyObj.fmBase.feedback7 = feedback7Slider.getValue();
-    copyObj.fmBase.feedback8 = feedback8Slider.getValue();
+    copyObj.fmBase.feedback1 = getFeedbackValue(0);
+    copyObj.fmBase.feedback2 = getFeedbackValue(1);
+    copyObj.fmBase.feedback3 = getFeedbackValue(2);
+    copyObj.fmBase.feedback4 = getFeedbackValue(3);
+    copyObj.fmBase.feedback5 = getFeedbackValue(4);
+    copyObj.fmBase.feedback6 = getFeedbackValue(5);
+    copyObj.fmBase.feedback7 = getFeedbackValue(6);
+    copyObj.fmBase.feedback8 = getFeedbackValue(7);
     copyObj.panpot.enable = panpotEnableToggle.getToggleState();
     copyObj.panpot.panpot = panpotSlider.getValue();
 
@@ -2735,14 +2743,16 @@ void GuiOpzx7::pasteParams(CopyOpzx7& copyObj) {
     qualityComponent.setRate(copyObj.quality.rate);
     levelComponent.setLevel(copyObj.fmBase.level);
     algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
-    feedback1Slider.setValue(copyObj.fmBase.feedback1, juce::sendNotification);
-    feedback2Slider.setValue(copyObj.fmBase.feedback2, juce::sendNotification);
-    feedback3Slider.setValue(copyObj.fmBase.feedback3, juce::sendNotification);
-    feedback4Slider.setValue(copyObj.fmBase.feedback4, juce::sendNotification);
-    feedback5Slider.setValue(copyObj.fmBase.feedback5, juce::sendNotification);
-    feedback6Slider.setValue(copyObj.fmBase.feedback6, juce::sendNotification);
-    feedback7Slider.setValue(copyObj.fmBase.feedback7, juce::sendNotification);
-    feedback8Slider.setValue(copyObj.fmBase.feedback8, juce::sendNotification);
+    setFeedbackValue(0, copyObj.fmBase.feedback1);
+    setFeedbackValue(1, copyObj.fmBase.feedback2);
+    setFeedbackValue(2, copyObj.fmBase.feedback3);
+    setFeedbackValue(3, copyObj.fmBase.feedback4);
+    setFeedbackValue(4, copyObj.fmBase.feedback5);
+    setFeedbackValue(5, copyObj.fmBase.feedback6);
+    setFeedbackValue(6, copyObj.fmBase.feedback7);
+    setFeedbackValue(7, copyObj.fmBase.feedback8);
+
+    refreshFeedbackValues();
     panpotEnableToggle.setToggleState(copyObj.panpot.enable, juce::sendNotification);
     panpotSlider.setValue(copyObj.panpot.panpot, juce::sendNotification);
     glLfo.pasteParams(copyObj.lfo);
@@ -3201,14 +3211,13 @@ void GuiOpzx7::readChParams(const Io::ParamReader& reader) {
     algSelector.setSelectedId(reader.getInt("alg", algSelector.getSelectedId()), juce::sendNotification);
 
     algMatrixComp.readParams(reader, "algMatrixComp");
-    feedback1Slider.setValue(reader.getFloat("feedback1", (float)feedback1Slider.getValue()), juce::sendNotification);
-    feedback2Slider.setValue(reader.getFloat("feedback2", (float)feedback2Slider.getValue()), juce::sendNotification);
-    feedback3Slider.setValue(reader.getFloat("feedback3", (float)feedback3Slider.getValue()), juce::sendNotification);
-    feedback4Slider.setValue(reader.getFloat("feedback4", (float)feedback4Slider.getValue()), juce::sendNotification);
-    feedback5Slider.setValue(reader.getFloat("feedback5", (float)feedback5Slider.getValue()), juce::sendNotification);
-    feedback6Slider.setValue(reader.getFloat("feedback6", (float)feedback6Slider.getValue()), juce::sendNotification);
-    feedback7Slider.setValue(reader.getFloat("feedback7", (float)feedback7Slider.getValue()), juce::sendNotification);
-    feedback8Slider.setValue(reader.getFloat("feedback8", (float)feedback8Slider.getValue()), juce::sendNotification);
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        const juce::String key = "feedback" + juce::String(i + 1);
+
+        setFeedbackValue(i, reader.getFloat(key, getFeedbackValue(i)));
+    }
+
+    refreshFeedbackValues();
 
     int mode = algModeSelector.getSelectedItemIndex();
     if (mode == 0) {
@@ -3438,14 +3447,11 @@ void GuiOpzx7::setImportingChParams(juce::StringArray& lines, int& index) {
 	algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
 
 	algMatrixComp.setImportingParams(lines, index);
-	feedback1Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback2Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback3Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback4Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback5Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback6Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback7Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback8Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+		setFeedbackValue(i, lines[index++].getFloatValue());
+	}
+
+	refreshFeedbackValues();
 
 	int mode = algModeSelector.getSelectedItemIndex();
 	if (mode == 0) {
@@ -3496,14 +3502,9 @@ void GuiOpzx7::writeChParams(Io::ParamWriter& writer) {
 	writer.set("algMode", algModeSelector.getSelectedItemIndex());
 	writer.set("alg", algSelector.getSelectedId());
 	algMatrixComp.writeParams(writer, "algMatrixComp");
-	writer.set("feedback1", (float)feedback1Slider.getValue());
-	writer.set("feedback2", (float)feedback2Slider.getValue());
-	writer.set("feedback3", (float)feedback3Slider.getValue());
-	writer.set("feedback4", (float)feedback4Slider.getValue());
-	writer.set("feedback5", (float)feedback5Slider.getValue());
-	writer.set("feedback6", (float)feedback6Slider.getValue());
-	writer.set("feedback7", (float)feedback7Slider.getValue());
-	writer.set("feedback8", (float)feedback8Slider.getValue());
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        writer.set("feedback" + juce::String(i + 1), getFeedbackValue(i));
+    }
 
 	// Panpot
 	writer.set("panpotEnable", panpotEnableToggle.getToggleState());

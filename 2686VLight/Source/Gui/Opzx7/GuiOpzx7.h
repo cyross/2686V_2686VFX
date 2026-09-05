@@ -11,6 +11,7 @@
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiValues.h"
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Components/StepValues/StepValues.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
@@ -71,22 +72,12 @@ class GuiOpzx7 : public GuiBase
     // Global
     GuiComboBox algSelector;
     NormalSeparator algFbSep;
-    GuiComponentNudgeSliderFloat feedback1Slider;
-    GuiComponentNudgeButtons feedback1Nudge;
-    GuiComponentNudgeSliderFloat feedback2Slider;
-    GuiComponentNudgeButtons feedback2Nudge;
-    GuiComponentNudgeSliderFloat feedback3Slider;
-    GuiComponentNudgeButtons feedback3Nudge;
-    GuiComponentNudgeSliderFloat feedback4Slider;
-    GuiComponentNudgeButtons feedback4Nudge;
-    GuiComponentNudgeSliderFloat feedback5Slider;
-    GuiComponentNudgeButtons feedback5Nudge;
-    GuiComponentNudgeSliderFloat feedback6Slider;
-    GuiComponentNudgeButtons feedback6Nudge;
-    GuiComponentNudgeSliderFloat feedback7Slider;
-    GuiComponentNudgeButtons feedback7Nudge;
-    GuiComponentNudgeSliderFloat feedback8Slider;
-    GuiComponentNudgeButtons feedback8Nudge;
+    // オペレータごとにつまみを並べる代わりに、対象を選ぶつまみと値のつまみを
+    // 1 組ずつ置く。選んでいない OP の値は帯へまとめて描く。
+    GuiSlider feedbackTarget;
+    GuiComponentNudgeSliderFloat feedbackSlider;
+    GuiComponentNudgeButtons feedbackNudge;
+    GuiStepValues feedbackValues;
 
     GuiCategoryLabel panCat;
     GuiToggleButton panpotEnableToggle;
@@ -273,6 +264,14 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+
+    // 選んだ OP へ FB のつまみを束縛し直す。帯の描き直しもここでやる。
+    void rebindFeedback();
+    void refreshFeedbackValues();
+
+    // OP ごとの FB。つまみは 1 組しか束縛されていないので APVTS から直に読み書きする。
+    float getFeedbackValue(int opIndex) const;
+    void setFeedbackValue(int opIndex, float value);
     void updatePcmFileName(int opIndex, const juce::String& fileName) {
         pcmFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
         
