@@ -13,6 +13,18 @@ sidebar:
 **矩形波の 2 チャンネル**だけに絞ったものです。SSG と BEEP が
 入っています。細い矩形波の音を 1 パートぶん差したいときに向きます。
 
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/PULSEV.png" alt="PULSEV プラグイン全景" width="1426" height="740" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/PULSEV.png" alt="PULSEV ABOUTタブ" width="377" height="491" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
 ## 収録しているチャンネル
 
 | チャンネル | |

@@ -14,6 +14,18 @@ sidebar:
 YMF262 (OPL3) が入っています。2 オペレータの素直な音と、4 オペレータの
 厚い音を行き来できます。
 
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/OPLV.png" alt="OPLV プラグイン全景" width="1426" height="740" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/OPLV.png" alt="OPLV ABOUTタブ" width="387" height="504" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
 ## 収録しているチャンネル
 
 | チャンネル | |

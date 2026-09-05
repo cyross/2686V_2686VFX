@@ -14,6 +14,18 @@ sidebar:
 入っています。自分で描いた波形や読み込んだ波形で鳴らすパートを、
 1 本で用意できます。
 
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/WTV.png" alt="WTV プラグイン全景" width="1426" height="738" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/WTV.png" alt="WTV ABOUTタブ" width="373" height="486" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
 ## 収録しているチャンネル
 
 | チャンネル | |

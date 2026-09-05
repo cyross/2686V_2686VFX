@@ -14,6 +14,18 @@ sidebar:
 ADPCM が入っています。リズムとサンプル再生をまとめて 1 本で
 受け持てます。
 
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/PCMV.png" alt="PCMV プラグイン全景" width="1426" height="736" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/PCMV.png" alt="PCMV ABOUTタブ" width="384" height="497" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
 ## 収録しているチャンネル
 
 | チャンネル | |

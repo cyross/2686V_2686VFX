@@ -13,6 +13,18 @@ sidebar:
 **OPM (YM2151) だけ**に絞ったものです。X68000 やアーケードの音を
 1 パートぶん差したいときに向きます。
 
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/OPMV.png" alt="OPMV プラグイン全景" width="1426" height="740" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/OPMV.png" alt="OPMV ABOUTタブ" width="374" height="491" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
 ## 収録しているチャンネル
 
 | チャンネル | |

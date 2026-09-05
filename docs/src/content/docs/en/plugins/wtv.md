@@ -13,6 +13,18 @@ sidebar:
 Narrowed down to **the three wavetable channels** — WT, WT2 and WT+.
 One plugin for parts built from waveforms you draw or load yourself.
 
+## What the plugin looks like
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/WTV.png" alt="WTV, the whole window" width="1426" height="738" />
+	<figcaption>The whole window</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/WTV.png" alt="WTV ABOUT tab" width="373" height="486" />
+	<figcaption>ABOUT tab</figcaption>
+</figure>
+
 ## Channels it carries
 
 | Channel | |

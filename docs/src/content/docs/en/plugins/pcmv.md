@@ -13,6 +13,18 @@ sidebar:
 Narrowed down to **the two sample-playing channels** — RHYTHM and
 ADPCM. One plugin covering both the drum kit and sample playback.
 
+## What the plugin looks like
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/PCMV.png" alt="PCMV, the whole window" width="1426" height="736" />
+	<figcaption>The whole window</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/PCMV.png" alt="PCMV ABOUT tab" width="384" height="497" />
+	<figcaption>ABOUT tab</figcaption>
+</figure>
+
 ## Channels it carries
 
 | Channel | |

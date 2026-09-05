@@ -14,6 +14,18 @@ Narrowed down to **the two OPN-family channels** — YM2608 (OPNA) and
 YM2203 (OPN). Handy when you want one FM part in a track without
 carrying every other channel along with it.
 
+## What the plugin looks like
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/OPNV.png" alt="OPNV, the whole window" width="1426" height="738" />
+	<figcaption>The whole window</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/OPNV.png" alt="OPNV ABOUT tab" width="380" height="499" />
+	<figcaption>ABOUT tab</figcaption>
+</figure>
+
 ## Channels it carries
 
 | Channel | |

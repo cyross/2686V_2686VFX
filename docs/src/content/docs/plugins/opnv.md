@@ -14,6 +14,18 @@ sidebar:
 YM2203 (OPN) が入っています。FM の音を 1 パートぶんだけ差したいときに、
 ほかのチャンネルを抱えずに済みます。
 
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/OPNV.png" alt="OPNV プラグイン全景" width="1426" height="738" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/OPNV.png" alt="OPNV ABOUTタブ" width="380" height="499" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
 ## 収録しているチャンネル
 
 | チャンネル | |

@@ -13,6 +13,18 @@ sidebar:
 Narrowed down to **the two pulse channels** — SSG and BEEP. A good fit
 when you want one thin, square-wave part.
 
+## What the plugin looks like
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/PULSEV.png" alt="PULSEV, the whole window" width="1426" height="740" />
+	<figcaption>The whole window</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/PULSEV.png" alt="PULSEV ABOUT tab" width="377" height="491" />
+	<figcaption>ABOUT tab</figcaption>
+</figure>
+
 ## Channels it carries
 
 | Channel | |

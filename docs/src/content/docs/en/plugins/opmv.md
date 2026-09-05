@@ -13,6 +13,18 @@ sidebar:
 Narrowed down to **OPM (YM2151) alone**. A good fit when you want one
 part with the X68000 or arcade character.
 
+## What the plugin looks like
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/OPMV.png" alt="OPMV, the whole window" width="1426" height="740" />
+	<figcaption>The whole window</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/OPMV.png" alt="OPMV ABOUT tab" width="374" height="491" />
+	<figcaption>ABOUT tab</figcaption>
+</figure>
+
 ## Channels it carries
 
 | Channel | |
