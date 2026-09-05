@@ -2,24 +2,40 @@
 
 #include "./KSOpz.h"
 
-KSOpz::KSOpz() {
-    for (int i = 0; i < 128; i++) {
-        int octave = (i / 12) - 1;
+namespace
+{
+    // 表の中身は音符から決まるだけで、どの実体でも同じになる。
+    // オペレータの数だけ抱えると無視できない量になるので、1 組だけ作って皆で見る。
+    struct KSOpzTables
+    {
+        std::array<int, 128> keyRates{};
+        std::array<float, 128> octaveDiffs{};
 
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
+        KSOpzTables()
+        {
+            for (int i = 0; i < 128; i++) {
+                // KeyRate の計算
+                int octave = (i / 12) - 1;
 
-        int noteOffset = i % 12;
+                if (octave < 0) octave = 0;
+                if (octave > 7) octave = 7;
 
-        keyRates[i] = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+                int noteOffset = i % 12;
 
-        // C3(48) を基準とし、それより高い音符で音量を減衰させる
-        float octaveDiff = (float)(i - 48) / 12.0f;
+                keyRates[i] = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
 
-        if (octaveDiff < 0.0f) octaveDiff = 0.0f;
+                // Octave Diff の計算
+                // C3(48) を基準とし、それより高い音符で音量を減衰させる
+                float octaveDiff = (float)(i - 48) / 12.0f;
 
-        octaveDiffs[i] = octaveDiff;
-    }
+                if (octaveDiff < 0.0f) octaveDiff = 0.0f;
+
+                octaveDiffs[i] = octaveDiff;
+            }
+        }
+    };
+
+    const KSOpzTables tables;
 }
 
 void KSOpz::setParameters(const KSOpzParams& params) {
@@ -31,11 +47,11 @@ void KSOpz::setParameters(const KSOpzParams& params) {
 }
 
 int KSOpz::calcKeyScaleRate(const int noteNumber) const {
-    return keyRates[noteNumber] >> m_shift;
+    return tables.keyRates[noteNumber] >> m_shift;
 }
 
 float KSOpz::calcLevelScalingDb(const int noteNumber) const {
     if (m_ksl <= 0) return 0.0f;
 
-    return m_maxDbPerOct * octaveDiffs[noteNumber] * m_depth;
+    return m_maxDbPerOct * tables.octaveDiffs[noteNumber] * m_depth;
 }

@@ -18,11 +18,13 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addN88LfoParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);
     // チップ全体へ掛かる AMP ENV。既定はバイパス。
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addAdsrBypassParameter(layout, prefix, prefixName, true);
     // チップ全体へ掛かる MODULATION
     PrHelper::addWtModParameters(layout, prefix, prefixName);
+    PrHelper::addWtAmpModParameters(layout, prefix, prefixName);
     PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
     // チップ全体へ掛かる SSG SW PENV11。既定はバイパス。
     PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
@@ -43,6 +45,10 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         PrHelper::addOpSsgSwEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpSsgSwEnv11Parameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpSsgSwPEnv11Parameters(layout, opPrefix, opPrefixName);
+        PrHelper::addSsgHwPEnvParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addWtAmpModParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addSsgHwEnvParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addWtModParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpMaskParameters(layout, opPrefix, opPrefixName);
     }
 }
@@ -55,8 +61,10 @@ void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
     PrHelper::setupAlgFbPtrs(apvts, prefix, pAlgFb);
     PrHelper::setupN88LfoPtrs(apvts, prefix, pN88Lfo);
     PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
+    PrHelper::setupSsgHwPEnv(apvts, prefix, pSsgHwPEnv);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
+    PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
     PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11g);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
@@ -72,6 +80,10 @@ void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
         PrHelper::setupSsgSwEnvPtrsOp(apvts, p, pSsgSwEnv[op]);
         PrHelper::setupSsgSwEnv11PtrsOp(apvts, p, pSsgSwEnv11[op]);
         PrHelper::setupSsgSwPEnv11PtrsOp(apvts, p, pSsgSwPEnv11[op]);
+        PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);
+        PrHelper::setupWtAmpMod(apvts, p, pOpWtAmpMod[op], modWaves);
+        PrHelper::setupSsgHwEnv(apvts, p, pOpSsgHwEnv[op]);
+        PrHelper::setupWtMod(apvts, p, pOpWtMod[op], modWaves);
 
         pOpN88LfoAms[op] = PrHelper::setupOpN88AmsPtr(apvts, p);
         pOpMask[op] = PrHelper::setupOpMaskPtr(apvts, p);
@@ -86,8 +98,10 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     PrHelper::applyN88Lfo(pN88Lfo, params.opn.glLfo);
     PrHelper::applyUnison(pUnison, params.opn.unison);
     PrHelper::applySsgHwEnv(pSsgHwEnv, params.opn.ssgHwEnv);
+    PrHelper::applySsgHwPEnv(pSsgHwPEnv, params.opn.ssgHwPEnv);
     PrHelper::applyAdsrAmpEnv(pAmpEnvG, params.opn.ampEnvG);
     PrHelper::applyWtMod(pWtMod, params.opn.wtMod);
+    PrHelper::applyWtAmpMod(pWtAmpMod, params.opn.wtAmpMod);
     PrHelper::applySsgSwEnv11(pSsgSwEnv11g, params.opn.ssgSwEnv11g);
     PrHelper::applySsgSwPEnv11(pSsgSwPEnv11g, params.opn.ssgSwPEnv11g);
 
@@ -100,6 +114,10 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         PrHelper::applySsgSwEnv11Op(pSsgSwEnv11[op], params.opn.op[op].ssgSwEnv11, params.opn.op[op].ssgEnv11Enable);
         PrHelper::applyPitchEnvOp(pPitchEnv[op], params.opn.op[op].pitchAdsr, params.opn.op[op].pitchEnvEnable);
         PrHelper::applySsgSwPEnv11Op(pSsgSwPEnv11[op], params.opn.op[op].ssgSwPEnv11, params.opn.op[op].ssgPEnv11Enable);
+        PrHelper::applySsgHwPEnv(pOpSsgHwPEnv[op], params.opn.op[op].ssgHwPEnv);
+        PrHelper::applyWtAmpMod(pOpWtAmpMod[op], params.opn.op[op].wtAmpMod);
+        PrHelper::applySsgHwEnv(pOpSsgHwEnv[op], params.opn.op[op].ssgHwEnv);
+        PrHelper::applyWtMod(pOpWtMod[op], params.opn.op[op].wtMod);
 
         params.opn.op[op].waveSelect = 0; // Sine
         params.opn.op[op].n88Lfo.ams = PrHelper::getInt(pOpN88LfoAms[op]);

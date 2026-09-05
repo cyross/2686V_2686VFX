@@ -2,7 +2,7 @@
 title: OPNA hardware LFO
 description: What is inside .opnaHwLfo.json
 sidebar:
-  order: 15
+  order: 17
 ---
 
 The OPNA's per-operator hardware LFO.

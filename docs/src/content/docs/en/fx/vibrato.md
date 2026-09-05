@@ -32,6 +32,7 @@ Set **MIX** around halfway and the wobbled signal sits alongside the steady one,
 
 ## Which plugins have it
 
-All six: the five instruments (2686V / 2686VLight / 26V / 86V / OPZX7S) and 2686VFX.
+All twelve: the eleven instruments (2686V / 2686VLight / 26V / 86V /
+OPZX7S / OPNV / OPLV / OPMV / WTV / PCMV / PULSEV) and 2686VFX.
 
 For how to change the order, see [About FX](/2686V_2686VFX/en/fx/).

@@ -13,7 +13,9 @@
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
+#include "../../Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 
 class BeepCore : public SynthCore
 {
@@ -32,6 +34,11 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 
+    void renderRange(float* outR, float* outL, int startSample, int count, bool& isActive) override
+    {
+        synthRenderRange(*this, outR, outL, startSample, count, isActive);
+    }
+
     // ユニゾン・ハーモニー用
     // ユニゾン・ハーモニーは SynthCore::m_unison に集約
 private:
@@ -42,6 +49,11 @@ private:
     float m_pitchBendRatio = 1.0f;
     // MODULATION (FDS / WonderSwan / HuC6280)
     WtModulator m_wtMod;
+
+    // WT PITCH MOD と同じ変調波形を音量へ当てるもの。
+    // 速さは搬送波との比なので、ノートの位相増分を覚えておいて渡す。
+    WtAmpModulator m_wtAmpMod;
+    float m_ampModDelta = 0.0f;
 
     float m_modWheel = 0.0f;
 
@@ -61,6 +73,9 @@ private:
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
     SsgHwEnv m_ssgHwEnv;
+
+    // 音量側と同じ形をピッチへ当てるもの。両方を同時に掛けられる。
+    SsgHwPEnv m_ssgHwPEnv;
 
     bool m_antiAlias = false;
 

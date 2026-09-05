@@ -1,6 +1,4 @@
-﻿#include <algorithm>
-
-#include "./DetuneOpn.h"
+﻿#include "./DetuneOpn.h"
 
 // 実機(YM2151/2608)の挙動を模倣するため、定数加算ではなく周波数比例させます。
 // これにより「キーによって周波数値が変わる（高音ほど変化Hzが大きい）」挙動になります。
@@ -36,8 +34,12 @@ const std::array<float, 16> OpnDetune::mulScales = {
 
 void OpnDetune::setParameters(const OpnDetuneParams& params)
 {
-    detune = std::clamp(params.detune, -3, 3);
-    realDetune = dtScales[detune + 3];
+    // DT1 は 0〜7 の生のレジスタ値がそのまま来る (ProcessorValues.h の OpnDetune::Dt)。
+    // 上の表も 0〜7 で並べてあるので、そのまま引く。OpmDetune も同じ引き方をしている。
+    // 以前は clamp(-3, 3) + 3 で引いていて、4〜7 が全部同じ値になり、
+    // 初期値 0 でも -0.1% ずれていた。
+    detune = params.detune & 7;
+    realDetune = dtScales[detune];
 
     multiple = params.multiple;
     realMultiple = mulScales[multiple];

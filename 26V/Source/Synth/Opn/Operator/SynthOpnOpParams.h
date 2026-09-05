@@ -7,8 +7,11 @@
 #include "../../../Effect/Detune/Opn/DetuneOpnParams.h"
 #include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
+#include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "../../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../../Core/Synth/CommonParams.h"
+#include "../../../Generator/WtMod/GenWtAmpModulator.h"
 
 struct OpnOpParams
 {
@@ -21,6 +24,10 @@ struct OpnOpParams
     PitchAdsrParams pitchAdsr;
     bool ssgPEnv11Enable = true;
     SsgSwPEnv11Params ssgSwPEnv11;
+    SsgHwPEnvParams ssgHwPEnv;
+    WtAmpModParams wtAmpMod;
+    SsgHwEnvParams ssgHwEnv;
+    WtModParams wtMod;
     OpnDetuneParams detune;
     LfoN88OpParams n88Lfo;
     FixModeParams fix;

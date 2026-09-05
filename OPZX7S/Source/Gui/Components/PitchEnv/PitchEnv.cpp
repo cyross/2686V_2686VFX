@@ -20,7 +20,7 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 {
 	this->isEnable = isEnable;
 
-	cat.setupSwCategory({
+	cat.setupSwPitchCategory({
         .parent = parent,
         .title = juce::String("") + "PITCH ENV",
         .enableChangeDetailVisible = true

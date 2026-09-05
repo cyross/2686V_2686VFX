@@ -38,6 +38,30 @@ class GuiComponentSsgHwEnv : public GuiBase {
 
     std::unique_ptr<juce::FileChooser> fileChooser;
 public:
+
+    // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
+    //
+    // 見出しを見せるかどうかはレイアウト側では戻らない (あちらは場所を
+    // 決めるだけ) ので、ここで両方向とも面倒を見る。
+    void setCategoryVisible(bool visible) {
+        cat.setHidden(!visible);
+        cat.setVisible(visible);
+    }
+
+    // 簡易表示モードの一括操作で使う口。
+    //
+    // 区分によって「バイパス」だったり「有効」だったりするので、
+    // ここで意味を揃えて「切ってあるか」で答える。
+    bool hasBypassSwitch() const { return true; }
+
+    bool isCategoryBypassed() const { return !envEnableButton.getToggleState(); }
+
+    void setCategoryBypassed(bool bypassed) {
+        envEnableButton.setToggleState(!bypassed, juce::sendNotification);
+    }
+
+    // 見出しの開閉
+    void setCategoryOpen(bool open) { cat.setDetailVisible(open); }
     GuiComponentSsgHwEnv(const GuiContext& context) :
         GuiBase(context),
         cat(context),
@@ -55,7 +79,7 @@ public:
     // categoryBg は見出しの背景色。SSG チャンネル自身の機能なので、
     // SSG では HwBg、他チャンネルへ借りて置く場合は既定の SwBg を使う。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
-        juce::Colour categoryBg = GuiColor::Category::SwBg);
+        juce::Colour categoryBg = GuiColor::Category::SwAmpBg);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);

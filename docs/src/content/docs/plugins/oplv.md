@@ -1,0 +1,68 @@
+---
+title: OPLV
+description: OPLV の構成と使いどころ
+sidebar:
+  order: 8
+---
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/logos/OPLV.png" alt="OPLV ロゴ" width="128" height="128" />
+	<figcaption>ロゴ</figcaption>
+</figure>
+
+**OPL 系の 2 チャンネル**だけに絞ったものです。YM3526 (OPL) と
+YMF262 (OPL3) が入っています。2 オペレータの素直な音と、4 オペレータの
+厚い音を行き来できます。
+
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/OPLV.png" alt="OPLV プラグイン全景" width="1426" height="740" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/OPLV.png" alt="OPLV ABOUTタブ" width="387" height="504" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
+## 収録しているチャンネル
+
+| チャンネル | |
+| --- | :---: |
+| [OPL](/2686V_2686VFX/chips/opl/) | ✔ |
+| [OPL3](/2686V_2686VFX/chips/opl3/) | ✔ |
+
+持っていないのは OPNA / OPN / OPM / OPZX7 / SSG / WAVETABLE / WT2 / WTPLUS / RHYTHM / ADPCM / BEEP です。
+
+各チャンネルの中身は、それぞれのページを参照してください。どのチャンネルにも
+同じ形で出てくる区分は [共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
+## カーブ編集（ADV）
+
+**使えます。**
+
+詳しくは [カーブ編集](/2686V_2686VFX/chips/adv/) を参照してください。
+
+## こんなときに
+
+- 2 オペレータらしい軽い音がほしいとき
+- OPL のパラメータファイルを OPL3 へ読み込んで厚くしたいとき
+
+## ファイル
+
+| 種類 | 拡張子 |
+| --- | --- |
+| プリセット | `.oplv.json` |
+| パラメータファイル | ほかのプラグインと共通 |
+
+プリセットはプラグインごとに拡張子が違うので、`Presets` フォルダへまとめて
+置いても、そのプラグインのものだけが一覧に出ます。パラメータファイルは
+**プラグインをまたいで読めます**。
+
+置き場所は [ファイルの形式と置き場所](/2686V_2686VFX/files/format/) を参照してください。
+
+:::note
+チャンネルを絞ったぶん、**同時に何本も挿したときの負荷が軽くなります**。
+全部入りが要るときは [2686V](/2686V_2686VFX/plugins/2686v/) を使ってください。
+:::

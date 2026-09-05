@@ -2,7 +2,7 @@
 title: OPL LFO
 description: .lfoOpl.json の中身
 sidebar:
-  order: 18
+  order: 20
 ---
 
 OPL のオペレータごとの LFO。

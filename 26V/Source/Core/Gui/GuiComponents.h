@@ -13,7 +13,6 @@
 #include "./GuiValues.h"
 #include "./GuiText.h"
 
-#include "../../Core/Fm/FmSliderRegMap.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
@@ -116,7 +115,7 @@ private:
 class GuiStateView : public juce::Component
 {
 public:
-    bool state;
+    bool state = false; // 初期化しないと最初の paint が不定値を読む
     juce::Colour trueColor;
     juce::Colour falseColor;
     juce::Colour borderColor;
@@ -410,15 +409,21 @@ protected:
         }
     };
 
-    SliderLF customLF;
+    // SliderLF は値を持たず、渡された slider と label からしか描かない。
+    // 実体ごとに持つ必要がないので 1 つを分け合う。
+    //
+    // LookAndFeel_V4 の組み立ては約 170 回の setColour を伴い、その 1 回ずつが
+    // 色表の線形探索になる。部品 1 つあたり 1.4KB ほどの確保も付く。
+    // 画面 1 枚で数百個できるので、そこが起動時間として出ていた。
+    juce::SharedResourcePointer<SliderLF> sharedLF;
 public:
     GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context) {
-        this->setLookAndFeel(&customLF);
+        this->setLookAndFeel(&sharedLF.get());
     }
 
     ~GuiSlider() override
     {
-        // メンバの customLF が壊れる前に必ず外す
+        // 分け合っているものを指したままにしない
         this->setLookAndFeel(nullptr);
     }
 
@@ -429,6 +434,11 @@ public:
     //
     // 範囲や小数桁は setup の後で決められることがあるので、置き場所が
     // 決まってから数える。
+    // 直前に測った文字。同じなら測り直さない。
+    // 値の枠幅は範囲と書式だけで決まるので、置き直しのたびに
+    // 文字の幅を測るのは無駄になる。
+    juce::String measuredText;
+
     void updateValueBoxWidth();
 
     void resized() override;
@@ -458,7 +468,6 @@ public:
         std::optional<juce::Font> labelFont = std::nullopt;
         juce::Justification labelJustification = juce::Justification::centred;
         juce::Colour labelColor = GuiColor::Label::Text;
-        RegisterType regType = RegisterType::None;
     };
 
     void setup(const Config& c);
@@ -612,7 +621,6 @@ public:
         juce::Colour labelColor = GuiColor::Label::Text;
         std::optional<juce::Font> selectedFont = juce::Font(juce::FontOptions(13.0f));
         std::optional<juce::Font> dropdownFont = juce::Font(juce::FontOptions(16.0f));
-        RegisterType regType = RegisterType::None;
     };
 
     void setup(const Config& c);
@@ -671,13 +679,19 @@ protected:
     class TextButtonLF : public juce::LookAndFeel_V4
     {
     public:
-        std::optional<juce::Font> customFont = juce::Font(juce::FontOptions(13.0f));
+        static inline const juce::Font defaultFont = juce::Font(juce::FontOptions(13.0f));
 
         // テキストボタンのフォントを要求された時に呼ばれる関数をオーバーライド
-        juce::Font getTextButtonFont(juce::TextButton&, int buttonHeight) override
+        //
+        // この LookAndFeel は 1 つを皆で分け合うので、フォントはここではなく
+        // 部品の側が持つ。渡されたボタンから引く。
+        juce::Font getTextButtonFont(juce::TextButton& button, int buttonHeight) override
         {
-            if (customFont.has_value()) {
-                return customFont.value();
+            if (auto* own = dynamic_cast<GuiTextButton*>(&button)) {
+                if (own->customFont.has_value()) return own->customFont.value();
+            }
+            else {
+                return defaultFont;
             }
             // 指定がない場合は、ボタンの高さに合わせたJUCEの標準フォントを返す
             return juce::Font(juce::FontOptions(juce::jmin(16.0f, (float)buttonHeight * 0.6f)));
@@ -711,10 +725,13 @@ protected:
         }
     };
 
-    TextButtonLF customLF;
+    juce::SharedResourcePointer<TextButtonLF> sharedLF;
 public:
+    // 描き方は皆で分け合い、フォントの指定だけここで持つ。
+    std::optional<juce::Font> customFont = juce::Font(juce::FontOptions(13.0f));
+
     GuiTextButton(const GuiContext& context) : GuiBaseComponent(context) {
-        this->setLookAndFeel(&customLF);
+        this->setLookAndFeel(&sharedLF.get());
     }
 
     ~GuiTextButton() override
@@ -749,6 +766,10 @@ public:
     void enablementChanged() override
     {
         applyTextColour();
+
+        // 基底の処理 (押した状態の作り直しと描き直し) を必ず通す。
+        // ここを省くと、使える状態へ変えても見た目が古いまま残る。
+        juce::TextButton::enablementChanged();
     }
 
 private:
@@ -969,6 +990,9 @@ class GuiCategoryLabel : public GuiLabel
     // 背景色。カテゴリの種類で決まる。
     juce::Colour bgColor = GuiColor::Category::HwBg;
 
+    // 簡易表示モードで隠しているか
+    bool hidden = false;
+
     // 中身の背後へ敷く板。開いているときだけ見せる。
     GuiCategoryBackdrop backdrop;
 public:
@@ -987,19 +1011,33 @@ public:
     void setup(const Config& c);
     void setupHwCategory(const Config& c); // ハードウェアカテゴリ用の簡易設定
     void setupSwCategory(const Config& c); // ソフトウェアカテゴリ用の簡易設定
+    void setupSwAmpCategory(const Config& c);   // ソフトウェア(音量系)カテゴリ用
+    void setupSwPitchCategory(const Config& c); // ソフトウェア(ピッチ系)カテゴリ用
+    void setupSwLfoCategory(const Config& c);   // ソフトウェア(LFO)カテゴリ用
     void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
 
     // 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって
     // ハードとソフトのどちらに見せたいかが変わる場合に使う。
     void setupCategory(const Config& c, juce::Colour bgColor);
-	bool isDetailVisible() const { return this->detailVisible; }
+	// 隠しているあいだは中身も畳んだ扱いにする。部品はここを見て
+	// 子の表示を決めているので、これだけで丸ごと消える。
+	bool isDetailVisible() const { return !this->hidden && this->detailVisible; }
 
     // 折りたたみを外から開いておく。置いた先によっては、最初から
     // 中身が見えているほうが都合のよいことがある。
     void setDetailVisible(bool visible) { this->detailVisible = visible; }
 
+    // 簡易表示モードで丸ごと隠すための札。立てると見出しも中身も出さず、
+    // 縦の場所も取らない。開閉の状態は覚えたままなので、戻したときに
+    // 前と同じ開き具合で出る。
+    void setHidden(bool value) { this->hidden = value; }
+    bool isHidden() const { return this->hidden; }
+
+    // 隠すときに、開いていた板を片付ける。
+    void hideBackdrop();
+
     // 折りたたみを持たないカテゴリ (ALGORITHM/FEEDBACK など) は常に開いている扱い。
-    bool isOpen() const { return this->detailVisible || !this->enableChangeDetailVisible; }
+    bool isOpen() const { return !this->hidden && (this->detailVisible || !this->enableChangeDetailVisible); }
 
     void paint(juce::Graphics& g) override;
 

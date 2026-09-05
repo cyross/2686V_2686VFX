@@ -67,7 +67,9 @@ void GuiBeep::setup() {
     lfoComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgHwPEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -95,7 +97,9 @@ void GuiBeep::setup() {
     iePitchEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Pitch Env", pitchEnvComponent);
 
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
+    ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
@@ -144,25 +148,36 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
 
     layoutOptionalCat(mRect);
 
+    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-
+    ssgHwEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
+    ssgSwEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
+    ssgSwEnvComponent.layoutComponent(mRect);
+    ssgSwEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11Component.layoutComponent(mRect);
+    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.layoutComponent(mRect);
+
+    pitchEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
+    pitchEnvComponent.layoutComponent(mRect);
+    ssgHwPEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.layoutComponent(mRect);
+    ssgSwPEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11Component.layoutComponent(mRect);
+    modComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
-    ssgSwEnvComponent.layoutComponent(mRect);
-
-    ssgSwEnv11Component.layoutComponent(mRect);
-
-    pitchEnvComponent.layoutComponent(mRect);
-
-    ssgSwPEnv11Component.layoutComponent(mRect);
-
-	mulDetuneComponent.layoutComponent(mRect);
-
+    lfoComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
     lfoComponent.layoutComponent(mRect);
 
+	mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
+	mulDetuneComponent.layoutComponent(mRect);
+
+    fixComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Fix));
     fixComponent.layoutComponent(mRect);
 
+    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     midiComponent.layoutComponent(mRect);
@@ -206,7 +221,9 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -226,8 +243,10 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -431,6 +450,7 @@ void GuiBeep::importChParam() {
                 ampEnvComponent.readParams(*reader, "ampEnv");
                 pitchEnvComponent.readParams(*reader, "pitchEnv");
                 ssgHwEnv.readParams(*reader, "ssgHwEnv");
+                ssgHwPEnv.readParams(*reader, "ssgHwPEnv");
                 ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
                 ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
                 ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
@@ -439,6 +459,7 @@ void GuiBeep::importChParam() {
                 unisonComponent.readParams(*reader, "unison");
 
                 modComponent.readParams(*reader, "wtMod");
+                ampModComponent.readParams(*reader, "wtAmpMod");
 
                 // 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
                 antiAliasButton.setToggleState(reader->getBool("antiAlias", antiAliasButton.getToggleState()), juce::sendNotification);
@@ -512,6 +533,7 @@ void GuiBeep::writeChParams(Io::ParamWriter& writer) {
 	ampEnvComponent.writeParams(writer, "ampEnv");
 	pitchEnvComponent.writeParams(writer, "pitchEnv");
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
 	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
 	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
@@ -521,6 +543,7 @@ void GuiBeep::writeChParams(Io::ParamWriter& writer) {
 
 	// MODULATION (旧フォーマットと互換を保つため末尾に置く)
 	modComponent.writeParams(writer, "wtMod");
+	ampModComponent.writeParams(writer, "wtAmpMod");
 
 	// 末尾に追加した項目
 	writer.set("antiAlias", antiAliasButton.getToggleState());

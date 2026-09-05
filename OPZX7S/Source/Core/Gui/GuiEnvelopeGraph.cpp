@@ -280,8 +280,10 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
     const GuiToggleButton& ssgSwEnvLoopButton,
     const GuiSlider& ssgSwLoopToSlider,
     const GuiSlider& ssgSwLoopCountSlider,
-    const std::array<juce::Slider*, 7>& rSl,
-    const std::array<juce::Slider*, 7>& lSl,
+    // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
+    // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
+    const std::array<float, 7>& rVal, float rMax,
+    const std::array<float, 7>& lVal, float lMax,
     CurveCore* p_curveCore,
     bool isCurveMode,
     int posIdx
@@ -316,14 +318,14 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
     int targetIdx = (int)CurveParams::Target::SsgSwEnv;
 
     float currentTotalWidth = 0.0f;
-    float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
+    float loopToLevel = isLoop ? lVal[loopTo] / lMax : 0.0f;
     float loopEndWidth = 0.0f;
 
     for (int s = 1; s <= steps; ++s) {
-        float rate = rSl[s]->getValue();
-        float rateMax = rSl[s]->getMaximum();
-        float startL = lSl[s - 1]->getValue() / lSl[s - 1]->getMaximum();
-        float endL = lSl[s]->getValue() / lSl[s]->getMaximum();
+        float rate = rVal[s];
+        float rateMax = rMax;
+        float startL = lVal[s - 1] / lMax;
+        float endL = lVal[s] / lMax;
 
         int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwEnv::LoopTo : (s - 1);
         float width = rateToWidth(rate, rateMax);
@@ -371,10 +373,10 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
     }
 
     // Release
-    float rr = rSl[6]->getValue();
-    float rrMax = rSl[6]->getMaximum();
-    float rStartL = lSl[steps]->getValue() / lSl[steps]->getMaximum();
-    float rEndL = lSl[6]->getValue() / lSl[6]->getMaximum();
+    float rr = rVal[6];
+    float rrMax = rMax;
+    float rStartL = lVal[steps] / lMax;
+    float rEndL = lVal[6] / lMax;
 
     phases.push_back({
         .widthPx = rateToWidth(rr, rrMax),
@@ -394,8 +396,10 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
     const GuiToggleButton& ssgSwEnvLoopButton,
     const GuiSlider& ssgSwLoopToSlider,
     const GuiSlider& ssgSwLoopCountSlider,
-    const std::array<juce::Slider*, 12>& rSl,
-    const std::array<juce::Slider*, 12>& lSl,
+    // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
+    // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
+    const std::array<float, 12>& rVal, float rMax,
+    const std::array<float, 12>& lVal, float lMax,
     CurveCore* p_curveCore,
     bool isCurveMode,
     int posIdx
@@ -430,14 +434,14 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
     int targetIdx = (int)CurveParams::Target::SsgSwEnv11;
 
     float currentTotalWidth = 0.0f;
-    float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
+    float loopToLevel = isLoop ? lVal[loopTo] / lMax : 0.0f;
     float loopEndWidth = 0.0f;
 
     for (int s = 1; s <= steps; ++s) {
-        float rate = rSl[s]->getValue();
-        float rateMax = rSl[s]->getMaximum();
-        float startL = lSl[s - 1]->getValue() / lSl[s - 1]->getMaximum();
-        float endL = lSl[s]->getValue() / lSl[s]->getMaximum();
+        float rate = rVal[s];
+        float rateMax = rMax;
+        float startL = lVal[s - 1] / lMax;
+        float endL = lVal[s] / lMax;
 
         int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwEnv11::LoopTo : (s - 1);
         float width = rateToWidth(rate, rateMax);
@@ -485,10 +489,10 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
     }
 
     // Release
-    float rr = rSl[11]->getValue();
-    float rrMax = rSl[11]->getMaximum();
-    float rStartL = lSl[steps]->getValue() / lSl[steps]->getMaximum();
-    float rEndL = lSl[11]->getValue() / lSl[11]->getMaximum();
+    float rr = rVal[11];
+    float rrMax = rMax;
+    float rStartL = lVal[steps] / lMax;
+    float rEndL = lVal[11] / lMax;
 
     phases.push_back({
         .widthPx = rateToWidth(rr, rrMax),
@@ -508,8 +512,10 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
     const GuiToggleButton& ssgSwEnvLoopButton,
     const GuiSlider& ssgSwLoopToSlider,
     const GuiSlider& ssgSwLoopCountSlider,
-    const std::array<juce::Slider*, 12>& rSl,
-    const std::array<juce::Slider*, 12>& lSl,
+    // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
+    // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
+    const std::array<float, 12>& rVal, float rMax,
+    const std::array<float, 12>& lVal, float lMax,
     CurveCore* p_curveCore,
     bool isCurveMode,
     int posIdx
@@ -545,14 +551,14 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
     int targetIdx = (int)CurveParams::Target::SsgSwPEnv11;
 
     float currentTotalWidth = 0.0f;
-    float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
+    float loopToLevel = isLoop ? lVal[loopTo] / lMax : 0.0f;
     float loopEndWidth = 0.0f;
 
     for (int s = 1; s <= steps; ++s) {
-        float rate = rSl[s]->getValue();
-        float rateMax = rSl[s]->getMaximum();
-        float startL = lSl[s - 1]->getValue() / lSl[s - 1]->getMaximum();
-        float endL = lSl[s]->getValue() / lSl[s]->getMaximum();
+        float rate = rVal[s];
+        float rateMax = rMax;
+        float startL = lVal[s - 1] / lMax;
+        float endL = lVal[s] / lMax;
 
         int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwPEnv11::LoopTo : (s - 1);
         float width = rateToWidth(rate, rateMax);
@@ -600,10 +606,10 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
     }
 
     // Release
-    float rr = rSl[11]->getValue();
-    float rrMax = rSl[11]->getMaximum();
-    float rStartL = lSl[steps]->getValue() / lSl[steps]->getMaximum();
-    float rEndL = lSl[11]->getValue() / lSl[11]->getMaximum();
+    float rr = rVal[11];
+    float rrMax = rMax;
+    float rStartL = lVal[steps] / lMax;
+    float rEndL = lVal[11] / lMax;
 
     phases.push_back({
         .widthPx = rateToWidth(rr, rrMax),

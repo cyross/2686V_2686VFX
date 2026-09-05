@@ -5,14 +5,9 @@
 #include "./KSOpnParams.h"
 
 class KSOpn {
-	std::array<int, 128> keyRates;
-	std::array<float, 128> octaveDiffs;
-
-	int m_ks;
-	int m_shift;
+	int m_ks = 0;
+	int m_shift = 3;
 public:
-	KSOpn();
-
 	void setParameters(const KSOpnParams& params);
 	int calcKeyScaleRate(const int noteNumber) const;
 	float calcLevelScalingDb(const int noteNumber) const;

@@ -33,11 +33,22 @@ namespace WavePreviewSource
     // ---- SSG HW ENV ---- (0.0〜1.0 の片側)
     std::vector<float> ssgHwEnv(int shapeIndex, float minLevel, float maxLevel, bool smooth);
 
+    // ---- SSG HW PITCH ENV ---- (-1.0〜1.0 の両振り)
+    // MIN / MAX はセント。振れ幅の大きい方で割って正規化したものを返すので、
+    // setPoints の bipolar は true で渡すこと。
+    std::vector<float> ssgHwPEnv(int shapeIndex, int minCent, int maxCent, bool smooth);
+
     // ---- WT MODULATION ----
     // 変調の深さは最大で回すので、Depth の設定は渡さなくてよい。
     // wave は HuC6280 モードの 32 サンプル、fdsTable は FdsUser モードの
     // 32 エントリ。それぞれ使わない Shape では無視される。
     std::vector<float> wtMod(int shapeIndex, const std::array<float, 32>& wave, const std::array<int, 32>& fdsTable);
+
+    // ---- WT AMP MOD ---- (MIN〜MAX の片側)
+    // 深さは最大で回すので Depth は渡さなくてよい。返すのは音量の倍率で、
+    // MIN / MAX の値がそのまま上下の位置になる。
+    std::vector<float> wtAmpMod(int shapeIndex, const std::array<float, 32>& wave,
+        const std::array<int, 32>& fdsTable, float minLevel, float maxLevel);
 
     // ---- OPZX7 WS (オペレータの波形) ----
     // 波形メモリ (WT / WT2) と PCM を選ぶ番号があるので、その中身も渡す。

@@ -335,22 +335,9 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     qualityComponent(context),
     algSelector(context),
     algFbSep(context),
-    feedback1Slider(context),
-    feedback1Nudge(context),
-    feedback2Slider(context),
-    feedback2Nudge(context),
-    feedback3Slider(context),
-    feedback3Nudge(context),
-    feedback4Slider(context),
-    feedback4Nudge(context),
-    feedback5Slider(context),
-    feedback5Nudge(context),
-    feedback6Slider(context),
-    feedback6Nudge(context),
-    feedback7Slider(context),
-    feedback7Nudge(context),
-    feedback8Slider(context),
-    feedback8Nudge(context),
+    feedbackTarget(context),
+    feedbackSlider(context),
+    feedbackNudge(context),
     panCat(context),
     panpotEnableToggle(context),
     panpotSlider(context),
@@ -360,7 +347,9 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     glLfo(context),
     ampEnvComponent(context),
     modComponent(context),
+    ampModComponent(context),
     ssgHwEnv(context),
+    ssgHwPEnv(context),
     ssgSwEnv11g(context),
     ssgSwPEnv11g(context),
     unisonComponent(context),
@@ -377,13 +366,19 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ieOpSsgSwEnv(context),
     ieOpSsgSwEnv11(context),
     ieOpSsgSwPEnv11(context),
+    ieOpSsgHwPEnv(context),
+    ieOpWtAmpMod(context),
+    ieOpSsgHwEnv(context),
+    ieOpWtMod(context),
     ieOpPcmPlay(context),
 	ieOpChParam(context),
     targerOpSlider(context),
     uSep003(context),
     ieAmpEnvG(context),
     ieSsgHwEnv(context),
+    ieSsgHwPEnv(context),
     ieWtMod(context),
+    ieWtAmpMod(context),
     ieSsgSwEnv11(context),
     ieSsgSwPEnv11g(context),
     ieLfo(context),
@@ -442,6 +437,10 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
 	ssgSwEnv11{ GuiComponentSsgSwEnv11(context),GuiComponentSsgSwEnv11(context),GuiComponentSsgSwEnv11(context),GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context) },
     ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
+        ssgHwPEnvOp{ GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context) },
+        wtAmpModOp{ GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context) },
+        ssgHwEnvOp{ GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context) },
+        wtModOp{ GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context) },
     catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
     mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     mmlSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
@@ -478,10 +477,60 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     viewMode = (GuiComponentViewModes)mode;
 }
 
+float GuiOpzx7::getFeedbackValue(int opIndex) const
+{
+    static const juce::String keys[] = { CPK::Fm::fb1, CPK::Fm::fb2, CPK::Fm::fb3, CPK::Fm::fb4,
+                                         CPK::Fm::fb5, CPK::Fm::fb6, CPK::Fm::fb7, CPK::Fm::fb8 };
+
+    if (opIndex < 0 || opIndex >= Opzx7PrValue::ops) return 0.0f;
+
+    auto* v = ctx.apvts.getRawParameterValue(Opzx7PrKey::prefix + keys[opIndex]);
+
+    return (v != nullptr) ? v->load() : 0.0f;
+}
+
+void GuiOpzx7::setFeedbackValue(int opIndex, float value)
+{
+    static const juce::String keys[] = { CPK::Fm::fb1, CPK::Fm::fb2, CPK::Fm::fb3, CPK::Fm::fb4,
+                                         CPK::Fm::fb5, CPK::Fm::fb6, CPK::Fm::fb7, CPK::Fm::fb8 };
+
+    if (opIndex < 0 || opIndex >= Opzx7PrValue::ops) return;
+
+    if (auto* p = ctx.apvts.getParameter(Opzx7PrKey::prefix + keys[opIndex])) {
+        p->setValueNotifyingHost(p->convertTo0to1(value));
+    }
+}
+
+void GuiOpzx7::rebindFeedback()
+{
+    static const juce::String keys[] = { CPK::Fm::fb1, CPK::Fm::fb2, CPK::Fm::fb3, CPK::Fm::fb4,
+                                         CPK::Fm::fb5, CPK::Fm::fb6, CPK::Fm::fb7, CPK::Fm::fb8 };
+
+    const int idx = juce::jlimit(0, Opzx7PrValue::ops - 1, (int)feedbackTarget.getValue() - 1);
+
+    feedbackSlider.getSlider().rebind(Opzx7PrKey::prefix + keys[idx]);
+
+    refreshFeedbackValues();
+}
+
+void GuiOpzx7::refreshFeedbackValues()
+{
+    feedbackValues.labels.clear();
+    feedbackValues.values.clear();
+
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        feedbackValues.labels.push_back("OP" + juce::String(i + 1));
+        feedbackValues.values.push_back(getFeedbackValue(i));
+    }
+
+    feedbackValues.selected = juce::jlimit(0, Opzx7PrValue::ops - 1, (int)feedbackTarget.getValue() - 1);
+    feedbackValues.decimals = Global::floatDecimalPlaces;
+    feedbackValues.repaint();
+}
+
 void GuiOpzx7::setup()
 {
     p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
 
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
@@ -546,37 +595,26 @@ void GuiOpzx7::setup()
 
     algFbSep.setupComponent(mainGroup.contentCanvas);
 
-    feedback1Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb1, Opzx7GuiText::Fm::fb + "1", tabOrder, std::nullopt);
+    // OP ごとにつまみを並べる代わりに、対象を選ぶつまみと値のつまみを 1 組ずつ置く。
+    // 並びは 対象 → 値 → 各 OP の値。
+    feedbackTarget.setup({ .parent = mainGroup.contentCanvas, .title = "F.OP", .isReset = false });
+    feedbackTarget.setRange(1.0, (double)Opzx7PrValue::ops, 1.0);
+    feedbackTarget.setNumDecimalPlacesToDisplay(0);
+    feedbackTarget.setWantsKeyboardFocus(true);
+    feedbackTarget.setExplicitFocusOrder(++tabOrder);
+    feedbackTarget.onValueChange = [this] { rebindFeedback(); };
 
-    feedback1Nudge.setupComponent(mainGroup.contentCanvas, feedback1Slider.getSlider(), tabOrder);
+    feedbackSlider.setupComponent(mainGroup.contentCanvas, "", Opzx7GuiText::Fm::fb, tabOrder, std::nullopt);
+    feedbackSlider.getSlider().onValueChange = [this] { refreshFeedbackValues(); };
 
-    feedback2Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb2, Opzx7GuiText::Fm::fb + "2", tabOrder, std::nullopt);
+    feedbackNudge.setupComponent(mainGroup.contentCanvas, feedbackSlider.getSlider(), tabOrder);
 
-    feedback2Nudge.setupComponent(mainGroup.contentCanvas, feedback2Slider.getSlider(), tabOrder);
+    mainGroup.contentCanvas.addAndMakeVisible(feedbackValues);
 
-    feedback3Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb3, Opzx7GuiText::Fm::fb + "3", tabOrder, std::nullopt);
+    // onValueChange は値が変わらないと呼ばれないので、最初の束縛はここで明示的に行う。
+    feedbackTarget.setValue(1, juce::dontSendNotification);
 
-    feedback3Nudge.setupComponent(mainGroup.contentCanvas, feedback3Slider.getSlider(), tabOrder);
-
-    feedback4Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb4, Opzx7GuiText::Fm::fb + "4", tabOrder, std::nullopt);
-
-    feedback4Nudge.setupComponent(mainGroup.contentCanvas, feedback4Slider.getSlider(), tabOrder);
-
-    feedback5Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb5, Opzx7GuiText::Fm::fb + "5", tabOrder, std::nullopt);
-
-    feedback5Nudge.setupComponent(mainGroup.contentCanvas, feedback5Slider.getSlider(), tabOrder);
-
-    feedback6Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb6, Opzx7GuiText::Fm::fb + "6", tabOrder, std::nullopt);
-
-    feedback6Nudge.setupComponent(mainGroup.contentCanvas, feedback6Slider.getSlider(), tabOrder);
-
-    feedback7Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb7, Opzx7GuiText::Fm::fb + "7", tabOrder, std::nullopt);
-
-    feedback7Nudge.setupComponent(mainGroup.contentCanvas, feedback7Slider.getSlider(), tabOrder);
-
-    feedback8Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb8, Opzx7GuiText::Fm::fb + "8", tabOrder, std::nullopt);
-
-    feedback8Nudge.setupComponent(mainGroup.contentCanvas, feedback8Slider.getSlider(), tabOrder);
+    rebindFeedback();
 
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::panpot, .enableChangeDetailVisible = true });
 
@@ -616,7 +654,9 @@ void GuiOpzx7::setup()
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgHwPEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
     ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");
 
@@ -705,6 +745,18 @@ void GuiOpzx7::setup()
     ieOpSsgSwPEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
     ieOpSsgSwPEnv11.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwPEnv11Param(opIndex); };
     ieOpSsgSwPEnv11.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwPEnv11Param(opIndex); };
+    ieOpSsgHwPEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv");
+    ieOpSsgHwPEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpSsgHwPEnvParam(opIndex); };
+    ieOpSsgHwPEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpSsgHwPEnvParam(opIndex); };
+    ieOpWtAmpMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Amp Mod");
+    ieOpWtAmpMod.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpWtAmpModParam(opIndex); };
+    ieOpWtAmpMod.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpWtAmpModParam(opIndex); };
+    ieOpSsgHwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW Env");
+    ieOpSsgHwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpSsgHwEnvParam(opIndex); };
+    ieOpSsgHwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpSsgHwEnvParam(opIndex); };
+    ieOpWtMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Modulation");
+    ieOpWtMod.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpWtModParam(opIndex); };
+    ieOpWtMod.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpWtModParam(opIndex); };
 
     ieOpPcmPlay.setupComponentOp(mainGroup.contentCanvas, tabOrder, "PCM Play");
     ieOpPcmPlay.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpPcmPlayParam(opIndex); };
@@ -725,7 +777,9 @@ void GuiOpzx7::setup()
 
     ieAmpEnvG.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
+    ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
     ieSsgSwPEnv11g.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11g);
@@ -796,27 +850,27 @@ void GuiOpzx7::setup()
         rgTl[i].setWantsKeyboardFocus(true);
         rgTl[i].setExplicitFocusOrder(++tabOrder);
 
-        ar[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ar, .title = Opzx7GuiText::Fm::Op::Ar, .isReset = true, .regType = RegisterType::FmAr });
+        ar[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ar, .title = Opzx7GuiText::Fm::Op::Ar, .isReset = true });
         ar[i].setWantsKeyboardFocus(true);
         ar[i].setExplicitFocusOrder(++tabOrder);
 
-        d1r[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::d1r, .title = Opzx7GuiText::Fm::Op::D1r, .isReset = true, .regType = RegisterType::FmDr });
+        d1r[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::d1r, .title = Opzx7GuiText::Fm::Op::D1r, .isReset = true });
         d1r[i].setWantsKeyboardFocus(true);
         d1r[i].setExplicitFocusOrder(++tabOrder);
 
-        d1l[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::d1l, .title = Opzx7GuiText::Fm::Op::D1l, .isReset = true, .regType = RegisterType::FmSl });
+        d1l[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::d1l, .title = Opzx7GuiText::Fm::Op::D1l, .isReset = true });
         d1l[i].setWantsKeyboardFocus(true);
         d1l[i].setExplicitFocusOrder(++tabOrder);
 
-        d2r[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::d2r, .title = Opzx7GuiText::Fm::Op::D2r, .isReset = true, .regType = RegisterType::FmSr });
+        d2r[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::d2r, .title = Opzx7GuiText::Fm::Op::D2r, .isReset = true });
         d2r[i].setWantsKeyboardFocus(true);
         d2r[i].setExplicitFocusOrder(++tabOrder);
 
-        rr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rr, .title = Opzx7GuiText::Fm::Op::Rr, .isReset = true, .regType = RegisterType::FmRr });
+        rr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rr, .title = Opzx7GuiText::Fm::Op::Rr, .isReset = true });
         rr[i].setWantsKeyboardFocus(true);
         rr[i].setExplicitFocusOrder(++tabOrder);
 
-        tl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::tl, .title = Opzx7GuiText::Fm::Op::Tl, .isReset = true, .regType = RegisterType::FmTl });
+        tl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::tl, .title = Opzx7GuiText::Fm::Op::Tl, .isReset = true });
         tl[i].setWantsKeyboardFocus(true);
         tl[i].setExplicitFocusOrder(++tabOrder);
 
@@ -916,8 +970,15 @@ void GuiOpzx7::setup()
                     if (file.existsAsFile()) {
                         updatePcmFileName(i, "Loading...");
 
-                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                        // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                        juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                        juce::Timer::callAfterDelay(50, [this, safe, i, file]()
                             {
+                                // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                                // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                                if (safe == nullptr) return;
+
                                 ctx.audioProcessor.loadOpzx7PcmFile(i, file);
                                 updatePcmFileName(i, file.getFileName());
                                 ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
@@ -982,8 +1043,15 @@ void GuiOpzx7::setup()
                     if (file.existsAsFile()) {
                         updateWtFileName(i, "Loading...");
 
-                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                        // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                        juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                        juce::Timer::callAfterDelay(50, [this, safe, i, file]()
                             {
+                                // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                                // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                                if (safe == nullptr) return;
+
                                 ctx.audioProcessor.loadOpzx7WtFile(i, file);
                                 updateWtFileName(i, file.getFileName());
                                 ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
@@ -1019,8 +1087,15 @@ void GuiOpzx7::setup()
                     if (file.existsAsFile()) {
                         updateWt2FileName(i, "Loading...");
 
-                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                        // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                        juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                        juce::Timer::callAfterDelay(50, [this, safe, i, file]()
                             {
+                                // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                                // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                                if (safe == nullptr) return;
+
                                 ctx.audioProcessor.loadOpzx7Wt2File(i, file);
                                 updateWt2FileName(i, file.getFileName());
                                 ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
@@ -1039,7 +1114,8 @@ void GuiOpzx7::setup()
             };
 
         wt2FileNameLabel[i].setup({ .parent = opGroups[i].contentCanvas, .title = Io::empty });
-        if (ctx.audioProcessor.opzx7WtFilePaths[i].isNotEmpty()) {
+        // 出すのは WT2 の名前なので、有無も WT2 側で見る
+        if (ctx.audioProcessor.opzx7Wt2FilePaths[i].isNotEmpty()) {
             updateWt2FileName(i, juce::File(ctx.audioProcessor.opzx7Wt2FilePaths[i]).getFileName());
         }
 
@@ -1074,6 +1150,10 @@ void GuiOpzx7::setup()
         ssgSwEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv11::enable, Opzx7GuiText::SsgSwEnv11::enable, true);
 
         ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, Opzx7GuiText::SsgSwPEnv11::enable, true);
+        ssgHwPEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
+        wtAmpModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
+        ssgHwEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
+        wtModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
 
         lfo[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
 
@@ -1175,43 +1255,36 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     algFbSep.layoutComponent(mRect);
 
-    feedback1Slider.layoutComponent(mRect);
-    feedback1Nudge.setVisibles(feedback1Slider.isVisibleNudge());
-    if (feedback1Slider.isVisibleNudge()) feedback1Nudge.layoutComponent(mRect);
-    feedback2Slider.layoutComponent(mRect);
-    feedback2Nudge.setVisibles(feedback2Slider.isVisibleNudge());
-    if (feedback2Slider.isVisibleNudge()) feedback2Nudge.layoutComponent(mRect);
-    feedback3Slider.layoutComponent(mRect);
-    feedback3Nudge.setVisibles(feedback3Slider.isVisibleNudge());
-    if (feedback3Slider.isVisibleNudge()) feedback3Nudge.layoutComponent(mRect);
-    feedback4Slider.layoutComponent(mRect);
-    feedback4Nudge.setVisibles(feedback4Slider.isVisibleNudge());
-    if (feedback4Slider.isVisibleNudge()) feedback4Nudge.layoutComponent(mRect);
-    feedback5Slider.layoutComponent(mRect);
-    feedback5Nudge.setVisibles(feedback5Slider.isVisibleNudge());
-    if (feedback5Slider.isVisibleNudge()) feedback5Nudge.layoutComponent(mRect);
-    feedback6Slider.layoutComponent(mRect);
-    feedback6Nudge.setVisibles(feedback6Slider.isVisibleNudge());
-    if (feedback6Slider.isVisibleNudge()) feedback6Nudge.layoutComponent(mRect);
-    feedback7Slider.layoutComponent(mRect);
-    feedback7Nudge.setVisibles(feedback7Slider.isVisibleNudge());
-    if (feedback7Slider.isVisibleNudge()) feedback7Nudge.layoutComponent(mRect);
-    feedback8Slider.layoutComponent(mRect);
-    feedback8Nudge.setVisibles(feedback8Slider.isVisibleNudge());
-    if (feedback8Slider.isVisibleNudge()) feedback8Nudge.layoutComponent(mRect);
+    layoutMain({ .mainRect = mRect, .label = &feedbackTarget.label, .component = &feedbackTarget });
+    feedbackSlider.layoutComponent(mRect);
+    feedbackNudge.setVisibles(feedbackSlider.isVisibleNudge());
+    if (feedbackSlider.isVisibleNudge()) feedbackNudge.layoutComponent(mRect);
+    feedbackValues.setBounds(mRect.removeFromTop(feedbackValues.getNaturalHeight()));
 
     mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
 
+    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-    modComponent.layoutComponent(mRect);
-    ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnv11g.layoutComponent(mRect);
-    ssgSwPEnv11g.layoutComponent(mRect);
 
-    layoutPanpotCat(mRect);
+    ssgHwEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.layoutComponent(mRect);
+    ssgSwEnv11g.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11g.layoutComponent(mRect);
+    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.layoutComponent(mRect);
+
+    ssgHwPEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.layoutComponent(mRect);
+    ssgSwPEnv11g.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11g.layoutComponent(mRect);
+    modComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.layoutComponent(mRect);
 
     glLfo.layoutComponent(mRect);
 
+    layoutPanpotCat(mRect);
+
+    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -1314,21 +1387,30 @@ void GuiOpzx7::layoutOp(int opIndex, int width, juce::Rectangle<int>& rect) {
 
     layoutOpOptionalCat(opIndex, innerRect);
 
-    ssgSwEnv[opIndex].layoutComponentRow(innerRect);
-
-    ssgSwEnv11[opIndex].layoutComponentRow(innerRect);
-
-    pitchEnv[opIndex].layoutComponentRow(innerRect);
-
-    ssgSwPEnv11[opIndex].layoutComponentRow(innerRect);
-
     layoutOpWsCat(opIndex, innerRect, selectedWs);
 
     layoutOpSsgEnvCat(opIndex, innerRect);
+    ssgHwEnvOp[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnvOp[opIndex].layoutComponentRow(innerRect);
+    ssgSwEnv[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
+    ssgSwEnv[opIndex].layoutComponentRow(innerRect);
+    ssgSwEnv11[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11[opIndex].layoutComponentRow(innerRect);
+    wtAmpModOp[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    wtAmpModOp[opIndex].layoutComponent(innerRect);
 
-    mulDetune[opIndex].layoutComponentRow(innerRect);
+    pitchEnv[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
+    pitchEnv[opIndex].layoutComponentRow(innerRect);
+    ssgHwPEnvOp[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnvOp[opIndex].layoutComponentRow(innerRect);
+    ssgSwPEnv11[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11[opIndex].layoutComponentRow(innerRect);
+    wtModOp[opIndex].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    wtModOp[opIndex].layoutComponent(innerRect);
 
     layoutOpKsCat(opIndex, innerRect, rgMode);
+
+    mulDetune[opIndex].layoutComponentRow(innerRect);
 
     lfo[opIndex].layoutComponentRow(innerRect);
 
@@ -1883,13 +1965,19 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpSsgSwEnv.setVisible(visible);
     ieOpSsgSwEnv11.setVisible(visible);
     ieOpSsgSwPEnv11.setVisible(visible);
+    ieOpSsgHwPEnv.setVisible(visible);
+    ieOpWtAmpMod.setVisible(visible);
+    ieOpSsgHwEnv.setVisible(visible);
+    ieOpWtMod.setVisible(visible);
     ieOpPcmPlay.setVisible(visible);
     ieOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
     ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11g.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -1920,6 +2008,10 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieOpSsgSwEnv11.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpSsgSwPEnv11.layoutComponent(rect);
+        ieOpSsgHwPEnv.layoutComponent(rect);
+        ieOpWtAmpMod.layoutComponent(rect);
+        ieOpSsgHwEnv.layoutComponent(rect);
+        ieOpWtMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpPcmPlay.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1932,8 +2024,10 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieAmpEnvG.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -2093,7 +2187,9 @@ void GuiOpzx7::layoutGlobalGraph(juce::Rectangle<int>& rect)
 void GuiOpzx7::updateGlobalGraph()
 {
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
     if (currentGlobalGraphMode == GlobalGraphMode::SsgSw11) {
         ssgSwEnv11g.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
     }
@@ -2376,7 +2472,9 @@ void GuiOpzx7::updateOpGraph(int opIndex)
     GraphMode mode = currentGraphMode[opIndex];
 
     // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+    // カーブを使うかどうかは処理側が持っている。画面から引くと、
+    // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
+    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
 
     int posIdx = opIndex + 1; // Position::Op1 = 1, Op2 = 2 ... (Common=0) に合わせる
 
@@ -2604,14 +2702,14 @@ void GuiOpzx7::copyParams(CopyOpzx7& copyObj) {
     copyObj.quality.rate = qualityComponent.getRate();
     copyObj.fmBase.level = levelComponent.getLevel();
     copyObj.fmBase.algorithm = algSelector.getSelectedId();
-    copyObj.fmBase.feedback1 = feedback1Slider.getValue();
-    copyObj.fmBase.feedback2 = feedback2Slider.getValue();
-    copyObj.fmBase.feedback3 = feedback3Slider.getValue();
-    copyObj.fmBase.feedback4 = feedback4Slider.getValue();
-    copyObj.fmBase.feedback5 = feedback5Slider.getValue();
-    copyObj.fmBase.feedback6 = feedback6Slider.getValue();
-    copyObj.fmBase.feedback7 = feedback7Slider.getValue();
-    copyObj.fmBase.feedback8 = feedback8Slider.getValue();
+    copyObj.fmBase.feedback1 = getFeedbackValue(0);
+    copyObj.fmBase.feedback2 = getFeedbackValue(1);
+    copyObj.fmBase.feedback3 = getFeedbackValue(2);
+    copyObj.fmBase.feedback4 = getFeedbackValue(3);
+    copyObj.fmBase.feedback5 = getFeedbackValue(4);
+    copyObj.fmBase.feedback6 = getFeedbackValue(5);
+    copyObj.fmBase.feedback7 = getFeedbackValue(6);
+    copyObj.fmBase.feedback8 = getFeedbackValue(7);
     copyObj.panpot.enable = panpotEnableToggle.getToggleState();
     copyObj.panpot.panpot = panpotSlider.getValue();
 
@@ -2671,14 +2769,16 @@ void GuiOpzx7::pasteParams(CopyOpzx7& copyObj) {
     qualityComponent.setRate(copyObj.quality.rate);
     levelComponent.setLevel(copyObj.fmBase.level);
     algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
-    feedback1Slider.setValue(copyObj.fmBase.feedback1, juce::sendNotification);
-    feedback2Slider.setValue(copyObj.fmBase.feedback2, juce::sendNotification);
-    feedback3Slider.setValue(copyObj.fmBase.feedback3, juce::sendNotification);
-    feedback4Slider.setValue(copyObj.fmBase.feedback4, juce::sendNotification);
-    feedback5Slider.setValue(copyObj.fmBase.feedback5, juce::sendNotification);
-    feedback6Slider.setValue(copyObj.fmBase.feedback6, juce::sendNotification);
-    feedback7Slider.setValue(copyObj.fmBase.feedback7, juce::sendNotification);
-    feedback8Slider.setValue(copyObj.fmBase.feedback8, juce::sendNotification);
+    setFeedbackValue(0, copyObj.fmBase.feedback1);
+    setFeedbackValue(1, copyObj.fmBase.feedback2);
+    setFeedbackValue(2, copyObj.fmBase.feedback3);
+    setFeedbackValue(3, copyObj.fmBase.feedback4);
+    setFeedbackValue(4, copyObj.fmBase.feedback5);
+    setFeedbackValue(5, copyObj.fmBase.feedback6);
+    setFeedbackValue(6, copyObj.fmBase.feedback7);
+    setFeedbackValue(7, copyObj.fmBase.feedback8);
+
+    refreshFeedbackValues();
     panpotEnableToggle.setToggleState(copyObj.panpot.enable, juce::sendNotification);
     panpotSlider.setValue(copyObj.panpot.panpot, juce::sendNotification);
     glLfo.pasteParams(copyObj.lfo);
@@ -2939,6 +3039,38 @@ void GuiOpzx7::exportSsgSwPEnv11Param(int opIndex) {
     ssgSwPEnv11[opIndex].exportParams();
 }
 
+void GuiOpzx7::importOpSsgHwPEnvParam(int opIndex) {
+    ssgHwPEnvOp[opIndex].importParams();
+}
+
+void GuiOpzx7::exportOpSsgHwPEnvParam(int opIndex) {
+    ssgHwPEnvOp[opIndex].exportParams();
+}
+
+void GuiOpzx7::importOpWtAmpModParam(int opIndex) {
+    wtAmpModOp[opIndex].importParams();
+}
+
+void GuiOpzx7::exportOpWtAmpModParam(int opIndex) {
+    wtAmpModOp[opIndex].exportParams();
+}
+
+void GuiOpzx7::importOpSsgHwEnvParam(int opIndex) {
+    ssgHwEnvOp[opIndex].importParams();
+}
+
+void GuiOpzx7::exportOpSsgHwEnvParam(int opIndex) {
+    ssgHwEnvOp[opIndex].exportParams();
+}
+
+void GuiOpzx7::importOpWtModParam(int opIndex) {
+    wtModOp[opIndex].importParams();
+}
+
+void GuiOpzx7::exportOpWtModParam(int opIndex) {
+    wtModOp[opIndex].exportParams();
+}
+
 void GuiOpzx7::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
@@ -3105,14 +3237,13 @@ void GuiOpzx7::readChParams(const Io::ParamReader& reader) {
     algSelector.setSelectedId(reader.getInt("alg", algSelector.getSelectedId()), juce::sendNotification);
 
     algMatrixComp.readParams(reader, "algMatrixComp");
-    feedback1Slider.setValue(reader.getFloat("feedback1", (float)feedback1Slider.getValue()), juce::sendNotification);
-    feedback2Slider.setValue(reader.getFloat("feedback2", (float)feedback2Slider.getValue()), juce::sendNotification);
-    feedback3Slider.setValue(reader.getFloat("feedback3", (float)feedback3Slider.getValue()), juce::sendNotification);
-    feedback4Slider.setValue(reader.getFloat("feedback4", (float)feedback4Slider.getValue()), juce::sendNotification);
-    feedback5Slider.setValue(reader.getFloat("feedback5", (float)feedback5Slider.getValue()), juce::sendNotification);
-    feedback6Slider.setValue(reader.getFloat("feedback6", (float)feedback6Slider.getValue()), juce::sendNotification);
-    feedback7Slider.setValue(reader.getFloat("feedback7", (float)feedback7Slider.getValue()), juce::sendNotification);
-    feedback8Slider.setValue(reader.getFloat("feedback8", (float)feedback8Slider.getValue()), juce::sendNotification);
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        const juce::String key = "feedback" + juce::String(i + 1);
+
+        setFeedbackValue(i, reader.getFloat(key, getFeedbackValue(i)));
+    }
+
+    refreshFeedbackValues();
 
     int mode = algModeSelector.getSelectedItemIndex();
     if (mode == 0) {
@@ -3128,6 +3259,7 @@ void GuiOpzx7::readChParams(const Io::ParamReader& reader) {
 
     // Components (Global)
     ssgHwEnv.readParams(reader, "ssgHwEnv");
+    ssgHwPEnv.readParams(reader, "ssgHwPEnv");
     ssgSwEnv11g.readParams(reader, "ssgSwEnv11");
     glLfo.readParams(reader, "glLfo");
     qualityComponent.readParams(reader, "quality");
@@ -3142,6 +3274,7 @@ void GuiOpzx7::readChParams(const Io::ParamReader& reader) {
     ssgSwPEnv11g.readParams(reader, "ssgSwPEnv11");
 
     modComponent.readParams(reader, "wtMod");
+    ampModComponent.readParams(reader, "wtAmpMod");
 }
 
 // オペレータ 1 つぶん。並びの中のひとつを渡してもらう。
@@ -3248,6 +3381,10 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgSwEnv[opIndex].readParams(r, "ssgSwEnv");
     ssgSwEnv11[opIndex].readParams(r, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].readParams(r, "ssgSwPEnv11");
+    ssgHwPEnvOp[opIndex].readParams(r, "ssgHwPEnv");
+    wtAmpModOp[opIndex].readParams(r, "wtAmpMod");
+    ssgHwEnvOp[opIndex].readParams(r, "ssgHwEnv");
+    wtModOp[opIndex].readParams(r, "wtMod");
 }
 
 void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
@@ -3318,6 +3455,10 @@ void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwEnv[opIndex].writeParams(w, "ssgSwEnv");
     ssgSwEnv11[opIndex].writeParams(w, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].writeParams(w, "ssgSwPEnv11");
+    ssgHwPEnvOp[opIndex].writeParams(w, "ssgHwPEnv");
+    wtAmpModOp[opIndex].writeParams(w, "wtAmpMod");
+    ssgHwEnvOp[opIndex].writeParams(w, "ssgHwEnv");
+    wtModOp[opIndex].writeParams(w, "wtMod");
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
@@ -3332,14 +3473,11 @@ void GuiOpzx7::setImportingChParams(juce::StringArray& lines, int& index) {
 	algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
 
 	algMatrixComp.setImportingParams(lines, index);
-	feedback1Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback2Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback3Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback4Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback5Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback6Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback7Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	feedback8Slider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+		setFeedbackValue(i, lines[index++].getFloatValue());
+	}
+
+	refreshFeedbackValues();
 
 	int mode = algModeSelector.getSelectedItemIndex();
 	if (mode == 0) {
@@ -3390,14 +3528,9 @@ void GuiOpzx7::writeChParams(Io::ParamWriter& writer) {
 	writer.set("algMode", algModeSelector.getSelectedItemIndex());
 	writer.set("alg", algSelector.getSelectedId());
 	algMatrixComp.writeParams(writer, "algMatrixComp");
-	writer.set("feedback1", (float)feedback1Slider.getValue());
-	writer.set("feedback2", (float)feedback2Slider.getValue());
-	writer.set("feedback3", (float)feedback3Slider.getValue());
-	writer.set("feedback4", (float)feedback4Slider.getValue());
-	writer.set("feedback5", (float)feedback5Slider.getValue());
-	writer.set("feedback6", (float)feedback6Slider.getValue());
-	writer.set("feedback7", (float)feedback7Slider.getValue());
-	writer.set("feedback8", (float)feedback8Slider.getValue());
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        writer.set("feedback" + juce::String(i + 1), getFeedbackValue(i));
+    }
 
 	// Panpot
 	writer.set("panpotEnable", panpotEnableToggle.getToggleState());
@@ -3405,6 +3538,7 @@ void GuiOpzx7::writeChParams(Io::ParamWriter& writer) {
 
 	// Components (Global)
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
 	glLfo.writeParams(writer, "glLfo");
 	qualityComponent.writeParams(writer, "quality");
@@ -3420,6 +3554,7 @@ void GuiOpzx7::writeChParams(Io::ParamWriter& writer) {
 	ampEnvComponent.writeParams(writer, "ampEnv");
 	ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
 	modComponent.writeParams(writer, "wtMod");
+	ampModComponent.writeParams(writer, "wtAmpMod");
 
 	
 }
@@ -3588,4 +3723,79 @@ void GuiOpzx7::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
 	writeOpParams(opIndex, writer);
 
 	
+}
+
+void GuiOpzx7::bypassHiddenCategories()
+{
+    // いま隠れている区分だけを切る。出したままの区分は触らない。
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+
+    for (int i = 0; i < Opzx7PrValue::ops; ++i)
+    {
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnv[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11[i].setCategoryBypassed(true);
+        if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModOp[i].setCategoryBypassed(true);
+    }
+}
+
+void GuiOpzx7::openEnabledCategories()
+{
+    // 効いている区分を開く。札を持たない区分は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
+    if (ssgHwEnv.hasBypassSwitch() && !ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(true);
+    if (ssgSwEnv11g.hasBypassSwitch() && !ssgSwEnv11g.isCategoryBypassed()) ssgSwEnv11g.setCategoryOpen(true);
+    if (ampModComponent.hasBypassSwitch() && !ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(true);
+    if (ssgHwPEnv.hasBypassSwitch() && !ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(true);
+    if (ssgSwPEnv11g.hasBypassSwitch() && !ssgSwPEnv11g.isCategoryBypassed()) ssgSwPEnv11g.setCategoryOpen(true);
+    if (modComponent.hasBypassSwitch() && !modComponent.isCategoryBypassed()) modComponent.setCategoryOpen(true);
+    if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
+
+    for (int i = 0; i < Opzx7PrValue::ops; ++i)
+    {
+        if (ssgHwEnvOp[i].hasBypassSwitch() && !ssgHwEnvOp[i].isCategoryBypassed()) ssgHwEnvOp[i].setCategoryOpen(true);
+        if (ssgSwEnv[i].hasBypassSwitch() && !ssgSwEnv[i].isCategoryBypassed()) ssgSwEnv[i].setCategoryOpen(true);
+        if (ssgSwEnv11[i].hasBypassSwitch() && !ssgSwEnv11[i].isCategoryBypassed()) ssgSwEnv11[i].setCategoryOpen(true);
+        if (wtAmpModOp[i].hasBypassSwitch() && !wtAmpModOp[i].isCategoryBypassed()) wtAmpModOp[i].setCategoryOpen(true);
+        if (pitchEnv[i].hasBypassSwitch() && !pitchEnv[i].isCategoryBypassed()) pitchEnv[i].setCategoryOpen(true);
+        if (ssgHwPEnvOp[i].hasBypassSwitch() && !ssgHwPEnvOp[i].isCategoryBypassed()) ssgHwPEnvOp[i].setCategoryOpen(true);
+        if (ssgSwPEnv11[i].hasBypassSwitch() && !ssgSwPEnv11[i].isCategoryBypassed()) ssgSwPEnv11[i].setCategoryOpen(true);
+        if (wtModOp[i].hasBypassSwitch() && !wtModOp[i].isCategoryBypassed()) wtModOp[i].setCategoryOpen(true);
+    }
+}
+
+void GuiOpzx7::closeBypassedCategories()
+{
+    // 切ってある区分を閉じる。札を持たない区分は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
+    if (ssgHwEnv.hasBypassSwitch() && ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(false);
+    if (ssgSwEnv11g.hasBypassSwitch() && ssgSwEnv11g.isCategoryBypassed()) ssgSwEnv11g.setCategoryOpen(false);
+    if (ampModComponent.hasBypassSwitch() && ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(false);
+    if (ssgHwPEnv.hasBypassSwitch() && ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(false);
+    if (ssgSwPEnv11g.hasBypassSwitch() && ssgSwPEnv11g.isCategoryBypassed()) ssgSwPEnv11g.setCategoryOpen(false);
+    if (modComponent.hasBypassSwitch() && modComponent.isCategoryBypassed()) modComponent.setCategoryOpen(false);
+    if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
+
+    for (int i = 0; i < Opzx7PrValue::ops; ++i)
+    {
+        if (ssgHwEnvOp[i].hasBypassSwitch() && ssgHwEnvOp[i].isCategoryBypassed()) ssgHwEnvOp[i].setCategoryOpen(false);
+        if (ssgSwEnv[i].hasBypassSwitch() && ssgSwEnv[i].isCategoryBypassed()) ssgSwEnv[i].setCategoryOpen(false);
+        if (ssgSwEnv11[i].hasBypassSwitch() && ssgSwEnv11[i].isCategoryBypassed()) ssgSwEnv11[i].setCategoryOpen(false);
+        if (wtAmpModOp[i].hasBypassSwitch() && wtAmpModOp[i].isCategoryBypassed()) wtAmpModOp[i].setCategoryOpen(false);
+        if (pitchEnv[i].hasBypassSwitch() && pitchEnv[i].isCategoryBypassed()) pitchEnv[i].setCategoryOpen(false);
+        if (ssgHwPEnvOp[i].hasBypassSwitch() && ssgHwPEnvOp[i].isCategoryBypassed()) ssgHwPEnvOp[i].setCategoryOpen(false);
+        if (ssgSwPEnv11[i].hasBypassSwitch() && ssgSwPEnv11[i].isCategoryBypassed()) ssgSwPEnv11[i].setCategoryOpen(false);
+        if (wtModOp[i].hasBypassSwitch() && wtModOp[i].isCategoryBypassed()) wtModOp[i].setCategoryOpen(false);
+    }
 }

@@ -65,9 +65,70 @@ category ends.
 
 | Colour | Meaning |
 | --- | --- |
-| Hardware | a feature the real chip had |
-| Software | something the drivers of the day did in software |
-| Other | something added by this plugin |
+| Yellow | a feature the real chip had |
+| Blue | something that moves level (AMP ENV, SSG SW AMP ENV, WT AMP MOD, …) |
+| Turquoise | something that moves pitch (PITCH ENV, SSG SW PITCH ENV, WT PITCH MOD, …) |
+| Purple | the LFO |
+| Cyan | anything else (OPTIONAL, UNISON・HARMONY, FIX, MUL・DET) |
+| Red | sound quality (QUALITY) |
+| Lime | other things this plugin adds |
+
+Blue, turquoise, purple and cyan are all either **things the drivers of the
+day did in software** or additions of ours. There were too many of them for a
+single cyan to stay readable, so 3.1.0 splits them by role.
+
+The order follows the same grouping: **hardware-derived sections come first**,
+then level, then pitch, then the LFO.
+
+### Simple view
+
+There are enough sections that a tab runs long, so SETTINGS carries a switch
+that **keeps the ones you use and folds the rest away**. It only hides what is
+on screen — **the sound does not change**, and the values of the hidden
+sections stay as they were.
+
+What gets hidden is decided per tab, and **a section the channel has as a
+feature of the real chip stays**. That is why SSG keeps SSG HW AMP ENV, and
+WT / WT2 / WT+ keep WT PITCH MOD. In 2686VFX the modulation panels are hidden
+and the effect panels stay.
+
+Turning it on reveals **Simple view customisation** below it. Anything ticked
+there is kept on screen even while simple view is on.
+
+| Sections |
+| --- |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
+| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| LFO / MUL・DET / FIX / UNISON・HARMONY |
+
+The setting is saved to the settings file along with everything else.
+
+#### Bypassing what is hidden
+
+Hiding is display only, so **the sound is the same as before you hid
+anything**. To switch the hidden sections off in one go, press
+**[Bypass hidden sections]**, which sits to the right of the simple view
+switch. Only the sections currently hidden are switched off; anything you kept
+on screen through customisation is left alone. The button is disabled while
+simple view is off.
+
+**MUL・DET** and **UNISON・HARMONY** carry no on/off switch — only values — so
+they are left alone. On the **LFO** both PM and AM are switched off.
+
+#### Opening and closing sections in bulk — OP / CL
+
+**[OP]** and **[CL]** at the top right tidy up which sections are expanded.
+They cover the same sections as simple view, and **apply to every channel,
+every operator and every pad at once.**
+
+| Button | What it does |
+| --- | --- |
+| **OP** | expands the sections that are not switched off |
+| **CL** | collapses the sections that are switched off |
+
+Use them to get to "only what I am actually using is open" in one press. They
+work whether or not simple view is on. Sections with no on/off switch are left
+alone by both.
 
 ### Sliders
 
@@ -98,6 +159,7 @@ are never assembling something from numbers alone.
 | Initialise | resets the open tab's parameters to their defaults |
 | Panic | stops any note that got stuck on |
 | Preview | shows and hides the waveform preview strip |
+| OP / CL | opens and closes sections in bulk (see below) |
 | View mode | cycles the three views |
 
 ## View modes

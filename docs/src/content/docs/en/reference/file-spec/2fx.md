@@ -41,13 +41,18 @@ a nested block of its own.
 | `filter` | `bypass` / `type` / `freq` / `q` / `mix` |
 | `eq3band` | `bypass` / `lowGainDb` / `midFreq` / `midGainDb` / `highGainDb` / `mix` |
 | `sfcEcho` | `bypass` / `time` / `fb` / `firCoef0` / `firCoef1` / `firCoef2` / `firCoef3` / `firCoef4` / `firCoef5` / `firCoef6` / `firCoef7` / `mix` |
+| `pcmBitCrusher` | `bypass` / `bits` / `rate` / `interp` / `mix` |
 
 Every effect has a `bypass`, and **true means it is taken out**. `mix` is 0.0
 for the dry signal alone and 1.0 for the effect alone.
 
 :::note
-This file carries **these eight and no more**. The PCM bit crusher, which
-only 2686VFX has, is not among them. The order is held on the
+`pcmBitCrusher` is an effect only 2686VFX has. An instrument never looks for
+that block, so it simply passes it by. A file written before 3.1.0 has no such
+block either; the current values are then kept, so nothing stops loading.
+
+`bits`, `rate` and `interp` hold the **position in the list** rather than the
+value itself. The order of the effects is held on the
 [effect order](/2686V_2686VFX/en/reference/file-spec/fxo/) side.
 :::
 

@@ -31,14 +31,24 @@ void ParamBarEditorBase::attachParams(const juce::String& idPrefix, int count)
 }
 
 // パラメータが外部(Undo など)から変更されたときに呼ばれる
+//
+// ホストがオートメーションを流している間、これはオーディオスレッドで走る。
+// 以前はここから callAsync していたが、
+//   - 生の this を握るので、積んだ後に画面が閉じると解放済みの領域を触る
+//     (デストラクタでリスナーは外せても、積んだ分は取り消せない)
+//   - callAsync は中で確保するので、オーディオスレッドで malloc が走る
+// という 2 つの問題があった。AsyncUpdater は器を組み立て時に 1 つ作って
+// 使い回し、まとめて 1 回に畳み、デストラクタで取り消してくれる。
 void ParamBarEditorBase::parameterChanged(const juce::String&, float)
 {
-    // 描画を予約 (メッセージスレッドで実行される)
-    juce::MessageManager::callAsync([this] {
-        this->repaint();
+    triggerAsyncUpdate();
+}
 
-        if (this->onParamChanged) this->onParamChanged();
-        });
+void ParamBarEditorBase::handleAsyncUpdate()
+{
+    repaint();
+
+    if (onParamChanged) onParamChanged();
 }
 
 void ParamBarEditorBase::setCustomEnabled(bool shouldBeEnabled)

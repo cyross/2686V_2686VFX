@@ -173,7 +173,8 @@ const std::array<Opzx7Core::AlgRouting, Opzx7PrValue::algorithms> Opzx7Core::rou
 void Opzx7Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
-    double target = getTargetRate(m_rateIndex);
+    m_targetRate = getTargetRate(m_rateIndex);
+    double target = m_targetRate;
 
     // 高速化のためのループアンローリング
     m_operators[0].prepare(1, target);
@@ -199,6 +200,7 @@ void Opzx7Core::prepare(double sampleRate) {
     }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
+    m_ssgHwPEnv.prepare(target);
 }
 
 void Opzx7Core::setCurveCore(CurveCore* p_curveCore)
@@ -237,7 +239,9 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     m_ssgSwPEnv11g.setParameters(params.opzx7.ssgSwPEnv11g);
     m_ampEnvG.setParameters(params.opzx7.ampEnvG);
     m_wtMod.setParameters(params.opzx7.wtMod);
+    m_wtAmpMod.setParameters(params.opzx7.wtAmpMod);
     m_ssgHwEnv.setParameters(params.opzx7.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.opzx7.ssgHwPEnv);
 
     m_panpot = params.opzx7.panpot.pan;
     m_panpot_enable = params.opzx7.panpot.enable;
@@ -256,7 +260,8 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     if (m_rateIndex != params.opzx7.quality.rate) {
         m_rateIndex = params.opzx7.quality.rate;
 
-        double target = getTargetRate(m_rateIndex);
+        m_targetRate = getTargetRate(m_rateIndex);
+        double target = m_targetRate;
 
         // 高速化のためのループアンローリング
         m_operators[0].setSampleRate(target);
@@ -273,6 +278,7 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
+        m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opzx7.quality.bit);
@@ -351,9 +357,11 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
  
     m_lfo.noteOn();
     m_ssgHwEnv.noteOn();
+    m_ssgHwPEnv.noteOn();
 
     if (!isLegato) {
         m_wtMod.reset();
+        m_wtAmpMod.reset();
 
         if (!m_ampEnvG.isBypass()) {
             m_ampEnvGLevel = m_ampEnvG.noteOn();
@@ -431,10 +439,11 @@ void Opzx7Core::setModulationWheel(int wheelValue)
     m_modWheel = (float)wheelValue / 127.0f;
 
     m_wtMod.setModWheel((float)wheelValue / 127.0f);
+    m_wtAmpMod.setModWheel((float)wheelValue / 127.0f);
 }
 
 float Opzx7Core::getSample() {
-    double targetRate = getTargetRate(m_rateIndex);
+    const double targetRate = m_targetRate;
 
     // MODULATION の速度は搬送波に対する比なので、ノートの位相増分を渡す
     float notePhaseDelta = (float)(m_noteFreq / targetRate);
@@ -475,7 +484,6 @@ float Opzx7Core::getSample() {
         // =================================================================
         // 履歴 (History) のシフト
         // =================================================================
-        m_history2 = m_history1;
 
         // 生配列から std::array へのコピー
         m_history1[0] = currentOut[0];
@@ -489,6 +497,9 @@ float Opzx7Core::getSample() {
 
         // SSGハードウェアエンベロープ(SsgHwEnv)処理
         finalOut *= m_ssgHwEnv.process();
+
+        // WT AMP MOD。速さは搬送波との比なので、ノートの位相増分を渡す。
+        finalOut *= m_wtAmpMod.process(notePhaseDelta);
 
         // チップ全体の AMP ENV 処理
         if (!m_ampEnvG.isBypass()) {

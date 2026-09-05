@@ -80,11 +80,8 @@ set(FM_FILES
     "Source/Core/Fm/FmOperator.h"
     "Source/Core/Fm/FmOperator.cpp"
     "Source/Core/Fm/FmOpParams.h"
-    "Source/Core/Fm/FmRegisterType.h"
     "Source/Core/Fm/FmRegisterConverter.h"
     "Source/Core/Fm/FmRegisterConverter.cpp"
-    "Source/Core/Fm/FmSliderRegMap.h"
-    "Source/Core/Fm/FmSliderRegMap.cpp"
     "Source/Core/Fm/FmMmlFormatter.h"
 )
 
@@ -132,7 +129,6 @@ set(EDITOR_FILES
 )
 
 set(EFFECT_CORE_FILES
-    "Source/Core/Effect/RateLUT.h"
 )
 
 set(AMP_ENVELOPE_FILES

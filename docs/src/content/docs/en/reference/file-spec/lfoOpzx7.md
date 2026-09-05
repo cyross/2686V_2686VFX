@@ -2,7 +2,7 @@
 title: LFO (shared)
 description: What is inside .lfoOpzx7.json
 sidebar:
-  order: 14
+  order: 16
 ---
 
 The settings for the shared LFO.

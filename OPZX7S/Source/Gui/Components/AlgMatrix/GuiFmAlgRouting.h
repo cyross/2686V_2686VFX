@@ -30,7 +30,6 @@ class GuiFmAlgMatrix : public juce::Component, public GuiBaseComponent {
 public:
     int numOps;
     GuiFmAlgMatrix(const GuiContext& context, int ops = 8);
-    void resized() override;
 
     // マトリックスが必要とする高さ。余白の取りすぎを防ぐために使う。
     int getNaturalHeight() const { return fbStartY + fbTotalH; }
@@ -40,9 +39,20 @@ public:
     int getNaturalWidth() const { return totalW; }
     void paint(juce::Graphics& g) override;
 
-    std::vector<std::unique_ptr<GuiToggleButton>> carrierBtns;
-    std::vector<std::vector<std::unique_ptr<GuiToggleButton>>> modBtns;
-    std::vector<std::vector<std::unique_ptr<GuiToggleButton>>> fbBtns;
+    // マス目をクリックしたら、そこだけ入切する。
+    void mouseDown(const juce::MouseEvent& e) override;
+
+    // 入切はここに持ち、自分で描いてクリックを拾う。
+    //
+    // 以前はマス目ごとにトグルを置いていた。8 オペレータならキャリア 8 +
+    // モジュレーション 64 + フィードバック 64 で 136 個になり、部品の数が
+    // そのまま画面の重さになっていた。枠と地の色は元から paint で描いていて、
+    // トグルが描いていたのは小さな四角だけだった。
+    FmAlgState m_state;
+
+    // 押せるマスかどうか。updateValidity が組み立てる。
+    std::vector<std::vector<bool>> m_modEnabled;
+    std::vector<std::vector<bool>> m_fbEnabled;
 
     std::function<void(const FmAlgState&)> onMatrixChanged;
 

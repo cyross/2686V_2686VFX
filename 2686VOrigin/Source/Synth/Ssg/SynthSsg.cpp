@@ -23,6 +23,7 @@ void SsgCore::prepare(double sampleRate) {
     m_lfo.prepare(m_targetRate);
     m_noiseGen.prepare(m_targetRate);
     m_ssgHwEnv.prepare(m_targetRate);
+    m_ssgHwPEnv.prepare(m_targetRate);
     m_phaseDelta = m_currentFrequency / m_targetRate;
 }
 
@@ -53,7 +54,9 @@ void SsgCore::setParameters(const SynthParams& params)
     m_ssgSwEnv11.setParameters(params.ssg.ssgSwEnv11);
     m_ssgSwPenv11.setParameters(params.ssg.ssgSwPEnv11);
     m_ssgHwEnv.setParameters(params.ssg.env);
+    m_ssgHwPEnv.setParameters(params.ssg.ssgHwPEnv);
     m_wtMod.setParameters(params.ssg.wtMod);
+    m_wtAmpMod.setParameters(params.ssg.wtAmpMod);
     m_lfo.setParameters(params.ssg.lfo);
 
     m_fixMode.setParameters(params.ssg.fix);
@@ -81,6 +84,7 @@ void SsgCore::setParameters(const SynthParams& params)
         m_noiseGen.updateTargetRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
         m_ssgHwEnv.updateTargetSampleRate(m_targetRate);
+        m_ssgHwPEnv.updateTargetSampleRate(m_targetRate);
         m_phaseDelta = m_currentFrequency / m_targetRate;
     }
 
@@ -128,6 +132,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         }
 
         m_ssgHwEnv.noteOn();
+        m_ssgHwPEnv.noteOn();
         m_rateAccumulator = 0.0;
         m_lastSample = 0.0f;
     }
@@ -207,6 +212,7 @@ void SsgCore::setModulationWheel(int wheelValue)
     m_modWheel = (float)wheelValue / 127.0f;
 
     m_wtMod.setModWheel(m_modWheel);
+    m_wtAmpMod.setModWheel(m_modWheel);
 }
 
 void SsgCore::setPitchBendRatio(float ratio)
@@ -323,7 +329,8 @@ float SsgCore::getSample()
         // (PitchBend × Opzx7のPM × ModWheelのPM)
         // ==========================================
         // MODULATION は搬送波の周波数比として掛ける
-        float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta);
+        m_ampModDelta = newPhaseDelta;
+        float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
         float phaseInc = 0.0f;
         if (m_waveform == 1 && !m_triKeyTrack) {
@@ -336,7 +343,7 @@ float SsgCore::getSample()
         // ==========================================
         // 1. Hardware Envelope Update
         // ==========================================
-        float hwEnvGain = m_ssgHwEnv.process();
+        float hwEnvGain = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
         // ==========================================
         // 2. Waveform Generation

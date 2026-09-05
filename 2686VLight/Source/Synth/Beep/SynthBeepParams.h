@@ -13,6 +13,7 @@
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 
 struct BeepParams
 {
@@ -26,6 +27,7 @@ struct BeepParams
 
     AmpAdsrParams adsr;
     WtModParams wtMod;
+    WtAmpModParams wtAmpMod;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;
     PitchAdsrParams pitchAdsr;
@@ -35,4 +37,5 @@ struct BeepParams
     FixModeParams fix;
     UnisonParams unison;
     SsgHwEnvParams ssgHwEnv;
+    SsgHwPEnvParams ssgHwPEnv;
 };

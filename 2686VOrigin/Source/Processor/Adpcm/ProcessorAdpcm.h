@@ -12,6 +12,7 @@ class AdpcmProcessor : public PrBase
     PrPtrsQualityPcm pQuality;
     PrPtrsAdsrAmpEnv pAmpEnv;
     PrPtrsWtMod pWtMod;
+    PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsPitchEnv pPitchEnv;
     PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv11 pSsgSwEnv11;
@@ -23,6 +24,7 @@ class AdpcmProcessor : public PrBase
     PrPtrsPcm pPcm;
     PrPtrsLp pLp;
     PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsUnison pUnison;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

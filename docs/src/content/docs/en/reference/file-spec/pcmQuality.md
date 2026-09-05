@@ -2,7 +2,7 @@
 title: PCM quality
 description: What is inside .pcmQuality.json
 sidebar:
-  order: 11
+  order: 13
 ---
 
 The QUALITY(PCM) settings.

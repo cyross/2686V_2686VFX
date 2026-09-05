@@ -2,7 +2,7 @@
 title: OPNA ハードウェア LFO
 description: .opnaHwLfo.json の中身
 sidebar:
-  order: 15
+  order: 17
 ---
 
 OPNA のオペレータごとのハードウェア LFO。

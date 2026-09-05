@@ -43,3 +43,4 @@
 /.vs
 /build
 /out
+__pycache__/

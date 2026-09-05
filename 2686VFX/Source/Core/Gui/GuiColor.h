@@ -223,6 +223,11 @@ namespace GuiColor {
 		inline Entry PitchEnv{ "WavePreview.PitchEnv", []() -> juce::Colour { return juce::Colours::blue.interpolatedWith(juce::Colours::white, 0.6f); } };
 		inline Entry WaveMemory{ "WavePreview.WaveMemory", []() -> juce::Colour { return juce::Colours::yellow.interpolatedWith(juce::Colours::white, 0.6f); } };
 		inline Entry AudioFile{ "WavePreview.AudioFile", []() -> juce::Colour { return juce::Colours::red.interpolatedWith(juce::Colours::white, 0.6f); } };
+
+		// 波形を並べて出すときの目印。
+		// 「いま鳴っているスロット」と「読み込み・消去の対象」は別物なので分ける。
+		inline Entry ActiveSlot{ "WavePreview.ActiveSlot", []() -> juce::Colour { return juce::Colours::aqua; } };
+		inline Entry ActiveSlotBg{ "WavePreview.ActiveSlotBg", []() -> juce::Colour { return juce::Colours::aqua.withAlpha(0.16f); } };
 	};
 	namespace ScrollBar {
 		inline Entry Thumb{ "ScrollBar.Thumb", []() -> juce::Colour { return juce::Colours::darkgrey; } };
@@ -266,6 +271,19 @@ namespace GuiColor {
 		// 色の役割 (ハード / ソフト / その他) は色相で残る。
 		inline Entry HwBg{ "Category.HwBg", []() -> juce::Colour { return juce::Colours::yellow.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
 		inline Entry SwBg{ "Category.SwBg", []() -> juce::Colour { return juce::Colours::aqua.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
+
+		// ソフトウェア区分の内訳。数が増えて水色ひと色では見分けが付かなく
+		// なったので、役割ごとに色相を分ける。明るさの落とし方は他の区分と
+		// 同じにしてあり、並んだときに浮かない。
+		//
+		// 音量にかかわるもの (AMP ENV / SSG SW AMP ENV / WT AMP MOD など)
+		inline Entry SwAmpBg{ "Category.SwAmpBg", []() -> juce::Colour { return juce::Colours::blue.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
+
+		// 音程にかかわるもの (PITCH ENV / SSG SW PITCH ENV / WT PITCH MOD など)
+		inline Entry SwPitchBg{ "Category.SwPitchBg", []() -> juce::Colour { return juce::Colours::turquoise.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
+
+		// LFO。音量と音程の両方へ掛かるので、どちらとも別の色相にする。
+		inline Entry SwLfoBg{ "Category.SwLfoBg", []() -> juce::Colour { return juce::Colours::purple.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
 		inline Entry OtherBg{ "Category.OtherBg", []() -> juce::Colour { return juce::Colours::lime.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
 
 		// 音質にかかわるカテゴリ。他の区分と並んだときに一目で分かるよう、
@@ -326,6 +344,22 @@ namespace GuiColor {
 		inline Entry LampOn{ "ToggleButton.LampOn", []() -> juce::Colour { return Palette::OffWhite; } };
 		inline Entry LampOff{ "ToggleButton.LampOff", []() -> juce::Colour { return Palette::OffBlack.get().brighter(0.3f); } };
 	};
+
+	// 段ごとの値を並べて描く帯 (SSG SW エンベロープなど)。
+	// 段の数だけつまみを置く代わりに、選んでいない段はここへ描く。
+	namespace StepValues {
+		inline Entry Bg{ "StepValues.Bg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.25f); } };
+		inline Entry Text{ "StepValues.Text", []() -> juce::Colour { return defaultFgColor; } };
+
+		// STEP で使われていない段。消さずに薄く出して、増やしたときの行き先が分かるようにする。
+		inline Entry DimText{ "StepValues.DimText", []() -> juce::Colour { return defaultFgColor.get().withAlpha(0.35f); } };
+
+		// いま値のつまみが束縛されている段。
+		inline Entry Selected{ "StepValues.Selected", []() -> juce::Colour { return juce::Colours::yellow; } };
+		inline Entry SelectedBg{ "StepValues.SelectedBg", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.18f); } };
+		inline Entry Frame{ "StepValues.Frame", []() -> juce::Colour { return Palette::BorderGray; } };
+	};
+
 	namespace TextButton {
 		inline Entry Text{ "TextButton.Text", []() -> juce::Colour { return Palette::OffBlack; } };
 		inline Entry TextOn{ "TextButton.TextOn", []() -> juce::Colour { return Palette::OffBlack; } };
@@ -372,5 +406,33 @@ namespace GuiColor {
 	};
 	namespace Settings {
 		inline Entry SaveAsDefaultBtnBg{ "Settings.SaveAsDefaultBtnBg", []() -> juce::Colour { return juce::Colours::green.withAlpha(0.5f); } };
+	};
+
+	// ============================================================================
+	// 2686VFX の枠の色
+	// ============================================================================
+	// 効果と変調が横に並ぶので、枠の地色で系統を分ける。
+	// 濃さの付け方は 3.0.0 までの効果の枠に合わせてある。
+	// ============================================================================
+	// 画面右上のシステムボタン
+	// ============================================================================
+	// 区分をまとめて開閉するボタン。効くのが表示だけなので、
+	// 他のシステムボタンとは色味を分けて群青にしてある。
+	namespace SystemBtn {
+		inline Entry CategoryToggleBg{ "SystemBtn.CategoryToggleBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x1B, 0x1F, 0x8A); } };
+		inline Entry CategoryToggleText{ "SystemBtn.CategoryToggleText", []() -> juce::Colour { return Palette::OffWhite; } };
+	};
+
+	namespace FxGroup {
+		// 効果そのもの。PCM ビットクラッシャーも含めてこの色。
+		inline Entry Fx{ "FxGroup.Fx", []() -> juce::Colour { return juce::Colours::darkblue.darker(0.3f).withAlpha(0.5f); } };
+
+		// 出力へ掛ける変調 (エンベロープと MOD)
+		inline Entry Mod{ "FxGroup.Mod", []() -> juce::Colour { return juce::Colours::darkred.darker(0.3f).withAlpha(0.5f); } };
+
+		inline Entry Lfo{ "FxGroup.Lfo", []() -> juce::Colour { return juce::Colours::darkgreen.darker(0.3f).withAlpha(0.5f); } };
+
+		// MUL・DET や UNISON・HARMONY など、上のどれでもないもの
+		inline Entry Other{ "FxGroup.Other", []() -> juce::Colour { return juce::Colours::darkcyan.darker(0.3f).withAlpha(0.5f); } };
 	};
 };

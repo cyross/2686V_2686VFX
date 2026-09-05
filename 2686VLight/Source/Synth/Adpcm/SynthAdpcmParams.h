@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../../Generator/Pcm/Helper/GenPcmShared.h"
 
 #include <array>
 
@@ -13,6 +14,7 @@
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 
 struct AdpcmParams
 {
@@ -21,6 +23,7 @@ struct AdpcmParams
     ToneNoiseParams tn;
     AmpAdsrParams adsr;
     WtModParams wtMod;
+    WtAmpModParams wtAmpMod;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;
     PitchAdsrParams pitchAdsr;
@@ -31,8 +34,14 @@ struct AdpcmParams
     PcmParams pcm;
     LoopPointParams lp;
     QualityPcmParams quality;
+
+    // 符号化した素材。プロセッサが 1 つだけ持っていて、ここは指すだけ。
+    // 中身を作るのはメッセージスレッドで、オーディオスレッドは読むだけ。
+    const PcmSharedData* source = nullptr;
+
     UnisonParams unison;
     SsgHwEnvParams ssgHwEnv;
+    SsgHwPEnvParams ssgHwPEnv;
 
     float pan = 0.5f; // ADDED: Pan
     bool loop = false; // Default false for drums

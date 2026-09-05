@@ -1,7 +1,15 @@
 ﻿cmake_minimum_required(VERSION 3.22)
 
 # ソリューション（ワークスペース）全体の名前
-project(RetroSynthsBundle VERSION 3.0.0 LANGUAGES C CXX)
+project(RetroSynthsBundle VERSION 3.1.0 LANGUAGES C CXX)
+
+# Debug ビルドの起動が遅すぎるので、インライン展開だけは許す。
+# 既定の /Ob0 では JUCE の Component や String のような小さなヘッダ関数が
+# 一切展開されず、GUI の生成に数十秒かかっていた。
+# JUCE や yaml-cpp にも効かせたいので add_subdirectory より前に置く。
+if(MSVC)
+    add_compile_options($<$<CONFIG:Debug>:/Ob1>)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,6 +29,41 @@ set(YAML_CPP_INSTALL OFF CACHE BOOL "" FORCE)
 set(YAML_CPP_FORMAT_SOURCE OFF CACHE BOOL "" FORCE)
 set(YAML_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/yaml-cpp)
+
+# ==============================================================================
+# 先読みヘッダ (PCH) の準備
+# ==============================================================================
+# 自前のソースはほぼ全部が JuceHeader.h ごしに JUCE を丸ごと読み込む。
+# その読み込みだけで 1 ファイルにつき 5 秒強かかっていた。中身はどの
+# ファイルでも同じなので、一度だけ解釈して使い回す。
+# 手元 (28 並列・Release) で 2686VFX の 80 ファイルが 41 秒から 19 秒
+# (PCH の作成込み) になった。
+#
+# 代わりに 1 つ 400MB 前後 (実測 373MB) の PCH が的とビルド構成の数だけ出来る。
+# 置き場所が厳しいときは切る。
+#
+# もう 1 つ、並列度を上げすぎたときの注意がある。プラグインは 6 本あり、
+# 同時に走るコンパイラがそれぞれ PCH をメモリへ載せるため、上限なしの
+# 並列 (cmake --build ... --parallel) で全部を一度に組むと、
+#
+#   error C3859: PCH の仮想メモリを作成できませんでした
+#   error C1076: コンパイラの制限: 内部ヒープの上限に達しました
+#
+# が出ることがある。物理メモリ 64GB でも起きた。決まって出るわけではなく、
+# 直前のビルドの後などメモリが詰まっているときに出やすい。
+#
+# 並列度を絞ると出にくくなるが、--parallel 4 でも出たことがあるので確実ではない。
+# 出たときはもう一度叩けばたいてい通る (途中まで出来ているぶんは組み直さない)。
+# 恒久的に避けたいときは CY_USE_PCH を切る。
+option(CY_USE_PCH "先読みヘッダ (PCH) を使ってビルドを速くする" ON)
+
+# JUCE 自身のモジュール実装ファイル。これらは PCH から外すので先に集めておく。
+file(GLOB CY_JUCE_MODULE_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/JUCE/modules/*/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/JUCE/modules/*/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/JUCE/modules/*/*.mm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/JUCE/modules/*/*.m"
+)
 
 # yaml-cpp は自前の警告設定を持たないので、こちらの厳しい設定に
 # 巻き込まれないようにする。外から持ってきたものは直せないため。
@@ -122,15 +165,37 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
     )
 
     juce_generate_juce_header(${TARGET_NAME})
+
+    # 先読みヘッダを当てる。自前のソースはどれも JuceHeader.h から始まるので、
+    # 全ファイルに効く。
+    if(CY_USE_PCH)
+        target_precompile_headers(${TARGET_NAME} PRIVATE "<JuceHeader.h>")
+
+        # JUCE のモジュール実装は「他のヘッダより先に置くこと」を前提に書かれて
+        # いて、先頭で二重取り込みを #error で弾く。PCH は各ファイルの頭へ
+        # 差し込まれるのでそのまま当たってしまう。ここだけ外す。
+        set_source_files_properties(${CY_JUCE_MODULE_SOURCES}
+            TARGET_DIRECTORY ${TARGET_NAME}
+            PROPERTIES SKIP_PRECOMPILE_HEADERS ON
+        )
+    endif()
 endfunction()
 
-# 4つのプラグインを一括でビルド対象に追加
+# ビルド対象のプラグイン
 add_subdirectory(2686V)
 add_subdirectory(2686VLight)
 add_subdirectory(2686VOrigin)
 add_subdirectory(26V)
 add_subdirectory(OPZX7S)
 add_subdirectory(2686VFX)
+
+# 音源を絞ったもの (tools/gen_plugin.py が作る)
+add_subdirectory(OPNV)
+add_subdirectory(OPLV)
+add_subdirectory(OPMV)
+add_subdirectory(WTV)
+add_subdirectory(PCMV)
+add_subdirectory(PULSEV)
 
 # マニュアル用の道具 (出荷するものではない)
 add_subdirectory(tools)

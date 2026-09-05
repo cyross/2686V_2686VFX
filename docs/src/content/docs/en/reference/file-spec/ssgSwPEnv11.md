@@ -2,7 +2,7 @@
 title: SSG software pitch envelope (11 taps)
 description: What is inside .ssgSwPEnv11.json
 sidebar:
-  order: 6
+  order: 7
 ---
 
 The SSG SW PITCH ENV[11] settings.

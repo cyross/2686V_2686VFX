@@ -16,6 +16,7 @@ void RhythmPad::prepare(double hostSampleRate)
     m_lfo.prepare(m_sampleRate);
     m_noiseGen.prepare(m_sampleRate);
     m_ssgHwEnv.prepare(m_sampleRate);
+    m_ssgHwPEnv.prepare(m_sampleRate);
 }
 
 void RhythmPad::setSampleRate(double sampleRate)
@@ -23,6 +24,8 @@ void RhythmPad::setSampleRate(double sampleRate)
     m_sampleRate = sampleRate;
     m_adsr.updateTargetSampleRate(m_sampleRate);
     m_pitchAdsr.updateTargetSampleRate(m_sampleRate);
+    m_ssgHwEnv.updateSampleRate(m_sampleRate);
+    m_ssgHwPEnv.updateSampleRate(m_sampleRate);
     m_ssgSwEnv.updateSampleRate(m_sampleRate);
     m_ssgSwEnv11.updateSampleRate(m_sampleRate);
     m_ssgSwPenv11.updateSampleRate(m_sampleRate);
@@ -32,12 +35,6 @@ void RhythmPad::setSampleRate(double sampleRate)
 }
 
 // Set data (Same logic as AdpcmCore)
-void RhythmPad::setSampleData(const std::vector<float>& sourceData, double sourceRate)
-{
-    m_rawBuffer = sourceData;
-    m_sourceRate = sourceRate;
-    refreshPcmBuffer();
-}
 
 // Update parameters and check for buffer regeneration
 void RhythmPad::setParameters(const RhythmPadParams& params)
@@ -74,24 +71,34 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_lfo.setParameters(params.lfo);
     m_noiseGen.setParameters({ .level = params.tn.noiseLevel, .noiseOnNote = params.tn.noiseOnNote, .baseFreq = params.tn.noiseFreq });
     m_ssgHwEnv.setParameters(params.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
     m_wtMod.setParameters(params.wtMod);
+    m_wtAmpMod.setParameters(params.wtAmpMod);
 
-    bool needRefresh = false;
-    if (m_qualityMode != params.quality.mode) {
-        m_qualityMode = params.quality.mode;
-        needRefresh = true; // ADPCM <-> DPCM <-> PCMの切り替えで再生成が必要
-    }
-    if (m_rateIndex != params.quality.rate) {
-        m_rateIndex = params.quality.rate;
-        needRefresh = true;
-    }
+    m_qualityMode = params.quality.mode;
+    m_rateIndex = params.quality.rate;
     m_interpolationMode = params.quality.interp;
+
+    // 符号化はプロセッサがメッセージスレッドで行い、出来たものを差してくる。
+    // ここでは受け取った標本化周波数にエンベロープを合わせるだけ。
+    m_pcm = params.source;
+
+    const double rate = (m_pcm != nullptr) ? m_pcm->encodedRate : 16000.0;
+
+    if (rate != m_preparedRate) {
+        m_preparedRate = rate;
+
+        m_adsr.prepare(rate);
+        m_pitchAdsr.prepare(0, rate);
+        m_ssgSwEnv.prepare(0, rate);
+        m_ssgSwEnv11.prepare(0, rate);
+        m_ssgSwPenv11.prepare(0, rate);
+        m_noiseGen.prepare(rate);
+    }
 
     m_loopPointEnable = params.lp.enable;
     m_loopPointStart = std::clamp(params.lp.start, 0.0f, 0.999999f);
     m_loopPointEnd = std::clamp(params.lp.end, m_loopPointStart + 0.000001f, 1.0f);
-
-    if (needRefresh) refreshPcmBuffer();
 }
 
 void RhythmPad::triggerRelease(double hostSampleRate)
@@ -117,16 +124,20 @@ void RhythmPad::setModulationWheel(float modWheel) {
     m_modWheel = modWheel;
 
     m_wtMod.setModWheel(modWheel);
+    m_wtAmpMod.setModWheel(modWheel);
 }
 
 void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, int uTotal)
 {
+    // 素材がまだ差さっていなければ鳴らすものがない。
+    if (m_pcm == nullptr) return;
+
     m_unisonPhaseOffset = uOffset;
     m_unisonTotal = uTotal;
 
     // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
     bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
-    double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
+    double currentBufferRate = isEncodedMode ? m_pcm->encodedRate : m_pcm->sourceRate;
     float finalFreq = freq;
     float oldBaseLevel = m_baseLevel;
 
@@ -174,6 +185,7 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
         }
 
         m_ssgHwEnv.noteOn();
+        m_ssgHwPEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -215,6 +227,8 @@ bool RhythmPad::isPlaying() const
 
 float RhythmPad::getSample()
 {
+    if (m_pcm == nullptr) return 0.0f;
+
     // すべてのアンプエンベロープがバイパスされているかどうかを判定
     bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
 
@@ -283,12 +297,12 @@ float RhythmPad::getSample()
     double currentBufferRate = m_sampleRate;
 
     // ノイズを出すために、バッファが空でも最後まで通す
-    if (isEncodedMode && !m_pcmBuffer.empty()) {
+    if (isEncodedMode && !m_pcm->encoded.empty()) {
         if (m_hasFinished) return 0.0f;
 
-        currentBufferRate = m_bufferSampleRate;
+        currentBufferRate = m_pcm->encodedRate;
 
-        size_t totalSize = m_pcmBuffer.size();
+        size_t totalSize = m_pcm->encoded.size();
 
         if (totalSize == 0) return 0.0f;
 
@@ -386,10 +400,10 @@ float RhythmPad::getSample()
         float s_m1, s_0, s_1, s_2;
 
         // エンコードバッファ (int16_t) から読み込み、正規化
-        s_m1 = m_pcmBuffer[idx_m1] / 32768.0f;
-        s_0 = m_pcmBuffer[idx_0] / 32768.0f;
-        s_1 = m_pcmBuffer[idx_1] / 32768.0f;
-        s_2 = m_pcmBuffer[idx_2] / 32768.0f;
+        s_m1 = m_pcm->encoded[idx_m1] / 32768.0f;
+        s_0 = m_pcm->encoded[idx_0] / 32768.0f;
+        s_1 = m_pcm->encoded[idx_1] / 32768.0f;
+        s_2 = m_pcm->encoded[idx_2] / 32768.0f;
 
         // =========================================================
         // 補間処理 (Interpolation)
@@ -442,13 +456,13 @@ float RhythmPad::getSample()
         }
         }
     }
-    else if (!isEncodedMode && !m_rawBuffer.empty()){
+    else if (!isEncodedMode && !m_pcm->raw.empty()){
         if (m_hasFinished) return 0.0f;
 
         // 総サイズと再生終了位置の計算
-        size_t totalSize = m_rawBuffer.size();
+        size_t totalSize = m_pcm->raw.size();
 
-        currentBufferRate = m_sourceRate;
+        currentBufferRate = m_pcm->sourceRate;
 
         double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
         if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
@@ -543,10 +557,10 @@ float RhythmPad::getSample()
         // =========================================================
         float s_m1, s_0, s_1, s_2;
 
-        s_m1 = m_rawBuffer[idx_m1];
-        s_0 = m_rawBuffer[idx_0];
-        s_1 = m_rawBuffer[idx_1];
-        s_2 = m_rawBuffer[idx_2];
+        s_m1 = m_pcm->raw[idx_m1];
+        s_0 = m_pcm->raw[idx_0];
+        s_1 = m_pcm->raw[idx_1];
+        s_2 = m_pcm->raw[idx_2];
 
         // =========================================================
         // 補間処理 (Interpolation)
@@ -604,7 +618,7 @@ float RhythmPad::getSample()
     }
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
-    float sshHwEnvVal = m_ssgHwEnv.process();
+    float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
     // ==========================================
     // Opzx7 LFO の計算 (AM / PM)
@@ -640,7 +654,9 @@ float RhythmPad::getSample()
     // ==========================================
     // MODULATION は搬送波の周波数比として掛ける
     float freqMult = m_pitchBendRatio * opzx7PitchMod
-        * m_wtMod.process((float)(m_currentFrequency / m_sampleRate));
+        * m_wtMod.process((float)(m_currentFrequency / m_sampleRate)) * m_ssgHwPEnv.process(1.0f);
+
+    m_ampModDelta = (float)(m_currentFrequency / m_sampleRate);
 
     // Advance position
     m_position += currentIncrement * freqMult;
@@ -660,34 +676,7 @@ float RhythmPad::getSample()
     return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier * sshHwEnvVal;
 }
 
-void RhythmPad::refreshPcmBuffer()
-{
-    // Copy the same resampling & encoding logic as AdpcmCore here
-    // (To avoid code duplication, it's best to extract Codec to a separate header, but omitted here)
-    if (m_rawBuffer.empty()) return;
 
-    double targetRate = getTargetRate(m_rateIndex);
-
-    if (targetRate > m_sourceRate) targetRate = m_sourceRate;
-    m_bufferSampleRate = targetRate;
-
-    m_adsr.prepare(m_bufferSampleRate);
-    m_pitchAdsr.prepare(0, m_bufferSampleRate);
-    m_ssgSwEnv.prepare(0, m_bufferSampleRate);
-    m_ssgSwEnv11.prepare(0, m_bufferSampleRate);
-    m_ssgSwPenv11.prepare(0, m_bufferSampleRate);
-    m_noiseGen.prepare(m_bufferSampleRate);
-
-    double step = m_sourceRate / targetRate;
-
-    // 圧縮の種類ごとの処理は GenPcmHelper に集約している
-    GenPcmHelper::encodeBuffer(m_rawBuffer, step, m_qualityMode, m_pcmBuffer);
-}
-
-void RhythmPad::clearBuffer() {
-    m_pcmBuffer.clear();
-    m_rawBuffer.clear();
-}
 
 void RhythmCore::prepare(double sampleRate)
 {
@@ -717,12 +706,6 @@ void RhythmCore::setParameters(const SynthParams& params)
 }
 
 // Load sample from external source (Specify Pad index)
-void RhythmCore::setSampleData(int padIndex, const std::vector<float>& data, double rate)
-{
-    if (padIndex >= 0 && padIndex < MaxRhythmPads) {
-        pads[padIndex].setSampleData(data, rate);
-    }
-}
 
 void RhythmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
@@ -835,6 +818,3 @@ void RhythmCore::renderNextBlock(float* outR, float* outL, int startSample, int 
     isActive = isPlaying();
 }
 
-void RhythmCore::clearBuffer(int padIndex) {
-    pads[padIndex].clearBuffer();
-}

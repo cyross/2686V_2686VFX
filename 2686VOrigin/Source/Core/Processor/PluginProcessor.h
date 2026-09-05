@@ -1,10 +1,12 @@
 ﻿#pragma once
+#include "../../Generator/Pcm/Helper/GenPcmShared.h"
 #include <map>
 #include <JuceHeader.h>
 
 #include "../Io/ParamFile.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
+#include "../Gui/GuiSimpleView.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
@@ -85,7 +87,7 @@ public:
                     // これにより、波形が強制キルされず、位相や音量が完全に引き継がれます。
                     if (voice->isVoiceActive()) {
                         auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-                        voice->coreMap[currentParams->mode]->noteOn(cyclesPerSecond, velocity, midiNoteNumber, isLegato);
+                        voice->coreMap[(size_t)currentParams->mode]->noteOn(cyclesPerSecond, velocity, midiNoteNumber, isLegato);
                     }
                     else {
                         // 完全に音が消えている時だけ、通常の startVoice でボイスを起こす
@@ -265,7 +267,8 @@ public:
     }
 };
 
-class AudioPlugin2686V : public juce::AudioProcessor
+class AudioPlugin2686V : public juce::AudioProcessor,
+    public juce::AsyncUpdater
 {
 private:
     OpnaProcessor prOpna;
@@ -275,7 +278,19 @@ private:
     FxProcessor prFx;
 
     SynthParams m_currentParams;
-    SynthParams m_previewParams;
+
+    // ADPCM の素材と符号化したもの。ボイスごとに複製せず、ここで 1 つだけ持つ。
+    // 符号化はメッセージスレッドで行い、オーディオスレッドは出来たものを指すだけ。
+    PcmSharedStore m_adpcmPcm;
+
+    // オーディオスレッドが「この指定で作り直してほしい」と置いていく場所。
+    std::atomic<int> m_adpcmWantQuality{ -1 };
+    std::atomic<int> m_adpcmWantRate{ -1 };
+
+    // RHYTHM も同じ。パッドごとに 1 つずつ持つ。
+    std::array<PcmSharedStore, RhythmPrValue::pads> m_rhythmPcm;
+    std::array<std::atomic<int>, RhythmPrValue::pads> m_rhythmWantQuality{};
+    std::array<std::atomic<int>, RhythmPrValue::pads> m_rhythmWantRate{};
 
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
@@ -296,12 +311,10 @@ private:
 
     RetroSynthesiser m_synth;
 
-    // 波形プレビュー用
-    juce::Synthesiser previewSynth;
-    std::unique_ptr<SynthSound> previewSound;
-    FxProcessor previewFx;
-
     void loadStartupSettings(); // 設定の自動読み込み用関数
+
+    // オーディオスレッドから頼まれた符号化をここで行う (メッセージスレッド)
+    void handleAsyncUpdate() override;
     void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
     void getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState);
 public:
@@ -385,12 +398,14 @@ public:
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);
+
+    // 別のプラグインで書かれたプリセットなら、断って false を返す。
+    bool isPresetForThisPlugin(const juce::XmlElement* xmlState, const juce::File& file);
     void initPreset();
 
     void initParams(const juce::String& code);
 
     // --- Preview(Static) ---
-    void generatePreviewWaveform(std::vector<float>* destBuffer);
 
     // --- 仮想キーボード ---
     juce::MidiKeyboardState keyboardState;
@@ -473,14 +488,33 @@ public:
         visit(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
         visit(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
         visit(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
+        visit(SettingsKey::defaultWtModParamDir, defaultWtModParamDir);
         visit(SettingsKey::defaultColorSettingDir, defaultColorSettingDir);
 
         visit(SettingsKey::showTooltips, showTooltips);
+        visit(SettingsKey::simpleView, simpleView);
+
+        // 隠さない区分。項目の並びを変えても迷子にならないよう名前で持つ。
+        for (int i = 0; i < SimpleView::Size; ++i) {
+            visit(juce::String(SimpleView::items()[(size_t)i].key), simpleViewShow[(size_t)i]);
+        }
         visit(SettingsKey::useHeadroom, useHeadroom);
         visit(SettingsKey::headroomGain, headroomGain);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
+
+    // 簡易表示モード。区分の一部を隠して画面を短くする。表示だけの話で、
+    // 音には影響しない。
+    bool simpleView = false;
+
+    // 簡易表示モードでも隠さない区分。既定はどれも隠す。
+    std::array<bool, SimpleView::Size> simpleViewShow{};
+
+    // 隠す対象の区分を、いま出すかどうか
+    bool isSimpleShown(SimpleView::Cat cat) const {
+        return SimpleView::isShown(simpleView, simpleViewShow, cat);
+    }
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）

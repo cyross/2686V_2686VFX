@@ -47,6 +47,30 @@ class GuiComponentUnison : public GuiBase {
     std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
+
+    // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
+    //
+    // 見出しを見せるかどうかはレイアウト側では戻らない (あちらは場所を
+    // 決めるだけ) ので、ここで両方向とも面倒を見る。
+    void setCategoryVisible(bool visible) {
+        cat.setHidden(!visible);
+        cat.setVisible(visible);
+    }
+
+    // 簡易表示モードの一括操作で使う口。
+    //
+    // 区分によって「バイパス」だったり「有効」だったりするので、
+    // ここで意味を揃えて「切ってあるか」で答える。
+    // この区分は入り切りの札を持たない (値しかない) ので、
+    // 一括操作の対象から外す。
+    bool hasBypassSwitch() const { return false; }
+
+    bool isCategoryBypassed() const { return false; }
+
+    void setCategoryBypassed(bool) {}
+
+    // 見出しの開閉
+    void setCategoryOpen(bool open) { cat.setDetailVisible(open); }
     GuiComponentUnison(const GuiContext& context) :
         GuiBase(context),
         cat(context),

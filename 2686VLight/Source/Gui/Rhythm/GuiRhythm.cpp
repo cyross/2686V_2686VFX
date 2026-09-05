@@ -264,7 +264,9 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     lfoComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
+    ssgHwPEnv.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     setupGraph();
     updateGraph();
@@ -297,23 +299,32 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     layoutPanCat(padRect);
 
+    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(padRect);
+    ssgHwEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.layoutComponent(padRect);
+    ssgSwEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
+    ssgSwEnvComponent.layoutComponent(padRect);
+    ssgSwEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11Component.layoutComponent(padRect);
+    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.layoutComponent(padRect);
+
+    pitchEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
+    pitchEnvComponent.layoutComponent(padRect);
+    ssgHwPEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.layoutComponent(padRect);
+    ssgSwPEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11Component.layoutComponent(padRect);
     modComponent.layoutComponent(padRect);
 
-    ssgHwEnv.layoutComponent(padRect);
-
-    ssgSwEnvComponent.layoutComponent(padRect);
-
-    ssgSwEnv11Component.layoutComponent(padRect);
-
-    pitchEnvComponent.layoutComponent(padRect);
-
-    ssgSwPEnv11Component.layoutComponent(padRect);
-
-    mulDetuneComponent.layoutComponent(padRect);
-
+    lfoComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
     lfoComponent.layoutComponent(padRect);
 
+    mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
+    mulDetuneComponent.layoutComponent(padRect);
+
+    fixComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Fix));
     fixComponent.layoutComponent(padRect);
 
     layoutQualityCat(padRect);
@@ -725,12 +736,24 @@ void RhythmPadGui::importWtModParam() { modComponent.importParams(); }
 
 void RhythmPadGui::exportWtModParam() { modComponent.exportParams(); }
 
+void RhythmPadGui::importWtAmpModParam() { ampModComponent.importParams(); }
+
+void RhythmPadGui::exportWtAmpModParam() { ampModComponent.exportParams(); }
+
 void RhythmPadGui::importSsgHwEnvParam() {
     ssgHwEnv.importParams();
 }
 
 void RhythmPadGui::exportSsgHwEnvParam() {
     ssgHwEnv.exportParams();
+}
+
+void RhythmPadGui::importSsgHwPEnvParam() {
+    ssgHwPEnv.importParams();
+}
+
+void RhythmPadGui::exportSsgHwPEnvParam() {
+    ssgHwPEnv.exportParams();
 }
 
 void RhythmPadGui::importSsgSwEnvParam() {
@@ -966,6 +989,9 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     ampEnvComponent.readParams(r, "ampEnv");
     pitchEnvComponent.readParams(r, "pitchEnv");
     ssgHwEnv.readParams(r, "ssgHwEnv");
+    ssgHwPEnv.readParams(r, "ssgHwPEnv");
+    modComponent.readParams(r, "wtMod");
+    ampModComponent.readParams(r, "wtAmpMod");
     ssgSwEnvComponent.readParams(r, "ssgSwEnv");
     ssgSwEnv11Component.readParams(r, "ssgSwEnv11");
     ssgSwPEnv11Component.readParams(r, "ssgSwPEnv11");
@@ -997,6 +1023,9 @@ void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     ampEnvComponent.writeParams(w, "ampEnv");
     pitchEnvComponent.writeParams(w, "pitchEnv");
     ssgHwEnv.writeParams(w, "ssgHwEnv");
+    ssgHwPEnv.writeParams(w, "ssgHwPEnv");
+    modComponent.writeParams(w, "wtMod");
+    ampModComponent.writeParams(w, "wtAmpMod");
     ssgSwEnvComponent.writeParams(w, "ssgSwEnv");
     ssgSwEnv11Component.writeParams(w, "ssgSwEnv11");
     ssgSwPEnv11Component.writeParams(w, "ssgSwPEnv11");
@@ -1025,7 +1054,9 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     ieAmpEnv(context),
     iePitchEnv(context),
     ieSsgHwEnv(context),
+    ieSsgHwPEnv(context),
     ieWtMod(context),
+    ieWtAmpMod(context),
     ieSsgSwEnv(context),
     ieSsgSwEnv11(context),
     ieSsgSwPEnv11(context),
@@ -1135,10 +1166,16 @@ void GuiRhythm::setup()
     ieSsgHwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW Env");
     ieSsgHwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importSsgHwEnvParam(); };
     ieSsgHwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportSsgHwEnvParam(); };
+    ieSsgHwPEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv");
+    ieSsgHwPEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importSsgHwPEnvParam(); };
+    ieSsgHwPEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportSsgHwPEnvParam(); };
 
     ieWtMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Modulation");
     ieWtMod.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importWtModParam(); };
     ieWtMod.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportWtModParam(); };
+    ieWtAmpMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Amp Mod");
+    ieWtAmpMod.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importWtAmpModParam(); };
+    ieWtAmpMod.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportWtAmpModParam(); };
 
     ieSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
     ieSsgSwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnvParam(padIndex); };
@@ -1223,6 +1260,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     levelComponent.layoutComponent(mRect);
     
+    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     midiComponent.layoutComponent(mRect);
@@ -1318,7 +1356,9 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -1351,8 +1391,10 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1407,8 +1449,15 @@ void GuiRhythm::buttonClicked(juce::Button* button, juce::AudioFormatManager& fo
                     {
                         pads[i].updatePadFileName("Loading...");
 
-                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                        // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                        juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                        juce::Timer::callAfterDelay(50, [this, safe, i, file]()
                             {
+                                // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                                // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                                if (safe == nullptr) return;
+
                                 // Load to specific pad index
                                 ctx.audioProcessor.loadRhythmFile(file, i);
 

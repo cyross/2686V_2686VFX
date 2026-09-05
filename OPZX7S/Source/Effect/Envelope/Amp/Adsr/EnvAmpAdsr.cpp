@@ -172,7 +172,7 @@ float AmpAdsrEnv::process(float currentLevel) {
             // 後ろで進めると出力が 1 サンプルぶん遅れて線形パスとずれる。
             this->m_phaseProgress += this->attackTimeInc;
 
-            y = this->m_curveCore->process(
+            y = this->m_curveCore->processAudio(
                 (int)CurveParams::Position::Common,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Ar,
@@ -219,7 +219,7 @@ float AmpAdsrEnv::process(float currentLevel) {
             }
 
             // 2. カーブコアからYを取得
-            y = m_curveCore->process(
+            y = m_curveCore->processAudio(
                 (int)CurveParams::Position::Common,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Dr,
@@ -257,7 +257,7 @@ float AmpAdsrEnv::process(float currentLevel) {
             }
 
             // 2. カーブコアからYを取得
-            y = m_curveCore->process(
+            y = m_curveCore->processAudio(
                 (int)CurveParams::Position::Common,
                 (int)CurveParams::Target::AmpEnv,
                 (int)CurveParams::TargetAmpEnv::Rr,

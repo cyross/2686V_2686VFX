@@ -51,22 +51,22 @@ namespace PresetValue
 	namespace File
 	{
 		// 3.0.0 より前の XML も一覧に出す。読み込みだけは残してあるため。
-		static inline const juce::String glob = "*.86v.json;*.86v.yaml;*.xml";
+		static inline const juce::String glob = "*.2686vfx.json;*.2686vfx.yaml;*.xml";
 
 		// 書き出すときの拡張子。選ばれている形に合わせる。
 		static inline juce::String extension()
 		{
-			return ".86v." + Io::fileFormatExtension();
+			return ".2686vfx." + Io::fileFormatExtension();
 		}
 		static inline const juce::String def = "Untitled";
 
 		namespace Name
 		{
-			static inline const juce::String initial = "init_preset_origin.xml";
+			static inline const juce::String initial = "init_preset_fx.xml";
 
 			// お気に入りと履歴の置き場。プラグインごとに分ける。
 			// プリセットの置き場も拡張子もプラグインで違うため。
-			static inline const juce::String library = "2686VOrigin.library";
+			static inline const juce::String library = "2686VFX.library";
 		}
 
 		namespace Message

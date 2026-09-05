@@ -19,12 +19,12 @@ LFO を、**出力そのものへ掛けられる**ようにしてあります。
 ## プラグイン表示
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/plugin/2686VFX.png" alt="2686VFX プラグイン全景" width="1426" height="738" />
+	<img src="/2686V_2686VFX/ui/plugin/2686VFX.png" alt="2686VFX プラグイン全景" width="1625" height="739" />
 	<figcaption>プラグイン全景</figcaption>
 </figure>
 
 <figure class="shot shot--sm">
-	<img src="/2686V_2686VFX/ui/about/2686VFX.png" alt="2686VFX ABOUTタブ" width="379" height="494" />
+	<img src="/2686V_2686VFX/ui/about/2686VFX.png" alt="2686VFX ABOUTタブ" width="382" height="501" />
 	<figcaption>ABOUTタブ</figcaption>
 </figure>
 
@@ -82,6 +82,7 @@ Zero-Order Hold / Cosine / B-Spline / Lagrange）から選べます。
 | AMP ENV | 音量の ADSR |
 | SSG HW AMP ENV | SSG のハードウェアエンベロープ |
 | SSG SW AMP ENV[11] | SSG のソフトウェアエンベロープ (11 ステップ) |
+| WT AMP MOD | 波形メモリ系の音量変調 (FDS / WonderSwan / HuC6280) |
 | LFO | OPZX7 の LFO のうち AM 側 |
 
 ### 音程を動かすもの
@@ -89,6 +90,7 @@ Zero-Order Hold / Cosine / B-Spline / Lagrange）から選べます。
 | 枠 | 元 |
 | --- | --- |
 | PITCH ENV | 音程の ADSR |
+| SSG HW PITCH ENV | SSG のハードウェアエンベロープの形を音程へ |
 | SSG SW PITCH ENV[11] | 音程のソフトウェアエンベロープ (11 ステップ) |
 | WT PITCH MOD | 波形メモリ系の音程変調 (FDS / WonderSwan / HuC6280) |
 | LFO | OPZX7 の LFO のうち PM 側 |
@@ -127,13 +129,27 @@ Zero-Order Hold / Cosine / B-Spline / Lagrange）から選べます。
 したときや、ユニゾンの幅を広げたときは、耳で確かめながら使ってください。
 :::
 
-### WT PITCH MOD の基準周波数
+### WT PITCH MOD / WT AMP MOD の基準周波数
 
-WT PITCH MOD の速さは、実機では**搬送波の周波数に対する比**で決まります。
-エフェクトには搬送波がないので、その代わりになる**基準周波数**を枠の中で
-決められるようにしてあります（1〜2000Hz、初期値 440Hz）。
+WT PITCH MOD と WT AMP MOD の速さは、実機では**搬送波の周波数に対する比**で
+決まります。エフェクトには搬送波がないので、その代わりになる**基準周波数**を
+枠の中で決められるようにしてあります（1〜2000Hz、初期値 440Hz）。2 つの変調は
+この基準を共有します。
 
 **実機にはない、こちらで足したものです。** 低くするほどゆっくり揺れます。
+
+### 枠の色
+
+枠が横に並ぶので、**地色で系統が分かる**ようにしてあります。
+
+| 系統 | 色 |
+| --- | --- |
+| 効果 (PCM ビットクラッシャーを含む) | 青系統 |
+| 出力への変調 | 赤系統 |
+| LFO | 緑系統 |
+| MUL・DET / UNISON・HARMONY | シアン系統 |
+
+色は SETTINGS の COLORS から差し替えられます。
 
 ## ファイル
 
@@ -153,6 +169,8 @@ FX の順番とパラメータのファイルは、**音源のものと行き来
   ので、読み飛ばされます
 
 :::tip
-2686VFX には PRESET タブがありません。設定をまとめて残したいときは、DAW の
-プラグイン側のプリセット機能を使ってください。
+2686VFX には PRESET タブがありません。**設定を残すときは、区分ごとの
+インポート・エクスポートがプリセットの代わりになります。** FX の順番と
+パラメータ、変調の各区分をファイルへ書き出しておけば、あとから同じ形に
+戻せます。DAW のプラグイン側のプリセット機能も使えます。
 :::

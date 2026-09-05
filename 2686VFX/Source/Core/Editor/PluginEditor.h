@@ -5,7 +5,6 @@
 #include <span>
 
 #include "../Processor/PluginProcessor.h"
-#include "../Fm/FmSliderRegMap.h"
 #include "../Gui/GuiLF.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
@@ -55,7 +54,8 @@ class AudioPlugin2686VEditor :
     public juce::ComponentListener,
     public juce::Button::Listener,
     public juce::AudioProcessorValueTreeState::Listener,
-    public juce::Timer
+    public juce::MultiTimer,
+    public juce::AsyncUpdater
 {
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
@@ -66,8 +66,13 @@ public:
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
     void buttonClicked(juce::Button* button) override;
-    void showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered);
     void parameterChanged(const juce::String& parameterID, float newValue) override;
+
+    // parameterChanged はホストのオートメーション中はオーディオスレッドで走る。
+    // 番号だけここへ預けて、実際の切り替えはメッセージスレッド側で行う。
+    std::atomic<int> m_pendingModeTab{ -1 };
+    void handleAsyncUpdate() override;
+
     void setupLogo();
     void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);
@@ -105,6 +110,12 @@ public:
     }
     void loadWallpaperImage();
     void setTooltipState(bool enabled);
+
+    // 区分の一括操作。SETTINGS のボタンと、画面右上の OP / CL から呼ぶ。
+    // どのタブが対象になるかはタブ側が決める。
+    void bypassHiddenCategories();
+    void openEnabledCategories();
+    void closeBypassedCategories();
     void assignTooltipsRecursive(juce::Component* parentComponent);
     void drawBg(juce::Graphics& g);
     void loadSettingsFile();
@@ -120,8 +131,15 @@ public:
     void updateKeyboardVisibility();
 
     // 波形プレビュー用
-    void timerCallback() override;
-    void updateTimerState(bool start);
+    // タイマーは 2 つに分ける。波形はプレビューを出している間だけ、
+    // 再生ランプは画面が開いている間ずっと。以前は 1 つで兼ねていたため、
+    // 波形を止めるとランプも止まってしまい、結局止められなかった。
+    enum TimerId { previewTimer = 0, playingLampTimer = 1 };
+
+    void timerCallback(int timerID) override;
+
+    // いまの表示状態を見て、波形用タイマーの入切を決める。
+    void updateTimerState();
     void updatePreviewVisibilityToProcessor();
     bool keyPressed(const juce::KeyPress& key) override;
     void updateUiScale(float newScale);
@@ -131,6 +149,7 @@ private:
     AudioPlugin2686V& audioProcessor;
 
     static inline constexpr int previewHz = 30;
+    static inline constexpr int playingLampHz = 30;
     float uiScale = 1.0f;
     bool lastPlayingState = false; // 再生状態が変わったか判定するためのキャッシュ
 
@@ -152,7 +171,6 @@ private:
     std::unique_ptr<juce::FileChooser> fileChooser;
     std::unique_ptr<juce::TooltipWindow> tooltipWindow;
 
-    SliderRegMap sliderRegMap;
 
 
     // 仮想MIDIキーボード用
@@ -178,6 +196,14 @@ private:
     ViewMode viewMode = ViewMode::Full;
     juce::Label miniPresetLabel;
     juce::Label miniModeLabel;
+    // 区分の一括開閉。簡易表示モードで隠す区分が対象。
+    SystemButtonLF categoryToggleBtnLF;
+    juce::TextButton openCategoriesBtn;
+    juce::TextButton closeCategoriesBtn;
+
+    // 開いているタブに限らず、持っているタブすべてへ配る。
+    void forEachTabGui(const std::function<void(GuiBase&)>& fn);
+
     SystemButtonLF miniToggleBtnLF;
     juce::TextButton toggleMiniBtn;
     juce::ImageComponent mainIconImage;
@@ -200,6 +226,11 @@ private:
     void showMiniPlayerView();
     void showMinimumView();
     void updateWindowSize();
+
+    // いまの表示モードで本来あるべき窓の大きさ。
+    // updateWindowSize と resized の両方がこれを見る。別々に書いていたころは
+    // 値が食い違い、切り替えた直後に一度違う大きさで置いてから直していた。
+    juce::Point<int> getExpectedSize() const;
 
     inline juce::String getPreviewButtonText();
     inline juce::String getPreviewTooltipText();

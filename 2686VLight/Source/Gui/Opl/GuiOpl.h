@@ -29,7 +29,9 @@
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
@@ -60,7 +62,9 @@ class GuiOpl : public GuiBase
     GuiComponentAmpEnv ampEnvComponent;
     // チップ全体へ掛かる MODULATION
     GuiComponentWtMod modComponent;
+    GuiComponentWtAmpMod ampModComponent;
     GuiComponentSsgHwEnv ssgHwEnv;
+    GuiComponentSsgHwPEnv ssgHwPEnv;
     // SSG Sw Env
     GuiComponentSsgSwEnv11 ssgSwEnv11g;
     // チップ全体へ掛かるピッチ側
@@ -90,13 +94,19 @@ class GuiOpl : public GuiBase
     GuiComponentImportExport ieOpSsgSwEnv;
     GuiComponentImportExport ieOpSsgSwEnv11;
     GuiComponentImportExport ieOpSsgSwPEnv11;
+    GuiComponentImportExport ieOpSsgHwPEnv;
+    GuiComponentImportExport ieOpWtAmpMod;
+    GuiComponentImportExport ieOpSsgHwEnv;
+    GuiComponentImportExport ieOpWtMod;
     GuiComponentImportExport ieOpChParam;
     GuiComponentImport imOpl3OpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep005;
     GuiComponentImportExport ieAmpEnvG;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
+    GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11g;
     GuiComponentImportExport ieUnison;
@@ -126,6 +136,10 @@ class GuiOpl : public GuiBase
 
     std::array<GuiComponentSsgSwEnv11, OplPrValue::ops> ssgSwEnv11;
     std::array<GuiComponentSsgSwPEnv11, OplPrValue::ops> ssgSwPEnv11;
+    std::array<GuiComponentSsgHwPEnv, OplPrValue::ops> ssgHwPEnvOp;
+    std::array<GuiComponentWtAmpMod, OplPrValue::ops> wtAmpModOp;
+    std::array<GuiComponentSsgHwEnv, OplPrValue::ops> ssgHwEnvOp;
+    std::array<GuiComponentWtMod, OplPrValue::ops> wtModOp;
 
     std::array<GuiCategoryLabel, OplPrValue::ops> catShape;
     std::array<GuiComboBox, OplPrValue::ops> eg; // Envlope Generator
@@ -200,7 +214,9 @@ public:
         feedbackSlider(context),
         ampEnvComponent(context),
         modComponent(context),
+        ampModComponent(context),
         ssgHwEnv(context),
+        ssgHwPEnv(context),
         ssgSwEnv11g(context),
         ssgSwPEnv11g(context),
         unisonComponent(context),
@@ -223,13 +239,19 @@ public:
         ieOpSsgSwEnv(context),
         ieOpSsgSwEnv11(context),
         ieOpSsgSwPEnv11(context),
+        ieOpSsgHwPEnv(context),
+        ieOpWtAmpMod(context),
+        ieOpSsgHwEnv(context),
+        ieOpWtMod(context),
 		ieOpChParam(context),
 		imOpl3OpChParam(context),
         targerOpSlider(context),
         uSep005(context),
         ieAmpEnvG(context),
         ieSsgHwEnv(context),
+        ieSsgHwPEnv(context),
         ieWtMod(context),
+        ieWtAmpMod(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11g(context),
         ieUnison(context),
@@ -251,6 +273,10 @@ public:
         ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
         ssgSwEnv11{ GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context) },
         ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
+        ssgHwPEnvOp{ GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context) },
+        wtAmpModOp{ GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context) },
+        ssgHwEnvOp{ GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context) },
+        wtModOp{ GuiComponentWtMod(context), GuiComponentWtMod(context) },
         catShape{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         eg{ GuiComboBox(context), GuiComboBox(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -348,6 +374,14 @@ public:
     void exportSsgSwEnv11Param(int opIndex);
     void importSsgSwPEnv11Param(int opIndex);
     void exportSsgSwPEnv11Param(int opIndex);
+    void importOpSsgHwPEnvParam(int opIndex);
+    void exportOpSsgHwPEnvParam(int opIndex);
+    void importOpWtAmpModParam(int opIndex);
+    void exportOpWtAmpModParam(int opIndex);
+    void importOpSsgHwEnvParam(int opIndex);
+    void exportOpSsgHwEnvParam(int opIndex);
+    void importOpWtModParam(int opIndex);
+    void exportOpWtModParam(int opIndex);
     void importQualityParam();
 
     // 3.0.0 より前の形式を読む

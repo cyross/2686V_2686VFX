@@ -32,7 +32,7 @@ SETTINGS タブの **「ファイル形式」** で JSON と YAML を選べま�
 
 | フォルダ | 中身 |
 | --- | --- |
-| `Presets` | プリセット |
+| (プリセット置き場) | プリセット (下の表を参照) |
 | `Samples` | 読み込んだ音声ファイル |
 | `Wavetables` | 波形テーブル (.wt / .wt2) |
 | `FxOrders` | エフェクトの並び順 |
@@ -49,8 +49,29 @@ SETTINGS タブの **「ファイル形式」** で JSON と YAML を選べま�
 | `QualityParams` | 音質 |
 | `PcmPlayParams` | PCM の再生 |
 | `ToneNoiseParams` | トーン／ノイズ |
+| `WtModParams` | WT PITCH MOD / WT AMP MOD |
 | `CustomizeColorSettings` | 配色 |
 | `Resources` | 壁紙などの素材 |
+
+プリセットの置き場だけはプラグインごとに分かれています。拡張子も違うので、
+1 つのフォルダへまとめて置いても取り違えませんが、初めて起動したときに
+作られるのはそれぞれ次のフォルダです。
+
+| プラグイン | プリセット置き場 |
+| --- | --- |
+| 2686V | `Presets` |
+| 2686VLight | `2686VLPresets` |
+| 26V | `26VPresets` |
+| 86V | `2686VOPresets` |
+| OPZX7S | `OPZX7Presets` |
+| OPNV | `OPNVPresets` |
+| OPLV | `OPLVPresets` |
+| OPMV | `OPMVPresets` |
+| WTV | `WTVPresets` |
+| PCMV | `PCMVPresets` |
+| PULSEV | `PULSEVPresets` |
+
+2686VFX はプリセットを持たないので、この置き場は使いません。
 
 このほか、フォルダの直下に次のファイルが置かれます。
 
@@ -75,6 +96,12 @@ SETTINGS タブの **「ファイル形式」** で JSON と YAML を選べま�
 | 26V | `.26v.json` |
 | 86V | `.86v.json` |
 | OPZX7S | `.opzx7s.json` |
+| OPNV | `.opnv.json` |
+| OPLV | `.oplv.json` |
+| OPMV | `.opmv.json` |
+| WTV | `.wtv.json` |
+| PCMV | `.pcmv.json` |
+| PULSEV | `.pulsev.json` |
 | 2686VFX | プリセットなし |
 
 パラメータファイルは種類ごとに決まっています。たとえば OPNA のチャンネル

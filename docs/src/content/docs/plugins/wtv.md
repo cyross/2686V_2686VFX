@@ -1,0 +1,69 @@
+---
+title: WTV
+description: WTV の構成と使いどころ
+sidebar:
+  order: 10
+---
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/logos/WTV.png" alt="WTV ロゴ" width="128" height="128" />
+	<figcaption>ロゴ</figcaption>
+</figure>
+
+**波形メモリの 3 チャンネル**だけに絞ったものです。WT・WT2・WT+ が
+入っています。自分で描いた波形や読み込んだ波形で鳴らすパートを、
+1 本で用意できます。
+
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/WTV.png" alt="WTV プラグイン全景" width="1426" height="738" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/WTV.png" alt="WTV ABOUTタブ" width="373" height="486" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
+## 収録しているチャンネル
+
+| チャンネル | |
+| --- | :---: |
+| [WAVETABLE](/2686V_2686VFX/chips/wt/) | ✔ |
+| [WT2](/2686V_2686VFX/chips/wt2/) | ✔ |
+| [WTPLUS](/2686V_2686VFX/chips/wtplus/) | ✔ |
+
+持っていないのは OPNA / OPN / OPL / OPL3 / OPM / OPZX7 / SSG / RHYTHM / ADPCM / BEEP です。
+
+各チャンネルの中身は、それぞれのページを参照してください。どのチャンネルにも
+同じ形で出てくる区分は [共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
+## カーブ編集（ADV）
+
+**使えます。**
+
+詳しくは [カーブ編集](/2686V_2686VFX/chips/adv/) を参照してください。
+
+## こんなときに
+
+- 波形メモリらしい音のパートを足したいとき
+- WT+ の 32 スロットを使って波形を切り替えたいとき
+
+## ファイル
+
+| 種類 | 拡張子 |
+| --- | --- |
+| プリセット | `.wtv.json` |
+| パラメータファイル | ほかのプラグインと共通 |
+
+プリセットはプラグインごとに拡張子が違うので、`Presets` フォルダへまとめて
+置いても、そのプラグインのものだけが一覧に出ます。パラメータファイルは
+**プラグインをまたいで読めます**。
+
+置き場所は [ファイルの形式と置き場所](/2686V_2686VFX/files/format/) を参照してください。
+
+:::note
+チャンネルを絞ったぶん、**同時に何本も挿したときの負荷が軽くなります**。
+全部入りが要るときは [2686V](/2686V_2686VFX/plugins/2686v/) を使ってください。
+:::

@@ -13,8 +13,10 @@ class Opl3Processor : public PrBase
     PrPtrsAlgFb pAlgFb;
     PrPtrsQuality pQuality;
     PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsWtMod pWtMod;
+    PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsSsgSwEnv11 pSsgSwEnv11g;
     PrPtrsSsgSwPEnv11 pSsgSwPEnv11g;
     PrPtrsUnison pUnison;
@@ -27,6 +29,10 @@ class Opl3Processor : public PrBase
     std::array<PrPtrsSsgSwEnvOp, Opl3PrValue::ops> pSsgSwEnv;
     std::array<PrPtrsSsgSwEnv11Op, Opl3PrValue::ops> pSsgSwEnv11;
     std::array<PrPtrsSsgSwPEnv11Op, Opl3PrValue::ops> pSsgSwPEnv11;
+    std::array<PrPtrsSsgHwPEnv, Opl3PrValue::ops> pOpSsgHwPEnv;
+    std::array<PrPtrsWtAmpMod, Opl3PrValue::ops> pOpWtAmpMod;
+    std::array<PrPtrsSsgHwEnv, Opl3PrValue::ops> pOpSsgHwEnv;
+    std::array<PrPtrsWtMod, Opl3PrValue::ops> pOpWtMod;
     std::array<std::atomic<float>*, Opl3PrValue::ops> pOpMask = { nullptr };
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

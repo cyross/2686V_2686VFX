@@ -7,8 +7,11 @@
 #include "../../../Effect/Detune/Opzx7/DetuneOpzx7Params.h"
 #include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
+#include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "../../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../../Core/Synth/CommonParams.h"
+#include "../../../Generator/WtMod/GenWtAmpModulator.h"
 
 struct Opzx7OpParams
 {
@@ -21,6 +24,10 @@ struct Opzx7OpParams
     PitchAdsrParams pitchAdsr;
     bool ssgPEnv11Enable = true;
     SsgSwPEnv11Params ssgSwPEnv11;
+    SsgHwPEnvParams ssgHwPEnv;
+    WtAmpModParams wtAmpMod;
+    SsgHwEnvParams ssgHwEnv;
+    WtModParams wtMod;
     Opzx7DetuneParams detune;
     LfoOpzx7Params lfo;
     FixModeParams fix;

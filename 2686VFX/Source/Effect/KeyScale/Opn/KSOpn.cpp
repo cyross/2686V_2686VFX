@@ -2,17 +2,30 @@
 
 #include "./KSOpn.h"
 
-KSOpn::KSOpn() {
-    for (int i = 0; i < 128; i++) {
-        int octave = (i / 12) - 1;
+namespace
+{
+    // 表の中身は音符から決まるだけで、どの実体でも同じになる。
+    // オペレータの数だけ抱えると無視できない量になるので、1 組だけ作って皆で見る。
+    struct KSOpnTables
+    {
+        std::array<int, 128> keyRates{};
 
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
+        KSOpnTables()
+        {
+            for (int i = 0; i < 128; i++) {
+                int octave = (i / 12) - 1;
 
-        int noteOffset = i % 12;
+                if (octave < 0) octave = 0;
+                if (octave > 7) octave = 7;
 
-        keyRates[i] = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-    }
+                int noteOffset = i % 12;
+
+                keyRates[i] = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+            }
+        }
+    };
+
+    const KSOpnTables tables;
 }
 
 void KSOpn::setParameters(const KSOpnParams& params) {
@@ -21,7 +34,7 @@ void KSOpn::setParameters(const KSOpnParams& params) {
 }
 
 int KSOpn::calcKeyScaleRate(const int noteNumber) const {
-    return keyRates[noteNumber] >> m_shift;
+    return tables.keyRates[noteNumber] >> m_shift;
 }
 
 float KSOpn::calcLevelScalingDb(const int noteNumber) const {

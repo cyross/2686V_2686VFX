@@ -81,7 +81,9 @@ void GuiSsg::setup()
 
     // SSG チャンネル自身の機能なのでハード扱いにする
     ssgHwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
+    ssgHwPEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -121,7 +123,9 @@ void GuiSsg::setup()
     iePitchEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Pitch Env", pitchEnvComponent);
 
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnvComponent);
+    ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnvComponent);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
+    ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
@@ -145,11 +149,11 @@ void GuiSsg::setup()
 
     formSeparator.setupComponent(mainGroup.contentCanvas);
 
-    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
+    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
+    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -277,25 +281,35 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     layoutFormCat(mRect);
 
+    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-
     ssgHwEnvComponent.layoutComponent(mRect);
+    ssgSwEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
+    ssgSwEnvComponent.layoutComponent(mRect);
+    ssgSwEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11Component.layoutComponent(mRect);
+    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.layoutComponent(mRect);
+
+    pitchEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
+    pitchEnvComponent.layoutComponent(mRect);
+    ssgHwPEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnvComponent.layoutComponent(mRect);
+    ssgSwPEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11Component.layoutComponent(mRect);
+    modComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
-    ssgSwEnvComponent.layoutComponent(mRect);
-
-    ssgSwEnv11Component.layoutComponent(mRect);
-
-    pitchEnvComponent.layoutComponent(mRect);
-
-    ssgSwPEnv11Component.layoutComponent(mRect);
-
-    mulDetuneComponent.layoutComponent(mRect);
-
+    lfo.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
     lfo.layoutComponent(mRect);
 
+    mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
+    mulDetuneComponent.layoutComponent(mRect);
+
+    fixComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Fix));
     fixComponent.layoutComponent(mRect);
 
+    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -460,7 +474,9 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -481,8 +497,10 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -854,6 +872,7 @@ void GuiSsg::importChParam() {
 
                 // Components
                 ssgHwEnvComponent.readParams(*reader, "ssgHwEnv");
+                ssgHwPEnvComponent.readParams(*reader, "ssgHwPEnv");
                 fixComponent.readParams(*reader, "fix");
                 ampEnvComponent.readParams(*reader, "ampEnv");
                 pitchEnvComponent.readParams(*reader, "pitchEnv");
@@ -866,6 +885,7 @@ void GuiSsg::importChParam() {
                 unisonComponent.readParams(*reader, "unison");
 
                 modComponent.readParams(*reader, "wtMod");
+                ampModComponent.readParams(*reader, "wtAmpMod");
             }
         });
 
@@ -972,6 +992,7 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 
 	// Components
 	ssgHwEnvComponent.writeParams(writer, "ssgHwEnv");
+	ssgHwPEnvComponent.writeParams(writer, "ssgHwPEnv");
 	fixComponent.writeParams(writer, "fix");
 	ampEnvComponent.writeParams(writer, "ampEnv");
 	pitchEnvComponent.writeParams(writer, "pitchEnv");
@@ -985,6 +1006,7 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 
 	// MODULATION (旧フォーマットと互換を保つため末尾に置く)
 	modComponent.writeParams(writer, "wtMod");
+	ampModComponent.writeParams(writer, "wtAmpMod");
 
 	
 }

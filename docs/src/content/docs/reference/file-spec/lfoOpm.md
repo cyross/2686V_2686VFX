@@ -2,7 +2,7 @@
 title: OPM LFO
 description: .lfoOpm.json の中身
 sidebar:
-  order: 17
+  order: 19
 ---
 
 OPM のハードウェア LFO。

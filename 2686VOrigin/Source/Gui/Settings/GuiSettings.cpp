@@ -1,4 +1,5 @@
 ﻿#include <array>
+#include <algorithm>
 #include <vector>
 
 #include "../../Core/Editor/EditorGuiValues.h"
@@ -422,7 +423,7 @@ void GuiSettings::setup()
         );
         };
 
-    // --- Quyality Param Dir ---
+    // --- Quality Param Dir ---
     setupFolderRow(qualityParamDirLabel, juce::String("") + "音質ファイルディレクトリ:", qualityParamDirPathLabel, qualityParamDirBrowseBtn);
     qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
     qualityParamDirPathLabel.setWantsKeyboardFocus(false);
@@ -464,7 +465,7 @@ void GuiSettings::setup()
         );
         };
 
-    // --- Tone / Noise Param Dir ---
+    // --- Color Setting Dir ---
     setupFolderRow(colorSettingDirLabel, juce::String("") + "色の設定ファイルディレクトリ:", colorSettingDirPathLabel, colorSettingDirBrowseBtn);
     colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
     colorSettingDirPathLabel.setWantsKeyboardFocus(false);
@@ -506,7 +507,76 @@ void GuiSettings::setup()
         );
         };
 
+    // --- WT MOD Param Dir ---
+    setupFolderRow(wtModParamDirLabel, juce::String("") + "WT MODファイルディレクトリ:", wtModParamDirPathLabel, wtModParamDirBrowseBtn);
+    wtModParamDirPathLabel.setText(ctx.audioProcessor.defaultWtModParamDir, juce::dontSendNotification);
+    wtModParamDirPathLabel.setWantsKeyboardFocus(false);
+
+    wtModParamDirBrowseBtn.setWantsKeyboardFocus(true);
+    wtModParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    wtModParamDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFolderChooser(
+            juce::String("") + "WT MODファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultWtModParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultWtModParamDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultWtModParamDir = file.getFullPathName();
+                    wtModParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
     separator3.setupComponent(*this);
+
+
+    // --- 簡易表示モード ---
+    // 区分を隠すだけの切り替え。音には影響しない。
+    // 切り替えたら画面を組み直して、その場で反映する。
+    simpleViewToggle.setup({ .parent = *this, .title = juce::String("") + "簡易表示モード", .font = toggleFont, .isReset = false });
+    simpleViewToggle.setToggleState(ctx.audioProcessor.simpleView, juce::dontSendNotification);
+    simpleViewToggle.setWantsKeyboardFocus(true);
+    simpleViewToggle.setExplicitFocusOrder(++tabOrder);
+    simpleViewToggle.onClick = [this] {
+        ctx.audioProcessor.simpleView = simpleViewToggle.getToggleState();
+
+        bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
+
+        ctx.editor.resized();
+        };
+
+    // 隠れている区分をまとめて切る。簡易表示モードのときだけ押せる。
+    bypassHiddenBtn.setup({ .parent = *this, .title = juce::String("") + "非表示中の区分をバイパス", .isReset = false });
+    bypassHiddenBtn.setWantsKeyboardFocus(true);
+    bypassHiddenBtn.setExplicitFocusOrder(++tabOrder);
+    bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
+    bypassHiddenBtn.onClick = [this] {
+        ctx.editor.bypassHiddenCategories();
+        };
+
+    simpleViewCat.setupCategory({ .parent = *this, .title = juce::String("") + "簡易表示モードカスタマイズ(開閉)", .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
+
+    // 隠す対象のうち、出したままにするものを選ぶ。
+    // 入れておくと簡易表示モードでもその区分が残る。
+    for (int i = 0; i < SimpleView::Size; ++i)
+    {
+        auto& toggle = simpleViewShowToggles[(size_t)i];
+
+        toggle.setup({ .parent = *this,
+            .title = juce::String(SimpleView::items()[(size_t)i].title) + juce::String("") + " を表示",
+            .font = toggleFont, .isReset = false });
+        toggle.setToggleState(ctx.audioProcessor.simpleViewShow[(size_t)i], juce::dontSendNotification);
+        toggle.setWantsKeyboardFocus(true);
+        toggle.setExplicitFocusOrder(++tabOrder);
+        toggle.onClick = [this, i] {
+            ctx.audioProcessor.simpleViewShow[(size_t)i] = simpleViewShowToggles[(size_t)i].getToggleState();
+
+            ctx.editor.resized();
+            };
+    }
+
+    separatorSimple.setupComponent(*this);
 
     // --- Toggle Tooltip Visible Toggle Button ---
     tooltipToggle.setup({ .parent = *this, .title = juce::String("") + "ツールチップを表示", .font = toggleFont, .isReset = false });
@@ -757,6 +827,9 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     toneNoiseParamDirLabel.setVisible(dirVisible);
     toneNoiseParamDirPathLabel.setVisible(dirVisible);
     toneNoiseParamDirBrowseBtn.setVisible(dirVisible);
+    wtModParamDirLabel.setVisible(dirVisible);
+    wtModParamDirPathLabel.setVisible(dirVisible);
+    wtModParamDirBrowseBtn.setVisible(dirVisible);
 
     colorSettingDirLabel.setVisible(dirVisible);
     colorSettingDirPathLabel.setVisible(dirVisible);
@@ -879,6 +952,14 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
         sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
+        // 21. WT MOD Param Dir
+        auto rowWtModParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        wtModParamDirLabel.setBounds(rowWtModParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+        wtModParamDirBrowseBtn.setBounds(rowWtModParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        wtModParamDirPathLabel.setBounds(rowWtModParamDir);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
         // 色の設定ファイルディレクトリ
         auto rowColorSettingDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
         colorSettingDirLabel.setBounds(rowColorSettingDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
@@ -889,6 +970,50 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     // 区切り線はフォルダ設定の外。畳んでも下の設定との境目は残す。
     separator3.layoutComponent(sRect);
+
+
+    // ---------------- 簡易表示モード ----------------
+    auto rowSimpleView = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    simpleViewToggle.setBounds(rowSimpleView.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+
+    rowSimpleView.removeFromLeft(SettingsGuiValue::Settings::PaddingWidth);
+
+    bypassHiddenBtn.setBounds(rowSimpleView.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+
+    // カスタマイズは、簡易表示モードを入れているときだけ出す。
+    bool simpleOn = ctx.audioProcessor.simpleView;
+
+    simpleViewCat.setVisible(simpleOn);
+
+    bool simpleCustomVisible = false;
+
+    if (simpleOn)
+    {
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        auto simpleCatRow = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        // 見出しだけラベル幅では窮屈なので、行の中で広めに取る
+        simpleViewCat.setBounds(simpleCatRow.removeFromLeft(SettingsGuiValue::Settings::LabelWidth * 3));
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+        simpleCustomVisible = simpleViewCat.isDetailVisible();
+    }
+
+    for (int i = 0; i < SimpleView::Size; ++i)
+    {
+        auto& toggle = simpleViewShowToggles[(size_t)i];
+
+        toggle.setVisible(simpleCustomVisible);
+
+        if (!simpleCustomVisible) continue;
+
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+        toggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+    }
+
+    separatorSimple.layoutComponent(sRect);
 
     // 18. Tooltip Visible Row
     auto rowTooltip = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
@@ -953,6 +1078,7 @@ void GuiSettings::setSettings()
     qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
     pcmPlayParamDirPathLabel.setText(ctx.audioProcessor.defaultPcmPlayParamDir, juce::dontSendNotification);
     toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
+    wtModParamDirPathLabel.setText(ctx.audioProcessor.defaultWtModParamDir, juce::dontSendNotification);
     colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
 }
 
@@ -962,5 +1088,9 @@ void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)
 }
 
 float GuiSettings::getUiScale(int index) {
-    return uiScaleLUT[index];
+    // 番号は設定ファイルから来ることがあり、表の範囲内とは限らない。
+    // std::array の [] は範囲を見ないので、ここで丸めておく。
+    // 壊れた設定ファイルを一度読むと、以後画面を開くたびに落ちていた。
+    const int last = (int)uiScaleLUT.size() - 1;
+    return uiScaleLUT[(size_t)std::clamp(index, 0, last)];
 }

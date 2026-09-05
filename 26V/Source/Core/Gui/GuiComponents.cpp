@@ -226,6 +226,11 @@ void GuiSlider::updateValueBoxWidth()
 
     const auto& widest = high.length() >= low.length() ? high : low;
 
+    // 出る文字が前と同じなら幅も同じ。測り直さない。
+    if (widest == measuredText) return;
+
+    measuredText = widest;
+
     // 波括弧で初期化する。丸括弧だと関数の宣言として読まれてしまう。
     juce::Font font{ juce::FontOptions(CoreGuiValue::Slider::ValueBox::fontHeight) };
 
@@ -289,13 +294,6 @@ void GuiSlider::setup(const Config& c)
     {
         att.reset(new SliderAttachment(ctx.apvts, c.id, *this));
     }
-
-    if (c.regType != RegisterType::None)
-    {
-        ctx.sliderRegMap[this] = c.regType;
-
-        this->addMouseListener(&ctx.editor, false);
-    }
 }
 
 void GuiComboBox::setup(const Config& c)
@@ -336,13 +334,6 @@ void GuiComboBox::setup(const Config& c)
     if (c.isResized)
     {
         this->onChange = [this] { ctx.editor.resized(); };
-    }
-
-    if (c.regType != RegisterType::None)
-    {
-        ctx.sliderRegMap[this] = c.regType;
-
-        this->addMouseListener(&ctx.editor, false);
     }
 }
 
@@ -435,7 +426,7 @@ void GuiTextButton::setup(const Config& c)
     this->setButtonText(c.title);
 
     if (c.font.has_value()) {
-        customLF.customFont = c.font.value();
+        customFont = c.font.value();
     }
 
     if (!c.textColor.isTransparent())
@@ -613,7 +604,7 @@ void GuiMasterVolumeSlider::setup(const GuiSlider::Config& c)
 void GuiMmlButton::setupMml(const MmlConfig& c)
 {
     // ボタンがクリックされた時の処理をここに閉じ込める
-    this->onClick = [c] {
+    this->onClick = [this, c] {
         // オペレーター番号は 0始まりを想定しているので +1 して表示
         auto* w = new juce::AlertWindow(
             juce::String("") + "MML風入力(オペレーター" + juce::String(c.opIndex + 1) + ")",
@@ -626,8 +617,14 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
 
         GuiDialog::styleButtons(*w);
 
+        // 画面が閉じたあとに答えが返ってくることがある。c.onMmlApplied は
+        // 音源の画面を捕まえているので、このボタンが生きているかを見てから呼ぶ。
+        juce::Component::SafePointer<GuiMmlButton> safeThis(this);
+
         // モーダル表示 (ラムダ式には設定値 c と ウィンドウ w をコピーキャプチャする)
-        w->enterModalState(true, juce::ModalCallbackFunction::create([c, w](int result) {
+        w->enterModalState(true, juce::ModalCallbackFunction::create([c, w, safeThis](int result) {
+            if (safeThis == nullptr) return;
+
             if (result == 1) {
                 juce::String mmlText = w->getTextEditorContents("mmlInput");
 
@@ -753,6 +750,24 @@ void GuiCategoryLabel::beginBackdrop(const juce::Rectangle<int>& contentArea)
     g_pendingBackdrops[parent] = this;
 }
 
+
+// 隠している見出しの板を片付ける。閉じ待ちに登録したままだと、
+// 次の見出しのところで自分の板が閉じられてしまう。
+void GuiCategoryLabel::hideBackdrop()
+{
+    backdrop.setVisible(false);
+
+    auto* parent = getParentComponent();
+
+    if (parent == nullptr) return;
+
+    auto it = g_pendingBackdrops.find(parent);
+
+    if (it != g_pendingBackdrops.end() && it->second == this) {
+        g_pendingBackdrops.erase(it);
+    }
+}
+
 bool GuiCategoryLabel::closePending(juce::Component* parent, int bottom)
 {
     if (parent == nullptr) return false;
@@ -800,6 +815,21 @@ void GuiCategoryLabel::setupSwCategory(const Config& c)
     setupInner(c, GuiColor::Category::SwBg);
 }
 
+void GuiCategoryLabel::setupSwAmpCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::SwAmpBg);
+}
+
+void GuiCategoryLabel::setupSwPitchCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::SwPitchBg);
+}
+
+void GuiCategoryLabel::setupSwLfoCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::SwLfoBg);
+}
+
 void GuiCategoryLabel::setupOtherCategory(const Config& c)
 {
     setupInner(c, GuiColor::Category::OtherBg);
@@ -817,6 +847,17 @@ void closeCategoryBackdrops(juce::Component* parent, int bottom)
 
 void GuiDialog::applyTheme()
 {
+    // ここだけは共有の LookAndFeel を直接触っている。
+    //
+    // JUCE の AlertWindow は TopLevelWindow なので、親をたどらず
+    // 既定の LookAndFeel を見る。showMessageBoxAsync に部品を渡しても
+    // 位置合わせに使われるだけで、色には効かない。
+    // つまり、自前の LookAndFeel を差し込めるのは自分で new した
+    // ダイアログだけで、JUCE が中で作る確認・警告のダイアログには届かない。
+    //
+    // 既定を自前のものに差し替える手もあるが、プラグインが外されたあとに
+    // 消えたオブジェクトを指したままになるので、そちらの方が危ない。
+    // すべてのダイアログを自前で組み直すまでは、この形のままにしておく。
     auto& lf = juce::LookAndFeel::getDefaultLookAndFeel();
 
     lf.setColour(juce::AlertWindow::backgroundColourId, GuiColor::Palette::OffWhite);

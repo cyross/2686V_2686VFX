@@ -7,6 +7,8 @@ void Opzx7Operator::prepare(int opIndex, double sampleRate) {
 	m_ssgSwEnv.prepare(opIndex, sampleRate);
     m_ssgSwEnv11.prepare(opIndex, sampleRate);
     m_ssgSwPenv11.prepare(opIndex, sampleRate);
+    m_ssgHwPEnv.prepare(sampleRate);
+    m_ssgHwEnv.prepare(sampleRate);
 
     m_lfo.prepare(sampleRate);
 
@@ -36,6 +38,8 @@ void Opzx7Operator::setSampleRate(double sampleRate) {
 	m_ssgSwEnv.updateSampleRate(sampleRate);
     m_ssgSwEnv11.updateSampleRate(sampleRate);
     m_ssgSwPenv11.updateSampleRate(sampleRate);
+    m_ssgHwPEnv.updateSampleRate(sampleRate);
+    m_ssgHwEnv.updateSampleRate(sampleRate);
 }
 
 void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
@@ -51,6 +55,10 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
     m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
     m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
+    m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
+    m_wtAmpMod.setParameters(params.wtAmpMod);
+    m_ssgHwEnv.setParameters(params.ssgHwEnv);
+    m_wtMod.setParameters(params.wtMod);
     m_lfo.setParameters(params.lfo);
     m_loopPointEnable = params.lp.enable;
     m_loopPointStart = std::clamp(params.lp.start, 0.0f, 0.999999f);
@@ -72,6 +80,13 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
 void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
     m_noteNumber = noteNumber;
+
+    // ハードウェアエンベロープは位相を持つだけなので、
+    // 押し直したときだけ頭から流し直す。
+    if (!isLegato) m_ssgHwPEnv.noteOn();
+    if (!isLegato) m_wtAmpMod.reset();
+    if (!isLegato) m_ssgHwEnv.noteOn();
+    if (!isLegato) m_wtMod.reset();
 
     if (!isLegato)
     {
@@ -364,12 +379,15 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     float totalAmpMod = 1.0f;
 
     // ① グローバルAM (最大 96dB の減衰)
+    // 揺れ幅が 0 のときは 1 倍なので、1 サンプルごとの pow を省く
     if (glLfo.am.enable) {
-        totalAmpMod *= std::pow(10.0f, -(glLfo.value.am * glLfo.am.depthDb) / 20.0f);
+        const float amDb = glLfo.value.am * glLfo.am.depthDb;
+        if (amDb != 0.0f) totalAmpMod *= std::pow(10.0f, -amDb / 20.0f);
     }
 
     if (m_lfo.am.enable) {
-        totalAmpMod *= std::pow(10.0f, -(m_lfo.value.am * m_lfo.am.depthDb) / 20.0f);
+        const float amDb = m_lfo.value.am * m_lfo.am.depthDb;
+        if (amDb != 0.0f) totalAmpMod *= std::pow(10.0f, -amDb / 20.0f);
     }
 
     envVal *= totalAmpMod;
@@ -391,8 +409,10 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // ③ モジュレーションホイール (Global LFO を使用、最大200セント)
     currentPitchCent += glLfo.value.pm * (modWheel * 200.0f);
 
-    // 蓄積した Cent を周波数倍率に変換
-    float lfoPitchMod = std::pow(2.0f, currentPitchCent / 1200.0f);
+    // 蓄積した Cent を周波数倍率に変換。0 セントなら 1 倍なので pow を省く
+    float lfoPitchMod = (currentPitchCent != 0.0f)
+        ? std::pow(2.0f, currentPitchCent / 1200.0f)
+        : 1.0f;
 
     // ========================================================
     // 3. 位相と波形の生成
@@ -405,6 +425,19 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
 	float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * (*m_p_globalPitchRatio) * lfoPitchMod;
     float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
     currentPhaseDelta = m_params.ssgPEnv11Enable ? m_ssgSwPenv11.process(currentPhaseDelta) : currentPhaseDelta;
+
+    // SSG HW PITCH ENV。切ってあるときは倍率 1.0 が返るので、
+    // 位相を進める意味でも毎サンプル通しておく。
+    currentPhaseDelta = m_ssgHwPEnv.process(currentPhaseDelta);
+
+    // WT PITCH MOD。速さは搬送波との比なので、素の位相増分を渡す。
+    currentPhaseDelta *= m_wtMod.process(m_phaseDelta);
+
+    // WT AMP MOD。切ってあるときは MAX がそのまま返る。
+    envVal *= m_wtAmpMod.process(m_phaseDelta);
+
+    // SSG HW AMP ENV。切ってあるときは MAX がそのまま返る。
+    envVal *= m_ssgHwEnv.process();
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
@@ -758,7 +791,10 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
         return normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f;
     case 33:
         sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
-        return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
+        val = 1.0f - std::abs(s);
+        val *= val;   // 2 乗
+        val *= val;   // 4 乗。pow より速く、値は同じ
+        return sign * (1.0f - val);
     case 34:
         return 1.0f - normPhase * 2.0f;
     case 35:
@@ -774,7 +810,8 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     case 40:
         return std::tanh(s * 5.0f);
     case 41:
-        return std::exp(-100.0f * std::pow(normPhase - 0.5f, 2.0f)) * 2.0f - 1.0f;
+        val = normPhase - 0.5f;
+        return std::exp(-100.0f * val * val) * 2.0f - 1.0f;
     case 42:
         return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f;
     case 43:

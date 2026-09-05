@@ -567,6 +567,7 @@ void GuiWt::setup()
 
     // 波形メモリのチャンネル自身の機能なのでハード扱いにする
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -587,6 +588,7 @@ void GuiWt::setup()
     );
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgHwPEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::util, .enableChangeDetailVisible = true });
 
@@ -622,7 +624,9 @@ void GuiWt::setup()
     iePitchEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Pitch Env", pitchEnvComponent);
 
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
+    ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
@@ -733,26 +737,35 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     layoutFormCat(mRect);
 
+    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-
+    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.layoutComponent(mRect);
+    ssgHwEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
-
+    ssgSwEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnvComponent.layoutComponent(mRect);
-
+    ssgSwEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11Component.layoutComponent(mRect);
 
+    modComponent.layoutComponent(mRect);
+    pitchEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
     pitchEnvComponent.layoutComponent(mRect);
-
+    ssgHwPEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.layoutComponent(mRect);
+    ssgSwPEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11Component.layoutComponent(mRect);
 
-    mulDetuneComponent.layoutComponent(mRect);
-
-    modComponent.layoutComponent(mRect);
-
+    lfo.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
     lfo.layoutComponent(mRect);
 
+    mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
+    mulDetuneComponent.layoutComponent(mRect);
+
+    fixComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Fix));
     fixComponent.layoutComponent(mRect);
 
+    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -1041,7 +1054,9 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -1062,8 +1077,10 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1338,12 +1355,14 @@ void GuiWt::importChParam() {
 
                 // Modulation
                 modComponent.readParams(*reader, "wtMod");
+                ampModComponent.readParams(*reader, "wtAmpMod");
 
                 // Components
                 fixComponent.readParams(*reader, "fix");
                 ampEnvComponent.readParams(*reader, "ampEnv");
                 pitchEnvComponent.readParams(*reader, "pitchEnv");
                 ssgHwEnv.readParams(*reader, "ssgHwEnv");
+                ssgHwPEnv.readParams(*reader, "ssgHwPEnv");
                 ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
                 ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
                 ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
@@ -1468,12 +1487,14 @@ void GuiWt::writeChParams(Io::ParamWriter& writer) {
 	// Modulation
 	// 名前で持つので、後から足した項目を末尾へ置く必要はない。
 	modComponent.writeParams(writer, "wtMod");
+	ampModComponent.writeParams(writer, "wtAmpMod");
 
 	// Components
 	fixComponent.writeParams(writer, "fix");
 	ampEnvComponent.writeParams(writer, "ampEnv");
 	pitchEnvComponent.writeParams(writer, "pitchEnv");
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
 	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
 	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");

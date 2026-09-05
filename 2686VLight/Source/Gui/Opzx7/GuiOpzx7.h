@@ -11,6 +11,7 @@
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiValues.h"
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Components/StepValues/StepValues.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
@@ -33,8 +34,10 @@
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
@@ -69,22 +72,12 @@ class GuiOpzx7 : public GuiBase
     // Global
     GuiComboBox algSelector;
     NormalSeparator algFbSep;
-    GuiComponentNudgeSliderFloat feedback1Slider;
-    GuiComponentNudgeButtons feedback1Nudge;
-    GuiComponentNudgeSliderFloat feedback2Slider;
-    GuiComponentNudgeButtons feedback2Nudge;
-    GuiComponentNudgeSliderFloat feedback3Slider;
-    GuiComponentNudgeButtons feedback3Nudge;
-    GuiComponentNudgeSliderFloat feedback4Slider;
-    GuiComponentNudgeButtons feedback4Nudge;
-    GuiComponentNudgeSliderFloat feedback5Slider;
-    GuiComponentNudgeButtons feedback5Nudge;
-    GuiComponentNudgeSliderFloat feedback6Slider;
-    GuiComponentNudgeButtons feedback6Nudge;
-    GuiComponentNudgeSliderFloat feedback7Slider;
-    GuiComponentNudgeButtons feedback7Nudge;
-    GuiComponentNudgeSliderFloat feedback8Slider;
-    GuiComponentNudgeButtons feedback8Nudge;
+    // オペレータごとにつまみを並べる代わりに、対象を選ぶつまみと値のつまみを
+    // 1 組ずつ置く。選んでいない OP の値は帯へまとめて描く。
+    GuiSlider feedbackTarget;
+    GuiComponentNudgeSliderFloat feedbackSlider;
+    GuiComponentNudgeButtons feedbackNudge;
+    GuiStepValues feedbackValues;
 
     GuiCategoryLabel panCat;
     GuiToggleButton panpotEnableToggle;
@@ -101,7 +94,9 @@ class GuiOpzx7 : public GuiBase
     GuiComponentAmpEnv ampEnvComponent;
     // チップ全体へ掛かる MODULATION
     GuiComponentWtMod modComponent;
+    GuiComponentWtAmpMod ampModComponent;
     GuiComponentSsgHwEnv ssgHwEnv;
+    GuiComponentSsgHwPEnv ssgHwPEnv;
     // SSG Sw Env
     GuiComponentSsgSwEnv11 ssgSwEnv11g;
     // チップ全体へ掛かるピッチ側
@@ -125,13 +120,19 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpSsgSwEnv;
     GuiComponentImportExport ieOpSsgSwEnv11;
     GuiComponentImportExport ieOpSsgSwPEnv11;
+    GuiComponentImportExport ieOpSsgHwPEnv;
+    GuiComponentImportExport ieOpWtAmpMod;
+    GuiComponentImportExport ieOpSsgHwEnv;
+    GuiComponentImportExport ieOpWtMod;
     GuiComponentImportExport ieOpPcmPlay;
     GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep003;
     GuiComponentImportExport ieAmpEnvG;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
+    GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11g;
     GuiComponentImportExport ieLfo;
@@ -207,6 +208,10 @@ class GuiOpzx7 : public GuiBase
 
     std::array<GuiComponentSsgSwEnv11, Opzx7PrValue::ops> ssgSwEnv11;
     std::array<GuiComponentSsgSwPEnv11, Opzx7PrValue::ops> ssgSwPEnv11;
+    std::array<GuiComponentSsgHwPEnv, Opzx7PrValue::ops> ssgHwPEnvOp;
+    std::array<GuiComponentWtAmpMod, Opzx7PrValue::ops> wtAmpModOp;
+    std::array<GuiComponentSsgHwEnv, Opzx7PrValue::ops> ssgHwEnvOp;
+    std::array<GuiComponentWtMod, Opzx7PrValue::ops> wtModOp;
 
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catMask;
     std::array<GuiToggleButton, Opzx7PrValue::ops> mask; // Mask
@@ -259,6 +264,14 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+
+    // 選んだ OP へ FB のつまみを束縛し直す。帯の描き直しもここでやる。
+    void rebindFeedback();
+    void refreshFeedbackValues();
+
+    // OP ごとの FB。つまみは 1 組しか束縛されていないので APVTS から直に読み書きする。
+    float getFeedbackValue(int opIndex) const;
+    void setFeedbackValue(int opIndex, float value);
     void updatePcmFileName(int opIndex, const juce::String& fileName) {
         pcmFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
         
@@ -342,6 +355,14 @@ public:
     void exportSsgSwEnv11Param(int opIndex);
     void importSsgSwPEnv11Param(int opIndex);
     void exportSsgSwPEnv11Param(int opIndex);
+    void importOpSsgHwPEnvParam(int opIndex);
+    void exportOpSsgHwPEnvParam(int opIndex);
+    void importOpWtAmpModParam(int opIndex);
+    void exportOpWtAmpModParam(int opIndex);
+    void importOpSsgHwEnvParam(int opIndex);
+    void exportOpSsgHwEnvParam(int opIndex);
+    void importOpWtModParam(int opIndex);
+    void exportOpWtModParam(int opIndex);
     void importDetuneParam(int opIndex);
     void exportDetuneParam(int opIndex);
     void importQualityParam();

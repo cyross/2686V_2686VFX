@@ -112,10 +112,11 @@ from it**, though, so those follow the order shown.
 | 2 | Pitch bend | the MIDI keyboard |
 | 3 | **PITCH ENV** | 3-tap; runs on press and release |
 | 4 | **SSG SW PITCH ENV[11]** | 11-tap; runs on press and release |
-| 5 | **The LFO's PM** | depth is given in cents |
-| 6 | **WT PITCH MOD** | its rate is a ratio against the carrier |
-| 7 | MUL / DET | multiple and detune |
-| 8 | Unison detune | a different value per voice |
+| 5 | **SSG HW PITCH ENV** | repeats a fixed shape; depth is given in cents |
+| 6 | **The LFO's PM** | depth is given in cents |
+| 7 | **WT PITCH MOD** | its rate is a ratio against the carrier |
+| 8 | MUL / DET | multiple and detune |
+| 9 | Unison detune | a different value per voice |
 
 ### Level side — applied to the waveform
 
@@ -131,12 +132,13 @@ downstream is silent.
 | 5 | The base level | a per-channel baseline |
 | 6 | **The LFO's AM** | depth is given as dB of attenuation |
 | 7 | **SSG HW AMP ENV** | the hardware envelope |
-| 8 | Unison gain compensation | brings the level down as voices are added |
+| 8 | **WT AMP MOD** | swings between MIN and MAX with a wave memory shape |
+| 9 | Unison gain compensation | brings the level down as voices are added |
 
 :::tip[When nothing sounds]
 The level side is a chain of multiplications, so **one zero anywhere means
-silence.** Check LEVEL, the AMP ENV levels, and the MIN / MAX on SSG HW AMP ENV,
-in that order.
+silence.** Check LEVEL, the AMP ENV levels, and the MIN / MAX on SSG HW AMP ENV
+and WT AMP MOD, in that order.
 :::
 
 ## In 2686VFX

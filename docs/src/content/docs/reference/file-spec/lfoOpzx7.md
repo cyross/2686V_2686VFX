@@ -2,7 +2,7 @@
 title: LFO（共通）
 description: .lfoOpzx7.json の中身
 sidebar:
-  order: 14
+  order: 16
 ---
 
 共通の LFO の設定。

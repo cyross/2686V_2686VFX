@@ -10,6 +10,7 @@
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
 #include "../WavePreview/WavePreview.h"
+#include "../WavePreview/WavePreviewGrid.h"
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Generator/Fds/GenFdsModTable.h"
 
@@ -43,6 +44,10 @@ class FdsTableEditor : public ParamBarEditorBase
 public:
     FdsTableEditor(const GuiContext& context) : ParamBarEditorBase(context) {}
 
+    // 下段の階段波を描く色。どの変調へ付いているかで変える。
+    // 実体は SETTINGS から差し替えられるので、色そのものではなく登録を指す。
+    const GuiColor::Entry* stepColourEntry = &GuiColor::WavePreview::PitchEnv;
+
     void setup(juce::Component& parent, const juce::String& idPrefix);
     void loadTable(const std::array<int, 32>& table);
     std::array<int, 32> currentTable() const;
@@ -68,11 +73,14 @@ class GuiComponentWtMod : public GuiBase {
     GuiSlider waveSlotSlider;
 
     // 変調波形スロット。読み込み行とプレビューを枚数ぶん持つ。
-    std::array<GuiTextButton, Global::WtMod::slots> slotWtBtn;
-    std::array<GuiTextButton, Global::WtMod::slots> slotWt2Btn;
-    std::array<GuiTextButton, Global::WtMod::slots> slotClearBtn;
-    std::array<GuiLabel, Global::WtMod::slots> slotFileNameLabel;
-    std::array<GuiWavePreview, Global::WtMod::slots> slotPreview;
+    // スロットごとに読み込みボタンを並べる代わりに、対象を選ぶつまみと
+    // 1 組のボタンを置く。波形はまとめて 1 つの区画へ描く。
+    GuiSlider slotTarget;
+    GuiTextButton slotWtBtn;
+    GuiTextButton slotWt2Btn;
+    GuiTextButton slotClearBtn;
+    GuiLabel slotFileNameLabel;
+    GuiWavePreviewGrid slotPreviews;
 
     // 選んでいる Shape の変調波形を見せるプレビュー
     GuiWavePreview modPreview;
@@ -96,6 +104,12 @@ class GuiComponentWtMod : public GuiBase {
     void reapplyWaveFiles();
 
     void updateSlotFileName(int slot);
+
+    // 対象のスロットが変わったときに、ボタンと名前の指す先をそろえる。
+    void applySlotTarget();
+
+    // いま読み込み・クリアの対象になっているスロット。
+    int targetSlot() const { return juce::jlimit(0, Global::WtMod::slots - 1, (int)slotTarget.getValue()); }
     void updateSlotPreview(int slot);
 
     // 今どのスロットを使っているか。Shape のプレビューが参照する。
@@ -103,6 +117,30 @@ class GuiComponentWtMod : public GuiBase {
     juce::String wavePath(int slot) const;
     void updateModPreview();
 public:
+
+    // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
+    //
+    // 見出しを見せるかどうかはレイアウト側では戻らない (あちらは場所を
+    // 決めるだけ) ので、ここで両方向とも面倒を見る。
+    void setCategoryVisible(bool visible) {
+        cat.setHidden(!visible);
+        cat.setVisible(visible);
+    }
+
+    // 簡易表示モードの一括操作で使う口。
+    //
+    // 区分によって「バイパス」だったり「有効」だったりするので、
+    // ここで意味を揃えて「切ってあるか」で答える。
+    bool hasBypassSwitch() const { return true; }
+
+    bool isCategoryBypassed() const { return !enableButton.getToggleState(); }
+
+    void setCategoryBypassed(bool bypassed) {
+        enableButton.setToggleState(!bypassed, juce::sendNotification);
+    }
+
+    // 見出しの開閉
+    void setCategoryOpen(bool open) { cat.setDetailVisible(open); }
     GuiComponentWtMod(const GuiContext& context) :
         GuiBase(context),
         cat(context),
@@ -112,11 +150,12 @@ public:
         shapeSelector(context),
         waveSmoothBtn(context),
         waveSlotSlider(context),
-        slotWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        slotWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        slotClearBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        slotFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-        slotPreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
+        slotTarget(context),
+        slotWtBtn(context),
+        slotWt2Btn(context),
+        slotClearBtn(context),
+        slotFileNameLabel(context),
+        slotPreviews(context),
         modPreview(context),
         fdsCat(context),
         fdsEditor(context),
@@ -127,7 +166,7 @@ public:
     // categoryBg は見出しの背景色。WT / WT2 / WT+ チャンネル自身の機能なので、
     // そこでは HwBg、他チャンネルへ借りて置く場合は既定の SwBg を使う。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
-        juce::Colour categoryBg = GuiColor::Category::SwBg);
+        juce::Colour categoryBg = GuiColor::Category::SwPitchBg);
     void layoutComponent(juce::Rectangle<int>& rect);
 
     // CH パラメータの入出力。

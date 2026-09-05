@@ -1,4 +1,8 @@
 ﻿#include "PluginProcessor.h"
+#include "../../Effect/Fx/FxOrder.h"
+#include <limits>
+#include <algorithm>
+#include <cmath>
 #include <set>
 
 #include "../Processor/ProcessorNames.h"
@@ -13,6 +17,37 @@ namespace
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat settingsFormat{ "settings", 1 };
 	const Io::ParamFormat presetFormat{ "preset", 1 };
+
+	// 読み込んだ音声ファイルが、そのまま扱える大きさかどうか。
+	// createReaderFor は「形式が分かった」ことしか言わない。チャンネル数 0 や、
+	// int に収まらない長さがそのまま来ることがある。AudioBuffer::setSize は
+	// 負の大きさを、getReadPointer(0) は無いチャンネルを、どちらも黙って受け取る。
+	// 読み込みの上限。音色の素材なので、何十分もある音声を丸ごと抱える必要は無い。
+	// 上限が int の最大値のままだと、間違えて大きなファイルを選んだときに
+	// そのぶんだけメモリを取ってしまう。
+	// 32bit float へ展開するので、1 チャンネル 64M サンプルでおよそ 256MB。
+	// 44.1kHz なら 25 分ぶんにあたる。
+	constexpr juce::int64 maxLoadableSamples = 64ll * 1024 * 1024;
+
+	inline bool isLoadableAudio(const juce::AudioFormatReader& reader)
+	{
+		return reader.numChannels > 0
+			&& reader.lengthInSamples > 0
+			&& reader.lengthInSamples <= maxLoadableSamples;
+	}
+
+	// 読めないファイルを選んだときの断り。黙って何も起きないと、
+	// 読み込めたのか失敗したのか分からない。
+	inline void tellAudioNotLoadable(const juce::File& file, const juce::AudioFormatReader& reader)
+	{
+		const juce::String reason = (reader.lengthInSamples > maxLoadableSamples)
+			? juce::String("") + "長すぎて読み込めません。"
+			: juce::String("") + "音声として読み取れませんでした。";
+
+		juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+			juce::String("") + "音声ファイルを読み込めません",
+			reason + "\n\n" + file.getFileName());
+	}
 
 	// 環境設定を書き出す側。項目の型ごとに受け口を分けてある。
 	struct EnvironmentWriter
@@ -76,16 +111,6 @@ AudioPlugin2686V::AudioPlugin2686V()
     }
 
     prFx.prepare(44100.0);
-
-    previewSynth.addSound(new SynthSound());
-
-    auto prevVoice = new SynthVoice();
-
-    prevVoice->prepare(44100.0);
-    previewSynth.addVoice(prevVoice);
-
-	previewFx.init(apvts);
-    previewFx.prepare(44100.0);
 
     formatManager.registerBasicFormats();
     loadStartupSettings();
@@ -154,16 +179,7 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
         }
     }
 
-    previewSynth.setCurrentPlaybackSampleRate(sampleRate);
-
-    for (int i = 0; i < previewSynth.getNumVoices(); ++i) {
-        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->prepare(sampleRate);
-        }
-    }
-
     prFx.prepare(sampleRate);
-    previewFx.prepare(sampleRate);
 }
 
 // ============================================================================
@@ -212,6 +228,45 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     if (found == prMap.end() || found->second == nullptr) return;
 
     found->second->processBlock(m_currentParams, apvts);
+
+    // ADPCM の素材。新しく符号化されたものが出ていれば持ち替える。
+    m_adpcmPcm.acquireForAudio();
+    m_currentParams.adpcm.source = &m_adpcmPcm.forAudio();
+
+    for (int i = 0; i < RhythmPrValue::pads; ++i) {
+        m_rhythmPcm[(size_t)i].acquireForAudio();
+        m_currentParams.rhythm.pads[(size_t)i].source = &m_rhythmPcm[(size_t)i].forAudio();
+    }
+
+    if (m_currentParams.mode == OscMode::RHYTHM)
+    {
+        for (int i = 0; i < RhythmPrValue::pads; ++i) {
+            const auto& q = m_currentParams.rhythm.pads[(size_t)i].quality;
+
+            if (m_rhythmPcm[(size_t)i].needsRebuild(q.mode, q.rate)) {
+                m_rhythmWantQuality[(size_t)i].store(q.mode, std::memory_order_relaxed);
+                m_rhythmWantRate[(size_t)i].store(q.rate, std::memory_order_relaxed);
+
+                triggerAsyncUpdate();
+            }
+        }
+    }
+
+    if (m_currentParams.mode == OscMode::ADPCM)
+    {
+        const int q = m_currentParams.adpcm.quality.mode;
+        const int r = m_currentParams.adpcm.quality.rate;
+
+        // 符号化は素材まるごとを舐める上に中で確保する。ここでやると音が途切れる
+        // ので、指定だけ置いてメッセージスレッドへ頼む。出来上がるまでは
+        // 前の符号化で鳴らし続ける (数ミリ秒遅れて切り替わる)。
+        if (m_adpcmPcm.needsRebuild(q, r)) {
+            m_adpcmWantQuality.store(q, std::memory_order_relaxed);
+            m_adpcmWantRate.store(r, std::memory_order_relaxed);
+
+            triggerAsyncUpdate();
+        }
+    }
 
     bool isMono = PrHelper::getBool(pMonoMode);
 
@@ -300,9 +355,15 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
     auto* reader = formatManager.createReaderFor(file);
     if (reader != nullptr)
     {
-        adpcmFilePath = file.getFullPathName();
-
         std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+
+        if (!isLoadableAudio(*audioReader)) {
+            tellAudioNotLoadable(file, *audioReader);
+
+            return;
+        }
+
+        adpcmFilePath = file.getFullPathName();
 
         // Buffer to load the entire file
         juce::AudioBuffer<float> fileBuffer;
@@ -323,16 +384,12 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
             // Add mixing logic here if stereo support is needed
         }
 
-        // --- Set data to AdpcmCore for all voices ---
-        // Important: Distribute data to all Voices
-        for (int i = 0; i < m_synth.getNumVoices(); ++i)
-        {
-            if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
-            {
-                // Set while letting AdpcmCore handle "Resampling & 4bit degradation"
-                voice->getAdpcmCore()->setSampleData(sourceData, audioReader->sampleRate);
-            }
-        }
+        // 素材はここで 1 つだけ持ち、ボイスへは指させるだけにする。
+        // 以前は全ボイスへ丸ごと複製し、その場で符号化までしていた。
+        m_adpcmPcm.setSource(sourceData, audioReader->sampleRate);
+        m_adpcmPcm.rebuildIfNeeded(m_adpcmWantQuality.load(std::memory_order_relaxed),
+                                   m_adpcmWantRate.load(std::memory_order_relaxed),
+                                   16000.0);
 
         // 画面表示用の控え
         adpcmPreviewBuffer = std::move(sourceData);
@@ -351,6 +408,13 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
         }
 
         std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+
+        if (!isLoadableAudio(*audioReader)) {
+            tellAudioNotLoadable(file, *audioReader);
+
+            return;
+        }
+
         juce::AudioBuffer<float> fileBuffer;
         fileBuffer.setSize(audioReader->numChannels, (int)audioReader->lengthInSamples);
         audioReader->read(&fileBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
@@ -361,11 +425,13 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
             sourceData[i] = channelData[i];
         }
 
-        // Set data to the specified pad of RhythmCore for all voices
-        for (int i = 0; i < m_synth.getNumVoices(); ++i) {
-            if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
-                voice->getRhythmCore()->setSampleData(padIndex, sourceData, reader->sampleRate);
-            }
+        // 素材はパッドごとに 1 つだけ持ち、ボイスへは指させるだけにする。
+        if (padIndex >= 0 && padIndex < RhythmPrValue::pads) {
+            m_rhythmPcm[(size_t)padIndex].setSource(sourceData, audioReader->sampleRate);
+            m_rhythmPcm[(size_t)padIndex].rebuildIfNeeded(
+                m_rhythmWantQuality[(size_t)padIndex].load(std::memory_order_relaxed),
+                m_rhythmWantRate[(size_t)padIndex].load(std::memory_order_relaxed),
+                55500.0);
         }
 
         // 画面表示用の控え
@@ -525,6 +591,7 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     xml->setAttribute(PresetKey::genre, sanitizeString(presetGenre, PresetValue::MetaData::Length::genre));
     xml->setAttribute(PresetKey::mode, getModeName(lastActiveSynthMode));
     xml->setAttribute(PresetKey::puginVersion, Global::Plugin::version);
+    xml->setAttribute(PresetKey::plugin, JucePlugin_Name);
 
     // サンプルパス保存 (ADPCM)
     xml->setAttribute(PresetKey::adpcmPath, makePathRelative(juce::File(adpcmFilePath)));
@@ -547,9 +614,13 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     }
 
     // FXルーティング
+    //
+    // 名前で書く。番号だと、効果の数が違うプラグインとの間で位置がずれ、
+    // 別の効果として読まれてしまう。専用の書き出し (GuiFx) は既に名前で
+    // 書いているのに、状態のほうだけ番号のままだった。
     juce::StringArray sa;
     for (int fxId : prFx.getOrder())
-        sa.add(juce::String(fxId));
+        sa.add(fxTypeName(fxId));
 
     xml->setAttribute(SettingsKey::fxOrder, sa.joinIntoString(" "));
 };
@@ -626,30 +697,34 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         }
 
         // FXルーティング
-        juce::String fxOrderStr = xmlState->getStringAttribute(SettingsKey::fxOrder);
-
-        // 2. スペースで分割して StringArray に展開
+        //
+        // 名前で読む。3.1.0 より前は番号で書いていたので、名前として
+        // 読めなければ番号として読み直す。効果の数が違うプラグインで
+        // 書かれたものが来ても、知らない名前は読み飛ばし、足りないものは
+        // 後ろへ足して必ず全部そろえる。
+        //
+        // 以前は生の番号をそのまま流し込んでいたため、例えば 2686VFX で
+        // 9 番目の効果を途中へ動かした状態を他のプラグインで読むと、
+        // その位置だけ更新されず、ある効果が処理から抜け落ちて別の効果が
+        // 二重に掛かっていた。
         juce::StringArray sa;
-        sa.addTokens(fxOrderStr, " ", "");
+        sa.addTokens(xmlState->getStringAttribute(SettingsKey::fxOrder), " ", "");
 
-        // 3. int 配列に復元
+        const int effectSize = prFx.getEffectsNumber();
+
         std::vector<int> loadedFxOrder;
+
         for (const auto& token : sa)
         {
-            loadedFxOrder.push_back(token.getIntValue());
+            int id = fxTypeFromName(token);
+
+            // 数で書かれていたときはここへ来る
+            if (id < 0 && token.containsOnly("0123456789")) id = token.getIntValue();
+
+            loadedFxOrder.push_back(id);
         }
 
-        int loadedSize = loadedFxOrder.size();
-        int effectSize = prFx.getEffectsNumber();
-
-        // プリセットのエフェクト数とプラグイン内のエフェクト数にズレがあるときは、残りを埋める
-        if (loadedSize < effectSize) {
-            for (int i = loadedSize; i < effectSize; i++) {
-                loadedFxOrder.push_back(i);
-            }
-        }
-
-        prFx.updateOrder(loadedFxOrder);
+        prFx.updateOrder(normalizeFxOrder(loadedFxOrder, effectSize));
     }
 };
 
@@ -740,6 +815,31 @@ void AudioPlugin2686V::savePreset(const juce::File& file)
     writer.writeTo(file);
 }
 
+// 別のプラグインで書かれたプリセットかどうか。
+//
+// 6 製品はプリセットの印が同じなので、これまで拒めなかった。読ませると
+// 名前の一致するパラメータだけが上書きされ、こちらにしかないものは
+// 初期化されずに前の値が残るため、中途半端な状態になる。しかもその旨は
+// どこにも出ない。
+//
+// 3.1.0 より前のファイルは印を持たないので、そのときは今までどおり読ませる。
+bool AudioPlugin2686V::isPresetForThisPlugin(const juce::XmlElement* xmlState, const juce::File& file)
+{
+    if (xmlState == nullptr) return true;
+
+    const juce::String owner = xmlState->getStringAttribute(PresetKey::plugin);
+
+    if (owner.isEmpty() || owner == JucePlugin_Name) return true;
+
+    juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+        juce::String("") + "別のプラグインのプリセット",
+        juce::String("") + "このファイルは " + owner + " のプリセットです。\n"
+        + JucePlugin_Name + " では読み込めません。\n\n"
+        + file.getFileName());
+
+    return false;
+}
+
 void AudioPlugin2686V::loadPreset(const juce::File& file)
 {
     // 3.0.0 より前のプリセットは XML。作り溜めたものが読めなくなると困るので、
@@ -748,6 +848,8 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
     {
         auto xmlState = Io::readStateXml(*reader, apvts.state.getType().toString());
 
+        if (!isPresetForThisPlugin(xmlState.get(), file)) return;
+
         getPresetFromXml(xmlState);
 
         return;
@@ -755,6 +857,8 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 
     juce::XmlDocument xmlDoc(file);
     std::unique_ptr<juce::XmlElement> xmlState = xmlDoc.getDocumentElement();
+
+    if (!isPresetForThisPlugin(xmlState.get(), file)) return;
 
     getPresetFromXml(xmlState);
 }
@@ -782,6 +886,17 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
 
     visitEnvironment(visit);
 
+    // ファイルから来た値は画面の制限を通っていない。音に直に掛かるものと
+    // 表を引くものだけ、ここで妥当な範囲へ丸める。
+    // headroomGain は processBlock で buffer.applyGain に渡るので、
+    // 桁違いの値や NaN が入ると爆音や NaN 汚染になる。
+    if (std::isfinite(headroomGain)) {
+        headroomGain = std::clamp(headroomGain, 0.0f, 1.0f);
+    }
+    else {
+        headroomGain = SettingsValue::Initial::headroomGain;
+    }
+
     // 読んだ番号を書き出し先へ映す
     applyFileFormat();
 
@@ -791,6 +906,20 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
     }
 
     return true;
+}
+
+// オーディオスレッドから頼まれた符号化を、ここ (メッセージスレッド) で行う。
+void AudioPlugin2686V::handleAsyncUpdate()
+{
+    m_adpcmPcm.rebuildIfNeeded(m_adpcmWantQuality.load(std::memory_order_relaxed),
+                               m_adpcmWantRate.load(std::memory_order_relaxed),
+                               16000.0);
+
+    for (size_t i = 0; i < (size_t)RhythmPrValue::pads; ++i) {
+        m_rhythmPcm[i].rebuildIfNeeded(m_rhythmWantQuality[i].load(std::memory_order_relaxed),
+                                       m_rhythmWantRate[i].load(std::memory_order_relaxed),
+                                       55500.0);
+    }
 }
 
 void AudioPlugin2686V::loadStartupSettings()
@@ -1000,6 +1129,18 @@ void AudioPlugin2686V::loadStartupSettings()
         defaultToneNoiseParamDir = newToneNoiseParamDir.getFullPathName();
     }
 
+    if (defaultWtModParamDir.isEmpty() || !juce::File(defaultWtModParamDir).isDirectory())
+    {
+        auto newWtModParamDir = pluginDir.getChildFile(Io::Folder::wtModParam);
+
+        // 存在していなければ作成
+        if (!newWtModParamDir.exists()) {
+            newWtModParamDir.createDirectory();
+        }
+
+        defaultWtModParamDir = newWtModParamDir.getFullPathName();
+    }
+
     if (defaultColorSettingDir.isEmpty() || !juce::File(defaultColorSettingDir).isDirectory())
     {
         auto newColorSettingDir = pluginDir.getChildFile(Io::Folder::colorSetting);
@@ -1026,18 +1167,7 @@ void AudioPlugin2686V::unloadAdpcmFile()
     // 画面表示用の控えも捨てる
     adpcmPreviewBuffer.clear();
 
-    // 空のデータを作成
-    std::vector<float> emptyData(1, 0.0f);
-
-    // 全ボイスの ADPCM Core に空データをセット（＝クリア）
-    for (int i = 0; i < m_synth.getNumVoices(); ++i)
-    {
-        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
-        {
-            // レートはなんでも良いので適当な値(44100)を渡す
-            voice->getAdpcmCore()->clearBuffer();
-        }
-    }
+    m_adpcmPcm.clear();
 }
 
 void AudioPlugin2686V::unloadRhythmFile(int padIndex)
@@ -1051,17 +1181,7 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
     // 画面表示用の控えも捨てる
     if (padIndex < RhythmPrValue::pads) rhythmPreviewBuffers[padIndex].clear();
 
-    // 空のデータを作成
-    std::vector<float> emptyData(1, 0.0f);
-
-    // 全ボイスの Rhythm Core の該当パッドに空データをセット
-    for (int i = 0; i < m_synth.getNumVoices(); ++i)
-    {
-        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
-        {
-            voice->getRhythmCore()->clearBuffer(padIndex);
-        }
-    }
+    if (padIndex < RhythmPrValue::pads) m_rhythmPcm[(size_t)padIndex].clear();
 }
 
 // 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
@@ -1263,94 +1383,6 @@ void AudioPlugin2686V::initParams(const juce::String& code)
         for (int i = 0; i < RhythmPrValue::pads; ++i) {
             unloadRhythmFile(i);
         }
-    }
-}
-
-void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
-{
-    // 1. パラメータの取得と設定
-    int m = PrHelper::getInt(pMode);
-
-    if (m < 0 || m >= (int)OscMode::Count) m = 0;
-
-    m_previewParams.mode = (OscMode)m;
-
-    switch (m_previewParams.mode) {
-    case OscMode::OPNA:      prOpna.processBlock(m_previewParams, apvts); break;
-    case OscMode::SSG:       prSsg.processBlock(m_previewParams, apvts); break;
-    case OscMode::RHYTHM:    prRhythm.processBlock(m_previewParams, apvts); break;
-    case OscMode::ADPCM:     prAdpcm.processBlock(m_previewParams, apvts); break;
-    }
-
-    if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
-        voice->setParameters(m_previewParams);
-
-        // ユニゾン・ハーモニー向けに追加
-        voice->stopNote(0.0f, false);
-    }
-
-    // 2. 1周期をピッタリ整数サンプルにするため、SampleRateを44000Hzに偽装する
-    previewSynth.setCurrentPlaybackSampleRate(44000.0);
-    previewSynth.noteOn(1, 69, 1.0f); // 69 = A3 (440.0Hz)
-
-    // 3. アタックフェーズのスキップ (エンベロープを安定させる)
-    juce::AudioBuffer<float> skipBuffer(2, previewBufferSize);
-    for (int i = 0; i < 40; ++i) {
-        skipBuffer.clear();
-        previewSynth.renderNextBlock(skipBuffer, juce::MidiBuffer(), 0, previewBufferSize);
-    }
-
-    // 4. 1周期をピッタリ100サンプルにする
-    int samplesPerCycle = 100; // 44000 / 440 = 100
-    int renderSamples = samplesPerCycle * 3;
-    juce::AudioBuffer<float> renderBuffer(2, renderSamples);
-    renderBuffer.clear();
-    previewSynth.renderNextBlock(renderBuffer, juce::MidiBuffer(), 0, renderSamples);
-
-	previewFx.processBlock(renderBuffer, m_previewParams, apvts);
-
-    auto* readPtr = renderBuffer.getReadPointer(0);
-
-    // 5. DCオフセット（波形の全体的な上下のズレ）を計算
-    float dcOffset = 0.0f;
-    for (int i = 0; i < renderSamples; ++i) {
-        dcOffset += readPtr[i];
-    }
-    dcOffset /= renderSamples;
-
-    // 6. オシロスコープのトリガー（ゼロクロッシング）を探す
-    int startIndex = 0;
-    for (int i = 0; i < renderSamples - samplesPerCycle; ++i) {
-        float current = readPtr[i] - dcOffset;
-        float next = readPtr[i + 1] - dcOffset;
-
-        if (current <= 0.0f && next > 0.0f) {
-            startIndex = i;
-            break;
-        }
-    }
-
-    // 1周期分 ＋ 1サンプル（次の周期の始まりの0）を取得する
-    int drawSamples = samplesPerCycle + 1;
-    destBuffer->assign(drawSamples, 0.0f);
-
-    float maxAmplitude = 0.0001f;
-    for (int i = 0; i < drawSamples; ++i) {
-        float val = readPtr[startIndex + i] - dcOffset;
-        maxAmplitude = std::max(maxAmplitude, std::abs(val));
-    }
-
-    for (int i = 0; i < drawSamples; ++i) {
-        float val = readPtr[startIndex + i] - dcOffset;
-        (*destBuffer)[i] = val / maxAmplitude;
-    }
-
-    // 8. 停止
-    previewSynth.noteOff(1, 69, 0.0f, false);
-
-    // ユニゾン・ハーモニー向けに追加
-    if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
-        voice->stopNote(0.0f, false);
     }
 }
 

@@ -1,10 +1,13 @@
 ﻿#pragma once
+#include <array>
+#include <atomic>
 #include <map>
 #include <JuceHeader.h>
 
 #include "../Io/ParamFile.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
+#include "../Gui/GuiSimpleView.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
@@ -85,7 +88,7 @@ public:
                     // これにより、波形が強制キルされず、位相や音量が完全に引き継がれます。
                     if (voice->isVoiceActive()) {
                         auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-                        voice->coreMap[currentParams->mode]->noteOn(cyclesPerSecond, velocity, midiNoteNumber, isLegato);
+                        voice->coreMap[(size_t)currentParams->mode]->noteOn(cyclesPerSecond, velocity, midiNoteNumber, isLegato);
                     }
                     else {
                         // 完全に音が消えている時だけ、通常の startVoice でボイスを起こす
@@ -219,7 +222,6 @@ private:
     CurveCore m_curveCore;
 
     SynthParams m_currentParams;
-    SynthParams m_previewParams;
 
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
@@ -239,11 +241,6 @@ private:
     void removeUnknownParams(juce::XmlElement& xml) const;
 
     RetroSynthesiser m_synth;
-
-    // 波形プレビュー用
-    juce::Synthesiser previewSynth;
-    std::unique_ptr<SynthSound> previewSound;
-    FxProcessor previewFx;
 
     void loadStartupSettings(); // 設定の自動読み込み用関数
     void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
@@ -296,6 +293,9 @@ public:
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);
+
+    // 別のプラグインで書かれたプリセットなら、断って false を返す。
+    bool isPresetForThisPlugin(const juce::XmlElement* xmlState, const juce::File& file);
     void initPreset();
 
     void initParams(const juce::String& code);
@@ -322,7 +322,6 @@ public:
     void unloadOpzx7Wt2File(int opIndex);
 
     // --- Preview(Static) ---
-    void generatePreviewWaveform(std::vector<float>* destBuffer);
 
     // --- 仮想キーボード ---
     juce::MidiKeyboardState keyboardState;
@@ -420,14 +419,33 @@ public:
         visit(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
         visit(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
         visit(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
+        visit(SettingsKey::defaultWtModParamDir, defaultWtModParamDir);
         visit(SettingsKey::defaultColorSettingDir, defaultColorSettingDir);
 
         visit(SettingsKey::showTooltips, showTooltips);
+        visit(SettingsKey::simpleView, simpleView);
+
+        // 隠さない区分。項目の並びを変えても迷子にならないよう名前で持つ。
+        for (int i = 0; i < SimpleView::Size; ++i) {
+            visit(juce::String(SimpleView::items()[(size_t)i].key), simpleViewShow[(size_t)i]);
+        }
         visit(SettingsKey::useHeadroom, useHeadroom);
         visit(SettingsKey::headroomGain, headroomGain);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
+
+    // 簡易表示モード。区分の一部を隠して画面を短くする。表示だけの話で、
+    // 音には影響しない。
+    bool simpleView = false;
+
+    // 簡易表示モードでも隠さない区分。既定はどれも隠す。
+    std::array<bool, SimpleView::Size> simpleViewShow{};
+
+    // 隠す対象の区分を、いま出すかどうか
+    bool isSimpleShown(SimpleView::Cat cat) const {
+        return SimpleView::isShown(simpleView, simpleViewShow, cat);
+    }
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）
@@ -490,15 +508,39 @@ public:
     int getOpzx7AlgMode() const;
 
     void setOpzx7AlgMatrix(const FmAlgState& state);
-    FmAlgState getOpzx7AlgMatrix();
+
+    // 画面から読むほう。メッセージスレッド専用。
+    FmAlgState getOpzx7AlgMatrix() const;
+
+    // processBlock から読むほう。錠を取らないので待たされない。
+    const FmAlgState& getOpzx7AlgMatrixForAudio();
 
     // プリセットロード時などにAPVTSからキャッシュを復元するための関数
     void updateAlgMatrixCacheFromState();
 private:
+    // 出来上がった中身をオーディオスレッドへ渡す。
+    void publishAlgMatrix();
+
     // オーディオスレッドから安全に読み取るためのキャッシュ
     std::atomic<int> m_opzx7AlgMode{ 0 };
+
+    // 正本。触るのはメッセージスレッドだけ (画面の操作と、状態の読み込み)。
     FmAlgState m_opzx7AlgMatrixState;
-    juce::CriticalSection m_matrixLock; // マトリックス配列読み書き時のスレッドセーフ用
+
+    // オーディオスレッドへの受け渡し。枠を 3 枚回す。
+    //
+    // 以前は juce::CriticalSection を processBlock の中で取っていた。
+    // 画面側が同じ錠を持っている間に OS が画面スレッドを止めると、
+    // オーディオが解放待ちで止まる (優先度の逆転)。数ミリ秒でも音が途切れる。
+    //
+    // 書き手は書き枠へ書いてから ready と入れ替え、読み手は読み枠を
+    // ready と入れ替える。枠は 3 枚あるので、書き手と読み手が同じ枠に
+    // 触ることがない。待ちも確保も無い。
+    std::array<FmAlgState, 3> m_algMatrixSlots;
+    std::atomic<int> m_algMatrixReady{ 0 };       // 出来上がっている枠
+    std::atomic<bool> m_algMatrixDirty{ false };  // 新しい枠があるか
+    int m_algMatrixWriteSlot = 1;                 // 書き手だけが触る
+    int m_algMatrixReadSlot = 2;                  // 読み手だけが触る
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

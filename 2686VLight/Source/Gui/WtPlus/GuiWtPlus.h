@@ -23,10 +23,13 @@
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
+#include "../../Gui/Components/WavePreview/WavePreviewGrid.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -62,6 +65,7 @@ class GuiWtPlus : public GuiBase {
     GuiComponentLfoOpzx7 lfoComponent;
 
     GuiComponentSsgHwEnv ssgHwEnv;
+    GuiComponentSsgHwPEnv ssgHwPEnv;
 
     GuiComponentMidi midiComponent;
 
@@ -73,16 +77,18 @@ class GuiWtPlus : public GuiBase {
 
     // ---------------- WAVE MEMORY (32 スロット) ----------------
     GuiCategoryLabel slotsCat;
-    std::array<GuiTextButton, Global::WtPlus::slots> slotWtBtn;
-    std::array<GuiTextButton, Global::WtPlus::slots> slotWt2Btn;
-    std::array<GuiTextButton, Global::WtPlus::slots> slotClearBtn;
-    std::array<GuiLabel, Global::WtPlus::slots> slotFileNameLabel;
-
-    // 読み込んだ波形がどんな形か見せる。1 スロット 1 本。
-    std::array<GuiWavePreview, Global::WtPlus::slots> slotPreview;
+    // スロットごとに読み込みボタンを並べる代わりに、対象を選ぶつまみと
+    // 1 組のボタンを置く。波形はまとめて 1 つの区画へ描く。
+    GuiSlider slotTarget;
+    GuiTextButton slotWtBtn;
+    GuiTextButton slotWt2Btn;
+    GuiTextButton slotClearBtn;
+    GuiLabel slotFileNameLabel;
+    GuiWavePreviewGrid slotPreviews;
 
     // ---------------- MODULATION ----------------
     GuiComponentWtMod modComponent;
+    GuiComponentWtAmpMod ampModComponent;
 
 
     // ---------------- UTILITY ----------------
@@ -93,7 +99,9 @@ class GuiWtPlus : public GuiBase {
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
+    GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -135,53 +143,21 @@ public:
         mulDetuneComponent(context),
         lfoComponent(context),
         ssgHwEnv(context),
+        ssgHwPEnv(context),
         midiComponent(context),
         waveCat(context),
         slotSlider(context),
         interpolateButton(context),
         stepsSelector(context),
         slotsCat(context),
-        slotWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                   GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                   GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                   GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                   GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                   GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                   GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                   GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        slotWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                    GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                    GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                    GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                    GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                    GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                    GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                    GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        slotClearBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                      GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                      GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                      GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                      GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                      GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                      GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context),
-                      GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        slotFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
-                           GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
-                           GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
-                           GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
-                           GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
-                           GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
-                           GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
-                           GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-        slotPreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
-                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
-                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
-                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
-                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
-                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
-                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context),
-                     GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
+        slotTarget(context),
+        slotWtBtn(context),
+        slotWt2Btn(context),
+        slotClearBtn(context),
+        slotFileNameLabel(context),
+        slotPreviews(context),
         modComponent(context),
+        ampModComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
@@ -189,7 +165,9 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgHwEnv(context),
+        ieSsgHwPEnv(context),
         ieWtMod(context),
+        ieWtAmpMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),
@@ -239,6 +217,12 @@ public:
     void importSlotWave(int slot, bool isWt2);
     void clearSlotWave(int slot);
     void updateSlotFileName(int slot);
+
+    // 対象のスロットが変わったときに、ボタンと名前の指す先をそろえる。
+    void applySlotTarget();
+
+    // いま読み込み・消去の対象になっているスロット。
+    int targetSlot() const { return juce::jlimit(0, Global::WtPlus::slots - 1, (int)slotTarget.getValue()); }
     void updateSlotPreview(int slot);
 
     // HuC6280 モード用の変調波形

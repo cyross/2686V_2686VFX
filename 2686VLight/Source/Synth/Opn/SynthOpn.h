@@ -5,8 +5,10 @@
 #include "../../Effect/Lfo/N88/LfoN88.h"
 #include "../../Processor/Opn/ProcessorOpnValues.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
+#include "../../Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 
@@ -31,6 +33,11 @@ public:
     void setModulationWheel(int wheelValue) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+
+    void renderRange(float* outR, float* outL, int startSample, int count, bool& isActive) override
+    {
+        synthRenderRange(*this, outR, outL, startSample, count, isActive);
+    }
 
     // ユニゾン・ハーモニー用
     // ユニゾン・ハーモニーは SynthCore::m_unison に集約
@@ -75,7 +82,6 @@ private:
     std::array<OpnOperator, OpnPrValue::ops> m_operators;
     std::array<bool, OpnPrValue::ops> m_opMask{ false };
     std::array<float, OpnPrValue::ops> m_history1 = { 0.0f };
-    std::array<float, OpnPrValue::ops> m_history2 = { 0.0f };
 
     LfsrNoiseGen m_noiseGen;
     N88LfoCore m_n88Lfo;
@@ -86,6 +92,9 @@ private:
     float m_ampEnvGLevel = 0.0f;
 
     SsgHwEnv m_ssgHwEnv;
+
+    // 音量側と同じ形をピッチへ当てるもの。チップ全体のピッチ倍率へ掛ける。
+    SsgHwPEnv m_ssgHwPEnv;
     SsgSwEnv11 m_ssgSwEnv11g;
 
     // チップ全体へ掛かるピッチ側。オペレータは m_globalPitchRatio を
@@ -96,11 +105,14 @@ private:
     // チップ全体へ掛かる MODULATION。変調速度は搬送波との比なので、
     // 発音中のノートの位相増分を渡す。
     WtModulator m_wtMod;
+
+    // WT PITCH MOD と同じ変調波形を、チップ全体の音量へ当てるもの。
+    WtAmpModulator m_wtAmpMod;
     float m_noteFreq = 440.0f;
 
     // チップ全体のピッチ倍率を 1 サンプルぶん進める
     inline void updateGlobalPitchRatio(float notePhaseDelta) {
-        float ratio = m_wtMod.process(notePhaseDelta);
+        float ratio = m_wtMod.process(notePhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
         if (!m_ssgSwPEnv11g.isBypass()) {
             ratio *= m_ssgSwPEnv11g.process(1.0f);
@@ -120,6 +132,9 @@ private:
     int m_algorithm = 0;
     double m_hostSampleRate = 44100.0;
     int m_rateIndex = 1;
+
+    // 目標レートは 1 サンプルごとに要るので、変わったときだけ求めて持っておく
+    double m_targetRate = 96000.0; // m_rateIndex = 1 (96kHz) に合わせた初期値
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
     float m_prevSample = 0.0f;

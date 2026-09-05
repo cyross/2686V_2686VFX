@@ -9,6 +9,7 @@
 #include "../../Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
 
@@ -22,7 +23,9 @@ struct OpmParams
     UnisonParams unison;
     AmpAdsrParams ampEnvG;
     WtModParams wtMod;
+    WtAmpModParams wtAmpMod;
     SsgHwEnvParams ssgHwEnv;
+    SsgHwPEnvParams ssgHwPEnv;
     SsgSwEnv11Params ssgSwEnv11g;
     SsgSwPEnv11Params ssgSwPEnv11g;
 

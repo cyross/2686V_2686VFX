@@ -1,4 +1,7 @@
 ﻿#include "PluginProcessor.h"
+#include "../../Effect/Fx/FxOrder.h"
+#include <algorithm>
+#include <cmath>
 #include <set>
 
 #include "../Processor/ProcessorNames.h"
@@ -64,9 +67,6 @@ AudioPlugin2686V::AudioPlugin2686V()
 
     prMod.init(apvts, modWaveSlots);
     prMod.prepare(44100.0);
-
-	previewFx.init(apvts);
-    previewFx.prepare(44100.0);
 
     formatManager.registerBasicFormats();
     loadStartupSettings();
@@ -402,6 +402,7 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     xml->setAttribute(PresetKey::genre, sanitizeString(presetGenre, PresetValue::MetaData::Length::genre));
     xml->setAttribute(PresetKey::mode, getModeName(lastActiveSynthMode));
     xml->setAttribute(PresetKey::puginVersion, Global::Plugin::version);
+    xml->setAttribute(PresetKey::plugin, JucePlugin_Name);
 
 
     // チャンネルごとの MODULATION 変調波形パス
@@ -417,9 +418,13 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 
 
     // FXルーティング
+    //
+    // 名前で書く。番号だと、効果の数が違うプラグインとの間で位置がずれ、
+    // 別の効果として読まれてしまう。専用の書き出し (GuiFx) は既に名前で
+    // 書いているのに、状態のほうだけ番号のままだった。
     juce::StringArray sa;
     for (int fxId : prFx.getOrder())
-        sa.add(juce::String(fxId));
+        sa.add(fxTypeName(fxId));
 
     xml->setAttribute(SettingsKey::fxOrder, sa.joinIntoString(" "));
 };
@@ -483,30 +488,34 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
 
 
         // FXルーティング
-        juce::String fxOrderStr = xmlState->getStringAttribute(SettingsKey::fxOrder);
-
-        // 2. スペースで分割して StringArray に展開
+        //
+        // 名前で読む。3.1.0 より前は番号で書いていたので、名前として
+        // 読めなければ番号として読み直す。効果の数が違うプラグインで
+        // 書かれたものが来ても、知らない名前は読み飛ばし、足りないものは
+        // 後ろへ足して必ず全部そろえる。
+        //
+        // 以前は生の番号をそのまま流し込んでいたため、例えば 2686VFX で
+        // 9 番目の効果を途中へ動かした状態を他のプラグインで読むと、
+        // その位置だけ更新されず、ある効果が処理から抜け落ちて別の効果が
+        // 二重に掛かっていた。
         juce::StringArray sa;
-        sa.addTokens(fxOrderStr, " ", "");
+        sa.addTokens(xmlState->getStringAttribute(SettingsKey::fxOrder), " ", "");
 
-        // 3. int 配列に復元
+        const int effectSize = prFx.getEffectsNumber();
+
         std::vector<int> loadedFxOrder;
+
         for (const auto& token : sa)
         {
-            loadedFxOrder.push_back(token.getIntValue());
+            int id = fxTypeFromName(token);
+
+            // 数で書かれていたときはここへ来る
+            if (id < 0 && token.containsOnly("0123456789")) id = token.getIntValue();
+
+            loadedFxOrder.push_back(id);
         }
 
-        int loadedSize = loadedFxOrder.size();
-        int effectSize = prFx.getEffectsNumber();
-
-        // プリセットのエフェクト数とプラグイン内のエフェクト数にズレがあるときは、残りを埋める
-        if (loadedSize < effectSize) {
-            for (int i = loadedSize; i < effectSize; i++) {
-                loadedFxOrder.push_back(i);
-            }
-        }
-
-        prFx.updateOrder(loadedFxOrder);
+        prFx.updateOrder(normalizeFxOrder(loadedFxOrder, effectSize));
     }
 };
 
@@ -597,6 +606,31 @@ void AudioPlugin2686V::savePreset(const juce::File& file)
     writer.writeTo(file);
 }
 
+// 別のプラグインで書かれたプリセットかどうか。
+//
+// 6 製品はプリセットの印が同じなので、これまで拒めなかった。読ませると
+// 名前の一致するパラメータだけが上書きされ、こちらにしかないものは
+// 初期化されずに前の値が残るため、中途半端な状態になる。しかもその旨は
+// どこにも出ない。
+//
+// 3.1.0 より前のファイルは印を持たないので、そのときは今までどおり読ませる。
+bool AudioPlugin2686V::isPresetForThisPlugin(const juce::XmlElement* xmlState, const juce::File& file)
+{
+    if (xmlState == nullptr) return true;
+
+    const juce::String owner = xmlState->getStringAttribute(PresetKey::plugin);
+
+    if (owner.isEmpty() || owner == JucePlugin_Name) return true;
+
+    juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+        juce::String("") + "別のプラグインのプリセット",
+        juce::String("") + "このファイルは " + owner + " のプリセットです。\n"
+        + JucePlugin_Name + " では読み込めません。\n\n"
+        + file.getFileName());
+
+    return false;
+}
+
 void AudioPlugin2686V::loadPreset(const juce::File& file)
 {
     // 3.0.0 より前のプリセットは XML。作り溜めたものが読めなくなると困るので、
@@ -605,6 +639,8 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
     {
         auto xmlState = Io::readStateXml(*reader, apvts.state.getType().toString());
 
+        if (!isPresetForThisPlugin(xmlState.get(), file)) return;
+
         getPresetFromXml(xmlState);
 
         return;
@@ -612,6 +648,8 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 
     juce::XmlDocument xmlDoc(file);
     std::unique_ptr<juce::XmlElement> xmlState = xmlDoc.getDocumentElement();
+
+    if (!isPresetForThisPlugin(xmlState.get(), file)) return;
 
     getPresetFromXml(xmlState);
 }
@@ -638,6 +676,17 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
     EnvironmentReader visit{ *reader };
 
     visitEnvironment(visit);
+
+    // ファイルから来た値は画面の制限を通っていない。音に直に掛かるものと
+    // 表を引くものだけ、ここで妥当な範囲へ丸める。
+    // headroomGain は processBlock で buffer.applyGain に渡るので、
+    // 桁違いの値や NaN が入ると爆音や NaN 汚染になる。
+    if (std::isfinite(headroomGain)) {
+        headroomGain = std::clamp(headroomGain, 0.0f, 1.0f);
+    }
+    else {
+        headroomGain = SettingsValue::Initial::headroomGain;
+    }
 
     // 読んだ番号を書き出し先へ映す
     applyFileFormat();
@@ -857,6 +906,18 @@ void AudioPlugin2686V::loadStartupSettings()
         defaultToneNoiseParamDir = newToneNoiseParamDir.getFullPathName();
     }
 
+    if (defaultWtModParamDir.isEmpty() || !juce::File(defaultWtModParamDir).isDirectory())
+    {
+        auto newWtModParamDir = pluginDir.getChildFile(Io::Folder::wtModParam);
+
+        // 存在していなければ作成
+        if (!newWtModParamDir.exists()) {
+            newWtModParamDir.createDirectory();
+        }
+
+        defaultWtModParamDir = newWtModParamDir.getFullPathName();
+    }
+
     if (defaultColorSettingDir.isEmpty() || !juce::File(defaultColorSettingDir).isDirectory())
     {
         auto newColorSettingDir = pluginDir.getChildFile(Io::Folder::colorSetting);
@@ -1064,23 +1125,17 @@ void AudioPlugin2686V::initParams(const juce::String& code)
 // 音源のプラグインでは、実際に音を作って線を引いていた。エフェクトには
 // 作る音が無いので、加工前と加工後を並べて見せる形にする。作りは別に
 // 用意するので、ここでは何も返さない。
-void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
-{
-    juce::ignoreUnused(destBuffer);
+std::vector<int> AudioPlugin2686V::getFxOrder() {
+    return prFx.getOrder();
 }
-// 鳴りっぱなしを止める。音を作っていないので、FX の中身を洗うだけ。
+
 void AudioPlugin2686V::panic()
 {
     keyboardState.allNotesOff(0);
-
 }
 void AudioPlugin2686V::resetMidiSettings()
 {
     keyboardState.allNotesOff(0);
-}
-
-std::vector<int> AudioPlugin2686V::getFxOrder() {
-    return prFx.getOrder();
 }
 
 void AudioPlugin2686V::updateFxOrder(std::vector<int> newOrder)

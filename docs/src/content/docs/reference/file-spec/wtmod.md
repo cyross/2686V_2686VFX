@@ -2,10 +2,10 @@
 title: 波形メモリによる音程変調
 description: .wtmod.json の中身
 sidebar:
-  order: 7
+  order: 8
 ---
 
-WT PITCH MOD の設定。
+WT PITCH MOD の設定。`table` は FDS PITCH TABLE の中身です。
 
 | | |
 | --- | --- |

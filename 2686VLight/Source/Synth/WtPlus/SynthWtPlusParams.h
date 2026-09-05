@@ -11,6 +11,7 @@
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 
 struct WtPlusParams
 {
@@ -25,9 +26,11 @@ struct WtPlusParams
     LfoOpzx7Params lfo;
     FixModeParams fix;
     WtModParams mod;
+    WtAmpModParams wtAmpMod;
     QualityParams quality;
     UnisonParams unison;
     SsgHwEnvParams ssgHwEnv;
+    SsgHwPEnvParams ssgHwPEnv;
 
     // 鳴らす波形メモリのスロット番号 (0 〜 Global::WtPlus::slots - 1)。
     // オートメーションで振れるので、切り替えは即時に反映する。

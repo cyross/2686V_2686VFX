@@ -26,9 +26,9 @@ doing nothing). Switch off only the ones you want.
 
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
-| **Bypass envelopes** | Takes AMP ENV, SSG HW AMP ENV and SSG SW AMP ENV[11] out together | on / off | on | [`MOD_ENV_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-env-bypass) |
+| **Bypass envelopes** | Takes AMP ENV, SSG HW AMP ENV, SSG SW AMP ENV[11] and WT AMP MOD out together | on / off | on | [`MOD_ENV_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-env-bypass) |
 | **Bypass LFO** | Takes the LFO out | on / off | on | [`MOD_LFO_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-lfo-bypass) |
-| **Bypass pitch modulation** | Takes PITCH ENV, SSG SW PITCH ENV[11] and WT PITCH MOD out together | on / off | on | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-pitch-bypass) |
+| **Bypass pitch modulation** | Takes PITCH ENV, SSG HW PITCH ENV, SSG SW PITCH ENV[11] and WT PITCH MOD out together | on / off | on | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-pitch-bypass) |
 | **Bypass pitch shift** | Takes MUL・DET and UNISON・HARMONY out together | on / off | on | [`MOD_SHIFT_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-shift-bypass) |
 
 ## Level — AMP ENV
@@ -51,8 +51,9 @@ Moves the level from the moment the key goes down to after it comes up.
 | **KOR** | Play the whole envelope out even after release | on / off | off | [`MOD_KOR`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-kor) |
 
 Under the same "bypass envelopes" switch there are also
-[SSG HW AMP ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-amp-env) and
-[SSG SW AMP ENV\[11\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env11). They work exactly as they do on
+[SSG HW AMP ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-amp-env),
+[SSG SW AMP ENV\[11\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env11) and
+[WT AMP MOD](/2686V_2686VFX/en/chips/common/#wt-amp-mod). They work exactly as they do on
 the instruments.
 
 <figure class="shot">
@@ -99,6 +100,7 @@ Moves the pitch from the moment the key goes down to after it comes up.
 | **RLL** | Pitch it settles at after release (cents) | -4800 – 4800 | 0 | [`MOD_PITCH_RLL`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-pitch-rll) |
 
 Under the same "bypass pitch modulation" switch there are also
+[SSG HW PITCH ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-pitch-env),
 [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/en/chips/common/#ssg-sw-pitch-env11) and
 [WT PITCH MOD](/2686V_2686VFX/en/chips/common/#wt-pitch-mod).
 
@@ -112,7 +114,7 @@ Under the same "bypass pitch modulation" switch there are also
 	<figcaption>WT PITCH MOD</figcaption>
 </figure>
 
-### The WT PITCH MOD base frequency
+### The WT PITCH MOD / WT AMP MOD base frequency
 
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
@@ -120,7 +122,10 @@ Under the same "bypass pitch modulation" switch there are also
 
 On the instruments the pitch being played is the reference. 2686VFX has no
 pitch of its own, so you set one with **base frequency**. There is no hardware
-equivalent — this one is ours.
+equivalent — this one is ours. WT PITCH MOD and WT AMP MOD share it.
+
+The **panel colour** also tells the sections apart: effects are blue,
+modulation is red, the LFO is green, and MUL・DET and UNISON・HARMONY are cyan.
 
 ## Pitch shift — MUL・DET
 

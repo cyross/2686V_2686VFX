@@ -2,19 +2,19 @@
 
 SynthVoice::SynthVoice()
 {
-    coreMap[OscMode::OPNA] = &m_opnaCore;
-    coreMap[OscMode::OPN] = &m_opnCore;
-    coreMap[OscMode::OPL] = &m_oplCore;
-    coreMap[OscMode::OPL3] = &m_opl3Core;
-    coreMap[OscMode::OPM] = &m_opmCore;
-    coreMap[OscMode::OPZX7] = &m_opzx7Core;
-    coreMap[OscMode::SSG] = &m_ssgCore;
-    coreMap[OscMode::WAVETABLE] = &m_wtCore;
-    coreMap[OscMode::WT2] = &m_wt2Core;
-    coreMap[OscMode::RHYTHM] = &m_rhythmCore;
-    coreMap[OscMode::ADPCM] = &m_adpcmCore;
-    coreMap[OscMode::BEEP] = &m_beepCore;
-    coreMap[OscMode::WTPLUS] = &m_wtPlusCore;
+    coreMap[(size_t)OscMode::OPNA] = &m_opnaCore;
+    coreMap[(size_t)OscMode::OPN] = &m_opnCore;
+    coreMap[(size_t)OscMode::OPL] = &m_oplCore;
+    coreMap[(size_t)OscMode::OPL3] = &m_opl3Core;
+    coreMap[(size_t)OscMode::OPM] = &m_opmCore;
+    coreMap[(size_t)OscMode::OPZX7] = &m_opzx7Core;
+    coreMap[(size_t)OscMode::SSG] = &m_ssgCore;
+    coreMap[(size_t)OscMode::WAVETABLE] = &m_wtCore;
+    coreMap[(size_t)OscMode::WT2] = &m_wt2Core;
+    coreMap[(size_t)OscMode::RHYTHM] = &m_rhythmCore;
+    coreMap[(size_t)OscMode::ADPCM] = &m_adpcmCore;
+    coreMap[(size_t)OscMode::BEEP] = &m_beepCore;
+    coreMap[(size_t)OscMode::WTPLUS] = &m_wtPlusCore;
 }
 
 void SynthVoice::prepare(double sampleRate) {
@@ -36,19 +36,17 @@ void SynthVoice::prepare(double sampleRate) {
 void SynthVoice::setParameters(const SynthParams& params)
 {
     m_mode = params.mode;
-    m_opnaCore.setParameters(params);
-    m_opnCore.setParameters(params);
-    m_oplCore.setParameters(params);
-    m_opl3Core.setParameters(params);
-    m_opmCore.setParameters(params);
-    m_opzx7Core.setParameters(params);
-    m_ssgCore.setParameters(params);
-    m_wtCore.setParameters(params);
-    m_wt2Core.setParameters(params);
-    m_rhythmCore.setParameters(params);
-    m_adpcmCore.setParameters(params);
-    m_beepCore.setParameters(params);
-    m_wtPlusCore.setParameters(params);
+
+    // 鳴らすのは m_mode のコアだけ。renderNextBlock も startNote も
+    // activeCore() しか見ないので、残りへ配っても捨てられる。
+    // params は WtMod の波形表だけで 25KB あり、これを毎ブロック・全ボイス分、
+    // コアの数だけ配っていた。
+    //
+    // 音は変わらない。この関数はブロックごとに renderNextBlock より先に呼ばれるので、
+    // 音源を切り替えた直後でも、新しいコアは鳴る前に必ず最新の値を受け取る。
+    // 各コアの setParameters は代入と派生値の作り直しだけで、値を溜め込まない
+    // (refreshPcmBuffer や updatePhaseDelta も、そのとき持っている値から作り直すだけ)。
+    if (auto* core = activeCore()) core->setParameters(params);
 }
 
 void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*, int)
@@ -56,7 +54,7 @@ void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*
     // 周波数計算
     auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNote);
 
-    coreMap[m_mode]->noteOn(cyclesPerSecond, velocity, midiNote);
+    activeCore()->noteOn(cyclesPerSecond, velocity, midiNote);
 }
 
 void SynthVoice::stopNote(float, bool allowTailOff)
@@ -88,7 +86,7 @@ void SynthVoice::stopNote(float, bool allowTailOff)
 // 低速時のクリックノイズを抑える (高速時は実質ハードゲートのまま)。
 float SynthVoice::getArpGain() const
 {
-    const auto& unison = coreMap.at(m_mode)->m_unison;
+    const auto& unison = activeCore()->m_unison;
     const int total = unison.getTotal();
 
     if (total <= 1) return 1.0f;
@@ -119,7 +117,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
     float* outL = outputBuffer.getWritePointer(0);
     float* outR = outputBuffer.getWritePointer(1);
 
-    auto* core = coreMap[m_mode];
+    auto* core = activeCore();
 
     // アルペジオはユニゾンが2ボイス以上のときだけ意味を持つ
     const bool useArp = m_arpEnable && core->m_unison.getTotal() > 1;
@@ -129,35 +127,41 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         ? ((double)m_arpFreq / getSampleRate())
         : 0.0;
 
+    // アルペジオが要らないときは、ブロックぶんをまとめてコアへ任せる。
+    // 1 サンプルごとに仮想呼び出しを通していたのを、1 ブロックに 1 回にする。
+    if (!useArp)
+    {
+        bool isActive = false;
+
+        core->renderRange(outR, outL, startSample, numSamples, isActive);
+
+        if (!isActive) clearCurrentNote();
+
+        return;
+    }
+
     for (int i = 0; i < numSamples; ++i)
     {
         bool isActive = false;
 
-        if (useArp)
-        {
-            // コアは outX[startSample + sampleIdx] へ加算するだけなので、
-            // (0, 0) を渡せば単一の float へ書かせることができる。
-            // 消音中もコアを回すことで位相とエンベロープは走り続ける。
-            float scratchL = 0.0f;
-            float scratchR = 0.0f;
+        // コアは outX[startSample + sampleIdx] へ加算するだけなので、
+        // (0, 0) を渡せば単一の float へ書かせることができる。
+        // 消音中もコアを回すことで位相とエンベロープは走り続ける。
+        float scratchL = 0.0f;
+        float scratchR = 0.0f;
 
-            core->renderNextBlock(&scratchR, &scratchL, 0, 0, isActive);
+        core->renderNextBlock(&scratchR, &scratchL, 0, 0, isActive);
 
-            const float gain = getArpGain();
+        const float gain = getArpGain();
 
-            outL[startSample + i] += scratchL * gain;
-            outR[startSample + i] += scratchR * gain;
+        outL[startSample + i] += scratchL * gain;
+        outR[startSample + i] += scratchR * gain;
 
-            m_arpPhase += arpDelta;
+        m_arpPhase += arpDelta;
 
-            // total スロットで一巡するので、そこで折り返して精度落ちを防ぐ
-            const double cycle = (double)core->m_unison.getTotal();
-            if (m_arpPhase >= cycle) m_arpPhase -= cycle;
-        }
-        else
-        {
-            core->renderNextBlock(outR, outL, startSample, i, isActive);
-        }
+        // total スロットで一巡するので、そこで折り返して精度落ちを防ぐ
+        const double cycle = (double)core->m_unison.getTotal();
+        if (m_arpPhase >= cycle) m_arpPhase -= cycle;
 
         if (!isActive)
         {
@@ -192,7 +196,7 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
 // ピッチベンド
 void SynthVoice::pitchWheelMoved(int newPitchWheelValue)
 {
-    coreMap[m_mode]->setPitchBend(newPitchWheelValue);
+    activeCore()->setPitchBend(newPitchWheelValue);
 }
 
 void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
@@ -200,7 +204,7 @@ void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
     // CC #1 = Modulation Wheel
     if (controllerNumber == 1)
     {
-        coreMap[m_mode]->setModulationWheel(newControllerValue);
+        activeCore()->setModulationWheel(newControllerValue);
     }
 }
 
@@ -241,5 +245,5 @@ void SynthVoice::clearOpzx7Wt2Buffer(int opIndex)
 
 bool SynthVoice::isPlaying()
 {
-    return coreMap[m_mode]->isPlaying();
+    return activeCore()->isPlaying();
 }

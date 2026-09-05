@@ -44,7 +44,8 @@ const std::array<OplCore::AlgRouting, OplPrValue::algorithms> OplCore::routings 
 void OplCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
-    double target = getTargetRate(m_rateIndex);
+    m_targetRate = getTargetRate(m_rateIndex);
+    double target = m_targetRate;
 
     // 高速化のためのループアンローリング
     m_operators[0].prepare(1, target);
@@ -61,6 +62,7 @@ void OplCore::prepare(double sampleRate) {
     }
     m_ampEnvG.prepare(target);
     m_ssgHwEnv.prepare(target);
+    m_ssgHwPEnv.prepare(target);
 }
 
 void OplCore::setSampleRate(double sampleRate) {
@@ -78,12 +80,15 @@ void OplCore::setParameters(const SynthParams& params) {
     m_ssgSwPEnv11g.setParameters(params.opl.ssgSwPEnv11g);
     m_ampEnvG.setParameters(params.opl.ampEnvG);
     m_wtMod.setParameters(params.opl.wtMod);
+    m_wtAmpMod.setParameters(params.opl.wtAmpMod);
     m_ssgHwEnv.setParameters(params.opl.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.opl.ssgHwPEnv);
 
     if (m_rateIndex != params.opl.quality.rate) {
         m_rateIndex = params.opl.quality.rate;
 
-		double target = getTargetRate(m_rateIndex);
+		m_targetRate = getTargetRate(m_rateIndex);
+		double target = m_targetRate;
 
         // 高速化のためのループアンローリング
         m_operators[0].setSampleRate(target);
@@ -93,6 +98,7 @@ void OplCore::setParameters(const SynthParams& params) {
         m_ssgSwPEnv11g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
+        m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl.quality.bit);
@@ -133,9 +139,11 @@ void OplCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     m_rateAccumulator = 0.0; // レートの余りもリセット
 
     m_ssgHwEnv.noteOn();
+    m_ssgHwPEnv.noteOn();
 
     if (!isLegato) {
         m_wtMod.reset();
+        m_wtAmpMod.reset();
 
         if (!m_ampEnvG.isBypass()) {
             m_ampEnvGLevel = m_ampEnvG.noteOn();
@@ -209,10 +217,11 @@ void OplCore::setModulationWheel(int wheelValue)
     m_operators[1].setModWheel(modWheel);
 
     m_wtMod.setModWheel((float)wheelValue / 127.0f);
+    m_wtAmpMod.setModWheel((float)wheelValue / 127.0f);
 }
 
 float OplCore::getSample() {
-    double targetRate = getTargetRate(m_rateIndex);
+    const double targetRate = m_targetRate;
 
     // MODULATION の速度は搬送波に対する比なので、ノートの位相増分を渡す
     float notePhaseDelta = (float)(m_noteFreq / targetRate);
@@ -248,7 +257,6 @@ float OplCore::getSample() {
         // =================================================================
         // 履歴 (History) のシフト
         // =================================================================
-        m_history2 = m_history1;
 
         // 生配列から std::array へのコピー
         m_history1[0] = currentOut[0];
@@ -256,6 +264,9 @@ float OplCore::getSample() {
 
         // SSGハードウェアエンベロープ(SsgHwEnv)処理
         finalOut *= m_ssgHwEnv.process();
+
+        // WT AMP MOD。速さは搬送波との比なので、ノートの位相増分を渡す。
+        finalOut *= m_wtAmpMod.process(notePhaseDelta);
 
         // チップ全体の AMP ENV 処理
         if (!m_ampEnvG.isBypass()) {

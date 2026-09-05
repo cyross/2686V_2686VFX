@@ -22,6 +22,7 @@ void Wt2Core::prepare(double sampleRate)
     m_ssgSwEnv11.prepare(0, m_sampleRate);
     m_ssgSwPenv11.prepare(0, m_sampleRate);
     m_ssgHwEnv.prepare(m_sampleRate);
+    m_ssgHwPEnv.prepare(m_sampleRate);
 
     m_targetRate = getTargetRate(m_rateIndex);
 
@@ -40,6 +41,7 @@ void Wt2Core::setSampleRate(double sampleRate)
     m_ssgSwEnv11.updateSampleRate(m_sampleRate);
     m_ssgSwPenv11.updateSampleRate(m_sampleRate);
     m_ssgHwEnv.updateSampleRate(m_sampleRate);
+    m_ssgHwPEnv.updateSampleRate(m_sampleRate);
 
     updatePhaseDelta();
 }
@@ -61,6 +63,7 @@ void Wt2Core::setParameters(const SynthParams& params)
     m_detune.setParameters(params.wt2.detune);
     m_lfo.setParameters(params.wt2.lfo);
     m_ssgHwEnv.setParameters(params.wt2.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(params.wt2.ssgHwPEnv);
 
     // Bit Depth & Table Size
     m_quantizeSteps = getTargetBitDepth(params.wt2.quality.bit);
@@ -105,6 +108,7 @@ void Wt2Core::setParameters(const SynthParams& params)
     }
 
     m_wtMod.setParameters(params.wt2.mod);
+    m_wtAmpMod.setParameters(params.wt2.wtAmpMod);
 
     m_interpolate = params.wt2.interpolate;
 
@@ -172,6 +176,7 @@ void Wt2Core::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         }
 
         m_ssgHwEnv.noteOn();
+        m_ssgHwPEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -300,7 +305,7 @@ float Wt2Core::getSample()
     newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
 
     // --- Sample Rate Emulation ---
-    double targetRate = getTargetRate(m_rateIndex);
+    const double targetRate = m_targetRate;
     double step = targetRate / m_sampleRate;
     m_rateAccumulator += step;
 
@@ -338,7 +343,8 @@ float Wt2Core::getSample()
         // ==========================================
         // 計算は WtModulator (Generator/WtMod) にある。
         // FM 音源のチップ全体にも同じものを掛けている。
-        float modRatio = m_wtMod.process(newPhaseDelta);
+        m_ampModDelta = newPhaseDelta;
+        float modRatio = m_wtMod.process(newPhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
         // ==========================================
         // 位相 (Phase) の計算
@@ -424,7 +430,7 @@ float Wt2Core::getSample()
     }
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
-    float sshHwEnvVal = m_ssgHwEnv.process();
+    float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
     return m_lastSample * finalEnv * sshHwEnvVal * m_level * m_baseLevel * 8.0f;
  }

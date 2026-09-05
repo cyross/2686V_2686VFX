@@ -78,6 +78,15 @@ namespace EditorGuiText
 		static inline const juce::String tooltip = juce::String("") + "現在の音源のパラメータを初期化します。";
 	}
 
+	// 区分の一括開閉。簡易表示モードで隠す区分が対象。
+	namespace CategoryToggle
+	{
+		static inline const juce::String titleOpen = u8"OP";
+		static inline const juce::String titleClose = u8"CL";
+		static inline const juce::String tooltipOpen = juce::String("") + "バイパスしていない区分をまとめて開きます。";
+		static inline const juce::String tooltipClose = juce::String("") + "バイパスしている区分をまとめて閉じます。";
+	}
+
 	namespace MiniPlayer
 	{
 		static inline const juce::String titleToMini = u8"M";

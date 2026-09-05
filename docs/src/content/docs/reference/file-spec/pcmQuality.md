@@ -2,7 +2,7 @@
 title: PCM の音質
 description: .pcmQuality.json の中身
 sidebar:
-  order: 11
+  order: 13
 ---
 
 QUALITY(PCM) の設定。

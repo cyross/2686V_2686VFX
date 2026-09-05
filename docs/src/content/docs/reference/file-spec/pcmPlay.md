@@ -2,7 +2,7 @@
 title: PCM の再生位置
 description: .pcmPlay.json の中身
 sidebar:
-  order: 12
+  order: 14
 ---
 
 読み込んだ音声ファイルの鳴らし方。

@@ -4,6 +4,7 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
+#include "../../Generator/Pcm/Helper/GenPcmShared.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
@@ -14,7 +15,9 @@
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 #include "../../Generator/WtMod/GenWtModulator.h"
+#include "../../Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 
 // --- Core Class ---
 
@@ -26,7 +29,8 @@ public:
     void prepare(double sampleRate) override;
 	void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params) override;
-    void setSampleData(const std::vector<float>& sourceData, double sourceRate);
+    // プロセッサが毎ブロック渡してくる。差すだけで、中身は触らない。
+    void setPcmSource(const PcmSharedData* pcm) noexcept { m_pcm = pcm; }
     void noteOn(float freq, float velocity, int midiNote, bool isLegato = false) override;
     void noteOff() override;
     bool isPlaying() const override;
@@ -36,18 +40,25 @@ public:
     void setPitchBendRatio(float ratio) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
-    void clearBuffer();
+
+    void renderRange(float* outR, float* outL, int startSample, int count, bool& isActive) override
+    {
+        synthRenderRange(*this, outR, outL, startSample, count, isActive);
+    }
 
     // ユニゾン・ハーモニー用
     // ユニゾン・ハーモニーは SynthCore::m_unison に集約
 private:
     double m_sampleRate = 44100.0; // DAW Host Sample Rate
-    double m_sourceRate = 44100.0;
-    double m_bufferSampleRate = 16000.0; // Internal Data Sample Rate
 
     // Processed ADPCM Data (stored as int16 for playback)
-    std::vector<float> m_rawBuffer;     // Raw Data (32bit)
-    std::vector<int16_t> m_pcmBuffer;   // Processed Data (4bit ADPCM/DPCM)
+    // 素材と符号化したものはプロセッサが 1 つだけ持ち、ここは指すだけ。
+    // 以前はボイスごとに丸ごと複製し、量子化やレートを動かすたびに
+    // 全ボイスがオーディオスレッドの上で符号化し直していた。
+    const PcmSharedData* m_pcm = nullptr;
+
+    // エンベロープを整えたときの標本化周波数。変わったときだけ整え直す。
+    double m_preparedRate = 0.0;
     int m_qualityMode = 6;
     int m_rateIndex = 3;
     int m_interpolationMode = 1;
@@ -81,6 +92,9 @@ private:
     SsgSwPEnv11 m_ssgSwPenv11;
     SsgHwEnv m_ssgHwEnv;
 
+    // 音量側と同じ形をピッチへ当てるもの。両方を同時に掛けられる。
+    SsgHwPEnv m_ssgHwPEnv;
+
     float m_tone = 1.0f;
     float m_noiseLevel = 0.0f; // Noise
     float m_noiseFreq = 12000.0f; // Noise Frequency (Hz)
@@ -99,9 +113,13 @@ private:
     // MODULATION (FDS / WonderSwan / HuC6280)
     WtModulator m_wtMod;
 
+    // WT PITCH MOD と同じ変調波形を音量へ当てるもの。
+    // 速さは搬送波との比なので、ノートの位相増分を覚えておいて渡す。
+    WtAmpModulator m_wtAmpMod;
+    float m_ampModDelta = 0.0f;
+
     float m_modWheel = 0.0f;
 
-    void refreshPcmBuffer();
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;

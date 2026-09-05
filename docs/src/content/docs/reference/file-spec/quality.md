@@ -2,7 +2,7 @@
 title: 音質
 description: .quality.json の中身
 sidebar:
-  order: 10
+  order: 12
 ---
 
 QUALITY の設定。

@@ -409,14 +409,26 @@ void FxFilter::prepare(double sampleRate)
     filterR.prepare(spec);
     filterL.reset();
     filterR.reset();
+
+    // 標本化周波数が変わると係数も変わる。次の setParameters で作り直させる。
+    coefsReady = false;
 }
 
 void FxFilter::setParameters(float type, float freq, float q, float mix)
 {
+    wetLevel = mix;
+
+    // 係数は type / freq / q だけで決まる。この関数は毎ブロック呼ばれるが、
+    // 値が変わっていなければ何もしなくてよい。setCutoffFrequency と
+    // setResonance は中で毎回 tan を計算するため、素通しできると効く。
+    if (coefsReady && (int)type == currentType && freq == currentFreq && q == currentQ) {
+        return;
+    }
+
     currentType = (int)type;
     currentFreq = freq;
     currentQ = q;
-    wetLevel = mix;
+    coefsReady = true;
 
     using FType = juce::dsp::StateVariableTPTFilterType;
     FType fType = FType::lowpass;
@@ -473,11 +485,33 @@ void FxEq3b::prepare(double sampleRate)
     midBellL.prepare(spec);  midBellR.prepare(spec);
     highShelfL.prepare(spec); highShelfR.prepare(spec);
 
+    // fs が変わると係数も変わる。次の setParameters で作り直させる。
+    coefsReady = false;
+
     clear();
 }
 
 void FxEq3b::setParameters(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix)
 {
+    wetLevel = mix; // EQの場合、Mixは全体のDry/Wetバランスとして使用
+
+    // 係数は下の 4 つと fs だけで決まる。この関数は毎ブロック呼ばれるが、
+    // makeLowShelf などは中で new するので、そのたびにオーディオスレッドで
+    // ヒープの確保と解放が起きていた。値が同じなら素通しする。
+    if (coefsReady
+        && lowGainDb == lastLowGainDb
+        && midFreq == lastMidFreq
+        && midGainDb == lastMidGainDb
+        && highGainDb == lastHighGainDb) {
+        return;
+    }
+
+    lastLowGainDb = lowGainDb;
+    lastMidFreq = midFreq;
+    lastMidGainDb = midGainDb;
+    lastHighGainDb = highGainDb;
+    coefsReady = true;
+
     // Q値（帯域幅）は固定値（0.707 など）にしておくとシンプルです
     float q = 0.707f;
     float midQ = 1.0f; // Midは少し狭めにすると使いやすい
@@ -496,8 +530,6 @@ void FxEq3b::setParameters(float lowGainDb, float midFreq, float midGainDb, floa
     auto highCoefs = juce::dsp::IIR::Coefficients<float>::makeHighShelf(fs, 5000.0f, q, juce::Decibels::decibelsToGain(highGainDb));
     highShelfL.coefficients = highCoefs;
     highShelfR.coefficients = highCoefs;
-
-    wetLevel = mix; // EQの場合、Mixは全体のDry/Wetバランスとして使用
 }
 
 void FxEq3b::process(juce::AudioBuffer<float>& buffer)

@@ -13,12 +13,17 @@
 #include "../Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 
-#include "../Fm/FmSliderRegMap.h"
 #include "../Fm/FmRegisterConverter.h"
 
 #include "./EditorGuiValues.h"
 #include "../Gui/GuiColor.h"
 #include "../Gui/GuiContext.h"
+
+// チャンネルごとのパラメータ名の頭。開いていないタブへ値を入れるときに使う。
+#include "../../Processor/Opna/ProcessorOpnaKeys.h"
+#include "../../Processor/Ssg/ProcessorSsgKeys.h"
+#include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
+#include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
 
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 
@@ -40,12 +45,10 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     int mode = audioProcessor.apvts.state.getProperty(ProcessorStateKey::windowMode, (int)ViewMode::Full);
     viewMode = (ViewMode)mode;
 
-    GuiContext context(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
+    GuiContext context(audioProcessor, *this, audioProcessor.apvts);
 
-    opnaGui = std::make_unique<GuiOpna>(context);
-	ssgGui = std::make_unique<GuiSsg>(context);
-	rhythmGui = std::make_unique<GuiRhythm>(context);
-	adpcmGui = std::make_unique<GuiAdpcm>(context);
+    // タブの中身は開かれるまで作らない。作り方だけ先に入れておく。
+    setupLazyTabs();
     presetGui = std::make_unique<GuiPreset>(context);
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
@@ -62,10 +65,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     setupLogo();
     setupMiniLogo();
 
-    opnaGui->setup();
-    ssgGui->setup();
-    rhythmGui->setup();
-    adpcmGui->setup();
     presetGui->setup();
     fxGui->setup();
     settingsGui->setup();
@@ -84,8 +83,19 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     setupTabs(tabs);
 
+    // 裏で溜めておいた配置を、そのタブが前へ出たときに 1 回だけ流す。
+    tabs.onTabChanged = [this](int newIndex) {
+        if (newIndex >= 0 && newIndex < tabCount && tabNeedsLayout[(size_t)newIndex]) {
+            layoutTab(newIndex);
+        }
+    };
+
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
     tabs.setCurrentTabIndex(currentMode);
+
+    // 開いているタブだけは、ここで作っておく。
+    // タブの切り替えの知らせは後回しで届くので、待つと一瞬空になる。
+    materializeTab(currentMode);
 
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
@@ -134,6 +144,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     addAndMakeVisible(playingState);
 
+    // 再生ランプは画面が開いている間ずっと見る。中身は状態が変わったときだけ描く。
+    startTimer(playingLampTimer, 1000 / playingLampHz);
+
     // プレビュー表示切替ボタン
     addAndMakeVisible(togglePreviewBtn);
     togglePreviewBtn.setButtonText(getPreviewButtonText());
@@ -162,7 +175,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         updateUiScale(uiScale);
 
         // タイマーのON/OFFを切り替え
-        updateTimerState(true);
+        updateTimerState();
     };
 
     // パニックボタン
@@ -235,6 +248,26 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     miniPresetLabel.setVisible(false);
 
     // ミニプレイヤー表示切替ボタン
+    // --- 区分の一括開閉 ---
+    // 表示を整えるだけなので、他のシステムボタンとは色味を分けてある。
+    for (auto* button : { &openCategoriesBtn, &closeCategoriesBtn })
+    {
+        addAndMakeVisible(button);
+        button->setLookAndFeel(&categoryToggleBtnLF);
+        button->setColour(juce::TextButton::textColourOnId, GuiColor::SystemBtn::CategoryToggleText);
+        button->setColour(juce::TextButton::textColourOffId, GuiColor::SystemBtn::CategoryToggleText);
+        button->setColour(juce::TextButton::buttonColourId, GuiColor::SystemBtn::CategoryToggleBg);
+        button->setColour(juce::TextButton::buttonOnColourId, GuiColor::SystemBtn::CategoryToggleBg);
+    }
+
+    openCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleOpen);
+    openCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipOpen);
+    openCategoriesBtn.onClick = [this] { openEnabledCategories(); };
+
+    closeCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleClose);
+    closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
+    closeCategoriesBtn.onClick = [this] { closeBypassedCategories(); };
+
     addAndMakeVisible(toggleMiniBtn);
     toggleMiniBtn.setVisible(true);
     toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
@@ -298,7 +331,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     updateRhythmFileNames("Reload");
     updateAdpcmFileNames("Reload");
 
-    updateTimerState(true);
+    updateTimerState();
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
@@ -307,15 +340,54 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     tabs.getTabbedButtonBar().removeChangeListener(this);
     GuiColor::changeBroadcaster().removeChangeListener(this);
 
-    adpcmGui->removeLoadButtonListener(this);
+    if (auto* gui = adpcmGui.peek()) gui->removeLoadButtonListener(this);
 
-    rhythmGui->removeLoadButtonListener(this);
+    if (auto* gui = rhythmGui.peek()) gui->removeLoadButtonListener(this);
 
     audioProcessor.apvts.removeParameterListener(CPK::mode, this);
 
     audioProcessor.undoManager.removeChangeListener(this);
 
-    stopTimer();
+    stopTimer(previewTimer);
+    stopTimer(playingLampTimer);
+}
+
+juce::Point<int> AudioPlugin2686VEditor::getExpectedSize() const
+{
+    // MiniPlayer は波形を 3 つ横に並べる。幅はその並びで決まる
+    const int miniWidth = EditorGuiValue::MiniPreview::paddingLeft
+        + EditorGuiValue::MiniPreview::drawWidth * 3
+        + EditorGuiValue::MiniPreview::paddingInnerX * 2
+        + EditorGuiValue::MiniPreview::paddingRight;
+
+    const int miniHeight = EditorGuiValue::MiniPreview::paddingTop
+        + EditorGuiValue::MiniPreview::presetLabelHeight
+        + EditorGuiValue::MiniPreview::paddingInnerY
+        + EditorGuiValue::MiniPreview::labelHeight
+        + EditorGuiValue::MiniPreview::paddingDrawSpaceY
+        + EditorGuiValue::MiniPreview::drawHeight
+        + EditorGuiValue::MiniPreview::paddingInnerY
+        + EditorGuiValue::MinimumPreview::logoHeight
+        + EditorGuiValue::MiniPreview::paddingBottom;
+
+    if (viewMode == ViewMode::Minimum) {
+        // 一番小さい表示はロゴと名前だけなので高さを固定にする
+        return { miniWidth, 100 };
+    }
+
+    if (viewMode == ViewMode::Full) {
+        const int width = isPreviewVisible
+            ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth
+            : EditorGuiValue::Window::width;
+
+        const int height = audioProcessor.showVirtualKeyboard
+            ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight
+            : EditorGuiValue::Window::height;
+
+        return { width, height };
+    }
+
+    return { miniWidth, miniHeight };
 }
 
 void AudioPlugin2686VEditor::updateWindowSize()
@@ -323,34 +395,25 @@ void AudioPlugin2686VEditor::updateWindowSize()
     // スケールを適用
     setScaleFactor(uiScale);
 
-    // viewMode に応じたウィンドウサイズを計算して適用
-    if (viewMode == ViewMode::MiniPlayer) {
-        setSize(640, 300);
-    }
-    else if (viewMode == ViewMode::Minimum) {
-        setSize(640, 100);
-    }
-    else {
-        int targetWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
-        int targetHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
-        setSize(targetWidth, targetHeight);
-    }
+    const auto expected = getExpectedSize();
+
+    setSize(expected.x, expected.y);
 }
 
 void AudioPlugin2686VEditor::showFullView() {
     updateWindowSize();
-    updateTimerState(true);
+    updateTimerState();
 }
 
 void AudioPlugin2686VEditor::showMiniPlayerView() {
     updatePreviewVisibilityToProcessor();
     updateWindowSize();
-    updateTimerState(true);
+    updateTimerState();
 }
 
 void AudioPlugin2686VEditor::showMinimumView() {
     updateWindowSize();
-    updateTimerState(true);
+    updateTimerState();
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -373,6 +436,9 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
     {
         // 0:OPNA, 1:OPN, 2:OPL, ...
         int targetMode = tabs.getCurrentTabIndex();
+
+        // 中身をまだ作っていないタブなら、ここで作る。
+        materializeTab(targetMode);
 
         if (targetMode >= 0 && targetMode < (int)OscMode::Count) // BEEP is 11
         {
@@ -399,7 +465,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
             playingState.setVisible(false);
         }
 
-        updateTimerState(true);
+        updateTimerState();
         updateParameterInitializeButtons();
     }
 
@@ -442,29 +508,11 @@ void AudioPlugin2686VEditor::resized()
     // =========================================================================
     // 0. DAWによる不意なサイズ変更（キャッシュによる強制上書き）を防ぐガード
     // =========================================================================
-    int expectedW = EditorGuiValue::MiniPreview::paddingLeft + EditorGuiValue::MiniPreview::drawWidth * 3 + EditorGuiValue::MiniPreview::paddingInnerX * 2 + EditorGuiValue::MiniPreview::paddingRight; // 期待する幅の初期値 (MiniPlayer)
-    int expectedH = EditorGuiValue::MiniPreview::paddingTop
-        + EditorGuiValue::MiniPreview::presetLabelHeight
-        + EditorGuiValue::MiniPreview::paddingInnerY
-        + EditorGuiValue::MiniPreview::labelHeight
-        + EditorGuiValue::MiniPreview::paddingDrawSpaceY
-        + EditorGuiValue::MiniPreview::drawHeight
-        + EditorGuiValue::MiniPreview::paddingInnerY
-        + EditorGuiValue::MinimumPreview::logoHeight
-        + EditorGuiValue::MiniPreview::paddingBottom; // 期待する高さの初期値 (MiniPlayer)
-
-    if (viewMode == ViewMode::Minimum) {
-        expectedW = expectedW;
-        expectedH = 100;
-    }
-    else if (viewMode == ViewMode::Full) {
-        expectedW = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
-        expectedH = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
-    }
+    const auto expected = getExpectedSize();
 
     // DAWが勝手に期待サイズ以外のサイズに変更してきた場合、強制的に正しいサイズに戻す
-    if (getWidth() != expectedW || getHeight() != expectedH) {
-        setSize(expectedW, expectedH);
+    if (getWidth() != expected.x || getHeight() != expected.y) {
+        setSize(expected.x, expected.y);
 
         return; // setSize を呼ぶと再び resized() が走るため、ここで処理を中断して無限ループを防ぐ
     }
@@ -665,6 +713,12 @@ void AudioPlugin2686VEditor::resized()
     x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::miniButtonWidth;
     toggleMiniBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::miniButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
+    closeCategoriesBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
+    openCategoriesBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
     auto reducedArea = area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
     int mainIconWidth = EditorGuiValue::Preview::logoWidth;
     int mainIconHeight = EditorGuiValue::Preview::logoHeight;
@@ -678,14 +732,17 @@ void AudioPlugin2686VEditor::resized()
     auto tabContent = content.removeFromLeft(content.getWidth() - EditorGuiValue::Fx::width);
     tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
 
-    opnaGui->layout(tabContent);
-    ssgGui->layout(tabContent);
-    rhythmGui->layout(tabContent);
-    adpcmGui->layout(tabContent);
-    presetGui->layout(tabContent);
-    settingsGui->layout(tabContent);
-    colorsGui->layout(tabContent);
-    aboutGui->layout(tabContent);
+    // 後から作るタブが、resized() を待たずに位置を決められるようにする。
+    lastTabContent = tabContent;
+
+    // 配置は中でエンベロープのグラフまで作り直す。区分を 1 つ開け閉めしただけで
+    // 裏に隠れているタブぶんまで走ると、そのぶん待たされる。表に出ているものだけ
+    // 今やって、残りは印を立てておき、そのタブが前へ出たときに 1 回だけ流す。
+    const int currentTab = tabs.getCurrentTabIndex();
+
+    for (int i = 0; i < tabCount; ++i) tabNeedsLayout[(size_t)i] = true;
+
+    layoutTab(currentTab);
 
     content.removeFromTop(tabs.getTabBarDepth());
     fxGui->setBounds(content);
@@ -788,15 +845,18 @@ void AudioPlugin2686VEditor::setupMiniLogo()
 
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
+    // 中身を後から作るタブは、空の器だけ先に登録する。
     addAndMakeVisible(tabs);
-    tabs.addTab(EditorGuiText::Tab::opna, juce::Colours::transparentBlack, opnaGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::opna, juce::Colours::transparentBlack, &tabHosts[tabOpna], false);
+    tabs.addTab(EditorGuiText::Tab::ssg, juce::Colours::transparentBlack, &tabHosts[tabSsg], false);
+    tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, &tabHosts[tabRhythm], false);
+    tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, &tabHosts[tabAdpcm], false);
+    // 画面は unique_ptr が持っているので、タブ側へは所有権を渡さない。
+    // true にすると閉じるときに二重で消してしまう。
+    tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), false);
+    tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), false);
+    tabs.addTab(EditorGuiText::Tab::colors, juce::Colours::transparentBlack, colorsGui.get(), false);
+    tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), false);
 }
 
 void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
@@ -1012,10 +1072,10 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
 
 void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
     // 4. 各タブのプリセット名を更新
-    opnaGui->updatePresetName(pName);
-    ssgGui->updatePresetName(pName);
-    rhythmGui->updatePresetName(pName);
-    adpcmGui->updatePresetName(pName);
+    if (auto* gui = opnaGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = ssgGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = rhythmGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = adpcmGui.peek()) gui->updatePresetName(pName);
 }
 
 void AudioPlugin2686VEditor::loadWallpaperImage()
@@ -1061,8 +1121,12 @@ void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component,
 
 void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
 {
+    // 押されたボタンはどちらかのタブの中にある。どちらもまだ作って
+    // いなければ、この呼び出しは来ないはずだが、念のため何もしない。
+    if (adpcmGui.peek() == nullptr && rhythmGui.peek() == nullptr) return;
+
     // ADPCM Load Buttons
-    if (adpcmGui->isThis(button))
+    if (adpcmGui.peek() != nullptr && adpcmGui->isThis(button))
     {
         // ... (Existing ADPCM load logic) ...
         auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
@@ -1077,8 +1141,15 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
                 {
                     adpcmGui->updateFileName("Loading...");
 
-                    juce::Timer::callAfterDelay(50, [this, file]()
+                    // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                    juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                    juce::Timer::callAfterDelay(50, [this, safe, file]()
                         {
+                            // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                            // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                            if (safe == nullptr) return;
+
                             audioProcessor.loadAdpcmFile(file);
                             adpcmGui->updateFileName(file.getFileName());
                             audioProcessor.lastSampleDirectory = file.getParentDirectory();
@@ -1088,47 +1159,16 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
         );
     }
     // ADPCM Pan Buttons
-    else if (adpcmGui->isBtnPanL(button)) { adpcmGui->setPan(0.0); }
-    else if (adpcmGui->isBtnPanC(button)) { adpcmGui->setPan(0.5); }
-    else if (adpcmGui->isBtnPanR(button)) { adpcmGui->setPan(1.0); }
+    else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanL(button)) { adpcmGui->setPan(0.0); }
+    else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanC(button)) { adpcmGui->setPan(0.5); }
+    else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanR(button)) { adpcmGui->setPan(1.0); }
     // Rhythm Pads Buttons
-    else
+    else if (rhythmGui.peek() != nullptr)
     {
         auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
         fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::openAudioFile, audioProcessor.lastSampleDirectory, fileFilter);
         rhythmGui->buttonClicked(button, audioProcessor.formatManager, fileChooser);
     }
-}
-
-void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered)
-{
-    // AlertWindowをヒープに確保 (enterModalState(true) で自動的に削除されます)
-    auto* w = new juce::AlertWindow(
-        juce::String("") + "レジスタ値の設定",
-        juce::String("") + "入力している値:",
-        juce::AlertWindow::QuestionIcon);
-
-    // テキストエディタを追加
-    w->addTextEditor(
-        "regInput",
-        "",
-        "0"
-    );
-
-    // ボタン設定
-    w->addButton(juce::String("") + "設定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
-    w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
-
-    GuiDialog::styleButtons(*w);
-
-    // モーダル表示
-    w->enterModalState(true, juce::ModalCallbackFunction::create([onValueEntered, w](int result) {
-        if (result == 1) { // OK clicked
-            // 入力値を取得してコールバックを実行
-            int val = w->getTextEditorContents("regInput").getIntValue();
-            onValueEntered(val);
-        }
-        }), true);
 }
 
 // 再帰的に全ての子コンポーネントを探索し、スライダーなら範囲をツールチップにセット
@@ -1189,6 +1229,9 @@ void AudioPlugin2686VEditor::setTooltipState(bool enabled)
 
 void AudioPlugin2686VEditor::updateRhythmFileNames(const juce::String filename)
 {
+    // まだ作っていないタブには映せない。作るときに読み直す。
+    if (rhythmGui.peek() == nullptr) return;
+
     if (filename == Io::empty) {
         for (int i = 0; i < RhythmPrValue::pads; ++i)
         {
@@ -1217,6 +1260,9 @@ void AudioPlugin2686VEditor::updateRhythmFileNames(const juce::String filename)
 
 void AudioPlugin2686VEditor::updateAdpcmFileNames(const juce::String filename)
 {
+    // まだ作っていないタブには映せない。作るときに読み直す。
+    if (adpcmGui.peek() == nullptr) return;
+
     if (filename == Io::empty) {
         adpcmGui->updateFileName(filename);
     }
@@ -1245,12 +1291,33 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
     updateWindowSize();
 }
 
-void AudioPlugin2686VEditor::timerCallback()
+void AudioPlugin2686VEditor::timerCallback(int timerID)
 {
+    if (timerID == playingLampTimer)
+    {
+        // 再生ランプ。変わったときだけ描き直す。
+        // 以前は毎回 repaint していて、しかも矩形を getHeight() から
+        // 出していたのに配置は定数基準だったため、仮想キーボードを出すと
+        // 実体と重ならず更新されなくなっていた。部品ごと描き直せばずれない。
+        const bool playing = audioProcessor.isPlaying() || audioProcessor.isMidiProcessing();
+
+        if (playing != playingState.state) {
+            playingState.updateState(playing);
+        }
+
+        return;
+    }
+
     if (isPreviewVisible || viewMode == ViewMode::MiniPlayer)
     {
-        std::vector<float> staticData;
-        audioProcessor.generatePreviewWaveform(&staticData);
+        // ここで generatePreviewWaveform を呼んで staticData を埋めていたが、
+        // 中身はどこからも読まれていなかった。下の描画はリングバッファから
+        // 写すだけで完結している。
+        //
+        // 中では捨てるためだけに 40 ブロック (8000 サンプル) を空レンダリング
+        // した上で 300 サンプルを組み立て、FX まで通していた。それを秒 30 回。
+        // ユニゾン 8 ボイスの重い音色だと、波形を出しているだけで
+        // メッセージスレッドが 1 コア近くを食っていた。
 
         // メモリ再確保を防ぐため static を付ける、もしくは std::array を使う
         static std::array<float, AudioPlugin2686V::previewBufferSize> localL;
@@ -1282,25 +1349,25 @@ void AudioPlugin2686VEditor::timerCallback()
         realtimePreviewR.pushBuffer(localR.data(), bufSize);
     }
 
-    playingState.state = audioProcessor.isPlaying() || audioProcessor.isMidiProcessing();
-
-    repaint(
-        EditorGuiValue::StateBtns::paddingLeft,
-        getHeight() - EditorGuiValue::StateBtns::paddingBottom - EditorGuiValue::StateBtns::height,
-        EditorGuiValue::StateBtns::width,
-        EditorGuiValue::StateBtns::height
-    );
 }
 
-void AudioPlugin2686VEditor::updateTimerState(bool start = false)
+void AudioPlugin2686VEditor::updateTimerState()
 {
-    // プレビューが開いていている時だけタイマーを動かす
-    if (start) {
-        startTimerHz(previewHz);
-        timerCallback(); // タイマー開始時に即座に1回強制描画する！
+    // 波形を出しているときだけ動かす。中の条件は timerCallback と同じなので、
+    // 止まっている間にやることは元から無い。
+    //
+    // 以前は引数で入切を受けていたが、呼び出しが全て true だったため
+    // 「設定・About 画面では負荷ゼロにする」というこの関数の目的は
+    // 果たされていなかった。呼ぶ側に判断させず、ここで見て決める。
+    if (isPreviewVisible || viewMode == ViewMode::MiniPlayer) {
+        if (!isTimerRunning(previewTimer)) {
+            startTimer(previewTimer, 1000 / previewHz);
+        }
+
+        timerCallback(previewTimer); // 開始時に即座に 1 回描く
     }
     else {
-        stopTimer(); // 閉じてる時、または設定・About画面では負荷ゼロにする
+        stopTimer(previewTimer);
     }
 }
 
@@ -1316,16 +1383,28 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
         int idx = (int)newValue;
 
         if (idx >= 0 && idx <= (int)OscMode::ADPCM) {
-            audioProcessor.lastActiveSynthMode = (OscMode)idx;
+            // ホストがオートメーションを流している間、ここはオーディオスレッドで走る。
+            // 番号だけ預けて、触るのはメッセージスレッド側に任せる。
+            //
+            // 以前はここから生の this を握った callAsync を積んでいて、積んだ後に
+            // 画面が閉じられると解放済みの領域を触っていた。lastActiveSynthMode への
+            // 書き込みも、保存側と同時に走る可能性があった。
+            m_pendingModeTab.store(idx, std::memory_order_relaxed);
+            triggerAsyncUpdate();
         }
+    }
+}
 
-        // UIスレッドで実行するために callAsync を使用
-        juce::MessageManager::callAsync([this, idx]() {
-            // 現在のタブと違えば切り替える（ループ防止）
-            if (tabs.getCurrentTabIndex() != idx) {
-                tabs.setCurrentTabIndex(idx);
-            }
-            });
+void AudioPlugin2686VEditor::handleAsyncUpdate()
+{
+    const int idx = m_pendingModeTab.exchange(-1, std::memory_order_relaxed);
+    if (idx < 0) return;
+
+    audioProcessor.lastActiveSynthMode = (OscMode)idx;
+
+    // 現在のタブと違えば切り替える（ループ防止）
+    if (tabs.getCurrentTabIndex() != idx) {
+        tabs.setCurrentTabIndex(idx);
     }
 }
 
@@ -1481,10 +1560,18 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
     // 入れ終えてからまとめて 1 度だけ描き直す。
     GuiRefresh::Batch batch;
 
-    opnaGui->setLevel(level);
-    ssgGui->setLevel(level);
-    rhythmGui->setLevel(level);
-    adpcmGui->setLevel(level);
+    // 開いていないタブは中身を作らず、値だけ入れる。
+    // 配るためだけに全部のタブを作ると、そこで待たされてしまう。
+    auto apply = [this, level](auto& slot, const juce::String& code) {
+        if (auto* gui = slot.peek()) gui->setLevel(level);
+        else setLevelParam(code, level);
+        };
+
+    apply(opnaGui, OpnaPrKey::prefix);
+    apply(ssgGui, SsgPrKey::prefix);
+    apply(rhythmGui, RhythmPrKey::prefix);
+    apply(adpcmGui, AdpcmPrKey::prefix);
+
 }
 
 void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {
@@ -1513,4 +1600,128 @@ void AudioPlugin2686VEditor::copyOpnaOpParams(int from, int to) {
 
 void AudioPlugin2686VEditor::updateFxOrder(){
     fxGui->updateFxOrder();
+}
+
+// タブは持っているものが プラグインごとに違うので、あるものだけ回す。
+// 中身を持たないタブは、土台の空実装がそのまま呼ばれる。
+GuiContext AudioPlugin2686VEditor::makeGuiContext()
+{
+    return GuiContext(audioProcessor, *this, audioProcessor.apvts);
+}
+
+juce::String AudioPlugin2686VEditor::currentPresetName() const
+{
+    return audioProcessor.presetName;
+}
+
+// ============================================================================
+// タブの後作り
+// ============================================================================
+// 作り方だけを入れておく。実際に作られるのは、そのタブが開かれたときか、
+// 中身を触る操作 (チャンネル間のコピーなど) が来たとき。
+void AudioPlugin2686VEditor::setupLazyTabs()
+{
+    prepareLazyTab<GuiOpna>(opnaGui, tabOpna);
+    prepareLazyTab<GuiSsg>(ssgGui, tabSsg);
+    prepareLazyTab<GuiRhythm>(rhythmGui, tabRhythm);
+    prepareLazyTab<GuiAdpcm>(adpcmGui, tabAdpcm);
+}
+
+void AudioPlugin2686VEditor::materializeAllTabs()
+{
+    for (int i = 0; i < tabCount; ++i) materializeTab(i);
+}
+
+// 指定のタブ 1 枚だけ配置する。まだ作られていないタブは何もしない。
+void AudioPlugin2686VEditor::layoutTab(int tabIndex)
+{
+    if (lastTabContent.isEmpty()) return;
+
+    switch (tabIndex)
+    {
+    case tabOpna: if (auto* gui = opnaGui.peek()) gui->layout(lastTabContent); break;
+    case tabSsg: if (auto* gui = ssgGui.peek()) gui->layout(lastTabContent); break;
+    case tabRhythm: if (auto* gui = rhythmGui.peek()) gui->layout(lastTabContent); break;
+    case tabAdpcm: if (auto* gui = adpcmGui.peek()) gui->layout(lastTabContent); break;
+    case tabPreset: presetGui->layout(lastTabContent); break;
+    case tabSettings: settingsGui->layout(lastTabContent); break;
+    case tabColors: colorsGui->layout(lastTabContent); break;
+    case tabAbout: aboutGui->layout(lastTabContent); break;
+    default: break;
+    }
+
+    if (tabIndex >= 0 && tabIndex < tabCount) tabNeedsLayout[(size_t)tabIndex] = false;
+}
+
+void AudioPlugin2686VEditor::materializeTab(int tabIndex)
+{
+    switch (tabIndex)
+    {
+    case tabOpna: opnaGui.ref(); break;
+    case tabSsg: ssgGui.ref(); break;
+    case tabRhythm: rhythmGui.ref(); break;
+    case tabAdpcm: adpcmGui.ref(); break;
+    default: break; // 先に作ってあるタブ
+    }
+}
+
+// 開いていないタブのレベルを、GUI を通さずに入れる。
+//
+// 画面のつまみは値を持たない (パラメータの写し) ので、ここへ入れておけば
+// 後でそのタブを開いたときにそのまま出る。
+void AudioPlugin2686VEditor::setLevelParam(const juce::String& prefix, float level)
+{
+    auto* param = audioProcessor.apvts.getParameter(prefix + CPK::level);
+
+    if (param == nullptr) return;
+
+    param->beginChangeGesture();
+    param->setValueNotifyingHost(param->getNormalisableRange().convertTo0to1(level));
+    param->endChangeGesture();
+}
+
+void AudioPlugin2686VEditor::forEachTabGui(const std::function<void(GuiBase&)>& fn)
+{
+    if (auto* gui = opnaGui.peek()) fn(*gui);
+    if (auto* gui = ssgGui.peek()) fn(*gui);
+    if (auto* gui = rhythmGui.peek()) fn(*gui);
+    if (auto* gui = adpcmGui.peek()) fn(*gui);
+    if (presetGui != nullptr) fn(*presetGui);
+    if (fxGui != nullptr) fn(*fxGui);
+    if (settingsGui != nullptr) fn(*settingsGui);
+    if (aboutGui != nullptr) fn(*aboutGui);
+    if (colorsGui != nullptr) fn(*colorsGui);
+}
+
+// 簡易表示モードで隠れている区分を、まとめて切る。
+void AudioPlugin2686VEditor::bypassHiddenCategories()
+{
+    // これはパラメータを切る操作なので、開いていないタブにも効かせる。
+    // 音を出しているのはタブではなくパラメータのほうなので、
+    // 見ていないタブを飛ばすと、そこだけ鳴り続けてしまう。
+    materializeAllTabs();
+
+    forEachTabGui([](GuiBase& gui) { gui.bypassHiddenCategories(); });
+
+    resized();
+}
+
+// 効いている区分をまとめて開く
+void AudioPlugin2686VEditor::openEnabledCategories()
+{
+    lastCategoryBulk = CategoryBulk::open;
+
+    forEachTabGui([](GuiBase& gui) { gui.openEnabledCategories(); });
+
+    resized();
+}
+
+// 切ってある区分をまとめて閉じる
+void AudioPlugin2686VEditor::closeBypassedCategories()
+{
+    lastCategoryBulk = CategoryBulk::close;
+
+    forEachTabGui([](GuiBase& gui) { gui.closeBypassedCategories(); });
+
+    resized();
 }

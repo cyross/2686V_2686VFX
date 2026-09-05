@@ -248,7 +248,7 @@ void GuiOpna::setup()
         panSlider.setValue(1, juce::sendNotification);
         };
 
-    lfoCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
+    lfoCat.setupSwLfoCategory({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
 
     lfoFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::freq, .title = OpnaGuiText::Fm::lfoSpeed, .isReset = true });
     lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -317,7 +317,9 @@ void GuiOpna::setup()
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgHwPEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
     ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");
 
@@ -432,6 +434,18 @@ void GuiOpna::setup()
     ieOpSsgSwPEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
     ieOpSsgSwPEnv11.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwPEnv11Param(opIndex); };
     ieOpSsgSwPEnv11.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwPEnv11Param(opIndex); };
+    ieOpSsgHwPEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv");
+    ieOpSsgHwPEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpSsgHwPEnvParam(opIndex); };
+    ieOpSsgHwPEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpSsgHwPEnvParam(opIndex); };
+    ieOpWtAmpMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Amp Mod");
+    ieOpWtAmpMod.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpWtAmpModParam(opIndex); };
+    ieOpWtAmpMod.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpWtAmpModParam(opIndex); };
+    ieOpSsgHwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW Env");
+    ieOpSsgHwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpSsgHwEnvParam(opIndex); };
+    ieOpSsgHwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpSsgHwEnvParam(opIndex); };
+    ieOpWtMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Modulation");
+    ieOpWtMod.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpWtModParam(opIndex); };
+    ieOpWtMod.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpWtModParam(opIndex); };
 
     targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
     targerOpSlider.setRange(1.0, 4.0, 1.0);
@@ -459,7 +473,9 @@ void GuiOpna::setup()
 
     ieAmpEnvG.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
     ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+    ieSsgHwPEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv", ssgHwPEnv);
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
+    ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
     ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
     ieSsgSwPEnv11g.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11g);
@@ -492,11 +508,11 @@ void GuiOpna::setup()
         catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnaGuiText::Category::detune, .enableChangeDetailVisible = true });
         catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnaGuiText::Category::ampEnv, .detailVisible = true, .enableChangeDetailVisible = true });
 
-        mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::mul, .title = OpnaGuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
+        mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::mul, .title = OpnaGuiText::Fm::Op::Mul, .items = multems, .isReset = true });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
 
-        dt[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::dt, .title = OpnaGuiText::Fm::Op::Dt, .items = dtItems, .isReset = true, .regType = RegisterType::FmDt });
+        dt[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::dt, .title = OpnaGuiText::Fm::Op::Dt, .items = dtItems, .isReset = true });
         dt[i].setWantsKeyboardFocus(true);
         dt[i].setExplicitFocusOrder(++tabOrder);
 
@@ -526,7 +542,7 @@ void GuiOpna::setup()
 
         ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnaGuiText::Category::ks, .enableChangeDetailVisible = true });
 
-        ks[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ks, .title = OpnaGuiText::Fm::Op::Ks, .items = ksItems, .isReset = true, .regType = RegisterType::FmKs });
+        ks[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ks, .title = OpnaGuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
 
@@ -551,6 +567,10 @@ void GuiOpna::setup()
         ssgSwEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv11::enable, OpnaGuiText::SsgSwEnv11::enable, true);
 
         ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, OpnaGuiText::SsgSwPEnv11::enable, true);
+        ssgHwPEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
+        wtAmpModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
+        ssgHwEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
+        wtModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
 
         catSsgEnv[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnaGuiText::Category::ssgEnv, .enableChangeDetailVisible = true });
 
@@ -611,7 +631,7 @@ void GuiOpna::setup()
         ams[i].setWantsKeyboardFocus(true);
         ams[i].setExplicitFocusOrder(++tabOrder);
 
-        catN88Lfo[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnaGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
+        catN88Lfo[i].setupSwLfoCategory({ .parent = opGroups[i].contentCanvas, .title = OpnaGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
 
         n88Ams[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::N88Lfo::ams, .title = OpnaGuiText::Fm::Op::Ams, .isReset = true });
         n88Ams[i].setWantsKeyboardFocus(true);
@@ -686,16 +706,28 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
 
+    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-    modComponent.layoutComponent(mRect);
-    ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnv11g.layoutComponent(mRect);
-    ssgSwPEnv11g.layoutComponent(mRect);
 
-    layoutPanCat(mRect);
+    ssgHwEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.layoutComponent(mRect);
+    ssgSwEnv11g.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11g.layoutComponent(mRect);
+    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.layoutComponent(mRect);
+
+    ssgHwPEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.layoutComponent(mRect);
+    ssgSwPEnv11g.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11g.layoutComponent(mRect);
+    modComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.layoutComponent(mRect);
 
     layoutN88LfoCat(mRect);
 
+    layoutPanCat(mRect);
+
+    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -739,22 +771,30 @@ void GuiOpna::layout(juce::Rectangle<int> content)
         layoutOpOptionalCat(i, innerRect);
 
         layoutOpSsgEnvelopeCat(i, innerRect);
-
+        ssgHwEnvOp[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+        ssgHwEnvOp[i].layoutComponentRow(innerRect);
+        ssgSwEnv[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
         ssgSwEnv[i].layoutComponentRow(innerRect);
-
+        ssgSwEnv11[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
         ssgSwEnv11[i].layoutComponentRow(innerRect);
+        wtAmpModOp[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+        wtAmpModOp[i].layoutComponent(innerRect);
 
+        pitchEnv[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
         pitchEnv[i].layoutComponentRow(innerRect);
-
+        ssgHwPEnvOp[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+        ssgHwPEnvOp[i].layoutComponentRow(innerRect);
+        ssgSwPEnv11[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
         ssgSwPEnv11[i].layoutComponentRow(innerRect);
+        wtModOp[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+        wtModOp[i].layoutComponent(innerRect);
 
-        layoutOpHwLfoCat(i, innerRect);
-
-        layoutOpN88LfoCat(i, innerRect);
+        layoutOpKsCat(i, innerRect);
 
         layoutOpDetCat(i, innerRect);
 
-        layoutOpKsCat(i, innerRect);
+        layoutOpHwLfoCat(i, innerRect);
+        layoutOpN88LfoCat(i, innerRect);
 
         fix[i].layoutComponentRow(innerRect);
 
@@ -1030,13 +1070,19 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpSsgSwEnv.setVisible(visible);
     ieOpSsgSwEnv11.setVisible(visible);
     ieOpSsgSwPEnv11.setVisible(visible);
+    ieOpSsgHwPEnv.setVisible(visible);
+    ieOpWtAmpMod.setVisible(visible);
+    ieOpSsgHwEnv.setVisible(visible);
+    ieOpWtMod.setVisible(visible);
     ieOpChParam.setVisible(visible);
     imOpnOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep005.setVisible(visible);
     ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
+    ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
+    ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11g.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -1071,6 +1117,10 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieOpSsgSwEnv11.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpSsgSwPEnv11.layoutComponent(rect);
+        ieOpSsgHwPEnv.layoutComponent(rect);
+        ieOpWtAmpMod.layoutComponent(rect);
+        ieOpSsgHwEnv.layoutComponent(rect);
+        ieOpWtMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpChParam.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1083,8 +1133,10 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieAmpEnvG.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgHwEnv.layoutComponent(rect);
+        ieSsgHwPEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieWtMod.layoutComponent(rect);
+        ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv11.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -2071,6 +2123,38 @@ void GuiOpna::exportSsgSwPEnv11Param(int opIndex) {
     ssgSwPEnv11[opIndex].exportParams();
 }
 
+void GuiOpna::importOpSsgHwPEnvParam(int opIndex) {
+    ssgHwPEnvOp[opIndex].importParams();
+}
+
+void GuiOpna::exportOpSsgHwPEnvParam(int opIndex) {
+    ssgHwPEnvOp[opIndex].exportParams();
+}
+
+void GuiOpna::importOpWtAmpModParam(int opIndex) {
+    wtAmpModOp[opIndex].importParams();
+}
+
+void GuiOpna::exportOpWtAmpModParam(int opIndex) {
+    wtAmpModOp[opIndex].exportParams();
+}
+
+void GuiOpna::importOpSsgHwEnvParam(int opIndex) {
+    ssgHwEnvOp[opIndex].importParams();
+}
+
+void GuiOpna::exportOpSsgHwEnvParam(int opIndex) {
+    ssgHwEnvOp[opIndex].exportParams();
+}
+
+void GuiOpna::importOpWtModParam(int opIndex) {
+    wtModOp[opIndex].importParams();
+}
+
+void GuiOpna::exportOpWtModParam(int opIndex) {
+    wtModOp[opIndex].exportParams();
+}
+
 void GuiOpna::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
@@ -2257,12 +2341,14 @@ void GuiOpna::readChParams(const Io::ParamReader& reader) {
 
     // Components (Global)
     ssgHwEnv.readParams(reader, "ssgHwEnv");
+    ssgHwPEnv.readParams(reader, "ssgHwPEnv");
     ssgSwEnv11g.readParams(reader, "ssgSwEnv11");
     qualityComponent.readParams(reader, "quality");
     unisonComponent.readParams(reader, "unison");
     ampEnvComponent.readParams(reader, "ampEnv");
     ssgSwPEnv11g.readParams(reader, "ssgSwPEnv11");
     modComponent.readParams(reader, "wtMod");
+    ampModComponent.readParams(reader, "wtAmpMod");
 
     for (int i = 0; i < OpnaPrValue::ops; i++) {
         readOpParams(i, reader.arrayItem(Io::ParamKey::ops, i));
@@ -2313,6 +2399,10 @@ void GuiOpna::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgSwEnv[opIndex].readParams(r, "ssgSwEnv");
     ssgSwEnv11[opIndex].readParams(r, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].readParams(r, "ssgSwPEnv11");
+    ssgHwPEnvOp[opIndex].readParams(r, "ssgHwPEnv");
+    wtAmpModOp[opIndex].readParams(r, "wtAmpMod");
+    ssgHwEnvOp[opIndex].readParams(r, "ssgHwEnv");
+    wtModOp[opIndex].readParams(r, "wtMod");
 }
 
 void GuiOpna::writeOpParams(int opIndex, Io::ParamWriter& w) {
@@ -2358,6 +2448,10 @@ void GuiOpna::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwEnv[opIndex].writeParams(w, "ssgSwEnv");
     ssgSwEnv11[opIndex].writeParams(w, "ssgSwEnv11");
     ssgSwPEnv11[opIndex].writeParams(w, "ssgSwPEnv11");
+    ssgHwPEnvOp[opIndex].writeParams(w, "ssgHwPEnv");
+    wtAmpModOp[opIndex].writeParams(w, "wtAmpMod");
+    ssgHwEnvOp[opIndex].writeParams(w, "ssgHwEnv");
+    wtModOp[opIndex].writeParams(w, "wtMod");
 }
 
 void GuiOpna::importOpnChParam() {
@@ -2500,12 +2594,14 @@ void GuiOpna::writeChParams(Io::ParamWriter& writer) {
 	// Components (Global)
 	// 名前で持つので、後から足した項目を末尾へ置く必要はない。
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
+	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnv11g.writeParams(writer, "ssgSwEnv11");
 	qualityComponent.writeParams(writer, "quality");
 	unisonComponent.writeParams(writer, "unison");
 	ampEnvComponent.writeParams(writer, "ampEnv");
 	ssgSwPEnv11g.writeParams(writer, "ssgSwPEnv11");
 	modComponent.writeParams(writer, "wtMod");
+	ampModComponent.writeParams(writer, "wtAmpMod");
 
 	for (int i = 0; i < OpnaPrValue::ops; i++) {
 	    auto op = writer.arrayItem(Io::ParamKey::ops, i);

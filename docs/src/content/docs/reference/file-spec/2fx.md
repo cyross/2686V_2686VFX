@@ -40,13 +40,18 @@ FX の設定をまとめたファイルです。
 | `filter` | `bypass` / `type` / `freq` / `q` / `mix` |
 | `eq3band` | `bypass` / `lowGainDb` / `midFreq` / `midGainDb` / `highGainDb` / `mix` |
 | `sfcEcho` | `bypass` / `time` / `fb` / `firCoef0` / `firCoef1` / `firCoef2` / `firCoef3` / `firCoef4` / `firCoef5` / `firCoef6` / `firCoef7` / `mix` |
+| `pcmBitCrusher` | `bypass` / `bits` / `rate` / `interp` / `mix` |
 
 どの効果にも `bypass` があり、**真で切り**です。`mix` は 0.0 で原音のまま、
 1.0 で効果だけになります。
 
 :::note
-このファイルが持つのは**この 8 種類だけ**です。2686VFX にしかない
-PCM ビットクラッシャーは含まれません。順番は
+`pcmBitCrusher` は 2686VFX にしかない効果です。音源で読んだときは、この
+まとまりを見に行かないので飛ばされます。逆に 3.1.0 より前に書いた
+ファイルにはこのまとまりがありませんが、そのときは今の値をそのまま
+使うので、読めなくなることはありません。
+
+`bits` / `rate` / `interp` は一覧の**何番目か**を持ちます。効果の順番は
 [エフェクトの順番](/2686V_2686VFX/reference/file-spec/fxo/) の側で持ちます。
 :::
 

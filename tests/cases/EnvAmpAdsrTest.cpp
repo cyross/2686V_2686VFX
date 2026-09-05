@@ -1,6 +1,7 @@
 ﻿#include "doctest/doctest.h"
 
 #include <cmath>
+#include <memory>
 #include <vector>
 
 #include "Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
@@ -107,7 +108,18 @@ TEST_CASE("AmpAdsrEnv: curve path matches linear path on attack")
     // 既定のカーブロジックは Logic::Linear (恒等写像) なので、CurveCore を
     // 繋いでも繋がなくてもアタックの軌跡は一致するはず。
     // 以前はカーブパスだけ 1 サンプル遅れていた。
-    CurveCore curve;
+    //
+    // enable を立てないと CurveCore が入口で素通しして、カーブ経路を
+    // 通らないまま通ってしまう。渡した中身はオーディオ側の枠へ
+    // acquireForAudio で持ち替えるまで届かないので、そこまでやる。
+    // CurveCore も CurveParams も 439KB 級なのでスタックへは置かない。
+    auto curve = std::make_unique<CurveCore>();
+    {
+        auto cp = std::make_unique<CurveParams>();
+        cp->enable = true;
+        curve->setParameters(*cp);
+        curve->acquireForAudio();
+    }
 
     AmpAdsrEnv linear;
     linear.prepare(kRate);
@@ -115,7 +127,7 @@ TEST_CASE("AmpAdsrEnv: curve path matches linear path on attack")
 
     AmpAdsrEnv curved;
     curved.prepare(kRate);
-    curved.setCurveCore(&curve);
+    curved.setCurveCore(curve.get());
     curved.setParameters(makeParams(0.0f, 0.01f, 0.0f, 1.0f, 0.2f));
 
     auto a = trajectory(linear, 480);

@@ -133,8 +133,9 @@ void GuiAbout::paint(juce::Graphics& g)
     // 描画領域を取得
     auto area = getLocalBounds().toFloat();
 
-    // FXペインまでは描画しない
-    auto bgArea = area.removeFromLeft(area.getWidth() - (float)EditorGuiValue::Fx::width);
+    // このプラグインでは FX が独立したタブなので、右側の帯を空ける必要は無い。
+    // タブの領域をそのまま板にする。
+    auto bgArea = area;
 
     // 半透明の黒色を設定 (0.6f の部分で透明度を 0.0〜1.0 の間で調整できます)
     g.setColour(juce::Colours::black.withAlpha(0.6f));

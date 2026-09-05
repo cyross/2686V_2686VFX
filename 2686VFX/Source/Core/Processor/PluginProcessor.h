@@ -5,6 +5,7 @@
 #include "../Io/ParamFile.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
+#include "../Gui/GuiSimpleView.h"
 #include <algorithm>
 
 
@@ -32,7 +33,6 @@ private:
     ModProcessor prMod;
 
     SynthParams m_currentParams;
-    SynthParams m_previewParams;
 
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
@@ -50,9 +50,6 @@ private:
     // 実際に 2,000 件近く残っていた。動きはしないが、ファイルを太らせる。
     void removeUnknownParams(juce::XmlElement& xml) const;
 
-
-    // 波形プレビュー用
-    FxProcessor previewFx;
 
     void loadStartupSettings(); // 設定の自動読み込み用関数
     void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
@@ -133,12 +130,14 @@ public:
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);
+
+    // 別のプラグインで書かれたプリセットなら、断って false を返す。
+    bool isPresetForThisPlugin(const juce::XmlElement* xmlState, const juce::File& file);
     void initPreset();
 
     void initParams(const juce::String& code);
 
     // --- Preview(Static) ---
-    void generatePreviewWaveform(std::vector<float>* destBuffer);
 
     // --- 仮想キーボード ---
     juce::MidiKeyboardState keyboardState;
@@ -227,14 +226,33 @@ public:
         visit(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
         visit(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
         visit(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
+        visit(SettingsKey::defaultWtModParamDir, defaultWtModParamDir);
         visit(SettingsKey::defaultColorSettingDir, defaultColorSettingDir);
 
         visit(SettingsKey::showTooltips, showTooltips);
+        visit(SettingsKey::simpleView, simpleView);
+
+        // 隠さない区分。項目の並びを変えても迷子にならないよう名前で持つ。
+        for (int i = 0; i < SimpleView::Size; ++i) {
+            visit(juce::String(SimpleView::items()[(size_t)i].key), simpleViewShow[(size_t)i]);
+        }
         visit(SettingsKey::useHeadroom, useHeadroom);
         visit(SettingsKey::headroomGain, headroomGain);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
+
+    // 簡易表示モード。区分の一部を隠して画面を短くする。表示だけの話で、
+    // 音には影響しない。
+    bool simpleView = false;
+
+    // 簡易表示モードでも隠さない区分。既定はどれも隠す。
+    std::array<bool, SimpleView::Size> simpleViewShow{};
+
+    // 隠す対象の区分を、いま出すかどうか
+    bool isSimpleShown(SimpleView::Cat cat) const {
+        return SimpleView::isShown(simpleView, simpleViewShow, cat);
+    }
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）

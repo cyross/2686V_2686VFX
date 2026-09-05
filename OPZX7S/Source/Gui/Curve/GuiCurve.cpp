@@ -608,6 +608,7 @@ void GuiCurve::layout(juce::Rectangle<int> content)
 void GuiCurve::initParams()
 {
     ctx.audioProcessor.prCurve.resetToDefault(); 
+    ctx.audioProcessor.getCurveCore()->setParameters(ctx.audioProcessor.prCurve.m_curveParams);
     updateVisible();
 }
 

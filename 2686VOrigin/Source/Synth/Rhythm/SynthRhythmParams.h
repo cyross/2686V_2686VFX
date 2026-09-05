@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../../Generator/Pcm/Helper/GenPcmShared.h"
 
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
@@ -12,6 +13,7 @@
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 
 struct RhythmPadParams
 {
@@ -20,6 +22,7 @@ struct RhythmPadParams
     ToneNoiseParams tn;
     AmpAdsrParams adsr;
     WtModParams wtMod;
+    WtAmpModParams wtAmpMod;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;
     PitchAdsrParams pitchAdsr;
@@ -30,7 +33,12 @@ struct RhythmPadParams
     PcmParams pcm;
     LoopPointParams lp;
     QualityPcmParams quality;
+
+    // 符号化した素材。プロセッサがパッドごとに 1 つだけ持ち、ここは指すだけ。
+    const PcmSharedData* source = nullptr;
+
     SsgHwEnvParams ssgHwEnv;
+    SsgHwPEnvParams ssgHwPEnv;
 
     float pan = 0.5f;     // 0.0(L) - 1.0(R)
     int noteNumber = 36;  // MIDI Note Number (e.g., 36=C1)

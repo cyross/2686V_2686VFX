@@ -15,6 +15,7 @@
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
 #include "../../Effect/Detune/Opn/DetuneOpnParams.h"
@@ -250,6 +251,23 @@ namespace PrHelper {
 		}
 	}
 
+	// 変調波形はピッチ版と別に持てるよう、置き場所の鍵に尻尾を付ける。
+	static inline void setupWtAmpMod(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtAmpMod& ptPtrs, WtModWaveStore& store){
+		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::enable);
+		ptPtrs.depth = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::depth);
+		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::speed);
+		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::shape);
+		ptPtrs.waveSlot = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::waveSlot);
+		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::min);
+		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::max);
+
+		ptPtrs.slots = &store[prefix + CPK::WtAmpMod::waveStoreSuffix];
+
+		for (int i = 0; i < CPV::WtAmpMod::FdsTable::size; ++i) {
+			ptPtrs.fdsTable[i] = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::fdsTable + juce::String(i));
+		}
+	}
+
 
 
 
@@ -439,6 +457,25 @@ namespace PrHelper {
 		}
 
 		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i) {
+			params.fdsTable[i] = getInt(ptPtrs.fdsTable[i]);
+		}
+	}
+
+	static inline void applyWtAmpMod(PrPtrsWtAmpMod& ptPtrs, WtAmpModParams& params){
+		params.enable = getBool(ptPtrs.enable);
+		params.depth = getFloat(ptPtrs.depth);
+		params.speed = getFloat(ptPtrs.speed);
+		params.shape = getInt(ptPtrs.shape);
+		params.min = getFloat(ptPtrs.min);
+		params.max = getFloat(ptPtrs.max);
+
+		if (ptPtrs.slots != nullptr) {
+			int slot = std::clamp(getInt(ptPtrs.waveSlot), 0, Global::WtMod::slots - 1);
+
+			params.wave = (*ptPtrs.slots)[slot].data;
+		}
+
+		for (int i = 0; i < CPV::WtAmpMod::FdsTable::size; ++i) {
 			params.fdsTable[i] = getInt(ptPtrs.fdsTable[i]);
 		}
 	}
@@ -1835,6 +1872,68 @@ namespace PrHelper {
 		}
 	}
 
+	// WT AMP MOD。中身はピッチ版と同じ並びで、MIN / MAX だけが増える。
+	static inline void addWtAmpModParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::WtAmpMod::enable,
+			prefixName + CPN::WtAmpMod::enable,
+			CPV::WtAmpMod::Enable::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WtAmpMod::depth,
+			prefixName + CPN::WtAmpMod::depth,
+			CPV::WtAmpMod::Depth::min, CPV::WtAmpMod::Depth::max, CPV::WtAmpMod::Depth::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WtAmpMod::speed,
+			prefixName + CPN::WtAmpMod::speed,
+			CPV::WtAmpMod::Speed::min, CPV::WtAmpMod::Speed::max, CPV::WtAmpMod::Speed::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::WtAmpMod::shape,
+			prefixName + CPN::WtAmpMod::shape,
+			CPV::WtAmpMod::Shape::min, CPV::WtAmpMod::Shape::max, CPV::WtAmpMod::Shape::initial
+		);
+		// 出力の下端と上端。波形スロットをまたいで 1 組だけ持つ。
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WtAmpMod::min,
+			prefixName + CPN::WtAmpMod::min,
+			CPV::WtAmpMod::Min::min, CPV::WtAmpMod::Min::max, CPV::WtAmpMod::Min::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WtAmpMod::max,
+			prefixName + CPN::WtAmpMod::max,
+			CPV::WtAmpMod::Max::min, CPV::WtAmpMod::Max::max, CPV::WtAmpMod::Max::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::WtAmpMod::waveSmooth,
+			prefixName + CPN::WtAmpMod::waveSmooth,
+			CPV::WtAmpMod::WaveSmooth::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::WtAmpMod::waveSlot,
+			prefixName + CPN::WtAmpMod::waveSlot,
+			CPV::WtAmpMod::WaveSlot::min, CPV::WtAmpMod::WaveSlot::max, CPV::WtAmpMod::WaveSlot::initial
+		);
+		for (int i = 0; i < CPV::WtAmpMod::FdsTable::size; ++i)
+		{
+			PrHelper::addInt(
+				layout,
+				prefix + CPK::WtAmpMod::fdsTable + juce::String(i),
+				prefixName + CPN::WtAmpMod::fdsTable + juce::String(i),
+				CPV::WtAmpMod::FdsTable::min, CPV::WtAmpMod::FdsTable::max, FdsMod::tables[0][i]
+			);
+		}
+	}
+
 	static inline void addSsgDutyParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		PrHelper::addInt(
 			layout, 
@@ -1938,6 +2037,50 @@ namespace PrHelper {
 			CPV::SsgHwEnv::Smooth::initial
 		);
 	}
+
+	// SSG HW PITCH ENV。波形スロットは音量版と同じで、Min / Max だけが
+	// セント値になる。音量版と同じチャンネル・オペレーターへ同時に置ける。
+	static inline void addSsgHwPEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgHwPEnv::enable,
+			prefixName + CPN::SsgHwPEnv::enable,
+			CPV::SsgHwPEnv::Enable::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::SsgHwPEnv::shape,
+			prefixName + CPN::SsgHwPEnv::shape,
+			CPV::SsgHwPEnv::Shape::min, CPV::SsgHwPEnv::Shape::max, CPV::SsgHwPEnv::Shape::initial
+		);
+		// 音量版と同じく、値が大きいほど速くなる周波数(Hz)として扱う
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::SsgHwPEnv::period,
+			prefixName + CPN::SsgHwPEnv::period,
+			CPV::SsgHwPEnv::Period::min, CPV::SsgHwPEnv::Period::max, CPV::SsgHwPEnv::Period::initial
+		);
+		// Min / Max はセント。1200 セントが 1 オクターブ。
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::SsgHwPEnv::min,
+			prefixName + CPN::SsgHwPEnv::min,
+			CPV::SsgHwPEnv::Min::min, CPV::SsgHwPEnv::Min::max, CPV::SsgHwPEnv::Min::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::SsgHwPEnv::max,
+			prefixName + CPN::SsgHwPEnv::max,
+			CPV::SsgHwPEnv::Max::min, CPV::SsgHwPEnv::Max::max, CPV::SsgHwPEnv::Max::initial
+		);
+		// 段差がそのまま音程の飛びになるので、鈍らせるスイッチを付けておく
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgHwPEnv::smooth,
+			prefixName + CPN::SsgHwPEnv::smooth,
+			CPV::SsgHwPEnv::Smooth::initial
+		);
+	}
 	// SSG 系のエンベロープ。音源のパラメータには触らないので、
 	// エフェクトでもそのまま使える。
 
@@ -1949,12 +2092,30 @@ namespace PrHelper {
 		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::max);
 		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::smooth);
 	}
+
+	static inline void setupSsgHwPEnv(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgHwPEnv& ptPtrs) {
+		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::enable);
+		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::shape);
+		ptPtrs.period = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::period);
+		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::min);
+		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::max);
+		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::smooth);
+	}
 	static inline void applySsgHwEnv(PrPtrsSsgHwEnv& ptPtrs, SsgHwEnvParams& params){
 		params.enable = getBool(ptPtrs.enable);
 		params.shape = getInt(ptPtrs.shape);
 		params.period = getFloat(ptPtrs.period);
 		params.min = getFloat(ptPtrs.min);
 		params.max = getFloat(ptPtrs.max);
+		params.smooth = getBool(ptPtrs.smooth);
+	}
+
+	static inline void applySsgHwPEnv(PrPtrsSsgHwPEnv& ptPtrs, SsgHwPEnvParams& params) {
+		params.enable = getBool(ptPtrs.enable);
+		params.shape = getInt(ptPtrs.shape);
+		params.period = getFloat(ptPtrs.period);
+		params.min = getInt(ptPtrs.min);
+		params.max = getInt(ptPtrs.max);
 		params.smooth = getBool(ptPtrs.smooth);
 	}
 	static inline void setupSsgSwEnvPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv& ptPtrs){

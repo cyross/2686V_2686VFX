@@ -106,6 +106,7 @@ B-Spline はこもるので、遠くで鳴っている感じを作れます。
 | [SSG SW AMP ENV](#ssg-sw-amp-env) | 音量 | 6 タップ | 独自 |
 | [SSG SW AMP ENV\[11\]](#ssg-sw-amp-env11) | 音量 | 11 タップ | 独自 |
 | [PITCH ENV](#pitch-env) | 音程 | 3 タップ | 独自 |
+| [SSG HW PITCH ENV](#ssg-hw-pitch-env) | 音程 | 波形 44 種 | 独自 |
 | [SSG SW PITCH ENV\[11\]](#ssg-sw-pitch-env11) | 音程 | 11 タップ | 独自 |
 
 音量側は掛け算で重なります。AMP ENV で全体の形を作り、SSG HW AMP ENV や
@@ -230,6 +231,31 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 打鍵の頭だけ音程を上げる、レーザーのように急降下させる、といった使い方を
 します。
 
+### SSG HW PITCH ENV
+
+**独自**の区分です。[SSG HW AMP ENV](#ssg-hw-amp-env) と**同じ形の波**を、
+音量ではなく音程へ当てます。実機のハードウェアエンベロープは音量にしか
+掛かりませんでしたが、同じ形を音程へ回すと、アルペジオやトリルのような
+動きが繰り返しで作れます。
+
+| つまみ | 内容 | 範囲 | 初期値 | オートメーション |
+| --- | --- | --- | ---: | --- |
+| **Enable** | 使う・使わない | False / True | False | [`SSG_SSGHWPENV_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-enable) |
+| **SHPE** | 波の形。SSG HW AMP ENV と同じ 44 種 | 0 〜 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-shape) |
+| **PERD** | 繰り返しの速さ | 0.1 〜 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-period) |
+| **MIN** | 動く範囲の下（セント） | -4800 〜 4800 | 0 | [`SSG_SSGHWPENV_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-min) |
+| **MAX** | 動く範囲の上（セント） | -4800 〜 4800 | 1200 | [`SSG_SSGHWPENV_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-max) |
+| **Smooth** | 段の角を丸める | False / True | False | [`SSG_SSGHWPENV_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-smooth) |
+
+MIN / MAX は**セント**です。1200 セントで 1 オクターブなので、初期値のまま
+Enable にすると 1 オクターブの範囲で音程が動きます。MIN と MAX の数値を
+入れ替えると、上下の向きが変わります。
+
+音程の段差がそのまま音の飛びになるので、PERD を上げたときは Smooth を
+入れると落ち着きます。
+
+形の一覧は [波形一覧](/2686V_2686VFX/reference/lists-waveform/) にあります。
+
 ### SSG SW PITCH ENV[11]
 
 音程側の **11 タップ**版です。作りは
@@ -289,6 +315,34 @@ WS Sweep Down / HuC6280 Wave / FDS Table** の 9 種類です。ファミコン�
 かかり方を持ってきたものです。
 
 `.wt` `.wt2` ファイルを読み込んで、自分で描いた形で揺らすこともできます。
+
+SHPE が **FDS Table** のときは、下の **FDS PITCH TABLE** で 32 段の
+レジスタ値を直接描けます。音量側の FDS AMP TABLE とは別に持ちます。
+
+## WT AMP MOD
+
+**独自**の区分です。WT PITCH MOD と**同じ変調波形**を、音程ではなく音量へ
+当てます。出力は **MIN〜MAX の間**を動きます。
+
+| つまみ | 内容 | 範囲 | 初期値 | オートメーション |
+| --- | --- | --- | ---: | --- |
+| **Enable** | 使う・使わない | False / True | False | [`SSG_AMPMOD_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-enable) |
+| **DPTH** | MAX からどれだけ下げるか | 0 〜 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-depth) |
+| **SPED** | 揺れの速さ | 0.1 〜 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-speed) |
+| **SHPE** | 揺らす形。WT PITCH MOD と同じ 9 種 | 0 〜 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-shape) |
+| **MIN** | 動く範囲の下 | 0 〜 1 | 0 | [`SSG_AMPMOD_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-min) |
+| **MAX** | 動く範囲の上 | 0 〜 1 | 1 | [`SSG_AMPMOD_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-max) |
+| **Smooth** | 段の角を丸める | False / True | True | [`SSG_AMPMOD_WAVE_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-wave-smooth) |
+
+**DPTH は「MAX からどれだけ下げるか」の割合です。** 0 のままだと MAX から
+動かないので、音は変わりません。1 まで上げると MIN〜MAX の全域を使います。
+WT PITCH MOD の DPTH が 0 のときに音程が動かないのと同じ考え方です。
+
+MIN / MAX は**波形スロットをまたいで 1 組だけ**持ちます。スロットや形を
+切り替えても、振れる範囲は変わりません。
+
+SHPE が **FDS Table** のときは、下の **FDS AMP TABLE** で 32 段の
+レジスタ値を直接描けます。音程側の FDS PITCH TABLE とは別に持ちます。
 
 ## LFO
 

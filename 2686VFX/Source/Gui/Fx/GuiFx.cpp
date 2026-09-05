@@ -2,6 +2,7 @@
 #include "../../Processor/Mod/ProcessorModKeys.h"
 #include <algorithm>
 #include "./GuiFx.h"
+#include "../../Effect/Fx/FxOrder.h"
 
 #include <functional>
 
@@ -64,20 +65,24 @@ GuiFx::GuiFx(const GuiContext& context) :
     shiftBypassToggle(context),
     modAmpEnvGroup(context),
     modSsgHwEnvGroup(context),
+    modWtAmpModGroup(context),
     modSsgSwEnv11Group(context),
     modLfoGroup(context),
     modPitchEnvGroup(context),
     modSsgSwPEnv11Group(context),
     modWtModGroup(context),
+    modSsgHwPEnvGroup(context),
     modMulDetuneGroup(context),
     modUnisonGroup(context),
     ampEnvComponent(context),
     ssgHwEnvComponent(context),
+    wtAmpModComponent(context),
     ssgSwEnv11Component(context),
     lfoComponent(context),
     pitchEnvComponent(context),
     ssgSwPEnv11Component(context),
     wtModComponent(context),
+    ssgHwPEnvComponent(context),
     mulDetuneComponent(context),
     unisonComponent(context),
     wtModBaseFreqSlider(context),
@@ -196,7 +201,11 @@ void GuiFx::setup()
 {
     const juce::String code = FxPrKey::prefix;
     int tabOrder = 1;
-    const juce::Colour groupBgColour = juce::Colours::darkblue.darker(0.3f).withAlpha(0.5f);
+    // 枠の地色は系統ごとに分ける。実体は GuiColor にあり、SETTINGS から差し替えられる。
+    const juce::Colour groupBgColour = GuiColor::FxGroup::Fx;
+    const juce::Colour modBgColour = GuiColor::FxGroup::Mod;
+    const juce::Colour lfoBgColour = GuiColor::FxGroup::Lfo;
+    const juce::Colour otherBgColour = GuiColor::FxGroup::Other;
 
     // MainGroup
     mainGroup.setup(*this, FxGuiText::Group::mainGroup);
@@ -225,15 +234,19 @@ void GuiFx::setup()
 
     modAmpEnvGroup.setup(*this, juce::String("") + "AMP ENV");
     modSsgHwEnvGroup.setup(*this, juce::String("") + "SSG HW AMP ENV");
+    modWtAmpModGroup.setup(*this, juce::String("") + "WT AMP MOD");
     modSsgSwEnv11Group.setup(*this, juce::String("") + "SSG SW AMP ENV[11]");
     modLfoGroup.setup(*this, juce::String("") + "LFO");
 
-    // 変調の枠も、他の効果と同じ青系統に塗る。
+    // 変調の枠は赤系統。効果の青と見分けが付くようにする。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup })
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modWtAmpModGroup })
     {
-        group->setBackgroundColor(groupBgColour);
+        group->setBackgroundColor(modBgColour);
     }
+
+    // LFO は音量と音程の両方へ掛かるので、変調とも別の緑系統にする。
+    modLfoGroup.setBackgroundColor(lfoBgColour);
 
     ampEnvComponent.setupComponent(modAmpEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
         FxGuiText::Fx::bypass);
@@ -241,6 +254,7 @@ void GuiFx::setup()
     // 見出しの色は、実機の機能か独自の機能かで塗り分けている。
     // ここは SSG チャンネルではなく出力へ借りて置くので、既定のままにする。
     ssgHwEnvComponent.setupComponent(modSsgHwEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+    wtAmpModComponent.setupComponent(modWtAmpModGroup.contentCanvas, ModPrKey::prefix, tabOrder);
 
 
     ssgSwEnv11Component.setupComponent(modSsgSwEnv11Group.contentCanvas, ModPrKey::prefix, tabOrder,
@@ -260,10 +274,11 @@ void GuiFx::setup()
     modPitchEnvGroup.setup(*this, juce::String("") + "PITCH ENV");
     modSsgSwPEnv11Group.setup(*this, juce::String("") + "SSG SW PITCH ENV[11]");
     modWtModGroup.setup(*this, juce::String("") + "WT PITCH MOD");
+    modSsgHwPEnvGroup.setup(*this, juce::String("") + "SSG HW PITCH ENV");
 
-    for (auto* group : { &modPitchEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup })
+    for (auto* group : { &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup })
     {
-        group->setBackgroundColor(groupBgColour);
+        group->setBackgroundColor(modBgColour);
     }
 
     pitchEnvComponent.setupComponent(modPitchEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
@@ -273,6 +288,7 @@ void GuiFx::setup()
         CPK::ssgSwPEnv11 + CPK::bypass, FxGuiText::Mod::SsgSwPEnv11::bypass);
 
     wtModComponent.setupComponent(modWtModGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+    ssgHwPEnvComponent.setupComponent(modSsgHwPEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
 
     wtModBaseFreqSlider.setup({ .parent = modWtModGroup.contentCanvas,
         .id = ModPrKey::prefix + ModPrKey::WtMod::baseFreq,
@@ -293,9 +309,10 @@ void GuiFx::setup()
     modMulDetuneGroup.setup(*this, juce::String("") + "MUL・DET");
     modUnisonGroup.setup(*this, juce::String("") + "UNISON・HARMONY");
 
+    // 音程を一定量ずらすものは変調とも LFO とも違うので、シアン系統にする。
     for (auto* group : { &modMulDetuneGroup, &modUnisonGroup })
     {
-        group->setBackgroundColor(groupBgColour);
+        group->setBackgroundColor(otherBgColour);
     }
 
     mulDetuneComponent.setupComponent(modMulDetuneGroup.contentCanvas, ModPrKey::prefix, tabOrder);
@@ -818,8 +835,9 @@ void GuiFx::setup()
     // 変調の中身は最初から開いておく。FX タブでは 1 枠が小さく、
     // たたまれていると何が入っているのか分からないため。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modLfoGroup,
-        &modPitchEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup, &modMulDetuneGroup, &modUnisonGroup })
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modWtAmpModGroup, &modLfoGroup,
+        &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup,
+        &modMulDetuneGroup, &modUnisonGroup })
     {
         for (auto* child : group->contentCanvas.getChildren())
         {
@@ -897,10 +915,29 @@ void GuiFx::layout(juce::Rectangle<int> content)
     // 縦長の枠にして横へ並べるので、縦には送らない。
     stripViewport.setBounds(pageArea);
 
-    int columns = NumEffects + FxGuiValue::Fx::ModPanels;
+    // 変調の列は簡易表示モードで隠れることがある。出す枚数をここで数えて、
+    // 送り台の幅をそれに合わせる。
+    //
+    // 以前は決め打ちの ModPanels (9) から出していた。実際の列は 11 あるので
+    // 右端の MUL/DET と UNISON/HARMONY が送り台からはみ出して出てこず、
+    // 逆に列を隠したときは、隠したぶんの空きが右に残っていた。
+    static const SimpleView::Cat modCats[] = {
+        SimpleView::AmpEnv, SimpleView::SsgHwAmpEnv, SimpleView::WtAmpMod,
+        SimpleView::SsgSwAmpEnv11, SimpleView::PitchEnv, SimpleView::SsgHwPitchEnv,
+        SimpleView::SsgSwPitchEnv11, SimpleView::WtPitchMod, SimpleView::Lfo,
+        SimpleView::MulDet, SimpleView::Unison,
+    };
+
+    int modColumns = 0;
+
+    for (auto cat : modCats) {
+        if (ctx.audioProcessor.isSimpleShown(cat)) ++modColumns;
+    }
+
+    int columns = NumEffects + modColumns;
 
     int canvasWidth = columns * FxGuiValue::Fx::ColWidth
-        + (columns - 1) * FxGuiValue::Fx::ColGap;
+        + juce::jmax(0, columns - 1) * FxGuiValue::Fx::ColGap;
 
     // 横の送り棒が出るぶんだけ、中身の丈を短くする。
     int canvasHeight = juce::jmax(1, pageArea.getHeight() - stripViewport.getScrollBarThickness());
@@ -919,8 +956,19 @@ void GuiFx::layout(juce::Rectangle<int> content)
         auto modArea = modStrip;
         // 列を 1 つ切り出して、中身を上から積む。積んだ高さをそのまま
         // キャンバスの高さにするので、はみ出したぶんはスクロールで届く。
-        auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody)
+        // 簡易表示モードで隠す枠は、列ごと出さない。
+        // 隠した枠のぶんだけ右の枠が左へ詰まる。
+        auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody,
+            SimpleView::Cat cat)
         {
+            if (!ctx.audioProcessor.isSimpleShown(cat)) {
+                group.setVisible(false);
+
+                return;
+            }
+
+            group.setVisible(true);
+
             auto colArea = row.removeFromLeft(FxGuiValue::Fx::ColWidth);
 
             row.removeFromLeft(FxGuiValue::Fx::ColGap);
@@ -940,14 +988,14 @@ void GuiFx::layout(juce::Rectangle<int> content)
             group.setContentHeight(rect.getY() + categoryContentTrailingPadding);
         };
 
-        layoutModColumn(modArea, modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); });
+        layoutModColumn(modArea, modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); }, SimpleView::AmpEnv);
+        layoutModColumn(modArea, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwAmpEnv);
+        layoutModColumn(modArea, modWtAmpModGroup, [&](juce::Rectangle<int>& rect) { wtAmpModComponent.layoutComponent(rect); }, SimpleView::WtAmpMod);
+        layoutModColumn(modArea, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); }, SimpleView::SsgSwAmpEnv11);
 
-        layoutModColumn(modArea, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); });
-
-        layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); });
+        layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); }, SimpleView::PitchEnv);
+        layoutModColumn(modArea, modSsgHwPEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwPEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwPitchEnv);
+        layoutModColumn(modArea, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); }, SimpleView::SsgSwPitchEnv11);
         layoutModColumn(modArea, modWtModGroup, [&](juce::Rectangle<int>& rect)
         {
             wtModComponent.layoutComponent(rect);
@@ -968,10 +1016,14 @@ void GuiFx::layout(juce::Rectangle<int> content)
             {
                 wtModBaseFreqSlider.setBounds(rect.removeFromTop(FxGuiValue::Fx::ModBaseFreqHeight));
             }
-        });
+        }, SimpleView::WtPitchMod);
 
-        layoutModColumn(modArea, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); });
-        layoutModColumn(modArea, modUnisonGroup, [&](juce::Rectangle<int>& rect) { unisonComponent.layoutComponent(rect); });
+        // LFO は音の高さにも音量にも効くので、どちらの並びにも属さない。
+        // MUL/DET と UNISON/HARMONY の手前へ置いて、その 3 つでひとまとまりにする。
+        layoutModColumn(modArea, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); }, SimpleView::Lfo);
+
+        layoutModColumn(modArea, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); }, SimpleView::MulDet);
+        layoutModColumn(modArea, modUnisonGroup, [&](juce::Rectangle<int>& rect) { unisonComponent.layoutComponent(rect); }, SimpleView::Unison);
     }
 
     mainGroup.setBounds(mainArea);
@@ -1420,24 +1472,11 @@ void GuiFx::importFxOrder()
                     // 数で書かれていたときはここへ来る
                     if (id < 0 && name.containsOnly("0123456789")) id = name.getIntValue();
 
-                    // このプラグインに無い効果は読み飛ばす。
-                    // 他のプラグインにしかないものが混ざっていても壊れない。
-                    if (id < 0 || id >= NumEffects) continue;
-
-                    // 同じものが二度出てきたら後のほうは捨てる
-                    if (std::find(newOrders.begin(), newOrders.end(), id) != newOrders.end()) continue;
-
                     newOrders.push_back(id);
                 }
 
-                // 書かれていなかった効果を後ろへ足す。必ず全部そろえる。
-                for (int i = 0; i < NumEffects; i++) {
-                    if (std::find(newOrders.begin(), newOrders.end(), i) == newOrders.end()) {
-                        newOrders.push_back(i);
-                    }
-                }
-
-                ctx.audioProcessor.updateFxOrder(newOrders);
+                // 範囲外・重複・取りこぼしのならしは 1 箇所にまとめてある。
+                ctx.audioProcessor.updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
 
                 updateFxOrder();
             }
@@ -1545,6 +1584,18 @@ void GuiFx::importFxParam()
                     mbcRateSlider.setValue(bitCrusher.getFloat("rate", (float)mbcRateSlider.getValue()), juce::sendNotification);
                     mbcBitsSlider.setValue(bitCrusher.getFloat("bits", (float)mbcBitsSlider.getValue()), juce::sendNotification);
                     mbcMixSlider.setValue(bitCrusher.getFloat("mix", (float)mbcMixSlider.getValue()), juce::sendNotification);
+                }
+
+                {
+                    // 3.0.0 のファイルにはこのまとまりが無い。
+                    // 無ければ既定として今の値をそのまま使う。
+                    auto pcmBitCrusher = reader->child("pcmBitCrusher");
+
+                    pcmBypassBtn.setToggleState(pcmBitCrusher.getBool("bypass", pcmBypassBtn.getToggleState()), juce::sendNotification);
+                    pcmBitSelector.setSelectedItemIndex(pcmBitCrusher.getInt("bits", pcmBitSelector.getSelectedItemIndex()), juce::sendNotification);
+                    pcmRateSelector.setSelectedItemIndex(pcmBitCrusher.getInt("rate", pcmRateSelector.getSelectedItemIndex()), juce::sendNotification);
+                    pcmInterpSelector.setSelectedItemIndex(pcmBitCrusher.getInt("interp", pcmInterpSelector.getSelectedItemIndex()), juce::sendNotification);
+                    pcmMixSlider.setValue(pcmBitCrusher.getFloat("mix", (float)pcmMixSlider.getValue()), juce::sendNotification);
                 }
 
                 {
@@ -1801,6 +1852,18 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
     }
 
     {
+        // このプラグインにしかない効果。音源で読んだときは、この
+        // まとまりが無いものとして飛ばされる。
+        auto pcmBitCrusher = writer.child("pcmBitCrusher");
+
+        pcmBitCrusher.set("bypass", pcmBypassBtn.getToggleState());
+        pcmBitCrusher.set("bits", pcmBitSelector.getSelectedItemIndex());
+        pcmBitCrusher.set("rate", pcmRateSelector.getSelectedItemIndex());
+        pcmBitCrusher.set("interp", pcmInterpSelector.getSelectedItemIndex());
+        pcmBitCrusher.set("mix", (float)pcmMixSlider.getValue());
+    }
+
+    {
         auto delay = writer.child("delay");
 
         delay.set("bypass", dBypassBtn.getToggleState());
@@ -1866,4 +1929,52 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
 void GuiFx::initParams()
 {
     ctx.audioProcessor.initParams(FxPrKey::prefix + "_");
+}
+
+void GuiFx::bypassHiddenCategories()
+{
+    // いま隠れている枠だけを切る。出したままの枠は触らない。
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+}
+
+void GuiFx::openEnabledCategories()
+{
+    // 効いている枠を開く。札を持たない枠は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
+    if (ssgHwEnvComponent.hasBypassSwitch() && !ssgHwEnvComponent.isCategoryBypassed()) ssgHwEnvComponent.setCategoryOpen(true);
+    if (wtAmpModComponent.hasBypassSwitch() && !wtAmpModComponent.isCategoryBypassed()) wtAmpModComponent.setCategoryOpen(true);
+    if (ssgSwEnv11Component.hasBypassSwitch() && !ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(true);
+    if (pitchEnvComponent.hasBypassSwitch() && !pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(true);
+    if (ssgHwPEnvComponent.hasBypassSwitch() && !ssgHwPEnvComponent.isCategoryBypassed()) ssgHwPEnvComponent.setCategoryOpen(true);
+    if (ssgSwPEnv11Component.hasBypassSwitch() && !ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(true);
+    if (wtModComponent.hasBypassSwitch() && !wtModComponent.isCategoryBypassed()) wtModComponent.setCategoryOpen(true);
+    if (lfoComponent.hasBypassSwitch() && !lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(true);
+    if (mulDetuneComponent.hasBypassSwitch() && !mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(true);
+    if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
+}
+
+void GuiFx::closeBypassedCategories()
+{
+    // 切ってある枠を閉じる。札を持たない枠は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
+    if (ssgHwEnvComponent.hasBypassSwitch() && ssgHwEnvComponent.isCategoryBypassed()) ssgHwEnvComponent.setCategoryOpen(false);
+    if (wtAmpModComponent.hasBypassSwitch() && wtAmpModComponent.isCategoryBypassed()) wtAmpModComponent.setCategoryOpen(false);
+    if (ssgSwEnv11Component.hasBypassSwitch() && ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(false);
+    if (pitchEnvComponent.hasBypassSwitch() && pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(false);
+    if (ssgHwPEnvComponent.hasBypassSwitch() && ssgHwPEnvComponent.isCategoryBypassed()) ssgHwPEnvComponent.setCategoryOpen(false);
+    if (ssgSwPEnv11Component.hasBypassSwitch() && ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(false);
+    if (wtModComponent.hasBypassSwitch() && wtModComponent.isCategoryBypassed()) wtModComponent.setCategoryOpen(false);
+    if (lfoComponent.hasBypassSwitch() && lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(false);
+    if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
+    if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
 }

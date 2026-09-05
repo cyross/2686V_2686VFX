@@ -152,7 +152,7 @@ format.**
 - Preset extensions **differ per plugin**, so another plugin's presets don't
   appear in the list
 - **FX order and parameter files are shared**, though, and move freely between
-  all five plugins
+  every plugin
 
 See [File formats and locations](/2686V_2686VFX/en/files/format/) and
 [Converting from the old formats](/2686V_2686VFX/en/files/convert/) for details.

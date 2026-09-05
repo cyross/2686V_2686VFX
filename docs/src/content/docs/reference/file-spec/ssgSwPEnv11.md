@@ -2,7 +2,7 @@
 title: SSG ソフトウェア音程エンベロープ（11 タップ）
 description: .ssgSwPEnv11.json の中身
 sidebar:
-  order: 6
+  order: 7
 ---
 
 SSG SW PITCH ENV[11] の設定。

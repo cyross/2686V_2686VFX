@@ -26,8 +26,10 @@ namespace SettingsKey
 	static inline const juce::String defaultQualityParamDir = "defaultQualityParamDir";
 	static inline const juce::String defaultPcmPlayParamDir = "defaultPcmPlayParamDir";
 	static inline const juce::String defaultToneNoiseParamDir = "defaultToneNoiseParamDir";
+	static inline const juce::String defaultWtModParamDir = "defaultWtModParamDir";
 	static inline const juce::String defaultColorSettingDir = "defaultColorSettingDir";
 	static inline const juce::String showTooltips = "showTooltips";
+	static inline const juce::String simpleView = "simpleView";
 	static inline const juce::String useHeadroom = "useHeadRoom";
 	static inline const juce::String headroomGain = "headRoomGain";
 	static inline const juce::String showVirtualKeyboard = "showVirtualKeyboard";

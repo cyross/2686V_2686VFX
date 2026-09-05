@@ -24,7 +24,9 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -76,6 +78,7 @@ class GuiSsg : public GuiBase
     GuiComponentAmpEnv ampEnvComponent;
     // MODULATION (FDS / WonderSwan / HuC6280)
     GuiComponentWtMod modComponent;
+    GuiComponentWtAmpMod ampModComponent;
 
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnvComponent;
@@ -86,6 +89,7 @@ class GuiSsg : public GuiBase
     GuiComponentSsgSwEnv11 ssgSwEnv11Component;
     GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
     GuiComponentSsgHwEnv ssgHwEnvComponent;
+    GuiComponentSsgHwPEnv ssgHwPEnvComponent;
 
     // Detune
     GuiComponentMulDetune mulDetuneComponent;
@@ -119,7 +123,9 @@ class GuiSsg : public GuiBase
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
+    GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -172,11 +178,13 @@ public:
         unisonComponent(context),
         ampEnvComponent(context),
         modComponent(context),
+        ampModComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
         ssgSwEnv11Component(context),
         ssgSwPEnv11Component(context),
         ssgHwEnvComponent(context),
+        ssgHwPEnvComponent(context),
         mulDetuneComponent(context),
         lfo(context),
         dutyModeSelector(context),
@@ -200,7 +208,9 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgHwEnv(context),
+        ieSsgHwPEnv(context),
         ieWtMod(context),
+        ieWtAmpMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),

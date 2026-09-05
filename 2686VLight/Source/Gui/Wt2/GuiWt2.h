@@ -24,9 +24,11 @@
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
+#include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -86,11 +88,13 @@ class GuiWt2 : public GuiBase
 
     GuiCategoryLabel formCat;
     GuiComponentWtMod modComponent;
+    GuiComponentWtAmpMod ampModComponent;
 
     GuiComponentFix fixComponent;
 
     // SSG Hw Env
     GuiComponentSsgHwEnv ssgHwEnv;
+    GuiComponentSsgHwPEnv ssgHwPEnv;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -137,7 +141,9 @@ class GuiWt2 : public GuiBase
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
+    GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -178,8 +184,10 @@ public:
 		qualityComponent(context),
         formCat(context),
         modComponent(context),
+        ampModComponent(context),
         fixComponent(context),
         ssgHwEnv(context),
+        ssgHwPEnv(context),
         unisonComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),
@@ -198,7 +206,9 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgHwEnv(context),
+        ieSsgHwPEnv(context),
         ieWtMod(context),
+        ieWtAmpMod(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),

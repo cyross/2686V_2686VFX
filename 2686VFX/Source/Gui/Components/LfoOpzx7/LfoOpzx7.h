@@ -49,6 +49,31 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiSlider amd;
     std::unique_ptr<juce::FileChooser> fileChooser;
 public:
+
+    // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
+    //
+    // 見出しを見せるかどうかはレイアウト側では戻らない (あちらは場所を
+    // 決めるだけ) ので、ここで両方向とも面倒を見る。
+    void setCategoryVisible(bool visible) {
+        cat.setHidden(!visible);
+        cat.setVisible(visible);
+    }
+
+    // 簡易表示モードの一括操作で使う口。
+    //
+    // 区分によって「バイパス」だったり「有効」だったりするので、
+    // ここで意味を揃えて「切ってあるか」で答える。
+    bool hasBypassSwitch() const { return true; }
+
+    bool isCategoryBypassed() const { return !pmEnable.getToggleState() && !amEnable.getToggleState(); }
+
+    void setCategoryBypassed(bool bypassed) {
+        pmEnable.setToggleState(!bypassed, juce::sendNotification);
+        amEnable.setToggleState(!bypassed, juce::sendNotification);
+    }
+
+    // 見出しの開閉
+    void setCategoryOpen(bool open) { cat.setDetailVisible(open); }
     GuiComponentLfoOpzx7(const GuiContext& context) :
         GuiBase(context),
         cat(context),

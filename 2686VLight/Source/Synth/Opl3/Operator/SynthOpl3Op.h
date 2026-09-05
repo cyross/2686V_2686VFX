@@ -8,6 +8,10 @@
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
+#include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../../Generator/WtMod/GenWtAmpModulator.h"
+#include "../../../Generator/WtMod/GenWtModulator.h"
 #include "../../../Effect/Feedback/Feedback.h"
 #include "../../../Effect/Detune/Opl/DetuneOpl.h"
 
@@ -61,6 +65,17 @@ private:
 	SsgSwEnv m_ssgSwEnv;
 	SsgSwEnv11 m_ssgSwEnv11;
 	SsgSwPEnv11 m_ssgSwPenv11;
+
+	// SSG HW PITCH ENV。オペレーターごとに 1 つ持つ。
+	SsgHwPEnv m_ssgHwPEnv;
+
+	// WT AMP MOD。オペレーターごとに 1 つ持つ。
+	WtAmpModulator m_wtAmpMod;
+
+	// チップ全体の SSG HW AMP ENV / WT PITCH MOD とは別に、
+	// オペレーターごとにも 1 つずつ持つ。両方を同時に掛けられる。
+	SsgHwEnv m_ssgHwEnv;
+	WtModulator m_wtMod;
 
 	std::array<float, 8> fVector = { 0.0f };
 

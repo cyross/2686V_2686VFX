@@ -1,0 +1,68 @@
+---
+title: OPNV
+description: OPNV の構成と使いどころ
+sidebar:
+  order: 7
+---
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/logos/OPNV.png" alt="OPNV ロゴ" width="128" height="128" />
+	<figcaption>ロゴ</figcaption>
+</figure>
+
+**OPN 系の 2 チャンネル**だけに絞ったものです。YM2608 (OPNA) と
+YM2203 (OPN) が入っています。FM の音を 1 パートぶんだけ差したいときに、
+ほかのチャンネルを抱えずに済みます。
+
+## プラグイン表示
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/OPNV.png" alt="OPNV プラグイン全景" width="1426" height="738" />
+	<figcaption>プラグイン全景</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/OPNV.png" alt="OPNV ABOUTタブ" width="380" height="499" />
+	<figcaption>ABOUTタブ</figcaption>
+</figure>
+
+## 収録しているチャンネル
+
+| チャンネル | |
+| --- | :---: |
+| [OPNA](/2686V_2686VFX/chips/opna/) | ✔ |
+| [OPN](/2686V_2686VFX/chips/opn/) | ✔ |
+
+持っていないのは OPL / OPL3 / OPM / OPZX7 / SSG / WAVETABLE / WT2 / WTPLUS / RHYTHM / ADPCM / BEEP です。
+
+各チャンネルの中身は、それぞれのページを参照してください。どのチャンネルにも
+同じ形で出てくる区分は [共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
+
+## カーブ編集（ADV）
+
+**使えます。**
+
+詳しくは [カーブ編集](/2686V_2686VFX/chips/adv/) を参照してください。
+
+## こんなときに
+
+- 曲の中の FM パートを 1 つだけ足したいとき
+- PC-9801 系の FM の音色を、SSG 抜きで作りたいとき
+
+## ファイル
+
+| 種類 | 拡張子 |
+| --- | --- |
+| プリセット | `.opnv.json` |
+| パラメータファイル | ほかのプラグインと共通 |
+
+プリセットはプラグインごとに拡張子が違うので、`Presets` フォルダへまとめて
+置いても、そのプラグインのものだけが一覧に出ます。パラメータファイルは
+**プラグインをまたいで読めます**。
+
+置き場所は [ファイルの形式と置き場所](/2686V_2686VFX/files/format/) を参照してください。
+
+:::note
+チャンネルを絞ったぶん、**同時に何本も挿したときの負荷が軽くなります**。
+全部入りが要るときは [2686V](/2686V_2686VFX/plugins/2686v/) を使ってください。
+:::

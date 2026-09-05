@@ -12,6 +12,7 @@ class SsgProcessor : public PrBase
     PrPtrsQuality pQuality;
     PrPtrsAdsrAmpEnv pAmpEnv;
     PrPtrsWtMod pWtMod;
+    PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsPitchEnv pPitchEnv;
     PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv11 pSsgSwEnv11;
@@ -23,6 +24,7 @@ class SsgProcessor : public PrBase
     PrPtrsSsgDuty pDuty;
     PrPtrsSsgTri pTri;
     PrPtrsSsgHwEnv pHwEnv;
+    PrPtrsSsgHwPEnv pHwPEnv;
     PrPtrsUnison pUnison;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

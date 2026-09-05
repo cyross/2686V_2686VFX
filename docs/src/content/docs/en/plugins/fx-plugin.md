@@ -67,6 +67,7 @@ through.
 | AMP ENV | the amplitude ADSR |
 | SSG HW AMP ENV | the SSG hardware envelope |
 | SSG SW AMP ENV[11] | the SSG software envelope (11 steps) |
+| WT AMP MOD | wavetable level modulation (FDS / WonderSwan / HuC6280) |
 | LFO | the AM side of the OPZX7 LFO |
 
 ### Moving the pitch
@@ -74,6 +75,7 @@ through.
 | Panel | Taken from |
 | --- | --- |
 | PITCH ENV | the pitch ADSR |
+| SSG HW PITCH ENV | the SSG hardware envelope shapes pointed at pitch |
 | SSG SW PITCH ENV[11] | the pitch software envelope (11 steps) |
 | WT PITCH MOD | wavetable pitch modulation (FDS / WonderSwan / HuC6280) |
 | LFO | the PM side of the OPZX7 LFO |
@@ -114,14 +116,29 @@ crossfaded so the sound doesn't break.
 higher, or open the unison spread wide, listen as you go.
 :::
 
-### The WT PITCH MOD base frequency
+### The WT PITCH MOD / WT AMP MOD base frequency
 
-On real hardware, the WT PITCH MOD rate is a **ratio against the carrier
-frequency**. An effect has no carrier, so the panel lets you set a **base
-frequency** to stand in for it (1–2000 Hz, 440 Hz by default).
+On real hardware, the WT PITCH MOD and WT AMP MOD rates are a **ratio against
+the carrier frequency**. An effect has no carrier, so the panel lets you set a
+**base frequency** to stand in for it (1–2000 Hz, 440 Hz by default). The two
+modulators share it.
 
 **This has no counterpart on the real chips; it is our own addition.** The lower
 you set it, the slower the modulation.
+
+### Panel colours
+
+The panels sit side by side, so the **background colour tells the sections
+apart**.
+
+| Section | Colour |
+| --- | --- |
+| Effects (including the PCM bit crusher) | blue |
+| Modulation of the output | red |
+| LFO | green |
+| MUL・DET / UNISON・HARMONY | cyan |
+
+The colours can be swapped under COLORS in SETTINGS.
 
 ## Files
 
@@ -142,6 +159,8 @@ never causes a mix-up.
   doesn't exist there, so it is skipped
 
 :::tip
-2686VFX has no PRESET tab. To keep a set of settings, use your DAW's own plugin
-preset feature.
+2686VFX has no PRESET tab. **Import and export take its place:** write the
+effect order, the effect parameters and each modulation section out to files
+and you can put the same setup back later. Your DAW's own plugin preset feature
+works too.
 :::

@@ -26,6 +26,7 @@ set(UNDER_TEST_SOURCES
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/SsgSw/EnvSsgSw.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.cpp"
 
     "${TEST_TARGET_SOURCE_ROOT}/Effect/KeyScale/Ma7/KSMa7.cpp"
