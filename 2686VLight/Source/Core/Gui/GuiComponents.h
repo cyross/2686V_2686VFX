@@ -764,6 +764,10 @@ public:
     void enablementChanged() override
     {
         applyTextColour();
+
+        // 基底の処理 (押した状態の作り直しと描き直し) を必ず通す。
+        // ここを省くと、使える状態へ変えても見た目が古いまま残る。
+        juce::TextButton::enablementChanged();
     }
 
 private:

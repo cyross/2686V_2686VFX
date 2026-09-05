@@ -915,10 +915,29 @@ void GuiFx::layout(juce::Rectangle<int> content)
     // 縦長の枠にして横へ並べるので、縦には送らない。
     stripViewport.setBounds(pageArea);
 
-    int columns = NumEffects + FxGuiValue::Fx::ModPanels;
+    // 変調の列は簡易表示モードで隠れることがある。出す枚数をここで数えて、
+    // 送り台の幅をそれに合わせる。
+    //
+    // 以前は決め打ちの ModPanels (9) から出していた。実際の列は 11 あるので
+    // 右端の MUL/DET と UNISON/HARMONY が送り台からはみ出して出てこず、
+    // 逆に列を隠したときは、隠したぶんの空きが右に残っていた。
+    static const SimpleView::Cat modCats[] = {
+        SimpleView::AmpEnv, SimpleView::SsgHwAmpEnv, SimpleView::WtAmpMod,
+        SimpleView::SsgSwAmpEnv11, SimpleView::PitchEnv, SimpleView::SsgHwPitchEnv,
+        SimpleView::SsgSwPitchEnv11, SimpleView::WtPitchMod, SimpleView::Lfo,
+        SimpleView::MulDet, SimpleView::Unison,
+    };
+
+    int modColumns = 0;
+
+    for (auto cat : modCats) {
+        if (ctx.audioProcessor.isSimpleShown(cat)) ++modColumns;
+    }
+
+    int columns = NumEffects + modColumns;
 
     int canvasWidth = columns * FxGuiValue::Fx::ColWidth
-        + (columns - 1) * FxGuiValue::Fx::ColGap;
+        + juce::jmax(0, columns - 1) * FxGuiValue::Fx::ColGap;
 
     // 横の送り棒が出るぶんだけ、中身の丈を短くする。
     int canvasHeight = juce::jmax(1, pageArea.getHeight() - stripViewport.getScrollBarThickness());
@@ -974,8 +993,6 @@ void GuiFx::layout(juce::Rectangle<int> content)
         layoutModColumn(modArea, modWtAmpModGroup, [&](juce::Rectangle<int>& rect) { wtAmpModComponent.layoutComponent(rect); }, SimpleView::WtAmpMod);
         layoutModColumn(modArea, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); }, SimpleView::SsgSwAmpEnv11);
 
-        layoutModColumn(modArea, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); }, SimpleView::Lfo);
-
         layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); }, SimpleView::PitchEnv);
         layoutModColumn(modArea, modSsgHwPEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwPEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwPitchEnv);
         layoutModColumn(modArea, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); }, SimpleView::SsgSwPitchEnv11);
@@ -1000,6 +1017,10 @@ void GuiFx::layout(juce::Rectangle<int> content)
                 wtModBaseFreqSlider.setBounds(rect.removeFromTop(FxGuiValue::Fx::ModBaseFreqHeight));
             }
         }, SimpleView::WtPitchMod);
+
+        // LFO は音の高さにも音量にも効くので、どちらの並びにも属さない。
+        // MUL/DET と UNISON/HARMONY の手前へ置いて、その 3 つでひとまとまりにする。
+        layoutModColumn(modArea, modLfoGroup, [&](juce::Rectangle<int>& rect) { lfoComponent.layoutComponent(rect); }, SimpleView::Lfo);
 
         layoutModColumn(modArea, modMulDetuneGroup, [&](juce::Rectangle<int>& rect) { mulDetuneComponent.layoutComponent(rect); }, SimpleView::MulDet);
         layoutModColumn(modArea, modUnisonGroup, [&](juce::Rectangle<int>& rect) { unisonComponent.layoutComponent(rect); }, SimpleView::Unison);
