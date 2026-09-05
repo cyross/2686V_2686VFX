@@ -71,10 +71,12 @@ CHIPS = {
 #   product … 出力名。省略するとターゲット名がそのまま使われる
 #   ext     … プリセットの拡張子 (先頭の . は付けない)
 #   chips   … 残す音源。並びがそのままタブと OscMode の並びになる
+#
+# どれも「誰向けか」がはっきりしているものだけを並べている。
+# FM を全部載せた FMsV も検討されたが、OPNV・OPLV・OPMV があるうえに
+# 全部載せを出すと誰向けか説明できなくなるため、取りやめになった。
 # ---------------------------------------------------------------------------
 PLUGINS = {
-    "FMsV":   dict(code="FMSV", ext="fmsv",
-                   chips=["OPNA", "OPN", "OPL", "OPL3", "OPM", "OPZX7"]),
     "OPNV":   dict(code="OPNV", ext="opnv", chips=["OPNA", "OPN"]),
     "OPLV":   dict(code="OPLV", ext="oplv", chips=["OPL", "OPL3"]),
     "OPMV":   dict(code="OPMV", ext="opmv", chips=["OPM"]),
