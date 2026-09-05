@@ -26,6 +26,15 @@ void GuiWavePreviewGrid::setSelected(int slot)
     repaint();
 }
 
+void GuiWavePreviewGrid::setActive(int slot)
+{
+    if (m_active == slot) return;
+
+    m_active = slot;
+
+    repaint();
+}
+
 void GuiWavePreviewGrid::paint(juce::Graphics& g)
 {
     const int count = (int)m_slots.size();
@@ -57,6 +66,12 @@ void GuiWavePreviewGrid::paint(juce::Graphics& g)
 
         g.setColour(juce::Colours::black.withAlpha(0.35f));
         g.fillRoundedRectangle(bounds, guiCornerRadius);
+
+        // 鳴っているスロットは下地に色を敷く。枠 (読み込み・消去の対象) とは別。
+        if (i == m_active) {
+            g.setColour(GuiColor::WavePreview::ActiveSlotBg.get());
+            g.fillRoundedRectangle(bounds, guiCornerRadius);
+        }
 
         auto area = bounds.reduced(2.0f);
 
@@ -98,8 +113,9 @@ void GuiWavePreviewGrid::paint(juce::Graphics& g)
             g.drawRoundedRectangle(bounds.reduced(0.5f), guiCornerRadius, 1.0f);
         }
 
-        // 何番のスロットかを左上に小さく出す。
-        g.setColour(GuiColor::StepValues::Text.get());
+        // 何番のスロットかを左上に小さく出す。鳴っているものは色を変える。
+        g.setColour(i == m_active ? GuiColor::WavePreview::ActiveSlot.get()
+                                  : GuiColor::StepValues::Text.get());
         g.setFont(juce::Font(juce::FontOptions(9.0f)));
         g.drawText(juce::String(i), area.removeFromTop(10.0f).removeFromLeft(14.0f),
                    juce::Justification::centredLeft);

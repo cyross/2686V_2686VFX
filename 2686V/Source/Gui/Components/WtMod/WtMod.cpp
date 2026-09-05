@@ -294,6 +294,8 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
 
     applySlotTarget();
 
+    slotPreviews.setActive(currentSlot());
+
     waveSmoothBtn.setup({ .parent = parent, .id = code + CPK::WtMod::waveSmooth, .title = "Smooth", .isReset = true, .isResized = true });
     waveSmoothBtn.setWantsKeyboardFocus(true);
     waveSmoothBtn.setExplicitFocusOrder(++tabOrder);
@@ -316,8 +318,12 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     waveSlotSlider.setWantsKeyboardFocus(true);
     waveSlotSlider.setExplicitFocusOrder(++tabOrder);
 
-    // 切り替えたら Shape のプレビューもその波形に合わせる
-    waveSlotSlider.onValueChange = [this] { this->updateModPreview(); };
+    // 切り替えたら Shape のプレビューもその波形に合わせる。
+    // どれが鳴っているのかは並べた波形のほうにも印を付ける。
+    waveSlotSlider.onValueChange = [this] {
+        this->updateModPreview();
+        this->slotPreviews.setActive(this->currentSlot());
+        };
 
 
     modPreview.setup(parent, GuiColor::WavePreview::PitchEnv);

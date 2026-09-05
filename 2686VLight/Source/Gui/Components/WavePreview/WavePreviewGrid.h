@@ -20,6 +20,9 @@ class GuiWavePreviewGrid : public juce::Component, public GuiBaseComponent
     juce::Colour m_lineColour = GuiColor::WavePreview::WaveMemory;
 
     int m_selected = -1;
+
+    // いま鳴っているスロット。読み込み・消去の対象とは別物なので分けて持つ。
+    int m_active = -1;
 public:
     GuiWavePreviewGrid(const GuiContext& context) : GuiBaseComponent(context)
     {
@@ -39,6 +42,9 @@ public:
 
     // いま読み込み・クリアの対象になっているスロット。枠を強調する。
     void setSelected(int slot);
+
+    // いま鳴っているスロット (SLOT のつまみが指しているもの)。
+    void setActive(int slot);
 
     int getRowCount() const
     {

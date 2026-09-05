@@ -223,6 +223,11 @@ namespace GuiColor {
 		inline Entry PitchEnv{ "WavePreview.PitchEnv", []() -> juce::Colour { return juce::Colours::blue.interpolatedWith(juce::Colours::white, 0.6f); } };
 		inline Entry WaveMemory{ "WavePreview.WaveMemory", []() -> juce::Colour { return juce::Colours::yellow.interpolatedWith(juce::Colours::white, 0.6f); } };
 		inline Entry AudioFile{ "WavePreview.AudioFile", []() -> juce::Colour { return juce::Colours::red.interpolatedWith(juce::Colours::white, 0.6f); } };
+
+		// 波形を並べて出すときの目印。
+		// 「いま鳴っているスロット」と「読み込み・消去の対象」は別物なので分ける。
+		inline Entry ActiveSlot{ "WavePreview.ActiveSlot", []() -> juce::Colour { return juce::Colours::aqua; } };
+		inline Entry ActiveSlotBg{ "WavePreview.ActiveSlotBg", []() -> juce::Colour { return juce::Colours::aqua.withAlpha(0.16f); } };
 	};
 	namespace ScrollBar {
 		inline Entry Thumb{ "ScrollBar.Thumb", []() -> juce::Colour { return juce::Colours::darkgrey; } };
