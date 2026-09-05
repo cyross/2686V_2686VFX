@@ -1283,11 +1283,6 @@ void AudioPlugin2686V::publishWtPlusWaveSlots()
     }
 }
 
-bool AudioPlugin2686V::isWtPlusWaveLoaded(int slot) const
-{
-    if (slot < 0 || slot >= Global::WtPlus::slots) return false;
-
-}
 
 CurveCore* AudioPlugin2686V::getCurveCore()
 {

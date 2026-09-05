@@ -345,7 +345,6 @@ public:
 
 
     void publishWtPlusWaveSlots();
-    bool isWtPlusWaveLoaded(int slot) const;
 
     // --- Preview(Static) ---
 

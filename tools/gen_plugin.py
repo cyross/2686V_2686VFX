@@ -30,6 +30,7 @@ SOURCE_PLUGIN = "2686V"
 #   camel  … 識別子で使う頭大文字の綴り (GuiOpm, OpmCore など)
 #   lower  … 変数名で使う綴り (opmGui, params.opm など)
 #   mode   … OscMode の名前
+#   extra  … 規則で拾えない、その音源だけの名前 (共有ファイルに書かれた関数など)
 #   label  … OscMode の並びに書くコメント
 # ---------------------------------------------------------------------------
 CHIPS = {
@@ -53,6 +54,7 @@ CHIPS = {
                   camel="Wt2", lower="wt2", mode="WT2", color="Wt", label="波形メモリ (2 系統)"),
     "WTPLUS": dict(dirs=["Gui/WtPlus", "Synth/WtPlus", "Processor/WtPlus"],
                    camel="WtPlus", lower="wtPlus", mode="WTPLUS", color="Wt",
+                   extra=["isWtPlusWaveLoaded"],
                    label="波形メモリを 32 スロット持つ拡張ウェーブテーブル"),
     "RHYTHM": dict(dirs=["Gui/Rhythm", "Synth/Rhythm", "Processor/Rhythm"],
                    camel="Rhythm", lower="rhythm", mode="RHYTHM", color="Pcm", label="リズム音源"),
@@ -190,7 +192,7 @@ def drop_patterns(chip):
     camel = chip["camel"]
     lower = chip["lower"]
 
-    return [
+    pats = [
         re.compile(r"\b%sGui\b" % re.escape(lower)),
         re.compile(r"\btab%s\b" % re.escape(camel)),
         re.compile(r"\bTab::%s\b" % re.escape(lower)),
@@ -198,6 +200,12 @@ def drop_patterns(chip):
         re.compile(r"\bm_%sCore\b" % re.escape(lower)),
         re.compile(r"\bpr%s\b" % re.escape(camel)),
     ]
+
+    # 規則では拾えない名前を、必要なぶんだけ足す
+    for name in chip.get("extra", ()):
+        pats.append(re.compile(r"\b%s\b" % re.escape(name)))
+
+    return pats
 
 
 IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
@@ -636,6 +644,13 @@ def generate(name):
     a = eh.index("    enum TabIndex")
     b = eh.index("};", a) + len("};\r\n")
     write_text(eh_path, eh[:a] + build_tab_index(keep) + eh[b:])
+
+    # mode つまみの上限はタブの数で決まる。音源を減らしたら詰める。
+    # タブは「音源 + ADV + PRESET + SETTINGS + COLORS + ABOUT」。
+    gv_path = os.path.join(dst_root, "Core", "Gui", "GuiValues.h")
+    gv = read_text(gv_path)
+    write_text(gv_path, re.sub(r"TabNumber = \d+;",
+                               "TabNumber = %d;" % (len(keep) + 5 - 1), gv, count=1))
 
     lf_path = os.path.join(dst_root, "Core", "Gui", "GuiLF.cpp")
     lf = read_text(lf_path)
