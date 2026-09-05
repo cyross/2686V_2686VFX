@@ -794,6 +794,18 @@ def apply_identity(dst_root, name, spec):
 
     write_text(path, text)
 
+    # プリセットの置き場もプラグインごとに分ける。2686V 以外はどれも
+    # 自前のフォルダを持っているので、それに合わせる。
+    path = os.path.join(dst_root, "Core", "Const", "ConstFileValues.h")
+    text = read_text(path)
+
+    old = 'juce::String preset = "Presets";'
+    new = 'juce::String preset = "%sPresets";' % name
+
+    assert text.count(old) == 1, path
+
+    write_text(path, text.replace(old, new))
+
 
 CMAKELISTS_TEMPLATE = """cmake_minimum_required(VERSION 3.20)
 

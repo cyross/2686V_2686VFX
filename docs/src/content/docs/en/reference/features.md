@@ -61,7 +61,7 @@ Available on every channel, operator and rhythm pad.
 
 ## Effects (FX)
 
-| Effect | The five instruments | 2686VFX |
+| Effect | The eleven instruments | 2686VFX |
 | --- | :---: | :---: |
 | Filter | ✔ | ✔ |
 | 3-band EQ | ✔ | ✔ |

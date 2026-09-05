@@ -34,6 +34,7 @@ sidebar:
 
 ## 使えるプラグイン
 
-音源 5 つ（2686V / 2686VLight / 26V / 86V / OPZX7S）と 2686VFX のすべてにあります。
+音源 11 本（2686V / 2686VLight / 26V / 86V / OPZX7S / OPNV / OPLV /
+OPMV / WTV / PCMV / PULSEV）と 2686VFX のすべてにあります。
 
 順番の変え方は [FX について](/2686V_2686VFX/fx/) を参照してください。

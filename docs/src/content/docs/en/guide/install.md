@@ -23,7 +23,7 @@ A working folder is created under your Documents folder:
 (Documents)\2686V\
 ```
 
-**All six plugins share this folder.** Presets, settings and any parameter
+**All twelve plugins share this folder.** Presets, settings and any parameter
 files you export are kept underneath it. See
 [Formats and locations](/2686V_2686VFX/en/files/format/) for what goes where.
 

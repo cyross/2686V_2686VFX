@@ -8,9 +8,9 @@ sidebar:
 2686V is a software instrument that recreates how the sound chips in 1980s and
 90s computers and game consoles behaved. It runs both as VST3 and standalone.
 
-## Six plugins
+## Twelve plugins
 
-**Five are instruments** that make sound; the remaining one, **2686VFX, is an
+**Eleven are instruments** that make sound; the remaining one, **2686VFX, is an
 effect** that processes audio you feed it. The instruments differ only in how
 many sound chips they carry — the shared screens and the way you work are the
 same — so most of this manual applies to all of them. The differences are
@@ -23,6 +23,12 @@ collected in [Choosing a plugin](/2686V_2686VFX/en/plugins/compare/).
 | <img src="/2686V_2686VFX/logos/26V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **26V** | matched to the PC-9801-26(K) layout |
 | <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **86V** | matched to the PC-9801-86 layout |
 | <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPZX7S** | focused on the OPZX7 chip. Curve editing is standard |
+| <img src="/2686V_2686VFX/logos/OPNV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPNV** | OPNA and OPN, for a single FM part |
+| <img src="/2686V_2686VFX/logos/OPLV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPLV** | OPL and OPL3, moving between two and four operators |
+| <img src="/2686V_2686VFX/logos/OPMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPMV** | OPM alone, for one X68000 or arcade part |
+| <img src="/2686V_2686VFX/logos/WTV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **WTV** | WT, WT2 and WT+, for wavetable parts |
+| <img src="/2686V_2686VFX/logos/PCMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **PCMV** | RHYTHM and ADPCM, the drum kit and sample playback |
+| <img src="/2686V_2686VFX/logos/PULSEV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **PULSEV** | SSG and BEEP, for square-wave parts |
 | <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686VFX** | makes no sound; processes audio you feed it |
 
 ## Requirements

@@ -15,7 +15,9 @@ The **ADV** tab is where you decide **how** a value travels over time.
 On the hardware, setting an envelope's rate settled the shape of the change as well: it either ran in a straight line or followed the chip's own quirks. Curve editing **hands you the shape in between**.
 
 :::note[Which plugins have it]
-Curve editing is in **2686V** and **OPZX7S**. It is left out of 2686VLight, 86V and 26V to keep the load down.
+Curve editing is in **2686V**, **OPZX7S**, and the six narrower instruments
+(**OPNV** / **OPLV** / **OPMV** / **WTV** / **PCMV** / **PULSEV**). It is left out of
+2686VLight, 86V and 26V to keep the load down.
 
 **In the OPZX7S plugin curve editing is standard**, and there is no way back to the old linear mode.
 :::

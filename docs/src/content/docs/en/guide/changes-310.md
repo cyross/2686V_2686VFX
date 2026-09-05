@@ -8,6 +8,31 @@ sidebar:
 The changes between 3.0.0 and 3.1.0. **Nothing stops loading.** Presets and
 parameter files made with 3.0.0 still read as they did.
 
+## Six narrower instruments
+
+Each carries just the channels one part of a track needs. **Every one of them
+has curve editing.**
+
+| Plugin | Channels |
+| --- | --- |
+| [**OPNV**](/2686V_2686VFX/en/plugins/opnv/) | OPNA / OPN |
+| [**OPLV**](/2686V_2686VFX/en/plugins/oplv/) | OPL / OPL3 |
+| [**OPMV**](/2686V_2686VFX/en/plugins/opmv/) | OPM |
+| [**WTV**](/2686V_2686VFX/en/plugins/wtv/) | WAVETABLE / WT2 / WTPLUS |
+| [**PCMV**](/2686V_2686VFX/en/plugins/pcmv/) | RHYTHM (8 pads) / ADPCM |
+| [**PULSEV**](/2686V_2686VFX/en/plugins/pulsev/) | SSG / BEEP |
+
+Carrying fewer channels means **a lighter load when you run several at once** —
+which is the point, if stacking copies of 2686V has felt heavy.
+
+The screens and the way you work are unchanged. Only the preset extension and
+folder differ per plugin
+([File formats and locations](/2686V_2686VFX/en/files/format/)). Parameter files
+still **read across plugins**, so patches built in 2686V carry straight over.
+
+[Choosing a plugin](/2686V_2686VFX/en/plugins/compare/) lays out which to reach
+for.
+
 ## New modulation
 
 ### SSG HW PITCH ENV

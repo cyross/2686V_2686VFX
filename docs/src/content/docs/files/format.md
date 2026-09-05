@@ -63,6 +63,12 @@ SETTINGS タブの **「ファイル形式」** で JSON と YAML を選べま�
 | 26V | `26VPresets` |
 | 86V | `2686VOPresets` |
 | OPZX7S | `OPZX7Presets` |
+| OPNV | `OPNVPresets` |
+| OPLV | `OPLVPresets` |
+| OPMV | `OPMVPresets` |
+| WTV | `WTVPresets` |
+| PCMV | `PCMVPresets` |
+| PULSEV | `PULSEVPresets` |
 
 2686VFX はプリセットを持たないので、この置き場は使いません。
 
@@ -89,6 +95,12 @@ SETTINGS タブの **「ファイル形式」** で JSON と YAML を選べま�
 | 26V | `.26v.json` |
 | 86V | `.86v.json` |
 | OPZX7S | `.opzx7s.json` |
+| OPNV | `.opnv.json` |
+| OPLV | `.oplv.json` |
+| OPMV | `.opmv.json` |
+| WTV | `.wtv.json` |
+| PCMV | `.pcmv.json` |
+| PULSEV | `.pulsev.json` |
 | 2686VFX | プリセットなし |
 
 パラメータファイルは種類ごとに決まっています。たとえば OPNA のチャンネル

@@ -8,9 +8,10 @@ sidebar:
 2686V ファミリーは、1980〜90 年代のパソコンやゲーム機に載っていた音源チップの鳴り方を
 再現するソフトウェア音源とエフェクトの集合体です。VST3 とスタンドアロンの両方で動きます。
 
-## 様々な方向性を鑑みた 6 つのプラグイン
+## 様々な方向性を鑑みた 12 のプラグイン
 
-ファミリーのプラグインのうち、 **2686V/2686VLight/26V/86V/OPZX7S の 5 つは音を作る音源**で、残る 1 つ **2686VFX は音を加工するエフェクト**です。
+ファミリーのプラグインのうち、**11 は音を作る音源**で、残る 1 つ
+**2686VFX は音を加工するエフェクト**です。
 音源どうしは収録する音源の数だけが違い、共通の画面と操作は同じなので、この
 マニュアルの大半はどれにも当てはまります。違いは
 [プラグインの選び方](/2686V_2686VFX/plugins/compare/) にまとめてあります。
@@ -22,6 +23,12 @@ sidebar:
 | <img src="/2686V_2686VFX/logos/26V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**26V**](/2686V_2686VFX/plugins/26v/) | 音源 | PC-9801-26(K) に構成を合わせた版 |
 | <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**86V**](/2686V_2686VFX/plugins/86v/) | 音源 | PC-9801-86 に構成を合わせた版 |
 | <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**OPZX7S**](/2686V_2686VFX/plugins/opzx7s/) | 音源 | OPZX7 音源に特化した版。カーブ編集は標準で付く |
+| <img src="/2686V_2686VFX/logos/OPNV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**OPNV**](/2686V_2686VFX/plugins/opnv/) | 音源 | OPNA と OPN。FM のパートを 1 つ差したいとき |
+| <img src="/2686V_2686VFX/logos/OPLV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**OPLV**](/2686V_2686VFX/plugins/oplv/) | 音源 | OPL と OPL3。2 オペレータと 4 オペレータを行き来したいとき |
+| <img src="/2686V_2686VFX/logos/OPMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**OPMV**](/2686V_2686VFX/plugins/opmv/) | 音源 | OPM だけ。X68000 やアーケードの音を 1 パート差したいとき |
+| <img src="/2686V_2686VFX/logos/WTV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**WTV**](/2686V_2686VFX/plugins/wtv/) | 音源 | WT・WT2・WT+。波形メモリのパートを作りたいとき |
+| <img src="/2686V_2686VFX/logos/PCMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**PCMV**](/2686V_2686VFX/plugins/pcmv/) | 音源 | RHYTHM と ADPCM。リズムとサンプル再生をまとめたいとき |
+| <img src="/2686V_2686VFX/logos/PULSEV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**PULSEV**](/2686V_2686VFX/plugins/pulsev/) | 音源 | SSG と BEEP。矩形波のパートを差したいとき |
 | <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**2686VFX**](/2686V_2686VFX/plugins/fx-plugin/) | エフェクト | 音を作らず、入ってきた音を加工するエフェクト |
 
 それぞれのプラグインの構成と使いどころは、上の名前から個別のページへ

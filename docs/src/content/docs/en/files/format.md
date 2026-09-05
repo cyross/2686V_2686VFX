@@ -63,6 +63,12 @@ launch each plugin creates its own:
 | 26V | `26VPresets` |
 | 86V | `2686VOPresets` |
 | OPZX7S | `OPZX7Presets` |
+| OPNV | `OPNVPresets` |
+| OPLV | `OPLVPresets` |
+| OPMV | `OPMVPresets` |
+| WTV | `WTVPresets` |
+| PCMV | `PCMVPresets` |
+| PULSEV | `PULSEVPresets` |
 
 2686VFX has no presets, so it never uses one.
 
@@ -89,6 +95,12 @@ Each plugin uses its own preset extension.
 | 26V | `.26v.json` |
 | 86V | `.86v.json` |
 | OPZX7S | `.opzx7s.json` |
+| OPNV | `.opnv.json` |
+| OPLV | `.oplv.json` |
+| OPMV | `.opmv.json` |
+| WTV | `.wtv.json` |
+| PCMV | `.pcmv.json` |
+| PULSEV | `.pulsev.json` |
 | 2686VFX | no presets |
 
 Parameter files have an extension per kind: OPNA channel parameters are
