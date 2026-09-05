@@ -49,6 +49,7 @@ Everything is kept in the shared folder under your Documents folder:
 | `QualityParams` | Quality settings |
 | `PcmPlayParams` | PCM playback settings |
 | `ToneNoiseParams` | Tone and noise settings |
+| `WtModParams` | WT PITCH MOD and WT AMP MOD |
 | `CustomizeColorSettings` | Colour schemes |
 | `Resources` | Wallpapers and other assets |
 

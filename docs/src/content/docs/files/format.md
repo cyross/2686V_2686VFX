@@ -49,6 +49,7 @@ SETTINGS タブの **「ファイル形式」** で JSON と YAML を選べま�
 | `QualityParams` | 音質 |
 | `PcmPlayParams` | PCM の再生 |
 | `ToneNoiseParams` | トーン／ノイズ |
+| `WtModParams` | WT PITCH MOD / WT AMP MOD |
 | `CustomizeColorSettings` | 配色 |
 | `Resources` | 壁紙などの素材 |
 
