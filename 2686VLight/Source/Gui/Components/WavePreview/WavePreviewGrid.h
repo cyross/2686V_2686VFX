@@ -29,13 +29,14 @@ public:
         setInterceptsMouseClicks(false, false);
     }
 
-    // 1 行に並べる数。値の帯と同じ数にそろえてある。
-    static inline constexpr int columns = 3;
+    // 1 行に並べる数。既定は値の帯と同じ 3。スロットが多いところ (WT+ の
+    // WAVE MEMORY は 32 個) では縦に伸びすぎるので、setup で増やせるようにしてある。
+    int columns = 3;
 
     // 1 つぶんの高さ。GuiWavePreview と同じ。
     static inline constexpr int cellHeight = GuiWavePreview::defaultHeight;
 
-    void setup(juce::Component& parent, juce::Colour lineColour, int slotCount);
+    void setup(juce::Component& parent, juce::Colour lineColour, int slotCount, int columnCount = 3);
 
     // 1 つぶんの波形を差し替える。空を渡すと「データ無し」になる。
     void setPoints(int slot, const std::vector<float>& points);

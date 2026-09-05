@@ -1,10 +1,11 @@
 ﻿#include "./WavePreviewGrid.h"
 
-void GuiWavePreviewGrid::setup(juce::Component& parent, juce::Colour lineColour, int slotCount)
+void GuiWavePreviewGrid::setup(juce::Component& parent, juce::Colour lineColour, int slotCount, int columnCount)
 {
     parent.addAndMakeVisible(*this);
 
     m_lineColour = lineColour;
+    columns = juce::jmax(1, columnCount);
     m_slots.assign((size_t)juce::jmax(0, slotCount), {});
 }
 
