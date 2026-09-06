@@ -13,6 +13,16 @@ namespace PresetKey
 	}
 
 	// 一覧の見方
+	// 一覧に出すファイル形式の絞り込み。
+	// 読み込みはどの形式でもできるので、これは探しやすさのためのもの。
+	namespace Format
+	{
+		static inline const juce::String title = juce::String("") + "形式";
+		static inline const juce::String all = juce::String("") + "すべて";
+		static inline const juce::String xml = "XML";
+		static inline const juce::String json = "JSON";
+		static inline const juce::String yaml = "YAML";
+	}
 	namespace View
 	{
 		static inline const juce::String title = juce::String("") + "表示";

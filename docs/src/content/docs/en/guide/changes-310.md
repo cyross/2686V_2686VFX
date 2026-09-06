@@ -147,6 +147,16 @@ SSG SW PITCH ENV[11] / WT PITCH MOD / LFO / MUL・DET / FIX / UNISON・HARMONY.
 
 The setting is saved to the settings file along with everything else.
 
+### The preset list can be filtered by format
+
+Next to "View" (all / favourites / history) on the PRESET tab there is now
+"Format", which narrows the list to **All, XML, JSON or YAML**.
+
+Loading is unaffected — every format still opens — so this is only there to
+make the list easier to read. A folder holding pre-3.0.0 `XML` alongside
+today's `JSON` and `YAML` is hard to scan, so now you can show one at a time.
+It stacks with the search box and with the favourites and history views.
+
 ### Buttons to switch off and to fold sections in bulk
 
 Hiding is display only and the sound stays as it was, so there are now buttons

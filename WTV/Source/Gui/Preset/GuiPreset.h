@@ -18,6 +18,7 @@ class GuiPreset : public GuiBase
     GuiLabel pathLabel; // パス表示用
 
     GuiComboBox viewSelector; // すべて / お気に入り / 履歴
+    GuiComboBox formatSelector; // すべて / XML / JSON / YAML
     GuiTextButton clearHistoryButton;
 
     GuiTextEditor searchBox; // 検索ボックス
@@ -60,6 +61,7 @@ public:
         metaGroup(context),
         pathLabel(context),
         viewSelector(context),
+        formatSelector(context),
         clearHistoryButton(context),
         searchBox(context),
         clearSearchButton(context),
@@ -88,6 +90,12 @@ public:
     enum class View { all = 0, favourites, history };
 
     View view = View::all;
+
+    // 一覧に出すファイル形式。読み込みはどの形式でもできるので、これは
+    // 探しやすさのための絞り込み。
+    enum class Format { all = 0, xml, json, yaml };
+
+    Format formatFilter = Format::all;
 
     juce::File currentFolder;
     std::vector<PresetItem> items; // 読み込んだプリセット一覧

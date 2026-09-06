@@ -107,7 +107,7 @@ to the output itself, driven from a MIDI keyboard. See
 | View modes | full / mini player / minimum |
 | Wallpaper | put an image behind it, with a choice of how it sits |
 | COLORS | change each colour; pick from the palettes of the era |
-| Presets | save and load, with favourites, history and filtered search |
+| Presets | save and load, with favourites, history, filtered search and a format filter |
 | Parameter I/O | per channel, operator, pad or envelope |
 | File format | `JSON` and `YAML`, switchable in the settings |
 | Waveform preview | see loaded audio, wave memory and envelopes on screen |
