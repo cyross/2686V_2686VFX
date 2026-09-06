@@ -223,6 +223,20 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
             COMMENT "${CY_PRODUCT_NAME}: VST3 を out/bin へ写す"
             VERBATIM
         )
+
+        # フォルダにプラグインの絵を出すための後始末。
+        #
+        # Windows は desktop.ini を「システム属性の付いたフォルダ」でしか
+        # 見に行かない。copy_directory は中身しか写さず属性は落ちるので、
+        # JUCE が組み立て先へ付けているのと同じものを付け直す。
+        # これを忘れるとただのフォルダの絵になる。
+        if(WIN32)
+            add_custom_command(TARGET ${TARGET_NAME}_VST3 POST_BUILD
+                COMMAND attrib +s "${CY_BIN_DIR}/${CY_PRODUCT_NAME}.vst3/desktop.ini"
+                COMMAND attrib +s "${CY_BIN_DIR}/${CY_PRODUCT_NAME}.vst3"
+                VERBATIM
+            )
+        endif()
     endif()
 endfunction()
 
