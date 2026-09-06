@@ -179,6 +179,51 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
             PROPERTIES SKIP_PRECOMPILE_HEADERS ON
         )
     endif()
+
+    # --------------------------------------------------------------------
+    # 出来上がりを out/bin へ集める
+    # --------------------------------------------------------------------
+    # ビルドの置き場は
+    #   out/build/<プリセット>/<プロジェクト>/<的>_artefacts/<構成>/...
+    # と深いうえ、プロジェクト名と製品名が違うもの (2686VOrigin -> 86V) も
+    # あるので、配布物を手で集めるのに向かない。組み上がるたびに
+    #   out/bin/<プリセット>/<構成>/
+    # へ写しておく。<プリセット> は組み立て先のフォルダ名から採るので、
+    # windows-x64-msvc と windows-arm64-msvc が混ざることはない。
+    get_filename_component(CY_BUILD_NAME "${CMAKE_BINARY_DIR}" NAME)
+
+    set(CY_BIN_DIR "${CMAKE_SOURCE_DIR}/out/bin/${CY_BUILD_NAME}/$<CONFIG>")
+
+    if(TARGET ${TARGET_NAME}_Standalone)
+        add_custom_command(TARGET ${TARGET_NAME}_Standalone POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "${CY_BIN_DIR}"
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                "$<TARGET_FILE:${TARGET_NAME}_Standalone>" "${CY_BIN_DIR}"
+            COMMENT "${CY_PRODUCT_NAME}: スタンドアロンを out/bin へ写す"
+            VERBATIM
+        )
+    endif()
+
+    if(TARGET ${TARGET_NAME}_VST3)
+        # VST3 はフォルダごと。出来上がりの場所は JUCE が的へ持たせている。
+        #
+        # ここは $<TARGET_PROPERTY:...> で読んではいけない。この値自体が
+        # 生成式を含んでおり、その中身までは展開されずに文字列のまま渡って
+        # しまう。JUCE 自身と同じく、組み立て時に取り出して使う。
+        get_target_property(CY_VST3_SRC ${TARGET_NAME}_VST3 JUCE_PLUGIN_ARTEFACT_FILE)
+
+        # 中に前回の残りが混ざらないよう、消してから入れ直す。
+        add_custom_command(TARGET ${TARGET_NAME}_VST3 POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "${CY_BIN_DIR}"
+            COMMAND "${CMAKE_COMMAND}" -E rm -rf
+                "${CY_BIN_DIR}/${CY_PRODUCT_NAME}.vst3"
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory
+                "${CY_VST3_SRC}"
+                "${CY_BIN_DIR}/${CY_PRODUCT_NAME}.vst3"
+            COMMENT "${CY_PRODUCT_NAME}: VST3 を out/bin へ写す"
+            VERBATIM
+        )
+    endif()
 endfunction()
 
 # ビルド対象のプラグイン
