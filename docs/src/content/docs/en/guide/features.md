@@ -38,6 +38,28 @@ Loaded audio files, wave memory and envelope graphs are all drawn on screen. You
 are not assembling anything from numbers alone; you can check the shape as you
 go.
 
+### Files are picked from a list
+
+Presets, parameters and waveforms are all picked from a list that covers most
+of the window. Filter by keyword, kind and file format; click a heading to
+sort; walk the folders.
+
+The list carries a **waveform preview**. Parameter files are actually played
+and drawn; wave files and audio samples are drawn straight from their
+contents. You can see what a file holds before loading it.
+
+Rows are selected, and folders entered, with a **double click**.
+
+### See the sound you built
+
+The current channel's settings are played and drawn as **three lanes,
+L / M / R**, so you can see what each side is doing even with stereo or
+panning in use.
+
+It is built only when the button is pressed, runs to 10 seconds at most, and
+stops 0.5 seconds after the sound dies away. Pick 1, 2, 5 or 10 cycles; the
+view is aligned to the cycle, so it does not drift sideways.
+
 ### Every colour is yours
 
 The COLORS tab lets you change each colour the interface uses. Besides RGB and

@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.22)
 
 # ソリューション（ワークスペース）全体の名前
-project(RetroSynthsBundle VERSION 3.1.0 LANGUAGES C CXX)
+project(RetroSynthsBundle VERSION 3.2.0 LANGUAGES C CXX)
 
 # Debug ビルドの起動が遅すぎるので、インライン展開だけは許す。
 # 既定の /Ob0 では JUCE の Component や String のような小さなヘッダ関数が

@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v3.1.0 README
+# Retro Sound VST "2686V" v3.2.0 README
 
 (C)2026 CYROSS
 
@@ -29,7 +29,46 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0. What v3.1.0 adds and changes
+### 3-0-1. What v3.2.0 adds and changes
+
+- **Control steps are now 0.0001**
+  - Floating-point controls moved in steps of 0.01 (the framework default).
+  - Envelope times and the like could not be set as finely as intended.
+  - The readout drops trailing zeros, so `0.5` still reads as `0.5`.
+  - Values in existing files are unchanged.
+- **A new screen for picking files**
+  - The operating system's file dialog is replaced by a list covering most of the window.
+  - Filter by keyword, kind and file format.
+  - Click a heading to sort (unsorted, ascending, descending).
+  - Walk the folders; the first row goes up, and folders can be created and deleted.
+  - Waveform previews:
+    - Parameter files are actually played and drawn.
+    - Wave files and audio samples are drawn straight from their contents, as a still picture.
+  - Rows are selected and opened with a **double click** (folders included).
+  - Parameters, presets and wave files cannot go above the plugin's own folder.
+    - Audio samples (wav) can still be picked from anywhere.
+  - Clicking outside closes the screen without choosing.
+- **A preview of the generated waveform**
+  - The channel's settings are actually played and drawn.
+  - It is built only when the button is pressed, never while you play.
+  - It runs to 10 seconds at most, and stops 0.5 seconds after the sound dies away.
+  - Shown as **three lanes, L / M / R** (a channel can be stereo or panned).
+  - Pick 1, 2, 5 or 10 cycles; the window starts on a cycle boundary, so it does not drift.
+  - What is built is kept in a file and not rebuilt next time.
+  - **Clear previews** in the SETTINGS tab removes them all.
+- **A loading screen**
+  - While something slow runs, bars pulse over a dimmed screen.
+  - The longer jobs carry a **cancel** button.
+- **Opening is much faster**
+  - Opening 2686V (release build) took 34.5 seconds.
+  - The 1,990 bundled presets were each read in full, every time.
+  - An index file now holds that, and the full read happens in the background.
+  - **34.5 s to 1.1 s.**
+  - While the index is rebuilt, progress is shown and it can be cancelled.
+- **More SSG software envelopes**
+  - Taken from FMP, FMP7 and PMD MML, and bundled as parameter files.
+
+### 3-0-2. What v3.1.0 adds and changes
 
 - New modulation
   - **SSG HW PITCH ENV**
