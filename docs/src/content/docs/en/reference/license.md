@@ -51,6 +51,10 @@ terms.
 - [CC BY-SA 4.0 (English)](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
 - [CC BY-SA 4.0 (Japanese)](https://creativecommons.org/licenses/by-sa/4.0/deed.ja)
 
+### About the presets generated with Claude Code
+
+Some of the bundled presets were generated with Claude Code. If one of them strikes you as sounding like something you have heard before, please understand that the work was commissioned up front as material for distribution, that Claude Code arrived at each patch by its own reasoning, and that any such likeness is pure coincidence. The author accepts no responsibility in this regard.
+
 ## Disclaimer
 
 This software is provided **as is**. The author accepts no responsibility for

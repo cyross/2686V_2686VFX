@@ -735,6 +735,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - [CC-BY SA 4.0 (English)](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
   - [CC-BY SA 4.0 (Japanese)](https://creativecommons.org/licenses/by-sa/4.0/deed.ja)
 
+#### 8-1-2. About the presets generated with Claude Code
+
+- Some of the bundled presets were generated with Claude Code. If one of them strikes you as sounding like something you have heard before, please understand that the work was commissioned up front as material for distribution, that Claude Code arrived at each patch by its own reasoning, and that any such likeness is pure coincidence. The author accepts no responsibility in this regard.
+
 ### 8-2. About the bundled sample files
 
 - **Redistribution of the bundled sample files without permission is strictly prohibited** (you are free to use and modify them in your own work).
