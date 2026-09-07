@@ -161,10 +161,15 @@ public:
     void setLevel(float level);
     void importChParam();
 
+    // ブラウザから直に読ませるための入口。
+    // importChParam() からダイアログを外したもの。
+    void applyChParamFile(const juce::File& file) override;
     // 3.0.0 より前の形式を読む
     void setImportingChParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeChParamFile(const juce::File& file);
 };

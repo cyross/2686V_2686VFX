@@ -108,6 +108,7 @@ set(PROCESSOR_FILES
     "Source/Core/Processor/ProcessorKeys.h"
     "Source/Core/Processor/ProcessorNames.h"
     "Source/Core/Processor/ProcessorValues.h"
+    "Source/Core/Processor/ProcessorFloat.h"
     "Source/Core/Processor/ProcessorBase.h"
     "Source/Core/Processor/ProcessorStructs.h"
     "Source/Core/Processor/ProcessorHelper.h"
@@ -358,6 +359,11 @@ set(GUI_COMPONENT_IMPORT_FILES
     "Source/Gui/Components/Import/Import.cpp"
 )
 
+set(GUI_COMPONENT_LOADING_FILES
+    "Source/Gui/Components/Loading/GuiLoading.h"
+    "Source/Gui/Components/Loading/GuiLoading.cpp"
+)
+
 set(GUI_COMPONENT_LEVEL_FILES
     "Source/Gui/Components/Level/Level.h"
     "Source/Gui/Components/Level/Level.cpp"
@@ -423,6 +429,7 @@ source_group("2686VFX\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET
 source_group("2686VFX\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
 source_group("2686VFX\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
 source_group("2686VFX\\Gui\\Components\\Import" FILES ${GUI_COMPONENT_IMPORT_FILES})
+source_group("2686VFX\\Gui\\Components\\Loading" FILES ${GUI_COMPONENT_LOADING_FILES})
 source_group("2686VFX\\Gui\\Components\\Level" FILES ${GUI_COMPONENT_LEVEL_FILES})
 source_group("2686VFX\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATOR_FILES})
 source_group("2686VFX\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})

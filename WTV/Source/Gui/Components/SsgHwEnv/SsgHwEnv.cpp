@@ -1,4 +1,7 @@
 ﻿#include "./SsgHwEnv.h"
+#include "../../../Core/Editor/EditorGuiText.h"
+
+#include "../../../Core/Editor/PluginEditor.h"
 
 #include "../../../Core/Gui/GuiRefresh.h"
 
@@ -191,84 +194,86 @@ void GuiComponentSsgHwEnv::pasteParams(CopyEnvSsgHw& copyObj) {
     smoothEnableButton.setToggleState(copyObj.smooth, juce::sendNotification);
 }
 
-void GuiComponentSsgHwEnv::importParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultSsgHwEnvParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importSsgHwEnvParamFile, defaultDir, Io::ExtensionGlob::SsgHwEnvParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingParams(lines, index);
-                    }
-
-                    // 単体のファイルは入れ子にせず、そのまま中身として書く
-                    Io::ParamWriter writer(ssgHwEnvFormat);
-
-                    writeParams(writer, Io::ParamKey::values);
-                    writer.hoist(Io::ParamKey::values);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, ssgHwEnvFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
-
-                // チャンネルファイルの中に入る形と同じ中身にしてある
-                readParams(*reader, "ssgHwEnv");
-            }
-        });
+void GuiComponentSsgHwEnv::importParams()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultSsgHwEnvParamDir,
+        { EditorGuiText::ParamBrowser::kindSsgHwEnv },
+        [this](const juce::File& file) { applyParamsFile(file); });
 }
 
-void GuiComponentSsgHwEnv::exportParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultSsgHwEnvParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiComponentSsgHwEnv::applyParamsFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingParams(lines, index);
+        }
+
+        // 単体のファイルは入れ子にせず、そのまま中身として書く
+        Io::ParamWriter writer(ssgHwEnvFormat);
+
+        writeParams(writer, Io::ParamKey::values);
+        writer.hoist(Io::ParamKey::values);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportSsgHwEnvParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::SsgHwEnvParam)), Io::saveGlob(Io::Extension::SsgHwEnvParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, ssgHwEnvFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(ssgHwEnvFormat);
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
 
-                writeParams(writer, "ssgHwEnv");
+    // チャンネルファイルの中に入る形と同じ中身にしてある
+    readParams(*reader, "ssgHwEnv");
+}
 
-                writer.writeTo(file);
-            }
-        });
+void GuiComponentSsgHwEnv::exportParams()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultSsgHwEnvParamDir,
+        { EditorGuiText::ParamBrowser::kindSsgHwEnv }, Io::Extension::SsgHwEnvParam,
+        [this](const juce::File& file) { writeParamsFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiComponentSsgHwEnv::writeParamsFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(ssgHwEnvFormat);
+
+    writeParams(writer, "ssgHwEnv");
+
+    writer.writeTo(file);
 }
 
 void GuiComponentSsgHwEnv::setImportingParams(juce::StringArray& lines, int& index) {

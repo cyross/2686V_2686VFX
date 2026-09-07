@@ -1,4 +1,7 @@
 ﻿#include "./LfoOpzx7.h"
+#include "../../../Core/Editor/EditorGuiText.h"
+
+#include "../../../Core/Editor/PluginEditor.h"
 
 #include "../../../Core/Gui/GuiRefresh.h"
 
@@ -342,108 +345,110 @@ void GuiComponentLfoOpzx7::pasteParams(CopyLfoOpzx7& copyObj) {
     amd.setValue(copyObj.amd, juce::sendNotification);
 }
 
-void GuiComponentLfoOpzx7::importParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::Opzx7LfoParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingParams(lines, index);
-                    }
-
-                    // 単体のファイルは入れ子にせず、そのまま中身として書く
-                    Io::ParamWriter writer(opzx7LfoFormat);
-
-                    writeParams(writer, Io::ParamKey::values);
-                    writer.hoist(Io::ParamKey::values);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, opzx7LfoFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                pmEnable.setToggleState(reader->getBool("pmEnable", pmEnable.getToggleState()), juce::sendNotification);
-                pmFreq.setValue(reader->getFloat("pmFreq", (float)pmFreq.getValue()), juce::sendNotification);
-                pmSyncDelay.setValue(reader->getInt("pmSyncDelay", (int)pmSyncDelay.getValue()), juce::sendNotification);
-                pgShape.setSelectedItemIndex(reader->getInt("pgShape", pgShape.getSelectedItemIndex()), juce::sendNotification);
-                pms.setValue(reader->getFloat("pms", (float)pms.getValue()), juce::sendNotification);
-                pmd.setValue(reader->getFloat("pmd", (float)pmd.getValue()), juce::sendNotification);
-                amEnable.setToggleState(reader->getBool("amEnable", amEnable.getToggleState()), juce::sendNotification);
-                amFreq.setValue(reader->getFloat("amFreq", (float)amFreq.getValue()), juce::sendNotification);
-                egShape.setSelectedItemIndex(reader->getInt("egShape", egShape.getSelectedItemIndex()), juce::sendNotification);
-                amSyncDelay.setValue(reader->getInt("amSyncDelay", (int)amSyncDelay.getValue()), juce::sendNotification);
-                amSmRt.setValue(reader->getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
-                ams.setValue(reader->getFloat("ams", (float)ams.getValue()), juce::sendNotification);
-                amd.setValue(reader->getFloat("amd", (float)amd.getValue()), juce::sendNotification);
-            }
-        });
+void GuiComponentLfoOpzx7::importParams()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultLfoParamDir,
+        { EditorGuiText::ParamBrowser::kindLfoOpzx7 },
+        [this](const juce::File& file) { applyParamsFile(file); });
 }
 
-void GuiComponentLfoOpzx7::exportParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiComponentLfoOpzx7::applyParamsFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingParams(lines, index);
+        }
+
+        // 単体のファイルは入れ子にせず、そのまま中身として書く
+        Io::ParamWriter writer(opzx7LfoFormat);
+
+        writeParams(writer, Io::ParamKey::values);
+        writer.hoist(Io::ParamKey::values);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::Opzx7LfoParam)), Io::saveGlob(Io::Extension::Opzx7LfoParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, opzx7LfoFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(opzx7LfoFormat);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.set("pmEnable", pmEnable.getToggleState());
-                writer.set("pmFreq", (float)pmFreq.getValue());
-                writer.set("pmSyncDelay", (float)pmSyncDelay.getValue());
-                writer.set("pgShape", pgShape.getSelectedItemIndex());
-                writer.set("pms", (float)pms.getValue());
-                writer.set("pmd", (float)pmd.getValue());
-                writer.set("amEnable", amEnable.getToggleState());
-                writer.set("amFreq", (float)amFreq.getValue());
-                writer.set("egShape", egShape.getSelectedItemIndex());
-                writer.set("amSyncDelay", (float)amSyncDelay.getValue());
-                writer.set("amSmRt", (float)amSmRt.getValue());
-                writer.set("ams", (float)ams.getValue());
-                writer.set("amd", (float)amd.getValue());
+    pmEnable.setToggleState(reader->getBool("pmEnable", pmEnable.getToggleState()), juce::sendNotification);
+    pmFreq.setValue(reader->getFloat("pmFreq", (float)pmFreq.getValue()), juce::sendNotification);
+    pmSyncDelay.setValue(reader->getInt("pmSyncDelay", (int)pmSyncDelay.getValue()), juce::sendNotification);
+    pgShape.setSelectedItemIndex(reader->getInt("pgShape", pgShape.getSelectedItemIndex()), juce::sendNotification);
+    pms.setValue(reader->getFloat("pms", (float)pms.getValue()), juce::sendNotification);
+    pmd.setValue(reader->getFloat("pmd", (float)pmd.getValue()), juce::sendNotification);
+    amEnable.setToggleState(reader->getBool("amEnable", amEnable.getToggleState()), juce::sendNotification);
+    amFreq.setValue(reader->getFloat("amFreq", (float)amFreq.getValue()), juce::sendNotification);
+    egShape.setSelectedItemIndex(reader->getInt("egShape", egShape.getSelectedItemIndex()), juce::sendNotification);
+    amSyncDelay.setValue(reader->getInt("amSyncDelay", (int)amSyncDelay.getValue()), juce::sendNotification);
+    amSmRt.setValue(reader->getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
+    ams.setValue(reader->getFloat("ams", (float)ams.getValue()), juce::sendNotification);
+    amd.setValue(reader->getFloat("amd", (float)amd.getValue()), juce::sendNotification);
+}
 
-                writer.writeTo(file);
-            }
-        });
+void GuiComponentLfoOpzx7::exportParams()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultLfoParamDir,
+        { EditorGuiText::ParamBrowser::kindLfoOpzx7 }, Io::Extension::Opzx7LfoParam,
+        [this](const juce::File& file) { writeParamsFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiComponentLfoOpzx7::writeParamsFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(opzx7LfoFormat);
+
+    writer.set("pmEnable", pmEnable.getToggleState());
+    writer.set("pmFreq", (float)pmFreq.getValue());
+    writer.set("pmSyncDelay", (float)pmSyncDelay.getValue());
+    writer.set("pgShape", pgShape.getSelectedItemIndex());
+    writer.set("pms", (float)pms.getValue());
+    writer.set("pmd", (float)pmd.getValue());
+    writer.set("amEnable", amEnable.getToggleState());
+    writer.set("amFreq", (float)amFreq.getValue());
+    writer.set("egShape", egShape.getSelectedItemIndex());
+    writer.set("amSyncDelay", (float)amSyncDelay.getValue());
+    writer.set("amSmRt", (float)amSmRt.getValue());
+    writer.set("ams", (float)ams.getValue());
+    writer.set("amd", (float)amd.getValue());
+
+    writer.writeTo(file);
 }
 
 void GuiComponentLfoOpzx7::setImportingParams(juce::StringArray& lines, int& index) {

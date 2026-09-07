@@ -290,6 +290,19 @@ public:
 
     OscMode lastActiveSynthMode = OscMode::OPZX7;
 
+    // ------------------------------------------------------------------
+    // 波形プレビューの計算用
+    // ------------------------------------------------------------------
+    // プレビューは、鳴っている音とは別に、出荷される音源のクラスを
+    // そのまま回して計算する。プラグインをもう一つ立てて鳴らす造りには
+    // しない。状態の複製もファイルの読み直しも要らないうえ、一覧の
+    // 一括生成のように何百件も回す使い方に耐えない。
+    //
+    // どちらもメッセージスレッドから呼ぶこと。仕立てたボイスを回すのは
+    // 別のスレッドでよい。
+    SynthParams buildRenderParams();
+    void prepareRenderVoice(SynthVoice& voice, double sampleRate);
+
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);

@@ -628,84 +628,86 @@ void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
     pitchEnvComponent.pasteParams(copyObj.pAdsr);
 }
 
-void RhythmPadGui::importToneNoiseParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultToneNoiseParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importToneNoiseParamFile, defaultDir, Io::ExtensionGlob::ToneNoiseParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingToneNoiseParams(lines, index);
-                    }
-
-                    Io::ParamWriter writer(toneNoiseFormat);
-
-                    writeToneNoiseParams(writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, toneNoiseFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
-                noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
-                noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
-                mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
-            }
-        });
+void RhythmPadGui::importToneNoiseParam()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultToneNoiseParamDir,
+        { EditorGuiText::ParamBrowser::kindToneNoise },
+        [this](const juce::File& file) { applyToneNoiseParamFile(file); });
 }
 
-void RhythmPadGui::exportToneNoiseParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultToneNoiseParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void RhythmPadGui::applyToneNoiseParamFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingToneNoiseParams(lines, index);
+        }
+
+        Io::ParamWriter writer(toneNoiseFormat);
+
+        writeToneNoiseParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportToneNoiseParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::ToneNoiseParam)), Io::saveGlob(Io::Extension::ToneNoiseParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, toneNoiseFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(toneNoiseFormat);
-                writeToneNoiseParams(writer);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
+    noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
+    noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+    mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
+}
+
+void RhythmPadGui::exportToneNoiseParam()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultToneNoiseParamDir,
+        { EditorGuiText::ParamBrowser::kindToneNoise }, Io::Extension::ToneNoiseParam,
+        [this](const juce::File& file) { writeToneNoiseParamFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void RhythmPadGui::writeToneNoiseParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(toneNoiseFormat);
+    writeToneNoiseParams(writer);
+
+    writer.writeTo(file);
 }
 
 void RhythmPadGui::importLfoParam() {
@@ -788,163 +790,167 @@ void RhythmPadGui::exportDetuneParam() {
     mulDetuneComponent.exportParams();
 }
 
-void RhythmPadGui::importPcmPlayParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importPcmPlayParamFile, defaultDir, Io::ExtensionGlob::PcmPlayParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingPcmPlayParams(lines, index);
-                    }
-
-                    Io::ParamWriter writer(pcmPlayFormat);
-
-                    writePcmPlayParams(writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, pcmPlayFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
-
-                pcmOffsetSlider.setValue(reader->getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
-                pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
-                loopPointEnableButton.setToggleState(reader->getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
-                loopPointStartSlider.setValue(reader->getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
-                loopPointEndSlider.setValue(reader->getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
-            }
-        });
+void RhythmPadGui::importPcmPlayParam()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+        { EditorGuiText::ParamBrowser::kindPcmPlay },
+        [this](const juce::File& file) { applyPcmPlayParamFile(file); });
 }
 
-void RhythmPadGui::exportPcmPlayParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void RhythmPadGui::applyPcmPlayParamFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingPcmPlayParams(lines, index);
+        }
+
+        Io::ParamWriter writer(pcmPlayFormat);
+
+        writePcmPlayParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPcmPlayParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::PcmPlayParam)), Io::saveGlob(Io::Extension::PcmPlayParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, pcmPlayFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(pcmPlayFormat);
-                writePcmPlayParams(writer);
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    pcmOffsetSlider.setValue(reader->getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
+    pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
+    loopPointEnableButton.setToggleState(reader->getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
+    loopPointStartSlider.setValue(reader->getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
+    loopPointEndSlider.setValue(reader->getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
 }
 
-void RhythmPadGui::importQualityParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::PcmQualityParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingQualityParams(lines, index);
-                    }
-
-                    Io::ParamWriter writer(pcmQualityFormat);
-
-                    writeQualityParams(writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, pcmQualityFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                qualityPcmComponent.setMode(reader->getInt("mode", qualityPcmComponent.getMode()));
-                qualityPcmComponent.setRate(reader->getInt("rate", qualityPcmComponent.getRate()));
-                qualityPcmComponent.setInterp(reader->getInt("interp", qualityPcmComponent.getInterp()));
-            }
-        });
+void RhythmPadGui::exportPcmPlayParam()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+        { EditorGuiText::ParamBrowser::kindPcmPlay }, Io::Extension::PcmPlayParam,
+        [this](const juce::File& file) { writePcmPlayParamFile(file); });
 }
 
-void RhythmPadGui::exportQualityParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void RhythmPadGui::writePcmPlayParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(pcmPlayFormat);
+    writePcmPlayParams(writer);
+
+    writer.writeTo(file);
+}
+
+void RhythmPadGui::importQualityParam()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+        { EditorGuiText::ParamBrowser::kindPcmQuality },
+        [this](const juce::File& file) { applyQualityParamFile(file); });
+}
+
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void RhythmPadGui::applyQualityParamFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingQualityParams(lines, index);
+        }
+
+        Io::ParamWriter writer(pcmQualityFormat);
+
+        writeQualityParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::PcmQualityParam)), Io::saveGlob(Io::Extension::PcmQualityParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, pcmQualityFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(pcmQualityFormat);
-                writeQualityParams(writer);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    qualityPcmComponent.setMode(reader->getInt("mode", qualityPcmComponent.getMode()));
+    qualityPcmComponent.setRate(reader->getInt("rate", qualityPcmComponent.getRate()));
+    qualityPcmComponent.setInterp(reader->getInt("interp", qualityPcmComponent.getInterp()));
+}
+
+void RhythmPadGui::exportQualityParam()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+        { EditorGuiText::ParamBrowser::kindPcmQuality }, Io::Extension::PcmQualityParam,
+        [this](const juce::File& file) { writeQualityParamFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void RhythmPadGui::writeQualityParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(pcmQualityFormat);
+    writeQualityParams(writer);
+
+    writer.writeTo(file);
 }
 
 // パッド 1 つぶん。並びの中のひとつを渡してもらう。
@@ -1430,7 +1436,7 @@ void GuiRhythm::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
     }
 }
 
-void GuiRhythm::buttonClicked(juce::Button* button, juce::AudioFormatManager& formatManager, std::unique_ptr<juce::FileChooser>& fileChooser)
+void GuiRhythm::buttonClicked(juce::Button* button)
 {
     for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
@@ -1438,13 +1444,10 @@ void GuiRhythm::buttonClicked(juce::Button* button, juce::AudioFormatManager& fo
 
         if (pad.isThis(button))
         {
-            auto fileFilter = formatManager.getWildcardForAllFormats();
-            auto folderChooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
-
-            // Capture index 'i' by value
-            fileChooser->launchAsync(folderChooserFlags, [this, i](const juce::FileChooser& fc)
+            // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+            // 番号は値で写して渡す。
+            ctx.editor.openAudioBrowser([this, i](const juce::File& file)
                 {
-                    auto file = fc.getResult();
                     if (file.existsAsFile())
                     {
                         pads[i].updatePadFileName("Loading...");
@@ -1597,170 +1600,166 @@ void GuiRhythm::exportSsgSwPEnv11Param(int p) {
 }
 
 void GuiRhythm::importChParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::rhythmParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingChParams(lines, index);
-                    }
-
-                    Io::ParamWriter writer(rhythmFormat);
-
-                    writeChParams(writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, rhythmFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                // Level
-                levelComponent.readParams(*reader, "level");
-
-                // Components
-                unisonComponent.readParams(*reader, "unison");
-
-                // ファイルに無いパッドは触らない。パッド数の違う版で書いた
-                // ファイルを読んでも、こちらの音が消えないようにするため。
-                const int stored = reader->arraySize(Io::ParamKey::pads);
-
-                for (int i = 0; i < RhythmPrValue::pads && i < stored; i++) {
-                    pads[i].readParams(i, reader->arrayItem(Io::ParamKey::pads, i));
-                }
-            }
-        });
-
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser({ "RHYTHM" },
+        [this](const juce::File& file) { applyChParamFile(file); });
 }
 
-void GuiRhythm::exportChParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// パラメータファイルのブラウザからも同じ読み込みを使うので、
+// ダイアログを出すところと、読んで反映するところを分けてある。
+void GuiRhythm::applyChParamFile(const juce::File& file) {
+    if (!file.existsAsFile()) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingChParams(lines, index);
+        }
+
+        Io::ParamWriter writer(rhythmFormat);
+
+        writeChParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::rhythmParam)), Io::saveGlob(Io::Extension::rhythmParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, rhythmFormat);
 
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(rhythmFormat);
-                writeChParams(writer);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    // Level
+    levelComponent.readParams(*reader, "level");
 
+    // Components
+    unisonComponent.readParams(*reader, "unison");
+
+    // ファイルに無いパッドは触らない。パッド数の違う版で書いた
+    // ファイルを読んでも、こちらの音が消えないようにするため。
+    const int stored = reader->arraySize(Io::ParamKey::pads);
+
+    for (int i = 0; i < RhythmPrValue::pads && i < stored; i++) {
+        pads[i].readParams(i, reader->arrayItem(Io::ParamKey::pads, i));
+    }
 }
 
-void GuiRhythm::importPadChParam(int p) {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::rhythmPadParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this, p](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingPadChParams(p, lines, index);
-                    }
-
-                    Io::ParamWriter writer(rhythmPadFormat);
-
-                    writePadChParams(p, writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, rhythmPadFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
-
-                pads[p].readParams(p, *reader);
-            }
-        });
-
+void GuiRhythm::exportChParam()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+        { "RHYTHM" }, Io::Extension::rhythmParam,
+        [this](const juce::File& file) { writeChParamFile(file); });
 }
 
-void GuiRhythm::exportPadChParam(int p) {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiRhythm::writeChParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(rhythmFormat);
+    writeChParams(writer);
+
+    writer.writeTo(file);
+}
+
+void GuiRhythm::importPadChParam(int p)
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+        { EditorGuiText::ParamBrowser::kindRhythmPad },
+        [this, p](const juce::File& file) { applyPadChParamFile(p, file); });
+}
+
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiRhythm::applyPadChParamFile(int p, const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingPadChParams(p, lines, index);
+        }
+
+        Io::ParamWriter writer(rhythmPadFormat);
+
+        writePadChParams(p, writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::rhythmPadParam)), Io::saveGlob(Io::Extension::rhythmPadParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this, p](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, rhythmPadFormat);
 
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(rhythmPadFormat);
-                writePadChParams(p, writer);
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    pads[p].readParams(p, *reader);
+}
 
+void GuiRhythm::exportPadChParam(int p)
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+        { EditorGuiText::ParamBrowser::kindRhythmPad }, Io::Extension::rhythmPadParam,
+        [this, p](const juce::File& file) { writePadChParamFile(p, file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiRhythm::writePadChParamFile(int p, const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(rhythmPadFormat);
+    writePadChParams(p, writer);
+
+    writer.writeTo(file);
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて

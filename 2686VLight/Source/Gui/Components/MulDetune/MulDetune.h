@@ -115,7 +115,11 @@ public:
     void copyParams(CopyDetuneOpzx7& copyObj);
     void pasteParams(CopyDetuneOpzx7& copyObj);
     void importParams();
+    // ブラウザから直に読ませるための入口。
+    void applyParamsFile(const juce::File& file);
     void exportParams();
+    // ブラウザから直に渡せるようにした入口。
+    void writeParamsFile(const juce::File& file);
     void setMul(int m);
     void setMulRatio(float r);
     void setDt1(int d1);

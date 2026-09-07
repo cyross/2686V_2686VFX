@@ -21,6 +21,10 @@
 #include "../../Gui/Colors/GuiColors.h"
 #include "../../Gui/Curve/GuiCurve.h"
 
+#include "../../Gui/Components/Loading/GuiLoading.h"
+#include "../../Gui/Components/GenWave/GenWave.h"
+#include "../../Gui/Components/ParamBrowser/ParamBrowser.h"
+
 #include "../../Core/Gui/GuiCopyObj.h"
 
 class SystemButtonLF : public juce::LookAndFeel_V4
@@ -85,6 +89,51 @@ public:
 
     void paint(juce::Graphics&) override;
     void resized() override;
+
+    // 時間の掛かる処理の間、画面全体を覆って待たせる。
+    //
+    // 覆っている間は下の画面を触れない。処理そのものは別のスレッドで
+    // 進めること。メッセージスレッドを塞ぐと棒が止まってしまう。
+    // onCancel を渡すと中止ボタンが出る。押されたら呼ばれるだけなので、
+    // 止めた側が hideLoading() まで面倒を見ること。
+    void showLoading(const juce::String& message = {},
+        std::function<void()> onCancel = nullptr);
+    void updateLoading(const juce::String& message);
+    void hideLoading();
+
+    // パラメータファイルのブラウザを開く。
+    //
+    // allowed には、呼んだ側が読める区分の名前を渡す。それ以外の行は
+    // 一覧には出るが選べない。選ばれたら onChoose が呼ばれる。
+    void openParamBrowser(const juce::StringArray& allowed,
+        std::function<void(const juce::File&)> onChoose);
+
+    // 区分ごとに置き場が分かれているので、どこから始めるかを渡す形も
+    // 用意しておく。根は settingsDir ごとに別に覚える。
+    void openParamBrowser(const juce::String& settingsDir, const juce::StringArray& allowed,
+        std::function<void(const juce::File&)> onChoose,
+        const juce::String& nameMustContain = {});
+
+    // 書き出す先を一覧から決める。base は "param.opna" のような種類の
+    // 名前で、既定のファイル名と付ける拡張子はそこから組み立てる。
+    void openParamBrowserToSave(const juce::String& settingsDir, const juce::StringArray& allowed,
+        const juce::String& base, std::function<void(const juce::File&)> onChoose,
+        const juce::String& nameMustContain = {});
+
+    // 波形ファイルのブラウザ。読み込むときと、書き出す先を決めるとき。
+    // 根はパラメータとは別に覚える。置き場が違うため。
+    void openWaveBrowser(const juce::StringArray& allowed,
+        std::function<void(const juce::File&)> onChoose);
+
+    // 音声ファイルのブラウザ。PCM の素材を選ぶのに使う。
+    void openAudioBrowser(std::function<void(const juce::File&)> onChoose);
+    void openWaveBrowserToSave(const juce::StringArray& allowed,
+        const juce::String& defaultName, const juce::String& extension,
+        std::function<void(const juce::File&)> onChoose);
+
+    // 区分に合うタブへ読ませる。合うタブが無ければ false。
+    // そのファイルのための音源へ切り替えたうえで読む。
+    bool applyChannelParamFile(const juce::File& file);
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
     void buttonClicked(juce::Button* button) override;
@@ -107,7 +156,52 @@ public:
 
     // プリセット 1 件ぶんの見出しを読む。一覧を作るときと、履歴へ積む
     // ときの両方から使う。読めなければ false を返す。
+    // 見出しが無いときに使う既定値。
+    //
+    // 裏のスレッドからプロセッサを触らずに済むよう、読み始める前に
+    // ここへ写しておく。
+    struct PresetMetaDefaults
+    {
+        juce::String name;
+        juce::String author;
+        juce::String version;
+        juce::String comment;
+        juce::String mode;
+        juce::String genre;
+    };
+
+    PresetMetaDefaults presetMetaDefaults() const;
+
+    // ファイルを開いて見出しだけ拾う。プロセッサを触らないので、
+    // 裏のスレッドから呼んでよい。
+    static bool readPresetMetaInto(const juce::File& file, PresetItem& item,
+        const PresetMetaDefaults& defaults);
+
     bool readPresetMeta(const juce::File& file, PresetItem& item);
+
+    // ------------------------------------------------------------------
+    // 一覧の見出しの控え
+    // ------------------------------------------------------------------
+    // 名前や作者は、プリセットを開いて中身を見ないと分からない。ところが
+    // 2686V のプリセットは 1 件で 9,000 近い値を持つので、開くだけで
+    // 十数ミリ秒かかる。2,000 件あれば 30 秒を超え、画面が出るまで
+    // ずっと待たされていた。
+    //
+    // 一度読んだものはファイルへ控えておき、次からは日付と大きさが
+    // 変わっていないものを開き直さない。控えは作り直せるものしか
+    // 入れていないので、消してしまってもかまわない。
+    juce::File presetIndexFile() const;
+    std::map<juce::String, PresetItem> readPresetIndex() const;
+    void savePresetIndex() const;
+
+    // まだ読んでいないぶんを裏で読む。読み終えるまで一覧には
+    // ファイル名だけが並ぶ。
+    void startPresetMetaScan(std::vector<juce::File> files);
+    void finishPresetMetaScan(const std::vector<PresetItem>& done);
+    void cancelPresetMetaScan();
+
+    std::unique_ptr<juce::ThreadPool> presetScanPool;
+    std::shared_ptr<std::atomic<bool>> presetScanCancel;
 
     // 一覧の作り直し用の覚え書き。場所と大きさと更新日時が変わって
     // いなければ、そのファイルは開き直さない。
@@ -238,7 +332,28 @@ private:
     // 状態コンポーネント
     GuiStateView playingState{ juce::Colours::yellow, juce::Colours::yellow.darker(0.9f).withAlpha(0.6f) };
 
+    // オシロの下に置く、押したときだけ作る波形プレビュー
+    std::unique_ptr<GuiGenWave> genWaveGui;
+
+    // パラメータファイルの一覧。開いている間だけ画面を覆う。
+    std::unique_ptr<GuiParamBrowser> paramBrowser;
+
+    // ブラウザを開く根。
+    //
+    // 読み込むたびに defaultChannelParamDir は「今読んだファイルのある
+    // フォルダ」へ狭まる。ダイアログなら上へ辿れたが、ブラウザは根の下
+    // しか見ないので、そのまま使うと次に別の区分を読もうとしたときに
+    // 1 件も出てこない。ここは狭めず、「フォルダ…」でだけ動かす。
+    juce::File paramBrowserRoot;
+    juce::File waveBrowserRoot;
+
+    // 区分ごとの根。置き場が分かれているので、設定の場所ごとに覚える。
+    std::map<juce::String, juce::File> browserRoots;
+
     bool isPreviewVisible = false;
+
+    // 待ち時間を知らせる覆い。出している間だけ動く。
+    GuiLoading loadingScreen;
 
     enum class ViewMode { Full = 0, MiniPlayer = 1, Minimum = 2 };
     ViewMode viewMode = ViewMode::Full;
@@ -301,6 +416,12 @@ private:
 
     // そのタブの中身を作る。すでに出来ていれば何もしない。
     void materializeTab(int tabIndex);
+
+    // タブ番号から中身を引く。まだ作っていなければここで作る。
+    GuiBase* tabGuiFor(int tabIndex);
+
+    // 区分の名前からタブ番号を引く。合うものが無ければ -1。
+    static int tabForCategory(const juce::String& category);
 
     // すべてのタブの中身を作る。パラメータを書き換える一括操作は、
     // 開いていないタブにも効かないと困るので、そこだけはここを通す。

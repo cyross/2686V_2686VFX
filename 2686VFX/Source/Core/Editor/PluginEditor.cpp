@@ -481,6 +481,9 @@ void AudioPlugin2686VEditor::resized()
         return; // setSize を呼ぶと再び resized() が走るため、ここで処理を中断して無限ループを防ぐ
     }
 
+    // 覆いは常に画面いっぱい。出していないときは触らない。
+    if (loadingScreen.isVisible()) loadingScreen.setBounds(getLocalBounds());
+
     // =========================================================================
     // 1. 現在の ViewMode に基づいて、全コンポーネントの表示/非表示(setVisible)と
     //    ラベルのスタイルを設定する
@@ -1243,4 +1246,20 @@ void AudioPlugin2686VEditor::closeBypassedCategories()
     forEachTabGui([](GuiBase& gui) { gui.closeBypassedCategories(); });
 
     resized();
+}
+
+void AudioPlugin2686VEditor::showLoading(const juce::String& message,
+    std::function<void()> onCancel)
+{
+    loadingScreen.show(*this, message, std::move(onCancel));
+}
+
+void AudioPlugin2686VEditor::updateLoading(const juce::String& message)
+{
+    loadingScreen.setMessage(message);
+}
+
+void AudioPlugin2686VEditor::hideLoading()
+{
+    loadingScreen.hide();
 }

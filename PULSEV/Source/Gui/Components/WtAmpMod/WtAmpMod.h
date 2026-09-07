@@ -155,8 +155,12 @@ public:
 
     // 単体ファイル (.wtampmod) での入出力。
     void importParams();
+    // ブラウザから直に読ませるための入口。
+    void applyParamsFile(const juce::File& file);
     void exportParams();
 
+    // ブラウザから直に渡せるようにした入口。
+    void writeParamsFile(const juce::File& file);
     // 3.1.0 で足したものなので、3.0.0 より前の並び順のファイルには入っていない。
     void setImportingParams(juce::StringArray& lines, int& index);
 

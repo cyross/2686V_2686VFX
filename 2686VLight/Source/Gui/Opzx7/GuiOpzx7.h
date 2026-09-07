@@ -367,22 +367,33 @@ public:
     void exportDetuneParam(int opIndex);
     void importQualityParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyQualityParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingQualityParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeQualityParamFile(const juce::File& file);
     void importOpPcmPlayParam(int opIndex);
 
+    // ブラウザから直に読ませるための入口。
+    void applyOpPcmPlayParamFile(int opIndex, const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingOpPcmPlayParams(int opIndex, juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeOpPcmPlayParams(int opIndex, Io::ParamWriter& writer);
     void exportOpPcmPlayParam(int opIndex);
+    // ブラウザから直に渡せるようにした入口。
+    void writeOpPcmPlayParamFile(int opIndex, const juce::File& file);
     void importChParam();
 
+    // ブラウザから直に読ませるための入口。
+    // importChParam() からダイアログを外したもの。
+    void applyChParamFile(const juce::File& file) override;
     // 3.0.0 より前の形式を読む
     void getImportingOpParams(int opIndex, juce::StringArray& lines, int& index);
     void setImportingChParams(juce::StringArray& lines, int& index);
@@ -390,14 +401,20 @@ public:
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeChParamFile(const juce::File& file);
     void importOpChParam(int opIndex);
 
+    // ブラウザから直に読ませるための入口。
+    void applyOpChParamFile(int opIndex, const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingOpChFileParams(int opIndex, juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeOpChFileParams(int opIndex, Io::ParamWriter& writer);
     void exportOpChParam(int opIndex);
+    // ブラウザから直に渡せるようにした入口。
+    void writeOpChParamFile(int opIndex, const juce::File& file);
     // 名前で受け渡す。オペレータは並びの中のひとつを渡す。
     void readOpParams(int opIndex, const Io::ParamReader& r);
     void writeOpParams(int opIndex, Io::ParamWriter& w);

@@ -1549,86 +1549,88 @@ void GuiOpl::pasteOpParams(int p, CopyOplOp& copyObj) {
     ssgSwEnv[p].pasteParams(copyObj.aSsgSw);
 }
 
-void GuiOpl::importLfoParam(int opIndex) {
-    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::OplLfoParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this, opIndex](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingLfoParams(opIndex, lines, index);
-                    }
-
-                    Io::ParamWriter writer(oplLfoFormat);
-
-                    writeLfoParams(opIndex, writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, oplLfoFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                vib[opIndex].setToggleState(reader->getBool("vib", vib[opIndex].getToggleState()), juce::sendNotification);
-                pms[opIndex].setValue(reader->getFloat("pms", (float)pms[opIndex].getValue()), juce::sendNotification);
-                pmd[opIndex].setValue(reader->getFloat("pmd", (float)pmd[opIndex].getValue()), juce::sendNotification);
-                am[opIndex].setToggleState(reader->getBool("am", am[opIndex].getToggleState()), juce::sendNotification);
-                ams[opIndex].setValue(reader->getFloat("ams", (float)ams[opIndex].getValue()), juce::sendNotification);
-                amd[opIndex].setValue(reader->getFloat("amd", (float)amd[opIndex].getValue()), juce::sendNotification);
-            }
-        });
+void GuiOpl::importLfoParam(int opIndex)
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultLfoParamDir,
+        { EditorGuiText::ParamBrowser::kindLfoOpl },
+        [this, opIndex](const juce::File& file) { applyLfoParamFile(opIndex, file); });
 }
 
-void GuiOpl::exportLfoParam(int opIndex) {
-    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiOpl::applyLfoParamFile(int opIndex, const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingLfoParams(opIndex, lines, index);
+        }
+
+        Io::ParamWriter writer(oplLfoFormat);
+
+        writeLfoParams(opIndex, writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::OplLfoParam)), Io::saveGlob(Io::Extension::OplLfoParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this, opIndex](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, oplLfoFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(oplLfoFormat);
-                writeLfoParams(opIndex, writer);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    vib[opIndex].setToggleState(reader->getBool("vib", vib[opIndex].getToggleState()), juce::sendNotification);
+    pms[opIndex].setValue(reader->getFloat("pms", (float)pms[opIndex].getValue()), juce::sendNotification);
+    pmd[opIndex].setValue(reader->getFloat("pmd", (float)pmd[opIndex].getValue()), juce::sendNotification);
+    am[opIndex].setToggleState(reader->getBool("am", am[opIndex].getToggleState()), juce::sendNotification);
+    ams[opIndex].setValue(reader->getFloat("ams", (float)ams[opIndex].getValue()), juce::sendNotification);
+    amd[opIndex].setValue(reader->getFloat("amd", (float)amd[opIndex].getValue()), juce::sendNotification);
+}
+
+void GuiOpl::exportLfoParam(int opIndex)
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultLfoParamDir,
+        { EditorGuiText::ParamBrowser::kindLfoOpl }, Io::Extension::OplLfoParam,
+        [this, opIndex](const juce::File& file) { writeLfoParamFile(opIndex, file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiOpl::writeLfoParamFile(int opIndex, const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(oplLfoFormat);
+    writeLfoParams(opIndex, writer);
+
+    writer.writeTo(file);
 }
 
 void GuiOpl::importPitchEnvParam(int opIndex) {
@@ -1647,82 +1649,84 @@ void GuiOpl::exportSsgSwEnvParam(int opIndex) {
     ssgSwEnv[opIndex].exportParams();
 }
 
-void GuiOpl::importQualityParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingQualityParams(lines, index);
-                    }
-
-                    Io::ParamWriter writer(qualityFormat);
-
-                    writeQualityParams(writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, qualityFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
-                qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
-            }
-        });
+void GuiOpl::importQualityParam()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+        { EditorGuiText::ParamBrowser::kindQuality },
+        [this](const juce::File& file) { applyQualityParamFile(file); });
 }
 
-void GuiOpl::exportQualityParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiOpl::applyQualityParamFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingQualityParams(lines, index);
+        }
+
+        Io::ParamWriter writer(qualityFormat);
+
+        writeQualityParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::QualityParam)), Io::saveGlob(Io::Extension::QualityParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, qualityFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(qualityFormat);
-                writeQualityParams(writer);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
+    qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
+}
+
+void GuiOpl::exportQualityParam()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+        { EditorGuiText::ParamBrowser::kindQuality }, Io::Extension::QualityParam,
+        [this](const juce::File& file) { writeQualityParamFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiOpl::writeQualityParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(qualityFormat);
+    writeQualityParams(writer);
+
+    writer.writeTo(file);
 }
 
 void GuiOpl::importSsgSwEnv11Param(int opIndex) {
@@ -1774,154 +1778,154 @@ void GuiOpl::exportOpWtModParam(int opIndex) {
 }
 
 void GuiOpl::importChParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::oplParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingChParams(lines, index);
-                    }
-
-                    Io::ParamWriter writer(oplFormat);
-
-                    writeChParams(writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, oplFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                readChParams(*reader);
-            }
-        });
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser({ "OPL" },
+        [this](const juce::File& file) { applyChParamFile(file); });
 }
 
-void GuiOpl::exportChParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// パラメータファイルのブラウザからも同じ読み込みを使うので、
+// ダイアログを出すところと、読んで反映するところを分けてある。
+void GuiOpl::applyChParamFile(const juce::File& file) {
+    if (!file.existsAsFile()) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingChParams(lines, index);
+        }
+
+        Io::ParamWriter writer(oplFormat);
+
+        writeChParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::oplParam)), Io::saveGlob(Io::Extension::oplParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, oplFormat);
 
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(oplFormat);
-                writeChParams(writer);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    readChParams(*reader);
 }
 
-void GuiOpl::importOpChParam(int opIndex) {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+void GuiOpl::exportChParam()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+        { "OPL" }, Io::Extension::oplParam,
+        [this](const juce::File& file) { writeChParamFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiOpl::writeChParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(oplFormat);
+    writeChParams(writer);
+
+    writer.writeTo(file);
+}
+
+void GuiOpl::importOpChParam(int opIndex)
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+        { EditorGuiText::ParamBrowser::kindOplOp },
+        [this, opIndex](const juce::File& file) { applyOpChParamFile(opIndex, file); });
+}
+
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiOpl::applyOpChParamFile(int opIndex, const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingOpChFileParams(opIndex, lines, index);
+        }
+
+        Io::ParamWriter writer(oplOpFormat);
+
+        writeOpChFileParams(opIndex, writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::oplOpParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this, opIndex](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+    auto reader = Io::ParamReader::open(file, oplOpFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
 
-                    file.readLines(lines);
+    readOpParams(opIndex, *reader);
+}
 
-                    int index = 0;
+void GuiOpl::exportOpChParam(int opIndex)
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+        { EditorGuiText::ParamBrowser::kindOplOp }, Io::Extension::oplOpParam,
+        [this, opIndex](const juce::File& file) { writeOpChParamFile(opIndex, file); });
+}
 
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiOpl::writeOpChParamFile(int opIndex, const juce::File& file)
+{
+    if (file == juce::File{}) return;
 
-                        setImportingOpChFileParams(opIndex, lines, index);
-                    }
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                     Io::ParamWriter writer(oplOpFormat);
+    writeOpChFileParams(opIndex, writer);
 
-                    writeOpChFileParams(opIndex, writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, oplOpFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
-
-                readOpParams(opIndex, *reader);
-            }
-        });
-}
-
-void GuiOpl::exportOpChParam(int opIndex) {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::oplOpParam)), Io::saveGlob(Io::Extension::oplOpParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this, opIndex](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
-
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
-
-                                Io::ParamWriter writer(oplOpFormat);
-                writeOpChFileParams(opIndex, writer);
-
-                writer.writeTo(file);
-            }
-        });
+    writer.writeTo(file);
 }
 
 
@@ -2050,59 +2054,59 @@ void GuiOpl::writeOpParams(int opIndex, Io::ParamWriter& w) {
 }
 
 void GuiOpl::importOpl3ChParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opl3Param);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
-
-                // 相手の音源のファイル。名前で引くので、こちらに無い項目は
-                // 読み飛ばされ、こちらにしか無い項目は今の値のまま残る。
-                auto reader = Io::ParamReader::open(file, opl3Format);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
-
-                readChParams(*reader);
-            }
-        });
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser({ "OPL3" },
+        [this](const juce::File& file) { applyOpl3ChParamFile(file); });
 }
 
-void GuiOpl::importOpl3OpChParam(int opIndex) {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
+// パラメータファイルのブラウザからも同じ読み込みを使うので、
+// ダイアログを出すところと、読んで反映するところを分けてある。
+void GuiOpl::applyOpl3ChParamFile(const juce::File& file) {
+    if (!file.existsAsFile()) return;
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opl3OpParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this, opIndex](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    // 相手の音源のファイル。名前で引くので、こちらに無い項目は
+    // 読み飛ばされ、こちらにしか無い項目は今の値のまま残る。
+    auto reader = Io::ParamReader::open(file, opl3Format);
 
-                auto reader = Io::ParamReader::open(file, opl3OpFormat);
+    if (!reader.has_value()) return;
 
-                if (!reader.has_value()) return;
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
 
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
+    readChParams(*reader);
+}
 
-                readOpParams(opIndex, *reader);
-            }
-        });
+void GuiOpl::importOpl3OpChParam(int opIndex)
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+        { EditorGuiText::ParamBrowser::kindOpl3Op },
+        [this, opIndex](const juce::File& file) { applyOpl3OpChParamFile(opIndex, file); });
+}
+
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiOpl::applyOpl3OpChParamFile(int opIndex, const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    auto reader = Io::ParamReader::open(file, opl3OpFormat);
+
+    if (!reader.has_value()) return;
+
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
+
+    readOpParams(opIndex, *reader);
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて

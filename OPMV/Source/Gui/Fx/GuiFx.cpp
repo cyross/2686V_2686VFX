@@ -970,260 +970,260 @@ void GuiFx::updateSfcEchoEnabled() {
 // ==============================================================================
 void GuiFx::importFxOrder()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxOrderDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultFxOrderDir,
+        { EditorGuiText::ParamBrowser::kindFxOrder },
+        [this](const juce::File& file) { applyFxOrderFile(file); });
+}
+
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiFx::applyFxOrderFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingFxOrder(lines, index);
+        }
+
+        Io::ParamWriter writer(fxOrderFormat);
+
+        writeFxOrder(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxOrderFile, defaultDir, Io::ExtensionGlob::fxOrder);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+    auto reader = Io::ParamReader::open(file, fxOrderFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
 
-                    file.readLines(lines);
+    // 名前で読む。3.0.0 のはじめの形は番号だったので、
+    // 名前として読めなければ番号として読み直す。
+    auto storedNames = reader->getStringArray("order");
 
-                    int index = 0;
+    std::vector<int> newOrders;
 
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
+    for (const auto& name : storedNames) {
+        int id = fxTypeFromName(name);
 
-                        setImportingFxOrder(lines, index);
-                    }
+        // 数で書かれていたときはここへ来る
+        if (id < 0 && name.containsOnly("0123456789")) id = name.getIntValue();
 
-                    Io::ParamWriter writer(fxOrderFormat);
+        newOrders.push_back(id);
+    }
 
-                    writeFxOrder(writer);
+    // 範囲外・重複・取りこぼしのならしは 1 箇所にまとめてある。
+    ctx.audioProcessor.updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
 
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, fxOrderFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
-
-                // 名前で読む。3.0.0 のはじめの形は番号だったので、
-                // 名前として読めなければ番号として読み直す。
-                auto storedNames = reader->getStringArray("order");
-
-                std::vector<int> newOrders;
-
-                for (const auto& name : storedNames) {
-                    int id = fxTypeFromName(name);
-
-                    // 数で書かれていたときはここへ来る
-                    if (id < 0 && name.containsOnly("0123456789")) id = name.getIntValue();
-
-                    newOrders.push_back(id);
-                }
-
-                // 範囲外・重複・取りこぼしのならしは 1 箇所にまとめてある。
-                ctx.audioProcessor.updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
-
-                updateFxOrder();
-            }
-        });
+    updateFxOrder();
 }
 
 void GuiFx::exportFxOrder()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxOrderDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultFxOrderDir,
+        { EditorGuiText::ParamBrowser::kindFxOrder }, Io::Extension::fxOrder,
+        [this](const juce::File& file) { writeFxOrderFile(file); });
+}
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxOrderFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::fxOrder)), Io::saveGlob(Io::Extension::fxOrder));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiFx::writeFxOrderFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
-                // 1行目にサンプル数
-                Io::ParamWriter writer(fxOrderFormat);
-                writeFxOrder(writer);
+    // 1行目にサンプル数
+    Io::ParamWriter writer(fxOrderFormat);
+    writeFxOrder(writer);
 
-                writer.writeTo(file);
-            }
-        });
+    writer.writeTo(file);
 }
 
 void GuiFx::importFxParam()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultFxParamDir,
+        { EditorGuiText::ParamBrowser::kindFxParam },
+        [this](const juce::File& file) { applyFxParamFile(file); });
+}
+
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiFx::applyFxParamFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingFxParams(lines, index);
+        }
+
+        Io::ParamWriter writer(fxParamFormat);
+
+        writeFxParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxParamFile, defaultDir, Io::ExtensionGlob::fxParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+    auto reader = Io::ParamReader::open(file, fxParamFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
 
-                    file.readLines(lines);
+    bypassToggle.setToggleState(reader->getBool("bypass", bypassToggle.getToggleState()), juce::sendNotification);
 
-                    int index = 0;
+    {
+        auto tremolo = reader->child("tremolo");
 
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
+        tBypassBtn.setToggleState(tremolo.getBool("bypass", tBypassBtn.getToggleState()), juce::sendNotification);
+        tRateSlider.setValue(tremolo.getFloat("rate", (float)tRateSlider.getValue()), juce::sendNotification);
+        tDepthSlider.setValue(tremolo.getFloat("depth", (float)tDepthSlider.getValue()), juce::sendNotification);
+        tMixSlider.setValue(tremolo.getFloat("mix", (float)tMixSlider.getValue()), juce::sendNotification);
+    }
 
-                        setImportingFxParams(lines, index);
-                    }
+    {
+        auto vibrato = reader->child("vibrato");
 
-                    Io::ParamWriter writer(fxParamFormat);
+        vBypassBtn.setToggleState(vibrato.getBool("bypass", vBypassBtn.getToggleState()), juce::sendNotification);
+        vRateSlider.setValue(vibrato.getFloat("rate", (float)vRateSlider.getValue()), juce::sendNotification);
+        vDepthSlider.setValue(vibrato.getFloat("depth", (float)vDepthSlider.getValue()), juce::sendNotification);
+        vMixSlider.setValue(vibrato.getFloat("mix", (float)vMixSlider.getValue()), juce::sendNotification);
+    }
 
-                    writeFxParams(writer);
+    {
+        auto bitCrusher = reader->child("bitCrusher");
 
-                    Io::writeConverted(file, writer);
+        mbcBypassBtn.setToggleState(bitCrusher.getBool("bypass", mbcBypassBtn.getToggleState()), juce::sendNotification);
+        mbcRateSlider.setValue(bitCrusher.getFloat("rate", (float)mbcRateSlider.getValue()), juce::sendNotification);
+        mbcBitsSlider.setValue(bitCrusher.getFloat("bits", (float)mbcBitsSlider.getValue()), juce::sendNotification);
+        mbcMixSlider.setValue(bitCrusher.getFloat("mix", (float)mbcMixSlider.getValue()), juce::sendNotification);
+    }
 
-                    return;
-                }
+    {
+        auto delay = reader->child("delay");
 
-                auto reader = Io::ParamReader::open(file, fxParamFormat);
+        dBypassBtn.setToggleState(delay.getBool("bypass", dBypassBtn.getToggleState()), juce::sendNotification);
+        dTimeSlider.setValue(delay.getFloat("time", (float)dTimeSlider.getValue()), juce::sendNotification);
+        dFbSlider.setValue(delay.getFloat("fb", (float)dFbSlider.getValue()), juce::sendNotification);
+        dMixSlider.setValue(delay.getFloat("mix", (float)dMixSlider.getValue()), juce::sendNotification);
+    }
 
-                if (!reader.has_value()) return;
+    {
+        auto reverb = reader->child("reverb");
 
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
+        rBypassBtn.setToggleState(reverb.getBool("bypass", rBypassBtn.getToggleState()), juce::sendNotification);
+        rSizeSlider.setValue(reverb.getFloat("size", (float)rSizeSlider.getValue()), juce::sendNotification);
+        rDampSlider.setValue(reverb.getFloat("damp", (float)rDampSlider.getValue()), juce::sendNotification);
+        rMixSlider.setValue(reverb.getFloat("mix", (float)rMixSlider.getValue()), juce::sendNotification);
+    }
 
-                bypassToggle.setToggleState(reader->getBool("bypass", bypassToggle.getToggleState()), juce::sendNotification);
+    {
+        auto filter = reader->child("filter");
 
-                {
-                    auto tremolo = reader->child("tremolo");
+        flBypassBtn.setToggleState(filter.getBool("bypass", flBypassBtn.getToggleState()), juce::sendNotification);
+        flTypeSelector.setSelectedItemIndex(filter.getInt("type", flTypeSelector.getSelectedItemIndex()), juce::sendNotification);
+        flFreqSlider.setValue(filter.getFloat("freq", (float)flFreqSlider.getValue()), juce::sendNotification);
+        flQSlider.setValue(filter.getFloat("q", (float)flQSlider.getValue()), juce::sendNotification);
+        flMixSlider.setValue(filter.getFloat("mix", (float)flMixSlider.getValue()), juce::sendNotification);
+    }
 
-                    tBypassBtn.setToggleState(tremolo.getBool("bypass", tBypassBtn.getToggleState()), juce::sendNotification);
-                    tRateSlider.setValue(tremolo.getFloat("rate", (float)tRateSlider.getValue()), juce::sendNotification);
-                    tDepthSlider.setValue(tremolo.getFloat("depth", (float)tDepthSlider.getValue()), juce::sendNotification);
-                    tMixSlider.setValue(tremolo.getFloat("mix", (float)tMixSlider.getValue()), juce::sendNotification);
-                }
+    {
+        auto eq3band = reader->child("eq3band");
 
-                {
-                    auto vibrato = reader->child("vibrato");
+        eq3bBypassBtn.setToggleState(eq3band.getBool("bypass", eq3bBypassBtn.getToggleState()), juce::sendNotification);
+        eq3bLowGainDbSlider.setValue(eq3band.getFloat("lowGainDb", (float)eq3bLowGainDbSlider.getValue()), juce::sendNotification);
+        eq3bMidFreqSlider.setValue(eq3band.getFloat("midFreq", (float)eq3bMidFreqSlider.getValue()), juce::sendNotification);
+        eq3bMidGainDbSlider.setValue(eq3band.getFloat("midGainDb", (float)eq3bMidGainDbSlider.getValue()), juce::sendNotification);
+        eq3bHighGainDbSlider.setValue(eq3band.getFloat("highGainDb", (float)eq3bHighGainDbSlider.getValue()), juce::sendNotification);
+        eq3bMixSlider.setValue(eq3band.getFloat("mix", (float)eq3bMixSlider.getValue()), juce::sendNotification);
+    }
 
-                    vBypassBtn.setToggleState(vibrato.getBool("bypass", vBypassBtn.getToggleState()), juce::sendNotification);
-                    vRateSlider.setValue(vibrato.getFloat("rate", (float)vRateSlider.getValue()), juce::sendNotification);
-                    vDepthSlider.setValue(vibrato.getFloat("depth", (float)vDepthSlider.getValue()), juce::sendNotification);
-                    vMixSlider.setValue(vibrato.getFloat("mix", (float)vMixSlider.getValue()), juce::sendNotification);
-                }
+    {
+        auto sfcEcho = reader->child("sfcEcho");
 
-                {
-                    auto bitCrusher = reader->child("bitCrusher");
-
-                    mbcBypassBtn.setToggleState(bitCrusher.getBool("bypass", mbcBypassBtn.getToggleState()), juce::sendNotification);
-                    mbcRateSlider.setValue(bitCrusher.getFloat("rate", (float)mbcRateSlider.getValue()), juce::sendNotification);
-                    mbcBitsSlider.setValue(bitCrusher.getFloat("bits", (float)mbcBitsSlider.getValue()), juce::sendNotification);
-                    mbcMixSlider.setValue(bitCrusher.getFloat("mix", (float)mbcMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto delay = reader->child("delay");
-
-                    dBypassBtn.setToggleState(delay.getBool("bypass", dBypassBtn.getToggleState()), juce::sendNotification);
-                    dTimeSlider.setValue(delay.getFloat("time", (float)dTimeSlider.getValue()), juce::sendNotification);
-                    dFbSlider.setValue(delay.getFloat("fb", (float)dFbSlider.getValue()), juce::sendNotification);
-                    dMixSlider.setValue(delay.getFloat("mix", (float)dMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto reverb = reader->child("reverb");
-
-                    rBypassBtn.setToggleState(reverb.getBool("bypass", rBypassBtn.getToggleState()), juce::sendNotification);
-                    rSizeSlider.setValue(reverb.getFloat("size", (float)rSizeSlider.getValue()), juce::sendNotification);
-                    rDampSlider.setValue(reverb.getFloat("damp", (float)rDampSlider.getValue()), juce::sendNotification);
-                    rMixSlider.setValue(reverb.getFloat("mix", (float)rMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto filter = reader->child("filter");
-
-                    flBypassBtn.setToggleState(filter.getBool("bypass", flBypassBtn.getToggleState()), juce::sendNotification);
-                    flTypeSelector.setSelectedItemIndex(filter.getInt("type", flTypeSelector.getSelectedItemIndex()), juce::sendNotification);
-                    flFreqSlider.setValue(filter.getFloat("freq", (float)flFreqSlider.getValue()), juce::sendNotification);
-                    flQSlider.setValue(filter.getFloat("q", (float)flQSlider.getValue()), juce::sendNotification);
-                    flMixSlider.setValue(filter.getFloat("mix", (float)flMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto eq3band = reader->child("eq3band");
-
-                    eq3bBypassBtn.setToggleState(eq3band.getBool("bypass", eq3bBypassBtn.getToggleState()), juce::sendNotification);
-                    eq3bLowGainDbSlider.setValue(eq3band.getFloat("lowGainDb", (float)eq3bLowGainDbSlider.getValue()), juce::sendNotification);
-                    eq3bMidFreqSlider.setValue(eq3band.getFloat("midFreq", (float)eq3bMidFreqSlider.getValue()), juce::sendNotification);
-                    eq3bMidGainDbSlider.setValue(eq3band.getFloat("midGainDb", (float)eq3bMidGainDbSlider.getValue()), juce::sendNotification);
-                    eq3bHighGainDbSlider.setValue(eq3band.getFloat("highGainDb", (float)eq3bHighGainDbSlider.getValue()), juce::sendNotification);
-                    eq3bMixSlider.setValue(eq3band.getFloat("mix", (float)eq3bMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto sfcEcho = reader->child("sfcEcho");
-
-                    sfceBypassBtn.setToggleState(sfcEcho.getBool("bypass", sfceBypassBtn.getToggleState()), juce::sendNotification);
-                    sfceTimeSlider.setValue(sfcEcho.getFloat("time", (float)sfceTimeSlider.getValue()), juce::sendNotification);
-                    sfceFbSlider.setValue(sfcEcho.getFloat("fb", (float)sfceFbSlider.getValue()), juce::sendNotification);
-                    sfceFirCoef0Slider.setValue(sfcEcho.getFloat("firCoef0", (float)sfceFirCoef0Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef1Slider.setValue(sfcEcho.getFloat("firCoef1", (float)sfceFirCoef1Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef2Slider.setValue(sfcEcho.getFloat("firCoef2", (float)sfceFirCoef2Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef3Slider.setValue(sfcEcho.getFloat("firCoef3", (float)sfceFirCoef3Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef4Slider.setValue(sfcEcho.getFloat("firCoef4", (float)sfceFirCoef4Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef5Slider.setValue(sfcEcho.getFloat("firCoef5", (float)sfceFirCoef5Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef6Slider.setValue(sfcEcho.getFloat("firCoef6", (float)sfceFirCoef6Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef7Slider.setValue(sfcEcho.getFloat("firCoef7", (float)sfceFirCoef7Slider.getValue()), juce::sendNotification);
-                    sfceMixSlider.setValue(sfcEcho.getFloat("mix", (float)sfceMixSlider.getValue()), juce::sendNotification);
-                }
-            }
-        });
+        sfceBypassBtn.setToggleState(sfcEcho.getBool("bypass", sfceBypassBtn.getToggleState()), juce::sendNotification);
+        sfceTimeSlider.setValue(sfcEcho.getFloat("time", (float)sfceTimeSlider.getValue()), juce::sendNotification);
+        sfceFbSlider.setValue(sfcEcho.getFloat("fb", (float)sfceFbSlider.getValue()), juce::sendNotification);
+        sfceFirCoef0Slider.setValue(sfcEcho.getFloat("firCoef0", (float)sfceFirCoef0Slider.getValue()), juce::sendNotification);
+        sfceFirCoef1Slider.setValue(sfcEcho.getFloat("firCoef1", (float)sfceFirCoef1Slider.getValue()), juce::sendNotification);
+        sfceFirCoef2Slider.setValue(sfcEcho.getFloat("firCoef2", (float)sfceFirCoef2Slider.getValue()), juce::sendNotification);
+        sfceFirCoef3Slider.setValue(sfcEcho.getFloat("firCoef3", (float)sfceFirCoef3Slider.getValue()), juce::sendNotification);
+        sfceFirCoef4Slider.setValue(sfcEcho.getFloat("firCoef4", (float)sfceFirCoef4Slider.getValue()), juce::sendNotification);
+        sfceFirCoef5Slider.setValue(sfcEcho.getFloat("firCoef5", (float)sfceFirCoef5Slider.getValue()), juce::sendNotification);
+        sfceFirCoef6Slider.setValue(sfcEcho.getFloat("firCoef6", (float)sfceFirCoef6Slider.getValue()), juce::sendNotification);
+        sfceFirCoef7Slider.setValue(sfcEcho.getFloat("firCoef7", (float)sfceFirCoef7Slider.getValue()), juce::sendNotification);
+        sfceMixSlider.setValue(sfcEcho.getFloat("mix", (float)sfceMixSlider.getValue()), juce::sendNotification);
+    }
 }
 
 void GuiFx::exportFxParam()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultFxParamDir,
+        { EditorGuiText::ParamBrowser::kindFxParam }, Io::Extension::fxParam,
+        [this](const juce::File& file) { writeFxParamFile(file); });
+}
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::fxParam)), Io::saveGlob(Io::Extension::fxParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiFx::writeFxParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
-                Io::ParamWriter writer(fxParamFormat);
-                writeFxParams(writer);
+    Io::ParamWriter writer(fxParamFormat);
+    writeFxParams(writer);
 
-                writer.writeTo(file);
-            }
-        });
+    writer.writeTo(file);
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて

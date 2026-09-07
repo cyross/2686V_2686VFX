@@ -663,128 +663,126 @@ void GuiWt2::updatePresetName(const juce::String& name)
 
 void GuiWt2::importWavetable()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    ctx.editor.openWaveBrowser({ EditorGuiText::ParamBrowser::waveWt2 },
+        [this](const juce::File& file) { applyWavetableFile(file); });
+}
+
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 実際の読み書きを分けてある。
+void GuiWt2::applyWavetableFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+
+    juce::StringArray lines;
+    file.readLines(lines);
+
+    if (lines.size() == 0) return;
+
+    // 1行目のサンプル数を取得
+    int sampleCount = lines[0].trim().getIntValue();
+
+    // サンプル数の検証
+    if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) {
+        juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+            "Invalid WT File", "Sample count must be 32, 64, 128, or 256.");
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importWavetableFile, defaultDir, Io::ExtensionGlob::wt2);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+    int resNumber = lines[1].trim().getIntValue();
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+    // 解像度の検証
+    if (resNumber != 16 && resNumber != 32 && resNumber != 64 && resNumber != 128 && resNumber != 256) {
+        juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+            "Invalid WT File", "Resolution must be 16, 32, 64, 128, or 256.");
+        return;
+    }
 
-                juce::StringArray lines;
-                file.readLines(lines);
+    resolution = resNumber;
+    resCenter = resolution >> 1;
 
-                if (lines.size() == 0) return;
+    // デフォルト0.0で配列を初期化（足りない部分は0.0で埋まる）
+    std::vector<int> values(sampleCount, resCenter);
 
-                // 1行目のサンプル数を取得
-                int sampleCount = lines[0].trim().getIntValue();
+    // 3行目以降の値を読み込み、0 ~ Resolution-1 にクランプして格納
+    // 書き出しは「サンプル数 / 解像度 / 値...」の順なので、値は lines[2] から。
+    for (int i = 0; i < sampleCount; ++i) {
+        if (i + 2 < lines.size()) {
+            int val = lines[i + 2].getIntValue();
 
-                // サンプル数の検証
-                if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) {
-                    juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-                        "Invalid WT File", "Sample count must be 32, 64, 128, or 256.");
-                    return;
-                }
+            values[i] = std::clamp(val, 0, resolution - 1);
+        }
+    }
 
-                int resNumber = lines[1].trim().getIntValue();
+    // --- UIの更新 ---
+    // 波形を「8: Custom(Draw)」に変更 (ID: 9)
+    waveSelector.setSelectedId(9, juce::sendNotification);
 
-                // 解像度の検証
-                if (resNumber != 16 && resNumber != 32 && resNumber != 64 && resNumber != 128 && resNumber != 256) {
-                    juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-                        "Invalid WT File", "Resolution must be 16, 32, 64, 128, or 256.");
-                    return;
-                }
+    // サンプルサイズを選択
+    int sizeId = 1;
+    if (sampleCount == 32) sizeId = 1;
+    else if (sampleCount == 64) sizeId = 2;
+    else if (sampleCount == 128) sizeId = 3;
+    else if (sampleCount == 256) sizeId = 4;
+    sizeSelector.setSelectedId(sizeId, juce::sendNotification);
 
-                resolution = resNumber;
-                resCenter = resolution >> 1;
+    // 解像度を選択
+    int resId = 1;
+    if (resolution == 16) resId = 1;
+    else if (resolution == 32) resId = 2;
+    else if (resolution == 64) resId = 3;
+    else if (resolution == 128) resId = 4;
+    else if (resolution == 256) resId = 5;
+    resoSelector.setSelectedId(resId, juce::sendNotification);
 
-                // デフォルト0.0で配列を初期化（足りない部分は0.0で埋まる）
-                std::vector<int> values(sampleCount, resCenter);
-
-                // 3行目以降の値を読み込み、0 ~ Resolution-1 にクランプして格納
-                // 書き出しは「サンプル数 / 解像度 / 値...」の順なので、値は lines[2] から。
-                for (int i = 0; i < sampleCount; ++i) {
-                    if (i + 2 < lines.size()) {
-                        int val = lines[i + 2].getIntValue();
-
-                        values[i] = std::clamp(val, 0, resolution - 1);
-                    }
-                }
-
-                // --- UIの更新 ---
-                // 波形を「8: Custom(Draw)」に変更 (ID: 9)
-                waveSelector.setSelectedId(9, juce::sendNotification);
-
-                // サンプルサイズを選択
-                int sizeId = 1;
-                if (sampleCount == 32) sizeId = 1;
-                else if (sampleCount == 64) sizeId = 2;
-                else if (sampleCount == 128) sizeId = 3;
-                else if (sampleCount == 256) sizeId = 4;
-                sizeSelector.setSelectedId(sizeId, juce::sendNotification);
-
-                // 解像度を選択
-                int resId = 1;
-                if (resolution == 16) resId = 1;
-                else if (resolution == 32) resId = 2;
-                else if (resolution == 64) resId = 3;
-                else if (resolution == 128) resId = 4;
-                else if (resolution == 256) resId = 5;
-                resoSelector.setSelectedId(resId, juce::sendNotification);
-
-                // --- 値をAPVTS(スライダー)に反映 ---
-                if (sampleCount == 32) customSliders32.setValues(values);
-                else if (sampleCount == 64) customSliders64.setValues(values);
-                else if (sampleCount == 128) customSliders128.setValues(values);
-                else if (sampleCount == 256) customSliders256.setValues(values);
-            }
-        });
+    // --- 値をAPVTS(スライダー)に反映 ---
+    if (sampleCount == 32) customSliders32.setValues(values);
+    else if (sampleCount == 64) customSliders64.setValues(values);
+    else if (sampleCount == 128) customSliders128.setValues(values);
+    else if (sampleCount == 256) customSliders256.setValues(values);
 }
 
 void GuiWt2::exportWavetable()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openWaveBrowserToSave({ EditorGuiText::ParamBrowser::waveWt2 },
+        "custom_wave", ".wt2",
+        [this](const juce::File& file) { writeWavetableFile(file); });
+}
+
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 実際の読み書きを分けてある。
+void GuiWt2::writeWavetableFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+
+    // 現在のサイズIDを取得
+    int sizeId = sizeSelector.getSelectedId();
+    std::vector<int> values;
+
+    if (sizeId == 1) values = customSliders32.getValues();
+    else if (sizeId == 2) values = customSliders64.getValues();
+    else if (sizeId == 3) values = customSliders128.getValues();
+    else if (sizeId == 4) values = customSliders256.getValues();
+
+    if (values.empty()) return;
+
+    // 1行目にサンプル数
+    juce::String content = juce::String(values.size()) + "\n" + juce::String(resolution) + "\n";
+
+    // 2行目以降に値を書き込む
+    for (float v : values) {
+        content += juce::String(v, 6) + "\n"; // 小数点以下6桁まで保存
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportWavetableFile, defaultDir.getChildFile("custom_wave.wt2"), Io::ExtensionGlob::wt2);
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
-
-                // 現在のサイズIDを取得
-                int sizeId = sizeSelector.getSelectedId();
-                std::vector<int> values;
-
-                if (sizeId == 1) values = customSliders32.getValues();
-                else if (sizeId == 2) values = customSliders64.getValues();
-                else if (sizeId == 3) values = customSliders128.getValues();
-                else if (sizeId == 4) values = customSliders256.getValues();
-
-                if (values.empty()) return;
-
-                // 1行目にサンプル数
-                juce::String content = juce::String(values.size()) + "\n" + juce::String(resolution) + "\n";
-
-                // 2行目以降に値を書き込む
-                for (float v : values) {
-                    content += juce::String(v, 6) + "\n"; // 小数点以下6桁まで保存
-                }
-
-                file.replaceWithText(content);
-            }
-        });
+    file.replaceWithText(content);
 }
 
 void GuiWt2::initParams()
@@ -1009,202 +1007,200 @@ void GuiWt2::setLevel(float level) {
     levelComponent.setLevel(level);
 }
 
-void GuiWt2::importQualityParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingQualityParams(lines, index);
-                    }
-
-                    Io::ParamWriter writer(qualityFormat);
-
-                    writeQualityParams(writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, qualityFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
-                qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
-            }
-        });
+void GuiWt2::importQualityParam()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+        { EditorGuiText::ParamBrowser::kindQuality },
+        [this](const juce::File& file) { applyQualityParamFile(file); });
 }
 
-void GuiWt2::exportQualityParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiWt2::applyQualityParamFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingQualityParams(lines, index);
+        }
+
+        Io::ParamWriter writer(qualityFormat);
+
+        writeQualityParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::QualityParam)), Io::saveGlob(Io::Extension::QualityParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, qualityFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(qualityFormat);
-                writeQualityParams(writer);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
+    qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
+}
+
+void GuiWt2::exportQualityParam()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+        { EditorGuiText::ParamBrowser::kindQuality }, Io::Extension::QualityParam,
+        [this](const juce::File& file) { writeQualityParamFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiWt2::writeQualityParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(qualityFormat);
+    writeQualityParams(writer);
+
+    writer.writeTo(file);
 }
 
 void GuiWt2::importChParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::wt2Param);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingChParams(lines, index);
-                    }
-
-                    Io::ParamWriter writer(wt2Format);
-
-                    writeChParams(writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, wt2Format);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                // Level
-                levelComponent.readParams(*reader, "level");
-
-                // Form
-                sizeSelector.setSelectedItemIndex(reader->getInt("size", sizeSelector.getSelectedItemIndex()), juce::sendNotification);
-                resoSelector.setSelectedItemIndex(reader->getInt("reso", resoSelector.getSelectedItemIndex()), juce::sendNotification);
-                waveSelector.setSelectedItemIndex(reader->getInt("wave", waveSelector.getSelectedItemIndex()), juce::sendNotification);
-
-                // Modulation
-                modComponent.readParams(*reader, "wtMod");
-                ampModComponent.readParams(*reader, "wtAmpMod");
-
-                // Components
-                fixComponent.readParams(*reader, "fix");
-                ampEnvComponent.readParams(*reader, "ampEnv");
-                pitchEnvComponent.readParams(*reader, "pitchEnv");
-                ssgHwEnv.readParams(*reader, "ssgHwEnv");
-                ssgHwPEnv.readParams(*reader, "ssgHwPEnv");
-                ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
-                ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
-                ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
-                mulDetuneComponent.readParams(*reader, "mulDetune");
-                lfo.readParams(*reader, "lfo");
-                qualityComponent.readParams(*reader, "quality");
-                unisonComponent.readParams(*reader, "unison");
-
-                // 自分で描いた波形。並びの長さがそのまま段数になるので、
-                // どの入れ物へ入れるかを別の項目から導く必要は無い。
-                auto customValues = reader->getIntArray("customWave");
-
-                // 今の解像度からはみ出さないように収める
-                const int currentReso = 16 << resoSelector.getSelectedItemIndex();
-
-                for (auto& value : customValues) value = std::clamp(value, 0, currentReso - 1);
-
-                switch ((int)customValues.size())
-                {
-                case 32:  customSliders32.setValues(customValues); break;
-                case 64:  customSliders64.setValues(customValues); break;
-                case 128: customSliders128.setValues(customValues); break;
-                case 256: customSliders256.setValues(customValues); break;
-                default: break;
-                }
-            }
-        });
-
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser({ "WT2" },
+        [this](const juce::File& file) { applyChParamFile(file); });
 }
 
-void GuiWt2::exportChParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// パラメータファイルのブラウザからも同じ読み込みを使うので、
+// ダイアログを出すところと、読んで反映するところを分けてある。
+void GuiWt2::applyChParamFile(const juce::File& file) {
+    if (!file.existsAsFile()) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingChParams(lines, index);
+        }
+
+        Io::ParamWriter writer(wt2Format);
+
+        writeChParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::wt2Param)), Io::saveGlob(Io::Extension::wt2Param));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, wt2Format);
 
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(wt2Format);
-                writeChParams(writer);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.writeTo(file);
-            }
-        });
+    // Level
+    levelComponent.readParams(*reader, "level");
 
+    // Form
+    sizeSelector.setSelectedItemIndex(reader->getInt("size", sizeSelector.getSelectedItemIndex()), juce::sendNotification);
+    resoSelector.setSelectedItemIndex(reader->getInt("reso", resoSelector.getSelectedItemIndex()), juce::sendNotification);
+    waveSelector.setSelectedItemIndex(reader->getInt("wave", waveSelector.getSelectedItemIndex()), juce::sendNotification);
+
+    // Modulation
+    modComponent.readParams(*reader, "wtMod");
+    ampModComponent.readParams(*reader, "wtAmpMod");
+
+    // Components
+    fixComponent.readParams(*reader, "fix");
+    ampEnvComponent.readParams(*reader, "ampEnv");
+    pitchEnvComponent.readParams(*reader, "pitchEnv");
+    ssgHwEnv.readParams(*reader, "ssgHwEnv");
+    ssgHwPEnv.readParams(*reader, "ssgHwPEnv");
+    ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
+    ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
+    ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
+    mulDetuneComponent.readParams(*reader, "mulDetune");
+    lfo.readParams(*reader, "lfo");
+    qualityComponent.readParams(*reader, "quality");
+    unisonComponent.readParams(*reader, "unison");
+
+    // 自分で描いた波形。並びの長さがそのまま段数になるので、
+    // どの入れ物へ入れるかを別の項目から導く必要は無い。
+    auto customValues = reader->getIntArray("customWave");
+
+    // 今の解像度からはみ出さないように収める
+    const int currentReso = 16 << resoSelector.getSelectedItemIndex();
+
+    for (auto& value : customValues) value = std::clamp(value, 0, currentReso - 1);
+
+    switch ((int)customValues.size())
+    {
+    case 32:  customSliders32.setValues(customValues); break;
+    case 64:  customSliders64.setValues(customValues); break;
+    case 128: customSliders128.setValues(customValues); break;
+    case 256: customSliders256.setValues(customValues); break;
+    default: break;
+    }
+}
+
+void GuiWt2::exportChParam()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+        { "WT2" }, Io::Extension::wt2Param,
+        [this](const juce::File& file) { writeChParamFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiWt2::writeChParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(wt2Format);
+    writeChParams(writer);
+
+    writer.writeTo(file);
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて

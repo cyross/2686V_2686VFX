@@ -96,7 +96,11 @@ public:
     void copyParams(CopyPEnvSsgHw& copyObj);
     void pasteParams(CopyPEnvSsgHw& copyObj);
     void importParams();
+    // ブラウザから直に読ませるための入口。
+    void applyParamsFile(const juce::File& file);
     void exportParams();
+    // ブラウザから直に渡せるようにした入口。
+    void writeParamsFile(const juce::File& file);
     void setImportingParams(juce::StringArray& lines, int& index);
 
     // 名前で受け渡す。行の並びに頼ると、呼ぶ順番を間違えたときに

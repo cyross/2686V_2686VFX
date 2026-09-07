@@ -14,6 +14,8 @@
 #include "../../Gui/About/GuiAbout.h"
 #include "../../Gui/Colors/GuiColors.h"
 
+#include "../../Gui/Components/Loading/GuiLoading.h"
+
 #include "../../Core/Gui/GuiCopyObj.h"
 
 class SystemButtonLF : public juce::LookAndFeel_V4
@@ -63,6 +65,17 @@ public:
 
     void paint(juce::Graphics&) override;
     void resized() override;
+
+    // 時間の掛かる処理の間、画面全体を覆って待たせる。
+    //
+    // 覆っている間は下の画面を触れない。処理そのものは別のスレッドで
+    // 進めること。メッセージスレッドを塞ぐと棒が止まってしまう。
+    // onCancel を渡すと中止ボタンが出る。押されたら呼ばれるだけなので、
+    // 止めた側が hideLoading() まで面倒を見ること。
+    void showLoading(const juce::String& message = {},
+        std::function<void()> onCancel = nullptr);
+    void updateLoading(const juce::String& message);
+    void hideLoading();
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
     void buttonClicked(juce::Button* button) override;
@@ -191,6 +204,9 @@ private:
     GuiStateView playingState{ juce::Colours::yellow, juce::Colours::yellow.darker(0.9f).withAlpha(0.6f) };
 
     bool isPreviewVisible = false;
+
+    // 待ち時間を知らせる覆い。出している間だけ動く。
+    GuiLoading loadingScreen;
 
     enum class ViewMode { Full = 0, MiniPlayer = 1, Minimum = 2 };
     ViewMode viewMode = ViewMode::Full;

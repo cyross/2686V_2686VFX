@@ -1,4 +1,5 @@
 ﻿#include "./WtMod.h"
+#include "../../../Core/Editor/EditorGuiText.h"
 
 #include "../../../Core/Gui/GuiRefresh.h"
 
@@ -455,12 +456,11 @@ void GuiComponentWtMod::importWave(int slot, bool isWt2)
         defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    ctx.editor.openFileChooser(
-        isWt2 ? "Load Mod Wave (.wt2)" : "Load Mod Wave (.wt)",
-        defaultDir,
-        isWt2 ? "*.wt2" : "*.wt",
-        [this, slot](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    ctx.editor.openWaveBrowser(
+        { isWt2 ? EditorGuiText::ParamBrowser::waveWt2
+                : EditorGuiText::ParamBrowser::waveWt },
+        [this, slot](const juce::File& file) {
             if (!file.existsAsFile()) return;
 
             // 出すのは対象のスロットのときだけ。読み込み中は名前欄で示す。
@@ -683,84 +683,84 @@ juce::String GuiComponentWtMod::getExportedParams()
 
 void GuiComponentWtMod::importParams()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultWtModParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultWtModParamDir,
+        { EditorGuiText::ParamBrowser::kindWtMod },
+        [this](const juce::File& file) { applyParamsFile(file); });
+}
+
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiComponentWtMod::applyParamsFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingParams(lines, index);
+        }
+
+        // 単体のファイルは入れ子にせず、そのまま中身として書く
+        Io::ParamWriter writer(wtmodFormat);
+
+        writeParams(writer, Io::ParamKey::values);
+        writer.hoist(Io::ParamKey::values);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importWtModParamFile, defaultDir, Io::ExtensionGlob::WtModParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+    auto reader = Io::ParamReader::open(file, wtmodFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
 
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingParams(lines, index);
-                    }
-
-                    // 単体のファイルは入れ子にせず、そのまま中身として書く
-                    Io::ParamWriter writer(wtmodFormat);
-
-                    writeParams(writer, Io::ParamKey::values);
-                    writer.hoist(Io::ParamKey::values);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, wtmodFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
-
-                // チャンネルファイルの中に入る形と同じ中身にしてある
-                readParams(*reader, "wtMod");
-            }
-        });
+    // チャンネルファイルの中に入る形と同じ中身にしてある
+    readParams(*reader, "wtMod");
 }
 
 void GuiComponentWtMod::exportParams()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultWtModParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultWtModParamDir,
+        { EditorGuiText::ParamBrowser::kindWtMod }, Io::Extension::WtModParam,
+        [this](const juce::File& file) { writeParamsFile(file); });
+}
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportWtModParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::WtModParam)), Io::saveGlob(Io::Extension::WtModParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiComponentWtMod::writeParamsFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
 
-                Io::ParamWriter writer(wtmodFormat);
+    Io::ParamWriter writer(wtmodFormat);
 
-                writeParams(writer, "wtMod");
+    writeParams(writer, "wtMod");
 
-                writer.writeTo(file);
-            }
-        });
+    writer.writeTo(file);
 }
 
 // 名前で持つので、後から足した項目を末尾へ置く必要がなくなった。

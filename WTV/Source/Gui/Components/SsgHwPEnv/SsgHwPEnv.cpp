@@ -1,4 +1,7 @@
 ﻿#include "./SsgHwPEnv.h"
+#include "../../../Core/Editor/EditorGuiText.h"
+
+#include "../../../Core/Editor/PluginEditor.h"
 
 #include "../../../Core/Gui/GuiRefresh.h"
 
@@ -198,56 +201,58 @@ void GuiComponentSsgHwPEnv::pasteParams(CopyPEnvSsgHw& copyObj) {
     smoothEnableButton.setToggleState(copyObj.smooth, juce::sendNotification);
 }
 
-void GuiComponentSsgHwPEnv::importParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultSsgHwEnvParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importSsgHwPEnvParamFile, defaultDir, Io::ExtensionGlob::SsgHwPEnvParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
-
-                auto reader = Io::ParamReader::open(file, ssgHwPEnvFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
-
-                // チャンネルファイルの中に入る形と同じ中身にしてある
-                readParams(*reader, "ssgHwPEnv");
-            }
-        });
+void GuiComponentSsgHwPEnv::importParams()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultSsgHwEnvParamDir,
+        { EditorGuiText::ParamBrowser::kindSsgHwPEnv },
+        [this](const juce::File& file) { applyParamsFile(file); });
 }
 
-void GuiComponentSsgHwPEnv::exportParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultSsgHwEnvParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiComponentSsgHwPEnv::applyParamsFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportSsgHwPEnvParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::SsgHwPEnvParam)), Io::saveGlob(Io::Extension::SsgHwPEnvParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
 
-                Io::ParamWriter writer(ssgHwPEnvFormat);
+    auto reader = Io::ParamReader::open(file, ssgHwPEnvFormat);
 
-                writeParams(writer, "ssgHwPEnv");
+    if (!reader.has_value()) return;
 
-                writer.writeTo(file);
-            }
-        });
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
+
+    // チャンネルファイルの中に入る形と同じ中身にしてある
+    readParams(*reader, "ssgHwPEnv");
+}
+
+void GuiComponentSsgHwPEnv::exportParams()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultSsgHwEnvParamDir,
+        { EditorGuiText::ParamBrowser::kindSsgHwPEnv }, Io::Extension::SsgHwPEnvParam,
+        [this](const juce::File& file) { writeParamsFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiComponentSsgHwPEnv::writeParamsFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(ssgHwPEnvFormat);
+
+    writeParams(writer, "ssgHwPEnv");
+
+    writer.writeTo(file);
 }
 
 // 3.1.0 で足したものなので、3.0.0 より前の並び順のファイルには入っていない。

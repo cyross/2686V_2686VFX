@@ -50,6 +50,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // タブの中身は開かれるまで作らない。作り方だけ先に入れておく。
     setupLazyTabs();
     presetGui = std::make_unique<GuiPreset>(context);
+    genWaveGui = std::make_unique<GuiGenWave>(context);
+    paramBrowser = std::make_unique<GuiParamBrowser>(context);
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
 	aboutGui = std::make_unique<GuiAbout>(context);
@@ -66,6 +68,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     setupMiniLogo();
 
     presetGui->setup();
+    genWaveGui->setup(*this);
     fxGui->setup();
     settingsGui->setup();
     colorsGui->setup();
@@ -169,6 +172,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         previewLabels[1].setVisible(isPreviewVisible);
         realtimePreviewR.setVisible(isPreviewVisible);
         previewLabels[2].setVisible(isPreviewVisible);
+        genWaveGui->setVisible(isPreviewVisible);
         togglePreviewBtn.setButtonText(getPreviewButtonText());
         togglePreviewBtn.setTooltip(getPreviewTooltipText());
 
@@ -517,6 +521,10 @@ void AudioPlugin2686VEditor::resized()
         return; // setSize を呼ぶと再び resized() が走るため、ここで処理を中断して無限ループを防ぐ
     }
 
+    // 覆いは常に画面いっぱい。出していないときは触らない。
+    if (loadingScreen.isVisible()) loadingScreen.setBounds(getLocalBounds());
+    if (paramBrowser != nullptr && paramBrowser->isVisible()) paramBrowser->setBounds(getLocalBounds());
+
     // =========================================================================
     // 1. 現在の ViewMode に基づいて、全コンポーネントの表示/非表示(setVisible)と
     //    ラベルのスタイルを設定する
@@ -552,6 +560,9 @@ void AudioPlugin2686VEditor::resized()
     realtimePreviewMono.setVisible(showPreview);
     previewLabels[2].setVisible(showPreview);
     realtimePreviewR.setVisible(showPreview);
+
+    // 生成波形は Full のときだけ。Mini では置き場が無い。
+    genWaveGui->setVisible(isFull && isPreviewVisible);
 
     // モードに応じたラベルのテキストとスタイルの更新
     if (isFull) {
@@ -693,6 +704,9 @@ void AudioPlugin2686VEditor::resized()
 
         y += EditorGuiValue::Preview::labelHeight + EditorGuiValue::Preview::paddingDrawSpaceY;
         realtimePreviewR.setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::drawHeight);
+
+        y += EditorGuiValue::Preview::drawHeight + EditorGuiValue::Preview::paddingInnerY;
+        genWaveGui->layout(x, y, EditorGuiValue::Preview::drawWidth);
     }
 
     int x = getWidth() - ((isPreviewVisible ? EditorGuiValue::Preview::drawWidth : 0) + EditorGuiValue::SystemBtns::paddingRight + EditorGuiValue::SystemBtns::buttonWidth);
@@ -931,7 +945,25 @@ void AudioPlugin2686VEditor::loadSettingsFile()
 // 数百 KB あるため、全部読むと件数だけ時間がかかる。
 //
 // 3.0.0 より前の XML も読む。読み込みだけは残してあるため。
+AudioPlugin2686VEditor::PresetMetaDefaults AudioPlugin2686VEditor::presetMetaDefaults() const
+{
+    return {
+        audioProcessor.presetName,
+        audioProcessor.presetAuthor,
+        audioProcessor.presetVersion,
+        audioProcessor.presetComment,
+        PresetValue::MetaData::Initial::mode,
+        PresetValue::MetaData::Initial::genre,
+    };
+}
+
 bool AudioPlugin2686VEditor::readPresetMeta(const juce::File& file, PresetItem& item)
+{
+    return readPresetMetaInto(file, item, presetMetaDefaults());
+}
+
+bool AudioPlugin2686VEditor::readPresetMetaInto(const juce::File& file, PresetItem& item,
+    const PresetMetaDefaults& defaults)
 {
     item.file = file;
     item.fileName = file.getFileName();
@@ -944,24 +976,24 @@ bool AudioPlugin2686VEditor::readPresetMeta(const juce::File& file, PresetItem& 
     {
         auto meta = reader->child(Io::StateKey::meta);
 
-        item.name = meta.getString(PresetKey::name, audioProcessor.presetName);
-        item.author = meta.getString(PresetKey::author, audioProcessor.presetAuthor);
-        item.version = meta.getString(PresetKey::version, audioProcessor.presetVersion);
-        item.comment = meta.getString(PresetKey::comment, audioProcessor.presetComment);
-        item.modeName = meta.getString(PresetKey::mode, PresetValue::MetaData::Initial::mode);
-        item.genre = meta.getString(PresetKey::genre, PresetValue::MetaData::Initial::genre);
+        item.name = meta.getString(PresetKey::name, defaults.name);
+        item.author = meta.getString(PresetKey::author, defaults.author);
+        item.version = meta.getString(PresetKey::version, defaults.version);
+        item.comment = meta.getString(PresetKey::comment, defaults.comment);
+        item.modeName = meta.getString(PresetKey::mode, defaults.mode);
+        item.genre = meta.getString(PresetKey::genre, defaults.genre);
 
         return true;
     }
 
     if (auto xml = juce::XmlDocument(file).getDocumentElement(true))
     {
-        item.name = xml->getStringAttribute(PresetKey::name, audioProcessor.presetName);
-        item.author = xml->getStringAttribute(PresetKey::author, audioProcessor.presetAuthor);
-        item.version = xml->getStringAttribute(PresetKey::version, audioProcessor.presetVersion);
-        item.comment = xml->getStringAttribute(PresetKey::comment, audioProcessor.presetComment);
-        item.modeName = xml->getStringAttribute(PresetKey::mode, PresetValue::MetaData::Initial::mode);
-        item.genre = xml->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
+        item.name = xml->getStringAttribute(PresetKey::name, defaults.name);
+        item.author = xml->getStringAttribute(PresetKey::author, defaults.author);
+        item.version = xml->getStringAttribute(PresetKey::version, defaults.version);
+        item.comment = xml->getStringAttribute(PresetKey::comment, defaults.comment);
+        item.modeName = xml->getStringAttribute(PresetKey::mode, defaults.mode);
+        item.genre = xml->getStringAttribute(PresetKey::genre, defaults.genre);
 
         return true;
     }
@@ -973,6 +1005,8 @@ bool AudioPlugin2686VEditor::readPresetMeta(const juce::File& file, PresetItem& 
 
 void AudioPlugin2686VEditor::scanPresets()
 {
+    cancelPresetMetaScan();
+
     presetGui->clearTable();
 
     auto files = presetGui->currentFolder.findChildFiles(juce::File::findFiles, true, PresetValue::File::glob);
@@ -983,6 +1017,12 @@ void AudioPlugin2686VEditor::scanPresets()
 
     presetCache.clear();
 
+    // 画面を開いた直後は覚え書きが空なので、控えのファイルから起こす。
+    // これがあると、2 回目からは 1 件も開かずに一覧が出せる。
+    if (previous.empty()) previous = readPresetIndex();
+
+    std::vector<juce::File> pending;
+
     for (const auto& file : files)
     {
         PresetItem item;
@@ -990,12 +1030,14 @@ void AudioPlugin2686VEditor::scanPresets()
         item.fileName = file.getFileName();
         item.fullPath = file.getFullPathName();
         item.lastModificationTime = file.getLastModificationTime();
+        item.fileSize = file.getSize();
+        item.format = file.getFileExtension().substring(1).toUpperCase();
 
         auto found = previous.find(item.fullPath);
 
         if (found != previous.end()
             && found->second.lastModificationTime == item.lastModificationTime
-            && found->second.fileSize == file.getSize())
+            && found->second.fileSize == item.fileSize)
         {
             presetCache.emplace(item.fullPath, found->second);
             presetGui->items.push_back(found->second);
@@ -1003,15 +1045,218 @@ void AudioPlugin2686VEditor::scanPresets()
             continue;
         }
 
-        readPresetMeta(file, item);
+        // まだ中身を見ていないものは、ファイル名だけで先に並べておく。
+        // 読めたところから差し替わる。
+        item.name = file.getFileNameWithoutExtension();
 
         presetCache.emplace(item.fullPath, item);
         presetGui->items.push_back(item);
+        pending.push_back(file);
     }
 
     // リスト更新
     presetGui->updateTableContent();
     presetGui->repaintTable();
+
+    if (pending.empty())
+    {
+        savePresetIndex();
+
+        return;
+    }
+
+    startPresetMetaScan(std::move(pending));
+}
+
+// ============================================================================
+// 一覧の見出しの控え
+// ============================================================================
+namespace
+{
+    const juce::String presetIndexFormat = "presetIndex";
+    constexpr int presetIndexVersion = 1;
+
+    const juce::Identifier piItems{ "items" };
+    const juce::Identifier piPath{ "path" };
+    const juce::Identifier piModified{ "modified" };
+    const juce::Identifier piSize{ "size" };
+    const juce::Identifier piName{ "name" };
+    const juce::Identifier piAuthor{ "author" };
+    const juce::Identifier piVersion{ "version" };
+    const juce::Identifier piComment{ "comment" };
+    const juce::Identifier piMode{ "mode" };
+    const juce::Identifier piGenre{ "genre" };
+    const juce::Identifier piFormat{ "format" };
+}
+
+juce::File AudioPlugin2686VEditor::presetIndexFile() const
+{
+    return audioProcessor.getPluginDirectory()
+        .getChildFile(Global::Plugin::name + ".presetindex.json");
+}
+
+std::map<juce::String, PresetItem> AudioPlugin2686VEditor::readPresetIndex() const
+{
+    std::map<juce::String, PresetItem> out;
+
+    const auto file = presetIndexFile();
+
+    if (!file.existsAsFile()) return out;
+
+    const juce::var root = juce::JSON::parse(file.loadFileAsString());
+    auto* object = root.getDynamicObject();
+
+    if (object == nullptr) return out;
+    if (object->getProperty("format").toString() != presetIndexFormat) return out;
+    if ((int)object->getProperty("version") != presetIndexVersion) return out;
+
+    const juce::var items = object->getProperty(piItems);
+
+    if (!items.isArray()) return out;
+
+    for (const auto& entry : *items.getArray())
+    {
+        auto* row = entry.getDynamicObject();
+
+        if (row == nullptr) continue;
+
+        PresetItem item;
+
+        item.fullPath = row->getProperty(piPath).toString();
+
+        if (item.fullPath.isEmpty()) continue;
+
+        item.file = juce::File(item.fullPath);
+        item.fileName = item.file.getFileName();
+        item.lastModificationTime = juce::Time((juce::int64)row->getProperty(piModified));
+        item.fileSize = (juce::int64)row->getProperty(piSize);
+        item.name = row->getProperty(piName).toString();
+        item.author = row->getProperty(piAuthor).toString();
+        item.version = row->getProperty(piVersion).toString();
+        item.comment = row->getProperty(piComment).toString();
+        item.modeName = row->getProperty(piMode).toString();
+        item.genre = row->getProperty(piGenre).toString();
+        item.format = row->getProperty(piFormat).toString();
+
+        out.emplace(item.fullPath, item);
+    }
+
+    return out;
+}
+
+void AudioPlugin2686VEditor::savePresetIndex() const
+{
+    juce::Array<juce::var> items;
+
+    for (const auto& kv : presetCache)
+    {
+        auto* row = new juce::DynamicObject();
+
+        row->setProperty(piPath, kv.second.fullPath);
+        row->setProperty(piModified, kv.second.lastModificationTime.toMilliseconds());
+        row->setProperty(piSize, kv.second.fileSize);
+        row->setProperty(piName, kv.second.name);
+        row->setProperty(piAuthor, kv.second.author);
+        row->setProperty(piVersion, kv.second.version);
+        row->setProperty(piComment, kv.second.comment);
+        row->setProperty(piMode, kv.second.modeName);
+        row->setProperty(piGenre, kv.second.genre);
+        row->setProperty(piFormat, kv.second.format);
+
+        items.add(juce::var(row));
+    }
+
+    auto* root = new juce::DynamicObject();
+
+    root->setProperty("format", presetIndexFormat);
+    root->setProperty("version", presetIndexVersion);
+    root->setProperty(piItems, items);
+
+    presetIndexFile().replaceWithText(juce::JSON::toString(juce::var(root)));
+}
+
+void AudioPlugin2686VEditor::startPresetMetaScan(std::vector<juce::File> files)
+{
+    if (presetScanPool == nullptr) presetScanPool = std::make_unique<juce::ThreadPool>(1);
+
+    auto cancelled = std::make_shared<std::atomic<bool>>(false);
+
+    presetScanCancel = cancelled;
+
+    showLoading(EditorGuiText::PresetScan::working, [cancelled] { cancelled->store(true); });
+
+    // 既定値はここで写す。裏のスレッドからプロセッサを触らないため。
+    const PresetMetaDefaults defaults = presetMetaDefaults();
+
+    juce::Component::SafePointer<AudioPlugin2686VEditor> safe(this);
+    const int total = (int)files.size();
+
+    presetScanPool->addJob([safe, cancelled, defaults, total, files = std::move(files)] {
+        std::vector<PresetItem> done;
+
+        done.reserve(files.size());
+
+        for (int i = 0; i < (int)files.size(); ++i)
+        {
+            if (cancelled->load()) break;
+
+            PresetItem item;
+
+            readPresetMetaInto(files[(size_t)i], item, defaults);
+
+            done.push_back(item);
+
+            // 進み具合は 20 件ごとに。毎回知らせると、知らせるほうが重い。
+            if ((i % 20) != 0) continue;
+
+            const juce::String text = EditorGuiText::PresetScan::working
+                + " (" + juce::String(i + 1) + " / " + juce::String(total) + ")";
+
+            juce::MessageManager::callAsync([safe, text] {
+                if (safe != nullptr) safe->updateLoading(text);
+            });
+        }
+
+        juce::MessageManager::callAsync([safe, done = std::move(done)] {
+            if (safe != nullptr) safe->finishPresetMetaScan(done);
+        });
+    });
+}
+
+void AudioPlugin2686VEditor::finishPresetMetaScan(const std::vector<PresetItem>& done)
+{
+    for (const auto& item : done)
+    {
+        auto found = presetCache.find(item.fullPath);
+
+        if (found != presetCache.end()) found->second = item;
+    }
+
+    // 並びは変えず、中身だけ差し替える
+    for (auto& shown : presetGui->items)
+    {
+        auto found = presetCache.find(shown.fullPath);
+
+        if (found != presetCache.end()) shown = found->second;
+    }
+
+    presetGui->updateTableContent();
+    presetGui->repaintTable();
+
+    savePresetIndex();
+
+    presetScanCancel.reset();
+
+    hideLoading();
+}
+
+void AudioPlugin2686VEditor::cancelPresetMetaScan()
+{
+    if (presetScanCancel != nullptr) presetScanCancel->store(true);
+
+    if (presetScanPool != nullptr) presetScanPool->removeAllJobs(true, 4000);
+
+    presetScanCancel.reset();
 }
 
 void AudioPlugin2686VEditor::saveCurrentPreset()
@@ -1129,14 +1374,10 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
     if (adpcmGui.peek() != nullptr && adpcmGui->isThis(button))
     {
         // ... (Existing ADPCM load logic) ...
-        auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
-        openFileChooser(
-            Io::Dialog::Title::openAudioFile,
-            audioProcessor.lastSampleDirectory,
-            fileFilter,
-            [this](const juce::FileChooser& fc)
+        // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+        openAudioBrowser(
+            [this](const juce::File& file)
             {
-                auto file = fc.getResult();
                 if (file.existsAsFile())
                 {
                     adpcmGui->updateFileName("Loading...");
@@ -1165,9 +1406,7 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
     // Rhythm Pads Buttons
     else if (rhythmGui.peek() != nullptr)
     {
-        auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
-        fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::openAudioFile, audioProcessor.lastSampleDirectory, fileFilter);
-        rhythmGui->buttonClicked(button, audioProcessor.formatManager, fileChooser);
+        rhythmGui->buttonClicked(button);
     }
 }
 
@@ -1724,4 +1963,215 @@ void AudioPlugin2686VEditor::closeBypassedCategories()
     forEachTabGui([](GuiBase& gui) { gui.closeBypassedCategories(); });
 
     resized();
+}
+
+void AudioPlugin2686VEditor::showLoading(const juce::String& message,
+    std::function<void()> onCancel)
+{
+    loadingScreen.show(*this, message, std::move(onCancel));
+}
+
+void AudioPlugin2686VEditor::updateLoading(const juce::String& message)
+{
+    loadingScreen.setMessage(message);
+}
+
+void AudioPlugin2686VEditor::hideLoading()
+{
+    loadingScreen.hide();
+}
+
+// ============================================================================
+// パラメータファイルのブラウザ
+// ============================================================================
+namespace
+{
+    // 波形の置き場の名前。Io::Folder::wavetable と同じものだが、WT を
+    // 持たないプラグインにはあちらの名前が無いので直に書いてある。
+    const juce::String waveFolderName = "Wavetables";
+
+    // 音の素材の置き場。Io::Folder::sample と同じもの。
+    const juce::String sampleFolderName = "Samples";
+
+    // 根がまだ決まっていなければ、設定の置き場から起こす。以後は
+    // ブラウザの中で移った先を覚えておき、読み込みでは動かさない。
+    juce::File resolveBrowserRoot(juce::File& kept, const juce::String& fromSettings,
+        const juce::File& pluginDir, const juce::String& folderName)
+    {
+        if (kept.isDirectory()) return kept;
+
+        kept = juce::File(fromSettings);
+
+        if (!kept.isDirectory() && folderName.isNotEmpty()) kept = pluginDir.getChildFile(folderName);
+        if (!kept.isDirectory()) kept = pluginDir;
+
+        return kept;
+    }
+}
+
+void AudioPlugin2686VEditor::openParamBrowser(const juce::StringArray& allowed,
+    std::function<void(const juce::File&)> onChoose)
+{
+    GuiParamBrowser::Request request;
+
+    request.root = resolveBrowserRoot(paramBrowserRoot,
+        audioProcessor.defaultChannelParamDir,
+        audioProcessor.getPluginDirectory(), Io::Folder::channelParam);
+    // このプラグインの置き場より上へは出さない
+    request.limit = audioProcessor.getPluginDirectory();
+    request.allowed = allowed;
+    request.onChoose = std::move(onChoose);
+
+    paramBrowser->onRootChanged = [this](const juce::File& dir) { paramBrowserRoot = dir; };
+
+    paramBrowser->open(*this, request);
+}
+
+void AudioPlugin2686VEditor::openParamBrowser(const juce::String& settingsDir,
+    const juce::StringArray& allowed, std::function<void(const juce::File&)> onChoose,
+    const juce::String& nameMustContain)
+{
+    auto& kept = browserRoots[settingsDir];
+
+    GuiParamBrowser::Request request;
+
+    request.root = resolveBrowserRoot(kept, settingsDir,
+        audioProcessor.getPluginDirectory(), juce::String());
+    // このプラグインの置き場より上へは出さない
+    request.limit = audioProcessor.getPluginDirectory();
+    request.allowed = allowed;
+    request.nameMustContain = nameMustContain;
+    request.onChoose = std::move(onChoose);
+
+    paramBrowser->onRootChanged = [this, settingsDir](const juce::File& dir) {
+        browserRoots[settingsDir] = dir;
+    };
+
+    paramBrowser->open(*this, request);
+}
+
+void AudioPlugin2686VEditor::openParamBrowserToSave(const juce::String& settingsDir,
+    const juce::StringArray& allowed, const juce::String& base,
+    std::function<void(const juce::File&)> onChoose, const juce::String& nameMustContain)
+{
+    auto& kept = browserRoots[settingsDir];
+
+    GuiParamBrowser::Request request;
+
+    request.root = resolveBrowserRoot(kept, settingsDir,
+        audioProcessor.getPluginDirectory(), juce::String());
+    // このプラグインの置き場より上へは出さない
+    request.limit = audioProcessor.getPluginDirectory();
+    request.allowed = allowed;
+    request.mode = GuiParamBrowser::Mode::save;
+    request.defaultName = Io::defaultFileName(base);
+    request.extension = "." + base + "." + Io::fileFormatExtension();
+    request.nameMustContain = nameMustContain;
+    request.onChoose = std::move(onChoose);
+
+    paramBrowser->onRootChanged = [this, settingsDir](const juce::File& dir) {
+        browserRoots[settingsDir] = dir;
+    };
+
+    paramBrowser->open(*this, request);
+}
+
+void AudioPlugin2686VEditor::openWaveBrowser(const juce::StringArray& allowed,
+    std::function<void(const juce::File&)> onChoose)
+{
+    GuiParamBrowser::Request request;
+
+    request.root = resolveBrowserRoot(waveBrowserRoot,
+        audioProcessor.defaultWavetableDir,
+        audioProcessor.getPluginDirectory(), waveFolderName);
+    // このプラグインの置き場より上へは出さない
+    request.limit = audioProcessor.getPluginDirectory();
+    request.allowed = allowed;
+    request.onChoose = std::move(onChoose);
+
+    paramBrowser->onRootChanged = [this](const juce::File& dir) { waveBrowserRoot = dir; };
+
+    paramBrowser->open(*this, request);
+}
+
+void AudioPlugin2686VEditor::openAudioBrowser(std::function<void(const juce::File&)> onChoose)
+{
+    auto& kept = browserRoots[audioProcessor.defaultSampleDir];
+
+    GuiParamBrowser::Request request;
+
+    request.root = resolveBrowserRoot(kept, audioProcessor.defaultSampleDir,
+        audioProcessor.getPluginDirectory(), sampleFolderName);
+    request.allowed = { EditorGuiText::ParamBrowser::audioFile };
+    request.onChoose = std::move(onChoose);
+
+    paramBrowser->onRootChanged = [this](const juce::File& dir) {
+        browserRoots[audioProcessor.defaultSampleDir] = dir;
+    };
+
+    paramBrowser->open(*this, request);
+}
+
+void AudioPlugin2686VEditor::openWaveBrowserToSave(const juce::StringArray& allowed,
+    const juce::String& defaultName, const juce::String& extension,
+    std::function<void(const juce::File&)> onChoose)
+{
+    GuiParamBrowser::Request request;
+
+    request.root = resolveBrowserRoot(waveBrowserRoot,
+        audioProcessor.defaultWavetableDir,
+        audioProcessor.getPluginDirectory(), waveFolderName);
+    // このプラグインの置き場より上へは出さない
+    request.limit = audioProcessor.getPluginDirectory();
+    request.allowed = allowed;
+    request.mode = GuiParamBrowser::Mode::save;
+    request.defaultName = defaultName;
+    request.extension = extension;
+    request.onChoose = std::move(onChoose);
+
+    paramBrowser->onRootChanged = [this](const juce::File& dir) { waveBrowserRoot = dir; };
+
+    paramBrowser->open(*this, request);
+}
+
+bool AudioPlugin2686VEditor::applyChannelParamFile(const juce::File& file)
+{
+    const int tabIndex = tabForCategory(GuiParamBrowser::categoryOf(file));
+
+    if (tabIndex < 0) return false;
+
+    // そのチャンネルのためのファイルなので、音源も合わせて切り替える。
+    // 切り替えないと、読んだのに鳴らないという形になる。
+    tabs.setCurrentTabIndex(tabIndex);
+
+    auto* gui = tabGuiFor(tabIndex);
+
+    if (gui == nullptr) return false;
+
+    gui->applyChParamFile(file);
+
+    return true;
+}
+
+GuiBase* AudioPlugin2686VEditor::tabGuiFor(int tabIndex)
+{
+    switch (tabIndex)
+    {
+    case tabAdpcm: return &adpcmGui.ref();
+    case tabOpna: return &opnaGui.ref();
+    case tabRhythm: return &rhythmGui.ref();
+    case tabSsg: return &ssgGui.ref();
+    default: return nullptr;
+    }
+}
+
+// 区分の名前は GuiParamBrowser が付けたもの。あちらの表と揃えてある。
+int AudioPlugin2686VEditor::tabForCategory(const juce::String& category)
+{
+    if (category == "PCM") return tabAdpcm;
+    if (category == "OPNA") return tabOpna;
+    if (category == "RHYTHM") return tabRhythm;
+    if (category == "SSG") return tabSsg;
+
+    return -1;
 }

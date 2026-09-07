@@ -16,6 +16,19 @@ namespace CPV
 	inline constexpr int pitchLevelMax = 4800;
 	inline constexpr int pitchLevelIni = 0;
 
+	// JUCE の AudioParameterFloat は範囲だけを渡すと刻みを 0.01 に決めてしまう
+	// (juce_AudioParameterFloat.cpp の { minValue, maxValue, 0.01f })。
+	// 実機由来の値は 1 フレーム = 0.0167 秒、SSG のレベル 1/15 = 0.0667 のように
+	// 0.01 では表せないものが多く、読み込んだ値がその場でずれていた。
+	// 実数パラメータはすべてこの刻みで作る。書き出しの桁数
+	// (Global::floatDecimalPlaces = 6) より粗いので、保存した値は往復しても動かない。
+	inline constexpr float floatInterval = 0.0001f;
+	inline constexpr int floatTextDecimals = 4; // floatInterval の桁数
+
+	// 実際にパラメータを組むのは ProcessorFloat.h の makeFloat。
+	// このファイルはテストの JuceHeader 差し替えを通るため、
+	// 本物の JUCE を要るものは置けない。
+
 	namespace Midi
 	{
 		namespace MonoMode

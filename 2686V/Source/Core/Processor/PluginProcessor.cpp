@@ -192,7 +192,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
         CPV::Midi::PitchResetOnLegato::initial
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
+    layout.add(CPV::makeFloat(
         CPK::Midi::fixedVelocity,
         CPN::Midi::fixedVelocity,
         CPV::Midi::FixedVelocity::min,
@@ -1982,4 +1982,79 @@ void AudioPlugin2686V::removeUnknownParams(juce::XmlElement& xml) const
 
     // 回している最中に消さない
     for (auto* child : doomed) xml.removeChildElement(child, true);
+}
+
+// ============================================================================
+// 波形プレビューの計算用
+// ============================================================================
+// processBlock の前半と同じ組み立て。違うのは 2 つだけで、
+//   ・符号化の作り直しを頼まない (鳴っている音まで作り直しになるため)
+//   ・シンセのボイスへは配らない (プレビューは自前のボイスで回す)
+SynthParams AudioPlugin2686V::buildRenderParams()
+{
+    SynthParams params;
+
+    int m = PrHelper::getInt(pMode);
+
+    if (m < 0 || m >= (int)OscMode::Count) m = 0;
+
+    params.mode = (OscMode)m;
+
+    auto found = prMap.find(params.mode);
+
+    if (found == prMap.end() || found->second == nullptr) return params;
+
+    found->second->processBlock(params, apvts);
+
+    if (params.mode == OscMode::OPZX7)
+    {
+        params.opzx7.algFb.matrix.mode = getOpzx7AlgMode();
+
+        const AlgMatrixState& guiState = getOpzx7AlgMatrixForAudio();
+
+        for (int i = 0; i < 8; ++i) {
+            params.opzx7.algFb.matrix.isCarrier[i] = guiState.isCarrier[i];
+
+            for (int j = 0; j < 8; ++j) {
+                params.opzx7.algFb.matrix.mod[i][j] = guiState.mod[i][j];
+                params.opzx7.algFb.matrix.fbMod[i][j] = guiState.fbMod[i][j];
+            }
+        }
+    }
+
+    // 素材は今できているものをそのまま指す
+    params.adpcm.source = &m_adpcmPcm.forAudio();
+
+    for (int i = 0; i < RhythmPrValue::pads; ++i) {
+        params.rhythm.pads[(size_t)i].source = &m_rhythmPcm[(size_t)i].forAudio();
+    }
+
+    params.monoMode = PrHelper::getBool(pMonoMode);
+    params.useVelocity = PrHelper::getBool(pUseVelocity);
+    params.pitchResetOnLegato = PrHelper::getBool(pPitchResetOnLegato);
+    params.fixedVelocity = PrHelper::getFloat(pFixedVelocity);
+
+    return params;
+}
+
+// 鳴らすためのボイスと同じ参照を与える。波形メモリや PCM は
+// プロセッサが持ち続けているものを指すだけで、複製はしない。
+void AudioPlugin2686V::prepareRenderVoice(SynthVoice& voice, double sampleRate)
+{
+    voice.prepare(sampleRate);
+    voice.setCurrentPlaybackSampleRate(sampleRate);
+    voice.setCurveCore(&m_curveCore);
+    voice.setWtPlusWaveSlots(&wtPlusWaves);
+
+    for (int op = 0; op < Opzx7PrValue::ops; ++op)
+    {
+        if (opzx7PcmBuffers[op].empty()) voice.clearOpzx7PcmBuffer(op);
+        else voice.setOpzx7PcmBuffer(op, &opzx7PcmBuffers[op]);
+
+        if (opzx7WtBuffers[op].empty()) voice.clearOpzx7WtBuffer(op);
+        else voice.setOpzx7WtBuffer(op, &opzx7WtBuffers[op]);
+
+        if (opzx7Wt2Buffers[op].empty()) voice.clearOpzx7Wt2Buffer(op);
+        else voice.setOpzx7Wt2Buffer(op, &opzx7Wt2Buffers[op]);
+    }
 }
