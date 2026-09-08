@@ -123,8 +123,3 @@ after the window is up. Opening takes **1.1 seconds**.
 
 The index is rebuilt when presets are added or removed. While that runs, the
 progress is shown and it can be cancelled.
-
-## More SSG software envelopes
-
-SSG software envelopes were taken from FMP, FMP7 and PMD MML and are included
-as parameter files.
