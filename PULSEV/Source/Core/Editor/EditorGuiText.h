@@ -20,6 +20,7 @@ namespace EditorGuiText
 		static inline const juce::String rhythm = u8"RHYTHM";
 		static inline const juce::String adpcm = u8"ADPCM";
 		static inline const juce::String beep = u8"BEEP";
+		static inline const juce::String wtPlus = u8"WT+";
 		static inline const juce::String fx = u8"FX";
 		static inline const juce::String preset = u8"PRESET";
 		static inline const juce::String settings = u8"SETTINGS";

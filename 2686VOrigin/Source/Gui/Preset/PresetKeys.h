@@ -48,6 +48,23 @@ namespace PresetKey
 		}
 	}
 
+	// チャンネルでの絞り込み。
+	//
+	// プリセットは音源をまるごと差し替えるので、目当ての音源のものだけを
+	// 見たいことが多い。入っているものだけを出し、ひとつも入っていない
+	// ときは絞らない。
+	namespace Channel
+	{
+		static inline const juce::String title = juce::String("") + "チャンネル";
+		static inline const juce::String use = juce::String("") + "対象";
+		static inline const juce::String allOn = juce::String("") + "すべてON";
+		static inline const juce::String allOff = juce::String("") + "すべてOFF";
+
+		// いま対象にしているものの並び。ひとつも無ければ「すべて」。
+		static inline const juce::String summary = juce::String("") + "対象: ";
+		static inline const juce::String summaryNone = juce::String("") + "すべて";
+	}
+
 	namespace Table
 	{
 		static inline const juce::String title = juce::String("") + "プリセット一覧";

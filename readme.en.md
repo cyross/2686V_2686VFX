@@ -48,6 +48,24 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Parameters, presets and wave files cannot go above the plugin's own folder.
     - Audio samples (wav) can still be picked from anywhere.
   - Clicking outside closes the screen without choosing.
+- **Presets can be filtered by channel**
+  - A channel filter row sits between the search box and the list on the PRESET tab.
+  - It folds into a combo box that picks the channel and a checkbox that turns it on or off.
+    - Ticked = included in the filter; unticked = excluded.
+    - **With nothing ticked, nothing is filtered** (everything is shown).
+  - **All on / All off** switch the whole set at once.
+  - The combo box lists only the channels that plugin actually carries.
+  - Ticked at first:
+    - 2686V / 2686VLight — none (they carry all thirteen).
+    - 26V — OPN / SSG
+    - 86V — OPNA / SSG / RHYTHM / PCM
+    - OPZX7S — OPZX7S
+    - OPNV — OPNA / OPN
+    - OPLV — OPL / OPL3
+    - OPMV — OPM
+    - WTV — WT / WT2 / WT+
+    - PCMV — RHYTHM / PCM
+    - PULSEV — SSG / BEEP
 - **A preview of the generated waveform**
   - The channel's settings are actually played and drawn.
   - It is built only when the button is pressed, never while you play.

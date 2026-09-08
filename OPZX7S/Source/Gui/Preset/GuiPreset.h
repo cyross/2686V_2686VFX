@@ -3,6 +3,8 @@
 #include <JuceHeader.h>
 #include <array>
 
+#include "../../Core/Synth/SynthMode.h"
+
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
@@ -23,6 +25,17 @@ class GuiPreset : public GuiBase
 
     GuiTextEditor searchBox; // 検索ボックス
     GuiTextButton clearSearchButton; // 検索クリアボタン
+
+    // チャンネルでの絞り込み。
+    //
+    // チャンネルの数だけチェックを並べると、13 個が横に伸びて検索欄を
+    // 押し出してしまう。対象を選ぶコンボと、その入り切りのチェックの
+    // 2 つに畳み、いま入っているものは右の文字で見せる。
+    GuiComboBox channelSelector;
+    GuiToggleButton channelCheck;
+    GuiTextButton channelAllOnButton;
+    GuiTextButton channelAllOffButton;
+    GuiLabel channelSummary;
 
     GuiTableList table; // メタデータ付きリスト
 
@@ -65,6 +78,11 @@ public:
         clearHistoryButton(context),
         searchBox(context),
         clearSearchButton(context),
+        channelSelector(context),
+        channelCheck(context),
+        channelAllOnButton(context),
+        channelAllOffButton(context),
+        channelSummary(context),
         table(context),
         nameEditor(context),
         authorEditor(context),
@@ -97,6 +115,13 @@ public:
 
     Format formatFilter = Format::all;
 
+    // チャンネルごとの絞り込み。並びは OscMode。
+    //
+    // ひとつも入っていないときは絞らない。「すべて入っている」と
+    // 「ひとつも入っていない」は結果が同じなので、初期値は分かりやすい
+    // ほうを選んでいる (下の setup を参照)。
+    std::array<bool, (size_t)OscMode::Count> channelFilter{};
+
     juce::File currentFolder;
     std::vector<PresetItem> items; // 読み込んだプリセット一覧
     std::vector<PresetItem> filteredItems; // 検索で絞り込まれた表示用のプリセット一覧
@@ -109,4 +134,7 @@ public:
     void updatePresetPath();
 
     void applyFilter(); // 絞り込み実行関数
+
+    // チェックと、いま対象にしているものの文字を今の値へ合わせる
+    void refreshChannelRow();
 };

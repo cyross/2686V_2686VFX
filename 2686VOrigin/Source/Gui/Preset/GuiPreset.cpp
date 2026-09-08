@@ -13,6 +13,31 @@
 #include "./GuiPresetValues.h"
 #include "./GuiPresetText.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "../../Core/Editor/EditorGuiText.h"
+
+#include <algorithm>
+
+namespace
+{
+    // 一覧に出すチャンネルの名前。タブの見出しと同じにする。
+    //
+    // プリセットの中では WAVETABLE や ADPCM という綴りで持っているが、
+    // 画面では WT や PCM と出している。絞り込みの選択肢だけ別の綴りに
+    // なっていると、同じものだと気づけない。
+    juce::String channelLabel(OscMode mode)
+    {
+        switch (mode)
+        {
+        case OscMode::OPNA: return EditorGuiText::Tab::opna;
+        case OscMode::SSG: return EditorGuiText::Tab::ssg;
+        case OscMode::RHYTHM: return EditorGuiText::Tab::rhythm;
+        case OscMode::ADPCM: return EditorGuiText::Tab::adpcm;
+        default: break;
+        }
+
+        return getModeName(mode);
+    }
+}
 
 // ============================================================================
 // お気に入りの印
@@ -174,6 +199,74 @@ void GuiPreset::setup()
         searchBox.setText(""); // テキストボックスを空にする
         applyFilter();         // リストの絞り込みをリセット（全件表示）する
     };
+
+    // ------------------------------------------------------------------
+    // チャンネルでの絞り込み
+    // ------------------------------------------------------------------
+    // 選択肢に並ぶのは、このプラグインが積んでいる音源だけ。OscMode の
+    // 並びがそのままタブの並びなので、そこから起こす。
+    std::vector<SelectItem> channelItems;
+
+    for (int i = 0; i < (int)OscMode::Count; ++i)
+    {
+        channelItems.push_back({ .name = channelLabel((OscMode)i), .value = i + 1 });
+    }
+
+    channelSelector.setup({ .parent = *this, .id = "", .title = PresetKey::Channel::title,
+        .items = channelItems, .isReset = false });
+    channelSelector.setSelectedId(1, juce::dontSendNotification);
+    channelSelector.setWantsKeyboardFocus(true);
+    channelSelector.setExplicitFocusOrder(++tabOrder);
+
+    channelSelector.onChange = [this] { refreshChannelRow(); };
+
+    channelCheck.setup({ .parent = *this, .title = PresetKey::Channel::use, .isReset = false });
+    channelCheck.setWantsKeyboardFocus(true);
+    channelCheck.setExplicitFocusOrder(++tabOrder);
+
+    channelCheck.onClick = [this] {
+        const int index = channelSelector.getSelectedItemIndex();
+
+        if (index >= 0 && index < (int)channelFilter.size())
+        {
+            channelFilter[(size_t)index] = channelCheck.getToggleState();
+        }
+
+        refreshChannelRow();
+        applyFilter();
+        };
+
+    channelAllOnButton.setup({ .parent = *this, .title = PresetKey::Channel::allOn, .isReset = false });
+    channelAllOnButton.setWantsKeyboardFocus(true);
+    channelAllOnButton.setExplicitFocusOrder(++tabOrder);
+
+    channelAllOnButton.onClick = [this] {
+        channelFilter.fill(true);
+
+        refreshChannelRow();
+        applyFilter();
+        };
+
+    channelAllOffButton.setup({ .parent = *this, .title = PresetKey::Channel::allOff, .isReset = false });
+    channelAllOffButton.setWantsKeyboardFocus(true);
+    channelAllOffButton.setExplicitFocusOrder(++tabOrder);
+
+    channelAllOffButton.onClick = [this] {
+        channelFilter.fill(false);
+
+        refreshChannelRow();
+        applyFilter();
+        };
+
+    channelSummary.setup({ .parent = *this, .title = "",
+        .justification = juce::Justification::centredLeft });
+
+    // 音源を絞ったプラグインは、積んでいるものを最初から対象にしておく。
+    // 目当ての音へ早く着けるため。すべてを積んでいる 2686V と 2686VLight
+    // は、初めから絞っていると却って探しにくいので切っておく。
+    channelFilter.fill((int)OscMode::Count < PresetGuiValue::Channel::FullCount);
+
+    refreshChannelRow();
 
 	table.setup({ .parent = *this, .title = PresetKey::Table::title, .canMultipleSelection = false });
     table.setWantsKeyboardFocus(false);
@@ -594,6 +687,31 @@ void GuiPreset::layout(juce::Rectangle<int> content)
 
     listArea.removeFromTop(PresetGuiValue::Search::Padding::Botton); // 検索ボックスとリストの間の少しの余白
 
+    // 検索の行と一覧の間へ、チャンネルの絞り込みを 1 行入れる
+    auto channelArea = listArea.removeFromTop(PresetGuiValue::Channel::RowHeight)
+        .reduced(PresetGuiValue::Table::PaddingWidth, 0);
+
+    channelSelector.label.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::LabelWidth));
+    channelSelector.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::Width));
+
+    channelArea.removeFromLeft(PresetGuiValue::Channel::PaddingRight);
+
+    channelCheck.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::CheckWidth));
+
+    channelArea.removeFromLeft(PresetGuiValue::Channel::PaddingRight);
+
+    channelAllOnButton.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::ButtonWidth));
+
+    channelArea.removeFromLeft(PresetGuiValue::Channel::ButtonGap);
+
+    channelAllOffButton.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::ButtonWidth));
+
+    channelArea.removeFromLeft(PresetGuiValue::Channel::SummaryPaddingLeft);
+
+    channelSummary.setBounds(channelArea);
+
+    listArea.removeFromTop(PresetGuiValue::Channel::PaddingBottom);
+
     table.setBounds(listArea.reduced(PresetGuiValue::Table::PaddingWidth, PresetGuiValue::Table::PaddingHeight));
 
     // Right: Info & Buttons
@@ -718,6 +836,26 @@ void GuiPreset::updatePresetPath()
 }
 
 // 検索ボックスの文字列でリストを絞り込む関数
+void GuiPreset::refreshChannelRow()
+{
+    const int index = channelSelector.getSelectedItemIndex();
+    const bool on = index >= 0 && index < (int)channelFilter.size()
+        && channelFilter[(size_t)index];
+
+    channelCheck.setToggleState(on, juce::dontSendNotification);
+
+    juce::StringArray names;
+
+    for (int i = 0; i < (int)OscMode::Count; ++i)
+    {
+        if (channelFilter[(size_t)i]) names.add(channelLabel((OscMode)i));
+    }
+
+    channelSummary.setText(PresetKey::Channel::summary
+        + (names.isEmpty() ? PresetKey::Channel::summaryNone : names.joinIntoString(" / ")),
+        juce::dontSendNotification);
+}
+
 void GuiPreset::applyFilter()
 {
     filteredItems.clear();
@@ -737,10 +875,32 @@ void GuiPreset::applyFilter()
         formatFilter == Format::json ? PresetKey::Format::json :
         formatFilter == Format::yaml ? PresetKey::Format::yaml : juce::String();
 
+    // チャンネルの絞り込み。ひとつも入っていなければ絞らない。
+    // 「すべて入っている」と同じ結果になるので、どちらでも困らない。
+    const bool byChannel = std::any_of(channelFilter.begin(), channelFilter.end(),
+        [](bool on) { return on; });
+
     // ファイル名、プリセット名、ジャンル、作者名、コメント、チャンネルの
     // どれかに合っていたら出す。検索窓が空ならすべて出す。
     for (const auto& item : source) {
         if (wantFormat.isNotEmpty() && item.format != wantFormat) continue;
+
+        if (byChannel)
+        {
+            bool wanted = false;
+
+            for (int i = 0; i < (int)OscMode::Count; ++i)
+            {
+                if (!channelFilter[(size_t)i]) continue;
+                if (getModeName((OscMode)i) != item.modeName) continue;
+
+                wanted = true;
+
+                break;
+            }
+
+            if (!wanted) continue;
+        }
 
         if (query.isNotEmpty()
             && !item.name.toLowerCase().contains(query)

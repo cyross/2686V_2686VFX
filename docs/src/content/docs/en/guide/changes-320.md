@@ -46,6 +46,37 @@ Parameters, presets and wave files **cannot go above the plugin's own
 folder**: outside it there is nothing selectable to find. Audio samples are
 not restricted, since those legitimately come from anywhere.
 
+## Presets can be filtered by channel
+
+A preset replaces the whole channel, so most of the time you only want to see
+the ones for the chip you are working with. A **channel filter row** now sits
+between the search box and the list on the PRESET tab.
+
+A checkbox per channel would stretch the row and push the search box out of the
+way, so it folds into **a combo box that picks the channel and a checkbox that
+turns it on or off**. Whatever is currently on is listed to the right.
+
+- **Only what is ticked is shown. With nothing ticked, nothing is filtered**
+- **All on / All off** switch the whole set at once
+- The combo box lists only the channels that plugin actually carries
+
+The starting state depends on the plugin. **The narrower instruments start with
+their own channels ticked.** 2686V and 2686VLight carry all thirteen, where
+starting filtered would only get in the way, so they start with none ticked.
+
+| Plugin | Ticked at first |
+| --- | --- |
+| 2686V / 2686VLight | (none) |
+| 26V | OPN / SSG |
+| 86V | OPNA / SSG / RHYTHM / PCM |
+| OPZX7S | OPZX7S |
+| OPNV | OPNA / OPN |
+| OPLV | OPL / OPL3 |
+| OPMV | OPM |
+| WTV | WT / WT2 / WT+ |
+| PCMV | RHYTHM / PCM |
+| PULSEV | SSG / BEEP |
+
 ## A preview of the generated waveform
 
 The channel's settings are **actually played** and drawn.

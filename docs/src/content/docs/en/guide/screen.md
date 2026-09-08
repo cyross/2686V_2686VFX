@@ -46,7 +46,7 @@ distinguishable at a glance.
 | Tab | What's there |
 | --- | --- |
 | **ADV** | curve editing — how a value changes over time (2686V / OPZX7S only) |
-| **PRESET** | saving and loading presets, favourites, history, filtering by format |
+| **PRESET** | saving and loading presets, favourites, history, filtering by format and channel |
 | **SETTINGS** | behaviour, folder locations, file format |
 | **COLORS** | changing the interface colours |
 | **ABOUT** | version and licence |
