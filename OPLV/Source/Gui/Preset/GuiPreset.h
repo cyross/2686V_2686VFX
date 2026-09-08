@@ -67,6 +67,9 @@ class GuiPreset : public GuiBase
     std::function<void(const juce::File&)> onDoubleClicked;
 
     juce::File getSelectedFile() const;
+
+    // 覚えている並べ替えを、今の一覧へ掛け直す
+    void sortFiltered();
 public:
 	GuiPreset(const GuiContext& context) :
         GuiBase(context),
@@ -121,6 +124,15 @@ public:
     // 「ひとつも入っていない」は結果が同じなので、初期値は分かりやすい
     // ほうを選んでいる (下の setup を参照)。
     std::array<bool, (size_t)OscMode::Count> channelFilter{};
+
+    // 表の並べ替え。
+    //
+    // 絞り込みは並びをまるごと作り直すので、そのままだと押すたびに
+    // 並べ替えが消えてしまう。プリセットを読み込んだときも作り直しが
+    // 走るので、何で並べていたかを覚えておいて掛け直す。
+    // 0 は「並べ替えなし」。
+    int sortColumnId = 0;
+    bool sortForwards = true;
 
     juce::File currentFolder;
     std::vector<PresetItem> items; // 読み込んだプリセット一覧

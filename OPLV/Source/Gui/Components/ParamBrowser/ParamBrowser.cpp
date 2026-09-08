@@ -162,7 +162,9 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     m_selected = -1;
     m_scroll = 0;
 
-    keyword.setText({}, juce::dontSendNotification);
+    // 前に打っていたキーワードはそのまま残す。開くたびに白紙へ戻ると、
+    // 探し直すのに毎回打ち直すことになる。残っていることは欄を見れば
+    // 分かるので、見当違いの結果が出ても迷わない。
     keyword.setTextToShowWhenEmpty(EditorGuiText::ParamBrowser::keywordHint,
         GuiColor::ParamBrowser::HintText);
 
@@ -180,12 +182,16 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     categoryFilter.onChange = [this] { m_scroll = 0; rebuildView(); repaint(); };
     addAndMakeVisible(categoryFilter);
 
+    // 形式の絞り込みも、前に選んでいたものを引き継ぐ。選択肢は毎回
+    // 作り直すので、番号を控えてから入れ直す。
+    const int keptFormat = juce::jlimit(1, 4, formatFilter.getSelectedId());
+
     formatFilter.clear(juce::dontSendNotification);
     formatFilter.addItem(EditorGuiText::ParamBrowser::filterAll, 1);
     formatFilter.addItem(EditorGuiText::ParamBrowser::formatJson, 2);
     formatFilter.addItem(EditorGuiText::ParamBrowser::formatYaml, 3);
     formatFilter.addItem(EditorGuiText::ParamBrowser::formatPlain, 4);
-    formatFilter.setSelectedId(1, juce::dontSendNotification);
+    formatFilter.setSelectedId(keptFormat, juce::dontSendNotification);
     formatFilter.onChange = [this] { m_scroll = 0; rebuildView(); repaint(); };
     addAndMakeVisible(formatFilter);
 

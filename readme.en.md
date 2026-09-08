@@ -66,6 +66,13 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - WTV — WT / WT2 / WT+
     - PCMV — RHYTHM / PCM
     - PULSEV — SSG / BEEP
+- **Sorting and filtering survive**
+  - Sorting the PRESET list then loading a preset no longer returns it to the original order.
+    - The list is rebuilt on every filter, so the sort is now remembered and re-applied.
+    - The order holds through searching, filtering and starring.
+  - Sorting by the date or format column sorted by the wrong column (off-by-one). Fixed.
+  - The file picker no longer clears the keyword and format filter each time it opens.
+    - The kind filter and the sort order were already kept.
 - **A preview of the generated waveform**
   - The channel's settings are actually played and drawn.
   - It is built only when the button is pressed, never while you play.

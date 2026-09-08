@@ -77,6 +77,21 @@ starting filtered would only get in the way, so they start with none ticked.
 | PCMV | RHYTHM / PCM |
 | PULSEV | SSG / BEEP |
 
+## Sorting and filtering now survive
+
+Sorting the PRESET list by a column heading **went back to the original order
+as soon as a preset was loaded**. The list is rebuilt every time it is
+filtered, but the sort was only applied at the moment of the click. What you
+sorted by is now remembered and re-applied after each rebuild, so the order
+holds through searching, filtering and starring.
+
+Sorting by the date or format column also **sorted by the wrong column** — the
+column numbering was off by one. That is fixed.
+
+The file picker likewise **cleared the keyword and the format filter every time
+it opened**, which meant retyping them to look in the same place again. They
+now carry over. The kind filter and the sort order already did.
+
 ## A preview of the generated waveform
 
 The channel's settings are **actually played** and drawn.

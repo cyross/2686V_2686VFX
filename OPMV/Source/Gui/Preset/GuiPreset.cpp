@@ -395,55 +395,13 @@ void GuiPreset::setup()
     };
 
     table.onSortOrderChanged = [this](int newSortColumnId, bool isForwards) {
-        // 並び替え処理
-        std::sort(filteredItems.begin(), filteredItems.end(),
-            [this, newSortColumnId, isForwards](const PresetItem& a, const PresetItem& b) -> bool
-            {
-                int result = 0;
+        sortColumnId = newSortColumnId;
+        sortForwards = isForwards;
 
-                bool favouriteA = ctx.editor.presetLibrary.isFavourite(a.fullPath);
-                bool favouriteB = ctx.editor.presetLibrary.isFavourite(b.fullPath);
-                switch (newSortColumnId)
-                {
-                    // お気に入りが先へ来るように、入っているほうを小さく扱う
-                case 1: result = (int)favouriteB - (int)favouriteA; break;
-                case 2: result = a.genre.compareNatural(b.genre); break;
-                case 3: result = a.name.compareNatural(b.name); break;
-                case 4: result = a.author.compareNatural(b.author); break;
-                case 5: result = a.version.compareNatural(b.version); break;
-                case 6: result = a.modeName.compareNatural(b.modeName); break;
-                    // 日時の比較
-                case 7: result = (a.lastModificationTime < b.lastModificationTime) ? -1 : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
-                case 8: result = a.format.compareNatural(b.format); break;
-                default: break;
-                }
-
-                // isForwards (昇順) / !isForwards (降順) に応じて true/false を返す
-                if (isForwards) return result < 0;
-                else            return result > 0;
-            });
-
-        // 絞り込み元の元リスト(items)も同じようにソートしておくと、
-        // 検索枠をクリアした時にソート順が維持されるので親切です。
-        std::sort(items.begin(), items.end(),
-            [newSortColumnId, isForwards](const PresetItem& a, const PresetItem& b) -> bool
-            {
-                // ... (上と全く同じロジックをコピー) ...
-                int result = 0;
-                switch (newSortColumnId) {
-                case 1: result = a.fileName.compareNatural(b.fileName); break;
-                case 2: result = a.name.compareNatural(b.name); break;
-                case 3: result = a.author.compareNatural(b.author); break;
-                case 4: result = a.version.compareNatural(b.version); break;
-                case 5: result = a.modeName.compareNatural(b.modeName); break;
-                case 6: result = (a.lastModificationTime < b.lastModificationTime) ? -1 : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
-                }
-                if (isForwards) return result < 0; else return result > 0;
-            });
-
-        // テーブルを再描画
-        table.updateContent();
-    };
+        // ここで並べても、次の絞り込みで作り直されて消えてしまう。
+        // 並べ替えは絞り込みの最後で掛けるので、そちらへ任せる。
+        applyFilter();
+        };
 
     /********************
     *
@@ -829,7 +787,7 @@ void GuiPreset::updatePresetPath()
     pathLabel.setText(currentFolder.getFullPathName(), juce::dontSendNotification);
 }
 
-// 検索ボックスの文字列でリストを絞り込む関数
+// チェックと、いま対象にしているものの文字を今の値へ合わせる
 void GuiPreset::refreshChannelRow()
 {
     const int index = channelSelector.getSelectedItemIndex();
@@ -850,6 +808,49 @@ void GuiPreset::refreshChannelRow()
         juce::dontSendNotification);
 }
 
+// 覚えている並べ替えを、今の一覧へ掛け直す
+void GuiPreset::sortFiltered()
+{
+    if (sortColumnId <= 0) return;
+
+    const int columnId = sortColumnId;
+    const bool forwards = sortForwards;
+
+    // 同じ値のものが入れ替わらないよう、安定な並べ替えを使う。
+    // 押すたびに順番が変わると、目で追えなくなる。
+    std::stable_sort(filteredItems.begin(), filteredItems.end(),
+        [this, columnId, forwards](const PresetItem& a, const PresetItem& b) -> bool
+        {
+            int result = 0;
+
+            switch (columnId)
+            {
+                // お気に入りが先へ来るように、入っているほうを小さく扱う
+            case 1:
+            {
+                const int favouriteA = ctx.editor.presetLibrary.isFavourite(a.fullPath) ? 1 : 0;
+                const int favouriteB = ctx.editor.presetLibrary.isFavourite(b.fullPath) ? 1 : 0;
+
+                result = favouriteB - favouriteA;
+
+                break;
+            }
+            case 2: result = a.genre.compareNatural(b.genre); break;
+            case 3: result = a.name.compareNatural(b.name); break;
+            case 4: result = a.author.compareNatural(b.author); break;
+            case 5: result = a.version.compareNatural(b.version); break;
+            case 6: result = a.modeName.compareNatural(b.modeName); break;
+            case 7: result = a.lastModificationTime < b.lastModificationTime ? -1
+                : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
+            case 8: result = a.format.compareNatural(b.format); break;
+            default: break;
+            }
+
+            return forwards ? (result < 0) : (result > 0);
+        });
+}
+
+// 検索ボックスの文字列でリストを絞り込む関数
 void GuiPreset::applyFilter()
 {
     filteredItems.clear();
@@ -909,6 +910,9 @@ void GuiPreset::applyFilter()
 
         filteredItems.push_back(item);
     }
+
+    // 並びを作り直したので、覚えている並べ替えを掛け直す
+    sortFiltered();
 
     // テーブルに更新を通知
     table.updateContent();
