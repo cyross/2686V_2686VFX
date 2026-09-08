@@ -8,7 +8,7 @@
 
 The "2686V" family is made up of the following plugins.
 
-- **2686V**: my dream ultimate retro sound VST plugin
+- **2686V**: my dream ultimate retro sound VST plugin. Everything is in here.
 - **2686VLight**: a lightweight version of 2686V
 - **26V**: 2686VLight brought closer to the "PC-9801-26(K)" configuration
 - **86V**: 2686VLight brought closer to the "PC-9801-86" configuration
@@ -36,7 +36,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Envelope times and the like could not be set as finely as intended.
   - The readout drops trailing zeros, so `0.5` still reads as `0.5`.
   - Values in existing files are unchanged.
-- **A new screen for picking files**
+- **File picking moved to a browser**
   - The operating system's file dialog is replaced by a list covering most of the window.
   - Filter by keyword, kind and file format.
   - Click a heading to sort (unsorted, ascending, descending).
@@ -48,7 +48,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Parameters, presets and wave files cannot go above the plugin's own folder.
     - Audio samples (wav) can still be picked from anywhere.
   - Clicking outside closes the screen without choosing.
-- **Presets can be filtered by channel**
+- **Filtering by channel when picking a preset**
   - A channel filter row sits between the search box and the list on the PRESET tab.
   - It folds into a combo box that picks the channel and a checkbox that turns it on or off.
     - Ticked = included in the filter; unticked = excluded.
@@ -90,8 +90,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - An index file now holds that, and the full read happens in the background.
   - **34.5 s to 1.1 s.**
   - While the index is rebuilt, progress is shown and it can be cancelled.
-- **More SSG software envelopes**
-  - Taken from FMP, FMP7 and PMD MML, and bundled as parameter files.
+- **A great many more bundled presets and parameter files**
+  - A `fromCC2` folder has been added.
 
 ### 3-0-2. What v3.1.0 adds and changes
 
@@ -562,6 +562,18 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Full view
   - Mini player view
   - Minimum view
+- Waveform preview
+  - The oscilloscope trace while a key is held, in real time
+    - Drawn as L, M and R
+  - **The generated waveform has been added to the preview (v3.2.0 onwards)**
+    - Drawn as L, M and R
+    - Built with the generate (regenerate) button
+      - It is never built on its own, to keep the CPU load down
+    - The generated waveform is shown as an animation
+    - It runs for 10 seconds, or until 0.5 seconds after the sound has died away
+    - The waveform repeats
+    - The number of cycles shown can be set to 1, 2, 5 or 10
+    - Generated waveforms can be deleted again
 - Presets can be saved and loaded
   - Loaded audio and waveform files are saved as relative paths.
   - A simple preset search is built in.
@@ -572,6 +584,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - **Load history**
     - Unlimited in theory.
   - **Filtering by favourites and history while searching**
+  - **Filtering by the channel in question (v3.2.0 onwards)**
 - Each channel's parameters can be imported and exported
   - **Input and output through `JSON` or `YAML` files**
     - Plain text files are now read-only.
@@ -587,7 +600,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - Reading a parameter file converts it to `JSON` or `YAML` automatically.
   - `.wt` and `.wt2` keep their previous format.
     - Because of how they are used by OPZX7S/WT+/WT PITCH MOD.
-- **The COLORS tab**
+- **Colour customisation (the COLORS tab)**
   - Customise the colours used in the UI.
   - One button restores the defaults.
   - Besides RGB/HSV, colours can be taken from colour names (JUCE plus original ones) and palettes (PC-8801/PC-9801/X68000/PC Engine/Mega Drive).
@@ -613,21 +626,43 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - The layout of sliders and load buttons has been tidied up.
     - Values and waveform lists are shown separately.
     - A considerably lighter load.
+    - **A shorter startup time (2686V) (v3.2.0 onwards)**
   - **Simple view (v3.1.0 onwards)**
     - A mode that shows only the sections you need.
     - A lighter load, and fewer sections to read.
     - Which sections stay visible can be customised.
+  - **Import and export file picking moved from a dialog to a browser (v3.2.0 onwards)**
+    - Shown as a popup over the screen
+      - It closes on a click outside the browser as well
+    - Searching and filtering have been added to the file list
+    - The preview sits at the far right of the browser
+    - Built with the generate (regenerate) button
+      - It is never built on its own, to keep the CPU load down
+    - The generated waveform is shown as an animation
+      - Wave files and audio files are drawn as a still picture instead
+    - Previews are generated (regenerated) and deleted with buttons
+      - The whole of what the browser lists can be generated (regenerated) or deleted at once
+      - A button that deletes every preview has been added to the SETTINGS tab
+    - Some places, the effects among them, still use the file dialog
+  - **A loading screen (v3.2.0 onwards)**
+    - Shown while files are loaded and saved, while waveform preview stills and animations are built, while the file list is built, and so on
 
 ## 5. Supported OS
 
 - Windows 11 (x64/ARM64) or later
   - The ARM64 build is untested.
-- Linux builds are on hold for the time being.
+
+### 5-1. About the Linux build
+
+- On hold for the time being.
   - Build settings are provided, however.
-- Mac — sorry!
+
+### 5-2. About the Mac build
+
+- ...sorry!
   - I have received a report that it builds with `clang++` on macOS with only small changes.
-  - The patch I was given was folded in for 1.2.0.
-  - Build settings are provided (untested).
+  - The patch I was given was folded into 1.2.0.
+  - **Build settings are provided (untested).**
 
 ## 6. Plugin format and version
 
@@ -709,6 +744,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - [Dir]2686V
     - [Dir]Presets                 : the preset file folder for 2686V
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
       - [Dir]OPLL Roms             : OPLL ROM preset voices (before using these, please be sure to read "About the presets in the OPLL Roms folder"!)
       - [Dir]SSG Drums             : the preset files the drum samples used by "SSG RHYTHM Sample.xml" were made from
       - [Dir]WT Samples            : reference preset files for wave memory
@@ -717,27 +753,38 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - M-M-Pro                    : presets for the rhythm and ADPCM (DPCM quality) channels doing the voice synthesis from a certain baseball game
     - [Dir]2686VLPresets           : the preset file folder for 2686VLight
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]26VPresets              : the preset file folder for 26V
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]2686VOPresets           : the preset file folder for 86V
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]OPZX7Presets            : the preset file folder for OPZX7S
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]OPNVPresets             : the preset file folder for OPNV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]OPLVPresets             : the preset file folder for OPLV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]OPMVPresets             : the preset file folder for OPMV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]WTVPresets              : the preset file folder for WTV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]PCMVPresets             : the preset file folder for PCMV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]PULSEVPresets           : the preset file folder for PULSEV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]Resources               : resource files (**never rename, edit or delete this folder or its contents!**)
     - [Dir]Samples                 : the folder for the initial sample (audio) files
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
       - [Dir]M-Pro                 : voice synthesis from a certain baseball game (feat. a certain virtual singer)
       - Noise Close HiHat.wav      : a drum sample file used by "SSG RHYTHM Sample.xml"
       - Noise Open HiHat.wav       : a drum sample file used by "SSG RHYTHM Sample.xml"
@@ -747,44 +794,61 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - SSG Perc.wav               : a drum sample file used by "SSG RHYTHM Sample.xml"
     - [Dir]AmpEnvParams            : the parameter file folder for the global Amp Env
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]ChannelParams           : the parameter file folder for each channel
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]CustomizeColorSettings  : the folder for colour customisation files
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]DetuneParams            : the parameter file folder for MUL/DET
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]FxOrders                : the folder for files that store the effect order
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]FxParams                : the folder for files that store the effect parameters
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]LfoParams               : the folder for files that store the LFO parameters
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]PcmPlayParams           : the parameter file folder for the PCM playback position and so on
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]PitchEnvParams          : the parameter file folder for pitch envelopes
       - [Dir]fromCC                : the folder of files made for me by Claude Code
         - [Dir]PitchEnv            : the parameter file folder for the traditional pitch envelope
         - [Dir]SsgSwPenv11         : the parameter file folder for SSG SW Pitch ENV11
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]QualityParams           : the parameter file folder for audio quality
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]SsgHwEnvParams          : the parameter file folder for SSG HW AMP ENV and SSG HW PITCH ENV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]SsgSwEnvParams          : the parameter file folder for SSG SW ENV(11)
       - [Dir]fromCC                : the folder of files made for me by Claude Code
         - [Dir]SsgSwEnv            : the parameter file folder for the traditional SSG SW AMP ENV
         - [Dir]SsgSwEnv11          : the parameter file folder for SSG SW AMP ENV(11)
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]CurveParams             : the parameter file folder for curve editing (only on plugins that have it)
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]ToneNoiseParams         : the parameter file folder for the Tone/Noise mix and so on
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]UnisonParams            : the parameter file folder for UNISON/HARMONY
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]Wavetables              : the waveform file folder
       - [Dir]fromCC                : the folder of files made for me by Claude Code
         - [Dir]wt                  : the `.wt` files
         - [Dir]wt2                 : the `.wt2` files
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - [Dir]WtModParams             : the parameter file folder for WT PITCH MOD and WT AMP MOD
       - [Dir]fromCC                : the folder of files made for me by Claude Code
+      - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
     - sample_bg.png                : a sample wallpaper
 ```
 
@@ -801,7 +865,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 #### 8-1-2. About the presets generated with Claude Code
 
-- Some of the bundled presets were generated with Claude Code. If one of them strikes you as sounding like something you have heard before, please understand that the work was commissioned up front as material for distribution, that Claude Code arrived at each patch by its own reasoning, and that any such likeness is pure coincidence. The author accepts no responsibility in this regard.
+- Some of the bundled presets were generated with Claude Code. You may well find one that sounds like something you have heard before. The work was commissioned up front as material for distribution, Claude Code arrived at each patch by its own reasoning, and any such likeness is pure coincidence. The author accepts no responsibility in this regard.
+- Depending on how a patch came out, its title and the sound it actually makes may not match either. That is coincidence in the same way, so please bear with it — take it in good humour.
 
 ### 8-2. About the bundled sample files
 
@@ -818,13 +883,15 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 ### 9-1. *.vst3
 
 - Copy them into your VST3 folder.
-  - The VST3 folder is usually here:
+  - On Windows (x64) the VST3 folder is usually here:
     - `C:\Program Files\Common Files\VST3`
   - **Copying into the VST3 folder requires administrator rights.**
 
 ### 9-2. The Assets folder
 
 - Directly under the `Assets` folder there is a `2686V` folder. You **must** copy it **directly into your Documents folder**.
+  - On Windows (x64) the Documents folder is usually here:
+    - `C:\Users\(user name)\Documents`
   - What is inside the `2686V` folder already matches the layout each plugin reads. Presets are split per plugin (`Presets` for 2686V, `26VPresets` for 26V, and so on), so copying it as-is makes them show up in each plugin's list.
 
 ### 9-3. *.exe
@@ -834,6 +901,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 ## 10. Uninstallation
 
 - Deleting each `.vst3` from the VST3 folder completes the uninstall.
+- For the `.exe` files, deleting them from the folder you copied them into completes the uninstall.
 
 ## 11. Launching
 
@@ -849,7 +917,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 12. Operation manual
 
-- Provided on GitHub Pages.
+- Provided on `GitHub Pages`.
   - [2686V Series Users manual](https://cyross.github.io/2686V_2686VFX/)
 
 ## 13. License
