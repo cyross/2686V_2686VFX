@@ -150,6 +150,14 @@ class GuiSettings : public GuiBase
 
     // アンドゥ・リドゥ履歴消去
     GuiTextButton clearUndoHistoryBtn;
+
+    NormalSeparator separator8;
+
+    // 作り置きした波形プレビューの全削除。
+    //
+    // プレビューは 1 件で 10 秒ぶんを抱えるので、貯め込むとフォルダが
+    // 太る。作り直せるものなので、まとめて捨てられるようにしてある。
+    GuiTextButton clearWavePreviewsBtn;
 public:
     GuiSettings(const GuiContext& context) :
         GuiBase(context),
@@ -235,13 +243,18 @@ public:
         loadSettingsBtn(context),
         saveStartupSettingsBtn(context),
         separator7(context),
-        clearUndoHistoryBtn(context)
+        clearUndoHistoryBtn(context),
+        separator8(context),
+        clearWavePreviewsBtn(context)
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+
+    // 作り置きした波形プレビューをまとめて捨てる。
+    void clearWavePreviews();
     // 設定を画面へ反映する。値はプロセッサから直に読む。
     void setSettings();
 	void setWallpaperPath(const juce::String& wallpaperPath);

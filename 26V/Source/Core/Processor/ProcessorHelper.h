@@ -8,6 +8,7 @@
 #include "./ProcessorKeys.h"
 #include "./ProcessorNames.h"
 #include "./ProcessorValues.h"
+#include "./ProcessorFloat.h"
 
 #include "../../Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
@@ -1105,7 +1106,7 @@ namespace PrHelper {
 	}
 
 	static inline void addFloat(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name, float min, float max, float ini) {
-		layout.add(std::make_unique<juce::AudioParameterFloat>(code, name, min, max, ini));
+		layout.add(CPV::makeFloat(code, name, min, max, ini));
 	}
 
 	static inline void addInt(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name, int min, int max, int ini) {

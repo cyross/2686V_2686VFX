@@ -51,6 +51,10 @@ GPLv3 の規定により、著作権表示を書き換えたり消したりす�
 - [CC BY-SA 4.0 (English)](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
 - [CC BY-SA 4.0 (日本語)](https://creativecommons.org/licenses/by-sa/4.0/deed.ja)
 
+### Claude Code が作ったプリセットについて
+
+Claude Code生成のプリセットについて、学習の結果によってどこかの音にそっくりという指摘があるかと存じますが、これは、事前に「配布用」ということを明示しており、その上でClaude Codeが一生懸命考えたことによる成果であり、単に偶然の産物です。そのため、こちらでは全く責任を負いませんのでご了承をお願いいたします。
+
 ## 免責
 
 このソフトは**現状のまま**提供されます。使ったことで生じた損害・不利益・

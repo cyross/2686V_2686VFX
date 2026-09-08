@@ -1,4 +1,5 @@
 ﻿#include "./WtAmpMod.h"
+#include "../../../Core/Editor/EditorGuiText.h"
 
 #include "../../../Core/Gui/GuiRefresh.h"
 
@@ -313,12 +314,11 @@ void GuiComponentWtAmpMod::importWave(int slot, bool isWt2)
         defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    ctx.editor.openFileChooser(
-        isWt2 ? "Load Amp Mod Wave (.wt2)" : "Load Amp Mod Wave (.wt)",
-        defaultDir,
-        isWt2 ? "*.wt2" : "*.wt",
-        [this, slot](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    ctx.editor.openWaveBrowser(
+        { isWt2 ? EditorGuiText::ParamBrowser::waveWt2
+                : EditorGuiText::ParamBrowser::waveWt },
+        [this, slot](const juce::File& file) {
             if (!file.existsAsFile()) return;
 
             // 出すのは対象のスロットのときだけ。読み込み中は名前欄で示す。
@@ -499,56 +499,56 @@ juce::String GuiComponentWtAmpMod::getExportedParams()
 
 void GuiComponentWtAmpMod::importParams()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultWtModParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultWtModParamDir,
+        { EditorGuiText::ParamBrowser::kindWtAmpMod },
+        [this](const juce::File& file) { applyParamsFile(file); });
+}
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importWtAmpModParamFile, defaultDir, Io::ExtensionGlob::WtAmpModParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiComponentWtAmpMod::applyParamsFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
 
-                auto reader = Io::ParamReader::open(file, wtAmpModFormat);
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
 
-                if (!reader.has_value()) return;
+    auto reader = Io::ParamReader::open(file, wtAmpModFormat);
 
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
+    if (!reader.has_value()) return;
 
-                // チャンネルファイルの中に入る形と同じ中身にしてある
-                readParams(*reader, "wtAmpMod");
-            }
-        });
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
+
+    // チャンネルファイルの中に入る形と同じ中身にしてある
+    readParams(*reader, "wtAmpMod");
 }
 
 void GuiComponentWtAmpMod::exportParams()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultWtModParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultWtModParamDir,
+        { EditorGuiText::ParamBrowser::kindWtAmpMod }, Io::Extension::WtAmpModParam,
+        [this](const juce::File& file) { writeParamsFile(file); });
+}
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportWtAmpModParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::WtAmpModParam)), Io::saveGlob(Io::Extension::WtAmpModParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiComponentWtAmpMod::writeParamsFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultWtModParamDir = file.getParentDirectory().getFullPathName();
 
-                Io::ParamWriter writer(wtAmpModFormat);
+    Io::ParamWriter writer(wtAmpModFormat);
 
-                writeParams(writer, "wtAmpMod");
+    writeParams(writer, "wtAmpMod");
 
-                writer.writeTo(file);
-            }
-        });
+    writer.writeTo(file);
 }
 
 void GuiComponentWtAmpMod::readParams(const Io::ParamReader& reader, const juce::String& key)

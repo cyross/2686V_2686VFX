@@ -1,4 +1,7 @@
 ﻿#include "./QualityPcm.h"
+#include "../../../Core/Editor/EditorGuiText.h"
+
+#include "../../../Core/Editor/PluginEditor.h"
 
 #include "../../../Core/Io/ParamFile.h"
 

@@ -1,4 +1,7 @@
 ﻿#include "./AmpEnv.h"
+#include "../../../Core/Editor/EditorGuiText.h"
+
+#include "../../../Core/Editor/PluginEditor.h"
 
 #include "../../../Core/Gui/GuiRefresh.h"
 
@@ -174,96 +177,98 @@ void GuiComponentAmpEnv::pasteParams(CopyEnvAmpAdsr& copyObj) {
 	kor.setToggleState(copyObj.kor, juce::sendNotification);
 }
 
-void GuiComponentAmpEnv::importParams() {
-	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
-	if (!defaultDir.isDirectory()) {
-		defaultDir = ctx.audioProcessor.getPluginDirectory();
-	}
-
-	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importAmpEnvParamFile, defaultDir, Io::ExtensionGlob::AmpEnvParam);
-	fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-		[this](const juce::FileChooser& fc) {
-			auto file = fc.getResult();
-			if (file.existsAsFile()) {
-
-				// 次回のダイアログ用にディレクトリを保存
-				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
-
-				// 3.0.0 より前のファイルは、当時の処理で読み込んでから
-				// 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-				// 読み込みは当時のものをそのまま使う。
-				if (Io::isLegacyFile(file)) {
-					juce::StringArray lines;
-
-					file.readLines(lines);
-
-					int index = 0;
-
-					{
-						// 読み終えてからまとめて描き直す
-						GuiRefresh::Batch batch;
-
-						setImportingParams(lines, index);
-					}
-
-					// 単体のファイルは入れ子にせず、そのまま中身として書く
-					Io::ParamWriter writer(ampEnvFormat);
-
-					writeParams(writer, Io::ParamKey::values);
-					writer.hoist(Io::ParamKey::values);
-
-					Io::writeConverted(file, writer);
-
-					return;
-				}
-
-				auto reader = Io::ParamReader::open(file, ampEnvFormat);
-
-				if (!reader.has_value()) return;
-
-				// 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-				// 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-				GuiRefresh::Batch batch;
-
-				bypass.setToggleState(reader->getBool("bypass", bypass.getToggleState()), juce::sendNotification);
-				startLevel.setValue(reader->getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
-				attack.setValue(reader->getFloat("attack", (float)attack.getValue()), juce::sendNotification);
-				decay.setValue(reader->getFloat("decay", (float)decay.getValue()), juce::sendNotification);
-				sustain.setValue(reader->getFloat("sustain", (float)sustain.getValue()), juce::sendNotification);
-				release.setValue(reader->getFloat("release", (float)release.getValue()), juce::sendNotification);
-				kor.setToggleState(reader->getBool("kor", kor.getToggleState()), juce::sendNotification);
-			}
-		});
+void GuiComponentAmpEnv::importParams()
+{
+	// ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+	// 読めるのはこの区分だけなので、ほかは選べない。
+	ctx.editor.openParamBrowser(ctx.audioProcessor.defaultAmpEnvParamDir,
+		{ EditorGuiText::ParamBrowser::kindAmpEnv },
+		[this](const juce::File& file) { applyParamFile(file); });
 }
 
-void GuiComponentAmpEnv::exportParams() {
-	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
-	if (!defaultDir.isDirectory()) {
-		defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiComponentAmpEnv::applyParamFile(const juce::File& file)
+{
+	if (!file.existsAsFile()) return;
+
+
+	// 次回のダイアログ用にディレクトリを保存
+	ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
+
+	// 3.0.0 より前のファイルは、当時の処理で読み込んでから
+	// 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+	// 読み込みは当時のものをそのまま使う。
+	if (Io::isLegacyFile(file)) {
+		juce::StringArray lines;
+
+		file.readLines(lines);
+
+		int index = 0;
+
+		{
+			// 読み終えてからまとめて描き直す
+			GuiRefresh::Batch batch;
+
+			setImportingParams(lines, index);
+		}
+
+		// 単体のファイルは入れ子にせず、そのまま中身として書く
+		Io::ParamWriter writer(ampEnvFormat);
+
+		writeParams(writer, Io::ParamKey::values);
+		writer.hoist(Io::ParamKey::values);
+
+		Io::writeConverted(file, writer);
+
+		return;
 	}
 
-	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::AmpEnvParam)), Io::saveGlob(Io::Extension::AmpEnvParam));
-	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-		[this](const juce::FileChooser& fc) {
-			auto file = fc.getResult();
-			if (file != juce::File{}) {
+	auto reader = Io::ParamReader::open(file, ampEnvFormat);
 
-				// 次回のダイアログ用にディレクトリを保存
-				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
+	if (!reader.has_value()) return;
 
-				Io::ParamWriter writer(ampEnvFormat);
+	// 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+	// 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+	GuiRefresh::Batch batch;
 
-				writer.set("bypass", bypass.getToggleState());
-				writer.set("startLevel", (float)startLevel.getValue());
-				writer.set("attack", (float)attack.getValue());
-				writer.set("decay", (float)decay.getValue());
-				writer.set("sustain", (float)sustain.getValue());
-				writer.set("release", (float)release.getValue());
-				writer.set("kor", kor.getToggleState());
+	bypass.setToggleState(reader->getBool("bypass", bypass.getToggleState()), juce::sendNotification);
+	startLevel.setValue(reader->getFloat("startLevel", (float)startLevel.getValue()), juce::sendNotification);
+	attack.setValue(reader->getFloat("attack", (float)attack.getValue()), juce::sendNotification);
+	decay.setValue(reader->getFloat("decay", (float)decay.getValue()), juce::sendNotification);
+	sustain.setValue(reader->getFloat("sustain", (float)sustain.getValue()), juce::sendNotification);
+	release.setValue(reader->getFloat("release", (float)release.getValue()), juce::sendNotification);
+	kor.setToggleState(reader->getBool("kor", kor.getToggleState()), juce::sendNotification);
+}
 
-				writer.writeTo(file);
-			}
-		});
+void GuiComponentAmpEnv::exportParams()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultAmpEnvParamDir,
+        { EditorGuiText::ParamBrowser::kindAmpEnv }, Io::Extension::AmpEnvParam,
+        [this](const juce::File& file) { writeParamsFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiComponentAmpEnv::writeParamsFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+	// 次回のダイアログ用にディレクトリを保存
+	ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
+
+	Io::ParamWriter writer(ampEnvFormat);
+
+	writer.set("bypass", bypass.getToggleState());
+	writer.set("startLevel", (float)startLevel.getValue());
+	writer.set("attack", (float)attack.getValue());
+	writer.set("decay", (float)decay.getValue());
+	writer.set("sustain", (float)sustain.getValue());
+	writer.set("release", (float)release.getValue());
+	writer.set("kor", kor.getToggleState());
+
+	writer.writeTo(file);
 }
 
 void GuiComponentAmpEnv::setImportingParams(juce::StringArray& lines, int& index) {

@@ -424,12 +424,16 @@ public:
     void pasteOpParamsOpnOpm(int p, CopyOpnaOpnOpmOp& copyObj);
     void importHwLfoParam(int opIndex);
 
+    // ブラウザから直に読ませるための入口。
+    void applyHwLfoParamFile(int opIndex, const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingHwLfoParams(int opIndex, juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeHwLfoParams(int opIndex, Io::ParamWriter& writer);
     void exportHwLfoParam(int opIndex);
+    // ブラウザから直に渡せるようにした入口。
+    void writeHwLfoParamFile(int opIndex, const juce::File& file);
     void importPitchEnvParam(int opIndex);
     void exportPitchEnvParam(int opIndex);
     void importSsgSwEnvParam(int opIndex);
@@ -448,22 +452,33 @@ public:
     void exportOpWtModParam(int opIndex);
     void importLfoParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyLfoParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingLfoParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeLfoParams(Io::ParamWriter& writer);
     void exportLfoParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeLfoParamFile(const juce::File& file);
     void importQualityParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyQualityParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingQualityParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeQualityParamFile(const juce::File& file);
     void importChParam();
 
+    // ブラウザから直に読ませるための入口。
+    // importChParam() からダイアログを外したもの。
+    void applyChParamFile(const juce::File& file) override;
     // 3.0.0 より前の形式を読む
     void getImportingOpParams(int opIndex, juce::StringArray& lines, int& index);
     void setImportingChParams(juce::StringArray& lines, int& index);
@@ -471,14 +486,20 @@ public:
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeChParamFile(const juce::File& file);
     void importOpChParam(int opIndex);
 
+    // ブラウザから直に読ませるための入口。
+    void applyOpChParamFile(int opIndex, const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingOpChFileParams(int opIndex, juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeOpChFileParams(int opIndex, Io::ParamWriter& writer);
     void exportOpChParam(int opIndex);
+    // ブラウザから直に渡せるようにした入口。
+    void writeOpChParamFile(int opIndex, const juce::File& file);
     // チャンネル 1 つぶん。OPN のファイルを読むときにも使う。
     void readChParams(const Io::ParamReader& reader);
 
@@ -486,5 +507,10 @@ public:
     void readOpParams(int opIndex, const Io::ParamReader& r);
     void writeOpParams(int opIndex, Io::ParamWriter& w);
     void importOpnChParam();
+    // ブラウザから直に読ませるための入口。
+    // importOpnChParam() からダイアログを外したもの。
+    void applyOpnChParamFile(const juce::File& file);
     void importOpnOpChParam(int opIndex);
+    // ブラウザから直に読ませるための入口。
+    void applyOpnOpChParamFile(int opIndex, const juce::File& file);
 };

@@ -1,4 +1,7 @@
 ﻿#include "./MulDetune.h"
+#include "../../../Core/Editor/EditorGuiText.h"
+
+#include "../../../Core/Editor/PluginEditor.h"
 
 #include "../../../Core/Gui/GuiRefresh.h"
 
@@ -361,94 +364,96 @@ void GuiComponentMulDetune::pasteParams(CopyDetuneOpzx7& copyObj) {
     dt3.setValue(copyObj.dt3, juce::sendNotification);
 }
 
-void GuiComponentMulDetune::importParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importDetuneParamFile, defaultDir, Io::ExtensionGlob::DetuneParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingParams(lines, index);
-                    }
-
-                    // 単体のファイルは入れ子にせず、そのまま中身として書く
-                    Io::ParamWriter writer(detuneFormat);
-
-                    writeParams(writer, Io::ParamKey::values);
-                    writer.hoist(Io::ParamKey::values);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, detuneFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                // 古いファイルは項目が欠けていることがあるので、
-                // 読めなかったものは今の値のままにしておく。
-                mul.setSelectedItemIndex(reader->getInt("mul", mul.getSelectedItemIndex()), juce::sendNotification);
-                mulRatio.setValue(reader->getFloat("mulRatio", (float)mulRatio.getValue()), juce::sendNotification);
-                dt1.setSelectedItemIndex(reader->getInt("dt1", dt1.getSelectedItemIndex()), juce::sendNotification);
-                dt2.setValue(reader->getInt("dt2", (int)dt2.getValue()), juce::sendNotification);
-                dt3.setValue(reader->getInt("dt3", (int)dt3.getValue()), juce::sendNotification);
-            }
-        });
+void GuiComponentMulDetune::importParams()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultDetuneParamDir,
+        { EditorGuiText::ParamBrowser::kindDetune },
+        [this](const juce::File& file) { applyParamsFile(file); });
 }
 
-void GuiComponentMulDetune::exportParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiComponentMulDetune::applyParamsFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingParams(lines, index);
+        }
+
+        // 単体のファイルは入れ子にせず、そのまま中身として書く
+        Io::ParamWriter writer(detuneFormat);
+
+        writeParams(writer, Io::ParamKey::values);
+        writer.hoist(Io::ParamKey::values);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::DetuneParam)), Io::saveGlob(Io::Extension::DetuneParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, detuneFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(detuneFormat);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.set("mul", mul.getSelectedItemIndex());
-                writer.set("mulRatio", (float)mulRatio.getValue());
-                writer.set("dt1", dt1.getSelectedItemIndex());
-                writer.set("dt2", (int)dt2.getValue());
-                writer.set("dt3", (int)dt3.getValue());
+    // 古いファイルは項目が欠けていることがあるので、
+    // 読めなかったものは今の値のままにしておく。
+    mul.setSelectedItemIndex(reader->getInt("mul", mul.getSelectedItemIndex()), juce::sendNotification);
+    mulRatio.setValue(reader->getFloat("mulRatio", (float)mulRatio.getValue()), juce::sendNotification);
+    dt1.setSelectedItemIndex(reader->getInt("dt1", dt1.getSelectedItemIndex()), juce::sendNotification);
+    dt2.setValue(reader->getInt("dt2", (int)dt2.getValue()), juce::sendNotification);
+    dt3.setValue(reader->getInt("dt3", (int)dt3.getValue()), juce::sendNotification);
+}
 
-                writer.writeTo(file);
-            }
-        });
+void GuiComponentMulDetune::exportParams()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultDetuneParamDir,
+        { EditorGuiText::ParamBrowser::kindDetune }, Io::Extension::DetuneParam,
+        [this](const juce::File& file) { writeParamsFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiComponentMulDetune::writeParamsFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(detuneFormat);
+
+    writer.set("mul", mul.getSelectedItemIndex());
+    writer.set("mulRatio", (float)mulRatio.getValue());
+    writer.set("dt1", dt1.getSelectedItemIndex());
+    writer.set("dt2", (int)dt2.getValue());
+    writer.set("dt3", (int)dt3.getValue());
+
+    writer.writeTo(file);
 }
 
 void GuiComponentMulDetune::setMul(int m) {

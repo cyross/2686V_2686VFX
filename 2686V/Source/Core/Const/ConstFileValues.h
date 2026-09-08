@@ -170,6 +170,10 @@ namespace Io
 		static inline const juce::String pcmPlayParam = "PcmPlayParams";
 		static inline const juce::String toneNoiseParam = "ToneNoiseParams";
 		static inline const juce::String wtModParam = "WtModParams";
+		// 生成した波形プレビューを貯めておく場所。作り直せるものなので、
+		// 消してしまっても次に生成ボタンを押せば作り直せる。
+		static inline const juce::String wavePreview = "WavePreviews";
+
 		static inline const juce::String colorSetting = "CustomizeColorSettings";
 	};
 

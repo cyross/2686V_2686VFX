@@ -202,12 +202,16 @@ public:
     void pasteParams(CopyRhythmPad& copyObj);
     void importToneNoiseParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyToneNoiseParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingToneNoiseParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeToneNoiseParams(Io::ParamWriter& writer);
     void exportToneNoiseParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeToneNoiseParamFile(const juce::File& file);
     void importLfoParam();
     void exportLfoParam();
     void importAmpEnvParam();
@@ -232,20 +236,28 @@ public:
     void exportDetuneParam();
     void importQualityParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyQualityParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingQualityParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeQualityParamFile(const juce::File& file);
     void importPcmPlayParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyPcmPlayParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingPcmPlayParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writePcmPlayParams(Io::ParamWriter& writer);
     void exportPcmPlayParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writePcmPlayParamFile(const juce::File& file);
     // 名前で受け渡す。パッドは並びの中のひとつを渡す。
     void readParams(int p, const Io::ParamReader& r);
     void writeParams(int p, Io::ParamWriter& w);
@@ -305,7 +317,7 @@ public:
     void layoutPad(int padIndex, juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
-    void buttonClicked(juce::Button* button, juce::AudioFormatManager &formatManager, std::unique_ptr<juce::FileChooser>& fileChooser);
+    void buttonClicked(juce::Button* button);
 	void updatePadFileName(int padIndex, const juce::String& fileName);
     bool isThis(int padIndex, juce::Button* button);
     void updatePadVisible(int idx, bool visible);
@@ -336,6 +348,9 @@ public:
     void exportPcmPlayParam(int p);
     void importChParam();
 
+    // ブラウザから直に読ませるための入口。
+    // importChParam() からダイアログを外したもの。
+    void applyChParamFile(const juce::File& file) override;
     // 3.0.0 より前の形式を読む
     void getImportingPadParams(int p, juce::StringArray& lines, int& index);
     void setImportingChParams(juce::StringArray& lines, int& index);
@@ -343,12 +358,18 @@ public:
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeChParamFile(const juce::File& file);
     void importPadChParam(int p);
 
+    // ブラウザから直に読ませるための入口。
+    void applyPadChParamFile(int p, const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingPadChParams(int p, juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writePadChParams(int p, Io::ParamWriter& writer);
     void exportPadChParam(int p);
+    // ブラウザから直に渡せるようにした入口。
+    void writePadChParamFile(int p, const juce::File& file);
 };

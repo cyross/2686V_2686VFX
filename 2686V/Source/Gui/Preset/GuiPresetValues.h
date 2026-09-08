@@ -54,6 +54,26 @@ namespace PresetGuiValue
 		static inline constexpr int ClearHistoryWidth = 110;
 	}
 
+	namespace Channel
+	{
+		static inline constexpr int RowHeight = 28;
+		static inline constexpr int LabelWidth = 70;
+		static inline constexpr int Width = 110;
+		static inline constexpr int PaddingRight = 10;
+		static inline constexpr int CheckWidth = 60;
+		static inline constexpr int ButtonWidth = 84;
+		static inline constexpr int ButtonGap = 4;
+		static inline constexpr int SummaryPaddingLeft = 10;
+		static inline constexpr int PaddingBottom = 5;
+
+		// 2686V が積んでいる音源の数。
+		//
+		// これより少ないプラグインは音源を絞ったものなので、積んでいる
+		// ものを最初から対象にしておく。すべて積んでいるものは、絞ると
+		// かえって探しにくいので切っておく。
+		static inline constexpr int FullCount = 13;
+	}
+
 	namespace Table
 	{
 		static inline constexpr float WidthRate = 0.6f;

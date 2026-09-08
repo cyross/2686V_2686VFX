@@ -1,6 +1,7 @@
 ﻿#include <vector>
 
 #include "../../Core/Editor/EditorGuiValues.h"
+#include "../../Core/Editor/EditorGuiText.h"
 #include "./GuiCurve.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
@@ -675,10 +676,11 @@ void GuiCurve::importCurveParam() {
 
     juce::String ext = posExt + "_" + targetExt;
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importCurveParamFile, defaultDir, Io::openGlob(Io::Extension::curveParam + ext));
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
+    // 一覧から選ぶ。CURVE は置き場所と対象で中身が違うので、
+    // 区分だけでなく名前でも縛る。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultCurveParamDir,
+        { EditorGuiText::ParamBrowser::kindCurve },
+        [this](const juce::File& file) {
             if (file.existsAsFile()) {
 
                 // 次回のダイアログ用にディレクトリを保存
@@ -746,7 +748,8 @@ void GuiCurve::importCurveParam() {
                 updateVisible();
                 ctx.editor.resized();
             }
-        });
+        },
+        Io::Extension::curveParam + ext);
 }
 
 void GuiCurve::exportCurveParam() {
@@ -765,10 +768,10 @@ void GuiCurve::exportCurveParam() {
 
     juce::String ext = posExt + "_" + targetExt;
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::curveParam + ext)), Io::saveGlob(Io::Extension::curveParam + ext));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultCurveParamDir,
+        { EditorGuiText::ParamBrowser::kindCurve }, Io::Extension::curveParam + ext,
+        [this](const juce::File& file) {
             if (file != juce::File{}) {
 
                 // 次回のダイアログ用にディレクトリを保存
@@ -779,7 +782,8 @@ void GuiCurve::exportCurveParam() {
 
                 writer.writeTo(file);
             }
-        });
+        },
+        Io::Extension::curveParam + ext);
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて

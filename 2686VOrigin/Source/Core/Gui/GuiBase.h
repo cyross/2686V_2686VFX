@@ -15,6 +15,13 @@ public:
     virtual void setup() {};
     virtual void layout(juce::Rectangle<int> content) {};
 
+    // チャンネルパラメータファイルを読んで反映する。
+    //
+    // ダイアログを出さずに直に読ませるための入口で、パラメータ
+    // ファイルのブラウザから呼ぶ。チャンネルを持たないタブは
+    // 何もしない。
+    virtual void applyChParamFile(const juce::File& file) {};
+
     // 簡易表示モードで隠す区分への一括操作。
     //
     // どの区分が対象かはタブごとに違うので、実際の中身はタブ側で書く。

@@ -109,7 +109,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
         CPV::Midi::PitchResetOnLegato::initial
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
+    layout.add(CPV::makeFloat(
         CPK::Midi::fixedVelocity,
         CPN::Midi::fixedVelocity,
         CPV::Midi::FixedVelocity::min,

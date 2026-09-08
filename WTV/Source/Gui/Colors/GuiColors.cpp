@@ -1,4 +1,5 @@
 ﻿#include "./GuiColors.h"
+#include "../../Core/Editor/EditorGuiText.h"
 
 #include "./RetroPalette.h"
 
@@ -554,13 +555,10 @@ void GuiColors::saveToFile()
 		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
-	fileChooser = std::make_unique<juce::FileChooser>(ColorsGuiText::File::saveTitle,
-		defaultDir.getChildFile(ColorsGuiText::File::defaultName()),
-		Io::ExtensionGlob::ColorSetting);
-
-	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-		[this](const juce::FileChooser& fc) {
-			auto file = fc.getResult();
+	// 書き出す先も一覧から決める。名前は下の欄で直せる。
+	ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultColorSettingDir,
+		{ EditorGuiText::ParamBrowser::kindColors }, Io::Extension::ColorSetting,
+		[this](const juce::File& file) {
 
 			if (file == juce::File{}) return;
 
@@ -596,12 +594,10 @@ void GuiColors::loadFromFile()
 		defaultDir = ctx.audioProcessor.getPluginDirectory();
 	}
 
-	fileChooser = std::make_unique<juce::FileChooser>(ColorsGuiText::File::openTitle,
-		defaultDir, Io::ExtensionGlob::ColorSetting);
-
-	fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-		[this](const juce::FileChooser& fc) {
-			auto file = fc.getResult();
+	// ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+	ctx.editor.openParamBrowser(ctx.audioProcessor.defaultColorSettingDir,
+		{ EditorGuiText::ParamBrowser::kindColors },
+		[this](const juce::File& file) {
 
 			if (!file.existsAsFile()) return;
 

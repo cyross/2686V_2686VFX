@@ -40,6 +40,17 @@ namespace EditorGuiText
 		static inline const juce::String tooltipHide = juce::String("") + "波形プレビューを隠します。";
 	}
 
+	namespace PresetScan
+	{
+		static inline const juce::String working = juce::String("") + "プリセットの見出しを読んでいます";
+	}
+
+	namespace Loading
+	{
+		static inline const juce::String cancel = juce::String("") + "中止";
+		static inline const juce::String cancelling = juce::String("") + "中止しています…";
+	}
+
 	namespace Panic
 	{
 		static inline const juce::String title = u8"!";

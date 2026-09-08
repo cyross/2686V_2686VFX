@@ -246,34 +246,51 @@ public:
     void setLevel(float level);
     void importToneNoiseParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyToneNoiseParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingToneNoiseParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeToneNoiseParams(Io::ParamWriter& writer);
     void exportToneNoiseParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeToneNoiseParamFile(const juce::File& file);
     void importQualityParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyQualityParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingQualityParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeQualityParams(Io::ParamWriter& writer);
     void exportQualityParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeQualityParamFile(const juce::File& file);
     void importPcmPlayParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyPcmPlayParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingPcmPlayParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writePcmPlayParams(Io::ParamWriter& writer);
     void exportPcmPlayParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writePcmPlayParamFile(const juce::File& file);
     void importChParam();
 
+    // ブラウザから直に読ませるための入口。
+    // importChParam() からダイアログを外したもの。
+    void applyChParamFile(const juce::File& file) override;
     // 3.0.0 より前の形式を読む
     void setImportingChParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeChParams(Io::ParamWriter& writer);
     void exportChParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeChParamFile(const juce::File& file);
 };

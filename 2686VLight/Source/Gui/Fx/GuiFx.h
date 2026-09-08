@@ -131,20 +131,28 @@ class GuiFx : public GuiBase
     void updateSfcEchoEnabled();
     void importFxOrder();
 
+    // ブラウザから直に読ませるための入口。
+    void applyFxOrderFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingFxOrder(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeFxOrder(Io::ParamWriter& writer);
     void exportFxOrder();
+    // ブラウザから直に渡せるようにした入口。
+    void writeFxOrderFile(const juce::File& file);
     void importFxParam();
 
+    // ブラウザから直に読ませるための入口。
+    void applyFxParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingFxParams(juce::StringArray& lines, int& index);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeFxParams(Io::ParamWriter& writer);
     void exportFxParam();
+    // ブラウザから直に渡せるようにした入口。
+    void writeFxParamFile(const juce::File& file);
 public:
     GuiFx(const GuiContext& context);
 

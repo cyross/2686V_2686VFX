@@ -1,4 +1,7 @@
 ﻿#include "./SsgSwPEnv11.h"
+#include "../../../Core/Editor/EditorGuiText.h"
+
+#include "../../../Core/Editor/PluginEditor.h"
 
 #include "../../../Core/Gui/GuiRefresh.h"
 
@@ -445,110 +448,112 @@ void GuiComponentSsgSwPEnv11::pasteParams(CopyPEnvSsgSw11& copyObj) {
     refreshStepValues();
 }
 
-void GuiComponentSsgSwPEnv11::importParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultSsgSwEnvParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importSsgSwEnvParamFile, defaultDir, Io::ExtensionGlob::SsgSwPEnvParam11);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
-
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
-
-                    file.readLines(lines);
-
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingParams(lines, index);
-                    }
-
-                    // 単体のファイルは入れ子にせず、そのまま中身として書く
-                    Io::ParamWriter writer(ssgSwPEnv11Format);
-
-                    writeParams(writer, Io::ParamKey::values);
-                    writer.hoist(Io::ParamKey::values);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, ssgSwPEnv11Format);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                flag.setToggleState(reader->getBool("flag", flag.getToggleState()), juce::sendNotification);
-                steps.setValue(reader->getInt("steps", (int)steps.getValue()), juce::sendNotification);
-                loop.setToggleState(reader->getBool("loop", loop.getToggleState()), juce::sendNotification);
-                loopTo.setValue(reader->getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
-                loopCount.setValue(reader->getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
-                setStepValue(levelKeys[0], reader->getFloat("startLevel", getStepValue(levelKeys[0])));
-
-                for (int i = 0; i < rateCount; ++i) {
-                    const juce::String no(i + 1);
-
-                    setStepValue(rateKeys[i], reader->getFloat("r" + no, getStepValue(rateKeys[i])));
-                    setStepValue(levelKeys[i + 1], reader->getFloat("l" + no, getStepValue(levelKeys[i + 1])));
-                }
-
-                refreshStepValues();
-            }
-        });
+void GuiComponentSsgSwPEnv11::importParams()
+{
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultSsgSwEnvParamDir,
+        { EditorGuiText::ParamBrowser::kindSsgSwPEnv11 },
+        [this](const juce::File& file) { applyParamsFile(file); });
 }
 
-void GuiComponentSsgSwPEnv11::exportParams() {
-    juce::File defaultDir(ctx.audioProcessor.defaultSsgSwEnvParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+// ブラウザから直に渡せるよう、ダイアログを出すところと
+// 読んで反映するところを分けてある。
+void GuiComponentSsgSwPEnv11::applyParamsFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
+
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingParams(lines, index);
+        }
+
+        // 単体のファイルは入れ子にせず、そのまま中身として書く
+        Io::ParamWriter writer(ssgSwPEnv11Format);
+
+        writeParams(writer, Io::ParamKey::values);
+        writer.hoist(Io::ParamKey::values);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportSsgSwEnvParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::SsgSwPEnvParam11)), Io::saveGlob(Io::Extension::SsgSwPEnvParam11));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+    auto reader = Io::ParamReader::open(file, ssgSwPEnv11Format);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                Io::ParamWriter writer(ssgSwPEnv11Format);
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                writer.set("flag", flag.getToggleState());
-                writer.set("steps", (float)steps.getValue());
-                writer.set("loop", loop.getToggleState());
-                writer.set("loopTo", (float)loopTo.getValue());
-                writer.set("loopCount", (float)loopCount.getValue());
-                writer.set("startLevel", getStepValue(levelKeys[0]));
+    flag.setToggleState(reader->getBool("flag", flag.getToggleState()), juce::sendNotification);
+    steps.setValue(reader->getInt("steps", (int)steps.getValue()), juce::sendNotification);
+    loop.setToggleState(reader->getBool("loop", loop.getToggleState()), juce::sendNotification);
+    loopTo.setValue(reader->getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
+    loopCount.setValue(reader->getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+    setStepValue(levelKeys[0], reader->getFloat("startLevel", getStepValue(levelKeys[0])));
 
-                for (int i = 0; i < rateCount; ++i) {
-                    const juce::String no(i + 1);
+    for (int i = 0; i < rateCount; ++i) {
+        const juce::String no(i + 1);
 
-                    writer.set("r" + no, getStepValue(rateKeys[i]));
-                    writer.set("l" + no, getStepValue(levelKeys[i + 1]));
-                }
+        setStepValue(rateKeys[i], reader->getFloat("r" + no, getStepValue(rateKeys[i])));
+        setStepValue(levelKeys[i + 1], reader->getFloat("l" + no, getStepValue(levelKeys[i + 1])));
+    }
 
-                writer.writeTo(file);
-            }
-        });
+    refreshStepValues();
+}
+
+void GuiComponentSsgSwPEnv11::exportParams()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultSsgSwEnvParamDir,
+        { EditorGuiText::ParamBrowser::kindSsgSwPEnv11 }, Io::Extension::SsgSwPEnvParam11,
+        [this](const juce::File& file) { writeParamsFile(file); });
+}
+
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiComponentSsgSwPEnv11::writeParamsFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
+
+    Io::ParamWriter writer(ssgSwPEnv11Format);
+
+    writer.set("flag", flag.getToggleState());
+    writer.set("steps", (float)steps.getValue());
+    writer.set("loop", loop.getToggleState());
+    writer.set("loopTo", (float)loopTo.getValue());
+    writer.set("loopCount", (float)loopCount.getValue());
+    writer.set("startLevel", getStepValue(levelKeys[0]));
+
+    for (int i = 0; i < rateCount; ++i) {
+        const juce::String no(i + 1);
+
+        writer.set("r" + no, getStepValue(rateKeys[i]));
+        writer.set("l" + no, getStepValue(levelKeys[i + 1]));
+    }
+
+    writer.writeTo(file);
 }
 
 void GuiComponentSsgSwPEnv11::setImportingParams(juce::StringArray& lines, int& index) {

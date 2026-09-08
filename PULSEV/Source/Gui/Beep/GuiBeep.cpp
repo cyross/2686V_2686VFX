@@ -401,101 +401,98 @@ void GuiBeep::setLevel(float level) {
 }
 
 void GuiBeep::importChParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 読めるのはこの区分だけなので、ほかは選べない。
+    ctx.editor.openParamBrowser({ "BEEP" },
+        [this](const juce::File& file) { applyChParamFile(file); });
+}
+
+// パラメータファイルのブラウザからも同じ読み込みを使うので、
+// ダイアログを出すところと、読んで反映するところを分けてある。
+void GuiBeep::applyChParamFile(const juce::File& file) {
+    if (!file.existsAsFile()) return;
+
+    // 次回のダイアログ用にディレクトリを保存
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
+
+        file.readLines(lines);
+
+        int index = 0;
+
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            setImportingChParams(lines, index);
+        }
+
+        Io::ParamWriter writer(beepFormat);
+
+        writeChParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
     }
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::beepParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+    auto reader = Io::ParamReader::open(file, beepFormat);
 
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    if (!reader.has_value()) return;
 
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
 
-                    file.readLines(lines);
+    // Level
+    levelComponent.readParams(*reader, "level");
 
-                    int index = 0;
-
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
-
-                        setImportingChParams(lines, index);
-                    }
-
-                    Io::ParamWriter writer(beepFormat);
-
-                    writeChParams(writer);
-
-                    Io::writeConverted(file, writer);
-
-                    return;
-                }
-
-                auto reader = Io::ParamReader::open(file, beepFormat);
-
-                if (!reader.has_value()) return;
-
-                // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
-                // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
-                GuiRefresh::Batch batch;
-
-                // Level
-                levelComponent.readParams(*reader, "level");
-
-                // Components
+    // Components
 				fixComponent.readParams(*reader, "fix");
 				ampEnvComponent.readParams(*reader, "ampEnv");
 				pitchEnvComponent.readParams(*reader, "pitchEnv");
-                ssgHwEnv.readParams(*reader, "ssgHwEnv");
-                ssgHwPEnv.readParams(*reader, "ssgHwPEnv");
-                ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
+    ssgHwEnv.readParams(*reader, "ssgHwEnv");
+    ssgHwPEnv.readParams(*reader, "ssgHwPEnv");
+    ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
 				ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
 				ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
 				mulDetuneComponent.readParams(*reader, "mulDetune");
 				lfoComponent.readParams(*reader, "lfo");
-                unisonComponent.readParams(*reader, "unison");
+    unisonComponent.readParams(*reader, "unison");
 
-                modComponent.readParams(*reader, "wtMod");
-                ampModComponent.readParams(*reader, "wtAmpMod");
+    modComponent.readParams(*reader, "wtMod");
+    ampModComponent.readParams(*reader, "wtAmpMod");
 
-                // 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
-                antiAliasButton.setToggleState(reader->getBool("antiAlias", antiAliasButton.getToggleState()), juce::sendNotification);
-                timerClockSelector.setSelectedItemIndex(reader->getInt("timerClock", timerClockSelector.getSelectedItemIndex()), juce::sendNotification);
-            }
-        });
+    // 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
+    antiAliasButton.setToggleState(reader->getBool("antiAlias", antiAliasButton.getToggleState()), juce::sendNotification);
+    timerClockSelector.setSelectedItemIndex(reader->getInt("timerClock", timerClockSelector.getSelectedItemIndex()), juce::sendNotification);
 }
 
-void GuiBeep::exportChParam() {
-    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
-    }
+void GuiBeep::exportChParam()
+{
+    // 書き出す先も一覧から決める。名前は下の欄で直せる。
+    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+        { "BEEP" }, Io::Extension::beepParam,
+        [this](const juce::File& file) { writeChParamFile(file); });
+}
 
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::beepParam)), Io::saveGlob(Io::Extension::beepParam));
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
+// ブラウザから直に渡せるよう、書き出す先を決めるところと
+// 実際に書くところを分けてある。
+void GuiBeep::writeChParamFile(const juce::File& file)
+{
+    if (file == juce::File{}) return;
 
-                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
-                Io::ParamWriter writer(beepFormat);
-                writeChParams(writer);
+    Io::ParamWriter writer(beepFormat);
+    writeChParams(writer);
 
-                writer.writeTo(file);
-            }
-        });
-
+    writer.writeTo(file);
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて

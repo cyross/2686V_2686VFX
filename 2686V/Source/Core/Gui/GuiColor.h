@@ -229,6 +229,83 @@ namespace GuiColor {
 		inline Entry ActiveSlot{ "WavePreview.ActiveSlot", []() -> juce::Colour { return juce::Colours::aqua; } };
 		inline Entry ActiveSlotBg{ "WavePreview.ActiveSlotBg", []() -> juce::Colour { return juce::Colours::aqua.withAlpha(0.16f); } };
 	};
+	namespace Loading {
+		// 待っている間、画面全体を覆う地。塗り潰すと今どこを見ていたか
+		// 分からなくなるので、下がうっすら透けるくらいに留める。
+		inline Entry Backdrop{ "Loading.Backdrop", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.6f); } };
+
+		// 伸び縮みする 5 本の棒。暗い地の上で読めるよう、テーマの差し色を当てる。
+		inline Entry Bar{ "Loading.Bar", []() -> juce::Colour { return Palette::MikuPink; } };
+
+		// 進み具合を添える文字
+		inline Entry Text{ "Loading.Text", []() -> juce::Colour { return Palette::OffWhite; } };
+
+		// 中止ボタン。押すと途中で止まるだけで、壊すものではないので
+		// 赤にはしない。
+		inline Entry CancelBg{ "Loading.CancelBg", []() -> juce::Colour { return juce::Colours::grey.darker(0.3f); } };
+		inline Entry CancelText{ "Loading.CancelText", []() -> juce::Colour { return Palette::OffWhite; } };
+	};
+
+	namespace ParamBrowser {
+		// 下の画面を覆う地。ローディングと同じ考え方で半透明の黒。
+		inline Entry Backdrop{ "ParamBrowser.Backdrop", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.6f); } };
+
+		inline Entry PanelBg{ "ParamBrowser.PanelBg", []() -> juce::Colour { return Editor::defaultBg; } };
+		inline Entry Border{ "ParamBrowser.Border", []() -> juce::Colour { return Palette::BorderGray; } };
+		inline Entry Text{ "ParamBrowser.Text", []() -> juce::Colour { return defaultFgColor; } };
+		inline Entry HintText{ "ParamBrowser.HintText", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.45f); } };
+
+		// 読めない区分の行。一覧には出すが選べないので、薄く描く。
+		inline Entry DisabledText{ "ParamBrowser.DisabledText", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.25f); } };
+
+		// フォルダの行。ファイルと見分けが付くよう、色を変える。
+		inline Entry FolderText{ "ParamBrowser.FolderText", []() -> juce::Colour { return Palette::Retro::FcGold; } };
+
+		// 見出しの行。押すと並べ替えが変わるので、行とは地色を分ける。
+		inline Entry HeaderBg{ "ParamBrowser.HeaderBg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.45f); } };
+		inline Entry HeaderText{ "ParamBrowser.HeaderText", []() -> juce::Colour { return Palette::OffWhite; } };
+
+		// 一行おきの地色と、選ばれている行
+		inline Entry StripeBg{ "ParamBrowser.StripeBg", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.04f); } };
+		inline Entry SelectedBg{ "ParamBrowser.SelectedBg", []() -> juce::Colour { return Palette::MikuPink.get().withAlpha(0.25f); } };
+
+		// 打ち込む欄
+		inline Entry FieldBg{ "ParamBrowser.FieldBg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.5f); } };
+	};
+
+	namespace GenWave {
+		// 生成した波形の枠。リアルタイムのオシロと縦に並ぶので、
+		// 線の色を変えて見分けが付くようにする。
+		inline Entry Bg{ "GenWave.Bg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.5f); } };
+		inline Entry Border{ "GenWave.Border", []() -> juce::Colour { return Palette::BorderGray; } };
+		inline Entry Axis{ "GenWave.Axis", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.35f); } };
+		// 生成した音は L / M / R の 3 段で出す。チャンネルによっては
+		// 左右が違う音になるため。色はリアルタイムのオシロと揃えてある。
+		inline Entry LineL{ "GenWave.LineL", []() -> juce::Colour { return juce::Colours::blue.brighter(0.4f); } };
+		inline Entry LineM{ "GenWave.LineM", []() -> juce::Colour { return juce::Colours::green.brighter(0.5f); } };
+		inline Entry LineR{ "GenWave.LineR", []() -> juce::Colour { return juce::Colours::red.brighter(0.2f); } };
+
+		// 10 秒のうち今どこを見ているかを示す帯
+		inline Entry Progress{ "GenWave.Progress", []() -> juce::Colour { return Palette::MikuPink; } };
+
+		// まだ作っていないときの案内
+		inline Entry HintText{ "GenWave.HintText", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.5f); } };
+
+		// 生成・再生成。地は灰、文字はオフホワイト。
+		inline Entry GenerateBg{ "GenWave.GenerateBg", []() -> juce::Colour { return juce::Colours::grey.darker(0.3f); } };
+		inline Entry GenerateText{ "GenWave.GenerateText", []() -> juce::Colour { return Palette::OffWhite; } };
+
+		// 削除。作り直せるとはいえ捨てる操作なので赤。
+		inline Entry DeleteBg{ "GenWave.DeleteBg", []() -> juce::Colour { return juce::Colours::red.darker(0.2f); } };
+		inline Entry DeleteText{ "GenWave.DeleteText", []() -> juce::Colour { return Palette::OffWhite; } };
+
+		// 周期の切り替え。選ばれているものだけ差し色で塗る。
+		inline Entry CycleBg{ "GenWave.CycleBg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.4f); } };
+		inline Entry CycleBgOn{ "GenWave.CycleBgOn", []() -> juce::Colour { return Palette::MikuPink; } };
+		inline Entry CycleText{ "GenWave.CycleText", []() -> juce::Colour { return defaultFgColor; } };
+		inline Entry CycleTextOn{ "GenWave.CycleTextOn", []() -> juce::Colour { return Palette::MikuBlack; } };
+	};
+
 	namespace ScrollBar {
 		inline Entry Thumb{ "ScrollBar.Thumb", []() -> juce::Colour { return juce::Colours::darkgrey; } };
 	};

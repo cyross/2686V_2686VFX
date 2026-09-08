@@ -46,7 +46,7 @@ distinguishable at a glance.
 | Tab | What's there |
 | --- | --- |
 | **ADV** | curve editing — how a value changes over time (2686V / OPZX7S only) |
-| **PRESET** | saving and loading presets, favourites, history, filtering by format |
+| **PRESET** | saving and loading presets, favourites, history, filtering by format and channel |
 | **SETTINGS** | behaviour, folder locations, file format |
 | **COLORS** | changing the interface colours |
 | **ABOUT** | version and licence |
@@ -150,6 +150,47 @@ LEVEL also takes stepped input through **Steps**.
 
 Loaded audio files, wave memory and envelope movement are all drawn out, so you
 are never assembling something from numbers alone.
+
+### The generated waveform
+
+The current channel's settings are played and drawn as **three lanes,
+L / M / R**. It is built only when the **generate** button is pressed, never
+while you play.
+
+It runs to 10 seconds at most and stops 0.5 seconds after the sound dies away
+— ten seconds of a short sound is a moment of movement followed by a flat
+line.
+
+Pick 1, 2, 5 or 10 cycles. The view starts on a cycle boundary, so the
+waveform does not drift sideways.
+
+What is built is kept in a file and not rebuilt next time. **Clear previews**
+in SETTINGS removes them all.
+
+## The file picker
+
+Reading or writing a preset, a parameter file, a waveform or an audio sample
+all open the same list, covering most of the window.
+
+| Control | What it does |
+| --- | --- |
+| Keyword | While something is typed, the search reaches into the folders below |
+| Kind | Narrows to OPNA / OPM / wave (WT) and so on |
+| File format | Narrows to JSON / YAML / plain |
+| Heading | Each click cycles unsorted, ascending, descending |
+| Folder… | Jump straight to a distant folder |
+| New folder / Delete folder | Create or remove a folder here |
+| Generate / Regenerate | Build the waveform preview for that row |
+| Generate all / Delete all | Do the whole folder at once |
+
+Rows are chosen with a **double click** — folders included: one click selects,
+two enters. The first row goes up to the parent folder.
+
+Parameters, presets and wave files **cannot go above the plugin's own
+folder**, since there is nothing selectable outside it. Audio samples (wav)
+are not restricted.
+
+Clicking outside closes the list without choosing.
 
 ## Top right of the screen
 

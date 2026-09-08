@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "../../Core/Editor/EditorGuiValues.h"
+#include "../Components/GenWave/GenWaveRender.h"
 #include "./GuiSettings.h"
 
 #include "../../Core/Editor/PluginEditor.h"
@@ -774,6 +775,44 @@ void GuiSettings::setup()
     clearUndoHistoryBtn.onClick = [this] {
         ctx.audioProcessor.undoManager.clearUndoHistory();
         };
+
+    separator8.setupComponent(*this);
+
+    // --- Clear All Wave Previews ---
+    clearWavePreviewsBtn.setup({ .parent = *this, .title = SettingsGuiText::clearWavePreviews, .textColor = GuiColor::GenWave::DeleteText, .bgColor = GuiColor::GenWave::DeleteBg, .isReset = false });
+    clearWavePreviewsBtn.setWantsKeyboardFocus(true);
+    clearWavePreviewsBtn.setExplicitFocusOrder(++tabOrder);
+    clearWavePreviewsBtn.onClick = [this] { clearWavePreviews(); };
+}
+
+// 作り置きした波形プレビューをまとめて捨てる。
+//
+// 消すのは自前の置き場の中だけで、ほかのファイルには触らない。
+// 作り直せるものなので、消したあとは各画面の生成ボタンで作り直せる。
+void GuiSettings::clearWavePreviews()
+{
+    const auto dir = GenWaveRender::cacheDirectory(ctx.audioProcessor);
+    const auto files = dir.findChildFiles(juce::File::findFiles, false,
+        "*" + GenWaveRender::fileExtension);
+
+    auto* window = new juce::AlertWindow(
+        SettingsGuiText::clearWavePreviewsTitle,
+        dir.getFullPathName() + "\n\n"
+        + SettingsGuiText::clearWavePreviewsCount.replace("%d", juce::String(files.size())),
+        juce::MessageBoxIconType::NoIcon);
+
+    window->addButton(SettingsGuiText::clearWavePreviewsOk, 1);
+    window->addButton(SettingsGuiText::clearWavePreviewsCancel, 0,
+        juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+
+    GuiDialog::styleButtons(*window);
+
+    window->enterModalState(true, juce::ModalCallbackFunction::create(
+        [files](int result) {
+            if (result != 1) return;
+
+            for (const auto& file : files) file.deleteFile();
+        }), true);
 }
 
 void GuiSettings::layout(juce::Rectangle<int> content)
@@ -1125,6 +1164,12 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     // 26. Clear Undo/Redo History Button
     auto rowClearHistoryBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     layoutRow({ .rowRect = rowClearHistoryBtns, .component = &clearUndoHistoryBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight});
+
+    separator8.layoutComponent(sRect);
+
+    // 27. Clear All Wave Previews
+    auto rowClearPreviewBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    layoutRow({ .rowRect = rowClearPreviewBtns, .component = &clearWavePreviewsBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight});
 }
 
 void GuiSettings::setSettings()

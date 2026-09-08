@@ -13,6 +13,29 @@
 #include "./GuiPresetValues.h"
 #include "./GuiPresetText.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "../../Core/Editor/EditorGuiText.h"
+
+#include <algorithm>
+
+namespace
+{
+    // 一覧に出すチャンネルの名前。タブの見出しと同じにする。
+    //
+    // プリセットの中では WAVETABLE や ADPCM という綴りで持っているが、
+    // 画面では WT や PCM と出している。絞り込みの選択肢だけ別の綴りに
+    // なっていると、同じものだと気づけない。
+    juce::String channelLabel(OscMode mode)
+    {
+        switch (mode)
+        {
+        case OscMode::OPL: return EditorGuiText::Tab::opl;
+        case OscMode::OPL3: return EditorGuiText::Tab::opl3;
+        default: break;
+        }
+
+        return getModeName(mode);
+    }
+}
 
 // ============================================================================
 // お気に入りの印
@@ -175,6 +198,74 @@ void GuiPreset::setup()
         applyFilter();         // リストの絞り込みをリセット（全件表示）する
     };
 
+    // ------------------------------------------------------------------
+    // チャンネルでの絞り込み
+    // ------------------------------------------------------------------
+    // 選択肢に並ぶのは、このプラグインが積んでいる音源だけ。OscMode の
+    // 並びがそのままタブの並びなので、そこから起こす。
+    std::vector<SelectItem> channelItems;
+
+    for (int i = 0; i < (int)OscMode::Count; ++i)
+    {
+        channelItems.push_back({ .name = channelLabel((OscMode)i), .value = i + 1 });
+    }
+
+    channelSelector.setup({ .parent = *this, .id = "", .title = PresetKey::Channel::title,
+        .items = channelItems, .isReset = false });
+    channelSelector.setSelectedId(1, juce::dontSendNotification);
+    channelSelector.setWantsKeyboardFocus(true);
+    channelSelector.setExplicitFocusOrder(++tabOrder);
+
+    channelSelector.onChange = [this] { refreshChannelRow(); };
+
+    channelCheck.setup({ .parent = *this, .title = PresetKey::Channel::use, .isReset = false });
+    channelCheck.setWantsKeyboardFocus(true);
+    channelCheck.setExplicitFocusOrder(++tabOrder);
+
+    channelCheck.onClick = [this] {
+        const int index = channelSelector.getSelectedItemIndex();
+
+        if (index >= 0 && index < (int)channelFilter.size())
+        {
+            channelFilter[(size_t)index] = channelCheck.getToggleState();
+        }
+
+        refreshChannelRow();
+        applyFilter();
+        };
+
+    channelAllOnButton.setup({ .parent = *this, .title = PresetKey::Channel::allOn, .isReset = false });
+    channelAllOnButton.setWantsKeyboardFocus(true);
+    channelAllOnButton.setExplicitFocusOrder(++tabOrder);
+
+    channelAllOnButton.onClick = [this] {
+        channelFilter.fill(true);
+
+        refreshChannelRow();
+        applyFilter();
+        };
+
+    channelAllOffButton.setup({ .parent = *this, .title = PresetKey::Channel::allOff, .isReset = false });
+    channelAllOffButton.setWantsKeyboardFocus(true);
+    channelAllOffButton.setExplicitFocusOrder(++tabOrder);
+
+    channelAllOffButton.onClick = [this] {
+        channelFilter.fill(false);
+
+        refreshChannelRow();
+        applyFilter();
+        };
+
+    channelSummary.setup({ .parent = *this, .title = "",
+        .justification = juce::Justification::centredLeft });
+
+    // 音源を絞ったプラグインは、積んでいるものを最初から対象にしておく。
+    // 目当ての音へ早く着けるため。すべてを積んでいる 2686V と 2686VLight
+    // は、初めから絞っていると却って探しにくいので切っておく。
+    channelFilter.fill((int)OscMode::Count < PresetGuiValue::Channel::FullCount);
+
+    refreshChannelRow();
+
 	table.setup({ .parent = *this, .title = PresetKey::Table::title, .canMultipleSelection = false });
     table.setWantsKeyboardFocus(false);
     table.addColumn(PresetKey::Table::ColName::favourite, 1, PresetGuiValue::Table::ColWidth::Favourite);
@@ -305,55 +396,13 @@ void GuiPreset::setup()
     };
 
     table.onSortOrderChanged = [this](int newSortColumnId, bool isForwards) {
-        // 並び替え処理
-        std::sort(filteredItems.begin(), filteredItems.end(),
-            [this, newSortColumnId, isForwards](const PresetItem& a, const PresetItem& b) -> bool
-            {
-                int result = 0;
+        sortColumnId = newSortColumnId;
+        sortForwards = isForwards;
 
-                bool favouriteA = ctx.editor.presetLibrary.isFavourite(a.fullPath);
-                bool favouriteB = ctx.editor.presetLibrary.isFavourite(b.fullPath);
-                switch (newSortColumnId)
-                {
-                    // お気に入りが先へ来るように、入っているほうを小さく扱う
-                case 1: result = (int)favouriteB - (int)favouriteA; break;
-                case 2: result = a.genre.compareNatural(b.genre); break;
-                case 3: result = a.name.compareNatural(b.name); break;
-                case 4: result = a.author.compareNatural(b.author); break;
-                case 5: result = a.version.compareNatural(b.version); break;
-                case 6: result = a.modeName.compareNatural(b.modeName); break;
-                    // 日時の比較
-                case 7: result = (a.lastModificationTime < b.lastModificationTime) ? -1 : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
-                case 8: result = a.format.compareNatural(b.format); break;
-                default: break;
-                }
-
-                // isForwards (昇順) / !isForwards (降順) に応じて true/false を返す
-                if (isForwards) return result < 0;
-                else            return result > 0;
-            });
-
-        // 絞り込み元の元リスト(items)も同じようにソートしておくと、
-        // 検索枠をクリアした時にソート順が維持されるので親切です。
-        std::sort(items.begin(), items.end(),
-            [newSortColumnId, isForwards](const PresetItem& a, const PresetItem& b) -> bool
-            {
-                // ... (上と全く同じロジックをコピー) ...
-                int result = 0;
-                switch (newSortColumnId) {
-                case 1: result = a.fileName.compareNatural(b.fileName); break;
-                case 2: result = a.name.compareNatural(b.name); break;
-                case 3: result = a.author.compareNatural(b.author); break;
-                case 4: result = a.version.compareNatural(b.version); break;
-                case 5: result = a.modeName.compareNatural(b.modeName); break;
-                case 6: result = (a.lastModificationTime < b.lastModificationTime) ? -1 : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
-                }
-                if (isForwards) return result < 0; else return result > 0;
-            });
-
-        // テーブルを再描画
-        table.updateContent();
-    };
+        // ここで並べても、次の絞り込みで作り直されて消えてしまう。
+        // 並べ替えは絞り込みの最後で掛けるので、そちらへ任せる。
+        applyFilter();
+        };
 
     /********************
     *
@@ -591,6 +640,31 @@ void GuiPreset::layout(juce::Rectangle<int> content)
 
     listArea.removeFromTop(PresetGuiValue::Search::Padding::Botton); // 検索ボックスとリストの間の少しの余白
 
+    // 検索の行と一覧の間へ、チャンネルの絞り込みを 1 行入れる
+    auto channelArea = listArea.removeFromTop(PresetGuiValue::Channel::RowHeight)
+        .reduced(PresetGuiValue::Table::PaddingWidth, 0);
+
+    channelSelector.label.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::LabelWidth));
+    channelSelector.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::Width));
+
+    channelArea.removeFromLeft(PresetGuiValue::Channel::PaddingRight);
+
+    channelCheck.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::CheckWidth));
+
+    channelArea.removeFromLeft(PresetGuiValue::Channel::PaddingRight);
+
+    channelAllOnButton.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::ButtonWidth));
+
+    channelArea.removeFromLeft(PresetGuiValue::Channel::ButtonGap);
+
+    channelAllOffButton.setBounds(channelArea.removeFromLeft(PresetGuiValue::Channel::ButtonWidth));
+
+    channelArea.removeFromLeft(PresetGuiValue::Channel::SummaryPaddingLeft);
+
+    channelSummary.setBounds(channelArea);
+
+    listArea.removeFromTop(PresetGuiValue::Channel::PaddingBottom);
+
     table.setBounds(listArea.reduced(PresetGuiValue::Table::PaddingWidth, PresetGuiValue::Table::PaddingHeight));
 
     // Right: Info & Buttons
@@ -714,6 +788,69 @@ void GuiPreset::updatePresetPath()
     pathLabel.setText(currentFolder.getFullPathName(), juce::dontSendNotification);
 }
 
+// チェックと、いま対象にしているものの文字を今の値へ合わせる
+void GuiPreset::refreshChannelRow()
+{
+    const int index = channelSelector.getSelectedItemIndex();
+    const bool on = index >= 0 && index < (int)channelFilter.size()
+        && channelFilter[(size_t)index];
+
+    channelCheck.setToggleState(on, juce::dontSendNotification);
+
+    juce::StringArray names;
+
+    for (int i = 0; i < (int)OscMode::Count; ++i)
+    {
+        if (channelFilter[(size_t)i]) names.add(channelLabel((OscMode)i));
+    }
+
+    channelSummary.setText(PresetKey::Channel::summary
+        + (names.isEmpty() ? PresetKey::Channel::summaryNone : names.joinIntoString(" / ")),
+        juce::dontSendNotification);
+}
+
+// 覚えている並べ替えを、今の一覧へ掛け直す
+void GuiPreset::sortFiltered()
+{
+    if (sortColumnId <= 0) return;
+
+    const int columnId = sortColumnId;
+    const bool forwards = sortForwards;
+
+    // 同じ値のものが入れ替わらないよう、安定な並べ替えを使う。
+    // 押すたびに順番が変わると、目で追えなくなる。
+    std::stable_sort(filteredItems.begin(), filteredItems.end(),
+        [this, columnId, forwards](const PresetItem& a, const PresetItem& b) -> bool
+        {
+            int result = 0;
+
+            switch (columnId)
+            {
+                // お気に入りが先へ来るように、入っているほうを小さく扱う
+            case 1:
+            {
+                const int favouriteA = ctx.editor.presetLibrary.isFavourite(a.fullPath) ? 1 : 0;
+                const int favouriteB = ctx.editor.presetLibrary.isFavourite(b.fullPath) ? 1 : 0;
+
+                result = favouriteB - favouriteA;
+
+                break;
+            }
+            case 2: result = a.genre.compareNatural(b.genre); break;
+            case 3: result = a.name.compareNatural(b.name); break;
+            case 4: result = a.author.compareNatural(b.author); break;
+            case 5: result = a.version.compareNatural(b.version); break;
+            case 6: result = a.modeName.compareNatural(b.modeName); break;
+            case 7: result = a.lastModificationTime < b.lastModificationTime ? -1
+                : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
+            case 8: result = a.format.compareNatural(b.format); break;
+            default: break;
+            }
+
+            return forwards ? (result < 0) : (result > 0);
+        });
+}
+
 // 検索ボックスの文字列でリストを絞り込む関数
 void GuiPreset::applyFilter()
 {
@@ -734,10 +871,32 @@ void GuiPreset::applyFilter()
         formatFilter == Format::json ? PresetKey::Format::json :
         formatFilter == Format::yaml ? PresetKey::Format::yaml : juce::String();
 
+    // チャンネルの絞り込み。ひとつも入っていなければ絞らない。
+    // 「すべて入っている」と同じ結果になるので、どちらでも困らない。
+    const bool byChannel = std::any_of(channelFilter.begin(), channelFilter.end(),
+        [](bool on) { return on; });
+
     // ファイル名、プリセット名、ジャンル、作者名、コメント、チャンネルの
     // どれかに合っていたら出す。検索窓が空ならすべて出す。
     for (const auto& item : source) {
         if (wantFormat.isNotEmpty() && item.format != wantFormat) continue;
+
+        if (byChannel)
+        {
+            bool wanted = false;
+
+            for (int i = 0; i < (int)OscMode::Count; ++i)
+            {
+                if (!channelFilter[(size_t)i]) continue;
+                if (getModeName((OscMode)i) != item.modeName) continue;
+
+                wanted = true;
+
+                break;
+            }
+
+            if (!wanted) continue;
+        }
 
         if (query.isNotEmpty()
             && !item.name.toLowerCase().contains(query)
@@ -752,6 +911,9 @@ void GuiPreset::applyFilter()
 
         filteredItems.push_back(item);
     }
+
+    // 並びを作り直したので、覚えている並べ替えを掛け直す
+    sortFiltered();
 
     // テーブルに更新を通知
     table.updateContent();
