@@ -457,7 +457,10 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     if (textColor.isTransparent()) textColor = juce::Colours::white; // フォールバック
 
     juce::Rectangle<float> bounds = getLocalBounds().toFloat();
-    float startX = 0.0f;
+
+    // 左寄せのときは左端へ余白を残す。0 から描くと四角の枠線が
+    // はみ出して見切れる。
+    float startX = leftMarginW;
 
     // Configで中央寄せ(centred)が指定されている場合、ボックスと文字のセットを中央に配置する。
     //

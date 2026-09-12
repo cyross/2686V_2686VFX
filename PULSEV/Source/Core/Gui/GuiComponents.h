@@ -670,6 +670,11 @@ protected:
     float boxGapW = 2.0f;      // 四角と文字の隙間
     float boxGapH = 2.0f;      // 四角と文字の隙間
     float labelGapW = 6.0f;      // 四角と文字の隙間
+
+    // 左寄せで描くときに、左端へ残す余白。
+    //
+    // 0 から描くと枠線は太さの外側半分が部品からはみ出し、見切れる。
+    float leftMarginW = 4.0f;
 public:
     GuiToggleButton(const GuiContext& context) : GuiBaseComponent(context) {
     }
