@@ -330,6 +330,10 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     modPreview.setup(parent, GuiColor::WavePreview::PitchEnv);
     updateModPreview();
 
+    // ホールドと部分再生。保つ値の単位は 音程 (セント)。
+    waveHold.setupComponent(parent, code + CPK::WtMod::holdPrefix, tabOrder,
+        WaveHoldUnit::Cent, [this] { this->updateModPreview(); });
+
     fdsCat.setupSwPitchCategory({ .parent = parent, .title = juce::String("") + "FDS PITCH TABLE", .enableChangeDetailVisible = true });
 
     fdsEditor.setup(parent, code + CPK::WtMod::fdsTable);
@@ -366,6 +370,8 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     slotFileNameLabel.setVisible(visible);
     slotPreviews.setVisible(visible);
 
+    waveHold.setVisibles(visible);
+
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &enableButton });
@@ -392,11 +398,16 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
         slotPreviews.setBounds(rect.removeFromTop(slotPreviews.getNaturalHeight()));
         rect.removeFromTop(2);
 
+        // ホールドと部分再生
+        waveHold.layoutComponent(rect);
+
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
     // Enable が OFF のときは中身を触れなくする
     bool isMod = enableButton.getToggleState();
+
+    waveHold.setEnables(isMod);
     depthSlider.setEnabledWithLabel(isMod);
     speedSlider.setEnabledWithLabel(isMod);
     shapeSelector.setEnabledWithLabel(isMod);
@@ -612,7 +623,8 @@ void GuiComponentWtMod::updateModPreview()
 
     // 変調の向きは Shape によって上下どちらにも振れるので、両振りで描く
     modPreview.setPoints(
-        WavePreviewSource::wtMod(shapeSelector.getSelectedItemIndex(), wave, fdsEditor.currentTable()),
+        WavePreviewSource::wtMod(shapeSelector.getSelectedItemIndex(), wave, fdsEditor.currentTable(),
+            waveHold.getParams()),
         true);
 }
 
@@ -774,6 +786,8 @@ void GuiComponentWtMod::readParams(const Io::ParamReader& reader, const juce::St
     shapeSelector.setSelectedItemIndex(r.getInt("shape", shapeSelector.getSelectedItemIndex()), juce::sendNotification);
     waveSmoothBtn.setToggleState(r.getBool("waveSmooth", waveSmoothBtn.getToggleState()), juce::sendNotification);
 
+    waveHold.readParams(r);
+
     auto values = r.getIntArray("table");
 
     if (values.empty()) return;
@@ -796,6 +810,8 @@ void GuiComponentWtMod::writeParams(Io::ParamWriter& writer, const juce::String&
     w.set("speed", (float)speedSlider.getValue());
     w.set("shape", shapeSelector.getSelectedItemIndex());
     w.set("waveSmooth", waveSmoothBtn.getToggleState());
+
+    waveHold.writeParams(w);
 
     auto table = fdsEditor.currentTable();
 

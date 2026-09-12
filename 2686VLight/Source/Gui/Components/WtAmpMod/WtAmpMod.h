@@ -13,6 +13,7 @@
 #include "../WavePreview/WavePreviewGrid.h"
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Generator/Fds/GenFdsModTable.h"
+#include "../WaveHold/WaveHold.h"
 #include "../WtMod/WtMod.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../NudgeButtons/NudgeButtons.h"
@@ -59,6 +60,9 @@ class GuiComponentWtAmpMod : public GuiBase {
 
     // 選んでいる Shape の変調のかかり方を見せるプレビュー
     GuiWavePreview modPreview;
+
+    // ホールドと部分再生
+    GuiComponentWaveHold waveHold;
 
     // APVTS のプレフィックス。つまみの id を組み立てるのに使う。
     juce::String m_code;
@@ -138,6 +142,7 @@ public:
         slotFileNameLabel(context),
         slotPreviews(context),
         modPreview(context),
+        waveHold(context),
         fdsCat(context),
         fdsEditor(context),
         fdsPresetBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) }

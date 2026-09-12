@@ -25,6 +25,9 @@ struct WtParams
     // 再生速度。ノートによる速さの変化へ掛ける。
     float speed = 1.0f;
 
+    // ホールドと部分再生。止まったときは MIN / MAX の値を出し続ける。
+    WaveHoldParams hold;
+
     AmpAdsrParams adsr;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;

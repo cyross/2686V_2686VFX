@@ -4,6 +4,7 @@
 #include <array>
 #include <functional>
 
+#include "../../../Core/Synth/WaveHold.h"
 #include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 
 class Opzx7LfoCoreUnit {
@@ -18,6 +19,10 @@ class Opzx7LfoCoreUnit {
 	int m_waveIndex = 0;
 
 	bool m_isOneshot = false;
+
+	// ホールドと部分再生。ワンショット波形 (6 / 7) はもともと
+	// 1 周で止まるので、そこではホールドを数えない。
+	WaveHold m_hold;
 
 	double m_phase = 0.0f;
 
@@ -46,7 +51,8 @@ public:
 
 	void prepare(double sampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	void setParameters(int syncDelay, bool enable, float freq, int index, float ms, float md, float smoothRate);
+	void setParameters(int syncDelay, bool enable, float freq, int index, float ms, float md, float smoothRate,
+		const WaveHoldParams& hold = {});
 	void noteOn();
 	float getSample();
 	float getSamplePm();

@@ -37,6 +37,13 @@ static std::vector<SelectItem> lfoShapeItems = {
     {.name = "12: Sample & Hold 64",    .value = 13 },
 };
 
+namespace
+{
+    // 6 と 7 は 1 周したら 0 を出し続けるワンショット波形。
+    // Opzx7LfoCoreUnit::setParameters と同じ決まり。
+    bool isOpzx7LfoOneshot(int shapeIndex) { return shapeIndex == 6 || shapeIndex == 7; }
+}
+
 void GuiComponentLfoOpzx7::setupComponent(
     juce::Component& parent,
     const juce::String& code,
@@ -135,6 +142,13 @@ void GuiComponentLfoOpzx7::setupComponent(
     amd.setWantsKeyboardFocus(true);
     amd.setExplicitFocusOrder(++tabOrder);
 
+    // ホールドと部分再生。保つのは深さを掛ける前の形なので、単位は両振り。
+    pmWaveHold.setupComponent(parent, code + CPK::Opzx7Lfo::pmHoldPrefix, tabOrder,
+        WaveHoldUnit::Bipolar, [this] { this->updatePreviews(); });
+
+    amWaveHold.setupComponent(parent, code + CPK::Opzx7Lfo::amHoldPrefix, tabOrder,
+        WaveHoldUnit::Bipolar, [this] { this->updatePreviews(); });
+
     pmPreview.setup(parent, GuiColor::WavePreview::Lfo);
     amPreview.setup(parent, GuiColor::WavePreview::Lfo);
 
@@ -149,16 +163,23 @@ void GuiComponentLfoOpzx7::setupComponent(
 
 // 選んだ Shape を実際の LFO で走らせ、折れ線にして渡す。
 // 値が変わったときだけ通るので、常時の負荷は無い。
+// 波形を選び直したら、ホールドの開け閉てもそろえる。
+// ワンショット波形 (6 / 7) はもともと 1 周で止まるので閉じる。
 void GuiComponentLfoOpzx7::updatePreviews()
 {
     // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
     if (GuiRefresh::defer(this, [this] { updatePreviews(); })) return;
 
+    pmWaveHold.setHoldAvailable(!isOpzx7LfoOneshot(pgShape.getSelectedItemIndex()));
+    amWaveHold.setHoldAvailable(!isOpzx7LfoOneshot(egShape.getSelectedItemIndex()));
+
     // PM は -1.0〜1.0 の両振り
-    pmPreview.setPoints(WavePreviewSource::opzx7LfoPm(pgShape.getSelectedItemIndex()), true);
+    pmPreview.setPoints(WavePreviewSource::opzx7LfoPm(pgShape.getSelectedItemIndex(),
+        pmWaveHold.getParams()), true);
 
     // AM は 0.0〜1.0 の片側。スムースの効きも見えるよう実際の値を渡す。
-    amPreview.setPoints(WavePreviewSource::opzx7LfoAm(egShape.getSelectedItemIndex(), (float)amSmRt.getValue()), false);
+    amPreview.setPoints(WavePreviewSource::opzx7LfoAm(egShape.getSelectedItemIndex(), (float)amSmRt.getValue(),
+        amWaveHold.getParams()), false);
 }
 
 void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
@@ -189,6 +210,8 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
     amPreview.setVisible(visible);
     ams.setVisibleWithLabel(visible);
     amd.setVisibleWithLabel(visible);
+    pmWaveHold.setVisibles(visible);
+    amWaveHold.setVisibles(visible);
 
     if (visible)
     {
@@ -205,6 +228,9 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
 
+        // ホールドと部分再生 (PM)
+        pmWaveHold.layoutComponent(rect);
+
 		pmAmSeparator.layoutComponent(rect);
 
         layoutMain({ .mainRect = rect, .component = &amLabel, .rowHeight = 12 });
@@ -220,6 +246,9 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
+
+        // ホールドと部分再生 (AM)
+        amWaveHold.layoutComponent(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -253,6 +282,8 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
     amPreview.setVisible(visible);
     ams.setVisibleWithLabel(visible);
     amd.setVisibleWithLabel(visible);
+    pmWaveHold.setVisibles(visible);
+    amWaveHold.setVisibles(visible);
 
     if (visible)
     {
@@ -269,6 +300,9 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
 
+        // ホールドと部分再生 (PM)
+        pmWaveHold.layoutComponentRow(rect);
+
         pmAmSeparator.layoutComponent(rect);
 
         layoutRow({ .rowRect = rect, .component = &amLabel, .rowHeight = 12 });
@@ -284,6 +318,9 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
 
         layoutRow({ .rowRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
+
+        // ホールドと部分再生 (AM)
+        amWaveHold.layoutComponentRow(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -311,6 +348,8 @@ void GuiComponentLfoOpzx7::setEnabled(bool enabled) {
     amSmRt.setEnabled(enabled);
     ams.setEnabled(enabled);
     amd.setEnabled(enabled);
+    pmWaveHold.setEnables(enabled);
+    amWaveHold.setEnables(enabled);
 }
 
 void GuiComponentLfoOpzx7::copyParams(CopyLfoOpzx7& copyObj) {
@@ -484,6 +523,9 @@ void GuiComponentLfoOpzx7::readParams(const Io::ParamReader& reader, const juce:
     amSmRt.setValue(r.getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
     ams.setValue(r.getFloat("ams", (float)ams.getValue()), juce::sendNotification);
     amd.setValue(r.getFloat("amd", (float)amd.getValue()), juce::sendNotification);
+
+    pmWaveHold.readParams(r.child("pmHold"));
+    amWaveHold.readParams(r.child("amHold"));
 }
 
 juce::String GuiComponentLfoOpzx7::getExportedParams() {
@@ -523,4 +565,10 @@ void GuiComponentLfoOpzx7::writeParams(Io::ParamWriter& writer, const juce::Stri
     w.set("amSmRt", (float)amSmRt.getValue());
     w.set("ams", (float)ams.getValue());
     w.set("amd", (float)amd.getValue());
+
+    auto pmHoldW = w.child("pmHold");
+    auto amHoldW = w.child("amHold");
+
+    pmWaveHold.writeParams(pmHoldW);
+    amWaveHold.writeParams(amHoldW);
 }

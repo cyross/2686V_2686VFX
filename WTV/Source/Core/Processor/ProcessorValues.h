@@ -1718,6 +1718,125 @@ namespace CPV
 		}
 	}
 
+	// ホールドと部分再生。7 か所で同じつまみが並ぶので、値の範囲も
+	// ここへ集めてある。保つ値だけは当て先で単位が変わるため、
+	// 倍率 (Level) とセント (Cent) の 2 通りを用意してある。
+	namespace WaveHold
+	{
+		namespace Hold
+		{
+			namespace Enable
+			{
+				inline constexpr bool initial = false;
+			}
+
+			// 保ちに入るまでに回す回数
+			namespace Count
+			{
+				inline constexpr int min = 1;
+				inline constexpr int max = 3000;
+				inline constexpr int initial = 8;
+			}
+
+			// 止まる側。0 = MIN / 1 = MAX
+			namespace Target
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 1;
+				inline constexpr int initial = 1;
+			}
+
+			// 音量へ掛けるものは倍率
+			namespace Level
+			{
+				namespace Min
+				{
+					inline constexpr float min = 0.0f;
+					inline constexpr float max = 1.0f;
+					inline constexpr float initial = 0.0f;
+				}
+
+				namespace Max
+				{
+					inline constexpr float min = 0.0f;
+					inline constexpr float max = 1.0f;
+					inline constexpr float initial = 1.0f;
+				}
+			}
+
+			// 深さを掛ける前の形をそのまま保つものは両振り
+			namespace Bipolar
+			{
+				namespace Min
+				{
+					inline constexpr float min = -1.0f;
+					inline constexpr float max = 1.0f;
+					inline constexpr float initial = -1.0f;
+				}
+
+				namespace Max
+				{
+					inline constexpr float min = -1.0f;
+					inline constexpr float max = 1.0f;
+					inline constexpr float initial = 1.0f;
+				}
+			}
+
+			// 音程へ効くものはセント。ほかのピッチ系と範囲を揃える。
+			namespace Cent
+			{
+				namespace Min
+				{
+					inline constexpr int min = -4800;
+					inline constexpr int max = 4800;
+					inline constexpr int initial = -1200;
+				}
+
+				namespace Max
+				{
+					inline constexpr int min = -4800;
+					inline constexpr int max = 4800;
+					inline constexpr int initial = 1200;
+				}
+			}
+		}
+
+		// 部分再生。1 周を 0.0〜1.0 として見る。
+		namespace Keep
+		{
+			namespace Enable
+			{
+				inline constexpr bool initial = false;
+			}
+
+			namespace Start
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 1.0f;
+				inline constexpr float initial = 0.0f;
+			}
+
+			// Start より手前へは行かない
+			namespace End
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 1.0f;
+				inline constexpr float initial = 1.0f;
+			}
+
+			// 区間の外で端の値を保つかどうか
+			namespace KeepStart
+			{
+				inline constexpr bool initial = false;
+			}
+
+			namespace KeepEnd
+			{
+				inline constexpr bool initial = false;
+			}
+		}
+	}
+
 	namespace WtMod
 	{
 		namespace Enable
@@ -1784,6 +1903,7 @@ namespace CPV
 		{
 			inline constexpr bool initial = true;
 		}
+
 	}
 
 	// WT AMP MOD。変調波形の種類と速さはピッチ版と同じで、
@@ -1850,6 +1970,7 @@ namespace CPV
 			inline constexpr float max = 1.0f;
 			inline constexpr float initial = 1.0f;
 		}
+
 	}
 
 	namespace SsgDuty

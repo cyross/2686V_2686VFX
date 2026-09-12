@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "../../Core/Synth/CommonParams.h"
+#include "../../Core/Synth/WaveHold.h"
 #include "../Fds/GenFdsModTable.h"
 
 // ============================================================================
@@ -36,6 +37,20 @@ class WtModulator {
     std::array<float, 32> m_modFdsSteps = { 0.0f };
 
     double m_modPhase = 0.0;
+
+    // --- ホールドと部分再生 ---
+    //
+    // 中身は Core/Synth/WaveHold.h。数えるのは位相が 1 周した回数で、
+    // reset() は音を出し始めるときに呼ばれるので、保ちは 1 音ごとに解ける。
+    WaveHold m_hold;
+
+    // 保ちに入ったあと返す比。セントから起こして持っておく。
+    float m_holdRatio = 1.0f;
+
+    // セントを周波数の比へ直す
+    static float centsToRatio(float cents) {
+        return std::pow(2.0f, cents / 1200.0f);
+    }
 public:
     void setParameters(const WtModParams& params) {
         m_modEnable = params.enable;
@@ -43,6 +58,11 @@ public:
         m_modSpeed = params.speed;
         m_modShape = params.shape;
         m_modWave = params.wave;
+
+        m_hold.setParameters(params.hold);
+
+        // 保っている最中に止める側や値を変えられても、すぐ追いつくようにする
+        m_holdRatio = centsToRatio(m_hold.holdValue());
 
         if (m_modFdsTable != params.fdsTable) {
             m_modFdsTable = params.fdsTable;
@@ -52,16 +72,27 @@ public:
 
     void setModWheel(float wheel) { m_modWheel = wheel; }
 
-    void reset() { m_modPhase = 0.0; }
+    void reset() {
+        m_modPhase = 0.0;
+        m_hold.reset();
+    }
 
     // 1 サンプルぶん進めて、搬送波の周波数に掛ける比を返す。
     // newPhaseDelta は搬送波の位相増分 (変調速度を搬送波との比で扱うため)。
     float process(float newPhaseDelta) {
+        // 保ちに入っていれば、そのまま同じ値を返し続ける
+        if (m_hold.isHolding()) return m_holdRatio;
+
         float totalModDepth = m_modDepth + (m_modWheel * 0.1f);
 
         float modRatio = 1.0f;
         if (m_modEnable || m_modWheel > 0.0f) // Apply if enable OR wheel is up
         {
+            // 部分再生。波形を引く位相だけを動かし、進み方は変えない。
+            double phase = m_modPhase;
+
+            const bool muted = m_hold.windowPhase(phase);
+
             if (m_modShape == (int)WtModShape::WsSweepUp
                 || m_modShape == (int)WtModShape::WsSweepDown)
             {
@@ -71,7 +102,7 @@ public:
                 // 足していくとピッチ変化は加速し、ラップした瞬間に反対の端へ飛ぶ。
                 // Depth 1.0 で 2オクターブぶん振れるようスケールを合わせている。
                 float span = 3.0f * totalModDepth;
-                float u = (float)m_modPhase;
+                float u = (float)phase;
 
                 modRatio = (m_modShape == (int)WtModShape::WsSweepUp)
                     ? 1.0f / (1.0f - u * (span / (1.0f + span)))
@@ -83,7 +114,7 @@ public:
                 // 実機は「もう 1 本のチャンネルの波形メモリ(32 サンプル)」の値を、
                 // 相手チャンネルの周波数レジスタ(=分周器)へ加算する。
                 // 分周器は周期に比例するため、FDS と違って比は逆数側に効く。
-                int index = (int)((float)m_modPhase * 32.0f) & 31;
+                int index = (int)((float)phase * 32.0f) & 31;
 
                 // 分周器が 0 以下や極端な値にならないよう頭打ちにする
                 float divider = std::clamp(1.0f + m_modWave[index] * totalModDepth, 0.25f, 4.0f);
@@ -99,23 +130,32 @@ public:
                 float modLfoVal;
 
                 if (m_modShape == (int)WtModShape::FdsUser) {
-                    modLfoVal = FdsMod::valueFromSteps(m_modFdsSteps, (float)m_modPhase);
+                    modLfoVal = FdsMod::valueFromSteps(m_modFdsSteps, (float)phase);
                 }
                 else if (m_modShape >= 1) {
-                    modLfoVal = FdsMod::value(m_modShape - 1, (float)m_modPhase);
+                    modLfoVal = FdsMod::value(m_modShape - 1, (float)phase);
                 }
                 else {
-                    modLfoVal = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi);
+                    modLfoVal = std::sin(phase * 2.0 * juce::MathConstants<float>::pi);
                 }
 
                 // 実機も temp = -64 で頭打ちなので、周波数比は負にしない
                 modRatio = std::max(0.0f, 1.0f + modLfoVal * totalModDepth);
             }
 
+            // 区間の外で保たない側は、変調を掛けない
+            if (muted) modRatio = 1.0f;
+
             // Mod Speed は搬送波に対する比率。実機でも変調周波数は搬送波と
             // 噛み合う値に設定して倍音を作るのが通例なので、比率のまま扱う。
             m_modPhase += (newPhaseDelta * m_modSpeed);
-            while (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
+
+            while (m_modPhase >= 1.0f) {
+                m_modPhase -= 1.0f;
+
+                // 決めた回数まで回したら、そこから先は動かさない
+                if (m_hold.countCycle()) return m_holdRatio;
+            }
         }
 
         return modRatio;

@@ -70,6 +70,9 @@ private:
     // 再生速度。ノートによる速さの変化へ掛ける。
     float m_speed = 1.0f;
 
+    // ホールドと部分再生。数えるのは位相が 1 周した回数。
+    WaveHold m_hold;
+
     // Wave Data
     std::vector<float> m_sourceWave; // Internal High-Res (Length 64)
     int m_tableSizeIndex = 0;

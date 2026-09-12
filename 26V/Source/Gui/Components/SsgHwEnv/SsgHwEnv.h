@@ -14,6 +14,7 @@
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/WaveHold/WaveHold.h"
 #include "../../../Gui/Components/WavePreview/WavePreview.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../../Gui/Components/SsgSwButtons/SsgSwButtons.h"
@@ -35,6 +36,9 @@ class GuiComponentSsgHwEnv : public GuiBase {
 
     // 選んだ Shape がどんな形かを見せる
     GuiWavePreview preview;
+
+    // ホールドと部分再生。区分のいちばん下へ置く。
+    GuiComponentWaveHold waveHold;
 
     std::unique_ptr<juce::FileChooser> fileChooser;
 public:
@@ -72,7 +76,8 @@ public:
         periodSlider(context),
         minSlider(context),
         maxSlider(context),
-        preview(context)
+        preview(context),
+        waveHold(context)
     {
     }
 

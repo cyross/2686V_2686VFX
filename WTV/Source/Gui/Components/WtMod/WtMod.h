@@ -13,6 +13,7 @@
 #include "../WavePreview/WavePreviewGrid.h"
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Generator/Fds/GenFdsModTable.h"
+#include "../WaveHold/WaveHold.h"
 
 // ==========================================================
 // WT MODULATION
@@ -84,6 +85,9 @@ class GuiComponentWtMod : public GuiBase {
 
     // 選んでいる Shape の変調波形を見せるプレビュー
     GuiWavePreview modPreview;
+
+    // ホールドと部分再生
+    GuiComponentWaveHold waveHold;
 
     // どのチャンネルの持ち分かを覚えておく。
     // 変調波形の実データはプロセッサが持っており、これが引き当ての鍵になる。
@@ -157,6 +161,7 @@ public:
         slotFileNameLabel(context),
         slotPreviews(context),
         modPreview(context),
+        waveHold(context),
         fdsCat(context),
         fdsEditor(context),
         fdsPresetBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) }

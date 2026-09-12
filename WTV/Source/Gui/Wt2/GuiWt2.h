@@ -23,6 +23,7 @@
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/WaveHold/WaveHold.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
@@ -92,6 +93,9 @@ class GuiWt2 : public GuiBase
     GuiCategoryLabel optionalCat;
     GuiSlider speedSlider;
     NormalSeparator optSpeedSeparator;
+
+    // ホールドと部分再生。SPEED の下へ置く。
+    GuiComponentWaveHold waveHold;
 
     GuiCategoryLabel formCat;
     GuiComponentWtMod modComponent;
@@ -194,6 +198,7 @@ public:
         optionalCat(context),
         speedSlider(context),
         optSpeedSeparator(context),
+        waveHold(context),
         formCat(context),
         modComponent(context),
         ampModComponent(context),

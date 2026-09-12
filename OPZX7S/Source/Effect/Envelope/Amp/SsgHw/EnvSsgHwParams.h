@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../../../../Core/Synth/WaveHold.h"
+
 // SSG HW ENV の波形スロット。
 // 0〜7 は実機 AY-3-8910 / YM2149 のエンベロープ形状 (shape 8〜15) に対応する。
 // 8 以降はこのプラグイン独自の追加波形で、すべて繰り返し形。
@@ -69,6 +71,16 @@ enum class SsgHwShape {
     Size
 };
 
+// 実機由来のスロット 0〜7 のうち、保持形 (1/3/5/7) だけが 1 周で止まる。
+// 繰り返し形 (0/2/4/6) とオリジナル波形 (8 以降) はすべて繰り返す。
+// Sample & Hold もレベルを引き直しながら回り続けるので、ここには入らない。
+//
+// すでに止まる形へ後付けのホールドを重ねても意味がないので、
+// 画面の側でホールドを閉じるのにも使う。
+inline bool isSsgHwShapeHolding(int shape) {
+    return (shape < (int)SsgHwShape::Square75) && ((shape % 2) != 0);
+}
+
 struct SsgHwEnvParams {
     // Hardware Envelope Enable Switch
     bool enable = false;
@@ -87,4 +99,7 @@ struct SsgHwEnvParams {
     // 波形の折り返しで生じる段差がブツブツ音の原因なので、
     // Period が大きいほど効果が分かりやすい。
     bool smooth = false;
+
+    // ホールドと部分再生
+    WaveHoldParams hold;
 };

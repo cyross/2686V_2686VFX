@@ -357,6 +357,10 @@ namespace CPK
 		static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
 		static inline const juce::String pmSyncDelay = "_LFO_PM_SYNC_DELAY";
 		static inline const juce::String amSyncDelay = "_LFO_AM_SYNC_DELAY";
+
+		// ホールドと部分再生。PM と AM で別に持つ。尻尾は CPK::WaveHold。
+		static inline const juce::String pmHoldPrefix = "_LFO_PM";
+		static inline const juce::String amHoldPrefix = "_LFO_AM";
 	};
 
 	namespace OplLfo {
@@ -408,6 +412,20 @@ namespace CPK
 		static inline const juce::String ams = "_N88AMS";
 	}
 
+	// ホールドと部分再生。どの区分へ付けても同じ尻尾になるよう、
+	// 頭に付く印 (holdPrefix) と組み合わせて使う。
+	namespace WaveHold {
+		static inline const juce::String holdEnable = "_HOLD_EN";
+		static inline const juce::String holdCount = "_HOLD_CNT";
+		static inline const juce::String holdTarget = "_HOLD_TGT";
+		static inline const juce::String holdMin = "_HOLD_MIN";
+		static inline const juce::String holdMax = "_HOLD_MAX";
+		static inline const juce::String keepEnable = "_KEEP_EN";
+		static inline const juce::String waveStart = "_WAVE_ST";
+		static inline const juce::String keepStart = "_KEEP_ST";
+		static inline const juce::String waveEnd = "_WAVE_ED";
+		static inline const juce::String keepEnd = "_KEEP_ED";
+	}
 	namespace WtMod {
 		static inline const juce::String enable = "_MOD_ENABLE";
 		static inline const juce::String depth = "_MOD_DEPTH";
@@ -418,6 +436,8 @@ namespace CPK
 		static inline const juce::String waveSlot = "_MOD_WAVE_SLOT";
 		static inline const juce::String fdsTable = "_MOD_FDS_";
 		static inline const juce::String waveSmooth = "_MOD_WAVE_SMOOTH";
+		// ホールドと部分再生。尻尾は CPK::WaveHold が持つ。
+		static inline const juce::String holdPrefix = "_MOD";
 	};
 
 	// WT PITCH MOD と同じ変調波形を音量へ当てるもの。
@@ -432,6 +452,8 @@ namespace CPK
 		static inline const juce::String waveSmooth = "_AMPMOD_WAVE_SMOOTH";
 		static inline const juce::String min = "_AMPMOD_MIN";
 		static inline const juce::String max = "_AMPMOD_MAX";
+		// ホールドと部分再生。尻尾は CPK::WaveHold が持つ。
+		static inline const juce::String holdPrefix = "_AMPMOD";
 
 		// 変調波形の置き場所を引く鍵に付ける尻尾。
 		// APVTS のパラメータ名ではなく、プロセッサが持つ表の鍵に使う。
@@ -463,6 +485,9 @@ namespace CPK
 		static inline const juce::String min = "_SSGHWENV_MIN";
 		static inline const juce::String max = "_SSGHWENV_MAX";
 		static inline const juce::String smooth = "_SSGHWENV_SMOOTH";
+
+		// ホールドと部分再生。尻尾は CPK::WaveHold が持つ。
+		static inline const juce::String holdPrefix = "_SSGHWENV";
 	};
 
 	// SSG HW ENV の形をピッチへ当てるもの。音量版とは別のパラメータとして
@@ -475,5 +500,8 @@ namespace CPK
 		static inline const juce::String min = "_SSGHWPENV_MIN";
 		static inline const juce::String max = "_SSGHWPENV_MAX";
 		static inline const juce::String smooth = "_SSGHWPENV_SMOOTH";
+
+		// ホールドと部分再生。尻尾は CPK::WaveHold が持つ。
+		static inline const juce::String holdPrefix = "_SSGHWPENV";
 	};
 };

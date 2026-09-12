@@ -6,6 +6,21 @@
 #include "../Const/ConstGlobal.h"
 #include "../Synth/WtModWave.h"
 
+// ホールドと部分再生。付ける先ごとに頭の印が違うだけなので、
+// APVTS を指す口もまとめて 1 つの入れ物にしてある。
+struct PrPtrsWaveHold {
+    std::atomic<float>* holdEnable = nullptr;
+    std::atomic<float>* holdCount = nullptr;
+    std::atomic<float>* holdTarget = nullptr;
+    std::atomic<float>* holdMin = nullptr;
+    std::atomic<float>* holdMax = nullptr;
+    std::atomic<float>* keepEnable = nullptr;
+    std::atomic<float>* waveStart = nullptr;
+    std::atomic<float>* keepStart = nullptr;
+    std::atomic<float>* waveEnd = nullptr;
+    std::atomic<float>* keepEnd = nullptr;
+};
+
 struct PrPtrsAlgFb {
     std::atomic<float>* alg = nullptr;
     std::atomic<float>* fb = nullptr;
@@ -342,6 +357,10 @@ struct PrPtrsOpzx7Lfo {
     std::atomic<float>* pms = nullptr;
     std::atomic<float>* amd = nullptr;
     std::atomic<float>* ams = nullptr;
+
+    // ホールドと部分再生。PM と AM で別に持つ。
+    PrPtrsWaveHold pmHold;
+    PrPtrsWaveHold amHold;
 };
 
 struct PrPtrsFix {
@@ -393,6 +412,8 @@ struct PrPtrsWtMod {
     std::atomic<float>* shape = nullptr;
     std::atomic<float>* waveSlot = nullptr;
     std::array<std::atomic<float>*, 32> fdsTable = { nullptr };
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
 
     // 変調波形の置き場所。プロセッサが持っているものを指す。
     // map の要素なので、一度引いたら差し替わらない。
@@ -408,6 +429,8 @@ struct PrPtrsWtAmpMod {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::array<std::atomic<float>*, 32> fdsTable = { nullptr };
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
 
     // 変調波形の置き場所。ピッチ版とは別の鍵で引く。
     const WtModWaveSlots* slots = nullptr;
@@ -435,6 +458,9 @@ struct PrPtrsSsgHwEnv {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::atomic<float>* smooth = nullptr;
+
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
 };
 
 struct PrPtrsSsgHwPEnv {
@@ -444,6 +470,9 @@ struct PrPtrsSsgHwPEnv {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::atomic<float>* smooth = nullptr;
+
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
 };
 
 struct PrPtrsPanpot {
@@ -455,6 +484,9 @@ struct PrPtrsWtBasic {
     std::atomic<float>* level = nullptr;
     std::atomic<float>* delay = nullptr;
     std::atomic<float>* speed = nullptr;
+
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
     std::atomic<float>* wave = nullptr;
     std::atomic<float>* sampleSize = nullptr;
     std::atomic<float>* step = nullptr;
@@ -465,6 +497,9 @@ struct PrPtrsWt2Basic {
     std::atomic<float>* level = nullptr;
     std::atomic<float>* delay = nullptr;
     std::atomic<float>* speed = nullptr;
+
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
     std::atomic<float>* wave = nullptr;
     std::atomic<float>* sampleSize = nullptr;
     std::atomic<float>* resolution = nullptr;
@@ -475,6 +510,9 @@ struct PrPtrsWtPlusBasic {
     std::atomic<float>* level = nullptr;
     std::atomic<float>* delay = nullptr;
     std::atomic<float>* speed = nullptr;
+
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
     std::atomic<float>* slot = nullptr;
     std::atomic<float>* steps = nullptr;
     std::atomic<float>* interpolate = nullptr;
@@ -550,6 +588,9 @@ struct PrPtrsSsgBasic {
     std::atomic<float>* level = nullptr;
     std::atomic<float>* delay = nullptr;
     std::atomic<float>* speed = nullptr;
+
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
     std::atomic<float>* waveform = nullptr;
 };
 

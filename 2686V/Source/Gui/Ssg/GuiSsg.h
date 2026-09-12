@@ -21,6 +21,7 @@
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/WaveHold/WaveHold.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
@@ -46,6 +47,9 @@ class GuiSsg : public GuiBase
     GuiCategoryLabel optionalCat;
     GuiSlider speedSlider;
     NormalSeparator optSpeedSeparator;
+
+    // ホールドと部分再生。SPEED の下へ置く。
+    GuiComponentWaveHold waveHold;
 
     GuiCategoryLabel formCat;
     GuiCategoryLabel pulseInvCat;
@@ -170,6 +174,7 @@ public:
         optionalCat(context),
         speedSlider(context),
         optSpeedSeparator(context),
+        waveHold(context),
         formCat(context),
         pulseInvCat(context),
         triPeakCat(context),

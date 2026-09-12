@@ -92,6 +92,9 @@ void GuiWtPlus::setup() {
     speedSlider.setWantsKeyboardFocus(true);
     speedSlider.setExplicitFocusOrder(++tabOrder);
 
+    // ホールドと部分再生。止まったときの値は音量の倍率。
+    waveHold.setupComponent(waveGroup.contentCanvas, code, tabOrder, WaveHoldUnit::Level);
+
     optSpeedSeparator.setupComponent(waveGroup.contentCanvas);
 
     slotsCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::slots, .detailVisible = true, .enableChangeDetailVisible = true });
@@ -328,11 +331,17 @@ void GuiWtPlus::layoutOptionalCat(juce::Rectangle<int>& rect) {
     bool visible = optionalCat.isDetailVisible();
 
     speedSlider.setVisibleWithLabel(visible);
+    waveHold.setVisibles(visible);
+    waveHold.setEnables(visible);
     optSpeedSeparator.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider });
+
+        // ホールドと部分再生
+        waveHold.layoutComponent(rect);
+
         optSpeedSeparator.layoutComponent(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
@@ -763,6 +772,7 @@ void GuiWtPlus::applyChParamFile(const juce::File& file) {
     // Level
     levelComponent.readParams(*reader, "level");
     speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
+    waveHold.readParams(*reader);
 
     // Wave
     slotSlider.setValue(reader->getFloat("slot", (float)slotSlider.getValue()), juce::sendNotification);
@@ -849,6 +859,7 @@ void GuiWtPlus::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
 	writer.set("speed", (float)speedSlider.getValue());
+	waveHold.writeParams(writer);
 
 	// Wave
 	writer.set("slot", (float)slotSlider.getValue());

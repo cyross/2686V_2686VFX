@@ -346,6 +346,10 @@ namespace CPN
 		static inline const juce::String amSmoothRatio = " LFO AM Smooth Ratio";
 		static inline const juce::String pmSyncDelay = " LFO PM Sync Delay";
 		static inline const juce::String amSyncDelay = " LFO AM Sync Delay";
+
+		// ホールドと部分再生。尻尾は CPN::WaveHold。
+		static inline const juce::String pmHoldPrefix = " LFO PM";
+		static inline const juce::String amHoldPrefix = " LFO AM";
 	};
 
 	namespace OplLfo {
@@ -397,6 +401,19 @@ namespace CPN
 		static inline const juce::String ams = " N88 AMS";
 	}
 
+	// ホールドと部分再生。holdPrefix と組み合わせて使う。
+	namespace WaveHold {
+		static inline const juce::String holdEnable = " Hold Enable";
+		static inline const juce::String holdCount = " Hold Count";
+		static inline const juce::String holdTarget = " Hold Target";
+		static inline const juce::String holdMin = " Hold Min";
+		static inline const juce::String holdMax = " Hold Max";
+		static inline const juce::String keepEnable = " Keep Enable";
+		static inline const juce::String waveStart = " Wave Start";
+		static inline const juce::String keepStart = " Keep Start";
+		static inline const juce::String waveEnd = " Wave End";
+		static inline const juce::String keepEnd = " Keep End";
+	}
 	namespace WtMod
 	{
 		static inline const juce::String enable = " Mod Enable";
@@ -406,6 +423,8 @@ namespace CPN
 		static inline const juce::String waveSlot = " Mod Wave Slot";
 		static inline const juce::String fdsTable = " Mod FDS Table ";
 		static inline const juce::String waveSmooth = " Mod Wave Smooth";
+		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
+		static inline const juce::String holdPrefix = " Mod";
 	}
 
 	namespace WtAmpMod
@@ -419,6 +438,8 @@ namespace CPN
 		static inline const juce::String waveSmooth = " Amp Mod Wave Smooth";
 		static inline const juce::String min = " Amp Mod Min";
 		static inline const juce::String max = " Amp Mod Max";
+		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
+		static inline const juce::String holdPrefix = " Amp Mod";
 	}
 
 	namespace SsgDuty
@@ -446,6 +467,9 @@ namespace CPN
 		static inline const juce::String min = " Hardware Env Min";
 		static inline const juce::String max = " Hardware Env Max";
 		static inline const juce::String smooth = " Hardware Env Smooth";
+
+		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
+		static inline const juce::String holdPrefix = " Hardware Env";
 	}
 
 	namespace SsgHwPEnv
@@ -456,5 +480,8 @@ namespace CPN
 		static inline const juce::String min = " Hardware Pitch Env Min";
 		static inline const juce::String max = " Hardware Pitch Env Max";
 		static inline const juce::String smooth = " Hardware Pitch Env Smooth";
+
+		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
+		static inline const juce::String holdPrefix = " Hardware Pitch Env";
 	}
 }

@@ -173,6 +173,10 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     modPreview.setup(parent, GuiColor::WavePreview::AmpEnv);
     updateModPreview();
 
+    // ホールドと部分再生。保つ値の単位は 音量 (倍率)。
+    waveHold.setupComponent(parent, code + CPK::WtAmpMod::holdPrefix, tabOrder,
+        WaveHoldUnit::Level, [this] { this->updateModPreview(); });
+
     fdsCat.setupSwAmpCategory({ .parent = parent, .title = juce::String("") + "FDS AMP TABLE", .enableChangeDetailVisible = true });
 
     // 積算後の階段波は音量側の色で描く
@@ -215,6 +219,8 @@ void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
     slotFileNameLabel.setVisible(visible);
     slotPreviews.setVisible(visible);
 
+    waveHold.setVisibles(visible);
+
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &enableButton });
@@ -246,11 +252,16 @@ void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
         slotPreviews.setBounds(rect.removeFromTop(slotPreviews.getNaturalHeight()));
         rect.removeFromTop(2);
 
+        // ホールドと部分再生
+        waveHold.layoutComponent(rect);
+
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
     // Enable が OFF のときは中身を触れなくする
     bool isMod = enableButton.getToggleState();
+
+    waveHold.setEnables(isMod);
     depthSlider.setEnabledWithLabel(isMod);
     speedSlider.setEnabledWithLabel(isMod);
     shapeSelector.setEnabledWithLabel(isMod);
@@ -465,7 +476,8 @@ void GuiComponentWtAmpMod::updateModPreview()
     // 返るのは音量の倍率なので、下端を 0 として片側で描く
     modPreview.setPoints(
         WavePreviewSource::wtAmpMod(shapeSelector.getSelectedItemIndex(), wave, fdsEditor.currentTable(),
-            (float)minSlider.getValue(), (float)maxSlider.getValue()),
+            (float)minSlider.getValue(), (float)maxSlider.getValue(),
+            waveHold.getParams()),
         false);
 }
 
@@ -563,6 +575,8 @@ void GuiComponentWtAmpMod::readParams(const Io::ParamReader& reader, const juce:
     maxSlider.setValue(r.getFloat("max", (float)maxSlider.getValue()), juce::sendNotification);
     waveSmoothBtn.setToggleState(r.getBool("waveSmooth", waveSmoothBtn.getToggleState()), juce::sendNotification);
 
+    waveHold.readParams(r);
+
     auto values = r.getIntArray("table");
 
     if (values.empty()) return;
@@ -587,6 +601,8 @@ void GuiComponentWtAmpMod::writeParams(Io::ParamWriter& writer, const juce::Stri
     w.set("min", (float)minSlider.getValue());
     w.set("max", (float)maxSlider.getValue());
     w.set("waveSmooth", waveSmoothBtn.getToggleState());
+
+    waveHold.writeParams(w);
 
     auto table = fdsEditor.currentTable();
 

@@ -24,7 +24,8 @@ void Opzx7LfoCoreUnit::updateTargetSampleRate(double newSampleRate) {
     updatePhaseDelta();
 }
 
-void Opzx7LfoCoreUnit::setParameters(int syncDelay, bool enable, float freq, int index, float ms, float md, float smoothRate)
+void Opzx7LfoCoreUnit::setParameters(int syncDelay, bool enable, float freq, int index, float ms, float md, float smoothRate,
+    const WaveHoldParams& hold)
 {
 	this->m_sdParam = syncDelay;
     this->m_sdIndex = std::clamp(this->m_sdParam, 0, 2);
@@ -42,12 +43,15 @@ void Opzx7LfoCoreUnit::setParameters(int syncDelay, bool enable, float freq, int
     this->depthCent = (this->ms * this->md) * 1200.0f;
 
     this->m_smoothRate = smoothRate;
+    this->m_hold.setParameters(hold);
 
     updatePhaseDelta();
 }
 
 void Opzx7LfoCoreUnit::noteOn()
 {
+    this->m_hold.reset();
+
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
     switch (this->m_sdIndex) {
     case 0:
@@ -105,31 +109,40 @@ float Opzx7LfoCoreUnit::getSample()
                 this->m_currentNoiseSample = m_noiseGen.generate();
                 this->m_phase -= 1.0;
                 this->m_sdCycleCount++;
+
+                // 決めた回数まで回したら、そこから先は保つ。
+                // もともと 1 周で止まるワンショット波形へは掛けない。
+                if (!this->m_isOneshot) this->m_hold.countCycle();
             }
+
+            // 部分再生。波形を引く位相だけを動かし、進み方は変えない。
+            double phase = this->m_phase;
+
+            const bool muted = this->m_hold.windowPhase(phase);
 
             // (※ノイズが必要な場合は共有のノイズジェネレータか乱数を使用)
             switch (this->m_waveIndex) {
             case 0:
-                val = (float)std::sin(this->m_phase * 2.0 * juce::MathConstants<double>::pi);
+                val = (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
 
                 break;
             case 1:
-                if (this->m_phase < 0.5) val = (float)(this->m_phase * 2.0);
-                else                     val = (float)(-1.0 + (this->m_phase - 0.5) * 2.0);
+                if (phase < 0.5) val = (float)(phase * 2.0);
+                else                     val = (float)(-1.0 + (phase - 0.5) * 2.0);
 
                 break;
             case 2:
-                val = (float)(1.0 - this->m_phase * 2.0);
+                val = (float)(1.0 - phase * 2.0);
 
                 break;
             case 3:
-                val = (this->m_phase < 0.5) ? 1.0f : -1.0f;
+                val = (phase < 0.5) ? 1.0f : -1.0f;
 
                 break;
             case 4:
-                if (this->m_phase < 0.25)       val = (float)(this->m_phase * 4.0);
-                else if (this->m_phase < 0.75)  val = (float)(1.0 - (this->m_phase - 0.25) * 4.0);
-                else                            val = (float)(-1.0 + (this->m_phase - 0.75) * 4.0);
+                if (phase < 0.25)       val = (float)(phase * 4.0);
+                else if (phase < 0.75)  val = (float)(1.0 - (phase - 0.25) * 4.0);
+                else                            val = (float)(-1.0 + (phase - 0.75) * 4.0);
 
                 break;
             case 5:
@@ -137,12 +150,12 @@ float Opzx7LfoCoreUnit::getSample()
 
                 break;
             case 6:
-                val = (float)(this->m_phase < 0.5 ? 1.0 - this->m_phase * 2.0 : 0.0);
+                val = (float)(phase < 0.5 ? 1.0 - phase * 2.0 : 0.0);
 
                 break;
             case 7:
-                if (this->m_phase < 0.25)      val = (float)(this->m_phase * 4.0);
-                else if (this->m_phase < 0.5)  val = (float)(1.0 - (this->m_phase - 0.25) * 4.0);
+                if (phase < 0.25)      val = (float)(phase * 4.0);
+                else if (phase < 0.5)  val = (float)(1.0 - (phase - 0.25) * 4.0);
                 else                           val = 0.0;
 
                 break;
@@ -185,6 +198,12 @@ float Opzx7LfoCoreUnit::getSample()
 
             // ワンショット波形 (6, 7) のミュート処理
             if (this->m_isOneshot && this->m_sdCycleCount > 0) val = 0.0f;
+
+            // 区間の外で端の値を保たない側は 0 にする
+            if (muted) val = 0.0f;
+
+            // 決めた回数まで回したら、キーが離れるまで保つ
+            if (this->m_hold.isHolding()) val = this->m_hold.holdValue();
         }
     }
 

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "./WaveHold.h"
+
 struct SsgEgParams {
     int eg = 0;         // SE: 0~15 (SSG-EG)
     // FM SSG-EG Frequency (SSG-EGの周期速度)
@@ -77,6 +79,8 @@ struct WtModParams {
 
     // FdsUser モード用の変調テーブル (32 エントリ / 実機と同じ 3bit のレジスタ値)
     std::array<int, 32> fdsTable = { 0 };
+    // ホールドと部分再生
+    WaveHoldParams hold;
 };
 
 // WT AMP MOD のパラメータ。
@@ -99,6 +103,8 @@ struct WtAmpModParams {
 
     // FdsUser モード用の変調テーブル (32 エントリ / 実機と同じ 3bit のレジスタ値)
     std::array<int, 32> fdsTable = { 0 };
+    // ホールドと部分再生
+    WaveHoldParams hold;
 };
 // MODULATION の変調方式
 enum class WtModShape {

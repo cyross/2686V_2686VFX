@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "../../Core/Synth/CommonParams.h"
+#include "../../Core/Synth/WaveHold.h"
 #include "../Fds/GenFdsModTable.h"
 
 // ============================================================================
@@ -46,6 +47,16 @@ class WtAmpModulator {
     std::array<float, 32> m_modFdsSteps = { 0.0f };
 
     double m_modPhase = 0.0;
+
+    // --- ホールドと部分再生 ---
+    //
+    // 中身は Core/Synth/WaveHold.h。数えるのは位相が 1 周した回数で、
+    // reset() は音を出し始めるときに呼ばれるので、保ちは 1 音ごとに解ける。
+    WaveHold m_hold;
+
+    float holdGain() const {
+        return std::clamp(m_hold.holdValue(), 0.0f, 1.0f);
+    }
 public:
     void setParameters(const WtAmpModParams& params) {
         m_modEnable = params.enable;
@@ -56,6 +67,8 @@ public:
         m_max = params.max;
         m_modWave = params.wave;
 
+        m_hold.setParameters(params.hold);
+
         if (m_modFdsTable != params.fdsTable) {
             m_modFdsTable = params.fdsTable;
             m_modFdsSteps = FdsMod::makeSteps(m_modFdsTable);
@@ -64,7 +77,10 @@ public:
 
     void setModWheel(float wheel) { m_modWheel = wheel; }
 
-    void reset() { m_modPhase = 0.0; }
+    void reset() {
+        m_modPhase = 0.0;
+        m_hold.reset();
+    }
 
     // 1 サンプルぶん進めて、出力へ掛ける倍率を返す。
     // newPhaseDelta は搬送波の位相増分 (変調速度を搬送波との比で扱うため)。
@@ -75,32 +91,43 @@ public:
 
         if (!m_modEnable && m_modWheel <= 0.0f) return hi;
 
+        // 保ちに入っていれば、そのまま同じ値を返し続ける
+        if (m_hold.isHolding()) return holdGain();
+
         float totalModDepth = m_modDepth + (m_modWheel * 0.1f);
+
+        // 部分再生。波形を引く位相だけを動かし、進み方は変えない。
+        double phase = m_modPhase;
+
+        const bool muted = m_hold.windowPhase(phase);
 
         // 変調波。どの系統も -1.0〜1.0 の両振りとして扱う。
         float modLfoVal;
 
         if (m_modShape == (int)WtModShape::WsSweepUp) {
             // 1 周のあいだ下端から上端へ一続きに上がる
-            modLfoVal = (float)(m_modPhase * 2.0 - 1.0);
+            modLfoVal = (float)(phase * 2.0 - 1.0);
         }
         else if (m_modShape == (int)WtModShape::WsSweepDown) {
-            modLfoVal = (float)(1.0 - m_modPhase * 2.0);
+            modLfoVal = (float)(1.0 - phase * 2.0);
         }
         else if (m_modShape == (int)WtModShape::HuC6280Wave) {
-            int index = (int)((float)m_modPhase * 32.0f) & 31;
+            int index = (int)((float)phase * 32.0f) & 31;
 
             modLfoVal = m_modWave[index];
         }
         else if (m_modShape == (int)WtModShape::FdsUser) {
-            modLfoVal = FdsMod::valueFromSteps(m_modFdsSteps, (float)m_modPhase);
+            modLfoVal = FdsMod::valueFromSteps(m_modFdsSteps, (float)phase);
         }
         else if (m_modShape >= 1) {
-            modLfoVal = FdsMod::value(m_modShape - 1, (float)m_modPhase);
+            modLfoVal = FdsMod::value(m_modShape - 1, (float)phase);
         }
         else {
-            modLfoVal = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi);
+            modLfoVal = std::sin(phase * 2.0 * juce::MathConstants<float>::pi);
         }
+
+        // 区間の外で保たない側は、両振りの真ん中 (変調なし) にする
+        if (muted) modLfoVal = 0.0f;
 
         // 上端から、波の低い側へ向かって下げる。
         // modLfoVal = +1 で MAX、-1 で MIN (Depth が 1.0 のとき)。
@@ -110,7 +137,13 @@ public:
 
         // Mod Speed は搬送波に対する比率。ピッチ側と同じ扱いにしてある。
         m_modPhase += (newPhaseDelta * m_modSpeed);
-        while (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
+
+        while (m_modPhase >= 1.0f) {
+            m_modPhase -= 1.0f;
+
+            // 決めた回数まで回したら、そこから先は動かさない
+            if (m_hold.countCycle()) return holdGain();
+        }
 
         return gain;
     }

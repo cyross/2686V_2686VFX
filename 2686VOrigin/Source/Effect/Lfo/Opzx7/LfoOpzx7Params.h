@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../../../Core/Processor/ProcessorValues.h"
+#include "../../../Core/Synth/WaveHold.h"
 
 struct LfoOpzx7Params {
 	bool pmEnable = CPV::Opzx7Lfo::Pm::initial;
@@ -10,6 +11,9 @@ struct LfoOpzx7Params {
 	float pms = CPV::Opzx7Lfo::Pms::initial;
 	float pmd = CPV::Opzx7Lfo::Pmd::initial;
 
+	// ホールドと部分再生。保つのは深さを掛ける前の形 (-1.0〜1.0)。
+	WaveHoldParams pmHold;
+
 	bool amEnable = CPV::Opzx7Lfo::Am::initial;
 	float amFreq = CPV::Opzx7Lfo::AmFreq::initial;
 	int egIndex = CPV::Opzx7Lfo::AmShape::initial;
@@ -17,4 +21,6 @@ struct LfoOpzx7Params {
 	float amSmoothRate = CPV::Opzx7Lfo::AmSmRt::initial;
 	float ams = CPV::Opzx7Lfo::Ams::initial;
 	float amd = CPV::Opzx7Lfo::Amd::initial;
+
+	WaveHoldParams amHold;
 };

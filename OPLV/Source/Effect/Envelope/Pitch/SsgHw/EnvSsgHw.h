@@ -23,6 +23,8 @@ public:
 	int m_envShape = 0;
 	float m_envFreq = 1.0f;
 	double m_hwEnvPhase = 0.0;
+	WaveHold m_hold;
+
 	float m_min = 0.0f;
 	float m_max = 1200.0f;
 

@@ -14,6 +14,7 @@
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/WaveHold/WaveHold.h"
 #include "../WavePreview/WavePreview.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 
@@ -35,6 +36,9 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiWavePreview pmPreview;
     GuiSlider pms;
     GuiSlider pmd;
+
+    // ホールドと部分再生。PM と AM で別に持つ。
+    GuiComponentWaveHold pmWaveHold;
     NormalSeparator pmAmSeparator;
     GuiLabel amLabel;
     GuiToggleButton amEnable;
@@ -47,6 +51,7 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiWavePreview amPreview;
     GuiSlider ams;
     GuiSlider amd;
+    GuiComponentWaveHold amWaveHold;
     std::unique_ptr<juce::FileChooser> fileChooser;
 public:
 
@@ -87,6 +92,7 @@ public:
         pmPreview(context),
         pms(context),
         pmd(context),
+        pmWaveHold(context),
         pmAmSeparator(context),
         amLabel(context),
         amEnable(context),
@@ -98,7 +104,8 @@ public:
         amSmRt(context),
         amPreview(context),
         ams(context),
-        amd(context)
+        amd(context),
+        amWaveHold(context)
     {
     }
 

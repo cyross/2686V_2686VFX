@@ -55,6 +55,9 @@ private:
     // 再生速度。ノートによる速さの変化へ掛ける。
     float m_speed = 1.0f;
 
+    // ホールドと部分再生。数えるのは位相が 1 周した回数。
+    WaveHold m_hold;
+
     float m_tone = 1.0f;
     float m_noiseLevel = 0.0f;
     float m_mix = 0.5;

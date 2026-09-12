@@ -21,6 +21,7 @@
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/WaveHold/WaveHold.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
@@ -80,6 +81,9 @@ class GuiWtPlus : public GuiBase {
     GuiCategoryLabel optionalCat;
     GuiSlider speedSlider;
     NormalSeparator optSpeedSeparator;
+
+    // ホールドと部分再生。SPEED の下へ置く。
+    GuiComponentWaveHold waveHold;
 
     GuiCategoryLabel slotsCat;
     // スロットごとに読み込みボタンを並べる代わりに、対象を選ぶつまみと
@@ -157,6 +161,7 @@ public:
         optionalCat(context),
         speedSlider(context),
         optSpeedSeparator(context),
+        waveHold(context),
         slotsCat(context),
         slotTarget(context),
         slotWtBtn(context),

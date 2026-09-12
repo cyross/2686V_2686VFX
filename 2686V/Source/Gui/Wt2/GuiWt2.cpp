@@ -335,6 +335,9 @@ void GuiWt2::setup()
     speedSlider.setWantsKeyboardFocus(true);
     speedSlider.setExplicitFocusOrder(++tabOrder);
 
+    // ホールドと部分再生。止まったときの値は音量の倍率。
+    waveHold.setupComponent(mainGroup.contentCanvas, code, tabOrder, WaveHoldUnit::Level);
+
     optSpeedSeparator.setupComponent(mainGroup.contentCanvas);
 
     formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
@@ -809,11 +812,17 @@ void GuiWt2::layoutOptionalCat(juce::Rectangle<int>& rect) {
     bool visible = optionalCat.isDetailVisible();
 
     speedSlider.setVisibleWithLabel(visible);
+    waveHold.setVisibles(visible);
+    waveHold.setEnables(visible);
     optSpeedSeparator.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider });
+
+        // ホールドと部分再生
+        waveHold.layoutComponent(rect);
+
         optSpeedSeparator.layoutComponent(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
@@ -1169,6 +1178,7 @@ void GuiWt2::applyChParamFile(const juce::File& file) {
     // Level
     levelComponent.readParams(*reader, "level");
     speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
+    waveHold.readParams(*reader);
 
     // Form
     sizeSelector.setSelectedItemIndex(reader->getInt("size", sizeSelector.getSelectedItemIndex()), juce::sendNotification);
@@ -1305,6 +1315,7 @@ void GuiWt2::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
 	writer.set("speed", (float)speedSlider.getValue());
+	waveHold.writeParams(writer);
 
 	// Form
 	writer.set("size", sizeSelector.getSelectedItemIndex());

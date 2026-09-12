@@ -49,6 +49,40 @@ namespace PrHelper {
 		return ptr->load(std::memory_order_relaxed);
 	}
 
+	// ------------------------------------------------------------------
+	// ホールドと部分再生
+	// ------------------------------------------------------------------
+	// 付ける先ごとに違うのは頭に付く印だけ。鍵の尻尾は CPK::WaveHold、
+	// 名前の尻尾は CPN::WaveHold が持っている。
+	static inline void setupWaveHoldPtrs(juce::AudioProcessorValueTreeState& apvts,
+		const juce::String& prefix, PrPtrsWaveHold& ptPtrs)
+	{
+		ptPtrs.holdEnable = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdEnable);
+		ptPtrs.holdCount = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdCount);
+		ptPtrs.holdTarget = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdTarget);
+		ptPtrs.holdMin = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdMin);
+		ptPtrs.holdMax = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdMax);
+		ptPtrs.keepEnable = apvts.getRawParameterValue(prefix + CPK::WaveHold::keepEnable);
+		ptPtrs.waveStart = apvts.getRawParameterValue(prefix + CPK::WaveHold::waveStart);
+		ptPtrs.keepStart = apvts.getRawParameterValue(prefix + CPK::WaveHold::keepStart);
+		ptPtrs.waveEnd = apvts.getRawParameterValue(prefix + CPK::WaveHold::waveEnd);
+		ptPtrs.keepEnd = apvts.getRawParameterValue(prefix + CPK::WaveHold::keepEnd);
+	}
+
+	static inline void applyWaveHold(const PrPtrsWaveHold& ptPtrs, WaveHoldParams& params)
+	{
+		params.holdEnable = getBool(ptPtrs.holdEnable);
+		params.holdCount = getInt(ptPtrs.holdCount);
+		params.holdTarget = getInt(ptPtrs.holdTarget);
+		params.holdMin = getFloat(ptPtrs.holdMin);
+		params.holdMax = getFloat(ptPtrs.holdMax);
+		params.keepEnable = getBool(ptPtrs.keepEnable);
+		params.waveStart = getFloat(ptPtrs.waveStart);
+		params.keepStart = getBool(ptPtrs.keepStart);
+		params.waveEnd = getFloat(ptPtrs.waveEnd);
+		params.keepEnd = getBool(ptPtrs.keepEnd);
+	}
+
 	static inline bool floatToBool(float value){
 		return value > CPV::boolThread;
 	}
@@ -425,6 +459,8 @@ namespace PrHelper {
 		ptPtrs.pms = apvts.getRawParameterValue(prefix + CPK::Opzx7Lfo::pms);
 		ptPtrs.amd = apvts.getRawParameterValue(prefix + CPK::Opzx7Lfo::amd);
 		ptPtrs.ams = apvts.getRawParameterValue(prefix + CPK::Opzx7Lfo::ams);
+		setupWaveHoldPtrs(apvts, prefix + CPK::Opzx7Lfo::pmHoldPrefix, ptPtrs.pmHold);
+		setupWaveHoldPtrs(apvts, prefix + CPK::Opzx7Lfo::amHoldPrefix, ptPtrs.amHold);
 	}
 
 	static inline void setupN88LfoPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsN88Lfo& ptPtrs){
@@ -487,6 +523,7 @@ namespace PrHelper {
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::WtMod::speed);
 		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::WtMod::shape);
 		ptPtrs.waveSlot = apvts.getRawParameterValue(prefix + CPK::WtMod::waveSlot);
+		setupWaveHoldPtrs(apvts, prefix + CPK::WtMod::holdPrefix, ptPtrs.hold);
 
 		// このチャンネルの持ち分を押さえる。無ければここで作られる。
 		ptPtrs.slots = &store[prefix];
@@ -505,6 +542,7 @@ namespace PrHelper {
 		ptPtrs.waveSlot = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::waveSlot);
 		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::min);
 		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::WtAmpMod::max);
+		setupWaveHoldPtrs(apvts, prefix + CPK::WtAmpMod::holdPrefix, ptPtrs.hold);
 
 		ptPtrs.slots = &store[prefix + CPK::WtAmpMod::waveStoreSuffix];
 
@@ -535,6 +573,7 @@ namespace PrHelper {
 		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::min);
 		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::max);
 		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::smooth);
+		setupWaveHoldPtrs(apvts, prefix + CPK::SsgHwEnv::holdPrefix, ptPtrs.hold);
 	}
 
 	static inline void setupSsgHwPEnv(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgHwPEnv& ptPtrs) {
@@ -544,6 +583,7 @@ namespace PrHelper {
 		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::min);
 		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::max);
 		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::smooth);
+		setupWaveHoldPtrs(apvts, prefix + CPK::SsgHwPEnv::holdPrefix, ptPtrs.hold);
 	}
 
 	static inline void setupPanpot(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPanpot& ptPtrs){
@@ -619,6 +659,7 @@ namespace PrHelper {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
 		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
+		setupWaveHoldPtrs(apvts, prefix, ptPtrs.hold);
 		ptPtrs.waveform = apvts.getRawParameterValue(prefix + CPK::ssgWaveform);
 	}
 
@@ -626,6 +667,7 @@ namespace PrHelper {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
 		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
+		setupWaveHoldPtrs(apvts, prefix, ptPtrs.hold);
 		ptPtrs.wave = apvts.getRawParameterValue(prefix + CPK::Wt::wave);
 		ptPtrs.sampleSize = apvts.getRawParameterValue(prefix + CPK::Wt::sampleSize);
 		ptPtrs.step = apvts.getRawParameterValue(prefix + CPK::Wt::steps);
@@ -636,6 +678,7 @@ namespace PrHelper {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
 		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
+		setupWaveHoldPtrs(apvts, prefix, ptPtrs.hold);
 		ptPtrs.slot = apvts.getRawParameterValue(prefix + CPK::Wt::slot);
 		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::Wt::steps);
 		ptPtrs.interpolate = apvts.getRawParameterValue(prefix + CPK::Wt::interpolate);
@@ -645,6 +688,7 @@ namespace PrHelper {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
 		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
+		setupWaveHoldPtrs(apvts, prefix, ptPtrs.hold);
 		ptPtrs.wave = apvts.getRawParameterValue(prefix + CPK::Wt2::wave);
 		ptPtrs.sampleSize = apvts.getRawParameterValue(prefix + CPK::Wt2::sampleSize);
 		ptPtrs.resolution = apvts.getRawParameterValue(prefix + CPK::Wt2::resolution);
@@ -1033,6 +1077,8 @@ namespace PrHelper {
 		params.amd = getFloat(ptPtrs.amd);
 		params.pmSyncDelay = getFloat(ptPtrs.pmSyncDelay);
 		params.amSyncDelay = getFloat(ptPtrs.amSyncDelay);
+		applyWaveHold(ptPtrs.pmHold, params.pmHold);
+		applyWaveHold(ptPtrs.amHold, params.amHold);
 	}
 
 	static inline void applyN88Lfo(PrPtrsN88Lfo& ptPtrs, LfoN88Params& params){
@@ -1107,6 +1153,8 @@ namespace PrHelper {
 			params.wave = (*ptPtrs.slots)[slot].data;
 		}
 
+		applyWaveHold(ptPtrs.hold, params.hold);
+
 		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i) {
 			params.fdsTable[i] = getInt(ptPtrs.fdsTable[i]);
 		}
@@ -1125,6 +1173,8 @@ namespace PrHelper {
 
 			params.wave = (*ptPtrs.slots)[slot].data;
 		}
+
+		applyWaveHold(ptPtrs.hold, params.hold);
 
 		for (int i = 0; i < CPV::WtAmpMod::FdsTable::size; ++i) {
 			params.fdsTable[i] = getInt(ptPtrs.fdsTable[i]);
@@ -1153,6 +1203,7 @@ namespace PrHelper {
 		params.min = getFloat(ptPtrs.min);
 		params.max = getFloat(ptPtrs.max);
 		params.smooth = getBool(ptPtrs.smooth);
+		applyWaveHold(ptPtrs.hold, params.hold);
 	}
 
 	static inline void applySsgHwPEnv(PrPtrsSsgHwPEnv& ptPtrs, SsgHwPEnvParams& params) {
@@ -1162,6 +1213,7 @@ namespace PrHelper {
 		params.min = getInt(ptPtrs.min);
 		params.max = getInt(ptPtrs.max);
 		params.smooth = getBool(ptPtrs.smooth);
+		applyWaveHold(ptPtrs.hold, params.hold);
 	}
 
 	static inline void applyPanpot(PrPtrsPanpot& ptPtrs, PanpotParams& params){
@@ -1189,6 +1241,7 @@ namespace PrHelper {
 		params.level = PrHelper::getFloat(ptPtrs.level);
 		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.speed = PrHelper::getFloat(ptPtrs.speed);
+		applyWaveHold(ptPtrs.hold, params.hold);
 		params.waveform = PrHelper::getInt(ptPtrs.waveform);
 	}
 
@@ -1217,6 +1270,118 @@ namespace PrHelper {
 
 	static inline void addBool(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name, bool ini) {
 		layout.add(std::make_unique<juce::AudioParameterBool>(code, name, ini));
+	}
+
+	// ホールドと部分再生のパラメータを登録する。
+	// 保つ値の範囲は unit で変わる (倍率 / セント / 両振り)。
+	static inline void addWaveHoldParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout,
+		const juce::String& prefix, const juce::String& prefixName, WaveHoldUnit unit)
+	{
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::WaveHold::holdEnable,
+			prefixName + CPN::WaveHold::holdEnable,
+			CPV::WaveHold::Hold::Enable::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::WaveHold::holdCount,
+			prefixName + CPN::WaveHold::holdCount,
+			CPV::WaveHold::Hold::Count::min, CPV::WaveHold::Hold::Count::max,
+			CPV::WaveHold::Hold::Count::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::WaveHold::holdTarget,
+			prefixName + CPN::WaveHold::holdTarget,
+			CPV::WaveHold::Hold::Target::min, CPV::WaveHold::Hold::Target::max,
+			CPV::WaveHold::Hold::Target::initial
+		);
+
+		if (unit == WaveHoldUnit::Cent)
+		{
+			PrHelper::addInt(
+				layout,
+				prefix + CPK::WaveHold::holdMin,
+				prefixName + CPN::WaveHold::holdMin,
+				CPV::WaveHold::Hold::Cent::Min::min, CPV::WaveHold::Hold::Cent::Min::max,
+				CPV::WaveHold::Hold::Cent::Min::initial
+			);
+			PrHelper::addInt(
+				layout,
+				prefix + CPK::WaveHold::holdMax,
+				prefixName + CPN::WaveHold::holdMax,
+				CPV::WaveHold::Hold::Cent::Max::min, CPV::WaveHold::Hold::Cent::Max::max,
+				CPV::WaveHold::Hold::Cent::Max::initial
+			);
+		}
+		else if (unit == WaveHoldUnit::Bipolar)
+		{
+			PrHelper::addFloat(
+				layout,
+				prefix + CPK::WaveHold::holdMin,
+				prefixName + CPN::WaveHold::holdMin,
+				CPV::WaveHold::Hold::Bipolar::Min::min, CPV::WaveHold::Hold::Bipolar::Min::max,
+				CPV::WaveHold::Hold::Bipolar::Min::initial
+			);
+			PrHelper::addFloat(
+				layout,
+				prefix + CPK::WaveHold::holdMax,
+				prefixName + CPN::WaveHold::holdMax,
+				CPV::WaveHold::Hold::Bipolar::Max::min, CPV::WaveHold::Hold::Bipolar::Max::max,
+				CPV::WaveHold::Hold::Bipolar::Max::initial
+			);
+		}
+		else
+		{
+			PrHelper::addFloat(
+				layout,
+				prefix + CPK::WaveHold::holdMin,
+				prefixName + CPN::WaveHold::holdMin,
+				CPV::WaveHold::Hold::Level::Min::min, CPV::WaveHold::Hold::Level::Min::max,
+				CPV::WaveHold::Hold::Level::Min::initial
+			);
+			PrHelper::addFloat(
+				layout,
+				prefix + CPK::WaveHold::holdMax,
+				prefixName + CPN::WaveHold::holdMax,
+				CPV::WaveHold::Hold::Level::Max::min, CPV::WaveHold::Hold::Level::Max::max,
+				CPV::WaveHold::Hold::Level::Max::initial
+			);
+		}
+
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::WaveHold::keepEnable,
+			prefixName + CPN::WaveHold::keepEnable,
+			CPV::WaveHold::Keep::Enable::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WaveHold::waveStart,
+			prefixName + CPN::WaveHold::waveStart,
+			CPV::WaveHold::Keep::Start::min, CPV::WaveHold::Keep::Start::max,
+			CPV::WaveHold::Keep::Start::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::WaveHold::keepStart,
+			prefixName + CPN::WaveHold::keepStart,
+			CPV::WaveHold::Keep::KeepStart::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::WaveHold::waveEnd,
+			prefixName + CPN::WaveHold::waveEnd,
+			CPV::WaveHold::Keep::End::min, CPV::WaveHold::Keep::End::max,
+			CPV::WaveHold::Keep::End::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::WaveHold::keepEnd,
+			prefixName + CPN::WaveHold::keepEnd,
+			CPV::WaveHold::Keep::KeepEnd::initial
+		);
 	}
 
 	static inline void addPitchEnvRate(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
@@ -2462,6 +2627,11 @@ namespace PrHelper {
 			prefixName + CPN::Opzx7Lfo::amd, 
 			CPV::Opzx7Lfo::Amd::min, CPV::Opzx7Lfo::Amd::max, CPV::Opzx7Lfo::Amd::initial
 		);
+		// ホールドと部分再生。保つのは深さを掛ける前の形なので両振り。
+		PrHelper::addWaveHoldParameters(layout, prefix + CPK::Opzx7Lfo::pmHoldPrefix,
+			prefixName + CPN::Opzx7Lfo::pmHoldPrefix, WaveHoldUnit::Bipolar);
+		PrHelper::addWaveHoldParameters(layout, prefix + CPK::Opzx7Lfo::amHoldPrefix,
+			prefixName + CPN::Opzx7Lfo::amHoldPrefix, WaveHoldUnit::Bipolar);
 	}
 
 	static inline void addN88LfoParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -3362,6 +3532,9 @@ namespace PrHelper {
 			prefixName + CPN::WtMod::waveSlot,
 			CPV::WtMod::WaveSlot::min, CPV::WtMod::WaveSlot::max, CPV::WtMod::WaveSlot::initial
 		);
+		// ホールドと部分再生
+		PrHelper::addWaveHoldParameters(layout, prefix + CPK::WtMod::holdPrefix,
+			prefixName + CPN::WtMod::holdPrefix, WaveHoldUnit::Cent);
 		// FdsUser モード用の変調テーブル (32 エントリ / 3bit のレジスタ値)。
 		// 初期値は FdsMod の対称三角テーブル。
 		for (int i = 0; i < CPV::WtMod::FdsTable::size; ++i)
@@ -3426,6 +3599,9 @@ namespace PrHelper {
 			prefixName + CPN::WtAmpMod::waveSlot,
 			CPV::WtAmpMod::WaveSlot::min, CPV::WtAmpMod::WaveSlot::max, CPV::WtAmpMod::WaveSlot::initial
 		);
+		// ホールドと部分再生
+		PrHelper::addWaveHoldParameters(layout, prefix + CPK::WtAmpMod::holdPrefix,
+			prefixName + CPN::WtAmpMod::holdPrefix, WaveHoldUnit::Level);
 		for (int i = 0; i < CPV::WtAmpMod::FdsTable::size; ++i)
 		{
 			PrHelper::addInt(
@@ -3438,6 +3614,8 @@ namespace PrHelper {
 	}
 
 	static inline void addWtBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		// ホールドと部分再生。止まったときの値は音量の倍率。
+		PrHelper::addWaveHoldParameters(layout, prefix, prefixName, WaveHoldUnit::Level);
 		// Waveform WtPreset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
 		PrHelper::addInt(
 			layout, 
@@ -3469,6 +3647,8 @@ namespace PrHelper {
 	}
 
 	static inline void addWtPlusBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		// ホールドと部分再生。止まったときの値は音量の倍率。
+		PrHelper::addWaveHoldParameters(layout, prefix, prefixName, WaveHoldUnit::Level);
 		// 鳴らす波形メモリのスロット。オートメーションで振れる。
 		PrHelper::addInt(
 			layout, 
@@ -3493,6 +3673,8 @@ namespace PrHelper {
 	}
 
 	static inline void addWt2BasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		// ホールドと部分再生。止まったときの値は音量の倍率。
+		PrHelper::addWaveHoldParameters(layout, prefix, prefixName, WaveHoldUnit::Level);
 		// Waveform WtPreset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
 		PrHelper::addInt(
 			layout, 
@@ -3592,6 +3774,8 @@ namespace PrHelper {
 	}
 
 	static inline void addSsgBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		// ホールドと部分再生。止まったときの値は音量の倍率。
+		PrHelper::addWaveHoldParameters(layout, prefix, prefixName, WaveHoldUnit::Level);
 		PrHelper::addInt(
 			layout, 
 			prefix + CPK::ssgWaveform, 
@@ -3702,6 +3886,9 @@ namespace PrHelper {
 			prefixName + CPN::SsgHwEnv::smooth,
 			CPV::SsgHwEnv::Smooth::initial
 		);
+		// ホールドと部分再生
+		PrHelper::addWaveHoldParameters(layout, prefix + CPK::SsgHwEnv::holdPrefix,
+			prefixName + CPN::SsgHwEnv::holdPrefix, WaveHoldUnit::Level);
 	}
 
 	// SSG HW PITCH ENV。波形スロットは音量版と同じで、Min / Max だけが
@@ -3746,5 +3933,8 @@ namespace PrHelper {
 			prefixName + CPN::SsgHwPEnv::smooth,
 			CPV::SsgHwPEnv::Smooth::initial
 		);
+		// ホールドと部分再生
+		PrHelper::addWaveHoldParameters(layout, prefix + CPK::SsgHwPEnv::holdPrefix,
+			prefixName + CPN::SsgHwPEnv::holdPrefix, WaveHoldUnit::Cent);
 	}
 }

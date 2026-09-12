@@ -24,6 +24,7 @@ void SsgHwPEnv::setParameters(const SsgHwPEnvParams& params) {
     this->m_min = (float)params.min;
     this->m_max = (float)params.max;
     this->m_smooth = params.smooth;
+    this->m_hold.setParameters(params.hold);
 }
 
 void SsgHwPEnv::updateSampleRate(double newSampleRate) {
@@ -58,6 +59,7 @@ void SsgHwPEnv::noteOn() {
     this->m_prevCycle = 0;
     this->m_cycleCount = 0;
     this->m_holdLevel = nextRandom();
+    this->m_hold.reset();
 }
 
 void SsgHwPEnv::noteOff() {
@@ -111,6 +113,10 @@ float SsgHwPEnv::processCent() {
             if (holdCycles > 0 && (m_cycleCount % (uint32_t)holdCycles) == 0) {
                 m_holdLevel = nextRandom();
             }
+
+            // 決めた回数まで回したら、そこから先は保つ。
+            // もともと 1 周で止まる形へは掛けない。
+            if (!isSsgHwShapeHolding(m_envShape)) m_hold.countCycle();
         }
     }
 
@@ -125,6 +131,13 @@ float SsgHwPEnv::processCent() {
         double p = m_hwEnvPhase;
         bool isEvenCycle = ((int)p % 2 == 0);
         float phaseNorm = (float)(p - std::floor(p));
+
+        // 部分再生。波形を引く位相だけを動かし、進み方は変えない。
+        double windowed = phaseNorm;
+
+        const bool muted = m_hold.windowPhase(windowed);
+
+        phaseNorm = (float)windowed;
 
         // 1周期を走り終えたか (保持形の判定)
         bool held = (p >= 1.0);
@@ -247,6 +260,12 @@ float SsgHwPEnv::processCent() {
         }
 
         hwEnvCent = std::clamp(hwEnvCent, lo, hi);
+
+        // 区間の外で端の値を保たない側は、出力を 0 にする
+        if (muted) hwEnvCent = 0.0f;
+
+        // 決めた回数まで回したら、キーが離れるまで保つ
+        if (m_hold.isHolding()) hwEnvCent = m_hold.holdValue();
     }
     else {
         // 切っているときは音程を動かさない
