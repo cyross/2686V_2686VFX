@@ -7,6 +7,7 @@
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 #include "../Gui/GuiSimpleView.h"
+#include "../Gui/GuiToggleAlign.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
@@ -511,6 +512,7 @@ public:
         for (int i = 0; i < SimpleView::Size; ++i) {
             visit(juce::String(SimpleView::items()[(size_t)i].key), simpleViewShow[(size_t)i]);
         }
+        visit(SettingsKey::toggleAlign, toggleAlign);
         visit(SettingsKey::useHeadroom, useHeadroom);
         visit(SettingsKey::headroomGain, headroomGain);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
@@ -528,6 +530,10 @@ public:
     bool isSimpleShown(SimpleView::Cat cat) const {
         return SimpleView::isShown(simpleView, simpleViewShow, cat);
     }
+    // トグルボタンの並べ方。ToggleAlign::Centred で従来どおり行の真ん中、
+    // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。
+    int toggleAlign = ToggleAlign::Centred;
+
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）

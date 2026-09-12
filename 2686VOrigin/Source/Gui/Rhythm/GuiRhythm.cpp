@@ -130,6 +130,8 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
         };
 
     formSeparator.setupComponent(mainGroup.contentCanvas);
+    optOneShotSepTop.setupComponent(mainGroup.contentCanvas);
+    optOneShotSepBottom.setupComponent(mainGroup.contentCanvas);
 
     optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::optional, .enableChangeDetailVisible = true });
 
@@ -458,6 +460,8 @@ void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
     bool visible = optionalCat.isDetailVisible();
 
     oneShotButton.setVisible(visible);
+    optOneShotSepTop.setVisible(visible);
+    optOneShotSepBottom.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
     loopPointEnableButton.setVisible(visible);
@@ -468,7 +472,12 @@ void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
         layoutRow({ .rowRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+        optOneShotSepTop.layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .component = &oneShotButton });
+
+        optOneShotSepBottom.layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .component = &loopPointEnableButton });
         layoutRow({ .rowRect = rect, .label = &loopPointStartSlider.label, .component = &loopPointStartSlider, });
         layoutRow({ .rowRect = rect, .label = &loopPointEndSlider.label, .component = &loopPointEndSlider, });

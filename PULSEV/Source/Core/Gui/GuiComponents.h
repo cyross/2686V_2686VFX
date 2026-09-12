@@ -269,6 +269,24 @@ public:
     // 地色。透明なら塗らない。
     juce::Colour bgColor = juce::Colours::transparentBlack;
 
+    // 文字を幅いっぱいへ均等に割り付けて描くか。
+    //
+    // 行の左に置くラベルだけ入れる。縦に並んだときに頭と尻が揃うので、
+    // 名前の長さがまちまちでも読み取りやすい。
+    bool evenSpacing = false;
+
+    void setEvenSpacing(bool on) { evenSpacing = on; repaint(); }
+
+    // 割り付けたときに、文字と文字の間へ入れる隙間の上限。
+    //
+    // 上限を置かないと、設定タブのようにラベルの区画が広いところで
+    // 1 文字ずつばらばらに離れてしまう。上限に当たったぶんは、
+    // まとめて真ん中へ寄せる。
+    static inline constexpr float evenSpacingMaxGap = 6.0f;
+
+    // 割り付けるときに左右へ残す余白
+    static inline constexpr int evenSpacingInset = 3;
+
     struct Config {
         juce::Component& parent;
         juce::String title;
@@ -283,6 +301,9 @@ public:
 
     void setup(const Config& c);
     void paint(juce::Graphics& g) override;
+
+    // 均等寄せで描く。paint から、evenSpacing のときだけ呼ぶ。
+    void paintEvenly(juce::Graphics& g);
 
     // =======================================================
     // マウスボタンが押された瞬間のイベントを検知

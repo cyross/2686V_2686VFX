@@ -51,6 +51,11 @@ class GuiAdpcm : public GuiBase
 
     NormalSeparator formSeparator;
 
+    // OPTIONAL の「Loop」を挟む区切り線。
+    // 上は再生位置・倍率、下はループの話で、まとまりが変わる。
+    NormalSeparator optLoopSepTop;
+    NormalSeparator optLoopSepBottom;
+
     GuiCategoryLabel optionalCat;
 
     // 読み込んだサンプルを見せるプレビュー。
@@ -163,6 +168,8 @@ public:
         clearButton(context),
         fileNameLabel(context),
         formSeparator(context),
+        optLoopSepTop(context),
+        optLoopSepBottom(context),
         optionalCat(context),
         samplePreview(context),
         pcmOffsetSlider(context),

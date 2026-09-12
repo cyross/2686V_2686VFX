@@ -160,6 +160,12 @@ public:
     void mouseDown(const juce::MouseEvent& event) override;
     void mouseDoubleClick(const juce::MouseEvent& event) override;
     void mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
+
+    // ショートカットキー。
+    //
+    // 部品ごとに焦点を持ち合うので、キーはエディタの keyPressed から
+    // 回してもらう。ここで受け取ったら true を返す。
+    bool handleShortcut(const juce::KeyPress& key);
 private:
     GuiContext ctx;
 

@@ -129,6 +129,11 @@ class GuiSettings : public GuiBase
 
     NormalSeparator separatorSimple;
 
+    // トグルボタンの並べ方。中央寄せ (従来) か左寄せかを選ぶ。
+    GuiComboBox toggleAlignSelector;
+
+    NormalSeparator separatorToggleAlign;
+
     // Tooltip Visible Switch
     GuiToggleButton tooltipToggle;
 
@@ -240,6 +245,8 @@ public:
         simpleViewCat(context),
         simpleViewShowToggles{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         separatorSimple(context),
+        toggleAlignSelector(context),
+        separatorToggleAlign(context),
         separator4(context),
         useHeadroomToggle(context),
         headroomGainSlider(context),

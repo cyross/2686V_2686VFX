@@ -55,6 +55,9 @@ public:
     // 出来上がりを受け取る。別のスレッドから直に呼ばず、
     // かならずメッセージスレッドへ渡してから呼ぶこと。
     void finishGenerate(const GenWaveRender::Wave& wave);
+
+    // ショートカットキーから作らせる。ボタンを押したときと同じ。
+    void requestGenerate() { startGenerate(); }
 private:
     GuiContext ctx;
 

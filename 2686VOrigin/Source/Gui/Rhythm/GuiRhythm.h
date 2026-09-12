@@ -48,6 +48,11 @@ class RhythmPadGui: public GuiBase
 
     NormalSeparator formSeparator;
 
+    // OPTIONAL の「One Shot」を挟む区切り線。
+    // 上は再生位置・倍率、下はループの話で、まとまりが変わる。
+    NormalSeparator optOneShotSepTop;
+    NormalSeparator optOneShotSepBottom;
+
     GuiCategoryLabel formCat;
     GuiCategoryLabel optionalCat;
 
@@ -139,6 +144,8 @@ public:
         loadButton(context),
         clearButton(context),
         formSeparator(context),
+        optOneShotSepTop(context),
+        optOneShotSepBottom(context),
         formCat(context),
         optionalCat(context),
         samplePreview(context),

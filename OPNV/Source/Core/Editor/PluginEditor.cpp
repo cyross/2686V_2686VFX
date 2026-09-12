@@ -1547,6 +1547,10 @@ void AudioPlugin2686VEditor::handleAsyncUpdate()
 
 bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
 {
+    // ブラウザが出ている間は、まずそちらへ回す。画面を覆っているので、
+    // 下のタブへ効くキーが先に走ると驚く。
+    if (paramBrowser != nullptr && paramBrowser->handleShortcut(key)) return true;
+
     // commandModifier は、WindowsではCtrl、MacではCmdキーを自動で判定します
     auto modifiers = key.getModifiers();
 
@@ -1584,6 +1588,17 @@ bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
         if (key.getKeyCode() == 'I' || key.getKeyCode() == 'i')
         {
             initParams();
+
+            return true; // イベントを消費
+        }
+
+        // Ctrl + M (いま出ているチャンネルの生成波形を作る)
+        if (key.getKeyCode() == 'M' || key.getKeyCode() == 'm')
+        {
+            if (genWaveGui != nullptr && genWaveGui->isVisible())
+            {
+                genWaveGui->requestGenerate();
+            }
 
             return true; // イベントを消費
         }

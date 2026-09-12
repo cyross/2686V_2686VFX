@@ -206,6 +206,8 @@ void GuiAdpcm::setup()
         };
 
     formSeparator.setupComponent(mainGroup.contentCanvas);
+    optLoopSepTop.setupComponent(mainGroup.contentCanvas);
+    optLoopSepBottom.setupComponent(mainGroup.contentCanvas);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
@@ -559,6 +561,8 @@ void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
     loopButton.setVisible(visible);
+    optLoopSepTop.setVisible(visible);
+    optLoopSepBottom.setVisible(visible);
     loopPointEnableButton.setVisible(visible);
     loopPointStartSlider.setVisibleWithLabel(visible);
     loopPointEndSlider.setVisibleWithLabel(visible);
@@ -566,7 +570,12 @@ void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
     if (visible) {
         layoutMain({ .mainRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
         layoutMain({ .mainRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+        optLoopSepTop.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &loopButton });
+
+        optLoopSepBottom.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &loopPointEnableButton });
         layoutMain({ .mainRect = rect, .label = &loopPointStartSlider.label, .component = &loopPointStartSlider, });
         layoutMain({ .mainRect = rect, .label = &loopPointEndSlider.label, .component = &loopPointEndSlider, });

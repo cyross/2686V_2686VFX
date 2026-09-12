@@ -553,6 +553,32 @@ void GuiSettings::setup()
 
     separatorSimple.setupComponent(*this);
 
+    // --- トグルボタンの並べ方 ---
+    // 画面じゅうのトグルを、中央寄せ (従来) か左寄せかで描き分ける。
+    // 置き場所は変えないので、切り替えたら描き直すだけでよい。
+    std::vector<SelectItem> toggleAlignItems = {
+        {.name = juce::String("") + "中央寄せ", .value = ToggleAlign::Centred + 1 },
+        {.name = juce::String("") + "左寄せ",   .value = ToggleAlign::Left + 1 },
+    };
+
+    toggleAlignSelector.setup({
+        .parent = *this,
+        .id = "",
+        .title = juce::String("") + "トグルボタン配置",
+        .items = toggleAlignItems,
+        .isReset = false
+        });
+    toggleAlignSelector.setSelectedId(ctx.audioProcessor.toggleAlign + 1, juce::dontSendNotification);
+    toggleAlignSelector.setWantsKeyboardFocus(true);
+    toggleAlignSelector.setExplicitFocusOrder(++tabOrder);
+    toggleAlignSelector.onChange = [this] {
+        ctx.audioProcessor.toggleAlign = toggleAlignSelector.getSelectedItemIndex();
+
+        ctx.editor.repaint();
+        };
+
+    separatorToggleAlign.setupComponent(*this);
+
     // --- Toggle Tooltip Visible Toggle Button ---
     tooltipToggle.setup({ .parent = *this, .title = juce::String("") + "ツールチップを表示", .font = toggleFont, .isReset = false });
     tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
@@ -973,6 +999,13 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     separatorSimple.layoutComponent(sRect);
 
+    // トグルボタン配置
+    auto rowToggleAlign = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    toggleAlignSelector.label.setBounds(rowToggleAlign.removeFromLeft(SettingsGuiValue::Settings::ToggleAlignLabelWidth));
+    toggleAlignSelector.setBounds(rowToggleAlign.removeFromLeft(SettingsGuiValue::Settings::ToggleAlignSelectorWidth));
+
+    separatorToggleAlign.layoutComponent(sRect);
+
     // 18. Tooltip Visible Row
     auto rowTooltip = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
@@ -1016,6 +1049,7 @@ void GuiSettings::setSettings()
     // 間違えても、行を足し忘れても気づけなかった。
     uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
     fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
+    toggleAlignSelector.setSelectedId(ctx.audioProcessor.toggleAlign + 1, juce::dontSendNotification);
     wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
 
     wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty()
