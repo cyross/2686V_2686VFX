@@ -19,6 +19,7 @@
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/CountButtons/CountButtons.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderInt.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/QualityPcm.h"
@@ -66,7 +67,7 @@ class GuiAdpcm : public GuiBase
     NormalSeparator optSpeedSeparator;
 
     // ループカウンター。SPEED のひとつ下に置く。
-    GuiSlider loopCountSlider;
+    GuiComponentNudgeSliderInt loopCountSlider;
     GuiComponentCountButtons loopCountButtons;
     NormalSeparator optCountSeparator;
 

@@ -141,11 +141,9 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     optSpeedSeparator.setupComponent(mainGroup.contentCanvas);
 
-    loopCountSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::lpCount, .title = "CNT", .isReset = true });
-    loopCountSlider.setWantsKeyboardFocus(true);
-    loopCountSlider.setExplicitFocusOrder(++tabOrder);
+    loopCountSlider.setupComponent(mainGroup.contentCanvas, padPrefix + CPK::lpCount, "CNT", tabOrder, std::nullopt);
 
-    loopCountButtons.setupComponent(mainGroup.contentCanvas, loopCountSlider, tabOrder);
+    loopCountButtons.setupComponent(mainGroup.contentCanvas, loopCountSlider.getSlider(), tabOrder);
 
     optCountSeparator.setupComponent(mainGroup.contentCanvas);
 
@@ -372,7 +370,7 @@ void RhythmPadGui::updatePadVisible(bool visible) {
     speedSlider.setVisibleWithLabel(visible);
     optSpeedSeparator.setVisible(visible);
     loopCountSlider.setVisibleWithLabel(visible);
-    loopCountButtons.setVisibles(visible);
+    loopCountButtons.setVisibles(visible && loopCountSlider.isVisibleNudge());
     optCountSeparator.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
@@ -484,7 +482,7 @@ void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
     speedSlider.setVisibleWithLabel(visible);
     optSpeedSeparator.setVisible(visible);
     loopCountSlider.setVisibleWithLabel(visible);
-    loopCountButtons.setVisibles(visible);
+    loopCountButtons.setVisibles(visible && loopCountSlider.isVisibleNudge());
     optCountSeparator.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
@@ -496,8 +494,8 @@ void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &speedSlider.label, .component = &speedSlider });
         optSpeedSeparator.layoutComponent(rect);
-        layoutRow({ .rowRect = rect, .label = &loopCountSlider.label, .component = &loopCountSlider });
-        loopCountButtons.layoutComponentRow(rect);
+        loopCountSlider.layoutComponentRow(rect);
+        if (loopCountSlider.isVisibleNudge()) loopCountButtons.layoutComponentRow(rect);
         optCountSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
         layoutRow({ .rowRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });

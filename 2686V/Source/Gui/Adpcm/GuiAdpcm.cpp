@@ -114,11 +114,9 @@ void GuiAdpcm::setup()
 
     optSpeedSeparator.setupComponent(mainGroup.contentCanvas);
 
-    loopCountSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::lpCount, .title = "CNT", .isReset = true });
-    loopCountSlider.setWantsKeyboardFocus(true);
-    loopCountSlider.setExplicitFocusOrder(++tabOrder);
+    loopCountSlider.setupComponent(mainGroup.contentCanvas, code + CPK::lpCount, "CNT", tabOrder, std::nullopt);
 
-    loopCountButtons.setupComponent(mainGroup.contentCanvas, loopCountSlider, tabOrder);
+    loopCountButtons.setupComponent(mainGroup.contentCanvas, loopCountSlider.getSlider(), tabOrder);
 
     optCountSeparator.setupComponent(mainGroup.contentCanvas);
 
@@ -577,7 +575,7 @@ void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
     speedSlider.setVisibleWithLabel(visible);
     optSpeedSeparator.setVisible(visible);
     loopCountSlider.setVisibleWithLabel(visible);
-    loopCountButtons.setVisibles(visible);
+    loopCountButtons.setVisibles(visible && loopCountSlider.isVisibleNudge());
     optCountSeparator.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
@@ -591,8 +589,8 @@ void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
     if (visible) {
         layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider });
         optSpeedSeparator.layoutComponent(rect);
-        layoutMain({ .mainRect = rect, .label = &loopCountSlider.label, .component = &loopCountSlider });
-        loopCountButtons.layoutComponent(rect);
+        loopCountSlider.layoutComponent(rect);
+        if (loopCountSlider.isVisibleNudge()) loopCountButtons.layoutComponent(rect);
         optCountSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
         layoutMain({ .mainRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });

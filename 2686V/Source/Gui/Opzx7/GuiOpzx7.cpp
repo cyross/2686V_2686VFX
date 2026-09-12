@@ -418,7 +418,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-    loopCount{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    loopCount{ GuiComponentNudgeSliderInt(context), GuiComponentNudgeSliderInt(context), GuiComponentNudgeSliderInt(context), GuiComponentNudgeSliderInt(context), GuiComponentNudgeSliderInt(context), GuiComponentNudgeSliderInt(context), GuiComponentNudgeSliderInt(context), GuiComponentNudgeSliderInt(context) },
     loopCountButtons{ GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context) },
     speed{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     pcmOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -1005,11 +1005,9 @@ void GuiOpzx7::setup()
         speed[i].setWantsKeyboardFocus(true);
         speed[i].setExplicitFocusOrder(++tabOrder);
 
-        loopCount[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::lpCount, .title = "CNT", .isReset = true });
-        loopCount[i].setWantsKeyboardFocus(true);
-        loopCount[i].setExplicitFocusOrder(++tabOrder);
+        loopCount[i].setupComponent(opGroups[i].contentCanvas, paramPrefix + CPK::lpCount, "CNT", tabOrder, std::nullopt);
 
-        loopCountButtons[i].setupComponent(opGroups[i].contentCanvas, loopCount[i], tabOrder);
+        loopCountButtons[i].setupComponent(opGroups[i].contentCanvas, loopCount[i].getSlider(), tabOrder);
 
         pcmOffset[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::pcmOffset, .title = Opzx7GuiText::Fm::Op::PcmOffset, .isReset = true });
         pcmOffset[i].setWantsKeyboardFocus(true);
@@ -1775,7 +1773,7 @@ void GuiOpzx7::updateOnWsChange(int idx)
         clearPcmBtn[idx].setVisible(visible);
         pcmFileNameLabel[idx].setVisible(visible);
         loopCount[idx].setVisibleWithLabel(visible);
-        loopCountButtons[idx].setVisibles(visible);
+        loopCountButtons[idx].setVisibles(visible && loopCount[idx].isVisibleNudge());
         pcmOffset[idx].setVisibleWithLabel(visible);
         pcmRatio[idx].setVisibleWithLabel(visible);
         loopPointEnable[idx].setVisible(visible);
@@ -2412,7 +2410,7 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
     pcmFileNameLabel[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     clearPcmBtn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loopCount[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
-    loopCountButtons[opIndex].setVisibles(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    loopCountButtons[opIndex].setVisibles((visible && selectedWs == Opzx7PrValue::pcmIndex) && loopCount[opIndex].isVisibleNudge());
     pcmOffset[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmRatio[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loopPointEnable[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
@@ -2439,8 +2437,8 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
         {
             wsSeparator[opIndex].layoutComponent(rect);
             layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadPcmBtn[opIndex], .pcmFileNameLabel = &pcmFileNameLabel[opIndex], .clearPcmBtn = &clearPcmBtn[opIndex] });
-            layoutRow({ .rowRect = rect, .label = &loopCount[opIndex].label, .component = &loopCount[opIndex] });
-            loopCountButtons[opIndex].layoutComponentRow(rect);
+            loopCount[opIndex].layoutComponentRow(rect);
+            if (loopCount[opIndex].isVisibleNudge()) loopCountButtons[opIndex].layoutComponentRow(rect);
             layoutRow({ .rowRect = rect, .label = &pcmOffset[opIndex].label, .component = &pcmOffset[opIndex] });
             layoutRow({ .rowRect = rect, .label = &pcmRatio[opIndex].label, .component = &pcmRatio[opIndex] });
             layoutRow({ .rowRect = rect, .component = &loopPointEnable[opIndex] });
