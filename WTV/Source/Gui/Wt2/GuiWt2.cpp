@@ -329,7 +329,7 @@ void GuiWt2::setup()
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
-    optionalCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::optional, .detailVisible = true, .enableChangeDetailVisible = true });
+    optionalCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::optional, .enableChangeDetailVisible = true });
 
     speedSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);

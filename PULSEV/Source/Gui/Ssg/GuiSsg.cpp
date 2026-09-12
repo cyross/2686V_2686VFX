@@ -63,7 +63,7 @@ void GuiSsg::setup()
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    optionalCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::optional, .detailVisible = true, .enableChangeDetailVisible = true });
+    optionalCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::optional, .enableChangeDetailVisible = true });
 
     speedSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);

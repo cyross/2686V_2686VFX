@@ -86,14 +86,14 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // WAVE MEMORY (32 スロット)
     // ==========================================================
-    optionalCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::optional, .detailVisible = true, .enableChangeDetailVisible = true });
+    optionalCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::optional, .enableChangeDetailVisible = true });
 
-    speedSlider.setup(GuiSlider::Config{ .parent = waveGroup.contentCanvas, .id = code + CPK::speed, .title = "SPEED", .isReset = true });
+    speedSlider.setup(GuiSlider::Config{ .parent = waveGroup.contentCanvas, .id = code + CPK::Wt::slot + juce::String(0) + CPK::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);
     speedSlider.setExplicitFocusOrder(++tabOrder);
 
     // ホールドと部分再生。止まったときの値は音量の倍率。
-    waveHold.setupComponent(waveGroup.contentCanvas, code, tabOrder, WaveHoldUnit::Level);
+    waveHold.setupComponent(waveGroup.contentCanvas, code + CPK::Wt::slot + juce::String(0), tabOrder, WaveHoldUnit::Level);
 
     optSpeedSeparator.setupComponent(waveGroup.contentCanvas);
 
@@ -612,6 +612,14 @@ void GuiWtPlus::updateSlotPreview(int slot)
     slotPreviews.setPoints(slot, wave.data);
 }
 
+void GuiWtPlus::rebindOptional()
+{
+    const juce::String slotPrefix = WtPlusPrKey::prefix + CPK::Wt::slot + juce::String(targetSlot());
+
+    speedSlider.rebind(slotPrefix + CPK::speed);
+    waveHold.rebind(slotPrefix);
+}
+
 void GuiWtPlus::applySlotTarget()
 {
     const int slot = targetSlot();
@@ -619,6 +627,9 @@ void GuiWtPlus::applySlotTarget()
     slotPreviews.setSelected(slot);
 
     updateSlotFileName(slot);
+
+    // OPTIONAL の値もこのスロットのものへ切り替える
+    rebindOptional();
 }
 
 void GuiWtPlus::updateSlotFileName(int slot)
@@ -771,8 +782,18 @@ void GuiWtPlus::applyChParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
-    speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
-    waveHold.readParams(*reader);
+    // OPTIONAL はスロットごとに持つ。画面へ出ているのは TGT で
+    // 選んだ 1 組だけなので、32 組ぶんをパラメータへ直に入れる。
+    for (int i = 0; i < Global::WtPlus::slots; ++i) {
+        const juce::String slotPrefix = WtPlusPrKey::prefix + CPK::Wt::slot + juce::String(i);
+
+        auto r = reader->child("slot" + juce::String(i));
+
+        setParamValue(slotPrefix + CPK::speed,
+            r.getFloat("speed", getParamValue(slotPrefix + CPK::speed)));
+
+        waveHold.readParamsFor(slotPrefix, r);
+    }
 
     // Wave
     slotSlider.setValue(reader->getFloat("slot", (float)slotSlider.getValue()), juce::sendNotification);
@@ -858,8 +879,16 @@ void GuiWtPlus::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiWtPlus::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
-	writer.set("speed", (float)speedSlider.getValue());
-	waveHold.writeParams(writer);
+	// OPTIONAL はスロットごと
+	for (int i = 0; i < Global::WtPlus::slots; ++i) {
+		const juce::String slotPrefix = WtPlusPrKey::prefix + CPK::Wt::slot + juce::String(i);
+
+		auto w = writer.child("slot" + juce::String(i));
+
+		w.set("speed", getParamValue(slotPrefix + CPK::speed));
+
+		waveHold.writeParamsFor(slotPrefix, w);
+	}
 
 	// Wave
 	writer.set("slot", (float)slotSlider.getValue());

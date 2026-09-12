@@ -676,9 +676,15 @@ namespace PrHelper {
 	static inline void setupWtPlusBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtPlusBasic& ptPtrs) {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
 		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
-		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
-		setupWaveHoldPtrs(apvts, prefix, ptPtrs.hold);
 		ptPtrs.slot = apvts.getRawParameterValue(prefix + CPK::Wt::slot);
+
+		// 再生速度とホールド・部分再生はスロットごと
+		for (int i = 0; i < Global::WtPlus::slots; ++i) {
+			const juce::String slotPrefix = prefix + CPK::Wt::slot + juce::String(i);
+
+			ptPtrs.slotSpeed[i] = apvts.getRawParameterValue(slotPrefix + CPK::speed);
+			setupWaveHoldPtrs(apvts, slotPrefix, ptPtrs.slotHold[i]);
+		}
 		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::Wt::steps);
 		ptPtrs.interpolate = apvts.getRawParameterValue(prefix + CPK::Wt::interpolate);
 	}
@@ -1232,9 +1238,13 @@ namespace PrHelper {
 	static inline void applyWtPlusBasic(PrPtrsWtPlusBasic& ptPtrs, WtPlusParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
 		params.delay = PrHelper::getFloat(ptPtrs.delay);
-		params.speed = PrHelper::getFloat(ptPtrs.speed);
-		applyWaveHold(ptPtrs.hold, params.hold);
 		params.slot = PrHelper::getInt(ptPtrs.slot);
+
+		// 鳴らすスロットの組を使う
+		const int slotIndex = std::clamp(params.slot, 0, Global::WtPlus::slots - 1);
+
+		params.speed = PrHelper::getFloat(ptPtrs.slotSpeed[(size_t)slotIndex]);
+		applyWaveHold(ptPtrs.slotHold[(size_t)slotIndex], params.hold);
 		params.steps = PrHelper::getInt(ptPtrs.steps);
 		params.interpolate = PrHelper::getBool(ptPtrs.interpolate);
 	}
@@ -3691,8 +3701,21 @@ namespace PrHelper {
 	}
 
 	static inline void addWtPlusBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
-		// ホールドと部分再生。止まったときの値は音量の倍率。
-		PrHelper::addWaveHoldParameters(layout, prefix, prefixName, WaveHoldUnit::Level);
+		// 再生速度とホールド・部分再生は、波形メモリのスロットごとに持つ。
+		// 画面のつまみは 1 組だけ置き、TGT で束ねる先を差し替える。
+		for (int i = 0; i < Global::WtPlus::slots; ++i) {
+			const juce::String slotPrefix = prefix + CPK::Wt::slot + juce::String(i);
+			const juce::String slotName = prefixName + " Slot " + juce::String(i);
+
+			PrHelper::addFloat(
+				layout,
+				slotPrefix + CPK::speed,
+				slotName + CPN::speed,
+				CPV::Speed::min, CPV::Speed::max, CPV::Speed::initial
+			);
+
+			PrHelper::addWaveHoldParameters(layout, slotPrefix, slotName, WaveHoldUnit::Level);
+		}
 		// 鳴らす波形メモリのスロット。オートメーションで振れる。
 		PrHelper::addInt(
 			layout, 

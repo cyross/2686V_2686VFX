@@ -509,10 +509,10 @@ struct PrPtrsWt2Basic {
 struct PrPtrsWtPlusBasic {
     std::atomic<float>* level = nullptr;
     std::atomic<float>* delay = nullptr;
-    std::atomic<float>* speed = nullptr;
-
-    // ホールドと部分再生
-    PrPtrsWaveHold hold;
+    // 再生速度とホールド・部分再生は、波形メモリのスロットごとに持つ。
+    // 鳴らすスロットが変われば、効く値もそのスロットのものへ変わる。
+    std::array<std::atomic<float>*, Global::WtPlus::slots> slotSpeed = { nullptr };
+    std::array<PrPtrsWaveHold, Global::WtPlus::slots> slotHold;
     std::atomic<float>* slot = nullptr;
     std::atomic<float>* steps = nullptr;
     std::atomic<float>* interpolate = nullptr;

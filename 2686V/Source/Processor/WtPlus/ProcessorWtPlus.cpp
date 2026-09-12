@@ -13,7 +13,6 @@ void WtPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     const juce::String prefixName = WtPlusPrName::prefix;
 
     PrHelper::addLevelParameters(layout, prefix, prefixName);
-    PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addWtPlusBasicParameters(layout, prefix, prefixName);
     PrHelper::addQualityParameters(layout, prefix, prefixName);
     PrHelper::addWtModParameters(layout, prefix, prefixName);

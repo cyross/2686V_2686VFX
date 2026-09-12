@@ -116,6 +116,10 @@ public:
     void setupComponent(juce::Component& parent, const juce::String& idPrefix, int& tabOrder,
         WaveHoldUnit unit, std::optional<std::function<void()>> onChanged = std::nullopt);
 
+    // 束ねる先を差し替える。対象を選ぶつまみで値の組を
+    // 切り替えるチャンネル (WT+ など) で使う。
+    void rebind(const juce::String& idPrefix);
+
     void setVisibles(bool visible);
 
     // 場所を取る側の区分に合わせて使い分ける。
@@ -133,6 +137,11 @@ public:
 
     void readParams(const Io::ParamReader& reader);
     void writeParams(Io::ParamWriter& writer);
+
+    // 画面へ出ていない組 (WT+ のほかのスロットなど) の読み書き。
+    // つまみを通さず、パラメータそのものを相手にする。
+    void readParamsFor(const juce::String& idPrefix, const Io::ParamReader& reader);
+    void writeParamsFor(const juce::String& idPrefix, Io::ParamWriter& writer);
 
     // 今の設定。波形プレビューを引き直すときに渡す。
     WaveHoldParams getParams();

@@ -244,6 +244,10 @@ public:
     // 対象のスロットが変わったときに、ボタンと名前の指す先をそろえる。
     void applySlotTarget();
 
+    // OPTIONAL はスロットごとに値を持つ。TGT が変わったら
+    // つまみの束ねる先をそのスロットのものへ差し替える。
+    void rebindOptional();
+
     // いま読み込み・消去の対象になっているスロット。
     int targetSlot() const { return juce::jlimit(0, Global::WtPlus::slots - 1, (int)slotTarget.getValue()); }
     void updateSlotPreview(int slot);

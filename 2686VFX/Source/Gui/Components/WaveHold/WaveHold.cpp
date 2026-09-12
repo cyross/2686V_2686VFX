@@ -3,6 +3,7 @@
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
+#include "../../../Core/Processor/ProcessorValues.h"
 
 namespace
 {
@@ -98,6 +99,21 @@ void GuiComponentWaveHold::setupComponent(juce::Component& parent, const juce::S
     keepEndBtn.setWantsKeyboardFocus(true);
     keepEndBtn.setExplicitFocusOrder(++tabOrder);
     keepEndBtn.onClick = [this] { notifyChanged(); };
+}
+
+void GuiComponentWaveHold::rebind(const juce::String& idPrefix)
+{
+    holdEnableBtn.rebind(idPrefix + CPK::WaveHold::holdEnable);
+    holdCount.getSlider().rebind(idPrefix + CPK::WaveHold::holdCount);
+    holdTarget.rebind(idPrefix + CPK::WaveHold::holdTarget);
+    holdMin.getSlider().rebind(idPrefix + CPK::WaveHold::holdMin);
+    holdMax.getSlider().rebind(idPrefix + CPK::WaveHold::holdMax);
+
+    keepEnableBtn.rebind(idPrefix + CPK::WaveHold::keepEnable);
+    waveStart.getSlider().rebind(idPrefix + CPK::WaveHold::waveStart);
+    keepStartBtn.rebind(idPrefix + CPK::WaveHold::keepStart);
+    waveEnd.getSlider().rebind(idPrefix + CPK::WaveHold::waveEnd);
+    keepEndBtn.rebind(idPrefix + CPK::WaveHold::keepEnd);
 }
 
 void GuiComponentWaveHold::setVisibles(bool visible)
@@ -296,6 +312,39 @@ void GuiComponentWaveHold::writeParams(Io::ParamWriter& writer)
     writer.set("keepStart", keepStartBtn.getToggleState());
     writer.set("waveEnd", (float)waveEnd.getValue());
     writer.set("keepEnd", keepEndBtn.getToggleState());
+}
+
+// 画面へ出ていない組も含めて読み書きする。並べる名前は
+// readParams / writeParams と同じにしてあるので、どちらで
+// 書いたファイルも読める。
+void GuiComponentWaveHold::readParamsFor(const juce::String& idPrefix, const Io::ParamReader& reader)
+{
+    setParamValue(idPrefix + CPK::WaveHold::holdEnable, reader.getBool("holdEnable", getParamValue(idPrefix + CPK::WaveHold::holdEnable) > CPV::boolThread) ? 1.0f : 0.0f);
+    setParamValue(idPrefix + CPK::WaveHold::holdCount, (float)reader.getInt("holdCount", (int)getParamValue(idPrefix + CPK::WaveHold::holdCount)));
+    setParamValue(idPrefix + CPK::WaveHold::holdTarget, (float)reader.getInt("holdTarget", (int)getParamValue(idPrefix + CPK::WaveHold::holdTarget)));
+    setParamValue(idPrefix + CPK::WaveHold::holdMin, reader.getFloat("holdMin", getParamValue(idPrefix + CPK::WaveHold::holdMin)));
+    setParamValue(idPrefix + CPK::WaveHold::holdMax, reader.getFloat("holdMax", getParamValue(idPrefix + CPK::WaveHold::holdMax)));
+
+    setParamValue(idPrefix + CPK::WaveHold::keepEnable, reader.getBool("keepEnable", getParamValue(idPrefix + CPK::WaveHold::keepEnable) > CPV::boolThread) ? 1.0f : 0.0f);
+    setParamValue(idPrefix + CPK::WaveHold::waveStart, reader.getFloat("waveStart", getParamValue(idPrefix + CPK::WaveHold::waveStart)));
+    setParamValue(idPrefix + CPK::WaveHold::keepStart, reader.getBool("keepStart", getParamValue(idPrefix + CPK::WaveHold::keepStart) > CPV::boolThread) ? 1.0f : 0.0f);
+    setParamValue(idPrefix + CPK::WaveHold::waveEnd, reader.getFloat("waveEnd", getParamValue(idPrefix + CPK::WaveHold::waveEnd)));
+    setParamValue(idPrefix + CPK::WaveHold::keepEnd, reader.getBool("keepEnd", getParamValue(idPrefix + CPK::WaveHold::keepEnd) > CPV::boolThread) ? 1.0f : 0.0f);
+}
+
+void GuiComponentWaveHold::writeParamsFor(const juce::String& idPrefix, Io::ParamWriter& writer)
+{
+    writer.set("holdEnable", getParamValue(idPrefix + CPK::WaveHold::holdEnable) > CPV::boolThread);
+    writer.set("holdCount", (int)getParamValue(idPrefix + CPK::WaveHold::holdCount));
+    writer.set("holdTarget", (int)getParamValue(idPrefix + CPK::WaveHold::holdTarget));
+    writer.set("holdMin", getParamValue(idPrefix + CPK::WaveHold::holdMin));
+    writer.set("holdMax", getParamValue(idPrefix + CPK::WaveHold::holdMax));
+
+    writer.set("keepEnable", getParamValue(idPrefix + CPK::WaveHold::keepEnable) > CPV::boolThread);
+    writer.set("waveStart", getParamValue(idPrefix + CPK::WaveHold::waveStart));
+    writer.set("keepStart", getParamValue(idPrefix + CPK::WaveHold::keepStart) > CPV::boolThread);
+    writer.set("waveEnd", getParamValue(idPrefix + CPK::WaveHold::waveEnd));
+    writer.set("keepEnd", getParamValue(idPrefix + CPK::WaveHold::keepEnd) > CPV::boolThread);
 }
 
 WaveHoldParams GuiComponentWaveHold::getParams()

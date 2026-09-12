@@ -39,4 +39,23 @@ protected:
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
     GuiContext ctx;
+
+    // つまみを通さずにパラメータそのものを読み書きする。
+    //
+    // 対象を選ぶつまみで値の組を切り替える造り (SSG SW ENV の段、
+    // WT+ のスロット) では、画面へ出ているのは 1 組だけになる。
+    // 出ていない組をファイルへ残すときにここを通す。
+    float getParamValue(const juce::String& id) const
+    {
+        auto* v = ctx.apvts.getRawParameterValue(id);
+
+        return (v != nullptr) ? v->load() : 0.0f;
+    }
+
+    void setParamValue(const juce::String& id, float value)
+    {
+        if (auto* p = ctx.apvts.getParameter(id)) {
+            p->setValueNotifyingHost(p->convertTo0to1(value));
+        }
+    }
 };

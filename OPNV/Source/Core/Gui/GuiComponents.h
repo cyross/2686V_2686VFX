@@ -524,6 +524,18 @@ public:
 
 class GuiComboBox : public juce::ComboBox, public GuiBaseComponent
 {
+public:
+    // 束ねる先を差し替える。対象を選ぶつまみで値の組を切り替えるときに使う。
+    //
+    // 必ず古い束縛を先に破棄すること。unique_ptr::reset(p) は「新しい
+    // ポインタを格納してから古い方を破棄」するため、reset(new ...) と
+    // 書くと新しい束縛の初期値反映が、まだ生きている古い束縛を通って
+    // 切り替え前のパラメータへ書き戻されてしまう。
+    void rebind(const juce::String& id)
+    {
+        att.reset();
+        att.reset(new ComboBoxAttachment(ctx.apvts, id, *this));
+    }
 protected:
     std::unique_ptr<ComboBoxAttachment> att;
 
@@ -661,6 +673,18 @@ public:
 
 class GuiToggleButton : public juce::ToggleButton, public GuiBaseComponent
 {
+public:
+    // 束ねる先を差し替える。対象を選ぶつまみで値の組を切り替えるときに使う。
+    //
+    // 必ず古い束縛を先に破棄すること。unique_ptr::reset(p) は「新しい
+    // ポインタを格納してから古い方を破棄」するため、reset(new ...) と
+    // 書くと新しい束縛の初期値反映が、まだ生きている古い束縛を通って
+    // 切り替え前のパラメータへ書き戻されてしまう。
+    void rebind(const juce::String& id)
+    {
+        att.reset();
+        att.reset(new ButtonAttachment(ctx.apvts, id, *this));
+    }
 protected:
     std::unique_ptr<ButtonAttachment> att;
     juce::Justification textJustification = juce::Justification::centred;
