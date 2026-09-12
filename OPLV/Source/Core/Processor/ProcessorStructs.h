@@ -42,6 +42,8 @@ struct PrPtrsAdsrAmpEnv {
     std::atomic<float>* sl = nullptr;
     std::atomic<float>* rr = nullptr;
     std::atomic<float>* kor = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
 };
 
 struct PrPtrsSsgSwEnv {
@@ -115,6 +117,9 @@ struct PrPtrsSsgSwEnv11 {
     std::atomic<float>* l9 = nullptr;
     std::atomic<float>* l10 = nullptr;
     std::atomic<float>* l11 = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsSsgSwEnv11Op {
@@ -146,6 +151,9 @@ struct PrPtrsSsgSwEnv11Op {
     std::atomic<float>* l9 = nullptr;
     std::atomic<float>* l10 = nullptr;
     std::atomic<float>* l11 = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsPitchEnv {
@@ -157,6 +165,9 @@ struct PrPtrsPitchEnv {
     std::atomic<float>* atl = nullptr;
     std::atomic<float>* ssl = nullptr;
     std::atomic<float>* rll = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsPitchEnvOp {
@@ -168,6 +179,9 @@ struct PrPtrsPitchEnvOp {
     std::atomic<float>* atl = nullptr;
     std::atomic<float>* ssl = nullptr;
     std::atomic<float>* rll = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsSsgSwPEnv11 {
@@ -199,6 +213,9 @@ struct PrPtrsSsgSwPEnv11 {
     std::atomic<float>* l9 = nullptr;
     std::atomic<float>* l10 = nullptr;
     std::atomic<float>* l11 = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsSsgSwPEnv11Op {
@@ -230,6 +247,9 @@ struct PrPtrsSsgSwPEnv11Op {
     std::atomic<float>* l9 = nullptr;
     std::atomic<float>* l10 = nullptr;
     std::atomic<float>* l11 = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsOplDetune {

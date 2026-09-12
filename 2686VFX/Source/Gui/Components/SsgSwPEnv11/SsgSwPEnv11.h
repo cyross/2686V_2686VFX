@@ -32,6 +32,11 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
 	NormalSeparator flagSeparator;
     GuiSlider steps;
 	NormalSeparator stepsSeparator;
+
+    // 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+    // 効き方そのものを変えるので、値より先に見える場所へ置く。
+    GuiToggleButton keep;
+    NormalSeparator keepSeparator;
     GuiToggleButton loop;
     GuiSlider loopTo;
     GuiSlider loopCount;
@@ -51,6 +56,13 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
     GuiComponentNudgeSliderFloat level;
     GuiComponentPitchButtons levelBtns;
     GuiStepValues levelValues;
+
+    NormalSeparator endLevelSeparator;
+
+    // ENDL を使うかどうか。切のあいだは、これまでどおり最後の段の
+    // レベルをそのまま保つ。
+    GuiToggleButton endLevelEnable;
+    GuiSlider endLevel;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     // applyLoopValues の入れ子呼び出しを弾くための印。
@@ -104,6 +116,8 @@ public:
 		flagSeparator(context),
 		steps(context),
 		stepsSeparator(context),
+        keep(context),
+        keepSeparator(context),
 		loop(context),
 		loopTo(context), 
 		loopCount(context),
@@ -114,7 +128,10 @@ public:
         rateSeparator(context),
         levelTarget(context),
         level(context),
-        levelBtns(context)
+        levelBtns(context),
+        endLevelSeparator(context),
+        endLevelEnable(context),
+        endLevel(context)
     {
     }
 
@@ -122,6 +139,9 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);
+
+    // ENDL を使うかどうかに合わせて、つまみの押せる・押せないを揃える。
+    void applyEndLevelEnable();
     void updateGraph(GuiEnvelopeGraph& graph);
     void setEnabled(bool enabled);
     void copyParams(CopyPEnvSsgSw11& copyObj);

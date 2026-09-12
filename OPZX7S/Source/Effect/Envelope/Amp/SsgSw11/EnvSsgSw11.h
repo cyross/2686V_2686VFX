@@ -18,6 +18,20 @@ class SsgSwEnv11 {
 	int loopCount = 0;
 	std::array<float, 12> r = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 	std::array<float, 12> l = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+	// リリースを走り終えたあとに保つレベル。
+	// 0.0 のままなら、これまでどおり l[11] を保つ。
+	float endl = 0.0f;
+
+	// ENDL を使うかどうか。切のあいだは、これまでどおり l[11] を保つ。
+	bool endlEnable = false;
+
+	// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+	bool keep = false;
+
+	// KEEP のときに返す値。段が変わるたびに取り直す。
+	float m_keepLevel = 0.0f;
+
 	bool bypass = false;
 
 	double sampleRate = 44100.0; // DAW Host Sample Rate
@@ -52,6 +66,9 @@ public:
 	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void noteOn();
 	void noteOff();
+
+	// 段を 1 サンプルぶん進める。KEEP を挟むため process から呼ぶ。
+	float processStep();
 	float process();
 	void bypassedReleasedProcess();
 };

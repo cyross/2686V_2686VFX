@@ -155,6 +155,8 @@ namespace PrHelper {
 		ptPtrs.sl = apvts.getRawParameterValue(prefix + CPK::Adsr::sl);
 		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::Adsr::rr);
 		ptPtrs.kor = apvts.getRawParameterValue(prefix + CPK::Adsr::kor);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::Adsr::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::Adsr::endlEnable);
 	}
 
 	static inline void setupSsgSwEnvPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv& ptPtrs){
@@ -228,6 +230,9 @@ namespace PrHelper {
 		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l9);
 		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l10);
 		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l11);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::keep);
 	}
 
 	static inline void setupSsgSwEnv11PtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv11Op& ptPtrs){
@@ -259,6 +264,9 @@ namespace PrHelper {
 		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l9);
 		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l10);
 		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l11);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::keep);
 	}
 
 	static inline void setupPitchEnvPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPitchEnv& ptPtrs){
@@ -270,6 +278,9 @@ namespace PrHelper {
 		ptPtrs.atl = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::atl);
 		ptPtrs.ssl = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::ssl);
 		ptPtrs.rll = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::rll);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::keep);
 	}
 
 	static inline void setupPitchEnvPtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPitchEnvOp& ptPtrs){
@@ -281,6 +292,9 @@ namespace PrHelper {
 		ptPtrs.atl = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::atl);
 		ptPtrs.ssl = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::ssl);
 		ptPtrs.rll = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::rll);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::keep);
 	}
 
 	static inline void setupSsgSwPEnv11Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwPEnv11& ptPtrs){
@@ -312,6 +326,9 @@ namespace PrHelper {
 		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l9);
 		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l10);
 		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l11);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::keep);
 	}
 
 	static inline void setupSsgSwPEnv11PtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwPEnv11Op& ptPtrs){
@@ -343,6 +360,9 @@ namespace PrHelper {
 		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l9);
 		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l10);
 		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l11);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::keep);
 	}
 
 	static inline void setupOplDetunePtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOplDetune& ptPtrs){
@@ -772,6 +792,8 @@ namespace PrHelper {
 		params.sl = getFloat(ptPtrs.sl);
 		params.rr = getFloat(ptPtrs.rr);
 		params.kor = getFloat(ptPtrs.kor);
+		params.endl = getFloat(ptPtrs.endl);
+		params.endlEnable = getBool(ptPtrs.endlEnable);
 	}
 
 	static inline void applySsgSwEnv(PrPtrsSsgSwEnv& ptPtrs, SsgSwEnvParams& params){
@@ -846,6 +868,9 @@ namespace PrHelper {
 		params.l9 = getFloat(ptPtrs.l9);
 		params.l10 = getFloat(ptPtrs.l10);
 		params.l11 = getFloat(ptPtrs.l11);
+		params.endl = getFloat(ptPtrs.endl);
+		params.endlEnable = getBool(ptPtrs.endlEnable);
+		params.keep = getBool(ptPtrs.keep);
 	}
 
 	static inline void applySsgSwEnv11Op(PrPtrsSsgSwEnv11Op& ptPtrs, SsgSwEnv11Params& params, bool& enable){
@@ -878,6 +903,9 @@ namespace PrHelper {
 		params.l9 = getFloat(ptPtrs.l9);
 		params.l10 = getFloat(ptPtrs.l10);
 		params.l11 = getFloat(ptPtrs.l11);
+		params.endl = getFloat(ptPtrs.endl);
+		params.endlEnable = getBool(ptPtrs.endlEnable);
+		params.keep = getBool(ptPtrs.keep);
 	}
 
 	static inline void applyPitchEnv(PrPtrsPitchEnv& ptPtrs, PitchAdsrParams& params){
@@ -889,6 +917,9 @@ namespace PrHelper {
 		params.atl = getInt(ptPtrs.atl);
 		params.ssl = getInt(ptPtrs.ssl);
 		params.rll = getInt(ptPtrs.rll);
+		params.endl = getInt(ptPtrs.endl);
+		params.endlEnable = getBool(ptPtrs.endlEnable);
+		params.keep = getBool(ptPtrs.keep);
 	}
 
 	static inline void applyPitchEnvOp(PrPtrsPitchEnvOp& ptPtrs, PitchAdsrParams& params, bool& enable){
@@ -901,6 +932,9 @@ namespace PrHelper {
 		params.atl = getInt(ptPtrs.atl);
 		params.ssl = getInt(ptPtrs.ssl);
 		params.rll = getInt(ptPtrs.rll);
+		params.endl = getInt(ptPtrs.endl);
+		params.endlEnable = getBool(ptPtrs.endlEnable);
+		params.keep = getBool(ptPtrs.keep);
 	}
 
 	static inline void applySsgSwPEnv11(PrPtrsSsgSwPEnv11& ptPtrs, SsgSwPEnv11Params& params){
@@ -932,6 +966,9 @@ namespace PrHelper {
 		params.l9 = getInt(ptPtrs.l9);
 		params.l10 = getInt(ptPtrs.l10);
 		params.l11 = getInt(ptPtrs.l11);
+		params.endl = getInt(ptPtrs.endl);
+		params.endlEnable = getBool(ptPtrs.endlEnable);
+		params.keep = getBool(ptPtrs.keep);
 	}
 
 	static inline void applySsgSwPEnv11Op(PrPtrsSsgSwPEnv11Op& ptPtrs, SsgSwPEnv11Params& params, bool& enable){
@@ -964,6 +1001,9 @@ namespace PrHelper {
 		params.l9 = getInt(ptPtrs.l9);
 		params.l10 = getInt(ptPtrs.l10);
 		params.l11 = getInt(ptPtrs.l11);
+		params.endl = getInt(ptPtrs.endl);
+		params.endlEnable = getBool(ptPtrs.endlEnable);
+		params.keep = getBool(ptPtrs.keep);
 	}
 
 	static inline void applyOplDetune(PrPtrsOplDetune& ptPtrs, OplDetuneParams& params){
@@ -2007,6 +2047,18 @@ namespace PrHelper {
 			prefixName + CPN::Adsr::kor, 
 			CPV::Adsr::Kor::initial
 		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Adsr::endl,
+			prefixName + CPN::Adsr::endl,
+			CPV::Adsr::EndL::min, CPV::Adsr::EndL::max, CPV::Adsr::EndL::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::Adsr::endlEnable,
+			prefixName + CPN::Adsr::endlEnable,
+			CPV::Adsr::EndLEnable::initial
+		);
 	}
 
 	static inline void addOpEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
@@ -2047,6 +2099,18 @@ namespace PrHelper {
 			namePrefix + CPN::Adsr::kor, 
 			CPV::Adsr::Kor::initial
 		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Adsr::endl,
+			namePrefix + CPN::Adsr::endl,
+			CPV::Adsr::EndL::min, CPV::Adsr::EndL::max, CPV::Adsr::EndL::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::Adsr::endlEnable,
+			namePrefix + CPN::Adsr::endlEnable,
+			CPV::Adsr::EndLEnable::initial
+		);
 	}
 
 	static inline void addPitchEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
@@ -2058,6 +2122,24 @@ namespace PrHelper {
 		PrHelper::addPitchEnvLevel(layout, prefix + CPK::PitchAdsr::atl, prefixName + CPN::PitchAdsr::atl);
 		PrHelper::addPitchEnvLevel(layout, prefix + CPK::PitchAdsr::ssl, prefixName + CPN::PitchAdsr::ssl);
 		PrHelper::addPitchEnvLevel(layout, prefix + CPK::PitchAdsr::rll, prefixName + CPN::PitchAdsr::rll);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::PitchAdsr::endl,
+			prefixName + CPN::PitchAdsr::endl,
+			CPV::PitchAdsr::EndL::min, CPV::PitchAdsr::EndL::max, CPV::PitchAdsr::EndL::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::PitchAdsr::endlEnable,
+			prefixName + CPN::PitchAdsr::endlEnable,
+			CPV::PitchAdsr::EndLEnable::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::PitchAdsr::keep,
+			prefixName + CPN::PitchAdsr::keep,
+			CPV::PitchAdsr::Keep::initial
+		);
 	}
 
 	static inline void addOpPitchEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
@@ -2069,6 +2151,24 @@ namespace PrHelper {
 		PrHelper::addPitchEnvLevel(layout, prefix + CPK::PitchAdsr::atl, namePrefix + CPN::PitchAdsr::atl);
 		PrHelper::addPitchEnvLevel(layout, prefix + CPK::PitchAdsr::ssl, namePrefix + CPN::PitchAdsr::ssl);
 		PrHelper::addPitchEnvLevel(layout, prefix + CPK::PitchAdsr::rll, namePrefix + CPN::PitchAdsr::rll);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::PitchAdsr::endl,
+			namePrefix + CPN::PitchAdsr::endl,
+			CPV::PitchAdsr::EndL::min, CPV::PitchAdsr::EndL::max, CPV::PitchAdsr::EndL::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::PitchAdsr::endlEnable,
+			namePrefix + CPN::PitchAdsr::endlEnable,
+			CPV::PitchAdsr::EndLEnable::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::PitchAdsr::keep,
+			namePrefix + CPN::PitchAdsr::keep,
+			CPV::PitchAdsr::Keep::initial
+		);
 	}
 
 	static inline void addSsgSwEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
@@ -2202,6 +2302,24 @@ namespace PrHelper {
 		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l10, prefixName + CPN::SsgSwEnv11::l10);
 		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r11, prefixName + CPN::SsgSwEnv11::r11);
 		PrHelper::addSsgSwEnv11SRLevel(layout, prefix + CPK::SsgSwEnv11::l11, prefixName + CPN::SsgSwEnv11::l11);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::SsgSwEnv11::endl,
+			prefixName + CPN::SsgSwEnv11::endl,
+			CPV::SsgSwEnv11::EndL::min, CPV::SsgSwEnv11::EndL::max, CPV::SsgSwEnv11::EndL::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgSwEnv11::endlEnable,
+			prefixName + CPN::SsgSwEnv11::endlEnable,
+			CPV::SsgSwEnv11::EndLEnable::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgSwEnv11::keep,
+			prefixName + CPN::SsgSwEnv11::keep,
+			CPV::SsgSwEnv11::Keep::initial
+		);
 	}
 
 	static inline void addOpSsgSwEnv11Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
@@ -2253,6 +2371,24 @@ namespace PrHelper {
 		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l10, namePrefix + CPN::SsgSwEnv11::l10);
 		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r11, namePrefix + CPN::SsgSwEnv11::r11);
 		PrHelper::addSsgSwEnv11SRLevel(layout, prefix + CPK::SsgSwEnv11::l11, namePrefix + CPN::SsgSwEnv11::l11);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::SsgSwEnv11::endl,
+			namePrefix + CPN::SsgSwEnv11::endl,
+			CPV::SsgSwEnv11::EndL::min, CPV::SsgSwEnv11::EndL::max, CPV::SsgSwEnv11::EndL::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgSwEnv11::endlEnable,
+			namePrefix + CPN::SsgSwEnv11::endlEnable,
+			CPV::SsgSwEnv11::EndLEnable::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgSwEnv11::keep,
+			namePrefix + CPN::SsgSwEnv11::keep,
+			CPV::SsgSwEnv11::Keep::initial
+		);
 	}
 
 	static inline void addSsgSwPEnv11Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
@@ -2304,6 +2440,24 @@ namespace PrHelper {
 		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l10, prefixName + CPN::SsgSwPEnv11::l10);
 		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r11, prefixName + CPN::SsgSwPEnv11::r11);
 		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l11, prefixName + CPN::SsgSwPEnv11::l11);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::SsgSwPEnv11::endl,
+			prefixName + CPN::SsgSwPEnv11::endl,
+			CPV::SsgSwPEnv11::EndL::min, CPV::SsgSwPEnv11::EndL::max, CPV::SsgSwPEnv11::EndL::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgSwPEnv11::endlEnable,
+			prefixName + CPN::SsgSwPEnv11::endlEnable,
+			CPV::SsgSwPEnv11::EndLEnable::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgSwPEnv11::keep,
+			prefixName + CPN::SsgSwPEnv11::keep,
+			CPV::SsgSwPEnv11::Keep::initial
+		);
 	}
 
 	static inline void addOpSsgSwPEnv11Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
@@ -2355,6 +2509,24 @@ namespace PrHelper {
 		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l10, namePrefix + CPN::SsgSwPEnv11::l10);
 		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r11, namePrefix + CPN::SsgSwPEnv11::r11);
 		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l11, namePrefix + CPN::SsgSwPEnv11::l11);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::SsgSwPEnv11::endl,
+			namePrefix + CPN::SsgSwPEnv11::endl,
+			CPV::SsgSwPEnv11::EndL::min, CPV::SsgSwPEnv11::EndL::max, CPV::SsgSwPEnv11::EndL::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgSwPEnv11::endlEnable,
+			namePrefix + CPN::SsgSwPEnv11::endlEnable,
+			CPV::SsgSwPEnv11::EndLEnable::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgSwPEnv11::keep,
+			namePrefix + CPN::SsgSwPEnv11::keep,
+			CPV::SsgSwPEnv11::Keep::initial
+		);
 	}
 
 	static inline void addOpmLfoParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {

@@ -18,6 +18,20 @@ class SsgSwPEnv11 {
 	int loopCount = 0;
 	std::array<float, 12> r = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 	std::array<int, 12> l = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	// リリースを走り終えたあとに保つセント。
+	// 0 のままなら、これまでどおり素通しする。
+	int endl = 0;
+
+	// ENDL を使うかどうか。切のあいだは、これまでどおり素通しする。
+	bool endlEnable = false;
+
+	// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+	bool keep = false;
+
+	// KEEP のときに返す値。段が変わるたびに取り直す。
+	float m_keepLevel = 0.0f;
+
 	bool bypass = false;
 
 	double sampleRate = 44100.0; // DAW Host Sample Rate

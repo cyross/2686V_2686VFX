@@ -16,6 +16,17 @@ class AmpAdsrEnv {
 	float sl = 1.0f;
 	float rr = 0.2f;
 	bool kor = false;
+
+	// リリースを走り終えたあとに保つレベル。
+	// 0.0 のままなら、これまでどおり 0.0 で終わる。
+	float endl = 0.0f;
+
+	// ENDL を使うかどうか。切のあいだは、これまでどおり 0.0 で終わる。
+	bool endlEnable = false;
+
+	// リリースを走り終えたあとに保つレベル
+	float endLevel() const { return this->endlEnable ? this->endl : 0.0f; }
+
 	bool bypass = false;
 
 	double sampleRate = 44100.0; // DAW Host Sample Rate

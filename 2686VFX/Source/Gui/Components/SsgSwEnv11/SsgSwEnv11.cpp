@@ -165,6 +165,12 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 
     stepsSeparator.setupComponent(parent);
 
+    keep.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::keep, .title = "KEEP", .isReset = true });
+    keep.setWantsKeyboardFocus(true);
+    keep.setExplicitFocusOrder(++tabOrder);
+
+    keepSeparator.setupComponent(parent);
+
     loop.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::loop, .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
     loop.setExplicitFocusOrder(++tabOrder);
@@ -236,6 +242,19 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 
     parent.addAndMakeVisible(levelValues);
 
+    endLevelSeparator.setupComponent(parent);
+
+    endLevelEnable.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::endlEnable, .title = "USE ENDL", .isReset = true });
+    endLevelEnable.setWantsKeyboardFocus(true);
+    endLevelEnable.setExplicitFocusOrder(++tabOrder);
+    endLevelEnable.onClick = [this] { applyEndLevelEnable(); };
+
+    endLevel.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::endl, .title = "ENDL", .isReset = true, .labelFont = labelFont });
+    endLevel.setWantsKeyboardFocus(true);
+    endLevel.setExplicitFocusOrder(++tabOrder);
+
+    applyEndLevelEnable();
+
     // onValueChange は値が変わらないと呼ばれないので、最初の束縛はここで明示的に行う。
     rateTarget.setValue(1, juce::dontSendNotification);
     levelTarget.setValue(0, juce::dontSendNotification);
@@ -254,6 +273,8 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
 	flagSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
 	stepsSeparator.setVisible(visible);
+    keep.setVisible(visible);
+    keepSeparator.setVisible(visible);
     loop.setVisible(visible);
     loopTo.setVisibleWithLabel(visible);
     loopCount.setVisibleWithLabel(visible);
@@ -267,6 +288,9 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
     level.setVisibleWithLabel(visible);
     levelBtns.setVisibles(visible && level.isVisibleNudge());
     levelValues.setVisible(visible);
+    endLevelSeparator.setVisible(visible);
+    endLevelEnable.setVisible(visible);
+    endLevel.setVisibleWithLabel(visible);
 
     if (visible)
     {
@@ -274,6 +298,8 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
         flagSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 13 });
         stepsSeparator.layoutComponent(rect);
+        layoutMain({ .mainRect = rect, .component = &keep, .rowHeight = 13 });
+        keepSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 13 });
@@ -288,6 +314,9 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
         level.layoutComponent(rect, 13);
         if (level.isVisibleNudge()) levelBtns.layoutComponent(rect, 13);
         layoutStrip(rect, levelValues);
+        endLevelSeparator.layoutComponent(rect);
+        layoutMain({ .mainRect = rect, .component = &endLevelEnable, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &endLevel.label, .component = &endLevel, .rowHeight = 13 });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -303,6 +332,8 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
     flagSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
     stepsSeparator.setVisible(visible);
+    keep.setVisible(visible);
+    keepSeparator.setVisible(visible);
     loop.setVisible(visible);
     loopTo.setVisibleWithLabel(visible);
     loopCount.setVisibleWithLabel(visible);
@@ -316,6 +347,9 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
     level.setVisibleWithLabel(visible);
     levelBtns.setVisibles(visible && level.isVisibleNudge());
     levelValues.setVisible(visible);
+    endLevelSeparator.setVisible(visible);
+    endLevelEnable.setVisible(visible);
+    endLevel.setVisibleWithLabel(visible);
 
     if (visible)
     {
@@ -323,6 +357,8 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
         flagSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 12 });
         stepsSeparator.layoutComponent(rect);
+        layoutRow({ .rowRect = rect, .component = &keep, .rowHeight = 12 });
+        keepSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .component = &loop, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 12 });
@@ -337,14 +373,29 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
         level.layoutComponentRow(rect, 12);
         if (level.isVisibleNudge()) levelBtns.layoutComponentRow(rect, 12);
         layoutStrip(rect, levelValues);
+        endLevelSeparator.layoutComponent(rect);
+        layoutRow({ .rowRect = rect, .component = &endLevelEnable, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &endLevel.label, .component = &endLevel, .rowHeight = 12 });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
+// ENDL を使わないときは、つまみを押せなくする。効いていないものが
+// 触れてしまうと、動かしたのに音が変わらない、という形で迷う。
+void GuiComponentSsgSwEnv11::applyEndLevelEnable() {
+    const bool on = endLevelEnable.getToggleState();
+
+    endLevel.setEnabled(on);
+    endLevel.label.setEnabled(on);
+}
+
 void GuiComponentSsgSwEnv11::setupGraph(std::function<void()> repaintGraph) {
 
     flag.onStateChange = repaintGraph;
+    keep.onStateChange = repaintGraph;
+    endLevelEnable.onStateChange = repaintGraph;
+    endLevel.onValueChange = repaintGraph;
     loop.onStateChange = repaintGraph;
 
     steps.onValueChange = [this, repaintGraph]() {
@@ -382,6 +433,11 @@ void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph) {
 
     graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
 
+    // KEEP のときはカーブを効かせない。音の側も補間そのものを止めてある。
+    const bool keepOn = keep.getToggleState();
+
+    graph.setKeepLevels(keepOn);
+
     graph.updateSsgSwEnv11(
         steps,
         loop,
@@ -411,6 +467,12 @@ void GuiComponentSsgSwEnv11::setEnabled(bool enabled) {
     levelTarget.setEnabled(enabled);
     level.setEnabled(enabled);
     levelBtns.setEnables(enabled);
+    keep.setEnabled(enabled);
+	keepSeparator.setEnabled(enabled);
+	endLevelSeparator.setEnabled(enabled);
+    endLevelEnable.setEnabled(enabled);
+    endLevel.setEnabled(enabled && endLevelEnable.getToggleState());
+    endLevel.label.setEnabled(enabled && endLevelEnable.getToggleState());
 }
 
 void GuiComponentSsgSwEnv11::copyParams(CopyEnvSsgSw11& copyObj) {
@@ -420,6 +482,9 @@ void GuiComponentSsgSwEnv11::copyParams(CopyEnvSsgSw11& copyObj) {
     copyObj.loopTo = loopTo.getValue();
     copyObj.loopCount = loopCount.getValue();
     copyObj.stl = getStepValue(levelKeys[0]);
+    copyObj.endl = endLevel.getValue();
+    copyObj.endlEnable = endLevelEnable.getToggleState();
+    copyObj.keep = keep.getToggleState();
 
     for (int i = 0; i < rateCount; ++i) {
         copyObj.r[i] = getStepValue(rateKeys[i]);
@@ -433,7 +498,10 @@ void GuiComponentSsgSwEnv11::pasteParams(CopyEnvSsgSw11& copyObj) {
     loop.setToggleState(copyObj.loop, juce::sendNotification);
     loopTo.setValue(copyObj.loopTo, juce::sendNotification);
     loopCount.setValue(copyObj.loopCount, juce::sendNotification);
-    setStepValue(levelKeys[0], copyObj.stl);
+    setStepValue(levelKeys[0], (float)copyObj.stl);
+    endLevel.setValue(copyObj.endl, juce::sendNotification);
+    endLevelEnable.setToggleState(copyObj.endlEnable, juce::sendNotification);
+    keep.setToggleState(copyObj.keep, juce::sendNotification);
 
     for (int i = 0; i < rateCount; ++i) {
         setStepValue(rateKeys[i], copyObj.r[i]);
@@ -499,6 +567,9 @@ void GuiComponentSsgSwEnv11::importParams() {
                 loop.setToggleState(reader->getBool("loop", loop.getToggleState()), juce::sendNotification);
                 loopTo.setValue(reader->getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
                 loopCount.setValue(reader->getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+    keep.setToggleState(reader->getBool("keep", keep.getToggleState()), juce::sendNotification);
+    endLevel.setValue(reader->getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
+    endLevelEnable.setToggleState(reader->getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
                 setStepValue(levelKeys[0], reader->getFloat("startLevel", getStepValue(levelKeys[0])));
 
                 for (int i = 0; i < rateCount; ++i) {
@@ -535,6 +606,9 @@ void GuiComponentSsgSwEnv11::exportParams() {
                 writer.set("loop", loop.getToggleState());
                 writer.set("loopTo", (float)loopTo.getValue());
                 writer.set("loopCount", (float)loopCount.getValue());
+    writer.set("keep", keep.getToggleState());
+    writer.set("endLevel", (float)endLevel.getValue());
+    writer.set("endLevelEnable", endLevelEnable.getToggleState());
                 writer.set("startLevel", getStepValue(levelKeys[0]));
 
                 for (int i = 0; i < rateCount; ++i) {
@@ -574,6 +648,9 @@ void GuiComponentSsgSwEnv11::readParams(const Io::ParamReader& reader, const juc
     loop.setToggleState(r.getBool("loop", loop.getToggleState()), juce::sendNotification);
     loopTo.setValue(r.getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
     loopCount.setValue(r.getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+    keep.setToggleState(r.getBool("keep", keep.getToggleState()), juce::sendNotification);
+    endLevel.setValue(r.getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
+    endLevelEnable.setToggleState(r.getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
     setStepValue(levelKeys[0], r.getFloat("startLevel", getStepValue(levelKeys[0])));
 
     for (int i = 0; i < rateCount; ++i) {
@@ -613,6 +690,9 @@ void GuiComponentSsgSwEnv11::writeParams(Io::ParamWriter& writer, const juce::St
     w.set("loop", loop.getToggleState());
     w.set("loopTo", (float)loopTo.getValue());
     w.set("loopCount", (float)loopCount.getValue());
+    w.set("keep", keep.getToggleState());
+    w.set("endLevel", (float)endLevel.getValue());
+    w.set("endLevelEnable", endLevelEnable.getToggleState());
     w.set("startLevel", getStepValue(levelKeys[0]));
 
     for (int i = 0; i < rateCount; ++i) {

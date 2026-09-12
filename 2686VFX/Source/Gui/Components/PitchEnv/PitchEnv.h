@@ -29,6 +29,11 @@ class GuiComponentPitchEnv : public GuiBase {
     GuiCategoryLabel cat;
     GuiToggleButton flag; // Bypass or Enable
     NormalSeparator flagSeparator;
+
+    // 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+    // 効き方そのものを変えるので、値より先に見える場所へ置く。
+    GuiToggleButton keep;
+    NormalSeparator keepSeparator;
     GuiComponentNudgeSliderFloat attack;
     GuiComponentNudgeButtons attackNudge;
     GuiComponentNudgeSliderFloat decay;
@@ -44,6 +49,13 @@ class GuiComponentPitchEnv : public GuiBase {
     GuiComponentPitchButtons sustainLevelButtons;
     GuiComponentNudgeSliderFloat releaseLevel;
     GuiComponentPitchButtons releaseLevelButtons;
+
+    // リリースを走り終えたあとに保つセント。
+    // 触っていないうちは、これまでどおり RLL を保つ。
+    // ENDL を使うかどうか。切のあいだは、これまでどおり RLL を保つ。
+    GuiToggleButton endLevelEnable;
+    GuiComponentNudgeSliderFloat endLevel;
+    GuiComponentPitchButtons endLevelButtons;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
@@ -76,6 +88,8 @@ public:
         cat(context),
         flag(context),
         flagSeparator(context),
+        keep(context),
+        keepSeparator(context),
         attack(context),
         attackNudge(context),
         decay(context),
@@ -90,7 +104,10 @@ public:
         sustainLevel(context),
         sustainLevelButtons(context),
         releaseLevel(context),
-        releaseLevelButtons(context)
+        releaseLevelButtons(context),
+        endLevelEnable(context),
+        endLevel(context),
+        endLevelButtons(context)
     {
     }
 
@@ -98,6 +115,9 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);
+
+    // ENDL を使うかどうかに合わせて、つまみの押せる・押せないを揃える。
+    void applyEndLevelEnable();
     void updateGraph(GuiEnvelopeGraph& graph);
     void setEnabled(bool enabled);
     void copyParams(CopyEnvPitchAdsr& copyObj);

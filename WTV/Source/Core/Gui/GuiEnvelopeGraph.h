@@ -100,9 +100,19 @@ public:
         int posIdx
     );
     void updateBypass(bool bypass) { this->isBypass = bypass; }
+
+    // KEEP のとき、段のあいだレベルを保つ絵にする。
+    //
+    // setEnvelope へ渡す前に立てておくこと。渡された段の並びを
+    // そこで横一直線へ均し、印は使い捨てにする (区分ごとにグラフを
+    // 使い回すため)。
+    void setKeepLevels(bool keep) { this->keepLevels = keep; }
 private:
     EnvType currentType = EnvType::Amp;
     juce::String currentTitle;
     std::vector<PhaseDef> currentPhases;
     bool isBypass;
+
+    // 段のあいだレベルを保つか。KEEP を入れた区分から立てられる。
+    bool keepLevels = false;
 };

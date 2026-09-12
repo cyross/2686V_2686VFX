@@ -450,6 +450,22 @@ namespace CPV
 			inline constexpr float initial = 1.0f;
 		}
 
+		// リリースを走り終えたあとに保つレベル。
+		// 既定の 0.0 はこれまでと同じ鳴り方になる。
+		namespace EndL
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		// ENDL を使うかどうか。切のあいだは、これまでどおり
+		// リリースが到達する先をそのまま保つ。
+		namespace EndLEnable
+		{
+			inline constexpr float initial = false;
+		}
+
 		namespace Sr
 		{
 			inline constexpr float min = CPV::rateMin;
@@ -505,6 +521,13 @@ namespace CPV
 			inline constexpr float initial = false;
 		}
 
+		// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+		// 切ってあるときはこれまでどおり補間する。
+		namespace Keep
+		{
+			inline constexpr float initial = false;
+		}
+
 		namespace Enable
 		{
 			inline constexpr float initial = true;
@@ -522,6 +545,21 @@ namespace CPV
 			inline constexpr int min = CPV::pitchLevelMin;
 			inline constexpr int max = CPV::pitchLevelMax;
 			inline constexpr int initial = CPV::pitchLevelIni;
+		}
+
+		// リリースを走り終えたあとに保つセント。
+		namespace EndL
+		{
+			inline constexpr int min = CPV::pitchLevelMin;
+			inline constexpr int max = CPV::pitchLevelMax;
+			inline constexpr int initial = CPV::pitchLevelIni;
+		}
+
+		// ENDL を使うかどうか。切のあいだは、これまでどおり
+		// リリースが到達する先をそのまま保つ。
+		namespace EndLEnable
+		{
+			inline constexpr float initial = false;
 		}
 	}
 
@@ -643,6 +681,28 @@ namespace CPV
 			inline constexpr float max = 1.0f;
 			inline constexpr float initial = 0.0f;
 		}
+
+		// リリースを走り終えたあとに保つレベル。
+		namespace EndL
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		// ENDL を使うかどうか。切のあいだは、これまでどおり
+		// リリースが到達する先をそのまま保つ。
+		namespace EndLEnable
+		{
+			inline constexpr float initial = false;
+		}
+
+		// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+		// 切ってあるときはこれまでどおり補間する。
+		namespace Keep
+		{
+			inline constexpr float initial = false;
+		}
 	}
 
 	namespace SsgSwPEnv11
@@ -650,6 +710,13 @@ namespace CPV
 		namespace Bypass
 		{
 			inline constexpr float initial = true;
+		}
+
+		// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+		// 切ってあるときはこれまでどおり補間する。
+		namespace Keep
+		{
+			inline constexpr float initial = false;
 		}
 
 		namespace Enable
@@ -695,6 +762,21 @@ namespace CPV
 			inline constexpr int min = CPV::pitchLevelMin;
 			inline constexpr int max = CPV::pitchLevelMax;
 			inline constexpr int initial = CPV::pitchLevelIni;
+		}
+
+		// リリースを走り終えたあとに保つセント。
+		namespace EndL
+		{
+			inline constexpr int min = CPV::pitchLevelMin;
+			inline constexpr int max = CPV::pitchLevelMax;
+			inline constexpr int initial = CPV::pitchLevelIni;
+		}
+
+		// ENDL を使うかどうか。切のあいだは、これまでどおり
+		// リリースが到達する先をそのまま保つ。
+		namespace EndLEnable
+		{
+			inline constexpr float initial = false;
 		}
 	}
 

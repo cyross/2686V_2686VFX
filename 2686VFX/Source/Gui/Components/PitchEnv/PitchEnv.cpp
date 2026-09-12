@@ -32,6 +32,12 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 
 	flagSeparator.setupComponent(parent);
 
+	keep.setup({ .parent = parent, .id = code + CPK::PitchAdsr::keep, .title = "KEEP", .isReset = true });
+	keep.setWantsKeyboardFocus(true);
+	keep.setExplicitFocusOrder(++tabOrder);
+
+	keepSeparator.setupComponent(parent);
+
 	attack.setupComponent(parent, code + CPK::PitchAdsr::ar, "AR", tabOrder, std::nullopt, labelFont);
 
 	attackNudge.setupComponent(parent, attack.getSlider(), tabOrder);
@@ -61,6 +67,17 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 	releaseLevel.setupComponent(parent, code + CPK::PitchAdsr::rll, "RLL", tabOrder, std::nullopt, labelFont);
 
 	releaseLevelButtons.setupComponent(parent, releaseLevel.getSlider(), tabOrder, labelFont);
+
+	endLevelEnable.setup({ .parent = parent, .id = code + CPK::PitchAdsr::endlEnable, .title = "USE ENDL", .isReset = true });
+	endLevelEnable.setWantsKeyboardFocus(true);
+	endLevelEnable.setExplicitFocusOrder(++tabOrder);
+	endLevelEnable.onClick = [this] { applyEndLevelEnable(); };
+
+	endLevel.setupComponent(parent, code + CPK::PitchAdsr::endl, "ENDL", tabOrder, std::nullopt, labelFont);
+
+	endLevelButtons.setupComponent(parent, endLevel.getSlider(), tabOrder, labelFont);
+
+	applyEndLevelEnable();
 }
 
 void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
@@ -71,6 +88,8 @@ void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
 
 	flag.setVisible(visible);
 	flagSeparator.setVisible(visible);
+	keep.setVisible(visible);
+	keepSeparator.setVisible(visible);
 	attack.setVisibleWithLabel(visible);
 	attackNudge.setVisibles(visible && attack.isVisibleNudge());
 	decay.setVisibleWithLabel(visible);
@@ -86,11 +105,16 @@ void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
 	sustainLevelButtons.setVisibles(visible && sustainLevel.isVisibleNudge());
 	releaseLevel.setVisibleWithLabel(visible);
 	releaseLevelButtons.setVisibles(visible && releaseLevel.isVisibleNudge());
+	endLevelEnable.setVisible(visible);
+	endLevel.setVisibleWithLabel(visible);
+	endLevelButtons.setVisibles(visible && endLevel.isVisibleNudge());
 
     if (visible)
     {
 		layoutMain({ .mainRect = rect, .component = &flag });
 		flagSeparator.layoutComponent(rect);
+		layoutMain({ .mainRect = rect, .component = &keep });
+		keepSeparator.layoutComponent(rect);
 		attack.layoutComponent(rect, 13);
 		if (attack.isVisibleNudge()) attackNudge.layoutComponent(rect, 13);
         decay.layoutComponent(rect, 13);
@@ -106,6 +130,9 @@ void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
 		if (sustainLevel.isVisibleNudge()) sustainLevelButtons.layoutComponent(rect, 13);
 		releaseLevel.layoutComponent(rect, 13);
 		if (releaseLevel.isVisibleNudge()) releaseLevelButtons.layoutComponent(rect, 13);
+		layoutMain({ .mainRect = rect, .component = &endLevelEnable });
+		endLevel.layoutComponent(rect, 13);
+		if (endLevel.isVisibleNudge()) endLevelButtons.layoutComponent(rect, 13);
 
 		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
@@ -119,6 +146,8 @@ void GuiComponentPitchEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 
 	flag.setVisible(visible);
 	flagSeparator.setVisible(visible);
+	keep.setVisible(visible);
+	keepSeparator.setVisible(visible);
 	attack.setVisibleWithLabel(visible);
 	attackNudge.setVisibles(visible && attack.isVisibleNudge());
 	decay.setVisibleWithLabel(visible);
@@ -134,11 +163,16 @@ void GuiComponentPitchEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	sustainLevelButtons.setVisibles(visible && sustainLevel.isVisibleNudge());
 	releaseLevel.setVisibleWithLabel(visible);
 	releaseLevelButtons.setVisibles(visible && releaseLevel.isVisibleNudge());
+	endLevelEnable.setVisible(visible);
+	endLevel.setVisibleWithLabel(visible);
+	endLevelButtons.setVisibles(visible && endLevel.isVisibleNudge());
 
 	if (visible)
 	{
 		layoutRow({ .rowRect = rect, .component = &flag });
 		flagSeparator.layoutComponent(rect);
+		layoutRow({ .rowRect = rect, .component = &keep });
+		keepSeparator.layoutComponent(rect);
 		attack.layoutComponentRow(rect, 12);
 		if (attack.isVisibleNudge()) attackNudge.layoutComponentRow(rect, 12);
 		decay.layoutComponentRow(rect, 12);
@@ -154,9 +188,21 @@ void GuiComponentPitchEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 		if (sustainLevel.isVisibleNudge()) sustainLevelButtons.layoutComponentRow(rect, 12);
 		releaseLevel.layoutComponentRow(rect, 12);
 		if (releaseLevel.isVisibleNudge()) releaseLevelButtons.layoutComponentRow(rect, 12);
+		layoutRow({ .rowRect = rect, .component = &endLevelEnable });
+		endLevel.layoutComponentRow(rect, 12);
+		if (endLevel.isVisibleNudge()) endLevelButtons.layoutComponentRow(rect, 12);
 
 		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
+}
+
+// ENDL を使わないときは、つまみを押せなくする。効いていないものが
+// 触れてしまうと、動かしたのに音が変わらない、という形で迷う。
+void GuiComponentPitchEnv::applyEndLevelEnable() {
+	const bool on = endLevelEnable.getToggleState();
+
+	endLevel.setEnabled(on);
+	endLevelButtons.setEnables(on);
 }
 
 void GuiComponentPitchEnv::setupGraph(std::function<void()> repaintGraph) {
@@ -168,10 +214,18 @@ void GuiComponentPitchEnv::setupGraph(std::function<void()> repaintGraph) {
 	attackLevel.getSlider().onValueChange = repaintGraph;
 	sustainLevel.getSlider().onValueChange = repaintGraph;
 	releaseLevel.getSlider().onValueChange = repaintGraph;
+	endLevel.getSlider().onValueChange = repaintGraph;
+	endLevelEnable.onStateChange = repaintGraph;
+	keep.onStateChange = repaintGraph;
 }
 
 void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph) {
 	graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
+
+	// KEEP のときはカーブを効かせない。音の側も補間そのものを止めてある。
+	const bool keepOn = keep.getToggleState();
+
+	graph.setKeepLevels(keepOn);
 
 	graph.updatePitchEnv(
 		attack.getSlider(),
@@ -194,6 +248,9 @@ void GuiComponentPitchEnv::setEnabled(bool enabled) {
 	attackLevel.setEnabled(enabled);
 	sustainLevel.setEnabled(enabled);
 	releaseLevel.setEnabled(enabled);
+	endLevelEnable.setEnabled(enabled);
+	endLevel.setEnabled(enabled && endLevelEnable.getToggleState());
+	keep.setEnabled(enabled);
 }
 
 void GuiComponentPitchEnv::copyParams(CopyEnvPitchAdsr& copyObj) {
@@ -205,6 +262,9 @@ void GuiComponentPitchEnv::copyParams(CopyEnvPitchAdsr& copyObj) {
 	copyObj.atl = attackLevel.getValue();
 	copyObj.ssl = sustainLevel.getValue();
 	copyObj.rll = releaseLevel.getValue();
+	copyObj.endl = (int)endLevel.getValue();
+	copyObj.endlEnable = endLevelEnable.getToggleState();
+	copyObj.keep = keep.getToggleState();
 }
 
 void GuiComponentPitchEnv::pasteParams(CopyEnvPitchAdsr& copyObj) {
@@ -216,6 +276,9 @@ void GuiComponentPitchEnv::pasteParams(CopyEnvPitchAdsr& copyObj) {
 	attackLevel.setValue(copyObj.atl, juce::sendNotification);
 	sustainLevel.setValue(copyObj.ssl, juce::sendNotification);
 	releaseLevel.setValue(copyObj.rll, juce::sendNotification);
+	endLevel.setValue(copyObj.endl, juce::sendNotification);
+	endLevelEnable.setToggleState(copyObj.endlEnable, juce::sendNotification);
+	keep.setToggleState(copyObj.keep, juce::sendNotification);
 }
 
 void GuiComponentPitchEnv::importParams() {
@@ -277,6 +340,9 @@ void GuiComponentPitchEnv::importParams() {
 				attackLevel.setValue(reader->getFloat("attackLevel", (float)attackLevel.getValue()), juce::sendNotification);
 				sustainLevel.setValue(reader->getFloat("sustainLevel", (float)sustainLevel.getValue()), juce::sendNotification);
 				releaseLevel.setValue(reader->getFloat("releaseLevel", (float)releaseLevel.getValue()), juce::sendNotification);
+	endLevel.setValue(reader->getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
+	endLevelEnable.setToggleState(reader->getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
+	keep.setToggleState(reader->getBool("keep", keep.getToggleState()), juce::sendNotification);
 			}
 		});
 }
@@ -306,6 +372,9 @@ void GuiComponentPitchEnv::exportParams() {
 				writer.set("attackLevel", (float)attackLevel.getValue());
 				writer.set("sustainLevel", (float)sustainLevel.getValue());
 				writer.set("releaseLevel", (float)releaseLevel.getValue());
+	writer.set("endLevel", (float)endLevel.getValue());
+	writer.set("endLevelEnable", endLevelEnable.getToggleState());
+	writer.set("keep", keep.getToggleState());
 
 				writer.writeTo(file);
 			}
@@ -335,6 +404,9 @@ void GuiComponentPitchEnv::readParams(const Io::ParamReader& reader, const juce:
 	attackLevel.setValue(r.getFloat("attackLevel", (float)attackLevel.getValue()), juce::sendNotification);
 	sustainLevel.setValue(r.getFloat("sustainLevel", (float)sustainLevel.getValue()), juce::sendNotification);
 	releaseLevel.setValue(r.getFloat("releaseLevel", (float)releaseLevel.getValue()), juce::sendNotification);
+	endLevel.setValue(r.getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
+	endLevelEnable.setToggleState(r.getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
+	keep.setToggleState(r.getBool("keep", keep.getToggleState()), juce::sendNotification);
 }
 
 juce::String GuiComponentPitchEnv::getExportedParams() {
@@ -364,4 +436,7 @@ void GuiComponentPitchEnv::writeParams(Io::ParamWriter& writer, const juce::Stri
 	w.set("attackLevel", (float)attackLevel.getValue());
 	w.set("sustainLevel", (float)sustainLevel.getValue());
 	w.set("releaseLevel", (float)releaseLevel.getValue());
+	w.set("endLevel", (float)endLevel.getValue());
+	w.set("endLevelEnable", endLevelEnable.getToggleState());
+	w.set("keep", keep.getToggleState());
 }

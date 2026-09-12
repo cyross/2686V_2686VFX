@@ -12,6 +12,22 @@ void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, cons
     currentType = type;
     currentTitle = title;
     currentPhases = phases;
+
+    // KEEP のときは、行き先へ向かって斜めに引かず、その段の始まりの値で
+    // 横一直線を引く。つなぎ目だけが縦に飛ぶ (階段状)。
+    if (keepLevels)
+    {
+        for (auto& phase : currentPhases)
+        {
+            phase.endLevel = phase.startLevel;
+        }
+    }
+
+    // 1 回きりの印。次に描く区分へ持ち越さない。グラフは区分ごとに
+    // 使い回すので、立てっぱなしにすると関係のない区分まで横一直線に
+    // なってしまう。
+    keepLevels = false;
+
     repaint();
 }
 

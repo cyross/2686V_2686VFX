@@ -210,6 +210,8 @@ namespace CPN
 		static inline const juce::String rr = " Rr";
 		static inline const juce::String stl = " Stl";
 		static inline const juce::String kor = " KOR";
+		static inline const juce::String endl = " EndL";
+		static inline const juce::String endlEnable = " EndL Enable";
 	}
 
 	namespace PitchAdsr
@@ -223,6 +225,9 @@ namespace CPN
 		static inline const juce::String atl = " PitchEnv Atl";
 		static inline const juce::String ssl = " PitchEnv Ssl";
 		static inline const juce::String rll = " PitchEnv Rll";
+		static inline const juce::String endl = " PitchEnv EndL";
+		static inline const juce::String endlEnable = " PitchEnv EndL Enable";
+		static inline const juce::String keep = " PitchEnv Keep";
 	};
 
 	namespace SsgSwEnv
@@ -279,6 +284,9 @@ namespace CPN
 		static inline const juce::String l10 = " SSG SwEnv11 L10";
 		static inline const juce::String r11 = " SSG SwEnv11 R11";
 		static inline const juce::String l11 = " SSG SwEnv11 L11";
+		static inline const juce::String endl = " SSG SwEnv11 EndL";
+		static inline const juce::String endlEnable = " SSG SwEnv11 EndL Enable";
+		static inline const juce::String keep = " SSG SwEnv11 Keep";
 	};
 
 	namespace SsgSwPEnv11
@@ -312,6 +320,9 @@ namespace CPN
 		static inline const juce::String l10 = " SSG SwPEnv11 L10";
 		static inline const juce::String r11 = " SSG SwPEnv11 R11";
 		static inline const juce::String l11 = " SSG SwPEnv11 L11";
+		static inline const juce::String endl = " SSG SwPEnv11 EndL";
+		static inline const juce::String endlEnable = " SSG SwPEnv11 EndL Enable";
+		static inline const juce::String keep = " SSG SwPEnv11 Keep";
 	};
 
 	namespace Opzx7Lfo

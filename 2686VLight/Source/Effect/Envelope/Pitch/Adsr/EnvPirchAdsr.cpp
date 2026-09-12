@@ -45,6 +45,9 @@ void PitchAdsrEnv::setParameters(const PitchAdsrParams& params) {
 	this->atl = params.atl;
     this->ssl = params.ssl;
 	this->rll = params.rll;
+	this->endl = params.endl;
+	this->endlEnable = params.endlEnable;
+	this->keep = params.keep;
 	this->bypass = params.bypass;
     this->updateIncrements();
 }
@@ -88,7 +91,8 @@ float PitchAdsrEnv::process(float phaseDelta) {
         }
         else {
             // stl から atl へ向かって補間
-            this->currentCents = this->stl + (this->atl - this->stl) * this->phaseProgress;
+            // KEEP のときは動かさない。段の始まりの値をそのまま保つ。
+            if (!this->keep) this->currentCents = this->stl + (this->atl - this->stl) * this->phaseProgress;
         }
 
         // --- セント値を周波数比に変換して phaseDelta に適用 ---
@@ -116,7 +120,8 @@ float PitchAdsrEnv::process(float phaseDelta) {
             }
             else {
                 // atl から ssl へ向かって補間
-                this->currentCents = this->atl + (this->ssl - this->atl) * this->phaseProgress;
+                // KEEP のときは動かさない。段の始まりの値をそのまま保つ。
+                if (!this->keep) this->currentCents = this->atl + (this->ssl - this->atl) * this->phaseProgress;
             }
         }
 
@@ -146,12 +151,13 @@ float PitchAdsrEnv::process(float phaseDelta) {
 
         if (this->phaseProgress >= 1.0f) {
             this->phaseProgress = 1.0f;
-            this->currentCents = this->rll;
+            this->currentCents = this->endCents();
             this->state = State::Idle;
         }
         else {
             // キーを離した瞬間のピッチ (releaseStartCents) から rll へ向かって補間
-            this->currentCents = this->releaseStartCents + (this->rll - this->releaseStartCents) * this->phaseProgress;
+            // KEEP のときは動かさない。キーを離した時点の値を保つ。
+            if (!this->keep) this->currentCents = this->releaseStartCents + (this->rll - this->releaseStartCents) * this->phaseProgress;
         }
 
         // --- セント値を周波数比に変換して phaseDelta に適用 ---

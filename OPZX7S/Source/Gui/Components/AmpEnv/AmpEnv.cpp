@@ -54,7 +54,18 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
 
+	endLevelEnable.setup({ .parent = parent, .id = code + CPK::Adsr::endlEnable, .title = "USE ENDL", .isReset = true });
+	endLevelEnable.setWantsKeyboardFocus(true);
+	endLevelEnable.setExplicitFocusOrder(++tabOrder);
+	endLevelEnable.onClick = [this] { applyEndLevelEnable(); };
+
+	endLevel.setup({ .parent = parent, .id = code + CPK::Adsr::endl, .title = "ENDL", .isReset = true });
+	endLevel.setWantsKeyboardFocus(true);
+	endLevel.setExplicitFocusOrder(++tabOrder);
+
 	separator2.setupComponent(parent);
+
+	applyEndLevelEnable();
 
 	kor.setup({ .parent = parent, .id = code + CPK::Adsr::kor, .title = "KOR", .isReset = true });
 	kor.setWantsKeyboardFocus(true);
@@ -74,6 +85,8 @@ void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
 	decay.setVisibleWithLabel(visible);
 	sustain.setVisibleWithLabel(visible);
 	release.setVisibleWithLabel(visible);
+	endLevelEnable.setVisible(visible);
+	endLevel.setVisibleWithLabel(visible);
 	separator2.setVisible(visible);
 	kor.setVisible(visible);
 
@@ -86,6 +99,8 @@ void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &decay.label, .component = &decay });
 		layoutMain({ .mainRect = rect, .label = &sustain.label, .component = &sustain });
 		layoutMain({ .mainRect = rect, .label = &release.label, .component = &release });
+		layoutMain({ .mainRect = rect, .component = &endLevelEnable });
+		layoutMain({ .mainRect = rect, .label = &endLevel.label, .component = &endLevel });
 		separator2.layoutComponent(rect);
 		layoutMain({ .mainRect = rect, .component = &kor });
 
@@ -105,6 +120,8 @@ void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	decay.setVisibleWithLabel(visible);
 	sustain.setVisibleWithLabel(visible);
 	release.setVisibleWithLabel(visible);
+	endLevelEnable.setVisible(visible);
+	endLevel.setVisibleWithLabel(visible);
 	kor.setVisible(visible);
 
 	if (visible)
@@ -115,10 +132,21 @@ void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 		layoutRow({ .rowRect = rect, .label = &decay.label, .component = &decay });
 		layoutRow({ .rowRect = rect, .label = &sustain.label, .component = &sustain });
 		layoutRow({ .rowRect = rect, .label = &release.label, .component = &release });
+		layoutRow({ .rowRect = rect, .component = &endLevelEnable });
+		layoutRow({ .rowRect = rect, .label = &endLevel.label, .component = &endLevel });
 		layoutRow({ .rowRect = rect, .component = &kor });
 
 		rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 	}
+}
+
+// ENDL を使わないときは、つまみを押せなくする。効いていないものが
+// 触れてしまうと、動かしたのに音が変わらない、という形で迷う。
+void GuiComponentAmpEnv::applyEndLevelEnable() {
+	const bool on = endLevelEnable.getToggleState();
+
+	endLevel.setEnabled(on);
+	endLevel.label.setEnabled(on);
 }
 
 void GuiComponentAmpEnv::setupGraph(std::function<void()> repaintGraph) {
@@ -128,6 +156,8 @@ void GuiComponentAmpEnv::setupGraph(std::function<void()> repaintGraph) {
 	decay.onValueChange = repaintGraph;
 	sustain.onValueChange = repaintGraph;
 	release.onValueChange = repaintGraph;
+	endLevel.onValueChange = repaintGraph;
+	endLevelEnable.onStateChange = repaintGraph;
 	kor.onStateChange = repaintGraph;
 }
 
@@ -153,6 +183,9 @@ void GuiComponentAmpEnv::setEnabled(bool enabled) {
 	decay.setEnabled(enabled);
 	sustain.setEnabled(enabled);
 	release.setEnabled(enabled);
+	endLevelEnable.setEnabled(enabled);
+	endLevel.setEnabled(enabled && endLevelEnable.getToggleState());
+	endLevel.label.setEnabled(enabled && endLevelEnable.getToggleState());
 	startLevel.setEnabled(enabled);
 	kor.setEnabled(enabled);
 }
@@ -163,6 +196,8 @@ void GuiComponentAmpEnv::copyParams(CopyEnvAmpAdsr& copyObj) {
 	copyObj.dr = decay.getValue();
 	copyObj.sl = sustain.getValue();
 	copyObj.rr = release.getValue();
+	copyObj.endl = endLevel.getValue();
+	copyObj.endlEnable = endLevelEnable.getToggleState();
 	copyObj.stl = startLevel.getValue();
 	copyObj.kor = kor.getToggleState();
 }
@@ -173,6 +208,8 @@ void GuiComponentAmpEnv::pasteParams(CopyEnvAmpAdsr& copyObj) {
 	decay.setValue(copyObj.dr, juce::sendNotification);
 	sustain.setValue(copyObj.sl, juce::sendNotification);
 	release.setValue(copyObj.rr, juce::sendNotification);
+	endLevel.setValue(copyObj.endl, juce::sendNotification);
+	endLevelEnable.setToggleState(copyObj.endlEnable, juce::sendNotification);
 	startLevel.setValue(copyObj.stl, juce::sendNotification);
 	kor.setToggleState(copyObj.kor, juce::sendNotification);
 }
@@ -238,6 +275,8 @@ void GuiComponentAmpEnv::applyParamFile(const juce::File& file)
 	decay.setValue(reader->getFloat("decay", (float)decay.getValue()), juce::sendNotification);
 	sustain.setValue(reader->getFloat("sustain", (float)sustain.getValue()), juce::sendNotification);
 	release.setValue(reader->getFloat("release", (float)release.getValue()), juce::sendNotification);
+	endLevel.setValue(reader->getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
+	endLevelEnable.setToggleState(reader->getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
 	kor.setToggleState(reader->getBool("kor", kor.getToggleState()), juce::sendNotification);
 }
 
@@ -266,6 +305,8 @@ void GuiComponentAmpEnv::writeParamsFile(const juce::File& file)
 	writer.set("decay", (float)decay.getValue());
 	writer.set("sustain", (float)sustain.getValue());
 	writer.set("release", (float)release.getValue());
+	writer.set("endLevel", (float)endLevel.getValue());
+	writer.set("endLevelEnable", endLevelEnable.getToggleState());
 	writer.set("kor", kor.getToggleState());
 
 	writer.writeTo(file);
@@ -291,6 +332,8 @@ void GuiComponentAmpEnv::readParams(const Io::ParamReader& reader, const juce::S
 	decay.setValue(r.getFloat("decay", (float)decay.getValue()), juce::sendNotification);
 	sustain.setValue(r.getFloat("sustain", (float)sustain.getValue()), juce::sendNotification);
 	release.setValue(r.getFloat("release", (float)release.getValue()), juce::sendNotification);
+	endLevel.setValue(r.getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
+	endLevelEnable.setToggleState(r.getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
 	kor.setToggleState(r.getBool("kor", kor.getToggleState()), juce::sendNotification);
 }
 
@@ -318,5 +361,7 @@ void GuiComponentAmpEnv::writeParams(Io::ParamWriter& writer, const juce::String
 	w.set("decay", (float)decay.getValue());
 	w.set("sustain", (float)sustain.getValue());
 	w.set("release", (float)release.getValue());
+	w.set("endLevel", (float)endLevel.getValue());
+	w.set("endLevelEnable", endLevelEnable.getToggleState());
 	w.set("kor", kor.getToggleState());
 }
