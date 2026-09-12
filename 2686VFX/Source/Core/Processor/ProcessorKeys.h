@@ -47,6 +47,7 @@ namespace CPK
 
 	static inline const juce::String level = "_LEVEL";
 	static inline const juce::String speed = "_SPEED";
+	static inline const juce::String delay = "_DELAY";
 	static inline const juce::String vol = "_VOL";
 
 	static inline const juce::String fix = "_FIX";

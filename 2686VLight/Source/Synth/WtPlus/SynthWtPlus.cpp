@@ -44,6 +44,7 @@ void WtPlusCore::setSampleRate(double sampleRate)
 void WtPlusCore::setParameters(const SynthParams& params)
 {
     m_level = params.wtPlus.level;
+    m_delaySeconds = params.wtPlus.delay;
     m_speed = params.wtPlus.speed;
 
     m_fixMode.setParameters(params.wtPlus.fix);

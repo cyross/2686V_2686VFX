@@ -453,6 +453,7 @@ struct PrPtrsPanpot {
 
 struct PrPtrsWtBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* speed = nullptr;
     std::atomic<float>* wave = nullptr;
     std::atomic<float>* sampleSize = nullptr;
@@ -461,6 +462,7 @@ struct PrPtrsWtBasic {
 
 struct PrPtrsWt2Basic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* speed = nullptr;
     std::atomic<float>* wave = nullptr;
     std::atomic<float>* sampleSize = nullptr;
@@ -476,46 +478,56 @@ struct PrPtrsWtCustomWave {
 
 struct PrPtrsAdpcmBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
     std::atomic<float>* loop = nullptr;
 };
 
 struct PrPtrsBeepBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsOplBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsOpl3Basic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsOpmBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
 };
 
 struct PrPtrsOpnBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsOpnaBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
 };
 
 struct PrPtrsOpzx7Basic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsRhythmBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsRhythmPadBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
     std::atomic<float>* noteNumber = nullptr;
     std::atomic<float>* isOneShot = nullptr;
@@ -523,6 +535,7 @@ struct PrPtrsRhythmPadBasic {
 
 struct PrPtrsSsgBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* speed = nullptr;
     std::atomic<float>* waveform = nullptr;
 };

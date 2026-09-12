@@ -17,6 +17,9 @@ struct OpnParams
 {
     float level = 1.0f;
 
+    // 押してから鳴り始めるまでの間 (秒)
+    float delay = 0.0f;
+
     AlgFbParams algFb;
     LfoN88Params glLfo;
     QualityParams quality;

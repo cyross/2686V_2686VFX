@@ -49,6 +49,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
 {
     m_noteNumber = params.noteNumber;
     m_level = params.level;
+    m_delaySeconds = params.delay;
     m_tone = params.tn.tone;
     m_mix = params.tn.mix;
     m_pan = params.pan;
@@ -139,6 +140,9 @@ void RhythmPad::setModulationWheel(float modWheel) {
 
 void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, int uTotal)
 {
+    // 再生遅延は 1 音ごとに数え直す
+    beginDelay();
+
     // 素材がまだ差さっていなければ鳴らすものがない。
     if (m_pcm == nullptr) return;
 
@@ -240,6 +244,9 @@ bool RhythmPad::isPlaying() const
 float RhythmPad::getSample()
 {
     if (m_pcm == nullptr) return 0.0f;
+
+    // 待っている間は何も出さず、位相も包絡も進めない
+    if (tickDelay()) return 0.0f;
 
     // すべてのアンプエンベロープがバイパスされているかどうかを判定
     bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
@@ -729,6 +736,7 @@ void RhythmCore::setParameters(const SynthParams& params)
 {
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
+    m_delaySeconds = params.rhythm.delay;
 
     for (int i = 0; i < MaxRhythmPads; ++i) {
         pads[i].setParameters(params.rhythm.pads[i]);

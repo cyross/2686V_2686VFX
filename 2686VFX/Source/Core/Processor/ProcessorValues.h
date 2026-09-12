@@ -58,6 +58,16 @@ namespace CPV
 	//
 	// 0 まで落とすと止まってしまい、戻す手が無くなるので、下限は
 	// 止まる手前で止めてある。
+	// キーを押してから鳴り始めるまでの間 (秒)。
+	// 待っている間は位相も包絡も進めない。
+	// CPV::Delay の目印
+	namespace Delay
+	{
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 60.0f;
+		inline constexpr float initial = 0.0f;
+	}
+
 	// CPV::Speed の目印
 	namespace Speed
 	{

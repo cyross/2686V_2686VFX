@@ -32,6 +32,7 @@ void OpmOperator::setCurveCore(CurveCore* p_curveCore)
 void OpmOperator::setParameters(const OpmOpParams& params, int feedback)
 {
     m_params = params;
+    m_delaySeconds = params.delay;
     m_feedback = feedback;
     m_params.se = params.se;
     m_params.se.freq = 1.0f;
@@ -65,6 +66,9 @@ void OpmOperator::setSampleRate(double sampleRate)
 void OpmOperator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
     m_noteNumber = noteNumber;
+
+    // 再生遅延は 1 音ごとに数え直す。押し直せばまた最初から待つ。
+    beginDelay();
 
     // ハードウェアエンベロープは位相を持つだけなので、
     // 押し直したときだけ頭から流し直す。
@@ -168,6 +172,13 @@ void OpmOperator::noteOff()
 
 void OpmOperator::getSample(float& output, float modulator, float feedbackModulator, const OpmLfoCore& hwLfo, float modWheel)
 {
+    // 待っている間は何も出さず、位相も包絡も進めない
+    if (tickDelay()) {
+        output = 0.0f;
+
+        return;
+    }
+
     bool allAmpBypassed = isAllAmpBypassed();
 
     if (allAmpBypassed) {

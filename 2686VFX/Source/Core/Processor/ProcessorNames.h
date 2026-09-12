@@ -31,6 +31,7 @@ namespace CPN
 
 	static inline const juce::String level = " Level";
 	static inline const juce::String speed = " Speed";
+	static inline const juce::String delay = " Delay";
 	static inline const juce::String vol = " Vol";
 
 	static inline const juce::String op = " Op";

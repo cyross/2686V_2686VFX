@@ -49,6 +49,7 @@ void WtCore::setSampleRate(double sampleRate)
 void WtCore::setParameters(const SynthParams& params)
 {
     m_level = params.wt.level;
+    m_delaySeconds = params.wt.delay;
     m_speed = params.wt.speed;
 
     m_fixMode.setParameters(params.wt.fix);

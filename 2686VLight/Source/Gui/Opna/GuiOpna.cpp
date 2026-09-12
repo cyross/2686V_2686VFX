@@ -564,6 +564,12 @@ void GuiOpna::setup()
 
         catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnaGuiText::Category::optional, .enableChangeDetailVisible = true });
 
+        opDelay[i].setupComponent(opGroups[i].contentCanvas, paramPrefix + CPK::delay, "DELAY", tabOrder, std::nullopt);
+
+        opDelayNudge[i].setupComponent(opGroups[i].contentCanvas, opDelay[i].getSlider(), tabOrder);
+
+        opDelaySeparator[i].setupComponent(opGroups[i].contentCanvas);
+
         xof[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::xof, .title = OpnaGuiText::Fm::Op::xof, .isReset = true });
         xof[i].setWantsKeyboardFocus(true);
         xof[i].setExplicitFocusOrder(++tabOrder);
@@ -878,6 +884,8 @@ void GuiOpna::updateOpEnable(int idx, bool enable)
     dt[idx].setEnabledWithLabel(enable);
     ks[idx].setEnabledWithLabel(enable);
     catOptional[idx].setEnabled(enable);
+    opDelay[idx].setEnabled(enable);
+    opDelayNudge[idx].setEnables(enable);
     xof[idx].setEnabled(enable);
     kor[idx].setEnabled(enable);
     bypass[idx].setEnabled(enable);
@@ -1758,12 +1766,21 @@ void GuiOpna::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
 
     bool visible = catOptional[opIndex].isDetailVisible();
 
+    opDelay[opIndex].setVisibles(visible);
+    opDelayNudge[opIndex].setVisibles(visible && opDelay[opIndex].isVisibleNudge());
+    opDelaySeparator[opIndex].setVisible(visible);
     xof[opIndex].setVisible(visible);
     kor[opIndex].setVisible(visible);
     bypass[opIndex].setVisible(visible);
 
     if (visible)
     {
+        opDelay[opIndex].layoutComponentRow(rect);
+
+        if (opDelay[opIndex].isVisibleNudge()) opDelayNudge[opIndex].layoutComponentRow(rect);
+
+        opDelaySeparator[opIndex].layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
         layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });

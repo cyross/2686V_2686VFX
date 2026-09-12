@@ -59,6 +59,7 @@ void AdpcmCore::setSampleRate(double sampleRate)
 void AdpcmCore::setParameters(const SynthParams& params)
 {
     m_level = params.adpcm.level;
+    m_delaySeconds = params.adpcm.delay;
     m_pan = params.adpcm.pan;
     m_tone = params.adpcm.tn.tone;
     m_mix = params.adpcm.tn.mix;

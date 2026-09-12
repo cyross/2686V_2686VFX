@@ -570,46 +570,56 @@ namespace PrHelper {
 
 	static inline void setupAdpcmBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsAdpcmBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.pan = apvts.getRawParameterValue(prefix + CPK::pan);
 		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::loop);
 	}
 
 	static inline void setupBeepBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsBeepBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 	}
 
 	static inline void setupOplBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOplBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 	}
 
 	static inline void setupOpl3BasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOpl3Basic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 	}
 
 	static inline void setupOpmBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOpmBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.pan = apvts.getRawParameterValue(prefix + CPK::pan);
 	}
 
 	static inline void setupOpnBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOpnBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 	}
 
 	static inline void setupOpnaBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOpnaBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.pan = apvts.getRawParameterValue(prefix + CPK::pan);
 	}
 
 	static inline void setupOpzx7BasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOpzx7Basic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 	}
 
 	static inline void setupRhythmBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsRhythmBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 	}
 
 	static inline void setupRhythmPadBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsRhythmPadBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::vol);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.pan = apvts.getRawParameterValue(prefix + CPK::pan);
 		ptPtrs.noteNumber = apvts.getRawParameterValue(prefix + CPK::note);
 		ptPtrs.isOneShot = apvts.getRawParameterValue(prefix + CPK::oneShot);
@@ -617,12 +627,14 @@ namespace PrHelper {
 
 	static inline void setupSsgBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 		ptPtrs.waveform = apvts.getRawParameterValue(prefix + CPK::ssgWaveform);
 	}
 
 	static inline void setupWtBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtBasic& ptPtrs) {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 		ptPtrs.wave = apvts.getRawParameterValue(prefix + CPK::Wt::wave);
 		ptPtrs.sampleSize = apvts.getRawParameterValue(prefix + CPK::Wt::sampleSize);
@@ -632,6 +644,7 @@ namespace PrHelper {
 
 	static inline void setupWtPlusBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtPlusBasic& ptPtrs) {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 		ptPtrs.slot = apvts.getRawParameterValue(prefix + CPK::Wt::slot);
 		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::Wt::steps);
@@ -640,6 +653,7 @@ namespace PrHelper {
 
 	static inline void setupWt2BasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWt2Basic& ptPtrs) {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 		ptPtrs.wave = apvts.getRawParameterValue(prefix + CPK::Wt2::wave);
 		ptPtrs.sampleSize = apvts.getRawParameterValue(prefix + CPK::Wt2::sampleSize);
@@ -1222,48 +1236,58 @@ namespace PrHelper {
 
 	static inline void applyAdpcmBasic(PrPtrsAdpcmBasic& ptPtrs, AdpcmParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.loop = PrHelper::getBool(ptPtrs.loop);
 		params.pan = PrHelper::getFloat(ptPtrs.pan);
 	}
 
 	static inline void applyBeepBasic(PrPtrsBeepBasic& ptPtrs, BeepParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.antiAlias = PrHelper::getBool(ptPtrs.antiAlias);
 		params.timerClock = PrHelper::getInt(ptPtrs.timerClock);
 	}
 
 	static inline void applyOplBasic(PrPtrsOplBasic& ptPtrs, OplParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 	}
 
 	static inline void applyOpl3Basic(PrPtrsOpl3Basic& ptPtrs,Opl3Params& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 	}
 
 	static inline void applyOpmBasic(PrPtrsOpmBasic& ptPtrs, OpmParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.pan = PrHelper::getInt(ptPtrs.pan);
 	}
 
 	static inline void applyOpnBasic(PrPtrsOpnBasic& ptPtrs, OpnParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 	}
 
 	static inline void applyOpnaBasic(PrPtrsOpnaBasic& ptPtrs, OpnaParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.pan = PrHelper::getInt(ptPtrs.pan);
 	}
 
 	static inline void applyOpzx7Basic(PrPtrsOpzx7Basic& ptPtrs, Opzx7Params& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 	}
 
 	static inline void applyRhythmBasic(PrPtrsRhythmBasic& ptPtrs, RhythmParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 	}
 
 	static inline void applyRhythmPadBasic(PrPtrsRhythmPadBasic& ptPtrs, RhythmPadParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.pan = PrHelper::getFloat(ptPtrs.pan);
 		params.noteNumber = PrHelper::getInt(ptPtrs.noteNumber);
 		params.isOneShot = PrHelper::getBool(ptPtrs.isOneShot);
@@ -1271,12 +1295,14 @@ namespace PrHelper {
 
 	static inline void applySsgBasic(PrPtrsSsgBasic& ptPtrs, SsgParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.speed = PrHelper::getFloat(ptPtrs.speed);
 		params.waveform = PrHelper::getInt(ptPtrs.waveform);
 	}
 
 	static inline void applyWtBasic(PrPtrsWtBasic& ptPtrs, WtParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.speed = PrHelper::getFloat(ptPtrs.speed);
 		params.waveform = PrHelper::getInt(ptPtrs.wave);
 		params.tableSize = PrHelper::getInt(ptPtrs.sampleSize);
@@ -1286,6 +1312,7 @@ namespace PrHelper {
 
 	static inline void applyWtPlusBasic(PrPtrsWtPlusBasic& ptPtrs, WtPlusParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.speed = PrHelper::getFloat(ptPtrs.speed);
 		params.slot = PrHelper::getInt(ptPtrs.slot);
 		params.steps = PrHelper::getInt(ptPtrs.steps);
@@ -1294,6 +1321,7 @@ namespace PrHelper {
 
 	static inline void applyWt2Basic(PrPtrsWt2Basic& ptPtrs, Wt2Params& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.speed = PrHelper::getFloat(ptPtrs.speed);
 		params.waveform = PrHelper::getInt(ptPtrs.wave);
 		params.tableSize = PrHelper::getInt(ptPtrs.sampleSize);
@@ -1518,6 +1546,15 @@ namespace PrHelper {
 		PrHelper::addInt(layout, code, name, CPV::SsgSwPEnv11::L::min, CPV::SsgSwPEnv11::L::max, CPV::SsgSwPEnv11::L::initial);
 	}
 
+	static inline void addDelayParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::delay,
+			prefixName + CPN::delay,
+			CPV::Delay::min, CPV::Delay::max, CPV::Delay::initial
+		);
+	}
+
 	static inline void addSpeedParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		PrHelper::addFloat(
 			layout,
@@ -1534,6 +1571,7 @@ namespace PrHelper {
 			prefixName + CPN::level,
 			CPV::Level::min, CPV::Level::max, CPV::Level::initial
 		);
+		PrHelper::addDelayParameters(layout, prefix, prefixName);
 	}
 
 	static inline void addRhythmLevelParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -1543,6 +1581,7 @@ namespace PrHelper {
 			prefixName + CPN::vol,
 			CPV::Level::min, CPV::Level::max, CPV::Level::initial
 		);
+		PrHelper::addDelayParameters(layout, prefix, prefixName);
 	}
 
 	static inline void addRhythmPadVolParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -1552,6 +1591,7 @@ namespace PrHelper {
 			prefixName + CPN::vol, 
 			CPV::Vol::min, CPV::Vol::max, CPV::Vol::initial
 		);
+		PrHelper::addDelayParameters(layout, prefix, prefixName);
 	}
 
 	static inline void addOpOplAmpEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {

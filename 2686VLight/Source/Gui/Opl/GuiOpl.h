@@ -20,6 +20,8 @@
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Import/Import.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
@@ -170,6 +172,11 @@ class GuiOpl : public GuiBase
     std::array<GuiSlider, OplPrValue::ops> rgTl;
     std::array<GuiToggleButton, OplPrValue::ops> sus;
     std::array<GuiCategoryLabel, OplPrValue::ops> catOptional;
+    // 押してから鳴り始めるまでの間 (秒)。OPTIONAL の一番上に置く。
+    std::array<GuiComponentNudgeSliderFloat, OplPrValue::ops> opDelay;
+    std::array<GuiComponentNudgeButtons, OplPrValue::ops> opDelayNudge;
+    std::array<NormalSeparator, OplPrValue::ops> opDelaySeparator;
+
     std::array<GuiToggleButton, OplPrValue::ops> xof;
     std::array<GuiToggleButton, OplPrValue::ops> kor;
     std::array<GuiToggleButton, OplPrValue::ops> bypass;
@@ -304,6 +311,9 @@ public:
         rgRr{ GuiSlider(context), GuiSlider(context) },
         rgTl{ GuiSlider(context), GuiSlider(context) },
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        opDelay{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        opDelayNudge{ GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context) },
+        opDelaySeparator{ NormalSeparator(context), NormalSeparator(context) },
         xof{ GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context) },
         sus{ GuiToggleButton(context),GuiToggleButton(context) },

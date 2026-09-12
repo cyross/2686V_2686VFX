@@ -39,6 +39,9 @@ class Opzx7Processor : public PrBase
     std::array<PrPtrsWtAmpMod, Opzx7PrValue::ops> pOpWtAmpMod;
     std::array<PrPtrsSsgHwEnv, Opzx7PrValue::ops> pOpSsgHwEnv;
     std::array<PrPtrsWtMod, Opzx7PrValue::ops> pOpWtMod;
+    // 押してから鳴り始めるまでの間 (秒)。オペレーター 1 本ごと。
+    std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpDelay = { nullptr };
+
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpMask = { nullptr };
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

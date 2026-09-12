@@ -64,6 +64,12 @@ void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, c
         }
         );
 
+    delaySeparator.setupComponent(parent);
+
+    delaySlider.setupComponent(parent, prefix + CPK::delay, "DELAY", tabOrder, std::nullopt);
+
+    delayNudge.setupComponent(parent, delaySlider.getSlider(), tabOrder);
+
     stepSelector.setup({ .parent = parent, .id = "", .title = "Steps", .items = stepItems, .isReset = false });
     stepSelector.setSelectedItemIndex(0, juce::dontSendNotification); // デフォルトはFree
     stepSelector.setWantsKeyboardFocus(true);
@@ -230,6 +236,12 @@ void GuiComponentLevel::layoutComponent(juce::Rectangle<int>& rect) {
         layoutMainFourComps({ .rect = rect, .comp1 = &levelPM001, .comp2 = &levelPM01, .comp3 = &levelP01, .comp4 = &levelP001 });
     }
 
+    delaySeparator.layoutComponent(rect);
+
+    delaySlider.layoutComponent(rect);
+
+    if (delaySlider.isVisibleNudge()) delayNudge.layoutComponent(rect);
+
     rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
 
@@ -250,12 +262,22 @@ void GuiComponentLevel::layoutComponentRow(juce::Rectangle<int>& rect) {
         layoutRowFourComps({ .rect = rect, .comp1 = &levelPM001, .comp2 = &levelPM01, .comp3 = &levelP01, .comp4 = &levelP001 });
     }
 
+    delaySeparator.layoutComponent(rect);
+
+    delaySlider.layoutComponentRow(rect);
+
+    if (delaySlider.isVisibleNudge()) delayNudge.layoutComponentRow(rect);
+
     rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
 
 void GuiComponentLevel::setVisible(bool visible) {
     levelSlider.setVisibles(visible);
     stepSelector.setVisibleWithLabel(visible);
+
+    delaySeparator.setVisible(visible);
+    delaySlider.setVisibles(visible);
+    delayNudge.setVisibles(visible && delaySlider.isVisibleNudge());
 
     bool isVisibleNudge = levelSlider.isVisibleNudge();
 
@@ -284,6 +306,10 @@ void GuiComponentLevel::setVisible(bool visible) {
 void GuiComponentLevel::setEnable(bool enabled) {
     levelSlider.setEnabled(enabled);
     stepSelector.setEnabledWithLabel(enabled);
+
+    delaySeparator.setEnabled(enabled);
+    delaySlider.setEnabled(enabled);
+    delayNudge.setEnables(enabled);
     levelPM1.setEnabled(enabled);
     levelPM01.setEnabled(enabled);
     levelPM001.setEnabled(enabled);
@@ -327,6 +353,7 @@ void GuiComponentLevel::readParams(const Io::ParamReader& reader, const juce::St
     auto r = reader.child(key);
 
     levelSlider.setValue(r.getFloat("level", (float)levelSlider.getValue()));
+    delaySlider.setValue(r.getFloat("delay", (float)delaySlider.getValue()));
 }
 
 juce::String GuiComponentLevel::getExportedParams() {
@@ -342,4 +369,5 @@ void GuiComponentLevel::writeParams(Io::ParamWriter& writer, const juce::String&
     auto w = writer.child(key);
 
     w.set("level", (float)levelSlider.getValue());
+    w.set("delay", (float)delaySlider.getValue());
 }

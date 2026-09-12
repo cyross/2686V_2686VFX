@@ -459,6 +459,9 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     optionalSeparator{ NormalSeparator(context),NormalSeparator(context),NormalSeparator(context),NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
     sus{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    opDelay{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+    opDelayNudge{ GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context) },
+    opDelaySeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
     xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     midiComponent(context),
@@ -936,6 +939,12 @@ void GuiOpzx7::setup()
         sus[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::sus, .title = Opzx7GuiText::Fm::Op::sus, .isReset = true });
         sus[i].setWantsKeyboardFocus(true);
         sus[i].setExplicitFocusOrder(++tabOrder);
+
+        opDelay[i].setupComponent(opGroups[i].contentCanvas, paramPrefix + CPK::delay, "DELAY", tabOrder, std::nullopt);
+
+        opDelayNudge[i].setupComponent(opGroups[i].contentCanvas, opDelay[i].getSlider(), tabOrder);
+
+        opDelaySeparator[i].setupComponent(opGroups[i].contentCanvas);
 
         xof[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::xof, .title = Opzx7GuiText::Fm::Op::xof, .isReset = true });
         xof[i].setWantsKeyboardFocus(true);
@@ -1654,6 +1663,8 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     rgTl[idx].setEnabled(enable);
 	optionalSeparator[idx].setEnabled(enable);
     sus[idx].setEnabled(enable);
+    opDelay[idx].setEnabled(enable);
+    opDelayNudge[idx].setEnables(enable);
     xof[idx].setEnabled(enable);
     kor[idx].setEnabled(enable);
     pitchEnv[idx].setEnabled(enable);
@@ -2714,10 +2725,19 @@ void GuiOpzx7::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
 
     bool visible = catOptional[opIndex].isDetailVisible();
 
+    opDelay[opIndex].setVisibles(visible);
+    opDelayNudge[opIndex].setVisibles(visible && opDelay[opIndex].isVisibleNudge());
+    opDelaySeparator[opIndex].setVisible(visible);
     bypass[opIndex].setVisible(visible);
 
     if (visible)
     {
+        opDelay[opIndex].layoutComponentRow(rect);
+
+        if (opDelay[opIndex].isVisibleNudge()) opDelayNudge[opIndex].layoutComponentRow(rect);
+
+        opDelaySeparator[opIndex].layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);

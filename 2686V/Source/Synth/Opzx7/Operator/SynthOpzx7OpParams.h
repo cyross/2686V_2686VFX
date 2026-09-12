@@ -15,6 +15,9 @@
 
 struct Opzx7OpParams
 {
+    // 押してから鳴り始めるまでの間 (秒)
+    float delay = 0.0f;
+
     Opzx7AdddrParams m_adsrParams;
     bool ssgEnvEnable = false;
     SsgSwEnvParams ssgSwEnv;

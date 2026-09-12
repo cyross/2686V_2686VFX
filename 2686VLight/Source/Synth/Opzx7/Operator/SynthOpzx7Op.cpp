@@ -36,6 +36,7 @@ void Opzx7Operator::setSampleRate(double sampleRate) {
 void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
 {
     m_params = params;
+    m_delaySeconds = params.delay;
     m_ssgEgFreq = params.se.freq;
     m_params.waveSelect = params.waveSelect;
 
@@ -72,6 +73,9 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
 void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
     m_noteNumber = noteNumber;
+
+    // 再生遅延は 1 音ごとに数え直す。押し直せばまた最初から待つ。
+    beginDelay();
 
     // ハードウェアエンベロープは位相を持つだけなので、
     // 押し直したときだけ頭から流し直す。
@@ -207,6 +211,13 @@ void Opzx7Operator::noteOff()
 
 void Opzx7Operator::getSample(float& output, float modulator, float feedbackModulator, Opzx7LfoCore& glLfo, float modWheel)
 {
+    // 待っている間は何も出さず、位相も包絡も進めない
+    if (tickDelay()) {
+        output = 0.0f;
+
+        return;
+    }
+
     bool allAmpBypassed = isAllAmpBypassed();
 
     if (allAmpBypassed) {

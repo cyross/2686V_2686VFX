@@ -20,6 +20,8 @@
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Import/Import.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
@@ -167,6 +169,11 @@ class GuiOpn : public GuiBase
     std::array<GuiSlider, OpnPrValue::ops> rgRr;
     std::array<GuiSlider, OpnPrValue::ops> rgTl;
     std::array<GuiCategoryLabel, OpnPrValue::ops> catOptional;
+    // 押してから鳴り始めるまでの間 (秒)。OPTIONAL の一番上に置く。
+    std::array<GuiComponentNudgeSliderFloat, OpnPrValue::ops> opDelay;
+    std::array<GuiComponentNudgeButtons, OpnPrValue::ops> opDelayNudge;
+    std::array<NormalSeparator, OpnPrValue::ops> opDelaySeparator;
+
     std::array<GuiToggleButton, OpnPrValue::ops> xof;
     std::array<GuiToggleButton, OpnPrValue::ops> kor;
     std::array<GuiToggleButton, OpnPrValue::ops> bypass;
@@ -296,6 +303,9 @@ public:
         rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        opDelay{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        opDelayNudge{ GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context), GuiComponentNudgeButtons(context) },
+        opDelaySeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
         xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },

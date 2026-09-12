@@ -17,6 +17,9 @@ struct WtPlusParams
 {
     float level = 1.0f;
 
+    // 押してから鳴り始めるまでの間 (秒)
+    float delay = 0.0f;
+
     // 再生速度。ノートによる速さの変化へ掛ける。
     float speed = 1.0f;
 

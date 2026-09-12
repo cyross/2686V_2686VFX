@@ -43,6 +43,28 @@ public:
 
     // 再生速度。ノートによる速さの変化へ掛ける。
     float m_speed = 1.0f;
+
+    // --- 再生遅延 ---
+    //
+    // パッド 1 枚ごとに待つ。チャンネル全体の待ちとは別に数える。
+    float m_delaySeconds = 0.0f;
+    int m_delayLeft = 0;
+
+    void beginDelay()
+    {
+        m_delayLeft = (m_delaySeconds <= 0.0f || m_sampleRate <= 0.0)
+            ? 0
+            : (int)std::lround((double)m_delaySeconds * m_sampleRate);
+    }
+
+    bool tickDelay()
+    {
+        if (m_delayLeft <= 0) return false;
+
+        --m_delayLeft;
+
+        return true;
+    }
     float m_pan = 0.5f;
 	float m_panL = 1.0f;
     float m_panR = 1.0f;

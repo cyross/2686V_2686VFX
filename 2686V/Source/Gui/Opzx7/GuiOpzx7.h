@@ -29,6 +29,8 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/CountButtons/CountButtons.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderInt.h"
+#include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
@@ -240,6 +242,11 @@ class GuiOpzx7 : public GuiBase
 
     std::array<NormalSeparator, Opzx7PrValue::ops> optionalSeparator;
     std::array<GuiToggleButton, Opzx7PrValue::ops> sus; // Sus
+    // 押してから鳴り始めるまでの間 (秒)。OPTIONAL の一番上に置く。
+    std::array<GuiComponentNudgeSliderFloat, Opzx7PrValue::ops> opDelay;
+    std::array<GuiComponentNudgeButtons, Opzx7PrValue::ops> opDelayNudge;
+    std::array<NormalSeparator, Opzx7PrValue::ops> opDelaySeparator;
+
     std::array<GuiToggleButton, Opzx7PrValue::ops> xof; // Xof
     std::array<GuiToggleButton, Opzx7PrValue::ops> kor;
 

@@ -23,6 +23,8 @@
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/CountButtons/CountButtons.h"
+#include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderInt.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
@@ -65,7 +67,12 @@ class RhythmPadGui: public GuiBase
     // P.OF / P.RT で切り出した範囲を描き、ループ位置を縦線で出す。
     GuiWavePreview samplePreview;
 
-    // 再生速度。OPTIONAL の一番上に置く。
+    // 押してから鳴り始めるまでの間 (秒)。OPTIONAL の一番上に置く。
+    GuiComponentNudgeSliderFloat padDelaySlider;
+    GuiComponentNudgeButtons padDelayNudge;
+    NormalSeparator optDelaySeparator;
+
+    // 再生速度。
     GuiSlider speedSlider;
     NormalSeparator optSpeedSeparator;
 
@@ -159,6 +166,9 @@ public:
         formCat(context),
         optionalCat(context),
         samplePreview(context),
+        padDelaySlider(context),
+        padDelayNudge(context),
+        optDelaySeparator(context),
         speedSlider(context),
         optSpeedSeparator(context),
         loopCountSlider(context),

@@ -20,6 +20,9 @@ struct AdpcmParams
 {
     float level = 1.0f;
 
+    // 押してから鳴り始めるまでの間 (秒)
+    float delay = 0.0f;
+
     ToneNoiseParams tn;
     AmpAdsrParams adsr;
     WtModParams wtMod;

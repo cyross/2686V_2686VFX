@@ -211,6 +211,7 @@ void Opzx7Core::setSampleRate(double sampleRate) {
 
 void Opzx7Core::setParameters(const SynthParams& params) {
     m_level = params.opzx7.level;
+    m_delaySeconds = params.opzx7.delay;
 
     m_algorithm = params.opzx7.algFb.algorithm; // Range: 0-27
     m_algorithmCodeBase = m_algorithm << m_algorithmCodeShift; // x16

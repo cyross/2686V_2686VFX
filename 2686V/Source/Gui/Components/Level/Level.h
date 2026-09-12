@@ -10,10 +10,18 @@
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Core/Gui/GuiContext.h"
 
+#include "../NudgeButtons/NudgeButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
+#include "../Separator/NormalSeparator.h"
 
 class GuiComponentLevel : public GuiBase {
     GuiComponentNudgeSliderFloat levelSlider;
+
+    // 押してから鳴り始めるまでの間 (秒)。
+    // この部品はどのチャンネルも使うので、ここへ置けば全チャンネルに入る。
+    NormalSeparator delaySeparator;
+    GuiComponentNudgeSliderFloat delaySlider;
+    GuiComponentNudgeButtons delayNudge;
 
     GuiComboBox stepSelector;
 
@@ -62,6 +70,9 @@ public:
     GuiComponentLevel(const GuiContext& context) :
         GuiBase(context),
         levelSlider(context),
+        delaySeparator(context),
+        delaySlider(context),
+        delayNudge(context),
 		stepSelector(context),
         levelTo1(context),
         levelPM1(context),

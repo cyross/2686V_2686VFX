@@ -73,6 +73,7 @@ void OplCore::setSampleRate(double sampleRate) {
 
 void OplCore::setParameters(const SynthParams& params) {
     m_level = params.opl.level;
+    m_delaySeconds = params.opl.delay;
 
     m_algorithm = params.opl.algFb.algorithm; // 0:Serial(FM), 1:Parallel(AM)
 

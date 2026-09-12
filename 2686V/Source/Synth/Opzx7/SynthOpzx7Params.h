@@ -17,6 +17,9 @@ struct Opzx7Params
 {
     float level = 1.0f;
 
+    // 押してから鳴り始めるまでの間 (秒)
+    float delay = 0.0f;
+
     Opzx7AlgFbParams algFb;
     LfoOpzx7Params glLfo;
     QualityParams quality;

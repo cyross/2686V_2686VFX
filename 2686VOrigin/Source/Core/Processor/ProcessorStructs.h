@@ -403,25 +403,30 @@ struct PrPtrsPanpot {
 
 struct PrPtrsAdpcmBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
     std::atomic<float>* loop = nullptr;
 };
 
 struct PrPtrsBeepBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsOpnaBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
 };
 
 struct PrPtrsRhythmBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsRhythmPadBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
     std::atomic<float>* noteNumber = nullptr;
     std::atomic<float>* isOneShot = nullptr;
@@ -429,6 +434,7 @@ struct PrPtrsRhythmPadBasic {
 
 struct PrPtrsSsgBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* speed = nullptr;
     std::atomic<float>* waveform = nullptr;
 };

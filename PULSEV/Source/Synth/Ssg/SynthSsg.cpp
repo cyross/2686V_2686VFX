@@ -49,6 +49,7 @@ void SsgCore::setSampleRate(double sampleRate) {
 void SsgCore::setParameters(const SynthParams& params)
 {
     m_level = params.ssg.level;
+    m_delaySeconds = params.ssg.delay;
     m_speed = params.ssg.speed;
 
     m_tone = params.ssg.tn.tone;

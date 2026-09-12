@@ -54,6 +54,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         PrHelper::addSsgHwEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addWtModParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpOpzx7LfoParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addDelayParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpMaskParameters(layout, opPrefix, opPrefixName);
     }
 }
@@ -97,6 +98,7 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
         PrHelper::setupWtMod(apvts, p, pOpWtMod[op], modWaves);
 
         pOpMask[op] = PrHelper::setupOpMaskPtr(apvts, p);
+        pOpDelay[op] = apvts.getRawParameterValue(p + CPK::delay);
     }
 }
 
@@ -136,5 +138,6 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
 
         params.opzx7.op[op].waveSelect = PrHelper::getInt(pOpWs[op].waveSelect);
         params.opzx7.op[op].mask = PrHelper::getBool(pOpMask[op]);
+        params.opzx7.op[op].delay = PrHelper::getFloat(pOpDelay[op]);
     }
 }
