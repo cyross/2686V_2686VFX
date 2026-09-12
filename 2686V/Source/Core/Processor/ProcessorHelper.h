@@ -1292,7 +1292,10 @@ namespace PrHelper {
 		params.pan = getInt(ptPtrs.panpot);
 	}
 
-	static inline void applyAdpcmBasic(PrPtrsAdpcmBasic& ptPtrs, AdpcmParams& params){
+	// ADPCM と ADPCM+ で同じ中身を使う。入れ物の型は別だが、
+	// 名前がそろっているのでそのまま通る。
+	template <typename Params>
+	static inline void applyAdpcmBasic(PrPtrsAdpcmBasic& ptPtrs, Params& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
 		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.loop = PrHelper::getBool(ptPtrs.loop);
