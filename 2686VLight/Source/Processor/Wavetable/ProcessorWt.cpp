@@ -14,6 +14,7 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     const juce::String prefixName = WtPrName::prefix;
 
     PrHelper::addLevelParameters(layout, prefix, prefixName);
+    PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addWtBasicParameters(layout, prefix, prefixName);
     PrHelper::addQualityParameters(layout, prefix, prefixName);
     PrHelper::addWtModParameters(layout, prefix, prefixName);

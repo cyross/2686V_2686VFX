@@ -49,6 +49,7 @@ void WtCore::setSampleRate(double sampleRate)
 void WtCore::setParameters(const SynthParams& params)
 {
     m_level = params.wt.level;
+    m_speed = params.wt.speed;
 
     m_fixMode.setParameters(params.wt.fix);
 
@@ -422,9 +423,11 @@ float WtCore::getSample()
         }
 
         // メイン位相を進める
-        m_phase += currentDelta;
+        m_phase += currentDelta * m_speed;
 
-        if (m_phase >= 1.0f) m_phase -= 1.0f;
+        // SPEED は 100 倍まで上げられる。1 度引くだけでは収まらない。
+        while (m_phase >= 1.0f) m_phase -= 1.0f;
+        while (m_phase < 0.0f) m_phase += 1.0f;
     }
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理

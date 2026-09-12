@@ -22,6 +22,7 @@
 #include "../../Gui/Components/ViewMode/ViewMode.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/CountButtons/CountButtons.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/QualityPcm.h"
@@ -62,6 +63,15 @@ class RhythmPadGui: public GuiBase
     // 読み込んだサンプルを見せるプレビュー。
     // P.OF / P.RT で切り出した範囲を描き、ループ位置を縦線で出す。
     GuiWavePreview samplePreview;
+
+    // 再生速度。OPTIONAL の一番上に置く。
+    GuiSlider speedSlider;
+    NormalSeparator optSpeedSeparator;
+
+    // ループカウンター。SPEED のひとつ下に置く。
+    GuiSlider loopCountSlider;
+    GuiComponentCountButtons loopCountButtons;
+    NormalSeparator optCountSeparator;
 
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
@@ -149,6 +159,11 @@ public:
         formCat(context),
         optionalCat(context),
         samplePreview(context),
+        speedSlider(context),
+        optSpeedSeparator(context),
+        loopCountSlider(context),
+        loopCountButtons(context),
+        optCountSeparator(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         loopPointEnableButton(context),

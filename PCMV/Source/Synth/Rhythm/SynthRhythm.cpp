@@ -68,6 +68,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
 
     m_pcmOffset = params.pcm.offset;
     m_pcmRatio = params.pcm.ratio;
+    m_speed = params.pcm.speed;
 
     m_adsr.setParameters(params.adsr);
     m_pitchAdsr.setParameters(params.pitchAdsr);
@@ -105,6 +106,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     }
 
     m_loopPointEnable = params.lp.enable;
+    m_lpCount = params.lp.count;
     m_loopPointStart = std::clamp(params.lp.start, 0.0f, 0.999999f);
     m_loopPointEnd = std::clamp(params.lp.end, m_loopPointStart + 0.000001f, 1.0f);
 }
@@ -172,6 +174,8 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
         m_baseLevel = std::max(0.01f, velocity);
         m_hasFinished = false;
         m_isReleased = false;
+        m_lpCounter = 0;
+        m_lpDone = false;
 
         // エンベロープも非レガート時のみ再トリガーする
         m_currentEnv = m_adsr.noteOn();
@@ -329,12 +333,18 @@ float RhythmPad::getSample()
         // ループ・終了判定
         // =========================================================
         if (m_loopPointEnable) {
-            if (!m_isReleased) {
+            if (!m_isReleased && !m_lpDone) {
                 // リリース前：ループポイント間をループ
                 if (m_position >= loopEndPos) {
-                    double loopLength = loopEndPos - loopStartPos;
-                    if (loopLength > 0.0) {
-                        m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                    // 決めた回数まで回ったら、折り返さずにその先へ進む
+                    if (m_lpCount > 0 && ++m_lpCounter >= m_lpCount) {
+                        m_lpDone = true;
+                    }
+                    else {
+                        double loopLength = loopEndPos - loopStartPos;
+                        if (loopLength > 0.0) {
+                            m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                        }
                     }
                 }
             }
@@ -374,7 +384,7 @@ float RhythmPad::getSample()
 
         // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
         // ループポイントが有効な場合の補間インデックスの折り返し処理を追加
-        if (m_loopPointEnable && !m_isReleased) {
+        if (m_loopPointEnable && !m_isReleased && !m_lpDone) {
             if (idx_0 >= (int)loopStartPos) {
                 double loopLength = loopEndPos - loopStartPos;
                 if (idx_m1 < (int)loopStartPos) idx_m1 += (int)loopLength;
@@ -487,12 +497,18 @@ float RhythmPad::getSample()
         // ループ・終了判定
         // =========================================================
         if (m_loopPointEnable) {
-            if (!m_isReleased) {
+            if (!m_isReleased && !m_lpDone) {
                 // リリース前：ループポイント間をループ
                 if (m_position >= loopEndPos) {
-                    double loopLength = loopEndPos - loopStartPos;
-                    if (loopLength > 0.0) {
-                        m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                    // 決めた回数まで回ったら、折り返さずにその先へ進む
+                    if (m_lpCount > 0 && ++m_lpCounter >= m_lpCount) {
+                        m_lpDone = true;
+                    }
+                    else {
+                        double loopLength = loopEndPos - loopStartPos;
+                        if (loopLength > 0.0) {
+                            m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                        }
                     }
                 }
             }
@@ -532,7 +548,7 @@ float RhythmPad::getSample()
 
         // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
         // ループポイントが有効な場合の補間インデックスの折り返し処理を追加
-        if (m_loopPointEnable && !m_isReleased) {
+        if (m_loopPointEnable && !m_isReleased && !m_lpDone) {
             if (idx_0 >= (int)loopStartPos) {
                 double loopLength = loopEndPos - loopStartPos;
                 if (idx_m1 < (int)loopStartPos) idx_m1 += (int)loopLength;
@@ -667,7 +683,7 @@ float RhythmPad::getSample()
     m_ampModDelta = (float)(m_currentFrequency / m_sampleRate);
 
     // Advance position
-    m_position += currentIncrement * freqMult;
+    m_position += currentIncrement * freqMult * m_speed;
 
     // ==========================================
     // 3. Noise Generator

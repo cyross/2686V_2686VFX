@@ -135,6 +135,20 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::optional, .enableChangeDetailVisible = true });
 
+    speedSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::speed, .title = "SPEED", .isReset = true });
+    speedSlider.setWantsKeyboardFocus(true);
+    speedSlider.setExplicitFocusOrder(++tabOrder);
+
+    optSpeedSeparator.setupComponent(mainGroup.contentCanvas);
+
+    loopCountSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::lpCount, .title = "CNT", .isReset = true });
+    loopCountSlider.setWantsKeyboardFocus(true);
+    loopCountSlider.setExplicitFocusOrder(++tabOrder);
+
+    loopCountButtons.setupComponent(mainGroup.contentCanvas, loopCountSlider, tabOrder);
+
+    optCountSeparator.setupComponent(mainGroup.contentCanvas);
+
     pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::pcmOffset, .title = RhythmGuiText::Rhythm::Pad::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
@@ -355,6 +369,11 @@ void RhythmPadGui::updatePadVisible(bool visible) {
     clearButton.setVisible(visible);
     formCat.setVisible(visible);
     optionalCat.setVisible(visible);
+    speedSlider.setVisibleWithLabel(visible);
+    optSpeedSeparator.setVisible(visible);
+    loopCountSlider.setVisibleWithLabel(visible);
+    loopCountButtons.setVisibles(visible);
+    optCountSeparator.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
     loopPointEnableButton.setVisible(visible);
@@ -462,6 +481,11 @@ void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
     oneShotButton.setVisible(visible);
     optOneShotSepTop.setVisible(visible);
     optOneShotSepBottom.setVisible(visible);
+    speedSlider.setVisibleWithLabel(visible);
+    optSpeedSeparator.setVisible(visible);
+    loopCountSlider.setVisibleWithLabel(visible);
+    loopCountButtons.setVisibles(visible);
+    optCountSeparator.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
     loopPointEnableButton.setVisible(visible);
@@ -470,6 +494,11 @@ void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
     noteSlider.setVisibleWithLabel(visible);
 
     if (visible) {
+        layoutRow({ .rowRect = rect, .label = &speedSlider.label, .component = &speedSlider });
+        optSpeedSeparator.layoutComponent(rect);
+        layoutRow({ .rowRect = rect, .label = &loopCountSlider.label, .component = &loopCountSlider });
+        loopCountButtons.layoutComponentRow(rect);
+        optCountSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
         layoutRow({ .rowRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
         optOneShotSepTop.layoutComponent(rect);
@@ -607,6 +636,7 @@ void RhythmPadGui::copyParams(CopyRhythmPad& copyObj) {
     copyObj.isOneShot = oneShotButton.getToggleState();
     copyObj.noteNumber = noteSlider.getValue();
     copyObj.pcm.pcmOffset = pcmOffsetSlider.getValue();
+    copyObj.pcm.speed = speedSlider.getValue();
     copyObj.pcm.pcmRatio = pcmRatioSlider.getValue();
     copyObj.quality.mode = qualityPcmComponent.getMode();
     copyObj.quality.rate = qualityPcmComponent.getRate();
@@ -625,6 +655,7 @@ void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
     oneShotButton.setToggleState(copyObj.isOneShot, juce::sendNotification);
     noteSlider.setValue(copyObj.noteNumber, juce::sendNotification);
     pcmOffsetSlider.setValue(copyObj.pcm.pcmOffset, juce::sendNotification);
+    speedSlider.setValue(copyObj.pcm.speed, juce::sendNotification);
     pcmRatioSlider.setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
     qualityPcmComponent.setMode(copyObj.quality.mode);
     qualityPcmComponent.setRate(copyObj.quality.rate);
@@ -852,10 +883,12 @@ void RhythmPadGui::applyPcmPlayParamFile(const juce::File& file)
     GuiRefresh::Batch batch;
 
     pcmOffsetSlider.setValue(reader->getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
+    speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
     pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
     loopPointEnableButton.setToggleState(reader->getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
     loopPointStartSlider.setValue(reader->getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
     loopPointEndSlider.setValue(reader->getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
+    loopCountSlider.setValue(reader->getFloat("loopCount", (float)loopCountSlider.getValue()), juce::sendNotification);
 }
 
 void RhythmPadGui::exportPcmPlayParam()
@@ -994,10 +1027,12 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     noiseFreqSlider.setValue(r.getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
     mixSlider.setValue(r.getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
     pcmOffsetSlider.setValue(r.getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
+    speedSlider.setValue(r.getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
     pcmRatioSlider.setValue(r.getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
     loopPointEnableButton.setToggleState(r.getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
     loopPointStartSlider.setValue(r.getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
     loopPointEndSlider.setValue(r.getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
+    loopCountSlider.setValue(r.getFloat("loopCount", (float)loopCountSlider.getValue()), juce::sendNotification);
 
     // Components
     fixComponent.readParams(r, "fix");
@@ -1028,10 +1063,12 @@ void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     w.set("noiseFreq", (float)noiseFreqSlider.getValue());
     w.set("mix", (float)mixSlider.getValue());
     w.set("pcmOffset", (float)pcmOffsetSlider.getValue());
+    w.set("speed", (float)speedSlider.getValue());
     w.set("pcmRatio", (float)pcmRatioSlider.getValue());
     w.set("loopPointEnable", loopPointEnableButton.getToggleState());
     w.set("loopPointStart", (float)loopPointStartSlider.getValue());
     w.set("loopPointEnd", (float)loopPointEndSlider.getValue());
+    w.set("loopCount", (float)loopCountSlider.getValue());
 
     // Components
     fixComponent.writeParams(w, "fix");
@@ -1939,10 +1976,12 @@ void RhythmPadGui::setImportingPcmPlayParams(juce::StringArray& lines, int& inde
 // 書き出す中身。エクスポートと変換の両方から使う。
 void RhythmPadGui::writePcmPlayParams(Io::ParamWriter& writer) {
 	writer.set("pcmOffset", (float)pcmOffsetSlider.getValue());
+	writer.set("speed", (float)speedSlider.getValue());
 	writer.set("pcmRatio", (float)pcmRatioSlider.getValue());
 	writer.set("loopPointEnable", loopPointEnableButton.getToggleState());
 	writer.set("loopPointStart", (float)loopPointStartSlider.getValue());
 	writer.set("loopPointEnd", (float)loopPointEndSlider.getValue());
+	writer.set("loopCount", (float)loopCountSlider.getValue());
 
 	
 }

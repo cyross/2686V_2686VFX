@@ -32,6 +32,7 @@ namespace CPN
 	}
 
 	static inline const juce::String level = " Level";
+	static inline const juce::String speed = " Speed";
 	static inline const juce::String vol = " Vol";
 
 	static inline const juce::String op = " Op";
@@ -55,6 +56,7 @@ namespace CPN
 	static inline const juce::String lpEnable = " Loop-point Enable";
 	static inline const juce::String lpStart = " Loop-point Start";
 	static inline const juce::String lpEnd = " Loop-point End";
+	static inline const juce::String lpCount = " Loop-point Count";
 
 	static inline const juce::String custom32 = " Custom32 ";
 	static inline const juce::String custom64 = " Custom64 ";

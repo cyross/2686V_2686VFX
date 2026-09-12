@@ -418,6 +418,9 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+    loopCount{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    loopCountButtons{ GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context), GuiComponentCountButtons(context) },
+    speed{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     pcmOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     pcmRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     loopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -995,6 +998,16 @@ void GuiOpzx7::setup()
         if (ctx.audioProcessor.opzx7PcmFilePaths[i].isNotEmpty()) {
             updatePcmFileName(i, juce::File(ctx.audioProcessor.opzx7PcmFilePaths[i]).getFileName());
         }
+
+        speed[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::speed, .title = "SPEED", .isReset = true });
+        speed[i].setWantsKeyboardFocus(true);
+        speed[i].setExplicitFocusOrder(++tabOrder);
+
+        loopCount[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::lpCount, .title = "CNT", .isReset = true });
+        loopCount[i].setWantsKeyboardFocus(true);
+        loopCount[i].setExplicitFocusOrder(++tabOrder);
+
+        loopCountButtons[i].setupComponent(opGroups[i].contentCanvas, loopCount[i], tabOrder);
 
         pcmOffset[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::pcmOffset, .title = Opzx7GuiText::Fm::Op::PcmOffset, .isReset = true });
         pcmOffset[i].setWantsKeyboardFocus(true);
@@ -1611,6 +1624,9 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     loadPcmBtn[idx].setEnabled(enable);
     clearPcmBtn[idx].setEnabled(enable);
     pcmFileNameLabel[idx].setEnabled(enable);
+    loopCount[idx].setEnabledWithLabel(enable);
+    loopCountButtons[idx].setEnables(enable);
+    speed[idx].setEnabledWithLabel(enable);
     pcmOffset[idx].setEnabledWithLabel(enable);
     pcmRatio[idx].setEnabledWithLabel(enable);
     loadWtBtn[idx].setEnabled(enable);
@@ -1708,9 +1724,12 @@ void GuiOpzx7::updateOnWsChange(int idx)
     {
         // WT関連だけ表示
         wsSeparator[idx].setVisible(visible);
+        speed[idx].setVisibleWithLabel(visible);
         loadPcmBtn[idx].setVisible(false);
         clearPcmBtn[idx].setVisible(false);
         pcmFileNameLabel[idx].setVisible(false);
+        loopCount[idx].setVisibleWithLabel(false);
+        loopCountButtons[idx].setVisibles(false);
         pcmOffset[idx].setVisibleWithLabel(false);
         pcmRatio[idx].setVisibleWithLabel(false);
         loopPointEnable[idx].setVisible(false);
@@ -1727,9 +1746,12 @@ void GuiOpzx7::updateOnWsChange(int idx)
     {
         // WT2関連だけ表示
         wsSeparator[idx].setVisible(visible);
+        speed[idx].setVisibleWithLabel(visible);
         loadPcmBtn[idx].setVisible(false);
         clearPcmBtn[idx].setVisible(false);
         pcmFileNameLabel[idx].setVisible(false);
+        loopCount[idx].setVisibleWithLabel(false);
+        loopCountButtons[idx].setVisibles(false);
         pcmOffset[idx].setVisibleWithLabel(false);
         pcmRatio[idx].setVisibleWithLabel(false);
         loopPointEnable[idx].setVisible(false);
@@ -1746,9 +1768,12 @@ void GuiOpzx7::updateOnWsChange(int idx)
     {
         // PCM関連だけ表示
         wsSeparator[idx].setVisible(visible);
+        speed[idx].setVisibleWithLabel(visible);
         loadPcmBtn[idx].setVisible(visible);
         clearPcmBtn[idx].setVisible(visible);
         pcmFileNameLabel[idx].setVisible(visible);
+        loopCount[idx].setVisibleWithLabel(visible);
+        loopCountButtons[idx].setVisibles(visible);
         pcmOffset[idx].setVisibleWithLabel(visible);
         pcmRatio[idx].setVisibleWithLabel(visible);
         loopPointEnable[idx].setVisible(visible);
@@ -1764,9 +1789,12 @@ void GuiOpzx7::updateOnWsChange(int idx)
     else {
         // 全関連非表示
         wsSeparator[idx].setVisible(false);
+        speed[idx].setVisibleWithLabel(false);
         loadPcmBtn[idx].setVisible(false);
         clearPcmBtn[idx].setVisible(false);
         pcmFileNameLabel[idx].setVisible(false);
+        loopCount[idx].setVisibleWithLabel(false);
+        loopCountButtons[idx].setVisibles(false);
         pcmOffset[idx].setVisibleWithLabel(false);
         pcmRatio[idx].setVisibleWithLabel(false);
         loopPointEnable[idx].setVisible(false);
@@ -2367,12 +2395,20 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
 
     bool visible = catWaveShape[opIndex].isDetailVisible();
 
+    // 速さという概念があるのは、素材を回して鳴らす 3 つだけ
+    const bool isSampleWs = selectedWs == Opzx7PrValue::pcmIndex
+        || selectedWs == Opzx7PrValue::wtIndex
+        || selectedWs == Opzx7PrValue::wt2Index;
+
     ws[opIndex].setVisibleWithLabel(visible);
     wsPreview[opIndex].setVisible(visible);
+    speed[opIndex].setVisibleWithLabel(visible && isSampleWs);
     wsSeparator[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loadPcmBtn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmFileNameLabel[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     clearPcmBtn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    loopCount[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    loopCountButtons[opIndex].setVisibles(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmOffset[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmRatio[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loopPointEnable[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
@@ -2391,10 +2427,16 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
         wsPreview[opIndex].setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
         rect.removeFromTop(2);
 
+        if (isSampleWs) {
+            layoutRow({ .rowRect = rect, .label = &speed[opIndex].label, .component = &speed[opIndex] });
+        }
+
         if (selectedWs == Opzx7PrValue::pcmIndex)
         {
             wsSeparator[opIndex].layoutComponent(rect);
             layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadPcmBtn[opIndex], .pcmFileNameLabel = &pcmFileNameLabel[opIndex], .clearPcmBtn = &clearPcmBtn[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &loopCount[opIndex].label, .component = &loopCount[opIndex] });
+            loopCountButtons[opIndex].layoutComponentRow(rect);
             layoutRow({ .rowRect = rect, .label = &pcmOffset[opIndex].label, .component = &pcmOffset[opIndex] });
             layoutRow({ .rowRect = rect, .label = &pcmRatio[opIndex].label, .component = &pcmRatio[opIndex] });
             layoutRow({ .rowRect = rect, .component = &loopPointEnable[opIndex] });
@@ -2719,6 +2761,7 @@ void GuiOpzx7::copyOpParams(int p, CopyOpzx7Op& copyObj) {
     copyObj.aAdsr.ksRs = ksRs[p].getValue();
     copyObj.waveSelect = ws[p].getSelectedId();
     copyObj.pcm.pcmOffset = pcmOffset[p].getValue();
+    copyObj.pcm.speed = speed[p].getValue();
     copyObj.pcm.pcmRatio = pcmRatio[p].getValue();
     copyObj.ssgEg.ssgEg = se[p].getSelectedId();
     copyObj.ssgEg.fmSsgEgFreq = seFreq[p].getValue();
@@ -2787,6 +2830,7 @@ void GuiOpzx7::pasteOpParams(int p, CopyOpzx7Op& copyObj) {
     ksRs[p].setValue(copyObj.aAdsr.ksRs, juce::sendNotification);
     ws[p].setSelectedId(copyObj.waveSelect, juce::sendNotification);
     pcmOffset[p].setValue(copyObj.pcm.pcmOffset, juce::sendNotification);
+    speed[p].setValue(copyObj.pcm.speed, juce::sendNotification);
     pcmRatio[p].setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
     se[p].setSelectedId(copyObj.ssgEg.ssgEg, juce::sendNotification);
     seFreq[p].setValue(copyObj.ssgEg.fmSsgEgFreq, juce::sendNotification);
@@ -2963,10 +3007,12 @@ void GuiOpzx7::applyOpPcmPlayParamFile(int opIndex, const juce::File& file)
     GuiRefresh::Batch batch;
 
     pcmOffset[opIndex].setValue(reader->getFloat("pcmOffset", (float)pcmOffset[opIndex].getValue()), juce::sendNotification);
+    speed[opIndex].setValue(reader->getFloat("speed", (float)speed[opIndex].getValue()), juce::sendNotification);
     pcmRatio[opIndex].setValue(reader->getFloat("pcmRatio", (float)pcmRatio[opIndex].getValue()), juce::sendNotification);
     loopPointEnable[opIndex].setToggleState(reader->getBool("loopPointEnable", loopPointEnable[opIndex].getToggleState()), juce::sendNotification);
     loopPointStart[opIndex].setValue(reader->getFloat("loopPointStart", (float)loopPointStart[opIndex].getValue()), juce::sendNotification);
     loopPointEnd[opIndex].setValue(reader->getFloat("loopPointEnd", (float)loopPointEnd[opIndex].getValue()), juce::sendNotification);
+    loopCount[opIndex].setValue(reader->getFloat("loopCount", (float)loopCount[opIndex].getValue()), juce::sendNotification);
 }
 
 void GuiOpzx7::exportOpPcmPlayParam(int opIndex)
@@ -3330,10 +3376,12 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
 
     // PCM Play / Loop Point
     pcmOffset[opIndex].setValue(r.getFloat("pcmOffset", (float)pcmOffset[opIndex].getValue()), juce::sendNotification);
+    speed[opIndex].setValue(r.getFloat("speed", (float)speed[opIndex].getValue()), juce::sendNotification);
     pcmRatio[opIndex].setValue(r.getFloat("pcmRatio", (float)pcmRatio[opIndex].getValue()), juce::sendNotification);
     loopPointEnable[opIndex].setToggleState(r.getBool("loopPointEnable", loopPointEnable[opIndex].getToggleState()), juce::sendNotification);
     loopPointStart[opIndex].setValue(r.getFloat("loopPointStart", (float)loopPointStart[opIndex].getValue()), juce::sendNotification);
     loopPointEnd[opIndex].setValue(r.getFloat("loopPointEnd", (float)loopPointEnd[opIndex].getValue()), juce::sendNotification);
+    loopCount[opIndex].setValue(r.getFloat("loopCount", (float)loopCount[opIndex].getValue()), juce::sendNotification);
 
     // SSG Env
     se[opIndex].setSelectedId(r.getInt("se", se[opIndex].getSelectedId()), juce::sendNotification);
@@ -3404,10 +3452,12 @@ void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
 
     // PCM Play / Loop Point
     w.set("pcmOffset", (float)pcmOffset[opIndex].getValue());
+    w.set("speed", (float)speed[opIndex].getValue());
     w.set("pcmRatio", (float)pcmRatio[opIndex].getValue());
     w.set("loopPointEnable", loopPointEnable[opIndex].getToggleState());
     w.set("loopPointStart", (float)loopPointStart[opIndex].getValue());
     w.set("loopPointEnd", (float)loopPointEnd[opIndex].getValue());
+    w.set("loopCount", (float)loopCount[opIndex].getValue());
 
     // SSG Env
     w.set("se", se[opIndex].getSelectedId());
@@ -3663,10 +3713,12 @@ void GuiOpzx7::setImportingOpPcmPlayParams(int opIndex, juce::StringArray& lines
 // 書き出す中身。エクスポートと変換の両方から使う。
 void GuiOpzx7::writeOpPcmPlayParams(int opIndex, Io::ParamWriter& writer) {
 	writer.set("pcmOffset", (float)pcmOffset[opIndex].getValue());
+writer.set("speed", (float)speed[opIndex].getValue());
 	writer.set("pcmRatio", (float)pcmRatio[opIndex].getValue());
 	writer.set("loopPointEnable", loopPointEnable[opIndex].getToggleState());
 	writer.set("loopPointStart", (float)loopPointStart[opIndex].getValue());
 	writer.set("loopPointEnd", (float)loopPointEnd[opIndex].getValue());
+	writer.set("loopCount", (float)loopCount[opIndex].getValue());
 
 	
 }

@@ -14,6 +14,7 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     const juce::String prefixName = SsgPrName::prefix;
 
     PrHelper::addLevelParameters(layout, prefix, prefixName);
+    PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addSsgBasicParameters(layout, prefix, prefixName);
     PrHelper::addSsgDutyParameters(layout, prefix, prefixName);
     PrHelper::addSsgTriParameters(layout, prefix, prefixName);

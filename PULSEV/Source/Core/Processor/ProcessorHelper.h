@@ -471,12 +471,14 @@ namespace PrHelper {
 	static inline void setupPcm(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPcm& ptPtrs){
 		ptPtrs.offset = apvts.getRawParameterValue(prefix + CPK::pcmOffset);
 		ptPtrs.ratio = apvts.getRawParameterValue(prefix + CPK::pcmRatio);
+		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 	}
 
 	static inline void setupLp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsLp& ptPtrs){
 		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::lpEnable);
 		ptPtrs.start = apvts.getRawParameterValue(prefix + CPK::lpStart);
 		ptPtrs.end = apvts.getRawParameterValue(prefix + CPK::lpEnd);
+		ptPtrs.count = apvts.getRawParameterValue(prefix + CPK::lpCount);
 	}
 
 	static inline void setupWtMod(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtMod& ptPtrs, WtModWaveStore& store){
@@ -605,11 +607,13 @@ namespace PrHelper {
 
 	static inline void setupSsgBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 		ptPtrs.waveform = apvts.getRawParameterValue(prefix + CPK::ssgWaveform);
 	}
 
 	static inline void setupWtBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtBasic& ptPtrs) {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 		ptPtrs.wave = apvts.getRawParameterValue(prefix + CPK::Wt::wave);
 		ptPtrs.sampleSize = apvts.getRawParameterValue(prefix + CPK::Wt::sampleSize);
 		ptPtrs.step = apvts.getRawParameterValue(prefix + CPK::Wt::steps);
@@ -618,6 +622,7 @@ namespace PrHelper {
 
 	static inline void setupWtPlusBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtPlusBasic& ptPtrs) {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 		ptPtrs.slot = apvts.getRawParameterValue(prefix + CPK::Wt::slot);
 		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::Wt::steps);
 		ptPtrs.interpolate = apvts.getRawParameterValue(prefix + CPK::Wt::interpolate);
@@ -625,6 +630,7 @@ namespace PrHelper {
 
 	static inline void setupWt2BasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWt2Basic& ptPtrs) {
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 		ptPtrs.wave = apvts.getRawParameterValue(prefix + CPK::Wt2::wave);
 		ptPtrs.sampleSize = apvts.getRawParameterValue(prefix + CPK::Wt2::sampleSize);
 		ptPtrs.resolution = apvts.getRawParameterValue(prefix + CPK::Wt2::resolution);
@@ -1063,12 +1069,14 @@ namespace PrHelper {
 	static inline void applyPcm(PrPtrsPcm& ptPtrs, PcmParams& params){
 		params.offset = getFloat(ptPtrs.offset);
 		params.ratio = getFloat(ptPtrs.ratio);
+		params.speed = getFloat(ptPtrs.speed);
 	}
 
 	static inline void applyLp(PrPtrsLp& ptPtrs, LoopPointParams& params){
 		params.enable = getBool(ptPtrs.enable);
 		params.start = getFloat(ptPtrs.start);
 		params.end = getFloat(ptPtrs.end);
+		params.count = getInt(ptPtrs.count);
 	}
 
 	static inline void applyWtMod(PrPtrsWtMod& ptPtrs, WtModParams& params){
@@ -1164,6 +1172,7 @@ namespace PrHelper {
 
 	static inline void applySsgBasic(PrPtrsSsgBasic& ptPtrs, SsgParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.speed = PrHelper::getFloat(ptPtrs.speed);
 		params.waveform = PrHelper::getInt(ptPtrs.waveform);
 	}
 
@@ -1242,6 +1251,15 @@ namespace PrHelper {
 	static inline void addSsgSwPenv11Level(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
 	{
 		PrHelper::addInt(layout, code, name, CPV::SsgSwPEnv11::L::min, CPV::SsgSwPEnv11::L::max, CPV::SsgSwPEnv11::L::initial);
+	}
+
+	static inline void addSpeedParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::speed,
+			prefixName + CPN::speed,
+			CPV::Speed::min, CPV::Speed::max, CPV::Speed::initial
+		);
 	}
 
 	static inline void addLevelParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -3104,6 +3122,7 @@ namespace PrHelper {
 			prefixName + CPN::pcmRatio, 
 			CPV::Pcm::Ratio::min, CPV::Pcm::Ratio::max, CPV::Pcm::Ratio::initial
 		);
+		PrHelper::addSpeedParameters(layout, prefix, prefixName);
 	}
 
 	static inline void addLPParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -3125,6 +3144,12 @@ namespace PrHelper {
 			prefixName + CPN::lpEnd, 
 			CPV::Lp::End::min, CPV::Lp::End::max, CPV::Lp::End::initial
 		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::lpCount,
+			prefixName + CPN::lpCount,
+			CPV::Lp::Count::min, CPV::Lp::Count::max, CPV::Lp::Count::initial
+		);
 	}
 
 	static inline void addOpPcmParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {
@@ -3140,6 +3165,7 @@ namespace PrHelper {
 			namePrefix + CPN::pcmRatio, 
 			CPV::Pcm::Ratio::min, CPV::Pcm::Ratio::max, CPV::Pcm::Ratio::initial
 		);
+		PrHelper::addSpeedParameters(layout, prefix, namePrefix);
 	}
 
 	static inline void addOpLPParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {
@@ -3160,6 +3186,12 @@ namespace PrHelper {
 			prefix + CPK::lpEnd, 
 			namePrefix + CPN::lpEnd, 
 			CPV::Lp::End::min, CPV::Lp::End::max, CPV::Lp::End::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::lpCount,
+			namePrefix + CPN::lpCount,
+			CPV::Lp::Count::min, CPV::Lp::Count::max, CPV::Lp::Count::initial
 		);
 	}
 

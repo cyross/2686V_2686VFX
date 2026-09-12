@@ -19,6 +19,9 @@ struct SsgParams
 {
     float level = 1.0f;
 
+    // 再生速度。ノートによる速さの変化へ掛ける。
+    float speed = 1.0f;
+
     ToneNoiseParams tn;
     AmpAdsrParams adsr;
     WtModParams wtMod;

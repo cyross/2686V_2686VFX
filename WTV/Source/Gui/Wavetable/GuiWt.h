@@ -84,6 +84,11 @@ class GuiWt : public GuiBase
 
     Quality qualityComponent;
 
+    // OPTIONAL。いまは再生速度だけだが、この先もここへ足していく。
+    GuiCategoryLabel optionalCat;
+    GuiSlider speedSlider;
+    NormalSeparator optSpeedSeparator;
+
     GuiCategoryLabel formCat;
     GuiComponentWtMod modComponent;
     GuiComponentWtAmpMod ampModComponent;
@@ -185,6 +190,9 @@ public:
         customSliders256(context),
         levelComponent(context),
         qualityComponent(context),
+        optionalCat(context),
+        speedSlider(context),
+        optSpeedSeparator(context),
         formCat(context),
         modComponent(context),
         ampModComponent(context),
@@ -255,6 +263,7 @@ public:
     void writeWavetableFile(const juce::File& file);
     void initParams();
     void layoutFormCat(Rectangle<int>& rect);
+    void layoutOptionalCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void setupGraph();

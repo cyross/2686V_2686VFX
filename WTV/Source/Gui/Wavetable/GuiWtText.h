@@ -11,6 +11,7 @@ namespace WtGuiText
 
 	namespace Category
 	{
+		static inline const juce::String optional = u8"OPTIONAL";
 		static inline const juce::String form = u8"FORM";
 		static inline const juce::String quality = u8"QUALITY";
 		static inline const juce::String lfo = u8"LFO";

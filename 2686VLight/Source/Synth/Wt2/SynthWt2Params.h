@@ -19,6 +19,9 @@ struct Wt2Params
 {
     float level = 1.0f;
 
+    // 再生速度。ノートによる速さの変化へ掛ける。
+    float speed = 1.0f;
+
     AmpAdsrParams adsr;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;

@@ -49,6 +49,7 @@ void SsgCore::setSampleRate(double sampleRate) {
 void SsgCore::setParameters(const SynthParams& params)
 {
     m_level = params.ssg.level;
+    m_speed = params.ssg.speed;
 
     m_tone = params.ssg.tn.tone;
     m_mix = params.ssg.tn.mix;
@@ -399,7 +400,7 @@ float SsgCore::getSample()
             else                toneSample = 1.0f - 2.0f * ((phaseNorm - k) / (1.0f - k));
         }
 
-        m_phase += phaseInc;
+        m_phase += phaseInc * m_speed;
         // ピッチエンベロープや PM で 1 サンプルの進みが 1.0 を超えても
         // 破綻しないよう while で回す
         while (m_phase >= 1.0f) m_phase -= 1.0f;

@@ -61,6 +61,14 @@ void GuiSsg::setup()
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
+    optionalCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::optional, .detailVisible = true, .enableChangeDetailVisible = true });
+
+    speedSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::speed, .title = "SPEED", .isReset = true });
+    speedSlider.setWantsKeyboardFocus(true);
+    speedSlider.setExplicitFocusOrder(++tabOrder);
+
+    optSpeedSeparator.setupComponent(mainGroup.contentCanvas);
+
     formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
     qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
@@ -281,6 +289,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     layoutFormCat(mRect);
 
+    layoutOptionalCat(mRect);
+
     ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
     ssgHwEnvComponent.layoutComponent(mRect);
@@ -422,6 +432,26 @@ void GuiSsg::updatePresetName(const juce::String& name)
 void GuiSsg::initParams()
 {
     this->ctx.audioProcessor.initParams("SSG_");
+}
+
+// OPTIONAL。区分そのものを v3.3.0 で足した。
+//
+// いまは再生速度だけだが、この先もここへ足していく。
+void GuiSsg::layoutOptionalCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    speedSlider.setVisibleWithLabel(visible);
+    optSpeedSeparator.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider });
+        optSpeedSeparator.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
 }
 
 void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
@@ -852,6 +882,7 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
+    speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
 
     // Form / Tone / Noise
     waveSelector.setSelectedItemIndex(reader->getInt("wave", waveSelector.getSelectedItemIndex()), juce::sendNotification);
@@ -968,6 +999,7 @@ void GuiSsg::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
+	writer.set("speed", (float)speedSlider.getValue());
 
 	// Form / Tone / Noise
 	writer.set("wave", waveSelector.getSelectedItemIndex());

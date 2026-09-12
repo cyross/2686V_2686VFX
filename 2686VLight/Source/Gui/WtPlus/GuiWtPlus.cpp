@@ -86,6 +86,14 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // WAVE MEMORY (32 スロット)
     // ==========================================================
+    optionalCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::optional, .detailVisible = true, .enableChangeDetailVisible = true });
+
+    speedSlider.setup(GuiSlider::Config{ .parent = waveGroup.contentCanvas, .id = code + CPK::speed, .title = "SPEED", .isReset = true });
+    speedSlider.setWantsKeyboardFocus(true);
+    speedSlider.setExplicitFocusOrder(++tabOrder);
+
+    optSpeedSeparator.setupComponent(waveGroup.contentCanvas);
+
     slotsCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::slots, .detailVisible = true, .enableChangeDetailVisible = true });
 
     // 並びは 対象 → 読み込み / 名前 / 消去 → 各スロットの波形。
@@ -284,6 +292,8 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
 
     layoutSlotsCat(wRect);
 
+    layoutOptionalCat(wRect);
+
     int waveUsedHeight = 5000 - wRect.getHeight();
 
     waveGroup.setContentHeight(waveUsedHeight + 20);
@@ -304,6 +314,26 @@ void GuiWtPlus::layoutWaveCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &slotSlider.label, .component = &slotSlider });
         layoutMain({ .mainRect = rect, .component = &interpolateButton });
         layoutMain({ .mainRect = rect, .label = &stepsSelector.label, .component = &stepsSelector, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
+}
+
+// OPTIONAL。区分そのものを v3.3.0 で足した。
+//
+// いまは再生速度だけだが、この先もここへ足していく。
+void GuiWtPlus::layoutOptionalCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    speedSlider.setVisibleWithLabel(visible);
+    optSpeedSeparator.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider });
+        optSpeedSeparator.layoutComponent(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -732,6 +762,7 @@ void GuiWtPlus::applyChParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
+    speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
 
     // Wave
     slotSlider.setValue(reader->getFloat("slot", (float)slotSlider.getValue()), juce::sendNotification);
@@ -817,6 +848,7 @@ void GuiWtPlus::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiWtPlus::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
+	writer.set("speed", (float)speedSlider.getValue());
 
 	// Wave
 	writer.set("slot", (float)slotSlider.getValue());

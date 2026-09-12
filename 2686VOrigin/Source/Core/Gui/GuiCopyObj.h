@@ -301,6 +301,7 @@ struct CopyPcm {
 	juce::String finename;
 	float pcmOffset;
 	float pcmRatio;
+	float speed;
 };
 
 struct CopyWt {

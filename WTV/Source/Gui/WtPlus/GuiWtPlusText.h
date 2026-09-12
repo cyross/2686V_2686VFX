@@ -8,6 +8,7 @@ namespace WtPlusGuiText
 {
 	namespace Category
 	{
+		static inline const juce::String optional = u8"OPTIONAL";
 		static inline const juce::String wave = u8"WAVE";
 		static inline const juce::String slots = u8"WAVE MEMORY";
 		static inline const juce::String util = u8"UTILITY";

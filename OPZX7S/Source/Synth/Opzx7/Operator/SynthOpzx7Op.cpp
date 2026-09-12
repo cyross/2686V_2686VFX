@@ -61,6 +61,7 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
     m_wtMod.setParameters(params.wtMod);
     m_lfo.setParameters(params.lfo);
     m_loopPointEnable = params.lp.enable;
+    m_lpCount = params.lp.count;
     m_loopPointStart = std::clamp(params.lp.start, 0.0f, 0.999999f);
     m_loopPointEnd = std::clamp(params.lp.end, m_loopPointStart + 0.000001f, 1.0f);
 
@@ -92,6 +93,8 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
     {
         m_ssgPhase = 0.0;
         m_isReleased = false;
+        m_lpCounter = 0;
+        m_lpDone = false;
 
         if (!m_isMonoMode) {
             // ユニゾン・ハーモニー向け対応
@@ -478,9 +481,9 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     m_fb1 = output;
 
     // m_phase の更新とラップアラウンドもラジアンで行う
-    m_phase += currentPhaseDelta;
+    m_phase += currentPhaseDelta * m_params.pcm.speed;
 
-    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_loopPointEnable && !m_isReleased) {
+    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_loopPointEnable && !m_isReleased && !m_lpDone) {
         // ループポイントは 0.0〜1.0 なので、そのままサイクル単位で扱える
         double loopStart = m_loopPointStart;
         double loopEnd = m_loopPointEnd;
@@ -489,7 +492,13 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
         if (loopLen > 0.0) {
             // ループ終端を超えたら、超えた分をStartに足してループ内に収める
             if (m_phase >= loopEnd) {
-                m_phase = loopStart + std::fmod(m_phase - loopEnd, loopLen);
+                // 決めた回数まで回ったら、折り返さずにその先へ進む
+                if (m_lpCount > 0 && ++m_lpCounter >= m_lpCount) {
+                    m_lpDone = true;
+                }
+                else {
+                    m_phase = loopStart + std::fmod(m_phase - loopEnd, loopLen);
+                }
             }
         }
 

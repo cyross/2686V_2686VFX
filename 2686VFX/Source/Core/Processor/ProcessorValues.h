@@ -54,6 +54,18 @@ namespace CPV
 		}
 	}
 
+	// 再生速度。ノートによる速さの変化へ掛ける。
+	//
+	// 0 まで落とすと止まってしまい、戻す手が無くなるので、下限は
+	// 止まる手前で止めてある。
+	// CPV::Speed の目印
+	namespace Speed
+	{
+		inline constexpr float min = 0.0001f;
+		inline constexpr float max = 100.0f;
+		inline constexpr float initial = 1.0f;
+	}
+
 	namespace Level
 	{
 		inline constexpr float min = CPV::levelMin;
@@ -327,6 +339,14 @@ namespace CPV
 			inline constexpr float initial = 1.0f;
 		}
 
+		// ループポイントのあいだを何周したら先へ進むか。
+		// 0 は無限で、これまでどおりキーを離すまで回り続ける。
+		namespace Count
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 3000;
+			inline constexpr int initial = 0;
+		}
 	}
 
 	namespace Alg

@@ -78,6 +78,11 @@ class GuiWtPlus : public GuiBase {
     GuiComboBox stepsSelector;
 
     // ---------------- WAVE MEMORY (32 スロット) ----------------
+    // OPTIONAL。いまは再生速度だけだが、この先もここへ足していく。
+    GuiCategoryLabel optionalCat;
+    GuiSlider speedSlider;
+    NormalSeparator optSpeedSeparator;
+
     GuiCategoryLabel slotsCat;
     // スロットごとに読み込みボタンを並べる代わりに、対象を選ぶつまみと
     // 1 組のボタンを置く。波形はまとめて 1 つの区画へ描く。
@@ -153,6 +158,9 @@ public:
         slotSlider(context),
         interpolateButton(context),
         stepsSelector(context),
+        optionalCat(context),
+        speedSlider(context),
+        optSpeedSeparator(context),
         slotsCat(context),
         slotTarget(context),
         slotWtBtn(context),
@@ -202,6 +210,7 @@ public:
     void setupGraph();
     void layoutWaveCat(Rectangle<int>& rect);
     void layoutSlotsCat(Rectangle<int>& rect);
+    void layoutOptionalCat(Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);

@@ -371,12 +371,19 @@ struct PrPtrsToneNoise {
 struct PrPtrsPcm {
     std::atomic<float>* offset = nullptr;
     std::atomic<float>* ratio = nullptr;
+
+    // 再生速度。ADPCM とリズムのパッド、OPZX7 のオペレーターが
+    // この受け皿を分け合っているので、ここへ置けば 3 つとも行き渡る。
+    std::atomic<float>* speed = nullptr;
 };
 
 struct PrPtrsLp {
     std::atomic<float>* enable = nullptr;
     std::atomic<float>* start = nullptr;
     std::atomic<float>* end = nullptr;
+
+    // 何周したら先へ進むか (PrPtrsLp の回数)
+    std::atomic<float>* count = nullptr;
 };
 
 struct PrPtrsWtMod {
@@ -446,6 +453,7 @@ struct PrPtrsPanpot {
 
 struct PrPtrsWtBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* speed = nullptr;
     std::atomic<float>* wave = nullptr;
     std::atomic<float>* sampleSize = nullptr;
     std::atomic<float>* step = nullptr;
@@ -454,6 +462,7 @@ struct PrPtrsWtBasic {
 
 struct PrPtrsWt2Basic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* speed = nullptr;
     std::atomic<float>* wave = nullptr;
     std::atomic<float>* sampleSize = nullptr;
     std::atomic<float>* resolution = nullptr;
@@ -462,6 +471,7 @@ struct PrPtrsWt2Basic {
 
 struct PrPtrsWtPlusBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* speed = nullptr;
     std::atomic<float>* slot = nullptr;
     std::atomic<float>* steps = nullptr;
     std::atomic<float>* interpolate = nullptr;
@@ -525,6 +535,7 @@ struct PrPtrsRhythmPadBasic {
 
 struct PrPtrsSsgBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* speed = nullptr;
     std::atomic<float>* waveform = nullptr;
 };
 

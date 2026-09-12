@@ -25,6 +25,7 @@
 #include "../../Gui/Components/ViewMode/ViewMode.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/CountButtons/CountButtons.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
@@ -179,6 +180,13 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiTextButton, Opzx7PrValue::ops> loadPcmBtn;
     std::array<GuiTextButton, Opzx7PrValue::ops> clearPcmBtn;
     std::array<GuiLabel, Opzx7PrValue::ops> pcmFileNameLabel;
+    // 再生速度。WS が PCM・WT・WT2 のときだけ効く。
+    // ループカウンター。WS の POFF の上に置く。
+    std::array<GuiSlider, Opzx7PrValue::ops> loopCount;
+    std::array<GuiComponentCountButtons, Opzx7PrValue::ops> loopCountButtons;
+
+    std::array<GuiSlider, Opzx7PrValue::ops> speed;
+
     std::array<GuiSlider, Opzx7PrValue::ops> pcmOffset;
     std::array<GuiSlider, Opzx7PrValue::ops> pcmRatio;
     std::array<GuiToggleButton, Opzx7PrValue::ops> loopPointEnable;

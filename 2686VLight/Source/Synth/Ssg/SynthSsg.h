@@ -51,6 +51,9 @@ private:
 
     float m_level = 1.0f;
 
+    // 再生速度。ノートによる速さの変化へ掛ける。
+    float m_speed = 1.0f;
+
     float m_tone = 1.0f;
     float m_noiseLevel = 0.0f;
     float m_mix = 0.5;

@@ -46,6 +46,7 @@ namespace CPK
 	static inline const juce::String bypass = "_BYPASS";
 
 	static inline const juce::String level = "_LEVEL";
+	static inline const juce::String speed = "_SPEED";
 	static inline const juce::String vol = "_VOL";
 
 	static inline const juce::String fix = "_FIX";
@@ -59,6 +60,7 @@ namespace CPK
 	static inline const juce::String lpEnable = "_LOOPPOINT_EN";
 	static inline const juce::String lpStart = "_LOOPPOINT_ST";
 	static inline const juce::String lpEnd = "_LOOPPOINT_END";
+	static inline const juce::String lpCount = "_LOOPPOINT_CNT";
 
 	static inline const juce::String mul = "_MUL";
 	static inline const juce::String mulRatio = "_MUL_RATIO";

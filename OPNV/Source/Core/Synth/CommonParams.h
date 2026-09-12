@@ -137,12 +137,18 @@ struct ToneNoiseParams {
 struct PcmParams {
     float offset = 0.0f; // ms
     float ratio = 1.0f;
+
+    // 再生速度。ノートによる速さの変化へ掛ける。 (PcmParams の再生速度)
+    float speed = 1.0f;
 };
 
 struct LoopPointParams {
     bool enable = false;
     float start = 0.0f; // 0.0 to 1.0
     float end = 1.0f;   // 0.0 to 1.0
+
+    // 何周したら先へ進むか。0 は無限。(LoopPointParams の回数)
+    int count = 0;
 };
 
 struct PanpotParams {
