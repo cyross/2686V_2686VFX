@@ -106,9 +106,8 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     addAndMakeVisible(stripViewport);
 
-    colForm.setup(stripCanvas, juce::String("") + "FORM / PAN");
+    colForm.setup(stripCanvas, juce::String("") + "FORM / PAN / QUALITY");
     colOptional.setup(stripCanvas, juce::String("") + "OPTIONAL");
-    colQuality.setup(stripCanvas, juce::String("") + "QUALITY");
     colAmpEnv.setup(stripCanvas, juce::String("") + "AMP ENV");
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
     colSsgSwEnv.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV");
@@ -154,7 +153,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     formCat.setupHwCategory({ .parent = colForm.contentCanvas, .title = RhythmGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
-    qualityPcmComponent.setupComponent(colQuality.contentCanvas, padPrefix, tabOrder);
+    qualityPcmComponent.setupComponent(colForm.contentCanvas, padPrefix, tabOrder);
 
     // 音声ファイルロードボタン
     loadButton.setup({ .parent = colForm.contentCanvas, .title = RhythmGuiText::File::load, .isReset = false });
@@ -349,10 +348,10 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     // 区分の中身は最初から開いておく。1 列 1 区分にしたので、
     // 畳んだままだと見出しだけの列が並ぶことになる。
     for (auto* group : {
-        &colForm, &colOptional, &colQuality, &colAmpEnv,
-        &colSsgHwEnv, &colSsgSwEnv, &colSsgSwEnv11, &colAmpMod,
-        &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv11, &colMod,
-        &colLfo, &colMulDet,
+        &colForm, &colOptional, &colAmpEnv, &colSsgHwEnv,
+        &colSsgSwEnv, &colSsgSwEnv11, &colAmpMod, &colPitchEnv,
+        &colSsgHwPEnv, &colSsgSwPEnv11, &colMod, &colLfo,
+        &colMulDet,
         })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -445,15 +444,15 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     const auto shown = [this](SimpleView::Cat cat) { return ctx.audioProcessor.isSimpleShown(cat); };
 
-    // FORM と PAN は 1 区分ずつでは丈が余るので、1 列へまとめてある。
+    // FORM・PAN・QUALITY は 1 区分ずつでは丈が余るので、1 列へまとめてある。
     layoutCol(colForm, true, [&](juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &volSlider.label, .component = &volSlider });
         layoutFormCat(rect);
         layoutPanCat(rect);
+        layoutQualityCat(rect);
         });
 
     layoutCol(colOptional, true, [&](juce::Rectangle<int>& rect) { layoutOptionalCat(rect); });
-    layoutCol(colQuality, true, [&](juce::Rectangle<int>& rect) { layoutQualityCat(rect); });
 
     layoutCol(colAmpEnv, shown(SimpleView::AmpEnv), [&](juce::Rectangle<int>& rect) {
         ampEnvComponent.setCategoryVisible(true);

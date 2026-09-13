@@ -136,7 +136,6 @@ class RhythmPadGui: public GuiBase
     // 区分ごとの枠。基本は 1 列 1 区分。
     GuiScrollGroup colForm;
     GuiScrollGroup colOptional;
-    GuiScrollGroup colQuality;
     GuiScrollGroup colAmpEnv;
     GuiScrollGroup colSsgHwEnv;
     GuiScrollGroup colSsgSwEnv;
@@ -262,7 +261,6 @@ public:
         graphBtnSsgP11(context),
         colForm(context),
         colOptional(context),
-        colQuality(context),
         colAmpEnv(context),
         colSsgHwEnv(context),
         colSsgSwEnv(context),
