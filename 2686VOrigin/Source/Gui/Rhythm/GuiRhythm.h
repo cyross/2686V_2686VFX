@@ -53,6 +53,11 @@ class AudioPlugin2686VEditor;
 // いかない。パラメータから直に採る。
 class RhythmPadCell : public GuiBase
 {
+public:
+    // どのエンベロープを映すか。切り替えは絵ごとではなく、
+    // 上にまとめて 1 つ置く。
+    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
+private:
     int m_padIndex = 0;
 
     // このパッドのパラメータの接頭辞
@@ -62,39 +67,26 @@ class RhythmPadCell : public GuiBase
     GuiWavePreview samplePreview;
     GuiEnvelopeGraph graph;
 
-    GuiToggleButton graphBtnAmp;
-    GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
-    GuiToggleButton graphBtnSsg11;
-    GuiToggleButton graphBtnSsgP11;
-
-    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
-
-    // どのエンベロープを映すかは枠ごとに決める。
-    // 4 本を見比べたいことがあるので、まとめて 1 つにはしない。
     GraphMode currentGraphMode = GraphMode::Amp;
 
     // TARGET が指しているか。指している枠だけ濃い線で囲う。
     bool isActive = false;
 
-    void setGraphMode(GraphMode mode);
 public:
     RhythmPadCell(const GuiContext& context) :
         GuiBase(context),
         titleLabel(context),
-        samplePreview(context),
-        graphBtnAmp(context),
-        graphBtnPitch(context),
-        graphBtnSsg(context),
-        graphBtnSsg11(context),
-        graphBtnSsgP11(context)
+        samplePreview(context)
     {
     }
+
+    // どのエンベロープを映すかを決める。上の札からまとめて呼ばれる。
+    void setGraphMode(GraphMode mode);
 
     // 枠を押したときに呼ぶ。TARGET をここへ動かすために使う。
     std::function<void(int)> onSelect;
 
-    void setup(juce::Component& parent, int index, const juce::String& padName, int& tabOrder);
+    void setup(juce::Component& parent, int index, const juce::String& padName);
     void layout(juce::Rectangle<int> rect);
 
     // TARGET が指しているかを伝える。枠線の濃さが変わる。
@@ -111,7 +103,33 @@ public:
 
 class RhythmPadGui: public GuiBase
 {
-    GuiScrollGroup mainGroup;
+    // 今指しているパッドの名前。TARGET の隣に出す。
+    GuiLabel padNameLabel;
+
+    // 区分を横へ並べる送り台。縦へは送らず、あふれたぶんは横へ送る。
+    //
+    // 縦に積むと、下のほうの区分が畳まれた見出しの列に埋もれて
+    // 見つけられない。横に並べれば、どの区分も丈をいっぱいに使える。
+    juce::Viewport stripViewport;
+    juce::Component stripCanvas;
+
+    // 区分ごとの枠。基本は 1 列 1 区分。
+    GuiScrollGroup colForm;
+    GuiScrollGroup colOptional;
+    GuiScrollGroup colPan;
+    GuiScrollGroup colQuality;
+    GuiScrollGroup colAmpEnv;
+    GuiScrollGroup colSsgHwEnv;
+    GuiScrollGroup colSsgSwEnv;
+    GuiScrollGroup colSsgSwEnv11;
+    GuiScrollGroup colAmpMod;
+    GuiScrollGroup colPitchEnv;
+    GuiScrollGroup colSsgHwPEnv;
+    GuiScrollGroup colSsgSwPEnv11;
+    GuiScrollGroup colMod;
+    GuiScrollGroup colLfo;
+    GuiScrollGroup colMulDet;
+    GuiScrollGroup colFix;
 
     GuiLabel fileNameLabel;
     GuiTextButton loadButton;
@@ -218,7 +236,23 @@ public:
     void setImportingParams(int p, juce::StringArray& lines, int& index);
     RhythmPadGui(const GuiContext& context) :
 		GuiBase(context),
-        mainGroup(context),
+        padNameLabel(context),
+        colForm(context),
+        colOptional(context),
+        colPan(context),
+        colQuality(context),
+        colAmpEnv(context),
+        colSsgHwEnv(context),
+        colSsgSwEnv(context),
+        colSsgSwEnv11(context),
+        colAmpMod(context),
+        colPitchEnv(context),
+        colSsgHwPEnv(context),
+        colSsgSwPEnv11(context),
+        colMod(context),
+        colLfo(context),
+        colMulDet(context),
+        colFix(context),
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
@@ -413,6 +447,21 @@ class GuiRhythm : public GuiBase
 
     // 上に並ぶ絵。こちらはパッドの数だけ置く。
     std::array<RhythmPadCell, RhythmPrValue::pads> cells;
+
+    // どのエンベロープを映すかの切り替え。絵ごとではなく、まとめて 1 つ。
+    //
+    // 絵ごとに札を並べると、枠の丈をそのぶん食われるうえ、
+    // どれがどれを映しているのかを一枚ずつ確かめることになる。
+    GuiToggleButton graphBtnAmp;
+    GuiToggleButton graphBtnPitch;
+    GuiToggleButton graphBtnSsg;
+    GuiToggleButton graphBtnSsg11;
+    GuiToggleButton graphBtnSsgP11;
+
+    RhythmPadCell::GraphMode currentGraphMode = RhythmPadCell::GraphMode::Amp;
+
+    // 札を押したときに、絵を全部まとめて切り替える。
+    void setGraphMode(RhythmPadCell::GraphMode mode);
 
     // 指し先を一時的に動かして何かをする。
     //

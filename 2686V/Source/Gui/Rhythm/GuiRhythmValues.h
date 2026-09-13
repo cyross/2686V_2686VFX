@@ -73,6 +73,9 @@ namespace RhythmGuiValue
 		{
 			static inline constexpr int height = 120;
 			static inline constexpr int ButtonHeight = 16;
+
+			// どのエンベロープを映すかを選ぶ札 1 枚ぶんの幅
+			static inline constexpr int ModeButtonWidth = 46;
 		}
 
 		namespace Separator
@@ -81,13 +84,20 @@ namespace RhythmGuiValue
 		}
 
 		// 上に並べる 1 枚ぶんの高さ。
-		// 見出し 14 + 波形 34 + グラフ 120 + 札 16 に、隙間と枠のぶん。
+		// 見出し 14 + 波形 34 + グラフ 120 に、隙間と枠のぶん。
 		namespace Cell
 		{
-			static inline constexpr int height = 200;
+			static inline constexpr int height = 184;
 		}
 
 		static constexpr int width = 230;
+
+		// 区分を横へ並べるときの、1 列ぶんの幅と隙間
+		namespace Col
+		{
+			static inline constexpr int width = 250;
+			static inline constexpr int gap = 10;
+		}
 		static constexpr int height = 460;
 	}
 }
