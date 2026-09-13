@@ -37,6 +37,7 @@ once. It is there so that levels stay even while you move between chips.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **LV** | Level of the whole channel | 0 – 10 | 1 | [`SSG_LEVEL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-level) |
+| **DLY** | Ours. How long after the key before it starts, in seconds | 0 – 60 | 0 | [`SSG_DELAY`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-delay) |
 
 ## QUALITY
 
@@ -129,6 +130,8 @@ The basic shape of the level. It runs **start level → attack → decay → sus
 | **SL** | Level held while the key is down | 0 – 1 | 1 | [`SSG_SL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-sl) |
 | **RR** | Time to fade out after release (seconds) | 0.001 – 10 | 0.001 | [`SSG_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-rr) |
 | **KOR** | **Ours.** Play the envelope out even after release | False / True | False | [`SSG_KOR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-kor) |
+| **USE ENDL** | Ours. Leave sound behind after the release | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-endl-en) |
+| **ENDL** | Ours. The level held once it is there | 0 – 1 | 0 | [`SSG_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-endl) |
 
 FM operators carry a separate register-style envelope of their own
 (AR / DR / SR / SL / RR / TL). That one is covered on each chip's page.
@@ -230,6 +233,9 @@ Moves the pitch over time. Values are in **cents**, from **−4800 to +4800**
 | **SSL** | Pitch held while the key is down | -4800 – 4800 | 0 | [`SSG_PITCH_SSL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-ssl) |
 | **RR** | Time to reach RLL (seconds) | 0.001 – 10 | 0.001 | [`SSG_PITCH_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-rr) |
 | **RLL** | Pitch it ends on | -4800 – 4800 | 0 | [`SSG_PITCH_RLL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-rll) |
+| **USE ENDL** | Ours. Leave the pitch offset in place after the release | False / True | False | [`SSG_PITCH_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-endl-en) |
+| **ENDL** | Ours. The pitch held once it is there | -4800 – 4800 | 0 | [`SSG_PITCH_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-endl) |
+| **KEEP** | Ours. Hold each stage's value instead of sloping between them | False / True | False | [`SSG_PITCH_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-keep) |
 
 Use it to lift the pitch at the very start of a note, or to drop it away like a
 laser.
@@ -298,6 +304,71 @@ note sounds.
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSWP11_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loop) |
 | **LOOP TO** | Step it goes back to. 0–8 | 0 – 8 | 0 | [`SSG_SSGSWP11_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loopto) |
 | **LOOP COUNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSWP11_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loopcnt) |
+
+## SPEED – playback rate
+
+Ours, new in 3.3.0. A multiplier on the rate at which a wave or a sample is
+read. It changes **how fast the shape travels** while the pitch stays where it
+was.
+
+| Knob | What it does | Range | Default | Automation |
+| --- | --- | --- | ---: | --- |
+| **SPEED** | Multiplier on the read rate | 0.0001 – 100 | 1 | [`SSG_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-speed) |
+
+## HOLD / KEEP – stopping a wave, or playing part of it
+
+Ours, new in 3.3.0. Two things live here: **stop the wave after so many cycles**
+(HOLD), and **play only a chosen stretch of one cycle** (KEEP).
+
+They appear in the places below, and behave the same everywhere.
+
+| Where | What it stops |
+| --- | --- |
+| OPTIONAL on WT / WT2 / WT+ / SSG | The sounding wave itself |
+| WT PITCH MOD / WT AMP MOD | The modulation wave |
+| SSG HW AMP ENV / SSG HW PITCH ENV | The envelope wave |
+| LFO | The sway wave |
+
+:::note[Not offered on shapes that already stop]
+When a shape that **finishes in one cycle** is chosen – SSG HW ENV 1, 3, 5 and 7,
+or LFO 6 and 7 – HOLD is greyed out, because stopping something twice does
+nothing.
+:::
+
+### HOLD – stop after so many cycles
+
+| Knob | What it does | Range | Default | Automation |
+| --- | --- | --- | ---: | --- |
+| **HOLD** | On or off | False / True | False | [`SSG_HOLD_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-hold-en) |
+| **COUNT** | How many cycles before it stops | 1 – 3000 | 8 | [`SSG_HOLD_CNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-hold-cnt) |
+| **TARGET** | Which side is held once stopped | 0 = MIN / 1 = MAX | 1 | [`SSG_HOLD_TGT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-hold-tgt) |
+| **HOLD MIN** | The lower value | 0 – 1 | 0 | [`SSG_HOLD_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-hold-min) |
+| **HOLD MAX** | The upper value | 0 – 1 | 1 | [`SSG_HOLD_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-hold-max) |
+
+**Which side is held is a switch, not a reading of the wave.** Stopping on
+whatever value happened to be passing would give a different sound on every
+note.
+
+What MIN and MAX mean depends on what they feed. Where they scale a level they
+are 0.0–1.0; where they shift pitch they are −4800 to 4800 cents; on the LFO
+they are −1.0 to 1.0.
+
+### KEEP – play only part of a cycle
+
+| Knob | What it does | Range | Default | Automation |
+| --- | --- | --- | ---: | --- |
+| **KEEP** | On or off | False / True | False | [`SSG_KEEP_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-keep-en) |
+| **START** | Where the stretch begins | 0 – 1 | 0 | [`SSG_WAVE_ST`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-wave-st) |
+| **KEEP START** | What happens before START | False / True | False | [`SSG_KEEP_ST`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-keep-st) |
+| **END** | Where it ends | 0 – 1 | 1 | [`SSG_WAVE_ED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-wave-ed) |
+| **KEEP END** | What happens after END | False / True | False | [`SSG_KEEP_ED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-keep-ed) |
+
+START and END are positions **across one cycle, from 0.0 to 1.0**. END can only
+sit after START.
+
+KEEP START and KEEP END decide what happens outside the stretch. **On holds the
+value at that edge; off gives 0.** Either way **the cycle keeps its length** –
+the stretch is not cut out and looped faster.
 
 ## WT PITCH MOD
 

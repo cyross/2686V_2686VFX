@@ -37,6 +37,7 @@ UTILITY の **Level -> All Ch** を押すと、この値を他のすべてのチ
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **LV** | チャンネル全体の音量 | 0 〜 10 | 1 | [`SSG_LEVEL`](/2686V_2686VFX/reference/automation/ssg/#ssg-level) |
+| **DLY** | **独自**。鍵を押してから鳴り始めるまでの間（秒） | 0 〜 60 | 0 | [`SSG_DELAY`](/2686V_2686VFX/reference/automation/ssg/#ssg-delay) |
 
 ## QUALITY
 
@@ -126,6 +127,8 @@ SSG SW AMP ENV でその上に細かい動きを乗せる、という組み立�
 | **SL** | 押しているあいだ保つ音量 | 0 〜 1 | 1 | [`SSG_SL`](/2686V_2686VFX/reference/automation/ssg/#ssg-sl) |
 | **RR** | 鍵を離してから消えるまでの時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-rr) |
 | **KOR** | **独自**。鍵を離しても最後まで鳴らし切る | False / True | False | [`SSG_KOR`](/2686V_2686VFX/reference/automation/ssg/#ssg-kor) |
+| **USE ENDL** | **独自**。リリースのあとに音を残す | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-endl-en) |
+| **ENDL** | **独自**。そのときに保つ音量 | 0 〜 1 | 0 | [`SSG_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-endl) |
 
 FM 音源のオペレータでは、これとは別にオペレータごとのレジスタ式の
 エンベロープ（AR / DR / SR / SL / RR / TL）を持ちます。そちらは各音源の
@@ -227,6 +230,9 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **SSL** | 押しているあいだ保つ音程 | -4800 〜 4800 | 0 | [`SSG_PITCH_SSL`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-ssl) |
 | **RR** | RLL へ移る時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_PITCH_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-rr) |
 | **RLL** | 終わりの音程 | -4800 〜 4800 | 0 | [`SSG_PITCH_RLL`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-rll) |
+| **USE ENDL** | **独自**。リリースのあとも音程を残す | False / True | False | [`SSG_PITCH_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-endl-en) |
+| **ENDL** | **独自**。そのときに保つ音程 | -4800 〜 4800 | 0 | [`SSG_PITCH_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-endl) |
+| **KEEP** | **独自**。段のあいだを斜めに繋がず、その段の値を保つ | False / True | False | [`SSG_PITCH_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-keep) |
 
 打鍵の頭だけ音程を上げる、レーザーのように急降下させる、といった使い方を
 します。
@@ -295,6 +301,69 @@ Enable にすると 1 オクターブの範囲で音程が動きます。MIN と
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSWP11_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loop) |
 | **LOOP TO** | 戻り先の段。0〜8 | 0 〜 8 | 0 | [`SSG_SSGSWP11_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loopto) |
 | **LOOP COUNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSWP11_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loopcnt) |
+
+## SPEED — 再生の速さ
+
+**独自**のつまみです。3.3.0 で足しました。波形やサンプルを読む速さに掛ける
+倍率です。音程はそのままに、**形が流れる速さだけ**を変えられます。
+
+| つまみ | 内容 | 範囲 | 初期値 | オートメーション |
+| --- | --- | --- | ---: | --- |
+| **SPEED** | 読む速さに掛ける倍率 | 0.0001 〜 100 | 1 | [`SSG_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-speed) |
+
+## HOLD / KEEP — 波形を止める・一部だけ鳴らす
+
+**独自**の区分です。3.3.0 で足しました。**何周かしたら波形を止める**（HOLD）、
+**1 周のうち決めた区間だけを鳴らす**（KEEP）の 2 つが入っています。
+
+出てくる場所は次のとおりです。どこでも中身は同じです。
+
+| 場所 | 何を止めるか |
+| --- | --- |
+| WT / WT2 / WT+ / SSG の OPTIONAL | 鳴っている波形そのもの |
+| WT PITCH MOD / WT AMP MOD | 変調の波形 |
+| SSG HW AMP ENV / SSG HW PITCH ENV | エンベロープの波形 |
+| LFO | 揺れの波形 |
+
+:::note[もともと止まる形には出ません]
+SSG HW ENV の 1・3・5・7 番や LFO の 6・7 番のように、**1 周で止まる形**が
+選ばれているときは HOLD が押せなくなります。二重に止めても何も起きないため
+です。
+:::
+
+### HOLD — 何周かしたら止める
+
+| つまみ | 内容 | 範囲 | 初期値 | オートメーション |
+| --- | --- | --- | ---: | --- |
+| **HOLD** | 使う・使わない | False / True | False | [`SSG_HOLD_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-hold-en) |
+| **COUNT** | 何周したら止まるか | 1 〜 3000 | 8 | [`SSG_HOLD_CNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-hold-cnt) |
+| **TARGET** | 止まったときに出し続ける側 | 0 = MIN / 1 = MAX | 1 | [`SSG_HOLD_TGT`](/2686V_2686VFX/reference/automation/ssg/#ssg-hold-tgt) |
+| **HOLD MIN** | その下の値 | 0 〜 1 | 0 | [`SSG_HOLD_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-hold-min) |
+| **HOLD MAX** | その上の値 | 0 〜 1 | 1 | [`SSG_HOLD_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-hold-max) |
+
+止まる**側はスイッチで固定**します。値そのものが動いている途中で止めると、
+鳴るたびに違う音になってしまうためです。
+
+MIN / MAX の単位は、掛かる先で変わります。音量へ掛かるところでは 0.0〜1.0 の
+倍率、音程へ掛かるところでは −4800〜4800 のセント、LFO では −1.0〜1.0 の
+両振りになります。
+
+### KEEP — 1 周の一部だけを鳴らす
+
+| つまみ | 内容 | 範囲 | 初期値 | オートメーション |
+| --- | --- | --- | ---: | --- |
+| **KEEP** | 使う・使わない | False / True | False | [`SSG_KEEP_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-keep-en) |
+| **START** | 鳴らし始める位置 | 0 〜 1 | 0 | [`SSG_WAVE_ST`](/2686V_2686VFX/reference/automation/ssg/#ssg-wave-st) |
+| **KEEP START** | START より手前をどうするか | False / True | False | [`SSG_KEEP_ST`](/2686V_2686VFX/reference/automation/ssg/#ssg-keep-st) |
+| **END** | 鳴らし終える位置 | 0 〜 1 | 1 | [`SSG_WAVE_ED`](/2686V_2686VFX/reference/automation/ssg/#ssg-wave-ed) |
+| **KEEP END** | END より後ろをどうするか | False / True | False | [`SSG_KEEP_ED`](/2686V_2686VFX/reference/automation/ssg/#ssg-keep-ed) |
+
+START と END は、**1 周を 0.0〜1.0 とした位置**です。END は START より
+後ろにしか置けません。
+
+区間の外をどうするかは、KEEP START / KEEP END で決めます。**入れると区間の端
+の値をそのまま伸ばし、切ると 0 になります。** どちらにしても**1 周の長さは
+変わりません**。区間だけを切り出して速く回す、という動きにはなりません。
 
 ## WT PITCH MOD
 
