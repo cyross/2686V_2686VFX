@@ -157,7 +157,7 @@ class GuiOpna : public GuiBase
 
     // 区分ごとの枠。基本は 1 列 1 区分。
     GuiScrollGroup colAmp;
-    GuiScrollGroup colSsgEnv;
+    GuiScrollGroup colSsgHwEnv;
     GuiScrollGroup colSsgSwEnv;
     GuiScrollGroup colSsgSwEnv11;
     GuiScrollGroup colAmpMod;
@@ -370,7 +370,7 @@ public:
         opNameLabel(context),
         opTargetSeparator(context),
         colAmp(context),
-        colSsgEnv(context),
+        colSsgHwEnv(context),
         colSsgSwEnv(context),
         colSsgSwEnv11(context),
         colAmpMod(context),

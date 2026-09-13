@@ -537,8 +537,8 @@ void GuiOpna::setup()
 
     addAndMakeVisible(stripViewport);
 
-    colAmp.setup(stripCanvas, juce::String("") + "AMP ENV / OPTIONAL / SSG HW AMP ENV");
-    colSsgEnv.setup(stripCanvas, juce::String("") + "SSG ENVELOPE");
+    colAmp.setup(stripCanvas, juce::String("") + "AMP ENV / OPTIONAL / SSG ENVELOPE");
+    colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
     colSsgSwEnv.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV");
     colSsgSwEnv11.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[11]");
     colAmpMod.setup(stripCanvas, juce::String("") + "WT AMP MOD");
@@ -649,20 +649,20 @@ void GuiOpna::setup()
     ssgSwPEnv11.setupComponent(colSsgSwPEnv11.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, OpnaGuiText::SsgSwPEnv11::enable, true);
     ssgHwPEnvOp.setupComponent(colSsgHwPEnv.contentCanvas, paramPrefix, tabOrder);
     wtAmpModOp.setupComponent(colAmpMod.contentCanvas, paramPrefix, tabOrder);
-    ssgHwEnvOp.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder);
+    ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
-    catSsgEnv.setupHwCategory({ .parent = colSsgEnv.contentCanvas, .title = OpnaGuiText::Category::ssgEnv, .enableChangeDetailVisible = true });
+    catSsgEnv.setupHwCategory({ .parent = colAmp.contentCanvas, .title = OpnaGuiText::Category::ssgEnv, .enableChangeDetailVisible = true });
 
-    se.setup(GuiComboBox::Config{ .parent = colSsgEnv.contentCanvas, .id = paramPrefix + CPK::Fm::se, .title = OpnaGuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
+    se.setup(GuiComboBox::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::se, .title = OpnaGuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
     se.setWantsKeyboardFocus(true);
     se.setExplicitFocusOrder(++tabOrder);
 
-    seFreq.setup(GuiSlider::Config{ .parent = colSsgEnv.contentCanvas, .id = paramPrefix + CPK::Fm::seFreq, .title = OpnaGuiText::Fm::Op::SFreq, .isReset = true });
+    seFreq.setup(GuiSlider::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::seFreq, .title = OpnaGuiText::Fm::Op::SFreq, .isReset = true });
     seFreq.setWantsKeyboardFocus(true);
     seFreq.setExplicitFocusOrder(++tabOrder);
 
-    sePreview.setup(colSsgEnv.contentCanvas, GuiColor::WavePreview::AmpEnv);
+    sePreview.setup(colAmp.contentCanvas, GuiColor::WavePreview::AmpEnv);
 
     // 形と周期のどちらが変わっても描き直す
     se.onChange = [this] { updateSePreview(); };
@@ -744,7 +744,7 @@ void GuiOpna::setup()
     // 区分の中身は最初から開いておく。1 列 1 区分にしたので、
     // 畳んだままだと見出しだけの列が並ぶことになる。
     for (auto* group : {
-        &colAmp, &colSsgEnv, &colSsgSwEnv, &colSsgSwEnv11,
+        &colAmp, &colSsgHwEnv, &colSsgSwEnv, &colSsgSwEnv11,
         &colAmpMod, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv11,
         &colMod, &colKs, &colHwLfo, &colMask,
         })
@@ -1349,12 +1349,13 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
         updateRgDisplayAsOp(true);
         layoutOpAmpCat(rect);
         layoutOpOptionalCat(rect);
-
-        ssgHwEnvOp.setCategoryVisible(shown(SimpleView::SsgHwAmpEnv));
-        ssgHwEnvOp.layoutComponent(rect);
+        layoutOpSsgEnvelopeCat(rect);
         });
 
-    layoutCol(colSsgEnv, true, [&](juce::Rectangle<int>& rect) { layoutOpSsgEnvelopeCat(rect); });
+    layoutCol(colSsgHwEnv, shown(SimpleView::SsgHwAmpEnv), [&](juce::Rectangle<int>& rect) {
+        ssgHwEnvOp.setCategoryVisible(true);
+        ssgHwEnvOp.layoutComponent(rect);
+        });
 
 
     layoutCol(colSsgSwEnv, shown(SimpleView::SsgSwAmpEnv), [&](juce::Rectangle<int>& rect) {
