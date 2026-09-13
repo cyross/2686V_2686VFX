@@ -41,6 +41,7 @@ namespace
         { ".param.wt2", "WT2" },
         { ".param.wt", "WT" },
         { ".param.rhythm", "RHYTHM" },
+        { ".param.adpcmplus", "PCM+" },
         { ".param.adpcm", "PCM" },
         { ".param.beep", "BEEP" },
 

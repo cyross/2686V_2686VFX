@@ -86,11 +86,12 @@ juce::Colour CustomTabLookAndFeel::getTabHeaderColor(int tabIndex)
     case  9: return GuiColor::Tab::Wt;      // WT+
     case 10: return GuiColor::Tab::Pcm;     // RHYTHM
     case 11: return GuiColor::Tab::Pcm;     // ADPCM
-    case 12: return GuiColor::Tab::Beep;    // BEEP
-    case 13: return GuiColor::Tab::Utility; // PRESET
-    case 14: return GuiColor::Tab::Utility; // SETTINGS
-    case 15: return GuiColor::Tab::Utility; // COLORS
-    case 16: return GuiColor::Tab::Utility; // ABOUT
+    case 12: return GuiColor::Tab::Pcm;     // ADPCM+
+    case 13: return GuiColor::Tab::Beep;    // BEEP
+    case 14: return GuiColor::Tab::Utility; // PRESET
+    case 15: return GuiColor::Tab::Utility; // SETTINGS
+    case 16: return GuiColor::Tab::Utility; // COLORS
+    case 17: return GuiColor::Tab::Utility; // ABOUT
     default: return GuiColor::Tab::Other;   // OTHER
     }
 }

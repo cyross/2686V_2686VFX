@@ -97,6 +97,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     prMap[OscMode::WTPLUS] = &prWtPlus;
     prMap[OscMode::RHYTHM] = &prRhythm;
     prMap[OscMode::ADPCM] = &prAdpcm;
+    prMap[OscMode::ADPCMPLUS] = &prAdpcmPlus;
     prMap[OscMode::BEEP] = &prBeep;
 
     pMode = apvts.getRawParameterValue(CPK::mode);
@@ -117,6 +118,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     prWtPlus.init(apvts, modWaveSlots);
     prRhythm.init(apvts, modWaveSlots);
     prAdpcm.init(apvts, modWaveSlots);
+    prAdpcmPlus.init(apvts, modWaveSlots);
     prBeep.init(apvts, modWaveSlots);
     prFx.init(apvts);
     prCurve.init(apvts);
@@ -170,6 +172,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
     prWtPlus.createLayout(layout);
     prRhythm.createLayout(layout);
 	prAdpcm.createLayout(layout);
+	prAdpcmPlus.createLayout(layout);
     prBeep.createLayout(layout);
 	prFx.createLayout(layout);
 	prCurve.createLayout(layout);
@@ -292,6 +295,16 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         m_currentParams.rhythm.pads[(size_t)i].source = &m_rhythmPcm[(size_t)i].forAudio();
     }
 
+    // ADPCM+ の素材。鳴らすのは TGT で選んだ 1 本だけ。
+    //
+    // 添え字は adpcmPlusSlot という名前で持つ。音源を絞ったプラグインを
+    // 作るときは ADPCM+ に触れる行ごと落とすので、この 3 行がそろって
+    // 消えるよう、名前に音源の名を入れてある (tools/gen_plugin.py)。
+    const int adpcmPlusSlot = std::clamp(m_currentParams.adpcmPlus.slot, 0, Global::AdpcmPlus::slots - 1);
+
+    m_adpcmPlusPcm[(size_t)adpcmPlusSlot].acquireForAudio();
+    m_currentParams.adpcmPlus.source = &m_adpcmPlusPcm[(size_t)adpcmPlusSlot].forAudio();
+
     if (m_currentParams.mode == OscMode::RHYTHM)
     {
         for (int i = 0; i < RhythmPrValue::pads; ++i) {
@@ -303,6 +316,20 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
                 triggerAsyncUpdate();
             }
+        }
+    }
+
+    if (m_currentParams.mode == OscMode::ADPCMPLUS)
+    {
+        const int q = m_currentParams.adpcmPlus.quality.mode;
+        const int r = m_currentParams.adpcmPlus.quality.rate;
+
+        // 符号化は鳴らしている 1 本だけでよい。ほかは選ばれたときに作る。
+        if (m_adpcmPlusPcm[(size_t)adpcmPlusSlot].needsRebuild(q, r)) {
+            m_adpcmPlusWantQuality[(size_t)adpcmPlusSlot].store(q, std::memory_order_relaxed);
+            m_adpcmPlusWantRate[(size_t)adpcmPlusSlot].store(r, std::memory_order_relaxed);
+
+            triggerAsyncUpdate();
         }
     }
 
@@ -454,6 +481,50 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
     }
 }
 
+
+// ADPCM+ の PCM をスロットへ読み込む。造りは ADPCM と同じで、
+// 置き場所がスロットごとに分かれているだけ。
+void AudioPlugin2686V::loadAdpcmPlusFile(int slot, const juce::File& file)
+{
+    if (slot < 0 || slot >= Global::AdpcmPlus::slots) return;
+
+    auto* reader = formatManager.createReaderFor(file);
+
+    if (reader == nullptr) return;
+
+    std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+
+    if (!isLoadableAudio(*audioReader)) {
+        tellAudioNotLoadable(file, *audioReader);
+
+        return;
+    }
+
+    adpcmPlusFilePaths[(size_t)slot] = file.getFullPathName();
+
+    juce::AudioBuffer<float> fileBuffer;
+
+    fileBuffer.setSize(audioReader->numChannels, (int)audioReader->lengthInSamples);
+    audioReader->read(&fileBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
+
+    std::vector<float> sourceData((size_t)fileBuffer.getNumSamples());
+
+    auto* channelData = fileBuffer.getReadPointer(0);
+
+    for (int i = 0; i < fileBuffer.getNumSamples(); ++i) {
+        sourceData[(size_t)i] = channelData[i];
+    }
+
+    m_adpcmPlusPcm[(size_t)slot].setSource(sourceData, audioReader->sampleRate);
+    m_adpcmPlusPcm[(size_t)slot].rebuildIfNeeded(
+        m_adpcmPlusWantQuality[(size_t)slot].load(std::memory_order_relaxed),
+        m_adpcmPlusWantRate[(size_t)slot].load(std::memory_order_relaxed),
+        16000.0);
+
+    // 画面表示用の控え
+    adpcmPlusPreviewBuffers[(size_t)slot] = std::move(sourceData);
+    adpcmPlusPreviewRates[(size_t)slot] = audioReader->sampleRate;
+}
 // Function to load Rhythm file
 void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
 {
@@ -518,7 +589,7 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     // セーブ時にAPVTSから現在のModeを確実に取得して同期させる
     int currentMode = PrHelper::getInt(pMode);
 
-    if (currentMode >= 0 && currentMode <= (int)OscMode::BEEP) {
+    if (currentMode >= 0 && currentMode < (int)OscMode::Count) {
         lastActiveSynthMode = (OscMode)currentMode;
     }
 
@@ -551,6 +622,12 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
             xml->setAttribute(PresetKey::modWavePathPrefix + kv.first + "_" + juce::String(i),
                 makeWtPathRelative(juce::File(kv.second[i])));
         }
+    }
+
+    // サンプルパス保存 (ADPCM+)
+    for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
+        xml->setAttribute(PresetKey::adpcmPlusPathPrefix + juce::String(i),
+            makePathRelative(juce::File(adpcmPlusFilePaths[(size_t)i])));
     }
 
     // サンプルパス保存 (RHYTHM)
@@ -657,6 +734,16 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         juce::File adpcmFile = resolvePath(storedAdpcm);
         if (adpcmFile.existsAsFile()) {
             loadAdpcmFile(adpcmFile);
+        }
+
+        // サンプル復帰 (ADPCM+)
+        for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
+            juce::String storedPlus = xmlState->getStringAttribute(PresetKey::adpcmPlusPathPrefix + juce::String(i));
+            juce::File plusFile = resolvePath(storedPlus);
+
+            if (plusFile.existsAsFile()) {
+                loadAdpcmPlusFile(i, plusFile);
+            }
         }
 
         // サンプル復帰 (RHYTHM)
@@ -916,6 +1003,12 @@ void AudioPlugin2686V::handleAsyncUpdate()
         m_rhythmPcm[i].rebuildIfNeeded(m_rhythmWantQuality[i].load(std::memory_order_relaxed),
                                        m_rhythmWantRate[i].load(std::memory_order_relaxed),
                                        55500.0);
+    }
+
+    for (size_t i = 0; i < (size_t)Global::AdpcmPlus::slots; ++i) {
+        m_adpcmPlusPcm[i].rebuildIfNeeded(m_adpcmPlusWantQuality[i].load(std::memory_order_relaxed),
+                                         m_adpcmPlusWantRate[i].load(std::memory_order_relaxed),
+                                         16000.0);
     }
 }
 
@@ -1191,6 +1284,23 @@ void AudioPlugin2686V::unloadAdpcmFile()
     m_adpcmPcm.clear();
 }
 
+
+void AudioPlugin2686V::unloadAdpcmPlusFile(int slot)
+{
+    if (slot < 0 || slot >= Global::AdpcmPlus::slots) return;
+
+    adpcmPlusFilePaths[(size_t)slot].clear();
+    adpcmPlusPreviewBuffers[(size_t)slot].clear();
+
+    m_adpcmPlusPcm[(size_t)slot].clear();
+}
+
+bool AudioPlugin2686V::isAdpcmPlusFileLoaded(int slot) const
+{
+    if (slot < 0 || slot >= Global::AdpcmPlus::slots) return false;
+
+    return adpcmPlusFilePaths[(size_t)slot].isNotEmpty();
+}
 void AudioPlugin2686V::unloadRhythmFile(int padIndex)
 {
     // インデックスチェック
@@ -1375,6 +1485,10 @@ void AudioPlugin2686V::initPreset()
     unloadAdpcmFile();
     // unloadAdpcmFile内で adpcmFilePath.clear() されています
 
+    for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
+        unloadAdpcmPlusFile(i);
+    }
+
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
         unloadRhythmFile(i);
         // unloadRhythmFile内で rhythmFilePaths[i].clear() されています
@@ -1403,6 +1517,12 @@ void AudioPlugin2686V::initParams(const juce::String& code)
 
     if (code == "ADPCM_") {
         unloadAdpcmFile();
+    }
+
+    if (code == "ADPCMP_") {
+        for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
+            unloadAdpcmPlusFile(i);
+        }
     }
 
     if (code == "RHYTHM_") {
@@ -2028,6 +2148,10 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
         params.rhythm.pads[(size_t)i].source = &m_rhythmPcm[(size_t)i].forAudio();
     }
+
+    const int adpcmPlusSlot = std::clamp(params.adpcmPlus.slot, 0, Global::AdpcmPlus::slots - 1);
+
+    params.adpcmPlus.source = &m_adpcmPlusPcm[(size_t)adpcmPlusSlot].forAudio();
 
     params.monoMode = PrHelper::getBool(pMonoMode);
     params.useVelocity = PrHelper::getBool(pUseVelocity);

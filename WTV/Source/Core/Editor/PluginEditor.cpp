@@ -31,6 +31,38 @@ namespace
 	const Io::ParamFormat presetFormat{ "preset", 1 };
 }
 
+namespace
+{
+    // タブの並びと音源の番号は、もう一対一ではない。ADPCM+ を ADPCM の
+    // 右へ入れた一方、番号は保存したファイルやオートメーションが指すので
+    // 動かせなかった。突き合わせはここでする。
+    //
+    // 並びは setupTabs の登録順、つまり TabIndex と同じ。
+    constexpr OscMode tabModes[] = {
+        OscMode::WAVETABLE, OscMode::WT2, OscMode::WTPLUS,
+    };
+
+    constexpr int tabModeCount = (int)(sizeof(tabModes) / sizeof(tabModes[0]));
+
+    // 音源のタブでなければ -1
+    int modeForTab(int tabIndex)
+    {
+        if (tabIndex < 0 || tabIndex >= tabModeCount) return -1;
+
+        return (int)tabModes[tabIndex];
+    }
+
+    // 知らない番号なら 0 (先頭のタブ)
+    int tabForMode(int mode)
+    {
+        for (int i = 0; i < tabModeCount; ++i) {
+            if ((int)tabModes[i] == mode) return i;
+        }
+
+        return 0;
+    }
+}
+
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     : AudioProcessorEditor(&p), audioProcessor(p)
 {
@@ -90,11 +122,13 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     };
 
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
-    tabs.setCurrentTabIndex(currentMode);
+    const int currentTab = tabForMode(currentMode);
+
+    tabs.setCurrentTabIndex(currentTab);
 
     // 開いているタブだけは、ここで作っておく。
     // タブの切り替えの知らせは後回しで届くので、待つと一瞬空になる。
-    materializeTab(currentMode);
+    materializeTab(currentTab);
 
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
@@ -434,13 +468,14 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
 
     if (source == &tabs.getTabbedButtonBar())
     {
-        // 0:OPNA, 1:OPN, 2:OPL, ...
-        int targetMode = tabs.getCurrentTabIndex();
+        const int targetTab = tabs.getCurrentTabIndex();
 
         // 中身をまだ作っていないタブなら、ここで作る。
-        materializeTab(targetMode);
+        materializeTab(targetTab);
 
-        if (targetMode >= 0 && targetMode < (int)OscMode::Count) // BEEP is 11
+        const int targetMode = modeForTab(targetTab);
+
+        if (targetMode >= 0)
         {
             // イベント発火に依存せず、タブが切り替わった瞬間に同期させる
             audioProcessor.lastActiveSynthMode = (OscMode)targetMode;
@@ -879,9 +914,9 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 
     // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
     int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
-    if (loadedMode >= 0 && loadedMode <= (int)OscMode::WTPLUS) {
+    if (loadedMode >= 0 && loadedMode < (int)OscMode::Count) {
         audioProcessor.lastActiveSynthMode = (OscMode)loadedMode;
-        tabs.setCurrentTabIndex(loadedMode);
+        tabs.setCurrentTabIndex(tabForMode(loadedMode));
     }
 
     // 4. 各タブのプリセット名を更新
@@ -1431,6 +1466,7 @@ void AudioPlugin2686VEditor::setTooltipState(bool enabled)
 
 
 
+
 void AudioPlugin2686VEditor::updateKeyboardVisibility()
 {
     // 仮想キーボードが有効で、かつFull Viewの時のみ表示する
@@ -1531,7 +1567,7 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
     {
         int idx = (int)newValue;
 
-        if (idx >= 0 && idx <= (int)OscMode::WTPLUS) {
+        if (idx >= 0 && idx < (int)OscMode::Count) {
             // ホストがオートメーションを流している間、ここはオーディオスレッドで走る。
             // 番号だけ預けて、触るのはメッセージスレッド側に任せる。
             //
@@ -1551,9 +1587,11 @@ void AudioPlugin2686VEditor::handleAsyncUpdate()
 
     audioProcessor.lastActiveSynthMode = (OscMode)idx;
 
+    const int tab = tabForMode(idx);
+
     // 現在のタブと違えば切り替える（ループ防止）
-    if (tabs.getCurrentTabIndex() != idx) {
-        tabs.setCurrentTabIndex(idx);
+    if (tabs.getCurrentTabIndex() != tab) {
+        tabs.setCurrentTabIndex(tab);
     }
 }
 
@@ -1639,17 +1677,16 @@ void AudioPlugin2686VEditor::updateUndoRedoButtons()
 
 void AudioPlugin2686VEditor::updateParameterInitializeButtons()
 {
-    // 表示しているタブが音源のタブか
-    // 0:OPNA, 1:OPN, 2:OPL, ...
-    int targetMode = tabs.getCurrentTabIndex();
-    bool isNotSystemTab = targetMode >= 0 && targetMode <= ((int)OscMode::WTPLUS + 1); // OPNA ～ FX
+    // 表示しているタブが音源のタブか。末尾の 1 つ (ADVANCED) までを含める。
+    const int targetTab = tabs.getCurrentTabIndex();
+    const bool isNotSystemTab = targetTab >= 0 && targetTab <= tabModeCount;
 
     initParamsButton.setEnabled(isNotSystemTab);
 }
 
 void AudioPlugin2686VEditor::copyFmParamsToString()
 {
-    OscMode targetMode = (OscMode)tabs.getCurrentTabIndex();
+    OscMode targetMode = (OscMode)modeForTab(tabs.getCurrentTabIndex());
 
     switch (targetMode)
     {
@@ -1658,15 +1695,15 @@ void AudioPlugin2686VEditor::copyFmParamsToString()
 
 void AudioPlugin2686VEditor::initParams()
 {
-    int targetMode = tabs.getCurrentTabIndex();
+    const int targetTab = tabs.getCurrentTabIndex();
 
-    if (targetMode == (int)OscMode::WTPLUS + 1) { // Curve
+    if (targetTab == tabCurve) {
         curveGui->initParams();
 
         return;
     }
 
-    switch ((OscMode)targetMode)
+    switch ((OscMode)modeForTab(targetTab))
     {
     case OscMode::WAVETABLE:
         wtGui->initParams();

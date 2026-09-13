@@ -19,7 +19,12 @@ enum class OscMode
     RHYTHM = 10,
     ADPCM = 11,
     BEEP = 12,
-    Count = 13, // カウント用
+
+    // PCM を 32 スロット持つ拡張 ADPCM。WT+ の ADPCM 版。
+    // 並びの末尾へ足す。番号は保存したものが指すので動かさない。
+    ADPCMPLUS = 13,
+
+    Count = 14, // カウント用
 };
 
 static juce::String getModeName(OscMode mode) {
@@ -35,6 +40,7 @@ static juce::String getModeName(OscMode mode) {
     case OscMode::WT2: return "WT2";
     case OscMode::RHYTHM: return "RHYTHM";
     case OscMode::ADPCM:  return "ADPCM";
+    case OscMode::ADPCMPLUS: return "ADPCM+";
     case OscMode::BEEP:  return "BEEP";
     case OscMode::WTPLUS: return "WTPLUS";
     default: return "Unknown";
@@ -53,6 +59,7 @@ static OscMode getModeFromString(const juce::String& name) {
     if (name == "WT2") return OscMode::WT2;
     if (name == "RHYTHM") return OscMode::RHYTHM;
     if (name == "ADPCM")  return OscMode::ADPCM;
+    if (name == "ADPCM+") return OscMode::ADPCMPLUS;
     if (name == "BEEP")  return OscMode::BEEP;
     if (name == "WTPLUS") return OscMode::WTPLUS;
     return OscMode::OPNA; // Default

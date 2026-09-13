@@ -16,6 +16,7 @@
 #include "../../Synth/WtPlus/SynthWtPlusParams.h"
 #include "../../Synth/Rhythm/SynthRhythmParams.h"
 #include "../../Synth/Adpcm/SynthAdpcmParams.h"
+#include "../../Synth/AdpcmPlus/SynthAdpcmPlusParams.h"
 #include "../../Synth/Beep/SynthBeepParams.h"
 
 struct SynthParams
@@ -41,5 +42,6 @@ struct SynthParams
     WtPlusParams wtPlus;
     RhythmParams rhythm;
     AdpcmParams adpcm;
+    AdpcmPlusParams adpcmPlus;
     BeepParams beep;
 };

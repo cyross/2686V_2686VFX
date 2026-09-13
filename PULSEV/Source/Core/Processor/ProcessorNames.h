@@ -24,6 +24,11 @@ namespace CPN
 		static inline const juce::String slot = " Wave Slot";
 	}
 
+	namespace AdpcmPlus
+	{
+		static inline const juce::String slot = " PCM Slot";
+	}
+
 	namespace Wt2
 	{
 		static inline const juce::String waveform = " Waveform";

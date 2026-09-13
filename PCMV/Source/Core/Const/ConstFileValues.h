@@ -55,6 +55,7 @@ namespace Io
 		static inline const juce::String opzx7sParam = "param.opzx7s";
 		static inline const juce::String rhythmParam = "param.rhythm";
 		static inline const juce::String adpcmParam = "param.adpcm";
+		static inline const juce::String adpcmPlusParam = "param.adpcmplus";
 		static inline const juce::String opzx7sOpParam = "param.opzx7s.op";
 		static inline const juce::String rhythmPadParam = "param.rhythm.pad";
 		static inline const juce::String curveParam = "curve_";
@@ -93,6 +94,7 @@ namespace Io
 		static inline const juce::String opzx7sParam = "*.param.opzx7s.json;*.param.opzx7s.yaml;*.param.opzx7s";
 		static inline const juce::String rhythmParam = "*.param.rhythm.json;*.param.rhythm.yaml;*.param.rhythm";
 		static inline const juce::String adpcmParam = "*.param.adpcm.json;*.param.adpcm.yaml;*.param.adpcm";
+		static inline const juce::String adpcmPlusParam = "*.param.adpcmplus.json;*.param.adpcmplus.yaml;*.param.adpcmplus";
 		static inline const juce::String opzx7sOpParam = "*.param.opzx7s.op.json;*.param.opzx7s.op.yaml;*.param.opzx7s.op";
 		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad.json;*.param.rhythm.pad.yaml;*.param.rhythm.pad";
 		static inline const juce::String OpnaHwLfoParam = "*.opnaHwLfo.json;*.opnaHwLfo.yaml;*.opnaHwLfo";

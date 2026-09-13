@@ -25,6 +25,13 @@ namespace CPK
 		static inline const juce::String slot = "_SLOT";
 	}
 
+	namespace AdpcmPlus
+	{
+		// 鳴らす PCM のスロット番号。この頭に番号を足したものが、
+		// スロットごとの値の頭になる (ADPCMP_SLOT3_PAN など)。
+		static inline const juce::String slot = "_SLOT";
+	}
+
 	namespace Wt2
 	{
 		static inline const juce::String wave = "_WAVE";

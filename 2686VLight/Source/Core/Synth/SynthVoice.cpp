@@ -13,6 +13,7 @@ SynthVoice::SynthVoice()
     coreMap[(size_t)OscMode::WT2] = &m_wt2Core;
     coreMap[(size_t)OscMode::RHYTHM] = &m_rhythmCore;
     coreMap[(size_t)OscMode::ADPCM] = &m_adpcmCore;
+    coreMap[(size_t)OscMode::ADPCMPLUS] = &m_adpcmPlusCore;
     coreMap[(size_t)OscMode::BEEP] = &m_beepCore;
     coreMap[(size_t)OscMode::WTPLUS] = &m_wtPlusCore;
 }
@@ -29,6 +30,7 @@ void SynthVoice::prepare(double sampleRate) {
     m_wt2Core.prepare(sampleRate);
     m_rhythmCore.prepare(sampleRate);
     m_adpcmCore.prepare(sampleRate);
+    m_adpcmPlusCore.prepare(sampleRate);
     m_beepCore.prepare(sampleRate);
     m_wtPlusCore.prepare(sampleRate);
 }
@@ -78,6 +80,7 @@ void SynthVoice::stopNote(float, bool allowTailOff)
         m_wt2Core.noteOff();
         m_rhythmCore.noteOff();
         m_adpcmCore.noteOff();
+        m_adpcmPlusCore.noteOff();
         m_beepCore.noteOff();
         m_wtPlusCore.noteOff();
     }
@@ -206,6 +209,7 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
         m_wt2Core.prepare(newRate);
         m_rhythmCore.prepare(newRate);
         m_adpcmCore.prepare(newRate);
+        m_adpcmPlusCore.prepare(newRate);
         m_beepCore.prepare(newRate);
         m_wtPlusCore.prepare(newRate);
     }

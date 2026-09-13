@@ -30,6 +30,7 @@ namespace
         {
         case OscMode::RHYTHM: return EditorGuiText::Tab::rhythm;
         case OscMode::ADPCM: return EditorGuiText::Tab::adpcm;
+        case OscMode::ADPCMPLUS: return EditorGuiText::Tab::adpcmPlus;
         default: break;
         }
 
@@ -490,6 +491,7 @@ void GuiPreset::setup()
                     // ファイル名表示のクリア
                     ctx.editor.updateRhythmFileNames(Io::empty);
                     ctx.editor.updateAdpcmFileNames(Io::empty);
+                    ctx.editor.updateAdpcmPlusFileNames(Io::empty);
 
                     // 各タブのプリセット名をリセット
                     ctx.editor.updatePresetNameToTabs(ctx.audioProcessor.presetName);

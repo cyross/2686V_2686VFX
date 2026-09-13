@@ -144,6 +144,7 @@ public:
                 isLegato
             );
             break;
+
         };
     }
 
@@ -187,6 +188,7 @@ public:
                         true
                     );
                     break;
+
                 };
             }
         }
@@ -231,6 +233,13 @@ private:
     // オーディオスレッドが「この指定で作り直してほしい」と置いていく場所。
     std::atomic<int> m_adpcmWantQuality{ -1 };
     std::atomic<int> m_adpcmWantRate{ -1 };
+
+    // ADPCM+ も同じ。PCM のスロットごとに 1 つずつ持つ。
+    // 鳴らすのは TGT で選んだ 1 本だけだが、差し替えずに済むよう
+    // 読み込んだものはすべて持っておく。
+    std::array<PcmSharedStore, Global::AdpcmPlus::slots> m_adpcmPlusPcm;
+    std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantQuality{};
+    std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantRate{};
 
 
     SynthParams m_currentParams;
@@ -307,6 +316,7 @@ public:
     OscMode lastActiveSynthMode = OscMode::OPM;
 
 
+
     // MODULATION の変調波形として読み込んだファイルのパス。
     // 波形データ自体は 32 個のパラメータ側に入っているので、
     // ここはファイル名表示のためだけに保持している。
@@ -325,6 +335,7 @@ public:
     // state へは相対パスだけを保存して読み直す。
     void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file);
     void unloadWtModWaveFile(const juce::String& code, int slot);
+
 
 
 

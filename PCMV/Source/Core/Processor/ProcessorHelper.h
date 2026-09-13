@@ -605,6 +605,25 @@ namespace PrHelper {
 		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::loop);
 	}
 
+	// ADPCM+。FORM・OPTIONAL・PAN はスロットごとに持つ。
+	static inline void setupAdpcmPlusPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsAdpcmPlusBasic& ptPtrs){
+		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
+		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
+		ptPtrs.slot = apvts.getRawParameterValue(prefix + CPK::AdpcmPlus::slot);
+
+		for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
+			const juce::String slotPrefix = prefix + CPK::AdpcmPlus::slot + juce::String(i);
+			auto& s = ptPtrs.slots[(size_t)i];
+
+			PrHelper::setupToneNoise(apvts, slotPrefix, s.tn);
+			PrHelper::setupPcm(apvts, slotPrefix, s.pcm);
+			PrHelper::setupLp(apvts, slotPrefix, s.lp);
+
+			s.pan = apvts.getRawParameterValue(slotPrefix + CPK::pan);
+			s.loop = apvts.getRawParameterValue(slotPrefix + CPK::loop);
+		}
+	}
+
 	static inline void setupBeepBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsBeepBasic& ptPtrs){
 		ptPtrs.level = apvts.getRawParameterValue(prefix + CPK::level);
 		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
@@ -1213,11 +1232,31 @@ namespace PrHelper {
 		params.pan = getInt(ptPtrs.panpot);
 	}
 
-	static inline void applyAdpcmBasic(PrPtrsAdpcmBasic& ptPtrs, AdpcmParams& params){
+	// ADPCM と ADPCM+ で同じ中身を使う。入れ物の型は別だが、
+	// 名前がそろっているのでそのまま通る。
+	template <typename Params>
+	static inline void applyAdpcmBasic(PrPtrsAdpcmBasic& ptPtrs, Params& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
 		params.delay = PrHelper::getFloat(ptPtrs.delay);
 		params.loop = PrHelper::getBool(ptPtrs.loop);
 		params.pan = PrHelper::getFloat(ptPtrs.pan);
+	}
+
+	// ADPCM+。鳴らすスロットの組だけを使う。
+	static inline void applyAdpcmPlusBasic(PrPtrsAdpcmPlusBasic& ptPtrs, AdpcmPlusParams& params){
+		params.level = PrHelper::getFloat(ptPtrs.level);
+		params.delay = PrHelper::getFloat(ptPtrs.delay);
+		params.slot = PrHelper::getInt(ptPtrs.slot);
+
+		const int slotIndex = std::clamp(params.slot, 0, Global::AdpcmPlus::slots - 1);
+		auto& s = ptPtrs.slots[(size_t)slotIndex];
+
+		PrHelper::applyToneNoise(s.tn, params.tn);
+		PrHelper::applyPcm(s.pcm, params.pcm);
+		PrHelper::applyLp(s.lp, params.lp);
+
+		params.pan = PrHelper::getFloat(s.pan);
+		params.loop = PrHelper::getBool(s.loop);
 	}
 
 
@@ -3471,6 +3510,27 @@ namespace PrHelper {
 			prefixName + CPN::loop, 
 			CPV::Loop::initial
 		);
+	}
+
+	// ADPCM+。FORM・OPTIONAL・PAN を PCM の本数ぶん並べる。
+	static inline void addAdpcmPlusParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::AdpcmPlus::slot,
+			prefixName + CPN::AdpcmPlus::slot,
+			CPV::AdpcmPlus::Slot::min, CPV::AdpcmPlus::Slot::max, CPV::AdpcmPlus::Slot::initial
+		);
+
+		for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
+			const juce::String slotPrefix = prefix + CPK::AdpcmPlus::slot + juce::String(i);
+			const juce::String slotName = prefixName + " Slot" + juce::String(i);
+
+			PrHelper::addTnParameters(layout, slotPrefix, slotName);
+			PrHelper::addPcmParameters(layout, slotPrefix, slotName);
+			PrHelper::addLPParameters(layout, slotPrefix, slotName);
+			PrHelper::addAdpcmPanParameters(layout, slotPrefix, slotName);
+			PrHelper::addAdpcmBasicParameters(layout, slotPrefix, slotName);
+		}
 	}
 
 	static inline void addRhythmPadBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName, int note) {

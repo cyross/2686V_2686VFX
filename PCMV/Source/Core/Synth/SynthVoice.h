@@ -8,6 +8,7 @@
 
 #include "../../Synth/Rhythm/SynthRhythm.h"
 #include "../../Synth/Adpcm/SynthAdpcm.h"
+#include "../../Synth/AdpcmPlus/SynthAdpcmPlus.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
@@ -26,6 +27,7 @@ public:
     void setParameters(const SynthParams& params);
 
     AdpcmCore* getAdpcmCore() { return &m_adpcmCore; }
+    AdpcmPlusCore* getAdpcmPlusCore() { return &m_adpcmPlusCore; }
     RhythmCore* getRhythmCore() { return &m_rhythmCore; }
 
     bool canPlaySound(juce::SynthesiserSound* sound) override
@@ -101,4 +103,5 @@ private:
     OscMode m_mode = OscMode::RHYTHM;
     RhythmCore m_rhythmCore;
     AdpcmCore m_adpcmCore;
+    AdpcmPlusCore m_adpcmPlusCore;
 };

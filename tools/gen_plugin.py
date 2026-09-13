@@ -61,6 +61,10 @@ CHIPS = {
                    camel="Rhythm", lower="rhythm", mode="RHYTHM", color="Pcm", label="リズム音源"),
     "ADPCM": dict(dirs=["Gui/Adpcm", "Synth/Adpcm", "Processor/Adpcm"],
                   camel="Adpcm", lower="adpcm", mode="ADPCM", color="Pcm", label="ADPCM"),
+    "ADPCMPLUS": dict(dirs=["Gui/AdpcmPlus", "Synth/AdpcmPlus", "Processor/AdpcmPlus"],
+                      camel="AdpcmPlus", lower="adpcmPlus", mode="ADPCMPLUS", modeName="ADPCM+",
+                      color="Pcm", extra=["isAdpcmPlusFileLoaded", "adpcmPlusSlot"],
+                      label="PCM を 32 スロット持つ拡張 ADPCM。WT+ の ADPCM 版。"),
     "BEEP":  dict(dirs=["Gui/Beep", "Synth/Beep", "Processor/Beep"],
                   camel="Beep", lower="beep", mode="BEEP", color="Beep", label="ビープ"),
 }
@@ -82,7 +86,7 @@ PLUGINS = {
     "OPLV":   dict(code="OPLV", ext="oplv", chips=["OPL", "OPL3"]),
     "OPMV":   dict(code="OPMV", ext="opmv", chips=["OPM"]),
     "WTV":    dict(code="WTVO", ext="wtv", chips=["WT", "WT2", "WTPLUS"]),
-    "PCMV":   dict(code="PCMV", ext="pcmv", chips=["RHYTHM", "ADPCM"]),
+    "PCMV":   dict(code="PCMV", ext="pcmv", chips=["RHYTHM", "ADPCM", "ADPCMPLUS"]),
     "PULSEV": dict(code="PLSV", ext="pulsev", chips=["SSG", "BEEP"]),
 }
 
@@ -611,6 +615,19 @@ def build_tab_index(keep):
     return "".join(lines)
 
 
+# ---------------------------------------------------------------------------
+# タブの並びと音源の番号の突き合わせ。音源を減らすと並びが変わる。
+# ---------------------------------------------------------------------------
+def build_tab_modes(keep):
+    rows = ""
+
+    for i in range(0, len(keep), 4):
+        rows += "        " + " ".join("OscMode::%s," % CHIPS[k]["mode"]
+                                      for k in keep[i:i + 4]) + "\r\n"
+
+    return "    constexpr OscMode tabModes[] = {\r\n" + rows + "    };\r\n"
+
+
 def build_synth_mode(keep):
     consts = []
 
@@ -628,8 +645,11 @@ def build_synth_mode(keep):
     for idx, key in enumerate(keep):
         chip = CHIPS[key]
         entries += "    %s = %d, // %s\n" % (chip["mode"], idx, chip["label"])
-        names += '    case OscMode::%s: return "%s";\n' % (chip["mode"], chip["mode"])
-        lookup += '    if (name == "%s") return OscMode::%s;\n' % (chip["mode"], chip["mode"])
+        # 表示に使う名前は OscMode の綴りと違うことがある (ADPCMPLUS → ADPCM+)
+        label = chip.get("modeName", chip["mode"])
+
+        names += '    case OscMode::%s: return "%s";\n' % (chip["mode"], label)
+        lookup += '    if (name == "%s") return OscMode::%s;\n' % (label, chip["mode"])
 
     return SYNTH_MODE_TEMPLATE % dict(
         consts="\n".join(consts) + "\n",
@@ -697,6 +717,13 @@ def generate(name):
     a = eh.index("    enum TabIndex")
     b = eh.index("};", a) + len("};\r\n")
     write_text(eh_path, eh[:a] + build_tab_index(keep) + eh[b:])
+
+    ec_path = os.path.join(dst_root, "Core", "Editor", "PluginEditor.cpp")
+    ec = read_text(ec_path)
+    a = ec.index("    constexpr OscMode tabModes[] = {")
+    b = ec.index("    };", a) + len("    };\r\n")
+
+    write_text(ec_path, ec[:a] + build_tab_modes(keep) + ec[b:])
 
     # mode つまみの上限はタブの数で決まる。音源を減らしたら詰める。
     # タブは「音源 + ADV + PRESET + SETTINGS + COLORS + ABOUT」。

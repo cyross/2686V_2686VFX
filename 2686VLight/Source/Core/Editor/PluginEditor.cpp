@@ -32,6 +32,7 @@
 #include "../../Processor/WtPlus/ProcessorWtPlusKeys.h"
 #include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
 #include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
+#include "../../Processor/AdpcmPlus/ProcessorAdpcmPlusKeys.h"
 #include "../../Processor/Beep/ProcessorBeepKeys.h"
 
 #include "AppIconForAbout.h"
@@ -40,6 +41,42 @@ namespace
 {
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat presetFormat{ "preset", 1 };
+}
+
+namespace
+{
+    // タブの並びと音源の番号は、もう一対一ではない。ADPCM+ を ADPCM の
+    // 右へ入れた一方、番号は保存したファイルやオートメーションが指すので
+    // 動かせなかった。突き合わせはここでする。
+    //
+    // 並びは setupTabs の登録順、つまり TabIndex と同じ。
+    // ここは tools/gen_plugin.py も書き出す。音源を絞ると並びが変わるため。
+    constexpr OscMode tabModes[] = {
+        OscMode::OPNA, OscMode::OPN, OscMode::OPL, OscMode::OPL3,
+        OscMode::OPM, OscMode::OPZX7, OscMode::SSG, OscMode::WAVETABLE,
+        OscMode::WT2, OscMode::WTPLUS, OscMode::RHYTHM, OscMode::ADPCM,
+        OscMode::ADPCMPLUS, OscMode::BEEP,
+    };
+
+    constexpr int tabModeCount = (int)(sizeof(tabModes) / sizeof(tabModes[0]));
+
+    // 音源のタブでなければ -1
+    int modeForTab(int tabIndex)
+    {
+        if (tabIndex < 0 || tabIndex >= tabModeCount) return -1;
+
+        return (int)tabModes[tabIndex];
+    }
+
+    // 知らない番号なら 0 (先頭のタブ)
+    int tabForMode(int mode)
+    {
+        for (int i = 0; i < tabModeCount; ++i) {
+            if ((int)tabModes[i] == mode) return i;
+        }
+
+        return 0;
+    }
 }
 
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
@@ -102,11 +139,13 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     };
 
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
-    tabs.setCurrentTabIndex(currentMode);
+    const int currentTab = tabForMode(currentMode);
+
+    tabs.setCurrentTabIndex(currentTab);
 
     // 開いているタブだけは、ここで作っておく。
     // タブの切り替えの知らせは後回しで届くので、待つと一瞬空になる。
-    materializeTab(currentMode);
+    materializeTab(currentTab);
 
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
@@ -342,6 +381,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
     updateRhythmFileNames("Reload");
     updateAdpcmFileNames("Reload");
+    updateAdpcmPlusFileNames("Reload");
     updateOpzx7PcmFileNames("Reload");
     updateOpzx7WtFileNames("Reload");
 
@@ -359,6 +399,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     if (auto* gui = wtPlusGui.peek()) gui->removeComponentListener(this);
 
     if (auto* gui = adpcmGui.peek()) gui->removeLoadButtonListener(this);
+    if (auto* gui = adpcmPlusGui.peek()) gui->removeLoadButtonListener(this);
 
     if (auto* gui = rhythmGui.peek()) gui->removeLoadButtonListener(this);
 
@@ -452,13 +493,14 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
 
     if (source == &tabs.getTabbedButtonBar())
     {
-        // 0:OPNA, 1:OPN, 2:OPL, ...
-        int targetMode = tabs.getCurrentTabIndex();
+        const int targetTab = tabs.getCurrentTabIndex();
 
         // 中身をまだ作っていないタブなら、ここで作る。
-        materializeTab(targetMode);
+        materializeTab(targetTab);
 
-        if (targetMode >= 0 && targetMode < (int)OscMode::Count) // BEEP is 11
+        const int targetMode = modeForTab(targetTab);
+
+        if (targetMode >= 0)
         {
             // イベント発火に依存せず、タブが切り替わった瞬間に同期させる
             audioProcessor.lastActiveSynthMode = (OscMode)targetMode;
@@ -887,6 +929,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(EditorGuiText::Tab::wtPlus, juce::Colours::transparentBlack, &tabHosts[tabWtPlus], false);
     tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, &tabHosts[tabRhythm], false);
     tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, &tabHosts[tabAdpcm], false);
+    tabs.addTab(EditorGuiText::Tab::adpcmPlus, juce::Colours::transparentBlack, &tabHosts[tabAdpcmPlus], false);
     tabs.addTab(EditorGuiText::Tab::beep, juce::Colours::transparentBlack, &tabHosts[tabBeep], false);
     // 画面は unique_ptr が持っているので、タブ側へは所有権を渡さない。
     // true にすると閉じるときに二重で消してしまう。
@@ -906,14 +949,15 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
     updateRhythmFileNames("Reload");
     updateAdpcmFileNames("Reload");
+    updateAdpcmPlusFileNames("Reload");
     updateOpzx7PcmFileNames("Reload");
     updateOpzx7WtFileNames("Reload");
 
     // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
     int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
-    if (loadedMode >= 0 && loadedMode <= (int)OscMode::BEEP) {
+    if (loadedMode >= 0 && loadedMode < (int)OscMode::Count) {
         audioProcessor.lastActiveSynthMode = (OscMode)loadedMode;
-        tabs.setCurrentTabIndex(loadedMode);
+        tabs.setCurrentTabIndex(tabForMode(loadedMode));
     }
 
     // 4. 各タブのプリセット名を更新
@@ -1353,6 +1397,7 @@ void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
     if (auto* gui = wt2Gui.peek()) gui->updatePresetName(pName);
     if (auto* gui = rhythmGui.peek()) gui->updatePresetName(pName);
     if (auto* gui = adpcmGui.peek()) gui->updatePresetName(pName);
+    if (auto* gui = adpcmPlusGui.peek()) gui->updatePresetName(pName);
     if (auto* gui = beepGui.peek()) gui->updatePresetName(pName);
     if (auto* gui = wtPlusGui.peek()) gui->updatePresetName(pName);
 }
@@ -1413,7 +1458,7 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
 {
     // 押されたボタンはどちらかのタブの中にある。どちらもまだ作って
     // いなければ、この呼び出しは来ないはずだが、念のため何もしない。
-    if (adpcmGui.peek() == nullptr && rhythmGui.peek() == nullptr) return;
+    if (adpcmGui.peek() == nullptr && adpcmPlusGui.peek() == nullptr && rhythmGui.peek() == nullptr) return;
 
     // ADPCM Load Buttons
     if (adpcmGui.peek() != nullptr && adpcmGui->isThis(button))
@@ -1448,6 +1493,36 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
     else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanL(button)) { adpcmGui->setPan(0.0); }
     else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanC(button)) { adpcmGui->setPan(0.5); }
     else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanR(button)) { adpcmGui->setPan(1.0); }
+    // ADPCM+ Load Button (読み込むのは TGT で選んでいるスロット)
+    else if (adpcmPlusGui.peek() != nullptr && adpcmPlusGui->isThis(button))
+    {
+        openAudioBrowser(
+            [this](const juce::File& file)
+            {
+                if (!file.existsAsFile()) return;
+
+                const int slot = adpcmPlusGui->targetSlot();
+
+                adpcmPlusGui->updateFileName("Loading...");
+
+                // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+                juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+                juce::Timer::callAfterDelay(50, [this, safe, file, slot]()
+                    {
+                        if (safe == nullptr) return;
+
+                        audioProcessor.loadAdpcmPlusFile(slot, file);
+                        adpcmPlusGui->updateSlotFileName(slot);
+                        audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                    });
+            }
+        );
+    }
+    // ADPCM+ Pan Buttons
+    else if (adpcmPlusGui.peek() != nullptr && adpcmPlusGui->isBtnPanL(button)) { adpcmPlusGui->setPan(0.0); }
+    else if (adpcmPlusGui.peek() != nullptr && adpcmPlusGui->isBtnPanC(button)) { adpcmPlusGui->setPan(0.5); }
+    else if (adpcmPlusGui.peek() != nullptr && adpcmPlusGui->isBtnPanR(button)) { adpcmPlusGui->setPan(1.0); }
     // Rhythm Pads Buttons
     else if (rhythmGui.peek() != nullptr)
     {
@@ -1628,6 +1703,22 @@ void AudioPlugin2686VEditor::updateAdpcmFileNames(const juce::String filename)
     }
 }
 
+
+void AudioPlugin2686VEditor::updateAdpcmPlusFileNames(const juce::String filename)
+{
+    // まだ作っていないタブには映せない。作るときに読み直す。
+    if (adpcmPlusGui.peek() == nullptr) return;
+
+    if (filename == Io::empty) {
+        adpcmPlusGui->updateFileName(filename);
+
+        return;
+    }
+
+    // 出すのは画面へ出ているスロットの名前だけ。
+    // 残りはスロットを選び直したときに出る。
+    adpcmPlusGui->updateSlotFileName(adpcmPlusGui->targetSlot());
+}
 void AudioPlugin2686VEditor::updateKeyboardVisibility()
 {
     // 仮想キーボードが有効で、かつFull Viewの時のみ表示する
@@ -1728,7 +1819,7 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
     {
         int idx = (int)newValue;
 
-        if (idx >= 0 && idx <= (int)OscMode::BEEP) {
+        if (idx >= 0 && idx < (int)OscMode::Count) {
             // ホストがオートメーションを流している間、ここはオーディオスレッドで走る。
             // 番号だけ預けて、触るのはメッセージスレッド側に任せる。
             //
@@ -1748,9 +1839,11 @@ void AudioPlugin2686VEditor::handleAsyncUpdate()
 
     audioProcessor.lastActiveSynthMode = (OscMode)idx;
 
+    const int tab = tabForMode(idx);
+
     // 現在のタブと違えば切り替える（ループ防止）
-    if (tabs.getCurrentTabIndex() != idx) {
-        tabs.setCurrentTabIndex(idx);
+    if (tabs.getCurrentTabIndex() != tab) {
+        tabs.setCurrentTabIndex(tab);
     }
 }
 
@@ -1836,17 +1929,16 @@ void AudioPlugin2686VEditor::updateUndoRedoButtons()
 
 void AudioPlugin2686VEditor::updateParameterInitializeButtons()
 {
-    // 表示しているタブが音源のタブか
-    // 0:OPNA, 1:OPN, 2:OPL, ...
-    int targetMode = tabs.getCurrentTabIndex();
-    bool isNotSystemTab = targetMode >= 0 && targetMode <= ((int)OscMode::BEEP + 1); // OPNA ～ FX
+    // 表示しているタブが音源のタブか。末尾の 1 つ (ADVANCED) までを含める。
+    const int targetTab = tabs.getCurrentTabIndex();
+    const bool isNotSystemTab = targetTab >= 0 && targetTab <= tabModeCount;
 
     initParamsButton.setEnabled(isNotSystemTab);
 }
 
 void AudioPlugin2686VEditor::copyFmParamsToString()
 {
-    OscMode targetMode = (OscMode)tabs.getCurrentTabIndex();
+    OscMode targetMode = (OscMode)modeForTab(tabs.getCurrentTabIndex());
 
     switch (targetMode)
     {
@@ -1873,9 +1965,9 @@ void AudioPlugin2686VEditor::copyFmParamsToString()
 
 void AudioPlugin2686VEditor::initParams()
 {
-    int targetMode = tabs.getCurrentTabIndex();
+    const int targetTab = tabs.getCurrentTabIndex();
 
-    switch ((OscMode)targetMode)
+    switch ((OscMode)modeForTab(targetTab))
     {
     case OscMode::OPNA:
         opnaGui->initParams();
@@ -1909,6 +2001,9 @@ void AudioPlugin2686VEditor::initParams()
         break;
     case OscMode::ADPCM:
         adpcmGui->initParams();
+        break;
+    case OscMode::ADPCMPLUS:
+        adpcmPlusGui->initParams();
         break;
     case OscMode::WTPLUS:
         wtPlusGui->initParams();
@@ -1981,6 +2076,7 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
     apply(wt2Gui, Wt2PrKey::prefix);
     apply(rhythmGui, RhythmPrKey::prefix);
     apply(adpcmGui, AdpcmPrKey::prefix);
+    apply(adpcmPlusGui, AdpcmPlusPrKey::prefix);
     apply(beepGui, BeepPrKey::prefix);
     apply(wtPlusGui, WtPlusPrKey::prefix);
 
@@ -2443,6 +2539,7 @@ void AudioPlugin2686VEditor::setupLazyTabs()
     prepareLazyTab<GuiWtPlus>(wtPlusGui, tabWtPlus, [this](GuiWtPlus& gui) { gui.addComponentListener(this); });
     prepareLazyTab<GuiRhythm>(rhythmGui, tabRhythm);
     prepareLazyTab<GuiAdpcm>(adpcmGui, tabAdpcm);
+    prepareLazyTab<GuiAdpcmPlus>(adpcmPlusGui, tabAdpcmPlus);
     prepareLazyTab<GuiBeep>(beepGui, tabBeep);
 }
 
@@ -2470,6 +2567,7 @@ void AudioPlugin2686VEditor::layoutTab(int tabIndex)
     case tabWtPlus: if (auto* gui = wtPlusGui.peek()) gui->layout(lastTabContent); break;
     case tabRhythm: if (auto* gui = rhythmGui.peek()) gui->layout(lastTabContent); break;
     case tabAdpcm: if (auto* gui = adpcmGui.peek()) gui->layout(lastTabContent); break;
+    case tabAdpcmPlus: if (auto* gui = adpcmPlusGui.peek()) gui->layout(lastTabContent); break;
     case tabBeep: if (auto* gui = beepGui.peek()) gui->layout(lastTabContent); break;
     case tabPreset: presetGui->layout(lastTabContent); break;
     case tabSettings: settingsGui->layout(lastTabContent); break;
@@ -2497,6 +2595,7 @@ void AudioPlugin2686VEditor::materializeTab(int tabIndex)
     case tabWtPlus: wtPlusGui.ref(); break;
     case tabRhythm: rhythmGui.ref(); break;
     case tabAdpcm: adpcmGui.ref(); break;
+    case tabAdpcmPlus: adpcmPlusGui.ref(); break;
     case tabBeep: beepGui.ref(); break;
     default: break; // 先に作ってあるタブ
     }
@@ -2530,6 +2629,7 @@ void AudioPlugin2686VEditor::forEachTabGui(const std::function<void(GuiBase&)>& 
     if (auto* gui = wt2Gui.peek()) fn(*gui);
     if (auto* gui = rhythmGui.peek()) fn(*gui);
     if (auto* gui = adpcmGui.peek()) fn(*gui);
+    if (auto* gui = adpcmPlusGui.peek()) fn(*gui);
     if (auto* gui = beepGui.peek()) fn(*gui);
     if (auto* gui = wtPlusGui.peek()) fn(*gui);
     if (presetGui != nullptr) fn(*presetGui);
@@ -2765,6 +2865,7 @@ GuiBase* AudioPlugin2686VEditor::tabGuiFor(int tabIndex)
     switch (tabIndex)
     {
     case tabAdpcm: return &adpcmGui.ref();
+    case tabAdpcmPlus: return &adpcmPlusGui.ref();
     case tabBeep: return &beepGui.ref();
     case tabOpl: return &oplGui.ref();
     case tabOpl3: return &opl3Gui.ref();
@@ -2785,6 +2886,7 @@ GuiBase* AudioPlugin2686VEditor::tabGuiFor(int tabIndex)
 int AudioPlugin2686VEditor::tabForCategory(const juce::String& category)
 {
     if (category == "PCM") return tabAdpcm;
+    if (category == "PCM+") return tabAdpcmPlus;
     if (category == "BEEP") return tabBeep;
     if (category == "OPL") return tabOpl;
     if (category == "OPL3") return tabOpl3;

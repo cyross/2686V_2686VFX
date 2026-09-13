@@ -4,11 +4,13 @@ SynthVoice::SynthVoice()
 {
     coreMap[(size_t)OscMode::RHYTHM] = &m_rhythmCore;
     coreMap[(size_t)OscMode::ADPCM] = &m_adpcmCore;
+    coreMap[(size_t)OscMode::ADPCMPLUS] = &m_adpcmPlusCore;
 }
 
 void SynthVoice::prepare(double sampleRate) {
     m_rhythmCore.prepare(sampleRate);
     m_adpcmCore.prepare(sampleRate);
+    m_adpcmPlusCore.prepare(sampleRate);
 }
 
 void SynthVoice::setParameters(const SynthParams& params)
@@ -47,6 +49,7 @@ void SynthVoice::stopNote(float, bool allowTailOff)
     {
         m_rhythmCore.noteOff();
         m_adpcmCore.noteOff();
+        m_adpcmPlusCore.noteOff();
     }
     else
     {
@@ -164,6 +167,7 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
     {
         m_rhythmCore.prepare(newRate);
         m_adpcmCore.prepare(newRate);
+        m_adpcmPlusCore.prepare(newRate);
     }
 }
 
@@ -193,6 +197,7 @@ void SynthVoice::setCurveCore(CurveCore* p_curveCore)
 {
     m_rhythmCore.setCurveCore(p_curveCore);
     m_adpcmCore.setCurveCore(p_curveCore);
+    m_adpcmPlusCore.setCurveCore(p_curveCore);
 }
 
 bool SynthVoice::isPlaying()

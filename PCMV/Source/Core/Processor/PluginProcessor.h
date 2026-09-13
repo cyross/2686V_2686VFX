@@ -16,6 +16,7 @@
 
 #include "../../Processor/Rhythm/ProcessorRhythm.h"
 #include "../../Processor/Adpcm/ProcessorAdpcm.h"
+#include "../../Processor/AdpcmPlus/ProcessorAdpcmPlus.h"
 #include "../../Processor/Fx/ProcessorFx.h"
 #include "../../Processor/Curve/ProcessorCurve.h"
 
@@ -155,6 +156,16 @@ public:
                 isLegato
             );
             break;
+
+        case OscMode::ADPCMPLUS:
+            voiceUnison(
+                currentParams->adpcmPlus.unison,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
         };
     }
 
@@ -207,6 +218,16 @@ public:
                         true
                     );
                     break;
+
+                case OscMode::ADPCMPLUS:
+                    voiceUnison(
+                        currentParams->adpcmPlus.unison,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
                 };
             }
         }
@@ -241,6 +262,7 @@ class AudioPlugin2686V : public juce::AudioProcessor,
 private:
     RhythmProcessor prRhythm;
     AdpcmProcessor prAdpcm;
+    AdpcmPlusProcessor prAdpcmPlus;
     FxProcessor prFx;
 
     CurveCore m_curveCore;
@@ -252,6 +274,13 @@ private:
     // オーディオスレッドが「この指定で作り直してほしい」と置いていく場所。
     std::atomic<int> m_adpcmWantQuality{ -1 };
     std::atomic<int> m_adpcmWantRate{ -1 };
+
+    // ADPCM+ も同じ。PCM のスロットごとに 1 つずつ持つ。
+    // 鳴らすのは TGT で選んだ 1 本だけだが、差し替えずに済むよう
+    // 読み込んだものはすべて持っておく。
+    std::array<PcmSharedStore, Global::AdpcmPlus::slots> m_adpcmPlusPcm;
+    std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantQuality{};
+    std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantRate{};
 
     // RHYTHM も同じ。パッドごとに 1 つずつ持つ。
     std::array<PcmSharedStore, RhythmPrValue::pads> m_rhythmPcm;
@@ -314,6 +343,10 @@ public:
     // Function to load ADPCM file (Global/Voice)
     void loadAdpcmFile(const juce::File& file);
     void unloadAdpcmFile();
+    // ADPCM+ はスロットごとに 1 本ずつ読む
+    void loadAdpcmPlusFile(int slot, const juce::File& file);
+    void unloadAdpcmPlusFile(int slot);
+    bool isAdpcmPlusFileLoaded(int slot) const;
     // Function to load Rhythm sample file (Specific Pad)
     void loadRhythmFile(const juce::File& file, int padIndex);
     void unloadRhythmFile(int padIndex);
@@ -339,6 +372,9 @@ public:
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;
+
+    // ADPCM+ が読んだ PCM のパス。スロットの数だけ持つ。
+    std::array<juce::String, Global::AdpcmPlus::slots> adpcmPlusFilePaths;
 
     // MODULATION の変調波形として読み込んだファイルのパス。
     // 波形データ自体は 32 個のパラメータ側に入っているので、
@@ -368,6 +404,9 @@ public:
 
     std::array<std::vector<float>, RhythmPrValue::pads> rhythmPreviewBuffers;
     std::array<double, RhythmPrValue::pads> rhythmPreviewRates{};
+
+    std::array<std::vector<float>, Global::AdpcmPlus::slots> adpcmPlusPreviewBuffers;
+    std::array<double, Global::AdpcmPlus::slots> adpcmPlusPreviewRates{};
 
     // ------------------------------------------------------------------
     // 波形プレビューの計算用

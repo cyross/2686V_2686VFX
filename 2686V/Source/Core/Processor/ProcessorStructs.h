@@ -532,6 +532,25 @@ struct PrPtrsAdpcmBasic {
     std::atomic<float>* loop = nullptr;
 };
 
+// ADPCM+ の 1 スロットぶん。FORM (音と雑音の混ぜ方)・OPTIONAL
+// (速さと再生位置とループ)・PAN は、PCM ファイルごとに持つ。
+struct PrPtrsAdpcmPlusSlot {
+    PrPtrsToneNoise tn;
+    PrPtrsPcm pcm;
+    PrPtrsLp lp;
+    std::atomic<float>* pan = nullptr;
+    std::atomic<float>* loop = nullptr;
+};
+
+struct PrPtrsAdpcmPlusBasic {
+    std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
+
+    // 鳴らすスロット。ここが変われば、効く値もそのスロットのものへ変わる。
+    std::atomic<float>* slot = nullptr;
+    std::array<PrPtrsAdpcmPlusSlot, Global::AdpcmPlus::slots> slots;
+};
+
 struct PrPtrsBeepBasic {
     std::atomic<float>* level = nullptr;
     std::atomic<float>* delay = nullptr;

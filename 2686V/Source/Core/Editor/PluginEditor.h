@@ -23,6 +23,7 @@
 #include "../../Gui/Wt2/GuiWt2.h"
 #include "../../Gui/Rhythm/GuiRhythm.h"
 #include "../../Gui/Adpcm/GuiAdpcm.h"
+#include "../../Gui/AdpcmPlus/GuiAdpcmPlus.h"
 #include "../../Gui/Beep/GuiBeep.h"
 #include "../../Gui/WtPlus/GuiWtPlus.h"
 #include "../../Gui/Preset/GuiPreset.h"
@@ -157,6 +158,7 @@ public:
 
     void updateRhythmFileNames(const juce::String finename);
     void updateAdpcmFileNames(const juce::String finename);
+    void updateAdpcmPlusFileNames(const juce::String finename);
     void updateOpzx7PcmFileNames(const juce::String finename);
     void updateOpzx7WtFileNames(const juce::String finename);
     void setupLogo();
@@ -352,6 +354,7 @@ private:
     GuiLazy<GuiWt2> wt2Gui; // Wt2
     GuiLazy<GuiRhythm> rhythmGui; // Rhythm
     GuiLazy<GuiAdpcm> adpcmGui; // ADPCM
+    GuiLazy<GuiAdpcmPlus> adpcmPlusGui; // ADPCM+
     GuiLazy<GuiBeep> beepGui;
     GuiLazy<GuiWtPlus> wtPlusGui;
     std::unique_ptr<GuiPreset> presetGui;
@@ -416,7 +419,7 @@ private:
     enum TabIndex
     {
         tabOpna = 0, tabOpn, tabOpl, tabOpl3, tabOpm, tabOpzx7,
-        tabSsg, tabWt, tabWt2, tabWtPlus, tabRhythm, tabAdpcm, tabBeep,
+        tabSsg, tabWt, tabWt2, tabWtPlus, tabRhythm, tabAdpcm, tabAdpcmPlus, tabBeep,
         tabCurve, tabPreset, tabSettings, tabColors, tabAbout,
 
         tabCount

@@ -201,6 +201,16 @@ namespace CPV
 		inline constexpr int CustomSize256 = 256;
 	}
 
+	namespace AdpcmPlus {
+		// ADPCM+ が鳴らす PCM のスロット番号
+		namespace Slot
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = Global::AdpcmPlus::slots - 1;
+			inline constexpr int initial = 0;
+		}
+	}
+
 	namespace Wt2 {
 		namespace WaveForm
 		{
