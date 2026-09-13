@@ -27,6 +27,8 @@ class GuiComponentPitchEnv : public GuiBase {
 
     // PITCH ENV
     GuiCategoryLabel cat;
+    // setup で受け取った入り切りの鍵。束縛し直すときに使う。
+    juce::String m_flagKey;
     GuiToggleButton flag; // Bypass or Enable
     NormalSeparator flagSeparator;
 
@@ -112,6 +114,8 @@ public:
     }
 
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, const juce::String& flagKey, const juce::String& flagText, bool isEnable = false);
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);

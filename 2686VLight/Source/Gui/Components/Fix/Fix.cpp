@@ -233,6 +233,17 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
         };
 }
 
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentFix::rebind(const juce::String& code)
+{
+    enable.rebind(code + CPK::fix);
+    freq.getSlider().rebind(code + CPK::fixFreq);
+}
+
 void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });

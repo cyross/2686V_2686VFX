@@ -103,6 +103,25 @@ void GuiComponentSsgHwPEnv::setupComponent(juce::Component& parent, const juce::
     updatePreview();
 }
 
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentSsgHwPEnv::rebind(const juce::String& code)
+{
+    envEnableButton.rebind(code + CPK::SsgHwPEnv::enable);
+    smoothEnableButton.rebind(code + CPK::SsgHwPEnv::smooth);
+    shapeSelector.rebind(code + CPK::SsgHwPEnv::shape);
+    periodSlider.rebind(code + CPK::SsgHwPEnv::period);
+    minSlider.getSlider().rebind(code + CPK::SsgHwPEnv::min);
+    maxSlider.getSlider().rebind(code + CPK::SsgHwPEnv::max);
+
+    waveHold.rebind(code + CPK::SsgHwPEnv::holdPrefix);
+
+    updatePreview();
+}
+
 void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });

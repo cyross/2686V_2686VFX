@@ -95,6 +95,8 @@ public:
     // 既定はソフトウェア区分 (ピッチ系) の色を使う。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
         juce::Colour categoryBg = GuiColor::Category::SwPitchBg);
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);

@@ -116,6 +116,8 @@ public:
         const juce::String& code,
         int& tabOrder
     );
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void updatePreviews();
     void layoutComponentRow(juce::Rectangle<int>& rect);

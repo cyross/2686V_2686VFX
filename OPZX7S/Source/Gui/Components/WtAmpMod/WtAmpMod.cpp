@@ -194,6 +194,38 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     }
 }
 
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentWtAmpMod::rebind(const juce::String& code)
+{
+    // 変調波形の実体はプロセッサがこの鍵で持っている。
+    m_code = code;
+
+    enableButton.rebind(code + CPK::WtAmpMod::enable);
+    depthSlider.rebind(code + CPK::WtAmpMod::depth);
+    speedSlider.rebind(code + CPK::WtAmpMod::speed);
+    shapeSelector.rebind(code + CPK::WtAmpMod::shape);
+    minSlider.getSlider().rebind(code + CPK::WtAmpMod::min);
+    maxSlider.getSlider().rebind(code + CPK::WtAmpMod::max);
+    waveSmoothBtn.rebind(code + CPK::WtAmpMod::waveSmooth);
+    waveSlotSlider.rebind(code + CPK::WtAmpMod::waveSlot);
+
+    waveHold.rebind(code + CPK::WtAmpMod::holdPrefix);
+    fdsEditor.rebind(code + CPK::WtAmpMod::fdsTable);
+
+    // 指し先が変わったので、並べた波形と選んでいる形を作り直す。
+    for (int i = 0; i < Global::WtMod::slots; ++i) updateSlotPreview(i);
+
+    applySlotTarget();
+
+    slotPreviews.setActive(currentSlot());
+
+    updateModPreview();
+}
+
 void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .label = &cat });

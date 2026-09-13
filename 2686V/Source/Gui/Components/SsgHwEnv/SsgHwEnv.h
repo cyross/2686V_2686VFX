@@ -85,6 +85,8 @@ public:
     // SSG では HwBg、他チャンネルへ借りて置く場合は既定の SwBg を使う。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
         juce::Colour categoryBg = GuiColor::Category::SwAmpBg);
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);

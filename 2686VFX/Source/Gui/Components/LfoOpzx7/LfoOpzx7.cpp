@@ -158,6 +158,34 @@ void GuiComponentLfoOpzx7::setupComponent(
     updatePreviews();
 }
 
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentLfoOpzx7::rebind(const juce::String& code)
+{
+    pmEnable.rebind(code + CPK::Opzx7Lfo::pm);
+    pmFreq.rebind(code + CPK::Opzx7Lfo::pmFreq);
+    pmSyncDelay.rebind(code + CPK::Opzx7Lfo::pmSyncDelay);
+    pgShape.rebind(code + CPK::Opzx7Lfo::pgShape);
+    pms.rebind(code + CPK::Opzx7Lfo::pms);
+    pmd.rebind(code + CPK::Opzx7Lfo::pmd);
+
+    amEnable.rebind(code + CPK::Opzx7Lfo::am);
+    amFreq.rebind(code + CPK::Opzx7Lfo::amFreq);
+    amSyncDelay.rebind(code + CPK::Opzx7Lfo::amSyncDelay);
+    egShape.rebind(code + CPK::Opzx7Lfo::egShape);
+    amSmRt.rebind(code + CPK::Opzx7Lfo::amSmoothRatio);
+    ams.rebind(code + CPK::Opzx7Lfo::ams);
+    amd.rebind(code + CPK::Opzx7Lfo::amd);
+
+    pmWaveHold.rebind(code + CPK::Opzx7Lfo::pmHoldPrefix);
+    amWaveHold.rebind(code + CPK::Opzx7Lfo::amHoldPrefix);
+
+    updatePreviews();
+}
+
 // 選んだ Shape を実際の LFO で走らせ、折れ線にして渡す。
 // 値が変わったときだけ通るので、常時の負荷は無い。
 // 波形を選び直したら、ホールドの開け閉てもそろえる。

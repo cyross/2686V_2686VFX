@@ -233,6 +233,21 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
     dt3Buttons.setupComponent(parent, dt3.getSlider(), tabOrder);
 }
 
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentMulDetune::rebind(const juce::String& code)
+{
+    mul.rebind(code + CPK::mul);
+    mulRatio.getSlider().rebind(code + CPK::mulRatio);
+
+    dt1.rebind(code + CPK::dt);
+    dt2.rebind(code + CPK::dt2);
+    dt3.getSlider().rebind(code + CPK::dt3);
+}
+
 void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });

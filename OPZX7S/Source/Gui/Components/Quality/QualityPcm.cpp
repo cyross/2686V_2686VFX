@@ -80,6 +80,18 @@ void QualityPcm::setupComponent(juce::Component& parent, const juce::String& cod
     interpSelector.setExplicitFocusOrder(++tabOrder);
 }
 
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void QualityPcm::rebind(const juce::String& code)
+{
+    modeSelector.rebind(code + CPK::QualityPcm::mode);
+    rateSelector.rebind(code + CPK::QualityPcm::rate);
+    interpSelector.rebind(code + CPK::QualityPcm::interp);
+}
+
 void QualityPcm::layoutComponent(juce::Rectangle<int>& rect) {
     layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
 

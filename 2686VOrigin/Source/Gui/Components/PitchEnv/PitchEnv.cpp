@@ -29,6 +29,8 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
         .enableChangeDetailVisible = true
         });
 
+	m_flagKey = flagKey;
+
 	flag.setup({ .parent = parent, .id = code + flagKey, .title = flagText, .isReset = true });
     flag.setWantsKeyboardFocus(true);
     flag.setExplicitFocusOrder(++tabOrder);
@@ -81,6 +83,30 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 	endLevelButtons.setupComponent(parent, endLevel.getSlider(), tabOrder, labelFont);
 
 	applyEndLevelEnable();
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentPitchEnv::rebind(const juce::String& code)
+{
+    // 入り切りの鍵は呼ぶ側が決めるので、setup で受けたものを使う。
+    flag.rebind(code + m_flagKey);
+    keep.rebind(code + CPK::PitchAdsr::keep);
+
+    attack.getSlider().rebind(code + CPK::PitchAdsr::ar);
+    decay.getSlider().rebind(code + CPK::PitchAdsr::dr);
+    release.getSlider().rebind(code + CPK::PitchAdsr::rr);
+
+    startLevel.getSlider().rebind(code + CPK::PitchAdsr::stl);
+    attackLevel.getSlider().rebind(code + CPK::PitchAdsr::atl);
+    sustainLevel.getSlider().rebind(code + CPK::PitchAdsr::ssl);
+    releaseLevel.getSlider().rebind(code + CPK::PitchAdsr::rll);
+
+    endLevelEnable.rebind(code + CPK::PitchAdsr::endlEnable);
+    endLevel.getSlider().rebind(code + CPK::PitchAdsr::endl);
 }
 
 void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)

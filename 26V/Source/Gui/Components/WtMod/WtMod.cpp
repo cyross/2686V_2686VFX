@@ -62,6 +62,13 @@ void FdsTableEditor::setup(juce::Component& parent, const juce::String& idPrefix
     attachParams(idPrefix, 32);
 }
 
+void FdsTableEditor::rebind(const juce::String& idPrefix)
+{
+    attachParams(idPrefix, 32);
+
+    repaint();
+}
+
 std::array<int, 32> FdsTableEditor::currentTable() const
 {
     std::array<int, 32> table = { 0 };
@@ -348,6 +355,36 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
         fdsPresetBtn[i].setExplicitFocusOrder(++tabOrder);
         fdsPresetBtn[i].onClick = [this, i] { fdsEditor.loadTable(FdsMod::tables[i]); };
     }
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentWtMod::rebind(const juce::String& code)
+{
+    // 変調波形の実体はプロセッサがこの鍵で持っている。
+    m_code = code;
+
+    enableButton.rebind(code + CPK::WtMod::enable);
+    depthSlider.rebind(code + CPK::WtMod::depth);
+    speedSlider.rebind(code + CPK::WtMod::speed);
+    shapeSelector.rebind(code + CPK::WtMod::shape);
+    waveSmoothBtn.rebind(code + CPK::WtMod::waveSmooth);
+    waveSlotSlider.rebind(code + CPK::WtMod::waveSlot);
+
+    waveHold.rebind(code + CPK::WtMod::holdPrefix);
+    fdsEditor.rebind(code + CPK::WtMod::fdsTable);
+
+    // 指し先が変わったので、並べた波形と選んでいる形を作り直す。
+    for (int i = 0; i < Global::WtMod::slots; ++i) updateSlotPreview(i);
+
+    applySlotTarget();
+
+    slotPreviews.setActive(currentSlot());
+
+    updateModPreview();
 }
 
 void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)

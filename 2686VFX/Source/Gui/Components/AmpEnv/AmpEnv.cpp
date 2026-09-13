@@ -69,6 +69,24 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 	kor.setExplicitFocusOrder(++tabOrder);
 }
 
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentAmpEnv::rebind(const juce::String& code)
+{
+    bypass.rebind(code + CPK::adsr + CPK::bypass);
+    startLevel.rebind(code + CPK::Adsr::stl);
+    attack.rebind(code + CPK::Adsr::ar);
+    decay.rebind(code + CPK::Adsr::dr);
+    sustain.rebind(code + CPK::Adsr::sl);
+    release.rebind(code + CPK::Adsr::rr);
+    endLevelEnable.rebind(code + CPK::Adsr::endlEnable);
+    endLevel.rebind(code + CPK::Adsr::endl);
+    kor.rebind(code + CPK::Adsr::kor);
+}
+
 void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });

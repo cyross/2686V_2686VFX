@@ -10,8 +10,17 @@ ParamBarEditorBase::~ParamBarEditorBase()
     }
 }
 
+// 何度でも呼べる。呼ぶたび、前に張った聴き手を外してから張り直す。
+//
+// 外さないと、指し先を切り替えたあとも古いパラメータで描き直しが起き、
+// デストラクタでも外しそこねて解放済みの器を触りに来る。
 void ParamBarEditorBase::attachParams(const juce::String& idPrefix, int count)
 {
+    for (const auto& id : m_paramIds) {
+        ctx.audioProcessor.apvts.removeParameterListener(id, this);
+    }
+
+    m_paramIds.clear();
     m_params.clear();
     m_params.reserve((size_t)count);
 

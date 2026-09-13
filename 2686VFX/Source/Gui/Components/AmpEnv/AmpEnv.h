@@ -86,6 +86,8 @@ public:
     // 日本語にそろえたいかが変わるため。既定は今までどおり。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
         const juce::String& bypassText = "Bypass");
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);

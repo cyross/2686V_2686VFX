@@ -150,6 +150,8 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
         .enableChangeDetailVisible = true
         });
 
+    m_flagKey = flagKey;
+
     flag.setup({ .parent = parent, .id = code + flagKey, .title = flagText, .isReset = true });
     flag.setWantsKeyboardFocus(true);
     flag.setExplicitFocusOrder(++tabOrder);
@@ -261,6 +263,31 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
     rateTarget.setValue(1, juce::dontSendNotification);
     levelTarget.setValue(0, juce::dontSendNotification);
 
+    rebindRate();
+    rebindLevel();
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentSsgSwPEnv11::rebind(const juce::String& code)
+{
+    paramCode = code;
+
+    // 入り切りの鍵は呼ぶ側が決めるので、setup で受けたものを使う。
+    flag.rebind(code + m_flagKey);
+    steps.rebind(code + CPK::SsgSwPEnv11::steps);
+    keep.rebind(code + CPK::SsgSwPEnv11::keep);
+    loop.rebind(code + CPK::SsgSwPEnv11::loop);
+    loopTo.rebind(code + CPK::SsgSwPEnv11::loopTo);
+    loopCount.rebind(code + CPK::SsgSwPEnv11::loopCount);
+    endLevelEnable.rebind(code + CPK::SsgSwPEnv11::endlEnable);
+    endLevel.rebind(code + CPK::SsgSwPEnv11::endl);
+
+    // 段の値のつまみは 1 組しかない。今指している段へ繋ぎ直し、
+    // 帯に出している各段の値も作り直す。
     rebindRate();
     rebindLevel();
 }

@@ -84,6 +84,8 @@ class GuiComponentSsgSwEnv11 : public GuiBase {
 
     // setup で受け取った接頭辞。束縛し直すときに使う。
     juce::String paramCode;
+    // setup で受け取った入り切りの鍵。束縛し直すときに使う。
+    juce::String m_flagKey;
 public:
 
     // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
@@ -136,6 +138,8 @@ public:
     }
 
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, const juce::String& flagKey, const juce::String& flagText, bool isEnable = false);
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);
