@@ -345,6 +345,9 @@ public:
     GuiRhythm(const GuiContext& context);
                      
     void setup() override;
+
+    // Ctrl + ← / → などで TARGET を動かす
+    bool keyPressed(const juce::KeyPress& key) override;
     void layout(juce::Rectangle<int> content) override;
     void layoutPad(int padIndex, juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);

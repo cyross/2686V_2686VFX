@@ -356,6 +356,9 @@ public:
                      
     void setup() override;
 
+    // Ctrl + ← / → などで TARGET を動かす
+    bool keyPressed(const juce::KeyPress& key) override;
+
     // 簡易表示モードで隠す区分への一括操作
     void bypassHiddenCategories() override;
     void openEnabledCategories() override;

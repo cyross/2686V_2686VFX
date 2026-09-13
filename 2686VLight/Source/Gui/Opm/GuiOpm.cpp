@@ -971,6 +971,11 @@ void GuiOpm::updatePresetName(const juce::String& name)
 // ==============================================================================
 bool GuiOpm::keyPressed(const juce::KeyPress& key)
 {
+    // Ctrl を押しているときは TARGET を動かす。数字だけを押したときの
+    // MML より先に見ること。あちらは修飾キーを見ていないので、
+    // 後ろへ置くと Ctrl + 数字まで MML が食べてしまう。
+    if (moveTargetByKey(targerOpSlider, key)) return true;
+
     int opIndex = -1;
     int code = key.getKeyCode();
     juce::ModifierKeys metaKeys = key.getModifiers();

@@ -200,6 +200,9 @@ public:
     }
 
     void setup() override;
+
+    // Ctrl + ← / → などで TARGET を動かす
+    bool keyPressed(const juce::KeyPress& key) override;
     void layout(juce::Rectangle<int> content) override;
     void updatePresetName(const juce::String& name);
     void initParams();

@@ -54,7 +54,7 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
 
-	endLevelEnable.setup({ .parent = parent, .id = code + CPK::Adsr::endlEnable, .title = "USE ENDL", .isReset = true });
+	endLevelEnable.setup({ .parent = parent, .id = code + CPK::Adsr::endlEnable, .title = "Use Endl", .isReset = true });
 	endLevelEnable.setWantsKeyboardFocus(true);
 	endLevelEnable.setExplicitFocusOrder(++tabOrder);
 	endLevelEnable.onClick = [this] { applyEndLevelEnable(); };

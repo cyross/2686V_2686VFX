@@ -56,15 +56,15 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     enableButton.setWantsKeyboardFocus(true);
     enableButton.setExplicitFocusOrder(++tabOrder);
 
-    depthSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::depth, .title = "DPTH", .isReset = true });
+    depthSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::depth, .title = "DEPTH", .isReset = true });
     depthSlider.setWantsKeyboardFocus(true);
     depthSlider.setExplicitFocusOrder(++tabOrder);
 
-    speedSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::speed, .title = "SPED", .isReset = true });
+    speedSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);
     speedSlider.setExplicitFocusOrder(++tabOrder);
 
-    shapeSelector.setup({ .parent = parent, .id = code + CPK::WtAmpMod::shape, .title = "SHPE", .items = wtAmpModShapeItems, .isReset = true, .isResized = true });
+    shapeSelector.setup({ .parent = parent, .id = code + CPK::WtAmpMod::shape, .title = "SHAPE", .items = wtAmpModShapeItems, .isReset = true, .isResized = true });
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
 
@@ -111,7 +111,7 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
 
     // 読み込み行とプレビューをスロットの数だけ作る
     // 並びは 対象 → 読み込み / 名前 / 消去 → 各スロットの波形。
-    slotTarget.setup({ .parent = parent, .title = "TGT", .isReset = false });
+    slotTarget.setup({ .parent = parent, .title = "TARGET", .isReset = false });
     slotTarget.setRange(0.0, (double)(Global::WtMod::slots - 1), 1.0);
     slotTarget.setNumDecimalPlacesToDisplay(0);
     slotTarget.setWantsKeyboardFocus(true);

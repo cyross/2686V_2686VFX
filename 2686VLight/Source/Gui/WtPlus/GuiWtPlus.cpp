@@ -50,6 +50,12 @@ static std::vector<SelectItem> wtPlusStepsItems = {
     {.name = juce::String("") + "256段階(128 / 127)", .value = 11 },
 };
 
+
+// TARGET を鍵で動かす。中身は GuiBase の共通の手続きへ預けてある。
+bool GuiWtPlus::keyPressed(const juce::KeyPress& key)
+{
+    return moveTargetByKey(slotTarget, key, false);
+}
 void GuiWtPlus::setup() {
     juce::String code = WtPlusPrKey::prefix;
     int tabOrder = 1;

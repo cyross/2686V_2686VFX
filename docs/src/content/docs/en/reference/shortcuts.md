@@ -26,11 +26,30 @@ On a Mac, **Command** stands in for **Ctrl**. The plugin sorts that out for you.
 | --- | --- |
 | **1**–**8** | open that operator's MML input |
 | **Alt** + **1**–**8** | toggle that operator's mask |
+| **Ctrl** + **1**–**8** | move TARGET to that operator |
 
 The numeric keypad works too. The number of operators varies by channel, so
 pressing the number of an operator that isn't there does nothing.
 
 For the notation, see [MML input](/2686V_2686VFX/en/reference/mml/).
+
+## On a tab that has a TARGET
+
+OPNA, OPN, OPL, OPL3, OPM, OPZX7, RHYTHM, WT+ and ADPCM+ each have a
+**TARGET** that picks what the reading, writing and editing apply to.
+
+| Key | What it does |
+| --- | --- |
+| **Ctrl** + **←** | move TARGET back one |
+| **Ctrl** + **→** | move TARGET on one |
+| **Ctrl** + **1**–**8** | move TARGET to that number |
+
+**It wraps at the ends.** With four operators, one past 4 is 1, and one before
+1 is 4.
+
+**Ctrl** + **1**–**8** only applies where there are at most eight to choose
+from. Wave memory (WT+) and PCM (ADPCM+) have 32 slots, which numbers cannot
+reach, so those take **←** and **→** only.
 
 ## Editing wave memory (WT)
 

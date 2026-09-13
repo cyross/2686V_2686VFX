@@ -776,7 +776,7 @@ void GuiOpzx7::setup()
     uSep003.setupComponent(mainGroup.contentCanvas);
 
     targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
-    targerOpSlider.setRange(1.0, 6.0, 1.0);
+    targerOpSlider.setRange(1.0, (double)Opzx7PrValue::ops, 1.0);
     targerOpSlider.setNumDecimalPlacesToDisplay(0);
     targerOpSlider.setValue(1, juce::sendNotification);
     targerOpSlider.setWantsKeyboardFocus(true);
@@ -1891,6 +1891,11 @@ void GuiOpzx7::updatePresetName(const juce::String& name)
 // ==============================================================================
 bool GuiOpzx7::keyPressed(const juce::KeyPress& key)
 {
+    // Ctrl を押しているときは TARGET を動かす。数字だけを押したときの
+    // MML より先に見ること。あちらは修飾キーを見ていないので、
+    // 後ろへ置くと Ctrl + 数字まで MML が食べてしまう。
+    if (moveTargetByKey(targerOpSlider, key)) return true;
+
     int opIndex = -1;
     int code = key.getKeyCode();
     juce::ModifierKeys metaKeys = key.getModifiers();

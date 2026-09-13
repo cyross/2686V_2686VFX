@@ -1154,6 +1154,12 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     viewMode = (GuiComponentViewModes)mode;
 }
 
+
+// TARGET を鍵で動かす。中身は GuiBase の共通の手続きへ預けてある。
+bool GuiRhythm::keyPressed(const juce::KeyPress& key)
+{
+    return moveTargetByKey(targerPadSlider, key);
+}
 void GuiRhythm::setup()
 {
     const juce::String code = RhythmPrKey::prefix;
@@ -1280,7 +1286,7 @@ void GuiRhythm::setup()
     ieChPadParam.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportPadChParam(padIndex); };
 
     targerPadSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Pad", .isReset = false });
-    targerPadSlider.setRange(1.0, 8.0, 1.0);
+    targerPadSlider.setRange(1.0, (double)RhythmPrValue::pads, 1.0);
     targerPadSlider.setNumDecimalPlacesToDisplay(0);
     targerPadSlider.setValue(1, juce::sendNotification);
     targerPadSlider.setWantsKeyboardFocus(true);

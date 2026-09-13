@@ -30,6 +30,12 @@ namespace
 #include "../../Core/Gui/GuiStructs.h"
 #include "../Adpcm/GuiAdpcmHelpers.h"
 
+
+// TARGET を鍵で動かす。中身は GuiBase の共通の手続きへ預けてある。
+bool GuiAdpcmPlus::keyPressed(const juce::KeyPress& key)
+{
+    return moveTargetByKey(slotTarget, key, false);
+}
 void GuiAdpcmPlus::setup()
 {
     auto setupPanBtn = [this](juce::Component& parent, GuiTextButton& btn, const juce::String& text, int& tabOrder)
