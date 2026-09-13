@@ -21,6 +21,12 @@ namespace AdpcmPlusGuiValue
 		}
 	}
 
+	namespace PcmGroup
+	{
+		// 読み込んだ音を横に広く見せたいので、本体より少し広く取る
+		static inline constexpr int width = 320;
+	}
+
 	namespace MainGroup
 	{
 		static inline constexpr int width = 260;

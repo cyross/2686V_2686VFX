@@ -24,6 +24,7 @@ namespace AdpcmPlusGuiText
 
 	namespace Group
 	{
+		static inline const juce::String pcmGroup = juce::String("") + "PCM設定";
 		static inline const juce::String mainGroup = juce::String("") + "ADPCM+チャンネル設定";
 	}
 

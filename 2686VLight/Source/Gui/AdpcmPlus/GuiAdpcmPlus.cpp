@@ -49,20 +49,21 @@ void GuiAdpcmPlus::setup()
     int tabOrder = 1;
 
     mainGroup.setup(*this, AdpcmPlusGuiText::Group::mainGroup);
+    pcmGroup.setup(*this, AdpcmPlusGuiText::Group::pcmGroup);
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
-    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
+    formCat.setupHwCategory({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
 	qualityPcmComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     // 鳴らす PCM。オートメーションで振れる。
-    slotSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::AdpcmPlus::slot, .title = AdpcmPlusGuiText::Adpcm::slot, .isReset = true });
+    slotSlider.setup({ .parent = pcmGroup.contentCanvas, .id = code + CPK::AdpcmPlus::slot, .title = AdpcmPlusGuiText::Adpcm::slot, .isReset = true });
     slotSlider.setWantsKeyboardFocus(true);
     slotSlider.setExplicitFocusOrder(++tabOrder);
 
     // いま画面へ出す PCM。値の置き場所を切り替えるだけで、音には効かない。
-    slotTarget.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Adpcm::target, .isReset = false });
+    slotTarget.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Adpcm::target, .isReset = false });
     slotTarget.setRange(0.0, (double)(Global::AdpcmPlus::slots - 1), 1.0);
     slotTarget.setNumDecimalPlacesToDisplay(0);
     slotTarget.setWantsKeyboardFocus(true);
@@ -72,74 +73,74 @@ void GuiAdpcmPlus::setup()
     // 出力レベル
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::Tn::tone, .title = AdpcmPlusGuiText::Adpcm::tone, .isReset = true });
+    toneSlider.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::Tn::tone, .title = AdpcmPlusGuiText::Adpcm::tone, .isReset = true });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::Tn::noise, .title = AdpcmPlusGuiText::Adpcm::noise, .isReset = true });
+    noiseSlider.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::Tn::noise, .title = AdpcmPlusGuiText::Adpcm::noise, .isReset = true });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::Tn::freq, .title = AdpcmPlusGuiText::Adpcm::noiseFreq, .isReset = true });
+    noiseFreqSlider.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::Tn::freq, .title = AdpcmPlusGuiText::Adpcm::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
     // 初期状態反映
-    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::Tn::mix , .title = AdpcmPlusGuiText::Adpcm::mix, .isReset = true });
+    mixSlider.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::Tn::mix , .title = AdpcmPlusGuiText::Adpcm::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
     mixSlider.setExplicitFocusOrder(++tabOrder);
 
-    mixSetTone.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Adpcm::toTone, .isReset = false, .isResized = false });
+    mixSetTone.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Adpcm::toTone, .isReset = false, .isResized = false });
     mixSetTone.setWantsKeyboardFocus(true);
     mixSetTone.setExplicitFocusOrder(++tabOrder);
     mixSetTone.onClick = [this] { mixSlider.setValue(0.0, juce::sendNotification); };
 
-    mixSetMix.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Adpcm::mix, .isReset = false, .isResized = false });
+    mixSetMix.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Adpcm::mix, .isReset = false, .isResized = false });
     mixSetMix.setWantsKeyboardFocus(true);
     mixSetMix.setExplicitFocusOrder(++tabOrder);
     mixSetMix.onClick = [this] { mixSlider.setValue(0.5, juce::sendNotification); };
 
-    mixSetNoise.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Adpcm::toNoise, .isReset = false, .isResized = false });
+    mixSetNoise.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Adpcm::toNoise, .isReset = false, .isResized = false });
     mixSetNoise.setWantsKeyboardFocus(true);
     mixSetNoise.setExplicitFocusOrder(++tabOrder);
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
 
-    optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::optional, .enableChangeDetailVisible = true });
+    optionalCat.setupSwCategory({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::optional, .enableChangeDetailVisible = true });
 
     // ループトグルボタン
-    loopButton.setup({ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::loop, .title = AdpcmPlusGuiText::Adpcm::loop, .isReset = true });
+    loopButton.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::loop, .title = AdpcmPlusGuiText::Adpcm::loop, .isReset = true });
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
 
-    loopPointEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::lpEnable, .title = AdpcmPlusGuiText::Adpcm::loopPointEnable, .isReset = true });
+    loopPointEnableButton.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::lpEnable, .title = AdpcmPlusGuiText::Adpcm::loopPointEnable, .isReset = true });
     loopPointEnableButton.setWantsKeyboardFocus(true);
     loopPointEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    loopPointStartSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::lpStart, .title = AdpcmPlusGuiText::Adpcm::loopPointStart, .isReset = true });
+    loopPointStartSlider.setup(GuiSlider::Config{ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::lpStart, .title = AdpcmPlusGuiText::Adpcm::loopPointStart, .isReset = true });
     loopPointStartSlider.setWantsKeyboardFocus(true);
     loopPointStartSlider.setExplicitFocusOrder(++tabOrder);
 
-    loopPointEndSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::lpEnd, .title = AdpcmPlusGuiText::Adpcm::loopPointEnd, .isReset = true });
+    loopPointEndSlider.setup(GuiSlider::Config{ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::lpEnd, .title = AdpcmPlusGuiText::Adpcm::loopPointEnd, .isReset = true });
     loopPointEndSlider.setWantsKeyboardFocus(true);
     loopPointEndSlider.setExplicitFocusOrder(++tabOrder);
 
-    speedSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::speed, .title = "SPEED", .isReset = true });
+    speedSlider.setup(GuiSlider::Config{ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);
     speedSlider.setExplicitFocusOrder(++tabOrder);
 
-    optSpeedSeparator.setupComponent(mainGroup.contentCanvas);
+    optSpeedSeparator.setupComponent(pcmGroup.contentCanvas);
 
-    loopCountSlider.setupComponent(mainGroup.contentCanvas, slot0 + CPK::lpCount, "CNT", tabOrder, std::nullopt);
+    loopCountSlider.setupComponent(pcmGroup.contentCanvas, slot0 + CPK::lpCount, "CNT", tabOrder, std::nullopt);
 
-    loopCountButtons.setupComponent(mainGroup.contentCanvas, loopCountSlider.getSlider(), tabOrder);
+    loopCountButtons.setupComponent(pcmGroup.contentCanvas, loopCountSlider.getSlider(), tabOrder);
 
-    optCountSeparator.setupComponent(mainGroup.contentCanvas);
+    optCountSeparator.setupComponent(pcmGroup.contentCanvas);
 
-    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::pcmOffset, .title = AdpcmPlusGuiText::Adpcm::pcmOffset, .isReset = true });
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::pcmOffset, .title = AdpcmPlusGuiText::Adpcm::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::pcmRatio, .title = AdpcmPlusGuiText::Adpcm::pcmRatio, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::pcmRatio, .title = AdpcmPlusGuiText::Adpcm::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -157,28 +158,28 @@ void GuiAdpcmPlus::setup()
     updateSamplePreview();
 
     // パンポット設定
-    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::pan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::pan, .enableChangeDetailVisible = true });
 
-    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = slot0 + CPK::pan, .title = AdpcmPlusGuiText::Adpcm::pan, .isReset = true });
+    panSlider.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::pan, .title = AdpcmPlusGuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
 
-    panToLBtn.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = AdpcmPlusGuiText::Adpcm::Pan::l, .isReset = false });
+    panToLBtn.setup(GuiTextButton::Config{ .parent = pcmGroup.contentCanvas, .id = "", .title = AdpcmPlusGuiText::Adpcm::Pan::l, .isReset = false });
     panToLBtn.setWantsKeyboardFocus(true);
     panToLBtn.setExplicitFocusOrder(++tabOrder);
     panToLBtn.onClick = [this]() {
         panSlider.setValue(0.0f, juce::sendNotification);
         };
 
-    panToCBtn.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = AdpcmPlusGuiText::Adpcm::Pan::c, .isReset = false});
+    panToCBtn.setup(GuiTextButton::Config{ .parent = pcmGroup.contentCanvas, .id = "", .title = AdpcmPlusGuiText::Adpcm::Pan::c, .isReset = false});
     panToCBtn.setWantsKeyboardFocus(true);
     panToCBtn.setExplicitFocusOrder(++tabOrder);
     panToCBtn.onClick = [this]() {
         panSlider.setValue(0.5f, juce::sendNotification);
         };
 
-    panToRBtn.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = AdpcmPlusGuiText::Adpcm::Pan::r, .isReset = false });
+    panToRBtn.setup(GuiTextButton::Config{ .parent = pcmGroup.contentCanvas, .id = "", .title = AdpcmPlusGuiText::Adpcm::Pan::r, .isReset = false });
     panToRBtn.setWantsKeyboardFocus(true);
     panToRBtn.setExplicitFocusOrder(++tabOrder);
     panToRBtn.onClick = [this]() {
@@ -209,20 +210,20 @@ void GuiAdpcmPlus::setup()
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     // 音声ファイル読み込みボタン
-    loadButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::File::load , .isReset = false });
+    loadButton.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::File::load , .isReset = false });
     loadButton.addListener(&ctx.editor);
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
 
     // ロードしているファイル名
-    fileNameLabel.setup({ .parent = mainGroup.contentCanvas, .title = Io::empty });
+    fileNameLabel.setup({ .parent = pcmGroup.contentCanvas, .title = Io::empty });
 
-    samplePreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::AudioFile);
+    samplePreview.setup(pcmGroup.contentCanvas, GuiColor::WavePreview::AudioFile);
     fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
     // 音声ファイルのアンロード
-    clearButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::File::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
+    clearButton.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::File::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
     clearButton.setWantsKeyboardFocus(true);
     clearButton.setExplicitFocusOrder(++tabOrder);
     clearButton.onClick = [this]
@@ -233,9 +234,9 @@ void GuiAdpcmPlus::setup()
             updateFileName(Io::empty);
         };
 
-    formSeparator.setupComponent(mainGroup.contentCanvas);
-    optLoopSepTop.setupComponent(mainGroup.contentCanvas);
-    optLoopSepBottom.setupComponent(mainGroup.contentCanvas);
+    formSeparator.setupComponent(pcmGroup.contentCanvas);
+    optLoopSepTop.setupComponent(pcmGroup.contentCanvas);
+    optLoopSepBottom.setupComponent(pcmGroup.contentCanvas);
 
     // ここまでで作ったつまみを、選んでいるスロットへ向け直す
     applySlotTarget();
@@ -325,11 +326,6 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
 	levelComponent.layoutComponent(mRect);
 
-    layoutFormCat(mRect);
-
-    layoutOptionalCat(mRect);
-
-    layoutPanCat(mRect);
 
     ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
@@ -373,6 +369,39 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
+
+    // ==========================================================
+    // PCM 設定グループ
+    // ==========================================================
+    auto pcmArea = pageArea.removeFromLeft(AdpcmPlusGuiValue::PcmGroup::width);
+
+    pcmArea.removeFromBottom(40);
+    pcmGroup.setBounds(pcmArea);
+
+    auto pgRect = pcmArea.reduced(AdpcmPlusGuiValue::Group::Padding::width, AdpcmPlusGuiValue::Group::Padding::height);
+
+    pgRect.removeFromTop(AdpcmPlusGuiValue::Group::TitlePaddingTop);
+
+    pcmGroup.setViewportCustomBounds(pgRect.translated(-pcmArea.getX(), -pcmArea.getY()));
+
+    juce::Rectangle<int> pRect(0, 0, pcmGroup.getContentWidth(), 2000);
+
+    // SLOT と TGT は畳めない場所へ置く。下の区分をすべて束ねるつまみなので、
+    // 隠れてしまうと選び直せなくなる。
+    layoutMain({ .mainRect = pRect, .label = &slotSlider.label, .component = &slotSlider });
+    layoutMain({ .mainRect = pRect, .label = &slotTarget.label, .component = &slotTarget });
+
+    pRect.removeFromTop(CoreGuiValue::Category::gapBelow);
+
+    layoutFormCat(pRect);
+
+    layoutOptionalCat(pRect);
+
+    layoutPanCat(pRect);
+
+    int pcmUsedHeight = 2000 - pRect.getHeight();
+
+    pcmGroup.setContentHeight(pcmUsedHeight + 20);
 }
 
 
@@ -571,8 +600,6 @@ void GuiAdpcmPlus::layoutFormCat(Rectangle<int>& rect) {
 
     bool visible = formCat.isDetailVisible();
 
-    slotSlider.setVisibleWithLabel(visible);
-    slotTarget.setVisibleWithLabel(visible);
     loadButton.setVisible(visible);
     fileNameLabel.setVisible(visible);
     samplePreview.setVisible(visible);
@@ -588,10 +615,18 @@ void GuiAdpcmPlus::layoutFormCat(Rectangle<int>& rect) {
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .label = &slotSlider.label, .component = &slotSlider });
-        layoutMain({ .mainRect = rect, .label = &slotTarget.label, .component = &slotTarget });
 
-        layoutMainPcm({ .rect = rect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
+        // 名前の枠は、読み込みと取り外しのボタンを引いた残り全部を使う。
+        // グループが本体より広いので、決め打ちの幅だと右が空いてしまう。
+        layoutMainPcm({
+            .rect = rect,
+            .loadPcmBtn = &loadButton,
+            .pcmFileNameLabel = &fileNameLabel,
+            .clearPcmBtn = &clearButton,
+            .pcmFileNameLabelWidth = rect.getWidth()
+                - CoreGuiValue::MainGroup::Row::Pcm::LoadBtn::width
+                - CoreGuiValue::MainGroup::Row::Pcm::ClearBtn::width,
+        });
 
         samplePreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
         rect.removeFromTop(3);

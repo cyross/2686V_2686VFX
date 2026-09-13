@@ -42,6 +42,10 @@ class GuiAdpcmPlus : public GuiBase
     // --- ADPCM Page ---
     GuiScrollGroup mainGroup;
 
+    // FORM・OPTIONAL・PAN をまとめる専用グループ。
+    // どれも PCM 1 本ごとの設定なので、チャンネル全体の設定とは分ける。
+    GuiScrollGroup pcmGroup;
+
     GuiComponentPresetName presetName;
 
     GuiCategoryLabel formCat;
@@ -178,6 +182,7 @@ public:
     GuiAdpcmPlus(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        pcmGroup(context),
         presetName(context),
         formCat(context),
 		qualityPcmComponent(context),
