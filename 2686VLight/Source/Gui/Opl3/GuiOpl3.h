@@ -129,7 +129,6 @@ class GuiOpl3 : public GuiBase
 
     // 区分ごとの枠。基本は 1 列 1 区分。
     GuiScrollGroup colAmp;
-    GuiScrollGroup colEg;
     GuiScrollGroup colSsgHwEnv;
     GuiScrollGroup colSsgSwEnv;
     GuiScrollGroup colSsgSwEnv11;
@@ -139,7 +138,6 @@ class GuiOpl3 : public GuiBase
     GuiScrollGroup colSsgSwPEnv11;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
-    GuiScrollGroup colLfo;
     GuiScrollGroup colMask;
     GuiCategoryLabel catDet;
     GuiCategoryLabel catAmp;
@@ -316,7 +314,6 @@ public:
         opNameLabel(context),
         opTargetSeparator(context),
         colAmp(context),
-        colEg(context),
         colSsgHwEnv(context),
         colSsgSwEnv(context),
         colSsgSwEnv11(context),
@@ -326,7 +323,6 @@ public:
         colSsgSwPEnv11(context),
         colMod(context),
         colKs(context),
-        colLfo(context),
         colMask(context),
         catLfo(context),
         catDet(context),

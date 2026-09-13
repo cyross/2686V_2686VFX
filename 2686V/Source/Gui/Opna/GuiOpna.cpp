@@ -1280,7 +1280,13 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
 
         row.removeFromLeft(OpnaGuiValue::Fm::Op::Col::gap);
 
-        // TARGET のすぐ右が、どのエンベロープを映すかの切り替え。
+        // TARGET のすぐ右が、いま指しているものの名前。
+        opNameLabel.setBounds(row.removeFromLeft(OpnaGuiValue::Fm::Op::Col::nameWidth).withHeight(18));
+
+        // 名前と切り替えの間だけを空ける。
+        row.removeFromLeft(OpnaGuiValue::Fm::Op::Col::nameGap);
+
+        // その右が、どのエンベロープを映すかの切り替え。
         {
             const int w = OpnaGuiValue::ParamGroup::Graph::ModeButtonWidth;
 
@@ -1292,10 +1298,6 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
             graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP11.setBounds(btnRow);
         }
-
-        row.removeFromLeft(OpnaGuiValue::Fm::Op::Col::gap);
-
-        opNameLabel.setBounds(row.removeFromLeft(OpnaGuiValue::Fm::Op::Col::width).withHeight(18));
     }
 
     opTargetSeparator.layoutComponent(area);

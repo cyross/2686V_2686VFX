@@ -2086,7 +2086,13 @@ void GuiOpzx7::layoutOpPanel(juce::Rectangle<int> area)
 
         row.removeFromLeft(Opzx7GuiValue::Fm::Op::Col::gap);
 
-        // TARGET のすぐ右が、どのエンベロープを映すかの切り替え。
+        // TARGET のすぐ右が、いま指しているものの名前。
+        opNameLabel.setBounds(row.removeFromLeft(Opzx7GuiValue::Fm::Op::Col::nameWidth).withHeight(18));
+
+        // 名前と切り替えの間だけを空ける。
+        row.removeFromLeft(Opzx7GuiValue::Fm::Op::Col::nameGap);
+
+        // その右が、どのエンベロープを映すかの切り替え。
         {
             const int w = Opzx7GuiValue::ParamGroup::Graph::ModeButtonWidth;
 
@@ -2098,10 +2104,6 @@ void GuiOpzx7::layoutOpPanel(juce::Rectangle<int> area)
             graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP11.setBounds(btnRow);
         }
-
-        row.removeFromLeft(Opzx7GuiValue::Fm::Op::Col::gap);
-
-        opNameLabel.setBounds(row.removeFromLeft(Opzx7GuiValue::Fm::Op::Col::width).withHeight(18));
     }
 
     opTargetSeparator.layoutComponent(area);

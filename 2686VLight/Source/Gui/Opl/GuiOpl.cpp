@@ -320,8 +320,7 @@ void GuiOpl::setup()
 
     addAndMakeVisible(stripViewport);
 
-    colAmp.setup(stripCanvas, juce::String("") + "AMP ENV / OPTIONAL");
-    colEg.setup(stripCanvas, juce::String("") + "EG");
+    colAmp.setup(stripCanvas, juce::String("") + "AMP ENV / OPTIONAL / EG");
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
     colSsgSwEnv.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV");
     colSsgSwEnv11.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[11]");
@@ -330,8 +329,7 @@ void GuiOpl::setup()
     colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
     colSsgSwPEnv11.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
-    colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL");
-    colLfo.setup(stripCanvas, juce::String("") + "LFO");
+    colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL / LFO");
     colMask.setup(stripCanvas, juce::String("") + "MASK / MML");
 
     // 今どのオペレータを触っているか。名前は rebind で入れ替える。
@@ -438,81 +436,81 @@ void GuiOpl::setup()
     ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
-    catShape.setupHwCategory({ .parent = colEg.contentCanvas, .title = OplGuiText::Category::eg, .enableChangeDetailVisible = true });
+    catShape.setupHwCategory({ .parent = colAmp.contentCanvas, .title = OplGuiText::Category::eg, .enableChangeDetailVisible = true });
 
-    eg.setup(GuiComboBox::Config{ .parent = colEg.contentCanvas, .id = paramPrefix + CPK::Fm::eg, .title = OplGuiText::Fm::Op::Eg, .items = oplEgItems, .isReset = true });
+    eg.setup(GuiComboBox::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::eg, .title = OplGuiText::Fm::Op::Eg, .items = oplEgItems, .isReset = true });
     eg.setWantsKeyboardFocus(true);
     eg.setExplicitFocusOrder(++tabOrder);
 
-    catLfo.setupHwCategory({ .parent = colLfo.contentCanvas, .title = OplGuiText::Category::lfo, .enableChangeDetailVisible = true });
+    catLfo.setupHwCategory({ .parent = colKs.contentCanvas, .title = OplGuiText::Category::lfo, .enableChangeDetailVisible = true });
 
-    am.setup(GuiToggleButton::Config{ .parent = colLfo.contentCanvas, .id = paramPrefix + CPK::Fm::am, .title = OplGuiText::Fm::Op::Am, .isReset = true });
+    am.setup(GuiToggleButton::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::am, .title = OplGuiText::Fm::Op::Am, .isReset = true });
     am.setWantsKeyboardFocus(true);
     am.setExplicitFocusOrder(++tabOrder);
 
-    ams.setupComponent(colLfo.contentCanvas, paramPrefix + CPK::Fm::ams, OplGuiText::Fm::Op::Ams, tabOrder, std::nullopt);
+    ams.setupComponent(colKs.contentCanvas, paramPrefix + CPK::Fm::ams, OplGuiText::Fm::Op::Ams, tabOrder, std::nullopt);
 
-    amsTo37.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->3.7Hz", .isReset = false, .isResized = false });
+    amsTo37.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->3.7Hz", .isReset = false, .isResized = false });
     amsTo37.setWantsKeyboardFocus(true);
     amsTo37.setExplicitFocusOrder(++tabOrder);
     amsTo37.onClick = [this] { ams.setValue(3.7, juce::sendNotification); };
 
-    amsTo606.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->6.06Hz", .isReset = false, .isResized = false });
+    amsTo606.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->6.06Hz", .isReset = false, .isResized = false });
     amsTo606.setWantsKeyboardFocus(true);
     amsTo606.setExplicitFocusOrder(++tabOrder);
     amsTo606.onClick = [this] { ams.setValue(6.06, juce::sendNotification); };
 
-    amd.setupComponent(colLfo.contentCanvas, paramPrefix + CPK::Fm::amd, OplGuiText::Fm::Op::Amd, tabOrder, std::nullopt);
+    amd.setupComponent(colKs.contentCanvas, paramPrefix + CPK::Fm::amd, OplGuiText::Fm::Op::Amd, tabOrder, std::nullopt);
 
-    amdTo1.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->1dB", .isReset = false, .isResized = false });
+    amdTo1.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->1dB", .isReset = false, .isResized = false });
     amdTo1.setWantsKeyboardFocus(true);
     amdTo1.setExplicitFocusOrder(++tabOrder);
     amdTo1.onClick = [this] { amd.setValue(1.0, juce::sendNotification); };
 
-    amdTo12.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->1.2dB", .isReset = false, .isResized = false });
+    amdTo12.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->1.2dB", .isReset = false, .isResized = false });
     amdTo12.setWantsKeyboardFocus(true);
     amdTo12.setExplicitFocusOrder(++tabOrder);
     amdTo12.onClick = [this] { amd.setValue(1.2, juce::sendNotification); };
 
-    amdTo48.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->4.8dB", .isReset = false, .isResized = false });
+    amdTo48.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->4.8dB", .isReset = false, .isResized = false });
     amdTo48.setWantsKeyboardFocus(true);
     amdTo48.setExplicitFocusOrder(++tabOrder);
     amdTo48.onClick = [this] { amd.setValue(4.8, juce::sendNotification); };
 
-    vib.setup(GuiToggleButton::Config{ .parent = colLfo.contentCanvas, .id = paramPrefix + CPK::Fm::vib, .title = OplGuiText::Fm::Op::Vib, .isReset = true });
+    vib.setup(GuiToggleButton::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::vib, .title = OplGuiText::Fm::Op::Vib, .isReset = true });
     vib.setWantsKeyboardFocus(true);
     vib.setExplicitFocusOrder(++tabOrder);
 
-    pms.setupComponent(colLfo.contentCanvas, paramPrefix + CPK::Fm::pms, OplGuiText::Fm::Op::Pms, tabOrder, std::nullopt);
+    pms.setupComponent(colKs.contentCanvas, paramPrefix + CPK::Fm::pms, OplGuiText::Fm::Op::Pms, tabOrder, std::nullopt);
 
-    pmsTo606.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->6.06Hz", .isReset = false, .isResized = false });
+    pmsTo606.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->6.06Hz", .isReset = false, .isResized = false });
     pmsTo606.setWantsKeyboardFocus(true);
     pmsTo606.setExplicitFocusOrder(++tabOrder);
     pmsTo606.onClick = [this] { pms.setValue(6.06, juce::sendNotification); };
 
-    pmsTo64.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->6.4Hz", .isReset = false, .isResized = false });
+    pmsTo64.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->6.4Hz", .isReset = false, .isResized = false });
     pmsTo64.setWantsKeyboardFocus(true);
     pmsTo64.setExplicitFocusOrder(++tabOrder);
     pmsTo64.onClick = [this] { pms.setValue(6.4, juce::sendNotification); };
 
-    pmd.setupComponent(colLfo.contentCanvas, paramPrefix + CPK::Fm::pmd, OplGuiText::Fm::Op::Pmd, tabOrder, std::nullopt);
+    pmd.setupComponent(colKs.contentCanvas, paramPrefix + CPK::Fm::pmd, OplGuiText::Fm::Op::Pmd, tabOrder, std::nullopt);
 
-    pmdTo7.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->7cent", .isReset = false, .isResized = false});
+    pmdTo7.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->7cent", .isReset = false, .isResized = false});
     pmdTo7.setWantsKeyboardFocus(true);
     pmdTo7.setExplicitFocusOrder(++tabOrder);
     pmdTo7.onClick = [this] { pmd.setValue(7.0, juce::sendNotification); };
 
-    pmdTo137.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->13.7cent", .isReset = false, .isResized = false });
+    pmdTo137.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->13.7cent", .isReset = false, .isResized = false });
     pmdTo137.setWantsKeyboardFocus(true);
     pmdTo137.setExplicitFocusOrder(++tabOrder);
     pmdTo137.onClick = [this] { pmd.setValue(13.7, juce::sendNotification); };
 
-    pmdTo14.setup(GuiTextButton::Config{ .parent = colLfo.contentCanvas, .title = "->14cent", .isReset = false, .isResized = false });
+    pmdTo14.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .title = "->14cent", .isReset = false, .isResized = false });
     pmdTo14.setWantsKeyboardFocus(true);
     pmdTo14.setExplicitFocusOrder(++tabOrder);
     pmdTo14.onClick = [this] { pmd.setValue(14.0, juce::sendNotification); };
 
-		lfoSep.setupComponent(colLfo.contentCanvas);
+		lfoSep.setupComponent(colKs.contentCanvas);
 
     catMask.setupHwCategory({ .parent = colMask.contentCanvas, .title = OplGuiText::Category::mask, .enableChangeDetailVisible = true });
 
@@ -539,9 +537,9 @@ void GuiOpl::setup()
     // 区分の中身は最初から開いておく。1 列 1 区分にしたので、
     // 畳んだままだと見出しだけの列が並ぶことになる。
     for (auto* group : {
-        &colAmp, &colEg, &colSsgHwEnv, &colSsgSwEnv,
+        &colAmp, &colSsgHwEnv, &colSsgSwEnv,
         &colSsgSwEnv11, &colAmpMod, &colPitchEnv, &colSsgHwPEnv,
-        &colSsgSwPEnv11, &colMod, &colKs, &colLfo,
+        &colSsgSwPEnv11, &colMod, &colKs,
         &colMask,
         })
     {
@@ -1105,7 +1103,13 @@ void GuiOpl::layoutOpPanel(juce::Rectangle<int> area)
 
         row.removeFromLeft(OplGuiValue::Fm::Op::Col::gap);
 
-        // TARGET のすぐ右が、どのエンベロープを映すかの切り替え。
+        // TARGET のすぐ右が、いま指しているものの名前。
+        opNameLabel.setBounds(row.removeFromLeft(OplGuiValue::Fm::Op::Col::nameWidth).withHeight(18));
+
+        // 名前と切り替えの間だけを空ける。
+        row.removeFromLeft(OplGuiValue::Fm::Op::Col::nameGap);
+
+        // その右が、どのエンベロープを映すかの切り替え。
         {
             const int w = OplGuiValue::ParamGroup::Graph::ModeButtonWidth;
 
@@ -1117,10 +1121,6 @@ void GuiOpl::layoutOpPanel(juce::Rectangle<int> area)
             graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP11.setBounds(btnRow);
         }
-
-        row.removeFromLeft(OplGuiValue::Fm::Op::Col::gap);
-
-        opNameLabel.setBounds(row.removeFromLeft(OplGuiValue::Fm::Op::Col::width).withHeight(18));
     }
 
     opTargetSeparator.layoutComponent(area);
@@ -1173,9 +1173,9 @@ void GuiOpl::layoutOpPanel(juce::Rectangle<int> area)
         updateRgDisplayAsOp(true);
         layoutOpAmpCat(rect);
         layoutOpOptionalCat(rect);
-        });
 
-    layoutCol(colEg, true, [&](juce::Rectangle<int>& rect) { layoutOpEgCat(rect); });
+        layoutOpEgCat(rect);
+        });
 
     layoutCol(colSsgHwEnv, shown(SimpleView::SsgHwAmpEnv), [&](juce::Rectangle<int>& rect) {
         ssgHwEnvOp.setCategoryVisible(true);
@@ -1221,9 +1221,9 @@ void GuiOpl::layoutOpPanel(juce::Rectangle<int> area)
     layoutCol(colKs, true, [&](juce::Rectangle<int>& rect) {
         layoutOpKsCat(rect);
         layoutOpDetCat(rect);
-        });
 
-    layoutCol(colLfo, true, [&](juce::Rectangle<int>& rect) { layoutOpLfoCat(rect); });
+        layoutOpLfoCat(rect);
+        });
 
     // MASK と MML の札も 1 列へまとめてある。
     layoutCol(colMask, true, [&](juce::Rectangle<int>& rect) {

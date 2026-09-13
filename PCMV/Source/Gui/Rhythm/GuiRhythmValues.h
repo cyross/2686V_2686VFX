@@ -95,6 +95,10 @@ namespace RhythmGuiValue
 		{
 			static inline constexpr int width = 280;
 			static inline constexpr int gap = 10;
+
+			// TARGET の右へ出す「オペレーター1」などの名前と、その右の余白
+			static inline constexpr int nameWidth = 96;
+			static inline constexpr int nameGap = 8;
 		}
 		static constexpr int height = 460;
 	}

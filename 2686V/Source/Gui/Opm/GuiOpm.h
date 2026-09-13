@@ -164,7 +164,6 @@ class GuiOpm : public GuiBase
     GuiScrollGroup colSsgSwPEnv11;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
-    GuiScrollGroup colHwLfo;
     GuiScrollGroup colMask;
 
     // Operator Sliders
@@ -384,7 +383,6 @@ public:
         colSsgSwPEnv11(context),
         colMod(context),
         colKs(context),
-        colHwLfo(context),
         colMask(context),
         catDet(context),
         catAmp(context),

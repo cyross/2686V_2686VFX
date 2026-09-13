@@ -446,8 +446,7 @@ void GuiOpm::setup()
     colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
     colSsgSwPEnv11.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
-    colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL/DET / FIX");
-    colHwLfo.setup(stripCanvas, juce::String("") + "HW LFO");
+    colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL/DET / FIX / HW LFO");
     colMask.setup(stripCanvas, juce::String("") + "MASK / MML");
 
     // 今どのオペレータを触っているか。名前は rebind で入れ替える。
@@ -718,9 +717,9 @@ void GuiOpm::setup()
     ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
-    cafLfo.setupHwCategory({ .parent = colHwLfo.contentCanvas, .title = OpmGuiText::Category::hwLfo, .enableChangeDetailVisible = true });
+    cafLfo.setupHwCategory({ .parent = colKs.contentCanvas, .title = OpmGuiText::Category::hwLfo, .enableChangeDetailVisible = true });
 
-    amsEnable.setup(GuiToggleButton::Config{ .parent = colHwLfo.contentCanvas, .id = paramPrefix + CPK::OpmLfo::amsEn, .title = OpmGuiText::Fm::Op::AmsEn, .isReset = true });
+    amsEnable.setup(GuiToggleButton::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::OpmLfo::amsEn, .title = OpmGuiText::Fm::Op::AmsEn, .isReset = true });
     amsEnable.setWantsKeyboardFocus(true);
     amsEnable.setExplicitFocusOrder(++tabOrder);
 
@@ -753,7 +752,7 @@ void GuiOpm::setup()
     for (auto* group : {
         &colAmp, &colSsgHwEnv, &colSsgSwEnv, &colSsgSwEnv11,
         &colAmpMod, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv11,
-        &colMod, &colKs, &colHwLfo, &colMask,
+        &colMod, &colKs, &colMask,
         })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -1295,7 +1294,13 @@ void GuiOpm::layoutOpPanel(juce::Rectangle<int> area)
 
         row.removeFromLeft(OpmGuiValue::Fm::Op::Col::gap);
 
-        // TARGET のすぐ右が、どのエンベロープを映すかの切り替え。
+        // TARGET のすぐ右が、いま指しているものの名前。
+        opNameLabel.setBounds(row.removeFromLeft(OpmGuiValue::Fm::Op::Col::nameWidth).withHeight(18));
+
+        // 名前と切り替えの間だけを空ける。
+        row.removeFromLeft(OpmGuiValue::Fm::Op::Col::nameGap);
+
+        // その右が、どのエンベロープを映すかの切り替え。
         {
             const int w = OpmGuiValue::ParamGroup::Graph::ModeButtonWidth;
 
@@ -1307,10 +1312,6 @@ void GuiOpm::layoutOpPanel(juce::Rectangle<int> area)
             graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP11.setBounds(btnRow);
         }
-
-        row.removeFromLeft(OpmGuiValue::Fm::Op::Col::gap);
-
-        opNameLabel.setBounds(row.removeFromLeft(OpmGuiValue::Fm::Op::Col::width).withHeight(18));
     }
 
     opTargetSeparator.layoutComponent(area);
@@ -1412,10 +1413,9 @@ void GuiOpm::layoutOpPanel(juce::Rectangle<int> area)
 
         fix.setCategoryVisible(shown(SimpleView::Fix));
         fix.layoutComponent(rect);
-        });
 
-    // OPM に N88 の LFO は無いので、この列は音源側のぶんだけ。
-    layoutCol(colHwLfo, true, [&](juce::Rectangle<int>& rect) { layoutOpHwLfoCat(rect); });
+        layoutOpHwLfoCat(rect);
+        });
 
     // MASK と MML の札も 1 列へまとめてある。
     layoutCol(colMask, true, [&](juce::Rectangle<int>& rect) {

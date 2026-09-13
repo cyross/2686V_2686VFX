@@ -385,8 +385,7 @@ void GuiOpn::setup()
     colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
     colSsgSwPEnv11.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
-    colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL/DET / FIX");
-    colN88Lfo.setup(stripCanvas, juce::String("") + "N88 LFO");
+    colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL/DET / FIX / N88 LFO");
     colMask.setup(stripCanvas, juce::String("") + "MASK / MML");
 
     // 今どのオペレータを触っているか。名前は rebind で入れ替える。
@@ -491,9 +490,9 @@ void GuiOpn::setup()
     ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
-    catN88Lfo.setupSwLfoCategory({ .parent = colN88Lfo.contentCanvas, .title = OpnGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
+    catN88Lfo.setupSwLfoCategory({ .parent = colKs.contentCanvas, .title = OpnGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
 
-    n88Ams.setup(GuiSlider::Config{ .parent = colN88Lfo.contentCanvas, .id = paramPrefix + CPK::N88Lfo::ams, .title = OpnGuiText::Fm::Op::Ams, .isReset = true });
+    n88Ams.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::N88Lfo::ams, .title = OpnGuiText::Fm::Op::Ams, .isReset = true });
     n88Ams.setWantsKeyboardFocus(true);
     n88Ams.setExplicitFocusOrder(++tabOrder);
 
@@ -526,7 +525,7 @@ void GuiOpn::setup()
     for (auto* group : {
         &colAmp, &colSsgHwEnv, &colSsgSwEnv, &colSsgSwEnv11,
         &colAmpMod, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv11,
-        &colMod, &colKs, &colN88Lfo, &colMask,
+        &colMod, &colKs, &colMask,
         })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -1054,7 +1053,13 @@ void GuiOpn::layoutOpPanel(juce::Rectangle<int> area)
 
         row.removeFromLeft(OpnGuiValue::Fm::Op::Col::gap);
 
-        // TARGET のすぐ右が、どのエンベロープを映すかの切り替え。
+        // TARGET のすぐ右が、いま指しているものの名前。
+        opNameLabel.setBounds(row.removeFromLeft(OpnGuiValue::Fm::Op::Col::nameWidth).withHeight(18));
+
+        // 名前と切り替えの間だけを空ける。
+        row.removeFromLeft(OpnGuiValue::Fm::Op::Col::nameGap);
+
+        // その右が、どのエンベロープを映すかの切り替え。
         {
             const int w = OpnGuiValue::ParamGroup::Graph::ModeButtonWidth;
 
@@ -1066,10 +1071,6 @@ void GuiOpn::layoutOpPanel(juce::Rectangle<int> area)
             graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP11.setBounds(btnRow);
         }
-
-        row.removeFromLeft(OpnGuiValue::Fm::Op::Col::gap);
-
-        opNameLabel.setBounds(row.removeFromLeft(OpnGuiValue::Fm::Op::Col::width).withHeight(18));
     }
 
     opTargetSeparator.layoutComponent(area);
@@ -1171,10 +1172,9 @@ void GuiOpn::layoutOpPanel(juce::Rectangle<int> area)
 
         fix.setCategoryVisible(shown(SimpleView::Fix));
         fix.layoutComponent(rect);
-        });
 
-    // OPN には音源側の LFO が無いので、この列は N88 のぶんだけ。
-    layoutCol(colN88Lfo, true, [&](juce::Rectangle<int>& rect) { layoutOpN88LfoCat(rect); });
+        layoutOpN88LfoCat(rect);
+        });
 
     // MASK と MML の札も 1 列へまとめてある。
     layoutCol(colMask, true, [&](juce::Rectangle<int>& rect) {

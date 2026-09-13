@@ -161,7 +161,6 @@ class GuiOpn : public GuiBase
     GuiScrollGroup colSsgSwPEnv11;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
-    GuiScrollGroup colN88Lfo;
     GuiScrollGroup colMask;
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnv;
@@ -337,7 +336,6 @@ public:
         colSsgSwPEnv11(context),
         colMod(context),
         colKs(context),
-        colN88Lfo(context),
         colMask(context),
         catDet(context),
         catAmp(context),

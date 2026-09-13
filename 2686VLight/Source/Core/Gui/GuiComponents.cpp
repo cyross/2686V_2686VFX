@@ -210,82 +210,7 @@ void GuiLabel::paint(juce::Graphics& g)
         g.fillRoundedRectangle(getLocalBounds().toFloat(), guiCornerRadius);
     }
 
-    if (evenSpacing && getText().isNotEmpty())
-    {
-        paintEvenly(g);
-
-        return;
-    }
-
     juce::Label::paint(g);
-}
-
-// 文字を幅いっぱいへ均等に割り付けて描く。
-//
-// juce::Label の drawFittedText は、入り切らないときへ向けて横へ潰す
-// ことしかしない。潰れた文字は読みづらいので、こちらは字の大きさを
-// 落として入れる。入り切ったあとの余りは、文字と文字の間へ等分する。
-void GuiLabel::paintEvenly(juce::Graphics& g)
-{
-    const juce::String text = getText();
-    const int count = text.length();
-
-    if (count <= 0) return;
-
-    const auto area = getLocalBounds().reduced(evenSpacingInset, 0);
-    const float usable = (float)area.getWidth();
-
-    if (usable <= 0.0f) return;
-
-    juce::Font font = getFont();
-
-    // 高さからもはみ出さないようにする。行は 14〜15px しかない。
-    if (font.getHeight() > (float)area.getHeight())
-    {
-        font = font.withHeight((float)area.getHeight());
-    }
-
-    float total = juce::GlyphArrangement::getStringWidth(font, text);
-
-    // 入り切らないときは字を小さくする。潰すより読める。
-    if (total > usable && total > 0.0f)
-    {
-        font = font.withHeight(font.getHeight() * (usable / total));
-        total = juce::GlyphArrangement::getStringWidth(font, text);
-    }
-
-    g.setFont(font);
-
-    auto colour = findColour(juce::Label::textColourId);
-
-    g.setColour(isEnabled() ? colour : colour.withMultipliedAlpha(0.5f));
-
-    // 1 文字だけなら割り付けようがない
-    if (count == 1)
-    {
-        g.drawText(text, area, juce::Justification::centred, false);
-
-        return;
-    }
-
-    const float gap = juce::jlimit(0.0f, evenSpacingMaxGap,
-        (usable - total) / (float)(count - 1));
-
-    // 上限に当たって余ったぶんは、まとめて真ん中へ寄せる
-    const float run = total + gap * (float)(count - 1);
-    const int baseline = area.getCentreY()
-        + (int)std::lround((font.getAscent() - font.getDescent()) * 0.5f);
-
-    float x = area.getX() + juce::jmax(0.0f, (usable - run) * 0.5f);
-
-    for (int i = 0; i < count; ++i)
-    {
-        const juce::String ch = text.substring(i, i + 1);
-
-        g.drawSingleLineText(ch, (int)std::lround(x), baseline);
-
-        x += juce::GlyphArrangement::getStringWidth(font, ch) + gap;
-    }
 }
 
 // 数値欄の幅を、実際に出る文字に合わせる。
@@ -332,7 +257,6 @@ void GuiSlider::resized()
 void GuiSlider::setup(const Config& c)
 {
     label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor, .bgColor = GuiColor::Label::RowBg });
-    label.setEvenSpacing(true);
 
     c.parent.addAndMakeVisible(*this);
     this->setSliderStyle(juce::Slider::LinearHorizontal);
@@ -375,7 +299,6 @@ void GuiSlider::setup(const Config& c)
 void GuiComboBox::setup(const Config& c)
 {
     label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor, .bgColor = GuiColor::Label::RowBg });
-    label.setEvenSpacing(true);
 
     c.parent.addAndMakeVisible(*this);
 

@@ -375,7 +375,13 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
         row.removeFromLeft(RhythmGuiValue::Pad::Col::gap);
 
-        // TARGET のすぐ右が、どのエンベロープを映すかの切り替え。
+        // TARGET のすぐ右が、いま指しているものの名前。
+        padNameLabel.setBounds(row.removeFromLeft(RhythmGuiValue::Pad::Col::nameWidth).withHeight(18));
+
+        // 名前と切り替えの間だけを空ける。
+        row.removeFromLeft(RhythmGuiValue::Pad::Col::nameGap);
+
+        // その右が、どのエンベロープを映すかの切り替え。
         {
             const int w = RhythmGuiValue::Pad::Graph::ModeButtonWidth;
 
@@ -387,10 +393,6 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
             graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP11.setBounds(btnRow);
         }
-
-        row.removeFromLeft(RhythmGuiValue::Pad::Col::gap);
-
-        padNameLabel.setBounds(row.removeFromLeft(RhythmGuiValue::Pad::Col::width).withHeight(18));
     }
 
     padTargetSeparator.layoutComponent(area);
