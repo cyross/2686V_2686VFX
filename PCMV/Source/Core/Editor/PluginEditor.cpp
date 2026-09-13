@@ -1600,7 +1600,11 @@ void AudioPlugin2686VEditor::updateAdpcmPlusFileNames(const juce::String filenam
         return;
     }
 
-    // 出すのは画面へ出ているスロットの名前だけ。
+    // 並べた波形は 32 個ぶんまとめて作り直す。プリセットを読んだ直後は
+    // どのスロットも中身が入れ替わっているため。
+    adpcmPlusGui->updateAllSlotPreviews();
+
+    // 名前を出すのは画面へ出ているスロットだけ。
     // 残りはスロットを選び直したときに出る。
     adpcmPlusGui->updateSlotFileName(adpcmPlusGui->targetSlot());
 }

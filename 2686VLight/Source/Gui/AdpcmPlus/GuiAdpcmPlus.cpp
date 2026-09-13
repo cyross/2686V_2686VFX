@@ -61,6 +61,7 @@ void GuiAdpcmPlus::setup()
     slotSlider.setup({ .parent = pcmGroup.contentCanvas, .id = code + CPK::AdpcmPlus::slot, .title = AdpcmPlusGuiText::Adpcm::slot, .isReset = true });
     slotSlider.setWantsKeyboardFocus(true);
     slotSlider.setExplicitFocusOrder(++tabOrder);
+    slotSlider.onValueChange = [this] { slotPreviews.setActive((int)slotSlider.getValue()); };
 
     // いま画面へ出す PCM。値の置き場所を切り替えるだけで、音には効かない。
     slotTarget.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Adpcm::target, .isReset = false });
@@ -219,6 +220,10 @@ void GuiAdpcmPlus::setup()
     fileNameLabel.setup({ .parent = pcmGroup.contentCanvas, .title = Io::empty });
 
     samplePreview.setup(pcmGroup.contentCanvas, GuiColor::WavePreview::AudioFile);
+
+    // 32 個あるので 1 行 3 個では縦に伸びすぎる。8 個ずつ 4 行に収める。
+    slotPreviews.setup(pcmGroup.contentCanvas, GuiColor::WavePreview::AudioFile,
+        Global::AdpcmPlus::slots, 8);
     fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
@@ -231,15 +236,20 @@ void GuiAdpcmPlus::setup()
             // 外すのは、いま画面へ出しているスロットの 1 本だけ
             ctx.audioProcessor.unloadAdpcmPlusFile(targetSlot());
 
-            updateFileName(Io::empty);
+            // 素材が外れたので、名前も並べた波形もそこから作り直す
+            updateSlotFileName(targetSlot());
         };
 
     formSeparator.setupComponent(pcmGroup.contentCanvas);
     optLoopSepTop.setupComponent(pcmGroup.contentCanvas);
     optLoopSepBottom.setupComponent(pcmGroup.contentCanvas);
 
+    updateAllSlotPreviews();
+
     // ここまでで作ったつまみを、選んでいるスロットへ向け直す
     applySlotTarget();
+
+    slotPreviews.setActive((int)slotSlider.getValue());
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
@@ -428,15 +438,48 @@ void GuiAdpcmPlus::rebindSlot()
     panSlider.rebind(prefix + CPK::pan);
 }
 
+
+// 並べた波形の 1 つぶん。切り出す前の素材をそのまま映す。
+// 切り出した範囲とループ位置は、上の大きなプレビューが受け持つ。
+void GuiAdpcmPlus::updateSlotPreview(int slot)
+{
+    if (slot < 0 || slot >= Global::AdpcmPlus::slots) return;
+
+    const auto& data = ctx.audioProcessor.adpcmPlusPreviewBuffers[(size_t)slot];
+
+    if (data.empty()) {
+        slotPreviews.setEnvelope(slot, {}, {});
+
+        return;
+    }
+
+    auto env = WavePreviewSource::audioFile(
+        data,
+        ctx.audioProcessor.adpcmPlusPreviewRates[(size_t)slot],
+        0.0f,
+        1.0f);
+
+    slotPreviews.setEnvelope(slot, env.mins, env.maxs);
+}
+
+void GuiAdpcmPlus::updateAllSlotPreviews()
+{
+    for (int i = 0; i < Global::AdpcmPlus::slots; ++i) updateSlotPreview(i);
+}
 void GuiAdpcmPlus::applySlotTarget()
 {
     rebindSlot();
     updateSlotFileName(targetSlot());
+
+    slotPreviews.setSelected(targetSlot());
 }
 
 // 読み込んだ PCM の名前を出す。出すのは画面に出ているスロットだけ。
 void GuiAdpcmPlus::updateSlotFileName(int slot)
 {
+    // 並べた波形は、選んでいないスロットのぶんも映す
+    updateSlotPreview(slot);
+
     if (slot != targetSlot()) return;
 
     const juce::String path = ctx.audioProcessor.adpcmPlusFilePaths[(size_t)slot];
@@ -527,6 +570,7 @@ void GuiAdpcmPlus::initParams()
     // 中で 32 スロットぶんの PCM も外れる
     this->ctx.audioProcessor.initParams("ADPCMP_");
 
+    updateAllSlotPreviews();
     applySlotTarget();
 }
 
@@ -603,6 +647,7 @@ void GuiAdpcmPlus::layoutFormCat(Rectangle<int>& rect) {
     loadButton.setVisible(visible);
     fileNameLabel.setVisible(visible);
     samplePreview.setVisible(visible);
+    slotPreviews.setVisible(visible);
     clearButton.setVisible(visible);
     formSeparator.setVisible(visible);
     toneSlider.setVisibleWithLabel(visible);
@@ -629,6 +674,9 @@ void GuiAdpcmPlus::layoutFormCat(Rectangle<int>& rect) {
         });
 
         samplePreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
+        rect.removeFromTop(3);
+
+        slotPreviews.setBounds(rect.removeFromTop(slotPreviews.getNaturalHeight()));
         rect.removeFromTop(3);
 
         formSeparator.layoutComponent(rect);
@@ -1153,8 +1201,11 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
             (float)r.getInt("loopCount", (int)getParamValue(slotPrefix + CPK::lpCount)));
     }
 
-    // 名前と波形プレビューを、選んでいるスロットへそろえ直す
+    // 名前と波形プレビューを、読み込んだものへそろえ直す
+    updateAllSlotPreviews();
     applySlotTarget();
+
+    slotPreviews.setActive((int)slotSlider.getValue());
 
     // Components
     fixComponent.readParams(*reader, "fix");

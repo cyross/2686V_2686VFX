@@ -23,8 +23,8 @@ namespace AdpcmPlusGuiValue
 
 	namespace PcmGroup
 	{
-		// 読み込んだ音を横に広く見せたいので、本体より少し広く取る
-		static inline constexpr int width = 320;
+		// 32 個ぶんの波形を並べるので、WT+ の波形メモリと同じ幅を取る
+		static inline constexpr int width = 600;
 	}
 
 	namespace MainGroup

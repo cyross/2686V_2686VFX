@@ -33,6 +33,7 @@
 #include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
+#include "../../Gui/Components/WavePreview/WavePreviewGrid.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -73,6 +74,10 @@ class GuiAdpcmPlus : public GuiBase
     // 読み込んだサンプルを見せるプレビュー。
     // P.OF / P.RT で切り出した範囲を描き、ループ位置を縦線で出す。
     GuiWavePreview samplePreview;
+
+    // スロット 32 個ぶんを並べたもの。どこに何が入っているかを一目で見せる。
+    // 切り出す前の素材そのものを映すので、上の 1 枚とは役目が違う。
+    GuiWavePreviewGrid slotPreviews;
 
     // 再生速度。OPTIONAL の一番上に置く。
     GuiSlider speedSlider;
@@ -196,6 +201,7 @@ public:
         optLoopSepBottom(context),
         optionalCat(context),
         samplePreview(context),
+        slotPreviews(context),
         speedSlider(context),
         optSpeedSeparator(context),
         loopCountSlider(context),
@@ -280,6 +286,10 @@ public:
     void applySlotTarget();
     void rebindSlot();
     void updateSlotFileName(int slot);
+    void updateSlotPreview(int slot);
+
+    // 32 個ぶんを作り直す。読み込み直しやプリセットの読み込みのあとに呼ぶ。
+    void updateAllSlotPreviews();
     void updateSamplePreview();
     bool isThis(juce::Button* button);
     bool isBtnPanL(juce::Button* button);
