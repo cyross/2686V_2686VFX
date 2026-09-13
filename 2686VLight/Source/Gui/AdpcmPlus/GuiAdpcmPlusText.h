@@ -55,25 +55,25 @@ namespace AdpcmPlusGuiText
 
 	namespace Adpcm
 	{
-		static inline const juce::String level = u8"LV";
+		static inline const juce::String level = u8"LEVEL";
 		static inline const juce::String slot = u8"SLOT";
-		static inline const juce::String target = u8"TGT";
+		static inline const juce::String target = u8"TARGET";
 		static inline const juce::String pan = u8"PAN";
-		static inline const juce::String quality = u8"BIT";
-		static inline const juce::String rate = u8"RATE";
-		static inline const juce::String interp = u8"INTP";
-		static inline const juce::String tone = u8"T.LV";
-		static inline const juce::String noise = u8"N.LV";
-		static inline const juce::String noiseFreq = u8"N.FQ";
+		static inline const juce::String quality = u8"BIT RATE";
+		static inline const juce::String rate = u8"SMP RATE";
+		static inline const juce::String interp = u8"INTERP";
+		static inline const juce::String tone = u8"T.LEVEL";
+		static inline const juce::String noise = u8"N.LEVEL";
+		static inline const juce::String noiseFreq = u8"N.FREQ";
 		static inline const juce::String toTone = u8"Tone";
 		static inline const juce::String toNoise = u8"Noise";
 		static inline const juce::String mix = u8"MIX";
 		static inline const juce::String loop = u8"LOOP";
 		static inline const juce::String loopPointEnable = u8"Loop Point Enable";
-		static inline const juce::String loopPointStart = u8"LPST";
-		static inline const juce::String loopPointEnd = u8"LPED";
-		static inline const juce::String pcmOffset = u8"P.OF";
-		static inline const juce::String pcmRatio = u8"P.RT";
+		static inline const juce::String loopPointStart = u8"LP.START";
+		static inline const juce::String loopPointEnd = u8"LP.END";
+		static inline const juce::String pcmOffset = u8"P.OFFSET";
+		static inline const juce::String pcmRatio = u8"P.RATIO";
 
 		namespace Pan
 		{

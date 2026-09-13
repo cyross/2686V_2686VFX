@@ -182,7 +182,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopTo, .title = "L.TO", .isReset = true, .labelFont = labelFont });
+    loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopTo, .title = "LOOP.TO", .isReset = true, .labelFont = labelFont });
     loopTo.setWantsKeyboardFocus(true);
     loopTo.setExplicitFocusOrder(++tabOrder);
     loopTo.onValueChange = [this] {
@@ -191,7 +191,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopCount.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopCount, .title = "L.CN", .isReset = true, .labelFont = labelFont });
+    loopCount.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopCount, .title = "LOOP.CNT", .isReset = true, .labelFont = labelFont });
     loopCount.setWantsKeyboardFocus(true);
     loopCount.setExplicitFocusOrder(++tabOrder);
 
@@ -208,7 +208,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     // 並びは 対象 → 値 → 各段の値。
     paramCode = code;
 
-    rateTarget.setup({ .parent = parent, .title = "R.TG", .isReset = false, .labelFont = labelFont });
+    rateTarget.setup({ .parent = parent, .title = "R.TARGET", .isReset = false, .labelFont = labelFont });
     rateTarget.setRange(1.0, (double)rateCount, 1.0);
     rateTarget.setNumDecimalPlacesToDisplay(0);
     rateTarget.setWantsKeyboardFocus(true);
@@ -225,14 +225,14 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     rateSeparator.setupComponent(parent);
 
     // 対象の 0 が STL、1 以降が L1 以降。
-    levelTarget.setup({ .parent = parent, .title = "L.TG", .isReset = false, .labelFont = labelFont });
+    levelTarget.setup({ .parent = parent, .title = "L.TARGET", .isReset = false, .labelFont = labelFont });
     levelTarget.setRange(0.0, (double)(levelCount - 1), 1.0);
     levelTarget.setNumDecimalPlacesToDisplay(0);
     levelTarget.setWantsKeyboardFocus(true);
     levelTarget.setExplicitFocusOrder(++tabOrder);
     levelTarget.onValueChange = [this] { rebindLevel(); };
 
-    level.setupComponent(parent, "", "LEVL", tabOrder, std::nullopt, labelFont);
+    level.setupComponent(parent, "", "LEVEL", tabOrder, std::nullopt, labelFont);
     level.getSlider().onValueChange = [this] { refreshStepValues(); };
 
     levelBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);

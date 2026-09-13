@@ -59,23 +59,23 @@ namespace Opzx7GuiText
 
 	namespace Fm
 	{
-		static inline const juce::String level = u8"Level";
+		static inline const juce::String level = u8"LEVEL";
 		static inline const juce::String alg = u8"ALG";
 		static inline const juce::String fb = u8"FB";
-		static inline const juce::String lfoFreq = u8"FQ";
-		static inline const juce::String lfoSpeed = u8"SP";
-		static inline const juce::String lfoShape = u8"SP";
+		static inline const juce::String lfoFreq = u8"FREQ";
+		static inline const juce::String lfoSpeed = u8"SPEED";
+		static inline const juce::String lfoShape = u8"SHAPE";
 		static inline const juce::String lfoPgShape = u8"P.SH";
 		static inline const juce::String lfoEgShape = u8"A.SH";
-		static inline const juce::String lfoSyncDelay = u8"SDLY";
+		static inline const juce::String lfoSyncDelay = u8"SY.DELAY";
 		static inline const juce::String amEn = u8"AM Enable";
 		static inline const juce::String pmEn = u8"PM Enable";
 		static inline const juce::String ams = u8"AMS";
 		static inline const juce::String pms = u8"PMS";
 		static inline const juce::String amd = u8"AMD";
 		static inline const juce::String pmd = u8"PMD";
-		static inline const juce::String amSmoothRatio = u8"AMSR";
-		static inline const juce::String panpot = u8"PNPT";
+		static inline const juce::String amSmoothRatio = u8"SM.RATIO";
+		static inline const juce::String panpot = u8"PANPOT";
 		static inline const juce::String panpotEnable = u8"Enable";
 
 		namespace Pan

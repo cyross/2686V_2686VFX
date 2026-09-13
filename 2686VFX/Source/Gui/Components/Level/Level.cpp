@@ -57,7 +57,7 @@ void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, c
     levelSlider.setupComponent(
         parent,
         prefix + CPK::level,
-        "LV",
+        "LEVEL",
         tabOrder,
         [this]() {
             applyStepSnap();
@@ -70,7 +70,7 @@ void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, c
 
     delayNudge.setupComponent(parent, delaySlider.getSlider(), tabOrder);
 
-    stepSelector.setup({ .parent = parent, .id = "", .title = "Steps", .items = stepItems, .isReset = false });
+    stepSelector.setup({ .parent = parent, .id = "", .title = "STEPS", .items = stepItems, .isReset = false });
     stepSelector.setSelectedItemIndex(0, juce::dontSendNotification); // デフォルトはFree
     stepSelector.setWantsKeyboardFocus(true);
     stepSelector.setExplicitFocusOrder(++tabOrder);

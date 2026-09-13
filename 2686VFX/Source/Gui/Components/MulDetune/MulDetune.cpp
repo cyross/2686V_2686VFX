@@ -76,7 +76,7 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
     mul.setWantsKeyboardFocus(true);
     mul.setExplicitFocusOrder(++tabOrder);
 
-    mulRatio.setupComponent(parent, code + CPK::mulRatio, "MURT", tabOrder, std::nullopt);
+    mulRatio.setupComponent(parent, code + CPK::mulRatio, "MUL.RATE", tabOrder, std::nullopt);
 
     mulRatioTo001.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = "0.01", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
     mulRatioTo001.setWantsKeyboardFocus(true);

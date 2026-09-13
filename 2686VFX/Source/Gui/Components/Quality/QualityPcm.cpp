@@ -64,11 +64,11 @@ std::vector<SelectItem> QualityPcm::interpItems = {
 void QualityPcm::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
     qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
 
-    modeSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::mode, .title = "BIT", .items = qualityItems, .isReset = true });
+    modeSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::mode, .title = "BIT RATE", .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
     modeSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::rate, .title = "RATE", .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::rate, .title = "SMP.RATE", .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 

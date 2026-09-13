@@ -83,13 +83,13 @@ namespace FxGuiText
 		namespace Tremolo
 		{
 			static inline const juce::String rate = u8"RATE";
-			static inline const juce::String depth = u8"DPTH";
+			static inline const juce::String depth = u8"DEPTH";
 		}
 
 		namespace Vibrate
 		{
 			static inline const juce::String rate = u8"RATE";
-			static inline const juce::String depth = u8"DPTH";
+			static inline const juce::String depth = u8"DEPTH";
 		}
 
 		namespace Mbc
@@ -113,7 +113,7 @@ namespace FxGuiText
 		namespace Filter
 		{
 			static inline const juce::String type = u8"TYPE";
-			static inline const juce::String freq = u8"FQ";
+			static inline const juce::String freq = u8"FREQ";
 			static inline const juce::String q = u8"Q";
 		}
 

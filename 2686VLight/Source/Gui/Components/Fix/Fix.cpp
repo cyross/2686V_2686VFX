@@ -42,7 +42,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     enable.setWantsKeyboardFocus(true);
     enable.setExplicitFocusOrder(++tabOrder);
 
-    freq.setupComponent(parent, code + CPK::fixFreq, "FQ", tabOrder, std::nullopt);
+    freq.setupComponent(parent, code + CPK::fixFreq, "FREQ", tabOrder, std::nullopt);
     freq.getSlider().setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freq.setValue(toValue);
 
@@ -205,7 +205,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
 
     freqNoteSeparator.setupComponent(parent);
 
-    freqNote.setup({ .parent = parent, .title = "Note", .isReset = false });
+    freqNote.setup({ .parent = parent, .title = "NOTE", .isReset = false });
     freqNote.setWantsKeyboardFocus(true);
     freqNote.setExplicitFocusOrder(++tabOrder);
     freqNote.setRange(0.0, 127.0, 1.0);

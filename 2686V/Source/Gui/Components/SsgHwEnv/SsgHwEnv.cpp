@@ -47,11 +47,11 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
 
     hwEnvSeparator.setupComponent(parent);
 
-    shapeSelector.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::shape, .title = "SHPE", .items = SsgHwEnvItems::shapes(), .isReset = true});
+    shapeSelector.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::shape, .title = "SHAPE", .items = SsgHwEnvItems::shapes(), .isReset = true});
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
 
-    periodSlider.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::period, .title = "PERD", .isReset = true});
+    periodSlider.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::period, .title = "PERIOD", .isReset = true});
     periodSlider.setWantsKeyboardFocus(true);
     periodSlider.setExplicitFocusOrder(++tabOrder);
 
