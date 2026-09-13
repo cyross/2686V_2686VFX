@@ -452,6 +452,10 @@ void GuiComponentLfoOpzx7::applyParamsFile(const juce::File& file)
     amSmRt.setValue(reader->getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
     ams.setValue(reader->getFloat("ams", (float)ams.getValue()), juce::sendNotification);
     amd.setValue(reader->getFloat("amd", (float)amd.getValue()), juce::sendNotification);
+
+    // ホールドと部分再生。区分をまとめて書くときと同じ入れ子で持つ。
+    pmWaveHold.readParams(reader->child("pmHold"));
+    amWaveHold.readParams(reader->child("amHold"));
 }
 
 void GuiComponentLfoOpzx7::exportParams()
@@ -486,6 +490,12 @@ void GuiComponentLfoOpzx7::writeParamsFile(const juce::File& file)
     writer.set("amSmRt", (float)amSmRt.getValue());
     writer.set("ams", (float)ams.getValue());
     writer.set("amd", (float)amd.getValue());
+
+    auto pmHoldW = writer.child("pmHold");
+    auto amHoldW = writer.child("amHold");
+
+    pmWaveHold.writeParams(pmHoldW);
+    amWaveHold.writeParams(amHoldW);
 
     writer.writeTo(file);
 }
