@@ -790,7 +790,7 @@ void GuiOpl3::copyFmParamsToString()
     int mask2 = FmMml::bool2Int(!mask[1].getToggleState());
     int mask3 = FmMml::bool2Int(!mask[2].getToggleState());
     int mask4 = FmMml::bool2Int(!mask[3].getToggleState());
-    int maskVal = FmMml::genMask4(mask1, mask2, mask2, mask3);
+    int maskVal = FmMml::genMask4(mask1, mask2, mask3, mask4);
 
     auto formatCoreBasic = [this, maskVal]() {
         return juce::String::formatted(

@@ -120,8 +120,15 @@ def read_text(path):
 def write_text(path, text):
     text = text.replace("\r\n", "\n").replace("\n", "\r\n")
 
-    with open(path, "wb") as f:
-        f.write(b"\xef\xbb\xbf" + text.encode("utf-8"))
+    data = b"\xef\xbb\xbf" + text.encode("utf-8")
+
+    def put():
+        with open(path, "wb") as f:
+            f.write(data)
+
+    # 掴まれていて書けないことがある。途中で落ちるとツリーが半端なまま
+    # 残り、次のビルドが通らなくなるので、ここも待ってやり直す。
+    retry(put)
 
 
 def is_source(path):
