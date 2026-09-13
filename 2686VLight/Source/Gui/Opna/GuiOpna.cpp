@@ -535,8 +535,14 @@ void GuiOpna::setup()
 
     addAndMakeVisible(stripViewport);
 
-    colAmp.setup(stripCanvas, juce::String("") + "AMP ENV / OPTIONAL / ENVELOPES");
+    colAmp.setup(stripCanvas, juce::String("") + "AMP ENV / OPTIONAL / SSG HW AMP ENV");
+    colSsgEnv.setup(stripCanvas, juce::String("") + "SSG ENVELOPE");
+    colSsgSwEnv.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV");
+    colSsgSwEnv11.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[11]");
     colAmpMod.setup(stripCanvas, juce::String("") + "WT AMP MOD");
+    colPitchEnv.setup(stripCanvas, juce::String("") + "PITCH ENV");
+    colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
+    colSsgSwPEnv11.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL/DET / FIX");
     colHwLfo.setup(stripCanvas, juce::String("") + "HW LFO / N88 LFO");
@@ -632,29 +638,29 @@ void GuiOpna::setup()
     bypass.setWantsKeyboardFocus(true);
     bypass.setExplicitFocusOrder(++tabOrder);
 
-    pitchEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, CPK::PitchAdsr::enable, OpnaGuiText::PitchAdsr::enable, true);
+    pitchEnv.setupComponent(colPitchEnv.contentCanvas, paramPrefix, tabOrder, CPK::PitchAdsr::enable, OpnaGuiText::PitchAdsr::enable, true);
 
-    ssgSwEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv::enable, OpnaGuiText::SsgSwEnv::enable, true);
+    ssgSwEnv.setupComponent(colSsgSwEnv.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv::enable, OpnaGuiText::SsgSwEnv::enable, true);
 
-    ssgSwEnv11.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv11::enable, OpnaGuiText::SsgSwEnv11::enable, true);
+    ssgSwEnv11.setupComponent(colSsgSwEnv11.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv11::enable, OpnaGuiText::SsgSwEnv11::enable, true);
 
-    ssgSwPEnv11.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, OpnaGuiText::SsgSwPEnv11::enable, true);
-    ssgHwPEnvOp.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder);
+    ssgSwPEnv11.setupComponent(colSsgSwPEnv11.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, OpnaGuiText::SsgSwPEnv11::enable, true);
+    ssgHwPEnvOp.setupComponent(colSsgHwPEnv.contentCanvas, paramPrefix, tabOrder);
     wtAmpModOp.setupComponent(colAmpMod.contentCanvas, paramPrefix, tabOrder);
     ssgHwEnvOp.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
-    catSsgEnv.setupHwCategory({ .parent = colAmp.contentCanvas, .title = OpnaGuiText::Category::ssgEnv, .enableChangeDetailVisible = true });
+    catSsgEnv.setupHwCategory({ .parent = colSsgEnv.contentCanvas, .title = OpnaGuiText::Category::ssgEnv, .enableChangeDetailVisible = true });
 
-    se.setup(GuiComboBox::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::se, .title = OpnaGuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
+    se.setup(GuiComboBox::Config{ .parent = colSsgEnv.contentCanvas, .id = paramPrefix + CPK::Fm::se, .title = OpnaGuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
     se.setWantsKeyboardFocus(true);
     se.setExplicitFocusOrder(++tabOrder);
 
-    seFreq.setup(GuiSlider::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::seFreq, .title = OpnaGuiText::Fm::Op::SFreq, .isReset = true });
+    seFreq.setup(GuiSlider::Config{ .parent = colSsgEnv.contentCanvas, .id = paramPrefix + CPK::Fm::seFreq, .title = OpnaGuiText::Fm::Op::SFreq, .isReset = true });
     seFreq.setWantsKeyboardFocus(true);
     seFreq.setExplicitFocusOrder(++tabOrder);
 
-    sePreview.setup(colAmp.contentCanvas, GuiColor::WavePreview::AmpEnv);
+    sePreview.setup(colSsgEnv.contentCanvas, GuiColor::WavePreview::AmpEnv);
 
     // 形と周期のどちらが変わっても描き直す
     se.onChange = [this] { updateSePreview(); };
@@ -736,8 +742,9 @@ void GuiOpna::setup()
     // 区分の中身は最初から開いておく。1 列 1 区分にしたので、
     // 畳んだままだと見出しだけの列が並ぶことになる。
     for (auto* group : {
-        &colAmp, &colAmpMod, &colMod, &colKs,
-        &colHwLfo, &colMask,
+        &colAmp, &colSsgEnv, &colSsgSwEnv, &colSsgSwEnv11,
+        &colAmpMod, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv11,
+        &colMod, &colKs, &colHwLfo, &colMask,
         })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -1335,14 +1342,7 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
 
     const auto shown = [this](SimpleView::Cat cat) { return ctx.audioProcessor.isSimpleShown(cat); };
 
-    // エンベロープはすべてこの 1 列へ積む。
-    //
-    // 並びは 音量側 → SSG ENVELOPE → 音程側。列の丈を越えたぶんは、
-    // この列だけが縦に送られる。
-    //
-    // 簡易表示モードで隠せる区分が混ざっているが、AMP ENV と OPTIONAL は
-    // 隠せないので列ごと消すわけにいかない。隠れているものだけ
-    // 見出しごと畳む。
+    // 1 区分ずつでは丈が余るので、いくつかの区分は 1 列へ積んである。
     layoutCol(colAmp, true, [&](juce::Rectangle<int>& rect) {
         updateRgDisplayAsOp(true);
         layoutOpAmpCat(rect);
@@ -1350,28 +1350,39 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
 
         ssgHwEnvOp.setCategoryVisible(shown(SimpleView::SsgHwAmpEnv));
         ssgHwEnvOp.layoutComponent(rect);
+        });
 
-        ssgSwEnv.setCategoryVisible(shown(SimpleView::SsgSwAmpEnv));
+    layoutCol(colSsgEnv, true, [&](juce::Rectangle<int>& rect) { layoutOpSsgEnvelopeCat(rect); });
+
+
+    layoutCol(colSsgSwEnv, shown(SimpleView::SsgSwAmpEnv), [&](juce::Rectangle<int>& rect) {
+        ssgSwEnv.setCategoryVisible(true);
         ssgSwEnv.layoutComponent(rect);
+        });
 
-        ssgSwEnv11.setCategoryVisible(shown(SimpleView::SsgSwAmpEnv11));
+    layoutCol(colSsgSwEnv11, shown(SimpleView::SsgSwAmpEnv11), [&](juce::Rectangle<int>& rect) {
+        ssgSwEnv11.setCategoryVisible(true);
         ssgSwEnv11.layoutComponent(rect);
-
-        layoutOpSsgEnvelopeCat(rect);
-
-        pitchEnv.setCategoryVisible(shown(SimpleView::PitchEnv));
-        pitchEnv.layoutComponent(rect);
-
-        ssgHwPEnvOp.setCategoryVisible(shown(SimpleView::SsgHwPitchEnv));
-        ssgHwPEnvOp.layoutComponent(rect);
-
-        ssgSwPEnv11.setCategoryVisible(shown(SimpleView::SsgSwPitchEnv11));
-        ssgSwPEnv11.layoutComponent(rect);
         });
 
     layoutCol(colAmpMod, shown(SimpleView::WtAmpMod), [&](juce::Rectangle<int>& rect) {
         wtAmpModOp.setCategoryVisible(true);
         wtAmpModOp.layoutComponent(rect);
+        });
+
+    layoutCol(colPitchEnv, shown(SimpleView::PitchEnv), [&](juce::Rectangle<int>& rect) {
+        pitchEnv.setCategoryVisible(true);
+        pitchEnv.layoutComponent(rect);
+        });
+
+    layoutCol(colSsgHwPEnv, shown(SimpleView::SsgHwPitchEnv), [&](juce::Rectangle<int>& rect) {
+        ssgHwPEnvOp.setCategoryVisible(true);
+        ssgHwPEnvOp.layoutComponent(rect);
+        });
+
+    layoutCol(colSsgSwPEnv11, shown(SimpleView::SsgSwPitchEnv11), [&](juce::Rectangle<int>& rect) {
+        ssgSwPEnv11.setCategoryVisible(true);
+        ssgSwPEnv11.layoutComponent(rect);
         });
 
     layoutCol(colMod, shown(SimpleView::WtPitchMod), [&](juce::Rectangle<int>& rect) {
