@@ -48,7 +48,7 @@ sidebar:
 
 | 鍵 | 中身 |
 | --- | --- |
-| `level` | チャンネルの音量。`level` ひとつだけを持ちます |
+| `level` | チャンネルの音量と再生遅延。`level` と `delay` を持ちます |
 | `ssgHwEnv` | [ssgHwEnv](/2686V_2686VFX/reference/file-spec/ssghwenv/) と同じ |
 | `ssgSwEnv11` | [ssgSwEnv11](/2686V_2686VFX/reference/file-spec/ssgswenv11/) と同じ |
 | `quality` | [quality](/2686V_2686VFX/reference/file-spec/quality/) と同じ |

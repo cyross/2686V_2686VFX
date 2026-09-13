@@ -10,8 +10,8 @@ sidebar:
 	<figcaption>Logo</figcaption>
 </figure>
 
-Narrowed down to **the two sample-playing channels** — RHYTHM and
-ADPCM. One plugin covering both the drum kit and sample playback.
+Narrowed down to **the three sample-playing channels** — RHYTHM,
+ADPCM and ADPCM+. One plugin covering both the drum kit and sample playback.
 
 ## What the plugin looks like
 
@@ -31,6 +31,7 @@ ADPCM. One plugin covering both the drum kit and sample playback.
 | --- | :---: |
 | [RHYTHM](/2686V_2686VFX/en/chips/rhythm/) | ✔ |
 | [ADPCM](/2686V_2686VFX/en/chips/adpcm/) | ✔ |
+| [ADPCM+](/2686V_2686VFX/en/chips/adpcmplus/) | ✔ |
 
 The ones it does not have are OPNA / OPN / OPL / OPL3 / OPM / OPZX7 / SSG / WAVETABLE / WT2 / WTPLUS / BEEP.
 

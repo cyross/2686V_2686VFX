@@ -50,7 +50,7 @@ the default.
 
 | Key | What it holds |
 | --- | --- |
-| `level` | The channel level. It holds `level` and nothing else |
+| `level` | The channel level and start delay. It holds `level` and `delay` |
 | `algMatrixComp` | The algorithm matrix. Its `ops` list holds `isCarrier` and the `mod` / `fbMod` lists |
 | `ssgHwEnv` | The same as [ssgHwEnv](/2686V_2686VFX/en/reference/file-spec/ssghwenv/) |
 | `ssgSwEnv11` | The same as [ssgSwEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswenv11/) |

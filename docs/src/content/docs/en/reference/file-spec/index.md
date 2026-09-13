@@ -72,6 +72,7 @@ are laid out the same either way.
 | [`.param.wtplus.json`](/2686V_2686VFX/en/reference/file-spec/param-wtplus/) | Wavetable+ channel |
 | [`.param.beep.json`](/2686V_2686VFX/en/reference/file-spec/param-beep/) | BEEP channel |
 | [`.param.adpcm.json`](/2686V_2686VFX/en/reference/file-spec/param-adpcm/) | ADPCM channel |
+| [`.param.adpcmplus.json`](/2686V_2686VFX/en/reference/file-spec/param-adpcmplus/) | ADPCM+ channel |
 | [`.param.rhythm.json`](/2686V_2686VFX/en/reference/file-spec/param-rhythm/) | Rhythm channel |
 | [`.param.<chip>.op.json`](/2686V_2686VFX/en/reference/file-spec/param-op/) | A single operator |
 

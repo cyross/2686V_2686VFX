@@ -41,6 +41,7 @@ The narrower plugins exist for exactly that: reach for one per part.
 | WTPLUS | ✔ | ✔ | — | — | — |
 | RHYTHM | ✔ | ✔ | — | ✔ (6 pads) | — |
 | ADPCM | ✔ | ✔ | — | ✔ (PCM) | — |
+| ADPCM+ | ✔ | ✔ | — | — | — |
 | BEEP | ✔ | ✔ | — | — | — |
 | FX (pane) | ✔ | ✔ | ✔ | ✔ | ✔ |
 | CURVE | ✔ | — | — | — | ✔ |
@@ -76,6 +77,7 @@ curve editing.**
 | WTPLUS | — | — | — | ✔ | — | — |
 | RHYTHM | — | — | — | — | ✔ (8 pads) | — |
 | ADPCM | — | — | — | — | ✔ | — |
+| ADPCM+ | — | — | — | — | ✔ | — |
 | BEEP | — | — | — | — | — | ✔ |
 | FX (pane) | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
 | CURVE | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
@@ -90,7 +92,7 @@ curve editing.**
 - **[OPMV](/2686V_2686VFX/en/plugins/opmv/)** — OPM alone. One X68000 or arcade part
 - **[WTV](/2686V_2686VFX/en/plugins/wtv/)** — WT, WT2 and WT+. Parts built from
   waveforms you draw or load
-- **[PCMV](/2686V_2686VFX/en/plugins/pcmv/)** — RHYTHM and ADPCM. The drum kit and
+- **[PCMV](/2686V_2686VFX/en/plugins/pcmv/)** — RHYTHM, ADPCM and ADPCM+. The drum kit and
   sample playback in one place
 - **[PULSEV](/2686V_2686VFX/en/plugins/pulsev/)** — SSG and BEEP. A square-wave bass
   line or arpeggio

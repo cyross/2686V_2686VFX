@@ -2,7 +2,7 @@
 title: BEEPチャンネル
 description: パソコン本体のビープ音を鳴らすチャンネル
 sidebar:
-  order: 13
+  order: 14
 ---
 
 <figure class="shot">

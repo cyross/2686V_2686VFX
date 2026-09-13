@@ -41,7 +41,7 @@ the default.
 
 | Key | What it holds |
 | --- | --- |
-| `level` | The channel level. It holds `level` and nothing else |
+| `level` | The channel level and start delay. It holds `level` and `delay` |
 | `wtMod` | The same as [wtMod](/2686V_2686VFX/en/reference/file-spec/wtmod/) |
 | `fix` | Holding the pitch. It holds `enable` and `freq` |
 | `ampEnv` | The same as [ampEnv](/2686V_2686VFX/en/reference/file-spec/ampenv/) |

@@ -49,7 +49,7 @@ sidebar:
 
 | 鍵 | 中身 |
 | --- | --- |
-| `level` | チャンネルの音量。`level` ひとつだけを持ちます |
+| `level` | チャンネルの音量と再生遅延。`level` と `delay` を持ちます |
 | `algMatrixComp` | アルゴリズムマトリックス。`ops` の並びに、`isCarrier` と `mod` / `fbMod` の並びを持ちます |
 | `ssgHwEnv` | [ssgHwEnv](/2686V_2686VFX/reference/file-spec/ssghwenv/) と同じ |
 | `ssgSwEnv11` | [ssgSwEnv11](/2686V_2686VFX/reference/file-spec/ssgswenv11/) と同じ |

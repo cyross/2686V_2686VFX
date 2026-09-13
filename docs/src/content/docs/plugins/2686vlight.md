@@ -41,6 +41,7 @@ sidebar:
 | [WTPLUS](/2686V_2686VFX/chips/wtplus/) | ✔ |
 | [RHYTHM](/2686V_2686VFX/chips/rhythm/) | ✔ |
 | [ADPCM](/2686V_2686VFX/chips/adpcm/) | ✔ |
+| [ADPCM+](/2686V_2686VFX/chips/adpcmplus/) | ✔ |
 | [BEEP](/2686V_2686VFX/chips/beep/) | ✔ |
 
 

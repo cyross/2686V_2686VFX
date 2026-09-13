@@ -2,7 +2,7 @@
 title: BEEP channel
 description: The channel that sounds the machine's own beeper
 sidebar:
-  order: 13
+  order: 14
 ---
 
 <figure class="shot">

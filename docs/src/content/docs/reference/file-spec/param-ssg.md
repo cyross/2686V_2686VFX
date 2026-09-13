@@ -52,7 +52,7 @@ sidebar:
 
 | 鍵 | 中身 |
 | --- | --- |
-| `level` | チャンネルの音量。`level` ひとつだけを持ちます |
+| `level` | チャンネルの音量と再生遅延。`level` と `delay` を持ちます |
 | `ssgHwEnv` | [ssgHwEnv](/2686V_2686VFX/reference/file-spec/ssghwenv/) と同じ |
 | `fix` | 音程の固定。`enable` と `freq` を持ちます |
 | `ampEnv` | [ampEnv](/2686V_2686VFX/reference/file-spec/ampenv/) と同じ |

@@ -26,6 +26,7 @@ A list of what is included, and which plugin carries it.
 | WTPLUS | switching between wave memories (up to 32) | ✔ | ✔ | — | — | — |
 | RHYTHM | drum machine, 8 pads (6 on 86V) | ✔ | ✔ | — | ✔ | — |
 | ADPCM | a sampler for one audio file (called PCM on 86V) | ✔ | ✔ | — | ✔ | — |
+| ADPCM+ | switched playback of audio files (up to 32) | ✔ | ✔ | — | — | — |
 | BEEP | the beeper | ✔ | ✔ | — | — | — |
 
 :::note

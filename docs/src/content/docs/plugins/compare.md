@@ -41,6 +41,7 @@ sidebar:
 | WTPLUS | ✔ | ✔ | — | — | — |
 | RHYTHM | ✔ | ✔ | — | ✔ (6 パッド) | — |
 | ADPCM | ✔ | ✔ | — | ✔ (PCM) | — |
+| ADPCM+ | ✔ | ✔ | — | — | — |
 | BEEP | ✔ | ✔ | — | — | — |
 | FX (ペイン) | ✔ | ✔ | ✔ | ✔ | ✔ |
 | CURVE | ✔ | — | — | — | ✔ |
@@ -76,6 +77,7 @@ sidebar:
 | WTPLUS | — | — | — | ✔ | — | — |
 | RHYTHM | — | — | — | — | ✔ (8 パッド) | — |
 | ADPCM | — | — | — | — | ✔ | — |
+| ADPCM+ | — | — | — | — | ✔ | — |
 | BEEP | — | — | — | — | — | ✔ |
 | FX (ペイン) | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
 | CURVE | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
@@ -91,7 +93,7 @@ sidebar:
   1 パートだけ足したいとき
 - **[WTV](/2686V_2686VFX/plugins/wtv/)** — WT・WT2・WT+。波形メモリらしい音の
   パートを作りたいとき
-- **[PCMV](/2686V_2686VFX/plugins/pcmv/)** — RHYTHM と ADPCM。リズムと
+- **[PCMV](/2686V_2686VFX/plugins/pcmv/)** — RHYTHM と ADPCM と ADPCM+。リズムと
   サンプル再生をまとめて受け持ちたいとき
 - **[PULSEV](/2686V_2686VFX/plugins/pulsev/)** — SSG と BEEP。矩形波のベースや
   アルペジオを足したいとき

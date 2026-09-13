@@ -39,17 +39,19 @@ sidebar:
 | `noiseFreq` | 小数 | 0 〜 30000 | 12000 |
 | `mix` | 小数 | 0 〜 1 | 0 |
 | `pan` | 小数 | 0 〜 1 | 0.5 |
+| `speed` | 小数 | 0.0001 〜 100 | 1 |
 | `pcmOffset` | 小数 | 0 〜 2000 | 0 |
 | `pcmRatio` | 小数 | 0.05 〜 1 | 1 |
 | `loopPointEnable` | 真偽 | false / true | false |
 | `loopPointStart` | 小数 | 0 〜 0.999999 | 0 |
 | `loopPointEnd` | 小数 | 1e-06 〜 1 | 1 |
+| `loopCount` | 整数 | 0 〜 3000 | 0 |
 
 ## チャンネルの中の入れ子
 
 | 鍵 | 中身 |
 | --- | --- |
-| `level` | チャンネルの音量。`level` ひとつだけを持ちます |
+| `level` | チャンネルの音量と再生遅延。`level` と `delay` を持ちます |
 | `fix` | 音程の固定。`enable` と `freq` を持ちます |
 | `ampEnv` | [ampEnv](/2686V_2686VFX/reference/file-spec/ampenv/) と同じ |
 | `pitchEnv` | [pitchEnv](/2686V_2686VFX/reference/file-spec/pitchenv/) と同じ |
