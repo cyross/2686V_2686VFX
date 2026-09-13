@@ -136,18 +136,18 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     // どのエンベロープを映すかの切り替え。TARGET のすぐ右へ置く。
     auto setupModeBtn = [this, &tabOrder](GuiToggleButton& btn, const juce::String& text,
-        RhythmPadCell::GraphMode mode) {
+        GuiEnvGraphMode mode) {
         btn.setup({ .parent = *this, .title = text, .isReset = false, .isResized = false });
         btn.setWantsKeyboardFocus(true);
         btn.setExplicitFocusOrder(++tabOrder);
         btn.onClick = [this, mode] { this->setGraphMode(mode); };
         };
 
-    setupModeBtn(graphBtnAmp, "AMP", RhythmPadCell::GraphMode::Amp);
-    setupModeBtn(graphBtnPitch, "PIT", RhythmPadCell::GraphMode::Pitch);
-    setupModeBtn(graphBtnSsg, "SSG", RhythmPadCell::GraphMode::SsgSw);
-    setupModeBtn(graphBtnSsg11, "S11", RhythmPadCell::GraphMode::SsgSw11);
-    setupModeBtn(graphBtnSsgP11, "P11", RhythmPadCell::GraphMode::SsgSwP11);
+    setupModeBtn(graphBtnAmp, "AMP", GuiEnvGraphMode::Amp);
+    setupModeBtn(graphBtnPitch, "PIT", GuiEnvGraphMode::Pitch);
+    setupModeBtn(graphBtnSsg, "SSG", GuiEnvGraphMode::SsgSw);
+    setupModeBtn(graphBtnSsg11, "S11", GuiEnvGraphMode::SsgSw11);
+    setupModeBtn(graphBtnSsgP11, "P11", GuiEnvGraphMode::SsgSwP11);
 
     graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
@@ -666,183 +666,106 @@ void RhythmPadGui::setupGraph()
     ssgSwPEnv11Component.setupGraph(repaintGraph);
 }
 
-// ==========================================================
-// パッドの絵
-// ==========================================================
-void RhythmPadCell::setup(juce::Component& parent, int index, const juce::String& padName)
-{
-    m_padIndex = index;
-    m_code = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(index);
-
-    parent.addAndMakeVisible(this);
-
-    titleLabel.setup({ .parent = *this,
-        .title = RhythmGuiText::Group::padPrefix + " " + juce::String(index + 1) + " (" + padName + ")" });
-
-    samplePreview.setup(*this, GuiColor::WavePreview::AudioFile);
-
-    addAndMakeVisible(&graph);
-
-    // 枠のどこを押しても TARGET が動くようにする。
-    // 見出しとグラフが押下を食べてしまうと、札の隙間しか当たらない。
-    titleLabel.setInterceptsMouseClicks(false, false);
-    graph.setInterceptsMouseClicks(false, false);
-
-    updateSamplePreview();
-    updateGraph();
-}
-
-void RhythmPadCell::layout(juce::Rectangle<int> rect)
-{
-    setBounds(rect);
-
-    // 枠線のぶんだけ内側へ寄せる
-    auto area = getLocalBounds().reduced(4);
-
-    titleLabel.setBounds(area.removeFromTop(14));
-
-    area.removeFromTop(2);
-
-    samplePreview.setBounds(area.removeFromTop(GuiWavePreview::defaultHeight));
-
-    area.removeFromTop(2);
-
-    graph.setBounds(area);
-
-    updateGraph();
-}
-
-void RhythmPadCell::setActive(bool active)
-{
-    if (isActive == active) return;
-
-    isActive = active;
-
-    repaint();
-}
-
-void RhythmPadCell::setVisibles(bool visible)
-{
-    setVisible(visible);
-}
-
-void RhythmPadCell::setGraphMode(GraphMode mode)
-{
-    if (currentGraphMode == mode) return;
-
-    currentGraphMode = mode;
-
-    updateGraph();
-}
-
-// 読み込んだサンプルの、実際に鳴る範囲を描く。
-void RhythmPadCell::updateSamplePreview()
+// 枠に出す波形を作り直す。
+//
+// 枠はパッドの数だけ同時に出るので、つまみから値を読むわけにいかない。
+// 接頭辞を頼りにパラメータから直に採る。
+void GuiRhythm::updatePadPreview(int p)
 {
     // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
-    if (GuiRefresh::defer(this, [this] { updateSamplePreview(); })) return;
+    if (GuiRefresh::defer(this, [this, p] { updatePadPreview(p); })) return;
 
-    const auto& data = ctx.audioProcessor.rhythmPreviewBuffers[m_padIndex];
+    auto& cell = cells[(size_t)p];
+    const auto& data = ctx.audioProcessor.rhythmPreviewBuffers[p];
 
     if (data.empty()) {
-        samplePreview.clear();
+        cell.preview().clear();
 
         return;
     }
 
     auto& apvts = ctx.audioProcessor.apvts;
+    const juce::String code = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(p);
 
     auto env = WavePreviewSource::audioFile(
         data,
-        ctx.audioProcessor.rhythmPreviewRates[m_padIndex],
-        GuiGraphValues::value(apvts, m_code + CPK::pcmOffset),
-        GuiGraphValues::value(apvts, m_code + CPK::pcmRatio));
+        ctx.audioProcessor.rhythmPreviewRates[p],
+        GuiGraphValues::value(apvts, code + CPK::pcmOffset),
+        GuiGraphValues::value(apvts, code + CPK::pcmRatio));
 
-    samplePreview.setEnvelope(env.mins, env.maxs);
+    cell.preview().setEnvelope(env.mins, env.maxs);
 
     // ループ位置は切り出した範囲に対する 0.0〜1.0。使うときだけ出す。
     std::vector<float> markers;
 
-    if (GuiGraphValues::flag(apvts, m_code + CPK::lpEnable)) {
-        markers.push_back(GuiGraphValues::value(apvts, m_code + CPK::lpStart));
-        markers.push_back(GuiGraphValues::value(apvts, m_code + CPK::lpEnd));
+    if (GuiGraphValues::flag(apvts, code + CPK::lpEnable)) {
+        markers.push_back(GuiGraphValues::value(apvts, code + CPK::lpStart));
+        markers.push_back(GuiGraphValues::value(apvts, code + CPK::lpEnd));
     }
 
-    samplePreview.setMarkers(markers);
+    cell.preview().setMarkers(markers);
 }
 
-// エンベロープを描き直す。
-//
-// 絵はパッドの数だけ同時に出るので、つまみから値を読むわけにいかない。
-// 接頭辞を頼りにパラメータから直に採る。
-void RhythmPadCell::updateGraph()
+// 枠に出すエンベロープを描き直す。
+void GuiRhythm::updatePadGraph(int p)
 {
     auto& apvts = ctx.audioProcessor.apvts;
+    auto& graph = cells[(size_t)p].graph();
 
-    if (currentGraphMode == GraphMode::Pitch) {
+    const juce::String code = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(p);
+    const GuiEnvGraphMode mode = padPanel.graphMode();
+
+    if (mode == GuiEnvGraphMode::Pitch) {
         // KEEP のときはカーブを効かせない。音の側も補間そのものを止めてある。
-        const bool keepOn = GuiGraphValues::pitchEnvKeep(apvts, m_code);
+        const bool keepOn = GuiGraphValues::pitchEnvKeep(apvts, code);
 
-        graph.updateBypass(GuiGraphValues::flag(apvts, m_code + CPK::pitchAdsr + CPK::bypass));
+        graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::pitchAdsr + CPK::bypass));
         graph.setKeepLevels(keepOn);
-        graph.updatePitchEnv(GuiGraphValues::pitchEnv(apvts, m_code));
+        graph.updatePitchEnv(GuiGraphValues::pitchEnv(apvts, code));
     }
-    else if (currentGraphMode == GraphMode::SsgSw) {
-        const auto v = GuiGraphValues::ssgSwEnv(apvts, m_code);
+    else if (mode == GuiEnvGraphMode::SsgSw) {
+        const auto v = GuiGraphValues::ssgSwEnv(apvts, code);
 
-        graph.updateBypass(GuiGraphValues::flag(apvts, m_code + CPK::ssgSwEnv + CPK::bypass));
+        graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwEnv + CPK::bypass));
         graph.updateSsgSwEnv(v.head, v.rVal, v.rMax, v.lVal, v.lMax);
     }
-    else if (currentGraphMode == GraphMode::SsgSw11) {
-        const auto v = GuiGraphValues::ssgSwEnv11(apvts, m_code);
-        const bool keepOn = GuiGraphValues::ssgSwEnv11Keep(apvts, m_code);
+    else if (mode == GuiEnvGraphMode::SsgSw11) {
+        const auto v = GuiGraphValues::ssgSwEnv11(apvts, code);
+        const bool keepOn = GuiGraphValues::ssgSwEnv11Keep(apvts, code);
 
-        graph.updateBypass(GuiGraphValues::flag(apvts, m_code + CPK::ssgSwEnv11 + CPK::bypass));
+        graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwEnv11 + CPK::bypass));
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwEnv11(v.head, v.rVal, v.rMax, v.lVal, v.lMax);
     }
-    else if (currentGraphMode == GraphMode::SsgSwP11) {
-        const auto v = GuiGraphValues::ssgSwPEnv11(apvts, m_code);
-        const bool keepOn = GuiGraphValues::ssgSwPEnv11Keep(apvts, m_code);
+    else if (mode == GuiEnvGraphMode::SsgSwP11) {
+        const auto v = GuiGraphValues::ssgSwPEnv11(apvts, code);
+        const bool keepOn = GuiGraphValues::ssgSwPEnv11Keep(apvts, code);
 
-        graph.updateBypass(GuiGraphValues::flag(apvts, m_code + CPK::ssgSwPEnv11 + CPK::bypass));
+        graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwPEnv11 + CPK::bypass));
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwPEnv11(v.head, v.rVal, v.rMax, v.lVal, v.lMax);
     }
     else {
-        graph.updateBypass(GuiGraphValues::ampEnvBypassed(apvts, m_code));
-        graph.updateAmpEnv(GuiGraphValues::ampEnv(apvts, m_code));
+        graph.updateBypass(GuiGraphValues::ampEnvBypassed(apvts, code));
+        graph.updateAmpEnv(GuiGraphValues::ampEnv(apvts, code));
     }
 
     graph.repaint();
 }
 
-void RhythmPadCell::paint(juce::Graphics& g)
-{
-    // TARGET が指している枠だけ濃く囲う。指していない枠も薄く囲って
-    // おかないと、どこまでが 1 枚なのか分からなくなる。
-    g.setColour(isActive ? GuiColor::TargetFrame::Active.get() : GuiColor::TargetFrame::Border.get());
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(1.0f), 3.0f, isActive ? 2.0f : 1.0f);
-}
-
-void RhythmPadCell::mouseDown(const juce::MouseEvent&)
-{
-    // 枠を押したらそこへ TARGET を移す。下の設定もまとめて切り替わる。
-    if (onSelect) onSelect(m_padIndex);
-}
-
 // 絵をまとめて切り替える。
 //
 // 絵そのものは入れ物のほうが持っているので、決めたことだけを伝える。
-void RhythmPadGui::setGraphMode(RhythmPadCell::GraphMode mode)
+void RhythmPadGui::setGraphMode(GuiEnvGraphMode mode)
 {
     currentGraphMode = mode;
 
     // 札は排他。押したものだけを入れる。
-    graphBtnAmp.setToggleState(mode == RhythmPadCell::GraphMode::Amp, juce::dontSendNotification);
-    graphBtnPitch.setToggleState(mode == RhythmPadCell::GraphMode::Pitch, juce::dontSendNotification);
-    graphBtnSsg.setToggleState(mode == RhythmPadCell::GraphMode::SsgSw, juce::dontSendNotification);
-    graphBtnSsg11.setToggleState(mode == RhythmPadCell::GraphMode::SsgSw11, juce::dontSendNotification);
-    graphBtnSsgP11.setToggleState(mode == RhythmPadCell::GraphMode::SsgSwP11, juce::dontSendNotification);
+    graphBtnAmp.setToggleState(mode == GuiEnvGraphMode::Amp, juce::dontSendNotification);
+    graphBtnPitch.setToggleState(mode == GuiEnvGraphMode::Pitch, juce::dontSendNotification);
+    graphBtnSsg.setToggleState(mode == GuiEnvGraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GuiEnvGraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == GuiEnvGraphMode::SsgSwP11, juce::dontSendNotification);
 
     if (onGraphModeChange) onGraphModeChange(mode);
 }
@@ -1550,7 +1473,12 @@ void GuiRhythm::setup()
     // 指し先を切り替える。
     for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
-        cells[(size_t)i].setup(*this, i, RhythmGuiText::padNames[(size_t)i]);
+        cells[(size_t)i].setup(*this, i,
+            RhythmGuiText::Group::padPrefix + " " + juce::String(i + 1)
+            + " (" + RhythmGuiText::padNames[(size_t)i] + ")", true);
+
+        updatePadPreview(i);
+        updatePadGraph(i);
         cells[(size_t)i].onSelect = [this](int index) {
             padPanel.targetSlider().setValue(index + 1, juce::sendNotification);
             };
@@ -1563,12 +1491,12 @@ void GuiRhythm::setup()
 
     // 設定のつまみが動いたら、指しているパッドの絵を描き直す。
     // 指していないパッドは値が変わらないので、触らなくてよい。
-    padPanel.onParamsChanged = [this] { cells[(size_t)currentPad()].updateGraph(); };
+    padPanel.onParamsChanged = [this] { updatePadGraph(currentPad()); };
 
     // 映すものは絵ごとではなく全部そろえる。並べた絵を見比べる
     // ためのものなので、一枚ずつ違うものを映しても比べようがない。
-    padPanel.onGraphModeChange = [this](RhythmPadCell::GraphMode mode) {
-        for (auto& cell : cells) cell.setGraphMode(mode);
+    padPanel.onGraphModeChange = [this](GuiEnvGraphMode mode) {
+        for (int i = 0; i < RhythmPrValue::pads; ++i) updatePadGraph(i);
         };
 
     // 前に開いていたときの指し先から始める。
@@ -1628,11 +1556,14 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     const int cellW = pageArea.getWidth() / cols;
 
+    // 枠 1 枚の丈は部品が決める。見出し・波形・グラフを積んだ高さ。
+    const int cellH = GuiTargetCell::naturalHeight(true);
 
-    auto cellsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::Cell::height * rows);
+
+    auto cellsArea = pageArea.removeFromTop(cellH * rows);
 
     for (int r = 0; r < rows; ++r) {
-        auto rowArea = cellsArea.removeFromTop(RhythmGuiValue::Pad::Cell::height);
+        auto rowArea = cellsArea.removeFromTop(cellH);
 
         for (int col = 0; col < cols; ++col) {
             const int i = r * cols + col;
@@ -1642,6 +1573,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
             if (i >= RhythmPrValue::pads) continue;
 
             cells[(size_t)i].layout(cellArea);
+
+            updatePadGraph(i);
         }
     }
 
@@ -1777,7 +1710,7 @@ void GuiRhythm::updatePadFileName(int padIndex, const juce::String& fileName)
     // ほかのパッドは上の絵だけが変わる。
     if (padIndex == currentPad()) padPanel.updatePadFileName(fileName);
 
-    cells[(size_t)padIndex].updateSamplePreview();
+    updatePadPreview(padIndex);
 }
 
 bool GuiRhythm::isThis(int index, juce::Button* button)

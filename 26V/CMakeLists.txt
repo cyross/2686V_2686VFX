@@ -332,6 +332,8 @@ set(GUI_COMPONENT_PARAMBAREDITOR_FILES
 )
 
 set(GUI_COMPONENT_WAVEPREVIEW_FILES
+    "Source/Gui/Components/TargetCell/TargetCell.h"
+    "Source/Gui/Components/TargetCell/TargetCell.cpp"
     "Source/Gui/Components/WavePreview/WavePreview.h"
     "Source/Gui/Components/WavePreview/WavePreview.cpp"
     "Source/Gui/Components/WavePreview/WavePreviewSource.h"

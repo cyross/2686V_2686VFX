@@ -37,73 +37,12 @@
 #include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
+#include "../../Gui/Components/TargetCell/TargetCell.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
-
-// ==========================================================
-// パッドの絵
-// ==========================================================
-// 波形とエンベロープを 1 枠にまとめたもの。つまみは持たない。
-//
-// パッドの数だけ区分をひとそろい並べるのをやめ、設定は下の 1 組へ
-// 集めた。上に残るのはこの絵だけになる。
-//
-// 絵はパッドの数だけ同時に出るので、値をつまみから読むわけには
-// いかない。パラメータから直に採る。
-class RhythmPadCell : public GuiBase
-{
-public:
-    // どのエンベロープを映すか。切り替えは絵ごとではなく、
-    // 上にまとめて 1 つ置く。
-    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
-private:
-    int m_padIndex = 0;
-
-    // このパッドのパラメータの接頭辞
-    juce::String m_code;
-
-    GuiLabel titleLabel;
-    GuiWavePreview samplePreview;
-    GuiEnvelopeGraph graph;
-
-    GraphMode currentGraphMode = GraphMode::Amp;
-
-    // TARGET が指しているか。指している枠だけ濃い線で囲う。
-    bool isActive = false;
-
-    CurveCore* p_curveCore = nullptr;
-
-public:
-    RhythmPadCell(const GuiContext& context) :
-        GuiBase(context),
-        titleLabel(context),
-        samplePreview(context)
-    {
-    }
-
-    // どのエンベロープを映すかを決める。上の札からまとめて呼ばれる。
-    void setGraphMode(GraphMode mode);
-
-    // 枠を押したときに呼ぶ。TARGET をここへ動かすために使う。
-    std::function<void(int)> onSelect;
-
-    void setup(juce::Component& parent, int index, const juce::String& padName);
-    void layout(juce::Rectangle<int> rect);
-
-    // TARGET が指しているかを伝える。枠線の濃さが変わる。
-    void setActive(bool active);
-
-    void setVisibles(bool visible);
-
-    void updateSamplePreview();
-    void updateGraph();
-
-    void paint(juce::Graphics& g) override;
-    void mouseDown(const juce::MouseEvent& e) override;
-};
 
 class RhythmPadGui: public GuiBase
 {
@@ -121,10 +60,14 @@ class RhythmPadGui: public GuiBase
     GuiToggleButton graphBtnSsg11;
     GuiToggleButton graphBtnSsgP11;
 
-    RhythmPadCell::GraphMode currentGraphMode = RhythmPadCell::GraphMode::Amp;
+    GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
 
     // 札を押したときに、絵をまとめて切り替えてもらう。
-    void setGraphMode(RhythmPadCell::GraphMode mode);
+    void setGraphMode(GuiEnvGraphMode mode);
+public:
+    // 今どれを映しているか。枠を描く側が見る。
+    GuiEnvGraphMode graphMode() const { return currentGraphMode; }
+private:
 
     // 区分を横へ並べる送り台。縦へは送らず、あふれたぶんは横へ送る。
     //
@@ -350,7 +293,7 @@ public:
     std::function<void()> onParamsChanged;
 
     // 映すものが変わったときに呼ぶ。絵は入れ物のほうが持っている。
-    std::function<void(RhythmPadCell::GraphMode)> onGraphModeChange;
+    std::function<void(GuiEnvGraphMode)> onGraphModeChange;
 
     // 簡易表示モードで隠す区分への一括操作
     void bypassHiddenCategories() override;
@@ -472,8 +415,10 @@ class GuiRhythm : public GuiBase
     // 設定はひとそろいだけ。TARGET で指し先を切り替える。
     RhythmPadGui padPanel;
 
+    CurveCore* p_curveCore = nullptr;
+
     // 上に並ぶ絵。こちらはパッドの数だけ置く。
-    std::array<RhythmPadCell, RhythmPrValue::pads> cells;
+    std::array<GuiTargetCell, RhythmPrValue::pads> cells;
 
 
     // 指し先を一時的に動かして何かをする。
@@ -501,6 +446,13 @@ public:
 
     // 指し先を切り替える。設定の束縛と枠線の付け替えをまとめて行う。
     void applyPadTarget();
+
+    // 枠に出す波形とエンベロープを作り直す。
+    //
+    // 枠はパッドの数だけ同時に出るので、値はつまみからではなく
+    // パラメータから直に採る。
+    void updatePadPreview(int p);
+    void updatePadGraph(int p);
     void layoutUtilityCat(Rectangle<int>& rect);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     void buttonClicked(juce::Button* button);
