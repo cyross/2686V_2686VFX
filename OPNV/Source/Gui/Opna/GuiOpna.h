@@ -158,7 +158,6 @@ class GuiOpna : public GuiBase
     // 区分ごとの枠。基本は 1 列 1 区分。
     GuiScrollGroup colAmp;
     GuiScrollGroup colSsgEnv;
-    GuiScrollGroup colSsgHwEnv;
     GuiScrollGroup colSsgSwEnv;
     GuiScrollGroup colSsgSwEnv11;
     GuiScrollGroup colAmpMod;
@@ -167,10 +166,7 @@ class GuiOpna : public GuiBase
     GuiScrollGroup colSsgSwPEnv11;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
-    GuiScrollGroup colDet;
     GuiScrollGroup colHwLfo;
-    GuiScrollGroup colN88Lfo;
-    GuiScrollGroup colFix;
     GuiScrollGroup colMask;
 
     GuiComboBox mul;
@@ -375,7 +371,6 @@ public:
         opTargetSeparator(context),
         colAmp(context),
         colSsgEnv(context),
-        colSsgHwEnv(context),
         colSsgSwEnv(context),
         colSsgSwEnv11(context),
         colAmpMod(context),
@@ -384,10 +379,7 @@ public:
         colSsgSwPEnv11(context),
         colMod(context),
         colKs(context),
-        colDet(context),
         colHwLfo(context),
-        colN88Lfo(context),
-        colFix(context),
         colMask(context),
         catDet(context),
         catAmp(context),
