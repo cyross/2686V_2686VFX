@@ -5,4 +5,5 @@
 namespace ProcessorStateKey {
 	static const juce::String windowMode = "windowViewMode";
 	static const juce::String isVisiblePreview = "isVisiblePreview";
+	static const juce::String opmTarget = "opmTarget";
 }

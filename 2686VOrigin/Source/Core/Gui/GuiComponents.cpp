@@ -685,47 +685,49 @@ void GuiMasterVolumeSlider::setup(const GuiSlider::Config& c)
     GuiSlider::setTextValueSuffix(CoreGuiText::MasterVol::unit); // 単位表示
 }
 
+void GuiMml::openDialog(juce::Component* owner, int opIndex, const juce::String& hintMessage,
+    std::function<void(juce::String)> onApplied)
+{
+    // オペレーター番号は 0始まりを想定しているので +1 して表示
+    auto* w = new juce::AlertWindow(
+        juce::String("") + "MML風入力(オペレーター" + juce::String(opIndex + 1) + ")",
+        hintMessage, // ← 外から渡されたチャンネルごとのメッセージ
+        juce::AlertWindow::QuestionIcon);
+
+    w->addTextEditor("mmlInput", "", "");
+    w->addButton(juce::String("") + "決定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
+    w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+
+    GuiDialog::styleButtons(*w);
+
+    // 画面が閉じたあとに答えが返ってくることがある。onApplied は音源の
+    // 画面を捕まえているので、呼び手がまだ生きているかを見てから呼ぶ。
+    juce::Component::SafePointer<juce::Component> safeOwner(owner);
+
+    w->enterModalState(true, juce::ModalCallbackFunction::create([w, safeOwner, onApplied](int result) {
+        if (safeOwner == nullptr) return;
+
+        if (result == 1 && onApplied) onApplied(w->getTextEditorContents("mmlInput"));
+        }), true); // deleteWhenDismissed = true になっているので w は自動で破棄されます
+
+    if (auto* editor = w->getTextEditor("mmlInput"))
+    {
+        editor->grabKeyboardFocus();
+
+        // テキストエディタ内でEnterキーが押されたら、OK(1)として終了する
+        editor->onReturnKey = [w] { w->exitModalState(1); };
+    }
+}
+
 void GuiMmlButton::setupMml(const MmlConfig& c)
 {
-    // ボタンがクリックされた時の処理をここに閉じ込める
-    this->onClick = [this, c] {
-        // オペレーター番号は 0始まりを想定しているので +1 して表示
-        auto* w = new juce::AlertWindow(
-            juce::String("") + "MML風入力(オペレーター" + juce::String(c.opIndex + 1) + ")",
-            c.hintMessage, // ← 外から渡されたチャンネルごとのメッセージ
-            juce::AlertWindow::QuestionIcon);
+    // 札を押したときの中身は、窓を出す手続きへ預けてある。
+    juce::Component::SafePointer<GuiMmlButton> safeThis(this);
 
-        w->addTextEditor("mmlInput", "", "");
-        w->addButton(juce::String("") + "決定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
-        w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+    this->onClick = [safeThis, c] {
+        if (safeThis == nullptr) return;
 
-        GuiDialog::styleButtons(*w);
-
-        // 画面が閉じたあとに答えが返ってくることがある。c.onMmlApplied は
-        // 音源の画面を捕まえているので、このボタンが生きているかを見てから呼ぶ。
-        juce::Component::SafePointer<GuiMmlButton> safeThis(this);
-
-        // モーダル表示 (ラムダ式には設定値 c と ウィンドウ w をコピーキャプチャする)
-        w->enterModalState(true, juce::ModalCallbackFunction::create([c, w, safeThis](int result) {
-            if (safeThis == nullptr) return;
-
-            if (result == 1) {
-                juce::String mmlText = w->getTextEditorContents("mmlInput");
-
-                // 親から渡されたコールバック関数を実行し、入力された文字列を返す
-                if (c.onMmlApplied) {
-                    c.onMmlApplied(mmlText);
-                }
-            }
-            }), true); // deleteWhenDismissed = true になっているので w は自動で破棄されます
-
-        if (auto* editor = w->getTextEditor("mmlInput"))
-        {
-            editor->grabKeyboardFocus();
-
-            // テキストエディタ内でEnterキーが押されたら、OK(1)として終了する
-            editor->onReturnKey = [w] { w->exitModalState(1); };
-        }
+        GuiMml::openDialog(safeThis, c.opIndex, c.hintMessage, c.onMmlApplied);
         };
 }
 

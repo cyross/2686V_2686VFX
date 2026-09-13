@@ -996,6 +996,16 @@ public:
     void setup(const GuiSlider::Config& c);
 };
 
+// MML 風入力の窓。
+//
+// 札から離して呼べるところへ出してある。オペレータごとに札を置くのを
+// やめたので、鍵で「3 番の窓」を出したいときに押す札が無い。
+namespace GuiMml
+{
+    void openDialog(juce::Component* owner, int opIndex, const juce::String& hintMessage,
+        std::function<void(juce::String)> onApplied);
+}
+
 class GuiMmlButton : public GuiTextButton
 {
 public:
