@@ -93,9 +93,13 @@ namespace RhythmGuiValue
 		static constexpr int width = 230;
 
 		// 区分を横へ並べるときの、1 列ぶんの幅と隙間
+		//
+		// 幅は FORM の読み込み行で決まる。Load 50 + ファイル名 155 +
+		// Clear 35 で 240 要るので、枠の余白 (左右 10) と縦の送り棒の
+		// ぶんを足したものより狭くすると、Clear が見切れる。
 		namespace Col
 		{
-			static inline constexpr int width = 250;
+			static inline constexpr int width = 280;
 			static inline constexpr int gap = 10;
 		}
 		static constexpr int height = 460;

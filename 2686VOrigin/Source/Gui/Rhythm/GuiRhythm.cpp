@@ -106,9 +106,8 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     addAndMakeVisible(stripViewport);
 
-    colForm.setup(stripCanvas, juce::String("") + "FORM");
+    colForm.setup(stripCanvas, juce::String("") + "FORM / PAN");
     colOptional.setup(stripCanvas, juce::String("") + "OPTIONAL");
-    colPan.setup(stripCanvas, juce::String("") + "PAN");
     colQuality.setup(stripCanvas, juce::String("") + "QUALITY");
     colAmpEnv.setup(stripCanvas, juce::String("") + "AMP ENV");
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
@@ -120,8 +119,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     colSsgSwPEnv11.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colLfo.setup(stripCanvas, juce::String("") + "LFO");
-    colMulDet.setup(stripCanvas, juce::String("") + "MUL/DET");
-    colFix.setup(stripCanvas, juce::String("") + "FIX");
+    colMulDet.setup(stripCanvas, juce::String("") + "MUL/DET / FIX");
 
     // 今どのパッドを触っているか。名前は rebind で入れ替える。
     padNameLabel.setup({ .parent = *this, .title = Io::empty,
@@ -136,6 +134,23 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     padTarget.onValueChange = [this] { if (onTargetChange) onTargetChange(); };
 
     padTargetSeparator.setupComponent(*this);
+
+    // どのエンベロープを映すかの切り替え。TARGET のすぐ右へ置く。
+    auto setupModeBtn = [this, &tabOrder](GuiToggleButton& btn, const juce::String& text,
+        RhythmPadCell::GraphMode mode) {
+        btn.setup({ .parent = *this, .title = text, .isReset = false, .isResized = false });
+        btn.setWantsKeyboardFocus(true);
+        btn.setExplicitFocusOrder(++tabOrder);
+        btn.onClick = [this, mode] { this->setGraphMode(mode); };
+        };
+
+    setupModeBtn(graphBtnAmp, "AMP", RhythmPadCell::GraphMode::Amp);
+    setupModeBtn(graphBtnPitch, "PIT", RhythmPadCell::GraphMode::Pitch);
+    setupModeBtn(graphBtnSsg, "SSG", RhythmPadCell::GraphMode::SsgSw);
+    setupModeBtn(graphBtnSsg11, "S11", RhythmPadCell::GraphMode::SsgSw11);
+    setupModeBtn(graphBtnSsgP11, "P11", RhythmPadCell::GraphMode::SsgSwP11);
+
+    graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
     formCat.setupHwCategory({ .parent = colForm.contentCanvas, .title = RhythmGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
@@ -279,36 +294,36 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
         };
     noteSlider.updateText();
 
-    panCat.setupHwCategory({ .parent = colPan.contentCanvas, .title = RhythmGuiText::Category::pan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = colForm.contentCanvas, .title = RhythmGuiText::Category::pan, .enableChangeDetailVisible = true });
 
     // パンポット
-    panSlider.setup({ .parent = colPan.contentCanvas, .id = padPrefix + CPK::pan, .title = RhythmGuiText::Rhythm::Pad::pan, .isReset = true });
+    panSlider.setup({ .parent = colForm.contentCanvas, .id = padPrefix + CPK::pan, .title = RhythmGuiText::Rhythm::Pad::pan, .isReset = true });
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
     panSlider.setRange(0.0f, 1.0f);
 
-    panToLBtn.setup(GuiTextButton::Config{ .parent = colPan.contentCanvas, .id = "", .title = RhythmGuiText::Rhythm::Pad::Pan::l, .isReset = false });
+    panToLBtn.setup(GuiTextButton::Config{ .parent = colForm.contentCanvas, .id = "", .title = RhythmGuiText::Rhythm::Pad::Pan::l, .isReset = false });
     panToLBtn.setWantsKeyboardFocus(true);
     panToLBtn.setExplicitFocusOrder(++tabOrder);
     panToLBtn.onClick = [this]() {
         panSlider.setValue(0.0f, juce::sendNotification);
         };
 
-    panToCBtn.setup(GuiTextButton::Config{ .parent = colPan.contentCanvas, .id = "", .title = RhythmGuiText::Rhythm::Pad::Pan::c, .isReset = false });
+    panToCBtn.setup(GuiTextButton::Config{ .parent = colForm.contentCanvas, .id = "", .title = RhythmGuiText::Rhythm::Pad::Pan::c, .isReset = false });
     panToCBtn.setWantsKeyboardFocus(true);
     panToCBtn.setExplicitFocusOrder(++tabOrder);
     panToCBtn.onClick = [this]() {
         panSlider.setValue(0.5f, juce::sendNotification);
         };
 
-    panToRBtn.setup(GuiTextButton::Config{ .parent = colPan.contentCanvas, .id = "", .title = RhythmGuiText::Rhythm::Pad::Pan::r, .isReset = false });
+    panToRBtn.setup(GuiTextButton::Config{ .parent = colForm.contentCanvas, .id = "", .title = RhythmGuiText::Rhythm::Pad::Pan::r, .isReset = false });
     panToRBtn.setWantsKeyboardFocus(true);
     panToRBtn.setExplicitFocusOrder(++tabOrder);
     panToRBtn.onClick = [this]() {
         panSlider.setValue(1.0f, juce::sendNotification);
         };
 
-    fixComponent.setupComponent(colFix.contentCanvas, padPrefix, tabOrder, "-> 440", 440);
+    fixComponent.setupComponent(colMulDet.contentCanvas, padPrefix, tabOrder, "-> 440", 440);
 
     ampEnvComponent.setupComponent(colAmpEnv.contentCanvas, padPrefix, tabOrder);
 
@@ -334,10 +349,10 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     // 区分の中身は最初から開いておく。1 列 1 区分にしたので、
     // 畳んだままだと見出しだけの列が並ぶことになる。
     for (auto* group : {
-        &colForm, &colOptional, &colPan, &colQuality,
-        &colAmpEnv, &colSsgHwEnv, &colSsgSwEnv, &colSsgSwEnv11,
-        &colAmpMod, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv11,
-        &colMod, &colLfo, &colMulDet, &colFix,
+        &colForm, &colOptional, &colQuality, &colAmpEnv,
+        &colSsgHwEnv, &colSsgSwEnv, &colSsgSwEnv11, &colAmpMod,
+        &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv11, &colMod,
+        &colLfo, &colMulDet,
         })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -351,13 +366,28 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 {
     auto area = content;
 
-    // 一番上に TARGET と、今指しているパッドの名前。
+    // 一番上の帯。TARGET、映すものの切り替え、今指しているパッドの名前。
     // その下へ区切り線を引いて、設定と切り離す。
     {
         auto row = area.removeFromTop(20);
         auto slot = row.removeFromLeft(RhythmGuiValue::Pad::Col::width);
 
         layoutMain({ .mainRect = slot, .label = &padTarget.label, .component = &padTarget });
+
+        row.removeFromLeft(RhythmGuiValue::Pad::Col::gap);
+
+        // TARGET のすぐ右が、どのエンベロープを映すかの切り替え。
+        {
+            const int w = RhythmGuiValue::Pad::Graph::ModeButtonWidth;
+
+            auto btnRow = row.removeFromLeft(w * 5).withHeight(RhythmGuiValue::Pad::Graph::ButtonHeight);
+
+            graphBtnAmp.setBounds(btnRow.removeFromLeft(w));
+            graphBtnPitch.setBounds(btnRow.removeFromLeft(w));
+            graphBtnSsg.setBounds(btnRow.removeFromLeft(w));
+            graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
+            graphBtnSsgP11.setBounds(btnRow);
+        }
 
         row.removeFromLeft(RhythmGuiValue::Pad::Col::gap);
 
@@ -415,13 +445,14 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     const auto shown = [this](SimpleView::Cat cat) { return ctx.audioProcessor.isSimpleShown(cat); };
 
+    // FORM と PAN は 1 区分ずつでは丈が余るので、1 列へまとめてある。
     layoutCol(colForm, true, [&](juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &volSlider.label, .component = &volSlider });
         layoutFormCat(rect);
+        layoutPanCat(rect);
         });
 
     layoutCol(colOptional, true, [&](juce::Rectangle<int>& rect) { layoutOptionalCat(rect); });
-    layoutCol(colPan, true, [&](juce::Rectangle<int>& rect) { layoutPanCat(rect); });
     layoutCol(colQuality, true, [&](juce::Rectangle<int>& rect) { layoutQualityCat(rect); });
 
     layoutCol(colAmpEnv, shown(SimpleView::AmpEnv), [&](juce::Rectangle<int>& rect) {
@@ -471,13 +502,13 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
         lfoComponent.layoutComponent(rect);
         });
 
-    layoutCol(colMulDet, shown(SimpleView::MulDet), [&](juce::Rectangle<int>& rect) {
-        mulDetuneComponent.setCategoryVisible(true);
+    // MUL/DET と FIX も 1 列へまとめてある。どちらかだけを隠すことが
+    // できるので、列を出すかどうかは両方を見て決める。
+    layoutCol(colMulDet, shown(SimpleView::MulDet) || shown(SimpleView::Fix), [&](juce::Rectangle<int>& rect) {
+        mulDetuneComponent.setCategoryVisible(shown(SimpleView::MulDet));
         mulDetuneComponent.layoutComponent(rect);
-        });
 
-    layoutCol(colFix, shown(SimpleView::Fix), [&](juce::Rectangle<int>& rect) {
-        fixComponent.setCategoryVisible(true);
+        fixComponent.setCategoryVisible(shown(SimpleView::Fix));
         fixComponent.layoutComponent(rect);
         });
 
@@ -798,6 +829,23 @@ void RhythmPadCell::mouseDown(const juce::MouseEvent&)
 {
     // 枠を押したらそこへ TARGET を移す。下の設定もまとめて切り替わる。
     if (onSelect) onSelect(m_padIndex);
+}
+
+// 絵をまとめて切り替える。
+//
+// 絵そのものは入れ物のほうが持っているので、決めたことだけを伝える。
+void RhythmPadGui::setGraphMode(RhythmPadCell::GraphMode mode)
+{
+    currentGraphMode = mode;
+
+    // 札は排他。押したものだけを入れる。
+    graphBtnAmp.setToggleState(mode == RhythmPadCell::GraphMode::Amp, juce::dontSendNotification);
+    graphBtnPitch.setToggleState(mode == RhythmPadCell::GraphMode::Pitch, juce::dontSendNotification);
+    graphBtnSsg.setToggleState(mode == RhythmPadCell::GraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == RhythmPadCell::GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == RhythmPadCell::GraphMode::SsgSwP11, juce::dontSendNotification);
+
+    if (onGraphModeChange) onGraphModeChange(mode);
 }
 
 // TARGET が指すパッドへ、設定の束縛を丸ごと移す。
@@ -1354,11 +1402,6 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     uSep003(context),
     ieUnison(context),
 	ieChParam(context),
-    graphBtnAmp(context),
-    graphBtnPitch(context),
-    graphBtnSsg(context),
-    graphBtnSsg11(context),
-    graphBtnSsgP11(context),
     padPanel(context),
     cells{ { {context}, {context}, {context}, {context}, {context}, {context} } }
 {
@@ -1514,22 +1557,6 @@ void GuiRhythm::setup()
             };
     }
 
-    // どのエンベロープを映すかの切り替え。絵ごとではなく、まとめて 1 つ。
-    auto setupModeBtn = [this, &tabOrder](GuiToggleButton& btn, const juce::String& text,
-        RhythmPadCell::GraphMode mode) {
-        btn.setup({ .parent = *this, .title = text, .isReset = false, .isResized = false });
-        btn.setWantsKeyboardFocus(true);
-        btn.setExplicitFocusOrder(++tabOrder);
-        btn.onClick = [this, mode] { this->setGraphMode(mode); };
-        };
-
-    setupModeBtn(graphBtnAmp, "AMP", RhythmPadCell::GraphMode::Amp);
-    setupModeBtn(graphBtnPitch, "PIT", RhythmPadCell::GraphMode::Pitch);
-    setupModeBtn(graphBtnSsg, "SSG", RhythmPadCell::GraphMode::SsgSw);
-    setupModeBtn(graphBtnSsg11, "S11", RhythmPadCell::GraphMode::SsgSw11);
-    setupModeBtn(graphBtnSsgP11, "P11", RhythmPadCell::GraphMode::SsgSwP11);
-
-    graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
     padPanel.setup(*this, tabOrder);
 
@@ -1538,6 +1565,12 @@ void GuiRhythm::setup()
     // 設定のつまみが動いたら、指しているパッドの絵を描き直す。
     // 指していないパッドは値が変わらないので、触らなくてよい。
     padPanel.onParamsChanged = [this] { cells[(size_t)currentPad()].updateGraph(); };
+
+    // 映すものは絵ごとではなく全部そろえる。並べた絵を見比べる
+    // ためのものなので、一枚ずつ違うものを映しても比べようがない。
+    padPanel.onGraphModeChange = [this](RhythmPadCell::GraphMode mode) {
+        for (auto& cell : cells) cell.setGraphMode(mode);
+        };
 
     // 前に開いていたときの指し先から始める。
     const int saved = (int)ctx.audioProcessor.apvts.state.getProperty(ProcessorStateKey::rhythmTarget, 0);
@@ -1596,22 +1629,6 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     const int cellW = pageArea.getWidth() / cols;
 
-    // 絵の上に、どのエンベロープを映すかの札を 1 組だけ置く。
-    {
-        auto modeRow = pageArea.removeFromTop(RhythmGuiValue::Pad::Graph::ButtonHeight);
-
-        modeRow = modeRow.removeFromLeft(RhythmGuiValue::Pad::Graph::ModeButtonWidth * 5);
-
-        const int w = RhythmGuiValue::Pad::Graph::ModeButtonWidth;
-
-        graphBtnAmp.setBounds(modeRow.removeFromLeft(w));
-        graphBtnPitch.setBounds(modeRow.removeFromLeft(w));
-        graphBtnSsg.setBounds(modeRow.removeFromLeft(w));
-        graphBtnSsg11.setBounds(modeRow.removeFromLeft(w));
-        graphBtnSsgP11.setBounds(modeRow);
-    }
-
-    pageArea.removeFromTop(4);
 
     auto cellsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::Cell::height * rows);
 
@@ -1783,24 +1800,6 @@ void GuiRhythm::initParams()
         this->ctx.audioProcessor.unloadRhythmFile(i);
         updatePadFileName(i, Io::empty);
     }
-}
-
-// 絵をまとめて切り替える。
-//
-// どれを映すかは絵ごとではなく、全部そろえる。並べた絵を見比べる
-// ためのものなので、一枚ずつ違うものを映しても比べようがない。
-void GuiRhythm::setGraphMode(RhythmPadCell::GraphMode mode)
-{
-    currentGraphMode = mode;
-
-    // 札は排他。押したものだけを入れる。
-    graphBtnAmp.setToggleState(mode == RhythmPadCell::GraphMode::Amp, juce::dontSendNotification);
-    graphBtnPitch.setToggleState(mode == RhythmPadCell::GraphMode::Pitch, juce::dontSendNotification);
-    graphBtnSsg.setToggleState(mode == RhythmPadCell::GraphMode::SsgSw, juce::dontSendNotification);
-    graphBtnSsg11.setToggleState(mode == RhythmPadCell::GraphMode::SsgSw11, juce::dontSendNotification);
-    graphBtnSsgP11.setToggleState(mode == RhythmPadCell::GraphMode::SsgSwP11, juce::dontSendNotification);
-
-    for (auto& cell : cells) cell.setGraphMode(mode);
 }
 
 // TARGET が今どのパッドを指しているか (0 から数える)。

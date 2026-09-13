@@ -110,6 +110,22 @@ class RhythmPadGui: public GuiBase
     // 今指しているパッドの名前。TARGET の隣に出す。
     GuiLabel padNameLabel;
 
+    // どのエンベロープを映すかの切り替え。絵ごとではなく、まとめて 1 つ。
+    // TARGET のすぐ右へ置く。
+    //
+    // 絵ごとに札を並べると、枠の丈をそのぶん食われるうえ、
+    // どれがどれを映しているのかを一枚ずつ確かめることになる。
+    GuiToggleButton graphBtnAmp;
+    GuiToggleButton graphBtnPitch;
+    GuiToggleButton graphBtnSsg;
+    GuiToggleButton graphBtnSsg11;
+    GuiToggleButton graphBtnSsgP11;
+
+    RhythmPadCell::GraphMode currentGraphMode = RhythmPadCell::GraphMode::Amp;
+
+    // 札を押したときに、絵をまとめて切り替えてもらう。
+    void setGraphMode(RhythmPadCell::GraphMode mode);
+
     // 区分を横へ並べる送り台。縦へは送らず、あふれたぶんは横へ送る。
     //
     // 縦に積むと、下のほうの区分が畳まれた見出しの列に埋もれて
@@ -120,7 +136,6 @@ class RhythmPadGui: public GuiBase
     // 区分ごとの枠。基本は 1 列 1 区分。
     GuiScrollGroup colForm;
     GuiScrollGroup colOptional;
-    GuiScrollGroup colPan;
     GuiScrollGroup colQuality;
     GuiScrollGroup colAmpEnv;
     GuiScrollGroup colSsgHwEnv;
@@ -133,7 +148,6 @@ class RhythmPadGui: public GuiBase
     GuiScrollGroup colMod;
     GuiScrollGroup colLfo;
     GuiScrollGroup colMulDet;
-    GuiScrollGroup colFix;
 
     GuiLabel fileNameLabel;
     GuiTextButton loadButton;
@@ -241,9 +255,13 @@ public:
     RhythmPadGui(const GuiContext& context) :
 		GuiBase(context),
         padNameLabel(context),
+        graphBtnAmp(context),
+        graphBtnPitch(context),
+        graphBtnSsg(context),
+        graphBtnSsg11(context),
+        graphBtnSsgP11(context),
         colForm(context),
         colOptional(context),
-        colPan(context),
         colQuality(context),
         colAmpEnv(context),
         colSsgHwEnv(context),
@@ -256,7 +274,6 @@ public:
         colMod(context),
         colLfo(context),
         colMulDet(context),
-        colFix(context),
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
@@ -333,6 +350,9 @@ public:
 
     // つまみが動いたときに呼ぶ。上の絵を描き直してもらう。
     std::function<void()> onParamsChanged;
+
+    // 映すものが変わったときに呼ぶ。絵は入れ物のほうが持っている。
+    std::function<void(RhythmPadCell::GraphMode)> onGraphModeChange;
 
     // 簡易表示モードで隠す区分への一括操作
     void bypassHiddenCategories() override;
@@ -457,20 +477,6 @@ class GuiRhythm : public GuiBase
     // 上に並ぶ絵。こちらはパッドの数だけ置く。
     std::array<RhythmPadCell, RhythmPrValue::pads> cells;
 
-    // どのエンベロープを映すかの切り替え。絵ごとではなく、まとめて 1 つ。
-    //
-    // 絵ごとに札を並べると、枠の丈をそのぶん食われるうえ、
-    // どれがどれを映しているのかを一枚ずつ確かめることになる。
-    GuiToggleButton graphBtnAmp;
-    GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
-    GuiToggleButton graphBtnSsg11;
-    GuiToggleButton graphBtnSsgP11;
-
-    RhythmPadCell::GraphMode currentGraphMode = RhythmPadCell::GraphMode::Amp;
-
-    // 札を押したときに、絵を全部まとめて切り替える。
-    void setGraphMode(RhythmPadCell::GraphMode mode);
 
     // 指し先を一時的に動かして何かをする。
     //
