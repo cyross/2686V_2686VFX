@@ -9,6 +9,11 @@ namespace RhythmGuiText
 	static inline const juce::String bit = u8"BIT";
 	static inline const juce::String rate = u8"RATE";
 
+	// パッドの名前。番号の並びと一致していること。
+	//
+	// 設定は 1 組しか置かないので、見出しへ出す名前はここから引く。
+	static inline const juce::String padNames[] = { "BD", "SD", "RIM", "TOM", "CYMBAL", "HI-HAT", "PERC1", "PERC2" };
+
 	namespace Category
 	{
 		static inline const juce::String form = u8"FORM";

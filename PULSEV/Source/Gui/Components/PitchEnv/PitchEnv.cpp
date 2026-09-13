@@ -256,14 +256,24 @@ void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_cur
 
 	graph.setKeepLevels(keepOn);
 
+	// つまみが出している値と幅を、そのまま束にして渡す。
+	GuiEnvelopeGraph::PitchEnvValues v;
+
+	v.ar = (float)attack.getSlider().getValue();
+	v.dr = (float)decay.getSlider().getValue();
+	v.rr = (float)release.getSlider().getValue();
+
+	v.arMax = (float)attack.getSlider().getMaximum();
+	v.drMax = (float)decay.getSlider().getMaximum();
+	v.rrMax = (float)release.getSlider().getMaximum();
+
+	v.stl = (float)startLevel.getSlider().getValue();
+	v.atl = (float)attackLevel.getSlider().getValue();
+	v.ssl = (float)sustainLevel.getSlider().getValue();
+	v.rll = (float)releaseLevel.getSlider().getValue();
+
 	graph.updatePitchEnv(
-		attack.getSlider(),
-		decay.getSlider(),
-		release.getSlider(),
-		startLevel.getSlider(),
-		attackLevel.getSlider(),
-		sustainLevel.getSlider(),
-		releaseLevel.getSlider(),
+		v,
 		keepOn ? nullptr : p_curveCore,
 		keepOn ? false : isCurveMode,
 		posIdx

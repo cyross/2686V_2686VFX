@@ -182,13 +182,25 @@ void GuiComponentAmpEnv::setupGraph(std::function<void()> repaintGraph) {
 void GuiComponentAmpEnv::updateGraph(GuiEnvelopeGraph& graph) {
 	graph.updateBypass(bypass.getToggleState());
 
+	// つまみが出している値と幅を、そのまま束にして渡す。
+	GuiEnvelopeGraph::AmpEnvValues v;
+
+	v.stl = (float)startLevel.getValue();
+	v.ar = (float)attack.getValue();
+	v.dr = (float)decay.getValue();
+	v.sl = (float)sustain.getValue();
+	v.rr = (float)release.getValue();
+
+	v.stlMax = (float)startLevel.getMaximum();
+	v.arMax = (float)attack.getMaximum();
+	v.drMax = (float)decay.getMaximum();
+	v.slMax = (float)sustain.getMaximum();
+	v.rrMax = (float)release.getMaximum();
+
+	v.kor = kor.getToggleState();
+
 	graph.updateAmpEnv(
-		startLevel,
-		attack,
-		decay,
-		sustain,
-		release,
-		kor
+		v
 	);
 }
 

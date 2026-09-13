@@ -32,6 +32,7 @@ namespace
 #include "./GuiRhythmText.h"
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiRhythmHelpers.h"
+#include "../../Core/Gui/GuiGraphValues.h"
 
 #include "../../Core/Processor/PluginProcessorStateKey.h"
 
@@ -77,8 +78,12 @@ void RhythmPadGui::updateSamplePreview()
     samplePreview.setMarkers(markers);
 }
 
-void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName, int& tabOrder)
+void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 {
+    // 組み立ての間だけ 1 番のパッドへ繋いでおく。
+    // 実際の指し先は、組み上がったあと rebind で入れ替える。
+    const int index = 0;
+
     auto setupPanBtn = [this](juce::Component& parent, GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
             parent.addAndMakeVisible(btn);
@@ -91,10 +96,19 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     parent.addAndMakeVisible(this);
 
     juce::String padPrefix = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(index);
-    juce::String padTitle = RhythmGuiText::Group::padPrefix +  " " + juce::String(index + 1) + " (" + padName + ")";
 
-    // メイングループ
-    mainGroup.setup(*this, padTitle);
+    // メイングループ。見出しは指し先の名前になるので、rebind で入れ替える。
+    mainGroup.setup(*this, RhythmGuiText::Group::padPrefix);
+
+    // TARGET。値が動いたら、入れ物の側が束縛と枠線を付け替える。
+    padTarget.setup({ .parent = *this, .title = "TARGET", .isReset = false });
+    padTarget.setRange(1.0, (double)RhythmPrValue::pads, 1.0);
+    padTarget.setNumDecimalPlacesToDisplay(0);
+    padTarget.setWantsKeyboardFocus(true);
+    padTarget.setExplicitFocusOrder(++tabOrder);
+    padTarget.onValueChange = [this] { if (onTargetChange) onTargetChange(); };
+
+    padTargetSeparator.setupComponent(*this);
 
     formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
@@ -120,10 +134,10 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     clearButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
     clearButton.setWantsKeyboardFocus(true);
     clearButton.setExplicitFocusOrder(++tabOrder);
-    clearButton.onClick = [this, index]
+    clearButton.onClick = [this]
         {
             // 1. 特定のパッドをアンロード
-            ctx.audioProcessor.unloadRhythmFile(index);
+            ctx.audioProcessor.unloadRhythmFile(m_padIndex);
 
             // 2. ファイル名表示を更新
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
@@ -289,7 +303,6 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     ampModComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     setupGraph();
-    updateGraph();
 }
 
 void RhythmPadGui::layout(juce::Rectangle<int> content)
@@ -300,46 +313,100 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     ppadRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
-    // グラフ用の区画を確保
-    layoutGraph(ppadRect);
-    updateGraph();
+    // 一番上に TARGET。その下へ区切り線を引いて、設定と切り離す。
+    {
+        auto row = ppadRect.removeFromTop(20);
+        auto slot = row.removeFromLeft(RhythmGuiValue::Pad::width);
 
-    // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
-    // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
+        layoutMain({ .mainRect = slot, .label = &padTarget.label, .component = &padTarget });
+    }
+
+    padTargetSeparator.layoutComponent(ppadRect);
+
+    // 固定ヘッダーを配置して残った「ppadRect」を、Viewportの領域としてセットする
+    // (content の左上座標を引いて、グループ内での相対座標に変換しています)
     mainGroup.setViewportCustomBounds(ppadRect.translated(-content.getX(), -content.getY()));
 
-    // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> padRect(0, 0, mainGroup.getContentWidth(), 2000);
+    // ---- 中身は列へ折り返して並べる ----
+    //
+    // 下半分いっぱいを 1 列で使うと、幅だけが余って読みづらい。
+    // 1 列ぶんの高さを越えたら、次の列の頭から続ける。
+    // 最後の列だけはあふれてよく、そのぶんが縦にスクロールする。
+    const int colWidth = RhythmGuiValue::Pad::width;
+    const int colGap = 12;
+    const int colCount = juce::jmax(1, (mainGroup.getContentWidth() + colGap) / (colWidth + colGap));
+    const int colHeight = juce::jmax(100, ppadRect.getHeight());
+
+    int col = 0;
+    int usedHeight = 0;
+
+    juce::Rectangle<int> padRect(0, 0, colWidth, 20000);
+
+    auto wrap = [&] {
+        usedHeight = juce::jmax(usedHeight, padRect.getY());
+
+        if (col + 1 >= colCount) return;
+
+        if (padRect.getY() < colHeight) return;
+
+        ++col;
+
+        padRect = juce::Rectangle<int>(col * (colWidth + colGap), 0, colWidth, 20000);
+        };
 
     layoutRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
 
     layoutFormCat(padRect);
 
+    wrap();
+
     layoutOptionalCat(padRect);
 
+    wrap();
+
     layoutPanCat(padRect);
+
+    wrap();
 
     ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(padRect);
     ssgHwEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(padRect);
+
+    wrap();
+
     ssgSwEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnvComponent.layoutComponent(padRect);
     ssgSwEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11Component.layoutComponent(padRect);
+
+    wrap();
+
     ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(padRect);
+
+    wrap();
 
     pitchEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
     pitchEnvComponent.layoutComponent(padRect);
     ssgHwPEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(padRect);
+
+    wrap();
+
     ssgSwPEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11Component.layoutComponent(padRect);
+
+    wrap();
+
     modComponent.layoutComponent(padRect);
+
+    wrap();
 
     lfoComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
     lfoComponent.layoutComponent(padRect);
+
+    wrap();
 
     mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
     mulDetuneComponent.layoutComponent(padRect);
@@ -349,7 +416,7 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     layoutQualityCat(padRect);
 
-    int usedHeight = 2000 - padRect.getHeight();
+    wrap();
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
@@ -363,58 +430,6 @@ void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
 bool RhythmPadGui::isThis(juce::Button* button)
 {
     return button == &loadButton;
-}
-
-void RhythmPadGui::updatePadVisible(bool visible) {
-    mainGroup.setVisible(visible);
-    fileNameLabel.setVisible(visible);
-    samplePreview.setVisible(visible);
-    loadButton.setVisible(visible);
-    clearButton.setVisible(visible);
-    formCat.setVisible(visible);
-    optionalCat.setVisible(visible);
-    padDelaySlider.setVisibles(visible);
-    padDelayNudge.setVisibles(visible && padDelaySlider.isVisibleNudge());
-    optDelaySeparator.setVisible(visible);
-    speedSlider.setVisibleWithLabel(visible);
-    optSpeedSeparator.setVisible(visible);
-    loopCountSlider.setVisibleWithLabel(visible);
-    loopCountButtons.setVisibles(visible && loopCountSlider.isVisibleNudge());
-    optCountSeparator.setVisible(visible);
-    pcmOffsetSlider.setVisibleWithLabel(visible);
-    pcmRatioSlider.setVisibleWithLabel(visible);
-    loopPointEnableButton.setVisible(visible);
-    loopPointStartSlider.setVisibleWithLabel(visible);
-    loopPointEndSlider.setVisibleWithLabel(visible);
-	qualityPcmComponent.setVisibles(visible);
-    panCat.setVisible(visible);
-    noteSlider.setVisibleWithLabel(visible);
-    panSlider.setVisibleWithLabel(visible);
-    panToLBtn.setVisible(visible);
-    panToCBtn.setVisible(visible);
-    panToRBtn.setVisible(visible);
-    volSlider.setVisibleWithLabel(visible);
-    toneSlider.setVisibleWithLabel(visible);
-    noiseSlider.setVisibleWithLabel(visible);
-    noiseFreqSlider.setVisibleWithLabel(visible);
-    mixSlider.setVisibleWithLabel(visible);
-    mixSetTone.setVisible(visible);
-    mixSetMix.setVisible(visible);
-    mixSetNoise.setVisible(visible);
-    oneShotButton.setVisible(visible);
-    fixComponent.setVisible(visible);
-    ampEnvComponent.setVisible(visible);
-    pitchEnvComponent.setVisible(visible);
-    ssgSwEnvComponent.setVisible(visible);
-    mulDetuneComponent.setVisible(visible);
-    lfoComponent.setVisible(visible);
-    graph.setVisible(visible);
-    graphBtnAmp.setVisible(visible);
-    graphBtnPitch.setVisible(visible);
-    graphBtnSsg.setVisible(visible);
-    graphBtnSsg11.setVisible(visible);
-    graphBtnSsgP11.setVisible(visible);
-    graphSeparator.setVisible(visible);
 }
 
 void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
@@ -532,26 +547,12 @@ void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
     }
 }
 
+// つまみが動いたら、上の絵を描き直してもらうためのつなぎ。
+//
+// グラフそのものはここには無い。パッドの数だけ同時に出るので、
+// 設定の側で持つわけにいかない。
 void RhythmPadGui::setupGraph()
 {
-    addAndMakeVisible(&graph); // グラフを追加
-
-    graphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
-    graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
-    graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
-
-    graphBtnPitch.setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
-    graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
-
-    graphBtnSsg.setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
-    graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
-
-    graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
-    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw11); };
-
-    graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
-    graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
-
     auto repaintGraph = [this]() {
         if (this->isUpdatingGraph) return;
 
@@ -559,7 +560,7 @@ void RhythmPadGui::setupGraph()
         // 以後グラフの更新が全部素通りしてしまうため。
         const juce::ScopedValueSetter<bool> guard(this->isUpdatingGraph, true);
 
-        this->updateGraph();
+        if (this->onParamsChanged) this->onParamsChanged();
         };
 
     ampEnvComponent.setupGraph(repaintGraph);
@@ -571,32 +572,68 @@ void RhythmPadGui::setupGraph()
     ssgSwEnv11Component.setupGraph(repaintGraph);
 
     ssgSwPEnv11Component.setupGraph(repaintGraph);
-
-    graphSeparator.setupComponent(*this);
 }
 
-void RhythmPadGui::setGraphMode(GraphMode mode)
+// ==========================================================
+// パッドの絵
+// ==========================================================
+void RhythmPadCell::setup(juce::Component& parent, int index, const juce::String& padName, int& tabOrder)
 {
-    currentGraphMode = mode;
+    m_padIndex = index;
+    m_code = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(index);
 
-    // ラジオボタン的な排他制御
-    graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
-    graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
-    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
-    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
+    parent.addAndMakeVisible(this);
 
-    // モードが変わったらグラフを描画し直す
+    titleLabel.setup({ .parent = *this,
+        .title = RhythmGuiText::Group::padPrefix + " " + juce::String(index + 1) + " (" + padName + ")" });
+
+    samplePreview.setup(*this, GuiColor::WavePreview::AudioFile);
+
+    addAndMakeVisible(&graph);
+
+    // 枠のどこを押しても TARGET が動くようにする。
+    // 見出しとグラフが押下を食べてしまうと、札の隙間しか当たらない。
+    titleLabel.setInterceptsMouseClicks(false, false);
+    graph.setInterceptsMouseClicks(false, false);
+
+    // どのエンベロープを映すかを選ぶ札。見比べたいことがあるので、
+    // 枠ごとに別々に選べるようにしてある。
+    auto setupBtn = [this, &tabOrder](GuiToggleButton& btn, const juce::String& text, GraphMode mode) {
+        btn.setup({ .parent = *this, .title = text, .isReset = false, .isResized = false });
+        btn.setWantsKeyboardFocus(true);
+        btn.setExplicitFocusOrder(++tabOrder);
+        btn.onClick = [this, mode] { this->setGraphMode(mode); };
+        };
+
+    setupBtn(graphBtnAmp, "AMP", GraphMode::Amp);
+    setupBtn(graphBtnPitch, "PIT", GraphMode::Pitch);
+    setupBtn(graphBtnSsg, "SSG", GraphMode::SsgSw);
+    setupBtn(graphBtnSsg11, "S11", GraphMode::SsgSw11);
+    setupBtn(graphBtnSsgP11, "P11", GraphMode::SsgSwP11);
+
+    graphBtnAmp.setToggleState(true, juce::dontSendNotification);
+
+    updateSamplePreview();
     updateGraph();
 }
 
-void RhythmPadGui::layoutGraph(juce::Rectangle<int>& rect)
+void RhythmPadCell::layout(juce::Rectangle<int> rect)
 {
-    auto mainArea = rect.removeFromTop(RhythmGuiValue::Pad::Graph::height + NormalSeparator::getHeight());
+    setBounds(rect);
 
-    graphSeparator.layoutComponentBottom(mainArea);
+    // 枠線のぶんだけ内側へ寄せる
+    auto area = getLocalBounds().reduced(4);
 
-    // そのうち下部20pxをボタンエリアにする
-    auto btnArea = mainArea.removeFromBottom(RhythmGuiValue::Pad::Graph::ButtonHeight);
+    titleLabel.setBounds(area.removeFromTop(14));
+
+    area.removeFromTop(2);
+
+    samplePreview.setBounds(area.removeFromTop(GuiWavePreview::defaultHeight));
+
+    area.removeFromTop(2);
+
+    // 下端は札。残りが全部グラフになる。
+    auto btnArea = area.removeFromBottom(RhythmGuiValue::Pad::Graph::ButtonHeight);
     int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
@@ -605,45 +642,195 @@ void RhythmPadGui::layoutGraph(juce::Rectangle<int>& rect)
     graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnSsgP11.setBounds(btnArea);
 
-    // 残りをグラフエリアにする
-    graph.setBounds(mainArea);
+    graph.setBounds(area);
+
+    updateGraph();
 }
 
-// グラフを再計算して描画
-void RhythmPadGui::updateGraph()
+void RhythmPadCell::setActive(bool active)
 {
-    GraphMode mode = currentGraphMode;
+    if (isActive == active) return;
 
-    // =============================================================
-    // Pitch Env
-    // =============================================================
-    if (mode == GraphMode::Pitch) {
-        pitchEnvComponent.updateGraph(graph);
+    isActive = active;
+
+    repaint();
+}
+
+void RhythmPadCell::setVisibles(bool visible)
+{
+    setVisible(visible);
+}
+
+void RhythmPadCell::setGraphMode(GraphMode mode)
+{
+    currentGraphMode = mode;
+
+    // 札は排他。押したものだけを入れる。
+    graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
+    graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
+    graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
+
+    updateGraph();
+}
+
+// 読み込んだサンプルの、実際に鳴る範囲を描く。
+void RhythmPadCell::updateSamplePreview()
+{
+    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
+    if (GuiRefresh::defer(this, [this] { updateSamplePreview(); })) return;
+
+    const auto& data = ctx.audioProcessor.rhythmPreviewBuffers[m_padIndex];
+
+    if (data.empty()) {
+        samplePreview.clear();
+
+        return;
     }
-    // =============================================================
-    // SSG SW Env
-    // =============================================================
-    else if (mode == GraphMode::SsgSw) {
-        ssgSwEnvComponent.updateGraph(graph);
+
+    auto& apvts = ctx.audioProcessor.apvts;
+
+    auto env = WavePreviewSource::audioFile(
+        data,
+        ctx.audioProcessor.rhythmPreviewRates[m_padIndex],
+        GuiGraphValues::value(apvts, m_code + CPK::pcmOffset),
+        GuiGraphValues::value(apvts, m_code + CPK::pcmRatio));
+
+    samplePreview.setEnvelope(env.mins, env.maxs);
+
+    // ループ位置は切り出した範囲に対する 0.0〜1.0。使うときだけ出す。
+    std::vector<float> markers;
+
+    if (GuiGraphValues::flag(apvts, m_code + CPK::lpEnable)) {
+        markers.push_back(GuiGraphValues::value(apvts, m_code + CPK::lpStart));
+        markers.push_back(GuiGraphValues::value(apvts, m_code + CPK::lpEnd));
     }
-    // =============================================================
-    // SSG SW Env 11
-    // =============================================================
-    else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11Component.updateGraph(graph);
+
+    samplePreview.setMarkers(markers);
+}
+
+// エンベロープを描き直す。
+//
+// 絵はパッドの数だけ同時に出るので、つまみから値を読むわけにいかない。
+// 接頭辞を頼りにパラメータから直に採る。
+void RhythmPadCell::updateGraph()
+{
+    auto& apvts = ctx.audioProcessor.apvts;
+
+    if (currentGraphMode == GraphMode::Pitch) {
+        // KEEP のときはカーブを効かせない。音の側も補間そのものを止めてある。
+        const bool keepOn = GuiGraphValues::pitchEnvKeep(apvts, m_code);
+
+        graph.updateBypass(GuiGraphValues::flag(apvts, m_code + CPK::pitchAdsr + CPK::bypass));
+        graph.setKeepLevels(keepOn);
+        graph.updatePitchEnv(GuiGraphValues::pitchEnv(apvts, m_code));
     }
-    // =============================================================
-    // SSG SW PEnv 11
-    // =============================================================
-    else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11Component.updateGraph(graph);
+    else if (currentGraphMode == GraphMode::SsgSw) {
+        const auto v = GuiGraphValues::ssgSwEnv(apvts, m_code);
+
+        graph.updateBypass(GuiGraphValues::flag(apvts, m_code + CPK::ssgSwEnv + CPK::bypass));
+        graph.updateSsgSwEnv(v.head, v.rVal, v.rMax, v.lVal, v.lMax);
     }
-    // =============================================================
-    // Amp Env
-    // =============================================================
+    else if (currentGraphMode == GraphMode::SsgSw11) {
+        const auto v = GuiGraphValues::ssgSwEnv11(apvts, m_code);
+        const bool keepOn = GuiGraphValues::ssgSwEnv11Keep(apvts, m_code);
+
+        graph.updateBypass(GuiGraphValues::flag(apvts, m_code + CPK::ssgSwEnv11 + CPK::bypass));
+        graph.setKeepLevels(keepOn);
+        graph.updateSsgSwEnv11(v.head, v.rVal, v.rMax, v.lVal, v.lMax);
+    }
+    else if (currentGraphMode == GraphMode::SsgSwP11) {
+        const auto v = GuiGraphValues::ssgSwPEnv11(apvts, m_code);
+        const bool keepOn = GuiGraphValues::ssgSwPEnv11Keep(apvts, m_code);
+
+        graph.updateBypass(GuiGraphValues::flag(apvts, m_code + CPK::ssgSwPEnv11 + CPK::bypass));
+        graph.setKeepLevels(keepOn);
+        graph.updateSsgSwPEnv11(v.head, v.rVal, v.rMax, v.lVal, v.lMax);
+    }
     else {
-        ampEnvComponent.updateGraph(graph);
+        graph.updateBypass(GuiGraphValues::ampEnvBypassed(apvts, m_code));
+        graph.updateAmpEnv(GuiGraphValues::ampEnv(apvts, m_code));
     }
+
+    graph.repaint();
+}
+
+void RhythmPadCell::paint(juce::Graphics& g)
+{
+    // TARGET が指している枠だけ濃く囲う。指していない枠も薄く囲って
+    // おかないと、どこまでが 1 枚なのか分からなくなる。
+    g.setColour(isActive ? GuiColor::TargetFrame::Active.get() : GuiColor::TargetFrame::Border.get());
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(1.0f), 3.0f, isActive ? 2.0f : 1.0f);
+}
+
+void RhythmPadCell::mouseDown(const juce::MouseEvent&)
+{
+    // 枠を押したらそこへ TARGET を移す。下の設定もまとめて切り替わる。
+    if (onSelect) onSelect(m_padIndex);
+}
+
+// TARGET が指すパッドへ、設定の束縛を丸ごと移す。
+//
+// パッドごとに区分をひとそろい並べるのをやめたので、指し先はここで
+// 差し替える。見た目は組み直さない。
+void RhythmPadGui::rebind(int index)
+{
+    m_padIndex = index;
+
+    const juce::String padPrefix = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(index);
+
+    mainGroup.setText(RhythmGuiText::Group::padPrefix + " " + juce::String(index + 1)
+        + " (" + RhythmGuiText::padNames[(size_t)index] + ")");
+
+    qualityPcmComponent.rebind(padPrefix);
+
+    padDelaySlider.getSlider().rebind(padPrefix + CPK::delay);
+    speedSlider.rebind(padPrefix + CPK::speed);
+    loopCountSlider.getSlider().rebind(padPrefix + CPK::lpCount);
+    pcmOffsetSlider.rebind(padPrefix + CPK::pcmOffset);
+    pcmRatioSlider.rebind(padPrefix + CPK::pcmRatio);
+    loopPointEnableButton.rebind(padPrefix + CPK::lpEnable);
+    loopPointStartSlider.rebind(padPrefix + CPK::lpStart);
+    loopPointEndSlider.rebind(padPrefix + CPK::lpEnd);
+
+    volSlider.rebind(padPrefix + CPK::vol);
+    toneSlider.rebind(padPrefix + CPK::Tn::tone);
+    noiseSlider.rebind(padPrefix + CPK::Tn::noise);
+    noiseFreqSlider.rebind(padPrefix + CPK::Tn::freq);
+    mixSlider.rebind(padPrefix + CPK::Tn::mix);
+    oneShotButton.rebind(padPrefix + CPK::oneShot);
+    noteSlider.rebind(padPrefix + CPK::note);
+    panSlider.rebind(padPrefix + CPK::pan);
+
+    fixComponent.rebind(padPrefix);
+    ampEnvComponent.rebind(padPrefix);
+    pitchEnvComponent.rebind(padPrefix);
+    ssgSwEnvComponent.rebind(padPrefix);
+    ssgSwEnv11Component.rebind(padPrefix);
+    ssgSwPEnv11Component.rebind(padPrefix);
+    mulDetuneComponent.rebind(padPrefix);
+    lfoComponent.rebind(padPrefix);
+    ssgHwEnv.rebind(padPrefix);
+    ssgHwPEnv.rebind(padPrefix);
+    modComponent.rebind(padPrefix);
+    ampModComponent.rebind(padPrefix);
+
+    // 読み込んでいるファイルの名前と波形も、指し先のものへ。
+    updateFileNameFromProcessor();
+}
+
+// 今指しているパッドが読んでいるファイルの名前を、処理側から取り直す。
+//
+// 名前は画面が覚えているのではなく、処理側の持ち物。指し先を変えた
+// ときは、そちらから読み直さないと前のパッドの名前が残る。
+void RhythmPadGui::updateFileNameFromProcessor()
+{
+    const juce::String path = ctx.audioProcessor.rhythmFilePaths[(size_t)m_padIndex];
+
+    updatePadFileName(path.isNotEmpty()
+        ? ctx.audioProcessor.resolvePath(path).getFileName()
+        : Io::empty);
 }
 
 void RhythmPadGui::copyParams(CopyRhythmPad& copyObj) {
@@ -1109,7 +1296,6 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     GuiBase(context),
     mainGroup(context),
     presetName(context),
-    viewModeComp(context),
     levelComponent(context),
     unisonComponent(context),
     midiComponent(context),
@@ -1135,31 +1321,26 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     ieQuality(context),
 	ieChPadParam(context),
     iePcmPlay(context),
-    targerPadSlider(context),
     uSep003(context),
     ieUnison(context),
     ieChParam(context),
-    pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
+    padPanel(context),
+    cells{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
 {
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-    
-    int mode = context.audioProcessor.apvts.state.getProperty(ProcessorStateKey::rhythmViewMode, (int)GuiComponentViewModes::Twin);
-    viewMode = (GuiComponentViewModes)mode;
 }
 
 
 // TARGET を鍵で動かす。中身は GuiBase の共通の手続きへ預けてある。
 bool GuiRhythm::keyPressed(const juce::KeyPress& key)
 {
-    return moveTargetByKey(targerPadSlider, key);
+    return moveTargetByKey(padPanel.targetSlider(), key);
 }
 void GuiRhythm::setup()
 {
     const juce::String code = RhythmPrKey::prefix;
     int tabOrder = 1;
 
-    // パッド名定義
-    const std::array<juce::String, RhythmPrValue::pads> padNames = { "BD", "SD", "RIM", "TOM", "CYMBAL", "HI-HAT", "PERC1", "PERC2" };
 
     mainGroup.setup(*this, RhythmGuiText::Group::mainGroup);
 
@@ -1193,7 +1374,7 @@ void GuiRhythm::setup()
         };
 
     copyPadFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
-    copyPadFromSlider.setRange(1.0, 8.0, 1.0);
+    copyPadFromSlider.setRange(1.0, (double)RhythmPrValue::pads, 1.0);
     copyPadFromSlider.setNumDecimalPlacesToDisplay(0);
     copyPadFromSlider.setValue(1, juce::sendNotification);
     copyPadFromSlider.setWantsKeyboardFocus(true);
@@ -1206,7 +1387,7 @@ void GuiRhythm::setup()
         };
 
     copyPadToSlider.setup({ .parent = mainGroup.contentCanvas, .title = "TO", .isReset = false });
-    copyPadToSlider.setRange(1.0, 8.0, 1.0);
+    copyPadToSlider.setRange(1.0, (double)RhythmPrValue::pads, 1.0);
     copyPadToSlider.setNumDecimalPlacesToDisplay(0);
     copyPadToSlider.setValue(2, juce::sendNotification);
     copyPadToSlider.setWantsKeyboardFocus(true);
@@ -1221,69 +1402,62 @@ void GuiRhythm::setup()
     uSep002.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
-    ieToneNoise.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importToneNoiseParam(padIndex); };
-    ieToneNoise.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportToneNoiseParam(padIndex); };
+    ieToneNoise.onClickImport = [this] { const int padIndex = currentPad(); importToneNoiseParam(padIndex); };
+    ieToneNoise.onClickExport = [this] { const int padIndex = currentPad(); exportToneNoiseParam(padIndex); };
 
     ieLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "LFO");
-    ieLfo.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importLfoParam(padIndex); };
-    ieLfo.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportLfoParam(padIndex); };
+    ieLfo.onClickImport = [this] { const int padIndex = currentPad(); importLfoParam(padIndex); };
+    ieLfo.onClickExport = [this] { const int padIndex = currentPad(); exportLfoParam(padIndex); };
 
     ieDetune.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Detune");
-    ieDetune.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importDetuneParam(padIndex); };
-    ieDetune.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportDetuneParam(padIndex); };
+    ieDetune.onClickImport = [this] { const int padIndex = currentPad(); importDetuneParam(padIndex); };
+    ieDetune.onClickExport = [this] { const int padIndex = currentPad(); exportDetuneParam(padIndex); };
 
     ieAmpEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Amp Env");
-    ieAmpEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importAmpEnvParam(padIndex); };
-    ieAmpEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportAmpEnvParam(padIndex); };
+    ieAmpEnv.onClickImport = [this] { const int padIndex = currentPad(); importAmpEnvParam(padIndex); };
+    ieAmpEnv.onClickExport = [this] { const int padIndex = currentPad(); exportAmpEnvParam(padIndex); };
 
     iePitchEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Pitch Env");
-    iePitchEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importPitchEnvParam(padIndex); };
-    iePitchEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportPitchEnvParam(padIndex); };
+    iePitchEnv.onClickImport = [this] { const int padIndex = currentPad(); importPitchEnvParam(padIndex); };
+    iePitchEnv.onClickExport = [this] { const int padIndex = currentPad(); exportPitchEnvParam(padIndex); };
 
     ieSsgHwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW Env");
-    ieSsgHwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importSsgHwEnvParam(); };
-    ieSsgHwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportSsgHwEnvParam(); };
+    ieSsgHwEnv.onClickImport = [this] { padPanel.importSsgHwEnvParam(); };
+    ieSsgHwEnv.onClickExport = [this] { padPanel.exportSsgHwEnvParam(); };
     ieSsgHwPEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv");
-    ieSsgHwPEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importSsgHwPEnvParam(); };
-    ieSsgHwPEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportSsgHwPEnvParam(); };
+    ieSsgHwPEnv.onClickImport = [this] { padPanel.importSsgHwPEnvParam(); };
+    ieSsgHwPEnv.onClickExport = [this] { padPanel.exportSsgHwPEnvParam(); };
 
     ieWtMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Modulation");
-    ieWtMod.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importWtModParam(); };
-    ieWtMod.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportWtModParam(); };
+    ieWtMod.onClickImport = [this] { padPanel.importWtModParam(); };
+    ieWtMod.onClickExport = [this] { padPanel.exportWtModParam(); };
     ieWtAmpMod.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Amp Mod");
-    ieWtAmpMod.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importWtAmpModParam(); };
-    ieWtAmpMod.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportWtAmpModParam(); };
+    ieWtAmpMod.onClickImport = [this] { padPanel.importWtAmpModParam(); };
+    ieWtAmpMod.onClickExport = [this] { padPanel.exportWtAmpModParam(); };
 
     ieSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
-    ieSsgSwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnvParam(padIndex); };
-    ieSsgSwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnvParam(padIndex); };
+    ieSsgSwEnv.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwEnvParam(padIndex); };
+    ieSsgSwEnv.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwEnvParam(padIndex); };
 
     ieSsgSwEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
-    ieSsgSwEnv11.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnv11Param(padIndex); };
-    ieSsgSwEnv11.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnv11Param(padIndex); };
+    ieSsgSwEnv11.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwEnv11Param(padIndex); };
+    ieSsgSwEnv11.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwEnv11Param(padIndex); };
 
     ieSsgSwPEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
-    ieSsgSwPEnv11.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwPEnv11Param(padIndex); };
-    ieSsgSwPEnv11.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwPEnv11Param(padIndex); };
+    ieSsgSwPEnv11.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwPEnv11Param(padIndex); };
+    ieSsgSwPEnv11.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwPEnv11Param(padIndex); };
 
     ieQuality.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Quality");
-    ieQuality.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importQualityParam(padIndex); };
-    ieQuality.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportQualityParam(padIndex); };
+    ieQuality.onClickImport = [this] { const int padIndex = currentPad(); importQualityParam(padIndex); };
+    ieQuality.onClickExport = [this] { const int padIndex = currentPad(); exportQualityParam(padIndex); };
 
     iePcmPlay.setupComponentOp(mainGroup.contentCanvas, tabOrder, "PCM Play");
-    iePcmPlay.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importPcmPlayParam(padIndex); };
-    iePcmPlay.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportPcmPlayParam(padIndex); };
+    iePcmPlay.onClickImport = [this] { const int padIndex = currentPad(); importPcmPlayParam(padIndex); };
+    iePcmPlay.onClickExport = [this] { const int padIndex = currentPad(); exportPcmPlayParam(padIndex); };
 
     ieChPadParam.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Pad Params");
-    ieChPadParam.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importPadChParam(padIndex); };
-    ieChPadParam.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportPadChParam(padIndex); };
-
-    targerPadSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Pad", .isReset = false });
-    targerPadSlider.setRange(1.0, (double)RhythmPrValue::pads, 1.0);
-    targerPadSlider.setNumDecimalPlacesToDisplay(0);
-    targerPadSlider.setValue(1, juce::sendNotification);
-    targerPadSlider.setWantsKeyboardFocus(true);
-    targerPadSlider.setExplicitFocusOrder(++tabOrder);
+    ieChPadParam.onClickImport = [this] { const int padIndex = currentPad(); importPadChParam(padIndex); };
+    ieChPadParam.onClickExport = [this] { const int padIndex = currentPad(); exportPadChParam(padIndex); };
 
     uSep003.setupComponent(mainGroup.contentCanvas);
 
@@ -1293,18 +1467,32 @@ void GuiRhythm::setup()
     ieChParam.onClickImport = [this] { importChParam(); };
     ieChParam.onClickExport = [this] { exportChParam(); };
 
-    viewModeComp.setupComponent(*this, tabOrder);
-    viewModeComp.onChangeViewMode = [this] (GuiComponentViewModes mode) {
-        viewMode = mode;
-        ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::rhythmViewMode, (int)viewMode, nullptr);
-        ctx.editor.resized();
-        };
-
-    // Setup Pads
+    // ---- 上の絵と、下の設定 ----
+    //
+    // 絵はパッドの数だけ。設定はひとそろいだけ置き、TARGET で
+    // 指し先を切り替える。
     for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
-        pads[i].setup(*this, i, padNames[i], tabOrder);
+        cells[(size_t)i].setup(*this, i, RhythmGuiText::padNames[(size_t)i], tabOrder);
+        cells[(size_t)i].onSelect = [this](int index) {
+            padPanel.targetSlider().setValue(index + 1, juce::sendNotification);
+            };
     }
+
+    padPanel.setup(*this, tabOrder);
+
+    padPanel.onTargetChange = [this] { applyPadTarget(); };
+
+    // 設定のつまみが動いたら、指しているパッドの絵を描き直す。
+    // 指していないパッドは値が変わらないので、触らなくてよい。
+    padPanel.onParamsChanged = [this] { cells[(size_t)currentPad()].updateGraph(); };
+
+    // 前に開いていたときの指し先から始める。
+    const int saved = (int)ctx.audioProcessor.apvts.state.getProperty(ProcessorStateKey::rhythmTarget, 0);
+
+    padPanel.targetSlider().setValue(juce::jlimit(0, RhythmPrValue::pads - 1, saved) + 1, juce::dontSendNotification);
+
+    applyPadTarget();
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 }
@@ -1326,8 +1514,6 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     presetName.layoutComponent(mmRect);
 
-    viewModeComp.layoutComponent(mmRect);
-
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
     // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
@@ -1336,7 +1522,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     levelComponent.layoutComponent(mRect);
-    
+
     unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
@@ -1349,70 +1535,34 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
 
-    int pWidth = pageArea.getWidth() / 4;
+    // ---- 上は絵、下は設定 ----
+    //
+    // 絵は横 4 枚ずつ並べる。パッドが 4 の倍数でないときは、
+    // 足りないところを空けたままにする (詰めると番号と場所がずれる)。
+    constexpr int cols = 4;
+    constexpr int rows = (RhythmPrValue::pads + cols - 1) / cols;
 
-    switch (viewMode) {
-    case GuiComponentViewModes::Top:
-        {
-            for (int i = 4; i < RhythmPrValue::pads; i++) {
-                updatePadVisible(i, false);
-            }
+    const int cellW = pageArea.getWidth() / cols;
 
-            for (int i = 0; i < 4; i++) {
-                updatePadVisible(i, true);
+    auto cellsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::Cell::height * rows);
 
-                auto padArea = pageArea.removeFromLeft(pWidth);
+    for (int r = 0; r < rows; ++r) {
+        auto rowArea = cellsArea.removeFromTop(RhythmGuiValue::Pad::Cell::height);
 
-                layoutPad(i, padArea);
-            }
+        for (int col = 0; col < cols; ++col) {
+            const int i = r * cols + col;
 
-            break;
-        }
-    case GuiComponentViewModes::Bottom:
-        {
-            for (int i = 0; i < 4; i++) {
-                updatePadVisible(i, false);
-            }
+            auto cellArea = rowArea.removeFromLeft(cellW);
 
-            for (int i = 4; i < RhythmPrValue::pads; i++) {
-                updatePadVisible(i, true);
+            if (i >= RhythmPrValue::pads) continue;
 
-                auto padArea = pageArea.removeFromLeft(pWidth);
-
-                layoutPad(i, padArea);
-            }
-
-            break;
-        }
-    case GuiComponentViewModes::Twin:
-        {
-            auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
-            auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
-        
-            for (int i = 0; i < 4; i++) {
-                updatePadVisible(i, true);
-
-                auto padArea = topPadsArea.removeFromLeft(pWidth);
-
-                layoutPad(i, padArea);
-            }
-
-            for (int i = 4; i < RhythmPrValue::pads; i++) {
-                updatePadVisible(i, true);
-
-                auto padArea = bottomPadsArea.removeFromLeft(pWidth);
-
-                layoutPad(i, padArea);
-            }
-
-            break;
+            cells[(size_t)i].layout(cellArea);
         }
     }
-}
 
-void GuiRhythm::layoutPad(int padIndex, juce::Rectangle<int>& rect) {
-    pads[padIndex].setBounds(rect);
-    pads[padIndex].layout(pads[padIndex].getLocalBounds());
+    // 残りはすべて設定。
+    padPanel.setBounds(pageArea);
+    padPanel.layout(padPanel.getLocalBounds());
 }
 
 void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
@@ -1444,7 +1594,6 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieQuality.setVisible(visible);
     iePcmPlay.setVisible(visible);
     ieChParam.setVisible(visible);
-    targerPadSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
 
     if (visible)
@@ -1486,8 +1635,6 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePcmPlay.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChPadParam.layoutComponent(rect);
-        rect.removeFromTop(4);
-        layoutMain({ .mainRect = rect, .label = &targerPadSlider.label, .component = &targerPadSlider });
 
         uSep003.layoutComponent(rect);
 
@@ -1501,71 +1648,62 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
 void GuiRhythm::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
 {
-    for (int i = 0; i < RhythmPrValue::pads; ++i)
-    {
-        pads[i].removeLoadButtonListener(editor);
-    }
+    padPanel.removeLoadButtonListener(editor);
 }
 
 void GuiRhythm::buttonClicked(juce::Button* button)
 {
-    for (int i = 0; i < RhythmPrValue::pads; ++i)
-    {
-        auto& pad = pads[i];
+    // 読み込みの札はひとつしかない。読み込む先は TARGET が指しているパッド。
+    if (!padPanel.isThis(button)) return;
 
-        if (pad.isThis(button))
+    const int i = currentPad();
+
+    // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
+    // 番号は値で写して渡す。
+    ctx.editor.openAudioBrowser([this, i](const juce::File& file)
         {
-            // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
-            // 番号は値で写して渡す。
-            ctx.editor.openAudioBrowser([this, i](const juce::File& file)
+            if (!file.existsAsFile()) return;
+
+            if (i == currentPad()) padPanel.updatePadFileName("Loading...");
+
+            // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
+            juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+
+            juce::Timer::callAfterDelay(50, [this, safe, i, file]()
                 {
-                    if (file.existsAsFile())
-                    {
-                        pads[i].updatePadFileName("Loading...");
+                    // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
+                    // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
+                    if (safe == nullptr) return;
 
-                        // 発火するころには画面が消えているかもしれないので、弱い参照で見張る。
-                        juce::Component::SafePointer<std::remove_pointer_t<decltype(this)>> safe(this);
+                    // Load to specific pad index
+                    ctx.audioProcessor.loadRhythmFile(file, i);
 
-                        juce::Timer::callAfterDelay(50, [this, safe, i, file]()
-                            {
-                                // 画面が閉じられていたら何もしない。callAfterDelay は取り消せず、
-                                // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
-                                if (safe == nullptr) return;
+                    // Update label
+                    updatePadFileName(i, file.getFileName());
 
-                                // Load to specific pad index
-                                ctx.audioProcessor.loadRhythmFile(file, i);
-
-                                // Update label
-                                pads[i].updatePadFileName(file.getFileName());
-
-                                ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
-                            });
-                    }
+                    ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
                 });
-
-            return; // Found
-        }
-    }
-
+        });
 }
 
 void GuiRhythm::updatePadFileName(int padIndex, const juce::String& fileName)
 {
-    pads[padIndex].updatePadFileName(fileName);
+    // 名前を出せるのは、今指しているパッドのぶんだけ。
+    // ほかのパッドは上の絵だけが変わる。
+    if (padIndex == currentPad()) padPanel.updatePadFileName(fileName);
+
+    cells[(size_t)padIndex].updateSamplePreview();
 }
 
 bool GuiRhythm::isThis(int index, juce::Button* button)
 {
-    return pads[index].isThis(button);
+    // 読み込みの札はひとつしかない。指しているパッドのものとして扱う。
+    return index == currentPad() && padPanel.isThis(button);
 }
 
 void GuiRhythm::updatePresetName(const juce::String& name)
 {
     presetName.updatePresetName(name);
-}
-
-void GuiRhythm::updatePadVisible(int idx, bool visible) {
-    pads[idx].updatePadVisible(visible);
 }
 
 void GuiRhythm::initParams()
@@ -1578,96 +1716,134 @@ void GuiRhythm::initParams()
     }
 }
 
+// TARGET が今どのパッドを指しているか (0 から数える)。
+int GuiRhythm::currentPad() const
+{
+    return juce::jlimit(0, RhythmPrValue::pads - 1, (int)padPanel.getTargetValue() - 1);
+}
+
+// 指し先を切り替える。
+//
+// 設定の束縛を移し、枠線を付け替える。開き直したときに続きから
+// 触れるよう、指し先は覚えておく。
+void GuiRhythm::applyPadTarget()
+{
+    const int pad = currentPad();
+
+    ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::rhythmTarget, pad, nullptr);
+
+    padPanel.rebind(pad);
+
+    for (int i = 0; i < RhythmPrValue::pads; ++i) cells[(size_t)i].setActive(i == pad);
+}
+
+// 指し先を一時的に動かして何かをする。
+//
+// 設定はひとそろいしか無いので、TARGET が指していないパッドを
+// 読み書きするには、いったんそこへ繋ぎ替えるしかない。
+// 終わったら必ず元へ戻す。
+void GuiRhythm::withPad(int index, const std::function<void(RhythmPadGui&)>& fn)
+{
+    const int keep = currentPad();
+
+    if (index != keep) padPanel.rebind(index);
+
+    fn(padPanel);
+
+    if (index != keep) padPanel.rebind(keep);
+}
+
+
 void GuiRhythm::setLevel(float level) {
     levelComponent.setLevel(level);
 }
 
 void GuiRhythm::copyPadParams(int p, CopyRhythmPad& copyObj) {
-    pads[p].copyParams(copyObj);
+    withPad(p, [&copyObj](RhythmPadGui& pad) { pad.copyParams(copyObj); });
 }
 
 void GuiRhythm::pastePadParams(int p, CopyRhythmPad& copyObj) {
-    pads[p].pasteParams(copyObj);
+    withPad(p, [&copyObj](RhythmPadGui& pad) { pad.pasteParams(copyObj); });
 }
 
 void GuiRhythm::importToneNoiseParam(int p) {
-    pads[p].importToneNoiseParam();
+    padPanel.importToneNoiseParam();
 }
 
 void GuiRhythm::exportToneNoiseParam(int p) {
-    pads[p].exportToneNoiseParam();
+    padPanel.exportToneNoiseParam();
 }
 
 void GuiRhythm::importLfoParam(int p) {
-    pads[p].importLfoParam();
+    padPanel.importLfoParam();
 }
 
 void GuiRhythm::exportLfoParam(int p) {
-    pads[p].exportLfoParam();
+    padPanel.exportLfoParam();
 }
 
 void GuiRhythm::importAmpEnvParam(int p) {
-    pads[p].importAmpEnvParam();
+    padPanel.importAmpEnvParam();
 }
 
 void GuiRhythm::exportAmpEnvParam(int p) {
-    pads[p].exportAmpEnvParam();
+    padPanel.exportAmpEnvParam();
 }
 
 void GuiRhythm::importPitchEnvParam(int p) {
-    pads[p].importPitchEnvParam();
+    padPanel.importPitchEnvParam();
 }
 
 void GuiRhythm::exportPitchEnvParam(int p) {
-    pads[p].exportPitchEnvParam();
+    padPanel.exportPitchEnvParam();
 }
 
 void GuiRhythm::importSsgSwEnvParam(int p) {
-    pads[p].importSsgSwEnvParam();
+    padPanel.importSsgSwEnvParam();
 }
 
 void GuiRhythm::exportSsgSwEnvParam(int p) {
-    pads[p].exportSsgSwEnvParam();
+    padPanel.exportSsgSwEnvParam();
 }
 
 void GuiRhythm::importDetuneParam(int p) {
-    pads[p].importDetuneParam();
+    padPanel.importDetuneParam();
 }
 
 void GuiRhythm::exportDetuneParam(int p) {
-    pads[p].exportDetuneParam();
+    padPanel.exportDetuneParam();
 }
 
 void GuiRhythm::importQualityParam(int p) {
-    pads[p].importQualityParam();
+    padPanel.importQualityParam();
 }
 
 void GuiRhythm::exportQualityParam(int p) {
-    pads[p].exportQualityParam();
+    padPanel.exportQualityParam();
 }
 
 void GuiRhythm::importPcmPlayParam(int p) {
-    pads[p].importPcmPlayParam();
+    padPanel.importPcmPlayParam();
 }
 
 void GuiRhythm::exportPcmPlayParam(int p) {
-    pads[p].exportPcmPlayParam();
+    padPanel.exportPcmPlayParam();
 }
 
 void GuiRhythm::importSsgSwEnv11Param(int p) {
-    pads[p].importSsgSwEnv11Param();
+    padPanel.importSsgSwEnv11Param();
 }
 
 void GuiRhythm::exportSsgSwEnv11Param(int p) {
-    pads[p].exportSsgSwEnv11Param();
+    padPanel.exportSsgSwEnv11Param();
 }
 
 void GuiRhythm::importSsgSwPEnv11Param(int p) {
-    pads[p].importSsgSwPEnv11Param();
+    padPanel.importSsgSwPEnv11Param();
 }
 
 void GuiRhythm::exportSsgSwPEnv11Param(int p) {
-    pads[p].importSsgSwPEnv11Param();
+    padPanel.exportSsgSwPEnv11Param();
 }
 
 void GuiRhythm::importChParam() {
@@ -1730,7 +1906,7 @@ void GuiRhythm::applyChParamFile(const juce::File& file) {
     const int stored = reader->arraySize(Io::ParamKey::pads);
 
     for (int i = 0; i < RhythmPrValue::pads && i < stored; i++) {
-        pads[i].readParams(i, reader->arrayItem(Io::ParamKey::pads, i));
+        withPad(i, [&reader, i](RhythmPadGui& pad) { pad.readParams(i, reader->arrayItem(Io::ParamKey::pads, i)); });
     }
 }
 
@@ -1808,7 +1984,7 @@ void GuiRhythm::applyPadChParamFile(int p, const juce::File& file)
     // 読み終えてからまとめて描き直す
     GuiRefresh::Batch batch;
 
-    pads[p].readParams(p, *reader);
+    withPad(p, [&reader, p](RhythmPadGui& pad) { pad.readParams(p, *reader); });
 }
 
 void GuiRhythm::exportPadChParam(int p)
@@ -1860,7 +2036,7 @@ void GuiRhythm::writeChParams(Io::ParamWriter& writer) {
 	for (int i = 0; i < RhythmPrValue::pads; i++) {
 	    auto pad = writer.arrayItem(Io::ParamKey::pads, i);
 
-	    pads[i].writeParams(i, pad);
+        withPad(i, [&pad, i](RhythmPadGui& panel) { panel.writeParams(i, pad); });
 	}
 
 	
@@ -1868,7 +2044,7 @@ void GuiRhythm::writeChParams(Io::ParamWriter& writer) {
 
 // 3.0.0 より前の形式を読むための補助。履歴から戻したもの。
 void GuiRhythm::getImportingPadParams(int p, juce::StringArray& lines, int& index) {
-    pads[p].setImportingParams(p, lines, index);
+    withPad(p, [&lines, &index, p](RhythmPadGui& pad) { pad.setImportingParams(p, lines, index); });
 }
 
 // 3.0.0 より前の形式を読むための補助。履歴から戻したもの。
@@ -2051,7 +2227,7 @@ void GuiRhythm::setImportingPadChParams(int p, juce::StringArray& lines, int& in
 
 // 書き出す中身。エクスポートと変換の両方から使う。
 void GuiRhythm::writePadChParams(int p, Io::ParamWriter& writer) {
-	pads[p].writeParams(p, writer);
+    withPad(p, [&writer, p](RhythmPadGui& pad) { pad.writeParams(p, writer); });
 
 	
 }

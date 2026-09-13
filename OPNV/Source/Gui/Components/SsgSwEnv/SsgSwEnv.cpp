@@ -16,17 +16,17 @@ namespace
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Processor/ProcessorValues.h"
+#include "../../../Core/Gui/GuiGraphValues.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
 namespace
 {
-    // 段ごとのパラメータ名。並びが番号と一致していることが前提。
-    const juce::String rateKeys[] = { CPK::SsgSwEnv::r1, CPK::SsgSwEnv::r2, CPK::SsgSwEnv::r3, CPK::SsgSwEnv::r4, CPK::SsgSwEnv::r5, CPK::SsgSwEnv::r6 };
-
-    // 先頭は STL。画面の対象つまみで 0 を選んだときがこれ。
-    const juce::String levelKeys[] = { CPK::SsgSwEnv::stl, CPK::SsgSwEnv::l1, CPK::SsgSwEnv::l2, CPK::SsgSwEnv::l3, CPK::SsgSwEnv::l4, CPK::SsgSwEnv::l5, CPK::SsgSwEnv::l6 };
+    // 段ごとのパラメータ名は GuiGraphValues へ一本化してある。
+    // つまみを持たない小さなグラフも、同じ並びで引くため。
+    const auto& rateKeys = GuiGraphValues::Keys::ssgSwEnvRate;
+    const auto& levelKeys = GuiGraphValues::Keys::ssgSwEnvLevel;
 
     constexpr int rateCount = 6;
     constexpr int levelCount = 6 + 1; // 先頭の STL のぶん
@@ -409,11 +409,15 @@ void GuiComponentSsgSwEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_cur
 
     graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
 
+    // 段の並び以外は束にして渡す。
+    GuiEnvelopeGraph::StepEnvHead head;
+
+    head.steps = (int)steps.getValue();
+    head.loop = loop.getToggleState();
+    head.loopTo = (int)loopTo.getValue();
+    head.loopCount = (int)loopCount.getValue();
     graph.updateSsgSwEnv(
-        steps,
-        loop,
-        loopTo,
-        loopCount,
+        head,
         rArr, (float)rate.getSlider().getMaximum(),
         lArr, (float)level.getSlider().getMaximum(),
         p_curveCore,

@@ -16,17 +16,17 @@ namespace
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Processor/ProcessorValues.h"
+#include "../../../Core/Gui/GuiGraphValues.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
 namespace
 {
-    // 段ごとのパラメータ名。並びが番号と一致していることが前提。
-    const juce::String rateKeys[] = { CPK::SsgSwEnv11::r1, CPK::SsgSwEnv11::r2, CPK::SsgSwEnv11::r3, CPK::SsgSwEnv11::r4, CPK::SsgSwEnv11::r5, CPK::SsgSwEnv11::r6, CPK::SsgSwEnv11::r7, CPK::SsgSwEnv11::r8, CPK::SsgSwEnv11::r9, CPK::SsgSwEnv11::r10, CPK::SsgSwEnv11::r11 };
-
-    // 先頭は STL。画面の対象つまみで 0 を選んだときがこれ。
-    const juce::String levelKeys[] = { CPK::SsgSwEnv11::stl, CPK::SsgSwEnv11::l1, CPK::SsgSwEnv11::l2, CPK::SsgSwEnv11::l3, CPK::SsgSwEnv11::l4, CPK::SsgSwEnv11::l5, CPK::SsgSwEnv11::l6, CPK::SsgSwEnv11::l7, CPK::SsgSwEnv11::l8, CPK::SsgSwEnv11::l9, CPK::SsgSwEnv11::l10, CPK::SsgSwEnv11::l11 };
+    // 段ごとのパラメータ名は GuiGraphValues へ一本化してある。
+    // つまみを持たない小さなグラフも、同じ並びで引くため。
+    const auto& rateKeys = GuiGraphValues::Keys::ssgSwEnv11Rate;
+    const auto& levelKeys = GuiGraphValues::Keys::ssgSwEnv11Level;
 
     constexpr int rateCount = 11;
     constexpr int levelCount = 11 + 1; // 先頭の STL のぶん
@@ -468,11 +468,15 @@ void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_c
 
     graph.setKeepLevels(keepOn);
 
+    // 段の並び以外は束にして渡す。
+    GuiEnvelopeGraph::StepEnvHead head;
+
+    head.steps = (int)steps.getValue();
+    head.loop = loop.getToggleState();
+    head.loopTo = (int)loopTo.getValue();
+    head.loopCount = (int)loopCount.getValue();
     graph.updateSsgSwEnv11(
-        steps,
-        loop,
-        loopTo,
-        loopCount,
+        head,
         rArr, (float)rate.getSlider().getMaximum(),
         lArr, (float)level.getSlider().getMaximum(),
         keepOn ? nullptr : p_curveCore,

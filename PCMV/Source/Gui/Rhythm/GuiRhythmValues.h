@@ -80,6 +80,13 @@ namespace RhythmGuiValue
 			static inline constexpr int height = 16;
 		}
 
+		// 上に並べる 1 枚ぶんの高さ。
+		// 見出し 14 + 波形 34 + グラフ 120 + 札 16 に、隙間と枠のぶん。
+		namespace Cell
+		{
+			static inline constexpr int height = 200;
+		}
+
 		static constexpr int width = 230;
 		static constexpr int height = 460;
 	}

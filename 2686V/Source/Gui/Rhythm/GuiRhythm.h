@@ -21,7 +21,6 @@
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
-#include "../../Gui/Components/ViewMode/ViewMode.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/CountButtons/CountButtons.h"
@@ -43,6 +42,76 @@
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
+
+// ==========================================================
+// パッドの絵
+// ==========================================================
+// 波形とエンベロープを 1 枠にまとめたもの。つまみは持たない。
+//
+// パッドの数だけ区分をひとそろい並べるのをやめ、設定は下の 1 組へ
+// 集めた。上に残るのはこの絵だけになる。
+//
+// 絵はパッドの数だけ同時に出るので、値をつまみから読むわけには
+// いかない。パラメータから直に採る。
+class RhythmPadCell : public GuiBase
+{
+    int m_padIndex = 0;
+
+    // このパッドのパラメータの接頭辞
+    juce::String m_code;
+
+    GuiLabel titleLabel;
+    GuiWavePreview samplePreview;
+    GuiEnvelopeGraph graph;
+
+    GuiToggleButton graphBtnAmp;
+    GuiToggleButton graphBtnPitch;
+    GuiToggleButton graphBtnSsg;
+    GuiToggleButton graphBtnSsg11;
+    GuiToggleButton graphBtnSsgP11;
+
+    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
+
+    // どのエンベロープを映すかは枠ごとに決める。
+    // 4 本を見比べたいことがあるので、まとめて 1 つにはしない。
+    GraphMode currentGraphMode = GraphMode::Amp;
+
+    // TARGET が指しているか。指している枠だけ濃い線で囲う。
+    bool isActive = false;
+
+    CurveCore* p_curveCore = nullptr;
+
+    void setGraphMode(GraphMode mode);
+public:
+    RhythmPadCell(const GuiContext& context) :
+        GuiBase(context),
+        titleLabel(context),
+        samplePreview(context),
+        graphBtnAmp(context),
+        graphBtnPitch(context),
+        graphBtnSsg(context),
+        graphBtnSsg11(context),
+        graphBtnSsgP11(context)
+    {
+    }
+
+    // 枠を押したときに呼ぶ。TARGET をここへ動かすために使う。
+    std::function<void(int)> onSelect;
+
+    void setup(juce::Component& parent, int index, const juce::String& padName, int& tabOrder);
+    void layout(juce::Rectangle<int> rect);
+
+    // TARGET が指しているかを伝える。枠線の濃さが変わる。
+    void setActive(bool active);
+
+    void setVisibles(bool visible);
+
+    void updateSamplePreview();
+    void updateGraph();
+
+    void paint(juce::Graphics& g) override;
+    void mouseDown(const juce::MouseEvent& e) override;
+};
 
 class RhythmPadGui: public GuiBase
 {
@@ -140,23 +209,15 @@ class RhythmPadGui: public GuiBase
 
     std::unique_ptr<juce::FileChooser> fileChooser;
 
-    GuiEnvelopeGraph graph;
-    GuiToggleButton graphBtnAmp;
-    GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
-    GuiToggleButton graphBtnSsg11;
-    GuiToggleButton graphBtnSsgP11;
-    NormalSeparator graphSeparator;
+    // TARGET のつまみ。見出しのすぐ下、区切り線の上に置く。
+    //
+    // 設定はひとそろいしか無いので、どのパッドを触っているのかは
+    // ここでしか分からない。中身より先に目へ入る場所へ出す。
+    GuiSlider padTarget;
+    NormalSeparator padTargetSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
-    GraphMode currentGraphMode;
-
-    CurveCore* p_curveCore = nullptr;
-
+    // 描き直しが入れ子で走らないようにする印。
     bool isUpdatingGraph = false;
-
-    void updateGraph();
-    void setGraphMode(GraphMode mode);
 public:
     void setImportingParams(int p, juce::StringArray& lines, int& index);
     RhythmPadGui(const GuiContext& context) :
@@ -212,20 +273,32 @@ public:
         lfoComponent(context),
         ssgHwEnv(context),
         ssgHwPEnv(context),
-        graphBtnAmp(context),
-        graphBtnPitch(context),
-        graphBtnSsg(context),
-        graphBtnSsg11(context),
-        graphBtnSsgP11(context),
-        graphSeparator(context)
+        padTarget(context),
+        padTargetSeparator(context)
     {
-        currentGraphMode = GraphMode::Amp; // 初期状態はAmp
     }
 
     void updatePadFileName(const juce::String& fileName);
     void updateSamplePreview();
-    void updatePadVisible(bool visible);
-    void setup(juce::Component& parent, int index, juce::String padName, int& tabOrder);
+    void setup(juce::Component& parent, int& tabOrder);
+
+    // TARGET が指すパッドへ、束縛を丸ごと移す。
+    void rebind(int index);
+
+    // 読んでいるファイルの名前を処理側から取り直す。
+    void updateFileNameFromProcessor();
+
+    // TARGET のつまみ。鍵で動かすために外から触れるようにしてある。
+    GuiSlider& targetSlider() { return padTarget; }
+
+    // TARGET の値 (1 から数える)。
+    double getTargetValue() const { return padTarget.getValue(); }
+
+    // TARGET が動いたときに呼ぶ。
+    std::function<void()> onTargetChange;
+
+    // つまみが動いたときに呼ぶ。上の絵を描き直してもらう。
+    std::function<void()> onParamsChanged;
 
     // 簡易表示モードで隠す区分への一括操作
     void bypassHiddenCategories() override;
@@ -239,7 +312,6 @@ public:
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
     void setupGraph();
-    void layoutGraph(juce::Rectangle<int>& rect);
     void copyParams(CopyRhythmPad& copyObj);
     void pasteParams(CopyRhythmPad& copyObj);
     void importToneNoiseParam();
@@ -307,12 +379,9 @@ public:
 
 class GuiRhythm : public GuiBase
 {
-    GuiComponentViewModes viewMode = GuiComponentViewModes::Twin;
-
     GuiScrollGroup mainGroup;
 
     GuiComponentPresetName presetName;
-    GuiComponentViewMode viewModeComp;
 
     GuiComponentLevel levelComponent;
 
@@ -343,14 +412,23 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport iePcmPlay;
     GuiComponentImportExport ieChPadParam;
-    GuiSlider targerPadSlider;
     NormalSeparator uSep003;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
-    // 8 Pads
-    std::array<RhythmPadGui, RhythmPrValue::pads> pads;
+    // 設定はひとそろいだけ。TARGET で指し先を切り替える。
+    RhythmPadGui padPanel;
+
+    // 上に並ぶ絵。こちらはパッドの数だけ置く。
+    std::array<RhythmPadCell, RhythmPrValue::pads> cells;
+
+    // 指し先を一時的に動かして何かをする。
+    //
+    // 設定はひとそろいしか無いので、TARGET が指していないパッドを
+    // 読み書きするには、いったんそこへ繋ぎ替えるしかない。
+    // 終わったら必ず元へ戻す。
+    void withPad(int index, const std::function<void(RhythmPadGui&)>& fn);
 public:
     GuiRhythm(const GuiContext& context);
                      
@@ -364,13 +442,17 @@ public:
     void openEnabledCategories() override;
     void closeBypassedCategories() override;
     void layout(juce::Rectangle<int> content) override;
-    void layoutPad(int padIndex, juce::Rectangle<int>& rect);
+
+    // TARGET が今どのパッドを指しているか (0 から数える)。
+    int currentPad() const;
+
+    // 指し先を切り替える。設定の束縛と枠線の付け替えをまとめて行う。
+    void applyPadTarget();
     void layoutUtilityCat(Rectangle<int>& rect);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     void buttonClicked(juce::Button* button);
 	void updatePadFileName(int padIndex, const juce::String& fileName);
     bool isThis(int padIndex, juce::Button* button);
-    void updatePadVisible(int idx, bool visible);
     void updatePresetName(const juce::String& name);
     void initParams();
     void setLevel(float level);

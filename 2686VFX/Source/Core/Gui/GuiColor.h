@@ -197,6 +197,16 @@ namespace GuiColor {
 		inline Entry TitleText{ "Group.TitleText", []() -> juce::Colour { return juce::Colours::black; } };
 	};
 
+	// ==========================================================
+	// TARGET の枠
+	// ==========================================================
+	// 上に並ぶ小さな絵を 1 枚ずつ囲う線。TARGET が指しているものだけ
+	// 濃くして、今どれを触っているのかが分かるようにする。
+	namespace TargetFrame {
+		inline Entry Border{ "TargetFrame.Border", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.4f); } };
+		inline Entry Active{ "TargetFrame.Active", []() -> juce::Colour { return juce::Colours::orange; } };
+	};
+
 	namespace Separator {
 		// 白のベタ線は主張が強すぎるので、カテゴリの板と同じくらいまで落とす
 		inline Entry Line{ "Separator.Line", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.45f); } };
