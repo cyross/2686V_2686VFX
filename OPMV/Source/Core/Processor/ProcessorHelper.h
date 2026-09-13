@@ -2899,6 +2899,16 @@ namespace PrHelper {
 			namePrefix + CPN::Opzx7Lfo::amd, 
 			CPV::Opzx7Lfo::Amd::min, CPV::Opzx7Lfo::Amd::max, CPV::Opzx7Lfo::Amd::initial
 		);
+
+		// ホールドと部分再生。保つのは深さを掛ける前の形なので両振り。
+		//
+		// チャンネル全体のぶんと同じものが要る。束ねるところ
+		// (setupOpzx7LfoPtrs) は両方で共通で、ここを足しておかないと
+		// 見つからないパラメータを指したまま音の側が読みに行く。
+		PrHelper::addWaveHoldParameters(layout, prefix + CPK::Opzx7Lfo::pmHoldPrefix,
+			namePrefix + CPN::Opzx7Lfo::pmHoldPrefix, WaveHoldUnit::Bipolar);
+		PrHelper::addWaveHoldParameters(layout, prefix + CPK::Opzx7Lfo::amHoldPrefix,
+			namePrefix + CPN::Opzx7Lfo::amHoldPrefix, WaveHoldUnit::Bipolar);
 	}
 
 	static inline void addOpN88LfoParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {
