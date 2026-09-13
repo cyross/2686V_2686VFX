@@ -440,11 +440,6 @@ set(GUI_COMPONENT_PRESET_NAME_FILES
     "Source/Gui/Components/PresetName/PresetName.cpp"
 )
 
-set(GUI_COMPONENT_VIEW_MODE_FILES
-    "Source/Gui/Components/ViewMode/ViewMode.h"
-    "Source/Gui/Components/ViewMode/ViewMode.cpp"
-)
-
 set(GUI_COMPONENT_IMPORT_EXPORT_FILES
     "Source/Gui/Components/ImportExport/ImportExport.h"
     "Source/Gui/Components/ImportExport/ImportExport.cpp"
@@ -543,7 +538,6 @@ source_group("2686VO\\Gui\\Components\\Midi" FILES ${GUI_COMPONENT_MIDI_FILES})
 source_group("2686VO\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHBUTTONS_FILES})
 source_group("2686VO\\Gui\\Components\\SsgSwButtons" FILES ${GUI_COMPONENT_SSGSWBUTTONS_FILES})
 source_group("2686VO\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
-source_group("2686VO\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
 source_group("2686VO\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
 source_group("2686VO\\Gui\\Components\\Import" FILES ${GUI_COMPONENT_IMPORT_FILES})
 source_group("2686VO\\Gui\\Components\\ParamBrowser" FILES ${GUI_COMPONENT_PARAMBROWSER_FILES})

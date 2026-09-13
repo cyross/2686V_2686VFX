@@ -43,6 +43,9 @@ namespace Opzx7GuiValue
 		{
 			static inline constexpr int height = 120;
 			static inline constexpr int ButtonHeight = 16;
+
+			// どのエンベロープを映すかを選ぶ札 1 枚ぶんの幅
+			static inline constexpr int ModeButtonWidth = 46;
 		}
 
 		namespace Separator
@@ -84,6 +87,13 @@ namespace Opzx7GuiValue
 		{
 			static inline constexpr int width = 256;
 			static inline constexpr int height = 640;
+
+			// 区分を横へ並べるときの、1 列ぶんの幅と隙間
+			namespace Col
+			{
+				static inline constexpr int width = 280;
+				static inline constexpr int gap = 10;
+			}
 
 			namespace Padding
 			{
