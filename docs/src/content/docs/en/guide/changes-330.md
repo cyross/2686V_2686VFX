@@ -99,7 +99,7 @@ Since operators are no longer shown four at a time, OPZX7S's **VIEW MODE** (swit
 
 ## Screen work
 
-- **Labels are now eight characters wide, and the spellings are back in full.** Squeezed forms such as LV, SHPE and P.OF now read LEVEL, SHAPE and P.OFFSET. The row total is unchanged, so nothing moves
+- **Labels are now eight characters wide, and the spellings are back in full.** Squeezed forms such as LV, SHPE and P.OF now read LEVEL, SHAPE and P.OFFSET; likewise FX's LGn → LOW.GAIN and FC0 → COEF0, and QUALITY's INTP → INTERP. The row total is unchanged, so nothing moves
 - **The RHYTHM pad's LEVEL has value buttons too.** Pressing N brings up the same set as the channel LEVEL (±1.0 / ±0.1 / ±0.01, 1.0, 0.25 and so on)
 - **WT+ and ADPCM+ OPTIONAL, and ADPCM+ PAN, now start open**
 - **The first time the window opens, you are asked whether to use simple view.** Answering creates the default settings file, so the question is not asked again. See [the initial settings question](/2686V_2686VFX/en/guide/install/#the-initial-settings-question)

@@ -155,7 +155,8 @@ OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM のタブは、これまで
 
 - **ラベルの幅を 8 文字ぶんへ広げ、綴りを戻しました。** LV → LEVEL、
   SHPE → SHAPE、P.OF → P.OFFSET のように、詰めて書いていた綴りを読める形に
-  しています。行の合計は変えていないので、置き場所は動きません
+  しています。FX の LGn → LOW.GAIN、FC0 → COEF0、QUALITY の INTP → INTERP
+  も同じく戻しました。行の合計は変えていないので、置き場所は動きません
 - **RHYTHM のパッドの LEVEL にも値ボタンを付けました。** N を押すと、
   チャンネルの LEVEL と同じ並び（±1.0 / ±0.1 / ±0.01、1.0、0.25 など）が出ます
 - **WT+ と ADPCM+ の OPTIONAL、ADPCM+ の PAN を、最初から開いた状態に

@@ -65,7 +65,7 @@ storage scheme the hardware actually used**.
 | --- | --- | --- | ---: | --- |
 | **BIT RATE** | Bit depth and compression scheme. 21 kinds | 1 – 21 | 13 | [`ADPCM_MODE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-mode) |
 | **SMP.RATE** | Sample rate. 15 steps | 1 – 15 | 9 | [`ADPCM_RATE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-rate) |
-| **INTP** | How the gaps are filled on the way back. 7 kinds | 0 – 6 | 1 | [`ADPCM_INTERP`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-interp) |
+| **INTERP** | How the gaps are filled on the way back. 7 kinds | 0 – 6 | 1 | [`ADPCM_INTERP`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-interp) |
 
 ### What BIT offers
 
@@ -80,7 +80,7 @@ storage scheme the hardware actually used**.
 you are after the texture of a particular machine, pick the scheme that machine
 used.
 
-### INTP — how the gaps are filled
+### INTERP — how the gaps are filled
 
 Once the sample rate has been dropped, this decides how the gaps are filled on
 the way back.

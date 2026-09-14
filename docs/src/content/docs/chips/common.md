@@ -65,7 +65,7 @@ QUALITY の代わりにこちらが出ます。単にビット数を落とすだ
 | --- | --- | --- | ---: | --- |
 | **BIT RATE** | ビット数と圧縮方式。21 種 | 1 〜 21 | 13 | [`ADPCM_MODE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-mode) |
 | **SMP.RATE** | サンプリング周波数。15 段階 | 1 〜 15 | 9 | [`ADPCM_RATE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-rate) |
-| **INTP** | 読み戻すときの補間のしかた。7 種 | 0 〜 6 | 1 | [`ADPCM_INTERP`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-interp) |
+| **INTERP** | 読み戻すときの補間のしかた。7 種 | 0 〜 6 | 1 | [`ADPCM_INTERP`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-interp) |
 
 ### BIT で選べるもの
 
@@ -79,7 +79,7 @@ QUALITY の代わりにこちらが出ます。単にビット数を落とすだ
 **圧縮方式は、単にビット数を落とすのとは歪み方が違います。** 実機の質感を
 狙うなら、その機種が使っていた方式を選びます。
 
-### INTP — 補間のしかた
+### INTERP — 補間のしかた
 
 サンプリング周波数を落としたあと、読み戻すときの埋め方です。
 
