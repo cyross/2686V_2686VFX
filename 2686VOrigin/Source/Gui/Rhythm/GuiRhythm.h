@@ -21,6 +21,7 @@
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/Level/LevelNudge.h"
 #include "../../Gui/Components/CountButtons/CountButtons.h"
 #include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
@@ -142,7 +143,8 @@ private:
     GuiTextButton panToCBtn;
     GuiTextButton panToRBtn;
 
-    GuiSlider volSlider;
+    GuiComponentNudgeSliderFloat volSlider;
+    GuiComponentLevelNudge volNudge;
     GuiSlider toneSlider;
     GuiSlider noiseSlider;
     GuiSlider noiseFreqSlider;
@@ -243,6 +245,7 @@ public:
         panToCBtn(context),
         panToRBtn(context),
         volSlider(context),
+        volNudge(context),
         toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),

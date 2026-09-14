@@ -688,6 +688,8 @@ set(GUI_COMPONENT_LOADING_FILES
 set(GUI_COMPONENT_LEVEL_FILES
     "Source/Gui/Components/Level/Level.h"
     "Source/Gui/Components/Level/Level.cpp"
+    "Source/Gui/Components/Level/LevelNudge.h"
+    "Source/Gui/Components/Level/LevelNudge.cpp"
 )
 
 set(GUI_COMPONENT_SEPARATOR_FILES

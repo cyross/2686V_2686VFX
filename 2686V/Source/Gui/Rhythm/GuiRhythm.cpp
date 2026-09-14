@@ -242,9 +242,10 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     updateSamplePreview();
 
     // Vol
-    volSlider.setup({ .parent = colForm.contentCanvas, .id = padPrefix + CPK::vol, .title = RhythmGuiText::Rhythm::Pad::vol, .isReset = true });
-    volSlider.setWantsKeyboardFocus(true);
-    volSlider.setExplicitFocusOrder(++tabOrder);
+    volSlider.setupComponent(colForm.contentCanvas, padPrefix + CPK::vol, RhythmGuiText::Rhythm::Pad::vol, tabOrder, std::nullopt);
+
+    // チャンネルの LEVEL と同じ値ボタン。N ボタンで出し入れする。
+    volNudge.setupComponent(colForm.contentCanvas, volSlider.getSlider(), tabOrder);
 
     toneSlider.setup({ .parent = colForm.contentCanvas, .id = padPrefix + CPK::Tn::tone, .title = RhythmGuiText::Rhythm::Pad::tone, .isReset = true });
     toneSlider.setWantsKeyboardFocus(true);
@@ -448,7 +449,13 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     // FORM・PAN・QUALITY は 1 区分ずつでは丈が余るので、1 列へまとめてある。
     layoutCol(colForm, true, [&](juce::Rectangle<int>& rect) {
-        layoutRow({ .rowRect = rect, .label = &volSlider.label, .component = &volSlider });
+        volSlider.layoutComponentRow(rect);
+
+        // N ボタンが押されているときだけ値ボタンを出す。
+        volNudge.setVisibles(volSlider.isVisibleNudge());
+
+        if (volSlider.isVisibleNudge()) volNudge.layoutComponentRow(rect);
+
         layoutFormCat(rect);
         layoutPanCat(rect);
         layoutQualityCat(rect);
@@ -799,7 +806,7 @@ void RhythmPadGui::rebind(int index)
     loopPointStartSlider.rebind(padPrefix + CPK::lpStart);
     loopPointEndSlider.rebind(padPrefix + CPK::lpEnd);
 
-    volSlider.rebind(padPrefix + CPK::vol);
+    volSlider.getSlider().rebind(padPrefix + CPK::vol);
     toneSlider.rebind(padPrefix + CPK::Tn::tone);
     noiseSlider.rebind(padPrefix + CPK::Tn::noise);
     noiseFreqSlider.rebind(padPrefix + CPK::Tn::freq);

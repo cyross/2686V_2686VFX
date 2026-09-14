@@ -11,6 +11,7 @@
 #include "../../../Core/Gui/GuiContext.h"
 
 #include "../NudgeButtons/NudgeButtons.h"
+#include "./LevelNudge.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../Separator/NormalSeparator.h"
 
@@ -25,26 +26,8 @@ class GuiComponentLevel : public GuiBase {
 
     GuiComboBox stepSelector;
 
-    GuiTextButton levelPM1;
-    GuiTextButton levelTo1;
-    GuiTextButton levelP1;
-    GuiTextButton levelPM01;
-    GuiTextButton levelPM001;
-    GuiTextButton levelP001;
-    GuiTextButton levelP01;
-    GuiTextButton levelTo0125;
-    GuiTextButton levelTo0142;
-    GuiTextButton levelTo016;
-    GuiTextButton levelTo02;
-    GuiTextButton levelTo025;
-    GuiTextButton levelTo033;
-    GuiTextButton levelTo04;
-    GuiTextButton levelTo05;
-    GuiTextButton levelTo06;
-    GuiTextButton levelTo067;
-    GuiTextButton levelTo075;
-    GuiTextButton levelTo08;
-    GuiTextButton levelTo083;
+    // N ボタンで出す、値を動かすボタンの並び。RHYTHM のパッドと共用。
+    GuiComponentLevelNudge levelNudge;
 
     std::vector<SelectItem> stepItems = {
         { juce::String("") + " 1: 自由設定", 1 },
@@ -74,26 +57,7 @@ public:
         delaySlider(context),
         delayNudge(context),
 		stepSelector(context),
-        levelTo1(context),
-        levelPM1(context),
-        levelP1(context),
-        levelPM01(context),
-        levelPM001(context),
-        levelP001(context),
-        levelP01(context),
-        levelTo0125(context),
-        levelTo0142(context),
-        levelTo016(context),
-        levelTo02(context),
-        levelTo025(context),
-        levelTo033(context),
-        levelTo04(context),
-        levelTo05(context),
-        levelTo06(context),
-        levelTo067(context),
-        levelTo075(context),
-        levelTo08(context),
-        levelTo083(context)
+        levelNudge(context)
     {
     }
 
