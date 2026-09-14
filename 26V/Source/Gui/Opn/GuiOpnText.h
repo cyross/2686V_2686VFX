@@ -53,7 +53,6 @@ namespace OpnGuiText
 		static inline const juce::String level = u8"LEVEL";
 		static inline const juce::String alg = u8"ALG";
 		static inline const juce::String fb = u8"FB";
-		static inline const juce::String lfoFreq = u8"FQ";
 		static inline const juce::String lfoSpeed = u8"SPEED";
 		static inline const juce::String lfoShape = u8"SHAPE";
 		static inline const juce::String lfoPgShape = u8"P.SHAPE";

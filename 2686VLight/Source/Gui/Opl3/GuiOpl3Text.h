@@ -55,7 +55,6 @@ namespace Opl3GuiText
 		static inline const juce::String level = u8"LEVEL";
 		static inline const juce::String alg = u8"ALG";
 		static inline const juce::String fb = u8"FB";
-		static inline const juce::String lfoFreq = u8"FQ";
 		static inline const juce::String lfoSpeed = u8"SPEED";
 		static inline const juce::String lfoShape = u8"SHAPE";
 		static inline const juce::String lfoPgShape = u8"P.SHAPE";
@@ -97,7 +96,6 @@ namespace Opl3GuiText
 			static inline const juce::String FFreq = u8"FREQ";
 			static inline const juce::String SEnv = u8"SSG ENV";
 			static inline const juce::String SFreq = u8"SSG FREQ";
-			static inline const juce::String Freqs = u8"FREQS";
 			static inline const juce::String SyncDelay = u8"SY.DELAY";
 			static inline const juce::String Am = u8"AM";
 			static inline const juce::String Pm = u8"PM";

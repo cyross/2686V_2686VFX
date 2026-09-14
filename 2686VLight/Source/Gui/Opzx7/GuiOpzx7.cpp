@@ -613,7 +613,7 @@ void GuiOpzx7::setup()
 
     // OP ごとにつまみを並べる代わりに、対象を選ぶつまみと値のつまみを 1 組ずつ置く。
     // 並びは 対象 → 値 → 各 OP の値。
-    feedbackTarget.setup({ .parent = mainGroup.contentCanvas, .title = "F.OP", .isReset = false });
+    feedbackTarget.setup({ .parent = mainGroup.contentCanvas, .title = "FB.TARGET", .isReset = false });
     feedbackTarget.setRange(1.0, (double)Opzx7PrValue::ops, 1.0);
     feedbackTarget.setNumDecimalPlacesToDisplay(0);
     feedbackTarget.setWantsKeyboardFocus(true);
@@ -974,27 +974,27 @@ void GuiOpzx7::setup()
     kslOPZ.setWantsKeyboardFocus(true);
     kslOPZ.setExplicitFocusOrder(++tabOrder);
 
-    ksBp.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksBp, .title = "B.P", .isReset = true});
+    ksBp.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksBp, .title = "BREAK.PT", .isReset = true});
     ksBp.setWantsKeyboardFocus(true);
     ksBp.setExplicitFocusOrder(++tabOrder);
 
-    ksLc.setup(GuiComboBox::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksLc, .title = "L.Cur", .items = ksCurveItems, .isReset = true});
+    ksLc.setup(GuiComboBox::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksLc, .title = "L.CURVE", .items = ksCurveItems, .isReset = true});
     ksLc.setWantsKeyboardFocus(true);
     ksLc.setExplicitFocusOrder(++tabOrder);
 
-    ksRc.setup(GuiComboBox::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksRc, .title = "R.Cur", .items = ksCurveItems, .isReset = true });
+    ksRc.setup(GuiComboBox::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksRc, .title = "R.CURVE", .items = ksCurveItems, .isReset = true });
     ksRc.setWantsKeyboardFocus(true);
     ksRc.setExplicitFocusOrder(++tabOrder);
 
-    ksLd.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksLd, .title = "L.Dep", .isReset = true });
+    ksLd.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksLd, .title = "L.DEPTH", .isReset = true });
     ksLd.setWantsKeyboardFocus(true);
     ksLd.setExplicitFocusOrder(++tabOrder);
 
-    ksRd.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksRd, .title = "R.Dep", .isReset = true });
+    ksRd.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksRd, .title = "R.DEPTH", .isReset = true });
     ksRd.setWantsKeyboardFocus(true);
     ksRd.setExplicitFocusOrder(++tabOrder);
 
-    ksRs.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksRs, .title = "R.SC", .isReset = true});
+    ksRs.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksRs, .title = "RT.SCALE", .isReset = true});
     ksRs.setWantsKeyboardFocus(true);
     ksRs.setExplicitFocusOrder(++tabOrder);
 

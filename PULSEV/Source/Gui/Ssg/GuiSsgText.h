@@ -6,8 +6,6 @@
 
 namespace SsgGuiText
 {
-	static inline const juce::String bit = u8"Bit";
-	static inline const juce::String rate = u8"Rate";
 
 	namespace Category
 	{
@@ -98,7 +96,7 @@ namespace SsgGuiText
 		{
 			static inline const juce::String mode = u8"MODE";
 			static inline const juce::String preset = u8"PRESET";
-			static inline const juce::String var = u8"RAT";
+			static inline const juce::String var = u8"RATIO";
 			static inline const juce::String invert = u8"Invert Phrase";
 			static inline const juce::String fc = u8"FC Mode";
 			static inline const juce::String fcFluc = u8"FC FLUC";

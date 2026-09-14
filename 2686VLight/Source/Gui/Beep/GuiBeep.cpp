@@ -48,7 +48,7 @@ void GuiBeep::setup() {
     antiAliasButton.setWantsKeyboardFocus(true);
     antiAliasButton.setExplicitFocusOrder(++tabOrder);
 
-    timerClockSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::timerClock, .title = "CLK", .items = beepTimerClockItems, .isReset = true });
+    timerClockSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::timerClock, .title = "CLOCK", .items = beepTimerClockItems, .isReset = true });
     timerClockSelector.setWantsKeyboardFocus(true);
     timerClockSelector.setExplicitFocusOrder(++tabOrder);
 

@@ -98,7 +98,6 @@ namespace OpmGuiText
 			static inline const juce::String FFreq = u8"FREQ";
 			static inline const juce::String SEnv = u8"SSG ENV";
 			static inline const juce::String SFreq = u8"FREQ";
-			static inline const juce::String Freqs = u8"FREQS";
 			static inline const juce::String SyncDelay = u8"SY.DELAY";
 			static inline const juce::String Am = u8"AM";
 			static inline const juce::String Pm = u8"PM";
