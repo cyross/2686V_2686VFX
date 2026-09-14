@@ -622,7 +622,8 @@ void GuiOpzx7::setup()
     feedbackTarget.setExplicitFocusOrder(++tabOrder);
     feedbackTarget.onValueChange = [this] { rebindFeedback(); };
 
-    feedbackSlider.setupComponent(mainGroup.contentCanvas, "", Opzx7GuiText::Fm::fb, tabOrder, std::nullopt);
+    // 繋ぐ先は対象のつまみが決める。ここで空の名前へ繋ぎに行くと、無いパラメータを指して JUCE が止まる。
+    feedbackSlider.setupComponent(mainGroup.contentCanvas, "", Opzx7GuiText::Fm::fb, tabOrder, std::nullopt, std::nullopt, false);
     feedbackSlider.getSlider().onValueChange = [this] { refreshFeedbackValues(); };
 
     feedbackNudge.setupComponent(mainGroup.contentCanvas, feedbackSlider.getSlider(), tabOrder);
@@ -821,11 +822,12 @@ void GuiOpzx7::setup()
 
     // ---- 上の絵と、下の設定 ----
     //
-    // 絵はオペレータの数だけ。設定はひとそろいだけ置き、TARGET で
+    // 絵はオペレータの数だけ。WS の波形とエンベロープを積む。
+    // 設定はひとそろいだけ置き、TARGET で
     // 指し先を切り替える。
     for (int i = 0; i < Opzx7PrValue::ops; ++i)
     {
-        cells[(size_t)i].setup(*this, i, Opzx7GuiText::Group::opPrefix + juce::String(i + 1), false);
+        cells[(size_t)i].setup(*this, i, Opzx7GuiText::Group::opPrefix + juce::String(i + 1), true);
         cells[(size_t)i].onSelect = [this](int index) {
             targerOpSlider.setValue(index + 1, juce::sendNotification);
             };
@@ -1416,7 +1418,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     constexpr int rows = (Opzx7PrValue::ops + cols - 1) / cols;
 
     const int cellW = pageArea.getWidth() / cols;
-    const int cellH = GuiTargetCell::naturalHeight(false);
+    const int cellH = GuiTargetCell::naturalHeight(true);
 
     auto cellsArea = pageArea.removeFromTop(cellH * rows);
 
@@ -1433,6 +1435,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
             cells[(size_t)i].layout(cellArea);
 
             updateOpGraph(i);
+            updateCellWs(i);
         }
     }
 
@@ -1604,46 +1607,101 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     seFreq.setEnabled(enable);
 }
 
-// 選んでいる WS の波形を折れ線にする。
+// 設定の束にある WS の波形を描き直す。
+//
 // 描画のたびに計算すると重いので、形が変わったときだけここを通す。
+// 上の枠のうち、TARGET が指している 1 枚も同じ形なので一緒に描く。
 void GuiOpzx7::updateWsPreview()
 {
     // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す。
     if (GuiRefresh::defer(this, [this] { updateWsPreview(); })) return;
 
-    // 波形そのものは処理側が持っている。指し先のぶんを引く。
     const int opIndex = currentOp();
 
+    fillWsPreview(wsPreview, opIndex);
+    fillWsPreview(cells[(size_t)opIndex].preview(), opIndex);
+}
+
+// 上の枠 1 枚ぶんの WS の波形を描き直す。
+//
+// 素材の読み込みやプリセットの切り替えでは、TARGET が指していない
+// オペレータの形も変わる。その 1 枚だけを引き直すときに使う。
+void GuiOpzx7::updateCellWs(int opIndex)
+{
+    auto& cell = cells[(size_t)opIndex];
+
+    // 枠ごとに溜める。まとめて 1 つの持ち主にすると、後から来たオペレータの
+    // 求めで前のぶんが上書きされて、描かれない枠が残る。
+    if (GuiRefresh::defer(&cell, [this, opIndex] { updateCellWs(opIndex); })) return;
+
+    fillWsPreview(cell.preview(), opIndex);
+}
+
+// オペレータ 1 つぶんの WS の波形を、渡された表示へ描く。
+//
+// TARGET が指しているオペレータはつまみから読む。つまみを動かした
+// 直後は、パラメータへ値が届く前にここへ来ることがあるため。
+// ほかのオペレータはつまみを持たないので、パラメータから直に採る。
+void GuiOpzx7::fillWsPreview(GuiWavePreview& preview, int opIndex)
+{
+    auto& apvts = ctx.audioProcessor.apvts;
+
+    const juce::String code = Opzx7PrKey::prefix + CPK::op + juce::String(opIndex);
+
+    const bool isTarget = opIndex == currentOp();
+
+    // WS は 0 始まりの整数のパラメータなので、値がそのまま並びの番号になる。
+    const int shape = isTarget
+        ? ws.getSelectedItemIndex()
+        : juce::roundToInt(GuiGraphValues::value(apvts, code + CPK::Fm::ws));
+
+    const float offset = isTarget
+        ? (float)pcmOffset.getValue()
+        : GuiGraphValues::value(apvts, code + CPK::pcmOffset);
+
+    const float ratio = isTarget
+        ? (float)pcmRatio.getValue()
+        : GuiGraphValues::value(apvts, code + CPK::pcmRatio);
+
+    const bool loopOn = isTarget
+        ? loopPointEnable.getToggleState()
+        : GuiGraphValues::flag(apvts, code + CPK::lpEnable);
+
+    // 波形そのものは処理側が持っている。
     // 波形メモリと PCM は未読込なら空。音源側と同じくサイン波になる。
     // PCM のときだけ P.OF / P.RT で切り出す範囲が変わるので、一緒に渡す。
-    wsPreview.setPoints(
+    preview.setPoints(
         WavePreviewSource::opzx7Ws(
-            ws.getSelectedItemIndex(),
+            shape,
             ctx.audioProcessor.opzx7WtBuffers[opIndex],
             ctx.audioProcessor.opzx7Wt2Buffers[opIndex],
             ctx.audioProcessor.opzx7PcmBuffers[opIndex],
-            (float)pcmOffset.getValue(),
-            (float)pcmRatio.getValue(),
+            offset,
+            ratio,
             ctx.audioProcessor.getSampleRate()),
         true);
 
     // 同じ枠が波形メモリとオーディオファイルの両方を映すので、
     // 何を出しているかに合わせて線の色も変える。
-    bool isPcm = ws.getSelectedItemIndex() == Opzx7PrValue::pcmIndex;
+    const bool isPcm = shape == Opzx7PrValue::pcmIndex;
 
-    wsPreview.setLineColour(isPcm
+    preview.setLineColour(isPcm
         ? GuiColor::WavePreview::AudioFile
         : GuiColor::WavePreview::WaveMemory);
 
     // ループ位置は PCM のときだけ意味を持つ。切り出した範囲に対する 0.0〜1.0。
     std::vector<float> markers;
 
-    if (isPcm && loopPointEnable.getToggleState()) {
-        markers.push_back((float)loopPointStart.getValue());
-        markers.push_back((float)loopPointEnd.getValue());
+    if (isPcm && loopOn) {
+        markers.push_back(isTarget
+            ? (float)loopPointStart.getValue()
+            : GuiGraphValues::value(apvts, code + CPK::lpStart));
+        markers.push_back(isTarget
+            ? (float)loopPointEnd.getValue()
+            : GuiGraphValues::value(apvts, code + CPK::lpEnd));
     }
 
-    wsPreview.setMarkers(markers);
+    preview.setMarkers(markers);
 }
 
 void GuiOpzx7::updateOnWsChange()

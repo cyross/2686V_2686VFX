@@ -340,6 +340,10 @@ public:
     // 名前が来ても、画面に出すところが無いので何もしない。
     // 指し先が変わったときは rebind が引き直す。
     void updatePcmFileName(int opIndex, const juce::String& fileName) {
+        // 素材が変わったので、そのオペレータの枠の波形を描き直す。
+        // 枠は TARGET と関係なく全部出ているので、名前より先に行う。
+        updateCellWs(opIndex);
+
         if (opIndex != currentOp()) return;
 
         pcmFileNameLabel.setText(fileName, juce::dontSendNotification);
@@ -348,6 +352,10 @@ public:
         updateWsPreview();
     }
     void updateWtFileName(int opIndex, const juce::String& fileName) {
+        // 素材が変わったので、そのオペレータの枠の波形を描き直す。
+        // 枠は TARGET と関係なく全部出ているので、名前より先に行う。
+        updateCellWs(opIndex);
+
         if (opIndex != currentOp()) return;
 
         wtFileNameLabel.setText(fileName, juce::dontSendNotification);
@@ -356,6 +364,10 @@ public:
         updateWsPreview();
     }
     void updateWt2FileName(int opIndex, const juce::String& fileName) {
+        // 素材が変わったので、そのオペレータの枠の波形を描き直す。
+        // 枠は TARGET と関係なく全部出ているので、名前より先に行う。
+        updateCellWs(opIndex);
+
         if (opIndex != currentOp()) return;
 
         wt2FileNameLabel.setText(fileName, juce::dontSendNotification);
@@ -375,6 +387,8 @@ public:
     void updateOpEnable(int idx, bool enable);
     void updateOnWsChange();
     void updateWsPreview();
+    void updateCellWs(int opIndex);
+    void fillWsPreview(GuiWavePreview& preview, int opIndex);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(bool rgMode);
     void updateAlgorithmMatrixDisplay();
