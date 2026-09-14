@@ -126,6 +126,9 @@ that **keeps the ones you use and folds the rest away**. It only hides what is
 on screen — **the sound does not change**, and the values of the hidden
 sections stay as they were.
 
+The first time the window opens, you are asked whether to turn it on
+([the initial settings question](/2686V_2686VFX/en/guide/install/#the-initial-settings-question)).
+
 What gets hidden is decided per tab, and **a section the channel has as a
 feature of the real chip stays**. That is why SSG keeps SSG HW AMP ENV, and
 WT / WT2 / WT+ keep WT PITCH MOD. In 2686VFX the modulation panels are hidden

@@ -23,6 +23,19 @@ The FX tab lays everything out in a single horizontal row. Leftmost is
 effect and modulation panels follow to its right. Scroll right to reach them
 all.
 
+Related effects are stacked in one column, which brings the effects down to
+four columns.
+
+| Column | Stacked effects |
+| --- | --- |
+| 1 | Filter / 3-band EQ |
+| 2 | Tremolo / Vibrato |
+| 3 | Bit crusher / PCM bit crusher |
+| 4 | Delay / Reverb / SFC echo |
+
+The grouping is by kind and **has nothing to do with the processing order**,
+which is still set in the Effector list.
+
 ## The effects (9 of them)
 
 | Effect | What it does |

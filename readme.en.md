@@ -84,10 +84,14 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Clicking the same row again in a list clears the selection.
   - The RHYTHM pad's LEVEL gained nudge buttons.
   - WT+ and ADPCM+ OPTIONAL, and ADPCM+ PAN, now start open.
+  - The first time the window opens, you are asked whether to use simple view.
+    - Yes or No (or ESC) both create the default settings file, so it is asked only once.
+  - 2686VFX stacks related effects in one column, bringing nine columns down to four (the processing order is unchanged).
 - **Fixes**
   - On 2686VLight, 26V, 86V and OPZX7S, OP / CL and "Bypass hidden sections" did nothing.
   - The mask in the MML copied with Ctrl + C did not reflect OP3 and OP4 (OPNA / OPN / OPL3 / OPM).
   - OPZX7S's TARGET stopped at 6, so operators 7 and 8 could not be read or written.
+  - "Load from settings file" on SETTINGS left the simple view and other toggles showing their old state.
   - On 86V's RHYTHM, TARGET and the pad copy source/destination went up to 8.
 - **About the older file format**
   - The knobs added in this release are not written into the line-ordered format from before 3.0.0 (reading works as before).

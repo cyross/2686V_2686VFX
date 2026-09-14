@@ -102,6 +102,8 @@ Since operators are no longer shown four at a time, OPZX7S's **VIEW MODE** (swit
 - **Labels are now eight characters wide, and the spellings are back in full.** Squeezed forms such as LV, SHPE and P.OF now read LEVEL, SHAPE and P.OFFSET. The row total is unchanged, so nothing moves
 - **The RHYTHM pad's LEVEL has value buttons too.** Pressing N brings up the same set as the channel LEVEL (±1.0 / ±0.1 / ±0.01, 1.0, 0.25 and so on)
 - **WT+ and ADPCM+ OPTIONAL, and ADPCM+ PAN, now start open**
+- **The first time the window opens, you are asked whether to use simple view.** Answering creates the default settings file, so the question is not asked again. See [the initial settings question](/2686V_2686VFX/en/guide/install/#the-initial-settings-question)
+- **2686VFX stacks related effects in one column.** The nine effect columns became four, so the modulation panels to the right are a shorter scroll away. The processing order is unchanged
 - **Toggle buttons can be laid out two ways.** The setting is under "simple view" in SETTINGS: centred (as before) or left-aligned, and it takes effect across the whole window as soon as it is switched
 - **Dividers were added inside OPTIONAL**, because the position and rate above and the looping below are different matters
 - **The browser gained shortcuts.** **ESC** closes it and **Ctrl+M** builds a preview
@@ -115,6 +117,7 @@ Faults present up to 3.2.0.
 - **The mask in the MML copied with Ctrl + C did not reflect OP3 and OP4.** The second operator's value was written twice. This affected OPNA / OPN / OPL3 / OPM
 - **OPZX7S's TARGET stopped at 6**, so operators 7 and 8 could not be read or written one operator at a time
 - **On 86V's RHYTHM, TARGET and the pad copy source/destination went up to 8.** 86V has six pads, so 7 and 8 pointed at pads that do not exist
+- **"Load from settings file" on SETTINGS did not show everything it loaded.** The simple view, tooltip, headroom and virtual MIDI keyboard toggles kept their old state, and simple view, tooltips and the virtual keyboard did not follow the loaded values until switched again
 
 ## About the older file format
 
