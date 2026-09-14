@@ -147,7 +147,8 @@ public:
     void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);
     void drawBg(juce::Graphics& g);
-    void loadSettingsFile();
+    // 初めて開いたときに、簡易表示モードで使うかを尋ねる
+    void askInitialSettings();
     void loadPresetFile(const juce::File& file);
     void scanPresets();
 

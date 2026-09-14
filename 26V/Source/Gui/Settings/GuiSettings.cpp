@@ -714,6 +714,11 @@ void GuiSettings::setup()
                     // 足した項目が読み込みのときだけ画面に出なかった。
                     setSettings();
 
+                    // 読んだ値を画面へ効かせる。簡易表示モードは組み直さないと出てこない。
+                    ctx.editor.setTooltipState(ctx.audioProcessor.showTooltips);
+                    ctx.editor.updateKeyboardVisibility();
+                    ctx.editor.resized();
+
                     // 壁紙再描画
                     ctx.editor.loadWallpaperImage();
 
@@ -1192,6 +1197,21 @@ void GuiSettings::setSettings()
     toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
     wtModParamDirPathLabel.setText(ctx.audioProcessor.defaultWtModParamDir, juce::dontSendNotification);
     colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
+
+    // 入り切りもプロセッサから読み直す。ここに無かったため、設定ファイルを
+    // 読んでも画面のトグルだけが前の値のまま残っていた。
+    simpleViewToggle.setToggleState(ctx.audioProcessor.simpleView, juce::dontSendNotification);
+    bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
+
+    for (int i = 0; i < SimpleView::Size; ++i) {
+        simpleViewShowToggles[(size_t)i].setToggleState(ctx.audioProcessor.simpleViewShow[(size_t)i], juce::dontSendNotification);
+    }
+
+    tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
+    useHeadroomToggle.setToggleState(ctx.audioProcessor.useHeadroom, juce::dontSendNotification);
+    headroomGainSlider.setValue(ctx.audioProcessor.headroomGain, juce::dontSendNotification);
+    headroomGainSlider.setEnabledWithLabel(ctx.audioProcessor.useHeadroom);
+    virtualMidiKeyboardToggle.setToggleState(ctx.audioProcessor.showVirtualKeyboard, juce::dontSendNotification);
 }
 
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)
