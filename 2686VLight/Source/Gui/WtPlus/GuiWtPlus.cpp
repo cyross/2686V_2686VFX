@@ -106,7 +106,7 @@ void GuiWtPlus::setup() {
     slotsCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::slots, .detailVisible = true, .enableChangeDetailVisible = true });
 
     // 並びは 対象 → 読み込み / 名前 / 消去 → 各スロットの波形。
-    slotTarget.setup({ .parent = waveGroup.contentCanvas, .title = "TGT", .isReset = false });
+    slotTarget.setup({ .parent = waveGroup.contentCanvas, .title = "TARGET", .isReset = false });
     slotTarget.setRange(0.0, (double)(Global::WtPlus::slots - 1), 1.0);
     slotTarget.setNumDecimalPlacesToDisplay(0);
     slotTarget.setWantsKeyboardFocus(true);
@@ -788,7 +788,7 @@ void GuiWtPlus::applyChParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
-    // OPTIONAL はスロットごとに持つ。画面へ出ているのは TGT で
+    // OPTIONAL はスロットごとに持つ。画面へ出ているのは TARGET で
     // 選んだ 1 組だけなので、32 組ぶんをパラメータへ直に入れる。
     for (int i = 0; i < Global::WtPlus::slots; ++i) {
         const juce::String slotPrefix = WtPlusPrKey::prefix + CPK::Wt::slot + juce::String(i);

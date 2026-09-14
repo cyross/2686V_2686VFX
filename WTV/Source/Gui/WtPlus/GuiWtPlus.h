@@ -256,7 +256,7 @@ public:
     // 対象のスロットが変わったときに、ボタンと名前の指す先をそろえる。
     void applySlotTarget();
 
-    // OPTIONAL はスロットごとに値を持つ。TGT が変わったら
+    // OPTIONAL はスロットごとに値を持つ。TARGET が変わったら
     // つまみの束ねる先をそのスロットのものへ差し替える。
     void rebindOptional();
 

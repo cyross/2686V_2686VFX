@@ -295,7 +295,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         m_currentParams.rhythm.pads[(size_t)i].source = &m_rhythmPcm[(size_t)i].forAudio();
     }
 
-    // ADPCM+ の素材。鳴らすのは TGT で選んだ 1 本だけ。
+    // ADPCM+ の素材。鳴らすのは TARGET で選んだ 1 本だけ。
     //
     // 添え字は adpcmPlusSlot という名前で持つ。音源を絞ったプラグインを
     // 作るときは ADPCM+ に触れる行ごと落とすので、この 3 行がそろって

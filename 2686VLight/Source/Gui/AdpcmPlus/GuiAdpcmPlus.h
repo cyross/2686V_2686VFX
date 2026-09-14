@@ -51,7 +51,7 @@ class GuiAdpcmPlus : public GuiBase
 
 	QualityPcm qualityPcmComponent;
 
-    // SLOT は鳴らす PCM。TGT はいま画面へ出している PCM。
+    // SLOT は鳴らす PCM。TARGET はいま画面へ出している PCM。
     // FORM・OPTIONAL・PAN の値は PCM ごとに分かれている。
     GuiSlider slotSlider;
     GuiSlider slotTarget;
@@ -281,7 +281,7 @@ public:
     // いま画面へ出している PCM のスロット番号
     int targetSlot() const { return juce::jlimit(0, Global::AdpcmPlus::slots - 1, (int)slotTarget.getValue()); }
 
-    // TGT が動いたときに、つまみの指し先をそのスロットへ張り直す
+    // TARGET が動いたときに、つまみの指し先をそのスロットへ張り直す
     void applySlotTarget();
     void rebindSlot();
     void updateSlotFileName(int slot);

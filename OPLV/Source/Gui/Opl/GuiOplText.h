@@ -61,7 +61,7 @@ namespace OplGuiText
 		static inline const juce::String lfoSpeed = u8"SPEED";
 		static inline const juce::String lfoShape = u8"SHAPE";
 		static inline const juce::String lfoPgShape = u8"P.SHAPE";
-		static inline const juce::String lfoEgShape = u8"A.SHAOE";
+		static inline const juce::String lfoEgShape = u8"A.SHAPE";
 		static inline const juce::String lfoSyncDelay = u8"SY.DELAY";
 		static inline const juce::String amEn = u8"AM Enable";
 		static inline const juce::String pmEn = u8"PM Enable";

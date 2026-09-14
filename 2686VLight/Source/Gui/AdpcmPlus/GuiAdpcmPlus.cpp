@@ -50,7 +50,7 @@ void GuiAdpcmPlus::setup()
     const juce::String code = AdpcmPlusPrKey::prefix;
 
     // FORM・OPTIONAL・PAN は PCM ごとに持つ。組み立てのときは
-    // 0 番で束ねておき、TGT が動いたら張り直す。
+    // 0 番で束ねておき、TARGET が動いたら張り直す。
     const juce::String slot0 = code + CPK::AdpcmPlus::slot + juce::String(0);
     int tabOrder = 1;
 
@@ -402,7 +402,7 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     juce::Rectangle<int> pRect(0, 0, pcmGroup.getContentWidth(), 2000);
 
-    // SLOT と TGT は畳めない場所へ置く。下の区分をすべて束ねるつまみなので、
+    // SLOT と TARGET は畳めない場所へ置く。下の区分をすべて束ねるつまみなので、
     // 隠れてしまうと選び直せなくなる。
     layoutMain({ .mainRect = pRect, .label = &slotSlider.label, .component = &slotSlider });
     layoutMain({ .mainRect = pRect, .label = &slotTarget.label, .component = &slotTarget });
@@ -421,7 +421,7 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 }
 
 
-// TGT で選んだスロットへ、FORM・OPTIONAL・PAN のつまみを向け直す。
+// TARGET で選んだスロットへ、FORM・OPTIONAL・PAN のつまみを向け直す。
 // 画面へ出ているのは 1 組だけで、残りはパラメータとして眠っている。
 void GuiAdpcmPlus::rebindSlot()
 {

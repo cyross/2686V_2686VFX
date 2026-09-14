@@ -54,7 +54,7 @@ namespace RhythmGuiText
 			static inline const juce::String mix = u8"MIX";
 			static inline const juce::String pan = u8"PAN";
 			static inline const juce::String pcmOffset = u8"P.OFFSET";
-			static inline const juce::String pcmRatio = u8"P,RATIO";
+			static inline const juce::String pcmRatio = u8"P.RATIO";
 			static inline const juce::String oneShot = u8"One Shot";
 			static inline const juce::String loopPointEnable = u8"Loop Point Enable";
 			static inline const juce::String loopPointStart = u8"LP.START";

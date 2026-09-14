@@ -3705,7 +3705,7 @@ namespace PrHelper {
 
 	static inline void addWtPlusBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		// 再生速度とホールド・部分再生は、波形メモリのスロットごとに持つ。
-		// 画面のつまみは 1 組だけ置き、TGT で束ねる先を差し替える。
+		// 画面のつまみは 1 組だけ置き、TARGET で束ねる先を差し替える。
 		for (int i = 0; i < Global::WtPlus::slots; ++i) {
 			const juce::String slotPrefix = prefix + CPK::Wt::slot + juce::String(i);
 			const juce::String slotName = prefixName + " Slot " + juce::String(i);

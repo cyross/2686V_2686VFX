@@ -498,7 +498,7 @@ private:
     std::atomic<int> m_adpcmWantRate{ -1 };
 
     // ADPCM+ も同じ。PCM のスロットごとに 1 つずつ持つ。
-    // 鳴らすのは TGT で選んだ 1 本だけだが、差し替えずに済むよう
+    // 鳴らすのは TARGET で選んだ 1 本だけだが、差し替えずに済むよう
     // 読み込んだものはすべて持っておく。
     std::array<PcmSharedStore, Global::AdpcmPlus::slots> m_adpcmPlusPcm;
     std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantQuality{};

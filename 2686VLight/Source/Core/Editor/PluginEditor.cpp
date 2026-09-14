@@ -1493,7 +1493,7 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
     else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanL(button)) { adpcmGui->setPan(0.0); }
     else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanC(button)) { adpcmGui->setPan(0.5); }
     else if (adpcmGui.peek() != nullptr && adpcmGui->isBtnPanR(button)) { adpcmGui->setPan(1.0); }
-    // ADPCM+ Load Button (読み込むのは TGT で選んでいるスロット)
+    // ADPCM+ Load Button (読み込むのは TARGET で選んでいるスロット)
     else if (adpcmPlusGui.peek() != nullptr && adpcmPlusGui->isThis(button))
     {
         openAudioBrowser(
