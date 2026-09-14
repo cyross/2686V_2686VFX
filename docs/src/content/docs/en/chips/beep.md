@@ -26,17 +26,17 @@ The tone itself cannot be changed, but **the envelopes and modulation are all he
 | Item | What it does | Range |
 | --- | --- | --- |
 | **FREQ** | Frequency | 0–8000Hz (440Hz by default) |
-| **TIMERCLOCK** | The tick of the underlying timer | 1–4 (1 by default) |
-| **ANTIALIAS** | Hold down the aliasing (**ours**) | on / off (off by default) |
+| **CLOCK** | The tick of the underlying timer | 1–4 (1 by default) |
+| **Anti-Alias** | Hold down the aliasing (**ours**) | on / off (off by default) |
 
-**TIMERCLOCK** corresponds to how the hardware produced the beeper's frequency. The coarser the tick, the further the result drifts from the frequency you asked for. **That drift is part of what makes it sound like the period**, so try it when you want to get close to the hardware.
+**CLOCK** corresponds to how the hardware produced the beeper's frequency. The coarser the tick, the further the result drifts from the frequency you asked for. **That drift is part of what makes it sound like the period**, so try it when you want to get close to the hardware.
 
-**Switching ANTIALIAS on rounds the corners and gives a modern, easy-listening pulse wave.** Leave it off when you are after the hardware's sound.
+**Switching Anti-Alias on rounds the corners and gives a modern, easy-listening pulse wave.** Leave it off when you are after the hardware's sound.
 
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **CLK** | Which clock it is built on. The hardware's four | [`BEEP_TIMERCLOCK`](/2686V_2686VFX/en/reference/automation/beep/#beep-timerclock) |
+| **CLOCK** | Which clock it is built on. The hardware's four | [`BEEP_TIMERCLOCK`](/2686V_2686VFX/en/reference/automation/beep/#beep-timerclock) |
 | **Anti-Alias** | Hold down the aliasing at high pitches (**ours**) | [`BEEP_ANTIALIAS`](/2686V_2686VFX/en/reference/automation/beep/#beep-antialias) |
 
 ## OPTIONAL — sound-effect mode (hardware)

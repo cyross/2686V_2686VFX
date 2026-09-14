@@ -46,7 +46,7 @@ What appears below changes with the waveform you pick.
 | --- | --- | --- | --- |
 | **MODE** | How the duty cycle is chosen. `0: Preset Ratio` picks from the eight the hardware had; `1: Variable (Slider)` moves continuously (**ours**) | — | |
 | **PRESET** | The eight duty cycles the hardware had | see below | |
-| **RAT** | The ratio when MODE is Variable | 0.0–1.0 | |
+| **RATIO** | The ratio when MODE is Variable | 0.0–1.0 | |
 | **FC Mode** | Behave the way the Famicom did (**ours**) | on / off (off by default) | |
 | **FC FLUC** | How much it fluctuates in FC Mode (**ours**) | 0.0–1.0 (0.2 by default) | |
 
@@ -68,7 +68,7 @@ PRESET offers these eight duty cycles.
 | --- | --- | --- |
 | **MODE** | Pick from fixed ratios, or set one freely | [`SSG_DUTY_MODE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-mode) |
 | **PRESET** | The ratios the hardware used. 9 of them | [`SSG_DUTY_PRESET`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-preset) |
-| **RAT** | The ratio when you set it freely | [`SSG_DUTY_VAR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-var) |
+| **RATIO** | The ratio when you set it freely | [`SSG_DUTY_VAR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-var) |
 | **Invert Phrase** | Turn the wave upside down | [`SSG_DUTY_INV`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-inv) |
 | **FC Mode** | Make the ratio waver slightly, the way the Famicom's did (**ours**) | [`SSG_DUTY_FC_MODE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-mode) |
 | **FC FLUC** | How large that wavering is | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-fluc) |

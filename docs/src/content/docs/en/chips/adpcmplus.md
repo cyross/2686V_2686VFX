@@ -77,17 +77,17 @@ The four knobs that follow mix grit into the loaded sound (**ours**).
 
 ### OPTIONAL — how it is played
 
-**Put LPST and LPED partway into the wave** and only that stretch repeats while the key is held, so a short piece of material can become a sustaining sound.
+**Put LP.START and LP.END partway into the wave** and only that stretch repeats while the key is held, so a short piece of material can become a sustaining sound.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **SPEED** | Multiplier on the playback rate | [`ADPCMP_SLOT[0-31]_SPEED`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-speed) |
-| **CNT** | How many times to go round LPST–LPED before moving on. 0 means forever | [`ADPCMP_SLOT[0-31]_LOOPPOINT_CNT`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-cnt) |
+| **CNT** | How many times to go round LP.START–LP.END before moving on. 0 means forever | [`ADPCMP_SLOT[0-31]_LOOPPOINT_CNT`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-cnt) |
 | **P.OFFSET** | Where to start, in milliseconds | [`ADPCMP_SLOT[0-31]_PCM_OFFSET`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-offset) |
 | **P.RATIO** | How much of the remaining length to play | [`ADPCMP_SLOT[0-31]_PCM_RATIO`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-ratio) |
 | **LOOP** | Repeat the whole file | [`ADPCMP_SLOT[0-31]_LOOP`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-loop) |
 | **Loop Point Enable** | Set the stretch that repeats | [`ADPCMP_SLOT[0-31]_LOOPPOINT_EN`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-en) |
-| **LPST / LPED** | That stretch, as 0.0–1.0 across the whole | [`ADPCMP_SLOT[0-31]_LOOPPOINT_ST`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-st) |
+| **LP.START / LP.END** | That stretch, as 0.0–1.0 across the whole | [`ADPCMP_SLOT[0-31]_LOOPPOINT_ST`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-st) |
 
 ### PAN
 

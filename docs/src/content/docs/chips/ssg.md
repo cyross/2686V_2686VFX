@@ -47,7 +47,7 @@ SSG は、YM-2203/YM-2608B の SSG 部分(ルーツは、 AY-3-8910 系のいわ
 | --- | --- | --- | --- |
 | **MODE** | デューティ比の決め方。`0: Preset Ratio` は実機にある 8 種類から選ぶ、`1: Variable (Slider)` は連続で変える（**独自**） | — | |
 | **PRESET** | 実機にある 8 種類のデューティ比 | 下表 | |
-| **RAT** | MODE が Variable のときの比率 | 0.0〜1.0 | |
+| **RATIO** | MODE が Variable のときの比率 | 0.0〜1.0 | |
 | **FC Mode** | ファミコン風の挙動にする（**独自**） | 入 / 切（初期は切） | |
 | **FC FLUC** | FC Mode のときの揺らぎの量（**独自**） | 0.0〜1.0（初期 0.2） | |
 
@@ -69,7 +69,7 @@ PRESET で選べるデューティ比は次の 8 種類です。
 | --- | --- | --- |
 | **MODE** | 決まった比から選ぶか、自由に決めるか | [`SSG_DUTY_MODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-mode) |
 | **PRESET** | 実機で使われていた比。9 種 | [`SSG_DUTY_PRESET`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-preset) |
-| **RAT** | 自由に決めるときの比 | [`SSG_DUTY_VAR`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-var) |
+| **RATIO** | 自由に決めるときの比 | [`SSG_DUTY_VAR`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-var) |
 | **Invert Phrase** | 上下を入れ替える | [`SSG_DUTY_INV`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-inv) |
 | **FC Mode** | ファミコンのように、比が細かく揺れる動きにする（**独自**） | [`SSG_DUTY_FC_MODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-mode) |
 | **FC FLUC** | その揺れの大きさ | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-fluc) |

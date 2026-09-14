@@ -92,18 +92,18 @@ SLOT と TARGET は区分の外にあります。下の区分をすべて束ね�
 
 ### OPTIONAL — 鳴らし方
 
-**LPST / LPED を波形の途中に置く**と、押している間そこだけを繰り返します。
+**LP.START / LP.END を波形の途中に置く**と、押している間そこだけを繰り返します。
 持続する音を短い素材から作れます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **SPEED** | 再生の速さに掛ける倍率 | [`ADPCMP_SLOT[0-31]_SPEED`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-speed) |
-| **CNT** | LPST〜LPED を何周したら先へ進むか。0 は無限 | [`ADPCMP_SLOT[0-31]_LOOPPOINT_CNT`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-cnt) |
+| **CNT** | LP.START〜LP.END を何周したら先へ進むか。0 は無限 | [`ADPCMP_SLOT[0-31]_LOOPPOINT_CNT`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-cnt) |
 | **P.OFFSET** | 頭出し（ミリ秒） | [`ADPCMP_SLOT[0-31]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-offset) |
 | **P.RATIO** | 鳴らす長さの割合 | [`ADPCMP_SLOT[0-31]_PCM_RATIO`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-ratio) |
 | **LOOP** | ファイル全体を繰り返す | [`ADPCMP_SLOT[0-31]_LOOP`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-loop) |
 | **Loop Point Enable** | 繰り返す範囲を指定する | [`ADPCMP_SLOT[0-31]_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-en) |
-| **LPST / LPED** | その範囲。全体を 0.0〜1.0 とした位置 | [`ADPCMP_SLOT[0-31]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-st) |
+| **LP.START / LP.END** | その範囲。全体を 0.0〜1.0 とした位置 | [`ADPCMP_SLOT[0-31]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-st) |
 
 ### PAN
 

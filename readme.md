@@ -78,7 +78,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - OPZX7S の VIEW MODE を廃止
 - **画面まわり**
   - ラベルの幅を8文字ぶんに広げ、LV → LEVEL、SHPE → SHAPE、P.OF → P.OFFSET のように綴りを戻した
-    - FX の LGn → LOW.GAIN、FC0 → COEF0、QUALITY の INTP → INTERP も同様
+    - FX の LGn → LOW.GAIN、FC0 → COEF0、QUALITY の INTP → INTERP、OPZX7S の POFF → P.OFFSET・B.P → BREAK.PT・F.OP → FB.TARGET、SSG の RAT → RATIO、BEEP の CLK → CLOCK も同様
   - トグルボタンの並べ方(中央寄せ・左寄せ)を SETTINGS で選択可能
   - OPTIONAL の中に区切り線を追加
   - ブラウザのショートカットキー(ESC で閉じる、Ctrl+M でプレビュー作成)

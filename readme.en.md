@@ -78,7 +78,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - OPZX7S's VIEW MODE is gone.
 - **Screen work**
   - Labels are eight characters wide, and squeezed spellings are back in full: LV → LEVEL, SHPE → SHAPE, P.OF → P.OFFSET, and so on.
-    - Likewise FX's LGn → LOW.GAIN and FC0 → COEF0, and QUALITY's INTP → INTERP.
+    - Likewise FX's LGn → LOW.GAIN and FC0 → COEF0, QUALITY's INTP → INTERP, OPZX7S's POFF → P.OFFSET, B.P → BREAK.PT and F.OP → FB.TARGET, SSG's RAT → RATIO, and BEEP's CLK → CLOCK.
   - The toggle button layout (centred or left-aligned) can be chosen in SETTINGS.
   - Dividers were added inside OPTIONAL.
   - Browser shortcuts (ESC closes it, Ctrl+M builds a preview).

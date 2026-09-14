@@ -139,7 +139,7 @@ Shifts the pitch by a fixed amount.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **MUL** | Multiple of the original pitch | 0 – 21 | 2 | [`MOD_MUL`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-mul) |
-| **MURT** | Set that multiple as a number, finely | 0.01 – 100 | 1 | [`MOD_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-mul-ratio) |
+| **MUL.RATE** | Set that multiple as a number, finely | 0.01 – 100 | 1 | [`MOD_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-mul-ratio) |
 | **DT1** | Shift it slightly | 0 – 15 | 0 | [`MOD_DT`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-dt) |
 | **DT2** | Shift it coarsely | 0 – 3 | 0 | [`MOD_DT2`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-dt2) |
 | **DT3** | Shift it by a number of cents | -4800 – 4800 | 0 | [`MOD_DT3`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-dt3) |
