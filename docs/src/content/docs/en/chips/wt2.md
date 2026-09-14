@@ -47,7 +47,7 @@ How many points make up one cycle.
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **SIZE** | Samples in one cycle | [`WT2_SIZE`](/2686V_2686VFX/en/reference/automation/wt2/#wt2-size) |
-| **RESO** | How many notches the values have. 16 / 32 / 64 / 128 / 256 | [`WT2_RES`](/2686V_2686VFX/en/reference/automation/wt2/#wt2-res) |
+| **RESOLUTN** | How many notches the values have. 16 / 32 / 64 / 128 / 256 | [`WT2_RES`](/2686V_2686VFX/en/reference/automation/wt2/#wt2-res) |
 | **FORM** | A built-in wave, or one you drew | [`WT2_WAVE`](/2686V_2686VFX/en/reference/automation/wt2/#wt2-wave) |
 
 ### Drawing the wave

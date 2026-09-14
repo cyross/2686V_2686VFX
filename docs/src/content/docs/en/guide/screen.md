@@ -33,7 +33,7 @@ They run left to right. Which ones you get depends on the plugin (see
 ### Sound chip tabs
 
 OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 / WT+ / RHYTHM /
-ADPCM / BEEP
+ADPCM / ADPCM+ / BEEP
 
 **Only the chip on the open tab sounds.** To layer them, use separate DAW
 tracks.
@@ -50,6 +50,45 @@ distinguishable at a glance.
 | **SETTINGS** | behaviour, folder locations, file format |
 | **COLORS** | changing the interface colours |
 | **ABOUT** | version and licence |
+
+## The FM and RHYTHM tabs — pictures and TARGET
+
+The OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM tabs have **pictures at
+the top and a single set of settings below**. Rather than repeating the
+settings for every operator (or pad), there is one set, and **TARGET** chooses
+which one it points at.
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_opzx7s.png" alt="OPZX7S channel" style="width:600px;" />
+	<figcaption>OPZX7S: each frame shows the WAVE SHAPE wave and an envelope</figcaption>
+</figure>
+
+| Part | What it does |
+| --- | --- |
+| Frames at the top | one picture per operator (or pad), four to a row. **Clicking one moves TARGET there** |
+| Outline | only the frame TARGET points at is drawn with a heavy border |
+| TARGET | the operator (or pad) the settings below point at. It is remembered when the window closes |
+| Name | to the right of TARGET, the name of what it points at ("オペレーター1", "Pad 1 (BD)" and so on) |
+| AMP / PIT / SSG / S11 / P11 | **which envelope the pictures show** — switched for all frames at once, not per frame |
+| Setting columns | one section per column, side by side; the scrollbar underneath reaches the rest |
+
+What a frame shows differs a little by tab.
+
+| Tab | In each frame |
+| --- | --- |
+| OPNA / OPN / OPL / OPL3 / OPM | the envelope |
+| OPZX7S | the WAVE SHAPE wave and the envelope |
+| RHYTHM | the loaded sample's waveform and the envelope |
+
+The frames do not each get their own switch because the pictures are there
+**to be compared** — showing a different thing in each would leave nothing to
+compare.
+
+The columns start open. A few short sections share a column (OPN's
+"KEY SCALE / MUL/DET / FIX / N88 LFO", for example).
+
+**Ctrl + ← / →** steps TARGET one at a time and **Ctrl + a digit** jumps to that
+number ([Keyboard shortcuts](/2686V_2686VFX/en/reference/shortcuts/)).
 
 ## Shared controls
 
@@ -103,6 +142,10 @@ there is kept on screen even while simple view is on.
 
 The setting is saved to the settings file along with everything else.
 
+Where sections are laid out side by side, as on the FM and RHYTHM tabs, **a
+hidden section takes its whole column with it and the columns to its right
+move left.**
+
 #### Bypassing what is hidden
 
 Hiding is display only, so **the sound is the same as before you hid
@@ -144,7 +187,9 @@ The small buttons beside a slider move the value a step at a time. **The "N"
 button shows and hides them** — fold them away when you don't need them and the
 screen gets roomier.
 
-LEVEL also takes stepped input through **Steps**.
+LEVEL also takes stepped input through **Steps**. Its N button brings up
+buttons that move the value by ±1.0 / ±0.1 / ±0.01 and ones that set it straight
+to 1.0, 0.5, 0.25 and so on. The RHYTHM pad's LEVEL has the same.
 
 ### Waveform previews
 

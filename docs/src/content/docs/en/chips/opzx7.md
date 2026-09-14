@@ -47,7 +47,7 @@ Choosing the algorithm, the matrix, and the feedback on each operator.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **ALG MODE** | Use a built-in algorithm, or build one in the matrix (not exposed to automation) | — |
+| **Mode** | Use a built-in algorithm, or build one in the matrix (not exposed to automation) | — |
 | **ALG** | Built-in algorithms. 130 of them | [`OPZX7_ALG`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-alg) |
 | **FB** | Feedback, **per operator**. Negative values allowed (**ours**) | [`OPZX7_FB[1-8]`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-fb-1-8) |
 
@@ -125,7 +125,7 @@ This is [MUL/DET](/2686V_2686VFX/en/chips/common/#muldet) placed on each operato
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **MUL** | Multiple. 22 steps | [`OPZX7_OP[0-7]_MUL`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-mul) |
-| **MURT** | Set the multiple freely (**ours**) | [`OPZX7_OP[0-7]_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-mul-ratio) |
+| **MUL.RATE** | Set the multiple freely (**ours**) | [`OPZX7_OP[0-7]_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-mul-ratio) |
 | **DT1 / DT2 / DT3** | Detune. DT3 takes cents (**ours**) | [`OPZX7_OP[0-7]_DT`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-dt) |
 
 ### LFO
@@ -189,7 +189,7 @@ Silencing an operator, position in the stereo field, and extra behaviour.
 | --- | --- | --- |
 | **MASK** | Do not sound this operator | [`OPZX7_OP[0-7]_MASK`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-mask) |
 | **Enable** | Use panning | [`OPZX7_PANPOT_EN`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-panpot-en) |
-| **PNPT** | Position. 0 is left, 15 centre, 31 right | [`OPZX7_PANPOT`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-panpot) |
+| **PANPOT** | Position. 0 is left, 15 centre, 31 right | [`OPZX7_PANPOT`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-panpot) |
 
 ## Envelopes per operator
 

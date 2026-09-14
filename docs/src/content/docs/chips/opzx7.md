@@ -55,7 +55,7 @@ OPZX7S は、**実機には存在しない独自のチャンネル**です。OPZ
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **ALG MODE** | 組み込みアルゴリズムを使うか、マトリックスで組むかを選ぶ（オートメーションには出ません） | — |
+| **Mode** | 組み込みアルゴリズムを使うか、マトリックスで組むかを選ぶ（オートメーションには出ません） | — |
 | **ALG** | 組み込みアルゴリズム。130 種 | [`OPZX7_ALG`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-alg) |
 | **FB** | **オペレータごと**のフィードバック。負の値も指定できる（**独自**） | [`OPZX7_FB[1-8]`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-fb-1-8) |
 
@@ -139,7 +139,7 @@ OPZX7S は、**実機には存在しない独自のチャンネル**です。OPZ
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **MUL** | 逓倍。22 段 | [`OPZX7_OP[0-7]_MUL`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-mul) |
-| **MURT** | 倍率を自由に決める（**独自**） | [`OPZX7_OP[0-7]_MUL_RATIO`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-mul-ratio) |
+| **MUL.RATE** | 倍率を自由に決める（**独自**） | [`OPZX7_OP[0-7]_MUL_RATIO`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-mul-ratio) |
 | **DT1 / DT2 / DT3** | デチューン。DT3 はセントで指定できる（**独自**） | [`OPZX7_OP[0-7]_DT`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-dt) |
 
 ### LFO
@@ -209,7 +209,7 @@ OPS のやり方だけ**折れ点を持ちます**。ある音の高さを境に
 | --- | --- | --- |
 | **MASK** | このオペレータを鳴らさない | [`OPZX7_OP[0-7]_MASK`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-mask) |
 | **Enable** | 定位を使う | [`OPZX7_PANPOT_EN`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-panpot-en) |
-| **PNPT** | 定位。0 が左、15 が中央、31 が右 | [`OPZX7_PANPOT`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-panpot) |
+| **PANPOT** | 定位。0 が左、15 が中央、31 が右 | [`OPZX7_PANPOT`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-panpot) |
 
 ## オペレータごとのエンベロープ
 

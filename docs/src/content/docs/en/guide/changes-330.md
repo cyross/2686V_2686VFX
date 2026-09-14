@@ -16,8 +16,8 @@ A channel for **loading up to 32 audio files and switching between them while yo
 The big difference from ADPCM is that **the sound shaping is split per file**. FORM, OPTIONAL and PAN hold their own values for each of the 32 slots, so switching material switches how it is played as well.
 
 - **SLOT** is the PCM that sounds. It can be switched from automation
-- **TGT** is the PCM shown on screen. It does not affect the sound, so you can edit one PCM while a different one is sounding
-- All 32 are **drawn in a grid**. The one with a border is TGT; the one with a coloured background is SLOT
+- **TARGET** is the PCM shown on screen. It does not affect the sound, so you can edit one PCM while a different one is sounding
+- All 32 are **drawn in a grid**. The one with a border is TARGET; the one with a coloured background is SLOT
 
 It ships in **2686V, 2686VLight and PCMV**. See [the ADPCM+ channel](/2686V_2686VFX/en/chips/adpcmplus/) for the detail.
 
@@ -76,17 +76,45 @@ The order within OPTIONAL follows time itself — **start, then rate, then repea
 
 ## WT+ holds OPTIONAL per slot
 
-On WT+, **SPEED and HOLD / KEEP now hold separate values for each of the 32 wave memory slots.** Moving TGT switches to that slot's values.
+On WT+, **SPEED and HOLD / KEEP now hold separate values for each of the 32 wave memory slots.** Moving TARGET switches to that slot's values.
 
 Since each wave can stop differently, moving SLOT alone changes how the note behaves as well as what it sounds like.
 
+## The FM and RHYTHM tabs: pictures above, one set of settings below
+
+The OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM tabs used to repeat a full set of sections for every operator or pad. In 3.3.0 they are gathered into **pictures at the top and a single set of settings below**.
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_opna.png" alt="OPNA channel" style="width:600px;" />
+	<figcaption>The OPNA channel: pictures on top, TARGET and the settings below</figcaption>
+</figure>
+
+- **The frames at the top** show each operator's (or pad's) envelope, four to a row. OPZX7S also shows its WAVE SHAPE wave, and RHYTHM the waveform of the loaded sample. **Clicking anywhere in a frame moves TARGET there**
+- **TARGET** says which operator (or pad) the settings below are pointing at, and that frame is outlined. The strip reads "TARGET → the name of what it points at → AMP / PIT / SSG / S11 / P11". The buttons on the right choose **which envelope the pictures show, for all frames at once**
+- **The settings** are laid out one section per column, side by side; what does not fit is reached with the scrollbar underneath. Sections start open. A few short sections share a column
+- **TARGET is remembered** when the window is closed
+- **Ctrl + ← / →** steps TARGET one at a time and **Ctrl + a digit** jumps to that number. On WT+ and ADPCM+, **Ctrl + ← / →** steps the slot as well ([Keyboard shortcuts](/2686V_2686VFX/en/reference/shortcuts/))
+
+Since operators are no longer shown four at a time, OPZX7S's **VIEW MODE** (switching between the upper and lower rows) is gone. None of this touches the sound or the files.
+
 ## Screen work
 
-- **Labels are now eight characters wide.** The row total is unchanged, so nothing moves. Text that does not fit is made smaller rather than squashed sideways
+- **Labels are now eight characters wide, and the spellings are back in full.** Squeezed forms such as LV, SHPE and P.OF now read LEVEL, SHAPE and P.OFFSET. The row total is unchanged, so nothing moves
+- **The RHYTHM pad's LEVEL has value buttons too.** Pressing N brings up the same set as the channel LEVEL (±1.0 / ±0.1 / ±0.01, 1.0, 0.25 and so on)
+- **WT+ and ADPCM+ OPTIONAL, and ADPCM+ PAN, now start open**
 - **Toggle buttons can be laid out two ways.** The setting is under "simple view" in SETTINGS: centred (as before) or left-aligned, and it takes effect across the whole window as soon as it is switched
 - **Dividers were added inside OPTIONAL**, because the position and rate above and the looping below are different matters
 - **The browser gained shortcuts.** **ESC** closes it and **Ctrl+M** builds a preview
 - **Clicking the same row again clears the selection.** Double-click works as before
+
+## Fixes
+
+Faults present up to 3.2.0.
+
+- **On 2686VLight, 26V, 86V and OPZX7S, OP / CL and "Bypass hidden sections" did nothing.** The buttons were there but no tab responded, because when the feature was added in 3.1.0 these four plugins' tabs never received the implementation
+- **The mask in the MML copied with Ctrl + C did not reflect OP3 and OP4.** The second operator's value was written twice. This affected OPNA / OPN / OPL3 / OPM
+- **OPZX7S's TARGET stopped at 6**, so operators 7 and 8 could not be read or written one operator at a time
+- **On 86V's RHYTHM, TARGET and the pad copy source/destination went up to 8.** 86V has six pads, so 7 and 8 pointed at pads that do not exist
 
 ## About the older file format
 

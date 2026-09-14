@@ -17,7 +17,7 @@ sidebar:
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **TYPE** | 削り方。ローパス / ハイパス / バンドパス | 1 〜 3 | 1 | [`FX_FIL_TYPE`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-fil-type) |
-| **FQ** | 境目の高さ（Hz） | 0 〜 20000 | 20000 | [`FX_FIL_FREQ`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-fil-freq) |
+| **FREQ** | 境目の高さ（Hz） | 0 〜 20000 | 20000 | [`FX_FIL_FREQ`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-fil-freq) |
 | **Q** | 境目の尖り方。大きいほど境目が強調される | 0.1 〜 10 | 0.71 | [`FX_FIL_Q`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-fil-q) |
 | **MIX** | 原音との混ぜ具合 | 0 〜 1 | 0 | [`FX_FIL_MIX`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-fil-mix) |
 
@@ -27,9 +27,9 @@ sidebar:
 
 ## 使いどころ
 
-**FQ** を下げると、こもった、遠くで鳴っているような音になります。当時の小さなスピーカーの鳴りに寄せたいときに使います。
+**FREQ** を下げると、こもった、遠くで鳴っているような音になります。当時の小さなスピーカーの鳴りに寄せたいときに使います。
 
-**Q** を上げてから **FQ** を動かすと、境目が鳴きます。オートメーションで動かすと、いわゆるフィルターの上げ下げになります。
+**Q** を上げてから **FREQ** を動かすと、境目が鳴きます。オートメーションで動かすと、いわゆるフィルターの上げ下げになります。
 
 ## 使えるプラグイン
 

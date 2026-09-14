@@ -83,16 +83,16 @@ Grit can be mixed into the loaded sound (**ours**).
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **T.LV** | How much of the loaded sound | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
-| **N.LV** | How much of the grit | [`RHYTHM_PAD[0-7]_NOISE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noise) |
-| **N.FQ** | How high the grit sits | [`RHYTHM_PAD[0-7]_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noisefreq) |
+| **T.LEVEL** | How much of the loaded sound | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
+| **N.LEVEL** | How much of the grit | [`RHYTHM_PAD[0-7]_NOISE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noise) |
+| **N.FREQ** | How high the grit sits | [`RHYTHM_PAD[0-7]_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noisefreq) |
 | **MIX** | Blend of the two | [`RHYTHM_PAD[0-7]_NOISEMIX`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noisemix) |
 
 ### LEVEL / PAN
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **LV** | Level of that pad | [`RHYTHM_PAD[0-7]_VOL`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-vol) |
+| **LEVEL** | Level of that pad | [`RHYTHM_PAD[0-7]_VOL`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-vol) |
 | **PAN** | Position of that pad | [`RHYTHM_PAD[0-7]_PAN`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-pan) |
 
 ### Envelopes

@@ -55,7 +55,7 @@ Picks FM or additive. The diagram appears here.
 
 The level envelope on each operator, with **KOR / XOF / Bypass** of ours added.
 
-The OPL family has no SR. How the decay carries on is decided by EGTP under EG SHAPE.
+The OPL family has no SR. How the decay carries on is decided by EG TYPE under EG SHAPE.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
@@ -75,7 +75,7 @@ Picks the type of envelope: one that decays away, or one that holds while the ke
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **EGTP** | Hold the level while the key is down (on), or keep falling (off) | [`OPL_OP[0-1]_EG_TYP`](/2686V_2686VFX/en/reference/automation/opl/#opl-op-0-1-eg-typ) |
+| **EG TYPE** | Hold the level while the key is down (on), or keep falling (off) | [`OPL_OP[0-1]_EG_TYP`](/2686V_2686VFX/en/reference/automation/opl/#opl-op-0-1-eg-typ) |
 
 ### LFO (hardware)
 

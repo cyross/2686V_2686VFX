@@ -87,7 +87,7 @@ DT3 という独自の項目もあります。DT1 / DT2 の枠にとらわれず
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **MUL** | 逓倍 | [`OPM_OP[0-3]_MUL`](/2686V_2686VFX/reference/automation/opm/#opm-op-0-3-mul) |
-| **MURT** | 倍率を整数から外して自由に決める（**独自**） | [`OPM_OP[0-3]_MUL_RATIO`](/2686V_2686VFX/reference/automation/opm/#opm-op-0-3-mul-ratio) |
+| **MUL.RATIO** | 倍率を整数から外して自由に決める（**独自**） | [`OPM_OP[0-3]_MUL_RATIO`](/2686V_2686VFX/reference/automation/opm/#opm-op-0-3-mul-ratio) |
 | **DT1** | 細かいデチューン | [`OPM_OP[0-3]_DT`](/2686V_2686VFX/reference/automation/opm/#opm-op-0-3-dt) |
 | **DT2** | 粗いデチューン。実機と同じ 4 段 | [`OPM_OP[0-3]_DT2`](/2686V_2686VFX/reference/automation/opm/#opm-op-0-3-dt2) |
 
@@ -98,17 +98,17 @@ YM2151 のハードウェア LFO です。波形・速度・掛かり具合を�
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **FQ** | 揺れの速さ | [`OPM_LFO_FREQ`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-freq) |
-| **SDLY** | 押してから揺れ始めるまでの待ち | [`OPM_LFO_SYNC_DELAY`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-sync-delay) |
+| **FREQ** | 揺れの速さ | [`OPM_LFO_FREQ`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-freq) |
+| **SY.DELAY** | 押してから揺れ始めるまでの待ち | [`OPM_LFO_SYNC_DELAY`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-sync-delay) |
 | **PM Enable** | 音程側の揺れを掛ける | [`OPM_LFO_PM`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-pm) |
-| **P.SH** | 音程側の形。実機と同じ 4 種 | [`OPM_LFO_PG_SHAPE`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-pg-shape) |
+| **P.SHAPE** | 音程側の形。実機と同じ 4 種 | [`OPM_LFO_PG_SHAPE`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-pg-shape) |
 | **PMS** | 音程の効き | [`OPM_LFO_PMS`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-pms) |
 | **PMD** | 音程の深さ | [`OPM_LFO_PMD`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-pmd) |
 | **AM Enable** | 音量側の揺れを掛ける | [`OPM_LFO_AM`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-am) |
-| **A.SH** | 音量側の形 | [`OPM_LFO_EG_SHAPE`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-eg-shape) |
+| **A.SHAPE** | 音量側の形 | [`OPM_LFO_EG_SHAPE`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-eg-shape) |
 | **AMS** | 音量の効き | [`OPM_LFO_AMS`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-ams) |
 | **AMD** | 音量の深さ | [`OPM_LFO_AMD`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-amd) |
-| **AMSR** | 音量側の角の丸め（**独自**） | [`OPM_LFO_ASMRT`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-asmrt) |
+| **SM.RATIO** | 音量側の角の丸め（**独自**） | [`OPM_LFO_ASMRT`](/2686V_2686VFX/reference/automation/opm/#opm-lfo-asmrt) |
 | **AMS Enable** | オペレータごとに音量の揺れを受けるかどうか | [`OPM_OP[0-3]_AMS_EN`](/2686V_2686VFX/reference/automation/opm/#opm-op-0-3-ams-en) |
 
 ### KEY SCALE（実機・独自）

@@ -44,7 +44,7 @@ BEEP は、**パソコン本体のビープ音**を鳴らすチャンネルで�
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **CLK** | もとにするクロック。実機の 4 種 | [`BEEP_TIMERCLOCK`](/2686V_2686VFX/reference/automation/beep/#beep-timerclock) |
-| **Anti Alias** | 高い音の折り返しを抑える（**独自**） | [`BEEP_ANTIALIAS`](/2686V_2686VFX/reference/automation/beep/#beep-antialias) |
+| **Anti-Alias** | 高い音の折り返しを抑える（**独自**） | [`BEEP_ANTIALIAS`](/2686V_2686VFX/reference/automation/beep/#beep-antialias) |
 
 ## OPTIONAL — 効果音モード（実機）
 

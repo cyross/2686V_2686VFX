@@ -17,7 +17,7 @@ Wobbles the level at a steady rate.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **RATE** | How fast it wobbles (Hz) | 0.1 – 20 | 5 | [`FX_TRM_RATE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-trm-rate) |
-| **DPTH** | How deep the wobble goes | 0 – 1 | 1 | [`FX_TRM_DEPTH`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-trm-depth) |
+| **DEPTH** | How deep the wobble goes | 0 – 1 | 1 | [`FX_TRM_DEPTH`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-trm-depth) |
 | **MIX** | Blend against the dry signal | 0 – 1 | 0 | [`FX_TRM_MIX`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-trm-mix) |
 
 **MIX** is how much of the effect is blended with the dry signal. At 0.0 you hear the input untouched; at 1.0 you hear only the effect.

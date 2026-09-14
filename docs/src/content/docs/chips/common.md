@@ -36,8 +36,8 @@ UTILITY の **Level -> All Ch** を押すと、この値を他のすべてのチ
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **LV** | チャンネル全体の音量 | 0 〜 10 | 1 | [`SSG_LEVEL`](/2686V_2686VFX/reference/automation/ssg/#ssg-level) |
-| **DLY** | **独自**。鍵を押してから鳴り始めるまでの間（秒） | 0 〜 60 | 0 | [`SSG_DELAY`](/2686V_2686VFX/reference/automation/ssg/#ssg-delay) |
+| **LEVEL** | チャンネル全体の音量 | 0 〜 10 | 1 | [`SSG_LEVEL`](/2686V_2686VFX/reference/automation/ssg/#ssg-level) |
+| **DELAY** | **独自**。鍵を押してから鳴り始めるまでの間（秒） | 0 〜 60 | 0 | [`SSG_DELAY`](/2686V_2686VFX/reference/automation/ssg/#ssg-delay) |
 
 ## QUALITY
 
@@ -46,8 +46,8 @@ UTILITY の **Level -> All Ch** を押すと、この値を他のすべてのチ
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **BIT** | ビット数。12 段階。4-bit（16 段）から Raw（落とさない）まで | 1 〜 12 | 9 | [`SSG_BIT`](/2686V_2686VFX/reference/automation/ssg/#ssg-bit) |
-| **RATE** | サンプリング周波数。15 段階。96kHz から 2kHz まで | 1 〜 15 | 2 | [`SSG_RATE`](/2686V_2686VFX/reference/automation/ssg/#ssg-rate) |
+| **BIT RATE** | ビット数。12 段階。4-bit（16 段）から Raw（落とさない）まで | 1 〜 12 | 9 | [`SSG_BIT`](/2686V_2686VFX/reference/automation/ssg/#ssg-bit) |
+| **SMP.RATE** | サンプリング周波数。15 段階。96kHz から 2kHz まで | 1 〜 15 | 2 | [`SSG_RATE`](/2686V_2686VFX/reference/automation/ssg/#ssg-rate) |
 
 80 年代の音に寄せたいときは BIT を下げ、RATE も一緒に下げると当時の雰囲気に
 近づきます。
@@ -63,8 +63,8 @@ QUALITY の代わりにこちらが出ます。単にビット数を落とすだ
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **BIT** | ビット数と圧縮方式。21 種 | 1 〜 21 | 13 | [`ADPCM_MODE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-mode) |
-| **RATE** | サンプリング周波数。15 段階 | 1 〜 15 | 9 | [`ADPCM_RATE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-rate) |
+| **BIT RATE** | ビット数と圧縮方式。21 種 | 1 〜 21 | 13 | [`ADPCM_MODE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-mode) |
+| **SMP.RATE** | サンプリング周波数。15 段階 | 1 〜 15 | 9 | [`ADPCM_RATE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-rate) |
 | **INTP** | 読み戻すときの補間のしかた。7 種 | 0 〜 6 | 1 | [`ADPCM_INTERP`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-interp) |
 
 ### BIT で選べるもの
@@ -127,7 +127,7 @@ SSG SW AMP ENV でその上に細かい動きを乗せる、という組み立�
 | **SL** | 押しているあいだ保つ音量 | 0 〜 1 | 1 | [`SSG_SL`](/2686V_2686VFX/reference/automation/ssg/#ssg-sl) |
 | **RR** | 鍵を離してから消えるまでの時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-rr) |
 | **KOR** | **独自**。鍵を離しても最後まで鳴らし切る | False / True | False | [`SSG_KOR`](/2686V_2686VFX/reference/automation/ssg/#ssg-kor) |
-| **USE ENDL** | **独自**。リリースのあとに音を残す | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-endl-en) |
+| **Use Endl** | **独自**。リリースのあとに音を残す | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-endl-en) |
 | **ENDL** | **独自**。そのときに保つ音量 | 0 〜 1 | 0 | [`SSG_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-endl) |
 
 FM 音源のオペレータでは、これとは別にオペレータごとのレジスタ式の
@@ -142,8 +142,8 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う・使わない | False / True | False | [`SSG_SSGHWENV_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-enable) |
-| **SHPE** | 波の形。**0〜15 が実機、16 以降が独自** | 0 〜 43 | 0 | [`SSG_SSGHWENV_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-shape) |
-| **PERD** | 繰り返しの速さ | 0.1 〜 200 | 1 | [`SSG_SSGHWENV_PERIOD`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-period) |
+| **SHAPE** | 波の形。**0〜15 が実機、16 以降が独自** | 0 〜 43 | 0 | [`SSG_SSGHWENV_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-shape) |
+| **PERIOD** | 繰り返しの速さ | 0.1 〜 200 | 1 | [`SSG_SSGHWENV_PERIOD`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-period) |
 | **MIN** | **独自**。動く範囲の下 | 0 〜 1 | 0 | [`SSG_SSGHWENV_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-min) |
 | **MAX** | **独自**。動く範囲の上 | 0 〜 1 | 1 | [`SSG_SSGHWENV_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-max) |
 | **Smooth** | **独自**。段の角を丸める | False / True | False | [`SSG_SSGHWENV_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-smooth) |
@@ -176,8 +176,8 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **R6** | 6 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
 | **L6** | 6 段目の音量 | 0 〜 1 | 0 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loop) |
-| **LOOP TO** | 戻り先の段。0〜3 | 0 〜 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopto) |
-| **LOOP COUNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
+| **LOOP.TO** | 戻り先の段。0〜3 | 0 〜 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopto) |
+| **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
 
 ### SSG SW AMP ENV[11]
 
@@ -212,8 +212,8 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **R11** | 11 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
 | **L11** | 11 段目の音量 | 0 〜 1 | 0 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW11_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loop) |
-| **LOOP TO** | 戻り先の段。0〜8 | 0 〜 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopto) |
-| **LOOP COUNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
+| **LOOP.TO** | 戻り先の段。0〜8 | 0 〜 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopto) |
+| **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
 
 ### PITCH ENV
 
@@ -230,7 +230,7 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **SSL** | 押しているあいだ保つ音程 | -4800 〜 4800 | 0 | [`SSG_PITCH_SSL`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-ssl) |
 | **RR** | RLL へ移る時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_PITCH_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-rr) |
 | **RLL** | 終わりの音程 | -4800 〜 4800 | 0 | [`SSG_PITCH_RLL`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-rll) |
-| **USE ENDL** | **独自**。リリースのあとも音程を残す | False / True | False | [`SSG_PITCH_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-endl-en) |
+| **Use Endl** | **独自**。リリースのあとも音程を残す | False / True | False | [`SSG_PITCH_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-endl-en) |
 | **ENDL** | **独自**。そのときに保つ音程 | -4800 〜 4800 | 0 | [`SSG_PITCH_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-endl) |
 | **KEEP** | **独自**。段のあいだを斜めに繋がず、その段の値を保つ | False / True | False | [`SSG_PITCH_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-pitch-keep) |
 
@@ -247,8 +247,8 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う・使わない | False / True | False | [`SSG_SSGHWPENV_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-enable) |
-| **SHPE** | 波の形。SSG HW AMP ENV と同じ 44 種 | 0 〜 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-shape) |
-| **PERD** | 繰り返しの速さ | 0.1 〜 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-period) |
+| **SHAPE** | 波の形。SSG HW AMP ENV と同じ 44 種 | 0 〜 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-shape) |
+| **PERIOD** | 繰り返しの速さ | 0.1 〜 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-period) |
 | **MIN** | 動く範囲の下（セント） | -4800 〜 4800 | 0 | [`SSG_SSGHWPENV_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-min) |
 | **MAX** | 動く範囲の上（セント） | -4800 〜 4800 | 1200 | [`SSG_SSGHWPENV_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-max) |
 | **Smooth** | 段の角を丸める | False / True | False | [`SSG_SSGHWPENV_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-smooth) |
@@ -257,7 +257,7 @@ MIN / MAX は**セント**です。1200 セントで 1 オクターブなので�
 Enable にすると 1 オクターブの範囲で音程が動きます。MIN と MAX の数値を
 入れ替えると、上下の向きが変わります。
 
-音程の段差がそのまま音の飛びになるので、PERD を上げたときは Smooth を
+音程の段差がそのまま音の飛びになるので、PERIOD を上げたときは Smooth を
 入れると落ち着きます。
 
 形の一覧は [波形一覧](/2686V_2686VFX/reference/lists-waveform/) にあります。
@@ -299,8 +299,8 @@ Enable にすると 1 オクターブの範囲で音程が動きます。MIN と
 | **R11** | 11 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
 | **L11** | 11 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSWP11_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loop) |
-| **LOOP TO** | 戻り先の段。0〜8 | 0 〜 8 | 0 | [`SSG_SSGSWP11_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loopto) |
-| **LOOP COUNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSWP11_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loopcnt) |
+| **LOOP.TO** | 戻り先の段。0〜8 | 0 〜 8 | 0 | [`SSG_SSGSWP11_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loopto) |
+| **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSWP11_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loopcnt) |
 
 ## SPEED — 再生の速さ
 
@@ -373,9 +373,9 @@ START と END は、**1 周を 0.0〜1.0 とした位置**です。END は START
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う・使わない | False / True | False | [`SSG_MOD_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-enable) |
-| **DPTH** | 揺れの深さ | 0.1 〜 1 | 0.2 | [`SSG_MOD_DEPTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-depth) |
-| **SPED** | 揺れの速さ | 0.1 〜 10 | 1 | [`SSG_MOD_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-speed) |
-| **SHPE** | 揺らす形。9 種 | 0 〜 8 | 0 | [`SSG_MOD_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-shape) |
+| **DEPTH** | 揺れの深さ | 0.1 〜 1 | 0.2 | [`SSG_MOD_DEPTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-depth) |
+| **SPEED** | 揺れの速さ | 0.1 〜 10 | 1 | [`SSG_MOD_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-speed) |
+| **SHAPE** | 揺らす形。9 種 | 0 〜 8 | 0 | [`SSG_MOD_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-shape) |
 | **Smooth** | 段の角を丸める | False / True | True | [`SSG_MOD_WAVE_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-wave-smooth) |
 
 形は **Sine / FDS Triangle / FDS Saw / FDS Reset / FDS Pulse / WS Sweep Up /
@@ -385,7 +385,7 @@ WS Sweep Down / HuC6280 Wave / FDS Table** の 9 種類です。ファミコン�
 
 `.wt` `.wt2` ファイルを読み込んで、自分で描いた形で揺らすこともできます。
 
-SHPE が **FDS Table** のときは、下の **FDS PITCH TABLE** で 32 段の
+SHAPE が **FDS Table** のときは、下の **FDS PITCH TABLE** で 32 段の
 レジスタ値を直接描けます。音量側の FDS AMP TABLE とは別に持ちます。
 
 ## WT AMP MOD
@@ -396,21 +396,21 @@ SHPE が **FDS Table** のときは、下の **FDS PITCH TABLE** で 32 段の
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う・使わない | False / True | False | [`SSG_AMPMOD_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-enable) |
-| **DPTH** | MAX からどれだけ下げるか | 0 〜 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-depth) |
-| **SPED** | 揺れの速さ | 0.1 〜 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-speed) |
-| **SHPE** | 揺らす形。WT PITCH MOD と同じ 9 種 | 0 〜 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-shape) |
+| **DEPTH** | MAX からどれだけ下げるか | 0 〜 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-depth) |
+| **SPEED** | 揺れの速さ | 0.1 〜 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-speed) |
+| **SHAPE** | 揺らす形。WT PITCH MOD と同じ 9 種 | 0 〜 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-shape) |
 | **MIN** | 動く範囲の下 | 0 〜 1 | 0 | [`SSG_AMPMOD_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-min) |
 | **MAX** | 動く範囲の上 | 0 〜 1 | 1 | [`SSG_AMPMOD_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-max) |
 | **Smooth** | 段の角を丸める | False / True | True | [`SSG_AMPMOD_WAVE_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-wave-smooth) |
 
-**DPTH は「MAX からどれだけ下げるか」の割合です。** 0 のままだと MAX から
+**DEPTH は「MAX からどれだけ下げるか」の割合です。** 0 のままだと MAX から
 動かないので、音は変わりません。1 まで上げると MIN〜MAX の全域を使います。
-WT PITCH MOD の DPTH が 0 のときに音程が動かないのと同じ考え方です。
+WT PITCH MOD の DEPTH が 0 のときに音程が動かないのと同じ考え方です。
 
 MIN / MAX は**波形スロットをまたいで 1 組だけ**持ちます。スロットや形を
 切り替えても、振れる範囲は変わりません。
 
-SHPE が **FDS Table** のときは、下の **FDS AMP TABLE** で 32 段の
+SHAPE が **FDS Table** のときは、下の **FDS AMP TABLE** で 32 段の
 レジスタ値を直接描けます。音程側の FDS PITCH TABLE とは別に持ちます。
 
 ## LFO
@@ -421,24 +421,24 @@ SHPE が **FDS Table** のときは、下の **FDS AMP TABLE** で 32 段の
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **PM Enable** | 音程側の揺れを掛ける | False / True | False | [`SSG_LFO_PM`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-pm) |
-| **P.SP** | 音程側の揺れの速さ（Hz） | 0.1 〜 50 | 5 | [`SSG_LFO_PM_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-pm-freq) |
-| **P.SH** | 音程側の形。13 種 | 0 〜 12 | 0 | [`SSG_LFO_PG_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-pg-shape) |
-| **SDLY** | 音程側。押してから揺れ始めるまでの待ち | 0 〜 255 | 0 | [`SSG_LFO_PM_SYNC_DELAY`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-pm-sync-delay) |
+| **FREQ** | 音程側の揺れの速さ（Hz） | 0.1 〜 50 | 5 | [`SSG_LFO_PM_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-pm-freq) |
+| **SHAPE** | 音程側の形。13 種 | 0 〜 12 | 0 | [`SSG_LFO_PG_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-pg-shape) |
+| **SY.DELAY** | 音程側。押してから揺れ始めるまでの待ち | 0 〜 255 | 0 | [`SSG_LFO_PM_SYNC_DELAY`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-pm-sync-delay) |
 | **PMS** | 音程の効き | 0 〜 1 | 0 | [`SSG_LFO_PMS`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-pms) |
 | **PMD** | 音程の深さ | 0 〜 1 | 0 | [`SSG_LFO_PMD`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-pmd) |
 | **AM Enable** | 音量側の揺れを掛ける | False / True | False | [`SSG_LFO_AM`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-am) |
-| **A.SP** | 音量側の揺れの速さ（Hz） | 0.1 〜 50 | 5 | [`SSG_LFO_AM_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-am-freq) |
-| **A.SH** | 音量側の形。13 種 | 0 〜 12 | 0 | [`SSG_LFO_EG_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-eg-shape) |
-| **SDLY** | 音量側。押してから揺れ始めるまでの待ち | 0 〜 255 | 0 | [`SSG_LFO_AM_SYNC_DELAY`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-am-sync-delay) |
+| **FREQ** | 音量側の揺れの速さ（Hz） | 0.1 〜 50 | 5 | [`SSG_LFO_AM_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-am-freq) |
+| **SHAPE** | 音量側の形。13 種 | 0 〜 12 | 0 | [`SSG_LFO_EG_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-eg-shape) |
+| **SY.DELAY** | 音量側。押してから揺れ始めるまでの待ち | 0 〜 255 | 0 | [`SSG_LFO_AM_SYNC_DELAY`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-am-sync-delay) |
 | **AMS** | 音量の効き | 0 〜 1 | 0 | [`SSG_LFO_AMS`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-ams) |
 | **AMD** | 音量の深さ | 0 〜 1 | 0 | [`SSG_LFO_AMD`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-amd) |
-| **AMSR** | 音量側の角の丸め | 0.005 〜 0.5 | 0.005 | [`SSG_LFO_ASMRT`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-asmrt) |
+| **SM.RATIO** | 音量側の角の丸め | 0.005 〜 0.5 | 0.005 | [`SSG_LFO_ASMRT`](/2686V_2686VFX/reference/automation/ssg/#ssg-lfo-asmrt) |
 
 形は Sine / Saw Up / Saw Down / Square / Triangle / Sample & Hold のほか、
 **1 回だけ動いて止まる**もの（Saw Down & One Shot / Triangle & One Shot）と、
 段の粗さを変えた Sample & Hold が 4 種類あります。
 
-SDLY を入れると、押した直後は揺れず、少し経ってから揺れ始めます。歌の
+SY.DELAY を入れると、押した直後は揺れず、少し経ってから揺れ始めます。歌の
 ビブラートのような掛かり方になります。
 
 FM 音源には、これとは別に**実機の LFO**（OPNA のハードウェア LFO、
@@ -452,12 +452,12 @@ N88-BASIC のソフトウェア LFO、OPM の LFO、OPL のオペレータごと
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **MUL** | 逓倍。x0.5 から x15 まで | 0 〜 21 | 2 | [`SSG_MUL`](/2686V_2686VFX/reference/automation/ssg/#ssg-mul) |
-| **MURT** | **独自**。倍率を自由に決める | 0.01 〜 100 | 1 | [`SSG_MUL_RATIO`](/2686V_2686VFX/reference/automation/ssg/#ssg-mul-ratio) |
+| **MUL.RATE** | **独自**。倍率を自由に決める | 0.01 〜 100 | 1 | [`SSG_MUL_RATIO`](/2686V_2686VFX/reference/automation/ssg/#ssg-mul-ratio) |
 | **DT1** | デチューン（実機の DT） | 0 〜 15 | 0 | [`SSG_DT`](/2686V_2686VFX/reference/automation/ssg/#ssg-dt) |
 | **DT2** | 粗いデチューン（実機の DT2） | 0 〜 3 | 0 | [`SSG_DT3`](/2686V_2686VFX/reference/automation/ssg/#ssg-dt3) |
 | **DT3** | **独自**。セントで自由に指定する | -4800 〜 4800 | 0 | [`SSG_DT3`](/2686V_2686VFX/reference/automation/ssg/#ssg-dt3) |
 
-実機の逓倍は整数倍が中心でしたが、**MURT** で整数から外れた倍率を指定
+実機の逓倍は整数倍が中心でしたが、**MUL.RATE** で整数から外れた倍率を指定
 できます。鐘や金属のような、倍音が整数比から外れた音を作れます。
 
 ## FIX
@@ -467,7 +467,7 @@ N88-BASIC のソフトウェア LFO、OPM の LFO、OPL のオペレータごと
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う・使わない | False / True | False | [`SSG_FIX`](/2686V_2686VFX/reference/automation/ssg/#ssg-fix) |
-| **FQ** | 鳴らす周波数（Hz） | 0 〜 8000 | 440 | [`SSG_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-freq) |
+| **FREQ** | 鳴らす周波数（Hz） | 0 〜 8000 | 440 | [`SSG_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-freq) |
 
 打楽器のように、どの鍵を押しても同じ高さで鳴ってほしいときに使います。
 FM 音源ではオペレータごとに指定できるので、片方だけ固定して金属的な響きを
@@ -479,14 +479,14 @@ FM 音源ではオペレータごとに指定できるので、片方だけ固�
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **VOIC** | 重ねる数 | 1 〜 8 | 1 | [`SSG_UNI_VOICES`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-voices) |
-| **DT** | 全体のずらし幅（セント） | -4800 〜 4800 | 0 | [`SSG_UNI_DETUNE`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-detune) |
-| **SPR** | 左右への広がり | 0 〜 1 | 0.5 | [`SSG_UNI_SPREAD`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-spread) |
+| **VOICES** | 重ねる数 | 1 〜 8 | 1 | [`SSG_UNI_VOICES`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-voices) |
+| **DETUNE** | 全体のずらし幅（セント） | -4800 〜 4800 | 0 | [`SSG_UNI_DETUNE`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-detune) |
+| **SPREAD** | 左右への広がり | 0 〜 1 | 0.5 | [`SSG_UNI_SPREAD`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-spread) |
 | **Arpeggio** | 重ねずに順番に鳴らす | False / True | False | [`SSG_UNI_ARP`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arp) |
-| **ARFQ** | アルペジオの速さ | 1 〜 4000 | 60 | [`SSG_UNI_ARPFREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arpfreq) |
+| **AR.FREQ** | アルペジオの速さ | 1 〜 4000 | 60 | [`SSG_UNI_ARPFREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arpfreq) |
 | **Arp Smooth** | 切り替わりの角を丸める | False / True | True | [`SSG_UNI_ARPSMTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arpsmth) |
-| **P-SP** | 声ごとの距離（7 声ぶん） | 0 〜 1 | 0 | [`SSG_UNI_PDIST[1-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdist-1-7) |
-| **P-DT** | 声ごとのずらし幅（7 声ぶん、セント） | -4800 〜 4800 | 0 | [`SSG_UNI_PDET[1-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdet-1-7) |
+| **P-SPREAD** | 声ごとの距離（7 声ぶん） | 0 〜 1 | 0 | [`SSG_UNI_PDIST[1-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdist-1-7) |
+| **P-DETUNE** | 声ごとのずらし幅（7 声ぶん、セント） | -4800 〜 4800 | 0 | [`SSG_UNI_PDET[1-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdet-1-7) |
 
 2 声目以降は、**声ごとに距離とずらし幅を別々に決められます**（7 声ぶん）。
 均等に散らすだけでなく、片側に寄せる、オクターブで積む、といった組み方が

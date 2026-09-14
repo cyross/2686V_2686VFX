@@ -36,8 +36,8 @@ once. It is there so that levels stay even while you move between chips.
 
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
-| **LV** | Level of the whole channel | 0 – 10 | 1 | [`SSG_LEVEL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-level) |
-| **DLY** | Ours. How long after the key before it starts, in seconds | 0 – 60 | 0 | [`SSG_DELAY`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-delay) |
+| **LEVEL** | Level of the whole channel | 0 – 10 | 1 | [`SSG_LEVEL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-level) |
+| **DELAY** | Ours. How long after the key before it starts, in seconds | 0 – 60 | 0 | [`SSG_DELAY`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-delay) |
 
 ## QUALITY
 
@@ -46,8 +46,8 @@ of period gear. Lower numbers are coarser.
 
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
-| **BIT** | Bit depth. 12 steps, from 4-bit (16 levels) to Raw (no drop) | 1 – 12 | 9 | [`SSG_BIT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-bit) |
-| **RATE** | Sample rate. 15 steps, from 96kHz down to 2kHz | 1 – 15 | 2 | [`SSG_RATE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-rate) |
+| **BIT RATE** | Bit depth. 12 steps, from 4-bit (16 levels) to Raw (no drop) | 1 – 12 | 9 | [`SSG_BIT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-bit) |
+| **SMP.RATE** | Sample rate. 15 steps, from 96kHz down to 2kHz | 1 – 15 | 2 | [`SSG_RATE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-rate) |
 
 To lean towards the sound of the 1980s, bring BIT down and take RATE down with
 it.
@@ -63,8 +63,8 @@ storage scheme the hardware actually used**.
 
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
-| **BIT** | Bit depth and compression scheme. 21 kinds | 1 – 21 | 13 | [`ADPCM_MODE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-mode) |
-| **RATE** | Sample rate. 15 steps | 1 – 15 | 9 | [`ADPCM_RATE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-rate) |
+| **BIT RATE** | Bit depth and compression scheme. 21 kinds | 1 – 21 | 13 | [`ADPCM_MODE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-mode) |
+| **SMP.RATE** | Sample rate. 15 steps | 1 – 15 | 9 | [`ADPCM_RATE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-rate) |
 | **INTP** | How the gaps are filled on the way back. 7 kinds | 0 – 6 | 1 | [`ADPCM_INTERP`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-interp) |
 
 ### What BIT offers
@@ -130,7 +130,7 @@ The basic shape of the level. It runs **start level → attack → decay → sus
 | **SL** | Level held while the key is down | 0 – 1 | 1 | [`SSG_SL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-sl) |
 | **RR** | Time to fade out after release (seconds) | 0.001 – 10 | 0.001 | [`SSG_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-rr) |
 | **KOR** | **Ours.** Play the envelope out even after release | False / True | False | [`SSG_KOR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-kor) |
-| **USE ENDL** | Ours. Leave sound behind after the release | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-endl-en) |
+| **Use Endl** | Ours. Leave sound behind after the release | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-endl-en) |
 | **ENDL** | Ours. The level held once it is there | 0 – 1 | 0 | [`SSG_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-endl) |
 
 FM operators carry a separate register-style envelope of their own
@@ -144,8 +144,8 @@ hardware it was how you moved a level in steps.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **Enable** | Use it or not | False / True | False | [`SSG_SSGHWENV_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-enable) |
-| **SHPE** | Shape of the wave. **0–15 are the hardware's, 16 up are ours** | 0 – 43 | 0 | [`SSG_SSGHWENV_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-shape) |
-| **PERD** | How fast it repeats | 0.1 – 200 | 1 | [`SSG_SSGHWENV_PERIOD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-period) |
+| **SHAPE** | Shape of the wave. **0–15 are the hardware's, 16 up are ours** | 0 – 43 | 0 | [`SSG_SSGHWENV_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-shape) |
+| **PERIOD** | How fast it repeats | 0.1 – 200 | 1 | [`SSG_SSGHWENV_PERIOD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-period) |
 | **MIN** | **Ours.** Bottom of the range it moves in | 0 – 1 | 0 | [`SSG_SSGHWENV_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-min) |
 | **MAX** | **Ours.** Top of the range it moves in | 0 – 1 | 1 | [`SSG_SSGHWENV_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-max) |
 | **Smooth** | **Ours.** Round off the corners of the steps | False / True | False | [`SSG_SSGHWENV_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-smooth) |
@@ -179,8 +179,8 @@ lets you draw it directly, as **a series of line segments**.
 | **R6** | Time to reach step 6 | 0.001 – 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
 | **L6** | Level at step 6 | 0 – 1 | 0 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSW_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loop) |
-| **LOOP TO** | Step it goes back to. 0–3 | 0 – 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopto) |
-| **LOOP COUNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
+| **LOOP.TO** | Step it goes back to. 0–3 | 0 – 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopto) |
+| **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
 
 ### SSG SW AMP ENV[11]
 
@@ -215,8 +215,8 @@ movement, use this one rather than the 6-tap version.
 | **R11** | Time to reach step 11 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
 | **L11** | Level at step 11 | 0 – 1 | 0 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSW11_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loop) |
-| **LOOP TO** | Step it goes back to. 0–8 | 0 – 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopto) |
-| **LOOP COUNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
+| **LOOP.TO** | Step it goes back to. 0–8 | 0 – 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopto) |
+| **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
 
 ### PITCH ENV
 
@@ -233,7 +233,7 @@ Moves the pitch over time. Values are in **cents**, from **−4800 to +4800**
 | **SSL** | Pitch held while the key is down | -4800 – 4800 | 0 | [`SSG_PITCH_SSL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-ssl) |
 | **RR** | Time to reach RLL (seconds) | 0.001 – 10 | 0.001 | [`SSG_PITCH_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-rr) |
 | **RLL** | Pitch it ends on | -4800 – 4800 | 0 | [`SSG_PITCH_RLL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-rll) |
-| **USE ENDL** | Ours. Leave the pitch offset in place after the release | False / True | False | [`SSG_PITCH_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-endl-en) |
+| **Use Endl** | Ours. Leave the pitch offset in place after the release | False / True | False | [`SSG_PITCH_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-endl-en) |
 | **ENDL** | Ours. The pitch held once it is there | -4800 – 4800 | 0 | [`SSG_PITCH_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-endl) |
 | **KEEP** | Ours. Hold each stage's value instead of sloping between them | False / True | False | [`SSG_PITCH_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-pitch-keep) |
 
@@ -250,8 +250,8 @@ and trills.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **Enable** | Use it or not | False / True | False | [`SSG_SSGHWPENV_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-enable) |
-| **SHPE** | Shape. The same 44 as SSG HW AMP ENV | 0 – 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-shape) |
-| **PERD** | How fast it repeats | 0.1 – 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-period) |
+| **SHAPE** | Shape. The same 44 as SSG HW AMP ENV | 0 – 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-shape) |
+| **PERIOD** | How fast it repeats | 0.1 – 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-period) |
 | **MIN** | Bottom of the range, in cents | -4800 – 4800 | 0 | [`SSG_SSGHWPENV_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-min) |
 | **MAX** | Top of the range, in cents | -4800 – 4800 | 1200 | [`SSG_SSGHWPENV_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-max) |
 | **Smooth** | Round off the corners of the steps | False / True | False | [`SSG_SSGHWPENV_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-smooth) |
@@ -260,7 +260,7 @@ MIN and MAX are in **cents**; 1200 cents is one octave, so enabling it with the
 defaults sweeps the pitch over an octave. Swapping the two numbers flips the
 direction.
 
-A step in pitch is heard as a jump, so turn Smooth on once PERD is high.
+A step in pitch is heard as a jump, so turn Smooth on once PERIOD is high.
 
 The shapes are listed under [Waveforms](/2686V_2686VFX/en/reference/lists-waveform/).
 
@@ -302,8 +302,8 @@ note sounds.
 | **R11** | Time to reach step 11 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
 | **L11** | Pitch at step 11 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSWP11_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loop) |
-| **LOOP TO** | Step it goes back to. 0–8 | 0 – 8 | 0 | [`SSG_SSGSWP11_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loopto) |
-| **LOOP COUNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSWP11_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loopcnt) |
+| **LOOP.TO** | Step it goes back to. 0–8 | 0 – 8 | 0 | [`SSG_SSGSWP11_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loopto) |
+| **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSWP11_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loopcnt) |
 
 ## SPEED – playback rate
 
@@ -379,9 +379,9 @@ the wobble.**
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **Enable** | Use it or not | False / True | False | [`SSG_MOD_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-enable) |
-| **DPTH** | How deep the wobble goes | 0.1 – 1 | 0.2 | [`SSG_MOD_DEPTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-depth) |
-| **SPED** | How fast it wobbles | 0.1 – 10 | 1 | [`SSG_MOD_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-speed) |
-| **SHPE** | Shape it wobbles with. 9 kinds | 0 – 8 | 0 | [`SSG_MOD_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-shape) |
+| **DEPTH** | How deep the wobble goes | 0.1 – 1 | 0.2 | [`SSG_MOD_DEPTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-depth) |
+| **SPEED** | How fast it wobbles | 0.1 – 10 | 1 | [`SSG_MOD_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-speed) |
+| **SHAPE** | Shape it wobbles with. 9 kinds | 0 – 8 | 0 | [`SSG_MOD_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-shape) |
 | **Smooth** | Round off the corners of the steps | False / True | True | [`SSG_MOD_WAVE_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-wave-smooth) |
 
 The nine shapes are **Sine / FDS Triangle / FDS Saw / FDS Reset / FDS Pulse /
@@ -391,7 +391,7 @@ could apply.
 
 You can also load a `.wt` or `.wt2` file and wobble with a shape of your own.
 
-When SHPE is **FDS Table**, the **FDS PITCH TABLE** below lets you draw the
+When SHAPE is **FDS Table**, the **FDS PITCH TABLE** below lets you draw the
 32 register values directly. It is kept separately from the FDS AMP TABLE on
 the level side.
 
@@ -403,21 +403,21 @@ level instead of pitch. The output moves **between MIN and MAX**.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **Enable** | Use it or not | False / True | False | [`SSG_AMPMOD_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-enable) |
-| **DPTH** | How far the level is pulled down from MAX | 0 – 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-depth) |
-| **SPED** | How fast it wobbles | 0.1 – 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-speed) |
-| **SHPE** | Shape it wobbles with. The same 9 as WT PITCH MOD | 0 – 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-shape) |
+| **DEPTH** | How far the level is pulled down from MAX | 0 – 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-depth) |
+| **SPEED** | How fast it wobbles | 0.1 – 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-speed) |
+| **SHAPE** | Shape it wobbles with. The same 9 as WT PITCH MOD | 0 – 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-shape) |
 | **MIN** | Bottom of the range | 0 – 1 | 0 | [`SSG_AMPMOD_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-min) |
 | **MAX** | Top of the range | 0 – 1 | 1 | [`SSG_AMPMOD_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-max) |
 | **Smooth** | Round off the corners of the steps | False / True | True | [`SSG_AMPMOD_WAVE_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-wave-smooth) |
 
-**DPTH is how far the level is pulled down from MAX.** Left at 0 nothing
+**DEPTH is how far the level is pulled down from MAX.** Left at 0 nothing
 moves and the sound is unchanged; at 1 the whole MIN to MAX range is used.
-This mirrors WT PITCH MOD, where a DPTH of 0 leaves the pitch alone.
+This mirrors WT PITCH MOD, where a DEPTH of 0 leaves the pitch alone.
 
 MIN and MAX are held **once for the whole modulator**, not per wave slot.
 Switching slots or shapes does not change the range it swings over.
 
-When SHPE is **FDS Table**, the **FDS AMP TABLE** below lets you draw the
+When SHAPE is **FDS Table**, the **FDS AMP TABLE** below lets you draw the
 32 register values directly. It is kept separately from the FDS PITCH TABLE
 on the pitch side.
 
@@ -429,24 +429,24 @@ separately**, and you can use just one of them.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **PM Enable** | Apply the wobble on the pitch side | False / True | False | [`SSG_LFO_PM`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-pm) |
-| **P.SP** | Pitch side: how fast it wobbles (Hz) | 0.1 – 50 | 5 | [`SSG_LFO_PM_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-pm-freq) |
-| **P.SH** | Pitch side: shape. 13 kinds | 0 – 12 | 0 | [`SSG_LFO_PG_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-pg-shape) |
-| **SDLY** | Pitch side: wait after key-down before it starts | 0 – 255 | 0 | [`SSG_LFO_PM_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-pm-sync-delay) |
+| **FREQ** | Pitch side: how fast it wobbles (Hz) | 0.1 – 50 | 5 | [`SSG_LFO_PM_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-pm-freq) |
+| **SHAPE** | Pitch side: shape. 13 kinds | 0 – 12 | 0 | [`SSG_LFO_PG_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-pg-shape) |
+| **SY.DELAY** | Pitch side: wait after key-down before it starts | 0 – 255 | 0 | [`SSG_LFO_PM_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-pm-sync-delay) |
 | **PMS** | How much it reaches the pitch | 0 – 1 | 0 | [`SSG_LFO_PMS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-pms) |
 | **PMD** | Depth on the pitch | 0 – 1 | 0 | [`SSG_LFO_PMD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-pmd) |
 | **AM Enable** | Apply the wobble on the level side | False / True | False | [`SSG_LFO_AM`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-am) |
-| **A.SP** | Level side: how fast it wobbles (Hz) | 0.1 – 50 | 5 | [`SSG_LFO_AM_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-am-freq) |
-| **A.SH** | Level side: shape. 13 kinds | 0 – 12 | 0 | [`SSG_LFO_EG_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-eg-shape) |
-| **SDLY** | Level side: wait after key-down before it starts | 0 – 255 | 0 | [`SSG_LFO_AM_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-am-sync-delay) |
+| **FREQ** | Level side: how fast it wobbles (Hz) | 0.1 – 50 | 5 | [`SSG_LFO_AM_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-am-freq) |
+| **SHAPE** | Level side: shape. 13 kinds | 0 – 12 | 0 | [`SSG_LFO_EG_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-eg-shape) |
+| **SY.DELAY** | Level side: wait after key-down before it starts | 0 – 255 | 0 | [`SSG_LFO_AM_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-am-sync-delay) |
 | **AMS** | How much it reaches the level | 0 – 1 | 0 | [`SSG_LFO_AMS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-ams) |
 | **AMD** | Depth on the level | 0 – 1 | 0 | [`SSG_LFO_AMD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-amd) |
-| **AMSR** | Level side: rounding of the corners | 0.005 – 0.5 | 0.005 | [`SSG_LFO_ASMRT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-asmrt) |
+| **SM.RATIO** | Level side: rounding of the corners | 0.005 – 0.5 | 0.005 | [`SSG_LFO_ASMRT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-lfo-asmrt) |
 
 Besides Sine / Saw Up / Saw Down / Square / Triangle / Sample & Hold there are
 shapes that **move once and stop** (Saw Down & One Shot, Triangle & One Shot)
 and four sample-and-hold variants with different step sizes.
 
-Dial in SDLY and the wobble holds off for a moment after the key goes down
+Dial in SY.DELAY and the wobble holds off for a moment after the key goes down
 before it starts — the way a singer's vibrato arrives.
 
 FM chips also carry **the hardware's own LFO** (the OPNA hardware LFO, the
@@ -460,12 +460,12 @@ The part that shifts the pitch.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **MUL** | Multiple, from x0.5 to x15 | 0 – 21 | 2 | [`SSG_MUL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mul) |
-| **MURT** | **Ours.** Set the multiple freely | 0.01 – 100 | 1 | [`SSG_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mul-ratio) |
+| **MUL.RATE** | **Ours.** Set the multiple freely | 0.01 – 100 | 1 | [`SSG_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mul-ratio) |
 | **DT1** | Detune (the hardware's DT) | 0 – 15 | 0 | [`SSG_DT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-dt) |
 | **DT2** | Coarse detune (the hardware's DT2) | 0 – 3 | 0 | [`SSG_DT3`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-dt3) |
 | **DT3** | **Ours.** Set it freely in cents | -4800 – 4800 | 0 | [`SSG_DT3`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-dt3) |
 
-The hardware multiples were mostly whole numbers; **MURT** lets you set one that
+The hardware multiples were mostly whole numbers; **MUL.RATE** lets you set one that
 is not. That is how you get bells and metal, where the overtones sit off the
 whole-number ratios.
 
@@ -476,7 +476,7 @@ whole-number ratios.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **Enable** | Use it or not | False / True | False | [`SSG_FIX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-fix) |
-| **FQ** | Frequency to sound (Hz) | 0 – 8000 | 440 | [`SSG_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-freq) |
+| **FREQ** | Frequency to sound (Hz) | 0 – 8000 | 440 | [`SSG_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-freq) |
 
 Use it when a sound should come out at the same pitch whatever key is pressed,
 the way a drum does. On FM chips you can set it per operator, so fixing just one
@@ -488,14 +488,14 @@ of them is a way to get a metallic ring.
 
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
-| **VOIC** | How many voices are stacked | 1 – 8 | 1 | [`SSG_UNI_VOICES`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-voices) |
-| **DT** | Overall amount of shift (cents) | -4800 – 4800 | 0 | [`SSG_UNI_DETUNE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-detune) |
-| **SPR** | Spread across the stereo field | 0 – 1 | 0.5 | [`SSG_UNI_SPREAD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-spread) |
+| **VOICES** | How many voices are stacked | 1 – 8 | 1 | [`SSG_UNI_VOICES`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-voices) |
+| **DETUNE** | Overall amount of shift (cents) | -4800 – 4800 | 0 | [`SSG_UNI_DETUNE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-detune) |
+| **SPREAD** | Spread across the stereo field | 0 – 1 | 0.5 | [`SSG_UNI_SPREAD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-spread) |
 | **Arpeggio** | Sound them one after another instead of stacking | False / True | False | [`SSG_UNI_ARP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arp) |
-| **ARFQ** | How fast the arpeggio runs | 1 – 4000 | 60 | [`SSG_UNI_ARPFREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arpfreq) |
+| **AR.FREQ** | How fast the arpeggio runs | 1 – 4000 | 60 | [`SSG_UNI_ARPFREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arpfreq) |
 | **Arp Smooth** | Round off the corners as it switches | False / True | True | [`SSG_UNI_ARPSMTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arpsmth) |
-| **P-SP** | Distance per voice (seven of them) | 0 – 1 | 0 | [`SSG_UNI_PDIST[1-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdist-1-7) |
-| **P-DT** | Shift per voice (seven of them, in cents) | -4800 – 4800 | 0 | [`SSG_UNI_PDET[1-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdet-1-7) |
+| **P-SPREAD** | Distance per voice (seven of them) | 0 – 1 | 0 | [`SSG_UNI_PDIST[1-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdist-1-7) |
+| **P-DETUNE** | Shift per voice (seven of them, in cents) | -4800 – 4800 | 0 | [`SSG_UNI_PDET[1-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdet-1-7) |
 
 From the second voice on, **the distance and the amount of shift are set per
 voice** (seven of them). Beyond spreading them evenly you can weight them to one

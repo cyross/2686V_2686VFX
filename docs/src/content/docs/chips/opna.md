@@ -97,8 +97,8 @@ YM2608 が持っていたハードウェア LFO です。実機は速さがチ�
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **FQ** | 揺れの速さ。実機と同じ 8 段（3.98Hz〜72.2Hz） | [`OPNA_OP[0-3]_LFO_FREQS`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-lfo-freqs) |
-| **SDLY** | 押してから揺れ始めるまでの待ち（**独自**） | [`OPNA_OP[0-3]_LFO_SYNC_DELAY`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-lfo-sync-delay) |
+| **FREQ** | 揺れの速さ。実機と同じ 8 段（3.98Hz〜72.2Hz） | [`OPNA_OP[0-3]_LFO_FREQS`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-lfo-freqs) |
+| **SY.DELAY** | 押してから揺れ始めるまでの待ち（**独自**） | [`OPNA_OP[0-3]_LFO_SYNC_DELAY`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-lfo-sync-delay) |
 | **PM** | 音程側の揺れを掛ける | [`OPNA_OP[0-3]_LFO_VIB`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-lfo-vib) |
 | **PMS** | 音程の揺れ幅。0cent〜±80cent の 8 段 | [`OPNA_OP[0-3]_LFO_PMS`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-lfo-pms) |
 | **AM** | 音量側の揺れを掛ける | [`OPNA_OP[0-3]_LFO_AM`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-lfo-am) |
@@ -114,15 +114,15 @@ LFO とは別に動くので、両方を重ねられます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **SP** | 揺れの速さ | [`OPNA_LFO_FREQ`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-freq) |
-| **SH** | 揺れる形。Saw Up / Square / Triangle / S&H と、1 回だけ動く 2 種 | [`OPNA_LFO_SHAPE`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-shape) |
-| **SDLY** | 押してから揺れ始めるまでの待ち | [`OPNA_LFO_SYNC_DELAY`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-sync-delay) |
+| **SPEED** | 揺れの速さ | [`OPNA_LFO_FREQ`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-freq) |
+| **SHAPE** | 揺れる形。Saw Up / Square / Triangle / S&H と、1 回だけ動く 2 種 | [`OPNA_LFO_SHAPE`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-shape) |
+| **SY.DELAY** | 押してから揺れ始めるまでの待ち | [`OPNA_LFO_SYNC_DELAY`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-sync-delay) |
 | **PM Enable** | 音程側の揺れを掛ける | [`OPNA_LFO_PM`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-pm) |
 | **PMS** | 音程の効き | [`OPNA_LFO_PMS`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-pms) |
 | **PMD** | 音程の深さ。負の値で揺れる向きが反転する | [`OPNA_LFO_PMD`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-pmd) |
 | **AM Enable** | 音量側の揺れを掛ける | [`OPNA_LFO_AM`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-am) |
 | **AMD** | 音量の深さ | [`OPNA_LFO_AMD`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-amd) |
-| **AMSR** | 音量側の角の丸め | [`OPNA_LFO_ASMRT`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-asmrt) |
+| **SM.RATIO** | 音量側の角の丸め | [`OPNA_LFO_ASMRT`](/2686V_2686VFX/reference/automation/opna/#opna-lfo-asmrt) |
 | **AMS** | オペレータごとの音量の効き | [`OPNA_OP[0-3]_N88AMS`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-n88ams) |
 
 ### SSG HW ENV（実機・独自）
@@ -135,8 +135,8 @@ SSG のハードウェアエンベロープを FM 側でも使えます。実機
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **SHPE** | 形。Normal（掛けない）＋実機の 8 種類 | [`OPNA_OP[0-3]_SE`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-se) |
-| **FQ** | 繰り返しの速さ | [`OPNA_OP[0-3]_SEFREQ`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-sefreq) |
+| **SSG.SHAPE** | 形。Normal（掛けない）＋実機の 8 種類 | [`OPNA_OP[0-3]_SE`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-se) |
+| **FREQ** | 繰り返しの速さ | [`OPNA_OP[0-3]_SEFREQ`](/2686V_2686VFX/reference/automation/opna/#opna-op-0-3-sefreq) |
 
 ### KEY SCALE（実機）
 

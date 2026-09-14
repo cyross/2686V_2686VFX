@@ -65,7 +65,7 @@ OPN 系がサイン波しか出せないのに対し、OPL は波形そのもの
 が付きます。
 
 
-OPL 系は SR を持ちません。減衰の続き方は EG SHAPE の EGTP で決めます。
+OPL 系は SR を持ちません。減衰の続き方は EG SHAPE の EG TYPE で決めます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -86,7 +86,7 @@ OPL 系は SR を持ちません。減衰の続き方は EG SHAPE の EGTP で�
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **EGTP** | 押しているあいだ音量を保つ（オン）か、減らし続ける（オフ）か | [`OPL_OP[0-1]_EG_TYP`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-eg-typ) |
+| **EG TYPE** | 押しているあいだ音量を保つ（オン）か、減らし続ける（オフ）か | [`OPL_OP[0-1]_EG_TYP`](/2686V_2686VFX/reference/automation/opl/#opl-op-0-1-eg-typ) |
 
 ### LFO（実機）
 

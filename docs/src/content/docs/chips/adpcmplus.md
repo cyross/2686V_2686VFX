@@ -47,47 +47,47 @@ ADPCM の読み出し位置を差し替えて音色を変えていた動きを�
 
 ## PCM設定 — 素材ごとの設定
 
-### SLOT と TGT
+### SLOT と TARGET
 
 グループの先頭にある 2 つのつまみは、役目がはっきり違います。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **SLOT** | **鳴らす** PCM の番号。0〜31 | [`ADPCMP_SLOT`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot) |
-| **TGT** | **いま画面へ出している** PCM の番号。0〜31 | — |
+| **TARGET** | **いま画面へ出している** PCM の番号。0〜31 | — |
 
 **SLOT は音に効きます。** オートメーションの対象なので、時間に沿って素材を
 切り替える動きを DAW 側で描けます。
 
-**TGT は音に効きません。** 下に並ぶ FORM・OPTIONAL・PAN が、どの PCM の値を
+**TARGET は音に効きません。** 下に並ぶ FORM・OPTIONAL・PAN が、どの PCM の値を
 映すかを決めるだけです。鳴らしているものとは別の PCM を、鳴らしたまま
 編集できます。
 
 :::tip[畳めない場所に置いてあります]
-SLOT と TGT は区分の外にあります。下の区分をすべて束ねるつまみなので、
+SLOT と TARGET は区分の外にあります。下の区分をすべて束ねるつまみなので、
 畳んで隠れてしまうと選び直せなくなるためです。
 :::
 
 ### FORM — 音声ファイルの設定
 
-**Load** で、いま TGT が指している枠へファイルを読み込みます。**X** でその枠を
+**Load** で、いま TARGET が指している枠へファイルを読み込みます。**X** でその枠を
 空にします。
 
 読み込んだ音は 2 通りの見え方をします。
 
-- **上の 1 枚** … TGT の PCM を、P.OF / P.RT で切り出した範囲で描きます。
+- **上の 1 枚** … TARGET の PCM を、P.OFFSET / P.RATIO で切り出した範囲で描きます。
   Loop Point を使っているときは、その位置に縦線が入ります。
 - **下の 32 枚** … 素材そのものを並べたものです。どの枠に何が入っているかが
-  一目で分かります。**枠が付いているもの**が TGT、**下地に色が敷かれて
+  一目で分かります。**枠が付いているもの**が TARGET、**下地に色が敷かれて
   いるもの**が SLOT です。
 
 そのあとに続く 4 つで、読み込んだ音へざらつきを混ぜられます（**独自**）。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **T.LV** | 読み込んだ音の側の量 | [`ADPCMP_SLOT[0-31]_TONE`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-tone) |
-| **N.LV** | ざらつきの側の量 | [`ADPCMP_SLOT[0-31]_NOISE`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noise) |
-| **N.FQ** | ざらつきの高さ | [`ADPCMP_SLOT[0-31]_NOISEFREQ`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noisefreq) |
+| **T.LEVEL** | 読み込んだ音の側の量 | [`ADPCMP_SLOT[0-31]_TONE`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-tone) |
+| **N.LEVEL** | ざらつきの側の量 | [`ADPCMP_SLOT[0-31]_NOISE`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noise) |
+| **N.FREQ** | ざらつきの高さ | [`ADPCMP_SLOT[0-31]_NOISEFREQ`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noisefreq) |
 | **MIX** | 2 つの混ぜ具合 | [`ADPCMP_SLOT[0-31]_NOISEMIX`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noisemix) |
 
 ### OPTIONAL — 鳴らし方
@@ -99,8 +99,8 @@ SLOT と TGT は区分の外にあります。下の区分をすべて束ねる�
 | --- | --- | --- |
 | **SPEED** | 再生の速さに掛ける倍率 | [`ADPCMP_SLOT[0-31]_SPEED`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-speed) |
 | **CNT** | LPST〜LPED を何周したら先へ進むか。0 は無限 | [`ADPCMP_SLOT[0-31]_LOOPPOINT_CNT`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-cnt) |
-| **P.OF** | 頭出し（ミリ秒） | [`ADPCMP_SLOT[0-31]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-offset) |
-| **P.RT** | 鳴らす長さの割合 | [`ADPCMP_SLOT[0-31]_PCM_RATIO`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-ratio) |
+| **P.OFFSET** | 頭出し（ミリ秒） | [`ADPCMP_SLOT[0-31]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-offset) |
+| **P.RATIO** | 鳴らす長さの割合 | [`ADPCMP_SLOT[0-31]_PCM_RATIO`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-ratio) |
 | **LOOP** | ファイル全体を繰り返す | [`ADPCMP_SLOT[0-31]_LOOP`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-loop) |
 | **Loop Point Enable** | 繰り返す範囲を指定する | [`ADPCMP_SLOT[0-31]_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-en) |
 | **LPST / LPED** | その範囲。全体を 0.0〜1.0 とした位置 | [`ADPCMP_SLOT[0-31]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-st) |
@@ -135,7 +135,7 @@ SLOT と TGT は区分の外にあります。下の区分をすべて束ねる�
 2. SLOT をオートメーションで動かす
 3. 1 つの音の中で、ぶつかり方だけが変わる
 
-素材ごとに P.OF や PAN も変えておくと、切り替えの印象がさらに変わります。
+素材ごとに P.OFFSET や PAN も変えておくと、切り替えの印象がさらに変わります。
 :::
 
 ## 共通の区分

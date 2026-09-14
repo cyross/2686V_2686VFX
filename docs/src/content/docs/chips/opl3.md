@@ -73,7 +73,7 @@ OPL の 4 種類から **8 種類**へ増えています。サイン波を切る
 が付きます。
 
 
-OPL 系は SR を持ちません。減衰の続き方は EG SHAPE の EGTP で決めます。
+OPL 系は SR を持ちません。減衰の続き方は EG SHAPE の EG TYPE で決めます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
@@ -93,7 +93,7 @@ OPL 系は SR を持ちません。減衰の続き方は EG SHAPE の EGTP で�
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **EGTP** | 押しているあいだ音量を保つ（オン）か、減らし続ける（オフ）か | [`OPL3_OP[0-3]_EG_TYP`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-eg-typ) |
+| **EG TYPE** | 押しているあいだ音量を保つ（オン）か、減らし続ける（オフ）か | [`OPL3_OP[0-3]_EG_TYP`](/2686V_2686VFX/reference/automation/opl3/#opl3-op-0-3-eg-typ) |
 
 ### LFO（実機）
 

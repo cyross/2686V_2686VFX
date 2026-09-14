@@ -17,7 +17,7 @@ Cuts everything above — or below — a frequency you choose. The most basic to
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **TYPE** | How it cuts: low-pass / high-pass / band-pass | 1 – 3 | 1 | [`FX_FIL_TYPE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-fil-type) |
-| **FQ** | Where the cut starts (Hz) | 0 – 20000 | 20000 | [`FX_FIL_FREQ`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-fil-freq) |
+| **FREQ** | Where the cut starts (Hz) | 0 – 20000 | 20000 | [`FX_FIL_FREQ`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-fil-freq) |
 | **Q** | How sharp the corner is. Higher values emphasise it | 0.1 – 10 | 0.71 | [`FX_FIL_Q`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-fil-q) |
 | **MIX** | Blend against the dry signal | 0 – 1 | 0 | [`FX_FIL_MIX`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-fil-mix) |
 
@@ -27,9 +27,9 @@ Cuts everything above — or below — a frequency you choose. The most basic to
 
 ## Where to use it
 
-Bringing **FQ** down makes the sound muffled, as if it were playing in the next room. Reach for it when you want the small speakers of the era.
+Bringing **FREQ** down makes the sound muffled, as if it were playing in the next room. Reach for it when you want the small speakers of the era.
 
-Raise **Q** first, then sweep **FQ**, and the corner sings. Automate that sweep and you have the classic filter rise and fall.
+Raise **Q** first, then sweep **FREQ**, and the corner sings. Automate that sweep and you have the classic filter rise and fall.
 
 ## Which plugins have it
 

@@ -46,12 +46,12 @@ SSG は、YM-2203/YM-2608B の SSG 部分(ルーツは、 AY-3-8910 系のいわ
 | 項目 | 説明 | 範囲 | 備考 |
 | --- | --- | --- | --- |
 | **MODE** | デューティ比の決め方。`0: Preset Ratio` は実機にある 8 種類から選ぶ、`1: Variable (Slider)` は連続で変える（**独自**） | — | |
-| **PRST** | 実機にある 8 種類のデューティ比 | 下表 | |
+| **PRESET** | 実機にある 8 種類のデューティ比 | 下表 | |
 | **RAT** | MODE が Variable のときの比率 | 0.0〜1.0 | |
 | **FC Mode** | ファミコン風の挙動にする（**独自**） | 入 / 切（初期は切） | |
-| **FCFL** | FC Mode のときの揺らぎの量（**独自**） | 0.0〜1.0（初期 0.2） | |
+| **FC FLUC** | FC Mode のときの揺らぎの量（**独自**） | 0.0〜1.0（初期 0.2） | |
 
-PRST で選べるデューティ比は次の 8 種類です。
+PRESET で選べるデューティ比は次の 8 種類です。
 
 | 値 | 比 | デューティ比 |
 | --- | --- | --- |
@@ -68,11 +68,11 @@ PRST で選べるデューティ比は次の 8 種類です。
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **MODE** | 決まった比から選ぶか、自由に決めるか | [`SSG_DUTY_MODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-mode) |
-| **PRST** | 実機で使われていた比。9 種 | [`SSG_DUTY_PRESET`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-preset) |
+| **PRESET** | 実機で使われていた比。9 種 | [`SSG_DUTY_PRESET`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-preset) |
 | **RAT** | 自由に決めるときの比 | [`SSG_DUTY_VAR`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-var) |
 | **Invert Phrase** | 上下を入れ替える | [`SSG_DUTY_INV`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-inv) |
 | **FC Mode** | ファミコンのように、比が細かく揺れる動きにする（**独自**） | [`SSG_DUTY_FC_MODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-mode) |
-| **FCFL** | その揺れの大きさ | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-fluc) |
+| **FC FLUC** | その揺れの大きさ | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-fluc) |
 
 ### 三角波設定（独自）
 
@@ -83,7 +83,7 @@ FORM で `1: Triangle / Saw` を選んだときに出ます。**PEAK** で波形
 | --- | --- | --- | --- |
 | **PEAK** | 頂点の位置。`0.0` で下降鋸波、`0.5` で三角波、`1.0` で上昇鋸波 | 0.0〜1.0（初期 0.5） | |
 | **Key Track (Pitch)** | 音程に追従させる。切ると FQ の周波数で固定される | 入 / 切（初期は入） | |
-| **FQ** | Key Track を切ったときの周波数 | 0〜8000 Hz（初期 440） | |
+| **FREQ** | Key Track を切ったときの周波数 | 0〜8000 Hz（初期 440） | |
 
 PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、押すと
 その値へ一度に移ります。
@@ -92,25 +92,25 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **Key Track (Pitch)** | 鍵盤の音程で鳴らす。切ると FQ の高さで固定される | [`SSG_TRI_KEYTRK`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-keytrk) |
-| **FQ** | 固定するときの周波数 | [`SSG_TRI_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-freq) |
+| **FREQ** | 固定するときの周波数 | [`SSG_TRI_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-freq) |
 | **PEAK** | 三角形の頂点の位置。0.5 で左右対称 | [`SSG_TRI_PEAK`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-peak) |
 
 ## TONE / NOISE / MIX — 音の混ぜ方（実機）
 
 | 項目 | 説明 | 範囲 | 備考 |
 | --- | --- | --- | --- |
-| **T.LV** | 波形（トーン）の音量 | 0.0〜1.0（初期 1.0） | |
-| **N.LV** | ノイズの音量 | 0.0〜1.0（初期 1.0） | |
-| **N.FQ** | ノイズの周波数 | 0〜30000 Hz（初期 12000） | |
+| **T.LEVEL** | 波形（トーン）の音量 | 0.0〜1.0（初期 1.0） | |
+| **N.LEVEL** | ノイズの音量 | 0.0〜1.0（初期 1.0） | |
+| **N.FREQ** | ノイズの周波数 | 0〜30000 Hz（初期 12000） | |
 | **MIX** | トーンとノイズの混ぜ具合 | 0.0〜1.0（初期 0.0） | |
 | **Noise On Note** | 発音のたびにノイズを鳴らし直す | 入 / 切（初期は切） | |
 
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **T.LV** | 音の側の量 | [`SSG_TONE`](/2686V_2686VFX/reference/automation/ssg/#ssg-tone) |
-| **N.LV** | ざらつきの側の量 | [`SSG_NOISE`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise) |
-| **N.FQ** | ざらつきの高さ | [`SSG_NOISEFREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-noisefreq) |
+| **T.LEVEL** | 音の側の量 | [`SSG_TONE`](/2686V_2686VFX/reference/automation/ssg/#ssg-tone) |
+| **N.LEVEL** | ざらつきの側の量 | [`SSG_NOISE`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise) |
+| **N.FREQ** | ざらつきの高さ | [`SSG_NOISEFREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-noisefreq) |
 | **Noise On Note** | ざらつきの高さを鍵盤に合わせる（**独自**） | [`SSG_NOISE_ON_NOTE`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise-on-note) |
 | **MIX** | 2 つの混ぜ具合。0 で音だけ、1 でざらつきだけ | [`SSG_NOISEMIX`](/2686V_2686VFX/reference/automation/ssg/#ssg-noisemix) |
 
@@ -122,8 +122,8 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | 項目 | 説明 | 範囲 | 備考 |
 | --- | --- | --- | --- |
 | **Enable** | ハードウェアエンベロープを使う | 入 / 切（初期は切） | |
-| **SHPE** | 形の種類 | 0〜43 | |
-| **PROD** | 一周にかかる時間 | 0.1〜200.0（初期 1.0） | |
+| **SHAPE** | 形の種類 | 0〜43 | |
+| **PERIOD** | 一周にかかる時間 | 0.1〜200.0（初期 1.0） | |
 
 :::note
 実機の形は 8 種類ですが、ここでは **43 種類**まで選べます。8 番目より後ろは

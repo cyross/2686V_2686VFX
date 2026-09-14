@@ -96,15 +96,15 @@ OPN にはハードウェア LFO がないので、揺らしはここで作り�
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **SP** | 揺れの速さ | [`OPN_LFO_FREQ`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-freq) |
-| **SH** | 揺れる形。Saw Up / Square / Triangle / S&H と、1 回だけ動く 2 種 | [`OPN_LFO_SHAPE`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-shape) |
-| **SDLY** | 押してから揺れ始めるまでの待ち | [`OPN_LFO_SYNC_DELAY`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-sync-delay) |
+| **SPEED** | 揺れの速さ | [`OPN_LFO_FREQ`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-freq) |
+| **SHAPE** | 揺れる形。Saw Up / Square / Triangle / S&H と、1 回だけ動く 2 種 | [`OPN_LFO_SHAPE`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-shape) |
+| **SY.DELAY** | 押してから揺れ始めるまでの待ち | [`OPN_LFO_SYNC_DELAY`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-sync-delay) |
 | **PM Enable** | 音程側の揺れを掛ける | [`OPN_LFO_PM`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-pm) |
 | **PMS** | 音程の効き | [`OPN_LFO_PMS`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-pms) |
 | **PMD** | 音程の深さ。負の値で揺れる向きが反転する | [`OPN_LFO_PMD`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-pmd) |
 | **AM Enable** | 音量側の揺れを掛ける | [`OPN_LFO_AM`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-am) |
 | **AMD** | 音量の深さ | [`OPN_LFO_AMD`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-amd) |
-| **AMSR** | 音量側の角の丸め | [`OPN_LFO_ASMRT`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-asmrt) |
+| **SM.RATIO** | 音量側の角の丸め | [`OPN_LFO_ASMRT`](/2686V_2686VFX/reference/automation/opn/#opn-lfo-asmrt) |
 | **AMS** | オペレータごとの音量の効き | [`OPN_OP[0-3]_N88AMS`](/2686V_2686VFX/reference/automation/opn/#opn-op-0-3-n88ams) |
 
 ### KEY SCALE（実機）

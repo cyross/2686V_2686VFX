@@ -37,7 +37,7 @@ The tone itself cannot be changed, but **the envelopes and modulation are all he
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **CLK** | Which clock it is built on. The hardware's four | [`BEEP_TIMERCLOCK`](/2686V_2686VFX/en/reference/automation/beep/#beep-timerclock) |
-| **Anti Alias** | Hold down the aliasing at high pitches (**ours**) | [`BEEP_ANTIALIAS`](/2686V_2686VFX/en/reference/automation/beep/#beep-antialias) |
+| **Anti-Alias** | Hold down the aliasing at high pitches (**ours**) | [`BEEP_ANTIALIAS`](/2686V_2686VFX/en/reference/automation/beep/#beep-antialias) |
 
 ## OPTIONAL — sound-effect mode (hardware)
 

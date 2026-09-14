@@ -40,39 +40,39 @@ The **PCM settings** group on the right is the heart of this channel.
 
 ## PCM settings — per-file settings
 
-### SLOT and TGT
+### SLOT and TARGET
 
 The two knobs at the top of the group have clearly different jobs.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **SLOT** | Which PCM **sounds**. 0–31 | [`ADPCMP_SLOT`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot) |
-| **TGT** | Which PCM is **shown on screen**. 0–31 | — |
+| **TARGET** | Which PCM is **shown on screen**. 0–31 | — |
 
 **SLOT affects the sound.** It is an automation target, so you can draw the material changes against time in the DAW.
 
-**TGT does not affect the sound.** It only decides whose values the FORM, OPTIONAL and PAN below are showing, so you can edit one PCM while a different one is sounding.
+**TARGET does not affect the sound.** It only decides whose values the FORM, OPTIONAL and PAN below are showing, so you can edit one PCM while a different one is sounding.
 
 :::tip[They sit where they cannot be folded away]
-SLOT and TGT are outside the collapsible sections. They govern everything below them, so if they folded out of sight you could no longer pick a slot.
+SLOT and TARGET are outside the collapsible sections. They govern everything below them, so if they folded out of sight you could no longer pick a slot.
 :::
 
 ### FORM — the audio file
 
-**Load** reads a file into the slot TGT is pointing at. **X** empties that slot.
+**Load** reads a file into the slot TARGET is pointing at. **X** empties that slot.
 
 Loaded material is shown two ways.
 
-- **The single view on top** draws the TGT slot over the range that P.OF and P.RT cut out. When Loop Point is in use, its positions appear as vertical lines.
-- **The 32 below** are the material itself, laid out in a grid, so you can see at a glance what is in which slot. The one with a **border** is TGT; the one with a **coloured background** is SLOT.
+- **The single view on top** draws the TARGET slot over the range that P.OFFSET and P.RATIO cut out. When Loop Point is in use, its positions appear as vertical lines.
+- **The 32 below** are the material itself, laid out in a grid, so you can see at a glance what is in which slot. The one with a **border** is TARGET; the one with a **coloured background** is SLOT.
 
 The four knobs that follow mix grit into the loaded sound (**ours**).
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **T.LV** | How much of the loaded sound | [`ADPCMP_SLOT[0-31]_TONE`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-tone) |
-| **N.LV** | How much grit | [`ADPCMP_SLOT[0-31]_NOISE`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-noise) |
-| **N.FQ** | How high the grit sits | [`ADPCMP_SLOT[0-31]_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-noisefreq) |
+| **T.LEVEL** | How much of the loaded sound | [`ADPCMP_SLOT[0-31]_TONE`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-tone) |
+| **N.LEVEL** | How much grit | [`ADPCMP_SLOT[0-31]_NOISE`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-noise) |
+| **N.FREQ** | How high the grit sits | [`ADPCMP_SLOT[0-31]_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-noisefreq) |
 | **MIX** | The balance between the two | [`ADPCMP_SLOT[0-31]_NOISEMIX`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-noisemix) |
 
 ### OPTIONAL — how it is played
@@ -83,8 +83,8 @@ The four knobs that follow mix grit into the loaded sound (**ours**).
 | --- | --- | --- |
 | **SPEED** | Multiplier on the playback rate | [`ADPCMP_SLOT[0-31]_SPEED`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-speed) |
 | **CNT** | How many times to go round LPST–LPED before moving on. 0 means forever | [`ADPCMP_SLOT[0-31]_LOOPPOINT_CNT`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-cnt) |
-| **P.OF** | Where to start, in milliseconds | [`ADPCMP_SLOT[0-31]_PCM_OFFSET`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-offset) |
-| **P.RT** | How much of the remaining length to play | [`ADPCMP_SLOT[0-31]_PCM_RATIO`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-ratio) |
+| **P.OFFSET** | Where to start, in milliseconds | [`ADPCMP_SLOT[0-31]_PCM_OFFSET`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-offset) |
+| **P.RATIO** | How much of the remaining length to play | [`ADPCMP_SLOT[0-31]_PCM_RATIO`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-pcm-ratio) |
 | **LOOP** | Repeat the whole file | [`ADPCMP_SLOT[0-31]_LOOP`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-loop) |
 | **Loop Point Enable** | Set the stretch that repeats | [`ADPCMP_SLOT[0-31]_LOOPPOINT_EN`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-en) |
 | **LPST / LPED** | That stretch, as 0.0–1.0 across the whole | [`ADPCMP_SLOT[0-31]_LOOPPOINT_ST`](/2686V_2686VFX/en/reference/automation/adpcmplus/#adpcmp-slot-0-31-looppoint-st) |
@@ -117,7 +117,7 @@ Bit depth, encoding and sample rate are **one setting for the whole channel**. T
 2. Move SLOT with automation
 3. Within a single note, only the attack changes
 
-Vary P.OF and PAN per slot as well and the switch reads differently again.
+Vary P.OFFSET and PAN per slot as well and the switch reads differently again.
 :::
 
 ## Shared sections

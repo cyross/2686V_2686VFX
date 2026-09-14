@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v3.2.0 README
+# Retro Sound VST "2686V" v3.3.0 README
 
 (C)2026 CYROSS
 
@@ -18,7 +18,7 @@ The "2686V" family is made up of the following plugins.
 - **OPZX7S**: a plugin positioned as a modern FM synthesis operator
 - **PULSEV**: the pulse channels (SSG, BEEP) lifted out of 2686V
 - **WTV**: the wave memory channels (WT/WT2/WT+) lifted out of 2686V
-- **PCMV**: the PCM channels (ADPCM/PCM) lifted out of 2686V
+- **PCMV**: the PCM channels (RHYTHM/ADPCM/ADPCM+) lifted out of 2686V
 - **2686VFX**: an effect plugin derived from 2686V
 
 ## 2. Purpose
@@ -29,7 +29,70 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0-1. What v3.2.0 adds and changes
+### 3-0-1. What v3.3.0 adds and changes
+
+- **The ADPCM+ channel**
+  - Loads up to 32 audio files and switches between them while you play.
+    - It does for PCM what WT+ does for wave memory.
+  - FORM, OPTIONAL and PAN hold their own values for each file.
+    - Switching the material switches how it is played, too.
+  - **SLOT** picks the PCM that sounds; **TARGET** picks the PCM shown on screen.
+    - TARGET does not affect the sound, so you can edit one PCM while another plays.
+  - All 32 loaded waveforms are drawn in a grid.
+  - Carried by 2686V, 2686VLight and PCMV.
+  - Its chip number was added at the end, so existing files and automation are unaffected.
+- **HOLD / KEEP (stopping a wave, or playing part of it)**
+  - HOLD: after a set number of cycles the wave stops and keeps putting out MIN or MAX.
+  - KEEP: only the START–END stretch of each cycle is played.
+  - Found in the OPTIONAL of WT, WT2, WT+ and SSG, and in WT PITCH MOD / WT AMP MOD / SSG HW AMP ENV / SSG HW PITCH ENV / LFO.
+  - Greyed out when the selected shape already stops after one cycle.
+- **SPEED (playback rate)**
+  - 0.0001 to 100.0, default 1.0.
+  - RHYTHM / ADPCM (PCM) / ADPCM+ / OPZX7S's WS / WT / WT2 / WT+ / SSG.
+  - WT, WT2, WT+ and SSG gained an OPTIONAL section.
+- **CNT (loop counter)**
+  - How many times to turn back at the loop point. 0 to 3000; 0 means forever (as before).
+  - RHYTHM / ADPCM (PCM) / ADPCM+ / OPZX7S's WS.
+- **DELAY (delayed start)**
+  - The wait between pressing a key and the sound starting. 0.0 to 60.0 seconds.
+  - Set separately for the whole channel, each operator and each RHYTHM pad.
+  - Neither phase nor envelopes advance while it waits.
+- **KEEP and ENDL on the envelopes**
+  - KEEP: instead of ramping between levels, each stage holds its level for the stage's length (PITCH ENV / SSG SW AMP ENV[11] / SSG SW PITCH ENV[11]).
+  - ENDL: the level held after the release has run (AMP ENV / PITCH ENV / SSG SW AMP ENV[11] / SSG SW PITCH ENV[11]).
+    - Only takes effect with **USE ENDL** on. It is off by default, so existing patches sound the same.
+- **WT+ OPTIONAL per slot**
+  - SPEED and HOLD / KEEP are held for each of the 32 slots.
+- **The FM and RHYTHM tabs rebuilt as pictures plus one set of settings**
+  - Applies to OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM.
+  - Pictures for each operator (or pad) on top, a single set of settings below.
+    - Four pictures to a row. Besides the envelope, OPZX7S shows its WAVE SHAPE wave and RHYTHM the loaded sample.
+    - Clicking a frame moves TARGET there; the frame it points at is outlined.
+  - **TARGET** chooses what the settings point at.
+    - To its right: the name ("オペレーター1" and so on), then which envelope the pictures show (AMP / PIT / SSG / S11 / P11).
+    - That choice applies to all frames at once, so they can be compared.
+    - TARGET is remembered when the window closes.
+  - **Ctrl + ← / →** steps TARGET one at a time; **Ctrl + a digit** jumps to that number.
+    - The WT+ / ADPCM+ slot also moves with Ctrl + ← / →.
+  - Sections are laid out one per column and scroll sideways. They start open.
+  - OPZX7S's VIEW MODE is gone.
+- **Screen work**
+  - Labels are eight characters wide, and squeezed spellings are back in full: LV → LEVEL, SHPE → SHAPE, P.OF → P.OFFSET, and so on.
+  - The toggle button layout (centred or left-aligned) can be chosen in SETTINGS.
+  - Dividers were added inside OPTIONAL.
+  - Browser shortcuts (ESC closes it, Ctrl+M builds a preview).
+  - Clicking the same row again in a list clears the selection.
+  - The RHYTHM pad's LEVEL gained nudge buttons.
+  - WT+ and ADPCM+ OPTIONAL, and ADPCM+ PAN, now start open.
+- **Fixes**
+  - On 2686VLight, 26V, 86V and OPZX7S, OP / CL and "Bypass hidden sections" did nothing.
+  - The mask in the MML copied with Ctrl + C did not reflect OP3 and OP4 (OPNA / OPN / OPL3 / OPM).
+  - OPZX7S's TARGET stopped at 6, so operators 7 and 8 could not be read or written.
+  - On 86V's RHYTHM, TARGET and the pad copy source/destination went up to 8.
+- **About the older file format**
+  - The knobs added in this release are not written into the line-ordered format from before 3.0.0 (reading works as before).
+
+### 3-0-2. What v3.2.0 adds and changes
 
 - **Control steps are now 0.0001**
   - Floating-point controls moved in steps of 0.01 (the framework default).
@@ -93,7 +156,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **A great many more bundled presets and parameter files**
   - A `fromCC2` folder has been added.
 
-### 3-0-2. What v3.1.0 adds and changes
+### 3-0-3. What v3.1.0 adds and changes
 
 - New modulation
   - **SSG HW PITCH ENV**
@@ -208,8 +271,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Carries WT, WT2 and WT+.
   - Curve Edit Mode can be switched on and off.
 - **PCMV**:
-  - The PCM channels (ADPCM/PCM) lifted out of 2686V.
-  - Carries RHYTHM and PCM.
+  - The PCM channels (RHYTHM/ADPCM/ADPCM+) lifted out of 2686V.
+  - Carries RHYTHM, ADPCM and ADPCM+.
   - Curve Edit Mode can be switched on and off.
 - **2686VFX**:
   - An effect plugin derived from 2686V.
@@ -457,6 +520,13 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - **Original waveforms added.**
     - Sound effect mode
   - **The waveform of the loaded file can be previewed.**
+- **For anyone who wants to switch between audio files! The audio file switching channel (ADPCM+) (v3.3.0 onwards)**
+  - Loads up to 32 audio files and switches between them in real time with a slider.
+  - Can also be switched in real time from DAW automation.
+  - FORM, OPTIONAL and PAN hold separate values for each PCM.
+    - A PCM that is not sounding can still be picked with TARGET and edited.
+  - Software features are the same as ADPCM.
+  - **All 32 loaded waveforms can be previewed side by side.**
 - The BEEP channel
   - Reproduces the beep (a square wave at a fixed duty ratio).
     - Sound effect mode carries a button to switch to 2000Hz.
@@ -529,6 +599,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - SFC echo
       - An 8-tap FIR filter equivalent to the SPC-700.
   - Bypass supported.
+- **Wave and playback extensions (v3.3.0 onwards)**
+  - Stopping a wave or playing part of it with HOLD / KEEP
+  - Changing the playback rate with SPEED
+  - Setting the number of loops with CNT
+  - Delaying the start with DELAY (per channel, operator and pad)
+  - Envelope KEEP (holding each stage) and ENDL (the level after release)
 - Extended settings and Curve Edit Mode (2686V/OPZX7S)
   - A mode that gives you flexible control over how register values and envelope levels change
     - A switch returns you to the traditional mode.
@@ -557,6 +633,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - Supports the pitch bend and modulation features of a MIDI keyboard.
 - Plenty of ways to nudge LEVEL
   - Nudge buttons
+    - **Also on the RHYTHM pad's LEVEL (v3.3.0 onwards)**
   - **Stepped input via Steps**
 - Three screen modes
   - Full view
@@ -646,6 +723,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - Some places, the effects among them, still use the file dialog
   - **A loading screen (v3.2.0 onwards)**
     - Shown while files are loaded and saved, while waveform preview stills and animations are built, while the file list is built, and so on
+  - **The FM and RHYTHM tabs as pictures plus one set of settings (v3.3.0 onwards)**
+    - Pictures for each operator (or pad) on top; a single set of settings switched by TARGET
+    - Sections laid out side by side and scrolled sideways
+    - TARGET from the keyboard (Ctrl + ← / → / digits)
+    - OPZX7S's pictures show the WAVE SHAPE wave
 
 ## 5. Supported OS
 
