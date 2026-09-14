@@ -5,6 +5,11 @@ sidebar:
   order: 13
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_adpcmp.png" alt="ADPCM+ channel" style="width:600px;" />
+	<figcaption>ADPCM+ channel</figcaption>
+</figure>
+
 ADPCM+ is for **loading up to 32 audio files and switching between them while you play**. It is new in 3.3.0.
 
 Where ADPCM plays one piece of material across the keyboard, ADPCM+ **picks one out of a row and plays that.** Think of it as what [WT+](/2686V_2686VFX/en/chips/wtplus/) does for wavetable memory, moved over to PCM.

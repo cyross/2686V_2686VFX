@@ -5,6 +5,11 @@ sidebar:
   order: 13
 ---
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/channel/ch_adpcmp.png" alt="ADPCM+チャンネル" style="width:600px;" />
+	<figcaption>ADPCM+チャンネル</figcaption>
+</figure>
+
 ADPCM+ は、**音声ファイルを 32 本読み込んでおいて、演奏しながら切り替える**
 ためのチャンネルです。3.3.0 で新しく足しました。
 

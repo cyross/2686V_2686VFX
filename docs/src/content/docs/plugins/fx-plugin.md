@@ -19,7 +19,7 @@ LFO を、**出力そのものへ掛けられる**ようにしてあります。
 ## プラグイン表示
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/plugin/2686VFX.png" alt="2686VFX プラグイン全景" width="1625" height="739" />
+	<img src="/2686V_2686VFX/ui/plugin/2686VFX.png" alt="2686VFX プラグイン全景" width="1625" height="738" />
 	<figcaption>プラグイン全景</figcaption>
 </figure>
 

@@ -16,7 +16,7 @@ sidebar:
 ## プラグイン表示
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/plugin/2686VLight.png" alt="2686VLight プラグイン全景" width="1426" height="737" />
+	<img src="/2686V_2686VFX/ui/plugin/2686VLight.png" alt="2686VLight プラグイン全景" width="1426" height="738" />
 	<figcaption>プラグイン全景</figcaption>
 </figure>
 
