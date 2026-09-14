@@ -46,6 +46,9 @@ namespace FxGuiValue
 		// メインの右に並ぶ列の数。FX も変調もこの数で折り返す。
 		static inline constexpr int Cols = 5;
 
+		// 効果の列の数。仲間どうしを 1 列へ積んで、9 個を 4 列にまとめている。
+		static inline constexpr int EffectCols = 4;
+
 		// 出力へ掛ける変調を置く領域。FX は左 400px しか使っていないので、
 		// その右の空きへ詰める。タブは増やさない。
 		static inline constexpr int ModLeft = 20;
