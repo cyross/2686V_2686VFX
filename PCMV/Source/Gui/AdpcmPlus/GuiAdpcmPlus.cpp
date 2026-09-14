@@ -114,7 +114,7 @@ void GuiAdpcmPlus::setup()
     mixSetNoise.setExplicitFocusOrder(++tabOrder);
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
 
-    optionalCat.setupSwCategory({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::optional, .enableChangeDetailVisible = true });
+    optionalCat.setupSwCategory({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::optional, .detailVisible = true, .enableChangeDetailVisible = true });
 
     // ループトグルボタン
     loopButton.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::loop, .title = AdpcmPlusGuiText::Adpcm::loop, .isReset = true });
@@ -167,7 +167,7 @@ void GuiAdpcmPlus::setup()
     updateSamplePreview();
 
     // パンポット設定
-    panCat.setupHwCategory({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::pan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::pan, .detailVisible = true, .enableChangeDetailVisible = true });
 
     panSlider.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::pan, .title = AdpcmPlusGuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);

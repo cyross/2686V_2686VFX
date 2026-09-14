@@ -94,7 +94,7 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // WAVE MEMORY (32 スロット)
     // ==========================================================
-    optionalCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::optional, .enableChangeDetailVisible = true });
+    optionalCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::optional, .detailVisible = true, .enableChangeDetailVisible = true });
 
     speedSlider.setup(GuiSlider::Config{ .parent = waveGroup.contentCanvas, .id = code + CPK::Wt::slot + juce::String(0) + CPK::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);
