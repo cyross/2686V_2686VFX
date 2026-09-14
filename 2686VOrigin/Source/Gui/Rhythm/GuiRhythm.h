@@ -295,6 +295,11 @@ public:
 
     // 映すものが変わったときに呼ぶ。絵は入れ物のほうが持っている。
     std::function<void(GuiEnvGraphMode)> onGraphModeChange;
+
+    // 簡易表示モードで隠す区分への一括操作
+    void bypassHiddenCategories() override;
+    void openEnabledCategories() override;
+    void closeBypassedCategories() override;
 	void layout(juce::Rectangle<int> content);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     bool isThis(juce::Button* button);
@@ -428,6 +433,11 @@ public:
 
     // Ctrl + ← / → などで TARGET を動かす
     bool keyPressed(const juce::KeyPress& key) override;
+
+    // 簡易表示モードで隠す区分への一括操作
+    void bypassHiddenCategories() override;
+    void openEnabledCategories() override;
+    void closeBypassedCategories() override;
     void layout(juce::Rectangle<int> content) override;
 
     // TARGET が今どのパッドを指しているか (0 から数える)。

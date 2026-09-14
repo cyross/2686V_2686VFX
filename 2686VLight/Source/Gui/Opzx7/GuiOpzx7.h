@@ -327,6 +327,11 @@ public:
     GuiOpzx7(const GuiContext& context);
 
     void setup() override;
+
+    // 簡易表示モードで隠す区分への一括操作
+    void bypassHiddenCategories() override;
+    void openEnabledCategories() override;
+    void closeBypassedCategories() override;
     void layout(juce::Rectangle<int> content) override;
 
     // 選んだ OP へ FB のつまみを束縛し直す。帯の描き直しもここでやる。
