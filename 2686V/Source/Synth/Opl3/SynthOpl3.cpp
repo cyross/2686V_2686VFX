@@ -94,6 +94,7 @@ void Opl3Core::setSampleRate(double sampleRate) {
 
 void Opl3Core::setParameters(const SynthParams& params) {
     m_level = params.opl3.level;
+    m_delaySeconds = params.opl3.delay;
 
     m_algorithm = params.opl3.algFb.algorithm;
 

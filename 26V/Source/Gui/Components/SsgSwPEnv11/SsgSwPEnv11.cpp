@@ -15,17 +15,17 @@ namespace
 
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
+#include "../../../Core/Gui/GuiGraphValues.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
 namespace
 {
-    // 段ごとのパラメータ名。並びが番号と一致していることが前提。
-    const juce::String rateKeys[] = { CPK::SsgSwPEnv11::r1, CPK::SsgSwPEnv11::r2, CPK::SsgSwPEnv11::r3, CPK::SsgSwPEnv11::r4, CPK::SsgSwPEnv11::r5, CPK::SsgSwPEnv11::r6, CPK::SsgSwPEnv11::r7, CPK::SsgSwPEnv11::r8, CPK::SsgSwPEnv11::r9, CPK::SsgSwPEnv11::r10, CPK::SsgSwPEnv11::r11 };
-
-    // 先頭は STL。画面の対象つまみで 0 を選んだときがこれ。
-    const juce::String levelKeys[] = { CPK::SsgSwPEnv11::stl, CPK::SsgSwPEnv11::l1, CPK::SsgSwPEnv11::l2, CPK::SsgSwPEnv11::l3, CPK::SsgSwPEnv11::l4, CPK::SsgSwPEnv11::l5, CPK::SsgSwPEnv11::l6, CPK::SsgSwPEnv11::l7, CPK::SsgSwPEnv11::l8, CPK::SsgSwPEnv11::l9, CPK::SsgSwPEnv11::l10, CPK::SsgSwPEnv11::l11 };
+    // 段ごとのパラメータ名は GuiGraphValues へ一本化してある。
+    // つまみを持たない小さなグラフも、同じ並びで引くため。
+    const auto& rateKeys = GuiGraphValues::Keys::ssgSwPEnv11Rate;
+    const auto& levelKeys = GuiGraphValues::Keys::ssgSwPEnv11Level;
 
     constexpr int rateCount = 11;
     constexpr int levelCount = 11 + 1; // 先頭の STL のぶん
@@ -150,6 +150,8 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
         .enableChangeDetailVisible = true
         });
 
+    m_flagKey = flagKey;
+
     flag.setup({ .parent = parent, .id = code + flagKey, .title = flagText, .isReset = true });
     flag.setWantsKeyboardFocus(true);
     flag.setExplicitFocusOrder(++tabOrder);
@@ -167,6 +169,12 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
 
     stepsSeparator.setupComponent(parent);
 
+    keep.setup({ .parent = parent, .id = code + CPK::SsgSwPEnv11::keep, .title = "KEEP", .isReset = true });
+    keep.setWantsKeyboardFocus(true);
+    keep.setExplicitFocusOrder(++tabOrder);
+
+    keepSeparator.setupComponent(parent);
+
     loop.setup({ .parent = parent, .id = code + CPK::SsgSwPEnv11::loop, .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
     loop.setExplicitFocusOrder(++tabOrder);
@@ -181,7 +189,7 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwPEnv11::loopTo, .title = "L.TO", .isReset = true, .labelFont = labelFont });
+    loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwPEnv11::loopTo, .title = "LOOP.TO", .isReset = true, .labelFont = labelFont });
     loopTo.setWantsKeyboardFocus(true);
     loopTo.setExplicitFocusOrder(++tabOrder);
     loopTo.onValueChange = [this] {
@@ -190,7 +198,7 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopCount.setup({ .parent = parent, .id = code + CPK::SsgSwPEnv11::loopCount, .title = "L.CN", .isReset = true, .labelFont = labelFont });
+    loopCount.setup({ .parent = parent, .id = code + CPK::SsgSwPEnv11::loopCount, .title = "LOOP.CNT", .isReset = true, .labelFont = labelFont });
     loopCount.setWantsKeyboardFocus(true);
     loopCount.setExplicitFocusOrder(++tabOrder);
 
@@ -207,14 +215,15 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
     // 並びは 対象 → 値 → 各段の値。
     paramCode = code;
 
-    rateTarget.setup({ .parent = parent, .title = "R.TG", .isReset = false, .labelFont = labelFont });
+    rateTarget.setup({ .parent = parent, .title = "R.TARGET", .isReset = false, .labelFont = labelFont });
     rateTarget.setRange(1.0, (double)rateCount, 1.0);
     rateTarget.setNumDecimalPlacesToDisplay(0);
     rateTarget.setWantsKeyboardFocus(true);
     rateTarget.setExplicitFocusOrder(++tabOrder);
     rateTarget.onValueChange = [this] { rebindRate(); };
 
-    rate.setupComponent(parent, "", "RATE", tabOrder, std::nullopt, labelFont);
+    // 繋ぐ先は対象のつまみが決める。ここで空の名前へ繋ぎに行くと、無いパラメータを指して JUCE が止まる。
+    rate.setupComponent(parent, "", "RATE", tabOrder, std::nullopt, labelFont, false);
     rate.getSlider().onValueChange = [this] { refreshStepValues(); };
 
     rateNudge.setupComponent(parent, rate.getSlider(), tabOrder);
@@ -224,24 +233,62 @@ void GuiComponentSsgSwPEnv11::setupComponent(juce::Component& parent, const juce
     rateSeparator.setupComponent(parent);
 
     // 対象の 0 が STL、1 以降が L1 以降。
-    levelTarget.setup({ .parent = parent, .title = "L.TG", .isReset = false, .labelFont = labelFont });
+    levelTarget.setup({ .parent = parent, .title = "L.TARGET", .isReset = false, .labelFont = labelFont });
     levelTarget.setRange(0.0, (double)(levelCount - 1), 1.0);
     levelTarget.setNumDecimalPlacesToDisplay(0);
     levelTarget.setWantsKeyboardFocus(true);
     levelTarget.setExplicitFocusOrder(++tabOrder);
     levelTarget.onValueChange = [this] { rebindLevel(); };
 
-    level.setupComponent(parent, "", "LEVL", tabOrder, std::nullopt, labelFont);
+    level.setupComponent(parent, "", "LEVEL", tabOrder, std::nullopt, labelFont, false);
     level.getSlider().onValueChange = [this] { refreshStepValues(); };
 
     levelBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
 
     parent.addAndMakeVisible(levelValues);
 
+    endLevelSeparator.setupComponent(parent);
+
+    endLevelEnable.setup({ .parent = parent, .id = code + CPK::SsgSwPEnv11::endlEnable, .title = "Use Endl", .isReset = true });
+    endLevelEnable.setWantsKeyboardFocus(true);
+    endLevelEnable.setExplicitFocusOrder(++tabOrder);
+    endLevelEnable.onClick = [this] { applyEndLevelEnable(); };
+
+    endLevel.setup({ .parent = parent, .id = code + CPK::SsgSwPEnv11::endl, .title = "ENDL", .isReset = true, .labelFont = labelFont });
+    endLevel.setWantsKeyboardFocus(true);
+    endLevel.setExplicitFocusOrder(++tabOrder);
+
+    applyEndLevelEnable();
+
     // onValueChange は値が変わらないと呼ばれないので、最初の束縛はここで明示的に行う。
     rateTarget.setValue(1, juce::dontSendNotification);
     levelTarget.setValue(0, juce::dontSendNotification);
 
+    rebindRate();
+    rebindLevel();
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentSsgSwPEnv11::rebind(const juce::String& code)
+{
+    paramCode = code;
+
+    // 入り切りの鍵は呼ぶ側が決めるので、setup で受けたものを使う。
+    flag.rebind(code + m_flagKey);
+    steps.rebind(code + CPK::SsgSwPEnv11::steps);
+    keep.rebind(code + CPK::SsgSwPEnv11::keep);
+    loop.rebind(code + CPK::SsgSwPEnv11::loop);
+    loopTo.rebind(code + CPK::SsgSwPEnv11::loopTo);
+    loopCount.rebind(code + CPK::SsgSwPEnv11::loopCount);
+    endLevelEnable.rebind(code + CPK::SsgSwPEnv11::endlEnable);
+    endLevel.rebind(code + CPK::SsgSwPEnv11::endl);
+
+    // 段の値のつまみは 1 組しかない。今指している段へ繋ぎ直し、
+    // 帯に出している各段の値も作り直す。
     rebindRate();
     rebindLevel();
 }
@@ -256,6 +303,8 @@ void GuiComponentSsgSwPEnv11::layoutComponent(juce::Rectangle<int>& rect)
 	flagSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
 	stepsSeparator.setVisible(visible);
+    keep.setVisible(visible);
+    keepSeparator.setVisible(visible);
     loop.setVisible(visible);
     loopTo.setVisibleWithLabel(visible);
     loopCount.setVisibleWithLabel(visible);
@@ -269,6 +318,9 @@ void GuiComponentSsgSwPEnv11::layoutComponent(juce::Rectangle<int>& rect)
     level.setVisibleWithLabel(visible);
     levelBtns.setVisibles(visible && level.isVisibleNudge());
     levelValues.setVisible(visible);
+    endLevelSeparator.setVisible(visible);
+    endLevelEnable.setVisible(visible);
+    endLevel.setVisibleWithLabel(visible);
 
     if (visible)
     {
@@ -276,6 +328,8 @@ void GuiComponentSsgSwPEnv11::layoutComponent(juce::Rectangle<int>& rect)
         flagSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 13 });
         stepsSeparator.layoutComponent(rect);
+        layoutMain({ .mainRect = rect, .component = &keep, .rowHeight = 13 });
+        keepSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 13 });
@@ -290,6 +344,9 @@ void GuiComponentSsgSwPEnv11::layoutComponent(juce::Rectangle<int>& rect)
         level.layoutComponent(rect, 13);
         if (level.isVisibleNudge()) levelBtns.layoutComponent(rect, 13);
         layoutStrip(rect, levelValues);
+        endLevelSeparator.layoutComponent(rect);
+        layoutMain({ .mainRect = rect, .component = &endLevelEnable, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &endLevel.label, .component = &endLevel, .rowHeight = 13 });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -305,6 +362,8 @@ void GuiComponentSsgSwPEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
     flagSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
     stepsSeparator.setVisible(visible);
+    keep.setVisible(visible);
+    keepSeparator.setVisible(visible);
     loop.setVisible(visible);
     loopTo.setVisibleWithLabel(visible);
     loopCount.setVisibleWithLabel(visible);
@@ -318,6 +377,9 @@ void GuiComponentSsgSwPEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
     level.setVisibleWithLabel(visible);
     levelBtns.setVisibles(visible && level.isVisibleNudge());
     levelValues.setVisible(visible);
+    endLevelSeparator.setVisible(visible);
+    endLevelEnable.setVisible(visible);
+    endLevel.setVisibleWithLabel(visible);
 
     if (visible)
     {
@@ -325,6 +387,8 @@ void GuiComponentSsgSwPEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
         flagSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 12 });
         stepsSeparator.layoutComponent(rect);
+        layoutRow({ .rowRect = rect, .component = &keep, .rowHeight = 12 });
+        keepSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .component = &loop, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 12 });
@@ -339,14 +403,29 @@ void GuiComponentSsgSwPEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
         level.layoutComponentRow(rect, 12);
         if (level.isVisibleNudge()) levelBtns.layoutComponentRow(rect, 12);
         layoutStrip(rect, levelValues);
+        endLevelSeparator.layoutComponent(rect);
+        layoutRow({ .rowRect = rect, .component = &endLevelEnable, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &endLevel.label, .component = &endLevel, .rowHeight = 12 });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
+// ENDL を使わないときは、つまみを押せなくする。効いていないものが
+// 触れてしまうと、動かしたのに音が変わらない、という形で迷う。
+void GuiComponentSsgSwPEnv11::applyEndLevelEnable() {
+    const bool on = endLevelEnable.getToggleState();
+
+    endLevel.setEnabled(on);
+    endLevel.label.setEnabled(on);
+}
+
 void GuiComponentSsgSwPEnv11::setupGraph(std::function<void()> repaintGraph) {
 
     flag.onStateChange = repaintGraph;
+    keep.onStateChange = repaintGraph;
+    endLevelEnable.onStateChange = repaintGraph;
+    endLevel.onValueChange = repaintGraph;
     loop.onStateChange = repaintGraph;
 
     steps.onValueChange = [this, repaintGraph]() {
@@ -384,11 +463,20 @@ void GuiComponentSsgSwPEnv11::updateGraph(GuiEnvelopeGraph& graph) {
 
     graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
 
+    // KEEP のときはカーブを効かせない。音の側も補間そのものを止めてある。
+    const bool keepOn = keep.getToggleState();
+
+    graph.setKeepLevels(keepOn);
+
+    // 段の並び以外は束にして渡す。
+    GuiEnvelopeGraph::StepEnvHead head;
+
+    head.steps = (int)steps.getValue();
+    head.loop = loop.getToggleState();
+    head.loopTo = (int)loopTo.getValue();
+    head.loopCount = (int)loopCount.getValue();
     graph.updateSsgSwPEnv11(
-        steps,
-        loop,
-        loopTo,
-        loopCount,
+        head,
         rArr, (float)rate.getSlider().getMaximum(),
         lArr, (float)level.getSlider().getMaximum()
     );
@@ -413,6 +501,12 @@ void GuiComponentSsgSwPEnv11::setEnabled(bool enabled) {
     levelTarget.setEnabled(enabled);
     level.setEnabled(enabled);
     levelBtns.setEnables(enabled);
+    keep.setEnabled(enabled);
+	keepSeparator.setEnabled(enabled);
+	endLevelSeparator.setEnabled(enabled);
+    endLevelEnable.setEnabled(enabled);
+    endLevel.setEnabled(enabled && endLevelEnable.getToggleState());
+    endLevel.label.setEnabled(enabled && endLevelEnable.getToggleState());
 }
 
 void GuiComponentSsgSwPEnv11::copyParams(CopyPEnvSsgSw11& copyObj) {
@@ -421,7 +515,10 @@ void GuiComponentSsgSwPEnv11::copyParams(CopyPEnvSsgSw11& copyObj) {
     copyObj.loop = loop.getToggleState();
     copyObj.loopTo = loopTo.getValue();
     copyObj.loopCount = loopCount.getValue();
-    copyObj.stl = getStepValue(levelKeys[0]);
+    copyObj.stl = (int)getStepValue(levelKeys[0]);
+    copyObj.endl = (int)endLevel.getValue();
+    copyObj.endlEnable = endLevelEnable.getToggleState();
+    copyObj.keep = keep.getToggleState();
 
     for (int i = 0; i < rateCount; ++i) {
         copyObj.r[i] = getStepValue(rateKeys[i]);
@@ -435,7 +532,10 @@ void GuiComponentSsgSwPEnv11::pasteParams(CopyPEnvSsgSw11& copyObj) {
     loop.setToggleState(copyObj.loop, juce::sendNotification);
     loopTo.setValue(copyObj.loopTo, juce::sendNotification);
     loopCount.setValue(copyObj.loopCount, juce::sendNotification);
-    setStepValue(levelKeys[0], copyObj.stl);
+    setStepValue(levelKeys[0], (float)copyObj.stl);
+    endLevel.setValue(copyObj.endl, juce::sendNotification);
+    endLevelEnable.setToggleState(copyObj.endlEnable, juce::sendNotification);
+    keep.setToggleState(copyObj.keep, juce::sendNotification);
 
     for (int i = 0; i < rateCount; ++i) {
         setStepValue(rateKeys[i], copyObj.r[i]);
@@ -505,6 +605,9 @@ void GuiComponentSsgSwPEnv11::applyParamsFile(const juce::File& file)
     loop.setToggleState(reader->getBool("loop", loop.getToggleState()), juce::sendNotification);
     loopTo.setValue(reader->getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
     loopCount.setValue(reader->getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+    keep.setToggleState(reader->getBool("keep", keep.getToggleState()), juce::sendNotification);
+    endLevel.setValue(reader->getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
+    endLevelEnable.setToggleState(reader->getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
     setStepValue(levelKeys[0], reader->getFloat("startLevel", getStepValue(levelKeys[0])));
 
     for (int i = 0; i < rateCount; ++i) {
@@ -541,6 +644,9 @@ void GuiComponentSsgSwPEnv11::writeParamsFile(const juce::File& file)
     writer.set("loop", loop.getToggleState());
     writer.set("loopTo", (float)loopTo.getValue());
     writer.set("loopCount", (float)loopCount.getValue());
+    writer.set("keep", keep.getToggleState());
+    writer.set("endLevel", (float)endLevel.getValue());
+    writer.set("endLevelEnable", endLevelEnable.getToggleState());
     writer.set("startLevel", getStepValue(levelKeys[0]));
 
     for (int i = 0; i < rateCount; ++i) {
@@ -578,6 +684,9 @@ void GuiComponentSsgSwPEnv11::readParams(const Io::ParamReader& reader, const ju
     loop.setToggleState(r.getBool("loop", loop.getToggleState()), juce::sendNotification);
     loopTo.setValue(r.getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
     loopCount.setValue(r.getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+    keep.setToggleState(r.getBool("keep", keep.getToggleState()), juce::sendNotification);
+    endLevel.setValue(r.getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
+    endLevelEnable.setToggleState(r.getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
     setStepValue(levelKeys[0], r.getFloat("startLevel", getStepValue(levelKeys[0])));
 
     for (int i = 0; i < rateCount; ++i) {
@@ -617,6 +726,9 @@ void GuiComponentSsgSwPEnv11::writeParams(Io::ParamWriter& writer, const juce::S
     w.set("loop", loop.getToggleState());
     w.set("loopTo", (float)loopTo.getValue());
     w.set("loopCount", (float)loopCount.getValue());
+    w.set("keep", keep.getToggleState());
+    w.set("endLevel", (float)endLevel.getValue());
+    w.set("endLevelEnable", endLevelEnable.getToggleState());
     w.set("startLevel", getStepValue(levelKeys[0]));
 
     for (int i = 0; i < rateCount; ++i) {

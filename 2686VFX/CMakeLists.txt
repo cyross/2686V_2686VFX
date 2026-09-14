@@ -100,6 +100,7 @@ set(GUI_FILES
     "Source/Core/Gui/GuiText.h"
     "Source/Core/Gui/GuiValues.h"
     "Source/Core/Gui/GuiEnvelopeGraph.h"
+    "Source/Core/Gui/GuiGraphValues.h"
     "Source/Core/Gui/GuiEnvelopeGraph.cpp"
     "Source/Core/Gui/GuiCopyObj.h"
 )
@@ -263,6 +264,8 @@ set(GUI_COMPONENT_PARAMBAREDITOR_FILES
 )
 
 set(GUI_COMPONENT_WAVEPREVIEW_FILES
+    "Source/Gui/Components/TargetCell/TargetCell.h"
+    "Source/Gui/Components/TargetCell/TargetCell.cpp"
     "Source/Gui/Components/WavePreview/WavePreview.h"
     "Source/Gui/Components/WavePreview/WavePreview.cpp"
     "Source/Gui/Components/WavePreview/WavePreviewSource.h"
@@ -344,11 +347,6 @@ set(GUI_COMPONENT_PRESET_NAME_FILES
     "Source/Gui/Components/PresetName/PresetName.cpp"
 )
 
-set(GUI_COMPONENT_VIEW_MODE_FILES
-    "Source/Gui/Components/ViewMode/ViewMode.h"
-    "Source/Gui/Components/ViewMode/ViewMode.cpp"
-)
-
 set(GUI_COMPONENT_IMPORT_EXPORT_FILES
     "Source/Gui/Components/ImportExport/ImportExport.h"
     "Source/Gui/Components/ImportExport/ImportExport.cpp"
@@ -367,6 +365,8 @@ set(GUI_COMPONENT_LOADING_FILES
 set(GUI_COMPONENT_LEVEL_FILES
     "Source/Gui/Components/Level/Level.h"
     "Source/Gui/Components/Level/Level.cpp"
+    "Source/Gui/Components/Level/LevelNudge.h"
+    "Source/Gui/Components/Level/LevelNudge.cpp"
 )
 
 set(GUI_COMPONENT_SEPARATOR_FILES
@@ -426,7 +426,6 @@ source_group("2686VFX\\Gui\\Components\\Midi" FILES ${GUI_COMPONENT_MIDI_FILES})
 source_group("2686VFX\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHBUTTONS_FILES})
 source_group("2686VFX\\Gui\\Components\\SsgSwButtons" FILES ${GUI_COMPONENT_SSGSWBUTTONS_FILES})
 source_group("2686VFX\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
-source_group("2686VFX\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
 source_group("2686VFX\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
 source_group("2686VFX\\Gui\\Components\\Import" FILES ${GUI_COMPONENT_IMPORT_FILES})
 source_group("2686VFX\\Gui\\Components\\Loading" FILES ${GUI_COMPONENT_LOADING_FILES})

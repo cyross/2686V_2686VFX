@@ -12,6 +12,22 @@ void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, cons
     currentType = type;
     currentTitle = title;
     currentPhases = phases;
+
+    // KEEP のときは、行き先へ向かって斜めに引かず、その段の始まりの値で
+    // 横一直線を引く。つなぎ目だけが縦に飛ぶ (階段状)。
+    if (keepLevels)
+    {
+        for (auto& phase : currentPhases)
+        {
+            phase.endLevel = phase.startLevel;
+        }
+    }
+
+    // 1 回きりの印。次に描く区分へ持ち越さない。グラフは区分ごとに
+    // 使い回すので、立てっぱなしにすると関係のない区分まで横一直線に
+    // なってしまう。
+    keepLevels = false;
+
     repaint();
 }
 
@@ -172,13 +188,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
 }
 
 void GuiEnvelopeGraph::updatePitchEnv(
-    const GuiSlider& pitchAttackSlider,
-    const GuiSlider& pitchDecaySlider,
-    const GuiSlider& pitchReleaseSlider,
-    const GuiSlider& pitchStartLevelSlider,
-    const GuiSlider& pitchAttackLevelSlider,
-    const GuiSlider& pitchSustainLevelSlider,
-    const GuiSlider& pitchReleaseLevelSlider
+    const PitchEnvValues& v
 ) {
     // -------------------------------------------------------------
     // Helper: 幅の計算
@@ -189,19 +199,19 @@ void GuiEnvelopeGraph::updatePitchEnv(
         return (rateValue / maxRate) * maxWidth;
         };
 
-    float ar = pitchAttackSlider.getValue();
-    float dr = pitchDecaySlider.getValue();
-    float rr = pitchReleaseSlider.getValue();
+    float ar = v.ar;
+    float dr = v.dr;
+    float rr = v.rr;
 
-    float arMax = pitchAttackSlider.getMaximum();
-    float drMax = pitchDecaySlider.getMaximum();
-    float rrMax = pitchReleaseSlider.getMaximum();
+    float arMax = v.arMax;
+    float drMax = v.drMax;
+    float rrMax = v.rrMax;
 
     const float maxCents = 4800.0f; // 仮の最大値
-    float stl = pitchStartLevelSlider.getValue() / maxCents;
-    float atl = pitchAttackLevelSlider.getValue() / maxCents;
-    float ssl = pitchSustainLevelSlider.getValue() / maxCents;
-    float rll = pitchReleaseLevelSlider.getValue() / maxCents;
+    float stl = v.stl / maxCents;
+    float atl = v.atl / maxCents;
+    float ssl = v.ssl / maxCents;
+    float rll = v.rll / maxCents;
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     juce::Colour color = GuiColor::EnvelopeGraph::PitchLine;
@@ -233,10 +243,7 @@ void GuiEnvelopeGraph::updatePitchEnv(
 }
 
 void GuiEnvelopeGraph::updateSsgSwEnv(
-    const GuiSlider& ssgSwStepsSlider,
-    const GuiToggleButton& ssgSwEnvLoopButton,
-    const GuiSlider& ssgSwLoopToSlider,
-    const GuiSlider& ssgSwLoopCountSlider,
+    const StepEnvHead& head,
     // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
     // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
     const std::array<float, 7>& rVal, float rMax,
@@ -251,11 +258,11 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
         return (rateValue / maxRate) * maxWidth;
         };
 
-    int steps = (int)ssgSwStepsSlider.getValue();
+    int steps = head.steps;
     if (steps < 1) steps = 1;
-    bool isLoop = ssgSwEnvLoopButton.getToggleState();
-    int loopTo = (int)ssgSwLoopToSlider.getValue();
-    int loopCount = (int)ssgSwLoopCountSlider.getValue();
+    bool isLoop = head.loop;
+    int loopTo = head.loopTo;
+    int loopCount = head.loopCount;
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;
@@ -330,10 +337,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
 }
 
 void GuiEnvelopeGraph::updateSsgSwEnv11(
-    const GuiSlider& ssgSwStepsSlider,
-    const GuiToggleButton& ssgSwEnvLoopButton,
-    const GuiSlider& ssgSwLoopToSlider,
-    const GuiSlider& ssgSwLoopCountSlider,
+    const StepEnvHead& head,
     // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
     // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
     const std::array<float, 12>& rVal, float rMax,
@@ -348,11 +352,11 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
         return (rateValue / maxRate) * maxWidth;
         };
 
-    int steps = (int)ssgSwStepsSlider.getValue();
+    int steps = head.steps;
     if (steps < 1) steps = 1;
-    bool isLoop = ssgSwEnvLoopButton.getToggleState();
-    int loopTo = (int)ssgSwLoopToSlider.getValue();
-    int loopCount = (int)ssgSwLoopCountSlider.getValue();
+    bool isLoop = head.loop;
+    int loopTo = head.loopTo;
+    int loopCount = head.loopCount;
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;
@@ -427,10 +431,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
 }
 
 void GuiEnvelopeGraph::updateSsgSwPEnv11(
-    const GuiSlider& ssgSwStepsSlider,
-    const GuiToggleButton& ssgSwEnvLoopButton,
-    const GuiSlider& ssgSwLoopToSlider,
-    const GuiSlider& ssgSwLoopCountSlider,
+    const StepEnvHead& head,
     // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
     // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
     const std::array<float, 12>& rVal, float rMax,
@@ -446,11 +447,11 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
         };
 
     const float maxCents = 4800.0f; // 仮の最大値
-    int steps = (int)ssgSwStepsSlider.getValue();
+    int steps = head.steps;
     if (steps < 1) steps = 1;
-    bool isLoop = ssgSwEnvLoopButton.getToggleState();
-    int loopTo = (int)ssgSwLoopToSlider.getValue();
-    int loopCount = (int)ssgSwLoopCountSlider.getValue();
+    bool isLoop = head.loop;
+    int loopTo = head.loopTo;
+    int loopCount = head.loopCount;
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     juce::Colour color = GuiColor::EnvelopeGraph::PitchLine;
@@ -524,12 +525,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
 }
 
 void GuiEnvelopeGraph::updateAmpEnv(
-    const GuiSlider& startLevelSlider,
-    const GuiSlider& attackSlider,
-    const GuiSlider& decaySlider,
-    const GuiSlider& sustainSlider,
-    const GuiSlider& releaseSlider,
-    const GuiToggleButton& korButton
+    const AmpEnvValues& v
 ) {
     // -------------------------------------------------------------
     // Helper: 幅の計算
@@ -541,21 +537,21 @@ void GuiEnvelopeGraph::updateAmpEnv(
         return std::max(2.0f, maxWidth * norm);
         };
 
-    float stlMax = (float)startLevelSlider.getMaximum();
-    float arMax = (float)attackSlider.getMaximum();
-    float drMax = (float)decaySlider.getMaximum();
-    float slMax = (float)sustainSlider.getMaximum();
-    float rrMax = (float)releaseSlider.getMaximum();
+    float stlMax = v.stlMax;
+    float arMax = v.arMax;
+    float drMax = v.drMax;
+    float slMax = v.slMax;
+    float rrMax = v.rrMax;
 
-    float stlVal = (float)startLevelSlider.getValue();
-    float arVal = (float)attackSlider.getValue();
-    float drVal = (float)decaySlider.getValue();
-    float slVal = (float)sustainSlider.getValue();
-    float rrVal = (float)releaseSlider.getValue();
+    float stlVal = v.stl;
+    float arVal = v.ar;
+    float drVal = v.dr;
+    float slVal = v.sl;
+    float rrVal = v.rr;
 
     float sl = slVal / slMax;
 
-    bool isKor = korButton.getToggleState();
+    bool isKor = v.kor;
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;

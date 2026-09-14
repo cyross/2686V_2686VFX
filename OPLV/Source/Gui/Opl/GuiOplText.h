@@ -54,22 +54,22 @@ namespace OplGuiText
 
 	namespace Fm
 	{
-		static inline const juce::String level = u8"LV";
+		static inline const juce::String level = u8"LEVEL";
 		static inline const juce::String alg = u8"ALG";
 		static inline const juce::String fb = u8"FB";
-		static inline const juce::String lfoFreq = u8"FQ";
-		static inline const juce::String lfoSpeed = u8"SP";
-		static inline const juce::String lfoShape = u8"SH";
-		static inline const juce::String lfoPgShape = u8"P.SH";
-		static inline const juce::String lfoEgShape = u8"A.SH";
-		static inline const juce::String lfoSyncDelay = u8"SDLY";
+		static inline const juce::String lfoFreq = u8"FREQ";
+		static inline const juce::String lfoSpeed = u8"SPEED";
+		static inline const juce::String lfoShape = u8"SHAPE";
+		static inline const juce::String lfoPgShape = u8"P.SHAPE";
+		static inline const juce::String lfoEgShape = u8"A.SHAPE";
+		static inline const juce::String lfoSyncDelay = u8"SY.DELAY";
 		static inline const juce::String amEn = u8"AM Enable";
 		static inline const juce::String pmEn = u8"PM Enable";
 		static inline const juce::String ams = u8"AMS";
 		static inline const juce::String pms = u8"PMS";
 		static inline const juce::String amd = u8"AMD";
 		static inline const juce::String pmd = u8"PMD";
-		static inline const juce::String amSmoothRatio = u8"AMSR";
+		static inline const juce::String amSmoothRatio = u8"SM.RATIO";
 		static inline const juce::String initLfoToOpl = u8"Lfo for OPL";
 		static inline const juce::String initLfoToOpll = u8"Lfo for OPLL";
 
@@ -95,21 +95,21 @@ namespace OplGuiText
 			static inline const juce::String Ksr = u8"KSR";
 			static inline const juce::String Ksl = u8"KSL";
 			static inline const juce::String Mask = u8"MASK";
-			static inline const juce::String Freqs = u8"FQ";
-			static inline const juce::String SyncDelay = u8"SDLY";
+			static inline const juce::String Freqs = u8"FREQ";
+			static inline const juce::String SyncDelay = u8"SY.DELAY";
 			static inline const juce::String Am = u8"AM";
 			static inline const juce::String Pm = u8"PM";
 			static inline const juce::String AmEn = u8"AM Enable";
 			static inline const juce::String PmEn = u8"PM Enable";
 			static inline const juce::String AmsEn = u8"AMS Enable";
-			static inline const juce::String PgShape = u8"P.SH";
-			static inline const juce::String EgShape = u8"A.SH";
+			static inline const juce::String PgShape = u8"P.SHAPE";
+			static inline const juce::String EgShape = u8"A.SHAPE";
 			static inline const juce::String Vib = u8"VIB";
 			static inline const juce::String Ams = u8"AMS";
 			static inline const juce::String Pms = u8"PMS";
 			static inline const juce::String Amd = u8"AMD";
 			static inline const juce::String Pmd = u8"PMD";
-			static inline const juce::String EgType = u8"EGTP";
+			static inline const juce::String EgType = u8"EG TYPE";
 			static inline const juce::String Eg = u8"EG";
 
 			static inline const juce::String sus = u8"SUS";

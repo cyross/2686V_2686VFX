@@ -331,6 +331,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     updateOpzx7WtFileNames("Reload");
 
     updateTimerState();
+
+    askInitialSettings();
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
@@ -895,37 +897,69 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     presetGui->repaintTable();
 }
 
-void AudioPlugin2686VEditor::loadSettingsFile()
+// 初めて開いたときに、簡易表示モードで使うかを尋ねる。
+//
+// 標準設定のファイルが無いことを「初めて」とみなす。はい・いいえのどちらでも
+// そのファイルを作るので、次からは尋ねない。ESC で閉じたときはいいえと同じ。
+//
+// ファイルは同じフォルダを使うプラグインすべてで 1 つ。どれか 1 本で答えれば、
+// 残りのプラグインでも尋ねない。
+void AudioPlugin2686VEditor::askInitialSettings()
 {
-    fileChooser = std::make_unique<juce::FileChooser>(juce::String("") + "ファイルから環境設定を読み込み",
-        audioProcessor.getPluginDirectory(), SettingsValue::File::glob);
+    if (audioProcessor.getStartupSettingsFile().existsAsFile()) return;
 
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-                // 読み終えてからまとめて描き直す。設定は画面全体に効くので、
-                // 1 つずつ反映すると待たされる。
-                GuiRefresh::Batch batch;
+    // ホストで画面を 2 つ開いたときに、同じ問いを重ねて出さない。
+    static bool asking = false;
 
-                audioProcessor.loadEnvironment(file);
+    if (asking) return;
 
-                // UI反映
-                settingsGui->setSettings();
+    asking = true;
 
-                // 壁紙再描画
-                loadWallpaperImage();
+    // 画面が出そろってから尋ねる。組み立ての途中だと、ダイアログが画面の
+    // 後ろへ回ることがある。
+    juce::Component::SafePointer<AudioPlugin2686VEditor> safe(this);
 
-                // プリセットリスト更新
-                if (juce::File(audioProcessor.defaultPresetDir).isDirectory()) {
-                    presetGui->currentFolder = juce::File(audioProcessor.defaultPresetDir);
-                    presetGui->updatePresetPath();
-                    scanPresets(); // リスト更新関数を呼ぶ
-                }
-            }
+    juce::MessageManager::callAsync([safe] {
+        if (safe == nullptr) {
+            asking = false;
+
+            return;
         }
-    );
 
+        juce::AlertWindow::showAsync(juce::MessageBoxOptions()
+            .withIconType(juce::MessageBoxIconType::QuestionIcon)
+            .withTitle(juce::String("") + "初期設定")
+            .withMessage(juce::String("") + "パラメータを簡易表示モード(必要最低限のパラメータのみ表示)で表示しますか？")
+            .withButton(juce::String("") + "はい")
+            .withButton(juce::String("") + "いいえ")
+            .withAssociatedComponent(safe),
+            [safe](int result) {
+                asking = false;
+
+                // 答える前に画面を閉じられたら、ファイルは作らない。次に開いたときにまた尋ねる。
+                if (safe == nullptr) return;
+
+                // 1 番目の「はい」だけが 1。「いいえ」と ESC は 0。
+                safe->audioProcessor.simpleView = (result == 1);
+
+                safe->settingsGui->setSettings();
+                safe->resized();
+
+                auto file = safe->audioProcessor.getStartupSettingsFileToWrite();
+
+                if (!safe->audioProcessor.saveEnvironment(file)) {
+                    juce::AlertWindow::showMessageBoxAsync(
+                        juce::MessageBoxIconType::WarningIcon,
+                        juce::String("") + "失敗",
+                        juce::String("") + "初期設定ファイルを作成できませんでした。\n\n"
+                        + "場所: " + file.getParentDirectory().getFullPathName() + "\n"
+                        + "ファイル名: " + file.getFileName(),
+                        juce::String(),
+                        safe.getComponent()
+                    );
+                }
+            });
+    });
 }
 
 // プリセット 1 件ぶんの見出しを読む。
@@ -1600,6 +1634,10 @@ void AudioPlugin2686VEditor::handleAsyncUpdate()
 
 bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
 {
+    // ブラウザが出ている間は、まずそちらへ回す。画面を覆っているので、
+    // 下のタブへ効くキーが先に走ると驚く。
+    if (paramBrowser != nullptr && paramBrowser->handleShortcut(key)) return true;
+
     // commandModifier は、WindowsではCtrl、MacではCmdキーを自動で判定します
     auto modifiers = key.getModifiers();
 
@@ -1637,6 +1675,17 @@ bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
         if (key.getKeyCode() == 'I' || key.getKeyCode() == 'i')
         {
             initParams();
+
+            return true; // イベントを消費
+        }
+
+        // Ctrl + M (いま出ているチャンネルの生成波形を作る)
+        if (key.getKeyCode() == 'M' || key.getKeyCode() == 'm')
+        {
+            if (genWaveGui != nullptr && genWaveGui->isVisible())
+            {
+                genWaveGui->requestGenerate();
+            }
 
             return true; // イベントを消費
         }

@@ -17,7 +17,7 @@ YMF262 (OPL3) が入っています。2 オペレータの素直な音と、4 �
 ## プラグイン表示
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/plugin/OPLV.png" alt="OPLV プラグイン全景" width="1426" height="740" />
+	<img src="/2686V_2686VFX/ui/plugin/OPLV.png" alt="OPLV プラグイン全景" width="1426" height="738" />
 	<figcaption>プラグイン全景</figcaption>
 </figure>
 

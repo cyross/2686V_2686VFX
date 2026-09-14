@@ -36,15 +36,15 @@ On 86V, to match the PC-9801-86, this channel is named **PCM** and its quality d
 
 **Load** brings a file in. The loaded waveform is drawn on screen.
 
-**Put LPST / LPED partway into the waveform** and only that part repeats while the key is down. It is how you get a sustained sound out of a short piece of material.
+**Put LP.START / LP.END partway into the waveform** and only that part repeats while the key is down. It is how you get a sustained sound out of a short piece of material.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **LOOP** | Repeat the whole file | [`ADPCM_LOOP`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-loop) |
-| **P.OF** | Where playback starts (ms) | [`ADPCM_PCM_OFFSET`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-pcm-offset) |
-| **P.RT** | How fast it plays | [`ADPCM_PCM_RATIO`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-pcm-ratio) |
+| **P.OFFSET** | Where playback starts (ms) | [`ADPCM_PCM_OFFSET`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-pcm-offset) |
+| **P.RATIO** | How fast it plays | [`ADPCM_PCM_RATIO`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-pcm-ratio) |
 | **Loop Point Enable** | Set the range that repeats | [`ADPCM_LOOPPOINT_EN`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-looppoint-en) |
-| **LPST / LPED** | That range, as a position from 0.0 to 1.0 of the whole | [`ADPCM_LOOPPOINT_ST`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-looppoint-st) |
+| **LP.START / LP.END** | That range, as a position from 0.0 to 1.0 of the whole | [`ADPCM_LOOPPOINT_ST`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-looppoint-st) |
 
 ### OPTIONAL
 
@@ -52,9 +52,9 @@ Grit can be mixed into the loaded sound (**ours**).
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **T.LV** | How much of the loaded sound | [`ADPCM_TONE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-tone) |
-| **N.LV** | How much of the grit | [`ADPCM_NOISE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noise) |
-| **N.FQ** | How high the grit sits | [`ADPCM_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noisefreq) |
+| **T.LEVEL** | How much of the loaded sound | [`ADPCM_TONE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-tone) |
+| **N.LEVEL** | How much of the grit | [`ADPCM_NOISE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noise) |
+| **N.FREQ** | How high the grit sits | [`ADPCM_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noisefreq) |
 | **MIX** | Blend of the two | [`ADPCM_NOISEMIX`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noisemix) |
 
 ### PAN

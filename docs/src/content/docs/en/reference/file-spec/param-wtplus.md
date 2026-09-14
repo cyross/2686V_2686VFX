@@ -21,7 +21,11 @@ Holds the settings for one whole channel.
 {
   "format": "wtPlus",
   "version": 1,
-  "values": { ... }
+  "values": {
+    "slot": 0,
+    "slot0": { "speed": 1.0, "holdEnable": false, ... },
+    "slot31": { ... }
+  }
 }
 ```
 
@@ -37,11 +41,31 @@ the default.
 | `interpolate` | boolean | false / true | true |
 | `steps` | integer | 0 – 10 (choice number) | 0 |
 
+## One wave slot — `slot0` through `slot31`
+
+Thirty-two keys named `slot` plus a number. From 3.3.0, playback speed and the hold / partial playback settings are held **per slot**.
+
+| Key | Type | Range | Default |
+| --- | --- | --- | ---: |
+| `speed` | float | 0.0001 – 100 | 1 |
+| `holdEnable` | boolean | false / true | false |
+| `holdCount` | integer | 1 – 3000 | 8 |
+| `holdTarget` | integer | 0 = MIN / 1 = MAX | 1 |
+| `holdMin` | float | 0 – 1 | 0 |
+| `holdMax` | float | 0 – 1 | 1 |
+| `keepEnable` | boolean | false / true | false |
+| `waveStart` | float | 0 – 1 | 0 |
+| `keepStart` | boolean | false / true | false |
+| `waveEnd` | float | 0 – 1 | 1 |
+| `keepEnd` | boolean | false / true | false |
+
+The wave itself is not stored here. Where it was loaded from is remembered by the preset.
+
 ## The nested blocks in a channel
 
 | Key | What it holds |
 | --- | --- |
-| `level` | The channel level. It holds `level` and nothing else |
+| `level` | The channel level and start delay. It holds `level` and `delay` |
 | `wtMod` | The same as [wtMod](/2686V_2686VFX/en/reference/file-spec/wtmod/) |
 | `fix` | Holding the pitch. It holds `enable` and `freq` |
 | `ampEnv` | The same as [ampEnv](/2686V_2686VFX/en/reference/file-spec/ampenv/) |

@@ -48,6 +48,7 @@ void OplOperator::setSampleRate(double sampleRate)
 void OplOperator::setParameters(const OplOpParams& params, int feedback)
 {
     m_params = params;
+    m_delaySeconds = params.delay;
     m_feedback = feedback;
     m_ssgEgFreq = 1.0f;
     m_params.waveSelect = params.waveSelect;
@@ -67,6 +68,9 @@ void OplOperator::setParameters(const OplOpParams& params, int feedback)
 void OplOperator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
     m_noteNumber = noteNumber;
+
+    // 再生遅延は 1 音ごとに数え直す。押し直せばまた最初から待つ。
+    beginDelay();
 
     // ハードウェアエンベロープは位相を持つだけなので、
     // 押し直したときだけ頭から流し直す。
@@ -197,6 +201,13 @@ void OplOperator::processLfo()
 
 void OplOperator::getSample(float& output, float modulator, float feedbackModulator)
 {
+    // 待っている間は何も出さず、位相も包絡も進めない
+    if (tickDelay()) {
+        output = 0.0f;
+
+        return;
+    }
+
     bool allAmpBypassed = isAllAmpBypassed();
 
     if (allAmpBypassed) {

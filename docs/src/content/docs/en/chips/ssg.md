@@ -45,12 +45,12 @@ What appears below changes with the waveform you pick.
 | Item | What it does | Range | Notes |
 | --- | --- | --- | --- |
 | **MODE** | How the duty cycle is chosen. `0: Preset Ratio` picks from the eight the hardware had; `1: Variable (Slider)` moves continuously (**ours**) | — | |
-| **PRST** | The eight duty cycles the hardware had | see below | |
-| **RAT** | The ratio when MODE is Variable | 0.0–1.0 | |
+| **PRESET** | The eight duty cycles the hardware had | see below | |
+| **RATIO** | The ratio when MODE is Variable | 0.0–1.0 | |
 | **FC Mode** | Behave the way the Famicom did (**ours**) | on / off (off by default) | |
-| **FCFL** | How much it fluctuates in FC Mode (**ours**) | 0.0–1.0 (0.2 by default) | |
+| **FC FLUC** | How much it fluctuates in FC Mode (**ours**) | 0.0–1.0 (0.2 by default) | |
 
-PRST offers these eight duty cycles.
+PRESET offers these eight duty cycles.
 
 | Value | Ratio | Duty |
 | --- | --- | --- |
@@ -67,11 +67,11 @@ PRST offers these eight duty cycles.
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **MODE** | Pick from fixed ratios, or set one freely | [`SSG_DUTY_MODE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-mode) |
-| **PRST** | The ratios the hardware used. 9 of them | [`SSG_DUTY_PRESET`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-preset) |
-| **RAT** | The ratio when you set it freely | [`SSG_DUTY_VAR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-var) |
+| **PRESET** | The ratios the hardware used. 9 of them | [`SSG_DUTY_PRESET`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-preset) |
+| **RATIO** | The ratio when you set it freely | [`SSG_DUTY_VAR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-var) |
 | **Invert Phrase** | Turn the wave upside down | [`SSG_DUTY_INV`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-inv) |
 | **FC Mode** | Make the ratio waver slightly, the way the Famicom's did (**ours**) | [`SSG_DUTY_FC_MODE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-mode) |
-| **FCFL** | How large that wavering is | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-fluc) |
+| **FC FLUC** | How large that wavering is | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-fluc) |
 
 ### Triangle settings (ours)
 
@@ -81,7 +81,7 @@ These appear when FORM is set to `1: Triangle / Saw`. **PEAK** moves where the p
 | --- | --- | --- | --- |
 | **PEAK** | Where the peak sits. `0.0` is a falling saw, `0.5` a triangle, `1.0` a rising saw | 0.0–1.0 (0.5 by default) | |
 | **Key Track (Pitch)** | Follow the keyboard. Switched off, it stays at the FQ frequency | on / off (on by default) | |
-| **FQ** | The frequency used when Key Track is off | 0–8000 Hz (440 by default) | |
+| **FREQ** | The frequency used when Key Track is off | 0–8000 Hz (440 by default) | |
 
 Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump straight to those values.
 
@@ -89,25 +89,25 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **Key Track (Pitch)** | Sound the pitch of the key. Switched off, it stays at FQ | [`SSG_TRI_KEYTRK`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-keytrk) |
-| **FQ** | The frequency it is fixed at | [`SSG_TRI_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-freq) |
+| **FREQ** | The frequency it is fixed at | [`SSG_TRI_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-freq) |
 | **PEAK** | Where the peak of the triangle sits. 0.5 is symmetrical | [`SSG_TRI_PEAK`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-peak) |
 
 ## TONE / NOISE / MIX — blending the sound (hardware)
 
 | Item | What it does | Range | Notes |
 | --- | --- | --- | --- |
-| **T.LV** | Level of the wave (tone) | 0.0–1.0 (1.0 by default) | |
-| **N.LV** | Level of the noise | 0.0–1.0 (1.0 by default) | |
-| **N.FQ** | Frequency of the noise | 0–30000 Hz (12000 by default) | |
+| **T.LEVEL** | Level of the wave (tone) | 0.0–1.0 (1.0 by default) | |
+| **N.LEVEL** | Level of the noise | 0.0–1.0 (1.0 by default) | |
+| **N.FREQ** | Frequency of the noise | 0–30000 Hz (12000 by default) | |
 | **MIX** | Blend of tone and noise | 0.0–1.0 (0.0 by default) | |
 | **Noise On Note** | Restart the noise on every note | on / off (off by default) | |
 
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **T.LV** | How much of the tone side | [`SSG_TONE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone) |
-| **N.LV** | How much of the grit side | [`SSG_NOISE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise) |
-| **N.FQ** | How high the grit sits | [`SSG_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noisefreq) |
+| **T.LEVEL** | How much of the tone side | [`SSG_TONE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone) |
+| **N.LEVEL** | How much of the grit side | [`SSG_NOISE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise) |
+| **N.FREQ** | How high the grit sits | [`SSG_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noisefreq) |
 | **Noise On Note** | Track the grit to the keyboard (**ours**) | [`SSG_NOISE_ON_NOTE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-on-note) |
 | **MIX** | Blend of the two. 0 is tone only, 1 is grit only | [`SSG_NOISEMIX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noisemix) |
 
@@ -118,8 +118,8 @@ The mechanism the real SSG had for moving the level on its own. Switch **Enable*
 | Item | What it does | Range | Notes |
 | --- | --- | --- | --- |
 | **Enable** | Use the hardware envelope | on / off (off by default) | |
-| **SHPE** | Which shape | 0–43 | |
-| **PROD** | How long one cycle takes | 0.1–200.0 (1.0 by default) | |
+| **SHAPE** | Which shape | 0–43 | |
+| **PERIOD** | How long one cycle takes | 0.1–200.0 (1.0 by default) | |
 
 :::note
 The hardware had eight shapes; here you can pick from **43**. Everything past the eighth is ours. When you are after the hardware's sound, stay within the first eight.

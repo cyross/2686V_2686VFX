@@ -2,7 +2,7 @@
 title: Rhythm channel
 description: What is inside .param.rhythm.json
 sidebar:
-  order: 42
+  order: 43
 ---
 
 Holds the settings for one whole channel.
@@ -33,7 +33,7 @@ the default.
 
 | Key | What it holds |
 | --- | --- |
-| `level` | The channel level. It holds `level` and nothing else |
+| `level` | The channel level and start delay. It holds `level` and `delay` |
 | `unison` | The same as [unison](/2686V_2686VFX/en/reference/file-spec/unison/) |
 
 ## The `pads` list

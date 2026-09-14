@@ -934,7 +934,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         if (ctx.audioProcessor.isSimpleShown(cat)) ++modColumns;
     }
 
-    int columns = NumEffects + modColumns;
+    int columns = FxGuiValue::Fx::EffectCols + modColumns;
 
     int canvasWidth = columns * FxGuiValue::Fx::ColWidth
         + juce::jmax(0, columns - 1) * FxGuiValue::Fx::ColGap;
@@ -949,7 +949,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     // 変調は効果の右へ続くので、そのぶんだけ進めた位置から始める。
     juce::Rectangle<int> modStrip = strip;
 
-    modStrip.removeFromLeft(NumEffects * (FxGuiValue::Fx::ColWidth + FxGuiValue::Fx::ColGap));
+    modStrip.removeFromLeft(FxGuiValue::Fx::EffectCols * (FxGuiValue::Fx::ColWidth + FxGuiValue::Fx::ColGap));
 
     // 変調は効果の右へ続けて並べる。
     {
@@ -1050,207 +1050,187 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
 
 
-    // Filter
-    auto rect1 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto flArea = rect1;
+    // 効果は仲間どうしを 1 列へ縦に積み、4 列にまとめる。
+    // 並びは種類でそろえたもので、メインの順番 (掛かる順) とは関係ない。
+    auto nextColumn = [&]() {
+        auto col = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
 
-    filterGroup.setBounds(flArea);
+        strip.removeFromLeft(FxGuiValue::Fx::ColGap);
 
-    auto flRect = flArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+        return col;
+    };
 
-    flRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+    // 枠を 1 つ、列の上から中身の丈だけ取って置く。列の最後の枠は下まで
+    // 伸ばして、隣の変調の列と下端をそろえる。
+    auto stackGroup = [&](juce::Rectangle<int>& col, GuiGroup& group, bool last, auto&& layoutBody) {
+        auto inner = col.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
 
-    layoutRow({ .rowRect = flRect, .component = &flBypassBtn });
+        inner.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
 
-    flSeparator.layoutComponent(flRect);
+        layoutBody(inner);
 
-    layoutRow({ .rowRect = flRect, .label = &flTypeSelector.label, .component = &flTypeSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = flRect, .label = &flFreqSlider.label, .component = &flFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = flRect, .label = &flQSlider.label, .component = &flQSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    flRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = flRect, .label = &flMixSlider.label, .component = &flMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn });
+        if (last) {
+            group.setBounds(col);
 
-    // 3-Band EQ
-    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect2 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto eq3bArea = rect2;
+            return;
+        }
 
-    eq3bGroup.setBounds(eq3bArea);
+        int height = inner.getY() + FxGuiValue::Group::Padding::height - col.getY();
 
-    auto eq3bRect = eq3bArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+        group.setBounds(col.removeFromTop(height));
 
-    eq3bRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+        col.removeFromTop(FxGuiValue::Fx::SectionGap);
+    };
 
-    layoutRow({ .rowRect = eq3bRect, .component = &eq3bBypassBtn });
+    // フィルター / 3バンドイコライザー
+    {
+        auto col = nextColumn();
 
-    eq3bSeparator.layoutComponent(eq3bRect);
+        // フィルター
+        stackGroup(col, filterGroup, false, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &flBypassBtn });
 
-    layoutRow({ .rowRect = eq3bRect, .label = &eq3bLowGainDbSlider.label, .component = &eq3bLowGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = eq3bRect, .label = &eq3bMidFreqSlider.label, .component = &eq3bMidFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = eq3bRect, .label = &eq3bMidGainDbSlider.label, .component = &eq3bMidGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = eq3bRect, .label = &eq3bHighGainDbSlider.label, .component = &eq3bHighGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    eq3bRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = eq3bRect, .label = &eq3bMixSlider.label, .component = &eq3bMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = eq3bRect, .comp1 = &eq3bDryBtn, .comp2 = &eq3bHalfBtn, .comp3 = &eq3bWetBtn });
+            flSeparator.layoutComponent(r);
 
-    // Tremolo
-    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect3 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto trmArea = rect3;
+            layoutRow({ .rowRect = r, .label = &flTypeSelector.label, .component = &flTypeSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &flFreqSlider.label, .component = &flFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &flQSlider.label, .component = &flQSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &flMixSlider.label, .component = &flMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn });
+        });
 
-    tremGroup.setBounds(trmArea);
+        // 3バンドイコライザー
+        stackGroup(col, eq3bGroup, true, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &eq3bBypassBtn });
 
-    auto trmRect = trmArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+            eq3bSeparator.layoutComponent(r);
 
-    trmRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+            layoutRow({ .rowRect = r, .label = &eq3bLowGainDbSlider.label, .component = &eq3bLowGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &eq3bMidFreqSlider.label, .component = &eq3bMidFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &eq3bMidGainDbSlider.label, .component = &eq3bMidGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &eq3bHighGainDbSlider.label, .component = &eq3bHighGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &eq3bMixSlider.label, .component = &eq3bMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &eq3bDryBtn, .comp2 = &eq3bHalfBtn, .comp3 = &eq3bWetBtn });
+        });
+    }
 
-    layoutRow({ .rowRect = trmRect, .component = &tBypassBtn });
+    // トレモロ / ビブラート
+    {
+        auto col = nextColumn();
 
-    tSeparator.layoutComponent(trmRect);
+        // トレモロ
+        stackGroup(col, tremGroup, false, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &tBypassBtn });
 
-    layoutRow({ .rowRect = trmRect, .label = &tRateSlider.label, .component = &tRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = trmRect, .label = &tDepthSlider.label, .component = &tDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    trmRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = trmRect, .label = &tMixSlider.label, .component = &tMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = trmRect, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn });
+            tSeparator.layoutComponent(r);
 
-    // Vibrato
-    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect4 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto vibArea = rect4;
+            layoutRow({ .rowRect = r, .label = &tRateSlider.label, .component = &tRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &tDepthSlider.label, .component = &tDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &tMixSlider.label, .component = &tMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn });
+        });
 
-    vibGroup.setBounds(vibArea);
+        // ビブラート
+        stackGroup(col, vibGroup, true, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &vBypassBtn });
 
-    auto vibRect = vibArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+            vSeparator.layoutComponent(r);
 
-    vibRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+            layoutRow({ .rowRect = r, .label = &vRateSlider.label, .component = &vRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &vDepthSlider.label, .component = &vDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &vMixSlider.label, .component = &vMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn });
+        });
+    }
 
-    layoutRow({ .rowRect = vibRect, .component = &vBypassBtn });
+    // ビットクラッシャー / PCMビットクラッシャー
+    {
+        auto col = nextColumn();
 
-    vSeparator.layoutComponent(vibRect);
+        // ビットクラッシャー
+        stackGroup(col, mbcGroup, false, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &mbcBypassBtn });
 
-    layoutRow({ .rowRect = vibRect, .label = &vRateSlider.label, .component = &vRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = vibRect, .label = &vDepthSlider.label, .component = &vDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    vibRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = vibRect, .label = &vMixSlider.label, .component = &vMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = vibRect, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn });
+            mbcSeparator.layoutComponent(r);
 
-    // Modern Bit Crusher
-    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect5 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto mbcArea = rect5;
+            layoutRow({ .rowRect = r, .label = &mbcBitsSlider.label, .component = &mbcBitsSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &mbcRateSlider.label, .component = &mbcRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &mbcMixSlider.label, .component = &mbcMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn });
+        });
 
-    mbcGroup.setBounds(mbcArea);
+        // PCMビットクラッシャー
+        stackGroup(col, pcmGroup, true, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &pcmBypassBtn });
 
-    auto mbcRect = mbcArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+            pcmSeparator.layoutComponent(r);
 
-    mbcRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+            layoutRow({ .rowRect = r, .label = &pcmBitSelector.label, .component = &pcmBitSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &pcmRateSelector.label, .component = &pcmRateSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &pcmInterpSelector.label, .component = &pcmInterpSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &pcmMixSlider.label, .component = &pcmMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &pcmDryBtn, .comp2 = &pcmHalfBtn, .comp3 = &pcmWetBtn });
+        });
+    }
 
-    layoutRow({ .rowRect = mbcRect, .component = &mbcBypassBtn });
+    // ディレイ / リバーブ / SFCエコー
+    {
+        auto col = nextColumn();
 
-    mbcSeparator.layoutComponent(mbcRect);
+        // ディレイ
+        stackGroup(col, delayGroup, false, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &dBypassBtn });
 
-    layoutRow({ .rowRect = mbcRect, .label = &mbcBitsSlider.label, .component = &mbcBitsSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = mbcRect, .label = &mbcRateSlider.label, .component = &mbcRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    mbcRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = mbcRect, .label = &mbcMixSlider.label, .component = &mbcMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn });
+            dSeparator.layoutComponent(r);
 
-    // Delay
-    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect6 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto dlyArea = rect6;
+            layoutRow({ .rowRect = r, .label = &dTimeSlider.label, .component = &dTimeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &dFbSlider.label, .component = &dFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &dMixSlider.label, .component = &dMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn });
+        });
 
-    delayGroup.setBounds(dlyArea);
+        // リバーブ
+        stackGroup(col, reverbGroup, false, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &rBypassBtn });
 
-    auto dlyRect = dlyArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+            rSeparator.layoutComponent(r);
 
-    dlyRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+            layoutRow({ .rowRect = r, .label = &rSizeSlider.label, .component = &rSizeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &rDampSlider.label, .component = &rDampSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &rMixSlider.label, .component = &rMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn });
+        });
 
-    layoutRow({ .rowRect = dlyRect, .component = &dBypassBtn });
+        // SFCエコー
+        stackGroup(col, sfceGroup, true, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &sfceBypassBtn });
 
-    dSeparator.layoutComponent(dlyRect);
+            sfceSeparator.layoutComponent(r);
 
-    layoutRow({ .rowRect = dlyRect, .label = &dTimeSlider.label, .component = &dTimeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = dlyRect, .label = &dFbSlider.label, .component = &dFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    dlyRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = dlyRect, .label = &dMixSlider.label, .component = &dMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = dlyRect, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn });
-
-    // Reverb
-    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect7 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto rvbArea = rect7;
-
-    reverbGroup.setBounds(rvbArea);
-
-    auto rvbRect = rvbArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
-
-    rvbRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
-
-    layoutRow({ .rowRect = rvbRect, .component = &rBypassBtn });
-
-    rSeparator.layoutComponent(rvbRect);
-
-    layoutRow({ .rowRect = rvbRect, .label = &rSizeSlider.label, .component = &rSizeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = rvbRect, .label = &rDampSlider.label, .component = &rDampSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    rvbRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = rvbRect, .label = &rMixSlider.label, .component = &rMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn });
-
-    // SfcEcho
-    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect8 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto sfceArea = rect8;
-
-    sfceGroup.setBounds(sfceArea);
-
-    auto sfceRect = sfceArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
-
-    sfceRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
-
-    layoutRow({ .rowRect = sfceRect, .component = &sfceBypassBtn });
-
-    sfceSeparator.layoutComponent(sfceRect);
-
-    layoutRow({ .rowRect = sfceRect, .label = &sfceTimeSlider.label, .component = &sfceTimeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = sfceRect, .label = &sfceFbSlider.label, .component = &sfceFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    sfceRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = sfceRect, .label = &sfceFirCoef0Slider.label, .component = &sfceFirCoef0Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = sfceRect, .label = &sfceFirCoef1Slider.label, .component = &sfceFirCoef1Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = sfceRect, .label = &sfceFirCoef2Slider.label, .component = &sfceFirCoef2Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = sfceRect, .label = &sfceFirCoef3Slider.label, .component = &sfceFirCoef3Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = sfceRect, .label = &sfceFirCoef4Slider.label, .component = &sfceFirCoef4Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = sfceRect, .label = &sfceFirCoef5Slider.label, .component = &sfceFirCoef5Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = sfceRect, .label = &sfceFirCoef6Slider.label, .component = &sfceFirCoef6Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = sfceRect, .label = &sfceFirCoef7Slider.label, .component = &sfceFirCoef7Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    sfceRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = sfceRect, .label = &sfceMixSlider.label, .component = &sfceMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = sfceRect, .comp1 = &sfceDryBtn, .comp2 = &sfceHalfBtn, .comp3 = &sfceWetBtn });
-
-    // 2686V PCM Bit Crusher
-    // 9 個目なので、3 列目の一番下へ置く。
-    strip.removeFromLeft(FxGuiValue::Fx::ColGap);
-    auto rect9 = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
-    auto pcmArea = rect9;
-
-    pcmGroup.setBounds(pcmArea);
-
-    auto pcmRect = pcmArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
-
-    pcmRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
-
-    layoutRow({ .rowRect = pcmRect, .component = &pcmBypassBtn });
-
-    pcmSeparator.layoutComponent(pcmRect);
-
-    layoutRow({ .rowRect = pcmRect, .label = &pcmBitSelector.label, .component = &pcmBitSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = pcmRect, .label = &pcmRateSelector.label, .component = &pcmRateSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRow({ .rowRect = pcmRect, .label = &pcmInterpSelector.label, .component = &pcmInterpSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    pcmRect.removeFromTop(FxGuiValue::Padding::space);
-    layoutRow({ .rowRect = pcmRect, .label = &pcmMixSlider.label, .component = &pcmMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = pcmRect, .comp1 = &pcmDryBtn, .comp2 = &pcmHalfBtn, .comp3 = &pcmWetBtn });
+            layoutRow({ .rowRect = r, .label = &sfceTimeSlider.label, .component = &sfceTimeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &sfceFbSlider.label, .component = &sfceFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &sfceFirCoef0Slider.label, .component = &sfceFirCoef0Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &sfceFirCoef1Slider.label, .component = &sfceFirCoef1Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &sfceFirCoef2Slider.label, .component = &sfceFirCoef2Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &sfceFirCoef3Slider.label, .component = &sfceFirCoef3Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &sfceFirCoef4Slider.label, .component = &sfceFirCoef4Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &sfceFirCoef5Slider.label, .component = &sfceFirCoef5Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &sfceFirCoef6Slider.label, .component = &sfceFirCoef6Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &sfceFirCoef7Slider.label, .component = &sfceFirCoef7Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &sfceMixSlider.label, .component = &sfceMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &sfceDryBtn, .comp2 = &sfceHalfBtn, .comp3 = &sfceWetBtn });
+        });
+    }
 }
 
 void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {

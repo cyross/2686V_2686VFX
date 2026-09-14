@@ -20,6 +20,8 @@
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/CountButtons/CountButtons.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderInt.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/QualityPcm.h"
@@ -51,11 +53,25 @@ class GuiAdpcm : public GuiBase
 
     NormalSeparator formSeparator;
 
+    // OPTIONAL の「Loop」を挟む区切り線。
+    // 上は再生位置・倍率、下はループの話で、まとまりが変わる。
+    NormalSeparator optLoopSepTop;
+    NormalSeparator optLoopSepBottom;
+
     GuiCategoryLabel optionalCat;
 
     // 読み込んだサンプルを見せるプレビュー。
     // P.OF / P.RT で切り出した範囲を描き、ループ位置を縦線で出す。
     GuiWavePreview samplePreview;
+
+    // 再生速度。OPTIONAL の一番上に置く。
+    GuiSlider speedSlider;
+    NormalSeparator optSpeedSeparator;
+
+    // ループカウンター。SPEED のひとつ下に置く。
+    GuiComponentNudgeSliderInt loopCountSlider;
+    GuiComponentCountButtons loopCountButtons;
+    NormalSeparator optCountSeparator;
 
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
@@ -163,8 +179,15 @@ public:
         clearButton(context),
         fileNameLabel(context),
         formSeparator(context),
+        optLoopSepTop(context),
+        optLoopSepBottom(context),
         optionalCat(context),
         samplePreview(context),
+        speedSlider(context),
+        optSpeedSeparator(context),
+        loopCountSlider(context),
+        loopCountButtons(context),
+        optCountSeparator(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         levelComponent(context),

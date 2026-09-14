@@ -17,7 +17,7 @@ sidebar:
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **RATE** | 揺れの速さ（Hz） | 0.1 〜 20 | 5 | [`FX_TRM_RATE`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-trm-rate) |
-| **DPTH** | 揺れの深さ | 0 〜 1 | 1 | [`FX_TRM_DEPTH`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-trm-depth) |
+| **DEPTH** | 揺れの深さ | 0 〜 1 | 1 | [`FX_TRM_DEPTH`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-trm-depth) |
 | **MIX** | 原音との混ぜ具合 | 0 〜 1 | 0 | [`FX_TRM_MIX`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-trm-mix) |
 
 **MIX** は原音と効果音の混ぜ具合です。0.0 で原音のまま、1.0 で効果だけになります。

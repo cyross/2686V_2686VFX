@@ -2,7 +2,7 @@
 title: ADV（カーブ編集）
 description: 値が時間とともにどう変わるかを、自分で決める
 sidebar:
-  order: 14
+  order: 15
 ---
 
 <figure class="shot">

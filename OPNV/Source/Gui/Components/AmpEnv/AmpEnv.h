@@ -30,6 +30,14 @@ class GuiComponentAmpEnv : public GuiBase {
     GuiSlider decay;
     GuiSlider sustain;
     GuiSlider release;
+
+    // リリースを走り終えたあとに保つレベル。
+    // 触っていないうちは、これまでどおり 0.0 で終わる。
+    GuiSlider endLevel;
+
+    // ENDL を使うかどうか。切のあいだは、これまでどおり 0.0 で終わる。
+    GuiToggleButton endLevelEnable;
+
     NormalSeparator separator2;
     GuiToggleButton kor;
     std::unique_ptr<juce::FileChooser> fileChooser;
@@ -68,6 +76,8 @@ public:
         decay(context),
         sustain(context),
         release(context),
+        endLevel(context),
+        endLevelEnable(context),
         startLevel(context),
 		separator2(context),
         kor(context)
@@ -78,9 +88,14 @@ public:
     // 日本語にそろえたいかが変わるため。既定は今までどおり。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
         const juce::String& bypassText = "Bypass");
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);
+
+    // ENDL を使うかどうかに合わせて、つまみの押せる・押せないを揃える。
+    void applyEndLevelEnable();
     void updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
     void setEnabled(bool enabled);
     void copyParams(CopyEnvAmpAdsr& copyObj);

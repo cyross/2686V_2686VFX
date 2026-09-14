@@ -132,7 +132,8 @@ namespace
     }
 }
 
-std::vector<float> WavePreviewSource::ssgHwEnv(int shapeIndex, float minLevel, float maxLevel, bool smooth)
+std::vector<float> WavePreviewSource::ssgHwEnv(int shapeIndex, float minLevel, float maxLevel, bool smooth,
+    const WaveHoldParams& hold)
 {
     const bool steppy = isSsgHwSampleHold(shapeIndex);
 
@@ -155,6 +156,10 @@ std::vector<float> WavePreviewSource::ssgHwEnv(int shapeIndex, float minLevel, f
     p.min = minLevel;
     p.max = maxLevel;
     p.smooth = smooth;
+
+    // 部分再生は形に出る。ホールドは何周かしてから効くので、
+    // 窓の長さによっては出ないこともある。
+    p.hold = hold;
 
     SsgHwEnv env;
 
@@ -181,7 +186,8 @@ std::vector<float> WavePreviewSource::ssgHwEnv(int shapeIndex, float minLevel, f
 // ============================================================================
 // 走らせ方は音量版と同じで、拾う値がセントになるところだけが違う。
 // 表示は上下に振れるので、絶対値の大きい側で割って -1.0〜1.0 へ直す。
-std::vector<float> WavePreviewSource::ssgHwPEnv(int shapeIndex, int minCent, int maxCent, bool smooth)
+std::vector<float> WavePreviewSource::ssgHwPEnv(int shapeIndex, int minCent, int maxCent, bool smooth,
+    const WaveHoldParams& hold)
 {
     const bool steppy = isSsgHwSampleHold(shapeIndex);
 
@@ -199,6 +205,8 @@ std::vector<float> WavePreviewSource::ssgHwPEnv(int shapeIndex, int minCent, int
     p.min = minCent;
     p.max = maxCent;
     p.smooth = smooth;
+
+    p.hold = hold;
 
     SsgHwPEnv env;
 
@@ -226,7 +234,8 @@ std::vector<float> WavePreviewSource::ssgHwPEnv(int shapeIndex, int minCent, int
 // ============================================================================
 // WT MODULATION
 // ============================================================================
-std::vector<float> WavePreviewSource::wtMod(int shapeIndex, const std::array<float, 32>& wave, const std::array<int, 32>& fdsTable)
+std::vector<float> WavePreviewSource::wtMod(int shapeIndex, const std::array<float, 32>& wave, const std::array<int, 32>& fdsTable,
+    const WaveHoldParams& hold)
 {
     WtModParams p;
 
@@ -241,6 +250,10 @@ std::vector<float> WavePreviewSource::wtMod(int shapeIndex, const std::array<flo
     p.shape = shapeIndex;
     p.wave = wave;
     p.fdsTable = fdsTable;
+
+    // 部分再生。切り出しはそのまま形に出る。
+    // ホールドは 1 周ぶんのプレビューには出ないので渡すだけ。
+    p.hold = hold;
 
     WtModulator mod;
 
@@ -279,7 +292,8 @@ std::vector<float> WavePreviewSource::wtMod(int shapeIndex, const std::array<flo
 // WT AMP MOD
 // ============================================================================
 std::vector<float> WavePreviewSource::wtAmpMod(int shapeIndex, const std::array<float, 32>& wave,
-    const std::array<int, 32>& fdsTable, float minLevel, float maxLevel)
+    const std::array<int, 32>& fdsTable, float minLevel, float maxLevel,
+    const WaveHoldParams& hold)
 {
     WtAmpModParams p;
 
@@ -293,6 +307,10 @@ std::vector<float> WavePreviewSource::wtAmpMod(int shapeIndex, const std::array<
     p.max = maxLevel;
     p.wave = wave;
     p.fdsTable = fdsTable;
+
+    // 部分再生。切り出しはそのまま形に出る。
+    // ホールドは 1 周ぶんのプレビューには出ないので渡すだけ。
+    p.hold = hold;
 
     WtAmpModulator mod;
 
@@ -356,14 +374,15 @@ namespace
         return shapeIndex == 5 || shapeIndex >= 8;
     }
 
-    std::vector<float> runOpzx7(int shapeIndex, bool isAm, float smoothRate)
+    std::vector<float> runOpzx7(int shapeIndex, bool isAm, float smoothRate,
+        const WaveHoldParams& hold)
     {
         const LfoWindow w = makeLfoWindow(isOpzx7Steppy(shapeIndex));
 
         Opzx7LfoCoreUnit unit;
 
         unit.prepare(w.rate);
-        unit.setParameters(previewSyncDelay, true, previewLfoFreq, shapeIndex, 1.0f, 1.0f, smoothRate);
+        unit.setParameters(previewSyncDelay, true, previewLfoFreq, shapeIndex, 1.0f, 1.0f, smoothRate, hold);
         unit.noteOn();
 
         const int step = decimation(w.totalSamples);
@@ -381,14 +400,15 @@ namespace
     }
 }
 
-std::vector<float> WavePreviewSource::opzx7LfoPm(int shapeIndex)
+std::vector<float> WavePreviewSource::opzx7LfoPm(int shapeIndex, const WaveHoldParams& hold)
 {
-    return runOpzx7(shapeIndex, false, 1.0f);
+    return runOpzx7(shapeIndex, false, 1.0f, hold);
 }
 
-std::vector<float> WavePreviewSource::opzx7LfoAm(int shapeIndex, float smoothRate)
+std::vector<float> WavePreviewSource::opzx7LfoAm(int shapeIndex, float smoothRate,
+    const WaveHoldParams& hold)
 {
-    return runOpzx7(shapeIndex, true, smoothRate);
+    return runOpzx7(shapeIndex, true, smoothRate, hold);
 }
 
 // ============================================================================

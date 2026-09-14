@@ -72,6 +72,12 @@ namespace Global
 		static inline constexpr int waveResolution = 256;
 	}
 
+	namespace AdpcmPlus {
+		// ADPCM+ チャンネルが持つ PCM のスロット数。
+		// FORM・OPTIONAL・PAN は、この 1 本ごとに値を持つ。
+		static inline constexpr int slots = 32;
+	}
+
 	namespace Lfo {
 		// AM(トレモロ)の最大減衰量[dB]。全音源で共通の上限値。
 		//

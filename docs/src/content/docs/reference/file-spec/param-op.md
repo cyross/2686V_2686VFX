@@ -2,7 +2,7 @@
 title: オペレータ 1 つぶん
 description: .param.<音源>.op.json の中身
 sidebar:
-  order: 43
+  order: 44
 ---
 
 FM 音源の**オペレータ 1 つぶん**を出し入れするファイルです。チャンネルの

@@ -243,6 +243,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
 
 
+
+
+
     bool isMono = PrHelper::getBool(pMonoMode);
 
     m_synth.isMonoMode = isMono;
@@ -330,6 +333,7 @@ juce::AudioProcessorEditor* AudioPlugin2686V::createEditor()
 
 
 
+
 bool AudioPlugin2686V::hasEditor() const { return true; }
 
 // Parameters / Settings Related
@@ -349,7 +353,7 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     // セーブ時にAPVTSから現在のModeを確実に取得して同期させる
     int currentMode = PrHelper::getInt(pMode);
 
-    if (currentMode >= 0 && currentMode <= (int)OscMode::WTPLUS) {
+    if (currentMode >= 0 && currentMode < (int)OscMode::Count) {
         lastActiveSynthMode = (OscMode)currentMode;
     }
 
@@ -380,6 +384,10 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
             xml->setAttribute(PresetKey::modWavePathPrefix + kv.first + "_" + juce::String(i),
                 makeWtPathRelative(juce::File(kv.second[i])));
         }
+    }
+
+    // サンプルパス保存 (ADPCM+)
+    for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
     }
 
 
@@ -473,6 +481,15 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
 
         // サンプル復帰 (ADPCM)
         juce::String storedAdpcm = xmlState->getStringAttribute(PresetKey::adpcmPath);
+
+        // サンプル復帰 (ADPCM+)
+        for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
+            juce::String storedPlus = xmlState->getStringAttribute(PresetKey::adpcmPlusPathPrefix + juce::String(i));
+            juce::File plusFile = resolvePath(storedPlus);
+
+            if (plusFile.existsAsFile()) {
+            }
+        }
 
 
 
@@ -699,6 +716,12 @@ void AudioPlugin2686V::handleAsyncUpdate()
                                m_adpcmWantRate.load(std::memory_order_relaxed),
                                16000.0);
 
+
+    for (size_t i = 0; i < (size_t)Global::AdpcmPlus::slots; ++i) {
+        m_adpcmPlusPcm[i].rebuildIfNeeded(m_adpcmPlusWantQuality[i].load(std::memory_order_relaxed),
+                                         m_adpcmPlusWantRate[i].load(std::memory_order_relaxed),
+                                         16000.0);
+    }
 }
 
 void AudioPlugin2686V::loadStartupSettings()
@@ -964,6 +987,8 @@ juce::String AudioPlugin2686V::getDefaultPresetDir()
 
 
 
+
+
 // 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
 juce::String AudioPlugin2686V::makePathRelative(const juce::File& targetFile)
 {
@@ -1132,6 +1157,9 @@ void AudioPlugin2686V::initPreset()
 
     // unloadAdpcmFile内で adpcmFilePath.clear() されています
 
+    for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
+    }
+
 
 }
 
@@ -1151,6 +1179,11 @@ void AudioPlugin2686V::initParams(const juce::String& code)
 
 
     if (code == "ADPCM_") {
+    }
+
+    if (code == "ADPCMP_") {
+        for (int i = 0; i < Global::AdpcmPlus::slots; ++i) {
+        }
     }
 
     if (code == "RHYTHM_") {
@@ -1570,6 +1603,8 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     if (found == prMap.end() || found->second == nullptr) return params;
 
     found->second->processBlock(params, apvts);
+
+
 
 
 

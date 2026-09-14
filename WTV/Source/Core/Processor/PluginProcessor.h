@@ -9,6 +9,7 @@
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 #include "../Gui/GuiSimpleView.h"
+#include "../Gui/GuiToggleAlign.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
@@ -164,6 +165,7 @@ public:
                 isLegato
             );
             break;
+
         };
     }
 
@@ -225,6 +227,7 @@ public:
                         true
                     );
                     break;
+
                 };
             }
         }
@@ -271,6 +274,13 @@ private:
     // オーディオスレッドが「この指定で作り直してほしい」と置いていく場所。
     std::atomic<int> m_adpcmWantQuality{ -1 };
     std::atomic<int> m_adpcmWantRate{ -1 };
+
+    // ADPCM+ も同じ。PCM のスロットごとに 1 つずつ持つ。
+    // 鳴らすのは TARGET で選んだ 1 本だけだが、差し替えずに済むよう
+    // 読み込んだものはすべて持っておく。
+    std::array<PcmSharedStore, Global::AdpcmPlus::slots> m_adpcmPlusPcm;
+    std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantQuality{};
+    std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantRate{};
 
 
     SynthParams m_currentParams;
@@ -347,6 +357,7 @@ public:
     OscMode lastActiveSynthMode = OscMode::WAVETABLE;
 
 
+
     // MODULATION の変調波形として読み込んだファイルのパス。
     // 波形データ自体は 32 個のパラメータ側に入っているので、
     // ここはファイル名表示のためだけに保持している。
@@ -365,6 +376,7 @@ public:
     // state へは相対パスだけを保存して読み直す。
     void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file);
     void unloadWtModWaveFile(const juce::String& code, int slot);
+
 
 
 
@@ -501,6 +513,7 @@ public:
         for (int i = 0; i < SimpleView::Size; ++i) {
             visit(juce::String(SimpleView::items()[(size_t)i].key), simpleViewShow[(size_t)i]);
         }
+        visit(SettingsKey::toggleAlign, toggleAlign);
         visit(SettingsKey::useHeadroom, useHeadroom);
         visit(SettingsKey::headroomGain, headroomGain);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
@@ -518,6 +531,10 @@ public:
     bool isSimpleShown(SimpleView::Cat cat) const {
         return SimpleView::isShown(simpleView, simpleViewShow, cat);
     }
+    // トグルボタンの並べ方。ToggleAlign::Centred で従来どおり行の真ん中、
+    // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。
+    int toggleAlign = ToggleAlign::Centred;
+
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）

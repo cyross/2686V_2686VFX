@@ -52,6 +52,7 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         PrHelper::addWtAmpModParameters(layout, opPrefix, opPrefixName);
         PrHelper::addSsgHwEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addWtModParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addDelayParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpMaskParameters(layout, opPrefix, opPrefixName);
     }
 }
@@ -90,6 +91,7 @@ void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
         pOpLfoAmsEnable[op] = PrHelper::setupOpOpmAmsEnPtr(apvts, p);
         pOpMask[op] = PrHelper::setupOpMaskPtr(apvts, p);
+        pOpDelay[op] = apvts.getRawParameterValue(p + CPK::delay);
     }
 }
 
@@ -127,5 +129,6 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
 
         params.opm.op[op].lfo.amsEnable = PrHelper::getBool(pOpLfoAmsEnable[op]);
         params.opm.op[op].mask = PrHelper::getBool(pOpMask[op]);
+        params.opm.op[op].delay = PrHelper::getFloat(pOpDelay[op]);
     }
 }

@@ -29,8 +29,15 @@ class GuiComponentPitchEnv : public GuiBase {
 
     // PITCH ENV
     GuiCategoryLabel cat;
+    // setup で受け取った入り切りの鍵。束縛し直すときに使う。
+    juce::String m_flagKey;
     GuiToggleButton flag; // Bypass or Enable
     NormalSeparator flagSeparator;
+
+    // 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+    // 効き方そのものを変えるので、値より先に見える場所へ置く。
+    GuiToggleButton keep;
+    NormalSeparator keepSeparator;
     GuiComponentNudgeSliderFloat attack;
     GuiComponentNudgeButtons attackNudge;
     GuiComponentNudgeSliderFloat decay;
@@ -46,6 +53,13 @@ class GuiComponentPitchEnv : public GuiBase {
     GuiComponentPitchButtons sustainLevelButtons;
     GuiComponentNudgeSliderFloat releaseLevel;
     GuiComponentPitchButtons releaseLevelButtons;
+
+    // リリースを走り終えたあとに保つセント。
+    // 触っていないうちは、これまでどおり RLL を保つ。
+    // ENDL を使うかどうか。切のあいだは、これまでどおり RLL を保つ。
+    GuiToggleButton endLevelEnable;
+    GuiComponentNudgeSliderFloat endLevel;
+    GuiComponentPitchButtons endLevelButtons;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
@@ -78,6 +92,8 @@ public:
         cat(context),
         flag(context),
         flagSeparator(context),
+        keep(context),
+        keepSeparator(context),
         attack(context),
         attackNudge(context),
         decay(context),
@@ -92,14 +108,22 @@ public:
         sustainLevel(context),
         sustainLevelButtons(context),
         releaseLevel(context),
-        releaseLevelButtons(context)
+        releaseLevelButtons(context),
+        endLevelEnable(context),
+        endLevel(context),
+        endLevelButtons(context)
     {
     }
 
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, const juce::String& flagKey, const juce::String& flagText, bool isEnable = false);
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);
+
+    // ENDL を使うかどうかに合わせて、つまみの押せる・押せないを揃える。
+    void applyEndLevelEnable();
     void updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
     void setEnabled(bool enabled);
     void copyParams(CopyEnvPitchAdsr& copyObj);

@@ -2,7 +2,7 @@
 title: BEEPチャンネル
 description: パソコン本体のビープ音を鳴らすチャンネル
 sidebar:
-  order: 13
+  order: 14
 ---
 
 <figure class="shot">
@@ -30,21 +30,21 @@ BEEP は、**パソコン本体のビープ音**を鳴らすチャンネルで�
 | 項目 | 内容 | 範囲 |
 | --- | --- | --- |
 | **FREQ** | 周波数 | 0〜8000Hz（初期 440Hz） |
-| **TIMERCLOCK** | もとになるタイマーの刻み | 1〜4（初期 1） |
-| **ANTIALIAS** | 折り返しノイズを抑える（**独自**） | 入 / 切（初期は切） |
+| **CLOCK** | もとになるタイマーの刻み | 1〜4（初期 1） |
+| **Anti-Alias** | 折り返しノイズを抑える（**独自**） | 入 / 切（初期は切） |
 
-**TIMERCLOCK** は、実機がビープの周波数をどう作っていたかに対応します。刻みが
+**CLOCK** は、実機がビープの周波数をどう作っていたかに対応します。刻みが
 粗いほど、狙った周波数からずれます。**そのずれ方が当時らしさになる**ので、
 実機に寄せたいときは触ってみてください。
 
-**ANTIALIAS を入れると角が丸まり、今風の聞きやすい矩形波**になります。実機の
+**Anti-Alias を入れると角が丸まり、今風の聞きやすい矩形波**になります。実機の
 音を狙うなら切ったままにします。
 
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **CLK** | もとにするクロック。実機の 4 種 | [`BEEP_TIMERCLOCK`](/2686V_2686VFX/reference/automation/beep/#beep-timerclock) |
-| **Anti Alias** | 高い音の折り返しを抑える（**独自**） | [`BEEP_ANTIALIAS`](/2686V_2686VFX/reference/automation/beep/#beep-antialias) |
+| **CLOCK** | もとにするクロック。実機の 4 種 | [`BEEP_TIMERCLOCK`](/2686V_2686VFX/reference/automation/beep/#beep-timerclock) |
+| **Anti-Alias** | 高い音の折り返しを抑える（**独自**） | [`BEEP_ANTIALIAS`](/2686V_2686VFX/reference/automation/beep/#beep-antialias) |
 
 ## OPTIONAL — 効果音モード（実機）
 

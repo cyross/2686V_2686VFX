@@ -46,6 +46,9 @@ void SsgSwEnv11::setParameters(const SsgSwEnv11Params& params) {
 	this->l[10] = params.l10;
 	this->r[11] = params.r11;
 	this->l[11] = params.l11;
+	this->endl = params.endl;
+	this->endlEnable = params.endlEnable;
+	this->keep = params.keep;
 
     // GUIでも loop=true 時のガードはやっているが、念の為ロジックでもチェックする
     if (this->loop) {
@@ -113,6 +116,9 @@ void SsgSwEnv11::noteOn() {
         this->loopCounter = 0;
         this->currentLevel = this->l[0]; // Start Level から開始
     }
+
+    // KEEP のときは最初の段のあいだ Start Level を保つ
+    this->m_keepLevel = this->l[0];
 }
 
 void SsgSwEnv11::noteOff() {
@@ -132,8 +138,30 @@ void SsgSwEnv11::bypassedReleasedProcess() {
     this->state = State::Idle;
 }
 
+// 段が変わったかを見て、KEEP で保つ値とリリース後の値を決める。
+//
+// 段の終わりで currentLevel はその段の行き先へ揃えられるので、変わった
+// 直後の値が「次の段のあいだ保つレベル」になる。押した直後は STL、
+// R1 を走り終えたら L1、という並びになる。
 float SsgSwEnv11::process() {
     if (this->bypass) return 1.0f; // バイパス時は音量1.0(影響なし)を返す
+    if (this->state == State::Idle) return this->keep ? this->m_keepLevel : this->currentLevel;
+
+    const State before = this->state;
+
+    this->processStep();
+
+    if (this->state != before) {
+        // ENDL を触っているときだけ、リリース後の値をそちらへ移す
+        if (this->state == State::Idle && this->endlEnable) this->currentLevel = this->endl;
+
+        this->m_keepLevel = this->currentLevel;
+    }
+
+    return this->keep ? this->m_keepLevel : this->currentLevel;
+}
+
+float SsgSwEnv11::processStep() {
     if (this->state == State::Idle) return this->currentLevel;
 
     if (this->m_curveCore == nullptr) {

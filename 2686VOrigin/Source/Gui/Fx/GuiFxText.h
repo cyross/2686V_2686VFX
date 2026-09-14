@@ -40,13 +40,13 @@ namespace FxGuiText
 		namespace Tremolo
 		{
 			static inline const juce::String rate = u8"RATE";
-			static inline const juce::String depth = u8"DPTH";
+			static inline const juce::String depth = u8"DEPTH";
 		}
 
 		namespace Vibrate
 		{
 			static inline const juce::String rate = u8"RATE";
-			static inline const juce::String depth = u8"DPTH";
+			static inline const juce::String depth = u8"DEPTH";
 		}
 
 		namespace Mbc
@@ -70,30 +70,30 @@ namespace FxGuiText
 		namespace Filter
 		{
 			static inline const juce::String type = u8"TYPE";
-			static inline const juce::String freq = u8"FQ";
+			static inline const juce::String freq = u8"FREQ";
 			static inline const juce::String q = u8"Q";
 		}
 
 		namespace Eq3b
 		{
-			static inline const juce::String lowGainDb = u8"LGn";
-			static inline const juce::String midFreq = u8"MFq";
-			static inline const juce::String midGainDb = u8"MGn";
-			static inline const juce::String highGainDb = u8"HGn";
+			static inline const juce::String lowGainDb = u8"LOW.GAIN";
+			static inline const juce::String midFreq = u8"MID.FREQ";
+			static inline const juce::String midGainDb = u8"MID.GAIN";
+			static inline const juce::String highGainDb = u8"HI.GAIN";
 		}
 
 		namespace SfcEcho
 		{
 			static inline const juce::String time = u8"TIME";
 			static inline const juce::String fb = u8"FB";
-			static inline const juce::String firCoef0 = u8"FC0";
-			static inline const juce::String firCoef1 = u8"FC1";
-			static inline const juce::String firCoef2 = u8"FC2";
-			static inline const juce::String firCoef3 = u8"FC3";
-			static inline const juce::String firCoef4 = u8"FC4";
-			static inline const juce::String firCoef5 = u8"FC5";
-			static inline const juce::String firCoef6 = u8"FC6";
-			static inline const juce::String firCoef7 = u8"FC7";
+			static inline const juce::String firCoef0 = u8"COEF0";
+			static inline const juce::String firCoef1 = u8"COEF1";
+			static inline const juce::String firCoef2 = u8"COEF2";
+			static inline const juce::String firCoef3 = u8"COEF3";
+			static inline const juce::String firCoef4 = u8"COEF4";
+			static inline const juce::String firCoef5 = u8"COEF5";
+			static inline const juce::String firCoef6 = u8"COEF6";
+			static inline const juce::String firCoef7 = u8"COEF7";
 		}
 	}
 }

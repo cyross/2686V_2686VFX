@@ -30,20 +30,20 @@ The filter the repeats pass through. Eight coefficients decide its shape.
 
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
-| **FC0** | Coefficient 0 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC1** | Coefficient 1 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC2** | Coefficient 2 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC3** | Coefficient 3 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC4** | Coefficient 4 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC5** | Coefficient 5 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC6** | Coefficient 6 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC7** | Coefficient 7 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF0** | Coefficient 0 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF1** | Coefficient 1 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF2** | Coefficient 2 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF3** | Coefficient 3 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF4** | Coefficient 4 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF5** | Coefficient 5 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF6** | Coefficient 6 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF7** | Coefficient 7 | -128 – 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
 
 ## Where to use it
 
 Being able to put **FB** negative is straight from the hardware. Every repeat flips over, which gives the effect its particular swirl.
 
-**FC0–FC7** are the coefficients of the filter the repeats pass through. Make FC0 alone large for plain repeats; alternate the signs and the top end is emphasised.
+**COEF0–COEF7** are the coefficients of the filter the repeats pass through. Make COEF0 alone large for plain repeats; alternate the signs and the top end is emphasised.
 
 ## Which plugins have it
 

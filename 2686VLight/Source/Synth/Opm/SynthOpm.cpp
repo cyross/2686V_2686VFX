@@ -83,6 +83,7 @@ void OpmCore::setSampleRate(double sampleRate) {
 
 void OpmCore::setParameters(const SynthParams& params) {
     m_level = params.opm.level;
+    m_delaySeconds = params.opm.delay;
 
     m_algorithm = params.opm.algFb.algorithm;
 

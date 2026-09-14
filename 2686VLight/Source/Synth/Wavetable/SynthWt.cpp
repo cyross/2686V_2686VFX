@@ -49,6 +49,9 @@ void WtCore::setSampleRate(double sampleRate)
 void WtCore::setParameters(const SynthParams& params)
 {
     m_level = params.wt.level;
+    m_delaySeconds = params.wt.delay;
+    m_speed = params.wt.speed;
+    m_hold.setParameters(params.wt.hold);
 
     m_fixMode.setParameters(params.wt.fix);
 
@@ -117,6 +120,8 @@ void WtCore::setParameters(const SynthParams& params)
 
 void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
+    m_hold.reset();
+
     // =====================================================================
     // モノフォニック・レガート時は、音量（ベロシティ）を更新しない！
     // 1音目の音量をそのまま引き継ぐことで、音量ジャンプを完全に防ぐ。
@@ -354,6 +359,13 @@ float WtCore::getSample()
         effectivePhase -= std::floor(effectivePhase);
         if (effectivePhase < 0.0f) effectivePhase += 1.0f;
 
+        // 部分再生。波形を引く位相だけを動かし、進み方は変えない。
+        double windowed = effectivePhase;
+
+        const bool muted = m_hold.windowPhase(windowed);
+
+        effectivePhase = (float)windowed;
+
         // ==========================================
         // 波形テーブルのルックアップ (線形補間でノイズ除去)
         // ==========================================
@@ -421,10 +433,22 @@ float WtCore::getSample()
             m_lastSample = rawSample;
         }
 
-        // メイン位相を進める
-        m_phase += currentDelta;
+        // 区間の外で端の値を保たない側は 0 にする
+        if (muted) m_lastSample = 0.0f;
 
-        if (m_phase >= 1.0f) m_phase -= 1.0f;
+        // 決めた回数まで回したら、キーが離れるまで同じ値を出し続ける
+        if (m_hold.isHolding()) m_lastSample = m_hold.holdValue();
+
+        // メイン位相を進める
+        m_phase += currentDelta * m_speed;
+
+        // SPEED は 100 倍まで上げられる。1 度引くだけでは収まらない。
+        while (m_phase >= 1.0f) {
+            m_phase -= 1.0f;
+
+            m_hold.countCycle();
+        }
+        while (m_phase < 0.0f) m_phase += 1.0f;
     }
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理

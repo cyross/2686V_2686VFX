@@ -101,6 +101,7 @@ void OpnaCore::setSampleRate(double sampleRate) {
 
 void OpnaCore::setParameters(const SynthParams& params) {
     m_level = params.opna.level;
+    m_delaySeconds = params.opna.delay;
 
     m_algorithm = params.opna.algFb.algorithm;
 

@@ -488,6 +488,17 @@ void GuiWt::setup()
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
+    optionalCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::optional, .enableChangeDetailVisible = true });
+
+    speedSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::speed, .title = "SPEED", .isReset = true });
+    speedSlider.setWantsKeyboardFocus(true);
+    speedSlider.setExplicitFocusOrder(++tabOrder);
+
+    // ホールドと部分再生。止まったときの値は音量の倍率。
+    waveHold.setupComponent(mainGroup.contentCanvas, code, tabOrder, WaveHoldUnit::Level);
+
+    optSpeedSeparator.setupComponent(mainGroup.contentCanvas);
+
     formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
     qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
@@ -738,6 +749,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     levelComponent.layoutComponent(mRect);
 
     layoutFormCat(mRect);
+
+    layoutOptionalCat(mRect);
 
     ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
@@ -1004,6 +1017,32 @@ void GuiWt::writeWavetableFile(const juce::File& file)
 void GuiWt::initParams()
 {
     this->ctx.audioProcessor.initParams("WT_");
+}
+
+// OPTIONAL。区分そのものを v3.3.0 で足した。
+//
+// いまは再生速度だけだが、この先もここへ足していく。
+void GuiWt::layoutOptionalCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    speedSlider.setVisibleWithLabel(visible);
+    waveHold.setVisibles(visible);
+    waveHold.setEnables(visible);
+    optSpeedSeparator.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider });
+
+        // ホールドと部分再生
+        waveHold.layoutComponent(rect);
+
+        optSpeedSeparator.layoutComponent(rect);
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
 }
 
 void GuiWt::layoutFormCat(Rectangle<int>& rect) {
@@ -1355,6 +1394,8 @@ void GuiWt::applyChParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
+    speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
+    waveHold.readParams(*reader);
 
     // Form
     sizeSelector.setSelectedItemIndex(reader->getInt("size", sizeSelector.getSelectedItemIndex()), juce::sendNotification);
@@ -1482,6 +1523,8 @@ void GuiWt::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiWt::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
+	writer.set("speed", (float)speedSlider.getValue());
+	waveHold.writeParams(writer);
 
 	// Form
 	writer.set("size", sizeSelector.getSelectedItemIndex());

@@ -22,6 +22,33 @@ public:
 
     FmOpParams m_params;
 
+    // --- 再生遅延 ---
+    //
+    // オペレーター 1 本ごとに待つ。チャンネル全体の待ちとは別に数えるので、
+    // 変調する側を先に鳴らして、あとから搬送波が入る、といったことができる。
+    //
+    // 待っている間は何も出さず、位相も包絡も進めない。
+    float m_delaySeconds = 0.0f;
+    int m_delayLeft = 0;
+
+    // 押したときに呼ぶ。残りを数え直す。
+    void beginDelay()
+    {
+        m_delayLeft = (m_delaySeconds <= 0.0f || m_sampleRate <= 0.0)
+            ? 0
+            : (int)std::lround((double)m_delaySeconds * m_sampleRate);
+    }
+
+    // まだ待っているか。待っていれば 1 サンプルぶん数を減らして true を返す。
+    bool tickDelay()
+    {
+        if (m_delayLeft <= 0) return false;
+
+        --m_delayLeft;
+
+        return true;
+    }
+
     void virtual setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }
     void virtual setHostSampleRate(double hostRate) { m_hostSampleRate = hostRate; }
     void virtual setParameters(const FmOpParams& params, int feedback);

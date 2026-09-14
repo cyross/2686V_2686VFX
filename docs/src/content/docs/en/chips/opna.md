@@ -95,8 +95,8 @@ the amount are set **per operator** (**ours**).
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **FQ** | How fast it wobbles. The hardware's eight steps (3.98Hz–72.2Hz) | [`OPNA_OP[0-3]_LFO_FREQS`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-lfo-freqs) |
-| **SDLY** | Wait after key-down before it starts (**ours**) | [`OPNA_OP[0-3]_LFO_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-lfo-sync-delay) |
+| **FREQ** | How fast it wobbles. The hardware's eight steps (3.98Hz–72.2Hz) | [`OPNA_OP[0-3]_LFO_FREQS`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-lfo-freqs) |
+| **SY.DELAY** | Wait after key-down before it starts (**ours**) | [`OPNA_OP[0-3]_LFO_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-lfo-sync-delay) |
 | **PM** | Apply the wobble on the pitch side | [`OPNA_OP[0-3]_LFO_VIB`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-lfo-vib) |
 | **PMS** | Pitch swing. Eight steps from 0 to ±80 cents | [`OPNA_OP[0-3]_LFO_PMS`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-lfo-pms) |
 | **AM** | Apply the wobble on the level side | [`OPNA_OP[0-3]_LFO_AM`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-lfo-am) |
@@ -110,15 +110,15 @@ What the programs of the day did by hand to wobble a pitch, you can now build fr
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **SP** | How fast it wobbles | [`OPNA_LFO_FREQ`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-freq) |
-| **SH** | Shape. Saw Up / Square / Triangle / S&H, plus two that move once | [`OPNA_LFO_SHAPE`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-shape) |
-| **SDLY** | Wait after key-down before it starts | [`OPNA_LFO_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-sync-delay) |
+| **SPEED** | How fast it wobbles | [`OPNA_LFO_FREQ`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-freq) |
+| **SHAPE** | Shape. Saw Up / Square / Triangle / S&H, plus two that move once | [`OPNA_LFO_SHAPE`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-shape) |
+| **SY.DELAY** | Wait after key-down before it starts | [`OPNA_LFO_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-sync-delay) |
 | **PM Enable** | Apply the wobble on the pitch side | [`OPNA_LFO_PM`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-pm) |
 | **PMS** | How much it reaches the pitch | [`OPNA_LFO_PMS`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-pms) |
 | **PMD** | Depth on the pitch. Negative values flip the direction | [`OPNA_LFO_PMD`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-pmd) |
 | **AM Enable** | Apply the wobble on the level side | [`OPNA_LFO_AM`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-am) |
 | **AMD** | Depth on the level | [`OPNA_LFO_AMD`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-amd) |
-| **AMSR** | Rounding of the corners on the level side | [`OPNA_LFO_ASMRT`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-asmrt) |
+| **SM.RATIO** | Rounding of the corners on the level side | [`OPNA_LFO_ASMRT`](/2686V_2686VFX/en/reference/automation/opna/#opna-lfo-asmrt) |
 | **AMS** | How much it reaches the level, per operator | [`OPNA_OP[0-3]_N88AMS`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-n88ams) |
 
 
@@ -133,8 +133,8 @@ channel is [SSG HW AMP ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-amp-env).
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **SHPE** | Shape. Normal (off) plus the hardware's eight | [`OPNA_OP[0-3]_SE`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-se) |
-| **FQ** | How fast it repeats | [`OPNA_OP[0-3]_SEFREQ`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-sefreq) |
+| **SSG.SHAPE** | Shape. Normal (off) plus the hardware's eight | [`OPNA_OP[0-3]_SE`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-se) |
+| **FREQ** | How fast it repeats | [`OPNA_OP[0-3]_SEFREQ`](/2686V_2686VFX/en/reference/automation/opna/#opna-op-0-3-sefreq) |
 
 ### KEY SCALE (hardware)
 

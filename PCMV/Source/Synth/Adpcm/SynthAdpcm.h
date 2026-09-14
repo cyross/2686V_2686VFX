@@ -73,6 +73,9 @@ private:
 
     // Params
     float m_level = 1.0f;
+
+    // 再生速度。ノートによる速さの変化へ掛ける。
+    float m_speed = 1.0f;
     float m_pan = 0.5f;
 	float m_panL = 1.0f;
 	float m_panR = 1.0f;
@@ -81,6 +84,14 @@ private:
     float m_pcmRatio = 1.0f;
     bool m_loopPointEnable = false;
     float m_loopPointStart = 0.0f; // 0.0 to 1.0
+
+    // --- ループカウンター ---
+    //
+    // ループポイントのあいだを回った回数を数え、決めた回数に届いたら
+    // 折り返すのをやめる。0 のときは数えず、回り続ける。
+    int m_lpCount = 0;
+    int m_lpCounter = 0;
+    bool m_lpDone = false;
     float m_loopPointEnd = 1.0f;   // 0.0 to 1.0
 
     AmpAdsrEnv m_adsr;

@@ -14,6 +14,7 @@
 
 #include "../../Gui/Rhythm/GuiRhythm.h"
 #include "../../Gui/Adpcm/GuiAdpcm.h"
+#include "../../Gui/AdpcmPlus/GuiAdpcmPlus.h"
 #include "../../Gui/Preset/GuiPreset.h"
 #include "../../Gui/Fx/GuiFx.h"
 #include "../../Gui/Settings/GuiSettings.h"
@@ -146,11 +147,13 @@ public:
 
     void updateRhythmFileNames(const juce::String finename);
     void updateAdpcmFileNames(const juce::String finename);
+    void updateAdpcmPlusFileNames(const juce::String finename);
     void setupLogo();
     void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);
     void drawBg(juce::Graphics& g);
-    void loadSettingsFile();
+    // 初めて開いたときに、簡易表示モードで使うかを尋ねる
+    void askInitialSettings();
     void loadPresetFile(const juce::File& file);
     void scanPresets();
 
@@ -312,6 +315,7 @@ private:
 
     GuiLazy<GuiRhythm> rhythmGui; // Rhythm
     GuiLazy<GuiAdpcm> adpcmGui; // ADPCM
+    GuiLazy<GuiAdpcmPlus> adpcmPlusGui; // ADPCM+
     std::unique_ptr<GuiPreset> presetGui;
     GuiLazy<GuiCurve> curveGui;
 
@@ -373,7 +377,7 @@ private:
     // タブの並び。setupTabs の登録順と揃えてある。
     enum TabIndex
     {
-        tabRhythm = 0, tabAdpcm, tabCurve, tabPreset, tabSettings, tabColors, tabAbout,
+        tabRhythm = 0, tabAdpcm, tabAdpcmPlus, tabCurve, tabPreset, tabSettings, tabColors, tabAbout,
 
         tabCount
     };

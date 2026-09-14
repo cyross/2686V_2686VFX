@@ -62,6 +62,13 @@ void FdsTableEditor::setup(juce::Component& parent, const juce::String& idPrefix
     attachParams(idPrefix, 32);
 }
 
+void FdsTableEditor::rebind(const juce::String& idPrefix)
+{
+    attachParams(idPrefix, 32);
+
+    repaint();
+}
+
 std::array<int, 32> FdsTableEditor::currentTable() const
 {
     std::array<int, 32> table = { 0 };
@@ -241,15 +248,15 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     enableButton.setWantsKeyboardFocus(true);
     enableButton.setExplicitFocusOrder(++tabOrder);
 
-    depthSlider.setup({ .parent = parent, .id = code + CPK::WtMod::depth, .title = "DPTH", .isReset = true });
+    depthSlider.setup({ .parent = parent, .id = code + CPK::WtMod::depth, .title = "DEPTH", .isReset = true });
     depthSlider.setWantsKeyboardFocus(true);
     depthSlider.setExplicitFocusOrder(++tabOrder);
 
-    speedSlider.setup({ .parent = parent, .id = code + CPK::WtMod::speed, .title = "SPED", .isReset = true });
+    speedSlider.setup({ .parent = parent, .id = code + CPK::WtMod::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);
     speedSlider.setExplicitFocusOrder(++tabOrder);
 
-    shapeSelector.setup({ .parent = parent, .id = code + CPK::WtMod::shape, .title = "SHPE", .items = wtModShapeItems, .isReset = true, .isResized = true });
+    shapeSelector.setup({ .parent = parent, .id = code + CPK::WtMod::shape, .title = "SHAPE", .items = wtModShapeItems, .isReset = true, .isResized = true });
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
 
@@ -265,7 +272,7 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
 
     // 読み込み行とプレビューをスロットの数だけ作る
     // 並びは 対象 → 読み込み / 名前 / 消去 → 各スロットの波形。
-    slotTarget.setup({ .parent = parent, .title = "TGT", .isReset = false });
+    slotTarget.setup({ .parent = parent, .title = "TARGET", .isReset = false });
     slotTarget.setRange(0.0, (double)(Global::WtMod::slots - 1), 1.0);
     slotTarget.setNumDecimalPlacesToDisplay(0);
     slotTarget.setWantsKeyboardFocus(true);
@@ -331,6 +338,10 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     modPreview.setup(parent, GuiColor::WavePreview::PitchEnv);
     updateModPreview();
 
+    // ホールドと部分再生。保つ値の単位は 音程 (セント)。
+    waveHold.setupComponent(parent, code + CPK::WtMod::holdPrefix, tabOrder,
+        WaveHoldUnit::Cent, [this] { this->updateModPreview(); });
+
     fdsCat.setupSwPitchCategory({ .parent = parent, .title = juce::String("") + "FDS PITCH TABLE", .enableChangeDetailVisible = true });
 
     fdsEditor.setup(parent, code + CPK::WtMod::fdsTable);
@@ -344,6 +355,36 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
         fdsPresetBtn[i].setExplicitFocusOrder(++tabOrder);
         fdsPresetBtn[i].onClick = [this, i] { fdsEditor.loadTable(FdsMod::tables[i]); };
     }
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentWtMod::rebind(const juce::String& code)
+{
+    // 変調波形の実体はプロセッサがこの鍵で持っている。
+    m_code = code;
+
+    enableButton.rebind(code + CPK::WtMod::enable);
+    depthSlider.rebind(code + CPK::WtMod::depth);
+    speedSlider.rebind(code + CPK::WtMod::speed);
+    shapeSelector.rebind(code + CPK::WtMod::shape);
+    waveSmoothBtn.rebind(code + CPK::WtMod::waveSmooth);
+    waveSlotSlider.rebind(code + CPK::WtMod::waveSlot);
+
+    waveHold.rebind(code + CPK::WtMod::holdPrefix);
+    fdsEditor.rebind(code + CPK::WtMod::fdsTable);
+
+    // 指し先が変わったので、並べた波形と選んでいる形を作り直す。
+    for (int i = 0; i < Global::WtMod::slots; ++i) updateSlotPreview(i);
+
+    applySlotTarget();
+
+    slotPreviews.setActive(currentSlot());
+
+    updateModPreview();
 }
 
 void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
@@ -366,6 +407,8 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     slotClearBtn.setVisible(visible);
     slotFileNameLabel.setVisible(visible);
     slotPreviews.setVisible(visible);
+
+    waveHold.setVisibles(visible);
 
     if (visible)
     {
@@ -393,11 +436,16 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
         slotPreviews.setBounds(rect.removeFromTop(slotPreviews.getNaturalHeight()));
         rect.removeFromTop(2);
 
+        // ホールドと部分再生
+        waveHold.layoutComponent(rect);
+
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
     // Enable が OFF のときは中身を触れなくする
     bool isMod = enableButton.getToggleState();
+
+    waveHold.setEnables(isMod);
     depthSlider.setEnabledWithLabel(isMod);
     speedSlider.setEnabledWithLabel(isMod);
     shapeSelector.setEnabledWithLabel(isMod);
@@ -613,7 +661,8 @@ void GuiComponentWtMod::updateModPreview()
 
     // 変調の向きは Shape によって上下どちらにも振れるので、両振りで描く
     modPreview.setPoints(
-        WavePreviewSource::wtMod(shapeSelector.getSelectedItemIndex(), wave, fdsEditor.currentTable()),
+        WavePreviewSource::wtMod(shapeSelector.getSelectedItemIndex(), wave, fdsEditor.currentTable(),
+            waveHold.getParams()),
         true);
 }
 
@@ -775,6 +824,8 @@ void GuiComponentWtMod::readParams(const Io::ParamReader& reader, const juce::St
     shapeSelector.setSelectedItemIndex(r.getInt("shape", shapeSelector.getSelectedItemIndex()), juce::sendNotification);
     waveSmoothBtn.setToggleState(r.getBool("waveSmooth", waveSmoothBtn.getToggleState()), juce::sendNotification);
 
+    waveHold.readParams(r);
+
     auto values = r.getIntArray("table");
 
     if (values.empty()) return;
@@ -797,6 +848,8 @@ void GuiComponentWtMod::writeParams(Io::ParamWriter& writer, const juce::String&
     w.set("speed", (float)speedSlider.getValue());
     w.set("shape", shapeSelector.getSelectedItemIndex());
     w.set("waveSmooth", waveSmoothBtn.getToggleState());
+
+    waveHold.writeParams(w);
 
     auto table = fdsEditor.currentTable();
 

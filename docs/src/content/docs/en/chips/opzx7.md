@@ -47,8 +47,9 @@ Choosing the algorithm, the matrix, and the feedback on each operator.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **ALG MODE** | Use a built-in algorithm, or build one in the matrix (not exposed to automation) | — |
+| **Mode** | Use a built-in algorithm, or build one in the matrix (not exposed to automation) | — |
 | **ALG** | Built-in algorithms. 130 of them | [`OPZX7_ALG`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-alg) |
+| **FB.TARGET** | Which operator the **FB** below points at (not exposed to automation) | — |
 | **FB** | Feedback, **per operator**. Negative values allowed (**ours**) | [`OPZX7_FB[1-8]`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-fb-1-8) |
 
 ### WAVE SHAPE
@@ -66,10 +67,10 @@ For audio files you can also set **where playback starts and how fast it runs**.
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **WS** | The operator's waveform. 73 of them. 31 is PCM, 15 is `.wt`, 23 is `.wt2` | [`OPZX7_OP[0-7]_WS`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-ws) |
-| **POFF** | Where the PCM starts (ms) | [`OPZX7_OP[0-7]_PCM_OFFSET`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-pcm-offset) |
-| **PRT** | How fast the PCM plays | [`OPZX7_OP[0-7]_PCM_RATIO`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-pcm-ratio) |
+| **P.OFFSET** | Where the PCM starts (ms) | [`OPZX7_OP[0-7]_PCM_OFFSET`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-pcm-offset) |
+| **P.RATIO** | How fast the PCM plays | [`OPZX7_OP[0-7]_PCM_RATIO`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-pcm-ratio) |
 | **Loop Point Enable** | Use the PCM loop | [`OPZX7_OP[0-7]_LOOPPOINT_EN`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-looppoint-en) |
-| **LPST / LPED** | The looped range, as a position from 0.0 to 1.0 of the whole | [`OPZX7_OP[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-looppoint-st) |
+| **LP.START / LP.END** | The looped range, as a position from 0.0 to 1.0 of the whole | [`OPZX7_OP[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-looppoint-st) |
 
 ### AMP ENV
 
@@ -125,7 +126,7 @@ This is [MUL/DET](/2686V_2686VFX/en/chips/common/#muldet) placed on each operato
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **MUL** | Multiple. 22 steps | [`OPZX7_OP[0-7]_MUL`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-mul) |
-| **MURT** | Set the multiple freely (**ours**) | [`OPZX7_OP[0-7]_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-mul-ratio) |
+| **MUL.RATE** | Set the multiple freely (**ours**) | [`OPZX7_OP[0-7]_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-mul-ratio) |
 | **DT1 / DT2 / DT3** | Detune. DT3 takes cents (**ours**) | [`OPZX7_OP[0-7]_DT`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-dt) |
 
 ### LFO
@@ -140,8 +141,8 @@ This is the SSG envelope applied per operator. The one that applies to the whole
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **ENV** | Shape. Normal (off) plus eight | [`OPZX7_OP[0-7]_SE`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-se) |
-| **FQ** | How fast it repeats | [`OPZX7_OP[0-7]_SEFREQ`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-sefreq) |
+| **SSG.SHAPE** | Shape. Normal (off) plus eight | [`OPZX7_OP[0-7]_SE`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-se) |
+| **FREQ** | How fast it repeats | [`OPZX7_OP[0-7]_SEFREQ`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-sefreq) |
 
 ### KEY SCALE
 
@@ -176,10 +177,10 @@ The OPS arrangement alone **has a break point**. Either side of a chosen pitch, 
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **KSBP** | The pitch used as the break point (note number) | [`OPZX7_OP[0-7]_KS_BP`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-ks-bp) |
-| **KSLC / KSRC** | How it bends either side of the break point | [`OPZX7_OP[0-7]_KS_LC`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-ks-lc) |
-| **KSLD / KSRD** | How far it drops either side of the break point | [`OPZX7_OP[0-7]_KS_LD`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-ks-ld) |
-| **KSRS** | How much it reaches the speed of the envelope | [`OPZX7_OP[0-7]_KS_RS`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-ks-rs) |
+| **BREAK.PT** | The pitch used as the break point (note number) | [`OPZX7_OP[0-7]_KS_BP`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-ks-bp) |
+| **L.CURVE / R.CURVE** | How it bends either side of the break point | [`OPZX7_OP[0-7]_KS_LC`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-ks-lc) |
+| **L.DEPTH / R.DEPTH** | How far it drops either side of the break point | [`OPZX7_OP[0-7]_KS_LD`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-ks-ld) |
+| **RT.SCALE** | How much it reaches the speed of the envelope | [`OPZX7_OP[0-7]_KS_RS`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-ks-rs) |
 
 ### MASK / PANPOT / OPTIONAL
 
@@ -189,7 +190,7 @@ Silencing an operator, position in the stereo field, and extra behaviour.
 | --- | --- | --- |
 | **MASK** | Do not sound this operator | [`OPZX7_OP[0-7]_MASK`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-op-0-7-mask) |
 | **Enable** | Use panning | [`OPZX7_PANPOT_EN`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-panpot-en) |
-| **PNPT** | Position. 0 is left, 15 centre, 31 right | [`OPZX7_PANPOT`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-panpot) |
+| **PANPOT** | Position. 0 is left, 15 centre, 31 right | [`OPZX7_PANPOT`](/2686V_2686VFX/en/reference/automation/opzx7/#opzx7-panpot) |
 
 ## Envelopes per operator
 

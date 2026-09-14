@@ -16,10 +16,10 @@ sidebar:
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **LGn** | 低いところの量（dB） | -15 〜 15 | 0 | [`FX_EQ3B_LGDB`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-eq3b-lgdb) |
-| **MFq** | 真ん中とみなす高さ（Hz） | 500 〜 3000 | 2000 | [`FX_EQ3B_MFREQ`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-eq3b-mfreq) |
-| **MGn** | 真ん中の量（dB） | -15 〜 15 | 0 | [`FX_EQ3B_MGDB`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-eq3b-mgdb) |
-| **HGn** | 高いところの量（dB） | -15 〜 15 | 0 | [`FX_EQ3B_HGDB`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-eq3b-hgdb) |
+| **LOW.GAIN** | 低いところの量（dB） | -15 〜 15 | 0 | [`FX_EQ3B_LGDB`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-eq3b-lgdb) |
+| **MID.FREQ** | 真ん中とみなす高さ（Hz） | 500 〜 3000 | 2000 | [`FX_EQ3B_MFREQ`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-eq3b-mfreq) |
+| **MID.GAIN** | 真ん中の量（dB） | -15 〜 15 | 0 | [`FX_EQ3B_MGDB`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-eq3b-mgdb) |
+| **HI.GAIN** | 高いところの量（dB） | -15 〜 15 | 0 | [`FX_EQ3B_HGDB`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-eq3b-hgdb) |
 | **MIX** | 原音との混ぜ具合 | 0 〜 1 | 0 | [`FX_EQ3B_MIX`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-eq3b-mix) |
 
 **MIX** は原音と効果音の混ぜ具合です。0.0 で原音のまま、1.0 で効果だけになります。
@@ -30,7 +30,7 @@ sidebar:
 
 フィルターが「削る」のに対し、こちらは「増やす・減らす」です。音の芯を残したまま印象を変えたいときは、こちらのほうが向きます。
 
-**MFq** を動かすと、同じ量でも当たるところが変わります。声の帯を持ち上げる、太鼓の胴を出す、といった使い分けができます。
+**MID.FREQ** を動かすと、同じ量でも当たるところが変わります。声の帯を持ち上げる、太鼓の胴を出す、といった使い分けができます。
 
 ## 使えるプラグイン
 

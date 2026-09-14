@@ -46,11 +46,11 @@ void GuiComponentSsgHwPEnv::setupComponent(juce::Component& parent, const juce::
 
     hwEnvSeparator.setupComponent(parent);
 
-    shapeSelector.setup({ .parent = parent, .id = code + CPK::SsgHwPEnv::shape, .title = "SHPE", .items = SsgHwEnvItems::shapes(), .isReset = true});
+    shapeSelector.setup({ .parent = parent, .id = code + CPK::SsgHwPEnv::shape, .title = "SHAPE", .items = SsgHwEnvItems::shapes(), .isReset = true});
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
 
-    periodSlider.setup({ .parent = parent, .id = code + CPK::SsgHwPEnv::period, .title = "PERD", .isReset = true});
+    periodSlider.setup({ .parent = parent, .id = code + CPK::SsgHwPEnv::period, .title = "PERIOD", .isReset = true});
     periodSlider.setWantsKeyboardFocus(true);
     periodSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -95,6 +95,30 @@ void GuiComponentSsgHwPEnv::setupComponent(juce::Component& parent, const juce::
     shapeSelector.onChange = refreshPreview;
     smoothEnableButton.onStateChange = refreshPreview;
 
+    // ホールドと部分再生。もう止まる形を選んでいるときは
+    // ホールドの側だけ閉じる。
+    waveHold.setupComponent(parent, code + CPK::SsgHwPEnv::holdPrefix, tabOrder,
+        WaveHoldUnit::Cent, [this] { this->updatePreview(); });
+
+    updatePreview();
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentSsgHwPEnv::rebind(const juce::String& code)
+{
+    envEnableButton.rebind(code + CPK::SsgHwPEnv::enable);
+    smoothEnableButton.rebind(code + CPK::SsgHwPEnv::smooth);
+    shapeSelector.rebind(code + CPK::SsgHwPEnv::shape);
+    periodSlider.rebind(code + CPK::SsgHwPEnv::period);
+    minSlider.getSlider().rebind(code + CPK::SsgHwPEnv::min);
+    maxSlider.getSlider().rebind(code + CPK::SsgHwPEnv::max);
+
+    waveHold.rebind(code + CPK::SsgHwPEnv::holdPrefix);
+
     updatePreview();
 }
 
@@ -114,6 +138,7 @@ void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
     minButtons.setVisibles(visible && minSlider.isVisibleNudge());
     maxSlider.setVisibleWithLabel(visible);
     maxButtons.setVisibles(visible && maxSlider.isVisibleNudge());
+    waveHold.setVisibles(visible);
 
     if (visible)
     {
@@ -129,6 +154,9 @@ void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
 
         preview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
         rect.removeFromTop(2);
+
+        // ホールドと部分再生
+        waveHold.layoutComponent(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -150,6 +178,7 @@ void GuiComponentSsgHwPEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     minButtons.setVisibles(visible && minSlider.isVisibleNudge());
     maxSlider.setVisibleWithLabel(visible);
     maxButtons.setVisibles(visible && maxSlider.isVisibleNudge());
+    waveHold.setVisibles(visible);
 
     if (visible)
     {
@@ -166,6 +195,9 @@ void GuiComponentSsgHwPEnv::layoutComponentRow(juce::Rectangle<int>& rect)
         preview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
         rect.removeFromTop(2);
 
+        // ホールドと部分再生
+        waveHold.layoutComponentRow(rect);
+
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
@@ -181,6 +213,7 @@ void GuiComponentSsgHwPEnv::setEnabled(bool enabled) {
     minButtons.setEnables(enabled);
     maxSlider.setEnabledWithLabel(enabled);
     maxButtons.setEnables(enabled);
+    waveHold.setEnables(enabled);
 }
 
 void GuiComponentSsgHwPEnv::copyParams(CopyPEnvSsgHw& copyObj) {
@@ -271,6 +304,7 @@ void GuiComponentSsgHwPEnv::readParams(const Io::ParamReader& reader, const juce
     minSlider.setValue((float)r.getInt("min", (int)minSlider.getValue()), juce::sendNotification);
     maxSlider.setValue((float)r.getInt("max", (int)maxSlider.getValue()), juce::sendNotification);
     smoothEnableButton.setToggleState(r.getBool("smoothEnable", smoothEnableButton.getToggleState()), juce::sendNotification);
+    waveHold.readParams(r);
 }
 
 juce::String GuiComponentSsgHwPEnv::getExportedParams() {
@@ -296,6 +330,7 @@ void GuiComponentSsgHwPEnv::writeParams(Io::ParamWriter& writer, const juce::Str
     w.set("min", (int)minSlider.getValue());
     w.set("max", (int)maxSlider.getValue());
     w.set("smoothEnable", smoothEnableButton.getToggleState());
+    waveHold.writeParams(w);
 }
 
 // 選んだ Shape を実際のエンベロープで走らせ、折れ線にして渡す。
@@ -305,12 +340,16 @@ void GuiComponentSsgHwPEnv::updatePreview()
     // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
     if (GuiRefresh::defer(this, [this] { updatePreview(); })) return;
 
+    // もともと 1 周で止まる形を選んでいるときは、ホールドを閉じる
+    waveHold.setHoldAvailable(!isSsgHwShapeHolding(shapeSelector.getSelectedItemIndex()));
+
     // セント値は上下に振れるので、0 を中央にして描く
     preview.setPoints(
         WavePreviewSource::ssgHwPEnv(
             shapeSelector.getSelectedItemIndex(),
             (int)minSlider.getValue(),
             (int)maxSlider.getValue(),
-            smoothEnableButton.getToggleState()),
+            smoothEnableButton.getToggleState(),
+            waveHold.getParams()),
         true);
 }

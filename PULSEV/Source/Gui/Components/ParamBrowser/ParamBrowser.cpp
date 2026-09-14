@@ -41,6 +41,7 @@ namespace
         { ".param.wt2", "WT2" },
         { ".param.wt", "WT" },
         { ".param.rhythm", "RHYTHM" },
+        { ".param.adpcmplus", "PCM+" },
         { ".param.adpcm", "PCM" },
         { ".param.beep", "BEEP" },
 
@@ -171,6 +172,11 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     // キーワードを打つと、下のフォルダまで潜って探す形へ切り替わる。
     // 集め直しが要るので、絞り込みだけを掛け直す口とは別にしてある。
     keyword.onTextChange = [this] { m_scroll = 0; collect(); rebuildView(); repaint(); };
+
+    // ESC はここで止めず、エディタまで通す。打ちかけの文字を消すより、
+    // ブラウザごと閉じられたほうが早い。Return は onReturnKey が先に
+    // 呼ばれるので、通しても書き出しの確定は効く。
+    keyword.setEscapeAndReturnKeysConsumed(false);
     keyword.setColour(juce::TextEditor::backgroundColourId, GuiColor::ParamBrowser::FieldBg);
     keyword.setColour(juce::TextEditor::textColourId, GuiColor::ParamBrowser::Text);
     keyword.setColour(juce::TextEditor::outlineColourId, GuiColor::ParamBrowser::Border);
@@ -232,6 +238,7 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     nameEditor.setColour(juce::TextEditor::textColourId, GuiColor::ParamBrowser::Text);
     nameEditor.setColour(juce::TextEditor::outlineColourId, GuiColor::ParamBrowser::Border);
     nameEditor.onReturnKey = [this] { commitSave(); };
+    nameEditor.setEscapeAndReturnKeysConsumed(false);
     nameEditor.setVisible(m_mode == Mode::save);
     addChildComponent(nameEditor);
 
@@ -1222,7 +1229,11 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
     // フォルダも「上へ」も、押しただけでは移らない。ほかの行と同じく
     // ダブルクリックで移る。片方だけ一押しで動くと、選ぶつもりが移って
     // しまう。
-    m_selected = viewIndex;
+    //
+    // すでに選んでいる行をもう一度押したときは、選ぶのをやめる。
+    // 選び直す先が無いときに、外を押して閉じる以外の手が無かった。
+    // ダブルクリックは別に拾うので、ここへは来ない。
+    m_selected = (m_selected == viewIndex) ? -1 : viewIndex;
 
     repaint(listArea());
 }
@@ -1241,6 +1252,49 @@ void GuiParamBrowser::mouseDoubleClick(const juce::MouseEvent& event)
     if (!item.isFolder && actionArea(rowArea(viewIndex)).contains(event.getPosition())) return;
 
     chooseAt(viewIndex);
+}
+
+bool GuiParamBrowser::handleShortcut(const juce::KeyPress& key)
+{
+    if (!isVisible()) return false;
+
+    // ESC で閉じる。選ばずに閉じるので、外側を押したときと同じ扱い。
+    if (key.isKeyCode(juce::KeyPress::escapeKey))
+    {
+        close();
+
+        return true;
+    }
+
+    // Ctrl+M でプレビューを作る。
+    //
+    // 行を選んでいればその 1 件だけ、選んでいなければ一覧に出ている
+    // ものすべて。作れるのはパラメータファイルだけなので、フォルダや
+    // 波形・音の素材を選んでいるときは一覧ぶんへ回す。
+    if (key.getModifiers().isCommandDown()
+        && (key.getKeyCode() == 'M' || key.getKeyCode() == 'm'))
+    {
+        if (m_busy) return true;
+
+        if (m_selected >= 0 && m_selected < (int)m_view.size())
+        {
+            const int itemIndex = m_view[(size_t)m_selected];
+            const auto& item = m_items[(size_t)itemIndex];
+
+            if (!item.isFolder && item.kind == Kind::param)
+            {
+                generateOne(itemIndex);
+
+                return true;
+            }
+        }
+
+        startBulkGenerate();
+
+        return true;
+    }
+
+    return false;
 }
 
 void GuiParamBrowser::mouseWheelMove(const juce::MouseEvent&, const juce::MouseWheelDetails& wheel)

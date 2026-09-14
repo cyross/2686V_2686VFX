@@ -124,6 +124,7 @@ namespace PresetKey
 	// 3.1.0 より前のファイルはこれを持たないので、そのときは読ませる。
 	static inline const juce::String plugin = "pluginName";
 	static inline const juce::String adpcmPath = "adpcmPath";
+	static inline const juce::String adpcmPlusPathPrefix = "adpcmPlusPath";
 	static inline const juce::String rhythmPathPrefix = "rhythmPath";
 	static inline const juce::String opzx7PathPrefix = "opzx7PcmPath";
 	static inline const juce::String opzx7WtPathPrefix = "opzx7WtPath";

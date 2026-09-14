@@ -76,7 +76,7 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
     mul.setWantsKeyboardFocus(true);
     mul.setExplicitFocusOrder(++tabOrder);
 
-    mulRatio.setupComponent(parent, code + CPK::mulRatio, "MURT", tabOrder, std::nullopt);
+    mulRatio.setupComponent(parent, code + CPK::mulRatio, "MUL.RATE", tabOrder, std::nullopt);
 
     mulRatioTo001.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = "0.01", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
     mulRatioTo001.setWantsKeyboardFocus(true);
@@ -231,6 +231,21 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
     dt3.setupComponent(parent, code + CPK::dt3, "DT3", tabOrder, std::nullopt);
 
     dt3Buttons.setupComponent(parent, dt3.getSlider(), tabOrder);
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentMulDetune::rebind(const juce::String& code)
+{
+    mul.rebind(code + CPK::mul);
+    mulRatio.getSlider().rebind(code + CPK::mulRatio);
+
+    dt1.rebind(code + CPK::dt);
+    dt2.rebind(code + CPK::dt2);
+    dt3.getSlider().rebind(code + CPK::dt3);
 }
 
 void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)

@@ -20,9 +20,12 @@
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Import/Import.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/WavePreview/WavePreview.h"
+#include "../../Gui/Components/TargetCell/TargetCell.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
@@ -142,65 +145,90 @@ class GuiOpna : public GuiBase
     GuiComponentImport imOpnChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
-    std::array<GuiScrollGroup, OpnaPrValue::ops> opGroups;
+    // 今指しているオペレータの名前。TARGET の隣に出す。
+    GuiLabel opNameLabel;
+    NormalSeparator opTargetSeparator;
 
-    std::array<GuiComboBox, OpnaPrValue::ops> mul;
-    std::array<GuiComboBox, OpnaPrValue::ops> dt;
+    // 区分を横へ並べる送り台。縦へは送らず、あふれたぶんは横へ送る。
+    juce::Viewport stripViewport;
+    juce::Component stripCanvas;
 
-    std::array<GuiCategoryLabel, OpnaPrValue::ops> ksCat;
-    std::array<GuiComboBox, OpnaPrValue::ops> ks;
+    // 区分ごとの枠。基本は 1 列 1 区分。
+    GuiScrollGroup colAmp;
+    GuiScrollGroup colSsgHwEnv;
+    GuiScrollGroup colSsgSwEnv;
+    GuiScrollGroup colSsgSwEnv11;
+    GuiScrollGroup colAmpMod;
+    GuiScrollGroup colPitchEnv;
+    GuiScrollGroup colSsgHwPEnv;
+    GuiScrollGroup colSsgSwPEnv11;
+    GuiScrollGroup colMod;
+    GuiScrollGroup colKs;
+    GuiScrollGroup colHwLfo;
+    GuiScrollGroup colMask;
 
-    std::array<GuiCategoryLabel, OpnaPrValue::ops> catSsgEnv;
-    std::array<GuiComboBox, OpnaPrValue::ops> se;
-    std::array<GuiSlider, OpnaPrValue::ops> seFreq;
+    GuiComboBox mul;
+    GuiComboBox dt;
+
+    GuiCategoryLabel ksCat;
+    GuiComboBox ks;
+
+    GuiCategoryLabel catSsgEnv;
+    GuiComboBox se;
+    GuiSlider seFreq;
 
     // 選んだ形を見せる。チャンネル全体のほうには前からあるが、
     // オペレータごとのものには無かった。
-    std::array<GuiWavePreview, OpnaPrValue::ops> sePreview;
+    GuiWavePreview sePreview;
 
     // Pitch ADSR
-    std::array<GuiComponentPitchEnv, OpnaPrValue::ops> pitchEnv;
+    GuiComponentPitchEnv pitchEnv;
     // SSG SW Env
-    std::array<GuiComponentSsgSwEnv, OpnaPrValue::ops> ssgSwEnv;
+    GuiComponentSsgSwEnv ssgSwEnv;
 
-    std::array<GuiComponentSsgSwEnv11, OpnaPrValue::ops> ssgSwEnv11;
-    std::array<GuiComponentSsgSwPEnv11, OpnaPrValue::ops> ssgSwPEnv11;
-    std::array<GuiComponentSsgHwPEnv, OpnaPrValue::ops> ssgHwPEnvOp;
-    std::array<GuiComponentWtAmpMod, OpnaPrValue::ops> wtAmpModOp;
-    std::array<GuiComponentSsgHwEnv, OpnaPrValue::ops> ssgHwEnvOp;
-    std::array<GuiComponentWtMod, OpnaPrValue::ops> wtModOp;
+    GuiComponentSsgSwEnv11 ssgSwEnv11;
+    GuiComponentSsgSwPEnv11 ssgSwPEnv11;
+    GuiComponentSsgHwPEnv ssgHwPEnvOp;
+    GuiComponentWtAmpMod wtAmpModOp;
+    GuiComponentSsgHwEnv ssgHwEnvOp;
+    GuiComponentWtMod wtModOp;
 
-    std::array<GuiComponentFix, OpnaPrValue::ops> fix;
-    std::array<GuiCategoryLabel, OpnaPrValue::ops> catDet;
-    std::array<GuiCategoryLabel, OpnaPrValue::ops> catAmp;
-    std::array<GuiCategoryLabel, OpnaPrValue::ops> catLfo;
-    std::array<GuiComboBox, OpnaPrValue::ops> freqs;
-    std::array<GuiSlider, OpnaPrValue::ops> syncDelay;
-    std::array<GuiTextButton, OpnaPrValue::ops> syncDelayToZero;
-    std::array<GuiTextButton, OpnaPrValue::ops> syncDelayToOne;
-    std::array<GuiToggleButton, OpnaPrValue::ops> pm;  // OPLの vib に相当)
-    std::array<GuiComboBox, OpnaPrValue::ops> pms;
-    std::array<GuiToggleButton, OpnaPrValue::ops> am;  // OPMでは AMS-EN に相当)
-    std::array<GuiComboBox, OpnaPrValue::ops> ams;
-    std::array<GuiCategoryLabel, OpnaPrValue::ops> catN88Lfo;
-    std::array<GuiSlider, OpnaPrValue::ops> n88Ams;
-    std::array<GuiCategoryLabel, OpnaPrValue::ops> catMask;
-    std::array<GuiToggleButton, OpnaPrValue::ops> mask;
-    std::array<NormalSeparator, OpnaPrValue::ops> mmlSeparator;
-    std::array<GuiMmlButton, OpnaPrValue::ops> mml;
+    GuiComponentFix fix;
+    GuiCategoryLabel catDet;
+    GuiCategoryLabel catAmp;
+    GuiCategoryLabel catLfo;
+    GuiComboBox freqs;
+    GuiSlider syncDelay;
+    GuiTextButton syncDelayToZero;
+    GuiTextButton syncDelayToOne;
+    GuiToggleButton pm;  // OPLの vib に相当)
+    GuiComboBox pms;
+    GuiToggleButton am;  // OPMでは AMS-EN に相当)
+    GuiComboBox ams;
+    GuiCategoryLabel catN88Lfo;
+    GuiSlider n88Ams;
+    GuiCategoryLabel catMask;
+    GuiToggleButton mask;
+    NormalSeparator mmlSeparator;
+    GuiMmlButton mml;
 
-    std::array<GuiSlider, OpnaPrValue::ops> rgAr;
-    std::array<GuiSlider, OpnaPrValue::ops> rgDr;
-    std::array<GuiSlider, OpnaPrValue::ops> rgSr;
-    std::array<GuiSlider, OpnaPrValue::ops> rgSl;
-    std::array<GuiSlider, OpnaPrValue::ops> rgRr;
-    std::array<GuiSlider, OpnaPrValue::ops> rgTl;
-    std::array<GuiCategoryLabel, OpnaPrValue::ops> catOptional;
-    std::array<GuiToggleButton, OpnaPrValue::ops> xof;
-    std::array<GuiToggleButton, OpnaPrValue::ops> kor;
-    std::array<GuiToggleButton, OpnaPrValue::ops> bypass;
+    GuiSlider rgAr;
+    GuiSlider rgDr;
+    GuiSlider rgSr;
+    GuiSlider rgSl;
+    GuiSlider rgRr;
+    GuiSlider rgTl;
+    GuiCategoryLabel catOptional;
+    // 押してから鳴り始めるまでの間 (秒)。OPTIONAL の一番上に置く。
+    GuiComponentNudgeSliderFloat opDelay;
+    GuiComponentNudgeButtons opDelayNudge;
+    NormalSeparator opDelaySeparator;
 
-    void applyMmlString(const juce::String& mml, int opIndex);
+    GuiToggleButton xof;
+    GuiToggleButton kor;
+    GuiToggleButton bypass;
+
+    void applyMmlString(const juce::String& mml);
 
     // チップ全体のエンベロープを見るグラフ
     GuiEnvelopeGraph gGraph;
@@ -212,21 +240,51 @@ class GuiOpna : public GuiBase
     enum class GlobalGraphMode { Amp, SsgSw11, SsgSwP11 };
     GlobalGraphMode currentGlobalGraphMode = GlobalGraphMode::Amp;
 
-    std::array<GuiEnvelopeGraph, OpnaPrValue::ops> opGraphs;
-    std::array<GuiToggleButton, OpnaPrValue::ops> graphBtnAmp;
-    std::array<GuiToggleButton, OpnaPrValue::ops> graphBtnPitch;
-    std::array<GuiToggleButton, OpnaPrValue::ops> graphBtnSsg;
-    std::array<GuiToggleButton, OpnaPrValue::ops> graphBtnSsg11;
-    std::array<GuiToggleButton, OpnaPrValue::ops> graphBtnSsgP11;
-    std::array<NormalSeparator, OpnaPrValue::ops> graphSeparator;
+    // 上に並ぶ絵。オペレータの数だけ置く。
+    std::array<GuiTargetCell, OpnaPrValue::ops> cells;
 
-    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
-    std::array<GraphMode, OpnaPrValue::ops> currentGraphMode;
+    // どのエンベロープを映すかの切り替え。絵ごとではなく、まとめて 1 つ。
+    // TARGET のすぐ右へ置く。
+    GuiToggleButton graphBtnAmp;
+    GuiToggleButton graphBtnPitch;
+    GuiToggleButton graphBtnSsg;
+    GuiToggleButton graphBtnSsg11;
+    GuiToggleButton graphBtnSsgP11;
+
+    GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
 
     bool isUpdatingGraph = false;
 
+    // アルゴリズムから出した「鳴っているオペレータ」の表。
+    //
+    // つまみは TARGET のぶんしか無くなったので、押せるかどうかで
+    // 判じられない。鍵で番号を押したときの入り口で見る。
+    std::array<bool, OpnaPrValue::ops> opActive{};
+
+    // MML の窓へ出す案内。札からも鍵からも同じものを使う。
+    static inline const juce::String mmlHint =
+        juce::String("") + "MML風にパラメータを入力してください。 例: AR:31 AR31 DT-1 等";
+
     void updateOpGraph(int opIndex);
-    void setGraphMode(int opIndex, GraphMode mode);
+    void setGraphMode(GuiEnvGraphMode mode);
+
+    // TARGET が今どのオペレータを指しているか (0 から数える)。
+    int currentOp() const;
+
+    // TARGET が指すオペレータへ、設定の束縛を丸ごと移す。
+    void rebind(int opIndex);
+
+    // 指し先を切り替える。束縛と枠線の付け替えをまとめて行う。
+    void applyOpTarget();
+
+    // 指し先を一時的に動かして何かをする。
+    //
+    // 設定はひとそろいしか無いので、TARGET が指していないオペレータを
+    // 読み書きするには、いったんそこへ繋ぎ替えるしかない。
+    void withOp(int opIndex, const std::function<void()>& fn);
+
+    // 設定ひとそろいの置き方
+    void layoutOpPanel(juce::Rectangle<int> area);
 public:
 	GuiOpna(const GuiContext& context) :
         GuiBase(context),
@@ -305,73 +363,93 @@ public:
         ieQuality(context),
 		ieChParam(context),
 		imOpnChParam(context),
-        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
-        catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
-        catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
-        mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
-        ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        sePreview{ GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context), GuiWavePreview(context) },
-        pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
-        ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
-        ssgSwEnv11{ GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context) },
-        ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
-        ssgHwPEnvOp{ GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context), GuiComponentSsgHwPEnv(context) },
-        wtAmpModOp{ GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context), GuiComponentWtAmpMod(context) },
-        ssgHwEnvOp{ GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context), GuiComponentSsgHwEnv(context) },
-        wtModOp{ GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context), GuiComponentWtMod(context) },
-        fix{ GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context) },
-        catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        freqs{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        syncDelay{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        syncDelayToZero{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        syncDelayToOne{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        pms{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        ams{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        catN88Lfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        n88Ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        mmlSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
-        mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
-        rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgDr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgSr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgSl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
-        xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        opNameLabel(context),
+        opTargetSeparator(context),
+        colAmp(context),
+        colSsgHwEnv(context),
+        colSsgSwEnv(context),
+        colSsgSwEnv11(context),
+        colAmpMod(context),
+        colPitchEnv(context),
+        colSsgHwPEnv(context),
+        colSsgSwPEnv11(context),
+        colMod(context),
+        colKs(context),
+        colHwLfo(context),
+        colMask(context),
+        catDet(context),
+        catAmp(context),
+        mul(context),
+        dt(context),
+        ksCat(context),
+        ks(context),
+        catSsgEnv(context),
+        se(context),
+        seFreq(context),
+        sePreview(context),
+        pitchEnv(context),
+        ssgSwEnv(context),
+        ssgSwEnv11(context),
+        ssgSwPEnv11(context),
+        ssgHwPEnvOp(context),
+        wtAmpModOp(context),
+        ssgHwEnvOp(context),
+        wtModOp(context),
+        fix(context),
+        catLfo(context),
+        freqs(context),
+        syncDelay(context),
+        syncDelayToZero(context),
+        syncDelayToOne(context),
+        pm(context),
+        pms(context),
+        am(context),
+        ams(context),
+        catN88Lfo(context),
+        n88Ams(context),
+        catMask(context),
+        mask(context),
+        mmlSeparator(context),
+        mml(context),
+        rgAr(context),
+        rgDr(context),
+        rgSr(context),
+        rgSl(context),
+        rgRr(context),
+        rgTl(context),
+        catOptional(context),
+        opDelay(context),
+        opDelayNudge(context),
+        opDelaySeparator(context),
+        xof(context),
+        kor(context),
+        bypass(context),
         midiComponent(context),
         gGraph(),
         gGraphBtnAmp(context),
         gGraphBtnSsg11(context),
         gGraphBtnSsgP11(context),
         gGraphSeparator(context),
-        graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphBtnSsg11{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphBtnSsgP11{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) }
+        graphBtnAmp(context),
+        graphBtnPitch(context),
+        graphBtnSsg(context),
+        graphBtnSsg11(context),
+        graphBtnSsgP11(context),
+        cells{ GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context) }
     {
-        currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
     void setup() override;
+
+    // 簡易表示モードで隠す区分への一括操作
+    void bypassHiddenCategories() override;
+    void openEnabledCategories() override;
+    void closeBypassedCategories() override;
     void layout(juce::Rectangle<int> content) override;
     void updateOpEnable(int idx, bool enable);
     void updateAlgorithmDisplay();
-    void updateRgDisplayAsOp(int idx, bool rgMode);
+    void updateRgDisplayAsOp(bool rgMode);
     void updatePresetName(const juce::String& name);
     bool keyPressed(const juce::KeyPress& key) override;
     void copyFmParamsToString();
@@ -379,40 +457,48 @@ public:
     void pasteFmParamsFromObject();
     void initParams();
     void layoutUtilityCat(Rectangle<int>& rect);
-    void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpMaskCat(juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutN88LfoCat(juce::Rectangle<int>& rect);
     void updateLfoPreviews();
-    void updateSePreview(int opIndex);
-    void layoutOpSsgEnvelopeCat(int opIndex, juce::Rectangle<int>& rect);
-    void layoutOpHwLfoCat(int opIndex, juce::Rectangle<int>& rect);
-    void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
-    void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
-    void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
-    void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
-    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
-    void setupGraph(int opIndex);
+    void updateSePreview();
+    void layoutOpSsgEnvelopeCat(juce::Rectangle<int>& rect);
+    void layoutOpHwLfoCat(juce::Rectangle<int>& rect);
+    void layoutOpN88LfoCat(juce::Rectangle<int>& rect);
+    void layoutOpOptionalCat(juce::Rectangle<int>& rect);
+    void layoutOpKsCat(juce::Rectangle<int>& rect);
+    void layoutOpDetCat(juce::Rectangle<int>& rect);
+    void layoutOpAmpCat(juce::Rectangle<int>& rect);
+    void setupOpGraphWiring();
 
     // チップ全体のグラフ
     void setupGlobalGraph();
     void layoutGlobalGraph(juce::Rectangle<int>& rect);
     void updateGlobalGraph();
     void setGlobalGraphMode(GlobalGraphMode mode);
-    void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
     void copyParams(CopyOpna& copyObj);
     void copyOpParams(int p, CopyOpnaOp& copyObj);
+
+    // 指しているオペレータのぶんを読み書きする。番号を跨ぐときは
+    // 上の入り口が withOp で繋ぎ替えてから呼ぶ。
+    void copyOpParamsHere(CopyOpnaOp& copyObj);
     void pasteParams(CopyOpna& copyObj);
     void pasteOpParams(int p, CopyOpnaOp& copyObj);
+    void pasteOpParamsHere(CopyOpnaOp& copyObj);
     void copyParamsOpm(CopyOpnOpm& copyObj);
     void copyParamsOpnOpm(CopyOpnaOpnOpm& copyObj);
     void copyOpParamsOpm(int p, CopyOpnOpmOp& copyObj);
+    void copyOpParamsOpmHere(CopyOpnOpmOp& copyObj);
     void copyOpParamsOpnOpm(int p, CopyOpnaOpnOpmOp& copyObj);
+    void copyOpParamsOpnOpmHere(CopyOpnaOpnOpmOp& copyObj);
     void pasteParamsOpm(CopyOpnOpm& copyObj);
     void pasteParamsOpnOpm(CopyOpnaOpnOpm& copyObj);
     void pasteOpParamsOpm(int p, CopyOpnOpmOp& copyObj);
+    void pasteOpParamsOpmHere(CopyOpnOpmOp& copyObj);
     void pasteOpParamsOpnOpm(int p, CopyOpnaOpnOpmOp& copyObj);
+    void pasteOpParamsOpnOpmHere(CopyOpnaOpnOpmOp& copyObj);
     void importHwLfoParam(int opIndex);
 
     // ブラウザから直に読ませるための入口。

@@ -59,6 +59,7 @@ void AdpcmCore::setSampleRate(double sampleRate)
 void AdpcmCore::setParameters(const SynthParams& params)
 {
     m_level = params.adpcm.level;
+    m_delaySeconds = params.adpcm.delay;
     m_pan = params.adpcm.pan;
     m_tone = params.adpcm.tn.tone;
     m_mix = params.adpcm.tn.mix;
@@ -74,7 +75,9 @@ void AdpcmCore::setParameters(const SynthParams& params)
 
     m_pcmOffset = params.adpcm.pcm.offset;
     m_pcmRatio = params.adpcm.pcm.ratio;
+    m_speed = params.adpcm.pcm.speed;
     m_loopPointEnable = params.adpcm.lp.enable;
+    m_lpCount = params.adpcm.lp.count;
     m_loopPointStart = std::clamp(params.adpcm.lp.start, 0.0f, 0.999999f);
     m_loopPointEnd = std::clamp(params.adpcm.lp.end, m_loopPointStart + 0.000001f, 1.0f);
 
@@ -177,6 +180,8 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
         m_hasFinished = false;
         m_isReleased = false;
+        m_lpCounter = 0;
+        m_lpDone = false;
         m_phase = (m_unison.getPhaseOffset() * juce::MathConstants<float>::twoPi);
 
         // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
@@ -373,12 +378,18 @@ float AdpcmCore::getSample()
         // ループ・終了判定
         // =========================================================
         if (m_loopPointEnable) {
-            if (!m_isReleased) {
+            if (!m_isReleased && !m_lpDone) {
                 // リリース前：ループポイント間をループ
                 if (m_position >= loopEndPos) {
-                    double loopLength = loopEndPos - loopStartPos;
-                    if (loopLength > 0.0) {
-                        m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                    // 決めた回数まで回ったら、折り返さずにその先へ進む
+                    if (m_lpCount > 0 && ++m_lpCounter >= m_lpCount) {
+                        m_lpDone = true;
+                    }
+                    else {
+                        double loopLength = loopEndPos - loopStartPos;
+                        if (loopLength > 0.0) {
+                            m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                        }
                     }
                 }
             }
@@ -521,12 +532,18 @@ float AdpcmCore::getSample()
         // ループ・終了判定
         // =========================================================
         if (m_loopPointEnable) {
-            if (!m_isReleased) {
+            if (!m_isReleased && !m_lpDone) {
                 // リリース前：ループポイント間をループ
                 if (m_position >= loopEndPos) {
-                    double loopLength = loopEndPos - loopStartPos;
-                    if (loopLength > 0.0) {
-                        m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                    // 決めた回数まで回ったら、折り返さずにその先へ進む
+                    if (m_lpCount > 0 && ++m_lpCounter >= m_lpCount) {
+                        m_lpDone = true;
+                    }
+                    else {
+                        double loopLength = loopEndPos - loopStartPos;
+                        if (loopLength > 0.0) {
+                            m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                        }
                     }
                 }
             }
@@ -688,7 +705,7 @@ float AdpcmCore::getSample()
     float freqMult = m_pitchBendRatio * opzx7PitchMod * m_wtMod.process(m_phaseDelta) * m_ssgHwPEnv.process(1.0f);
 
     // Advance position
-    m_position += currentIncrement * freqMult;
+    m_position += currentIncrement * freqMult * m_speed;
 
     // ==========================================
     // 3. Noise Generator

@@ -503,6 +503,18 @@ public:
 
 class GuiComboBox : public juce::ComboBox, public GuiBaseComponent
 {
+public:
+    // 束ねる先を差し替える。対象を選ぶつまみで値の組を切り替えるときに使う。
+    //
+    // 必ず古い束縛を先に破棄すること。unique_ptr::reset(p) は「新しい
+    // ポインタを格納してから古い方を破棄」するため、reset(new ...) と
+    // 書くと新しい束縛の初期値反映が、まだ生きている古い束縛を通って
+    // 切り替え前のパラメータへ書き戻されてしまう。
+    void rebind(const juce::String& id)
+    {
+        att.reset();
+        att.reset(new ComboBoxAttachment(ctx.apvts, id, *this));
+    }
 protected:
     std::unique_ptr<ComboBoxAttachment> att;
 
@@ -640,6 +652,18 @@ public:
 
 class GuiToggleButton : public juce::ToggleButton, public GuiBaseComponent
 {
+public:
+    // 束ねる先を差し替える。対象を選ぶつまみで値の組を切り替えるときに使う。
+    //
+    // 必ず古い束縛を先に破棄すること。unique_ptr::reset(p) は「新しい
+    // ポインタを格納してから古い方を破棄」するため、reset(new ...) と
+    // 書くと新しい束縛の初期値反映が、まだ生きている古い束縛を通って
+    // 切り替え前のパラメータへ書き戻されてしまう。
+    void rebind(const juce::String& id)
+    {
+        att.reset();
+        att.reset(new ButtonAttachment(ctx.apvts, id, *this));
+    }
 protected:
     std::unique_ptr<ButtonAttachment> att;
     juce::Justification textJustification = juce::Justification::centred;
@@ -649,6 +673,11 @@ protected:
     float boxGapW = 2.0f;      // 四角と文字の隙間
     float boxGapH = 2.0f;      // 四角と文字の隙間
     float labelGapW = 6.0f;      // 四角と文字の隙間
+
+    // 左寄せで描くときに、左端へ残す余白。
+    //
+    // 0 から描くと枠線は太さの外側半分が部品からはみ出し、見切れる。
+    float leftMarginW = 4.0f;
 public:
     GuiToggleButton(const GuiContext& context) : GuiBaseComponent(context) {
     }
@@ -945,6 +974,16 @@ public:
 
     void setup(const GuiSlider::Config& c);
 };
+
+// MML 風入力の窓。
+//
+// 札から離して呼べるところへ出してある。オペレータごとに札を置くのを
+// やめたので、鍵で「3 番の窓」を出したいときに押す札が無い。
+namespace GuiMml
+{
+    void openDialog(juce::Component* owner, int opIndex, const juce::String& hintMessage,
+        std::function<void(juce::String)> onApplied);
+}
 
 class GuiMmlButton : public GuiTextButton
 {

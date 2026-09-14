@@ -40,16 +40,16 @@ RHYTHM が複数のパッドに短い音を並べるのに対し、こちらは*
 
 **Load** でファイルを読み込みます。読み込んだ波形は画面で確認できます。
 
-**LPST / LPED を波形の途中に置く**と、押している間そこだけを繰り返します。
+**LP.START / LP.END を波形の途中に置く**と、押している間そこだけを繰り返します。
 持続する音を短い素材から作れます。
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **LOOP** | ファイル全体を繰り返す | [`ADPCM_LOOP`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-loop) |
-| **P.OF** | 頭出し（ミリ秒） | [`ADPCM_PCM_OFFSET`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-offset) |
-| **P.RT** | 再生の速さ | [`ADPCM_PCM_RATIO`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-ratio) |
+| **P.OFFSET** | 頭出し（ミリ秒） | [`ADPCM_PCM_OFFSET`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-offset) |
+| **P.RATIO** | 再生の速さ | [`ADPCM_PCM_RATIO`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-pcm-ratio) |
 | **Loop Point Enable** | 繰り返す範囲を指定する | [`ADPCM_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-looppoint-en) |
-| **LPST / LPED** | その範囲。全体を 0.0〜1.0 とした位置 | [`ADPCM_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-looppoint-st) |
+| **LP.START / LP.END** | その範囲。全体を 0.0〜1.0 とした位置 | [`ADPCM_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-looppoint-st) |
 
 ### OPTIONAL
 
@@ -57,9 +57,9 @@ RHYTHM が複数のパッドに短い音を並べるのに対し、こちらは*
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **T.LV** | 読み込んだ音の側の量 | [`ADPCM_TONE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-tone) |
-| **N.LV** | ざらつきの側の量 | [`ADPCM_NOISE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noise) |
-| **N.FQ** | ざらつきの高さ | [`ADPCM_NOISEFREQ`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisefreq) |
+| **T.LEVEL** | 読み込んだ音の側の量 | [`ADPCM_TONE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-tone) |
+| **N.LEVEL** | ざらつきの側の量 | [`ADPCM_NOISE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noise) |
+| **N.FREQ** | ざらつきの高さ | [`ADPCM_NOISEFREQ`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisefreq) |
 | **MIX** | 2 つの混ぜ具合 | [`ADPCM_NOISEMIX`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisemix) |
 
 ### PAN

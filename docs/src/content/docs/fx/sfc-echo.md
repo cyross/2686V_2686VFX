@@ -30,20 +30,20 @@ sidebar:
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **FC0** | 0 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC1** | 1 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC2** | 2 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC3** | 3 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC4** | 4 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC5** | 5 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC6** | 6 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
-| **FC7** | 7 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF0** | 0 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF1** | 1 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF2** | 2 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF3** | 3 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF4** | 4 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF5** | 5 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF6** | 6 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
+| **COEF7** | 7 番目の係数 | -128 〜 127 | 0 | [`FX_SFCECHO_FIR_COEF[0-7]`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-sfcecho-fir-coef-0-7) |
 
 ## 使いどころ
 
 **FB** に負の値を入れられるのが実機ゆずりです。繰り返しごとに上下が入れ替わり、独特のうねりが出ます。
 
-**FC0〜FC7** は、繰り返す音に掛かるフィルターの係数です。FC0 だけを大きくすると素直な繰り返しに、交互に正負を置くと高いところが強調されます。
+**COEF0〜COEF7** は、繰り返す音に掛かるフィルターの係数です。COEF0 だけを大きくすると素直な繰り返しに、交互に正負を置くと高いところが強調されます。
 
 ## 使えるプラグイン
 

@@ -67,10 +67,10 @@ RHYTHM は **YM2608B のリズム音源**にあたるチャンネルです。実
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **One Shot** | 鍵を離しても最後まで鳴らす | [`RHYTHM_PAD[0-7]_ONESHOT`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-oneshot) |
-| **POFF** | 頭出し（ミリ秒） | [`RHYTHM_PAD[0-7]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-offset) |
-| **PRT** | 再生の速さ | [`RHYTHM_PAD[0-7]_PCM_RATIO`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-ratio) |
+| **P.OFFSET** | 頭出し（ミリ秒） | [`RHYTHM_PAD[0-7]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-offset) |
+| **P.RATIO** | 再生の速さ | [`RHYTHM_PAD[0-7]_PCM_RATIO`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pcm-ratio) |
 | **Loop Point Enable** | 繰り返す範囲を指定する | [`RHYTHM_PAD[0-7]_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-en) |
-| **LPST / LPED** | その範囲。全体を 0.0〜1.0 とした位置 | [`RHYTHM_PAD[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-st) |
+| **LP.START / LP.END** | その範囲。全体を 0.0〜1.0 とした位置 | [`RHYTHM_PAD[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-st) |
 
 ### NOTE — MIDI キーの割り当て
 
@@ -87,16 +87,16 @@ RHYTHM は **YM2608B のリズム音源**にあたるチャンネルです。実
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **T.LV** | 読み込んだ音の側の量 | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
-| **N.LV** | ざらつきの側の量 | [`RHYTHM_PAD[0-7]_NOISE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noise) |
-| **N.FQ** | ざらつきの高さ | [`RHYTHM_PAD[0-7]_NOISEFREQ`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noisefreq) |
+| **T.LEVEL** | 読み込んだ音の側の量 | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
+| **N.LEVEL** | ざらつきの側の量 | [`RHYTHM_PAD[0-7]_NOISE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noise) |
+| **N.FREQ** | ざらつきの高さ | [`RHYTHM_PAD[0-7]_NOISEFREQ`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noisefreq) |
 | **MIX** | 2 つの混ぜ具合 | [`RHYTHM_PAD[0-7]_NOISEMIX`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noisemix) |
 
 ### LEVEL / PAN
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **LV** | パッドごとの音量 | [`RHYTHM_PAD[0-7]_VOL`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-vol) |
+| **LEVEL** | パッドごとの音量 | [`RHYTHM_PAD[0-7]_VOL`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-vol) |
 | **PAN** | パッドごとの定位 | [`RHYTHM_PAD[0-7]_PAN`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-pan) |
 
 ### エンベロープ

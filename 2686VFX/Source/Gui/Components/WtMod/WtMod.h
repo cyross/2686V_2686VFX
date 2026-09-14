@@ -13,6 +13,7 @@
 #include "../WavePreview/WavePreviewGrid.h"
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Generator/Fds/GenFdsModTable.h"
+#include "../WaveHold/WaveHold.h"
 
 // ==========================================================
 // WT MODULATION
@@ -49,6 +50,9 @@ public:
     const GuiColor::Entry* stepColourEntry = &GuiColor::WavePreview::PitchEnv;
 
     void setup(juce::Component& parent, const juce::String& idPrefix);
+
+    // 束縛先を差し替える。見た目はそのままに、引く先だけ張り替える。
+    void rebind(const juce::String& idPrefix);
     void loadTable(const std::array<int, 32>& table);
     std::array<int, 32> currentTable() const;
 
@@ -84,6 +88,9 @@ class GuiComponentWtMod : public GuiBase {
 
     // 選んでいる Shape の変調波形を見せるプレビュー
     GuiWavePreview modPreview;
+
+    // ホールドと部分再生
+    GuiComponentWaveHold waveHold;
 
     // どのチャンネルの持ち分かを覚えておく。
     // 変調波形の実データはプロセッサが持っており、これが引き当ての鍵になる。
@@ -157,6 +164,7 @@ public:
         slotFileNameLabel(context),
         slotPreviews(context),
         modPreview(context),
+        waveHold(context),
         fdsCat(context),
         fdsEditor(context),
         fdsPresetBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) }
@@ -167,6 +175,8 @@ public:
     // そこでは HwBg、他チャンネルへ借りて置く場合は既定の SwBg を使う。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
         juce::Colour categoryBg = GuiColor::Category::SwPitchBg);
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
 
     // CH パラメータの入出力。

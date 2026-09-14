@@ -36,6 +36,7 @@ namespace
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"
 
+#include "../../Core/Gui/GuiGraphValues.h"
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiOpnValues.h"
 #include "./GuiOpnText.h"
@@ -300,12 +301,13 @@ void GuiOpn::setup()
     imOpnaOpChParam.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OPNA OP Params");
     imOpnaOpChParam.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpnaOpChParam(opIndex); };
 
-    targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
-    targerOpSlider.setRange(1.0, 4.0, 1.0);
+    // TARGET。設定ひとそろいの帯へ置く。値が動いたら束縛と枠線を付け替える。
+    targerOpSlider.setup({ .parent = *this, .title = "TARGET", .isReset = false });
+    targerOpSlider.setRange(1.0, (double)OpnPrValue::ops, 1.0);
     targerOpSlider.setNumDecimalPlacesToDisplay(0);
-    targerOpSlider.setValue(1, juce::sendNotification);
     targerOpSlider.setWantsKeyboardFocus(true);
     targerOpSlider.setExplicitFocusOrder(++tabOrder);
+    targerOpSlider.onValueChange = [this] { applyOpTarget(); };
 
     uSep004.setupComponent(mainGroup.contentCanvas);
 
@@ -338,107 +340,189 @@ void GuiOpn::setup()
     // Operators
     const juce::String opCode = code + CPK::op;
 
+    // ---- 上の絵と、下の設定 ----
+    //
+    // 絵はオペレータの数だけ。設定はひとそろいだけ置き、TARGET で
+    // 指し先を切り替える。
     for (int i = 0; i < OpnPrValue::ops; ++i)
     {
-        opGroups[i].setup(*this, OpnGuiText::Group::opPrefix + juce::String(i + 1));
-
-        juce::String paramPrefix = opCode + juce::String(i);
-
-        catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnGuiText::Category::detune, .enableChangeDetailVisible = true });
-        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnGuiText::Category::ampEnv, .detailVisible = true, .enableChangeDetailVisible = true });
-
-        mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::mul, .title = OpnGuiText::Fm::Op::Mul, .items = multems, .isReset = true });
-        mul[i].setWantsKeyboardFocus(true);
-        mul[i].setExplicitFocusOrder(++tabOrder);
-
-        dt[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::dt, .title = OpnGuiText::Fm::Op::Dt, .items = dtItems, .isReset = true });
-        dt[i].setWantsKeyboardFocus(true);
-        dt[i].setExplicitFocusOrder(++tabOrder);
-
-        rgAr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgAr, .title = OpnGuiText::Fm::Op::Ar, .isReset = true });
-        rgAr[i].setWantsKeyboardFocus(true);
-        rgAr[i].setExplicitFocusOrder(++tabOrder);
-
-        rgDr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgDr, .title = OpnGuiText::Fm::Op::Dr, .isReset = true });
-        rgDr[i].setWantsKeyboardFocus(true);
-        rgDr[i].setExplicitFocusOrder(++tabOrder);
-
-        rgSl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgSl, .title = OpnGuiText::Fm::Op::Sl, .isReset = true });
-        rgSl[i].setWantsKeyboardFocus(true);
-        rgSl[i].setExplicitFocusOrder(++tabOrder);
-
-        rgSr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgSr, .title = OpnGuiText::Fm::Op::Sr, .isReset = true });
-        rgSr[i].setWantsKeyboardFocus(true);
-        rgSr[i].setExplicitFocusOrder(++tabOrder);
-
-        rgRr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgRr, .title = OpnGuiText::Fm::Op::Rr, .isReset = true });
-        rgRr[i].setWantsKeyboardFocus(true);
-        rgRr[i].setExplicitFocusOrder(++tabOrder);
-
-        rgTl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgTl, .title = OpnGuiText::Fm::Op::Tl, .isReset = true });
-        rgTl[i].setWantsKeyboardFocus(true);
-        rgTl[i].setExplicitFocusOrder(++tabOrder);
-
-        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnGuiText::Category::ks, .enableChangeDetailVisible = true });
-
-        ks[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ks, .title = OpnGuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
-        ks[i].setWantsKeyboardFocus(true);
-        ks[i].setExplicitFocusOrder(++tabOrder);
-
-        catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnGuiText::Category::optional, .enableChangeDetailVisible = true });
-
-        xof[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::xof, .title = OpnGuiText::Fm::Op::xof, .isReset = true });
-        xof[i].setWantsKeyboardFocus(true);
-        xof[i].setExplicitFocusOrder(++tabOrder);
-
-        kor[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::kor, .title = OpnGuiText::Fm::Op::kor, .isReset = true });
-        kor[i].setWantsKeyboardFocus(true);
-        kor[i].setExplicitFocusOrder(++tabOrder);
-
-        bypass[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::bypass, .title = OpnGuiText::Fm::Op::bypass, .isReset = true });
-        bypass[i].setWantsKeyboardFocus(true);
-        bypass[i].setExplicitFocusOrder(++tabOrder);
-
-        pitchEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::PitchAdsr::enable, OpnGuiText::PitchAdsr::enable, true);
-
-        ssgSwEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv::enable, OpnGuiText::SsgSwEnv::enable, true);
-
-        ssgSwEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv11::enable, OpnGuiText::SsgSwEnv11::enable, true);
-
-        ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, OpnGuiText::SsgSwPEnv11::enable, true);
-        ssgHwPEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
-        wtAmpModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
-        ssgHwEnvOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
-        wtModOp[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder);
-
-        catN88Lfo[i].setupSwLfoCategory({ .parent = opGroups[i].contentCanvas, .title = OpnGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
-
-        n88Ams[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::N88Lfo::ams, .title = OpnGuiText::Fm::Op::Ams, .isReset = true });
-        n88Ams[i].setWantsKeyboardFocus(true);
-        n88Ams[i].setExplicitFocusOrder(++tabOrder);
-
-        fix[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, OpnGuiText::Fm::Op::Opzx7FreqTo440, 440, true);
-
-        catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnGuiText::Category::mask, .enableChangeDetailVisible = true });
-
-        mask[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::mask, .title = OpnGuiText::Fm::Op::Mask, .isReset = true });
-        mask[i].setWantsKeyboardFocus(true);
-        mask[i].setExplicitFocusOrder(++tabOrder);
-
-        mmlSeparator[i].setupComponent(opGroups[i].contentCanvas);
-
-        mml[i].setup({ .parent = opGroups[i].contentCanvas, .title = juce::String("") + "MML風入力", .isReset = false, .isResized = false });
-        mml[i].setWantsKeyboardFocus(true);
-        mml[i].setExplicitFocusOrder(++tabOrder);
-        mml[i].setupMml({
-            .opIndex = i,
-            .hintMessage = juce::String("") + "MML風にパラメータを入力してください。 例: AR:31 AR31 DT-1 等",
-            .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
-            });
-
-        setupGraph(i);
-        updateOpGraph(i);
+        cells[(size_t)i].setup(*this, i, OpnGuiText::Group::opPrefix + juce::String(i + 1), false);
+        cells[(size_t)i].onSelect = [this](int index) {
+            targerOpSlider.setValue(index + 1, juce::sendNotification);
+            };
     }
+
+    // 区分は縦に積まず、横へ並べる。1 列 1 区分が基本。
+    stripViewport.setViewedComponent(&stripCanvas, false);
+    stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setOpaque(false);
+
+    addAndMakeVisible(stripViewport);
+
+    colAmp.setup(stripCanvas, juce::String("") + "AMP ENV / OPTIONAL");
+    colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
+    colSsgSwEnv.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV");
+    colSsgSwEnv11.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[11]");
+    colAmpMod.setup(stripCanvas, juce::String("") + "WT AMP MOD");
+    colPitchEnv.setup(stripCanvas, juce::String("") + "PITCH ENV");
+    colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
+    colSsgSwPEnv11.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
+    colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
+    colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL/DET / FIX / N88 LFO");
+    colMask.setup(stripCanvas, juce::String("") + "MASK / MML");
+
+    // 今どのオペレータを触っているか。名前は rebind で入れ替える。
+    opNameLabel.setup({ .parent = *this, .title = Io::empty,
+        .justification = juce::Justification::centredLeft });
+
+    opTargetSeparator.setupComponent(*this);
+
+    // どのエンベロープを映すかの切り替え。TARGET のすぐ右へ置く。
+    auto setupModeBtn = [this, &tabOrder](GuiToggleButton& btn, const juce::String& text,
+        GuiEnvGraphMode mode) {
+        btn.setup({ .parent = *this, .title = text, .isReset = false, .isResized = false });
+        btn.setWantsKeyboardFocus(true);
+        btn.setExplicitFocusOrder(++tabOrder);
+        btn.onClick = [this, mode] { this->setGraphMode(mode); };
+        };
+
+    setupModeBtn(graphBtnAmp, "AMP", GuiEnvGraphMode::Amp);
+    setupModeBtn(graphBtnPitch, "PIT", GuiEnvGraphMode::Pitch);
+    setupModeBtn(graphBtnSsg, "SSG", GuiEnvGraphMode::SsgSw);
+    setupModeBtn(graphBtnSsg11, "S11", GuiEnvGraphMode::SsgSw11);
+    setupModeBtn(graphBtnSsgP11, "P11", GuiEnvGraphMode::SsgSwP11);
+
+    graphBtnAmp.setToggleState(true, juce::dontSendNotification);
+
+    // 組み立ての間だけ 1 番のオペレータへ繋いでおく。
+    // 実際の指し先は、組み上がったあと rebind で入れ替える。
+    const int i = 0;
+
+    juce::String paramPrefix = opCode + juce::String(i);
+
+    catDet.setupHwCategory({ .parent = colKs.contentCanvas, .title = OpnGuiText::Category::detune, .enableChangeDetailVisible = true });
+    catAmp.setupHwCategory({ .parent = colAmp.contentCanvas, .title = OpnGuiText::Category::ampEnv, .detailVisible = true, .enableChangeDetailVisible = true });
+
+    mul.setup(GuiComboBox::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::mul, .title = OpnGuiText::Fm::Op::Mul, .items = multems, .isReset = true });
+    mul.setWantsKeyboardFocus(true);
+    mul.setExplicitFocusOrder(++tabOrder);
+
+    dt.setup(GuiComboBox::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::dt, .title = OpnGuiText::Fm::Op::Dt, .items = dtItems, .isReset = true });
+    dt.setWantsKeyboardFocus(true);
+    dt.setExplicitFocusOrder(++tabOrder);
+
+    rgAr.setup(GuiSlider::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::rgAr, .title = OpnGuiText::Fm::Op::Ar, .isReset = true });
+    rgAr.setWantsKeyboardFocus(true);
+    rgAr.setExplicitFocusOrder(++tabOrder);
+
+    rgDr.setup(GuiSlider::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::rgDr, .title = OpnGuiText::Fm::Op::Dr, .isReset = true });
+    rgDr.setWantsKeyboardFocus(true);
+    rgDr.setExplicitFocusOrder(++tabOrder);
+
+    rgSl.setup(GuiSlider::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::rgSl, .title = OpnGuiText::Fm::Op::Sl, .isReset = true });
+    rgSl.setWantsKeyboardFocus(true);
+    rgSl.setExplicitFocusOrder(++tabOrder);
+
+    rgSr.setup(GuiSlider::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::rgSr, .title = OpnGuiText::Fm::Op::Sr, .isReset = true });
+    rgSr.setWantsKeyboardFocus(true);
+    rgSr.setExplicitFocusOrder(++tabOrder);
+
+    rgRr.setup(GuiSlider::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::rgRr, .title = OpnGuiText::Fm::Op::Rr, .isReset = true });
+    rgRr.setWantsKeyboardFocus(true);
+    rgRr.setExplicitFocusOrder(++tabOrder);
+
+    rgTl.setup(GuiSlider::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::rgTl, .title = OpnGuiText::Fm::Op::Tl, .isReset = true });
+    rgTl.setWantsKeyboardFocus(true);
+    rgTl.setExplicitFocusOrder(++tabOrder);
+
+    ksCat.setupHwCategory({ .parent = colKs.contentCanvas, .title = OpnGuiText::Category::ks, .enableChangeDetailVisible = true });
+
+    ks.setup(GuiComboBox::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ks, .title = OpnGuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
+    ks.setWantsKeyboardFocus(true);
+    ks.setExplicitFocusOrder(++tabOrder);
+
+    catOptional.setupSwCategory({ .parent = colAmp.contentCanvas, .title = OpnGuiText::Category::optional, .enableChangeDetailVisible = true });
+
+    opDelay.setupComponent(colAmp.contentCanvas, paramPrefix + CPK::delay, "DELAY", tabOrder, std::nullopt);
+
+    opDelayNudge.setupComponent(colAmp.contentCanvas, opDelay.getSlider(), tabOrder);
+
+    opDelaySeparator.setupComponent(colAmp.contentCanvas);
+
+    xof.setup(GuiToggleButton::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::xof, .title = OpnGuiText::Fm::Op::xof, .isReset = true });
+    xof.setWantsKeyboardFocus(true);
+    xof.setExplicitFocusOrder(++tabOrder);
+
+    kor.setup(GuiToggleButton::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::kor, .title = OpnGuiText::Fm::Op::kor, .isReset = true });
+    kor.setWantsKeyboardFocus(true);
+    kor.setExplicitFocusOrder(++tabOrder);
+
+    bypass.setup(GuiToggleButton::Config{ .parent = colAmp.contentCanvas, .id = paramPrefix + CPK::Fm::bypass, .title = OpnGuiText::Fm::Op::bypass, .isReset = true });
+    bypass.setWantsKeyboardFocus(true);
+    bypass.setExplicitFocusOrder(++tabOrder);
+
+    pitchEnv.setupComponent(colPitchEnv.contentCanvas, paramPrefix, tabOrder, CPK::PitchAdsr::enable, OpnGuiText::PitchAdsr::enable, true);
+
+    ssgSwEnv.setupComponent(colSsgSwEnv.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv::enable, OpnGuiText::SsgSwEnv::enable, true);
+
+    ssgSwEnv11.setupComponent(colSsgSwEnv11.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv11::enable, OpnGuiText::SsgSwEnv11::enable, true);
+
+    ssgSwPEnv11.setupComponent(colSsgSwPEnv11.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, OpnGuiText::SsgSwPEnv11::enable, true);
+    ssgHwPEnvOp.setupComponent(colSsgHwPEnv.contentCanvas, paramPrefix, tabOrder);
+    wtAmpModOp.setupComponent(colAmpMod.contentCanvas, paramPrefix, tabOrder);
+    ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
+    wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
+
+    catN88Lfo.setupSwLfoCategory({ .parent = colKs.contentCanvas, .title = OpnGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
+
+    n88Ams.setup(GuiSlider::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::N88Lfo::ams, .title = OpnGuiText::Fm::Op::Ams, .isReset = true });
+    n88Ams.setWantsKeyboardFocus(true);
+    n88Ams.setExplicitFocusOrder(++tabOrder);
+
+    fix.setupComponent(colKs.contentCanvas, paramPrefix, tabOrder, OpnGuiText::Fm::Op::Opzx7FreqTo440, 440, true);
+
+    catMask.setupHwCategory({ .parent = colMask.contentCanvas, .title = OpnGuiText::Category::mask, .enableChangeDetailVisible = true });
+
+    mask.setup(GuiToggleButton::Config{ .parent = colMask.contentCanvas, .id = paramPrefix + CPK::Fm::mask, .title = OpnGuiText::Fm::Op::Mask, .isReset = true });
+    mask.setWantsKeyboardFocus(true);
+    mask.setExplicitFocusOrder(++tabOrder);
+
+    mmlSeparator.setupComponent(colMask.contentCanvas);
+
+    mml.setup({ .parent = colMask.contentCanvas, .title = juce::String("") + "MML風入力", .isReset = false, .isResized = false });
+    mml.setWantsKeyboardFocus(true);
+    mml.setExplicitFocusOrder(++tabOrder);
+    // 札は TARGET が指しているオペレータへ入れる。番号は rebind で
+    // 入れ替わるので、ここでは押されたときに引き直す。
+    mml.onClick = [this] {
+        const int op = currentOp();
+
+        GuiMml::openDialog(this, op, mmlHint,
+            [this](juce::String text) { this->applyMmlString(text); });
+        };
+
+    setupOpGraphWiring();
+
+    // 区分の中身は最初から開いておく。1 列 1 区分にしたので、
+    // 畳んだままだと見出しだけの列が並ぶことになる。
+    for (auto* group : {
+        &colAmp, &colSsgHwEnv, &colSsgSwEnv, &colSsgSwEnv11,
+        &colAmpMod, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv11,
+        &colMod, &colKs, &colMask,
+        })
+    {
+        for (auto* child : group->contentCanvas.getChildren())
+        {
+            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(child)) cat->setDetailVisible(true);
+        }
+    }
+
+    // 前に開いていたときの指し先から始める。
+    const int saved = (int)ctx.audioProcessor.apvts.state.getProperty(ProcessorStateKey::opnTarget, 0);
+
+    targerOpSlider.setValue(juce::jlimit(0, OpnPrValue::ops - 1, saved) + 1, juce::dontSendNotification);
+
+    applyOpTarget();
 }
 
 void GuiOpn::layout(juce::Rectangle<int> content)
@@ -519,105 +603,66 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
 
-    int opWidth = pageArea.getWidth() / 4;
+    // ---- 上は絵、下は設定 ----
+    //
+    // 絵は横 4 枚ずつ並べる。オペレータが 4 の倍数でないときは、
+    // 足りないところを空けたままにする (詰めると番号と場所がずれる)。
+    constexpr int cols = 4;
+    constexpr int rows = (OpnPrValue::ops + cols - 1) / cols;
 
-    // --- B. Operators Section (Bottom) ---
-    for (int i = 0; i < OpnPrValue::ops; ++i)
-    {
-        auto opArea = pageArea.removeFromLeft(opWidth);
+    const int cellW = pageArea.getWidth() / cols;
+    const int cellH = GuiTargetCell::naturalHeight(false);
 
-        // 枠線
-        opGroups[i].setBounds(opArea);
+    auto cellsArea = pageArea.removeFromTop(cellH * rows);
 
-        // 枠線の内側
-        auto iinnerRect = opArea.reduced(OpnGuiValue::Fm::Op::Padding::width, OpnGuiValue::Fm::Op::Padding::height);
-        iinnerRect.removeFromTop(OpnGuiValue::Group::TitlePaddingTop);
+    for (int r = 0; r < rows; ++r) {
+        auto rowArea = cellsArea.removeFromTop(cellH);
 
-        // グラフ用の区画を確保
-        layoutOpGraph(i, iinnerRect);
-        updateOpGraph(i);
+        for (int col = 0; col < cols; ++col) {
+            const int i = r * cols + col;
 
-        // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
-        // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
-        opGroups[i].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
+            auto cellArea = rowArea.removeFromLeft(cellW);
 
-        // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-        juce::Rectangle<int> innerRect(0, 0, opGroups[i].getContentWidth(), 2000);
+            if (i >= OpnPrValue::ops) continue;
 
-        updateRgDisplayAsOp(i, true);
+            cells[(size_t)i].layout(cellArea);
 
-        layoutOpAmpCat(i, innerRect);
-
-        layoutOpOptionalCat(i, innerRect);
-
-        ssgHwEnvOp[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
-        ssgHwEnvOp[i].layoutComponentRow(innerRect);
-        ssgSwEnv[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
-        ssgSwEnv[i].layoutComponentRow(innerRect);
-        ssgSwEnv11[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
-        ssgSwEnv11[i].layoutComponentRow(innerRect);
-        wtAmpModOp[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
-        wtAmpModOp[i].layoutComponent(innerRect);
-
-        pitchEnv[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
-        pitchEnv[i].layoutComponentRow(innerRect);
-        ssgHwPEnvOp[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
-        ssgHwPEnvOp[i].layoutComponentRow(innerRect);
-        ssgSwPEnv11[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
-        ssgSwPEnv11[i].layoutComponentRow(innerRect);
-        wtModOp[i].setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
-        wtModOp[i].layoutComponent(innerRect);
-
-        layoutOpKsCat(i, innerRect);
-
-        layoutOpDetCat(i, innerRect);
-
-        layoutOpN88LfoCat(i, innerRect);
-
-        fix[i].layoutComponentRow(innerRect);
-
-        layoutOpMaskCat(i, innerRect);
-
-        mmlSeparator[i].layoutComponent(innerRect);
-
-        layoutRow({ .rowRect = innerRect, .component = &mml[i] });
-
-        int usedHeight = 2000 - innerRect.getHeight();
-
-        // 下部の余白を足して、キャンバスの最終的な高さをセット
-        opGroups[i].setContentHeight(usedHeight + 20);
+            updateOpGraph(i);
+        }
     }
 
+    // 残りはすべて設定。
+    layoutOpPanel(pageArea);
     updateAlgorithmDisplay();
 }
 
 // ==============================================================================
 // MML Parsing Logic (Template to handle different GuiSets)
 // ==============================================================================
-void GuiOpn::applyMmlString(const juce::String& mml, int opIndex)
+void GuiOpn::applyMmlString(const juce::String& mml)
 {
     std::vector<RegisterUnit> units = RegisterConverter::convertToRegisterUnit(mml);
 
     // 文字列キーと、実行する処理(ラムダ式)とのマップ
     std::map<juce::String, std::function<void(int)>> actionMap = {
         // --- 基本パラメータ ---
-        { mmlPrefixMul,  [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
-        { mmlPrefixMl,   [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
-        { mmlPrefixDt,   [&](int v) { dt[opIndex].setSelectedItemIndex(RegisterConverter::convertMmlDtToReg(v), juce::sendNotification); } },
-        { mmlPrefixKs,   [&](int v) { ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(v), juce::sendNotification); } },
-        { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
+        { mmlPrefixMul,  [&](int v) { mul.setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMl,   [&](int v) { mul.setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixDt,   [&](int v) { dt.setSelectedItemIndex(RegisterConverter::convertMmlDtToReg(v), juce::sendNotification); } },
+        { mmlPrefixKs,   [&](int v) { ks.setSelectedItemIndex(RegisterConverter::convertFmKs(v), juce::sendNotification); } },
+        { mmlPrefixMask, [&](int v) { mask.setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
 
         // --- TL系 (RGモードで分岐) ---
-        { mmlPrefixTl,   [&](int v) { rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
-        { mmlPrefixO,    [&](int v) { rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
-        { mmlPrefixOl,   [&](int v) { rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixTl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixO,    [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixOl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
 
         // --- エンベロープ系 (RGモードで分岐) ---
-        { mmlPrefixAr,   [&](int v) { rgAr[opIndex].setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
-        { mmlPrefixDr,   [&](int v) { rgDr[opIndex].setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
-        { mmlPrefixSr,   [&](int v) { rgSr[opIndex].setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
-        { mmlPrefixSl,   [&](int v) { rgSl[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
-        { mmlPrefixRr,   [&](int v) { rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }}
+        { mmlPrefixAr,   [&](int v) { rgAr.setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixDr,   [&](int v) { rgDr.setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixSr,   [&](int v) { rgSr.setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixSl,   [&](int v) { rgSl.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
+        { mmlPrefixRr,   [&](int v) { rgRr.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }}
     };
 
     for (const auto& rUnit : units)
@@ -633,23 +678,30 @@ void GuiOpn::applyMmlString(const juce::String& mml, int opIndex)
     }
 }
 
+// 鳴っていないオペレータは触れないようにする。
+//
+// つまみは TARGET のぶんしか無いので、指しているオペレータの話で
+// なければ何もしない。指し先を変えたときに引き直す。
 void GuiOpn::updateOpEnable(int idx, bool enable)
 {
-    opGroups[idx].setEnabled(enable);
-    mul[idx].setEnabledWithLabel(enable);
-    dt[idx].setEnabledWithLabel(enable);
-    ks[idx].setEnabledWithLabel(enable);
-    catOptional[idx].setEnabled(enable);
-    xof[idx].setEnabled(enable);
-    kor[idx].setEnabled(enable);
-    bypass[idx].setEnabled(enable);
-    fix[idx].setEnables(enable);
-    catMask[idx].setEnabled(enable);
-    mask[idx].setEnabled(enable);
-    mmlSeparator[idx].setEnabled(enable);
-    mml[idx].setEnabled(enable);
-    pitchEnv[idx].setEnabled(enable);
-    ssgSwEnv[idx].setEnabled(enable);
+    if (idx != currentOp()) return;
+
+    mul.setEnabledWithLabel(enable);
+    dt.setEnabledWithLabel(enable);
+    ks.setEnabledWithLabel(enable);
+    catOptional.setEnabled(enable);
+    opDelay.setEnabled(enable);
+    opDelayNudge.setEnables(enable);
+    xof.setEnabled(enable);
+    kor.setEnabled(enable);
+    bypass.setEnabled(enable);
+    fix.setEnables(enable);
+    catMask.setEnabled(enable);
+    mask.setEnabled(enable);
+    mmlSeparator.setEnabled(enable);
+    mml.setEnabled(enable);
+    pitchEnv.setEnabled(enable);
+    ssgSwEnv.setEnabled(enable);
 }
 
 void GuiOpn::updateAlgorithmDisplay()
@@ -680,18 +732,121 @@ void GuiOpn::updateAlgorithmDisplay()
     for (int i = 0; i < OpnPrValue::ops; ++i)
     {
         // 配列を使わず、到達可能性から判定したフラグをセット
+        opActive[(size_t)i] = activeOps[i];
+
         updateOpEnable(i, activeOps[i]);
     }
 }
 
-void GuiOpn::updateRgDisplayAsOp(int idx, bool rgMode)
+void GuiOpn::updateRgDisplayAsOp(bool rgMode)
 {
-    rgAr[idx].setVisibleWithLabel(rgMode);
-    rgDr[idx].setVisibleWithLabel(rgMode);
-    rgSl[idx].setVisibleWithLabel(rgMode);
-    rgSr[idx].setVisibleWithLabel(rgMode);
-    rgRr[idx].setVisibleWithLabel(rgMode);
-    rgTl[idx].setVisibleWithLabel(rgMode);
+    rgAr.setVisibleWithLabel(rgMode);
+    rgDr.setVisibleWithLabel(rgMode);
+    rgSl.setVisibleWithLabel(rgMode);
+    rgSr.setVisibleWithLabel(rgMode);
+    rgRr.setVisibleWithLabel(rgMode);
+    rgTl.setVisibleWithLabel(rgMode);
+}
+
+// TARGET が今どのオペレータを指しているか (0 から数える)。
+int GuiOpn::currentOp() const
+{
+    return juce::jlimit(0, OpnPrValue::ops - 1, (int)targerOpSlider.getValue() - 1);
+}
+
+// TARGET が指すオペレータへ、設定の束縛を丸ごと移す。
+//
+// オペレータごとに部品を並べるのをやめたので、指し先はここで差し替える。
+// 見た目は組み直さない。
+void GuiOpn::rebind(int opIndex)
+{
+    const juce::String code = OpnPrKey::prefix + CPK::op + juce::String(opIndex);
+
+    opNameLabel.setText(OpnGuiText::Group::opPrefix + juce::String(opIndex + 1), juce::dontSendNotification);
+
+    mul.rebind(code + CPK::mul);
+    dt.rebind(code + CPK::dt);
+    ks.rebind(code + CPK::Fm::ks);
+
+    rgAr.rebind(code + CPK::Fm::rgAr);
+    rgDr.rebind(code + CPK::Fm::rgDr);
+    rgSl.rebind(code + CPK::Fm::rgSl);
+    rgSr.rebind(code + CPK::Fm::rgSr);
+    rgRr.rebind(code + CPK::Fm::rgRr);
+    rgTl.rebind(code + CPK::Fm::rgTl);
+
+    opDelay.getSlider().rebind(code + CPK::delay);
+
+    xof.rebind(code + CPK::Fm::xof);
+    kor.rebind(code + CPK::Fm::kor);
+    bypass.rebind(code + CPK::Fm::bypass);
+
+    n88Ams.rebind(code + CPK::N88Lfo::ams);
+
+    mask.rebind(code + CPK::Fm::mask);
+
+    pitchEnv.rebind(code);
+    ssgSwEnv.rebind(code);
+    ssgSwEnv11.rebind(code);
+    ssgSwPEnv11.rebind(code);
+    ssgHwPEnvOp.rebind(code);
+    wtAmpModOp.rebind(code);
+    ssgHwEnvOp.rebind(code);
+    wtModOp.rebind(code);
+    fix.rebind(code);
+}
+
+// 指し先を切り替える。
+//
+// 設定の束縛を移し、枠線を付け替える。開き直したときに続きから
+// 触れるよう、指し先は覚えておく。
+void GuiOpn::applyOpTarget()
+{
+    const int op = currentOp();
+
+    ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::opnTarget, op, nullptr);
+
+    rebind(op);
+
+    for (int i = 0; i < OpnPrValue::ops; ++i) cells[(size_t)i].setActive(i == op);
+
+    // 鳴っていないオペレータは触れないようにしてある。指し先が変わったので
+    // 入り切りを引き直す。
+    updateAlgorithmDisplay();
+}
+
+// 指し先を一時的に動かして何かをする。
+//
+// 設定はひとそろいしか無いので、TARGET が指していないオペレータを
+// 読み書きするには、いったんそこへ繋ぎ替えるしかない。
+// 終わったら必ず元へ戻す。
+void GuiOpn::withOp(int opIndex, const std::function<void()>& fn)
+{
+    const int keep = currentOp();
+
+    if (opIndex != keep) rebind(opIndex);
+
+    fn();
+
+    if (opIndex != keep) rebind(keep);
+}
+
+// 絵をまとめて切り替える。
+//
+// どれを映すかは絵ごとではなく、全部そろえる。並べた絵を見比べる
+// ためのものなので、一枚ずつ違うものを映しても比べようがない。
+void GuiOpn::setGraphMode(GuiEnvGraphMode mode)
+{
+    currentGraphMode = mode;
+
+    // 札は排他。押したものだけを入れる。
+    graphBtnAmp.setToggleState(mode == GuiEnvGraphMode::Amp, juce::dontSendNotification);
+    graphBtnPitch.setToggleState(mode == GuiEnvGraphMode::Pitch, juce::dontSendNotification);
+    graphBtnSsg.setToggleState(mode == GuiEnvGraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GuiEnvGraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == GuiEnvGraphMode::SsgSwP11, juce::dontSendNotification);
+
+    for (int i = 0; i < OpnPrValue::ops; ++i) updateOpGraph(i);
 }
 
 void GuiOpn::updatePresetName(const juce::String& name)
@@ -699,11 +854,13 @@ void GuiOpn::updatePresetName(const juce::String& name)
     presetName.updatePresetName(name);
 }
 
-// ==============================================================================
-// Keyboard Shortcut Logic
-// ==============================================================================
 bool GuiOpn::keyPressed(const juce::KeyPress& key)
 {
+    // Ctrl を押しているときは TARGET を動かす。数字だけを押したときの
+    // MML より先に見ること。あちらは修飾キーを見ていないので、
+    // 後ろへ置くと Ctrl + 数字まで MML が食べてしまう。
+    if (moveTargetByKey(targerOpSlider, key)) return true;
+
     int opIndex = -1;
     int code = key.getKeyCode();
     juce::ModifierKeys metaKeys = key.getModifiers();
@@ -714,35 +871,61 @@ bool GuiOpn::keyPressed(const juce::KeyPress& key)
     else if (code == '3' || code == juce::KeyPress::numberPad3) opIndex = 2;
     else if (code == '4' || code == juce::KeyPress::numberPad4) opIndex = 3;
 
-    // 対応するキーが押されていたら、該当する処理を実行
-    if (opIndex != -1)
-    {
-        // Altキーを押しながら -> マスクのON/OFF、それ以外 -> MMLボタンクリック
-        // 該当オペレータが有効(Enabled)な時のみ反応させる
-        if (metaKeys.isAltDown() && mask[opIndex].isEnabled()) {
-            mask[opIndex].setToggleState(!mask[opIndex].getToggleState(), juce::sendNotification);
-        }
-        else if (mml[opIndex].isEnabled()) {
-            mml[opIndex].triggerClick();
-        }
+    if (opIndex == -1) return false; // 他のキーなら無視（通常処理へ）
 
-        return true; // キー入力を消費したことをJUCEに伝える
+    // 数字はそのままオペレータ番号を指す。TARGET は動かさない。
+    //
+    // 設定はひとそろいしか無いので、ここで指し先を動かすと、MML を
+    // 入れるつもりで押しただけで今見ているオペレータが入れ替わる。
+    //
+    // 鳴っていないオペレータには何もしない。以前はつまみが押せるかどうかで
+    // 見ていたが、つまみは TARGET のぶんしか無くなったので、
+    // アルゴリズムから出した表を見る。
+    if (!opActive[(size_t)opIndex]) return true;
+
+    const juce::String opPrefix = OpnPrKey::prefix + CPK::op + juce::String(opIndex);
+
+    // Altキーを押しながら -> マスクのON/OFF、それ以外 -> MML の窓
+    if (metaKeys.isAltDown()) {
+        const juce::String id = opPrefix + CPK::Fm::mask;
+
+        setParamValue(id, getParamValue(id) >= 0.5f ? 0.0f : 1.0f);
+    }
+    else {
+        GuiMml::openDialog(this, opIndex, mmlHint,
+            [this, opIndex](juce::String mml) {
+                // 書き込む先は押された番号のオペレータ。TARGET は元へ戻す。
+                withOp(opIndex, [this, mml] { this->applyMmlString(mml); });
+            });
     }
 
-    return false; // 他のキーなら無視（通常処理へ）
+    return true; // キー入力を消費したことをJUCEに伝える
 }
 
 void GuiOpn::copyFmParamsToString()
 {
-    int mask1 = FmMml::bool2Int(!mask[0].getToggleState());
-    int mask2 = FmMml::bool2Int(!mask[1].getToggleState());
-    int mask3 = FmMml::bool2Int(!mask[2].getToggleState());
-    int mask4 = FmMml::bool2Int(!mask[3].getToggleState());
-    int maskVal = FmMml::genMask4(mask1, mask2, mask2, mask3);
+    // オペレータごとに部品を並べるのをやめたので、値はつまみからではなく
+    // パラメータから直に採る。画面へ出ているのは TARGET の 1 本だけで、
+    // MML には 4 本ぶんが要る。
+    //
+    // 選ぶ形のパラメータは、つまみの選択番号から 1 を引いたものと同じ値を
+    // 持っている。以前 getSelectedId() - 1 と書いていたところがこれに当たる。
+    auto& apvts = ctx.audioProcessor.apvts;
+
+    auto opVal = [&apvts](int index, const juce::String& key) {
+        return (int)GuiGraphValues::value(apvts, OpnPrKey::prefix + CPK::op + juce::String(index) + key);
+        };
+
+    auto opMask = [&apvts](int index) {
+        return FmMml::bool2Int(!GuiGraphValues::flag(apvts,
+            OpnPrKey::prefix + CPK::op + juce::String(index) + CPK::Fm::mask));
+        };
+
+    int maskVal = FmMml::genMask4(opMask(0), opMask(1), opMask(2), opMask(3));
 
     auto formatCoreBasic = [this, maskVal]() {
         return juce::String::formatted(
-            // '   ALG   FB0   MSK    SHP  SPD  SYC  PMD  PMS  AMD 
+            // '   ALG    FB   MSK    SHP  SPD  SYC  PMD  PMS  AMD
             u8"    %1d,  %1d,  %2d,   %2d, %5d, %3d,  %d, %+d,  %d\n",
             algSelector.getSelectedId() - 1,      // ALG
             (int)feedbackSlider.getValue(),       // FB
@@ -755,41 +938,41 @@ void GuiOpn::copyFmParamsToString()
             (int)lfoAmdSlider.getValue()          // AMD
         );
         };
-    auto formatOpBasic = [this](int index) {
+    auto formatOpBasic = [&opVal](int index) {
         return juce::String::formatted(
             // ' MUL    DT   AR   DR   SL   RR   SR   TL   KS  AMS
             u8"  %2d, %+1d, %2d, %2d, %2d, %2d, %2d, %3d, %1d, %+d\n",
-            (int)this->mul[index].getSelectedId() - 1,          // MUL
-            FmMml::int2dt(this->dt[index].getSelectedId() - 1), // DT
-            (int)this->rgAr[index].getValue(),                  // AR
-            (int)this->rgDr[index].getValue(),                  // DR
-            (int)this->rgSl[index].getValue(),                  // SL
-            (int)this->rgSr[index].getValue(),                  // SR
-            (int)this->rgRr[index].getValue(),                  // RR
-            (int)this->rgTl[index].getValue(),                  // TL
-            this->ks[index].getSelectedId() - 1,                // KS
-            (int)this->n88Ams[index].getValue()                 // AMS
+            opVal(index, CPK::mul),                    // MUL
+            FmMml::int2dt(opVal(index, CPK::dt)),      // DT
+            opVal(index, CPK::Fm::rgAr),               // AR
+            opVal(index, CPK::Fm::rgDr),               // DR
+            opVal(index, CPK::Fm::rgSl),               // SL
+            opVal(index, CPK::Fm::rgSr),               // SR
+            opVal(index, CPK::Fm::rgRr),               // RR
+            opVal(index, CPK::Fm::rgTl),               // TL
+            opVal(index, CPK::Fm::ks),                 // KS
+            opVal(index, CPK::N88Lfo::ams)             // AMS
         );
         };
-    auto formatOpsBasic = [this, formatOpBasic]() {
+    auto formatOpsBasic = [&formatOpBasic]() {
         return formatOpBasic(0) + formatOpBasic(1) + formatOpBasic(2) + formatOpBasic(3);
         };
-    auto formatOpExt = [this](int index) {
+    auto formatOpExt = [&opVal](int index) {
         return juce::String::formatted(
             // ' MUL    DT   AR   DR   SL   SR   RR   TL   KS
             u8"MUL%d DT%+d AR%d DR%d SL%d SR%d RR%d TL%d KS%d\n",
-            (int)this->mul[index].getSelectedId() - 1,
-            FmMml::int2dt(this->dt[index].getSelectedId() - 1),
-            (int)this->rgAr[index].getValue(),
-            (int)this->rgDr[index].getValue(),
-            (int)this->rgSl[index].getValue(),
-            (int)this->rgSr[index].getValue(),
-            (int)this->rgRr[index].getValue(),
-            (int)this->rgTl[index].getValue(),
-            this->ks[index].getSelectedId() - 1
+            opVal(index, CPK::mul),
+            FmMml::int2dt(opVal(index, CPK::dt)),
+            opVal(index, CPK::Fm::rgAr),
+            opVal(index, CPK::Fm::rgDr),
+            opVal(index, CPK::Fm::rgSl),
+            opVal(index, CPK::Fm::rgSr),
+            opVal(index, CPK::Fm::rgRr),
+            opVal(index, CPK::Fm::rgTl),
+            opVal(index, CPK::Fm::ks)
         );
         };
-    auto formatOpsExt = [this, formatOpExt]() {
+    auto formatOpsExt = [&formatOpExt]() {
         return formatOpExt(0) + formatOpExt(1) + formatOpExt(2) + formatOpExt(3);
         };
 
@@ -820,23 +1003,172 @@ void GuiOpn::initParams()
     this->ctx.audioProcessor.initParams("OPN_");
 }
 
-void GuiOpn::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
-    layoutRowCategory({ .rowRect = rect, .component = &catMask[opIndex] });
+void GuiOpn::layoutOpMaskCat(juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catMask });
 
-    bool visibleMask = catMask[opIndex].isDetailVisible();
+    bool visibleMask = catMask.isDetailVisible();
 
-    mask[opIndex].setVisible(visibleMask);
+    mask.setVisible(visibleMask);
 
     if (visibleMask)
     {
-        layoutRow({ .rowRect = rect, .component = &mask[opIndex] });
+        layoutRow({ .rowRect = rect, .component = &mask });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
     // MASK の後ろには分類の外の行 (セパレータや MML) が続くので、
     // 板をここで閉じないと 1 行ぶん下まで伸びてしまう。
-    closeCategoryBackdrops(catMask[opIndex].getParentComponent(), rect.getY());
+    closeCategoryBackdrops(catMask.getParentComponent(), rect.getY());
+}
+
+// 設定ひとそろいの置き方。
+//
+// 一番上が TARGET の帯、その下に区切り線、そこから下が区分。
+// 区分は縦に積まず横へ並べ、あふれたぶんは横の送り棒で送る。
+void GuiOpn::layoutOpPanel(juce::Rectangle<int> area)
+{
+    {
+        auto row = area.removeFromTop(20);
+        auto slot = row.removeFromLeft(OpnGuiValue::Fm::Op::Col::width);
+
+        layoutMain({ .mainRect = slot, .label = &targerOpSlider.label, .component = &targerOpSlider });
+
+        row.removeFromLeft(OpnGuiValue::Fm::Op::Col::gap);
+
+        // TARGET のすぐ右が、いま指しているものの名前。
+        opNameLabel.setBounds(row.removeFromLeft(OpnGuiValue::Fm::Op::Col::nameWidth).withHeight(18));
+
+        // 名前と切り替えの間だけを空ける。
+        row.removeFromLeft(OpnGuiValue::Fm::Op::Col::nameGap);
+
+        // その右が、どのエンベロープを映すかの切り替え。
+        {
+            const int w = OpnGuiValue::ParamGroup::Graph::ModeButtonWidth;
+
+            auto btnRow = row.removeFromLeft(w * 5).withHeight(OpnGuiValue::ParamGroup::Graph::ButtonHeight);
+
+            graphBtnAmp.setBounds(btnRow.removeFromLeft(w));
+            graphBtnPitch.setBounds(btnRow.removeFromLeft(w));
+            graphBtnSsg.setBounds(btnRow.removeFromLeft(w));
+            graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
+            graphBtnSsgP11.setBounds(btnRow);
+        }
+    }
+
+    opTargetSeparator.layoutComponent(area);
+
+    stripViewport.setBounds(area);
+
+    const int colW = OpnGuiValue::Fm::Op::Col::width;
+    const int colGap = OpnGuiValue::Fm::Op::Col::gap;
+
+    // 横の送り棒が出るぶんだけ、中身の丈を短くする。
+    const int colH = juce::jmax(1, area.getHeight() - stripViewport.getScrollBarThickness());
+
+    int x = 0;
+
+    // 1 列を切り出して、中身を上から積む。
+    // 簡易表示モードで隠す区分は、列ごと出さない。隠したぶんだけ
+    // 右の列が左へ詰まる。
+    auto layoutCol = [&](GuiScrollGroup& group, bool show, auto&& body)
+        {
+            if (!show) {
+                group.setVisible(false);
+
+                return;
+            }
+
+            group.setVisible(true);
+
+            juce::Rectangle<int> colArea(x, 0, colW, colH);
+
+            x += colW + colGap;
+
+            group.setBounds(colArea);
+
+            auto inner = colArea.reduced(OpnGuiValue::Group::Padding::width, OpnGuiValue::Group::Padding::height);
+
+            inner.removeFromTop(OpnGuiValue::Group::TitlePaddingTop);
+
+            group.setViewportCustomBounds(inner.translated(-colArea.getX(), -colArea.getY()));
+
+            juce::Rectangle<int> rect(0, 0, group.getContentWidth(), 20000);
+
+            body(rect);
+
+            group.setContentHeight(rect.getY() + 20);
+        };
+
+    const auto shown = [this](SimpleView::Cat cat) { return ctx.audioProcessor.isSimpleShown(cat); };
+
+    // 1 区分ずつでは丈が余るので、いくつかの区分は 1 列へ積んである。
+    layoutCol(colAmp, true, [&](juce::Rectangle<int>& rect) {
+        updateRgDisplayAsOp(true);
+        layoutOpAmpCat(rect);
+        layoutOpOptionalCat(rect);
+        });
+
+    layoutCol(colSsgHwEnv, shown(SimpleView::SsgHwAmpEnv), [&](juce::Rectangle<int>& rect) {
+        ssgHwEnvOp.setCategoryVisible(true);
+        ssgHwEnvOp.layoutComponent(rect);
+        });
+
+    layoutCol(colSsgSwEnv, shown(SimpleView::SsgSwAmpEnv), [&](juce::Rectangle<int>& rect) {
+        ssgSwEnv.setCategoryVisible(true);
+        ssgSwEnv.layoutComponent(rect);
+        });
+
+    layoutCol(colSsgSwEnv11, shown(SimpleView::SsgSwAmpEnv11), [&](juce::Rectangle<int>& rect) {
+        ssgSwEnv11.setCategoryVisible(true);
+        ssgSwEnv11.layoutComponent(rect);
+        });
+
+    layoutCol(colAmpMod, shown(SimpleView::WtAmpMod), [&](juce::Rectangle<int>& rect) {
+        wtAmpModOp.setCategoryVisible(true);
+        wtAmpModOp.layoutComponent(rect);
+        });
+
+    layoutCol(colPitchEnv, shown(SimpleView::PitchEnv), [&](juce::Rectangle<int>& rect) {
+        pitchEnv.setCategoryVisible(true);
+        pitchEnv.layoutComponent(rect);
+        });
+
+    layoutCol(colSsgHwPEnv, shown(SimpleView::SsgHwPitchEnv), [&](juce::Rectangle<int>& rect) {
+        ssgHwPEnvOp.setCategoryVisible(true);
+        ssgHwPEnvOp.layoutComponent(rect);
+        });
+
+    layoutCol(colSsgSwPEnv11, shown(SimpleView::SsgSwPitchEnv11), [&](juce::Rectangle<int>& rect) {
+        ssgSwPEnv11.setCategoryVisible(true);
+        ssgSwPEnv11.layoutComponent(rect);
+        });
+
+    layoutCol(colMod, shown(SimpleView::WtPitchMod), [&](juce::Rectangle<int>& rect) {
+        wtModOp.setCategoryVisible(true);
+        wtModOp.layoutComponent(rect);
+        });
+
+    layoutCol(colKs, true, [&](juce::Rectangle<int>& rect) {
+        layoutOpKsCat(rect);
+        layoutOpDetCat(rect);
+
+        fix.setCategoryVisible(shown(SimpleView::Fix));
+        fix.layoutComponent(rect);
+
+        layoutOpN88LfoCat(rect);
+        });
+
+    // MASK と MML の札も 1 列へまとめてある。
+    layoutCol(colMask, true, [&](juce::Rectangle<int>& rect) {
+        layoutOpMaskCat(rect);
+
+        mmlSeparator.layoutComponent(rect);
+
+        layoutRow({ .rowRect = rect, .component = &mml, .paddingBottom = 0 });
+        });
+
+    stripCanvas.setSize(juce::jmax(1, x - colGap), colH);
 }
 
 void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
@@ -861,7 +1193,6 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpWtMod.setVisible(visible);
     ieOpChParam.setVisible(visible);
     imOpnaOpChParam.setVisible(visible);
-    targerOpSlider.setVisibleWithLabel(visible);
     uSep004.setVisible(visible);
     ieAmpEnvG.setVisible(visible);
     ieSsgHwEnv.setVisible(visible);
@@ -904,7 +1235,6 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         imOpnaOpChParam.layoutComponent(rect);
         rect.removeFromTop(4);
-        layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
 
         uSep004.layoutComponent(rect);
 
@@ -1002,71 +1332,71 @@ void GuiOpn::layoutN88LfoCat(juce::Rectangle<int>& rect)
     }
 }
 
-void GuiOpn::layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect)
+void GuiOpn::layoutOpN88LfoCat(juce::Rectangle<int>& rect)
 {
-    layoutRowCategory({ .rowRect = rect, .component = &catN88Lfo[opIndex] });
+    layoutRowCategory({ .rowRect = rect, .component = &catN88Lfo });
 
-    bool visible = catN88Lfo[opIndex].isDetailVisible();
+    bool visible = catN88Lfo.isDetailVisible();
 
-    n88Ams[opIndex].setVisibleWithLabel(visible);
+    n88Ams.setVisibleWithLabel(visible);
 
     if (visible)
     {
-        layoutRow({ .rowRect = rect, .label = &n88Ams[opIndex].label, .component = &n88Ams[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &n88Ams.label, .component = &n88Ams });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
-void GuiOpn::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect) {
-    layoutRowCategory({ .rowRect = rect, .component = &ksCat[opIndex] });
+void GuiOpn::layoutOpKsCat(juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &ksCat });
 
-    bool visible = ksCat[opIndex].isDetailVisible();
+    bool visible = ksCat.isDetailVisible();
 
-    ks[opIndex].setVisibleWithLabel(visible);
+    ks.setVisibleWithLabel(visible);
 
     if (visible) {
-        layoutRow({ .rowRect = rect, .label = &ks[opIndex].label, .component = &ks[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ks.label, .component = &ks });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
-void GuiOpn::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
-    layoutRowCategory({ .rowRect = rect, .component = &catDet[opIndex] });
+void GuiOpn::layoutOpDetCat(juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catDet });
 
-    bool visible = catDet[opIndex].isDetailVisible();
+    bool visible = catDet.isDetailVisible();
 
-    mul[opIndex].setVisibleWithLabel(visible);
-    dt[opIndex].setVisibleWithLabel(visible);
+    mul.setVisibleWithLabel(visible);
+    dt.setVisibleWithLabel(visible);
 
     if (visible) {
-        layoutRow({ .rowRect = rect, .label = &mul[opIndex].label, .component = &mul[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &dt[opIndex].label, .component = &dt[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &mul.label, .component = &mul });
+        layoutRow({ .rowRect = rect, .label = &dt.label, .component = &dt });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
-void GuiOpn::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect) {
-    layoutRowCategory({ .rowRect = rect, .component = &catAmp[opIndex] });
+void GuiOpn::layoutOpAmpCat(juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catAmp });
 
-    bool visible = catAmp[opIndex].isDetailVisible();
+    bool visible = catAmp.isDetailVisible();
 
-    rgAr[opIndex].setVisibleWithLabel(visible);
-    rgDr[opIndex].setVisibleWithLabel(visible);
-    rgSr[opIndex].setVisibleWithLabel(visible);
-    rgSl[opIndex].setVisibleWithLabel(visible);
-    rgRr[opIndex].setVisibleWithLabel(visible);
-    rgTl[opIndex].setVisibleWithLabel(visible);
+    rgAr.setVisibleWithLabel(visible);
+    rgDr.setVisibleWithLabel(visible);
+    rgSr.setVisibleWithLabel(visible);
+    rgSl.setVisibleWithLabel(visible);
+    rgRr.setVisibleWithLabel(visible);
+    rgTl.setVisibleWithLabel(visible);
 
     if (visible) {
-        layoutRow({ .rowRect = rect, .label = &rgAr[opIndex].label, .component = &rgAr[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &rgDr[opIndex].label, .component = &rgDr[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &rgSr[opIndex].label, .component = &rgSr[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &rgSl[opIndex].label, .component = &rgSl[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &rgRr[opIndex].label, .component = &rgRr[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &rgTl[opIndex].label, .component = &rgTl[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgAr.label, .component = &rgAr });
+        layoutRow({ .rowRect = rect, .label = &rgDr.label, .component = &rgDr });
+        layoutRow({ .rowRect = rect, .label = &rgSr.label, .component = &rgSr });
+        layoutRow({ .rowRect = rect, .label = &rgSl.label, .component = &rgSl });
+        layoutRow({ .rowRect = rect, .label = &rgRr.label, .component = &rgRr });
+        layoutRow({ .rowRect = rect, .label = &rgTl.label, .component = &rgTl });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -1150,95 +1480,50 @@ void GuiOpn::setGlobalGraphMode(GlobalGraphMode mode)
     updateGlobalGraph();
 }
 
-void GuiOpn::setupGraph(int opIndex)
+// つまみが動いたら、上の絵を描き直してもらうためのつなぎ。
+//
+// グラフそのものはここには無い。オペレータの数だけ同時に出るので、
+// 設定の側で持つわけにいかない。描き直すのは TARGET が指している
+// 1 枚だけでよい。ほかのオペレータの値は変わっていない。
+void GuiOpn::setupOpGraphWiring()
 {
-    addAndMakeVisible(&opGraphs[opIndex]); // グラフを追加
-
-    graphBtnAmp[opIndex].setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
-    graphBtnAmp[opIndex].setToggleState(true, juce::dontSendNotification); // デフォルトON
-    graphBtnAmp[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::Amp); };
-
-    graphBtnPitch[opIndex].setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
-    graphBtnPitch[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::Pitch); };
-
-    graphBtnSsg[opIndex].setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
-    graphBtnSsg[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSw); };
-
-    graphBtnSsg11[opIndex].setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
-    graphBtnSsg11[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSw11); };
-
-    graphBtnSsgP11[opIndex].setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
-    graphBtnSsgP11[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSwP11); };
-
-    auto repaintGraph = [this, opIndex]() {
-        if (this->isUpdatingGraph) return;
+    auto repaintGraph = [this]() {
+        if (this->isUpdatingGraph) return; // 既に更新中なら無視
 
         // 旗は必ず下ろす。途中で抜けたときに立ちっぱなしになると、
         // 以後グラフの更新が全部素通りしてしまうため。
         const juce::ScopedValueSetter<bool> guard(this->isUpdatingGraph, true);
 
-        this->updateOpGraph(opIndex);
+        this->updateOpGraph(this->currentOp());
         };
 
+    bypass.onStateChange = repaintGraph;
+    xof.onStateChange = repaintGraph;
+    kor.onStateChange = repaintGraph;
 
-    bypass[opIndex].onStateChange = repaintGraph;
-    xof[opIndex].onStateChange = repaintGraph;
-    kor[opIndex].onStateChange = repaintGraph;
+    rgAr.onValueChange = repaintGraph;
+    rgDr.onValueChange = repaintGraph;
+    rgSr.onValueChange = repaintGraph;
+    rgSl.onValueChange = repaintGraph;
+    rgRr.onValueChange = repaintGraph;
+    rgTl.onValueChange = repaintGraph;
 
-    rgAr[opIndex].onValueChange = repaintGraph;
-    rgDr[opIndex].onValueChange = repaintGraph;
-    rgSr[opIndex].onValueChange = repaintGraph;
-    rgSl[opIndex].onValueChange = repaintGraph;
-    rgRr[opIndex].onValueChange = repaintGraph;
-    rgTl[opIndex].onValueChange = repaintGraph;
-
-    pitchEnv[opIndex].setupGraph(repaintGraph);
-    ssgSwEnv[opIndex].setupGraph(repaintGraph);
-    ssgSwEnv11[opIndex].setupGraph(repaintGraph);
-    ssgSwPEnv11[opIndex].setupGraph(repaintGraph);
-
-    graphSeparator[opIndex].setupComponent(*this);
+    pitchEnv.setupGraph(repaintGraph);
+    ssgSwEnv.setupGraph(repaintGraph);
+    ssgSwEnv11.setupGraph(repaintGraph);
+    ssgSwPEnv11.setupGraph(repaintGraph);
 }
 
-void GuiOpn::setGraphMode(int opIndex, GraphMode mode)
-{
-    currentGraphMode[opIndex] = mode;
-
-    // ラジオボタン的な排他制御
-    graphBtnAmp[opIndex].setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
-    graphBtnPitch[opIndex].setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
-    graphBtnSsg[opIndex].setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
-    graphBtnSsg11[opIndex].setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
-    graphBtnSsgP11[opIndex].setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
-
-    // モードが変わったらグラフを描画し直す
-    updateOpGraph(opIndex);
-}
-
-void GuiOpn::layoutOpGraph(int opIndex, juce::Rectangle<int>& rect)
-{
-    auto mainArea = rect.removeFromTop(OpnGuiValue::ParamGroup::Graph::height + NormalSeparator::getHeight());
-
-    graphSeparator[opIndex].layoutComponentBottom(mainArea);
-
-    // そのうち下部20pxをボタンエリアにする
-    auto btnArea = mainArea.removeFromBottom(OpnGuiValue::ParamGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 5;
-
-    graphBtnAmp[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnPitch[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg11[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsgP11[opIndex].setBounds(btnArea);
-
-    // 残りをグラフエリアにする
-    opGraphs[opIndex].setBounds(mainArea);
-}
-
-// グラフを再計算して描画
+// 枠に出すエンベロープを描き直す。
+//
+// 枠はオペレータの数だけ同時に出るので、値をつまみから読むわけには
+// いかない。接頭辞を頼りにパラメータから直に採る。
 void GuiOpn::updateOpGraph(int opIndex)
 {
-    GraphMode mode = currentGraphMode[opIndex];
+    auto& apvts = ctx.audioProcessor.apvts;
+    auto& graph = cells[(size_t)opIndex].graph();
+
+    const juce::String code = OpnPrKey::prefix + CPK::op + juce::String(opIndex);
 
     // -------------------------------------------------------------
     // Helper: 幅の計算 (Amp 用)
@@ -1256,55 +1541,71 @@ void GuiOpn::updateOpGraph(int opIndex)
     // =============================================================
     // Pitch Env
     // =============================================================
-    if (mode == GraphMode::Pitch) {
-        pitchEnv[opIndex].updateGraph(opGraphs[opIndex]);
+    if (currentGraphMode == GuiEnvGraphMode::Pitch) {
+        // オペレータの区分は「入れる」札なので、切ってあるときが素通し。
+        graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::PitchAdsr::enable));
+        graph.setKeepLevels(GuiGraphValues::pitchEnvKeep(apvts, code));
+        graph.updatePitchEnv(GuiGraphValues::pitchEnv(apvts, code));
     }
     // =============================================================
     // SSG SW Env
     // =============================================================
-    else if (mode == GraphMode::SsgSw) {
-        ssgSwEnv[opIndex].updateGraph(opGraphs[opIndex]);
+    else if (currentGraphMode == GuiEnvGraphMode::SsgSw) {
+        const auto v = GuiGraphValues::ssgSwEnv(apvts, code);
+
+        graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwEnv::enable));
+        graph.updateSsgSwEnv(v.head, v.rVal, v.rMax, v.lVal, v.lMax);
     }
     // =============================================================
     // SSG SW Env 11
     // =============================================================
-    else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11[opIndex].updateGraph(opGraphs[opIndex]);
+    else if (currentGraphMode == GuiEnvGraphMode::SsgSw11) {
+        const auto v = GuiGraphValues::ssgSwEnv11(apvts, code);
+
+        graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwEnv11::enable));
+        graph.setKeepLevels(GuiGraphValues::ssgSwEnv11Keep(apvts, code));
+        graph.updateSsgSwEnv11(v.head, v.rVal, v.rMax, v.lVal, v.lMax);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
-    else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11[opIndex].updateGraph(opGraphs[opIndex]);
+    else if (currentGraphMode == GuiEnvGraphMode::SsgSwP11) {
+        const auto v = GuiGraphValues::ssgSwPEnv11(apvts, code);
+
+        graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwPEnv11::enable));
+        graph.setKeepLevels(GuiGraphValues::ssgSwPEnv11Keep(apvts, code));
+        graph.updateSsgSwPEnv11(v.head, v.rVal, v.rMax, v.lVal, v.lMax);
     }
     // =============================================================
     // Amp Env
     // =============================================================
     else {
-        bool isBypass = bypass[opIndex].getToggleState();
+        bool isBypass = GuiGraphValues::flag(apvts, code + CPK::Fm::bypass);
 
-        opGraphs[opIndex].updateBypass(isBypass);
+        graph.updateBypass(isBypass);
 
         if (isBypass) {
+            graph.repaint();
+
             return;
         }
 
-        bool isXof = xof[opIndex].getToggleState();
-        bool isKor = kor[opIndex].getToggleState();
+        bool isXof = GuiGraphValues::flag(apvts, code + CPK::Fm::xof);
+        bool isKor = GuiGraphValues::flag(apvts, code + CPK::Fm::kor);
 
-        float arMax = (float)rgAr[opIndex].getMaximum();
-        float drMax = (float)rgDr[opIndex].getMaximum();
-        float srMax = (float)rgSr[opIndex].getMaximum();
-        float slMax = (float)rgSl[opIndex].getMaximum();
-        float rrMax = (float)rgRr[opIndex].getMaximum();
-        float tlMax = (float)rgTl[opIndex].getMaximum();
+        float arMax = GuiGraphValues::maxOf(apvts, code + CPK::Fm::rgAr);
+        float drMax = GuiGraphValues::maxOf(apvts, code + CPK::Fm::rgDr);
+        float srMax = GuiGraphValues::maxOf(apvts, code + CPK::Fm::rgSr);
+        float slMax = GuiGraphValues::maxOf(apvts, code + CPK::Fm::rgSl);
+        float rrMax = GuiGraphValues::maxOf(apvts, code + CPK::Fm::rgRr);
+        float tlMax = GuiGraphValues::maxOf(apvts, code + CPK::Fm::rgTl);
 
-        float arVal = (float)rgAr[opIndex].getValue();
-        float drVal = (float)rgDr[opIndex].getValue();
-        float srVal = (float)rgSr[opIndex].getValue();
-        float slVal = (float)rgSl[opIndex].getValue();
-        float rrVal = (float)rgRr[opIndex].getValue();
-        float tlVal = (float)rgTl[opIndex].getValue();
+        float arVal = GuiGraphValues::value(apvts, code + CPK::Fm::rgAr);
+        float drVal = GuiGraphValues::value(apvts, code + CPK::Fm::rgDr);
+        float srVal = GuiGraphValues::value(apvts, code + CPK::Fm::rgSr);
+        float slVal = GuiGraphValues::value(apvts, code + CPK::Fm::rgSl);
+        float rrVal = GuiGraphValues::value(apvts, code + CPK::Fm::rgRr);
+        float tlVal = GuiGraphValues::value(apvts, code + CPK::Fm::rgTl);
 
         float sl = (slMax - slVal) / slMax; // 15=0.0, 0=1.0
         float tlScale = 1.0f - (tlVal / tlMax); // TL=127で無音
@@ -1341,8 +1642,6 @@ void GuiOpn::updateOpGraph(int opIndex)
         if (srVal > 0.0f && srVal < srMax) {
             sustainTotalWidth = rateToWidth(srVal, srMax, 300.0f);
 
-            // カーブを加味したレベル計算
-            float decayRatio = sustainTotalWidth / 300.0f;
             releaseStartLevel = sl - (sl * 0.5f);
 
             phases.push_back({
@@ -1393,24 +1692,35 @@ void GuiOpn::updateOpGraph(int opIndex)
                 });
         }
 
-        opGraphs[opIndex].setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
+        graph.setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
     }
+
+    graph.repaint();
 }
 
-void GuiOpn::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
-    layoutRowCategory({ .rowRect = rect, .component = &catOptional[opIndex] });
+void GuiOpn::layoutOpOptionalCat(juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catOptional });
 
-    bool visible = catOptional[opIndex].isDetailVisible();
+    bool visible = catOptional.isDetailVisible();
 
-    xof[opIndex].setVisible(visible);
-    kor[opIndex].setVisible(visible);
-    bypass[opIndex].setVisible(visible);
+    opDelay.setVisibles(visible);
+    opDelayNudge.setVisibles(visible && opDelay.isVisibleNudge());
+    opDelaySeparator.setVisible(visible);
+    xof.setVisible(visible);
+    kor.setVisible(visible);
+    bypass.setVisible(visible);
 
     if (visible)
     {
-        layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
-        layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
-        layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
+        opDelay.layoutComponentRow(rect);
+
+        if (opDelay.isVisibleNudge()) opDelayNudge.layoutComponentRow(rect);
+
+        opDelaySeparator.layoutComponent(rect);
+
+        layoutRow({ .rowRect = rect, .component = &xof });
+        layoutRow({ .rowRect = rect, .component = &kor });
+        layoutRow({ .rowRect = rect, .component = &bypass });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -1441,26 +1751,26 @@ void GuiOpn::copyParams(CopyOpn& copyObj) {
 }
 
 void GuiOpn::copyOpParams(int p, CopyOpnOp& copyObj) {
-    copyObj.detune.mul = mul[p].getSelectedId();
-    copyObj.detune.dt = dt[p].getSelectedId();
-    copyObj.aAdsr.ar = rgAr[p].getValue();
-    copyObj.aAdsr.dr = rgDr[p].getValue();
-    copyObj.aAdsr.sl = rgSl[p].getValue();
-    copyObj.aAdsr.sr = rgSr[p].getValue();
-    copyObj.aAdsr.rr = rgRr[p].getValue();
-    copyObj.aAdsr.tl = rgTl[p].getValue();
-    copyObj.aAdsr.bypass = bypass[p].getToggleState();
-    copyObj.aAdsr.kor = kor[p].getToggleState();
-    copyObj.aAdsr.xof = xof[p].getToggleState();
-    copyObj.aAdsr.ks = ks[p].getSelectedId();
+    copyObj.detune.mul = mul.getSelectedId();
+    copyObj.detune.dt = dt.getSelectedId();
+    copyObj.aAdsr.ar = rgAr.getValue();
+    copyObj.aAdsr.dr = rgDr.getValue();
+    copyObj.aAdsr.sl = rgSl.getValue();
+    copyObj.aAdsr.sr = rgSr.getValue();
+    copyObj.aAdsr.rr = rgRr.getValue();
+    copyObj.aAdsr.tl = rgTl.getValue();
+    copyObj.aAdsr.bypass = bypass.getToggleState();
+    copyObj.aAdsr.kor = kor.getToggleState();
+    copyObj.aAdsr.xof = xof.getToggleState();
+    copyObj.aAdsr.ks = ks.getSelectedId();
 
-    copyObj.n88Lfo.ams = n88Ams[p].getValue();
+    copyObj.n88Lfo.ams = n88Ams.getValue();
 
-    copyObj.mask.mask = mask[p].getToggleState();
+    copyObj.mask.mask = mask.getToggleState();
 
-    fix[p].copyParams(copyObj.fix);
-    pitchEnv[p].copyParams(copyObj.pAdsr);
-    ssgSwEnv[p].copyParams(copyObj.aSsgSw);
+    fix.copyParams(copyObj.fix);
+    pitchEnv.copyParams(copyObj.pAdsr);
+    ssgSwEnv.copyParams(copyObj.aSsgSw);
 }
 
 void GuiOpn::pasteParams(CopyOpn& copyObj) {
@@ -1484,42 +1794,42 @@ void GuiOpn::pasteParams(CopyOpn& copyObj) {
 }
 
 void GuiOpn::pasteOpParams(int p, CopyOpnOp& copyObj) {
-    mul[p].setSelectedId(copyObj.detune.mul, juce::sendNotification);
-    dt[p].setSelectedId(copyObj.detune.dt, juce::sendNotification);
-    rgAr[p].setValue(copyObj.aAdsr.ar, juce::sendNotification);
-    rgDr[p].setValue(copyObj.aAdsr.dr, juce::sendNotification);
-    rgSl[p].setValue(copyObj.aAdsr.sl, juce::sendNotification);
-    rgSr[p].setValue(copyObj.aAdsr.sr, juce::sendNotification);
-    rgRr[p].setValue(copyObj.aAdsr.rr, juce::sendNotification);
-    rgTl[p].setValue(copyObj.aAdsr.tl, juce::sendNotification);
-    bypass[p].setToggleState(copyObj.aAdsr.bypass, juce::sendNotification);
-    kor[p].setToggleState(copyObj.aAdsr.kor, juce::sendNotification);
-    xof[p].setToggleState(copyObj.aAdsr.xof, juce::sendNotification);
-    ks[p].setSelectedId(copyObj.aAdsr.ks, juce::sendNotification);
+    mul.setSelectedId(copyObj.detune.mul, juce::sendNotification);
+    dt.setSelectedId(copyObj.detune.dt, juce::sendNotification);
+    rgAr.setValue(copyObj.aAdsr.ar, juce::sendNotification);
+    rgDr.setValue(copyObj.aAdsr.dr, juce::sendNotification);
+    rgSl.setValue(copyObj.aAdsr.sl, juce::sendNotification);
+    rgSr.setValue(copyObj.aAdsr.sr, juce::sendNotification);
+    rgRr.setValue(copyObj.aAdsr.rr, juce::sendNotification);
+    rgTl.setValue(copyObj.aAdsr.tl, juce::sendNotification);
+    bypass.setToggleState(copyObj.aAdsr.bypass, juce::sendNotification);
+    kor.setToggleState(copyObj.aAdsr.kor, juce::sendNotification);
+    xof.setToggleState(copyObj.aAdsr.xof, juce::sendNotification);
+    ks.setSelectedId(copyObj.aAdsr.ks, juce::sendNotification);
 
-    n88Ams[p].setValue(copyObj.n88Lfo.ams, juce::sendNotification);
+    n88Ams.setValue(copyObj.n88Lfo.ams, juce::sendNotification);
 
-    mask[p].setToggleState(copyObj.mask.mask, juce::sendNotification);
+    mask.setToggleState(copyObj.mask.mask, juce::sendNotification);
 
-    fix[p].pasteParams(copyObj.fix);
-    pitchEnv[p].pasteParams(copyObj.pAdsr);
-    ssgSwEnv[p].pasteParams(copyObj.aSsgSw);
+    fix.pasteParams(copyObj.fix);
+    pitchEnv.pasteParams(copyObj.pAdsr);
+    ssgSwEnv.pasteParams(copyObj.aSsgSw);
 }
 
 void GuiOpn::importPitchEnvParam(int opIndex) {
-    pitchEnv[opIndex].importParams();
+    pitchEnv.importParams();
 }
 
 void GuiOpn::exportPitchEnvParam(int opIndex) {
-    pitchEnv[opIndex].exportParams();
+    pitchEnv.exportParams();
 }
 
 void GuiOpn::importSsgSwEnvParam(int opIndex) {
-    ssgSwEnv[opIndex].importParams();
+    ssgSwEnv.importParams();
 }
 
 void GuiOpn::exportSsgSwEnvParam(int opIndex) {
-    ssgSwEnv[opIndex].exportParams();
+    ssgSwEnv.exportParams();
 }
 
 void GuiOpn::importLfoParam()
@@ -1588,7 +1898,7 @@ void GuiOpn::applyLfoParamFile(const juce::File& file)
     auto amsValues = reader->getIntArray("n88Ams");
 
     for (int i = 0; i < OpnPrValue::ops && i < (int)amsValues.size(); i++) {
-        n88Ams[i].setValue(amsValues[(size_t)i], juce::sendNotification);
+        n88Ams.setValue(amsValues[(size_t)i], juce::sendNotification);
     }
 }
 
@@ -1696,51 +2006,51 @@ void GuiOpn::writeQualityParamFile(const juce::File& file)
 }
 
 void GuiOpn::importSsgSwEnv11Param(int opIndex) {
-    ssgSwEnv11[opIndex].importParams();
+    ssgSwEnv11.importParams();
 }
 
 void GuiOpn::exportSsgSwEnv11Param(int opIndex) {
-    ssgSwEnv11[opIndex].exportParams();
+    ssgSwEnv11.exportParams();
 }
 
 void GuiOpn::importSsgSwPEnv11Param(int opIndex) {
-    ssgSwPEnv11[opIndex].importParams();
+    ssgSwPEnv11.importParams();
 }
 
 void GuiOpn::exportSsgSwPEnv11Param(int opIndex) {
-    ssgSwPEnv11[opIndex].exportParams();
+    ssgSwPEnv11.exportParams();
 }
 
 void GuiOpn::importOpSsgHwPEnvParam(int opIndex) {
-    ssgHwPEnvOp[opIndex].importParams();
+    ssgHwPEnvOp.importParams();
 }
 
 void GuiOpn::exportOpSsgHwPEnvParam(int opIndex) {
-    ssgHwPEnvOp[opIndex].exportParams();
+    ssgHwPEnvOp.exportParams();
 }
 
 void GuiOpn::importOpWtAmpModParam(int opIndex) {
-    wtAmpModOp[opIndex].importParams();
+    wtAmpModOp.importParams();
 }
 
 void GuiOpn::exportOpWtAmpModParam(int opIndex) {
-    wtAmpModOp[opIndex].exportParams();
+    wtAmpModOp.exportParams();
 }
 
 void GuiOpn::importOpSsgHwEnvParam(int opIndex) {
-    ssgHwEnvOp[opIndex].importParams();
+    ssgHwEnvOp.importParams();
 }
 
 void GuiOpn::exportOpSsgHwEnvParam(int opIndex) {
-    ssgHwEnvOp[opIndex].exportParams();
+    ssgHwEnvOp.exportParams();
 }
 
 void GuiOpn::importOpWtModParam(int opIndex) {
-    wtModOp[opIndex].importParams();
+    wtModOp.importParams();
 }
 
 void GuiOpn::exportOpWtModParam(int opIndex) {
-    wtModOp[opIndex].exportParams();
+    wtModOp.exportParams();
 }
 
 void GuiOpn::importChParam() {
@@ -1903,39 +2213,39 @@ void GuiOpn::writeOpChParamFile(int opIndex, const juce::File& file)
 // 勝手に読み飛ばされる。行数を数えて飛ばす細工が要らない。
 void GuiOpn::readOpParams(int opIndex, const Io::ParamReader& r) {
     // Mul / Dt
-    mul[opIndex].setSelectedId(r.getInt("mul", mul[opIndex].getSelectedId()), juce::sendNotification);
-    dt[opIndex].setSelectedId(r.getInt("dt", dt[opIndex].getSelectedId()), juce::sendNotification);
+    mul.setSelectedId(r.getInt("mul", mul.getSelectedId()), juce::sendNotification);
+    dt.setSelectedId(r.getInt("dt", dt.getSelectedId()), juce::sendNotification);
 
     // Env
-    rgAr[opIndex].setValue(r.getFloat("ar", (float)rgAr[opIndex].getValue()), juce::sendNotification);
-    rgDr[opIndex].setValue(r.getFloat("dr", (float)rgDr[opIndex].getValue()), juce::sendNotification);
-    rgSl[opIndex].setValue(r.getFloat("sl", (float)rgSl[opIndex].getValue()), juce::sendNotification);
-    rgSr[opIndex].setValue(r.getFloat("sr", (float)rgSr[opIndex].getValue()), juce::sendNotification);
-    rgRr[opIndex].setValue(r.getFloat("rr", (float)rgRr[opIndex].getValue()), juce::sendNotification);
-    rgTl[opIndex].setValue(r.getFloat("tl", (float)rgTl[opIndex].getValue()), juce::sendNotification);
+    rgAr.setValue(r.getFloat("ar", (float)rgAr.getValue()), juce::sendNotification);
+    rgDr.setValue(r.getFloat("dr", (float)rgDr.getValue()), juce::sendNotification);
+    rgSl.setValue(r.getFloat("sl", (float)rgSl.getValue()), juce::sendNotification);
+    rgSr.setValue(r.getFloat("sr", (float)rgSr.getValue()), juce::sendNotification);
+    rgRr.setValue(r.getFloat("rr", (float)rgRr.getValue()), juce::sendNotification);
+    rgTl.setValue(r.getFloat("tl", (float)rgTl.getValue()), juce::sendNotification);
 
     // Key Scale
-    ks[opIndex].setSelectedId(r.getInt("ks", ks[opIndex].getSelectedId()), juce::sendNotification);
+    ks.setSelectedId(r.getInt("ks", ks.getSelectedId()), juce::sendNotification);
 
     // N88 AMS
-    n88Ams[opIndex].setValue(r.getFloat("n88Ams", (float)n88Ams[opIndex].getValue()), juce::sendNotification);
+    n88Ams.setValue(r.getFloat("n88Ams", (float)n88Ams.getValue()), juce::sendNotification);
 
     // Optional / Mask
-    bypass[opIndex].setToggleState(r.getBool("bypass", bypass[opIndex].getToggleState()), juce::sendNotification);
-    xof[opIndex].setToggleState(r.getBool("xof", xof[opIndex].getToggleState()), juce::sendNotification);
-    kor[opIndex].setToggleState(r.getBool("kor", kor[opIndex].getToggleState()), juce::sendNotification);
-    mask[opIndex].setToggleState(r.getBool("mask", mask[opIndex].getToggleState()), juce::sendNotification);
+    bypass.setToggleState(r.getBool("bypass", bypass.getToggleState()), juce::sendNotification);
+    xof.setToggleState(r.getBool("xof", xof.getToggleState()), juce::sendNotification);
+    kor.setToggleState(r.getBool("kor", kor.getToggleState()), juce::sendNotification);
+    mask.setToggleState(r.getBool("mask", mask.getToggleState()), juce::sendNotification);
 
     // Components
-    fix[opIndex].readParams(r, "fix");
-    pitchEnv[opIndex].readParams(r, "pitchEnv");
-    ssgSwEnv[opIndex].readParams(r, "ssgSwEnv");
-    ssgSwEnv11[opIndex].readParams(r, "ssgSwEnv11");
-    ssgSwPEnv11[opIndex].readParams(r, "ssgSwPEnv11");
-    ssgHwPEnvOp[opIndex].readParams(r, "ssgHwPEnv");
-    wtAmpModOp[opIndex].readParams(r, "wtAmpMod");
-    ssgHwEnvOp[opIndex].readParams(r, "ssgHwEnv");
-    wtModOp[opIndex].readParams(r, "wtMod");
+    fix.readParams(r, "fix");
+    pitchEnv.readParams(r, "pitchEnv");
+    ssgSwEnv.readParams(r, "ssgSwEnv");
+    ssgSwEnv11.readParams(r, "ssgSwEnv11");
+    ssgSwPEnv11.readParams(r, "ssgSwPEnv11");
+    ssgHwPEnvOp.readParams(r, "ssgHwPEnv");
+    wtAmpModOp.readParams(r, "wtAmpMod");
+    ssgHwEnvOp.readParams(r, "ssgHwEnv");
+    wtModOp.readParams(r, "wtMod");
 }
 
 // チャンネル 1 つぶん。OPNA のファイルを読むときにも使う。
@@ -1972,45 +2282,45 @@ void GuiOpn::readChParams(const Io::ParamReader& reader) {
     ampModComponent.readParams(reader, "wtAmpMod");
 
     for (int i = 0; i < OpnPrValue::ops; i++) {
-        readOpParams(i, reader.arrayItem(Io::ParamKey::ops, i));
+        withOp(i, [this, &reader, i] { readOpParams(i, reader.arrayItem(Io::ParamKey::ops, i)); });
     }
 }
 
 void GuiOpn::writeOpParams(int opIndex, Io::ParamWriter& w) {
     // Mul / Dt
-    w.set("mul", mul[opIndex].getSelectedId());
-    w.set("dt", dt[opIndex].getSelectedId());
+    w.set("mul", mul.getSelectedId());
+    w.set("dt", dt.getSelectedId());
 
     // Env
-    w.set("ar", (float)rgAr[opIndex].getValue());
-    w.set("dr", (float)rgDr[opIndex].getValue());
-    w.set("sl", (float)rgSl[opIndex].getValue());
-    w.set("sr", (float)rgSr[opIndex].getValue());
-    w.set("rr", (float)rgRr[opIndex].getValue());
-    w.set("tl", (float)rgTl[opIndex].getValue());
+    w.set("ar", (float)rgAr.getValue());
+    w.set("dr", (float)rgDr.getValue());
+    w.set("sl", (float)rgSl.getValue());
+    w.set("sr", (float)rgSr.getValue());
+    w.set("rr", (float)rgRr.getValue());
+    w.set("tl", (float)rgTl.getValue());
 
     // Key Scale
-    w.set("ks", ks[opIndex].getSelectedId());
+    w.set("ks", ks.getSelectedId());
 
     // N88 AMS
-    w.set("n88Ams", (float)n88Ams[opIndex].getValue());
+    w.set("n88Ams", (float)n88Ams.getValue());
 
     // Optional / Mask
-    w.set("bypass", bypass[opIndex].getToggleState());
-    w.set("xof", xof[opIndex].getToggleState());
-    w.set("kor", kor[opIndex].getToggleState());
-    w.set("mask", mask[opIndex].getToggleState());
+    w.set("bypass", bypass.getToggleState());
+    w.set("xof", xof.getToggleState());
+    w.set("kor", kor.getToggleState());
+    w.set("mask", mask.getToggleState());
 
     // Components
-    fix[opIndex].writeParams(w, "fix");
-    pitchEnv[opIndex].writeParams(w, "pitchEnv");
-    ssgSwEnv[opIndex].writeParams(w, "ssgSwEnv");
-    ssgSwEnv11[opIndex].writeParams(w, "ssgSwEnv11");
-    ssgSwPEnv11[opIndex].writeParams(w, "ssgSwPEnv11");
-    ssgHwPEnvOp[opIndex].writeParams(w, "ssgHwPEnv");
-    wtAmpModOp[opIndex].writeParams(w, "wtAmpMod");
-    ssgHwEnvOp[opIndex].writeParams(w, "ssgHwEnv");
-    wtModOp[opIndex].writeParams(w, "wtMod");
+    fix.writeParams(w, "fix");
+    pitchEnv.writeParams(w, "pitchEnv");
+    ssgSwEnv.writeParams(w, "ssgSwEnv");
+    ssgSwEnv11.writeParams(w, "ssgSwEnv11");
+    ssgSwPEnv11.writeParams(w, "ssgSwPEnv11");
+    ssgHwPEnvOp.writeParams(w, "ssgHwPEnv");
+    wtAmpModOp.writeParams(w, "wtAmpMod");
+    ssgHwEnvOp.writeParams(w, "ssgHwEnv");
+    wtModOp.writeParams(w, "wtMod");
 }
 
 void GuiOpn::importOpnaChParam() {
@@ -2165,35 +2475,35 @@ void GuiOpn::writeChParams(Io::ParamWriter& writer) {
 // 3.0.0 より前の形式を読むための補助。履歴から戻したもの。
 void GuiOpn::getImportingOpParams(int opIndex, juce::StringArray& lines, int& index) {
     // Mul / Dt
-    mul[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
-    dt[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    mul.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    dt.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
 
     // Env
-    rgAr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgDr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgSl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgSr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgRr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
-    rgTl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgAr.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgDr.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgSl.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgSr.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgRr.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgTl.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 
     // Key Scale
-    ks[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ks.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
 
     // N88 AMS
-    n88Ams[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    n88Ams.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 
     // Optional / Mask
-    bypass[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-    xof[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-    kor[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-    mask[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    bypass.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    xof.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    kor.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    mask.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
 
     // Components
-    fix[opIndex].setImportingParams(lines, index);
-    pitchEnv[opIndex].setImportingParams(lines, index);
-    ssgSwEnv[opIndex].setImportingParams(lines, index);
-    ssgSwEnv11[opIndex].setImportingParams(lines, index);
-    ssgSwPEnv11[opIndex].setImportingParams(lines, index);
+    fix.setImportingParams(lines, index);
+    pitchEnv.setImportingParams(lines, index);
+    ssgSwEnv.setImportingParams(lines, index);
+    ssgSwEnv11.setImportingParams(lines, index);
+    ssgSwPEnv11.setImportingParams(lines, index);
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
@@ -2217,7 +2527,7 @@ void GuiOpn::setImportingLfoParams(juce::StringArray& lines, int& index) {
 	lfoAmdSlider.setValue(lines[8].getIntValue(), juce::sendNotification);
 
 	for (int i = 0; i < OpnPrValue::ops; i++) {
-	    n88Ams[i].setValue(lines[9+i].getIntValue(), juce::sendNotification);
+	    n88Ams.setValue(lines[9+i].getIntValue(), juce::sendNotification);
 	}
 }
 
@@ -2236,7 +2546,7 @@ void GuiOpn::writeLfoParams(Io::ParamWriter& writer) {
 	std::vector<int> amsValues;
 
 	for (int i = 0; i < OpnPrValue::ops; i++) {
-	    amsValues.push_back((int)n88Ams[i].getValue());
+	    amsValues.push_back((int)n88Ams.getValue());
 	}
 
 	writer.setArray("n88Ams", amsValues);
@@ -2276,4 +2586,70 @@ void GuiOpn::setImportingOpChFileParams(int opIndex, juce::StringArray& lines, i
 // 書き出す中身。エクスポートと変換の両方から使う。
 void GuiOpn::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
 	writeOpParams(opIndex, writer);
+}
+
+void GuiOpn::bypassHiddenCategories()
+{
+    // いま隠れている区分だけを切る。出したままの区分は触らない。
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
+}
+
+void GuiOpn::openEnabledCategories()
+{
+    // 効いている区分を開く。札を持たない区分は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
+    if (ssgHwEnv.hasBypassSwitch() && !ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(true);
+    if (ssgSwEnv11g.hasBypassSwitch() && !ssgSwEnv11g.isCategoryBypassed()) ssgSwEnv11g.setCategoryOpen(true);
+    if (ampModComponent.hasBypassSwitch() && !ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(true);
+    if (ssgHwPEnv.hasBypassSwitch() && !ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(true);
+    if (ssgSwPEnv11g.hasBypassSwitch() && !ssgSwPEnv11g.isCategoryBypassed()) ssgSwPEnv11g.setCategoryOpen(true);
+    if (modComponent.hasBypassSwitch() && !modComponent.isCategoryBypassed()) modComponent.setCategoryOpen(true);
+    if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
+
+    if (ssgHwEnvOp.hasBypassSwitch() && !ssgHwEnvOp.isCategoryBypassed()) ssgHwEnvOp.setCategoryOpen(true);
+    if (ssgSwEnv.hasBypassSwitch() && !ssgSwEnv.isCategoryBypassed()) ssgSwEnv.setCategoryOpen(true);
+    if (ssgSwEnv11.hasBypassSwitch() && !ssgSwEnv11.isCategoryBypassed()) ssgSwEnv11.setCategoryOpen(true);
+    if (wtAmpModOp.hasBypassSwitch() && !wtAmpModOp.isCategoryBypassed()) wtAmpModOp.setCategoryOpen(true);
+    if (pitchEnv.hasBypassSwitch() && !pitchEnv.isCategoryBypassed()) pitchEnv.setCategoryOpen(true);
+    if (ssgHwPEnvOp.hasBypassSwitch() && !ssgHwPEnvOp.isCategoryBypassed()) ssgHwPEnvOp.setCategoryOpen(true);
+    if (ssgSwPEnv11.hasBypassSwitch() && !ssgSwPEnv11.isCategoryBypassed()) ssgSwPEnv11.setCategoryOpen(true);
+    if (wtModOp.hasBypassSwitch() && !wtModOp.isCategoryBypassed()) wtModOp.setCategoryOpen(true);
+}
+
+void GuiOpn::closeBypassedCategories()
+{
+    // 切ってある区分を閉じる。札を持たない区分は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
+    if (ssgHwEnv.hasBypassSwitch() && ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(false);
+    if (ssgSwEnv11g.hasBypassSwitch() && ssgSwEnv11g.isCategoryBypassed()) ssgSwEnv11g.setCategoryOpen(false);
+    if (ampModComponent.hasBypassSwitch() && ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(false);
+    if (ssgHwPEnv.hasBypassSwitch() && ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(false);
+    if (ssgSwPEnv11g.hasBypassSwitch() && ssgSwPEnv11g.isCategoryBypassed()) ssgSwPEnv11g.setCategoryOpen(false);
+    if (modComponent.hasBypassSwitch() && modComponent.isCategoryBypassed()) modComponent.setCategoryOpen(false);
+    if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
+
+    if (ssgHwEnvOp.hasBypassSwitch() && ssgHwEnvOp.isCategoryBypassed()) ssgHwEnvOp.setCategoryOpen(false);
+    if (ssgSwEnv.hasBypassSwitch() && ssgSwEnv.isCategoryBypassed()) ssgSwEnv.setCategoryOpen(false);
+    if (ssgSwEnv11.hasBypassSwitch() && ssgSwEnv11.isCategoryBypassed()) ssgSwEnv11.setCategoryOpen(false);
+    if (wtAmpModOp.hasBypassSwitch() && wtAmpModOp.isCategoryBypassed()) wtAmpModOp.setCategoryOpen(false);
+    if (pitchEnv.hasBypassSwitch() && pitchEnv.isCategoryBypassed()) pitchEnv.setCategoryOpen(false);
+    if (ssgHwPEnvOp.hasBypassSwitch() && ssgHwPEnvOp.isCategoryBypassed()) ssgHwPEnvOp.setCategoryOpen(false);
+    if (ssgSwPEnv11.hasBypassSwitch() && ssgSwPEnv11.isCategoryBypassed()) ssgSwPEnv11.setCategoryOpen(false);
+    if (wtModOp.hasBypassSwitch() && wtModOp.isCategoryBypassed()) wtModOp.setCategoryOpen(false);
 }

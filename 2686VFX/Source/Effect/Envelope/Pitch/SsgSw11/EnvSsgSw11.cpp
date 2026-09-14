@@ -44,6 +44,9 @@ void SsgSwPEnv11::setParameters(const SsgSwPEnv11Params& params) {
     this->l[10] = params.l10;
     this->r[11] = params.r11;
     this->l[11] = params.l11;
+    this->endl = params.endl;
+    this->endlEnable = params.endlEnable;
+    this->keep = params.keep;
 
     // GUIでも loop=true 時のガードはやっているが、念の為ロジックでもチェックする
     if (this->loop) {
@@ -103,6 +106,9 @@ void SsgSwPEnv11::noteOn() {
     this->state = State::S1;
     this->loopCounter = 0;
     this->currentLevel = this->l[0]; // Start Level から開始
+
+    // KEEP のときは最初の段のあいだ Start Level を保つ
+    this->m_keepLevel = (float)this->l[0];
 }
 
 void SsgSwPEnv11::noteOff() {
@@ -133,7 +139,16 @@ float SsgSwPEnv11::bypassedProcess() {
 
 float SsgSwPEnv11::process(float phaseDelta) {
     if (this->bypass) return phaseDelta;
-    if (this->state == State::Idle) return phaseDelta;
+
+    // リリースを走り終えたあと。ENDL を触っていなければ、これまでどおり
+    // 素通しする。触っているときだけ、その音程を保つ。
+    if (this->state == State::Idle) {
+        if (!this->endlEnable) return phaseDelta;
+
+        return phaseDelta * std::pow(2.0f, (float)this->endl / 1200.0f);
+    }
+
+    const State before = this->state;
 
     auto countUpLoopCounter = [&]() {
         if (loopCount > 0) {
@@ -413,10 +428,24 @@ float SsgSwPEnv11::process(float phaseDelta) {
         break;
     }
 
+    // 段が変わったかを見て、KEEP で保つ値とリリース後の値を決める。
+    //
+    // 段の終わりで currentLevel はその段の行き先へ揃えられるので、変わった
+    // 直後の値が「次の段のあいだ保つレベル」になる。押した直後は STL、
+    // R1 を走り終えたら L1、という並びになる。
+    if (this->state != before) {
+        // ENDL を触っているときだけ、リリース後の値をそちらへ移す
+        if (this->state == State::Idle && this->endlEnable) this->currentLevel = (float)this->endl;
+
+        this->m_keepLevel = this->currentLevel;
+    }
+
+    const float cents = this->keep ? this->m_keepLevel : this->currentLevel;
+
     // --- セント値を周波数比に変換して phaseDelta に適用 ---
-    if (this->currentLevel != 0.0f) {
+    if (cents != 0.0f) {
         // 1200セント = 1オクターブ (2倍の周波数)
-        float pitchRatio = std::pow(2.0f, this->currentLevel / 1200.0f);
+        float pitchRatio = std::pow(2.0f, cents / 1200.0f);
         phaseDelta *= pitchRatio;
     }
 

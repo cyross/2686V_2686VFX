@@ -15,6 +15,9 @@
 
 struct OpmOpParams
 {
+    // 押してから鳴り始めるまでの間 (秒)
+    float delay = 0.0f;
+
     FmRgAdddrParams m_adsrParams;
     bool ssgEnvEnable = false;
     SsgSwEnvParams ssgSwEnv;

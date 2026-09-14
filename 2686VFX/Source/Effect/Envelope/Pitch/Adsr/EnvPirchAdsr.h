@@ -16,7 +16,21 @@ class PitchAdsrEnv {
 	int atl = 0;
 	int ssl = 0;
 	int rll = 0;
+
+	// リリースを走り終えたあとに保つセント。
+	// 0 のままなら、これまでどおり rll を保つ。
+	int endl = 0;
+
+	// ENDL を使うかどうか。切のあいだは、これまでどおり rll を保つ。
+	bool endlEnable = false;
+
+	// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+	bool keep = false;
+
 	bool bypass = false;
+
+	// リリースを走り終えたあとのセント
+	float endCents() const { return (float)(this->endlEnable ? this->endl : this->rll); }
 
 	double sampleRate = 44100.0; // DAW Host Sample Rate
 

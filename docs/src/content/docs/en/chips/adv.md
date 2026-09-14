@@ -2,7 +2,7 @@
 title: ADV (curve editing)
 description: Deciding for yourself how a value changes over time
 sidebar:
-  order: 14
+  order: 15
 ---
 
 <figure class="shot">

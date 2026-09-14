@@ -15,7 +15,7 @@ sidebar:
 ## What the plugin looks like
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/plugin/2686VLight.png" alt="2686VLight, the whole window" width="1426" height="737" />
+	<img src="/2686V_2686VFX/ui/plugin/2686VLight.png" alt="2686VLight, the whole window" width="1426" height="738" />
 	<figcaption>The whole window</figcaption>
 </figure>
 
@@ -40,6 +40,7 @@ sidebar:
 | [WTPLUS](/2686V_2686VFX/en/chips/wtplus/) | ✔ |
 | [RHYTHM](/2686V_2686VFX/en/chips/rhythm/) | ✔ |
 | [ADPCM](/2686V_2686VFX/en/chips/adpcm/) | ✔ |
+| [ADPCM+](/2686V_2686VFX/en/chips/adpcmplus/) | ✔ |
 | [BEEP](/2686V_2686VFX/en/chips/beep/) | ✔ |
 
 

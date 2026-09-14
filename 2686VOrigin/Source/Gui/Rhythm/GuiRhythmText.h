@@ -9,6 +9,11 @@ namespace RhythmGuiText
 	static inline const juce::String bit = u8"BIT";
 	static inline const juce::String rate = u8"RATE";
 
+	// パッドの名前。番号の並びと一致していること。
+	//
+	// 設定は 1 組しか置かないので、見出しへ出す名前はここから引く。
+	static inline const juce::String padNames[] = { "BD", "SD", "RIM", "TOM", "CYMBAL", "HI-HAT" };
+
 	namespace Category
 	{
 		static inline const juce::String form = u8"FORM";
@@ -33,27 +38,27 @@ namespace RhythmGuiText
 
 	namespace Rhythm
 	{
-		static inline const juce::String vol = u8"LV";
+		static inline const juce::String vol = u8"LEVEL";
 
 		namespace Pad
 		{
 			static inline const juce::String key = u8"Pad";
-			static inline const juce::String vol = u8"LV";
+			static inline const juce::String vol = u8"LEVEL";
 			static inline const juce::String note = u8"NOTE";
-			static inline const juce::String quality = u8"BIT";
-			static inline const juce::String rate = u8"RATE";
+			static inline const juce::String quality = u8"BIT RATE";
+			static inline const juce::String rate = u8"SMP.RATE";
 			static inline const juce::String interp = u8"INTP";
-			static inline const juce::String tone = u8"T.LV";
-			static inline const juce::String noise = u8"N.LV";
-			static inline const juce::String noiseFreq = u8"N.FQ";
+			static inline const juce::String tone = u8"T.LEVEL";
+			static inline const juce::String noise = u8"N.LEVEL";
+			static inline const juce::String noiseFreq = u8"N.FREQ";
 			static inline const juce::String mix = u8"MIX";
 			static inline const juce::String pan = u8"PAN";
-			static inline const juce::String pcmOffset = u8"POFF";
-			static inline const juce::String pcmRatio = u8"PRT";
+			static inline const juce::String pcmOffset = u8"P.OFFSET";
+			static inline const juce::String pcmRatio = u8"P.RATIO";
 			static inline const juce::String oneShot = u8"One Shot";
 			static inline const juce::String loopPointEnable = u8"Loop Point Enable";
-			static inline const juce::String loopPointStart = u8"LPST";
-			static inline const juce::String loopPointEnd = u8"LPED";
+			static inline const juce::String loopPointStart = u8"LP.START";
+			static inline const juce::String loopPointEnd = u8"LP.END";
 
 			namespace Pan
 			{

@@ -55,6 +55,8 @@ struct CopyEnvAmpAdsr {
 	float dr;
 	float sl;
 	float rr;
+	float endl;
+	bool endlEnable;
 
 	bool kor;
 	bool bypass;
@@ -137,6 +139,9 @@ struct CopyEnvSsgSw11 {
 	float stl;
 	std::array<float, 11> r = { 0.0f };
 	std::array<float, 11> l = { 0.0f };
+	float endl;
+	bool endlEnable;
+	bool keep;
 };
 
 struct CopyPEnvSsgSw11 {
@@ -149,6 +154,9 @@ struct CopyPEnvSsgSw11 {
 	int stl;
 	std::array<float, 11> r = { 0.0f };
 	std::array<int, 11> l = { 0 };
+	int endl;
+	bool endlEnable;
+	bool keep;
 };
 
 struct CopyEnvPitchAdsr {
@@ -162,6 +170,9 @@ struct CopyEnvPitchAdsr {
 	int atl;
 	int ssl;
 	int rll;
+	int endl;
+	bool endlEnable;
+	bool keep;
 };
 
 struct CopyDetuneOpzx7 {
@@ -230,6 +241,7 @@ struct CopyPcm {
 	juce::String finename;
 	float pcmOffset;
 	float pcmRatio;
+	float speed;
 };
 
 struct CopyWt {

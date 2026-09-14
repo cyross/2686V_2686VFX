@@ -10,7 +10,7 @@ sidebar:
 | Kind | Channels that use it |
 | --- | --- |
 | **BIT / RATE** | FM, SSG, wavetable |
-| **BIT / RATE / INTP** | ADPCM, RHYTHM (the PCM family) |
+| **BIT / RATE / INTERP** | ADPCM, RHYTHM (the PCM family) |
 
 ## BIT — bit depth (FM, SSG, wavetable)
 
@@ -87,7 +87,7 @@ There are **15**.
 | 13 | 4kHz | |
 | 15 | 2kHz | |
 
-## INTP — how the gaps are filled (the PCM family)
+## INTERP — how the gaps are filled (the PCM family)
 
 Once the rate has been dropped, this decides how the gaps are filled on the way back.
 

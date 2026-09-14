@@ -2,7 +2,7 @@
 title: What changed in v3.2.0
 description: What 3.2.0 adds and what moved
 sidebar:
-  order: 5
+  order: 6
 ---
 
 The changes between 3.1.0 and 3.2.0. **Nothing stops loading.** Presets and

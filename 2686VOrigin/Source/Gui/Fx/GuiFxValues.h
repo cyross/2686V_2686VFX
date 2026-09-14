@@ -55,7 +55,9 @@ namespace FxGuiValue
 		static inline constexpr int AreaHeightRow4 = 280;
 		static inline constexpr int HeightReverb = 166;
 		static inline constexpr int HeightSfcEcho = 280;
-		static inline constexpr int AreaLabelWidth = 40;
+		// 8 文字ぶん。値の幅を削って回している。合計 (260) は変えない。
+		static inline constexpr int AreaLabelWidth = 68;
+		static inline constexpr int AreaValueWidth = 192;
 		static inline constexpr int MixBtnWidth = 40;
 		static inline constexpr int GlobalBypassHeight = 120;
 		static inline constexpr int BypassWidth = 120;

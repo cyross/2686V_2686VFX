@@ -17,7 +17,7 @@ the thicker four-operator one.
 ## What the plugin looks like
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/plugin/OPLV.png" alt="OPLV, the whole window" width="1426" height="740" />
+	<img src="/2686V_2686VFX/ui/plugin/OPLV.png" alt="OPLV, the whole window" width="1426" height="738" />
 	<figcaption>The whole window</figcaption>
 </figure>
 

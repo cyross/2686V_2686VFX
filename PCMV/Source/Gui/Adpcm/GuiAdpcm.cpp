@@ -108,6 +108,18 @@ void GuiAdpcm::setup()
     loopPointEndSlider.setWantsKeyboardFocus(true);
     loopPointEndSlider.setExplicitFocusOrder(++tabOrder);
 
+    speedSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::speed, .title = "SPEED", .isReset = true });
+    speedSlider.setWantsKeyboardFocus(true);
+    speedSlider.setExplicitFocusOrder(++tabOrder);
+
+    optSpeedSeparator.setupComponent(mainGroup.contentCanvas);
+
+    loopCountSlider.setupComponent(mainGroup.contentCanvas, code + CPK::lpCount, "CNT", tabOrder, std::nullopt);
+
+    loopCountButtons.setupComponent(mainGroup.contentCanvas, loopCountSlider.getSlider(), tabOrder);
+
+    optCountSeparator.setupComponent(mainGroup.contentCanvas);
+
     pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::pcmOffset, .title = AdpcmGuiText::Adpcm::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
@@ -208,6 +220,8 @@ void GuiAdpcm::setup()
         };
 
     formSeparator.setupComponent(mainGroup.contentCanvas);
+    optLoopSepTop.setupComponent(mainGroup.contentCanvas);
+    optLoopSepBottom.setupComponent(mainGroup.contentCanvas);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
@@ -558,17 +572,34 @@ void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
 
     bool visible = optionalCat.isDetailVisible();
 
+    speedSlider.setVisibleWithLabel(visible);
+    optSpeedSeparator.setVisible(visible);
+    loopCountSlider.setVisibleWithLabel(visible);
+    loopCountButtons.setVisibles(visible && loopCountSlider.isVisibleNudge());
+    optCountSeparator.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
     loopButton.setVisible(visible);
+    optLoopSepTop.setVisible(visible);
+    optLoopSepBottom.setVisible(visible);
     loopPointEnableButton.setVisible(visible);
     loopPointStartSlider.setVisibleWithLabel(visible);
     loopPointEndSlider.setVisibleWithLabel(visible);
 
     if (visible) {
+        layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider });
+        optSpeedSeparator.layoutComponent(rect);
+        loopCountSlider.layoutComponent(rect);
+        if (loopCountSlider.isVisibleNudge()) loopCountButtons.layoutComponent(rect);
+        optCountSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
         layoutMain({ .mainRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+        optLoopSepTop.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &loopButton });
+
+        optLoopSepBottom.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &loopPointEnableButton });
         layoutMain({ .mainRect = rect, .label = &loopPointStartSlider.label, .component = &loopPointStartSlider, });
         layoutMain({ .mainRect = rect, .label = &loopPointEndSlider.label, .component = &loopPointEndSlider, });
@@ -918,10 +949,12 @@ void GuiAdpcm::applyPcmPlayParamFile(const juce::File& file)
     GuiRefresh::Batch batch;
 
     pcmOffsetSlider.setValue(reader->getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
+    speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
     pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
     loopPointEnableButton.setToggleState(reader->getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
     loopPointStartSlider.setValue(reader->getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
     loopPointEndSlider.setValue(reader->getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
+    loopCountSlider.setValue(reader->getFloat("loopCount", (float)loopCountSlider.getValue()), juce::sendNotification);
 }
 
 void GuiAdpcm::exportPcmPlayParam()
@@ -1035,10 +1068,12 @@ void GuiAdpcm::applyChParamFile(const juce::File& file) {
 
     // PCM Play
     pcmOffsetSlider.setValue(reader->getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
+    speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
     pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
     loopPointEnableButton.setToggleState(reader->getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
     loopPointStartSlider.setValue(reader->getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
     loopPointEndSlider.setValue(reader->getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
+    loopCountSlider.setValue(reader->getFloat("loopCount", (float)loopCountSlider.getValue()), juce::sendNotification);
 
     // Components
 				fixComponent.readParams(*reader, "fix");
@@ -1162,10 +1197,12 @@ void GuiAdpcm::writeChParams(Io::ParamWriter& writer) {
 
 	            // PCM Play
 	            writer.set("pcmOffset", (float)pcmOffsetSlider.getValue());
+	            writer.set("speed", (float)speedSlider.getValue());
 	            writer.set("pcmRatio", (float)pcmRatioSlider.getValue());
 	            writer.set("loopPointEnable", loopPointEnableButton.getToggleState());
 	            writer.set("loopPointStart", (float)loopPointStartSlider.getValue());
 	            writer.set("loopPointEnd", (float)loopPointEndSlider.getValue());
+	            writer.set("loopCount", (float)loopCountSlider.getValue());
 	            
 	            // Components
 	fixComponent.writeParams(writer, "fix");
@@ -1261,10 +1298,12 @@ void GuiAdpcm::setImportingPcmPlayParams(juce::StringArray& lines, int& index) {
 // 書き出す中身。エクスポートと変換の両方から使う。
 void GuiAdpcm::writePcmPlayParams(Io::ParamWriter& writer) {
 	writer.set("pcmOffset", (float)pcmOffsetSlider.getValue());
+	writer.set("speed", (float)speedSlider.getValue());
 	writer.set("pcmRatio", (float)pcmRatioSlider.getValue());
 	writer.set("loopPointEnable", loopPointEnableButton.getToggleState());
 	writer.set("loopPointStart", (float)loopPointStartSlider.getValue());
 	writer.set("loopPointEnd", (float)loopPointEndSlider.getValue());
+	writer.set("loopCount", (float)loopCountSlider.getValue());
 
 	
 }

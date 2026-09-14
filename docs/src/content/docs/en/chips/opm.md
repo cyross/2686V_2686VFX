@@ -77,7 +77,7 @@ There is also DT3, which is ours: it ignores the frame of DT1 / DT2 and lets you
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **MUL** | Multiple | [`OPM_OP[0-3]_MUL`](/2686V_2686VFX/en/reference/automation/opm/#opm-op-0-3-mul) |
-| **MURT** | Take the multiple off the whole numbers and set it freely (**ours**) | [`OPM_OP[0-3]_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/opm/#opm-op-0-3-mul-ratio) |
+| **MUL.RATIO** | Take the multiple off the whole numbers and set it freely (**ours**) | [`OPM_OP[0-3]_MUL_RATIO`](/2686V_2686VFX/en/reference/automation/opm/#opm-op-0-3-mul-ratio) |
 | **DT1** | Fine detune | [`OPM_OP[0-3]_DT`](/2686V_2686VFX/en/reference/automation/opm/#opm-op-0-3-dt) |
 | **DT2** | Coarse detune. The hardware's four steps | [`OPM_OP[0-3]_DT2`](/2686V_2686VFX/en/reference/automation/opm/#opm-op-0-3-dt2) |
 
@@ -87,17 +87,17 @@ The YM2151's hardware LFO. Shape, rate and how far it reaches are all set here.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **FQ** | How fast it wobbles | [`OPM_LFO_FREQ`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-freq) |
-| **SDLY** | Wait after key-down before it starts | [`OPM_LFO_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-sync-delay) |
+| **FREQ** | How fast it wobbles | [`OPM_LFO_FREQ`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-freq) |
+| **SY.DELAY** | Wait after key-down before it starts | [`OPM_LFO_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-sync-delay) |
 | **PM Enable** | Apply the wobble on the pitch side | [`OPM_LFO_PM`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-pm) |
-| **P.SH** | Pitch side: shape. The hardware's four | [`OPM_LFO_PG_SHAPE`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-pg-shape) |
+| **P.SHAPE** | Pitch side: shape. The hardware's four | [`OPM_LFO_PG_SHAPE`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-pg-shape) |
 | **PMS** | How much it reaches the pitch | [`OPM_LFO_PMS`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-pms) |
 | **PMD** | Depth on the pitch | [`OPM_LFO_PMD`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-pmd) |
 | **AM Enable** | Apply the wobble on the level side | [`OPM_LFO_AM`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-am) |
-| **A.SH** | Level side: shape | [`OPM_LFO_EG_SHAPE`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-eg-shape) |
+| **A.SHAPE** | Level side: shape | [`OPM_LFO_EG_SHAPE`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-eg-shape) |
 | **AMS** | How much it reaches the level | [`OPM_LFO_AMS`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-ams) |
 | **AMD** | Depth on the level | [`OPM_LFO_AMD`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-amd) |
-| **AMSR** | Rounding of the corners on the level side (**ours**) | [`OPM_LFO_ASMRT`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-asmrt) |
+| **SM.RATIO** | Rounding of the corners on the level side (**ours**) | [`OPM_LFO_ASMRT`](/2686V_2686VFX/en/reference/automation/opm/#opm-lfo-asmrt) |
 | **AMS Enable** | Whether each operator takes the level wobble | [`OPM_OP[0-3]_AMS_EN`](/2686V_2686VFX/en/reference/automation/opm/#opm-op-0-3-ams-en) |
 
 ### KEY SCALE (hardware / ours)

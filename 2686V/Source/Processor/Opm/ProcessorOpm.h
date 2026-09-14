@@ -33,6 +33,9 @@ class OpmProcessor : public PrBase
     std::array<PrPtrsWtAmpMod, OpmPrValue::ops> pOpWtAmpMod;
     std::array<PrPtrsSsgHwEnv, OpmPrValue::ops> pOpSsgHwEnv;
     std::array<PrPtrsWtMod, OpmPrValue::ops> pOpWtMod;
+    // 押してから鳴り始めるまでの間 (秒)。オペレーター 1 本ごと。
+    std::array<std::atomic<float>*, OpmPrValue::ops> pOpDelay = { nullptr };
+
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpMask = { nullptr };
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

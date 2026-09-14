@@ -64,7 +64,7 @@ Up from OPL's four to **eight**: sines cut, folded, or used only by halves.
 
 The level envelope on each operator, with **KOR / XOF / Bypass** of ours added.
 
-The OPL family has no SR. How the decay carries on is decided by EGTP under EG SHAPE.
+The OPL family has no SR. How the decay carries on is decided by EG TYPE under EG SHAPE.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
@@ -83,7 +83,7 @@ Picks the type of envelope.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **EGTP** | Hold the level while the key is down (on), or keep falling (off) | [`OPL3_OP[0-3]_EG_TYP`](/2686V_2686VFX/en/reference/automation/opl3/#opl3-op-0-3-eg-typ) |
+| **EG TYPE** | Hold the level while the key is down (on), or keep falling (off) | [`OPL3_OP[0-3]_EG_TYP`](/2686V_2686VFX/en/reference/automation/opl3/#opl3-op-0-3-eg-typ) |
 
 ### LFO (hardware)
 

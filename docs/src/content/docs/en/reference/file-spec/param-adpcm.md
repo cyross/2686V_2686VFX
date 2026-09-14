@@ -40,17 +40,19 @@ the default.
 | `noiseFreq` | decimal | 0 – 30000 | 12000 |
 | `mix` | decimal | 0 – 1 | 0 |
 | `pan` | decimal | 0 – 1 | 0.5 |
+| `speed` | decimal | 0.0001 – 100 | 1 |
 | `pcmOffset` | decimal | 0 – 2000 | 0 |
 | `pcmRatio` | decimal | 0.05 – 1 | 1 |
 | `loopPointEnable` | boolean | false / true | false |
 | `loopPointStart` | decimal | 0 – 0.999999 | 0 |
 | `loopPointEnd` | decimal | 1e-06 – 1 | 1 |
+| `loopCount` | integer | 0 – 3000 | 0 |
 
 ## The nested blocks in a channel
 
 | Key | What it holds |
 | --- | --- |
-| `level` | The channel level. It holds `level` and nothing else |
+| `level` | The channel level and start delay. It holds `level` and `delay` |
 | `fix` | Holding the pitch. It holds `enable` and `freq` |
 | `ampEnv` | The same as [ampEnv](/2686V_2686VFX/en/reference/file-spec/ampenv/) |
 | `pitchEnv` | The same as [pitchEnv](/2686V_2686VFX/en/reference/file-spec/pitchenv/) |

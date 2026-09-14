@@ -73,6 +73,7 @@ void BeepCore::setSampleRate(double sampleRate) {
 
 void BeepCore::setParameters(const SynthParams& params) {
     m_level = params.beep.level;
+    m_delaySeconds = params.beep.delay;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;

@@ -600,6 +600,32 @@ void GuiSettings::setup()
 
     separatorSimple.setupComponent(*this);
 
+    // --- トグルボタンの並べ方 ---
+    // 画面じゅうのトグルを、中央寄せ (従来) か左寄せかで描き分ける。
+    // 置き場所は変えないので、切り替えたら描き直すだけでよい。
+    std::vector<SelectItem> toggleAlignItems = {
+        {.name = juce::String("") + "中央寄せ", .value = ToggleAlign::Centred + 1 },
+        {.name = juce::String("") + "左寄せ",   .value = ToggleAlign::Left + 1 },
+    };
+
+    toggleAlignSelector.setup({
+        .parent = *this,
+        .id = "",
+        .title = juce::String("") + "トグルボタン配置",
+        .items = toggleAlignItems,
+        .isReset = false
+        });
+    toggleAlignSelector.setSelectedId(ctx.audioProcessor.toggleAlign + 1, juce::dontSendNotification);
+    toggleAlignSelector.setWantsKeyboardFocus(true);
+    toggleAlignSelector.setExplicitFocusOrder(++tabOrder);
+    toggleAlignSelector.onChange = [this] {
+        ctx.audioProcessor.toggleAlign = toggleAlignSelector.getSelectedItemIndex();
+
+        ctx.editor.repaint();
+        };
+
+    separatorToggleAlign.setupComponent(*this);
+
     // --- Toggle Tooltip Visible Toggle Button ---
     tooltipToggle.setup({ .parent = *this, .title = juce::String("") + "ツールチップを表示", .font = toggleFont, .isReset = false });
     tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
@@ -687,6 +713,11 @@ void GuiSettings::setup()
                     // 反映は 1 か所へ寄せる。ここに並べ直していたため、
                     // 足した項目が読み込みのときだけ画面に出なかった。
                     setSettings();
+
+                    // 読んだ値を画面へ効かせる。簡易表示モードは組み直さないと出てこない。
+                    ctx.editor.setTooltipState(ctx.audioProcessor.showTooltips);
+                    ctx.editor.updateKeyboardVisibility();
+                    ctx.editor.resized();
 
                     // 壁紙再描画
                     ctx.editor.loadWallpaperImage();
@@ -1086,6 +1117,13 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     separatorSimple.layoutComponent(sRect);
 
+    // トグルボタン配置
+    auto rowToggleAlign = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    toggleAlignSelector.label.setBounds(rowToggleAlign.removeFromLeft(SettingsGuiValue::Settings::ToggleAlignLabelWidth));
+    toggleAlignSelector.setBounds(rowToggleAlign.removeFromLeft(SettingsGuiValue::Settings::ToggleAlignSelectorWidth));
+
+    separatorToggleAlign.layoutComponent(sRect);
+
     // 19. Tooltip Visible Row
     auto rowTooltip = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
@@ -1135,6 +1173,7 @@ void GuiSettings::setSettings()
     // 間違えても、行を足し忘れても気づけなかった。
     uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
     fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
+    toggleAlignSelector.setSelectedId(ctx.audioProcessor.toggleAlign + 1, juce::dontSendNotification);
     wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
 
     wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty()
@@ -1158,6 +1197,21 @@ void GuiSettings::setSettings()
     toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
     wtModParamDirPathLabel.setText(ctx.audioProcessor.defaultWtModParamDir, juce::dontSendNotification);
     colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
+
+    // 入り切りもプロセッサから読み直す。ここに無かったため、設定ファイルを
+    // 読んでも画面のトグルだけが前の値のまま残っていた。
+    simpleViewToggle.setToggleState(ctx.audioProcessor.simpleView, juce::dontSendNotification);
+    bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
+
+    for (int i = 0; i < SimpleView::Size; ++i) {
+        simpleViewShowToggles[(size_t)i].setToggleState(ctx.audioProcessor.simpleViewShow[(size_t)i], juce::dontSendNotification);
+    }
+
+    tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
+    useHeadroomToggle.setToggleState(ctx.audioProcessor.useHeadroom, juce::dontSendNotification);
+    headroomGainSlider.setValue(ctx.audioProcessor.headroomGain, juce::dontSendNotification);
+    headroomGainSlider.setEnabledWithLabel(ctx.audioProcessor.useHeadroom);
+    virtualMidiKeyboardToggle.setToggleState(ctx.audioProcessor.showVirtualKeyboard, juce::dontSendNotification);
 }
 
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)

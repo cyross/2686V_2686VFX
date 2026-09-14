@@ -18,6 +18,7 @@
 #include "../../Synth/WtPlus/SynthWtPlus.h"
 #include "../../Synth/Rhythm/SynthRhythm.h"
 #include "../../Synth/Adpcm/SynthAdpcm.h"
+#include "../../Synth/AdpcmPlus/SynthAdpcmPlus.h"
 #include "../../Synth/Beep/SynthBeep.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 
@@ -37,6 +38,7 @@ public:
     void setParameters(const SynthParams& params);
 
     AdpcmCore* getAdpcmCore() { return &m_adpcmCore; }
+    AdpcmPlusCore* getAdpcmPlusCore() { return &m_adpcmPlusCore; }
     RhythmCore* getRhythmCore() { return &m_rhythmCore; }
 
     bool canPlaySound(juce::SynthesiserSound* sound) override
@@ -130,5 +132,6 @@ private:
     Wt2Core m_wt2Core;
     RhythmCore m_rhythmCore;
     AdpcmCore m_adpcmCore;
+    AdpcmPlusCore m_adpcmPlusCore;
     BeepCore m_beepCore;
 };

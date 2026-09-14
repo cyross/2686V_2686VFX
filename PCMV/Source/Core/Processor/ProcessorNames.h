@@ -24,6 +24,11 @@ namespace CPN
 		static inline const juce::String slot = " Wave Slot";
 	}
 
+	namespace AdpcmPlus
+	{
+		static inline const juce::String slot = " PCM Slot";
+	}
+
 	namespace Wt2
 	{
 		static inline const juce::String waveform = " Waveform";
@@ -32,6 +37,8 @@ namespace CPN
 	}
 
 	static inline const juce::String level = " Level";
+	static inline const juce::String speed = " Speed";
+	static inline const juce::String delay = " Delay";
 	static inline const juce::String vol = " Vol";
 
 	static inline const juce::String op = " Op";
@@ -55,6 +62,7 @@ namespace CPN
 	static inline const juce::String lpEnable = " Loop-point Enable";
 	static inline const juce::String lpStart = " Loop-point Start";
 	static inline const juce::String lpEnd = " Loop-point End";
+	static inline const juce::String lpCount = " Loop-point Count";
 
 	static inline const juce::String custom32 = " Custom32 ";
 	static inline const juce::String custom64 = " Custom64 ";
@@ -211,6 +219,8 @@ namespace CPN
 		static inline const juce::String rr = " Rr";
 		static inline const juce::String stl = " Stl";
 		static inline const juce::String kor = " KOR";
+		static inline const juce::String endl = " EndL";
+		static inline const juce::String endlEnable = " EndL Enable";
 	}
 
 	namespace PitchAdsr
@@ -224,6 +234,9 @@ namespace CPN
 		static inline const juce::String atl = " PitchEnv Atl";
 		static inline const juce::String ssl = " PitchEnv Ssl";
 		static inline const juce::String rll = " PitchEnv Rll";
+		static inline const juce::String endl = " PitchEnv EndL";
+		static inline const juce::String endlEnable = " PitchEnv EndL Enable";
+		static inline const juce::String keep = " PitchEnv Keep";
 	};
 
 	namespace SsgSwEnv
@@ -280,6 +293,9 @@ namespace CPN
 		static inline const juce::String l10 = " SSG SwEnv11 L10";
 		static inline const juce::String r11 = " SSG SwEnv11 R11";
 		static inline const juce::String l11 = " SSG SwEnv11 L11";
+		static inline const juce::String endl = " SSG SwEnv11 EndL";
+		static inline const juce::String endlEnable = " SSG SwEnv11 EndL Enable";
+		static inline const juce::String keep = " SSG SwEnv11 Keep";
 	};
 
 	namespace SsgSwPEnv11
@@ -313,6 +329,9 @@ namespace CPN
 		static inline const juce::String l10 = " SSG SwPEnv11 L10";
 		static inline const juce::String r11 = " SSG SwPEnv11 R11";
 		static inline const juce::String l11 = " SSG SwPEnv11 L11";
+		static inline const juce::String endl = " SSG SwPEnv11 EndL";
+		static inline const juce::String endlEnable = " SSG SwPEnv11 EndL Enable";
+		static inline const juce::String keep = " SSG SwPEnv11 Keep";
 	};
 
 	namespace Opzx7Lfo
@@ -332,6 +351,10 @@ namespace CPN
 		static inline const juce::String amSmoothRatio = " LFO AM Smooth Ratio";
 		static inline const juce::String pmSyncDelay = " LFO PM Sync Delay";
 		static inline const juce::String amSyncDelay = " LFO AM Sync Delay";
+
+		// ホールドと部分再生。尻尾は CPN::WaveHold。
+		static inline const juce::String pmHoldPrefix = " LFO PM";
+		static inline const juce::String amHoldPrefix = " LFO AM";
 	};
 
 	namespace OplLfo {
@@ -383,6 +406,19 @@ namespace CPN
 		static inline const juce::String ams = " N88 AMS";
 	}
 
+	// ホールドと部分再生。holdPrefix と組み合わせて使う。
+	namespace WaveHold {
+		static inline const juce::String holdEnable = " Hold Enable";
+		static inline const juce::String holdCount = " Hold Count";
+		static inline const juce::String holdTarget = " Hold Target";
+		static inline const juce::String holdMin = " Hold Min";
+		static inline const juce::String holdMax = " Hold Max";
+		static inline const juce::String keepEnable = " Keep Enable";
+		static inline const juce::String waveStart = " Wave Start";
+		static inline const juce::String keepStart = " Keep Start";
+		static inline const juce::String waveEnd = " Wave End";
+		static inline const juce::String keepEnd = " Keep End";
+	}
 	namespace WtMod
 	{
 		static inline const juce::String enable = " Mod Enable";
@@ -392,6 +428,8 @@ namespace CPN
 		static inline const juce::String waveSlot = " Mod Wave Slot";
 		static inline const juce::String fdsTable = " Mod FDS Table ";
 		static inline const juce::String waveSmooth = " Mod Wave Smooth";
+		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
+		static inline const juce::String holdPrefix = " Mod";
 	}
 
 	namespace WtAmpMod
@@ -405,6 +443,8 @@ namespace CPN
 		static inline const juce::String waveSmooth = " Amp Mod Wave Smooth";
 		static inline const juce::String min = " Amp Mod Min";
 		static inline const juce::String max = " Amp Mod Max";
+		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
+		static inline const juce::String holdPrefix = " Amp Mod";
 	}
 
 	namespace SsgDuty
@@ -432,6 +472,9 @@ namespace CPN
 		static inline const juce::String min = " Hardware Env Min";
 		static inline const juce::String max = " Hardware Env Max";
 		static inline const juce::String smooth = " Hardware Env Smooth";
+
+		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
+		static inline const juce::String holdPrefix = " Hardware Env";
 	}
 
 	namespace SsgHwPEnv
@@ -442,5 +485,8 @@ namespace CPN
 		static inline const juce::String min = " Hardware Pitch Env Min";
 		static inline const juce::String max = " Hardware Pitch Env Max";
 		static inline const juce::String smooth = " Hardware Pitch Env Smooth";
+
+		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
+		static inline const juce::String holdPrefix = " Hardware Pitch Env";
 	}
 }

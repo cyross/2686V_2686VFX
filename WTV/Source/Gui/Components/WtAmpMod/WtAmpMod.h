@@ -13,6 +13,7 @@
 #include "../WavePreview/WavePreviewGrid.h"
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Generator/Fds/GenFdsModTable.h"
+#include "../WaveHold/WaveHold.h"
 #include "../WtMod/WtMod.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../NudgeButtons/NudgeButtons.h"
@@ -59,6 +60,9 @@ class GuiComponentWtAmpMod : public GuiBase {
 
     // 選んでいる Shape の変調のかかり方を見せるプレビュー
     GuiWavePreview modPreview;
+
+    // ホールドと部分再生
+    GuiComponentWaveHold waveHold;
 
     // APVTS のプレフィックス。つまみの id を組み立てるのに使う。
     juce::String m_code;
@@ -138,6 +142,7 @@ public:
         slotFileNameLabel(context),
         slotPreviews(context),
         modPreview(context),
+        waveHold(context),
         fdsCat(context),
         fdsEditor(context),
         fdsPresetBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) }
@@ -151,6 +156,8 @@ public:
     // 既定はソフトウェア区分の色を使う。
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder,
         juce::Colour categoryBg = GuiColor::Category::SwAmpBg);
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
 
     // 単体ファイル (.wtampmod) での入出力。

@@ -46,6 +46,9 @@ namespace FxGuiValue
 		// メインの右に並ぶ列の数。FX も変調もこの数で折り返す。
 		static inline constexpr int Cols = 5;
 
+		// 効果の列の数。仲間どうしを 1 列へ積んで、9 個を 4 列にまとめている。
+		static inline constexpr int EffectCols = 4;
+
 		// 出力へ掛ける変調を置く領域。FX は左 400px しか使っていないので、
 		// その右の空きへ詰める。タブは増やさない。
 		static inline constexpr int ModLeft = 20;
@@ -82,7 +85,9 @@ namespace FxGuiValue
 		static inline constexpr int HeightReverb = 166;
 		static inline constexpr int HeightSfcEcho = 280;
 		static inline constexpr int HeightPcm = 260;
-		static inline constexpr int AreaLabelWidth = 40;
+		// 8 文字ぶん。値の幅を削って回している。合計 (260) は変えない。
+		static inline constexpr int AreaLabelWidth = 68;
+		static inline constexpr int AreaValueWidth = 192;
 		static inline constexpr int MixBtnWidth = 40;
 		static inline constexpr int GlobalBypassHeight = 120;
 		static inline constexpr int BypassWidth = 120;

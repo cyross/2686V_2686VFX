@@ -16,17 +16,17 @@ namespace
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Processor/ProcessorValues.h"
+#include "../../../Core/Gui/GuiGraphValues.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
 namespace
 {
-    // 段ごとのパラメータ名。並びが番号と一致していることが前提。
-    const juce::String rateKeys[] = { CPK::SsgSwEnv::r1, CPK::SsgSwEnv::r2, CPK::SsgSwEnv::r3, CPK::SsgSwEnv::r4, CPK::SsgSwEnv::r5, CPK::SsgSwEnv::r6 };
-
-    // 先頭は STL。画面の対象つまみで 0 を選んだときがこれ。
-    const juce::String levelKeys[] = { CPK::SsgSwEnv::stl, CPK::SsgSwEnv::l1, CPK::SsgSwEnv::l2, CPK::SsgSwEnv::l3, CPK::SsgSwEnv::l4, CPK::SsgSwEnv::l5, CPK::SsgSwEnv::l6 };
+    // 段ごとのパラメータ名は GuiGraphValues へ一本化してある。
+    // つまみを持たない小さなグラフも、同じ並びで引くため。
+    const auto& rateKeys = GuiGraphValues::Keys::ssgSwEnvRate;
+    const auto& levelKeys = GuiGraphValues::Keys::ssgSwEnvLevel;
 
     constexpr int rateCount = 6;
     constexpr int levelCount = 6 + 1; // 先頭の STL のぶん
@@ -151,6 +151,8 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         .enableChangeDetailVisible = true
         });
 
+    m_flagKey = flagKey;
+
     flag.setup({ .parent = parent, .id = code + flagKey, .title = flagText, .isReset = true });
     flag.setWantsKeyboardFocus(true);
     flag.setExplicitFocusOrder(++tabOrder);
@@ -182,7 +184,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopTo, .title = "L.TO", .isReset = true, .labelFont = labelFont });
+    loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopTo, .title = "LOOP.TO", .isReset = true, .labelFont = labelFont });
     loopTo.setWantsKeyboardFocus(true);
     loopTo.setExplicitFocusOrder(++tabOrder);
     loopTo.onValueChange = [this] {
@@ -191,7 +193,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopCount.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopCount, .title = "L.CN", .isReset = true, .labelFont = labelFont });
+    loopCount.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopCount, .title = "LOOP.CNT", .isReset = true, .labelFont = labelFont });
     loopCount.setWantsKeyboardFocus(true);
     loopCount.setExplicitFocusOrder(++tabOrder);
 
@@ -208,14 +210,15 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     // 並びは 対象 → 値 → 各段の値。
     paramCode = code;
 
-    rateTarget.setup({ .parent = parent, .title = "R.TG", .isReset = false, .labelFont = labelFont });
+    rateTarget.setup({ .parent = parent, .title = "R.TARGET", .isReset = false, .labelFont = labelFont });
     rateTarget.setRange(1.0, (double)rateCount, 1.0);
     rateTarget.setNumDecimalPlacesToDisplay(0);
     rateTarget.setWantsKeyboardFocus(true);
     rateTarget.setExplicitFocusOrder(++tabOrder);
     rateTarget.onValueChange = [this] { rebindRate(); };
 
-    rate.setupComponent(parent, "", "RATE", tabOrder, std::nullopt, labelFont);
+    // 繋ぐ先は対象のつまみが決める。ここで空の名前へ繋ぎに行くと、無いパラメータを指して JUCE が止まる。
+    rate.setupComponent(parent, "", "RATE", tabOrder, std::nullopt, labelFont, false);
     rate.getSlider().onValueChange = [this] { refreshStepValues(); };
 
     rateNudge.setupComponent(parent, rate.getSlider(), tabOrder);
@@ -225,14 +228,14 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     rateSeparator.setupComponent(parent);
 
     // 対象の 0 が STL、1 以降が L1 以降。
-    levelTarget.setup({ .parent = parent, .title = "L.TG", .isReset = false, .labelFont = labelFont });
+    levelTarget.setup({ .parent = parent, .title = "L.TARGET", .isReset = false, .labelFont = labelFont });
     levelTarget.setRange(0.0, (double)(levelCount - 1), 1.0);
     levelTarget.setNumDecimalPlacesToDisplay(0);
     levelTarget.setWantsKeyboardFocus(true);
     levelTarget.setExplicitFocusOrder(++tabOrder);
     levelTarget.onValueChange = [this] { rebindLevel(); };
 
-    level.setupComponent(parent, "", "LEVL", tabOrder, std::nullopt, labelFont);
+    level.setupComponent(parent, "", "LEVEL", tabOrder, std::nullopt, labelFont, false);
     level.getSlider().onValueChange = [this] { refreshStepValues(); };
 
     levelBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
@@ -243,6 +246,28 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     rateTarget.setValue(1, juce::dontSendNotification);
     levelTarget.setValue(0, juce::dontSendNotification);
 
+    rebindRate();
+    rebindLevel();
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentSsgSwEnv::rebind(const juce::String& code)
+{
+    paramCode = code;
+
+    // 入り切りの鍵は呼ぶ側が決めるので、setup で受けたものを使う。
+    flag.rebind(code + m_flagKey);
+    steps.rebind(code + CPK::SsgSwEnv::steps);
+    loop.rebind(code + CPK::SsgSwEnv::loop);
+    loopTo.rebind(code + CPK::SsgSwEnv::loopTo);
+    loopCount.rebind(code + CPK::SsgSwEnv::loopCount);
+
+    // 段の値のつまみは 1 組しかない。今指している段へ繋ぎ直し、
+    // 帯に出している各段の値も作り直す。
     rebindRate();
     rebindLevel();
 }
@@ -385,11 +410,15 @@ void GuiComponentSsgSwEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_cur
 
     graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
 
+    // 段の並び以外は束にして渡す。
+    GuiEnvelopeGraph::StepEnvHead head;
+
+    head.steps = (int)steps.getValue();
+    head.loop = loop.getToggleState();
+    head.loopTo = (int)loopTo.getValue();
+    head.loopCount = (int)loopCount.getValue();
     graph.updateSsgSwEnv(
-        steps,
-        loop,
-        loopTo,
-        loopCount,
+        head,
         rArr, (float)rate.getSlider().getMaximum(),
         lArr, (float)level.getSlider().getMaximum(),
         p_curveCore,

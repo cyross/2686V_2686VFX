@@ -22,6 +22,8 @@ void AmpAdsrEnv::setParameters(const AmpAdsrParams& params) {
 	this->rr = params.rr;
 	this->stl = params.stl;
     this->kor = params.kor;
+	this->endl = params.endl;
+	this->endlEnable = params.endlEnable;
 	this->bypass = params.bypass;
     this->updateIncrements();
 }
@@ -139,13 +141,13 @@ float AmpAdsrEnv::process(float currentLevel) {
             if (this->m_phaseProgress >= 1.0f) {
                 this->m_phaseProgress = 0.0f;
                 this->state = State::Idle;
-                return 0.0f;
+                return this->endLevel();
             }
 
             currentLevel -= this->releaseDec;
 
             if (currentLevel <= 0.001f) {
-                currentLevel = 0.0f;
+                currentLevel = this->endLevel();
                 this->state = State::Idle;
             }
 
@@ -240,7 +242,7 @@ float AmpAdsrEnv::process(float currentLevel) {
             if (this->m_releaseStartLevel <= 0.001f) {
                 this->state = State::Idle;
                 this->m_phaseProgress = 0.0f;
-                return 0.0f;
+                return this->endLevel();
             }
 
             // 1. 時間(x)を進める
@@ -249,7 +251,7 @@ float AmpAdsrEnv::process(float currentLevel) {
             if (this->m_phaseProgress >= 1.0f) {
                 this->m_phaseProgress = 0.0f;
                 this->state = State::Idle;
-                return 0.0f;
+                return this->endLevel();
             }
 
             if (this->kor) {

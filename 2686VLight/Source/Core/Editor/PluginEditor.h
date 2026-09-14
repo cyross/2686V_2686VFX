@@ -23,6 +23,7 @@
 #include "../../Gui/Wt2/GuiWt2.h"
 #include "../../Gui/Rhythm/GuiRhythm.h"
 #include "../../Gui/Adpcm/GuiAdpcm.h"
+#include "../../Gui/AdpcmPlus/GuiAdpcmPlus.h"
 #include "../../Gui/Beep/GuiBeep.h"
 #include "../../Gui/WtPlus/GuiWtPlus.h"
 #include "../../Gui/Preset/GuiPreset.h"
@@ -156,13 +157,15 @@ public:
 
     void updateRhythmFileNames(const juce::String finename);
     void updateAdpcmFileNames(const juce::String finename);
+    void updateAdpcmPlusFileNames(const juce::String finename);
     void updateOpzx7PcmFileNames(const juce::String finename);
     void updateOpzx7WtFileNames(const juce::String finename);
     void setupLogo();
     void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);
     void drawBg(juce::Graphics& g);
-    void loadSettingsFile();
+    // 初めて開いたときに、簡易表示モードで使うかを尋ねる
+    void askInitialSettings();
     void loadPresetFile(const juce::File& file);
     void scanPresets();
 
@@ -351,6 +354,7 @@ private:
     GuiLazy<GuiWt2> wt2Gui; // Wt2
     GuiLazy<GuiRhythm> rhythmGui; // Rhythm
     GuiLazy<GuiAdpcm> adpcmGui; // ADPCM
+    GuiLazy<GuiAdpcmPlus> adpcmPlusGui; // ADPCM+
     GuiLazy<GuiBeep> beepGui;
     GuiLazy<GuiWtPlus> wtPlusGui;
     std::unique_ptr<GuiPreset> presetGui;
@@ -425,6 +429,7 @@ private:
         tabWtPlus,
         tabRhythm,
         tabAdpcm,
+        tabAdpcmPlus,
         tabBeep,
         tabPreset,
         tabSettings,

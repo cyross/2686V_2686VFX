@@ -64,10 +64,10 @@ Every pad has the following of its own.
 | Knob | What it does | Automation |
 | --- | --- | --- |
 | **One Shot** | Play right through even after the key comes up | [`RHYTHM_PAD[0-7]_ONESHOT`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-oneshot) |
-| **POFF** | Where playback starts (ms) | [`RHYTHM_PAD[0-7]_PCM_OFFSET`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-pcm-offset) |
-| **PRT** | How fast it plays | [`RHYTHM_PAD[0-7]_PCM_RATIO`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-pcm-ratio) |
+| **P.OFFSET** | Where playback starts (ms) | [`RHYTHM_PAD[0-7]_PCM_OFFSET`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-pcm-offset) |
+| **P.RATIO** | How fast it plays | [`RHYTHM_PAD[0-7]_PCM_RATIO`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-pcm-ratio) |
 | **Loop Point Enable** | Set the range that repeats | [`RHYTHM_PAD[0-7]_LOOPPOINT_EN`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-en) |
-| **LPST / LPED** | That range, as a position from 0.0 to 1.0 of the whole | [`RHYTHM_PAD[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-st) |
+| **LP.START / LP.END** | That range, as a position from 0.0 to 1.0 of the whole | [`RHYTHM_PAD[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-looppoint-st) |
 
 ### NOTE — mapping to MIDI keys
 
@@ -83,16 +83,16 @@ Grit can be mixed into the loaded sound (**ours**).
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **T.LV** | How much of the loaded sound | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
-| **N.LV** | How much of the grit | [`RHYTHM_PAD[0-7]_NOISE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noise) |
-| **N.FQ** | How high the grit sits | [`RHYTHM_PAD[0-7]_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noisefreq) |
+| **T.LEVEL** | How much of the loaded sound | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
+| **N.LEVEL** | How much of the grit | [`RHYTHM_PAD[0-7]_NOISE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noise) |
+| **N.FREQ** | How high the grit sits | [`RHYTHM_PAD[0-7]_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noisefreq) |
 | **MIX** | Blend of the two | [`RHYTHM_PAD[0-7]_NOISEMIX`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noisemix) |
 
 ### LEVEL / PAN
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **LV** | Level of that pad | [`RHYTHM_PAD[0-7]_VOL`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-vol) |
+| **LEVEL** | Level of that pad | [`RHYTHM_PAD[0-7]_VOL`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-vol) |
 | **PAN** | Position of that pad | [`RHYTHM_PAD[0-7]_PAN`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-pan) |
 
 ### Envelopes

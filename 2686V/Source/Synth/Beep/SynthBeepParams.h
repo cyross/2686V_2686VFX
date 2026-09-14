@@ -19,6 +19,9 @@ struct BeepParams
 {
     float level = 1.0f;
 
+    // 押してから鳴り始めるまでの間 (秒)
+    float delay = 0.0f;
+
     // 帯域制限 (PolyBLEP) でエイリアスノイズを抑えるかどうか
     bool antiAlias = false;
 

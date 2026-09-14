@@ -37,6 +37,13 @@ static std::vector<SelectItem> lfoShapeItems = {
     {.name = "12: Sample & Hold 64",    .value = 13 },
 };
 
+namespace
+{
+    // 6 と 7 は 1 周したら 0 を出し続けるワンショット波形。
+    // Opzx7LfoCoreUnit::setParameters と同じ決まり。
+    bool isOpzx7LfoOneshot(int shapeIndex) { return shapeIndex == 6 || shapeIndex == 7; }
+}
+
 void GuiComponentLfoOpzx7::setupComponent(
     juce::Component& parent,
     const juce::String& code,
@@ -55,11 +62,11 @@ void GuiComponentLfoOpzx7::setupComponent(
     pmEnable.setWantsKeyboardFocus(true);
     pmEnable.setExplicitFocusOrder(++tabOrder);
 
-    pmFreq.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmFreq, .title = "FQ", .isReset = true });
+    pmFreq.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmFreq, .title = "FREQ", .isReset = true });
     pmFreq.setWantsKeyboardFocus(true);
     pmFreq.setExplicitFocusOrder(++tabOrder);
 
-    pmSyncDelay.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmSyncDelay, .title = "SDLY", .isReset = true });
+    pmSyncDelay.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmSyncDelay, .title = "SY.DELAY", .isReset = true });
     pmSyncDelay.setWantsKeyboardFocus(true);
     pmSyncDelay.setExplicitFocusOrder(++tabOrder);
 
@@ -77,7 +84,7 @@ void GuiComponentLfoOpzx7::setupComponent(
         pmSyncDelay.setValue(1.0f);
         };
 
-    pgShape.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pgShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
+    pgShape.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pgShape, .title = "SHAPE", .items = lfoShapeItems, .isReset = true });
     pgShape.setWantsKeyboardFocus(true);
     pgShape.setExplicitFocusOrder(++tabOrder);
 
@@ -97,11 +104,11 @@ void GuiComponentLfoOpzx7::setupComponent(
     amEnable.setWantsKeyboardFocus(true);
     amEnable.setExplicitFocusOrder(++tabOrder);
 
-    amFreq.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amFreq, .title = "FQ", .isReset = true });
+    amFreq.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amFreq, .title = "FREQ", .isReset = true });
     amFreq.setWantsKeyboardFocus(true);
     amFreq.setExplicitFocusOrder(++tabOrder);
 
-    amSyncDelay.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amSyncDelay, .title = "SDLY", .isReset = true });
+    amSyncDelay.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amSyncDelay, .title = "SY.DELAY", .isReset = true });
     amSyncDelay.setWantsKeyboardFocus(true);
     amSyncDelay.setExplicitFocusOrder(++tabOrder);
 
@@ -119,11 +126,11 @@ void GuiComponentLfoOpzx7::setupComponent(
         amSyncDelay.setValue(1.0f);
         };
 
-    egShape.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::egShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
+    egShape.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::egShape, .title = "SHAPE", .items = lfoShapeItems, .isReset = true });
     egShape.setWantsKeyboardFocus(true);
     egShape.setExplicitFocusOrder(++tabOrder);
 
-    amSmRt.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amSmoothRatio, .title = "SR", .isReset = true });
+    amSmRt.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amSmoothRatio, .title = "SM.RATIO", .isReset = true });
     amSmRt.setWantsKeyboardFocus(true);
     amSmRt.setExplicitFocusOrder(++tabOrder);
 
@@ -134,6 +141,13 @@ void GuiComponentLfoOpzx7::setupComponent(
     amd.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amd, .title = "AMD", .isReset = true });
     amd.setWantsKeyboardFocus(true);
     amd.setExplicitFocusOrder(++tabOrder);
+
+    // ホールドと部分再生。保つのは深さを掛ける前の形なので、単位は両振り。
+    pmWaveHold.setupComponent(parent, code + CPK::Opzx7Lfo::pmHoldPrefix, tabOrder,
+        WaveHoldUnit::Bipolar, [this] { this->updatePreviews(); });
+
+    amWaveHold.setupComponent(parent, code + CPK::Opzx7Lfo::amHoldPrefix, tabOrder,
+        WaveHoldUnit::Bipolar, [this] { this->updatePreviews(); });
 
     pmPreview.setup(parent, GuiColor::WavePreview::Lfo);
     amPreview.setup(parent, GuiColor::WavePreview::Lfo);
@@ -147,18 +161,53 @@ void GuiComponentLfoOpzx7::setupComponent(
     updatePreviews();
 }
 
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentLfoOpzx7::rebind(const juce::String& code)
+{
+    pmEnable.rebind(code + CPK::Opzx7Lfo::pm);
+    pmFreq.rebind(code + CPK::Opzx7Lfo::pmFreq);
+    pmSyncDelay.rebind(code + CPK::Opzx7Lfo::pmSyncDelay);
+    pgShape.rebind(code + CPK::Opzx7Lfo::pgShape);
+    pms.rebind(code + CPK::Opzx7Lfo::pms);
+    pmd.rebind(code + CPK::Opzx7Lfo::pmd);
+
+    amEnable.rebind(code + CPK::Opzx7Lfo::am);
+    amFreq.rebind(code + CPK::Opzx7Lfo::amFreq);
+    amSyncDelay.rebind(code + CPK::Opzx7Lfo::amSyncDelay);
+    egShape.rebind(code + CPK::Opzx7Lfo::egShape);
+    amSmRt.rebind(code + CPK::Opzx7Lfo::amSmoothRatio);
+    ams.rebind(code + CPK::Opzx7Lfo::ams);
+    amd.rebind(code + CPK::Opzx7Lfo::amd);
+
+    pmWaveHold.rebind(code + CPK::Opzx7Lfo::pmHoldPrefix);
+    amWaveHold.rebind(code + CPK::Opzx7Lfo::amHoldPrefix);
+
+    updatePreviews();
+}
+
 // 選んだ Shape を実際の LFO で走らせ、折れ線にして渡す。
 // 値が変わったときだけ通るので、常時の負荷は無い。
+// 波形を選び直したら、ホールドの開け閉てもそろえる。
+// ワンショット波形 (6 / 7) はもともと 1 周で止まるので閉じる。
 void GuiComponentLfoOpzx7::updatePreviews()
 {
     // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
     if (GuiRefresh::defer(this, [this] { updatePreviews(); })) return;
 
+    pmWaveHold.setHoldAvailable(!isOpzx7LfoOneshot(pgShape.getSelectedItemIndex()));
+    amWaveHold.setHoldAvailable(!isOpzx7LfoOneshot(egShape.getSelectedItemIndex()));
+
     // PM は -1.0〜1.0 の両振り
-    pmPreview.setPoints(WavePreviewSource::opzx7LfoPm(pgShape.getSelectedItemIndex()), true);
+    pmPreview.setPoints(WavePreviewSource::opzx7LfoPm(pgShape.getSelectedItemIndex(),
+        pmWaveHold.getParams()), true);
 
     // AM は 0.0〜1.0 の片側。スムースの効きも見えるよう実際の値を渡す。
-    amPreview.setPoints(WavePreviewSource::opzx7LfoAm(egShape.getSelectedItemIndex(), (float)amSmRt.getValue()), false);
+    amPreview.setPoints(WavePreviewSource::opzx7LfoAm(egShape.getSelectedItemIndex(), (float)amSmRt.getValue(),
+        amWaveHold.getParams()), false);
 }
 
 void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
@@ -189,6 +238,8 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
     amPreview.setVisible(visible);
     ams.setVisibleWithLabel(visible);
     amd.setVisibleWithLabel(visible);
+    pmWaveHold.setVisibles(visible);
+    amWaveHold.setVisibles(visible);
 
     if (visible)
     {
@@ -205,6 +256,9 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
 
+        // ホールドと部分再生 (PM)
+        pmWaveHold.layoutComponent(rect);
+
 		pmAmSeparator.layoutComponent(rect);
 
         layoutMain({ .mainRect = rect, .component = &amLabel, .rowHeight = 12 });
@@ -220,6 +274,9 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
+
+        // ホールドと部分再生 (AM)
+        amWaveHold.layoutComponent(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -253,6 +310,8 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
     amPreview.setVisible(visible);
     ams.setVisibleWithLabel(visible);
     amd.setVisibleWithLabel(visible);
+    pmWaveHold.setVisibles(visible);
+    amWaveHold.setVisibles(visible);
 
     if (visible)
     {
@@ -269,6 +328,9 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
 
+        // ホールドと部分再生 (PM)
+        pmWaveHold.layoutComponentRow(rect);
+
         pmAmSeparator.layoutComponent(rect);
 
         layoutRow({ .rowRect = rect, .component = &amLabel, .rowHeight = 12 });
@@ -284,6 +346,9 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
 
         layoutRow({ .rowRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
+
+        // ホールドと部分再生 (AM)
+        amWaveHold.layoutComponentRow(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -311,6 +376,8 @@ void GuiComponentLfoOpzx7::setEnabled(bool enabled) {
     amSmRt.setEnabled(enabled);
     ams.setEnabled(enabled);
     amd.setEnabled(enabled);
+    pmWaveHold.setEnables(enabled);
+    amWaveHold.setEnables(enabled);
 }
 
 void GuiComponentLfoOpzx7::copyParams(CopyLfoOpzx7& copyObj) {
@@ -413,6 +480,10 @@ void GuiComponentLfoOpzx7::applyParamsFile(const juce::File& file)
     amSmRt.setValue(reader->getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
     ams.setValue(reader->getFloat("ams", (float)ams.getValue()), juce::sendNotification);
     amd.setValue(reader->getFloat("amd", (float)amd.getValue()), juce::sendNotification);
+
+    // ホールドと部分再生。区分をまとめて書くときと同じ入れ子で持つ。
+    pmWaveHold.readParams(reader->child("pmHold"));
+    amWaveHold.readParams(reader->child("amHold"));
 }
 
 void GuiComponentLfoOpzx7::exportParams()
@@ -447,6 +518,12 @@ void GuiComponentLfoOpzx7::writeParamsFile(const juce::File& file)
     writer.set("amSmRt", (float)amSmRt.getValue());
     writer.set("ams", (float)ams.getValue());
     writer.set("amd", (float)amd.getValue());
+
+    auto pmHoldW = writer.child("pmHold");
+    auto amHoldW = writer.child("amHold");
+
+    pmWaveHold.writeParams(pmHoldW);
+    amWaveHold.writeParams(amHoldW);
 
     writer.writeTo(file);
 }
@@ -484,6 +561,9 @@ void GuiComponentLfoOpzx7::readParams(const Io::ParamReader& reader, const juce:
     amSmRt.setValue(r.getInt("amSmRt", (int)amSmRt.getValue()), juce::sendNotification);
     ams.setValue(r.getFloat("ams", (float)ams.getValue()), juce::sendNotification);
     amd.setValue(r.getFloat("amd", (float)amd.getValue()), juce::sendNotification);
+
+    pmWaveHold.readParams(r.child("pmHold"));
+    amWaveHold.readParams(r.child("amHold"));
 }
 
 juce::String GuiComponentLfoOpzx7::getExportedParams() {
@@ -523,4 +603,10 @@ void GuiComponentLfoOpzx7::writeParams(Io::ParamWriter& writer, const juce::Stri
     w.set("amSmRt", (float)amSmRt.getValue());
     w.set("ams", (float)ams.getValue());
     w.set("amd", (float)amd.getValue());
+
+    auto pmHoldW = w.child("pmHold");
+    auto amHoldW = w.child("amHold");
+
+    pmWaveHold.writeParams(pmHoldW);
+    amWaveHold.writeParams(amHoldW);
 }

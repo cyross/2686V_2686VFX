@@ -43,13 +43,24 @@ std::vector<SelectItem> Quality::rateItems = {
 void Quality::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
     qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
 
-    bitSelector.setup({ .parent = parent, .id = code + CPK::Quality::bit, .title = "BIT", .items = bdItems, .isReset = true });
+    bitSelector.setup({ .parent = parent, .id = code + CPK::Quality::bit, .title = "BIT RATE", .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = parent, .id = code + CPK::Quality::rate, .title = "RATE", .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = parent, .id = code + CPK::Quality::rate, .title = "SMP.RATE", .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void Quality::rebind(const juce::String& code)
+{
+    bitSelector.rebind(code + CPK::Quality::bit);
+    rateSelector.rebind(code + CPK::Quality::rate);
 }
 
 void Quality::layoutComponent(juce::Rectangle<int>& rect) {

@@ -23,6 +23,7 @@
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/WaveHold/WaveHold.h"
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
@@ -78,6 +79,14 @@ class GuiWtPlus : public GuiBase {
     GuiComboBox stepsSelector;
 
     // ---------------- WAVE MEMORY (32 スロット) ----------------
+    // OPTIONAL。いまは再生速度だけだが、この先もここへ足していく。
+    GuiCategoryLabel optionalCat;
+    GuiSlider speedSlider;
+    NormalSeparator optSpeedSeparator;
+
+    // ホールドと部分再生。SPEED の下へ置く。
+    GuiComponentWaveHold waveHold;
+
     GuiCategoryLabel slotsCat;
     // スロットごとに読み込みボタンを並べる代わりに、対象を選ぶつまみと
     // 1 組のボタンを置く。波形はまとめて 1 つの区画へ描く。
@@ -153,6 +162,10 @@ public:
         slotSlider(context),
         interpolateButton(context),
         stepsSelector(context),
+        optionalCat(context),
+        speedSlider(context),
+        optSpeedSeparator(context),
+        waveHold(context),
         slotsCat(context),
         slotTarget(context),
         slotWtBtn(context),
@@ -192,6 +205,9 @@ public:
 
     void setup() override;
 
+    // Ctrl + ← / → などで TARGET を動かす
+    bool keyPressed(const juce::KeyPress& key) override;
+
     // 簡易表示モードで隠す区分への一括操作
     void bypassHiddenCategories() override;
     void openEnabledCategories() override;
@@ -202,6 +218,7 @@ public:
     void setupGraph();
     void layoutWaveCat(Rectangle<int>& rect);
     void layoutSlotsCat(Rectangle<int>& rect);
+    void layoutOptionalCat(Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
@@ -238,6 +255,10 @@ public:
 
     // 対象のスロットが変わったときに、ボタンと名前の指す先をそろえる。
     void applySlotTarget();
+
+    // OPTIONAL はスロットごとに値を持つ。TARGET が変わったら
+    // つまみの束ねる先をそのスロットのものへ差し替える。
+    void rebindOptional();
 
     // いま読み込み・消去の対象になっているスロット。
     int targetSlot() const { return juce::jlimit(0, Global::WtPlus::slots - 1, (int)slotTarget.getValue()); }

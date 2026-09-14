@@ -42,7 +42,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     enable.setWantsKeyboardFocus(true);
     enable.setExplicitFocusOrder(++tabOrder);
 
-    freq.setupComponent(parent, code + CPK::fixFreq, "FQ", tabOrder, std::nullopt);
+    freq.setupComponent(parent, code + CPK::fixFreq, "FREQ", tabOrder, std::nullopt);
     freq.getSlider().setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freq.setValue(toValue);
 
@@ -205,7 +205,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
 
     freqNoteSeparator.setupComponent(parent);
 
-    freqNote.setup({ .parent = parent, .title = "Note", .isReset = false });
+    freqNote.setup({ .parent = parent, .title = "NOTE", .isReset = false });
     freqNote.setWantsKeyboardFocus(true);
     freqNote.setExplicitFocusOrder(++tabOrder);
     freqNote.setRange(0.0, 127.0, 1.0);
@@ -231,6 +231,17 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     applyToC3.onClick = [this] {
         freqNote.setValue(60.0);
         };
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentFix::rebind(const juce::String& code)
+{
+    enable.rebind(code + CPK::fix);
+    freq.getSlider().rebind(code + CPK::fixFreq);
 }
 
 void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)

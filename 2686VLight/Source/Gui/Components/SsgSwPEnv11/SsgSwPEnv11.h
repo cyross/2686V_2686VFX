@@ -32,6 +32,11 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
 	NormalSeparator flagSeparator;
     GuiSlider steps;
 	NormalSeparator stepsSeparator;
+
+    // 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+    // 効き方そのものを変えるので、値より先に見える場所へ置く。
+    GuiToggleButton keep;
+    NormalSeparator keepSeparator;
     GuiToggleButton loop;
     GuiSlider loopTo;
     GuiSlider loopCount;
@@ -51,6 +56,13 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
     GuiComponentNudgeSliderFloat level;
     GuiComponentPitchButtons levelBtns;
     GuiStepValues levelValues;
+
+    NormalSeparator endLevelSeparator;
+
+    // ENDL を使うかどうか。切のあいだは、これまでどおり最後の段の
+    // レベルをそのまま保つ。
+    GuiToggleButton endLevelEnable;
+    GuiSlider endLevel;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     // applyLoopValues の入れ子呼び出しを弾くための印。
@@ -72,6 +84,8 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
 
     // setup で受け取った接頭辞。束縛し直すときに使う。
     juce::String paramCode;
+    // setup で受け取った入り切りの鍵。束縛し直すときに使う。
+    juce::String m_flagKey;
 public:
 
     // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
@@ -104,6 +118,8 @@ public:
 		flagSeparator(context),
 		steps(context),
 		stepsSeparator(context),
+        keep(context),
+        keepSeparator(context),
 		loop(context),
 		loopTo(context), 
 		loopCount(context),
@@ -114,14 +130,22 @@ public:
         rateSeparator(context),
         levelTarget(context),
         level(context),
-        levelBtns(context)
+        levelBtns(context),
+        endLevelSeparator(context),
+        endLevelEnable(context),
+        endLevel(context)
     {
     }
 
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, const juce::String& flagKey, const juce::String& flagText, bool isEnable = false);
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);
+
+    // ENDL を使うかどうかに合わせて、つまみの押せる・押せないを揃える。
+    void applyEndLevelEnable();
     void updateGraph(GuiEnvelopeGraph& graph);
     void setEnabled(bool enabled);
     void copyParams(CopyPEnvSsgSw11& copyObj);

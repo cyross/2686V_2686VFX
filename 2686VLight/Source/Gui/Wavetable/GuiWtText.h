@@ -11,6 +11,7 @@ namespace WtGuiText
 
 	namespace Category
 	{
+		static inline const juce::String optional = u8"OPTIONAL";
 		static inline const juce::String form = u8"FORM";
 		static inline const juce::String quality = u8"QUALITY";
 		static inline const juce::String lfo = u8"LFO";
@@ -52,18 +53,18 @@ namespace WtGuiText
 
 	namespace Lfo
 	{
-		static inline const juce::String pmSpeed = u8"P.SP";
-		static inline const juce::String amSpeed = u8"A.SP";
-		static inline const juce::String pmShape = u8"P.SP";
-		static inline const juce::String amShape = u8"A.SP";
-		static inline const juce::String syncDelay = u8"SDLY";
+		static inline const juce::String pmSpeed = u8"P.SPEED";
+		static inline const juce::String amSpeed = u8"A.SPEED";
+		static inline const juce::String pmShape = u8"P.SHAPE";
+		static inline const juce::String amShape = u8"A.SHAPE";
+		static inline const juce::String syncDelay = u8"SY.DELAY";
 		static inline const juce::String amEn = u8"AM Enable";
 		static inline const juce::String pmEn = u8"PM Enable";
 		static inline const juce::String ams = u8"AMS";
 		static inline const juce::String pms = u8"PMS";
 		static inline const juce::String amd = u8"AMD";
 		static inline const juce::String pmd = u8"PMD";
-		static inline const juce::String amSmoothRatio = u8"AMSR";
+		static inline const juce::String amSmoothRatio = u8"SM.RATIO";
 	}
 
 	namespace Wt
@@ -71,9 +72,9 @@ namespace WtGuiText
 		static inline const juce::String level = u8"LV";
 		static inline const juce::String form = u8"FORM";
 		static inline const juce::String size = u8"SIZE";
-		static inline const juce::String sampleSize = u8"SMSZ";
-		static inline const juce::String steps = u8"STEP";
-		static inline const juce::String waveform = u8"WFRM";
+		static inline const juce::String sampleSize = u8"SMP.SIZE";
+		static inline const juce::String steps = u8"STEPS";
+		static inline const juce::String waveform = u8"WAVEFORM";
 		static inline const juce::String fileImport = u8"Import (.wt)";
 		static inline const juce::String fileExport = u8"Export (.wt)";
 

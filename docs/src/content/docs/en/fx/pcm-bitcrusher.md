@@ -18,7 +18,7 @@ Crushes on the very same steps as the instruments' [QUALITY(PCM)](/2686V_2686VFX
 | --- | --- | --- | ---: | --- |
 | **BIT** | Bit depth and compression scheme. 12 steps | 1 – 12 | 12 | [`FX_PCMBC_BITS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-pcmbc-bits) |
 | **RATE** | Sample rate. 15 steps | 1 – 15 | 9 | [`FX_PCMBC_RATE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-pcmbc-rate) |
-| **INTP** | How the gaps are filled on the way back. 7 kinds | 0 – 6 | 1 | [`FX_PCMBC_INTP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-pcmbc-intp) |
+| **INTERP** | How the gaps are filled on the way back. 7 kinds | 0 – 6 | 1 | [`FX_PCMBC_INTP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-pcmbc-intp) |
 | **MIX** | Blend against the dry signal | 0 – 1 | 0 | [`FX_PCMBC_MIX`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-pcmbc-mix) |
 
 **MIX** is how much of the effect is blended with the dry signal. At 0.0 you hear the input untouched; at 1.0 you hear only the effect.
@@ -29,7 +29,7 @@ Crushes on the very same steps as the instruments' [QUALITY(PCM)](/2686V_2686VFX
 
 Where the bit crusher takes continuous values, this one takes **the steps the hardware actually had**. When you are after the texture of a particular machine, pick the scheme that machine used.
 
-Drop **RATE** and set **INTP** to Nearest for the most period-correct grain. B-Spline goes the other way — it smooths things over, so the sound feels further away.
+Drop **RATE** and set **INTERP** to Nearest for the most period-correct grain. B-Spline goes the other way — it smooths things over, so the sound feels further away.
 
 The full list of what you can pick is in [QUALITY lists](/2686V_2686VFX/en/reference/lists-quality/).
 

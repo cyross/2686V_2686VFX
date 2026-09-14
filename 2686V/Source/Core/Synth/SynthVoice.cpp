@@ -13,6 +13,7 @@ SynthVoice::SynthVoice()
     coreMap[(size_t)OscMode::WT2] = &m_wt2Core;
     coreMap[(size_t)OscMode::RHYTHM] = &m_rhythmCore;
     coreMap[(size_t)OscMode::ADPCM] = &m_adpcmCore;
+    coreMap[(size_t)OscMode::ADPCMPLUS] = &m_adpcmPlusCore;
     coreMap[(size_t)OscMode::BEEP] = &m_beepCore;
     coreMap[(size_t)OscMode::WTPLUS] = &m_wtPlusCore;
 }
@@ -29,6 +30,7 @@ void SynthVoice::prepare(double sampleRate) {
     m_wt2Core.prepare(sampleRate);
     m_rhythmCore.prepare(sampleRate);
     m_adpcmCore.prepare(sampleRate);
+    m_adpcmPlusCore.prepare(sampleRate);
     m_beepCore.prepare(sampleRate);
     m_wtPlusCore.prepare(sampleRate);
 }
@@ -54,7 +56,13 @@ void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*
     // 周波数計算
     auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNote);
 
-    activeCore()->noteOn(cyclesPerSecond, velocity, midiNote);
+    auto* core = activeCore();
+
+    // 再生遅延は 1 音ごとに数え直す
+    core->setDelaySampleRate(getSampleRate());
+    core->beginDelay();
+
+    core->noteOn(cyclesPerSecond, velocity, midiNote);
 }
 
 void SynthVoice::stopNote(float, bool allowTailOff)
@@ -72,6 +80,7 @@ void SynthVoice::stopNote(float, bool allowTailOff)
         m_wt2Core.noteOff();
         m_rhythmCore.noteOff();
         m_adpcmCore.noteOff();
+        m_adpcmPlusCore.noteOff();
         m_beepCore.noteOff();
         m_wtPlusCore.noteOff();
     }
@@ -118,6 +127,18 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
     float* outR = outputBuffer.getWritePointer(1);
 
     auto* core = activeCore();
+
+    // 再生遅延。待っている間はコアを回さないので、位相も包絡も進まない。
+    // 鳴らない時間を作るだけで、音そのものは待ったあとの頭から始まる。
+    if (core->m_delayLeft > 0)
+    {
+        const int skip = core->consumeDelay(numSamples);
+
+        startSample += skip;
+        numSamples -= skip;
+
+        if (numSamples <= 0) return;
+    }
 
     // アルペジオはユニゾンが2ボイス以上のときだけ意味を持つ
     const bool useArp = m_arpEnable && core->m_unison.getTotal() > 1;
@@ -188,6 +209,7 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
         m_wt2Core.prepare(newRate);
         m_rhythmCore.prepare(newRate);
         m_adpcmCore.prepare(newRate);
+        m_adpcmPlusCore.prepare(newRate);
         m_beepCore.prepare(newRate);
         m_wtPlusCore.prepare(newRate);
     }
@@ -256,6 +278,7 @@ void SynthVoice::setCurveCore(CurveCore* p_curveCore)
     m_wt2Core.setCurveCore(p_curveCore);
     m_rhythmCore.setCurveCore(p_curveCore);
     m_adpcmCore.setCurveCore(p_curveCore);
+    m_adpcmPlusCore.setCurveCore(p_curveCore);
     m_beepCore.setCurveCore(p_curveCore);
     m_wtPlusCore.setCurveCore(p_curveCore);
 }

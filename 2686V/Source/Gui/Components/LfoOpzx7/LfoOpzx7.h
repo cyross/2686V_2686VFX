@@ -16,6 +16,7 @@
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/WaveHold/WaveHold.h"
 #include "../WavePreview/WavePreview.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 
@@ -37,6 +38,9 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiWavePreview pmPreview;
     GuiSlider pms;
     GuiSlider pmd;
+
+    // ホールドと部分再生。PM と AM で別に持つ。
+    GuiComponentWaveHold pmWaveHold;
     NormalSeparator pmAmSeparator;
     GuiLabel amLabel;
     GuiToggleButton amEnable;
@@ -49,6 +53,7 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiWavePreview amPreview;
     GuiSlider ams;
     GuiSlider amd;
+    GuiComponentWaveHold amWaveHold;
     std::unique_ptr<juce::FileChooser> fileChooser;
 public:
 
@@ -89,6 +94,7 @@ public:
         pmPreview(context),
         pms(context),
         pmd(context),
+        pmWaveHold(context),
         pmAmSeparator(context),
         amLabel(context),
         amEnable(context),
@@ -100,7 +106,8 @@ public:
         amSmRt(context),
         amPreview(context),
         ams(context),
-        amd(context)
+        amd(context),
+        amWaveHold(context)
     {
     }
 
@@ -109,6 +116,8 @@ public:
         const juce::String& code,
         int& tabOrder
     );
+    // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
+    void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
     void updatePreviews();
     void layoutComponentRow(juce::Rectangle<int>& rect);

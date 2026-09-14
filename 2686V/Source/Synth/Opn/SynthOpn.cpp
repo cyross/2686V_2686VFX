@@ -101,6 +101,7 @@ void OpnCore::setSampleRate(double sampleRate) {
 void OpnCore::setParameters(const SynthParams& params)
 {
     m_level = params.opn.level;
+    m_delaySeconds = params.opn.delay;
 
     m_algorithm = params.opn.algFb.algorithm;
 

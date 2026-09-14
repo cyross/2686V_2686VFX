@@ -49,6 +49,9 @@ void SsgCore::setSampleRate(double sampleRate) {
 void SsgCore::setParameters(const SynthParams& params)
 {
     m_level = params.ssg.level;
+    m_delaySeconds = params.ssg.delay;
+    m_speed = params.ssg.speed;
+    m_hold.setParameters(params.ssg.hold);
 
     m_tone = params.ssg.tn.tone;
     m_mix = params.ssg.tn.mix;
@@ -107,6 +110,8 @@ void SsgCore::setParameters(const SynthParams& params)
 
 void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
+    m_hold.reset();
+
     // =====================================================================
     // モノフォニック・レガート時は、音量（ベロシティ）を更新しない！
     // 1音目の音量をそのまま引き継ぐことで、音量ジャンプを完全に防ぐ。
@@ -357,6 +362,13 @@ float SsgCore::getSample()
         // ==========================================
         // 2. Waveform Generation
         // ==========================================
+        // 部分再生。波形を引く位相だけを動かし、進み方は変えない。
+        double windowed = m_phase;
+
+        const bool muted = m_hold.windowPhase(windowed);
+
+        const float wavePhase = (float)windowed;
+
         float toneSample = 0.0f;
         float fcFluc = 0.0f;
 
@@ -372,8 +384,8 @@ float SsgCore::getSample()
                 if (currentDuty < minDuty) currentDuty = minDuty;
                 if (currentDuty > 1.0f - minDuty) currentDuty = 1.0f - minDuty;
 
-                toneSample = (m_phase < currentDuty) ? 1.0f : -1.0f;
-                fcFluc = (m_phase < currentDuty) ? -m_dutyFcFluc * (m_phase / currentDuty) : m_dutyFcFluc * ((m_phase - currentDuty) / (1.0f - currentDuty));
+                toneSample = (wavePhase < currentDuty) ? 1.0f : -1.0f;
+                fcFluc = (wavePhase < currentDuty) ? -m_dutyFcFluc * (wavePhase / currentDuty) : m_dutyFcFluc * ((wavePhase - currentDuty) / (1.0f - currentDuty));
             }
             else {
                 float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
@@ -385,12 +397,12 @@ float SsgCore::getSample()
                 if (currentDuty < minDuty) currentDuty = minDuty;
                 if (currentDuty > 1.0f - minDuty) currentDuty = 1.0f - minDuty;
 
-                toneSample = (m_phase < currentDuty) ? 1.0f : -1.0f;
+                toneSample = (wavePhase < currentDuty) ? 1.0f : -1.0f;
             }
         }
         else // Triangle
         {
-            float phaseNorm = m_phase;
+            float phaseNorm = wavePhase;
             float k = m_triPeak;
             if (k < 0.001f) k = 0.001f;
             if (k > 0.999f) k = 0.999f;
@@ -399,10 +411,20 @@ float SsgCore::getSample()
             else                toneSample = 1.0f - 2.0f * ((phaseNorm - k) / (1.0f - k));
         }
 
-        m_phase += phaseInc;
+        // 区間の外で端の値を保たない側は 0 にする
+        if (muted) toneSample = 0.0f;
+
+        // 決めた回数まで回したら、キーが離れるまで同じ値を出し続ける
+        if (m_hold.isHolding()) toneSample = m_hold.holdValue();
+
+        m_phase += phaseInc * m_speed;
         // ピッチエンベロープや PM で 1 サンプルの進みが 1.0 を超えても
         // 破綻しないよう while で回す
-        while (m_phase >= 1.0f) m_phase -= 1.0f;
+        while (m_phase >= 1.0f) {
+            m_phase -= 1.0f;
+
+            m_hold.countCycle();
+        }
         while (m_phase < 0.0f) m_phase += 1.0f;
 
         // ==========================================

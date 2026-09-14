@@ -2,7 +2,7 @@
 title: リズム チャンネル
 description: .param.rhythm.json の中身
 sidebar:
-  order: 42
+  order: 43
 ---
 
 チャンネル 1 つぶんの設定をまとめたファイルです。
@@ -32,7 +32,7 @@ sidebar:
 
 | 鍵 | 中身 |
 | --- | --- |
-| `level` | チャンネルの音量。`level` ひとつだけを持ちます |
+| `level` | チャンネルの音量と再生遅延。`level` と `delay` を持ちます |
 | `unison` | [unison](/2686V_2686VFX/reference/file-spec/unison/) と同じ |
 
 ## `pads` の並び

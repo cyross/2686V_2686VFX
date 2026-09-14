@@ -69,6 +69,7 @@ sidebar:
 | [`.param.wtplus.json`](/2686V_2686VFX/reference/file-spec/param-wtplus/) | 波形メモリ + チャンネル |
 | [`.param.beep.json`](/2686V_2686VFX/reference/file-spec/param-beep/) | BEEP チャンネル |
 | [`.param.adpcm.json`](/2686V_2686VFX/reference/file-spec/param-adpcm/) | ADPCM チャンネル |
+| [`.param.adpcmplus.json`](/2686V_2686VFX/reference/file-spec/param-adpcmplus/) | ADPCM+ チャンネル |
 | [`.param.rhythm.json`](/2686V_2686VFX/reference/file-spec/param-rhythm/) | リズム チャンネル |
 | [`.param.<音源>.op.json`](/2686V_2686VFX/reference/file-spec/param-op/) | オペレータ 1 つぶん |
 

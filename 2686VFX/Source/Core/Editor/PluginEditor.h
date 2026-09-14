@@ -131,7 +131,8 @@ public:
     void closeBypassedCategories();
     void assignTooltipsRecursive(juce::Component* parentComponent);
     void drawBg(juce::Graphics& g);
-    void loadSettingsFile();
+    // 初めて開いたときに、簡易表示モードで使うかを尋ねる
+    void askInitialSettings();
 
     // プリセット 1 件ぶんの見出しを読む。一覧を作るときと、履歴へ積む
     // ときの両方から使う。読めなければ false を返す。

@@ -6,6 +6,21 @@
 #include "../Const/ConstGlobal.h"
 #include "../Synth/WtModWave.h"
 
+// ホールドと部分再生。付ける先ごとに頭の印が違うだけなので、
+// APVTS を指す口もまとめて 1 つの入れ物にしてある。
+struct PrPtrsWaveHold {
+    std::atomic<float>* holdEnable = nullptr;
+    std::atomic<float>* holdCount = nullptr;
+    std::atomic<float>* holdTarget = nullptr;
+    std::atomic<float>* holdMin = nullptr;
+    std::atomic<float>* holdMax = nullptr;
+    std::atomic<float>* keepEnable = nullptr;
+    std::atomic<float>* waveStart = nullptr;
+    std::atomic<float>* keepStart = nullptr;
+    std::atomic<float>* waveEnd = nullptr;
+    std::atomic<float>* keepEnd = nullptr;
+};
+
 struct PrPtrsAlgFb {
     std::atomic<float>* alg = nullptr;
     std::atomic<float>* fb = nullptr;
@@ -30,6 +45,8 @@ struct PrPtrsAdsrAmpEnv {
     std::atomic<float>* sl = nullptr;
     std::atomic<float>* rr = nullptr;
     std::atomic<float>* kor = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
 };
 
 struct PrPtrsSsgSwEnv {
@@ -103,6 +120,9 @@ struct PrPtrsSsgSwEnv11 {
     std::atomic<float>* l9 = nullptr;
     std::atomic<float>* l10 = nullptr;
     std::atomic<float>* l11 = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsSsgSwEnv11Op {
@@ -134,6 +154,9 @@ struct PrPtrsSsgSwEnv11Op {
     std::atomic<float>* l9 = nullptr;
     std::atomic<float>* l10 = nullptr;
     std::atomic<float>* l11 = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsPitchEnv {
@@ -145,6 +168,9 @@ struct PrPtrsPitchEnv {
     std::atomic<float>* atl = nullptr;
     std::atomic<float>* ssl = nullptr;
     std::atomic<float>* rll = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsPitchEnvOp {
@@ -156,6 +182,9 @@ struct PrPtrsPitchEnvOp {
     std::atomic<float>* atl = nullptr;
     std::atomic<float>* ssl = nullptr;
     std::atomic<float>* rll = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsSsgSwPEnv11 {
@@ -187,6 +216,9 @@ struct PrPtrsSsgSwPEnv11 {
     std::atomic<float>* l9 = nullptr;
     std::atomic<float>* l10 = nullptr;
     std::atomic<float>* l11 = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsSsgSwPEnv11Op {
@@ -218,6 +250,9 @@ struct PrPtrsSsgSwPEnv11Op {
     std::atomic<float>* l9 = nullptr;
     std::atomic<float>* l10 = nullptr;
     std::atomic<float>* l11 = nullptr;
+    std::atomic<float>* endl = nullptr;
+    std::atomic<float>* endlEnable = nullptr;
+    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsOpnDetune {
@@ -272,6 +307,10 @@ struct PrPtrsOpzx7Lfo {
     std::atomic<float>* pms = nullptr;
     std::atomic<float>* amd = nullptr;
     std::atomic<float>* ams = nullptr;
+
+    // ホールドと部分再生。PM と AM で別に持つ。
+    PrPtrsWaveHold pmHold;
+    PrPtrsWaveHold amHold;
 };
 
 struct PrPtrsFix {
@@ -301,12 +340,19 @@ struct PrPtrsToneNoise {
 struct PrPtrsPcm {
     std::atomic<float>* offset = nullptr;
     std::atomic<float>* ratio = nullptr;
+
+    // 再生速度。ADPCM とリズムのパッド、OPZX7 のオペレーターが
+    // この受け皿を分け合っているので、ここへ置けば 3 つとも行き渡る。
+    std::atomic<float>* speed = nullptr;
 };
 
 struct PrPtrsLp {
     std::atomic<float>* enable = nullptr;
     std::atomic<float>* start = nullptr;
     std::atomic<float>* end = nullptr;
+
+    // 何周したら先へ進むか (PrPtrsLp の回数)
+    std::atomic<float>* count = nullptr;
 };
 
 struct PrPtrsWtMod {
@@ -316,6 +362,8 @@ struct PrPtrsWtMod {
     std::atomic<float>* shape = nullptr;
     std::atomic<float>* waveSlot = nullptr;
     std::array<std::atomic<float>*, 32> fdsTable = { nullptr };
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
 
     // 変調波形の置き場所。プロセッサが持っているものを指す。
     // map の要素なので、一度引いたら差し替わらない。
@@ -331,6 +379,8 @@ struct PrPtrsWtAmpMod {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::array<std::atomic<float>*, 32> fdsTable = { nullptr };
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
 
     // 変調波形の置き場所。ピッチ版とは別の鍵で引く。
     const WtModWaveSlots* slots = nullptr;
@@ -358,6 +408,9 @@ struct PrPtrsSsgHwEnv {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::atomic<float>* smooth = nullptr;
+
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
 };
 
 struct PrPtrsSsgHwPEnv {
@@ -367,6 +420,9 @@ struct PrPtrsSsgHwPEnv {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::atomic<float>* smooth = nullptr;
+
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
 };
 
 struct PrPtrsPanpot {
@@ -376,25 +432,30 @@ struct PrPtrsPanpot {
 
 struct PrPtrsAdpcmBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
     std::atomic<float>* loop = nullptr;
 };
 
 struct PrPtrsBeepBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsOpnaBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
 };
 
 struct PrPtrsRhythmBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
 };
 
 struct PrPtrsRhythmPadBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
     std::atomic<float>* pan = nullptr;
     std::atomic<float>* noteNumber = nullptr;
     std::atomic<float>* isOneShot = nullptr;
@@ -402,6 +463,11 @@ struct PrPtrsRhythmPadBasic {
 
 struct PrPtrsSsgBasic {
     std::atomic<float>* level = nullptr;
+    std::atomic<float>* delay = nullptr;
+    std::atomic<float>* speed = nullptr;
+
+    // ホールドと部分再生
+    PrPtrsWaveHold hold;
     std::atomic<float>* waveform = nullptr;
 };
 

@@ -24,15 +24,15 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
         .enableChangeDetailVisible = true
         });
 
-    voices.setup({ .parent = parent, .id = code + CPK::Unison::voices, .title = "VOIC", .isReset = true });
+    voices.setup({ .parent = parent, .id = code + CPK::Unison::voices, .title = "VOICES", .isReset = true });
     voices.setWantsKeyboardFocus(true);
     voices.setExplicitFocusOrder(++tabOrder);
 
-    detune.setupComponent(parent, code + CPK::Unison::detune, "DT", tabOrder, std::nullopt);
+    detune.setupComponent(parent, code + CPK::Unison::detune, "DETUNE", tabOrder, std::nullopt);
 
     detuneButtons.setupComponent(parent, detune.getSlider(), tabOrder);
 
-    spread.setup({ .parent = parent, .id = code + CPK::Unison::spread, .title = "SPR", .isReset = true });
+    spread.setup({ .parent = parent, .id = code + CPK::Unison::spread, .title = "SPREAD", .isReset = true });
     spread.setWantsKeyboardFocus(true);
     spread.setExplicitFocusOrder(++tabOrder);
 
@@ -43,7 +43,7 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
     arpEnable.setWantsKeyboardFocus(true);
     arpEnable.setExplicitFocusOrder(++tabOrder);
 
-    arpFreq.setup({ .parent = parent, .id = code + CPK::Unison::arpFreq, .title = "ARFQ", .isReset = true });
+    arpFreq.setup({ .parent = parent, .id = code + CPK::Unison::arpFreq, .title = "AR.FREQ", .isReset = true });
     arpFreq.setWantsKeyboardFocus(true);
     arpFreq.setExplicitFocusOrder(++tabOrder);
 
@@ -57,17 +57,17 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
 
     paramCode = code;
 
-    targetVoice.setup({ .parent = parent, .title = "VOIC", .isReset = false });
+    targetVoice.setup({ .parent = parent, .title = "VOICES", .isReset = false });
     targetVoice.setRange(1.0, (double)Global::unisonParaVoices, 1.0);
     targetVoice.setNumDecimalPlacesToDisplay(0);
     targetVoice.setWantsKeyboardFocus(true);
     targetVoice.setExplicitFocusOrder(++tabOrder);
 
-    paraDistance.setup({ .parent = parent, .title = "P-SP", .isReset = false });
+    paraDistance.setup({ .parent = parent, .title = "P-SPREAD", .isReset = false });
     paraDistance.setWantsKeyboardFocus(true);
     paraDistance.setExplicitFocusOrder(++tabOrder);
 
-    paraDetune.setupComponent(parent, "", "P-DT", tabOrder, std::nullopt, std::nullopt, false);
+    paraDetune.setupComponent(parent, "", "P-DETUNE", tabOrder, std::nullopt, std::nullopt, false);
 
     // DT と同じ補正ボタン群。スライダー参照経由で値を動かすので、
     // 対象ボイスを切り替えても常に現在の束縛先へ反映される。

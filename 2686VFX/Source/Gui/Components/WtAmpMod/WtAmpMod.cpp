@@ -55,15 +55,15 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     enableButton.setWantsKeyboardFocus(true);
     enableButton.setExplicitFocusOrder(++tabOrder);
 
-    depthSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::depth, .title = "DPTH", .isReset = true });
+    depthSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::depth, .title = "DEPTH", .isReset = true });
     depthSlider.setWantsKeyboardFocus(true);
     depthSlider.setExplicitFocusOrder(++tabOrder);
 
-    speedSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::speed, .title = "SPED", .isReset = true });
+    speedSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);
     speedSlider.setExplicitFocusOrder(++tabOrder);
 
-    shapeSelector.setup({ .parent = parent, .id = code + CPK::WtAmpMod::shape, .title = "SHPE", .items = wtAmpModShapeItems, .isReset = true, .isResized = true });
+    shapeSelector.setup({ .parent = parent, .id = code + CPK::WtAmpMod::shape, .title = "SHAPE", .items = wtAmpModShapeItems, .isReset = true, .isResized = true });
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
 
@@ -110,7 +110,7 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
 
     // 読み込み行とプレビューをスロットの数だけ作る
     // 並びは 対象 → 読み込み / 名前 / 消去 → 各スロットの波形。
-    slotTarget.setup({ .parent = parent, .title = "TGT", .isReset = false });
+    slotTarget.setup({ .parent = parent, .title = "TARGET", .isReset = false });
     slotTarget.setRange(0.0, (double)(Global::WtMod::slots - 1), 1.0);
     slotTarget.setNumDecimalPlacesToDisplay(0);
     slotTarget.setWantsKeyboardFocus(true);
@@ -172,6 +172,10 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     modPreview.setup(parent, GuiColor::WavePreview::AmpEnv);
     updateModPreview();
 
+    // ホールドと部分再生。保つ値の単位は 音量 (倍率)。
+    waveHold.setupComponent(parent, code + CPK::WtAmpMod::holdPrefix, tabOrder,
+        WaveHoldUnit::Level, [this] { this->updateModPreview(); });
+
     fdsCat.setupSwAmpCategory({ .parent = parent, .title = juce::String("") + "FDS AMP TABLE", .enableChangeDetailVisible = true });
 
     // 積算後の階段波は音量側の色で描く
@@ -187,6 +191,38 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
         fdsPresetBtn[i].setExplicitFocusOrder(++tabOrder);
         fdsPresetBtn[i].onClick = [this, i] { fdsEditor.loadTable(FdsMod::tables[i]); };
     }
+}
+
+// 束縛先を丸ごと差し替える。
+//
+// 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
+// ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
+// 張り替える。
+void GuiComponentWtAmpMod::rebind(const juce::String& code)
+{
+    // 変調波形の実体はプロセッサがこの鍵で持っている。
+    m_code = code;
+
+    enableButton.rebind(code + CPK::WtAmpMod::enable);
+    depthSlider.rebind(code + CPK::WtAmpMod::depth);
+    speedSlider.rebind(code + CPK::WtAmpMod::speed);
+    shapeSelector.rebind(code + CPK::WtAmpMod::shape);
+    minSlider.getSlider().rebind(code + CPK::WtAmpMod::min);
+    maxSlider.getSlider().rebind(code + CPK::WtAmpMod::max);
+    waveSmoothBtn.rebind(code + CPK::WtAmpMod::waveSmooth);
+    waveSlotSlider.rebind(code + CPK::WtAmpMod::waveSlot);
+
+    waveHold.rebind(code + CPK::WtAmpMod::holdPrefix);
+    fdsEditor.rebind(code + CPK::WtAmpMod::fdsTable);
+
+    // 指し先が変わったので、並べた波形と選んでいる形を作り直す。
+    for (int i = 0; i < Global::WtMod::slots; ++i) updateSlotPreview(i);
+
+    applySlotTarget();
+
+    slotPreviews.setActive(currentSlot());
+
+    updateModPreview();
 }
 
 void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
@@ -213,6 +249,8 @@ void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
     slotClearBtn.setVisible(visible);
     slotFileNameLabel.setVisible(visible);
     slotPreviews.setVisible(visible);
+
+    waveHold.setVisibles(visible);
 
     if (visible)
     {
@@ -245,11 +283,16 @@ void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
         slotPreviews.setBounds(rect.removeFromTop(slotPreviews.getNaturalHeight()));
         rect.removeFromTop(2);
 
+        // ホールドと部分再生
+        waveHold.layoutComponent(rect);
+
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
     // Enable が OFF のときは中身を触れなくする
     bool isMod = enableButton.getToggleState();
+
+    waveHold.setEnables(isMod);
     depthSlider.setEnabledWithLabel(isMod);
     speedSlider.setEnabledWithLabel(isMod);
     shapeSelector.setEnabledWithLabel(isMod);
@@ -465,7 +508,8 @@ void GuiComponentWtAmpMod::updateModPreview()
     // 返るのは音量の倍率なので、下端を 0 として片側で描く
     modPreview.setPoints(
         WavePreviewSource::wtAmpMod(shapeSelector.getSelectedItemIndex(), wave, fdsEditor.currentTable(),
-            (float)minSlider.getValue(), (float)maxSlider.getValue()),
+            (float)minSlider.getValue(), (float)maxSlider.getValue(),
+            waveHold.getParams()),
         false);
 }
 
@@ -563,6 +607,8 @@ void GuiComponentWtAmpMod::readParams(const Io::ParamReader& reader, const juce:
     maxSlider.setValue(r.getFloat("max", (float)maxSlider.getValue()), juce::sendNotification);
     waveSmoothBtn.setToggleState(r.getBool("waveSmooth", waveSmoothBtn.getToggleState()), juce::sendNotification);
 
+    waveHold.readParams(r);
+
     auto values = r.getIntArray("table");
 
     if (values.empty()) return;
@@ -587,6 +633,8 @@ void GuiComponentWtAmpMod::writeParams(Io::ParamWriter& writer, const juce::Stri
     w.set("min", (float)minSlider.getValue());
     w.set("max", (float)maxSlider.getValue());
     w.set("waveSmooth", waveSmoothBtn.getToggleState());
+
+    waveHold.writeParams(w);
 
     auto table = fdsEditor.currentTable();
 

@@ -11,7 +11,7 @@ sidebar:
 | 種類 | 使うチャンネル |
 | --- | --- |
 | **BIT / RATE** | FM・SSG・波形メモリ系 |
-| **BIT / RATE / INTP** | ADPCM・RHYTHM（PCM 系） |
+| **BIT / RATE / INTERP** | ADPCM・RHYTHM（PCM 系） |
 
 ## BIT — ビット数（FM・SSG・波形メモリ系）
 
@@ -88,7 +88,7 @@ sidebar:
 | 13 | 4kHz | |
 | 15 | 2kHz | |
 
-## INTP — 補間のしかた（PCM 系）
+## INTERP — 補間のしかた（PCM 系）
 
 レートを落としたあと、読み戻すときの埋め方です。
 

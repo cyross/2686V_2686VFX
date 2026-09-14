@@ -21,7 +21,11 @@ sidebar:
 {
   "format": "wtPlus",
   "version": 1,
-  "values": { ... }
+  "values": {
+    "slot": 0,
+    "slot0": { "speed": 1.0, "holdEnable": false, ... },
+    "slot31": { ... }
+  }
 }
 ```
 
@@ -36,11 +40,32 @@ sidebar:
 | `interpolate` | 真偽 | false / true | true |
 | `steps` | 整数 | 0 〜 10（選択肢の番号） | 0 |
 
+## 波形メモリ 1 枚ぶん — `slot0` 〜 `slot31`
+
+`slot` に続けて番号を付けた鍵が 32 個並びます。3.3.0 から、再生速度と
+ホールド・部分再生を**枠ごと**に持つようになりました。
+
+| 鍵 | 型 | 範囲 | 初期値 |
+| --- | --- | --- | ---: |
+| `speed` | 小数 | 0.0001 〜 100 | 1 |
+| `holdEnable` | 真偽 | false / true | false |
+| `holdCount` | 整数 | 1 〜 3000 | 8 |
+| `holdTarget` | 整数 | 0 = MIN / 1 = MAX | 1 |
+| `holdMin` | 小数 | 0 〜 1 | 0 |
+| `holdMax` | 小数 | 0 〜 1 | 1 |
+| `keepEnable` | 真偽 | false / true | false |
+| `waveStart` | 小数 | 0 〜 1 | 0 |
+| `keepStart` | 真偽 | false / true | false |
+| `waveEnd` | 小数 | 0 〜 1 | 1 |
+| `keepEnd` | 真偽 | false / true | false |
+
+波形そのものは入りません。読み込んだ場所はプリセット側が覚えます。
+
 ## チャンネルの中の入れ子
 
 | 鍵 | 中身 |
 | --- | --- |
-| `level` | チャンネルの音量。`level` ひとつだけを持ちます |
+| `level` | チャンネルの音量と再生遅延。`level` と `delay` を持ちます |
 | `wtMod` | [wtMod](/2686V_2686VFX/reference/file-spec/wtmod/) と同じ |
 | `fix` | 音程の固定。`enable` と `freq` を持ちます |
 | `ampEnv` | [ampEnv](/2686V_2686VFX/reference/file-spec/ampenv/) と同じ |

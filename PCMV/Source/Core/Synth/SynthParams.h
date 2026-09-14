@@ -6,6 +6,7 @@
 
 #include "../../Synth/Rhythm/SynthRhythmParams.h"
 #include "../../Synth/Adpcm/SynthAdpcmParams.h"
+#include "../../Synth/AdpcmPlus/SynthAdpcmPlusParams.h"
 #include "../../Advanced/Curve/AdvancedCurveParams.h"
 
 struct SynthParams
@@ -21,4 +22,5 @@ struct SynthParams
 
     RhythmParams rhythm;
     AdpcmParams adpcm;
+    AdpcmPlusParams adpcmPlus;
 };

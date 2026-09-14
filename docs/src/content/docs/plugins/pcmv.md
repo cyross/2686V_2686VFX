@@ -10,14 +10,14 @@ sidebar:
 	<figcaption>ロゴ</figcaption>
 </figure>
 
-**録った音を鳴らす 2 チャンネル**だけに絞ったものです。RHYTHM と
-ADPCM が入っています。リズムとサンプル再生をまとめて 1 本で
+**録った音を鳴らす 3 チャンネル**だけに絞ったものです。RHYTHM と
+ADPCM と ADPCM+ が入っています。リズムとサンプル再生をまとめて 1 本で
 受け持てます。
 
 ## プラグイン表示
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/plugin/PCMV.png" alt="PCMV プラグイン全景" width="1426" height="736" />
+	<img src="/2686V_2686VFX/ui/plugin/PCMV.png" alt="PCMV プラグイン全景" width="1426" height="738" />
 	<figcaption>プラグイン全景</figcaption>
 </figure>
 
@@ -32,6 +32,7 @@ ADPCM が入っています。リズムとサンプル再生をまとめて 1 �
 | --- | :---: |
 | [RHYTHM](/2686V_2686VFX/chips/rhythm/) | ✔ |
 | [ADPCM](/2686V_2686VFX/chips/adpcm/) | ✔ |
+| [ADPCM+](/2686V_2686VFX/chips/adpcmplus/) | ✔ |
 
 持っていないのは OPNA / OPN / OPL / OPL3 / OPM / OPZX7 / SSG / WAVETABLE / WT2 / WTPLUS / BEEP です。
 

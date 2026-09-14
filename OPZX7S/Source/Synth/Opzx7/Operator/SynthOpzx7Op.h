@@ -97,6 +97,14 @@ private:
 	float m_sustain = 1.0f;  // SL (Sustain Level)
 	bool m_loopPointEnable = false;
 	float m_loopPointStart = 0.0f; // 0.0 to 1.0
+
+    // --- ループカウンター ---
+    //
+    // ループポイントのあいだを回った回数を数え、決めた回数に届いたら
+    // 折り返すのをやめる。0 のときは数えず、回り続ける。
+    int m_lpCount = 0;
+    int m_lpCounter = 0;
+    bool m_lpDone = false;
 	float m_loopPointEnd = 1.0f;   // 0.0 to 1.0
 	bool m_isReleased = false;
 

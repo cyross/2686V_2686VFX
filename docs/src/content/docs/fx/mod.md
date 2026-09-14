@@ -137,7 +137,7 @@ UNISON・HARMONY はシアンで塗り分けています。
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
 | **MUL** | 元の高さの何倍にするか | 0 〜 21 | 2 | [`MOD_MUL`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-mul) |
-| **MURT** | 倍率を数値で細かく決める | 0.01 〜 100 | 1 | [`MOD_MUL_RATIO`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-mul-ratio) |
+| **MUL.RATE** | 倍率を数値で細かく決める | 0.01 〜 100 | 1 | [`MOD_MUL_RATIO`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-mul-ratio) |
 | **DT1** | わずかにずらす | 0 〜 15 | 0 | [`MOD_DT`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-dt) |
 | **DT2** | 粗くずらす | 0 〜 3 | 0 | [`MOD_DT2`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-dt2) |
 | **DT3** | セントで指定してずらす | -4800 〜 4800 | 0 | [`MOD_DT3`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-dt3) |

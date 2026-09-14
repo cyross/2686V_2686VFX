@@ -2,7 +2,7 @@
 title: A single operator
 description: What is inside .param.<chip>.op.json
 sidebar:
-  order: 43
+  order: 44
 ---
 
 Moves **a single FM operator** in and out. It has the same shape as one entry

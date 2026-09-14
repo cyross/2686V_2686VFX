@@ -55,8 +55,9 @@ OPZX7S は、**実機には存在しない独自のチャンネル**です。OPZ
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **ALG MODE** | 組み込みアルゴリズムを使うか、マトリックスで組むかを選ぶ（オートメーションには出ません） | — |
+| **Mode** | 組み込みアルゴリズムを使うか、マトリックスで組むかを選ぶ（オートメーションには出ません） | — |
 | **ALG** | 組み込みアルゴリズム。130 種 | [`OPZX7_ALG`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-alg) |
+| **FB.TARGET** | 下の **FB** がどのオペレータを指すか（オートメーションには出ません） | — |
 | **FB** | **オペレータごと**のフィードバック。負の値も指定できる（**独自**） | [`OPZX7_FB[1-8]`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-fb-1-8) |
 
 ### WAVE SHAPE
@@ -76,10 +77,10 @@ OPZX7S は、**実機には存在しない独自のチャンネル**です。OPZ
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **WS** | オペレータの波形。73 種。31 番が PCM、15 番が `.wt`、23 番が `.wt2` | [`OPZX7_OP[0-7]_WS`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-ws) |
-| **POFF** | PCM の頭出し（ミリ秒） | [`OPZX7_OP[0-7]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-pcm-offset) |
-| **PRT** | PCM の再生の速さ | [`OPZX7_OP[0-7]_PCM_RATIO`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-pcm-ratio) |
+| **P.OFFSET** | PCM の頭出し（ミリ秒） | [`OPZX7_OP[0-7]_PCM_OFFSET`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-pcm-offset) |
+| **P.RATIO** | PCM の再生の速さ | [`OPZX7_OP[0-7]_PCM_RATIO`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-pcm-ratio) |
 | **Loop Point Enable** | PCM の繰り返しを使う | [`OPZX7_OP[0-7]_LOOPPOINT_EN`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-looppoint-en) |
-| **LPST / LPED** | 繰り返す範囲。全体を 0.0〜1.0 とした位置 | [`OPZX7_OP[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-looppoint-st) |
+| **LP.START / LP.END** | 繰り返す範囲。全体を 0.0〜1.0 とした位置 | [`OPZX7_OP[0-7]_LOOPPOINT_ST`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-looppoint-st) |
 
 ### AMP ENV
 
@@ -139,7 +140,7 @@ OPZX7S は、**実機には存在しない独自のチャンネル**です。OPZ
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
 | **MUL** | 逓倍。22 段 | [`OPZX7_OP[0-7]_MUL`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-mul) |
-| **MURT** | 倍率を自由に決める（**独自**） | [`OPZX7_OP[0-7]_MUL_RATIO`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-mul-ratio) |
+| **MUL.RATE** | 倍率を自由に決める（**独自**） | [`OPZX7_OP[0-7]_MUL_RATIO`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-mul-ratio) |
 | **DT1 / DT2 / DT3** | デチューン。DT3 はセントで指定できる（**独自**） | [`OPZX7_OP[0-7]_DT`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-dt) |
 
 ### LFO
@@ -158,8 +159,8 @@ OPNA の SSG ハードウェアエンベロープをここでも使えます。�
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **ENV** | 形。Normal（掛けない）＋ 8 種類 | [`OPZX7_OP[0-7]_SE`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-se) |
-| **FQ** | 繰り返しの速さ | [`OPZX7_OP[0-7]_SEFREQ`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-sefreq) |
+| **SSG.SHAPE** | 形。Normal（掛けない）＋ 8 種類 | [`OPZX7_OP[0-7]_SE`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-se) |
+| **FREQ** | 繰り返しの速さ | [`OPZX7_OP[0-7]_SEFREQ`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-sefreq) |
 
 ### KEY SCALE
 
@@ -195,10 +196,10 @@ OPS のやり方だけ**折れ点を持ちます**。ある音の高さを境に
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **KSBP** | 折れ点にする音の高さ（ノート番号） | [`OPZX7_OP[0-7]_KS_BP`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-ks-bp) |
-| **KSLC / KSRC** | 折れ点の左右で、どう曲げるか | [`OPZX7_OP[0-7]_KS_LC`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-ks-lc) |
-| **KSLD / KSRD** | 折れ点の左右で、どれだけ下げるか | [`OPZX7_OP[0-7]_KS_LD`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-ks-ld) |
-| **KSRS** | エンベロープの速さへの効き | [`OPZX7_OP[0-7]_KS_RS`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-ks-rs) |
+| **BREAK.PT** | 折れ点にする音の高さ（ノート番号） | [`OPZX7_OP[0-7]_KS_BP`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-ks-bp) |
+| **L.CURVE / R.CURVE** | 折れ点の左右で、どう曲げるか | [`OPZX7_OP[0-7]_KS_LC`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-ks-lc) |
+| **L.DEPTH / R.DEPTH** | 折れ点の左右で、どれだけ下げるか | [`OPZX7_OP[0-7]_KS_LD`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-ks-ld) |
+| **RT.SCALE** | エンベロープの速さへの効き | [`OPZX7_OP[0-7]_KS_RS`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-ks-rs) |
 
 ### MASK / PANPOT / OPTIONAL
 
@@ -209,7 +210,7 @@ OPS のやり方だけ**折れ点を持ちます**。ある音の高さを境に
 | --- | --- | --- |
 | **MASK** | このオペレータを鳴らさない | [`OPZX7_OP[0-7]_MASK`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-op-0-7-mask) |
 | **Enable** | 定位を使う | [`OPZX7_PANPOT_EN`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-panpot-en) |
-| **PNPT** | 定位。0 が左、15 が中央、31 が右 | [`OPZX7_PANPOT`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-panpot) |
+| **PANPOT** | 定位。0 が左、15 が中央、31 が右 | [`OPZX7_PANPOT`](/2686V_2686VFX/reference/automation/opzx7/#opzx7-panpot) |
 
 ## オペレータごとのエンベロープ
 

@@ -27,4 +27,7 @@ struct SsgHwPEnvParams {
     // 出力にスムース処理を掛けるかどうか。
     // 音量版と違い、こちらは段差がそのままピッチの飛びとして出る。
     bool smooth = false;
+
+    // ホールドと部分再生
+    WaveHoldParams hold;
 };

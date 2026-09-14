@@ -32,6 +32,7 @@ void OpnOperator::setCurveCore(CurveCore* p_curveCore)
 void OpnOperator::setParameters(const OpnOpParams& params, int feedback)
 {
     m_params = params;
+    m_delaySeconds = params.delay;
     m_feedback = feedback;
     m_params.waveSelect = 0;
     m_ams = (float)params.n88Lfo.ams / 15.0f;
@@ -64,6 +65,9 @@ void OpnOperator::setSampleRate(double sampleRate)
 void OpnOperator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
     m_noteNumber = noteNumber;
+
+    // 再生遅延は 1 音ごとに数え直す。押し直せばまた最初から待つ。
+    beginDelay();
 
     // ハードウェアエンベロープは位相を持つだけなので、
     // 押し直したときだけ頭から流し直す。
@@ -167,6 +171,13 @@ void OpnOperator::noteOff()
 
 void OpnOperator::getSample(float& output, float modulator, float feedbackModulator, const N88LfoCore& n88Lfo, float modWheel)
 {
+    // 待っている間は何も出さず、位相も包絡も進めない
+    if (tickDelay()) {
+        output = 0.0f;
+
+        return;
+    }
+
     bool allAmpBypassed = isAllAmpBypassed();
 
     if (allAmpBypassed) {

@@ -17,7 +17,7 @@ Wobbles the pitch at a steady rate.
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **RATE** | How fast it wobbles (Hz) | 0.1 – 10 | 2 | [`FX_VIB_RATE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-vib-rate) |
-| **DPTH** | How deep the wobble goes | 0 – 1 | 0.5 | [`FX_VIB_DEPTH`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-vib-depth) |
+| **DEPTH** | How deep the wobble goes | 0 – 1 | 0.5 | [`FX_VIB_DEPTH`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-vib-depth) |
 | **MIX** | Blend against the dry signal | 0 – 1 | 0 | [`FX_VIB_MIX`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-vib-mix) |
 
 **MIX** is how much of the effect is blended with the dry signal. At 0.0 you hear the input untouched; at 1.0 you hear only the effect.

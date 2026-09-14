@@ -139,7 +139,9 @@ namespace CoreGuiValue
 
 		namespace Label
 		{
-			static inline constexpr int width = 50;
+			// 8 文字ぶん。短い名前ばかりだったので 50 で足りていたが、
+			// 名前を長く付けられるようにするため広げてある。
+			static inline constexpr int width = 80;
 		}
 
 		namespace LabelOnly
@@ -149,7 +151,8 @@ namespace CoreGuiValue
 
 		namespace Value
 		{
-			static inline constexpr int width = 220;
+			// ラベルへ回したぶんだけ削る。行の合計 (270) は変えない。
+			static inline constexpr int width = 190;
 		}
 
 		namespace Comps
@@ -381,7 +384,8 @@ namespace CoreGuiValue
 
 		namespace Label
 		{
-			static inline constexpr int width = 40;
+			// 8 文字ぶん。行が狭いので本体より少し詰めてある。
+			static inline constexpr int width = 68;
 		}
 
 		namespace LabelOnly
@@ -391,7 +395,8 @@ namespace CoreGuiValue
 
 		namespace Value
 		{
-			static inline constexpr int width = 190;
+			// ラベルへ回したぶんだけ削る。行の合計 (230) は変えない。
+			static inline constexpr int width = 162;
 		}
 	}
 }

@@ -17,6 +17,11 @@ class GuiWavePreviewGrid : public juce::Component, public GuiBaseComponent
 {
     std::vector<std::vector<float>> m_slots;
 
+    // 上下幅で描くときの、区間ごとの最小値 / 最大値。
+    // 折れ線と上下幅はスロットごとに選べる。空でない方を描く。
+    std::vector<std::vector<float>> m_mins;
+    std::vector<std::vector<float>> m_maxs;
+
     juce::Colour m_lineColour = GuiColor::WavePreview::WaveMemory;
 
     int m_selected = -1;
@@ -40,6 +45,10 @@ public:
 
     // 1 つぶんの波形を差し替える。空を渡すと「データ無し」になる。
     void setPoints(int slot, const std::vector<float>& points);
+
+    // 1 つぶんを上下幅で差し替える。読み込んだ音のように、
+    // 1 点ずつ拾っても形が分からないもの向け。
+    void setEnvelope(int slot, const std::vector<float>& mins, const std::vector<float>& maxs);
 
     // いま読み込み・クリアの対象になっているスロット。枠を強調する。
     void setSelected(int slot);

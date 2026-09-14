@@ -29,5 +29,15 @@ public:
 	int l10 = 0;
 	float r11 = 0.0f;
 	int l11 = 0;
+
+	// リリースを走り終えたあとに保つセント。0 でこれまでどおり。
+	int endl = 0;
+
+	// ENDL を使うかどうか。切のあいだはこれまでどおり。
+	bool endlEnable = false;
+
+	// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
+	bool keep = false;
+
 	bool bypass = false;
 };

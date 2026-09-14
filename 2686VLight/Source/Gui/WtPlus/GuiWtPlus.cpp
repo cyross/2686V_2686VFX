@@ -50,6 +50,12 @@ static std::vector<SelectItem> wtPlusStepsItems = {
     {.name = juce::String("") + "256段階(128 / 127)", .value = 11 },
 };
 
+
+// TARGET を鍵で動かす。中身は GuiBase の共通の手続きへ預けてある。
+bool GuiWtPlus::keyPressed(const juce::KeyPress& key)
+{
+    return moveTargetByKey(slotTarget, key, false);
+}
 void GuiWtPlus::setup() {
     juce::String code = WtPlusPrKey::prefix;
     int tabOrder = 1;
@@ -86,10 +92,21 @@ void GuiWtPlus::setup() {
     // ==========================================================
     // WAVE MEMORY (32 スロット)
     // ==========================================================
+    optionalCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::optional, .detailVisible = true, .enableChangeDetailVisible = true });
+
+    speedSlider.setup(GuiSlider::Config{ .parent = waveGroup.contentCanvas, .id = code + CPK::Wt::slot + juce::String(0) + CPK::speed, .title = "SPEED", .isReset = true });
+    speedSlider.setWantsKeyboardFocus(true);
+    speedSlider.setExplicitFocusOrder(++tabOrder);
+
+    // ホールドと部分再生。止まったときの値は音量の倍率。
+    waveHold.setupComponent(waveGroup.contentCanvas, code + CPK::Wt::slot + juce::String(0), tabOrder, WaveHoldUnit::Level);
+
+    optSpeedSeparator.setupComponent(waveGroup.contentCanvas);
+
     slotsCat.setupHwCategory({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Category::slots, .detailVisible = true, .enableChangeDetailVisible = true });
 
     // 並びは 対象 → 読み込み / 名前 / 消去 → 各スロットの波形。
-    slotTarget.setup({ .parent = waveGroup.contentCanvas, .title = "TGT", .isReset = false });
+    slotTarget.setup({ .parent = waveGroup.contentCanvas, .title = "TARGET", .isReset = false });
     slotTarget.setRange(0.0, (double)(Global::WtPlus::slots - 1), 1.0);
     slotTarget.setNumDecimalPlacesToDisplay(0);
     slotTarget.setWantsKeyboardFocus(true);
@@ -284,6 +301,8 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
 
     layoutSlotsCat(wRect);
 
+    layoutOptionalCat(wRect);
+
     int waveUsedHeight = 5000 - wRect.getHeight();
 
     waveGroup.setContentHeight(waveUsedHeight + 20);
@@ -304,6 +323,32 @@ void GuiWtPlus::layoutWaveCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &slotSlider.label, .component = &slotSlider });
         layoutMain({ .mainRect = rect, .component = &interpolateButton });
         layoutMain({ .mainRect = rect, .label = &stepsSelector.label, .component = &stepsSelector, });
+
+        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
+}
+
+// OPTIONAL。区分そのものを v3.3.0 で足した。
+//
+// いまは再生速度だけだが、この先もここへ足していく。
+void GuiWtPlus::layoutOptionalCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    speedSlider.setVisibleWithLabel(visible);
+    waveHold.setVisibles(visible);
+    waveHold.setEnables(visible);
+    optSpeedSeparator.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider });
+
+        // ホールドと部分再生
+        waveHold.layoutComponent(rect);
+
+        optSpeedSeparator.layoutComponent(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -573,6 +618,14 @@ void GuiWtPlus::updateSlotPreview(int slot)
     slotPreviews.setPoints(slot, wave.data);
 }
 
+void GuiWtPlus::rebindOptional()
+{
+    const juce::String slotPrefix = WtPlusPrKey::prefix + CPK::Wt::slot + juce::String(targetSlot());
+
+    speedSlider.rebind(slotPrefix + CPK::speed);
+    waveHold.rebind(slotPrefix);
+}
+
 void GuiWtPlus::applySlotTarget()
 {
     const int slot = targetSlot();
@@ -580,6 +633,9 @@ void GuiWtPlus::applySlotTarget()
     slotPreviews.setSelected(slot);
 
     updateSlotFileName(slot);
+
+    // OPTIONAL の値もこのスロットのものへ切り替える
+    rebindOptional();
 }
 
 void GuiWtPlus::updateSlotFileName(int slot)
@@ -732,6 +788,18 @@ void GuiWtPlus::applyChParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
+    // OPTIONAL はスロットごとに持つ。画面へ出ているのは TARGET で
+    // 選んだ 1 組だけなので、32 組ぶんをパラメータへ直に入れる。
+    for (int i = 0; i < Global::WtPlus::slots; ++i) {
+        const juce::String slotPrefix = WtPlusPrKey::prefix + CPK::Wt::slot + juce::String(i);
+
+        auto r = reader->child("slot" + juce::String(i));
+
+        setParamValue(slotPrefix + CPK::speed,
+            r.getFloat("speed", getParamValue(slotPrefix + CPK::speed)));
+
+        waveHold.readParamsFor(slotPrefix, r);
+    }
 
     // Wave
     slotSlider.setValue(reader->getFloat("slot", (float)slotSlider.getValue()), juce::sendNotification);
@@ -817,6 +885,16 @@ void GuiWtPlus::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiWtPlus::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
+	// OPTIONAL はスロットごと
+	for (int i = 0; i < Global::WtPlus::slots; ++i) {
+		const juce::String slotPrefix = WtPlusPrKey::prefix + CPK::Wt::slot + juce::String(i);
+
+		auto w = writer.child("slot" + juce::String(i));
+
+		w.set("speed", getParamValue(slotPrefix + CPK::speed));
+
+		waveHold.writeParamsFor(slotPrefix, w);
+	}
 
 	// Wave
 	writer.set("slot", (float)slotSlider.getValue());
@@ -865,4 +943,55 @@ void GuiWtPlus::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("rate", qualityComponent.getRate());
 
 	
+}
+
+void GuiWtPlus::bypassHiddenCategories()
+{
+    // いま隠れている区分だけを切る。出したままの区分は触らない。
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
+    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+}
+
+void GuiWtPlus::openEnabledCategories()
+{
+    // 効いている区分を開く。札を持たない区分は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
+    if (ssgHwEnv.hasBypassSwitch() && !ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(true);
+    if (ssgSwEnvComponent.hasBypassSwitch() && !ssgSwEnvComponent.isCategoryBypassed()) ssgSwEnvComponent.setCategoryOpen(true);
+    if (ssgSwEnv11Component.hasBypassSwitch() && !ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(true);
+    if (ampModComponent.hasBypassSwitch() && !ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(true);
+    if (pitchEnvComponent.hasBypassSwitch() && !pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(true);
+    if (ssgHwPEnv.hasBypassSwitch() && !ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(true);
+    if (ssgSwPEnv11Component.hasBypassSwitch() && !ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(true);
+    if (lfoComponent.hasBypassSwitch() && !lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(true);
+    if (mulDetuneComponent.hasBypassSwitch() && !mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(true);
+    if (fixComponent.hasBypassSwitch() && !fixComponent.isCategoryBypassed()) fixComponent.setCategoryOpen(true);
+    if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
+}
+
+void GuiWtPlus::closeBypassedCategories()
+{
+    // 切ってある区分を閉じる。札を持たない区分は触らない。
+    if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
+    if (ssgHwEnv.hasBypassSwitch() && ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(false);
+    if (ssgSwEnvComponent.hasBypassSwitch() && ssgSwEnvComponent.isCategoryBypassed()) ssgSwEnvComponent.setCategoryOpen(false);
+    if (ssgSwEnv11Component.hasBypassSwitch() && ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(false);
+    if (ampModComponent.hasBypassSwitch() && ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(false);
+    if (pitchEnvComponent.hasBypassSwitch() && pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(false);
+    if (ssgHwPEnv.hasBypassSwitch() && ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(false);
+    if (ssgSwPEnv11Component.hasBypassSwitch() && ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(false);
+    if (lfoComponent.hasBypassSwitch() && lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(false);
+    if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
+    if (fixComponent.hasBypassSwitch() && fixComponent.isCategoryBypassed()) fixComponent.setCategoryOpen(false);
+    if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
 }

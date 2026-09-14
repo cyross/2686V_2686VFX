@@ -93,15 +93,15 @@ OPN has no hardware LFO, so this is where the wobble comes from.
 
 | Knob | What it does | Automation |
 | --- | --- | --- |
-| **SP** | How fast it wobbles | [`OPN_LFO_FREQ`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-freq) |
-| **SH** | Shape. Saw Up / Square / Triangle / S&H, plus two that move once | [`OPN_LFO_SHAPE`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-shape) |
-| **SDLY** | Wait after key-down before it starts | [`OPN_LFO_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-sync-delay) |
+| **SPEED** | How fast it wobbles | [`OPN_LFO_FREQ`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-freq) |
+| **SHAPE** | Shape. Saw Up / Square / Triangle / S&H, plus two that move once | [`OPN_LFO_SHAPE`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-shape) |
+| **SY.DELAY** | Wait after key-down before it starts | [`OPN_LFO_SYNC_DELAY`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-sync-delay) |
 | **PM Enable** | Apply the wobble on the pitch side | [`OPN_LFO_PM`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-pm) |
 | **PMS** | How much it reaches the pitch | [`OPN_LFO_PMS`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-pms) |
 | **PMD** | Depth on the pitch. Negative values flip the direction | [`OPN_LFO_PMD`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-pmd) |
 | **AM Enable** | Apply the wobble on the level side | [`OPN_LFO_AM`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-am) |
 | **AMD** | Depth on the level | [`OPN_LFO_AMD`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-amd) |
-| **AMSR** | Rounding of the corners on the level side | [`OPN_LFO_ASMRT`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-asmrt) |
+| **SM.RATIO** | Rounding of the corners on the level side | [`OPN_LFO_ASMRT`](/2686V_2686VFX/en/reference/automation/opn/#opn-lfo-asmrt) |
 | **AMS** | How much it reaches the level, per operator | [`OPN_OP[0-3]_N88AMS`](/2686V_2686VFX/en/reference/automation/opn/#opn-op-0-3-n88ams) |
 
 

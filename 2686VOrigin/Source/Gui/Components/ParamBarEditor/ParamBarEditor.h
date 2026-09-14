@@ -37,7 +37,8 @@ protected:
     juce::Point<int> lastMousePos;
     juce::ModifierKeys lastModifiers;
 
-    // idPrefix + 0 〜 idPrefix + (count-1) のパラメータを引いてリスナーを張る
+    // idPrefix + 0 〜 idPrefix + (count-1) のパラメータを引いて聴き手を張る。
+    // 何度でも呼べる。前の分は中で外す。
     void attachParams(const juce::String& idPrefix, int count);
 
     // ホバー中の値を出す小さな箱。中身の文字列は派生側が組み立てる。
