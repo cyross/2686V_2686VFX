@@ -72,7 +72,7 @@ void QualityPcm::setupComponent(juce::Component& parent, const juce::String& cod
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    interpSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::interp, .title = "INTP", .items = interpItems, .isReset = true });
+    interpSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::interp, .title = "INTERP", .items = interpItems, .isReset = true });
     interpSelector.setWantsKeyboardFocus(true);
     interpSelector.setExplicitFocusOrder(++tabOrder);
 }
