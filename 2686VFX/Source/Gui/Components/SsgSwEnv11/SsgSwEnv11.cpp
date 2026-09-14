@@ -220,7 +220,8 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
     rateTarget.setExplicitFocusOrder(++tabOrder);
     rateTarget.onValueChange = [this] { rebindRate(); };
 
-    rate.setupComponent(parent, "", "RATE", tabOrder, std::nullopt, labelFont);
+    // 繋ぐ先は対象のつまみが決める。ここで空の名前へ繋ぎに行くと、無いパラメータを指して JUCE が止まる。
+    rate.setupComponent(parent, "", "RATE", tabOrder, std::nullopt, labelFont, false);
     rate.getSlider().onValueChange = [this] { refreshStepValues(); };
 
     rateNudge.setupComponent(parent, rate.getSlider(), tabOrder);
@@ -237,7 +238,7 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
     levelTarget.setExplicitFocusOrder(++tabOrder);
     levelTarget.onValueChange = [this] { rebindLevel(); };
 
-    level.setupComponent(parent, "", "LEVEL", tabOrder, std::nullopt, labelFont);
+    level.setupComponent(parent, "", "LEVEL", tabOrder, std::nullopt, labelFont, false);
     level.getSlider().onValueChange = [this] { refreshStepValues(); };
 
     levelBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);

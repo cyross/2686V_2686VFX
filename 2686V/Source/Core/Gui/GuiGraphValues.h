@@ -25,40 +25,101 @@ namespace GuiGraphValues
     // ------------------------------------------------------
     namespace Keys
     {
-        inline const juce::String ssgSwEnvRate[] = {
-            CPK::SsgSwEnv::r1, CPK::SsgSwEnv::r2, CPK::SsgSwEnv::r3,
-            CPK::SsgSwEnv::r4, CPK::SsgSwEnv::r5, CPK::SsgSwEnv::r6
+        // 大域の配列にしてはいけない。材料の CPK の文字列も起動時に作られる
+        // もので、どちらが先に出来るかは言語が決めていない。リンカの並べ方
+        // しだいで、まだ出来ていない文字列を写し取り、起動直後に落ちる。
+        // 実際に、組み直すたびに落ちたり落ちなかったりした。
+        //
+        // そこで並びは関数の中で作り、最初に使うとき (起動を終えたあと) に
+        // 出来るようにしてある。外に置くのは作る関数を指すだけの札で、
+        // これは起動時の処理を伴わない。引く側は配列と同じく keys[i] で書ける。
+        class List
+        {
+            const juce::String* (*make)();
+
+        public:
+            constexpr explicit List(const juce::String* (*maker)()) : make(maker) {}
+
+            const juce::String* data() const { return make(); }
+            const juce::String& operator[](int i) const { return make()[i]; }
         };
+
+        inline const juce::String* makeSsgSwEnvRate()
+        {
+            static const juce::String keys[] = {
+                CPK::SsgSwEnv::r1, CPK::SsgSwEnv::r2, CPK::SsgSwEnv::r3,
+                CPK::SsgSwEnv::r4, CPK::SsgSwEnv::r5, CPK::SsgSwEnv::r6
+            };
+
+            return keys;
+        }
+
+        inline constexpr List ssgSwEnvRate{ makeSsgSwEnvRate };
 
         // 先頭は STL。画面の対象つまみで 0 を選んだときがこれ。
-        inline const juce::String ssgSwEnvLevel[] = {
-            CPK::SsgSwEnv::stl, CPK::SsgSwEnv::l1, CPK::SsgSwEnv::l2, CPK::SsgSwEnv::l3,
-            CPK::SsgSwEnv::l4, CPK::SsgSwEnv::l5, CPK::SsgSwEnv::l6
-        };
+        inline const juce::String* makeSsgSwEnvLevel()
+        {
+            static const juce::String keys[] = {
+                CPK::SsgSwEnv::stl, CPK::SsgSwEnv::l1, CPK::SsgSwEnv::l2, CPK::SsgSwEnv::l3,
+                CPK::SsgSwEnv::l4, CPK::SsgSwEnv::l5, CPK::SsgSwEnv::l6
+            };
 
-        inline const juce::String ssgSwEnv11Rate[] = {
-            CPK::SsgSwEnv11::r1, CPK::SsgSwEnv11::r2, CPK::SsgSwEnv11::r3, CPK::SsgSwEnv11::r4,
-            CPK::SsgSwEnv11::r5, CPK::SsgSwEnv11::r6, CPK::SsgSwEnv11::r7, CPK::SsgSwEnv11::r8,
-            CPK::SsgSwEnv11::r9, CPK::SsgSwEnv11::r10, CPK::SsgSwEnv11::r11
-        };
+            return keys;
+        }
 
-        inline const juce::String ssgSwEnv11Level[] = {
-            CPK::SsgSwEnv11::stl, CPK::SsgSwEnv11::l1, CPK::SsgSwEnv11::l2, CPK::SsgSwEnv11::l3,
-            CPK::SsgSwEnv11::l4, CPK::SsgSwEnv11::l5, CPK::SsgSwEnv11::l6, CPK::SsgSwEnv11::l7,
-            CPK::SsgSwEnv11::l8, CPK::SsgSwEnv11::l9, CPK::SsgSwEnv11::l10, CPK::SsgSwEnv11::l11
-        };
+        inline constexpr List ssgSwEnvLevel{ makeSsgSwEnvLevel };
 
-        inline const juce::String ssgSwPEnv11Rate[] = {
-            CPK::SsgSwPEnv11::r1, CPK::SsgSwPEnv11::r2, CPK::SsgSwPEnv11::r3, CPK::SsgSwPEnv11::r4,
-            CPK::SsgSwPEnv11::r5, CPK::SsgSwPEnv11::r6, CPK::SsgSwPEnv11::r7, CPK::SsgSwPEnv11::r8,
-            CPK::SsgSwPEnv11::r9, CPK::SsgSwPEnv11::r10, CPK::SsgSwPEnv11::r11
-        };
+        inline const juce::String* makeSsgSwEnv11Rate()
+        {
+            static const juce::String keys[] = {
+                CPK::SsgSwEnv11::r1, CPK::SsgSwEnv11::r2, CPK::SsgSwEnv11::r3, CPK::SsgSwEnv11::r4,
+                CPK::SsgSwEnv11::r5, CPK::SsgSwEnv11::r6, CPK::SsgSwEnv11::r7, CPK::SsgSwEnv11::r8,
+                CPK::SsgSwEnv11::r9, CPK::SsgSwEnv11::r10, CPK::SsgSwEnv11::r11
+            };
 
-        inline const juce::String ssgSwPEnv11Level[] = {
-            CPK::SsgSwPEnv11::stl, CPK::SsgSwPEnv11::l1, CPK::SsgSwPEnv11::l2, CPK::SsgSwPEnv11::l3,
-            CPK::SsgSwPEnv11::l4, CPK::SsgSwPEnv11::l5, CPK::SsgSwPEnv11::l6, CPK::SsgSwPEnv11::l7,
-            CPK::SsgSwPEnv11::l8, CPK::SsgSwPEnv11::l9, CPK::SsgSwPEnv11::l10, CPK::SsgSwPEnv11::l11
-        };
+            return keys;
+        }
+
+        inline constexpr List ssgSwEnv11Rate{ makeSsgSwEnv11Rate };
+
+        inline const juce::String* makeSsgSwEnv11Level()
+        {
+            static const juce::String keys[] = {
+                CPK::SsgSwEnv11::stl, CPK::SsgSwEnv11::l1, CPK::SsgSwEnv11::l2, CPK::SsgSwEnv11::l3,
+                CPK::SsgSwEnv11::l4, CPK::SsgSwEnv11::l5, CPK::SsgSwEnv11::l6, CPK::SsgSwEnv11::l7,
+                CPK::SsgSwEnv11::l8, CPK::SsgSwEnv11::l9, CPK::SsgSwEnv11::l10, CPK::SsgSwEnv11::l11
+            };
+
+            return keys;
+        }
+
+        inline constexpr List ssgSwEnv11Level{ makeSsgSwEnv11Level };
+
+        inline const juce::String* makeSsgSwPEnv11Rate()
+        {
+            static const juce::String keys[] = {
+                CPK::SsgSwPEnv11::r1, CPK::SsgSwPEnv11::r2, CPK::SsgSwPEnv11::r3, CPK::SsgSwPEnv11::r4,
+                CPK::SsgSwPEnv11::r5, CPK::SsgSwPEnv11::r6, CPK::SsgSwPEnv11::r7, CPK::SsgSwPEnv11::r8,
+                CPK::SsgSwPEnv11::r9, CPK::SsgSwPEnv11::r10, CPK::SsgSwPEnv11::r11
+            };
+
+            return keys;
+        }
+
+        inline constexpr List ssgSwPEnv11Rate{ makeSsgSwPEnv11Rate };
+
+        inline const juce::String* makeSsgSwPEnv11Level()
+        {
+            static const juce::String keys[] = {
+                CPK::SsgSwPEnv11::stl, CPK::SsgSwPEnv11::l1, CPK::SsgSwPEnv11::l2, CPK::SsgSwPEnv11::l3,
+                CPK::SsgSwPEnv11::l4, CPK::SsgSwPEnv11::l5, CPK::SsgSwPEnv11::l6, CPK::SsgSwPEnv11::l7,
+                CPK::SsgSwPEnv11::l8, CPK::SsgSwPEnv11::l9, CPK::SsgSwPEnv11::l10, CPK::SsgSwPEnv11::l11
+            };
+
+            return keys;
+        }
+
+        inline constexpr List ssgSwPEnv11Level{ makeSsgSwPEnv11Level };
     }
 
     // ------------------------------------------------------
@@ -182,21 +243,21 @@ namespace GuiGraphValues
     {
         return stepEnv<7>(apvts, code,
             CPK::SsgSwEnv::steps, CPK::SsgSwEnv::loop, CPK::SsgSwEnv::loopTo, CPK::SsgSwEnv::loopCount,
-            Keys::ssgSwEnvRate, Keys::ssgSwEnvLevel);
+            Keys::ssgSwEnvRate.data(), Keys::ssgSwEnvLevel.data());
     }
 
     inline StepEnvValues<12> ssgSwEnv11(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
     {
         return stepEnv<12>(apvts, code,
             CPK::SsgSwEnv11::steps, CPK::SsgSwEnv11::loop, CPK::SsgSwEnv11::loopTo, CPK::SsgSwEnv11::loopCount,
-            Keys::ssgSwEnv11Rate, Keys::ssgSwEnv11Level);
+            Keys::ssgSwEnv11Rate.data(), Keys::ssgSwEnv11Level.data());
     }
 
     inline StepEnvValues<12> ssgSwPEnv11(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
     {
         return stepEnv<12>(apvts, code,
             CPK::SsgSwPEnv11::steps, CPK::SsgSwPEnv11::loop, CPK::SsgSwPEnv11::loopTo, CPK::SsgSwPEnv11::loopCount,
-            Keys::ssgSwPEnv11Rate, Keys::ssgSwPEnv11Level);
+            Keys::ssgSwPEnv11Rate.data(), Keys::ssgSwPEnv11Level.data());
     }
 
     inline bool ssgSwEnv11Keep(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
