@@ -20,6 +20,10 @@ The big difference from ADPCM is that **the sound shaping is split per file.** F
 Nothing on the hardware corresponds to it directly. It packages up, in a form that is easy to work with, what the sound drivers of the day did when they swapped the ADPCM read position mid-performance to change the tone.
 :::
 
+:::tip[Acknowledgement]
+This channel was added after taking inspiration from [a post](https://x.com/yuzokoshiro/status/2098008081573855457) by Yuzo Koshiro. It was a tremendous help. Thank you for so generously sharing your knowledge.
+:::
+
 ## How to read this page
 
 | Mark | Meaning |

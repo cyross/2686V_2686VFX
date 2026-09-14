@@ -41,6 +41,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - All 32 loaded waveforms are drawn in a grid.
   - Carried by 2686V, 2686VLight and PCMV.
   - Its chip number was added at the end, so existing files and automation are unaffected.
+  - **[Postscript]** This channel was added after taking inspiration from a post by Yuzo Koshiro. It was a tremendous help. Thank you for so generously sharing your knowledge.
+    - [The post on X](https://x.com/yuzokoshiro/status/2098008081573855457)
 - **HOLD / KEEP (stopping a wave, or playing part of it)**
   - HOLD: after a set number of cycles the wave stops and keeps putting out MIN or MAX.
   - KEEP: only the START–END stretch of each cycle is played.

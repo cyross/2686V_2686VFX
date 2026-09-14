@@ -21,6 +21,10 @@ The big difference from ADPCM is that **the sound shaping is split per file**. F
 
 It ships in **2686V, 2686VLight and PCMV**. See [the ADPCM+ channel](/2686V_2686VFX/en/chips/adpcmplus/) for the detail.
 
+:::tip[Acknowledgement]
+This channel was added after taking inspiration from [a post](https://x.com/yuzokoshiro/status/2098008081573855457) by Yuzo Koshiro. It was a tremendous help. Thank you for so generously sharing your knowledge.
+:::
+
 :::note[Tab order and chip numbering]
 ADPCM+ sits to the right of ADPCM on the tab bar, but **its chip number was added at the end.** The numbers are what saved files and automation point at, so they could not be moved. Anything made up to 3.2.0 still opens on the chip it always did.
 :::
