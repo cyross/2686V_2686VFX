@@ -96,6 +96,8 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 86V の RHYTHM で、TARGET とパッドのコピー元・コピー先が 8 まで選べた
 - **古い形式のファイルについて**
   - 3.0.0 より前の行並びの形式へは、この版で足したつまみを書き込まない(読み込みはこれまでどおり)
+- **添付する壁紙を追加**
+  - 従来のものに加えて、5枚壁紙画像を追加
 
 ### 3-0-2. v3.2.0での追加・変更
 
@@ -899,6 +901,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
     - [Dir]LfoParams               : LFOのパラメータを保存するファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCC3               : Claude Code に作ってもらったファイルフォルダ(v3.3.0～)
     - [Dir]PcmPlayParams           : PCMファイルの再生位置などを指定するパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
@@ -913,6 +916,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
     - [Dir]SsgHwEnvParams          : SSG HW AMP ENV / SSG HW PITCH ENV用のパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCC3               : Claude Code に作ってもらったファイルフォルダ(v3.3.0～)
     - [Dir]SsgSwEnvParams          : SSG SW ENV(11)用のパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
         - [Dir]SsgSwEnv            : 従来のSSG SW AMP ENV用のパラメータファイルフォルダ
@@ -935,7 +939,14 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
     - [Dir]WtModParams             : WT PITCH MOD / WT AMP MOD で使用できるパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCC3               : Claude Code に作ってもらったファイルフォルダ(v3.3.0～)
     - sample_bg.png                : サンプル用壁紙
+    - sample_bg01.png              : サンプル用壁紙(sample_bg.pngと同じ)
+    - sample_bg02.png              : サンプル用壁紙(Adobe Fireflyで編集した壁紙)
+    - sample_bg03.png              : サンプル用壁紙(Adobe Fireflyで生成した壁紙)
+    - sample_bg04.png              : サンプル用壁紙(Adobe Fireflyで生成した壁紙)
+    - sample_bg05.png              : サンプル用壁紙(Adobe Fireflyで編集した壁紙)
+    - sample_bg06.png              : サンプル用壁紙(旧マニュアルの壁紙機能を解説した画像を流用)
 ```
 
 ### 8-1. 添付のプリセットファイルについて

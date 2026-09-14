@@ -96,6 +96,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - On 86V's RHYTHM, TARGET and the pad copy source/destination went up to 8.
 - **About the older file format**
   - The knobs added in this release are not written into the line-ordered format from before 3.0.0 (reading works as before).
+- **More bundled wallpapers**
+  - Five wallpaper images have been added alongside the existing one.
 
 ### 3-0-2. What v3.2.0 adds and changes
 
@@ -900,6 +902,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - [Dir]LfoParams               : the folder for files that store the LFO parameters
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCC3               : the folder of files made for me by Claude Code (v3.3.0 onwards)
     - [Dir]PcmPlayParams           : the parameter file folder for the PCM playback position and so on
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
@@ -914,6 +917,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - [Dir]SsgHwEnvParams          : the parameter file folder for SSG HW AMP ENV and SSG HW PITCH ENV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCC3               : the folder of files made for me by Claude Code (v3.3.0 onwards)
     - [Dir]SsgSwEnvParams          : the parameter file folder for SSG SW ENV(11)
       - [Dir]fromCC                : the folder of files made for me by Claude Code
         - [Dir]SsgSwEnv            : the parameter file folder for the traditional SSG SW AMP ENV
@@ -936,7 +940,14 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - [Dir]WtModParams             : the parameter file folder for WT PITCH MOD and WT AMP MOD
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCC3               : the folder of files made for me by Claude Code (v3.3.0 onwards)
     - sample_bg.png                : a sample wallpaper
+    - sample_bg01.png              : a sample wallpaper (the same as sample_bg.png)
+    - sample_bg02.png              : a sample wallpaper (edited with Adobe Firefly)
+    - sample_bg03.png              : a sample wallpaper (generated with Adobe Firefly)
+    - sample_bg04.png              : a sample wallpaper (generated with Adobe Firefly)
+    - sample_bg05.png              : a sample wallpaper (edited with Adobe Firefly)
+    - sample_bg06.png              : a sample wallpaper (reusing the image that explained the wallpaper feature in the old manual)
 ```
 
 ### 8-1. About the bundled preset files
