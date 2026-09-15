@@ -293,6 +293,7 @@ void GuiSlider::setup(const Config& c)
     if (c.isReset)
     {
         att.reset(new SliderAttachment(ctx.apvts, c.id, *this));
+        boundId = c.id;
     }
 }
 
@@ -329,6 +330,7 @@ void GuiComboBox::setup(const Config& c)
     if (c.isReset)
     {
         att.reset(new ComboBoxAttachment(ctx.apvts, c.id, *this));
+        boundId = c.id;
     }
 
     if (c.isResized)
