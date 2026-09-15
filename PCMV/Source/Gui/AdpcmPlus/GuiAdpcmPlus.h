@@ -146,6 +146,10 @@ class GuiAdpcmPlus : public GuiBase
     GuiComponentMidi midiComponent;
 
     GuiCategoryLabel utilityCat;
+
+    // 大区分。[[AMP ENV]] と [[PITCH ENV]]
+    GuiCategoryLabel ampMajorCat;
+    GuiCategoryLabel pitchMajorCat;
     GuiTextButton broadcastLevelButton;
     NormalSeparator uSep001;
     GuiComponentImportExport ieToneNoise;
@@ -241,6 +245,8 @@ public:
         lfoComponent(context),
         midiComponent(context),
         utilityCat(context),
+        ampMajorCat(context),
+        pitchMajorCat(context),
         broadcastLevelButton(context),
         uSep001(context),
         ieToneNoise(context),

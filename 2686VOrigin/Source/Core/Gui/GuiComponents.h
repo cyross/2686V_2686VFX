@@ -1032,6 +1032,10 @@ class GuiCategoryLabel : public GuiLabel
     // 簡易表示モードで隠しているか
     bool hidden = false;
 
+    // 大区分か。大区分の板は、中の小区分をまとめて覆う。
+    // 小区分の見出しでは閉じず、endMajor で閉じる。
+    bool major = false;
+
     // 中身の背後へ敷く板。開いているときだけ見せる。
     GuiCategoryBackdrop backdrop;
 public:
@@ -1058,6 +1062,13 @@ public:
     // 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって
     // ハードとソフトのどちらに見せたいかが変わる場合に使う。
     void setupCategory(const Config& c, juce::Colour bgColor);
+
+    // 大区分用。いくつかの区分を中へ入れて、まとめて畳めるようにする。
+    void setupMajorCategory(const Config& c);
+
+    // 大区分の中身 (小区分) を並べ終えたところで呼ぶ。最後の小区分の板と
+    // 大区分の板を閉じ、中身のために寄せていた幅を戻す。
+    void endMajor(juce::Rectangle<int>& rect);
 	// 隠しているあいだは中身も畳んだ扱いにする。部品はここを見て
 	// 子の表示を決めているので、これだけで丸ごと消える。
 	bool isDetailVisible() const { return !this->hidden && this->detailVisible; }

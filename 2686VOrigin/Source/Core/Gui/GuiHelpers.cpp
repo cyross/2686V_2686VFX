@@ -176,6 +176,16 @@ void layoutMainCategory(const MainConfigCategory& c)
     }
 }
 
+bool layoutMajorCategory(GuiCategoryLabel& major, juce::Rectangle<int>& rect, bool anyShown)
+{
+    major.setHidden(!anyShown);
+    major.setVisible(anyShown);
+
+    layoutMainCategory({ .mainRect = rect, .label = &major });
+
+    return major.isOpen();
+}
+
 void layoutMainParamName(const MainConfigParamName& c)
 {
     layoutRow(c.mainRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);

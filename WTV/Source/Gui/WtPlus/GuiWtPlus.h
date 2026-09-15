@@ -104,6 +104,10 @@ class GuiWtPlus : public GuiBase {
 
     // ---------------- UTILITY ----------------
     GuiCategoryLabel utilityCat;
+
+    // 大区分。[[AMP ENV]] と [[PITCH ENV]]
+    GuiCategoryLabel ampMajorCat;
+    GuiCategoryLabel pitchMajorCat;
     GuiTextButton broadcastLevelButton;
     NormalSeparator uSep001;
     GuiComponentImportExport ieLfo;
@@ -176,6 +180,8 @@ public:
         modComponent(context),
         ampModComponent(context),
         utilityCat(context),
+        ampMajorCat(context),
+        pitchMajorCat(context),
         broadcastLevelButton(context),
         uSep001(context),
         ieLfo(context),

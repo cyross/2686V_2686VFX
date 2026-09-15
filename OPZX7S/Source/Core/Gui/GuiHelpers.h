@@ -107,6 +107,27 @@ struct MainConfigCategory {
 
 void layoutMainCategory(const MainConfigCategory& c);
 
+// 大区分の見出しを置く。出す小区分が 1 つも無ければ、見出しごと隠す。
+// 開いているか (中の小区分を並べてよいか) を返す。並べ終えたら
+// GuiCategoryLabel::endMajor を呼ぶこと。
+bool layoutMajorCategory(GuiCategoryLabel& major, juce::Rectangle<int>& rect, bool anyShown);
+
+// 大区分を、中の小区分に合わせて開閉するための問い合わせ。
+// 札を持たない区分は数えない。
+template <typename... Categories>
+bool anyCategoryEnabled(const Categories&... c)
+{
+    return ((c.hasBypassSwitch() && !c.isCategoryBypassed()) || ...);
+}
+
+template <typename... Categories>
+bool allCategoriesBypassed(const Categories&... c)
+{
+    const bool anySwitch = (c.hasBypassSwitch() || ...);
+
+    return anySwitch && ((!c.hasBypassSwitch() || c.isCategoryBypassed()) && ...);
+}
+
 struct MainConfigParamName {
     juce::Rectangle<int>& mainRect;
     GuiLabel* label = nullptr;

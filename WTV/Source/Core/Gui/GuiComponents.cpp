@@ -756,6 +756,10 @@ void GuiCategoryLabel::beginBackdrop(const juce::Rectangle<int>& contentArea)
     backdrop.setBounds(contentArea.getX(), contentArea.getY(), contentArea.getWidth(), 0);
     backdrop.setVisible(false);
 
+    // 大区分の板は、中の小区分の見出しで閉じられては困る。
+    // 閉じ待ちへは入れず、endMajor で閉じる。
+    if (major) return;
+
     g_pendingBackdrops[parent] = this;
 }
 
@@ -847,6 +851,55 @@ void GuiCategoryLabel::setupOtherCategory(const Config& c)
 void GuiCategoryLabel::setupCategory(const Config& c, juce::Colour bgColor)
 {
     setupInner(c, bgColor);
+}
+
+void GuiCategoryLabel::setupMajorCategory(const Config& c)
+{
+    this->major = true;
+
+    setupInner(c, GuiColor::Category::MajorBg);
+}
+
+void GuiCategoryLabel::endMajor(juce::Rectangle<int>& rect)
+{
+    // 隠しているか閉じているときは、中身を寄せていないので戻すものも無い。
+    if (!isOpen()) {
+        backdrop.setVisible(false);
+
+        return;
+    }
+
+    const int pad = contentPadding;
+
+    // 最後の小区分の板をここで閉じる。閉じたときは、その中身のために
+    // 内側へ寄せていた幅を戻す。
+    if (closePending(getParentComponent(), rect.getY())) {
+        rect.setX(rect.getX() - pad);
+        rect.setWidth(rect.getWidth() + pad * 2);
+    }
+
+    // 小区分の板の下端から少し離して、大区分の板を閉じる。
+    rect.removeFromTop(pad);
+
+    auto b = backdrop.getBounds();
+
+    int height = (rect.getY() - gapBelow) - b.getY();
+
+    if (height > 0) {
+        backdrop.setBounds(b.getX(), b.getY(), b.getWidth(), height);
+        backdrop.setVisible(true);
+
+        // 小区分の板より後ろへ回す。小区分の板は先に閉じてあるので、
+        // ここで回せば必ず一番後ろになる。
+        backdrop.toBack();
+    }
+    else {
+        backdrop.setVisible(false);
+    }
+
+    // 大区分の中身のために寄せていた幅を戻す。
+    rect.setX(rect.getX() - pad);
+    rect.setWidth(rect.getWidth() + pad * 2);
 }
 
 void closeCategoryBackdrops(juce::Component* parent, int bottom)

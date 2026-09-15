@@ -349,6 +349,10 @@ namespace GuiColor {
 		// 色味のない明るい地に置く。
 		inline Entry SettingsBg{ "Category.SettingsBg", []() -> juce::Colour { return Palette::OffWhite; } };
 
+		// 大区分の見出し。小区分の色 (ハード / ソフト / その他) を上から
+		// 塗り潰さないよう、色味のないオフホワイトにする。
+		inline Entry MajorBg{ "Category.MajorBg", []() -> juce::Colour { return Palette::OffWhite; } };
+
 		// カテゴリを開いたとき、中身の背後へ敷く色。
 		inline Entry ContentBg{ "Category.ContentBg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.5f); } };
 
