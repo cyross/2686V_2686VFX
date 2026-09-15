@@ -12,7 +12,7 @@ Holds the settings for one whole channel.
 | **Extension** | `.param.opzx7s.json` / `.param.opzx7s.yaml` |
 | **format** | `opzx7` |
 | **version** | `1` |
-| **Export / import** | UTILITY's [EX] / [IM] |
+| **Export / import** | UTILITY's [EX] / [IM]. [EX]OPZX7S Params on the FM tabs writes the same format |
 | **The chip's page** | [opzx7](/2686V_2686VFX/en/chips/opzx7/) |
 
 ## Shape

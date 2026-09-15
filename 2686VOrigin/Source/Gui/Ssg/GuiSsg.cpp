@@ -108,6 +108,11 @@ void GuiSsg::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
+    // 最初は閉じておく。
+    ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
+    pitchMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::pitchEnv, .enableChangeDetailVisible = true });
+
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::bcLevel });
@@ -294,24 +299,39 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     layoutOptionalCat(mRect);
 
-    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
+    const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect, true);
+
+    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
+    ssgHwEnvComponent.setCategoryVisible(ampOpen);
     ssgHwEnvComponent.layoutComponent(mRect);
-    ssgSwEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
+    ssgSwEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnvComponent.layoutComponent(mRect);
-    ssgSwEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11Component.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11Component.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
-    pitchEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
+    ampMajorCat.endMajor(mRect);
+
+    // [[PITCH ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
+    const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
+        ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)
+        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)
+        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+
+    pitchEnvComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
     pitchEnvComponent.layoutComponent(mRect);
-    ssgHwPEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnvComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnvComponent.layoutComponent(mRect);
-    ssgSwPEnv11Component.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11Component.layoutComponent(mRect);
-    modComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
+
+    pitchMajorCat.endMajor(mRect);
 
     lfo.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
     lfo.layoutComponent(mRect);
@@ -1136,6 +1156,10 @@ void GuiSsg::openEnabledCategories()
     if (mulDetuneComponent.hasBypassSwitch() && !mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(true);
     if (fixComponent.hasBypassSwitch() && !fixComponent.isCategoryBypassed()) fixComponent.setCategoryOpen(true);
     if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
+
+    // 大区分は中の区分に合わせる。効いている区分があれば開く。
+    if (anyCategoryEnabled(ampEnvComponent, ssgHwEnvComponent, ssgSwEnvComponent, ssgSwEnv11Component, ampModComponent)) ampMajorCat.setDetailVisible(true);
+    if (anyCategoryEnabled(pitchEnvComponent, ssgHwPEnvComponent, ssgSwPEnv11Component, modComponent)) pitchMajorCat.setDetailVisible(true);
 }
 
 void GuiSsg::closeBypassedCategories()
@@ -1153,4 +1177,8 @@ void GuiSsg::closeBypassedCategories()
     if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
     if (fixComponent.hasBypassSwitch() && fixComponent.isCategoryBypassed()) fixComponent.setCategoryOpen(false);
     if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
+
+    // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
+    if (allCategoriesBypassed(ampEnvComponent, ssgHwEnvComponent, ssgSwEnvComponent, ssgSwEnv11Component, ampModComponent)) ampMajorCat.setDetailVisible(false);
+    if (allCategoriesBypassed(pitchEnvComponent, ssgHwPEnvComponent, ssgSwPEnv11Component, modComponent)) pitchMajorCat.setDetailVisible(false);
 }

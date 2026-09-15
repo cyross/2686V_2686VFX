@@ -527,6 +527,73 @@ For the formats and where they live, see
 [File formats and locations](/2686V_2686VFX/en/files/format/). Parameter files **can be read
 across chips** — an AMP ENV built on OPN can be loaded on SSG.
 
+### Passing sounds between the FM chips and OPZX7S
+
+From 3.4.0, **a sound built on an FM chip can be carried over as an OPZX7S
+sound.** There are two buttons, and both convert in exactly the same way.
+
+| Button | Where | What it does |
+| --- | --- | --- |
+| **[EX]OPZX7S Params** | UTILITY on OPNA / OPN / OPL / OPL3 / OPM | writes the current channel out as an OPZX7S CH Params file |
+| **[IM]FM Params** | UTILITY on OPZX7S | picks an OPNA / OPN / OPL / OPL3 / OPM CH Params file, converts it to OPZX7S values and loads it |
+
+[EX]OPZX7S Params is in 2686V, 2686VLight, 26V, 86V, OPNV, OPLV and OPMV;
+[IM]FM Params is in 2686V, 2686VLight and OPZX7S. **The OPZX7S plugin has no FM
+chips of its own, but it can read files saved by the other plugins.**
+
+After [IM]FM Params loads a file, a dialog says so. Closing it opens the save
+picker, so **the result can be kept straight away as an OPZX7S CH Params file.**
+The name comes from the original file (`piano.param.opm.json` becomes
+`piano.param.opzx7s.json`). Cancel if you do not want to keep it.
+
+#### How it converts
+
+| On the FM chip | On OPZX7S |
+| --- | --- |
+| Algorithm | the same routing is copied into the **algorithm matrix** |
+| FB | goes to the FB of the operator that receives the feedback, at the value that gives the same depth |
+| AR / DR (D1R) / SR (D2R) / RR | converted to seconds in **real mode** (Register Mode off), using the hardware rate table |
+| SL (D1L) / TL | converted to real-mode levels (SL in 3 dB steps, TL in 0.75 dB steps) |
+| EG TYPE off (OPL / OPL3) | a decaying sound: SR is set so that, after reaching SL, it keeps falling at the RR rate |
+| SUS (OPL) | the release falls at rate 5, so that rate goes into RR |
+| MUL / MUL.RATIO | to the MUL with the same ratio; OPM's MUL.RATIO is used as it is |
+| DT1 / DT2 | DT1 goes to DT3 as the same amount in cents; DT2 goes to DT2 |
+| KS / KSR / KSL | OPN and OPM go to the OPZ key scale, OPL and OPL3 to the MA-7 one (the steps are the same) |
+| Waveform (OPL / OPL3) | to the WAVE SHAPE of the same name; the OPN family and OPM use Sine |
+| SSG-EG (OPNA) | copied as it is |
+| OPNA hardware LFO | to the operator LFO, as a triangle with the same rate and depth |
+| N88 LFO (OPNA / OPN) | PM to the channel-wide LFO; AM to the operator LFO, at the depth set by N88 AMS |
+| OPM LFO | PM to the channel-wide LFO; AM to the LFO of the operators with AMS-EN on |
+| AM / VIB (OPL / OPL3) | to the operator LFO |
+| PAN (OPNA / OPM) | left or right goes to the end of the OPZX7S pan; centre switches pan off |
+
+**Sections built from the same parts on every chip** — LEVEL, AMP ENV, SSG HW
+ENV, UNISON, QUALITY, the operators' PITCH ENV and so on — are copied as they
+are.
+
+Operators the original chip does not have (3 to 8 for OPL, 5 to 8 otherwise)
+are **left unconnected** and given OPZX7S's defaults. They make no sound.
+
+#### What gets approximated
+
+Anything that cannot behave the same way is moved to the nearest value. **If
+anything was approximated, a dialog lists it at the end.**
+
+- DT1 does not fall on OPZX7S's steps, so it goes into DT3 rounded to the cent
+- The real-mode key scale (KSR) shortens times differently from the register one
+- Any stage longer than 10 seconds becomes 10 seconds; an SR (D2R) longer than 10 seconds becomes "no decay"
+- An operator with AR at 0 (never rises) gets the longest AR, 10 seconds
+- FB too shallow for OPZX7S becomes the shallowest value it can express
+- A pan hard to one side goes to the end of the OPZX7S pan, where the other side is still faintly heard
+- LFO rate and depth are kept within OPZX7S's ranges
+- N88 LFO PMD / AMD below zero (a reversed swing) is turned the right way round
+- An operator using AM from both the HW LFO and the N88 LFO keeps only the HW LFO's AM
+
+:::note
+- [IM]FM Params cannot read files in the **line-ordered format** from before 3.0.0
+- When loading, the PITCH ENV and similar sections of operators the original chip does not have keep the values they had before. They are not connected, so they make no sound
+:::
+
 ## Automation
 
 Almost every knob on this page can be driven from DAW automation. Names, types,

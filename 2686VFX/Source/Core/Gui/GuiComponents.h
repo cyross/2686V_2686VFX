@@ -311,10 +311,44 @@ public:
     }
 };
 
-class GuiSlider : public juce::Slider, public GuiBaseComponent
+class GuiSlider : public juce::Slider, public GuiBaseComponent, private juce::Slider::Listener
 {
 protected:
     std::unique_ptr<SliderAttachment> att;
+
+    // 束ねているパラメータの名前。切り替える前に書き込む先として覚えておく
+    juce::String boundId;
+
+    // 値を変えたのに、束縛へまだ届いていない印。
+    //
+    // sendNotification で値を入れると、束縛へ伝わるのは次にメッセージが
+    // 回ってきたときになる。その前に rebind で指し先を変えると、値は新しい
+    // 指し先の値で上書きされて消える。オペレータを withOp で切り替えながら
+    // 読み込むと、この形で値が失われていた。
+    bool pendingToAttachment = false;
+
+    void valueChanged() override { pendingToAttachment = true; }
+    void sliderValueChanged(juce::Slider*) override { pendingToAttachment = false; }
+
+    // 届いていない値を、いま束ねているパラメータへ書き込む
+    void flushToAttachment()
+    {
+        const bool pending = std::exchange(pendingToAttachment, false);
+
+        if (!pending || att == nullptr) return;
+
+        auto* param = ctx.apvts.getParameter(boundId);
+
+        if (param == nullptr) return;
+
+        const float normalised = param->convertTo0to1((float)getValue());
+
+        if (param->getValue() == normalised) return;
+
+        param->beginChangeGesture();
+        param->setValueNotifyingHost(normalised);
+        param->endChangeGesture();
+    }
 
     // =======================================================
     // 値の表示枠を他の部品と同じ丸みで描くための LookAndFeel
@@ -419,10 +453,13 @@ protected:
 public:
     GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context) {
         this->setLookAndFeel(&sharedLF.get());
+        this->addListener(this);
     }
 
     ~GuiSlider() override
     {
+        this->removeListener(this);
+
         // 分け合っているものを指したままにしない
         this->setLookAndFeel(nullptr);
     }
@@ -449,8 +486,12 @@ public:
         // unique_ptr::reset(p) は「新しいポインタを格納してから古い方を破棄」するため、
         // reset(new ...) と書くと新アタッチメントの初期値反映が
         // まだ生きている古いアタッチメント経由で切り替え前のパラメータへ書き戻されてしまう。
+        // 届いていない値は、切り替える前の指し先のもの
+        flushToAttachment();
+
         att.reset();
         att.reset(new SliderAttachment(ctx.apvts, id, *this));
+        boundId = id;
     }
 
     GuiLabel label;
@@ -501,9 +542,27 @@ public:
     }
 };
 
-class GuiComboBox : public juce::ComboBox, public GuiBaseComponent
+class GuiComboBox : public juce::ComboBox, public GuiBaseComponent, private juce::ComboBox::Listener
 {
 public:
+    // ComboBox の同名の関数を覆う。届いていない印を付けるため。
+    // sendNotification と sendNotificationAsync は別の値だが、どちらも非同期で届く
+    static bool isAsync(juce::NotificationType n) { return n != juce::dontSendNotification && n != juce::sendNotificationSync; }
+
+    void setSelectedId(int newItemId, juce::NotificationType notification = juce::sendNotificationAsync)
+    {
+        if (isAsync(notification) && newItemId != getSelectedId()) pendingToAttachment = true;
+
+        juce::ComboBox::setSelectedId(newItemId, notification);
+    }
+
+    void setSelectedItemIndex(int index, juce::NotificationType notification = juce::sendNotificationAsync)
+    {
+        if (isAsync(notification) && index != getSelectedItemIndex()) pendingToAttachment = true;
+
+        juce::ComboBox::setSelectedItemIndex(index, notification);
+    }
+
     // 束ねる先を差し替える。対象を選ぶつまみで値の組を切り替えるときに使う。
     //
     // 必ず古い束縛を先に破棄すること。unique_ptr::reset(p) は「新しい
@@ -512,11 +571,50 @@ public:
     // 切り替え前のパラメータへ書き戻されてしまう。
     void rebind(const juce::String& id)
     {
+        // 届いていない値は、切り替える前の指し先のもの
+        flushToAttachment();
+
         att.reset();
         att.reset(new ComboBoxAttachment(ctx.apvts, id, *this));
+        boundId = id;
     }
 protected:
     std::unique_ptr<ComboBoxAttachment> att;
+
+    // 束ねているパラメータの名前。切り替える前に書き込む先として覚えておく
+    juce::String boundId;
+
+    // 値を変えたのに、束縛へまだ届いていない印。
+    //
+    // sendNotification で値を入れると、束縛へ伝わるのは次にメッセージが
+    // 回ってきたときになる。その前に rebind で指し先を変えると、値は新しい
+    // 指し先の値で上書きされて消える。オペレータを withOp で切り替えながら
+    // 読み込むと、この形で値が失われていた。
+    bool pendingToAttachment = false;
+
+    void comboBoxChanged(juce::ComboBox*) override { pendingToAttachment = false; }
+
+    // 届いていない値を、いま束ねているパラメータへ書き込む。
+    // 番号から値への直し方は ComboBoxAttachment と同じ。
+    void flushToAttachment()
+    {
+        const bool pending = std::exchange(pendingToAttachment, false);
+
+        if (!pending || att == nullptr) return;
+
+        auto* param = ctx.apvts.getParameter(boundId);
+
+        if (param == nullptr) return;
+
+        const int numItems = getNumItems();
+        const float normalised = numItems > 1 ? (float)getSelectedItemIndex() / (float)(numItems - 1) : 0.0f;
+
+        if (param->getValue() == normalised) return;
+
+        param->beginChangeGesture();
+        param->setValueNotifyingHost(normalised);
+        param->endChangeGesture();
+    }
 
     // =======================================================
     // ドロップダウン用のカスタム LookAndFeel
@@ -609,10 +707,13 @@ protected:
 public:
     GuiComboBox(const GuiContext& context) : GuiBaseComponent(context), label(context) {
         this->setLookAndFeel(&customLF);
+        this->addListener(this);
     }
 
     ~GuiComboBox() override
     {
+        this->removeListener(this);
+
         // メンバ変数(customLF)が破棄される前に、必ず nullptr に戻して安全に解除する
         this->setLookAndFeel(nullptr);
     }
@@ -1032,6 +1133,10 @@ class GuiCategoryLabel : public GuiLabel
     // 簡易表示モードで隠しているか
     bool hidden = false;
 
+    // 大区分か。大区分の板は、中の小区分をまとめて覆う。
+    // 小区分の見出しでは閉じず、endMajor で閉じる。
+    bool major = false;
+
     // 中身の背後へ敷く板。開いているときだけ見せる。
     GuiCategoryBackdrop backdrop;
 public:
@@ -1058,6 +1163,13 @@ public:
     // 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって
     // ハードとソフトのどちらに見せたいかが変わる場合に使う。
     void setupCategory(const Config& c, juce::Colour bgColor);
+
+    // 大区分用。いくつかの区分を中へ入れて、まとめて畳めるようにする。
+    void setupMajorCategory(const Config& c);
+
+    // 大区分の中身 (小区分) を並べ終えたところで呼ぶ。最後の小区分の板と
+    // 大区分の板を閉じ、中身のために寄せていた幅を戻す。
+    void endMajor(juce::Rectangle<int>& rect);
 	// 隠しているあいだは中身も畳んだ扱いにする。部品はここを見て
 	// 子の表示を決めているので、これだけで丸ごと消える。
 	bool isDetailVisible() const { return !this->hidden && this->detailVisible; }

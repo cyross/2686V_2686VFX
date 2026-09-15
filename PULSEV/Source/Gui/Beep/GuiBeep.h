@@ -72,6 +72,10 @@ class GuiBeep : public GuiBase {
     GuiToggleButton antiAliasButton;
     GuiComboBox timerClockSelector;
     GuiCategoryLabel utilityCat;
+
+    // 大区分。[[AMP ENV]] と [[PITCH ENV]]
+    GuiCategoryLabel ampMajorCat;
+    GuiCategoryLabel pitchMajorCat;
     GuiTextButton broadcastLevelButton;
     NormalSeparator uSep001;
     GuiComponentImportExport ieLfo;
@@ -129,6 +133,8 @@ public:
         antiAliasButton(context),
         timerClockSelector(context),
         utilityCat(context),
+        ampMajorCat(context),
+        pitchMajorCat(context),
         broadcastLevelButton(context),
         uSep001(context),
         ieLfo(context),

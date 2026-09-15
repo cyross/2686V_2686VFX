@@ -421,6 +421,9 @@ set(GUI_COMPONENT_LEVEL_FILES
     "Source/Gui/Components/Level/Level.cpp"
     "Source/Gui/Components/Level/LevelNudge.h"
     "Source/Gui/Components/Level/LevelNudge.cpp"
+    "Source/Gui/Components/FmToOpzx7/FmToOpzx7.h"
+    "Source/Gui/Components/FmToOpzx7/FmToOpzx7.cpp"
+    "Source/Gui/Components/FmToOpzx7/FmToOpzx7Tables.h"
 )
 
 set(GUI_COMPONENT_SEPARATOR_FILES

@@ -254,6 +254,11 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     parent.addAndMakeVisible(*this);
 
     setBounds(parent.getLocalBounds());
+
+    // 大きさが前と同じだと setBounds は resized を呼ばない。読み込みで
+    // 開いたときは保存の行を並べていないので、ここで必ず並べ直す
+    resized();
+
     toFront(true);
     setVisible(true);
 

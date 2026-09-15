@@ -90,6 +90,10 @@ editing and want it to run lighter, **2686VLight**.
 **OPZX7S**. Up to 8 operators, free routing through the algorithm matrix, and
 feedback set independently per operator. Curve editing is standard.
 
+A sound built on OPNA / OPN / OPL / OPL3 / OPM can be brought into OPZX7S with
+**[IM]FM Params**, so you can start from a real-chip patch and add operators to
+it ([passing sounds](/2686V_2686VFX/en/chips/common/#passing-sounds-between-the-fm-chips-and-opzx7s)).
+
 ### You want to make audio you already have sound retro
 
 **2686VFX**. It makes no sound of its own; it processes what you feed it. Drum

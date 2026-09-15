@@ -234,7 +234,7 @@ OPS のやり方だけ**折れ点を持ちます**。ある音の高さを境に
 | [**WT PITCH MOD**](/2686V_2686VFX/chips/common/#wt-pitch-mod) | 波形メモリによる音程の変調 |
 | [**WT AMP MOD**](/2686V_2686VFX/chips/common/#wt-amp-mod) | 波形メモリによる音量の変調 |
 | [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 同じ音を重ねて厚くする |
-| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き。**[IM]FM Params** で OPNA / OPN / OPL / OPL3 / OPM の音色を読み込めます（[受け渡し](/2686V_2686VFX/chips/common/#fm-音源と-opzx7s-の受け渡し)） |
 
 QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 

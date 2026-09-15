@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "../../Core/Io/ParamFile.h"
+#include "../Components/FmToOpzx7/FmToOpzx7.h"
 #include <array>
 
 #include "../../Core/Const/ConstGlobal.h"
@@ -109,6 +110,15 @@ class GuiOpzx7 : public GuiBase
     GuiComponentMidi midiComponent;
 
     GuiCategoryLabel utilityCat;
+
+    // 大区分。[[AMP ENV]] と [[PITCH ENV]]
+    GuiCategoryLabel ampMajorCat;
+    GuiCategoryLabel pitchMajorCat;
+
+    // FM 音源のパラメータファイルを読み込む
+    GuiTextButton importFmBtn;
+
+    void importFmParams();
     GuiTextButton broadcastLevelButton;
     NormalSeparator uSep001;
     GuiTextButton copyOpParamBtn;

@@ -218,6 +218,17 @@ void GuiOpn::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
+    // 最初は閉じておく。
+    ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
+    pitchMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::pitchEnv, .enableChangeDetailVisible = true });
+
+    // チャンネルの設定を OPZX7S のパラメータファイルとして書き出す
+    exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    exportOpzx7Btn.setWantsKeyboardFocus(true);
+    exportOpzx7Btn.setExplicitFocusOrder(++tabOrder);
+    exportOpzx7Btn.onClick = [this] { exportOpzx7Params(); };
+
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Utility::bcLevel });
@@ -589,22 +600,38 @@ void GuiOpn::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
 
-    ampEnvComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
-    ampEnvComponent.layoutComponent(mRect);
+    // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
+    const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
+        ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)
+        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)
+        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)
+        || ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
 
-    ssgHwEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    ampEnvComponent.layoutComponent(mRect);
+    ssgHwEnv.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnv11g.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11g.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11g.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
-    ssgHwPEnv.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ampMajorCat.endMajor(mRect);
+
+    // [[PITCH ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
+    const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
+        ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)
+        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+
+    ssgHwPEnv.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
-    ssgSwPEnv11g.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11g.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11g.layoutComponent(mRect);
-    modComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
+
+    pitchMajorCat.endMajor(mRect);
 
     layoutN88LfoCat(mRect);
 
@@ -1196,6 +1223,8 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    exportOpzx7Btn.setVisible(visible);
+
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
     copyParamsToOpnaBtn.setVisible(visible);
@@ -1286,6 +1315,10 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieChParam.layoutComponent(rect);
         rect.removeFromTop(4);
         imOpnaChParam.layoutComponent(rect);
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &exportOpzx7Btn });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -2598,7 +2631,7 @@ void GuiOpn::setImportingChParams(juce::StringArray& lines, int& index) {
 	unisonComponent.setImportingParams(lines, index);
 
 	for (int i = 0; i < OpnPrValue::ops; i++) {
-	    getImportingOpParams(i, lines, index);
+	    withOp(i, [this, &lines, &index, i] { getImportingOpParams(i, lines, index); });
 	}
 
 	// AMP ENV は後から足したので、旧フォーマットとの互換のため
@@ -2653,7 +2686,7 @@ void GuiOpn::writeChParams(Io::ParamWriter& writer) {
 	for (int i = 0; i < OpnPrValue::ops; i++) {
 	    auto op = writer.arrayItem(Io::ParamKey::ops, i);
 
-	    writeOpParams(i, op);
+	    withOp(i, [this, &op, i] { writeOpParams(i, op); });
 	}
 
 	
@@ -2824,6 +2857,10 @@ void GuiOpn::openEnabledCategories()
     if (ssgHwPEnvOp.hasBypassSwitch() && !ssgHwPEnvOp.isCategoryBypassed()) ssgHwPEnvOp.setCategoryOpen(true);
     if (ssgSwPEnv11.hasBypassSwitch() && !ssgSwPEnv11.isCategoryBypassed()) ssgSwPEnv11.setCategoryOpen(true);
     if (wtModOp.hasBypassSwitch() && !wtModOp.isCategoryBypassed()) wtModOp.setCategoryOpen(true);
+
+    // 大区分は中の区分に合わせる。効いている区分があれば開く。
+    if (anyCategoryEnabled(ampEnvComponent, ssgHwEnv, ssgSwEnv11g, ampModComponent)) ampMajorCat.setDetailVisible(true);
+    if (anyCategoryEnabled(ssgHwPEnv, ssgSwPEnv11g, modComponent)) pitchMajorCat.setDetailVisible(true);
 }
 
 void GuiOpn::closeBypassedCategories()
@@ -2846,4 +2883,17 @@ void GuiOpn::closeBypassedCategories()
     if (ssgHwPEnvOp.hasBypassSwitch() && ssgHwPEnvOp.isCategoryBypassed()) ssgHwPEnvOp.setCategoryOpen(false);
     if (ssgSwPEnv11.hasBypassSwitch() && ssgSwPEnv11.isCategoryBypassed()) ssgSwPEnv11.setCategoryOpen(false);
     if (wtModOp.hasBypassSwitch() && wtModOp.isCategoryBypassed()) wtModOp.setCategoryOpen(false);
+
+    // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
+    if (allCategoriesBypassed(ampEnvComponent, ssgHwEnv, ssgSwEnv11g, ampModComponent)) ampMajorCat.setDetailVisible(false);
+    if (allCategoriesBypassed(ssgHwPEnv, ssgSwPEnv11g, modComponent)) pitchMajorCat.setDetailVisible(false);
+}
+
+// ----------------------------------------------------------------------------
+// OPZX7S のパラメータファイルへ書き出す
+// ----------------------------------------------------------------------------
+// 書き出すのは CH Params と同じ中身。直し方は OPZX7S の [IM]FM Params と同じ
+void GuiOpn::exportOpzx7Params()
+{
+    FmToOpzx7::exportFile(ctx, FmToOpzx7::Source::opn, [this](Io::ParamWriter& w) { writeChParams(w); });
 }

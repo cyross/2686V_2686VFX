@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v3.3.0 README
+# Retro Sound VST "2686V" v3.4.0 README
 
 (C)2026 CYROSS
 
@@ -29,7 +29,38 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0-1. What v3.3.0 adds and changes
+### 3-0-1. What v3.4.0 adds and changes
+
+- **Passing sounds between the FM chips and OPZX7S**
+  - **[EX]OPZX7S Params** added to UTILITY on OPNA / OPN / OPL / OPL3 / OPM
+    - Writes the current channel out as an OPZX7S CH Params file.
+    - In 2686V, 2686VLight, 26V, 86V, OPNV, OPLV and OPMV.
+  - **[IM]FM Params** added to UTILITY on OPZX7S
+    - Converts an OPNA / OPN / OPL / OPL3 / OPM CH Params file to OPZX7S values and loads it.
+    - After loading, the result can be saved straight away as an OPZX7S CH Params file (named after the original file).
+    - In 2686V, 2686VLight and OPZX7S.
+      - The OPZX7S plugin can read files saved by the other plugins, too.
+  - Both convert the same way
+    - The algorithm becomes an algorithm matrix.
+    - The AMP ENV of each operator in use goes into real mode (seconds and levels from the hardware rate table).
+    - The LFOs go to OPZX7S's LFOs.
+    - Operators the original chip does not have are left unconnected, with defaults.
+  - Anything that cannot behave the same way (DT1, how the key scale bites, stages longer than 10 seconds and so on) is moved to the nearest value, and a dialog lists it at the end.
+- **Major categories: [[AMP ENV]] / [[PITCH ENV]]**
+  - Of the channel-wide sections, the ones that move level are gathered under [[AMP ENV]] and the ones that move pitch under [[PITCH ENV]].
+    - [[AMP ENV]]: AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD
+    - [[PITCH ENV]]: PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD
+  - On OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 / WT+ / ADPCM / ADPCM+ / BEEP.
+  - The heading has an off-white background. They start closed.
+  - OP / CL open and close them along with the sections inside.
+- **Fixes**
+  - Setting values on an operator or pad that TARGET was not pointing at lost the slider and selector values.
+    - Loading a whole-channel CH Params file, pasting operators and pads, and so on.
+  - [EX]CH Params on OPN / OPL / OPL3 / OPM / OPZX7S wrote the TARGET operator's values into every operator.
+  - The OPL3 tab did not show its left panel (LEVEL through UTILITY).
+  - Opening the save browser after loading a file left out the name field and the save button.
+
+### 3-0-2. What v3.3.0 adds and changes
 
 - **The ADPCM+ channel**
   - Loads up to 32 audio files and switches between them while you play.
@@ -101,7 +132,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **More bundled wallpapers**
   - Five wallpaper images have been added alongside the existing one.
 
-### 3-0-2. What v3.2.0 adds and changes
+### 3-0-3. What v3.2.0 adds and changes
 
 - **Control steps are now 0.0001**
   - Floating-point controls moved in steps of 0.01 (the framework default).
@@ -165,7 +196,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **A great many more bundled presets and parameter files**
   - A `fromCC2` folder has been added.
 
-### 3-0-3. What v3.1.0 adds and changes
+### 3-0-4. What v3.1.0 adds and changes
 
 - New modulation
   - **SSG HW PITCH ENV**
@@ -680,6 +711,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Several display modes are provided.
 - The UTILITY category has been extended
   - **Import and export of channel, operator and pad parameters**
+  - **Passing sounds between the FM chips (OPNA/OPN/OPL/OPL3/OPM) and OPZX7S (v3.4.0 onwards)**
+    - [EX]OPZX7S Params writes an OPZX7S sound; [IM]FM Params loads one into OPZX7S
+    - The algorithm becomes an algorithm matrix and AMP ENV goes into real mode
 - **The file format used for presets, settings and parameters has moved to `JSON` and `YAML`**
   - `JSON` or `YAML` is switchable in the settings.
   - The previous formats are read-only.
@@ -737,6 +771,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - Sections laid out side by side and scrolled sideways
     - TARGET from the keyboard (Ctrl + ← / → / digits)
     - OPZX7S's pictures show the WAVE SHAPE wave
+  - **Major categories [[AMP ENV]] / [[PITCH ENV]] (v3.4.0 onwards)**
+    - The channel-wide level and pitch sections each fold under one heading
 
 ## 5. Supported OS
 
