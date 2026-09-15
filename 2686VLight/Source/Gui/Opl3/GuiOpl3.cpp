@@ -622,6 +622,9 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
 
     int usedHeight = 2000 - mRect.getHeight();
 
+    // 下部の余白を足して、キャンバスの最終的な高さをセット
+    mainGroup.setContentHeight(usedHeight + 20);
+
     // ---- 上は絵、下は設定 ----
     //
     // 絵は横 4 枚ずつ並べる。オペレータが 4 の倍数でないときは、
