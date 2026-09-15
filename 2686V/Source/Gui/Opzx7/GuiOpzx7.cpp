@@ -3882,7 +3882,7 @@ void GuiOpzx7::setImportingChParams(juce::StringArray& lines, int& index) {
 	unisonComponent.setImportingParams(lines, index);
 
 	for (int i = 0; i < Opzx7PrValue::ops; i++) {
-	    getImportingOpParams(i, lines, index);
+	    withOp(i, [this, &lines, &index, i] { getImportingOpParams(i, lines, index); });
 	}
 
 	// AMP ENV は後から足したので、旧フォーマットとの互換のため
@@ -3930,7 +3930,7 @@ void GuiOpzx7::writeChParams(Io::ParamWriter& writer) {
 	for (int i = 0; i < Opzx7PrValue::ops; i++) {
 	    auto op = writer.arrayItem(Io::ParamKey::ops, i);
 
-	    writeOpParams(i, op);
+	    withOp(i, [this, &op, i] { writeOpParams(i, op); });
 	}
 
 	// 名前で持つので、置き場所に意味は無い

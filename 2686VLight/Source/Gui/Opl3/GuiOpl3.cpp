@@ -2427,8 +2427,8 @@ void GuiOpl3::applyOplChAllOpParamFile(const juce::File& file) {
         auto op = reader->arrayItem(Io::ParamKey::ops, i);
 
         // OPL は 2 つしか無いので、同じものを OPL3 の 3・4 番へも入れる
-        readOpParams(i, op);
-        readOpParams(i + OplPrValue::ops, op);
+        withOp(i, [this, &op, i] { readOpParams(i, op); });
+        withOp(i + OplPrValue::ops, [this, &op, i] { readOpParams(i + OplPrValue::ops, op); });
     }
 }
 
@@ -2481,7 +2481,7 @@ void GuiOpl3::setImportingChParams(juce::StringArray& lines, int& index) {
 	unisonComponent.setImportingParams(lines, index);
 
 	for (int i = 0; i < Opl3PrValue::ops; i++) { // OPL3のOP1,OP2のみ反映
-	    getImportingOpParams(i, lines, index);
+	    withOp(i, [this, &lines, &index, i] { getImportingOpParams(i, lines, index); });
 	}
 
 	// AMP ENV は後から足したので、旧フォーマットとの互換のため
@@ -2520,7 +2520,7 @@ void GuiOpl3::writeChParams(Io::ParamWriter& writer) {
 	for (int i = 0; i < Opl3PrValue::ops; i++) {
 	    auto op = writer.arrayItem(Io::ParamKey::ops, i);
 
-	    writeOpParams(i, op);
+	    withOp(i, [this, &op, i] { writeOpParams(i, op); });
 	}
 
 	// 名前で持つので、置き場所に意味は無い
