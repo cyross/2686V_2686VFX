@@ -540,6 +540,27 @@ namespace Io
 		}
 	}
 
+	void ParamWriter::remove(const juce::String& key)
+	{
+		m_values->removeProperty(key);
+	}
+
+	ParamReader ParamWriter::reader() const
+	{
+		return ParamReader(m_values);
+	}
+
+	void ParamWriter::copyFrom(const ParamReader& source)
+	{
+		if (source.m_values == nullptr) return;
+
+		// 入れ子も並びも写す。元と中身を分け合うと、書き換えが元へ及ぶため
+		for (const auto& property : source.m_values->getProperties())
+		{
+			m_values->setProperty(property.name, property.value.clone());
+		}
+	}
+
 	bool ParamWriter::writeTo(const juce::File& file) const
 	{
 		juce::var root(m_root.get());

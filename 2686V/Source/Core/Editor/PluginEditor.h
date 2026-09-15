@@ -128,9 +128,10 @@ public:
 
     // 書き出す先を一覧から決める。base は "param.opna" のような種類の
     // 名前で、既定のファイル名と付ける拡張子はそこから組み立てる。
+    // defaultName を渡すと、既定のファイル名の頭 (default) をそれにする。
     void openParamBrowserToSave(const juce::String& settingsDir, const juce::StringArray& allowed,
         const juce::String& base, std::function<void(const juce::File&)> onChoose,
-        const juce::String& nameMustContain = {});
+        const juce::String& nameMustContain = {}, const juce::String& defaultName = {});
 
     // 波形ファイルのブラウザ。読み込むときと、書き出す先を決めるとき。
     // 根はパラメータとは別に覚える。置き場が違うため。

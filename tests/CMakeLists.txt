@@ -44,6 +44,7 @@ set(UNDER_TEST_SOURCES
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Feedback/Feedback.cpp"
 
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/N88/LfoN88.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opna/LfoOpna.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opm/LfoOpm.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7Unit.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"

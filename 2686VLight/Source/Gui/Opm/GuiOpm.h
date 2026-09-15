@@ -2,6 +2,8 @@
 
 #include <JuceHeader.h>
 
+#include "../Components/FmToOpzx7/FmToOpzx7.h"
+
 #include "../../Core/Io/ParamFile.h"
 #include <array>
 
@@ -114,6 +116,11 @@ class GuiOpm : public GuiBase
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
+
+    // OPZX7S のパラメータファイルへ書き出す
+    GuiTextButton exportOpzx7Btn;
+
+    void exportOpzx7Params();
     GuiTextButton broadcastLevelButton;
     NormalSeparator uSep001;
     GuiTextButton copyParamsToOpnaBtn;
@@ -342,6 +349,7 @@ public:
         utilityCat(context),
         ampMajorCat(context),
         pitchMajorCat(context),
+        exportOpzx7Btn(context),
         broadcastLevelButton(context),
         uSep001(context),
         copyParamsToOpnaBtn(context),

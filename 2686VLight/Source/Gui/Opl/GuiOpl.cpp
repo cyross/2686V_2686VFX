@@ -126,6 +126,12 @@ void GuiOpl::setup()
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
     pitchMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::pitchEnv, .enableChangeDetailVisible = true });
 
+    // チャンネルの設定を OPZX7S のパラメータファイルとして書き出す
+    exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    exportOpzx7Btn.setWantsKeyboardFocus(true);
+    exportOpzx7Btn.setExplicitFocusOrder(++tabOrder);
+    exportOpzx7Btn.onClick = [this] { exportOpzx7Params(); };
+
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::bcLevel });
@@ -1264,6 +1270,8 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    exportOpzx7Btn.setVisible(visible);
+
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
     initLfoToOplBtn.setVisible(visible);
@@ -1364,6 +1372,10 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
         ieChParam.layoutComponent(rect);
         imOpl3ChParam.layoutComponent(rect);
         rect.removeFromTop(4);
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &exportOpzx7Btn });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -2699,4 +2711,13 @@ void GuiOpl::closeBypassedCategories()
     // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
     if (allCategoriesBypassed(ampEnvComponent, ssgHwEnv, ssgSwEnv11g, ampModComponent)) ampMajorCat.setDetailVisible(false);
     if (allCategoriesBypassed(ssgHwPEnv, ssgSwPEnv11g, modComponent)) pitchMajorCat.setDetailVisible(false);
+}
+
+// ----------------------------------------------------------------------------
+// OPZX7S のパラメータファイルへ書き出す
+// ----------------------------------------------------------------------------
+// 書き出すのは CH Params と同じ中身。直し方は OPZX7S の [IM]FM Params と同じ
+void GuiOpl::exportOpzx7Params()
+{
+    FmToOpzx7::exportFile(ctx, FmToOpzx7::Source::opl, [this](Io::ParamWriter& w) { writeChParams(w); });
 }

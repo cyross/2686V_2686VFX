@@ -2170,7 +2170,8 @@ void AudioPlugin2686VEditor::openParamBrowser(const juce::String& settingsDir,
 
 void AudioPlugin2686VEditor::openParamBrowserToSave(const juce::String& settingsDir,
     const juce::StringArray& allowed, const juce::String& base,
-    std::function<void(const juce::File&)> onChoose, const juce::String& nameMustContain)
+    std::function<void(const juce::File&)> onChoose, const juce::String& nameMustContain,
+    const juce::String& defaultName)
 {
     auto& kept = browserRoots[settingsDir];
 
@@ -2182,7 +2183,9 @@ void AudioPlugin2686VEditor::openParamBrowserToSave(const juce::String& settings
     request.limit = audioProcessor.getPluginDirectory();
     request.allowed = allowed;
     request.mode = GuiParamBrowser::Mode::save;
-    request.defaultName = Io::defaultFileName(base);
+    request.defaultName = defaultName.isNotEmpty()
+        ? defaultName + "." + base + "." + Io::fileFormatExtension()
+        : Io::defaultFileName(base);
     request.extension = "." + base + "." + Io::fileFormatExtension();
     request.nameMustContain = nameMustContain;
     request.onChoose = std::move(onChoose);

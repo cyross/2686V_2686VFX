@@ -81,6 +81,7 @@ namespace Io
 
 	// 書き出しを引き受けるので、先に名前だけ知らせておく
 	class ParamWriter;
+	class ParamReader;
 
 	// 行の並びだけで持っていたファイルかどうか
 	bool isLegacyFile(const juce::File& file);
@@ -140,12 +141,23 @@ namespace Io
 		// するために置いてある。
 		void hoist(const juce::String& key);
 
+		// 書いた値を外す。別の形のファイルへ書き直すときに、要らない項目を残さないため。
+		void remove(const juce::String& key);
+
+		// 書いた中身を読む側から見る。書いたものをそのまま別の変換へ渡すため。
+		ParamReader reader() const;
+
+		// 読んだ中身を丸ごと写す。ほかの種類のファイルを元に書き直すため。
+		void copyFrom(const ParamReader& source);
+
 		bool writeTo(const juce::File& file) const;
 	};
 
 	class ParamReader
 	{
 		juce::DynamicObject::Ptr m_values;
+
+		friend class ParamWriter;
 
 		explicit ParamReader(juce::DynamicObject::Ptr values);
 

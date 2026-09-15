@@ -47,10 +47,12 @@ class OpmLfoCore {
 
 	LfsrNoiseGen m_noiseGen;
 
+public:
+	// 表は FmToOpzx7Tables.h の写しと突き合わせるテストでも読む
 	static const std::array<float, 4> amsDepths;
 
 	static const std::array<float, 8> pmsDepths;
-public:
+
 	OpmLfoCore();
 
 	bool amEnable = false;

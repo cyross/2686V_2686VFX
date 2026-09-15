@@ -357,6 +357,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     utilityCat(context),
     ampMajorCat(context),
     pitchMajorCat(context),
+    importFmBtn(context),
     broadcastLevelButton(context),
     uSep001(context),
     copyOpParamBtn(context),
@@ -691,6 +692,12 @@ void GuiOpzx7::setup()
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
     pitchMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::pitchEnv, .enableChangeDetailVisible = true });
+
+    // OPNA / OPN / OPL / OPL3 / OPM のパラメータファイルを、OPZX7S の設定へ直して読み込む
+    importFmBtn.setup({ .parent = mainGroup.contentCanvas, .title = "[IM]FM Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    importFmBtn.setWantsKeyboardFocus(true);
+    importFmBtn.setExplicitFocusOrder(++tabOrder);
+    importFmBtn.onClick = [this] { importFmParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::util, .enableChangeDetailVisible = true });
 
@@ -2321,6 +2328,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    importFmBtn.setVisible(visible);
+
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
     copyOpParamBtn.setVisible(visible);
@@ -2404,6 +2413,10 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importFmBtn });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -4176,4 +4189,21 @@ void GuiOpzx7::closeBypassedCategories()
     // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
     if (allCategoriesBypassed(ampEnvComponent, ssgHwEnv, ssgSwEnv11g, ampModComponent)) ampMajorCat.setDetailVisible(false);
     if (allCategoriesBypassed(ssgHwPEnv, ssgSwPEnv11g, modComponent)) pitchMajorCat.setDetailVisible(false);
+}
+
+// ----------------------------------------------------------------------------
+// FM 音源のパラメータファイルを読み込む
+// ----------------------------------------------------------------------------
+// 直し方は FM 音源のタブの [EX]OPZX7S Params と同じ。直した中身は画面の
+// 部品へ入れるので、読み込んだあとの保存は CH Params と同じ中身になる。
+void GuiOpzx7::importFmParams()
+{
+    FmToOpzx7::importFile(ctx,
+        [this](const Io::ParamReader& reader) {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
+
+            readChParams(reader);
+        },
+        [this](Io::ParamWriter& writer) { writeChParams(writer); });
 }
