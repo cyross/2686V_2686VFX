@@ -12,7 +12,7 @@ sidebar:
 | **拡張子** | `.param.opzx7s.json` / `.param.opzx7s.yaml` |
 | **表記（format）** | `opzx7` |
 | **版（version）** | `1` |
-| **書き出し・読み込み** | UTILITY の [EX] / [IM] |
+| **書き出し・読み込み** | UTILITY の [EX] / [IM]。FM 音源のタブの [EX]OPZX7S Params も同じ形で書き出します |
 | **音源の説明** | [opzx7](/2686V_2686VFX/chips/opzx7/) |
 
 ## かたち

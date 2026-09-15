@@ -141,7 +141,7 @@ The following do not belong to any one chip. They are all described under
 | [**WT PITCH MOD**](/2686V_2686VFX/en/chips/common/#wt-pitch-mod) | Pitch modulation from wavetable memory |
 | [**WT AMP MOD**](/2686V_2686VFX/en/chips/common/#wt-amp-mod) | Level modulation from wavetable memory |
 | [**UNISON/HARMONY**](/2686V_2686VFX/en/chips/common/#unisonharmony) | Stacks copies of the note to thicken it |
-| [**UTILITY**](/2686V_2686VFX/en/chips/common/#utility) | Reading and writing parameters |
+| [**UTILITY**](/2686V_2686VFX/en/chips/common/#utility) | Reading and writing parameters. **[EX]OPZX7S Params** writes the channel out as an OPZX7S sound ([passing sounds](/2686V_2686VFX/en/chips/common/#passing-sounds-between-the-fm-chips-and-opzx7s)) |
 
 For the details of QUALITY, see [the reference](/2686V_2686VFX/en/reference/lists-quality/).
 

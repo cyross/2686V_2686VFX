@@ -2,7 +2,7 @@
 title: What changed in v3.3.0
 description: What was added and what changed in 3.3.0
 sidebar:
-  order: 5
+  order: 6
 ---
 
 A summary of what changed between 3.2.0 and 3.3.0. **No file has become unreadable.** Presets and parameter files made up to 3.2.0 still load as they are.

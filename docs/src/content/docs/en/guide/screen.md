@@ -111,6 +111,7 @@ category ends.
 | Cyan | anything else (OPTIONAL, UNISON・HARMONY, FIX, MUL・DET) |
 | Red | sound quality (QUALITY) |
 | Lime | other things this plugin adds |
+| Off-white | a major category (below) |
 
 Blue, turquoise, purple and cyan are all either **things the drivers of the
 day did in software** or additions of ours. There were too many of them for a
@@ -118,6 +119,34 @@ single cyan to stay readable, so 3.1.0 splits them by role.
 
 The order follows the same grouping: **hardware-derived sections come first**,
 then level, then pitch, then the LFO.
+
+### Major categories — [[AMP ENV]] / [[PITCH ENV]]
+
+Of the sections that act on the whole channel, the ones that move level are
+gathered under a **[[AMP ENV]]** heading and the ones that move pitch under
+**[[PITCH ENV]]**. There are enough of them that a plain vertical list was hard
+to follow. Added in 3.4.0.
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/parts/major_category.png" alt="Major categories" style="width:212px;" />
+	<figcaption>SSG with [[AMP ENV]] open and [[PITCH ENV]] closed</figcaption>
+</figure>
+
+| Major category | Sections inside |
+| --- | --- |
+| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
+| **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+
+- They appear on the OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 /
+  WT+ / ADPCM / ADPCM+ / BEEP tabs. The order of the sections is unchanged
+- Only the sections the tab actually has go inside. The FM tabs have no
+  channel-wide SSG SW AMP ENV or PITCH ENV
+- The heading has an off-white background. The lamp colours, and pressing it to
+  open or close, work like any other heading
+- **They start closed.** Opening one lays its sections out on a backdrop
+- If simple view hides every section inside, the major category heading is
+  hidden too
+- Closing a major category **does not change the sound**
 
 ### Simple view
 
@@ -175,6 +204,10 @@ every operator and every pad at once.**
 Use them to get to "only what I am actually using is open" in one press. They
 work whether or not simple view is on. Sections with no on/off switch are left
 alone by both.
+
+Major categories follow the sections inside them. **OP** opens one if any
+section inside is not switched off, and **CL** closes one if every section
+inside is switched off.
 
 ### Sliders
 
