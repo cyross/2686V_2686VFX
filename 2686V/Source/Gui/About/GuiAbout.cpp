@@ -2,6 +2,7 @@
 
 #include "../../Core/Const/ConstGlobal.h"
 #include "./GuiAboutValues.h"
+#include "./GuiAboutText.h"
 #include "../../Core/Editor/EditorGuiValues.h"
 
 void GuiAbout::setup()
@@ -51,8 +52,8 @@ void GuiAbout::setup()
     copyrightLabel.setJustificationType(juce::Justification::centred);
 
     // 3.5 マニュアルへの行き先
-    manualLinkButton.setup({ .parent = *this, .title = Global::About::Manual::navigate,
-        .url = juce::URL(Global::About::Manual::linkUrl.get()), .color = juce::Colours::lightblue });
+    manualLinkButton.setup({ .parent = *this, .title = AboutGuiText::Manual::navigate,
+        .url = juce::URL(AboutGuiText::Manual::linkUrl.get()), .color = juce::Colours::lightblue });
     manualLinkButton.setFont(
         juce::Font(
             juce::FontOptions(
