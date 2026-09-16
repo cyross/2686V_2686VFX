@@ -105,6 +105,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // 色の差し替えを受けて描き直す
     GuiColor::changeBroadcaster().addChangeListener(this);
 
+    // 言語の切り替えを受けて画面を組み直す
+    I18n::changeBroadcaster().addChangeListener(this);
+
     audioProcessor.apvts.addParameterListener(CPK::mode, this);
 
     setupLogo();
@@ -393,6 +396,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     tabs.setLookAndFeel(nullptr);
     tabs.getTabbedButtonBar().removeChangeListener(this);
     GuiColor::changeBroadcaster().removeChangeListener(this);
+    I18n::changeBroadcaster().removeChangeListener(this);
 
     // 作っていないタブは触らない。
     if (auto* gui = wtGui.peek()) gui->removeComponentListener(this);
@@ -488,6 +492,13 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
         GuiDialog::applyTheme();
 
         repaint();
+
+        return;
+    }
+
+    if (source == &I18n::changeBroadcaster())
+    {
+        rebuildForLanguage();
 
         return;
     }
@@ -2628,6 +2639,104 @@ void AudioPlugin2686VEditor::layoutTab(int tabIndex)
     }
 
     if (tabIndex >= 0 && tabIndex < tabCount) tabNeedsLayout[(size_t)tabIndex] = false;
+}
+
+void AudioPlugin2686VEditor::resetLazyTabs()
+{
+    opnaGui.reset();
+    opnGui.reset();
+    oplGui.reset();
+    opl3Gui.reset();
+    opmGui.reset();
+    opzx7Gui.reset();
+    ssgGui.reset();
+    wtGui.reset();
+    wt2Gui.reset();
+    wtPlusGui.reset();
+    rhythmGui.reset();
+    adpcmGui.reset();
+    adpcmPlusGui.reset();
+    beepGui.reset();
+    curveGui.reset();
+}
+
+void AudioPlugin2686VEditor::rebuildForLanguage()
+{
+    // 一覧が画面を覆っている間は組み直さない。覆っているもの自体を
+    // 消してしまう。覆われている間は SETTINGS を触れないので、ここへ
+    // 来ることはまず無いが、念のため。
+    if (paramBrowser != nullptr && paramBrowser->isVisible()) return;
+
+    const int lastTab = tabs.getCurrentTabIndex();
+
+    // 一覧の居場所は覚えておく。作り直すと最初のフォルダへ戻ってしまう。
+    const juce::File presetFolder = presetGui != nullptr ? presetGui->currentFolder : juce::File();
+
+    // タブの登録を外してから中身を捨てる。順を逆にすると、もう無いものを
+    // 指したままの器が残る。
+    tabs.clearTabs();
+
+    for (auto& host : tabHosts) host.clearContent();
+
+    resetLazyTabs();
+
+    // 作り方を入れ直す。捨てたのは中身だけで、手順は仕込み直しが要る。
+    setupLazyTabs();
+
+    auto context = makeGuiContext();
+
+    presetGui = std::make_unique<GuiPreset>(context);
+    genWaveGui = std::make_unique<GuiGenWave>(context);
+    fxGui = std::make_unique<GuiFx>(context);
+    settingsGui = std::make_unique<GuiSettings>(context);
+    aboutGui = std::make_unique<GuiAbout>(context);
+    colorsGui = std::make_unique<GuiColors>(context);
+
+    presetGui->setup();
+    genWaveGui->setup(*this);
+    fxGui->setup();
+    settingsGui->setup();
+    colorsGui->setup();
+    aboutGui->setup();
+
+    // FX の枠はタブではないので、自分で子として持ち直す。
+    // genWaveGui は setup(*this) の中で名乗るので、ここは要らない。
+    addAndMakeVisible(*fxGui);
+
+    fxGui->setVisible(viewMode == ViewMode::Full);
+
+    genWaveGui->setVisible(viewMode == ViewMode::Full && isPreviewVisible);
+
+    // ダイアログの配色は共有の LookAndFeel に入るので、作り直しでは
+    // 変わらない。それでも画面と揃っているか分からなくなるので写し直す。
+    GuiDialog::applyTheme();
+
+    setupTabs(tabs);
+
+    const int targetTab = (lastTab >= 0 && lastTab < tabs.getNumTabs()) ? lastTab : 0;
+
+    tabs.setCurrentTabIndex(targetTab);
+
+    // タブの切り替えの知らせは後回しで届くので、待つと一瞬空になる。
+    materializeTab(targetTab);
+
+    if (presetFolder.isDirectory())
+    {
+        presetGui->currentFolder = presetFolder;
+
+        scanPresets();
+    }
+
+    for (int i = 0; i < tabs.getNumTabs(); ++i)
+    {
+        if (auto* contentComp = tabs.getTabContentComponent(i)) assignTooltipsRecursive(contentComp);
+    }
+
+    setTooltipState(audioProcessor.showTooltips);
+
+    resized();
+
+    repaint();
 }
 
 void AudioPlugin2686VEditor::materializeTab(int tabIndex)

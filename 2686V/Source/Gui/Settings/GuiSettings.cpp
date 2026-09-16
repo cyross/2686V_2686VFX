@@ -14,6 +14,7 @@
 #include "./SettingsKeys.h"
 #include "./SettingsValues.h"
 
+#include "../../Core/Gui/GuiI18n.h"
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiSettingsValues.h"
 #include "./GuiSettingsText.h"
@@ -56,6 +57,36 @@ void GuiSettings::setup()
     float separatorThick = 3.0f;
 
     mainGroup.setup(*this, SettingsGuiText::Group::settingEnv);
+
+    // 画面に出す文字列の言語
+    //
+    // 選択肢の名前は、その言語自身の表記で固定にしてある。読めない言語へ
+    // 間違えて切り替えても、ここを見れば戻せる。
+    std::vector<SelectItem> languageItems = {
+        {.name = juce::String(u8"日本語"), .value = 1 },
+        {.name = "English", .value = 2 },
+    };
+
+    languageSelector.setup({
+        .parent = *this,
+        .id = "",
+        .title = SettingsGuiText::language,
+        .items = languageItems,
+        .isReset = false,
+        .labelColor = juce::Colours::yellow
+        });
+    languageSelector.setSelectedId(I18n::isJa() ? 1 : 2, juce::dontSendNotification);
+    languageSelector.setWantsKeyboardFocus(true);
+    languageSelector.setExplicitFocusOrder(++tabOrder);
+    languageSelector.onChange = [this] {
+        const auto lang = languageSelector.getSelectedItemIndex() == 0 ? I18n::Lang::ja : I18n::Lang::en;
+
+        ctx.audioProcessor.languageCode = I18n::toCode(lang);
+
+        // ここを境に画面が組み直される。この選択そのものも作り直されるので、
+        // 知らせは後回しで届くようにしてある (GuiI18n.cpp を参照)。
+        I18n::setCurrent(lang);
+        };
 
     // UI拡大率
     uiScaleSelector.setup({
@@ -860,8 +891,13 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto sRect = pageArea.reduced(SettingsGuiValue::Group::Padding::width, SettingsGuiValue::Group::Padding::height);
     sRect.removeFromTop(SettingsGuiValue::Group::TitlePaddingTop);
 
-    // 1. UI Scale
+    // 1. Language / UI Scale
     auto rowUiScale = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    languageSelector.label.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::LanguageLabelWidth));
+    languageSelector.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::LanguageSelectorWidth));
+
+    rowUiScale.removeFromLeft(SettingsGuiValue::Settings::PaddingHeight);
+
     uiScaleSelector.label.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     uiScaleSelector.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::UiScaleSelectorWidth));
 
@@ -1214,6 +1250,7 @@ void GuiSettings::setSettings()
 {
     // プロセッサから直に読む。引数を 18 個も並べていたときは、順番を
     // 間違えても、行を足し忘れても気づけなかった。
+    languageSelector.setSelectedId(I18n::isJa() ? 1 : 2, juce::dontSendNotification);
     uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
     fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
     toggleAlignSelector.setSelectedId(ctx.audioProcessor.toggleAlign + 1, juce::dontSendNotification);
