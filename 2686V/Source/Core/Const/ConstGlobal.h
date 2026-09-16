@@ -4,6 +4,8 @@
 
 #include <JuceHeader.h>
 
+#include "../Gui/GuiI18n.h"
+
 namespace Global
 {
 	static inline const int unisonVoices = 8; // ユニゾン発音数
@@ -41,6 +43,16 @@ namespace Global
 		namespace Vst
 		{
 			static inline const juce::String notice = "VST is a registered trademark of Steinberg Media Technologies GmbH.";
+		}
+
+		// マニュアルへの行き先。言語に合わせて日本語版と英語版を出し分ける。
+		namespace Manual
+		{
+			static inline const I18n::Text navigate{ u8"ユーザーズマニュアル", u8"User's manual" };
+			static inline const I18n::Text linkUrl{
+				u8"https://cyross.github.io/2686V_2686VFX/",
+				u8"https://cyross.github.io/2686V_2686VFX/en/"
+			};
 		}
 	};
 

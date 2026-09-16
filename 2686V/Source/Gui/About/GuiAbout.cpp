@@ -50,6 +50,16 @@ void GuiAbout::setup()
     );
     copyrightLabel.setJustificationType(juce::Justification::centred);
 
+    // 3.5 マニュアルへの行き先
+    manualLinkButton.setup({ .parent = *this, .title = Global::About::Manual::navigate,
+        .url = juce::URL(Global::About::Manual::linkUrl.get()), .color = juce::Colours::lightblue });
+    manualLinkButton.setFont(
+        juce::Font(
+            juce::FontOptions(
+                AboutGuiValue::ManualLink::fontSize
+            )
+        ), false, juce::Justification::centred);
+
     // 4. Logo (BinaryDataから読み込み)
     // ファイルパスではなく、メモリ(バイナリ)から読み込む
     // 名前空間: VstLogoForAboutData (CMakeで指定したもの)
@@ -111,6 +121,8 @@ void GuiAbout::layout(juce::Rectangle<int> content)
     pluginNameLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::PluginName::areaHeight));
     versionLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::PluginVerion::areaHeight));
     copyrightLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::PluginCioyright::areaHeight));
+
+    manualLinkButton.setBounds(pageArea.removeFromTop(AboutGuiValue::ManualLink::areaHeight));
 
     // VST Logo Row
     auto vstLogoArea = pageArea.removeFromTop(AboutGuiValue::VstLogo::areaHeight);
