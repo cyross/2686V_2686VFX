@@ -41,11 +41,11 @@ namespace
 	inline void tellAudioNotLoadable(const juce::File& file, const juce::AudioFormatReader& reader)
 	{
 		const juce::String reason = (reader.lengthInSamples > maxLoadableSamples)
-			? juce::String("") + "長すぎて読み込めません。"
-			: juce::String("") + "音声として読み取れませんでした。";
+			? I18n::pick(u8"長すぎて読み込めません。", u8"It is too long to read.")
+			: I18n::pick(u8"音声として読み取れませんでした。", u8"It could not be read as audio.");
 
 		juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-			juce::String("") + "音声ファイルを読み込めません",
+			I18n::pick(u8"音声ファイルを読み込めません", u8"Cannot read this audio file"),
 			reason + "\n\n" + file.getFileName());
 	}
 
@@ -916,9 +916,11 @@ bool AudioPlugin2686V::isPresetForThisPlugin(const juce::XmlElement* xmlState, c
     if (owner.isEmpty() || owner == JucePlugin_Name) return true;
 
     juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-        juce::String("") + "別のプラグインのプリセット",
-        juce::String("") + "このファイルは " + owner + " のプリセットです。\n"
-        + JucePlugin_Name + " では読み込めません。\n\n"
+        I18n::pick(u8"別のプラグインのプリセット", u8"A preset for another plugin"),
+        I18n::pick(u8"このファイルは %s のプリセットです。\n",
+                   u8"This file is a preset for %s.\n").replace("%s", owner)
+        + I18n::pick(u8"%s では読み込めません。\n\n",
+                     u8"%s cannot read it.\n\n").replace("%s", JucePlugin_Name)
         + file.getFileName());
 
     return false;

@@ -45,6 +45,11 @@ namespace I18n
 			: Lang::en;
 	}
 
+	juce::String pick(const char8_t* ja, const char8_t* en)
+	{
+		return Text{ ja, en }.get();
+	}
+
 	juce::ChangeBroadcaster& changeBroadcaster()
 	{
 		static juce::ChangeBroadcaster broadcaster;

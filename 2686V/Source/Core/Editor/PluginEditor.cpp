@@ -1019,10 +1019,10 @@ void AudioPlugin2686VEditor::askInitialSettings()
 
         juce::AlertWindow::showAsync(juce::MessageBoxOptions()
             .withIconType(juce::MessageBoxIconType::QuestionIcon)
-            .withTitle(juce::String("") + "初期設定")
-            .withMessage(juce::String("") + "パラメータを簡易表示モード(必要最低限のパラメータのみ表示)で表示しますか？")
-            .withButton(juce::String("") + "はい")
-            .withButton(juce::String("") + "いいえ")
+            .withTitle(I18n::pick(u8"初期設定", u8"First run"))
+            .withMessage(I18n::pick(u8"パラメータを簡易表示モード(必要最低限のパラメータのみ表示)で表示しますか？", u8"Show the parameters in simple view (only the ones you need)?"))
+            .withButton(I18n::pick(u8"はい", u8"Yes"))
+            .withButton(I18n::pick(u8"いいえ", u8"No"))
             .withAssociatedComponent(safe),
             [safe](int result) {
                 asking = false;
@@ -1041,10 +1041,10 @@ void AudioPlugin2686VEditor::askInitialSettings()
                 if (!safe->audioProcessor.saveEnvironment(file)) {
                     juce::AlertWindow::showMessageBoxAsync(
                         juce::MessageBoxIconType::WarningIcon,
-                        juce::String("") + "失敗",
-                        juce::String("") + "初期設定ファイルを作成できませんでした。\n\n"
-                        + "場所: " + file.getParentDirectory().getFullPathName() + "\n"
-                        + "ファイル名: " + file.getFileName(),
+                        I18n::pick(u8"失敗", u8"Failed"),
+                        I18n::pick(u8"初期設定ファイルを作成できませんでした。", u8"The settings file could not be created.") + "\n\n"
+                        + I18n::pick(u8"場所: ", u8"Folder: ") + file.getParentDirectory().getFullPathName() + "\n"
+                        + I18n::pick(u8"ファイル名: ", u8"File name: ") + file.getFileName(),
                         juce::String(),
                         safe.getComponent()
                     );
@@ -1381,10 +1381,10 @@ void AudioPlugin2686VEditor::saveCurrentPreset()
 
         juce::AlertWindow::showAsync(juce::MessageBoxOptions()
             .withIconType(juce::MessageBoxIconType::WarningIcon)
-            .withTitle(juce::String("") + "プリセットの上書き")
-            .withMessage(juce::String("") + "プリセットファイルの内容を指定したファイルに上書きしてもいいですか？\n\n" + saveFile.getFileName())
-            .withButton(juce::String("") + "上書き")
-            .withButton(juce::String("") + "キャンセル"),
+            .withTitle(I18n::pick(u8"プリセットの上書き", u8"Overwrite the preset"))
+            .withMessage(I18n::pick(u8"プリセットファイルの内容を指定したファイルに上書きしてもいいですか？\n\n", u8"Overwrite this file with the preset?\n\n") + saveFile.getFileName())
+            .withButton(I18n::pick(u8"上書き", u8"Overwrite"))
+            .withButton(I18n::pick(u8"キャンセル", u8"Cancel")),
             [this, saveFile](int result) {
                 if (result == 1) {
                     audioProcessor.savePreset(saveFile);
@@ -1409,7 +1409,7 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
 
     juce::File defaultFile = presetGui->currentFolder.getChildFile(filename);
 
-    openWriteFileChooser(juce::String("") + "ファイルを指定してプリセットを保存", defaultFile, PresetValue::File::glob, [this](const juce::FileChooser& fc) {
+    openWriteFileChooser(I18n::pick(u8"ファイルを指定してプリセットを保存", u8"Save the preset to a chosen file"), defaultFile, PresetValue::File::glob, [this](const juce::FileChooser& fc) {
         auto file = fc.getResult();
         if (file != juce::File{}) {
             // 保存したファイルパスを記録
@@ -1600,10 +1600,10 @@ void AudioPlugin2686VEditor::assignTooltipsRecursive(juce::Component* parentComp
                 bool isInteger = (std::abs(interval - 1.0) < 0.001) || (interval > 0.9);
 
                 if (isInteger) {
-                    tooltipText = juce::String("") + "現在の値: " + juce::String((int)min) + " - " + juce::String((int)max);
+                    tooltipText = I18n::pick(u8"現在の値: ", u8"Value now: ") + juce::String((int)min) + " - " + juce::String((int)max);
                 }
                 else {
-                    tooltipText = juce::String("") + "現在の値: " + juce::String(min, 1) + " - " + juce::String(max, 1);
+                    tooltipText = I18n::pick(u8"現在の値: ", u8"Value now: ") + juce::String(min, 1) + " - " + juce::String(max, 1);
                 }
 
                 slider->setTooltip(tooltipText);

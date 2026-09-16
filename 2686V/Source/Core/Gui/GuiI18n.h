@@ -51,6 +51,10 @@ namespace I18n
 	// 中身は juce::String ではなく文字の並びのまま持つ。juce::String を
 	// 静的な置き場で作ると、プログラムが始まる前に順番の定まらない初期化
 	// が走る。色で同じことを踏んでいる (GuiColor.h の Entry を参照)。
+	// 1 か所きりの文字列。名前を付けて Text.h へ置くまでもないものは、
+	// 使うところで訳を並べる。ダイアログの本文などがこれにあたる。
+	juce::String pick(const char8_t* ja, const char8_t* en);
+
 	class Text
 	{
 		const char8_t* m_ja;
