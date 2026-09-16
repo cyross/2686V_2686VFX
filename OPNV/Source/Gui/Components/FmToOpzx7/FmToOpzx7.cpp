@@ -1,4 +1,5 @@
-﻿#include "./FmToOpzx7.h"
+﻿#include "../../../Core/Gui/GuiI18n.h"
+#include "./FmToOpzx7.h"
 
 #include <algorithm>
 #include <array>
@@ -82,7 +83,8 @@ namespace
     float fitSeconds(float seconds, const juce::String& name, Notes& notes)
     {
         if (seconds > realMax) {
-            notes.add(name + juce::String("") + " が " + juce::String(realMax, 0) + " 秒を超えるので、" + juce::String(realMax, 0) + " 秒にしました");
+            notes.add(I18n::pick(u8"%1 が %2 秒を超えるので、%2 秒にしました", u8"%1 is longer than %2 seconds, so it was set to %2 seconds")
+            .replace("%1", name).replace("%2", juce::String(realMax, 0)));
 
             return realMax;
         }
@@ -146,7 +148,8 @@ namespace
 
         if (ar < 0.0f) {
             // レート 0 は立ち上がらない。実数モードでは表せないので最長にする
-            notes.add(juce::String("") + "AR が 0 (立ち上がらない) のオペレーターは、AR を最長の " + juce::String(realMax, 0) + " 秒にしました");
+            notes.add(I18n::pick(u8"AR が 0 (立ち上がらない) のオペレーターは、AR を最長の %1 秒にしました", u8"Operators whose AR is 0 (never rises) had AR set to the longest, %1 seconds")
+            .replace("%1", juce::String(realMax, 0)));
 
             ar = realMax;
         }
@@ -178,7 +181,8 @@ namespace
                 if (seconds < 0.0f) return realMin;
 
                 if (seconds >= Global::RateMaxSeconds::real) {
-                    notes.add(juce::String(name) + " が " + juce::String(Global::RateMaxSeconds::real, 0) + " 秒を超えるので、減衰しない扱いにしました");
+                    notes.add(I18n::pick(u8"%1 が %2 秒を超えるので、減衰しない扱いにしました", u8"%1 is longer than %2 seconds, so it is treated as not decaying")
+            .replace("%1", name).replace("%2", juce::String(Global::RateMaxSeconds::real, 0)));
 
                     return realMin;
                 }
@@ -248,7 +252,7 @@ namespace
         int cents = (int)std::lround(ratioToCents(dt1Scale));
 
         if (dt1Scale != 0.0f) {
-            notes.add(juce::String("") + "DT1 は OPZX7S の刻みと合わないため、同じ量のセントとして DT3 へ入れました (1 セント単位に丸めています)");
+            notes.add(I18n::pick(u8"DT1 は OPZX7S の刻みと合わないため、同じ量のセントとして DT3 へ入れました (1 セント単位に丸めています)", u8"DT1 does not line up with OPZX7S, so the same amount went into DT3 as cents (rounded to whole cents)"));
         }
 
         w.set("dt1", 0);
@@ -278,7 +282,7 @@ namespace
         op.set("ksRs", (float)CPV::Opzx7Ks::KsRs::initial);
 
         if (ksr > 0) {
-            notes.add(juce::String("") + "実数モードのキースケール (KSR) は時間の縮め方がレジスタとは違うため、近い効き方になります");
+            notes.add(I18n::pick(u8"実数モードのキースケール (KSR) は時間の縮め方がレジスタとは違うため、近い効き方になります", u8"Key scale (KSR) in real mode shortens times differently from the registers, so it only comes close"));
         }
     }
 
@@ -301,7 +305,7 @@ namespace
         op.set("ksRs", (float)CPV::Opzx7Ks::KsRs::initial);
 
         if (ksr) {
-            notes.add(juce::String("") + "実数モードのキースケール (KSR) は時間の縮め方がレジスタとは違うため、近い効き方になります");
+            notes.add(I18n::pick(u8"実数モードのキースケール (KSR) は時間の縮め方がレジスタとは違うため、近い効き方になります", u8"Key scale (KSR) in real mode shortens times differently from the registers, so it only comes close"));
         }
     }
 
@@ -357,7 +361,8 @@ namespace
             const float hi = CPV::Opzx7Lfo::PmFreq::max;
 
             if (enable && (freq > hi || freq < lo)) {
-                notes.add(juce::String("") + "LFO の速さは " + juce::String(lo, 1) + "〜" + juce::String(hi, 0) + "Hz に収めました");
+                notes.add(I18n::pick(u8"LFO の速さは %1〜%2Hz に収めました", u8"The LFO rate was brought into %1-%2 Hz")
+            .replace("%1", juce::String(lo, 1)).replace("%2", juce::String(hi, 0)));
             }
 
             return std::clamp(freq, lo, hi);
@@ -366,7 +371,7 @@ namespace
         // 深さは SENS × DEPTH で決まる。SENS を 1 にして DEPTH で表す
         auto fitDepth = [&notes](float ratio, bool enable) {
             if (enable && ratio > 1.0f) {
-                notes.add(juce::String("") + "LFO の深さが OPZX7S の上限を超えるので、上限にしました");
+                notes.add(I18n::pick(u8"LFO の深さが OPZX7S の上限を超えるので、上限にしました", u8"The LFO depth is past what OPZX7S allows, so it was set to the limit"));
 
                 return 1.0f;
             }
@@ -514,7 +519,7 @@ namespace
 
         if (x <= 0.0f) {
             // OPZX7S は 2^-5 より浅くできない
-            notes.add(juce::String("") + "FB が浅すぎて OPZX7S では表せないため、表せる一番浅い値へ寄せました");
+            notes.add(I18n::pick(u8"FB が浅すぎて OPZX7S では表せないため、表せる一番浅い値へ寄せました", u8"FB is too shallow for OPZX7S, so it was moved to the shallowest value it can hold"));
 
             return 0.001f;
         }
@@ -581,7 +586,7 @@ namespace
         root.set("panpotEnable", true);
         root.set("panpot", pan < 0 ? (float)CPV::Panpot::Panpot::min : (float)CPV::Panpot::Panpot::max);
 
-        notes.add(juce::String("") + "左右どちらかだけのパンは、OPZX7S のパンの端 (反対側がわずかに鳴る) にしました");
+        notes.add(I18n::pick(u8"左右どちらかだけのパンは、OPZX7S のパンの端 (反対側がわずかに鳴る) にしました", u8"Pan hard to one side became the end of the OPZX7S pan (the other side still sounds faintly)"));
     }
 
     // 元の音源に無いオペレータを埋める
@@ -624,7 +629,7 @@ namespace
         const float n88Amd = src.getFloat("lfoAmd");
 
         if ((n88PmOn && n88Pmd < 0.0f) || (n88AmOn && n88Amd < 0.0f)) {
-            notes.add(juce::String("") + "N88 LFO の PMD / AMD が負 (逆向きの揺れ) のものは、向きを戻しました");
+            notes.add(I18n::pick(u8"N88 LFO の PMD / AMD が負 (逆向きの揺れ) のものは、向きを戻しました", u8"Where the N88 LFO PMD / AMD was negative (swinging the other way), the direction was put back"));
         }
 
         LfoSide glPm;
@@ -705,7 +710,7 @@ namespace
                     amSide.smooth = CPV::Opzx7Lfo::AmSmRt::initial;
 
                     if (n88AmUsed) {
-                        notes.add(juce::String("") + "HW LFO と N88 LFO の AM を両方使っているオペレーターは、HW LFO の AM だけを使いました");
+                        notes.add(I18n::pick(u8"HW LFO と N88 LFO の AM を両方使っているオペレーターは、HW LFO の AM だけを使いました", u8"Operators using AM from both the HW LFO and the N88 LFO kept only the HW LFO AM"));
                     }
                 }
                 else if (n88AmUsed) {
@@ -898,7 +903,7 @@ namespace
     {
         if (notes.items.isEmpty()) return {};
 
-        juce::String text = juce::String("") + "\n次の項目は同じ動きにできないため、近い値へ寄せています。\n";
+        juce::String text = I18n::pick(u8"\n次の項目は同じ動きにできないため、近い値へ寄せています。\n", u8"\nThese could not be made to behave the same way, so they were moved to the nearest value.\n");
 
         for (const auto& item : notes.items) text += "\n- " + item;
 
@@ -976,8 +981,8 @@ namespace FmToOpzx7
                 convert(info.source, sourceWriter.reader(), writer, notes);
 
                 if (!writer.writeTo(file)) {
-                    warn(editor.getComponent(), juce::String("") + "失敗",
-                        juce::String("") + "OPZX7S のパラメータファイルを書き出せませんでした。\n\n" + file.getFileName());
+                    warn(editor.getComponent(), I18n::pick(u8"失敗", u8"Failed"),
+                        I18n::pick(u8"OPZX7S のパラメータファイルを書き出せませんでした。\n\n", u8"The OPZX7S parameter file could not be written.\n\n") + file.getFileName());
 
                     return;
                 }
@@ -985,8 +990,8 @@ namespace FmToOpzx7
                 if (notes.items.isEmpty()) return;
 
                 juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,
-                    juce::String("") + "OPZX7S へ書き出し",
-                    juce::String("") + "OPZX7S のパラメータファイルを書き出しました。\n" + notesText(notes),
+                    I18n::pick(u8"OPZX7S へ書き出し", u8"Written to OPZX7S"),
+                    I18n::pick(u8"OPZX7S のパラメータファイルを書き出しました。\n", u8"The OPZX7S parameter file was written.\n") + notesText(notes),
                     juce::String(), editor.getComponent());
             });
     }
@@ -1028,8 +1033,8 @@ namespace FmToOpzx7
                         Io::ParamReader::open(file, sources().front().format, true);
                     }
                     else {
-                        warn(editor.getComponent(), juce::String("") + "読み込めません",
-                            juce::String("") + "OPNA / OPN / OPL / OPL3 / OPM のチャンネルのファイルではありません。\n\n" + file.getFileName());
+                        warn(editor.getComponent(), I18n::pick(u8"読み込めません", u8"Cannot read this file"),
+                            I18n::pick(u8"OPNA / OPN / OPL / OPL3 / OPM のチャンネルのファイルではありません。\n\n", u8"This is not an OPNA / OPN / OPL / OPL3 / OPM channel file.\n\n") + file.getFileName());
                     }
 
                     return;
@@ -1059,16 +1064,16 @@ namespace FmToOpzx7
                             writeOpzx7(writer);
 
                             if (!writer.writeTo(target)) {
-                                warn(editor.getComponent(), juce::String("") + "失敗",
-                                    juce::String("") + "OPZX7S のパラメータファイルを書き出せませんでした。\n\n" + target.getFileName());
+                                warn(editor.getComponent(), I18n::pick(u8"失敗", u8"Failed"),
+                                    I18n::pick(u8"OPZX7S のパラメータファイルを書き出せませんでした。\n\n", u8"The OPZX7S parameter file could not be written.\n\n") + target.getFileName());
                             }
                         }, {}, name);
                     };
 
                 juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,
-                    juce::String("") + "FM 音源のパラメータを読み込み",
-                    found->kind + " のパラメータを OPZX7S へ読み込みました。\n"
-                    + "閉じると、OPZX7S のパラメータファイルとして保存する先を選べます (保存しないときは取り消してください)。\n"
+                    I18n::pick(u8"FM 音源のパラメータを読み込み", u8"FM parameters loaded"),
+                    I18n::pick(u8"%1 のパラメータを OPZX7S へ読み込みました。\n", u8"The %1 parameters were loaded into OPZX7S.\n").replace("%1", found->kind)
+                    + I18n::pick(u8"閉じると、OPZX7S のパラメータファイルとして保存する先を選べます (保存しないときは取り消してください)。\n", u8"Closing this lets you choose where to save it as an OPZX7S parameter file (cancel if you would rather not).\n")
                     + notesText(notes),
                     juce::String(), editor.getComponent(), juce::ModalCallbackFunction::create(save));
             });

@@ -1,4 +1,5 @@
-﻿#include "../../Core/Editor/EditorGuiValues.h"
+﻿#include "../../Core/Gui/GuiI18n.h"
+#include "../../Core/Editor/EditorGuiValues.h"
 #include "../../Processor/Mod/ProcessorModKeys.h"
 #include <algorithm>
 #include "./GuiFx.h"
@@ -220,14 +221,14 @@ void GuiFx::setup()
 
     envBypassToggle.setup({ .parent = *this,
         .id = ModPrKey::prefix + ModPrKey::Env::bypass,
-        .title = juce::String("") + "エンベロープをバイパス",
+        .title = I18n::pick(u8"エンベロープをバイパス", u8"Bypass the envelope"),
         .isReset = true });
     envBypassToggle.setWantsKeyboardFocus(true);
     envBypassToggle.setExplicitFocusOrder(++tabOrder);
 
     lfoBypassToggle.setup({ .parent = *this,
         .id = ModPrKey::prefix + ModPrKey::Lfo::bypass,
-        .title = juce::String("") + "LFO をバイパス",
+        .title = I18n::pick(u8"LFO をバイパス", u8"Bypass the LFO"),
         .isReset = true });
     lfoBypassToggle.setWantsKeyboardFocus(true);
     lfoBypassToggle.setExplicitFocusOrder(++tabOrder);
@@ -266,7 +267,7 @@ void GuiFx::setup()
     // 音量側とは別に入り切りできるようにしてある。
     pitchBypassToggle.setup({ .parent = *this,
         .id = ModPrKey::prefix + ModPrKey::Pitch::bypass,
-        .title = juce::String("") + "ピッチ変調をバイパス",
+        .title = I18n::pick(u8"ピッチ変調をバイパス", u8"Bypass the pitch modulation"),
         .isReset = true });
     pitchBypassToggle.setWantsKeyboardFocus(true);
     pitchBypassToggle.setExplicitFocusOrder(++tabOrder);
@@ -301,13 +302,13 @@ void GuiFx::setup()
     // 押し離しで動くエンベロープとは別の札にしてある。
     shiftBypassToggle.setup({ .parent = *this,
         .id = ModPrKey::prefix + ModPrKey::Shift::bypass,
-        .title = juce::String("") + "音程ずらしをバイパス",
+        .title = I18n::pick(u8"音程ずらしをバイパス", u8"Bypass the detune"),
         .isReset = true });
     shiftBypassToggle.setWantsKeyboardFocus(true);
     shiftBypassToggle.setExplicitFocusOrder(++tabOrder);
 
-    modMulDetuneGroup.setup(*this, juce::String("") + "MUL・DET");
-    modUnisonGroup.setup(*this, juce::String("") + "UNISON・HARMONY");
+    modMulDetuneGroup.setup(*this, I18n::pick(u8"MUL・DET", u8"MUL/DET"));
+    modUnisonGroup.setup(*this, I18n::pick(u8"UNISON・HARMONY", u8"UNISON/HARMONY"));
 
     // 音程を一定量ずらすものは変調とも LFO とも違うので、シアン系統にする。
     for (auto* group : { &modMulDetuneGroup, &modUnisonGroup })
@@ -337,7 +338,7 @@ void GuiFx::setup()
 
     routeSeparator.setupComponent(*this);
 
-    showRouteBtn.setup({ .parent = *this, .title = juce::String("") + "設定", .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
+    showRouteBtn.setup({ .parent = *this, .title = FxGuiText::Fx::showRoute, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
     showRouteBtn.setWantsKeyboardFocus(true);
     showRouteBtn.setExplicitFocusOrder(++tabOrder);
     showRouteBtn.onClick = [this] {
@@ -347,7 +348,7 @@ void GuiFx::setup()
         };
 
     for (int fxr = 0; fxr < NumEffects; fxr++) {
-        routeFx[fxr].setup({.parent = *this, .title = effectNames[order[fxr]]});
+        routeFx[fxr].setup({.parent = *this, .title = effectNames()[order[fxr]]});
         routeFx[fxr].setWantsKeyboardFocus(true);
         routeFx[fxr].setExplicitFocusOrder(++tabOrder);
 
@@ -362,7 +363,7 @@ void GuiFx::setup()
             order[fxr] = org;
 
             for (int i = 0; i < NumEffects; i++) {
-                routeFx[i].setText(effectNames[order[i]], juce::sendNotification);
+                routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
             ctx.audioProcessor.updateFxOrder(order);
@@ -381,7 +382,7 @@ void GuiFx::setup()
             order[fxr] = org;
 
             for (int i = 0; i < NumEffects; i++) {
-                routeFx[i].setText(effectNames[order[i]], juce::sendNotification);
+                routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
             ctx.audioProcessor.updateFxOrder(order);
@@ -809,7 +810,7 @@ void GuiFx::setup()
     pcmRateSelector.setWantsKeyboardFocus(true);
     pcmRateSelector.setExplicitFocusOrder(++tabOrder);
 
-    pcmInterpSelector.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::Pcm::interp, .title = FxGuiText::Fx::Pcm::interp, .items = QualityPcm::interpItems, .isReset = true });
+    pcmInterpSelector.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::Pcm::interp, .title = FxGuiText::Fx::Pcm::interp, .items = QualityPcm::interpItems(), .isReset = true });
     pcmInterpSelector.setWantsKeyboardFocus(true);
     pcmInterpSelector.setExplicitFocusOrder(++tabOrder);
 
@@ -1269,7 +1270,7 @@ void GuiFx::updateFxOrder() {
     order = ctx.audioProcessor.getFxOrder();
 
     for (int i = 0; i < NumEffects; i++) {
-        routeFx[i].setText(effectNames[order[i]], juce::sendNotification);
+        routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
     }
 
     ctx.editor.resized();

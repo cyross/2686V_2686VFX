@@ -156,7 +156,7 @@ void GuiFx::setup()
 
     routeSeparator.setupComponent(*this);
 
-    showRouteBtn.setup({ .parent = *this, .title = juce::String("") + "設定", .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
+    showRouteBtn.setup({ .parent = *this, .title = FxGuiText::Fx::showRoute, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
     showRouteBtn.setWantsKeyboardFocus(true);
     showRouteBtn.setExplicitFocusOrder(++tabOrder);
     showRouteBtn.onClick = [this] {
@@ -166,7 +166,7 @@ void GuiFx::setup()
         };
 
     for (int fxr = 0; fxr < NumEffects; fxr++) {
-        routeFx[fxr].setup({.parent = *this, .title = effectNames[order[fxr]]});
+        routeFx[fxr].setup({.parent = *this, .title = effectNames()[order[fxr]]});
         routeFx[fxr].setWantsKeyboardFocus(true);
         routeFx[fxr].setExplicitFocusOrder(++tabOrder);
 
@@ -181,7 +181,7 @@ void GuiFx::setup()
             order[fxr] = org;
 
             for (int i = 0; i < NumEffects; i++) {
-                routeFx[i].setText(effectNames[order[i]], juce::sendNotification);
+                routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
             ctx.audioProcessor.updateFxOrder(order);
@@ -200,7 +200,7 @@ void GuiFx::setup()
             order[fxr] = org;
 
             for (int i = 0; i < NumEffects; i++) {
-                routeFx[i].setText(effectNames[order[i]], juce::sendNotification);
+                routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
             ctx.audioProcessor.updateFxOrder(order);
@@ -859,7 +859,7 @@ void GuiFx::updateFxOrder() {
     order = ctx.audioProcessor.getFxOrder();
 
     for (int i = 0; i < NumEffects; i++) {
-        routeFx[i].setText(effectNames[order[i]], juce::sendNotification);
+        routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
     }
 
     ctx.editor.resized();

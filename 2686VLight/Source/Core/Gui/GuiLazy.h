@@ -32,6 +32,15 @@ public:
 		newContent.setBounds(getLocalBounds());
 	}
 
+	// 中身を捨てるときは、ここも空にする。指したままにすると
+	// resized() でもう無いものを触りに行く。
+	void clearContent()
+	{
+		if (content != nullptr) removeChildComponent(content);
+
+		content = nullptr;
+	}
+
 	void resized() override
 	{
 		if (content != nullptr) content->setBounds(getLocalBounds());
@@ -76,6 +85,15 @@ public:
 	T* peek() const { return ready ? ptr.get() : nullptr; }
 
 	bool isMade() const { return ready; }
+
+	// 作ったものを捨てる。言語を変えたときに、文字列を入れ直した形で
+	// 作り直すために使う。次に触られたら、また作られる。
+	void reset()
+	{
+		ready = false;
+
+		ptr.reset();
+	}
 
 private:
 	std::unique_ptr<T> ptr;

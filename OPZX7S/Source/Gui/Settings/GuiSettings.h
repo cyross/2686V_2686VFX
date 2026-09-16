@@ -16,6 +16,9 @@ class GuiSettings : public GuiBase
 
     GuiGroup mainGroup;
 
+    // 画面に出す文字列の言語
+    GuiComboBox languageSelector;
+
     // 高解像度対応
     GuiComboBox uiScaleSelector;
     GuiComboBox fileFormatSelector;
@@ -171,6 +174,7 @@ public:
     GuiSettings(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        languageSelector(context),
         uiScaleSelector(context),
         fileFormatSelector(context),
         separator1(context),

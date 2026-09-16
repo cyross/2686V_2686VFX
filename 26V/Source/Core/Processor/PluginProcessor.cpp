@@ -522,9 +522,9 @@ bool AudioPlugin2686V::isPresetForThisPlugin(const juce::XmlElement* xmlState, c
     if (owner.isEmpty() || owner == JucePlugin_Name) return true;
 
     juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-        juce::String("") + "別のプラグインのプリセット",
-        juce::String("") + "このファイルは " + owner + " のプリセットです。\n"
-        + JucePlugin_Name + " では読み込めません。\n\n"
+        I18n::pick(u8"別のプラグインのプリセット", u8"A preset for another plugin"),
+        I18n::pick(u8"このファイルは %s のプリセットです。\n", u8"This file is a preset for %s.\n").replace("%s", owner)
+        + I18n::pick(u8"%s では読み込めません。\n\n", u8"%s cannot read it.\n\n").replace("%s", JucePlugin_Name)
         + file.getFileName());
 
     return false;
@@ -590,6 +590,9 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
     // 読んだ番号を書き出し先へ映す
     applyFileFormat();
 
+    // 読んだ言語を画面へ映す
+    applyLanguage();
+
     // 内部変数の更新
     if (juce::File(defaultSampleDir).isDirectory()) {
         lastSampleDirectory = juce::File(defaultSampleDir);
@@ -622,6 +625,11 @@ void AudioPlugin2686V::loadStartupSettings()
         // 見送り、初期値で立ち上げる。
         loadSuccess = loadEnvironment(presetFile, false);
     }
+
+    // 言語を決める。設定ファイルが無かったときと、あっても言語が
+    // 書かれていなかったとき (3.4.0 までの設定) は、ここで OS の
+    // 言語から見立てる。
+    applyLanguage();
 
     // プリセットディレクトリ・ADPCMディレクトリが空の時は初期値を設定する
     if (defaultPresetDir.isEmpty() || !juce::File(defaultPresetDir).isDirectory())

@@ -36,7 +36,7 @@ namespace EditorGuiText
 	{
 		static inline const juce::String show = u8">>";
 		static inline const juce::String hide = u8"<<";
-		static inline const I18n::Text label{ u8"波形プレビュー(オシロスコープ)", u8"Waveform preview (oscilloscope)" };
+		static inline const I18n::Text label{ u8"波形プレビュー(オシロスコープ)", u8"Waveform preview" };
 		static inline const juce::String labelL = juce::String("") + "[L]";
 		static inline const juce::String labelMono = juce::String("") + "[M]";
 		static inline const juce::String labelR = juce::String("") + "[R]";

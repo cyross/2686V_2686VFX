@@ -18,6 +18,9 @@ class GuiAbout : public GuiBase
     GuiLabel versionLabel;
     GuiLabel copyrightLabel;
 
+    // マニュアルへの行き先
+    GuiHyperLink manualLinkButton;
+
     // VST Guideline
     GuiLabel vstGuidelineLabel;
 
@@ -34,6 +37,7 @@ public:
         pluginNameLabel(context),
         versionLabel(context),
 		copyrightLabel(context),
+		manualLinkButton(context),
 		vstGuidelineLabel(context),
         gplNoticeLabel(context),
 		vst3Logo(context),

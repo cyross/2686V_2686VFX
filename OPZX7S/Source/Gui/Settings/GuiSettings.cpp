@@ -14,6 +14,7 @@
 #include "./SettingsKeys.h"
 #include "./SettingsValues.h"
 
+#include "../../Core/Gui/GuiI18n.h"
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiSettingsValues.h"
 #include "./GuiSettingsText.h"
@@ -46,10 +47,10 @@ static std::array<float, 16> uiScaleLUT = {
 void GuiSettings::setup()
 {
     std::vector<SelectItem> wpModeItems = {
-        {.name = juce::String("") + "Stretch(画面アスペクト比維持・画面全体カバー)", .value = 1 },
-        {.name = juce::String("") + "Fill(画像アスペクト比維持・画面全体カバー)",  .value = 2 },
-        {.name = juce::String("") + "Fit(画像アスペクト比準拠・見切りあり)",  .value = 3 },
-        {.name = juce::String("") + "Original(入力画像そのまま・センタリング)",   .value = 4 },
+        {.name = SettingsGuiText::wpStretch, .value = 1 },
+        {.name = SettingsGuiText::wpFill,  .value = 2 },
+        {.name = SettingsGuiText::wpFit,  .value = 3 },
+        {.name = SettingsGuiText::wpOriginal,   .value = 4 },
     };
 
     int tabOrder = 1;
@@ -57,11 +58,41 @@ void GuiSettings::setup()
 
     mainGroup.setup(*this, SettingsGuiText::Group::settingEnv);
 
+    // 画面に出す文字列の言語
+    //
+    // 選択肢の名前は、その言語自身の表記で固定にしてある。読めない言語へ
+    // 間違えて切り替えても、ここを見れば戻せる。
+    std::vector<SelectItem> languageItems = {
+        {.name = juce::String(u8"日本語"), .value = 1 },
+        {.name = "English", .value = 2 },
+    };
+
+    languageSelector.setup({
+        .parent = *this,
+        .id = "",
+        .title = SettingsGuiText::language,
+        .items = languageItems,
+        .isReset = false,
+        .labelColor = juce::Colours::yellow
+        });
+    languageSelector.setSelectedId(I18n::isJa() ? 1 : 2, juce::dontSendNotification);
+    languageSelector.setWantsKeyboardFocus(true);
+    languageSelector.setExplicitFocusOrder(++tabOrder);
+    languageSelector.onChange = [this] {
+        const auto lang = languageSelector.getSelectedItemIndex() == 0 ? I18n::Lang::ja : I18n::Lang::en;
+
+        ctx.audioProcessor.languageCode = I18n::toCode(lang);
+
+        // ここを境に画面が組み直される。この選択そのものも作り直されるので、
+        // 知らせは後回しで届くようにしてある (GuiI18n.cpp を参照)。
+        I18n::setCurrent(lang);
+        };
+
     // UI拡大率
     uiScaleSelector.setup({
         .parent = *this,
         .id = "",
-        .title = juce::String("") + "UIスケール",
+        .title = SettingsGuiText::uiScale,
         .items = uiScaleItems,
         .isReset = false,
         .labelColor = juce::Colours::yellow
@@ -91,7 +122,7 @@ void GuiSettings::setup()
     fileFormatSelector.setup({
         .parent = *this,
         .id = "",
-        .title = juce::String("") + "ファイル形式",
+        .title = SettingsGuiText::fileFormat,
         .items = fileFormatItems,
         .isReset = false,
         .labelColor = juce::Colours::yellow
@@ -106,7 +137,7 @@ void GuiSettings::setup()
 
     separator1.setupComponent(*this);
 
-    auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = juce::String("") + "ファイル選択") {
+    auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = SettingsGuiText::chooseFile) {
 		lbl.setup({ .parent = *this, .title = title });
 		pathLbl.setup({ .parent = *this, .title = Io::empty });
         pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white);
@@ -114,7 +145,7 @@ void GuiSettings::setup()
 		btn.setup({ .parent = *this, .title = btnText, .isReset = false });
     };
 
-    auto setupFolderRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = juce::String("") + "フォルダ選択") {
+    auto setupFolderRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = SettingsGuiText::chooseFolder) {
         lbl.setup({ .parent = *this, .title = title });
         pathLbl.setup({ .parent = *this, .title = Io::empty });
         pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white);
@@ -123,14 +154,14 @@ void GuiSettings::setup()
         };
 
     // --- Wallpaper Path ---
-    setupRow(wallpaperLabel, juce::String("") + "壁紙:", wallpaperPathLabel, wallpaperBrowseBtn);
+    setupRow(wallpaperLabel, SettingsGuiText::wallpaper, wallpaperPathLabel, wallpaperBrowseBtn);
     wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath, juce::dontSendNotification);
     wallpaperPathLabel.setWantsKeyboardFocus(false);
     wallpaperBrowseBtn.setWantsKeyboardFocus(true);
     wallpaperBrowseBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
-            juce::String("") + "壁紙画像ファイルを選択してください",
+            SettingsGuiText::wallpaperChoose,
             "*.png;*.jpg;*.jpeg",
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -143,7 +174,7 @@ void GuiSettings::setup()
         );
     };
     
-	wallpaperClearBtn.setup({ .parent = *this, .title = juce::String("") + "解除", .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
+	wallpaperClearBtn.setup({ .parent = *this, .title = SettingsGuiText::wallpaperClear, .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
     wallpaperClearBtn.setWantsKeyboardFocus(true);
     wallpaperClearBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperClearBtn.onClick = [this] {
@@ -153,7 +184,7 @@ void GuiSettings::setup()
     };
 
     // --- Wallpaper Mode ---
-    wallpaperModeSelector.setup({ .parent = *this, .title = juce::String("") + "壁紙表示スケール:", .items = wpModeItems, .isReset = false });
+    wallpaperModeSelector.setup({ .parent = *this, .title = SettingsGuiText::wallpaperMode, .items = wpModeItems, .isReset = false });
     wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
     wallpaperModeSelector.setWantsKeyboardFocus(true);
     wallpaperModeSelector.setExplicitFocusOrder(++tabOrder);
@@ -167,16 +198,16 @@ void GuiSettings::setup()
     // --- ADPCM Dir ---
     // フォルダ設定はまとめて畳めるようにする。板は敷かないので、
     // 見出しの下に中身が続くだけの形になる。
-    dirCat.setupCategory({ .parent = *this, .title = juce::String("") + "フォルダ設定(開閉)", .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
+    dirCat.setupCategory({ .parent = *this, .title = SettingsGuiText::dirCat, .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
     
-    setupFolderRow(sampleDirLabel, juce::String("") + "サンプルファイルディレクトリ:", sampleDirPathLabel, sampleDirBrowseBtn);
+    setupFolderRow(sampleDirLabel, SettingsGuiText::Dir::sample, sampleDirPathLabel, sampleDirBrowseBtn);
     sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
     sampleDirPathLabel.setWantsKeyboardFocus(false);
     sampleDirBrowseBtn.setWantsKeyboardFocus(true);
     sampleDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     sampleDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "サンプルファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::sampleChoose,
             ctx.audioProcessor.defaultSampleDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userHomeDirectory) : juce::File(ctx.audioProcessor.defaultSampleDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -190,7 +221,7 @@ void GuiSettings::setup()
     };
 
     // --- Preset Dir ---
-    setupFolderRow(presetDirLabel, juce::String("") + "プリセットファイルディレクトリ:", presetDirPathLabel, presetDirBrowseBtn);
+    setupFolderRow(presetDirLabel, SettingsGuiText::Dir::preset, presetDirPathLabel, presetDirBrowseBtn);
     presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
     presetDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -198,7 +229,7 @@ void GuiSettings::setup()
     presetDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     presetDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "プリセットファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::presetChoose,
             ctx.audioProcessor.defaultPresetDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPresetDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -215,7 +246,7 @@ void GuiSettings::setup()
     };
 
     // --- Wavetable Dir ---
-    setupFolderRow(wavetableDirLabel, juce::String("") + "波形メモリファイルディレクトリ:", wavetableDirPathLabel, wavetableDirBrowseBtn);
+    setupFolderRow(wavetableDirLabel, SettingsGuiText::Dir::wavetable, wavetableDirPathLabel, wavetableDirBrowseBtn);
     wavetableDirPathLabel.setText(ctx.audioProcessor.defaultWavetableDir, juce::dontSendNotification);
     wavetableDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -223,7 +254,7 @@ void GuiSettings::setup()
     wavetableDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     wavetableDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "波形メモリファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::wavetableChoose,
             ctx.audioProcessor.defaultWavetableDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultWavetableDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -236,7 +267,7 @@ void GuiSettings::setup()
     };
 
     // --- Fx Order Dir ---
-    setupFolderRow(fxOrderDirLabel, juce::String("") + "FX順番ファイルディレクトリ:", fxOrderDirPathLabel, fxOrderDirBrowseBtn);
+    setupFolderRow(fxOrderDirLabel, SettingsGuiText::Dir::fxOrder, fxOrderDirPathLabel, fxOrderDirBrowseBtn);
     fxOrderDirPathLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
     fxOrderDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -244,7 +275,7 @@ void GuiSettings::setup()
     fxOrderDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     fxOrderDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "エフェクトオーダーファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::fxOrderChoose,
             ctx.audioProcessor.defaultFxOrderDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxOrderDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -257,7 +288,7 @@ void GuiSettings::setup()
         };
 
     // --- Fx Param Dir ---
-    setupFolderRow(fxParamDirLabel, juce::String("") + "FXファイルディレクトリ:", fxParamDirPathLabel, fxParamDirBrowseBtn);
+    setupFolderRow(fxParamDirLabel, SettingsGuiText::Dir::fxParam, fxParamDirPathLabel, fxParamDirBrowseBtn);
     fxParamDirPathLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
     fxParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -265,7 +296,7 @@ void GuiSettings::setup()
     fxParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     fxParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "FXファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::fxParamChoose,
             ctx.audioProcessor.defaultFxParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -278,7 +309,7 @@ void GuiSettings::setup()
         };
 
     // --- Channel Param Dir ---
-    setupFolderRow(channelParamDirLabel, juce::String("") + "CHパラメータファイルディレクトリ:", channelParamDirPathLabel, channelParamDirBrowseBtn);
+    setupFolderRow(channelParamDirLabel, SettingsGuiText::Dir::channelParam, channelParamDirPathLabel, channelParamDirBrowseBtn);
     channelParamDirPathLabel.setText(ctx.audioProcessor.defaultChannelParamDir, juce::dontSendNotification);
     channelParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -286,7 +317,7 @@ void GuiSettings::setup()
     channelParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     channelParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "CHパラメータファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::channelParamChoose,
             ctx.audioProcessor.defaultChannelParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultChannelParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -299,7 +330,7 @@ void GuiSettings::setup()
         };
 
     // --- Curve Param Dir ---
-    setupFolderRow(curveParamDirLabel, juce::String("") + "カーブ編集パラメータファイルディレクトリ:", curveParamDirPathLabel, curveParamDirBrowseBtn);
+    setupFolderRow(curveParamDirLabel, SettingsGuiText::Dir::curveParam, curveParamDirPathLabel, curveParamDirBrowseBtn);
     curveParamDirPathLabel.setText(ctx.audioProcessor.defaultCurveParamDir, juce::dontSendNotification);
     curveParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -307,7 +338,7 @@ void GuiSettings::setup()
     curveParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     curveParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "カーブ編集パラメータファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::curveParamChoose,
             ctx.audioProcessor.defaultCurveParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultCurveParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -320,7 +351,7 @@ void GuiSettings::setup()
         };
 
     // --- LFO Param Dir ---
-    setupFolderRow(lfoParamDirLabel, juce::String("") + "LFOファイルディレクトリ:", lfoParamDirPathLabel, lfoParamDirBrowseBtn);
+    setupFolderRow(lfoParamDirLabel, SettingsGuiText::Dir::lfoParam, lfoParamDirPathLabel, lfoParamDirBrowseBtn);
     lfoParamDirPathLabel.setText(ctx.audioProcessor.defaultLfoParamDir, juce::dontSendNotification);
     lfoParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -328,7 +359,7 @@ void GuiSettings::setup()
     lfoParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     lfoParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "LFOファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::lfoParamChoose,
             ctx.audioProcessor.defaultLfoParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultLfoParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -341,7 +372,7 @@ void GuiSettings::setup()
         };
 
     // --- Amp Env Param Dir ---
-    setupFolderRow(ampEnvParamDirLabel, juce::String("") + "AMP ENVファイルディレクトリ:", ampEnvParamDirPathLabel, ampEnvParamDirBrowseBtn);
+    setupFolderRow(ampEnvParamDirLabel, SettingsGuiText::Dir::ampEnvParam, ampEnvParamDirPathLabel, ampEnvParamDirBrowseBtn);
     ampEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultAmpEnvParamDir, juce::dontSendNotification);
     ampEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -349,7 +380,7 @@ void GuiSettings::setup()
     ampEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ampEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "AMP ENVファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::ampEnvParamChoose,
             ctx.audioProcessor.defaultAmpEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultAmpEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -362,7 +393,7 @@ void GuiSettings::setup()
         };
 
     // --- Pitch Env Param Dir ---
-    setupFolderRow(pitchEnvParamDirLabel, juce::String("") + "PITCH ENVファイルディレクトリ:", pitchEnvParamDirPathLabel, pitchEnvParamDirBrowseBtn);
+    setupFolderRow(pitchEnvParamDirLabel, SettingsGuiText::Dir::pitchEnvParam, pitchEnvParamDirPathLabel, pitchEnvParamDirBrowseBtn);
     pitchEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultPitchEnvParamDir, juce::dontSendNotification);
     pitchEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -370,7 +401,7 @@ void GuiSettings::setup()
     pitchEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     pitchEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "PITCH ENVファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::pitchEnvParamChoose,
             ctx.audioProcessor.defaultPitchEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPitchEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -383,7 +414,7 @@ void GuiSettings::setup()
         };
 
     // --- SSG SW Env Param Dir ---
-    setupFolderRow(ssgSwEnvParamDirLabel, juce::String("") + "SSG SW ENVファイルディレクトリ:", ssgSwEnvParamDirPathLabel, ssgSwEnvParamDirBrowseBtn);
+    setupFolderRow(ssgSwEnvParamDirLabel, SettingsGuiText::Dir::ssgSwEnvParam, ssgSwEnvParamDirPathLabel, ssgSwEnvParamDirBrowseBtn);
     ssgSwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgSwEnvParamDir, juce::dontSendNotification);
     ssgSwEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -391,7 +422,7 @@ void GuiSettings::setup()
     ssgSwEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ssgSwEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "SSG SW ENVファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::ssgSwEnvParamChoose,
             ctx.audioProcessor.defaultSsgSwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgSwEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -404,7 +435,7 @@ void GuiSettings::setup()
         };
 
     // --- SSG HW Env Param Dir ---
-    setupFolderRow(ssgHwEnvParamDirLabel, juce::String("") + "SSG HW ENVファイルディレクトリ:", ssgHwEnvParamDirPathLabel, ssgHwEnvParamDirBrowseBtn);
+    setupFolderRow(ssgHwEnvParamDirLabel, SettingsGuiText::Dir::ssgHwEnvParam, ssgHwEnvParamDirPathLabel, ssgHwEnvParamDirBrowseBtn);
     ssgHwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgHwEnvParamDir, juce::dontSendNotification);
     ssgHwEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -412,7 +443,7 @@ void GuiSettings::setup()
     ssgHwEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ssgHwEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "SSG HW ENVファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::ssgHwEnvParamChoose,
             ctx.audioProcessor.defaultSsgHwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgHwEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -425,7 +456,7 @@ void GuiSettings::setup()
         };
 
     // --- Detune Param Dir ---
-    setupFolderRow(detuneParamDirLabel, juce::String("") + "DETUNE ファイルディレクトリ:", detuneParamDirPathLabel, detuneParamDirBrowseBtn);
+    setupFolderRow(detuneParamDirLabel, SettingsGuiText::Dir::detuneParam, detuneParamDirPathLabel, detuneParamDirBrowseBtn);
     detuneParamDirPathLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
     detuneParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -433,7 +464,7 @@ void GuiSettings::setup()
     detuneParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     detuneParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "DETUNE ファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::detuneParamChoose,
             ctx.audioProcessor.defaultDetuneParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultDetuneParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -446,7 +477,7 @@ void GuiSettings::setup()
         };
 
     // --- Unison Param Dir ---
-    setupFolderRow(unisonParamDirLabel, juce::String("") + "UNISON ファイルディレクトリ:", unisonParamDirPathLabel, unisonParamDirBrowseBtn);
+    setupFolderRow(unisonParamDirLabel, SettingsGuiText::Dir::unisonParam, unisonParamDirPathLabel, unisonParamDirBrowseBtn);
     unisonParamDirPathLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
     unisonParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -454,7 +485,7 @@ void GuiSettings::setup()
     unisonParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     unisonParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "UNISON ファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::unisonParamChoose,
             ctx.audioProcessor.defaultUnisonParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultUnisonParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -467,7 +498,7 @@ void GuiSettings::setup()
         };
 
     // --- Quality Param Dir ---
-    setupFolderRow(qualityParamDirLabel, juce::String("") + "音質ファイルディレクトリ:", qualityParamDirPathLabel, qualityParamDirBrowseBtn);
+    setupFolderRow(qualityParamDirLabel, SettingsGuiText::Dir::qualityParam, qualityParamDirPathLabel, qualityParamDirBrowseBtn);
     qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
     qualityParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -475,7 +506,7 @@ void GuiSettings::setup()
     qualityParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     qualityParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "音質ファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::qualityParamChoose,
             ctx.audioProcessor.defaultQualityParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultQualityParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -488,7 +519,7 @@ void GuiSettings::setup()
         };
 
     // --- PCM Play Param Dir ---
-    setupFolderRow(pcmPlayParamDirLabel, juce::String("") + "PCM再生ファイルディレクトリ:", pcmPlayParamDirPathLabel, pcmPlayParamDirBrowseBtn);
+    setupFolderRow(pcmPlayParamDirLabel, SettingsGuiText::Dir::pcmPlayParam, pcmPlayParamDirPathLabel, pcmPlayParamDirBrowseBtn);
     pcmPlayParamDirPathLabel.setText(ctx.audioProcessor.defaultPcmPlayParamDir, juce::dontSendNotification);
     pcmPlayParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -496,7 +527,7 @@ void GuiSettings::setup()
     pcmPlayParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     pcmPlayParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "PCM再生ファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::pcmPlayParamChoose,
             ctx.audioProcessor.defaultPcmPlayParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPcmPlayParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -509,7 +540,7 @@ void GuiSettings::setup()
         };
 
     // --- Color Setting Dir ---
-    setupFolderRow(colorSettingDirLabel, juce::String("") + "色の設定ファイルディレクトリ:", colorSettingDirPathLabel, colorSettingDirBrowseBtn);
+    setupFolderRow(colorSettingDirLabel, SettingsGuiText::Dir::colorSetting, colorSettingDirPathLabel, colorSettingDirBrowseBtn);
     colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
     colorSettingDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -517,7 +548,7 @@ void GuiSettings::setup()
     colorSettingDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     colorSettingDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "色の設定ファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::colorSettingChoose,
             ctx.audioProcessor.defaultColorSettingDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultColorSettingDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -530,7 +561,7 @@ void GuiSettings::setup()
         };
 
     // --- Tone / Noise Param Dir ---
-    setupFolderRow(toneNoiseParamDirLabel, juce::String("") + "トーン/ノイズファイルディレクトリ:", toneNoiseParamDirPathLabel, toneNoiseParamDirBrowseBtn);
+    setupFolderRow(toneNoiseParamDirLabel, SettingsGuiText::Dir::toneNoiseParam, toneNoiseParamDirPathLabel, toneNoiseParamDirBrowseBtn);
     toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
     toneNoiseParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -538,7 +569,7 @@ void GuiSettings::setup()
     toneNoiseParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     toneNoiseParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "トーン/ノイズファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::toneNoiseParamChoose,
             ctx.audioProcessor.defaultToneNoiseParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultToneNoiseParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -551,7 +582,7 @@ void GuiSettings::setup()
         };
 
     // --- WT MOD Param Dir ---
-    setupFolderRow(wtModParamDirLabel, juce::String("") + "WT MODファイルディレクトリ:", wtModParamDirPathLabel, wtModParamDirBrowseBtn);
+    setupFolderRow(wtModParamDirLabel, SettingsGuiText::Dir::wtModParam, wtModParamDirPathLabel, wtModParamDirBrowseBtn);
     wtModParamDirPathLabel.setText(ctx.audioProcessor.defaultWtModParamDir, juce::dontSendNotification);
     wtModParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -559,7 +590,7 @@ void GuiSettings::setup()
     wtModParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     wtModParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFolderChooser(
-            juce::String("") + "WT MODファイルディレクトリを選択してください",
+            SettingsGuiText::Dir::wtModParamChoose,
             ctx.audioProcessor.defaultWtModParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultWtModParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -577,7 +608,7 @@ void GuiSettings::setup()
     // --- 簡易表示モード ---
     // 区分を隠すだけの切り替え。音には影響しない。
     // 切り替えたら画面を組み直して、その場で反映する。
-    simpleViewToggle.setup({ .parent = *this, .title = juce::String("") + "簡易表示モード", .font = toggleFont, .isReset = false });
+    simpleViewToggle.setup({ .parent = *this, .title = SettingsGuiText::simpleView, .font = toggleFont, .isReset = false });
     simpleViewToggle.setToggleState(ctx.audioProcessor.simpleView, juce::dontSendNotification);
     simpleViewToggle.setWantsKeyboardFocus(true);
     simpleViewToggle.setExplicitFocusOrder(++tabOrder);
@@ -590,7 +621,7 @@ void GuiSettings::setup()
         };
 
     // 隠れている区分をまとめて切る。簡易表示モードのときだけ押せる。
-    bypassHiddenBtn.setup({ .parent = *this, .title = juce::String("") + "非表示中の区分をバイパス", .isReset = false });
+    bypassHiddenBtn.setup({ .parent = *this, .title = SettingsGuiText::bypassHidden, .isReset = false });
     bypassHiddenBtn.setWantsKeyboardFocus(true);
     bypassHiddenBtn.setExplicitFocusOrder(++tabOrder);
     bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
@@ -598,7 +629,7 @@ void GuiSettings::setup()
         ctx.editor.bypassHiddenCategories();
         };
 
-    simpleViewCat.setupCategory({ .parent = *this, .title = juce::String("") + "簡易表示モードカスタマイズ(開閉)", .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
+    simpleViewCat.setupCategory({ .parent = *this, .title = SettingsGuiText::simpleViewCat, .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
 
     // 隠す対象のうち、出したままにするものを選ぶ。
     // 入れておくと簡易表示モードでもその区分が残る。
@@ -607,7 +638,7 @@ void GuiSettings::setup()
         auto& toggle = simpleViewShowToggles[(size_t)i];
 
         toggle.setup({ .parent = *this,
-            .title = juce::String(SimpleView::items()[(size_t)i].title) + juce::String("") + " を表示",
+            .title = SettingsGuiText::showItem.get().replace("%s", SimpleView::items()[(size_t)i].title),
             .font = toggleFont, .isReset = false });
         toggle.setToggleState(ctx.audioProcessor.simpleViewShow[(size_t)i], juce::dontSendNotification);
         toggle.setWantsKeyboardFocus(true);
@@ -625,14 +656,14 @@ void GuiSettings::setup()
     // 画面じゅうのトグルを、中央寄せ (従来) か左寄せかで描き分ける。
     // 置き場所は変えないので、切り替えたら描き直すだけでよい。
     std::vector<SelectItem> toggleAlignItems = {
-        {.name = juce::String("") + "中央寄せ", .value = ToggleAlign::Centred + 1 },
-        {.name = juce::String("") + "左寄せ",   .value = ToggleAlign::Left + 1 },
+        {.name = SettingsGuiText::toggleAlignCentred, .value = ToggleAlign::Centred + 1 },
+        {.name = SettingsGuiText::toggleAlignLeft,   .value = ToggleAlign::Left + 1 },
     };
 
     toggleAlignSelector.setup({
         .parent = *this,
         .id = "",
-        .title = juce::String("") + "トグルボタン配置",
+        .title = SettingsGuiText::toggleAlign,
         .items = toggleAlignItems,
         .isReset = false
         });
@@ -648,7 +679,7 @@ void GuiSettings::setup()
     separatorToggleAlign.setupComponent(*this);
 
     // --- Toggle Tooltip Visible Toggle Button ---
-    tooltipToggle.setup({ .parent = *this, .title = juce::String("") + "ツールチップを表示", .font = toggleFont, .isReset = false });
+    tooltipToggle.setup({ .parent = *this, .title = SettingsGuiText::showTooltips, .font = toggleFont, .isReset = false });
     tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
     tooltipToggle.setWantsKeyboardFocus(true);
     tooltipToggle.setExplicitFocusOrder(++tabOrder);
@@ -660,7 +691,7 @@ void GuiSettings::setup()
 
     separator4.setupComponent(*this);
 
-    useHeadroomToggle.setup({ .parent = *this, .title = juce::String("") + "ヘッドルームを確保", .font = toggleFont, .isReset = false });
+    useHeadroomToggle.setup({ .parent = *this, .title = SettingsGuiText::useHeadroom, .font = toggleFont, .isReset = false });
     useHeadroomToggle.setToggleState(ctx.audioProcessor.useHeadroom, juce::dontSendNotification);
     useHeadroomToggle.setWantsKeyboardFocus(true);
     useHeadroomToggle.setExplicitFocusOrder(++tabOrder);
@@ -671,7 +702,7 @@ void GuiSettings::setup()
         };
 
     // --- Headroom Gain Slider---
-    headroomGainSlider.setup({ .parent = *this, .title = juce::String("") + "ヘッドルームゲイン", .isReset = false });
+    headroomGainSlider.setup({ .parent = *this, .title = SettingsGuiText::headroomGain, .isReset = false });
     headroomGainSlider.setWantsKeyboardFocus(true);
     headroomGainSlider.setExplicitFocusOrder(++tabOrder);
     headroomGainSlider.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -687,7 +718,7 @@ void GuiSettings::setup()
 
     separator5.setupComponent(*this);
 
-    virtualMidiKeyboardToggle.setup({ .parent = *this, .title = juce::String("") + "仮想MIDIキーボード表示", .font = toggleFont , .isReset = false });
+    virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
     virtualMidiKeyboardToggle.setWantsKeyboardFocus(true);
     virtualMidiKeyboardToggle.setExplicitFocusOrder(++tabOrder);
     virtualMidiKeyboardToggle.setToggleState(ctx.audioProcessor.showVirtualKeyboard, juce::dontSendNotification);
@@ -700,12 +731,12 @@ void GuiSettings::setup()
     separator6.setupComponent(*this);
 
     // --- Save Preference Button ---
-    saveSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "設定ファイルに保存", .isReset = false });
+    saveSettingsBtn.setup({ .parent = *this, .title = SettingsGuiText::saveSettings, .isReset = false });
     saveSettingsBtn.setWantsKeyboardFocus(true);
     saveSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveSettingsBtn.onClick = [this] {
         ctx.editor.openWriteFileChooser(
-            juce::String("") + "設定ファイルを選択してください",
+            SettingsGuiText::chooseSettingsFile,
             ctx.audioProcessor.getStartupSettingsFileToWrite(),
             SettingsValue::File::glob,
             [this](const juce::FileChooser& fc) {
@@ -718,12 +749,12 @@ void GuiSettings::setup()
         };
 
     // --- Load Preference Button ---
-    loadSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "設定ファイルから読み込み", .isReset = false });
+    loadSettingsBtn.setup({ .parent = *this, .title = SettingsGuiText::loadSettings, .isReset = false });
     loadSettingsBtn.setWantsKeyboardFocus(true);
     loadSettingsBtn.setExplicitFocusOrder(++tabOrder);
     loadSettingsBtn.onClick = [this] {
         ctx.editor.openFileChooser(
-            juce::String("") + "設定ファイルを選択してください",
+            SettingsGuiText::chooseSettingsFile,
             ctx.audioProcessor.getPluginDirectory(),
             SettingsValue::File::glob,
             [this](const juce::FileChooser& fc) {
@@ -758,7 +789,7 @@ void GuiSettings::setup()
         );
         };
 
-    saveStartupSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "標準設定として保存", .textColor = juce::Colours::white, .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
+    saveStartupSettingsBtn.setup({ .parent = *this, .title = SettingsGuiText::saveStartup, .textColor = juce::Colours::white, .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
     saveStartupSettingsBtn.setWantsKeyboardFocus(true);
     saveStartupSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveStartupSettingsBtn.onClick = [this]
@@ -773,12 +804,12 @@ void GuiSettings::setup()
                 // 他と同じ AlertWindow で出す。
                 juce::AlertWindow::showMessageBoxAsync(
                     juce::MessageBoxIconType::InfoIcon,
-                    juce::String("") + "成功",
+                    SettingsGuiText::saveStartupOkTitle,
                     // 場所と名前を分けて出す。ダイアログの本文は折り返らないので、
                     // 長いパスを 1 行で置くと末尾が見切れる。
-                    juce::String("") + "現在の設定を標準設定として保存しました。\n\n"
-                    + "場所: " + file.getParentDirectory().getFullPathName() + "\n"
-                    + "ファイル名: " + file.getFileName(),
+                    SettingsGuiText::saveStartupOkBody.get() + "\n\n"
+                    + SettingsGuiText::dialogPlace.get() + file.getParentDirectory().getFullPathName() + "\n"
+                    + SettingsGuiText::dialogFileName.get() + file.getFileName(),
                     juce::String(),
                     this
                 );
@@ -787,10 +818,10 @@ void GuiSettings::setup()
             {
                 juce::AlertWindow::showMessageBoxAsync(
                     juce::MessageBoxIconType::WarningIcon,
-                    juce::String("") + "失敗",
-                    juce::String("") + "標準設定を保存できませんでした。\n\n"
-                    + "場所: " + file.getParentDirectory().getFullPathName() + "\n"
-                    + "ファイル名: " + file.getFileName(),
+                    SettingsGuiText::saveStartupNgTitle,
+                    SettingsGuiText::saveStartupNgBody.get() + "\n\n"
+                    + SettingsGuiText::dialogPlace.get() + file.getParentDirectory().getFullPathName() + "\n"
+                    + SettingsGuiText::dialogFileName.get() + file.getFileName(),
                     juce::String(),
                     this
                 );
@@ -800,7 +831,7 @@ void GuiSettings::setup()
     separator7.setupComponent(*this);
 
     // --- Clear Undo/Redo History Button ---
-    clearUndoHistoryBtn.setup({ .parent = *this, .title = juce::String("") + "アンドゥ・リドゥ履歴の初期化", .textColor = juce::Colours::white, .bgColor = juce::Colours::blue.darker(0.3f).withAlpha(0.3f), .isReset = false});
+    clearUndoHistoryBtn.setup({ .parent = *this, .title = SettingsGuiText::clearUndoHistory, .textColor = juce::Colours::white, .bgColor = juce::Colours::blue.darker(0.3f).withAlpha(0.3f), .isReset = false});
     clearUndoHistoryBtn.setWantsKeyboardFocus(true);
     clearUndoHistoryBtn.setExplicitFocusOrder(++tabOrder);
     clearUndoHistoryBtn.onClick = [this] {
@@ -829,7 +860,7 @@ void GuiSettings::clearWavePreviews()
     auto* window = new juce::AlertWindow(
         SettingsGuiText::clearWavePreviewsTitle,
         dir.getFullPathName() + "\n\n"
-        + SettingsGuiText::clearWavePreviewsCount.replace("%d", juce::String(files.size())),
+        + SettingsGuiText::clearWavePreviewsCount.get().replace("%d", juce::String(files.size())),
         juce::MessageBoxIconType::NoIcon);
 
     window->addButton(SettingsGuiText::clearWavePreviewsOk, 1);
@@ -860,8 +891,13 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto sRect = pageArea.reduced(SettingsGuiValue::Group::Padding::width, SettingsGuiValue::Group::Padding::height);
     sRect.removeFromTop(SettingsGuiValue::Group::TitlePaddingTop);
 
-    // 1. UI Scale
+    // 1. Language / UI Scale
     auto rowUiScale = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    languageSelector.label.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::LanguageLabelWidth));
+    languageSelector.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::LanguageSelectorWidth));
+
+    rowUiScale.removeFromLeft(SettingsGuiValue::Settings::PaddingHeight);
+
     uiScaleSelector.label.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     uiScaleSelector.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::UiScaleSelectorWidth));
 
@@ -1190,6 +1226,7 @@ void GuiSettings::setSettings()
 {
     // プロセッサから直に読む。引数を 18 個も並べていたときは、順番を
     // 間違えても、行を足し忘れても気づけなかった。
+    languageSelector.setSelectedId(I18n::isJa() ? 1 : 2, juce::dontSendNotification);
     uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
     fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
     toggleAlignSelector.setSelectedId(ctx.audioProcessor.toggleAlign + 1, juce::dontSendNotification);

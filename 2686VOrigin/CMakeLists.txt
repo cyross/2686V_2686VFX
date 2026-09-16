@@ -94,6 +94,8 @@ set(GUI_FILES
     "Source/Core/Gui/GuiColor.h"
     "Source/Core/Gui/GuiColorJuceNames.h"
     "Source/Core/Gui/GuiColor.cpp"
+    "Source/Core/Gui/GuiI18n.h"
+    "Source/Core/Gui/GuiI18n.cpp"
     "Source/Core/Gui/GuiComponents.h"
     "Source/Core/Gui/GuiComponents.cpp"
     "Source/Core/Gui/GuiContext.h"

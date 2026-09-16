@@ -1,4 +1,5 @@
-﻿#include "./ParamFile.h"
+﻿#include "../Gui/GuiI18n.h"
+#include "./ParamFile.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -10,8 +11,8 @@ namespace
 	void tellLegacyNotSupported(const juce::File& file)
 	{
 		juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-			juce::String("") + "読み込めないファイル",
-			juce::String("") + "3.0.0 より前の形式のファイルは読み込めません。\n\n"
+			I18n::pick(u8"読み込めないファイル", u8"Cannot read this file"),
+			I18n::pick(u8"3.0.0 より前の形式のファイルは読み込めません。\n\n", u8"Files in the format used before 3.0.0 cannot be read.\n\n")
 			+ file.getFileName());
 	}
 
@@ -412,18 +413,18 @@ namespace Io
 		if (!writer.writeTo(target))
 		{
 			juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
-				juce::String("") + "変換できませんでした",
-				juce::String("") + "読み込みはできましたが、新しい形式で保存できませんでした。\n\n"
+				I18n::pick(u8"変換できませんでした", u8"Could not convert"),
+				I18n::pick(u8"読み込みはできましたが、新しい形式で保存できませんでした。\n\n", u8"It was read, but it could not be saved in the new format.\n\n")
 				+ target.getFullPathName());
 
 			return false;
 		}
 
 		juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,
-			juce::String("") + "形式を変換しました",
-			juce::String("") + "3.0.0 より前の形式のファイルを読み込み、新しい形式で保存しました。\n\n"
-			+ juce::String("") + "元のファイル: " + file.getFileName() + "\n"
-			+ juce::String("") + "保存先: " + target.getFileName());
+			I18n::pick(u8"形式を変換しました", u8"Converted"),
+			I18n::pick(u8"3.0.0 より前の形式のファイルを読み込み、新しい形式で保存しました。\n\n", u8"A file in the format used before 3.0.0 was read and saved in the new format.\n\n")
+			+ I18n::pick(u8"元のファイル: ", u8"Original file: ") + file.getFileName() + "\n"
+			+ I18n::pick(u8"保存先: ", u8"Saved to: ") + target.getFileName());
 
 		return true;
 	}

@@ -1,4 +1,5 @@
-﻿#include "./QualityPcm.h"
+﻿#include "../../../Core/Gui/GuiI18n.h"
+#include "./QualityPcm.h"
 #include "../../../Core/Editor/EditorGuiText.h"
 
 #include "../../../Core/Editor/PluginEditor.h"

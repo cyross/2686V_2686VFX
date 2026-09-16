@@ -1,4 +1,5 @@
-﻿#include "./QualityPcm.h"
+﻿#include "../../../Core/Gui/GuiI18n.h"
+#include "./QualityPcm.h"
 #include "../../../Core/Editor/EditorGuiText.h"
 
 #include "../../../Core/Editor/PluginEditor.h"
@@ -54,15 +55,20 @@ std::vector<SelectItem> QualityPcm::rateItems = {
     {.name = "15: 2kHz",     .value = 15 },
 };
 
-std::vector<SelectItem> QualityPcm::interpItems = {
-    {.name = juce::String("") + "1: 補完なし (Nearest)", .value = 1 },
-    {.name = juce::String("") + "2: 線形補間 (Linear)", .value = 2 },
-    {.name = juce::String("") + "3: ガウス補完 (Gaussian)", .value = 3 },
-    {.name = juce::String("") + "4: ZOH (Zero-Order Hold)", .value = 4 },
-    {.name = juce::String("") + "5: コサイン補間 (Cosine)", .value = 5 },
-    {.name = juce::String("") + "6: B-スプライン補間 (B-Spline)", .value = 6 },
-    {.name = juce::String("") + "7: ラグランジュ補間 (Lagrange)", .value = 7 }
-};
+// 言語で名前が変わるので、静的な置き場には持たない。プログラムが
+// 始まる前に作ると、言語が決まる前の文字列で固まってしまう。
+std::vector<SelectItem> QualityPcm::interpItems()
+{
+    return {
+    {.name = I18n::pick(u8"1: 補完なし (Nearest)", u8"1: Nearest (none)"), .value = 1 },
+    {.name = I18n::pick(u8"2: 線形補間 (Linear)", u8"2: Linear"), .value = 2 },
+    {.name = I18n::pick(u8"3: ガウス補完 (Gaussian)", u8"3: Gaussian"), .value = 3 },
+    {.name = I18n::pick(u8"4: ZOH (Zero-Order Hold)", u8"4: ZOH (zero-order hold)"), .value = 4 },
+    {.name = I18n::pick(u8"5: コサイン補間 (Cosine)", u8"5: Cosine"), .value = 5 },
+    {.name = I18n::pick(u8"6: B-スプライン補間 (B-Spline)", u8"6: B-spline"), .value = 6 },
+    {.name = I18n::pick(u8"7: ラグランジュ補間 (Lagrange)", u8"7: Lagrange"), .value = 7 }
+    };
+}
 
 void QualityPcm::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
     qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
@@ -75,7 +81,7 @@ void QualityPcm::setupComponent(juce::Component& parent, const juce::String& cod
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    interpSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::interp, .title = "INTERP", .items = interpItems, .isReset = true });
+    interpSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::interp, .title = "INTERP", .items = interpItems(), .isReset = true });
     interpSelector.setWantsKeyboardFocus(true);
     interpSelector.setExplicitFocusOrder(++tabOrder);
 }

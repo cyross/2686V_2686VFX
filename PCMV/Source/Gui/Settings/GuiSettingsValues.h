@@ -86,6 +86,8 @@ namespace SettingsGuiValue
 		static inline constexpr int RowHeight = 20;
 		static inline constexpr int LabelWidth = 180;
 		static inline constexpr int LongLabelWidth = 220;
+		static inline constexpr int LanguageLabelWidth = 150;
+		static inline constexpr int LanguageSelectorWidth = 140;
 		static inline constexpr int UiScaleSelectorWidth = 320;
 		static inline constexpr int FileFormatLabelWidth = 150;
 		static inline constexpr int FileFormatSelectorWidth = 120;

@@ -89,6 +89,9 @@ public:
     void setupLogo();
     void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);
+
+    // 言語が変わったので、画面の文字列を入れ直す。タブの中身を作り直す。
+    void rebuildForLanguage();
     void openFileChooser(const juce::String title, const juce::String filter, const std::function<void(const FileChooser&)>& callback) {
         fileChooser = std::make_unique<juce::FileChooser>(title, juce::File(), filter);
         fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, callback);

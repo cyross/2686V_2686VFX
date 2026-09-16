@@ -41,7 +41,8 @@ namespace PresetGuiValue
 
 	namespace Format
 	{
-		static inline constexpr int LabelWidth = 40;
+		// 英語の "Format" が入る幅。日本語の「形式」はこれより短い。
+		static inline constexpr int LabelWidth = 55;
 		static inline constexpr int Width = 90;
 		static inline constexpr int PaddingRight = 10;
 	}

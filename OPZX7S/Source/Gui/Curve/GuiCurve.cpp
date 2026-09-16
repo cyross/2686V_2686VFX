@@ -43,39 +43,58 @@ static std::vector<SelectItem> targetItems = {
     {.name = "SsgSwPEnv11", .value = 6 }
 };
 
-static std::vector<SelectItem> logicItems = {
-    {.name = juce::String("") + "線形",                                          .value = 1 },
-    {.name = juce::String("") + "円弧(指数的)",                                  .value = 2 },
-    {.name = juce::String("") + "円弧(対数的)",                                  .value = 3 },
-    {.name = juce::String("") + "指数関数",                                      .value = 4 },
-    {.name = juce::String("") + "対数関数",                                      .value = 5 },
-    {.name = juce::String("") + "1点スプライン",                                 .value = 6 },
-    {.name = juce::String("") + "2点スプライン",                                 .value = 7 },
-    {.name = juce::String("") + "線形 + 円弧(指数的)",                           .value = 8 },
-    {.name = juce::String("") + "線形 + 円弧(対数的)",                           .value = 9 },
-    {.name = juce::String("") + "線形 + 指数関数",                               .value = 10 },
-    {.name = juce::String("") + "線形 + 対数関数",                               .value = 11 },
-    {.name = juce::String("") + "線形 + 1点スプライン",                          .value = 12 },
-    {.name = juce::String("") + "線形 + 2点スプライン",                          .value = 13 },
-    {.name = juce::String("") + "円弧(指数的) + 線形",                           .value = 14 },
-    {.name = juce::String("") + "円弧(対数的) + 線形",                           .value = 15 },
-    {.name = juce::String("") + "指数関数 + 線形",                               .value = 16 },
-    {.name = juce::String("") + "対数関数 + 線形",                               .value = 17 },
-    {.name = juce::String("") + "1点スプライン + 線形",                          .value = 18 },
-    {.name = juce::String("") + "2点スプライン + 線形",                          .value = 19 },
-    {.name = juce::String("") + "線形 + 円弧(指数的) + 線形",                    .value = 20 },
-    {.name = juce::String("") + "線形 + 円弧(対数的) + 線形",                    .value = 21 },
-    {.name = juce::String("") + "線形 + 指数関数 + 線形",                        .value = 22 },
-    {.name = juce::String("") + "線形 + 対数関数 + 線形",                        .value = 23 },
-    {.name = juce::String("") + "線形 + 1点スプライン + 線形",                   .value = 24 },
-    {.name = juce::String("") + "線形 + 2点スプライン + 線形",                   .value = 25 },
-    {.name = juce::String("") + "線形 + 線形",                                   .value = 26 },
-    {.name = juce::String("") + "線形 + 線形 + 線形",                            .value = 27 },
-    {.name = juce::String("") + "1点スプライン + 1点スプライン",                 .value = 28 },
-    {.name = juce::String("") + "2点スプライン + 2点スプライン",                 .value = 29 },
-    {.name = juce::String("") + "1点スプライン + 1点スプライン + 1点スプライン", .value = 30 },
-    {.name = juce::String("") + "2点スプライン + 2点スプライン + 2点スプライン", .value = 31 },
-};
+// ロジックの選択肢。言語で名前が変わるので、その場で作る。
+//
+// 組み合わせの名前は部品をつないで作る。並びと番号は変えられない
+// (保存したファイルとオートメーションが番号を指す)。
+static std::vector<SelectItem> curveLogicItems()
+{
+    auto join = [](std::initializer_list<const I18n::Text*> parts) {
+        juce::String name;
+
+        for (const auto* part : parts) {
+            if (name.isNotEmpty()) name += " + ";
+
+            name += part->get();
+        }
+
+        return name;
+    };
+
+    return {
+        {.name = join({ &CurveGuiText::Logic::linear }), .value = 1 },
+        {.name = join({ &CurveGuiText::Logic::arcExp }), .value = 2 },
+        {.name = join({ &CurveGuiText::Logic::arcLog }), .value = 3 },
+        {.name = join({ &CurveGuiText::Logic::exp }), .value = 4 },
+        {.name = join({ &CurveGuiText::Logic::log }), .value = 5 },
+        {.name = join({ &CurveGuiText::Logic::spline1 }), .value = 6 },
+        {.name = join({ &CurveGuiText::Logic::spline2 }), .value = 7 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::arcExp }), .value = 8 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::arcLog }), .value = 9 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::exp }), .value = 10 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::log }), .value = 11 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::spline1 }), .value = 12 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::spline2 }), .value = 13 },
+        {.name = join({ &CurveGuiText::Logic::arcExp, &CurveGuiText::Logic::linear }), .value = 14 },
+        {.name = join({ &CurveGuiText::Logic::arcLog, &CurveGuiText::Logic::linear }), .value = 15 },
+        {.name = join({ &CurveGuiText::Logic::exp, &CurveGuiText::Logic::linear }), .value = 16 },
+        {.name = join({ &CurveGuiText::Logic::log, &CurveGuiText::Logic::linear }), .value = 17 },
+        {.name = join({ &CurveGuiText::Logic::spline1, &CurveGuiText::Logic::linear }), .value = 18 },
+        {.name = join({ &CurveGuiText::Logic::spline2, &CurveGuiText::Logic::linear }), .value = 19 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::arcExp, &CurveGuiText::Logic::linear }), .value = 20 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::arcLog, &CurveGuiText::Logic::linear }), .value = 21 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::exp, &CurveGuiText::Logic::linear }), .value = 22 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::log, &CurveGuiText::Logic::linear }), .value = 23 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::spline1, &CurveGuiText::Logic::linear }), .value = 24 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::spline2, &CurveGuiText::Logic::linear }), .value = 25 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::linear }), .value = 26 },
+        {.name = join({ &CurveGuiText::Logic::linear, &CurveGuiText::Logic::linear, &CurveGuiText::Logic::linear }), .value = 27 },
+        {.name = join({ &CurveGuiText::Logic::spline1, &CurveGuiText::Logic::spline1 }), .value = 28 },
+        {.name = join({ &CurveGuiText::Logic::spline2, &CurveGuiText::Logic::spline2 }), .value = 29 },
+        {.name = join({ &CurveGuiText::Logic::spline1, &CurveGuiText::Logic::spline1, &CurveGuiText::Logic::spline1 }), .value = 30 },
+        {.name = join({ &CurveGuiText::Logic::spline2, &CurveGuiText::Logic::spline2, &CurveGuiText::Logic::spline2 }), .value = 31 },
+    };
+}
 
 static std::vector< std::vector<juce::String>> paramTitles = {
     {
@@ -268,7 +287,7 @@ void GuiCurve::setup()
 
         curveGroup.contentCanvas.addAndMakeVisible(curveGraphs[vp].get());
 
-        logic[vp]->setup({ .parent = curveGroup.contentCanvas, .id = "", .title = CurveGuiText::logic, .items = logicItems, .isReset = false });
+        logic[vp]->setup({ .parent = curveGroup.contentCanvas, .id = "", .title = CurveGuiText::logic, .items = curveLogicItems(), .isReset = false });
 		logic[vp]->setSelectedItemIndex(0, juce::dontSendNotification);
         logic[vp]->setWantsKeyboardFocus(true);
         logic[vp]->setExplicitFocusOrder(++tabOrder);

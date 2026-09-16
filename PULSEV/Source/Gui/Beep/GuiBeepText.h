@@ -4,6 +4,8 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace BeepGuiText
 {
 	namespace Category
@@ -14,7 +16,7 @@ namespace BeepGuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = juce::String("") + "ビープ音チャンネル設定";
+		static inline const I18n::Text mainGroup{ u8"ビープ音チャンネル設定", u8"BEEP channel" };
 	}
 
 	namespace Beep

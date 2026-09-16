@@ -33,7 +33,7 @@ public:
 
     static std::vector<SelectItem> qualityItems;
     static std::vector<SelectItem> rateItems;
-    static std::vector<SelectItem> interpItems;
+    static std::vector<SelectItem> interpItems();
 
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder);
     // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。

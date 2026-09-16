@@ -2734,6 +2734,33 @@ void AudioPlugin2686VEditor::rebuildForLanguage()
 
     setTooltipState(audioProcessor.showTooltips);
 
+    // タブの外に出る文字は作り直しの対象ではないので、ここで入れ直す。
+    // 見方で変わる題 (ミニプレイヤーの切り替え) は resized() が入れ直す。
+    previewTitleLabel.setText(EditorGuiText::Preview::label, juce::dontSendNotification);
+    previewLabels[0].setText(EditorGuiText::Preview::labelL, juce::dontSendNotification);
+    previewLabels[1].setText(EditorGuiText::Preview::labelMono, juce::dontSendNotification);
+    previewLabels[2].setText(EditorGuiText::Preview::labelR, juce::dontSendNotification);
+
+    togglePreviewBtn.setButtonText(getPreviewButtonText());
+    togglePreviewBtn.setTooltip(getPreviewTooltipText());
+
+    panicButton.setButtonText(EditorGuiText::Panic::title);
+    panicButton.setTooltip(EditorGuiText::Panic::tooltip);
+
+    undoButton.setButtonText(EditorGuiText::Undo::title);
+    redoButton.setButtonText(EditorGuiText::Redo::title);
+
+    updateUndoRedoButtons();
+
+    initParamsButton.setButtonText(EditorGuiText::Reset::title);
+    initParamsButton.setTooltip(EditorGuiText::Reset::tooltip);
+
+    openCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleOpen);
+    openCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipOpen);
+
+    closeCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleClose);
+    closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
+
     resized();
 
     repaint();
