@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20)
 
 # ==============================================================================
 # 共通設定 (変えない部分)
@@ -810,3 +810,4 @@ source_group("2686VL\\Gui\\Dialog\\About" FILES ${ABOUT_GUI_FILES})
 source_group("2686VLight\\Gui\\Tab\\Colors" FILES ${COLORS_GUI_FILES})
 
 create_cyross_plugin("2686VLight" "28VL")
+

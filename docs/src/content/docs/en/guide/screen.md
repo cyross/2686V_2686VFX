@@ -148,6 +148,14 @@ to follow. Added in 3.4.0.
   hidden too
 - Closing a major category **does not change the sound**
 
+### Language
+
+You can choose the display language between Japanese and English from the dropdown at the top of the SETTINGS tab.
+
+The options are always shown in their respective native scripts — "日本語" for Japanese and "English" for English. This ensures that even if you accidentally switch to a language you cannot read, you can easily find your way back.
+
+By default, the plugin automatically detects your OS language (falling back to English for any language other than Japanese). Switching the language rebuilds the screen on the fly.
+
 ### Simple view
 
 There are enough sections that a tab runs long, so SETTINGS carries a switch

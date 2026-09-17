@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20)
 
 # ==============================================================================
 # 共通設定 (変えない部分)
@@ -447,3 +447,4 @@ source_group("2686VFX\\Gui\\Tab\\Colors" FILES ${COLORS_GUI_FILES})
 # 音源ではなく、入力された音を加工するエフェクト。
 # MIDI は受け取る。鍵盤の押し離しでエンベロープや LFO を動かすため。
 create_cyross_effect("2686VFX" "28FX")
+
