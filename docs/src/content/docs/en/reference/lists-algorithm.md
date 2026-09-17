@@ -15,7 +15,7 @@ listed here is **a set of starting points**.
 
 The hardware's eight. They have numbers, not names.
 
-**8 ** of them.
+**8** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -32,7 +32,7 @@ The hardware's eight. They have numbers, not names.
 
 The same eight as OPNA.
 
-**8 ** of them.
+**8** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -49,7 +49,7 @@ The same eight as OPNA.
 
 Only two: FM and additive. Exactly as the hardware had it.
 
-**2 ** of them.
+**2** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -60,7 +60,7 @@ Only two: FM and additive. Exactly as the hardware had it.
 
 The ones marked `OP2x2` are the two-pairs-of-two-operators arrangement we added.
 
-**8 ** of them.
+**8** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -77,7 +77,7 @@ The ones marked `OP2x2` are the two-pairs-of-two-operators arrangement we added.
 
 The hardware's eight.
 
-**8 ** of them.
+**8** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -94,7 +94,7 @@ The hardware's eight.
 
 Each entry names the chip it came from (OPX / OPZ / MA-7 / OPS) and how many operators it uses. The ones with a number alone are ours.
 
-**130 ** of them.
+**130** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |

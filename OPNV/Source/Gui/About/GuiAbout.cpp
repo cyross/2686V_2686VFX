@@ -2,6 +2,7 @@
 
 #include "../../Core/Const/ConstGlobal.h"
 #include "./GuiAboutValues.h"
+#include "./GuiAboutText.h"
 #include "../../Core/Editor/EditorGuiValues.h"
 
 void GuiAbout::setup()
@@ -49,6 +50,16 @@ void GuiAbout::setup()
         )
     );
     copyrightLabel.setJustificationType(juce::Justification::centred);
+
+    // 3.5 マニュアルへの行き先
+    manualLinkButton.setup({ .parent = *this, .title = AboutGuiText::Manual::navigate,
+        .url = juce::URL(AboutGuiText::Manual::linkUrl.get()), .color = juce::Colours::lightblue });
+    manualLinkButton.setFont(
+        juce::Font(
+            juce::FontOptions(
+                AboutGuiValue::ManualLink::fontSize
+            )
+        ), false, juce::Justification::centred);
 
     // 4. Logo (BinaryDataから読み込み)
     // ファイルパスではなく、メモリ(バイナリ)から読み込む
@@ -111,6 +122,8 @@ void GuiAbout::layout(juce::Rectangle<int> content)
     pluginNameLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::PluginName::areaHeight));
     versionLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::PluginVerion::areaHeight));
     copyrightLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::PluginCioyright::areaHeight));
+
+    manualLinkButton.setBounds(pageArea.removeFromTop(AboutGuiValue::ManualLink::areaHeight));
 
     // VST Logo Row
     auto vstLogoArea = pageArea.removeFromTop(AboutGuiValue::VstLogo::areaHeight);

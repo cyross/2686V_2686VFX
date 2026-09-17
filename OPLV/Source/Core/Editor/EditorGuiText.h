@@ -4,6 +4,8 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace EditorGuiText
 {
 	namespace Tab
@@ -34,72 +36,72 @@ namespace EditorGuiText
 	{
 		static inline const juce::String show = u8">>";
 		static inline const juce::String hide = u8"<<";
-		static inline const juce::String label = juce::String("") + "波形プレビュー(オシロスコープ)";
+		static inline const I18n::Text label{ u8"波形プレビュー(オシロスコープ)", u8"Waveform preview" };
 		static inline const juce::String labelL = juce::String("") + "[L]";
 		static inline const juce::String labelMono = juce::String("") + "[M]";
 		static inline const juce::String labelR = juce::String("") + "[R]";
-		static inline const juce::String tooltipShow = juce::String("") + "波形プレビューを表示します。";
-		static inline const juce::String tooltipHide = juce::String("") + "波形プレビューを隠します。";
+		static inline const I18n::Text tooltipShow{ u8"波形プレビューを表示します。", u8"Shows the waveform preview." };
+		static inline const I18n::Text tooltipHide{ u8"波形プレビューを隠します。", u8"Hides the waveform preview." };
 	}
 
 	namespace PresetScan
 	{
-		static inline const juce::String working = juce::String("") + "プリセットの見出しを読んでいます";
+		static inline const I18n::Text working{ u8"プリセットの見出しを読んでいます", u8"Reading preset headings" };
 	}
 
 	namespace Loading
 	{
-		static inline const juce::String cancel = juce::String("") + "中止";
-		static inline const juce::String cancelling = juce::String("") + "中止しています…";
+		static inline const I18n::Text cancel{ u8"中止", u8"Cancel" };
+		static inline const I18n::Text cancelling{ u8"中止しています…", u8"Cancelling…" };
 	}
 
 	namespace ParamBrowser
 	{
-		static inline const juce::String keywordHint = juce::String("") + "名前で絞り込む";
-		static inline const juce::String filterAll = juce::String("") + "すべて";
+		static inline const I18n::Text keywordHint{ u8"名前で絞り込む", u8"Filter by name" };
+		static inline const I18n::Text filterAll{ u8"すべて", u8"All" };
 		static inline const juce::String formatJson = "JSON";
 		static inline const juce::String formatYaml = "YAML";
-		static inline const juce::String formatPlain = juce::String("") + "無印";
+		static inline const I18n::Text formatPlain{ u8"無印", u8"Plain" };
 
-		static inline const juce::String columnName = juce::String("") + "ファイル名";
-		static inline const juce::String columnCategory = juce::String("") + "区分";
-		static inline const juce::String columnFormat = juce::String("") + "形式";
-		static inline const juce::String columnPreview = juce::String("") + "波形";
-		static inline const juce::String columnAction = juce::String("") + "生成";
+		static inline const I18n::Text columnName{ u8"ファイル名", u8"File name" };
+		static inline const I18n::Text columnCategory{ u8"区分", u8"Kind" };
+		static inline const I18n::Text columnFormat{ u8"形式", u8"Format" };
+		static inline const I18n::Text columnPreview{ u8"波形", u8"Waveform" };
+		static inline const I18n::Text columnAction{ u8"生成", u8"Generate" };
 
 		static inline const juce::String sortUp = juce::String::fromUTF8("▲");
 		static inline const juce::String sortDown = juce::String::fromUTF8("▼");
 
-		static inline const juce::String folder = juce::String("") + "フォルダ…";
-		static inline const juce::String bulkGenerate = juce::String("") + "このフォルダのプレビューを作る";
-		static inline const juce::String bulkDelete = juce::String("") + "プレビューを消す";
-		static inline const juce::String working = juce::String("") + "波形を作っています";
-		static inline const juce::String noPreview = juce::String("") + "未生成";
-		static inline const juce::String empty = juce::String("") + "見つかりませんでした";
-		static inline const juce::String folderTitle = juce::String("") + "パラメータファイルのフォルダを選ぶ";
+		static inline const I18n::Text folder{ u8"フォルダ…", u8"Folder…" };
+		static inline const I18n::Text bulkGenerate{ u8"このフォルダのプレビューを作る", u8"Generate all in this folder" };
+		static inline const I18n::Text bulkDelete{ u8"プレビューを消す", u8"Delete all previews" };
+		static inline const I18n::Text working{ u8"波形を作っています", u8"Building the waveform" };
+		static inline const I18n::Text noPreview{ u8"未生成", u8"Not built" };
+		static inline const I18n::Text empty{ u8"見つかりませんでした", u8"Nothing found" };
+		static inline const I18n::Text folderTitle{ u8"パラメータファイルのフォルダを選ぶ", u8"Choose a folder for parameter files" };
 
-		static inline const juce::String parentFolder = juce::String("") + ".. (上のフォルダ)";
+		static inline const I18n::Text parentFolder{ u8".. (上のフォルダ)", u8".. (parent folder)" };
 		static inline const juce::String folderMark = juce::String("") + "▸ ";
 
-		static inline const juce::String newFolder = juce::String("") + "新規フォルダ";
-		static inline const juce::String newFolderTitle = juce::String("") + "新しいフォルダ";
-		static inline const juce::String newFolderPrompt = juce::String("") + "名前";
-		static inline const juce::String create = juce::String("") + "作成";
-		static inline const juce::String cancel = juce::String("") + "取り消し";
+		static inline const I18n::Text newFolder{ u8"新規フォルダ", u8"New folder" };
+		static inline const I18n::Text newFolderTitle{ u8"新しいフォルダ", u8"New folder" };
+		static inline const I18n::Text newFolderPrompt{ u8"名前", u8"Name" };
+		static inline const I18n::Text create{ u8"作成", u8"Create" };
+		static inline const I18n::Text cancel{ u8"取り消し", u8"Cancel" };
 
-		static inline const juce::String deleteFolder = juce::String("") + "フォルダ削除";
-		static inline const juce::String deleteFolderTitle = juce::String("") + "フォルダをごみ箱へ入れますか";
-		static inline const juce::String deleteFolderCount = juce::String("") + "中に %d 件あります。ごみ箱からなら戻せます。";
-		static inline const juce::String moveToTrash = juce::String("") + "ごみ箱へ入れる";
+		static inline const I18n::Text deleteFolder{ u8"フォルダ削除", u8"Delete folder" };
+		static inline const I18n::Text deleteFolderTitle{ u8"フォルダをごみ箱へ入れますか", u8"Move this folder to the recycle bin?" };
+		static inline const I18n::Text deleteFolderCount{ u8"中に %d 件あります。ごみ箱からなら戻せます。", u8"It holds %d item(s). You can put them back from the recycle bin." };
+		static inline const I18n::Text moveToTrash{ u8"ごみ箱へ入れる", u8"Move to recycle bin" };
 
-		static inline const juce::String saveName = juce::String("") + "名前";
-		static inline const juce::String save = juce::String("") + "保存";
-		static inline const juce::String overwriteTitle = juce::String("") + "同じ名前のファイルがあります";
-		static inline const juce::String overwrite = juce::String("") + "上書きする";
+		static inline const I18n::Text saveName{ u8"名前", u8"Name" };
+		static inline const I18n::Text save{ u8"保存", u8"Save" };
+		static inline const I18n::Text overwriteTitle{ u8"同じ名前のファイルがあります", u8"A file with that name already exists" };
+		static inline const I18n::Text overwrite{ u8"上書きする", u8"Overwrite" };
 
-		static inline const juce::String waveWt = juce::String("") + "波形(WT)";
-		static inline const juce::String waveWt2 = juce::String("") + "波形(WT2)";
-		static inline const juce::String audioFile = juce::String("") + "音声";
+		static inline const I18n::Text waveWt{ u8"波形(WT)", u8"Wave (WT)" };
+		static inline const I18n::Text waveWt2{ u8"波形(WT2)", u8"Wave (WT2)" };
+		static inline const I18n::Text audioFile{ u8"音声", u8"Audio" };
 
 		// 区分の名前。ブラウザの表と、呼び出し側の指定で同じものを使う。
 		static inline const juce::String kindOpnaOp = "OPNA OP";
@@ -137,58 +139,58 @@ namespace EditorGuiText
 
 	namespace GenWave
 	{
-		static inline const juce::String title = juce::String("") + "生成波形";
-		static inline const juce::String generate = juce::String("") + "生成";
-		static inline const juce::String regenerate = juce::String("") + "再生成";
-		static inline const juce::String remove = juce::String("") + "削除";
-		static inline const juce::String cycles = juce::String("") + "周期";
+		static inline const I18n::Text title{ u8"生成波形", u8"Generated waveform" };
+		static inline const I18n::Text generate{ u8"生成", u8"Generate" };
+		static inline const I18n::Text regenerate{ u8"再生成", u8"Regenerate" };
+		static inline const I18n::Text remove{ u8"削除", u8"Delete" };
+		static inline const I18n::Text cycles{ u8"周期", u8"Cycles" };
 
 		// 3 段の見出し。リアルタイムのオシロと同じ並び。
 		static inline const juce::String channelL = "L";
 		static inline const juce::String channelM = "M";
 		static inline const juce::String channelR = "R";
-		static inline const juce::String working = juce::String("") + "波形を作っています…";
-		static inline const juce::String empty = juce::String("") + "「生成」で作ります";
-		static inline const juce::String generateTooltip = juce::String("") + "今の設定で 10 秒ぶんの波形を作ります。値を変えたら押し直してください。";
-		static inline const juce::String removeTooltip = juce::String("") + "作った波形を捨てます。";
+		static inline const I18n::Text working{ u8"波形を作っています…", u8"Building the waveform…" };
+		static inline const I18n::Text empty{ u8"「生成」で作ります", u8"Press Generate to build it" };
+		static inline const I18n::Text generateTooltip{ u8"今の設定で 10 秒ぶんの波形を作ります。値を変えたら押し直してください。", u8"Builds 10 seconds of waveform from the current settings. Press it again after changing a value." };
+		static inline const I18n::Text removeTooltip{ u8"作った波形を捨てます。", u8"Throws away the waveform that was built." };
 	}
 
 	namespace Panic
 	{
 		static inline const juce::String title = u8"!";
-		static inline const juce::String tooltip = juce::String("") + "オーディオエンジンを初期状態に戻します。";
+		static inline const I18n::Text tooltip{ u8"オーディオエンジンを初期状態に戻します。", u8"Returns the audio engine to its initial state." };
 	}
 
 	namespace Undo
 	{
 		static inline const juce::String title = u8"Un";
-		static inline const juce::String tooltip = juce::String("") + "編集を履歴から戻します。";
-		static inline const juce::String tooltipNone = juce::String("") + "編集履歴がありません。";
+		static inline const I18n::Text tooltip{ u8"編集を履歴から戻します。", u8"Steps back through the edit history." };
+		static inline const I18n::Text tooltipNone{ u8"編集履歴がありません。", u8"There is no edit history." };
 	}
 
 	namespace Redo
 	{
 		static inline const juce::String title = u8"Re";
-		static inline const juce::String tooltip = juce::String("") + "履歴にある編集をやり直します。";
-		static inline const juce::String tooltipNone = juce::String("") + "編集履歴がありません。";
+		static inline const I18n::Text tooltip{ u8"履歴にある編集をやり直します。", u8"Steps forward through the edit history." };
+		static inline const I18n::Text tooltipNone{ u8"編集履歴がありません。", u8"There is no edit history." };
 	}
 
 	namespace Copy
 	{
 		static inline const juce::String title = u8"C";
-		static inline const juce::String tooltip = juce::String("") + "現在のFM音源のパラメータをクリップボードにコピーします。";
+		static inline const I18n::Text tooltip{ u8"現在のFM音源のパラメータをクリップボードにコピーします。", u8"Copies the current FM parameters to the clipboard." };
 	}
 
 	namespace Paste
 	{
 		static inline const juce::String title = u8"P";
-		static inline const juce::String tooltip = juce::String("") + "クリップボードにコピーしたFMパラメータを現在の画面に貼り付けます";
+		static inline const I18n::Text tooltip{ u8"クリップボードにコピーしたFMパラメータを現在の画面に貼り付けます", u8"Pastes the FM parameters on the clipboard into this tab" };
 	}
 
 	namespace Reset
 	{
 		static inline const juce::String title = u8"Reset";
-		static inline const juce::String tooltip = juce::String("") + "現在の音源のパラメータを初期化します。";
+		static inline const I18n::Text tooltip{ u8"現在の音源のパラメータを初期化します。", u8"Resets this chip's parameters to their defaults." };
 	}
 
 	// 区分の一括開閉。簡易表示モードで隠す区分が対象。
@@ -196,8 +198,8 @@ namespace EditorGuiText
 	{
 		static inline const juce::String titleOpen = u8"OP";
 		static inline const juce::String titleClose = u8"CL";
-		static inline const juce::String tooltipOpen = juce::String("") + "バイパスしていない区分をまとめて開きます。";
-		static inline const juce::String tooltipClose = juce::String("") + "バイパスしている区分をまとめて閉じます。";
+		static inline const I18n::Text tooltipOpen{ u8"バイパスしていない区分をまとめて開きます。", u8"Opens every section that is not bypassed." };
+		static inline const I18n::Text tooltipClose{ u8"バイパスしている区分をまとめて閉じます。", u8"Closes every section that is bypassed." };
 	}
 
 	namespace MiniPlayer
@@ -205,8 +207,8 @@ namespace EditorGuiText
 		static inline const juce::String titleToMini = u8"M";
 		static inline const juce::String titleToMinimum = u8"m";
 		static inline const juce::String titleToFull = u8"F";
-		static inline const juce::String tooltipToMini = juce::String("") + "ウインドウをミニプレイヤーに切り替えます。";
-		static inline const juce::String tooltipToMinimum = juce::String("") + "ウインドウを最小にします。";
-		static inline const juce::String tooltipToFull = juce::String("") + "ウインドウをフル表示に切り替えます。";
+		static inline const I18n::Text tooltipToMini{ u8"ウインドウをミニプレイヤーに切り替えます。", u8"Switches the window to the mini player." };
+		static inline const I18n::Text tooltipToMinimum{ u8"ウインドウを最小にします。", u8"Switches the window to the minimum view." };
+		static inline const I18n::Text tooltipToFull{ u8"ウインドウをフル表示に切り替えます。", u8"Switches the window back to the full view." };
 	}
 }

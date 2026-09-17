@@ -4,6 +4,8 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace SsgGuiText
 {
 
@@ -32,9 +34,9 @@ namespace SsgGuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = juce::String("") + "SSGチャンネル設定";
-		static inline const juce::String ssgDuty = u8"矩形波(デューティ比)設定";
-		static inline const juce::String ssgTri = juce::String("") + "三角波設定";
+		static inline const I18n::Text mainGroup{ u8"SSGチャンネル設定", u8"SSG channel" };
+		static inline const I18n::Text ssgDuty{ u8"矩形波(デューティ比)設定", u8"Pulse wave (duty)" };
+		static inline const I18n::Text ssgTri{ u8"三角波設定", u8"Triangle wave" };
 	}
 
 	namespace Adsr

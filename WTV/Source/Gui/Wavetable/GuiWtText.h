@@ -4,6 +4,8 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace WtGuiText
 {
 	static inline const juce::String bit = u8"BIT";
@@ -22,8 +24,8 @@ namespace WtGuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = juce::String("") + "波形メモリチャンネル設定";
-		static inline const juce::String wtCustom = juce::String("") + "波形メモリ編集";
+		static inline const I18n::Text mainGroup{ u8"波形メモリチャンネル設定", u8"Wave memory channel" };
+		static inline const I18n::Text wtCustom{ u8"波形メモリ編集", u8"Wave memory editing" };
 	}
 
 	namespace Adsr
@@ -84,7 +86,7 @@ namespace WtGuiText
 			static inline const juce::String to0 = u8"-> 0.0";
 			static inline const juce::String to1 = u8"-> 1.0";
 			static inline const juce::String toM1 = u8"-> -1.0";
-			static inline const juce::String smooth = juce::String("") + "波形を滑らかにする";
+			static inline const I18n::Text smooth{ u8"波形を滑らかにする", u8"Smooth the waveform" };
 		}
 	}
 

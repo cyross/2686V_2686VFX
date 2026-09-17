@@ -4,6 +4,8 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace RhythmGuiText
 {
 	static inline const juce::String bit = u8"BIT";
@@ -32,7 +34,7 @@ namespace RhythmGuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = juce::String("") + "リズム音源チャンネル設定";
+		static inline const I18n::Text mainGroup{ u8"リズム音源チャンネル設定", u8"RHYTHM channel" };
 		static inline const juce::String padPrefix = u8"Pad";
 	}
 

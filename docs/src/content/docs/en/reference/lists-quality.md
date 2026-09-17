@@ -54,8 +54,8 @@ There are **21**.
 | 11 | 5-bit PCM | |
 | 12 | 4-bit PCM | |
 | 13 | 4-bit ADPCM | Playback quality of the YM-2608B's ADPCM |
-| 14 | 1-bit DPCM | Playback quality of the DPCM used on the Famicom |
-| 15 | SNES BRR | Playback quality of the Bit Rate Reduction compression used by the Super Famicom's SPC-700 |
+| 14 | 1-bit DPCM | Playback quality of the DPCM used on the Famicom(NES) |
+| 15 | SNES BRR | Playback quality of the Bit Rate Reduction compression used by the Super Famicom(SNES)'s SPC-700 |
 | 16 | PS1 VAG | Playback quality of the VAG compression used on the PS1 / PS2 / PSP |
 | 17 | IMA ADPCM | Playback quality of IMA ADPCM compression |
 | 18 | CD-ROM XA | Playback quality of the CD-XA used on CD-ROM |
@@ -97,7 +97,7 @@ There are **7**.
 | ---: | --- | --- |
 | 1 | No interpolation (Nearest) | |
 | 2 | Linear interpolation (Linear) | |
-| 3 | Gaussian interpolation (Gaussian) | The interpolation algorithm used by the Super Famicom's SPC-700 |
+| 3 | Gaussian interpolation (Gaussian) | The interpolation algorithm used by the Super Famicom(SNES)'s SPC-700 |
 | 4 | ZOH (Zero-Order Hold) | |
 | 5 | Cosine interpolation (Cosine) | |
 | 6 | B-spline interpolation (B-Spline) | |

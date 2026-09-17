@@ -724,7 +724,9 @@ public:
         juce::Component& parent;
         juce::String id = "";
         juce::String title;
-        std::vector<SelectItem>& items;
+        // 言語で名前が変わる並びは、その場で作って渡す。const にして
+        // あるのは、そうして作ったものを受け取れるようにするため。
+        const std::vector<SelectItem>& items;
         juce::Colour color = GuiColor::ComboBox::Text;
         juce::Colour bgColor = GuiColor::ComboBox::Bg;
         bool isReset = true;

@@ -4,6 +4,8 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace OplGuiText
 {
 	static inline const juce::String bit = u8"BIT";
@@ -28,8 +30,8 @@ namespace OplGuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = juce::String("") + "OPLチャンネル設定";
-		static inline const juce::String opPrefix = juce::String("") + "オペレーター";
+		static inline const I18n::Text mainGroup{ u8"OPLチャンネル設定", u8"OPL channel" };
+		static inline const I18n::Text opPrefix{ u8"オペレーター", u8"Operator" };
 	}
 
 	namespace PitchAdsr
@@ -82,7 +84,7 @@ namespace OplGuiText
 
 		namespace Op
 		{
-			static inline const juce::String key = juce::String("") + "オペレーター";
+			static inline const I18n::Text key{ u8"オペレーター", u8"Operator" };
 			static inline const juce::String Ar = u8"AR";
 			static inline const juce::String Dr = u8"DR";
 			static inline const juce::String Sl = u8"SL";

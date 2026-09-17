@@ -1,4 +1,5 @@
-﻿#include <cmath>
+﻿#include "./GuiI18n.h"
+#include <cmath>
 
 #include "./GuiEnvelopeGraph.h"
 #include "../../Advanced/Curve/AdvancedCurveParams.h"
@@ -50,7 +51,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     if (!isEnabled()) {
         g.setColour(juce::Colours::white.withAlpha(0.8f));
         g.setFont(14.0f);
-        g.drawText(juce::String("") + "利用不可", graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
+        g.drawText(I18n::pick(u8"利用不可", u8"Not available"), graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
 
         return;
     }
@@ -72,7 +73,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     if (isBypass) {
         g.setColour(juce::Colours::white.withAlpha(0.8f));
         g.setFont(14.0f);
-        g.drawText(juce::String("") + "バイパス中", graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
+        g.drawText(I18n::pick(u8"バイパス中", u8"Bypassed"), graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
 
         return;
     }

@@ -29,11 +29,9 @@ One plugin for parts built from waveforms you draw or load yourself.
 
 | Channel | |
 | --- | :---: |
-| [WAVETABLE](/2686V_2686VFX/en/chips/wt/) | ✔ |
+| [WT](/2686V_2686VFX/en/chips/wt/) | ✔ |
 | [WT2](/2686V_2686VFX/en/chips/wt2/) | ✔ |
-| [WTPLUS](/2686V_2686VFX/en/chips/wtplus/) | ✔ |
-
-The ones it does not have are OPNA / OPN / OPL / OPL3 / OPM / OPZX7 / SSG / RHYTHM / ADPCM / BEEP.
+| [WT+](/2686V_2686VFX/en/chips/wtplus/) | ✔ |
 
 What each channel holds is on its own page. The sections that turn up in the
 same shape on every channel are collected under
@@ -48,7 +46,7 @@ See [Curve editing](/2686V_2686VFX/en/chips/adv/) for the details.
 ## When to reach for it
 
 - Adding a part with wavetable character
-- Switching between waveforms across the 32 slots of WT+
+- Switching between waveforms across the 32 slots realtime
 
 ## Files
 

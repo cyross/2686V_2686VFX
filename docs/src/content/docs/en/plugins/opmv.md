@@ -31,8 +31,6 @@ part with the X68000 or arcade character.
 | --- | :---: |
 | [OPM](/2686V_2686VFX/en/chips/opm/) | ✔ |
 
-The ones it does not have are OPNA / OPN / OPL / OPL3 / OPZX7 / SSG / WAVETABLE / WT2 / WTPLUS / RHYTHM / ADPCM / BEEP.
-
 What each channel holds is on its own page. The sections that turn up in the
 same shape on every channel are collected under
 [Shared sections](/2686V_2686VFX/en/chips/common/).

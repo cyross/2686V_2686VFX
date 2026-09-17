@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "../Io/ParamFile.h"
+#include "../Gui/GuiI18n.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 #include "../Gui/GuiSimpleView.h"
@@ -368,6 +369,21 @@ public:
     std::atomic<int> realTimeWritePos{ 0 };
 
     // --- Settings Data ---
+    // 画面に出す文字列の言語。"ja" か "en" で持つ。
+    //
+    // 空は「まだ決めていない」を表す。初めて立ち上げたときは設定
+    // ファイルが無いのでここが空のままになり、applyLanguage が OS の
+    // 言語から見立てる。
+    juce::String languageCode;
+
+    // 言語を設定から画面へ映す。設定を読んだ後に呼ぶ。
+    void applyLanguage()
+    {
+        if (languageCode.isEmpty()) languageCode = I18n::toCode(I18n::detect());
+
+        I18n::setCurrent(I18n::fromCode(languageCode));
+    }
+
     int uiScaleIndex = 7; // 高解像度対応(0ベース、初期値: 80%)
 
     // パラメータファイルを書き出す形。0 = JSON, 1 = YAML。
@@ -410,6 +426,7 @@ public:
     template <typename Visitor>
     void visitEnvironment(Visitor& visit)
     {
+        visit(SettingsKey::language, languageCode);
         visit(SettingsKey::uiScaleIndex, uiScaleIndex);
         visit(SettingsKey::fileFormat, fileFormatIndex);
         visit(SettingsKey::wallpaperPath, wallpaperPath);

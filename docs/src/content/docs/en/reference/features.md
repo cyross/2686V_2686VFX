@@ -21,9 +21,9 @@ A list of what is included, and which plugin carries it.
 | OPM | FM, with the OPP key scale added | ✔ | ✔ | — | — | — |
 | OPZX7 | an original modern FM chip, up to 8 operators | ✔ | ✔ | — | — | ✔ |
 | SSG | square, triangle and noise | ✔ | ✔ | ✔ | ✔ | — |
-| WAVETABLE | wave memory, set as real numbers | ✔ | ✔ | — | — | — |
+| WT | wave memory, set as real numbers | ✔ | ✔ | — | — | — |
 | WT2 | wave memory, set in steps | ✔ | ✔ | — | — | — |
-| WTPLUS | switching between wave memories (up to 32) | ✔ | ✔ | — | — | — |
+| WT+ | switching between wave memories (up to 32) | ✔ | ✔ | — | — | — |
 | RHYTHM | drum machine, 8 pads (6 on 86V) | ✔ | ✔ | — | ✔ | — |
 | ADPCM | a sampler for one audio file (called PCM on 86V) | ✔ | ✔ | — | ✔ | — |
 | ADPCM+ | switched playback of audio files (up to 32) | ✔ | ✔ | — | — | — |

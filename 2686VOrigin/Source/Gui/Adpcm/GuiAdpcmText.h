@@ -4,6 +4,8 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace AdpcmGuiText
 {
 	namespace Category
@@ -24,7 +26,7 @@ namespace AdpcmGuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = juce::String("") + "PCMチャンネル設定";
+		static inline const I18n::Text mainGroup{ u8"PCMチャンネル設定", u8"PCM channel" };
 	}
 
 	namespace Adsr

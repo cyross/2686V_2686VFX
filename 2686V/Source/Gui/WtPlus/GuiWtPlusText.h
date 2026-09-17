@@ -4,6 +4,8 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace WtPlusGuiText
 {
 	namespace Category
@@ -16,8 +18,8 @@ namespace WtPlusGuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = juce::String("") + "拡張ウェーブテーブルチャンネル設定";
-		static inline const juce::String waveGroup = juce::String("") + "波形メモリ設定";
+		static inline const I18n::Text mainGroup{ u8"拡張ウェーブテーブルチャンネル設定", u8"Extended wavetable channel" };
+		static inline const I18n::Text waveGroup{ u8"波形メモリ設定", u8"Wave memory" };
 	}
 
 	namespace Wt

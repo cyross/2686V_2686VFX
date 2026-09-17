@@ -320,10 +320,15 @@ static std::vector<SelectItem> ksCurveItems = {
     {.name = "3: +LIN", .value = 4 }
 };
 
-static std::vector<SelectItem> algModeItems = {
-    {.name = juce::String("") + "0: 組み込みアルゴリズム", .value = 1 },
-    {.name = juce::String("") + "1: アルゴリズムマトリックス", .value = 2 }
-};
+// 言語で名前が変わるので、静的な置き場には持たない。プログラムが
+// 始まる前に作ると、言語が決まる前の文字列で固まってしまう。
+static std::vector<SelectItem> algModeItems()
+{
+    return {
+        {.name = I18n::pick(u8"0: 組み込みアルゴリズム", u8"0: Built-in algorithm"), .value = 1 },
+        {.name = I18n::pick(u8"1: アルゴリズムマトリックス", u8"1: Algorithm matrix"), .value = 2 }
+    };
+}
 
 GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     GuiBase(context),
@@ -577,7 +582,7 @@ void GuiOpzx7::setup()
 
     algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::algFb });
 
-    algModeSelector.setup({ .parent = mainGroup.contentCanvas, .id = "", .title = "Mode", .items = algModeItems, .isReset = false });
+    algModeSelector.setup({ .parent = mainGroup.contentCanvas, .id = "", .title = "Mode", .items = algModeItems(), .isReset = false });
     algModeSelector.setWantsKeyboardFocus(true);
     algModeSelector.setExplicitFocusOrder(++tabOrder);
     algModeSelector.onChange = [this] {
@@ -1272,7 +1277,7 @@ void GuiOpzx7::setup()
 
     mmlSeparator.setupComponent(colMask.contentCanvas);
 
-    mml.setup({ .parent = colMask.contentCanvas, .title = juce::String("") + "MML風入力", .isReset = false, .isResized = false });
+    mml.setup({ .parent = colMask.contentCanvas, .title = I18n::pick(u8"MML風入力", u8"MML-style input"), .isReset = false, .isResized = false });
     mml.setWantsKeyboardFocus(true);
     mml.setExplicitFocusOrder(++tabOrder);
     // 札は TARGET が指しているオペレータへ入れる。番号は rebind で

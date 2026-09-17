@@ -52,19 +52,24 @@ static std::vector<SelectItem> wtTsItems = {
     {.name = "3: 256 Samples",  .value = 4 },
 };
 
-static std::vector<SelectItem> wtStepsItems = {
-    {.name = juce::String("") + "段階なし",   .value =  1 },
-    {.name = juce::String("") + " 16段階(  7 /   8)",  .value =  2 },
-    {.name = juce::String("") + " 32段階( 15 /  16)",  .value =  3 },
-    {.name = juce::String("") + " 64段階( 31 /  32)",  .value =  4 },
-    {.name = juce::String("") + "128段階( 63 /  64)", .value =  5 },
-    {.name = juce::String("") + "256段階(127 / 128)", .value =  6 },
-    {.name = juce::String("") + " 16段階(  8 /   7)",  .value =  7 },
-    {.name = juce::String("") + " 32段階( 16 /  15)",  .value =  8 },
-    {.name = juce::String("") + " 64段階( 32 /  31)",  .value =  9 },
-    {.name = juce::String("") + "128段階( 64 /  63)", .value = 10 },
-    {.name = juce::String("") + "256段階(128 / 127)", .value = 11 },
-};
+// 言語で名前が変わるので、静的な置き場には持たない。プログラムが
+// 始まる前に作ると、言語が決まる前の文字列で固まってしまう。
+static std::vector<SelectItem> wtStepsItems()
+{
+    return {
+        {.name = I18n::pick(u8"段階なし", u8"No steps"),   .value =  1 },
+        {.name = I18n::pick(u8" 16段階(  7 /   8)", u8" 16 steps (  7 /   8)"),  .value =  2 },
+        {.name = I18n::pick(u8" 32段階( 15 /  16)", u8" 32 steps ( 15 /  16)"),  .value =  3 },
+        {.name = I18n::pick(u8" 64段階( 31 /  32)", u8" 64 steps ( 31 /  32)"),  .value =  4 },
+        {.name = I18n::pick(u8"128段階( 63 /  64)", u8"128 steps ( 63 /  64)"), .value =  5 },
+        {.name = I18n::pick(u8"256段階(127 / 128)", u8"256 steps (127 / 128)"), .value =  6 },
+        {.name = I18n::pick(u8" 16段階(  8 /   7)", u8" 16 steps (  8 /   7)"),  .value =  7 },
+        {.name = I18n::pick(u8" 32段階( 16 /  15)", u8" 32 steps ( 16 /  15)"),  .value =  8 },
+        {.name = I18n::pick(u8" 64段階( 32 /  31)", u8" 64 steps ( 32 /  31)"),  .value =  9 },
+        {.name = I18n::pick(u8"128段階( 64 /  63)", u8"128 steps ( 64 /  63)"), .value = 10 },
+        {.name = I18n::pick(u8"256段階(128 / 127)", u8"256 steps (128 / 127)"), .value = 11 },
+    };
+}
 
 // MODULATION の変調波形。実機ディスクシステムは 32 段の階段状。
 static std::vector<SelectItem> lfoPmShapeItems = {
@@ -528,7 +533,7 @@ void GuiWt::setup()
     sizeSelector.setExplicitFocusOrder(++tabOrder);
 
     // Steps
-    stepsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Wt::steps, .title = WtGuiText::Wt::steps, .items = wtStepsItems, .isReset = true, .isResized = true });
+    stepsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Wt::steps, .title = WtGuiText::Wt::steps, .items = wtStepsItems(), .isReset = true, .isResized = true });
     stepsSelector.setWantsKeyboardFocus(true);
     stepsSelector.setExplicitFocusOrder(++tabOrder);
     stepsSelector.onChange = [this] {

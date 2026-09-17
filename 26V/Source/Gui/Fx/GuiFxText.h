@@ -4,26 +4,29 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace FxGuiText
 {
 	namespace Group
 	{
-		static inline const juce::String mainGroup = juce::String("") + "エフェクター";
-		static inline const juce::String fxTremolo = juce::String("") + "トレモロ";
-		static inline const juce::String fxVibrato = juce::String("") + "ビブラート";
-		static inline const juce::String fxMbc = juce::String("") + "ビットクラッシャー";
-		static inline const juce::String fxDelay = juce::String("") + "ディレイ";
-		static inline const juce::String fxReverb = juce::String("") + "リバーブ";
-		static inline const juce::String fxFilter = juce::String("") + "フィルター";
-		static inline const juce::String fxEq3B = juce::String("") + "3バンドイコライザー";
-		static inline const juce::String sfcEcho = juce::String("") + "SFCエコー";
+		static inline const I18n::Text mainGroup{ u8"エフェクター", u8"Effects" };
+		static inline const I18n::Text fxTremolo{ u8"トレモロ", u8"Tremolo" };
+		static inline const I18n::Text fxVibrato{ u8"ビブラート", u8"Vibrato" };
+		static inline const I18n::Text fxMbc{ u8"ビットクラッシャー", u8"Bit crusher" };
+		static inline const I18n::Text fxDelay{ u8"ディレイ", u8"Delay" };
+		static inline const I18n::Text fxReverb{ u8"リバーブ", u8"Reverb" };
+		static inline const I18n::Text fxFilter{ u8"フィルター", u8"Filter" };
+		static inline const I18n::Text fxEq3B{ u8"3バンドイコライザー", u8"3-band EQ" };
+		static inline const I18n::Text sfcEcho{ u8"SFCエコー", u8"SFC echo" };
 	}
 
 	namespace Fx
 	{
-		static inline const juce::String masterBypass = juce::String("") + "バイパス";
-		static inline const juce::String bypass = juce::String("") + "バイパス";
-		static inline const juce::String reset = juce::String("") + "パラメータリセット";
+		static inline const I18n::Text masterBypass{ u8"バイパス", u8"Bypass" };
+		static inline const I18n::Text bypass{ u8"バイパス", u8"Bypass" };
+		static inline const I18n::Text reset{ u8"パラメータリセット", u8"Reset parameters" };
+		static inline const I18n::Text showRoute{ u8"設定", u8"Order" };
 		static inline const juce::String mix = u8"MIX";
 		static inline const juce::String orderFileImport = u8"[IM]Order";
 		static inline const juce::String orderFileExport = u8"[EX]Order";

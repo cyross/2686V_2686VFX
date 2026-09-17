@@ -386,7 +386,7 @@ the wobble.**
 
 The nine shapes are **Sine / FDS Triangle / FDS Saw / FDS Reset / FDS Pulse /
 WS Sweep Up / WS Sweep Down / HuC6280 Wave / FDS Table**. They come from the
-modulation the Famicom Disk System, the WonderSwan and the PC Engine chips
+modulation the Famicom Disk System, the WonderSwan and the PC Engine(TurboGrafx-16) chips
 could apply.
 
 You can also load a `.wt` or `.wt2` file and wobble with a shape of your own.

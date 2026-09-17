@@ -500,7 +500,7 @@ void GuiOpn::setup()
 
     mmlSeparator.setupComponent(colMask.contentCanvas);
 
-    mml.setup({ .parent = colMask.contentCanvas, .title = juce::String("") + "MML風入力", .isReset = false, .isResized = false });
+    mml.setup({ .parent = colMask.contentCanvas, .title = I18n::pick(u8"MML風入力", u8"MML-style input"), .isReset = false, .isResized = false });
     mml.setWantsKeyboardFocus(true);
     mml.setExplicitFocusOrder(++tabOrder);
     // 札は TARGET が指しているオペレータへ入れる。番号は rebind で

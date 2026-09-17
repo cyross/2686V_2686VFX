@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20)
 
 # ==============================================================================
 # このファイルは tools/gen_plugin.py が書き出しています。手で直さないでください。
@@ -30,3 +30,4 @@ file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source" PREFIX "WTV" FILES ${ALL_SOURCES})
 
 create_cyross_plugin("WTV" "WTVO")
+

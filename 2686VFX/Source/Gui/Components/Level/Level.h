@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "../../../Core/Gui/GuiI18n.h"
 #include <functional>
 
 #include <JuceHeader.h>
@@ -30,21 +31,21 @@ class GuiComponentLevel : public GuiBase {
     GuiComponentLevelNudge levelNudge;
 
     std::vector<SelectItem> stepItems = {
-        { juce::String("") + " 1: 自由設定", 1 },
-        { juce::String("") + " 2: 1 刻み", 2 },
-        { juce::String("") + " 3: 1 / 2 刻み", 3 },
-        { juce::String("") + " 4: 1 / 4 刻み", 4 },
-        { juce::String("") + " 5: 1 / 8 刻み", 5 },
-        { juce::String("") + " 6: 1 / 16 刻み", 6 },
-        { juce::String("") + " 7: 1 / 32 刻み", 7 },
-        { juce::String("") + " 8: 1 / 64 刻み", 8 },
-        { juce::String("") + " 9: 1 / 128 刻み", 9 },
-        { juce::String("") + "10: 1 / 256 刻み", 10 },
-        { juce::String("") + "11: 1 / 3 刻み", 11 },
-        { juce::String("") + "12: 1 / 6 刻み", 12 },
-        { juce::String("") + "13: 1 / 7 刻み", 13 },
-        { juce::String("") + "14: 1 / 10 刻み", 14 },
-        { juce::String("") + "15: 1 / 100 刻み", 15 }
+        { I18n::pick(u8" 1: 自由設定", u8" 1: Free"), 1 },
+        { I18n::pick(u8" 2: 1 刻み", u8" 2: by 1"), 2 },
+        { I18n::pick(u8" 3: 1 / 2 刻み", u8" 3: by 1 / 2"), 3 },
+        { I18n::pick(u8" 4: 1 / 4 刻み", u8" 4: by 1 / 4"), 4 },
+        { I18n::pick(u8" 5: 1 / 8 刻み", u8" 5: by 1 / 8"), 5 },
+        { I18n::pick(u8" 6: 1 / 16 刻み", u8" 6: by 1 / 16"), 6 },
+        { I18n::pick(u8" 7: 1 / 32 刻み", u8" 7: by 1 / 32"), 7 },
+        { I18n::pick(u8" 8: 1 / 64 刻み", u8" 8: by 1 / 64"), 8 },
+        { I18n::pick(u8" 9: 1 / 128 刻み", u8" 9: by 1 / 128"), 9 },
+        { I18n::pick(u8"10: 1 / 256 刻み", u8"10: by 1 / 256"), 10 },
+        { I18n::pick(u8"11: 1 / 3 刻み", u8"11: by 1 / 3"), 11 },
+        { I18n::pick(u8"12: 1 / 6 刻み", u8"12: by 1 / 6"), 12 },
+        { I18n::pick(u8"13: 1 / 7 刻み", u8"13: by 1 / 7"), 13 },
+        { I18n::pick(u8"14: 1 / 10 刻み", u8"14: by 1 / 10"), 14 },
+        { I18n::pick(u8"15: 1 / 100 刻み", u8"15: by 1 / 100"), 15 }
     };
 
     // 内部でスナップ処理を行うための関数

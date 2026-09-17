@@ -4,14 +4,30 @@
 
 #include<JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace CurveGuiText
 {
-	static inline const juce::String curveGroup = juce::String("") + "カーブ編集";
+	static inline const I18n::Text curveGroup{ u8"カーブ編集", u8"Curve editing" };
 	static inline const juce::String position = u8"Position";
 	static inline const juce::String target = u8"Target";
 	static inline const juce::String param = u8"Param";
-	static inline const juce::String enable = juce::String("") + "カーブモード";
-	static inline const juce::String logic = juce::String("") + "ロジック";
+	static inline const I18n::Text enable{ u8"カーブモード", u8"Curve mode" };
+	static inline const I18n::Text logic{ u8"ロジック", u8"Logic" };
+
+	// ロジックの名前。組み合わせのものは、この部品をつないで作る
+	// (GuiCurve.cpp の curveLogicItems)。31 通りを別々に持つと、訳を
+	// 直すときに取りこぼす。
+	namespace Logic
+	{
+		static inline const I18n::Text linear{ u8"線形", u8"Linear" };
+		static inline const I18n::Text arcExp{ u8"円弧(指数的)", u8"Arc (exponential)" };
+		static inline const I18n::Text arcLog{ u8"円弧(対数的)", u8"Arc (logarithmic)" };
+		static inline const I18n::Text exp{ u8"指数関数", u8"Exponential" };
+		static inline const I18n::Text log{ u8"対数関数", u8"Logarithmic" };
+		static inline const I18n::Text spline1{ u8"1点スプライン", u8"1-point spline" };
+		static inline const I18n::Text spline2{ u8"2点スプライン", u8"2-point spline" };
+	}
 	static inline const juce::String k = u8"K";
 	static inline const juce::String rate = u8"Rate";
 	static inline const juce::String posX = u8"PX";

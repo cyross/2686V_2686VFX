@@ -84,17 +84,17 @@ On WT+, **SPEED and HOLD / KEEP now hold separate values for each of the 32 wave
 
 Since each wave can stop differently, moving SLOT alone changes how the note behaves as well as what it sounds like.
 
-## The FM and RHYTHM tabs: pictures above, one set of settings below
+## The FM and RHYTHM tabs: envelope displays above, one set of settings below
 
-The OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM tabs used to repeat a full set of sections for every operator or pad. In 3.3.0 they are gathered into **pictures at the top and a single set of settings below**.
+The OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM tabs used to repeat a full set of sections for every operator or pad. In 3.3.0 they are gathered into **envelope displays at the top and a single set of settings below**.
 
 <figure class="shot">
 	<img src="/2686V_2686VFX/ui/channel/ch_opna.png" alt="OPNA channel" style="width:600px;" />
-	<figcaption>The OPNA channel: pictures on top, TARGET and the settings below</figcaption>
+	<figcaption>The OPNA channel: envelope displays on top, TARGET and the settings below</figcaption>
 </figure>
 
 - **The frames at the top** show each operator's (or pad's) envelope, four to a row. OPZX7S also shows its WAVE SHAPE wave, and RHYTHM the waveform of the loaded sample. **Clicking anywhere in a frame moves TARGET there**
-- **TARGET** says which operator (or pad) the settings below are pointing at, and that frame is outlined. The strip reads "TARGET → the name of what it points at → AMP / PIT / SSG / S11 / P11". The buttons on the right choose **which envelope the pictures show, for all frames at once**
+- **TARGET** says which operator (or pad) the settings below are pointing at, and that frame is outlined. The strip reads "TARGET → the name of what it points at → AMP / PIT / SSG / S11 / P11". The buttons on the right choose **which envelope the envelope displays show, for all frames at once**
 - **The settings** are laid out one section per column, side by side; what does not fit is reached with the scrollbar underneath. Sections start open. A few short sections share a column
 - **TARGET is remembered** when the window is closed
 - **Ctrl + ← / →** steps TARGET one at a time and **Ctrl + a digit** jumps to that number. On WT+ and ADPCM+, **Ctrl + ← / →** steps the slot as well ([Keyboard shortcuts](/2686V_2686VFX/en/reference/shortcuts/))

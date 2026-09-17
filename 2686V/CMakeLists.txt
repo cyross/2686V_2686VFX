@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20)
 
 # ==============================================================================
 # 共通設定 (変えない部分)
@@ -96,6 +96,8 @@ set(GUI_FILES
     "Source/Core/Gui/GuiColor.h"
     "Source/Core/Gui/GuiColorJuceNames.h"
     "Source/Core/Gui/GuiColor.cpp"
+    "Source/Core/Gui/GuiI18n.h"
+    "Source/Core/Gui/GuiI18n.cpp"
     "Source/Core/Gui/GuiComponents.h"
     "Source/Core/Gui/GuiComponents.cpp"
     "Source/Core/Gui/GuiContext.h"
@@ -834,3 +836,4 @@ source_group("2686V\\Gui\\Dialog\\About" FILES ${ABOUT_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Colors" FILES ${COLORS_GUI_FILES})
 
 create_cyross_plugin("2686V" "2686")
+

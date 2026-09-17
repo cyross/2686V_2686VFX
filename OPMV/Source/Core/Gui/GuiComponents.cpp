@@ -1,4 +1,5 @@
-﻿#include <map>
+﻿#include "./GuiI18n.h"
+#include <map>
 #include "./GuiComponents.h"
 
 #include "../Editor/PluginEditor.h"
@@ -322,7 +323,7 @@ void GuiComboBox::setup(const Config& c)
     }
 
 
-    for (SelectItem& item : c.items)
+    for (const SelectItem& item : c.items)
     {
         this->addItem(item.name, item.value);
     }
@@ -615,13 +616,13 @@ void GuiMml::openDialog(juce::Component* owner, int opIndex, const juce::String&
 {
     // オペレーター番号は 0始まりを想定しているので +1 して表示
     auto* w = new juce::AlertWindow(
-        juce::String("") + "MML風入力(オペレーター" + juce::String(opIndex + 1) + ")",
+        I18n::pick(u8"MML風入力(オペレーター", u8"MML-style input (operator ") + juce::String(opIndex + 1) + ")",
         hintMessage, // ← 外から渡されたチャンネルごとのメッセージ
         juce::AlertWindow::QuestionIcon);
 
     w->addTextEditor("mmlInput", "", "");
-    w->addButton(juce::String("") + "決定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
-    w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+    w->addButton(I18n::pick(u8"決定", u8"OK"), 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
+    w->addButton(I18n::pick(u8"キャンセル", u8"Cancel"), 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
 
     GuiDialog::styleButtons(*w);
 

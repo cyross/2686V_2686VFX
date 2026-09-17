@@ -4,11 +4,13 @@
 
 #include <JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 namespace PresetKey
 {
 	namespace Search
 	{
-		static inline const juce::String title = juce::String("") + "検索";
+		static inline const I18n::Text title{ u8"検索", u8"Search" };
 		static inline const juce::String clear = "X";
 	}
 
@@ -17,20 +19,20 @@ namespace PresetKey
 	// 読み込みはどの形式でもできるので、これは探しやすさのためのもの。
 	namespace Format
 	{
-		static inline const juce::String title = juce::String("") + "形式";
-		static inline const juce::String all = juce::String("") + "すべて";
+		static inline const I18n::Text title{ u8"形式", u8"Format" };
+		static inline const I18n::Text all{ u8"すべて", u8"All" };
 		static inline const juce::String xml = "XML";
 		static inline const juce::String json = "JSON";
 		static inline const juce::String yaml = "YAML";
 	}
 	namespace View
 	{
-		static inline const juce::String title = juce::String("") + "表示";
-		static inline const juce::String all = juce::String("") + "すべて";
-		static inline const juce::String favourites = juce::String("") + "お気に入り";
-		static inline const juce::String history = juce::String("") + "履歴";
+		static inline const I18n::Text title{ u8"表示", u8"Show" };
+		static inline const I18n::Text all{ u8"すべて", u8"All" };
+		static inline const I18n::Text favourites{ u8"お気に入り", u8"Favourites" };
+		static inline const I18n::Text history{ u8"履歴", u8"History" };
 
-		static inline const juce::String clearHistory = juce::String("") + "履歴を消す";
+		static inline const I18n::Text clearHistory{ u8"履歴を消す", u8"Clear the history" };
 
 		namespace Mark
 		{
@@ -41,10 +43,10 @@ namespace PresetKey
 
 		namespace Dialog
 		{
-			static inline const juce::String clearTitle = juce::String("") + "履歴を消す";
-			static inline const juce::String clearMessage = juce::String("") + "読み込んだプリセットの履歴をすべて消します。よろしいですか？";
-			static inline const juce::String clearOk = juce::String("") + "消す";
-			static inline const juce::String clearCancel = juce::String("") + "キャンセル";
+			static inline const I18n::Text clearTitle{ u8"履歴を消す", u8"Clear the history" };
+			static inline const I18n::Text clearMessage{ u8"読み込んだプリセットの履歴をすべて消します。よろしいですか？", u8"This clears the whole history of loaded presets. Continue?" };
+			static inline const I18n::Text clearOk{ u8"消す", u8"Clear" };
+			static inline const I18n::Text clearCancel{ u8"キャンセル", u8"Cancel" };
 		}
 	}
 
@@ -55,60 +57,60 @@ namespace PresetKey
 	// ときは絞らない。
 	namespace Channel
 	{
-		static inline const juce::String title = juce::String("") + "チャンネル";
-		static inline const juce::String use = juce::String("") + "対象";
-		static inline const juce::String allOn = juce::String("") + "すべてON";
-		static inline const juce::String allOff = juce::String("") + "すべてOFF";
+		static inline const I18n::Text title{ u8"チャンネル", u8"Channel" };
+		static inline const I18n::Text use{ u8"対象", u8"Use" };
+		static inline const I18n::Text allOn{ u8"すべてON", u8"All on" };
+		static inline const I18n::Text allOff{ u8"すべてOFF", u8"All off" };
 
 		// いま対象にしているものの並び。ひとつも無ければ「すべて」。
-		static inline const juce::String summary = juce::String("") + "対象: ";
-		static inline const juce::String summaryNone = juce::String("") + "すべて";
+		static inline const I18n::Text summary{ u8"対象: ", u8"Use: " };
+		static inline const I18n::Text summaryNone{ u8"すべて", u8"All" };
 	}
 
 	namespace Table
 	{
-		static inline const juce::String title = juce::String("") + "プリセット一覧";
+		static inline const I18n::Text title{ u8"プリセット一覧", u8"Presets" };
 
 		namespace ColName
 		{
 			static inline const juce::String favourite = juce::String("") + "★";
-			static inline const juce::String genre = juce::String("") + "ジャンル";
-			static inline const juce::String format = juce::String("") + "形式";
-			static inline const juce::String fileName = juce::String("") + "ファイル名";
-			static inline const juce::String mode = juce::String("") + "チャンネル";
-			static inline const juce::String name = juce::String("") + "プリセット名";
-			static inline const juce::String author = juce::String("") + "作者名";
-			static inline const juce::String version = juce::String("") + "バージョン";
-			static inline const juce::String lastModified = juce::String("") + "最終更新日時";
+			static inline const I18n::Text genre{ u8"ジャンル", u8"Genre" };
+			static inline const I18n::Text format{ u8"形式", u8"Format" };
+			static inline const I18n::Text fileName{ u8"ファイル名", u8"File name" };
+			static inline const I18n::Text mode{ u8"チャンネル", u8"Channel" };
+			static inline const I18n::Text name{ u8"プリセット名", u8"Preset name" };
+			static inline const I18n::Text author{ u8"作者名", u8"Author" };
+			static inline const I18n::Text version{ u8"バージョン", u8"Version" };
+			static inline const I18n::Text lastModified{ u8"最終更新日時", u8"Last modified" };
 		}
 	}
 
 	namespace MetaData
 	{
-		static inline const juce::String title = juce::String("") + "プリセットメタデータ";
+		static inline const I18n::Text title{ u8"プリセットメタデータ", u8"Preset metadata" };
 
 		namespace Label
 		{
-			static inline const juce::String name = juce::String("") + "プリセット名: ";
-			static inline const juce::String auther = juce::String("") + "作者名: ";
-			static inline const juce::String version = juce::String("") + "バージョン: ";
-			static inline const juce::String comment = juce::String("") + "コメント: ";
-			static inline const juce::String mode = juce::String("") + "チャンネル: ";
-			static inline const juce::String genre = juce::String("") + "ジャンル: ";
-			static inline const juce::String filePath = juce::String("") + "ファイルパス: ";
+			static inline const I18n::Text name{ u8"プリセット名: ", u8"Preset name: " };
+			static inline const I18n::Text auther{ u8"作者名: ", u8"Author: " };
+			static inline const I18n::Text version{ u8"バージョン: ", u8"Version: " };
+			static inline const I18n::Text comment{ u8"コメント: ", u8"Comment: " };
+			static inline const I18n::Text mode{ u8"チャンネル: ", u8"Channel: " };
+			static inline const I18n::Text genre{ u8"ジャンル: ", u8"Genre: " };
+			static inline const I18n::Text filePath{ u8"ファイルパス: ", u8"File path: " };
 		};
 	}
 
 	namespace Button
 	{
-		static inline const juce::String initPreset = juce::String("") + "プリセット初期化";
-		static inline const juce::String loadPreset = juce::String("") + "プリセット読み込み";
-		static inline const juce::String savePreset = juce::String("") + "プリセット保存";
-		static inline const juce::String savePresetAs = juce::String("") + "ファイル名を指定してプリセットを保存";
-		static inline const juce::String deletePreset = juce::String("") + "プリセット削除";
-		static inline const juce::String refleshPresetList = juce::String("") + "プリセットリストの更新";
-		static inline const juce::String reflectPresetInfo = juce::String("") + "選択メタデータを反映";
-		static inline const juce::String copyPresetInfoToClipboard = juce::String("") + "クリップボードにコピー";
+		static inline const I18n::Text initPreset{ u8"プリセット初期化", u8"Initialise preset" };
+		static inline const I18n::Text loadPreset{ u8"プリセット読み込み", u8"Load preset" };
+		static inline const I18n::Text savePreset{ u8"プリセット保存", u8"Save preset" };
+		static inline const I18n::Text savePresetAs{ u8"ファイル名を指定してプリセットを保存", u8"Save preset as…" };
+		static inline const I18n::Text deletePreset{ u8"プリセット削除", u8"Delete preset" };
+		static inline const I18n::Text refleshPresetList{ u8"プリセットリストの更新", u8"Refresh the preset list" };
+		static inline const I18n::Text reflectPresetInfo{ u8"選択メタデータを反映", u8"Apply the selected metadata" };
+		static inline const I18n::Text copyPresetInfoToClipboard{ u8"クリップボードにコピー", u8"Copy to clipboard" };
 	}
 
 	static inline const juce::String name = "presetName";

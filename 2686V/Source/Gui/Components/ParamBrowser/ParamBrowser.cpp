@@ -783,7 +783,7 @@ void GuiParamBrowser::deleteSelectedFolder()
     auto* window = new juce::AlertWindow(
         EditorGuiText::ParamBrowser::deleteFolderTitle,
         dir.getFullPathName() + "\n\n"
-        + EditorGuiText::ParamBrowser::deleteFolderCount.replace("%d", juce::String(count)),
+        + EditorGuiText::ParamBrowser::deleteFolderCount.get().replace("%d", juce::String(count)),
         juce::MessageBoxIconType::NoIcon);
 
     window->addButton(EditorGuiText::ParamBrowser::moveToTrash, 1);

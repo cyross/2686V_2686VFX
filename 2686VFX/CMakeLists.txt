@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20)
 
 # ==============================================================================
 # 共通設定 (変えない部分)
@@ -89,6 +89,8 @@ set(GUI_FILES
     "Source/Core/Gui/GuiColor.h"
     "Source/Core/Gui/GuiColorJuceNames.h"
     "Source/Core/Gui/GuiColor.cpp"
+    "Source/Core/Gui/GuiI18n.h"
+    "Source/Core/Gui/GuiI18n.cpp"
     "Source/Core/Gui/GuiComponents.h"
     "Source/Core/Gui/GuiComponents.cpp"
     "Source/Core/Gui/GuiContext.h"
@@ -445,3 +447,4 @@ source_group("2686VFX\\Gui\\Tab\\Colors" FILES ${COLORS_GUI_FILES})
 # 音源ではなく、入力された音を加工するエフェクト。
 # MIDI は受け取る。鍵盤の押し離しでエンベロープや LFO を動かすため。
 create_cyross_effect("2686VFX" "28FX")
+

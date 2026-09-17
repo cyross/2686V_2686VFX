@@ -30,17 +30,23 @@ class GuiFx : public GuiBase
     // 順番の設定は最初から開いておく。メインが縦長の 1 列になり、丈が足りる。
     bool isShowRoute = true;
     std::vector<int> order = { 0 };
-    static inline const std::array<juce::String, NumEffects> effectNames = {
-            juce::String("") + "フィルター",         // 0: FxType::Filter
-            juce::String("") + "3バンドイコライザー", // 1: FxType::Eq3b
-            juce::String("") + "トレモロ",           // 2: FxType::Tremolo
-            juce::String("") + "ビブラート",         // 3: FxType::Vibrato
-            juce::String("") + "ビットクラッシャー", // 4: FxType::ModernBitCrusher
-            juce::String("") + "ディレイ",           // 5: FxType::Delay
-            juce::String("") + "リバーブ",           // 6: FxType::Reverb
-            juce::String("") + "SFCエコー",          // 7: FxType::SpcEcho
-            juce::String("") + "PCMビットクラッシャー"  // 8: FxType::PcmBitCrusher
-    };
+    // 掛ける順番の行に出す名前。区分の見出しと同じものを使う。
+    //
+    // 言語で変わるので、静的な置き場には持たない。プログラムが始まる前に
+    // 作ると、言語が決まる前の文字列で固まってしまう。
+    static std::array<juce::String, NumEffects> effectNames()
+    {
+        return {
+            FxGuiText::Group::fxFilter,  // 0: FxType::Filter
+            FxGuiText::Group::fxEq3B,    // 1: FxType::Eq3b
+            FxGuiText::Group::fxTremolo, // 2: FxType::Tremolo
+            FxGuiText::Group::fxVibrato, // 3: FxType::Vibrato
+            FxGuiText::Group::fxMbc,     // 4: FxType::ModernBitCrusher
+            FxGuiText::Group::fxDelay,   // 5: FxType::Delay
+            FxGuiText::Group::fxReverb,  // 6: FxType::Reverb
+            FxGuiText::Group::sfcEcho    // 7: FxType::SpcEcho
+        };
+    }
 
     GuiGroup mainGroup;
 

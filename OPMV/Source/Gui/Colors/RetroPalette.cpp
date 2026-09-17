@@ -1,4 +1,5 @@
-﻿#include "./RetroPalette.h"
+﻿#include "../../Core/Gui/GuiI18n.h"
+#include "./RetroPalette.h"
 
 namespace
 {
@@ -92,11 +93,11 @@ juce::String RetroPalette::name(Machine machine)
 {
 	switch (machine)
 	{
-	case Machine::Pc8801:    return u8"PC-8801 (512色)";
-	case Machine::Pc9801:    return u8"PC-9801 (4096色)";
-	case Machine::PcEngine:  return u8"PCエンジン (512色)";
-	case Machine::MegaDrive: return u8"メガドライブ (512色)";
-	case Machine::X68000:    return u8"X68000 (65536色)";
+	case Machine::Pc8801:    return I18n::pick(u8"PC-8801 (512色)", u8"PC-8801 (512 colours)");
+	case Machine::Pc9801:    return I18n::pick(u8"PC-9801 (4096色)", u8"PC-9801 (4096 colours)");
+	case Machine::PcEngine:  return I18n::pick(u8"PCエンジン (512色)", u8"PC Engine (512 colours)");
+	case Machine::MegaDrive: return I18n::pick(u8"メガドライブ (512色)", u8"Mega Drive (512 colours)");
+	case Machine::X68000:    return I18n::pick(u8"X68000 (65536色)", u8"X68000 (65536 colours)");
 	}
 
 	return {};

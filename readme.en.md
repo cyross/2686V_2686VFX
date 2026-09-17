@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v3.4.0 README
+# Retro Sound VST "2686V" v3.5.0 README
 
 (C)2026 CYROSS
 
@@ -29,7 +29,21 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0-1. What v3.4.0 adds and changes
+### 3-0-1. What v3.5.0 adds and changes
+
+- **Support for on-the-fly display language selection**
+  - Added a "Language (LANGUAGE)" dropdown setting to the top of the **SETTINGS** tab.
+  - You can now switch the display language between Japanese and English (by default, the language is automatically detected based on your OS settings, falling back to English for any language other than Japanese).
+  - The options ("日本語" and "English") are always written in their respective native scripts. This makes it easy to revert the setting if you accidentally choose a language you cannot read.
+  - Rebuilding the screen immediately on the fly once the language is changed.
+  - This feature works identically across all 12 plugins in the family.
+- **Link to the User's Manual on the ABOUT tab**
+  - Added a button to open this user's manual (website) in your selected language (the Japanese version or the English version under `/en/`) using your web browser.
+- **Layout and width adjustments for PRESET and wave preview headings**
+  - Slightly expanded the width of the "Format" label on the **PRESET** tab to accommodate the English word.
+  - Removed the parenthesized "(Oscilloscope)" from the wave preview heading in the English layout to ensure the "Waveform preview" text fits within the frame.
+
+### 3-0-2. What v3.4.0 adds and changes
 
 - **Passing sounds between the FM chips and OPZX7S**
   - **[EX]OPZX7S Params** added to UTILITY on OPNA / OPN / OPL / OPL3 / OPM

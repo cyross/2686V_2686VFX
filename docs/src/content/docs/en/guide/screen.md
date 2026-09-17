@@ -45,15 +45,15 @@ distinguishable at a glance.
 
 | Tab | What's there |
 | --- | --- |
-| **ADV** | curve editing — how a value changes over time (2686V / OPZX7S only) |
+| **ADV** | curve editing — how a value changes over time (2686V / OPNV / OPLV / OPM / OPZX7S / PULSEV / WTV / PCMV) |
 | **PRESET** | saving and loading presets, favourites, history, filtering by format and channel |
 | **SETTINGS** | behaviour, folder locations, file format |
 | **COLORS** | changing the interface colours |
 | **ABOUT** | version and licence |
 
-## The FM and RHYTHM tabs — pictures and TARGET
+## The FM and RHYTHM tabs — envelope displays and TARGET
 
-The OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM tabs have **pictures at
+The OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM tabs have **envelope displays at
 the top and a single set of settings below**. Rather than repeating the
 settings for every operator (or pad), there is one set, and **TARGET** chooses
 which one it points at.
@@ -65,11 +65,11 @@ which one it points at.
 
 | Part | What it does |
 | --- | --- |
-| Frames at the top | one picture per operator (or pad), four to a row. **Clicking one moves TARGET there** |
+| Frames at the top | one envelope display per operator (or pad), four to a row. **Clicking one moves TARGET there** |
 | Outline | only the frame TARGET points at is drawn with a heavy border |
 | TARGET | the operator (or pad) the settings below point at. It is remembered when the window closes |
 | Name | to the right of TARGET, the name of what it points at ("オペレーター1", "Pad 1 (BD)" and so on) |
-| AMP / PIT / SSG / S11 / P11 | **which envelope the pictures show** — switched for all frames at once, not per frame |
+| AMP / PIT / SSG / S11 / P11 | **which envelope the envelope displays show** — switched for all frames at once, not per frame |
 | Setting columns | one section per column, side by side; the scrollbar underneath reaches the rest |
 
 What a frame shows differs a little by tab.
@@ -80,7 +80,7 @@ What a frame shows differs a little by tab.
 | OPZX7S | the WAVE SHAPE wave and the envelope |
 | RHYTHM | the loaded sample's waveform and the envelope |
 
-The frames do not each get their own switch because the pictures are there
+The frames do not each get their own switch because the envelope displays are there
 **to be compared** — showing a different thing in each would leave nothing to
 compare.
 
@@ -147,6 +147,14 @@ to follow. Added in 3.4.0.
 - If simple view hides every section inside, the major category heading is
   hidden too
 - Closing a major category **does not change the sound**
+
+### Language
+
+You can choose the display language between Japanese and English from the dropdown at the top of the SETTINGS tab.
+
+The options are always shown in their respective native scripts — "日本語" for Japanese and "English" for English. This ensures that even if you accidentally switch to a language you cannot read, you can easily find your way back.
+
+By default, the plugin automatically detects your OS language (falling back to English for any language other than Japanese). Switching the language rebuilds the screen on the fly.
 
 ### Simple view
 
@@ -294,8 +302,53 @@ Clicking outside closes the list without choosing.
 
 ## Wallpaper
 
-SETTINGS lets you put an image behind everything, with a choice of how it is
-arranged.
+You can set an image file in the "Wallpaper" section of the SETTINGS tab to change the plugin background.
+
+You can also change the display mode of the image using the "Wallpaper display scale" combo box.
+
+For example, I will use the following image created with Adobe Firefly.
+
+*From v3.4.0, this image can also be used as wallpaper.*
+
+<p align="center">
+  <img alt="Wallpaper source image" src="/2686V_2686VFX/figures/wp/wp_sample0.png">
+</p>
+
+## Wallpaper display modes
+
+### Stretch
+
+<p align="center">
+  <img alt="Stretch setting" src="/2686V_2686VFX/figures/wp/wp_sample1.png">
+</p>
+
+- Stretches or shrinks the image both vertically and horizontally to fit the screen.
+
+### Fill
+
+<p align="center">
+  <img alt="Fill setting" src="/2686V_2686VFX/figures/wp/wp_sample2.png">
+</p>
+
+- Scales the image while maintaining its aspect ratio.
+  Depending on the aspect ratio of the image, the background may be covered.
+
+### Fit
+
+<p align="center">
+  <img alt="Fit setting" src="/2686V_2686VFX/figures/wp/wp_sample3.png">
+</p>
+
+- "Fit": Similar to "Fill", but the background might be clipped conversely.
+  Where it is clipped, a blurred version of the background is displayed behind it.
+
+### Original
+
+<p align="center">
+  <img alt="Original setting" src="/2686V_2686VFX/figures/wp/wp_sample4.png">
+</p>
+
+- Displays the image in its original resolution, pasted in the center.
 
 ## The keyboard
 

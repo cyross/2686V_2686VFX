@@ -7,6 +7,8 @@
 
 #include <JuceHeader.h>
 
+#include "../../Core/Gui/GuiI18n.h"
+
 #include "../../Core/Io/ParamFile.h"
 
 namespace PresetValue
@@ -37,13 +39,13 @@ namespace PresetValue
 		// メタデータをクリップボードに貼り付ける際の前置詞
 		namespace ClipBoardPrefix
 		{
-			static inline const juce::String name = juce::String("") + "プリセット名: ";
-			static inline const juce::String auther = juce::String("") + "作者名: ";
-			static inline const juce::String version = juce::String("") + "バージョン: ";
-			static inline const juce::String comment = juce::String("") + "コメント: ";
-			static inline const juce::String mode = juce::String("") + "チャンネル: ";
-			static inline const juce::String genre = juce::String("") + "ジャンル: ";
-			static inline const juce::String filePath = juce::String("") + "ファイルパス: ";
+			static inline const I18n::Text name{ u8"プリセット名: ", u8"Preset name: " };
+			static inline const I18n::Text auther{ u8"作者名: ", u8"Author: " };
+			static inline const I18n::Text version{ u8"バージョン: ", u8"Version: " };
+			static inline const I18n::Text comment{ u8"コメント: ", u8"Comment: " };
+			static inline const I18n::Text mode{ u8"チャンネル: ", u8"Channel: " };
+			static inline const I18n::Text genre{ u8"ジャンル: ", u8"Genre: " };
+			static inline const I18n::Text filePath{ u8"ファイルパス: ", u8"File path: " };
 		};
 	}
 
@@ -71,7 +73,7 @@ namespace PresetValue
 
 		namespace Message
 		{
-			static inline const juce::String invalidXmlNotice = juce::String("") + "XMLの書式が不正です！";
+			static inline const I18n::Text invalidXmlNotice{ u8"XMLの書式が不正です！", u8"The XML is malformed." };
 		}
 	}
 };

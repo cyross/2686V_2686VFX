@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "../../Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
 
 #include "../Components/FmToOpzx7/FmToOpzx7.h"
@@ -241,7 +242,7 @@ class GuiOpn : public GuiBase
 
     // MML の窓へ出す案内。札からも鍵からも同じものを使う。
     static inline const juce::String mmlHint =
-        juce::String("") + "MML風にパラメータを入力してください。 例: AR:31 AR31 DT-1 等";
+        I18n::pick(u8"MML風にパラメータを入力してください。 例: AR:31 AR31 DT-1 等", u8"Type the parameters MML-style. For example: AR:31 AR31 DT-1");
 
     void updateOpGraph(int opIndex);
     void setGraphMode(GuiEnvGraphMode mode);

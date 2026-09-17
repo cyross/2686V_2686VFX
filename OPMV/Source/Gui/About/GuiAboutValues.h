@@ -57,6 +57,12 @@ namespace AboutGuiValue
 		static inline constexpr float fontSize = 24.0f;
 	}
 
+	namespace ManualLink
+	{
+		static inline constexpr int areaHeight = 30;
+		static inline constexpr float fontSize = 18.0f;
+	}
+
 	namespace Group
 	{
 		static inline constexpr int TitlePaddingTop = 10;

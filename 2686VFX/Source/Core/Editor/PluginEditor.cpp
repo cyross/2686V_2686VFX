@@ -50,6 +50,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // 色の差し替えを受けて描き直す
     GuiColor::changeBroadcaster().addChangeListener(this);
 
+    // 言語の切り替えを受けて画面を組み直す
+    I18n::changeBroadcaster().addChangeListener(this);
+
     audioProcessor.apvts.addParameterListener(CPK::mode, this);
 
     setupLogo();
@@ -310,6 +313,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     tabs.setLookAndFeel(nullptr);
     tabs.getTabbedButtonBar().removeChangeListener(this);
     GuiColor::changeBroadcaster().removeChangeListener(this);
+    I18n::changeBroadcaster().removeChangeListener(this);
 
 
 
@@ -397,6 +401,13 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
         GuiDialog::applyTheme();
 
         repaint();
+
+        return;
+    }
+
+    if (source == &I18n::changeBroadcaster())
+    {
+        rebuildForLanguage();
 
         return;
     }
@@ -833,10 +844,10 @@ void AudioPlugin2686VEditor::askInitialSettings()
 
         juce::AlertWindow::showAsync(juce::MessageBoxOptions()
             .withIconType(juce::MessageBoxIconType::QuestionIcon)
-            .withTitle(juce::String("") + "初期設定")
-            .withMessage(juce::String("") + "パラメータを簡易表示モード(必要最低限のパラメータのみ表示)で表示しますか？")
-            .withButton(juce::String("") + "はい")
-            .withButton(juce::String("") + "いいえ")
+            .withTitle(I18n::pick(u8"初期設定", u8"First run"))
+            .withMessage(I18n::pick(u8"パラメータを簡易表示モード(必要最低限のパラメータのみ表示)で表示しますか？", u8"Show the parameters in simple view (only the ones you need)?"))
+            .withButton(I18n::pick(u8"はい", u8"Yes"))
+            .withButton(I18n::pick(u8"いいえ", u8"No"))
             .withAssociatedComponent(safe),
             [safe](int result) {
                 asking = false;
@@ -855,10 +866,10 @@ void AudioPlugin2686VEditor::askInitialSettings()
                 if (!safe->audioProcessor.saveEnvironment(file)) {
                     juce::AlertWindow::showMessageBoxAsync(
                         juce::MessageBoxIconType::WarningIcon,
-                        juce::String("") + "失敗",
-                        juce::String("") + "初期設定ファイルを作成できませんでした。\n\n"
-                        + "場所: " + file.getParentDirectory().getFullPathName() + "\n"
-                        + "ファイル名: " + file.getFileName(),
+                        I18n::pick(u8"失敗", u8"Failed"),
+                        I18n::pick(u8"初期設定ファイルを作成できませんでした。", u8"The settings file could not be created.") + "\n\n"
+                        + I18n::pick(u8"場所: ", u8"Folder: ") + file.getParentDirectory().getFullPathName() + "\n"
+                        + I18n::pick(u8"ファイル名: ", u8"File name: ") + file.getFileName(),
                         juce::String(),
                         safe.getComponent()
                     );
@@ -902,10 +913,10 @@ void AudioPlugin2686VEditor::assignTooltipsRecursive(juce::Component* parentComp
                 bool isInteger = (std::abs(interval - 1.0) < 0.001) || (interval > 0.9);
 
                 if (isInteger) {
-                    tooltipText = juce::String("") + "現在の値: " + juce::String((int)min) + " - " + juce::String((int)max);
+                    tooltipText = I18n::pick(u8"現在の値: ", u8"Value now: ") + juce::String((int)min) + " - " + juce::String((int)max);
                 }
                 else {
-                    tooltipText = juce::String("") + "現在の値: " + juce::String(min, 1) + " - " + juce::String(max, 1);
+                    tooltipText = I18n::pick(u8"現在の値: ", u8"Value now: ") + juce::String(min, 1) + " - " + juce::String(max, 1);
                 }
 
                 slider->setTooltip(tooltipText);
@@ -1181,6 +1192,76 @@ void AudioPlugin2686VEditor::updateFxOrder(){
     fxGui->updateFxOrder();
 }
 
+
+void AudioPlugin2686VEditor::rebuildForLanguage()
+{
+    // 部品はタイトルを setup のときに受け取り、その後は持たない。生きた
+    // まま題を付け替える口を足すと、部品の種類 × 画面の数だけ書き漏らしが
+    // 出る。タブごと捨てて組み直すほうが確実なので、そうしている。
+    const int lastTab = tabs.getCurrentTabIndex();
+
+    // タブの登録を外してから中身を捨てる。順を逆にすると、もう無いものを
+    // 指したままの器が残る。
+    tabs.clearTabs();
+
+    GuiContext context(audioProcessor, *this, audioProcessor.apvts);
+
+    fxGui = std::make_unique<GuiFx>(context);
+    settingsGui = std::make_unique<GuiSettings>(context);
+    aboutGui = std::make_unique<GuiAbout>(context);
+    colorsGui = std::make_unique<GuiColors>(context);
+
+    fxGui->setup();
+    settingsGui->setup();
+    colorsGui->setup();
+    aboutGui->setup();
+
+    // ダイアログの配色は共有の LookAndFeel に入るので、作り直しでは
+    // 変わらない。それでも画面と揃っているか分からなくなるので写し直す。
+    GuiDialog::applyTheme();
+
+    setupTabs(tabs);
+
+    tabs.setCurrentTabIndex((lastTab >= 0 && lastTab < tabs.getNumTabs()) ? lastTab : 0);
+
+    for (int i = 0; i < tabs.getNumTabs(); ++i)
+    {
+        if (auto* contentComp = tabs.getTabContentComponent(i)) assignTooltipsRecursive(contentComp);
+    }
+
+    setTooltipState(audioProcessor.showTooltips);
+
+    // タブの外に出る文字は作り直しの対象ではないので、ここで入れ直す。
+    // 見方で変わる題 (ミニプレイヤーの切り替え) は resized() が入れ直す。
+    previewTitleLabel.setText(EditorGuiText::Preview::label, juce::dontSendNotification);
+    previewLabels[0].setText(EditorGuiText::Preview::labelL, juce::dontSendNotification);
+    previewLabels[1].setText(EditorGuiText::Preview::labelMono, juce::dontSendNotification);
+    previewLabels[2].setText(EditorGuiText::Preview::labelR, juce::dontSendNotification);
+
+    togglePreviewBtn.setButtonText(getPreviewButtonText());
+    togglePreviewBtn.setTooltip(getPreviewTooltipText());
+
+    panicButton.setButtonText(EditorGuiText::Panic::title);
+    panicButton.setTooltip(EditorGuiText::Panic::tooltip);
+
+    undoButton.setButtonText(EditorGuiText::Undo::title);
+    redoButton.setButtonText(EditorGuiText::Redo::title);
+
+    updateUndoRedoButtons();
+
+    initParamsButton.setButtonText(EditorGuiText::Reset::title);
+    initParamsButton.setTooltip(EditorGuiText::Reset::tooltip);
+
+    openCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleOpen);
+    openCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipOpen);
+
+    closeCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleClose);
+    closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
+
+    resized();
+
+    repaint();
+}
 
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {

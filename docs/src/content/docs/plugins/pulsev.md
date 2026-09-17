@@ -27,12 +27,12 @@ sidebar:
 
 ## 収録しているチャンネル
 
+収録しているチャンネルは以下のとおりです。
+
 | チャンネル | |
 | --- | :---: |
 | [SSG](/2686V_2686VFX/chips/ssg/) | ✔ |
 | [BEEP](/2686V_2686VFX/chips/beep/) | ✔ |
-
-持っていないのは OPNA / OPN / OPL / OPL3 / OPM / OPZX7 / WAVETABLE / WT2 / WTPLUS / RHYTHM / ADPCM です。
 
 各チャンネルの中身は、それぞれのページを参照してください。どのチャンネルにも
 同じ形で出てくる区分は [共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。
