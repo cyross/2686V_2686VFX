@@ -5,12 +5,29 @@ sidebar:
   order: 2
 ---
 
+<figure class="shot shot--sm">
+  <img src="/2686V_2686VFX/logos/2686VFX.png" alt="2686VFX ロゴ" width="128" height="128" />
+	<figcaption>ロゴ</figcaption>
+</figure>
+
 **2686VFX** is the only effect in the series. It is the FX tab from the
 instruments, lifted out so you can use it on its own — and on top of that, the
 envelopes and LFO that used to live inside the sound chips can now be applied
 **to the output itself**.
 
 Put it on an instrument track, a drum loop, or a guitar.
+
+## What the plugin looks like
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/plugin/2686VFX.png" alt="2686VFX, the whole window" width="1625" height="738" />
+	<figcaption>The whole window</figcaption>
+</figure>
+
+<figure class="shot shot--sm">
+	<img src="/2686V_2686VFX/ui/about/2686VFX.png" alt="2686VFX ABOUT tab" width="382" height="501" />
+	<figcaption>ABOUT tab</figcaption>
+</figure>
 
 ## How the screen is arranged
 

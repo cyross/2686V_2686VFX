@@ -18,7 +18,7 @@ sidebar:
 | [**OPNV**](/2686V_2686VFX/plugins/opnv/) | OPNA / OPN |
 | [**OPLV**](/2686V_2686VFX/plugins/oplv/) | OPL / OPL3 |
 | [**OPMV**](/2686V_2686VFX/plugins/opmv/) | OPM |
-| [**WTV**](/2686V_2686VFX/plugins/wtv/) | WAVETABLE / WT2 / WTPLUS |
+| [**WTV**](/2686V_2686VFX/plugins/wtv/) | WT / WT2 / WT+ |
 | [**PCMV**](/2686V_2686VFX/plugins/pcmv/) | RHYTHM (8 パッド) / ADPCM |
 | [**PULSEV**](/2686V_2686VFX/plugins/pulsev/) | SSG / BEEP |
 

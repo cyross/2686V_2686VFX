@@ -33,8 +33,6 @@ ADPCM and ADPCM+. One plugin covering both the drum kit and sample playback.
 | [ADPCM](/2686V_2686VFX/en/chips/adpcm/) | ✔ |
 | [ADPCM+](/2686V_2686VFX/en/chips/adpcmplus/) | ✔ |
 
-The ones it does not have are OPNA / OPN / OPL / OPL3 / OPM / OPZX7 / SSG / WAVETABLE / WT2 / WTPLUS / BEEP.
-
 What each channel holds is on its own page. The sections that turn up in the
 same shape on every channel are collected under
 [Shared sections](/2686V_2686VFX/en/chips/common/).
@@ -49,6 +47,7 @@ See [Curve editing](/2686V_2686VFX/en/chips/adv/) for the details.
 
 - Covering the rhythm part with a single plugin
 - Playing back audio you have loaded
+- Switching between PCM across the 32 slots realtime
 
 ## Files
 

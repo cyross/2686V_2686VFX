@@ -10,7 +10,7 @@ sidebar:
 	<figcaption>SFC echo</figcaption>
 </figure>
 
-A recreation of the echo built into the Super Famicom's sound hardware. It is a delay with **an eight-coefficient filter** on it, so the tone changes with every repeat.
+A recreation of the echo built into the Super Famicom(SNES)'s sound hardware. It is a delay with **an eight-coefficient filter** on it, so the tone changes with every repeat.
 
 ## Knobs
 
@@ -47,7 +47,6 @@ Being able to put **FB** negative is straight from the hardware. Every repeat fl
 
 ## Which plugins have it
 
-All twelve: the eleven instruments (2686V / 2686VLight / 26V / 86V /
-OPZX7S / OPNV / OPLV / OPMV / WTV / PCMV / PULSEV) and 2686VFX.
+All twelve: the eleven instruments (2686V / 2686VLight / 26V / 86V / OPZX7S / OPNV / OPLV / OPMV / WTV / PCMV / PULSEV) and 2686VFX.
 
 For how to change the order, see [About FX](/2686V_2686VFX/en/fx/).

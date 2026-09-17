@@ -36,9 +36,9 @@ The narrower plugins exist for exactly that: reach for one per part.
 | OPM | ✔ | ✔ | — | — | — |
 | OPZX7 | ✔ | ✔ | — | — | ✔ |
 | SSG | ✔ | ✔ | ✔ | ✔ | — |
-| WAVETABLE | ✔ | ✔ | — | — | — |
+| WT | ✔ | ✔ | — | — | — |
 | WT2 | ✔ | ✔ | — | — | — |
-| WTPLUS | ✔ | ✔ | — | — | — |
+| WT+ | ✔ | ✔ | — | — | — |
 | RHYTHM | ✔ | ✔ | — | ✔ (6 pads) | — |
 | ADPCM | ✔ | ✔ | — | ✔ (PCM) | — |
 | ADPCM+ | ✔ | ✔ | — | — | — |
@@ -72,9 +72,9 @@ curve editing.**
 | OPL3 | — | ✔ | — | — | — | — |
 | OPM | — | — | ✔ | — | — | — |
 | SSG | — | — | — | — | — | ✔ |
-| WAVETABLE | — | — | — | ✔ | — | — |
+| WT | — | — | — | ✔ | — | — |
 | WT2 | — | — | — | ✔ | — | — |
-| WTPLUS | — | — | — | ✔ | — | — |
+| WT+ | — | — | — | ✔ | — | — |
 | RHYTHM | — | — | — | — | ✔ (8 pads) | — |
 | ADPCM | — | — | — | — | ✔ | — |
 | ADPCM+ | — | — | — | — | ✔ | — |
@@ -85,22 +85,13 @@ curve editing.**
 
 ### Which one to pick
 
-- **[OPNV](/2686V_2686VFX/en/plugins/opnv/)** — OPNA and OPN. One PC-9801-flavoured
-  FM part
-- **[OPLV](/2686V_2686VFX/en/plugins/oplv/)** — OPL and OPL3. Moving between the
-  light two-operator sound and the thicker four-operator one
+- **[OPNV](/2686V_2686VFX/en/plugins/opnv/)** — OPNA and OPN. One PC-9801-flavoured FM part
+- **[OPLV](/2686V_2686VFX/en/plugins/oplv/)** — OPL and OPL3. Moving between the light two-operator sound and the thicker four-operator one
 - **[OPMV](/2686V_2686VFX/en/plugins/opmv/)** — OPM alone. One X68000 or arcade part
-- **[WTV](/2686V_2686VFX/en/plugins/wtv/)** — WT, WT2 and WT+. Parts built from
-  waveforms you draw or load
-- **[PCMV](/2686V_2686VFX/en/plugins/pcmv/)** — RHYTHM, ADPCM and ADPCM+. The drum kit and
-  sample playback in one place
-- **[PULSEV](/2686V_2686VFX/en/plugins/pulsev/)** — SSG and BEEP. A square-wave bass
-  line or arpeggio
-
-:::note
-**OPZX7 lives only in OPZX7S.** When you want OPZX7 alone for one part, reach for
-[OPZX7S](/2686V_2686VFX/en/plugins/opzx7s/) — curve editing is standard there too.
-:::
+- **[WTV](/2686V_2686VFX/en/plugins/wtv/)** — WT, WT2 and WT+. Parts built from waveforms you draw or load
+- **[PCMV](/2686V_2686VFX/en/plugins/pcmv/)** — RHYTHM, ADPCM and ADPCM+. The drum kit and sample playback in one place
+- **[PULSEV](/2686V_2686VFX/en/plugins/pulsev/)** — SSG and BEEP. A square-wave bass line or arpeggio
+- **[OPZX7S](/2686V_2686VFX/en/plugins/opzx7s/)** - For when you want to explore modern FM synthesis that transcends retro FM sounds
 
 ## The one effect
 
@@ -108,14 +99,14 @@ curve editing.**
 audio you feed into it.** It is the FX tab from the instruments, lifted out so
 you can use it on its own.
 
-| | The eleven instruments | <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686VFX |
+| | The eleven instruments | <img src="/2686V_2686VFX/logos/2686VFX.png" alt="" width="28" height="28" style="vertical-align:middle;" /><br />2686VFX | |
 | --- | :---: | :---: | :---: |
-| Kind | Instrument (synth) | Effect |
-| Audio input | none | stereo |
-| Sound-chip tabs | yes | none |
-| FX | 8 kinds | **9 kinds** |
-| Modulation of the output | — | ✔ |
-| PRESET tab | ✔ | — |
+| Kind | Instrument (synth) | Effect | |
+| Audio input | none | stereo | |
+| Sound-chip tabs | yes | none | |
+| FX | 8 kinds | **9 kinds** | |
+| Modulation of the output | — | ✔ | |
+| PRESET tab | ✔ | — | |
 
 See [2686VFX (the effect)](/2686V_2686VFX/en/plugins/fx-plugin/) for details.
 

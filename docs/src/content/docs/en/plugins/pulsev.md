@@ -32,8 +32,6 @@ when you want one thin, square-wave part.
 | [SSG](/2686V_2686VFX/en/chips/ssg/) | ✔ |
 | [BEEP](/2686V_2686VFX/en/chips/beep/) | ✔ |
 
-The ones it does not have are OPNA / OPN / OPL / OPL3 / OPM / OPZX7 / WAVETABLE / WT2 / WTPLUS / RHYTHM / ADPCM.
-
 What each channel holds is on its own page. The sections that turn up in the
 same shape on every channel are collected under
 [Shared sections](/2686V_2686VFX/en/chips/common/).

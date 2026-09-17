@@ -1,5 +1,5 @@
 ---
-title: Changes in v3.5.0
+title: What changed in v3.5.0
 description: What's new and changed in 3.5.0
 sidebar:
   order: 5

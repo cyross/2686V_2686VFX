@@ -27,6 +27,8 @@ sidebar:
 
 ## 収録しているチャンネル
 
+収録しているチャンネルは以下のとおりです。
+
 | チャンネル | |
 | --- | :---: |
 | [OPNA](/2686V_2686VFX/chips/opna/) | ✔ |
@@ -36,14 +38,13 @@ sidebar:
 | [OPM](/2686V_2686VFX/chips/opm/) | ✔ |
 | [OPZX7](/2686V_2686VFX/chips/opzx7/) | ✔ |
 | [SSG](/2686V_2686VFX/chips/ssg/) | ✔ |
-| [WAVETABLE](/2686V_2686VFX/chips/wt/) | ✔ |
+| [WT](/2686V_2686VFX/chips/wt/) | ✔ |
 | [WT2](/2686V_2686VFX/chips/wt2/) | ✔ |
-| [WTPLUS](/2686V_2686VFX/chips/wtplus/) | ✔ |
+| [WT+](/2686V_2686VFX/chips/wtplus/) | ✔ |
 | [RHYTHM](/2686V_2686VFX/chips/rhythm/) | ✔ |
 | [ADPCM](/2686V_2686VFX/chips/adpcm/) | ✔ |
 | [ADPCM+](/2686V_2686VFX/chips/adpcmplus/) | ✔ |
 | [BEEP](/2686V_2686VFX/chips/beep/) | ✔ |
-
 
 各チャンネルの中身は、それぞれのページを参照してください。どのチャンネルにも
 同じ形で出てくる区分は [共通の区分](/2686V_2686VFX/chips/common/) にまとめてあります。

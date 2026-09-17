@@ -20,7 +20,7 @@ The first eight are the hardware's; everything after that is **ours**. They are 
 differs: on the level side MIN and MAX are a gain, on the pitch side they are
 cents.
 
-**44 ** of them.
+**44** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -73,7 +73,7 @@ cents.
 
 The YM2608's SSG hardware envelope.
 
-**6 ** of them.
+**6** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -88,7 +88,7 @@ The YM2608's SSG hardware envelope.
 
 The waveform an operator puts out. `[MA-7:nn]` and `[OPZ:nn]` are the numbers they had on the chip they came from; the ones without are ours.
 
-**73 ** of them.
+**73** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -170,7 +170,7 @@ The waveform an operator puts out. `[MA-7:nn]` and `[OPZ:nn]` are the numbers th
 
 The same waveforms serve AM and PM.
 
-**13 ** of them.
+**13** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -192,7 +192,7 @@ The same waveforms serve AM and PM.
 
 The software LFO N88-BASIC used.
 
-**4 ** of them.
+**4** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |
@@ -233,7 +233,7 @@ Modulation from wavetable memory. Available on every channel.
 the pitch side is a frequency ratio, the level side is a gain between MIN and
 MAX.
 
-**9 ** of them.
+**9** of them.
 
 | Value | Name | Picture | Notes |
 | ---: | --- | :---: | --- |

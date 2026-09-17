@@ -35,14 +35,13 @@ sidebar:
 | [OPM](/2686V_2686VFX/en/chips/opm/) | ✔ |
 | [OPZX7](/2686V_2686VFX/en/chips/opzx7/) | ✔ |
 | [SSG](/2686V_2686VFX/en/chips/ssg/) | ✔ |
-| [WAVETABLE](/2686V_2686VFX/en/chips/wt/) | ✔ |
+| [WT](/2686V_2686VFX/en/chips/wt/) | ✔ |
 | [WT2](/2686V_2686VFX/en/chips/wt2/) | ✔ |
-| [WTPLUS](/2686V_2686VFX/en/chips/wtplus/) | ✔ |
+| [WT+](/2686V_2686VFX/en/chips/wtplus/) | ✔ |
 | [RHYTHM](/2686V_2686VFX/en/chips/rhythm/) | ✔ |
 | [ADPCM](/2686V_2686VFX/en/chips/adpcm/) | ✔ |
 | [ADPCM+](/2686V_2686VFX/en/chips/adpcmplus/) | ✔ |
 | [BEEP](/2686V_2686VFX/en/chips/beep/) | ✔ |
-
 
 What each channel holds is on its own page. The sections that turn up in the
 same shape on every channel are collected under

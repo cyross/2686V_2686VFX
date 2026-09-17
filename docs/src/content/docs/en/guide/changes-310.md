@@ -18,7 +18,7 @@ has curve editing.**
 | [**OPNV**](/2686V_2686VFX/en/plugins/opnv/) | OPNA / OPN |
 | [**OPLV**](/2686V_2686VFX/en/plugins/oplv/) | OPL / OPL3 |
 | [**OPMV**](/2686V_2686VFX/en/plugins/opmv/) | OPM |
-| [**WTV**](/2686V_2686VFX/en/plugins/wtv/) | WAVETABLE / WT2 / WTPLUS |
+| [**WTV**](/2686V_2686VFX/en/plugins/wtv/) | WT / WT2 / WT+ |
 | [**PCMV**](/2686V_2686VFX/en/plugins/pcmv/) | RHYTHM (8 pads) / ADPCM |
 | [**PULSEV**](/2686V_2686VFX/en/plugins/pulsev/) | SSG / BEEP |
 
