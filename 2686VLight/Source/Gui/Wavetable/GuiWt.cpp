@@ -21,11 +21,11 @@ namespace
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Wavetable/ProcessorWtKeys.h"
 #include "../../Processor/Wavetable/ProcessorWtValues.h"
 #include "../../Core/Const/ConstFileValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiWtValues.h"

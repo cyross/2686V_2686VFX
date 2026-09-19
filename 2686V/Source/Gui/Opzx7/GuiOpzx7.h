@@ -7,14 +7,14 @@
 #include "../Components/FmToOpzx7/FmToOpzx7.h"
 #include <array>
 
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiValues.h"
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/GuiCurve.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "../../Gui/Components/StepValues/StepValues.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/Fix/Fix.h"

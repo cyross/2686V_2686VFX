@@ -21,7 +21,7 @@ namespace
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Wt2/ProcessorWt2Keys.h"
 #include "../../Processor/Wt2/ProcessorWt2Values.h"
 #include "../../Core/Const/ConstFileValues.h"

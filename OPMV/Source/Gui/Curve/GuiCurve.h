@@ -5,7 +5,7 @@
 #include "../../Core/Io/ParamFile.h"
 #include <array>
 
-#include "../../Processor/Curve/ProcessorCurveValues.h"
+#include "Shared/Processor/Curve/ProcessorCurveValues.h"
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"

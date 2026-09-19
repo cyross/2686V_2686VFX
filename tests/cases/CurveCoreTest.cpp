@@ -3,7 +3,7 @@
 #include <cmath>
 #include <memory>
 
-#include "Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 
 namespace
 {

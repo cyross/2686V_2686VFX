@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 
-#include "./ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 
 // ============================================================================
 // 実数パラメータの作り口

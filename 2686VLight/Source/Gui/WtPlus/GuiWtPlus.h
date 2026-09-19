@@ -8,7 +8,7 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 #include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/MulDetune/MulDetune.h"

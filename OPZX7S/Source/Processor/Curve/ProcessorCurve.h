@@ -6,8 +6,8 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
-#include "../../Advanced/Curve/AdvancedCurveParams.h"
-#include "./ProcessorCurveValues.h"
+#include "Shared/Advanced/Curve/AdvancedCurveParams.h"
+#include "Shared/Processor/Curve/ProcessorCurveValues.h"
 
 class CurveProcessor : public PrBase {
     int rawLogic[CurvePrValue::positions][CurvePrValue::targets][CurvePrValue::params] = { 0 };

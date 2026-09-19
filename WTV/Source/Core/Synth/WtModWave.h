@@ -5,7 +5,7 @@
 
 #include <JuceHeader.h>
 
-#include "../Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 // ============================================================================
 // WT PITCH MOD の変調波形 (HuC6280 モード)

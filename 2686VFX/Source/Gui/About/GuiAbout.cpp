@@ -1,6 +1,7 @@
 ﻿#include "./GuiAbout.h"
+#include "../../Core/Const/ConstPlugin.h"
 
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 #include "./GuiAboutValues.h"
 #include "../../Core/Editor/EditorGuiValues.h"
 

@@ -28,13 +28,13 @@ namespace
 
 #include "../../Core/Const/ConstFileValues.h"
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Opna/ProcessorOpnaKeys.h"
 #include "../../Processor/Opna/ProcessorOpnaValues.h"
 #include "./ProcessorOpnValues.h" // OriginにはOPNのプロセッサが無いため、OP数取得用に追加
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"

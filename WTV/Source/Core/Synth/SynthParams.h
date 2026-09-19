@@ -7,7 +7,7 @@
 #include "../../Synth/Wavetable/SynthWtParams.h"
 #include "../../Synth/Wt2/SynthWt2Params.h"
 #include "../../Synth/WtPlus/SynthWtPlusParams.h"
-#include "../../Advanced/Curve/AdvancedCurveParams.h"
+#include "Shared/Advanced/Curve/AdvancedCurveParams.h"
 
 struct SynthParams
 {

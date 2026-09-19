@@ -29,7 +29,6 @@ file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS
 )
 
 set(CONST_FILES
-    "Source/Core/Const/ConstGlobal.h"
     "Source/Core/Const/ConstFileValues.h"
     "Source/Core/Const/ConstMmlKeys.h"
     "Source/Core/Const/ConstMmlValues.h"
@@ -89,7 +88,6 @@ set(GUI_FILES
 set(PROCESSOR_FILES
     "Source/Core/Processor/ProcessorKeys.h"
     "Source/Core/Processor/ProcessorNames.h"
-    "Source/Core/Processor/ProcessorValues.h"
     "Source/Core/Processor/ProcessorFloat.h"
     "Source/Core/Processor/ProcessorBase.h"
     "Source/Core/Processor/ProcessorStructs.h"
@@ -109,64 +107,11 @@ set(EDITOR_FILES
 set(EFFECT_CORE_FILES
 )
 
-set(AMP_ENVELOPE_FILES
-    "Source/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
-    "Source/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.h"
-    "Source/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.cpp"
-    "Source/Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
-    "Source/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-    "Source/Effect/Envelope/Amp/SsgSw/EnvSsgSw.cpp"
-    "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-    "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-    "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.cpp"
-    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
-    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.cpp"
-    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
-    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
-    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.cpp"
-)
 
-set(PITCH_ENVELOPE_FILES
-    "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
-    "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-    "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
-    "Source/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
-    "Source/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
-    "Source/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.cpp"
-)
 
-set(KEY_SCALE_FILES
-    "Source/Effect/KeyScale/Ops/KSOpsParams.h"
-    "Source/Effect/KeyScale/Ops/KSOps.h"
-    "Source/Effect/KeyScale/Ops/KSOps.cpp"
-    "Source/Effect/KeyScale/Opz/KSOpzParams.h"
-    "Source/Effect/KeyScale/Opz/KSOpz.h"
-    "Source/Effect/KeyScale/Opz/KSOpz.cpp"
-    "Source/Effect/KeyScale/Ma7/KSMa7Params.h"
-    "Source/Effect/KeyScale/Ma7/KSMa7.h"
-    "Source/Effect/KeyScale/Ma7/KSMa7.cpp"
-)
 
-set(DETUNE_FILES
-    "Source/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
-    "Source/Effect/Detune/Opzx7/DetuneOpzx7.h"
-    "Source/Effect/Detune/Opzx7/DetuneOpzx7.cpp"
-)
 
-set(FEEDBACK_FILES
-    "Source/Effect/Feedback/FeedbackParams.h"
-    "Source/Effect/Feedback/Feedback.h"
-    "Source/Effect/Feedback/Feedback.cpp"
-)
 
-set(LFO_FILES
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7.h"
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7Unit.cpp"
-)
 
 set(FX_EFFECT_FILES
     "Source/Effect/Fx/Fx.h"
@@ -182,11 +127,6 @@ set(OPZX7_SYNTH_FILES
     "Source/Synth/Opzx7/Operator/SynthOpzx7OpParams.h"
 )
 
-set(CURVE_FILES
-    "Source/Advanced/Curve/AdvancedCurve.h"
-    "Source/Advanced/Curve/AdvancedCurve.cpp"
-    "Source/Advanced/Curve/AdvancedCurveParams.h"
-)
 
 set(OPZX7_PROCESSOR_FILES
     "Source/Processor/Opzx7/ProcessorOpzx7Keys.h"
@@ -199,7 +139,6 @@ set(OPZX7_PROCESSOR_FILES
 set(CURVE_PROCESSOR_FILES
     "Source/Processor/Curve/ProcessorCurveKeys.h"
     "Source/Processor/Curve/ProcessorCurveNames.h"
-    "Source/Processor/Curve/ProcessorCurveValues.h"
     "Source/Processor/Curve/ProcessorCurve.h"
     "Source/Processor/Curve/ProcessorCurve.cpp"
 )
@@ -419,18 +358,11 @@ set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 # ソースグループの設定
 source_group("OPZX7S\\Constants" FILES ${CONST_FILES})
 source_group("OPZX7S\\Documents" FILES ${DOCUMENT_FILES})
-source_group("OPZX7S\\Advanced\\Curve" FILES ${CURVE_FILES})
 source_group("OPZX7S\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("OPZX7S\\Synth\\Fm" FILES ${FM_FILES})
 source_group("OPZX7S\\Synth\\Opzx7" FILES ${OPZX7_SYNTH_FILES})
 source_group("OPZX7S\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
-source_group("OPZX7S\\Effect\\Envelope\\Amp" FILES ${AMP_ENVELOPE_FILES})
-source_group("OPZX7S\\Effect\\Envelope\\Pitch" FILES ${PITCH_ENVELOPE_FILES})
-source_group("OPZX7S\\Effect\\Detune" FILES ${DETUNE_FILES})
-source_group("OPZX7S\\Effect\\Lfo" FILES ${LFO_FILES})
 source_group("OPZX7S\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
-source_group("OPZX7S\\Effect\\Feedback" FILES ${FEEDBACK_FILES})
-source_group("OPZX7S\\Effect\\KeyScale" FILES ${KEY_SCALE_FILES})
 source_group("OPZX7S\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("OPZX7S\\Processor\\Opzx7" FILES ${OPZX7_PROCESSOR_FILES})
 source_group("OPZX7S\\Processor\\Curve" FILES ${CURVE_PROCESSOR_FILES})

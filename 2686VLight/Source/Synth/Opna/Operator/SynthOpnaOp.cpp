@@ -1,7 +1,7 @@
 ﻿#include "./SynthOpnaOp.h"
 
 #include "../../../Core/Fm/FmCore.h"
-#include "../../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 
 void OpnaOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);

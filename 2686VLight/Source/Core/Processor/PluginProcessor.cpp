@@ -1,4 +1,5 @@
 ﻿#include "PluginProcessor.h"
+#include "../Const/ConstPlugin.h"
 #include "../../Effect/Fx/FxOrder.h"
 #include <limits>
 #include <algorithm>

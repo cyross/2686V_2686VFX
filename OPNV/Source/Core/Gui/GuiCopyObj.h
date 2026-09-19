@@ -3,9 +3,9 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../Const/ConstGlobal.h"
-#include "../../Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
-#include "../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
+#include "Shared/Core/Const/ConstGlobal.h"
+#include "Shared/Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
+#include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 
 struct CopyBase {
 	float level;

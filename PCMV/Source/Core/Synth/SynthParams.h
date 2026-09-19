@@ -7,7 +7,7 @@
 #include "../../Synth/Rhythm/SynthRhythmParams.h"
 #include "../../Synth/Adpcm/SynthAdpcmParams.h"
 #include "../../Synth/AdpcmPlus/SynthAdpcmPlusParams.h"
-#include "../../Advanced/Curve/AdvancedCurveParams.h"
+#include "Shared/Advanced/Curve/AdvancedCurveParams.h"
 
 struct SynthParams
 {

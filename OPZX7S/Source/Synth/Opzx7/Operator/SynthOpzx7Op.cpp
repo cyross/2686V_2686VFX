@@ -1,5 +1,5 @@
 ﻿#include "./SynthOpzx7Op.h"
-#include "../../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 
 void Opzx7Operator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);

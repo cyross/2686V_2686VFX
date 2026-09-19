@@ -20,7 +20,7 @@ namespace
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/AdpcmPlus/ProcessorAdpcmPlusKeys.h"
 #include "../../Processor/AdpcmPlus/ProcessorAdpcmPlusValues.h"
 

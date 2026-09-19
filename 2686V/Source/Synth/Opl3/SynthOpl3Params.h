@@ -6,11 +6,11 @@
 #include "../../Processor/Opl3/ProcessorOpl3Values.h"
 #include "../../Core/Synth/UnisonParams.h"
 #include "Shared/Core/Synth/CommonParams.h"
-#include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
-#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
-#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
-#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
+#include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
 
 struct Opl3Params
 {

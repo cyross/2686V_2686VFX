@@ -10,10 +10,10 @@
 #include "TestHelpers.h"
 
 #include "Gui/Components/FmToOpzx7/FmToOpzx7Tables.h"
-#include "Effect/Lfo/Opna/LfoOpna.h"
-#include "Effect/Lfo/Opm/LfoOpm.h"
-#include "Effect/Detune/Opn/DetuneOpn.h"
-#include "Effect/Detune/Opm/DetuneOpm.h"
+#include "Shared/Effect/Lfo/Opna/LfoOpna.h"
+#include "Shared/Effect/Lfo/Opm/LfoOpm.h"
+#include "Shared/Effect/Detune/Opn/DetuneOpn.h"
+#include "Shared/Effect/Detune/Opm/DetuneOpm.h"
 
 // ============================================================================
 // FM → OPZX7S の変換が持つ表の写し

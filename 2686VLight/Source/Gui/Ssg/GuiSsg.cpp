@@ -19,7 +19,7 @@ namespace
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Core/Processor/ProcessorHelper.h"
 #include "../../Processor/Ssg/ProcessorSsgKeys.h"
 #include "../../Processor/Ssg/ProcessorSsgValues.h"

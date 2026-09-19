@@ -24,13 +24,13 @@ namespace
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Opl/ProcessorOplKeys.h"
 #include "../../Processor/Opl/ProcessorOplValues.h"
 #include "../../Processor/Opl3/ProcessorOpl3Values.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"

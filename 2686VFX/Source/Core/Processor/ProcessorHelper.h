@@ -7,23 +7,23 @@
 #include "./ProcessorStructs.h"
 #include "./ProcessorKeys.h"
 #include "./ProcessorNames.h"
-#include "./ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "./ProcessorFloat.h"
 
 #include "Shared/Core/Synth/CommonParams.h"
-#include "../../Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
-#include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
-#include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
-#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
-#include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
-#include "../../Effect/Detune/Opn/DetuneOpnParams.h"
-#include "../../Effect/Detune/Opzx7/DetuneOpzx7Params.h"
-#include "../../Effect/Lfo/N88/LfoN88Params.h"
-#include "../../Effect/Lfo/Opna/LfoOpnaParams.h"
-#include "../../Effect/Lfo/Opzx7/LfoOpzx7Params.h"
+#include "Shared/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
+#include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
+#include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Detune/Opn/DetuneOpnParams.h"
+#include "Shared/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
+#include "Shared/Effect/Lfo/N88/LfoN88Params.h"
+#include "Shared/Effect/Lfo/Opna/LfoOpnaParams.h"
+#include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
 #include "../../Core/Synth/UnisonParams.h"
 #include "Shared/Generator/Fm/Fix/FmFixParams.h"
 
@@ -1951,11 +1951,16 @@ namespace PrHelper {
 	}
 
 	static inline void addQualityPcmParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		// BIT の初期値は 4-bit PCM (12)。共有の CPV::QualityPcm::Bit::initial
+		// (13: YM2608 ADPCM) ではなく、2686VFX がこれまで使ってきた値を保つ。
+		// PCM ビットクラッシャーは 12 番までしか扱わない (13 以降は符号化)。
+		constexpr int bitInitial = 12;
+
 		PrHelper::addInt(
 			layout, 
 			prefix + CPK::QualityPcm::mode, 
 			prefixName + CPN::QualityPcm::bit, 
-			CPV::QualityPcm::Bit::min, CPV::QualityPcm::Bit::max, CPV::QualityPcm::Bit::initial
+			CPV::QualityPcm::Bit::min, CPV::QualityPcm::Bit::max, bitInitial
 		);
 		PrHelper::addInt(
 			layout, 

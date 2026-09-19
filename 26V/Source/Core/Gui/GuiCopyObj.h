@@ -3,7 +3,7 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 struct CopyBase {
 	float level;

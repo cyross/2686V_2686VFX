@@ -6,7 +6,7 @@
 
 #include "../../Synth/Ssg/SynthSsgParams.h"
 #include "../../Synth/Beep/SynthBeepParams.h"
-#include "../../Advanced/Curve/AdvancedCurveParams.h"
+#include "Shared/Advanced/Curve/AdvancedCurveParams.h"
 
 struct SynthParams
 {

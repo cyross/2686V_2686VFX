@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 struct UnisonParams {
     int voices = 1;        // 1 to 8

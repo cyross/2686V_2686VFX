@@ -8,7 +8,7 @@
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Processor/Curve/ProcessorCurveKeys.h"
-#include "../../Processor/Curve/ProcessorCurveValues.h"
+#include "Shared/Processor/Curve/ProcessorCurveValues.h"
 
 #include "./GuiCurveValues.h"
 #include "./GuiCurveText.h"

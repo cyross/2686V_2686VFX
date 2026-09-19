@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <map>
+#include "../Const/ConstPlugin.h"
 #include <JuceHeader.h>
 
 #include "../Io/ParamFile.h"
@@ -16,9 +17,9 @@
 #include "../../Processor/Ssg/ProcessorSsg.h"
 #include "../../Processor/Fx/ProcessorFx.h"
 
-#include "../Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 #include "../Processor/ProcessorKeys.h"
-#include "../Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 #include "../../Gui/Preset/PresetValues.h"

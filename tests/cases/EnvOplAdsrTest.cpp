@@ -2,8 +2,8 @@
 
 #include <cmath>
 
-#include "Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.h"
-#include "Core/Processor/ProcessorValues.h"
+#include "Shared/Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 
 namespace
 {

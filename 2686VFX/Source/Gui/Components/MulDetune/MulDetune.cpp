@@ -15,7 +15,7 @@ namespace
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
-#include "../../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 static std::vector<SelectItem> multems = {
     {.name = " 0: x  0.5",    .value = 1 },

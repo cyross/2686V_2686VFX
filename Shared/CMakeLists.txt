@@ -67,11 +67,25 @@ function(cy_add_shared_library name)
     set_property(GLOBAL APPEND PROPERTY CY_SHARED_LIBRARIES ${name})
 endfunction()
 
-# ---- 土台。型や定数、小さな道具
-cy_add_shared_library(cy_shared_core DIRS Core)
+# ---- 土台。型や定数、小さな道具。パラメータの範囲と初期値 (CPV) もここ
+cy_add_shared_library(cy_shared_core DIRS Core Processor)
 
 # ---- 音を作るもの (FM の FIX、ノイズ、PCM の符号化、波形メモリの変調など)
 cy_add_shared_library(cy_shared_generator DIRS Generator LINKS cy_shared_core)
+
+# ---- カーブ編集 (Curve)
+#
+# Curve を持たないプラグインにも入る。エンベロープなどはカーブが渡されて
+# いない (CurveCore が空) ときに、カーブを持たない作りと同じ計算を通るので、
+# 使うかどうかはプラグインが渡すかどうかで決まる。
+cy_add_shared_library(cy_shared_advanced DIRS Advanced LINKS cy_shared_core)
+
+# ---- 音にかける効果 (エンベロープ、LFO、デチューン、キースケール、フィードバック)
+#
+# エフェクター (Effect/Fx) はまだプラグインの側にある。音源のパラメータ全体
+# (SynthParams) に頼っているため、プロセッサと一緒に移す。
+cy_add_shared_library(cy_shared_effect DIRS Effect
+    LINKS cy_shared_core cy_shared_generator cy_shared_advanced)
 
 # プラグインはこれ 1 つをつなげば、共有コードをすべて使える
 get_property(CY_SHARED_LIBRARY_LIST GLOBAL PROPERTY CY_SHARED_LIBRARIES)

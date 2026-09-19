@@ -8,7 +8,7 @@
 
 #include "../../Synth/Opna/SynthOpna.h"
 #include "../../Synth/Opn/SynthOpn.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
 {

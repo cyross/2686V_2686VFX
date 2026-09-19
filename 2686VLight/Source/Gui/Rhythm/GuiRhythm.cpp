@@ -23,7 +23,7 @@ namespace
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Core/Const/ConstFileValues.h"

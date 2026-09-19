@@ -1,19 +1,19 @@
 ﻿#pragma once
 
 #include "./SynthOpl3OpParams.h"
-#include "../../../Effect/Lfo/Opl/LfoOpl.h"
-#include "../../../Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.h"
+#include "Shared/Effect/Lfo/Opl/LfoOpl.h"
+#include "Shared/Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.h"
 #include "../../../Core/Fm/FmOperator.h"
-#include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
-#include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
-#include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
+#include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 #include "Shared/Generator/WtMod/GenWtModulator.h"
-#include "../../../Effect/Feedback/Feedback.h"
-#include "../../../Effect/Detune/Opl/DetuneOpl.h"
+#include "Shared/Effect/Feedback/Feedback.h"
+#include "Shared/Effect/Detune/Opl/DetuneOpl.h"
 
 class Opl3Operator : public FmOperator
 {

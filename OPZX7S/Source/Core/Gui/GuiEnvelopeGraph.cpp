@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "./GuiEnvelopeGraph.h"
-#include "../../Advanced/Curve/AdvancedCurveParams.h"
+#include "Shared/Advanced/Curve/AdvancedCurveParams.h"
 
 GuiEnvelopeGraph::GuiEnvelopeGraph() {
     isBypass = false;

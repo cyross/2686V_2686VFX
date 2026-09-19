@@ -12,7 +12,7 @@
 #include "../../../Core/Editor/PluginEditor.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
-#include "../../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 #include "../../../Core/Const/ConstFileValues.h"
 #include "../../../Core/Gui/GuiColor.h"
 #include "../../../Core/Gui/GuiValues.h"

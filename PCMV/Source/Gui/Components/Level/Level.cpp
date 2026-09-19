@@ -6,7 +6,7 @@
 
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 static const double roundingPrecisionBase = std::pow(10, Global::floatDecimalPlaces); // 小数点以下の丸め精度を決定するための基準値
 

@@ -3,9 +3,9 @@
 
 #include "../../Core/Processor/PluginProcessor.h"
 
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 #include "../../Core/Processor/ProcessorBase.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Core/Const/ConstFileValues.h"
 #include "./PresetKeys.h"
 #include "./PresetValues.h"

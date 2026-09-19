@@ -29,7 +29,6 @@ file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS
 )
 
 set(CONST_FILES
-    "Source/Core/Const/ConstGlobal.h"
     "Source/Core/Const/ConstFileValues.h"
     "Source/Core/Const/ConstMmlKeys.h"
     "Source/Core/Const/ConstMmlValues.h"
@@ -89,7 +88,6 @@ set(GUI_FILES
 set(PROCESSOR_FILES
     "Source/Core/Processor/ProcessorKeys.h"
     "Source/Core/Processor/ProcessorNames.h"
-    "Source/Core/Processor/ProcessorValues.h"
     "Source/Core/Processor/ProcessorFloat.h"
     "Source/Core/Processor/ProcessorBase.h"
     "Source/Core/Processor/ProcessorStructs.h"
@@ -109,67 +107,11 @@ set(EDITOR_FILES
 set(EFFECT_CORE_FILES
 )
 
-set(AMP_ENVELOPE_FILES
-    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
-    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
-    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.cpp"
-    "Source/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
-    "Source/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.h"
-    "Source/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.cpp"
-    "Source/Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
-    "Source/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-    "Source/Effect/Envelope/Amp/SsgSw/EnvSsgSw.cpp"
-    "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-    "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-    "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.cpp"
-    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
-    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.cpp"
-)
 
-set(PITCH_ENVELOPE_FILES
-    "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
-    "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-    "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
-    "Source/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
-    "Source/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
-    "Source/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.cpp"
-)
 
-set(KEY_SCALE_FILES
-    "Source/Effect/KeyScale/Opn/KSOpnParams.h"
-    "Source/Effect/KeyScale/Opn/KSOpn.h"
-    "Source/Effect/KeyScale/Opn/KSOpn.cpp"
-)
 
-set(DETUNE_FILES
-    "Source/Effect/Detune/Opn/DetuneOpnParams.h"
-    "Source/Effect/Detune/Opn/DetuneOpn.h"
-    "Source/Effect/Detune/Opn/DetuneOpn.cpp"
-    "Source/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
-    "Source/Effect/Detune/Opzx7/DetuneOpzx7.h"
-    "Source/Effect/Detune/Opzx7/DetuneOpzx7.cpp"
-)
 
-set(FEEDBACK_FILES
-    "Source/Effect/Feedback/FeedbackParams.h"
-    "Source/Effect/Feedback/Feedback.h"
-    "Source/Effect/Feedback/Feedback.cpp"
-)
 
-set(LFO_FILES
-    "Source/Effect/Lfo/N88/LfoN88Params.h"
-    "Source/Effect/Lfo/N88/LfoN88.h"
-    "Source/Effect/Lfo/N88/LfoN88.cpp"
-    "Source/Effect/Lfo/Opna/LfoOpnaParams.h"
-    "Source/Effect/Lfo/Opna/LfoOpna.h"
-    "Source/Effect/Lfo/Opna/LfoOpna.cpp"
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7.h"
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
-    "Source/Effect/Lfo/Opzx7/LfoOpzx7Unit.cpp"
-)
 
 set(FX_EFFECT_FILES
     "Source/Effect/Fx/Fx.h"
@@ -486,13 +428,7 @@ source_group("2686VO\\Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
 source_group("2686VO\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
 source_group("2686VO\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
 source_group("2686VO\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
-source_group("2686VO\\Effect\\Envelope\\Amp" FILES ${AMP_ENVELOPE_FILES})
-source_group("2686VO\\Effect\\Envelope\\Pitch" FILES ${PITCH_ENVELOPE_FILES})
-source_group("2686VO\\Effect\\Detune" FILES ${DETUNE_FILES})
-source_group("2686VO\\Effect\\Lfo" FILES ${LFO_FILES})
 source_group("2686VO\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
-source_group("2686VO\\Effect\\Feedback" FILES ${FEEDBACK_FILES})
-source_group("2686VO\\Effect\\KeyScale" FILES ${KEY_SCALE_FILES})
 source_group("2686VO\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("2686VO\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
 source_group("2686VO\\Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})

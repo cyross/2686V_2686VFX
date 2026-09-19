@@ -3,7 +3,7 @@
 #include <array>
 #include <vector>
 
-#include "../Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 // WT+ の波形メモリ 1 スロットぶん。
 // 実データはプロセッサが所有し、音源コアはポインタ越しに読むだけ。

@@ -8,7 +8,7 @@
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Beep/ProcessorBeepKeys.h"
 #include "../../Processor/Beep/ProcessorBeepValues.h"
 

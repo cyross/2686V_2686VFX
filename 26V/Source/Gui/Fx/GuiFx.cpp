@@ -8,7 +8,7 @@
 #include "../../Processor/Fx/ProcessorFxKeys.h"
 #include "../../Processor/Fx/ProcessorFxValues.h"
 #include "../../Core/Const/ConstFileValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiFxValues.h"

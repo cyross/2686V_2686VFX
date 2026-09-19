@@ -2,12 +2,12 @@
 
 #include <algorithm>
 #include <cstdint>
-#include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-#include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
+#include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "Shared/Generator/WtMod/GenWtModulator.h"
 #include "Shared/Generator/WtMod/GenWtAmpModulator.h"
-#include "../../../Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
-#include "../../../Effect/Lfo/N88/LfoN88.h"
+#include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
+#include "Shared/Effect/Lfo/N88/LfoN88.h"
 
 #include <cmath>
 

@@ -1,15 +1,15 @@
 ﻿#pragma once
 
 #include "../../Core/Fm/FmCore.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "../../Processor/Opl/ProcessorOplValues.h"
 #include "Shared/Generator/WtMod/GenWtModulator.h"
 #include "Shared/Generator/WtMod/GenWtAmpModulator.h"
-#include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
-#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
-#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
+#include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 
 #include "./Operator/SynthOplOp.h"
 

@@ -9,7 +9,7 @@
 #include "../../Synth/Wavetable/SynthWt.h"
 #include "../../Synth/Wt2/SynthWt2.h"
 #include "../../Synth/WtPlus/SynthWtPlus.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
 {

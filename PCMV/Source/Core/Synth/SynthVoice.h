@@ -9,7 +9,7 @@
 #include "../../Synth/Rhythm/SynthRhythm.h"
 #include "../../Synth/Adpcm/SynthAdpcm.h"
 #include "../../Synth/AdpcmPlus/SynthAdpcmPlus.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
 {

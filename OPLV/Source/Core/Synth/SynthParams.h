@@ -6,7 +6,7 @@
 
 #include "../../Synth/Opl/SynthOplParams.h"
 #include "../../Synth/Opl3/SynthOpl3Params.h"
-#include "../../Advanced/Curve/AdvancedCurveParams.h"
+#include "Shared/Advanced/Curve/AdvancedCurveParams.h"
 
 struct SynthParams
 {

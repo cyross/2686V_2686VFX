@@ -9,7 +9,7 @@
 #include "../../Core/Gui/GuiColor.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "./SettingsKeys.h"
 #include "./SettingsValues.h"
 

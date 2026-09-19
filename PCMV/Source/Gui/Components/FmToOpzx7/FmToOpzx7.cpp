@@ -8,10 +8,10 @@
 
 #include "./FmToOpzx7Tables.h"
 
-#include "../../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 #include "../../../Core/Editor/PluginEditor.h"
 #include "../../../Core/Processor/PluginProcessor.h"
-#include "../../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 
 namespace
 {

@@ -3,7 +3,7 @@
 #include <array>
 #include <atomic>
 
-#include "../Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 #include "../Synth/WtModWave.h"
 
 // ホールドと部分再生。付ける先ごとに頭の印が違うだけなので、

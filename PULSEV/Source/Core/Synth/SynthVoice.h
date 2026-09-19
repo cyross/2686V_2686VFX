@@ -8,7 +8,7 @@
 
 #include "../../Synth/Ssg/SynthSsg.h"
 #include "../../Synth/Beep/SynthBeep.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
 {

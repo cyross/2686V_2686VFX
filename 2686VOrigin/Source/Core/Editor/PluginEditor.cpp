@@ -1,4 +1,5 @@
 ﻿#include "../Gui/GuiRefresh.h"
+#include "../Const/ConstPlugin.h"
 #include <cstdio>
 #include <vector>
 #include <initializer_list>

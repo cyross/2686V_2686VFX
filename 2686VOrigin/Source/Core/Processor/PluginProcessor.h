@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Shared/Generator/Pcm/Helper/GenPcmShared.h"
+#include "../Const/ConstPlugin.h"
 #include <map>
 #include <JuceHeader.h>
 
@@ -19,9 +20,9 @@
 #include "../../Processor/Adpcm/ProcessorAdpcm.h"
 #include "../../Processor/Fx/ProcessorFx.h"
 
-#include "../Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 #include "../Processor/ProcessorKeys.h"
-#include "../Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 #include "../../Gui/Preset/PresetValues.h"

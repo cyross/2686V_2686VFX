@@ -7,7 +7,7 @@
 #include "./SynthCore.h"
 
 #include "../../Synth/Opm/SynthOpm.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
 {

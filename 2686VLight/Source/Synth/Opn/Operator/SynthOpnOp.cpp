@@ -1,5 +1,5 @@
 ﻿#include "./SynthOpnOp.h"
-#include "../../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 
 void OpnOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);

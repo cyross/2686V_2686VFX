@@ -5,7 +5,7 @@
 #include "../../Core/Processor/ProcessorHelper.h"
 #include "../../Core/Processor/ProcessorKeys.h"
 #include "../../Core/Processor/ProcessorNames.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 
 void WtPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {

@@ -22,13 +22,13 @@ namespace
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Opm/ProcessorOpmKeys.h"
 #include "../../Processor/Opm/ProcessorOpmValues.h"
-#include "../../Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
+#include "Shared/Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"

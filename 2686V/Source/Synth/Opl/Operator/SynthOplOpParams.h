@@ -1,14 +1,14 @@
 ﻿#pragma once
 
-#include "../../../Effect/Envelope/Amp/OplAdsr/EnvOplAdsrParams.h"
-#include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
-#include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
-#include "../../../Effect/Lfo/Opl/LfoOplParams.h"
-#include "../../../Effect/Detune/Opl/DetuneOplParams.h"
-#include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-#include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
-#include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
-#include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "Shared/Effect/Envelope/Amp/OplAdsr/EnvOplAdsrParams.h"
+#include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
+#include "Shared/Effect/Lfo/Opl/LfoOplParams.h"
+#include "Shared/Effect/Detune/Opl/DetuneOplParams.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
+#include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Core/Synth/CommonParams.h"
 #include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 

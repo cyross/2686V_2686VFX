@@ -3,7 +3,7 @@
 #include <cmath>
 #include <vector>
 
-#include "Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 
 namespace
 {

@@ -3,18 +3,18 @@
 
 #include <array>
 
-#include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
-#include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
-#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-#include "../../Effect/Detune/Opzx7/DetuneOpzx7Params.h"
-#include "../../Effect/Lfo/Opzx7/LfoOpzx7Params.h"
+#include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
+#include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
+#include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
 #include "../../Core/Synth/UnisonParams.h"
 #include "Shared/Generator/Fm/Fix/FmFixParams.h"
 #include "Shared/Core/Synth/CommonParams.h"
-#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
-#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
+#include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 
 struct AdpcmPlusParams
 {

@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 
-#include "../../Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
 
 namespace AdpcmPlusPrValue
 {

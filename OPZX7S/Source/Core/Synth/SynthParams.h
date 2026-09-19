@@ -5,7 +5,7 @@
 #include "./SynthMode.h"
 
 #include "../../Synth/Opzx7/SynthOpzx7Params.h"
-#include "../../Advanced/Curve/AdvancedCurveParams.h"
+#include "Shared/Advanced/Curve/AdvancedCurveParams.h"
 
 struct SynthParams
 {
