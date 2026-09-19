@@ -44,7 +44,8 @@ class GuiFx : public GuiBase
             FxGuiText::Group::fxMbc,     // 4: FxType::ModernBitCrusher
             FxGuiText::Group::fxDelay,   // 5: FxType::Delay
             FxGuiText::Group::fxReverb,  // 6: FxType::Reverb
-            FxGuiText::Group::sfcEcho    // 7: FxType::SpcEcho
+            FxGuiText::Group::sfcEcho,   // 7: FxType::SpcEcho
+            FxGuiText::Group::fxPcm      // 8: FxType::PcmBitCrusher
         };
     }
 

@@ -35,8 +35,8 @@ std::vector<SelectItem> Quality::rateItems = {
     {.name = "10: 12kHz",    .value = 10 },
     {.name = "11: 11kHz",    .value = 11 },
     {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
+    {.name = "13: 5.5kHz",   .value = 13 },
+    {.name = "14: 4kHz",     .value = 14 },
     {.name = "15: 2kHz",     .value = 15 },
 };
 
