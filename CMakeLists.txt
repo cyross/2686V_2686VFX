@@ -65,6 +65,102 @@ file(GLOB CY_JUCE_MODULE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/external/JUCE/modules/*/*.m"
 )
 
+# 出す形。macOS では AU も求められることが多いので、そこでだけ足す。
+# 音源か効果かは IS_SYNTH から JUCE が判断し、AU の種別を決めてくれる。
+#
+# 12 本とも同じにしておくこと。下の cy_juce は、この形に合わせて JUCE を組む。
+set(CY_PLUGIN_FORMATS VST3 Standalone)
+
+if(APPLE)
+    list(APPEND CY_PLUGIN_FORMATS AU)
+endif()
+
+# JUCE の機能の入り切り。プラグインと cy_juce で必ず揃える。
+set(CY_JUCE_DEFINITIONS
+    JUCE_VST3_CAN_REPLACE_VST2=0
+    JUCE_WEB_BROWSER=0
+    JUCE_USE_CURL=0
+    JUCE_USE_CAMERA=0
+    JUCE_USE_CDREADER=0
+    JUCE_USE_CDBURNER=0
+)
+
+# ==============================================================================
+# JUCE を 1 本の静的ライブラリにまとめる (cy_juce)
+# ==============================================================================
+# JUCE のモジュールの実装 (juce_gui_basics.cpp など 18 個) は、どのプラグインでも
+# 中身が同じ。それでも juce_add_plugin に任せると、プラグインごとに組み直す
+# ので、12 本で 12 回コンパイルしていた。ここで 1 回だけ組んで使い回す。
+#
+# 仕組みは次のとおり。
+#
+#   - cy_juce は、プラグインの共有コードと同じ定義でモジュールを組む
+#   - プラグインの側では、同じモジュールのファイルに「コンパイルしない」印
+#     (HEADER_FILE_ONLY) を付ける。juce_add_plugin はモジュールをソースごと
+#     つなぐので、印を付けないと二重に組まれる。印はディレクトリごとに持つ
+#     ので、ここ (ルート) で組む cy_juce には効かない
+#   - プラグイン名だけはプラグインごとに違うので、関数で尋ねる形にする
+#     (cmake/SharedJuce/CyJucePluginName.h)
+#
+# 共有してよいのは、JUCE のモジュールの実装がプラグインごとの値に頼っていない
+# から。頼っているのはプラグイン名と出す形 (CY_PLUGIN_FORMATS) だけで、出す形は
+# 12 本とも同じ。JUCE を上げたときは、プラグインの包み (juce_audio_plugin_client)
+# の外で JucePlugin_ で始まる名前を使うところが増えていないかを確かめること。
+#
+# 道具 (ParamDump) とテスト (IoTests) はコンソールアプリとして JUCE を組むので、
+# 定義が違う。これらはこれまでどおり自分で組む。
+option(CY_SHARED_JUCE "JUCE を全プラグインで共有する静的ライブラリにする" ON)
+
+if(CY_SHARED_JUCE)
+    # プラグインの形式ごとの包み (VST3 / Standalone) が組むものは除く。
+    # こちらは中でプラグイン名などを使うので、プラグインごとに組む。
+    set(CY_JUCE_SHARED_SOURCES ${CY_JUCE_MODULE_SOURCES})
+    list(FILTER CY_JUCE_SHARED_SOURCES EXCLUDE REGEX "/juce_audio_plugin_client/")
+
+    add_library(cy_juce STATIC)
+
+    # モジュールをつなぐと、その実装ファイルがこのライブラリへ入る。
+    #
+    # juce_audio_plugin_client はここでは何も組まないが、「使える」という印
+    # (JUCE_MODULE_AVAILABLE_juce_audio_plugin_client) を立てるためにつなぐ。
+    # juce_gui_basics はこの印を見て、プラグインの窓の扱いを変える。
+    target_link_libraries(cy_juce PRIVATE
+        juce::juce_audio_utils
+        juce::juce_dsp
+        juce::juce_audio_plugin_client
+        juce::juce_recommended_config_flags
+    )
+
+    # プラグインの共有コードと同じ定義にする。juce_add_plugin が中で付けている
+    # もののうち、モジュールの実装が見るものを写す。出す形の印
+    # (JucePlugin_Build_VST3 など) は JUCE 自身の関数で付ける。
+    _juce_add_plugin_definitions(cy_juce PRIVATE ${CY_PLUGIN_FORMATS})
+
+    target_compile_definitions(cy_juce PRIVATE
+        ${CY_JUCE_DEFINITIONS}
+        JUCE_SHARED_CODE=1
+        JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone
+        JucePlugin_Enable_ARA=0
+    )
+
+    # プラグイン名の受け口を、どのファイルよりも先に読ませる
+    if(MSVC)
+        target_compile_options(cy_juce PRIVATE /utf-8 /FS
+            "/FI${CMAKE_CURRENT_SOURCE_DIR}/cmake/SharedJuce/CyJucePluginName.h")
+    else()
+        target_compile_options(cy_juce PRIVATE
+            -include "${CMAKE_CURRENT_SOURCE_DIR}/cmake/SharedJuce/CyJucePluginName.h")
+    endif()
+
+    # プラグインの共有コードに JUCE が付けているものと揃える
+    set_target_properties(cy_juce PROPERTIES
+        POSITION_INDEPENDENT_CODE TRUE
+        VISIBILITY_INLINES_HIDDEN TRUE
+        C_VISIBILITY_PRESET hidden
+        CXX_VISIBILITY_PRESET hidden
+    )
+endif()
+
 # yaml-cpp は自前の警告設定を持たないので、こちらの厳しい設定に
 # 巻き込まれないようにする。外から持ってきたものは直せないため。
 if(MSVC)
@@ -103,14 +199,7 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
         set(CY_PRODUCT_NAME ${TARGET_NAME})
     endif()
 
-    # 出す形。macOS では AU も求められることが多いので、そこでだけ足す。
-    # 音源か効果かは IS_SYNTH から JUCE が判断し、AU の種別を決めてくれる。
-    set(CY_PLUGIN_FORMATS VST3 Standalone)
-
-    if(APPLE)
-        list(APPEND CY_PLUGIN_FORMATS AU)
-    endif()
-
+    # 出す形 (CY_PLUGIN_FORMATS) は上で 12 本ぶんまとめて決めてある
     juce_add_plugin(${TARGET_NAME}
         COMPANY_NAME "CYROSS"
         IS_SYNTH ${CY_IS_SYNTH}
@@ -155,14 +244,21 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
         juce::juce_dsp
     )
 
-    target_compile_definitions(${TARGET_NAME} PRIVATE
-        JUCE_VST3_CAN_REPLACE_VST2=0
-        JUCE_WEB_BROWSER=0
-        JUCE_USE_CURL=0
-        JUCE_USE_CAMERA=0
-        JUCE_USE_CDREADER=0
-        JUCE_USE_CDBURNER=0
-    )
+    target_compile_definitions(${TARGET_NAME} PRIVATE ${CY_JUCE_DEFINITIONS})
+
+    # JUCE は cy_juce で組んだものを使う。自分では組まない。
+    if(CY_SHARED_JUCE)
+        target_link_libraries(${TARGET_NAME} PRIVATE cy_juce)
+
+        set_source_files_properties(${CY_JUCE_SHARED_SOURCES}
+            TARGET_DIRECTORY ${TARGET_NAME}
+            PROPERTIES HEADER_FILE_ONLY ON
+        )
+
+        # cy_juce へこのプラグインの名前を返す
+        target_sources(${TARGET_NAME} PRIVATE
+            "${CMAKE_SOURCE_DIR}/cmake/SharedJuce/CyJucePluginName.cpp")
+    endif()
 
     juce_generate_juce_header(${TARGET_NAME})
 
