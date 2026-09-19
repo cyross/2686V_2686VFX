@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../../Generator/Pcm/Helper/GenPcmNoiseReducer.h"
 #include "../../Generator/Pcm/Helper/GenPcmShared.h"
 
 #include <JuceHeader.h>
@@ -72,6 +73,13 @@ public:
     int m_qualityMode = 6; // ADPCM
     int m_rateIndex = 5;   // 16kHz
     int m_interpolationMode = 1;
+
+    // QUALITY のノイズリダクション (再生側)。素材づくり側 (きれいな間引き)
+    // はプロセッサが受け持つ。どれも切れていれば素通しになる。
+    bool m_nrGate = false;
+    float m_nrGateDb = -60.0f;
+    int m_nrLpf = 1;
+    PcmNoiseReducer m_noiseReducer;
     bool m_isOneShot = true;
     bool m_hasFinished = false;
     float m_pitchBendRatio = 1.0f;

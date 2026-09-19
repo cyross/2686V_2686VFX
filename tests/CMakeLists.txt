@@ -54,6 +54,16 @@ set(UNDER_TEST_SOURCES
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Generator/Fm/Fix/FmFix.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Gui/Components/WavePreview/WavePreviewSource.cpp"
+
+    "${TEST_TARGET_SOURCE_ROOT}/Core/Synth/SynthHelpers.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Helper/GenPcmHelper.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Helper/GenPcmNoiseReducer.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Adpcm/GenAdpcm.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Arcade/GenArcadeAdpcm.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Brr/GenBrr.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Dpcm/GenDpcm.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Ima/GenIma.cpp"
+    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Vag/GenVag.cpp"
 )
 
 # ---- テストコード ----

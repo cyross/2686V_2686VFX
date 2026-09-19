@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "../../Generator/Pcm/Helper/GenPcmNoiseReducer.h"
 #include <JuceHeader.h>
 
 #include "../../Core/Synth/SynthParams.h"
@@ -64,6 +65,13 @@ private:
     int m_qualityMode = 6;
     int m_rateIndex = 3;
     int m_interpolationMode = 1;
+
+    // QUALITY のノイズリダクション (再生側)。素材づくり側 (きれいな間引き)
+    // はプロセッサが受け持つ。どれも切れていれば素通しになる。
+    bool m_nrGate = false;
+    float m_nrGateDb = -60.0f;
+    int m_nrLpf = 1;
+    PcmNoiseReducer m_noiseReducer;
     double m_targetRate = 44100.0;
     float m_currentFrequency = 440.0f;
 

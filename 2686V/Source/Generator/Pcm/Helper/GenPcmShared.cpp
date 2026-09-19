@@ -22,7 +22,7 @@ void PcmSharedStore::clear()
     publish();
 }
 
-void PcmSharedStore::rebuildIfNeeded(int qualityMode, int rateIndex, double defaultRate)
+void PcmSharedStore::rebuildIfNeeded(int qualityMode, int rateIndex, bool cleanResample, double defaultRate)
 {
     if (m_master.raw.empty()) return;
 
@@ -30,7 +30,8 @@ void PcmSharedStore::rebuildIfNeeded(int qualityMode, int rateIndex, double defa
     // 最初に ADPCM のブロックが回ったときに改めて頼まれるので、ここでは作らない。
     if (qualityMode < 0 || rateIndex < 0) return;
 
-    if (m_master.qualityMode == qualityMode && m_master.rateIndex == rateIndex) return;
+    if (m_master.qualityMode == qualityMode && m_master.rateIndex == rateIndex
+        && m_master.cleanResample == cleanResample) return;
 
     double targetRate = getTargetRate(rateIndex, defaultRate);
 
@@ -41,11 +42,12 @@ void PcmSharedStore::rebuildIfNeeded(int qualityMode, int rateIndex, double defa
     if (step <= 0.0) step = 1.0;
 
     // 圧縮の種類ごとの処理は GenPcmHelper に集約している
-    GenPcmHelper::encodeBuffer(m_master.raw, step, qualityMode, m_master.encoded);
+    GenPcmHelper::encodeBuffer(m_master.raw, step, qualityMode, cleanResample, m_master.encoded);
 
     m_master.encodedRate = targetRate;
     m_master.qualityMode = qualityMode;
     m_master.rateIndex = rateIndex;
+    m_master.cleanResample = cleanResample;
 
     publish();
 }

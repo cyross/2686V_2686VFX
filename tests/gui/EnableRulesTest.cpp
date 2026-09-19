@@ -209,6 +209,10 @@ namespace
         r.push_back({ "OPM LFO AM", CPK::OpmLfo::am, true, { CPK::OpmLfo::freq, CPK::OpmLfo::egShape },
             { CPK::OpmLfo::egShape, CPK::OpmLfo::amSmoothRatio, CPK::OpmLfo::ams, CPK::OpmLfo::amd }, {} });
 
+        // QUALITY (PCM) の無音ゲート。しきい値はゲートを入れたときだけ効く
+        r.push_back({ "QUALITY NR Gate", CPK::QualityPcm::nrGate, true, { CPK::QualityPcm::nrGateLevel },
+            { CPK::QualityPcm::nrGateLevel }, {} });
+
         // FIX
         r.push_back({ "FIX", CPK::fix, true, { CPK::fixFreq }, { CPK::fixFreq }, {} });
 
@@ -512,4 +516,44 @@ TEST_CASE("TARGET を切り替えても、指し先の札の状態に合わせ�
 
     CHECK(checkedTabs > 0);
     MESSAGE("TARGET の切り替え: " << checkedTabs << " 通り");
+}
+
+TEST_CASE("QUALITY のきれいな間引きは、符号化するモードのときだけ押せる")
+{
+    // 1〜12 は素材をそのまま鳴らすので間引かない。13 以降 (YM2608 ADPCM 〜)
+    // だけが符号化の前に間引く。
+    Env env;
+
+    std::vector<juce::Component*> all;
+    for (auto* root : env.tabRoots()) collect(root, all);
+
+    int checked = 0;
+
+    for (auto* c : all) {
+        auto* t = dynamic_cast<GuiToggleButton*>(c);
+
+        if (t == nullptr || !t->getComponentID().endsWith(CPK::QualityPcm::nrResample)) continue;
+
+        const auto prefix = t->getComponentID().dropLastCharacters(CPK::QualityPcm::nrResample.length());
+        auto* mode = env.processor->apvts.getParameter(prefix + CPK::QualityPcm::mode);
+
+        REQUIRE(mode != nullptr);
+
+        INFO(prefix.toStdString());
+
+        const float original = mode->getValue();
+
+        mode->setValueNotifyingHost(mode->convertTo0to1(4.0f));    // 16-bit PCM
+        CHECK(t->isDimmed());
+
+        mode->setValueNotifyingHost(mode->convertTo0to1(13.0f));   // YM2608 ADPCM
+        CHECK_FALSE(t->isDimmed());
+
+        mode->setValueNotifyingHost(original);
+
+        ++checked;
+    }
+
+    CHECK(checked > 0);
+    MESSAGE("QUALITY: " << checked << " か所");
 }
