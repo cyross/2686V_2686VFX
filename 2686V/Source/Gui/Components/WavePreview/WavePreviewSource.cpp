@@ -6,7 +6,7 @@
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "Shared/Generator/WtMod/GenWtModulator.h"
 #include "Shared/Generator/WtMod/GenWtAmpModulator.h"
-#include "../../../Synth/Opzx7/Operator/SynthOpzx7Op.h"
+#include "Shared/Synth/Opzx7/Operator/SynthOpzx7Op.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
 #include "Shared/Effect/Lfo/N88/LfoN88.h"
 #include "Shared/Effect/Lfo/Opm/LfoOpm.h"

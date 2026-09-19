@@ -1,4 +1,5 @@
 ﻿#include <vector>
+#include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiRhythm.h"
@@ -25,7 +26,7 @@ namespace
 #include "../../Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
-#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Core/Const/ConstFileValues.h"
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiRhythmValues.h"

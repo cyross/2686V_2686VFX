@@ -34,12 +34,9 @@ set(CONST_FILES
 
 set(SYNTH_FILES
     "Source/Core/Synth/SynthMode.h"
-    "Source/Core/Synth/SynthCore.h"
     "Source/Core/Synth/SynthParams.h"
     "Source/Core/Synth/SynthVoice.h"
     "Source/Core/Synth/SynthVoice.cpp"
-    "Source/Core/Synth/UnisonParams.h"
-    "Source/Core/Synth/UnisonState.h"
 )
 
 
@@ -47,10 +44,6 @@ set(SYNTH_FILES
 
 
 set(FM_FILES
-    "Source/Core/Fm/FmCore.h"
-    "Source/Core/Fm/FmOperator.h"
-    "Source/Core/Fm/FmOperator.cpp"
-    "Source/Core/Fm/FmOpParams.h"
     "Source/Core/Fm/FmRegisterConverter.h"
     "Source/Core/Fm/FmRegisterConverter.cpp"
     "Source/Core/Fm/FmMmlFormatter.h"
@@ -116,25 +109,11 @@ set(FX_EFFECT_FILES
     "Source/Effect/Fx/Fx.cpp"
 )
 
-set(OPN_SYNTH_FILES
-    "Source/Synth/Opn/SynthOpn.h"
-    "Source/Synth/Opn/SynthOpn.cpp"
-    "Source/Synth/Opn/SynthOpnParams.h"
-    "Source/Synth/Opn/Operator/SynthOpnOp.h"
-    "Source/Synth/Opn/Operator/SynthOpnOp.cpp"
-    "Source/Synth/Opn/Operator/SynthOpnOpParams.h"
-)
 
-set(SSG_SYNTH_FILES
-    "Source/Synth/Ssg/SynthSsg.h"
-    "Source/Synth/Ssg/SynthSsg.cpp"
-    "Source/Synth/Ssg/SynthSsgParams.h"
-)
 
 set(OPN_PROCESSOR_FILES
     "Source/Processor/Opn/ProcessorOpnKeys.h"
     "Source/Processor/Opn/ProcessorOpnNames.h"
-    "Source/Processor/Opn/ProcessorOpnValues.h"
     "Source/Processor/Opn/ProcessorOpn.h"
     "Source/Processor/Opn/ProcessorOpn.cpp"
 )
@@ -372,8 +351,6 @@ source_group("26V\\Constants" FILES ${CONST_FILES})
 source_group("26V\\Documents" FILES ${DOCUMENT_FILES})
 source_group("26V\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("26V\\Synth\\Fm" FILES ${FM_FILES})
-source_group("26V\\Synth\\Opn" FILES ${OPN_SYNTH_FILES})
-source_group("26V\\Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
 source_group("26V\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
 source_group("26V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("26V\\Processor\\Core" FILES ${PROCESSOR_FILES})

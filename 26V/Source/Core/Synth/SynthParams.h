@@ -1,23 +1,16 @@
 ﻿#pragma once
 
-#include <array>
+// ============================================================================
+// このプラグインのパラメータ
+// ============================================================================
+// 音源へ渡すもの (SynthCoreParams、12 本で共有) に、どの音源を鳴らすか
+// (mode) を足したもの。OscMode の番号はプラグインごとに違うので、ここに置く。
+#include "Shared/Core/Synth/SynthCoreParams.h"
 
 #include "./SynthMode.h"
 
-#include "../../Synth/Opn/SynthOpnParams.h"
-#include "../../Synth/Ssg/SynthSsgParams.h"
-
-struct SynthParams
+struct SynthParams : SynthCoreParams
 {
     // --- Synth Mode ---
     OscMode mode = OscMode::OPN;
-
-    // --- Monophonic Mode ---
-    bool monoMode = false;
-    bool useVelocity = false;
-    bool pitchResetOnLegato = false;
-    float fixedVelocity = 1.0f;
-
-    OpnParams opn;
-    SsgParams ssg;
 };

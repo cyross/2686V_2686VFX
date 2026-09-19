@@ -26,9 +26,10 @@ namespace
 {
     using FmToOpzx7::Tables::Routing;
 
+    // 音源の本体は 12 本で共有する Shared/ にある
     std::string readSource(const std::string& rel)
     {
-        std::ifstream in(std::string(repoRoot()) + "/2686V/Source/" + rel, std::ios::binary);
+        std::ifstream in(std::string(repoRoot()) + "/Shared/" + rel, std::ios::binary);
 
         std::stringstream ss;
         ss << in.rdbuf();

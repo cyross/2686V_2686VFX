@@ -79,8 +79,8 @@ set(UNDER_TEST_SOURCES
     "${SHARED_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7Unit.cpp"
     "${SHARED_SOURCE_ROOT}/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
 
-    "${TEST_TARGET_SOURCE_ROOT}/Core/Fm/FmOperator.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Synth/Opzx7/Operator/SynthOpzx7Op.cpp"
+    "${SHARED_SOURCE_ROOT}/Core/Fm/FmOperator.cpp"
+    "${SHARED_SOURCE_ROOT}/Synth/Opzx7/Operator/SynthOpzx7Op.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
     "${SHARED_SOURCE_ROOT}/Generator/Fm/Fix/FmFix.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Gui/Components/WavePreview/WavePreviewSource.cpp"

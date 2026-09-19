@@ -1,10 +1,11 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+#include "./ProcessorRhythmPads.h"
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
-#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Core/Processor/ProcessorStructs.h"
 
 class RhythmProcessor : public PrBase

@@ -36,12 +36,9 @@ set(CONST_FILES
 
 set(SYNTH_FILES
     "Source/Core/Synth/SynthMode.h"
-    "Source/Core/Synth/SynthCore.h"
     "Source/Core/Synth/SynthParams.h"
     "Source/Core/Synth/SynthVoice.h"
     "Source/Core/Synth/SynthVoice.cpp"
-    "Source/Core/Synth/UnisonParams.h"
-    "Source/Core/Synth/UnisonState.h"
 )
 
 
@@ -49,10 +46,6 @@ set(SYNTH_FILES
 
 
 set(FM_FILES
-    "Source/Core/Fm/FmCore.h"
-    "Source/Core/Fm/FmOperator.h"
-    "Source/Core/Fm/FmOperator.cpp"
-    "Source/Core/Fm/FmOpParams.h"
     "Source/Core/Fm/FmRegisterConverter.h"
     "Source/Core/Fm/FmRegisterConverter.cpp"
     "Source/Core/Fm/FmMmlFormatter.h"
@@ -118,20 +111,11 @@ set(FX_EFFECT_FILES
     "Source/Effect/Fx/Fx.cpp"
 )
 
-set(OPZX7_SYNTH_FILES
-    "Source/Synth/Opzx7/SynthOpzx7.h"
-    "Source/Synth/Opzx7/SynthOpzx7.cpp"
-    "Source/Synth/Opzx7/SynthOpzx7Params.h"
-    "Source/Synth/Opzx7/Operator/SynthOpzx7Op.h"
-    "Source/Synth/Opzx7/Operator/SynthOpzx7Op.cpp"
-    "Source/Synth/Opzx7/Operator/SynthOpzx7OpParams.h"
-)
 
 
 set(OPZX7_PROCESSOR_FILES
     "Source/Processor/Opzx7/ProcessorOpzx7Keys.h"
     "Source/Processor/Opzx7/ProcessorOpzx7Names.h"
-    "Source/Processor/Opzx7/ProcessorOpzx7Values.h"
     "Source/Processor/Opzx7/ProcessorOpzx7.h"
     "Source/Processor/Opzx7/ProcessorOpzx7.cpp"
 )
@@ -360,7 +344,6 @@ source_group("OPZX7S\\Constants" FILES ${CONST_FILES})
 source_group("OPZX7S\\Documents" FILES ${DOCUMENT_FILES})
 source_group("OPZX7S\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("OPZX7S\\Synth\\Fm" FILES ${FM_FILES})
-source_group("OPZX7S\\Synth\\Opzx7" FILES ${OPZX7_SYNTH_FILES})
 source_group("OPZX7S\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
 source_group("OPZX7S\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("OPZX7S\\Processor\\Core" FILES ${PROCESSOR_FILES})

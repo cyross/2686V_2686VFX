@@ -68,7 +68,9 @@ function(cy_add_shared_library name)
 endfunction()
 
 # ---- 土台。型や定数、小さな道具。パラメータの範囲と初期値 (CPV) もここ
-cy_add_shared_library(cy_shared_core DIRS Core Processor)
+#
+# Core/Fm は FM のオペレーターで、エンベロープ (Effect) に頼るので音源の側へ置く。
+cy_add_shared_library(cy_shared_core DIRS Core/Const Core/Processor Core/Synth Processor)
 
 # ---- 音を作るもの (FM の FIX、ノイズ、PCM の符号化、波形メモリの変調など)
 cy_add_shared_library(cy_shared_generator DIRS Generator LINKS cy_shared_core)
@@ -86,6 +88,14 @@ cy_add_shared_library(cy_shared_advanced DIRS Advanced LINKS cy_shared_core)
 # (SynthParams) に頼っているため、プロセッサと一緒に移す。
 cy_add_shared_library(cy_shared_effect DIRS Effect
     LINKS cy_shared_core cy_shared_generator cy_shared_advanced)
+
+# ---- 音源の本体 (OPNA・OPM・SSG・WT・RHYTHM など) と FM のオペレーター
+#
+# どの音源を鳴らすか (OscMode) はプラグインごとに番号が違うので、ここには
+# 置かない。音源の本体はパラメータを SynthCoreParams で受け取り、mode は
+# 各プラグインの SynthParams が持つ。
+cy_add_shared_library(cy_shared_synth DIRS Core/Fm Synth
+    LINKS cy_shared_core cy_shared_generator cy_shared_advanced cy_shared_effect)
 
 # プラグインはこれ 1 つをつなげば、共有コードをすべて使える
 get_property(CY_SHARED_LIBRARY_LIST GLOBAL PROPERTY CY_SHARED_LIBRARIES)

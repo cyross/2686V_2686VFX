@@ -5,7 +5,7 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
-#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Core/Processor/ProcessorStructs.h"
 
 class Opzx7Processor : public PrBase

@@ -19,8 +19,8 @@
 #include "Shared/Generator/WtMod/GenWtModulator.h"
 #include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 
-#include "../../Core/Synth/UnisonParams.h"
-#include "../../Core/Synth/UnisonState.h"
+#include "Shared/Core/Synth/UnisonParams.h"
+#include "Shared/Core/Synth/UnisonState.h"
 
 #include "./ModPitchShifter.h"
 #include "./ProcessorModKeys.h"

@@ -1,4 +1,5 @@
 ﻿#include "../Gui/GuiRefresh.h"
+#include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 #include "../Const/ConstPlugin.h"
 #include <cstdio>
 #include <vector>
@@ -26,7 +27,7 @@
 #include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
 #include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
 
-#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 
 #include "AppIconForAbout.h"
 

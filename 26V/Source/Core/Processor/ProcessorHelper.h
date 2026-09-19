@@ -23,10 +23,10 @@
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
 #include "Shared/Effect/Lfo/N88/LfoN88Params.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
-#include "../../Core/Synth/UnisonParams.h"
+#include "Shared/Core/Synth/UnisonParams.h"
 #include "Shared/Generator/Fm/Fix/FmFixParams.h"
-#include "../../Synth/Opn/SynthOpnParams.h"
-#include "../../Synth/Ssg/SynthSsgParams.h"
+#include "Shared/Synth/Opn/SynthOpnParams.h"
+#include "Shared/Synth/Ssg/SynthSsgParams.h"
 
 namespace PrHelper {
 	static inline bool getBool(std::atomic<float>* ptr){

@@ -4,7 +4,7 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
-#include "../../Processor/Opna/ProcessorOpnaValues.h"
+#include "Shared/Processor/Opna/ProcessorOpnaValues.h"
 #include "../../Core/Processor/ProcessorStructs.h"
 
 class OpnaProcessor : public PrBase

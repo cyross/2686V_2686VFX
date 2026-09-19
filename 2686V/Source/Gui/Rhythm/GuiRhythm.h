@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+#include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 
 #include "../../Core/Io/ParamFile.h"
 #include <array>
@@ -19,7 +20,7 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Gui/Components/Midi/Midi.h"
-#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"

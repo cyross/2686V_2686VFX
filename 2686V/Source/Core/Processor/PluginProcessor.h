@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Shared/Generator/Pcm/Helper/GenPcmShared.h"
+#include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 #include "../Const/ConstPlugin.h"
 #include <array>
 #include <atomic>
@@ -42,8 +43,8 @@
 
 #include "../Editor/PluginEditor.h"
 
-#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
-#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Processor/Wt2/ProcessorWt2Values.h"
 
 #include "./PluginProcessorStateKey.h"

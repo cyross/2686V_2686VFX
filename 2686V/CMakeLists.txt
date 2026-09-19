@@ -34,12 +34,9 @@ set(CONST_FILES
 
 set(SYNTH_FILES
     "Source/Core/Synth/SynthMode.h"
-    "Source/Core/Synth/SynthCore.h"
     "Source/Core/Synth/SynthParams.h"
     "Source/Core/Synth/SynthVoice.h"
     "Source/Core/Synth/SynthVoice.cpp"
-    "Source/Core/Synth/UnisonParams.h"
-    "Source/Core/Synth/UnisonState.h"
 )
 
 
@@ -48,10 +45,6 @@ set(SYNTH_FILES
 
 
 set(FM_FILES
-    "Source/Core/Fm/FmCore.h"
-    "Source/Core/Fm/FmOperator.h"
-    "Source/Core/Fm/FmOperator.cpp"
-    "Source/Core/Fm/FmOpParams.h"
     "Source/Core/Fm/FmRegisterConverter.h"
     "Source/Core/Fm/FmRegisterConverter.cpp"
     "Source/Core/Fm/FmMmlFormatter.h"
@@ -117,101 +110,22 @@ set(FX_EFFECT_FILES
     "Source/Effect/Fx/Fx.cpp"
 )
 
-set(OPNA_SYNTH_FILES
-    "Source/Synth/Opna/SynthOpna.h"
-    "Source/Synth/Opna/SynthOpna.cpp"
-    "Source/Synth/Opna/SynthOpnaParams.h"
-    "Source/Synth/Opna/Operator/SynthOpnaOp.h"
-    "Source/Synth/Opna/Operator/SynthOpnaOp.cpp"
-    "Source/Synth/Opna/Operator/SynthOpnaOpParams.h"
-)
 
-set(OPN_SYNTH_FILES
-    "Source/Synth/Opn/SynthOpn.h"
-    "Source/Synth/Opn/SynthOpn.cpp"
-    "Source/Synth/Opn/SynthOpnParams.h"
-    "Source/Synth/Opn/Operator/SynthOpnOp.h"
-    "Source/Synth/Opn/Operator/SynthOpnOp.cpp"
-    "Source/Synth/Opn/Operator/SynthOpnOpParams.h"
-)
 
-set(OPL_SYNTH_FILES
-    "Source/Synth/Opl/SynthOpl.h"
-    "Source/Synth/Opl/SynthOpl.cpp"
-    "Source/Synth/Opl/SynthOplParams.h"
-    "Source/Synth/Opl/Operator/SynthOplOp.h"
-    "Source/Synth/Opl/Operator/SynthOplOp.cpp"
-    "Source/Synth/Opl/Operator/SynthOplOpParams.h"
-)
 
-set(OPL3_SYNTH_FILES
-    "Source/Synth/Opl3/SynthOpl3.h"
-    "Source/Synth/Opl3/SynthOpl3.cpp"
-    "Source/Synth/Opl3/SynthOpl3Params.h"
-    "Source/Synth/Opl3/Operator/SynthOpl3Op.h"
-    "Source/Synth/Opl3/Operator/SynthOpl3Op.cpp"
-    "Source/Synth/Opl3/Operator/SynthOpl3OpParams.h"
-)
 
-set(OPM_SYNTH_FILES
-    "Source/Synth/Opm/SynthOpm.h"
-    "Source/Synth/Opm/SynthOpm.cpp"
-    "Source/Synth/Opm/SynthOpmParams.h"
-    "Source/Synth/Opm/Operator/SynthOpmOp.h"
-    "Source/Synth/Opm/Operator/SynthOpmOp.cpp"
-    "Source/Synth/Opm/Operator/SynthOpmOpParams.h"
-)
 
-set(OPZX7_SYNTH_FILES
-    "Source/Synth/Opzx7/SynthOpzx7.h"
-    "Source/Synth/Opzx7/SynthOpzx7.cpp"
-    "Source/Synth/Opzx7/SynthOpzx7Params.h"
-    "Source/Synth/Opzx7/Operator/SynthOpzx7Op.h"
-    "Source/Synth/Opzx7/Operator/SynthOpzx7Op.cpp"
-    "Source/Synth/Opzx7/Operator/SynthOpzx7OpParams.h"
-)
 
-set(SSG_SYNTH_FILES
-    "Source/Synth/Ssg/SynthSsg.h"
-    "Source/Synth/Ssg/SynthSsg.cpp"
-    "Source/Synth/Ssg/SynthSsgParams.h"
-)
 
-set(WT_SYNTH_FILES
-    "Source/Synth/Wavetable/SynthWt.h"
-    "Source/Synth/Wavetable/SynthWt.cpp"
-    "Source/Synth/Wavetable/SynthWtParams.h"
-)
 
-set(WT2_SYNTH_FILES
-    "Source/Synth/Wt2/SynthWt2.h"
-    "Source/Synth/Wt2/SynthWt2.cpp"
-    "Source/Synth/Wt2/SynthWt2Params.h"
-)
 
-set(RHYTHM_SYNTH_FILES
-    "Source/Synth/Rhythm/SynthRhythm.h"
-    "Source/Synth/Rhythm/SynthRhythm.cpp"
-    "Source/Synth/Rhythm/SynthRhythmParams.h"
-)
 
-set(ADPCM_SYNTH_FILES
-    "Source/Synth/Adpcm/SynthAdpcm.h"
-    "Source/Synth/Adpcm/SynthAdpcm.cpp"
-    "Source/Synth/Adpcm/SynthAdpcmParams.h"
-)
 
-set(BEEP_SYNTH_FILES
-    "Source/Synth/Beep/SynthBeep.h"
-    "Source/Synth/Beep/SynthBeep.cpp"
-    "Source/Synth/Beep/SynthBeepParams.h"
-)
 
 
 set(OPNA_PROCESSOR_FILES
     "Source/Processor/Opna/ProcessorOpnaKeys.h"
     "Source/Processor/Opna/ProcessorOpnaNames.h"
-    "Source/Processor/Opna/ProcessorOpnaValues.h"
     "Source/Processor/Opna/ProcessorOpna.h"
     "Source/Processor/Opna/ProcessorOpna.cpp"
 )
@@ -219,7 +133,6 @@ set(OPNA_PROCESSOR_FILES
 set(OPN_PROCESSOR_FILES
     "Source/Processor/Opn/ProcessorOpnKeys.h"
     "Source/Processor/Opn/ProcessorOpnNames.h"
-    "Source/Processor/Opn/ProcessorOpnValues.h"
     "Source/Processor/Opn/ProcessorOpn.h"
     "Source/Processor/Opn/ProcessorOpn.cpp"
 )
@@ -227,7 +140,6 @@ set(OPN_PROCESSOR_FILES
 set(OPL_PROCESSOR_FILES
     "Source/Processor/Opl/ProcessorOplKeys.h"
     "Source/Processor/Opl/ProcessorOplNames.h"
-    "Source/Processor/Opl/ProcessorOplValues.h"
     "Source/Processor/Opl/ProcessorOpl.h"
     "Source/Processor/Opl/ProcessorOpl.cpp"
 )
@@ -235,7 +147,6 @@ set(OPL_PROCESSOR_FILES
 set(OPL3_PROCESSOR_FILES
     "Source/Processor/Opl3/ProcessorOpl3Keys.h"
     "Source/Processor/Opl3/ProcessorOpl3Names.h"
-    "Source/Processor/Opl3/ProcessorOpl3Values.h"
     "Source/Processor/Opl3/ProcessorOpl3.h"
     "Source/Processor/Opl3/ProcessorOpl3.cpp"
 )
@@ -243,7 +154,6 @@ set(OPL3_PROCESSOR_FILES
 set(OPM_PROCESSOR_FILES
     "Source/Processor/Opm/ProcessorOpmKeys.h"
     "Source/Processor/Opm/ProcessorOpmNames.h"
-    "Source/Processor/Opm/ProcessorOpmValues.h"
     "Source/Processor/Opm/ProcessorOpm.h"
     "Source/Processor/Opm/ProcessorOpm.cpp"
 )
@@ -251,7 +161,6 @@ set(OPM_PROCESSOR_FILES
 set(OPZX7_PROCESSOR_FILES
     "Source/Processor/Opzx7/ProcessorOpzx7Keys.h"
     "Source/Processor/Opzx7/ProcessorOpzx7Names.h"
-    "Source/Processor/Opzx7/ProcessorOpzx7Values.h"
     "Source/Processor/Opzx7/ProcessorOpzx7.h"
     "Source/Processor/Opzx7/ProcessorOpzx7.cpp"
 )
@@ -283,7 +192,6 @@ set(WT2_PROCESSOR_FILES
 set(RHYTHM_PROCESSOR_FILES
     "Source/Processor/Rhythm/ProcessorRhythmKeys.h"
     "Source/Processor/Rhythm/ProcessorRhythmNames.h"
-    "Source/Processor/Rhythm/ProcessorRhythmValues.h"
     "Source/Processor/Rhythm/ProcessorRhythm.h"
     "Source/Processor/Rhythm/ProcessorRhythm.cpp"
 )
@@ -625,18 +533,6 @@ source_group("2686V\\Constants" FILES ${CONST_FILES})
 source_group("2686V\\Documents" FILES ${DOCUMENT_FILES})
 source_group("2686V\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("2686V\\Synth\\Fm" FILES ${FM_FILES})
-source_group("2686V\\Synth\\Opna" FILES ${OPNA_SYNTH_FILES})
-source_group("2686V\\Synth\\Opn" FILES ${OPN_SYNTH_FILES})
-source_group("2686V\\Synth\\Opl" FILES ${OPL_SYNTH_FILES})
-source_group("2686V\\Synth\\Opl3" FILES ${OPL3_SYNTH_FILES})
-source_group("2686V\\Synth\\Opm" FILES ${OPM_SYNTH_FILES})
-source_group("2686V\\Synth\\Opzx7" FILES ${OPZX7_SYNTH_FILES})
-source_group("2686V\\Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
-source_group("2686V\\Synth\\Wt" FILES ${WT_SYNTH_FILES})
-source_group("2686V\\Synth\\Wt2" FILES ${WT2_SYNTH_FILES})
-source_group("2686V\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
-source_group("2686V\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
-source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
 source_group("2686V\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
 source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("2686V\\Processor\\Core" FILES ${PROCESSOR_FILES})

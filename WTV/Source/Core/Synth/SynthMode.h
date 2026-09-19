@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
-static constexpr int MaxFmOperators = 4;
-
 enum class OscMode
 {
     WAVETABLE = 0, // 波形メモリ

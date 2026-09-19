@@ -20,7 +20,7 @@
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
-#include "../../Processor/Opn/ProcessorOpnValues.h"
+#include "Shared/Processor/Opn/ProcessorOpnValues.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Import/Import.h"

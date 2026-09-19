@@ -36,12 +36,9 @@ set(CONST_FILES
 
 set(SYNTH_FILES
     "Source/Core/Synth/SynthMode.h"
-    "Source/Core/Synth/SynthCore.h"
     "Source/Core/Synth/SynthParams.h"
     "Source/Core/Synth/SynthVoice.h"
     "Source/Core/Synth/SynthVoice.cpp"
-    "Source/Core/Synth/UnisonParams.h"
-    "Source/Core/Synth/UnisonState.h"
 )
 
 
@@ -49,10 +46,6 @@ set(SYNTH_FILES
 
 
 set(FM_FILES
-    "Source/Core/Fm/FmCore.h"
-    "Source/Core/Fm/FmOperator.h"
-    "Source/Core/Fm/FmOperator.cpp"
-    "Source/Core/Fm/FmOpParams.h"
     "Source/Core/Fm/FmRegisterConverter.h"
     "Source/Core/Fm/FmRegisterConverter.cpp"
     "Source/Core/Fm/FmMmlFormatter.h"

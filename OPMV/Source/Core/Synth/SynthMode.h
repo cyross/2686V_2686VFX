@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
-static constexpr int MaxFmOperators = 4;
-
 enum class OscMode
 {
     OPM = 0, // YM2151 (X68000/Arcade)

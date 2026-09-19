@@ -4,9 +4,9 @@
 
 #include "./SynthMode.h"
 #include "./SynthParams.h"
-#include "./SynthCore.h"
+#include "Shared/Core/Synth/SynthCore.h"
 
-#include "../../Synth/Opzx7/SynthOpzx7.h"
+#include "Shared/Synth/Opzx7/SynthOpzx7.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound

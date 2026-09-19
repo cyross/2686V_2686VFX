@@ -2,7 +2,7 @@
 #include "./ProcessorOpm.h"
 
 #include "./ProcessorOpmKeys.h"
-#include "./ProcessorOpmValues.h"
+#include "Shared/Processor/Opm/ProcessorOpmValues.h"
 #include "./ProcessorOpmNames.h"
 #include "../../Core/Processor/ProcessorKeys.h"
 #include "../../Core/Processor/ProcessorNames.h"

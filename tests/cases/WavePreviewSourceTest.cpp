@@ -6,7 +6,7 @@
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Core/Synth/CommonParams.h"
 #include "Shared/Generator/Fds/GenFdsModTable.h"
-#include "Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 
 // ============================================================================
 // 波形プレビューの折れ線

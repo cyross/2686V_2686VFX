@@ -1,9 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
-static constexpr int MaxRhythmPads = 8;
-static constexpr int MaxFmOperators = 4;
-
 enum class OscMode
 {
     RHYTHM = 0, // リズム音源

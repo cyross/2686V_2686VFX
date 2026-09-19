@@ -1,7 +1,7 @@
 ﻿#include "./ProcessorOpna.h"
 
 #include "./ProcessorOpnaKeys.h"
-#include "./ProcessorOpnaValues.h"
+#include "Shared/Processor/Opna/ProcessorOpnaValues.h"
 #include "./ProcessorOpnaNames.h"
 #include "../../Core/Processor/ProcessorKeys.h"
 #include "../../Core/Processor/ProcessorNames.h"

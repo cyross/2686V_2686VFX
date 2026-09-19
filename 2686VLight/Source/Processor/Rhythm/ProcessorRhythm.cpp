@@ -1,7 +1,8 @@
 ﻿#include "./ProcessorRhythm.h"
+#include "./ProcessorRhythmPads.h"
 
 #include "./ProcessorRhythmKeys.h"
-#include "./ProcessorRhythmValues.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "./ProcessorRhythmNames.h"
 #include "../../Core/Processor/ProcessorHelper.h"
 #include "../../Core/Processor/ProcessorKeys.h"

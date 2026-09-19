@@ -22,7 +22,7 @@
 #include "../../Gui/Components/PitchButtons/PitchButtons.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Gui/Components/MulDetune/MulDetune.h"
-#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"

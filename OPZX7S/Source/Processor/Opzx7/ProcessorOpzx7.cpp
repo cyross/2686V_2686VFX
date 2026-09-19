@@ -1,7 +1,7 @@
 ﻿#include "./ProcessorOpzx7.h"
 
 #include "./ProcessorOpzx7Keys.h"
-#include "./ProcessorOpzx7Values.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "./ProcessorOpzx7Names.h"
 #include "../../Core/Processor/ProcessorKeys.h"
 #include "../../Core/Processor/ProcessorNames.h"

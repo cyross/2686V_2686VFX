@@ -20,9 +20,9 @@
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
-#include "../../Core/Synth/UnisonParams.h"
+#include "Shared/Core/Synth/UnisonParams.h"
 #include "Shared/Generator/Fm/Fix/FmFixParams.h"
-#include "../../Synth/Opzx7/SynthOpzx7Params.h"
+#include "Shared/Synth/Opzx7/SynthOpzx7Params.h"
 
 namespace PrHelper {
 	static inline bool getBool(std::atomic<float>* ptr){

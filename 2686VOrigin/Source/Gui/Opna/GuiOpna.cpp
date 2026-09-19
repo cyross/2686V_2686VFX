@@ -30,8 +30,8 @@ namespace
 #include "../../Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Opna/ProcessorOpnaKeys.h"
-#include "../../Processor/Opna/ProcessorOpnaValues.h"
-#include "./ProcessorOpnValues.h" // OriginにはOPNのプロセッサが無いため、OP数取得用に追加
+#include "Shared/Processor/Opna/ProcessorOpnaValues.h"
+#include "Shared/Processor/Opn/ProcessorOpnValues.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
 #include "Shared/Core/Const/ConstGlobal.h"

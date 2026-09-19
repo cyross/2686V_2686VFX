@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
-static constexpr int MaxFmOperators = 4;
-
 enum class OscMode
 {
     OPL = 0, // YM3526 (2op + WaveSelect)

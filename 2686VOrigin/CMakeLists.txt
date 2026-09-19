@@ -36,12 +36,9 @@ set(CONST_FILES
 
 set(SYNTH_FILES
     "Source/Core/Synth/SynthMode.h"
-    "Source/Core/Synth/SynthCore.h"
     "Source/Core/Synth/SynthParams.h"
     "Source/Core/Synth/SynthVoice.h"
     "Source/Core/Synth/SynthVoice.cpp"
-    "Source/Core/Synth/UnisonParams.h"
-    "Source/Core/Synth/UnisonState.h"
 )
 
 
@@ -49,10 +46,6 @@ set(SYNTH_FILES
 
 
 set(FM_FILES
-    "Source/Core/Fm/FmCore.h"
-    "Source/Core/Fm/FmOperator.h"
-    "Source/Core/Fm/FmOperator.cpp"
-    "Source/Core/Fm/FmOpParams.h"
     "Source/Core/Fm/FmRegisterConverter.h"
     "Source/Core/Fm/FmRegisterConverter.cpp"
     "Source/Core/Fm/FmMmlFormatter.h"
@@ -118,37 +111,13 @@ set(FX_EFFECT_FILES
     "Source/Effect/Fx/Fx.cpp"
 )
 
-set(OPNA_SYNTH_FILES
-    "Source/Synth/Opna/SynthOpna.h"
-    "Source/Synth/Opna/SynthOpna.cpp"
-    "Source/Synth/Opna/SynthOpnaParams.h"
-    "Source/Synth/Opna/Operator/SynthOpnaOp.h"
-    "Source/Synth/Opna/Operator/SynthOpnaOp.cpp"
-    "Source/Synth/Opna/Operator/SynthOpnaOpParams.h"
-)
 
-set(SSG_SYNTH_FILES
-    "Source/Synth/Ssg/SynthSsg.h"
-    "Source/Synth/Ssg/SynthSsg.cpp"
-    "Source/Synth/Ssg/SynthSsgParams.h"
-)
 
-set(RHYTHM_SYNTH_FILES
-    "Source/Synth/Rhythm/SynthRhythm.h"
-    "Source/Synth/Rhythm/SynthRhythm.cpp"
-    "Source/Synth/Rhythm/SynthRhythmParams.h"
-)
 
-set(ADPCM_SYNTH_FILES
-    "Source/Synth/Adpcm/SynthAdpcm.h"
-    "Source/Synth/Adpcm/SynthAdpcm.cpp"
-    "Source/Synth/Adpcm/SynthAdpcmParams.h"
-)
 
 set(OPNA_PROCESSOR_FILES
     "Source/Processor/Opna/ProcessorOpnaKeys.h"
     "Source/Processor/Opna/ProcessorOpnaNames.h"
-    "Source/Processor/Opna/ProcessorOpnaValues.h"
     "Source/Processor/Opna/ProcessorOpna.h"
     "Source/Processor/Opna/ProcessorOpna.cpp"
 )
@@ -164,7 +133,6 @@ set(SSG_PROCESSOR_FILES
 set(RHYTHM_PROCESSOR_FILES
     "Source/Processor/Rhythm/ProcessorRhythmKeys.h"
     "Source/Processor/Rhythm/ProcessorRhythmNames.h"
-    "Source/Processor/Rhythm/ProcessorRhythmValues.h"
     "Source/Processor/Rhythm/ProcessorRhythm.h"
     "Source/Processor/Rhythm/ProcessorRhythm.cpp"
 )
@@ -423,10 +391,6 @@ source_group("2686VO\\Constants" FILES ${CONST_FILES})
 source_group("2686VO\\Documents" FILES ${DOCUMENT_FILES})
 source_group("2686VO\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("2686VO\\Synth\\Fm" FILES ${FM_FILES})
-source_group("2686VO\\Synth\\Opna" FILES ${OPNA_SYNTH_FILES})
-source_group("2686VO\\Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
-source_group("2686VO\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
-source_group("2686VO\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
 source_group("2686VO\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
 source_group("2686VO\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("2686VO\\Processor\\Core" FILES ${PROCESSOR_FILES})

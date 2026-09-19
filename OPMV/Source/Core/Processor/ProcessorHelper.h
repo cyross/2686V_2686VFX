@@ -31,9 +31,9 @@
 #include "Shared/Effect/Lfo/N88/LfoN88Params.h"
 #include "Shared/Effect/Lfo/Opna/LfoOpnaParams.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
-#include "../../Core/Synth/UnisonParams.h"
+#include "Shared/Core/Synth/UnisonParams.h"
 #include "Shared/Generator/Fm/Fix/FmFixParams.h"
-#include "../../Synth/Opm/SynthOpmParams.h"
+#include "Shared/Synth/Opm/SynthOpmParams.h"
 
 namespace PrHelper {
 	static inline bool getBool(std::atomic<float>* ptr){

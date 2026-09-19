@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
-static constexpr int MaxFmOperators = 8;
-
 enum class OscMode
 {
     OPZX7 = 0,

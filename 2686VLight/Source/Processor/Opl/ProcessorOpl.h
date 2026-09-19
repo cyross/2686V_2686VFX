@@ -4,7 +4,7 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
-#include "../../Processor/Opl/ProcessorOplValues.h"
+#include "Shared/Processor/Opl/ProcessorOplValues.h"
 #include "../../Core/Processor/ProcessorStructs.h"
 
 class OplProcessor : public PrBase

@@ -187,6 +187,14 @@ def owned_symbols(src_root, chips, keep_dirs=()):
                 chip_dirs.append(os.path.normpath(base))
                 inside += all_sources(base)
 
+            # 共有へ移したもの (Shared/Synth/<音源> など) も、その音源の持ち物。
+            # ディレクトリは消さないが、名前は同じように落とす。
+            shared_base = os.path.join(ROOT, "Shared", rel.replace("/", os.sep))
+
+            if os.path.isdir(shared_base):
+                chip_dirs.append(os.path.normpath(shared_base))
+                inside += all_sources(shared_base)
+
     outside = [p for p in all_sources(src_root)
                if not any(os.path.normpath(p).startswith(d + os.sep) for d in chip_dirs)]
 
@@ -216,7 +224,9 @@ def owned_symbols(src_root, chips, keep_dirs=()):
     # 12 本で共有するコード (Shared/)。プラグインの Source から移したもので、
     # ここにある名前はどれも皆のもの。移す前は Effect や Generator として
     # 上で数えていたので、同じ扱いにする。
-    shared_code = all_sources(os.path.join(ROOT, "Shared"))
+    # 消す音源の持ち物 (Shared/Synth/<音源> など) は除く。
+    shared_code = [p for p in all_sources(os.path.join(ROOT, "Shared"))
+                   if not any(os.path.normpath(p).startswith(d + os.sep) for d in chip_dirs)]
 
     for path in shared_code:
         words = set(IDENT.findall(read_text(path)))
@@ -232,11 +242,11 @@ def owned_symbols(src_root, chips, keep_dirs=()):
     # 残す音源が使っている名前も守る。WtModWaveStore のように、
     # 名前に音源の綴りを含んでいても、残る側が使うものがある。
     for rel in keep_dirs:
-        base = os.path.join(src_root, rel.replace("/", os.sep))
-
-        if os.path.isdir(base):
-            for path in all_sources(base):
-                shared |= set(IDENT.findall(read_text(path)))
+        for base in (os.path.join(src_root, rel.replace("/", os.sep)),
+                     os.path.join(ROOT, "Shared", rel.replace("/", os.sep))):
+            if os.path.isdir(base):
+                for path in all_sources(base):
+                    shared |= set(IDENT.findall(read_text(path)))
 
     return declared_names(inside) - declared_names(outside) - declared_names(shared_code), shared, components
 
@@ -561,7 +571,6 @@ def strip_lines(text, pats, include_pat, mode_pat, first_mode, last_mode,
 SYNTH_MODE_TEMPLATE = """#pragma once
 #include <JuceHeader.h>
 
-%(consts)s
 enum class OscMode
 {
 %(entries)s    Count = %(count)d, // カウント用
@@ -648,15 +657,6 @@ def build_tab_modes(keep):
 
 
 def build_synth_mode(keep):
-    consts = []
-
-    if "RHYTHM" in keep:
-        consts.append("static constexpr int MaxRhythmPads = 8;")
-
-    # OPZX7 だけ 8 オペレータ。ほかの FM は 4 本まで。
-    consts.append("static constexpr int MaxFmOperators = %d;"
-                  % (8 if "OPZX7" in keep else 4))
-
     entries = ""
     names = ""
     lookup = ""
@@ -671,7 +671,6 @@ def build_synth_mode(keep):
         lookup += '    if (name == "%s") return OscMode::%s;\n' % (label, chip["mode"])
 
     return SYNTH_MODE_TEMPLATE % dict(
-        consts="\n".join(consts) + "\n",
         entries=entries,
         count=len(keep),
         names=names,
