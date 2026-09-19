@@ -79,6 +79,11 @@ What the assigned key does depends on the target:
 | ARPEGGIO | Arpeggiates **only while the key is held**. Starts from the first voice on key down |
 
 - The same key can be assigned to several targets; pressing it drives all of them.
+- In Customize mode, the colour of each modulation panel's title shows whether it
+  is active: grey while its key is not held, off-white while it is. The LFO panel
+  lights up for either the AM or the PM key, and the UNISON/HARMONY panel for either
+  the UNISON or the ARPEGGIO key. In Single key mode every title stays off-white,
+  as before.
 - When several keys are held, everything assigned to each of them runs.
 - Targets are processed in the same order as in Single key mode.
 - An LFO switched in and out by a key fades over a few milliseconds so the sound

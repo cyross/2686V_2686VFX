@@ -37,6 +37,11 @@ defaults to **C3 (60)**.
 | ARPEGGIO | Arpeggiates **only while the key is held**. Starts from the first voice on key down |
 
 - The same key can be assigned to several targets; pressing it drives all of them.
+- In Customize mode, the colour of each modulation panel's title shows whether it
+  is active: grey while its key is not held, off-white while it is. The LFO panel
+  lights up for either the AM or the PM key, and the UNISON/HARMONY panel for either
+  the UNISON or the ARPEGGIO key. In Single key mode every title stays off-white,
+  as before.
 - When several keys are held, everything assigned to each of them runs.
 - Targets are processed in the same order as before.
 - In Single key mode, LFO, MUL/DET and UNISON/HARMONY still apply regardless of
@@ -97,6 +102,10 @@ vertical from 8 px to 10 px, horizontal from 8 px to 12 px.
   and write the old line-based format, so it could not load N88 LFO files exported
   from 2686V and the other plugins. It now uses the same format as the rest of the
   family; old-format files are read and then rewritten in the new format.
+- Switching **HOLD** / **KEEP** (hold and partial playback) did not take effect right
+  away. In SSG HW AMP ENV and SSG HW PITCH ENV, toggling HOLD did not update the
+  waveform preview; in WT AMP MOD, WT PITCH MOD and others, turning KEEP on left START
+  and END disabled. Both stayed stale until another control was touched.
 - In **2686VFX**, the PCM bit crusher row in the Effects frame's order list had no name.
 - In QUALITY and QUALITY(PCM), the RATE choices "5.5kHz" and "4kHz" were numbered
   12 and 13 by mistake. They are now 13 and 14. Only the displayed numbers were

@@ -44,6 +44,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - In Customize mode, LFO, MUL/DET, UNISON/HARMONY and the arpeggio apply only while their assigned key is held.
     - The LFO and the arpeggio restart from the top on key down.
   - The same key can be assigned to several targets (processed together).
+  - In Customize mode, each modulation panel's title is grey while its key is not held and off-white while it is.
+    - In Single key mode every title stays off-white, as before.
   - When several keys are held, everything assigned to them runs.
   - Targets are processed in the same order as before.
   - Assignments are saved in the FX parameter file.
@@ -73,6 +75,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - In the channel tabs, vertical from 8 px to 10 px and horizontal from 8 px to 12 px.
 - **Fixes**
   - 86V's N88 LFO file had not been moved to the 3.0.0 format and could not load files exported from the other plugins.
+  - Switching HOLD / KEEP (hold and partial playback) did not update the preview or enable the controls inside right away.
   - In 2686VFX, the PCM bit crusher row in the Effects frame's order list had no name.
   - In QUALITY / QUALITY(PCM), the RATE choices 5.5kHz and 4kHz were numbered 12 and 13; they are now 13 and 14 (display only).
 - **For developers**
