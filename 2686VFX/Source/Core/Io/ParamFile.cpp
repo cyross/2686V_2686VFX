@@ -1,4 +1,4 @@
-﻿#include "../Gui/GuiI18n.h"
+﻿#include "Shared/Core/Gui/GuiI18n.h"
 #include "./ParamFile.h"
 
 #include <yaml-cpp/yaml.h>

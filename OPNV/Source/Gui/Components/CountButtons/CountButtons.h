@@ -5,10 +5,10 @@
 #include <vector>
 
 #include "Shared/Core/Const/ConstGlobal.h"
-#include "../../../Core/Gui/GuiComponents.h"
-#include "../../../Core/Gui/GuiBase.h"
-#include "../../../Core/Gui/GuiContext.h"
-#include "../../../Core/Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiValues.h"
 
 // 回数を刻むためのボタン群。2 段で 1 組。
 //

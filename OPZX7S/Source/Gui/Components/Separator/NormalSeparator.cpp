@@ -1,6 +1,6 @@
 ﻿#include "./NormalSeparator.h"
 
-#include "../../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 
 void NormalSeparator::setupComponent(juce::Component& parent) {
     parent.addAndMakeVisible(*this);

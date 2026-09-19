@@ -1,6 +1,6 @@
 ﻿#include "./WavePreview.h"
 
-#include "../../../Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiColor.h"
 
 void GuiWavePreview::setup(juce::Component& parent, juce::Colour lineColour)
 {

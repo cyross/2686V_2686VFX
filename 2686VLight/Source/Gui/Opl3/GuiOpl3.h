@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../Core/Gui/GuiI18n.h"
+#include "Shared/Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
 
 #include "../Components/FmToOpzx7/FmToOpzx7.h"
@@ -9,11 +9,11 @@
 #include <array>
 
 #include "Shared/Core/Const/ConstGlobal.h"
-#include "../../Core/Gui/GuiComponents.h"
-#include "../../Core/Gui/GuiBase.h"
-#include "../../Core/Gui/GuiContext.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
@@ -40,7 +40,7 @@
 #include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
-#include "../../Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;

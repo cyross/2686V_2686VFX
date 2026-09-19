@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "../../../Core/Editor/EditorGuiText.h"
-#include "../../../Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiColor.h"
 
 GuiLoading::GuiLoading()
 {

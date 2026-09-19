@@ -1,4 +1,4 @@
-﻿#include "../../../Core/Gui/GuiI18n.h"
+﻿#include "Shared/Core/Gui/GuiI18n.h"
 #include "./QualityPcm.h"
 #include "../../../Core/Editor/EditorGuiText.h"
 
@@ -6,8 +6,8 @@
 
 #include "../../../Core/Io/ParamFile.h"
 
-#include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 
 // 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM

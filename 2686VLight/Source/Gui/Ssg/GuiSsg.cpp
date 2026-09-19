@@ -3,7 +3,7 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiSsg.h"
 
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
 #include "../../Core/Io/ParamFile.h"
 
@@ -18,16 +18,17 @@ namespace
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Core/Processor/ProcessorHelper.h"
 #include "../../Processor/Ssg/ProcessorSsgKeys.h"
 #include "../../Processor/Ssg/ProcessorSsgValues.h"
 
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiSsgValues.h"
 #include "./GuiSsgText.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 static std::vector<SelectItem> ssgPrItems = {
     {.name = "0: 1:1 (50%)",     .value = 1 },
@@ -57,7 +58,7 @@ void GuiSsg::setup()
 
     mainGroup.setup(*this, SsgGuiText::Group::mainGroup);
 
-    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
+    presetName.setupComponent(*this, tabOrder, pluginOf(ctx).presetName);
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
@@ -121,7 +122,7 @@ void GuiSsg::setup()
     broadcastLevelButton.onClick = [this] {
         float level = levelComponent.getLevel();
 
-        ctx.editor.breadcastLevel(level);
+        editorOf(ctx).breadcastLevel(level);
         };
 
     uSep001.setupComponent(mainGroup.contentCanvas);
@@ -302,47 +303,47 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect, true);
 
-    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    ampEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
     ssgHwEnvComponent.setCategoryVisible(ampOpen);
     ssgHwEnvComponent.layoutComponent(mRect);
-    ssgSwEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
+    ssgSwEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnvComponent.layoutComponent(mRect);
-    ssgSwEnv11Component.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11Component.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11Component.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
     ampMajorCat.endMajor(mRect);
 
     // [[PITCH ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
 
-    pitchEnvComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
+    pitchEnvComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv));
     pitchEnvComponent.layoutComponent(mRect);
-    ssgHwPEnvComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnvComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnvComponent.layoutComponent(mRect);
-    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11Component.layoutComponent(mRect);
-    modComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
 
-    lfo.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
+    lfo.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Lfo));
     lfo.layoutComponent(mRect);
 
-    mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
+    mulDetuneComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::MulDet));
     mulDetuneComponent.layoutComponent(mRect);
 
-    fixComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Fix));
+    fixComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Fix));
     fixComponent.layoutComponent(mRect);
 
-    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
+    unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -359,7 +360,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     auto paramArea = pageArea.removeFromLeft(SsgGuiValue::ParamGroup::width);
 
     // Wave Group
-    float waveParam = *ctx.audioProcessor.apvts.getRawParameterValue(code + CPK::ssgWaveform);
+    float waveParam = *pluginOf(ctx).apvts.getRawParameterValue(code + CPK::ssgWaveform);
     int waveMode = PrHelper::floatToBoolToInt(waveParam);
     auto waveArea = paramArea.removeFromTop(140);
 
@@ -388,7 +389,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         layoutRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
 
-        float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + CPK::SsgDuty::mode);
+        float dutyModeVal = *pluginOf(ctx).apvts.getRawParameterValue(code + CPK::SsgDuty::mode);
         if (dutyModeVal < 0.5f) {
             dutyPresetSelector.setVisibleWithLabel(true);
             dutyVarSlider.setVisibleWithLabel(false);
@@ -454,7 +455,7 @@ void GuiSsg::updatePresetName(const juce::String& name)
 
 void GuiSsg::initParams()
 {
-    this->ctx.audioProcessor.initParams("SSG_");
+    pluginOf(ctx).initParams("SSG_");
 }
 
 // OPTIONAL。区分そのものを v3.3.0 で足した。
@@ -702,7 +703,7 @@ void GuiSsg::importToneNoiseParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultToneNoiseParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultToneNoiseParamDir,
         { EditorGuiText::ParamBrowser::kindToneNoise },
         [this](const juce::File& file) { applyToneNoiseParamFile(file); });
 }
@@ -715,7 +716,7 @@ void GuiSsg::applyToneNoiseParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -760,7 +761,7 @@ void GuiSsg::applyToneNoiseParamFile(const juce::File& file)
 void GuiSsg::exportToneNoiseParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultToneNoiseParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultToneNoiseParamDir,
         { EditorGuiText::ParamBrowser::kindToneNoise }, Io::Extension::ToneNoiseParam,
         [this](const juce::File& file) { writeToneNoiseParamFile(file); });
 }
@@ -772,7 +773,7 @@ void GuiSsg::writeToneNoiseParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(toneNoiseFormat);
     writeToneNoiseParams(writer);
@@ -784,7 +785,7 @@ void GuiSsg::importQualityParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality },
         [this](const juce::File& file) { applyQualityParamFile(file); });
 }
@@ -797,7 +798,7 @@ void GuiSsg::applyQualityParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -840,7 +841,7 @@ void GuiSsg::applyQualityParamFile(const juce::File& file)
 void GuiSsg::exportQualityParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality }, Io::Extension::QualityParam,
         [this](const juce::File& file) { writeQualityParamFile(file); });
 }
@@ -852,7 +853,7 @@ void GuiSsg::writeQualityParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(qualityFormat);
     writeQualityParams(writer);
@@ -863,7 +864,7 @@ void GuiSsg::writeQualityParamFile(const juce::File& file)
 void GuiSsg::importChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "SSG" },
+    editorOf(ctx).openParamBrowser({ "SSG" },
         [this](const juce::File& file) { applyChParamFile(file); });
 }
 
@@ -873,7 +874,7 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -956,7 +957,7 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
 void GuiSsg::exportChParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { "SSG" }, Io::Extension::ssgParam,
         [this](const juce::File& file) { writeChParamFile(file); });
 }
@@ -967,7 +968,7 @@ void GuiSsg::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(ssgFormat);
     writeChParams(writer);
@@ -1127,18 +1128,18 @@ void GuiSsg::writeQualityParams(Io::ParamWriter& writer) {
 void GuiSsg::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfo.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfo.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 }
 
 void GuiSsg::openEnabledCategories()

@@ -1,9 +1,9 @@
 ﻿#include "./Midi.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
-#include "../../../Core/Processor/ProcessorKeys.h"
-#include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 
 void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
 {

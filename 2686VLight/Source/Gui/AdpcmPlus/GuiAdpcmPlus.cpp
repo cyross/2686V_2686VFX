@@ -1,7 +1,7 @@
 ﻿#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiAdpcmPlus.h"
 
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
 #include "../../Core/Io/ParamFile.h"
 
@@ -19,16 +19,17 @@ namespace
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/AdpcmPlus/ProcessorAdpcmPlusKeys.h"
 #include "../../Processor/AdpcmPlus/ProcessorAdpcmPlusValues.h"
 
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiAdpcmPlusValues.h"
 #include "./GuiAdpcmPlusText.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 #include "../Adpcm/GuiAdpcmHelpers.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 
 // TARGET を鍵で動かす。中身は GuiBase の共通の手続きへ預けてある。
@@ -42,7 +43,7 @@ void GuiAdpcmPlus::setup()
         {
             parent.addAndMakeVisible(btn);
             btn.setButtonText(text);
-            btn.addListener(&ctx.editor);
+            btn.addListener(&editorOf(ctx));
             btn.setWantsKeyboardFocus(true);
             btn.setExplicitFocusOrder(++tabOrder);
         };
@@ -57,7 +58,7 @@ void GuiAdpcmPlus::setup()
     mainGroup.setup(*this, AdpcmPlusGuiText::Group::mainGroup);
     pcmGroup.setup(*this, AdpcmPlusGuiText::Group::pcmGroup);
 
-    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
+    presetName.setupComponent(*this, tabOrder, pluginOf(ctx).presetName);
 
     formCat.setupHwCategory({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
@@ -218,7 +219,7 @@ void GuiAdpcmPlus::setup()
 
     // 音声ファイル読み込みボタン
     loadButton.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::File::load , .isReset = false });
-    loadButton.addListener(&ctx.editor);
+    loadButton.addListener(&editorOf(ctx));
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
 
@@ -240,7 +241,7 @@ void GuiAdpcmPlus::setup()
     clearButton.onClick = [this]
         {
             // 外すのは、いま画面へ出しているスロットの 1 本だけ
-            ctx.audioProcessor.unloadAdpcmPlusFile(targetSlot());
+            pluginOf(ctx).unloadAdpcmPlusFile(targetSlot());
 
             // 素材が外れたので、名前も並べた波形もそこから作り直す
             updateSlotFileName(targetSlot());
@@ -272,7 +273,7 @@ void GuiAdpcmPlus::setup()
     broadcastLevelButton.onClick = [this] {
         float level = levelComponent.getLevel();
 
-        ctx.editor.breadcastLevel(level);
+        editorOf(ctx).breadcastLevel(level);
         };
 
     uSep001.setupComponent(mainGroup.contentCanvas);
@@ -350,53 +351,53 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
 
-    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    ampEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-    ssgHwEnv.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
+    ssgSwEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnvComponent.layoutComponent(mRect);
-    ssgSwEnv11Component.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11Component.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11Component.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
     ampMajorCat.endMajor(mRect);
 
     // [[PITCH ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
 
-    pitchEnvComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
+    pitchEnvComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv));
     pitchEnvComponent.layoutComponent(mRect);
-    ssgHwPEnv.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
-    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11Component.layoutComponent(mRect);
-    modComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
 
-    lfoComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
+    lfoComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Lfo));
     lfoComponent.layoutComponent(mRect);
 
-    mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
+    mulDetuneComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::MulDet));
     mulDetuneComponent.layoutComponent(mRect);
 
-    fixComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Fix));
+    fixComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Fix));
     fixComponent.layoutComponent(mRect);
 
-    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
+    unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -475,7 +476,7 @@ void GuiAdpcmPlus::updateSlotPreview(int slot)
 {
     if (slot < 0 || slot >= Global::AdpcmPlus::slots) return;
 
-    const auto& data = ctx.audioProcessor.adpcmPlusPreviewBuffers[(size_t)slot];
+    const auto& data = pluginOf(ctx).adpcmPlusPreviewBuffers[(size_t)slot];
 
     if (data.empty()) {
         slotPreviews.setEnvelope(slot, {}, {});
@@ -485,7 +486,7 @@ void GuiAdpcmPlus::updateSlotPreview(int slot)
 
     auto env = WavePreviewSource::audioFile(
         data,
-        ctx.audioProcessor.adpcmPlusPreviewRates[(size_t)slot],
+        pluginOf(ctx).adpcmPlusPreviewRates[(size_t)slot],
         0.0f,
         1.0f);
 
@@ -512,7 +513,7 @@ void GuiAdpcmPlus::updateSlotFileName(int slot)
 
     if (slot != targetSlot()) return;
 
-    const juce::String path = ctx.audioProcessor.adpcmPlusFilePaths[(size_t)slot];
+    const juce::String path = pluginOf(ctx).adpcmPlusFilePaths[(size_t)slot];
 
     updateFileName(path.isEmpty() ? Io::empty : juce::File(path).getFileName());
 }
@@ -533,7 +534,7 @@ void GuiAdpcmPlus::updateSamplePreview()
     // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
     if (GuiRefresh::defer(this, [this] { updateSamplePreview(); })) return;
 
-    const auto& data = ctx.audioProcessor.adpcmPlusPreviewBuffers[(size_t)targetSlot()];
+    const auto& data = pluginOf(ctx).adpcmPlusPreviewBuffers[(size_t)targetSlot()];
 
     if (data.empty()) {
         samplePreview.clear();
@@ -543,7 +544,7 @@ void GuiAdpcmPlus::updateSamplePreview()
 
     auto env = WavePreviewSource::audioFile(
         data,
-        ctx.audioProcessor.adpcmPlusPreviewRates[(size_t)targetSlot()],
+        pluginOf(ctx).adpcmPlusPreviewRates[(size_t)targetSlot()],
         (float)pcmOffsetSlider.getValue(),
         (float)pcmRatioSlider.getValue());
 
@@ -598,7 +599,7 @@ void GuiAdpcmPlus::updatePresetName(const juce::String& name)
 void GuiAdpcmPlus::initParams()
 {
     // 中で 32 スロットぶんの PCM も外れる
-    this->ctx.audioProcessor.initParams("ADPCMP_");
+    pluginOf(ctx).initParams("ADPCMP_");
 
     updateAllSlotPreviews();
     applySlotTarget();
@@ -908,7 +909,7 @@ void GuiAdpcmPlus::importToneNoiseParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultToneNoiseParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultToneNoiseParamDir,
         { EditorGuiText::ParamBrowser::kindToneNoise },
         [this](const juce::File& file) { applyToneNoiseParamFile(file); });
 }
@@ -921,7 +922,7 @@ void GuiAdpcmPlus::applyToneNoiseParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -966,7 +967,7 @@ void GuiAdpcmPlus::applyToneNoiseParamFile(const juce::File& file)
 void GuiAdpcmPlus::exportToneNoiseParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultToneNoiseParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultToneNoiseParamDir,
         { EditorGuiText::ParamBrowser::kindToneNoise }, Io::Extension::ToneNoiseParam,
         [this](const juce::File& file) { writeToneNoiseParamFile(file); });
 }
@@ -978,7 +979,7 @@ void GuiAdpcmPlus::writeToneNoiseParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(toneNoiseFormat);
     writeToneNoiseParams(writer);
@@ -990,7 +991,7 @@ void GuiAdpcmPlus::importQualityParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindPcmQuality },
         [this](const juce::File& file) { applyQualityParamFile(file); });
 }
@@ -1003,7 +1004,7 @@ void GuiAdpcmPlus::applyQualityParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1048,7 +1049,7 @@ void GuiAdpcmPlus::applyQualityParamFile(const juce::File& file)
 void GuiAdpcmPlus::exportQualityParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindPcmQuality }, Io::Extension::PcmQualityParam,
         [this](const juce::File& file) { writeQualityParamFile(file); });
 }
@@ -1060,7 +1061,7 @@ void GuiAdpcmPlus::writeQualityParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(pcmQualityFormat);
     writeQualityParams(writer);
@@ -1072,7 +1073,7 @@ void GuiAdpcmPlus::importPcmPlayParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultPcmPlayParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultPcmPlayParamDir,
         { EditorGuiText::ParamBrowser::kindPcmPlay },
         [this](const juce::File& file) { applyPcmPlayParamFile(file); });
 }
@@ -1085,7 +1086,7 @@ void GuiAdpcmPlus::applyPcmPlayParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1133,7 +1134,7 @@ void GuiAdpcmPlus::applyPcmPlayParamFile(const juce::File& file)
 void GuiAdpcmPlus::exportPcmPlayParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultPcmPlayParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultPcmPlayParamDir,
         { EditorGuiText::ParamBrowser::kindPcmPlay }, Io::Extension::PcmPlayParam,
         [this](const juce::File& file) { writePcmPlayParamFile(file); });
 }
@@ -1145,7 +1146,7 @@ void GuiAdpcmPlus::writePcmPlayParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(pcmPlayFormat);
     writePcmPlayParams(writer);
@@ -1156,7 +1157,7 @@ void GuiAdpcmPlus::writePcmPlayParamFile(const juce::File& file)
 void GuiAdpcmPlus::importChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "PCM+" },
+    editorOf(ctx).openParamBrowser({ "PCM+" },
         [this](const juce::File& file) { applyChParamFile(file); });
 }
 
@@ -1166,7 +1167,7 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     auto reader = Io::ParamReader::open(file, adpcmPlusFormat);
 
@@ -1190,16 +1191,16 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
         auto r = reader->child("slot" + juce::String(i));
 
         // 素材の場所はプロセッサが持っている
-        auto path = Io::resolveSamplePath(r.getString("filePath", ctx.audioProcessor.adpcmPlusFilePaths[(size_t)i]),
-            ctx.audioProcessor.defaultSampleDir);
+        auto path = Io::resolveSamplePath(r.getString("filePath", pluginOf(ctx).adpcmPlusFilePaths[(size_t)i]),
+            pluginOf(ctx).defaultSampleDir);
 
         // 別のファイルへ変わるなら、いま持っているものを先に外す
-        if (ctx.audioProcessor.adpcmPlusFilePaths[(size_t)i] != path) {
-            ctx.audioProcessor.unloadAdpcmPlusFile(i);
+        if (pluginOf(ctx).adpcmPlusFilePaths[(size_t)i] != path) {
+            pluginOf(ctx).unloadAdpcmPlusFile(i);
         }
 
         if (Io::isFilePath(path)) {
-            ctx.audioProcessor.loadAdpcmPlusFile(i, juce::File(path));
+            pluginOf(ctx).loadAdpcmPlusFile(i, juce::File(path));
         }
 
         setParamValue(slotPrefix + CPK::Tn::tone,
@@ -1259,7 +1260,7 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
 void GuiAdpcmPlus::exportChParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { "PCM+" }, Io::Extension::adpcmPlusParam,
         [this](const juce::File& file) { writeChParamFile(file); });
 }
@@ -1270,7 +1271,7 @@ void GuiAdpcmPlus::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(adpcmPlusFormat);
     writeChParams(writer);
@@ -1292,7 +1293,7 @@ void GuiAdpcmPlus::writeChParams(Io::ParamWriter& writer) {
         auto w = writer.child("slot" + juce::String(i));
 
         // 名前ではなく場所を残す。読み戻すときに File を作れるようにするため。
-        w.set("filePath", Io::toStoredFileName(ctx.audioProcessor.adpcmPlusFilePaths[(size_t)i]));
+        w.set("filePath", Io::toStoredFileName(pluginOf(ctx).adpcmPlusFilePaths[(size_t)i]));
 
         w.set("tone", getParamValue(slotPrefix + CPK::Tn::tone));
         w.set("noise", getParamValue(slotPrefix + CPK::Tn::noise));
@@ -1418,19 +1419,19 @@ void GuiAdpcmPlus::writePcmPlayParams(Io::ParamWriter& writer) {
 void GuiAdpcmPlus::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 }
 
 void GuiAdpcmPlus::openEnabledCategories()

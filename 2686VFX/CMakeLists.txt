@@ -52,34 +52,11 @@ set(FM_FILES
 )
 
 set(GUI_FILES
-    "Source/Core/Gui/GuiBase.h"
     "Source/Core/Io/ParamFile.h"
     "Source/Core/Io/ParamFile.cpp"
-    "Source/Core/Gui/GuiRefresh.h"
-    "Source/Core/Gui/GuiRefresh.cpp"
-    "Source/Core/Gui/GuiColor.h"
-    "Source/Core/Gui/GuiColorJuceNames.h"
-    "Source/Core/Gui/GuiColor.cpp"
-    "Source/Core/Gui/GuiI18n.h"
-    "Source/Core/Gui/GuiI18n.cpp"
-    "Source/Core/Gui/GuiComponents.h"
-    "Source/Core/Gui/GuiComponents.cpp"
-    "Source/Core/Gui/GuiContext.h"
-    "Source/Core/Gui/GuiHelpers.h"
-    "Source/Core/Gui/GuiHelpers.cpp"
-    "Source/Core/Gui/GuiLF.h"
-    "Source/Core/Gui/GuiLF.cpp"
-    "Source/Core/Gui/GuiStructs.h"
-    "Source/Core/Gui/GuiText.h"
-    "Source/Core/Gui/GuiValues.h"
-    "Source/Core/Gui/GuiEnvelopeGraph.h"
-    "Source/Core/Gui/GuiGraphValues.h"
-    "Source/Core/Gui/GuiEnvelopeGraph.cpp"
-    "Source/Core/Gui/GuiCopyObj.h"
 )
 
 set(PROCESSOR_FILES
-    "Source/Core/Processor/ProcessorKeys.h"
     "Source/Core/Processor/ProcessorNames.h"
     "Source/Core/Processor/ProcessorFloat.h"
     "Source/Core/Processor/ProcessorBase.h"

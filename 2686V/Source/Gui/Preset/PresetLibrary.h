@@ -3,7 +3,7 @@
 #include <JuceHeader.h>
 #include <vector>
 
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 #include "../../Core/Io/ParamFile.h"
 
 // ============================================================================

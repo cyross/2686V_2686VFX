@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "../../../Core/Io/ParamFile.h"
-#include "../../../Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiContext.h"
 
 // ============================================================================
 // FM 音源のチャンネルを OPZX7S のチャンネルへ直す

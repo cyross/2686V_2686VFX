@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 #include <vector>
-#include "../../Core/Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiValues.h"
 #include "./GuiRhythmValues.h"
 
 struct RowConfigRhythmPadPcmFile {

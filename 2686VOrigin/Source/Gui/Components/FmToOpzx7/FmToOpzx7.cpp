@@ -1,4 +1,4 @@
-﻿#include "../../../Core/Gui/GuiI18n.h"
+﻿#include "Shared/Core/Gui/GuiI18n.h"
 #include "./FmToOpzx7.h"
 
 #include <algorithm>
@@ -12,6 +12,7 @@
 #include "../../../Core/Editor/PluginEditor.h"
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
+#include "../../../Core/Gui/GuiPluginContext.h"
 
 namespace
 {
@@ -961,10 +962,10 @@ namespace FmToOpzx7
 
         const SourceInfo info = *it;
 
-        juce::Component::SafePointer<juce::Component> editor(&ctx.editor);
-        auto* processor = &ctx.audioProcessor;
+        juce::Component::SafePointer<juce::Component> editor(&editorOf(ctx));
+        auto* processor = &pluginOf(ctx);
 
-        ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir, { kind }, extension,
+        editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir, { kind }, extension,
             [editor, processor, info, writeSource](const juce::File& file) {
                 if (file == juce::File{}) return;
 
@@ -999,14 +1000,14 @@ namespace FmToOpzx7
     void importFile(const GuiContext& ctx, std::function<void(const Io::ParamReader&)> apply,
         std::function<void(Io::ParamWriter&)> writeOpzx7)
     {
-        juce::Component::SafePointer<AudioPlugin2686VEditor> editor(&ctx.editor);
-        auto* processor = &ctx.audioProcessor;
+        juce::Component::SafePointer<AudioPlugin2686VEditor> editor(&editorOf(ctx));
+        auto* processor = &pluginOf(ctx);
 
         juce::StringArray kinds;
 
         for (const auto& s : sources()) kinds.add(s.kind);
 
-        ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir, kinds,
+        editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultChannelParamDir, kinds,
             [editor, processor, apply, writeOpzx7](const juce::File& file) {
                 if (!file.existsAsFile()) return;
 

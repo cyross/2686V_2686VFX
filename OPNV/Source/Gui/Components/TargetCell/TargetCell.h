@@ -3,10 +3,10 @@
 #include <JuceHeader.h>
 #include <functional>
 
-#include "../../../Core/Gui/GuiBase.h"
-#include "../../../Core/Gui/GuiComponents.h"
-#include "../../../Core/Gui/GuiContext.h"
-#include "../../../Core/Gui/GuiEnvelopeGraph.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiEnvelopeGraph.h"
 #include "../WavePreview/WavePreview.h"
 
 // 枠に映すエンベロープの種類。

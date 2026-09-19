@@ -1,4 +1,4 @@
-﻿#include "../../../Core/Gui/GuiI18n.h"
+﻿#include "Shared/Core/Gui/GuiI18n.h"
 #include "./QualityPcm.h"
 #include "../../../Core/Editor/EditorGuiText.h"
 
@@ -6,8 +6,8 @@
 
 #include "../../../Core/Io/ParamFile.h"
 
-#include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 

@@ -3,7 +3,7 @@
 
 #include "./Fx.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 
 void FxTremolo::prepare(double sampleRate)
 {

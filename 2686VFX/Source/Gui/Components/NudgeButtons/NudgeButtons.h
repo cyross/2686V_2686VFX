@@ -5,10 +5,10 @@
 #include <vector>
 
 #include "Shared/Core/Const/ConstGlobal.h"
-#include "../../../Core/Gui/GuiComponents.h"
-#include "../../../Core/Gui/GuiBase.h"
-#include "../../../Core/Gui/GuiContext.h"
-#include "../../../Core/Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiValues.h"
 
 // -1.0 / -0.1 / -0.01 / 0.0 / +0.01 / +0.1 / +1.0 の 7 個で 1 行を構成する
 // 汎用のナッジボタン群。GuiComponentNudgeSliderFloat の N ボタンと組にして使う。

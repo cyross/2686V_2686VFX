@@ -6,9 +6,9 @@
 #include <span>
 
 #include "../Processor/PluginProcessor.h"
-#include "../Gui/GuiLF.h"
-#include "../Gui/GuiLazy.h"
-#include "../Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiLF.h"
+#include "Shared/Core/Gui/GuiLazy.h"
+#include "Shared/Core/Gui/GuiContext.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
 
@@ -25,7 +25,8 @@
 #include "../../Gui/Components/GenWave/GenWave.h"
 #include "../../Gui/Components/ParamBrowser/ParamBrowser.h"
 
-#include "../../Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiHost.h"
 
 class SystemButtonLF : public juce::LookAndFeel_V4
 {
@@ -78,6 +79,7 @@ struct EditorTestAccess;
 
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
+    public GuiEditorHost,
     public juce::ChangeListener,
     public juce::ComponentListener,
     public juce::Button::Listener,

@@ -1,6 +1,6 @@
 ﻿#include "./TargetCell.h"
 
-#include "../../../Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiColor.h"
 
 namespace
 {

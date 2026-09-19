@@ -97,6 +97,14 @@ cy_add_shared_library(cy_shared_effect DIRS Effect
 cy_add_shared_library(cy_shared_synth DIRS Core/Fm Synth
     LINKS cy_shared_core cy_shared_generator cy_shared_advanced cy_shared_effect)
 
+# ---- 画面の土台 (部品の基本形、色、並べ方、グラフ、言語)
+#
+# プロセッサとエディタは窓口 (Core/Gui/GuiHost.h) を通して使う。タブの数と
+# タブの見出しの色はプラグインごとに違うので、各プラグインの
+# Core/Gui/GuiTabCount.h / GuiTabColor.cpp にある。
+cy_add_shared_library(cy_shared_gui DIRS Core/Gui
+    LINKS cy_shared_core cy_shared_advanced cy_shared_effect)
+
 # プラグインはこれ 1 つをつなげば、共有コードをすべて使える
 get_property(CY_SHARED_LIBRARY_LIST GLOBAL PROPERTY CY_SHARED_LIBRARIES)
 add_library(cy_shared INTERFACE)

@@ -1,6 +1,6 @@
 ﻿#include "./MulDetune.h"
 
-#include "../../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
 #include "../../../Core/Io/ParamFile.h"
 
@@ -12,9 +12,9 @@ namespace
 
 
 #include "../../../Core/Processor/PluginProcessor.h"
-#include "../../../Core/Processor/ProcessorKeys.h"
-#include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 
 static std::vector<SelectItem> multems = {

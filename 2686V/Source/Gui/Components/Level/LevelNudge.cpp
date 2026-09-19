@@ -1,6 +1,6 @@
 ﻿#include "./LevelNudge.h"
 
-#include "../../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 
 namespace
 {

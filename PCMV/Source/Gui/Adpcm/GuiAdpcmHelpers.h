@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
-#include "../../Core/Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiValues.h"
 #include "./GuiAdpcmValues.h"
 
 struct MainConfigPcm {

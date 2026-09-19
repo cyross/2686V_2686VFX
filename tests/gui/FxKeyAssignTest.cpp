@@ -15,9 +15,9 @@
 #include <vector>
 
 #include "Core/Processor/PluginProcessor.h"
-#include "Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Core/Editor/PluginEditor.h"
-#include "Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiComponents.h"
 #include "Gui/Fx/GuiFx.h"
 #include "Gui/Fx/GuiFxKeyAssign.h"
 #include "Processor/Fx/ProcessorFxKeys.h"

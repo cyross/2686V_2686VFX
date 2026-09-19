@@ -3,7 +3,7 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpn.h"
 
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
 #include "../../Core/Io/ParamFile.h"
 
@@ -25,7 +25,7 @@ namespace
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Opn/ProcessorOpnKeys.h"
 #include "Shared/Processor/Opn/ProcessorOpnValues.h"
@@ -37,11 +37,12 @@ namespace
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"
 
-#include "../../Core/Gui/GuiGraphValues.h"
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiGraphValues.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiOpnValues.h"
 #include "./GuiOpnText.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 static std::vector<SelectItem> opnAlgItems = {
     {.name = "00: <OPN-00>", .value = 1 },
@@ -103,7 +104,7 @@ void GuiOpn::setup()
 
     mainGroup.setup(*this, OpnGuiText::Group::mainGroup);
 
-    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
+    presetName.setupComponent(*this, tabOrder, pluginOf(ctx).presetName);
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
@@ -161,7 +162,7 @@ void GuiOpn::setup()
     broadcastLevelButton.onClick = [this] {
         float level = levelComponent.getLevel();
 
-        ctx.editor.breadcastLevel(level);
+        editorOf(ctx).breadcastLevel(level);
         };
 
     uSep001.setupComponent(mainGroup.contentCanvas);
@@ -170,14 +171,14 @@ void GuiOpn::setup()
     copyParamsToOpnaBtn.setWantsKeyboardFocus(true);
     copyParamsToOpnaBtn.setExplicitFocusOrder(++tabOrder);
     copyParamsToOpnaBtn.onClick = [this] {
-        ctx.editor.copyOpnParamsToOpna();
+        editorOf(ctx).copyOpnParamsToOpna();
         };
 
     copyParamsToOpmBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPM", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyParamsToOpmBtn.setWantsKeyboardFocus(true);
     copyParamsToOpmBtn.setExplicitFocusOrder(++tabOrder);
     copyParamsToOpmBtn.onClick = [this] {
-        ctx.editor.copyOpnParamsToOpm();
+        editorOf(ctx).copyOpnParamsToOpm();
         };
 
     uSep002.setupComponent(mainGroup.contentCanvas);
@@ -189,7 +190,7 @@ void GuiOpn::setup()
         int from = copyOpFromSlider.getValue() - 1;
         int to = copyOpToSlider.getValue() - 1;
 
-        ctx.editor.copyOpnOpParams(from, to);
+        editorOf(ctx).copyOpnOpParams(from, to);
         };
 
     copyOpFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
@@ -469,7 +470,7 @@ void GuiOpn::setup()
     }
 
     // 前に開いていたときの指し先から始める。
-    const int saved = (int)ctx.audioProcessor.apvts.state.getProperty(ProcessorStateKey::opnTarget, 0);
+    const int saved = (int)pluginOf(ctx).apvts.state.getProperty(ProcessorStateKey::opnTarget, 0);
 
     targerOpSlider.setValue(juce::jlimit(0, OpnPrValue::ops - 1, saved) + 1, juce::dontSendNotification);
 
@@ -523,40 +524,40 @@ void GuiOpn::layout(juce::Rectangle<int> content)
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
 
-    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    ampEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-    ssgHwEnv.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnv11g.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11g.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11g.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
     ampMajorCat.endMajor(mRect);
 
     // [[PITCH ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
 
-    ssgHwPEnv.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
-    ssgSwPEnv11g.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11g.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11g.layoutComponent(mRect);
-    modComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
 
     n88Lfo.layoutComponent(mRect);
 
-    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
+    unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -771,7 +772,7 @@ void GuiOpn::applyOpTarget()
 {
     const int op = currentOp();
 
-    ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::opnTarget, op, nullptr);
+    pluginOf(ctx).apvts.state.setProperty(ProcessorStateKey::opnTarget, op, nullptr);
 
     rebind(op);
 
@@ -877,7 +878,7 @@ void GuiOpn::copyFmParamsToString()
     //
     // 選ぶ形のパラメータは、つまみの選択番号から 1 を引いたものと同じ値を
     // 持っている。以前 getSelectedId() - 1 と書いていたところがこれに当たる。
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
 
     auto opVal = [&apvts](int index, const juce::String& key) {
         return (int)GuiGraphValues::value(apvts, OpnPrKey::prefix + CPK::op + juce::String(index) + key);
@@ -970,7 +971,7 @@ void GuiOpn::pasteFmParamsFromObject()
 
 void GuiOpn::initParams()
 {
-    this->ctx.audioProcessor.initParams("OPN_");
+    pluginOf(ctx).initParams("OPN_");
 }
 
 void GuiOpn::layoutOpMaskCat(juce::Rectangle<int>& rect) {
@@ -1070,7 +1071,7 @@ void GuiOpn::layoutOpPanel(juce::Rectangle<int> area)
             group.setContentHeight(rect.getY() + 20);
         };
 
-    const auto shown = [this](SimpleView::Cat cat) { return ctx.audioProcessor.isSimpleShown(cat); };
+    const auto shown = [this](SimpleView::Cat cat) { return pluginOf(ctx).isSimpleShown(cat); };
 
     // 1 区分ずつでは丈が余るので、いくつかの区分は 1 列へ積んである。
     layoutCol(colAmp, true, [&](juce::Rectangle<int>& rect) {
@@ -1424,7 +1425,7 @@ void GuiOpn::setupOpGraphWiring()
 // いかない。接頭辞を頼りにパラメータから直に採る。
 void GuiOpn::updateOpGraph(int opIndex)
 {
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
     auto& graph = cells[(size_t)opIndex].graph();
 
     const juce::String code = OpnPrKey::prefix + CPK::op + juce::String(opIndex);
@@ -1848,7 +1849,7 @@ void GuiOpn::importLfoParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultLfoParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultLfoParamDir,
         { EditorGuiText::ParamBrowser::kindLfoN88 },
         [this](const juce::File& file) { applyLfoParamFile(file); });
 }
@@ -1861,7 +1862,7 @@ void GuiOpn::applyLfoParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1909,7 +1910,7 @@ void GuiOpn::applyLfoParamFile(const juce::File& file)
 void GuiOpn::exportLfoParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultLfoParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultLfoParamDir,
         { EditorGuiText::ParamBrowser::kindLfoN88 }, Io::Extension::N88LfoParam,
         [this](const juce::File& file) { writeLfoParamFile(file); });
 }
@@ -1921,7 +1922,7 @@ void GuiOpn::writeLfoParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(n88LfoFormat);
     writeLfoParams(writer);
@@ -1933,7 +1934,7 @@ void GuiOpn::importQualityParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality },
         [this](const juce::File& file) { applyQualityParamFile(file); });
 }
@@ -1946,7 +1947,7 @@ void GuiOpn::applyQualityParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1989,7 +1990,7 @@ void GuiOpn::applyQualityParamFile(const juce::File& file)
 void GuiOpn::exportQualityParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality }, Io::Extension::QualityParam,
         [this](const juce::File& file) { writeQualityParamFile(file); });
 }
@@ -2001,7 +2002,7 @@ void GuiOpn::writeQualityParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(qualityFormat);
     writeQualityParams(writer);
@@ -2060,7 +2061,7 @@ void GuiOpn::exportOpWtModParam(int opIndex) {
 void GuiOpn::importChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "OPN" },
+    editorOf(ctx).openParamBrowser({ "OPN" },
         [this](const juce::File& file) { applyChParamFile(file); });
 }
 
@@ -2070,7 +2071,7 @@ void GuiOpn::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2112,7 +2113,7 @@ void GuiOpn::applyChParamFile(const juce::File& file) {
 void GuiOpn::exportChParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { "OPN" }, Io::Extension::opnParam,
         [this](const juce::File& file) { writeChParamFile(file); });
 }
@@ -2123,7 +2124,7 @@ void GuiOpn::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(opnFormat);
     writeChParams(writer);
@@ -2135,7 +2136,7 @@ void GuiOpn::importOpChParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpnOp },
         [this, opIndex](const juce::File& file) { applyOpChParamFile(opIndex, file); });
 }
@@ -2148,7 +2149,7 @@ void GuiOpn::applyOpChParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2192,7 +2193,7 @@ void GuiOpn::applyOpChParamFile(int opIndex, const juce::File& file)
 void GuiOpn::exportOpChParam(int opIndex)
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpnOp }, Io::Extension::opnOpParam,
         [this, opIndex](const juce::File& file) { writeOpChParamFile(opIndex, file); });
 }
@@ -2203,7 +2204,7 @@ void GuiOpn::writeOpChParamFile(int opIndex, const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(opnOpFormat);
     writeOpChFileParams(opIndex, writer);
@@ -2322,7 +2323,7 @@ void GuiOpn::writeOpParams(int opIndex, Io::ParamWriter& w) {
 void GuiOpn::importOpnaChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "OPNA" },
+    editorOf(ctx).openParamBrowser({ "OPNA" },
         [this](const juce::File& file) { applyOpnaChParamFile(file); });
 }
 
@@ -2332,7 +2333,7 @@ void GuiOpn::applyOpnaChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // OPNA のファイル。こちらに無い項目は名前で引けないので
     // そのまま読み飛ばされる。
@@ -2351,7 +2352,7 @@ void GuiOpn::importOpnaOpChParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpnaOp },
         [this, opIndex](const juce::File& file) { applyOpnaOpChParamFile(opIndex, file); });
 }
@@ -2364,7 +2365,7 @@ void GuiOpn::applyOpnaOpChParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     auto reader = Io::ParamReader::open(file, opnaOpFormat);
 
@@ -2567,23 +2568,23 @@ void GuiOpn::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
 void GuiOpn::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
 }
 
 void GuiOpn::openEnabledCategories()

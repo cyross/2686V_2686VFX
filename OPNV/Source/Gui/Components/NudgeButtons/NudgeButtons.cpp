@@ -1,8 +1,8 @@
 ﻿#include "./NudgeButtons.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
-#include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 
 void GuiComponentNudgeButtons::setupComponent(juce::Component& parent, GuiSlider& slider, int& tabOrder, std::optional<juce::Font> font)
 {

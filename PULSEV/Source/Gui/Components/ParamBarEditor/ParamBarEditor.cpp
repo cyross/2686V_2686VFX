@@ -6,7 +6,7 @@ ParamBarEditorBase::~ParamBarEditorBase()
 {
     // PluginProcessor の完全な定義を読み込んでいるので、エラーなくアクセスできる
     for (const auto& id : m_paramIds) {
-        ctx.audioProcessor.apvts.removeParameterListener(id, this);
+        ctx.apvts.removeParameterListener(id, this);
     }
 }
 
@@ -17,7 +17,7 @@ ParamBarEditorBase::~ParamBarEditorBase()
 void ParamBarEditorBase::attachParams(const juce::String& idPrefix, int count)
 {
     for (const auto& id : m_paramIds) {
-        ctx.audioProcessor.apvts.removeParameterListener(id, this);
+        ctx.apvts.removeParameterListener(id, this);
     }
 
     m_paramIds.clear();
@@ -28,13 +28,13 @@ void ParamBarEditorBase::attachParams(const juce::String& idPrefix, int count)
     {
         juce::String paramId = idPrefix + juce::String(i);
 
-        auto* param = ctx.audioProcessor.apvts.getParameter(paramId);
+        auto* param = ctx.apvts.getParameter(paramId);
 
         if (param != nullptr) {
             m_params.push_back(param);
             m_paramIds.add(paramId);
 
-            ctx.audioProcessor.apvts.addParameterListener(paramId, this);
+            ctx.apvts.addParameterListener(paramId, this);
         }
     }
 }

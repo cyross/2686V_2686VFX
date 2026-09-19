@@ -745,15 +745,15 @@ def generate(name):
 
     # mode つまみの上限はタブの数で決まる。音源を減らしたら詰める。
     # タブは「音源 + ADV + PRESET + SETTINGS + COLORS + ABOUT」。
-    gv_path = os.path.join(dst_root, "Core", "Gui", "GuiValues.h")
-    gv = read_text(gv_path)
-    write_text(gv_path, re.sub(r"TabNumber = \d+;",
-                               "TabNumber = %d;" % (len(keep) + 5 - 1), gv, count=1))
+    tc_path = os.path.join(dst_root, "Core", "Gui", "GuiTabCount.h")
+    tc = read_text(tc_path)
+    write_text(tc_path, re.sub(r"TabNumber = \d+;",
+                               "TabNumber = %d;" % (len(keep) + 5 - 1), tc, count=1))
 
-    lf_path = os.path.join(dst_root, "Core", "Gui", "GuiLF.cpp")
-    lf = read_text(lf_path)
-    head = lf.index("juce::Colour CustomTabLookAndFeel::getTabHeaderColor")
-    write_text(lf_path, lf[:head] + build_tab_color(keep))
+    tcol_path = os.path.join(dst_root, "Core", "Gui", "GuiTabColor.cpp")
+    tcol = read_text(tcol_path)
+    head = tcol.index("juce::Colour CustomTabLookAndFeel::getTabHeaderColor")
+    write_text(tcol_path, tcol[:head] + build_tab_color(keep))
 
     # 4. 残ったファイルから、消えた音源への言及を落とす
     pats = []

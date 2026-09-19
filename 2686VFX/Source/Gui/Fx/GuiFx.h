@@ -5,8 +5,8 @@
 #include "../../Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
-#include "../../Core/Gui/GuiComponents.h"
-#include "../../Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
 #include "../Components/AmpEnv/AmpEnv.h"
 #include "../Components/SsgHwEnv/SsgHwEnv.h"
 #include "../Components/SsgHwPEnv/SsgHwPEnv.h"
@@ -19,7 +19,7 @@
 #include "../Components/MulDetune/MulDetune.h"
 #include "../Components/Unison/Unison.h"
 #include "../Components/Quality/QualityPcm.h"
-#include "../../Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"

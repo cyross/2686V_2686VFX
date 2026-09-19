@@ -3,11 +3,11 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../../Core/Gui/GuiComponents.h"
-#include "../../Core/Gui/GuiBase.h"
-#include "../../Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
-#include "../../Core/Gui/GuiSimpleView.h"
+#include "Shared/Core/Gui/GuiSimpleView.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 
 class GuiSettings : public GuiBase

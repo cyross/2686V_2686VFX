@@ -3,9 +3,9 @@
 #include "../../../Core/Io/ParamFile.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
-#include "../../../Core/Processor/ProcessorKeys.h"
-#include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 
 std::array<juce::String, 128> GuiComponentFix::noteLabelText{
     "C-2", "C#-2", "D-2", "D#-2", "E-2", "F-2", "F#-2", "G-2", "G#-2", "A-2", "A#-2", "B-2",

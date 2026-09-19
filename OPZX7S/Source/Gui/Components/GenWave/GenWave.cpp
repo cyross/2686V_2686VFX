@@ -5,7 +5,8 @@
 
 #include "../../../Core/Editor/PluginEditor.h"
 #include "../../../Core/Editor/EditorGuiText.h"
-#include "../../../Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiColor.h"
+#include "../../../Core/Gui/GuiPluginContext.h"
 
 GuiGenWave::GuiGenWave(const GuiContext& context) : ctx(context)
 {
@@ -110,13 +111,13 @@ void GuiGenWave::startGenerate()
     deleteBtn.setEnabled(false);
     stopTimer();
 
-    ctx.editor.showLoading(EditorGuiText::GenWave::working);
+    editorOf(ctx).showLoading(EditorGuiText::GenWave::working);
 
     // 音源の組み立てはメッセージスレッドで行う。プロセッサが持っている
     // 波形メモリや PCM への参照を受け取るため。回すのはこの後の仕事で。
     auto rig = std::make_shared<GenWaveRender::Rig>();
 
-    rig->build(ctx.audioProcessor);
+    rig->build(pluginOf(ctx));
 
     // 画面が先に閉じることがあるので、書き戻す前に生きているかを確かめる
     juce::Component::SafePointer<GuiGenWave> safe(this);
@@ -142,7 +143,7 @@ void GuiGenWave::finishGenerate(const GenWaveRender::Wave& wave)
     generateBtn.setButtonText(EditorGuiText::GenWave::regenerate);
     deleteBtn.setEnabled(!m_wave.isEmpty());
 
-    ctx.editor.hideLoading();
+    editorOf(ctx).hideLoading();
 
     if (!m_wave.isEmpty()) startTimer(frameMs);
 

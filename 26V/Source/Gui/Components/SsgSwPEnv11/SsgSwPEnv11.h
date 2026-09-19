@@ -8,11 +8,11 @@
 #include <functional>
 
 #include "Shared/Core/Const/ConstGlobal.h"
-#include "../../../Core/Gui/GuiComponents.h"
-#include "../../../Core/Gui/GuiBase.h"
-#include "../../../Core/Gui/GuiContext.h"
-#include "../../../Core/Gui/GuiValues.h"
-#include "../../../Core/Gui/GuiEnvelopeGraph.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../PitchButtons/PitchButtons.h"
@@ -20,7 +20,7 @@
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../StepValues/StepValues.h"
 
-#include "../../../Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiCopyObj.h"
 
 class GuiComponentSsgSwPEnv11 : public GuiBase {
     bool isEnable = false;

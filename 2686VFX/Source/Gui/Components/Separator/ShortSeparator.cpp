@@ -1,6 +1,6 @@
 ﻿#include "./ShortSeparator.h"
 
-#include "../../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 
 void ShortSeparator::setupComponent(juce::Component& parent) {
     parent.addAndMakeVisible(*this);

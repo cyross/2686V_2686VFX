@@ -1,8 +1,8 @@
 ﻿#include "./N88LfoOp.h"
 
-#include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Gui/GuiStructs.h"
-#include "../../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiStructs.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 
 void GuiComponentN88LfoOp::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder)
 {

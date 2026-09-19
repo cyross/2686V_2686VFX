@@ -2,19 +2,20 @@
 #include "./GuiBeep.h"
 
 #include "../../Core/Io/ParamFile.h"
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Beep/ProcessorBeepKeys.h"
 #include "../../Processor/Beep/ProcessorBeepValues.h"
 
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiBeepValues.h"
 #include "./GuiBeepText.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 namespace
 {
@@ -34,11 +35,11 @@ void GuiBeep::setup() {
     juce::String code = BeepPrKey::prefix;
     int tabOrder = 1;
 
-    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_curveCore = pluginOf(ctx).getCurveCore();
 
     mainGroup.setup(*this, BeepGuiText::Group::mainGroup); // GuiText 等に置換
 
-    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
+    presetName.setupComponent(*this, tabOrder, pluginOf(ctx).presetName);
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
@@ -90,7 +91,7 @@ void GuiBeep::setup() {
     broadcastLevelButton.onClick = [this] {
         float level = levelComponent.getLevel();
 
-        ctx.editor.breadcastLevel(level);
+        editorOf(ctx).breadcastLevel(level);
         };
 
     uSep001.setupComponent(mainGroup.contentCanvas);
@@ -157,53 +158,53 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
 
-    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    ampEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-    ssgHwEnv.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
+    ssgSwEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnvComponent.layoutComponent(mRect);
-    ssgSwEnv11Component.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11Component.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11Component.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
     ampMajorCat.endMajor(mRect);
 
     // [[PITCH ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
 
-    pitchEnvComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
+    pitchEnvComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv));
     pitchEnvComponent.layoutComponent(mRect);
-    ssgHwPEnv.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
-    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11Component.layoutComponent(mRect);
-    modComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
 
-    lfoComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
+    lfoComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Lfo));
     lfoComponent.layoutComponent(mRect);
 
-	mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
+	mulDetuneComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::MulDet));
 	mulDetuneComponent.layoutComponent(mRect);
 
-    fixComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Fix));
+    fixComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Fix));
     fixComponent.layoutComponent(mRect);
 
-    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
+    unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     midiComponent.layoutComponent(mRect);
@@ -297,7 +298,7 @@ void GuiBeep::updatePresetName(const juce::String& name)
 
 void GuiBeep::initParams()
 {
-    this->ctx.audioProcessor.initParams("BEEP_");
+    pluginOf(ctx).initParams("BEEP_");
 }
 
 void GuiBeep::setupGraph()
@@ -386,7 +387,7 @@ void GuiBeep::updateGraph()
     // カーブモードが有効かどうかを判定
     // カーブを使うかどうかは処理側が持っている。画面から引くと、
     // どのタブを開いても Curve タブまで一緒に組み上がってしまう。
-    bool isCurveMode = ctx.audioProcessor.prCurve.getEnable();
+    bool isCurveMode = pluginOf(ctx).prCurve.getEnable();
 
     // =============================================================
     // Pitch Env
@@ -427,7 +428,7 @@ void GuiBeep::setLevel(float level) {
 void GuiBeep::importChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "BEEP" },
+    editorOf(ctx).openParamBrowser({ "BEEP" },
         [this](const juce::File& file) { applyChParamFile(file); });
 }
 
@@ -437,7 +438,7 @@ void GuiBeep::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -500,7 +501,7 @@ void GuiBeep::applyChParamFile(const juce::File& file) {
 void GuiBeep::exportChParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { "BEEP" }, Io::Extension::beepParam,
         [this](const juce::File& file) { writeChParamFile(file); });
 }
@@ -511,7 +512,7 @@ void GuiBeep::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(beepFormat);
     writeChParams(writer);
@@ -583,19 +584,19 @@ void GuiBeep::writeChParams(Io::ParamWriter& writer) {
 void GuiBeep::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 }
 
 void GuiBeep::openEnabledCategories()

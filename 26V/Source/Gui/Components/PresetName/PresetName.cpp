@@ -1,6 +1,6 @@
 ﻿#include "./PresetName.h"
 
-#include "../../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 
 void GuiComponentPresetName::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& name) {
     presetNameLabel.setup({ .parent = parent, .title = "" });

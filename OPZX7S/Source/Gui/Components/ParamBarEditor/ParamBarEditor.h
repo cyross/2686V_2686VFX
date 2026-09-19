@@ -4,8 +4,8 @@
 #include <functional>
 #include <vector>
 
-#include "../../../Core/Gui/GuiComponents.h"
-#include "../../../Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiContext.h"
 
 // ==========================================================
 // パラメータを棒グラフで直接編集するエディタの土台

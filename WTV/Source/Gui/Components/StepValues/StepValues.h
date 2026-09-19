@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "../../../Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiColor.h"
 
 // 段ごとの値を格子に並べて描くだけの帯。
 //

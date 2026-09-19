@@ -1,6 +1,6 @@
 ﻿#include "./Import.h"
 
-#include "../../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 
 void GuiComponentImport::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& title) {
     importButton.setup({ .parent = parent, .title = juce::String("") + "[IM]" + title, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false});

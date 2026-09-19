@@ -12,10 +12,11 @@
 
 #include "./GuiPresetValues.h"
 #include "./GuiPresetText.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 #include "../../Core/Editor/EditorGuiText.h"
 
 #include <algorithm>
+#include "../../Core/Gui/GuiPluginContext.h"
 
 namespace
 {
@@ -91,7 +92,7 @@ void GuiPreset::setup()
     *********************/
 
     // defaultPresetDirから取ってくる
-    auto defaultPath = ctx.audioProcessor.getDefaultPresetDir();
+    auto defaultPath = pluginOf(ctx).getDefaultPresetDir();
 
     currentFolder = juce::File(defaultPath);
 
@@ -178,7 +179,7 @@ void GuiPreset::setup()
             [this](int result) {
                 if (result != 1) return;
 
-                ctx.editor.presetLibrary.clearHistory();
+                editorOf(ctx).presetLibrary.clearHistory();
 
                 applyFilter();
             });
@@ -321,8 +322,8 @@ void GuiPreset::setup()
                 // 指す先が消える。
                 auto target = filteredItems[cell->row];
 
-                ctx.editor.presetLibrary.setFavourite(target,
-                    !ctx.editor.presetLibrary.isFavourite(target.fullPath));
+                editorOf(ctx).presetLibrary.setFavourite(target,
+                    !editorOf(ctx).presetLibrary.isFavourite(target.fullPath));
 
                 // お気に入りを見ているときは、外したものが一覧から消える。
                 // 作り直すと今押しているボタンごと片付けられてしまうので、
@@ -337,7 +338,7 @@ void GuiPreset::setup()
 
         cell->row = row;
         cell->applyColours();
-        cell->button.setButtonText(ctx.editor.presetLibrary.isFavourite(filteredItems[row].fullPath)
+        cell->button.setButtonText(editorOf(ctx).presetLibrary.isFavourite(filteredItems[row].fullPath)
             ? PresetKey::View::Mark::on : PresetKey::View::Mark::off);
 
         return cell;
@@ -381,10 +382,10 @@ void GuiPreset::setup()
     table.onDoubleClicked = [this](int row) {
         juce::File file = getSelectedFile();
         if (file.existsAsFile()) {
-            ctx.editor.loadPresetFile(file);
+            editorOf(ctx).loadPresetFile(file);
 
             // FXの順番は直に実行
-            ctx.editor.updateFxOrder();
+            editorOf(ctx).updateFxOrder();
         }
     };
 
@@ -414,47 +415,47 @@ void GuiPreset::setup()
 	metaGroup.setup(*this, PresetKey::MetaData::title);
 
     genreEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::genre, .isMultiLine = false });
-    genreEditor.setText(ctx.audioProcessor.presetGenre);
+    genreEditor.setText(pluginOf(ctx).presetGenre);
     genreEditor.setWantsKeyboardFocus(true);
     genreEditor.setExplicitFocusOrder(++tabOrder);
-    genreEditor.onTextChange = [this] { ctx.audioProcessor.presetGenre = genreEditor.getText(); };
+    genreEditor.onTextChange = [this] { pluginOf(ctx).presetGenre = genreEditor.getText(); };
 
     filePathEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::filePath, .isMultiLine = false });
-    filePathEditor.setText(ctx.audioProcessor.presetFilePath);
+    filePathEditor.setText(pluginOf(ctx).presetFilePath);
     filePathEditor.setColour(juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.withAlpha(0.3f));
     filePathEditor.setReadOnly(true); // ユーザーには手打ちさせない
     filePathEditor.setWantsKeyboardFocus(false);
 
     // Name
 	nameEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::name, .isMultiLine = false });
-    nameEditor.setText(ctx.audioProcessor.presetName);
+    nameEditor.setText(pluginOf(ctx).presetName);
     nameEditor.setWantsKeyboardFocus(true);
     nameEditor.setExplicitFocusOrder(++tabOrder);
     nameEditor.onTextChange = [this] {
-        ctx.audioProcessor.presetName = nameEditor.getText();
-        ctx.editor.updatePresetNameToTabs(ctx.audioProcessor.presetName);
+        pluginOf(ctx).presetName = nameEditor.getText();
+        editorOf(ctx).updatePresetNameToTabs(pluginOf(ctx).presetName);
     };
 
     // Author
     authorEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::auther, .isMultiLine = false });
-    authorEditor.setText(ctx.audioProcessor.presetAuthor);
+    authorEditor.setText(pluginOf(ctx).presetAuthor);
     authorEditor.setWantsKeyboardFocus(true);
     authorEditor.setExplicitFocusOrder(++tabOrder);
-    authorEditor.onTextChange = [this] { ctx.audioProcessor.presetAuthor = authorEditor.getText(); };
+    authorEditor.onTextChange = [this] { pluginOf(ctx).presetAuthor = authorEditor.getText(); };
 
     // Version
     versionEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::version, .isMultiLine = false });
-    versionEditor.setText(ctx.audioProcessor.presetVersion);
+    versionEditor.setText(pluginOf(ctx).presetVersion);
     versionEditor.setWantsKeyboardFocus(true);
     versionEditor.setExplicitFocusOrder(++tabOrder);
-    versionEditor.onTextChange = [this] { ctx.audioProcessor.presetVersion = versionEditor.getText(); };
+    versionEditor.onTextChange = [this] { pluginOf(ctx).presetVersion = versionEditor.getText(); };
 
     // Comment
     commentEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::comment, .isMultiLine = true, .isReturnKeyStartsNewLine = true });
-    commentEditor.setText(ctx.audioProcessor.presetComment);
+    commentEditor.setText(pluginOf(ctx).presetComment);
     commentEditor.setWantsKeyboardFocus(true);
     commentEditor.setExplicitFocusOrder(++tabOrder);
-    commentEditor.onTextChange = [this] { ctx.audioProcessor.presetComment = commentEditor.getText(); };
+    commentEditor.onTextChange = [this] { pluginOf(ctx).presetComment = commentEditor.getText(); };
 
     /********************
     *
@@ -477,20 +478,20 @@ void GuiPreset::setup()
             [this](int result) {
                 if (result == 1) { // Initializeボタンが押された
                     // 1. プロセッサ側の初期化実行
-                    ctx.audioProcessor.initPreset();
+                    pluginOf(ctx).initPreset();
 
                     // 2. エディタの表示更新
                     // テキストエディタへの反映
-                    nameEditor.setText(ctx.audioProcessor.presetName);
-                    authorEditor.setText(ctx.audioProcessor.presetAuthor);
-                    versionEditor.setText(ctx.audioProcessor.presetVersion);
-                    commentEditor.setText(ctx.audioProcessor.presetComment);
-                    genreEditor.setText(ctx.audioProcessor.presetGenre);
-                    filePathEditor.setText(ctx.audioProcessor.presetFilePath);
+                    nameEditor.setText(pluginOf(ctx).presetName);
+                    authorEditor.setText(pluginOf(ctx).presetAuthor);
+                    versionEditor.setText(pluginOf(ctx).presetVersion);
+                    commentEditor.setText(pluginOf(ctx).presetComment);
+                    genreEditor.setText(pluginOf(ctx).presetGenre);
+                    filePathEditor.setText(pluginOf(ctx).presetFilePath);
 
 
                     // 各タブのプリセット名をリセット
-                    ctx.editor.updatePresetNameToTabs(ctx.audioProcessor.presetName);
+                    editorOf(ctx).updatePresetNameToTabs(pluginOf(ctx).presetName);
                 }
             }
         );
@@ -506,10 +507,10 @@ void GuiPreset::setup()
         auto file = getSelectedFile();
 
         if (file.existsAsFile()) {
-            ctx.editor.loadPresetFile(file);
+            editorOf(ctx).loadPresetFile(file);
 
             // FXの順番は直に実行
-            ctx.editor.updateFxOrder();
+            editorOf(ctx).updateFxOrder();
         }
     };
 
@@ -517,13 +518,13 @@ void GuiPreset::setup()
     saveButton.setup({ .parent = *this, .title = PresetKey::Button::savePreset, .font = buttonFont });
     saveButton.setWantsKeyboardFocus(true);
     saveButton.setExplicitFocusOrder(++tabOrder);
-    saveButton.onClick = [this] { ctx.editor.saveCurrentPreset(); };
+    saveButton.onClick = [this] { editorOf(ctx).saveCurrentPreset(); };
 
     // --- Save Preset As Button ---
     saveAsButton.setup({ .parent = *this, .title = PresetKey::Button::savePresetAs, .font = buttonFont, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen.withAlpha(0.7f) });
     saveAsButton.setWantsKeyboardFocus(true);
     saveAsButton.setExplicitFocusOrder(++tabOrder);
-    saveAsButton.onClick = [this] { ctx.editor.saveCurrentPresetAs(); };
+    saveAsButton.onClick = [this] { editorOf(ctx).saveCurrentPresetAs(); };
 
     // --- Delete Preset Button ---
 	deleteButton.setup({ .parent = *this, .title = PresetKey::Button::deletePreset, .font = buttonFont, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f) });
@@ -544,7 +545,7 @@ void GuiPreset::setup()
                 [this, file](int result) {
                     if (result == 1) { // Delete
                         file.deleteFile();
-                        ctx.editor.scanPresets(); // リスト更新
+                        editorOf(ctx).scanPresets(); // リスト更新
                     }
                 }
             );
@@ -555,7 +556,7 @@ void GuiPreset::setup()
 	refreshButton.setup({ .parent = *this, .title = PresetKey::Button::refleshPresetList, .font = buttonFont });
     refreshButton.setWantsKeyboardFocus(true);
     refreshButton.setExplicitFocusOrder(++tabOrder);
-    refreshButton.onClick = [this] { ctx.editor.scanPresets(); };
+    refreshButton.onClick = [this] { editorOf(ctx).scanPresets(); };
 
     // --- Reflect Preset Info Button ---
 	reflectButton.setup({ .parent = *this, .title = PresetKey::Button::reflectPresetInfo, .font = buttonFont, .isReset = false });
@@ -830,8 +831,8 @@ void GuiPreset::sortFiltered()
                 // お気に入りが先へ来るように、入っているほうを小さく扱う
             case 1:
             {
-                const int favouriteA = ctx.editor.presetLibrary.isFavourite(a.fullPath) ? 1 : 0;
-                const int favouriteB = ctx.editor.presetLibrary.isFavourite(b.fullPath) ? 1 : 0;
+                const int favouriteA = editorOf(ctx).presetLibrary.isFavourite(a.fullPath) ? 1 : 0;
+                const int favouriteB = editorOf(ctx).presetLibrary.isFavourite(b.fullPath) ? 1 : 0;
 
                 result = favouriteB - favouriteA;
 
@@ -860,8 +861,8 @@ void GuiPreset::applyFilter()
     // 見方によって元になる並びが変わる。お気に入りと履歴は今見ている
     // フォルダの外も指すので、覚えてあるものをそのまま使う。
     const std::vector<PresetItem>& source =
-        view == View::favourites ? ctx.editor.presetLibrary.getFavourites() :
-        view == View::history ? ctx.editor.presetLibrary.getHistory() :
+        view == View::favourites ? editorOf(ctx).presetLibrary.getFavourites() :
+        view == View::history ? editorOf(ctx).presetLibrary.getHistory() :
         items;
 
     juce::String query = searchBox.getText().trim().toLowerCase();

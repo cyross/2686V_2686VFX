@@ -5,7 +5,7 @@
 #include <JuceHeader.h>
 
 #include "./GenWaveRender.h"
-#include "../../../Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiContext.h"
 
 // ============================================================================
 // 生成波形のプレビュー

@@ -5,14 +5,14 @@
 #include "../../../Core/Io/ParamFile.h"
 #include <vector>
 
-#include "../../../Core/Gui/GuiComponents.h"
-#include "../../../Core/Gui/GuiBase.h"
-#include "../../../Core/Gui/GuiContext.h"
-#include "../../../Core/Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiValues.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../WavePreview/WavePreview.h"
 
-#include "../../../Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiCopyObj.h"
 
 // N88 LFO のチップ全体側 (速さ・形・PM・AM)。OPN と OPNA のタブで使う。
 //

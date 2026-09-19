@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 
 // ============================================================================
 // SSG HW ENV の Shape 一覧

@@ -6,12 +6,12 @@
 #include <array>
 
 #include "Shared/Core/Const/ConstGlobal.h"
-#include "../../../Core/Gui/GuiComponents.h"
-#include "../../../Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
 #include "../../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
 #include "../WavePreview/WavePreview.h"
 #include "../WavePreview/WavePreviewGrid.h"
-#include "../../../Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiContext.h"
 #include "Shared/Generator/Fds/GenFdsModTable.h"
 #include "../WaveHold/WaveHold.h"
 

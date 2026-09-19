@@ -2,8 +2,8 @@
 
 #include "../../../Core/Io/ParamFile.h"
 
-#include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 
 // 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
 std::vector<SelectItem> Quality::bdItems = {

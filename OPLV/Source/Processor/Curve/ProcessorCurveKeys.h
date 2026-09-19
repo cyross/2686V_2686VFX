@@ -6,7 +6,7 @@
 
 #include <array>
 
-#include "../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 
 namespace CurvePrKey
 {

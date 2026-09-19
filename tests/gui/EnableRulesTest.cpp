@@ -16,9 +16,9 @@
 #include <vector>
 
 #include "Core/Processor/PluginProcessor.h"
-#include "Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Core/Editor/PluginEditor.h"
-#include "Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiComponents.h"
 
 // 画面の中で、テストだけが触る口。PluginEditor が friend にしている。
 struct EditorTestAccess

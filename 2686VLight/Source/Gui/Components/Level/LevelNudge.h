@@ -4,9 +4,9 @@
 #include <array>
 #include <memory>
 
-#include "../../../Core/Gui/GuiComponents.h"
-#include "../../../Core/Gui/GuiBase.h"
-#include "../../../Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
 
 // ==========================================================
 // LEVEL の N ボタンで出す、値を動かすボタンの並び

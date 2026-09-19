@@ -3,7 +3,7 @@
 #include "./ProcessorOpnaKeys.h"
 #include "Shared/Processor/Opna/ProcessorOpnaValues.h"
 #include "./ProcessorOpnaNames.h"
-#include "../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "../../Core/Processor/ProcessorNames.h"
 #include "../../Core/Processor/ProcessorHelper.h"
 

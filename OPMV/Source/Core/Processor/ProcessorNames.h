@@ -73,6 +73,7 @@ namespace CPN
 	static inline const juce::String oneShot = " One Shot";
 	static inline const juce::String loop = " Loop";
 
+	static inline const juce::String ssgWaveform = " Waveform";
 
 	namespace Tn
 	{

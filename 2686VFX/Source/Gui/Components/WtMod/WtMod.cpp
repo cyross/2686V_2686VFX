@@ -1,21 +1,22 @@
 ﻿#include "./WtMod.h"
 
-#include "../../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
 #include "../../../Core/Io/ParamFile.h"
 
 #include "../WavePreview/WavePreviewSource.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
-#include "../../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Editor/PluginEditor.h"
-#include "../../../Core/Gui/GuiHelpers.h"
-#include "../../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "../../../Core/Const/ConstFileValues.h"
-#include "../../../Core/Gui/GuiColor.h"
-#include "../../../Core/Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiValues.h"
 #include "Shared/Core/Synth/CommonParams.h"
+#include "../../../Core/Gui/GuiPluginContext.h"
 
 namespace
 {
@@ -503,7 +504,7 @@ void GuiComponentWtMod::importWave(int slot, bool isWt2)
         defaultDir = ctx.audioProcessor.getPluginDirectory();
     }
 
-    ctx.editor.openFileChooser(
+    editorOf(ctx).openFileChooser(
         isWt2 ? "Load Mod Wave (.wt2)" : "Load Mod Wave (.wt)",
         defaultDir,
         isWt2 ? "*.wt2" : "*.wt",
@@ -545,7 +546,7 @@ void GuiComponentWtMod::importWave(int slot, bool isWt2)
 // 演奏中に切り替えられるよう、パラメータとして持っている。
 int GuiComponentWtMod::currentSlot() const
 {
-    if (auto* p = ctx.audioProcessor.apvts.getRawParameterValue(m_code + CPK::WtMod::waveSlot)) {
+    if (auto* p = ctx.apvts.getRawParameterValue(m_code + CPK::WtMod::waveSlot)) {
         return std::clamp((int)p->load(), 0, Global::WtMod::slots - 1);
     }
 

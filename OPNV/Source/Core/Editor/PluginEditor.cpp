@@ -1,4 +1,4 @@
-﻿#include "../Gui/GuiRefresh.h"
+﻿#include "Shared/Core/Gui/GuiRefresh.h"
 #include "../Const/ConstPlugin.h"
 #include <cstdio>
 #include <vector>
@@ -10,15 +10,15 @@
 
 #include "../Processor/PluginProcessor.h"
 
-#include "../Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "../Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 
 #include "../Fm/FmRegisterConverter.h"
 
 #include "./EditorGuiValues.h"
-#include "../Gui/GuiColor.h"
-#include "../Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiContext.h"
 
 // チャンネルごとのパラメータ名の頭。開いていないタブへ値を入れるときに使う。
 #include "../../Processor/Opna/ProcessorOpnaKeys.h"

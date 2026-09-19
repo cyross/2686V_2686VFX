@@ -1,7 +1,7 @@
 ﻿#include "./GuiFxKeyAssign.h"
 
-#include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 #include "../../Processor/Mod/ProcessorModValues.h"
 #include "./GuiFxText.h"
 #include "./GuiFxValues.h"

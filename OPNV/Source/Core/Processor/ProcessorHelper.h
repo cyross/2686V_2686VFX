@@ -5,7 +5,7 @@
 #include <array>
 
 #include "./ProcessorStructs.h"
-#include "./ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "./ProcessorNames.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "./ProcessorFloat.h"
@@ -683,6 +683,7 @@ namespace PrHelper {
 		ptPtrs.delay = apvts.getRawParameterValue(prefix + CPK::delay);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
 		setupWaveHoldPtrs(apvts, prefix, ptPtrs.hold);
+		ptPtrs.waveform = apvts.getRawParameterValue(prefix + CPK::ssgWaveform);
 	}
 
 	static inline void setupWtBasicPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsWtBasic& ptPtrs) {
@@ -3876,6 +3877,12 @@ namespace PrHelper {
 	static inline void addSsgBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		// ホールドと部分再生。止まったときの値は音量の倍率。
 		PrHelper::addWaveHoldParameters(layout, prefix, prefixName, WaveHoldUnit::Level);
+		PrHelper::addInt(
+			layout, 
+			prefix + CPK::ssgWaveform, 
+			prefixName + CPN::ssgWaveform, 
+			CPV::SsgWaveForm::min, CPV::SsgWaveForm::max, CPV::SsgWaveForm::initial
+		); // 0:Pulse, 1:Triangle
 	}
 
 	static inline void addSsgDutyParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {

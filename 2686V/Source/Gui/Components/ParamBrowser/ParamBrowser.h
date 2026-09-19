@@ -8,7 +8,7 @@
 #include <JuceHeader.h>
 
 #include "../GenWave/GenWaveRender.h"
-#include "../../../Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiContext.h"
 
 // ============================================================================
 // パラメータ・波形ファイルのブラウザ

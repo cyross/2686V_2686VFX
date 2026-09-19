@@ -3,12 +3,12 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../../Core/Gui/GuiColor.h"
-#include "../../Core/Gui/GuiComponents.h"
-#include "../../Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
 #include "../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
-#include "../../Core/Gui/GuiContext.h"
-#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/GuiCurve.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "../../Gui/Components/Fix/Fix.h"

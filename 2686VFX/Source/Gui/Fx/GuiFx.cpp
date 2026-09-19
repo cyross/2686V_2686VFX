@@ -1,4 +1,4 @@
-﻿#include "../../Core/Gui/GuiI18n.h"
+﻿#include "Shared/Core/Gui/GuiI18n.h"
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "../../Processor/Mod/ProcessorModKeys.h"
 #include <algorithm>
@@ -14,11 +14,12 @@
 #include "../../Core/Const/ConstFileValues.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiFxValues.h"
-#include "../../Core/Gui/GuiStructs.h"
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 #include "../../Core/Io/ParamFile.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 namespace
 {
@@ -196,7 +197,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     sfceWetBtn(context)
 {
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-    order = ctx.audioProcessor.getFxOrder();
+    order = pluginOf(ctx).getFxOrder();
 }
 
 void GuiFx::setup()
@@ -333,8 +334,8 @@ void GuiFx::setup()
     resetBtn.onClick = [&] {
         // 変調もこのタブの一部なので一緒に戻す。効果とは接頭辞が違うため、
         // まとめて 1 回では拾えず、二度に分けて呼ぶ。
-        this->ctx.audioProcessor.initParams(FxPrKey::prefix + "_");
-        this->ctx.audioProcessor.initParams(ModPrKey::prefix + "_");
+        pluginOf(ctx).initParams(FxPrKey::prefix + "_");
+        pluginOf(ctx).initParams(ModPrKey::prefix + "_");
     };
 
     routeSeparator.setupComponent(*this);
@@ -345,7 +346,7 @@ void GuiFx::setup()
     showRouteBtn.onClick = [this] {
         isShowRoute = !isShowRoute;
 
-        ctx.editor.resized();
+        editorOf(ctx).resized();
         };
 
     for (int fxr = 0; fxr < NumEffects; fxr++) {
@@ -367,9 +368,9 @@ void GuiFx::setup()
                 routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
-            ctx.audioProcessor.updateFxOrder(order);
+            pluginOf(ctx).updateFxOrder(order);
 
-            ctx.editor.resized();
+            editorOf(ctx).resized();
             };
 
         routeDown[fxr].setup({ .parent = *this, .title = juce::String("") + "▼", .isReset = false });
@@ -386,9 +387,9 @@ void GuiFx::setup()
                 routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
-            ctx.audioProcessor.updateFxOrder(order);
+            pluginOf(ctx).updateFxOrder(order);
 
-            ctx.editor.resized();
+            editorOf(ctx).resized();
             };
     }
 
@@ -397,7 +398,7 @@ void GuiFx::setup()
     // 一覧が出たり消えたりするので、選び直したら並べ直す。
     // 見出しの色もモードで変わるので、待たずに塗り直す。
     keyAssign.onModeChanged = [this] {
-        ctx.editor.resized();
+        editorOf(ctx).resized();
         updateKeyAssignTitles();
         };
 
@@ -948,7 +949,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     int modColumns = 0;
 
     for (auto cat : modCats) {
-        if (ctx.audioProcessor.isSimpleShown(cat)) ++modColumns;
+        if (pluginOf(ctx).isSimpleShown(cat)) ++modColumns;
     }
 
     int columns = FxGuiValue::Fx::EffectCols + modColumns;
@@ -978,7 +979,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody,
             SimpleView::Cat cat)
         {
-            if (!ctx.audioProcessor.isSimpleShown(cat)) {
+            if (!pluginOf(ctx).isSimpleShown(cat)) {
                 group.setVisible(false);
 
                 return;
@@ -1289,13 +1290,13 @@ void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
 }
 
 void GuiFx::updateFxOrder() {
-    order = ctx.audioProcessor.getFxOrder();
+    order = pluginOf(ctx).getFxOrder();
 
     for (int i = 0; i < NumEffects; i++) {
         routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
     }
 
-    ctx.editor.resized();
+    editorOf(ctx).resized();
 }
 
 void GuiFx::updateFilterEnabled() {
@@ -1416,9 +1417,9 @@ void GuiFx::updateSfcEchoEnabled() {
 // ==============================================================================
 void GuiFx::importFxOrder()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxOrderDir);
+    juce::File defaultDir(pluginOf(ctx).defaultFxOrderDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+        defaultDir = pluginOf(ctx).getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxOrderFile, defaultDir, Io::ExtensionGlob::fxOrder);
@@ -1428,7 +1429,7 @@ void GuiFx::importFxOrder()
             if (file.existsAsFile()) {
 
                 // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+                pluginOf(ctx).defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
                 // 3.0.0 より前のファイルは、当時の処理で読み込んでから
                 // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1479,7 +1480,7 @@ void GuiFx::importFxOrder()
                 }
 
                 // 範囲外・重複・取りこぼしのならしは 1 箇所にまとめてある。
-                ctx.audioProcessor.updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
+                pluginOf(ctx).updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
 
                 updateFxOrder();
             }
@@ -1488,9 +1489,9 @@ void GuiFx::importFxOrder()
 
 void GuiFx::exportFxOrder()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxOrderDir);
+    juce::File defaultDir(pluginOf(ctx).defaultFxOrderDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+        defaultDir = pluginOf(ctx).getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxOrderFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::fxOrder)), Io::saveGlob(Io::Extension::fxOrder));
@@ -1500,7 +1501,7 @@ void GuiFx::exportFxOrder()
             if (file != juce::File{}) {
 
                 // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+                pluginOf(ctx).defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
                 // 1行目にサンプル数
                 Io::ParamWriter writer(fxOrderFormat);
@@ -1513,9 +1514,9 @@ void GuiFx::exportFxOrder()
 
 void GuiFx::importFxParam()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
+    juce::File defaultDir(pluginOf(ctx).defaultFxParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+        defaultDir = pluginOf(ctx).getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxParamFile, defaultDir, Io::ExtensionGlob::fxParam);
@@ -1525,7 +1526,7 @@ void GuiFx::importFxParam()
             if (file.existsAsFile()) {
 
                 // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+                pluginOf(ctx).defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
                 // 3.0.0 より前のファイルは、当時の処理で読み込んでから
                 // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1567,9 +1568,9 @@ void GuiFx::importFxParam()
 
 void GuiFx::exportFxParam()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
+    juce::File defaultDir(pluginOf(ctx).defaultFxParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+        defaultDir = pluginOf(ctx).getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::fxParam)), Io::saveGlob(Io::Extension::fxParam));
@@ -1579,7 +1580,7 @@ void GuiFx::exportFxParam()
             if (file != juce::File{}) {
 
                 // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+                pluginOf(ctx).defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(fxParamFormat);
                 writeFxParams(writer);
@@ -1616,7 +1617,7 @@ void GuiFx::setImportingFxOrder(juce::StringArray& lines, int& index) {
         }
     }
 
-    ctx.audioProcessor.updateFxOrder(newOrders);
+    pluginOf(ctx).updateFxOrder(newOrders);
 
     updateFxOrder();
 
@@ -1941,23 +1942,23 @@ void GuiFx::readFxParams(const Io::ParamReader& reader)
 // パラメータではないので、ここでは戻らない。
 void GuiFx::initParams()
 {
-    ctx.audioProcessor.initParams(FxPrKey::prefix + "_");
+    pluginOf(ctx).initParams(FxPrKey::prefix + "_");
 }
 
 void GuiFx::bypassHiddenCategories()
 {
     // いま隠れている枠だけを切る。出したままの枠は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) wtAmpModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) wtModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 }
 
 void GuiFx::openEnabledCategories()
@@ -2002,7 +2003,7 @@ void GuiFx::updateKeyAssignTitles()
     namespace KA = ModPrKey::KeyAssign;
 
     const bool custom = keyAssign.isCustom();
-    const uint32_t held = custom ? ctx.audioProcessor.getModHeldTargets() : 0u;
+    const uint32_t held = custom ? pluginOf(ctx).getModHeldTargets() : 0u;
 
     auto isHeld = [held](std::initializer_list<KA::Target> targets) {
         for (auto t : targets)

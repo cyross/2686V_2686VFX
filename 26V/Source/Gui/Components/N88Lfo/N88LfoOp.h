@@ -4,12 +4,12 @@
 
 #include "../../../Core/Io/ParamFile.h"
 
-#include "../../../Core/Gui/GuiComponents.h"
-#include "../../../Core/Gui/GuiBase.h"
-#include "../../../Core/Gui/GuiContext.h"
-#include "../../../Core/Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiValues.h"
 
-#include "../../../Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiCopyObj.h"
 
 // N88 LFO のオペレーター側 (AMS)。OPN と OPNA のタブで使う。
 //

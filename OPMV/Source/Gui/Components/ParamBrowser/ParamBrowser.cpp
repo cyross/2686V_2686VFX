@@ -9,9 +9,10 @@
 #include "../GenWave/GenWave.h"
 #include "../../../Core/Editor/PluginEditor.h"
 #include "../../../Core/Editor/EditorGuiText.h"
-#include "../../../Core/Gui/GuiColor.h"
-#include "../../../Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiComponents.h"
 #include "../../../Core/Const/ConstFileValues.h"
+#include "../../../Core/Gui/GuiPluginContext.h"
 
 namespace
 {
@@ -335,7 +336,7 @@ void GuiParamBrowser::collect()
         {
             // 音声ファイルかどうかは、読める形式かで決める。
             // 対応している形式は音源側の持ち物なので、そちらへ訊く。
-            if (ctx.audioProcessor.formatManager.findFormatForFileExtension(
+            if (pluginOf(ctx).formatManager.findFormatForFileExtension(
                 file.getFileExtension()) == nullptr) continue;
 
             category = EditorGuiText::ParamBrowser::audioFile;
@@ -512,7 +513,7 @@ void GuiParamBrowser::loadPreview(int itemIndex)
     }
 
     const auto cache = GenWaveRender::cacheFileFor(
-        GenWaveRender::cacheDirectory(ctx.audioProcessor), item.file);
+        GenWaveRender::cacheDirectory(pluginOf(ctx)), item.file);
 
     item.wave = GenWaveRender::read(cache);
     item.hasWave = !item.wave.isEmpty();
@@ -588,7 +589,7 @@ void GuiParamBrowser::loadWavePoints(Item& item)
 void GuiParamBrowser::loadAudioShape(Item& item)
 {
     std::unique_ptr<juce::AudioFormatReader> reader(
-        ctx.audioProcessor.formatManager.createReaderFor(item.file));
+        pluginOf(ctx).formatManager.createReaderFor(item.file));
 
     if (reader == nullptr || reader->lengthInSamples <= 0) return;
 
@@ -897,9 +898,9 @@ void GuiParamBrowser::startBulkGenerate()
     bulkGenerateBtn.setEnabled(false);
     bulkDeleteBtn.setEnabled(false);
 
-    ctx.audioProcessor.getStateInformation(m_savedState);
+    pluginOf(ctx).getStateInformation(m_savedState);
 
-    ctx.editor.showLoading(EditorGuiText::ParamBrowser::working,
+    editorOf(ctx).showLoading(EditorGuiText::ParamBrowser::working,
         [this] { m_cancelled = true; });
 
     generateNext();
@@ -917,9 +918,9 @@ void GuiParamBrowser::generateOne(int itemIndex)
     bulkGenerateBtn.setEnabled(false);
     bulkDeleteBtn.setEnabled(false);
 
-    ctx.audioProcessor.getStateInformation(m_savedState);
+    pluginOf(ctx).getStateInformation(m_savedState);
 
-    ctx.editor.showLoading(EditorGuiText::ParamBrowser::working,
+    editorOf(ctx).showLoading(EditorGuiText::ParamBrowser::working,
         [this] { m_cancelled = true; });
 
     generateNext();
@@ -939,11 +940,11 @@ void GuiParamBrowser::generateNext()
     const int index = m_queue[m_queueAt];
     auto& item = m_items[(size_t)index];
 
-    ctx.editor.updateLoading(EditorGuiText::ParamBrowser::working
+    editorOf(ctx).updateLoading(EditorGuiText::ParamBrowser::working
         + " (" + juce::String((int)m_queueAt + 1) + " / " + juce::String((int)m_queue.size()) + ")");
 
     // 当てて、その設定で音源を組む。どちらもメッセージスレッド。
-    if (!ctx.editor.applyChannelParamFile(item.file))
+    if (!editorOf(ctx).applyChannelParamFile(item.file))
     {
         ++m_queueAt;
 
@@ -956,10 +957,10 @@ void GuiParamBrowser::generateNext()
 
     auto rig = std::make_shared<GenWaveRender::Rig>();
 
-    rig->build(ctx.audioProcessor);
+    rig->build(pluginOf(ctx));
 
     const auto cacheFile = GenWaveRender::cacheFileFor(
-        GenWaveRender::cacheDirectory(ctx.audioProcessor), item.file);
+        GenWaveRender::cacheDirectory(pluginOf(ctx)), item.file);
 
     juce::Component::SafePointer<GuiParamBrowser> safe(this);
 
@@ -987,7 +988,7 @@ void GuiParamBrowser::finishBulk()
     // 控えておいた状態へ戻す。当てたぶんはここで消える。
     if (m_savedState.getSize() > 0)
     {
-        ctx.audioProcessor.setStateInformation(m_savedState.getData(), (int)m_savedState.getSize());
+        pluginOf(ctx).setStateInformation(m_savedState.getData(), (int)m_savedState.getSize());
     }
 
     m_savedState.reset();
@@ -999,7 +1000,7 @@ void GuiParamBrowser::finishBulk()
     bulkGenerateBtn.setEnabled(true);
     bulkDeleteBtn.setEnabled(true);
 
-    ctx.editor.hideLoading();
+    editorOf(ctx).hideLoading();
 
     repaint();
 }
@@ -1008,7 +1009,7 @@ void GuiParamBrowser::deleteAllPreviews()
 {
     if (m_busy) return;
 
-    const auto cacheDir = GenWaveRender::cacheDirectory(ctx.audioProcessor);
+    const auto cacheDir = GenWaveRender::cacheDirectory(pluginOf(ctx));
 
     for (int index : m_view)
     {

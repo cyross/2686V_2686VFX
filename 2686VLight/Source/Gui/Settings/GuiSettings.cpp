@@ -7,19 +7,20 @@
 #include "./GuiSettings.h"
 
 #include "../../Core/Editor/PluginEditor.h"
-#include "../../Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiColor.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "./SettingsKeys.h"
 #include "./SettingsValues.h"
 
-#include "../../Core/Gui/GuiI18n.h"
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiI18n.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiSettingsValues.h"
 #include "./GuiSettingsText.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 #include "./GuiSettingsHelpers.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 static std::vector<SelectItem> uiScaleItems = {
     {.name = "25%",  .value = 1 },
@@ -81,7 +82,7 @@ void GuiSettings::setup()
     languageSelector.onChange = [this] {
         const auto lang = languageSelector.getSelectedItemIndex() == 0 ? I18n::Lang::ja : I18n::Lang::en;
 
-        ctx.audioProcessor.languageCode = I18n::toCode(lang);
+        pluginOf(ctx).languageCode = I18n::toCode(lang);
 
         // ここを境に画面が組み直される。この選択そのものも作り直されるので、
         // 知らせは後回しで届くようにしてある (GuiI18n.cpp を参照)。
@@ -97,15 +98,15 @@ void GuiSettings::setup()
         .isReset = false,
         .labelColor = juce::Colours::yellow
         });
-    uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
+    uiScaleSelector.setSelectedId(pluginOf(ctx).uiScaleIndex + 1, juce::dontSendNotification);
     uiScaleSelector.setWantsKeyboardFocus(true);
     uiScaleSelector.setExplicitFocusOrder(++tabOrder);
     uiScaleSelector.onChange = [this] {
         int index = uiScaleSelector.getSelectedItemIndex();
 
-        ctx.audioProcessor.uiScaleIndex = index;
-        ctx.editor.updateUiScale(uiScaleLUT[index]);
-        ctx.editor.resized();
+        pluginOf(ctx).uiScaleIndex = index;
+        editorOf(ctx).updateUiScale(uiScaleLUT[index]);
+        editorOf(ctx).resized();
 
         };
 
@@ -127,12 +128,12 @@ void GuiSettings::setup()
         .isReset = false,
         .labelColor = juce::Colours::yellow
         });
-    fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
+    fileFormatSelector.setSelectedId(pluginOf(ctx).fileFormatIndex + 1, juce::dontSendNotification);
     fileFormatSelector.setWantsKeyboardFocus(true);
     fileFormatSelector.setExplicitFocusOrder(++tabOrder);
     fileFormatSelector.onChange = [this] {
-        ctx.audioProcessor.fileFormatIndex = fileFormatSelector.getSelectedItemIndex();
-        ctx.audioProcessor.applyFileFormat();
+        pluginOf(ctx).fileFormatIndex = fileFormatSelector.getSelectedItemIndex();
+        pluginOf(ctx).applyFileFormat();
         };
 
     separator1.setupComponent(*this);
@@ -155,20 +156,20 @@ void GuiSettings::setup()
 
     // --- Wallpaper Path ---
     setupRow(wallpaperLabel, SettingsGuiText::wallpaper, wallpaperPathLabel, wallpaperBrowseBtn);
-    wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath, juce::dontSendNotification);
+    wallpaperPathLabel.setText(pluginOf(ctx).wallpaperPath, juce::dontSendNotification);
     wallpaperPathLabel.setWantsKeyboardFocus(false);
     wallpaperBrowseBtn.setWantsKeyboardFocus(true);
     wallpaperBrowseBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperBrowseBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        editorOf(ctx).openFileChooser(
             SettingsGuiText::wallpaperChoose,
             "*.png;*.jpg;*.jpeg",
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.existsAsFile()) {
-                    ctx.audioProcessor.wallpaperPath = file.getFullPathName();
+                    pluginOf(ctx).wallpaperPath = file.getFullPathName();
                     wallpaperPathLabel.setText(file.getFileName(), juce::dontSendNotification);
-                    ctx.editor.loadWallpaperImage();
+                    editorOf(ctx).loadWallpaperImage();
                 }
             }
         );
@@ -178,19 +179,19 @@ void GuiSettings::setup()
     wallpaperClearBtn.setWantsKeyboardFocus(true);
     wallpaperClearBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperClearBtn.onClick = [this] {
-        ctx.audioProcessor.wallpaperPath = "";
+        pluginOf(ctx).wallpaperPath = "";
         wallpaperPathLabel.setText(Io::empty, juce::dontSendNotification);
-        ctx.editor.loadWallpaperImage();
+        editorOf(ctx).loadWallpaperImage();
     };
 
     // --- Wallpaper Mode ---
     wallpaperModeSelector.setup({ .parent = *this, .title = SettingsGuiText::wallpaperMode, .items = wpModeItems, .isReset = false });
-    wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
+    wallpaperModeSelector.setSelectedId(pluginOf(ctx).wallpaperMode + 1, juce::dontSendNotification);
     wallpaperModeSelector.setWantsKeyboardFocus(true);
     wallpaperModeSelector.setExplicitFocusOrder(++tabOrder);
     wallpaperModeSelector.onChange = [this] {
-        ctx.audioProcessor.wallpaperMode = wallpaperModeSelector.getSelectedId() - 1;
-        ctx.editor.repaint(); // Editor全体の再描画を呼び出す
+        pluginOf(ctx).wallpaperMode = wallpaperModeSelector.getSelectedId() - 1;
+        editorOf(ctx).repaint(); // Editor全体の再描画を呼び出す
     };
 
     separator2.setupComponent(*this);
@@ -201,19 +202,19 @@ void GuiSettings::setup()
     dirCat.setupCategory({ .parent = *this, .title = SettingsGuiText::dirCat, .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
     
     setupFolderRow(sampleDirLabel, SettingsGuiText::Dir::sample, sampleDirPathLabel, sampleDirBrowseBtn);
-    sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
+    sampleDirPathLabel.setText(pluginOf(ctx).defaultSampleDir, juce::dontSendNotification);
     sampleDirPathLabel.setWantsKeyboardFocus(false);
     sampleDirBrowseBtn.setWantsKeyboardFocus(true);
     sampleDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     sampleDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::sampleChoose,
-            ctx.audioProcessor.defaultSampleDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userHomeDirectory) : juce::File(ctx.audioProcessor.defaultSampleDir),
+            pluginOf(ctx).defaultSampleDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userHomeDirectory) : juce::File(pluginOf(ctx).defaultSampleDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultSampleDir = file.getFullPathName();
-                    ctx.audioProcessor.lastSampleDirectory = file;
+                    pluginOf(ctx).defaultSampleDir = file.getFullPathName();
+                    pluginOf(ctx).lastSampleDirectory = file;
                     sampleDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -222,24 +223,24 @@ void GuiSettings::setup()
 
     // --- Preset Dir ---
     setupFolderRow(presetDirLabel, SettingsGuiText::Dir::preset, presetDirPathLabel, presetDirBrowseBtn);
-    presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
+    presetDirPathLabel.setText(pluginOf(ctx).defaultPresetDir, juce::dontSendNotification);
     presetDirPathLabel.setWantsKeyboardFocus(false);
 
     presetDirBrowseBtn.setWantsKeyboardFocus(true);
     presetDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     presetDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::presetChoose,
-            ctx.audioProcessor.defaultPresetDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPresetDir),
+            pluginOf(ctx).defaultPresetDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultPresetDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultPresetDir = file.getFullPathName();
+                    pluginOf(ctx).defaultPresetDir = file.getFullPathName();
                     presetDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
 
-                    ctx.editor.setPresetDir(file);
+                    editorOf(ctx).setPresetDir(file);
                     presetDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
-                    ctx.editor.scanPresets();
+                    editorOf(ctx).scanPresets();
                 }
             }
         );
@@ -247,19 +248,19 @@ void GuiSettings::setup()
 
     // --- Wavetable Dir ---
     setupFolderRow(wavetableDirLabel, SettingsGuiText::Dir::wavetable, wavetableDirPathLabel, wavetableDirBrowseBtn);
-    wavetableDirPathLabel.setText(ctx.audioProcessor.defaultWavetableDir, juce::dontSendNotification);
+    wavetableDirPathLabel.setText(pluginOf(ctx).defaultWavetableDir, juce::dontSendNotification);
     wavetableDirPathLabel.setWantsKeyboardFocus(false);
 
     wavetableDirBrowseBtn.setWantsKeyboardFocus(true);
     wavetableDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     wavetableDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::wavetableChoose,
-            ctx.audioProcessor.defaultWavetableDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultWavetableDir),
+            pluginOf(ctx).defaultWavetableDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultWavetableDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultWavetableDir = file.getFullPathName();
+                    pluginOf(ctx).defaultWavetableDir = file.getFullPathName();
                     wavetableDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -268,19 +269,19 @@ void GuiSettings::setup()
 
     // --- Fx Order Dir ---
     setupFolderRow(fxOrderDirLabel, SettingsGuiText::Dir::fxOrder, fxOrderDirPathLabel, fxOrderDirBrowseBtn);
-    fxOrderDirPathLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
+    fxOrderDirPathLabel.setText(pluginOf(ctx).defaultFxOrderDir, juce::dontSendNotification);
     fxOrderDirPathLabel.setWantsKeyboardFocus(false);
 
     fxOrderDirBrowseBtn.setWantsKeyboardFocus(true);
     fxOrderDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     fxOrderDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::fxOrderChoose,
-            ctx.audioProcessor.defaultFxOrderDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxOrderDir),
+            pluginOf(ctx).defaultFxOrderDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultFxOrderDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultFxOrderDir = file.getFullPathName();
+                    pluginOf(ctx).defaultFxOrderDir = file.getFullPathName();
                     fxOrderDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -289,19 +290,19 @@ void GuiSettings::setup()
 
     // --- Fx Param Dir ---
     setupFolderRow(fxParamDirLabel, SettingsGuiText::Dir::fxParam, fxParamDirPathLabel, fxParamDirBrowseBtn);
-    fxParamDirPathLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
+    fxParamDirPathLabel.setText(pluginOf(ctx).defaultFxParamDir, juce::dontSendNotification);
     fxParamDirPathLabel.setWantsKeyboardFocus(false);
 
     fxParamDirBrowseBtn.setWantsKeyboardFocus(true);
     fxParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     fxParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::fxParamChoose,
-            ctx.audioProcessor.defaultFxParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultFxParamDir),
+            pluginOf(ctx).defaultFxParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultFxParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultFxParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultFxParamDir = file.getFullPathName();
                     fxParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -310,19 +311,19 @@ void GuiSettings::setup()
 
     // --- Channel Param Dir ---
     setupFolderRow(channelParamDirLabel, SettingsGuiText::Dir::channelParam, channelParamDirPathLabel, channelParamDirBrowseBtn);
-    channelParamDirPathLabel.setText(ctx.audioProcessor.defaultChannelParamDir, juce::dontSendNotification);
+    channelParamDirPathLabel.setText(pluginOf(ctx).defaultChannelParamDir, juce::dontSendNotification);
     channelParamDirPathLabel.setWantsKeyboardFocus(false);
 
     channelParamDirBrowseBtn.setWantsKeyboardFocus(true);
     channelParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     channelParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::channelParamChoose,
-            ctx.audioProcessor.defaultChannelParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultChannelParamDir),
+            pluginOf(ctx).defaultChannelParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultChannelParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultChannelParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultChannelParamDir = file.getFullPathName();
                     channelParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -331,19 +332,19 @@ void GuiSettings::setup()
 
     // --- LFO Param Dir ---
     setupFolderRow(lfoParamDirLabel, SettingsGuiText::Dir::lfoParam, lfoParamDirPathLabel, lfoParamDirBrowseBtn);
-    lfoParamDirPathLabel.setText(ctx.audioProcessor.defaultLfoParamDir, juce::dontSendNotification);
+    lfoParamDirPathLabel.setText(pluginOf(ctx).defaultLfoParamDir, juce::dontSendNotification);
     lfoParamDirPathLabel.setWantsKeyboardFocus(false);
 
     lfoParamDirBrowseBtn.setWantsKeyboardFocus(true);
     lfoParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     lfoParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::lfoParamChoose,
-            ctx.audioProcessor.defaultLfoParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultLfoParamDir),
+            pluginOf(ctx).defaultLfoParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultLfoParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultLfoParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultLfoParamDir = file.getFullPathName();
                     lfoParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -352,19 +353,19 @@ void GuiSettings::setup()
 
     // --- Amp Env Param Dir ---
     setupFolderRow(ampEnvParamDirLabel, SettingsGuiText::Dir::ampEnvParam, ampEnvParamDirPathLabel, ampEnvParamDirBrowseBtn);
-    ampEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultAmpEnvParamDir, juce::dontSendNotification);
+    ampEnvParamDirPathLabel.setText(pluginOf(ctx).defaultAmpEnvParamDir, juce::dontSendNotification);
     ampEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
     ampEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
     ampEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ampEnvParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::ampEnvParamChoose,
-            ctx.audioProcessor.defaultAmpEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultAmpEnvParamDir),
+            pluginOf(ctx).defaultAmpEnvParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultAmpEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultAmpEnvParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultAmpEnvParamDir = file.getFullPathName();
                     ampEnvParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -373,19 +374,19 @@ void GuiSettings::setup()
 
     // --- Pitch Env Param Dir ---
     setupFolderRow(pitchEnvParamDirLabel, SettingsGuiText::Dir::pitchEnvParam, pitchEnvParamDirPathLabel, pitchEnvParamDirBrowseBtn);
-    pitchEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultPitchEnvParamDir, juce::dontSendNotification);
+    pitchEnvParamDirPathLabel.setText(pluginOf(ctx).defaultPitchEnvParamDir, juce::dontSendNotification);
     pitchEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
     pitchEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
     pitchEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     pitchEnvParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::pitchEnvParamChoose,
-            ctx.audioProcessor.defaultPitchEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPitchEnvParamDir),
+            pluginOf(ctx).defaultPitchEnvParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultPitchEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultPitchEnvParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultPitchEnvParamDir = file.getFullPathName();
                     pitchEnvParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -394,19 +395,19 @@ void GuiSettings::setup()
 
     // --- SSG SW Env Param Dir ---
     setupFolderRow(ssgSwEnvParamDirLabel, SettingsGuiText::Dir::ssgSwEnvParam, ssgSwEnvParamDirPathLabel, ssgSwEnvParamDirBrowseBtn);
-    ssgSwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgSwEnvParamDir, juce::dontSendNotification);
+    ssgSwEnvParamDirPathLabel.setText(pluginOf(ctx).defaultSsgSwEnvParamDir, juce::dontSendNotification);
     ssgSwEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
     ssgSwEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
     ssgSwEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ssgSwEnvParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::ssgSwEnvParamChoose,
-            ctx.audioProcessor.defaultSsgSwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgSwEnvParamDir),
+            pluginOf(ctx).defaultSsgSwEnvParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultSsgSwEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultSsgSwEnvParamDir = file.getFullPathName();
                     ssgSwEnvParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -415,19 +416,19 @@ void GuiSettings::setup()
 
     // --- SSG HW Env Param Dir ---
     setupFolderRow(ssgHwEnvParamDirLabel, SettingsGuiText::Dir::ssgHwEnvParam, ssgHwEnvParamDirPathLabel, ssgHwEnvParamDirBrowseBtn);
-    ssgHwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgHwEnvParamDir, juce::dontSendNotification);
+    ssgHwEnvParamDirPathLabel.setText(pluginOf(ctx).defaultSsgHwEnvParamDir, juce::dontSendNotification);
     ssgHwEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
     ssgHwEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
     ssgHwEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ssgHwEnvParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::ssgHwEnvParamChoose,
-            ctx.audioProcessor.defaultSsgHwEnvParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultSsgHwEnvParamDir),
+            pluginOf(ctx).defaultSsgHwEnvParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultSsgHwEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultSsgHwEnvParamDir = file.getFullPathName();
                     ssgHwEnvParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -436,19 +437,19 @@ void GuiSettings::setup()
 
     // --- Detune Param Dir ---
     setupFolderRow(detuneParamDirLabel, SettingsGuiText::Dir::detuneParam, detuneParamDirPathLabel, detuneParamDirBrowseBtn);
-    detuneParamDirPathLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
+    detuneParamDirPathLabel.setText(pluginOf(ctx).defaultDetuneParamDir, juce::dontSendNotification);
     detuneParamDirPathLabel.setWantsKeyboardFocus(false);
 
     detuneParamDirBrowseBtn.setWantsKeyboardFocus(true);
     detuneParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     detuneParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::detuneParamChoose,
-            ctx.audioProcessor.defaultDetuneParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultDetuneParamDir),
+            pluginOf(ctx).defaultDetuneParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultDetuneParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultDetuneParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultDetuneParamDir = file.getFullPathName();
                     detuneParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -457,19 +458,19 @@ void GuiSettings::setup()
 
     // --- Unison Param Dir ---
     setupFolderRow(unisonParamDirLabel, SettingsGuiText::Dir::unisonParam, unisonParamDirPathLabel, unisonParamDirBrowseBtn);
-    unisonParamDirPathLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
+    unisonParamDirPathLabel.setText(pluginOf(ctx).defaultUnisonParamDir, juce::dontSendNotification);
     unisonParamDirPathLabel.setWantsKeyboardFocus(false);
 
     unisonParamDirBrowseBtn.setWantsKeyboardFocus(true);
     unisonParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     unisonParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::unisonParamChoose,
-            ctx.audioProcessor.defaultUnisonParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultUnisonParamDir),
+            pluginOf(ctx).defaultUnisonParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultUnisonParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultUnisonParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultUnisonParamDir = file.getFullPathName();
                     unisonParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -478,19 +479,19 @@ void GuiSettings::setup()
 
     // --- Quality Param Dir ---
     setupFolderRow(qualityParamDirLabel, SettingsGuiText::Dir::qualityParam, qualityParamDirPathLabel, qualityParamDirBrowseBtn);
-    qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
+    qualityParamDirPathLabel.setText(pluginOf(ctx).defaultQualityParamDir, juce::dontSendNotification);
     qualityParamDirPathLabel.setWantsKeyboardFocus(false);
 
     qualityParamDirBrowseBtn.setWantsKeyboardFocus(true);
     qualityParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     qualityParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::qualityParamChoose,
-            ctx.audioProcessor.defaultQualityParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultQualityParamDir),
+            pluginOf(ctx).defaultQualityParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultQualityParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultQualityParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultQualityParamDir = file.getFullPathName();
                     qualityParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -499,19 +500,19 @@ void GuiSettings::setup()
 
     // --- PCM Play Param Dir ---
     setupFolderRow(pcmPlayParamDirLabel, SettingsGuiText::Dir::pcmPlayParam, pcmPlayParamDirPathLabel, pcmPlayParamDirBrowseBtn);
-    pcmPlayParamDirPathLabel.setText(ctx.audioProcessor.defaultPcmPlayParamDir, juce::dontSendNotification);
+    pcmPlayParamDirPathLabel.setText(pluginOf(ctx).defaultPcmPlayParamDir, juce::dontSendNotification);
     pcmPlayParamDirPathLabel.setWantsKeyboardFocus(false);
 
     pcmPlayParamDirBrowseBtn.setWantsKeyboardFocus(true);
     pcmPlayParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     pcmPlayParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::pcmPlayParamChoose,
-            ctx.audioProcessor.defaultPcmPlayParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultPcmPlayParamDir),
+            pluginOf(ctx).defaultPcmPlayParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultPcmPlayParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultPcmPlayParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultPcmPlayParamDir = file.getFullPathName();
                     pcmPlayParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -520,19 +521,19 @@ void GuiSettings::setup()
 
     // --- Color Setting Dir ---
     setupFolderRow(colorSettingDirLabel, SettingsGuiText::Dir::colorSetting, colorSettingDirPathLabel, colorSettingDirBrowseBtn);
-    colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
+    colorSettingDirPathLabel.setText(pluginOf(ctx).defaultColorSettingDir, juce::dontSendNotification);
     colorSettingDirPathLabel.setWantsKeyboardFocus(false);
 
     colorSettingDirBrowseBtn.setWantsKeyboardFocus(true);
     colorSettingDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     colorSettingDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::colorSettingChoose,
-            ctx.audioProcessor.defaultColorSettingDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultColorSettingDir),
+            pluginOf(ctx).defaultColorSettingDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultColorSettingDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultColorSettingDir = file.getFullPathName();
+                    pluginOf(ctx).defaultColorSettingDir = file.getFullPathName();
                     colorSettingDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -541,19 +542,19 @@ void GuiSettings::setup()
 
     // --- Tone / Noise Param Dir ---
     setupFolderRow(toneNoiseParamDirLabel, SettingsGuiText::Dir::toneNoiseParam, toneNoiseParamDirPathLabel, toneNoiseParamDirBrowseBtn);
-    toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
+    toneNoiseParamDirPathLabel.setText(pluginOf(ctx).defaultToneNoiseParamDir, juce::dontSendNotification);
     toneNoiseParamDirPathLabel.setWantsKeyboardFocus(false);
 
     toneNoiseParamDirBrowseBtn.setWantsKeyboardFocus(true);
     toneNoiseParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     toneNoiseParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::toneNoiseParamChoose,
-            ctx.audioProcessor.defaultToneNoiseParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultToneNoiseParamDir),
+            pluginOf(ctx).defaultToneNoiseParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultToneNoiseParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultToneNoiseParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultToneNoiseParamDir = file.getFullPathName();
                     toneNoiseParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -562,19 +563,19 @@ void GuiSettings::setup()
 
     // --- WT MOD Param Dir ---
     setupFolderRow(wtModParamDirLabel, SettingsGuiText::Dir::wtModParam, wtModParamDirPathLabel, wtModParamDirBrowseBtn);
-    wtModParamDirPathLabel.setText(ctx.audioProcessor.defaultWtModParamDir, juce::dontSendNotification);
+    wtModParamDirPathLabel.setText(pluginOf(ctx).defaultWtModParamDir, juce::dontSendNotification);
     wtModParamDirPathLabel.setWantsKeyboardFocus(false);
 
     wtModParamDirBrowseBtn.setWantsKeyboardFocus(true);
     wtModParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     wtModParamDirBrowseBtn.onClick = [this] {
-        ctx.editor.openFolderChooser(
+        editorOf(ctx).openFolderChooser(
             SettingsGuiText::Dir::wtModParamChoose,
-            ctx.audioProcessor.defaultWtModParamDir.isEmpty() ? ctx.audioProcessor.getPluginDirectory() : juce::File(ctx.audioProcessor.defaultWtModParamDir),
+            pluginOf(ctx).defaultWtModParamDir.isEmpty() ? pluginOf(ctx).getPluginDirectory() : juce::File(pluginOf(ctx).defaultWtModParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    ctx.audioProcessor.defaultWtModParamDir = file.getFullPathName();
+                    pluginOf(ctx).defaultWtModParamDir = file.getFullPathName();
                     wtModParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
@@ -588,24 +589,24 @@ void GuiSettings::setup()
     // 区分を隠すだけの切り替え。音には影響しない。
     // 切り替えたら画面を組み直して、その場で反映する。
     simpleViewToggle.setup({ .parent = *this, .title = SettingsGuiText::simpleView, .font = toggleFont, .isReset = false });
-    simpleViewToggle.setToggleState(ctx.audioProcessor.simpleView, juce::dontSendNotification);
+    simpleViewToggle.setToggleState(pluginOf(ctx).simpleView, juce::dontSendNotification);
     simpleViewToggle.setWantsKeyboardFocus(true);
     simpleViewToggle.setExplicitFocusOrder(++tabOrder);
     simpleViewToggle.onClick = [this] {
-        ctx.audioProcessor.simpleView = simpleViewToggle.getToggleState();
+        pluginOf(ctx).simpleView = simpleViewToggle.getToggleState();
 
-        bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
+        bypassHiddenBtn.setEnabled(pluginOf(ctx).simpleView);
 
-        ctx.editor.resized();
+        editorOf(ctx).resized();
         };
 
     // 隠れている区分をまとめて切る。簡易表示モードのときだけ押せる。
     bypassHiddenBtn.setup({ .parent = *this, .title = SettingsGuiText::bypassHidden, .isReset = false });
     bypassHiddenBtn.setWantsKeyboardFocus(true);
     bypassHiddenBtn.setExplicitFocusOrder(++tabOrder);
-    bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
+    bypassHiddenBtn.setEnabled(pluginOf(ctx).simpleView);
     bypassHiddenBtn.onClick = [this] {
-        ctx.editor.bypassHiddenCategories();
+        editorOf(ctx).bypassHiddenCategories();
         };
 
     simpleViewCat.setupCategory({ .parent = *this, .title = SettingsGuiText::simpleViewCat, .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
@@ -619,13 +620,13 @@ void GuiSettings::setup()
         toggle.setup({ .parent = *this,
             .title = SettingsGuiText::showItem.get().replace("%s", SimpleView::items()[(size_t)i].title),
             .font = toggleFont, .isReset = false });
-        toggle.setToggleState(ctx.audioProcessor.simpleViewShow[(size_t)i], juce::dontSendNotification);
+        toggle.setToggleState(pluginOf(ctx).simpleViewShow[(size_t)i], juce::dontSendNotification);
         toggle.setWantsKeyboardFocus(true);
         toggle.setExplicitFocusOrder(++tabOrder);
         toggle.onClick = [this, i] {
-            ctx.audioProcessor.simpleViewShow[(size_t)i] = simpleViewShowToggles[(size_t)i].getToggleState();
+            pluginOf(ctx).simpleViewShow[(size_t)i] = simpleViewShowToggles[(size_t)i].getToggleState();
 
-            ctx.editor.resized();
+            editorOf(ctx).resized();
             };
     }
 
@@ -646,37 +647,37 @@ void GuiSettings::setup()
         .items = toggleAlignItems,
         .isReset = false
         });
-    toggleAlignSelector.setSelectedId(ctx.audioProcessor.toggleAlign + 1, juce::dontSendNotification);
+    toggleAlignSelector.setSelectedId(pluginOf(ctx).toggleAlign + 1, juce::dontSendNotification);
     toggleAlignSelector.setWantsKeyboardFocus(true);
     toggleAlignSelector.setExplicitFocusOrder(++tabOrder);
     toggleAlignSelector.onChange = [this] {
-        ctx.audioProcessor.toggleAlign = toggleAlignSelector.getSelectedItemIndex();
+        pluginOf(ctx).toggleAlign = toggleAlignSelector.getSelectedItemIndex();
 
-        ctx.editor.repaint();
+        editorOf(ctx).repaint();
         };
 
     separatorToggleAlign.setupComponent(*this);
 
     // --- Toggle Tooltip Visible Toggle Button ---
     tooltipToggle.setup({ .parent = *this, .title = SettingsGuiText::showTooltips, .font = toggleFont, .isReset = false });
-    tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
+    tooltipToggle.setToggleState(pluginOf(ctx).showTooltips, juce::dontSendNotification);
     tooltipToggle.setWantsKeyboardFocus(true);
     tooltipToggle.setExplicitFocusOrder(++tabOrder);
     tooltipToggle.onClick = [this] {
         bool newState = tooltipToggle.getToggleState();
-        ctx.audioProcessor.showTooltips = newState;
-        ctx.editor.setTooltipState(newState); // 即座に反映
+        pluginOf(ctx).showTooltips = newState;
+        editorOf(ctx).setTooltipState(newState); // 即座に反映
         };
 
     separator4.setupComponent(*this);
 
     useHeadroomToggle.setup({ .parent = *this, .title = SettingsGuiText::useHeadroom, .font = toggleFont, .isReset = false });
-    useHeadroomToggle.setToggleState(ctx.audioProcessor.useHeadroom, juce::dontSendNotification);
+    useHeadroomToggle.setToggleState(pluginOf(ctx).useHeadroom, juce::dontSendNotification);
     useHeadroomToggle.setWantsKeyboardFocus(true);
     useHeadroomToggle.setExplicitFocusOrder(++tabOrder);
     useHeadroomToggle.onClick = [this] {
         bool state = useHeadroomToggle.getToggleState();
-        ctx.audioProcessor.useHeadroom = state;
+        pluginOf(ctx).useHeadroom = state;
         headroomGainSlider.setEnabledWithLabel(state); // OFFならスライダーも無効化
         };
 
@@ -688,11 +689,11 @@ void GuiSettings::setup()
     headroomGainSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
     headroomGainSlider.setRange(0.0, 1.0, 0.01); // 0.0 ~ 1.0
     // プロセッサの値で初期化
-    headroomGainSlider.setValue(ctx.audioProcessor.headroomGain, juce::dontSendNotification);
-    headroomGainSlider.setEnabledWithLabel(ctx.audioProcessor.useHeadroom);
+    headroomGainSlider.setValue(pluginOf(ctx).headroomGain, juce::dontSendNotification);
+    headroomGainSlider.setEnabledWithLabel(pluginOf(ctx).useHeadroom);
 
     headroomGainSlider.onValueChange = [this] {
-        ctx.audioProcessor.headroomGain = (float)headroomGainSlider.getValue();
+        pluginOf(ctx).headroomGain = (float)headroomGainSlider.getValue();
         };
 
     separator5.setupComponent(*this);
@@ -700,11 +701,11 @@ void GuiSettings::setup()
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
     virtualMidiKeyboardToggle.setWantsKeyboardFocus(true);
     virtualMidiKeyboardToggle.setExplicitFocusOrder(++tabOrder);
-    virtualMidiKeyboardToggle.setToggleState(ctx.audioProcessor.showVirtualKeyboard, juce::dontSendNotification);
+    virtualMidiKeyboardToggle.setToggleState(pluginOf(ctx).showVirtualKeyboard, juce::dontSendNotification);
     virtualMidiKeyboardToggle.onClick = [this] {
-        ctx.audioProcessor.showVirtualKeyboard = !ctx.audioProcessor.showVirtualKeyboard;
+        pluginOf(ctx).showVirtualKeyboard = !pluginOf(ctx).showVirtualKeyboard;
 
-        ctx.editor.updateKeyboardVisibility();
+        editorOf(ctx).updateKeyboardVisibility();
         };
 
     separator6.setupComponent(*this);
@@ -714,14 +715,14 @@ void GuiSettings::setup()
     saveSettingsBtn.setWantsKeyboardFocus(true);
     saveSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveSettingsBtn.onClick = [this] {
-        ctx.editor.openWriteFileChooser(
+        editorOf(ctx).openWriteFileChooser(
             SettingsGuiText::chooseSettingsFile,
-            ctx.audioProcessor.getStartupSettingsFileToWrite(),
+            pluginOf(ctx).getStartupSettingsFileToWrite(),
             SettingsValue::File::glob,
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file != juce::File()) {
-                    ctx.audioProcessor.saveEnvironment(file);
+                    pluginOf(ctx).saveEnvironment(file);
                 }
             }
         );
@@ -732,36 +733,36 @@ void GuiSettings::setup()
     loadSettingsBtn.setWantsKeyboardFocus(true);
     loadSettingsBtn.setExplicitFocusOrder(++tabOrder);
     loadSettingsBtn.onClick = [this] {
-        ctx.editor.openFileChooser(
+        editorOf(ctx).openFileChooser(
             SettingsGuiText::chooseSettingsFile,
-            ctx.audioProcessor.getPluginDirectory(),
+            pluginOf(ctx).getPluginDirectory(),
             SettingsValue::File::glob,
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.existsAsFile()) {
-                    ctx.audioProcessor.loadEnvironment(file);
+                    pluginOf(ctx).loadEnvironment(file);
 
                     // 反映は 1 か所へ寄せる。ここに並べ直していたため、
                     // 足した項目が読み込みのときだけ画面に出なかった。
                     setSettings();
 
                     // 読んだ値を画面へ効かせる。簡易表示モードは組み直さないと出てこない。
-                    ctx.editor.setTooltipState(ctx.audioProcessor.showTooltips);
-                    ctx.editor.updateKeyboardVisibility();
-                    ctx.editor.resized();
+                    editorOf(ctx).setTooltipState(pluginOf(ctx).showTooltips);
+                    editorOf(ctx).updateKeyboardVisibility();
+                    editorOf(ctx).resized();
 
                     // 壁紙再描画
-                    ctx.editor.loadWallpaperImage();
+                    editorOf(ctx).loadWallpaperImage();
 
                     // プリセットリスト更新
-                    if (juce::File(ctx.audioProcessor.defaultPresetDir).isDirectory()) {
-                        ctx.editor.setPresetDir(juce::File(ctx.audioProcessor.defaultPresetDir));
-                        ctx.editor.updatePresetPath();
-                        ctx.editor.scanPresets(); // リスト更新関数を呼ぶ
+                    if (juce::File(pluginOf(ctx).defaultPresetDir).isDirectory()) {
+                        editorOf(ctx).setPresetDir(juce::File(pluginOf(ctx).defaultPresetDir));
+                        editorOf(ctx).updatePresetPath();
+                        editorOf(ctx).scanPresets(); // リスト更新関数を呼ぶ
                     }
 
                     // UIスケール反映
-                    ctx.editor.updateUiScale(getUiScale(ctx.audioProcessor.uiScaleIndex));
+                    editorOf(ctx).updateUiScale(getUiScale(pluginOf(ctx).uiScaleIndex));
                 }
             }
 
@@ -775,9 +776,9 @@ void GuiSettings::setup()
         {
             // 保存は 1 か所へ寄せる。ここで項目を並べ直していたため、
             // 足した項目が標準設定にだけ入らないことが起きていた。
-            auto file = ctx.audioProcessor.getStartupSettingsFileToWrite();
+            auto file = pluginOf(ctx).getStartupSettingsFileToWrite();
 
-            if (ctx.audioProcessor.saveEnvironment(file))
+            if (pluginOf(ctx).saveEnvironment(file))
             {
                 // OS 標準のダイアログはテーマの色が当たらないので、
                 // 他と同じ AlertWindow で出す。
@@ -814,7 +815,7 @@ void GuiSettings::setup()
     clearUndoHistoryBtn.setWantsKeyboardFocus(true);
     clearUndoHistoryBtn.setExplicitFocusOrder(++tabOrder);
     clearUndoHistoryBtn.onClick = [this] {
-        ctx.audioProcessor.undoManager.clearUndoHistory();
+        pluginOf(ctx).undoManager.clearUndoHistory();
         };
 
     separator8.setupComponent(*this);
@@ -832,7 +833,7 @@ void GuiSettings::setup()
 // 作り直せるものなので、消したあとは各画面の生成ボタンで作り直せる。
 void GuiSettings::clearWavePreviews()
 {
-    const auto dir = GenWaveRender::cacheDirectory(ctx.audioProcessor);
+    const auto dir = GenWaveRender::cacheDirectory(pluginOf(ctx));
     const auto files = dir.findChildFiles(juce::File::findFiles, false,
         "*" + GenWaveRender::fileExtension);
 
@@ -1119,7 +1120,7 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     bypassHiddenBtn.setBounds(rowSimpleView.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
 
     // カスタマイズは、簡易表示モードを入れているときだけ出す。
-    bool simpleOn = ctx.audioProcessor.simpleView;
+    bool simpleOn = pluginOf(ctx).simpleView;
 
     simpleViewCat.setVisible(simpleOn);
 
@@ -1208,47 +1209,47 @@ void GuiSettings::setSettings()
     // プロセッサから直に読む。引数を 18 個も並べていたときは、順番を
     // 間違えても、行を足し忘れても気づけなかった。
     languageSelector.setSelectedId(I18n::isJa() ? 1 : 2, juce::dontSendNotification);
-    uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
-    fileFormatSelector.setSelectedId(ctx.audioProcessor.fileFormatIndex + 1, juce::dontSendNotification);
-    toggleAlignSelector.setSelectedId(ctx.audioProcessor.toggleAlign + 1, juce::dontSendNotification);
-    wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
+    uiScaleSelector.setSelectedId(pluginOf(ctx).uiScaleIndex + 1, juce::dontSendNotification);
+    fileFormatSelector.setSelectedId(pluginOf(ctx).fileFormatIndex + 1, juce::dontSendNotification);
+    toggleAlignSelector.setSelectedId(pluginOf(ctx).toggleAlign + 1, juce::dontSendNotification);
+    wallpaperModeSelector.setSelectedId(pluginOf(ctx).wallpaperMode + 1, juce::dontSendNotification);
 
-    wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty()
-        ? Io::empty : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
+    wallpaperPathLabel.setText(pluginOf(ctx).wallpaperPath.isEmpty()
+        ? Io::empty : juce::File(pluginOf(ctx).wallpaperPath).getFileName(), juce::dontSendNotification);
 
-    sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
-    presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
-    wavetableDirPathLabel.setText(ctx.audioProcessor.defaultWavetableDir, juce::dontSendNotification);
-    fxOrderDirPathLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
-    fxParamDirPathLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
-    channelParamDirPathLabel.setText(ctx.audioProcessor.defaultChannelParamDir, juce::dontSendNotification);
-    lfoParamDirPathLabel.setText(ctx.audioProcessor.defaultLfoParamDir, juce::dontSendNotification);
-    ampEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultAmpEnvParamDir, juce::dontSendNotification);
-    pitchEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultPitchEnvParamDir, juce::dontSendNotification);
-    ssgSwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgSwEnvParamDir, juce::dontSendNotification);
-    ssgHwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgHwEnvParamDir, juce::dontSendNotification);
-    detuneParamDirPathLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
-    unisonParamDirPathLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
-    qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
-    pcmPlayParamDirPathLabel.setText(ctx.audioProcessor.defaultPcmPlayParamDir, juce::dontSendNotification);
-    toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
-    wtModParamDirPathLabel.setText(ctx.audioProcessor.defaultWtModParamDir, juce::dontSendNotification);
-    colorSettingDirPathLabel.setText(ctx.audioProcessor.defaultColorSettingDir, juce::dontSendNotification);
+    sampleDirPathLabel.setText(pluginOf(ctx).defaultSampleDir, juce::dontSendNotification);
+    presetDirPathLabel.setText(pluginOf(ctx).defaultPresetDir, juce::dontSendNotification);
+    wavetableDirPathLabel.setText(pluginOf(ctx).defaultWavetableDir, juce::dontSendNotification);
+    fxOrderDirPathLabel.setText(pluginOf(ctx).defaultFxOrderDir, juce::dontSendNotification);
+    fxParamDirPathLabel.setText(pluginOf(ctx).defaultFxParamDir, juce::dontSendNotification);
+    channelParamDirPathLabel.setText(pluginOf(ctx).defaultChannelParamDir, juce::dontSendNotification);
+    lfoParamDirPathLabel.setText(pluginOf(ctx).defaultLfoParamDir, juce::dontSendNotification);
+    ampEnvParamDirPathLabel.setText(pluginOf(ctx).defaultAmpEnvParamDir, juce::dontSendNotification);
+    pitchEnvParamDirPathLabel.setText(pluginOf(ctx).defaultPitchEnvParamDir, juce::dontSendNotification);
+    ssgSwEnvParamDirPathLabel.setText(pluginOf(ctx).defaultSsgSwEnvParamDir, juce::dontSendNotification);
+    ssgHwEnvParamDirPathLabel.setText(pluginOf(ctx).defaultSsgHwEnvParamDir, juce::dontSendNotification);
+    detuneParamDirPathLabel.setText(pluginOf(ctx).defaultDetuneParamDir, juce::dontSendNotification);
+    unisonParamDirPathLabel.setText(pluginOf(ctx).defaultUnisonParamDir, juce::dontSendNotification);
+    qualityParamDirPathLabel.setText(pluginOf(ctx).defaultQualityParamDir, juce::dontSendNotification);
+    pcmPlayParamDirPathLabel.setText(pluginOf(ctx).defaultPcmPlayParamDir, juce::dontSendNotification);
+    toneNoiseParamDirPathLabel.setText(pluginOf(ctx).defaultToneNoiseParamDir, juce::dontSendNotification);
+    wtModParamDirPathLabel.setText(pluginOf(ctx).defaultWtModParamDir, juce::dontSendNotification);
+    colorSettingDirPathLabel.setText(pluginOf(ctx).defaultColorSettingDir, juce::dontSendNotification);
 
     // 入り切りもプロセッサから読み直す。ここに無かったため、設定ファイルを
     // 読んでも画面のトグルだけが前の値のまま残っていた。
-    simpleViewToggle.setToggleState(ctx.audioProcessor.simpleView, juce::dontSendNotification);
-    bypassHiddenBtn.setEnabled(ctx.audioProcessor.simpleView);
+    simpleViewToggle.setToggleState(pluginOf(ctx).simpleView, juce::dontSendNotification);
+    bypassHiddenBtn.setEnabled(pluginOf(ctx).simpleView);
 
     for (int i = 0; i < SimpleView::Size; ++i) {
-        simpleViewShowToggles[(size_t)i].setToggleState(ctx.audioProcessor.simpleViewShow[(size_t)i], juce::dontSendNotification);
+        simpleViewShowToggles[(size_t)i].setToggleState(pluginOf(ctx).simpleViewShow[(size_t)i], juce::dontSendNotification);
     }
 
-    tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
-    useHeadroomToggle.setToggleState(ctx.audioProcessor.useHeadroom, juce::dontSendNotification);
-    headroomGainSlider.setValue(ctx.audioProcessor.headroomGain, juce::dontSendNotification);
-    headroomGainSlider.setEnabledWithLabel(ctx.audioProcessor.useHeadroom);
-    virtualMidiKeyboardToggle.setToggleState(ctx.audioProcessor.showVirtualKeyboard, juce::dontSendNotification);
+    tooltipToggle.setToggleState(pluginOf(ctx).showTooltips, juce::dontSendNotification);
+    useHeadroomToggle.setToggleState(pluginOf(ctx).useHeadroom, juce::dontSendNotification);
+    headroomGainSlider.setValue(pluginOf(ctx).headroomGain, juce::dontSendNotification);
+    headroomGainSlider.setEnabledWithLabel(pluginOf(ctx).useHeadroom);
+    virtualMidiKeyboardToggle.setToggleState(pluginOf(ctx).showVirtualKeyboard, juce::dontSendNotification);
 }
 
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)

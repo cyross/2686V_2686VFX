@@ -4,7 +4,7 @@
 #include "./ProcessorBeepValues.h"
 #include "./ProcessorBeepNames.h"
 #include "../../Core/Processor/ProcessorHelper.h"
-#include "../../Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "../../Core/Processor/ProcessorNames.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 

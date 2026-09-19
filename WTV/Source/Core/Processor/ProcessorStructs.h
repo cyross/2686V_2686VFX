@@ -4,7 +4,7 @@
 #include <atomic>
 
 #include "Shared/Core/Const/ConstGlobal.h"
-#include "../Synth/WtModWave.h"
+#include "Shared/Core/Synth/WtModWave.h"
 
 // ホールドと部分再生。付ける先ごとに頭の印が違うだけなので、
 // APVTS を指す口もまとめて 1 つの入れ物にしてある。

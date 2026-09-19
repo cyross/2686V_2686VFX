@@ -6,11 +6,11 @@
 #include <JuceHeader.h>
 
 #include "../Io/ParamFile.h"
-#include "../Gui/GuiI18n.h"
+#include "Shared/Core/Gui/GuiI18n.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
-#include "../Gui/GuiSimpleView.h"
-#include "../Gui/GuiToggleAlign.h"
+#include "Shared/Core/Gui/GuiSimpleView.h"
+#include "Shared/Core/Gui/GuiToggleAlign.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
@@ -20,7 +20,7 @@
 #include "../../Processor/Curve/ProcessorCurve.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"
-#include "../Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "../Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
@@ -33,6 +33,7 @@
 #include "./PluginProcessorStateKey.h"
 
 #include "../../Gui/Components/AlgMatrix/FmAlgState.h"
+#include "Shared/Core/Gui/GuiHost.h"
 
 class RetroSynthesiser : public juce::Synthesiser
 {
@@ -217,7 +218,8 @@ public:
     }
 };
 
-class AudioPlugin2686V : public juce::AudioProcessor
+class AudioPlugin2686V : public juce::AudioProcessor,
+    public GuiProcessorHost
 {
 private:
     Opzx7Processor prOpzx7;
@@ -274,12 +276,10 @@ public:
     void setCurrentProgram(int index) override;
     const juce::String getProgramName(int index) override;
     void changeProgramName(int index, const juce::String& newName) override;
-    juce::AudioFormatManager formatManager;
     juce::File lastSampleDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };
 
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
-    juce::UndoManager undoManager;
     juce::AudioProcessorValueTreeState apvts;
 
     // --- Metadata ---
@@ -383,38 +383,18 @@ public:
     {
         Io::setFileFormat(fileFormatIndex == 1 ? Io::FileFormat::yaml : Io::FileFormat::json);
     }
-    // チャンネルごとの MODULATION 変調波形ファイルのパス。
-    // キーは APVTS のプレフィックス (OPNA / SSG / OPZX7 など)。
-    // 波形そのものは 32 個のパラメータ側に入っているので、ここは表示用。
-    // 1 チャンネルにつきスロットの数だけ持つ。
-    using WtModWavePaths = std::array<juce::String, Global::WtMod::slots>;
-    std::map<juce::String, WtModWavePaths> modWavePaths;
 
-    // WT PITCH MOD の変調波形。チャンネルごとに複数スロット持つ。
-    // 32 サンプル × 枚数をパラメータで持つと数が膨大になるため、
-    // 実データはここが所有し、state には相対パスだけを保存する。
-    WtModWaveStore modWaveSlots;
     // 変調波形の読み書き。実データは modWaveSlots が持ち、
     // state へは相対パスだけを保存して読み直す。
-    void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file);
-    void unloadWtModWaveFile(const juce::String& code, int slot);
+    void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file) override;
+    void unloadWtModWaveFile(const juce::String& code, int slot) override;
     juce::String wallpaperPath;
     int wallpaperMode = 0; // 0=Stretch, 1=Fill, 2=Fit, 3=Original
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
     juce::String defaultPresetDir; // For Presets
-	juce::String defaultWavetableDir; // For Wavetables
     juce::String defaultFxOrderDir; // For FX Order
     juce::String defaultFxParamDir;
-    juce::String defaultChannelParamDir;
     juce::String defaultCurveParamDir;
-    juce::String defaultLfoParamDir;
-    juce::String defaultAmpEnvParamDir;
-    juce::String defaultPitchEnvParamDir;
-    juce::String defaultSsgHwEnvParamDir;
-    juce::String defaultWtModParamDir;
-    juce::String defaultSsgSwEnvParamDir;
-    juce::String defaultDetuneParamDir;
-    juce::String defaultUnisonParamDir;
     juce::String defaultQualityParamDir;
     juce::String defaultPcmPlayParamDir;
     juce::String defaultToneNoiseParamDir;
@@ -479,9 +459,6 @@ public:
     bool isSimpleShown(SimpleView::Cat cat) const {
         return SimpleView::isShown(simpleView, simpleViewShow, cat);
     }
-    // トグルボタンの並べ方。ToggleAlign::Centred で従来どおり行の真ん中、
-    // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。
-    int toggleAlign = ToggleAlign::Centred;
 
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
@@ -490,7 +467,7 @@ public:
     bool saveEnvironment(const juce::File& file);
     // プラグインが使うフォルダ。ドキュメントの下に 1 つ作り、
     // 既定の保存先はすべてこの中にする。
-    juce::File getPluginDirectory() const
+    juce::File getPluginDirectory() const override
     {
         auto dir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
             .getChildFile(Io::Folder::asset);

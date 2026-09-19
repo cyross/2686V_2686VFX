@@ -4,7 +4,8 @@
 
 #include<JuceHeader.h>
 
-#include "../../Core/Gui/GuiI18n.h"
+#include "Shared/Core/Gui/GuiI18n.h"
+#include "Shared/Core/Editor/EditorParamBrowserText.h"
 
 namespace EditorGuiText
 {

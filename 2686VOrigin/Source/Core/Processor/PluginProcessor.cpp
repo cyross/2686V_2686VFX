@@ -12,7 +12,8 @@
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 
-#include "../Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiValues.h"
+#include "../Gui/GuiTabCount.h"
 
 namespace
 {

@@ -1,4 +1,4 @@
-﻿#include "../Gui/GuiRefresh.h"
+﻿#include "Shared/Core/Gui/GuiRefresh.h"
 #include <cstdio>
 #include <vector>
 #include <initializer_list>
@@ -9,15 +9,15 @@
 
 #include "../Processor/PluginProcessor.h"
 
-#include "../Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "../Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 
 #include "../Fm/FmRegisterConverter.h"
 
 #include "./EditorGuiValues.h"
-#include "../Gui/GuiColor.h"
-#include "../Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiContext.h"
 
 
 #include "AppIconForAbout.h"
@@ -1379,4 +1379,129 @@ void AudioPlugin2686VEditor::updateLoading(const juce::String& message)
 void AudioPlugin2686VEditor::hideLoading()
 {
     loadingScreen.hide();
+}
+
+// ==========================================================
+// 窓口 (GuiEditorHost): パラメータファイルと波形を選ぶ
+// ==========================================================
+// 2686VFX は画面の中の一覧 (ブラウザー) を持たないので、OS のダイアログを出す。
+// 区分の部品は種類 (EditorGuiText::ParamBrowser::kind*) だけを渡してくるので、
+// そこからダイアログの題と拡張子を引く。
+namespace
+{
+    struct ParamKind
+    {
+        juce::String kind;
+        juce::String importTitle;
+        juce::String exportTitle;
+        juce::String extension;
+        juce::String glob;
+    };
+
+    const std::vector<ParamKind>& paramKinds()
+    {
+        namespace K = EditorGuiText::ParamBrowser;
+        namespace T = Io::Dialog::Title;
+
+        static const std::vector<ParamKind> kinds = {
+            { K::kindAmpEnv, T::importAmpEnvParamFile, T::exportAmpEnvParamFile, Io::Extension::AmpEnvParam, Io::ExtensionGlob::AmpEnvParam },
+            { K::kindPitchEnv, T::importPitchEnvParamFile, T::exportPitchEnvParamFile, Io::Extension::PitchEnvParam, Io::ExtensionGlob::PitchEnvParam },
+            { K::kindSsgHwEnv, T::importSsgHwEnvParamFile, T::exportSsgHwEnvParamFile, Io::Extension::SsgHwEnvParam, Io::ExtensionGlob::SsgHwEnvParam },
+            { K::kindSsgHwPEnv, T::importSsgHwPEnvParamFile, T::exportSsgHwPEnvParamFile, Io::Extension::SsgHwPEnvParam, Io::ExtensionGlob::SsgHwPEnvParam },
+            { K::kindSsgSwEnv, T::importSsgSwEnvParamFile, T::exportSsgSwEnvParamFile, Io::Extension::SsgSwEnvParam, Io::ExtensionGlob::SsgSwEnvParam },
+            { K::kindSsgSwEnv11, T::importSsgSwEnvParamFile, T::exportSsgSwEnvParamFile, Io::Extension::SsgSwEnvParam11, Io::ExtensionGlob::SsgSwEnvParam11 },
+            { K::kindSsgSwPEnv11, T::importSsgSwEnvParamFile, T::exportSsgSwEnvParamFile, Io::Extension::SsgSwPEnvParam11, Io::ExtensionGlob::SsgSwPEnvParam11 },
+            { K::kindWtMod, T::importWtModParamFile, T::exportWtModParamFile, Io::Extension::WtModParam, Io::ExtensionGlob::WtModParam },
+            { K::kindWtAmpMod, T::importWtAmpModParamFile, T::exportWtAmpModParamFile, Io::Extension::WtAmpModParam, Io::ExtensionGlob::WtAmpModParam },
+            { K::kindLfoOpzx7, T::importLfoParamFile, T::exportLfoParamFile, Io::Extension::Opzx7LfoParam, Io::ExtensionGlob::Opzx7LfoParam },
+            { K::kindDetune, T::importDetuneParamFile, T::exportDetuneParamFile, Io::Extension::DetuneParam, Io::ExtensionGlob::DetuneParam },
+            { K::kindUnison, T::importUnisonParamFile, T::exportUnisonParamFile, Io::Extension::UnisonParam, Io::ExtensionGlob::UnisonParam },
+        };
+
+        return kinds;
+    }
+
+    // 部品が渡す種類は 1 つだけ。2686VFX に無い種類は来ない。
+    const ParamKind* findKind(const juce::StringArray& allowed)
+    {
+        for (const auto& k : paramKinds())
+        {
+            if (allowed.contains(k.kind)) return &k;
+        }
+
+        jassertfalse;
+        return nullptr;
+    }
+}
+
+// 置き場が無ければ、プラグインのフォルダから始める
+static juce::File startDirectory(const juce::String& settingsDir, const juce::File& fallback)
+{
+    juce::File dir(settingsDir);
+
+    return dir.isDirectory() ? dir : fallback;
+}
+
+void AudioPlugin2686VEditor::openParamBrowser(const juce::StringArray& allowed,
+    std::function<void(const juce::File&)> onChoose)
+{
+    openParamBrowser({}, allowed, std::move(onChoose));
+}
+
+void AudioPlugin2686VEditor::openParamBrowser(const juce::String& settingsDir, const juce::StringArray& allowed,
+    std::function<void(const juce::File&)> onChoose, const juce::String&)
+{
+    const auto* kind = findKind(allowed);
+
+    if (kind == nullptr) return;
+
+    fileChooser = std::make_unique<juce::FileChooser>(kind->importTitle,
+        startDirectory(settingsDir, audioProcessor.getPluginDirectory()), kind->glob);
+
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [onChoose](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+
+            if (file.existsAsFile() && onChoose) onChoose(file);
+        });
+}
+
+void AudioPlugin2686VEditor::openParamBrowserToSave(const juce::String& settingsDir, const juce::StringArray& allowed,
+    const juce::String& base, std::function<void(const juce::File&)> onChoose,
+    const juce::String&, const juce::String&)
+{
+    const auto* kind = findKind(allowed);
+
+    if (kind == nullptr) return;
+
+    const auto dir = startDirectory(settingsDir, audioProcessor.getPluginDirectory());
+
+    fileChooser = std::make_unique<juce::FileChooser>(kind->exportTitle,
+        dir.getChildFile(Io::defaultFileName(base)), Io::saveGlob(base));
+
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [onChoose](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+
+            if (file != juce::File{} && onChoose) onChoose(file);
+        });
+}
+
+void AudioPlugin2686VEditor::openWaveBrowser(const juce::StringArray& allowed,
+    std::function<void(const juce::File&)> onChoose)
+{
+    // WT2 の波形か、WT の波形か。部品はどちらか一方を渡してくる。
+    const bool isWt2 = allowed.contains(EditorGuiText::ParamBrowser::waveWt2.get());
+
+    fileChooser = std::make_unique<juce::FileChooser>(
+        isWt2 ? "Load Mod Wave (.wt2)" : "Load Mod Wave (.wt)",
+        startDirectory(audioProcessor.defaultWavetableDir, audioProcessor.getPluginDirectory()),
+        isWt2 ? "*.wt2" : "*.wt");
+
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [onChoose](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+
+            if (file.existsAsFile() && onChoose) onChoose(file);
+        });
 }
