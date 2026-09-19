@@ -222,6 +222,8 @@ set(FX_GUI_FILES
     "Source/Gui/Fx/GuiFxValues.h"
     "Source/Gui/Fx/GuiFx.h"
     "Source/Gui/Fx/GuiFx.cpp"
+    "Source/Gui/Fx/GuiFxKeyAssign.h"
+    "Source/Gui/Fx/GuiFxKeyAssign.cpp"
 )
 
 

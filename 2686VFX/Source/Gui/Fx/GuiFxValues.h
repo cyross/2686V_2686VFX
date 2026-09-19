@@ -32,6 +32,17 @@ namespace FxGuiValue
 		}
 	}
 
+	// 変調を動かす鍵盤の割り当て。名前が長い (SSG SW PITCH ENV[11] など)
+	// ので、名前の欄を広めに取る。鍵盤の欄は「C#-2 (1)」が入れば足りる。
+	namespace KeyAssign
+	{
+		static inline constexpr int labelWidth = 150;
+
+		// 「キーアサイン」の行は逆に選ぶ側の名前が長い
+		// (キーアサインのカスタマイズ) ので、名前の欄を詰める。
+		static inline constexpr int modeLabelWidth = 90;
+	}
+
 	namespace Fx
 	{
 		static inline constexpr int Width = 1000;

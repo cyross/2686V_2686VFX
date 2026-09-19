@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include <array>
+#include <bitset>
 
 #include "../../Core/Processor/ProcessorHelper.h"
 #include "../../Core/Processor/ProcessorStructs.h"
@@ -63,6 +64,19 @@ class ModProcessor
 	std::atomic<float>* pWtModBaseFreq = nullptr;
 	std::atomic<float>* pShiftBypass = nullptr;
 
+	// どの鍵盤で動かすか
+	std::atomic<float>* pKeyAssignMode = nullptr;
+	std::array<std::atomic<float>*, ModPrKey::KeyAssign::NumTargets> pKeys{};
+
+	// 押さえている鍵盤。カスタマイズのときに、押している間だけ効かせる
+	// もの (LFO・MUL/DET・UNISON/HARMONY・アルペジオ) が見る。
+	std::bitset<128> heldKeys;
+
+	// LFO の AM / PM を効かせる度合い (0〜1)。押し離しの継ぎ目で音が
+	// 飛ばないよう、数ミリ秒かけて寄せる。
+	float lfoAmGate = 1.0f;
+	float lfoPmGate = 1.0f;
+
 	AmpAdsrEnv ampEnv;
 	SsgHwEnv ssgHwEnv;
 	SsgSwEnv11 ssgSwEnv11;
@@ -102,6 +116,21 @@ class ModProcessor
 
 	// 入り切りの札を読み直す。押し離しは音を作るより先に届くため。
 	void refreshSwitches();
+
+	using Targets = std::bitset<ModPrKey::KeyAssign::NumTargets>;
+
+	bool isCustomKeyAssign() const;
+
+	// その鍵盤を割り当てた対象
+	Targets targetsOf(int note) const;
+
+	// 対象へ「押した」「離した」を送る。順番はこれまでと同じ。
+	void startTargets(const Targets& targets);
+	void releaseTargets(const Targets& targets);
+
+	// 押している間だけ効かせる対象が、いま効いているか。
+	// シングルキーアサインでは鍵盤に関係なく効く (これまでどおり)。
+	bool isHeld(ModPrKey::KeyAssign::Target target) const;
 public:
 	void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
 
@@ -110,9 +139,15 @@ public:
 
 	void prepare(double sampleRate);
 
-	// 鍵盤の押し離し。音を鳴らすためではないので、どの音程かは見ない。
-	void noteOn();
-	void noteOff();
+	// 鍵盤の押し離し。音を鳴らすためではない。
+	//
+	// シングルキーアサインでは、どの鍵盤でも全部を動かす (音程は見ない)。
+	// カスタマイズでは、その鍵盤を割り当てた対象だけを動かす。
+	void noteOn(int note);
+	void noteOff(int note);
+
+	// 全部の鍵盤を離したことにする (オールノートオフ)
+	void allNotesOff();
 
 	// 出力へ掛ける。何も有効になっていなければ触らない。
 	void processBlock(juce::AudioBuffer<float>& buffer, juce::AudioProcessorValueTreeState& apvts);

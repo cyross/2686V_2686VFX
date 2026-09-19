@@ -23,6 +23,7 @@
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "./GuiFxKeyAssign.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 
 class GuiFx : public GuiBase
@@ -121,6 +122,9 @@ class GuiFx : public GuiBase
     std::array<GuiLabel, NumEffects> routeFx;
     std::array<GuiTextButton, NumEffects> routeUp;
     std::array<GuiTextButton, NumEffects> routeDown;
+    // 変調を動かす鍵盤の割り当て。ファイルの読み書きの上に置く。
+    GuiFxKeyAssign keyAssign;
+
     NormalSeparator fileSeparator;
     GuiTextButton importFxOrderBtn;
     GuiTextButton exportFxOrderBtn;
@@ -231,6 +235,9 @@ class GuiFx : public GuiBase
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeFxParams(Io::ParamWriter& writer);
+
+    // 読み込む中身
+    void readFxParams(const Io::ParamReader& reader);
     void exportFxParam();
 public:
     // FX のパラメータを初期値へ戻す。編集画面の INIT から呼ぶ。

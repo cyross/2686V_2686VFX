@@ -258,6 +258,11 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
         target_compile_definitions(${CY_GUI_TEST} PRIVATE GUI_TEST_REQUIRE_ALL)
     endif()
 
+    # 2686VFX にしかない機能 (変調を動かす鍵盤の割り当て)
+    if(CY_PLUGIN STREQUAL "2686VFX")
+        target_sources(${CY_GUI_TEST} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxKeyAssignTest.cpp")
+    endif()
+
     target_link_libraries(${CY_GUI_TEST} PRIVATE ${CY_PLUGIN})
 
     target_compile_features(${CY_GUI_TEST} PRIVATE cxx_std_20)

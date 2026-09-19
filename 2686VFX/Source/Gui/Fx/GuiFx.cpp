@@ -113,6 +113,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     routeFx{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
     routeUp{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     routeDown{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    keyAssign(context),
     fileSeparator(context),
     importFxOrderBtn(context),
     exportFxOrderBtn(context),
@@ -390,6 +391,11 @@ void GuiFx::setup()
             ctx.editor.resized();
             };
     }
+
+    keyAssign.setup(*this, tabOrder);
+
+    // 一覧が出たり消えたりするので、選び直したら並べ直す
+    keyAssign.onModeChanged = [this] { ctx.editor.resized(); };
 
     fileSeparator.setupComponent(*this);
 
@@ -881,6 +887,8 @@ void GuiFx::moveToStrip()
         &importFxOrderBtn, &exportFxOrderBtn, &importFxParamBtn, &exportFxParamBtn,
         &stripViewport };
 
+    keyAssign.collectComponents(keep);
+
     for (int i = 0; i < NumEffects; ++i)
     {
         keep.insert(&routeFx[i]);
@@ -1252,12 +1260,18 @@ void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
     importFxParamBtn.setVisible(isShowRoute);
     exportFxParamBtn.setVisible(isShowRoute);
 
-    if (!isShowRoute) {
-        return;
+    if (isShowRoute) {
+        for (int fxr = 0; fxr < NumEffects; fxr++) {
+            layoutMainFxOrder({ .rect = rect, .comp1 = &routeFx[fxr], .comp2 = &routeUp[fxr], .comp3 = &routeDown[fxr] });
+        }
     }
 
-    for (int fxr = 0; fxr < NumEffects; fxr++) {
-        layoutMainFxOrder({ .rect = rect, .comp1 = &routeFx[fxr], .comp2 = &routeUp[fxr], .comp3 = &routeDown[fxr] });
+    // キーアサインは順番の設定を閉じていても出しておく。鍵盤で動かす
+    // 変調の決まりなので、順番とは関係がない。
+    keyAssign.layout(rect);
+
+    if (!isShowRoute) {
+        return;
     }
 
     fileSeparator.layoutComponent(rect);
@@ -1539,102 +1553,7 @@ void GuiFx::importFxParam()
                 // 読み終えてからまとめて描き直す
                 GuiRefresh::Batch batch;
 
-                bypassToggle.setToggleState(reader->getBool("bypass", bypassToggle.getToggleState()), juce::sendNotification);
-
-                {
-                    auto tremolo = reader->child("tremolo");
-
-                    tBypassBtn.setToggleState(tremolo.getBool("bypass", tBypassBtn.getToggleState()), juce::sendNotification);
-                    tRateSlider.setValue(tremolo.getFloat("rate", (float)tRateSlider.getValue()), juce::sendNotification);
-                    tDepthSlider.setValue(tremolo.getFloat("depth", (float)tDepthSlider.getValue()), juce::sendNotification);
-                    tMixSlider.setValue(tremolo.getFloat("mix", (float)tMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto vibrato = reader->child("vibrato");
-
-                    vBypassBtn.setToggleState(vibrato.getBool("bypass", vBypassBtn.getToggleState()), juce::sendNotification);
-                    vRateSlider.setValue(vibrato.getFloat("rate", (float)vRateSlider.getValue()), juce::sendNotification);
-                    vDepthSlider.setValue(vibrato.getFloat("depth", (float)vDepthSlider.getValue()), juce::sendNotification);
-                    vMixSlider.setValue(vibrato.getFloat("mix", (float)vMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto bitCrusher = reader->child("bitCrusher");
-
-                    mbcBypassBtn.setToggleState(bitCrusher.getBool("bypass", mbcBypassBtn.getToggleState()), juce::sendNotification);
-                    mbcRateSlider.setValue(bitCrusher.getFloat("rate", (float)mbcRateSlider.getValue()), juce::sendNotification);
-                    mbcBitsSlider.setValue(bitCrusher.getFloat("bits", (float)mbcBitsSlider.getValue()), juce::sendNotification);
-                    mbcMixSlider.setValue(bitCrusher.getFloat("mix", (float)mbcMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    // 3.0.0 のファイルにはこのまとまりが無い。
-                    // 無ければ既定として今の値をそのまま使う。
-                    auto pcmBitCrusher = reader->child("pcmBitCrusher");
-
-                    pcmBypassBtn.setToggleState(pcmBitCrusher.getBool("bypass", pcmBypassBtn.getToggleState()), juce::sendNotification);
-                    pcmBitSelector.setSelectedItemIndex(pcmBitCrusher.getInt("bits", pcmBitSelector.getSelectedItemIndex()), juce::sendNotification);
-                    pcmRateSelector.setSelectedItemIndex(pcmBitCrusher.getInt("rate", pcmRateSelector.getSelectedItemIndex()), juce::sendNotification);
-                    pcmInterpSelector.setSelectedItemIndex(pcmBitCrusher.getInt("interp", pcmInterpSelector.getSelectedItemIndex()), juce::sendNotification);
-                    pcmMixSlider.setValue(pcmBitCrusher.getFloat("mix", (float)pcmMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto delay = reader->child("delay");
-
-                    dBypassBtn.setToggleState(delay.getBool("bypass", dBypassBtn.getToggleState()), juce::sendNotification);
-                    dTimeSlider.setValue(delay.getFloat("time", (float)dTimeSlider.getValue()), juce::sendNotification);
-                    dFbSlider.setValue(delay.getFloat("fb", (float)dFbSlider.getValue()), juce::sendNotification);
-                    dMixSlider.setValue(delay.getFloat("mix", (float)dMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto reverb = reader->child("reverb");
-
-                    rBypassBtn.setToggleState(reverb.getBool("bypass", rBypassBtn.getToggleState()), juce::sendNotification);
-                    rSizeSlider.setValue(reverb.getFloat("size", (float)rSizeSlider.getValue()), juce::sendNotification);
-                    rDampSlider.setValue(reverb.getFloat("damp", (float)rDampSlider.getValue()), juce::sendNotification);
-                    rMixSlider.setValue(reverb.getFloat("mix", (float)rMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto filter = reader->child("filter");
-
-                    flBypassBtn.setToggleState(filter.getBool("bypass", flBypassBtn.getToggleState()), juce::sendNotification);
-                    flTypeSelector.setSelectedItemIndex(filter.getInt("type", flTypeSelector.getSelectedItemIndex()), juce::sendNotification);
-                    flFreqSlider.setValue(filter.getFloat("freq", (float)flFreqSlider.getValue()), juce::sendNotification);
-                    flQSlider.setValue(filter.getFloat("q", (float)flQSlider.getValue()), juce::sendNotification);
-                    flMixSlider.setValue(filter.getFloat("mix", (float)flMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto eq3band = reader->child("eq3band");
-
-                    eq3bBypassBtn.setToggleState(eq3band.getBool("bypass", eq3bBypassBtn.getToggleState()), juce::sendNotification);
-                    eq3bLowGainDbSlider.setValue(eq3band.getFloat("lowGainDb", (float)eq3bLowGainDbSlider.getValue()), juce::sendNotification);
-                    eq3bMidFreqSlider.setValue(eq3band.getFloat("midFreq", (float)eq3bMidFreqSlider.getValue()), juce::sendNotification);
-                    eq3bMidGainDbSlider.setValue(eq3band.getFloat("midGainDb", (float)eq3bMidGainDbSlider.getValue()), juce::sendNotification);
-                    eq3bHighGainDbSlider.setValue(eq3band.getFloat("highGainDb", (float)eq3bHighGainDbSlider.getValue()), juce::sendNotification);
-                    eq3bMixSlider.setValue(eq3band.getFloat("mix", (float)eq3bMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto sfcEcho = reader->child("sfcEcho");
-
-                    sfceBypassBtn.setToggleState(sfcEcho.getBool("bypass", sfceBypassBtn.getToggleState()), juce::sendNotification);
-                    sfceTimeSlider.setValue(sfcEcho.getFloat("time", (float)sfceTimeSlider.getValue()), juce::sendNotification);
-                    sfceFbSlider.setValue(sfcEcho.getFloat("fb", (float)sfceFbSlider.getValue()), juce::sendNotification);
-                    sfceFirCoef0Slider.setValue(sfcEcho.getFloat("firCoef0", (float)sfceFirCoef0Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef1Slider.setValue(sfcEcho.getFloat("firCoef1", (float)sfceFirCoef1Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef2Slider.setValue(sfcEcho.getFloat("firCoef2", (float)sfceFirCoef2Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef3Slider.setValue(sfcEcho.getFloat("firCoef3", (float)sfceFirCoef3Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef4Slider.setValue(sfcEcho.getFloat("firCoef4", (float)sfceFirCoef4Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef5Slider.setValue(sfcEcho.getFloat("firCoef5", (float)sfceFirCoef5Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef6Slider.setValue(sfcEcho.getFloat("firCoef6", (float)sfceFirCoef6Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef7Slider.setValue(sfcEcho.getFloat("firCoef7", (float)sfceFirCoef7Slider.getValue()), juce::sendNotification);
-                    sfceMixSlider.setValue(sfcEcho.getFloat("mix", (float)sfceMixSlider.getValue()), juce::sendNotification);
-                }
+                readFxParams(*reader);
             }
         });
 }
@@ -1901,7 +1820,112 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
         sfcEcho.set("mix", (float)sfceMixSlider.getValue());
     }
 
+    // 変調を動かす鍵盤の割り当て。このプラグインにしかない。
+    GuiFxKeyAssign::writeParams(ctx.apvts, writer);
+}
 
+void GuiFx::readFxParams(const Io::ParamReader& reader)
+{
+    bypassToggle.setToggleState(reader.getBool("bypass", bypassToggle.getToggleState()), juce::sendNotification);
+
+    {
+        auto tremolo = reader.child("tremolo");
+
+        tBypassBtn.setToggleState(tremolo.getBool("bypass", tBypassBtn.getToggleState()), juce::sendNotification);
+        tRateSlider.setValue(tremolo.getFloat("rate", (float)tRateSlider.getValue()), juce::sendNotification);
+        tDepthSlider.setValue(tremolo.getFloat("depth", (float)tDepthSlider.getValue()), juce::sendNotification);
+        tMixSlider.setValue(tremolo.getFloat("mix", (float)tMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto vibrato = reader.child("vibrato");
+
+        vBypassBtn.setToggleState(vibrato.getBool("bypass", vBypassBtn.getToggleState()), juce::sendNotification);
+        vRateSlider.setValue(vibrato.getFloat("rate", (float)vRateSlider.getValue()), juce::sendNotification);
+        vDepthSlider.setValue(vibrato.getFloat("depth", (float)vDepthSlider.getValue()), juce::sendNotification);
+        vMixSlider.setValue(vibrato.getFloat("mix", (float)vMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto bitCrusher = reader.child("bitCrusher");
+
+        mbcBypassBtn.setToggleState(bitCrusher.getBool("bypass", mbcBypassBtn.getToggleState()), juce::sendNotification);
+        mbcRateSlider.setValue(bitCrusher.getFloat("rate", (float)mbcRateSlider.getValue()), juce::sendNotification);
+        mbcBitsSlider.setValue(bitCrusher.getFloat("bits", (float)mbcBitsSlider.getValue()), juce::sendNotification);
+        mbcMixSlider.setValue(bitCrusher.getFloat("mix", (float)mbcMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        // 3.0.0 のファイルにはこのまとまりが無い。
+        // 無ければ既定として今の値をそのまま使う。
+        auto pcmBitCrusher = reader.child("pcmBitCrusher");
+
+        pcmBypassBtn.setToggleState(pcmBitCrusher.getBool("bypass", pcmBypassBtn.getToggleState()), juce::sendNotification);
+        pcmBitSelector.setSelectedItemIndex(pcmBitCrusher.getInt("bits", pcmBitSelector.getSelectedItemIndex()), juce::sendNotification);
+        pcmRateSelector.setSelectedItemIndex(pcmBitCrusher.getInt("rate", pcmRateSelector.getSelectedItemIndex()), juce::sendNotification);
+        pcmInterpSelector.setSelectedItemIndex(pcmBitCrusher.getInt("interp", pcmInterpSelector.getSelectedItemIndex()), juce::sendNotification);
+        pcmMixSlider.setValue(pcmBitCrusher.getFloat("mix", (float)pcmMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto delay = reader.child("delay");
+
+        dBypassBtn.setToggleState(delay.getBool("bypass", dBypassBtn.getToggleState()), juce::sendNotification);
+        dTimeSlider.setValue(delay.getFloat("time", (float)dTimeSlider.getValue()), juce::sendNotification);
+        dFbSlider.setValue(delay.getFloat("fb", (float)dFbSlider.getValue()), juce::sendNotification);
+        dMixSlider.setValue(delay.getFloat("mix", (float)dMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto reverb = reader.child("reverb");
+
+        rBypassBtn.setToggleState(reverb.getBool("bypass", rBypassBtn.getToggleState()), juce::sendNotification);
+        rSizeSlider.setValue(reverb.getFloat("size", (float)rSizeSlider.getValue()), juce::sendNotification);
+        rDampSlider.setValue(reverb.getFloat("damp", (float)rDampSlider.getValue()), juce::sendNotification);
+        rMixSlider.setValue(reverb.getFloat("mix", (float)rMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto filter = reader.child("filter");
+
+        flBypassBtn.setToggleState(filter.getBool("bypass", flBypassBtn.getToggleState()), juce::sendNotification);
+        flTypeSelector.setSelectedItemIndex(filter.getInt("type", flTypeSelector.getSelectedItemIndex()), juce::sendNotification);
+        flFreqSlider.setValue(filter.getFloat("freq", (float)flFreqSlider.getValue()), juce::sendNotification);
+        flQSlider.setValue(filter.getFloat("q", (float)flQSlider.getValue()), juce::sendNotification);
+        flMixSlider.setValue(filter.getFloat("mix", (float)flMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto eq3band = reader.child("eq3band");
+
+        eq3bBypassBtn.setToggleState(eq3band.getBool("bypass", eq3bBypassBtn.getToggleState()), juce::sendNotification);
+        eq3bLowGainDbSlider.setValue(eq3band.getFloat("lowGainDb", (float)eq3bLowGainDbSlider.getValue()), juce::sendNotification);
+        eq3bMidFreqSlider.setValue(eq3band.getFloat("midFreq", (float)eq3bMidFreqSlider.getValue()), juce::sendNotification);
+        eq3bMidGainDbSlider.setValue(eq3band.getFloat("midGainDb", (float)eq3bMidGainDbSlider.getValue()), juce::sendNotification);
+        eq3bHighGainDbSlider.setValue(eq3band.getFloat("highGainDb", (float)eq3bHighGainDbSlider.getValue()), juce::sendNotification);
+        eq3bMixSlider.setValue(eq3band.getFloat("mix", (float)eq3bMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto sfcEcho = reader.child("sfcEcho");
+
+        sfceBypassBtn.setToggleState(sfcEcho.getBool("bypass", sfceBypassBtn.getToggleState()), juce::sendNotification);
+        sfceTimeSlider.setValue(sfcEcho.getFloat("time", (float)sfceTimeSlider.getValue()), juce::sendNotification);
+        sfceFbSlider.setValue(sfcEcho.getFloat("fb", (float)sfceFbSlider.getValue()), juce::sendNotification);
+        sfceFirCoef0Slider.setValue(sfcEcho.getFloat("firCoef0", (float)sfceFirCoef0Slider.getValue()), juce::sendNotification);
+        sfceFirCoef1Slider.setValue(sfcEcho.getFloat("firCoef1", (float)sfceFirCoef1Slider.getValue()), juce::sendNotification);
+        sfceFirCoef2Slider.setValue(sfcEcho.getFloat("firCoef2", (float)sfceFirCoef2Slider.getValue()), juce::sendNotification);
+        sfceFirCoef3Slider.setValue(sfcEcho.getFloat("firCoef3", (float)sfceFirCoef3Slider.getValue()), juce::sendNotification);
+        sfceFirCoef4Slider.setValue(sfcEcho.getFloat("firCoef4", (float)sfceFirCoef4Slider.getValue()), juce::sendNotification);
+        sfceFirCoef5Slider.setValue(sfcEcho.getFloat("firCoef5", (float)sfceFirCoef5Slider.getValue()), juce::sendNotification);
+        sfceFirCoef6Slider.setValue(sfcEcho.getFloat("firCoef6", (float)sfceFirCoef6Slider.getValue()), juce::sendNotification);
+        sfceFirCoef7Slider.setValue(sfcEcho.getFloat("firCoef7", (float)sfceFirCoef7Slider.getValue()), juce::sendNotification);
+        sfceMixSlider.setValue(sfcEcho.getFloat("mix", (float)sfceMixSlider.getValue()), juce::sendNotification);
+    }
+
+    // 変調を動かす鍵盤の割り当て。音源のプラグインで読んだときは、
+    // このまとまりが無いものとして飛ばされる。
+    GuiFxKeyAssign::readParams(ctx.apvts, reader);
 }
 
 // FX のパラメータを初期値へ戻す。

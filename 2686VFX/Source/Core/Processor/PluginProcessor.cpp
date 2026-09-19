@@ -166,14 +166,15 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     // 画面の鍵盤から入った音も混ぜる
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
-    // 鍵盤の押し離しで変調を動かす。音を鳴らすためではないので、
-    // どの音程かは見ない。
+    // 鍵盤の押し離しで変調を動かす。音を鳴らすためではない。
+    // どの鍵盤でどの対象を動かすかは、キーアサインで決まる。
     for (const auto meta : midiMessages)
     {
         const auto message = meta.getMessage();
 
-        if (message.isNoteOn()) prMod.noteOn();
-        else if (message.isNoteOff() || message.isAllNotesOff()) prMod.noteOff();
+        if (message.isNoteOn()) prMod.noteOn(message.getNoteNumber());
+        else if (message.isNoteOff()) prMod.noteOff(message.getNoteNumber());
+        else if (message.isAllNotesOff()) prMod.allNotesOff();
     }
 
     // 使わない出力は消しておく。入力より出力が多いときに、前の中身が残る。
