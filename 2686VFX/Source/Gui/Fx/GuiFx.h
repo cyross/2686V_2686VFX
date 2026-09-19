@@ -26,8 +26,11 @@
 #include "./GuiFxKeyAssign.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 
-class GuiFx : public GuiBase
+class GuiFx : public GuiBase, private juce::Timer
 {
+    // テストから見出しの塗り直しを呼ぶ口。テストでは時計が回らないため。
+    friend struct GuiFxTestAccess;
+
     // 順番の設定は最初から開いておく。メインが縦長の 1 列になり、丈が足りる。
     bool isShowRoute = true;
     std::vector<int> order = { 0 };
@@ -124,6 +127,14 @@ class GuiFx : public GuiBase
     std::array<GuiTextButton, NumEffects> routeDown;
     // 変調を動かす鍵盤の割り当て。ファイルの読み書きの上に置く。
     GuiFxKeyAssign keyAssign;
+
+    // キーアサインのカスタマイズでは、割り当てた鍵盤が押されている区分
+    // だけ見出しを明るくし、ほかは灰にする。シングルでは全部明るいまま。
+    void updateKeyAssignTitles();
+
+    // 鍵盤の押し離しを見に行く
+    void timerCallback() override;
+    static inline constexpr int keyAssignTitleHz = 30;
 
     NormalSeparator fileSeparator;
     GuiTextButton importFxOrderBtn;

@@ -197,6 +197,7 @@ void ModProcessor::prepare(double sampleRate)
 	wasShifting = false;
 
 	heldKeys.reset();
+	publishHeldTargets();
 
 	// シングルなら鍵盤に関係なく効く。カスタマイズなら押すまで効かない。
 	lfoAmGate = isHeld(ModPrKey::KeyAssign::LfoAm) ? 1.0f : 0.0f;
@@ -244,6 +245,21 @@ bool ModProcessor::isHeld(ModPrKey::KeyAssign::Target target) const
 	int note = PrHelper::getInt(p);
 
 	return note >= 0 && note < (int)heldKeys.size() && heldKeys.test((size_t)note);
+}
+
+void ModProcessor::publishHeldTargets()
+{
+	Targets targets;
+
+	if (heldKeys.any())
+	{
+		for (int note = 0; note < (int)heldKeys.size(); ++note)
+		{
+			if (heldKeys.test((size_t)note)) targets |= targetsOf(note);
+		}
+	}
+
+	heldTargetsForGui.store((uint32_t)targets.to_ulong(), std::memory_order_relaxed);
 }
 
 // 対象へ「押した」を送る。
@@ -315,6 +331,8 @@ void ModProcessor::noteOn(int note)
 {
 	if (note >= 0 && note < (int)heldKeys.size()) heldKeys.set((size_t)note);
 
+	publishHeldTargets();
+
 	// シングルキーアサインでは、どの鍵盤でも全部を動かす
 	startTargets(isCustomKeyAssign() ? targetsOf(note) : Targets().set());
 }
@@ -322,6 +340,8 @@ void ModProcessor::noteOn(int note)
 void ModProcessor::noteOff(int note)
 {
 	if (note >= 0 && note < (int)heldKeys.size()) heldKeys.reset((size_t)note);
+
+	publishHeldTargets();
 
 	// シングルキーアサインでは、どの鍵盤を離しても全部を戻す (これまでどおり)
 	releaseTargets(isCustomKeyAssign() ? targetsOf(note) : Targets().set());
@@ -345,6 +365,7 @@ void ModProcessor::allNotesOff()
 	}
 
 	heldKeys.reset();
+	publishHeldTargets();
 
 	releaseTargets(targets);
 }
@@ -357,6 +378,9 @@ bool ModProcessor::isActive() const
 void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioProcessorValueTreeState& apvts)
 {
 	juce::ignoreUnused(apvts);
+
+	// 押さえたまま割り当てを変えたときも、画面の見出しが追えるように
+	publishHeldTargets();
 
 	refreshSwitches();
 

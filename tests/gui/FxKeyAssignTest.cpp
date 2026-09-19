@@ -17,6 +17,8 @@
 #include "Core/Processor/PluginProcessor.h"
 #include "Core/Processor/ProcessorKeys.h"
 #include "Core/Editor/PluginEditor.h"
+#include "Core/Gui/GuiComponents.h"
+#include "Gui/Fx/GuiFx.h"
 #include "Gui/Fx/GuiFxKeyAssign.h"
 #include "Processor/Fx/ProcessorFxKeys.h"
 #include "Processor/Mod/ProcessorModKeys.h"
@@ -409,4 +411,136 @@ TEST_CASE("キーアサイン: 一覧はカスタマイズのときだけ出る"
     }
 
     editor.reset();
+}
+
+// 見出しの塗り直しは、画面の時計 (30 回 / 秒) から呼ばれる。テストでは
+// 時計が回らないので、ここから直に呼ぶ。GuiFx が friend にしている。
+struct GuiFxTestAccess
+{
+    static void refreshTitles(GuiFx& fx) { fx.updateKeyAssignTitles(); }
+};
+
+TEST_CASE("キーアサイン: カスタマイズでは、割り当てた鍵盤を押している区分だけ見出しが明るい")
+{
+    AudioPlugin2686V processor;
+
+    processor.setPlayConfigDetails(2, 2, kRate, kBlock);
+    processor.prepareToPlay(kRate, kBlock);
+
+    std::unique_ptr<juce::AudioProcessorEditor> editor(processor.createEditor());
+
+    std::vector<juce::Component*> all;
+
+    std::function<void(juce::Component*)> collect = [&](juce::Component* root) {
+        for (auto* c : root->getChildren()) {
+            all.push_back(c);
+            collect(c);
+        }
+    };
+
+    collect(editor.get());
+
+    GuiFx* fx = nullptr;
+
+    for (auto* c : all) {
+        if (auto* f = dynamic_cast<GuiFx*>(c)) fx = f;
+    }
+
+    REQUIRE(fx != nullptr);
+
+    // 見出しは言語で変わらないものを選ぶ
+    auto group = [&](const juce::String& title) -> GuiScrollGroup* {
+        for (auto* c : all) {
+            if (auto* g = dynamic_cast<GuiScrollGroup*>(c); g != nullptr && g->getText() == title) return g;
+        }
+
+        return nullptr;
+    };
+
+    auto* amp = group("AMP ENV");
+    auto* lfo = group("LFO");
+    auto* pitch = group("PITCH ENV");
+
+    REQUIRE(amp != nullptr);
+    REQUIRE(lfo != nullptr);
+    REQUIRE(pitch != nullptr);
+
+    juce::AudioBuffer<float> buffer(2, kBlock);
+
+    auto refresh = [&] { GuiFxTestAccess::refreshTitles(*fx); };
+
+    auto send = [&](const juce::MidiMessage& m) {
+        buffer.clear();
+
+        juce::MidiBuffer midi;
+        midi.addEvent(m, 0);
+
+        processor.processBlock(buffer, midi);
+
+        refresh();
+    };
+
+    // 1. シングルキーアサインでは、鍵盤に関係なく全部明るい (これまでどおり)
+    refresh();
+
+    CHECK_FALSE(amp->isTitleIdle());
+    CHECK_FALSE(lfo->isTitleIdle());
+    CHECK_FALSE(pitch->isTitleIdle());
+
+    // 2. カスタマイズにすると、押すまでは全部灰。LFO は AM と PM の 2 つを持つ
+    setReal(processor, keyId(KA::AmpEnv), 60.0f);
+    setReal(processor, keyId(KA::LfoAm), 62.0f);
+    setReal(processor, keyId(KA::LfoPm), 62.0f);
+    setReal(processor, keyId(KA::PitchEnv), 64.0f);
+
+    useCustom(processor);
+
+    CHECK(amp->isTitleIdle());
+    CHECK(lfo->isTitleIdle());
+    CHECK(pitch->isTitleIdle());
+
+    // 3. 押した鍵盤を割り当てた区分だけが明るくなる
+    send(juce::MidiMessage::noteOn(1, 60, (juce::uint8)100));
+
+    CHECK_FALSE(amp->isTitleIdle());
+    CHECK(lfo->isTitleIdle());
+    CHECK(pitch->isTitleIdle());
+
+    send(juce::MidiMessage::noteOn(1, 62, (juce::uint8)100));
+
+    CHECK_FALSE(amp->isTitleIdle());
+    CHECK_FALSE(lfo->isTitleIdle());
+    CHECK(pitch->isTitleIdle());
+
+    // 4. 離すと灰へ戻る
+    send(juce::MidiMessage::noteOff(1, 60));
+
+    CHECK(amp->isTitleIdle());
+    CHECK_FALSE(lfo->isTitleIdle());
+
+    send(juce::MidiMessage::noteOff(1, 62));
+
+    CHECK(amp->isTitleIdle());
+    CHECK(lfo->isTitleIdle());
+    CHECK(pitch->isTitleIdle());
+
+    // 5. 押したままでも、割り当てを変えれば追う
+    send(juce::MidiMessage::noteOn(1, 64, (juce::uint8)100));
+
+    CHECK_FALSE(pitch->isTitleIdle());
+
+    setReal(processor, keyId(KA::PitchEnv), 65.0f);
+    send(juce::MidiMessage::noteOff(1, 70));   // 関係のない鍵盤で 1 塊流す
+
+    CHECK(pitch->isTitleIdle());
+
+    // 6. シングルへ戻すと、押していなくても全部明るい
+    setReal(processor, modId(KA::mode), (float)ModPrValue::KeyAssign::single);
+
+    CHECK_FALSE(amp->isTitleIdle());
+    CHECK_FALSE(lfo->isTitleIdle());
+    CHECK_FALSE(pitch->isTitleIdle());
+
+    editor.reset();
+    processor.releaseResources();
 }

@@ -119,6 +119,14 @@ void ColoredGroupComponent::setBackgroundColor(juce::Colour c)
     repaint();
 }
 
+void ColoredGroupComponent::setTitleIdle(bool idle)
+{
+    if (titleIdle == idle) return;
+
+    titleIdle = idle;
+    repaint();
+}
+
 void ColoredGroupComponent::paint(juce::Graphics& g)
 {
     auto bounds = getLocalBounds().toFloat();
@@ -160,7 +168,7 @@ void ColoredGroupComponent::paint(juce::Graphics& g)
 
     GuiShadow::drawRounded(g, chip, titleCornerRadius);
 
-    g.setColour(GuiColor::Group::TitleBg);
+    g.setColour(titleIdle ? GuiColor::Group::TitleBgIdle : GuiColor::Group::TitleBg);
     g.fillRoundedRectangle(chip, titleCornerRadius);
 
     g.setColour(GuiColor::Group::TitleText);

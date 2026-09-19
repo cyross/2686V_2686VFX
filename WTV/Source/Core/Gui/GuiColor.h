@@ -195,6 +195,10 @@ namespace GuiColor {
 		// 「区分ではなく入れ物」であることが分かるようにする。
 		inline Entry TitleBg{ "Group.TitleBg", []() -> juce::Colour { return juce::Colours::lightgrey.brighter(0.3f); } };
 		inline Entry TitleText{ "Group.TitleText", []() -> juce::Colour { return juce::Colours::black; } };
+
+		// 見出しを「いまは休んでいる」と見せるときの帯。2686VFX のキーアサインで、
+		// 割り当てた鍵盤が押されていない区分に使う。押されると TitleBg へ戻る。
+		inline Entry TitleBgIdle{ "Group.TitleBgIdle", []() -> juce::Colour { return juce::Colours::grey; } };
 	};
 
 	// ==========================================================

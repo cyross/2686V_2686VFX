@@ -72,6 +72,13 @@ class ModProcessor
 	// もの (LFO・MUL/DET・UNISON/HARMONY・アルペジオ) が見る。
 	std::bitset<128> heldKeys;
 
+	// 押さえている鍵盤を割り当てた対象 (Target の番号のビット)。
+	// 画面が枠の見出しを塗り分けるのに読む。オーディオスレッドが書き、
+	// 画面のスレッドが読むので atomic にしてある。
+	std::atomic<uint32_t> heldTargetsForGui{ 0 };
+
+	static_assert(ModPrKey::KeyAssign::NumTargets <= 32, "heldTargetsForGui のビットが足りない");
+
 	// LFO の AM / PM を効かせる度合い (0〜1)。押し離しの継ぎ目で音が
 	// 飛ばないよう、数ミリ秒かけて寄せる。
 	float lfoAmGate = 1.0f;
@@ -131,6 +138,9 @@ class ModProcessor
 	// 押している間だけ効かせる対象が、いま効いているか。
 	// シングルキーアサインでは鍵盤に関係なく効く (これまでどおり)。
 	bool isHeld(ModPrKey::KeyAssign::Target target) const;
+
+	// heldTargetsForGui を今の鍵盤と割り当てから作り直す
+	void publishHeldTargets();
 public:
 	void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
 
@@ -154,4 +164,8 @@ public:
 
 	// 画面の表示に使う。鳴っている間だけ真になる。
 	bool isActive() const;
+
+	// 画面の表示に使う。押さえている鍵盤を割り当てた対象を、
+	// Target の番号のビットで返す。キーアサインのモードは見ない。
+	uint32_t getHeldTargets() const { return heldTargetsForGui.load(std::memory_order_relaxed); }
 };

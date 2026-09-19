@@ -326,6 +326,9 @@ public:
     void updateFxOrder(std::vector<int> newOrder);
     bool isPlaying();
     bool isMidiProcessing();
+
+    // 押さえている鍵盤を割り当てた変調の対象 (キーアサインの Target のビット)
+    uint32_t getModHeldTargets() const { return prMod.getHeldTargets(); }
     OscMode getCurrentMode();
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)

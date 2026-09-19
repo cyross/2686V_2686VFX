@@ -394,8 +394,15 @@ void GuiFx::setup()
 
     keyAssign.setup(*this, tabOrder);
 
-    // 一覧が出たり消えたりするので、選び直したら並べ直す
-    keyAssign.onModeChanged = [this] { ctx.editor.resized(); };
+    // 一覧が出たり消えたりするので、選び直したら並べ直す。
+    // 見出しの色もモードで変わるので、待たずに塗り直す。
+    keyAssign.onModeChanged = [this] {
+        ctx.editor.resized();
+        updateKeyAssignTitles();
+        };
+
+    updateKeyAssignTitles();
+    startTimerHz(keyAssignTitleHz);
 
     fileSeparator.setupComponent(*this);
 
@@ -1983,4 +1990,47 @@ void GuiFx::closeBypassedCategories()
     if (lfoComponent.hasBypassSwitch() && lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(false);
     if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
     if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
+}
+
+void GuiFx::timerCallback()
+{
+    updateKeyAssignTitles();
+}
+
+void GuiFx::updateKeyAssignTitles()
+{
+    namespace KA = ModPrKey::KeyAssign;
+
+    const bool custom = keyAssign.isCustom();
+    const uint32_t held = custom ? ctx.audioProcessor.getModHeldTargets() : 0u;
+
+    auto isHeld = [held](std::initializer_list<KA::Target> targets) {
+        for (auto t : targets)
+        {
+            if ((held & (1u << (unsigned)t)) != 0) return true;
+        }
+
+        return false;
+        };
+
+    // 1 つの枠に対象が 2 つある (LFO の AM / PM、UNISON とアルペジオ) ときは、
+    // どちらかの鍵盤が押されていれば明るくする。
+    const std::array<std::pair<GuiScrollGroup*, bool>, 11> groups = { {
+        { &modAmpEnvGroup, isHeld({ KA::AmpEnv }) },
+        { &modSsgHwEnvGroup, isHeld({ KA::SsgHwEnv }) },
+        { &modWtAmpModGroup, isHeld({ KA::WtAmpMod }) },
+        { &modSsgSwEnv11Group, isHeld({ KA::SsgSwEnv11 }) },
+        { &modLfoGroup, isHeld({ KA::LfoAm, KA::LfoPm }) },
+        { &modPitchEnvGroup, isHeld({ KA::PitchEnv }) },
+        { &modSsgHwPEnvGroup, isHeld({ KA::SsgHwPEnv }) },
+        { &modSsgSwPEnv11Group, isHeld({ KA::SsgSwPEnv11 }) },
+        { &modWtModGroup, isHeld({ KA::WtMod }) },
+        { &modMulDetuneGroup, isHeld({ KA::MulDet }) },
+        { &modUnisonGroup, isHeld({ KA::Unison, KA::Arpeggio }) },
+    } };
+
+    for (auto& [group, lit] : groups)
+    {
+        group->setTitleIdle(custom && !lit);
+    }
 }

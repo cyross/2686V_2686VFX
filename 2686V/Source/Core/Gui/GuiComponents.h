@@ -65,6 +65,9 @@ namespace GuiShadow
 class ColoredGroupComponent : public juce::GroupComponent
 {
     juce::Colour backgroundColor = GuiColor::Group::Bg;
+
+    // 見出しの帯を休んでいる色 (灰) で描くか
+    bool titleIdle = false;
 public:
     // 見出しの寸法。JUCE の既定描画と同じ場所へ収まるようにしてあるので、
     // 各タブが確保している上部の余白はそのままでよい。
@@ -79,6 +82,11 @@ public:
     static inline constexpr float titleCornerRadius = 3.0f;
 
     void setBackgroundColor(juce::Colour c);
+
+    // 見出しの帯を灰にする。中身が動いていないことを見せるときに使う。
+    void setTitleIdle(bool idle);
+    bool isTitleIdle() const { return titleIdle; }
+
     void paint(juce::Graphics& g) override;
 };
 
