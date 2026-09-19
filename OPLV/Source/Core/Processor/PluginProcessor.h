@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../../Generator/Pcm/Helper/GenPcmShared.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmShared.h"
 #include <array>
 #include <atomic>
 #include <map>

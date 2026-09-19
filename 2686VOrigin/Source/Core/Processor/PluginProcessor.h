@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../../Generator/Pcm/Helper/GenPcmShared.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmShared.h"
 #include <map>
 #include <JuceHeader.h>
 

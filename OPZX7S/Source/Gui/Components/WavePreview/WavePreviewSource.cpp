@@ -4,8 +4,8 @@
 #include <cstdint>
 #include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
-#include "../../../Generator/WtMod/GenWtModulator.h"
-#include "../../../Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 #include "../../../Synth/Opzx7/Operator/SynthOpzx7Op.h"
 #include "../../../Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
 

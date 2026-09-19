@@ -16,8 +16,8 @@
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
-#include "../../Generator/WtMod/GenWtModulator.h"
-#include "../../Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 
 #include "../../Core/Synth/UnisonParams.h"
 #include "../../Core/Synth/UnisonState.h"

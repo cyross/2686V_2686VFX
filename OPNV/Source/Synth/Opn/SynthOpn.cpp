@@ -1,6 +1,6 @@
 ﻿#include "./SynthOpn.h"
 
-#include "../../Core/Synth/SynthHelpers.h"
+#include "Shared/Core/Synth/SynthHelpers.h"
 
 // ============================================================================
 // マトリクスを簡単に構築するためのヘルパー関数 (全オペ完全対応・拡張フィードバック)

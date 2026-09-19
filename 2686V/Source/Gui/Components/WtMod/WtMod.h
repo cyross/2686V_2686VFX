@@ -12,7 +12,7 @@
 #include "../WavePreview/WavePreview.h"
 #include "../WavePreview/WavePreviewGrid.h"
 #include "../../../Core/Gui/GuiContext.h"
-#include "../../../Generator/Fds/GenFdsModTable.h"
+#include "Shared/Generator/Fds/GenFdsModTable.h"
 #include "../WaveHold/WaveHold.h"
 
 // ==========================================================

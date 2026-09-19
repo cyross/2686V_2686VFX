@@ -3,8 +3,8 @@
 #include "./SynthOpzx7OpParams.h"
 #include "../../../Core/Fm/FmOperator.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
-#include "../../../Generator/Fm/Fix/FmFix.h"
+#include "Shared/Generator/Noise/Lfsr/GenNoiseLfsr.h"
+#include "Shared/Generator/Fm/Fix/FmFix.h"
 #include "../../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.h"
@@ -14,8 +14,8 @@
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-#include "../../../Generator/WtMod/GenWtAmpModulator.h"
-#include "../../../Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
 
 class Opzx7Operator : public FmOperator
 {

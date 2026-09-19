@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
 
 namespace
 {

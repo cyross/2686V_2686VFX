@@ -4,8 +4,8 @@
 #include <array>
 #include <functional>
 
-#include "../../../Core/Synth/WaveHold.h"
-#include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
+#include "Shared/Core/Synth/WaveHold.h"
+#include "Shared/Generator/Noise/Lfsr/GenNoiseLfsr.h"
 
 class Opzx7LfoCoreUnit {
 	double m_sampleRate = 44100.0; // DAW Host Sample Rate

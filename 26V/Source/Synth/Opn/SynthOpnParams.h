@@ -6,7 +6,7 @@
 #include "../../Processor/Opn/ProcessorOpnValues.h"
 #include "../../Effect/Lfo/N88/LfoN88Params.h"
 #include "../../Core/Synth/UnisonParams.h"
-#include "../../Core/Synth/CommonParams.h"
+#include "Shared/Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"

@@ -14,8 +14,9 @@
 // 共有ライブラリになっていないため、片方だけ直して他方が取り残される事故が
 // 起きやすい (実際に OPZX7S のエンベロープ 5 本が古い実装のまま残っていた)。
 //
-// 音を決めている Effect と Generator は、同じ機能セットのプロジェクト同士で
-// 完全に一致しているべきなので、そこを機械的に突き合わせる。
+// 音を決めている Effect は、同じ機能セットのプロジェクト同士で完全に一致して
+// いるべきなので、そこを機械的に突き合わせる。Generator は Shared/ へ
+// 1 つにまとめたので、ここでは見ない。
 //
 // カーブ編集の有無で実装が分かれるため、2 つの組に分けて比較する。
 //   Curve 組    : 2686V / OPZX7S
@@ -113,17 +114,7 @@ TEST_CASE("Project drift: Effect (non-curve group)")
     compareTree(kPlainGroup, "Effect");
 }
 
-// プロジェクト間のズレ : Generator (Curve 組)
-TEST_CASE("Project drift: Generator (curve group)")
-{
-    compareTree(kCurveGroup, "Generator");
-}
-
-// プロジェクト間のズレ : Generator (非 Curve 組)
-TEST_CASE("Project drift: Generator (non-curve group)")
-{
-    compareTree(kPlainGroup, "Generator");
-}
+// Generator は Shared/ へ 1 つにまとめたので、ずれようがない。比べない。
 
 // ソースの書式 : BOM 付き UTF-8 と CRLF
 TEST_CASE("Source format: UTF-8 with BOM and CRLF")
@@ -136,8 +127,14 @@ TEST_CASE("Source format: UTF-8 with BOM and CRLF")
 
     int checked = 0;
 
+    // 12 本で共有するコード (Shared/) も同じ規約
+    std::vector<fs::path> bases = { root / "Shared" };
+
     for (const char* proj : { "2686V", "2686VLight", "2686VOrigin", "OPZX7S" }) {
-        fs::path base = root / proj / "Source";
+        bases.push_back(root / proj / "Source");
+    }
+
+    for (const auto& base : bases) {
 
         REQUIRE(fs::exists(base));
 

@@ -1,6 +1,6 @@
 ﻿#include "./SynthSsg.h"
 
-#include "../../Core/Synth/SynthHelpers.h"
+#include "Shared/Core/Synth/SynthHelpers.h"
 
 const std::array<float, 9> SsgCore::dutyPresets = { 0.5f, 0.4375f, 0.375f, 0.3125f, 0.25f, 0.20f, 0.1875f, 0.125f, 0.0625f };
 

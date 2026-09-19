@@ -5,10 +5,10 @@
 #include "./SynthAdpcm.h"
 
 #include "../../Core/Synth/SynthMode.h"
-#include "../../Core/Synth/SynthHelpers.h"
-#include "../../Generator/Pcm/Adpcm/GenAdpcm.h"
-#include "../../Generator/Pcm/Dpcm/GenDpcm.h"
-#include "../../Generator/Pcm/Helper/GenPcmHelper.h"
+#include "Shared/Core/Synth/SynthHelpers.h"
+#include "Shared/Generator/Pcm/Adpcm/GenAdpcm.h"
+#include "Shared/Generator/Pcm/Dpcm/GenDpcm.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmHelper.h"
 
 void AdpcmCore::prepare(double sampleRate)
 {

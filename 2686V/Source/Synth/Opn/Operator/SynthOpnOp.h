@@ -3,7 +3,7 @@
 #include "./SynthOpnOpParams.h"
 #include "../../../Core/Fm/FmOperator.h"
 #include "../../../Effect/Detune/Opn/DetuneOpn.h"
-#include "../../../Generator/Fm/Fix/FmFix.h"
+#include "Shared/Generator/Fm/Fix/FmFix.h"
 #include "../../../Effect/Lfo/N88/LfoN88.h"
 #include "../../../Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
@@ -12,8 +12,8 @@
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-#include "../../../Generator/WtMod/GenWtAmpModulator.h"
-#include "../../../Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
 #include "../../../Effect/Feedback/Feedback.h"
 
 class OpnOperator : public FmOperator

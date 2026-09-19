@@ -1,6 +1,6 @@
 ﻿#include "./SynthOpzx7.h"
 
-#include "../../Core/Synth/SynthHelpers.h"
+#include "Shared/Core/Synth/SynthHelpers.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 // ============================================================================

@@ -13,6 +13,9 @@
 
 set(TEST_TARGET_SOURCE_ROOT "${CMAKE_SOURCE_DIR}/2686V/Source")
 
+# 12 本で共有するコード。プラグインの Source から移したもの。
+set(SHARED_SOURCE_ROOT "${CMAKE_SOURCE_DIR}/Shared")
+
 # ------------------------------------------------------------------------------
 # テストは既定のビルド (ALL_BUILD) へ含めない
 # ------------------------------------------------------------------------------
@@ -74,23 +77,23 @@ set(UNDER_TEST_SOURCES
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opna/LfoOpna.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opm/LfoOpm.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7Unit.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
 
     "${TEST_TARGET_SOURCE_ROOT}/Core/Fm/FmOperator.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Synth/Opzx7/Operator/SynthOpzx7Op.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Fm/Fix/FmFix.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Fm/Fix/FmFix.cpp"
     "${TEST_TARGET_SOURCE_ROOT}/Gui/Components/WavePreview/WavePreviewSource.cpp"
 
-    "${TEST_TARGET_SOURCE_ROOT}/Core/Synth/SynthHelpers.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Helper/GenPcmHelper.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Helper/GenPcmNoiseReducer.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Adpcm/GenAdpcm.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Arcade/GenArcadeAdpcm.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Brr/GenBrr.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Dpcm/GenDpcm.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Ima/GenIma.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Pcm/Vag/GenVag.cpp"
+    "${SHARED_SOURCE_ROOT}/Core/Synth/SynthHelpers.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Helper/GenPcmHelper.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Helper/GenPcmNoiseReducer.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Adpcm/GenAdpcm.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Arcade/GenArcadeAdpcm.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Brr/GenBrr.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Dpcm/GenDpcm.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Ima/GenIma.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Vag/GenVag.cpp"
 )
 
 # ---- テストコード ----
@@ -106,6 +109,7 @@ target_include_directories(RetroSynthsTests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/shim"     # JuceHeader.h の差し替え。必ず先頭。
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${TEST_TARGET_SOURCE_ROOT}"
+    "${CMAKE_SOURCE_DIR}"                  # 共有コード ("Shared/...")
     "${CMAKE_SOURCE_DIR}/external/doctest"
 )
 
@@ -191,6 +195,7 @@ target_sources(IoTests PRIVATE
 
 target_include_directories(IoTests PRIVATE
     "${TEST_TARGET_SOURCE_ROOT}"
+    "${CMAKE_SOURCE_DIR}"                  # 共有コード ("Shared/...")
     "${CMAKE_SOURCE_DIR}/external/doctest"
 )
 

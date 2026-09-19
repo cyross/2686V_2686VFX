@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../../../Core/Synth/WaveHold.h"
+#include "Shared/Core/Synth/WaveHold.h"
 
 // SSG HW ENV の波形スロット。
 // 0〜7 は実機 AY-3-8910 / YM2149 のエンベロープ形状 (shape 8〜15) に対応する。

@@ -5,7 +5,7 @@
 #include "./Operator/SynthOpl3OpParams.h"
 #include "../../Processor/Opl3/ProcessorOpl3Values.h"
 #include "../../Core/Synth/UnisonParams.h"
-#include "../../Core/Synth/CommonParams.h"
+#include "Shared/Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"

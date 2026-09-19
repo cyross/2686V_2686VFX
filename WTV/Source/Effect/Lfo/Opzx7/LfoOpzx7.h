@@ -5,7 +5,7 @@
 #include <functional>
 
 #include "./LfoOpzx7Params.h"
-#include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
+#include "Shared/Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "./LfoOpzx7Unit.h"
 
 struct Opzx7LfoValues {

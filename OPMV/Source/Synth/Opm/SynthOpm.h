@@ -3,12 +3,12 @@
 #include <random>
 
 #include "../../Core/Fm/FmCore.h"
-#include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
+#include "Shared/Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/Opm/LfoOpm.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Processor/Opm/ProcessorOpmValues.h"
-#include "../../Generator/WtMod/GenWtModulator.h"
-#include "../../Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"

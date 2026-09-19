@@ -213,6 +213,18 @@ def owned_symbols(src_root, chips, keep_dirs=()):
         if os.path.normpath(path).startswith(comp_dirs):
             components |= words
 
+    # 12 本で共有するコード (Shared/)。プラグインの Source から移したもので、
+    # ここにある名前はどれも皆のもの。移す前は Effect や Generator として
+    # 上で数えていたので、同じ扱いにする。
+    shared_code = all_sources(os.path.join(ROOT, "Shared"))
+
+    for path in shared_code:
+        words = set(IDENT.findall(read_text(path)))
+        shared |= words
+        components |= words
+
+    shared |= declared_names(shared_code)
+
     # 共有ファイルで宣言されている型は、名前に音源の綴りを含んでいても
     # 皆のもの (WtModWaveSlot など)。
     shared |= declared_names(outside)
@@ -226,7 +238,7 @@ def owned_symbols(src_root, chips, keep_dirs=()):
             for path in all_sources(base):
                 shared |= set(IDENT.findall(read_text(path)))
 
-    return declared_names(inside) - declared_names(outside), shared, components
+    return declared_names(inside) - declared_names(outside) - declared_names(shared_code), shared, components
 
 
 def drop_patterns(chip):

@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <vector>
 
-#include "Generator/Pcm/Helper/GenPcmHelper.h"
-#include "Generator/Pcm/Helper/GenPcmNoiseReducer.h"
-#include "Generator/Pcm/Adpcm/GenAdpcm.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmHelper.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmNoiseReducer.h"
+#include "Shared/Generator/Pcm/Adpcm/GenAdpcm.h"
 
 // ============================================================================
 // QUALITY (PCM) のノイズリダクション

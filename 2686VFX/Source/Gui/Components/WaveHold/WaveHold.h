@@ -10,7 +10,7 @@
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Io/ParamFile.h"
-#include "../../../Core/Synth/WaveHold.h"
+#include "Shared/Core/Synth/WaveHold.h"
 #include "../CountButtons/CountButtons.h"
 #include "../NudgeButtons/NudgeButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"

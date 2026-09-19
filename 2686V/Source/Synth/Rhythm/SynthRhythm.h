@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "../../Generator/Pcm/Helper/GenPcmNoiseReducer.h"
-#include "../../Generator/Pcm/Helper/GenPcmShared.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmNoiseReducer.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmShared.h"
 
 #include <JuceHeader.h>
 #include <vector>
@@ -16,10 +16,10 @@
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
-#include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
-#include "../../Generator/Fm/Fix/FmFix.h"
-#include "../../Generator/WtMod/GenWtModulator.h"
-#include "../../Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Generator/Noise/Ssg/GenNoiseSsg.h"
+#include "Shared/Generator/Fm/Fix/FmFix.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 

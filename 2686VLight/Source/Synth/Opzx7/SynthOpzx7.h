@@ -6,11 +6,11 @@
 #include <algorithm>
 
 #include "../../Core/Fm/FmCore.h"
-#include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
+#include "Shared/Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
-#include "../../Generator/WtMod/GenWtModulator.h"
-#include "../../Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"

@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "../../Core/Fm/FmCore.h"
-#include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
+#include "Shared/Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/N88/LfoN88.h"
 #include "../../Processor/Opn/ProcessorOpnValues.h"
-#include "../../Generator/WtMod/GenWtModulator.h"
-#include "../../Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"

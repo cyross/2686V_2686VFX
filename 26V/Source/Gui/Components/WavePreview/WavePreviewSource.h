@@ -3,7 +3,7 @@
 #include <array>
 #include <vector>
 
-#include "../../../Core/Synth/WaveHold.h"
+#include "Shared/Core/Synth/WaveHold.h"
 
 // ============================================================================
 // 波形プレビューへ渡すものを作る

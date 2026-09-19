@@ -41,39 +41,13 @@ set(SYNTH_FILES
     "Source/Core/Synth/SynthParams.h"
     "Source/Core/Synth/SynthVoice.h"
     "Source/Core/Synth/SynthVoice.cpp"
-    "Source/Core/Synth/SynthHelpers.h"
-    "Source/Core/Synth/SynthHelpers.cpp"
     "Source/Core/Synth/UnisonParams.h"
     "Source/Core/Synth/UnisonState.h"
-    "Source/Core/Synth/CommonParams.h"
 )
 
-set(FM_FIX_FILES
-    "Source/Generator/Fm/Fix/FmFixParams.h"
-    "Source/Generator/Fm/Fix/FmFix.h"
-    "Source/Generator/Fm/Fix/FmFix.cpp"
-)
 
-set(LFSR_NOISE_GEN_FILES
-    "Source/Generator/Noise/Lfsr/GenNoiseLfsrParams.h"
-    "Source/Generator/Noise/Lfsr/GenNoiseLfsr.h"
-    "Source/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
-)
 
-set(SSG_NOISE_GEN_FILES
-    "Source/Generator/Noise/Ssg/GenNoiseSsgParams.h"
-    "Source/Generator/Noise/Ssg/GenNoiseSsg.h"
-    "Source/Generator/Noise/Ssg/GenNoiseSsg.cpp"
-)
 
-set(PCM_GENERATOR_FILES
-    "Source/Generator/Pcm/Adpcm/GenAdpcm.h"
-    "Source/Generator/Pcm/Adpcm/GenAdpcm.cpp"
-    "Source/Generator/Pcm/Dpcm/GenDpcm.h"
-    "Source/Generator/Pcm/Dpcm/GenDpcm.cpp"
-    "Source/Generator/Pcm/Helper/GenPcmHelper.h"
-    "Source/Generator/Pcm/Helper/GenPcmHelper.cpp"
-)
 
 set(FM_FILES
     "Source/Core/Fm/FmCore.h"
@@ -345,13 +319,7 @@ set(ABOUT_GUI_FILES
     "Source/Gui/About/GuiAbout.cpp"
 )
 
-set(GENERATOR_WTMOD_FILES
-    "Source/Generator/WtMod/GenWtModulator.h"
-)
 
-set(GENERATOR_FDS_FILES
-    "Source/Generator/Fds/GenFdsModTable.h"
-)
 
 set(GUI_COMPONENT_PARAMBAREDITOR_FILES
     "Source/Gui/Components/ParamBarEditor/ParamBarEditor.h"
@@ -511,10 +479,6 @@ set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 # ソースグループの設定
 source_group("2686VO\\Constants" FILES ${CONST_FILES})
 source_group("2686VO\\Documents" FILES ${DOCUMENT_FILES})
-source_group("2686VO\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
-source_group("2686VO\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
-source_group("2686VO\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
-source_group("2686VO\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
 source_group("2686VO\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("2686VO\\Synth\\Fm" FILES ${FM_FILES})
 source_group("2686VO\\Synth\\Opna" FILES ${OPNA_SYNTH_FILES})
@@ -536,8 +500,6 @@ source_group("2686VO\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
 source_group("2686VO\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
 source_group("2686VO\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
 source_group("2686VO\\Gui\\Core" FILES ${GUI_FILES})
-source_group("2686VO\\Generator\\WtMod" FILES ${GENERATOR_WTMOD_FILES})
-source_group("2686VO\\Generator\\Fds" FILES ${GENERATOR_FDS_FILES})
 source_group("2686VO\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
 source_group("2686VO\\Gui\\Components\\WavePreview" FILES ${GUI_COMPONENT_WAVEPREVIEW_FILES})
 source_group("2686VO\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})

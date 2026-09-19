@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "Generator/Fds/GenFdsModTable.h"
+#include "Shared/Generator/Fds/GenFdsModTable.h"
 
 // FdsMod : 位相 0 の変調量は 0
 TEST_CASE("FdsMod: modulation is 0 at phase 0")

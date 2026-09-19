@@ -39,34 +39,13 @@ set(SYNTH_FILES
     "Source/Core/Synth/SynthParams.h"
     "Source/Core/Synth/SynthVoice.h"
     "Source/Core/Synth/SynthVoice.cpp"
-    "Source/Core/Synth/SynthHelpers.h"
-    "Source/Core/Synth/SynthHelpers.cpp"
     "Source/Core/Synth/UnisonParams.h"
     "Source/Core/Synth/UnisonState.h"
-    "Source/Core/Synth/CommonParams.h"
 )
 
-set(FM_FIX_FILES
-    "Source/Generator/Fm/Fix/FmFixParams.h"
-    "Source/Generator/Fm/Fix/FmFix.h"
-    "Source/Generator/Fm/Fix/FmFix.cpp"
-)
 
-set(LFSR_NOISE_GEN_FILES
-    "Source/Generator/Noise/Lfsr/GenNoiseLfsrParams.h"
-    "Source/Generator/Noise/Lfsr/GenNoiseLfsr.h"
-    "Source/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
-)
 
-set(SSG_NOISE_GEN_FILES
-    "Source/Generator/Noise/Ssg/GenNoiseSsgParams.h"
-    "Source/Generator/Noise/Ssg/GenNoiseSsg.h"
-    "Source/Generator/Noise/Ssg/GenNoiseSsg.cpp"
-)
 
-set(GENERATOR_WTMOD_FILES
-    "Source/Generator/WtMod/GenWtModulator.h"
-)
 
 set(FM_FILES
     "Source/Core/Fm/FmCore.h"
@@ -446,11 +425,6 @@ set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 # ソースグループの設定
 source_group("26V\\Constants" FILES ${CONST_FILES})
 source_group("26V\\Documents" FILES ${DOCUMENT_FILES})
-source_group("26V\\Generator\\WtMod" FILES ${GENERATOR_WTMOD_FILES})
-source_group("26V\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
-source_group("26V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
-source_group("26V\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
-source_group("26V\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
 source_group("26V\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("26V\\Synth\\Fm" FILES ${FM_FILES})
 source_group("26V\\Synth\\Opn" FILES ${OPN_SYNTH_FILES})

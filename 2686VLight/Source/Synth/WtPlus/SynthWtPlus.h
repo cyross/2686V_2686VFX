@@ -7,8 +7,8 @@
 
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Core/Synth/WtPlusWave.h"
-#include "../../Generator/WtMod/GenWtModulator.h"
-#include "../../Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
@@ -17,7 +17,7 @@
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
-#include "../../Generator/Fm/Fix/FmFix.h"
+#include "Shared/Generator/Fm/Fix/FmFix.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 

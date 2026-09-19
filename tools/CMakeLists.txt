@@ -8,6 +8,12 @@
 # ------------------------------------------------------------------------------
 # 2686V はすべての音源を含むので、これ 1 つで全チャンネルぶんが採れる。
 # プロセッサを作って、登録されているものをそのまま吐き出す。
+#
+# プラグインとは JUCE の組み方 (コンソールアプリ) が違うので、共有コード
+# (Shared/) もつながずに、ここで一緒にコンパイルする。
+file(GLOB_RECURSE PARAM_DUMP_SHARED_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/Shared/*.cpp"
+)
 juce_add_console_app(ParamDump PRODUCT_NAME "ParamDump")
 
 juce_generate_juce_header(ParamDump)
@@ -19,10 +25,12 @@ file(GLOB_RECURSE PARAM_DUMP_PLUGIN_SOURCES CONFIGURE_DEPENDS
 target_sources(ParamDump PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/ParamDump/ParamDump.cpp"
     ${PARAM_DUMP_PLUGIN_SOURCES}
+    ${PARAM_DUMP_SHARED_SOURCES}
 )
 
 target_include_directories(ParamDump PRIVATE
     "${CMAKE_SOURCE_DIR}/2686V/Source"
+    "${CMAKE_SOURCE_DIR}"                  # 共有コード ("Shared/...")
 )
 
 target_link_libraries(ParamDump PRIVATE
@@ -71,10 +79,12 @@ file(GLOB_RECURSE PARAM_DUMP_FX_SOURCES CONFIGURE_DEPENDS
 target_sources(ParamDumpFx PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/ParamDump/ParamDump.cpp"
     ${PARAM_DUMP_FX_SOURCES}
+    ${PARAM_DUMP_SHARED_SOURCES}
 )
 
 target_include_directories(ParamDumpFx PRIVATE
     "${CMAKE_SOURCE_DIR}/2686VFX/Source"
+    "${CMAKE_SOURCE_DIR}"                  # 共有コード ("Shared/...")
 )
 
 target_link_libraries(ParamDumpFx PRIVATE

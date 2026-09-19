@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../Generator/Fds/GenFdsModTable.h"
+#include "Shared/Generator/Fds/GenFdsModTable.h"
 #include <JuceHeader.h>
 #include <array>
 
@@ -10,7 +10,7 @@
 #include "./ProcessorValues.h"
 #include "./ProcessorFloat.h"
 
-#include "../../Core/Synth/CommonParams.h"
+#include "Shared/Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
@@ -25,7 +25,7 @@
 #include "../../Effect/Lfo/Opna/LfoOpnaParams.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7Params.h"
 #include "../../Core/Synth/UnisonParams.h"
-#include "../../Generator/Fm/Fix/FmFixParams.h"
+#include "Shared/Generator/Fm/Fix/FmFixParams.h"
 
 
 namespace PrHelper {

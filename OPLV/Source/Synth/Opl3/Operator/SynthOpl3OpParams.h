@@ -9,8 +9,8 @@
 #include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
 #include "../../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "../../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
-#include "../../../Core/Synth/CommonParams.h"
-#include "../../../Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Core/Synth/CommonParams.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 
 struct Opl3OpParams
 {

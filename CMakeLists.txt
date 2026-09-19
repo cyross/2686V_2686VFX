@@ -109,57 +109,74 @@ set(CY_JUCE_DEFINITIONS
 #
 # 道具 (ParamDump) とテスト (IoTests) はコンソールアプリとして JUCE を組むので、
 # 定義が違う。これらはこれまでどおり自分で組む。
-option(CY_SHARED_JUCE "JUCE を全プラグインで共有する静的ライブラリにする" ON)
+# プラグインの形式ごとの包み (VST3 / Standalone) が組むものは除く。
+# こちらは中でプラグイン名などを使うので、プラグインごとに組む。
+set(CY_JUCE_SHARED_SOURCES ${CY_JUCE_MODULE_SOURCES})
+list(FILTER CY_JUCE_SHARED_SOURCES EXCLUDE REGEX "/juce_audio_plugin_client/")
 
-if(CY_SHARED_JUCE)
-    # プラグインの形式ごとの包み (VST3 / Standalone) が組むものは除く。
-    # こちらは中でプラグイン名などを使うので、プラグインごとに組む。
-    set(CY_JUCE_SHARED_SOURCES ${CY_JUCE_MODULE_SOURCES})
-    list(FILTER CY_JUCE_SHARED_SOURCES EXCLUDE REGEX "/juce_audio_plugin_client/")
+add_library(cy_juce STATIC)
 
-    add_library(cy_juce STATIC)
+# モジュールをつなぐと、その実装ファイルがこのライブラリへ入る。
+#
+# juce_audio_plugin_client はここでは何も組まないが、「使える」という印
+# (JUCE_MODULE_AVAILABLE_juce_audio_plugin_client) を立てるためにつなぐ。
+# juce_gui_basics はこの印を見て、プラグインの窓の扱いを変える。
+target_link_libraries(cy_juce PRIVATE
+    juce::juce_audio_utils
+    juce::juce_dsp
+    juce::juce_audio_plugin_client
+    juce::juce_recommended_config_flags
+)
 
-    # モジュールをつなぐと、その実装ファイルがこのライブラリへ入る。
-    #
-    # juce_audio_plugin_client はここでは何も組まないが、「使える」という印
-    # (JUCE_MODULE_AVAILABLE_juce_audio_plugin_client) を立てるためにつなぐ。
-    # juce_gui_basics はこの印を見て、プラグインの窓の扱いを変える。
-    target_link_libraries(cy_juce PRIVATE
-        juce::juce_audio_utils
-        juce::juce_dsp
-        juce::juce_audio_plugin_client
-        juce::juce_recommended_config_flags
-    )
+# プラグインの共有コードと同じ定義にする。juce_add_plugin が中で付けている
+# もののうち、モジュールの実装が見るものを写す。出す形の印
+# (JucePlugin_Build_VST3 など) は JUCE 自身の関数で付ける。
+_juce_add_plugin_definitions(cy_juce PRIVATE ${CY_PLUGIN_FORMATS})
 
-    # プラグインの共有コードと同じ定義にする。juce_add_plugin が中で付けている
-    # もののうち、モジュールの実装が見るものを写す。出す形の印
-    # (JucePlugin_Build_VST3 など) は JUCE 自身の関数で付ける。
-    _juce_add_plugin_definitions(cy_juce PRIVATE ${CY_PLUGIN_FORMATS})
+target_compile_definitions(cy_juce PRIVATE
+    ${CY_JUCE_DEFINITIONS}
+    JUCE_SHARED_CODE=1
+    JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone
+    JucePlugin_Enable_ARA=0
+)
 
-    target_compile_definitions(cy_juce PRIVATE
-        ${CY_JUCE_DEFINITIONS}
-        JUCE_SHARED_CODE=1
-        JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone
-        JucePlugin_Enable_ARA=0
-    )
-
-    # プラグイン名の受け口を、どのファイルよりも先に読ませる
-    if(MSVC)
-        target_compile_options(cy_juce PRIVATE /utf-8 /FS
-            "/FI${CMAKE_CURRENT_SOURCE_DIR}/cmake/SharedJuce/CyJucePluginName.h")
-    else()
-        target_compile_options(cy_juce PRIVATE
-            -include "${CMAKE_CURRENT_SOURCE_DIR}/cmake/SharedJuce/CyJucePluginName.h")
-    endif()
-
-    # プラグインの共有コードに JUCE が付けているものと揃える
-    set_target_properties(cy_juce PROPERTIES
-        POSITION_INDEPENDENT_CODE TRUE
-        VISIBILITY_INLINES_HIDDEN TRUE
-        C_VISIBILITY_PRESET hidden
-        CXX_VISIBILITY_PRESET hidden
-    )
+# プラグイン名の受け口を、どのファイルよりも先に読ませる
+if(MSVC)
+    target_compile_options(cy_juce PRIVATE /utf-8 /FS
+        "/FI${CMAKE_CURRENT_SOURCE_DIR}/cmake/SharedJuce/CyJucePluginName.h")
+else()
+    target_compile_options(cy_juce PRIVATE
+        -include "${CMAKE_CURRENT_SOURCE_DIR}/cmake/SharedJuce/CyJucePluginName.h")
 endif()
+
+# プラグインの共有コードに JUCE が付けているものと揃える
+set_target_properties(cy_juce PROPERTIES
+    POSITION_INDEPENDENT_CODE TRUE
+    VISIBILITY_INLINES_HIDDEN TRUE
+    C_VISIBILITY_PRESET hidden
+    CXX_VISIBILITY_PRESET hidden
+)
+
+# JUCE を「プラグインと同じ定義で読む」ための口。共有コード (Shared/) が使う。
+#
+# cy_juce がモジュールから受け取っている取り込み先と定義を、そのまま写す。
+# モジュールそのものはつながないので、実装ファイルが二重に入ることはない。
+# JUCE がプラグインの包み (VST3 など) を組むときと同じやり方。
+add_library(cy_juce_usage INTERFACE)
+
+target_include_directories(cy_juce_usage INTERFACE
+    $<TARGET_PROPERTY:cy_juce,INCLUDE_DIRECTORIES>)
+
+target_compile_definitions(cy_juce_usage INTERFACE
+    $<TARGET_PROPERTY:cy_juce,COMPILE_DEFINITIONS>)
+
+target_link_libraries(cy_juce_usage INTERFACE
+    cy_juce
+    juce::juce_recommended_config_flags
+)
+
+# 共有コード (静的ライブラリ)。プラグインより先に作る。
+add_subdirectory(Shared)
 
 # yaml-cpp は自前の警告設定を持たないので、こちらの厳しい設定に
 # 巻き込まれないようにする。外から持ってきたものは直せないため。
@@ -247,18 +264,19 @@ function(create_cyross_target TARGET_NAME CY_PLUGIN_CODE CY_IS_SYNTH)
     target_compile_definitions(${TARGET_NAME} PRIVATE ${CY_JUCE_DEFINITIONS})
 
     # JUCE は cy_juce で組んだものを使う。自分では組まない。
-    if(CY_SHARED_JUCE)
-        target_link_libraries(${TARGET_NAME} PRIVATE cy_juce)
+    target_link_libraries(${TARGET_NAME} PRIVATE cy_juce)
 
-        set_source_files_properties(${CY_JUCE_SHARED_SOURCES}
-            TARGET_DIRECTORY ${TARGET_NAME}
-            PROPERTIES HEADER_FILE_ONLY ON
-        )
+    set_source_files_properties(${CY_JUCE_SHARED_SOURCES}
+        TARGET_DIRECTORY ${TARGET_NAME}
+        PROPERTIES HEADER_FILE_ONLY ON
+    )
 
-        # cy_juce へこのプラグインの名前を返す
-        target_sources(${TARGET_NAME} PRIVATE
-            "${CMAKE_SOURCE_DIR}/cmake/SharedJuce/CyJucePluginName.cpp")
-    endif()
+    # cy_juce へこのプラグインの名前を返す
+    target_sources(${TARGET_NAME} PRIVATE
+        "${CMAKE_SOURCE_DIR}/cmake/SharedJuce/CyJucePluginName.cpp")
+
+    # 12 本で共有するコード (Shared/)
+    target_link_libraries(${TARGET_NAME} PRIVATE cy_shared)
 
     juce_generate_juce_header(${TARGET_NAME})
 

@@ -1,6 +1,6 @@
 ﻿#include "./SynthWtPlus.h"
 
-#include "../../Core/Synth/SynthHelpers.h"
+#include "Shared/Core/Synth/SynthHelpers.h"
 
 WtPlusCore::WtPlusCore() : SynthCore()
 {

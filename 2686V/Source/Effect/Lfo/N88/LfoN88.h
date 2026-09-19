@@ -5,7 +5,7 @@
 #include <functional>
 
 #include "./LfoN88Params.h"
-#include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
+#include "Shared/Generator/Noise/Lfsr/GenNoiseLfsr.h"
 
 struct N88LfoValues {
 	float am = 0.0f;

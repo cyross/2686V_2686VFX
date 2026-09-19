@@ -15,7 +15,7 @@
 #include "../../../Core/Const/ConstFileValues.h"
 #include "../../../Core/Gui/GuiColor.h"
 #include "../../../Core/Gui/GuiValues.h"
-#include "../../../Core/Synth/CommonParams.h"
+#include "Shared/Core/Synth/CommonParams.h"
 
 namespace
 {

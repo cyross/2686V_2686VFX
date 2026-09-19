@@ -5,7 +5,7 @@
 #include <functional>
 
 #include "./LfoOpnaParams.h"
-#include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
+#include "Shared/Generator/Noise/Lfsr/GenNoiseLfsr.h"
 
 struct OpnaLfoValues {
 	float am = 0.0f;

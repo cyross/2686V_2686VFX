@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../../Generator/Pcm/Helper/GenPcmShared.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmShared.h"
 
 #include <array>
 
@@ -11,8 +11,8 @@
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7Params.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7Params.h"
 #include "../../Core/Synth/UnisonParams.h"
-#include "../../Generator/Fm/Fix/FmFixParams.h"
-#include "../../Core/Synth/CommonParams.h"
+#include "Shared/Generator/Fm/Fix/FmFixParams.h"
+#include "Shared/Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../../../Core/Processor/ProcessorValues.h"
-#include "../../../Core/Synth/WaveHold.h"
+#include "Shared/Core/Synth/WaveHold.h"
 
 struct LfoOpzx7Params {
 	bool pmEnable = CPV::Opzx7Lfo::Pm::initial;

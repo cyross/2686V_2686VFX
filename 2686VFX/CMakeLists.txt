@@ -41,34 +41,13 @@ set(SYNTH_FILES
     "Source/Core/Synth/SynthParams.h"
     "Source/Core/Synth/SynthVoice.h"
     "Source/Core/Synth/SynthVoice.cpp"
-    "Source/Core/Synth/SynthHelpers.h"
-    "Source/Core/Synth/SynthHelpers.cpp"
     "Source/Core/Synth/UnisonParams.h"
     "Source/Core/Synth/UnisonState.h"
-    "Source/Core/Synth/CommonParams.h"
-)
-
-set(FM_FIX_FILES
-    "Source/Generator/Fm/Fix/FmFixParams.h"
-    "Source/Generator/Fm/Fix/FmFix.h"
-    "Source/Generator/Fm/Fix/FmFix.cpp"
-)
-
-set(LFSR_NOISE_GEN_FILES
-    "Source/Generator/Noise/Lfsr/GenNoiseLfsrParams.h"
-    "Source/Generator/Noise/Lfsr/GenNoiseLfsr.h"
-    "Source/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
 )
 
 
-set(PCM_GENERATOR_FILES
-    "Source/Generator/Pcm/Adpcm/GenAdpcm.h"
-    "Source/Generator/Pcm/Adpcm/GenAdpcm.cpp"
-    "Source/Generator/Pcm/Dpcm/GenDpcm.h"
-    "Source/Generator/Pcm/Dpcm/GenDpcm.cpp"
-    "Source/Generator/Pcm/Helper/GenPcmHelper.h"
-    "Source/Generator/Pcm/Helper/GenPcmHelper.cpp"
-)
+
+
 
 set(FM_FILES
     "Source/Core/Fm/FmCore.h"
@@ -254,13 +233,7 @@ set(ABOUT_GUI_FILES
     "Source/Gui/About/GuiAbout.cpp"
 )
 
-set(GENERATOR_WTMOD_FILES
-    "Source/Generator/WtMod/GenWtModulator.h"
-)
 
-set(GENERATOR_FDS_FILES
-    "Source/Generator/Fds/GenFdsModTable.h"
-)
 
 set(GUI_COMPONENT_PARAMBAREDITOR_FILES
     "Source/Gui/Components/ParamBarEditor/ParamBarEditor.h"
@@ -398,9 +371,6 @@ set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 # ソースグループの設定
 source_group("2686VFX\\Constants" FILES ${CONST_FILES})
 source_group("2686VFX\\Documents" FILES ${DOCUMENT_FILES})
-source_group("2686VFX\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
-source_group("2686VFX\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
-source_group("2686VFX\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
 source_group("2686VFX\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("2686VFX\\Synth\\Fm" FILES ${FM_FILES})
 source_group("2686VFX\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
@@ -414,8 +384,6 @@ source_group("2686VFX\\Effect\\KeyScale" FILES ${KEY_SCALE_FILES})
 source_group("2686VFX\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("2686VFX\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
 source_group("2686VFX\\Gui\\Core" FILES ${GUI_FILES})
-source_group("2686VFX\\Generator\\WtMod" FILES ${GENERATOR_WTMOD_FILES})
-source_group("2686VFX\\Generator\\Fds" FILES ${GENERATOR_FDS_FILES})
 source_group("2686VFX\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
 source_group("2686VFX\\Gui\\Components\\WavePreview" FILES ${GUI_COMPONENT_WAVEPREVIEW_FILES})
 source_group("2686VFX\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})
