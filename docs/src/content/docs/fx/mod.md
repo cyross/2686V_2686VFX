@@ -16,6 +16,10 @@ sidebar:
 
 LFO と音程ずらしは、押さなくても掛かります。だから入り切りの札が
 分けてあります。
+
+[キーアサイン](#キーアサイン--変調を動かす鍵盤) をカスタマイズにすると、対象
+ごとに動かす鍵盤を決められます。そのときは LFO と音程ずらしも、割り当てた
+鍵盤を押している間だけ掛かります。
 :::
 
 ## 変調の入り切り
@@ -29,6 +33,60 @@ LFO と音程ずらしは、押さなくても掛かります。だから入り�
 | **LFO をバイパス** | LFO を通さない | オン / オフ | オン | [`MOD_LFO_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-lfo-bypass) |
 | **ピッチ変調をバイパス** | PITCH ENV・SSG HW PITCH ENV・SSG SW PITCH ENV[11]・WT PITCH MOD をまとめて通さない | オン / オフ | オン | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-pitch-bypass) |
 | **音程ずらしをバイパス** | MUL・DET と UNISON・HARMONY をまとめて通さない | オン / オフ | オン | [`MOD_SHIFT_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-shift-bypass) |
+
+## キーアサイン — 変調を動かす鍵盤
+
+エフェクターの枠の、ファイルの読み書きの上にあります。**どの鍵盤で、どの変調を
+動かすか**を決めます。
+
+| つまみ | 内容 | 範囲 | 初期値 | オートメーション |
+| --- | --- | --- | ---: | --- |
+| **キーアサイン** | シングルキーアサイン / キーアサインのカスタマイズ | 0 〜 1 | 0（シングル） | [`MOD_KEYASSIGN_MODE`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-keyassign-mode) |
+
+- **シングルキーアサイン**（初期）: これまでどおり、どの鍵盤でも全部が動きます
+- **キーアサインのカスタマイズ**: 対象ごとに決めた鍵盤でだけ動きます。選ぶと、
+  下に対象ごとの鍵盤の一覧が出ます
+
+### 対象ごとの鍵盤
+
+カスタマイズのときだけ出ます。鍵盤は C-2 (0) 〜 G8 (127) から選べます。
+FIX の音名と同じく、60 が C3 です。
+
+| つまみ | 内容 | 範囲 | 初期値 | オートメーション |
+| --- | --- | --- | ---: | --- |
+| **AMP ENV** | AMP ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_AMPENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ampenv) |
+| **SSG HW AMP ENV** | SSG HW AMP ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGHWENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssghwenv) |
+| **WT AMP MOD** | WT AMP MOD を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_WTAMPMOD`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-wtampmod) |
+| **SSG SW AMP ENV\[11\]** | SSG SW AMP ENV\[11\] を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGSWENV11`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssgswenv11) |
+| **PITCH ENV** | PITCH ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_PITCHENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-pitchenv) |
+| **SSG HW PITCH ENV** | SSG HW PITCH ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGHWPENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssghwpenv) |
+| **SSG SW PITCH ENV\[11\]** | SSG SW PITCH ENV\[11\] を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGSWPENV11`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssgswpenv11) |
+| **WT PITCH MOD** | WT PITCH MOD を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_WTMOD`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-wtmod) |
+| **LFO AM** | LFO AM を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_LFOAM`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-lfoam) |
+| **LFO PM** | LFO PM を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_LFOPM`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-lfopm) |
+| **MUL/DET** | MUL/DET を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_MULDET`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-muldet) |
+| **UNISON/HARMONY** | UNISON/HARMONY を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_UNISON`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-unison) |
+| **ARPEGGIO** | ARPEGGIO を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_ARP`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-arp) |
+
+割り当てた鍵盤でのふるまいは、対象によって 2 通りです。
+
+| 対象 | ふるまい |
+| --- | --- |
+| エンベロープ（AMP ENV・PITCH ENV・SSG HW・SSG SW[11]・WT MOD の各枠） | 押すと始まり、離すと戻る |
+| LFO AM / LFO PM | **押している間だけ**掛かる。押したときに頭から回る |
+| MUL/DET / UNISON/HARMONY | **押している間だけ**掛かる |
+| ARPEGGIO | **押している間だけ**アルペジオになる。押したときに 1 声目から始まる |
+
+- 同じ鍵盤を複数の対象へ割り当てられます。その鍵盤を押すと、まとめて動きます
+- 複数の鍵盤を押したときは、それぞれに割り当てた処理がすべて動きます
+- 処理する順番は、シングルキーアサインのときと同じです
+- 押し離しで掛けたり外したりする LFO は、音が飛ばないよう数ミリ秒かけて
+  なめらかに切り替えます
+- それぞれの区分の入り切り（札）は、キーアサインとは別に効きます。札で切って
+  ある区分は、割り当てた鍵盤を押しても動きません
+
+割り当ては FX のパラメータファイル（[`.2fx`](/2686V_2686VFX/reference/file-spec/2fx/)）へ
+保存されます。
 
 ## 音量 — AMP ENV
 
@@ -76,6 +134,8 @@ LFO と音程ずらしは、押さなくても掛かります。だから入り�
 AM 側が音量、PM 側が音程へ掛かります。
 
 押さなくても回り続けるので、入り切りは **LFO をバイパス** で別に持っています。
+[キーアサイン](#キーアサイン--変調を動かす鍵盤) をカスタマイズにしたときは、AM と
+PM をそれぞれ割り当てた鍵盤を押している間だけ掛かります。
 
 ## 音程 — PITCH ENV
 

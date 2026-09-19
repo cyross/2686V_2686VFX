@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v3.5.0 README
+# Retro Sound VST "2686V" v3.6.0 README
 
 (C)2026 CYROSS
 
@@ -29,7 +29,61 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0-1. What v3.5.0 adds and changes
+### 3-0-1. What v3.6.0 adds and changes
+
+- **2686VFX: assign which key drives each modulation**
+  - Added "Key assign" to the Effects frame, above the file import/export buttons.
+    - Single key: same as before; any key drives everything (default).
+    - Customize: choose the key for each target (every target defaults to C3 (60)).
+  - 13 targets can be assigned:
+    - AMP ENV / SSG HW AMP ENV / WT AMP MOD / SSG SW AMP ENV[11]
+    - PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD
+    - LFO (AM and PM assigned separately)
+    - MUL/DET
+    - UNISON/HARMONY (the arpeggio assigned separately)
+  - In Customize mode, LFO, MUL/DET, UNISON/HARMONY and the arpeggio apply only while their assigned key is held.
+    - The LFO and the arpeggio restart from the top on key down.
+  - The same key can be assigned to several targets (processed together).
+  - When several keys are held, everything assigned to them runs.
+  - Targets are processed in the same order as before.
+  - Assignments are saved in the FX parameter file.
+- **Controls in a section whose Bypass / Enable switch is off are now disabled**
+  - While the switch has no effect, the controls inside are disabled and dimmed.
+    - The switch itself always stays clickable.
+  - Applies to:
+    - AMP ENV / PITCH ENV
+    - SSG HW AMP ENV / SSG HW PITCH ENV (including the waveform preview)
+    - SSG SW AMP ENV / SSG SW AMP ENV[11] / SSG SW PITCH ENV[11]
+    - PM Enable / AM Enable of N88 LFO, the OPZX7 LFO and the OPM LFO
+      - Shared controls such as speed, shape and sync stay enabled while either one is on.
+    - FIX's Enable (including its separators)
+  - Follows TARGET changes and preset loading.
+- **Noise reduction for PCM QUALITY**
+  - Applies to ADPCM / ADPCM+ / RHYTHM.
+  - NR: Resample: uses a clean windowed-sinc decimation when converting to a compression format (BIT 13-21).
+  - NR: Gate / GATE.LV: removes faint noise and DC offset in near-silent passages.
+  - NR.LPF: cuts the high end to tame the grit (Off / Light / Medium / Strong).
+  - All of them are off by default (existing sounds do not change).
+  - Measured the amount of noise:
+    - Plain bit reduction (BIT 1-12) matches theory.
+    - The compression formats used a crude decimation that capped the signal-to-distortion ratio at about 28 dB.
+      - NR: Resample improves it to about 90 dB.
+  - The RHYTHM pad copy/paste now includes INTERP and the noise reduction settings.
+- **Thicker scroll bars**
+  - In the channel tabs, vertical from 8 px to 10 px and horizontal from 8 px to 12 px.
+- **Fixes**
+  - 86V's N88 LFO file had not been moved to the 3.0.0 format and could not load files exported from the other plugins.
+  - In 2686VFX, the PCM bit crusher row in the Effects frame's order list had no name.
+  - In QUALITY / QUALITY(PCM), the RATE choices 5.5kHz and 4kHz were numbered 12 and 13; they are now 13 and 14 (display only).
+- **For developers**
+  - Tests are no longer part of the default build; the build preset decides:
+    - `*-debug`: plugins and tests
+    - `*-release`: plugins only
+    - `*-release-tests`: plugins and tests (new)
+  - N88 LFO (chip-wide and operator sides) is now a component.
+  - Added tests for disabling controls with their switches and for key assignment.
+
+### 3-0-2. What v3.5.0 adds and changes
 
 - **Support for on-the-fly display language selection**
   - Added a "Language (LANGUAGE)" dropdown setting to the top of the **SETTINGS** tab.
@@ -43,7 +97,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Slightly expanded the width of the "Format" label on the **PRESET** tab to accommodate the English word.
   - Removed the parenthesized "(Oscilloscope)" from the wave preview heading in the English layout to ensure the "Waveform preview" text fits within the frame.
 
-### 3-0-2. What v3.4.0 adds and changes
+### 3-0-3. What v3.4.0 adds and changes
 
 - **Passing sounds between the FM chips and OPZX7S**
   - **[EX]OPZX7S Params** added to UTILITY on OPNA / OPN / OPL / OPL3 / OPM
@@ -74,7 +128,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The OPL3 tab did not show its left panel (LEVEL through UTILITY).
   - Opening the save browser after loading a file left out the name field and the save button.
 
-### 3-0-2. What v3.3.0 adds and changes
+### 3-0-4. What v3.3.0 adds and changes
 
 - **The ADPCM+ channel**
   - Loads up to 32 audio files and switches between them while you play.
@@ -146,7 +200,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **More bundled wallpapers**
   - Five wallpaper images have been added alongside the existing one.
 
-### 3-0-3. What v3.2.0 adds and changes
+### 3-0-5. What v3.2.0 adds and changes
 
 - **Control steps are now 0.0001**
   - Floating-point controls moved in steps of 0.01 (the framework default).
@@ -210,7 +264,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **A great many more bundled presets and parameter files**
   - A `fromCC2` folder has been added.
 
-### 3-0-4. What v3.1.0 adds and changes
+### 3-0-6. What v3.1.0 adds and changes
 
 - New modulation
   - **SSG HW PITCH ENV**
@@ -364,6 +418,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - Based on the one used in the sound channels.
       - Simplified version.
     - *Switched on and off by MIDI input.*
+    - *The key that drives each modulation can be assigned (v3.6.0 onwards).*
     - *The UI follows the FX groups.*
     - *Bypass can be set per modulation, and all together from the main group.*
   - The FX and modulation groups sit in a single horizontal row; use the scroll bar to bring each into view.
@@ -531,6 +586,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - The rhythm channel (RHYTHM)
   - A drum machine with a bit crusher
     - A wide choice of bit rates and sampling rates
+      - Noise reduction (v3.6.0 onwards)
       - 4-bit ADPCM supported
       - 1-bit DPCM supported
     - Playback start position, playback ratio and loop points are supported.
@@ -557,6 +613,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - The audio file channel (ADPCM/PCM)
   - Plays a single audio file like a sampler
     - A wide choice of bit rates and sampling rates
+      - Noise reduction (v3.6.0 onwards)
       - 4-bit ADPCM supported
       - 1-bit DPCM supported
     - Playback start position, playback ratio and loop points are supported.
@@ -787,6 +844,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - OPZX7S's pictures show the WAVE SHAPE wave
   - **Major categories [[AMP ENV]] / [[PITCH ENV]] (v3.4.0 onwards)**
     - The channel-wide level and pitch sections each fold under one heading
+  - **Controls in a switched-off (Bypass / Enable) section are disabled (v3.6.0 onwards)**
+    - So you do not end up adjusting controls that have no effect.
 
 ## 5. Supported OS
 

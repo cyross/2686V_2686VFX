@@ -83,8 +83,8 @@ There are **15**.
 | 10 | 12kHz | |
 | 11 | 11kHz | |
 | 12 | 8kHz | |
-| 12 | 5.5kHz | |
-| 13 | 4kHz | |
+| 13 | 5.5kHz | |
+| 14 | 4kHz | |
 | 15 | 2kHz | |
 
 ## INTERP — how the gaps are filled (the PCM family)

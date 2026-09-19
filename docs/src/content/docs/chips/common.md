@@ -66,6 +66,10 @@ QUALITY の代わりにこちらが出ます。単にビット数を落とすだ
 | **BIT RATE** | ビット数と圧縮方式。21 種 | 1 〜 21 | 13 | [`ADPCM_MODE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-mode) |
 | **SMP.RATE** | サンプリング周波数。15 段階 | 1 〜 15 | 9 | [`ADPCM_RATE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-rate) |
 | **INTERP** | 読み戻すときの補間のしかた。7 種 | 0 〜 6 | 1 | [`ADPCM_INTERP`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-interp) |
+| **NR: Resample** | 圧縮方式へ変換するときの間引きを、きれいなものにする | オン / オフ | オフ | [`ADPCM_NR_RESAMPLE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-nr-resample) |
+| **NR: Gate** | 無音に近いところのかすかな雑音と直流を取り除く | オン / オフ | オフ | [`ADPCM_NR_GATE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-nr-gate) |
+| **GATE.LV** | ゲートが閉じる音量（dB） | -96 〜 -24 | -60 | [`ADPCM_NR_GATE_LV`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-nr-gate-lv) |
+| **NR.LPF** | 高い音を切って、ざらつきを抑える。切 / 弱 / 中 / 強 | 1 〜 4 | 1（切） | [`ADPCM_NR_LPF`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-nr-lpf) |
 
 ### BIT で選べるもの
 
@@ -95,6 +99,22 @@ QUALITY の代わりにこちらが出ます。単にビット数を落とすだ
 
 **RATE を下げて Nearest にすると、いちばん当時らしい粗さ**になります。逆に
 B-Spline はこもるので、遠くで鳴っている感じを作れます。
+
+### ノイズリダクション — NR
+
+**独自**の設定です（3.6.0 で追加）。当時の質感は残したまま、耳につく雑音だけを
+抑えます。**どれも初めは切ってある**ので、入れなければこれまでと同じ音です。
+
+| つまみ | はたらき |
+| --- | --- |
+| **NR: Resample** | 圧縮方式（BIT の 13〜21）へ変換するとき、素材を間引く処理を**窓付き sinc** のきれいなものにします。これまでの間引きは粗く、信号とひずみの比が 28 dB ほどで頭打ちになっていました。入れると 90 dB ほどまでよくなります。圧縮方式を選んでいるときだけ押せます |
+| **NR: Gate** | 音が **GATE.LV** より小さくなったところで閉じ、かすかな雑音を消します。開くのは 1 ミリ秒、閉じるのは 30 ミリ秒かけるので、音の頭や余韻は切れません。直流（中心のずれ）もあわせて取り除きます |
+| **GATE.LV** | ゲートが閉じる音量です。NR: Gate が入っているときだけ押せます |
+| **NR.LPF** | 素材に入っている音域の上のほうを切ります。弱・中・強の順に、上端の 9 割・7 割・5 割から上を削ります |
+
+ビット数を落とすだけのもの（BIT の 1〜12）の雑音は、理屈どおりの量です。
+粗さが気になるのは、たいてい圧縮方式のときなので、まず **NR: Resample** を
+試してください。
 
 ## ENVELOPE
 

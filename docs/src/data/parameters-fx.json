@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDumpFx",
-  "version": "3.2.0",
-  "count": 329,
+  "version": "3.6.0",
+  "count": 343,
   "parameters": [
     {
       "id": "MODE",
@@ -2728,6 +2728,118 @@
       "min": -4800,
       "max": 4800,
       "default": 0
+    },
+    {
+      "id": "MOD_KEYASSIGN_MODE",
+      "name": "MOD Key Assign",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "MOD_KEY_AMPENV",
+      "name": "MOD Key AMP ENV",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_SSGHWENV",
+      "name": "MOD Key SSG HW AMP ENV",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_WTAMPMOD",
+      "name": "MOD Key WT AMP MOD",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_SSGSWENV11",
+      "name": "MOD Key SSG SW AMP ENV[11]",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_PITCHENV",
+      "name": "MOD Key PITCH ENV",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_SSGHWPENV",
+      "name": "MOD Key SSG HW PITCH ENV",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_SSGSWPENV11",
+      "name": "MOD Key SSG SW PITCH ENV[11]",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_WTMOD",
+      "name": "MOD Key WT PITCH MOD",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_LFOAM",
+      "name": "MOD Key LFO AM",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_LFOPM",
+      "name": "MOD Key LFO PM",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_MULDET",
+      "name": "MOD Key MUL/DET",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_UNISON",
+      "name": "MOD Key UNISON/HARMONY",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
+    },
+    {
+      "id": "MOD_KEY_ARP",
+      "name": "MOD Key ARPEGGIO",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 60
     },
     {
       "id": "MONO_MODE",
