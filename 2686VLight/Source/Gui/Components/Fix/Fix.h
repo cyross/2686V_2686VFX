@@ -138,6 +138,13 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnables(bool enabled);
+
+    // 外から止められているか (鳴っていないオペレーターなど)。setEnables で入る。
+    bool outerEnabled = true;
+
+    // Enable が切れているあいだは、札のほか (区切り線も含む) を止める。
+    // 札そのものは外から止められたときだけ止める。
+    void applyActive();
     void copyParams(CopyFix& copyObj);
     void pasteParams(CopyFix& copyObj);
     void setImportingParams(juce::StringArray& lines, int& index);

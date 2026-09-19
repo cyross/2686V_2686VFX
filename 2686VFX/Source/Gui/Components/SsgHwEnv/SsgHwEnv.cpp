@@ -101,6 +101,13 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
         WaveHoldUnit::Level, [this] { this->updatePreview(); });
 
     updatePreview();
+
+    // Enable の入り切りは、押したときだけでなく TARGET の切り替えや
+    // プリセットの読み込みでも変わる。どこから変わっても追えるよう、
+    // 押したときではなく状態の変化を受ける。
+    envEnableButton.watchToggle([this] { applyActive(); });
+
+    applyActive();
 }
 
 // 束縛先を丸ごと差し替える。
@@ -195,15 +202,31 @@ void GuiComponentSsgHwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 }
 
 void GuiComponentSsgHwEnv::setEnabled(bool enabled) {
+    outerEnabled = enabled;
+
     cat.setEnabled(enabled);
-    envEnableButton.setEnabled(enabled);
-    smoothEnableButton.setEnabled(enabled);
-    hwEnvSeparator.setEnabled(enabled);
-    shapeSelector.setEnabledWithLabel(enabled);
-    periodSlider.setEnabledWithLabel(enabled);
-    minSlider.setEnabledWithLabel(enabled);
-    maxSlider.setEnabledWithLabel(enabled);
-    waveHold.setEnables(enabled);
+
+    applyActive();
+}
+
+// 効いていないつまみは押せなくする。触れてしまうと、動かしたのに
+// 音が変わらない、という形で迷う。
+void GuiComponentSsgHwEnv::applyActive() {
+    const bool active = outerEnabled && !isCategoryBypassed();
+
+    envEnableButton.setEnabled(outerEnabled);
+
+    // トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。
+    smoothEnableButton.setEnabled(outerEnabled);
+    smoothEnableButton.setDimmed(!active);
+
+    hwEnvSeparator.setEnabled(active);
+    shapeSelector.setEnabledWithLabel(active);
+    periodSlider.setEnabledWithLabel(active);
+    minSlider.setEnabledWithLabel(active);
+    maxSlider.setEnabledWithLabel(active);
+    preview.setEnabled(active);
+    waveHold.setEnables(active);
 }
 
 void GuiComponentSsgHwEnv::copyParams(CopyEnvSsgHw& copyObj) {

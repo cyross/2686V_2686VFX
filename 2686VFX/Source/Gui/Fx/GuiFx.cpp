@@ -859,6 +859,7 @@ void GuiFx::setup()
     // 横へ送る板を用意して、メイン以外をその中へ移す。
     stripViewport.setViewedComponent(&stripCanvas, false);
     stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
 
     addAndMakeVisible(stripViewport);

@@ -57,7 +57,6 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 	endLevelEnable.setup({ .parent = parent, .id = code + CPK::Adsr::endlEnable, .title = "Use Endl", .isReset = true });
 	endLevelEnable.setWantsKeyboardFocus(true);
 	endLevelEnable.setExplicitFocusOrder(++tabOrder);
-	endLevelEnable.onClick = [this] { applyEndLevelEnable(); };
 
 	endLevel.setup({ .parent = parent, .id = code + CPK::Adsr::endl, .title = "ENDL", .isReset = true });
 	endLevel.setWantsKeyboardFocus(true);
@@ -65,11 +64,17 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 
 	separator2.setupComponent(parent);
 
-	applyEndLevelEnable();
-
 	kor.setup({ .parent = parent, .id = code + CPK::Adsr::kor, .title = "KOR", .isReset = true });
 	kor.setWantsKeyboardFocus(true);
 	kor.setExplicitFocusOrder(++tabOrder);
+
+	// 札の入り切りは、押したときだけでなく TARGET の切り替えや
+	// プリセットの読み込みでも変わる。どこから変わっても追えるよう、
+	// 押したときではなく状態の変化を受ける。
+	bypass.watchToggle([this] { applyActive(); });
+	endLevelEnable.watchToggle([this] { applyActive(); });
+
+	applyActive();
 }
 
 // 束縛先を丸ごと差し替える。
@@ -158,13 +163,32 @@ void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	}
 }
 
-// ENDL を使わないときは、つまみを押せなくする。効いていないものが
-// 触れてしまうと、動かしたのに音が変わらない、という形で迷う。
-void GuiComponentAmpEnv::applyEndLevelEnable() {
-	const bool on = endLevelEnable.getToggleState();
+// 効いていないつまみは押せなくする。触れてしまうと、動かしたのに
+// 音が変わらない、という形で迷う。
+//
+// Bypass が入っていれば札のほかをすべて止め、ENDL は Use Endl が
+// 切れていても止める。
+void GuiComponentAmpEnv::applyActive() {
+	const bool active = outerEnabled && !bypass.getToggleState();
+	const bool endl = active && endLevelEnable.getToggleState();
 
-	endLevel.setEnabled(on);
-	endLevel.label.setEnabled(on);
+	bypass.setEnabled(outerEnabled);
+
+	separator1.setEnabled(active);
+	startLevel.setEnabledWithLabel(active);
+	attack.setEnabledWithLabel(active);
+	decay.setEnabledWithLabel(active);
+	sustain.setEnabledWithLabel(active);
+	release.setEnabledWithLabel(active);
+
+	// トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。
+	endLevelEnable.setEnabled(outerEnabled);
+	endLevelEnable.setDimmed(!active);
+	endLevel.setEnabledWithLabel(endl);
+
+	separator2.setEnabled(active);
+	kor.setEnabled(outerEnabled);
+	kor.setDimmed(!active);
 }
 
 void GuiComponentAmpEnv::setupGraph(std::function<void()> repaintGraph) {
@@ -208,16 +232,9 @@ void GuiComponentAmpEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curve
 }
 
 void GuiComponentAmpEnv::setEnabled(bool enabled) {
-	bypass.setEnabled(enabled);
-	attack.setEnabled(enabled);
-	decay.setEnabled(enabled);
-	sustain.setEnabled(enabled);
-	release.setEnabled(enabled);
-	endLevelEnable.setEnabled(enabled);
-	endLevel.setEnabled(enabled && endLevelEnable.getToggleState());
-	endLevel.label.setEnabled(enabled && endLevelEnable.getToggleState());
-	startLevel.setEnabled(enabled);
-	kor.setEnabled(enabled);
+	outerEnabled = enabled;
+
+	applyActive();
 }
 
 void GuiComponentAmpEnv::copyParams(CopyEnvAmpAdsr& copyObj) {

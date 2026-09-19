@@ -185,6 +185,18 @@ struct CopyQuality {
 	int rate;
 };
 
+struct CopyPcmQuality {
+	int mode;
+	int rate;
+	int interp = 1;
+
+	// ノイズリダクション
+	bool nrResample = false;
+	bool nrGate = false;
+	float nrGateLevel = -60.0f;
+	int nrLpf = 0;
+};
+
 struct CopyMask {
 	bool mask;
 };

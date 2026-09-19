@@ -19,6 +19,9 @@
 class GuiStepValues : public juce::Component
 {
 public:
+    // 止めた区分の中では、ほかの部品と揃えて薄く描く。
+    void enablementChanged() override { setAlpha(isEnabled() ? 1.0f : 0.4f); }
+
     // 1 行に並べる数。詰めすぎると桁が省略されて読めなくなる。
     static inline constexpr int columns = 3;
 

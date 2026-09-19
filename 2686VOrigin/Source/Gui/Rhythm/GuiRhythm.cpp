@@ -102,6 +102,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     // 縦に積まず、横へ並べる。1 列 1 区分が基本。
     stripViewport.setViewedComponent(&stripCanvas, false);
     stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
 
     addAndMakeVisible(stripViewport);
@@ -852,6 +853,8 @@ void RhythmPadGui::copyParams(CopyRhythmPad& copyObj) {
     copyObj.pcm.pcmRatio = pcmRatioSlider.getValue();
     copyObj.quality.mode = qualityPcmComponent.getMode();
     copyObj.quality.rate = qualityPcmComponent.getRate();
+    copyObj.quality.interp = qualityPcmComponent.getInterp();
+    qualityPcmComponent.copyNr(copyObj.quality);
     copyObj.toneLevel = toneSlider.getValue();
     copyObj.noiseLevel = noiseSlider.getValue();
     copyObj.noiseFreq = noiseFreqSlider.getValue();
@@ -871,6 +874,8 @@ void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
     pcmRatioSlider.setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
     qualityPcmComponent.setMode(copyObj.quality.mode);
     qualityPcmComponent.setRate(copyObj.quality.rate);
+    qualityPcmComponent.setInterp(copyObj.quality.interp);
+    qualityPcmComponent.pasteNr(copyObj.quality);
     toneSlider.setValue(copyObj.toneLevel);
     noiseSlider.setValue(copyObj.noiseLevel);
     noiseFreqSlider.setValue(copyObj.noiseFreq);
@@ -1183,6 +1188,7 @@ void RhythmPadGui::applyQualityParamFile(const juce::File& file)
     qualityPcmComponent.setMode(reader->getInt("mode", qualityPcmComponent.getMode()));
     qualityPcmComponent.setRate(reader->getInt("rate", qualityPcmComponent.getRate()));
     qualityPcmComponent.setInterp(reader->getInt("interp", qualityPcmComponent.getInterp()));
+    qualityPcmComponent.readNrParams(*reader);
 }
 
 void RhythmPadGui::exportQualityParam()
@@ -2236,6 +2242,7 @@ void RhythmPadGui::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("mode", qualityPcmComponent.getMode());
 	writer.set("rate", qualityPcmComponent.getRate());
 	writer.set("interp", qualityPcmComponent.getInterp());
+	qualityPcmComponent.writeNrParams(writer);
 
 	
 }

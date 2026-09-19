@@ -6,6 +6,18 @@
 
 namespace CoreGuiValue
 {
+	// スクロールバーの太さ。JUCE の既定 (8px) では細くてつかみにくいので、
+	// 縦は 2px、横は 4px 太らせる。横は区分を送るのに使う回数が多いため
+	// 縦より太い。
+	//
+	// 中身の幅はバーの太さを引いて決めている (GuiScrollGroup::getContentWidth)
+	// ので、太らせたぶんだけ中身が細くなり、バーに隠れることはない。
+	namespace ScrollBar
+	{
+		static inline constexpr int vertical = 10;
+		static inline constexpr int horizontal = 12;
+	}
+
 	static inline constexpr int TabNumber = 6;
 
 	namespace MVol

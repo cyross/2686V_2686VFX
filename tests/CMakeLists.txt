@@ -188,39 +188,54 @@ if(CY_TESTS_RUNNABLE)
 endif()
 
 # ==============================================================================
-# 画面 (2686V)
+# 画面 (12 本すべて)
 # ==============================================================================
 # 本物のプロセッサと画面を立ち上げて、部品の止め方などを確かめる。
 #
 # プラグインの本体 (共有コードの静的ライブラリ) をそのまま結びつける。
 # JUCE がプラグインの各形式 (VST3 / Standalone) を組むときと同じく、
 # 本体の取り込み先と定義を写して、同じ JuceHeader.h を読ませる。
-if(TARGET 2686V)
-    add_executable(GuiTests
+#
+# 本ごとに 1 つずつ作る (GuiTests_2686V など)。本へ展開したときの取りこぼし
+# を拾うため。どの区分も持つ 2686V でだけ「区分が見つからない」を失敗にする。
+set(CY_GUI_TEST_PLUGINS 2686V 2686VLight 26V 2686VOrigin OPZX7S 2686VFX OPNV OPLV OPMV WTV PCMV PULSEV)
+
+foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
+    if(NOT TARGET ${CY_PLUGIN})
+        continue()
+    endif()
+
+    set(CY_GUI_TEST GuiTests_${CY_PLUGIN})
+
+    add_executable(${CY_GUI_TEST}
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/GuiTestMain.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/EnableRulesTest.cpp"
     )
 
-    target_include_directories(GuiTests PRIVATE
-        $<TARGET_PROPERTY:2686V,INCLUDE_DIRECTORIES>
-        "${TEST_TARGET_SOURCE_ROOT}"
+    target_include_directories(${CY_GUI_TEST} PRIVATE
+        $<TARGET_PROPERTY:${CY_PLUGIN},INCLUDE_DIRECTORIES>
+        "${CMAKE_SOURCE_DIR}/${CY_PLUGIN}/Source"
         "${CMAKE_SOURCE_DIR}/external/doctest"
     )
 
-    target_compile_definitions(GuiTests PRIVATE
-        $<TARGET_PROPERTY:2686V,COMPILE_DEFINITIONS>
+    target_compile_definitions(${CY_GUI_TEST} PRIVATE
+        $<TARGET_PROPERTY:${CY_PLUGIN},COMPILE_DEFINITIONS>
         DOCTEST_CONFIG_USE_STD_HEADERS
     )
 
-    target_link_libraries(GuiTests PRIVATE 2686V)
+    if(CY_PLUGIN STREQUAL "2686V")
+        target_compile_definitions(${CY_GUI_TEST} PRIVATE GUI_TEST_REQUIRE_ALL)
+    endif()
 
-    target_compile_features(GuiTests PRIVATE cxx_std_20)
+    target_link_libraries(${CY_GUI_TEST} PRIVATE ${CY_PLUGIN})
+
+    target_compile_features(${CY_GUI_TEST} PRIVATE cxx_std_20)
 
     if(MSVC)
-        target_compile_options(GuiTests PRIVATE /utf-8 /FS)
+        target_compile_options(${CY_GUI_TEST} PRIVATE /utf-8 /FS)
     endif()
 
     if(CY_TESTS_RUNNABLE)
-        doctest_discover_tests(GuiTests)
+        doctest_discover_tests(${CY_GUI_TEST})
     endif()
-endif()
+endforeach()

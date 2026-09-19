@@ -197,6 +197,10 @@ namespace CPN
 		static inline const juce::String bit = " Bit";
 		static inline const juce::String rate = " Rate";
 		static inline const juce::String interp = " Interpolation Mode";
+		static inline const juce::String nrResample = " NR Clean Resample";
+		static inline const juce::String nrGate = " NR Gate";
+		static inline const juce::String nrGateLevel = " NR Gate Level";
+		static inline const juce::String nrLpf = " NR Low-pass";
 	}
 
 	namespace Unison

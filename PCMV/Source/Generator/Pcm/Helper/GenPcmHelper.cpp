@@ -59,7 +59,7 @@ namespace {
     thread_local int g_encodeCacheNext = 0;
 
     // 素材と設定から鍵を作る (FNV-1a)
-    uint64_t makeEncodeKey(const std::vector<float>& source, double step, int qIndex)
+    uint64_t makeEncodeKey(const std::vector<float>& source, double step, int qIndex, bool cleanResample)
     {
         uint64_t h = 1469598103934665603ull;
 
@@ -70,6 +70,7 @@ namespace {
 
         mix((uint64_t)source.size());
         mix((uint64_t)qIndex);
+        mix((uint64_t)(cleanResample ? 1 : 0));
 
         // step は倍精度なのでビット列のまま混ぜる
         uint64_t stepBits = 0;
@@ -84,10 +85,81 @@ namespace {
     }
 }
 
+void GenPcmHelper::resampleClean(const std::vector<float>& source, double step, std::vector<int16_t>& dest)
+{
+    dest.clear();
+
+    if (source.empty()) return;
+    if (step < 1.0) step = 1.0;
+
+    // 目的のレートのナイキストの少し手前で切る (素材の 1 標本あたりの周期)
+    const double cutoff = 0.5 / step * 0.92;
+
+    // 片側に取る零点の数。多いほど切れがよくなるが、そのぶん重い。
+    constexpr int zeroCrossings = 8;
+
+    // sinc × Blackman 窓を、零点 1 つあたり 512 刻みの表にしておく。
+    // 位置ごとに三角関数を呼ぶと、長い素材で作り直しが目に見えて遅くなる。
+    constexpr int tableRes = 512;
+    constexpr int tableSize = zeroCrossings * tableRes + 1;
+
+    static const std::vector<double> table = [] {
+        std::vector<double> t((size_t)tableSize);
+
+        constexpr double pi = 3.14159265358979323846;
+
+        for (int i = 0; i < tableSize; ++i) {
+            const double u = (double)i / tableRes;          // 零点の単位
+            const double sinc = (u == 0.0) ? 1.0 : std::sin(pi * u) / (pi * u);
+            const double w = 0.42 + 0.5 * std::cos(pi * u / zeroCrossings)
+                           + 0.08 * std::cos(2.0 * pi * u / zeroCrossings);
+
+            t[(size_t)i] = sinc * w;
+        }
+
+        return t;
+    }();
+
+    // 素材の標本の単位で、片側の幅
+    const double half = zeroCrossings / (2.0 * cutoff);
+    const int n = (int)source.size();
+
+    dest.reserve((size_t)((double)n / step) + 1);
+
+    for (double pos = 0.0; pos < (double)n; pos += step) {
+        const int first = std::max(0, (int)std::ceil(pos - half));
+        const int last = std::min(n - 1, (int)std::floor(pos + half));
+
+        double acc = 0.0;
+        double weightSum = 0.0;
+
+        for (int k = first; k <= last; ++k) {
+            // 零点の単位での距離
+            const double u = std::abs((double)k - pos) * 2.0 * cutoff;
+
+            if (u >= zeroCrossings) continue;
+
+            const double fi = u * tableRes;
+            const int i0 = (int)fi;
+            const double frac = fi - i0;
+            const double w = table[(size_t)i0] + (table[(size_t)std::min(i0 + 1, tableSize - 1)] - table[(size_t)i0]) * frac;
+
+            acc += source[(size_t)k] * w;
+            weightSum += w;
+        }
+
+        // 重みの和で割って、直流の大きさを保つ (端で重みが欠けても同じ)
+        const double v = (weightSum != 0.0) ? acc / weightSum : 0.0;
+
+        dest.push_back((int16_t)std::clamp(v * 32767.0, -32768.0, 32767.0));
+    }
+}
+
 void GenPcmHelper::encodeBuffer(
     const std::vector<float>& source,
     double step,
     int qIndex,
+    bool cleanResample,
     std::vector<int16_t>& dest
 )
 {
@@ -97,7 +169,7 @@ void GenPcmHelper::encodeBuffer(
     if (step <= 0.0) step = 1.0;
 
     // すでに同じ条件で作ったものがあればコピーするだけで済ませる
-    const uint64_t key = makeEncodeKey(source, step, qIndex);
+    const uint64_t key = makeEncodeKey(source, step, qIndex, cleanResample);
 
     for (const auto& e : g_encodeCache) {
         if (e.valid && e.key == key) {
@@ -106,15 +178,20 @@ void GenPcmHelper::encodeBuffer(
         }
     }
 
-    dest.reserve((size_t)((double)source.size() / step) + 1);
-
     // 1. 目的のレートへ間引きながら int16 化する
-    for (double pos = 0.0; pos < (double)source.size(); pos += step) {
-        size_t index = (size_t)pos;
+    if (cleanResample) {
+        resampleClean(source, step, dest);
+    }
+    else {
+        dest.reserve((size_t)((double)source.size() / step) + 1);
 
-        if (index >= source.size()) break;
+        for (double pos = 0.0; pos < (double)source.size(); pos += step) {
+            size_t index = (size_t)pos;
 
-        dest.push_back((int16_t)std::clamp(source[index] * 32767.0f, -32768.0f, 32767.0f));
+            if (index >= source.size()) break;
+
+            dest.push_back((int16_t)std::clamp(source[index] * 32767.0f, -32768.0f, 32767.0f));
+        }
     }
 
     // 2. コーデックでエンコード → デコードして、圧縮による歪みを焼き込む

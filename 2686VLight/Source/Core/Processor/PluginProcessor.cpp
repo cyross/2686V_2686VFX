@@ -304,9 +304,10 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         for (int i = 0; i < RhythmPrValue::pads; ++i) {
             const auto& q = m_currentParams.rhythm.pads[(size_t)i].quality;
 
-            if (m_rhythmPcm[(size_t)i].needsRebuild(q.mode, q.rate)) {
+            if (m_rhythmPcm[(size_t)i].needsRebuild(q.mode, q.rate, q.nrResample)) {
                 m_rhythmWantQuality[(size_t)i].store(q.mode, std::memory_order_relaxed);
                 m_rhythmWantRate[(size_t)i].store(q.rate, std::memory_order_relaxed);
+                m_rhythmWantClean[(size_t)i].store(q.nrResample, std::memory_order_relaxed);
 
                 triggerAsyncUpdate();
             }
@@ -317,11 +318,13 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     {
         const int q = m_currentParams.adpcmPlus.quality.mode;
         const int r = m_currentParams.adpcmPlus.quality.rate;
+        const bool clean = m_currentParams.adpcmPlus.quality.nrResample;
 
         // 符号化は鳴らしている 1 本だけでよい。ほかは選ばれたときに作る。
-        if (m_adpcmPlusPcm[(size_t)adpcmPlusSlot].needsRebuild(q, r)) {
+        if (m_adpcmPlusPcm[(size_t)adpcmPlusSlot].needsRebuild(q, r, clean)) {
             m_adpcmPlusWantQuality[(size_t)adpcmPlusSlot].store(q, std::memory_order_relaxed);
             m_adpcmPlusWantRate[(size_t)adpcmPlusSlot].store(r, std::memory_order_relaxed);
+            m_adpcmPlusWantClean[(size_t)adpcmPlusSlot].store(clean, std::memory_order_relaxed);
 
             triggerAsyncUpdate();
         }
@@ -331,13 +334,15 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     {
         const int q = m_currentParams.adpcm.quality.mode;
         const int r = m_currentParams.adpcm.quality.rate;
+        const bool clean = m_currentParams.adpcm.quality.nrResample;
 
         // 符号化は素材まるごとを舐める上に中で確保する。ここでやると音が途切れる
         // ので、指定だけ置いてメッセージスレッドへ頼む。出来上がるまでは
         // 前の符号化で鳴らし続ける (数ミリ秒遅れて切り替わる)。
-        if (m_adpcmPcm.needsRebuild(q, r)) {
+        if (m_adpcmPcm.needsRebuild(q, r, clean)) {
             m_adpcmWantQuality.store(q, std::memory_order_relaxed);
             m_adpcmWantRate.store(r, std::memory_order_relaxed);
+            m_adpcmWantClean.store(clean, std::memory_order_relaxed);
 
             triggerAsyncUpdate();
         }
@@ -464,6 +469,7 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
         m_adpcmPcm.setSource(sourceData, audioReader->sampleRate);
         m_adpcmPcm.rebuildIfNeeded(m_adpcmWantQuality.load(std::memory_order_relaxed),
                                    m_adpcmWantRate.load(std::memory_order_relaxed),
+                                   m_adpcmWantClean.load(std::memory_order_relaxed),
                                    16000.0);
 
         // 画面表示用の控え
@@ -510,6 +516,7 @@ void AudioPlugin2686V::loadAdpcmPlusFile(int slot, const juce::File& file)
     m_adpcmPlusPcm[(size_t)slot].rebuildIfNeeded(
         m_adpcmPlusWantQuality[(size_t)slot].load(std::memory_order_relaxed),
         m_adpcmPlusWantRate[(size_t)slot].load(std::memory_order_relaxed),
+        m_adpcmPlusWantClean[(size_t)slot].load(std::memory_order_relaxed),
         16000.0);
 
     // 画面表示用の控え
@@ -550,6 +557,7 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
             m_rhythmPcm[(size_t)padIndex].rebuildIfNeeded(
                 m_rhythmWantQuality[(size_t)padIndex].load(std::memory_order_relaxed),
                 m_rhythmWantRate[(size_t)padIndex].load(std::memory_order_relaxed),
+                m_rhythmWantClean[(size_t)padIndex].load(std::memory_order_relaxed),
                 55500.0);
         }
 
@@ -987,17 +995,20 @@ void AudioPlugin2686V::handleAsyncUpdate()
 {
     m_adpcmPcm.rebuildIfNeeded(m_adpcmWantQuality.load(std::memory_order_relaxed),
                                m_adpcmWantRate.load(std::memory_order_relaxed),
+                               m_adpcmWantClean.load(std::memory_order_relaxed),
                                16000.0);
 
     for (size_t i = 0; i < (size_t)RhythmPrValue::pads; ++i) {
         m_rhythmPcm[i].rebuildIfNeeded(m_rhythmWantQuality[i].load(std::memory_order_relaxed),
                                        m_rhythmWantRate[i].load(std::memory_order_relaxed),
+                                       m_rhythmWantClean[i].load(std::memory_order_relaxed),
                                        55500.0);
     }
 
     for (size_t i = 0; i < (size_t)Global::AdpcmPlus::slots; ++i) {
         m_adpcmPlusPcm[i].rebuildIfNeeded(m_adpcmPlusWantQuality[i].load(std::memory_order_relaxed),
                                          m_adpcmPlusWantRate[i].load(std::memory_order_relaxed),
+                                         m_adpcmPlusWantClean[i].load(std::memory_order_relaxed),
                                          16000.0);
     }
 }

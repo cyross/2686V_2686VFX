@@ -144,6 +144,10 @@ namespace PrHelper {
 		ptPtrs.mode = apvts.getRawParameterValue(prefix + CPK::QualityPcm::mode);
 		ptPtrs.rate = apvts.getRawParameterValue(prefix + CPK::QualityPcm::rate);
 		ptPtrs.interp = apvts.getRawParameterValue(prefix + CPK::QualityPcm::interp);
+		ptPtrs.nrResample = apvts.getRawParameterValue(prefix + CPK::QualityPcm::nrResample);
+		ptPtrs.nrGate = apvts.getRawParameterValue(prefix + CPK::QualityPcm::nrGate);
+		ptPtrs.nrGateLevel = apvts.getRawParameterValue(prefix + CPK::QualityPcm::nrGateLevel);
+		ptPtrs.nrLpf = apvts.getRawParameterValue(prefix + CPK::QualityPcm::nrLpf);
 	}
 
 	static inline void setupAlgFbPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsAlgFb& ptPtrs){
@@ -359,6 +363,10 @@ namespace PrHelper {
 		params.mode = getInt(ptPtrs.mode);
 		params.rate = getInt(ptPtrs.rate);
 		params.interp = getInt(ptPtrs.interp);
+		params.nrResample = getBool(ptPtrs.nrResample);
+		params.nrGate = getBool(ptPtrs.nrGate);
+		params.nrGateDb = getFloat(ptPtrs.nrGateLevel);
+		params.nrLpf = getInt(ptPtrs.nrLpf);
 	}
 
 	static inline void applyAlgFb(PrPtrsAlgFb& ptPtrs, AlgFbParams& params){
@@ -1961,6 +1969,18 @@ namespace PrHelper {
 			prefixName + CPN::QualityPcm::interp, 
 			CPV::QualityPcm::Interp::min, CPV::QualityPcm::Interp::max, CPV::QualityPcm::Interp::initial
 		);
+
+		// ノイズリダクション。どれも既定は切れている。
+		PrHelper::addBool(layout, prefix + CPK::QualityPcm::nrResample,
+			prefixName + CPN::QualityPcm::nrResample, CPV::QualityPcm::Nr::resample);
+		PrHelper::addBool(layout, prefix + CPK::QualityPcm::nrGate,
+			prefixName + CPN::QualityPcm::nrGate, CPV::QualityPcm::Nr::gate);
+		PrHelper::addFloat(layout, prefix + CPK::QualityPcm::nrGateLevel,
+			prefixName + CPN::QualityPcm::nrGateLevel,
+			CPV::QualityPcm::Nr::GateLevel::min, CPV::QualityPcm::Nr::GateLevel::max, CPV::QualityPcm::Nr::GateLevel::initial);
+		PrHelper::addInt(layout, prefix + CPK::QualityPcm::nrLpf,
+			prefixName + CPN::QualityPcm::nrLpf,
+			CPV::QualityPcm::Nr::Lpf::min, CPV::QualityPcm::Nr::Lpf::max, CPV::QualityPcm::Nr::Lpf::initial);
 	}
 
 	static inline void addOpMaskParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {

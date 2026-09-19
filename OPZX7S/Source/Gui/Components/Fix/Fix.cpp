@@ -231,6 +231,13 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     applyToC3.onClick = [this] {
         freqNote.setValue(60.0);
         };
+
+    // 札の入り切りは、押したときだけでなく TARGET の切り替えや
+    // プリセットの読み込みでも変わる。どこから変わっても追えるよう、
+    // 押したときではなく状態の変化を受ける。
+    enable.watchToggle([this] { applyActive(); });
+
+    applyActive();
 }
 
 // 束縛先を丸ごと差し替える。
@@ -466,43 +473,59 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
 
 void GuiComponentFix::setEnables(bool enabled)
 {
+    outerEnabled = enabled;
+
     cat.setEnabled(enabled);
-    enable.setEnabled(enabled);
-    freq.setEnabledWithLabel(enabled);
-    freqTo.setEnabled(enabled);
-    freqToZero.setEnabled(enabled);
-    freqTo05.setEnabled(enabled);
-    freqTo1.setEnabled(enabled);
-    freqTo2.setEnabled(enabled);
-    freqM05.setEnabled(enabled);
-    freqM02.setEnabled(enabled);
-    freqM01.setEnabled(enabled);
-    freqP01.setEnabled(enabled);
-    freqP02.setEnabled(enabled);
-    freqP05.setEnabled(enabled);
-    freqM5.setEnabled(enabled);
-    freqM2.setEnabled(enabled);
-    freqM1.setEnabled(enabled);
-    freqP1.setEnabled(enabled);
-    freqP2.setEnabled(enabled);
-    freqP5.setEnabled(enabled);
-    freqM50.setEnabled(enabled);
-    freqM20.setEnabled(enabled);
-    freqM10.setEnabled(enabled);
-    freqP10.setEnabled(enabled);
-    freqP20.setEnabled(enabled);
-    freqP50.setEnabled(enabled);
-    freqM500.setEnabled(enabled);
-    freqM200.setEnabled(enabled);
-    freqM100.setEnabled(enabled);
-    freqP100.setEnabled(enabled);
-    freqP200.setEnabled(enabled);
-    freqP500.setEnabled(enabled);
-    freqM1000.setEnabled(enabled);
-    freqP1000.setEnabled(enabled);
-    freqNote.setEnabledWithLabel(enabled);
-    note.setEnabled(enabled);
-    applyNote.setEnabled(enabled);
+
+    applyActive();
+}
+
+// 効いていないつまみは押せなくする。触れてしまうと、動かしたのに
+// 音が変わらない、という形で迷う。
+void GuiComponentFix::applyActive()
+{
+    const bool active = outerEnabled && enable.getToggleState();
+
+    enable.setEnabled(outerEnabled);
+
+    freq.setEnabledWithLabel(active);
+    freqToSeparator.setEnabled(active);
+    freqTo.setEnabled(active);
+    freqToZero.setEnabled(active);
+    freqTo05.setEnabled(active);
+    freqTo1.setEnabled(active);
+    freqTo2.setEnabled(active);
+    freqM05.setEnabled(active);
+    freqM02.setEnabled(active);
+    freqM01.setEnabled(active);
+    freqP01.setEnabled(active);
+    freqP02.setEnabled(active);
+    freqP05.setEnabled(active);
+    freqM5.setEnabled(active);
+    freqM2.setEnabled(active);
+    freqM1.setEnabled(active);
+    freqP1.setEnabled(active);
+    freqP2.setEnabled(active);
+    freqP5.setEnabled(active);
+    freqM50.setEnabled(active);
+    freqM20.setEnabled(active);
+    freqM10.setEnabled(active);
+    freqP10.setEnabled(active);
+    freqP20.setEnabled(active);
+    freqP50.setEnabled(active);
+    freqM500.setEnabled(active);
+    freqM200.setEnabled(active);
+    freqM100.setEnabled(active);
+    freqP100.setEnabled(active);
+    freqP200.setEnabled(active);
+    freqP500.setEnabled(active);
+    freqM1000.setEnabled(active);
+    freqP1000.setEnabled(active);
+    freqNoteSeparator.setEnabled(active);
+    freqNote.setEnabledWithLabel(active);
+    note.setEnabled(active);
+    applyNote.setEnabled(active);
+    applyToC3.setEnabled(active);
 }
 
 void GuiComponentFix::copyParams(CopyFix& copyObj) {

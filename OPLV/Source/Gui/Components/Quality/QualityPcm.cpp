@@ -8,6 +8,7 @@
 
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
+#include "../../../Core/Processor/ProcessorValues.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
 // 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM
@@ -51,8 +52,8 @@ std::vector<SelectItem> QualityPcm::rateItems = {
     {.name = "10: 12kHz",    .value = 10 },
     {.name = "11: 11kHz",    .value = 11 },
     {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
+    {.name = "13: 5.5kHz",   .value = 13 },
+    {.name = "14: 4kHz",     .value = 14 },
     {.name = "15: 2kHz",     .value = 15 },
 };
 
@@ -71,6 +72,17 @@ std::vector<SelectItem> QualityPcm::interpItems()
     };
 }
 
+// 高域カットの段階。言語で名前が変わるので、その場で作る。
+std::vector<SelectItem> QualityPcm::nrLpfItems()
+{
+    return {
+        {.name = I18n::pick(u8"1: 切", u8"1: Off"), .value = 1 },
+        {.name = I18n::pick(u8"2: 弱", u8"2: Light"), .value = 2 },
+        {.name = I18n::pick(u8"3: 中", u8"3: Medium"), .value = 3 },
+        {.name = I18n::pick(u8"4: 強", u8"4: Strong"), .value = 4 },
+    };
+}
+
 void QualityPcm::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
     qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
 
@@ -85,6 +97,53 @@ void QualityPcm::setupComponent(juce::Component& parent, const juce::String& cod
     interpSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::interp, .title = "INTERP", .items = interpItems(), .isReset = true });
     interpSelector.setWantsKeyboardFocus(true);
     interpSelector.setExplicitFocusOrder(++tabOrder);
+
+    // ---------------- ノイズリダクション ----------------
+    nrSeparator.setupComponent(parent);
+
+    nrResampleToggle.setup({ .parent = parent, .id = code + CPK::QualityPcm::nrResample, .title = "NR: Resample", .isReset = true });
+    nrResampleToggle.setWantsKeyboardFocus(true);
+    nrResampleToggle.setExplicitFocusOrder(++tabOrder);
+
+    nrGateToggle.setup({ .parent = parent, .id = code + CPK::QualityPcm::nrGate, .title = "NR: Gate", .isReset = true });
+    nrGateToggle.setWantsKeyboardFocus(true);
+    nrGateToggle.setExplicitFocusOrder(++tabOrder);
+
+    nrGateLevelSlider.setup({ .parent = parent, .id = code + CPK::QualityPcm::nrGateLevel, .title = "GATE.LV", .isReset = true });
+    nrGateLevelSlider.setTextValueSuffix(" dB");
+    nrGateLevelSlider.setWantsKeyboardFocus(true);
+    nrGateLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    nrLpfSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::nrLpf, .title = "NR.LPF", .items = nrLpfItems(), .isReset = true });
+    nrLpfSelector.setWantsKeyboardFocus(true);
+    nrLpfSelector.setExplicitFocusOrder(++tabOrder);
+
+    // モードや札は、押したときだけでなく TARGET の切り替えやプリセットの
+    // 読み込みでも変わる。どこから変わっても追えるよう、変化を受ける。
+    modeSelector.onChange = [this] { applyActive(); };
+    nrGateToggle.watchToggle([this] { applyActive(); });
+
+    applyActive();
+}
+
+// 効いていない設定は押せなくする。触れてしまうと、動かしたのに音が
+// 変わらない、という形で迷う。
+void QualityPcm::applyActive()
+{
+    // きれいな間引きは、符号化するモード (13 以降) の素材づくりにだけ効く。
+    // 1〜12 は素材をそのまま鳴らすので、間引かない。
+    const bool encoded = modeSelector.getSelectedItemIndex() + 1 >= CPV::QualityPcm::Bit::encodedFirst;
+
+    // トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。
+    nrSeparator.setEnabled(outerEnabled);
+
+    nrResampleToggle.setEnabled(outerEnabled);
+    nrResampleToggle.setDimmed(!encoded);
+
+    nrGateToggle.setEnabled(outerEnabled);
+    nrGateLevelSlider.setEnabledWithLabel(outerEnabled && nrGateToggle.getToggleState());
+
+    nrLpfSelector.setEnabledWithLabel(outerEnabled);
 }
 
 // 束縛先を丸ごと差し替える。
@@ -97,6 +156,10 @@ void QualityPcm::rebind(const juce::String& code)
     modeSelector.rebind(code + CPK::QualityPcm::mode);
     rateSelector.rebind(code + CPK::QualityPcm::rate);
     interpSelector.rebind(code + CPK::QualityPcm::interp);
+    nrResampleToggle.rebind(code + CPK::QualityPcm::nrResample);
+    nrGateToggle.rebind(code + CPK::QualityPcm::nrGate);
+    nrGateLevelSlider.rebind(code + CPK::QualityPcm::nrGateLevel);
+    nrLpfSelector.rebind(code + CPK::QualityPcm::nrLpf);
 }
 
 void QualityPcm::layoutComponent(juce::Rectangle<int>& rect) {
@@ -107,12 +170,23 @@ void QualityPcm::layoutComponent(juce::Rectangle<int>& rect) {
     modeSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
     interpSelector.setVisibleWithLabel(visible);
+    nrSeparator.setVisible(visible);
+    nrResampleToggle.setVisible(visible);
+    nrGateToggle.setVisible(visible);
+    nrGateLevelSlider.setVisibleWithLabel(visible);
+    nrLpfSelector.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &modeSelector.label, .component = &modeSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutMain({ .mainRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
+
+        nrSeparator.layoutComponent(rect);
+        layoutMain({ .mainRect = rect, .component = &nrResampleToggle });
+        layoutMain({ .mainRect = rect, .component = &nrGateToggle });
+        layoutMain({ .mainRect = rect, .label = &nrGateLevelSlider.label, .component = &nrGateLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &nrLpfSelector.label, .component = &nrLpfSelector });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -126,12 +200,23 @@ void QualityPcm::layoutComponentRow(juce::Rectangle<int>& rect) {
     modeSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
     interpSelector.setVisibleWithLabel(visible);
+    nrSeparator.setVisible(visible);
+    nrResampleToggle.setVisible(visible);
+    nrGateToggle.setVisible(visible);
+    nrGateLevelSlider.setVisibleWithLabel(visible);
+    nrLpfSelector.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .label = &modeSelector.label, .component = &modeSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
+
+        nrSeparator.layoutComponent(rect);
+        layoutRow({ .rowRect = rect, .component = &nrResampleToggle });
+        layoutRow({ .rowRect = rect, .component = &nrGateToggle });
+        layoutRow({ .rowRect = rect, .label = &nrGateLevelSlider.label, .component = &nrGateLevelSlider });
+        layoutRow({ .rowRect = rect, .label = &nrLpfSelector.label, .component = &nrLpfSelector });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -150,6 +235,24 @@ void QualityPcm::readParams(const Io::ParamReader& reader, const juce::String& k
     modeSelector.setSelectedItemIndex(r.getInt("mode", modeSelector.getSelectedItemIndex()), juce::sendNotification);
     rateSelector.setSelectedItemIndex(r.getInt("rate", rateSelector.getSelectedItemIndex()), juce::sendNotification);
 	interpSelector.setSelectedItemIndex(r.getInt("interp", interpSelector.getSelectedItemIndex()), juce::sendNotification);
+
+    readNrParams(r);
+}
+
+void QualityPcm::readNrParams(const Io::ParamReader& reader)
+{
+    nrResampleToggle.setToggleState(reader.getBool("nrResample", nrResampleToggle.getToggleState()), juce::sendNotification);
+    nrGateToggle.setToggleState(reader.getBool("nrGate", nrGateToggle.getToggleState()), juce::sendNotification);
+    nrGateLevelSlider.setValue(reader.getFloat("nrGateLevel", (float)nrGateLevelSlider.getValue()), juce::sendNotification);
+    nrLpfSelector.setSelectedItemIndex(reader.getInt("nrLpf", nrLpfSelector.getSelectedItemIndex()), juce::sendNotification);
+}
+
+void QualityPcm::writeNrParams(Io::ParamWriter& writer)
+{
+    writer.set("nrResample", nrResampleToggle.getToggleState());
+    writer.set("nrGate", nrGateToggle.getToggleState());
+    writer.set("nrGateLevel", (float)nrGateLevelSlider.getValue());
+    writer.set("nrLpf", nrLpfSelector.getSelectedItemIndex());
 }
 
 juce::String QualityPcm::getExportedParams() {
@@ -169,4 +272,6 @@ void QualityPcm::writeParams(Io::ParamWriter& writer, const juce::String& key)
     w.set("mode", modeSelector.getSelectedItemIndex());
     w.set("rate", rateSelector.getSelectedItemIndex());
     w.set("interp", interpSelector.getSelectedItemIndex());
+
+    writeNrParams(w);
 }

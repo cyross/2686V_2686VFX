@@ -289,10 +289,14 @@ private:
     std::atomic<int> m_adpcmWantQuality{ -1 };
     std::atomic<int> m_adpcmWantRate{ -1 };
 
+    // QUALITY のノイズリダクション (きれいな間引き) も、作り直しの条件に入る。
+    std::atomic<bool> m_adpcmWantClean{ false };
+
     // RHYTHM も同じ。パッドごとに 1 つずつ持つ。
     std::array<PcmSharedStore, RhythmPrValue::pads> m_rhythmPcm;
     std::array<std::atomic<int>, RhythmPrValue::pads> m_rhythmWantQuality{};
     std::array<std::atomic<int>, RhythmPrValue::pads> m_rhythmWantRate{};
+    std::array<std::atomic<bool>, RhythmPrValue::pads> m_rhythmWantClean{};
 
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;

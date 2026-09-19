@@ -100,6 +100,13 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);
+
+    // 外から止められているか (鳴っていないオペレーターなど)。setEnabled で入る。
+    bool outerEnabled = true;
+
+    // Enable が切れているあいだは、札のほか (波形プレビューも含む) を止める。
+    // 札そのものは外から止められたときだけ止める。
+    void applyActive();
     void copyParams(CopyPEnvSsgHw& copyObj);
     void pasteParams(CopyPEnvSsgHw& copyObj);
     void importParams();

@@ -146,10 +146,15 @@ public:
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);
 
-    // ENDL を使うかどうかに合わせて、つまみの押せる・押せないを揃える。
-    void applyEndLevelEnable();
     void updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
     void setEnabled(bool enabled);
+
+    // 外から止められているか (鳴っていないオペレーターなど)。setEnabled で入る。
+    bool outerEnabled = true;
+
+    // 札 (Bypass / Enable) が効いていないあいだは、札のほかをすべて止める。
+    // 札そのものは外から止められたときだけ止める。
+    void applyActive();
     void copyParams(CopyEnvSsgSw11& copyObj);
     void pasteParams(CopyEnvSsgSw11& copyObj);
     void importParams();

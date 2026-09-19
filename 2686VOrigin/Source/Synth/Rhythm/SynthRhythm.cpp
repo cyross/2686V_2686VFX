@@ -81,6 +81,10 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_rateIndex = params.quality.rate;
     m_interpolationMode = params.quality.interp;
 
+    m_nrGate = params.quality.nrGate;
+    m_nrGateDb = params.quality.nrGateDb;
+    m_nrLpf = params.quality.nrLpf;
+
     // 符号化はプロセッサがメッセージスレッドで行い、出来たものを差してくる。
     // ここでは受け取った標本化周波数にエンベロープを合わせるだけ。
     m_pcm = params.source;
@@ -153,6 +157,12 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
     m_noiseGen.updateFrequency(m_currentFrequency);
     m_noiseGen.updateDelta();
     m_pitchRatio = currentBufferRate / m_sampleRate;
+
+    // QUALITY のノイズリダクション (再生側)。高域カットの上端は、素材が
+    // 出力の 1 標本あたりに進む量 (m_pitchRatio) で決まる。
+    m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+
+    if (!isLegato) m_noiseReducer.reset();
 
     // =====================================================================
     // モノフォニック・レガート時の音量ジャンプ防止処理
@@ -639,6 +649,9 @@ float RhythmPad::getSample()
         // Raw/BitCrusher モード時のビットリダクション
         output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
+
+    // QUALITY のノイズリダクション (再生側)。切れているときは素通し。
+    if (m_noiseReducer.isActive()) output = m_noiseReducer.process(output);
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
     float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);

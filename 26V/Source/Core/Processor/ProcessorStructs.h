@@ -47,6 +47,10 @@ struct PrPtrsQualityPcm {
     std::atomic<float>* mode = nullptr;
     std::atomic<float>* rate = nullptr;
     std::atomic<float>* interp = nullptr;
+    std::atomic<float>* nrResample = nullptr;
+    std::atomic<float>* nrGate = nullptr;
+    std::atomic<float>* nrGateLevel = nullptr;
+    std::atomic<float>* nrLpf = nullptr;
 };
 
 struct PrPtrsAdsrAmpEnv {

@@ -423,6 +423,9 @@ public:
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutN88LfoCat(juce::Rectangle<int>& rect);
     void updateLfoPreviews();
+
+    // N88 LFO の札に合わせて、効いていないつまみを押せなくする。
+    void applyN88LfoActive();
     void layoutOpN88LfoCat(juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(juce::Rectangle<int>& rect);
     void layoutOpKsCat(juce::Rectangle<int>& rect);

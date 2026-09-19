@@ -193,6 +193,7 @@ public:
         // スクロールバーを常に表示させ、常に幅を占有させる
         // (表示・非表示が切り替わるたびにレイアウト可能幅が変動し、中身が見切れるのを防ぐ)
         viewport.getVerticalScrollBar().setAutoHide(false);
+        viewport.setScrollBarThickness(CoreGuiValue::ScrollBar::vertical);
         applyScrollBarColour();
         viewport.setViewedComponent(&contentCanvas, false); // キャンバスをセット(所有権は持たせない)
     }
@@ -492,6 +493,7 @@ public:
         att.reset();
         att.reset(new SliderAttachment(ctx.apvts, id, *this));
         boundId = id;
+        setComponentID(id);
     }
 
     GuiLabel label;
@@ -577,6 +579,7 @@ public:
         att.reset();
         att.reset(new ComboBoxAttachment(ctx.apvts, id, *this));
         boundId = id;
+        setComponentID(id);
     }
 protected:
     std::unique_ptr<ComboBoxAttachment> att;
@@ -766,9 +769,42 @@ public:
     {
         att.reset();
         att.reset(new ButtonAttachment(ctx.apvts, id, *this));
+        boundId = id;
+        setComponentID(id);
+
+        // 止めてある (setEnabled(false)) あいだは、束縛が入れようとした値を
+        // Button が捨てる。表示だけでも合わせておく。戻したときに
+        // enablementChanged が改めて引き直す。
+        if (!isEnabled()) syncFromParameter(false);
     }
+
+    // 札が効いていないあいだ、薄く表示して押せなくする。
+    //
+    // setEnabled(false) を使わないのは、止めているあいだに来た値の書き換え
+    // (TARGET の切り替え、プリセットの読み込み) を JUCE の Button が捨てて
+    // しまうため。止めたまま、前の値を表示し続けることになる。こちらは
+    // 押せなくするだけなので、値はいつも束縛のとおりに入る。
+    void setDimmed(bool shouldDim);
+    bool isDimmed() const { return dimmed; }
+
+    // 入り切りが変わったときに呼ぶ処理を足す。
+    //
+    // onStateChange は 1 つしか持てず、グラフの描き直しが使っている。
+    // 区分の中の部品を止める / 戻すのはこちらで受ける。何本でも足せる。
+    void watchToggle(std::function<void()> fn) { toggleWatchers.push_back(std::move(fn)); }
 protected:
+    void buttonStateChanged() override;
+    void enablementChanged() override;
+    bool keyPressed(const juce::KeyPress& key) override;
+
+    // 束縛しているパラメータの値を読み直して表示へ入れる。
+    void syncFromParameter(bool notify);
+
     std::unique_ptr<ButtonAttachment> att;
+    juce::String boundId;
+    bool dimmed = false;
+    bool lastWatchedState = false;
+    std::vector<std::function<void()>> toggleWatchers;
     juce::Justification textJustification = juce::Justification::centred;
     juce::Font buttonFont = juce::Font(juce::FontOptions(12.0f));
     float boxW = 12.0f; // 縮小しても視認しやすい四角のサイズ
@@ -1238,6 +1274,9 @@ public:
 
     GuiSeparator(const GuiContext& context) : GuiBaseComponent(context) {}
 
+    // 止めた区分の中では、ほかの部品と揃えて薄く描く。
+    void enablementChanged() override { repaint(); }
+
     void setup(const Config& c) {
         lineStyle = c.lineStyle;
         lineRate = c.lineRate;
@@ -1248,7 +1287,7 @@ public:
 
     void paint(juce::Graphics& g) override
     {
-        g.setColour(lineColour); // 区切り線の色
+        g.setColour(isEnabled() ? lineColour : lineColour.withMultipliedAlpha(0.4f)); // 区切り線の色
 
         // 端を丸めた帯として描く。カテゴリ見出しや板と手触りを揃えるため。
         float radius = juce::jmin(cornerRadius, lineThick * 0.5f);

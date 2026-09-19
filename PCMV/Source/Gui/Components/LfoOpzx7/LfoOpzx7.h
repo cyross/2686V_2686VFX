@@ -122,6 +122,13 @@ public:
     void updatePreviews();
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);
+
+    // 外から止められているか (鳴っていないオペレーターなど)。setEnabled で入る。
+    bool outerEnabled = true;
+
+    // PM / AM それぞれ、Enable が切れているあいだはその側のつまみと
+    // 波形を止める。札そのものは外から止められたときだけ止める。
+    void applyActive();
     void copyParams(CopyLfoOpzx7& copyObj);
     void pasteParams(CopyLfoOpzx7& copyObj);
     void importParams();

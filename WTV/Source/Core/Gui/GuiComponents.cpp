@@ -295,6 +295,7 @@ void GuiSlider::setup(const Config& c)
     {
         att.reset(new SliderAttachment(ctx.apvts, c.id, *this));
         boundId = c.id;
+        setComponentID(c.id);
     }
 }
 
@@ -332,6 +333,7 @@ void GuiComboBox::setup(const Config& c)
     {
         att.reset(new ComboBoxAttachment(ctx.apvts, c.id, *this));
         boundId = c.id;
+        setComponentID(c.id);
     }
 
     if (c.isResized)
@@ -359,10 +361,89 @@ void GuiToggleButton::setup(const Config& c)
 
     if (c.isReset) {
         att.reset(new ButtonAttachment(ctx.apvts, c.id, *this));
+        boundId = c.id;
+        setComponentID(c.id);
     }
+
+    lastWatchedState = getToggleState();
 
     if (c.isResized) {
         this->onClick = [this] { ctx.editor.resized(); };
+    }
+}
+
+void GuiToggleButton::setDimmed(bool shouldDim)
+{
+    if (dimmed == shouldDim) return;
+
+    dimmed = shouldDim;
+
+    // 押しても通らないよう、マウスを受けない。下にある板へ素通しになる。
+    setInterceptsMouseClicks(!dimmed, !dimmed);
+
+    repaint();
+}
+
+void GuiToggleButton::buttonStateChanged()
+{
+    juce::ToggleButton::buttonStateChanged();
+
+    // マウスが乗っただけでも呼ばれる。入り切りが変わったときだけ知らせる。
+    const bool state = getToggleState();
+
+    if (state == lastWatchedState) return;
+
+    lastWatchedState = state;
+
+    for (auto& fn : toggleWatchers) {
+        if (fn) fn();
+    }
+}
+
+void GuiToggleButton::enablementChanged()
+{
+    juce::ToggleButton::enablementChanged();
+
+    // 止めてあったあいだに捨てられた値を拾い直す。
+    if (isEnabled()) syncFromParameter(true);
+}
+
+bool GuiToggleButton::keyPressed(const juce::KeyPress& key)
+{
+    // 薄くしてあるあいだは、スペースキーでも切り替えない。
+    if (dimmed) return false;
+
+    return juce::ToggleButton::keyPressed(key);
+}
+
+void GuiToggleButton::syncFromParameter(bool notify)
+{
+    if (boundId.isEmpty()) return;
+
+    auto* param = ctx.apvts.getParameter(boundId);
+
+    if (param == nullptr) return;
+
+    const bool state = param->getValue() >= 0.5f;
+
+    if (state == getToggleState()) return;
+
+    if (isEnabled()) {
+        // 押したことにはしない (パラメータへ書き戻さない)。止める処理は
+        // buttonStateChanged から走る。グラフの描き直しはここで頼む。
+        setToggleState(state, juce::dontSendNotification);
+
+        if (notify && onStateChange) onStateChange();
+    }
+    else {
+        // 止めてあると setToggleState は通らない。値の置き場へ直に入れると
+        // 表示 (getToggleState) だけは合う。
+        getToggleStateValue() = state;
+
+        // 知らせは出さない。止めてある区分の中なので、戻したときに
+        // 外側 (部品の setEnabled) が今の状態から引き直す。印だけ揃えて
+        // おかないと、次に押したときの変化を見落とす。
+        lastWatchedState = state;
     }
 }
 
@@ -378,7 +459,7 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     float textWidth = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), juce::StringRef(text));
     float totalWidth = boxW + labelGapW + textWidth;
 
-    float alpha = isEnabled() ? 1.0f : 0.5f;
+    float alpha = (isEnabled() && !dimmed) ? 1.0f : 0.5f;
     juce::Colour textColor = findColour(juce::ToggleButton::textColourId);
     if (textColor.isTransparent()) textColor = juce::Colours::white; // フォールバック
 

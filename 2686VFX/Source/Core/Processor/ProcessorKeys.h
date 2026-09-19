@@ -195,6 +195,12 @@ namespace CPK
 		static inline const juce::String mode = "_MODE";
 		static inline const juce::String rate = "_RATE";
 		static inline const juce::String interp = "_INTERP";
+
+		// ノイズリダクション。どれも既定は切れている。
+		static inline const juce::String nrResample = "_NR_RESAMPLE";
+		static inline const juce::String nrGate = "_NR_GATE";
+		static inline const juce::String nrGateLevel = "_NR_GATE_LV";
+		static inline const juce::String nrLpf = "_NR_LPF";
 	}
 
 	namespace Unison

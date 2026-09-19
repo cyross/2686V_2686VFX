@@ -23,12 +23,26 @@
 // 画面の中で、テストだけが触る口。PluginEditor が friend にしている。
 struct EditorTestAccess
 {
-    static void materializeAll(AudioPlugin2686VEditor& e) { e.materializeAllTabs(); }
+    // タブの中身を後から作る仕掛けを持たない本 (2686VFX) もある
+    //
+    // 型に依存させないと、無い関数を requires の中で書いた時点で弾かれる。
+    template <typename Editor>
+    static void materializeAll(Editor& e)
+    {
+        if constexpr (requires { e.materializeAllTabs(); }) e.materializeAllTabs();
+    }
     static juce::TabbedComponent& tabs(AudioPlugin2686VEditor& e) { return e.tabs; }
 };
 
 namespace
 {
+    // どの区分も持っている本 (2686V) でだけ、区分が見つからないことを失敗にする
+#if defined(GUI_TEST_REQUIRE_ALL)
+    constexpr bool kRequireAll = true;
+#else
+    constexpr bool kRequireAll = false;
+#endif
+
     // ------------------------------------------------------------------
     // プラグインを立ち上げて、全タブを作る
     // ------------------------------------------------------------------
@@ -354,9 +368,10 @@ TEST_CASE("札が効いていないあいだは、区分の中の部品が止ま
             checked += checkInstance(env, all, rule, inst);
         }
 
-        // どこにも無い区分は、表か名札のどちらかが壊れている
+        // どこにも無い区分は、表か名札のどちらかが壊れている。音源を絞った
+        // 本は持っていない区分があって当たり前なので、2686V でだけ見る。
         INFO(std::string(rule.name));
-        CHECK(checked > 0);
+        if (kRequireAll) CHECK(checked > 0);
 
         MESSAGE(std::string(rule.name) << " : " << checked << " か所");
     }
@@ -391,7 +406,7 @@ TEST_CASE("LFO の両方で使うつまみは、PM と AM が両方切れたと�
         const auto instances = findInstances(all, pm);
 
         INFO(std::string(sc.rule));
-        REQUIRE(!instances.empty());
+        if (kRequireAll) REQUIRE(!instances.empty());
 
         for (const auto& inst : instances) {
             INFO(inst.prefix.toStdString());
@@ -514,7 +529,7 @@ TEST_CASE("TARGET を切り替えても、指し先の札の状態に合わせ�
         target->setValue(1.0, juce::sendNotificationSync);
     }
 
-    CHECK(checkedTabs > 0);
+    if (kRequireAll) CHECK(checkedTabs > 0);
     MESSAGE("TARGET の切り替え: " << checkedTabs << " 通り");
 }
 
@@ -554,6 +569,6 @@ TEST_CASE("QUALITY のきれいな間引きは、符号化するモードのと�
         ++checked;
     }
 
-    CHECK(checked > 0);
+    if (kRequireAll) CHECK(checked > 0);
     MESSAGE("QUALITY: " << checked << " か所");
 }

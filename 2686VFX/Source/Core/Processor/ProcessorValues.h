@@ -292,6 +292,10 @@ namespace CPV
 			inline constexpr int min = 1; // Raw (32bit)
 			inline constexpr int max = 21; // K054539
 			inline constexpr int initial = 12; // 4-bit PCM
+
+			// ここから先は符号化するモード (13: YM2608 ADPCM 〜 21: K054539)。
+			// GenPcmHelper の PcmCodecMode::first と同じ。
+			inline constexpr int encodedFirst = 13;
 		}
 
 		namespace Rate
@@ -308,6 +312,30 @@ namespace CPV
 			inline constexpr int min = 0;
 			inline constexpr int max = 6;
 			inline constexpr int initial = 1;
+		}
+
+		// ノイズリダクション。既存のパッチの鳴りを変えないよう、どれも
+		// 切れた状態から始める。
+		namespace Nr
+		{
+			inline constexpr bool resample = false;
+			inline constexpr bool gate = false;
+
+			// 無音ゲートのしきい値 (dBFS)
+			namespace GateLevel
+			{
+				inline constexpr float min = -96.0f;
+				inline constexpr float max = -24.0f;
+				inline constexpr float initial = -60.0f;
+			}
+
+			// 高域カット。1:切 2:弱 3:中 4:強
+			namespace Lpf
+			{
+				inline constexpr int min = 1;
+				inline constexpr int max = 4;
+				inline constexpr int initial = 1;
+			}
 		}
 	}
 

@@ -179,15 +179,10 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
     loop.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::loop, .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
     loop.setExplicitFocusOrder(++tabOrder);
+    // 押したときだけ、ループできる形へ STEP と LOOP.TO を直す。
+    // 押せる・押せないは applyActive が状態の変化から決める。
     loop.onClick = [this] {
-        bool ssgEnvLoopEnable = loop.getToggleState();
-
-        loopTo.setEnabled(ssgEnvLoopEnable);
-        loopTo.label.setEnabled(ssgEnvLoopEnable);
-        loopCount.setEnabled(ssgEnvLoopEnable);
-        loopCount.label.setEnabled(ssgEnvLoopEnable);
-
-        applyLoopValues(ssgEnvLoopEnable);
+        applyLoopValues(loop.getToggleState());
         };
 
     loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::loopTo, .title = "LOOP.TO", .isReset = true, .labelFont = labelFont });
@@ -253,13 +248,10 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
     endLevelEnable.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::endlEnable, .title = "Use Endl", .isReset = true });
     endLevelEnable.setWantsKeyboardFocus(true);
     endLevelEnable.setExplicitFocusOrder(++tabOrder);
-    endLevelEnable.onClick = [this] { applyEndLevelEnable(); };
 
     endLevel.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::endl, .title = "ENDL", .isReset = true, .labelFont = labelFont });
     endLevel.setWantsKeyboardFocus(true);
     endLevel.setExplicitFocusOrder(++tabOrder);
-
-    applyEndLevelEnable();
 
     // onValueChange は値が変わらないと呼ばれないので、最初の束縛はここで明示的に行う。
     rateTarget.setValue(1, juce::dontSendNotification);
@@ -267,6 +259,15 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 
     rebindRate();
     rebindLevel();
+
+    // 札の入り切りは、押したときだけでなく TARGET の切り替えや
+    // プリセットの読み込みでも変わる。どこから変わっても追えるよう、
+    // 押したときではなく状態の変化を受ける。
+    flag.watchToggle([this] { applyActive(); });
+    loop.watchToggle([this] { applyActive(); });
+    endLevelEnable.watchToggle([this] { applyActive(); });
+
+    applyActive();
 }
 
 // 束縛先を丸ごと差し替える。
@@ -412,15 +413,6 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
     }
 }
 
-// ENDL を使わないときは、つまみを押せなくする。効いていないものが
-// 触れてしまうと、動かしたのに音が変わらない、という形で迷う。
-void GuiComponentSsgSwEnv11::applyEndLevelEnable() {
-    const bool on = endLevelEnable.getToggleState();
-
-    endLevel.setEnabled(on);
-    endLevel.label.setEnabled(on);
-}
-
 void GuiComponentSsgSwEnv11::setupGraph(std::function<void()> repaintGraph) {
 
     flag.onStateChange = repaintGraph;
@@ -484,30 +476,55 @@ void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph) {
 }
 
 void GuiComponentSsgSwEnv11::setEnabled(bool enabled) {
-    bool ssgEnvLoopEnable = loop.getToggleState();
+    outerEnabled = enabled;
 
     cat.setEnabled(enabled);
-    flag.setEnabled(enabled);
-	flagSeparator.setEnabled(enabled);
-    steps.setEnabled(enabled);
-	stepsSeparator.setEnabled(enabled);
-    loop.setEnabled(enabled);
-    loopTo.setEnabled(enabled && ssgEnvLoopEnable);
-    loopCount.setEnabled(enabled && ssgEnvLoopEnable);
-	loopSeparator.setEnabled(enabled);
-    rateTarget.setEnabled(enabled);
-    rate.setEnabled(enabled);
-    rateNudge.setEnables(enabled);
-    rateSeparator.setEnabled(enabled);
-    levelTarget.setEnabled(enabled);
-    level.setEnabled(enabled);
-    levelBtns.setEnables(enabled);
-    keep.setEnabled(enabled);
-	keepSeparator.setEnabled(enabled);
-	endLevelSeparator.setEnabled(enabled);
-    endLevelEnable.setEnabled(enabled);
-    endLevel.setEnabled(enabled && endLevelEnable.getToggleState());
-    endLevel.label.setEnabled(enabled && endLevelEnable.getToggleState());
+
+    applyActive();
+}
+
+// 効いていないつまみは押せなくする。触れてしまうと、動かしたのに
+// 音が変わらない、という形で迷う。
+//
+// 札が効いていなければ札のほかをすべて止める。LOOP.TO / LOOP.CNT は
+// LOOP が切れていても止める。ENDL は Use Endl が切れていても止める。
+void GuiComponentSsgSwEnv11::applyActive() {
+    const bool active = outerEnabled && !isCategoryBypassed();
+    const bool looping = active && loop.getToggleState();
+
+    flag.setEnabled(outerEnabled);
+
+    flagSeparator.setEnabled(active);
+    steps.setEnabledWithLabel(active);
+    stepsSeparator.setEnabled(active);
+
+    // トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。
+    keep.setEnabled(outerEnabled);
+    keep.setDimmed(!active);
+    keepSeparator.setEnabled(active);
+
+    // トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。
+    loop.setEnabled(outerEnabled);
+    loop.setDimmed(!active);
+    loopTo.setEnabledWithLabel(looping);
+    loopCount.setEnabledWithLabel(looping);
+    loopSeparator.setEnabled(active);
+
+    rateTarget.setEnabledWithLabel(active);
+    rate.setEnabled(active);
+    rateNudge.setEnables(active);
+    rateValues.setEnabled(active);
+    rateSeparator.setEnabled(active);
+
+    levelTarget.setEnabledWithLabel(active);
+    level.setEnabled(active);
+    levelBtns.setEnables(active);
+    levelValues.setEnabled(active);
+
+    endLevelSeparator.setEnabled(active);
+    endLevelEnable.setEnabled(outerEnabled);
+    endLevelEnable.setDimmed(!active);
+    endLevel.setEnabledWithLabel(active && endLevelEnable.getToggleState());
 }
 
 void GuiComponentSsgSwEnv11::copyParams(CopyEnvSsgSw11& copyObj) {

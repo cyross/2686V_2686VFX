@@ -109,6 +109,10 @@ void AdpcmPlusCore::setParameters(const SynthParams& params)
 
     m_interpolationMode = params.adpcmPlus.quality.interp;
 
+    m_nrGate = params.adpcmPlus.quality.nrGate;
+    m_nrGateDb = params.adpcmPlus.quality.nrGateDb;
+    m_nrLpf = params.adpcmPlus.quality.nrLpf;
+
     // 符号化はプロセッサがメッセージスレッドで行い、出来たものを差してくる。
     // ここでは受け取った標本化周波数にエンベロープを合わせるだけ。
     m_pcm = params.adpcmPlus.source;
@@ -162,6 +166,12 @@ void AdpcmPlusCore::noteOn(float freq, float velocity, int midiNote, bool isLega
     m_noiseGen.updateDelta();
     m_phaseDelta = m_currentFrequency / m_sampleRate;
     m_pitchRatio = (m_currentFrequency / rootFreq) * rateRatio;
+
+    // QUALITY のノイズリダクション (再生側)。高域カットの上端は、素材が
+    // 出力の 1 標本あたりに進む量 (m_pitchRatio) で決まる。
+    m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+
+    if (!isLegato) m_noiseReducer.reset();
 
     // =====================================================================
     // 3. 発音の初期化 (非レガート・新規発音時のみ実行)
@@ -655,6 +665,9 @@ float AdpcmPlusCore::getSample()
         // Raw/BitCrusher モード時のビットリダクション
         output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
+
+    // QUALITY のノイズリダクション (再生側)。切れているときは素通し。
+    if (m_noiseReducer.isActive()) output = m_noiseReducer.process(output);
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
     float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);

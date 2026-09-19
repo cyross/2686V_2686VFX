@@ -73,13 +73,19 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 	endLevelEnable.setup({ .parent = parent, .id = code + CPK::PitchAdsr::endlEnable, .title = "Use Endl", .isReset = true });
 	endLevelEnable.setWantsKeyboardFocus(true);
 	endLevelEnable.setExplicitFocusOrder(++tabOrder);
-	endLevelEnable.onClick = [this] { applyEndLevelEnable(); };
 
 	endLevel.setupComponent(parent, code + CPK::PitchAdsr::endl, "ENDL", tabOrder, std::nullopt, labelFont);
 
 	endLevelButtons.setupComponent(parent, endLevel.getSlider(), tabOrder, labelFont);
 
-	applyEndLevelEnable();
+
+	// 札の入り切りは、押したときだけでなく TARGET の切り替えや
+	// プリセットの読み込みでも変わる。どこから変わっても追えるよう、
+	// 押したときではなく状態の変化を受ける。
+	flag.watchToggle([this] { applyActive(); });
+	endLevelEnable.watchToggle([this] { applyActive(); });
+
+	applyActive();
 }
 
 // 束縛先を丸ごと差し替える。
@@ -222,13 +228,45 @@ void GuiComponentPitchEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	}
 }
 
-// ENDL を使わないときは、つまみを押せなくする。効いていないものが
-// 触れてしまうと、動かしたのに音が変わらない、という形で迷う。
-void GuiComponentPitchEnv::applyEndLevelEnable() {
-	const bool on = endLevelEnable.getToggleState();
+// 効いていないつまみは押せなくする。触れてしまうと、動かしたのに
+// 音が変わらない、という形で迷う。
+//
+// 札 (Bypass / Enable) が効いていなければ札のほかをすべて止め、ENDL は
+// Use Endl が切れていても止める。
+void GuiComponentPitchEnv::applyActive() {
+	const bool active = outerEnabled && !isCategoryBypassed();
+	const bool endl = active && endLevelEnable.getToggleState();
 
-	endLevel.setEnabled(on);
-	endLevelButtons.setEnables(on);
+	flag.setEnabled(outerEnabled);
+
+	flagSeparator.setEnabled(active);
+
+	// トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。
+	keep.setEnabled(outerEnabled);
+	keep.setDimmed(!active);
+	keepSeparator.setEnabled(active);
+
+	attack.setEnabled(active);
+	attackNudge.setEnables(active);
+	decay.setEnabled(active);
+	decayNudge.setEnables(active);
+	release.setEnabled(active);
+	releaseNudge.setEnables(active);
+	rateSeparator.setEnabled(active);
+
+	startLevel.setEnabled(active);
+	startLevelButtons.setEnables(active);
+	attackLevel.setEnabled(active);
+	attackLevelButtons.setEnables(active);
+	sustainLevel.setEnabled(active);
+	sustainLevelButtons.setEnables(active);
+	releaseLevel.setEnabled(active);
+	releaseLevelButtons.setEnables(active);
+
+	endLevelEnable.setEnabled(outerEnabled);
+	endLevelEnable.setDimmed(!active);
+	endLevel.setEnabled(endl);
+	endLevelButtons.setEnables(endl);
 }
 
 void GuiComponentPitchEnv::setupGraph(std::function<void()> repaintGraph) {
@@ -275,18 +313,11 @@ void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph) {
 }
 
 void GuiComponentPitchEnv::setEnabled(bool enabled) {
+	outerEnabled = enabled;
+
 	cat.setEnabled(enabled);
-	flag.setEnabled(enabled);
-	attack.setEnabled(enabled);
-	decay.setEnabled(enabled);
-	release.setEnabled(enabled);
-	startLevel.setEnabled(enabled);
-	attackLevel.setEnabled(enabled);
-	sustainLevel.setEnabled(enabled);
-	releaseLevel.setEnabled(enabled);
-	endLevelEnable.setEnabled(enabled);
-	endLevel.setEnabled(enabled && endLevelEnable.getToggleState());
-	keep.setEnabled(enabled);
+
+	applyActive();
 }
 
 void GuiComponentPitchEnv::copyParams(CopyEnvPitchAdsr& copyObj) {

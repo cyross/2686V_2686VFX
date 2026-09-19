@@ -3267,6 +3267,18 @@ namespace PrHelper {
 			prefixName + CPN::QualityPcm::interp, 
 			CPV::QualityPcm::Interp::min, CPV::QualityPcm::Interp::max, CPV::QualityPcm::Interp::initial
 		);
+
+		// ノイズリダクション。どれも既定は切れている。
+		PrHelper::addBool(layout, prefix + CPK::QualityPcm::nrResample,
+			prefixName + CPN::QualityPcm::nrResample, CPV::QualityPcm::Nr::resample);
+		PrHelper::addBool(layout, prefix + CPK::QualityPcm::nrGate,
+			prefixName + CPN::QualityPcm::nrGate, CPV::QualityPcm::Nr::gate);
+		PrHelper::addFloat(layout, prefix + CPK::QualityPcm::nrGateLevel,
+			prefixName + CPN::QualityPcm::nrGateLevel,
+			CPV::QualityPcm::Nr::GateLevel::min, CPV::QualityPcm::Nr::GateLevel::max, CPV::QualityPcm::Nr::GateLevel::initial);
+		PrHelper::addInt(layout, prefix + CPK::QualityPcm::nrLpf,
+			prefixName + CPN::QualityPcm::nrLpf,
+			CPV::QualityPcm::Nr::Lpf::min, CPV::QualityPcm::Nr::Lpf::max, CPV::QualityPcm::Nr::Lpf::initial);
 	}
 
 	static inline void addOpMaskParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {

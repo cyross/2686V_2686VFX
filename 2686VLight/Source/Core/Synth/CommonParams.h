@@ -26,6 +26,12 @@ struct QualityPcmParams {
     // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 12k, 9: 11k 10: 8k 11: 5.5k 12: 4k 13: 2k
     int rate = 7;   // Default: 16kHz
     int interp = 1;
+
+    // ノイズリダクション (GenPcmHelper::resampleClean / PcmNoiseReducer)
+    bool nrResample = false;
+    bool nrGate = false;
+    float nrGateDb = -60.0f;
+    int nrLpf = 1;  // 1:切 2:弱 3:中 4:強
 };
 
 struct AlgMatrixParams {

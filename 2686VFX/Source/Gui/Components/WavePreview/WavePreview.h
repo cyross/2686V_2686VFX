@@ -45,6 +45,9 @@ public:
         setInterceptsMouseClicks(false, false);
     }
 
+    // 止めた区分の中では、ほかの部品と揃えて薄く描く。
+    void enablementChanged() override { setAlpha(isEnabled() ? 1.0f : 0.4f); }
+
     // 高さの目安。呼び出し側はこれを使って区画を取る。
     static inline constexpr int defaultHeight = 34;
 

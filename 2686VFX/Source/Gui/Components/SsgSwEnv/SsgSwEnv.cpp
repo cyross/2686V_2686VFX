@@ -170,15 +170,10 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     loop.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loop, .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
     loop.setExplicitFocusOrder(++tabOrder);
+    // 押したときだけ、ループできる形へ STEP と LOOP.TO を直す。
+    // 押せる・押せないは applyActive が状態の変化から決める。
     loop.onClick = [this] {
-        bool ssgEnvLoopEnable = loop.getToggleState();
-
-        loopTo.setEnabled(ssgEnvLoopEnable);
-        loopTo.label.setEnabled(ssgEnvLoopEnable);
-        loopCount.setEnabled(ssgEnvLoopEnable);
-        loopCount.label.setEnabled(ssgEnvLoopEnable);
-
-        applyLoopValues(ssgEnvLoopEnable);
+        applyLoopValues(loop.getToggleState());
         };
 
     loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopTo, .title = "LOOP.TO", .isReset = true, .labelFont = labelFont });
@@ -245,6 +240,14 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
 
     rebindRate();
     rebindLevel();
+
+    // 札の入り切りは、押したときだけでなく TARGET の切り替えや
+    // プリセットの読み込みでも変わる。どこから変わっても追えるよう、
+    // 押したときではなく状態の変化を受ける。
+    flag.watchToggle([this] { applyActive(); });
+    loop.watchToggle([this] { applyActive(); });
+
+    applyActive();
 }
 
 // 束縛先を丸ごと差し替える。
@@ -422,24 +425,45 @@ void GuiComponentSsgSwEnv::updateGraph(GuiEnvelopeGraph& graph) {
 }
 
 void GuiComponentSsgSwEnv::setEnabled(bool enabled) {
-    bool ssgEnvLoopEnable = loop.getToggleState();
+    outerEnabled = enabled;
 
     cat.setEnabled(enabled);
-    flag.setEnabled(enabled);
-	flagSeparator.setEnabled(enabled);
-    steps.setEnabled(enabled);
-	stepsSeparator.setEnabled(enabled);
-    loop.setEnabled(enabled);
-    loopTo.setEnabled(enabled && ssgEnvLoopEnable);
-    loopCount.setEnabled(enabled && ssgEnvLoopEnable);
-	loopSeparator.setEnabled(enabled);
-    rateTarget.setEnabled(enabled);
-    rate.setEnabled(enabled);
-    rateNudge.setEnables(enabled);
-    rateSeparator.setEnabled(enabled);
-    levelTarget.setEnabled(enabled);
-    level.setEnabled(enabled);
-    levelBtns.setEnables(enabled);
+
+    applyActive();
+}
+
+// 効いていないつまみは押せなくする。触れてしまうと、動かしたのに
+// 音が変わらない、という形で迷う。
+//
+// 札が効いていなければ札のほかをすべて止める。LOOP.TO / LOOP.CNT は
+// LOOP が切れていても止める。
+void GuiComponentSsgSwEnv::applyActive() {
+    const bool active = outerEnabled && !isCategoryBypassed();
+    const bool looping = active && loop.getToggleState();
+
+    flag.setEnabled(outerEnabled);
+
+    flagSeparator.setEnabled(active);
+    steps.setEnabledWithLabel(active);
+    stepsSeparator.setEnabled(active);
+
+    // トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。
+    loop.setEnabled(outerEnabled);
+    loop.setDimmed(!active);
+    loopTo.setEnabledWithLabel(looping);
+    loopCount.setEnabledWithLabel(looping);
+    loopSeparator.setEnabled(active);
+
+    rateTarget.setEnabledWithLabel(active);
+    rate.setEnabled(active);
+    rateNudge.setEnables(active);
+    rateValues.setEnabled(active);
+    rateSeparator.setEnabled(active);
+
+    levelTarget.setEnabledWithLabel(active);
+    level.setEnabled(active);
+    levelBtns.setEnables(active);
+    levelValues.setEnabled(active);
 }
 
 void GuiComponentSsgSwEnv::copyParams(CopyEnvSsgSw& copyObj) {

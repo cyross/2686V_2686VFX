@@ -707,12 +707,14 @@ void AudioPlugin2686V::handleAsyncUpdate()
 {
     m_adpcmPcm.rebuildIfNeeded(m_adpcmWantQuality.load(std::memory_order_relaxed),
                                m_adpcmWantRate.load(std::memory_order_relaxed),
+                               m_adpcmWantClean.load(std::memory_order_relaxed),
                                16000.0);
 
 
     for (size_t i = 0; i < (size_t)Global::AdpcmPlus::slots; ++i) {
         m_adpcmPlusPcm[i].rebuildIfNeeded(m_adpcmPlusWantQuality[i].load(std::memory_order_relaxed),
                                          m_adpcmPlusWantRate[i].load(std::memory_order_relaxed),
+                                         m_adpcmPlusWantClean[i].load(std::memory_order_relaxed),
                                          16000.0);
     }
 }

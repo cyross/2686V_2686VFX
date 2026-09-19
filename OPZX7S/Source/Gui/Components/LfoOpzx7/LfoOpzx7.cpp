@@ -159,6 +159,14 @@ void GuiComponentLfoOpzx7::setupComponent(
     amSmRt.onValueChange = refreshPreviews;
 
     updatePreviews();
+
+    // 札の入り切りは、押したときだけでなく TARGET の切り替えや
+    // プリセットの読み込みでも変わる。どこから変わっても追えるよう、
+    // 押したときではなく状態の変化を受ける。
+    pmEnable.watchToggle([this] { applyActive(); });
+    amEnable.watchToggle([this] { applyActive(); });
+
+    applyActive();
 }
 
 // 束縛先を丸ごと差し替える。
@@ -355,29 +363,44 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
 }
 
 void GuiComponentLfoOpzx7::setEnabled(bool enabled) {
+    outerEnabled = enabled;
+
     cat.setEnabled(enabled);
     pmLabel.setEnabled(enabled);
-    pmEnable.setEnabled(enabled);
-    pmFreq.setEnabled(enabled);
-    pmSyncDelay.setEnabled(enabled);
-    pmSDToZero.setEnabled(enabled);
-    pmSDToOne.setEnabled(enabled);
-    pgShape.setEnabled(enabled);
-    pms.setEnabled(enabled);
-    pmd.setEnabled(enabled);
-    pmAmSeparator.setEnabled(enabled);
     amLabel.setEnabled(enabled);
-    amEnable.setEnabled(enabled);
-    amFreq.setEnabled(enabled);
-    amSyncDelay.setEnabled(enabled);
-    amSDToZero.setEnabled(enabled);
-    amSDToOne.setEnabled(enabled);
-    egShape.setEnabled(enabled);
-    amSmRt.setEnabled(enabled);
-    ams.setEnabled(enabled);
-    amd.setEnabled(enabled);
-    pmWaveHold.setEnables(enabled);
-    amWaveHold.setEnables(enabled);
+    pmAmSeparator.setEnabled(enabled);
+
+    applyActive();
+}
+
+// 効いていないつまみは押せなくする。触れてしまうと、動かしたのに
+// 音が変わらない、という形で迷う。
+void GuiComponentLfoOpzx7::applyActive() {
+    const bool pm = outerEnabled && pmEnable.getToggleState();
+    const bool am = outerEnabled && amEnable.getToggleState();
+
+    pmEnable.setEnabled(outerEnabled);
+    pmFreq.setEnabledWithLabel(pm);
+    pmSyncDelay.setEnabledWithLabel(pm);
+    pmSDToZero.setEnabled(pm);
+    pmSDToOne.setEnabled(pm);
+    pgShape.setEnabledWithLabel(pm);
+    pmPreview.setEnabled(pm);
+    pms.setEnabledWithLabel(pm);
+    pmd.setEnabledWithLabel(pm);
+    pmWaveHold.setEnables(pm);
+
+    amEnable.setEnabled(outerEnabled);
+    amFreq.setEnabledWithLabel(am);
+    amSyncDelay.setEnabledWithLabel(am);
+    amSDToZero.setEnabled(am);
+    amSDToOne.setEnabled(am);
+    egShape.setEnabledWithLabel(am);
+    amSmRt.setEnabledWithLabel(am);
+    amPreview.setEnabled(am);
+    ams.setEnabledWithLabel(am);
+    amd.setEnabledWithLabel(am);
+    amWaveHold.setEnables(am);
 }
 
 void GuiComponentLfoOpzx7::copyParams(CopyLfoOpzx7& copyObj) {

@@ -235,12 +235,16 @@ private:
     std::atomic<int> m_adpcmWantQuality{ -1 };
     std::atomic<int> m_adpcmWantRate{ -1 };
 
+    // QUALITY のノイズリダクション (きれいな間引き) も、作り直しの条件に入る。
+    std::atomic<bool> m_adpcmWantClean{ false };
+
     // ADPCM+ も同じ。PCM のスロットごとに 1 つずつ持つ。
     // 鳴らすのは TARGET で選んだ 1 本だけだが、差し替えずに済むよう
     // 読み込んだものはすべて持っておく。
     std::array<PcmSharedStore, Global::AdpcmPlus::slots> m_adpcmPlusPcm;
     std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantQuality{};
     std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantRate{};
+    std::array<std::atomic<bool>, Global::AdpcmPlus::slots> m_adpcmPlusWantClean{};
 
 
     SynthParams m_currentParams;

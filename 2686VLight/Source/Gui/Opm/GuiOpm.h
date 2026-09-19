@@ -496,6 +496,9 @@ public:
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutHwLfoCat(juce::Rectangle<int>& rect);
     void updateLfoPreviews();
+
+    // LFO の札に合わせて、効いていないつまみを押せなくする。
+    void applyLfoActive();
     void layoutOpHwLfoCat(juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(juce::Rectangle<int>& rect);
     void layoutOpKsCat(juce::Rectangle<int>& rect);

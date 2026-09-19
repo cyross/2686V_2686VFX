@@ -25,6 +25,7 @@ struct PcmSharedData
     // encoded を作ったときの指定。今の指定と食い違っていたら作り直す。
     int qualityMode = -1;
     int rateIndex = -1;
+    bool cleanResample = false;
 };
 
 // 作るのはメッセージスレッド、読むのはオーディオスレッド。
@@ -42,7 +43,8 @@ public:
 
     // 指定が今の中身と違えば符号化し直して差し出す。同じなら何もしない。
     // defaultRate は rateIndex が範囲外だったときに使う値。
-    void rebuildIfNeeded(int qualityMode, int rateIndex, double defaultRate);
+    // cleanResample は QUALITY のノイズリダクション設定 (きれいな間引き)。
+    void rebuildIfNeeded(int qualityMode, int rateIndex, bool cleanResample, double defaultRate);
 
     // ---------------- オーディオスレッドから ----------------
 
@@ -58,13 +60,14 @@ public:
 
     // いま出ている符号化が指定と合っているか。合っていなければ、呼び出し側が
     // メッセージスレッドへ作り直しを頼む。
-    bool needsRebuild(int qualityMode, int rateIndex) const noexcept
+    bool needsRebuild(int qualityMode, int rateIndex, bool cleanResample) const noexcept
     {
         const auto& cur = forAudio();
 
         if (cur.raw.empty()) return false; // 素材が無ければ作るものもない
 
-        return cur.qualityMode != qualityMode || cur.rateIndex != rateIndex;
+        return cur.qualityMode != qualityMode || cur.rateIndex != rateIndex
+            || cur.cleanResample != cleanResample;
     }
 
 private:

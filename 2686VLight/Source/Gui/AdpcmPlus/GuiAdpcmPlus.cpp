@@ -1042,6 +1042,7 @@ void GuiAdpcmPlus::applyQualityParamFile(const juce::File& file)
 				qualityPcmComponent.setMode(reader->getInt("mode", qualityPcmComponent.getMode()));
     qualityPcmComponent.setRate(reader->getInt("rate", qualityPcmComponent.getRate()));
     qualityPcmComponent.setInterp(reader->getInt("interp", qualityPcmComponent.getInterp()));
+    qualityPcmComponent.readNrParams(*reader);
 }
 
 void GuiAdpcmPlus::exportQualityParam()
@@ -1378,6 +1379,7 @@ void GuiAdpcmPlus::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("mode", qualityPcmComponent.getMode());
 	writer.set("rate", qualityPcmComponent.getRate());
 	writer.set("interp", qualityPcmComponent.getInterp());
+	qualityPcmComponent.writeNrParams(writer);
 
 	
 }
