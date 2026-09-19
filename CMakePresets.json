@@ -93,7 +93,11 @@
     {
       "name": "windows-x64-debug",
       "configurePreset": "windows-x64-msvc",
-      "configuration": "Debug"
+      "configuration": "Debug",
+      "targets": [
+        "ALL_BUILD",
+        "AllTests"
+      ]
     },
     {
       "name": "windows-x64-release",
@@ -101,9 +105,22 @@
       "configuration": "Release"
     },
     {
+      "name": "windows-x64-release-tests",
+      "configurePreset": "windows-x64-msvc",
+      "configuration": "Release",
+      "targets": [
+        "ALL_BUILD",
+        "AllTests"
+      ]
+    },
+    {
       "name": "windows-arm64-debug",
       "configurePreset": "windows-arm64-msvc",
-      "configuration": "Debug"
+      "configuration": "Debug",
+      "targets": [
+        "ALL_BUILD",
+        "AllTests"
+      ]
     },
     {
       "name": "windows-arm64-release",
@@ -111,9 +128,22 @@
       "configuration": "Release"
     },
     {
+      "name": "windows-arm64-release-tests",
+      "configurePreset": "windows-arm64-msvc",
+      "configuration": "Release",
+      "targets": [
+        "ALL_BUILD",
+        "AllTests"
+      ]
+    },
+    {
       "name": "windows-arm64ec-debug",
       "configurePreset": "windows-arm64ec-msvc",
-      "configuration": "Debug"
+      "configuration": "Debug",
+      "targets": [
+        "ALL_BUILD",
+        "AllTests"
+      ]
     },
     {
       "name": "windows-arm64ec-release",
@@ -121,9 +151,22 @@
       "configuration": "Release"
     },
     {
+      "name": "windows-arm64ec-release-tests",
+      "configurePreset": "windows-arm64ec-msvc",
+      "configuration": "Release",
+      "targets": [
+        "ALL_BUILD",
+        "AllTests"
+      ]
+    },
+    {
       "name": "linux-x64-debug",
       "configurePreset": "linux-wsl-x64",
-      "configuration": "Debug"
+      "configuration": "Debug",
+      "targets": [
+        "all",
+        "AllTests"
+      ]
     },
     {
       "name": "linux-x64-release",
@@ -131,14 +174,36 @@
       "configuration": "Release"
     },
     {
+      "name": "linux-x64-release-tests",
+      "configurePreset": "linux-wsl-x64",
+      "configuration": "Release",
+      "targets": [
+        "all",
+        "AllTests"
+      ]
+    },
+    {
       "name": "linux-arm64-debug",
       "configurePreset": "linux-wsl-arm64-cross",
-      "configuration": "Debug"
+      "configuration": "Debug",
+      "targets": [
+        "all",
+        "AllTests"
+      ]
     },
     {
       "name": "linux-arm64-release",
       "configurePreset": "linux-wsl-arm64-cross",
       "configuration": "Release"
+    },
+    {
+      "name": "linux-arm64-release-tests",
+      "configurePreset": "linux-wsl-arm64-cross",
+      "configuration": "Release",
+      "targets": [
+        "all",
+        "AllTests"
+      ]
     },
     {
       "name": "macos-xcode-debug",
@@ -148,7 +213,11 @@
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Darwin"
-      }
+      },
+      "targets": [
+        "ALL_BUILD",
+        "AllTests"
+      ]
     },
     {
       "name": "macos-xcode-release",
@@ -161,6 +230,20 @@
       }
     },
     {
+      "name": "macos-xcode-release-tests",
+      "configurePreset": "macos-xcode",
+      "configuration": "Release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "targets": [
+        "ALL_BUILD",
+        "AllTests"
+      ]
+    },
+    {
       "name": "macos-ninja-debug",
       "configurePreset": "macos-ninja",
       "configuration": "Debug",
@@ -168,7 +251,11 @@
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Darwin"
-      }
+      },
+      "targets": [
+        "all",
+        "AllTests"
+      ]
     },
     {
       "name": "macos-ninja-release",
@@ -179,6 +266,20 @@
         "lhs": "${hostSystemName}",
         "rhs": "Darwin"
       }
+    },
+    {
+      "name": "macos-ninja-release-tests",
+      "configurePreset": "macos-ninja",
+      "configuration": "Release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "targets": [
+        "all",
+        "AllTests"
+      ]
     }
   ],
   "testPresets": [

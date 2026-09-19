@@ -13,6 +13,33 @@
 
 set(TEST_TARGET_SOURCE_ROOT "${CMAKE_SOURCE_DIR}/2686V/Source")
 
+# ------------------------------------------------------------------------------
+# テストは既定のビルド (ALL_BUILD) へ含めない
+# ------------------------------------------------------------------------------
+# 12 本ぶんの画面のテストまであるので、出荷物を作るだけのときに全部を組むと
+# 待たされる。テストは AllTests に集め、組むかどうかはビルドのプリセットで
+# 選ぶ (CMakePresets.json)。
+#
+#   *-debug          本体とテスト
+#   *-release        本体だけ
+#   *-release-tests  本体とテスト
+#
+# 構成 (Debug / Release) で ALL_BUILD へ入れるかを変えられるのは Ninja
+# Multi-Config だけで、Visual Studio はできない。そのためプリセットで分ける。
+add_custom_target(AllTests)
+
+function(cy_register_test target)
+    add_dependencies(AllTests ${target})
+
+    set_target_properties(${target} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+    # JUCE のアプリの形で作ったもの (IoTests) は、アイコンの小さな
+    # ライブラリを別に持つ。これも外す。
+    if(TARGET ${target}_rc_lib)
+        set_target_properties(${target}_rc_lib PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    endif()
+endfunction()
+
 # ---- テスト対象 (出荷されるソースそのもの) ----
 set(UNDER_TEST_SOURCES
     "${TEST_TARGET_SOURCE_ROOT}/Advanced/Curve/AdvancedCurve.cpp"
@@ -93,6 +120,8 @@ target_compile_definitions(RetroSynthsTests PRIVATE
 )
 
 target_compile_features(RetroSynthsTests PRIVATE cxx_std_20)
+
+cy_register_test(RetroSynthsTests)
 
 if(MSVC)
     target_compile_options(RetroSynthsTests PRIVATE /utf-8 /FS)
@@ -179,6 +208,8 @@ target_compile_definitions(IoTests PRIVATE
 
 target_compile_features(IoTests PRIVATE cxx_std_20)
 
+cy_register_test(IoTests)
+
 if(MSVC)
     target_compile_options(IoTests PRIVATE /utf-8 /FS)
 endif()
@@ -230,6 +261,8 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
     target_link_libraries(${CY_GUI_TEST} PRIVATE ${CY_PLUGIN})
 
     target_compile_features(${CY_GUI_TEST} PRIVATE cxx_std_20)
+
+    cy_register_test(${CY_GUI_TEST})
 
     if(MSVC)
         target_compile_options(${CY_GUI_TEST} PRIVATE /utf-8 /FS)
