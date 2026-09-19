@@ -13,7 +13,7 @@
 #include "./GuiCurveValues.h"
 #include "./GuiCurveText.h"
 #include "Shared/Core/Gui/GuiStructs.h"
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include "Shared/Core/Gui/GuiRefresh.h"
 #include "../../Core/Gui/GuiPluginContext.h"
 

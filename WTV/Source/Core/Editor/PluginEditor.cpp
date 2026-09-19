@@ -11,7 +11,7 @@
 #include "../Processor/PluginProcessor.h"
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
-#include "../Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 
 #include "../Fm/FmRegisterConverter.h"

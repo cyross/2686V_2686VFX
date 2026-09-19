@@ -5,7 +5,7 @@
 
 #include "Shared/Core/Gui/GuiRefresh.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 namespace
 {
@@ -21,12 +21,12 @@ namespace
 	const Io::ParamFormat qualityFormat{ "quality", 1 };
 }
 
-#include "../Components/WavePreview/WavePreviewSource.h"
+#include "Shared/Gui/Components/WavePreview/WavePreviewSource.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Opna/ProcessorOpnaKeys.h"

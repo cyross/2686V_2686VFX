@@ -6,6 +6,7 @@
 
 #include "Shared/Core/Gui/GuiI18n.h"
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
+#include "Shared/Core/Editor/EditorLoadingText.h"
 
 namespace EditorGuiText
 {
@@ -46,12 +47,6 @@ namespace EditorGuiText
 	namespace PresetScan
 	{
 		static inline const I18n::Text working{ u8"プリセットの見出しを読んでいます", u8"Reading preset headings" };
-	}
-
-	namespace Loading
-	{
-		static inline const I18n::Text cancel{ u8"中止", u8"Cancel" };
-		static inline const I18n::Text cancelling{ u8"中止しています…", u8"Cancelling…" };
 	}
 
 	namespace Panic

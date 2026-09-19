@@ -1,7 +1,7 @@
 ﻿#include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiBeep.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include "Shared/Core/Gui/GuiRefresh.h"
 
 #include "../../Core/Processor/PluginProcessor.h"

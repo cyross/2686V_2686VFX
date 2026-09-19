@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
 #include "Shared/Core/Gui/GuiComponents.h"
@@ -10,8 +10,8 @@
 #include "Shared/Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
-#include "../../Gui/Components/Separator/NormalSeparator.h"
-#include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "Shared/Gui/Components/Separator/NormalSeparator.h"
+#include "Shared/Gui/Components/Separator/ShortSeparator.h"
 
 class GuiFx : public GuiBase
 {

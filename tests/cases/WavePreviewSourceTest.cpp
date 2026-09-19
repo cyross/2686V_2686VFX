@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Gui/Components/WavePreview/WavePreviewSource.h"
+#include "Shared/Gui/Components/WavePreview/WavePreviewSource.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Core/Synth/CommonParams.h"
 #include "Shared/Generator/Fds/GenFdsModTable.h"

@@ -2,29 +2,29 @@
 
 #include <JuceHeader.h>
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
-#include "../Components/AmpEnv/AmpEnv.h"
-#include "../Components/SsgHwEnv/SsgHwEnv.h"
-#include "../Components/SsgHwPEnv/SsgHwPEnv.h"
-#include "../Components/SsgSwEnv11/SsgSwEnv11.h"
-#include "../Components/LfoOpzx7/LfoOpzx7.h"
-#include "../Components/PitchEnv/PitchEnv.h"
-#include "../Components/SsgSwPEnv11/SsgSwPEnv11.h"
-#include "../Components/WtMod/WtMod.h"
-#include "../Components/WtAmpMod/WtAmpMod.h"
-#include "../Components/MulDetune/MulDetune.h"
-#include "../Components/Unison/Unison.h"
-#include "../Components/Quality/QualityPcm.h"
+#include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
+#include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
+#include "Shared/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
+#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/WtMod/WtMod.h"
+#include "Shared/Gui/Components/WtAmpMod/WtAmpMod.h"
+#include "Shared/Gui/Components/MulDetune/MulDetune.h"
+#include "Shared/Gui/Components/Unison/Unison.h"
+#include "Shared/Gui/Components/Quality/QualityPcm.h"
 #include "Shared/Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
-#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "Shared/Gui/Components/Separator/NormalSeparator.h"
 #include "./GuiFxKeyAssign.h"
-#include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "Shared/Gui/Components/Separator/ShortSeparator.h"
 
 class GuiFx : public GuiBase, private juce::Timer
 {

@@ -83,7 +83,7 @@ set(UNDER_TEST_SOURCES
     "${SHARED_SOURCE_ROOT}/Synth/Opzx7/Operator/SynthOpzx7Op.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
     "${SHARED_SOURCE_ROOT}/Generator/Fm/Fix/FmFix.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Gui/Components/WavePreview/WavePreviewSource.cpp"
+    "${SHARED_SOURCE_ROOT}/Gui/Components/WavePreview/WavePreviewSource.cpp"
 
     "${SHARED_SOURCE_ROOT}/Core/Synth/SynthHelpers.cpp"
     "${SHARED_SOURCE_ROOT}/Generator/Pcm/Helper/GenPcmHelper.cpp"
@@ -189,7 +189,7 @@ juce_generate_juce_header(IoTests)
 
 target_sources(IoTests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/io/ParamFileTests.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Core/Io/ParamFile.cpp"
+    "${SHARED_SOURCE_ROOT}/Core/Io/ParamFile.cpp"
     "${SHARED_SOURCE_ROOT}/Core/Gui/GuiI18n.cpp"
 )
 

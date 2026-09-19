@@ -841,7 +841,7 @@ def apply_identity(dst_root, name, spec):
 
     # プリセットの置き場もプラグインごとに分ける。2686V 以外はどれも
     # 自前のフォルダを持っているので、それに合わせる。
-    path = os.path.join(dst_root, "Core", "Const", "ConstFileValues.h")
+    path = os.path.join(dst_root, "Core", "Const", "ConstPresetFolder.h")
     text = read_text(path)
 
     old = 'juce::String preset = "Presets";'

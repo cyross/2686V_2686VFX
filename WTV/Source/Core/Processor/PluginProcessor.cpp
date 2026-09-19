@@ -13,6 +13,7 @@
 
 #include "Shared/Core/Gui/GuiValues.h"
 #include "../Gui/GuiTabCount.h"
+#include "../Const/ConstPresetFolder.h"
 
 namespace
 {
@@ -1640,4 +1641,58 @@ void AudioPlugin2686V::prepareRenderVoice(SynthVoice& voice, double sampleRate)
     voice.setCurveCore(&m_curveCore);
     voice.setWtPlusWaveSlots(&wtPlusWaves);
 
+}
+
+// ============================================================================
+// 生成波形の計算に使う音源一式 (窓口 GuiProcessorHost::createRenderRig)
+// ============================================================================
+// 画面の部品は 12 本で共有するので、このプラグインのボイスとパラメータで
+// 組み立てたものを窓口越しに渡す。
+namespace
+{
+    struct RenderRig : GuiRenderRig
+    {
+        RetroSynthesiser synth;
+        SynthParams params;
+
+        void renderNextBlock(juce::AudioBuffer<float>& buffer, const juce::MidiBuffer& midi,
+            int startSample, int numSamples) override
+        {
+            synth.renderNextBlock(buffer, midi, startSample, numSamples);
+        }
+    };
+}
+
+std::unique_ptr<GuiRenderRig> AudioPlugin2686V::createRenderRig(double sampleRate)
+{
+    auto rig = std::make_unique<RenderRig>();
+
+    rig->params = buildRenderParams();
+
+    rig->synth.clearVoices();
+    rig->synth.clearSounds();
+    rig->synth.addSound(new SynthSound());
+
+    // 1 音ぶんなので、ユニゾンの最大数だけあれば足りる
+    for (int i = 0; i < Global::unisonVoices; ++i)
+    {
+        auto* voice = new SynthVoice();
+
+        rig->synth.addVoice(voice);
+
+        prepareRenderVoice(*voice, sampleRate);
+
+        voice->setParameters(rig->params);
+    }
+
+    rig->synth.setCurrentPlaybackSampleRate(sampleRate);
+
+    // 本体と同じ鳴らし方にするため、シンセ側の設定も写す
+    rig->synth.currentParams = &rig->params;
+    rig->synth.isMonoMode = rig->params.monoMode;
+    rig->synth.useVelocity = rig->params.useVelocity;
+    rig->synth.pitchResetOnLegato = rig->params.pitchResetOnLegato;
+    rig->synth.fixedVelocity = rig->params.fixedVelocity;
+
+    return rig;
 }

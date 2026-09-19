@@ -3,7 +3,7 @@
 
 #include "Shared/Core/Gui/GuiRefresh.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 namespace
 {
@@ -14,7 +14,7 @@ namespace
 	const Io::ParamFormat toneNoiseFormat{ "toneNoise", 1 };
 }
 
-#include "../Components/WavePreview/WavePreviewSource.h"
+#include "Shared/Gui/Components/WavePreview/WavePreviewSource.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"

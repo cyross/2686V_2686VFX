@@ -68,5 +68,7 @@ TEST_CASE("Source format: UTF-8 with BOM and CRLF")
         }
     }
 
-    CHECK(checked > 1000);
+    // 探し損ねて 1 件も見ていない、を見逃さないための下限。共有 (Shared/) へ
+    // 移すたびにファイルは減るので、余裕を持たせてある。
+    CHECK(checked > 500);
 }

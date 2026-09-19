@@ -11,14 +11,14 @@
 
 #include "../../Processor/Fx/ProcessorFxKeys.h"
 #include "../../Processor/Fx/ProcessorFxValues.h"
-#include "../../Core/Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 
 #include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiFxValues.h"
 #include "Shared/Core/Gui/GuiStructs.h"
 #include "Shared/Core/Gui/GuiRefresh.h"
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include "../../Core/Gui/GuiPluginContext.h"
 
 namespace

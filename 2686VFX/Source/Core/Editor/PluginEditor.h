@@ -14,7 +14,7 @@
 #include "../../Gui/About/GuiAbout.h"
 #include "../../Gui/Colors/GuiColors.h"
 
-#include "../../Gui/Components/Loading/GuiLoading.h"
+#include "Shared/Gui/Components/Loading/GuiLoading.h"
 
 #include "Shared/Core/Gui/GuiCopyObj.h"
 #include "Shared/Core/Gui/GuiHost.h"

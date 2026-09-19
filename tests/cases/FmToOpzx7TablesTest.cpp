@@ -9,7 +9,7 @@
 
 #include "TestHelpers.h"
 
-#include "Gui/Components/FmToOpzx7/FmToOpzx7Tables.h"
+#include "Shared/Gui/Components/FmToOpzx7/FmToOpzx7Tables.h"
 #include "Shared/Effect/Lfo/Opna/LfoOpna.h"
 #include "Shared/Effect/Lfo/Opm/LfoOpm.h"
 #include "Shared/Effect/Detune/Opn/DetuneOpn.h"

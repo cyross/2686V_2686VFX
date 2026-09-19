@@ -6,7 +6,7 @@
 #include <map>
 #include <JuceHeader.h>
 
-#include "../Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 #include "Shared/Core/Gui/GuiI18n.h"
@@ -23,7 +23,7 @@
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 #include "../../Gui/Preset/PresetValues.h"
 
@@ -32,7 +32,7 @@
 
 #include "./PluginProcessorStateKey.h"
 
-#include "../../Gui/Components/AlgMatrix/FmAlgState.h"
+#include "Shared/Gui/Components/AlgMatrix/FmAlgState.h"
 #include "Shared/Core/Gui/GuiHost.h"
 
 class RetroSynthesiser : public juce::Synthesiser
@@ -344,6 +344,9 @@ public:
     // 別のスレッドでよい。
     SynthParams buildRenderParams();
     void prepareRenderVoice(SynthVoice& voice, double sampleRate);
+
+    // 上の 2 つで、生成波形の計算に使う音源一式を組み立てる (窓口の実装)
+    std::unique_ptr<GuiRenderRig> createRenderRig(double sampleRate) override;
 
     // --- Preset I/O ---
     void savePreset(const juce::File& file);

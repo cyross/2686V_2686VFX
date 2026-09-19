@@ -12,6 +12,7 @@
 
 #include "Shared/Core/Gui/GuiValues.h"
 #include "../Gui/GuiTabCount.h"
+#include "../Const/ConstPresetFolder.h"
 
 namespace
 {

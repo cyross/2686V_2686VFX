@@ -5,6 +5,7 @@
 #include <array>
 #include <functional>
 #include <map>
+#include <memory>
 
 #include "./GuiToggleAlign.h"
 #include "../Synth/WtModWave.h"
@@ -21,6 +22,21 @@
 //
 // タブなどプラグインの側に残るコードは、pluginOf(ctx) / editorOf(ctx)
 // (各プラグインの Core/Gui/GuiPluginContext.h) で具体的なクラスへ戻して使う。
+
+// ---------------------------------------------------------------- 生成波形の計算
+// 生成波形 (GenWave) を作るための音源一式。プラグインのボイスとパラメータを
+// そのまま使うので、中身は各プラグインのプロセッサが組み立てる
+// (GuiProcessorHost::createRenderRig)。部品はこれを回して出力を拾うだけ。
+//
+// 組み立てはメッセージスレッドで、回すのは別のスレッドでよい。
+class GuiRenderRig
+{
+public:
+    virtual ~GuiRenderRig() = default;
+
+    virtual void renderNextBlock(juce::AudioBuffer<float>& buffer, const juce::MidiBuffer& midi,
+        int startSample, int numSamples) = 0;
+};
 
 // ---------------------------------------------------------------- プロセッサ
 class GuiProcessorHost
@@ -72,6 +88,10 @@ public:
     // プラグインの状態。juce::AudioProcessor の同じ名前の関数が実装を兼ねる。
     virtual void getStateInformation(juce::MemoryBlock& destData) = 0;
     virtual void setStateInformation(const void* data, int sizeInBytes) = 0;
+
+    // 生成波形の計算に使う音源一式を、今の設定で組み立てる。メッセージスレッド
+    // から呼ぶこと。音源を持たないプラグイン (2686VFX) は nullptr を返す。
+    virtual std::unique_ptr<GuiRenderRig> createRenderRig(double sampleRate) = 0;
 };
 
 // ---------------------------------------------------------------- エディタ

@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Shared/Core/Gui/GuiStructs.h"
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 // ============================================================================
 // お気に入りと履歴

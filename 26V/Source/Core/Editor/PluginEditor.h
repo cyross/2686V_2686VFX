@@ -20,9 +20,9 @@
 #include "../../Gui/About/GuiAbout.h"
 #include "../../Gui/Colors/GuiColors.h"
 
-#include "../../Gui/Components/Loading/GuiLoading.h"
-#include "../../Gui/Components/GenWave/GenWave.h"
-#include "../../Gui/Components/ParamBrowser/ParamBrowser.h"
+#include "Shared/Gui/Components/Loading/GuiLoading.h"
+#include "Shared/Gui/Components/GenWave/GenWave.h"
+#include "Shared/Gui/Components/ParamBrowser/ParamBrowser.h"
 
 #include "Shared/Core/Gui/GuiCopyObj.h"
 #include "Shared/Core/Gui/GuiHost.h"

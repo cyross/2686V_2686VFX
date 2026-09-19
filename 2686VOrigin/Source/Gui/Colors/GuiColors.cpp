@@ -3,7 +3,7 @@
 
 #include "./RetroPalette.h"
 
-#include "../../Core/Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 
 #include <optional>
 

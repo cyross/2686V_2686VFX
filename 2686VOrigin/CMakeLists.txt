@@ -29,7 +29,6 @@ file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS
 )
 
 set(CONST_FILES
-    "Source/Core/Const/ConstFileValues.h"
     "Source/Core/Const/ConstMmlKeys.h"
     "Source/Core/Const/ConstMmlValues.h"
 )
@@ -51,10 +50,6 @@ set(FM_FILES
     "Source/Core/Fm/FmMmlFormatter.h"
 )
 
-set(GUI_FILES
-    "Source/Core/Io/ParamFile.h"
-    "Source/Core/Io/ParamFile.cpp"
-)
 
 set(PROCESSOR_FILES
     "Source/Core/Processor/ProcessorNames.h"
@@ -208,158 +203,32 @@ set(ABOUT_GUI_FILES
 
 
 
-set(GUI_COMPONENT_PARAMBAREDITOR_FILES
-    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.h"
-    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.cpp"
-)
 
-set(GUI_COMPONENT_WAVEPREVIEW_FILES
-    "Source/Gui/Components/TargetCell/TargetCell.h"
-    "Source/Gui/Components/TargetCell/TargetCell.cpp"
-    "Source/Gui/Components/WavePreview/WavePreview.h"
-    "Source/Gui/Components/WavePreview/WavePreview.cpp"
-    "Source/Gui/Components/WavePreview/WavePreviewSource.h"
-    "Source/Gui/Components/WavePreview/WavePreviewSource.cpp"
-)
 
-set(GUI_COMPONENT_WTMOD_FILES
-    "Source/Gui/Components/WtMod/WtMod.h"
-    "Source/Gui/Components/WtMod/WtMod.cpp"
-)
 
-set(GUI_COMPONENT_UNISON_FILES
-    "Source/Gui/Components/Unison/Unison.h"
-    "Source/Gui/Components/Unison/Unison.cpp"
-)
 
-set(GUI_COMPONENT_FIX_FILES
-    "Source/Gui/Components/Fix/Fix.h"
-    "Source/Gui/Components/Fix/Fix.cpp"
-)
 
-set(GUI_COMPONENT_N88LFO_FILES
-    "Source/Gui/Components/N88Lfo/N88Lfo.h"
-    "Source/Gui/Components/N88Lfo/N88Lfo.cpp"
-    "Source/Gui/Components/N88Lfo/N88LfoOp.h"
-    "Source/Gui/Components/N88Lfo/N88LfoOp.cpp"
-)
 
-set(GUI_COMPONENT_MULDETUNE_FILES
-    "Source/Gui/Components/MulDetune/MulDetune.h"
-    "Source/Gui/Components/MulDetune/MulDetune.cpp"
-)
 
-set(GUI_COMPONENT_AMPENV_FILES
-    "Source/Gui/Components/AmpEnv/AmpEnv.h"
-    "Source/Gui/Components/AmpEnv/AmpEnv.cpp"
-)
 
-set(GUI_COMPONENT_PITCHENV_FILES
-    "Source/Gui/Components/PitchEnv/PitchEnv.h"
-    "Source/Gui/Components/PitchEnv/PitchEnv.cpp"
-)
 
-set(GUI_COMPONENT_SSGSWENV_FILES
-    "Source/Gui/Components/SsgSwEnv/SsgSwEnv.h"
-    "Source/Gui/Components/SsgSwEnv/SsgSwEnv.cpp"
-)
 
-set(GUI_COMPONENT_SSGSWENV11_FILES
-    "Source/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
-    "Source/Gui/Components/SsgSwEnv11/SsgSwEnv11.cpp"
-)
 
-set(GUI_COMPONENT_SSGHWENV_FILES
-    "Source/Gui/Components/SsgHwEnv/SsgHwEnv.h"
-    "Source/Gui/Components/SsgHwEnv/SsgHwEnv.cpp"
-)
 
-set(GUI_COMPONENT_SSGSWPENV11_FILES
-    "Source/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
-    "Source/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.cpp"
-)
 
-set(GUI_COMPONENT_PITCHBUTTONS_FILES
-    "Source/Gui/Components/PitchButtons/PitchButtons.h"
-    "Source/Gui/Components/PitchButtons/PitchButtons.cpp"
-)
 
-set(GUI_COMPONENT_SSGSWBUTTONS_FILES
-    "Source/Gui/Components/SsgSwButtons/SsgSwButtons.h"
-    "Source/Gui/Components/SsgSwButtons/SsgSwButtons.cpp"
-)
 
-set(GUI_COMPONENT_MIDI_FILES
-    "Source/Gui/Components/Midi/Midi.h"
-    "Source/Gui/Components/Midi/Midi.cpp"
-)
 
-set(GUI_COMPONENT_LFO_OPZX7_FILES
-    "Source/Gui/Components/LfoOpzx7/LfoOpzx7.h"
-    "Source/Gui/Components/LfoOpzx7/LfoOpzx7.cpp"
-)
 
-set(GUI_COMPONENT_PRESET_NAME_FILES
-    "Source/Gui/Components/PresetName/PresetName.h"
-    "Source/Gui/Components/PresetName/PresetName.cpp"
-)
 
-set(GUI_COMPONENT_IMPORT_EXPORT_FILES
-    "Source/Gui/Components/ImportExport/ImportExport.h"
-    "Source/Gui/Components/ImportExport/ImportExport.cpp"
-)
 
-set(GUI_COMPONENT_IMPORT_FILES
-    "Source/Gui/Components/Import/Import.h"
-    "Source/Gui/Components/Import/Import.cpp"
-)
 
-set(GUI_COMPONENT_PARAMBROWSER_FILES
-    "Source/Gui/Components/ParamBrowser/ParamBrowser.h"
-    "Source/Gui/Components/ParamBrowser/ParamBrowser.cpp"
-)
 
-set(GUI_COMPONENT_GENWAVE_FILES
-    "Source/Gui/Components/GenWave/GenWaveRender.h"
-    "Source/Gui/Components/GenWave/GenWaveRender.cpp"
-    "Source/Gui/Components/GenWave/GenWave.h"
-    "Source/Gui/Components/GenWave/GenWave.cpp"
-)
 
-set(GUI_COMPONENT_LOADING_FILES
-    "Source/Gui/Components/Loading/GuiLoading.h"
-    "Source/Gui/Components/Loading/GuiLoading.cpp"
-)
 
-set(GUI_COMPONENT_LEVEL_FILES
-    "Source/Gui/Components/Level/Level.h"
-    "Source/Gui/Components/Level/Level.cpp"
-    "Source/Gui/Components/Level/LevelNudge.h"
-    "Source/Gui/Components/Level/LevelNudge.cpp"
-    "Source/Gui/Components/FmToOpzx7/FmToOpzx7.h"
-    "Source/Gui/Components/FmToOpzx7/FmToOpzx7.cpp"
-    "Source/Gui/Components/FmToOpzx7/FmToOpzx7Tables.h"
-)
 
-set(GUI_COMPONENT_SEPARATOR_FILES
-    "Source/Gui/Components/Separator/NormalSeparator.h"
-    "Source/Gui/Components/Separator/NormalSeparator.cpp"
-    "Source/Gui/Components/Separator/ShortSeparator.h"
-    "Source/Gui/Components/Separator/ShortSeparator.cpp"
-)
 
-set(GUI_COMPONENT_QUALITY_FILES
-    "Source/Gui/Components/Quality/Quality.h"
-    "Source/Gui/Components/Quality/Quality.cpp"
-    "Source/Gui/Components/Quality/QualityPcm.h"
-    "Source/Gui/Components/Quality/QualityPcm.cpp"
-)
 
-set(GUI_COMPONENT_ALG_MATRIX_FILES
-    "Source/Gui/Components/AlgMatrix/FmAlgState.h"
-    "Source/Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
-    "Source/Gui/Components/AlgMatrix/GuiFmAlgRouting.cpp"
-)
 
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
@@ -376,34 +245,6 @@ source_group("2686VO\\Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})
 source_group("2686VO\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
 source_group("2686VO\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
 source_group("2686VO\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
-source_group("2686VO\\Gui\\Core" FILES ${GUI_FILES})
-source_group("2686VO\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
-source_group("2686VO\\Gui\\Components\\WavePreview" FILES ${GUI_COMPONENT_WAVEPREVIEW_FILES})
-source_group("2686VO\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})
-source_group("2686VO\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
-source_group("2686VO\\Gui\\Components\\Fix" FILES ${GUI_COMPONENT_FIX_FILES})
-source_group("2686VO\\Gui\\Components\\N88Lfo" FILES ${GUI_COMPONENT_N88LFO_FILES})
-source_group("2686VO\\Gui\\Components\\MulDetune" FILES ${GUI_COMPONENT_MULDETUNE_FILES})
-source_group("2686VO\\Gui\\Components\\AmpEnv" FILES ${GUI_COMPONENT_AMPENV_FILES})
-source_group("2686VO\\Gui\\Components\\PitchEnv" FILES ${GUI_COMPONENT_PITCHENV_FILES})
-source_group("2686VO\\Gui\\Components\\SsgSwEnv" FILES ${GUI_COMPONENT_SSGSWENV_FILES})
-source_group("2686VO\\Gui\\Components\\Lfo\\Opzx7" FILES ${GUI_COMPONENT_LFO_OPZX7_FILES})
-source_group("2686VO\\Gui\\Components\\Midi" FILES ${GUI_COMPONENT_MIDI_FILES})
-source_group("2686VO\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHBUTTONS_FILES})
-source_group("2686VO\\Gui\\Components\\SsgSwButtons" FILES ${GUI_COMPONENT_SSGSWBUTTONS_FILES})
-source_group("2686VO\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
-source_group("2686VO\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
-source_group("2686VO\\Gui\\Components\\Import" FILES ${GUI_COMPONENT_IMPORT_FILES})
-source_group("2686VO\\Gui\\Components\\ParamBrowser" FILES ${GUI_COMPONENT_PARAMBROWSER_FILES})
-source_group("2686VO\\Gui\\Components\\GenWave" FILES ${GUI_COMPONENT_GENWAVE_FILES})
-source_group("2686VO\\Gui\\Components\\Loading" FILES ${GUI_COMPONENT_LOADING_FILES})
-source_group("2686VO\\Gui\\Components\\Level" FILES ${GUI_COMPONENT_LEVEL_FILES})
-source_group("2686VO\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATOR_FILES})
-source_group("2686VO\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})
-source_group("2686VO\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
-source_group("2686VO\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
-source_group("2686VO\\Gui\\Components\\SsgHwEnv" FILES ${GUI_COMPONENT_SSGHWENV_FILES})
-source_group("2686VO\\Gui\\Components\\AlgMatrix" FILES ${GUI_COMPONENT_ALG_MATRIX_FILES})
 source_group("2686VO\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686VO\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
 source_group("2686VO\\Gui\\Tab\\Ssg" FILES ${SSG_GUI_FILES})

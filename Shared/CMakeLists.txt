@@ -70,7 +70,9 @@ endfunction()
 # ---- 土台。型や定数、小さな道具。パラメータの範囲と初期値 (CPV) もここ
 #
 # Core/Fm は FM のオペレーターで、エンベロープ (Effect) に頼るので音源の側へ置く。
-cy_add_shared_library(cy_shared_core DIRS Core/Const Core/Processor Core/Synth Processor)
+# Core/Io (パラメータファイルの読み書き) は yaml-cpp に頼る。
+cy_add_shared_library(cy_shared_core DIRS Core/Const Core/Io Core/Processor Core/Synth Processor
+    LINKS yaml-cpp::yaml-cpp)
 
 # ---- 音を作るもの (FM の FIX、ノイズ、PCM の符号化、波形メモリの変調など)
 cy_add_shared_library(cy_shared_generator DIRS Generator LINKS cy_shared_core)
@@ -97,13 +99,16 @@ cy_add_shared_library(cy_shared_effect DIRS Effect
 cy_add_shared_library(cy_shared_synth DIRS Core/Fm Synth
     LINKS cy_shared_core cy_shared_generator cy_shared_advanced cy_shared_effect)
 
-# ---- 画面の土台 (部品の基本形、色、並べ方、グラフ、言語)
+# ---- 画面の土台 (部品の基本形、色、並べ方、グラフ、言語) と部品
 #
 # プロセッサとエディタは窓口 (Core/Gui/GuiHost.h) を通して使う。タブの数と
 # タブの見出しの色はプラグインごとに違うので、各プラグインの
 # Core/Gui/GuiTabCount.h / GuiTabColor.cpp にある。
-cy_add_shared_library(cy_shared_gui DIRS Core/Gui
-    LINKS cy_shared_core cy_shared_advanced cy_shared_effect)
+#
+# 部品 (Gui/Components) の波形プレビューは出荷される音源のクラスを回して
+# 計算するので、音源 (cy_shared_synth) にも頼る。タブはプラグインの側にある。
+cy_add_shared_library(cy_shared_gui DIRS Core/Gui Gui/Components
+    LINKS cy_shared_core cy_shared_generator cy_shared_advanced cy_shared_effect cy_shared_synth)
 
 # プラグインはこれ 1 つをつなげば、共有コードをすべて使える
 get_property(CY_SHARED_LIBRARY_LIST GLOBAL PROPERTY CY_SHARED_LIBRARIES)

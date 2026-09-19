@@ -9,8 +9,8 @@
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiContext.h"
-#include "../../Core/Io/ParamFile.h"
-#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "Shared/Core/Io/ParamFile.h"
+#include "Shared/Gui/Components/Separator/NormalSeparator.h"
 #include "../../Processor/Mod/ProcessorModKeys.h"
 
 // ============================================================================

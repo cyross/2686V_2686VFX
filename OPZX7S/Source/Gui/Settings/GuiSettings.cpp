@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "../../Core/Editor/EditorGuiValues.h"
-#include "../Components/GenWave/GenWaveRender.h"
+#include "Shared/Gui/Components/GenWave/GenWaveRender.h"
 #include "./GuiSettings.h"
 
 #include "../../Core/Editor/PluginEditor.h"

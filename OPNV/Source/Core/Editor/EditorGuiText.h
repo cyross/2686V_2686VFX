@@ -6,6 +6,8 @@
 
 #include "Shared/Core/Gui/GuiI18n.h"
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
+#include "Shared/Core/Editor/EditorLoadingText.h"
+#include "Shared/Core/Editor/EditorGenWaveText.h"
 
 namespace EditorGuiText
 {
@@ -48,31 +50,6 @@ namespace EditorGuiText
 	namespace PresetScan
 	{
 		static inline const I18n::Text working{ u8"プリセットの見出しを読んでいます", u8"Reading preset headings" };
-	}
-
-	namespace Loading
-	{
-		static inline const I18n::Text cancel{ u8"中止", u8"Cancel" };
-		static inline const I18n::Text cancelling{ u8"中止しています…", u8"Cancelling…" };
-	}
-
-
-	namespace GenWave
-	{
-		static inline const I18n::Text title{ u8"生成波形", u8"Generated waveform" };
-		static inline const I18n::Text generate{ u8"生成", u8"Generate" };
-		static inline const I18n::Text regenerate{ u8"再生成", u8"Regenerate" };
-		static inline const I18n::Text remove{ u8"削除", u8"Delete" };
-		static inline const I18n::Text cycles{ u8"周期", u8"Cycles" };
-
-		// 3 段の見出し。リアルタイムのオシロと同じ並び。
-		static inline const juce::String channelL = "L";
-		static inline const juce::String channelM = "M";
-		static inline const juce::String channelR = "R";
-		static inline const I18n::Text working{ u8"波形を作っています…", u8"Building the waveform…" };
-		static inline const I18n::Text empty{ u8"「生成」で作ります", u8"Press Generate to build it" };
-		static inline const I18n::Text generateTooltip{ u8"今の設定で 10 秒ぶんの波形を作ります。値を変えたら押し直してください。", u8"Builds 10 seconds of waveform from the current settings. Press it again after changing a value." };
-		static inline const I18n::Text removeTooltip{ u8"作った波形を捨てます。", u8"Throws away the waveform that was built." };
 	}
 
 	namespace Panic

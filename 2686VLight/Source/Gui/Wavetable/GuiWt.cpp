@@ -5,7 +5,7 @@
 
 #include "Shared/Core/Gui/GuiRefresh.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 namespace
 {
@@ -24,7 +24,7 @@ namespace
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "../../Processor/Wavetable/ProcessorWtKeys.h"
 #include "../../Processor/Wavetable/ProcessorWtValues.h"
-#include "../../Core/Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 
 #include "Shared/Core/Gui/GuiHelpers.h"

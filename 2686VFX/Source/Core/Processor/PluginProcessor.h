@@ -3,7 +3,7 @@
 #include "../Const/ConstPlugin.h"
 #include <JuceHeader.h>
 
-#include "../Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include "Shared/Core/Gui/GuiI18n.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
@@ -18,7 +18,7 @@
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 #include "../../Gui/Preset/PresetValues.h"
 
@@ -113,6 +113,9 @@ public:
     // state へは相対パスだけを保存して読み直す。
     void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file) override;
     void unloadWtModWaveFile(const juce::String& code, int slot) override;
+
+    // 生成波形の計算に使う音源一式 (窓口)。2686VFX は音源を持たないので作らない。
+    std::unique_ptr<GuiRenderRig> createRenderRig(double) override { return nullptr; }
 
     // 画面へ波形を描くために持っておくサンプル。
     // 音は各ボイスが自分の持ち分で鳴らすので、こちらは表示専用。
