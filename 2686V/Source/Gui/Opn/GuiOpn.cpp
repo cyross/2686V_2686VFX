@@ -204,6 +204,13 @@ void GuiOpn::setup()
     lfoSep1.setupComponent(mainGroup.contentCanvas);
     lfoSep2.setupComponent(mainGroup.contentCanvas);
 
+    // 札の入り切りは、押したときだけでなくプリセットの読み込みでも
+    // 変わる。どこから変わっても追えるよう、状態の変化を受ける。
+    lfoPmToggle.watchToggle([this] { applyN88LfoActive(); });
+    lfoAmToggle.watchToggle([this] { applyN88LfoActive(); });
+
+    applyN88LfoActive();
+
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ampModComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
@@ -385,6 +392,7 @@ void GuiOpn::setup()
     // 区分は縦に積まず、横へ並べる。1 列 1 区分が基本。
     stripViewport.setViewedComponent(&stripCanvas, false);
     stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
 
     addAndMakeVisible(stripViewport);
@@ -1330,6 +1338,34 @@ void GuiOpn::layoutQualityCat(juce::Rectangle<int>& rect) {
 
 // 選んだ Shape を実際の LFO で走らせ、折れ線にして渡す。
 // 値が変わったときだけ通るので、常時の負荷は無い。
+// N88 LFO の札に合わせて、効いていないつまみを押せなくする。触れて
+// しまうと、動かしたのに音が変わらない、という形で迷う。
+//
+// PM / AM それぞれ専用のもの (深さ・波形など) はその札に従う。両方で
+// 使うもの (速さ・形・同期) は、どちらかが入っているあいだだけ押せる。
+void GuiOpn::applyN88LfoActive()
+{
+    const bool pm = lfoPmToggle.getToggleState();
+    const bool am = lfoAmToggle.getToggleState();
+    const bool any = pm || am;
+
+    lfoFreqSlider.setEnabledWithLabel(any);
+    lfoShapeSelector.setEnabledWithLabel(any);
+    lfoSyncDelaySlider.setEnabledWithLabel(any);
+    lfoSyncDelayToZeroBtn.setEnabled(any);
+    lfoSyncDelayToOneBtn.setEnabled(any);
+    lfoSep1.setEnabled(any);
+    lfoSep2.setEnabled(any);
+
+    lfoPmPreview.setEnabled(pm);
+    lfoPmdSlider.setEnabledWithLabel(pm);
+    lfoPmsSlider.setEnabledWithLabel(pm);
+
+    lfoAmSmRtSlider.setEnabledWithLabel(am);
+    lfoAmPreview.setEnabled(am);
+    lfoAmdSlider.setEnabledWithLabel(am);
+}
+
 void GuiOpn::updateLfoPreviews()
 {
     // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す

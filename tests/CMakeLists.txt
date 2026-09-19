@@ -176,3 +176,41 @@ endif()
 if(CY_TESTS_RUNNABLE)
     doctest_discover_tests(IoTests)
 endif()
+
+# ==============================================================================
+# 画面 (2686V)
+# ==============================================================================
+# 本物のプロセッサと画面を立ち上げて、部品の止め方などを確かめる。
+#
+# プラグインの本体 (共有コードの静的ライブラリ) をそのまま結びつける。
+# JUCE がプラグインの各形式 (VST3 / Standalone) を組むときと同じく、
+# 本体の取り込み先と定義を写して、同じ JuceHeader.h を読ませる。
+if(TARGET 2686V)
+    add_executable(GuiTests
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/GuiTestMain.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/EnableRulesTest.cpp"
+    )
+
+    target_include_directories(GuiTests PRIVATE
+        $<TARGET_PROPERTY:2686V,INCLUDE_DIRECTORIES>
+        "${TEST_TARGET_SOURCE_ROOT}"
+        "${CMAKE_SOURCE_DIR}/external/doctest"
+    )
+
+    target_compile_definitions(GuiTests PRIVATE
+        $<TARGET_PROPERTY:2686V,COMPILE_DEFINITIONS>
+        DOCTEST_CONFIG_USE_STD_HEADERS
+    )
+
+    target_link_libraries(GuiTests PRIVATE 2686V)
+
+    target_compile_features(GuiTests PRIVATE cxx_std_20)
+
+    if(MSVC)
+        target_compile_options(GuiTests PRIVATE /utf-8 /FS)
+    endif()
+
+    if(CY_TESTS_RUNNABLE)
+        doctest_discover_tests(GuiTests)
+    endif()
+endif()

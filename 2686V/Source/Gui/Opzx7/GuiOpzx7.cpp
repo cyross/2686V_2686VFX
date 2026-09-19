@@ -855,6 +855,7 @@ void GuiOpzx7::setup()
     // 区分は縦に積まず、横へ並べる。1 列 1 区分が基本。
     stripViewport.setViewedComponent(&stripCanvas, false);
     stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
 
     addAndMakeVisible(stripViewport);

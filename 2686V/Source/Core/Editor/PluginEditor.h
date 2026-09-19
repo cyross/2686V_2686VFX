@@ -86,6 +86,8 @@ public:
     }
 };
 
+struct EditorTestAccess;
+
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
     public juce::ChangeListener,
@@ -95,6 +97,9 @@ class AudioPlugin2686VEditor :
     public juce::MultiTimer,
     public juce::AsyncUpdater
 {
+    // 画面のテスト (tests/gui) だけが、全タブを作る口とタブの並びを触る。
+    friend struct EditorTestAccess;
+
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
     ~AudioPlugin2686VEditor() override;
