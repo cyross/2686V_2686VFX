@@ -572,3 +572,64 @@ TEST_CASE("QUALITY のきれいな間引きは、符号化するモードのと�
     if (kRequireAll) CHECK(checked > 0);
     MESSAGE("QUALITY: " << checked << " か所");
 }
+
+// ホールドと部分再生 (WaveHold) は、HOLD / KEEP の入り切りで中のつまみを
+// 開け閉めする。KEEP は押したときの処理を上書きしていて、並べ直しが
+// 走らず、次に画面を組み直すまで START などが押せないままだった。
+//
+// 値はパラメータから入れる。押したときも、TARGET の切り替えやプリセットの
+// 読み込みも、束縛を通ってこの形で届く。
+TEST_CASE("HOLD / KEEP を入り切りすると、中のつまみがその場で開け閉めされる")
+{
+    Env env;
+
+    std::vector<juce::Component*> all;
+    for (auto* root : env.tabRoots()) collect(root, all);
+
+    struct Switch
+    {
+        juce::String flag;
+        std::vector<juce::String> deps;
+        int covered = 0;
+    };
+
+    std::vector<Switch> switches = {
+        { CPK::WaveHold::holdEnable,
+          { CPK::WaveHold::holdCount, CPK::WaveHold::holdTarget, CPK::WaveHold::holdMin, CPK::WaveHold::holdMax } },
+        { CPK::WaveHold::keepEnable,
+          { CPK::WaveHold::waveStart, CPK::WaveHold::keepStart, CPK::WaveHold::waveEnd, CPK::WaveHold::keepEnd } },
+    };
+
+    for (auto& sw : switches) {
+        for (auto* c : all) {
+            const auto id = c->getComponentID();
+
+            if (!id.endsWith(sw.flag)) continue;
+
+            auto* flag = dynamic_cast<GuiToggleButton*>(c);
+
+            // 親の区分が切れている / もう止まる形を選んでいる組は対象外
+            if (flag == nullptr || isStopped(flag)) continue;
+
+            const auto prefix = id.dropLastCharacters(sw.flag.length());
+            const bool original = env.getParam(id);
+
+            env.setParam(id, true);
+            checkDeps(env, all, prefix, sw.deps, false, "switch on");
+
+            env.setParam(id, false);
+            checkDeps(env, all, prefix, sw.deps, true, "switch off");
+
+            env.setParam(id, true);
+            checkDeps(env, all, prefix, sw.deps, false, "switch on again");
+
+            env.setParam(id, original);
+
+            ++sw.covered;
+        }
+
+        INFO(sw.flag.toStdString());
+
+        if (kRequireAll) CHECK(sw.covered > 0);
+    }
+}

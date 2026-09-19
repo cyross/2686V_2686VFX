@@ -28,7 +28,14 @@ void GuiComponentWaveHold::setupComponent(juce::Component& parent, const juce::S
     holdEnableBtn.setWantsKeyboardFocus(true);
     holdEnableBtn.setExplicitFocusOrder(++tabOrder);
 
-    holdCount.setupComponent(parent, idPrefix + CPK::WaveHold::holdCount, "COUNT", tabOrder, std::nullopt);
+    // 入り切りは押したときだけでなく、TARGET の切り替えやプリセットの読み込み
+    // でも変わる。どこから変わっても、中のつまみの開け閉めとプレビューを追わせる。
+    holdEnableBtn.watchToggle([this] {
+        applyEnables();
+        notifyChanged();
+        });
+
+    holdCount.setupComponent(parent, idPrefix + CPK::WaveHold::holdCount, "COUNT", tabOrder, [this] { notifyChanged(); });
 
     holdCountButtons.setupComponent(parent, holdCount.getSlider(), tabOrder);
 
@@ -36,8 +43,17 @@ void GuiComponentWaveHold::setupComponent(juce::Component& parent, const juce::S
     holdTarget.setWantsKeyboardFocus(true);
     holdTarget.setExplicitFocusOrder(++tabOrder);
 
-    holdMin.setupComponent(parent, idPrefix + CPK::WaveHold::holdMin, "HOLD MIN", tabOrder, std::nullopt);
-    holdMax.setupComponent(parent, idPrefix + CPK::WaveHold::holdMax, "HOLD MAX", tabOrder, std::nullopt);
+    // 選んだときの並べ直し (isResized) は残したまま、プレビューも引き直す。
+    auto relayoutOnTarget = holdTarget.onChange;
+
+    holdTarget.onChange = [this, relayoutOnTarget] {
+        if (relayoutOnTarget) relayoutOnTarget();
+
+        notifyChanged();
+        };
+
+    holdMin.setupComponent(parent, idPrefix + CPK::WaveHold::holdMin, "HOLD MIN", tabOrder, [this] { notifyChanged(); });
+    holdMax.setupComponent(parent, idPrefix + CPK::WaveHold::holdMax, "HOLD MAX", tabOrder, [this] { notifyChanged(); });
 
     // 刻みは単位で使い分ける。使わない側は親へ付けないので何も起きない。
     if ((m_unit == WaveHoldUnit::Cent)) {
@@ -55,7 +71,10 @@ void GuiComponentWaveHold::setupComponent(juce::Component& parent, const juce::S
     keepEnableBtn.setup({ .parent = parent, .id = idPrefix + CPK::WaveHold::keepEnable, .title = "KEEP", .isReset = true, .isResized = true });
     keepEnableBtn.setWantsKeyboardFocus(true);
     keepEnableBtn.setExplicitFocusOrder(++tabOrder);
-    keepEnableBtn.onClick = [this] { notifyChanged(); };
+    keepEnableBtn.watchToggle([this] {
+        applyEnables();
+        notifyChanged();
+        });
 
     // START は END を追い越さない。押し合いが往復しないよう印で弾く。
     waveStart.setupComponent(parent, idPrefix + CPK::WaveHold::waveStart, "START", tabOrder, [this] {
@@ -77,7 +96,7 @@ void GuiComponentWaveHold::setupComponent(juce::Component& parent, const juce::S
     keepStartBtn.setup({ .parent = parent, .id = idPrefix + CPK::WaveHold::keepStart, .title = "KEEP START", .isReset = true, .isResized = true });
     keepStartBtn.setWantsKeyboardFocus(true);
     keepStartBtn.setExplicitFocusOrder(++tabOrder);
-    keepStartBtn.onClick = [this] { notifyChanged(); };
+    keepStartBtn.watchToggle([this] { notifyChanged(); });
 
     waveEnd.setupComponent(parent, idPrefix + CPK::WaveHold::waveEnd, "END", tabOrder, [this] {
         if (!isClampingWindow) {
@@ -98,7 +117,7 @@ void GuiComponentWaveHold::setupComponent(juce::Component& parent, const juce::S
     keepEndBtn.setup({ .parent = parent, .id = idPrefix + CPK::WaveHold::keepEnd, .title = "KEEP END", .isReset = true, .isResized = true });
     keepEndBtn.setWantsKeyboardFocus(true);
     keepEndBtn.setExplicitFocusOrder(++tabOrder);
-    keepEndBtn.onClick = [this] { notifyChanged(); };
+    keepEndBtn.watchToggle([this] { notifyChanged(); });
 }
 
 void GuiComponentWaveHold::rebind(const juce::String& idPrefix)
