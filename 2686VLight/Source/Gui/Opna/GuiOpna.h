@@ -40,6 +40,8 @@
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 
+#include "../../Gui/Components/N88Lfo/N88Lfo.h"
+#include "../../Gui/Components/N88Lfo/N88LfoOp.h"
 #include "../../Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
@@ -85,25 +87,8 @@ class GuiOpna : public GuiBase
     GuiTextButton panToCBtn;
     GuiTextButton panToRBtn;
 
-    GuiCategoryLabel lfoCat;
+    GuiComponentN88Lfo n88Lfo;
 
-    GuiSlider lfoFreqSlider;
-    GuiComboBox lfoShapeSelector;
-    GuiSlider lfoAmSmRtSlider;
-
-    // Shape がどんな形かを見せるプレビュー
-    GuiWavePreview lfoPmPreview;
-    GuiWavePreview lfoAmPreview;
-    GuiSlider lfoSyncDelaySlider;
-    GuiTextButton lfoSyncDelayToZeroBtn;
-    GuiTextButton lfoSyncDelayToOneBtn;
-    GuiToggleButton lfoPmToggle;
-    GuiToggleButton lfoAmToggle;
-    GuiSlider lfoPmdSlider;
-    GuiSlider lfoPmsSlider;
-    GuiSlider lfoAmdSlider;
-    NormalSeparator lfoSep1;
-    NormalSeparator lfoSep2;
 
     GuiComponentMidi midiComponent;
 
@@ -217,8 +202,7 @@ class GuiOpna : public GuiBase
     GuiComboBox pms;
     GuiToggleButton am;  // OPMでは AMS-EN に相当)
     GuiComboBox ams;
-    GuiCategoryLabel catN88Lfo;
-    GuiSlider n88Ams;
+    GuiComponentN88LfoOp n88LfoOp;
     GuiCategoryLabel catMask;
     GuiToggleButton mask;
     NormalSeparator mmlSeparator;
@@ -321,22 +305,7 @@ public:
         panToLBtn(context),
         panToCBtn(context),
         panToRBtn(context),
-        lfoCat(context),
-        lfoFreqSlider(context),
-        lfoShapeSelector(context),
-        lfoAmSmRtSlider(context),
-        lfoPmPreview(context),
-        lfoAmPreview(context),
-        lfoSyncDelaySlider(context),
-        lfoSyncDelayToZeroBtn(context),
-        lfoSyncDelayToOneBtn(context),
-        lfoPmToggle(context),
-        lfoAmToggle(context),
-        lfoPmdSlider(context),
-        lfoPmsSlider(context),
-        lfoAmdSlider(context),
-        lfoSep1(context),
-        lfoSep2(context),
+        n88Lfo(context),
         utilityCat(context),
         ampMajorCat(context),
         pitchMajorCat(context),
@@ -420,8 +389,7 @@ public:
         pms(context),
         am(context),
         ams(context),
-        catN88Lfo(context),
-        n88Ams(context),
+        n88LfoOp(context),
         catMask(context),
         mask(context),
         mmlSeparator(context),
@@ -475,15 +443,9 @@ public:
     void layoutOpMaskCat(juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
-    void layoutN88LfoCat(juce::Rectangle<int>& rect);
-    void updateLfoPreviews();
-
-    // N88 LFO の札に合わせて、効いていないつまみを押せなくする。
-    void applyN88LfoActive();
     void updateSePreview();
     void layoutOpSsgEnvelopeCat(juce::Rectangle<int>& rect);
     void layoutOpHwLfoCat(juce::Rectangle<int>& rect);
-    void layoutOpN88LfoCat(juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(juce::Rectangle<int>& rect);
     void layoutOpKsCat(juce::Rectangle<int>& rect);
     void layoutOpDetCat(juce::Rectangle<int>& rect);

@@ -581,6 +581,13 @@ set(GUI_COMPONENT_FIX_FILES
     "Source/Gui/Components/Fix/Fix.cpp"
 )
 
+set(GUI_COMPONENT_N88LFO_FILES
+    "Source/Gui/Components/N88Lfo/N88Lfo.h"
+    "Source/Gui/Components/N88Lfo/N88Lfo.cpp"
+    "Source/Gui/Components/N88Lfo/N88LfoOp.h"
+    "Source/Gui/Components/N88Lfo/N88LfoOp.cpp"
+)
+
 set(GUI_COMPONENT_MULDETUNE_FILES
     "Source/Gui/Components/MulDetune/MulDetune.h"
     "Source/Gui/Components/MulDetune/MulDetune.cpp"
@@ -766,6 +773,7 @@ source_group("2686VL\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
 source_group("2686VL\\Gui\\Core" FILES ${GUI_FILES})
 source_group("2686VL\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
 source_group("2686VL\\Gui\\Components\\Fix" FILES ${GUI_COMPONENT_FIX_FILES})
+source_group("2686VL\\Gui\\Components\\N88Lfo" FILES ${GUI_COMPONENT_N88LFO_FILES})
 source_group("2686VL\\Gui\\Components\\MulDetune" FILES ${GUI_COMPONENT_MULDETUNE_FILES})
 source_group("2686VL\\Gui\\Components\\AmpEnv" FILES ${GUI_COMPONENT_AMPENV_FILES})
 source_group("2686VL\\Gui\\Components\\PitchEnv" FILES ${GUI_COMPONENT_PITCHENV_FILES})
