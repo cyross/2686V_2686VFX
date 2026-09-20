@@ -196,6 +196,12 @@ These changes only matter if you build from source.
 - The N88 LFO screen is now a component like the other sections (no visible change).
 - Added tests that drive the real editor and processor to check that controls are
   disabled with their switches and that key assignments trigger the right targets.
+- **The two bugs fixed this time now have permanent tests.** Neither showed up in a
+  build or a warning; you had to listen for them.
+  - That each channel's QUALITY (BIT / SMP.RATE / INTERP) reaches that channel's chip.
+    This catches the WT2 bug, where the values were written to WT's side.
+  - The playing lamp: that it goes out when the sound stops, stays on while a chord is
+    partly held, and goes out on All Notes Off, a channel switch and PANIC.
 
 ### Code that was identical in all twelve plugins now lives in one place
 

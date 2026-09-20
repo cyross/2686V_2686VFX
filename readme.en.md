@@ -111,6 +111,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - This takes about 4 minutes off a Release build.
   - N88 LFO (chip-wide and operator sides) is now a component.
   - Added tests for disabling controls with their switches and for key assignment.
+  - The two bugs fixed this time now have permanent tests (neither showed up in a build or a warning).
+    - That each channel's QUALITY reaches that channel's chip.
+    - That the playing lamp goes out when the sound stops (and on All Notes Off, a channel switch and PANIC).
   - **Code that was identical in all twelve plugins now lives in shared static libraries (`Shared/`).**
     - Each plugin used to keep its own copy under `<plugin>/Source/`.
     - This covers the generators, the effects, the chip cores, the chip processors, and the GUI base and components.
