@@ -83,6 +83,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - `*-debug`: plugins and tests
     - `*-release`: plugins only
     - `*-release-tests`: plugins and tests (new)
+  - The manual tools (ParamDump / ParamDumpFx) are out of the default build too.
+    - Build them with `--target AllTools` when regenerating the lists.
+    - This takes about 4 minutes off a Release build.
   - N88 LFO (chip-wide and operator sides) is now a component.
   - Added tests for disabling controls with their switches and for key assignment.
   - **Code that was identical in all twelve plugins now lives in shared static libraries (`Shared/`).**

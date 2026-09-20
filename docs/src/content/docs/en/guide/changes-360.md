@@ -125,6 +125,10 @@ These changes only matter if you build from source.
   | `*-release-tests` | Plugins and tests (new) |
 
   To build only the tests, pass `--target AllTests`.
+- **The manual tools are out of the default build too.** `ParamDump` and
+  `ParamDumpFx`, which regenerate the parameter lists for the manual, compile the
+  plugin sources and the shared code all over again and took about four minutes of a
+  Release build. Build them with `--target AllTools` when you need the lists.
 - The N88 LFO screen is now a component like the other sections (no visible change).
 - Added tests that drive the real editor and processor to check that controls are
   disabled with their switches and that key assignments trigger the right targets.
