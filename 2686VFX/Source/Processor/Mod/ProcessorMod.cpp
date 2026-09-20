@@ -1,6 +1,6 @@
 ﻿#include "./ProcessorMod.h"
 
-#include "../../Core/Processor/ProcessorNames.h"
+#include "Shared/Core/Processor/ProcessorNames.h"
 
 namespace
 {
@@ -107,6 +107,30 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 	PrHelper::addOpzx7DetuneParameters(layout, prefix, displayName);
 	PrHelper::addUnisonParameters(layout, prefix, displayName);
+
+	// ------------------------------------------------------------------
+	// どの鍵盤で動かすか
+	// ------------------------------------------------------------------
+	PrHelper::addInt(
+		layout,
+		prefix + ModPrKey::KeyAssign::mode,
+		displayName + " Key Assign",
+		ModPrValue::KeyAssign::single,
+		ModPrValue::KeyAssign::custom,
+		ModPrValue::KeyAssign::modeInitial
+	);
+
+	for (const auto& t : ModPrKey::KeyAssign::targets)
+	{
+		PrHelper::addInt(
+			layout,
+			prefix + t.key,
+			displayName + " Key " + t.name,
+			ModPrValue::KeyAssign::keyMin,
+			ModPrValue::KeyAssign::keyMax,
+			ModPrValue::KeyAssign::keyInitial
+		);
+	}
 }
 
 void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store)
@@ -131,6 +155,13 @@ void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
 	PrHelper::setupOpzx7DetunePtrs(apvts, ModPrKey::prefix, ptDetune);
 	PrHelper::setupUnisonPtrs(apvts, ModPrKey::prefix, ptUnison);
+
+	pKeyAssignMode = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::KeyAssign::mode);
+
+	for (size_t i = 0; i < pKeys.size(); ++i)
+	{
+		pKeys[i] = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::KeyAssign::targets[i].key);
+	}
 }
 
 void ModProcessor::prepare(double sampleRate)
@@ -164,6 +195,13 @@ void ModProcessor::prepare(double sampleRate)
 
 	ampLevel = 1.0f;
 	wasShifting = false;
+
+	heldKeys.reset();
+	publishHeldTargets();
+
+	// シングルなら鍵盤に関係なく効く。カスタマイズなら押すまで効かない。
+	lfoAmGate = isHeld(ModPrKey::KeyAssign::LfoAm) ? 1.0f : 0.0f;
+	lfoPmGate = isHeld(ModPrKey::KeyAssign::LfoPm) ? 1.0f : 0.0f;
 }
 
 // 入り切りの札を読み直す。
@@ -178,57 +216,170 @@ void ModProcessor::refreshSwitches()
 	shiftEnabled = !PrHelper::getBool(pShiftBypass);
 }
 
-void ModProcessor::noteOn()
+bool ModProcessor::isCustomKeyAssign() const
 {
+	return pKeyAssignMode != nullptr
+		&& PrHelper::getInt(pKeyAssignMode) == ModPrValue::KeyAssign::custom;
+}
+
+ModProcessor::Targets ModProcessor::targetsOf(int note) const
+{
+	Targets targets;
+
+	for (size_t i = 0; i < pKeys.size(); ++i)
+	{
+		if (pKeys[i] != nullptr && PrHelper::getInt(pKeys[i]) == note) targets.set(i);
+	}
+
+	return targets;
+}
+
+bool ModProcessor::isHeld(ModPrKey::KeyAssign::Target target) const
+{
+	if (!isCustomKeyAssign()) return true;
+
+	auto* p = pKeys[(size_t)target];
+
+	if (p == nullptr) return false;
+
+	int note = PrHelper::getInt(p);
+
+	return note >= 0 && note < (int)heldKeys.size() && heldKeys.test((size_t)note);
+}
+
+void ModProcessor::publishHeldTargets()
+{
+	Targets targets;
+
+	if (heldKeys.any())
+	{
+		for (int note = 0; note < (int)heldKeys.size(); ++note)
+		{
+			if (heldKeys.test((size_t)note)) targets |= targetsOf(note);
+		}
+	}
+
+	heldTargetsForGui.store((uint32_t)targets.to_ulong(), std::memory_order_relaxed);
+	anyKeyHeldForGui.store(heldKeys.any(), std::memory_order_relaxed);
+}
+
+// 対象へ「押した」を送る。
+//
+// 順番はキーアサインを足す前と同じ。同じ鍵盤に複数の対象を割り当てた
+// ときも、この順で処理する。
+void ModProcessor::startTargets(const Targets& t)
+{
+	namespace KA = ModPrKey::KeyAssign;
+
 	refreshSwitches();
 
 	if (envEnabled)
 	{
-		ampLevel = ampEnv.noteOn();
-
-		ssgHwEnv.noteOn();
-		wtAmpMod.reset();
-		ssgSwEnv11.noteOn();
+		if (t[KA::AmpEnv]) ampLevel = ampEnv.noteOn();
+		if (t[KA::SsgHwEnv]) ssgHwEnv.noteOn();
+		if (t[KA::WtAmpMod]) wtAmpMod.reset();
+		if (t[KA::SsgSwEnv11]) ssgSwEnv11.noteOn();
 	}
 
-	if (lfoEnabled) lfo.noteOn();
+	if (lfoEnabled)
+	{
+		if (t[KA::LfoPm]) lfo.pm.noteOn();
+		if (t[KA::LfoAm]) lfo.am.noteOn();
+	}
 
 	if (pitchEnabled)
 	{
-		pitchEnv.noteOn();
-		ssgSwPEnv11.noteOn();
-		wtMod.reset();
-		ssgHwPEnv.noteOn();
+		if (t[KA::PitchEnv]) pitchEnv.noteOn();
+		if (t[KA::SsgSwPEnv11]) ssgSwPEnv11.noteOn();
+		if (t[KA::WtMod]) wtMod.reset();
+		if (t[KA::SsgHwPEnv]) ssgHwPEnv.noteOn();
+	}
+
+	// アルペジオは押したときに 1 声目から始め直す。シングルキーアサインでは
+	// これまでどおり鍵盤に関係なく回し続ける。
+	if (t[KA::Arpeggio] && isCustomKeyAssign())
+	{
+		arpVoice = 0;
+		arpPhase = 0.0;
 	}
 }
 
-void ModProcessor::noteOff()
+// 対象へ「離した」を送る。順番はキーアサインを足す前と同じ。
+void ModProcessor::releaseTargets(const Targets& t)
 {
+	namespace KA = ModPrKey::KeyAssign;
+
 	refreshSwitches();
 
 	if (envEnabled)
 	{
-		ampEnv.noteOff();
-		ssgHwEnv.noteOff();
-		ssgHwPEnv.noteOff();
-		ssgSwEnv11.noteOff();
+		if (t[KA::AmpEnv]) ampEnv.noteOff();
+		if (t[KA::SsgHwEnv]) ssgHwEnv.noteOff();
+		if (t[KA::SsgHwPEnv]) ssgHwPEnv.noteOff();
+		if (t[KA::SsgSwEnv11]) ssgSwEnv11.noteOff();
 	}
 
 	if (pitchEnabled)
 	{
-		pitchEnv.noteOff();
-		ssgSwPEnv11.noteOff();
+		if (t[KA::PitchEnv]) pitchEnv.noteOff();
+		if (t[KA::SsgSwPEnv11]) ssgSwPEnv11.noteOff();
 	}
 }
 
-bool ModProcessor::isActive() const
+// 押さえている鍵盤は、どちらのキーアサインでも控えておく。押したまま
+// 切り替えたときに、離したはずの鍵盤が押されたままに残らないように。
+void ModProcessor::noteOn(int note)
 {
-	return envEnabled && ampEnv.isPlaying();
+	if (note >= 0 && note < (int)heldKeys.size()) heldKeys.set((size_t)note);
+
+	publishHeldTargets();
+
+	// シングルキーアサインでは、どの鍵盤でも全部を動かす
+	startTargets(isCustomKeyAssign() ? targetsOf(note) : Targets().set());
+}
+
+void ModProcessor::noteOff(int note)
+{
+	if (note >= 0 && note < (int)heldKeys.size()) heldKeys.reset((size_t)note);
+
+	publishHeldTargets();
+
+	// シングルキーアサインでは、どの鍵盤を離しても全部を戻す (これまでどおり)
+	releaseTargets(isCustomKeyAssign() ? targetsOf(note) : Targets().set());
+}
+
+void ModProcessor::allNotesOff()
+{
+	// カスタマイズでは、押さえていた鍵盤の対象だけを戻す
+	Targets targets;
+
+	if (isCustomKeyAssign())
+	{
+		for (int note = 0; note < (int)heldKeys.size(); ++note)
+		{
+			if (heldKeys.test((size_t)note)) targets |= targetsOf(note);
+		}
+	}
+	else
+	{
+		targets.set();
+	}
+
+	heldKeys.reset();
+	publishHeldTargets();
+
+	releaseTargets(targets);
 }
 
 void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioProcessorValueTreeState& apvts)
 {
 	juce::ignoreUnused(apvts);
+
+	// 押さえたまま割り当てを変えたときも、画面の見出しが追えるように
+	publishHeldTargets();
+
+	// 再生ランプ用。包絡が走っているかを、画面のスレッドへ書き写す。
+	activeForGui.store(envEnabled && ampEnv.isPlaying(), std::memory_order_relaxed);
 
 	refreshSwitches();
 
@@ -311,17 +462,29 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 		detune.setParameters(detuneParams);
 
-		shiftRatio = detune.noteOn(1.0f);
+		// カスタマイズでは、割り当てた鍵盤を押している間だけ掛ける
+		if (isHeld(ModPrKey::KeyAssign::MulDet)) shiftRatio = detune.noteOn(1.0f);
 
 		PrHelper::applyUnison(ptUnison, unisonParams);
 
-		voices = juce::jlimit(1, Global::unisonVoices, unisonParams.voices);
+		if (isHeld(ModPrKey::KeyAssign::Unison))
+		{
+			voices = juce::jlimit(1, Global::unisonVoices, unisonParams.voices);
+		}
 	}
+
+	// LFO をどれだけ効かせるか。シングルなら常に 1、カスタマイズなら
+	// 押している間だけ 1 へ寄せる。
+	const float lfoAmTarget = isHeld(ModPrKey::KeyAssign::LfoAm) ? 1.0f : 0.0f;
+	const float lfoPmTarget = isHeld(ModPrKey::KeyAssign::LfoPm) ? 1.0f : 0.0f;
+
+	// 継ぎ目で音が飛ばないよう、5 ミリ秒かけて寄せる
+	const float gateStep = (float)(1.0 / juce::jmax(1.0, rate * 0.005));
 
 	// 音程を動かすかどうかは、この塊のあいだ変えない。1 サンプルごとに
 	// 出し入れすると、溜めてある音との継ぎ目で音が飛ぶ。
 	bool shifting = pitchEnabled
-		|| (lfoEnabled && lfo.pm.enable)
+		|| (lfoEnabled && lfo.pm.enable && (lfoPmTarget > 0.0f || lfoPmGate > 0.0f))
 		|| (shiftEnabled && (voices > 1 || shiftRatio < 0.9999f || shiftRatio > 1.0001f));
 
 	// 使い始めるときは溜めてある古い音を捨てる。前に鳴っていたものが
@@ -380,7 +543,8 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 	}
 
 	// 疑似高速アルペジオ。全部を重ねずに 1 つずつ切り替えて鳴らす。
-	bool arpeggio = shiftEnabled && voices > 1 && unisonParams.arpEnable;
+	bool arpeggio = shiftEnabled && voices > 1 && unisonParams.arpEnable
+		&& isHeld(ModPrKey::KeyAssign::Arpeggio);
 
 	double arpStep = arpeggio ? ((double)juce::jmax(1, unisonParams.arpFreq) / rate) : 0.0;
 
@@ -416,6 +580,13 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 		float ratio = 1.0f;
 
+		// 効かせる度合いを寄せる
+		if (lfoAmGate < lfoAmTarget) lfoAmGate = juce::jmin(lfoAmTarget, lfoAmGate + gateStep);
+		else if (lfoAmGate > lfoAmTarget) lfoAmGate = juce::jmax(lfoAmTarget, lfoAmGate - gateStep);
+
+		if (lfoPmGate < lfoPmTarget) lfoPmGate = juce::jmin(lfoPmTarget, lfoPmGate + gateStep);
+		else if (lfoPmGate > lfoPmTarget) lfoPmGate = juce::jmax(lfoPmTarget, lfoPmGate - gateStep);
+
 		if (lfoEnabled)
 		{
 			lfo.getSample();
@@ -424,7 +595,7 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 			// dB の減衰として掛ける。
 			if (lfo.am.enable)
 			{
-				float attenDb = lfo.value.am * lfo.am.depthDb;
+				float attenDb = lfo.value.am * lfo.am.depthDb * lfoAmGate;
 
 				gain *= std::pow(10.0f, -attenDb / 20.0f);
 			}
@@ -432,7 +603,7 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 			// PM も同じ。こちらの深さはセント。
 			if (lfo.pm.enable)
 			{
-				ratio *= std::pow(2.0f, (lfo.value.pm * lfo.pm.depthCent) / 1200.0f);
+				ratio *= std::pow(2.0f, (lfo.value.pm * lfo.pm.depthCent * lfoPmGate) / 1200.0f);
 			}
 		}
 

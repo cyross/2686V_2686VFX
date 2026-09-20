@@ -5,7 +5,7 @@
 #include <span>
 
 #include "../Processor/PluginProcessor.h"
-#include "../Gui/GuiLF.h"
+#include "Shared/Core/Gui/GuiLF.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
 
@@ -14,9 +14,13 @@
 #include "../../Gui/About/GuiAbout.h"
 #include "../../Gui/Colors/GuiColors.h"
 
-#include "../../Gui/Components/Loading/GuiLoading.h"
+#include "Shared/Gui/Components/Loading/GuiLoading.h"
 
-#include "../../Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiHost.h"
+
+// プロセッサのヘッダーはクラスを宣言する前にここを読み込むので、名前だけ先に出す
+class AudioPlugin2686V;
 
 class SystemButtonLF : public juce::LookAndFeel_V4
 {
@@ -50,8 +54,11 @@ public:
     }
 };
 
+struct EditorTestAccess;
+
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
+    public GuiEditorHost,
     public juce::ChangeListener,
     public juce::ComponentListener,
     public juce::Button::Listener,
@@ -59,6 +66,9 @@ class AudioPlugin2686VEditor :
     public juce::MultiTimer,
     public juce::AsyncUpdater
 {
+    // 画面のテスト (tests/gui) だけが、全タブを作る口とタブの並びを触る。
+    friend struct EditorTestAccess;
+
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
     ~AudioPlugin2686VEditor() override;
@@ -76,6 +86,22 @@ public:
         std::function<void()> onCancel = nullptr);
     void updateLoading(const juce::String& message);
     void hideLoading();
+
+    // ---- 窓口 (GuiEditorHost) のうち、パラメータファイルと波形を選ぶもの。
+    // 2686VFX は画面の中の一覧 (ブラウザー) を持たないので、OS のダイアログを出す。
+    void openParamBrowser(const juce::StringArray& allowed,
+        std::function<void(const juce::File&)> onChoose) override;
+    void openParamBrowser(const juce::String& settingsDir, const juce::StringArray& allowed,
+        std::function<void(const juce::File&)> onChoose,
+        const juce::String& nameMustContain = {}) override;
+    void openParamBrowserToSave(const juce::String& settingsDir, const juce::StringArray& allowed,
+        const juce::String& base, std::function<void(const juce::File&)> onChoose,
+        const juce::String& nameMustContain = {}, const juce::String& defaultName = {}) override;
+    void openWaveBrowser(const juce::StringArray& allowed,
+        std::function<void(const juce::File&)> onChoose) override;
+
+    // チャンネルを持たないので何もしない
+    bool applyChannelParamFile(const juce::File&) override { return false; }
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
     void buttonClicked(juce::Button* button) override;

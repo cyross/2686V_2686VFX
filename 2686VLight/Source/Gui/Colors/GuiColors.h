@@ -3,10 +3,10 @@
 #include <JuceHeader.h>
 #include <vector>
 
-#include "../../Core/Gui/GuiComponents.h"
-#include "../../Core/Gui/GuiBase.h"
-#include "../../Core/Gui/GuiContext.h"
-#include "../../Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiColor.h"
 
 #include "./GuiColorsText.h"
 #include "./GuiColorsValues.h"

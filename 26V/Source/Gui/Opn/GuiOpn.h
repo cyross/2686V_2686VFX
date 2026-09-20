@@ -1,46 +1,48 @@
 ﻿#pragma once
 
-#include "../../Core/Gui/GuiI18n.h"
+#include "Shared/Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
 
-#include "../Components/FmToOpzx7/FmToOpzx7.h"
+#include "Shared/Gui/Components/FmToOpzx7/FmToOpzx7.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include <array>
 
-#include "../../Core/Const/ConstGlobal.h"
-#include "../../Core/Gui/GuiComponents.h"
-#include "../../Core/Gui/GuiBase.h"
-#include "../../Core/Gui/GuiContext.h"
-#include "../../Core/Gui/GuiEnvelopeGraph.h"
-#include "../../Gui/Components/Unison/Unison.h"
-#include "../../Gui/Components/Fix/Fix.h"
-#include "../../Gui/Components/PitchEnv/PitchEnv.h"
-#include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
-#include "../../Gui/Components/Midi/Midi.h"
-#include "../../Processor/Opn/ProcessorOpnValues.h"
-#include "../../Gui/Components/PresetName/PresetName.h"
-#include "../../Gui/Components/ImportExport/ImportExport.h"
-#include "../../Gui/Components/Import/Import.h"
-#include "../../Gui/Components/Level/Level.h"
-#include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
-#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
-#include "../../Gui/Components/Separator/NormalSeparator.h"
-#include "../../Gui/Components/Separator/ShortSeparator.h"
-#include "../../Gui/Components/WavePreview/WavePreview.h"
-#include "../../Gui/Components/TargetCell/TargetCell.h"
-#include "../../Gui/Components/Quality/Quality.h"
-#include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
-#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
-#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
-#include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
-#include "../../Gui/Components/AmpEnv/AmpEnv.h"
-#include "../../Gui/Components/WtMod/WtMod.h"
-#include "../../Gui/Components/WtAmpMod/WtAmpMod.h"
-#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
-#include "../../Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
+#include "Shared/Core/Const/ConstGlobal.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiEnvelopeGraph.h"
+#include "Shared/Gui/Components/Unison/Unison.h"
+#include "Shared/Gui/Components/Fix/Fix.h"
+#include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
+#include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Processor/Opn/ProcessorOpnValues.h"
+#include "Shared/Gui/Components/PresetName/PresetName.h"
+#include "Shared/Gui/Components/ImportExport/ImportExport.h"
+#include "Shared/Gui/Components/Import/Import.h"
+#include "Shared/Gui/Components/Level/Level.h"
+#include "Shared/Gui/Components/NudgeButtons/NudgeButtons.h"
+#include "Shared/Gui/Components/NudgeSlider/NudgeSliderFloat.h"
+#include "Shared/Gui/Components/Separator/NormalSeparator.h"
+#include "Shared/Gui/Components/Separator/ShortSeparator.h"
+#include "Shared/Gui/Components/WavePreview/WavePreview.h"
+#include "Shared/Gui/Components/TargetCell/TargetCell.h"
+#include "Shared/Gui/Components/Quality/Quality.h"
+#include "Shared/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
+#include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
+#include "Shared/Gui/Components/WtMod/WtMod.h"
+#include "Shared/Gui/Components/WtAmpMod/WtAmpMod.h"
+#include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 
-#include "../../Core/Gui/GuiCopyObj.h"
+#include "Shared/Gui/Components/N88Lfo/N88Lfo.h"
+#include "Shared/Gui/Components/N88Lfo/N88LfoOp.h"
+#include "Shared/Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -79,25 +81,8 @@ class GuiOpn : public GuiBase
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
 
-    GuiCategoryLabel lfoCat;
+    GuiComponentN88Lfo n88Lfo;
 
-    GuiSlider lfoFreqSlider;
-    GuiComboBox lfoShapeSelector;
-    GuiSlider lfoAmSmRtSlider;
-
-    // Shape がどんな形かを見せるプレビュー
-    GuiWavePreview lfoPmPreview;
-    GuiWavePreview lfoAmPreview;
-    GuiSlider lfoSyncDelaySlider;
-    GuiTextButton lfoSyncDelayToZeroBtn;
-    GuiTextButton lfoSyncDelayToOneBtn;
-    GuiToggleButton lfoPmToggle;
-    GuiToggleButton lfoAmToggle;
-    GuiSlider lfoPmdSlider;
-    GuiSlider lfoPmsSlider;
-    GuiSlider lfoAmdSlider;
-    NormalSeparator lfoSep1;
-    NormalSeparator lfoSep2;
 
     GuiComponentMidi midiComponent;
 
@@ -184,8 +169,7 @@ class GuiOpn : public GuiBase
     GuiComponentWtMod wtModOp;
 
     GuiComponentFix fix;
-    GuiCategoryLabel catN88Lfo;
-    GuiSlider n88Ams;
+    GuiComponentN88LfoOp n88LfoOp;
     GuiCategoryLabel catMask;
     GuiToggleButton mask; // Mask
     NormalSeparator mmlSeparator;
@@ -283,22 +267,7 @@ public:
         ssgSwEnv11g(context),
         ssgSwPEnv11g(context),
         unisonComponent(context),
-        lfoCat(context),
-        lfoFreqSlider(context),
-        lfoShapeSelector(context),
-        lfoAmSmRtSlider(context),
-        lfoPmPreview(context),
-        lfoAmPreview(context),
-        lfoSyncDelaySlider(context),
-        lfoSyncDelayToZeroBtn(context),
-        lfoSyncDelayToOneBtn(context),
-        lfoPmToggle(context),
-        lfoAmToggle(context),
-        lfoPmdSlider(context),
-        lfoPmsSlider(context),
-        lfoAmdSlider(context),
-        lfoSep1(context),
-        lfoSep2(context),
+        n88Lfo(context),
         utilityCat(context),
         ampMajorCat(context),
         pitchMajorCat(context),
@@ -361,8 +330,7 @@ public:
         ssgHwEnvOp(context),
         wtModOp(context),
         fix(context),
-        catN88Lfo(context),
-        n88Ams(context),
+        n88LfoOp(context),
         mask(context),
         catMask(context),
         mmlSeparator(context),
@@ -415,9 +383,6 @@ public:
     void layoutUtilityCat(Rectangle<int>& rect);
     void layoutOpMaskCat(juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutN88LfoCat(juce::Rectangle<int>& rect);
-    void updateLfoPreviews();
-    void layoutOpN88LfoCat(juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(juce::Rectangle<int>& rect);
     void layoutOpKsCat(juce::Rectangle<int>& rect);
     void layoutOpDetCat(juce::Rectangle<int>& rect);

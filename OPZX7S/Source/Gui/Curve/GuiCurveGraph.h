@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 #include <vector>
-#include "../../Core/Gui/GuiComponents.h"
-#include "../../Processor/Curve/ProcessorCurveValues.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Processor/Curve/ProcessorCurveValues.h"
 
 class GuiCurveGraph : public juce::Component
 {

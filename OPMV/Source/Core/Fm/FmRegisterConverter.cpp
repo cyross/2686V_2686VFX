@@ -1,5 +1,5 @@
 ﻿#include "./FmRegisterConverter.h"
-#include "../Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 auto RegisterConverter::convertFmParam31(int regValue) -> std::optional<float>
 {

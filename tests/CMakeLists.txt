@@ -13,47 +13,87 @@
 
 set(TEST_TARGET_SOURCE_ROOT "${CMAKE_SOURCE_DIR}/2686V/Source")
 
+# 12 本で共有するコード。プラグインの Source から移したもの。
+set(SHARED_SOURCE_ROOT "${CMAKE_SOURCE_DIR}/Shared")
+
+# ------------------------------------------------------------------------------
+# テストは既定のビルド (ALL_BUILD) へ含めない
+# ------------------------------------------------------------------------------
+# 12 本ぶんの画面のテストまであるので、出荷物を作るだけのときに全部を組むと
+# 待たされる。テストは AllTests に集め、組むかどうかはビルドのプリセットで
+# 選ぶ (CMakePresets.json)。
+#
+#   *-debug          本体とテスト
+#   *-release        本体だけ
+#   *-release-tests  本体とテスト
+#
+# 構成 (Debug / Release) で ALL_BUILD へ入れるかを変えられるのは Ninja
+# Multi-Config だけで、Visual Studio はできない。そのためプリセットで分ける。
+add_custom_target(AllTests)
+
+function(cy_register_test target)
+    add_dependencies(AllTests ${target})
+
+    set_target_properties(${target} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+    # JUCE のアプリの形で作ったもの (IoTests) は、アイコンの小さな
+    # ライブラリを別に持つ。これも外す。
+    if(TARGET ${target}_rc_lib)
+        set_target_properties(${target}_rc_lib PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    endif()
+endfunction()
+
 # ---- テスト対象 (出荷されるソースそのもの) ----
 set(UNDER_TEST_SOURCES
-    "${TEST_TARGET_SOURCE_ROOT}/Advanced/Curve/AdvancedCurve.cpp"
+    "${SHARED_SOURCE_ROOT}/Advanced/Curve/AdvancedCurve.cpp"
 
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddr.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/SsgHw/EnvSsgHw.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/SsgSw/EnvSsgSw.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddr.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/SsgHw/EnvSsgHw.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/SsgSw/EnvSsgSw.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.cpp"
 
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/KeyScale/Ma7/KSMa7.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/KeyScale/Opl/KSOpl.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/KeyScale/Opn/KSOpn.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/KeyScale/Opp/KSOpp.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/KeyScale/Ops/KSOps.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/KeyScale/Opz/KSOpz.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/KeyScale/Ma7/KSMa7.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/KeyScale/Opl/KSOpl.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/KeyScale/Opn/KSOpn.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/KeyScale/Opp/KSOpp.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/KeyScale/Ops/KSOps.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/KeyScale/Opz/KSOpz.cpp"
 
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Detune/Opl/DetuneOpl.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Detune/Opm/DetuneOpm.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Detune/Opn/DetuneOpn.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Detune/Opzx7/DetuneOpzx7.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Detune/Opl/DetuneOpl.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Detune/Opm/DetuneOpm.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Detune/Opn/DetuneOpn.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Detune/Opzx7/DetuneOpzx7.cpp"
 
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Feedback/Feedback.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Feedback/Feedback.cpp"
 
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/N88/LfoN88.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opna/LfoOpna.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opm/LfoOpm.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7Unit.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Lfo/N88/LfoN88.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Lfo/Opna/LfoOpna.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Lfo/Opm/LfoOpm.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7Unit.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
 
-    "${TEST_TARGET_SOURCE_ROOT}/Core/Fm/FmOperator.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Synth/Opzx7/Operator/SynthOpzx7Op.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Generator/Fm/Fix/FmFix.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Gui/Components/WavePreview/WavePreviewSource.cpp"
+    "${SHARED_SOURCE_ROOT}/Core/Fm/FmOperator.cpp"
+    "${SHARED_SOURCE_ROOT}/Synth/Opzx7/Operator/SynthOpzx7Op.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Fm/Fix/FmFix.cpp"
+    "${SHARED_SOURCE_ROOT}/Gui/Components/WavePreview/WavePreviewSource.cpp"
+
+    "${SHARED_SOURCE_ROOT}/Core/Synth/SynthHelpers.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Helper/GenPcmHelper.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Helper/GenPcmNoiseReducer.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Adpcm/GenAdpcm.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Arcade/GenArcadeAdpcm.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Brr/GenBrr.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Dpcm/GenDpcm.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Ima/GenIma.cpp"
+    "${SHARED_SOURCE_ROOT}/Generator/Pcm/Vag/GenVag.cpp"
 )
 
 # ---- テストコード ----
@@ -69,6 +109,7 @@ target_include_directories(RetroSynthsTests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/shim"     # JuceHeader.h の差し替え。必ず先頭。
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${TEST_TARGET_SOURCE_ROOT}"
+    "${CMAKE_SOURCE_DIR}"                  # 共有コード ("Shared/...")
     "${CMAKE_SOURCE_DIR}/external/doctest"
 )
 
@@ -83,6 +124,8 @@ target_compile_definitions(RetroSynthsTests PRIVATE
 )
 
 target_compile_features(RetroSynthsTests PRIVATE cxx_std_20)
+
+cy_register_test(RetroSynthsTests)
 
 if(MSVC)
     target_compile_options(RetroSynthsTests PRIVATE /utf-8 /FS)
@@ -146,12 +189,13 @@ juce_generate_juce_header(IoTests)
 
 target_sources(IoTests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/io/ParamFileTests.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Core/Io/ParamFile.cpp"
-    "${TEST_TARGET_SOURCE_ROOT}/Core/Gui/GuiI18n.cpp"
+    "${SHARED_SOURCE_ROOT}/Core/Io/ParamFile.cpp"
+    "${SHARED_SOURCE_ROOT}/Core/Gui/GuiI18n.cpp"
 )
 
 target_include_directories(IoTests PRIVATE
     "${TEST_TARGET_SOURCE_ROOT}"
+    "${CMAKE_SOURCE_DIR}"                  # 共有コード ("Shared/...")
     "${CMAKE_SOURCE_DIR}/external/doctest"
 )
 
@@ -169,6 +213,8 @@ target_compile_definitions(IoTests PRIVATE
 
 target_compile_features(IoTests PRIVATE cxx_std_20)
 
+cy_register_test(IoTests)
+
 if(MSVC)
     target_compile_options(IoTests PRIVATE /utf-8 /FS)
 endif()
@@ -176,3 +222,69 @@ endif()
 if(CY_TESTS_RUNNABLE)
     doctest_discover_tests(IoTests)
 endif()
+
+# ==============================================================================
+# 画面 (12 本すべて)
+# ==============================================================================
+# 本物のプロセッサと画面を立ち上げて、部品の止め方などを確かめる。
+#
+# プラグインの本体 (共有コードの静的ライブラリ) をそのまま結びつける。
+# JUCE がプラグインの各形式 (VST3 / Standalone) を組むときと同じく、
+# 本体の取り込み先と定義を写して、同じ JuceHeader.h を読ませる。
+#
+# 本ごとに 1 つずつ作る (GuiTests_2686V など)。本へ展開したときの取りこぼし
+# を拾うため。どの区分も持つ 2686V でだけ「区分が見つからない」を失敗にする。
+set(CY_GUI_TEST_PLUGINS 2686V 2686VLight 26V 2686VOrigin OPZX7S 2686VFX OPNV OPLV OPMV WTV PCMV PULSEV)
+
+foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
+    if(NOT TARGET ${CY_PLUGIN})
+        continue()
+    endif()
+
+    set(CY_GUI_TEST GuiTests_${CY_PLUGIN})
+
+    add_executable(${CY_GUI_TEST}
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/GuiTestMain.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/EnableRulesTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/PlayingLampTest.cpp"
+    )
+
+    target_include_directories(${CY_GUI_TEST} PRIVATE
+        $<TARGET_PROPERTY:${CY_PLUGIN},INCLUDE_DIRECTORIES>
+        "${CMAKE_SOURCE_DIR}/${CY_PLUGIN}/Source"
+        "${CMAKE_SOURCE_DIR}/external/doctest"
+    )
+
+    target_compile_definitions(${CY_GUI_TEST} PRIVATE
+        $<TARGET_PROPERTY:${CY_PLUGIN},COMPILE_DEFINITIONS>
+        DOCTEST_CONFIG_USE_STD_HEADERS
+    )
+
+    if(CY_PLUGIN STREQUAL "2686V")
+        target_compile_definitions(${CY_GUI_TEST} PRIVATE GUI_TEST_REQUIRE_ALL)
+    endif()
+
+    # 2686VFX にしかない機能 (変調を動かす鍵盤の割り当て)
+    if(CY_PLUGIN STREQUAL "2686VFX")
+        target_sources(${CY_GUI_TEST} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxKeyAssignTest.cpp")
+    endif()
+
+    # 音源のチャンネルを持つ本だけ (2686VFX は音を作らない)
+    if(NOT CY_PLUGIN STREQUAL "2686VFX")
+        target_sources(${CY_GUI_TEST} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/gui/ChannelQualityTest.cpp")
+    endif()
+
+    target_link_libraries(${CY_GUI_TEST} PRIVATE ${CY_PLUGIN})
+
+    target_compile_features(${CY_GUI_TEST} PRIVATE cxx_std_20)
+
+    cy_register_test(${CY_GUI_TEST})
+
+    if(MSVC)
+        target_compile_options(${CY_GUI_TEST} PRIVATE /utf-8 /FS)
+    endif()
+
+    if(CY_TESTS_RUNNABLE)
+        doctest_discover_tests(${CY_GUI_TEST})
+    endif()
+endforeach()

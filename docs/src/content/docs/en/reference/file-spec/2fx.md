@@ -56,4 +56,36 @@ value itself. The order of the effects is held on the
 [effect order](/2686V_2686VFX/en/reference/file-spec/fxo/) side.
 :::
 
+## Key assign (2686VFX)
+
+The `keyAssign` block holds which keys drive the modulation. Added in 3.6.0.
+
+```json
+"keyAssign": { "mode": 1, "ampEnv": 60, "pitchEnv": 62, "lfoAm": 64, "…": 60 }
+```
+
+| Key | Type | Range | Default | Meaning |
+| --- | --- | --- | ---: | --- |
+| `mode` | integer | 0 to 1 | 0 | 0 is Single key, 1 is Customize |
+| `ampEnv` | integer | 0 to 127 | 60 | The key that drives AMP ENV |
+| `ssgHwEnv` | integer | 0 to 127 | 60 | The key that drives SSG HW AMP ENV |
+| `wtAmpMod` | integer | 0 to 127 | 60 | The key that drives WT AMP MOD |
+| `ssgSwEnv11` | integer | 0 to 127 | 60 | The key that drives SSG SW AMP ENV\[11\] |
+| `pitchEnv` | integer | 0 to 127 | 60 | The key that drives PITCH ENV |
+| `ssgHwPEnv` | integer | 0 to 127 | 60 | The key that drives SSG HW PITCH ENV |
+| `ssgSwPEnv11` | integer | 0 to 127 | 60 | The key that drives SSG SW PITCH ENV\[11\] |
+| `wtMod` | integer | 0 to 127 | 60 | The key that drives WT PITCH MOD |
+| `lfoAm` | integer | 0 to 127 | 60 | The key that drives LFO AM |
+| `lfoPm` | integer | 0 to 127 | 60 | The key that drives LFO PM |
+| `mulDet` | integer | 0 to 127 | 60 | The key that drives MUL/DET |
+| `unison` | integer | 0 to 127 | 60 | The key that drives UNISON/HARMONY |
+| `arpeggio` | integer | 0 to 127 | 60 | The key that drives ARPEGGIO |
+
+Keys are MIDI note numbers; 60 is C3.
+
+:::note
+Only 2686VFX has `keyAssign`; an instrument passes it by. Files written before
+3.6.0 have no such block, and then the current assignment is kept as it is.
+:::
+
 For where the files live, see [File formats and locations](/2686V_2686VFX/en/files/format/).

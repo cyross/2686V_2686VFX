@@ -4,9 +4,9 @@
 #include "../../Core/Editor/EditorGuiText.h"
 #include "./GuiOpzx7.h"
 
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 namespace
 {
@@ -17,31 +17,32 @@ namespace
 	const Io::ParamFormat pcmPlayFormat{ "pcmPlay", 1 };
 }
 
-#include "../Components/WavePreview/WavePreviewSource.h"
+#include "Shared/Gui/Components/WavePreview/WavePreviewSource.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
-#include "../../Processor/Opzx7/ProcessorOpzx7Keys.h"
-#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
-#include "../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7Keys.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"
 
-#include "../../Core/Gui/GuiGraphValues.h"
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiGraphValues.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiOpzx7Values.h"
 #include "./GuiOpzx7Text.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 #include "./GuiOpzx7Helpers.h"
 
 #include "../../Core/Processor/PluginProcessorStateKey.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 static std::vector<SelectItem> opzx7AlgItems = {
     {.name = "000: <OPX-00> / 4OP", .value = 1 },
@@ -556,7 +557,7 @@ void GuiOpzx7::refreshFeedbackValues()
 
 void GuiOpzx7::setup()
 {
-    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_curveCore = pluginOf(ctx).getCurveCore();
 
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
@@ -574,7 +575,7 @@ void GuiOpzx7::setup()
 
     mainGroup.setup(*this, Opzx7GuiText::Group::mainGroup);
 
-    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
+    presetName.setupComponent(*this, tabOrder, pluginOf(ctx).presetName);
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
@@ -588,26 +589,26 @@ void GuiOpzx7::setup()
     algModeSelector.onChange = [this] {
         int mode = algModeSelector.getSelectedItemIndex();
 
-        ctx.editor.resized();
+        editorOf(ctx).resized();
 
-        ctx.audioProcessor.setOpzx7AlgMode(mode);
+        pluginOf(ctx).setOpzx7AlgMode(mode);
         };
 
-    int initialMode = ctx.audioProcessor.getOpzx7AlgMode();
+    int initialMode = pluginOf(ctx).getOpzx7AlgMode();
     algModeSelector.setSelectedItemIndex(initialMode, juce::dontSendNotification);
 
     mainGroup.contentCanvas.addAndMakeVisible(&algMatrixComp);
     mainGroup.contentCanvas.addAndMakeVisible(&algGraphComp);
     mainGroup.contentCanvas.addAndMakeVisible(&algStaticGraphComp);
 
-    AlgMatrixState initialState = ctx.audioProcessor.getOpzx7AlgMatrix();
+    AlgMatrixState initialState = pluginOf(ctx).getOpzx7AlgMatrix();
     algMatrixComp.setState(initialState);
     algGraphComp.updateState(initialState);
 
     algMatrixComp.onMatrixChanged = [this](const AlgMatrixState& state) {
         algGraphComp.updateState(state);
 
-        ctx.audioProcessor.setOpzx7AlgMatrix(state);
+        pluginOf(ctx).setOpzx7AlgMatrix(state);
 
         updateAlgorithmMatrixDisplay();
         };
@@ -712,7 +713,7 @@ void GuiOpzx7::setup()
     broadcastLevelButton.onClick = [this] {
         float level = levelComponent.getLevel();
 
-        ctx.editor.breadcastLevel(level);
+        editorOf(ctx).breadcastLevel(level);
         };
 
     uSep001.setupComponent(mainGroup.contentCanvas);
@@ -724,12 +725,12 @@ void GuiOpzx7::setup()
         int from = copyOpFromSlider.getValue() - 1;
         int to = copyOpToSlider.getValue() - 1;
 
-        ctx.editor.copyOpzx7OpParams(from, to);
+        editorOf(ctx).copyOpzx7OpParams(from, to);
 
         // コピー先でロードしていたPCMファイル・波形メモリファイルをアンロードする
-        ctx.audioProcessor.unloadOpzx7PcmFile(to);
-        ctx.audioProcessor.unloadOpzx7WtFile(to);
-        ctx.audioProcessor.unloadOpzx7Wt2File(to);
+        pluginOf(ctx).unloadOpzx7PcmFile(to);
+        pluginOf(ctx).unloadOpzx7WtFile(to);
+        pluginOf(ctx).unloadOpzx7Wt2File(to);
         };
 
     copyOpFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
@@ -855,6 +856,7 @@ void GuiOpzx7::setup()
     // 区分は縦に積まず、横へ並べる。1 列 1 区分が基本。
     stripViewport.setViewedComponent(&stripCanvas, false);
     stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
 
     addAndMakeVisible(stripViewport);
@@ -913,7 +915,7 @@ void GuiOpzx7::setup()
         const int op = currentOp();
 
         updateOpGraph(op); // RG_ENを切り替えるときにアンプエンベロープの内容を切り替える
-        ctx.editor.resized();
+        editorOf(ctx).resized();
         };
 
 		rgSeparator.setupComponent(colAmp.contentCanvas);
@@ -976,7 +978,7 @@ void GuiOpzx7::setup()
     ksMode.setWantsKeyboardFocus(true);
     ksMode.setExplicitFocusOrder(++tabOrder);
     ksMode.onChange = [this]() {
-        ctx.editor.resized();
+        editorOf(ctx).resized();
         };
 
     ksrMA7.setup(GuiToggleButton::Config{ .parent = colKs.contentCanvas, .id = paramPrefix + CPK::Fm::ksrMA7, .title = Opzx7GuiText::Fm::Op::Ksr, .isReset = true });
@@ -1049,7 +1051,7 @@ void GuiOpzx7::setup()
 
         updateOnWsChange();
 
-        ctx.editor.resized();
+        editorOf(ctx).resized();
         };
 
     wsSeparator.setupComponent(colWs.contentCanvas);
@@ -1063,7 +1065,7 @@ void GuiOpzx7::setup()
         const int op = currentOp();
 
         // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
-        ctx.editor.openAudioBrowser(
+        editorOf(ctx).openAudioBrowser(
             [this, op](const juce::File& file) {
                 if (file.existsAsFile()) {
                     updatePcmFileName(op, "Loading...");
@@ -1077,9 +1079,9 @@ void GuiOpzx7::setup()
                             // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
                             if (safe == nullptr) return;
 
-                            ctx.audioProcessor.loadOpzx7PcmFile(op, file);
+                            pluginOf(ctx).loadOpzx7PcmFile(op, file);
                             updatePcmFileName(op, file.getFileName());
-                            ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                            pluginOf(ctx).lastSampleDirectory = file.getParentDirectory();
                         });
                 }
             }
@@ -1092,13 +1094,13 @@ void GuiOpzx7::setup()
     clearPcmBtn.onClick = [this] {
         const int op = currentOp();
 
-        ctx.audioProcessor.unloadOpzx7PcmFile(op);
+        pluginOf(ctx).unloadOpzx7PcmFile(op);
         updatePcmFileName(op, Io::empty);
         };
 
     pcmFileNameLabel.setup({ .parent = colWs.contentCanvas, .title = Io::empty });
-    if (ctx.audioProcessor.opzx7PcmFilePaths[i].isNotEmpty()) {
-        updatePcmFileName(i, juce::File(ctx.audioProcessor.opzx7PcmFilePaths[i]).getFileName());
+    if (pluginOf(ctx).opzx7PcmFilePaths[i].isNotEmpty()) {
+        updatePcmFileName(i, juce::File(pluginOf(ctx).opzx7PcmFilePaths[i]).getFileName());
     }
 
     speed.setup(GuiSlider::Config{ .parent = colWs.contentCanvas, .id = paramPrefix + CPK::speed, .title = "SPEED", .isReset = true });
@@ -1145,7 +1147,7 @@ void GuiOpzx7::setup()
         const int op = currentOp();
 
         // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
-        ctx.editor.openWaveBrowser({ EditorGuiText::ParamBrowser::waveWt },
+        editorOf(ctx).openWaveBrowser({ EditorGuiText::ParamBrowser::waveWt },
             [this, op](const juce::File& file) {
                 if (file.existsAsFile()) {
                     updateWtFileName(op, "Loading...");
@@ -1159,9 +1161,9 @@ void GuiOpzx7::setup()
                             // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
                             if (safe == nullptr) return;
 
-                            ctx.audioProcessor.loadOpzx7WtFile(op, file);
+                            pluginOf(ctx).loadOpzx7WtFile(op, file);
                             updateWtFileName(op, file.getFileName());
-                            ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                            pluginOf(ctx).defaultWavetableDir = file.getParentDirectory().getFullPathName();
                         });
                 }
             }
@@ -1174,13 +1176,13 @@ void GuiOpzx7::setup()
     clearWtBtn.onClick = [this] {
         const int op = currentOp();
 
-        ctx.audioProcessor.unloadOpzx7WtFile(op);
+        pluginOf(ctx).unloadOpzx7WtFile(op);
         updateWtFileName(op, Io::empty);
         };
 
     wtFileNameLabel.setup({ .parent = colWs.contentCanvas, .title = Io::empty });
-    if (ctx.audioProcessor.opzx7WtFilePaths[i].isNotEmpty()) {
-        updateWtFileName(i, juce::File(ctx.audioProcessor.opzx7WtFilePaths[i]).getFileName());
+    if (pluginOf(ctx).opzx7WtFilePaths[i].isNotEmpty()) {
+        updateWtFileName(i, juce::File(pluginOf(ctx).opzx7WtFilePaths[i]).getFileName());
     }
 
     loadWt2Btn.setup({ .parent = colWs.contentCanvas, .title = "WT2", .isReset = false, .isResized = true });
@@ -1190,7 +1192,7 @@ void GuiOpzx7::setup()
         const int op = currentOp();
 
         // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
-        ctx.editor.openWaveBrowser({ EditorGuiText::ParamBrowser::waveWt2 },
+        editorOf(ctx).openWaveBrowser({ EditorGuiText::ParamBrowser::waveWt2 },
             [this, op](const juce::File& file) {
                 if (file.existsAsFile()) {
                     updateWt2FileName(op, "Loading...");
@@ -1204,9 +1206,9 @@ void GuiOpzx7::setup()
                             // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
                             if (safe == nullptr) return;
 
-                            ctx.audioProcessor.loadOpzx7Wt2File(op, file);
+                            pluginOf(ctx).loadOpzx7Wt2File(op, file);
                             updateWt2FileName(op, file.getFileName());
-                            ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                            pluginOf(ctx).defaultWavetableDir = file.getParentDirectory().getFullPathName();
                         });
                 }
             }
@@ -1219,14 +1221,14 @@ void GuiOpzx7::setup()
     clearWt2Btn.onClick = [this] {
         const int op = currentOp();
 
-        ctx.audioProcessor.unloadOpzx7Wt2File(op);
+        pluginOf(ctx).unloadOpzx7Wt2File(op);
         updateWt2FileName(op, Io::empty);
         };
 
     wt2FileNameLabel.setup({ .parent = colWs.contentCanvas, .title = Io::empty });
     // 出すのは WT2 の名前なので、有無も WT2 側で見る
-    if (ctx.audioProcessor.opzx7Wt2FilePaths[i].isNotEmpty()) {
-        updateWt2FileName(i, juce::File(ctx.audioProcessor.opzx7Wt2FilePaths[i]).getFileName());
+    if (pluginOf(ctx).opzx7Wt2FilePaths[i].isNotEmpty()) {
+        updateWt2FileName(i, juce::File(pluginOf(ctx).opzx7Wt2FilePaths[i]).getFileName());
     }
 
     catOptional.setupSwCategory({ .parent = colAmp.contentCanvas, .title = Opzx7GuiText::Category::optional, .enableChangeDetailVisible = true });
@@ -1307,7 +1309,7 @@ void GuiOpzx7::setup()
     }
 
     // 前に開いていたときの指し先から始める。
-    const int saved = (int)ctx.audioProcessor.apvts.state.getProperty(ProcessorStateKey::opzx7Target, 0);
+    const int saved = (int)pluginOf(ctx).apvts.state.getProperty(ProcessorStateKey::opzx7Target, 0);
 
     targerOpSlider.setValue(juce::jlimit(0, Opzx7PrValue::ops - 1, saved) + 1, juce::dontSendNotification);
 
@@ -1396,33 +1398,33 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
 
-    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    ampEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-    ssgHwEnv.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnv11g.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11g.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11g.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
     ampMajorCat.endMajor(mRect);
 
     // [[PITCH ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
 
-    ssgHwPEnv.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
-    ssgSwPEnv11g.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11g.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11g.layoutComponent(mRect);
-    modComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
@@ -1431,7 +1433,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     layoutPanpotCat(mRect);
 
-    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
+    unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -1679,7 +1681,7 @@ void GuiOpzx7::updateCellWs(int opIndex)
 // ほかのオペレータはつまみを持たないので、パラメータから直に採る。
 void GuiOpzx7::fillWsPreview(GuiWavePreview& preview, int opIndex)
 {
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
 
     const juce::String code = Opzx7PrKey::prefix + CPK::op + juce::String(opIndex);
 
@@ -1708,12 +1710,12 @@ void GuiOpzx7::fillWsPreview(GuiWavePreview& preview, int opIndex)
     preview.setPoints(
         WavePreviewSource::opzx7Ws(
             shape,
-            ctx.audioProcessor.opzx7WtBuffers[opIndex],
-            ctx.audioProcessor.opzx7Wt2Buffers[opIndex],
-            ctx.audioProcessor.opzx7PcmBuffers[opIndex],
+            pluginOf(ctx).opzx7WtBuffers[opIndex],
+            pluginOf(ctx).opzx7Wt2Buffers[opIndex],
+            pluginOf(ctx).opzx7PcmBuffers[opIndex],
             offset,
             ratio,
-            ctx.audioProcessor.getSampleRate()),
+            pluginOf(ctx).getSampleRate()),
         true);
 
     // 同じ枠が波形メモリとオーディオファイルの両方を映すので、
@@ -1980,9 +1982,9 @@ void GuiOpzx7::rebind(int opIndex)
 
     // 読み込んである素材の名前は APVTS ではなく処理側が持っている。
     // 指し先が変わったら、名前もプレビューも引き直す。
-    pcmFileNameLabel.setText(juce::File(ctx.audioProcessor.opzx7PcmFilePaths[opIndex]).getFileName(), juce::dontSendNotification);
-    wtFileNameLabel.setText(juce::File(ctx.audioProcessor.opzx7WtFilePaths[opIndex]).getFileName(), juce::dontSendNotification);
-    wt2FileNameLabel.setText(juce::File(ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]).getFileName(), juce::dontSendNotification);
+    pcmFileNameLabel.setText(juce::File(pluginOf(ctx).opzx7PcmFilePaths[opIndex]).getFileName(), juce::dontSendNotification);
+    wtFileNameLabel.setText(juce::File(pluginOf(ctx).opzx7WtFilePaths[opIndex]).getFileName(), juce::dontSendNotification);
+    wt2FileNameLabel.setText(juce::File(pluginOf(ctx).opzx7Wt2FilePaths[opIndex]).getFileName(), juce::dontSendNotification);
 
     updateSePreview();
     updateWsPreview();
@@ -1996,7 +1998,7 @@ void GuiOpzx7::applyOpTarget()
 {
     const int op = currentOp();
 
-    ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::opzx7Target, op, nullptr);
+    pluginOf(ctx).apvts.state.setProperty(ProcessorStateKey::opzx7Target, op, nullptr);
 
     rebind(op);
 
@@ -2107,7 +2109,7 @@ void GuiOpzx7::copyFmParamsToString()
     // MML には 4 本ぶんが要る。
     //
     // 選ぶ形のパラメータは、つまみの選択番号と同じ値を持っている。
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
 
     auto opVal = [&apvts](int index, const juce::String& key) {
         return (int)GuiGraphValues::value(apvts, Opzx7PrKey::prefix + CPK::op + juce::String(index) + key);
@@ -2150,17 +2152,17 @@ void GuiOpzx7::pasteFmParamsFromObject()
 
 void GuiOpzx7::initParams()
 {
-    this->ctx.audioProcessor.initParams("OPZX7_");
+    pluginOf(ctx).initParams("OPZX7_");
 
     for (int i = 0; i < Opzx7PrValue::ops; i++)
     {
-        this->ctx.audioProcessor.unloadOpzx7PcmFile(i);
+        pluginOf(ctx).unloadOpzx7PcmFile(i);
         updatePcmFileName(i, Io::empty);
 
-        this->ctx.audioProcessor.unloadOpzx7WtFile(i);
+        pluginOf(ctx).unloadOpzx7WtFile(i);
         updateWtFileName(i, Io::empty);
 
-        this->ctx.audioProcessor.unloadOpzx7Wt2File(i);
+        pluginOf(ctx).unloadOpzx7Wt2File(i);
         updateWt2FileName(i, Io::empty);
     }
 }
@@ -2243,7 +2245,7 @@ void GuiOpzx7::layoutOpPanel(juce::Rectangle<int> area)
             group.setContentHeight(rect.getY() + 20);
         };
 
-    const auto shown = [this](SimpleView::Cat cat) { return ctx.audioProcessor.isSimpleShown(cat); };
+    const auto shown = [this](SimpleView::Cat cat) { return pluginOf(ctx).isSimpleShown(cat); };
 
     // レジスタの値で触るかどうかと、選んでいる波形。どちらも区分の中身を
     // 変えるので、先に引いておく。
@@ -2818,7 +2820,7 @@ void GuiOpzx7::layoutOpWsCat(juce::Rectangle<int>& rect, int selectedWs) {
 // いかない。接頭辞を頼りにパラメータから直に採る。
 void GuiOpzx7::updateOpGraph(int opIndex)
 {
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
     auto& graph = cells[(size_t)opIndex].graph();
 
     const juce::String code = Opzx7PrKey::prefix + CPK::op + juce::String(opIndex);
@@ -3258,7 +3260,7 @@ void GuiOpzx7::importQualityParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality },
         [this](const juce::File& file) { applyQualityParamFile(file); });
 }
@@ -3271,7 +3273,7 @@ void GuiOpzx7::applyQualityParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -3314,7 +3316,7 @@ void GuiOpzx7::applyQualityParamFile(const juce::File& file)
 void GuiOpzx7::exportQualityParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality }, Io::Extension::QualityParam,
         [this](const juce::File& file) { writeQualityParamFile(file); });
 }
@@ -3326,7 +3328,7 @@ void GuiOpzx7::writeQualityParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(qualityFormat);
     writeQualityParams(writer);
@@ -3338,7 +3340,7 @@ void GuiOpzx7::importOpPcmPlayParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultPcmPlayParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultPcmPlayParamDir,
         { EditorGuiText::ParamBrowser::kindPcmPlay },
         [this, opIndex](const juce::File& file) { applyOpPcmPlayParamFile(opIndex, file); });
 }
@@ -3351,7 +3353,7 @@ void GuiOpzx7::applyOpPcmPlayParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -3398,7 +3400,7 @@ void GuiOpzx7::applyOpPcmPlayParamFile(int opIndex, const juce::File& file)
 void GuiOpzx7::exportOpPcmPlayParam(int opIndex)
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultPcmPlayParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultPcmPlayParamDir,
         { EditorGuiText::ParamBrowser::kindPcmPlay }, Io::Extension::PcmPlayParam,
         [this, opIndex](const juce::File& file) { writeOpPcmPlayParamFile(opIndex, file); });
 }
@@ -3410,7 +3412,7 @@ void GuiOpzx7::writeOpPcmPlayParamFile(int opIndex, const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(pcmPlayFormat);
     writeOpPcmPlayParams(opIndex, writer);
@@ -3469,7 +3471,7 @@ void GuiOpzx7::exportOpWtModParam(int opIndex) {
 void GuiOpzx7::importChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "OPZX7" },
+    editorOf(ctx).openParamBrowser({ "OPZX7" },
         [this](const juce::File& file) { applyChParamFile(file); });
 }
 
@@ -3479,7 +3481,7 @@ void GuiOpzx7::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -3521,7 +3523,7 @@ void GuiOpzx7::applyChParamFile(const juce::File& file) {
 void GuiOpzx7::exportChParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { "OPZX7" }, Io::Extension::opzx7sParam,
         [this](const juce::File& file) { writeChParamFile(file); });
 }
@@ -3532,7 +3534,7 @@ void GuiOpzx7::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(opzx7Format);
     writeChParams(writer);
@@ -3544,7 +3546,7 @@ void GuiOpzx7::importOpChParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpzx7Op },
         [this, opIndex](const juce::File& file) { applyOpChParamFile(opIndex, file); });
 }
@@ -3557,7 +3559,7 @@ void GuiOpzx7::applyOpChParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -3598,7 +3600,7 @@ void GuiOpzx7::applyOpChParamFile(int opIndex, const juce::File& file)
 void GuiOpzx7::exportOpChParam(int opIndex)
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpzx7Op }, Io::Extension::opzx7sOpParam,
         [this, opIndex](const juce::File& file) { writeOpChParamFile(opIndex, file); });
 }
@@ -3609,7 +3611,7 @@ void GuiOpzx7::writeOpChParamFile(int opIndex, const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(opzx7OpFormat);
     writeOpChFileParams(opIndex, writer);
@@ -3717,18 +3719,18 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     // Wave Shape
     ws.setSelectedId(r.getInt("ws", ws.getSelectedId()), juce::sendNotification);
 
-    ctx.audioProcessor.unloadOpzx7PcmFile(opIndex);
-    ctx.audioProcessor.unloadOpzx7WtFile(opIndex);
-    ctx.audioProcessor.unloadOpzx7Wt2File(opIndex);
+    pluginOf(ctx).unloadOpzx7PcmFile(opIndex);
+    pluginOf(ctx).unloadOpzx7WtFile(opIndex);
+    pluginOf(ctx).unloadOpzx7Wt2File(opIndex);
 
     // 波形の場所は種類ごとに別の名前で持つ。以前は選んでいる種類のものしか
     // 書いていなかったので、切り替えて保存し直すと他の場所が失われていた。
     //
     // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
     // 出しているので、そこから File を作ることはできない。
-    auto pcmPath = Io::resolveSamplePath(r.getString("pcmFile", ctx.audioProcessor.opzx7PcmFilePaths[opIndex]), ctx.audioProcessor.defaultSampleDir);
-    auto wtPath = Io::resolveSamplePath(r.getString("wtFile", ctx.audioProcessor.opzx7WtFilePaths[opIndex]), ctx.audioProcessor.defaultSampleDir);
-    auto wt2Path = Io::resolveSamplePath(r.getString("wt2File", ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]), ctx.audioProcessor.defaultSampleDir);
+    auto pcmPath = Io::resolveSamplePath(r.getString("pcmFile", pluginOf(ctx).opzx7PcmFilePaths[opIndex]), pluginOf(ctx).defaultSampleDir);
+    auto wtPath = Io::resolveSamplePath(r.getString("wtFile", pluginOf(ctx).opzx7WtFilePaths[opIndex]), pluginOf(ctx).defaultSampleDir);
+    auto wt2Path = Io::resolveSamplePath(r.getString("wt2File", pluginOf(ctx).opzx7Wt2FilePaths[opIndex]), pluginOf(ctx).defaultSampleDir);
 
     auto showName = [](const juce::String& path) {
         return Io::isFilePath(path) ? juce::File(path).getFileName() : Io::empty;
@@ -3745,13 +3747,13 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     int wsIdx = ws.getSelectedItemIndex();
 
     if (wsIdx == Opzx7PrValue::pcmIndex && Io::isFilePath(pcmPath)) {
-        ctx.audioProcessor.loadOpzx7PcmFile(opIndex, juce::File(pcmPath));
+        pluginOf(ctx).loadOpzx7PcmFile(opIndex, juce::File(pcmPath));
     }
     else if (wsIdx == Opzx7PrValue::wtIndex && Io::isFilePath(wtPath)) {
-        ctx.audioProcessor.loadOpzx7WtFile(opIndex, juce::File(wtPath));
+        pluginOf(ctx).loadOpzx7WtFile(opIndex, juce::File(wtPath));
     }
     else if (wsIdx == Opzx7PrValue::wt2Index && Io::isFilePath(wt2Path)) {
-        ctx.audioProcessor.loadOpzx7Wt2File(opIndex, juce::File(wt2Path));
+        pluginOf(ctx).loadOpzx7Wt2File(opIndex, juce::File(wt2Path));
     }
 
     // PCM Play / Loop Point
@@ -3826,9 +3828,9 @@ void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
     w.set("ws", ws.getSelectedId());
 
     // 種類ごとに別の名前で持つので、切り替えて保存し直しても互いを壊さない
-    w.set("pcmFile", ctx.audioProcessor.opzx7PcmFilePaths[opIndex]);
-    w.set("wtFile", ctx.audioProcessor.opzx7WtFilePaths[opIndex]);
-    w.set("wt2File", ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]);
+    w.set("pcmFile", pluginOf(ctx).opzx7PcmFilePaths[opIndex]);
+    w.set("wtFile", pluginOf(ctx).opzx7WtFilePaths[opIndex]);
+    w.set("wt2File", pluginOf(ctx).opzx7Wt2FilePaths[opIndex]);
 
     // PCM Play / Loop Point
     w.set("pcmOffset", (float)pcmOffset.getValue());
@@ -4000,9 +4002,9 @@ void GuiOpzx7::getImportingOpParams(int opIndex, juce::StringArray& lines, int& 
     // Wave Shape
     ws.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
 
-    ctx.audioProcessor.unloadOpzx7PcmFile(opIndex);
-    ctx.audioProcessor.unloadOpzx7WtFile(opIndex);
-    ctx.audioProcessor.unloadOpzx7Wt2File(opIndex);
+    pluginOf(ctx).unloadOpzx7PcmFile(opIndex);
+    pluginOf(ctx).unloadOpzx7WtFile(opIndex);
+    pluginOf(ctx).unloadOpzx7Wt2File(opIndex);
 
     int wsIdx = ws.getSelectedItemIndex();
 
@@ -4010,14 +4012,14 @@ void GuiOpzx7::getImportingOpParams(int opIndex, juce::StringArray& lines, int& 
         pcmFileNameLabel.setText(lines[index++], juce::dontSendNotification);
 
         if (pcmFileNameLabel.getText().isNotEmpty()) {
-            ctx.audioProcessor.loadOpzx7PcmFile(opIndex, pcmFileNameLabel.getText());
+            pluginOf(ctx).loadOpzx7PcmFile(opIndex, pcmFileNameLabel.getText());
         }
     }
     else if (wsIdx == Opzx7PrValue::wtIndex) {
         wtFileNameLabel.setText(lines[index++], juce::dontSendNotification);
 
         if (wtFileNameLabel.getText().isNotEmpty()) {
-            ctx.audioProcessor.loadOpzx7WtFile(opIndex, wtFileNameLabel.getText());
+            pluginOf(ctx).loadOpzx7WtFile(opIndex, wtFileNameLabel.getText());
         }
 
     }
@@ -4025,7 +4027,7 @@ void GuiOpzx7::getImportingOpParams(int opIndex, juce::StringArray& lines, int& 
         wt2FileNameLabel.setText(lines[index++], juce::dontSendNotification);
 
         if (wt2FileNameLabel.getText().isNotEmpty()) {
-            ctx.audioProcessor.loadOpzx7Wt2File(opIndex, wt2FileNameLabel.getText());
+            pluginOf(ctx).loadOpzx7Wt2File(opIndex, wt2FileNameLabel.getText());
         }
     }
 
@@ -4125,23 +4127,23 @@ void GuiOpzx7::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
 void GuiOpzx7::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
 }
 
 void GuiOpzx7::openEnabledCategories()

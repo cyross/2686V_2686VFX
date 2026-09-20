@@ -7,9 +7,9 @@
 
 #include <JuceHeader.h>
 
-#include "../../Core/Gui/GuiI18n.h"
+#include "Shared/Core/Gui/GuiI18n.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 namespace PresetValue
 {

@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
-  "version": "3.2.0",
-  "count": 14342,
+  "version": "3.6.0",
+  "count": 14552,
   "parameters": [
     {
       "id": "MODE",
@@ -68,6 +68,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "OPNA_INTERP",
+      "name": "OPNA Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "OPNA_LFO_FREQ",
@@ -10208,6 +10216,14 @@
       "default": 2
     },
     {
+      "id": "OPN_INTERP",
+      "name": "OPN Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
+    },
+    {
       "id": "OPN_LFO_FREQ",
       "name": "OPN LFO Freq",
       "type": "Int",
@@ -20086,6 +20102,14 @@
       "default": 2
     },
     {
+      "id": "OPL_INTERP",
+      "name": "OPL Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
+    },
+    {
       "id": "OPL_SSGHWENV_ENABLE",
       "name": "OPL Hardware Env Enable",
       "type": "Bool",
@@ -26017,6 +26041,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "OPL3_INTERP",
+      "name": "OPL3 Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "OPL3_SSGHWENV_ENABLE",
@@ -35970,6 +36002,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "OPM_INTERP",
+      "name": "OPM Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "OPM_LFO_FREQ",
@@ -46130,6 +46170,14 @@
       "default": 2
     },
     {
+      "id": "OPZX7_INTERP",
+      "name": "OPZX7S Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
+    },
+    {
       "id": "OPZX7_PANPOT_EN",
       "name": "OPZX7S Panpot Eable",
       "type": "Bool",
@@ -50600,6 +50648,174 @@
       "default": 0.0
     },
     {
+      "id": "OPZX7_OP0_LFO_PM_HOLD_EN",
+      "name": "OPZX7S Op1 LFO PM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_LFO_PM_HOLD_CNT",
+      "name": "OPZX7S Op1 LFO PM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP0_LFO_PM_HOLD_TGT",
+      "name": "OPZX7S Op1 LFO PM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP0_LFO_PM_HOLD_MIN",
+      "name": "OPZX7S Op1 LFO PM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP0_LFO_PM_HOLD_MAX",
+      "name": "OPZX7S Op1 LFO PM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP0_LFO_PM_KEEP_EN",
+      "name": "OPZX7S Op1 LFO PM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_LFO_PM_WAVE_ST",
+      "name": "OPZX7S Op1 LFO PM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP0_LFO_PM_KEEP_ST",
+      "name": "OPZX7S Op1 LFO PM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_LFO_PM_WAVE_ED",
+      "name": "OPZX7S Op1 LFO PM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP0_LFO_PM_KEEP_ED",
+      "name": "OPZX7S Op1 LFO PM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_HOLD_EN",
+      "name": "OPZX7S Op1 LFO AM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_HOLD_CNT",
+      "name": "OPZX7S Op1 LFO AM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_HOLD_TGT",
+      "name": "OPZX7S Op1 LFO AM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_HOLD_MIN",
+      "name": "OPZX7S Op1 LFO AM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_HOLD_MAX",
+      "name": "OPZX7S Op1 LFO AM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_KEEP_EN",
+      "name": "OPZX7S Op1 LFO AM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_WAVE_ST",
+      "name": "OPZX7S Op1 LFO AM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_KEEP_ST",
+      "name": "OPZX7S Op1 LFO AM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_WAVE_ED",
+      "name": "OPZX7S Op1 LFO AM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP0_LFO_AM_KEEP_ED",
+      "name": "OPZX7S Op1 LFO AM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP0_DELAY",
       "name": "OPZX7S Op1 Delay",
       "type": "Float",
@@ -52951,6 +53167,174 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_HOLD_EN",
+      "name": "OPZX7S Op2 LFO PM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_HOLD_CNT",
+      "name": "OPZX7S Op2 LFO PM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_HOLD_TGT",
+      "name": "OPZX7S Op2 LFO PM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_HOLD_MIN",
+      "name": "OPZX7S Op2 LFO PM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_HOLD_MAX",
+      "name": "OPZX7S Op2 LFO PM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_KEEP_EN",
+      "name": "OPZX7S Op2 LFO PM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_WAVE_ST",
+      "name": "OPZX7S Op2 LFO PM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_KEEP_ST",
+      "name": "OPZX7S Op2 LFO PM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_WAVE_ED",
+      "name": "OPZX7S Op2 LFO PM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP1_LFO_PM_KEEP_ED",
+      "name": "OPZX7S Op2 LFO PM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_HOLD_EN",
+      "name": "OPZX7S Op2 LFO AM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_HOLD_CNT",
+      "name": "OPZX7S Op2 LFO AM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_HOLD_TGT",
+      "name": "OPZX7S Op2 LFO AM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_HOLD_MIN",
+      "name": "OPZX7S Op2 LFO AM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_HOLD_MAX",
+      "name": "OPZX7S Op2 LFO AM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_KEEP_EN",
+      "name": "OPZX7S Op2 LFO AM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_WAVE_ST",
+      "name": "OPZX7S Op2 LFO AM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_KEEP_ST",
+      "name": "OPZX7S Op2 LFO AM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_WAVE_ED",
+      "name": "OPZX7S Op2 LFO AM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP1_LFO_AM_KEEP_ED",
+      "name": "OPZX7S Op2 LFO AM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPZX7_OP1_DELAY",
@@ -55306,6 +55690,174 @@
       "default": 0.0
     },
     {
+      "id": "OPZX7_OP2_LFO_PM_HOLD_EN",
+      "name": "OPZX7S Op3 LFO PM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_LFO_PM_HOLD_CNT",
+      "name": "OPZX7S Op3 LFO PM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP2_LFO_PM_HOLD_TGT",
+      "name": "OPZX7S Op3 LFO PM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP2_LFO_PM_HOLD_MIN",
+      "name": "OPZX7S Op3 LFO PM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP2_LFO_PM_HOLD_MAX",
+      "name": "OPZX7S Op3 LFO PM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP2_LFO_PM_KEEP_EN",
+      "name": "OPZX7S Op3 LFO PM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_LFO_PM_WAVE_ST",
+      "name": "OPZX7S Op3 LFO PM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP2_LFO_PM_KEEP_ST",
+      "name": "OPZX7S Op3 LFO PM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_LFO_PM_WAVE_ED",
+      "name": "OPZX7S Op3 LFO PM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP2_LFO_PM_KEEP_ED",
+      "name": "OPZX7S Op3 LFO PM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_HOLD_EN",
+      "name": "OPZX7S Op3 LFO AM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_HOLD_CNT",
+      "name": "OPZX7S Op3 LFO AM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_HOLD_TGT",
+      "name": "OPZX7S Op3 LFO AM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_HOLD_MIN",
+      "name": "OPZX7S Op3 LFO AM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_HOLD_MAX",
+      "name": "OPZX7S Op3 LFO AM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_KEEP_EN",
+      "name": "OPZX7S Op3 LFO AM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_WAVE_ST",
+      "name": "OPZX7S Op3 LFO AM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_KEEP_ST",
+      "name": "OPZX7S Op3 LFO AM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_WAVE_ED",
+      "name": "OPZX7S Op3 LFO AM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP2_LFO_AM_KEEP_ED",
+      "name": "OPZX7S Op3 LFO AM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP2_DELAY",
       "name": "OPZX7S Op3 Delay",
       "type": "Float",
@@ -57657,6 +58209,174 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_HOLD_EN",
+      "name": "OPZX7S Op4 LFO PM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_HOLD_CNT",
+      "name": "OPZX7S Op4 LFO PM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_HOLD_TGT",
+      "name": "OPZX7S Op4 LFO PM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_HOLD_MIN",
+      "name": "OPZX7S Op4 LFO PM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_HOLD_MAX",
+      "name": "OPZX7S Op4 LFO PM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_KEEP_EN",
+      "name": "OPZX7S Op4 LFO PM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_WAVE_ST",
+      "name": "OPZX7S Op4 LFO PM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_KEEP_ST",
+      "name": "OPZX7S Op4 LFO PM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_WAVE_ED",
+      "name": "OPZX7S Op4 LFO PM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP3_LFO_PM_KEEP_ED",
+      "name": "OPZX7S Op4 LFO PM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_HOLD_EN",
+      "name": "OPZX7S Op4 LFO AM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_HOLD_CNT",
+      "name": "OPZX7S Op4 LFO AM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_HOLD_TGT",
+      "name": "OPZX7S Op4 LFO AM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_HOLD_MIN",
+      "name": "OPZX7S Op4 LFO AM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_HOLD_MAX",
+      "name": "OPZX7S Op4 LFO AM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_KEEP_EN",
+      "name": "OPZX7S Op4 LFO AM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_WAVE_ST",
+      "name": "OPZX7S Op4 LFO AM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_KEEP_ST",
+      "name": "OPZX7S Op4 LFO AM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_WAVE_ED",
+      "name": "OPZX7S Op4 LFO AM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP3_LFO_AM_KEEP_ED",
+      "name": "OPZX7S Op4 LFO AM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPZX7_OP3_DELAY",
@@ -60012,6 +60732,174 @@
       "default": 0.0
     },
     {
+      "id": "OPZX7_OP4_LFO_PM_HOLD_EN",
+      "name": "OPZX7S Op5 LFO PM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_LFO_PM_HOLD_CNT",
+      "name": "OPZX7S Op5 LFO PM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP4_LFO_PM_HOLD_TGT",
+      "name": "OPZX7S Op5 LFO PM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP4_LFO_PM_HOLD_MIN",
+      "name": "OPZX7S Op5 LFO PM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP4_LFO_PM_HOLD_MAX",
+      "name": "OPZX7S Op5 LFO PM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP4_LFO_PM_KEEP_EN",
+      "name": "OPZX7S Op5 LFO PM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_LFO_PM_WAVE_ST",
+      "name": "OPZX7S Op5 LFO PM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP4_LFO_PM_KEEP_ST",
+      "name": "OPZX7S Op5 LFO PM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_LFO_PM_WAVE_ED",
+      "name": "OPZX7S Op5 LFO PM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP4_LFO_PM_KEEP_ED",
+      "name": "OPZX7S Op5 LFO PM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_HOLD_EN",
+      "name": "OPZX7S Op5 LFO AM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_HOLD_CNT",
+      "name": "OPZX7S Op5 LFO AM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_HOLD_TGT",
+      "name": "OPZX7S Op5 LFO AM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_HOLD_MIN",
+      "name": "OPZX7S Op5 LFO AM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_HOLD_MAX",
+      "name": "OPZX7S Op5 LFO AM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_KEEP_EN",
+      "name": "OPZX7S Op5 LFO AM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_WAVE_ST",
+      "name": "OPZX7S Op5 LFO AM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_KEEP_ST",
+      "name": "OPZX7S Op5 LFO AM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_WAVE_ED",
+      "name": "OPZX7S Op5 LFO AM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP4_LFO_AM_KEEP_ED",
+      "name": "OPZX7S Op5 LFO AM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP4_DELAY",
       "name": "OPZX7S Op5 Delay",
       "type": "Float",
@@ -62363,6 +63251,174 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_HOLD_EN",
+      "name": "OPZX7S Op6 LFO PM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_HOLD_CNT",
+      "name": "OPZX7S Op6 LFO PM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_HOLD_TGT",
+      "name": "OPZX7S Op6 LFO PM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_HOLD_MIN",
+      "name": "OPZX7S Op6 LFO PM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_HOLD_MAX",
+      "name": "OPZX7S Op6 LFO PM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_KEEP_EN",
+      "name": "OPZX7S Op6 LFO PM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_WAVE_ST",
+      "name": "OPZX7S Op6 LFO PM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_KEEP_ST",
+      "name": "OPZX7S Op6 LFO PM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_WAVE_ED",
+      "name": "OPZX7S Op6 LFO PM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP5_LFO_PM_KEEP_ED",
+      "name": "OPZX7S Op6 LFO PM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_HOLD_EN",
+      "name": "OPZX7S Op6 LFO AM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_HOLD_CNT",
+      "name": "OPZX7S Op6 LFO AM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_HOLD_TGT",
+      "name": "OPZX7S Op6 LFO AM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_HOLD_MIN",
+      "name": "OPZX7S Op6 LFO AM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_HOLD_MAX",
+      "name": "OPZX7S Op6 LFO AM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_KEEP_EN",
+      "name": "OPZX7S Op6 LFO AM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_WAVE_ST",
+      "name": "OPZX7S Op6 LFO AM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_KEEP_ST",
+      "name": "OPZX7S Op6 LFO AM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_WAVE_ED",
+      "name": "OPZX7S Op6 LFO AM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP5_LFO_AM_KEEP_ED",
+      "name": "OPZX7S Op6 LFO AM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPZX7_OP5_DELAY",
@@ -64718,6 +65774,174 @@
       "default": 0.0
     },
     {
+      "id": "OPZX7_OP6_LFO_PM_HOLD_EN",
+      "name": "OPZX7S Op7 LFO PM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_LFO_PM_HOLD_CNT",
+      "name": "OPZX7S Op7 LFO PM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP6_LFO_PM_HOLD_TGT",
+      "name": "OPZX7S Op7 LFO PM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP6_LFO_PM_HOLD_MIN",
+      "name": "OPZX7S Op7 LFO PM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP6_LFO_PM_HOLD_MAX",
+      "name": "OPZX7S Op7 LFO PM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP6_LFO_PM_KEEP_EN",
+      "name": "OPZX7S Op7 LFO PM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_LFO_PM_WAVE_ST",
+      "name": "OPZX7S Op7 LFO PM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP6_LFO_PM_KEEP_ST",
+      "name": "OPZX7S Op7 LFO PM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_LFO_PM_WAVE_ED",
+      "name": "OPZX7S Op7 LFO PM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP6_LFO_PM_KEEP_ED",
+      "name": "OPZX7S Op7 LFO PM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_HOLD_EN",
+      "name": "OPZX7S Op7 LFO AM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_HOLD_CNT",
+      "name": "OPZX7S Op7 LFO AM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_HOLD_TGT",
+      "name": "OPZX7S Op7 LFO AM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_HOLD_MIN",
+      "name": "OPZX7S Op7 LFO AM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_HOLD_MAX",
+      "name": "OPZX7S Op7 LFO AM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_KEEP_EN",
+      "name": "OPZX7S Op7 LFO AM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_WAVE_ST",
+      "name": "OPZX7S Op7 LFO AM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_KEEP_ST",
+      "name": "OPZX7S Op7 LFO AM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_WAVE_ED",
+      "name": "OPZX7S Op7 LFO AM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP6_LFO_AM_KEEP_ED",
+      "name": "OPZX7S Op7 LFO AM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP6_DELAY",
       "name": "OPZX7S Op7 Delay",
       "type": "Float",
@@ -67071,6 +68295,174 @@
       "default": 0.0
     },
     {
+      "id": "OPZX7_OP7_LFO_PM_HOLD_EN",
+      "name": "OPZX7S Op8 LFO PM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_LFO_PM_HOLD_CNT",
+      "name": "OPZX7S Op8 LFO PM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP7_LFO_PM_HOLD_TGT",
+      "name": "OPZX7S Op8 LFO PM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP7_LFO_PM_HOLD_MIN",
+      "name": "OPZX7S Op8 LFO PM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP7_LFO_PM_HOLD_MAX",
+      "name": "OPZX7S Op8 LFO PM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP7_LFO_PM_KEEP_EN",
+      "name": "OPZX7S Op8 LFO PM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_LFO_PM_WAVE_ST",
+      "name": "OPZX7S Op8 LFO PM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP7_LFO_PM_KEEP_ST",
+      "name": "OPZX7S Op8 LFO PM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_LFO_PM_WAVE_ED",
+      "name": "OPZX7S Op8 LFO PM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP7_LFO_PM_KEEP_ED",
+      "name": "OPZX7S Op8 LFO PM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_HOLD_EN",
+      "name": "OPZX7S Op8 LFO AM Hold Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_HOLD_CNT",
+      "name": "OPZX7S Op8 LFO AM Hold Count",
+      "type": "Int",
+      "min": 1,
+      "max": 3000,
+      "default": 8
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_HOLD_TGT",
+      "name": "OPZX7S Op8 LFO AM Hold Target",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_HOLD_MIN",
+      "name": "OPZX7S Op8 LFO AM Hold Min",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": -1.0
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_HOLD_MAX",
+      "name": "OPZX7S Op8 LFO AM Hold Max",
+      "type": "Float",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_KEEP_EN",
+      "name": "OPZX7S Op8 LFO AM Keep Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_WAVE_ST",
+      "name": "OPZX7S Op8 LFO AM Wave Start",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_KEEP_ST",
+      "name": "OPZX7S Op8 LFO AM Keep Start",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_WAVE_ED",
+      "name": "OPZX7S Op8 LFO AM Wave End",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP7_LFO_AM_KEEP_ED",
+      "name": "OPZX7S Op8 LFO AM Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP7_DELAY",
       "name": "OPZX7S Op8 Delay",
       "type": "Float",
@@ -68359,6 +69751,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "SSG_INTERP",
+      "name": "SSG Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "SSG_TONE",
@@ -69924,6 +71324,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "WT_INTERP",
+      "name": "WT Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 3
     },
     {
       "id": "WT_MOD_ENABLE",
@@ -76827,6 +78235,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "WT2_INTERP",
+      "name": "WT2 Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "WT2_MOD_ENABLE",
@@ -86127,6 +87543,14 @@
       "default": 2
     },
     {
+      "id": "WTPLUS_INTERP",
+      "name": "WT+ Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 3
+    },
+    {
       "id": "WTPLUS_MOD_ENABLE",
       "name": "WT+ Mod Enable",
       "type": "Bool",
@@ -90103,6 +91527,39 @@
       "default": 1
     },
     {
+      "id": "RHYTHM_PAD0_NR_RESAMPLE",
+      "name": "RHYTHM Pad1 NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_NR_GATE",
+      "name": "RHYTHM Pad1 NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_NR_GATE_LV",
+      "name": "RHYTHM Pad1 NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "RHYTHM_PAD0_NR_LPF",
+      "name": "RHYTHM Pad1 NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
+      "default": 1
+    },
+    {
       "id": "RHYTHM_PAD0_SSGHWENV_ENABLE",
       "name": "RHYTHM Pad1 Hardware Env Enable",
       "type": "Bool",
@@ -92528,6 +93985,39 @@
       "type": "Int",
       "min": 0,
       "max": 6,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD1_NR_RESAMPLE",
+      "name": "RHYTHM Pad2 NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_NR_GATE",
+      "name": "RHYTHM Pad2 NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_NR_GATE_LV",
+      "name": "RHYTHM Pad2 NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "RHYTHM_PAD1_NR_LPF",
+      "name": "RHYTHM Pad2 NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
       "default": 1
     },
     {
@@ -94959,6 +96449,39 @@
       "default": 1
     },
     {
+      "id": "RHYTHM_PAD2_NR_RESAMPLE",
+      "name": "RHYTHM Pad3 NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_NR_GATE",
+      "name": "RHYTHM Pad3 NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_NR_GATE_LV",
+      "name": "RHYTHM Pad3 NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "RHYTHM_PAD2_NR_LPF",
+      "name": "RHYTHM Pad3 NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
+      "default": 1
+    },
+    {
       "id": "RHYTHM_PAD2_SSGHWENV_ENABLE",
       "name": "RHYTHM Pad3 Hardware Env Enable",
       "type": "Bool",
@@ -97384,6 +98907,39 @@
       "type": "Int",
       "min": 0,
       "max": 6,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD3_NR_RESAMPLE",
+      "name": "RHYTHM Pad4 NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_NR_GATE",
+      "name": "RHYTHM Pad4 NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_NR_GATE_LV",
+      "name": "RHYTHM Pad4 NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "RHYTHM_PAD3_NR_LPF",
+      "name": "RHYTHM Pad4 NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
       "default": 1
     },
     {
@@ -99815,6 +101371,39 @@
       "default": 1
     },
     {
+      "id": "RHYTHM_PAD4_NR_RESAMPLE",
+      "name": "RHYTHM Pad5 NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_NR_GATE",
+      "name": "RHYTHM Pad5 NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_NR_GATE_LV",
+      "name": "RHYTHM Pad5 NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "RHYTHM_PAD4_NR_LPF",
+      "name": "RHYTHM Pad5 NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
+      "default": 1
+    },
+    {
       "id": "RHYTHM_PAD4_SSGHWENV_ENABLE",
       "name": "RHYTHM Pad5 Hardware Env Enable",
       "type": "Bool",
@@ -102240,6 +103829,39 @@
       "type": "Int",
       "min": 0,
       "max": 6,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD5_NR_RESAMPLE",
+      "name": "RHYTHM Pad6 NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_NR_GATE",
+      "name": "RHYTHM Pad6 NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_NR_GATE_LV",
+      "name": "RHYTHM Pad6 NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "RHYTHM_PAD5_NR_LPF",
+      "name": "RHYTHM Pad6 NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
       "default": 1
     },
     {
@@ -104671,6 +106293,39 @@
       "default": 1
     },
     {
+      "id": "RHYTHM_PAD6_NR_RESAMPLE",
+      "name": "RHYTHM Pad7 NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_NR_GATE",
+      "name": "RHYTHM Pad7 NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_NR_GATE_LV",
+      "name": "RHYTHM Pad7 NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "RHYTHM_PAD6_NR_LPF",
+      "name": "RHYTHM Pad7 NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
+      "default": 1
+    },
+    {
       "id": "RHYTHM_PAD6_SSGHWENV_ENABLE",
       "name": "RHYTHM Pad7 Hardware Env Enable",
       "type": "Bool",
@@ -107096,6 +108751,39 @@
       "type": "Int",
       "min": 0,
       "max": 6,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD7_NR_RESAMPLE",
+      "name": "RHYTHM Pad8 NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_NR_GATE",
+      "name": "RHYTHM Pad8 NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_NR_GATE_LV",
+      "name": "RHYTHM Pad8 NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "RHYTHM_PAD7_NR_LPF",
+      "name": "RHYTHM Pad8 NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
       "default": 1
     },
     {
@@ -110578,6 +112266,39 @@
       "type": "Int",
       "min": 0,
       "max": 6,
+      "default": 1
+    },
+    {
+      "id": "ADPCM_NR_RESAMPLE",
+      "name": "ADPCM NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_NR_GATE",
+      "name": "ADPCM NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_NR_GATE_LV",
+      "name": "ADPCM NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "ADPCM_NR_LPF",
+      "name": "ADPCM NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
       "default": 1
     },
     {
@@ -116956,6 +118677,39 @@
       "type": "Int",
       "min": 0,
       "max": 6,
+      "default": 1
+    },
+    {
+      "id": "ADPCMP_NR_RESAMPLE",
+      "name": "ADPCMP NR Clean Resample",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_NR_GATE",
+      "name": "ADPCMP NR Gate",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_NR_GATE_LV",
+      "name": "ADPCMP NR Gate Level",
+      "type": "Float",
+      "min": -96.0,
+      "max": -24.0,
+      "step": 0.000099999997474,
+      "default": -60.0
+    },
+    {
+      "id": "ADPCMP_NR_LPF",
+      "name": "ADPCMP NR Low-pass",
+      "type": "Int",
+      "min": 1,
+      "max": 4,
       "default": 1
     },
     {

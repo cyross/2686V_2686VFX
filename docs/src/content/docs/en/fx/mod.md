@@ -17,6 +17,10 @@ panels pass the sound through untouched.
 
 The LFO and the pitch shift run whether or not a key is down. That is why they
 have their own switches.
+
+Set [Key assign](#key-assign--which-key-drives-the-modulation) to Customize to
+choose a key per target. The LFO and the pitch shift then apply only while their
+assigned keys are held.
 :::
 
 ## Switching modulation on and off
@@ -30,6 +34,64 @@ doing nothing). Switch off only the ones you want.
 | **Bypass LFO** | Takes the LFO out | on / off | on | [`MOD_LFO_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-lfo-bypass) |
 | **Bypass pitch modulation** | Takes PITCH ENV, SSG HW PITCH ENV, SSG SW PITCH ENV[11] and WT PITCH MOD out together | on / off | on | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-pitch-bypass) |
 | **Bypass pitch shift** | Takes MUL・DET and UNISON・HARMONY out together | on / off | on | [`MOD_SHIFT_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-shift-bypass) |
+
+## Key assign — which key drives the modulation
+
+Found in the Effects frame, above the file import/export buttons. It decides
+**which key drives which modulation**.
+
+| Knob | What it does | Range | Default | Automation |
+| --- | --- | --- | ---: | --- |
+| **Key assign** | Single key / Customize | 0 to 1 | 0 (Single key) | [`MOD_KEYASSIGN_MODE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-keyassign-mode) |
+
+- **Single key** (default): same as before. Any key drives everything.
+- **Customize**: each target only responds to its own key. Choosing it shows the
+  list of keys below.
+
+### A key per target
+
+Shown only in Customize mode. Keys range from C-2 (0) to G8 (127); as with FIX's
+note names, 60 is C3.
+
+| Knob | What it does | Range | Default | Automation |
+| --- | --- | --- | ---: | --- |
+| **AMP ENV** | The key that drives AMP ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_AMPENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ampenv) |
+| **SSG HW AMP ENV** | The key that drives SSG HW AMP ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGHWENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssghwenv) |
+| **WT AMP MOD** | The key that drives WT AMP MOD | 0 to 127 | 60 (C3) | [`MOD_KEY_WTAMPMOD`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-wtampmod) |
+| **SSG SW AMP ENV\[11\]** | The key that drives SSG SW AMP ENV\[11\] | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGSWENV11`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssgswenv11) |
+| **PITCH ENV** | The key that drives PITCH ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_PITCHENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-pitchenv) |
+| **SSG HW PITCH ENV** | The key that drives SSG HW PITCH ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGHWPENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssghwpenv) |
+| **SSG SW PITCH ENV\[11\]** | The key that drives SSG SW PITCH ENV\[11\] | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGSWPENV11`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssgswpenv11) |
+| **WT PITCH MOD** | The key that drives WT PITCH MOD | 0 to 127 | 60 (C3) | [`MOD_KEY_WTMOD`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-wtmod) |
+| **LFO AM** | The key that drives LFO AM | 0 to 127 | 60 (C3) | [`MOD_KEY_LFOAM`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-lfoam) |
+| **LFO PM** | The key that drives LFO PM | 0 to 127 | 60 (C3) | [`MOD_KEY_LFOPM`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-lfopm) |
+| **MUL/DET** | The key that drives MUL/DET | 0 to 127 | 60 (C3) | [`MOD_KEY_MULDET`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-muldet) |
+| **UNISON/HARMONY** | The key that drives UNISON/HARMONY | 0 to 127 | 60 (C3) | [`MOD_KEY_UNISON`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-unison) |
+| **ARPEGGIO** | The key that drives ARPEGGIO | 0 to 127 | 60 (C3) | [`MOD_KEY_ARP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-arp) |
+
+What the assigned key does depends on the target:
+
+| Target | Behavior |
+| --- | --- |
+| Envelopes (AMP ENV, PITCH ENV, SSG HW, SSG SW[11] and WT MOD panels) | Start on key down, release on key up |
+| LFO AM / LFO PM | Applied **only while the key is held**. Restarts from the top on key down |
+| MUL/DET / UNISON/HARMONY | Applied **only while the key is held** |
+| ARPEGGIO | Arpeggiates **only while the key is held**. Starts from the first voice on key down |
+
+- The same key can be assigned to several targets; pressing it drives all of them.
+- In Customize mode, the colour of each modulation panel's title shows whether it
+  is active: grey while its key is not held, off-white while it is. The LFO panel
+  lights up for either the AM or the PM key, and the UNISON/HARMONY panel for either
+  the UNISON or the ARPEGGIO key. In Single key mode every title stays off-white,
+  as before.
+- When several keys are held, everything assigned to each of them runs.
+- Targets are processed in the same order as in Single key mode.
+- An LFO switched in and out by a key fades over a few milliseconds so the sound
+  does not jump.
+- Each section's own on/off switch still applies on top of the key assignment. A
+  section switched off does not move even when its key is pressed.
+
+Assignments are saved in the FX parameter file ([`.2fx`](/2686V_2686VFX/en/reference/file-spec/2fx/)).
 
 ## Level — AMP ENV
 
@@ -77,7 +139,8 @@ Wobbles level and pitch at a steady rate. It is the instruments'
 [LFO](/2686V_2686VFX/en/chips/common/#lfo): the AM side works on level, the PM side on pitch.
 
 It keeps running whether or not a key is down, which is why **bypass LFO** is a
-separate switch.
+separate switch. With [Key assign](#key-assign--which-key-drives-the-modulation)
+set to Customize, AM and PM each apply only while their assigned key is held.
 
 ## Pitch — PITCH ENV
 

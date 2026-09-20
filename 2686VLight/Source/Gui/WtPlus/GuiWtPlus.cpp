@@ -2,9 +2,9 @@
 #include "../../Core/Editor/EditorGuiText.h"
 #include "./GuiWtPlus.h"
 
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 namespace
 {
@@ -16,13 +16,14 @@ namespace
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
-#include "../../Processor/WtPlus/ProcessorWtPlusKeys.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
+#include "Shared/Processor/WtPlus/ProcessorWtPlusKeys.h"
 
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiWtPlusValues.h"
 #include "./GuiWtPlusText.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 // MODULATION の変調波形。実機ディスクシステムは 32 段の階段状。
 static std::vector<SelectItem> wtPlusModShapeItems = {
@@ -68,7 +69,7 @@ void GuiWtPlus::setup() {
     mainGroup.setup(*this, WtPlusGuiText::Group::mainGroup);
     waveGroup.setup(*this, WtPlusGuiText::Group::waveGroup);
 
-    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
+    presetName.setupComponent(*this, tabOrder, pluginOf(ctx).presetName);
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
@@ -193,7 +194,7 @@ void GuiWtPlus::setup() {
     broadcastLevelButton.onClick = [this] {
         float level = levelComponent.getLevel();
 
-        ctx.editor.breadcastLevel(level);
+        editorOf(ctx).breadcastLevel(level);
         };
 
     uSep001.setupComponent(mainGroup.contentCanvas);
@@ -253,21 +254,21 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+        pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
 
-    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    ampEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
-    ssgHwEnv.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv));
+    ssgSwEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnvComponent.layoutComponent(mRect);
-    ssgSwEnv11Component.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11Component.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11Component.layoutComponent(mRect);
 
     ampMajorCat.endMajor(mRect);
@@ -277,25 +278,25 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
 
     modComponent.setCategoryVisible(pitchOpen);
     modComponent.layoutComponent(mRect);
-    pitchEnvComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv));
+    pitchEnvComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv));
     pitchEnvComponent.layoutComponent(mRect);
-    ssgHwPEnv.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
-    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11Component.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
 
-    lfoComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Lfo));
+    lfoComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Lfo));
     lfoComponent.layoutComponent(mRect);
 
-    mulDetuneComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::MulDet));
+    mulDetuneComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::MulDet));
     mulDetuneComponent.layoutComponent(mRect);
 
-    fixComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Fix));
+    fixComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Fix));
     fixComponent.layoutComponent(mRect);
 
-    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
+    unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     qualityComponent.layoutComponent(mRect);
@@ -480,7 +481,7 @@ void GuiWtPlus::updatePresetName(const juce::String& name)
 
 void GuiWtPlus::initParams()
 {
-    this->ctx.audioProcessor.initParams("WTPLUS_");
+    pluginOf(ctx).initParams("WTPLUS_");
 }
 
 void GuiWtPlus::setupGraph()
@@ -585,13 +586,13 @@ void GuiWtPlus::setLevel(float level) {
 // ここでは読み込み指示とファイル名表示だけを扱う。
 void GuiWtPlus::importSlotWave(int slot, bool isWt2)
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
+    juce::File defaultDir(pluginOf(ctx).defaultWavetableDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+        defaultDir = pluginOf(ctx).getPluginDirectory();
     }
 
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
-    ctx.editor.openWaveBrowser(
+    editorOf(ctx).openWaveBrowser(
         { isWt2 ? EditorGuiText::ParamBrowser::waveWt2
                 : EditorGuiText::ParamBrowser::waveWt },
         [this, slot, isWt2](const juce::File& file) {
@@ -609,8 +610,8 @@ void GuiWtPlus::importSlotWave(int slot, bool isWt2)
                     // メッセージが詰まっていれば 50ms よりずっと遅れて発火する。
                     if (safe == nullptr) return;
 
-                    ctx.audioProcessor.loadWtPlusWaveFile(slot, file);
-                    ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                    pluginOf(ctx).loadWtPlusWaveFile(slot, file);
+                    pluginOf(ctx).defaultWavetableDir = file.getParentDirectory().getFullPathName();
 
                     updateSlotFileName(slot);
                 });
@@ -620,7 +621,7 @@ void GuiWtPlus::importSlotWave(int slot, bool isWt2)
 
 void GuiWtPlus::clearSlotWave(int slot)
 {
-    ctx.audioProcessor.unloadWtPlusWaveFile(slot);
+    pluginOf(ctx).unloadWtPlusWaveFile(slot);
 
     updateSlotFileName(slot);
 }
@@ -632,7 +633,7 @@ void GuiWtPlus::updateSlotPreview(int slot)
 {
     if (slot < 0 || slot >= Global::WtPlus::slots) return;
 
-    const auto& wave = ctx.audioProcessor.wtPlusWaves[slot];
+    const auto& wave = pluginOf(ctx).wtPlusWaves[slot];
 
     if (wave.data.empty()) {
         slotPreviews.setPoints(slot, {});
@@ -668,7 +669,7 @@ void GuiWtPlus::updateSlotFileName(int slot)
 {
     if (slot < 0 || slot >= Global::WtPlus::slots) return;
 
-    juce::String path = ctx.audioProcessor.wtPlusWavePaths[slot];
+    juce::String path = pluginOf(ctx).wtPlusWavePaths[slot];
     juce::String name = path.isEmpty() ? Io::empty : juce::File(path).getFileName();
 
     // 名前を出すのは対象のスロットだけ。他は並べた波形のほうで分かる。
@@ -688,7 +689,7 @@ void GuiWtPlus::importQualityParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality },
         [this](const juce::File& file) { applyQualityParamFile(file); });
 }
@@ -701,7 +702,7 @@ void GuiWtPlus::applyQualityParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -744,7 +745,7 @@ void GuiWtPlus::applyQualityParamFile(const juce::File& file)
 void GuiWtPlus::exportQualityParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality }, Io::Extension::QualityParam,
         [this](const juce::File& file) { writeQualityParamFile(file); });
 }
@@ -756,7 +757,7 @@ void GuiWtPlus::writeQualityParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(qualityFormat);
     writeQualityParams(writer);
@@ -767,7 +768,7 @@ void GuiWtPlus::writeQualityParamFile(const juce::File& file)
 void GuiWtPlus::importChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "WT+" },
+    editorOf(ctx).openParamBrowser({ "WT+" },
         [this](const juce::File& file) { applyChParamFile(file); });
 }
 
@@ -776,7 +777,7 @@ void GuiWtPlus::importChParam() {
 void GuiWtPlus::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -854,7 +855,7 @@ void GuiWtPlus::applyChParamFile(const juce::File& file) {
 void GuiWtPlus::exportChParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { "WT+" }, Io::Extension::wtPlusParam,
         [this](const juce::File& file) { writeChParamFile(file); });
 }
@@ -865,7 +866,7 @@ void GuiWtPlus::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(wtPlusFormat);
     writeChParams(writer);
@@ -974,18 +975,18 @@ void GuiWtPlus::writeQualityParams(Io::ParamWriter& writer) {
 void GuiWtPlus::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 }
 
 void GuiWtPlus::openEnabledCategories()

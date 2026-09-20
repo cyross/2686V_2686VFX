@@ -1,28 +1,30 @@
 ﻿#pragma once
-#include "../../Generator/Pcm/Helper/GenPcmShared.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmShared.h"
+#include "../Const/ConstPlugin.h"
 #include <array>
 #include <atomic>
+#include <bitset>
 #include <map>
 #include <JuceHeader.h>
 
-#include "../Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
-#include "../Gui/GuiI18n.h"
-#include "../Gui/GuiSimpleView.h"
-#include "../Gui/GuiToggleAlign.h"
+#include "Shared/Core/Gui/GuiI18n.h"
+#include "Shared/Core/Gui/GuiSimpleView.h"
+#include "Shared/Core/Gui/GuiToggleAlign.h"
 #include <algorithm>
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Opm/ProcessorOpm.h"
+#include "Shared/Processor/Opm/ProcessorOpm.h"
 #include "../../Processor/Fx/ProcessorFx.h"
-#include "../../Processor/Curve/ProcessorCurve.h"
+#include "Shared/Processor/Curve/ProcessorCurve.h"
 
-#include "../Const/ConstGlobal.h"
-#include "../Processor/ProcessorKeys.h"
-#include "../Processor/ProcessorValues.h"
-#include "../Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstGlobal.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 #include "../../Gui/Preset/PresetValues.h"
 
@@ -31,13 +33,17 @@
 
 #include "./PluginProcessorStateKey.h"
 
-#include "../../Gui/Components/AlgMatrix/FmAlgState.h"
+#include "Shared/Gui/Components/AlgMatrix/FmAlgState.h"
+#include "Shared/Core/Gui/GuiHost.h"
 
 class RetroSynthesiser : public juce::Synthesiser
 {
 private:
     // モノフォニック用の「押されているキーの履歴（スタック）」
     juce::Array<int> heldNotes;
+
+    // 押している鍵盤。再生ランプを出すために、どのモードでも数える。
+    std::bitset<128> m_midiHeldKeys;
 public:
     RetroSynthesiser() : juce::Synthesiser() {
     }
@@ -46,7 +52,49 @@ public:
     bool useVelocity = false;
     bool pitchResetOnLegato = false;
     float fixedVelocity = 1.0f;
-    bool isMidiProcessing = false;
+
+    // 鍵盤が押されているか。再生ランプが読む。
+    //
+    // 以前は「最後に来たのが押しか離しか」を覚える札だった。和音の 1 つを
+    // 離しただけで倒れてしまい、逆にオールノートオフ (CC123 / CC120) は
+    // noteOff を通らないので立ったまま残り、ランプが消えなかった。
+    // 押している鍵盤を数えて持てば、どちらも正しく出る。
+    //
+    // オーディオスレッドが書き、画面のスレッドが読む。
+    std::atomic<bool> isMidiProcessing{ false };
+
+    void midiKeyDown(int note)
+    {
+        if (note >= 0 && note < (int)m_midiHeldKeys.size()) m_midiHeldKeys.set((size_t)note);
+
+        isMidiProcessing = m_midiHeldKeys.any();
+    }
+
+    void midiKeyUp(int note)
+    {
+        if (note >= 0 && note < (int)m_midiHeldKeys.size()) m_midiHeldKeys.reset((size_t)note);
+
+        isMidiProcessing = m_midiHeldKeys.any();
+    }
+
+    // 全部離した扱いにする。オールノートオフ・パニック・チャンネルの
+    // 切り替えで使う。
+    void midiKeysClear()
+    {
+        m_midiHeldKeys.reset();
+        heldNotes.clear();
+
+        isMidiProcessing = false;
+    }
+
+    // オールノートオフ (CC123) とオールサウンドオフ (CC120) は JUCE が直に
+    // 受け取るので、noteOff を通らない。押している鍵盤もここで落とす。
+    void allNotesOff(int midiChannel, bool allowTailOff) override
+    {
+        midiKeysClear();
+
+        juce::Synthesiser::allNotesOff(midiChannel, allowTailOff);
+    }
 
     SynthParams* currentParams = nullptr;
 
@@ -114,7 +162,7 @@ public:
     // 鍵盤を押した時の挙動をハックする
     void noteOn(int midiChannel, int midiNoteNumber, float velocity) override
     {
-        isMidiProcessing = true;
+        midiKeyDown(midiNoteNumber);
 
         if (currentParams == nullptr) {
             juce::Synthesiser::noteOn(midiChannel, midiNoteNumber, velocity);
@@ -153,7 +201,7 @@ public:
     // 鍵盤を離した時の挙動をハックする
     void noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff) override
     {
-        isMidiProcessing = false;
+        midiKeyUp(midiNoteNumber);
 
         float targetVelocity = useVelocity ? velocity : fixedVelocity;
 
@@ -219,6 +267,7 @@ public:
 };
 
 class AudioPlugin2686V : public juce::AudioProcessor,
+    public GuiProcessorHost,
     public juce::AsyncUpdater
 {
 private:
@@ -235,15 +284,43 @@ private:
     std::atomic<int> m_adpcmWantQuality{ -1 };
     std::atomic<int> m_adpcmWantRate{ -1 };
 
+    // QUALITY のノイズリダクション (きれいな間引き) も、作り直しの条件に入る。
+    std::atomic<bool> m_adpcmWantClean{ false };
+
     // ADPCM+ も同じ。PCM のスロットごとに 1 つずつ持つ。
     // 鳴らすのは TARGET で選んだ 1 本だけだが、差し替えずに済むよう
     // 読み込んだものはすべて持っておく。
     std::array<PcmSharedStore, Global::AdpcmPlus::slots> m_adpcmPlusPcm;
     std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantQuality{};
     std::array<std::atomic<int>, Global::AdpcmPlus::slots> m_adpcmPlusWantRate{};
+    std::array<std::atomic<bool>, Global::AdpcmPlus::slots> m_adpcmPlusWantClean{};
 
 
     SynthParams m_currentParams;
+
+    // 直近のブロックで鳴らしたチャンネル。切り替わりを見つけるために持つ。
+    // Count は「まだ鳴らしていない」印で、どのチャンネルとも一致しない。
+    OscMode m_lastRenderedMode = OscMode::Count;
+
+    // 音が出ているか (再生ランプ用)。オーディオスレッドが書き、画面が読む。
+    //
+    // ボイスが生きているかでは足りない。RR を遅くした音色では、耳に届かなく
+    // なったあとも包絡だけが数秒走り続ける。音が消えているのにランプだけが
+    // 点いたままになるので、出てきた音そのものを見る。
+    std::atomic<bool> m_audible{ false };
+
+    // 消えた瞬間に落とすと、音のうねりや音と音の間でちらつく。
+    // 最後に音が出てからしばらくは点けたままにする。
+    int m_audibleHoldLeft = 0;
+
+    // これを下回ったら「音は出ていない」とみなす (-100dB ほど)
+    static inline constexpr float audibleLevel = 1.0e-5f;
+
+    // 音が絶えてからランプを落とすまで
+    static inline constexpr double audibleHoldSeconds = 0.15;
+
+    // 上の秒数を、いまのレートでのサンプル数に直したもの (prepareToPlay で決める)
+    int m_audibleHoldSamples = 0;
 
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
@@ -297,12 +374,10 @@ public:
     const juce::String getProgramName(int index) override;
     void changeProgramName(int index, const juce::String& newName) override;
 
-    juce::AudioFormatManager formatManager;
     juce::File lastSampleDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };
 
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
-    juce::UndoManager undoManager;
     juce::AudioProcessorValueTreeState apvts;
 
     // --- Metadata ---
@@ -318,24 +393,11 @@ public:
 
 
 
-    // MODULATION の変調波形として読み込んだファイルのパス。
-    // 波形データ自体は 32 個のパラメータ側に入っているので、
-    // ここはファイル名表示のためだけに保持している。
-    // チャンネルごとの MODULATION 変調波形ファイルのパス。
-    // キーは APVTS のプレフィックス (OPL / SSG / WT など)。
-    // 波形そのものは 32 個のパラメータ側に入っているので、ここは表示用。
-    // 1 チャンネルにつきスロットの数だけ持つ。
-    using WtModWavePaths = std::array<juce::String, Global::WtMod::slots>;
-    std::map<juce::String, WtModWavePaths> modWavePaths;
 
-    // WT PITCH MOD の変調波形。チャンネルごとに複数スロット持つ。
-    // 32 サンプル × 枚数をパラメータで持つと数が膨大になるため、
-    // 実データはここが所有し、state には相対パスだけを保存する。
-    WtModWaveStore modWaveSlots;
     // 変調波形の読み書き。実データは modWaveSlots が持ち、
     // state へは相対パスだけを保存して読み直す。
-    void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file);
-    void unloadWtModWaveFile(const juce::String& code, int slot);
+    void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file) override;
+    void unloadWtModWaveFile(const juce::String& code, int slot) override;
 
 
 
@@ -352,6 +414,9 @@ public:
     // 別のスレッドでよい。
     SynthParams buildRenderParams();
     void prepareRenderVoice(SynthVoice& voice, double sampleRate);
+
+    // 上の 2 つで、生成波形の計算に使う音源一式を組み立てる (窓口の実装)
+    std::unique_ptr<GuiRenderRig> createRenderRig(double sampleRate) override;
 
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
@@ -422,19 +487,9 @@ public:
     int wallpaperMode = 0; // 0=Stretch, 1=Fill, 2=Fit, 3=Original
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
     juce::String defaultPresetDir; // For Presets
-	juce::String defaultWavetableDir; // For Wavetables
     juce::String defaultFxOrderDir; // For FX Order
     juce::String defaultFxParamDir;
-    juce::String defaultChannelParamDir;
     juce::String defaultCurveParamDir;
-    juce::String defaultLfoParamDir;
-    juce::String defaultAmpEnvParamDir;
-    juce::String defaultPitchEnvParamDir;
-    juce::String defaultSsgHwEnvParamDir;
-    juce::String defaultWtModParamDir;
-    juce::String defaultSsgSwEnvParamDir;
-    juce::String defaultDetuneParamDir;
-    juce::String defaultUnisonParamDir;
     juce::String defaultQualityParamDir;
     juce::String defaultPcmPlayParamDir;
     juce::String defaultToneNoiseParamDir;
@@ -499,9 +554,6 @@ public:
     bool isSimpleShown(SimpleView::Cat cat) const {
         return SimpleView::isShown(simpleView, simpleViewShow, cat);
     }
-    // トグルボタンの並べ方。ToggleAlign::Centred で従来どおり行の真ん中、
-    // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。
-    int toggleAlign = ToggleAlign::Centred;
 
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
@@ -510,7 +562,7 @@ public:
     bool saveEnvironment(const juce::File& file);
     // プラグインが使うフォルダ。ドキュメントの下に 1 つ作り、
     // 既定の保存先はすべてこの中にする。
-    juce::File getPluginDirectory() const
+    juce::File getPluginDirectory() const override
     {
         auto dir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
             .getChildFile(Io::Folder::asset);

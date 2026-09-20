@@ -120,6 +120,20 @@ single cyan to stay readable, so 3.1.0 splits them by role.
 The order follows the same grouping: **hardware-derived sections come first**,
 then level, then pitch, then the LFO.
 
+### Sections that are switched off
+
+Many sections start with a **Bypass** or **Enable** switch. While a section is
+switched off (has no effect), **the controls inside are disabled and dimmed**,
+so you do not end up adjusting controls that cannot change the sound. The switch
+itself always stays clickable.
+
+LFO sections have separate PM and AM switches. Controls that belong to only one
+side follow that side's switch; the shared controls (speed, shape, sync) stay
+enabled while either side is on.
+
+Switching the TARGET or loading a preset updates this to match the switches of
+the new target.
+
 ### Major categories — [[AMP ENV]] / [[PITCH ENV]]
 
 Of the sections that act on the whole channel, the ones that move level are

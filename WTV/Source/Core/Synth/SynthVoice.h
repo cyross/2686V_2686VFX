@@ -4,12 +4,12 @@
 
 #include "./SynthMode.h"
 #include "./SynthParams.h"
-#include "./SynthCore.h"
+#include "Shared/Core/Synth/SynthCore.h"
 
-#include "../../Synth/Wavetable/SynthWt.h"
-#include "../../Synth/Wt2/SynthWt2.h"
-#include "../../Synth/WtPlus/SynthWtPlus.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Synth/Wavetable/SynthWt.h"
+#include "Shared/Synth/Wt2/SynthWt2.h"
+#include "Shared/Synth/WtPlus/SynthWtPlus.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
 {

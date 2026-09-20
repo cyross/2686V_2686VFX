@@ -3,9 +3,9 @@
 
 #include "./Fx.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Synth/SynthHelpers.h"
-#include "../../Generator/Pcm/Helper/GenPcmHelper.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Synth/SynthHelpers.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmHelper.h"
 
 namespace
 {

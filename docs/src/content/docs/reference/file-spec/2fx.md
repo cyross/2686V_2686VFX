@@ -55,4 +55,38 @@ FX の設定をまとめたファイルです。
 [エフェクトの順番](/2686V_2686VFX/reference/file-spec/fxo/) の側で持ちます。
 :::
 
+## キーアサイン（2686VFX）
+
+`keyAssign` のまとまりに、変調を動かす鍵盤の割り当てを持ちます。3.6.0 で
+足しました。
+
+```json
+"keyAssign": { "mode": 1, "ampEnv": 60, "pitchEnv": 62, "lfoAm": 64, "…": 60 }
+```
+
+| 鍵 | 型 | 範囲 | 初期値 | 内容 |
+| --- | --- | --- | ---: | --- |
+| `mode` | 整数 | 0 〜 1 | 0 | 0 がシングルキーアサイン、1 がキーアサインのカスタマイズ |
+| `ampEnv` | 整数 | 0 〜 127 | 60 | AMP ENV を動かす鍵盤 |
+| `ssgHwEnv` | 整数 | 0 〜 127 | 60 | SSG HW AMP ENV を動かす鍵盤 |
+| `wtAmpMod` | 整数 | 0 〜 127 | 60 | WT AMP MOD を動かす鍵盤 |
+| `ssgSwEnv11` | 整数 | 0 〜 127 | 60 | SSG SW AMP ENV\[11\] を動かす鍵盤 |
+| `pitchEnv` | 整数 | 0 〜 127 | 60 | PITCH ENV を動かす鍵盤 |
+| `ssgHwPEnv` | 整数 | 0 〜 127 | 60 | SSG HW PITCH ENV を動かす鍵盤 |
+| `ssgSwPEnv11` | 整数 | 0 〜 127 | 60 | SSG SW PITCH ENV\[11\] を動かす鍵盤 |
+| `wtMod` | 整数 | 0 〜 127 | 60 | WT PITCH MOD を動かす鍵盤 |
+| `lfoAm` | 整数 | 0 〜 127 | 60 | LFO AM を動かす鍵盤 |
+| `lfoPm` | 整数 | 0 〜 127 | 60 | LFO PM を動かす鍵盤 |
+| `mulDet` | 整数 | 0 〜 127 | 60 | MUL/DET を動かす鍵盤 |
+| `unison` | 整数 | 0 〜 127 | 60 | UNISON/HARMONY を動かす鍵盤 |
+| `arpeggio` | 整数 | 0 〜 127 | 60 | ARPEGGIO を動かす鍵盤 |
+
+鍵盤は MIDI のノート番号で、60 が C3 です。
+
+:::note
+`keyAssign` は 2686VFX にしかありません。音源で読んだときは飛ばされます。
+3.6.0 より前に書いたファイルにはこのまとまりがありませんが、そのときは
+いまの割り当てのまま変わりません。
+:::
+
 置き場所は [ファイルの形式と置き場所](/2686V_2686VFX/files/format/) を参照してください。

@@ -4,12 +4,12 @@
 
 #include "./SynthMode.h"
 #include "./SynthParams.h"
-#include "./SynthCore.h"
+#include "Shared/Core/Synth/SynthCore.h"
 
-#include "../../Synth/Opna/SynthOpna.h"
-#include "../../Synth/Ssg/SynthSsg.h"
-#include "../../Synth/Rhythm/SynthRhythm.h"
-#include "../../Synth/Adpcm/SynthAdpcm.h"
+#include "Shared/Synth/Opna/SynthOpna.h"
+#include "Shared/Synth/Ssg/SynthSsg.h"
+#include "Shared/Synth/Rhythm/SynthRhythm.h"
+#include "Shared/Synth/Adpcm/SynthAdpcm.h"
 
 class SynthSound : public juce::SynthesiserSound
 {

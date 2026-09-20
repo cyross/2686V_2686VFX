@@ -2,31 +2,35 @@
 
 #include <JuceHeader.h>
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
-#include "../../Core/Gui/GuiComponents.h"
-#include "../../Core/Gui/GuiBase.h"
-#include "../Components/AmpEnv/AmpEnv.h"
-#include "../Components/SsgHwEnv/SsgHwEnv.h"
-#include "../Components/SsgHwPEnv/SsgHwPEnv.h"
-#include "../Components/SsgSwEnv11/SsgSwEnv11.h"
-#include "../Components/LfoOpzx7/LfoOpzx7.h"
-#include "../Components/PitchEnv/PitchEnv.h"
-#include "../Components/SsgSwPEnv11/SsgSwPEnv11.h"
-#include "../Components/WtMod/WtMod.h"
-#include "../Components/WtAmpMod/WtAmpMod.h"
-#include "../Components/MulDetune/MulDetune.h"
-#include "../Components/Unison/Unison.h"
-#include "../Components/Quality/QualityPcm.h"
-#include "../../Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
+#include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
+#include "Shared/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
+#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/WtMod/WtMod.h"
+#include "Shared/Gui/Components/WtAmpMod/WtAmpMod.h"
+#include "Shared/Gui/Components/MulDetune/MulDetune.h"
+#include "Shared/Gui/Components/Unison/Unison.h"
+#include "Shared/Gui/Components/Quality/QualityPcm.h"
+#include "Shared/Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
-#include "../../Gui/Components/Separator/NormalSeparator.h"
-#include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "Shared/Gui/Components/Separator/NormalSeparator.h"
+#include "./GuiFxKeyAssign.h"
+#include "Shared/Gui/Components/Separator/ShortSeparator.h"
 
-class GuiFx : public GuiBase
+class GuiFx : public GuiBase, private juce::Timer
 {
+    // テストから見出しの塗り直しを呼ぶ口。テストでは時計が回らないため。
+    friend struct GuiFxTestAccess;
+
     // 順番の設定は最初から開いておく。メインが縦長の 1 列になり、丈が足りる。
     bool isShowRoute = true;
     std::vector<int> order = { 0 };
@@ -44,7 +48,8 @@ class GuiFx : public GuiBase
             FxGuiText::Group::fxMbc,     // 4: FxType::ModernBitCrusher
             FxGuiText::Group::fxDelay,   // 5: FxType::Delay
             FxGuiText::Group::fxReverb,  // 6: FxType::Reverb
-            FxGuiText::Group::sfcEcho    // 7: FxType::SpcEcho
+            FxGuiText::Group::sfcEcho,   // 7: FxType::SpcEcho
+            FxGuiText::Group::fxPcm      // 8: FxType::PcmBitCrusher
         };
     }
 
@@ -120,6 +125,17 @@ class GuiFx : public GuiBase
     std::array<GuiLabel, NumEffects> routeFx;
     std::array<GuiTextButton, NumEffects> routeUp;
     std::array<GuiTextButton, NumEffects> routeDown;
+    // 変調を動かす鍵盤の割り当て。ファイルの読み書きの上に置く。
+    GuiFxKeyAssign keyAssign;
+
+    // キーアサインのカスタマイズでは、割り当てた鍵盤が押されている区分
+    // だけ見出しを明るくし、ほかは灰にする。シングルでは全部明るいまま。
+    void updateKeyAssignTitles();
+
+    // 鍵盤の押し離しを見に行く
+    void timerCallback() override;
+    static inline constexpr int keyAssignTitleHz = 30;
+
     NormalSeparator fileSeparator;
     GuiTextButton importFxOrderBtn;
     GuiTextButton exportFxOrderBtn;
@@ -230,6 +246,9 @@ class GuiFx : public GuiBase
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeFxParams(Io::ParamWriter& writer);
+
+    // 読み込む中身
+    void readFxParams(const Io::ParamReader& reader);
     void exportFxParam();
 public:
     // FX のパラメータを初期値へ戻す。編集画面の INIT から呼ぶ。

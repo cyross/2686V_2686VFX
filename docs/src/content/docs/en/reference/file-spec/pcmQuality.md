@@ -23,7 +23,11 @@ The QUALITY(PCM) settings.
   "values": {
     "mode": 13,
     "rate": 9,
-    "interp": 1
+    "interp": 1,
+    "nrResample": false,
+    "nrGate": false,
+    "nrGateLevel": -60.0,
+    "nrLpf": 0
   }
 }
 ```
@@ -39,6 +43,13 @@ its current value** — it is not reset to the default.
 | `mode` | integer | 1 – 21 | 13 |
 | `rate` | integer | 1 – 15 | 9 |
 | `interp` | integer | 0 – 6 | 1 |
+| `nrResample` | bool | — | `false` |
+| `nrGate` | bool | — | `false` |
+| `nrGateLevel` | decimal | -96 – -24 | -60 |
+| `nrLpf` | integer | 0 – 3 (0: Off / 1: Light / 2: Medium / 3: Strong) | 0 |
+
+The `nr` keys are noise reduction, added in 3.6.0. Files written by 3.5.0 or
+earlier do not have them, so loading such a file keeps the current values.
 
 :::note[Writing one by hand]
 - Knobs that pick from a list are held as **numbers**. Those are the ones whose

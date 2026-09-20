@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "Effect/KeyScale/Opl/KSOpl.h"
+#include "Shared/Effect/KeyScale/Opl/KSOpl.h"
 
 namespace
 {

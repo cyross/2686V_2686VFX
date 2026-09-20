@@ -6,9 +6,9 @@
 #include <span>
 
 #include "../Processor/PluginProcessor.h"
-#include "../Gui/GuiLF.h"
-#include "../Gui/GuiLazy.h"
-#include "../Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiLF.h"
+#include "Shared/Core/Gui/GuiLazy.h"
+#include "Shared/Core/Gui/GuiContext.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
 
@@ -22,11 +22,12 @@
 #include "../../Gui/Colors/GuiColors.h"
 #include "../../Gui/Curve/GuiCurve.h"
 
-#include "../../Gui/Components/Loading/GuiLoading.h"
-#include "../../Gui/Components/GenWave/GenWave.h"
-#include "../../Gui/Components/ParamBrowser/ParamBrowser.h"
+#include "Shared/Gui/Components/Loading/GuiLoading.h"
+#include "Shared/Gui/Components/GenWave/GenWave.h"
+#include "Shared/Gui/Components/ParamBrowser/ParamBrowser.h"
 
-#include "../../Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiCopyObj.h"
+#include "Shared/Core/Gui/GuiHost.h"
 
 class SystemButtonLF : public juce::LookAndFeel_V4
 {
@@ -75,8 +76,11 @@ public:
     }
 };
 
+struct EditorTestAccess;
+
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
+    public GuiEditorHost,
     public juce::ChangeListener,
     public juce::ComponentListener,
     public juce::Button::Listener,
@@ -84,6 +88,9 @@ class AudioPlugin2686VEditor :
     public juce::MultiTimer,
     public juce::AsyncUpdater
 {
+    // 画面のテスト (tests/gui) だけが、全タブを作る口とタブの並びを触る。
+    friend struct EditorTestAccess;
+
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
     ~AudioPlugin2686VEditor() override;

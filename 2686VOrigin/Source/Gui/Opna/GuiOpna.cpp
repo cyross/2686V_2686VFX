@@ -3,9 +3,9 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpna.h"
 
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 namespace
 {
@@ -21,29 +21,30 @@ namespace
 	const Io::ParamFormat qualityFormat{ "quality", 1 };
 }
 
-#include "../Components/WavePreview/WavePreviewSource.h"
+#include "Shared/Gui/Components/WavePreview/WavePreviewSource.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Const/ConstFileValues.h"
-#include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
-#include "../../Processor/Opna/ProcessorOpnaKeys.h"
-#include "../../Processor/Opna/ProcessorOpnaValues.h"
-#include "./ProcessorOpnValues.h" // OriginにはOPNのプロセッサが無いため、OP数取得用に追加
+#include "Shared/Core/Const/ConstFileValues.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
+#include "Shared/Processor/Opna/ProcessorOpnaKeys.h"
+#include "Shared/Processor/Opna/ProcessorOpnaValues.h"
+#include "Shared/Processor/Opn/ProcessorOpnValues.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"
 
-#include "../../Core/Gui/GuiGraphValues.h"
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiGraphValues.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiOpnaValues.h"
 #include "./GuiOpnaText.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 static std::vector<SelectItem> opnaAlgItems = {
     {.name = "00: <OPNA-00>", .value = 1 },
@@ -143,15 +144,6 @@ static std::vector<SelectItem> dtItems = {
     {.name = "+3", .value = 8 }
 };
 
-static std::vector<SelectItem> lfoShapeItems = {
-    {.name = "0: Saw Up",              .value = 1 },
-    {.name = "1: Square",              .value = 2 },
-    {.name = "2: Triangle",            .value = 3 },
-    {.name = "3: Sample & Hold",       .value = 4 },
-    {.name = "4: Saw Down & One Shot", .value = 5 },
-    {.name = "5: Triangle & One Shot", .value = 6 },
-};
-
 static std::vector<SelectItem> lfoFreqsItems = {
     {.name = "0: 3.98Hz", .value = 1 },
     {.name = "1: 5.56Hz", .value = 2 },
@@ -199,7 +191,7 @@ void GuiOpna::setup()
 
     mainGroup.setup(*this, OpnaGuiText::Group::mainGroup);
 
-    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
+    presetName.setupComponent(*this, tabOrder, pluginOf(ctx).presetName);
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
@@ -249,72 +241,7 @@ void GuiOpna::setup()
         panSlider.setValue(1, juce::sendNotification);
         };
 
-    lfoCat.setupSwLfoCategory({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
-
-    lfoFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::freq, .title = OpnaGuiText::Fm::lfoSpeed, .isReset = true });
-    lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    lfoFreqSlider.setWantsKeyboardFocus(true);
-    lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoShapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::shape, .title = OpnaGuiText::Fm::lfoShape, .items = lfoShapeItems, .isReset = true });
-    lfoShapeSelector.setWantsKeyboardFocus(true);
-    lfoShapeSelector.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmSmRtSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::amSmoothRatio, .title = OpnaGuiText::Fm::amSmoothRatio, .isReset = true });
-    lfoAmSmRtSlider.setWantsKeyboardFocus(true);
-    lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoPmPreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::Lfo);
-    lfoAmPreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::Lfo);
-
-    auto refreshLfoPreviews = [this]() { this->updateLfoPreviews(); };
-
-    lfoShapeSelector.onChange = refreshLfoPreviews;
-    lfoAmSmRtSlider.onValueChange = refreshLfoPreviews;
-
-    updateLfoPreviews();
-
-    lfoSyncDelaySlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::syncDelay, .title = OpnaGuiText::Fm::lfoSyncDelay, .isReset = true });
-    lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    lfoSyncDelaySlider.setWantsKeyboardFocus(true);
-    lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoSyncDelayToZeroBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Async", .isReset = false, .isResized = false });
-    lfoSyncDelayToZeroBtn.setWantsKeyboardFocus(true);
-    lfoSyncDelayToZeroBtn.setExplicitFocusOrder(++tabOrder);
-    lfoSyncDelayToZeroBtn.onClick = [this] {
-        lfoSyncDelaySlider.setValue(0.0f);
-        };
-
-    lfoSyncDelayToOneBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Sync", .isReset = false, .isResized = false });
-    lfoSyncDelayToOneBtn.setWantsKeyboardFocus(true);
-    lfoSyncDelayToOneBtn.setExplicitFocusOrder(++tabOrder);
-    lfoSyncDelayToOneBtn.onClick = [this] {
-        lfoSyncDelaySlider.setValue(1.0f);
-        };
-
-    lfoPmToggle.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::pm, .title = OpnaGuiText::Fm::pmEn, .isReset = true });
-    lfoPmToggle.setWantsKeyboardFocus(true);
-    lfoPmToggle.setExplicitFocusOrder(++tabOrder);
-
-    lfoPmdSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::pmd, .title = OpnaGuiText::Fm::pmd, .isReset = true });
-    lfoPmdSlider.setWantsKeyboardFocus(true);
-    lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoPmsSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::pms, .title = OpnaGuiText::Fm::pms, .isReset = true });
-    lfoPmsSlider.setWantsKeyboardFocus(true);
-    lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmToggle.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::am, .title = OpnaGuiText::Fm::amEn, .isReset = true });
-    lfoAmToggle.setWantsKeyboardFocus(true);
-    lfoAmToggle.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmdSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::N88Lfo::amd, .title = OpnaGuiText::Fm::amd, .isReset = true });
-    lfoAmdSlider.setWantsKeyboardFocus(true);
-    lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoSep1.setupComponent(mainGroup.contentCanvas);
-    lfoSep2.setupComponent(mainGroup.contentCanvas);
+    n88Lfo.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
@@ -349,7 +276,7 @@ void GuiOpna::setup()
     broadcastLevelButton.onClick = [this] {
         float level = levelComponent.getLevel();
 
-        ctx.editor.breadcastLevel(level);
+        editorOf(ctx).breadcastLevel(level);
         };
 
     uSep001.setupComponent(mainGroup.contentCanvas);
@@ -395,7 +322,7 @@ void GuiOpna::setup()
         int from = copyOpFromSlider.getValue() - 1;
         int to = copyOpToSlider.getValue() - 1;
 
-        ctx.editor.copyOpnaOpParams(from, to);
+        editorOf(ctx).copyOpnaOpParams(from, to);
         };
 
     copyOpFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
@@ -526,6 +453,7 @@ void GuiOpna::setup()
     // 区分は縦に積まず、横へ並べる。1 列 1 区分が基本。
     stripViewport.setViewedComponent(&stripCanvas, false);
     stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
 
     addAndMakeVisible(stripViewport);
@@ -704,11 +632,7 @@ void GuiOpna::setup()
     ams.setWantsKeyboardFocus(true);
     ams.setExplicitFocusOrder(++tabOrder);
 
-    catN88Lfo.setupSwLfoCategory({ .parent = colHwLfo.contentCanvas, .title = OpnaGuiText::Category::n88Lfo, .enableChangeDetailVisible = true });
-
-    n88Ams.setup(GuiSlider::Config{ .parent = colHwLfo.contentCanvas, .id = paramPrefix + CPK::N88Lfo::ams, .title = OpnaGuiText::Fm::Op::Ams, .isReset = true });
-    n88Ams.setWantsKeyboardFocus(true);
-    n88Ams.setExplicitFocusOrder(++tabOrder);
+    n88LfoOp.setupComponent(colHwLfo.contentCanvas, paramPrefix, tabOrder);
 
     fix.setupComponent(colKs.contentCanvas, paramPrefix, tabOrder, OpnaGuiText::Fm::Op::Opzx7FreqTo440, 440, true);
 
@@ -749,7 +673,7 @@ void GuiOpna::setup()
     }
 
     // 前に開いていたときの指し先から始める。
-    const int saved = (int)ctx.audioProcessor.apvts.state.getProperty(ProcessorStateKey::opnaTarget, 0);
+    const int saved = (int)pluginOf(ctx).apvts.state.getProperty(ProcessorStateKey::opnaTarget, 0);
 
     targerOpSlider.setValue(juce::jlimit(0, OpnaPrValue::ops - 1, saved) + 1, juce::dontSendNotification);
 
@@ -803,42 +727,42 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
 
-    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    ampEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-    ssgHwEnv.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnv11g.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11g.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11g.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
     ampMajorCat.endMajor(mRect);
 
     // [[PITCH ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
 
-    ssgHwPEnv.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
-    ssgSwPEnv11g.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11g.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11g.layoutComponent(mRect);
-    modComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
 
-    layoutN88LfoCat(mRect);
+    n88Lfo.layoutComponent(mRect);
 
     layoutPanCat(mRect);
 
-    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
+    unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -1014,7 +938,7 @@ void GuiOpna::rebind(int opIndex)
     am.rebind(code + CPK::Fm::am);
     ams.rebind(code + CPK::Fm::ams);
 
-    n88Ams.rebind(code + CPK::N88Lfo::ams);
+    n88LfoOp.rebind(code);
 
     mask.rebind(code + CPK::Fm::mask);
 
@@ -1039,7 +963,7 @@ void GuiOpna::applyOpTarget()
 {
     const int op = currentOp();
 
-    ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::opnaTarget, op, nullptr);
+    pluginOf(ctx).apvts.state.setProperty(ProcessorStateKey::opnaTarget, op, nullptr);
 
     rebind(op);
 
@@ -1179,7 +1103,7 @@ void GuiOpna::copyFmParamsToString()
     //
     // 選ぶ形のパラメータは、つまみの選択番号から 1 を引いたものと同じ値を
     // 持っている。以前 getSelectedId() - 1 と書いていたところがこれに当たる。
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
 
     auto opVal = [&apvts](int index, const juce::String& key) {
         return (int)GuiGraphValues::value(apvts, OpnaPrKey::prefix + CPK::op + juce::String(index) + key);
@@ -1192,19 +1116,22 @@ void GuiOpna::copyFmParamsToString()
 
     int maskVal = FmMml::genMask4(opMask(0), opMask(1), opMask(2), opMask(3));
 
-    auto formatCoreBasic = [this, maskVal]() {
+    CopyLfoN88 lfo{};
+    n88Lfo.copyParams(lfo);
+
+    auto formatCoreBasic = [this, maskVal, lfo]() {
         return juce::String::formatted(
             // '   ALG    FB   MSK    SHP  SPD  SYC  PMD  PMS  AMD
             u8"    %1d,  %1d,  %2d,   %2d, %5d, %3d,  %d, %+d,  %d\n",
             algSelector.getSelectedId() - 1,      // ALG
             (int)feedbackSlider.getValue(),       // FB
             maskVal,                              // MASK
-            lfoShapeSelector.getSelectedId() - 1, // SHAPE
-            (int)lfoFreqSlider.getValue(),        // SPEED
-            (int)lfoSyncDelaySlider.getValue(),   // SYNC
-            (int)lfoPmdSlider.getValue(),         // PMD
-            (int)lfoPmsSlider.getValue(),         // PMS
-            (int)lfoAmdSlider.getValue()          // AMD
+            lfo.wave - 1,                         // SHAPE
+            (int)lfo.freq,                        // SPEED
+            lfo.syncDelay,                        // SYNC
+            (int)lfo.pmd,                         // PMD
+            (int)lfo.pms,                         // PMS
+            (int)lfo.amd                          // AMD
         );
         };
     auto formatOpBasic = [&opVal](int index) {
@@ -1269,7 +1196,7 @@ void GuiOpna::pasteFmParamsFromObject()
 
 void GuiOpna::initParams()
 {
-    this->ctx.audioProcessor.initParams("OPNA_");
+    pluginOf(ctx).initParams("OPNA_");
 }
 
 // オペレータの設定ひとそろい。
@@ -1353,7 +1280,7 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
             group.setContentHeight(rect.getY() + 20);
         };
 
-    const auto shown = [this](SimpleView::Cat cat) { return ctx.audioProcessor.isSimpleShown(cat); };
+    const auto shown = [this](SimpleView::Cat cat) { return pluginOf(ctx).isSimpleShown(cat); };
 
     // 1 区分ずつでは丈が余るので、いくつかの区分は 1 列へ積んである。
     layoutCol(colAmp, true, [&](juce::Rectangle<int>& rect) {
@@ -1414,7 +1341,7 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
 
     layoutCol(colHwLfo, true, [&](juce::Rectangle<int>& rect) {
         layoutOpHwLfoCat(rect);
-        layoutOpN88LfoCat(rect);
+        n88LfoOp.layoutComponentRow(rect);
         });
 
     // MASK と MML の札も 1 列へまとめてある。
@@ -1580,70 +1507,6 @@ void GuiOpna::layoutPanCat(juce::Rectangle<int>& rect)
     }
 }
 
-// 選んだ Shape を実際の LFO で走らせ、折れ線にして渡す。
-// 値が変わったときだけ通るので、常時の負荷は無い。
-void GuiOpna::updateLfoPreviews()
-{
-    // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
-    if (GuiRefresh::defer(this, [this] { updateLfoPreviews(); })) return;
-
-    // Shape は 1 つだが、同じ番号でも PM と AM で波形が違うので両方出す。
-    int shape = lfoShapeSelector.getSelectedItemIndex();
-
-    // PM は -1.0〜1.0 の両振り
-    lfoPmPreview.setPoints(WavePreviewSource::n88LfoPm(shape), true);
-
-    // AM は 0.0〜1.0 の片側。スムースの効きも見えるよう実際の値を渡す。
-    lfoAmPreview.setPoints(WavePreviewSource::n88LfoAm(shape, (float)lfoAmSmRtSlider.getValue()), false);
-}
-
-void GuiOpna::layoutN88LfoCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &lfoCat });
-
-    bool visible = lfoCat.isDetailVisible();
-
-    lfoFreqSlider.setVisibleWithLabel(visible);
-    lfoShapeSelector.setVisibleWithLabel(visible);
-    lfoPmPreview.setVisible(visible);
-    lfoAmPreview.setVisible(visible);
-    lfoAmSmRtSlider.setVisibleWithLabel(visible);
-    lfoSyncDelaySlider.setVisibleWithLabel(visible);
-    lfoSyncDelayToZeroBtn.setVisible(visible);
-    lfoSyncDelayToOneBtn.setVisible(visible);
-    lfoSep1.setVisible(visible);
-    lfoPmToggle.setVisible(visible);
-    lfoPmsSlider.setVisibleWithLabel(visible);
-    lfoPmdSlider.setVisibleWithLabel(visible);
-    lfoSep2.setVisible(visible);
-    lfoAmToggle.setVisible(visible);
-    lfoAmdSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoShapeSelector.label, .component = &lfoShapeSelector });
-        layoutMain({ .mainRect = rect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
-        layoutMainTwoComps({ .rect = rect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
-        lfoSep1.layoutComponent(rect);
-        layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
-        lfoPmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
-        rect.removeFromTop(2);
-
-        layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
-        lfoSep2.layoutComponent(rect);
-        layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
-        lfoAmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
-        rect.removeFromTop(2);
-
-        layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
-
-        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
-    }
-}
-
 // オペレータの SSG HW ENV の形を描き直す。
 //
 // 選べる並びは先頭が「掛けない」で、そのあとに実機の 8 種類が続く。
@@ -1710,22 +1573,6 @@ void GuiOpna::layoutOpHwLfoCat(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &pms.label, .component = &pms });
         layoutRow({ .rowRect = rect, .component = &am });
         layoutRow({ .rowRect = rect, .label = &ams.label, .component = &ams });
-
-        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
-    }
-}
-
-void GuiOpna::layoutOpN88LfoCat(juce::Rectangle<int>& rect)
-{
-    layoutRowCategory({ .rowRect = rect, .component = &catN88Lfo });
-
-    bool visible = catN88Lfo.isDetailVisible();
-
-    n88Ams.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutRow({ .rowRect = rect, .label = &n88Ams.label, .component = &n88Ams });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -1903,7 +1750,7 @@ void GuiOpna::setupOpGraphWiring()
 // いかない。接頭辞を頼りにパラメータから直に採る。
 void GuiOpna::updateOpGraph(int opIndex)
 {
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
     auto& graph = cells[(size_t)opIndex].graph();
 
     const juce::String code = OpnaPrKey::prefix + CPK::op + juce::String(opIndex);
@@ -2121,15 +1968,7 @@ void GuiOpna::copyParams(CopyOpna& copyObj) {
     copyObj.fmBase.feedback = feedbackSlider.getValue();
     copyObj.pan.pan = panSlider.getValue();
 
-    copyObj.n88Lfo.freq = lfoFreqSlider.getValue();
-    copyObj.n88Lfo.wave = lfoShapeSelector.getSelectedId();
-    copyObj.n88Lfo.amSmRt =lfoAmSmRtSlider.getValue();
-    copyObj.n88Lfo.syncDelay = lfoSyncDelaySlider.getValue();
-    copyObj.n88Lfo.pmEnable = lfoPmToggle.getToggleState();
-    copyObj.n88Lfo.amEnable = lfoAmToggle.getToggleState();
-    copyObj.n88Lfo.pmd = lfoPmdSlider.getValue();
-    copyObj.n88Lfo.pms = lfoPmsSlider.getValue();
-    copyObj.n88Lfo.amd = lfoAmdSlider.getValue();
+    n88Lfo.copyParams(copyObj.n88Lfo);
 
     unisonComponent.copyParams(copyObj.unison);
 }
@@ -2163,7 +2002,7 @@ void GuiOpna::copyOpParamsHere(CopyOpnaOp& copyObj) {
     copyObj.opnaLfo.am = am.getToggleState();
     copyObj.opnaLfo.ams = ams.getSelectedId();
 
-    copyObj.n88Lfo.ams = n88Ams.getValue();
+    n88LfoOp.copyParams(copyObj.n88Lfo);
 
     copyObj.mask.mask = mask.getToggleState();
         
@@ -2180,15 +2019,7 @@ void GuiOpna::pasteParams(CopyOpna& copyObj) {
     feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
     panSlider.setValue(copyObj.pan.pan, juce::sendNotification);
 
-    lfoFreqSlider.setValue(copyObj.n88Lfo.freq, juce::sendNotification);
-    lfoShapeSelector.setSelectedId(copyObj.n88Lfo.wave, juce::sendNotification);
-    lfoAmSmRtSlider.setValue(copyObj.n88Lfo.amSmRt, juce::sendNotification);
-    lfoSyncDelaySlider.setValue(copyObj.n88Lfo.syncDelay, juce::sendNotification);
-    lfoPmToggle.setToggleState(copyObj.n88Lfo.pmEnable, juce::sendNotification);
-    lfoAmToggle.setToggleState(copyObj.n88Lfo.amEnable, juce::sendNotification);
-    lfoPmdSlider.setValue(copyObj.n88Lfo.pmd, juce::sendNotification);
-    lfoPmsSlider.setValue(copyObj.n88Lfo.pms, juce::sendNotification);
-    lfoAmdSlider.setValue(copyObj.n88Lfo.amd, juce::sendNotification);
+    n88Lfo.pasteParams(copyObj.n88Lfo);
 
     unisonComponent.pasteParams(copyObj.unison);
 }
@@ -2220,7 +2051,7 @@ void GuiOpna::pasteOpParamsHere(CopyOpnaOp& copyObj) {
     am.setToggleState(copyObj.opnaLfo.am, juce::sendNotification);
     ams.setSelectedId(copyObj.opnaLfo.ams, juce::sendNotification);
 
-    n88Ams.setValue(copyObj.n88Lfo.ams, juce::sendNotification);
+    n88LfoOp.pasteParams(copyObj.n88Lfo);
 
     mask.setToggleState(copyObj.mask.mask, juce::sendNotification);
 
@@ -2233,7 +2064,7 @@ void GuiOpna::importHwLfoParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultLfoParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultLfoParamDir,
         { EditorGuiText::ParamBrowser::kindHwLfo },
         [this, opIndex](const juce::File& file) { applyHwLfoParamFile(opIndex, file); });
 }
@@ -2246,7 +2077,7 @@ void GuiOpna::applyHwLfoParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2293,7 +2124,7 @@ void GuiOpna::applyHwLfoParamFile(int opIndex, const juce::File& file)
 void GuiOpna::exportHwLfoParam(int opIndex)
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultLfoParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultLfoParamDir,
         { EditorGuiText::ParamBrowser::kindHwLfo }, Io::Extension::OpnaHwLfoParam,
         [this, opIndex](const juce::File& file) { writeHwLfoParamFile(opIndex, file); });
 }
@@ -2305,7 +2136,7 @@ void GuiOpna::writeHwLfoParamFile(int opIndex, const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(opnaHwLfoFormat);
     writeHwLfoParams(opIndex, writer);
@@ -2333,7 +2164,7 @@ void GuiOpna::importLfoParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultLfoParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultLfoParamDir,
         { EditorGuiText::ParamBrowser::kindLfoN88 },
         [this](const juce::File& file) { applyLfoParamFile(file); });
 }
@@ -2346,34 +2177,55 @@ void GuiOpna::applyLfoParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-    juce::StringArray lines;
-    file.readLines(lines);
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
 
-    int size = lines.size();
+        file.readLines(lines);
 
-    if (size < 13) return;
+        int index = 0;
 
-    lfoFreqSlider.setValue(lines[0].getIntValue(), juce::sendNotification);
-    lfoShapeSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
-    lfoSyncDelaySlider.setValue(lines[2].getIntValue(), juce::sendNotification);
-    lfoPmToggle.setToggleState(lines[3].getIntValue() == 1, juce::sendNotification);
-    lfoPmsSlider.setValue(lines[4].getIntValue(), juce::sendNotification);
-    lfoPmdSlider.setValue(lines[5].getIntValue(), juce::sendNotification);
-    lfoAmToggle.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
-    lfoAmSmRtSlider.setValue(lines[7].getFloatValue(), juce::sendNotification);
-    lfoAmdSlider.setValue(lines[8].getIntValue(), juce::sendNotification);
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
 
-    for (int i = 0; i < OpnaPrValue::ops; i++) {
-        n88Ams.setValue(lines[9 + i].getIntValue(), juce::sendNotification);
+            setImportingLfoParams(lines, index);
+        }
+
+        Io::ParamWriter writer(n88LfoFormat);
+
+        writeLfoParams(writer);
+
+        Io::writeConverted(file, writer);
+
+        return;
+    }
+
+    auto reader = Io::ParamReader::open(file, n88LfoFormat);
+
+    if (!reader.has_value()) return;
+
+    // 読み終えてからまとめて描き直す。値を 1 つ入れるたびに
+    // 波形を作り直すと、項目の多いファイルでは目に見えて遅くなる。
+    GuiRefresh::Batch batch;
+
+    n88Lfo.readFileParams(*reader);
+
+    auto amsValues = reader->getIntArray("n88Ams");
+
+    for (int i = 0; i < OpnaPrValue::ops && i < (int)amsValues.size(); i++) {
+        n88LfoOp.setAms(amsValues[(size_t)i]);
     }
 }
 
 void GuiOpna::exportLfoParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultLfoParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultLfoParamDir,
         { EditorGuiText::ParamBrowser::kindLfoN88 }, Io::Extension::N88LfoParam,
         [this](const juce::File& file) { writeLfoParamFile(file); });
 }
@@ -2385,32 +2237,19 @@ void GuiOpna::writeLfoParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-    juce::String content = "\n";
+    Io::ParamWriter writer(n88LfoFormat);
+    writeLfoParams(writer);
 
-    content += juce::String(lfoFreqSlider.getValue()) + "\n";
-    content += juce::String(lfoShapeSelector.getSelectedItemIndex()) + "\n";
-    content += juce::String(lfoSyncDelaySlider.getValue()) + "\n";
-    content += juce::String(lfoPmToggle.getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(lfoPmsSlider.getValue()) + "\n";
-    content += juce::String(lfoPmdSlider.getValue()) + "\n";
-    content += juce::String(lfoAmToggle.getToggleState() ? 1 : 0) + "\n";
-    content += juce::String(lfoAmSmRtSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-    content += juce::String(lfoAmdSlider.getValue()) + "\n";
-
-    for (int i = 0; i < OpnaPrValue::ops; i++) {
-        content += juce::String(n88Ams.getValue()) + "\n";
-    }
-
-    file.replaceWithText(content);
+    writer.writeTo(file);
 }
 
 void GuiOpna::importQualityParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality },
         [this](const juce::File& file) { applyQualityParamFile(file); });
 }
@@ -2423,7 +2262,7 @@ void GuiOpna::applyQualityParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2466,7 +2305,7 @@ void GuiOpna::applyQualityParamFile(const juce::File& file)
 void GuiOpna::exportQualityParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality }, Io::Extension::QualityParam,
         [this](const juce::File& file) { writeQualityParamFile(file); });
 }
@@ -2478,7 +2317,7 @@ void GuiOpna::writeQualityParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(qualityFormat);
     writeQualityParams(writer);
@@ -2537,7 +2376,7 @@ void GuiOpna::exportOpWtModParam(int opIndex) {
 void GuiOpna::importChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "OPNA" },
+    editorOf(ctx).openParamBrowser({ "OPNA" },
         [this](const juce::File& file) { applyChParamFile(file); });
 }
 
@@ -2547,7 +2386,7 @@ void GuiOpna::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2589,7 +2428,7 @@ void GuiOpna::applyChParamFile(const juce::File& file) {
 void GuiOpna::exportChParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { "OPNA" }, Io::Extension::opnaParam,
         [this](const juce::File& file) { writeChParamFile(file); });
 }
@@ -2600,7 +2439,7 @@ void GuiOpna::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(opnaFormat);
     writeChParams(writer);
@@ -2612,7 +2451,7 @@ void GuiOpna::importOpChParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpnaOp },
         [this, opIndex](const juce::File& file) { applyOpChParamFile(opIndex, file); });
 }
@@ -2625,7 +2464,7 @@ void GuiOpna::applyOpChParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2669,7 +2508,7 @@ void GuiOpna::applyOpChParamFile(int opIndex, const juce::File& file)
 void GuiOpna::exportOpChParam(int opIndex)
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpnaOp }, Io::Extension::opnaOpParam,
         [this, opIndex](const juce::File& file) { writeOpChParamFile(opIndex, file); });
 }
@@ -2680,7 +2519,7 @@ void GuiOpna::writeOpChParamFile(int opIndex, const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(opnaOpFormat);
     writeOpChFileParams(opIndex, writer);
@@ -2704,15 +2543,7 @@ void GuiOpna::readChParams(const Io::ParamReader& reader) {
     panSlider.setValue(reader.getFloat("pan", (float)panSlider.getValue()), juce::sendNotification);
 
     // N88 LFO
-    lfoFreqSlider.setValue(reader.getFloat("lfoFreq", (float)lfoFreqSlider.getValue()), juce::sendNotification);
-    lfoShapeSelector.setSelectedId(reader.getInt("lfoShape", lfoShapeSelector.getSelectedId()), juce::sendNotification);
-    lfoAmSmRtSlider.setValue(reader.getFloat("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue()), juce::sendNotification);
-    lfoSyncDelaySlider.setValue(reader.getFloat("lfoSyncDelay", (float)lfoSyncDelaySlider.getValue()), juce::sendNotification);
-    lfoPmToggle.setToggleState(reader.getBool("lfoPm", lfoPmToggle.getToggleState()), juce::sendNotification);
-    lfoPmsSlider.setValue(reader.getFloat("lfoPms", (float)lfoPmsSlider.getValue()), juce::sendNotification);
-    lfoPmdSlider.setValue(reader.getFloat("lfoPmd", (float)lfoPmdSlider.getValue()), juce::sendNotification);
-    lfoAmToggle.setToggleState(reader.getBool("lfoAm", lfoAmToggle.getToggleState()), juce::sendNotification);
-    lfoAmdSlider.setValue(reader.getFloat("lfoAmd", (float)lfoAmdSlider.getValue()), juce::sendNotification);
+    n88Lfo.readChParams(reader);
 
     // Components (Global)
     ssgHwEnv.readParams(reader, "ssgHwEnv");
@@ -2756,7 +2587,7 @@ void GuiOpna::readOpParams(int opIndex, const Io::ParamReader& r) {
     ams.setSelectedId(r.getInt("ams", ams.getSelectedId()), juce::sendNotification);
 
     // N88 AMS
-    n88Ams.setValue(r.getFloat("n88Ams", (float)n88Ams.getValue()), juce::sendNotification);
+    n88LfoOp.readParams(r);
 
     // SSG Env
     se.setSelectedId(r.getInt("ssgEnv", se.getSelectedId()), juce::sendNotification);
@@ -2805,7 +2636,7 @@ void GuiOpna::writeOpParams(int opIndex, Io::ParamWriter& w) {
     w.set("ams", ams.getSelectedId());
 
     // N88 AMS
-    w.set("n88Ams", (float)n88Ams.getValue());
+    n88LfoOp.writeParams(w);
 
     // SSG Env
     w.set("ssgEnv", se.getSelectedId());
@@ -2832,7 +2663,7 @@ void GuiOpna::writeOpParams(int opIndex, Io::ParamWriter& w) {
 void GuiOpna::importOpnChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "OPN" },
+    editorOf(ctx).openParamBrowser({ "OPN" },
         [this](const juce::File& file) { applyOpnChParamFile(file); });
 }
 
@@ -2842,7 +2673,7 @@ void GuiOpna::applyOpnChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // OPN のファイル。こちらにしか無い項目は名前で引けないので
     // 今の値のまま残る。
@@ -2861,7 +2692,7 @@ void GuiOpna::importOpnOpChParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpnOp },
         [this, opIndex](const juce::File& file) { applyOpnOpChParamFile(opIndex, file); });
 }
@@ -2874,7 +2705,7 @@ void GuiOpna::applyOpnOpChParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     auto reader = Io::ParamReader::open(file, opnOpFormat);
 
@@ -2906,15 +2737,7 @@ void GuiOpna::setImportingChParams(juce::StringArray& lines, int& index) {
 	panSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 
 	// N88 LFO
-	lfoFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	lfoShapeSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
-	lfoAmSmRtSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	lfoSyncDelaySlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	lfoPmToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-	lfoPmsSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	lfoPmdSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-	lfoAmToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-	lfoAmdSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	n88Lfo.setImportingChParams(lines, index);
 
 	// Components (Global)
 	ssgHwEnv.setImportingParams(lines, index);
@@ -2956,15 +2779,7 @@ void GuiOpna::writeChParams(Io::ParamWriter& writer) {
 	writer.set("pan", (float)panSlider.getValue());
 
 	// N88 LFO
-	writer.set("lfoFreq", (float)lfoFreqSlider.getValue());
-	writer.set("lfoShape", lfoShapeSelector.getSelectedId());
-	writer.set("lfoAmSmRt", (float)lfoAmSmRtSlider.getValue());
-	writer.set("lfoSyncDelay", (float)lfoSyncDelaySlider.getValue());
-	writer.set("lfoPm", lfoPmToggle.getToggleState());
-	writer.set("lfoPms", (float)lfoPmsSlider.getValue());
-	writer.set("lfoPmd", (float)lfoPmdSlider.getValue());
-	writer.set("lfoAm", lfoAmToggle.getToggleState());
-	writer.set("lfoAmd", (float)lfoAmdSlider.getValue());
+	n88Lfo.writeChParams(writer);
 
 	// Components (Global)
 	// 名前で持つので、後から足した項目を末尾へ置く必要はない。
@@ -3013,7 +2828,7 @@ void GuiOpna::getImportingOpParams(int opIndex, juce::StringArray& lines, int& i
     ams.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
 
     // N88 AMS
-    n88Ams.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    n88LfoOp.setImportingParams(lines, index);
 
     // SSG Env
     se.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
@@ -3031,6 +2846,39 @@ void GuiOpna::getImportingOpParams(int opIndex, juce::StringArray& lines, int& i
     ssgSwEnv.setImportingParams(lines, index);
     ssgSwEnv11.setImportingParams(lines, index);
     ssgSwPEnv11.setImportingParams(lines, index);
+}
+
+// 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
+// しまったので、履歴から戻したもの。
+void GuiOpna::setImportingLfoParams(juce::StringArray& lines, int& index) {
+    // 当時の処理は行数を size で見ていることがある
+    int size = lines.size();
+
+    juce::ignoreUnused(index, size);
+
+	if (size < 13) return;
+
+	n88Lfo.setImportingFileParams(lines);
+
+	for (int i = 0; i < OpnaPrValue::ops; i++) {
+	    n88LfoOp.setAms(lines[9 + i].getIntValue());
+	}
+
+}
+
+// 書き出す中身。エクスポートと変換の両方から使う。
+void GuiOpna::writeLfoParams(Io::ParamWriter& writer) {
+	n88Lfo.writeFileParams(writer);
+
+	std::vector<int> amsValues;
+
+	for (int i = 0; i < OpnaPrValue::ops; i++) {
+	    amsValues.push_back(n88LfoOp.getAms());
+	}
+
+	writer.setArray("n88Ams", amsValues);
+
+	
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
@@ -3111,23 +2959,23 @@ void GuiOpna::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
 void GuiOpna::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
 }
 
 void GuiOpna::openEnabledCategories()

@@ -19,7 +19,7 @@
 // カーブはプラグインによっては持っていない。持っている的だけが
 // CY_HAS_CURVE を立てるので、無ければ丸ごと飛ばす。
 #if CY_HAS_CURVE
-#include "Advanced/Curve/AdvancedCurveParams.h"
+#include "Shared/Advanced/Curve/AdvancedCurveParams.h"
 #endif
 
 namespace

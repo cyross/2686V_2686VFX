@@ -1,4 +1,4 @@
-﻿#include "../../Core/Gui/GuiI18n.h"
+﻿#include "Shared/Core/Gui/GuiI18n.h"
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "../../Processor/Mod/ProcessorModKeys.h"
 #include <algorithm>
@@ -11,14 +11,15 @@
 
 #include "../../Processor/Fx/ProcessorFxKeys.h"
 #include "../../Processor/Fx/ProcessorFxValues.h"
-#include "../../Core/Const/ConstFileValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiFxValues.h"
-#include "../../Core/Gui/GuiStructs.h"
-#include "../../Core/Gui/GuiRefresh.h"
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Io/ParamFile.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 namespace
 {
@@ -113,6 +114,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     routeFx{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
     routeUp{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     routeDown{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    keyAssign(context),
     fileSeparator(context),
     importFxOrderBtn(context),
     exportFxOrderBtn(context),
@@ -195,7 +197,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     sfceWetBtn(context)
 {
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-    order = ctx.audioProcessor.getFxOrder();
+    order = pluginOf(ctx).getFxOrder();
 }
 
 void GuiFx::setup()
@@ -332,8 +334,8 @@ void GuiFx::setup()
     resetBtn.onClick = [&] {
         // 変調もこのタブの一部なので一緒に戻す。効果とは接頭辞が違うため、
         // まとめて 1 回では拾えず、二度に分けて呼ぶ。
-        this->ctx.audioProcessor.initParams(FxPrKey::prefix + "_");
-        this->ctx.audioProcessor.initParams(ModPrKey::prefix + "_");
+        pluginOf(ctx).initParams(FxPrKey::prefix + "_");
+        pluginOf(ctx).initParams(ModPrKey::prefix + "_");
     };
 
     routeSeparator.setupComponent(*this);
@@ -344,7 +346,7 @@ void GuiFx::setup()
     showRouteBtn.onClick = [this] {
         isShowRoute = !isShowRoute;
 
-        ctx.editor.resized();
+        editorOf(ctx).resized();
         };
 
     for (int fxr = 0; fxr < NumEffects; fxr++) {
@@ -366,9 +368,9 @@ void GuiFx::setup()
                 routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
-            ctx.audioProcessor.updateFxOrder(order);
+            pluginOf(ctx).updateFxOrder(order);
 
-            ctx.editor.resized();
+            editorOf(ctx).resized();
             };
 
         routeDown[fxr].setup({ .parent = *this, .title = juce::String("") + "▼", .isReset = false });
@@ -385,11 +387,23 @@ void GuiFx::setup()
                 routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
-            ctx.audioProcessor.updateFxOrder(order);
+            pluginOf(ctx).updateFxOrder(order);
 
-            ctx.editor.resized();
+            editorOf(ctx).resized();
             };
     }
+
+    keyAssign.setup(*this, tabOrder);
+
+    // 一覧が出たり消えたりするので、選び直したら並べ直す。
+    // 見出しの色もモードで変わるので、待たずに塗り直す。
+    keyAssign.onModeChanged = [this] {
+        editorOf(ctx).resized();
+        updateKeyAssignTitles();
+        };
+
+    updateKeyAssignTitles();
+    startTimerHz(keyAssignTitleHz);
 
     fileSeparator.setupComponent(*this);
 
@@ -859,6 +873,7 @@ void GuiFx::setup()
     // 横へ送る板を用意して、メイン以外をその中へ移す。
     stripViewport.setViewedComponent(&stripCanvas, false);
     stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
 
     addAndMakeVisible(stripViewport);
@@ -879,6 +894,8 @@ void GuiFx::moveToStrip()
         &routeSeparator, &showRouteBtn, &fileSeparator,
         &importFxOrderBtn, &exportFxOrderBtn, &importFxParamBtn, &exportFxParamBtn,
         &stripViewport };
+
+    keyAssign.collectComponents(keep);
 
     for (int i = 0; i < NumEffects; ++i)
     {
@@ -932,7 +949,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     int modColumns = 0;
 
     for (auto cat : modCats) {
-        if (ctx.audioProcessor.isSimpleShown(cat)) ++modColumns;
+        if (pluginOf(ctx).isSimpleShown(cat)) ++modColumns;
     }
 
     int columns = FxGuiValue::Fx::EffectCols + modColumns;
@@ -962,7 +979,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody,
             SimpleView::Cat cat)
         {
-            if (!ctx.audioProcessor.isSimpleShown(cat)) {
+            if (!pluginOf(ctx).isSimpleShown(cat)) {
                 group.setVisible(false);
 
                 return;
@@ -1251,12 +1268,18 @@ void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
     importFxParamBtn.setVisible(isShowRoute);
     exportFxParamBtn.setVisible(isShowRoute);
 
-    if (!isShowRoute) {
-        return;
+    if (isShowRoute) {
+        for (int fxr = 0; fxr < NumEffects; fxr++) {
+            layoutMainFxOrder({ .rect = rect, .comp1 = &routeFx[fxr], .comp2 = &routeUp[fxr], .comp3 = &routeDown[fxr] });
+        }
     }
 
-    for (int fxr = 0; fxr < NumEffects; fxr++) {
-        layoutMainFxOrder({ .rect = rect, .comp1 = &routeFx[fxr], .comp2 = &routeUp[fxr], .comp3 = &routeDown[fxr] });
+    // キーアサインは順番の設定を閉じていても出しておく。鍵盤で動かす
+    // 変調の決まりなので、順番とは関係がない。
+    keyAssign.layout(rect);
+
+    if (!isShowRoute) {
+        return;
     }
 
     fileSeparator.layoutComponent(rect);
@@ -1267,13 +1290,13 @@ void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
 }
 
 void GuiFx::updateFxOrder() {
-    order = ctx.audioProcessor.getFxOrder();
+    order = pluginOf(ctx).getFxOrder();
 
     for (int i = 0; i < NumEffects; i++) {
         routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
     }
 
-    ctx.editor.resized();
+    editorOf(ctx).resized();
 }
 
 void GuiFx::updateFilterEnabled() {
@@ -1394,9 +1417,9 @@ void GuiFx::updateSfcEchoEnabled() {
 // ==============================================================================
 void GuiFx::importFxOrder()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxOrderDir);
+    juce::File defaultDir(pluginOf(ctx).defaultFxOrderDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+        defaultDir = pluginOf(ctx).getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxOrderFile, defaultDir, Io::ExtensionGlob::fxOrder);
@@ -1406,7 +1429,7 @@ void GuiFx::importFxOrder()
             if (file.existsAsFile()) {
 
                 // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+                pluginOf(ctx).defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
                 // 3.0.0 より前のファイルは、当時の処理で読み込んでから
                 // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1457,7 +1480,7 @@ void GuiFx::importFxOrder()
                 }
 
                 // 範囲外・重複・取りこぼしのならしは 1 箇所にまとめてある。
-                ctx.audioProcessor.updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
+                pluginOf(ctx).updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
 
                 updateFxOrder();
             }
@@ -1466,9 +1489,9 @@ void GuiFx::importFxOrder()
 
 void GuiFx::exportFxOrder()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxOrderDir);
+    juce::File defaultDir(pluginOf(ctx).defaultFxOrderDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+        defaultDir = pluginOf(ctx).getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxOrderFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::fxOrder)), Io::saveGlob(Io::Extension::fxOrder));
@@ -1478,7 +1501,7 @@ void GuiFx::exportFxOrder()
             if (file != juce::File{}) {
 
                 // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+                pluginOf(ctx).defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
                 // 1行目にサンプル数
                 Io::ParamWriter writer(fxOrderFormat);
@@ -1491,9 +1514,9 @@ void GuiFx::exportFxOrder()
 
 void GuiFx::importFxParam()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
+    juce::File defaultDir(pluginOf(ctx).defaultFxParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+        defaultDir = pluginOf(ctx).getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxParamFile, defaultDir, Io::ExtensionGlob::fxParam);
@@ -1503,7 +1526,7 @@ void GuiFx::importFxParam()
             if (file.existsAsFile()) {
 
                 // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+                pluginOf(ctx).defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
                 // 3.0.0 より前のファイルは、当時の処理で読み込んでから
                 // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1538,111 +1561,16 @@ void GuiFx::importFxParam()
                 // 読み終えてからまとめて描き直す
                 GuiRefresh::Batch batch;
 
-                bypassToggle.setToggleState(reader->getBool("bypass", bypassToggle.getToggleState()), juce::sendNotification);
-
-                {
-                    auto tremolo = reader->child("tremolo");
-
-                    tBypassBtn.setToggleState(tremolo.getBool("bypass", tBypassBtn.getToggleState()), juce::sendNotification);
-                    tRateSlider.setValue(tremolo.getFloat("rate", (float)tRateSlider.getValue()), juce::sendNotification);
-                    tDepthSlider.setValue(tremolo.getFloat("depth", (float)tDepthSlider.getValue()), juce::sendNotification);
-                    tMixSlider.setValue(tremolo.getFloat("mix", (float)tMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto vibrato = reader->child("vibrato");
-
-                    vBypassBtn.setToggleState(vibrato.getBool("bypass", vBypassBtn.getToggleState()), juce::sendNotification);
-                    vRateSlider.setValue(vibrato.getFloat("rate", (float)vRateSlider.getValue()), juce::sendNotification);
-                    vDepthSlider.setValue(vibrato.getFloat("depth", (float)vDepthSlider.getValue()), juce::sendNotification);
-                    vMixSlider.setValue(vibrato.getFloat("mix", (float)vMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto bitCrusher = reader->child("bitCrusher");
-
-                    mbcBypassBtn.setToggleState(bitCrusher.getBool("bypass", mbcBypassBtn.getToggleState()), juce::sendNotification);
-                    mbcRateSlider.setValue(bitCrusher.getFloat("rate", (float)mbcRateSlider.getValue()), juce::sendNotification);
-                    mbcBitsSlider.setValue(bitCrusher.getFloat("bits", (float)mbcBitsSlider.getValue()), juce::sendNotification);
-                    mbcMixSlider.setValue(bitCrusher.getFloat("mix", (float)mbcMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    // 3.0.0 のファイルにはこのまとまりが無い。
-                    // 無ければ既定として今の値をそのまま使う。
-                    auto pcmBitCrusher = reader->child("pcmBitCrusher");
-
-                    pcmBypassBtn.setToggleState(pcmBitCrusher.getBool("bypass", pcmBypassBtn.getToggleState()), juce::sendNotification);
-                    pcmBitSelector.setSelectedItemIndex(pcmBitCrusher.getInt("bits", pcmBitSelector.getSelectedItemIndex()), juce::sendNotification);
-                    pcmRateSelector.setSelectedItemIndex(pcmBitCrusher.getInt("rate", pcmRateSelector.getSelectedItemIndex()), juce::sendNotification);
-                    pcmInterpSelector.setSelectedItemIndex(pcmBitCrusher.getInt("interp", pcmInterpSelector.getSelectedItemIndex()), juce::sendNotification);
-                    pcmMixSlider.setValue(pcmBitCrusher.getFloat("mix", (float)pcmMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto delay = reader->child("delay");
-
-                    dBypassBtn.setToggleState(delay.getBool("bypass", dBypassBtn.getToggleState()), juce::sendNotification);
-                    dTimeSlider.setValue(delay.getFloat("time", (float)dTimeSlider.getValue()), juce::sendNotification);
-                    dFbSlider.setValue(delay.getFloat("fb", (float)dFbSlider.getValue()), juce::sendNotification);
-                    dMixSlider.setValue(delay.getFloat("mix", (float)dMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto reverb = reader->child("reverb");
-
-                    rBypassBtn.setToggleState(reverb.getBool("bypass", rBypassBtn.getToggleState()), juce::sendNotification);
-                    rSizeSlider.setValue(reverb.getFloat("size", (float)rSizeSlider.getValue()), juce::sendNotification);
-                    rDampSlider.setValue(reverb.getFloat("damp", (float)rDampSlider.getValue()), juce::sendNotification);
-                    rMixSlider.setValue(reverb.getFloat("mix", (float)rMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto filter = reader->child("filter");
-
-                    flBypassBtn.setToggleState(filter.getBool("bypass", flBypassBtn.getToggleState()), juce::sendNotification);
-                    flTypeSelector.setSelectedItemIndex(filter.getInt("type", flTypeSelector.getSelectedItemIndex()), juce::sendNotification);
-                    flFreqSlider.setValue(filter.getFloat("freq", (float)flFreqSlider.getValue()), juce::sendNotification);
-                    flQSlider.setValue(filter.getFloat("q", (float)flQSlider.getValue()), juce::sendNotification);
-                    flMixSlider.setValue(filter.getFloat("mix", (float)flMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto eq3band = reader->child("eq3band");
-
-                    eq3bBypassBtn.setToggleState(eq3band.getBool("bypass", eq3bBypassBtn.getToggleState()), juce::sendNotification);
-                    eq3bLowGainDbSlider.setValue(eq3band.getFloat("lowGainDb", (float)eq3bLowGainDbSlider.getValue()), juce::sendNotification);
-                    eq3bMidFreqSlider.setValue(eq3band.getFloat("midFreq", (float)eq3bMidFreqSlider.getValue()), juce::sendNotification);
-                    eq3bMidGainDbSlider.setValue(eq3band.getFloat("midGainDb", (float)eq3bMidGainDbSlider.getValue()), juce::sendNotification);
-                    eq3bHighGainDbSlider.setValue(eq3band.getFloat("highGainDb", (float)eq3bHighGainDbSlider.getValue()), juce::sendNotification);
-                    eq3bMixSlider.setValue(eq3band.getFloat("mix", (float)eq3bMixSlider.getValue()), juce::sendNotification);
-                }
-
-                {
-                    auto sfcEcho = reader->child("sfcEcho");
-
-                    sfceBypassBtn.setToggleState(sfcEcho.getBool("bypass", sfceBypassBtn.getToggleState()), juce::sendNotification);
-                    sfceTimeSlider.setValue(sfcEcho.getFloat("time", (float)sfceTimeSlider.getValue()), juce::sendNotification);
-                    sfceFbSlider.setValue(sfcEcho.getFloat("fb", (float)sfceFbSlider.getValue()), juce::sendNotification);
-                    sfceFirCoef0Slider.setValue(sfcEcho.getFloat("firCoef0", (float)sfceFirCoef0Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef1Slider.setValue(sfcEcho.getFloat("firCoef1", (float)sfceFirCoef1Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef2Slider.setValue(sfcEcho.getFloat("firCoef2", (float)sfceFirCoef2Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef3Slider.setValue(sfcEcho.getFloat("firCoef3", (float)sfceFirCoef3Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef4Slider.setValue(sfcEcho.getFloat("firCoef4", (float)sfceFirCoef4Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef5Slider.setValue(sfcEcho.getFloat("firCoef5", (float)sfceFirCoef5Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef6Slider.setValue(sfcEcho.getFloat("firCoef6", (float)sfceFirCoef6Slider.getValue()), juce::sendNotification);
-                    sfceFirCoef7Slider.setValue(sfcEcho.getFloat("firCoef7", (float)sfceFirCoef7Slider.getValue()), juce::sendNotification);
-                    sfceMixSlider.setValue(sfcEcho.getFloat("mix", (float)sfceMixSlider.getValue()), juce::sendNotification);
-                }
+                readFxParams(*reader);
             }
         });
 }
 
 void GuiFx::exportFxParam()
 {
-    juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
+    juce::File defaultDir(pluginOf(ctx).defaultFxParamDir);
     if (!defaultDir.isDirectory()) {
-        defaultDir = ctx.audioProcessor.getPluginDirectory();
+        defaultDir = pluginOf(ctx).getPluginDirectory();
     }
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxParamFile, defaultDir.getChildFile(Io::defaultFileName(Io::Extension::fxParam)), Io::saveGlob(Io::Extension::fxParam));
@@ -1652,7 +1580,7 @@ void GuiFx::exportFxParam()
             if (file != juce::File{}) {
 
                 // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+                pluginOf(ctx).defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
                 Io::ParamWriter writer(fxParamFormat);
                 writeFxParams(writer);
@@ -1689,7 +1617,7 @@ void GuiFx::setImportingFxOrder(juce::StringArray& lines, int& index) {
         }
     }
 
-    ctx.audioProcessor.updateFxOrder(newOrders);
+    pluginOf(ctx).updateFxOrder(newOrders);
 
     updateFxOrder();
 
@@ -1900,7 +1828,112 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
         sfcEcho.set("mix", (float)sfceMixSlider.getValue());
     }
 
+    // 変調を動かす鍵盤の割り当て。このプラグインにしかない。
+    GuiFxKeyAssign::writeParams(ctx.apvts, writer);
+}
 
+void GuiFx::readFxParams(const Io::ParamReader& reader)
+{
+    bypassToggle.setToggleState(reader.getBool("bypass", bypassToggle.getToggleState()), juce::sendNotification);
+
+    {
+        auto tremolo = reader.child("tremolo");
+
+        tBypassBtn.setToggleState(tremolo.getBool("bypass", tBypassBtn.getToggleState()), juce::sendNotification);
+        tRateSlider.setValue(tremolo.getFloat("rate", (float)tRateSlider.getValue()), juce::sendNotification);
+        tDepthSlider.setValue(tremolo.getFloat("depth", (float)tDepthSlider.getValue()), juce::sendNotification);
+        tMixSlider.setValue(tremolo.getFloat("mix", (float)tMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto vibrato = reader.child("vibrato");
+
+        vBypassBtn.setToggleState(vibrato.getBool("bypass", vBypassBtn.getToggleState()), juce::sendNotification);
+        vRateSlider.setValue(vibrato.getFloat("rate", (float)vRateSlider.getValue()), juce::sendNotification);
+        vDepthSlider.setValue(vibrato.getFloat("depth", (float)vDepthSlider.getValue()), juce::sendNotification);
+        vMixSlider.setValue(vibrato.getFloat("mix", (float)vMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto bitCrusher = reader.child("bitCrusher");
+
+        mbcBypassBtn.setToggleState(bitCrusher.getBool("bypass", mbcBypassBtn.getToggleState()), juce::sendNotification);
+        mbcRateSlider.setValue(bitCrusher.getFloat("rate", (float)mbcRateSlider.getValue()), juce::sendNotification);
+        mbcBitsSlider.setValue(bitCrusher.getFloat("bits", (float)mbcBitsSlider.getValue()), juce::sendNotification);
+        mbcMixSlider.setValue(bitCrusher.getFloat("mix", (float)mbcMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        // 3.0.0 のファイルにはこのまとまりが無い。
+        // 無ければ既定として今の値をそのまま使う。
+        auto pcmBitCrusher = reader.child("pcmBitCrusher");
+
+        pcmBypassBtn.setToggleState(pcmBitCrusher.getBool("bypass", pcmBypassBtn.getToggleState()), juce::sendNotification);
+        pcmBitSelector.setSelectedItemIndex(pcmBitCrusher.getInt("bits", pcmBitSelector.getSelectedItemIndex()), juce::sendNotification);
+        pcmRateSelector.setSelectedItemIndex(pcmBitCrusher.getInt("rate", pcmRateSelector.getSelectedItemIndex()), juce::sendNotification);
+        pcmInterpSelector.setSelectedItemIndex(pcmBitCrusher.getInt("interp", pcmInterpSelector.getSelectedItemIndex()), juce::sendNotification);
+        pcmMixSlider.setValue(pcmBitCrusher.getFloat("mix", (float)pcmMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto delay = reader.child("delay");
+
+        dBypassBtn.setToggleState(delay.getBool("bypass", dBypassBtn.getToggleState()), juce::sendNotification);
+        dTimeSlider.setValue(delay.getFloat("time", (float)dTimeSlider.getValue()), juce::sendNotification);
+        dFbSlider.setValue(delay.getFloat("fb", (float)dFbSlider.getValue()), juce::sendNotification);
+        dMixSlider.setValue(delay.getFloat("mix", (float)dMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto reverb = reader.child("reverb");
+
+        rBypassBtn.setToggleState(reverb.getBool("bypass", rBypassBtn.getToggleState()), juce::sendNotification);
+        rSizeSlider.setValue(reverb.getFloat("size", (float)rSizeSlider.getValue()), juce::sendNotification);
+        rDampSlider.setValue(reverb.getFloat("damp", (float)rDampSlider.getValue()), juce::sendNotification);
+        rMixSlider.setValue(reverb.getFloat("mix", (float)rMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto filter = reader.child("filter");
+
+        flBypassBtn.setToggleState(filter.getBool("bypass", flBypassBtn.getToggleState()), juce::sendNotification);
+        flTypeSelector.setSelectedItemIndex(filter.getInt("type", flTypeSelector.getSelectedItemIndex()), juce::sendNotification);
+        flFreqSlider.setValue(filter.getFloat("freq", (float)flFreqSlider.getValue()), juce::sendNotification);
+        flQSlider.setValue(filter.getFloat("q", (float)flQSlider.getValue()), juce::sendNotification);
+        flMixSlider.setValue(filter.getFloat("mix", (float)flMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto eq3band = reader.child("eq3band");
+
+        eq3bBypassBtn.setToggleState(eq3band.getBool("bypass", eq3bBypassBtn.getToggleState()), juce::sendNotification);
+        eq3bLowGainDbSlider.setValue(eq3band.getFloat("lowGainDb", (float)eq3bLowGainDbSlider.getValue()), juce::sendNotification);
+        eq3bMidFreqSlider.setValue(eq3band.getFloat("midFreq", (float)eq3bMidFreqSlider.getValue()), juce::sendNotification);
+        eq3bMidGainDbSlider.setValue(eq3band.getFloat("midGainDb", (float)eq3bMidGainDbSlider.getValue()), juce::sendNotification);
+        eq3bHighGainDbSlider.setValue(eq3band.getFloat("highGainDb", (float)eq3bHighGainDbSlider.getValue()), juce::sendNotification);
+        eq3bMixSlider.setValue(eq3band.getFloat("mix", (float)eq3bMixSlider.getValue()), juce::sendNotification);
+    }
+
+    {
+        auto sfcEcho = reader.child("sfcEcho");
+
+        sfceBypassBtn.setToggleState(sfcEcho.getBool("bypass", sfceBypassBtn.getToggleState()), juce::sendNotification);
+        sfceTimeSlider.setValue(sfcEcho.getFloat("time", (float)sfceTimeSlider.getValue()), juce::sendNotification);
+        sfceFbSlider.setValue(sfcEcho.getFloat("fb", (float)sfceFbSlider.getValue()), juce::sendNotification);
+        sfceFirCoef0Slider.setValue(sfcEcho.getFloat("firCoef0", (float)sfceFirCoef0Slider.getValue()), juce::sendNotification);
+        sfceFirCoef1Slider.setValue(sfcEcho.getFloat("firCoef1", (float)sfceFirCoef1Slider.getValue()), juce::sendNotification);
+        sfceFirCoef2Slider.setValue(sfcEcho.getFloat("firCoef2", (float)sfceFirCoef2Slider.getValue()), juce::sendNotification);
+        sfceFirCoef3Slider.setValue(sfcEcho.getFloat("firCoef3", (float)sfceFirCoef3Slider.getValue()), juce::sendNotification);
+        sfceFirCoef4Slider.setValue(sfcEcho.getFloat("firCoef4", (float)sfceFirCoef4Slider.getValue()), juce::sendNotification);
+        sfceFirCoef5Slider.setValue(sfcEcho.getFloat("firCoef5", (float)sfceFirCoef5Slider.getValue()), juce::sendNotification);
+        sfceFirCoef6Slider.setValue(sfcEcho.getFloat("firCoef6", (float)sfceFirCoef6Slider.getValue()), juce::sendNotification);
+        sfceFirCoef7Slider.setValue(sfcEcho.getFloat("firCoef7", (float)sfceFirCoef7Slider.getValue()), juce::sendNotification);
+        sfceMixSlider.setValue(sfcEcho.getFloat("mix", (float)sfceMixSlider.getValue()), juce::sendNotification);
+    }
+
+    // 変調を動かす鍵盤の割り当て。音源のプラグインで読んだときは、
+    // このまとまりが無いものとして飛ばされる。
+    GuiFxKeyAssign::readParams(ctx.apvts, reader);
 }
 
 // FX のパラメータを初期値へ戻す。
@@ -1909,23 +1942,23 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
 // パラメータではないので、ここでは戻らない。
 void GuiFx::initParams()
 {
-    ctx.audioProcessor.initParams(FxPrKey::prefix + "_");
+    pluginOf(ctx).initParams(FxPrKey::prefix + "_");
 }
 
 void GuiFx::bypassHiddenCategories()
 {
     // いま隠れている枠だけを切る。出したままの枠は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) wtAmpModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) wtModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 }
 
 void GuiFx::openEnabledCategories()
@@ -1958,4 +1991,47 @@ void GuiFx::closeBypassedCategories()
     if (lfoComponent.hasBypassSwitch() && lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(false);
     if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
     if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
+}
+
+void GuiFx::timerCallback()
+{
+    updateKeyAssignTitles();
+}
+
+void GuiFx::updateKeyAssignTitles()
+{
+    namespace KA = ModPrKey::KeyAssign;
+
+    const bool custom = keyAssign.isCustom();
+    const uint32_t held = custom ? pluginOf(ctx).getModHeldTargets() : 0u;
+
+    auto isHeld = [held](std::initializer_list<KA::Target> targets) {
+        for (auto t : targets)
+        {
+            if ((held & (1u << (unsigned)t)) != 0) return true;
+        }
+
+        return false;
+        };
+
+    // 1 つの枠に対象が 2 つある (LFO の AM / PM、UNISON とアルペジオ) ときは、
+    // どちらかの鍵盤が押されていれば明るくする。
+    const std::array<std::pair<GuiScrollGroup*, bool>, 11> groups = { {
+        { &modAmpEnvGroup, isHeld({ KA::AmpEnv }) },
+        { &modSsgHwEnvGroup, isHeld({ KA::SsgHwEnv }) },
+        { &modWtAmpModGroup, isHeld({ KA::WtAmpMod }) },
+        { &modSsgSwEnv11Group, isHeld({ KA::SsgSwEnv11 }) },
+        { &modLfoGroup, isHeld({ KA::LfoAm, KA::LfoPm }) },
+        { &modPitchEnvGroup, isHeld({ KA::PitchEnv }) },
+        { &modSsgHwPEnvGroup, isHeld({ KA::SsgHwPEnv }) },
+        { &modSsgSwPEnv11Group, isHeld({ KA::SsgSwPEnv11 }) },
+        { &modWtModGroup, isHeld({ KA::WtMod }) },
+        { &modMulDetuneGroup, isHeld({ KA::MulDet }) },
+        { &modUnisonGroup, isHeld({ KA::Unison, KA::Arpeggio }) },
+    } };
+
+    for (auto& [group, lit] : groups)
+    {
+        group->setTitleIdle(custom && !lit);
+    }
 }

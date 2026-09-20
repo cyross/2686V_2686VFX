@@ -1,4 +1,4 @@
-﻿#include "../../Core/Gui/GuiI18n.h"
+﻿#include "Shared/Core/Gui/GuiI18n.h"
 #include "./RetroPalette.h"
 
 namespace

@@ -3,9 +3,9 @@
 #include <cmath>
 #include <vector>
 
-#include "Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 
 namespace
 {

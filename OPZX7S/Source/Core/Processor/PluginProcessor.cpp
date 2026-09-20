@@ -1,16 +1,19 @@
 ﻿#include "PluginProcessor.h"
+#include "../Const/ConstPlugin.h"
 #include "../../Effect/Fx/FxOrder.h"
 #include <limits>
 #include <algorithm>
 #include <cmath>
 #include <set>
 
-#include "../Processor/ProcessorNames.h"
-#include "../Processor/ProcessorHelper.h"
+#include "Shared/Core/Processor/ProcessorNames.h"
+#include "Shared/Core/Processor/ProcessorHelper.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 
-#include "../Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiValues.h"
+#include "../Gui/GuiTabCount.h"
+#include "../Const/ConstPresetFolder.h"
 
 namespace
 {
@@ -168,6 +171,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 // ============================================================================
 void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+    // 再生ランプを、音が絶えてから落とすまでの長さ
+    m_audibleHoldSamples = (int)(sampleRate * audibleHoldSeconds);
+    m_audibleHoldLeft = 0;
+    m_audible.store(false, std::memory_order_relaxed);
+
     m_synth.setCurrentPlaybackSampleRate(sampleRate);
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
@@ -217,6 +225,19 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     if (m < 0 || m >= (int)OscMode::Count) m = 0;
 
     m_currentParams.mode = (OscMode)m;
+
+    // チャンネルが変わったら、鳴っていた音と押している鍵盤を落とす。
+    // 切り替えた先では前のチャンネルの音は鳴らないので、押しっぱなしの
+    // 扱いを残すと、音が出ていないのに再生ランプが点いたままになる。
+    if (m_currentParams.mode != m_lastRenderedMode) {
+        m_lastRenderedMode = m_currentParams.mode;
+
+        for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+            if (auto* voice = m_synth.getVoice(i)) voice->stopNote(0.0f, false);
+        }
+
+        m_synth.midiKeysClear();
+    }
 
     // map を [] で引くと、無いキーのときに空のポインタを挿し込んでしまう。
     // 上で丸めてあるので届かないはずだが、辿る前に確かめておく。
@@ -277,6 +298,20 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     // シンセの発音
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+    // 再生ランプ用に、音が出ているかを見る。FX を通す前の、音源そのものの音。
+    {
+        const int numSamples = buffer.getNumSamples();
+
+        if (buffer.getMagnitude(0, numSamples) > audibleLevel) {
+            m_audibleHoldLeft = m_audibleHoldSamples;
+        }
+        else {
+            m_audibleHoldLeft = juce::jmax(0, m_audibleHoldLeft - numSamples);
+        }
+
+        m_audible.store(m_audibleHoldLeft > 0, std::memory_order_relaxed);
+    }
 
     // ヘッドルーム適応
     if (useHeadroom)
@@ -1323,6 +1358,9 @@ void AudioPlugin2686V::panic()
         }
     }
 
+    // 押している鍵盤も落とす。残すと再生ランプが点いたままになる。
+    m_synth.midiKeysClear();
+
     prFx.clear();
 }
 
@@ -1459,15 +1497,12 @@ void AudioPlugin2686V::updateFxOrder(std::vector<int> newOrder)
 
 bool AudioPlugin2686V::isPlaying()
 {
-    bool flag = false;
-
-    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
-        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            flag = flag || voice->isVoiceActive() || voice->isPlaying();
-        }
-    }
-
-    return flag;
+    // 出てきた音そのものを見る (processBlock で見て、ここへ書き写してある)。
+    //
+    // 以前はボイスが生きているかで決めていた。ボイスは包絡が終わるまで
+    // 生き続けるので、RR を遅くした音色では、耳に届かなくなってから数秒
+    // 残る。その間ずっと、音が出ていないのに再生ランプが点いたままだった。
+    return m_audible.load(std::memory_order_relaxed);
 }
 
 bool AudioPlugin2686V::isMidiProcessing() {
@@ -1679,4 +1714,58 @@ void AudioPlugin2686V::prepareRenderVoice(SynthVoice& voice, double sampleRate)
         if (opzx7Wt2Buffers[op].empty()) voice.clearOpzx7Wt2Buffer(op);
         else voice.setOpzx7Wt2Buffer(op, &opzx7Wt2Buffers[op]);
     }
+}
+
+// ============================================================================
+// 生成波形の計算に使う音源一式 (窓口 GuiProcessorHost::createRenderRig)
+// ============================================================================
+// 画面の部品は 12 本で共有するので、このプラグインのボイスとパラメータで
+// 組み立てたものを窓口越しに渡す。
+namespace
+{
+    struct RenderRig : GuiRenderRig
+    {
+        RetroSynthesiser synth;
+        SynthParams params;
+
+        void renderNextBlock(juce::AudioBuffer<float>& buffer, const juce::MidiBuffer& midi,
+            int startSample, int numSamples) override
+        {
+            synth.renderNextBlock(buffer, midi, startSample, numSamples);
+        }
+    };
+}
+
+std::unique_ptr<GuiRenderRig> AudioPlugin2686V::createRenderRig(double sampleRate)
+{
+    auto rig = std::make_unique<RenderRig>();
+
+    rig->params = buildRenderParams();
+
+    rig->synth.clearVoices();
+    rig->synth.clearSounds();
+    rig->synth.addSound(new SynthSound());
+
+    // 1 音ぶんなので、ユニゾンの最大数だけあれば足りる
+    for (int i = 0; i < Global::unisonVoices; ++i)
+    {
+        auto* voice = new SynthVoice();
+
+        rig->synth.addVoice(voice);
+
+        prepareRenderVoice(*voice, sampleRate);
+
+        voice->setParameters(rig->params);
+    }
+
+    rig->synth.setCurrentPlaybackSampleRate(sampleRate);
+
+    // 本体と同じ鳴らし方にするため、シンセ側の設定も写す
+    rig->synth.currentParams = &rig->params;
+    rig->synth.isMonoMode = rig->params.monoMode;
+    rig->synth.useVelocity = rig->params.useVelocity;
+    rig->synth.pitchResetOnLegato = rig->params.pitchResetOnLegato;
+    rig->synth.fixedVelocity = rig->params.fixedVelocity;
+
+    return rig;
 }

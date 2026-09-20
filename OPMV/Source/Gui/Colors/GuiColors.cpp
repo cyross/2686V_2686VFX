@@ -3,11 +3,12 @@
 
 #include "./RetroPalette.h"
 
-#include "../../Core/Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 
 #include <optional>
 
 #include "../../Core/Editor/PluginEditor.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 // ============================================================================
 // 行ごとの「既定へ戻す」
@@ -549,21 +550,21 @@ void GuiColors::paint(juce::Graphics& g)
 // 既定が反映されなくなるため。
 void GuiColors::saveToFile()
 {
-	juce::File defaultDir(ctx.audioProcessor.defaultColorSettingDir);
+	juce::File defaultDir(pluginOf(ctx).defaultColorSettingDir);
 
 	if (!defaultDir.isDirectory()) {
-		defaultDir = ctx.audioProcessor.getPluginDirectory();
+		defaultDir = pluginOf(ctx).getPluginDirectory();
 	}
 
 	// 書き出す先も一覧から決める。名前は下の欄で直せる。
-	ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultColorSettingDir,
+	editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultColorSettingDir,
 		{ EditorGuiText::ParamBrowser::kindColors }, Io::Extension::ColorSetting,
 		[this](const juce::File& file) {
 
 			if (file == juce::File{}) return;
 
 			// 次回のダイアログ用にディレクトリを保存
-			ctx.audioProcessor.defaultColorSettingDir = file.getParentDirectory().getFullPathName();
+			pluginOf(ctx).defaultColorSettingDir = file.getParentDirectory().getFullPathName();
 
 			auto* colors = new juce::DynamicObject();
 
@@ -588,20 +589,20 @@ void GuiColors::saveToFile()
 // 読めるようにするため。
 void GuiColors::loadFromFile()
 {
-	juce::File defaultDir(ctx.audioProcessor.defaultColorSettingDir);
+	juce::File defaultDir(pluginOf(ctx).defaultColorSettingDir);
 
 	if (!defaultDir.isDirectory()) {
-		defaultDir = ctx.audioProcessor.getPluginDirectory();
+		defaultDir = pluginOf(ctx).getPluginDirectory();
 	}
 
 	// ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
-	ctx.editor.openParamBrowser(ctx.audioProcessor.defaultColorSettingDir,
+	editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultColorSettingDir,
 		{ EditorGuiText::ParamBrowser::kindColors },
 		[this](const juce::File& file) {
 
 			if (!file.existsAsFile()) return;
 
-			ctx.audioProcessor.defaultColorSettingDir = file.getParentDirectory().getFullPathName();
+			pluginOf(ctx).defaultColorSettingDir = file.getParentDirectory().getFullPathName();
 
 			// JSON でも YAML でも読める
 			auto parsed = Io::readValueFrom(file);

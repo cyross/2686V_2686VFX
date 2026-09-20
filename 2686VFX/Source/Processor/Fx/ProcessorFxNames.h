@@ -2,7 +2,7 @@
 
 #include<JuceHeader.h>
 
-#include "../../Core/Processor/ProcessorNames.h"
+#include "Shared/Core/Processor/ProcessorNames.h"
 
 // UI上に表示するタイトル等を管理
 namespace FxPrName

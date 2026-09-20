@@ -7,14 +7,15 @@
 
 #include "../../Processor/Fx/ProcessorFxKeys.h"
 #include "../../Processor/Fx/ProcessorFxValues.h"
-#include "../../Core/Const/ConstFileValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiFxValues.h"
-#include "../../Core/Gui/GuiStructs.h"
-#include "../../Core/Gui/GuiRefresh.h"
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Io/ParamFile.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 namespace
 {
@@ -130,7 +131,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     sfceWetBtn(context)
 {
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-    order = ctx.audioProcessor.getFxOrder();
+    order = pluginOf(ctx).getFxOrder();
 }
 
 void GuiFx::setup()
@@ -152,7 +153,7 @@ void GuiFx::setup()
     resetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::reset, .textColor = juce::Colours::white, .bgColor = juce::Colours::grey });
     resetBtn.setWantsKeyboardFocus(true);
     resetBtn.setExplicitFocusOrder(++tabOrder);
-    resetBtn.onClick = [&] { this->ctx.audioProcessor.initParams("FX_"); };
+    resetBtn.onClick = [&] { pluginOf(ctx).initParams("FX_"); };
 
     routeSeparator.setupComponent(*this);
 
@@ -162,7 +163,7 @@ void GuiFx::setup()
     showRouteBtn.onClick = [this] {
         isShowRoute = !isShowRoute;
 
-        ctx.editor.resized();
+        editorOf(ctx).resized();
         };
 
     for (int fxr = 0; fxr < NumEffects; fxr++) {
@@ -184,9 +185,9 @@ void GuiFx::setup()
                 routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
-            ctx.audioProcessor.updateFxOrder(order);
+            pluginOf(ctx).updateFxOrder(order);
 
-            ctx.editor.resized();
+            editorOf(ctx).resized();
             };
 
         routeDown[fxr].setup({ .parent = *this, .title = juce::String("") + "▼", .isReset = false });
@@ -203,9 +204,9 @@ void GuiFx::setup()
                 routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
             }
 
-            ctx.audioProcessor.updateFxOrder(order);
+            pluginOf(ctx).updateFxOrder(order);
 
-            ctx.editor.resized();
+            editorOf(ctx).resized();
             };
     }
 
@@ -856,13 +857,13 @@ void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
 }
 
 void GuiFx::updateFxOrder() {
-    order = ctx.audioProcessor.getFxOrder();
+    order = pluginOf(ctx).getFxOrder();
 
     for (int i = 0; i < NumEffects; i++) {
         routeFx[i].setText(effectNames()[order[i]], juce::sendNotification);
     }
 
-    ctx.editor.resized();
+    editorOf(ctx).resized();
 }
 
 void GuiFx::updateFilterEnabled() {
@@ -972,7 +973,7 @@ void GuiFx::importFxOrder()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultFxOrderDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultFxOrderDir,
         { EditorGuiText::ParamBrowser::kindFxOrder },
         [this](const juce::File& file) { applyFxOrderFile(file); });
 }
@@ -985,7 +986,7 @@ void GuiFx::applyFxOrderFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1036,7 +1037,7 @@ void GuiFx::applyFxOrderFile(const juce::File& file)
     }
 
     // 範囲外・重複・取りこぼしのならしは 1 箇所にまとめてある。
-    ctx.audioProcessor.updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
+    pluginOf(ctx).updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
 
     updateFxOrder();
 }
@@ -1044,7 +1045,7 @@ void GuiFx::applyFxOrderFile(const juce::File& file)
 void GuiFx::exportFxOrder()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultFxOrderDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultFxOrderDir,
         { EditorGuiText::ParamBrowser::kindFxOrder }, Io::Extension::fxOrder,
         [this](const juce::File& file) { writeFxOrderFile(file); });
 }
@@ -1056,7 +1057,7 @@ void GuiFx::writeFxOrderFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
     // 1行目にサンプル数
     Io::ParamWriter writer(fxOrderFormat);
@@ -1069,7 +1070,7 @@ void GuiFx::importFxParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultFxParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultFxParamDir,
         { EditorGuiText::ParamBrowser::kindFxParam },
         [this](const juce::File& file) { applyFxParamFile(file); });
 }
@@ -1082,7 +1083,7 @@ void GuiFx::applyFxParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1206,7 +1207,7 @@ void GuiFx::applyFxParamFile(const juce::File& file)
 void GuiFx::exportFxParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultFxParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultFxParamDir,
         { EditorGuiText::ParamBrowser::kindFxParam }, Io::Extension::fxParam,
         [this](const juce::File& file) { writeFxParamFile(file); });
 }
@@ -1218,7 +1219,7 @@ void GuiFx::writeFxParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(fxParamFormat);
     writeFxParams(writer);
@@ -1253,7 +1254,7 @@ void GuiFx::setImportingFxOrder(juce::StringArray& lines, int& index) {
         }
     }
 
-    ctx.audioProcessor.updateFxOrder(newOrders);
+    pluginOf(ctx).updateFxOrder(newOrders);
 
     updateFxOrder();
 

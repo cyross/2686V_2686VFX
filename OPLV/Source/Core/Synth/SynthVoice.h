@@ -4,11 +4,11 @@
 
 #include "./SynthMode.h"
 #include "./SynthParams.h"
-#include "./SynthCore.h"
+#include "Shared/Core/Synth/SynthCore.h"
 
-#include "../../Synth/Opl/SynthOpl.h"
-#include "../../Synth/Opl3/SynthOpl3.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Synth/Opl/SynthOpl.h"
+#include "Shared/Synth/Opl3/SynthOpl3.h"
+#include "Shared/Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
 {

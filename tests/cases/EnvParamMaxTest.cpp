@@ -2,10 +2,10 @@
 
 #include <cmath>
 
-#include "Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.h"
-#include "Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.h"
-#include "Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddr.h"
-#include "Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.h"
+#include "Shared/Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.h"
+#include "Shared/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.h"
+#include "Shared/Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddr.h"
+#include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.h"
 
 // ============================================================================
 // setParamMax() を呼ばなくても壊れないこと

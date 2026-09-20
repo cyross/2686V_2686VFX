@@ -4,7 +4,7 @@
 
 #include<JuceHeader.h>
 
-#include "../../Core/Gui/GuiI18n.h"
+#include "Shared/Core/Gui/GuiI18n.h"
 
 namespace FxGuiText
 {
@@ -48,6 +48,14 @@ namespace FxGuiText
 			static inline const juce::String rate = "RATE";
 			static inline const juce::String interp = "INTERP";
 		}
+	}
+
+	// 変調を動かす鍵盤の割り当て
+	namespace KeyAssign
+	{
+		static inline const I18n::Text title{ u8"キーアサイン", u8"Key assign" };
+		static inline const I18n::Text single{ u8"シングルキーアサイン", u8"Single key" };
+		static inline const I18n::Text custom{ u8"キーアサインのカスタマイズ", u8"Customize" };
 	}
 
 	namespace Group

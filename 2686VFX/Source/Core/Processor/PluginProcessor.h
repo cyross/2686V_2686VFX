@@ -1,23 +1,24 @@
 ﻿#pragma once
 #include <map>
+#include "../Const/ConstPlugin.h"
 #include <JuceHeader.h>
 
-#include "../Io/ParamFile.h"
-#include "../Gui/GuiI18n.h"
+#include "Shared/Core/Io/ParamFile.h"
+#include "Shared/Core/Gui/GuiI18n.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
-#include "../Gui/GuiSimpleView.h"
-#include "../Gui/GuiToggleAlign.h"
+#include "Shared/Core/Gui/GuiSimpleView.h"
+#include "Shared/Core/Gui/GuiToggleAlign.h"
 #include <algorithm>
 
 
 #include "../../Processor/Fx/ProcessorFx.h"
 #include "../../Processor/Mod/ProcessorMod.h"
 
-#include "../Const/ConstGlobal.h"
-#include "../Processor/ProcessorKeys.h"
-#include "../Processor/ProcessorValues.h"
-#include "../Const/ConstFileValues.h"
+#include "Shared/Core/Const/ConstGlobal.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 #include "../../Gui/Preset/PresetValues.h"
 
@@ -25,10 +26,12 @@
 
 
 #include "./PluginProcessorStateKey.h"
-#include "../Synth/WtModWave.h"
+#include "Shared/Core/Synth/WtModWave.h"
+#include "Shared/Core/Gui/GuiHost.h"
 
 
-class AudioPlugin2686V : public juce::AudioProcessor
+class AudioPlugin2686V : public juce::AudioProcessor,
+    public GuiProcessorHost
 {
 private:
     FxProcessor prFx;
@@ -88,12 +91,10 @@ public:
     void loadRhythmFile(const juce::File& file, int padIndex);
     void unloadRhythmFile(int padIndex);
 
-    juce::AudioFormatManager formatManager;
     juce::File lastSampleDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };
 
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
-    juce::UndoManager undoManager;
     juce::AudioProcessorValueTreeState apvts;
 
     // --- Metadata ---
@@ -107,22 +108,14 @@ public:
 
     OscMode lastActiveSynthMode = OscMode::OPNA;
 
-    // --- File Paths (To restore samples) ---
-    // チャンネルごとの MODULATION 変調波形ファイルのパス。
-    // キーは APVTS のプレフィックス (OPNA / SSG / OPZX7 など)。
-    // 波形そのものは 32 個のパラメータ側に入っているので、ここは表示用。
-    // 1 チャンネルにつきスロットの数だけ持つ。
-    using WtModWavePaths = std::array<juce::String, Global::WtMod::slots>;
-    std::map<juce::String, WtModWavePaths> modWavePaths;
 
-    // WT PITCH MOD の変調波形。チャンネルごとに複数スロット持つ。
-    // 32 サンプル × 枚数をパラメータで持つと数が膨大になるため、
-    // 実データはここが所有し、state には相対パスだけを保存する。
-    WtModWaveStore modWaveSlots;
     // 変調波形の読み書き。実データは modWaveSlots が持ち、
     // state へは相対パスだけを保存して読み直す。
-    void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file);
-    void unloadWtModWaveFile(const juce::String& code, int slot);
+    void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file) override;
+    void unloadWtModWaveFile(const juce::String& code, int slot) override;
+
+    // 生成波形の計算に使う音源一式 (窓口)。2686VFX は音源を持たないので作らない。
+    std::unique_ptr<GuiRenderRig> createRenderRig(double) override { return nullptr; }
 
     // 画面へ波形を描くために持っておくサンプル。
     // 音は各ボイスが自分の持ち分で鳴らすので、こちらは表示専用。
@@ -195,19 +188,9 @@ public:
     int wallpaperMode = 0; // 0=Stretch, 1=Fill, 2=Fit, 3=Original
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
     juce::String defaultPresetDir; // For Presets
-	juce::String defaultWavetableDir; // For Wavetables
     juce::String defaultFxOrderDir; // For FX Order
     juce::String defaultFxParamDir;
-    juce::String defaultChannelParamDir;
     juce::String defaultCurveParamDir;
-    juce::String defaultLfoParamDir;
-    juce::String defaultAmpEnvParamDir;
-    juce::String defaultPitchEnvParamDir;
-    juce::String defaultSsgHwEnvParamDir;
-    juce::String defaultWtModParamDir;
-    juce::String defaultSsgSwEnvParamDir;
-    juce::String defaultDetuneParamDir;
-    juce::String defaultUnisonParamDir;
     juce::String defaultQualityParamDir;
     juce::String defaultPcmPlayParamDir;
     juce::String defaultToneNoiseParamDir;
@@ -272,9 +255,6 @@ public:
     bool isSimpleShown(SimpleView::Cat cat) const {
         return SimpleView::isShown(simpleView, simpleViewShow, cat);
     }
-    // トグルボタンの並べ方。ToggleAlign::Centred で従来どおり行の真ん中、
-    // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。
-    int toggleAlign = ToggleAlign::Centred;
 
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
@@ -283,7 +263,7 @@ public:
     bool saveEnvironment(const juce::File& file);
     // プラグインが使うフォルダ。ドキュメントの下に 1 つ作り、
     // 既定の保存先はすべてこの中にする。
-    juce::File getPluginDirectory() const
+    juce::File getPluginDirectory() const override
     {
         auto dir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
             .getChildFile(Io::Folder::asset);
@@ -326,6 +306,9 @@ public:
     void updateFxOrder(std::vector<int> newOrder);
     bool isPlaying();
     bool isMidiProcessing();
+
+    // 押さえている鍵盤を割り当てた変調の対象 (キーアサインの Target のビット)
+    uint32_t getModHeldTargets() const { return prMod.getHeldTargets(); }
     OscMode getCurrentMode();
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)

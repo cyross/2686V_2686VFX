@@ -1,9 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
-static constexpr int MaxRhythmPads = 6;
-static constexpr int MaxFmOperators = 4;
-
 enum class OscMode
 {
     OPNA = 0,   // YM2608

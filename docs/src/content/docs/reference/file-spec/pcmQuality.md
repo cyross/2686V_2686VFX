@@ -23,7 +23,11 @@ QUALITY(PCM) の設定。
   "values": {
     "mode": 13,
     "rate": 9,
-    "interp": 1
+    "interp": 1,
+    "nrResample": false,
+    "nrGate": false,
+    "nrGateLevel": -60.0,
+    "nrLpf": 0
   }
 }
 ```
@@ -39,6 +43,13 @@ QUALITY(PCM) の設定。
 | `mode` | 整数 | 1 〜 21 | 13 |
 | `rate` | 整数 | 1 〜 15 | 9 |
 | `interp` | 整数 | 0 〜 6 | 1 |
+| `nrResample` | bool | — | `false` |
+| `nrGate` | bool | — | `false` |
+| `nrGateLevel` | 小数 | -96 〜 -24 | -60 |
+| `nrLpf` | 整数 | 0 〜 3（0: 切 / 1: 弱 / 2: 中 / 3: 強） | 0 |
+
+`nr` で始まるものはノイズリダクションで、3.6.0 で足しました。3.5.0 までに
+書いたファイルには無いので、読んだときはいまの値のまま変わりません。
 
 :::note[書き方について]
 - 選択肢のつまみは**番号**で持ちます。表の範囲に「選択肢の番号」と書いてある

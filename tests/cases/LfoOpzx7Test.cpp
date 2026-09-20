@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
+#include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
 
 // ============================================================================
 // OPZX7 LFO の波形

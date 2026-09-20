@@ -1,15 +1,18 @@
 ﻿#include "PluginProcessor.h"
+#include "../Const/ConstPlugin.h"
 #include "../../Effect/Fx/FxOrder.h"
 #include <algorithm>
 #include <cmath>
 #include <set>
 
-#include "../Processor/ProcessorNames.h"
-#include "../Processor/ProcessorHelper.h"
+#include "Shared/Core/Processor/ProcessorNames.h"
+#include "Shared/Core/Processor/ProcessorHelper.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 
-#include "../Gui/GuiValues.h"
+#include "Shared/Core/Gui/GuiValues.h"
+#include "../Gui/GuiTabCount.h"
+#include "../Const/ConstPresetFolder.h"
 
 namespace
 {
@@ -166,14 +169,16 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     // 画面の鍵盤から入った音も混ぜる
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
-    // 鍵盤の押し離しで変調を動かす。音を鳴らすためではないので、
-    // どの音程かは見ない。
+    // 鍵盤の押し離しで変調を動かす。音を鳴らすためではない。
+    // どの鍵盤でどの対象を動かすかは、キーアサインで決まる。
     for (const auto meta : midiMessages)
     {
         const auto message = meta.getMessage();
 
-        if (message.isNoteOn()) prMod.noteOn();
-        else if (message.isNoteOff() || message.isAllNotesOff()) prMod.noteOff();
+        if (message.isNoteOn()) prMod.noteOn(message.getNoteNumber());
+        else if (message.isNoteOff()) prMod.noteOff(message.getNoteNumber());
+        // オールサウンドオフ (CC120) も、オールノートオフと同じに扱う
+        else if (message.isAllNotesOff() || message.isAllSoundOff()) prMod.allNotesOff();
     }
 
     // 使わない出力は消しておく。入力より出力が多いときに、前の中身が残る。
@@ -1150,14 +1155,16 @@ void AudioPlugin2686V::updateFxOrder(std::vector<int> newOrder)
 {
     prFx.updateOrder(newOrder);
 }
-// 音を作っていないので、鳴っているかどうかは持たない
+// 再生ランプ。音は作っていないが、変調は鍵盤で動かすので、その様子を出す。
+//
+// 3.6.0 より前はどちらも false を返していて、ランプが点かなかった。
 bool AudioPlugin2686V::isPlaying()
 {
-    return false;
+    return prMod.isActive();
 }
 bool AudioPlugin2686V::isMidiProcessing()
 {
-    return false;
+    return prMod.isAnyKeyHeld();
 }
 
 OscMode AudioPlugin2686V::getCurrentMode()

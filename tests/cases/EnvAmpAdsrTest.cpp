@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
+#include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 
 namespace
 {

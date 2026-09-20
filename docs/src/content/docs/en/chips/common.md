@@ -66,6 +66,10 @@ storage scheme the hardware actually used**.
 | **BIT RATE** | Bit depth and compression scheme. 21 kinds | 1 – 21 | 13 | [`ADPCM_MODE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-mode) |
 | **SMP.RATE** | Sample rate. 15 steps | 1 – 15 | 9 | [`ADPCM_RATE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-rate) |
 | **INTERP** | How the gaps are filled on the way back. 7 kinds | 0 – 6 | 1 | [`ADPCM_INTERP`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-interp) |
+| **NR: Resample** | Uses a clean decimation when converting to a compression scheme | on / off | off | [`ADPCM_NR_RESAMPLE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-nr-resample) |
+| **NR: Gate** | Removes faint noise and DC offset in near-silent passages | on / off | off | [`ADPCM_NR_GATE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-nr-gate) |
+| **GATE.LV** | The level (dB) where the gate closes | -96 – -24 | -60 | [`ADPCM_NR_GATE_LV`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-nr-gate-lv) |
+| **NR.LPF** | Cuts the high end to tame the grit. Off / Light / Medium / Strong | 1 – 4 | 1 (Off) | [`ADPCM_NR_LPF`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-nr-lpf) |
 
 ### What BIT offers
 
@@ -97,6 +101,23 @@ the way back.
 
 **Drop RATE and set Nearest for the most period-correct grain.** B-Spline goes
 the other way and muffles things, which puts the sound further away.
+
+### Noise reduction — NR
+
+An **original** addition (new in 3.6.0). It keeps the period texture and only
+tames the noise that grates. **All of it starts switched off**, so leaving it
+alone keeps the sound as it was.
+
+| Knob | What it does |
+| --- | --- |
+| **NR: Resample** | When converting to a compression scheme (BIT 13-21), decimates the source with a clean **windowed-sinc** filter. The old decimation was crude and capped the signal-to-distortion ratio at about 28 dB; with this on it reaches about 90 dB. Only available while a compression scheme is selected |
+| **NR: Gate** | Closes when the sound falls below **GATE.LV**, silencing faint noise. It opens over 1 ms and closes over 30 ms, so attacks and tails are not clipped. It also removes DC offset (a shifted center) |
+| **GATE.LV** | The level at which the gate closes. Only available while NR: Gate is on |
+| **NR.LPF** | Trims the top of the range the source actually contains. Light, Medium and Strong cut from 90%, 70% and 50% of that upper edge |
+
+Plain bit reduction (BIT 1-12) produces exactly the noise theory predicts. When
+the grain bothers you it is usually a compression scheme, so try **NR: Resample**
+first.
 
 ## ENVELOPE
 

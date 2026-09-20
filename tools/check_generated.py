@@ -9,14 +9,13 @@ gen_plugin.py は「消す音源への言及を落とす」という削りをす
 同じ中身でなければならないので、それを突き合わせる。
 
   ・残した音源のディレクトリ (Gui/<chip>, Synth/<chip>, Processor/<chip>)
-  ・共有の実装 (Effect, Generator, Advanced, Gui/Components)
+  ・共有の実装のうち、まだプラグインの側にあるもの (Effect/Fx など)
+
+Generator / Advanced / Gui/Components と Effect の大半は、12 本で共有する
+Shared/ へ移したので、生成したプラグインには元から無い。
 
 出てくる差は、ひとつずつ意図したものか確かめること。いまのところ
-意図した差は次の 1 件だけ。
-
-  Gui/Components/WavePreview/WavePreviewSource.cpp
-      OPZX7 のオペレータ波形プレビュー (opzx7Ws) は OPZX7 タブからしか
-      呼ばれないので、OPZX7 を外したプラグインでは消える。
+意図した差は無い (0 件が正しい)。
 """
 import os
 import sys

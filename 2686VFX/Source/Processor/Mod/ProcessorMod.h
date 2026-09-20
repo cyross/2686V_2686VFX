@@ -3,23 +3,24 @@
 #include <JuceHeader.h>
 
 #include <array>
+#include <bitset>
 
-#include "../../Core/Processor/ProcessorHelper.h"
-#include "../../Core/Processor/ProcessorStructs.h"
+#include "Shared/Core/Processor/ProcessorHelper.h"
+#include "Shared/Core/Processor/ProcessorStructs.h"
 
-#include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
-#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
-#include "../../Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
-#include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
-#include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
-#include "../../Generator/WtMod/GenWtModulator.h"
-#include "../../Generator/WtMod/GenWtAmpModulator.h"
+#include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
+#include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
+#include "Shared/Effect/Lfo/Opzx7/LfoOpzx7.h"
+#include "Shared/Effect/Detune/Opzx7/DetuneOpzx7.h"
+#include "Shared/Generator/WtMod/GenWtModulator.h"
+#include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 
-#include "../../Core/Synth/UnisonParams.h"
-#include "../../Core/Synth/UnisonState.h"
+#include "Shared/Core/Synth/UnisonParams.h"
+#include "Shared/Core/Synth/UnisonState.h"
 
 #include "./ModPitchShifter.h"
 #include "./ProcessorModKeys.h"
@@ -63,6 +64,34 @@ class ModProcessor
 	std::atomic<float>* pWtModBaseFreq = nullptr;
 	std::atomic<float>* pShiftBypass = nullptr;
 
+	// どの鍵盤で動かすか
+	std::atomic<float>* pKeyAssignMode = nullptr;
+	std::array<std::atomic<float>*, ModPrKey::KeyAssign::NumTargets> pKeys{};
+
+	// 押さえている鍵盤。カスタマイズのときに、押している間だけ効かせる
+	// もの (LFO・MUL/DET・UNISON/HARMONY・アルペジオ) が見る。
+	std::bitset<128> heldKeys;
+
+	// 押さえている鍵盤を割り当てた対象 (Target の番号のビット)。
+	// 画面が枠の見出しを塗り分けるのに読む。オーディオスレッドが書き、
+	// 画面のスレッドが読むので atomic にしてある。
+	std::atomic<uint32_t> heldTargetsForGui{ 0 };
+
+	// どれか 1 つでも鍵盤を押さえているか。再生ランプが読む。
+	// 対象の割り当てとは関わりなく、押していれば真。
+	std::atomic<bool> anyKeyHeldForGui{ false };
+
+	// 変調の包絡が走っているか。これも画面のスレッドが読むので、
+	// オーディオスレッドが処理のたびに書き写す。
+	std::atomic<bool> activeForGui{ false };
+
+	static_assert(ModPrKey::KeyAssign::NumTargets <= 32, "heldTargetsForGui のビットが足りない");
+
+	// LFO の AM / PM を効かせる度合い (0〜1)。押し離しの継ぎ目で音が
+	// 飛ばないよう、数ミリ秒かけて寄せる。
+	float lfoAmGate = 1.0f;
+	float lfoPmGate = 1.0f;
+
 	AmpAdsrEnv ampEnv;
 	SsgHwEnv ssgHwEnv;
 	SsgSwEnv11 ssgSwEnv11;
@@ -102,6 +131,24 @@ class ModProcessor
 
 	// 入り切りの札を読み直す。押し離しは音を作るより先に届くため。
 	void refreshSwitches();
+
+	using Targets = std::bitset<ModPrKey::KeyAssign::NumTargets>;
+
+	bool isCustomKeyAssign() const;
+
+	// その鍵盤を割り当てた対象
+	Targets targetsOf(int note) const;
+
+	// 対象へ「押した」「離した」を送る。順番はこれまでと同じ。
+	void startTargets(const Targets& targets);
+	void releaseTargets(const Targets& targets);
+
+	// 押している間だけ効かせる対象が、いま効いているか。
+	// シングルキーアサインでは鍵盤に関係なく効く (これまでどおり)。
+	bool isHeld(ModPrKey::KeyAssign::Target target) const;
+
+	// heldTargetsForGui を今の鍵盤と割り当てから作り直す
+	void publishHeldTargets();
 public:
 	void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
 
@@ -110,13 +157,26 @@ public:
 
 	void prepare(double sampleRate);
 
-	// 鍵盤の押し離し。音を鳴らすためではないので、どの音程かは見ない。
-	void noteOn();
-	void noteOff();
+	// 鍵盤の押し離し。音を鳴らすためではない。
+	//
+	// シングルキーアサインでは、どの鍵盤でも全部を動かす (音程は見ない)。
+	// カスタマイズでは、その鍵盤を割り当てた対象だけを動かす。
+	void noteOn(int note);
+	void noteOff(int note);
+
+	// 全部の鍵盤を離したことにする (オールノートオフ)
+	void allNotesOff();
 
 	// 出力へ掛ける。何も有効になっていなければ触らない。
 	void processBlock(juce::AudioBuffer<float>& buffer, juce::AudioProcessorValueTreeState& apvts);
 
-	// 画面の表示に使う。鳴っている間だけ真になる。
-	bool isActive() const;
+	// 画面の表示に使う。変調の包絡が走っている間だけ真になる。
+	bool isActive() const { return activeForGui.load(std::memory_order_relaxed); }
+
+	// 画面の表示に使う。鍵盤を押さえている間だけ真になる。
+	bool isAnyKeyHeld() const { return anyKeyHeldForGui.load(std::memory_order_relaxed); }
+
+	// 画面の表示に使う。押さえている鍵盤を割り当てた対象を、
+	// Target の番号のビットで返す。キーアサインのモードは見ない。
+	uint32_t getHeldTargets() const { return heldTargetsForGui.load(std::memory_order_relaxed); }
 };

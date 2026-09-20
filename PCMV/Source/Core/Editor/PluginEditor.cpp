@@ -1,4 +1,5 @@
-﻿#include "../Gui/GuiRefresh.h"
+﻿#include "Shared/Core/Gui/GuiRefresh.h"
+#include "../Const/ConstPlugin.h"
 #include <cstdio>
 #include <vector>
 #include <initializer_list>
@@ -9,19 +10,19 @@
 
 #include "../Processor/PluginProcessor.h"
 
-#include "../Processor/ProcessorKeys.h"
-#include "../Const/ConstFileValues.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Const/ConstFileValues.h"
 #include "../../Gui/Preset/PresetKeys.h"
 
 #include "../Fm/FmRegisterConverter.h"
 
 #include "./EditorGuiValues.h"
-#include "../Gui/GuiColor.h"
-#include "../Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiContext.h"
 
-#include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
-#include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
-#include "../../Processor/AdpcmPlus/ProcessorAdpcmPlusKeys.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmKeys.h"
+#include "Shared/Processor/Adpcm/ProcessorAdpcmKeys.h"
+#include "Shared/Processor/AdpcmPlus/ProcessorAdpcmPlusKeys.h"
 
 #include "AppIconForAbout.h"
 

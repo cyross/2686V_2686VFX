@@ -3,9 +3,9 @@
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiOpl3.h"
 
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 namespace
 {
@@ -23,23 +23,24 @@ namespace
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
-#include "../../Processor/Opl3/ProcessorOpl3Keys.h"
-#include "../../Processor/Opl3/ProcessorOpl3Values.h"
-#include "../../Processor/Opl/ProcessorOplValues.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
+#include "Shared/Processor/Opl3/ProcessorOpl3Keys.h"
+#include "Shared/Processor/Opl3/ProcessorOpl3Values.h"
+#include "Shared/Processor/Opl/ProcessorOplValues.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
-#include "../../Core/Const/ConstGlobal.h"
+#include "Shared/Core/Const/ConstGlobal.h"
 
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"
 
-#include "../../Core/Gui/GuiGraphValues.h"
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiGraphValues.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiOpl3Values.h"
 #include "./GuiOpl3Text.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 static std::vector<SelectItem> opl3AlgItems = {
     {.name = "00: <OPL3(OP4)-00>", .value = 1 },
@@ -101,7 +102,7 @@ void GuiOpl3::setup()
 
     mainGroup.setup(*this, Opl3GuiText::Group::mainGroup);
 
-    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
+    presetName.setupComponent(*this, tabOrder, pluginOf(ctx).presetName);
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
@@ -156,7 +157,7 @@ void GuiOpl3::setup()
     broadcastLevelButton.onClick = [this] {
         float level = levelComponent.getLevel();
 
-        ctx.editor.breadcastLevel(level);
+        editorOf(ctx).breadcastLevel(level);
         };
 
     uSep001.setupComponent(mainGroup.contentCanvas);
@@ -194,21 +195,21 @@ void GuiOpl3::setup()
     copyOpParamToOplBtn.setWantsKeyboardFocus(true);
     copyOpParamToOplBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOplBtn.onClick = [this] {
-        ctx.editor.copyOpl3ParamsToOpl();
+        editorOf(ctx).copyOpl3ParamsToOpl();
         };
 
     copyOpParamToOpl12Btn.setup({ .parent = mainGroup.contentCanvas, .title = "1/2 OP Params -> OPL", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamToOpl12Btn.setWantsKeyboardFocus(true);
     copyOpParamToOpl12Btn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOpl12Btn.onClick = [this] {
-        ctx.editor.copyOpl312ParamsToOpl();
+        editorOf(ctx).copyOpl312ParamsToOpl();
         };
 
     copyOpParamToOpl34Btn.setup({ .parent = mainGroup.contentCanvas, .title = "3/4 OP Params -> OPL", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamToOpl34Btn.setWantsKeyboardFocus(true);
     copyOpParamToOpl34Btn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOpl34Btn.onClick = [this] {
-        ctx.editor.copyOpl334ParamsToOpl();
+        editorOf(ctx).copyOpl334ParamsToOpl();
         };
 
     uSep003.setupComponent(mainGroup.contentCanvas);
@@ -220,7 +221,7 @@ void GuiOpl3::setup()
         int from = copyOpFromSlider.getValue() - 1;
         int to = copyOpToSlider.getValue() - 1;
 
-        ctx.editor.copyOpl3OpParams(from, to);
+        editorOf(ctx).copyOpl3OpParams(from, to);
         };
 
     copyOpFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
@@ -342,6 +343,7 @@ void GuiOpl3::setup()
     // 区分は縦に積まず、横へ並べる。1 列 1 区分が基本。
     stripViewport.setViewedComponent(&stripCanvas, false);
     stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
 
     addAndMakeVisible(stripViewport);
@@ -554,7 +556,7 @@ void GuiOpl3::setup()
     }
 
     // 前に開いていたときの指し先から始める。
-    const int saved = (int)ctx.audioProcessor.apvts.state.getProperty(ProcessorStateKey::oplTarget, 0);
+    const int saved = (int)pluginOf(ctx).apvts.state.getProperty(ProcessorStateKey::oplTarget, 0);
 
     targerOpSlider.setValue(juce::jlimit(0, Opl3PrValue::ops - 1, saved) + 1, juce::dontSendNotification);
 
@@ -607,38 +609,38 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
 
-    ampEnvComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv));
+    ampEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
-    ssgHwEnv.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv));
+    ssgHwEnv.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv));
     ssgHwEnv.layoutComponent(mRect);
-    ssgSwEnv11g.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11));
+    ssgSwEnv11g.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
     ssgSwEnv11g.layoutComponent(mRect);
-    ampModComponent.setCategoryVisible(ampOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod));
+    ampModComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
     ampMajorCat.endMajor(mRect);
 
     // [[PITCH ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
-        ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)
-        || ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+        pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
 
-    ssgHwPEnv.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv));
+    ssgHwPEnv.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
-    ssgSwPEnv11g.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11));
+    ssgSwPEnv11g.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
     ssgSwPEnv11g.layoutComponent(mRect);
-    modComponent.setCategoryVisible(pitchOpen && ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod));
+    modComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
 
-    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
+    unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
@@ -882,7 +884,7 @@ void GuiOpl3::applyOpTarget()
 {
     const int op = currentOp();
 
-    ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::opl3Target, op, nullptr);
+    pluginOf(ctx).apvts.state.setProperty(ProcessorStateKey::opl3Target, op, nullptr);
 
     rebind(op);
 
@@ -988,7 +990,7 @@ void GuiOpl3::copyFmParamsToString()
     //
     // 選ぶ形のパラメータは、つまみの選択番号から 1 を引いたものと同じ値を
     // 持っている。以前 getSelectedId() - 1 と書いていたところがこれに当たる。
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
 
     auto opRaw = [&apvts](int index, const juce::String& key) {
         return GuiGraphValues::value(apvts, Opl3PrKey::prefix + CPK::op + juce::String(index) + key);
@@ -1085,7 +1087,7 @@ void GuiOpl3::pasteFmParamsFromObject()
 
 void GuiOpl3::initParams()
 {
-    this->ctx.audioProcessor.initParams("OPL3_");
+    pluginOf(ctx).initParams("OPL3_");
 }
 
 // 設定ひとそろいの置き方。
@@ -1166,7 +1168,7 @@ void GuiOpl3::layoutOpPanel(juce::Rectangle<int> area)
             group.setContentHeight(rect.getY() + 20);
         };
 
-    const auto shown = [this](SimpleView::Cat cat) { return ctx.audioProcessor.isSimpleShown(cat); };
+    const auto shown = [this](SimpleView::Cat cat) { return pluginOf(ctx).isSimpleShown(cat); };
 
     layoutCol(colAmp, true, [&](juce::Rectangle<int>& rect) {
         updateRgDisplayAsOp(true);
@@ -1602,7 +1604,7 @@ void GuiOpl3::setupOpGraphWiring()
 // いかない。接頭辞を頼りにパラメータから直に採る。
 void GuiOpl3::updateOpGraph(int opIndex)
 {
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
     auto& graph = cells[(size_t)opIndex].graph();
 
     const juce::String code = Opl3PrKey::prefix + CPK::op + juce::String(opIndex);
@@ -1874,7 +1876,7 @@ void GuiOpl3::importLfoParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultLfoParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultLfoParamDir,
         { EditorGuiText::ParamBrowser::kindLfoOpl },
         [this, opIndex](const juce::File& file) { applyLfoParamFile(opIndex, file); });
 }
@@ -1887,7 +1889,7 @@ void GuiOpl3::applyLfoParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1934,7 +1936,7 @@ void GuiOpl3::applyLfoParamFile(int opIndex, const juce::File& file)
 void GuiOpl3::exportLfoParam(int opIndex)
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultLfoParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultLfoParamDir,
         { EditorGuiText::ParamBrowser::kindLfoOpl }, Io::Extension::OplLfoParam,
         [this, opIndex](const juce::File& file) { writeLfoParamFile(opIndex, file); });
 }
@@ -1946,7 +1948,7 @@ void GuiOpl3::writeLfoParamFile(int opIndex, const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(oplLfoFormat);
     writeLfoParams(opIndex, writer);
@@ -1974,7 +1976,7 @@ void GuiOpl3::importQualityParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality },
         [this](const juce::File& file) { applyQualityParamFile(file); });
 }
@@ -1987,7 +1989,7 @@ void GuiOpl3::applyQualityParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2030,7 +2032,7 @@ void GuiOpl3::applyQualityParamFile(const juce::File& file)
 void GuiOpl3::exportQualityParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindQuality }, Io::Extension::QualityParam,
         [this](const juce::File& file) { writeQualityParamFile(file); });
 }
@@ -2042,7 +2044,7 @@ void GuiOpl3::writeQualityParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(qualityFormat);
     writeQualityParams(writer);
@@ -2101,7 +2103,7 @@ void GuiOpl3::exportOpWtModParam(int opIndex) {
 void GuiOpl3::importChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "OPL3" },
+    editorOf(ctx).openParamBrowser({ "OPL3" },
         [this](const juce::File& file) { applyChParamFile(file); });
 }
 
@@ -2111,7 +2113,7 @@ void GuiOpl3::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2153,7 +2155,7 @@ void GuiOpl3::applyChParamFile(const juce::File& file) {
 void GuiOpl3::exportChParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { "OPL3" }, Io::Extension::opl3Param,
         [this](const juce::File& file) { writeChParamFile(file); });
 }
@@ -2164,7 +2166,7 @@ void GuiOpl3::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(opl3Format);
     writeChParams(writer);
@@ -2176,7 +2178,7 @@ void GuiOpl3::importOpChParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpl3Op },
         [this, opIndex](const juce::File& file) { applyOpChParamFile(opIndex, file); });
 }
@@ -2189,7 +2191,7 @@ void GuiOpl3::applyOpChParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2230,7 +2232,7 @@ void GuiOpl3::applyOpChParamFile(int opIndex, const juce::File& file)
 void GuiOpl3::exportOpChParam(int opIndex)
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOpl3Op }, Io::Extension::opl3OpParam,
         [this, opIndex](const juce::File& file) { writeOpChParamFile(opIndex, file); });
 }
@@ -2241,7 +2243,7 @@ void GuiOpl3::writeOpChParamFile(int opIndex, const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
                     Io::ParamWriter writer(opl3OpFormat);
     writeOpChFileParams(opIndex, writer);
@@ -2375,7 +2377,7 @@ void GuiOpl3::writeOpParams(int opIndex, Io::ParamWriter& w) {
 void GuiOpl3::importOplChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "OPL" },
+    editorOf(ctx).openParamBrowser({ "OPL" },
         [this](const juce::File& file) { applyOplChParamFile(file); });
 }
 
@@ -2385,7 +2387,7 @@ void GuiOpl3::applyOplChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 相手の音源のファイル。名前で引くので、こちらに無い項目は
     // 読み飛ばされ、こちらにしか無い項目は今の値のまま残る。
@@ -2402,7 +2404,7 @@ void GuiOpl3::applyOplChParamFile(const juce::File& file) {
 void GuiOpl3::importOplChAllOpParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "OPL" },
+    editorOf(ctx).openParamBrowser({ "OPL" },
         [this](const juce::File& file) { applyOplChAllOpParamFile(file); });
 }
 
@@ -2412,7 +2414,7 @@ void GuiOpl3::applyOplChAllOpParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // OPL のファイル。名前で引くので、こちらに無い項目は読み飛ばされる。
     auto reader = Io::ParamReader::open(file, oplFormat);
@@ -2448,7 +2450,7 @@ void GuiOpl3::importOplOpChParam(int opIndex)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindOplOp },
         [this, opIndex](const juce::File& file) { applyOplOpChParamFile(opIndex, file); });
 }
@@ -2461,7 +2463,7 @@ void GuiOpl3::applyOplOpChParamFile(int opIndex, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     auto reader = Io::ParamReader::open(file, oplOpFormat);
 
@@ -2663,23 +2665,23 @@ void GuiOpl3::writeLfoParams(int opIndex, Io::ParamWriter& writer) {
 void GuiOpl3::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11g.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11g.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
 }
 
 void GuiOpl3::openEnabledCategories()

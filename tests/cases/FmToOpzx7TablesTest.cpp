@@ -9,11 +9,11 @@
 
 #include "TestHelpers.h"
 
-#include "Gui/Components/FmToOpzx7/FmToOpzx7Tables.h"
-#include "Effect/Lfo/Opna/LfoOpna.h"
-#include "Effect/Lfo/Opm/LfoOpm.h"
-#include "Effect/Detune/Opn/DetuneOpn.h"
-#include "Effect/Detune/Opm/DetuneOpm.h"
+#include "Shared/Gui/Components/FmToOpzx7/FmToOpzx7Tables.h"
+#include "Shared/Effect/Lfo/Opna/LfoOpna.h"
+#include "Shared/Effect/Lfo/Opm/LfoOpm.h"
+#include "Shared/Effect/Detune/Opn/DetuneOpn.h"
+#include "Shared/Effect/Detune/Opm/DetuneOpm.h"
 
 // ============================================================================
 // FM → OPZX7S の変換が持つ表の写し
@@ -26,9 +26,10 @@ namespace
 {
     using FmToOpzx7::Tables::Routing;
 
+    // 音源の本体は 12 本で共有する Shared/ にある
     std::string readSource(const std::string& rel)
     {
-        std::ifstream in(std::string(repoRoot()) + "/2686V/Source/" + rel, std::ios::binary);
+        std::ifstream in(std::string(repoRoot()) + "/Shared/" + rel, std::ios::binary);
 
         std::stringstream ss;
         ss << in.rdbuf();

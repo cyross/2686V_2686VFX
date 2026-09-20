@@ -2,17 +2,17 @@
 
 #include <JuceHeader.h>
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 #include <array>
 
-#include "../../Processor/Curve/ProcessorCurveValues.h"
-#include "../../Core/Gui/GuiComponents.h"
-#include "../../Core/Gui/GuiBase.h"
-#include "../../Core/Gui/GuiContext.h"
+#include "Shared/Processor/Curve/ProcessorCurveValues.h"
+#include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
+#include "Shared/Core/Gui/GuiContext.h"
 #include "./GuiCurveGraph.h"
-#include "../../Gui/Components/Separator/NormalSeparator.h"
-#include "../../Gui/Components/Separator/ShortSeparator.h"
-#include "../../Gui/Components/ImportExport/ImportExport.h"
+#include "Shared/Gui/Components/Separator/NormalSeparator.h"
+#include "Shared/Gui/Components/Separator/ShortSeparator.h"
+#include "Shared/Gui/Components/ImportExport/ImportExport.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;

@@ -52,7 +52,9 @@ CHIPS = {
     "WT":    dict(dirs=["Gui/Wavetable", "Synth/Wavetable", "Processor/Wavetable"],
                   camel="Wt", lower="wt", mode="WAVETABLE", color="Wt", label="波形メモリ"),
     "WT2":   dict(dirs=["Gui/Wt2", "Synth/Wt2", "Processor/Wt2"],
-                  camel="Wt2", lower="wt2", mode="WT2", color="Wt", label="波形メモリ (2 系統)"),
+                  camel="Wt2", lower="wt2", mode="WT2", color="Wt",
+                  extra=["wt2QualityFixedVersion"],
+                  label="波形メモリ (2 系統)"),
     "WTPLUS": dict(dirs=["Gui/WtPlus", "Synth/WtPlus", "Processor/WtPlus"],
                    camel="WtPlus", lower="wtPlus", mode="WTPLUS", color="Wt",
                    extra=["isWtPlusWaveLoaded"],
@@ -187,6 +189,14 @@ def owned_symbols(src_root, chips, keep_dirs=()):
                 chip_dirs.append(os.path.normpath(base))
                 inside += all_sources(base)
 
+            # 共有へ移したもの (Shared/Synth/<音源> など) も、その音源の持ち物。
+            # ディレクトリは消さないが、名前は同じように落とす。
+            shared_base = os.path.join(ROOT, "Shared", rel.replace("/", os.sep))
+
+            if os.path.isdir(shared_base):
+                chip_dirs.append(os.path.normpath(shared_base))
+                inside += all_sources(shared_base)
+
     outside = [p for p in all_sources(src_root)
                if not any(os.path.normpath(p).startswith(d + os.sep) for d in chip_dirs)]
 
@@ -213,6 +223,20 @@ def owned_symbols(src_root, chips, keep_dirs=()):
         if os.path.normpath(path).startswith(comp_dirs):
             components |= words
 
+    # 12 本で共有するコード (Shared/)。プラグインの Source から移したもので、
+    # ここにある名前はどれも皆のもの。移す前は Effect や Generator として
+    # 上で数えていたので、同じ扱いにする。
+    # 消す音源の持ち物 (Shared/Synth/<音源> など) は除く。
+    shared_code = [p for p in all_sources(os.path.join(ROOT, "Shared"))
+                   if not any(os.path.normpath(p).startswith(d + os.sep) for d in chip_dirs)]
+
+    for path in shared_code:
+        words = set(IDENT.findall(read_text(path)))
+        shared |= words
+        components |= words
+
+    shared |= declared_names(shared_code)
+
     # 共有ファイルで宣言されている型は、名前に音源の綴りを含んでいても
     # 皆のもの (WtModWaveSlot など)。
     shared |= declared_names(outside)
@@ -220,13 +244,13 @@ def owned_symbols(src_root, chips, keep_dirs=()):
     # 残す音源が使っている名前も守る。WtModWaveStore のように、
     # 名前に音源の綴りを含んでいても、残る側が使うものがある。
     for rel in keep_dirs:
-        base = os.path.join(src_root, rel.replace("/", os.sep))
+        for base in (os.path.join(src_root, rel.replace("/", os.sep)),
+                     os.path.join(ROOT, "Shared", rel.replace("/", os.sep))):
+            if os.path.isdir(base):
+                for path in all_sources(base):
+                    shared |= set(IDENT.findall(read_text(path)))
 
-        if os.path.isdir(base):
-            for path in all_sources(base):
-                shared |= set(IDENT.findall(read_text(path)))
-
-    return declared_names(inside) - declared_names(outside), shared, components
+    return declared_names(inside) - declared_names(outside) - declared_names(shared_code), shared, components
 
 
 def drop_patterns(chip):
@@ -549,7 +573,6 @@ def strip_lines(text, pats, include_pat, mode_pat, first_mode, last_mode,
 SYNTH_MODE_TEMPLATE = """#pragma once
 #include <JuceHeader.h>
 
-%(consts)s
 enum class OscMode
 {
 %(entries)s    Count = %(count)d, // カウント用
@@ -636,15 +659,6 @@ def build_tab_modes(keep):
 
 
 def build_synth_mode(keep):
-    consts = []
-
-    if "RHYTHM" in keep:
-        consts.append("static constexpr int MaxRhythmPads = 8;")
-
-    # OPZX7 だけ 8 オペレータ。ほかの FM は 4 本まで。
-    consts.append("static constexpr int MaxFmOperators = %d;"
-                  % (8 if "OPZX7" in keep else 4))
-
     entries = ""
     names = ""
     lookup = ""
@@ -659,7 +673,6 @@ def build_synth_mode(keep):
         lookup += '    if (name == "%s") return OscMode::%s;\n' % (label, chip["mode"])
 
     return SYNTH_MODE_TEMPLATE % dict(
-        consts="\n".join(consts) + "\n",
         entries=entries,
         count=len(keep),
         names=names,
@@ -734,15 +747,15 @@ def generate(name):
 
     # mode つまみの上限はタブの数で決まる。音源を減らしたら詰める。
     # タブは「音源 + ADV + PRESET + SETTINGS + COLORS + ABOUT」。
-    gv_path = os.path.join(dst_root, "Core", "Gui", "GuiValues.h")
-    gv = read_text(gv_path)
-    write_text(gv_path, re.sub(r"TabNumber = \d+;",
-                               "TabNumber = %d;" % (len(keep) + 5 - 1), gv, count=1))
+    tc_path = os.path.join(dst_root, "Core", "Gui", "GuiTabCount.h")
+    tc = read_text(tc_path)
+    write_text(tc_path, re.sub(r"TabNumber = \d+;",
+                               "TabNumber = %d;" % (len(keep) + 5 - 1), tc, count=1))
 
-    lf_path = os.path.join(dst_root, "Core", "Gui", "GuiLF.cpp")
-    lf = read_text(lf_path)
-    head = lf.index("juce::Colour CustomTabLookAndFeel::getTabHeaderColor")
-    write_text(lf_path, lf[:head] + build_tab_color(keep))
+    tcol_path = os.path.join(dst_root, "Core", "Gui", "GuiTabColor.cpp")
+    tcol = read_text(tcol_path)
+    head = tcol.index("juce::Colour CustomTabLookAndFeel::getTabHeaderColor")
+    write_text(tcol_path, tcol[:head] + build_tab_color(keep))
 
     # 4. 残ったファイルから、消えた音源への言及を落とす
     pats = []
@@ -830,7 +843,7 @@ def apply_identity(dst_root, name, spec):
 
     # プリセットの置き場もプラグインごとに分ける。2686V 以外はどれも
     # 自前のフォルダを持っているので、それに合わせる。
-    path = os.path.join(dst_root, "Core", "Const", "ConstFileValues.h")
+    path = os.path.join(dst_root, "Core", "Const", "ConstPresetFolder.h")
     text = read_text(path)
 
     old = 'juce::String preset = "Presets";'

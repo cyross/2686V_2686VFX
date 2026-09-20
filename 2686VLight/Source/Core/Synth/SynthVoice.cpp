@@ -1,4 +1,5 @@
 ﻿#include "./SynthVoice.h"
+#include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 
 SynthVoice::SynthVoice()
 {
@@ -28,6 +29,8 @@ void SynthVoice::prepare(double sampleRate) {
     m_ssgCore.prepare(sampleRate);
     m_wtCore.prepare(sampleRate);
     m_wt2Core.prepare(sampleRate);
+    // 使うパッドの数 (86V は 6)。後ろのパッドは鳴らさない。
+    m_rhythmCore.setPadCount(RhythmPrValue::pads);
     m_rhythmCore.prepare(sampleRate);
     m_adpcmCore.prepare(sampleRate);
     m_adpcmPlusCore.prepare(sampleRate);

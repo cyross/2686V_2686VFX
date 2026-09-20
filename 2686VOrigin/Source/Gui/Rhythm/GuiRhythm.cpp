@@ -1,11 +1,12 @@
 ﻿#include <vector>
+#include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiRhythm.h"
 
-#include "../../Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiRefresh.h"
 
-#include "../../Core/Io/ParamFile.h"
+#include "Shared/Core/Io/ParamFile.h"
 
 namespace
 {
@@ -17,24 +18,25 @@ namespace
 	const Io::ParamFormat toneNoiseFormat{ "toneNoise", 1 };
 }
 
-#include "../Components/WavePreview/WavePreviewSource.h"
+#include "Shared/Gui/Components/WavePreview/WavePreviewSource.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Processor/ProcessorKeys.h"
-#include "../../Core/Processor/ProcessorValues.h"
-#include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
-#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
-#include "../../Core/Const/ConstFileValues.h"
-#include "../../Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmKeys.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
+#include "Shared/Core/Const/ConstFileValues.h"
+#include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiRhythmValues.h"
 #include "./GuiRhythmText.h"
-#include "../../Core/Gui/GuiStructs.h"
+#include "Shared/Core/Gui/GuiStructs.h"
 #include "./GuiRhythmHelpers.h"
-#include "../../Core/Gui/GuiGraphValues.h"
+#include "Shared/Core/Gui/GuiGraphValues.h"
 
 #include "../../Core/Processor/PluginProcessorStateKey.h"
+#include "../../Core/Gui/GuiPluginContext.h"
 
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {
@@ -51,7 +53,7 @@ void RhythmPadGui::updateSamplePreview()
     // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
     if (GuiRefresh::defer(this, [this] { updateSamplePreview(); })) return;
 
-    const auto& data = ctx.audioProcessor.rhythmPreviewBuffers[m_padIndex];
+    const auto& data = pluginOf(ctx).rhythmPreviewBuffers[m_padIndex];
 
     if (data.empty()) {
         samplePreview.clear();
@@ -61,7 +63,7 @@ void RhythmPadGui::updateSamplePreview()
 
     auto env = WavePreviewSource::audioFile(
         data,
-        ctx.audioProcessor.rhythmPreviewRates[m_padIndex],
+        pluginOf(ctx).rhythmPreviewRates[m_padIndex],
         (float)pcmOffsetSlider.getValue(),
         (float)pcmRatioSlider.getValue());
 
@@ -88,7 +90,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
         {
             parent.addAndMakeVisible(btn);
             btn.setButtonText(text);
-            btn.addListener(&ctx.editor);
+            btn.addListener(&editorOf(ctx));
             btn.setWantsKeyboardFocus(true);
             btn.setExplicitFocusOrder(++tabOrder);
         };
@@ -102,6 +104,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     // 縦に積まず、横へ並べる。1 列 1 区分が基本。
     stripViewport.setViewedComponent(&stripCanvas, false);
     stripViewport.setScrollBarsShown(false, true);
+    stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
 
     addAndMakeVisible(stripViewport);
@@ -157,7 +160,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     // 音声ファイルロードボタン
     loadButton.setup({ .parent = colForm.contentCanvas, .title = RhythmGuiText::File::load, .isReset = false });
-    loadButton.addListener(&ctx.editor);
+    loadButton.addListener(&editorOf(ctx));
     loadButton.setWantsKeyboardFocus(true);
     loadButton.setExplicitFocusOrder(++tabOrder);
 
@@ -178,7 +181,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     clearButton.onClick = [this]
         {
             // 1. 特定のパッドをアンロード
-            ctx.audioProcessor.unloadRhythmFile(m_padIndex);
+            pluginOf(ctx).unloadRhythmFile(m_padIndex);
 
             // 2. ファイル名表示を更新
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
@@ -445,7 +448,7 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
             group.setContentHeight(rect.getY() + 20);
         };
 
-    const auto shown = [this](SimpleView::Cat cat) { return ctx.audioProcessor.isSimpleShown(cat); };
+    const auto shown = [this](SimpleView::Cat cat) { return pluginOf(ctx).isSimpleShown(cat); };
 
     // FORM・PAN・QUALITY は 1 区分ずつでは丈が余るので、1 列へまとめてある。
     layoutCol(colForm, true, [&](juce::Rectangle<int>& rect) {
@@ -685,7 +688,7 @@ void GuiRhythm::updatePadPreview(int p)
     if (GuiRefresh::defer(this, [this, p] { updatePadPreview(p); })) return;
 
     auto& cell = cells[(size_t)p];
-    const auto& data = ctx.audioProcessor.rhythmPreviewBuffers[p];
+    const auto& data = pluginOf(ctx).rhythmPreviewBuffers[p];
 
     if (data.empty()) {
         cell.preview().clear();
@@ -693,12 +696,12 @@ void GuiRhythm::updatePadPreview(int p)
         return;
     }
 
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
     const juce::String code = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(p);
 
     auto env = WavePreviewSource::audioFile(
         data,
-        ctx.audioProcessor.rhythmPreviewRates[p],
+        pluginOf(ctx).rhythmPreviewRates[p],
         GuiGraphValues::value(apvts, code + CPK::pcmOffset),
         GuiGraphValues::value(apvts, code + CPK::pcmRatio));
 
@@ -718,7 +721,7 @@ void GuiRhythm::updatePadPreview(int p)
 // 枠に出すエンベロープを描き直す。
 void GuiRhythm::updatePadGraph(int p)
 {
-    auto& apvts = ctx.audioProcessor.apvts;
+    auto& apvts = pluginOf(ctx).apvts;
     auto& graph = cells[(size_t)p].graph();
 
     const juce::String code = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(p);
@@ -835,10 +838,10 @@ void RhythmPadGui::rebind(int index)
 // ときは、そちらから読み直さないと前のパッドの名前が残る。
 void RhythmPadGui::updateFileNameFromProcessor()
 {
-    const juce::String path = ctx.audioProcessor.rhythmFilePaths[(size_t)m_padIndex];
+    const juce::String path = pluginOf(ctx).rhythmFilePaths[(size_t)m_padIndex];
 
     updatePadFileName(path.isNotEmpty()
-        ? ctx.audioProcessor.resolvePath(path).getFileName()
+        ? pluginOf(ctx).resolvePath(path).getFileName()
         : Io::empty);
 }
 
@@ -852,6 +855,8 @@ void RhythmPadGui::copyParams(CopyRhythmPad& copyObj) {
     copyObj.pcm.pcmRatio = pcmRatioSlider.getValue();
     copyObj.quality.mode = qualityPcmComponent.getMode();
     copyObj.quality.rate = qualityPcmComponent.getRate();
+    copyObj.quality.interp = qualityPcmComponent.getInterp();
+    qualityPcmComponent.copyNr(copyObj.quality);
     copyObj.toneLevel = toneSlider.getValue();
     copyObj.noiseLevel = noiseSlider.getValue();
     copyObj.noiseFreq = noiseFreqSlider.getValue();
@@ -871,6 +876,8 @@ void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
     pcmRatioSlider.setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
     qualityPcmComponent.setMode(copyObj.quality.mode);
     qualityPcmComponent.setRate(copyObj.quality.rate);
+    qualityPcmComponent.setInterp(copyObj.quality.interp);
+    qualityPcmComponent.pasteNr(copyObj.quality);
     toneSlider.setValue(copyObj.toneLevel);
     noiseSlider.setValue(copyObj.noiseLevel);
     noiseFreqSlider.setValue(copyObj.noiseFreq);
@@ -884,7 +891,7 @@ void RhythmPadGui::importToneNoiseParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultToneNoiseParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultToneNoiseParamDir,
         { EditorGuiText::ParamBrowser::kindToneNoise },
         [this](const juce::File& file) { applyToneNoiseParamFile(file); });
 }
@@ -897,7 +904,7 @@ void RhythmPadGui::applyToneNoiseParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -942,7 +949,7 @@ void RhythmPadGui::applyToneNoiseParamFile(const juce::File& file)
 void RhythmPadGui::exportToneNoiseParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultToneNoiseParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultToneNoiseParamDir,
         { EditorGuiText::ParamBrowser::kindToneNoise }, Io::Extension::ToneNoiseParam,
         [this](const juce::File& file) { writeToneNoiseParamFile(file); });
 }
@@ -954,7 +961,7 @@ void RhythmPadGui::writeToneNoiseParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(toneNoiseFormat);
     writeToneNoiseParams(writer);
@@ -1046,7 +1053,7 @@ void RhythmPadGui::importPcmPlayParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindPcmPlay },
         [this](const juce::File& file) { applyPcmPlayParamFile(file); });
 }
@@ -1059,7 +1066,7 @@ void RhythmPadGui::applyPcmPlayParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1107,7 +1114,7 @@ void RhythmPadGui::applyPcmPlayParamFile(const juce::File& file)
 void RhythmPadGui::exportPcmPlayParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindPcmPlay }, Io::Extension::PcmPlayParam,
         [this](const juce::File& file) { writePcmPlayParamFile(file); });
 }
@@ -1119,7 +1126,7 @@ void RhythmPadGui::writePcmPlayParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(pcmPlayFormat);
     writePcmPlayParams(writer);
@@ -1131,7 +1138,7 @@ void RhythmPadGui::importQualityParam()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindPcmQuality },
         [this](const juce::File& file) { applyQualityParamFile(file); });
 }
@@ -1144,7 +1151,7 @@ void RhythmPadGui::applyQualityParamFile(const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1183,12 +1190,13 @@ void RhythmPadGui::applyQualityParamFile(const juce::File& file)
     qualityPcmComponent.setMode(reader->getInt("mode", qualityPcmComponent.getMode()));
     qualityPcmComponent.setRate(reader->getInt("rate", qualityPcmComponent.getRate()));
     qualityPcmComponent.setInterp(reader->getInt("interp", qualityPcmComponent.getInterp()));
+    qualityPcmComponent.readNrParams(*reader);
 }
 
 void RhythmPadGui::exportQualityParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultQualityParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultQualityParamDir,
         { EditorGuiText::ParamBrowser::kindPcmQuality }, Io::Extension::PcmQualityParam,
         [this](const juce::File& file) { writeQualityParamFile(file); });
 }
@@ -1200,7 +1208,7 @@ void RhythmPadGui::writeQualityParamFile(const juce::File& file)
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultQualityParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(pcmQualityFormat);
     writeQualityParams(writer);
@@ -1212,11 +1220,11 @@ void RhythmPadGui::writeQualityParamFile(const juce::File& file)
 void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
     // 出しているので、そこから File を作ることはできない。
-    auto path = Io::resolveSamplePath(r.getString("filePath", ctx.audioProcessor.rhythmFilePaths[p]), ctx.audioProcessor.defaultSampleDir);
+    auto path = Io::resolveSamplePath(r.getString("filePath", pluginOf(ctx).rhythmFilePaths[p]), pluginOf(ctx).defaultSampleDir);
 
     // 別のファイルへ変わるなら、いま持っているものを先に外す
-    if (ctx.audioProcessor.rhythmFilePaths[p] != path) {
-        ctx.audioProcessor.unloadRhythmFile(p);
+    if (pluginOf(ctx).rhythmFilePaths[p] != path) {
+        pluginOf(ctx).unloadRhythmFile(p);
     }
 
     // 名前は updatePadFileName を通す。ラベルだけを書き換えると、
@@ -1224,7 +1232,7 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     if (Io::isFilePath(path)) {
         juce::File target(path);
 
-        ctx.audioProcessor.loadRhythmFile(target, p);
+        pluginOf(ctx).loadRhythmFile(target, p);
         updatePadFileName(target.getFileName());
     }
     else {
@@ -1266,7 +1274,7 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
 
 void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     // 名前ではなく場所を残す。読み戻すときに File を作れるようにするため。
-    w.set("filePath", Io::toStoredFileName(ctx.audioProcessor.rhythmFilePaths[p]));
+    w.set("filePath", Io::toStoredFileName(pluginOf(ctx).rhythmFilePaths[p]));
 
     w.set("vol", (float)volSlider.getValue());
     w.set("pan", (float)panSlider.getValue());
@@ -1353,7 +1361,7 @@ void GuiRhythm::setup()
 
     mainGroup.setup(*this, RhythmGuiText::Group::mainGroup);
 
-    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
+    presetName.setupComponent(*this, tabOrder, pluginOf(ctx).presetName);
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
@@ -1367,7 +1375,7 @@ void GuiRhythm::setup()
     broadcastLevelButton.onClick = [this] {
         float level = levelComponent.getLevel();
 
-        ctx.editor.breadcastLevel(level);
+        editorOf(ctx).breadcastLevel(level);
         };
 
     uSep001.setupComponent(mainGroup.contentCanvas);
@@ -1379,7 +1387,7 @@ void GuiRhythm::setup()
         int from = copyPadFromSlider.getValue() - 1;
         int to = copyPadToSlider.getValue() - 1;
 
-        ctx.editor.copyRhythmPadParams(from, to);
+        editorOf(ctx).copyRhythmPadParams(from, to);
         };
 
     copyPadFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
@@ -1509,7 +1517,7 @@ void GuiRhythm::setup()
         };
 
     // 前に開いていたときの指し先から始める。
-    const int saved = (int)ctx.audioProcessor.apvts.state.getProperty(ProcessorStateKey::rhythmTarget, 0);
+    const int saved = (int)pluginOf(ctx).apvts.state.getProperty(ProcessorStateKey::rhythmTarget, 0);
 
     padPanel.targetSlider().setValue(juce::jlimit(0, RhythmPrValue::pads - 1, saved) + 1, juce::dontSendNotification);
 
@@ -1544,7 +1552,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     levelComponent.layoutComponent(mRect);
 
-    unisonComponent.setCategoryVisible(ctx.audioProcessor.isSimpleShown(SimpleView::Unison));
+    unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
     midiComponent.layoutComponent(mRect);
@@ -1687,7 +1695,7 @@ void GuiRhythm::buttonClicked(juce::Button* button)
 
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 番号は値で写して渡す。
-    ctx.editor.openAudioBrowser([this, i](const juce::File& file)
+    editorOf(ctx).openAudioBrowser([this, i](const juce::File& file)
         {
             if (!file.existsAsFile()) return;
 
@@ -1703,12 +1711,12 @@ void GuiRhythm::buttonClicked(juce::Button* button)
                     if (safe == nullptr) return;
 
                     // Load to specific pad index
-                    ctx.audioProcessor.loadRhythmFile(file, i);
+                    pluginOf(ctx).loadRhythmFile(file, i);
 
                     // Update label
                     updatePadFileName(i, file.getFileName());
 
-                    ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                    pluginOf(ctx).lastSampleDirectory = file.getParentDirectory();
                 });
         });
 }
@@ -1735,10 +1743,10 @@ void GuiRhythm::updatePresetName(const juce::String& name)
 
 void GuiRhythm::initParams()
 {
-    this->ctx.audioProcessor.initParams("RHYTHM_");
+    pluginOf(ctx).initParams("RHYTHM_");
     for (int i = 0; i < RhythmPrValue::pads; i++)
     {
-        this->ctx.audioProcessor.unloadRhythmFile(i);
+        pluginOf(ctx).unloadRhythmFile(i);
         updatePadFileName(i, Io::empty);
     }
 }
@@ -1757,7 +1765,7 @@ void GuiRhythm::applyPadTarget()
 {
     const int pad = currentPad();
 
-    ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::rhythmTarget, pad, nullptr);
+    pluginOf(ctx).apvts.state.setProperty(ProcessorStateKey::rhythmTarget, pad, nullptr);
 
     padPanel.rebind(pad);
 
@@ -1876,7 +1884,7 @@ void GuiRhythm::exportSsgSwPEnv11Param(int p) {
 void GuiRhythm::importChParam() {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser({ "RHYTHM" },
+    editorOf(ctx).openParamBrowser({ "RHYTHM" },
         [this](const juce::File& file) { applyChParamFile(file); });
 }
 
@@ -1886,7 +1894,7 @@ void GuiRhythm::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -1940,7 +1948,7 @@ void GuiRhythm::applyChParamFile(const juce::File& file) {
 void GuiRhythm::exportChParam()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { "RHYTHM" }, Io::Extension::rhythmParam,
         [this](const juce::File& file) { writeChParamFile(file); });
 }
@@ -1951,7 +1959,7 @@ void GuiRhythm::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(rhythmFormat);
     writeChParams(writer);
@@ -1963,7 +1971,7 @@ void GuiRhythm::importPadChParam(int p)
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
-    ctx.editor.openParamBrowser(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowser(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindRhythmPad },
         [this, p](const juce::File& file) { applyPadChParamFile(p, file); });
 }
@@ -1976,7 +1984,7 @@ void GuiRhythm::applyPadChParamFile(int p, const juce::File& file)
 
 
     // 次回のダイアログ用にディレクトリを保存
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
     // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
@@ -2017,7 +2025,7 @@ void GuiRhythm::applyPadChParamFile(int p, const juce::File& file)
 void GuiRhythm::exportPadChParam(int p)
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
-    ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultChannelParamDir,
+    editorOf(ctx).openParamBrowserToSave(pluginOf(ctx).defaultChannelParamDir,
         { EditorGuiText::ParamBrowser::kindRhythmPad }, Io::Extension::rhythmPadParam,
         [this, p](const juce::File& file) { writePadChParamFile(p, file); });
 }
@@ -2028,7 +2036,7 @@ void GuiRhythm::writePadChParamFile(int p, const juce::File& file)
 {
     if (file == juce::File{}) return;
 
-    ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+    pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(rhythmPadFormat);
     writePadChParams(p, writer);
@@ -2078,7 +2086,7 @@ void GuiRhythm::getImportingPadParams(int p, juce::StringArray& lines, int& inde
 void RhythmPadGui::setImportingParams(int p, juce::StringArray& lines, int& index) {
     // linesの終端を超えていたら（Originなどの6パッドなど、パッド数が8未満の場合）、初期値でリセットして処理を抜ける
     if (index >= lines.size()) {
-        ctx.audioProcessor.unloadRhythmFile(p);
+        pluginOf(ctx).unloadRhythmFile(p);
         fileNameLabel.setText(Io::empty, juce::dontSendNotification);
 
         // 基本パラメータ初期値
@@ -2118,13 +2126,13 @@ void RhythmPadGui::setImportingParams(int p, juce::StringArray& lines, int& inde
 
     // Form
     if (fileNameLabel.getText() != lines[index]) {
-        ctx.audioProcessor.unloadRhythmFile(p);
+        pluginOf(ctx).unloadRhythmFile(p);
     }
 
     fileNameLabel.setText(lines[index++], juce::dontSendNotification);
 
     if (fileNameLabel.getText().isNotEmpty()) {
-        ctx.audioProcessor.loadRhythmFile(fileNameLabel.getText(), p);
+        pluginOf(ctx).loadRhythmFile(fileNameLabel.getText(), p);
     }
 
     volSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
@@ -2236,6 +2244,7 @@ void RhythmPadGui::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("mode", qualityPcmComponent.getMode());
 	writer.set("rate", qualityPcmComponent.getRate());
 	writer.set("interp", qualityPcmComponent.getInterp());
+	qualityPcmComponent.writeNrParams(writer);
 
 	
 }
@@ -2262,17 +2271,17 @@ void GuiRhythm::writePadChParams(int p, Io::ParamWriter& writer) {
 void RhythmPadGui::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
 }
 
 void RhythmPadGui::openEnabledCategories()
@@ -2310,7 +2319,7 @@ void RhythmPadGui::closeBypassedCategories()
 void GuiRhythm::bypassHiddenCategories()
 {
     // 入れ物にあるのは UNISON・HARMONY だけ。あとはパッドが持っている。
-    if (!ctx.audioProcessor.isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 
     padPanel.bypassHiddenCategories();
 }

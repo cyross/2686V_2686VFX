@@ -90,6 +90,11 @@ operator's level or pitch. An effect has no channels, so 2686VFX carries
 return. Touch no keys and nothing is applied — the audio passes straight
 through.
 
+By default any key drives everything (**Single key**). Set **Key assign** in the
+Effects frame to **Customize** and you can pick **a key per target** — AMP ENV on
+C3, PITCH ENV on D3, and so on. See
+[Key assign](/2686V_2686VFX/en/fx/mod/#key-assign--which-key-drives-the-modulation) for details.
+
 ### Moving the level
 
 | Panel | Taken from |
@@ -128,6 +133,9 @@ here they are **bypasses** — tick one to take it out of the path.
 - Bypass pitch shifting
 
 Each individual feature has its own switch inside its own panel.
+
+The Effects frame also holds **Key assign**, which decides which key drives
+which modulation.
 
 ## How the pitch is moved
 
