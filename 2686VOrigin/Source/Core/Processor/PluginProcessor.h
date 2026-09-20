@@ -2,6 +2,8 @@
 #include "Shared/Generator/Pcm/Helper/GenPcmShared.h"
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 #include "../Const/ConstPlugin.h"
+#include <atomic>
+#include <bitset>
 #include <map>
 #include <JuceHeader.h>
 
@@ -40,6 +42,9 @@ class RetroSynthesiser : public juce::Synthesiser
 private:
     // モノフォニック用の「押されているキーの履歴（スタック）」
     juce::Array<int> heldNotes;
+
+    // 押している鍵盤。再生ランプを出すために、どのモードでも数える。
+    std::bitset<128> m_midiHeldKeys;
 public:
     RetroSynthesiser() : juce::Synthesiser() {
     }
@@ -48,7 +53,49 @@ public:
     bool useVelocity = false;
     bool pitchResetOnLegato = false;
     float fixedVelocity = 1.0f;
-    bool isMidiProcessing = false;
+
+    // 鍵盤が押されているか。再生ランプが読む。
+    //
+    // 以前は「最後に来たのが押しか離しか」を覚える札だった。和音の 1 つを
+    // 離しただけで倒れてしまい、逆にオールノートオフ (CC123 / CC120) は
+    // noteOff を通らないので立ったまま残り、ランプが消えなかった。
+    // 押している鍵盤を数えて持てば、どちらも正しく出る。
+    //
+    // オーディオスレッドが書き、画面のスレッドが読む。
+    std::atomic<bool> isMidiProcessing{ false };
+
+    void midiKeyDown(int note)
+    {
+        if (note >= 0 && note < (int)m_midiHeldKeys.size()) m_midiHeldKeys.set((size_t)note);
+
+        isMidiProcessing = m_midiHeldKeys.any();
+    }
+
+    void midiKeyUp(int note)
+    {
+        if (note >= 0 && note < (int)m_midiHeldKeys.size()) m_midiHeldKeys.reset((size_t)note);
+
+        isMidiProcessing = m_midiHeldKeys.any();
+    }
+
+    // 全部離した扱いにする。オールノートオフ・パニック・チャンネルの
+    // 切り替えで使う。
+    void midiKeysClear()
+    {
+        m_midiHeldKeys.reset();
+        heldNotes.clear();
+
+        isMidiProcessing = false;
+    }
+
+    // オールノートオフ (CC123) とオールサウンドオフ (CC120) は JUCE が直に
+    // 受け取るので、noteOff を通らない。押している鍵盤もここで落とす。
+    void allNotesOff(int midiChannel, bool allowTailOff) override
+    {
+        midiKeysClear();
+
+        juce::Synthesiser::allNotesOff(midiChannel, allowTailOff);
+    }
 
     SynthParams* currentParams = nullptr;
 
@@ -116,7 +163,7 @@ public:
     // 鍵盤を押した時の挙動をハックする
     void noteOn(int midiChannel, int midiNoteNumber, float velocity) override
     {
-        isMidiProcessing = true;
+        midiKeyDown(midiNoteNumber);
 
         if (currentParams == nullptr) {
             juce::Synthesiser::noteOn(midiChannel, midiNoteNumber, velocity);
@@ -181,7 +228,7 @@ public:
     // 鍵盤を離した時の挙動をハックする
     void noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff) override
     {
-        isMidiProcessing = false;
+        midiKeyUp(midiNoteNumber);
 
         float targetVelocity = useVelocity ? velocity : fixedVelocity;
 
@@ -287,6 +334,30 @@ private:
     FxProcessor prFx;
 
     SynthParams m_currentParams;
+
+    // 直近のブロックで鳴らしたチャンネル。切り替わりを見つけるために持つ。
+    // Count は「まだ鳴らしていない」印で、どのチャンネルとも一致しない。
+    OscMode m_lastRenderedMode = OscMode::Count;
+
+    // 音が出ているか (再生ランプ用)。オーディオスレッドが書き、画面が読む。
+    //
+    // ボイスが生きているかでは足りない。RR を遅くした音色では、耳に届かなく
+    // なったあとも包絡だけが数秒走り続ける。音が消えているのにランプだけが
+    // 点いたままになるので、出てきた音そのものを見る。
+    std::atomic<bool> m_audible{ false };
+
+    // 消えた瞬間に落とすと、音のうねりや音と音の間でちらつく。
+    // 最後に音が出てからしばらくは点けたままにする。
+    int m_audibleHoldLeft = 0;
+
+    // これを下回ったら「音は出ていない」とみなす (-100dB ほど)
+    static inline constexpr float audibleLevel = 1.0e-5f;
+
+    // 音が絶えてからランプを落とすまで
+    static inline constexpr double audibleHoldSeconds = 0.15;
+
+    // 上の秒数を、いまのレートでのサンプル数に直したもの (prepareToPlay で決める)
+    int m_audibleHoldSamples = 0;
 
     // ADPCM の素材と符号化したもの。ボイスごとに複製せず、ここで 1 つだけ持つ。
     // 符号化はメッセージスレッドで行い、オーディオスレッドは出来たものを指すだけ。

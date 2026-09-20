@@ -177,7 +177,8 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
         if (message.isNoteOn()) prMod.noteOn(message.getNoteNumber());
         else if (message.isNoteOff()) prMod.noteOff(message.getNoteNumber());
-        else if (message.isAllNotesOff()) prMod.allNotesOff();
+        // オールサウンドオフ (CC120) も、オールノートオフと同じに扱う
+        else if (message.isAllNotesOff() || message.isAllSoundOff()) prMod.allNotesOff();
     }
 
     // 使わない出力は消しておく。入力より出力が多いときに、前の中身が残る。
@@ -1154,14 +1155,16 @@ void AudioPlugin2686V::updateFxOrder(std::vector<int> newOrder)
 {
     prFx.updateOrder(newOrder);
 }
-// 音を作っていないので、鳴っているかどうかは持たない
+// 再生ランプ。音は作っていないが、変調は鍵盤で動かすので、その様子を出す。
+//
+// 3.6.0 より前はどちらも false を返していて、ランプが点かなかった。
 bool AudioPlugin2686V::isPlaying()
 {
-    return false;
+    return prMod.isActive();
 }
 bool AudioPlugin2686V::isMidiProcessing()
 {
-    return false;
+    return prMod.isAnyKeyHeld();
 }
 
 OscMode AudioPlugin2686V::getCurrentMode()

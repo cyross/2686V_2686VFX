@@ -260,6 +260,7 @@ void ModProcessor::publishHeldTargets()
 	}
 
 	heldTargetsForGui.store((uint32_t)targets.to_ulong(), std::memory_order_relaxed);
+	anyKeyHeldForGui.store(heldKeys.any(), std::memory_order_relaxed);
 }
 
 // 対象へ「押した」を送る。
@@ -370,17 +371,15 @@ void ModProcessor::allNotesOff()
 	releaseTargets(targets);
 }
 
-bool ModProcessor::isActive() const
-{
-	return envEnabled && ampEnv.isPlaying();
-}
-
 void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioProcessorValueTreeState& apvts)
 {
 	juce::ignoreUnused(apvts);
 
 	// 押さえたまま割り当てを変えたときも、画面の見出しが追えるように
 	publishHeldTargets();
+
+	// 再生ランプ用。包絡が走っているかを、画面のスレッドへ書き写す。
+	activeForGui.store(envEnabled && ampEnv.isPlaying(), std::memory_order_relaxed);
 
 	refreshSwitches();
 

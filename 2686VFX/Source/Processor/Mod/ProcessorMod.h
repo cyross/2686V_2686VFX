@@ -77,6 +77,14 @@ class ModProcessor
 	// 画面のスレッドが読むので atomic にしてある。
 	std::atomic<uint32_t> heldTargetsForGui{ 0 };
 
+	// どれか 1 つでも鍵盤を押さえているか。再生ランプが読む。
+	// 対象の割り当てとは関わりなく、押していれば真。
+	std::atomic<bool> anyKeyHeldForGui{ false };
+
+	// 変調の包絡が走っているか。これも画面のスレッドが読むので、
+	// オーディオスレッドが処理のたびに書き写す。
+	std::atomic<bool> activeForGui{ false };
+
 	static_assert(ModPrKey::KeyAssign::NumTargets <= 32, "heldTargetsForGui のビットが足りない");
 
 	// LFO の AM / PM を効かせる度合い (0〜1)。押し離しの継ぎ目で音が
@@ -162,8 +170,11 @@ public:
 	// 出力へ掛ける。何も有効になっていなければ触らない。
 	void processBlock(juce::AudioBuffer<float>& buffer, juce::AudioProcessorValueTreeState& apvts);
 
-	// 画面の表示に使う。鳴っている間だけ真になる。
-	bool isActive() const;
+	// 画面の表示に使う。変調の包絡が走っている間だけ真になる。
+	bool isActive() const { return activeForGui.load(std::memory_order_relaxed); }
+
+	// 画面の表示に使う。鍵盤を押さえている間だけ真になる。
+	bool isAnyKeyHeld() const { return anyKeyHeldForGui.load(std::memory_order_relaxed); }
 
 	// 画面の表示に使う。押さえている鍵盤を割り当てた対象を、
 	// Target の番号のビットで返す。キーアサインのモードは見ない。

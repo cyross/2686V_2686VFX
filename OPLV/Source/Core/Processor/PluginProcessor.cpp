@@ -177,6 +177,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 // ============================================================================
 void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+    // 再生ランプを、音が絶えてから落とすまでの長さ
+    m_audibleHoldSamples = (int)(sampleRate * audibleHoldSeconds);
+    m_audibleHoldLeft = 0;
+    m_audible.store(false, std::memory_order_relaxed);
+
     m_synth.setCurrentPlaybackSampleRate(sampleRate);
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
@@ -226,6 +231,19 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     if (m < 0 || m >= (int)OscMode::Count) m = 0;
 
     m_currentParams.mode = (OscMode)m;
+
+    // チャンネルが変わったら、鳴っていた音と押している鍵盤を落とす。
+    // 切り替えた先では前のチャンネルの音は鳴らないので、押しっぱなしの
+    // 扱いを残すと、音が出ていないのに再生ランプが点いたままになる。
+    if (m_currentParams.mode != m_lastRenderedMode) {
+        m_lastRenderedMode = m_currentParams.mode;
+
+        for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+            if (auto* voice = m_synth.getVoice(i)) voice->stopNote(0.0f, false);
+        }
+
+        m_synth.midiKeysClear();
+    }
 
     // map を [] で引くと、無いキーのときに空のポインタを挿し込んでしまう。
     // 上で丸めてあるので届かないはずだが、辿る前に確かめておく。
@@ -279,6 +297,20 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     // シンセの発音
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+    // 再生ランプ用に、音が出ているかを見る。FX を通す前の、音源そのものの音。
+    {
+        const int numSamples = buffer.getNumSamples();
+
+        if (buffer.getMagnitude(0, numSamples) > audibleLevel) {
+            m_audibleHoldLeft = m_audibleHoldSamples;
+        }
+        else {
+            m_audibleHoldLeft = juce::jmax(0, m_audibleHoldLeft - numSamples);
+        }
+
+        m_audible.store(m_audibleHoldLeft > 0, std::memory_order_relaxed);
+    }
 
     // ヘッドルーム適応
     if (useHeadroom)
@@ -1211,6 +1243,9 @@ void AudioPlugin2686V::panic()
         }
     }
 
+    // 押している鍵盤も落とす。残すと再生ランプが点いたままになる。
+    m_synth.midiKeysClear();
+
     prFx.clear();
 }
 
@@ -1382,15 +1417,12 @@ void AudioPlugin2686V::updateFxOrder(std::vector<int> newOrder)
 
 bool AudioPlugin2686V::isPlaying()
 {
-    bool flag = false;
-
-    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
-        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            flag = flag || voice->isVoiceActive() || voice->isPlaying();
-        }
-    }
-
-    return flag;
+    // 出てきた音そのものを見る (processBlock で見て、ここへ書き写してある)。
+    //
+    // 以前はボイスが生きているかで決めていた。ボイスは包絡が終わるまで
+    // 生き続けるので、RR を遅くした音色では、耳に届かなくなってから数秒
+    // 残る。その間ずっと、音が出ていないのに再生ランプが点いたままだった。
+    return m_audible.load(std::memory_order_relaxed);
 }
 
 bool AudioPlugin2686V::isMidiProcessing() {

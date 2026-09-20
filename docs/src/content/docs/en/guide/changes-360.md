@@ -130,6 +130,25 @@ vertical from 8 px to 10 px, horizontal from 8 px to 12 px.
 
 ## Fixes
 
+- **The playing lamp could stay lit.** The lamp at the bottom left was driven by
+  whether a voice was alive. A voice lives until its envelopes finish, so **with a slow
+  release the lamp stayed on for seconds after the sound had gone** (5 seconds with an
+  OPNA patch whose RR is 0). It now follows **the sound itself**, and goes out 0.15
+  seconds after the sound stops.
+  It also did not go out in these cases.
+  - When **All Notes Off (CC123) or All Sound Off (CC120) arrived**, which is what a
+    DAW sends when it stops the transport. The synth handles that message directly,
+    without going through note-off, so the keys were left marked as held.
+  - When **you switched channel tabs**. Switching stops the previous channel's sound,
+    but the keys were still marked as held. Switching is now treated as releasing
+    every key.
+  - When **PANIC was pressed**. It only detached the voices; the chip was never told
+    the key had been released, so the lamp stayed lit although the sound had stopped.
+  Releasing one key of a chord also used to mark everything as released internally;
+  that is fixed too.
+- **2686VFX's playing lamp never lit.** Because the plugin makes no sound of its own,
+  it always reported idle. It now lights while a key is held and while the modulation
+  envelope is running.
 - **WT2's QUALITY never reached the chip.** Whatever you picked for WT2's BIT and
   SMP.RATE made no difference to the sound, because it was handed to WT's side
   internally. It always played at **BIT 7-bit / SMP.RATE 55.5kHz**. The controls now

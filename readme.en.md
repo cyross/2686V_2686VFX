@@ -83,6 +83,13 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **Thicker scroll bars**
   - In the channel tabs, vertical from 8 px to 10 px and horizontal from 8 px to 12 px.
 - **Fixes**
+  - The playing lamp could stay lit.
+    - It was driven by whether a voice was alive, so with a slow release it stayed on for seconds after the sound had gone. It now follows the sound itself and goes out 0.15 seconds after the sound stops.
+    - It did not go out on All Notes Off / All Sound Off (CC123 / CC120), which a DAW sends when it stops the transport.
+    - It did not go out when switching channel tabs (switching is now treated as releasing every key).
+    - It did not go out after PANIC (the chip was never told the key had been released).
+    - Releasing one key of a chord marked everything as released internally.
+  - 2686VFX's playing lamp never lit. It now lights while a key is held and while the modulation envelope is running.
   - WT2's QUALITY never reached the chip, so its BIT and SMP.RATE made no difference to the sound.
     - It always played at BIT 7-bit / SMP.RATE 55.5kHz (the values were handed to WT's side internally).
     - Presets and DAW sessions saved before 3.6.0 are set back to the 7-bit / 55.5kHz that were actually playing, so they sound as before.
