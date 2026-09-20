@@ -69,6 +69,38 @@ on the sound. The switch itself always stays clickable.
 Switching the TARGET or loading a preset updates this to match the switch of the
 new target.
 
+## INTERP reached the non-PCM QUALITY
+
+**The FM, SSG and wavetable channels can now choose how the gaps are filled
+(INTERP).** The chip builds its waveform at the rate you pick with SMP.RATE, and that
+waveform is then brought up to the host rate; this setting decides how the space
+between those points is filled.
+
+The 7 choices are the same as the PCM INTERP.
+
+**Each channel starts on whatever matches 3.6.0 and earlier**, so nothing changes just
+by opening a patch.
+
+| Channel | Default | How it used to be played |
+| --- | --- | --- |
+| FM (OPNA / OPN / OPL / OPL3 / OPM / OPZX7) and SSG | Linear | Linear interpolation |
+| Wavetable (WT / WT+) | ZOH (zero-order hold) | Stepped, held |
+| WT2 | Linear | Linear interpolation |
+
+WT2 alone starts on a different setting from the rest of the wavetable family. Its
+QUALITY never reached the chip before 3.6.0 (see "Fixes" below), so it was played with
+linear interpolation.
+
+**ZOH is the closest to the hardware**, which puts out its staircase as it is, so the
+grit of a low rate stays. B-spline and Lagrange go the other way and cut the imaging a
+lot (playing A4 at 8kHz: 46.9 dB with Linear, 97.3 dB with B-spline).
+
+- Gaussian, B-spline and Lagrange need the next point, so those three delay the sound
+  by one chip sample (18 microseconds at 55.5kHz, 0.45 milliseconds at 2.21kHz)
+- The setting is saved in the channel parameter file; older files without it leave the
+  current value alone
+- The automation ID is `<channel>_INTERP`
+
 ## Noise reduction for PCM QUALITY
 
 **The QUALITY section of ADPCM / ADPCM+ / RHYTHM gains noise reduction settings.**
@@ -98,6 +130,14 @@ vertical from 8 px to 10 px, horizontal from 8 px to 12 px.
 
 ## Fixes
 
+- **WT2's QUALITY never reached the chip.** Whatever you picked for WT2's BIT and
+  SMP.RATE made no difference to the sound, because it was handed to WT's side
+  internally. It always played at **BIT 7-bit / SMP.RATE 55.5kHz**. The controls now
+  do what they say.
+  When a preset or a DAW session saved before 3.6.0 is loaded, **the two are set back
+  to the 7-bit / 55.5kHz that were actually playing**, so it sounds exactly as it did,
+  and the panel now shows what was really being played. Saving again in 3.6.0 keeps
+  those values.
 - **86V's N88 LFO file had not been moved to the 3.0.0 format.** It could only read
   and write the old line-based format, so it could not load N88 LFO files exported
   from 2686V and the other plugins. It now uses the same format as the rest of the

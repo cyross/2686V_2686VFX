@@ -129,6 +129,7 @@ void Opl3Core::setParameters(const SynthCoreParams& params) {
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl3.quality.bit);
+	m_interpMode = params.opl3.quality.interp;
 
     // 高速化のためのループアンローリング
     m_operators[0].setParameters(params.opl3.op[0], params.opl3.algFb.feedback);
@@ -178,6 +179,7 @@ void Opl3Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     m_operators[3].noteOn(finalFreq, gain, noteNum, isLegato);
 
     m_rateAccumulator = 0.0; // レートの余りもリセット
+    m_interp.reset();
 
     m_ssgHwEnv.noteOn();
     m_ssgHwPEnv.noteOn();
@@ -344,6 +346,7 @@ float Opl3Core::getSample() {
         finalOut = quantizeSample(finalOut, m_quantizeSteps);
 
         m_lastSample = finalOut;
+        m_interp.push(m_lastSample);
     }
 
     // m_rateAccumulator は直近に生成したサンプルからの進み具合を
@@ -351,7 +354,7 @@ float Opl3Core::getSample() {
     // prev→last を補間する形なので、出力はソース 1 サンプル分だけ遅れる。
     float fraction = (float)m_rateAccumulator;
 
-    return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
+    return m_interp.read(m_interpMode, fraction) * m_level;
 }
 
 void Opl3Core::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

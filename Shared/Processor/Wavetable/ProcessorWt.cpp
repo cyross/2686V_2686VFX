@@ -16,7 +16,9 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addWtBasicParameters(layout, prefix, prefixName);
-    PrHelper::addQualityParameters(layout, prefix, prefixName);
+    // WT 系は階段のまま出していたので、INTERP の初期値は Zero-Order Hold。
+    // これで 3.6.0 より前と同じ音になる。
+    PrHelper::addQualityParameters(layout, prefix, prefixName, CPV::Quality::Interp::initialStepped);
     PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addWtAmpModParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);

@@ -79,6 +79,7 @@ void WtCore::setParameters(const SynthCoreParams& params)
 
     // Bit Depth & Table Size
     m_quantizeSteps = getTargetBitDepth(params.wt.quality.bit);
+	m_interpMode = params.wt.quality.interp;
 
     if (m_rateIndex != params.wt.quality.rate) {
         m_rateIndex = params.wt.quality.rate;
@@ -163,6 +164,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
         m_wtMod.reset();
         m_rateAccumulator = 0.0;
+        m_interp.reset();
         m_lastSample = 0.0f;
     }
 
@@ -448,6 +450,8 @@ float WtCore::getSample()
         // 決めた回数まで回したら、キーが離れるまで同じ値を出し続ける
         if (m_hold.isHolding()) m_lastSample = m_hold.holdValue();
 
+        m_interp.push(m_lastSample);
+
         // メイン位相を進める
         m_phase += currentDelta * m_speed;
 
@@ -463,7 +467,11 @@ float WtCore::getSample()
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
     float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
-    return m_lastSample * finalEnv * sshHwEnvVal * m_level * m_baseLevel * 8.0f;
+    // INTERP。既定の Zero-Order Hold は、いちばん新しい点をそのまま出すので、
+    // 3.6.0 より前と同じ階段のままになる。
+    const float interpolated = m_interp.read(m_interpMode, (float)m_rateAccumulator);
+
+    return interpolated * finalEnv * sshHwEnvVal * m_level * m_baseLevel * 8.0f;
  }
 
 // 波形データ生成

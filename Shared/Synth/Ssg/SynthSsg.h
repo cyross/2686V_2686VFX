@@ -20,6 +20,7 @@
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "Shared/Generator/Fm/Fix/FmFix.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
+#include "../../Core/Synth/SynthInterp.h"
 
 class SsgCore : public SynthCore
 {
@@ -97,6 +98,11 @@ private:
     double m_targetRate = 44100.0;
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
+
+    // INTERP。目標レートで作った点の間を、どう埋めてホストのレートへ戻すか。
+    // 既定は3.6.0 より前と同じ線形補間。
+    SynthInterp::History m_interp;
+    int m_interpMode = SynthInterp::modeLinear;
     float m_prevSample = 0.0f;
     float m_quantizeSteps = 15.0f; // Default 4bit
     float m_currentFrequency = 440.0f;

@@ -21,12 +21,14 @@ class Quality : public GuiBase {
     GuiCategoryLabel qualityCat;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
+    GuiComboBox interpSelector;
 public:
     Quality(const GuiContext& context) :
         GuiBase(context),
         qualityCat(context),
         bitSelector(context),
-        rateSelector(context)
+        rateSelector(context),
+        interpSelector(context)
     {
     }
 
@@ -40,17 +42,21 @@ public:
     void layoutComponentRow(juce::Rectangle<int>& rect);
     int getBit() const { return bitSelector.getSelectedItemIndex(); }
     int getRate() const { return rateSelector.getSelectedItemIndex(); }
+    int getInterp() const { return interpSelector.getSelectedItemIndex(); }
     void setBit(int index) { bitSelector.setSelectedItemIndex(index, juce::sendNotification); }
     void setRate(int index) { rateSelector.setSelectedItemIndex(index, juce::sendNotification); }
+    void setInterp(int index) { interpSelector.setSelectedItemIndex(index, juce::sendNotification); }
 	void setVisibles(bool visible) {
 		qualityCat.setVisible(visible);
 		bitSelector.setVisibleWithLabel(visible);
 		rateSelector.setVisibleWithLabel(visible);
+		interpSelector.setVisibleWithLabel(visible);
 	}
     void setEnableds(bool enabled) {
         qualityCat.setEnabled(enabled);
         bitSelector.setEnabled(enabled);
         rateSelector.setEnabled(enabled);
+        interpSelector.setEnabled(enabled);
     }
     void setImportingParams(juce::StringArray& lines, int& index);
 

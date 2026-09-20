@@ -9,6 +9,8 @@
 
 #include "Shared/Core/Processor/ProcessorNames.h"
 #include "Shared/Core/Processor/ProcessorHelper.h"
+#include "Shared/Core/Io/IoVersion.h"
+#include "Shared/Processor/Wt2/ProcessorWt2Keys.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 
@@ -682,6 +684,28 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         presetComment = xmlState->getStringAttribute(PresetKey::comment, PresetValue::MetaData::Initial::comment);
         presetGenre = xmlState->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
         presetPluginVersion = xmlState->getStringAttribute(PresetKey::puginVersion, Global::Plugin::version);
+
+        // ------------------------------------------------------------------
+        // WT2 の QUALITY を、保存したころの鳴り方へ合わせる
+        // ------------------------------------------------------------------
+        // 3.6.0 より前、WT2 のプロセッサは QUALITY を WT の側へ書き込んでいて、
+        // WT2 の音源へは届いていなかった。つまみを何にしていても、実際は
+        // BIT 7bit / SMP.RATE 55.5kHz で鳴っていた。
+        //
+        // 3.6.0 でつまみが効くようになったので、そのまま読むと古いパッチの音が
+        // 変わってしまう。保存に書かれた版が 3.6.0 より前なら、鳴っていた値へ
+        // 揃える。画面にも、本当に鳴っていた値が出る。
+        if (Io::isVersionOlderThan(xmlState->getStringAttribute(PresetKey::puginVersion), Global::Plugin::wt2QualityFixedVersion))
+        {
+            auto setParam = [this](const juce::String& id, int value) {
+                if (auto* p = apvts.getParameter(id)) {
+                    p->setValueNotifyingHost(p->convertTo0to1((float)value));
+                }
+            };
+
+            setParam(Wt2PrKey::prefix + CPK::Quality::bit, CPV::Quality::Bit::wt2Legacy);
+            setParam(Wt2PrKey::prefix + CPK::Quality::rate, CPV::Quality::Rate::wt2Legacy);
+        }
 
         // WT+ の波形メモリ復帰 (実データはファイルから読み直す)
         for (int i = 0; i < Global::WtPlus::slots; ++i) {

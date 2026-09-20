@@ -298,6 +298,11 @@ namespace CPV
 			inline constexpr int min = 1; // 4-bit (16 steps)
 			inline constexpr int max = 12; // Raw
 			inline constexpr int initial = 9; // 16-bit
+
+			// WT2 は 3.6.0 より前、QUALITY が音源へ届かず、つまみの値に関わらず
+			// この値で鳴っていた。古い保存を読んだときに、鳴っていた音のまま
+			// 保つために使う。
+			inline constexpr int wt2Legacy = 4; // 7-bit
 		}
 
 		namespace Rate
@@ -306,6 +311,25 @@ namespace CPV
 			inline constexpr int min = 1; // 96kHz
 			inline constexpr int max = 15; // 2.21kHz
 			inline constexpr int initial = 2; // 55.5kHz
+
+			// BIT と同じ事情で、WT2 が 3.6.0 より前に鳴らしていたレート。
+			inline constexpr int wt2Legacy = 2; // 55.5kHz
+		}
+
+		namespace Interp
+		{
+			// 0:Nearest 1:Linear 2:Gaussian 3:Zero-Order Hold 4:Cosine 5:B-Spline 6:Lagrange
+			//
+			// 目標レートで作った波を、ホストのレートへ戻すときの埋め方。
+			// 番号は QUALITY(PCM) の INTERP と同じ。
+			inline constexpr int min = 0;
+			inline constexpr int max = 6;
+
+			// 既定はチャンネルによって違う。3.6.0 より前の音をそのまま保つため、
+			// 線形補間で出していたチャンネル (FM 系・SSG) は Linear、階段のまま
+			// 出していた WT 系は Zero-Order Hold から始める。
+			inline constexpr int initial = 1;          // Linear
+			inline constexpr int initialStepped = 3;   // Zero-Order Hold (WT / WT2 / WT+)
 		}
 	}
 

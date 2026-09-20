@@ -9,6 +9,7 @@
 
 #include "Shared/Core/Processor/ProcessorNames.h"
 #include "Shared/Core/Processor/ProcessorHelper.h"
+#include "Shared/Core/Io/IoVersion.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 
@@ -623,6 +624,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         presetComment = xmlState->getStringAttribute(PresetKey::comment, PresetValue::MetaData::Initial::comment);
         presetGenre = xmlState->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
         presetPluginVersion = xmlState->getStringAttribute(PresetKey::puginVersion, Global::Plugin::version);
+
 
         // WT+ の波形メモリ復帰 (実データはファイルから読み直す)
         for (int i = 0; i < Global::WtPlus::slots; ++i) {

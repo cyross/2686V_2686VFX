@@ -60,6 +60,15 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - Shared controls such as speed, shape and sync stay enabled while either one is on.
     - FIX's Enable (including its separators)
   - Follows TARGET changes and preset loading.
+- **INTERP (how the gaps are filled) added to the non-PCM QUALITY**
+  - For the FM chips (OPNA / OPN / OPL / OPL3 / OPM / OPZX7), SSG and the wavetable family (WT / WT2 / WT+).
+  - Chooses how the waveform the chip built is brought up to the host sample rate.
+  - The same 7 choices as the PCM INTERP.
+  - The default is whatever matches 3.6.0 and earlier: Linear for the FM chips and SSG, ZOH (zero-order hold) for WT and WT+, which is closest to the hardware.
+  - WT2 alone starts on Linear, because its QUALITY never reached the chip before 3.6.0 and it was played with linear interpolation.
+  - Gaussian, B-spline and Lagrange need the next point, so they delay the sound by one chip sample.
+  - Saved in the channel parameter file; older files without it keep the current value.
+  - Automation ID is `<channel>_INTERP`.
 - **Noise reduction for PCM QUALITY**
   - Applies to ADPCM / ADPCM+ / RHYTHM.
   - NR: Resample: uses a clean windowed-sinc decimation when converting to a compression format (BIT 13-21).
@@ -74,6 +83,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **Thicker scroll bars**
   - In the channel tabs, vertical from 8 px to 10 px and horizontal from 8 px to 12 px.
 - **Fixes**
+  - WT2's QUALITY never reached the chip, so its BIT and SMP.RATE made no difference to the sound.
+    - It always played at BIT 7-bit / SMP.RATE 55.5kHz (the values were handed to WT's side internally).
+    - Presets and DAW sessions saved before 3.6.0 are set back to the 7-bit / 55.5kHz that were actually playing, so they sound as before.
   - 86V's N88 LFO file had not been moved to the 3.0.0 format and could not load files exported from the other plugins.
   - Switching HOLD / KEEP (hold and partial playback) did not update the preview or enable the controls inside right away.
   - In 2686VFX, the PCM bit crusher row in the Effects frame's order list had no name.

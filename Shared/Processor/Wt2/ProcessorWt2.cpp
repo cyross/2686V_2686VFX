@@ -16,6 +16,9 @@ void Wt2Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addWt2BasicParameters(layout, prefix, prefixName);
+    // WT2 だけ INTERP の初期値が Linear で、WT・WT+ の Zero-Order Hold と違う。
+    // 3.6.0 より前、WT2 の QUALITY は音源へ届いておらず (下の processBlock を
+    // 参照)、線形補間で鳴っていたため。これまでと同じ音にするための初期値。
     PrHelper::addQualityParameters(layout, prefix, prefixName);
     PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addWtAmpModParameters(layout, prefix, prefixName);
@@ -58,7 +61,7 @@ void Wt2Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 void Wt2Processor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
     PrHelper::applyWt2Basic(pBasic, params.wt2);
-    PrHelper::applyQuality(pQuality, params.wt.quality);
+    PrHelper::applyQuality(pQuality, params.wt2.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.wt2.adsr);
     PrHelper::applySsgSwEnv(pSsgSwEnv, params.wt2.ssgSwEnv);
     PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.wt2.ssgSwEnv11);

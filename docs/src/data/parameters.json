@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "3.6.0",
-  "count": 14542,
+  "count": 14552,
   "parameters": [
     {
       "id": "MODE",
@@ -68,6 +68,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "OPNA_INTERP",
+      "name": "OPNA Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "OPNA_LFO_FREQ",
@@ -10208,6 +10216,14 @@
       "default": 2
     },
     {
+      "id": "OPN_INTERP",
+      "name": "OPN Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
+    },
+    {
       "id": "OPN_LFO_FREQ",
       "name": "OPN LFO Freq",
       "type": "Int",
@@ -20086,6 +20102,14 @@
       "default": 2
     },
     {
+      "id": "OPL_INTERP",
+      "name": "OPL Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
+    },
+    {
       "id": "OPL_SSGHWENV_ENABLE",
       "name": "OPL Hardware Env Enable",
       "type": "Bool",
@@ -26017,6 +26041,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "OPL3_INTERP",
+      "name": "OPL3 Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "OPL3_SSGHWENV_ENABLE",
@@ -35970,6 +36002,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "OPM_INTERP",
+      "name": "OPM Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "OPM_LFO_FREQ",
@@ -46128,6 +46168,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "OPZX7_INTERP",
+      "name": "OPZX7S Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "OPZX7_PANPOT_EN",
@@ -69705,6 +69753,14 @@
       "default": 2
     },
     {
+      "id": "SSG_INTERP",
+      "name": "SSG Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
+    },
+    {
       "id": "SSG_TONE",
       "name": "SSG Tone",
       "type": "Float",
@@ -71268,6 +71324,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "WT_INTERP",
+      "name": "WT Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 3
     },
     {
       "id": "WT_MOD_ENABLE",
@@ -78171,6 +78235,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "WT2_INTERP",
+      "name": "WT2 Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 1
     },
     {
       "id": "WT2_MOD_ENABLE",
@@ -87469,6 +87541,14 @@
       "min": 1,
       "max": 15,
       "default": 2
+    },
+    {
+      "id": "WTPLUS_INTERP",
+      "name": "WT+ Interpolation Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 6,
+      "default": 3
     },
     {
       "id": "WTPLUS_MOD_ENABLE",

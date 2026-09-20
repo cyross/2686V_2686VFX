@@ -20,6 +20,7 @@
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
+#include "../../Core/Synth/SynthInterp.h"
 
 class WtCore : public SynthCore
 {
@@ -95,6 +96,11 @@ private:
     double m_targetRate = 44100.0;
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
+
+    // INTERP。目標レートで作った点の間を、どう埋めてホストのレートへ戻すか。
+    // 既定は階段のまま出していたころと同じ Zero-Order Hold。
+    SynthInterp::History m_interp;
+    int m_interpMode = SynthInterp::modeZeroOrderHold;
     float m_currentFrequency = 440.0f;
 
     // Modulation

@@ -191,6 +191,7 @@ namespace CPN
 	namespace Quality {
 		static inline const juce::String bit = " Bit";
 		static inline const juce::String rate = " Rate";
+		static inline const juce::String interp = " Interpolation Mode";
 	}
 
 	namespace QualityPcm {

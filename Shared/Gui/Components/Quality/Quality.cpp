@@ -1,4 +1,5 @@
 ﻿#include "./Quality.h"
+#include "./QualityPcm.h"
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
 
 #include "../../../Core/Io/ParamFile.h"
@@ -52,6 +53,11 @@ void Quality::setupComponent(juce::Component& parent, const juce::String& code, 
     rateSelector.setup({ .parent = parent, .id = code + CPK::Quality::rate, .title = "SMP.RATE", .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
+
+    // 目標レートで作った点の間の埋め方。選べる中身は QUALITY(PCM) と同じ。
+    interpSelector.setup({ .parent = parent, .id = code + CPK::Quality::interp, .title = "INTERP", .items = QualityPcm::interpItems(), .isReset = true });
+    interpSelector.setWantsKeyboardFocus(true);
+    interpSelector.setExplicitFocusOrder(++tabOrder);
 }
 
 // 束縛先を丸ごと差し替える。
@@ -63,6 +69,7 @@ void Quality::rebind(const juce::String& code)
 {
     bitSelector.rebind(code + CPK::Quality::bit);
     rateSelector.rebind(code + CPK::Quality::rate);
+    interpSelector.rebind(code + CPK::Quality::interp);
 }
 
 void Quality::layoutComponent(juce::Rectangle<int>& rect) {
@@ -72,11 +79,13 @@ void Quality::layoutComponent(juce::Rectangle<int>& rect) {
 
     bitSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
+    interpSelector.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+        layoutMain({ .mainRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -89,16 +98,20 @@ void Quality::layoutComponentRow(juce::Rectangle<int>& rect) {
 
     bitSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
+    interpSelector.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+        layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
 
+// 3.0.0 より前の行並びの形式。行数を変えられないので INTERP は読まない
+// (読んだあとも、いまの値のまま)。
 void Quality::setImportingParams(juce::StringArray& lines, int& index) {
     bitSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
     rateSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
@@ -110,6 +123,9 @@ void Quality::readParams(const Io::ParamReader& reader, const juce::String& key)
 
     bitSelector.setSelectedItemIndex(r.getInt("bit", bitSelector.getSelectedItemIndex()), juce::sendNotification);
     rateSelector.setSelectedItemIndex(r.getInt("rate", rateSelector.getSelectedItemIndex()), juce::sendNotification);
+
+    // INTERP は 3.6.0 で足したもの。持たないファイルは、いまの値のままにする。
+    interpSelector.setSelectedItemIndex(r.getInt("interp", interpSelector.getSelectedItemIndex()), juce::sendNotification);
 }
 
 juce::String Quality::getExportedParams() {
@@ -127,4 +143,5 @@ void Quality::writeParams(Io::ParamWriter& writer, const juce::String& key)
 
     w.set("bit", bitSelector.getSelectedItemIndex());
     w.set("rate", rateSelector.getSelectedItemIndex());
+    w.set("interp", interpSelector.getSelectedItemIndex());
 }

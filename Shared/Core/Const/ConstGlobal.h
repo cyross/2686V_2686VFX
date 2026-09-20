@@ -21,6 +21,11 @@ namespace Global
 		static inline const juce::String author = "Copyright (C) 2026 CYROSS";
 		static inline const juce::String parameters = "Parameters";
 		static inline const juce::String allowedControlChars = "\r\n\t";
+
+		// WT2 の QUALITY が音源へ届くようになった版。これより前に保存されたものを
+		// 読むときは、そのころ鳴っていた値へ揃える
+		// (CPV::Quality::Bit::wt2Legacy / CPV::Quality::Rate::wt2Legacy)。
+		static inline const juce::String wt2QualityFixedVersion = "3.6.0";
 	};
 
 	namespace Audio

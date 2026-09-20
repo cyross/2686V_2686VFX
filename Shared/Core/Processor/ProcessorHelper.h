@@ -158,6 +158,7 @@ namespace PrHelper {
 	static inline void setupQualityPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsQuality& ptPtrs){
 		ptPtrs.depth = apvts.getRawParameterValue(prefix + CPK::Quality::bit);
 		ptPtrs.rate = apvts.getRawParameterValue(prefix + CPK::Quality::rate);
+		ptPtrs.interp = apvts.getRawParameterValue(prefix + CPK::Quality::interp);
 	}
 
 	static inline void setupQualityPcmPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsQualityPcm& ptPtrs){
@@ -854,6 +855,7 @@ namespace PrHelper {
 	static inline void applyQuality(PrPtrsQuality& ptPtrs, QualityParams& params){
 		params.bit = getInt(ptPtrs.depth);
 		params.rate = getInt(ptPtrs.rate);
+		params.interp = getInt(ptPtrs.interp);
 	}
 
 	static inline void applyQualityPcm(PrPtrsQualityPcm& ptPtrs, QualityPcmParams& params){
@@ -3611,7 +3613,10 @@ namespace PrHelper {
 		);
 	}
 
-	static inline void addQualityParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+	// interpInitial は INTERP の初期値。3.6.0 より前の音をそのまま保つため、
+	// 階段のまま出していた WT 系だけ Zero-Order Hold を渡す。
+	static inline void addQualityParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName,
+		int interpInitial = CPV::Quality::Interp::initial) {
 		PrHelper::addInt(
 			layout, 
 			prefix + CPK::Quality::bit, 
@@ -3623,6 +3628,12 @@ namespace PrHelper {
 			prefix + CPK::Quality::rate, 
 			prefixName + CPN::Quality::rate, 
 			CPV::Quality::Rate::min, CPV::Quality::Rate::max, CPV::Quality::Rate::initial
+		);
+		PrHelper::addInt(
+			layout, 
+			prefix + CPK::Quality::interp, 
+			prefixName + CPN::Quality::interp, 
+			CPV::Quality::Interp::min, CPV::Quality::Interp::max, interpInitial
 		);
 	}
 

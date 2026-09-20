@@ -104,6 +104,7 @@ void SsgCore::setParameters(const SynthCoreParams& params)
     m_noiseGen.updateDelta();
 
     m_quantizeSteps = getTargetBitDepth(params.ssg.quality.bit);
+	m_interpMode = params.ssg.quality.interp;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 }
@@ -148,6 +149,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         m_ssgHwEnv.noteOn();
         m_ssgHwPEnv.noteOn();
         m_rateAccumulator = 0.0;
+        m_interp.reset();
         m_lastSample = 0.0f;
     }
 
@@ -460,6 +462,7 @@ float SsgCore::getSample()
         }
 
         m_lastSample = finalOut + fcFluc;
+        m_interp.push(m_lastSample);
     }
 
     // 線形補間を適用して波形を滑らかに出力する
@@ -468,7 +471,7 @@ float SsgCore::getSample()
     // prev→last を補間する形なので、出力はソース 1 サンプル分だけ遅れる。
     float fraction = (float)m_rateAccumulator;
 
-    float interpolatedSample = m_prevSample + (m_lastSample - m_prevSample) * fraction;
+    float interpolatedSample = m_interp.read(m_interpMode, fraction);
 
     return interpolatedSample * finalEnv * m_baseLevel * m_level * 4.0f;
 }

@@ -41,6 +41,7 @@ struct PrPtrsOpzx7AlgFb {
 struct PrPtrsQuality {
     std::atomic<float>* depth = nullptr;
     std::atomic<float>* rate = nullptr;
+    std::atomic<float>* interp = nullptr;
 };
 
 struct PrPtrsQualityPcm {

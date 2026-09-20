@@ -139,6 +139,7 @@ void OpnCore::setParameters(const SynthCoreParams& params)
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opn.quality.bit);
+	m_interpMode = params.opn.quality.interp;
 
     // 高速化のためのループアンローリング
     m_operators[0].setParameters(params.opn.op[0], m_algorithm != 2 ? params.opn.algFb.feedback : 0.0f);
@@ -188,6 +189,7 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     m_lfoPhase = 0.0; // LFO位相をリセット
     m_rateAccumulator = 0.0; // レートの余りもリセット
+    m_interp.reset();
 
     m_n88Lfo.noteOn();
     m_ssgHwEnv.noteOn();
@@ -348,6 +350,7 @@ float OpnCore::getSample() {
         finalOut = quantizeSample(finalOut, m_quantizeSteps);
 
         m_lastSample = finalOut;
+        m_interp.push(m_lastSample);
     }
 
     // m_rateAccumulator は直近に生成したサンプルからの進み具合を
@@ -355,7 +358,7 @@ float OpnCore::getSample() {
     // prev→last を補間する形なので、出力はソース 1 サンプル分だけ遅れる。
     float fraction = (float)m_rateAccumulator;
 
-    return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
+    return m_interp.read(m_interpMode, fraction) * m_level;
 }
 
 void OpnCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

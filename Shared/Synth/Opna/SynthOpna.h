@@ -14,6 +14,7 @@
 #include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 
 #include "./Operator/SynthOpnaOp.h"
+#include "../../Core/Synth/SynthInterp.h"
 
 // ==========================================================
 // OPNA (YM2608) Core
@@ -141,6 +142,11 @@ private:
     double m_targetRate = 96000.0; // m_rateIndex = 1 (96kHz) に合わせた初期値
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
+
+    // INTERP。目標レートで作った点の間を、どう埋めてホストのレートへ戻すか。
+    // 既定は3.6.0 より前と同じ線形補間。
+    SynthInterp::History m_interp;
+    int m_interpMode = SynthInterp::modeLinear;
     float m_prevSample = 0.0f;
     float m_quantizeSteps = 0.0f;
     // LFO State

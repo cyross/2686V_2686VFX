@@ -19,6 +19,10 @@ struct QualityParams {
     // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.55k 14: 4.41k 15: 2.21k
     // Default: 55.5kHz (Typical FM Chip Rate)
     int rate = 2;
+
+    // --- Interpolation ---
+    // 目標レートで作った波を、ホストのレートへ戻すときの埋め方 (SynthInterp)
+    int interp = 1;
 };
 
 struct QualityPcmParams {

@@ -206,6 +206,7 @@ namespace CPK
 	namespace Quality {
 		static inline const juce::String bit = "_BIT";
 		static inline const juce::String rate = "_RATE";
+		static inline const juce::String interp = "_INTERP";
 	}
 
 	namespace QualityPcm {

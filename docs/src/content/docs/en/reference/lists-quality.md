@@ -9,8 +9,11 @@ sidebar:
 
 | Kind | Channels that use it |
 | --- | --- |
-| **BIT / RATE** | FM, SSG, wavetable |
-| **BIT / RATE / INTERP** | ADPCM, RHYTHM (the PCM family) |
+| **BIT / RATE / INTERP** | FM, SSG, wavetable |
+| **BIT / RATE / INTERP** + noise reduction | ADPCM, RHYTHM (the PCM family) |
+
+INTERP reached the FM, SSG and wavetable channels in 3.6.0. The BIT values differ
+between the FM and PCM families, so they have a table each.
 
 ## BIT — bit depth (FM, SSG, wavetable)
 
@@ -87,11 +90,23 @@ There are **15**.
 | 14 | 4.41kHz | 44.1kHz / 10 |
 | 15 | 2.21kHz | 44.1kHz / 20 |
 
-## INTERP — how the gaps are filled (the PCM family)
+## INTERP — how the gaps are filled
 
-Once the rate has been dropped, this decides how the gaps are filled on the way back.
+Once the rate has been dropped, this decides how the gaps are filled on the way back:
+for the PCM family when the loaded audio is read back, and for the FM, SSG and
+wavetable families when the waveform the chip built is brought up to the host rate.
 
 There are **7**.
+
+The default differs per channel, and is always **whatever matches 3.6.0 and earlier**:
+linear interpolation for the FM chips and SSG, ZOH (zero-order hold) for WT and WT+.
+ZOH is closest to the real hardware and keeps the stepped grit.
+
+WT2 alone starts on linear interpolation, because its QUALITY never reached the chip
+before 3.6.0 and it was played with linear interpolation.
+
+Gaussian, B-spline and Lagrange need the next point, so those three delay the sound by
+one chip sample (18 microseconds at 55.5kHz, 0.45 milliseconds at 2.21kHz).
 
 | Value | Name | Notes |
 | ---: | --- | --- |
