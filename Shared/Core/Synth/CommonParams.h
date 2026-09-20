@@ -16,14 +16,14 @@ struct QualityParams {
     int bit = 4;
 
     // --- Sampling Rate ---
-    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 12k, 9: 11k 10: 8k 11: 5.5k 12: 4k 13: 2k
+    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.55k 14: 4.41k 15: 2.21k
     // Default: 55.5kHz (Typical FM Chip Rate)
     int rate = 2;
 };
 
 struct QualityPcmParams {
     int mode = 6; // Default: ADPCM
-    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 12k, 9: 11k 10: 8k 11: 5.5k 12: 4k 13: 2k
+    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.55k 14: 4.41k 15: 2.21k
     int rate = 7;   // Default: 16kHz
     int interp = 1;
 

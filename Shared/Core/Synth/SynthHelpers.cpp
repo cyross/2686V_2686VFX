@@ -6,7 +6,7 @@
 #include "./SynthHelpers.h"
 
 double getTargetRate(int index, double defaultValue) {
-    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
+    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.55k 14: 4.41k 15: 2.21k
     switch (index) {
         case 1:
             return 96000.0; // 96kHz
@@ -35,9 +35,9 @@ double getTargetRate(int index, double defaultValue) {
         case 13:
             return 5551.0;  // 5.55kHz
         case 14:
-            return 4410.0;  // 4kHz
+            return 4410.0;  // 4.41kHz (44.1kHz の 1/10)
         case 15:
-            return 2205.0;  // 2kHz
+            return 2205.0;  // 2.21kHz (44.1kHz の 1/20)
     }
 
     return defaultValue;

@@ -302,9 +302,9 @@ namespace CPV
 
 		namespace Rate
 		{
-			// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
+			// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.55k 14: 4.41k 15: 2.21k
 			inline constexpr int min = 1; // 96kHz
-			inline constexpr int max = 15; // 2kHz
+			inline constexpr int max = 15; // 2.21kHz
 			inline constexpr int initial = 2; // 55.5kHz
 		}
 	}
@@ -325,9 +325,9 @@ namespace CPV
 
 		namespace Rate
 		{
-			// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
+			// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.55k 14: 4.41k 15: 2.21k
 			inline constexpr int min = 1; // 96kHz
-			inline constexpr int max = 15; // 2kHz
+			inline constexpr int max = 15; // 2.21kHz
 			inline constexpr int initial = 9; // 16kHz
 		}
 

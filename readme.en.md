@@ -78,6 +78,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Switching HOLD / KEEP (hold and partial playback) did not update the preview or enable the controls inside right away.
   - In 2686VFX, the PCM bit crusher row in the Effects frame's order list had no name.
   - In QUALITY / QUALITY(PCM), the RATE choices 5.5kHz and 4kHz were numbered 12 and 13; they are now 13 and 14 (display only).
+  - In QUALITY / QUALITY(PCM), RATE 14 and 15 were labelled 10% away from the real rate (display only).
+    - "4kHz" is now "4.41kHz" and "2kHz" is now "2.21kHz" (44.1kHz / 10 and / 20).
+    - "5.5kHz" is now "5.55kHz" as well (it is really 5551 Hz).
+    - The rate itself is unchanged, so patches sound the same.
 - **For developers**
   - Tests are no longer part of the default build; the build preset decides:
     - `*-debug`: plugins and tests

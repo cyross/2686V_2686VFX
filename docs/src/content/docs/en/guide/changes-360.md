@@ -107,6 +107,11 @@ vertical from 8 px to 10 px, horizontal from 8 px to 12 px.
   waveform preview; in WT AMP MOD, WT PITCH MOD and others, turning KEEP on left START
   and END disabled. Both stayed stale until another control was touched.
 - In **2686VFX**, the PCM bit crusher row in the Effects frame's order list had no name.
+- In QUALITY and QUALITY(PCM), RATE 14 and 15 were **labelled 10% away from the rate
+  they actually use**. "4kHz" is really 4410 Hz and "2kHz" is really 2205 Hz (44.1kHz
+  divided by 10 and by 20), so the labels now read **4.41kHz** and **2.21kHz**. RATE 13
+  is really 5551 Hz, so it now reads **5.55kHz** too. The rate itself is unchanged, so
+  patches sound exactly as before.
 - In QUALITY and QUALITY(PCM), the RATE choices "5.5kHz" and "4kHz" were numbered
   12 and 13 by mistake. They are now 13 and 14. Only the displayed numbers were
   wrong; the selected rate is unchanged.

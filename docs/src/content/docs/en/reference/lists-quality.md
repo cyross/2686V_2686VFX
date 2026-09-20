@@ -83,9 +83,9 @@ There are **15**.
 | 10 | 12kHz | |
 | 11 | 11kHz | |
 | 12 | 8kHz | |
-| 13 | 5.5kHz | |
-| 14 | 4kHz | |
-| 15 | 2kHz | |
+| 13 | 5.55kHz | |
+| 14 | 4.41kHz | 44.1kHz / 10 |
+| 15 | 2.21kHz | 44.1kHz / 20 |
 
 ## INTERP — how the gaps are filled (the PCM family)
 

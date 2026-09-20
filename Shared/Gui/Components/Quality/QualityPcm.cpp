@@ -36,7 +36,7 @@ std::vector<SelectItem> QualityPcm::qualityItems = {
     {.name = "21: K054539",     .value = 21 },
 };
 
-// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
+// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.55k 14: 4.41k 15: 2.21k
 std::vector<SelectItem> QualityPcm::rateItems = {
     {.name = " 1: 96kHz",    .value = 1 },
     {.name = " 2: 55.5kHz",  .value = 2 },
@@ -50,9 +50,9 @@ std::vector<SelectItem> QualityPcm::rateItems = {
     {.name = "10: 12kHz",    .value = 10 },
     {.name = "11: 11kHz",    .value = 11 },
     {.name = "12: 8kHz",     .value = 12 },
-    {.name = "13: 5.5kHz",   .value = 13 },
-    {.name = "14: 4kHz",     .value = 14 },
-    {.name = "15: 2kHz",     .value = 15 },
+    {.name = "13: 5.55kHz",  .value = 13 },
+    {.name = "14: 4.41kHz",  .value = 14 },
+    {.name = "15: 2.21kHz",  .value = 15 },
 };
 
 // 言語で名前が変わるので、静的な置き場には持たない。プログラムが
