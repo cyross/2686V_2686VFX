@@ -52,11 +52,6 @@ set(FM_FILES
 
 
 set(PROCESSOR_FILES
-    "Source/Core/Processor/ProcessorNames.h"
-    "Source/Core/Processor/ProcessorFloat.h"
-    "Source/Core/Processor/ProcessorBase.h"
-    "Source/Core/Processor/ProcessorStructs.h"
-    "Source/Core/Processor/ProcessorHelper.h"
     "Source/Core/Processor/PluginProcessor.h"
     "Source/Core/Processor/PluginProcessor.cpp"
     "Source/Core/Processor/PluginProcessorStateKey.h"
@@ -85,19 +80,7 @@ set(FX_EFFECT_FILES
 
 
 
-set(OPZX7_PROCESSOR_FILES
-    "Source/Processor/Opzx7/ProcessorOpzx7Keys.h"
-    "Source/Processor/Opzx7/ProcessorOpzx7Names.h"
-    "Source/Processor/Opzx7/ProcessorOpzx7.h"
-    "Source/Processor/Opzx7/ProcessorOpzx7.cpp"
-)
 
-set(CURVE_PROCESSOR_FILES
-    "Source/Processor/Curve/ProcessorCurveKeys.h"
-    "Source/Processor/Curve/ProcessorCurveNames.h"
-    "Source/Processor/Curve/ProcessorCurve.h"
-    "Source/Processor/Curve/ProcessorCurve.cpp"
-)
 
 set(FX_PROCESSOR_FILES
     "Source/Processor/Fx/ProcessorFxKeys.h"
@@ -205,8 +188,6 @@ source_group("OPZX7S\\Synth\\Fm" FILES ${FM_FILES})
 source_group("OPZX7S\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
 source_group("OPZX7S\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("OPZX7S\\Processor\\Core" FILES ${PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Opzx7" FILES ${OPZX7_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Curve" FILES ${CURVE_PROCESSOR_FILES})
 source_group("OPZX7S\\Gui\\Components\\AmpEnv" FILES ${GUI_COMPONENT_AMPENV_FILES})
 source_group("OPZX7S\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("OPZX7S\\Gui\\Tab\\Opzx7" FILES ${OPZX7_GUI_FILES})

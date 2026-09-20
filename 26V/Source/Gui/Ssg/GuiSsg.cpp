@@ -20,9 +20,9 @@ namespace
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Core/Processor/ProcessorHelper.h"
-#include "../../Processor/Ssg/ProcessorSsgKeys.h"
-#include "../../Processor/Ssg/ProcessorSsgValues.h"
+#include "Shared/Core/Processor/ProcessorHelper.h"
+#include "Shared/Processor/Ssg/ProcessorSsgKeys.h"
+#include "Shared/Processor/Ssg/ProcessorSsgValues.h"
 
 #include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiSsgValues.h"

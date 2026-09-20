@@ -16,10 +16,10 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Opl/ProcessorOpl.h"
-#include "../../Processor/Opl3/ProcessorOpl3.h"
+#include "Shared/Processor/Opl/ProcessorOpl.h"
+#include "Shared/Processor/Opl3/ProcessorOpl3.h"
 #include "../../Processor/Fx/ProcessorFx.h"
-#include "../../Processor/Curve/ProcessorCurve.h"
+#include "Shared/Processor/Curve/ProcessorCurve.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"

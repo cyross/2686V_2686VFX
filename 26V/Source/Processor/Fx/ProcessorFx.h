@@ -4,7 +4,7 @@
 
 #include "../../Effect/Fx/Fx.h"
 
-#include "../../Core/Processor/ProcessorBase.h"
+#include "Shared/Core/Processor/ProcessorBase.h"
 
 class FxProcessor : public PrBase
 {

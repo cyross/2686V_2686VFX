@@ -20,9 +20,9 @@
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiContext.h"
 
-#include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
-#include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
-#include "../../Processor/AdpcmPlus/ProcessorAdpcmPlusKeys.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmKeys.h"
+#include "Shared/Processor/Adpcm/ProcessorAdpcmKeys.h"
+#include "Shared/Processor/AdpcmPlus/ProcessorAdpcmPlusKeys.h"
 
 #include "AppIconForAbout.h"
 

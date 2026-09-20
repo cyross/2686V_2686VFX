@@ -25,7 +25,7 @@ namespace
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Processor/Opl3/ProcessorOpl3Keys.h"
+#include "Shared/Processor/Opl3/ProcessorOpl3Keys.h"
 #include "Shared/Processor/Opl3/ProcessorOpl3Values.h"
 #include "Shared/Processor/Opl/ProcessorOplValues.h"
 #include "../../Core/Const/ConstMmlKeys.h"

@@ -21,8 +21,8 @@ namespace
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
-#include "../../Processor/Adpcm/ProcessorAdpcmValues.h"
+#include "Shared/Processor/Adpcm/ProcessorAdpcmKeys.h"
+#include "Shared/Processor/Adpcm/ProcessorAdpcmValues.h"
 
 #include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiAdpcmValues.h"

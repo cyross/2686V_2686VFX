@@ -51,11 +51,6 @@ set(FM_FILES
 
 
 set(PROCESSOR_FILES
-    "Source/Core/Processor/ProcessorNames.h"
-    "Source/Core/Processor/ProcessorFloat.h"
-    "Source/Core/Processor/ProcessorBase.h"
-    "Source/Core/Processor/ProcessorStructs.h"
-    "Source/Core/Processor/ProcessorHelper.h"
     "Source/Core/Processor/PluginProcessor.h"
     "Source/Core/Processor/PluginProcessor.cpp"
     "Source/Core/Processor/PluginProcessorStateKey.h"
@@ -94,94 +89,17 @@ set(FX_EFFECT_FILES
 
 
 
-set(OPNA_PROCESSOR_FILES
-    "Source/Processor/Opna/ProcessorOpnaKeys.h"
-    "Source/Processor/Opna/ProcessorOpnaNames.h"
-    "Source/Processor/Opna/ProcessorOpna.h"
-    "Source/Processor/Opna/ProcessorOpna.cpp"
-)
 
-set(OPN_PROCESSOR_FILES
-    "Source/Processor/Opn/ProcessorOpnKeys.h"
-    "Source/Processor/Opn/ProcessorOpnNames.h"
-    "Source/Processor/Opn/ProcessorOpn.h"
-    "Source/Processor/Opn/ProcessorOpn.cpp"
-)
 
-set(OPL_PROCESSOR_FILES
-    "Source/Processor/Opl/ProcessorOplKeys.h"
-    "Source/Processor/Opl/ProcessorOplNames.h"
-    "Source/Processor/Opl/ProcessorOpl.h"
-    "Source/Processor/Opl/ProcessorOpl.cpp"
-)
 
-set(OPL3_PROCESSOR_FILES
-    "Source/Processor/Opl3/ProcessorOpl3Keys.h"
-    "Source/Processor/Opl3/ProcessorOpl3Names.h"
-    "Source/Processor/Opl3/ProcessorOpl3.h"
-    "Source/Processor/Opl3/ProcessorOpl3.cpp"
-)
 
-set(OPM_PROCESSOR_FILES
-    "Source/Processor/Opm/ProcessorOpmKeys.h"
-    "Source/Processor/Opm/ProcessorOpmNames.h"
-    "Source/Processor/Opm/ProcessorOpm.h"
-    "Source/Processor/Opm/ProcessorOpm.cpp"
-)
 
-set(OPZX7_PROCESSOR_FILES
-    "Source/Processor/Opzx7/ProcessorOpzx7Keys.h"
-    "Source/Processor/Opzx7/ProcessorOpzx7Names.h"
-    "Source/Processor/Opzx7/ProcessorOpzx7.h"
-    "Source/Processor/Opzx7/ProcessorOpzx7.cpp"
-)
 
-set(SSG_PROCESSOR_FILES
-    "Source/Processor/Ssg/ProcessorSsgKeys.h"
-    "Source/Processor/Ssg/ProcessorSsgNames.h"
-    "Source/Processor/Ssg/ProcessorSsgValues.h"
-    "Source/Processor/Ssg/ProcessorSsg.h"
-    "Source/Processor/Ssg/ProcessorSsg.cpp"
-)
 
-set(WT_PROCESSOR_FILES
-    "Source/Processor/Wavetable/ProcessorWtKeys.h"
-    "Source/Processor/Wavetable/ProcessorWtNames.h"
-    "Source/Processor/Wavetable/ProcessorWtValues.h"
-    "Source/Processor/Wavetable/ProcessorWt.h"
-    "Source/Processor/Wavetable/ProcessorWt.cpp"
-)
 
-set(WT2_PROCESSOR_FILES
-    "Source/Processor/Wt2/ProcessorWt2Keys.h"
-    "Source/Processor/Wt2/ProcessorWt2Names.h"
-    "Source/Processor/Wt2/ProcessorWt2Values.h"
-    "Source/Processor/Wt2/ProcessorWt2.h"
-    "Source/Processor/Wt2/ProcessorWt2.cpp"
-)
 
-set(RHYTHM_PROCESSOR_FILES
-    "Source/Processor/Rhythm/ProcessorRhythmKeys.h"
-    "Source/Processor/Rhythm/ProcessorRhythmNames.h"
-    "Source/Processor/Rhythm/ProcessorRhythm.h"
-    "Source/Processor/Rhythm/ProcessorRhythm.cpp"
-)
 
-set(ADPCM_PROCESSOR_FILES
-    "Source/Processor/Adpcm/ProcessorAdpcmKeys.h"
-    "Source/Processor/Adpcm/ProcessorAdpcmNames.h"
-    "Source/Processor/Adpcm/ProcessorAdpcmValues.h"
-    "Source/Processor/Adpcm/ProcessorAdpcm.h"
-    "Source/Processor/Adpcm/ProcessorAdpcm.cpp"
-)
 
-set(BEEP_PROCESSOR_FILES
-    "Source/Processor/Beep/ProcessorBeepKeys.h"
-    "Source/Processor/Beep/ProcessorBeepNames.h"
-    "Source/Processor/Beep/ProcessorBeepValues.h"
-    "Source/Processor/Beep/ProcessorBeep.h"
-    "Source/Processor/Beep/ProcessorBeep.cpp"
-)
 
 set(FX_PROCESSOR_FILES
     "Source/Processor/Fx/ProcessorFxKeys.h"
@@ -365,18 +283,6 @@ source_group("2686VL\\Synth\\Fm" FILES ${FM_FILES})
 source_group("2686VL\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
 source_group("2686VL\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("2686VL\\Processor\\Core" FILES ${PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Opl" FILES ${OPL_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Opl3" FILES ${OPL3_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Opm" FILES ${OPM_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Opzx7" FILES ${OPZX7_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Wt" FILES ${WT_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Wt2" FILES ${WT2_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
-source_group("2686VL\\Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
 source_group("2686VL\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
 source_group("2686VL\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686VL\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})

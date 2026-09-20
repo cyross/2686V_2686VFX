@@ -16,10 +16,10 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Ssg/ProcessorSsg.h"
-#include "../../Processor/Beep/ProcessorBeep.h"
+#include "Shared/Processor/Ssg/ProcessorSsg.h"
+#include "Shared/Processor/Beep/ProcessorBeep.h"
 #include "../../Processor/Fx/ProcessorFx.h"
-#include "../../Processor/Curve/ProcessorCurve.h"
+#include "Shared/Processor/Curve/ProcessorCurve.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"

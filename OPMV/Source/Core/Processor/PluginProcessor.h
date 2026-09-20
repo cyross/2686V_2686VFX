@@ -16,9 +16,9 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Opm/ProcessorOpm.h"
+#include "Shared/Processor/Opm/ProcessorOpm.h"
 #include "../../Processor/Fx/ProcessorFx.h"
-#include "../../Processor/Curve/ProcessorCurve.h"
+#include "Shared/Processor/Curve/ProcessorCurve.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"

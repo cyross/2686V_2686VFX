@@ -17,20 +17,20 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Opna/ProcessorOpna.h"
-#include "../../Processor/Opn/ProcessorOpn.h"
-#include "../../Processor/Opl/ProcessorOpl.h"
-#include "../../Processor/Opl3/ProcessorOpl3.h"
-#include "../../Processor/Opm/ProcessorOpm.h"
-#include "../../Processor/Opzx7/ProcessorOpzx7.h"
-#include "../../Processor/Ssg/ProcessorSsg.h"
-#include "../../Processor/Wavetable/ProcessorWt.h"
-#include "../../Processor/Wt2/ProcessorWt2.h"
-#include "../../Processor/WtPlus/ProcessorWtPlus.h"
-#include "../../Processor/Rhythm/ProcessorRhythm.h"
-#include "../../Processor/Adpcm/ProcessorAdpcm.h"
-#include "../../Processor/AdpcmPlus/ProcessorAdpcmPlus.h"
-#include "../../Processor/Beep/ProcessorBeep.h"
+#include "Shared/Processor/Opna/ProcessorOpna.h"
+#include "Shared/Processor/Opn/ProcessorOpn.h"
+#include "Shared/Processor/Opl/ProcessorOpl.h"
+#include "Shared/Processor/Opl3/ProcessorOpl3.h"
+#include "Shared/Processor/Opm/ProcessorOpm.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7.h"
+#include "Shared/Processor/Ssg/ProcessorSsg.h"
+#include "Shared/Processor/Wavetable/ProcessorWt.h"
+#include "Shared/Processor/Wt2/ProcessorWt2.h"
+#include "Shared/Processor/WtPlus/ProcessorWtPlus.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythm.h"
+#include "Shared/Processor/Adpcm/ProcessorAdpcm.h"
+#include "Shared/Processor/AdpcmPlus/ProcessorAdpcmPlus.h"
+#include "Shared/Processor/Beep/ProcessorBeep.h"
 #include "../../Processor/Fx/ProcessorFx.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"
@@ -44,7 +44,7 @@
 
 #include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
-#include "../../Processor/Wt2/ProcessorWt2Values.h"
+#include "Shared/Processor/Wt2/ProcessorWt2Values.h"
 
 #include "./PluginProcessorStateKey.h"
 
@@ -485,7 +485,7 @@ private:
     WtProcessor prWt;
     Wt2Processor prWt2;
     WtPlusProcessor prWtPlus;
-    RhythmProcessor prRhythm;
+    RhythmProcessor prRhythm{ RhythmPrValue::pads };
     AdpcmProcessor prAdpcm;
     AdpcmPlusProcessor prAdpcmPlus;
     BeepProcessor prBeep;

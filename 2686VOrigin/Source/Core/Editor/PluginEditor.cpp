@@ -22,10 +22,10 @@
 #include "Shared/Core/Gui/GuiContext.h"
 
 // チャンネルごとのパラメータ名の頭。開いていないタブへ値を入れるときに使う。
-#include "../../Processor/Opna/ProcessorOpnaKeys.h"
-#include "../../Processor/Ssg/ProcessorSsgKeys.h"
-#include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
-#include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
+#include "Shared/Processor/Opna/ProcessorOpnaKeys.h"
+#include "Shared/Processor/Ssg/ProcessorSsgKeys.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmKeys.h"
+#include "Shared/Processor/Adpcm/ProcessorAdpcmKeys.h"
 
 #include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 

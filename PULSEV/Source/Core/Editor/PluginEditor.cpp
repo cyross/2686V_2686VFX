@@ -20,8 +20,8 @@
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiContext.h"
 
-#include "../../Processor/Ssg/ProcessorSsgKeys.h"
-#include "../../Processor/Beep/ProcessorBeepKeys.h"
+#include "Shared/Processor/Ssg/ProcessorSsgKeys.h"
+#include "Shared/Processor/Beep/ProcessorBeepKeys.h"
 
 #include "AppIconForAbout.h"
 

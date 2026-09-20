@@ -15,10 +15,10 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Opna/ProcessorOpna.h"
-#include "../../Processor/Ssg/ProcessorSsg.h"
-#include "../../Processor/Rhythm/ProcessorRhythm.h"
-#include "../../Processor/Adpcm/ProcessorAdpcm.h"
+#include "Shared/Processor/Opna/ProcessorOpna.h"
+#include "Shared/Processor/Ssg/ProcessorSsg.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythm.h"
+#include "Shared/Processor/Adpcm/ProcessorAdpcm.h"
 #include "../../Processor/Fx/ProcessorFx.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"
@@ -279,8 +279,11 @@ class AudioPlugin2686V : public juce::AudioProcessor,
 private:
     OpnaProcessor prOpna;
     SsgProcessor prSsg;
-    RhythmProcessor prRhythm;
-    AdpcmProcessor prAdpcm;
+    // パッドは 6 つ。QUALITY(PCM) の BIT の初期値は 4-bit PCM (12) のまま
+    // (変えると、新しく立ち上げたときや INIT の音が変わる)。
+    RhythmProcessor prRhythm{ RhythmPrValue::pads, 12 };
+    // QUALITY(PCM) の BIT の初期値は 4-bit PCM (12) のまま
+    AdpcmProcessor prAdpcm{ 12 };
     FxProcessor prFx;
 
     SynthParams m_currentParams;

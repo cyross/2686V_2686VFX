@@ -24,7 +24,7 @@ namespace
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Processor/Opzx7/ProcessorOpzx7Keys.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7Keys.h"
 #include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 #include "../../Core/Const/ConstMmlKeys.h"

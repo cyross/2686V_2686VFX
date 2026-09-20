@@ -52,11 +52,6 @@ set(FM_FILES
 
 
 set(PROCESSOR_FILES
-    "Source/Core/Processor/ProcessorNames.h"
-    "Source/Core/Processor/ProcessorFloat.h"
-    "Source/Core/Processor/ProcessorBase.h"
-    "Source/Core/Processor/ProcessorStructs.h"
-    "Source/Core/Processor/ProcessorHelper.h"
     "Source/Core/Processor/PluginProcessor.h"
     "Source/Core/Processor/PluginProcessor.cpp"
     "Source/Core/Processor/PluginProcessorStateKey.h"

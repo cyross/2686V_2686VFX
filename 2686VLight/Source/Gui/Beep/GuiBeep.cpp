@@ -9,8 +9,8 @@
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Processor/Beep/ProcessorBeepKeys.h"
-#include "../../Processor/Beep/ProcessorBeepValues.h"
+#include "Shared/Processor/Beep/ProcessorBeepKeys.h"
+#include "Shared/Processor/Beep/ProcessorBeepValues.h"
 
 #include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiBeepValues.h"

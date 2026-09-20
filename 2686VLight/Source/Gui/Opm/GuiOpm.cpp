@@ -23,7 +23,7 @@ namespace
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Processor/Opm/ProcessorOpmKeys.h"
+#include "Shared/Processor/Opm/ProcessorOpmKeys.h"
 #include "Shared/Processor/Opm/ProcessorOpmValues.h"
 #include "Shared/Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
 #include "../../Core/Const/ConstMmlKeys.h"

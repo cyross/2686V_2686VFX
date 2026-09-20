@@ -29,7 +29,7 @@ namespace
 #include "Shared/Core/Const/ConstFileValues.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Processor/Opna/ProcessorOpnaKeys.h"
+#include "Shared/Processor/Opna/ProcessorOpnaKeys.h"
 #include "Shared/Processor/Opna/ProcessorOpnaValues.h"
 #include "Shared/Processor/Opn/ProcessorOpnValues.h"
 #include "../../Core/Const/ConstMmlKeys.h"

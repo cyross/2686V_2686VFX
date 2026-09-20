@@ -50,11 +50,6 @@ set(FM_FILES
 
 
 set(PROCESSOR_FILES
-    "Source/Core/Processor/ProcessorNames.h"
-    "Source/Core/Processor/ProcessorFloat.h"
-    "Source/Core/Processor/ProcessorBase.h"
-    "Source/Core/Processor/ProcessorStructs.h"
-    "Source/Core/Processor/ProcessorHelper.h"
     "Source/Core/Processor/PluginProcessor.h"
     "Source/Core/Processor/PluginProcessor.cpp"
     "Source/Core/Processor/PluginProcessorStateKey.h"
@@ -83,20 +78,7 @@ set(FX_EFFECT_FILES
 
 
 
-set(OPN_PROCESSOR_FILES
-    "Source/Processor/Opn/ProcessorOpnKeys.h"
-    "Source/Processor/Opn/ProcessorOpnNames.h"
-    "Source/Processor/Opn/ProcessorOpn.h"
-    "Source/Processor/Opn/ProcessorOpn.cpp"
-)
 
-set(SSG_PROCESSOR_FILES
-    "Source/Processor/Ssg/ProcessorSsgKeys.h"
-    "Source/Processor/Ssg/ProcessorSsgNames.h"
-    "Source/Processor/Ssg/ProcessorSsgValues.h"
-    "Source/Processor/Ssg/ProcessorSsg.h"
-    "Source/Processor/Ssg/ProcessorSsg.cpp"
-)
 
 set(FX_PROCESSOR_FILES
     "Source/Processor/Fx/ProcessorFxKeys.h"
@@ -200,8 +182,6 @@ source_group("26V\\Synth\\Fm" FILES ${FM_FILES})
 source_group("26V\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
 source_group("26V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("26V\\Processor\\Core" FILES ${PROCESSOR_FILES})
-source_group("26V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
-source_group("26V\\Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})
 source_group("26V\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
 source_group("26V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("26V\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})

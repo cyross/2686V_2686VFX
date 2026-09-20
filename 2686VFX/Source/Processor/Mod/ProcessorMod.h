@@ -5,8 +5,8 @@
 #include <array>
 #include <bitset>
 
-#include "../../Core/Processor/ProcessorHelper.h"
-#include "../../Core/Processor/ProcessorStructs.h"
+#include "Shared/Core/Processor/ProcessorHelper.h"
+#include "Shared/Core/Processor/ProcessorStructs.h"
 
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"

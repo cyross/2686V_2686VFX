@@ -20,9 +20,9 @@
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiContext.h"
 
-#include "../../Processor/Wavetable/ProcessorWtKeys.h"
-#include "../../Processor/Wt2/ProcessorWt2Keys.h"
-#include "../../Processor/WtPlus/ProcessorWtPlusKeys.h"
+#include "Shared/Processor/Wavetable/ProcessorWtKeys.h"
+#include "Shared/Processor/Wt2/ProcessorWt2Keys.h"
+#include "Shared/Processor/WtPlus/ProcessorWtPlusKeys.h"
 
 #include "AppIconForAbout.h"
 

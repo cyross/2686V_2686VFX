@@ -13,8 +13,8 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Opn/ProcessorOpn.h"
-#include "../../Processor/Ssg/ProcessorSsg.h"
+#include "Shared/Processor/Opn/ProcessorOpn.h"
+#include "Shared/Processor/Ssg/ProcessorSsg.h"
 #include "../../Processor/Fx/ProcessorFx.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"

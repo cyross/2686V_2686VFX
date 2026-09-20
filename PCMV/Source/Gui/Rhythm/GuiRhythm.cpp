@@ -25,7 +25,7 @@ namespace
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythmKeys.h"
 #include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "Shared/Core/Const/ConstFileValues.h"
 #include "Shared/Core/Gui/GuiHelpers.h"

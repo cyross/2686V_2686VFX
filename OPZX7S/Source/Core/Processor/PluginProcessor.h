@@ -15,9 +15,9 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Opzx7/ProcessorOpzx7.h"
+#include "Shared/Processor/Opzx7/ProcessorOpzx7.h"
 #include "../../Processor/Fx/ProcessorFx.h"
-#include "../../Processor/Curve/ProcessorCurve.h"
+#include "Shared/Processor/Curve/ProcessorCurve.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"
@@ -254,7 +254,8 @@ public:
     AudioPlugin2686V();
     ~AudioPlugin2686V() override;
 
-    CurveProcessor prCurve;
+    // カーブ編集が標準で、入切の切り替えを持たない
+    CurveProcessor prCurve{ true };
 
     static inline constexpr int previewBufferSize = 200;
 

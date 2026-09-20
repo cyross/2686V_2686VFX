@@ -3,7 +3,7 @@
 #include "./ProcessorFxKeys.h"
 #include "./ProcessorFxValues.h"
 
-#include "../../Core/Processor/ProcessorFloat.h"
+#include "Shared/Core/Processor/ProcessorFloat.h"
 #include "./ProcessorFxNames.h"
 
 void FxProcessor::prepare(double sampleRate)

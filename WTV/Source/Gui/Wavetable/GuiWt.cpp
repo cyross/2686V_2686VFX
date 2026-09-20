@@ -22,8 +22,8 @@ namespace
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Processor/Wavetable/ProcessorWtKeys.h"
-#include "../../Processor/Wavetable/ProcessorWtValues.h"
+#include "Shared/Processor/Wavetable/ProcessorWtKeys.h"
+#include "Shared/Processor/Wavetable/ProcessorWtValues.h"
 #include "Shared/Core/Const/ConstFileValues.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 

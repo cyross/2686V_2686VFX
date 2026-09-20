@@ -17,11 +17,11 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Rhythm/ProcessorRhythm.h"
-#include "../../Processor/Adpcm/ProcessorAdpcm.h"
-#include "../../Processor/AdpcmPlus/ProcessorAdpcmPlus.h"
+#include "Shared/Processor/Rhythm/ProcessorRhythm.h"
+#include "Shared/Processor/Adpcm/ProcessorAdpcm.h"
+#include "Shared/Processor/AdpcmPlus/ProcessorAdpcmPlus.h"
 #include "../../Processor/Fx/ProcessorFx.h"
-#include "../../Processor/Curve/ProcessorCurve.h"
+#include "Shared/Processor/Curve/ProcessorCurve.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"
@@ -265,7 +265,7 @@ class AudioPlugin2686V : public juce::AudioProcessor,
     public juce::AsyncUpdater
 {
 private:
-    RhythmProcessor prRhythm;
+    RhythmProcessor prRhythm{ RhythmPrValue::pads };
     AdpcmProcessor prAdpcm;
     AdpcmPlusProcessor prAdpcmPlus;
     FxProcessor prFx;

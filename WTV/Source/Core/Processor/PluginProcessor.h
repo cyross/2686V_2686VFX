@@ -16,11 +16,11 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../../Processor/Wavetable/ProcessorWt.h"
-#include "../../Processor/Wt2/ProcessorWt2.h"
-#include "../../Processor/WtPlus/ProcessorWtPlus.h"
+#include "Shared/Processor/Wavetable/ProcessorWt.h"
+#include "Shared/Processor/Wt2/ProcessorWt2.h"
+#include "Shared/Processor/WtPlus/ProcessorWtPlus.h"
 #include "../../Processor/Fx/ProcessorFx.h"
-#include "../../Processor/Curve/ProcessorCurve.h"
+#include "Shared/Processor/Curve/ProcessorCurve.h"
 
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"
@@ -31,7 +31,7 @@
 
 #include "../Editor/PluginEditor.h"
 
-#include "../../Processor/Wt2/ProcessorWt2Values.h"
+#include "Shared/Processor/Wt2/ProcessorWt2Values.h"
 
 #include "./PluginProcessorStateKey.h"
 

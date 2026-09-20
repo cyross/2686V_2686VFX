@@ -18,7 +18,7 @@ namespace
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
-#include "../../Processor/WtPlus/ProcessorWtPlusKeys.h"
+#include "Shared/Processor/WtPlus/ProcessorWtPlusKeys.h"
 
 #include "Shared/Core/Gui/GuiHelpers.h"
 #include "./GuiWtPlusValues.h"

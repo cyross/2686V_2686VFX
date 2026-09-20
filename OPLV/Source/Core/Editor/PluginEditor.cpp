@@ -20,8 +20,8 @@
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiContext.h"
 
-#include "../../Processor/Opl/ProcessorOplKeys.h"
-#include "../../Processor/Opl3/ProcessorOpl3Keys.h"
+#include "Shared/Processor/Opl/ProcessorOplKeys.h"
+#include "Shared/Processor/Opl3/ProcessorOpl3Keys.h"
 
 #include "AppIconForAbout.h"
 

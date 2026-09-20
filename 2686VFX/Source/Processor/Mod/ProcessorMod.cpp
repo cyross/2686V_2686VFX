@@ -1,6 +1,6 @@
 ﻿#include "./ProcessorMod.h"
 
-#include "../../Core/Processor/ProcessorNames.h"
+#include "Shared/Core/Processor/ProcessorNames.h"
 
 namespace
 {

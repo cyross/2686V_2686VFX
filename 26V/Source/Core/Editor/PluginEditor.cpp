@@ -21,8 +21,8 @@
 #include "Shared/Core/Gui/GuiContext.h"
 
 // チャンネルごとのパラメータ名の頭。開いていないタブへ値を入れるときに使う。
-#include "../../Processor/Opn/ProcessorOpnKeys.h"
-#include "../../Processor/Ssg/ProcessorSsgKeys.h"
+#include "Shared/Processor/Opn/ProcessorOpnKeys.h"
+#include "Shared/Processor/Ssg/ProcessorSsgKeys.h"
 
 #include "AppIconForAbout.h"
 

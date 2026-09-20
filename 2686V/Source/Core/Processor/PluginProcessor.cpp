@@ -7,8 +7,8 @@
 #include <cmath>
 #include <set>
 
-#include "../Processor/ProcessorNames.h"
-#include "../Processor/ProcessorHelper.h"
+#include "Shared/Core/Processor/ProcessorNames.h"
+#include "Shared/Core/Processor/ProcessorHelper.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 
