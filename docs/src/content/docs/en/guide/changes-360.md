@@ -128,3 +128,33 @@ These changes only matter if you build from source.
 - The N88 LFO screen is now a component like the other sections (no visible change).
 - Added tests that drive the real editor and processor to check that controls are
   disabled with their switches and that key assignments trigger the right targets.
+
+### Code that was identical in all twelve plugins now lives in one place
+
+**Until now every plugin carried its own copy of the same code under
+`<plugin>/Source/`.** That code now lives in shared libraries under `Shared/`,
+which each plugin links against. It covers the generators, the effects, the chip
+cores, the chip processors, and the GUI base and components. JUCE is built once
+for all twelve as well (`cy_juce`).
+
+| | Up to 3.5.0 | 3.6.0 |
+| --- | --- | --- |
+| Clean build | 12 min 33 s | **8 min 5 s** |
+| Intermediate files (Release) | 2,201 files, 2.2 GB | **1,046 files, 0.9 GB** |
+
+(Measured on the same machine, Release, all twelve plugins.)
+
+Three rules hold the structure together.
+
+- GUI components never touch the processor or the editor directly; they go
+  through an interface (`Shared/Core/Gui/GuiHost.h`).
+- Per-plugin differences (86V's six RHYTHM pads, OPZX7S's always-on curve, and so
+  on) are passed in when the object is built, never switched with `#if`.
+- The tabs (the chip screens, SETTINGS, PRESET and so on) stay per plugin. They
+  are what makes each plugin itself, so they were deliberately left alone.
+
+**Sound, parameters and saved files are unchanged.** For all twelve plugins the
+parameter IDs, names, ranges and defaults were compared before and after and are
+identical. Only the order in which a DAW lists the parameters changes, in
+2686VLight, 26V and 86V; saved state and automation are keyed by parameter ID, so
+nothing is affected.

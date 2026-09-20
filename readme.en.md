@@ -85,6 +85,15 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - `*-release-tests`: plugins and tests (new)
   - N88 LFO (chip-wide and operator sides) is now a component.
   - Added tests for disabling controls with their switches and for key assignment.
+  - **Code that was identical in all twelve plugins now lives in shared static libraries (`Shared/`).**
+    - Each plugin used to keep its own copy under `<plugin>/Source/`.
+    - This covers the generators, the effects, the chip cores, the chip processors, and the GUI base and components.
+    - JUCE is also built once (`cy_juce`) and reused by all twelve.
+    - A clean build went from 12:33 to 8:05 (Release, all twelve, measured on the same machine).
+    - GUI components reach the processor and editor through an interface (`Shared/Core/Gui/GuiHost.h`).
+    - Per-plugin differences (86V's six pads, OPZX7S's always-on curve, and so on) are passed in when the object is built, not switched with `#if`.
+    - The tabs (the chip screens, SETTINGS, PRESET and so on) stay per plugin as before.
+    - Sound, parameters and saved files are unchanged; the parameters of all twelve were compared before and after.
 
 ### 3-0-2. What v3.5.0 adds and changes
 
