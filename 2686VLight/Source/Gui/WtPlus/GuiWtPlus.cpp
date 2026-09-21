@@ -119,12 +119,12 @@ void GuiWtPlus::setup() {
     slotTarget.setExplicitFocusOrder(++tabOrder);
     slotTarget.onValueChange = [this] { applySlotTarget(); };
 
-    slotWtBtn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt, .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true});
+    slotWtBtn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt, .bgColor = GuiColor::WaveFile::LoadWtBg, .isReset = false, .isResized = true});
     slotWtBtn.setWantsKeyboardFocus(true);
     slotWtBtn.setExplicitFocusOrder(++tabOrder);
     slotWtBtn.onClick = [this] { importSlotWave(targetSlot(), false); };
 
-    slotWt2Btn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt2, .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+    slotWt2Btn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt2, .bgColor = GuiColor::WaveFile::LoadWt2Bg, .isReset = false, .isResized = true });
     slotWt2Btn.setWantsKeyboardFocus(true);
     slotWt2Btn.setExplicitFocusOrder(++tabOrder);
     slotWt2Btn.onClick = [this] { importSlotWave(targetSlot(), true); };
@@ -611,7 +611,6 @@ void GuiWtPlus::importSlotWave(int slot, bool isWt2)
                     if (safe == nullptr) return;
 
                     pluginOf(ctx).loadWtPlusWaveFile(slot, file);
-                    pluginOf(ctx).defaultWavetableDir = file.getParentDirectory().getFullPathName();
 
                     updateSlotFileName(slot);
                 });
@@ -680,6 +679,13 @@ void GuiWtPlus::updateSlotFileName(int slot)
 
     // 名前とプレビューは常に同じ波形を指していてほしいので、ここで揃える
     updateSlotPreview(slot);
+}
+
+void GuiWtPlus::refreshSlots()
+{
+    for (int i = 0; i < Global::WtPlus::slots; ++i) updateSlotPreview(i);
+
+    updateSlotFileName(targetSlot());
 }
 
 // ==============================================================================

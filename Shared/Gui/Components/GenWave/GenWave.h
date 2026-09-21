@@ -4,6 +4,7 @@
 
 #include <JuceHeader.h>
 
+#include "./GenWavePlayer.h"
 #include "./GenWaveRender.h"
 #include "Shared/Core/Gui/GuiContext.h"
 
@@ -18,12 +19,16 @@
 // 見せる。窓の幅は 1・2・5・10 周期から選べる。値を触るたびに作り直す
 // ようなことはしない。負担を軽くするための決め事。
 //
+// 波形の下に、一時停止・コマ送りのシークバー・縦の拡大率を置く
+// (GenWavePlayer)。ある瞬間の形をじっくり見るためのもの。
+//
 // 計算そのものは GenWaveRender が受け持つ。ここは押す・見せるだけ。
 class GuiGenWave : public juce::Component, private juce::Timer
 {
 public:
     static constexpr int labelHeight = 30;
-    static constexpr int waveHeight = 100;
+    static constexpr int waveHeight = 150;
+    static constexpr int playerHeight = GenWavePlayer::height;
     static constexpr int cycleRowHeight = 22;
     static constexpr int buttonRowHeight = 26;
     static constexpr int gap = 6;
@@ -38,7 +43,7 @@ public:
 
     // 置き場に要る高さ。エディタ側はこれを見て区画を取る。
     static constexpr int totalHeight =
-        labelHeight + gap + waveHeight + gap + cycleRowHeight + gap + buttonRowHeight;
+        labelHeight + gap + waveHeight + gap + playerHeight + gap + cycleRowHeight + gap + buttonRowHeight;
 
     explicit GuiGenWave(const GuiContext& context);
     ~GuiGenWave() override;
@@ -51,6 +56,9 @@ public:
     void paint(juce::Graphics& g) override;
     void resized() override;
     void mouseDown(const juce::MouseEvent& event) override;
+    void mouseDrag(const juce::MouseEvent& event) override;
+    void mouseUp(const juce::MouseEvent& event) override;
+    void mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
 
     // 出来上がりを受け取る。別のスレッドから直に呼ばず、
     // かならずメッセージスレッドへ渡してから呼ぶこと。
@@ -70,8 +78,8 @@ private:
 
     int m_cycleIndex = 1;   // 既定は 2 周期
 
-    // 動かし始めた時刻。経過秒から窓の位置を出す。
-    double m_startMs = 0.0;
+    // 一時停止・コマ送り・縦の拡大率
+    GenWavePlayer m_player;
 
     // 作っている最中は押させない
     bool m_busy = false;
@@ -83,6 +91,7 @@ private:
     void clearWave();
 
     juce::Rectangle<int> waveArea() const;
+    juce::Rectangle<int> playerArea() const;
     juce::Rectangle<int> cycleArea() const;
     juce::Rectangle<int> cycleCell(int index) const;
 

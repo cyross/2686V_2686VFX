@@ -214,6 +214,11 @@ private:
     std::unique_ptr<juce::FileChooser> fileChooser;
     std::unique_ptr<juce::TooltipWindow> tooltipWindow;
 
+    // 変調波形を最後に選んだフォルダ。次に開くときはここから始める。
+    // 設定の置き場 (defaultWavetableDir) は、保存した波形の相対パスの
+    // 基準でもあるので、選ぶたびに書き換えてはいけない。
+    juce::File lastWaveDir;
+
 
 
     // 仮想MIDIキーボード用

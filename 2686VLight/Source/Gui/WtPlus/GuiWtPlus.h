@@ -255,6 +255,10 @@ public:
     void clearSlotWave(int slot);
     void updateSlotFileName(int slot);
 
+    // 全スロットの波形と、対象のスロットの名前を読み直す。
+    // プリセットを読んだあとなど、どのスロットも入れ替わっているときに使う。
+    void refreshSlots();
+
     // 対象のスロットが変わったときに、ボタンと名前の指す先をそろえる。
     void applySlotTarget();
 

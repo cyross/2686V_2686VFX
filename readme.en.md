@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v3.6.0 README
+# Retro Sound VST "2686V" v3.6.1 README
 
 (C)2026 CYROSS
 
@@ -29,7 +29,41 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0-1. What v3.6.0 adds and changes
+### 3-0-1. What v3.6.1 fixes and changes
+
+- **Fixed loaded waveforms sometimes missing after reopening a project**
+  - Found with WT+; it happened in every DAW and in the standalone
+  - Every load rewrote the wavetable folder in SETTINGS to the folder of the loaded file
+    - Wave locations are saved relative to that folder, so after a restart they pointed to the wrong place
+    - Loading WT / WT2 waveforms, OPZX7 WT / WT2 and WT MOD / WT AMP MOD waves did the same rewrite
+  - Loading no longer rewrites the wavetable folder
+    - The file list still opens where you left it
+  - For files saved with 3.6.0 or earlier, a missing wave file is looked up by name under the wavetable folder, then under the plugin's folder
+    - Nothing is loaded when several files share the name
+    - Once it comes back, save again and the correct path is stored
+  - Fixed the WT+ tab keeping the old slot waveforms and name when a preset was loaded while it was open
+- **File picker adjustments**
+  - A "Pause all / Play all" button left of the cycle switch (1, 2, 5, 10) pauses or resumes every preview in the list
+  - A "Default folder" button next to "Delete folder" (goes back to the folder set in SETTINGS)
+  - A "Search" heading, and a white frame around it with the keyword, kind and file format
+  - When saving, the name row (heading, field and save button) sits on a grey plate
+  - The "Name" and "Search" headings are bold and 2 pixels larger
+  - The current folder is shown on a blue strip
+  - Folder names in a slightly brighter bold gold
+  - Row waveform previews are 1.5 times taller
+  - The scroll bar is 8 pixels wider and can be dragged with the mouse
+- **Wave memory buttons**
+  - The load buttons (WT+ slots, WT MOD / WT AMP MOD) read "WT2" instead of "W2", with WT and WT2 at the same, wider width
+  - Brighter backgrounds (WT: whitish light blue, WT2: whitish light green)
+  - On WT / WT2, "Import" is whitish light yellow and "Export" whitish light blue
+- **Pause, frame stepping and vertical zoom for waveform previews**
+  - The generated-waveform preview is 1.5 times taller
+  - Under it, and under each row preview of the file picker:
+    - Pause / play
+    - A seek bar (one cycle per frame; the mouse wheel steps one frame; right-click to type a frame number, with the total shown beside it)
+    - Vertical zoom (x1 to x8; stretches the waveform, not the view)
+
+### 3-0-2. What v3.6.0 adds and changes
 
 - **2686VFX: assign which key drives each modulation**
   - Added "Key assign" to the Effects frame, above the file import/export buttons.
@@ -124,7 +158,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - The tabs (the chip screens, SETTINGS, PRESET and so on) stay per plugin as before.
     - Sound, parameters and saved files are unchanged; the parameters of all twelve were compared before and after.
 
-### 3-0-2. What v3.5.0 adds and changes
+### 3-0-3. What v3.5.0 adds and changes
 
 - **Support for on-the-fly display language selection**
   - Added a "Language (LANGUAGE)" dropdown setting to the top of the **SETTINGS** tab.
@@ -138,7 +172,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Slightly expanded the width of the "Format" label on the **PRESET** tab to accommodate the English word.
   - Removed the parenthesized "(Oscilloscope)" from the wave preview heading in the English layout to ensure the "Waveform preview" text fits within the frame.
 
-### 3-0-3. What v3.4.0 adds and changes
+### 3-0-4. What v3.4.0 adds and changes
 
 - **Passing sounds between the FM chips and OPZX7S**
   - **[EX]OPZX7S Params** added to UTILITY on OPNA / OPN / OPL / OPL3 / OPM
@@ -169,7 +203,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The OPL3 tab did not show its left panel (LEVEL through UTILITY).
   - Opening the save browser after loading a file left out the name field and the save button.
 
-### 3-0-4. What v3.3.0 adds and changes
+### 3-0-5. What v3.3.0 adds and changes
 
 - **The ADPCM+ channel**
   - Loads up to 32 audio files and switches between them while you play.
@@ -241,7 +275,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **More bundled wallpapers**
   - Five wallpaper images have been added alongside the existing one.
 
-### 3-0-5. What v3.2.0 adds and changes
+### 3-0-6. What v3.2.0 adds and changes
 
 - **Control steps are now 0.0001**
   - Floating-point controls moved in steps of 0.01 (the framework default).
@@ -305,7 +339,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **A great many more bundled presets and parameter files**
   - A `fromCC2` folder has been added.
 
-### 3-0-6. What v3.1.0 adds and changes
+### 3-0-7. What v3.1.0 adds and changes
 
 - New modulation
   - **SSG HW PITCH ENV**

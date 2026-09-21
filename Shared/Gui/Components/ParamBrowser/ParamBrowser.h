@@ -7,6 +7,7 @@
 
 #include <JuceHeader.h>
 
+#include "../GenWave/GenWavePlayer.h"
 #include "../GenWave/GenWaveRender.h"
 #include "Shared/Core/Gui/GuiContext.h"
 
@@ -26,7 +27,8 @@
 //
 // 波形プレビューは「生成波形のプレビュー」と同じ見せ方で、10 秒ぶんの上を
 // 窓が動く。作るのは押したときだけで、作ったものはファイルへ貯めるので、
-// 次に開いたときは作り直さない。
+// 次に開いたときは作り直さない。プレビューの下には、行ごとに一時停止・
+// コマ送り・縦の拡大率を置く (GenWavePlayer)。
 class GuiParamBrowser : public juce::Component, private juce::Timer
 {
 public:
@@ -34,10 +36,18 @@ public:
     static constexpr int margin = 32;          // 画面の縁から空ける幅
     static constexpr int padding = 12;
     static constexpr int searchRowHeight = 26;
-    static constexpr int pathRowHeight = 20;
+    static constexpr int pathRowHeight = 22;
     static constexpr int headerHeight = 26;
-    static constexpr int rowHeight = 44;
-    static constexpr int scrollBarWidth = 10;
+
+    // 検索の枠と、書き出す名前の札の内側に空ける幅
+    static constexpr int frameInset = 5;
+
+    // 行の中のプレビュー。波形の下に再生の操作を 1 段置く。
+    static constexpr int previewHeight = 54;
+    static constexpr int rowPad = 4;
+    static constexpr int playerGap = 3;
+    static constexpr int rowHeight = rowPad + previewHeight + playerGap + GenWavePlayer::height + rowPad;
+    static constexpr int scrollBarWidth = 18;
 
     static constexpr int categoryWidth = 110;
     static constexpr int formatWidth = 80;
@@ -48,10 +58,19 @@ public:
     static constexpr int folderButtonWidth = 110;
     static constexpr int newFolderButtonWidth = 120;
     static constexpr int deleteFolderButtonWidth = 120;
+    static constexpr int homeButtonWidth = 120;
+    static constexpr int playAllButtonWidth = 110;
     static constexpr int bulkButtonWidth = 220;
     static constexpr int deleteButtonWidth = 130;
     static constexpr int saveButtonWidth = 110;
     static constexpr int nameLabelWidth = 64;
+    static constexpr int searchLabelWidth = 64;
+
+    // 「検索」「名前」の見出しの字の大きさ
+    static constexpr float labelFontSize = 15.0f;
+
+    // 行の生成ボタンの高さ
+    static constexpr int actionButtonHeight = 28;
 
     static constexpr int frameMs = 33;
 
@@ -102,6 +121,9 @@ public:
         std::vector<float> mins;
         std::vector<float> maxs;
 
+        // 一時停止・コマ送り・縦の拡大率。行ごとに持つ。
+        GenWavePlayer player;
+
         // プレビューを用意したかどうか。開いた時点で全部を用意すると、
         // 件数が多いフォルダで待たされる。出す行のぶんだけ用意する。
         bool previewLoaded = false;
@@ -136,6 +158,10 @@ public:
         // どこから持ってきても構わないので縛らない。
         juce::File limit;
 
+        // 「初期フォルダ」で戻る先。設定で決めてある置き場。
+        // 空なら、開いたときのフォルダへ戻る。
+        juce::File home;
+
         std::function<void(const juce::File&)> onChoose;
     };
 
@@ -159,6 +185,8 @@ public:
     void resized() override;
     void mouseDown(const juce::MouseEvent& event) override;
     void mouseDoubleClick(const juce::MouseEvent& event) override;
+    void mouseDrag(const juce::MouseEvent& event) override;
+    void mouseUp(const juce::MouseEvent& event) override;
     void mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
 
     // ショートカットキー。
@@ -175,6 +203,10 @@ private:
     juce::TextButton folderBtn;
     juce::TextButton newFolderBtn;
     juce::TextButton deleteFolderBtn;
+    juce::TextButton homeBtn;
+
+    // 一覧のプレビューをまとめて止める・動かす。周期の切り替えの左に置く。
+    juce::TextButton playAllBtn;
     juce::TextButton bulkGenerateBtn;
     juce::TextButton bulkDeleteBtn;
 
@@ -186,6 +218,7 @@ private:
 
     juce::File m_root;
     juce::File m_limit;
+    juce::File m_home;
     juce::StringArray m_allowed;
     Mode m_mode = Mode::open;
     juce::String m_extension;
@@ -202,7 +235,17 @@ private:
 
     int m_cycleIndex = 1;           // 生成波形のプレビューと同じ選択肢
 
-    double m_startMs = 0.0;
+    // 「すべて停止」を押したあとか。フォルダを移っても、新しく並んだ行を
+    // 止めた状態で出すために覚えておく。
+    bool m_allPaused = false;
+
+    // スクロールバーのつまみを引っぱっているか。m_thumbGrab はつまみの頭から
+    // 押した位置までの距離で、引っぱっている間つまみがずれないようにする。
+    bool m_scrollDragging = false;
+    int m_thumbGrab = 0;
+
+    // シークバーを引っぱっている行 (m_view の中の位置)。-1 なら引っぱっていない。
+    int m_dragView = -1;
 
     // 一括生成の途中経過
     std::vector<int> m_queue;
@@ -222,16 +265,33 @@ private:
     juce::Rectangle<int> panelArea() const;
     juce::Rectangle<int> innerArea() const;
     int topRowsHeight() const;
+    int frameRowHeight() const { return searchRowHeight + frameInset * 2; }
+    juce::Rectangle<int> searchFrameArea() const;
+    juce::Rectangle<int> buttonRowArea() const;
+    juce::Rectangle<int> saveFrameArea() const;
     juce::Rectangle<int> pathArea() const;
     juce::Rectangle<int> listArea() const;
     juce::Rectangle<int> headerArea() const;
     juce::Rectangle<int> rowArea(int viewIndex) const;
     juce::Rectangle<int> columnArea(juce::Rectangle<int> row, Column column) const;
     juce::Rectangle<int> previewArea(juce::Rectangle<int> row) const;
+    juce::Rectangle<int> waveBox(juce::Rectangle<int> row) const;
+    juce::Rectangle<int> playerBox(juce::Rectangle<int> row) const;
     juce::Rectangle<int> actionArea(juce::Rectangle<int> row) const;
     juce::Rectangle<int> cycleCell(int index) const;
 
     int visibleRows() const;
+
+    // スクロールバーの溝と、つまみ。一覧が収まっているときつまみは空。
+    juce::Rectangle<int> scrollTrack() const;
+    juce::Rectangle<int> scrollThumb() const;
+    void scrollToThumbTop(int thumbTop);
+
+    // その位置にある行 (m_view の中の位置)。無ければ -1。
+    int viewIndexAt(juce::Point<int> at) const;
+
+    // 行のプレビューの時間の軸。作ってある 10 秒ぶんが無ければ nullptr。
+    const GenWaveRender::Wave* timelineOf(const Item& item) const;
 
     // --- 中身 ---
     void collect();
@@ -254,6 +314,9 @@ private:
     void chooseRoot();
     void createFolder();
     void deleteSelectedFolder();
+    void goHome();
+    void toggleAllPlayback();
+    void updatePlayAllText();
     void commitSave();
 
     void startBulkGenerate();
@@ -264,6 +327,8 @@ private:
 
     // --- 描く ---
     void drawPath(juce::Graphics& g);
+    void drawSearchFrame(juce::Graphics& g);
+    void drawSaveFrame(juce::Graphics& g);
     void drawHeader(juce::Graphics& g);
     void drawRows(juce::Graphics& g);
     void drawRow(juce::Graphics& g, int viewIndex);
