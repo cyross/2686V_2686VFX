@@ -267,6 +267,14 @@ line.
 Pick 1, 2, 5 or 10 cycles. The view starts on a cycle boundary, so the
 waveform does not drift sideways.
 
+Under the waveform sit three controls for studying the shape at one moment.
+
+| Control | What it does |
+| --- | --- |
+| ▶ / ❚❚ | Pause and resume |
+| Seek bar | Each cycle is one frame. Click or drag to move there; the mouse wheel steps one frame at a time (and pauses). The middle shows "current frame / frames". **Right-click** to type a frame number (the total is shown beside it; Enter pauses on that frame, Esc cancels) |
+| Zoom | Stretches the waveform vertically, x1 to x8, without changing the height of the view. Click for the choices, or use the wheel |
+
 What is built is kept in a file and not rebuilt next time. **Clear previews**
 in SETTINGS removes them all.
 
@@ -277,14 +285,23 @@ all open the same list, covering most of the window.
 
 | Control | What it does |
 | --- | --- |
-| Keyword | While something is typed, the search reaches into the folders below |
+| Keyword | While something is typed, the search reaches into the folders below. It sits with Kind and File format inside the white **Search** frame |
 | Kind | Narrows to OPNA / OPM / wave (WT) and so on |
 | File format | Narrows to JSON / YAML / plain |
 | Heading | Each click cycles unsorted, ascending, descending |
 | Folder… | Jump straight to a distant folder |
 | New folder / Delete folder | Create or remove a folder here |
+| Default folder | Go back to the folder set in SETTINGS |
+| Pause all / Play all | Pause or resume every row preview at once (left of the cycle switch) |
 | Generate / Regenerate | Build the waveform preview for that row |
 | Generate all / Delete all | Do the whole folder at once |
+
+When saving, the name field and the save button sit on a grey plate. The
+current folder is shown on the blue strip above the list.
+
+Each row's waveform preview has the same pause, seek bar and zoom as the
+generated waveform. For the still pictures of wave and audio files, only the
+zoom applies.
 
 Rows are chosen with a **double click** — folders included: one click selects,
 two enters. The first row goes up to the parent folder.
