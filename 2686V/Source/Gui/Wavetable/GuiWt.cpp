@@ -627,12 +627,12 @@ void GuiWt::setup()
 
     uSep001.setupComponent(mainGroup.contentCanvas);
 
-    customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Wt::fileImport, .bgColor = GuiColor::WaveFile::ImportBg, .isReset = false, .isResized = false });
     customWaveImportBtn.setWantsKeyboardFocus(true);
     customWaveImportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveImportBtn.onClick = [this] { importWavetable(); };
 
-    customWaveExportBtn.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey.darker(0.8f), .isReset = false, .isResized = false });
+    customWaveExportBtn.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Wt::fileExport, .bgColor = GuiColor::WaveFile::ExportBg, .isReset = false, .isResized = false });
     customWaveExportBtn.setWantsKeyboardFocus(true);
     customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveExportBtn.onClick = [this] { exportWavetable(); };

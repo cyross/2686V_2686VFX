@@ -31,7 +31,7 @@ namespace WtPlusGuiText
 		namespace Slots
 		{
 			static inline const juce::String wt = u8"WT";
-			static inline const juce::String wt2 = u8"W2";
+			static inline const juce::String wt2 = u8"WT2";
 			static inline const juce::String clear = u8"Clear";
 		}
 

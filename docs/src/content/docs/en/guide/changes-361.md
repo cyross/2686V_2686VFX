@@ -54,8 +54,19 @@ waveforms and name on screen.
 - The Name and Search headings are bold and 2 pixels larger
 - The current folder is shown on a **blue strip** above the list
 - Folder names are bold, in a slightly brighter gold
+- The scroll bar is 8 pixels wider and its thumb can be dragged; clicking the
+  track moves the thumb there
 - Row waveform previews are 1.5 times taller, with **pause, seek bar and
   vertical zoom** underneath (next section)
+
+## Wave memory buttons
+
+- The wave-memory load buttons (WT+ slots, WT MOD / WT AMP MOD) now read
+  "**WT2**" instead of "W2", and WT and WT2 share the same, wider width
+- The buttons are brighter: WT in a whitish light blue, WT2 in a whitish light
+  green
+- On WT / WT2, "Import" is a whitish light yellow and "Export" a whitish light
+  blue
 
 ## Pause, frame stepping and vertical zoom for waveform previews
 

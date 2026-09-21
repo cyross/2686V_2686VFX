@@ -116,12 +116,12 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     slotTarget.setExplicitFocusOrder(++tabOrder);
     slotTarget.onValueChange = [this] { applySlotTarget(); };
 
-    slotWtBtn.setup({ .parent = parent, .title = "WT", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+    slotWtBtn.setup({ .parent = parent, .title = "WT", .bgColor = GuiColor::WaveFile::LoadWtBg, .isReset = false, .isResized = true });
     slotWtBtn.setWantsKeyboardFocus(true);
     slotWtBtn.setExplicitFocusOrder(++tabOrder);
     slotWtBtn.onClick = [this] { importWave(targetSlot(), false); };
 
-    slotWt2Btn.setup({ .parent = parent, .title = "W2", .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+    slotWt2Btn.setup({ .parent = parent, .title = "WT2", .bgColor = GuiColor::WaveFile::LoadWt2Bg, .isReset = false, .isResized = true });
     slotWt2Btn.setWantsKeyboardFocus(true);
     slotWt2Btn.setExplicitFocusOrder(++tabOrder);
     slotWt2Btn.onClick = [this] { importWave(targetSlot(), true); };

@@ -51,6 +51,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The current folder is shown on a blue strip
   - Folder names in a slightly brighter bold gold
   - Row waveform previews are 1.5 times taller
+  - The scroll bar is 8 pixels wider and can be dragged with the mouse
+- **Wave memory buttons**
+  - The load buttons (WT+ slots, WT MOD / WT AMP MOD) read "WT2" instead of "W2", with WT and WT2 at the same, wider width
+  - Brighter backgrounds (WT: whitish light blue, WT2: whitish light green)
+  - On WT / WT2, "Import" is whitish light yellow and "Export" whitish light blue
 - **Pause, frame stepping and vertical zoom for waveform previews**
   - The generated-waveform preview is 1.5 times taller
   - Under it, and under each row preview of the file picker:

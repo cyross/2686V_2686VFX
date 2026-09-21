@@ -1170,6 +1170,47 @@ int GuiParamBrowser::visibleRows() const
     return juce::jmax(1, listArea().getHeight() / rowHeight);
 }
 
+juce::Rectangle<int> GuiParamBrowser::scrollTrack() const
+{
+    return listArea().removeFromRight(scrollBarWidth).reduced(2, 0);
+}
+
+juce::Rectangle<int> GuiParamBrowser::scrollThumb() const
+{
+    const int rows = (int)m_view.size();
+    const int shown = visibleRows();
+
+    if (rows <= shown) return {};
+
+    const auto track = scrollTrack();
+    const float ratio = (float)shown / (float)rows;
+    const int thumbHeight = juce::jmax(20, (int)(track.getHeight() * ratio));
+    const int span = track.getHeight() - thumbHeight;
+    const int top = track.getY() + (int)(span * (float)m_scroll / (float)(rows - shown));
+
+    return { track.getX(), top, track.getWidth(), thumbHeight };
+}
+
+// つまみの頭をその位置へ置いたときの一番上の行へ送る
+void GuiParamBrowser::scrollToThumbTop(int thumbTop)
+{
+    const int rows = (int)m_view.size();
+    const int shown = visibleRows();
+
+    if (rows <= shown) return;
+
+    const auto track = scrollTrack();
+    const int span = track.getHeight() - scrollThumb().getHeight();
+
+    if (span <= 0) return;
+
+    const float ratio = juce::jlimit(0.0f, 1.0f, (float)(thumbTop - track.getY()) / (float)span);
+
+    m_scroll = juce::jlimit(0, rows - shown, (int)std::lround(ratio * (rows - shown)));
+
+    repaint(listArea());
+}
+
 int GuiParamBrowser::viewIndexAt(juce::Point<int> at) const
 {
     if (!listArea().contains(at)) return -1;
@@ -1331,6 +1372,25 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
         return;
     }
 
+    // スクロールバー。つまみを押せばそのまま引っぱれる。溝を押したときは、
+    // つまみの真ん中がそこへ来るよう送ってから引っぱれるようにする。
+    if (scrollTrack().contains(at) && !scrollThumb().isEmpty())
+    {
+        auto thumb = scrollThumb();
+
+        if (!thumb.contains(at))
+        {
+            scrollToThumbTop(at.getY() - thumb.getHeight() / 2);
+
+            thumb = scrollThumb();
+        }
+
+        m_scrollDragging = true;
+        m_thumbGrab = at.getY() - thumb.getY();
+
+        return;
+    }
+
     const int viewIndex = viewIndexAt(at);
 
     if (viewIndex < 0) return;
@@ -1433,6 +1493,13 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
 
 void GuiParamBrowser::mouseDrag(const juce::MouseEvent& event)
 {
+    if (m_scrollDragging)
+    {
+        scrollToThumbTop(event.getPosition().getY() - m_thumbGrab);
+
+        return;
+    }
+
     if (m_dragView < 0 || m_dragView >= (int)m_view.size()) return;
 
     auto& item = m_items[(size_t)m_view[(size_t)m_dragView]];
@@ -1446,6 +1513,8 @@ void GuiParamBrowser::mouseDrag(const juce::MouseEvent& event)
 
 void GuiParamBrowser::mouseUp(const juce::MouseEvent&)
 {
+    m_scrollDragging = false;
+
     if (m_dragView >= 0 && m_dragView < (int)m_view.size())
     {
         m_items[(size_t)m_view[(size_t)m_dragView]].player.mouseUp();
@@ -1926,21 +1995,13 @@ void GuiParamBrowser::drawStill(juce::Graphics& g, juce::Rectangle<int> area, co
 
 void GuiParamBrowser::drawScrollBar(juce::Graphics& g)
 {
-    const int rows = (int)m_view.size();
-    const int shown = visibleRows();
+    const auto thumb = scrollThumb();
 
-    if (rows <= shown) return;
-
-    auto track = listArea().removeFromRight(scrollBarWidth).reduced(2, 0);
+    if (thumb.isEmpty()) return;
 
     g.setColour(GuiColor::ParamBrowser::StripeBg);
-    g.fillRect(track);
-
-    const float ratio = (float)shown / (float)rows;
-    const int thumbHeight = juce::jmax(20, (int)(track.getHeight() * ratio));
-    const int span = track.getHeight() - thumbHeight;
-    const int top = track.getY() + (int)(span * (float)m_scroll / (float)(rows - shown));
+    g.fillRect(scrollTrack());
 
     g.setColour(GuiColor::ScrollBar::Thumb);
-    g.fillRect(track.getX(), top, track.getWidth(), thumbHeight);
+    g.fillRect(thumb);
 }

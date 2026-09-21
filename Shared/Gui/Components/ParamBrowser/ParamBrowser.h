@@ -47,7 +47,7 @@ public:
     static constexpr int rowPad = 4;
     static constexpr int playerGap = 3;
     static constexpr int rowHeight = rowPad + previewHeight + playerGap + GenWavePlayer::height + rowPad;
-    static constexpr int scrollBarWidth = 10;
+    static constexpr int scrollBarWidth = 18;
 
     static constexpr int categoryWidth = 110;
     static constexpr int formatWidth = 80;
@@ -239,6 +239,11 @@ private:
     // 止めた状態で出すために覚えておく。
     bool m_allPaused = false;
 
+    // スクロールバーのつまみを引っぱっているか。m_thumbGrab はつまみの頭から
+    // 押した位置までの距離で、引っぱっている間つまみがずれないようにする。
+    bool m_scrollDragging = false;
+    int m_thumbGrab = 0;
+
     // シークバーを引っぱっている行 (m_view の中の位置)。-1 なら引っぱっていない。
     int m_dragView = -1;
 
@@ -276,6 +281,11 @@ private:
     juce::Rectangle<int> cycleCell(int index) const;
 
     int visibleRows() const;
+
+    // スクロールバーの溝と、つまみ。一覧が収まっているときつまみは空。
+    juce::Rectangle<int> scrollTrack() const;
+    juce::Rectangle<int> scrollThumb() const;
+    void scrollToThumbTop(int thumbTop);
 
     // その位置にある行 (m_view の中の位置)。無ければ -1。
     int viewIndexAt(juce::Point<int> at) const;

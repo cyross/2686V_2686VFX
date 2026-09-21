@@ -119,12 +119,12 @@ void GuiWtPlus::setup() {
     slotTarget.setExplicitFocusOrder(++tabOrder);
     slotTarget.onValueChange = [this] { applySlotTarget(); };
 
-    slotWtBtn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt, .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true});
+    slotWtBtn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt, .bgColor = GuiColor::WaveFile::LoadWtBg, .isReset = false, .isResized = true});
     slotWtBtn.setWantsKeyboardFocus(true);
     slotWtBtn.setExplicitFocusOrder(++tabOrder);
     slotWtBtn.onClick = [this] { importSlotWave(targetSlot(), false); };
 
-    slotWt2Btn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt2, .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+    slotWt2Btn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::wt2, .bgColor = GuiColor::WaveFile::LoadWt2Bg, .isReset = false, .isResized = true });
     slotWt2Btn.setWantsKeyboardFocus(true);
     slotWt2Btn.setExplicitFocusOrder(++tabOrder);
     slotWt2Btn.onClick = [this] { importSlotWave(targetSlot(), true); };

@@ -342,6 +342,17 @@ namespace GuiColor {
 		inline Entry SeekText{ "GenWave.SeekText", []() -> juce::Colour { return Palette::OffWhite; } };
 	};
 
+	namespace WaveFile {
+		// 波形メモリの読み込みボタン。WT と WT2 を見分けられるよう、
+		// 白に寄せた淡い色で塗り分ける。文字はボタンの既定 (オフブラック)。
+		inline Entry LoadWtBg{ "WaveFile.LoadWtBg", []() -> juce::Colour { return juce::Colour::fromRGB(0xD4, 0xEA, 0xFF); } };
+		inline Entry LoadWt2Bg{ "WaveFile.LoadWt2Bg", []() -> juce::Colour { return juce::Colour::fromRGB(0xD6, 0xF5, 0xD6); } };
+
+		// WT / WT2 の波形ファイルの読み書き。読むほうは淡い黄、書くほうは淡い青。
+		inline Entry ImportBg{ "WaveFile.ImportBg", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0xF6, 0xC4); } };
+		inline Entry ExportBg{ "WaveFile.ExportBg", []() -> juce::Colour { return juce::Colour::fromRGB(0xD4, 0xEA, 0xFF); } };
+	};
+
 	namespace ScrollBar {
 		inline Entry Thumb{ "ScrollBar.Thumb", []() -> juce::Colour { return juce::Colours::darkgrey; } };
 	};

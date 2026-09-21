@@ -212,7 +212,8 @@ namespace CoreGuiValue
 		{
 			namespace LoadBtn
 			{
-				static constexpr int width = 25;
+				// 「WT2」が収まる幅。WT も同じ幅にそろえる。
+				static constexpr int width = 38;
 			}
 
 			namespace FileLabel
@@ -415,7 +416,8 @@ namespace CoreGuiValue
 		{
 			namespace LoadBtn
 			{
-				static constexpr int width = 25;
+				// 「WT2」が収まる幅。WT も同じ幅にそろえる。
+				static constexpr int width = 38;
 			}
 
 			namespace FileLabel
