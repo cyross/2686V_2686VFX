@@ -183,12 +183,16 @@ endif()
 #
 # 見ているのは主に、JSON と YAML のどちらで書いても同じ値へ戻ることと、
 # 数に見える文字列が数として読み戻されないこと。
+#
+# 保存した相対パスの基準がずれたファイルを名前で探し直す口 (IoMovedFile.h) も
+# ここで見る。ファイルを置いて探すだけなので、同じ実行ファイルに相乗りさせる。
 juce_add_console_app(IoTests PRODUCT_NAME "IoTests")
 
 juce_generate_juce_header(IoTests)
 
 target_sources(IoTests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/io/ParamFileTests.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/io/MovedFileTests.cpp"
     "${SHARED_SOURCE_ROOT}/Core/Io/ParamFile.cpp"
     "${SHARED_SOURCE_ROOT}/Core/Gui/GuiI18n.cpp"
 )

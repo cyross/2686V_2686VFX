@@ -524,8 +524,6 @@ void GuiComponentWtMod::importWave(int slot, bool isWt2)
                     ctx.audioProcessor.loadWtModWaveFile(m_code, slot, file);
 
                     updateSlotFileName(slot);
-
-                    ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
                 });
         }
     );

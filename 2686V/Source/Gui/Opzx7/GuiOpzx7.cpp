@@ -1163,7 +1163,6 @@ void GuiOpzx7::setup()
 
                             pluginOf(ctx).loadOpzx7WtFile(op, file);
                             updateWtFileName(op, file.getFileName());
-                            pluginOf(ctx).defaultWavetableDir = file.getParentDirectory().getFullPathName();
                         });
                 }
             }
@@ -1208,7 +1207,6 @@ void GuiOpzx7::setup()
 
                             pluginOf(ctx).loadOpzx7Wt2File(op, file);
                             updateWt2FileName(op, file.getFileName());
-                            pluginOf(ctx).defaultWavetableDir = file.getParentDirectory().getFullPathName();
                         });
                 }
             }

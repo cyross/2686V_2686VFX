@@ -149,6 +149,7 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
 {
     m_root = request.root;
     m_limit = request.limit;
+    m_home = request.home.isDirectory() ? request.home : request.root;
 
     // 前に開いていた先が縛りの外だったときは、縛りの根から出し直す。
     // そのままだと、上へも下へも行けないところで開いてしまう。
@@ -218,6 +219,22 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     deleteFolderBtn.onClick = [this] { deleteSelectedFolder(); };
     addAndMakeVisible(deleteFolderBtn);
 
+    // 設定で決めてある置き場へ一息で戻る。潜っていったフォルダから
+    // 「上へ」を何度も押さずに済むように。
+    homeBtn.setButtonText(EditorGuiText::ParamBrowser::homeFolder);
+    homeBtn.setColour(juce::TextButton::buttonColourId, GuiColor::ParamBrowser::HomeBg);
+    homeBtn.setColour(juce::TextButton::textColourOffId, GuiColor::ParamBrowser::HomeText);
+    homeBtn.setColour(juce::TextButton::textColourOnId, GuiColor::ParamBrowser::HomeText);
+    homeBtn.onClick = [this] { goHome(); };
+    addAndMakeVisible(homeBtn);
+
+    playAllBtn.setColour(juce::TextButton::buttonColourId, GuiColor::GenWave::GenerateBg);
+    playAllBtn.setColour(juce::TextButton::textColourOffId, GuiColor::GenWave::GenerateText);
+    playAllBtn.setColour(juce::TextButton::textColourOnId, GuiColor::GenWave::GenerateText);
+    playAllBtn.onClick = [this] { toggleAllPlayback(); };
+    updatePlayAllText();
+    addAndMakeVisible(playAllBtn);
+
     bulkGenerateBtn.setButtonText(EditorGuiText::ParamBrowser::bulkGenerate);
     bulkGenerateBtn.setColour(juce::TextButton::buttonColourId, GuiColor::GenWave::GenerateBg);
     bulkGenerateBtn.setColour(juce::TextButton::textColourOffId, GuiColor::GenWave::GenerateText);
@@ -263,7 +280,7 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     toFront(true);
     setVisible(true);
 
-    m_startMs = juce::Time::getMillisecondCounterHiRes();
+    m_dragView = -1;
 
     startTimer(frameMs);
 }
@@ -286,8 +303,12 @@ void GuiParamBrowser::collect()
     m_items.clear();
     m_previewOrder.clear();
     m_selected = -1;
+    m_dragView = -1;
 
     if (!m_root.isDirectory()) return;
+
+    // 行のプレビューはどれも同じ時刻から動かす。揃っていたほうが見比べやすい。
+    const double nowMs = juce::Time::getMillisecondCounterHiRes();
 
     // キーワードを打っているときだけ、下のフォルダまで潜って探す。
     // 打っていないときは、今いるフォルダの中身だけを出す。
@@ -354,6 +375,9 @@ void GuiParamBrowser::collect()
         const int at = file.getFileName().toLowerCase().lastIndexOf(paramMark);
 
         item.name = (at > 0) ? file.getFileName().substring(0, at) : file.getFileNameWithoutExtension();
+        item.player.restart(nowMs);
+
+        if (m_allPaused) item.player.pause(nullptr, nowMs);
 
         m_items.push_back(std::move(item));
     }
@@ -675,6 +699,44 @@ void GuiParamBrowser::goTo(const juce::File& dir)
     repaint();
 }
 
+void GuiParamBrowser::goHome()
+{
+    if (m_busy) return;
+
+    // 置き場が縛りの外にあるときは、縛りの根まで戻る
+    goTo(canGoTo(m_home) ? m_home : m_limit);
+}
+
+// 一覧のプレビューをまとめて止める・動かす。
+//
+// 行ごとに止めたり動かしたりしていても、押したら全部そろえる。
+// 見えていない行 (スクロールの外) もそろえるので、送っていっても揃ったまま。
+void GuiParamBrowser::toggleAllPlayback()
+{
+    m_allPaused = !m_allPaused;
+
+    const double nowMs = juce::Time::getMillisecondCounterHiRes();
+
+    for (auto& item : m_items)
+    {
+        if (item.isFolder) continue;
+
+        if (m_allPaused) item.player.pause(timelineOf(item), nowMs);
+        else item.player.resume(timelineOf(item), nowMs);
+    }
+
+    updatePlayAllText();
+
+    repaint(listArea());
+}
+
+// ボタンには、押したら何が起きるかを出す
+void GuiParamBrowser::updatePlayAllText()
+{
+    playAllBtn.setButtonText(m_allPaused ? EditorGuiText::ParamBrowser::playAll
+                                         : EditorGuiText::ParamBrowser::pauseAll);
+}
+
 void GuiParamBrowser::chooseAt(int viewIndex)
 {
     if (viewIndex < 0 || viewIndex >= (int)m_view.size()) return;
@@ -972,6 +1034,12 @@ void GuiParamBrowser::generateNext()
             safe->m_items[(size_t)index].wave = *wave;
             safe->m_items[(size_t)index].hasWave = !wave->isEmpty();
             safe->m_items[(size_t)index].previewLoaded = true;
+            auto& done = safe->m_items[(size_t)index];
+            const double nowMs = juce::Time::getMillisecondCounterHiRes();
+
+            done.player.restart(nowMs);
+
+            if (safe->m_allPaused) done.player.pause(&done.wave, nowMs);
 
             ++safe->m_queueAt;
 
@@ -1039,11 +1107,35 @@ juce::Rectangle<int> GuiParamBrowser::innerArea() const
 
 int GuiParamBrowser::topRowsHeight() const
 {
-    int height = searchRowHeight * 2 + padding * 2;
+    // 検索の枠 → ボタンの行 → (書き出す名前の札) → 今いるフォルダ
+    int height = frameRowHeight() + padding + searchRowHeight + padding;
 
-    if (m_mode == Mode::save) height += searchRowHeight + padding;
+    if (m_mode == Mode::save) height += frameRowHeight() + padding;
 
     return height + pathRowHeight;
+}
+
+juce::Rectangle<int> GuiParamBrowser::searchFrameArea() const
+{
+    return innerArea().removeFromTop(frameRowHeight());
+}
+
+juce::Rectangle<int> GuiParamBrowser::buttonRowArea() const
+{
+    auto area = innerArea();
+
+    area.removeFromTop(frameRowHeight() + padding);
+
+    return area.removeFromTop(searchRowHeight);
+}
+
+juce::Rectangle<int> GuiParamBrowser::saveFrameArea() const
+{
+    auto area = innerArea();
+
+    area.removeFromTop(frameRowHeight() + padding + searchRowHeight + padding);
+
+    return area.removeFromTop(frameRowHeight());
 }
 
 juce::Rectangle<int> GuiParamBrowser::pathArea() const
@@ -1078,6 +1170,22 @@ int GuiParamBrowser::visibleRows() const
     return juce::jmax(1, listArea().getHeight() / rowHeight);
 }
 
+int GuiParamBrowser::viewIndexAt(juce::Point<int> at) const
+{
+    if (!listArea().contains(at)) return -1;
+
+    const int viewIndex = m_scroll + (at.getY() - listArea().getY()) / rowHeight;
+
+    return (viewIndex >= 0 && viewIndex < (int)m_view.size()) ? viewIndex : -1;
+}
+
+const GenWaveRender::Wave* GuiParamBrowser::timelineOf(const Item& item) const
+{
+    // 時間の軸があるのは、鳴らして作った 10 秒ぶんだけ。
+    // 波形ファイルと音声ファイルは止め絵なので、拡大率だけが効く。
+    return (item.kind == Kind::param && item.hasWave) ? &item.wave : nullptr;
+}
+
 juce::Rectangle<int> GuiParamBrowser::rowArea(int viewIndex) const
 {
     auto area = listArea().withTrimmedRight(scrollBarWidth);
@@ -1104,6 +1212,19 @@ juce::Rectangle<int> GuiParamBrowser::previewArea(juce::Rectangle<int> row) cons
     return { row.getRight() - actionWidth - previewWidth, row.getY(), previewWidth, row.getHeight() };
 }
 
+// 行の中の波形。列の上側に置き、下に再生の操作を 1 段空ける。
+juce::Rectangle<int> GuiParamBrowser::waveBox(juce::Rectangle<int> row) const
+{
+    return previewArea(row).reduced(rowPad, 0).withY(row.getY() + rowPad).withHeight(previewHeight);
+}
+
+juce::Rectangle<int> GuiParamBrowser::playerBox(juce::Rectangle<int> row) const
+{
+    const auto wave = waveBox(row);
+
+    return wave.withY(wave.getBottom() + playerGap).withHeight(GenWavePlayer::height);
+}
+
 juce::Rectangle<int> GuiParamBrowser::actionArea(juce::Rectangle<int> row) const
 {
     return { row.getRight() - actionWidth, row.getY(), actionWidth, row.getHeight() };
@@ -1111,11 +1232,7 @@ juce::Rectangle<int> GuiParamBrowser::actionArea(juce::Rectangle<int> row) const
 
 juce::Rectangle<int> GuiParamBrowser::cycleCell(int index) const
 {
-    auto area = innerArea();
-
-    area.removeFromTop(searchRowHeight + padding);
-
-    auto row = area.removeFromTop(searchRowHeight);
+    auto row = buttonRowArea();
     auto cells = row.removeFromRight((int)GuiGenWave::cycleChoices.size() * 34);
 
     const int count = (int)GuiGenWave::cycleChoices.size();
@@ -1127,9 +1244,11 @@ juce::Rectangle<int> GuiParamBrowser::cycleCell(int index) const
 
 void GuiParamBrowser::resized()
 {
-    auto area = innerArea();
+    // 検索の区画。枠の内側に「検索」の見出し・キーワード・絞り込み 2 つを並べる。
+    // 見出しは描くだけなので、ここでは場所を空けておくだけ。
+    auto row1 = searchFrameArea().reduced(frameInset);
 
-    auto row1 = area.removeFromTop(searchRowHeight);
+    row1.removeFromLeft(searchLabelWidth);
 
     formatFilter.setBounds(row1.removeFromRight(filterWidth));
     row1.removeFromRight(padding);
@@ -1137,17 +1256,20 @@ void GuiParamBrowser::resized()
     row1.removeFromRight(padding);
     keyword.setBounds(row1);
 
-    area.removeFromTop(padding);
-
-    auto row2 = area.removeFromTop(searchRowHeight);
+    auto row2 = buttonRowArea();
 
     row2.removeFromRight((int)GuiGenWave::cycleChoices.size() * 34 + padding);
+
+    playAllBtn.setBounds(row2.removeFromRight(playAllButtonWidth));
+    row2.removeFromRight(padding);
 
     folderBtn.setBounds(row2.removeFromLeft(folderButtonWidth));
     row2.removeFromLeft(padding);
     newFolderBtn.setBounds(row2.removeFromLeft(newFolderButtonWidth));
     row2.removeFromLeft(padding);
     deleteFolderBtn.setBounds(row2.removeFromLeft(deleteFolderButtonWidth));
+    row2.removeFromLeft(padding);
+    homeBtn.setBounds(row2.removeFromLeft(homeButtonWidth));
     row2.removeFromLeft(padding * 2);
     bulkGenerateBtn.setBounds(row2.removeFromLeft(bulkButtonWidth));
     row2.removeFromLeft(padding);
@@ -1155,13 +1277,12 @@ void GuiParamBrowser::resized()
 
     if (m_mode != Mode::save) return;
 
-    area.removeFromTop(padding);
+    // 書き出す名前の札。見出し・名前の欄・保存ボタンを 1 枚に載せる。
+    auto row3 = saveFrameArea().reduced(frameInset);
 
-    auto row3 = area.removeFromTop(searchRowHeight);
-
+    row3.removeFromLeft(nameLabelWidth);
     saveBtn.setBounds(row3.removeFromRight(saveButtonWidth));
     row3.removeFromRight(padding);
-    row3.removeFromLeft(nameLabelWidth);
     nameEditor.setBounds(row3);
 }
 
@@ -1210,17 +1331,86 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
         return;
     }
 
-    if (!listArea().contains(at)) return;
+    const int viewIndex = viewIndexAt(at);
 
-    const int viewIndex = m_scroll + (at.getY() - listArea().getY()) / rowHeight;
+    if (viewIndex < 0) return;
 
-    if (viewIndex < 0 || viewIndex >= (int)m_view.size()) return;
+    const int itemIndex = m_view[(size_t)viewIndex];
+    auto& item = m_items[(size_t)itemIndex];
 
-    const auto& item = m_items[(size_t)m_view[(size_t)viewIndex]];
+    // プレビューの下の再生の操作。行を選ぶより先に見る。
+    if (!item.isFolder)
+    {
+        const auto box = playerBox(rowArea(viewIndex));
+        const double nowMs = juce::Time::getMillisecondCounterHiRes();
+
+        switch (item.player.mouseDown(box, at, timelineOf(item), nowMs, event.mods.isPopupMenu()))
+        {
+        case GenWavePlayer::Hit::frameInput:
+        {
+            // 番号を当てるころには一覧が集め直されていることがある。
+            // 拡大率と同じく、ファイルで当て先を探し直す。
+            juce::Component::SafePointer<GuiParamBrowser> safe(this);
+            const auto file = item.file;
+
+            GenWavePlayer::showFrameInput(*this, box,
+                item.player.frame(item.wave, nowMs) + 1, GenWavePlayer::frameCount(item.wave),
+                [safe, file](int shown) {
+                    if (safe == nullptr) return;
+
+                    for (auto& each : safe->m_items)
+                    {
+                        if (each.file != file || !each.hasWave) continue;
+
+                        each.player.showFrame(each.wave, shown - 1,
+                            juce::Time::getMillisecondCounterHiRes());
+
+                        break;
+                    }
+
+                    safe->repaint(safe->listArea());
+                });
+
+            return;
+        }
+        case GenWavePlayer::Hit::zoomMenu:
+        {
+            // メニューを閉じるまでに一覧が集め直されることがある。
+            // 番号ではなくファイルで当て先を探し直す。
+            juce::Component::SafePointer<GuiParamBrowser> safe(this);
+            const auto file = item.file;
+
+            GenWavePlayer::showZoomMenu(*this, box, item.player.zoom(), [safe, file](int zoom) {
+                if (safe == nullptr) return;
+
+                for (auto& each : safe->m_items)
+                {
+                    if (each.file != file) continue;
+
+                    each.player.setZoom(zoom);
+
+                    break;
+                }
+
+                safe->repaint(safe->listArea());
+            });
+
+            return;
+        }
+        case GenWavePlayer::Hit::handled:
+            if (item.player.isDragging()) m_dragView = viewIndex;
+
+            repaint(listArea());
+
+            return;
+        default:
+            break;
+        }
+    }
 
     if (!item.isFolder && item.kind == Kind::param && actionArea(rowArea(viewIndex)).contains(at))
     {
-        generateOne(m_view[(size_t)viewIndex]);
+        generateOne(itemIndex);
 
         return;
     }
@@ -1241,18 +1431,44 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
     repaint(listArea());
 }
 
+void GuiParamBrowser::mouseDrag(const juce::MouseEvent& event)
+{
+    if (m_dragView < 0 || m_dragView >= (int)m_view.size()) return;
+
+    auto& item = m_items[(size_t)m_view[(size_t)m_dragView]];
+
+    if (item.player.mouseDrag(playerBox(rowArea(m_dragView)), event.getPosition(),
+        timelineOf(item), juce::Time::getMillisecondCounterHiRes()))
+    {
+        repaint(listArea());
+    }
+}
+
+void GuiParamBrowser::mouseUp(const juce::MouseEvent&)
+{
+    if (m_dragView >= 0 && m_dragView < (int)m_view.size())
+    {
+        m_items[(size_t)m_view[(size_t)m_dragView]].player.mouseUp();
+    }
+
+    m_dragView = -1;
+}
+
 void GuiParamBrowser::mouseDoubleClick(const juce::MouseEvent& event)
 {
     if (m_busy) return;
-    if (!listArea().contains(event.getPosition())) return;
 
-    const int viewIndex = m_scroll + (event.getPosition().getY() - listArea().getY()) / rowHeight;
+    const int viewIndex = viewIndexAt(event.getPosition());
 
-    if (viewIndex < 0 || viewIndex >= (int)m_view.size()) return;
+    if (viewIndex < 0) return;
 
     const auto& item = m_items[(size_t)m_view[(size_t)viewIndex]];
+    const auto row = rowArea(viewIndex);
 
-    if (!item.isFolder && actionArea(rowArea(viewIndex)).contains(event.getPosition())) return;
+    if (!item.isFolder && actionArea(row).contains(event.getPosition())) return;
+
+    // 再生の操作を続けて押しただけで、ファイルを選んだことにはしない
+    if (!item.isFolder && playerBox(row).contains(event.getPosition())) return;
 
     chooseAt(viewIndex);
 }
@@ -1300,8 +1516,26 @@ bool GuiParamBrowser::handleShortcut(const juce::KeyPress& key)
     return false;
 }
 
-void GuiParamBrowser::mouseWheelMove(const juce::MouseEvent&, const juce::MouseWheelDetails& wheel)
+void GuiParamBrowser::mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
+    // シークバーの上ならコマ送り、拡大率の上なら拡大率を回す。
+    // それ以外では一覧を送る。
+    const int viewIndex = viewIndexAt(event.getPosition());
+
+    if (viewIndex >= 0)
+    {
+        auto& item = m_items[(size_t)m_view[(size_t)viewIndex]];
+
+        if (!item.isFolder
+            && item.player.mouseWheel(playerBox(rowArea(viewIndex)), event.getPosition(),
+                timelineOf(item), juce::Time::getMillisecondCounterHiRes(), wheel.deltaY))
+        {
+            repaint(listArea());
+
+            return;
+        }
+    }
+
     const int maxScroll = juce::jmax(0, (int)m_view.size() - visibleRows());
 
     m_scroll = juce::jlimit(0, maxScroll, m_scroll - (int)std::lround(wheel.deltaY * 6.0f));
@@ -1325,18 +1559,9 @@ void GuiParamBrowser::paint(juce::Graphics& g)
     g.setColour(GuiColor::ParamBrowser::Border);
     g.drawRoundedRectangle(panel.toFloat(), 6.0f, 1.0f);
 
-    if (m_mode == Mode::save)
-    {
-        auto area = innerArea();
+    drawSearchFrame(g);
 
-        area.removeFromTop(searchRowHeight * 2 + padding * 3);
-
-        g.setColour(GuiColor::ParamBrowser::Text);
-        g.setFont(juce::FontOptions(13.0f));
-        g.drawText(EditorGuiText::ParamBrowser::saveName,
-            area.removeFromTop(searchRowHeight).withWidth(nameLabelWidth),
-            juce::Justification::centredLeft, false);
-    }
+    if (m_mode == Mode::save) drawSaveFrame(g);
 
     drawCycles(g);
     drawPath(g);
@@ -1345,11 +1570,47 @@ void GuiParamBrowser::paint(juce::Graphics& g)
     drawScrollBar(g);
 }
 
+// 検索の区画。「検索」の見出しと、キーワード・絞り込み 2 つをまとめて
+// 枠で囲む。書き出す名前の欄と見た目が似ているので、取り違えないように。
+void GuiParamBrowser::drawSearchFrame(juce::Graphics& g)
+{
+    const auto frame = searchFrameArea();
+
+    g.setColour(GuiColor::ParamBrowser::SearchFrame);
+    g.drawRect(frame, 2);
+
+    const auto label = frame.reduced(frameInset).withWidth(searchLabelWidth);
+
+    g.setColour(GuiColor::ParamBrowser::LabelText);
+    g.setFont(juce::FontOptions(labelFontSize, juce::Font::bold));
+    g.drawText(EditorGuiText::ParamBrowser::search, label, juce::Justification::centred, false);
+}
+
+// 書き出す名前の札。見出し・名前の欄・保存ボタンを 1 枚の暗い灰に載せる。
+void GuiParamBrowser::drawSaveFrame(juce::Graphics& g)
+{
+    const auto frame = saveFrameArea();
+
+    g.setColour(GuiColor::ParamBrowser::SaveRowBg);
+    g.fillRoundedRectangle(frame.toFloat(), 4.0f);
+
+    const auto label = frame.reduced(frameInset).withWidth(nameLabelWidth);
+
+    g.setColour(GuiColor::ParamBrowser::LabelText);
+    g.setFont(juce::FontOptions(labelFontSize, juce::Font::bold));
+    g.drawText(EditorGuiText::ParamBrowser::saveName, label, juce::Justification::centred, false);
+}
+
 void GuiParamBrowser::drawPath(juce::Graphics& g)
 {
-    g.setColour(GuiColor::ParamBrowser::HintText);
+    const auto area = pathArea();
+
+    g.setColour(GuiColor::ParamBrowser::PathBg);
+    g.fillRect(area);
+
+    g.setColour(GuiColor::ParamBrowser::PathText);
     g.setFont(juce::FontOptions(12.0f));
-    g.drawText(m_root.getFullPathName(), pathArea(), juce::Justification::centredLeft, true);
+    g.drawText(m_root.getFullPathName(), area.reduced(6, 0), juce::Justification::centredLeft, true);
 }
 
 void GuiParamBrowser::drawCycles(juce::Graphics& g)
@@ -1462,14 +1723,14 @@ void GuiParamBrowser::drawRow(juce::Graphics& g, int viewIndex)
         g.fillRect(row);
     }
 
-    g.setFont(juce::FontOptions(13.0f));
-
     auto nameCell = columnArea(row, Column::name).reduced(6, 0);
 
     if (item.isFolder)
     {
-        // フォルダは名前だけ。区分も形式も持たない。
+        // フォルダは名前だけ。区分も形式も持たない。ファイルと見分けが
+        // 付くよう、明るい金の太字で描く。
         g.setColour(GuiColor::ParamBrowser::FolderText);
+        g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
         g.drawText(EditorGuiText::ParamBrowser::folderMark + item.name, nameCell,
             juce::Justification::centredLeft, true);
 
@@ -1479,6 +1740,7 @@ void GuiParamBrowser::drawRow(juce::Graphics& g, int viewIndex)
         return;
     }
 
+    g.setFont(juce::FontOptions(13.0f));
     g.setColour(allowed ? GuiColor::ParamBrowser::Text.get()
                         : GuiColor::ParamBrowser::DisabledText.get());
 
@@ -1488,11 +1750,15 @@ void GuiParamBrowser::drawRow(juce::Graphics& g, int viewIndex)
     g.drawText(item.format, columnArea(row, Column::format).reduced(6, 0),
         juce::Justification::centredLeft, false);
 
+    const double nowMs = juce::Time::getMillisecondCounterHiRes();
+
     // 波形と音声は鳴らして見せられないので、中身をそのまま止め絵で出す。
-    // 生成ボタンも要らない。
+    // 生成ボタンも要らない。再生の操作は、拡大率だけが効く。
     if (item.kind != Kind::param)
     {
-        drawStill(g, previewArea(row).reduced(4), item);
+        drawStill(g, waveBox(row), item);
+
+        item.player.draw(g, playerBox(row), nullptr, nowMs);
 
         g.setColour(GuiColor::ParamBrowser::Border);
         g.drawHorizontalLine(row.getBottom() - 1, (float)row.getX(), (float)row.getRight());
@@ -1500,10 +1766,12 @@ void GuiParamBrowser::drawRow(juce::Graphics& g, int viewIndex)
         return;
     }
 
-    drawWave(g, previewArea(row).reduced(4), item);
+    drawWave(g, waveBox(row), item);
+
+    item.player.draw(g, playerBox(row), timelineOf(item), nowMs);
 
     // 行ごとの生成・再生成。ボタンの形に描いてあるだけで、部品ではない。
-    const auto action = actionArea(row).reduced(6, 8);
+    const auto action = actionArea(row).withSizeKeepingCentre(actionWidth - 12, actionButtonHeight);
 
     g.setColour(GuiColor::GenWave::GenerateBg);
     g.fillRoundedRectangle(action.toFloat(), 3.0f);
@@ -1532,25 +1800,16 @@ void GuiParamBrowser::drawWave(juce::Graphics& g, juce::Rectangle<int> area, con
     }
 
     // 見せ方は「生成波形のプレビュー」と同じ。10 秒ぶんの上を窓が動き、
-    // L / M / R を 3 段で出す。
-    const double length = item.wave.lengthSeconds();
-    const double elapsed = (juce::Time::getMillisecondCounterHiRes() - m_startMs) / 1000.0;
-    const double at = (length > 0.0) ? std::fmod(elapsed, length) : 0.0;
-
+    // L / M / R を 3 段で出す。窓の位置は行ごとの再生の操作が決める。
     const double perCycle = item.wave.samplesPerCycle();
     const int total = (int)item.wave.size();
     const int window = juce::jlimit(2, total,
         (int)std::lround(perCycle * GuiGenWave::cycleChoices[(size_t)m_cycleIndex]));
 
-    // 窓の頭は周期の切れ目へ合わせる。合わせないと、1 周期 9 ミリ秒の
-    // 波形が 1 コマ (33 ミリ秒) で 3 周期ぶんも流れてしまい、形が読めない。
-    // オシロスコープの同期と同じ考え方で、こうすると波形はその場で
-    // 繰り返し、時間とともに音色と音量だけが変わって見える。
-    const double cycles = (perCycle > 0.0)
-        ? std::floor(at * item.wave.sampleRate / perCycle) : 0.0;
+    const int start = item.player.windowStart(item.wave, window, juce::Time::getMillisecondCounterHiRes());
 
-    const int start = juce::jlimit(0, juce::jmax(0, total - window),
-        (int)std::lround(cycles * perCycle));
+    // 縦の拡大率。枠の高さは変えず、波形の振れ幅だけを伸ばす。
+    const float zoom = (float)item.player.zoom();
 
     GuiColor::Entry* const colours[] = {
         &GuiColor::GenWave::LineL, &GuiColor::GenWave::LineM, &GuiColor::GenWave::LineR,
@@ -1567,7 +1826,7 @@ void GuiParamBrowser::drawWave(juce::Graphics& g, juce::Rectangle<int> area, con
         juce::Path path;
 
         const float centreY = (float)strip.getCentreY();
-        const float halfHeight = strip.getHeight() * 0.5f - 1.0f;
+        const float halfHeight = (strip.getHeight() * 0.5f - 1.0f) * zoom;
 
         for (int i = 0; i < width; ++i)
         {
@@ -1581,24 +1840,32 @@ void GuiParamBrowser::drawWave(juce::Graphics& g, juce::Rectangle<int> area, con
             else path.lineTo((float)(strip.getX() + i), y);
         }
 
+        // はみ出したぶんは段の中で切る
+        juce::Graphics::ScopedSaveState clip(g);
+
+        g.reduceClipRegion(strip);
         g.setColour(*colours[lane]);
         g.strokePath(path, juce::PathStrokeType(1.0f));
     }
 }
 
 // 波形ファイルと音声ファイルの止め絵。動かさないので、開いている間
-// ずっと同じ形が出る。
+// ずっと同じ形が出る。縦の拡大率だけは効く。
 void GuiParamBrowser::drawStill(juce::Graphics& g, juce::Rectangle<int> area, const Item& item)
 {
     g.setColour(GuiColor::GenWave::Bg);
     g.fillRect(area);
 
     const float centreY = (float)area.getCentreY();
-    const float halfHeight = area.getHeight() * 0.5f - 1.0f;
+    const float halfHeight = (area.getHeight() * 0.5f - 1.0f) * (float)item.player.zoom();
     const int width = juce::jmax(1, area.getWidth());
 
     g.setColour(GuiColor::GenWave::Axis);
     g.drawHorizontalLine(area.getCentreY(), (float)area.getX(), (float)area.getRight());
+
+    juce::Graphics::ScopedSaveState clip(g);
+
+    g.reduceClipRegion(area);
 
     if (item.kind == Kind::audio)
     {

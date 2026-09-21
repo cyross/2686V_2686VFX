@@ -273,7 +273,23 @@ namespace GuiColor {
 		inline Entry DisabledText{ "ParamBrowser.DisabledText", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.25f); } };
 
 		// フォルダの行。ファイルと見分けが付くよう、色を変える。
-		inline Entry FolderText{ "ParamBrowser.FolderText", []() -> juce::Colour { return Palette::Retro::FcGold; } };
+		// 名前は太字で描くので、地の暗さに負けないよう金を明るめにしてある。
+		inline Entry FolderText{ "ParamBrowser.FolderText", []() -> juce::Colour { return Palette::Retro::FcGold.get().brighter(0.3f); } };
+
+		// 今いるフォルダの行。一覧と見分けが付くよう、暗い青の地に載せる。
+		inline Entry PathBg{ "ParamBrowser.PathBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x14, 0x24, 0x5C); } };
+		inline Entry PathText{ "ParamBrowser.PathText", []() -> juce::Colour { return Palette::OffWhite; } };
+
+		// 検索の区画を囲む枠と、「検索」「名前」の見出し
+		inline Entry SearchFrame{ "ParamBrowser.SearchFrame", []() -> juce::Colour { return Palette::OffWhite; } };
+		inline Entry LabelText{ "ParamBrowser.LabelText", []() -> juce::Colour { return Palette::OffWhite; } };
+
+		// 書き出すときの名前の行。検索の欄と取り違えないよう、暗い灰の札へ載せる。
+		inline Entry SaveRowBg{ "ParamBrowser.SaveRowBg", []() -> juce::Colour { return juce::Colour::fromFloatRGBA(0.3f, 0.3f, 0.3f, 1.0f); } };
+
+		// 初期フォルダへ戻るボタン。地は暗い緑、文字はオフホワイト。
+		inline Entry HomeBg{ "ParamBrowser.HomeBg", []() -> juce::Colour { return juce::Colours::darkgreen; } };
+		inline Entry HomeText{ "ParamBrowser.HomeText", []() -> juce::Colour { return Palette::OffWhite; } };
 
 		// 見出しの行。押すと並べ替えが変わるので、行とは地色を分ける。
 		inline Entry HeaderBg{ "ParamBrowser.HeaderBg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.45f); } };
@@ -318,6 +334,12 @@ namespace GuiColor {
 		inline Entry CycleBgOn{ "GenWave.CycleBgOn", []() -> juce::Colour { return Palette::MikuPink; } };
 		inline Entry CycleText{ "GenWave.CycleText", []() -> juce::Colour { return defaultFgColor; } };
 		inline Entry CycleTextOn{ "GenWave.CycleTextOn", []() -> juce::Colour { return Palette::MikuBlack; } };
+
+		// 一時停止・シークバー・拡大率の段。地と枠は周期の切り替えと揃える。
+		inline Entry ControlIcon{ "GenWave.ControlIcon", []() -> juce::Colour { return Palette::OffWhite; } };
+		// シークバーの進んだぶんと、コマの番号
+		inline Entry SeekFill{ "GenWave.SeekFill", []() -> juce::Colour { return Palette::MikuPink.get().withAlpha(0.3f); } };
+		inline Entry SeekText{ "GenWave.SeekText", []() -> juce::Colour { return Palette::OffWhite; } };
 	};
 
 	namespace ScrollBar {

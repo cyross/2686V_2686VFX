@@ -1495,13 +1495,18 @@ void AudioPlugin2686VEditor::openWaveBrowser(const juce::StringArray& allowed,
 
     fileChooser = std::make_unique<juce::FileChooser>(
         isWt2 ? "Load Mod Wave (.wt2)" : "Load Mod Wave (.wt)",
-        startDirectory(audioProcessor.defaultWavetableDir, audioProcessor.getPluginDirectory()),
+        lastWaveDir.isDirectory() ? lastWaveDir
+            : startDirectory(audioProcessor.defaultWavetableDir, audioProcessor.getPluginDirectory()),
         isWt2 ? "*.wt2" : "*.wt");
 
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [onChoose](const juce::FileChooser& fc) {
+        [this, onChoose](const juce::FileChooser& fc) {
             auto file = fc.getResult();
 
-            if (file.existsAsFile() && onChoose) onChoose(file);
+            if (!file.existsAsFile()) return;
+
+            lastWaveDir = file.getParentDirectory();
+
+            if (onChoose) onChoose(file);
         });
 }

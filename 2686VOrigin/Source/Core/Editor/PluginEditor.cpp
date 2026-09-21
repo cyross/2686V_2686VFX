@@ -2171,15 +2171,24 @@ namespace
 
     // 根がまだ決まっていなければ、設定の置き場から起こす。以後は
     // ブラウザの中で移った先を覚えておき、読み込みでは動かさない。
+    // 設定で決めてある置き場。ブラウザの「初期フォルダ」で戻る先でもある。
+    juce::File browserHome(const juce::String& fromSettings,
+        const juce::File& pluginDir, const juce::String& folderName)
+    {
+        juce::File home(fromSettings);
+
+        if (!home.isDirectory() && folderName.isNotEmpty()) home = pluginDir.getChildFile(folderName);
+        if (!home.isDirectory()) home = pluginDir;
+
+        return home;
+    }
+
     juce::File resolveBrowserRoot(juce::File& kept, const juce::String& fromSettings,
         const juce::File& pluginDir, const juce::String& folderName)
     {
         if (kept.isDirectory()) return kept;
 
-        kept = juce::File(fromSettings);
-
-        if (!kept.isDirectory() && folderName.isNotEmpty()) kept = pluginDir.getChildFile(folderName);
-        if (!kept.isDirectory()) kept = pluginDir;
+        kept = browserHome(fromSettings, pluginDir, folderName);
 
         return kept;
     }
@@ -2192,6 +2201,8 @@ void AudioPlugin2686VEditor::openParamBrowser(const juce::StringArray& allowed,
 
     request.root = resolveBrowserRoot(paramBrowserRoot,
         audioProcessor.defaultChannelParamDir,
+        audioProcessor.getPluginDirectory(), Io::Folder::channelParam);
+    request.home = browserHome(audioProcessor.defaultChannelParamDir,
         audioProcessor.getPluginDirectory(), Io::Folder::channelParam);
     // このプラグインの置き場より上へは出さない
     request.limit = audioProcessor.getPluginDirectory();
@@ -2212,6 +2223,8 @@ void AudioPlugin2686VEditor::openParamBrowser(const juce::String& settingsDir,
     GuiParamBrowser::Request request;
 
     request.root = resolveBrowserRoot(kept, settingsDir,
+        audioProcessor.getPluginDirectory(), juce::String());
+    request.home = browserHome(settingsDir,
         audioProcessor.getPluginDirectory(), juce::String());
     // このプラグインの置き場より上へは出さない
     request.limit = audioProcessor.getPluginDirectory();
@@ -2236,6 +2249,8 @@ void AudioPlugin2686VEditor::openParamBrowserToSave(const juce::String& settings
     GuiParamBrowser::Request request;
 
     request.root = resolveBrowserRoot(kept, settingsDir,
+        audioProcessor.getPluginDirectory(), juce::String());
+    request.home = browserHome(settingsDir,
         audioProcessor.getPluginDirectory(), juce::String());
     // このプラグインの置き場より上へは出さない
     request.limit = audioProcessor.getPluginDirectory();
@@ -2263,6 +2278,8 @@ void AudioPlugin2686VEditor::openWaveBrowser(const juce::StringArray& allowed,
     request.root = resolveBrowserRoot(waveBrowserRoot,
         audioProcessor.defaultWavetableDir,
         audioProcessor.getPluginDirectory(), waveFolderName);
+    request.home = browserHome(audioProcessor.defaultWavetableDir,
+        audioProcessor.getPluginDirectory(), waveFolderName);
     // このプラグインの置き場より上へは出さない
     request.limit = audioProcessor.getPluginDirectory();
     request.allowed = allowed;
@@ -2280,6 +2297,8 @@ void AudioPlugin2686VEditor::openAudioBrowser(std::function<void(const juce::Fil
     GuiParamBrowser::Request request;
 
     request.root = resolveBrowserRoot(kept, audioProcessor.defaultSampleDir,
+        audioProcessor.getPluginDirectory(), sampleFolderName);
+    request.home = browserHome(audioProcessor.defaultSampleDir,
         audioProcessor.getPluginDirectory(), sampleFolderName);
     request.allowed = { EditorGuiText::ParamBrowser::audioFile };
     request.onChoose = std::move(onChoose);
@@ -2299,6 +2318,8 @@ void AudioPlugin2686VEditor::openWaveBrowserToSave(const juce::StringArray& allo
 
     request.root = resolveBrowserRoot(waveBrowserRoot,
         audioProcessor.defaultWavetableDir,
+        audioProcessor.getPluginDirectory(), waveFolderName);
+    request.home = browserHome(audioProcessor.defaultWavetableDir,
         audioProcessor.getPluginDirectory(), waveFolderName);
     // このプラグインの置き場より上へは出さない
     request.limit = audioProcessor.getPluginDirectory();

@@ -169,6 +169,7 @@ public:
     void updateAdpcmPlusFileNames(const juce::String finename);
     void updateOpzx7PcmFileNames(const juce::String finename);
     void updateOpzx7WtFileNames(const juce::String finename);
+    void updateWtPlusSlots();
     void setupLogo();
     void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);

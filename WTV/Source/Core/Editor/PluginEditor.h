@@ -153,6 +153,7 @@ public:
     std::atomic<int> m_pendingModeTab{ -1 };
     void handleAsyncUpdate() override;
 
+    void updateWtPlusSlots();
     void setupLogo();
     void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);

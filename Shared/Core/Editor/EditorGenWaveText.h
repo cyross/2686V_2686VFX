@@ -26,5 +26,10 @@ namespace EditorGuiText
 		static inline const I18n::Text empty{ u8"「生成」で作ります", u8"Press Generate to build it" };
 		static inline const I18n::Text generateTooltip{ u8"今の設定で 10 秒ぶんの波形を作ります。値を変えたら押し直してください。", u8"Builds 10 seconds of waveform from the current settings. Press it again after changing a value." };
 		static inline const I18n::Text removeTooltip{ u8"作った波形を捨てます。", u8"Throws away the waveform that was built." };
+		// 縦の拡大率の頭に付ける印 (x1〜x8)
+		static inline const juce::String zoomPrefix = "x";
+
+		// シークバーを右クリックしたときの、コマの番号を打ち込む欄の見出し
+		static inline const I18n::Text frame{ u8"フレーム", u8"Frame" };
 	}
 }

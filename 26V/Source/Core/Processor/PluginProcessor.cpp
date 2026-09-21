@@ -7,6 +7,7 @@
 
 #include "Shared/Core/Processor/ProcessorNames.h"
 #include "Shared/Core/Processor/ProcessorHelper.h"
+#include "Shared/Core/Io/IoMovedFile.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 
@@ -957,7 +958,20 @@ juce::File AudioPlugin2686V::resolveWtPath(const juce::String& pathStr)
         juce::File baseDir(defaultWavetableDir);
 
         // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
-        return baseDir.getChildFile(pathStr);
+        auto file = baseDir.getChildFile(pathStr);
+
+        // 3.6.0 までは、波形を読み込むたびに基準の置き場が書き換わっていた。
+        // そのころ保存したものは相対パスの基準がずれていることがあるので、
+        // 見つからなければ置き場の下、次にプラグインの置き場の下を名前で探す。
+        if (!file.existsAsFile())
+        {
+            auto moved = Io::findMovedFile(baseDir, pathStr);
+
+            if (moved == juce::File()) moved = Io::findMovedFile(getPluginDirectory(), pathStr);
+            if (moved != juce::File()) return moved;
+        }
+
+        return file;
     }
 
     // ベースディレクトリがない場合は一応そのまま返す

@@ -66,9 +66,14 @@ juce::Rectangle<int> GuiGenWave::waveArea() const
     return { 0, labelHeight + gap, getWidth(), waveHeight };
 }
 
+juce::Rectangle<int> GuiGenWave::playerArea() const
+{
+    return { 0, labelHeight + gap + waveHeight + gap, getWidth(), playerHeight };
+}
+
 juce::Rectangle<int> GuiGenWave::cycleArea() const
 {
-    return { 0, labelHeight + gap + waveHeight + gap, getWidth(), cycleRowHeight };
+    return { 0, labelHeight + gap + waveHeight + gap + playerHeight + gap, getWidth(), cycleRowHeight };
 }
 
 juce::Rectangle<int> GuiGenWave::cycleCell(int index) const
@@ -84,6 +89,48 @@ juce::Rectangle<int> GuiGenWave::cycleCell(int index) const
 
 void GuiGenWave::mouseDown(const juce::MouseEvent& event)
 {
+    const double nowMs = juce::Time::getMillisecondCounterHiRes();
+
+    switch (m_player.mouseDown(playerArea(), event.getPosition(), &m_wave, nowMs,
+        event.mods.isPopupMenu()))
+    {
+    case GenWavePlayer::Hit::frameInput:
+    {
+        juce::Component::SafePointer<GuiGenWave> safe(this);
+
+        GenWavePlayer::showFrameInput(*this, playerArea(),
+            m_player.frame(m_wave, nowMs) + 1, GenWavePlayer::frameCount(m_wave),
+            [safe](int shown) {
+                if (safe == nullptr || safe->m_wave.isEmpty()) return;
+
+                safe->m_player.showFrame(safe->m_wave, shown - 1,
+                    juce::Time::getMillisecondCounterHiRes());
+                safe->repaint();
+            });
+
+        return;
+    }
+    case GenWavePlayer::Hit::zoomMenu:
+    {
+        juce::Component::SafePointer<GuiGenWave> safe(this);
+
+        GenWavePlayer::showZoomMenu(*this, playerArea(), m_player.zoom(), [safe](int zoom) {
+            if (safe == nullptr) return;
+
+            safe->m_player.setZoom(zoom);
+            safe->repaint();
+        });
+
+        return;
+    }
+    case GenWavePlayer::Hit::handled:
+        repaint();
+
+        return;
+    default:
+        break;
+    }
+
     for (int i = 0; i < (int)cycleChoices.size(); ++i)
     {
         if (!cycleCell(i).contains(event.getPosition())) continue;
@@ -94,6 +141,30 @@ void GuiGenWave::mouseDown(const juce::MouseEvent& event)
 
         return;
     }
+}
+
+void GuiGenWave::mouseDrag(const juce::MouseEvent& event)
+{
+    if (m_player.mouseDrag(playerArea(), event.getPosition(), &m_wave,
+        juce::Time::getMillisecondCounterHiRes())) repaint();
+}
+
+void GuiGenWave::mouseUp(const juce::MouseEvent&)
+{
+    m_player.mouseUp();
+}
+
+void GuiGenWave::mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
+{
+    if (m_player.mouseWheel(playerArea(), event.getPosition(), &m_wave,
+        juce::Time::getMillisecondCounterHiRes(), wheel.deltaY))
+    {
+        repaint();
+
+        return;
+    }
+
+    juce::Component::mouseWheelMove(event, wheel);
 }
 
 // ----------------------------------------------------------------------------
@@ -142,7 +213,7 @@ void GuiGenWave::finishGenerate(const GenWaveRender::Wave& wave)
 {
     m_wave = wave;
     m_busy = false;
-    m_startMs = juce::Time::getMillisecondCounterHiRes();
+    m_player.restart(juce::Time::getMillisecondCounterHiRes());
 
     generateBtn.setEnabled(true);
     generateBtn.setButtonText(EditorGuiText::GenWave::regenerate);
@@ -173,6 +244,9 @@ void GuiGenWave::clearWave()
 void GuiGenWave::paint(juce::Graphics& g)
 {
     drawWave(g, waveArea());
+
+    m_player.draw(g, playerArea(), &m_wave, juce::Time::getMillisecondCounterHiRes());
+
     drawCycles(g);
 }
 
@@ -198,23 +272,18 @@ void GuiGenWave::drawWave(juce::Graphics& g, juce::Rectangle<int> area)
         return;
     }
 
-    // 経過秒を、作ったものの中の位置として読む。10 秒で一巡する。
-    const double length = m_wave.lengthSeconds();
-    const double elapsed = (juce::Time::getMillisecondCounterHiRes() - m_startMs) / 1000.0;
-    const double at = (length > 0.0) ? std::fmod(elapsed, length) : 0.0;
-
+    // 窓の位置は再生の操作が決める。止めていればそのコマのまま。
+    const double nowMs = juce::Time::getMillisecondCounterHiRes();
     const double perCycle = m_wave.samplesPerCycle();
     const int total = (int)m_wave.size();
     const int window = juce::jlimit(2, total,
         (int)std::lround(perCycle * cycleChoices[(size_t)m_cycleIndex]));
 
-    // 窓の頭は周期の切れ目へ合わせる。合わせないと 1 周期が 1 コマの
-    // 間に何周も流れてしまい、形が読めない。オシロの同期と同じ考え方。
-    const double cycles = (perCycle > 0.0)
-        ? std::floor(at * m_wave.sampleRate / perCycle) : 0.0;
+    const int start = m_player.windowStart(m_wave, window, nowMs);
 
-    const int start = juce::jlimit(0, juce::jmax(0, total - window),
-        (int)std::lround(cycles * perCycle));
+    // 縦の拡大率。枠の高さは変えず、波形の振れ幅だけを伸ばす。
+    // はみ出したぶんは段の中で切る。
+    const float zoom = (float)m_player.zoom();
 
     // L / M / R の 3 段。チャンネルによっては左右で違う音が出る。
     const juce::String labels[] = {
@@ -242,7 +311,7 @@ void GuiGenWave::drawWave(juce::Graphics& g, juce::Rectangle<int> area)
         juce::Path path;
 
         const float centreY = (float)strip.getCentreY();
-        const float halfHeight = strip.getHeight() * 0.5f - 1.0f;
+        const float halfHeight = (strip.getHeight() * 0.5f - 1.0f) * zoom;
         const int width = juce::jmax(1, strip.getWidth());
 
         for (int i = 0; i < width; ++i)
@@ -257,8 +326,13 @@ void GuiGenWave::drawWave(juce::Graphics& g, juce::Rectangle<int> area)
             else path.lineTo((float)(strip.getX() + i), y);
         }
 
-        g.setColour(*colours[lane]);
-        g.strokePath(path, juce::PathStrokeType(1.2f));
+        {
+            juce::Graphics::ScopedSaveState clip(g);
+
+            g.reduceClipRegion(strip);
+            g.setColour(*colours[lane]);
+            g.strokePath(path, juce::PathStrokeType(1.2f));
+        }
 
         g.setColour(GuiColor::GenWave::HintText);
         g.drawText(labels[lane], strip.withWidth(14).translated(2, 0),
@@ -266,7 +340,7 @@ void GuiGenWave::drawWave(juce::Graphics& g, juce::Rectangle<int> area)
     }
 
     // 10 秒のうち今どこかを、下辺の帯で示す
-    const float ratio = (length > 0.0) ? (float)(at / length) : 0.0f;
+    const float ratio = m_player.progress(m_wave, nowMs);
 
     g.setColour(GuiColor::GenWave::Progress);
     g.fillRect((float)inner.getX(), (float)inner.getBottom() - 2.0f,

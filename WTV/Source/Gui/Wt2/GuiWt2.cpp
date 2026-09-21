@@ -709,10 +709,6 @@ void GuiWt2::applyWavetableFile(const juce::File& file)
 {
     if (!file.existsAsFile()) return;
 
-
-    // 次回のダイアログ用にディレクトリを保存
-    pluginOf(ctx).defaultWavetableDir = file.getParentDirectory().getFullPathName();
-
     juce::StringArray lines;
     file.readLines(lines);
 
@@ -794,9 +790,6 @@ void GuiWt2::exportWavetable()
 void GuiWt2::writeWavetableFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
-
-    // 次回のダイアログ用にディレクトリを保存
-    pluginOf(ctx).defaultWavetableDir = file.getParentDirectory().getFullPathName();
 
     // 現在のサイズIDを取得
     int sizeId = sizeSelector.getSelectedId();

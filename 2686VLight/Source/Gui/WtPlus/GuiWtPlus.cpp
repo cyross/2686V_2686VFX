@@ -611,7 +611,6 @@ void GuiWtPlus::importSlotWave(int slot, bool isWt2)
                     if (safe == nullptr) return;
 
                     pluginOf(ctx).loadWtPlusWaveFile(slot, file);
-                    pluginOf(ctx).defaultWavetableDir = file.getParentDirectory().getFullPathName();
 
                     updateSlotFileName(slot);
                 });
@@ -680,6 +679,13 @@ void GuiWtPlus::updateSlotFileName(int slot)
 
     // 名前とプレビューは常に同じ波形を指していてほしいので、ここで揃える
     updateSlotPreview(slot);
+}
+
+void GuiWtPlus::refreshSlots()
+{
+    for (int i = 0; i < Global::WtPlus::slots; ++i) updateSlotPreview(i);
+
+    updateSlotFileName(targetSlot());
 }
 
 // ==============================================================================

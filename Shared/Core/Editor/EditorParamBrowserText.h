@@ -53,6 +53,15 @@ namespace EditorGuiText
 		static inline const I18n::Text deleteFolderCount{ u8"中に %d 件あります。ごみ箱からなら戻せます。", u8"It holds %d item(s). You can put them back from the recycle bin." };
 		static inline const I18n::Text moveToTrash{ u8"ごみ箱へ入れる", u8"Move to recycle bin" };
 
+		// 設定で決めてある置き場へ戻る
+		static inline const I18n::Text homeFolder{ u8"初期フォルダ", u8"Default folder" };
+
+		static inline const I18n::Text search{ u8"検索", u8"Search" };
+
+		// 一覧のプレビューをまとめて止める・動かす
+		static inline const I18n::Text pauseAll{ u8"すべて停止", u8"Pause all" };
+		static inline const I18n::Text playAll{ u8"すべて再生", u8"Play all" };
+
 		static inline const I18n::Text saveName{ u8"名前", u8"Name" };
 		static inline const I18n::Text save{ u8"保存", u8"Save" };
 		static inline const I18n::Text overwriteTitle{ u8"同じ名前のファイルがあります", u8"A file with that name already exists" };
