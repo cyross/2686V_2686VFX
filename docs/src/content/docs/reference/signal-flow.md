@@ -156,17 +156,25 @@ sidebar:
   <rect class="xbox" x="4"   y="26" width="110" height="38" rx="6" />
   <text class="xtxt" x="59"  y="50">音声入力</text>
   <line class="xarr" x1="116" y1="45" x2="144" y2="45" marker-end="url(#ah3)" />
-  <rect class="xbox" x="146" y="26" width="110" height="38" rx="6" />
-  <text class="xtxt" x="201" y="50">ヘッドルーム</text>
-  <line class="xarr" x1="258" y1="45" x2="286" y2="45" marker-end="url(#ah3)" />
-  <rect class="xacc" x="288" y="26" width="160" height="38" rx="6" />
-  <text class="xtxt" x="368" y="50">出力への変調</text>
-  <line class="xarr" x1="450" y1="45" x2="478" y2="45" marker-end="url(#ah3)" />
-  <rect class="xacc" x="480" y="26" width="70"  height="38" rx="6" />
-  <text class="xtxt" x="515" y="50">FX</text>
-  <line class="xarr" x1="552" y1="45" x2="580" y2="45" marker-end="url(#ah3)" />
-  <text class="xtxt" x="606" y="50">出力</text>
+  <rect class="xacc" x="146" y="26" width="160" height="38" rx="6" />
+  <text class="xtxt" x="226" y="50">出力への変調</text>
+  <line class="xarr" x1="308" y1="45" x2="336" y2="45" marker-end="url(#ah3)" />
+  <rect class="xacc" x="338" y="26" width="70"  height="38" rx="6" />
+  <text class="xtxt" x="373" y="50">FX</text>
+  <line class="xarr" x1="410" y1="45" x2="438" y2="45" marker-end="url(#ah3)" />
+  <rect class="xacc" x="440" y="26" width="80"  height="38" rx="6" />
+  <text class="xtxt" x="480" y="50">LEVEL</text>
+  <line class="xarr" x1="522" y1="45" x2="550" y2="45" marker-end="url(#ah3)" />
+  <text class="xtxt" x="576" y="50">出力</text>
 </svg>
+
+最後の **LEVEL** で出力の大きさを決めます（初期値 1.0 でそのまま）。エフェクター
+の**全体のバイパス**を入れると、変調・FX・LEVEL のどれも通さず、入ってきた音を
+そのまま返します。
+
+音源と違って声を重ねないので、**ヘッドルーム（入力を絞る処理）はありません。**
+3.6.1 までは音源と同じく入力を 1/4 に絞っていたため、効果を何も入れなくても
+出力が 12dB 小さくなっていました。
 
 **変調は FX より前に掛かります。** 音量の動きもエフェクトに通したいためです。
 たとえばエンベロープで音を切ったあと、その切れ目がディレイやリバーブに乗り

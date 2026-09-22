@@ -49,7 +49,15 @@ nothing.
 
 There is also a **bypass** for the whole chain
 ([`FX_BYPASS`](/2686V_2686VFX/en/reference/automation/fx/#fx-bypass), default off). Use it to
-pull every effect out at once and hear the dry signal for comparison.
+pull every effect out at once and hear the dry signal for comparison. In
+2686VFX it skips the output modulation and LEVEL too, returning the input
+untouched.
+
+2686VFX also has **LEVEL** below it
+([`FX_LEVEL`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-level), 0.0 to 10.0, default 1.0)
+sets the output level as a multiplier; 1.0 leaves it unchanged. It works like a
+channel's LEVEL: STEPS picks the step size, and the N button shows the row of
+buttons that move the value.
 
 **Parameter reset** returns every knob in this section to its default.
 
