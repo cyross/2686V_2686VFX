@@ -137,9 +137,48 @@ void AdpcmCore::setParameters(const SynthCoreParams& params)
         m_ssgSwPenv11.prepare(0, rate);
         m_noiseGen.prepare(rate);
     }
+
+    // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
+    if (params.liveDetune && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
 }
 
 // Set sample data from external source
+
+// 読む素材の標本化周波数が変わったら、再生位置と進む量をそれに合わせて
+// 数え直す。どちらも素材の標本で数えているため。
+void AdpcmCore::followBufferRate(double rate)
+{
+    if (rate <= 0.0) return;
+
+    if (m_playRate > 0.0 && rate != m_playRate) {
+        const double scale = rate / m_playRate;
+
+        m_position *= scale;
+        m_pitchRatio = (float)(m_pitchRatio * scale);
+
+        // 高域カットの上端も進む量で決まる
+        m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+    }
+
+    m_playRate = rate;
+}
+
+// MUL/DET・FIX から周波数を決める
+void AdpcmCore::updateFrequency()
+{
+    m_currentFrequency = m_detune.noteOn(m_fixMode.noteOn(m_keyFreq));
+    m_noiseGen.updateFrequency(m_currentFrequency);
+    m_noiseGen.updateDelta();
+    m_phaseDelta = m_currentFrequency / m_sampleRate;
+
+    // 素材を読む速さ。ホストのレートとの比も掛ける (m_playRate は
+    // いま読んでいる素材の標本化周波数)。
+    m_pitchRatio = (float)((m_currentFrequency / m_keyRootFreq) * (m_playRate / m_sampleRate));
+
+    // QUALITY のノイズリダクション (再生側)。高域カットの上端は、素材が
+    // 出力の 1 標本あたりに進む量 (m_pitchRatio) で決まる。
+    m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+}
 
 void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
@@ -162,22 +201,14 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
     bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = isEncodedMode ? m_pcm->encodedRate : m_pcm->sourceRate;
+
+    // レガートでは再生位置を引き継ぐので、素材が差し替わっていれば先に数え直す
+    followBufferRate(currentBufferRate);
     float finalFreq = m_unison.applyDetune(freq);
 
-    // ホストDAWのレートとの比率を加味した再生速度レシオの更新
-    double rateRatio = currentBufferRate / m_sampleRate;
-
-    finalFreq = m_fixMode.noteOn(finalFreq);
-
-    m_currentFrequency = m_detune.noteOn(finalFreq);
-    m_noiseGen.updateFrequency(m_currentFrequency);
-    m_noiseGen.updateDelta();
-    m_phaseDelta = m_currentFrequency / m_sampleRate;
-    m_pitchRatio = (m_currentFrequency / rootFreq) * rateRatio;
-
-    // QUALITY のノイズリダクション (再生側)。高域カットの上端は、素材が
-    // 出力の 1 標本あたりに進む量 (m_pitchRatio) で決まる。
-    m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+    m_keyFreq = finalFreq;
+    m_keyRootFreq = rootFreq;
+    updateFrequency();
 
     if (!isLegato) m_noiseReducer.reset();
 
@@ -360,6 +391,11 @@ float AdpcmCore::getSample()
     float output = 0.0f;
     bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = m_sampleRate;
+
+    // 鳴らしている最中に QUALITY を変えると、読む素材 (符号化したもの / 元の
+    // もの) や、その標本化周波数が差し替わる。3.6.1 までは発音時の数え方の
+    // ままだったので、その音が終わるまで高さがずれていた。
+    followBufferRate(isEncodedMode ? m_pcm->encodedRate : m_pcm->sourceRate);
 
     // ノイズを出すために、バッファが空でも最後まで通す
     if (isEncodedMode && !m_pcm->encoded.empty()) {

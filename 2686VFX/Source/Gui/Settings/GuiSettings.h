@@ -131,12 +131,6 @@ class GuiSettings : public GuiBase
 
     NormalSeparator separator4;
 
-    // For Headroom
-    GuiToggleButton useHeadroomToggle;
-    GuiSlider headroomGainSlider;
-
-    NormalSeparator separator5;
-
     // 仮想MIDIキーボード表示制御
     GuiToggleButton virtualMidiKeyboardToggle;
 
@@ -224,9 +218,6 @@ public:
         toggleAlignSelector(context),
         separatorToggleAlign(context),
         separator4(context),
-        useHeadroomToggle(context),
-        headroomGainSlider(context),
-        separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),
         saveSettingsBtn(context),

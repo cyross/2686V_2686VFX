@@ -52,7 +52,9 @@ void GuiComponentLevel::applyStepSnap()
     levelSlider.setValue(snappedVal, juce::sendNotification);
 }
 
-void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& prefix) {
+void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& prefix, bool withDelay) {
+    m_withDelay = withDelay;
+
     // 出力レベル
     levelSlider.setupComponent(
         parent,
@@ -64,11 +66,13 @@ void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, c
         }
         );
 
-    delaySeparator.setupComponent(parent);
+    if (m_withDelay) {
+        delaySeparator.setupComponent(parent);
 
-    delaySlider.setupComponent(parent, prefix + CPK::delay, "DELAY", tabOrder, std::nullopt);
+        delaySlider.setupComponent(parent, prefix + CPK::delay, "DELAY", tabOrder, std::nullopt);
 
-    delayNudge.setupComponent(parent, delaySlider.getSlider(), tabOrder);
+        delayNudge.setupComponent(parent, delaySlider.getSlider(), tabOrder);
+    }
 
     stepSelector.setup({ .parent = parent, .id = "", .title = "STEPS", .items = stepItems, .isReset = false });
     stepSelector.setSelectedItemIndex(0, juce::dontSendNotification); // デフォルトはFree
@@ -95,11 +99,13 @@ void GuiComponentLevel::layoutComponent(juce::Rectangle<int>& rect) {
         levelNudge.layoutComponent(rect);
     }
 
-    delaySeparator.layoutComponent(rect);
+    if (m_withDelay) {
+        delaySeparator.layoutComponent(rect);
 
-    delaySlider.layoutComponent(rect);
+        delaySlider.layoutComponent(rect);
 
-    if (delaySlider.isVisibleNudge()) delayNudge.layoutComponent(rect);
+        if (delaySlider.isVisibleNudge()) delayNudge.layoutComponent(rect);
+    }
 
     rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
@@ -117,11 +123,13 @@ void GuiComponentLevel::layoutComponentRow(juce::Rectangle<int>& rect) {
         levelNudge.layoutComponentRow(rect);
     }
 
-    delaySeparator.layoutComponent(rect);
+    if (m_withDelay) {
+        delaySeparator.layoutComponent(rect);
 
-    delaySlider.layoutComponentRow(rect);
+        delaySlider.layoutComponentRow(rect);
 
-    if (delaySlider.isVisibleNudge()) delayNudge.layoutComponentRow(rect);
+        if (delaySlider.isVisibleNudge()) delayNudge.layoutComponentRow(rect);
+    }
 
     rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
@@ -130,9 +138,11 @@ void GuiComponentLevel::setVisible(bool visible) {
     levelSlider.setVisibles(visible);
     stepSelector.setVisibleWithLabel(visible);
 
-    delaySeparator.setVisible(visible);
-    delaySlider.setVisibles(visible);
-    delayNudge.setVisibles(visible && delaySlider.isVisibleNudge());
+    if (m_withDelay) {
+        delaySeparator.setVisible(visible);
+        delaySlider.setVisibles(visible);
+        delayNudge.setVisibles(visible && delaySlider.isVisibleNudge());
+    }
 
     bool isVisibleNudge = levelSlider.isVisibleNudge();
 
@@ -143,9 +153,11 @@ void GuiComponentLevel::setEnable(bool enabled) {
     levelSlider.setEnabled(enabled);
     stepSelector.setEnabledWithLabel(enabled);
 
-    delaySeparator.setEnabled(enabled);
-    delaySlider.setEnabled(enabled);
-    delayNudge.setEnables(enabled);
+    if (m_withDelay) {
+        delaySeparator.setEnabled(enabled);
+        delaySlider.setEnabled(enabled);
+        delayNudge.setEnables(enabled);
+    }
     levelNudge.setEnables(enabled);
 }
 
@@ -170,7 +182,7 @@ void GuiComponentLevel::readParams(const Io::ParamReader& reader, const juce::St
     auto r = reader.child(key);
 
     levelSlider.setValue(r.getFloat("level", (float)levelSlider.getValue()));
-    delaySlider.setValue(r.getFloat("delay", (float)delaySlider.getValue()));
+    if (m_withDelay) delaySlider.setValue(r.getFloat("delay", (float)delaySlider.getValue()));
 }
 
 juce::String GuiComponentLevel::getExportedParams() {
@@ -186,5 +198,5 @@ void GuiComponentLevel::writeParams(Io::ParamWriter& writer, const juce::String&
     auto w = writer.child(key);
 
     w.set("level", (float)levelSlider.getValue());
-    w.set("delay", (float)delaySlider.getValue());
+    if (m_withDelay) w.set("delay", (float)delaySlider.getValue());
 }

@@ -57,6 +57,11 @@ private:
     PitchAdsrEnv m_pitchAdsr;
     SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
+
+    // 押したときに受け取った周波数 (MUL/DET・FIX を掛ける前)。
+    // 鳴らしている最中に MUL/DET・FIX を反映するときは、ここから数え直す。
+    float m_keyFreq = 0.0f;
+    void updateFrequency();
     Opzx7LfoCore m_lfo;
     FixMode m_fixMode;
     SsgSwEnv11 m_ssgSwEnv11;

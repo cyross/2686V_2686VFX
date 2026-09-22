@@ -142,6 +142,48 @@ void RhythmPad::setModulationWheel(float modWheel) {
     m_wtAmpMod.setModWheel(modWheel);
 }
 
+// 読む素材の標本化周波数が変わったら、再生位置と進む量をそれに合わせて
+// 数え直す。どちらも素材の標本で数えているため。
+void RhythmPad::followBufferRate(double rate)
+{
+    if (rate <= 0.0) return;
+
+    if (m_playRate > 0.0 && rate != m_playRate) {
+        const double scale = rate / m_playRate;
+
+        m_position *= scale;
+        m_pitchRatio = (float)(m_pitchRatio * scale);
+
+        // 高域カットの上端も進む量で決まる
+        m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+    }
+
+    m_playRate = rate;
+}
+
+// MUL/DET・FIX から周波数を決める
+void RhythmPad::updateFrequency()
+{
+    m_currentFrequency = m_detune.noteOn(m_fixMode.noteOn(m_keyFreq));
+    m_noiseGen.updateFrequency(m_currentFrequency);
+    m_noiseGen.updateDelta();
+
+    // パッドは素材をそのままの高さで鳴らす。MUL/DET と FIX で動かした
+    // ぶんは、元の周波数との比として再生の速さへ掛ける。
+    //
+    // 3.6.1 まではこの比を掛けておらず、MUL/DET と FIX はノイズと変調の
+    // 速さにしか効いていなかった。どちらも既定の値なら比は 1.0 なので、
+    // 触っていないパッドの音は変わらない。
+    const double pitchShift = (double)m_currentFrequency / (double)m_keyFreq;
+
+    // m_playRate は、いま読んでいる素材の標本化周波数
+    m_pitchRatio = (float)(m_playRate / m_sampleRate * pitchShift);
+
+    // QUALITY のノイズリダクション (再生側)。高域カットの上端は、素材が
+    // 出力の 1 標本あたりに進む量 (m_pitchRatio) で決まる。
+    m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+}
+
 void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, int uTotal)
 {
     // 再生遅延は 1 音ごとに数え直す
@@ -156,19 +198,14 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
     // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
     bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = isEncodedMode ? m_pcm->encodedRate : m_pcm->sourceRate;
+
+    // レガートでは再生位置を引き継ぐので、素材が差し替わっていれば先に数え直す
+    followBufferRate(currentBufferRate);
     float finalFreq = freq;
     float oldBaseLevel = m_baseLevel;
 
-    finalFreq = m_fixMode.noteOn(finalFreq);
-
-    m_currentFrequency = m_detune.noteOn(finalFreq);
-    m_noiseGen.updateFrequency(m_currentFrequency);
-    m_noiseGen.updateDelta();
-    m_pitchRatio = currentBufferRate / m_sampleRate;
-
-    // QUALITY のノイズリダクション (再生側)。高域カットの上端は、素材が
-    // 出力の 1 標本あたりに進む量 (m_pitchRatio) で決まる。
-    m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+    m_keyFreq = finalFreq;
+    updateFrequency();
 
     if (!isLegato) m_noiseReducer.reset();
 
@@ -324,6 +361,11 @@ float RhythmPad::getSample()
     float output = 0.0f;
     bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = m_sampleRate;
+
+    // 鳴らしている最中に QUALITY を変えると、読む素材 (符号化したもの / 元の
+    // もの) や、その標本化周波数が差し替わる。3.6.1 までは発音時の数え方の
+    // ままだったので、その音が終わるまで高さがずれていた。
+    followBufferRate(isEncodedMode ? m_pcm->encodedRate : m_pcm->sourceRate);
 
     // ノイズを出すために、バッファが空でも最後まで通す
     if (isEncodedMode && !m_pcm->encoded.empty()) {
@@ -754,6 +796,11 @@ void RhythmCore::setParameters(const SynthCoreParams& params)
     for (int i = 0; i < m_padCount; ++i) {
         pads[i].setParameters(params.rhythm.pads[i]);
         pads[i].m_pitchResetOnLegato = params.pitchResetOnLegato;
+    }
+
+    // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
+    if (params.liveDetune) {
+        for (auto& pad : activePads()) pad.refreshFrequency();
     }
 }
 

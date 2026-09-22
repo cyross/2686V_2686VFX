@@ -30,6 +30,10 @@ class GuiComponentLevel : public GuiBase {
     // N ボタンで出す、値を動かすボタンの並び。RHYTHM のパッドと共用。
     GuiComponentLevelNudge levelNudge;
 
+    // DELAY を持つか。チャンネルは持ち、2686VFX の出力の LEVEL は持たない
+    // (効果には「押してから鳴り始めるまで」が無いため)。
+    bool m_withDelay = true;
+
     std::vector<SelectItem> stepItems = {
         { I18n::pick(u8" 1: 自由設定", u8" 1: Free"), 1 },
         { I18n::pick(u8" 2: 1 刻み", u8" 2: by 1"), 2 },
@@ -62,7 +66,7 @@ public:
     {
     }
 
-    void setupComponent(juce::Component& parent, int& tabOrder, const juce::String& prefix);
+    void setupComponent(juce::Component& parent, int& tabOrder, const juce::String& prefix, bool withDelay = true);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setVisible(bool visible);

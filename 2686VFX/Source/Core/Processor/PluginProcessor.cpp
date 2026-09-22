@@ -133,6 +133,9 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
 
     prFx.prepare(sampleRate);
     prMod.prepare(sampleRate);
+
+    m_outputLevel.reset(sampleRate, levelRampSeconds);
+    m_outputLevel.setCurrentAndTargetValue(prFx.getLevel());
 }
 
 // ============================================================================
@@ -209,15 +212,26 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         }
     }
 
-    if (useHeadroom)
+    // 全体のバイパス。変調も効果も LEVEL も通さず、入ってきた音をそのまま
+    // 返す。以前は効果の中だけで見ていたので、その手前のヘッドルームと変調が
+    // 掛かったままになり、バイパスしても音が変わっていた。
+    //
+    // ヘッドルーム (入力を 1/4 に絞る) は 3.6.2 でやめた。音源と違って声を
+    // 重ねないので要らず、出力が 12dB 小さくなるだけだった。音量は LEVEL で決める。
+    if (!prFx.isBypassed())
     {
-        buffer.applyGain(headroomGain);
+        // 変調は FX より前へ掛ける。音量の動きも FX に通したいため。
+        prMod.processBlock(buffer, apvts);
+
+        prFx.processBlock(buffer, m_currentParams, apvts);
+
+        applyOutputLevel(buffer);
     }
-
-    // 変調は FX より前へ掛ける。音量の動きも FX に通したいため。
-    prMod.processBlock(buffer, apvts);
-
-    prFx.processBlock(buffer, m_currentParams, apvts);
+    else
+    {
+        // 戻したときに、止めていた間の値から滑り出さないようにそろえておく
+        m_outputLevel.setCurrentAndTargetValue(prFx.getLevel());
+    }
 
     if (previewVisiblity && buffer.getNumChannels() >= 2)
     {
@@ -246,6 +260,34 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     // MIDI は出さない宣言なので、ここで片付けておかないと、受け皿が
     // 「送るつもりの音が捨てられている」と見なして止まる。
     midiMessages.clear();
+}
+
+// 出力の音量 (LEVEL) を掛ける。値が動いている間は、ブロックの頭から終わりへ
+// 直線でつなぐ。
+void AudioPlugin2686V::applyOutputLevel(juce::AudioBuffer<float>& buffer)
+{
+    const int numSamples = buffer.getNumSamples();
+
+    m_outputLevel.setTargetValue(prFx.getLevel());
+
+    const float from = m_outputLevel.getCurrentValue();
+
+    m_outputLevel.skip(numSamples);
+
+    const float to = m_outputLevel.getCurrentValue();
+
+    if (from == to)
+    {
+        // 1.0 (そのまま) なら掛けるまでもない
+        if (to != 1.0f) buffer.applyGain(to);
+
+        return;
+    }
+
+    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+    {
+        buffer.applyGainRamp(ch, 0, numSamples, from, to);
+    }
 }
 
 // ============================================================================
@@ -682,17 +724,6 @@ bool AudioPlugin2686V::loadEnvironment(const juce::File& file, bool tellIfLegacy
     EnvironmentReader visit{ *reader };
 
     visitEnvironment(visit);
-
-    // ファイルから来た値は画面の制限を通っていない。音に直に掛かるものと
-    // 表を引くものだけ、ここで妥当な範囲へ丸める。
-    // headroomGain は processBlock で buffer.applyGain に渡るので、
-    // 桁違いの値や NaN が入ると爆音や NaN 汚染になる。
-    if (std::isfinite(headroomGain)) {
-        headroomGain = std::clamp(headroomGain, 0.0f, 1.0f);
-    }
-    else {
-        headroomGain = SettingsValue::Initial::headroomGain;
-    }
 
     // 読んだ番号を書き出し先へ映す
     applyFileFormat();

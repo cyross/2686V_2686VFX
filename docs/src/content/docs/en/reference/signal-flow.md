@@ -160,17 +160,26 @@ Being an effect, it **takes in audio** instead of making it.
   <rect class="xbox" x="4"   y="26" width="110" height="38" rx="6" />
   <text class="xtxt" x="59"  y="50">Audio in</text>
   <line class="xarr" x1="116" y1="45" x2="144" y2="45" marker-end="url(#ah3)" />
-  <rect class="xbox" x="146" y="26" width="110" height="38" rx="6" />
-  <text class="xtxt" x="201" y="50">Headroom</text>
-  <line class="xarr" x1="258" y1="45" x2="286" y2="45" marker-end="url(#ah3)" />
-  <rect class="xacc" x="288" y="26" width="170" height="38" rx="6" />
-  <text class="xtxt" x="373" y="50">Output modulation</text>
-  <line class="xarr" x1="460" y1="45" x2="488" y2="45" marker-end="url(#ah3)" />
-  <rect class="xacc" x="490" y="26" width="70"  height="38" rx="6" />
-  <text class="xtxt" x="525" y="50">FX</text>
-  <line class="xarr" x1="562" y1="45" x2="590" y2="45" marker-end="url(#ah3)" />
-  <text class="xtxt" x="616" y="50">Out</text>
+  <rect class="xacc" x="146" y="26" width="170" height="38" rx="6" />
+  <text class="xtxt" x="231" y="50">Output modulation</text>
+  <line class="xarr" x1="318" y1="45" x2="346" y2="45" marker-end="url(#ah3)" />
+  <rect class="xacc" x="348" y="26" width="70"  height="38" rx="6" />
+  <text class="xtxt" x="383" y="50">FX</text>
+  <line class="xarr" x1="420" y1="45" x2="448" y2="45" marker-end="url(#ah3)" />
+  <rect class="xacc" x="450" y="26" width="80"  height="38" rx="6" />
+  <text class="xtxt" x="490" y="50">LEVEL</text>
+  <line class="xarr" x1="532" y1="45" x2="560" y2="45" marker-end="url(#ah3)" />
+  <text class="xtxt" x="586" y="50">Out</text>
 </svg>
+
+**LEVEL** at the end sets the output level (1.0, the default, leaves it
+unchanged). The Effector's **global bypass** passes the input straight
+through, skipping the modulation, the FX and LEVEL alike.
+
+Unlike the instruments, nothing is summed here, so there is **no headroom
+stage** that turns the input down. Up to 3.6.1 the input was cut to a quarter
+as in the instruments, so the output was 12 dB quieter even with every effect
+off.
 
 **Modulation runs before the FX**, so that movement in level goes through the
 effects too. Cut the sound with an envelope, for example, and that cut is what

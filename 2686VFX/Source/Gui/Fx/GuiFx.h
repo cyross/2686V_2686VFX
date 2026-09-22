@@ -18,6 +18,7 @@
 #include "Shared/Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "Shared/Gui/Components/MulDetune/MulDetune.h"
 #include "Shared/Gui/Components/Unison/Unison.h"
+#include "Shared/Gui/Components/Level/Level.h"
 #include "Shared/Gui/Components/Quality/QualityPcm.h"
 #include "Shared/Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
@@ -118,6 +119,14 @@ class GuiFx : public GuiBase, private juce::Timer
     GuiGroup pcmGroup;
 
     GuiToggleButton bypassToggle;
+
+    // 出力の音量 (LEVEL)。部品はチャンネルと同じものを、DELAY 抜きで使う。
+    GuiComponentLevel levelComponent;
+
+    // levelComponent がこの画面へ置いた部品。横へ送る板へ移さずに
+    // メインへ残すため、作ったときに控えておく。
+    std::vector<juce::Component*> levelParts;
+
     NormalSeparator mainSeparator;
     GuiTextButton resetBtn;
     NormalSeparator routeSeparator;

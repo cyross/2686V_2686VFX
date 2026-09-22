@@ -56,6 +56,18 @@ value itself. The order of the effects is held on the
 [effect order](/2686V_2686VFX/en/reference/file-spec/fxo/) side.
 :::
 
+## Output level (2686VFX)
+
+The `output` block holds the output LEVEL. Added in 3.6.2.
+
+```json
+"output": { "level": 1.0 }
+```
+
+`level` is a multiplier from 0.0 to 10.0; 1.0 leaves the level unchanged.
+Older files, and files written by an instrument, have no `output` block; the
+current value is then kept.
+
 ## Key assign (2686VFX)
 
 The `keyAssign` block holds which keys drive the modulation. Added in 3.6.0.

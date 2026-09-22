@@ -9,6 +9,9 @@ namespace SettingsValue
 		static inline constexpr bool showTooltip = true;
 		static inline constexpr bool useHeadroom = true;
 		static inline constexpr float headroomGain = 0.5f;
+
+		// 既存のプロジェクトの鳴りを変えないよう、切った状態から始める
+		static inline constexpr bool liveDetune = false;
 		static inline constexpr bool showVirtualKeyboard = true;
 	};
 

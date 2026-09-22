@@ -77,6 +77,11 @@ private:
 
     double m_position = 0.0;
     float m_pitchRatio = 1.0f;
+
+    // m_position と m_pitchRatio を数えている素材の標本化周波数。鳴らしている
+    // 最中に QUALITY で素材が差し替わったら、これとの比で数え直す。
+    double m_playRate = 0.0;
+    void followBufferRate(double rate);
     int m_rootNote = 60; // Middle C
 
     // Params
@@ -106,6 +111,12 @@ private:
     PitchAdsrEnv m_pitchAdsr;
     SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
+
+    // 押したときに受け取った周波数 (MUL/DET・FIX を掛ける前)。
+    // 鳴らしている最中に MUL/DET・FIX を反映するときは、ここから数え直す。
+    float m_keyFreq = 0.0f;
+    void updateFrequency();
+    float m_keyRootFreq = 261.625565f; // 押したときの ROOT の周波数
     FixMode m_fixMode;
     Opzx7LfoCore m_lfo;
     SsgNoiseGen m_noiseGen;

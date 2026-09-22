@@ -6,6 +6,10 @@
 #include "Shared/Core/Processor/ProcessorFloat.h"
 #include "./ProcessorFxNames.h"
 
+#include "Shared/Core/Processor/ProcessorKeys.h"
+#include "Shared/Core/Processor/ProcessorNames.h"
+#include "Shared/Core/Processor/ProcessorValues.h"
+
 void FxProcessor::prepare(double sampleRate)
 {
     effects.prepare(sampleRate);
@@ -18,6 +22,12 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
 
     // --- Bypass ---
     layout.add(std::make_unique<juce::AudioParameterBool>(prefix + FxPrKey::bypass, prefix + FxPrName::masterBypass, FxPrValue::MBypass::initial));
+
+    // --- Level ---
+    // 範囲と初期値はチャンネルの LEVEL と同じ。初期値 1.0 はそのままの音量なので、
+    // これまでのプロジェクトを開いても音は変わらない。
+    layout.add(CPV::makeFloat(prefix + CPK::level, prefixName + CPN::level,
+        CPV::Level::min, CPV::Level::max, CPV::Level::initial));
 
     // --- Filter ---
     const juce::String filterPrefix = prefix + FxPrKey::fil;
@@ -108,6 +118,7 @@ void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String prefix = FxPrKey::prefix;
 
     pBypass = apvts.getRawParameterValue(prefix + FxPrKey::bypass);
+    pLevel = apvts.getRawParameterValue(prefix + CPK::level);
 
     // Filter
     const juce::String filterPrefix = prefix + FxPrKey::fil;
@@ -182,6 +193,16 @@ void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pSfcFirCoef6 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef6);
     pSfcFirCoef7 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef7);
     pSfcMix = apvts.getRawParameterValue(sfcePrefix + FxPrKey::mix);
+}
+
+bool FxProcessor::isBypassed() const
+{
+    return pBypass != nullptr && pBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+}
+
+float FxProcessor::getLevel() const
+{
+    return pLevel != nullptr ? pLevel->load(std::memory_order_relaxed) : CPV::Level::initial;
 }
 
 void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& params, juce::AudioProcessorValueTreeState& apvts)

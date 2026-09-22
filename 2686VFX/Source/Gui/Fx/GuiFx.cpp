@@ -107,6 +107,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     pcmHalfBtn(context),
     pcmWetBtn(context),
     bypassToggle(context),
+    levelComponent(context),
     mainSeparator(context),
     resetBtn(context),
     routeSeparator(context),
@@ -325,6 +326,15 @@ void GuiFx::setup()
 	bypassToggle.setup({ .parent = *this, .id = code + FxPrKey::bypass, .title = FxGuiText::Fx::masterBypass, .isReset = true });
     bypassToggle.setWantsKeyboardFocus(true);
     bypassToggle.setExplicitFocusOrder(++tabOrder);
+
+    // 全体のバイパスの下に、出力の音量を置く。
+    {
+        const int before = getNumChildComponents();
+
+        levelComponent.setupComponent(*this, tabOrder, FxPrKey::prefix, false);
+
+        for (int i = before; i < getNumChildComponents(); ++i) levelParts.push_back(getChildComponent(i));
+    }
 
 	mainSeparator.setupComponent(*this);
 
@@ -897,6 +907,8 @@ void GuiFx::moveToStrip()
 
     keyAssign.collectComponents(keep);
 
+    keep.insert(levelParts.begin(), levelParts.end());
+
     for (int i = 0; i < NumEffects; ++i)
     {
         keep.insert(&routeFx[i]);
@@ -1051,6 +1063,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     mRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
 
     layoutMain({ .mainRect = mRect, .component = &bypassToggle });
+
+    levelComponent.layoutComponent(mRect);
 
     mainSeparator.layoutComponent(mRect);
 
@@ -1733,6 +1747,9 @@ void GuiFx::setImportingFxParams(juce::StringArray& lines, int& index) {
 void GuiFx::writeFxParams(Io::ParamWriter& writer) {
     writer.set("bypass", bypassToggle.getToggleState());
 
+    // 出力の音量。3.6.2 から。
+    levelComponent.writeParams(writer, "output");
+
     {
         auto tremolo = writer.child("tremolo");
 
@@ -1835,6 +1852,9 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
 void GuiFx::readFxParams(const Io::ParamReader& reader)
 {
     bypassToggle.setToggleState(reader.getBool("bypass", bypassToggle.getToggleState()), juce::sendNotification);
+
+    // 持たない古いファイルでは、いまの値のまま
+    levelComponent.readParams(reader, "output");
 
     {
         auto tremolo = reader.child("tremolo");

@@ -29,6 +29,7 @@ public:
 	void setSampleRate(double sampleRate) override;
 	void setParameters(const Opzx7OpParams& params, float feedback);
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
+	void updateFrequency() override;
 	void noteOff() override;
 
 	// 全アンプエンベロープがバイパスされているか

@@ -503,6 +503,12 @@ Use it when a sound should come out at the same pitch whatever key is pressed,
 the way a drum does. On FM chips you can set it per operator, so fixing just one
 of them is a way to get a metallic ring.
 
+MUL/DET and FIX set the pitch from **their values when the key is pressed**.
+Moving them while a note plays takes effect from the next note. Turn on
+"Apply MUL/DET and FIX while notes play" in SETTINGS to have them act on the
+sounding note straight away (off by default), the way writing the register on
+the real chip does.
+
 ## UNISON/HARMONY
 
 **Ours.** Stacks copies of the same note to thicken it.

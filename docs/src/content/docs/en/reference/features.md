@@ -99,6 +99,7 @@ to the output itself, driven from a MIDI keyboard. See
 | Pitch bend | from a MIDI keyboard |
 | Modulation | from a MIDI keyboard |
 | Headroom | the reserved gain can be changed |
+| When MUL/DET and FIX apply | at key-on (default) or while notes play, chosen in SETTINGS |
 | Automation | covers every parameter |
 
 ## Screen and files

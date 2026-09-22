@@ -107,6 +107,18 @@ void SsgCore::setParameters(const SynthCoreParams& params)
 	m_interpMode = params.ssg.quality.interp;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
+
+    // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
+    if (params.liveDetune && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
+}
+
+// MUL/DET・FIX から周波数を決める
+void SsgCore::updateFrequency()
+{
+    m_currentFrequency = m_detune.noteOn(m_fixMode.noteOn(m_keyFreq));
+    m_phaseDelta = m_currentFrequency / m_targetRate;
+    m_noiseGen.updateFrequency(m_currentFrequency);
+    m_noiseGen.updateDelta();
 }
 
 void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
@@ -129,11 +141,8 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
-    finalFreq = m_fixMode.noteOn(finalFreq);
-    m_currentFrequency = m_detune.noteOn(finalFreq);
-    m_phaseDelta = m_currentFrequency / m_targetRate;
-    m_noiseGen.updateFrequency(m_currentFrequency);
-    m_noiseGen.updateDelta();
+    m_keyFreq = finalFreq;
+    updateFrequency();
 
     if (!isLegato) {
         if (!m_isMonoMode) {

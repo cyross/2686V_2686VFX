@@ -36,7 +36,7 @@ tabs because nothing generates sound, and no PRESET tab because there is no
 patch to store.
 
 The FX tab lays everything out in a single horizontal row. Leftmost is
-**Effector** (the global bypass, the reset, and the processing order); the
+**Effector** (the global bypass, the output LEVEL, the reset, and the processing order); the
 effect and modulation panels follow to its right. Scroll right to reach them
 all.
 

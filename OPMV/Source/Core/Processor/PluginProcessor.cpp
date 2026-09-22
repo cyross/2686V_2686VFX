@@ -276,6 +276,8 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     m_synth.pitchResetOnLegato = ptResetOnLegato;
     m_currentParams.pitchResetOnLegato = ptResetOnLegato;
 
+    m_currentParams.liveDetune = liveDetune;
+
     float fixedVelocity = PrHelper::getFloat(pFixedVelocity);
 
     m_synth.fixedVelocity = fixedVelocity;
