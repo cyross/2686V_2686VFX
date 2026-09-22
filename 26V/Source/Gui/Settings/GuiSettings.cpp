@@ -696,6 +696,18 @@ void GuiSettings::setup()
         pluginOf(ctx).headroomGain = (float)headroomGainSlider.getValue();
         };
 
+    separatorLiveDetune.setupComponent(*this);
+
+    // MUL/DET・FIX を鳴らしている最中にも反映するか。切っていれば、
+    // 押したときの値のまま鳴らす (3.6.1 までと同じ)。
+    liveDetuneToggle.setup({ .parent = *this, .title = SettingsGuiText::liveDetune, .font = toggleFont, .isReset = false });
+    liveDetuneToggle.setToggleState(pluginOf(ctx).liveDetune, juce::dontSendNotification);
+    liveDetuneToggle.setWantsKeyboardFocus(true);
+    liveDetuneToggle.setExplicitFocusOrder(++tabOrder);
+    liveDetuneToggle.onClick = [this] {
+        pluginOf(ctx).liveDetune = liveDetuneToggle.getToggleState();
+        };
+
     separator5.setupComponent(*this);
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
@@ -1178,6 +1190,12 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::HeadroomGainSliderWidth));
 
+    separatorLiveDetune.layoutComponent(sRect);
+
+    // 23-1. MUL/DET・FIX を鳴らしながら反映
+    auto rowLiveDetune = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    liveDetuneToggle.setBounds(rowLiveDetune.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+
     separator5.layoutComponent(sRect);
 
     // 22. Virtual Keyboard Row
@@ -1249,6 +1267,7 @@ void GuiSettings::setSettings()
     useHeadroomToggle.setToggleState(pluginOf(ctx).useHeadroom, juce::dontSendNotification);
     headroomGainSlider.setValue(pluginOf(ctx).headroomGain, juce::dontSendNotification);
     headroomGainSlider.setEnabledWithLabel(pluginOf(ctx).useHeadroom);
+    liveDetuneToggle.setToggleState(pluginOf(ctx).liveDetune, juce::dontSendNotification);
     virtualMidiKeyboardToggle.setToggleState(pluginOf(ctx).showVirtualKeyboard, juce::dontSendNotification);
 }
 

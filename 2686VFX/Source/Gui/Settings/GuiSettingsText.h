@@ -38,8 +38,6 @@ namespace SettingsGuiText
 	static inline const I18n::Text toggleAlignCentred{ u8"中央寄せ", u8"Centred" };
 	static inline const I18n::Text toggleAlignLeft{ u8"左寄せ", u8"Left" };
 	static inline const I18n::Text showTooltips{ u8"ツールチップを表示", u8"Show tooltips" };
-	static inline const I18n::Text useHeadroom{ u8"ヘッドルームを確保", u8"Keep headroom" };
-	static inline const I18n::Text headroomGain{ u8"ヘッドルームゲイン", u8"Headroom gain" };
 	static inline const I18n::Text showVirtualKeyboard{ u8"仮想MIDIキーボード表示", u8"Show the virtual MIDI keyboard" };
 	static inline const I18n::Text saveSettings{ u8"設定ファイルに保存", u8"Save to a settings file" };
 	static inline const I18n::Text loadSettings{ u8"設定ファイルから読み込み", u8"Load from a settings file" };

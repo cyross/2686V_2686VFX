@@ -22,6 +22,16 @@ public:
 
     FmOpParams m_params;
 
+    // 押したときに受け取った周波数 (MUL/DET・FIX を掛ける前)。
+    // 鳴らしている最中に MUL/DET・FIX を反映するときは、ここから数え直す。
+    float m_keyFreq = 0.0f;
+
+    // MUL/DET・FIX から周波数を決める。各オペレーターが持つ。
+    void virtual updateFrequency() {}
+
+    // 鳴っていれば、いまの MUL/DET・FIX で周波数を決め直す
+    void refreshFrequency() { if (m_keyFreq > 0.0f && isPlaying()) updateFrequency(); }
+
     // --- 再生遅延 ---
     //
     // オペレーター 1 本ごとに待つ。チャンネル全体の待ちとは別に数えるので、

@@ -96,7 +96,6 @@ namespace SettingsGuiValue
 		static inline constexpr int ModeSelectorWidth = 320;
 		static inline constexpr int BrowseButtonWidth = 80;
 		static inline constexpr int ClearButtonWidth = 60;
-		static inline constexpr int HeadroomGainSliderWidth = 200;
 		static inline constexpr int ToggleWidth = 400;
 		static inline constexpr int ButtonWidth = 200;
 		static inline constexpr int ButtonPaddingRight = 4;

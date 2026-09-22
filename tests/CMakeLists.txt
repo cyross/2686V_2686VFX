@@ -268,14 +268,18 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
         target_compile_definitions(${CY_GUI_TEST} PRIVATE GUI_TEST_REQUIRE_ALL)
     endif()
 
-    # 2686VFX にしかない機能 (変調を動かす鍵盤の割り当て)
+    # 2686VFX にしかない機能 (変調を動かす鍵盤の割り当て、出力の LEVEL と全体のバイパス)
     if(CY_PLUGIN STREQUAL "2686VFX")
-        target_sources(${CY_GUI_TEST} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxKeyAssignTest.cpp")
+        target_sources(${CY_GUI_TEST} PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxKeyAssignTest.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxOutputTest.cpp")
     endif()
 
     # 音源のチャンネルを持つ本だけ (2686VFX は音を作らない)
     if(NOT CY_PLUGIN STREQUAL "2686VFX")
-        target_sources(${CY_GUI_TEST} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/gui/ChannelQualityTest.cpp")
+        target_sources(${CY_GUI_TEST} PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/ChannelQualityTest.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/VoicePitchTest.cpp")
     endif()
 
     target_link_libraries(${CY_GUI_TEST} PRIVATE ${CY_PLUGIN})

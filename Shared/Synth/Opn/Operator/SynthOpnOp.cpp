@@ -62,6 +62,22 @@ void OpnOperator::setSampleRate(double sampleRate)
     m_ssgHwEnv.updateSampleRate(sampleRate);
 }
 
+void OpnOperator::updateFrequency()
+{
+    const float frequency = m_keyFreq;
+
+    // ========================================================
+    // Base Frequency Calculation (PCMのサンプラー挙動対応)
+    // ========================================================
+    float baseFreq = m_fixMode.noteOn(frequency);
+
+    // 基本周波数にデチューン成分を加算
+    float finalFreq = m_detune.noteOn(baseFreq);
+
+    // 1 サンプルあたり何周進むか (サイクル単位)
+    m_phaseDelta = finalFreq / m_sampleRate;
+}
+
 void OpnOperator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
     m_noteNumber = noteNumber;
@@ -96,16 +112,8 @@ void OpnOperator::noteOn(float frequency, float velocity, int noteNumber, bool i
         }
     }
 
-    // ========================================================
-    // Base Frequency Calculation (PCMのサンプラー挙動対応)
-    // ========================================================
-    float baseFreq = m_fixMode.noteOn(frequency);
-
-    // 基本周波数にデチューン成分を加算
-    float finalFreq = m_detune.noteOn(baseFreq);
-
-    // 1 サンプルあたり何周進むか (サイクル単位)
-    m_phaseDelta = finalFreq / m_sampleRate;
+    m_keyFreq = frequency;
+    updateFrequency();
 
     if (!isLegato) {
         if (!m_ampAdsr.isBypass()) {

@@ -94,6 +94,16 @@ void BeepCore::setParameters(const SynthCoreParams& params) {
     m_wtAmpMod.setParameters(params.beep.wtAmpMod);
     m_antiAlias = params.beep.antiAlias;
     m_timerClock = getBeepTimerClock(params.beep.timerClock);
+
+    // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
+    if (params.liveDetune && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
+}
+
+// MUL/DET・FIX から周波数を決める
+void BeepCore::updateFrequency()
+{
+    m_baseFreq = m_detune.noteOn(m_fixMode.noteOn(m_keyFreq));
+    m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -111,10 +121,8 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     // ユニゾンデチューンの計算
     float finalFreq = m_unison.applyDetune(freq);
 
-    float baseFreq = m_fixMode.noteOn(finalFreq);
-    m_baseFreq = m_detune.noteOn(baseFreq);
-
-    m_phaseDelta = m_baseFreq / (float)m_sampleRate;
+    m_keyFreq = finalFreq;
+    updateFrequency();
 
     if (!isLegato) {
         if (!m_isMonoMode) {

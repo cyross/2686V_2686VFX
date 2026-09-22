@@ -117,6 +117,10 @@ public:
 
         int uVoices = voices; // (※モードに応じて切り替えるように後で調整)
 
+        // ポリフォニックで同時に鳴らせるのは、最大同時発音数ぶんの音。
+        // ユニゾンは 1 音でボイスをその数だけ使うので、上限もその倍にする。
+        m_polyVoiceLimit = Global::voices * juce::jmax(1, uVoices);
+
         if (!isMonoMode && uVoices <= 1) {
             if (auto* voice = dynamic_cast<SynthVoice*>(findFreeVoice(getSound(0).get(), midiChannel, midiNoteNumber, true))) {
                 voice->setUnisonParams(0, 1, 0.0f, 0.0f);
@@ -261,9 +265,52 @@ public:
                 return voice; // 現在鳴っていても、容赦なく奪い取る(Steal)
             }
         }
-        // ポリフォニック時(OFF)は、通常のJUCEの和音割り当て機能を使う
+        // ポリフォニック時は、同時に鳴らすボイスを「最大同時発音数 × ユニゾン数」に抑える。
+        //
+        // ボイスは最大のユニゾン数ぶん (10 × 8 = 80) 用意してある。以前はここで
+        // JUCE の割り当てをそのまま使っていたので、ユニゾン 1 でも 80 音まで重なった。
+        // 短い音符を続けて弾くと、前の音の余韻が残ったまま次のボイスが使われていき、
+        // 80 音近くまで積み上がって処理が追いつかなくなる。
+        int active = 0;
+
+        for (auto* voice : voices) {
+            if (voice->isVoiceActive()) ++active;
+        }
+
+        if (active < m_polyVoiceLimit) {
+            if (auto* free = juce::Synthesiser::findFreeVoice(soundToPlay, midiChannel, midiNoteNumber, false)) {
+                return free;
+            }
+        }
+
+        if (!stealIfNoneAvailable) return nullptr;
+
+        // 上限に達していれば、古い音から譲ってもらう。離したあとの余韻に
+        // 入っているものを先に選ぶ。押さえている音は、なるべく切らない。
+        juce::SynthesiserVoice* oldestReleased = nullptr;
+        juce::SynthesiserVoice* oldest = nullptr;
+
+        for (auto* voice : voices) {
+            if (!voice->isVoiceActive()) continue;
+
+            if (oldest == nullptr || voice->wasStartedBefore(*oldest)) oldest = voice;
+
+            if (voice->isPlayingButReleased()
+                && (oldestReleased == nullptr || voice->wasStartedBefore(*oldestReleased))) {
+                oldestReleased = voice;
+            }
+        }
+
+        if (oldestReleased != nullptr) return oldestReleased;
+        if (oldest != nullptr) return oldest;
+
         return juce::Synthesiser::findFreeVoice(soundToPlay, midiChannel, midiNoteNumber, stealIfNoneAvailable);
     }
+
+private:
+    // ポリフォニックで同時に鳴らしてよいボイスの数。発音のたびに、
+    // そのときのユニゾン数から決め直す (voiceUnison)。
+    int m_polyVoiceLimit = Global::voices;
 };
 
 class AudioPlugin2686V : public juce::AudioProcessor,
@@ -539,6 +586,7 @@ public:
         visit(SettingsKey::toggleAlign, toggleAlign);
         visit(SettingsKey::useHeadroom, useHeadroom);
         visit(SettingsKey::headroomGain, headroomGain);
+        visit(SettingsKey::liveDetune, liveDetune);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
@@ -557,6 +605,10 @@ public:
 
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
+
+    // MUL/DET・FIX を鳴らしている最中にも反映するか。切っていれば、
+    // 押したときの値のまま鳴らす (3.6.1 までと同じ)。
+    bool liveDetune = SettingsValue::Initial::liveDetune;
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）
 
     bool saveEnvironment(const juce::File& file);
@@ -608,6 +660,19 @@ public:
     void updateFxOrder(std::vector<int> newOrder);
     bool isPlaying();
     bool isMidiProcessing();
+
+    // いま鳴っているボイスの数。ポリフォニックの上限が効いているかを
+    // テストで確かめるために使う。
+    int getActiveVoiceCount() const
+    {
+        int count = 0;
+
+        for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+            if (m_synth.getVoice(i)->isVoiceActive()) ++count;
+        }
+
+        return count;
+    }
     OscMode getCurrentMode();
 public:
     int getOpzx7AlgMode() const;

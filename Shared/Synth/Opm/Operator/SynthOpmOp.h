@@ -29,6 +29,7 @@ public:
 	void setParameters(const OpmOpParams& params, int feedback);
 	void setSampleRate(double sampleRate) override;
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
+	void updateFrequency() override;
 	void noteOff() override;
 
 	// 全アンプエンベロープがバイパスされているか

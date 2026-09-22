@@ -34,6 +34,10 @@ struct SynthCoreParams
     bool monoMode = false;
     bool useVelocity = false;
     bool pitchResetOnLegato = false;
+
+    // MUL/DET・FIX を、鳴らしている最中にも反映する (SETTINGS)。切っていれば
+    // 押したときの値のまま鳴らす (3.6.1 までと同じ)。
+    bool liveDetune = false;
     float fixedVelocity = 1.0f;
 
     OpnaParams opna;

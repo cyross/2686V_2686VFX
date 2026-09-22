@@ -146,6 +146,11 @@ class GuiSettings : public GuiBase
     GuiToggleButton useHeadroomToggle;
     GuiSlider headroomGainSlider;
 
+    NormalSeparator separatorLiveDetune;
+
+    // MUL/DET・FIX を鳴らしている最中にも反映するか
+    GuiToggleButton liveDetuneToggle;
+
     NormalSeparator separator5;
 
     // 仮想MIDIキーボード表示制御
@@ -254,6 +259,8 @@ public:
         separator4(context),
         useHeadroomToggle(context),
         headroomGainSlider(context),
+        separatorLiveDetune(context),
+        liveDetuneToggle(context),
         separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),

@@ -30,6 +30,7 @@ public:
 	void setParameters(const OplOpParams& params, int feedback);
 	void setSampleRate(double sampleRate) override;
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
+	void updateFrequency() override;
 	void noteOff() override;
 	void getSample(float& output, float modulator, float feedbackModulator);
 

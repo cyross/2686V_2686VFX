@@ -624,33 +624,6 @@ void GuiSettings::setup()
 
     separator4.setupComponent(*this);
 
-    useHeadroomToggle.setup({ .parent = *this, .title = SettingsGuiText::useHeadroom, .font = toggleFont, .isReset = false });
-    useHeadroomToggle.setToggleState(pluginOf(ctx).useHeadroom, juce::dontSendNotification);
-    useHeadroomToggle.setWantsKeyboardFocus(true);
-    useHeadroomToggle.setExplicitFocusOrder(++tabOrder);
-    useHeadroomToggle.onClick = [this] {
-        bool state = useHeadroomToggle.getToggleState();
-        pluginOf(ctx).useHeadroom = state;
-        headroomGainSlider.setEnabledWithLabel(state); // OFFならスライダーも無効化
-        };
-
-    // --- Headroom Gain Slider---
-    headroomGainSlider.setup({ .parent = *this, .title = SettingsGuiText::headroomGain, .isReset = false });
-    headroomGainSlider.setWantsKeyboardFocus(true);
-    headroomGainSlider.setExplicitFocusOrder(++tabOrder);
-    headroomGainSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-    headroomGainSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
-    headroomGainSlider.setRange(0.0, 1.0, 0.01); // 0.0 ~ 1.0
-    // プロセッサの値で初期化
-    headroomGainSlider.setValue(pluginOf(ctx).headroomGain, juce::dontSendNotification);
-    headroomGainSlider.setEnabledWithLabel(pluginOf(ctx).useHeadroom);
-
-    headroomGainSlider.onValueChange = [this] {
-        pluginOf(ctx).headroomGain = (float)headroomGainSlider.getValue();
-        };
-
-    separator5.setupComponent(*this);
-
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
     virtualMidiKeyboardToggle.setWantsKeyboardFocus(true);
     virtualMidiKeyboardToggle.setExplicitFocusOrder(++tabOrder);
@@ -1054,19 +1027,6 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     separator4.layoutComponent(sRect);
 
-    // 19. Headroom Row
-    auto rowHeadroom = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
-
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
-
-    // 20. Headroom Gain Row
-    auto rowHeadroomGain = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::HeadroomGainSliderWidth));
-
-    separator5.layoutComponent(sRect);
-
     // 21. Virtual Keyboard Row
     auto rowVirtualMidiKeyboard = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     virtualMidiKeyboardToggle.setBounds(rowVirtualMidiKeyboard.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
@@ -1125,9 +1085,6 @@ void GuiSettings::setSettings()
     }
 
     tooltipToggle.setToggleState(pluginOf(ctx).showTooltips, juce::dontSendNotification);
-    useHeadroomToggle.setToggleState(pluginOf(ctx).useHeadroom, juce::dontSendNotification);
-    headroomGainSlider.setValue(pluginOf(ctx).headroomGain, juce::dontSendNotification);
-    headroomGainSlider.setEnabledWithLabel(pluginOf(ctx).useHeadroom);
     virtualMidiKeyboardToggle.setToggleState(pluginOf(ctx).showVirtualKeyboard, juce::dontSendNotification);
 }
 

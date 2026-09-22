@@ -321,6 +321,11 @@ void Opzx7Core::setParameters(const SynthCoreParams& params) {
 
     // アルゴリズムに基づくルーティングのキャッシュを更新
     updateRoutingCache();
+
+    // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
+    if (params.liveDetune) {
+        for (auto& op : m_operators) op.refreshFrequency();
+    }
 }
 
 void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) {

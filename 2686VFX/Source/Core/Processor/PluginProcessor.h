@@ -37,6 +37,13 @@ private:
     FxProcessor prFx;
     ModProcessor prMod;
 
+    // 出力の音量 (LEVEL)。つまみを動かしたときにぷつっと鳴らないよう、
+    // 1 ブロックごとに飛ばさず滑らかにつなぐ。
+    juce::LinearSmoothedValue<float> m_outputLevel{ 1.0f };
+    static constexpr double levelRampSeconds = 0.02;
+
+    void applyOutputLevel(juce::AudioBuffer<float>& buffer);
+
     SynthParams m_currentParams;
 
     std::atomic<float>* pMode = nullptr;
@@ -238,8 +245,6 @@ public:
             visit(juce::String(SimpleView::items()[(size_t)i].key), simpleViewShow[(size_t)i]);
         }
         visit(SettingsKey::toggleAlign, toggleAlign);
-        visit(SettingsKey::useHeadroom, useHeadroom);
-        visit(SettingsKey::headroomGain, headroomGain);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
@@ -256,8 +261,6 @@ public:
         return SimpleView::isShown(simpleView, simpleViewShow, cat);
     }
 
-    bool useHeadroom = true; // ヘッドルーム適応
-    float headroomGain = 0.25; // ヘッドルーム圧縮値
     bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）
 
     bool saveEnvironment(const juce::File& file);

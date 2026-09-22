@@ -63,6 +63,21 @@ void Opl3Operator::setParameters(const Opl3OpParams& params, int feedback)
     m_lfo.setParameters(params.lfo);
 }
 
+void Opl3Operator::updateFrequency()
+{
+    const float frequency = m_keyFreq;
+
+    // ========================================================
+    // Base Frequency Calculation (PCMのサンプラー挙動対応)
+    // ========================================================
+    float baseFreq = frequency;
+
+    float finalFreq = m_detune.noteOn(baseFreq);
+
+    // 1 サンプルあたり何周進むか (サイクル単位)
+    m_phaseDelta = finalFreq / m_sampleRate;
+}
+
 void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
     m_noteNumber = noteNumber;
@@ -97,15 +112,8 @@ void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber, bool 
         }
     }
 
-    // ========================================================
-    // Base Frequency Calculation (PCMのサンプラー挙動対応)
-    // ========================================================
-    float baseFreq = frequency;
-
-    float finalFreq = m_detune.noteOn(baseFreq);
-
-    // 1 サンプルあたり何周進むか (サイクル単位)
-    m_phaseDelta = finalFreq / m_sampleRate;
+    m_keyFreq = frequency;
+    updateFrequency();
 
     if (!isLegato) {
         if (!m_ampAdsr.isBypass()) {

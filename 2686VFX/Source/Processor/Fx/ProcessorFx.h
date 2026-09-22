@@ -9,6 +9,9 @@
 class FxProcessor : public PrBase
 {
     std::atomic<float>* pBypass = nullptr;
+
+    // 出力の音量 (LEVEL)。1.0 がそのまま。
+    std::atomic<float>* pLevel = nullptr;
     std::atomic<float>* pFlBypass = nullptr;
     std::atomic<float>* pFlType = nullptr;
     std::atomic<float>* pFlFreq = nullptr;
@@ -68,5 +71,12 @@ public:
     void init(juce::AudioProcessorValueTreeState& apvts);
     void updateOrder(const std::vector<int>& newOrders);
     std::vector<int> getOrder();
+
+    // 全体のバイパス。入っていれば、変調も効果も LEVEL も通さずに素通しにする。
+    // 効果の中だけで見ていると、その手前のヘッドルームと変調が掛かったままになる。
+    bool isBypassed() const;
+
+    // 出力の音量 (LEVEL)
+    float getLevel() const;
     int getEffectsNumber();
 };

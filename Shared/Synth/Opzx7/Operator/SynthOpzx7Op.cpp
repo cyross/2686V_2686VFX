@@ -79,42 +79,9 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
     m_fbScale = sign * fbs;
 }
 
-void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
+void Opzx7Operator::updateFrequency()
 {
-    m_noteNumber = noteNumber;
-
-    // 再生遅延は 1 音ごとに数え直す。押し直せばまた最初から待つ。
-    beginDelay();
-
-    // ハードウェアエンベロープは位相を持つだけなので、
-    // 押し直したときだけ頭から流し直す。
-    if (!isLegato) m_ssgHwPEnv.noteOn();
-    if (!isLegato) m_wtAmpMod.reset();
-    if (!isLegato) m_ssgHwEnv.noteOn();
-    if (!isLegato) m_wtMod.reset();
-
-    if (!isLegato)
-    {
-        m_ssgPhase = 0.0;
-        m_isReleased = false;
-        m_lpCounter = 0;
-        m_lpDone = false;
-
-        if (!m_isMonoMode) {
-            // ユニゾン・ハーモニー向け対応
-            // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
-            m_phase = m_unisonPhaseOffset;
-
-            // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-            while (m_phase >= 1.0) {
-                m_phase -= 1.0;
-            }
-
-            m_currentLevel = 0.0f;
-        }
-
-        m_lfo.noteOn();
-    }
+    const float frequency = m_keyFreq;
 
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
@@ -153,6 +120,47 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
 
     // 1 サンプルあたり何周進むか (サイクル単位)
     m_phaseDelta = finalFreq / m_sampleRate;
+}
+
+void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
+{
+    m_noteNumber = noteNumber;
+
+    // 再生遅延は 1 音ごとに数え直す。押し直せばまた最初から待つ。
+    beginDelay();
+
+    // ハードウェアエンベロープは位相を持つだけなので、
+    // 押し直したときだけ頭から流し直す。
+    if (!isLegato) m_ssgHwPEnv.noteOn();
+    if (!isLegato) m_wtAmpMod.reset();
+    if (!isLegato) m_ssgHwEnv.noteOn();
+    if (!isLegato) m_wtMod.reset();
+
+    if (!isLegato)
+    {
+        m_ssgPhase = 0.0;
+        m_isReleased = false;
+        m_lpCounter = 0;
+        m_lpDone = false;
+
+        if (!m_isMonoMode) {
+            // ユニゾン・ハーモニー向け対応
+            // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
+            m_phase = m_unisonPhaseOffset;
+
+            // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+            while (m_phase >= 1.0) {
+                m_phase -= 1.0;
+            }
+
+            m_currentLevel = 0.0f;
+        }
+
+        m_lfo.noteOn();
+    }
+
+    m_keyFreq = frequency;
+    updateFrequency();
 
     if (!isLegato) {
         if (!m_ampAdsr.isBypass()) {
