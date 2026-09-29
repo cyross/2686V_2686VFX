@@ -52,6 +52,14 @@ UTILITY の **Level -> All Ch** を押すと、この値を他のすべてのチ
 80 年代の音に寄せたいときは BIT を下げ、RATE も一緒に下げると当時の雰囲気に
 近づきます。
 
+### DAC — 機種に合わせてまとめて切り替える
+
+QUALITY と QUALITY(PCM) の先頭には **DAC** の行があります（3.6.3 から）。
+機種を選んで **適応** を押すと、その機種の出力に合わせて BIT RATE・SMP.RATE・
+INTERP をまとめて切り替えます。選んだ機種そのものは保存しません。残るのは
+切り替えた値だけです。機種ごとの値は
+[v3.6.3 の変更点](/2686V_2686VFX/guide/changes-363/#quality-に「dac」を足しました) にあります。
+
 選べるものの一覧は
 [QUALITY 一覧](/2686V_2686VFX/reference/lists-quality/) にあります。
 
@@ -510,10 +518,11 @@ MUL/DET と FIX は、**押したときの値**で音の高さを決めます。
 | **Arpeggio** | 重ねずに順番に鳴らす | False / True | False | [`SSG_UNI_ARP`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arp) |
 | **AR.FREQ** | アルペジオの速さ | 1 〜 4000 | 60 | [`SSG_UNI_ARPFREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arpfreq) |
 | **Arp Smooth** | 切り替わりの角を丸める | False / True | True | [`SSG_UNI_ARPSMTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arpsmth) |
-| **P-SPREAD** | 声ごとの距離（7 声ぶん） | 0 〜 1 | 0 | [`SSG_UNI_PDIST[1-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdist-1-7) |
-| **P-DETUNE** | 声ごとのずらし幅（7 声ぶん、セント） | -4800 〜 4800 | 0 | [`SSG_UNI_PDET[1-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdet-1-7) |
+| **P-SPREAD** | 声ごとの距離（元の音を含む 8 声ぶん） | 0 〜 1 | 0 | [`SSG_UNI_PDIST[0-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdist-0-7) |
+| **P-DETUNE** | 声ごとのずらし幅（元の音を含む 8 声ぶん、セント） | -4800 〜 4800 | 0 | [`SSG_UNI_PDET[0-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdet-0-7) |
 
-2 声目以降は、**声ごとに距離とずらし幅を別々に決められます**（7 声ぶん）。
+**声ごとに距離とずらし幅を別々に決められます**。VOICES で声を選びます（0 が元の音、
+1〜7 が重ねた声）。0 は 3.6.3 で足しました。
 均等に散らすだけでなく、片側に寄せる、オクターブで積む、といった組み方が
 できます。
 

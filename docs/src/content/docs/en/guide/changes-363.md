@@ -1,0 +1,137 @@
+---
+title: What changed in v3.6.3
+description: What's fixed and changed in 3.6.3
+sidebar:
+  order: 2
+---
+
+This page covers changes from 3.6.2 to 3.6.3. **Your files remain compatible**,
+and existing patches sound the same.
+
+## 2686VFX: no more blip when you stop playback
+
+**With DELAY / REVERB / SFC ECHO or modulation (ENV, LFO, PITCH and so on) in
+use, stopping playback let out a short burst of sound.**
+
+2686VFX told the host it had no tail. Hosts such as Cubase stop processing a VST3
+plug-in once its input goes silent. When you stopped playback, the delay lines and
+the modulation buffers froze with audio still in them, and that leftover audio came
+out the next time processing resumed.
+
+3.6.3 fixes both halves:
+
+- The plug-in now reports an unlimited tail, so tails ring out fully after you stop
+- When the host stops processing, everything held in the buffers is discarded
+
+## FM operator graphs now redraw after loading a channel parameter file
+
+**After loading a channel parameter file, the envelope graphs of operators not
+selected with TARGET kept their old shape** until you selected them.
+
+3.6.3 redraws every operator's graph after the load. Loading a single operator's
+parameter file redraws that operator's graph as well.
+
+## UNISON/HARMONY: P-SPREAD and P-DETUNE can now target voice 0 (the original)
+
+Per-voice P-SPREAD and P-DETUNE used to cover voices 1 to 7 only. In 3.6.3 **VOICES
+also offers 0, the original voice**, so you can shift its position and pitch like
+any other voice.
+
+- The default is 0, so existing sounds do not change
+- Automation IDs are `…_UNI_PDIST0` / `…_UNI_PDET0`
+- Files store it as `mainVoice`; the `paraVoices` list still holds voices 1 to 7
+
+## A more compact algorithm matrix and algorithm diagram
+
+### Matrix (OPZX7)
+
+The routing and feedback matrices used to sit one above the other. Now **a switch
+shows one at a time**: pick **ROUTING** or **FEEDBACK** at the top (they work like
+radio buttons). The algorithm diagram moves up into the space this frees.
+
+Which matrix is showing is screen-only state and is not saved.
+
+### Algorithm diagram (all FM channels)
+
+- Operator boxes are 2px smaller on every side, and the gaps between them shrink to match
+- The self-feedback loop is 2px smaller in diameter and is centred on the box's top-left corner
+- Feedback lines to other operators run 3px less to the side
+- The "FB" labels are gone (colour and dashes already tell them apart)
+- OP8's colour is lighter so its number is easier to read
+- The diagram is shorter overall
+
+## QUALITY gains a "DAC" row
+
+QUALITY (non-PCM and PCM) and the 2686VFX PCM Bit Crusher now start with a **DAC**
+row. Pick a machine and press **Apply** to set BIT RATE, SMP.RATE and INTERP to
+match that machine's output in one go.
+
+- The machine you pick is screen-only; it is not written to presets or channel
+  parameter files. What stays is the BIT RATE, SMP.RATE and INTERP it set
+- Machines that give identical settings share one entry, such as "98/88"
+- Where a machine's sample rate is not on the list, the nearest one is used (for
+  example, the X68000's OPM runs at 62.5kHz and gets 55.5kHz)
+
+### QUALITY (non-PCM)
+
+Matches the DAC the synth output goes through.
+
+| Machine | BIT RATE | SMP.RATE | INTERP |
+| --- | --- | --- | --- |
+| 98/88/X68K | 10-bit | 55.5kHz | ZOH |
+| MSX | 9-bit | 49.7kHz | ZOH |
+| FC/GB | 4-bit | 96kHz | ZOH |
+| SFC | 16-bit | 32kHz | ZOH |
+| PCE | 5-bit | 96kHz | ZOH |
+| MD/TOWNS | 9-bit | 55.5kHz | ZOH |
+| PS1 | 16-bit | 44.1kHz | ZOH |
+
+### QUALITY (PCM)
+
+Matches the circuit that plays samples.
+
+| Machine | BIT RATE | SMP.RATE | INTERP |
+| --- | --- | --- | --- |
+| 98 | 16-bit PCM (PC-9801-86) | 44.1kHz | ZOH |
+| 88 | 4-bit ADPCM (OPNA) | 16kHz | ZOH |
+| MSX | 8-bit PCM (turbo R) | 16kHz | ZOH |
+| X68K | IMA ADPCM (close to the MSM6258) | 16kHz | ZOH |
+| FC | 1-bit DPCM | 33.08kHz | ZOH |
+| SFC | SNES BRR | 32kHz | Gaussian |
+| PCE | 5-bit PCM | 8kHz | ZOH |
+| MD/TOWNS | 8-bit PCM | 22.05kHz | ZOH |
+| GB | 4-bit PCM | 8kHz | ZOH |
+| PS1 | PS1 VAG | 44.1kHz | Gaussian |
+
+### 2686VFX PCM Bit Crusher
+
+ADPCM-style formats are not available here, so each machine is approximated by the
+bit depth its hardware decodes to.
+
+| Machine | BIT | RATE | INTERP |
+| --- | --- | --- | --- |
+| 98 | 16-bit PCM | 44.1kHz | ZOH |
+| 88 | 16-bit PCM | 16kHz | ZOH |
+| MSX | 8-bit PCM | 16kHz | ZOH |
+| X68K | 12-bit PCM | 16kHz | ZOH |
+| FC | 7-bit PCM | 33.08kHz | ZOH |
+| SFC | 16-bit PCM | 32kHz | Gaussian |
+| PCE | 5-bit PCM | 8kHz | ZOH |
+| MD/TOWNS | 8-bit PCM | 22.05kHz | ZOH |
+| GB | 4-bit PCM | 8kHz | ZOH |
+| PS1 | 16-bit PCM | 44.1kHz | Gaussian |
+
+## Drag and drop files onto the window to load them
+
+Drop a file from Explorer (or any file manager) onto the plug-in window and it loads
+straight away, behaving exactly as if you had loaded it with the usual button.
+
+| File | After loading |
+| --- | --- |
+| Preset | Opens that channel's tab |
+| Channel parameters | Opens that channel's tab |
+| FX order (`.fxo`) | The FX order changes |
+| FX parameters (`.2fx`) | The FX values change |
+
+2686VFX accepts FX order and FX parameter files; the screen stays as it is.
+When you drop several files at once, they load in order.

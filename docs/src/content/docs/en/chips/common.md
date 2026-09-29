@@ -52,6 +52,13 @@ of period gear. Lower numbers are coarser.
 To lean towards the sound of the 1980s, bring BIT down and take RATE down with
 it.
 
+### DAC — switch everything to match a machine
+
+QUALITY and QUALITY(PCM) start with a **DAC** row (since 3.6.3). Pick a machine and
+press **Apply** to set BIT RATE, SMP.RATE and INTERP to match that machine's output in
+one go. The machine itself is not saved, only the values it set. The settings for
+each machine are listed in [What changed in v3.6.3](/2686V_2686VFX/en/guide/changes-363/#quality-gains-a-dac-row).
+
 The full list of what you can pick is under
 [QUALITY lists](/2686V_2686VFX/en/reference/lists-quality/).
 
@@ -521,11 +528,11 @@ the real chip does.
 | **Arpeggio** | Sound them one after another instead of stacking | False / True | False | [`SSG_UNI_ARP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arp) |
 | **AR.FREQ** | How fast the arpeggio runs | 1 – 4000 | 60 | [`SSG_UNI_ARPFREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arpfreq) |
 | **Arp Smooth** | Round off the corners as it switches | False / True | True | [`SSG_UNI_ARPSMTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arpsmth) |
-| **P-SPREAD** | Distance per voice (seven of them) | 0 – 1 | 0 | [`SSG_UNI_PDIST[1-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdist-1-7) |
-| **P-DETUNE** | Shift per voice (seven of them, in cents) | -4800 – 4800 | 0 | [`SSG_UNI_PDET[1-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdet-1-7) |
+| **P-SPREAD** | Distance per voice (eight, including the original) | 0 – 1 | 0 | [`SSG_UNI_PDIST[0-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdist-0-7) |
+| **P-DETUNE** | Shift per voice (eight, including the original, in cents) | -4800 – 4800 | 0 | [`SSG_UNI_PDET[0-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdet-0-7) |
 
-From the second voice on, **the distance and the amount of shift are set per
-voice** (seven of them). Beyond spreading them evenly you can weight them to one
+**The distance and the amount of shift are set per voice.** Pick the voice with
+VOICES: 0 is the original, 1 to 7 are the stacked voices (0 arrived in 3.6.3). Beyond spreading them evenly you can weight them to one
 side, stack them in octaves, and so on.
 
 Switch **Arpeggio** on and, instead of stacking, the voices sound one after

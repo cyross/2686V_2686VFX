@@ -21,6 +21,8 @@ sidebar:
 | **INTERP** | 読み戻すときの補間のしかた。7 種 | 0 〜 6 | 1 | [`FX_PCMBC_INTP`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-pcmbc-intp) |
 | **MIX** | 原音との混ぜ具合 | 0 〜 1 | 0 | [`FX_PCMBC_MIX`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-pcmbc-mix) |
 
+**DAC** の行で機種を選んで **適応** を押すと、BIT・RATE・INTERP をその機種に合わせてまとめて切り替えます（3.6.3 から）。選んだ機種は保存しません。
+
 **MIX** は原音と効果音の混ぜ具合です。0.0 で原音のまま、1.0 で効果だけになります。
 
 **バイパス**を入れると、その効果を通しません。初めは入った状態で、MIX も 0.0 です。外して MIX を上げてから、つまみを触ってください。

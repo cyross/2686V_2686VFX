@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
-  "version": "3.6.2",
-  "count": 14552,
+  "version": "3.6.3",
+  "count": 14580,
   "parameters": [
     {
       "id": "MODE",
@@ -1976,6 +1976,23 @@
     {
       "id": "OPNA_UNI_PDET7",
       "name": "OPNA Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "OPNA_UNI_PDIST0",
+      "name": "OPNA Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPNA_UNI_PDET0",
+      "name": "OPNA Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,
@@ -12128,6 +12145,23 @@
       "default": 0
     },
     {
+      "id": "OPN_UNI_PDIST0",
+      "name": "OPN Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPN_UNI_PDET0",
+      "name": "OPN Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "OPN_SSGSW11_BYPASS",
       "name": "OPN SSG SwEnv11 Bypass",
       "type": "Bool",
@@ -21941,6 +21975,23 @@
       "default": 0
     },
     {
+      "id": "OPL_UNI_PDIST0",
+      "name": "OPL Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL_UNI_PDET0",
+      "name": "OPL Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "OPL_SSGSW11_BYPASS",
       "name": "OPL SSG SwEnv11 Bypass",
       "type": "Bool",
@@ -27876,6 +27927,23 @@
     {
       "id": "OPL3_UNI_PDET7",
       "name": "OPL3 Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "OPL3_UNI_PDIST0",
+      "name": "OPL3 Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL3_UNI_PDET0",
+      "name": "OPL3 Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,
@@ -37932,6 +38000,23 @@
       "default": 0
     },
     {
+      "id": "OPM_UNI_PDIST0",
+      "name": "OPM Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPM_UNI_PDET0",
+      "name": "OPM Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "OPM_SSGSW11_BYPASS",
       "name": "OPM SSG SwEnv11 Bypass",
       "type": "Bool",
@@ -46356,6 +46441,23 @@
     {
       "id": "OPZX7_UNI_PDET7",
       "name": "OPZX7S Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_UNI_PDIST0",
+      "name": "OPZX7S Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_UNI_PDET0",
+      "name": "OPZX7S Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,
@@ -69973,6 +70075,23 @@
       "default": 0
     },
     {
+      "id": "SSG_UNI_PDIST0",
+      "name": "SSG Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "SSG_UNI_PDET0",
+      "name": "SSG Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "SSG_ADSR_BYPASS",
       "name": "SSG ADSR Bypass",
       "type": "Bool",
@@ -72292,6 +72411,23 @@
     {
       "id": "WT_UNI_PDET7",
       "name": "WT Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "WT_UNI_PDIST0",
+      "name": "WT Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT_UNI_PDET0",
+      "name": "WT Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,
@@ -79203,6 +79339,23 @@
     {
       "id": "WT2_UNI_PDET7",
       "name": "WT2 Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "WT2_UNI_PDIST0",
+      "name": "WT2 Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT2_UNI_PDET0",
+      "name": "WT2 Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,
@@ -88515,6 +88668,23 @@
       "default": 0
     },
     {
+      "id": "WTPLUS_UNI_PDIST0",
+      "name": "WT+ Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WTPLUS_UNI_PDET0",
+      "name": "WT+ Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "WTPLUS_ADSR_BYPASS",
       "name": "WT+ ADSR Bypass",
       "type": "Bool",
@@ -90155,6 +90325,23 @@
     {
       "id": "RHYTHM_UNI_PDET7",
       "name": "RHYTHM Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_UNI_PDIST0",
+      "name": "RHYTHM Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "RHYTHM_UNI_PDET0",
+      "name": "RHYTHM Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,
@@ -112470,6 +112657,23 @@
       "default": 0
     },
     {
+      "id": "ADPCM_UNI_PDIST0",
+      "name": "ADPCM Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCM_UNI_PDET0",
+      "name": "ADPCM Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "ADPCMP_LEVEL",
       "name": "ADPCMP Level",
       "type": "Float",
@@ -118881,6 +119085,23 @@
       "default": 0
     },
     {
+      "id": "ADPCMP_UNI_PDIST0",
+      "name": "ADPCMP Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCMP_UNI_PDET0",
+      "name": "ADPCMP Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "BEEP_LEVEL",
       "name": "BEEP Level",
       "type": "Float",
@@ -121333,6 +121554,23 @@
     {
       "id": "BEEP_UNI_PDET7",
       "name": "BEEP Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "BEEP_UNI_PDIST0",
+      "name": "BEEP Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "BEEP_UNI_PDET0",
+      "name": "BEEP Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,

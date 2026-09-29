@@ -21,6 +21,8 @@ Crushes on the very same steps as the instruments' [QUALITY(PCM)](/2686V_2686VFX
 | **INTERP** | How the gaps are filled on the way back. 7 kinds | 0 – 6 | 1 | [`FX_PCMBC_INTP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-pcmbc-intp) |
 | **MIX** | Blend against the dry signal | 0 – 1 | 0 | [`FX_PCMBC_MIX`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-pcmbc-mix) |
 
+Pick a machine in the **DAC** row and press **Apply** to set BIT, RATE and INTERP to match it in one go (since 3.6.3). The machine you pick is not saved.
+
 **MIX** is how much of the effect is blended with the dry signal. At 0.0 you hear the input untouched; at 1.0 you hear only the effect.
 
 **Bypass** takes the effect out of the chain. It starts switched on, and MIX starts at 0.0 — switch bypass off and raise MIX before you reach for anything else.

@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDumpFx",
-  "version": "3.6.2",
-  "count": 344,
+  "version": "3.6.3",
+  "count": 346,
   "parameters": [
     {
       "id": "MODE",
@@ -2733,6 +2733,23 @@
     {
       "id": "MOD_UNI_PDET7",
       "name": "MOD Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_UNI_PDIST0",
+      "name": "MOD Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "MOD_UNI_PDET0",
+      "name": "MOD Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,

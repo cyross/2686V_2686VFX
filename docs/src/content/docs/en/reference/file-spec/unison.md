@@ -51,6 +51,9 @@ its current value** — it is not reset to the default.
 
 It also carries a list called `paraVoices` — the seven voices from the second on, each with a `distance` (position across the stereo field) and a `detune` (how far it is shifted, in cents).
 
+The original voice (voice 0) keeps its `distance` and `detune` in a separate `mainVoice` (added in 3.6.3),
+so the `paraVoices` list does not shift. Reading a file without `mainVoice` leaves voice 0 as it is.
+
 
 :::note[Writing one by hand]
 - Knobs that pick from a list are held as **numbers**. Those are the ones whose
