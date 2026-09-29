@@ -633,3 +633,76 @@ TEST_CASE("HOLD / KEEP を入り切りすると、中のつまみがその場で
         if (kRequireAll) CHECK(sw.covered > 0);
     }
 }
+
+// DAC の行の「適応」ボタンが、見える場所に収まっているか。
+//
+// 3.6.3 の初め、行の幅を固定 (80 + 155 + 35 = 270) で取っていた。区分の
+// 中は 230 ほどしかないので、右端のボタンが枠の外へ出て見えなかった。
+TEST_CASE("DAC: 「適応」ボタンが区分の中に収まっている")
+{
+    Env env;
+
+    auto& tabs = EditorTestAccess::tabs(env.ed());
+    int checked = 0;
+
+    for (int i = 0; i < tabs.getNumTabs(); ++i)
+    {
+        tabs.setCurrentTabIndex(i);
+
+        auto* root = tabs.getTabContentComponent(i);
+
+        if (root == nullptr) continue;
+
+        // QUALITY は閉じていることがあるので、開いてから並べ直す
+        std::vector<juce::Component*> all;
+
+        collect(root, all);
+
+        for (auto* c : all)
+        {
+            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(c)) {
+                if (cat->getText() == "QUALITY") cat->setDetailVisible(true);
+            }
+        }
+
+        env.ed().resized();
+
+        all.clear();
+        collect(root, all);
+
+        for (auto* c : all)
+        {
+            auto* combo = dynamic_cast<GuiComboBox*>(c);
+
+            if (combo == nullptr || !combo->isVisible() || combo->label.getText() != "DAC") continue;
+
+            auto* parent = combo->getParentComponent();
+
+            // 同じ行の右にあるボタンが「適応」
+            GuiTextButton* apply = nullptr;
+
+            for (auto* sibling : parent->getChildren())
+            {
+                auto* btn = dynamic_cast<GuiTextButton*>(sibling);
+
+                if (btn != nullptr && btn->getY() == combo->getY() && btn->getX() >= combo->getRight()) apply = btn;
+            }
+
+            INFO(tabs.getTabNames()[i].toStdString());
+            INFO("combo " << combo->getBounds().toString().toStdString());
+
+            REQUIRE(apply != nullptr);
+
+            INFO("apply " << apply->getBounds().toString().toStdString());
+            INFO("parent " << parent->getLocalBounds().toString().toStdString());
+
+            CHECK(apply->isVisible());
+            CHECK(apply->getWidth() > 0);
+            CHECK(parent->getLocalBounds().contains(apply->getBounds()));
+
+            ++checked;
+        }
+    }
+
+    CHECK(checked > 0);
+}

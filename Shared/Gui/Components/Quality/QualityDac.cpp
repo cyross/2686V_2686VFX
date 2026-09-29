@@ -179,8 +179,13 @@ void GuiComponentDac::layoutComponent(juce::Rectangle<int>& rect, int rowHeight,
     rect.removeFromTop(paddingTop);
 
     selector.label.setBounds(area.removeFromLeft(labelWidth));
-    selector.setBounds(area.removeFromLeft(comboWidth));
-    applyBtn.setBounds(area.removeFromLeft(buttonWidth));
+
+    // 区分によっては行が渡した幅より狭い。コンボボックスを先に取ると
+    // ボタンがはみ出して見えなくなるので、ボタンのぶんを残して縮める。
+    const int fitWidth = juce::jmax(0, juce::jmin(comboWidth, area.getWidth() - buttonWidth));
+
+    selector.setBounds(area.removeFromLeft(fitWidth));
+    applyBtn.setBounds(area.removeFromLeft(juce::jmin(buttonWidth, area.getWidth())));
 
     rect.removeFromTop(paddingBottom);
 }
