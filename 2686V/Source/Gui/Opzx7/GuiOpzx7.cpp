@@ -1359,7 +1359,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
         layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
         mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
-        auto graphArea = mRect.removeFromTop(260); // 描画領域確保
+        auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(Opzx7PrValue::ops)); // 描画領域確保
         algStaticGraphComp.setBounds(graphArea.reduced(10));
     }
     else {
@@ -1380,7 +1380,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         algMatrixComp.setBounds(matrixArea.withSizeKeepingCentre(
             algMatrixComp.getNaturalWidth(), matrixArea.getHeight()));
 
-        auto graphArea = mRect.removeFromTop(260);
+        auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(Opzx7PrValue::ops)); // 描画領域確保
         algGraphComp.setBounds(graphArea.reduced(10));
     }
 
@@ -2816,6 +2816,15 @@ void GuiOpzx7::layoutOpWsCat(juce::Rectangle<int>& rect, int selectedWs) {
     }
 }
 
+// すべてのオペレータの枠を描き直す。
+//
+// つまみから描き直すのは TARGET で選んでいるオペレータだけなので、
+// ファイルを読み込んだあとは、ほかの枠が前の値のまま残っていた。
+void GuiOpzx7::updateOpGraphs()
+{
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) updateOpGraph(i);
+}
+
 // 枠に出すエンベロープを描き直す。
 //
 // 枠はオペレータの数だけ同時に出るので、値をつまみから読むわけには
@@ -3504,6 +3513,8 @@ void GuiOpzx7::applyChParamFile(const juce::File& file) {
             setImportingChParams(lines, index);
         }
 
+        updateOpGraphs();
+
         Io::ParamWriter writer(opzx7Format);
 
         writeChParams(writer);
@@ -3522,6 +3533,8 @@ void GuiOpzx7::applyChParamFile(const juce::File& file) {
     GuiRefresh::Batch batch;
 
     readChParams(*reader);
+
+    updateOpGraphs();
 }
 
 void GuiOpzx7::exportChParam()
@@ -3582,6 +3595,8 @@ void GuiOpzx7::applyOpChParamFile(int opIndex, const juce::File& file)
             setImportingOpChFileParams(opIndex, lines, index);
         }
 
+        updateOpGraph(opIndex);
+
         Io::ParamWriter writer(opzx7OpFormat);
 
         writeOpChFileParams(opIndex, writer);
@@ -3599,6 +3614,8 @@ void GuiOpzx7::applyOpChParamFile(int opIndex, const juce::File& file)
     GuiRefresh::Batch batch;
 
     readOpParams(opIndex, *reader);
+
+    updateOpGraph(opIndex);
 }
 
 void GuiOpzx7::exportOpChParam(int opIndex)

@@ -140,3 +140,67 @@ TEST_CASE("2686VFX: 全体のバイパスは、効果も LEVEL も通さず素�
     CHECK(low == doctest::Approx(1.0f).epsilon(1.0e-6));
     CHECK(high == doctest::Approx(1.0f).epsilon(1.0e-6));
 }
+
+// 3.6.2 まで、2686VFX は reset() を持たず、残響は「無い」と申告していた。
+// Cubase は入力が無音になると処理を止めるので、再生を止めると DELAY などが
+// 中身を持ったまま凍り、動き出したときに一瞬鳴っていた。
+TEST_CASE("2686VFX: 残響を尽きないものとして申告する")
+{
+    auto processor = std::make_unique<AudioPlugin2686V>();
+
+    CHECK(std::isinf(processor->getTailLengthSeconds()));
+}
+
+TEST_CASE("2686VFX: reset() で溜めてある残響を捨てる")
+{
+    auto processor = std::make_unique<AudioPlugin2686V>();
+
+    const juce::String dly = FxPrKey::prefix + FxPrKey::dly;
+
+    setReal(*processor, dly + FxPrKey::bypass, 0.0f);
+    setReal(*processor, dly + FxPrKey::Delay::fb, 0.8f);
+    setReal(*processor, dly + FxPrKey::mix, 1.0f);
+
+    processor->setPlayConfigDetails(2, 2, kRate, kBlock);
+    processor->prepareToPlay(kRate, kBlock);
+
+    juce::AudioBuffer<float> buffer(2, kBlock);
+    juce::MidiBuffer midi;
+
+    auto peakOfSilence = [&](int blocks) {
+        float peak = 0.0f;
+
+        for (int b = 0; b < blocks; ++b)
+        {
+            buffer.clear();
+            processor->processBlock(buffer, midi);
+            peak = juce::jmax(peak, buffer.getMagnitude(0, 0, kBlock));
+        }
+
+        return peak;
+    };
+
+    auto feed = [&] {
+        for (int b = 0; b < kBlocks; ++b)
+        {
+            for (int i = 0; i < kBlock; ++i)
+            {
+                buffer.setSample(0, i, input(b * kBlock + i));
+                buffer.setSample(1, i, input(b * kBlock + i));
+            }
+
+            processor->processBlock(buffer, midi);
+        }
+    };
+
+    // 残響が残ることを先に確かめておく。残らない設定で消えたことを
+    // 確かめても意味が無い。
+    feed();
+    CHECK(peakOfSilence(kBlocks * 2) > 0.01f);
+
+    feed();
+    processor->reset();
+    CHECK(peakOfSilence(kBlocks * 2) < 1.0e-6f);
+
+    processor->releaseResources();
+}

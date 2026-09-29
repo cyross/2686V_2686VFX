@@ -255,6 +255,7 @@ class GuiOpl : public GuiBase
         I18n::pick(u8"MML風にパラメータを入力してください。 例: AR:31 AR31 DT-1 等", u8"Type the parameters MML-style. For example: AR:31 AR31 DT-1");
 
     void updateOpGraph(int opIndex);
+    void updateOpGraphs();
     void setGraphMode(GuiEnvGraphMode mode);
 
     // TARGET が今どのオペレータを指しているか (0 から数える)。

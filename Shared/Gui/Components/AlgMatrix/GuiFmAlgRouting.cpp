@@ -14,25 +14,68 @@ static const int chkH = 10;
 static const int margin = 2;
 static const int cellW = chkW + margin * 2;
 static const int cellH = chkH + margin * 2;
-static const int startX = rectRadius;
 static const int opLabelW = 28;
-static const int chkStartX = startX + opLabelW;
-static const int startY = rectRadius;
 static const int labelH = 12;
-static const int fbMarginH = 12;
+
+// ルーティングとフィードバックを切り替えるスイッチ
+static const int switchW = 84;
+static const int switchH = 16;
+static const int switchGapH = 2;
 
 // オペレータのテーマカラー（最大8色）
+// OP8 は地の暗さに沈んで番号が読みにくかったので、白へ 0.3 寄せてある。
 static const std::array<juce::Colour, 8> opColors = {
     juce::Colours::red.brighter(0.2f), juce::Colours::orange.brighter(0.2f),
     juce::Colours::yellow.brighter(0.2f), juce::Colours::green.brighter(0.2f),
     juce::Colours::cyan.brighter(0.2f), juce::Colours::dodgerblue.brighter(0.2f),
-    juce::Colours::magenta.brighter(0.2f), juce::Colour(0xffe066ff)
+    juce::Colours::magenta.brighter(0.2f), juce::Colour(0xffe066ff).interpolatedWith(juce::Colours::white, 0.3f)
 };
+
+// ==============================================================================
+// アルゴリズム図の寸法
+// ==============================================================================
+// 3.6.3 で全体を詰めた。オペレータの箱を上下左右 2px ずつ縮め、そのぶん
+// 段と段、横に並ぶ箱どうしの間も縮めてある。
+namespace AlgGraphSize
+{
+    // オペレータの箱の半分の大きさ (箱は 10 x 10)
+    static constexpr float opHalf = 5.0f;
+
+    // 段の間隔と、横に並ぶ箱の最小の間隔
+    static constexpr float yStep = 24.0f;
+    static constexpr float minSpacing = 28.0f;
+
+    // 一番下の段 (キャリア) から下端までと、一番上の段から上端まで。
+    // 下はキャリアから出る矢印の分、上は自分自身へのフィードバックの輪の分。
+    static constexpr float bottomSpace = 16.0f;
+    static constexpr float topSpace = 12.0f;
+
+    // 横に並べるときに左右の端から空ける幅
+    static constexpr float sideSpace = 15.0f;
+
+    // 自分自身へのフィードバックの輪の半径
+    static constexpr float selfFbRadius = 4.0f;
+
+    // 他のオペレータへのフィードバックが横へ出る長さ。つなぐ先が
+    // 離れているほど外へ出して、線どうしが重ならないようにする。
+    static constexpr float fbRunBase = 4.0f;
+    static constexpr float fbRunPerOp = 3.5f;
+}
+
+int GuiFmAlgGraph::preferredHeight(int numOps, int margin)
+{
+    const int maxDepth = juce::jmax(0, numOps - 1);
+
+    return (int)std::ceil(AlgGraphSize::bottomSpace + AlgGraphSize::topSpace
+        + maxDepth * AlgGraphSize::yStep) + margin * 2;
+}
 
 // ==============================================================================
 // GuiFmAlgGraph の実装
 // ==============================================================================
 void GuiFmAlgGraph::paint(juce::Graphics& g) {
+    namespace S = AlgGraphSize;
+
     g.fillAll(juce::Colours::black.withAlpha(0.3f));
 
     std::array<juce::Point<float>, 8> pos;
@@ -97,14 +140,14 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
 
     float w = getWidth();
     float h = getHeight();
-    float yStep = 28.0f;
-    float minSpacing = 32.0f; // 横方向の最小間隔 (ノードが重ならないための距離)
+    float yStep = S::yStep;
+    const float vSpace = S::bottomSpace + S::topSpace;
 
     // 階層が深い場合(直列8段など)、yStepを動的に縮小して画面内に収める
     if (maxDepth > 0) {
-        float requiredHeight = maxDepth * yStep + 30.0f; // 30.0fは上下の余白
+        float requiredHeight = maxDepth * yStep + vSpace;
         if (requiredHeight > h) {
-            yStep = (h - 30.0f) / maxDepth;
+            yStep = (h - vSpace) / maxDepth;
         }
     }
 
@@ -113,7 +156,7 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
         int count = nodesAtDepth[d].size();
         if (count == 0) continue;
 
-        float y = h - 20.0f - d * yStep; // Depth 0 が一番下、数字が大きいほど上
+        float y = h - S::bottomSpace - d * yStep; // Depth 0 が一番下、数字が大きいほど上
 
         if (d == 0) {
             // キャリア(Depth 0)は画面幅に対して均等配置
@@ -155,16 +198,16 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
             for (int iter = 0; iter < 50; ++iter) {
                 for (int i = 0; i < count - 1; ++i) {
                     float dist = finalX[i + 1] - finalX[i];
-                    if (dist < minSpacing) {
-                        float push = (minSpacing - dist) * 0.5f;
+                    if (dist < S::minSpacing) {
+                        float push = (S::minSpacing - dist) * 0.5f;
                         finalX[i] -= push;
                         finalX[i + 1] += push;
                     }
                 }
                 // 画面端からはみ出ないように制限
                 for (int i = 0; i < count; ++i) {
-                    if (finalX[i] < 15.0f) finalX[i] = 15.0f;
-                    if (finalX[i] > w - 15.0f) finalX[i] = w - 15.0f;
+                    if (finalX[i] < S::sideSpace) finalX[i] = S::sideSpace;
+                    if (finalX[i] > w - S::sideSpace) finalX[i] = w - S::sideSpace;
                 }
             }
 
@@ -185,9 +228,10 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
         // キャリア出力矢印
         if (state.isCarrier[src]) {
             g.setColour(crrColor);
-            g.drawLine(pos[src].x, pos[src].y + 7.0f, pos[src].x, pos[src].y + 16.0f, 1.5f);
+            const float bottom = pos[src].y + S::opHalf;
+            g.drawLine(pos[src].x, bottom, pos[src].x, bottom + 9.0f, 1.5f);
             juce::Path p;
-            p.addTriangle(pos[src].x, pos[src].y + 18.0f, pos[src].x - 3.0f, pos[src].y + 14.0f, pos[src].x + 3.0f, pos[src].y + 14.0f);
+            p.addTriangle(pos[src].x, bottom + 11.0f, pos[src].x - 3.0f, bottom + 7.0f, pos[src].x + 3.0f, bottom + 7.0f);
             g.fillPath(p);
         }
 
@@ -200,9 +244,9 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
 
                 // 中心座標からスタート
                 float x1 = pos[src].x;
-                float y1 = pos[src].y + 7.0f; // srcの下端
+                float y1 = pos[src].y + S::opHalf; // srcの下端
                 float x2 = pos[dest].x;
-                float y2 = pos[dest].y - 7.0f; // destの上端
+                float y2 = pos[dest].y - S::opHalf; // destの上端
 
                 juce::Path p;
                 p.startNewSubPath(x1, y1);
@@ -230,28 +274,26 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
             }
 
             // フィードバックモジュレーション (破線 / 自己FB)
+            //
+            // 「FB」の文字は 3.6.3 でやめた。色と破線で見分けられ、
+            // 文字の分だけ横に場所を取っていた。
             if (state.fbMod[src][dest]) {
                 g.setColour(fbModColor);
                 if (src == dest) {
-                    float r = 5.0f;
-                    float cx = pos[src].x - 7.0f;
-                    float cy = pos[src].y - 7.0f;
+                    // 輪の中心は箱の左上の角に置く
+                    const float r = S::selfFbRadius;
+                    const float cx = pos[src].x - S::opHalf;
+                    const float cy = pos[src].y - S::opHalf;
                     g.drawEllipse(cx - r, cy - r, r * 2.0f, r * 2.0f, 1.0f);
-                    g.setFont(7.0f);
-                    g.drawText("FB", cx - r - 12.0f, cy - r - 4.0f, 12.0f, 8.0f, juce::Justification::centredRight);
                 }
                 else {
-                    float offsetX = -14.0f - std::abs(src - dest) * 3.5f;
-                    float sX = pos[src].x - 7.0f; float sY = pos[src].y;
-                    float eX = pos[dest].x - 7.0f; float eY = pos[dest].y;
-                    float mX = pos[src].x + offsetX;
+                    const float sX = pos[src].x - S::opHalf; const float sY = pos[src].y;
+                    const float eX = pos[dest].x - S::opHalf; const float eY = pos[dest].y;
+                    const float mX = sX - (S::fbRunBase + std::abs(src - dest) * S::fbRunPerOp);
                     const float dashLengths[] = { 2.0f, 2.0f };
                     g.drawDashedLine(juce::Line<float>(sX, sY, mX, sY), dashLengths, 2, 1.0f);
                     g.drawDashedLine(juce::Line<float>(mX, sY, mX, eY), dashLengths, 2, 1.0f);
                     g.drawDashedLine(juce::Line<float>(mX, eY, eX, eY), dashLengths, 2, 1.0f);
-                    float mY = (sY + eY) / 2.0f;
-                    g.setFont(7.0f);
-                    g.drawText("FB", mX - 14.0f, mY - 4.0f, 12.0f, 8.0f, juce::Justification::centredRight);
                 }
             }
         }
@@ -260,11 +302,12 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
     // 7. オペレータボックスの描画
     for (int i = 0; i < state.numOps; ++i) {
         if (depths[i] == -1) continue;
+        const float size = S::opHalf * 2.0f;
         g.setColour(opColors[i]);
-        g.fillRect(pos[i].x - 7.0f, pos[i].y - 7.0f, 14.0f, 14.0f);
+        g.fillRect(pos[i].x - S::opHalf, pos[i].y - S::opHalf, size, size);
         g.setColour(juce::Colours::black);
-        g.setFont(9.0f);
-        g.drawText(juce::String(i + 1), pos[i].x - 7.0f, pos[i].y - 7.0f, 14.0f, 14.0f, juce::Justification::centred);
+        g.setFont(8.0f);
+        g.drawText(juce::String(i + 1), pos[i].x - S::opHalf, pos[i].y - S::opHalf, size, size, juce::Justification::centred);
     }
 }
 
@@ -272,14 +315,29 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
 // GuiFmAlgMatrix の実装
 // ==============================================================================
 GuiFmAlgMatrix::GuiFmAlgMatrix(const GuiContext& context, int ops)
-    : GuiBaseComponent(context), numOps(ops), m_opReachable(ops, false)
+    : GuiBaseComponent(context), numOps(ops), m_opReachable(ops, false),
+    routingSw(context), feedbackSw(context)
 {
-    totalW = chkStartX + numOps * cellW + rectRadius;
-    modChkStartY = startY + labelH * 2;
-    modTotalH = rectRadius + labelH * 2 + numOps * cellH + rectRadius;
-    fbStartY = modChkStartY + numOps * cellH + rectRadius + fbMarginH + rectRadius;
-    fbChkStartY = fbStartY + labelH * 2;
-    fbTotalH = rectRadius + labelH * 2 + numOps * cellH + rectRadius;
+    // 上にスイッチの行、その下に 1 つぶんのマス目。
+    // ルーティングは「→2〜→N」と「OUT」、フィードバックは「→1〜→N」で、
+    // どちらも numOps 行になる。
+    gridW = opLabelW + numOps * cellW + rectRadius * 2;
+    naturalW = juce::jmax(gridW, switchW * 2);
+    gridX = (naturalW - gridW) / 2;
+    gridStartY = switchH + switchGapH;
+    gridChkStartY = gridStartY + rectRadius + labelH;
+    gridTotalH = rectRadius + labelH + numOps * cellH + rectRadius;
+
+    // ラジオボタンのように、どちらか一方だけが点く
+    for (auto* sw : { &routingSw, &feedbackSw })
+    {
+        sw->setup({ .parent = *this, .title = (sw == &routingSw) ? "ROUTING" : "FEEDBACK",
+            .font = juce::Font(juce::FontOptions(11.0f)) });
+        sw->setRadioGroupId(1, juce::dontSendNotification);
+        sw->onClick = [this] { repaint(); };
+    }
+
+    routingSw.setToggleState(true, juce::dontSendNotification);
 
     m_state.numOps = numOps;
 
@@ -287,6 +345,13 @@ GuiFmAlgMatrix::GuiFmAlgMatrix(const GuiContext& context, int ops)
     m_fbEnabled.assign((size_t)numOps, std::vector<bool>((size_t)numOps, false));
 
     updateValidity();
+}
+
+void GuiFmAlgMatrix::resized() {
+    auto row = juce::Rectangle<int>(0, 0, naturalW, switchH).withSizeKeepingCentre(switchW * 2, switchH);
+
+    routingSw.setBounds(row.removeFromLeft(switchW));
+    feedbackSw.setBounds(row);
 }
 
 void GuiFmAlgMatrix::paint(juce::Graphics& g) {
@@ -308,39 +373,59 @@ void GuiFmAlgMatrix::paint(juce::Graphics& g) {
         g.fillRoundedRectangle(box, radius);
         };
 
+    const bool feedback = isFeedbackShown();
+    const int labelX = gridX + rectRadius;
+    const int chkStartX = labelX + opLabelW;
+    const int labelW = opLabelW - margin;
+
     g.setColour(juce::Colours::black.withAlpha(0.5f));
-    g.fillRoundedRectangle(rectRadius, rectRadius, totalW, modTotalH, rectRadius);
-    g.fillRoundedRectangle(rectRadius, fbStartY + rectRadius, totalW, fbTotalH, rectRadius);
+    g.fillRoundedRectangle((float)gridX, (float)gridStartY, (float)gridW, (float)gridTotalH, (float)rectRadius);
 
-    for (int dest = 1; dest < numOps; ++dest) {
-        int y = modChkStartY + cellH * (dest - 1);
-        for (int src = 0; src < numOps; ++src) {
-            int x = chkStartX + src * cellW;
-            const bool permDisabled = (src >= dest);
-            const bool enabled = !permDisabled && m_modEnabled[(size_t)src][(size_t)dest];
+    g.setFont(11.0f);
 
-            if (permDisabled) {
-                g.setColour(permanentDisabledModColor); g.fillRect(x, y, cellW, cellH);
-            }
-            else if (!enabled) {
-                g.setColour(disabledModColor); g.fillRect(x, y, cellW, cellH);
-            }
-
-            if (!permDisabled) drawCell(x, y, m_state.mod[(size_t)src][(size_t)dest], enabled);
-        }
+    // 列の見出し (つなぐ元のオペレータ)
+    for (int i = 0; i < numOps; ++i) {
+        g.setColour(opColors[i]);
+        g.drawText(juce::String(i + 1), chkStartX + i * cellW, gridStartY + rectRadius, cellW, labelH, juce::Justification::centred);
     }
 
-    // 一番下の行は「出力へ出すか」。
-    {
-        int y = modChkStartY + cellH * (numOps - 1);
+    if (!feedback) {
+        for (int dest = 1; dest < numOps; ++dest) {
+            int y = gridChkStartY + cellH * (dest - 1);
+            for (int src = 0; src < numOps; ++src) {
+                int x = chkStartX + src * cellW;
+                const bool permDisabled = (src >= dest);
+                const bool enabled = !permDisabled && m_modEnabled[(size_t)src][(size_t)dest];
+
+                if (permDisabled) {
+                    g.setColour(permanentDisabledModColor); g.fillRect(x, y, cellW, cellH);
+                }
+                else if (!enabled) {
+                    g.setColour(disabledModColor); g.fillRect(x, y, cellW, cellH);
+                }
+
+                if (!permDisabled) drawCell(x, y, m_state.mod[(size_t)src][(size_t)dest], enabled);
+            }
+
+            g.setColour(opColors[dest]);
+            g.drawText("->" + juce::String(dest + 1), labelX, y, labelW, cellH, juce::Justification::centredRight);
+        }
+
+        // 一番下の行は「出力へ出すか」。
+        int outY = gridChkStartY + cellH * (numOps - 1);
 
         for (int src = 0; src < numOps; ++src) {
-            drawCell(chkStartX + src * cellW, y, m_state.isCarrier[(size_t)src], true);
+            drawCell(chkStartX + src * cellW, outY, m_state.isCarrier[(size_t)src], true);
         }
+
+        g.setColour(juce::Colours::white);
+        g.drawText("OUT", labelX, outY, labelW, cellH, juce::Justification::centredRight);
+
+        return;
     }
 
     for (int dest = 0; dest < numOps; ++dest) {
-        int y = fbChkStartY + cellH * dest;
+        int y = gridChkStartY + cellH * dest;
         for (int src = 0; src < numOps; ++src) {
             int x = chkStartX + src * cellW;
             const bool permDisabled = (src < dest);
@@ -355,39 +440,9 @@ void GuiFmAlgMatrix::paint(juce::Graphics& g) {
 
             if (!permDisabled) drawCell(x, y, m_state.fbMod[(size_t)src][(size_t)dest], enabled);
         }
-    }
 
-    g.setFont(11.0f);
-    g.setColour(juce::Colours::white.withAlpha(0.6f));
-    g.drawText("NORMAL MODULATION", startX, startY, totalW, labelH, juce::Justification::centred);
-
-    for (int i = 0; i < numOps; ++i) {
-        g.setColour(opColors[i]);
-        g.drawText(juce::String(i + 1), chkStartX + i * cellW, startY + labelH, cellW, labelH, juce::Justification::centred);
-    }
-
-    for (int dest = 1; dest < numOps; ++dest) {
-        int y = modChkStartY + cellH * (dest - 1);
         g.setColour(opColors[dest]);
-        g.drawText("->" + juce::String(dest + 1), startX, y, chkStartX - startX - margin, cellH, juce::Justification::centredRight);
-    }
-
-    int outY = modChkStartY + cellH * (numOps - 1);
-    g.setColour(juce::Colours::white);
-    g.drawText("OUT", startX, outY, chkStartX - startX - margin, cellH, juce::Justification::centredRight);
-
-    g.setColour(fbModColor.withAlpha(0.8f));
-    g.drawText("FEEDBACK MODULATION", startX, fbStartY, totalW, labelH, juce::Justification::centred);
-
-    for (int i = 0; i < numOps; ++i) {
-        g.setColour(opColors[i]);
-        g.drawText(juce::String(i + 1), chkStartX + i * cellW, fbStartY + labelH, cellW, labelH, juce::Justification::centred);
-    }
-
-    for (int dest = 0; dest < numOps; ++dest) {
-        int y = fbChkStartY + cellH * dest;
-        g.setColour(opColors[dest]);
-        g.drawText("->" + juce::String(dest + 1), startX, y, chkStartX - startX - margin, cellH, juce::Justification::centredRight);
+        g.drawText("->" + juce::String(dest + 1), labelX, y, labelW, cellH, juce::Justification::centredRight);
     }
 }
 
@@ -465,47 +520,47 @@ void GuiFmAlgMatrix::updateValidity() {
 
 void GuiFmAlgMatrix::mouseDown(const juce::MouseEvent& e) {
     const auto pos = e.getPosition();
+    const int chkStartX = gridX + rectRadius + opLabelW;
+
+    if (pos.getX() < chkStartX) return;
+    if (pos.getY() < gridChkStartY || pos.getY() >= gridChkStartY + cellH * numOps) return;
 
     // 横位置からどのオペレータの列かを出す
     const int src = (pos.getX() - chkStartX) / cellW;
 
     if (src < 0 || src >= numOps) return;
-    if (pos.getX() < chkStartX) return;
 
-    // モジュレーションの升目 (最後の 1 行は出力へ出すかどうか)
-    if (pos.getY() >= modChkStartY && pos.getY() < modChkStartY + cellH * numOps) {
-        const int row = (pos.getY() - modChkStartY) / cellH;
+    const int row = (pos.getY() - gridChkStartY) / cellH;
 
-        if (row == numOps - 1) {
-            m_state.isCarrier[(size_t)src] = !m_state.isCarrier[(size_t)src];
+    // フィードバックの升目
+    if (isFeedbackShown()) {
+        const int dest = row;
 
-            updateValidity();
+        if (!m_fbEnabled[(size_t)src][(size_t)dest]) return;
 
-            return;
-        }
-
-        const int dest = row + 1;
-
-        if (!m_modEnabled[(size_t)src][(size_t)dest]) return;
-
-        m_state.mod[(size_t)src][(size_t)dest] = !m_state.mod[(size_t)src][(size_t)dest];
+        m_state.fbMod[(size_t)src][(size_t)dest] = !m_state.fbMod[(size_t)src][(size_t)dest];
 
         updateValidity();
 
         return;
     }
 
-    // フィードバックの升目
-    if (pos.getY() >= fbChkStartY && pos.getY() < fbChkStartY + cellH * numOps) {
-        const int dest = (pos.getY() - fbChkStartY) / cellH;
-
-        if (dest < 0 || dest >= numOps) return;
-        if (!m_fbEnabled[(size_t)src][(size_t)dest]) return;
-
-        m_state.fbMod[(size_t)src][(size_t)dest] = !m_state.fbMod[(size_t)src][(size_t)dest];
+    // モジュレーションの升目 (最後の 1 行は出力へ出すかどうか)
+    if (row == numOps - 1) {
+        m_state.isCarrier[(size_t)src] = !m_state.isCarrier[(size_t)src];
 
         updateValidity();
+
+        return;
     }
+
+    const int dest = row + 1;
+
+    if (!m_modEnabled[(size_t)src][(size_t)dest]) return;
+
+    m_state.mod[(size_t)src][(size_t)dest] = !m_state.mod[(size_t)src][(size_t)dest];
+
+    updateValidity();
 }
 
 FmAlgState GuiFmAlgMatrix::getState() const {

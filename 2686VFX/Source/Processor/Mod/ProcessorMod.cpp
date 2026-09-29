@@ -204,6 +204,21 @@ void ModProcessor::prepare(double sampleRate)
 	lfoPmGate = isHeld(ModPrKey::KeyAssign::LfoPm) ? 1.0f : 0.0f;
 }
 
+void ModProcessor::reset()
+{
+	for (auto& voice : shifters)
+	{
+		for (auto& shifter : voice) shifter.reset();
+	}
+
+	wasShifting = false;
+
+	arpVoice = 0;
+	arpPhase = 0.0;
+	arpGains.fill(0.0f);
+	arpGains[0] = 1.0f;
+}
+
 // 入り切りの札を読み直す。
 //
 // 鍵盤の押し離しは、この塊の音を作るより先に届く。札の読み取りを
@@ -520,9 +535,9 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 		{
 			UnisonState state;
 
-			// 添字 0 はメインなので、ボイス単位の上乗せを持たない。
-			float paraDetune = (v > 0) ? (float)unisonParams.paraDetune[(size_t)(v - 1)] : 0.0f;
-			float paraDistance = (v > 0) ? unisonParams.paraDistance[(size_t)(v - 1)] : 0.0f;
+			// ボイス単位の上乗せ。添字はボイスの番号で、0 (元の音) も持つ。
+			float paraDetune = (float)unisonParams.paraDetune[(size_t)v];
+			float paraDistance = unisonParams.paraDistance[(size_t)v];
 
 			state.setParams(v, voices, (float)unisonParams.detuneCents, unisonParams.spread,
 				paraDetune, paraDistance);

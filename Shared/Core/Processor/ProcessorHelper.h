@@ -505,9 +505,9 @@ namespace PrHelper {
 		ptPtrs.arpFreq = apvts.getRawParameterValue(prefix + CPK::Unison::arpFreq);
 		ptPtrs.arpSmooth = apvts.getRawParameterValue(prefix + CPK::Unison::arpSmooth);
 
-		// ボイス単位の設定 (キー末尾は 1〜7 のボイス番号)
-		for (int i = 0; i < Global::unisonParaVoices; ++i) {
-			const juce::String no = juce::String(i + 1);
+		// ボイス単位の設定 (キー末尾は 0〜7 のボイス番号)
+		for (int i = 0; i < Global::unisonVoices; ++i) {
+			const juce::String no = juce::String(i);
 			ptPtrs.paraDistance[i] = apvts.getRawParameterValue(prefix + CPK::Unison::paraDistance + no);
 			ptPtrs.paraDetune[i] = apvts.getRawParameterValue(prefix + CPK::Unison::paraDetune + no);
 		}
@@ -1214,7 +1214,7 @@ namespace PrHelper {
 		params.arpFreq = getInt(ptPtrs.arpFreq);
 		params.arpSmooth = getBool(ptPtrs.arpSmooth);
 
-		for (int i = 0; i < Global::unisonParaVoices; ++i) {
+		for (int i = 0; i < Global::unisonVoices; ++i) {
 			params.paraDistance[i] = getFloat(ptPtrs.paraDistance[i]);
 			params.paraDetune[i] = getInt(ptPtrs.paraDetune[i]);
 		}
@@ -3259,9 +3259,13 @@ namespace PrHelper {
 			CPV::Unison::ArpSmooth::initial
 		);
 
-		// ボイス単位の設定 (ボイス0はメインなので 1〜7 のみ)
-		for (int i = 0; i < Global::unisonParaVoices; ++i) {
-			const juce::String no = juce::String(i + 1);
+		// ボイス単位の設定。キー末尾はボイスの番号。
+		//
+		// ボイス0 (元の音) は 3.6.3 で足した。今までのパラメータの並びを
+		// 変えないよう、1〜7 の後ろに登録する。
+		for (int n = 1; n <= Global::unisonVoices; ++n) {
+			const int i = n % Global::unisonVoices;
+			const juce::String no = juce::String(i);
 			PrHelper::addFloat(
 				layout,
 				prefix + CPK::Unison::paraDistance + no,

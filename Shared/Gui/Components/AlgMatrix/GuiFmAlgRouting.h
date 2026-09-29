@@ -16,6 +16,12 @@
 class GuiFmAlgGraph : public juce::Component {
 public:
     FmAlgState state;
+
+    // オペレータ数 numOps の図を描くのに要る高さ。置く側が上下に取る
+    // 余白 (reduced(margin)) の分も含める。直列につないだときがいちばん
+    // 縦に伸びるので、それが収まる高さにしてある。
+    static int preferredHeight(int numOps, int margin = 10);
+
     void paint(juce::Graphics& g) override;
     void updateState(const FmAlgState& s) {
         state = s;
@@ -32,12 +38,13 @@ public:
     GuiFmAlgMatrix(const GuiContext& context, int ops = 8);
 
     // マトリックスが必要とする高さ。余白の取りすぎを防ぐために使う。
-    int getNaturalHeight() const { return fbStartY + fbTotalH; }
+    int getNaturalHeight() const { return gridStartY + gridTotalH; }
 
     // マトリックスは固定寸法なので、必要な幅も外へ出す。
     // 部品ごと中央へ寄せるために親が使う。
-    int getNaturalWidth() const { return totalW; }
+    int getNaturalWidth() const { return naturalW; }
     void paint(juce::Graphics& g) override;
+    void resized() override;
 
     // マス目をクリックしたら、そこだけ入切する。
     void mouseDown(const juce::MouseEvent& e) override;
@@ -69,5 +76,16 @@ public:
 
 private:
     std::vector<bool> m_opReachable;
-    int totalW, modChkStartY, modTotalH, fbStartY, fbChkStartY, fbTotalH;
+
+    // ルーティングとフィードバックは同じ大きさのマス目なので、1 つの場所に
+    // 切り替えて出す。以前は上下に 2 つ並べていて、縦に場所を取っていた。
+    // どちらを出しているかは画面だけの状態で、保存はしない。
+    GuiToggleButton routingSw;
+    GuiToggleButton feedbackSw;
+
+    bool isFeedbackShown() const { return feedbackSw.getToggleState(); }
+
+    // マス目の左端。切り替えのスイッチの方が幅を取るので、マス目はその中央へ寄せる。
+    int gridX = 0;
+    int naturalW, gridW, gridStartY, gridChkStartY, gridTotalH;
 };

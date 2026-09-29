@@ -1,4 +1,5 @@
 ﻿#include "Shared/Core/Gui/GuiRefresh.h"
+#include "../../Gui/Preset/PresetValues.h"
 #include "../Const/ConstPlugin.h"
 #include <cstdio>
 #include <vector>
@@ -2472,4 +2473,63 @@ int AudioPlugin2686VEditor::tabForCategory(const juce::String& category)
     if (category == "PCM+") return tabAdpcmPlus;
 
     return -1;
+}
+
+// ============================================================================
+// ファイルを画面へ落として読み込む
+// ============================================================================
+// 受けるのはプリセット、チャンネルのパラメータ、FX の順番とパラメータ。
+// 読み込んだあとは、それぞれを一覧から読んだときと同じに振る舞う。
+// プリセットとチャンネルのパラメータは、そのチャンネルのタブを開く。
+AudioPlugin2686VEditor::DropKind AudioPlugin2686VEditor::dropKindOf(const juce::File& file)
+{
+    if (!file.existsAsFile()) return DropKind::none;
+
+    const auto category = GuiParamBrowser::categoryOf(file);
+
+    if (category == EditorGuiText::ParamBrowser::kindFxOrder) return DropKind::fxOrder;
+    if (category == EditorGuiText::ParamBrowser::kindFxParam) return DropKind::fxParam;
+    if (tabForCategory(category) >= 0) return DropKind::channel;
+
+    // プリセットは名前の印で見分ける。一覧のダイアログと同じ決まりを使う。
+    juce::StringArray globs;
+
+    globs.addTokens(PresetValue::File::glob, ";", "");
+
+    for (const auto& glob : globs)
+    {
+        if (file.getFileName().matchesWildcard(glob.trim(), true)) return DropKind::preset;
+    }
+
+    return DropKind::none;
+}
+
+bool AudioPlugin2686VEditor::isInterestedInFileDrag(const juce::StringArray& files)
+{
+    for (const auto& path : files)
+    {
+        if (dropKindOf(juce::File(path)) != DropKind::none) return true;
+    }
+
+    return false;
+}
+
+void AudioPlugin2686VEditor::filesDropped(const juce::StringArray& files, int x, int y)
+{
+    juce::ignoreUnused(x, y);
+
+    // 複数を落としたときは並びのとおりに読む。読めないものは飛ばす。
+    for (const auto& path : files)
+    {
+        const juce::File file(path);
+
+        switch (dropKindOf(file))
+        {
+        case DropKind::preset: loadPresetFile(file); break;
+        case DropKind::channel: applyChannelParamFile(file); break;
+        case DropKind::fxOrder: fxGui->applyFxOrderFile(file); break;
+        case DropKind::fxParam: fxGui->applyFxParamFile(file); break;
+        case DropKind::none: break;
+        }
+    }
 }

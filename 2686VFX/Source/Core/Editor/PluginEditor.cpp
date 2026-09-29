@@ -1510,3 +1510,50 @@ void AudioPlugin2686VEditor::openWaveBrowser(const juce::StringArray& allowed,
             if (onChoose) onChoose(file);
         });
 }
+
+// ============================================================================
+// ファイルを画面へ落として読み込む
+// ============================================================================
+// 受けるのは FX の順番とパラメータ。画面は切り替えない (タブが無い)。
+AudioPlugin2686VEditor::DropKind AudioPlugin2686VEditor::dropKindOf(const juce::File& file)
+{
+    if (!file.existsAsFile()) return DropKind::none;
+
+    juce::String name = file.getFileName().toLowerCase();
+
+    // JSON / YAML はどちらも同じ中身なので、後ろを落としてから見る
+    if (name.endsWith(".json") || name.endsWith(".yaml")) name = name.dropLastCharacters(5);
+
+    if (name.endsWith("." + Io::Extension::fxOrder)) return DropKind::fxOrder;
+    if (name.endsWith("." + Io::Extension::fxParam)) return DropKind::fxParam;
+
+    return DropKind::none;
+}
+
+bool AudioPlugin2686VEditor::isInterestedInFileDrag(const juce::StringArray& files)
+{
+    for (const auto& path : files)
+    {
+        if (dropKindOf(juce::File(path)) != DropKind::none) return true;
+    }
+
+    return false;
+}
+
+void AudioPlugin2686VEditor::filesDropped(const juce::StringArray& files, int x, int y)
+{
+    juce::ignoreUnused(x, y);
+
+    // 複数を落としたときは並びのとおりに読む。読めないものは飛ばす。
+    for (const auto& path : files)
+    {
+        const juce::File file(path);
+
+        switch (dropKindOf(file))
+        {
+        case DropKind::fxOrder: fxGui->applyFxOrderFile(file); break;
+        case DropKind::fxParam: fxGui->applyFxParamFile(file); break;
+        case DropKind::none: break;
+        }
+    }
+}

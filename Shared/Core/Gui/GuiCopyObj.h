@@ -330,8 +330,8 @@ struct CopyUnison {
 	bool arpEnable;
 	int arpFreq;
 	bool arpSmooth;
-	std::array<float, Global::unisonParaVoices> paraDistance;
-	std::array<int, Global::unisonParaVoices> paraDetune;
+	std::array<float, Global::unisonVoices> paraDistance;
+	std::array<int, Global::unisonVoices> paraDetune;
 };
 
 struct CopyQuality {

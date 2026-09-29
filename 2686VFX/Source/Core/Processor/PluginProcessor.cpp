@@ -148,6 +148,20 @@ void AudioPlugin2686V::releaseResources()
 }
 
 // ============================================================================
+// Reset
+// ============================================================================
+// ホストが処理を止めたとき (VST3 の setProcessing(false)) に呼ばれる。
+// 溜めてある音をすべて捨てる。残すと、処理が戻ったときに止める前の
+// 残響が一瞬出てくる。
+void AudioPlugin2686V::reset()
+{
+    prFx.clear();
+    prMod.reset();
+
+    m_outputLevel.setCurrentAndTargetValue(prFx.getLevel());
+}
+
+// ============================================================================
 // Process Block (Main Audio Processing Loop)
 // ============================================================================
 // 入ってきた音を FX へ通す。
@@ -308,7 +322,12 @@ const juce::String AudioPlugin2686V::getName() const { return Global::Plugin::na
 bool AudioPlugin2686V::acceptsMidi() const { return true; }
 bool AudioPlugin2686V::producesMidi() const { return false; }
 bool AudioPlugin2686V::isMidiEffect() const { return false; }
-double AudioPlugin2686V::getTailLengthSeconds() const { return 0.0; }
+// 残響は終わりが決まらないので「尽きない」と申告する。
+//
+// 3.6.2 までは 0 (残響なし) と答えていた。Cubase は入力が無音になると
+// VST3 の処理を止めるので、再生を止めた途端に DELAY・REVERB・ECHO と
+// 変調の溜めが中身を持ったまま凍り、次に動いたときに一瞬鳴っていた。
+double AudioPlugin2686V::getTailLengthSeconds() const { return std::numeric_limits<double>::infinity(); }
 int AudioPlugin2686V::getNumPrograms() { return 1; }
 int AudioPlugin2686V::getCurrentProgram() { return 0; }
 void AudioPlugin2686V::setCurrentProgram(int index) {}

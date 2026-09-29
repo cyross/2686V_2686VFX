@@ -99,6 +99,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     pcmGroup(context),
     pcmBypassBtn(context),
     pcmSeparator(context),
+    pcmDac(context),
     pcmBitSelector(context),
     pcmRateSelector(context),
     pcmInterpSelector(context),
@@ -826,6 +827,13 @@ void GuiFx::setup()
 
     pcmSeparator.setupComponent(*this);
 
+    // 機種を選んで「適応」を押すと、下の 3 つへまとめて入れる
+    pcmDac.setupComponent(*this, GuiComponentDac::Kind::FxPcm, tabOrder, [this](const GuiComponentDac::Values& v) {
+        pcmBitSelector.setSelectedItemIndex(v.bit, juce::sendNotification);
+        pcmRateSelector.setSelectedItemIndex(v.rate, juce::sendNotification);
+        pcmInterpSelector.setSelectedItemIndex(v.interp, juce::sendNotification);
+    });
+
     pcmBitSelector.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::Pcm::bit, .title = FxGuiText::Fx::Pcm::bit, .items = getPcmBitItems(), .isReset = true });
     pcmBitSelector.setWantsKeyboardFocus(true);
     pcmBitSelector.setExplicitFocusOrder(++tabOrder);
@@ -1202,6 +1210,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
             pcmSeparator.layoutComponent(r);
 
+            // 右端に「適応」を置くぶん、コンボボックスを狭める
+            pcmDac.layoutComponent(r, CoreGuiValue::ParamGroup::Row::height,
+                CoreGuiValue::ParamGroup::Row::paddingTop, CoreGuiValue::ParamGroup::Row::paddingBottom,
+                FxGuiValue::Fx::AreaLabelWidth,
+                FxGuiValue::Fx::AreaValueWidth - CoreGuiValue::MainGroup::Row::Dac::ApplyBtn::width,
+                CoreGuiValue::MainGroup::Row::Dac::ApplyBtn::width);
+
             layoutRow({ .rowRect = r, .label = &pcmBitSelector.label, .component = &pcmBitSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
             layoutRow({ .rowRect = r, .label = &pcmRateSelector.label, .component = &pcmRateSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
             layoutRow({ .rowRect = r, .label = &pcmInterpSelector.label, .component = &pcmInterpSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
@@ -1362,6 +1377,7 @@ void GuiFx::updatePcmEnabled() {
     bool bypassed = pcmBypassBtn.getToggleState();
 
     pcmSeparator.setEnabled(!bypassed);
+    pcmDac.setEnableds(!bypassed);
     pcmBitSelector.setEnabledWithLabel(!bypassed);
     pcmRateSelector.setEnabledWithLabel(!bypassed);
     pcmInterpSelector.setEnabledWithLabel(!bypassed);
@@ -1438,67 +1454,70 @@ void GuiFx::importFxOrder()
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxOrderFile, defaultDir, Io::ExtensionGlob::fxOrder);
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+        [this](const juce::FileChooser& fc) { applyFxOrderFile(fc.getResult()); });
+}
 
-                // 次回のダイアログ用にディレクトリを保存
-                pluginOf(ctx).defaultFxOrderDir = file.getParentDirectory().getFullPathName();
+// ダイアログからも、画面へ落としたファイルからも使うので、
+// 選ぶところと読んで反映するところを分けてある。
+void GuiFx::applyFxOrderFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
 
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
+    // 次回のダイアログ用にディレクトリを保存
+    pluginOf(ctx).defaultFxOrderDir = file.getParentDirectory().getFullPathName();
 
-                    file.readLines(lines);
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
 
-                    int index = 0;
+        file.readLines(lines);
 
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
+        int index = 0;
 
-                        setImportingFxOrder(lines, index);
-                    }
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
 
-                    Io::ParamWriter writer(fxOrderFormat);
+            setImportingFxOrder(lines, index);
+        }
 
-                    writeFxOrder(writer);
+        Io::ParamWriter writer(fxOrderFormat);
 
-                    Io::writeConverted(file, writer);
+        writeFxOrder(writer);
 
-                    return;
-                }
+        Io::writeConverted(file, writer);
 
-                auto reader = Io::ParamReader::open(file, fxOrderFormat);
+        return;
+    }
 
-                if (!reader.has_value()) return;
+    auto reader = Io::ParamReader::open(file, fxOrderFormat);
 
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
+    if (!reader.has_value()) return;
 
-                // 名前で読む。3.0.0 のはじめの形は番号だったので、
-                // 名前として読めなければ番号として読み直す。
-                auto storedNames = reader->getStringArray("order");
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
 
-                std::vector<int> newOrders;
+    // 名前で読む。3.0.0 のはじめの形は番号だったので、
+    // 名前として読めなければ番号として読み直す。
+    auto storedNames = reader->getStringArray("order");
 
-                for (const auto& name : storedNames) {
-                    int id = fxTypeFromName(name);
+    std::vector<int> newOrders;
 
-                    // 数で書かれていたときはここへ来る
-                    if (id < 0 && name.containsOnly("0123456789")) id = name.getIntValue();
+    for (const auto& name : storedNames) {
+        int id = fxTypeFromName(name);
 
-                    newOrders.push_back(id);
-                }
+        // 数で書かれていたときはここへ来る
+        if (id < 0 && name.containsOnly("0123456789")) id = name.getIntValue();
 
-                // 範囲外・重複・取りこぼしのならしは 1 箇所にまとめてある。
-                pluginOf(ctx).updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
+        newOrders.push_back(id);
+    }
 
-                updateFxOrder();
-            }
-        });
+    // 範囲外・重複・取りこぼしのならしは 1 箇所にまとめてある。
+    pluginOf(ctx).updateFxOrder(normalizeFxOrder(newOrders, NumEffects));
+
+    updateFxOrder();
 }
 
 void GuiFx::exportFxOrder()
@@ -1535,49 +1554,52 @@ void GuiFx::importFxParam()
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxParamFile, defaultDir, Io::ExtensionGlob::fxParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
+        [this](const juce::FileChooser& fc) { applyFxParamFile(fc.getResult()); });
+}
 
-                // 次回のダイアログ用にディレクトリを保存
-                pluginOf(ctx).defaultFxParamDir = file.getParentDirectory().getFullPathName();
+// ダイアログからも、画面へ落としたファイルからも使うので、
+// 選ぶところと読んで反映するところを分けてある。
+void GuiFx::applyFxParamFile(const juce::File& file)
+{
+    if (!file.existsAsFile()) return;
 
-                // 3.0.0 より前のファイルは、当時の処理で読み込んでから
-                // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
-                // 読み込みは当時のものをそのまま使う。
-                if (Io::isLegacyFile(file)) {
-                    juce::StringArray lines;
+    // 次回のダイアログ用にディレクトリを保存
+    pluginOf(ctx).defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
-                    file.readLines(lines);
+    // 3.0.0 より前のファイルは、当時の処理で読み込んでから
+    // 新しい形式へ書き出す。並び順を写し直すと取り違えるので、
+    // 読み込みは当時のものをそのまま使う。
+    if (Io::isLegacyFile(file)) {
+        juce::StringArray lines;
 
-                    int index = 0;
+        file.readLines(lines);
 
-                    {
-                        // 読み終えてからまとめて描き直す
-                        GuiRefresh::Batch batch;
+        int index = 0;
 
-                        setImportingFxParams(lines, index);
-                    }
+        {
+            // 読み終えてからまとめて描き直す
+            GuiRefresh::Batch batch;
 
-                    Io::ParamWriter writer(fxParamFormat);
+            setImportingFxParams(lines, index);
+        }
 
-                    writeFxParams(writer);
+        Io::ParamWriter writer(fxParamFormat);
 
-                    Io::writeConverted(file, writer);
+        writeFxParams(writer);
 
-                    return;
-                }
+        Io::writeConverted(file, writer);
 
-                auto reader = Io::ParamReader::open(file, fxParamFormat);
+        return;
+    }
 
-                if (!reader.has_value()) return;
+    auto reader = Io::ParamReader::open(file, fxParamFormat);
 
-                // 読み終えてからまとめて描き直す
-                GuiRefresh::Batch batch;
+    if (!reader.has_value()) return;
 
-                readFxParams(*reader);
-            }
-        });
+    // 読み終えてからまとめて描き直す
+    GuiRefresh::Batch batch;
+
+    readFxParams(*reader);
 }
 
 void GuiFx::exportFxParam()

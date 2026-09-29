@@ -138,8 +138,6 @@ class GuiFx : public GuiBase
     void updateSfcEchoEnabled();
     void importFxOrder();
 
-    // ブラウザから直に読ませるための入口。
-    void applyFxOrderFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingFxOrder(juce::StringArray& lines, int& index);
 
@@ -150,8 +148,6 @@ class GuiFx : public GuiBase
     void writeFxOrderFile(const juce::File& file);
     void importFxParam();
 
-    // ブラウザから直に読ませるための入口。
-    void applyFxParamFile(const juce::File& file);
     // 3.0.0 より前の形式を読む
     void setImportingFxParams(juce::StringArray& lines, int& index);
 
@@ -167,4 +163,8 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void layoutFxOrder(juce::Rectangle<int> rect);
     void updateFxOrder();
+
+    // ファイルを読んで反映する。ブラウザからも、画面へ落としたファイルからも使う。
+    void applyFxOrderFile(const juce::File& file);
+    void applyFxParamFile(const juce::File& file);
 };

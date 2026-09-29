@@ -14,7 +14,8 @@ struct UnisonParams {
     int arpFreq = 60;      // Hz (1 to 4000)
     bool arpSmooth = true; // 低速時のクリック対策ランプ
 
-    // ボイス単位の設定 (添字0がボイス1に対応。ボイス0はメインなので持たない)
-    std::array<float, Global::unisonParaVoices> paraDistance{};
-    std::array<int, Global::unisonParaVoices> paraDetune{};
+    // ボイス単位の設定。添字がそのままボイスの番号になる。
+    // ボイス0 (元の音) は 3.6.3 で足した。それまではボイス1〜7だけだった。
+    std::array<float, Global::unisonVoices> paraDistance{};
+    std::array<int, Global::unisonVoices> paraDetune{};
 };

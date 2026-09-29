@@ -52,14 +52,14 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
     arpSmooth.setWantsKeyboardFocus(true);
     arpSmooth.setExplicitFocusOrder(++tabOrder);
 
-    // ボイス単位の設定
-    // ボイス0はメイン(素の音程・定位)なので対象外。1〜7 を切り替えて編集する
+    // ボイス単位の設定。0〜7 を切り替えて編集する。
+    // ボイス0 (元の音) は 3.6.3 で対象に入れた。
     paraSeparator.setupComponent(parent);
 
     paramCode = code;
 
     targetVoice.setup({ .parent = parent, .title = "VOICES", .isReset = false });
-    targetVoice.setRange(1.0, (double)Global::unisonParaVoices, 1.0);
+    targetVoice.setRange(0.0, (double)(Global::unisonVoices - 1), 1.0);
     targetVoice.setNumDecimalPlacesToDisplay(0);
     targetVoice.setWantsKeyboardFocus(true);
     targetVoice.setExplicitFocusOrder(++tabOrder);
@@ -91,15 +91,16 @@ void GuiComponentUnison::rebindParaSliders()
 
 // ボイス単位の設定はスライダーに1組しか束縛されていないため、
 // 保存・読込・コピーでは APVTS から全ボイス分を直接読み書きする。
+// voiceIndex はボイスの番号 (0〜7)。
 float GuiComponentUnison::getParaValue(const juce::String& key, int voiceIndex)
 {
-    auto* v = ctx.apvts.getRawParameterValue(paramCode + key + juce::String(voiceIndex + 1));
+    auto* v = ctx.apvts.getRawParameterValue(paramCode + key + juce::String(voiceIndex));
     return (v != nullptr) ? v->load() : 0.0f;
 }
 
 void GuiComponentUnison::setParaValue(const juce::String& key, int voiceIndex, float value)
 {
-    if (auto* p = ctx.apvts.getParameter(paramCode + key + juce::String(voiceIndex + 1)))
+    if (auto* p = ctx.apvts.getParameter(paramCode + key + juce::String(voiceIndex)))
     {
         p->setValueNotifyingHost(p->convertTo0to1(value));
     }
@@ -152,7 +153,7 @@ void GuiComponentUnison::copyParams(CopyUnison& copyObj) {
     copyObj.arpFreq = arpFreq.getValue();
     copyObj.arpSmooth = arpSmooth.getToggleState();
 
-    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+    for (int i = 0; i < Global::unisonVoices; ++i) {
         copyObj.paraDistance[i] = getParaValue(CPK::Unison::paraDistance, i);
         copyObj.paraDetune[i] = (int)getParaValue(CPK::Unison::paraDetune, i);
     }
@@ -166,7 +167,7 @@ void GuiComponentUnison::pasteParams(CopyUnison& copyObj) {
     arpFreq.setValue(copyObj.arpFreq, juce::sendNotification);
     arpSmooth.setToggleState(copyObj.arpSmooth, juce::sendNotification);
 
-    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+    for (int i = 0; i < Global::unisonVoices; ++i) {
         setParaValue(CPK::Unison::paraDistance, i, copyObj.paraDistance[i]);
         setParaValue(CPK::Unison::paraDetune, i, (float)copyObj.paraDetune[i]);
     }
@@ -266,10 +267,11 @@ void GuiComponentUnison::setImportingParams(juce::StringArray& lines, int& index
     arpFreq.setValue(lines[index++].getIntValue(), juce::sendNotification);
     arpSmooth.setToggleState(lines[index++].getIntValue() != 0, juce::sendNotification);
 
-    // ボイス単位の設定も後から追加したため、無ければ既定値のままにする
-    if (index + Global::unisonParaVoices * 2 - 1 >= lines.size()) return;
+    // ボイス単位の設定も後から追加したため、無ければ既定値のままにする。
+    // この形式にはボイス1〜7だけが並ぶ (ボイス0は 3.6.3 で足した)。
+    if (index + (Global::unisonVoices - 1) * 2 - 1 >= lines.size()) return;
 
-    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+    for (int i = 1; i < Global::unisonVoices; ++i) {
         setParaValue(CPK::Unison::paraDistance, i, lines[index++].getFloatValue());
         setParaValue(CPK::Unison::paraDetune, i, (float)lines[index++].getIntValue());
     }
@@ -285,7 +287,7 @@ juce::String GuiComponentUnison::getExportedParams() {
     content += juce::String(arpFreq.getValue()) + "\n";
     content += juce::String(arpSmooth.getToggleState() ? 1 : 0) + "\n";
 
-    for (int i = 0; i < Global::unisonParaVoices; ++i) {
+    for (int i = 1; i < Global::unisonVoices; ++i) {
         content += juce::String(getParaValue(CPK::Unison::paraDistance, i), Global::floatDecimalPlaces) + "\n";
         content += juce::String((int)getParaValue(CPK::Unison::paraDetune, i)) + "\n";
     }
@@ -295,6 +297,9 @@ juce::String GuiComponentUnison::getExportedParams() {
 
 // ボイスごとの設定は並びとして持つ。名前に番号を混ぜずに済み、
 // 書かれていないボイスは今の値のままになる。
+//
+// 並び (paraVoices) の 1 つ目はボイス1。ボイス0 (元の音) は 3.6.3 で
+// 足したもので、並びをずらさないよう mainVoice として別に持つ。
 void GuiComponentUnison::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
     auto r = reader.child(key);
@@ -307,13 +312,17 @@ void GuiComponentUnison::readParams(const Io::ParamReader& reader, const juce::S
     arpFreq.setValue(r.getInt("arpFreq", (int)arpFreq.getValue()), juce::sendNotification);
     arpSmooth.setToggleState(r.getBool("arpSmooth", arpSmooth.getToggleState()), juce::sendNotification);
 
-    for (int i = 0; i < Global::unisonParaVoices; ++i) {
-        auto voice = r.arrayItem("paraVoices", i);
-
+    auto readVoice = [this](const Io::ParamReader& voice, int i) {
         setParaValue(CPK::Unison::paraDistance, i,
             voice.getFloat("distance", getParaValue(CPK::Unison::paraDistance, i)));
         setParaValue(CPK::Unison::paraDetune, i,
             (float)voice.getInt("detune", (int)getParaValue(CPK::Unison::paraDetune, i)));
+    };
+
+    readVoice(r.child("mainVoice"), 0);
+
+    for (int i = 1; i < Global::unisonVoices; ++i) {
+        readVoice(r.arrayItem("paraVoices", i - 1), i);
     }
 }
 
@@ -329,10 +338,14 @@ void GuiComponentUnison::writeParams(Io::ParamWriter& writer, const juce::String
     w.set("arpFreq", (int)arpFreq.getValue());
     w.set("arpSmooth", arpSmooth.getToggleState());
 
-    for (int i = 0; i < Global::unisonParaVoices; ++i) {
-        auto voice = w.arrayItem("paraVoices", i);
-
+    auto writeVoice = [this](Io::ParamWriter voice, int i) {
         voice.set("distance", getParaValue(CPK::Unison::paraDistance, i));
         voice.set("detune", (int)getParaValue(CPK::Unison::paraDetune, i));
+    };
+
+    writeVoice(w.child("mainVoice"), 0);
+
+    for (int i = 1; i < Global::unisonVoices; ++i) {
+        writeVoice(w.arrayItem("paraVoices", i - 1), i);
     }
 }

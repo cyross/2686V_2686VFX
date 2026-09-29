@@ -17,9 +17,14 @@
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
+#include "./QualityDac.h"
 
 class QualityPcm : public GuiBase {
     GuiCategoryLabel qualityCat;
+
+    // 実機に合わせて BIT・RATE・INTERP をまとめて入れる
+    GuiComponentDac dac;
+
     GuiComboBox modeSelector;
     GuiComboBox rateSelector;
     GuiComboBox interpSelector;
@@ -46,6 +51,7 @@ public:
     QualityPcm(const GuiContext& context) :
         GuiBase(context),
         qualityCat(context),
+        dac(context),
 		modeSelector(context),
 		rateSelector(context),
 		interpSelector(context),
@@ -76,6 +82,7 @@ public:
 	void setInterp(int index) { interpSelector.setSelectedItemIndex(index, juce::sendNotification); }
 	void setVisibles(bool visible) {
 		qualityCat.setVisible(visible);
+		dac.setVisibles(visible);
 		modeSelector.setVisibleWithLabel(visible);
 		rateSelector.setVisibleWithLabel(visible);
 		interpSelector.setVisibleWithLabel(visible);
@@ -89,6 +96,7 @@ public:
 		outerEnabled = enabled;
 
 		qualityCat.setEnabled(enabled);
+		dac.setEnableds(enabled);
 		modeSelector.setEnabled(enabled);
 		rateSelector.setEnabled(enabled);
 		interpSelector.setEnabled(enabled);

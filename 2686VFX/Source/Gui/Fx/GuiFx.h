@@ -20,6 +20,7 @@
 #include "Shared/Gui/Components/Unison/Unison.h"
 #include "Shared/Gui/Components/Level/Level.h"
 #include "Shared/Gui/Components/Quality/QualityPcm.h"
+#include "Shared/Gui/Components/Quality/QualityDac.h"
 #include "Shared/Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
@@ -196,6 +197,9 @@ class GuiFx : public GuiBase, private juce::Timer
 
     GuiToggleButton pcmBypassBtn;
     NormalSeparator pcmSeparator;
+
+    // 実機に合わせて BIT・RATE・INTERP をまとめて入れる
+    GuiComponentDac pcmDac;
     GuiComboBox pcmBitSelector, pcmRateSelector, pcmInterpSelector;
 
     // ビットの一覧は QUALITY のものを借りるが、頭の 12 個だけを出す。
@@ -273,4 +277,8 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void layoutFxOrder(juce::Rectangle<int> rect);
     void updateFxOrder();
+
+    // ファイルを読んで反映する。ブラウザからも、画面へ落としたファイルからも使う。
+    void applyFxOrderFile(const juce::File& file);
+    void applyFxParamFile(const juce::File& file);
 };

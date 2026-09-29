@@ -380,8 +380,8 @@ struct PrPtrsUnison {
     std::atomic<float>* arpEnable = nullptr;
     std::atomic<float>* arpFreq = nullptr;
     std::atomic<float>* arpSmooth = nullptr;
-    std::array<std::atomic<float>*, Global::unisonParaVoices> paraDistance{};
-    std::array<std::atomic<float>*, Global::unisonParaVoices> paraDetune{};
+    std::array<std::atomic<float>*, Global::unisonVoices> paraDistance{};
+    std::array<std::atomic<float>*, Global::unisonVoices> paraDetune{};
 };
 
 struct PrPtrsToneNoise {

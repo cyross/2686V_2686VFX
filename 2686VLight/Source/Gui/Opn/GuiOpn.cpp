@@ -513,7 +513,7 @@ void GuiOpn::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(OpnGuiValue::Category::paddingTop);
 
-    auto graphArea = mRect.removeFromTop(150); // 描画領域確保
+    auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(OpnPrValue::ops)); // 描画領域確保
     algStaticGraphComp.setBounds(graphArea.reduced(10));
 
     algFbSep.layoutComponent(mRect);
@@ -1419,6 +1419,15 @@ void GuiOpn::setupOpGraphWiring()
     ssgSwPEnv11.setupGraph(repaintGraph);
 }
 
+// すべてのオペレータの枠を描き直す。
+//
+// つまみから描き直すのは TARGET で選んでいるオペレータだけなので、
+// ファイルを読み込んだあとは、ほかの枠が前の値のまま残っていた。
+void GuiOpn::updateOpGraphs()
+{
+    for (int i = 0; i < OpnPrValue::ops; ++i) updateOpGraph(i);
+}
+
 // 枠に出すエンベロープを描き直す。
 //
 // 枠はオペレータの数だけ同時に出るので、値をつまみから読むわけには
@@ -2090,6 +2099,8 @@ void GuiOpn::applyChParamFile(const juce::File& file) {
             setImportingChParams(lines, index);
         }
 
+        updateOpGraphs();
+
         Io::ParamWriter writer(opnFormat);
 
         writeChParams(writer);
@@ -2108,6 +2119,8 @@ void GuiOpn::applyChParamFile(const juce::File& file) {
     GuiRefresh::Batch batch;
 
     readChParams(*reader);
+
+    updateOpGraphs();
 }
 
 void GuiOpn::exportChParam()
@@ -2168,6 +2181,8 @@ void GuiOpn::applyOpChParamFile(int opIndex, const juce::File& file)
             setImportingOpChFileParams(opIndex, lines, index);
         }
 
+        updateOpGraph(opIndex);
+
         Io::ParamWriter writer(opnOpFormat);
 
         writeOpChFileParams(opIndex, writer);
@@ -2188,6 +2203,8 @@ void GuiOpn::applyOpChParamFile(int opIndex, const juce::File& file)
     updateAlgorithmDisplay();
 
     readOpParams(opIndex, *reader);
+
+    updateOpGraph(opIndex);
 }
 
 void GuiOpn::exportOpChParam(int opIndex)

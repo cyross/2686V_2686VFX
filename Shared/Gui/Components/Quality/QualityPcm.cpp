@@ -9,6 +9,20 @@
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 
+namespace
+{
+    // DAC の行。ラベルは他の行と揃え、ボタンのぶんをコンボボックスから削る。
+    void layoutDacRow(GuiComponentDac& dac, juce::Rectangle<int>& rect, int rowHeight, int paddingTop, int paddingBottom)
+    {
+        namespace Row = CoreGuiValue::MainGroup::Row;
+
+        dac.layoutComponent(rect, rowHeight, paddingTop, paddingBottom,
+            CoreGuiValue::MainGroup::Label::width,
+            CoreGuiValue::MainGroup::Value::width - Row::Dac::ApplyBtn::width,
+            Row::Dac::ApplyBtn::width);
+    }
+}
+
 // 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM
 // 13: YM2608 ADPCM, 14: 1bit DPCM, 15: SNES BRR, 16: PS1 VAG, 17: IMA ADPCM,
 // 18: CD-ROM XA, 19: YMZ280B, 20: K053260, 21: K054539
@@ -83,6 +97,13 @@ std::vector<SelectItem> QualityPcm::nrLpfItems()
 
 void QualityPcm::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
     qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
+
+    // 機種を選んで「適応」を押すと、下の 3 つへまとめて入れる
+    dac.setupComponent(parent, GuiComponentDac::Kind::QualityPcm, tabOrder, [this](const GuiComponentDac::Values& v) {
+        modeSelector.setSelectedItemIndex(v.bit, juce::sendNotification);
+        rateSelector.setSelectedItemIndex(v.rate, juce::sendNotification);
+        interpSelector.setSelectedItemIndex(v.interp, juce::sendNotification);
+    });
 
     modeSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::mode, .title = "BIT RATE", .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
@@ -165,6 +186,7 @@ void QualityPcm::layoutComponent(juce::Rectangle<int>& rect) {
 
     bool visible = qualityCat.isDetailVisible();
 
+    dac.setVisibles(visible);
     modeSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
     interpSelector.setVisibleWithLabel(visible);
@@ -176,6 +198,7 @@ void QualityPcm::layoutComponent(juce::Rectangle<int>& rect) {
 
     if (visible)
     {
+        layoutDacRow(dac, rect, CoreGuiValue::MainGroup::Row::height, CoreGuiValue::MainGroup::Row::paddingTop, CoreGuiValue::MainGroup::Row::paddingBottom);
         layoutMain({ .mainRect = rect, .label = &modeSelector.label, .component = &modeSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutMain({ .mainRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
@@ -195,6 +218,7 @@ void QualityPcm::layoutComponentRow(juce::Rectangle<int>& rect) {
 
     bool visible = qualityCat.isDetailVisible();
 
+    dac.setVisibles(visible);
     modeSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
     interpSelector.setVisibleWithLabel(visible);
@@ -206,6 +230,7 @@ void QualityPcm::layoutComponentRow(juce::Rectangle<int>& rect) {
 
     if (visible)
     {
+        layoutDacRow(dac, rect, CoreGuiValue::ParamGroup::Row::height, CoreGuiValue::ParamGroup::Row::paddingTop, CoreGuiValue::ParamGroup::Row::paddingBottom);
         layoutRow({ .rowRect = rect, .label = &modeSelector.label, .component = &modeSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });

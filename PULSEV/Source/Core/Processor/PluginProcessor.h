@@ -105,15 +105,14 @@ public:
         const int detune = unison.detuneCents;
         const float spread = unison.spread;
 
-        // ボイス0はメイン(素の音程・定位)なので Para は適用しない。
-        // ボイス1以降が paraXxx[0..] に対応する。
+        // paraXxx の添字はボイスの番号。ボイス0 (元の音) も持つ。
         auto paraDetuneOf = [&unison](int i) -> float {
-            if (i < 1 || i > Global::unisonParaVoices) return 0.0f;
-            return (float)unison.paraDetune[i - 1];
+            if (i < 0 || i >= Global::unisonVoices) return 0.0f;
+            return (float)unison.paraDetune[(size_t)i];
             };
         auto paraDistanceOf = [&unison](int i) -> float {
-            if (i < 1 || i > Global::unisonParaVoices) return 0.0f;
-            return unison.paraDistance[i - 1];
+            if (i < 0 || i >= Global::unisonVoices) return 0.0f;
+            return unison.paraDistance[(size_t)i];
             };
 
         int uVoices = voices; // (※モードに応じて切り替えるように後で調整)
