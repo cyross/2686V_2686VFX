@@ -315,7 +315,8 @@ private:
 //   GATE  直流を取ってから、GATE.LV より小さい音を 0 まで絞る
 //   LPF   RATE の帯域の上端 (ナイキスト) の 9 割・7 割・5 割から上を削る。
 //         PCM ビットクラッシャーの後ろに置き、同じ RATE を選ぶと、
-//         補間の折り返しや粗い量子化のざらつきが取れる
+//         補間の折り返しや粗い量子化のざらつきが取れる。
+//         RATE を通さないときは、ホストのレートを基準にする
 class FxNr : public FxCore
 {
 public:
@@ -323,7 +324,7 @@ public:
     void process(juce::AudioBuffer<float>& buffer) override;
     void clear() override;
 
-    void setNrParameters(int rateIndex, bool gate, float gateDb, int lpfLevel, float mix);
+    void setNrParameters(int rateIndex, bool rateBypass, bool gate, float gateDb, int lpfLevel, float mix);
 private:
     void update();
 
@@ -332,6 +333,7 @@ private:
     double hostRate = 44100.0;
 
     int rateIndex = 9;
+    bool rateBypass = false;
     bool gate = false;
     float gateDb = -60.0f;
     int lpfLevel = 1;
@@ -351,7 +353,7 @@ public:
     void setSfcEchoParams(float time, float fb, float mix, const std::array<float, 8>& firCoefs);
     void setPcmBitCrusherParams(int bit, int rate, int interp, float mix);
     void setPcmBitCrusherResample(bool resample);
-    void setNoiseReductionParams(int rate, bool gate, float gateDb, int lpf, float mix);
+    void setNoiseReductionParams(int rate, bool rateBypass, bool gate, float gateDb, int lpf, float mix);
 
     void prepare(double sampleRate);
     void process(juce::AudioBuffer<float>& buffer);

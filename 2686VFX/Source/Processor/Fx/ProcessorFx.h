@@ -45,6 +45,7 @@ class FxProcessor : public PrBase
 
     std::atomic<float>* pNrBypass = nullptr;
     std::atomic<float>* pNrRate = nullptr;
+    std::atomic<float>* pNrRateBypass = nullptr;
     std::atomic<float>* pNrGate = nullptr;
     std::atomic<float>* pNrGateLevel = nullptr;
     std::atomic<float>* pNrLpf = nullptr;

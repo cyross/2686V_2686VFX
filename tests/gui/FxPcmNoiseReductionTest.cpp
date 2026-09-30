@@ -121,6 +121,7 @@ TEST_CASE("2686VFX NR: 既定ではどれも切れていて、ノイズリダク
     CHECK(valueOf(*processor, pcm + FxPrKey::Pcm::nrResample) == 0.0f);
 
     CHECK(valueOf(*processor, nr + FxPrKey::bypass) == 1.0f);
+    CHECK(valueOf(*processor, nr + FxPrKey::Nr::rateBypass) == 0.0f);   // RATE を通す
     CHECK(valueOf(*processor, nr + FxPrKey::Nr::gate) == 0.0f);
     CHECK(valueOf(*processor, nr + FxPrKey::Nr::lpf) == 1.0f);   // 1: 切
 }
@@ -233,4 +234,26 @@ TEST_CASE("2686VFX NR: LPF の切れ目は RATE で決まる")
     INFO("16k " << at16k << " 8k " << at8k);
 
     CHECK(at8k < at16k * 0.7f);
+}
+
+TEST_CASE("2686VFX NR: RATE を通さないと、LPF はホストのレートを基準にする")
+{
+    // 6kHz は、RATE 16kHz の「強」(4kHz から上) では削られるが、
+    // ホスト 48kHz の「強」(12kHz から上) ではほぼそのまま通る
+    auto run = [](bool rateBypass) {
+        return rmsOfTail(6000.0, 0.25f, [rateBypass](AudioPlugin2686V& p) {
+            enableNr(p);
+            setReal(p, nr + FxPrKey::Nr::lpf, 4.0f);
+            setReal(p, nr + FxPrKey::Nr::rateBypass, rateBypass ? 1.0f : 0.0f);
+        });
+    };
+
+    const float plain = rmsOfTail(6000.0, 0.25f, [](AudioPlugin2686V&) {});
+    const float withRate = run(false);
+    const float withoutRate = run(true);
+
+    INFO("plain " << plain << " rate " << withRate << " no rate " << withoutRate);
+
+    CHECK(withRate < plain * 0.5f);
+    CHECK(withoutRate > plain * 0.9f);
 }

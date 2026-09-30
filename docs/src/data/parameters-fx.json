@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDumpFx",
   "version": "3.6.3",
-  "count": 353,
+  "count": 354,
   "parameters": [
     {
       "id": "MODE",
@@ -504,6 +504,14 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "FX_NR_RATE_BYPASS",
+      "name": "FX Noise Reduction Rate Bypass",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "MOD_ENV_BYPASS",

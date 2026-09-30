@@ -860,14 +860,16 @@ void FxNr::clear()
     reducer[1].reset();
 }
 
-void FxNr::setNrParameters(int newRateIndex, bool newGate, float newGateDb, int newLpfLevel, float mix)
+void FxNr::setNrParameters(int newRateIndex, bool newRateBypass, bool newGate, float newGateDb, int newLpfLevel, float mix)
 {
     wetLevel = mix;
 
     // 毎ブロック呼ばれる。変わったときだけ組み直す。
-    if (newRateIndex == rateIndex && newGate == gate && newGateDb == gateDb && newLpfLevel == lpfLevel) return;
+    if (newRateIndex == rateIndex && newRateBypass == rateBypass && newGate == gate
+        && newGateDb == gateDb && newLpfLevel == lpfLevel) return;
 
     rateIndex = newRateIndex;
+    rateBypass = newRateBypass;
     gate = newGate;
     gateDb = newGateDb;
     lpfLevel = newLpfLevel;
@@ -878,7 +880,8 @@ void FxNr::setNrParameters(int newRateIndex, bool newGate, float newGateDb, int 
 void FxNr::update()
 {
     // 帯域の上端は RATE のナイキスト。出力のナイキストに対する割合で渡す。
-    const double contentRatio = (hostRate > 0.0) ? (getTargetRate(rateIndex) / hostRate) : 1.0;
+    // RATE を通さないときは、出力のナイキストそのもの (割合 1) にする。
+    const double contentRatio = (rateBypass || hostRate <= 0.0) ? 1.0 : (getTargetRate(rateIndex) / hostRate);
 
     for (auto& r : reducer)
     {
@@ -950,7 +953,7 @@ void EffectChain::setEq3bParams(float lowGainDb, float midFreq, float midGainDb,
 void EffectChain::setSfcEchoParams(float time, float fb, float mix, const std::array<float, 8>& firCoefs) { sfcEcho.setParameters(time, fb, mix, firCoefs); }
 void EffectChain::setPcmBitCrusherParams(int bit, int rate, int interp, float mix) { pcmBitCrusher.setPcmParameters(bit, rate, interp, mix); }
 void EffectChain::setPcmBitCrusherResample(bool resample) { pcmBitCrusher.setResample(resample); }
-void EffectChain::setNoiseReductionParams(int rate, bool gate, float gateDb, int lpf, float mix) { noiseReduction.setNrParameters(rate, gate, gateDb, lpf, mix); }
+void EffectChain::setNoiseReductionParams(int rate, bool rateBypass, bool gate, float gateDb, int lpf, float mix) { noiseReduction.setNrParameters(rate, rateBypass, gate, gateDb, lpf, mix); }
 
 void EffectChain::process(juce::AudioBuffer<float>& buffer)
 {

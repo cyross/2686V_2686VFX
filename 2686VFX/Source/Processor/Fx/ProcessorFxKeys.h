@@ -71,6 +71,7 @@ namespace FxPrKey
 	namespace Nr
 	{
 		static inline const juce::String rate = "_RATE";
+		static inline const juce::String rateBypass = "_RATE_BYPASS";
 		static inline const juce::String gate = "_GATE";
 		static inline const juce::String gateLevel = "_GATE_LV";
 		static inline const juce::String lpf = "_LPF";

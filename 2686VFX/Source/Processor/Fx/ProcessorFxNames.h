@@ -60,6 +60,7 @@ namespace FxPrName
 	{
 		static inline const juce::String bypass = " Bypass";
 		static inline const juce::String rate = " Rate";
+		static inline const juce::String rateBypass = " Rate Bypass";
 		static inline const juce::String gate = " Gate";
 		static inline const juce::String gateLevel = " Gate Level";
 		static inline const juce::String lpf = " Low-pass";

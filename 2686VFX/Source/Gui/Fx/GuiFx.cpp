@@ -112,6 +112,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     nrBypassBtn(context),
     nrSeparator(context),
     nrRateSelector(context),
+    nrRateBypassToggle(context),
     nrGateToggle(context),
     nrGateLevelSlider(context),
     nrLpfSelector(context),
@@ -901,6 +902,11 @@ void GuiFx::setup()
     nrRateSelector.setWantsKeyboardFocus(true);
     nrRateSelector.setExplicitFocusOrder(++tabOrder);
 
+    // RATE を通さない。入れると LPF はホストのレートを基準にする。
+    nrRateBypassToggle.setup({ .parent = *this, .id = nrPrefix + FxPrKey::Nr::rateBypass, .title = FxGuiText::Fx::Nr::rateBypass, .isReset = true });
+    nrRateBypassToggle.setWantsKeyboardFocus(true);
+    nrRateBypassToggle.setExplicitFocusOrder(++tabOrder);
+
     nrGateToggle.setup({ .parent = *this, .id = nrPrefix + FxPrKey::Nr::gate, .title = FxGuiText::Fx::Nr::gate, .isReset = true });
     nrGateToggle.setWantsKeyboardFocus(true);
     nrGateToggle.setExplicitFocusOrder(++tabOrder);
@@ -935,6 +941,9 @@ void GuiFx::setup()
 
     // GATE.LV はゲートを入れたときだけ効く。どこから切り替わっても追う。
     nrGateToggle.watchToggle([this] { updateNrEnabled(); });
+
+    // RATE は通しているときだけ効く
+    nrRateBypassToggle.watchToggle([this] { updateNrEnabled(); });
 
     // 変調の中身は最初から開いておく。FX タブでは 1 枠が小さく、
     // たたまれていると何が入っているのか分からないため。
@@ -1265,6 +1274,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
             nrSeparator.layoutComponent(r);
 
             layoutRow({ .rowRect = r, .label = &nrRateSelector.label, .component = &nrRateSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .component = &nrRateBypassToggle });
             layoutRow({ .rowRect = r, .component = &nrGateToggle });
             layoutRow({ .rowRect = r, .label = &nrGateLevelSlider.label, .component = &nrGateLevelSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
             layoutRow({ .rowRect = r, .label = &nrLpfSelector.label, .component = &nrLpfSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
@@ -1480,7 +1490,10 @@ void GuiFx::updateNrEnabled() {
     bool bypassed = nrBypassBtn.getToggleState();
 
     nrSeparator.setEnabled(!bypassed);
-    nrRateSelector.setEnabledWithLabel(!bypassed);
+    nrRateBypassToggle.setEnabled(!bypassed);
+
+    // RATE は通しているときだけ効く
+    nrRateSelector.setEnabledWithLabel(!bypassed && !nrRateBypassToggle.getToggleState());
     nrGateToggle.setEnabled(!bypassed);
 
     // GATE.LV はゲートを入れたときだけ効く
@@ -1923,6 +1936,7 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
 
         noiseReduction.set("bypass", nrBypassBtn.getToggleState());
         noiseReduction.set("rate", nrRateSelector.getSelectedItemIndex());
+        noiseReduction.set("rateBypass", nrRateBypassToggle.getToggleState());
         noiseReduction.set("gate", nrGateToggle.getToggleState());
         noiseReduction.set("gateLevel", (float)nrGateLevelSlider.getValue());
         noiseReduction.set("lpf", nrLpfSelector.getSelectedItemIndex());
@@ -2046,6 +2060,7 @@ void GuiFx::readFxParams(const Io::ParamReader& reader)
 
         nrBypassBtn.setToggleState(noiseReduction.getBool("bypass", FxPrValue::Bypass::initial), juce::sendNotification);
         nrRateSelector.setSelectedItemIndex(noiseReduction.getInt("rate", FxPrValue::Nr::Rate::initial - FxPrValue::Nr::Rate::min), juce::sendNotification);
+        nrRateBypassToggle.setToggleState(noiseReduction.getBool("rateBypass", FxPrValue::Nr::rateBypass), juce::sendNotification);
         nrGateToggle.setToggleState(noiseReduction.getBool("gate", FxPrValue::Nr::gate), juce::sendNotification);
         nrGateLevelSlider.setValue(noiseReduction.getFloat("gateLevel", FxPrValue::Nr::GateLevel::initial), juce::sendNotification);
         nrLpfSelector.setSelectedItemIndex(noiseReduction.getInt("lpf", FxPrValue::Nr::Lpf::initial - FxPrValue::Nr::Lpf::min), juce::sendNotification);

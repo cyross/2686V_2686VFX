@@ -221,6 +221,9 @@ class GuiFx : public GuiBase, private juce::Timer
     GuiToggleButton nrBypassBtn;
     NormalSeparator nrSeparator;
     GuiComboBox nrRateSelector;
+
+    // RATE を通さない (LPF はホストのレートを基準にする)
+    GuiToggleButton nrRateBypassToggle;
     GuiToggleButton nrGateToggle;
     GuiSlider nrGateLevelSlider;
     GuiComboBox nrLpfSelector;

@@ -42,7 +42,7 @@ a nested block of its own.
 | `eq3band` | `bypass` / `lowGainDb` / `midFreq` / `midGainDb` / `highGainDb` / `mix` |
 | `sfcEcho` | `bypass` / `time` / `fb` / `firCoef0` / `firCoef1` / `firCoef2` / `firCoef3` / `firCoef4` / `firCoef5` / `firCoef6` / `firCoef7` / `mix` |
 | `pcmBitCrusher` | `bypass` / `bits` / `rate` / `interp` / `mix` / `nrResample` |
-| `noiseReduction` | `bypass` / `rate` / `gate` / `gateLevel` / `lpf` / `mix` |
+| `noiseReduction` | `bypass` / `rate` / `rateBypass` / `gate` / `gateLevel` / `lpf` / `mix` |
 
 Every effect has a `bypass`, and **true means it is taken out**. `mix` is 0.0
 for the dry signal alone and 1.0 for the effect alone.

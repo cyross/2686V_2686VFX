@@ -824,6 +824,23 @@ TEST_CASE("NR: 部品が枠の中に収まり、GATE.LV はゲートを入れた
 
             gateParam->setValueNotifyingHost(original);
 
+#if defined(GUI_TEST_IS_FX)
+            // RATE を通さないあいだは、RATE を選べない
+            {
+                auto* rate = find("FX_NR_RATE");
+                auto* rateBypass = env.processor->apvts.getParameter("FX_NR_RATE_BYPASS");
+
+                REQUIRE(rate != nullptr);
+                REQUIRE(rateBypass != nullptr);
+
+                rateBypass->setValueNotifyingHost(1.0f);
+                CHECK_FALSE(rate->isEnabled());
+
+                rateBypass->setValueNotifyingHost(0.0f);
+                CHECK(rate->isEnabled());
+            }
+#endif
+
             if (bypass != nullptr) bypass->setValueNotifyingHost(originalBypass);
 
             ++checked;

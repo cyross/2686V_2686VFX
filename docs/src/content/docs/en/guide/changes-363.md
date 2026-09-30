@@ -127,7 +127,7 @@ The noise reduction from the instruments' QUALITY(PCM) is now available in 2686V
 
 - A new effect, **[Noise reduction](/2686V_2686VFX/en/fx/noise-reduction/)** —
   QUALITY(PCM)'s **GATE** (pulls quiet sound down to 0) and **LPF** (high cut).
-  **RATE** sets where the LPF cuts. Place it after the PCM bit crusher with the
+  **RATE** sets where the LPF cuts (or the host's rate, with **RATE: Bypass** on). Place it after the PCM bit crusher with the
   same RATE and it acts just as it does in the instruments
 - **NR: Resample** in the **[PCM bit crusher](/2686V_2686VFX/en/fx/pcm-bitcrusher/)** —
   cuts the highs before decimating so they do not alias. It only makes sense

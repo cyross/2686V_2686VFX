@@ -12,6 +12,7 @@ The **gate** and the **high cut** that the instruments' [QUALITY(PCM)](/2686V_26
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
 | **RATE** | The sample rate the LPF takes as its reference. 15 steps | 1 – 15 | 9 (16kHz) | [`FX_NR_RATE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-nr-rate) |
+| **RATE: Bypass** | Ignores RATE; the LPF then takes the host's sample rate as its reference | on / off | off | [`FX_NR_RATE_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-nr-rate-bypass) |
 | **GATE** | Closes once the sound falls below **GATE.LV**, removing faint noise | on / off | off | [`FX_NR_GATE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-nr-gate) |
 | **GATE.LV** | The level the gate closes at (dB) | -96 – -24 | -60 | [`FX_NR_GATE_LV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-nr-gate-lv) |
 | **LPF** | Cuts the highs to tame the grain. Off / Light / Medium / Strong | 1 – 4 | 1 (Off) | [`FX_NR_LPF`](/2686V_2686VFX/en/reference/automation/fx-plugin/#fx-nr-lpf) |
@@ -21,6 +22,7 @@ It works exactly like QUALITY(PCM) in the instruments.
 
 - **GATE** takes 1 ms to open and 30 ms to close, so neither the attack nor the tail gets clipped. It also removes DC (an off-centre offset). **GATE.LV** is only available while GATE is on
 - **LPF** cuts from 90%, 70% or 50% (Light, Medium, Strong) of the top of **RATE**'s band, which is half the rate. At 16kHz and Medium, for example, everything above 5.6kHz is cut
+- With **RATE: Bypass** on, the host's (DAW's) sample rate is the reference instead of RATE. At 48kHz and Medium, everything above 16.8kHz is cut. RATE is unavailable meanwhile
 
 With both GATE and LPF off, the sound passes through untouched.
 

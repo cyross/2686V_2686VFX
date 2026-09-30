@@ -56,6 +56,7 @@ namespace FxGuiText
 		namespace Nr
 		{
 			static inline const juce::String rate = "RATE";
+			static inline const juce::String rateBypass = "RATE: Bypass";
 			static inline const juce::String gate = "GATE";
 			static inline const juce::String gateLevel = "GATE.LV";
 			static inline const juce::String lpf = "LPF";

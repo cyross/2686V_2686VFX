@@ -119,6 +119,10 @@ namespace FxPrValue
 	{
 		namespace Rate = Pcm::Rate;
 
+		// RATE を通さない。入れると LPF はホストのレートを基準にする。
+		// 既定は切れていて (RATE を使う)、これまでの音は変わらない。
+		inline constexpr bool rateBypass = false;
+
 		inline constexpr bool gate = CPV::QualityPcm::Nr::gate;
 
 		namespace GateLevel = CPV::QualityPcm::Nr::GateLevel;

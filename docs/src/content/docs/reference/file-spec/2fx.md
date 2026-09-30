@@ -41,7 +41,7 @@ FX の設定をまとめたファイルです。
 | `eq3band` | `bypass` / `lowGainDb` / `midFreq` / `midGainDb` / `highGainDb` / `mix` |
 | `sfcEcho` | `bypass` / `time` / `fb` / `firCoef0` / `firCoef1` / `firCoef2` / `firCoef3` / `firCoef4` / `firCoef5` / `firCoef6` / `firCoef7` / `mix` |
 | `pcmBitCrusher` | `bypass` / `bits` / `rate` / `interp` / `mix` / `nrResample` |
-| `noiseReduction` | `bypass` / `rate` / `gate` / `gateLevel` / `lpf` / `mix` |
+| `noiseReduction` | `bypass` / `rate` / `rateBypass` / `gate` / `gateLevel` / `lpf` / `mix` |
 
 どの効果にも `bypass` があり、**真で切り**です。`mix` は 0.0 で原音のまま、
 1.0 で効果だけになります。

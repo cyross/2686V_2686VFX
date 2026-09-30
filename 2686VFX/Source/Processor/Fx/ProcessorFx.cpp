@@ -127,6 +127,7 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(CPV::makeFloat(nrPrefix + FxPrKey::Nr::gateLevel, nrLPrefix + FxPrName::Nr::gateLevel, FxPrValue::Nr::GateLevel::min, FxPrValue::Nr::GateLevel::max, FxPrValue::Nr::GateLevel::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(nrPrefix + FxPrKey::Nr::lpf, nrLPrefix + FxPrName::Nr::lpf, FxPrValue::Nr::Lpf::min, FxPrValue::Nr::Lpf::max, FxPrValue::Nr::Lpf::initial));
     layout.add(CPV::makeFloat(nrPrefix + FxPrKey::mix, nrLPrefix + FxPrName::Nr::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(nrPrefix + FxPrKey::Nr::rateBypass, nrLPrefix + FxPrName::Nr::rateBypass, FxPrValue::Nr::rateBypass));
 }
 
 void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
@@ -185,6 +186,7 @@ void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String nrPrefix = prefix + FxPrKey::nr;
     pNrBypass = apvts.getRawParameterValue(nrPrefix + FxPrKey::bypass);
     pNrRate = apvts.getRawParameterValue(nrPrefix + FxPrKey::Nr::rate);
+    pNrRateBypass = apvts.getRawParameterValue(nrPrefix + FxPrKey::Nr::rateBypass);
     pNrGate = apvts.getRawParameterValue(nrPrefix + FxPrKey::Nr::gate);
     pNrGateLevel = apvts.getRawParameterValue(nrPrefix + FxPrKey::Nr::gateLevel);
     pNrLpf = apvts.getRawParameterValue(nrPrefix + FxPrKey::Nr::lpf);
@@ -288,11 +290,12 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     // Noise Reduction
     bool nrB = pNrBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
     int nrRate = (int)pNrRate->load(std::memory_order_relaxed);
+    bool nrRateBypass = pNrRateBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
     bool nrGate = pNrGate->load(std::memory_order_relaxed) > FxPrValue::boolThread;
     float nrGateLevel = pNrGateLevel->load(std::memory_order_relaxed);
     int nrLpf = (int)pNrLpf->load(std::memory_order_relaxed);
     float nrMix = pNrMix->load(std::memory_order_relaxed);
-    effects.setNoiseReductionParams(nrRate, nrGate, nrGateLevel, nrLpf, nrMix);
+    effects.setNoiseReductionParams(nrRate, nrRateBypass, nrGate, nrGateLevel, nrLpf, nrMix);
 
     // Delay
     bool dB = pDBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
