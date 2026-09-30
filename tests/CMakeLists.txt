@@ -273,7 +273,9 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
     if(CY_PLUGIN STREQUAL "2686VFX")
         target_sources(${CY_GUI_TEST} PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxKeyAssignTest.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxOutputTest.cpp")
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxOutputTest.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxPcmNoiseReductionTest.cpp")
+        target_compile_definitions(${CY_GUI_TEST} PRIVATE GUI_TEST_IS_FX)
     endif()
 
     # 音源のチャンネルを持つ本だけ (2686VFX は音を作らない)

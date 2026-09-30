@@ -552,7 +552,9 @@ TEST_CASE("QUALITY のきれいな間引きは、符号化するモードのと�
         const auto prefix = t->getComponentID().dropLastCharacters(CPK::QualityPcm::nrResample.length());
         auto* mode = env.processor->apvts.getParameter(prefix + CPK::QualityPcm::mode);
 
-        REQUIRE(mode != nullptr);
+        // 2686VFX の PCM ビットクラッシャーも同じ ID の末尾を使うが、MODE を
+        // 持たず、いつも間引くので薄くしない。ここでは見ない。
+        if (mode == nullptr) continue;
 
         INFO(prefix.toStdString());
 
@@ -705,6 +707,135 @@ TEST_CASE("DAC: 「適応」ボタンが区分の中に収まっている")
     }
 
     CHECK(checked > 0);
+}
+
+// PCM のノイズリダクション (QUALITY と、2686VFX のノイズリダクション)。
+// 部品が見える場所に収まっていて、GATE.LV はゲートを入れたときだけ押せる。
+TEST_CASE("NR: 部品が枠の中に収まり、GATE.LV はゲートを入れたときだけ押せる")
+{
+    Env env;
+
+    auto& tabs = EditorTestAccess::tabs(env.ed());
+    int checked = 0;
+
+    for (int i = 0; i < tabs.getNumTabs(); ++i)
+    {
+        tabs.setCurrentTabIndex(i);
+
+        auto* root = tabs.getTabContentComponent(i);
+
+        if (root == nullptr) continue;
+
+        // QUALITY は閉じていることがあるので、開いてから並べ直す
+        std::vector<juce::Component*> all;
+
+        collect(root, all);
+
+        for (auto* c : all)
+        {
+            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(c)) {
+                if (cat->getText() == "QUALITY") cat->setDetailVisible(true);
+            }
+        }
+
+        env.ed().resized();
+
+        all.clear();
+        collect(root, all);
+
+        auto find = [&](const juce::String& id) -> juce::Component* {
+            for (auto* c : all) {
+                if (c->getComponentID() == id) return c;
+            }
+
+            return nullptr;
+        };
+
+        for (auto* c : all)
+        {
+            auto* gate = dynamic_cast<GuiToggleButton*>(c);
+
+            if (gate == nullptr || !gate->isVisible() || !gate->getComponentID().endsWith(CPK::QualityPcm::nrGate)) continue;
+
+            const auto prefix = gate->getComponentID().dropLastCharacters(CPK::QualityPcm::nrGate.length());
+
+            INFO(tabs.getTabNames()[i].toStdString() << " " << prefix.toStdString());
+
+            auto* level = dynamic_cast<GuiSlider*>(find(prefix + CPK::QualityPcm::nrGateLevel));
+            auto* lpf = dynamic_cast<GuiComboBox*>(find(prefix + CPK::QualityPcm::nrLpf));
+
+            REQUIRE(level != nullptr);
+            REQUIRE(lpf != nullptr);
+
+            std::vector<juce::Component*> parts{ gate, level, lpf };
+
+            // QUALITY にはきれいな間引きも並ぶ。2686VFX では PCM ビットクラッシャーの側にある。
+            if (auto* resample = find(prefix + CPK::QualityPcm::nrResample)) parts.push_back(resample);
+
+            for (auto* part : parts)
+            {
+                auto* parent = part->getParentComponent();
+
+                INFO(part->getComponentID().toStdString() << " " << part->getBounds().toString().toStdString()
+                    << " in " << parent->getLocalBounds().toString().toStdString());
+
+                CHECK(part->isVisible());
+                CHECK(part->getWidth() > 0);
+                CHECK(parent->getLocalBounds().contains(part->getBounds()));
+
+                // 枠 (GuiGroup) に載っているなら、枠からはみ出さない。
+                // 列に入りきらないと、下の部品が枠の外へ出る。
+                for (auto* sibling : parent->getChildren())
+                {
+                    auto* group = dynamic_cast<GuiGroup*>(sibling);
+
+                    if (group == nullptr || !group->getBounds().contains(part->getPosition())) continue;
+
+                    INFO("group " << group->getBounds().toString().toStdString());
+                    CHECK(group->getBounds().contains(part->getBounds()));
+                }
+            }
+
+            auto* gateParam = env.processor->apvts.getParameter(prefix + CPK::QualityPcm::nrGate);
+
+            REQUIRE(gateParam != nullptr);
+
+            // 2686VFX のノイズリダクション (FX_NR_GATE) は、既定でバイパスされていて
+            // 中がすべて止まっている。先に効かせる。ID の頭が FX_NR で、
+            // 末尾の _NR_GATE を落とすと FX になるので、バイパスは名前で指す。
+#if defined(GUI_TEST_IS_FX)
+            auto* bypass = env.processor->apvts.getParameter("FX_NR" + CPK::bypass);
+
+            REQUIRE(bypass != nullptr);
+#else
+            auto* bypass = env.processor->apvts.getParameter(prefix + CPK::bypass);
+#endif
+            const float originalBypass = (bypass != nullptr) ? bypass->getValue() : 0.0f;
+
+            if (bypass != nullptr) bypass->setValueNotifyingHost(0.0f);
+
+            const float original = gateParam->getValue();
+
+            gateParam->setValueNotifyingHost(0.0f);
+            CHECK_FALSE(level->isEnabled());
+
+            gateParam->setValueNotifyingHost(1.0f);
+            CHECK(level->isEnabled());
+
+            gateParam->setValueNotifyingHost(original);
+
+            if (bypass != nullptr) bypass->setValueNotifyingHost(originalBypass);
+
+            ++checked;
+        }
+    }
+
+    if (kRequireAll) CHECK(checked > 0);
+#if defined(GUI_TEST_IS_FX)
+    // 2686VFX はノイズリダクションの 1 か所
+    CHECK(checked == 1);
+#endif
+    MESSAGE("NR: " << checked << " か所");
 }
 
 // 相対パスの基準は環境設定に 1 つだけ。どのチャンネルの UTILITY や SETTINGS で

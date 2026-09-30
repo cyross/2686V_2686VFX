@@ -686,6 +686,7 @@ void FxPcm::prepare(double sampleRate)
     hostRate = sampleRate;
 
     setPcmParameters(bitIndex, rateIndex, interpMode, wetLevel);
+    updatePreFilter();
 
     clear();
 }
@@ -699,10 +700,26 @@ void FxPcm::clear()
 
     phase[0] = 0.0;
     phase[1] = 0.0;
+
+    clearPreFilter();
+}
+
+void FxPcm::clearPreFilter()
+{
+    for (auto& ch : preZ)
+    {
+        for (auto& stage : ch)
+        {
+            stage[0] = 0.0f;
+            stage[1] = 0.0f;
+        }
+    }
 }
 
 void FxPcm::setPcmParameters(int newBitIndex, int newRateIndex, int newInterpMode, float mix)
 {
+    const double oldStep = stepPerSample;
+
     bitIndex = newBitIndex;
     rateIndex = newRateIndex;
     interpMode = newInterpMode;
@@ -713,6 +730,61 @@ void FxPcm::setPcmParameters(int newBitIndex, int newRateIndex, int newInterpMod
     // 出力 1 つにつき、間引いた側がどれだけ進むか。
     // 元より高いレートを選んだときは 1 を超え、間引かれなくなる。
     stepPerSample = (hostRate > 0.0) ? (targetRate / hostRate) : 1.0;
+
+    // 前段の切れ目はレートで決まる。変わったときだけ組み直す。
+    if (stepPerSample != oldStep) updatePreFilter();
+}
+
+void FxPcm::setResample(bool resample)
+{
+    // 毎ブロック呼ばれる。変わったときだけ組み直す。
+    if (resample == nrResample) return;
+
+    nrResample = resample;
+
+    updatePreFilter();
+}
+
+void FxPcm::updatePreFilter()
+{
+    constexpr double pi = 3.14159265358979323846;
+
+    // 音源の resampleClean と同じく、目的のレートのナイキストの 0.92 倍で切る。
+    // 出力のナイキストに近すぎると係数が崩れるうえ、そこまでは間引いても
+    // 折り返さないので、そのときは掛けない。
+    const double nyquist = hostRate * 0.5;
+    const double fc = getTargetRate(rateIndex) * 0.5 * 0.92;
+
+    const bool wasActive = preActive;
+
+    preActive = nrResample && hostRate > 0.0 && fc < nyquist * 0.9;
+
+    // 切れていたあいだの古い値から始めると、入れた瞬間に音が跳ねる
+    if (preActive && !wasActive) clearPreFilter();
+
+    if (preActive)
+    {
+        // 8 次 Butterworth の各段の Q (1 / (2 cos((2k - 1)π / 16)))
+        static constexpr double qs[preStages] = { 0.50979558, 0.60134489, 0.89997622, 2.56291545 };
+
+        const double w0 = 2.0 * pi * fc / hostRate;
+        const double cw = std::cos(w0);
+        const double sw = std::sin(w0);
+
+        for (int s = 0; s < preStages; ++s)
+        {
+            // RBJ の低域通過
+            const double alpha = sw / (2.0 * qs[s]);
+            const double a0 = 1.0 + alpha;
+
+            auto& bq = pre[(size_t)s];
+            bq.b0 = (float)(((1.0 - cw) * 0.5) / a0);
+            bq.b1 = (float)((1.0 - cw) / a0);
+            bq.b2 = bq.b0;
+            bq.a1 = (float)((-2.0 * cw) / a0);
+            bq.a2 = (float)((1.0 - alpha) / a0);
+        }
+    }
 }
 
 void FxPcm::process(juce::AudioBuffer<float>& buffer)
@@ -724,10 +796,31 @@ void FxPcm::process(juce::AudioBuffer<float>& buffer)
     {
         auto* data = buffer.getWritePointer(ch);
         auto* hist = history[ch];
+        auto* z = preZ[ch];
 
         for (int i = 0; i < samples; ++i)
         {
             float dry = data[i];
+
+            // 間引く前に、目的のレートで表せない高い成分を落とす。
+            // 落とさないと、間引いたときに低いところへ折り返して濁る。
+            float in = dry;
+
+            if (preActive)
+            {
+                for (int s = 0; s < preStages; ++s)
+                {
+                    const auto& bq = pre[(size_t)s];
+
+                    // 直接形 II 転置
+                    const float y = bq.b0 * in + z[s][0];
+
+                    z[s][0] = bq.b1 * in - bq.a1 * y + z[s][1];
+                    z[s][1] = bq.b2 * in - bq.a2 * y;
+
+                    in = y;
+                }
+            }
 
             phase[ch] += stepPerSample;
 
@@ -740,10 +833,82 @@ void FxPcm::process(juce::AudioBuffer<float>& buffer)
                 hist[0] = hist[1];
                 hist[1] = hist[2];
                 hist[2] = hist[3];
-                hist[3] = GenPcmHelper::bitReduction(dry, bitIndex);
+                hist[3] = GenPcmHelper::bitReduction(in, bitIndex);
             }
 
             float wet = interpolateHistory(hist, (float)phase[ch], interpMode);
+
+            data[i] = dry * (1.0f - wetLevel) + wet * wetLevel;
+        }
+    }
+}
+
+// ======================================================
+// Noise Reduction
+// ======================================================
+void FxNr::prepare(double sampleRate)
+{
+    hostRate = sampleRate;
+
+    update();
+    clear();
+}
+
+void FxNr::clear()
+{
+    reducer[0].reset();
+    reducer[1].reset();
+}
+
+void FxNr::setNrParameters(int newRateIndex, bool newGate, float newGateDb, int newLpfLevel, float mix)
+{
+    wetLevel = mix;
+
+    // 毎ブロック呼ばれる。変わったときだけ組み直す。
+    if (newRateIndex == rateIndex && newGate == gate && newGateDb == gateDb && newLpfLevel == lpfLevel) return;
+
+    rateIndex = newRateIndex;
+    gate = newGate;
+    gateDb = newGateDb;
+    lpfLevel = newLpfLevel;
+
+    update();
+}
+
+void FxNr::update()
+{
+    // 帯域の上端は RATE のナイキスト。出力のナイキストに対する割合で渡す。
+    const double contentRatio = (hostRate > 0.0) ? (getTargetRate(rateIndex) / hostRate) : 1.0;
+
+    for (auto& r : reducer)
+    {
+        const bool wasActive = r.isActive();
+
+        r.setup(hostRate, contentRatio, gate, gateDb, lpfLevel);
+
+        // 切れていたあいだの古い値から始めると、入れた瞬間に音が跳ねる
+        if (!wasActive && r.isActive()) r.reset();
+    }
+}
+
+void FxNr::process(juce::AudioBuffer<float>& buffer)
+{
+    int channels = juce::jmin(buffer.getNumChannels(), 2);
+    int samples = buffer.getNumSamples();
+
+    for (int ch = 0; ch < channels; ++ch)
+    {
+        auto& nr = reducer[ch];
+
+        // GATE も LPF も切れていれば素通し
+        if (!nr.isActive()) continue;
+
+        auto* data = buffer.getWritePointer(ch);
+
+        for (int i = 0; i < samples; ++i)
+        {
+            const float dry = data[i];
+            const float wet = nr.process(dry);
 
             data[i] = dry * (1.0f - wetLevel) + wet * wetLevel;
         }
@@ -761,6 +926,7 @@ EffectChain::EffectChain()
     fxMap[static_cast<int>(FxType::Reverb)] = &reverb;
     fxMap[static_cast<int>(FxType::SfcEcho)] = &sfcEcho;
     fxMap[static_cast<int>(FxType::PcmBitCrusher)] = &pcmBitCrusher;
+    fxMap[static_cast<int>(FxType::NoiseReduction)] = &noiseReduction;
 
     // 処理順序配列の初期化 (デフォルトは定義順)
     processChain = fxMap;
@@ -783,6 +949,8 @@ void EffectChain::setFilterParams(int type, float freq, float q, float mix) { fi
 void EffectChain::setEq3bParams(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix) { eq3b.setParameters(lowGainDb, midFreq, midGainDb, highGainDb, mix); }
 void EffectChain::setSfcEchoParams(float time, float fb, float mix, const std::array<float, 8>& firCoefs) { sfcEcho.setParameters(time, fb, mix, firCoefs); }
 void EffectChain::setPcmBitCrusherParams(int bit, int rate, int interp, float mix) { pcmBitCrusher.setPcmParameters(bit, rate, interp, mix); }
+void EffectChain::setPcmBitCrusherResample(bool resample) { pcmBitCrusher.setResample(resample); }
+void EffectChain::setNoiseReductionParams(int rate, bool gate, float gateDb, int lpf, float mix) { noiseReduction.setNrParameters(rate, gate, gateDb, lpf, mix); }
 
 void EffectChain::process(juce::AudioBuffer<float>& buffer)
 {
@@ -796,7 +964,7 @@ void EffectChain::process(juce::AudioBuffer<float>& buffer)
 }
 
 // バイパス状態のセット
-void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc, bool pcm)
+void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc, bool pcm, bool nr)
 {
     filter.setBypass(fl);
     eq3b.setBypass(e3);
@@ -807,6 +975,7 @@ void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d,
     reverb.setBypass(r);
     sfcEcho.setBypass(sfc);
     pcmBitCrusher.setBypass(pcm);
+    noiseReduction.setBypass(nr);
 }
 
 // 順番更新

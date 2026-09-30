@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "../../Core/Synth/SynthParams.h"
+#include "Shared/Generator/Pcm/Helper/GenPcmNoiseReducer.h"
 
 // ======================================================
 // エフェクトの種類を定義 (マジックナンバー撲滅の鍵)
@@ -21,6 +22,7 @@ enum class FxType
     Reverb,
     SfcEcho,
     PcmBitCrusher,
+    NoiseReduction,
     Count // Total Count
 };
 
@@ -42,6 +44,7 @@ static inline const juce::String fxTypeNames[NumEffects] = {
     "reverb",
     "sfcEcho",
     "pcmBitCrusher",
+    "noiseReduction",
 };
 
 static inline juce::String fxTypeName(int index)
@@ -259,6 +262,11 @@ private:
 //
 // ビットの一覧のうち ADPCM などの圧縮は入れていない。あれは曲の頭から
 // 順に符号化するもので、塊ごとに切ると継ぎ目で音が飛ぶ。
+//
+// NR: Resample を入れると、間引く前に目的のレートのナイキストの少し手前で
+// 切り、折り返しを防ぐ。音源では素材を作るとき (GenPcmHelper::resampleClean)
+// に掛けるものを、流れてくる音向けに遅れの無いフィルタで置き換えている。
+// 既定は切れていて、切れているあいだはこれまでと同じ音になる。
 class FxPcm : public FxCore
 {
 public:
@@ -267,7 +275,26 @@ public:
     void clear() override;
 
     void setPcmParameters(int bitIndex, int rateIndex, int interpMode, float mix);
+    void setResample(bool resample);
 private:
+    // 前段の低域通過 (8 次 Butterworth = 2 次を 4 段)
+    static constexpr int preStages = 4;
+
+    struct Biquad
+    {
+        float b0 = 1.0f, b1 = 0.0f, b2 = 0.0f, a1 = 0.0f, a2 = 0.0f;
+    };
+
+    void updatePreFilter();
+    void clearPreFilter();
+
+    bool nrResample = false;
+
+    // いま前段が効いているか (目的のレートが出力より十分低いときだけ)
+    bool preActive = false;
+    std::array<Biquad, preStages> pre;
+    float preZ[2][preStages][2] = { { { 0.0f } } };
+
     // 間引いた直近 4 つ。補間はこの 4 点を使う。
     float history[2][4] = { { 0.0f } };
 
@@ -278,6 +305,36 @@ private:
     int bitIndex = 12;
     int rateIndex = 9;
     int interpMode = 1;
+};
+
+// ======================================================
+// 10. Noise Reduction
+// ======================================================
+// 音源の QUALITY (PCM) にあるノイズリダクションのうち、鳴らすときに掛ける
+// 2 つ (PcmNoiseReducer) を、単独の効果にしたもの。
+//   GATE  直流を取ってから、GATE.LV より小さい音を 0 まで絞る
+//   LPF   RATE の帯域の上端 (ナイキスト) の 9 割・7 割・5 割から上を削る。
+//         PCM ビットクラッシャーの後ろに置き、同じ RATE を選ぶと、
+//         補間の折り返しや粗い量子化のざらつきが取れる
+class FxNr : public FxCore
+{
+public:
+    void prepare(double sampleRate) override;
+    void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
+
+    void setNrParameters(int rateIndex, bool gate, float gateDb, int lpfLevel, float mix);
+private:
+    void update();
+
+    PcmNoiseReducer reducer[2];
+
+    double hostRate = 44100.0;
+
+    int rateIndex = 9;
+    bool gate = false;
+    float gateDb = -60.0f;
+    int lpfLevel = 1;
 };
 
 class EffectChain
@@ -293,10 +350,12 @@ public:
     void setEq3bParams(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix);
     void setSfcEchoParams(float time, float fb, float mix, const std::array<float, 8>& firCoefs);
     void setPcmBitCrusherParams(int bit, int rate, int interp, float mix);
+    void setPcmBitCrusherResample(bool resample);
+    void setNoiseReductionParams(int rate, bool gate, float gateDb, int lpf, float mix);
 
     void prepare(double sampleRate);
     void process(juce::AudioBuffer<float>& buffer);
-    void setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc, bool pcm);
+    void setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc, bool pcm, bool nr);
     void updateOrder(const std::vector<int>& newOrders);
     std::vector<int> getOrder();
     int getEffectsNumber();
@@ -312,10 +371,11 @@ private:
     FxReverb reverb;
     FxSfcEcho sfcEcho;
     FxPcm pcmBitCrusher;
+    FxNr noiseReduction;
 
     // エフェクトの適応順
-    std::array<int, NumEffects> orderIndex{ { 0, 1, 2, 3, 4, 5, 6, 7, 8 } };
-    std::vector<FxCore*> fxs{ &filter, &eq3b, &tremolo, &vibrato, &modernBitCrusher, &delay, &reverb, &sfcEcho, &pcmBitCrusher };
+    std::array<int, NumEffects> orderIndex{ { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
+    std::vector<FxCore*> fxs{ &filter, &eq3b, &tremolo, &vibrato, &modernBitCrusher, &delay, &reverb, &sfcEcho, &pcmBitCrusher, &noiseReduction };
 
     std::array<FxCore*, NumEffects> fxMap;
     std::array<FxCore*, NumEffects> processChain;

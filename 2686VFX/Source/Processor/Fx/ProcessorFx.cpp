@@ -112,6 +112,21 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(CPV::makeFloat(sfcePrefix + FxPrKey::SfcEcho::firCoef6, sfceLPrefix + FxPrName::SfcEcho::firCoef6, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
     layout.add(CPV::makeFloat(sfcePrefix + FxPrKey::SfcEcho::firCoef7, sfceLPrefix + FxPrName::SfcEcho::firCoef7, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
     layout.add(CPV::makeFloat(sfcePrefix + FxPrKey::mix, sfceLPrefix + FxPrName::SfcEcho::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
+
+    // ---- 3.6.3 で足したもの。既存のパラメータの並びを変えないよう、最後に足す。
+
+    // PCM Bit Crusher のきれいな間引き
+    layout.add(std::make_unique<juce::AudioParameterBool>(pcmPrefix + FxPrKey::Pcm::nrResample, pcmLPrefix + FxPrName::Pcm::nrResample, FxPrValue::Pcm::Nr::resample));
+
+    // --- Noise Reduction ---
+    const juce::String nrPrefix = prefix + FxPrKey::nr;
+    const juce::String nrLPrefix = prefixName + FxPrName::nr;
+    layout.add(std::make_unique<juce::AudioParameterBool>(nrPrefix + FxPrKey::bypass, nrLPrefix + FxPrName::Nr::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(nrPrefix + FxPrKey::Nr::rate, nrLPrefix + FxPrName::Nr::rate, FxPrValue::Nr::Rate::min, FxPrValue::Nr::Rate::max, FxPrValue::Nr::Rate::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(nrPrefix + FxPrKey::Nr::gate, nrLPrefix + FxPrName::Nr::gate, FxPrValue::Nr::gate));
+    layout.add(CPV::makeFloat(nrPrefix + FxPrKey::Nr::gateLevel, nrLPrefix + FxPrName::Nr::gateLevel, FxPrValue::Nr::GateLevel::min, FxPrValue::Nr::GateLevel::max, FxPrValue::Nr::GateLevel::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(nrPrefix + FxPrKey::Nr::lpf, nrLPrefix + FxPrName::Nr::lpf, FxPrValue::Nr::Lpf::min, FxPrValue::Nr::Lpf::max, FxPrValue::Nr::Lpf::initial));
+    layout.add(CPV::makeFloat(nrPrefix + FxPrKey::mix, nrLPrefix + FxPrName::Nr::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 }
 
 void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
@@ -164,6 +179,16 @@ void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pPcmBits = apvts.getRawParameterValue(pcmPrefix + FxPrKey::Pcm::bit);
     pPcmInterp = apvts.getRawParameterValue(pcmPrefix + FxPrKey::Pcm::interp);
     pPcmMix = apvts.getRawParameterValue(pcmPrefix + FxPrKey::mix);
+    pPcmNrResample = apvts.getRawParameterValue(pcmPrefix + FxPrKey::Pcm::nrResample);
+
+    // Noise Reduction
+    const juce::String nrPrefix = prefix + FxPrKey::nr;
+    pNrBypass = apvts.getRawParameterValue(nrPrefix + FxPrKey::bypass);
+    pNrRate = apvts.getRawParameterValue(nrPrefix + FxPrKey::Nr::rate);
+    pNrGate = apvts.getRawParameterValue(nrPrefix + FxPrKey::Nr::gate);
+    pNrGateLevel = apvts.getRawParameterValue(nrPrefix + FxPrKey::Nr::gateLevel);
+    pNrLpf = apvts.getRawParameterValue(nrPrefix + FxPrKey::Nr::lpf);
+    pNrMix = apvts.getRawParameterValue(nrPrefix + FxPrKey::mix);
 
     // Delay
     const juce::String dlyPrefix = prefix + FxPrKey::dly;
@@ -257,6 +282,18 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     float pcmMix = pPcmMix->load(std::memory_order_relaxed);
     effects.setPcmBitCrusherParams(pcmBits, pcmRate, pcmInterp, pcmMix);
 
+    bool pcmNrResample = pPcmNrResample->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    effects.setPcmBitCrusherResample(pcmNrResample);
+
+    // Noise Reduction
+    bool nrB = pNrBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    int nrRate = (int)pNrRate->load(std::memory_order_relaxed);
+    bool nrGate = pNrGate->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    float nrGateLevel = pNrGateLevel->load(std::memory_order_relaxed);
+    int nrLpf = (int)pNrLpf->load(std::memory_order_relaxed);
+    float nrMix = pNrMix->load(std::memory_order_relaxed);
+    effects.setNoiseReductionParams(nrRate, nrGate, nrGateLevel, nrLpf, nrMix);
+
     // Delay
     bool dB = pDBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
     float dTime = pDTime->load(std::memory_order_relaxed);
@@ -291,7 +328,7 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     effects.setSfcEchoParams(scfeTime, scfeFb, scfeMix, sfcEFirCoefs);
 
     // バイパス設定
-    effects.setBypasses(flB, eq3bB, tB, vB, mcB, dB, rB, scfeB, pcmB);
+    effects.setBypasses(flB, eq3bB, tB, vB, mcB, dB, rB, scfeB, pcmB, nrB);
 
     // エフェクト処理実行
     effects.process(buffer);

@@ -105,6 +105,24 @@ namespace FxPrValue
 			inline constexpr int max = 6;
 			inline constexpr int initial = 1;
 		}
+
+		// きれいな間引き (NR: Resample)。既定は切れていて、これまでの音は変わらない。
+		namespace Nr
+		{
+			inline constexpr bool resample = CPV::QualityPcm::Nr::resample;
+		}
+	}
+
+	// ノイズリダクション。GATE と LPF の範囲と初期値は音源の QUALITY (PCM) と同じ。
+	// RATE は LPF がどこで切るかの基準で、PCM ビットクラッシャーと同じ一覧。
+	namespace Nr
+	{
+		namespace Rate = Pcm::Rate;
+
+		inline constexpr bool gate = CPV::QualityPcm::Nr::gate;
+
+		namespace GateLevel = CPV::QualityPcm::Nr::GateLevel;
+		namespace Lpf = CPV::QualityPcm::Nr::Lpf;
 	}
 
 	namespace Delay

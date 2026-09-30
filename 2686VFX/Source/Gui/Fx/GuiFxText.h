@@ -47,6 +47,18 @@ namespace FxGuiText
 			static inline const juce::String bit = "BIT";
 			static inline const juce::String rate = "RATE";
 			static inline const juce::String interp = "INTERP";
+
+			// きれいな間引き。表記は音源の QUALITY (PCM) と同じ。
+			static inline const juce::String nrResample = "NR: Resample";
+		}
+
+		// ノイズリダクション。GATE.LV は音源の QUALITY (PCM) と同じ表記。
+		namespace Nr
+		{
+			static inline const juce::String rate = "RATE";
+			static inline const juce::String gate = "GATE";
+			static inline const juce::String gateLevel = "GATE.LV";
+			static inline const juce::String lpf = "LPF";
 		}
 	}
 
@@ -70,6 +82,7 @@ namespace FxGuiText
 		static inline const I18n::Text fxEq3B{ u8"3バンドイコライザー", u8"3-band EQ" };
 		static inline const I18n::Text sfcEcho{ u8"SFCエコー", u8"SFC echo" };
 		static inline const I18n::Text fxPcm{ u8"PCMビットクラッシャー", u8"PCM bit crusher" };
+		static inline const I18n::Text fxNr{ u8"ノイズリダクション", u8"Noise reduction" };
 	}
 
 	namespace Fx

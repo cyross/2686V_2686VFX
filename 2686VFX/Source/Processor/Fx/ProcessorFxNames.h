@@ -20,6 +20,7 @@ namespace FxPrName
 	static inline const juce::String filter = " Filter";
 	static inline const juce::String eq3b = " 3Band EQ";
 	static inline const juce::String sfcEcho = " SFC Echo";
+	static inline const juce::String nr = " Noise Reduction";
 
 	namespace Tremolo
 	{
@@ -51,6 +52,17 @@ namespace FxPrName
 		static inline const juce::String rate = " Rate";
 		static inline const juce::String bit = " Bit";
 		static inline const juce::String interp = " Interpolation";
+		static inline const juce::String mix = " Mix";
+		static inline const juce::String nrResample = " NR Clean Resample";
+	}
+
+	namespace Nr
+	{
+		static inline const juce::String bypass = " Bypass";
+		static inline const juce::String rate = " Rate";
+		static inline const juce::String gate = " Gate";
+		static inline const juce::String gateLevel = " Gate Level";
+		static inline const juce::String lpf = " Low-pass";
 		static inline const juce::String mix = " Mix";
 	}
 

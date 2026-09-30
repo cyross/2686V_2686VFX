@@ -97,6 +97,7 @@ GuiFx::GuiFx(const GuiContext& context) :
     eq3bGroup(context),
     sfceGroup(context),
     pcmGroup(context),
+    nrGroup(context),
     pcmBypassBtn(context),
     pcmSeparator(context),
     pcmDac(context),
@@ -107,15 +108,26 @@ GuiFx::GuiFx(const GuiContext& context) :
     pcmDryBtn(context),
     pcmHalfBtn(context),
     pcmWetBtn(context),
+    pcmNrResampleToggle(context),
+    nrBypassBtn(context),
+    nrSeparator(context),
+    nrRateSelector(context),
+    nrGateToggle(context),
+    nrGateLevelSlider(context),
+    nrLpfSelector(context),
+    nrMixSlider(context),
+    nrDryBtn(context),
+    nrHalfBtn(context),
+    nrWetBtn(context),
     bypassToggle(context),
     levelComponent(context),
     mainSeparator(context),
     resetBtn(context),
     routeSeparator(context),
     showRouteBtn(context),
-    routeFx{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-    routeUp{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-    routeDown{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    routeFx{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+    routeUp{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    routeDown{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     keyAssign(context),
     fileSeparator(context),
     importFxOrderBtn(context),
@@ -846,6 +858,11 @@ void GuiFx::setup()
     pcmInterpSelector.setWantsKeyboardFocus(true);
     pcmInterpSelector.setExplicitFocusOrder(++tabOrder);
 
+    // 間引く前に高域を切る。既定は切れている。
+    pcmNrResampleToggle.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::Pcm::nrResample, .title = FxGuiText::Fx::Pcm::nrResample, .isReset = true });
+    pcmNrResampleToggle.setWantsKeyboardFocus(true);
+    pcmNrResampleToggle.setExplicitFocusOrder(++tabOrder);
+
     pcmMixSlider.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
     pcmMixSlider.setWantsKeyboardFocus(true);
     pcmMixSlider.setExplicitFocusOrder(++tabOrder);
@@ -864,6 +881,60 @@ void GuiFx::setup()
     pcmWetBtn.setWantsKeyboardFocus(true);
     pcmWetBtn.setExplicitFocusOrder(++tabOrder);
     pcmWetBtn.onClick = [&] { pcmMixSlider.setValue(1.0f); };
+
+    // ノイズリダクション
+    nrGroup.setup(*this, FxGuiText::Group::fxNr);
+    nrGroup.setBackgroundColor(groupBgColour);
+    const juce::String nrPrefix = code + FxPrKey::nr;
+
+    nrBypassBtn.setup({ .parent = *this, .id = nrPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    nrBypassBtn.setWantsKeyboardFocus(true);
+    nrBypassBtn.setExplicitFocusOrder(++tabOrder);
+    nrBypassBtn.onStateChange = [this] {
+        updateNrEnabled();
+    };
+
+    nrSeparator.setupComponent(*this);
+
+    // LPF がどこで切るかの基準。PCM ビットクラッシャーと同じ一覧。
+    nrRateSelector.setup({ .parent = *this, .id = nrPrefix + FxPrKey::Nr::rate, .title = FxGuiText::Fx::Nr::rate, .items = QualityPcm::rateItems, .isReset = true });
+    nrRateSelector.setWantsKeyboardFocus(true);
+    nrRateSelector.setExplicitFocusOrder(++tabOrder);
+
+    nrGateToggle.setup({ .parent = *this, .id = nrPrefix + FxPrKey::Nr::gate, .title = FxGuiText::Fx::Nr::gate, .isReset = true });
+    nrGateToggle.setWantsKeyboardFocus(true);
+    nrGateToggle.setExplicitFocusOrder(++tabOrder);
+
+    nrGateLevelSlider.setup({ .parent = *this, .id = nrPrefix + FxPrKey::Nr::gateLevel, .title = FxGuiText::Fx::Nr::gateLevel, .isReset = true });
+    nrGateLevelSlider.setTextValueSuffix(" dB");
+    nrGateLevelSlider.setWantsKeyboardFocus(true);
+    nrGateLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    nrLpfSelector.setup({ .parent = *this, .id = nrPrefix + FxPrKey::Nr::lpf, .title = FxGuiText::Fx::Nr::lpf, .items = QualityPcm::nrLpfItems(), .isReset = true });
+    nrLpfSelector.setWantsKeyboardFocus(true);
+    nrLpfSelector.setExplicitFocusOrder(++tabOrder);
+
+    nrMixSlider.setup({ .parent = *this, .id = nrPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    nrMixSlider.setWantsKeyboardFocus(true);
+    nrMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    nrDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    nrDryBtn.setWantsKeyboardFocus(true);
+    nrDryBtn.setExplicitFocusOrder(++tabOrder);
+    nrDryBtn.onClick = [&] { nrMixSlider.setValue(0.0f); };
+
+    nrHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    nrHalfBtn.setWantsKeyboardFocus(true);
+    nrHalfBtn.setExplicitFocusOrder(++tabOrder);
+    nrHalfBtn.onClick = [&] { nrMixSlider.setValue(0.5f); };
+
+    nrWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    nrWetBtn.setWantsKeyboardFocus(true);
+    nrWetBtn.setExplicitFocusOrder(++tabOrder);
+    nrWetBtn.onClick = [&] { nrMixSlider.setValue(1.0f); };
+
+    // GATE.LV はゲートを入れたときだけ効く。どこから切り替わっても追う。
+    nrGateToggle.watchToggle([this] { updateNrEnabled(); });
 
     // 変調の中身は最初から開いておく。FX タブでは 1 枠が小さく、
     // たたまれていると何が入っているのか分からないため。
@@ -887,6 +958,7 @@ void GuiFx::setup()
     updateEq3bEnabled();
     updateSfcEchoEnabled();
     updatePcmEnabled();
+    updateNrEnabled();
 
     // 横へ送る板を用意して、メイン以外をその中へ移す。
     stripViewport.setViewedComponent(&stripCanvas, false);
@@ -1156,7 +1228,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         });
     }
 
-    // トレモロ / ビブラート
+    // トレモロ / ビブラート / ノイズリダクション
     {
         auto col = nextColumn();
 
@@ -1174,7 +1246,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         });
 
         // ビブラート
-        stackGroup(col, vibGroup, true, [&](juce::Rectangle<int>& r) {
+        stackGroup(col, vibGroup, false, [&](juce::Rectangle<int>& r) {
             layoutRow({ .rowRect = r, .component = &vBypassBtn });
 
             vSeparator.layoutComponent(r);
@@ -1184,6 +1256,21 @@ void GuiFx::layout(juce::Rectangle<int> content)
             r.removeFromTop(FxGuiValue::Padding::space);
             layoutRow({ .rowRect = r, .label = &vMixSlider.label, .component = &vMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
             layoutRowThreeComps({ .rect = r, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn });
+        });
+
+        // ノイズリダクション
+        stackGroup(col, nrGroup, true, [&](juce::Rectangle<int>& r) {
+            layoutRow({ .rowRect = r, .component = &nrBypassBtn });
+
+            nrSeparator.layoutComponent(r);
+
+            layoutRow({ .rowRect = r, .label = &nrRateSelector.label, .component = &nrRateSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .component = &nrGateToggle });
+            layoutRow({ .rowRect = r, .label = &nrGateLevelSlider.label, .component = &nrGateLevelSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .label = &nrLpfSelector.label, .component = &nrLpfSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            r.removeFromTop(FxGuiValue::Padding::space);
+            layoutRow({ .rowRect = r, .label = &nrMixSlider.label, .component = &nrMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRowThreeComps({ .rect = r, .comp1 = &nrDryBtn, .comp2 = &nrHalfBtn, .comp3 = &nrWetBtn });
         });
     }
 
@@ -1220,6 +1307,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
             layoutRow({ .rowRect = r, .label = &pcmBitSelector.label, .component = &pcmBitSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
             layoutRow({ .rowRect = r, .label = &pcmRateSelector.label, .component = &pcmRateSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
             layoutRow({ .rowRect = r, .label = &pcmInterpSelector.label, .component = &pcmInterpSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
+            layoutRow({ .rowRect = r, .component = &pcmNrResampleToggle });
             r.removeFromTop(FxGuiValue::Padding::space);
             layoutRow({ .rowRect = r, .label = &pcmMixSlider.label, .component = &pcmMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth, .compWidth = FxGuiValue::Fx::AreaValueWidth });
             layoutRowThreeComps({ .rect = r, .comp1 = &pcmDryBtn, .comp2 = &pcmHalfBtn, .comp3 = &pcmWetBtn });
@@ -1385,6 +1473,23 @@ void GuiFx::updatePcmEnabled() {
     pcmDryBtn.setEnabled(!bypassed);
     pcmHalfBtn.setEnabled(!bypassed);
     pcmWetBtn.setEnabled(!bypassed);
+    pcmNrResampleToggle.setEnabled(!bypassed);
+}
+
+void GuiFx::updateNrEnabled() {
+    bool bypassed = nrBypassBtn.getToggleState();
+
+    nrSeparator.setEnabled(!bypassed);
+    nrRateSelector.setEnabledWithLabel(!bypassed);
+    nrGateToggle.setEnabled(!bypassed);
+
+    // GATE.LV はゲートを入れたときだけ効く
+    nrGateLevelSlider.setEnabledWithLabel(!bypassed && nrGateToggle.getToggleState());
+    nrLpfSelector.setEnabledWithLabel(!bypassed);
+    nrMixSlider.setEnabledWithLabel(!bypassed);
+    nrDryBtn.setEnabled(!bypassed);
+    nrHalfBtn.setEnabled(!bypassed);
+    nrWetBtn.setEnabled(!bypassed);
 }
 
 void GuiFx::updateDelayEnabled() {
@@ -1809,6 +1914,19 @@ void GuiFx::writeFxParams(Io::ParamWriter& writer) {
         pcmBitCrusher.set("rate", pcmRateSelector.getSelectedItemIndex());
         pcmBitCrusher.set("interp", pcmInterpSelector.getSelectedItemIndex());
         pcmBitCrusher.set("mix", (float)pcmMixSlider.getValue());
+        pcmBitCrusher.set("nrResample", pcmNrResampleToggle.getToggleState());
+    }
+
+    {
+        // このプラグインにしかない効果 (3.6.3 から)
+        auto noiseReduction = writer.child("noiseReduction");
+
+        noiseReduction.set("bypass", nrBypassBtn.getToggleState());
+        noiseReduction.set("rate", nrRateSelector.getSelectedItemIndex());
+        noiseReduction.set("gate", nrGateToggle.getToggleState());
+        noiseReduction.set("gateLevel", (float)nrGateLevelSlider.getValue());
+        noiseReduction.set("lpf", nrLpfSelector.getSelectedItemIndex());
+        noiseReduction.set("mix", (float)nrMixSlider.getValue());
     }
 
     {
@@ -1915,6 +2033,23 @@ void GuiFx::readFxParams(const Io::ParamReader& reader)
         pcmRateSelector.setSelectedItemIndex(pcmBitCrusher.getInt("rate", pcmRateSelector.getSelectedItemIndex()), juce::sendNotification);
         pcmInterpSelector.setSelectedItemIndex(pcmBitCrusher.getInt("interp", pcmInterpSelector.getSelectedItemIndex()), juce::sendNotification);
         pcmMixSlider.setValue(pcmBitCrusher.getFloat("mix", (float)pcmMixSlider.getValue()), juce::sendNotification);
+
+        // きれいな間引きは 3.6.3 から。無いファイルでは切る
+        // (それより前には無かったので、切れば同じ音になる)。
+        pcmNrResampleToggle.setToggleState(pcmBitCrusher.getBool("nrResample", FxPrValue::Pcm::Nr::resample), juce::sendNotification);
+    }
+
+    {
+        // 3.6.3 より前のファイルにはこのまとまりが無い。無ければ既定
+        // (バイパス) にする。それより前には無かった効果なので、同じ音になる。
+        auto noiseReduction = reader.child("noiseReduction");
+
+        nrBypassBtn.setToggleState(noiseReduction.getBool("bypass", FxPrValue::Bypass::initial), juce::sendNotification);
+        nrRateSelector.setSelectedItemIndex(noiseReduction.getInt("rate", FxPrValue::Nr::Rate::initial - FxPrValue::Nr::Rate::min), juce::sendNotification);
+        nrGateToggle.setToggleState(noiseReduction.getBool("gate", FxPrValue::Nr::gate), juce::sendNotification);
+        nrGateLevelSlider.setValue(noiseReduction.getFloat("gateLevel", FxPrValue::Nr::GateLevel::initial), juce::sendNotification);
+        nrLpfSelector.setSelectedItemIndex(noiseReduction.getInt("lpf", FxPrValue::Nr::Lpf::initial - FxPrValue::Nr::Lpf::min), juce::sendNotification);
+        nrMixSlider.setValue(noiseReduction.getFloat("mix", FxPrValue::Mix::initial), juce::sendNotification);
     }
 
     {

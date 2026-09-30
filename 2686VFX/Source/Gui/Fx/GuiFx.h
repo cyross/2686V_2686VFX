@@ -51,7 +51,8 @@ class GuiFx : public GuiBase, private juce::Timer
             FxGuiText::Group::fxDelay,   // 5: FxType::Delay
             FxGuiText::Group::fxReverb,  // 6: FxType::Reverb
             FxGuiText::Group::sfcEcho,   // 7: FxType::SpcEcho
-            FxGuiText::Group::fxPcm      // 8: FxType::PcmBitCrusher
+            FxGuiText::Group::fxPcm,     // 8: FxType::PcmBitCrusher
+            FxGuiText::Group::fxNr       // 9: FxType::NoiseReduction
         };
     }
 
@@ -118,6 +119,9 @@ class GuiFx : public GuiBase, private juce::Timer
 
     // 2686V PCM Bit Crusher。実機のレートとビットの刻みで落とす。
     GuiGroup pcmGroup;
+
+    // ノイズリダクション。音源の QUALITY (PCM) のゲートと高域カット。
+    GuiGroup nrGroup;
 
     GuiToggleButton bypassToggle;
 
@@ -209,6 +213,19 @@ class GuiFx : public GuiBase, private juce::Timer
     static std::vector<SelectItem>& getPcmBitItems();
     GuiSlider pcmMixSlider;
     GuiTextButton pcmDryBtn, pcmHalfBtn, pcmWetBtn;
+
+    // 間引く前に高域を切る (音源の QUALITY (PCM) の NR: Resample)
+    GuiToggleButton pcmNrResampleToggle;
+
+    // ノイズリダクション(Noise Reduction)
+    GuiToggleButton nrBypassBtn;
+    NormalSeparator nrSeparator;
+    GuiComboBox nrRateSelector;
+    GuiToggleButton nrGateToggle;
+    GuiSlider nrGateLevelSlider;
+    GuiComboBox nrLpfSelector;
+    GuiSlider nrMixSlider;
+    GuiTextButton nrDryBtn, nrHalfBtn, nrWetBtn;
     GuiSlider flFreqSlider;
     GuiSlider flQSlider;
     GuiSlider flMixSlider;
@@ -240,6 +257,7 @@ class GuiFx : public GuiBase, private juce::Timer
     void updateVibratoEnabled();
     void updateMBCEnabled();
     void updatePcmEnabled();
+    void updateNrEnabled();
     void updateDelayEnabled();
     void updateReverbEnabled();
     void updateEq3bEnabled();

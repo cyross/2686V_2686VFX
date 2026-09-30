@@ -22,6 +22,7 @@ namespace FxPrKey
 	static inline const juce::String scl = "_SCL";
 	static inline const juce::String eq3b = "_EQ3B";
 	static inline const juce::String sfcEcho = "_SFCECHO";
+	static inline const juce::String nr = "_NR";
 
 	static inline const juce::String mix = "_MIX";
 
@@ -60,6 +61,19 @@ namespace FxPrKey
 		static inline const juce::String rate = "_RATE";
 		static inline const juce::String bit = "_BITS";
 		static inline const juce::String interp = "_INTP";
+
+		// きれいな間引き。音源の QUALITY (PCM) と同じ ID の末尾にする。
+		static inline const juce::String nrResample = "_NR_RESAMPLE";
+	};
+
+	// ノイズリダクション。末尾は音源の QUALITY (PCM) にそろえ、
+	// FX_NR_GATE / FX_NR_GATE_LV / FX_NR_LPF になる。
+	namespace Nr
+	{
+		static inline const juce::String rate = "_RATE";
+		static inline const juce::String gate = "_GATE";
+		static inline const juce::String gateLevel = "_GATE_LV";
+		static inline const juce::String lpf = "_LPF";
 	};
 
 	namespace Filter
