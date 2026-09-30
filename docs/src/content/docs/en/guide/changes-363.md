@@ -121,6 +121,21 @@ bit depth its hardware decodes to.
 | GB | 4-bit PCM | 8kHz | ZOH |
 | PS1 | 16-bit PCM | 44.1kHz | Gaussian |
 
+## 2686VFX: noise reduction
+
+The noise reduction from the instruments' QUALITY(PCM) is now available in 2686VFX.
+
+- A new effect, **[Noise reduction](/2686V_2686VFX/en/fx/noise-reduction/)** —
+  QUALITY(PCM)'s **GATE** (pulls quiet sound down to 0) and **LPF** (high cut).
+  **RATE** sets where the LPF cuts. Place it after the PCM bit crusher with the
+  same RATE and it acts just as it does in the instruments
+- **NR: Resample** in the **[PCM bit crusher](/2686V_2686VFX/en/fx/pcm-bitcrusher/)** —
+  cuts the highs before decimating so they do not alias. It only makes sense
+  together with the decimation, so it lives inside the crusher
+
+Everything starts switched off (noise reduction is bypassed), so existing
+sounds do not change. Noise reduction is added at the end of the effect order.
+
 ## Drag and drop files onto the window to load them
 
 Drop a file from Explorer (or any file manager) onto the plug-in window and it loads

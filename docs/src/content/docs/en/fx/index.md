@@ -28,6 +28,7 @@ you feed it.
 | [Reverb](/2686V_2686VFX/en/fx/reverb/) | Adds the sound of a space |
 | [SFC echo](/2686V_2686VFX/en/fx/sfc-echo/) | The hardware echo, shaped by coefficients |
 | [PCM bit crusher](/2686V_2686VFX/en/fx/pcm-bitcrusher/) | Coarsens on the instruments' QUALITY steps (**2686VFX only**) |
+| [Noise reduction](/2686V_2686VFX/en/fx/noise-reduction/) | QUALITY(PCM)'s gate and high cut (**2686VFX only**) |
 
 2686VFX has one more: [modulating the output](/2686V_2686VFX/en/fx/mod/). It takes the
 envelopes and LFO the instruments carry per note, and applies them to the audio

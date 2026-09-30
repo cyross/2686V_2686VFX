@@ -53,6 +53,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - In non-PCM and PCM QUALITY, and in the 2686VFX PCM Bit Crusher
   - Pick a machine (98/88, MSX, X68K, FC, SFC, PCE, MD, GB, TOWNS, PS1) and press Apply to set BIT, RATE and INTERP in one go
   - The machine you pick is not saved to presets or channel parameter files
+- **2686VFX: noise reduction**
+  - The gate and high cut from the instruments' QUALITY(PCM) are now an effect of their own, "Noise reduction" (RATE sets where the LPF cuts)
+  - The PCM bit crusher gains NR: Resample, which cuts the highs before decimating
+  - Everything starts switched off, so existing sounds do not change
 - **Load files by drag and drop**
   - Drop a preset, channel parameter file, FX order or FX parameter file onto the window to load it
   - Presets and channel parameter files open that channel's tab

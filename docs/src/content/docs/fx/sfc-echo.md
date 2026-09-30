@@ -2,7 +2,7 @@
 title: SFCエコー
 description: SFCエコー の設定
 sidebar:
-  order: 9
+  order: 10
 ---
 
 <figure class="shot">

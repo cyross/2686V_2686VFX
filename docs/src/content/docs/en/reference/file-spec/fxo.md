@@ -42,6 +42,7 @@ Holds nothing but the order the effects run in.
 | `reverb` | Reverb |
 | `sfcEcho` | SFC echo |
 | `pcmBitCrusher` | PCM bit crusher (**2686VFX only**) |
+| `noiseReduction` | Noise reduction (**2686VFX only**; since 3.6.3) |
 
 **They are held by name, not by position.** Move a file between plugins that
 carry different numbers of effects and nothing shifts into the wrong slot.

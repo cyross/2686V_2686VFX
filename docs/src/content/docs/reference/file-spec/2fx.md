@@ -40,7 +40,8 @@ FX の設定をまとめたファイルです。
 | `filter` | `bypass` / `type` / `freq` / `q` / `mix` |
 | `eq3band` | `bypass` / `lowGainDb` / `midFreq` / `midGainDb` / `highGainDb` / `mix` |
 | `sfcEcho` | `bypass` / `time` / `fb` / `firCoef0` / `firCoef1` / `firCoef2` / `firCoef3` / `firCoef4` / `firCoef5` / `firCoef6` / `firCoef7` / `mix` |
-| `pcmBitCrusher` | `bypass` / `bits` / `rate` / `interp` / `mix` |
+| `pcmBitCrusher` | `bypass` / `bits` / `rate` / `interp` / `mix` / `nrResample` |
+| `noiseReduction` | `bypass` / `rate` / `gate` / `gateLevel` / `lpf` / `mix` |
 
 どの効果にも `bypass` があり、**真で切り**です。`mix` は 0.0 で原音のまま、
 1.0 で効果だけになります。
@@ -51,7 +52,13 @@ FX の設定をまとめたファイルです。
 ファイルにはこのまとまりがありませんが、そのときは今の値をそのまま
 使うので、読めなくなることはありません。
 
-`bits` / `rate` / `interp` は一覧の**何番目か**を持ちます。効果の順番は
+`noiseReduction` も 2686VFX にしかない効果で、3.6.3 で足しました。
+`pcmBitCrusher` の `nrResample` も同じく 3.6.3 からです。どちらも、無い
+ファイルを読んだときは既定（ノイズリダクションはバイパス、`nrResample` は切）
+にするので、それより前と同じ音になります。
+
+`bits` / `rate` / `interp` と `noiseReduction` の `rate` / `lpf` は一覧の
+**何番目か**を持ちます。効果の順番は
 [エフェクトの順番](/2686V_2686VFX/reference/file-spec/fxo/) の側で持ちます。
 :::
 

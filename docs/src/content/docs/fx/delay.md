@@ -2,7 +2,7 @@
 title: ディレイ
 description: ディレイ の設定
 sidebar:
-  order: 7
+  order: 8
 ---
 
 <figure class="shot">

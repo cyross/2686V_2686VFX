@@ -46,14 +46,14 @@ four columns.
 | Column | Stacked effects |
 | --- | --- |
 | 1 | Filter / 3-band EQ |
-| 2 | Tremolo / Vibrato |
+| 2 | Tremolo / Vibrato / Noise reduction |
 | 3 | Bit crusher / PCM bit crusher |
 | 4 | Delay / Reverb / SFC echo |
 
 The grouping is by kind and **has nothing to do with the processing order**,
 which is still set in the Effector list.
 
-## The effects (9 of them)
+## The effects (10 of them)
 
 | Effect | What it does |
 | --- | --- |
@@ -66,12 +66,19 @@ which is still set in the Effector list.
 | Reverb | room tail |
 | SFC echo | the Super Famicom echo, with its 8-tap FIR |
 | **PCM bit crusher** | crushes on the real chips' rate and bit steps |
+| **Noise reduction** | the gate and high cut from the instruments' QUALITY(PCM) |
 
-The last one, the **PCM bit crusher**, is new in 2686VFX. It uses the same steps
+The last two, the **PCM bit crusher** and **noise reduction**, are new in 2686VFX.
+
+The **PCM bit crusher** uses the same steps
 as the instruments' QUALITY section: it decimates down to the chosen rate,
 rounds to the chosen bit depth, then fills the gaps on read-back with the
 interpolation you pick. Seven interpolations are available (Nearest, Linear,
 Gaussian, Zero-Order Hold, Cosine, B-Spline, Lagrange).
+
+**Noise reduction** turns the gate and high cut from the instruments'
+QUALITY(PCM) into an effect of their own (since 3.6.3). Place it after the PCM
+bit crusher and it acts just as it does in the instruments.
 
 :::note
 The bit list runs from **32-bit down to 4-bit PCM**. The compressed codecs from
@@ -192,9 +199,9 @@ The order file stores effects by **name**, so a differing number of effects
 never causes a mix-up.
 
 - An order file written by an instrument, read in 2686VFX — the PCM bit crusher
-  isn't listed, so it is appended at the end
+  and noise reduction aren't listed, so they are appended at the end
 - An order file written by 2686VFX, read in an instrument — the PCM bit crusher
-  doesn't exist there, so it is skipped
+  and noise reduction don't exist there, so they are skipped
 
 :::tip
 2686VFX has no PRESET tab. **Import and export take its place:** write the

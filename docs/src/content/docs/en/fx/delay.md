@@ -2,7 +2,7 @@
 title: Delay
 description: Setting up the Delay
 sidebar:
-  order: 7
+  order: 8
 ---
 
 <figure class="shot">

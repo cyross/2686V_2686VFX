@@ -19,9 +19,12 @@ sidebar:
 | **BIT** | ビット数と圧縮方式。12 段 | 1 〜 12 | 12 | [`FX_PCMBC_BITS`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-pcmbc-bits) |
 | **RATE** | サンプリング周波数。15 段 | 1 〜 15 | 9 | [`FX_PCMBC_RATE`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-pcmbc-rate) |
 | **INTERP** | 読み戻すときの補間のしかた。7 種 | 0 〜 6 | 1 | [`FX_PCMBC_INTP`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-pcmbc-intp) |
+| **NR: Resample** | 間引く前に高い音を切って、折り返しを防ぐ（3.6.3 から） | オン / オフ | オフ | [`FX_PCMBC_NR_RESAMPLE`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-pcmbc-nr-resample) |
 | **MIX** | 原音との混ぜ具合 | 0 〜 1 | 0 | [`FX_PCMBC_MIX`](/2686V_2686VFX/reference/automation/fx-plugin/#fx-pcmbc-mix) |
 
 **DAC** の行で機種を選んで **適応** を押すと、BIT・RATE・INTERP をその機種に合わせてまとめて切り替えます（3.6.3 から）。選んだ機種は保存しません。
+
+**NR: Resample** を入れると、間引く前に **RATE** の帯域の上端（その半分の周波数）の少し手前で切ります。切らないと、表せない高い音が低いところへ折り返して濁ります。音源の QUALITY(PCM) の NR: Resample と同じ考え方で、流れてくる音向けに遅れの無いフィルタで切ります。ゲートや高域カットは [ノイズリダクション](/2686V_2686VFX/fx/noise-reduction/) にあります。
 
 **MIX** は原音と効果音の混ぜ具合です。0.0 で原音のまま、1.0 で効果だけになります。
 
