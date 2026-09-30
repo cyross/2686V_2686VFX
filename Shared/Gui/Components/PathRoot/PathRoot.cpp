@@ -76,6 +76,14 @@ void GuiComponentPathRoot::layoutComponent(juce::Rectangle<int>& rect)
     layoutMain({ .mainRect = rect, .label = &selector.label, .component = &selector });
 }
 
+void GuiComponentPathRoot::layoutRow(juce::Rectangle<int> row, int labelWidth, int selectorWidth)
+{
+    refresh();
+
+    selector.label.setBounds(row.removeFromLeft(labelWidth));
+    selector.setBounds(row.removeFromLeft(selectorWidth));
+}
+
 void GuiComponentPathRoot::setVisible(bool visible)
 {
     selector.setVisibleWithLabel(visible);

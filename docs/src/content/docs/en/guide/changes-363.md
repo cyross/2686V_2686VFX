@@ -148,8 +148,9 @@ until now relative paths were always taken from the folders set in SETTINGS
 | File's folder | The folder of the preset or channel parameter file being read or written |
 
 - Pick it with **REL.PATH** in the UTILITY section of OPZX7, RHYTHM, PCM (ADPCM),
-  PCM+ (ADPCM+), WT, WT2 and WT+. There is one value for the whole plug-in; changing
-  it in any channel changes it everywhere
+  PCM+ (ADPCM+), WT, WT2 and WT+, or at the top of the folder settings in SETTINGS.
+  There is one value for the whole plug-in; changing it in one place changes it
+  everywhere
 - It is stored in the settings file (when you save in SETTINGS)
 - With "File's folder", channel parameter files also record locations relative to
   themselves, so you can keep a sound and its material in one folder and move the

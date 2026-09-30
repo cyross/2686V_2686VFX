@@ -21,12 +21,16 @@ public:
 
     void setupComponent(juce::Component& parent, int& tabOrder);
     void layoutComponent(juce::Rectangle<int>& rect);
+
+    // 渡した 1 行へ、ラベルとコンボボックスを左から並べる (SETTINGS)
+    void layoutRow(juce::Rectangle<int> row, int labelWidth, int selectorWidth);
+
     void setVisible(bool visible);
+
+    // 今の値を表示へ入れる。環境設定を読み直したあとに呼ぶ。
+    void refresh();
 
 private:
     GuiContext ctx;
     GuiComboBox selector;
-
-    // 今の値を表示へ入れる
-    void refresh();
 };

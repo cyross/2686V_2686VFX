@@ -707,8 +707,8 @@ TEST_CASE("DAC: 「適応」ボタンが区分の中に収まっている")
     CHECK(checked > 0);
 }
 
-// 相対パスの基準は環境設定に 1 つだけ。どのチャンネルの UTILITY で変えても、
-// ほかのチャンネルの表示がそろう。
+// 相対パスの基準は環境設定に 1 つだけ。どのチャンネルの UTILITY や SETTINGS で
+// 変えても、ほかの表示がそろう。
 TEST_CASE("REL.PATH: どの UTILITY で変えても、全体の値とほかの表示がそろう")
 {
     Env env;
@@ -729,7 +729,7 @@ TEST_CASE("REL.PATH: どの UTILITY で変えても、全体の値とほかの�
         }
     }
 
-    // 対象のチャンネルを持たない本 (26V / 2686VFX など) には無い
+    // SETTINGS にも置いていない本 (2686VFX) には無い
     if (selectors.empty()) return;
 
     CHECK(env.processor->relativePathRoot == Io::PathRoot::settingsFolder);

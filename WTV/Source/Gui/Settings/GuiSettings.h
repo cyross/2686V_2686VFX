@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include <array>
 
+#include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiContext.h"
@@ -135,6 +136,9 @@ class GuiSettings : public GuiBase
     // トグルボタンの並べ方。中央寄せ (従来) か左寄せかを選ぶ。
     GuiComboBox toggleAlignSelector;
 
+    // 相対パスの基準。チャンネルの UTILITY と同じ部品で、値もそろう
+    GuiComponentPathRoot pathRoot;
+
     NormalSeparator separatorToggleAlign;
 
     // Tooltip Visible Switch
@@ -255,6 +259,7 @@ public:
         simpleViewShowToggles{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         separatorSimple(context),
         toggleAlignSelector(context),
+        pathRoot(context),
         separatorToggleAlign(context),
         separator4(context),
         useHeadroomToggle(context),

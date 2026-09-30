@@ -201,6 +201,9 @@ void GuiSettings::setup()
     // 見出しの下に中身が続くだけの形になる。
     dirCat.setupCategory({ .parent = *this, .title = SettingsGuiText::dirCat, .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
     
+    // 相対パスの基準。フォルダ設定の先頭に置く
+    pathRoot.setupComponent(*this, tabOrder);
+
     setupFolderRow(sampleDirLabel, SettingsGuiText::Dir::sample, sampleDirPathLabel, sampleDirBrowseBtn);
     sampleDirPathLabel.setText(pluginOf(ctx).defaultSampleDir, juce::dontSendNotification);
     sampleDirPathLabel.setWantsKeyboardFocus(false);
@@ -949,6 +952,7 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     bool dirVisible = dirCat.isDetailVisible();
 
+    pathRoot.setVisible(dirVisible);
     sampleDirLabel.setVisible(dirVisible);
     sampleDirPathLabel.setVisible(dirVisible);
     sampleDirBrowseBtn.setVisible(dirVisible);
@@ -1010,6 +1014,12 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     if (dirVisible)
     {
+        // 相対パスの基準
+        pathRoot.layoutRow(sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight),
+            SettingsGuiValue::Settings::LabelWidth, SettingsGuiValue::Settings::PathRootSelectorWidth);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
         // 4. ADPCM Dir
         auto rowAdpcmDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
         sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
@@ -1273,6 +1283,7 @@ void GuiSettings::setSettings()
     uiScaleSelector.setSelectedId(pluginOf(ctx).uiScaleIndex + 1, juce::dontSendNotification);
     fileFormatSelector.setSelectedId(pluginOf(ctx).fileFormatIndex + 1, juce::dontSendNotification);
     toggleAlignSelector.setSelectedId(pluginOf(ctx).toggleAlign + 1, juce::dontSendNotification);
+    pathRoot.refresh();
     wallpaperModeSelector.setSelectedId(pluginOf(ctx).wallpaperMode + 1, juce::dontSendNotification);
 
     wallpaperPathLabel.setText(pluginOf(ctx).wallpaperPath.isEmpty()
