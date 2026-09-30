@@ -55,6 +55,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The machine you pick is not saved to presets or channel parameter files
 - **2686VFX: noise reduction**
   - The gate and high cut from the instruments' QUALITY(PCM) are now an effect of their own, "Noise reduction" (RATE sets where the LPF cuts)
+  - With "RATE: Bypass" on, RATE is ignored and the LPF takes the host's sample rate as its reference
   - The PCM bit crusher gains NR: Resample, which cuts the highs before decimating
   - Everything starts switched off, so existing sounds do not change
 - **Load files by drag and drop**
