@@ -47,6 +47,7 @@ its current value** — it is not reset to the default.
 | `speed` | float | — | — |
 | `shape` | int | — | — |
 | `waveSmooth` | bool | — | — |
+| `waves` | list of strings | Where each loaded modulation wave is, one per slot (since 3.6.3) | — |
 
 :::note[Writing one by hand]
 - Knobs that pick from a list are held as **numbers**. Those are the ones whose

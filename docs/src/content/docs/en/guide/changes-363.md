@@ -135,3 +135,29 @@ straight away, behaving exactly as if you had loaded it with the usual button.
 
 2686VFX accepts FX order and FX parameter files; the screen stays as it is.
 When you drop several files at once, they load in order.
+
+## Choose the base for relative paths
+
+Presets and channel parameter files record where audio and wave files are, and
+until now relative paths were always taken from the folders set in SETTINGS
+(`Samples` / `Wavetable`). In 3.6.3 you can pick the base:
+
+| Choice | Base |
+| --- | --- |
+| Settings folder | The folders set in SETTINGS (as before; the default) |
+| File's folder | The folder of the preset or channel parameter file being read or written |
+
+- Pick it with **REL.PATH** in the UTILITY section of OPZX7, RHYTHM, PCM (ADPCM),
+  PCM+ (ADPCM+), WT, WT2 and WT+. There is one value for the whole plug-in; changing
+  it in any channel changes it everywhere
+- It is stored in the settings file (when you save in SETTINGS)
+- With "File's folder", channel parameter files also record locations relative to
+  themselves, so you can keep a sound and its material in one folder and move the
+  folder as a whole
+- When reading, the other base is tried as well, so files written either way load
+- Saving into a DAW project has no file to go by, so it uses the settings folders
+
+Alongside this, **WT, WT2 and WT+ channel parameter files now record where their
+wave files are**: the modulation waves of WT PITCH MOD and WT AMP MOD (`waves`) and
+each WT+ slot's wave (`waveFile`). Loading such a file reloads the waves. Older
+files do not have them, so loading one leaves the current waves in place.

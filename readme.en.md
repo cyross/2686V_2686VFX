@@ -57,6 +57,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Drop a preset, channel parameter file, FX order or FX parameter file onto the window to load it
   - Presets and channel parameter files open that channel's tab
   - 2686VFX accepts FX order and FX parameter files (the screen stays as it is)
+- **Choose the base for relative paths**
+  - Locations of audio and wave files in presets and channel parameter files can be relative to the settings folders (as before) or to the file's own folder
+  - Set with REL.PATH in the UTILITY of OPZX7, RHYTHM, PCM, PCM+, WT, WT2 and WT+ (one value for the plug-in, also stored in the settings file)
+  - Both bases are tried when reading, so files written either way still load
+  - WT, WT2 and WT+ channel parameter files now record their wave files too
 
 ### 3-0-2. What v3.6.2 fixes and changes
 
