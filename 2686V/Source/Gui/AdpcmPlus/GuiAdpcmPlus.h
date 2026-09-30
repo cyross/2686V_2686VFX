@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include <array>
 
+#include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
@@ -146,6 +147,7 @@ class GuiAdpcmPlus : public GuiBase
     GuiComponentMidi midiComponent;
 
     GuiCategoryLabel utilityCat;
+    GuiComponentPathRoot pathRoot;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
@@ -245,6 +247,7 @@ public:
         lfoComponent(context),
         midiComponent(context),
         utilityCat(context),
+        pathRoot(context),
         ampMajorCat(context),
         pitchMajorCat(context),
         broadcastLevelButton(context),

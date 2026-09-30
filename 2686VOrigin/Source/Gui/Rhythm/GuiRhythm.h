@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 
+#include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Io/ParamFile.h"
 #include <array>
 
@@ -388,6 +389,7 @@ class GuiRhythm : public GuiBase
     GuiComponentMidi midiComponent;
 
     GuiCategoryLabel utilityCat;
+    GuiComponentPathRoot pathRoot;
     GuiTextButton broadcastLevelButton;
     NormalSeparator uSep001;
     GuiTextButton copyPadParamBtn;

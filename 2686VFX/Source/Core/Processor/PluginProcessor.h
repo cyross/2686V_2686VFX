@@ -246,6 +246,7 @@ public:
             visit(juce::String(SimpleView::items()[(size_t)i].key), simpleViewShow[(size_t)i]);
         }
         visit(SettingsKey::toggleAlign, toggleAlign);
+        visit(SettingsKey::relativePathRoot, relativePathRoot);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop

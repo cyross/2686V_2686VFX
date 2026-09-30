@@ -954,6 +954,9 @@ void AudioPlugin2686V::setStateInformation(const void* data, int sizeInBytes) {
 
 void AudioPlugin2686V::savePreset(const juce::File& file)
 {
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(*this, file);
+
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
 
@@ -999,6 +1002,9 @@ bool AudioPlugin2686V::isPresetForThisPlugin(const juce::XmlElement* xmlState, c
 
 void AudioPlugin2686V::loadPreset(const juce::File& file)
 {
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(*this, file);
+
     // 3.0.0 より前のプリセットは XML。作り溜めたものが読めなくなると困るので、
     // 読み込みだけは残してある。書き出しは新しい形式だけ。
     if (auto reader = Io::ParamReader::open(file, presetFormat, false))
@@ -1399,91 +1405,44 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
     if (padIndex < RhythmPrValue::pads) m_rhythmPcm[(size_t)padIndex].clear();
 }
 
-// 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
+// 絶対パスの File を、書き出す形へ直す。
+//
+// 相対パスの基準は Io::PathRoot で選ぶ (設定の置き場か、書き出している
+// プリセットの置き場か)。DAW のプロジェクトへ書くときは、プリセットの
+// ファイルが無いので設定の置き場になる。
 juce::String AudioPlugin2686V::makePathRelative(const juce::File& targetFile)
 {
-    // ファイルが無効、またはディレクトリ未設定ならそのまま絶対パスを返す
-    if (targetFile == juce::File() || defaultSampleDir.isEmpty())
-        return targetFile.getFullPathName();
-
-    juce::File baseDir(defaultSampleDir);
-
-    // JUCEネイティブの相対パス取得メソッドを使用（文字化けしない！）
-    return targetFile.getRelativePathFrom(baseDir);
+    return toStoredPath(targetFile.getFullPathName(), defaultSampleDir, true);
 }
 
-// パス文字列（相対 or 絶対）を、読み込み可能なFileオブジェクトに復元する
+// 書かれた場所 (相対 or 絶対) を、読み込み可能な File に戻す
 juce::File AudioPlugin2686V::resolvePath(const juce::String& pathStr)
 {
-    if (pathStr.isEmpty()) return juce::File();
-
-    // すでに絶対パスであれば、そのまま使う (JUCEのメソッドで判定)
-    if (juce::File::isAbsolutePath(pathStr))
-    {
-        return juce::File(pathStr);
-    }
-
-    // 相対パスの場合は defaultSampleDir と結合する
-    if (defaultSampleDir.isNotEmpty())
-    {
-        juce::File baseDir(defaultSampleDir);
-
-        // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
-        return baseDir.getChildFile(pathStr);
-    }
-
-    // ベースディレクトリがない場合は一応そのまま返す
-    return juce::File(pathStr);
+    return fromStoredPath(pathStr, defaultSampleDir);
 }
 
-// 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
 juce::String AudioPlugin2686V::makeWtPathRelative(const juce::File& targetFile)
 {
-    // ファイルが無効、またはディレクトリ未設定ならそのまま絶対パスを返す
-    if (targetFile == juce::File() || defaultWavetableDir.isEmpty())
-        return targetFile.getFullPathName();
-
-    juce::File baseDir(defaultWavetableDir);
-
-    // JUCEネイティブの相対パス取得メソッドを使用（文字化けしない！）
-    return targetFile.getRelativePathFrom(baseDir);
+    return toStoredPath(targetFile.getFullPathName(), defaultWavetableDir, true);
 }
 
-// パス文字列（相対 or 絶対）を、読み込み可能なFileオブジェクトに復元する
 juce::File AudioPlugin2686V::resolveWtPath(const juce::String& pathStr)
 {
-    if (pathStr.isEmpty()) return juce::File();
+    auto file = fromStoredPath(pathStr, defaultWavetableDir);
 
-    // すでに絶対パスであれば、そのまま使う (JUCEのメソッドで判定)
-    if (juce::File::isAbsolutePath(pathStr))
+    // 3.6.0 までは、波形を読み込むたびに基準の置き場が書き換わっていた。
+    // そのころ保存したものは相対パスの基準がずれていることがあるので、
+    // 見つからなければ置き場の下、次にプラグインの置き場の下を名前で探す。
+    if (!juce::File::isAbsolutePath(pathStr) && file != juce::File() && !file.existsAsFile()
+        && defaultWavetableDir.isNotEmpty())
     {
-        return juce::File(pathStr);
+        auto moved = Io::findMovedFile(juce::File(defaultWavetableDir), pathStr);
+
+        if (moved == juce::File()) moved = Io::findMovedFile(getPluginDirectory(), pathStr);
+        if (moved != juce::File()) return moved;
     }
 
-    // 相対パスの場合は defaultWavetableDir と結合する
-    if (defaultWavetableDir.isNotEmpty())
-    {
-        juce::File baseDir(defaultWavetableDir);
-
-        // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
-        auto file = baseDir.getChildFile(pathStr);
-
-        // 3.6.0 までは、波形を読み込むたびに基準の置き場が書き換わっていた。
-        // そのころ保存したものは相対パスの基準がずれていることがあるので、
-        // 見つからなければ置き場の下、次にプラグインの置き場の下を名前で探す。
-        if (!file.existsAsFile())
-        {
-            auto moved = Io::findMovedFile(baseDir, pathStr);
-
-            if (moved == juce::File()) moved = Io::findMovedFile(getPluginDirectory(), pathStr);
-            if (moved != juce::File()) return moved;
-        }
-
-        return file;
-    }
-
-    // ベースディレクトリがない場合は一応そのまま返す
-    return juce::File(pathStr);
+    return file;
 }
 
 // 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する

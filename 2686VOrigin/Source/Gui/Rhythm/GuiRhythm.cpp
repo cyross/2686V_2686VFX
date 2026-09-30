@@ -1220,7 +1220,7 @@ void RhythmPadGui::writeQualityParamFile(const juce::File& file)
 void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
     // 出しているので、そこから File を作ることはできない。
-    auto path = Io::resolveSamplePath(r.getString("filePath", pluginOf(ctx).rhythmFilePaths[p]), pluginOf(ctx).defaultSampleDir);
+    auto path = pluginOf(ctx).resolveStoredPath(r.getString("filePath", pluginOf(ctx).rhythmFilePaths[p]), pluginOf(ctx).defaultSampleDir);
 
     // 別のファイルへ変わるなら、いま持っているものを先に外す
     if (pluginOf(ctx).rhythmFilePaths[p] != path) {
@@ -1274,7 +1274,7 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
 
 void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     // 名前ではなく場所を残す。読み戻すときに File を作れるようにするため。
-    w.set("filePath", Io::toStoredFileName(pluginOf(ctx).rhythmFilePaths[p]));
+    w.set("filePath", pluginOf(ctx).toStoredPath(pluginOf(ctx).rhythmFilePaths[p], pluginOf(ctx).defaultSampleDir, false));
 
     w.set("vol", (float)volSlider.getValue());
     w.set("pan", (float)panSlider.getValue());
@@ -1317,6 +1317,7 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     unisonComponent(context),
     midiComponent(context),
     utilityCat(context),
+    pathRoot(context),
     broadcastLevelButton(context),
     uSep001(context),
     copyPadParamBtn(context),
@@ -1368,6 +1369,9 @@ void GuiRhythm::setup()
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::util, .enableChangeDetailVisible = true });
+
+    // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
+    pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
@@ -1606,6 +1610,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    pathRoot.setVisible(visible);
+
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
     copyPadParamBtn.setVisible(visible);
@@ -1633,6 +1639,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
+        pathRoot.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
 
         uSep001.layoutComponent(rect);
@@ -1893,6 +1901,9 @@ void GuiRhythm::importChParam() {
 void GuiRhythm::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     // 次回のダイアログ用にディレクトリを保存
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -1959,6 +1970,9 @@ void GuiRhythm::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(rhythmFormat);
@@ -1981,6 +1995,9 @@ void GuiRhythm::importPadChParam(int p)
 void GuiRhythm::applyPadChParamFile(int p, const juce::File& file)
 {
     if (!file.existsAsFile()) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
 
     // 次回のダイアログ用にディレクトリを保存
@@ -2035,6 +2052,9 @@ void GuiRhythm::exportPadChParam(int p)
 void GuiRhythm::writePadChParamFile(int p, const juce::File& file)
 {
     if (file == juce::File{}) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 

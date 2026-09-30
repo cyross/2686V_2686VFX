@@ -190,6 +190,9 @@ void GuiWtPlus::setup() {
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtPlusGuiText::Category::util, .enableChangeDetailVisible = true });
 
+    // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
+    pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
+
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = WtPlusGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
@@ -423,6 +426,8 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    pathRoot.setVisible(visible);
+
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -442,6 +447,8 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
+        pathRoot.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
 
         uSep001.layoutComponent(rect);
@@ -789,6 +796,9 @@ void GuiWtPlus::importChParam() {
 void GuiWtPlus::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
@@ -838,6 +848,23 @@ void GuiWtPlus::applyChParamFile(const juce::File& file) {
             r.getFloat("speed", getParamValue(slotPrefix + CPK::speed)));
 
         waveHold.readParamsFor(slotPrefix, r);
+
+        // 読み込んだ波形の場所 (3.6.3 から)。無いファイルでは今の波形のまま。
+        // 空なら外す。見つからないものは、今の波形のまま残す。
+        if (r.keys().contains("waveFile")) {
+            const auto text = r.getString("waveFile");
+
+            if (!Io::isFileName(text)) {
+                pluginOf(ctx).unloadWtPlusWaveFile(i);
+            }
+            else {
+                const auto file = pluginOf(ctx).fromStoredPath(text, pluginOf(ctx).defaultWavetableDir);
+
+                if (file.existsAsFile()) pluginOf(ctx).loadWtPlusWaveFile(i, file);
+            }
+
+            updateSlotFileName(i);
+        }
     }
 
     // Wave
@@ -877,6 +904,9 @@ void GuiWtPlus::exportChParam()
 void GuiWtPlus::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -933,6 +963,10 @@ void GuiWtPlus::writeChParams(Io::ParamWriter& writer) {
 		w.set("speed", getParamValue(slotPrefix + CPK::speed));
 
 		waveHold.writeParamsFor(slotPrefix, w);
+
+		// 読み込んだ波形の場所。基準は Io::PathRoot で選ぶ。
+		w.set("waveFile", pluginOf(ctx).toStoredPath(pluginOf(ctx).wtPlusWavePaths[i],
+			pluginOf(ctx).defaultWavetableDir, false));
 	}
 
 	// Wave

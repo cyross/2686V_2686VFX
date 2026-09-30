@@ -233,6 +233,9 @@ void GuiAdpcm::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::util, .enableChangeDetailVisible = true });
 
+    // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
+    pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
+
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
@@ -473,6 +476,8 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    pathRoot.setVisible(visible);
+
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
     ieToneNoise.setVisible(visible);
@@ -494,6 +499,8 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
+        pathRoot.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
 
         uSep001.layoutComponent(rect);
@@ -1018,6 +1025,9 @@ void GuiAdpcm::importChParam() {
 void GuiAdpcm::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     // 次回のダイアログ用にディレクトリを保存
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -1061,7 +1071,7 @@ void GuiAdpcm::applyChParamFile(const juce::File& file) {
     // Form
 				// 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
 				// 出しているので、そこから File を作ることはできない。
-				auto path = Io::resolveSamplePath(reader->getString("filePath", pluginOf(ctx).adpcmFilePath), pluginOf(ctx).defaultSampleDir);
+				auto path = pluginOf(ctx).resolveStoredPath(reader->getString("filePath", pluginOf(ctx).adpcmFilePath), pluginOf(ctx).defaultSampleDir);
 
 				// 別のファイルへ変わるなら、いま持っているものを先に外す
 				if (pluginOf(ctx).adpcmFilePath != path) {
@@ -1132,6 +1142,9 @@ void GuiAdpcm::exportChParam()
 void GuiAdpcm::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -1207,7 +1220,7 @@ void GuiAdpcm::writeChParams(Io::ParamWriter& writer) {
 
 	            // Form
 	// 名前ではなく場所を残す。読み戻すときに File を作れるようにするため。
-	writer.set("filePath", Io::toStoredFileName(pluginOf(ctx).adpcmFilePath));
+	writer.set("filePath", pluginOf(ctx).toStoredPath(pluginOf(ctx).adpcmFilePath, pluginOf(ctx).defaultSampleDir, false));
 
 	            // Optional
 	writer.set("loop", loopButton.getToggleState());

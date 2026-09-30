@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
 
@@ -111,6 +112,7 @@ class GuiOpzx7 : public GuiBase
     GuiComponentMidi midiComponent;
 
     GuiCategoryLabel utilityCat;
+    GuiComponentPathRoot pathRoot;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;

@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include <array>
 
+#include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
@@ -142,6 +143,7 @@ class GuiWt : public GuiBase
     GuiTextButton customWaveSmoothBtn;
 
     GuiCategoryLabel utilityCat;
+    GuiComponentPathRoot pathRoot;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
@@ -217,6 +219,7 @@ public:
         mulDetuneComponent(context),
         lfo(context),
         utilityCat(context),
+        pathRoot(context),
         ampMajorCat(context),
         pitchMajorCat(context),
         broadcastLevelButton(context),

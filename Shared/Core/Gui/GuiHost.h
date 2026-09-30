@@ -9,6 +9,7 @@
 
 #include "./GuiToggleAlign.h"
 #include "../Synth/WtModWave.h"
+#include "../Io/IoPathRoot.h"
 
 // ============================================================================
 // 画面の部品から見たプロセッサとエディタ (窓口)
@@ -77,6 +78,34 @@ public:
     // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。
     int toggleAlign = ToggleAlign::Centred;
 
+    // ---- 音声・波形ファイルの場所をどこからの相対で書くか (Io::PathRoot)
+    // 環境設定に 1 つだけ持つ。どのチャンネルの UTILITY から変えても同じ値。
+    int relativePathRoot = Io::PathRoot::settingsFolder;
+
+    // いま読み書きしているプリセット / チャンネルパラメータのファイル。
+    // 読み書きのあいだだけ PathDocumentScope で入れる。
+    juce::File pathDocument;
+
+    // 書くときの形と、書かれた場所の読み方。settingsDir は設定の置き場
+    // (音声なら Samples、波形なら Wavetable)。
+    juce::String toStoredPath(const juce::String& path, const juce::String& settingsDir, bool relativeToSettings) const
+    {
+        return Io::toStoredPath(path, relativePathRoot, pathDocument, settingsDir, relativeToSettings);
+    }
+
+    juce::File fromStoredPath(const juce::String& text, const juce::String& settingsDir) const
+    {
+        return Io::fromStoredPath(text, relativePathRoot, pathDocument, settingsDir);
+    }
+
+    // fromStoredPath の文字列版。組み立てられなければ、書かれていたまま返す。
+    juce::String resolveStoredPath(const juce::String& text, const juce::String& settingsDir) const
+    {
+        const auto file = fromStoredPath(text, settingsDir);
+
+        return file == juce::File() ? text : file.getFullPathName();
+    }
+
     // 変調波形の読み書き。実データは modWaveSlots が持ち、
     // state へは相対パスだけを保存して読み直す。
     virtual void loadWtModWaveFile(const juce::String& code, int slot, const juce::File& file) = 0;
@@ -92,6 +121,24 @@ public:
     // 生成波形の計算に使う音源一式を、今の設定で組み立てる。メッセージスレッド
     // から呼ぶこと。音源を持たないプラグイン (2686VFX) は nullptr を返す。
     virtual std::unique_ptr<GuiRenderRig> createRenderRig(double sampleRate) = 0;
+};
+
+// プリセット / チャンネルパラメータを読み書きするあいだ置いておく。
+// そのあいだ、中に書く音声・波形の場所はこのファイルを基準にできる。
+class PathDocumentScope
+{
+    GuiProcessorHost& host;
+    juce::File saved;
+public:
+    PathDocumentScope(GuiProcessorHost& h, const juce::File& document) : host(h), saved(h.pathDocument)
+    {
+        host.pathDocument = document;
+    }
+
+    ~PathDocumentScope() { host.pathDocument = saved; }
+
+    PathDocumentScope(const PathDocumentScope&) = delete;
+    PathDocumentScope& operator=(const PathDocumentScope&) = delete;
 };
 
 // ---------------------------------------------------------------- エディタ

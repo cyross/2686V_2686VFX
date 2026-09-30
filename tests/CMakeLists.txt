@@ -193,6 +193,7 @@ juce_generate_juce_header(IoTests)
 target_sources(IoTests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/io/ParamFileTests.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/io/MovedFileTests.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/io/PathRootTests.cpp"
     "${SHARED_SOURCE_ROOT}/Core/Io/ParamFile.cpp"
     "${SHARED_SOURCE_ROOT}/Core/Gui/GuiI18n.cpp"
 )

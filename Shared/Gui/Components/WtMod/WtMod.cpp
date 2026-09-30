@@ -815,6 +815,25 @@ void GuiComponentWtMod::readParams(const Io::ParamReader& reader, const juce::St
 
     waveHold.readParams(r);
 
+    // 読み込んだ変調波形の場所 (3.6.3 から)。無いファイルでは今の波形のまま。
+    // 空のスロットは外す。見つからないものは、今の波形のまま残す。
+    const auto waves = r.getStringArray("waves");
+
+    for (int i = 0; i < (int)waves.size() && i < Global::WtMod::slots; ++i) {
+        const auto& text = waves[(size_t)i];
+
+        if (!Io::isFileName(text)) {
+            ctx.audioProcessor.unloadWtModWaveFile(m_code, i);
+        }
+        else {
+            const auto file = ctx.audioProcessor.fromStoredPath(text, ctx.audioProcessor.defaultWavetableDir);
+
+            if (file.existsAsFile()) ctx.audioProcessor.loadWtModWaveFile(m_code, i, file);
+        }
+
+        updateSlotFileName(i);
+    }
+
     auto values = r.getIntArray("table");
 
     if (values.empty()) return;
@@ -839,6 +858,15 @@ void GuiComponentWtMod::writeParams(Io::ParamWriter& writer, const juce::String&
     w.set("waveSmooth", waveSmoothBtn.getToggleState());
 
     waveHold.writeParams(w);
+
+    // 読み込んだ変調波形の場所。基準は Io::PathRoot で選ぶ。
+    std::vector<juce::String> waves;
+
+    for (int i = 0; i < Global::WtMod::slots; ++i) {
+        waves.push_back(ctx.audioProcessor.toStoredPath(wavePath(i), ctx.audioProcessor.defaultWavetableDir, false));
+    }
+
+    w.setArray("waves", waves);
 
     auto table = fdsEditor.currentTable();
 

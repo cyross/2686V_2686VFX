@@ -32,6 +32,9 @@ namespace SettingsKey
 	static inline const juce::String showTooltips = "showTooltips";
 	static inline const juce::String simpleView = "simpleView";
 	static inline const juce::String toggleAlign = "toggleAlign";
+
+	// プリセット・チャンネルパラメータに書く音声・波形の場所の基準 (Io::PathRoot)
+	static inline const juce::String relativePathRoot = "relativePathRoot";
 	static inline const juce::String useHeadroom = "useHeadRoom";
 	static inline const juce::String headroomGain = "headRoomGain";
 	static inline const juce::String liveDetune = "liveDetune";

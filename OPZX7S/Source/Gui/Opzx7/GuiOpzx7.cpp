@@ -361,6 +361,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ssgSwPEnv11g(context),
     unisonComponent(context),
     utilityCat(context),
+    pathRoot(context),
     ampMajorCat(context),
     pitchMajorCat(context),
     importFmBtn(context),
@@ -706,6 +707,9 @@ void GuiOpzx7::setup()
     importFmBtn.onClick = [this] { importFmParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::util, .enableChangeDetailVisible = true });
+
+    // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
+    pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
@@ -2333,6 +2337,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    pathRoot.setVisible(visible);
+
     importFmBtn.setVisible(visible);
 
     broadcastLevelButton.setVisible(visible);
@@ -2368,6 +2374,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
+        pathRoot.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
 
         uSep001.layoutComponent(rect);
@@ -3358,6 +3366,9 @@ void GuiOpzx7::applyOpPcmPlayParamFile(int opIndex, const juce::File& file)
 {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
 
     // 次回のダイアログ用にディレクトリを保存
     pluginOf(ctx).defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
@@ -3417,6 +3428,9 @@ void GuiOpzx7::exportOpPcmPlayParam(int opIndex)
 void GuiOpzx7::writeOpPcmPlayParamFile(int opIndex, const juce::File& file)
 {
     if (file == juce::File{}) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
     // 次回のダイアログ用にディレクトリを保存
     pluginOf(ctx).defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
@@ -3487,6 +3501,9 @@ void GuiOpzx7::importChParam() {
 void GuiOpzx7::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     // 次回のダイアログ用にディレクトリを保存
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -3545,6 +3562,9 @@ void GuiOpzx7::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(opzx7Format);
@@ -3567,6 +3587,9 @@ void GuiOpzx7::importOpChParam(int opIndex)
 void GuiOpzx7::applyOpChParamFile(int opIndex, const juce::File& file)
 {
     if (!file.existsAsFile()) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
 
     // 次回のダイアログ用にディレクトリを保存
@@ -3625,6 +3648,9 @@ void GuiOpzx7::exportOpChParam(int opIndex)
 void GuiOpzx7::writeOpChParamFile(int opIndex, const juce::File& file)
 {
     if (file == juce::File{}) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -3743,9 +3769,9 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     //
     // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
     // 出しているので、そこから File を作ることはできない。
-    auto pcmPath = Io::resolveSamplePath(r.getString("pcmFile", pluginOf(ctx).opzx7PcmFilePaths[opIndex]), pluginOf(ctx).defaultSampleDir);
-    auto wtPath = Io::resolveSamplePath(r.getString("wtFile", pluginOf(ctx).opzx7WtFilePaths[opIndex]), pluginOf(ctx).defaultSampleDir);
-    auto wt2Path = Io::resolveSamplePath(r.getString("wt2File", pluginOf(ctx).opzx7Wt2FilePaths[opIndex]), pluginOf(ctx).defaultSampleDir);
+    auto pcmPath = pluginOf(ctx).resolveStoredPath(r.getString("pcmFile", pluginOf(ctx).opzx7PcmFilePaths[opIndex]), pluginOf(ctx).defaultSampleDir);
+    auto wtPath = pluginOf(ctx).resolveStoredPath(r.getString("wtFile", pluginOf(ctx).opzx7WtFilePaths[opIndex]), pluginOf(ctx).defaultSampleDir);
+    auto wt2Path = pluginOf(ctx).resolveStoredPath(r.getString("wt2File", pluginOf(ctx).opzx7Wt2FilePaths[opIndex]), pluginOf(ctx).defaultSampleDir);
 
     auto showName = [](const juce::String& path) {
         return Io::isFilePath(path) ? juce::File(path).getFileName() : Io::empty;
@@ -3843,9 +3869,9 @@ void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
     w.set("ws", ws.getSelectedId());
 
     // 種類ごとに別の名前で持つので、切り替えて保存し直しても互いを壊さない
-    w.set("pcmFile", pluginOf(ctx).opzx7PcmFilePaths[opIndex]);
-    w.set("wtFile", pluginOf(ctx).opzx7WtFilePaths[opIndex]);
-    w.set("wt2File", pluginOf(ctx).opzx7Wt2FilePaths[opIndex]);
+    w.set("pcmFile", pluginOf(ctx).toStoredPath(pluginOf(ctx).opzx7PcmFilePaths[opIndex], pluginOf(ctx).defaultSampleDir, false));
+    w.set("wtFile", pluginOf(ctx).toStoredPath(pluginOf(ctx).opzx7WtFilePaths[opIndex], pluginOf(ctx).defaultSampleDir, false));
+    w.set("wt2File", pluginOf(ctx).toStoredPath(pluginOf(ctx).opzx7Wt2FilePaths[opIndex], pluginOf(ctx).defaultSampleDir, false));
 
     // PCM Play / Loop Point
     w.set("pcmOffset", (float)pcmOffset.getValue());

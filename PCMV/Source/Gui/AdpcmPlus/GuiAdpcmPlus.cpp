@@ -269,6 +269,9 @@ void GuiAdpcmPlus::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::util, .enableChangeDetailVisible = true });
 
+    // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
+    pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
+
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Utility::bcLevel });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
@@ -613,6 +616,8 @@ void GuiAdpcmPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    pathRoot.setVisible(visible);
+
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
     ieToneNoise.setVisible(visible);
@@ -634,6 +639,8 @@ void GuiAdpcmPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
+        pathRoot.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
 
         uSep001.layoutComponent(rect);
@@ -1173,6 +1180,9 @@ void GuiAdpcmPlus::importChParam() {
 void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     // 次回のダイアログ用にディレクトリを保存
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -1198,7 +1208,7 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
         auto r = reader->child("slot" + juce::String(i));
 
         // 素材の場所はプロセッサが持っている
-        auto path = Io::resolveSamplePath(r.getString("filePath", pluginOf(ctx).adpcmPlusFilePaths[(size_t)i]),
+        auto path = pluginOf(ctx).resolveStoredPath(r.getString("filePath", pluginOf(ctx).adpcmPlusFilePaths[(size_t)i]),
             pluginOf(ctx).defaultSampleDir);
 
         // 別のファイルへ変わるなら、いま持っているものを先に外す
@@ -1278,6 +1288,9 @@ void GuiAdpcmPlus::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(adpcmPlusFormat);
@@ -1300,7 +1313,7 @@ void GuiAdpcmPlus::writeChParams(Io::ParamWriter& writer) {
         auto w = writer.child("slot" + juce::String(i));
 
         // 名前ではなく場所を残す。読み戻すときに File を作れるようにするため。
-        w.set("filePath", Io::toStoredFileName(pluginOf(ctx).adpcmPlusFilePaths[(size_t)i]));
+        w.set("filePath", pluginOf(ctx).toStoredPath(pluginOf(ctx).adpcmPlusFilePaths[(size_t)i], pluginOf(ctx).defaultSampleDir, false));
 
         w.set("tone", getParamValue(slotPrefix + CPK::Tn::tone));
         w.set("noise", getParamValue(slotPrefix + CPK::Tn::noise));
