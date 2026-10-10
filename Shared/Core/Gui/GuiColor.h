@@ -494,6 +494,21 @@ namespace GuiColor {
 		inline Entry Bg{ "TextButton.Bg", []() -> juce::Colour { return Palette::OffWhite; } };
 		inline Entry Border{ "TextButton.Border", []() -> juce::Colour { return Palette::BorderGray; } };
 	};
+	// EDIT 区分
+	namespace Edit {
+		// EDIT へ移したボタンの文字 (Level -> All Ch / Duplicate Op Params など)
+		inline Entry ButtonText{ "Edit.ButtonText", []() -> juce::Colour { return Palette::OffWhite; } };
+
+		// EDIT へ移したボタンの地。文字をオフホワイトにするので濃い色にする
+		inline Entry MovedButtonBg{ "Edit.MovedButtonBg", []() -> juce::Colour { return juce::Colours::turquoise.darker(0.5f); } };
+
+		// Duplicate Ops Params / Duplicate Targets の地。1 つずつ写すボタンと見分けるための青
+		inline Entry DuplicateOpsBg{ "Edit.DuplicateOpsBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x1F, 0x4E, 0xC8); } };
+
+		// TARGET の複写・消去のダイアログ
+		inline Entry DialogBg{ "Edit.DialogBg", []() -> juce::Colour { return Editor::defaultBg; } };
+		inline Entry DialogBorder{ "Edit.DialogBorder", []() -> juce::Colour { return Palette::OffWhite; } };
+	};
 	namespace HyperLink {
 		inline Entry Fg{ "HyperLink.Fg", []() -> juce::Colour { return juce::Colours::lightblue; } };
 	};

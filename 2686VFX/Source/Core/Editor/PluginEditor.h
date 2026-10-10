@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+#include "Shared/Gui/Components/Edit/CopyHistory.h"
 #include <JuceHeader.h>
 #include <array>
 #include <vector>
@@ -257,6 +259,11 @@ private:
     SystemButtonLF categoryToggleBtnLF;
     juce::TextButton openCategoriesBtn;
     juce::TextButton closeCategoriesBtn;
+
+    // コピー履歴 (CPHIST)。押したときに作って重ねる
+    juce::TextButton copyHistoryBtn;
+    std::unique_ptr<GuiCopyHistory> copyHistory;
+    void openCopyHistory();
 
     // 開いているタブに限らず、持っているタブすべてへ配る。
     void forEachTabGui(const std::function<void(GuiBase&)>& fn);

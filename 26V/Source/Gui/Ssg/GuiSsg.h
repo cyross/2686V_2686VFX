@@ -14,6 +14,7 @@
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -124,13 +125,15 @@ class GuiSsg : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
     GuiCategoryLabel utilityCat;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
@@ -217,11 +220,11 @@ public:
         triSetTri(context),
         triSetSawUp(context),
         midiComponent(context),
+        editComponent(context),
         utilityCat(context),
         ampMajorCat(context),
         pitchMajorCat(context),
         broadcastLevelButton(context),
-        uSep001(context),
         ieToneNoise(context),
         ieLfo(context),
         ieAmpEnv(context),

@@ -9,6 +9,7 @@
 #include "Shared/Core/Gui/GuiLF.h"
 #include "Shared/Core/Gui/GuiLazy.h"
 #include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Gui/Components/Edit/CopyHistory.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
 
@@ -154,6 +155,13 @@ public:
     // 区分に合うタブへ読ませる。合うタブが無ければ false。
     // そのファイルのための音源へ切り替えたうえで読む。
     bool applyChannelParamFile(const juce::File& file);
+
+    // パラメータの切り取り・コピー・貼り付けで、区分の外の素材を写す。
+    // 素材を持つタブへ取り次ぐ。
+    void collectClipAssets(const juce::String& prefix, bool wholeChannel,
+        std::map<juce::String, juce::String>& out) override;
+    void applyClipAssets(const juce::String& prefix, bool wholeChannel,
+        const std::map<juce::String, juce::String>& assets, bool clearOthers) override;
 
     // ファイルを画面へ落として読み込む。読み込んだあとは、ダイアログや
     // 一覧から読んだときと同じに振る舞う。
@@ -423,6 +431,11 @@ private:
     juce::TextButton openCategoriesBtn;
     juce::TextButton closeCategoriesBtn;
 
+    // コピー履歴 (CPHIST)。押したときに作って重ねる
+    juce::TextButton copyHistoryBtn;
+    std::unique_ptr<GuiCopyHistory> copyHistory;
+    void openCopyHistory();
+
     // 開いているタブに限らず、持っているタブすべてへ配る。
     void forEachTabGui(const std::function<void(GuiBase&)>& fn);
 
@@ -505,6 +518,9 @@ private:
 
     // タブ番号から中身を引く。まだ作っていなければここで作る。
     GuiBase* tabGuiFor(int tabIndex);
+
+    // 素材を持つチャンネルのタブ。prefix は APVTS のプレフィックス
+    GuiBase* clipAssetTabFor(const juce::String& prefix);
 
     // 区分の名前からタブ番号を引く。合うものが無ければ -1。
     static int tabForCategory(const juce::String& category);

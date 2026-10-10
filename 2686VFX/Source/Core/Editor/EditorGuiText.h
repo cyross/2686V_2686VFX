@@ -88,6 +88,13 @@ namespace EditorGuiText
 	}
 
 	// 区分の一括開閉。簡易表示モードで隠す区分が対象。
+	// コピー履歴 (パラメータの切り取り・コピー・貼り付け)
+	namespace CopyHistory
+	{
+		static inline const juce::String title = u8"CPHIST";
+		static inline const I18n::Text tooltip{ u8"これまでにコピーしたパラメータの一覧を出します。選び直して貼り付けられます。", u8"Lists the parameters you have copied. Pick one again to paste it." };
+	}
+
 	namespace CategoryToggle
 	{
 		static inline const juce::String titleOpen = u8"OP";

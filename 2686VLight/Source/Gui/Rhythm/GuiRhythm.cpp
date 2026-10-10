@@ -158,6 +158,10 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     qualityPcmComponent.setupComponent(colForm.contentCanvas, padPrefix, tabOrder);
 
+    // TARGET で選んでいるパッドを単位にする
+    padEditComponent.setupComponent(colForm.contentCanvas, RhythmPrKey::prefix,
+        [this] { return "PAD" + juce::String(m_padIndex); }, tabOrder);
+
     // 音声ファイルロードボタン
     loadButton.setup({ .parent = colForm.contentCanvas, .title = RhythmGuiText::File::load, .isReset = false });
     loadButton.addListener(&editorOf(ctx));
@@ -166,6 +170,9 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     // ロードしている音声ファイル名
     fileNameLabel.setup({ .parent = colForm.contentCanvas, .title = Io::empty });
+
+    // 区分を右クリックで写すとき、この素材も一緒に写す (持ち主は区分のパラメータから決まる)
+    fileNameLabel.getProperties().set(ParamEdit::Property::assetPrefix, ParamEdit::Property::sameOwner);
 
     m_padIndex = index;
 
@@ -462,6 +469,8 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
         layoutFormCat(rect);
         layoutPanCat(rect);
         layoutQualityCat(rect);
+
+        padEditComponent.layoutComponentRow(rect);
         });
 
     layoutCol(colOptional, true, [&](juce::Rectangle<int>& rect) { layoutOptionalCat(rect); });
@@ -1316,10 +1325,10 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     levelComponent(context),
     unisonComponent(context),
     midiComponent(context),
+    editComponent(context),
     utilityCat(context),
     pathRoot(context),
     broadcastLevelButton(context),
-    uSep001(context),
     copyPadParamBtn(context),
     copyPadFromSlider(context),
     copyPadToSlider(context),
@@ -1373,7 +1382,7 @@ void GuiRhythm::setup()
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
     pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -1382,7 +1391,6 @@ void GuiRhythm::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     copyPadParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Pad Params", .bgColor = juce::Colours::turquoise.darker(0.3f) });
     copyPadParamBtn.setWantsKeyboardFocus(true);
@@ -1528,6 +1536,18 @@ void GuiRhythm::setup()
     applyPadTarget();
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
 }
 
 void GuiRhythm::layout(juce::Rectangle<int> content)
@@ -1560,6 +1580,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     unisonComponent.layoutComponent(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    editComponent.layoutComponent(mRect);
 
     layoutUtilityCat(mRect);
 
@@ -1612,8 +1634,6 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     pathRoot.setVisible(visible);
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
     copyPadParamBtn.setVisible(visible);
     copyPadFromSlider.setVisibleWithLabel(visible);
     copyPadToSlider.setVisibleWithLabel(visible);
@@ -1641,9 +1661,6 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     {
         pathRoot.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-
-        uSep001.layoutComponent(rect);
 
         layoutMain({ .mainRect = rect, .component = &copyPadParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyPadFromSlider.label, .component = &copyPadFromSlider });
@@ -2356,4 +2373,40 @@ void GuiRhythm::closeBypassedCategories()
     if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
 
     padPanel.closeBypassedCategories();
+}
+
+// ==============================================================================
+// 素材 (ParamEdit)
+// ==============================================================================
+// RHYTHM の素材はパッドごとの音声ファイル。チャンネル全体 (グローバル部分) には
+// パッドを含めないので、パッドを指したときだけ
+std::vector<ParamEdit::AssetSlot> GuiRhythm::clipAssetSlots(const juce::String& prefix, bool wholeChannel)
+{
+    juce::ignoreUnused(wholeChannel);
+
+    const int pad = ParamEdit::unitIndexOf(prefix, RhythmPrKey::prefix, "PAD");
+
+    if (pad < 0 || pad >= RhythmPrValue::pads) return {};
+
+    return { { "sample",
+        [this, pad] { return pluginOf(ctx).rhythmFilePaths[(size_t)pad]; },
+        [this, pad](const juce::File& file) {
+            pluginOf(ctx).unloadRhythmFile(pad);
+
+            if (file.existsAsFile()) pluginOf(ctx).loadRhythmFile(file, pad);
+
+            updatePadFileName(pad, file.existsAsFile() ? file.getFileName() : Io::empty);
+        } } };
+}
+
+void GuiRhythm::collectClipAssets(const juce::String& prefix, bool wholeChannel,
+    std::map<juce::String, juce::String>& out)
+{
+    ParamEdit::collectAssets(clipAssetSlots(prefix, wholeChannel), out);
+}
+
+void GuiRhythm::applyClipAssets(const juce::String& prefix, bool wholeChannel,
+    const std::map<juce::String, juce::String>& assets, bool clearOthers)
+{
+    ParamEdit::applyAssets(clipAssetSlots(prefix, wholeChannel), assets, clearOthers);
 }

@@ -259,6 +259,28 @@ void GuiOpna::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .opGroups = GuiComponentEdit::fourOpGroups(),
+        .onDuplicateOps = [this](const GuiComponentEdit::OpGroup& from, const GuiComponentEdit::OpGroup& to) {
+            ParamEdit::duplicateUnits(ctx, OpnaPrKey::prefix, "OP", from.first, to.first, from.size);
+            },
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            copyOpParamBtn.setVisible(visible);
+            copyOpFromSlider.setVisibleWithLabel(visible);
+            copyOpToSlider.setVisibleWithLabel(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            layoutMain({ .mainRect = r, .component = &copyOpParamBtn });
+            layoutMain({ .mainRect = r, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
+            layoutMain({ .mainRect = r, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
+            },
+        }, tabOrder);
+
     // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
@@ -272,7 +294,7 @@ void GuiOpna::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Category::util, .enableChangeDetailVisible = true });
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -281,7 +303,6 @@ void GuiOpna::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     copyHwLfoParamsBtn.setup({ .parent = mainGroup.contentCanvas, .title = "HW LFO Params -> OPs", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyHwLfoParamsBtn.setWantsKeyboardFocus(true);
@@ -333,7 +354,7 @@ void GuiOpna::setup()
 
     uSep003.setupComponent(mainGroup.contentCanvas);
 
-    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Duplicate Op Params", .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     copyOpParamBtn.setWantsKeyboardFocus(true);
     copyOpParamBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamBtn.onClick = [this] {
@@ -369,7 +390,6 @@ void GuiOpna::setup()
         copyOpParamBtn.setEnabled(from != to);
         };
 
-    uSep004.setupComponent(mainGroup.contentCanvas);
 
     ieHwLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "HW LFO");
     ieHwLfo.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importHwLfoParam(opIndex); };
@@ -660,6 +680,10 @@ void GuiOpna::setup()
     mask.setWantsKeyboardFocus(true);
     mask.setExplicitFocusOrder(++tabOrder);
 
+    // TARGET で選んでいるオペレーターを単位にする
+    opEditComponent.setupComponent(colMask.contentCanvas, OpnaPrKey::prefix,
+        [this] { return "OP" + juce::String((int)targerOpSlider.getValue() - 1); }, tabOrder);
+
     mmlSeparator.setupComponent(colMask.contentCanvas);
 
     mml.setup({ .parent = colMask.contentCanvas, .title = I18n::pick(u8"MML風入力", u8"MML-style input"), .isReset = false, .isResized = false });
@@ -786,6 +810,8 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    editComponent.layoutComponent(mRect);
 
     layoutUtilityCat(mRect);
 
@@ -1382,18 +1408,12 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     exportOpzx7Btn.setVisible(visible);
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
     copyParamsToOpnBtn.setVisible(visible);
     copyParamsToOpmBtn.setVisible(visible);
     uSep002.setVisible(visible);
     copyHwLfoParamsBtn.setVisible(visible);
     copyHwLfoFromSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
-    copyOpParamBtn.setVisible(visible);
-    copyOpFromSlider.setVisibleWithLabel(visible);
-    copyOpToSlider.setVisibleWithLabel(visible);
-    uSep004.setVisible(visible);
     ieHwLfo.setVisible(visible);
     ieOpPitchEnv.setVisible(visible);
     ieOpSsgSwEnv.setVisible(visible);
@@ -1421,9 +1441,7 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
 
-        uSep001.layoutComponent(rect);
 
         layoutMain({ .mainRect = rect, .component = &copyHwLfoParamsBtn });
         layoutMain({ .mainRect = rect, .label = &copyHwLfoFromSlider.label, .component = &copyHwLfoFromSlider });
@@ -1435,11 +1453,6 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         uSep003.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
-        layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
-        layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
-
-        uSep004.layoutComponent(rect);
 
         ieHwLfo.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1506,9 +1519,12 @@ void GuiOpna::layoutOpMaskCat(juce::Rectangle<int>& rect) {
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
-    // MASK の後ろには分類の外の行 (セパレータや MML) が続くので、
+    // MASK の下に EDIT
+    opEditComponent.layoutComponentRow(rect);
+
+    // EDIT の後ろには分類の外の行 (セパレータや MML) が続くので、
     // 板をここで閉じないと 1 行ぶん下まで伸びてしまう。
-    closeCategoryBackdrops(catMask.getParentComponent(), rect.getY());
+    closeCategoryBackdrops(opEditComponent.category().getParentComponent(), rect.getY());
 }
 
 void GuiOpna::layoutQualityCat(juce::Rectangle<int>& rect) {

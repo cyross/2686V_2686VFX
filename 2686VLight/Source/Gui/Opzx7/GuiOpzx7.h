@@ -20,6 +20,7 @@
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Gui/Components/PitchButtons/PitchButtons.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/MulDetune/MulDetune.h"
@@ -111,6 +112,15 @@ class GuiOpzx7 : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
+    // オペレーター 1 つぶんの EDIT 区分 (MASK の下)
+    GuiComponentUnitEdit opEditComponent;
+
+    // Duplicate Ops Params。フィードバックとアルゴリズムマトリックスも写す
+    void duplicateOpsParams(const GuiComponentEdit::OpGroup& from, const GuiComponentEdit::OpGroup& to);
+
     GuiCategoryLabel utilityCat;
     GuiComponentPathRoot pathRoot;
 
@@ -123,11 +133,9 @@ class GuiOpzx7 : public GuiBase
 
     void importFmParams();
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
-    NormalSeparator uSep002;
     GuiComponentImportExport ieOpLfo;
     GuiComponentImportExport ieOpDetune;
     GuiComponentImportExport ieOpPitchEnv;
@@ -337,6 +345,15 @@ class GuiOpzx7 : public GuiBase
 
     // 設定ひとそろいの置き方
     void layoutOpPanel(juce::Rectangle<int> area);
+public:
+    // 区分の外に持っている素材 (ParamEdit の切り取り・コピー・貼り付け)
+    void collectClipAssets(const juce::String& prefix, bool wholeChannel,
+        std::map<juce::String, juce::String>& out) override;
+    void applyClipAssets(const juce::String& prefix, bool wholeChannel,
+        const std::map<juce::String, juce::String>& assets, bool clearOthers) override;
+
+private:
+    std::vector<ParamEdit::AssetSlot> clipAssetSlots(const juce::String& prefix, bool wholeChannel);
 public:
     GuiOpzx7(const GuiContext& context);
 

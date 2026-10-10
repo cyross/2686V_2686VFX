@@ -16,6 +16,8 @@
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
+#include "Shared/Gui/Components/Edit/TargetsDialog.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -144,6 +146,15 @@ class GuiAdpcmPlus : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
+    // TARGET の複写・消去のダイアログ。WAVE MEMORY / FORM の枠を隠さない
+    // ところ (枠の右の空き) へ出す。
+    GuiTargetsDialog targetsDialog;
+    juce::Rectangle<int> targetsDialogArea;
+    void openTargetsDialog(GuiTargetsDialog::Mode mode);
+
     GuiCategoryLabel utilityCat;
     GuiComponentPathRoot pathRoot;
 
@@ -151,7 +162,6 @@ class GuiAdpcmPlus : public GuiBase
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
@@ -185,6 +195,15 @@ class GuiAdpcmPlus : public GuiBase
 
     void updateGraph();
     void setGraphMode(GraphMode mode);
+public:
+    // 区分の外に持っている素材 (ParamEdit の切り取り・コピー・貼り付け)
+    void collectClipAssets(const juce::String& prefix, bool wholeChannel,
+        std::map<juce::String, juce::String>& out) override;
+    void applyClipAssets(const juce::String& prefix, bool wholeChannel,
+        const std::map<juce::String, juce::String>& assets, bool clearOthers) override;
+
+private:
+    std::vector<ParamEdit::AssetSlot> clipAssetSlots(const juce::String& prefix, bool wholeChannel);
 public:
     GuiAdpcmPlus(const GuiContext& context) :
         GuiBase(context),
@@ -242,12 +261,13 @@ public:
 		mulDetuneComponent(context),
         lfoComponent(context),
         midiComponent(context),
+        editComponent(context),
+        targetsDialog(context),
         utilityCat(context),
         pathRoot(context),
         ampMajorCat(context),
         pitchMajorCat(context),
         broadcastLevelButton(context),
-        uSep001(context),
         ieToneNoise(context),
         ieLfo(context),
         ieAmpEnv(context),

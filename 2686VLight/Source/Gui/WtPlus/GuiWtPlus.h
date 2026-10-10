@@ -17,6 +17,8 @@
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
+#include "Shared/Gui/Components/Edit/TargetsDialog.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -71,6 +73,15 @@ class GuiWtPlus : public GuiBase {
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
+    // TARGET の複写・消去のダイアログ。WAVE MEMORY / FORM の枠を隠さない
+    // ところ (枠の右の空き) へ出す。
+    GuiTargetsDialog targetsDialog;
+    juce::Rectangle<int> targetsDialogArea;
+    void openTargetsDialog(GuiTargetsDialog::Mode mode);
+
     // ---------------- WAVE ----------------
     GuiCategoryLabel waveCat;
     GuiSlider slotSlider;
@@ -109,7 +120,6 @@ class GuiWtPlus : public GuiBase {
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
@@ -142,6 +152,15 @@ class GuiWtPlus : public GuiBase {
     void updateGraph();
     void setGraphMode(GraphMode mode);
 public:
+    // 区分の外に持っている素材 (ParamEdit の切り取り・コピー・貼り付け)
+    void collectClipAssets(const juce::String& prefix, bool wholeChannel,
+        std::map<juce::String, juce::String>& out) override;
+    void applyClipAssets(const juce::String& prefix, bool wholeChannel,
+        const std::map<juce::String, juce::String>& assets, bool clearOthers) override;
+
+private:
+    std::vector<ParamEdit::AssetSlot> clipAssetSlots(const juce::String& prefix, bool wholeChannel);
+public:
     GuiWtPlus(const GuiContext& context) : GuiBase(context),
         mainGroup(context),
         waveGroup(context),
@@ -160,6 +179,8 @@ public:
         ssgHwEnv(context),
         ssgHwPEnv(context),
         midiComponent(context),
+        editComponent(context),
+        targetsDialog(context),
         waveCat(context),
         slotSlider(context),
         interpolateButton(context),
@@ -182,7 +203,6 @@ public:
         ampMajorCat(context),
         pitchMajorCat(context),
         broadcastLevelButton(context),
-        uSep001(context),
         ieLfo(context),
         ieAmpEnv(context),
         iePitchEnv(context),

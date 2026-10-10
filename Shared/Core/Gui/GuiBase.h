@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include <array>
+#include <map>
 #include <vector>
 #include <span>
 
@@ -32,6 +33,21 @@ public:
     virtual void bypassHiddenCategories() {};
     virtual void openEnabledCategories() {};
     virtual void closeBypassedCategories() {};
+
+    // パラメータの切り取り・コピー・貼り付け (ParamEdit) で、パラメータの外に
+    // 持っている素材 (音声・波形ファイル) を写す。中身は GuiEditorHost の
+    // 同じ名前の関数を参照。素材を持たないタブは何もしない。
+    virtual void collectClipAssets(const juce::String& prefix, bool wholeChannel,
+        std::map<juce::String, juce::String>& out)
+    {
+        juce::ignoreUnused(prefix, wholeChannel, out);
+    }
+
+    virtual void applyClipAssets(const juce::String& prefix, bool wholeChannel,
+        const std::map<juce::String, juce::String>& assets, bool clearOthers)
+    {
+        juce::ignoreUnused(prefix, wholeChannel, assets, clearOthers);
+    }
 protected:
 	// GuiOpnaなどでも使うので、using宣言でエイリアスを作っておく
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;

@@ -201,6 +201,9 @@ void GuiAdpcm::setup()
     // ロードしているファイル名
     fileNameLabel.setup({ .parent = mainGroup.contentCanvas, .title = Io::empty });
 
+    // 区分を右クリックで写すとき、この素材も一緒に写す (持ち主は区分のパラメータから決まる)
+    fileNameLabel.getProperties().set(ParamEdit::Property::assetPrefix, ParamEdit::Property::sameOwner);
+
     samplePreview.setup(mainGroup.contentCanvas, GuiColor::WavePreview::AudioFile);
     fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
@@ -224,6 +227,18 @@ void GuiAdpcm::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
+
     // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
@@ -234,7 +249,7 @@ void GuiAdpcm::setup()
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
     pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -243,7 +258,6 @@ void GuiAdpcm::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
@@ -376,6 +390,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 
     midiComponent.layoutComponent(mRect);
 
+    editComponent.layoutComponent(mRect);
+
     layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
@@ -476,8 +492,6 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     pathRoot.setVisible(visible);
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
     ieToneNoise.setVisible(visible);
     ieLfo.setVisible(visible);
     ieDetune.setVisible(visible);
@@ -499,9 +513,6 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
     {
         pathRoot.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-
-        uSep001.layoutComponent(rect);
 
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1401,4 +1412,37 @@ void GuiAdpcm::closeBypassedCategories()
     // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
     if (allCategoriesBypassed(ampEnvComponent, ssgHwEnv, ssgSwEnvComponent, ssgSwEnv11Component, ampModComponent)) ampMajorCat.setDetailVisible(false);
     if (allCategoriesBypassed(pitchEnvComponent, ssgHwPEnv, ssgSwPEnv11Component, modComponent)) pitchMajorCat.setDetailVisible(false);
+}
+
+// ==============================================================================
+// 素材 (ParamEdit)
+// ==============================================================================
+// ADPCM の素材は音声ファイル 1 本
+std::vector<ParamEdit::AssetSlot> GuiAdpcm::clipAssetSlots(const juce::String& prefix, bool wholeChannel)
+{
+    juce::ignoreUnused(wholeChannel);
+
+    if (prefix != AdpcmPrKey::prefix) return {};
+
+    return { { "sample",
+        [this] { return pluginOf(ctx).adpcmFilePath; },
+        [this](const juce::File& file) {
+            pluginOf(ctx).unloadAdpcmFile();
+
+            if (file.existsAsFile()) pluginOf(ctx).loadAdpcmFile(file);
+
+            updateFileName(file.existsAsFile() ? file.getFileName() : Io::empty);
+        } } };
+}
+
+void GuiAdpcm::collectClipAssets(const juce::String& prefix, bool wholeChannel,
+    std::map<juce::String, juce::String>& out)
+{
+    ParamEdit::collectAssets(clipAssetSlots(prefix, wholeChannel), out);
+}
+
+void GuiAdpcm::applyClipAssets(const juce::String& prefix, bool wholeChannel,
+    const std::map<juce::String, juce::String>& assets, bool clearOthers)
+{
+    ParamEdit::applyAssets(clipAssetSlots(prefix, wholeChannel), assets, clearOthers);
 }

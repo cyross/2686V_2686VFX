@@ -111,6 +111,18 @@ void GuiSsg::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
+
     // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
@@ -118,7 +130,7 @@ void GuiSsg::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::util, .enableChangeDetailVisible = true });
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -127,7 +139,6 @@ void GuiSsg::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
@@ -352,6 +363,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     midiComponent.layoutComponent(mRect);
 
+    editComponent.layoutComponent(mRect);
+
     layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
@@ -527,8 +540,6 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
 
     ieToneNoise.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -548,8 +559,6 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        uSep001.layoutComponent(rect);
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);

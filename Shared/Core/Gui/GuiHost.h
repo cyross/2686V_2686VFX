@@ -179,4 +179,25 @@ public:
     // チャンネルのパラメータファイルを読んで反映する。チャンネルを持たない
     // プラグインは何もせず false を返す。
     virtual bool applyChannelParamFile(const juce::File& file) = 0;
+
+    // ---- パラメータの切り取り・コピー・貼り付け (ParamEdit)
+    // パラメータの外に持っている素材 (音声・波形ファイル) の場所を集める・
+    // 入れる。prefix は APVTS のプレフィックス (ADPCM / RHYTHM_PAD3 /
+    // WTPLUS_SLOT2 / OPZX7_OP1 など)。キーは prefix から見た相対の名前。
+    // wholeChannel のときは、チャンネルの下の枠 (WT+ / ADPCM+ の SLOT) の
+    // 素材も含める。
+    //
+    // 素材を持たないチャンネルは何もしない。
+    virtual void collectClipAssets(const juce::String& prefix, bool wholeChannel,
+        std::map<juce::String, juce::String>& out)
+    {
+        juce::ignoreUnused(prefix, wholeChannel, out);
+    }
+
+    // clearOthers のときは、assets に無い素材を外す。
+    virtual void applyClipAssets(const juce::String& prefix, bool wholeChannel,
+        const std::map<juce::String, juce::String>& assets, bool clearOthers)
+    {
+        juce::ignoreUnused(prefix, wholeChannel, assets, clearOthers);
+    }
 };

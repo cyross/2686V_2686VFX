@@ -18,6 +18,7 @@
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Processor/Opl/ProcessorOplValues.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -81,6 +82,12 @@ class GuiOpl : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
+    // オペレーター 1 つぶんの EDIT 区分 (MASK の下)
+    GuiComponentUnitEdit opEditComponent;
+
     GuiCategoryLabel utilityCat;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
@@ -92,7 +99,6 @@ class GuiOpl : public GuiBase
 
     void exportOpzx7Params();
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiTextButton initLfoToOplBtn;
     GuiTextButton initLfoToOpllBtn;
     NormalSeparator uSep002;
@@ -103,7 +109,6 @@ class GuiOpl : public GuiBase
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
-    NormalSeparator uSep004;
     GuiComponentImportExport ieOpLfo;
     GuiComponentImportExport ieOpPitchEnv;
     GuiComponentImportExport ieOpSsgSwEnv;
@@ -295,7 +300,6 @@ public:
         pitchMajorCat(context),
         exportOpzx7Btn(context),
         broadcastLevelButton(context),
-        uSep001(context),
         initLfoToOplBtn(context),
         initLfoToOpllBtn(context),
         uSep002(context),
@@ -306,7 +310,6 @@ public:
         copyOpParamBtn(context),
         copyOpFromSlider(context),
         copyOpToSlider(context),
-        uSep004(context),
         ieOpLfo(context),
         ieOpPitchEnv(context),
         ieOpSsgSwEnv(context),
@@ -397,6 +400,8 @@ public:
         sus(context),
         kor(context),
         midiComponent(context),
+        editComponent(context),
+        opEditComponent(context),
         gGraph(),
         gGraphBtnAmp(context),
         gGraphBtnSsg11(context),

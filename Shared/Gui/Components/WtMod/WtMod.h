@@ -2,6 +2,8 @@
 
 #include <JuceHeader.h>
 
+#include "Shared/Core/Gui/GuiParamEdit.h"
+
 #include "../../../Core/Io/ParamFile.h"
 #include <array>
 
@@ -177,6 +179,10 @@ public:
         juce::Colour categoryBg = GuiColor::Category::SwPitchBg);
     // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
     void rebind(const juce::String& code);
+
+    // 変調波形を貼った・消したら描き直す (ParamEdit)
+    void refreshWaves();
+    ParamEdit::WaveWatcher waveWatcher{ [this] { refreshWaves(); } };
     void layoutComponent(juce::Rectangle<int>& rect);
 
     // CH パラメータの入出力。

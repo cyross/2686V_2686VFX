@@ -226,6 +226,9 @@ void GuiAdpcmPlus::setup()
     // ロードしているファイル名
     fileNameLabel.setup({ .parent = pcmGroup.contentCanvas, .title = Io::empty });
 
+    // 区分を右クリックで写すとき、この素材も一緒に写す (持ち主は区分のパラメータから決まる)
+    fileNameLabel.getProperties().set(ParamEdit::Property::assetPrefix, ParamEdit::Property::sameOwner);
+
     samplePreview.setup(pcmGroup.contentCanvas, GuiColor::WavePreview::AudioFile);
 
     // 32 個あるので 1 行 3 個では縦に伸びすぎる。8 個ずつ 4 行に収める。
@@ -260,6 +263,20 @@ void GuiAdpcmPlus::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .onDuplicateTargets = [this] { openTargetsDialog(GuiTargetsDialog::Mode::Duplicate); },
+        .onClearTargets = [this] { openTargetsDialog(GuiTargetsDialog::Mode::Clear); },
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
+
     // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
@@ -270,7 +287,7 @@ void GuiAdpcmPlus::setup()
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
     pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -279,7 +296,6 @@ void GuiAdpcmPlus::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
@@ -407,6 +423,8 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     midiComponent.layoutComponent(mRect);
 
+    editComponent.layoutComponent(mRect);
+
     layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
@@ -421,6 +439,15 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     pcmArea.removeFromBottom(40);
     pcmGroup.setBounds(pcmArea);
+
+    // TARGET の複写・消去のダイアログは、この枠の右の空きへ出す。
+    // WAVE MEMORY や FORM を見ながら選べるように。空きが狭ければメインの枠の上
+    {
+        auto rest = pageArea.withTrimmedLeft(10).withTrimmedRight(10);
+
+        targetsDialogArea = rest.getWidth() >= 300 ? rest.withTop(pcmArea.getY()).withBottom(pcmArea.getBottom())
+                                                   : mainGroup.getBounds();
+    }
 
     auto pgRect = pcmArea.reduced(AdpcmPlusGuiValue::Group::Padding::width, AdpcmPlusGuiValue::Group::Padding::height);
 
@@ -616,8 +643,6 @@ void GuiAdpcmPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     pathRoot.setVisible(visible);
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
     ieToneNoise.setVisible(visible);
     ieLfo.setVisible(visible);
     ieDetune.setVisible(visible);
@@ -639,9 +664,6 @@ void GuiAdpcmPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
     {
         pathRoot.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-
-        uSep001.layoutComponent(rect);
 
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1489,4 +1511,71 @@ void GuiAdpcmPlus::closeBypassedCategories()
     // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
     if (allCategoriesBypassed(ampEnvComponent, ssgHwEnv, ssgSwEnvComponent, ssgSwEnv11Component, ampModComponent)) ampMajorCat.setDetailVisible(false);
     if (allCategoriesBypassed(pitchEnvComponent, ssgHwPEnv, ssgSwPEnv11Component, modComponent)) pitchMajorCat.setDetailVisible(false);
+}
+
+// ==============================================================================
+// 素材 (ParamEdit)
+// ==============================================================================
+// ADPCM+ の素材は枠 (SLOT) ごとの音声ファイル。チャンネル全体のときは全部の枠
+std::vector<ParamEdit::AssetSlot> GuiAdpcmPlus::clipAssetSlots(const juce::String& prefix, bool wholeChannel)
+{
+    std::vector<ParamEdit::AssetSlot> slots;
+
+    auto add = [&](int slot, const juce::String& key) {
+        slots.push_back({ key,
+            [this, slot] { return pluginOf(ctx).adpcmPlusFilePaths[(size_t)slot]; },
+            [this, slot](const juce::File& file) {
+                pluginOf(ctx).unloadAdpcmPlusFile(slot);
+
+                if (file.existsAsFile()) pluginOf(ctx).loadAdpcmPlusFile(slot, file);
+
+                updateSlotFileName(slot);
+            } });
+    };
+
+    if (prefix == AdpcmPlusPrKey::prefix && wholeChannel)
+    {
+        for (int i = 0; i < Global::AdpcmPlus::slots; ++i) add(i, "SLOT" + juce::String(i) + ":sample");
+    }
+
+    const int slot = ParamEdit::unitIndexOf(prefix, AdpcmPlusPrKey::prefix, "SLOT");
+
+    if (slot >= 0 && slot < Global::AdpcmPlus::slots) add(slot, "sample");
+
+    return slots;
+}
+
+void GuiAdpcmPlus::collectClipAssets(const juce::String& prefix, bool wholeChannel,
+    std::map<juce::String, juce::String>& out)
+{
+    ParamEdit::collectAssets(clipAssetSlots(prefix, wholeChannel), out);
+}
+
+void GuiAdpcmPlus::applyClipAssets(const juce::String& prefix, bool wholeChannel,
+    const std::map<juce::String, juce::String>& assets, bool clearOthers)
+{
+    ParamEdit::applyAssets(clipAssetSlots(prefix, wholeChannel), assets, clearOthers);
+}
+
+// ==============================================================================
+// Duplicate Targets / Clear Targets
+// ==============================================================================
+void GuiAdpcmPlus::openTargetsDialog(GuiTargetsDialog::Mode mode)
+{
+    GuiTargetsDialog::Config config;
+
+    config.mode = mode;
+    config.count = Global::AdpcmPlus::slots;
+    config.current = targetSlot();
+    config.firstNumber = 0;
+
+    config.onDuplicate = [this](int from, const std::vector<int>& to, bool withParams) {
+        ParamEdit::duplicateUnitTo(ctx, AdpcmPlusPrKey::prefix, "SLOT", from, to, withParams);
+    };
+
+    config.onClear = [this](const std::vector<int>& targets) {
+        ParamEdit::clearUnits(ctx, AdpcmPlusPrKey::prefix, "SLOT", targets);
+    };
+
+    targetsDialog.open(*this, targetsDialogArea, config);
 }

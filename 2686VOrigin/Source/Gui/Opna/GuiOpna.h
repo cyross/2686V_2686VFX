@@ -18,6 +18,7 @@
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Processor/Opna/ProcessorOpnaValues.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -92,6 +93,12 @@ class GuiOpna : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
+    // オペレーター 1 つぶんの EDIT 区分 (MASK の下)
+    GuiComponentUnitEdit opEditComponent;
+
     GuiCategoryLabel utilityCat;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
@@ -103,14 +110,12 @@ class GuiOpna : public GuiBase
 
     void exportOpzx7Params();
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiSlider copyHwLfoFromSlider;
     GuiTextButton copyHwLfoParamsBtn;
     NormalSeparator uSep003;
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
-    NormalSeparator uSep004;
 
     GuiComponentImportExport ieHwLfo;
     GuiComponentImportExport ieOpPitchEnv;
@@ -309,14 +314,12 @@ public:
         pitchMajorCat(context),
         exportOpzx7Btn(context),
         broadcastLevelButton(context),
-        uSep001(context),
         copyHwLfoFromSlider(context),
         copyHwLfoParamsBtn(context),
         uSep003(context),
         copyOpParamBtn(context),
         copyOpFromSlider(context),
         copyOpToSlider(context),
-        uSep004(context),
         ieHwLfo(context),
         ieOpPitchEnv(context),
         ieOpSsgSwEnv(context),
@@ -403,6 +406,8 @@ public:
         kor(context),
         bypass(context),
         midiComponent(context),
+        editComponent(context),
+        opEditComponent(context),
         gGraph(),
         gGraphBtnAmp(context),
         gGraphBtnSsg11(context),

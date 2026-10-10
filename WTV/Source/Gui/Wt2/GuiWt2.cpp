@@ -403,6 +403,18 @@ void GuiWt2::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
+
     // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
@@ -413,7 +425,7 @@ void GuiWt2::setup()
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
     pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -422,7 +434,6 @@ void GuiWt2::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileImport, .bgColor = GuiColor::WaveFile::ImportBg, .isReset = false, .isResized = false });
     customWaveImportBtn.setWantsKeyboardFocus(true);
@@ -596,6 +607,8 @@ void GuiWt2::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    editComponent.layoutComponent(mRect);
 
     layoutUtilityCat(mRect);
 
@@ -886,8 +899,6 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     pathRoot.setVisible(visible);
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
     customWaveImportBtn.setVisible(visible);
     customWaveExportBtn.setVisible(visible);
     uSep002.setVisible(visible);
@@ -910,8 +921,6 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
     {
         pathRoot.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        uSep001.layoutComponent(rect);
         layoutMainTwoComps({ .rect = rect, .comp1 = &customWaveImportBtn, .comp2 = &customWaveExportBtn });
         uSep002.layoutComponent(rect);
         ieLfo.layoutComponent(rect);

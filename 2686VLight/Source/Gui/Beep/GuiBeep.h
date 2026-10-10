@@ -12,6 +12,7 @@
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -66,6 +67,9 @@ class GuiBeep : public GuiBase {
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
     GuiCategoryLabel optionalCat;
     GuiToggleButton antiAliasButton;
     GuiComboBox timerClockSelector;
@@ -75,7 +79,6 @@ class GuiBeep : public GuiBase {
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
@@ -125,6 +128,7 @@ public:
         mulDetuneComponent(context),
         lfoComponent(context),
         midiComponent(context),
+        editComponent(context),
         optionalCat(context),
         antiAliasButton(context),
         timerClockSelector(context),
@@ -132,7 +136,6 @@ public:
         ampMajorCat(context),
         pitchMajorCat(context),
         broadcastLevelButton(context),
-        uSep001(context),
         ieLfo(context),
         ieAmpEnv(context),
         iePitchEnv(context),

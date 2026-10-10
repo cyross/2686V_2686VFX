@@ -59,6 +59,6 @@ namespace WtPlusGuiText
 
 	namespace Utility
 	{
-		static inline const juce::String bcLevel = u8"Broadcast Level";
+		static inline const juce::String bcLevel = u8"Level -> All Ch";
 	}
 }

@@ -17,6 +17,7 @@
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -135,7 +136,6 @@ class GuiWt2 : public GuiBase
     NormalSeparator formSeparator;
 
 
-
 	// Custom Waveform Reset
     GuiTextButton customWaveResetToCenterBtn;
     GuiTextButton customWaveResetToMaxBtn;
@@ -148,7 +148,6 @@ class GuiWt2 : public GuiBase
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiTextButton customWaveImportBtn;
     GuiTextButton customWaveExportBtn;
     NormalSeparator uSep002;
@@ -169,6 +168,9 @@ class GuiWt2 : public GuiBase
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiComponentMidi midiComponent;
+
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -220,7 +222,6 @@ public:
 		ampMajorCat(context),
 		pitchMajorCat(context),
         broadcastLevelButton(context),
-        uSep001(context),
         customWaveImportBtn(context),
         customWaveExportBtn(context),
         uSep002(context),
@@ -246,6 +247,7 @@ public:
         customWaveResetToMaxBtn(context),
         customWaveResetTo0Btn(context),
         midiComponent(context),
+        editComponent(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),

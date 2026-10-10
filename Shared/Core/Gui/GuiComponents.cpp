@@ -1,6 +1,7 @@
 ﻿#include "./GuiI18n.h"
 #include <map>
 #include "./GuiComponents.h"
+#include "./GuiParamEdit.h"
 
 
 #include "./GuiText.h"
@@ -173,6 +174,17 @@ void ColoredGroupComponent::paint(juce::Graphics& g)
     g.setColour(GuiColor::Group::TitleText);
     g.setFont(font);
     g.drawText(title, chip, juce::Justification::centred, true);
+}
+
+void GuiGroup::mouseDown(const juce::MouseEvent& e)
+{
+    if (e.mods.isPopupMenu())
+    {
+        ParamEdit::showGroupMenu(ctx, *this);
+        return;
+    }
+
+    ColoredGroupComponent::mouseDown(e);
 }
 
 void GuiGroup::setup(juce::Component& parent, const juce::String title)
@@ -773,6 +785,17 @@ void GuiCategoryLabel::setupInner(const Config& c, juce::Colour background)
             ctx.editor.resized();
             };
     }
+}
+
+void GuiCategoryLabel::mouseDown(const juce::MouseEvent& e)
+{
+    if (e.mods.isPopupMenu())
+    {
+        ParamEdit::showCategoryMenu(*this);
+        return;
+    }
+
+    GuiLabel::mouseDown(e);
 }
 
 void GuiCategoryLabel::paint(juce::Graphics& g)

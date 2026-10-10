@@ -366,11 +366,9 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     pitchMajorCat(context),
     importFmBtn(context),
     broadcastLevelButton(context),
-    uSep001(context),
     copyOpParamBtn(context),
     copyOpFromSlider(context),
     copyOpToSlider(context),
-    uSep002(context),
     ieOpLfo(context),
     ieOpDetune(context),
     ieOpPitchEnv(context),
@@ -489,6 +487,8 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     xof(context),
     kor(context),
     midiComponent(context),
+    editComponent(context),
+    opEditComponent(context),
     gGraph(),
     gGraphBtnAmp(context),
     gGraphBtnSsg11(context),
@@ -695,6 +695,28 @@ void GuiOpzx7::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .opGroups = GuiComponentEdit::opzx7Groups(),
+        .onDuplicateOps = [this](const GuiComponentEdit::OpGroup& from, const GuiComponentEdit::OpGroup& to) {
+            duplicateOpsParams(from, to);
+            },
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            copyOpParamBtn.setVisible(visible);
+            copyOpFromSlider.setVisibleWithLabel(visible);
+            copyOpToSlider.setVisibleWithLabel(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            layoutMain({ .mainRect = r, .component = &copyOpParamBtn });
+            layoutMain({ .mainRect = r, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
+            layoutMain({ .mainRect = r, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
+            },
+        }, tabOrder);
+
     // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
@@ -711,7 +733,7 @@ void GuiOpzx7::setup()
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
     pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -720,9 +742,8 @@ void GuiOpzx7::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
-    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Duplicate Op Params", .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     copyOpParamBtn.setWantsKeyboardFocus(true);
     copyOpParamBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamBtn.onClick = [this] {
@@ -763,7 +784,6 @@ void GuiOpzx7::setup()
         copyOpParamBtn.setEnabled(from != to);
         };
 
-    uSep002.setupComponent(mainGroup.contentCanvas);
 
     ieOpLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP LFO");
     ieOpLfo.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpLfoParam(opIndex); };
@@ -1103,6 +1123,9 @@ void GuiOpzx7::setup()
         };
 
     pcmFileNameLabel.setup({ .parent = colWs.contentCanvas, .title = Io::empty });
+
+    // 区分を右クリックで写すとき、この素材も一緒に写す (持ち主は区分のパラメータから決まる)
+    pcmFileNameLabel.getProperties().set(ParamEdit::Property::assetPrefix, ParamEdit::Property::sameOwner);
     if (pluginOf(ctx).opzx7PcmFilePaths[i].isNotEmpty()) {
         updatePcmFileName(i, juce::File(pluginOf(ctx).opzx7PcmFilePaths[i]).getFileName());
     }
@@ -1184,6 +1207,9 @@ void GuiOpzx7::setup()
         };
 
     wtFileNameLabel.setup({ .parent = colWs.contentCanvas, .title = Io::empty });
+
+    // 区分を右クリックで写すとき、この素材も一緒に写す (持ち主は区分のパラメータから決まる)
+    wtFileNameLabel.getProperties().set(ParamEdit::Property::assetPrefix, ParamEdit::Property::sameOwner);
     if (pluginOf(ctx).opzx7WtFilePaths[i].isNotEmpty()) {
         updateWtFileName(i, juce::File(pluginOf(ctx).opzx7WtFilePaths[i]).getFileName());
     }
@@ -1228,6 +1254,9 @@ void GuiOpzx7::setup()
         };
 
     wt2FileNameLabel.setup({ .parent = colWs.contentCanvas, .title = Io::empty });
+
+    // 区分を右クリックで写すとき、この素材も一緒に写す (持ち主は区分のパラメータから決まる)
+    wt2FileNameLabel.getProperties().set(ParamEdit::Property::assetPrefix, ParamEdit::Property::sameOwner);
     // 出すのは WT2 の名前なので、有無も WT2 側で見る
     if (pluginOf(ctx).opzx7Wt2FilePaths[i].isNotEmpty()) {
         updateWt2FileName(i, juce::File(pluginOf(ctx).opzx7Wt2FilePaths[i]).getFileName());
@@ -1278,6 +1307,10 @@ void GuiOpzx7::setup()
     mask.setup(GuiToggleButton::Config{ .parent = colMask.contentCanvas, .id = paramPrefix + CPK::Fm::mask, .title = Opzx7GuiText::Fm::Op::Mask, .isReset = true });
     mask.setWantsKeyboardFocus(true);
     mask.setExplicitFocusOrder(++tabOrder);
+
+    // TARGET で選んでいるオペレーターを単位にする
+    opEditComponent.setupComponent(colMask.contentCanvas, Opzx7PrKey::prefix,
+        [this] { return "OP" + juce::String((int)targerOpSlider.getValue() - 1); }, tabOrder);
 
     mmlSeparator.setupComponent(colMask.contentCanvas);
 
@@ -1441,6 +1474,8 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    editComponent.layoutComponent(mRect);
 
     layoutUtilityCat(mRect);
 
@@ -2341,12 +2376,6 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     importFmBtn.setVisible(visible);
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
-    copyOpParamBtn.setVisible(visible);
-    copyOpFromSlider.setVisibleWithLabel(visible);
-    copyOpToSlider.setVisibleWithLabel(visible);
-    uSep002.setVisible(visible);
     ieOpLfo.setVisible(visible);
     ieOpDetune.setVisible(visible);
     ieOpPitchEnv.setVisible(visible);
@@ -2376,15 +2405,6 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     {
         pathRoot.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-
-        uSep001.layoutComponent(rect);
-
-        layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
-        layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
-        layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
-
-        uSep002.layoutComponent(rect);
 
         ieOpLfo.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -2449,9 +2469,12 @@ void GuiOpzx7::layoutOpMaskCat(juce::Rectangle<int>& rect) {
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
-    // MASK の後ろには分類の外の行 (セパレータや MML) が続くので、
+    // MASK の下に EDIT
+    opEditComponent.layoutComponentRow(rect);
+
+    // EDIT の後ろには分類の外の行 (セパレータや MML) が続くので、
     // 板をここで閉じないと 1 行ぶん下まで伸びてしまう。
-    closeCategoryBackdrops(catMask.getParentComponent(), rect.getY());
+    closeCategoryBackdrops(opEditComponent.category().getParentComponent(), rect.getY());
 }
 
 void GuiOpzx7::layoutQualityCat(juce::Rectangle<int>& rect) {
@@ -4254,4 +4277,157 @@ void GuiOpzx7::importFmParams()
             readChParams(reader);
         },
         [this](Io::ParamWriter& writer) { writeChParams(writer); });
+}
+
+// ==============================================================================
+// Duplicate Ops Params
+// ==============================================================================
+// 並んだオペレーターのまとまりを、別のまとまりへ写す。オペレーターの
+// パラメータに加えて、フィードバックと (使っていれば) アルゴリズム
+// マトリックスのつながりも写す。
+//
+// マトリックスは、写し元・写し先のまとまりの外のオペレーターとつながって
+// いると、写した先でどうつなげばよいかが決まらない。そのときは警告を出して
+// 何も写さない。
+void GuiOpzx7::duplicateOpsParams(const GuiComponentEdit::OpGroup& from, const GuiComponentEdit::OpGroup& to)
+{
+    if (!GuiComponentEdit::canDuplicate(from, to)) return;
+
+    const bool matrix = algModeSelector.getSelectedItemIndex() != 0;
+
+    AlgMatrixState state = algMatrixComp.getState();
+
+    auto inFrom = [&](int op) { return op >= from.first && op < from.first + from.size; };
+    auto inTo = [&](int op) { return op >= to.first && op < to.first + to.size; };
+    auto inBoth = [&](int op) { return inFrom(op) || inTo(op); };
+
+    if (matrix)
+    {
+        bool outside = false;
+
+        for (int a = 0; a < Opzx7PrValue::ops; ++a)
+        {
+            for (int b = 0; b < Opzx7PrValue::ops; ++b)
+            {
+                const bool linked = state.mod[(size_t)a][(size_t)b] || state.fbMod[(size_t)a][(size_t)b];
+
+                if (linked && (inBoth(a) != inBoth(b))) outside = true;
+            }
+        }
+
+        if (outside)
+        {
+            juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+                "Duplicate Ops Params",
+                I18n::pick(u8"写し元・写し先のオペレーターが、ほかのオペレーターとアルゴリズムマトリックスでつながっています。\nつながりを外してから、もう一度お試しください。",
+                    u8"The source or destination operators are connected to other operators in the algorithm matrix.\nDisconnect them and try again."));
+
+            return;
+        }
+    }
+
+    // オペレーターのパラメータ (素材も含む)
+    ParamEdit::duplicateUnits(ctx, Opzx7PrKey::prefix, "OP", from.first, to.first, from.size);
+
+    // フィードバック
+    for (int i = 0; i < from.size; ++i) setFeedbackValue(to.first + i, getFeedbackValue(from.first + i));
+
+    refreshFeedbackValues();
+
+    if (!matrix) return;
+
+    // マトリックス。写し先どうしのつながりを外し、写し元どうしのつながりを
+    // 写し先へずらして入れる。写し元と写し先の間のつながりはそのまま残す。
+    const int shift = to.first - from.first;
+
+    AlgMatrixState next = state;
+
+    for (int a = 0; a < Opzx7PrValue::ops; ++a)
+    {
+        for (int b = 0; b < Opzx7PrValue::ops; ++b)
+        {
+            if (inTo(a) && inTo(b))
+            {
+                next.mod[(size_t)a][(size_t)b] = false;
+                next.fbMod[(size_t)a][(size_t)b] = false;
+            }
+        }
+    }
+
+    for (int a = 0; a < Opzx7PrValue::ops; ++a)
+    {
+        if (!inFrom(a)) continue;
+
+        next.isCarrier[(size_t)(a + shift)] = state.isCarrier[(size_t)a];
+
+        for (int b = 0; b < Opzx7PrValue::ops; ++b)
+        {
+            if (!inFrom(b)) continue;
+
+            next.mod[(size_t)(a + shift)][(size_t)(b + shift)] = state.mod[(size_t)a][(size_t)b];
+            next.fbMod[(size_t)(a + shift)][(size_t)(b + shift)] = state.fbMod[(size_t)a][(size_t)b];
+        }
+    }
+
+    algMatrixComp.setState(next);
+    pluginOf(ctx).setOpzx7AlgMatrix(next);
+
+    updateAlgorithmMatrixDisplay();
+}
+
+// ==============================================================================
+// 素材 (ParamEdit)
+// ==============================================================================
+// OPZX7 の素材はオペレーターごとの PCM・WT・WT2 のファイル
+std::vector<ParamEdit::AssetSlot> GuiOpzx7::clipAssetSlots(const juce::String& prefix, bool wholeChannel)
+{
+    juce::ignoreUnused(wholeChannel);
+
+    const int op = ParamEdit::unitIndexOf(prefix, Opzx7PrKey::prefix, "OP");
+
+    if (op < 0 || op >= Opzx7PrValue::ops) return {};
+
+    auto& p = pluginOf(ctx);
+
+    return {
+        { "pcm",
+            [&p, op] { return p.opzx7PcmFilePaths[(size_t)op]; },
+            [this, &p, op](const juce::File& file) {
+                p.unloadOpzx7PcmFile(op);
+
+                if (file.existsAsFile()) p.loadOpzx7PcmFile(op, file);
+
+                updatePcmFileName(op, file.existsAsFile() ? file.getFileName() : Io::empty);
+            } },
+        { "wt",
+            [&p, op] { return p.opzx7WtFilePaths[(size_t)op]; },
+            [this, &p, op](const juce::File& file) {
+                p.unloadOpzx7WtFile(op);
+
+                if (file.existsAsFile()) p.loadOpzx7WtFile(op, file);
+
+                updateWtFileName(op, file.existsAsFile() ? file.getFileName() : Io::empty);
+            } },
+        { "wt2",
+            [&p, op] { return p.opzx7Wt2FilePaths[(size_t)op]; },
+            [this, &p, op](const juce::File& file) {
+                p.unloadOpzx7Wt2File(op);
+
+                if (file.existsAsFile()) p.loadOpzx7Wt2File(op, file);
+
+                updateWt2FileName(op, file.existsAsFile() ? file.getFileName() : Io::empty);
+            } },
+    };
+}
+
+void GuiOpzx7::collectClipAssets(const juce::String& prefix, bool wholeChannel,
+    std::map<juce::String, juce::String>& out)
+{
+    ParamEdit::collectAssets(clipAssetSlots(prefix, wholeChannel), out);
+}
+
+void GuiOpzx7::applyClipAssets(const juce::String& prefix, bool wholeChannel,
+    const std::map<juce::String, juce::String>& assets, bool clearOthers)
+{
+    ParamEdit::applyAssets(clipAssetSlots(prefix, wholeChannel), assets, clearOthers);
 }

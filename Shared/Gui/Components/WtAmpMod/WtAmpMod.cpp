@@ -9,6 +9,7 @@
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiParamEdit.h"
 #include "Shared/Core/Gui/GuiStructs.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "../../../Core/Const/ConstFileValues.h"
@@ -51,6 +52,9 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     cat.setupCategory({ .parent = parent, .title = juce::String("") + "WT AMP MOD", .enableChangeDetailVisible = true }, categoryBg);
 
     enableButton.setup({ .parent = parent, .id = code + CPK::WtAmpMod::enable, .title = "Enable", .isReset = true, .isResized = true });
+
+    // 区分を右クリックで写すとき、変調波形も一緒に写す
+    enableButton.getProperties().set(ParamEdit::Property::waveKey, m_waveKey);
     enableButton.setWantsKeyboardFocus(true);
     enableButton.setExplicitFocusOrder(++tabOrder);
 
@@ -202,7 +206,12 @@ void GuiComponentWtAmpMod::rebind(const juce::String& code)
     // 変調波形の実体はプロセッサがこの鍵で持っている。
     m_code = code;
 
+    // 波形の置き場もオペレーターごと。付け替えないと、TARGET を変えても
+    // 最初のオペレーターの波形を読み書きしてしまう。
+    m_waveKey = code + CPK::WtAmpMod::waveStoreSuffix;
+
     enableButton.rebind(code + CPK::WtAmpMod::enable);
+    enableButton.getProperties().set(ParamEdit::Property::waveKey, m_waveKey);
     depthSlider.rebind(code + CPK::WtAmpMod::depth);
     speedSlider.rebind(code + CPK::WtAmpMod::speed);
     shapeSelector.rebind(code + CPK::WtAmpMod::shape);
@@ -662,4 +671,13 @@ void GuiComponentWtAmpMod::writeParams(Io::ParamWriter& writer, const juce::Stri
     auto table = fdsEditor.currentTable();
 
     w.setArray("table", std::vector<int>(table.begin(), table.end()));
+}
+
+void GuiComponentWtAmpMod::refreshWaves()
+{
+    for (int i = 0; i < Global::WtMod::slots; ++i) updateSlotPreview(i);
+
+    applySlotTarget();
+
+    updateModPreview();
 }

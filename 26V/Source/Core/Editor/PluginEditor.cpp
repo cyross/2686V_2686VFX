@@ -273,6 +273,17 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
     closeCategoriesBtn.onClick = [this] { closeBypassedCategories(); };
 
+    // コピー履歴。区分の一括開閉と同じ色味にする (表示まわりのボタン)
+    addAndMakeVisible(copyHistoryBtn);
+    copyHistoryBtn.setLookAndFeel(&categoryToggleBtnLF);
+    copyHistoryBtn.setColour(juce::TextButton::textColourOnId, GuiColor::SystemBtn::CategoryToggleText);
+    copyHistoryBtn.setColour(juce::TextButton::textColourOffId, GuiColor::SystemBtn::CategoryToggleText);
+    copyHistoryBtn.setColour(juce::TextButton::buttonColourId, GuiColor::SystemBtn::CategoryToggleBg);
+    copyHistoryBtn.setColour(juce::TextButton::buttonOnColourId, GuiColor::SystemBtn::CategoryToggleBg);
+    copyHistoryBtn.setButtonText(EditorGuiText::CopyHistory::title);
+    copyHistoryBtn.setTooltip(EditorGuiText::CopyHistory::tooltip);
+    copyHistoryBtn.onClick = [this] { openCopyHistory(); };
+
     addAndMakeVisible(toggleMiniBtn);
     toggleMiniBtn.setVisible(true);
     toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
@@ -543,6 +554,7 @@ void AudioPlugin2686VEditor::resized()
     undoButton.setVisible(isFull);
     redoButton.setVisible(isFull);
     initParamsButton.setVisible(isFull);
+    copyHistoryBtn.setVisible(isFull);
     togglePreviewBtn.setVisible(isFull);
 
     if (midiKeyboard != nullptr) {
@@ -735,6 +747,12 @@ void AudioPlugin2686VEditor::resized()
 
     x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
     openCategoriesBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::initButtonWidth;
+    copyHistoryBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::initButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    // 開いているコピー履歴は、画面全体に重ね直す
+    if (copyHistory != nullptr && copyHistory->isVisible()) copyHistory->setBounds(getLocalBounds());
 
     auto reducedArea = area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
     int mainIconWidth = EditorGuiValue::Preview::logoWidth;
@@ -1922,6 +1940,8 @@ void AudioPlugin2686VEditor::rebuildForLanguage()
     closeCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleClose);
     closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
 
+    copyHistoryBtn.setTooltip(EditorGuiText::CopyHistory::tooltip);
+
     resized();
 
     repaint();
@@ -2284,4 +2304,14 @@ void AudioPlugin2686VEditor::filesDropped(const juce::StringArray& files, int x,
         case DropKind::none: break;
         }
     }
+}
+
+// ==============================================================================
+// コピー履歴 (CPHIST)
+// ==============================================================================
+void AudioPlugin2686VEditor::openCopyHistory()
+{
+    if (copyHistory == nullptr) copyHistory = std::make_unique<GuiCopyHistory>(GuiContext(audioProcessor, *this, audioProcessor.apvts));
+
+    copyHistory->open(*this);
 }

@@ -150,6 +150,11 @@ public:
     GuiGroup(const GuiContext& context) : GuiBaseComponent(context) {}
 
     void setup(juce::Component& parent, const juce::String title);
+
+    // 右クリックで、枠の中身の切り取り・コピー・貼り付け・初期化を出す
+    // (ParamEdit::showGroupMenu)。FX の効果のように、見出しの代わりに枠で
+    // まとめている区分のため。
+    void mouseDown(const juce::MouseEvent& e) override;
 };
 
 // =======================================================
@@ -1223,6 +1228,15 @@ public:
     // 折りたたみを外から開いておく。置いた先によっては、最初から
     // 中身が見えているほうが都合のよいことがある。
     void setDetailVisible(bool visible) { this->detailVisible = visible; }
+
+    // 右クリックで、区分の中身の切り取り・コピー・貼り付け・初期化を出す
+    // (ParamEdit::showCategoryMenu)。
+    void mouseDown(const juce::MouseEvent& e) override;
+
+    // 中身の背後の板の場所。区分に入っている部品を見分けるのに使う。
+    juce::Rectangle<int> backdropBounds() const { return backdrop.isVisible() ? backdrop.getBounds() : juce::Rectangle<int>(); }
+
+    const GuiContext& context() const { return ctx; }
 
     // 簡易表示モードで丸ごと隠すための札。立てると見出しも中身も出さず、
     // 縦の場所も取らない。開閉の状態は覚えたままなので、戻したときに

@@ -19,6 +19,7 @@
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -135,6 +136,10 @@ private:
 
     QualityPcm qualityPcmComponent;
 
+    // パッド 1 つぶんの EDIT 区分 (QUALITY の下)。RHYTHM には MASK が無いので、
+    // FORM / PAN / QUALITY の列の最後に置く。
+    GuiComponentUnitEdit padEditComponent;
+
     GuiCategoryLabel panCat;
 
     GuiSlider noteSlider;
@@ -240,6 +245,7 @@ public:
         loopPointStartSlider(context),
         loopPointEndSlider(context),
 		qualityPcmComponent(context),
+		padEditComponent(context),
         panCat(context),
         noteSlider(context),
         panSlider(context),
@@ -388,10 +394,12 @@ class GuiRhythm : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
     GuiCategoryLabel utilityCat;
     GuiComponentPathRoot pathRoot;
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiTextButton copyPadParamBtn;
     GuiSlider copyPadFromSlider;
     GuiSlider copyPadToSlider;
@@ -429,6 +437,15 @@ class GuiRhythm : public GuiBase
     // 読み書きするには、いったんそこへ繋ぎ替えるしかない。
     // 終わったら必ず元へ戻す。
     void withPad(int index, const std::function<void(RhythmPadGui&)>& fn);
+public:
+    // 区分の外に持っている素材 (ParamEdit の切り取り・コピー・貼り付け)
+    void collectClipAssets(const juce::String& prefix, bool wholeChannel,
+        std::map<juce::String, juce::String>& out) override;
+    void applyClipAssets(const juce::String& prefix, bool wholeChannel,
+        const std::map<juce::String, juce::String>& assets, bool clearOthers) override;
+
+private:
+    std::vector<ParamEdit::AssetSlot> clipAssetSlots(const juce::String& prefix, bool wholeChannel);
 public:
     GuiRhythm(const GuiContext& context);
                      

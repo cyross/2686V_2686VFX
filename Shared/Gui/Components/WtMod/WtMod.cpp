@@ -9,6 +9,7 @@
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiParamEdit.h"
 #include "Shared/Core/Gui/GuiStructs.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "../../../Core/Const/ConstFileValues.h"
@@ -243,6 +244,9 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     cat.setupCategory({ .parent = parent, .title = juce::String("") + "WT PITCH MOD", .enableChangeDetailVisible = true }, categoryBg);
 
     enableButton.setup({ .parent = parent, .id = code + CPK::WtMod::enable, .title = "Enable", .isReset = true, .isResized = true });
+
+    // 区分を右クリックで写すとき、変調波形も一緒に写す
+    enableButton.getProperties().set(ParamEdit::Property::waveKey, m_code);
     enableButton.setWantsKeyboardFocus(true);
     enableButton.setExplicitFocusOrder(++tabOrder);
 
@@ -364,6 +368,7 @@ void GuiComponentWtMod::rebind(const juce::String& code)
     m_code = code;
 
     enableButton.rebind(code + CPK::WtMod::enable);
+    enableButton.getProperties().set(ParamEdit::Property::waveKey, m_code);
     depthSlider.rebind(code + CPK::WtMod::depth);
     speedSlider.rebind(code + CPK::WtMod::speed);
     shapeSelector.rebind(code + CPK::WtMod::shape);
@@ -871,4 +876,13 @@ void GuiComponentWtMod::writeParams(Io::ParamWriter& writer, const juce::String&
     auto table = fdsEditor.currentTable();
 
     w.setArray("table", std::vector<int>(table.begin(), table.end()));
+}
+
+void GuiComponentWtMod::refreshWaves()
+{
+    for (int i = 0; i < Global::WtMod::slots; ++i) updateSlotPreview(i);
+
+    applySlotTarget();
+
+    updateModPreview();
 }
