@@ -23,9 +23,9 @@ namespace
 		inline const juce::String paste = "PASTE";
 		inline const juce::String clear = "CLEAR";
 		inline const juce::String withFile = "WITH FILE";
-		inline const juce::String pasteNote = "Paste Note";
+		inline const juce::String withNote = "With Note";
 
-		// Paste Note で読み飛ばすキー (CPK::note から頭の "_" を外したもの)
+		// With Note で読み飛ばすキー (CPK::note から頭の "_" を外したもの)
 		inline const juce::String noteKey = "NOTE";
 	}
 
@@ -140,7 +140,7 @@ GuiComponentEdit::GuiComponentEdit(const GuiContext& context) :
 	copyBtn(context),
 	pasteBtn(context),
 	clearBtn(context),
-	pasteNoteToggle(context),
+	withNoteToggle(context),
 	movedSeparator(context)
 {
 }
@@ -291,24 +291,24 @@ void GuiComponentEdit::setupComponent(const Config& c, int& tabOrder)
 	// ---- CUT / COPY / PASTE / CLEAR
 	setupEditButtons(ctx, parent, tabOrder, cutBtn, copyBtn, pasteBtn, clearBtn, [this] { return target(); });
 
-	// ---- Paste Note。切っているあいだは、どこから貼っても NOTE を入れない
-	if (hasPasteNote())
+	// ---- With Note。切っているあいだは、PASTE / CUT / CLEAR のどれでも NOTE に触らない
+	if (hasWithNote())
 	{
-		pasteNoteToggle.setup({ .parent = parent, .title = Text::pasteNote });
-		pasteNoteToggle.setWantsKeyboardFocus(true);
-		pasteNoteToggle.setExplicitFocusOrder(++tabOrder);
-		pasteNoteToggle.setToggleState(false, juce::dontSendNotification);
-		pasteNoteToggle.onClick = [this] { applyPasteNote(); };
+		withNoteToggle.setup({ .parent = parent, .title = Text::withNote });
+		withNoteToggle.setWantsKeyboardFocus(true);
+		withNoteToggle.setExplicitFocusOrder(++tabOrder);
+		withNoteToggle.setToggleState(false, juce::dontSendNotification);
+		withNoteToggle.onClick = [this] { applyWithNote(); };
 
-		applyPasteNote();
+		applyWithNote();
 	}
 
 	if (hasMoved()) movedSeparator.setupComponent(parent);
 }
 
-void GuiComponentEdit::applyPasteNote()
+void GuiComponentEdit::applyWithNote()
 {
-	ParamEdit::setPasteSkipped(ctx, config->code, Text::noteKey, !pasteNoteToggle.getToggleState());
+	ParamEdit::setEditSkipped(ctx, config->code, Text::noteKey, !withNoteToggle.getToggleState());
 }
 
 // 写し元と同じ番号は写し先に選べない
@@ -544,7 +544,7 @@ void GuiComponentEdit::layoutComponent(juce::Rectangle<int>& rect)
 	pasteBtn.setVisible(visible);
 	clearBtn.setVisible(visible);
 
-	pasteNoteToggle.setVisible(visible && hasPasteNote());
+	withNoteToggle.setVisible(visible && hasWithNote());
 
 	movedSeparator.setVisible(visible && hasMoved());
 
@@ -591,7 +591,7 @@ void GuiComponentEdit::layoutComponent(juce::Rectangle<int>& rect)
 
 	layoutMainFourComps({ .rect = rect, .comp1 = &cutBtn, .comp2 = &copyBtn, .comp3 = &pasteBtn, .comp4 = &clearBtn });
 
-	if (hasPasteNote()) layoutMain({ .mainRect = rect, .component = &pasteNoteToggle });
+	if (hasWithNote()) layoutMain({ .mainRect = rect, .component = &withNoteToggle });
 
 	if (hasMoved())
 	{

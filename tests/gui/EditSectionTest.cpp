@@ -695,7 +695,7 @@ TEST_CASE("RHYTHM: パッドの EDIT は OPTIONAL の下、Duplicate Pad Params 
 	MESSAGE("Duplicate Pad Params: " << checked << " タブ");
 }
 
-TEST_CASE("RHYTHM: Paste Note を切っているあいだは、どの貼り方でも NOTE を貼らない")
+TEST_CASE("RHYTHM: With Note を切っているあいだは、PASTE / CUT / CLEAR で NOTE に触らない")
 {
 	Env env;
 
@@ -719,7 +719,7 @@ TEST_CASE("RHYTHM: Paste Note を切っているあいだは、どの貼り方�
 
 		openCategories(env, root, "EDIT");
 
-		auto found = findAll<GuiToggleButton>(root, [](GuiToggleButton& t) { return t.getButtonText() == "Paste Note"; });
+		auto found = findAll<GuiToggleButton>(root, [](GuiToggleButton& t) { return t.getButtonText() == "With Note"; });
 
 		if (!found.empty()) toggle = found.front();
 	}
@@ -755,12 +755,26 @@ TEST_CASE("RHYTHM: Paste Note を切っているあいだは、どの貼り方�
 	ParamEdit::paste(ctx, to, ParamEdit::capture(ctx, from));
 	CHECK(n2->getValue() == doctest::Approx(noteBefore));
 
+	// CLEAR / CUT でも初期値へ戻さない (ほかは戻す)
+	n2->setValueNotifyingHost(0.4f);
+
+	ParamEdit::clear(ctx, to);
+	CHECK(n2->getValue() == doctest::Approx(0.4f).epsilon(0.01));
+	CHECK(s2->getValue() == doctest::Approx(s2->getDefaultValue()));
+
+	ParamEdit::cut(ctx, to);
+	CHECK(n2->getValue() == doctest::Approx(0.4f).epsilon(0.01));
+
 	// 入れると貼る
 	toggle->setToggleState(true, juce::dontSendNotification);
 	if (toggle->onClick) toggle->onClick();
 
 	ParamEdit::paste(ctx, to, ParamEdit::capture(ctx, from));
 	CHECK(n2->getValue() == doctest::Approx(0.2f).epsilon(0.01));
+
+	// 入れると消す
+	ParamEdit::clear(ctx, to);
+	CHECK(n2->getValue() == doctest::Approx(n2->getDefaultValue()));
 
 	toggle->setToggleState(false, juce::dontSendNotification);
 	if (toggle->onClick) toggle->onClick();

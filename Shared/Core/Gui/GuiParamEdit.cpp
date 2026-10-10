@@ -24,7 +24,7 @@ namespace ParamEdit
 		// BusyScope の入れ子の深さ (メッセージスレッドだけで触る)
 		int busyDepth = 0;
 
-		// 貼るときに読み飛ばすキー。(APVTS, チャンネル) → キーの集まり
+		// 貼る・消すときに読み飛ばすキー。(APVTS, チャンネル) → キーの集まり
 		std::map<std::pair<const void*, juce::String>, std::set<juce::String>>& skippedKeys()
 		{
 			static std::map<std::pair<const void*, juce::String>, std::set<juce::String>> keys;
@@ -331,8 +331,8 @@ namespace ParamEdit
 
 			if (key.isEmpty() || it == snapshot.values.end()) continue;
 
-			// Paste Note を切っているときの NOTE など
-			if (isPasteSkipped(ctx, channelOf(id), keyOf(id, Scope::Category))) continue;
+			// With Note を切っているときの NOTE など
+			if (isEditSkipped(ctx, channelOf(id), keyOf(id, Scope::Category))) continue;
 
 			setReal(*p, it->second);
 			++count;
@@ -426,6 +426,11 @@ namespace ParamEdit
 
 		for (auto* p : paramsOf(ctx, target))
 		{
+			const auto id = p->getParameterID();
+
+			// With Note を切っているときの NOTE など
+			if (isEditSkipped(ctx, channelOf(id), keyOf(id, Scope::Category))) continue;
+
 			p->beginChangeGesture();
 			p->setValueNotifyingHost(p->getDefaultValue());
 			p->endChangeGesture();
@@ -513,7 +518,7 @@ namespace ParamEdit
 		for (int index : units) clear(ctx, unitTarget(channel, head, index));
 	}
 
-	void setPasteSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key, bool skipped)
+	void setEditSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key, bool skipped)
 	{
 		auto& keys = skippedKeys()[{ &ctx.apvts, channel }];
 
@@ -521,7 +526,7 @@ namespace ParamEdit
 		else keys.erase(key);
 	}
 
-	bool isPasteSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key)
+	bool isEditSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key)
 	{
 		auto it = skippedKeys().find({ &ctx.apvts, channel });
 

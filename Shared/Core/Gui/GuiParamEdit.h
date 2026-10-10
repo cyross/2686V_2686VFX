@@ -113,13 +113,13 @@ namespace ParamEdit
 	void clearUnits(const GuiContext& ctx, const juce::String& channel, const juce::String& head,
 		const std::vector<int>& units);
 
-	// ---- 貼るときに読み飛ばすパラメータ
-	// RHYTHM の NOTE のように、貼ると鍵盤の振り分けが変わってしまうものを、
-	// 画面のトグル (Paste Note) で貼らないようにする。key は単位の番号を
-	// 外したキー (NOTE など)。プラグインの窓 (APVTS) とチャンネルごとに持つ。
-	// 貼り付け・区分の貼り付け・単位の複写のどれにも効く。
-	void setPasteSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key, bool skipped);
-	bool isPasteSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key);
+	// ---- 貼る・消すときに読み飛ばすパラメータ
+	// RHYTHM の NOTE のように、書き換えると鍵盤の振り分けが変わってしまう
+	// ものを、画面のトグル (With Note) で触らないようにする。key は単位の
+	// 番号を外したキー (NOTE など)。プラグインの窓 (APVTS) とチャンネルごとに
+	// 持つ。貼り付け (区分・単位の複写も) と初期化 (CUT / CLEAR) に効く。
+	void setEditSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key, bool skipped);
+	bool isEditSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key);
 
 	// 写して、クリップボードへ入れて履歴へ足す
 	void copy(const GuiContext& ctx, const Target& target);

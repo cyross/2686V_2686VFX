@@ -583,15 +583,16 @@ RHYTHM のグローバルの EDIT（MIDI の下）の一番上にあります。
 3.6.2 までの UTILITY にあった Copy Pad Params（FROM / TO のつまみ）は、
 これに置き換えました。
 
-### Paste Note（RHYTHM）
+### With Note（RHYTHM）
 
 RHYTHM のグローバルの EDIT の、CUT / COPY / PASTE / CLEAR の下にある
-トグルです。**切っているあいだは、貼るときにパッドの NOTE を入れません**
-（初めは切っています）。NOTE まで貼ると、鍵盤のパッドへの振り分けが
-変わってしまうためです。
+トグルです。**切っているあいだは、PASTE / CUT / CLEAR でパッドの NOTE に
+触りません**（初めは切っています）。NOTE まで書き換えると、鍵盤のパッドへの
+振り分けが変わってしまうためです。
 
-グローバルの PASTE、パッドの EDIT、区分の右クリック（OPTIONAL など）、
-Duplicate Pad Params のどれにも効きます。NOTE も写したいときだけ入れてください。
+グローバルの EDIT、パッドの EDIT、区分の右クリック（OPTIONAL など）、
+Duplicate Pad Params のどれにも効きます。NOTE も写したい・戻したいときだけ
+入れてください。
 
 ### 区分を右クリック
 
