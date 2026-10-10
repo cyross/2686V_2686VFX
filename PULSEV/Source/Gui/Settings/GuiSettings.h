@@ -155,6 +155,11 @@ class GuiSettings : public GuiBase
     // MUL/DET・FIX を鳴らしている最中にも反映するか
     GuiToggleButton liveDetuneToggle;
 
+    NormalSeparator separatorFmN88;
+
+    // FM の AR / DR / SR / RR / SL を N88-BASIC(86) の向きで見せるか
+    GuiToggleButton fmN88Toggle;
+
     NormalSeparator separator5;
 
     // 仮想MIDIキーボード表示制御
@@ -266,6 +271,8 @@ public:
         headroomGainSlider(context),
         separatorLiveDetune(context),
         liveDetuneToggle(context),
+        separatorFmN88(context),
+        fmN88Toggle(context),
         separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),

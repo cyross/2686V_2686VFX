@@ -636,6 +636,7 @@ public:
         visit(SettingsKey::useHeadroom, useHeadroom);
         visit(SettingsKey::headroomGain, headroomGain);
         visit(SettingsKey::liveDetune, liveDetune);
+        visit(SettingsKey::fmN88Display, fmN88Display);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop

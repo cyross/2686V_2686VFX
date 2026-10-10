@@ -38,6 +38,7 @@ namespace SettingsKey
 	static inline const juce::String useHeadroom = "useHeadRoom";
 	static inline const juce::String headroomGain = "headRoomGain";
 	static inline const juce::String liveDetune = "liveDetune";
+	static inline const juce::String fmN88Display = "fmN88Display";
 	static inline const juce::String showVirtualKeyboard = "showVirtualKeyboard";
 	static inline const juce::String fmParameterCopyType = "fmParameterCopyType";
 	static inline const juce::String fxOrder = "fxOrder";

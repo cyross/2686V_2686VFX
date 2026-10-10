@@ -8,6 +8,17 @@ sidebar:
 This page covers changes from 3.6.2 to 3.6.3. **Your files remain compatible**,
 and existing patches sound the same.
 
+## Show the FM envelope the N88-BASIC(86) way
+
+SETTINGS has a new "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by
+default). Turned on, the register knobs **AR / DR / SR / RR / SL** of OPNA, OPN,
+OPL, OPL3, OPM and OPZX7 (D1R / D2R / D1L on OPM and OPZX7) are shown reversed,
+as N88-BASIC(86) numbers them: 0 on screen is 31 inside for AR. MML input reads
+them the same way.
+
+Only the display changes; the sound and the parameter values do not. See
+[N88-BASIC(86)-style display](/2686V_2686VFX/en/guide/screen/#n88-basic86-style-display).
+
 ## 2686VFX: no more blip when you stop playback
 
 **With DELAY / REVERB / SFC ECHO or modulation (ENV, LFO, PITCH and so on) in

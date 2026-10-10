@@ -78,6 +78,11 @@ public:
     // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。
     int toggleAlign = ToggleAlign::Centred;
 
+    // FM のレジスタの AR / DR / SR / RR / SL を、PC-9801 の N88-BASIC(86) と
+    // 同じ向き (大小を逆にした値) で見せるか。見た目だけの話で、パラメータの
+    // 値と音は変わらない (GuiSlider::applyN88Display)。
+    bool fmN88Display = false;
+
     // ---- 音声・波形ファイルの場所をどこからの相対で書くか (Io::PathRoot)
     // 環境設定に 1 つだけ持つ。どのチャンネルの UTILITY から変えても同じ値。
     int relativePathRoot = Io::PathRoot::settingsFolder;

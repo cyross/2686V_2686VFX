@@ -62,6 +62,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Drop a preset, channel parameter file, FX order or FX parameter file onto the window to load it
   - Presets and channel parameter files open that channel's tab
   - 2686VFX accepts FX order and FX parameter files (the screen stays as it is)
+- **Show the FM envelope the N88-BASIC(86) way**
+  - SETTINGS has "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by default), below "Apply MUL/DET and FIX while notes play", after a separator
+  - Turned on, the register knobs AR / DR / SR / RR / SL (D1R / D2R / D1L on OPM / OPZX7) of OPNA, OPN, OPL, OPL3, OPM and OPZX7 (OPZX7S included) show reversed numbers and bars: 0 on screen is 31 inside for AR
+  - MML input reads AR / DR / SR / RR / SL (D1R / D2R / D1L) reversed as well
+  - Only the display changes; processing uses the values as they are with it off, so the sound and parameter values stay the same
 - **Cut, copy and paste parameters**
   - An EDIT section below MIDI. CUT / COPY / PASTE / CLEAR work on the channel's global part
   - An EDIT section for one operator / pad: below MASK on OPNA, OPN, OPL, OPL3, OPM and OPZX7, and below OPTIONAL on RHYTHM

@@ -971,11 +971,11 @@ void GuiOpm::applyMmlString(const juce::String& mml)
         { mmlPrefixOl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
 
         // --- エンベロープ系 (RGモードで分岐) ---
-        { mmlPrefixAr,   [&](int v) { rgAr.setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
-        { mmlPrefixD1r,   [&](int v) { rgD1r.setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
-        { mmlPrefixD2r,   [&](int v) { rgD2r.setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
-        { mmlPrefixD1l,   [&](int v) { rgD1l.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
-        { mmlPrefixRr,   [&](int v) { rgRr.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }}
+        { mmlPrefixAr,   [&](int v) { rgAr.setDisplayedValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixD1r,   [&](int v) { rgD1r.setDisplayedValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixD2r,   [&](int v) { rgD2r.setDisplayedValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixD1l,   [&](int v) { rgD1l.setDisplayedValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
+        { mmlPrefixRr,   [&](int v) { rgRr.setDisplayedValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }}
     };
 
     for (const auto& rUnit : units)

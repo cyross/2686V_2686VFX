@@ -464,6 +464,9 @@ protected:
     // 色表の線形探索になる。部品 1 つあたり 1.4KB ほどの確保も付く。
     // 画面 1 枚で数百個できるので、そこが起動時間として出ていた。
     juce::SharedResourcePointer<SliderLF> sharedLF;
+
+    // いま N88-BASIC(86) の向きで見せているか
+    bool n88Displayed = false;
 public:
     GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context) {
         this->setLookAndFeel(&sharedLF.get());
@@ -507,6 +510,34 @@ public:
         att.reset(new SliderAttachment(ctx.apvts, id, *this));
         boundId = id;
         setComponentID(id);
+
+        applyN88Display();
+    }
+
+    // ---- N88-BASIC(86) 準拠の表示
+    // FM のレジスタの AR / DR / SR / RR / SL は、PC-9801 の N88-BASIC(86) では
+    // 大小が逆になっている。
+    // 環境設定 (fmN88Display) を入れると、つまみの数字と帯の向きを逆にして
+    // 見せる。AR を 0 にすると内部では 31、31 にすると 0。
+    //
+    // 見た目だけを変え、getValue / setValue とパラメータの値は内部の値の
+    // まま。コピーや読み書きはどれもこれまでどおりに動く。
+    static bool isN88Target(const juce::String& id);
+
+    // 束ねているパラメータが対象で、設定が入っていれば逆向きにする。
+    // 束縛を作り直すと元へ戻るので、setup / rebind の後で呼ぶ。
+    void applyN88Display();
+
+    // root の下のつまみを、いまの設定で見せ直す (設定を切り替えたとき)
+    static void refreshN88Display(juce::Component& root);
+
+    bool isN88Displayed() const { return n88Displayed; }
+
+    // 画面に出ている数字で値を入れる (MML の入力など)。N88-BASIC(86) の
+    // 向きで見せているときは、逆にしてから内部の値として入れる。
+    void setDisplayedValue(double displayed, juce::NotificationType notification = juce::sendNotificationAsync)
+    {
+        setValue(n88Displayed ? getMinimum() + getMaximum() - displayed : displayed, notification);
     }
 
     GuiLabel label;

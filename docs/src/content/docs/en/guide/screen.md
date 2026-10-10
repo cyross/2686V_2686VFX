@@ -231,6 +231,24 @@ Major categories follow the sections inside them. **OP** opens one if any
 section inside is not switched off, and **CL** closes one if every section
 inside is switched off.
 
+### N88-BASIC(86)-style display
+
+Turn on "Show some FM parameters as in PC-9801 N88-BASIC(86)" in SETTINGS to
+show the FM register knobs **AR / DR / SR / RR / SL** **reversed**, the way
+N88-BASIC(86) numbers them (it starts off).
+
+- It covers the register knobs of OPNA, OPN, OPL, OPL3, OPM and OPZX7 (OPZX7S
+  included). On OPM and OPZX7, **D1R / D2R / D1L** stand for DR / SR / SL
+- For AR (0–31), setting 0 on screen means 31 inside, 1 means 30, and 31
+  means 0
+- The bar fill and the drag direction are reversed too
+- [MML input](/2686V_2686VFX/en/reference/mml/) reads AR / DR / SR / RR / SL
+  (D1R / D2R / D1L) reversed in the same way
+- **Only the display changes.** Inside, everything keeps working with the
+  values you would see with it off, so neither the sound nor the parameter
+  values (presets, automation) change. The knobs switch over as soon as you
+  flip it
+
 ### Sliders
 
 Drag the control, or type a number in directly.
