@@ -75,6 +75,19 @@ TEST_CASE("N88-BASIC(86) 準拠: 入れると数字と向きが逆になり、�
 	CHECK_FALSE(ar->isN88Displayed());
 	CHECK(ar->getTextFromValue(lo) == juce::String(juce::roundToInt(lo)));
 
+	// SETTINGS など別のタブを開いたまま切り替えても、閉じている FM のタブへ届く
+	auto& tabs = EditorTestAccess::tabs(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+	const int arTab = [&] {
+		for (int i = 0; i < tabs.getNumTabs(); ++i)
+			if (auto* content = tabs.getTabContentComponent(i); content != nullptr && content->isParentOf(ar)) return i;
+		return -1;
+	}();
+
+	REQUIRE(arTab >= 0);
+
+	tabs.setCurrentTabIndex(arTab == tabs.getNumTabs() - 1 ? 0 : tabs.getNumTabs() - 1);
+	REQUIRE_FALSE(editor->isParentOf(ar));
+
 	processor->fmN88Display = true;
 	GuiSlider::refreshN88Display(*editor);
 
@@ -101,7 +114,7 @@ TEST_CASE("N88-BASIC(86) 準拠: 入れると数字と向きが逆になり、�
 
 	if (!tls.empty()) CHECK_FALSE(tls.front()->isN88Displayed());
 
-	// 切ると戻る。値はそのまま
+	// 切ると戻る。値はそのまま (これも閉じたタブのまま)
 	processor->fmN88Display = false;
 	GuiSlider::refreshN88Display(*editor);
 

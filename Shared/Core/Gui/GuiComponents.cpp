@@ -1,5 +1,6 @@
 ﻿#include "./GuiI18n.h"
 #include <map>
+#include <set>
 #include "./GuiComponents.h"
 #include "./GuiParamEdit.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"
@@ -369,13 +370,23 @@ void GuiSlider::refreshN88Display(juce::Component& root)
     // 先に集めてから結び直す。結び直すと値の知らせで画面が組み替わる
     // ことがあり、たどりながらだと子の並びが途中で変わってしまう
     std::vector<juce::Component::SafePointer<GuiSlider>> sliders;
+    std::set<juce::Component*> visited;
 
     std::function<void(juce::Component&)> collect = [&](juce::Component& c) {
-        for (auto* child : c.getChildren())
-        {
-            if (auto* s = dynamic_cast<GuiSlider*>(child)) sliders.emplace_back(s);
+        if (!visited.insert(&c).second) return;
 
-            collect(*child);
+        if (auto* s = dynamic_cast<GuiSlider*>(&c)) sliders.emplace_back(s);
+
+        for (auto* child : c.getChildren()) collect(*child);
+
+        // タブは、開いているものの中身しか子に持たない。SETTINGS から
+        // 切り替えたとき、閉じている FM のタブにも届くよう中身を直にたどる
+        if (auto* tabs = dynamic_cast<juce::TabbedComponent*>(&c))
+        {
+            for (int i = 0; i < tabs->getNumTabs(); ++i)
+            {
+                if (auto* content = tabs->getTabContentComponent(i)) collect(*content);
+            }
         }
     };
 
