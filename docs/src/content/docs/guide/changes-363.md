@@ -176,7 +176,7 @@ ADPCM などの方式は選べないので、実機が解いたあとのビッ�
   ずつずらせます
 - **Duplicate Targets / Clear Targets**（WT+ / ADPCM+）: TARGET をまとめて
   写す・初期化するダイアログ。ESC か同じボタンをもう一度押すと閉じます
-- **Duplicate Pad Params**（RHYTHM）: パッドの EDIT の一番上。1 つのパッドを、
+- **Duplicate Pad Params**（RHYTHM）: グローバルの EDIT の一番上。1 つのパッドを、
   **TO** のトグルで選んだいくつかのパッドへ写します。**WITH FILE** を入れると
   音声とファイル名も写します
 - 貼る・消す・複写する間は **Duplicating…** の画面を出します
@@ -187,7 +187,7 @@ ADPCM などの方式は選べないので、実機が解いたあとのビッ�
 
 - **Copy Op Params** を **Duplicate Op Params** へ改めました
 - RHYTHM の UTILITY にあった **Copy Pad Params**（FROM / TO のつまみで 1 つずつ
-  写す）は、パッドの EDIT の **Duplicate Pad Params** に置き換えました
+  写す）は、EDIT の **Duplicate Pad Params** に置き換えました
 - **Level -> All Ch** と **Duplicate Op Params** を UTILITY から EDIT へ移し、
   文字をオフホワイトにしました（読めるよう、地は濃い色）
 - WT+ の **Broadcast Level** を、ほかのチャンネルと同じ **Level -> All Ch** に

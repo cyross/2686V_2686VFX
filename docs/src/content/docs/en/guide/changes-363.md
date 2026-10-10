@@ -172,7 +172,7 @@ details.
   **SHIFT** / **UNSHIFT** move FROM or TO by one operator
 - **Duplicate Targets / Clear Targets** (WT+ / ADPCM+): dialogs that copy or
   clear several targets at once. Esc, or the same button again, closes them
-- **Duplicate Pad Params** (RHYTHM): at the top of the pad EDIT. Copies one pad
+- **Duplicate Pad Params** (RHYTHM): at the top of the global EDIT. Copies one pad
   onto the pads picked with the **TO** toggles; **WITH FILE** copies the audio
   and its file name too
 - A **Duplicating…** screen while pasting, clearing or duplicating
@@ -183,7 +183,7 @@ Along with this:
 
 - **Copy Op Params** is now **Duplicate Op Params**
 - RHYTHM's **Copy Pad Params** in UTILITY (one pad at a time, with FROM / TO
-  sliders) is replaced by **Duplicate Pad Params** in the pad EDIT
+  sliders) is replaced by **Duplicate Pad Params** in EDIT
 - **Level -> All Ch** and **Duplicate Op Params** moved from UTILITY to EDIT,
   with off-white text (on a dark background so they stay readable)
 - WT+'s **Broadcast Level** is now **Level -> All Ch**, like the other channels

@@ -140,6 +140,12 @@ void GuiTargetsDialog::open(juce::Component& parent, juce::Rectangle<int> area, 
 	const int height = juce::jmin(area.getHeight(), preferredHeight(area.getWidth()));
 
 	setBounds(area.withHeight(height));
+
+	// 中身は作り直したばかり。前と同じ大きさだと setBounds は resized を
+	// 呼ばないので、自分で並べる (呼ばないと、新しいトグルが大きさ 0 のまま
+	// 見えなくなる)
+	resized();
+
 	setVisible(true);
 
 	// ESC を受けるため、キーボードの行き先をこちらへ移す

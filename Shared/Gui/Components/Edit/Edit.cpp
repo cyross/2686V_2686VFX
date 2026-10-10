@@ -127,6 +127,11 @@ GuiComponentEdit::GuiComponentEdit(const GuiContext& context) :
 	duplicateTargetsBtn(context),
 	clearTargetsBtn(context),
 	targetsSeparator(context),
+	unitDuplicateBtn(context),
+	unitFromSelector(context),
+	unitToLabel(context),
+	withFileToggle(context),
+	unitSeparator(context),
 	cutBtn(context),
 	copyBtn(context),
 	pasteBtn(context),
@@ -231,10 +236,150 @@ void GuiComponentEdit::setupComponent(const Config& c, int& tabOrder)
 		targetsSeparator.setupComponent(parent);
 	}
 
+	// ---- 単位 1 つを、いくつかへ写す (Duplicate Pad Params)
+	if (hasUnitDuplicate())
+	{
+		const auto& u = *config->unitDuplicate;
+
+		unitDuplicateBtn.setup({ .parent = parent, .title = u.title,
+			.textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::DuplicateOpsBg });
+		unitDuplicateBtn.setWantsKeyboardFocus(true);
+		unitDuplicateBtn.setExplicitFocusOrder(++tabOrder);
+		unitDuplicateBtn.onClick = [this] { runUnitDuplicate(); };
+
+		// 番号は画面のパッドと同じく 1 から
+		std::vector<SelectItem> items;
+
+		for (int i = 0; i < u.count; ++i) items.push_back({ .name = juce::String(i + 1), .value = i + 1 });
+
+		unitFromSelector.setup({ .parent = parent, .title = Text::from, .items = items, .isReset = false });
+		unitFromSelector.setWantsKeyboardFocus(true);
+		unitFromSelector.setExplicitFocusOrder(++tabOrder);
+		unitFromSelector.setSelectedItemIndex(0, juce::dontSendNotification);
+		unitFromSelector.onChange = [this] { applyUnitFrom(); };
+
+		unitToLabel.setup({ .parent = parent, .title = Text::to });
+
+		unitToToggles.clear();
+
+		for (int i = 0; i < u.count; ++i)
+		{
+			auto t = std::make_unique<GuiToggleButton>(ctx);
+
+			t->setup({ .parent = parent, .title = juce::String(i + 1) });
+			t->setWantsKeyboardFocus(true);
+			t->setExplicitFocusOrder(++tabOrder);
+			t->onClick = [this] { applyUnitEnabled(); };
+
+			unitToToggles.push_back(std::move(t));
+		}
+
+		withFileToggle.setup({ .parent = parent, .title = Text::withFile });
+		withFileToggle.setWantsKeyboardFocus(true);
+		withFileToggle.setExplicitFocusOrder(++tabOrder);
+
+		unitSeparator.setupComponent(parent);
+
+		applyUnitFrom();
+	}
+
 	// ---- CUT / COPY / PASTE / CLEAR
 	setupEditButtons(ctx, parent, tabOrder, cutBtn, copyBtn, pasteBtn, clearBtn, [this] { return target(); });
 
 	if (hasMoved()) movedSeparator.setupComponent(parent);
+}
+
+// 写し元と同じ番号は写し先に選べない
+void GuiComponentEdit::applyUnitFrom()
+{
+	const int from = unitFromSelector.getSelectedItemIndex();
+
+	for (int i = 0; i < (int)unitToToggles.size(); ++i)
+	{
+		const bool self = i == from;
+
+		if (self) unitToToggles[(size_t)i]->setToggleState(false, juce::dontSendNotification);
+
+		unitToToggles[(size_t)i]->setEnabled(!self);
+	}
+
+	applyUnitEnabled();
+}
+
+// 写し先を 1 つも選んでいないうちは押せない
+void GuiComponentEdit::applyUnitEnabled()
+{
+	bool any = false;
+
+	for (auto& t : unitToToggles) any = any || (t->getToggleState() && t->isEnabled());
+
+	unitDuplicateBtn.setEnabled(any);
+}
+
+void GuiComponentEdit::runUnitDuplicate()
+{
+	if (!hasUnitDuplicate()) return;
+
+	const int from = unitFromSelector.getSelectedItemIndex();
+
+	std::vector<int> to;
+
+	for (int i = 0; i < (int)unitToToggles.size(); ++i)
+	{
+		if (i != from && unitToToggles[(size_t)i]->getToggleState()) to.push_back(i);
+	}
+
+	if (from < 0 || to.empty()) return;
+
+	// WITH FILE を切っているときは、写し先の音声をそのまま残す
+	ParamEdit::duplicateUnitTo(ctx, config->code, config->unitDuplicate->head, from, to, true, withFileToggle.getToggleState());
+}
+
+void GuiComponentEdit::setUnitVisible(bool visible)
+{
+	const bool show = visible && hasUnitDuplicate();
+
+	unitDuplicateBtn.setVisible(show);
+	unitFromSelector.setVisibleWithLabel(show);
+	unitToLabel.setVisible(show);
+
+	for (auto& t : unitToToggles) t->setVisible(show);
+
+	withFileToggle.setVisible(show);
+	unitSeparator.setVisible(show);
+}
+
+void GuiComponentEdit::layoutUnit(juce::Rectangle<int>& rect)
+{
+	if (!hasUnitDuplicate()) return;
+
+	layoutMain({ .mainRect = rect, .component = &unitDuplicateBtn });
+	layoutMain({ .mainRect = rect, .label = &unitFromSelector.label, .component = &unitFromSelector });
+	layoutMain({ .mainRect = rect, .label = &unitToLabel });
+
+	// 番号のトグルは 4 つずつ並べる
+	constexpr int perRow = 4;
+	constexpr int inner = 1;
+
+	for (int i = 0; i < (int)unitToToggles.size(); i += perRow)
+	{
+		auto area = rect.removeFromTop(CoreGuiValue::MainGroup::Row::height);
+		rect.removeFromTop(CoreGuiValue::MainGroup::Row::paddingTop);
+
+		const int cellW = (area.getWidth() - inner * (perRow - 1)) / perRow;
+
+		for (int k = i; k < juce::jmin(i + perRow, (int)unitToToggles.size()); ++k)
+		{
+			unitToToggles[(size_t)k]->setBounds(area.removeFromLeft(cellW));
+			area.removeFromLeft(inner);
+		}
+
+		rect.removeFromTop(CoreGuiValue::MainGroup::Row::paddingBottom);
+	}
+
+	layoutMain({ .mainRect = rect, .component = &withFileToggle });
+
+	unitSeparator.layoutComponent(rect);
 }
 
 // FROM と同じ数のまとまりだけを TO に並べる
@@ -370,6 +515,8 @@ void GuiComponentEdit::layoutComponent(juce::Rectangle<int>& rect)
 	clearTargetsBtn.setVisible(visible && config->onClearTargets != nullptr);
 	targetsSeparator.setVisible(visible && hasTargets());
 
+	setUnitVisible(visible);
+
 	cutBtn.setVisible(visible);
 	copyBtn.setVisible(visible);
 	pasteBtn.setVisible(visible);
@@ -416,6 +563,8 @@ void GuiComponentEdit::layoutComponent(juce::Rectangle<int>& rect)
 		targetsSeparator.layoutComponent(rect);
 	}
 
+	layoutUnit(rect);
+
 	layoutMainFourComps({ .rect = rect, .comp1 = &cutBtn, .comp2 = &copyBtn, .comp3 = &pasteBtn, .comp4 = &clearBtn });
 
 	if (hasMoved())
@@ -437,12 +586,7 @@ GuiComponentUnitEdit::GuiComponentUnitEdit(const GuiContext& context) :
 	cutBtn(context),
 	copyBtn(context),
 	pasteBtn(context),
-	clearBtn(context),
-	duplicateBtn(context),
-	dupFromSelector(context),
-	dupToLabel(context),
-	withFileToggle(context),
-	dupSeparator(context)
+	clearBtn(context)
 {
 }
 
@@ -466,153 +610,7 @@ void GuiComponentUnitEdit::setupComponent(juce::Component& parent, const juce::S
 
 	cat.setupOtherCategory({ .parent = parent, .title = Text::title, .enableChangeDetailVisible = true });
 
-	// ---- 1 つを、いくつかへ写す
-	if (hasDuplicate())
-	{
-		duplicateBtn.setup({ .parent = parent, .title = duplicate->title,
-			.textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::DuplicateOpsBg });
-		duplicateBtn.setWantsKeyboardFocus(true);
-		duplicateBtn.setExplicitFocusOrder(++tabOrder);
-		duplicateBtn.onClick = [this] { runDuplicate(); };
-
-		// 番号は画面のパッドと同じく 1 から
-		std::vector<SelectItem> items;
-
-		for (int i = 0; i < duplicate->count; ++i) items.push_back({ .name = juce::String(i + 1), .value = i + 1 });
-
-		dupFromSelector.setup({ .parent = parent, .title = Text::from, .items = items, .isReset = false });
-		dupFromSelector.setWantsKeyboardFocus(true);
-		dupFromSelector.setExplicitFocusOrder(++tabOrder);
-		dupFromSelector.setSelectedItemIndex(0, juce::dontSendNotification);
-		dupFromSelector.onChange = [this] { applyDuplicateFrom(); };
-
-		dupToLabel.setup({ .parent = parent, .title = Text::to });
-
-		dupToToggles.clear();
-
-		for (int i = 0; i < duplicate->count; ++i)
-		{
-			auto t = std::make_unique<GuiToggleButton>(ctx);
-
-			t->setup({ .parent = parent, .title = juce::String(i + 1) });
-			t->setWantsKeyboardFocus(true);
-			t->setExplicitFocusOrder(++tabOrder);
-			t->onClick = [this] { applyDuplicateEnabled(); };
-
-			dupToToggles.push_back(std::move(t));
-		}
-
-		withFileToggle.setup({ .parent = parent, .title = Text::withFile });
-		withFileToggle.setWantsKeyboardFocus(true);
-		withFileToggle.setExplicitFocusOrder(++tabOrder);
-
-		dupSeparator.setupComponent(parent);
-
-		applyDuplicateFrom();
-	}
-
 	setupEditButtons(ctx, parent, tabOrder, cutBtn, copyBtn, pasteBtn, clearBtn, [this] { return target(); });
-}
-
-// 写し元と同じ番号は写し先に選べない
-void GuiComponentUnitEdit::applyDuplicateFrom()
-{
-	const int from = dupFromSelector.getSelectedItemIndex();
-
-	for (int i = 0; i < (int)dupToToggles.size(); ++i)
-	{
-		const bool self = i == from;
-
-		if (self) dupToToggles[(size_t)i]->setToggleState(false, juce::dontSendNotification);
-
-		dupToToggles[(size_t)i]->setEnabled(!self);
-	}
-
-	applyDuplicateEnabled();
-}
-
-// 写し先を 1 つも選んでいないうちは押せない
-void GuiComponentUnitEdit::applyDuplicateEnabled()
-{
-	bool any = false;
-
-	for (auto& t : dupToToggles) any = any || (t->getToggleState() && t->isEnabled());
-
-	duplicateBtn.setEnabled(any);
-}
-
-void GuiComponentUnitEdit::runDuplicate()
-{
-	if (!hasDuplicate()) return;
-
-	const int from = dupFromSelector.getSelectedItemIndex();
-
-	std::vector<int> to;
-
-	for (int i = 0; i < (int)dupToToggles.size(); ++i)
-	{
-		if (i != from && dupToToggles[(size_t)i]->getToggleState()) to.push_back(i);
-	}
-
-	if (from < 0 || to.empty()) return;
-
-	// WITH FILE を切っているときは、写し先の音声をそのまま残す
-	ParamEdit::duplicateUnitTo(ctx, m_code, duplicate->head, from, to, true, withFileToggle.getToggleState());
-}
-
-void GuiComponentUnitEdit::setDuplicateVisible(bool visible)
-{
-	const bool show = visible && hasDuplicate();
-
-	duplicateBtn.setVisible(show);
-	dupFromSelector.setVisibleWithLabel(show);
-	dupToLabel.setVisible(show);
-
-	for (auto& t : dupToToggles) t->setVisible(show);
-
-	withFileToggle.setVisible(show);
-	dupSeparator.setVisible(show);
-}
-
-void GuiComponentUnitEdit::layoutDuplicate(juce::Rectangle<int>& rect, bool row)
-{
-	if (!hasDuplicate()) return;
-
-	auto place = [&](GuiLabel* label, juce::Component* component) {
-		if (row) layoutRow({ .rowRect = rect, .label = label, .component = component });
-		else layoutMain({ .mainRect = rect, .label = label, .component = component });
-	};
-
-	place(nullptr, &duplicateBtn);
-	place(&dupFromSelector.label, &dupFromSelector);
-	place(&dupToLabel, nullptr);
-
-	// 番号のトグルは 4 つずつ並べる
-	const int rowHeight = row ? CoreGuiValue::ParamGroup::Row::height : CoreGuiValue::MainGroup::Row::height;
-	const int paddingTop = row ? CoreGuiValue::ParamGroup::Row::paddingTop : CoreGuiValue::MainGroup::Row::paddingTop;
-	const int paddingBottom = row ? CoreGuiValue::ParamGroup::Row::paddingBottom : CoreGuiValue::MainGroup::Row::paddingBottom;
-	constexpr int perRow = 4;
-	constexpr int inner = 1;
-
-	for (int i = 0; i < (int)dupToToggles.size(); i += perRow)
-	{
-		auto area = rect.removeFromTop(rowHeight);
-		rect.removeFromTop(paddingTop);
-
-		const int cellW = (area.getWidth() - inner * (perRow - 1)) / perRow;
-
-		for (int k = i; k < juce::jmin(i + perRow, (int)dupToToggles.size()); ++k)
-		{
-			dupToToggles[(size_t)k]->setBounds(area.removeFromLeft(cellW));
-			area.removeFromLeft(inner);
-		}
-
-		rect.removeFromTop(paddingBottom);
-	}
-
-	place(nullptr, &withFileToggle);
-
-	dupSeparator.layoutComponent(rect);
 }
 
 void GuiComponentUnitEdit::layoutComponent(juce::Rectangle<int>& rect)
@@ -623,11 +621,8 @@ void GuiComponentUnitEdit::layoutComponent(juce::Rectangle<int>& rect)
 
 	for (auto* b : { &cutBtn, &copyBtn, &pasteBtn, &clearBtn }) b->setVisible(visible);
 
-	setDuplicateVisible(visible);
 
 	if (!visible) return;
-
-	layoutDuplicate(rect, false);
 
 	layoutMainFourComps({ .rect = rect, .comp1 = &cutBtn, .comp2 = &copyBtn, .comp3 = &pasteBtn, .comp4 = &clearBtn });
 
@@ -642,11 +637,8 @@ void GuiComponentUnitEdit::layoutComponentRow(juce::Rectangle<int>& rect)
 
 	for (auto* b : { &cutBtn, &copyBtn, &pasteBtn, &clearBtn }) b->setVisible(visible);
 
-	setDuplicateVisible(visible);
 
 	if (!visible) return;
-
-	layoutDuplicate(rect, true);
 
 	layoutRowFourComps({ .rect = rect, .comp1 = &cutBtn, .comp2 = &copyBtn, .comp3 = &pasteBtn, .comp4 = &clearBtn });
 

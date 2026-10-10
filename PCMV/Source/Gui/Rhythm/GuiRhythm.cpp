@@ -158,9 +158,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     qualityPcmComponent.setupComponent(colForm.contentCanvas, padPrefix, tabOrder);
 
-    // TARGET で選んでいるパッドを単位にする。OPTIONAL の下に置き、
-    // 1 つのパッドをいくつかのパッドへ写す Duplicate Pad Params も持たせる
-    padEditComponent.enableDuplicate({ .title = "Duplicate Pad Params", .head = "PAD", .count = RhythmPrValue::pads });
+    // TARGET で選んでいるパッドを単位にする。OPTIONAL の下に置く
     padEditComponent.setupComponent(colOptional.contentCanvas, RhythmPrKey::prefix,
         [this] { return "PAD" + juce::String(m_padIndex); }, tabOrder);
 
@@ -1462,9 +1460,11 @@ void GuiRhythm::setup()
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
     // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    // 1 つのパッドを、いくつかのパッドへ写す (Duplicate Pad Params)
     editComponent.setupComponent({
         .parent = mainGroup.contentCanvas,
         .code = code,
+        .unitDuplicate = GuiComponentEdit::UnitDuplicate{ .title = "Duplicate Pad Params", .head = "PAD", .count = RhythmPrValue::pads },
         .setMovedVisible = [this](bool visible) {
             broadcastLevelButton.setVisible(visible);
             },

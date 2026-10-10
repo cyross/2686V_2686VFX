@@ -22,6 +22,8 @@
 //   SWAP (FROM と TO を入れ替える)
 //   FROM / TO それぞれの SHIFT / UNSHIFT (1 オペレーターずつずらす)
 //   Duplicate Targets / Clear Targets (WT+ / ADPCM+)
+//   Duplicate Pad Params (RHYTHM): FROM (番号のコンボボックス)、TO (番号の
+//     トグル、いくつでも)、WITH FILE (入れると音声とファイル名も写す)
 //   CUT / COPY / PASTE / CLEAR
 //   ── 区切り ──
 //   タブから移したもの (Level -> All Ch、Duplicate Op Params など)
@@ -41,6 +43,14 @@ public:
 		juce::String name() const;
 	};
 
+	// 番号付きの単位 1 つを、いくつかの単位へ写す (RHYTHM の Duplicate Pad Params)
+	struct UnitDuplicate
+	{
+		juce::String title;  // ボタンの文字 (Duplicate Pad Params)
+		juce::String head;   // 単位の頭 (PAD)
+		int count = 8;       // 単位の数
+	};
+
 	struct Config
 	{
 		juce::Component& parent;
@@ -57,6 +67,9 @@ public:
 		// WT+ / ADPCM+ の TARGET の複写と消去。どちらも nullptr なら置かない
 		std::function<void()> onDuplicateTargets = nullptr;
 		std::function<void()> onClearTargets = nullptr;
+
+		// 単位 1 つを、いくつかの単位へ写す。無ければ置かない
+		std::optional<UnitDuplicate> unitDuplicate = std::nullopt;
 
 		// タブから移した部品の出し入れと並べ方
 		std::function<void(bool)> setMovedVisible = nullptr;
@@ -90,11 +103,20 @@ public:
 
 	GuiCategoryLabel& category() { return cat; }
 
+	// 単位の複写 (Duplicate Pad Params) を押したときと同じ。TO に何も
+	// 選んでいなければ何もしない
+	void runUnitDuplicate();
+
 private:
 	ParamEdit::Target target() const;
 
 	void refillTo();
 	void applyDuplicateEnabled();
+
+	void applyUnitFrom();
+	void applyUnitEnabled();
+	void setUnitVisible(bool visible);
+	void layoutUnit(juce::Rectangle<int>& rect);
 
 	// FROM / TO で選んでいるまとまり (groups の添字)。選んでいなければ -1
 	int fromGroup() const;
@@ -117,6 +139,13 @@ private:
 	GuiTextButton duplicateTargetsBtn, clearTargetsBtn;
 	NormalSeparator targetsSeparator;
 
+	GuiTextButton unitDuplicateBtn;
+	GuiComboBox unitFromSelector;
+	GuiLabel unitToLabel;
+	std::vector<std::unique_ptr<GuiToggleButton>> unitToToggles;
+	GuiToggleButton withFileToggle;
+	NormalSeparator unitSeparator;
+
 	GuiTextButton cutBtn, copyBtn, pasteBtn, clearBtn;
 
 	NormalSeparator movedSeparator;
@@ -131,6 +160,7 @@ private:
 	bool hasOps() const { return !groups.empty(); }
 	bool hasTargets() const { return config.has_value() && (config->onDuplicateTargets != nullptr || config->onClearTargets != nullptr); }
 	bool hasMoved() const { return config.has_value() && config->layoutMoved != nullptr; }
+	bool hasUnitDuplicate() const { return config.has_value() && config->unitDuplicate.has_value(); }
 };
 
 // ============================================================================
@@ -138,30 +168,10 @@ private:
 // ============================================================================
 // MASK の下 (RHYTHM は OPTIONAL の下) に置く。TARGET で選んでいる
 // オペレーター / パッドを単位にする。
-//
-// enableDuplicate を呼んでおくと、上に「1 つを、いくつかへ写す」ボタンを
-// 置く (RHYTHM の Duplicate Pad Params)。
-//
-//   Duplicate Pad Params
-//   FROM (番号のコンボボックス)
-//   TO   (番号のトグル、いくつでも)
-//   WITH FILE (入れると音声とファイル名も写す)
-//   ── 区切り ──
-//   CUT / COPY / PASTE / CLEAR
 class GuiComponentUnitEdit : public GuiBase
 {
 public:
-	struct DuplicateConfig
-	{
-		juce::String title;  // ボタンの文字 (Duplicate Pad Params)
-		juce::String head;   // 単位の頭 (PAD)
-		int count = 8;       // 単位の数
-	};
-
 	GuiComponentUnitEdit(const GuiContext& context);
-
-	// setupComponent より先に呼ぶ
-	void enableDuplicate(const DuplicateConfig& c) { duplicate = c; }
 
 	// unitOf は、いま選んでいる単位 (OP2 / PAD3 など) を返す
 	void setupComponent(juce::Component& parent, const juce::String& code,
@@ -173,34 +183,11 @@ public:
 	void layoutComponentRow(juce::Rectangle<int>& rect);
 
 	GuiCategoryLabel& category() { return cat; }
-
-	// テストから触る口
-	GuiTextButton& duplicateButton() { return duplicateBtn; }
-	GuiComboBox& duplicateFrom() { return dupFromSelector; }
-	GuiToggleButton& duplicateTo(int index) { return *dupToToggles[(size_t)index]; }
-	GuiToggleButton& withFile() { return withFileToggle; }
-
-	// Duplicate を押したときと同じ (TO に何も選んでいなければ何もしない)
-	void runDuplicate();
 private:
 	ParamEdit::Target target() const;
 
-	void applyDuplicateFrom();
-	void applyDuplicateEnabled();
-	void layoutDuplicate(juce::Rectangle<int>& rect, bool row);
-	void setDuplicateVisible(bool visible);
-	bool hasDuplicate() const { return duplicate.has_value(); }
-
 	GuiCategoryLabel cat;
 	GuiTextButton cutBtn, copyBtn, pasteBtn, clearBtn;
-
-	std::optional<DuplicateConfig> duplicate;
-	GuiTextButton duplicateBtn;
-	GuiComboBox dupFromSelector;
-	GuiLabel dupToLabel;
-	std::vector<std::unique_ptr<GuiToggleButton>> dupToToggles;
-	GuiToggleButton withFileToggle;
-	NormalSeparator dupSeparator;
 
 	juce::String m_code;
 	std::function<juce::String()> m_unitOf;

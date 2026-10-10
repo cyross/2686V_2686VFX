@@ -582,7 +582,7 @@ can paste into another operator or pad, or into an operator of another channel.
 
 ### Duplicate Pad Params — copying a pad onto several pads (RHYTHM)
 
-At the top of the pad EDIT on RHYTHM.
+At the top of the global EDIT (below MIDI) on RHYTHM.
 
 - Pick the source pad with **FROM** and any number of destinations with the
   numbered **TO** toggles (the source's own number cannot be picked)
@@ -590,8 +590,8 @@ At the top of the pad EDIT on RHYTHM.
 - With **WITH FILE** on, the audio (wave) and its file name are copied too;
   with it off, the destinations keep their audio
 
-This replaces the Duplicate Pad Params (FROM / TO sliders) that sat in UTILITY up
-to 3.6.2.
+This replaces the Copy Pad Params (FROM / TO sliders) that sat in UTILITY up to
+3.6.2.
 
 ### Right-click a section
 

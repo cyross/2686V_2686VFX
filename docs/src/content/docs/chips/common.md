@@ -572,7 +572,7 @@ OPTIONAL の下に、もう 1 つ EDIT があります。こちらは
 
 ### Duplicate Pad Params — パッドを、いくつかのパッドへ写す（RHYTHM）
 
-RHYTHM のパッドの EDIT の一番上にあります。
+RHYTHM のグローバルの EDIT（MIDI の下）の一番上にあります。
 
 - **FROM** で写し元のパッドを、**TO** の番号のトグルで写し先を選びます
   （いくつでも。写し元と同じ番号は選べません）
@@ -580,7 +580,7 @@ RHYTHM のパッドの EDIT の一番上にあります。
 - **WITH FILE** を入れると、音声（波形）とファイル名も写します。切って
   いるときは、写し先の音声はそのまま残ります
 
-3.6.2 までの UTILITY にあった Duplicate Pad Params（FROM / TO のつまみ）は、
+3.6.2 までの UTILITY にあった Copy Pad Params（FROM / TO のつまみ）は、
 これに置き換えました。
 
 ### 区分を右クリック

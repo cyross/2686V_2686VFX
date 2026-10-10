@@ -578,6 +578,19 @@ TEST_CASE("Duplicate Targets / Clear Targets: もう一度押すと閉じ、ESC 
 		click(*dup);
 		CHECK(openDialog() == nullptr);
 
+		// 同じ場所へ開き直しても、トグルが並んでいる (大きさ 0 で消えない)
+		for (int round = 0; round < 3; ++round)
+		{
+			click(*dup);
+			REQUIRE(openDialog() != nullptr);
+
+			for (int k = 0; k < 4; ++k)
+				CHECK_FALSE(openDialog()->targetToggle(k).getBounds().isEmpty());
+
+			click(*dup);
+			CHECK(openDialog() == nullptr);
+		}
+
 		// 複写を開いているときにクリアを押すと、クリアに切り替わる
 		click(*dup);
 		click(*clr);
@@ -600,7 +613,7 @@ TEST_CASE("Duplicate Targets / Clear Targets: もう一度押すと閉じ、ESC 
 	MESSAGE("ダイアログの開け閉め: " << checked << " タブ");
 }
 
-TEST_CASE("RHYTHM: パッドの EDIT は OPTIONAL の下にあり、Duplicate Pad Params で選んだパッドへ写す")
+TEST_CASE("RHYTHM: パッドの EDIT は OPTIONAL の下、Duplicate Pad Params はグローバルの EDIT にあり、選んだパッドへ写す")
 {
 	Env env;
 
@@ -625,11 +638,21 @@ TEST_CASE("RHYTHM: パッドの EDIT は OPTIONAL の下にあり、Duplicate Pa
 
 		auto* parent = dup->getParentComponent();
 
-		// 同じ列の OPTIONAL より下
-		auto optional = findAll<GuiCategoryLabel>(parent, [](GuiCategoryLabel& c) { return c.getText() == "OPTIONAL"; });
+		// Duplicate Pad Params はグローバルの EDIT (Level -> All Ch と同じ板) にある
+		auto* level = findButton(root, "Level -> All Ch");
+
+		REQUIRE(level != nullptr);
+		CHECK(level->getParentComponent() == parent);
+
+		// パッドの EDIT は、OPTIONAL と同じ列のその下
+		auto optional = findAll<GuiCategoryLabel>(root, [](GuiCategoryLabel& c) { return c.getText() == "OPTIONAL"; });
 
 		REQUIRE(optional.size() == 1);
-		CHECK(dup->getY() > optional.front()->getY());
+
+		auto padEdit = findAll<GuiCategoryLabel>(optional.front()->getParentComponent(), [](GuiCategoryLabel& c) { return c.getText() == "EDIT"; });
+
+		REQUIRE(padEdit.size() == 1);
+		CHECK(padEdit.front()->getY() > optional.front()->getY());
 
 		// UTILITY に古いものは残っていない
 		CHECK(findAll<GuiTextButton>(root, [](GuiTextButton& b) { return b.getButtonText() == "Duplicate Pad Params"; }).size() == 1);
