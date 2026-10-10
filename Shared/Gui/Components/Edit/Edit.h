@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include <functional>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -18,6 +19,8 @@
 // MIDI の下に置く。上から
 //
 //   Duplicate Ops Params (FM で 4 オペレーター以上) と FROM / TO
+//   SWAP (FROM と TO を入れ替える)
+//   FROM / TO それぞれの SHIFT / UNSHIFT (1 オペレーターずつずらす)
 //   Duplicate Targets / Clear Targets (WT+ / ADPCM+)
 //   CUT / COPY / PASTE / CLEAR
 //   ── 区切り ──
@@ -77,6 +80,14 @@ public:
 	// FROM / TO の選び方で、写せるかどうか
 	static bool canDuplicate(const OpGroup& from, const OpGroup& to) { return from.size == to.size && !from.overlaps(to); }
 
+	// groups[index] を 1 オペレーターずらしたまとまりの添字。direction は
+	// +1 (SHIFT: 番号を足す) か -1 (UNSHIFT: 番号を引く)。
+	//
+	// はみ出すときは反対の端へ回る (8 オペレーターで [6,7,8] を SHIFT すると
+	// [1,2,3]、[1,2,3] を UNSHIFT すると [6,7,8])。ずらした先が選べる
+	// まとまりに無いとき (4 オペレーターの [2,3] など) は、さらに先へ進める。
+	static int shiftedGroup(const std::vector<OpGroup>& groups, int index, int direction);
+
 	GuiCategoryLabel& category() { return cat; }
 
 private:
@@ -85,10 +96,22 @@ private:
 	void refillTo();
 	void applyDuplicateEnabled();
 
+	// FROM / TO で選んでいるまとまり (groups の添字)。選んでいなければ -1
+	int fromGroup() const;
+	int toGroup() const;
+	void selectTo(int group);
+
+	void swapFromTo();
+	void shiftFrom(int direction);
+	void shiftTo(int direction);
+
 	GuiCategoryLabel cat;
 
 	GuiTextButton duplicateOpsBtn;
 	GuiComboBox fromSelector, toSelector;
+	GuiTextButton swapBtn;
+	GuiLabel fromShiftLabel, toShiftLabel;
+	GuiTextButton fromShiftBtn, fromUnshiftBtn, toShiftBtn, toUnshiftBtn;
 	NormalSeparator opsSeparator;
 
 	GuiTextButton duplicateTargetsBtn, clearTargetsBtn;
@@ -113,11 +136,32 @@ private:
 // ============================================================================
 // EDIT 区分 (オペレーター / パッド 1 つ)
 // ============================================================================
-// MASK の下に置く。TARGET で選んでいるオペレーター / パッドを単位にする。
+// MASK の下 (RHYTHM は OPTIONAL の下) に置く。TARGET で選んでいる
+// オペレーター / パッドを単位にする。
+//
+// enableDuplicate を呼んでおくと、上に「1 つを、いくつかへ写す」ボタンを
+// 置く (RHYTHM の Duplicate Pad Params)。
+//
+//   Duplicate Pad Params
+//   FROM (番号のコンボボックス)
+//   TO   (番号のトグル、いくつでも)
+//   WITH FILE (入れると音声とファイル名も写す)
+//   ── 区切り ──
+//   CUT / COPY / PASTE / CLEAR
 class GuiComponentUnitEdit : public GuiBase
 {
 public:
+	struct DuplicateConfig
+	{
+		juce::String title;  // ボタンの文字 (Duplicate Pad Params)
+		juce::String head;   // 単位の頭 (PAD)
+		int count = 8;       // 単位の数
+	};
+
 	GuiComponentUnitEdit(const GuiContext& context);
+
+	// setupComponent より先に呼ぶ
+	void enableDuplicate(const DuplicateConfig& c) { duplicate = c; }
 
 	// unitOf は、いま選んでいる単位 (OP2 / PAD3 など) を返す
 	void setupComponent(juce::Component& parent, const juce::String& code,
@@ -129,11 +173,34 @@ public:
 	void layoutComponentRow(juce::Rectangle<int>& rect);
 
 	GuiCategoryLabel& category() { return cat; }
+
+	// テストから触る口
+	GuiTextButton& duplicateButton() { return duplicateBtn; }
+	GuiComboBox& duplicateFrom() { return dupFromSelector; }
+	GuiToggleButton& duplicateTo(int index) { return *dupToToggles[(size_t)index]; }
+	GuiToggleButton& withFile() { return withFileToggle; }
+
+	// Duplicate を押したときと同じ (TO に何も選んでいなければ何もしない)
+	void runDuplicate();
 private:
 	ParamEdit::Target target() const;
 
+	void applyDuplicateFrom();
+	void applyDuplicateEnabled();
+	void layoutDuplicate(juce::Rectangle<int>& rect, bool row);
+	void setDuplicateVisible(bool visible);
+	bool hasDuplicate() const { return duplicate.has_value(); }
+
 	GuiCategoryLabel cat;
 	GuiTextButton cutBtn, copyBtn, pasteBtn, clearBtn;
+
+	std::optional<DuplicateConfig> duplicate;
+	GuiTextButton duplicateBtn;
+	GuiComboBox dupFromSelector;
+	GuiLabel dupToLabel;
+	std::vector<std::unique_ptr<GuiToggleButton>> dupToToggles;
+	GuiToggleButton withFileToggle;
+	NormalSeparator dupSeparator;
 
 	juce::String m_code;
 	std::function<juce::String()> m_unitOf;

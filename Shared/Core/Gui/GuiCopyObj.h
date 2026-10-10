@@ -339,18 +339,6 @@ struct CopyQuality {
 	int rate;
 };
 
-struct CopyPcmQuality {
-	int mode;
-	int rate;
-	int interp = 1;
-
-	// ノイズリダクション
-	bool nrResample = false;
-	bool nrGate = false;
-	float nrGateLevel = -60.0f;
-	int nrLpf = 0;
-};
-
 struct CopyMask {
 	bool mask;
 };
@@ -362,10 +350,6 @@ struct CopyFix {
 
 struct CopyIntPan {
 	int pan;
-};
-
-struct CopyFloatPan {
-	float pan;
 };
 
 struct CopyPanpot {
@@ -558,20 +542,3 @@ struct CopyOpzx7Op {
 	int waveSelect;
 };
 
-struct CopyRhythmPad {
-	CopyBase base;
-	CopyFloatPan pan;
-	CopyPcm pcm;
-	CopyPcmQuality quality;
-	CopyEnvAmpAdsr aAdsr;
-	CopyEnvPitchAdsr pAdsr;
-	CopyEnvSsgSw11 aSsgSw11;
-	CopyPEnvSsgSw11 pEnvSsgSw11;
-
-	int noteNumber;
-	bool isOneShot;
-	float toneLevel;
-	float noiseLevel;
-	float noiseFreq;
-	float mix;
-};

@@ -160,8 +160,7 @@ details.
 - An **EDIT section** (below MIDI) with **CUT / COPY / PASTE / CLEAR**, working
   on the channel's global part (everything except operators and pads)
 - **An EDIT section for one operator / pad**: below MASK on OPNA, OPN, OPL,
-  OPL3, OPM and OPZX7, and at the end of the FORM / PAN / QUALITY column on
-  RHYTHM
+  OPL3, OPM and OPZX7, and below OPTIONAL on RHYTHM
 - **Right-click a section heading** for a menu that copies just that section
   (for FX effects, the frame's heading)
 - Pasting fills **only parameters with the same name**, so you can paste into a
@@ -169,16 +168,22 @@ details.
   come along too
 - **Duplicate Ops Params** (OPNA / OPN / OPL3 / OPM / OPZX7): copies a run of
   operators onto another run. On OPZX7 the feedback and the algorithm-matrix
-  connections are copied as well
+  connections are copied as well. **SWAP** exchanges FROM and TO, and
+  **SHIFT** / **UNSHIFT** move FROM or TO by one operator
 - **Duplicate Targets / Clear Targets** (WT+ / ADPCM+): dialogs that copy or
-  clear several targets at once
+  clear several targets at once. Esc, or the same button again, closes them
+- **Duplicate Pad Params** (RHYTHM): at the top of the pad EDIT. Copies one pad
+  onto the pads picked with the **TO** toggles; **WITH FILE** copies the audio
+  and its file name too
+- A **Duplicating…** screen while pasting, clearing or duplicating
 - A **CPHIST** (copy history) system button. Filter by tab, unit and section,
   and pick a row again with **Copy again**
 
 Along with this:
 
-- **Copy Op Params** is now **Duplicate Op Params**, and RHYTHM's **Copy Pad Params**
-  is now **Duplicate Pad Params**
+- **Copy Op Params** is now **Duplicate Op Params**
+- RHYTHM's **Copy Pad Params** in UTILITY (one pad at a time, with FROM / TO
+  sliders) is replaced by **Duplicate Pad Params** in the pad EDIT
 - **Level -> All Ch** and **Duplicate Op Params** moved from UTILITY to EDIT,
   with off-white text (on a dark background so they stay readable)
 - WT+'s **Broadcast Level** is now **Level -> All Ch**, like the other channels

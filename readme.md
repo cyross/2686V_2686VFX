@@ -64,14 +64,18 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 2686VFX は FX の順番とパラメータに対応(画面は切り替わらない)
 - **パラメータの切り取り・コピー・貼り付けに対応**
   - MIDI の下に EDIT 区分を追加。CUT / COPY / PASTE / CLEAR でチャンネルのグローバル部分を写す
-  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7 は MASK の下、RHYTHM は FORM / PAN / QUALITY の列の最後に、オペレーター / パッド 1 つぶんの EDIT を追加
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7 は MASK の下、RHYTHM は OPTIONAL の下に、オペレーター / パッド 1 つぶんの EDIT を追加
   - 区分の見出し (FX の効果は枠の見出し) を右クリックすると、その区分だけを写すメニュー
   - 貼るときは同じ名前のパラメータだけへ入れる。音源の違うチャンネルへも貼れる。波形メモリ・音声ファイル・変調波形も一緒に写す
   - Duplicate Ops Params (OPNA / OPN / OPL3 / OPM / OPZX7): オペレーターのまとまりを別のまとまりへ写す。OPZX7 はフィードバックとアルゴリズムマトリックスも写す
+    - SWAP で FROM と TO を入れ替え。SHIFT / UNSHIFT で FROM・TO それぞれを 1 オペレーターずつずらす (はみ出すと反対の端へ回る)
   - Duplicate Targets / Clear Targets (WT+ / ADPCM+): TARGET をまとめて写す・初期化するダイアログ
+    - ESC か同じボタンをもう一度押すと閉じる。クリアのボタンは赤
+  - Duplicate Pad Params (RHYTHM): パッドの EDIT に追加。FROM のパッドを、TO のトグルで選んだいくつかのパッドへ写す。WITH FILE を入れると音声とファイル名も写す
+  - 貼る・消す・複写する間は Duplicating… の画面を出す
   - システムボタンに CPHIST (コピー履歴) を追加。タブ・単位・区分で絞り込み、再コピーできる
   - Copy Op Params を Duplicate Op Params に改名。Level -> All Ch とともに UTILITY から EDIT へ移した (文字はオフホワイト)
-  - RHYTHM の Copy Pad Params を Duplicate Pad Params に改名
+  - RHYTHM の UTILITY にあった Copy Pad Params (FROM / TO のつまみ) は、パッドの EDIT の Duplicate Pad Params に置き換えた
   - WT+ の Broadcast Level を Level -> All Ch にそろえた
 - **WT AMP MOD: TARGET を切り替えると、別のオペレーターの波形を読み書きしていたのを修正**
   - FM 音源と RHYTHM で、TARGET を変えても変調波形の読み込み・消去と表示が最初のオペレーター (パッド) のままだった

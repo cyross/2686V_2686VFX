@@ -1873,7 +1873,6 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
 
 
 
-
 void AudioPlugin2686VEditor::updateFxOrder(){
     fxGui->updateFxOrder();
 }

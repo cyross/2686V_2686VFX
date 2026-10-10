@@ -306,7 +306,6 @@ public:
     void updateUiScale(float newScale);
     void resetMidiSettings();
     void breadcastLevel(float level);
-    void copyRhythmPadParams(int from, int to);
     void updateFxOrder();
 private:
     AudioPlugin2686V& audioProcessor;

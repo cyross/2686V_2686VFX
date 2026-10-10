@@ -91,8 +91,9 @@ namespace ParamEdit
 	// ---- 写す・貼る・消す
 	Snapshot capture(const GuiContext& ctx, const Target& target);
 
-	// 貼ったパラメータの数を返す
-	int paste(const GuiContext& ctx, const Target& target, const Snapshot& snapshot);
+	// 貼ったパラメータの数を返す。withAssets を切ると、素材 (波形・音声
+	// ファイル) には触らず、貼り先の素材をそのまま残す。
+	int paste(const GuiContext& ctx, const Target& target, const Snapshot& snapshot, bool withAssets = true);
 
 	void clear(const GuiContext& ctx, const Target& target);
 
@@ -102,10 +103,11 @@ namespace ParamEdit
 	void duplicateUnits(const GuiContext& ctx, const juce::String& channel, const juce::String& head,
 		int from, int to, int count);
 
-	// 番号付きの単位 1 つを、いくつかの単位へ写す (WT+ / ADPCM+ の TARGET)。
-	// withParams を切ると、素材 (波形・音声ファイル) だけを写す。
+	// 番号付きの単位 1 つを、いくつかの単位へ写す (WT+ / ADPCM+ の TARGET、
+	// RHYTHM のパッド)。withParams を切ると素材 (波形・音声ファイル) だけを、
+	// withAssets を切るとパラメータだけを写す。
 	void duplicateUnitTo(const GuiContext& ctx, const juce::String& channel, const juce::String& head,
-		int from, const std::vector<int>& to, bool withParams);
+		int from, const std::vector<int>& to, bool withParams, bool withAssets = true);
 
 	// 番号付きの単位をいくつか、初期の状態へ戻す (パラメータも素材も)
 	void clearUnits(const GuiContext& ctx, const juce::String& channel, const juce::String& head,
@@ -115,6 +117,25 @@ namespace ParamEdit
 	void copy(const GuiContext& ctx, const Target& target);
 	void cut(const GuiContext& ctx, const Target& target);
 	bool pasteClipboard(const GuiContext& ctx, const Target& target);
+
+	// ---- 写している間の覆い
+	// 貼るのに少し時間が掛かるので、その間は読み込み中の画面 (GuiLoading) に
+	// 「Duplicating…」と出して待たせる。入れ子にしても、外側の 1 つだけが
+	// 出し入れする。
+	//
+	// 処理はその場で (同じ呼び出しの中で) 行う。覆いを先に描かせてから
+	// 始めるので、棒は止まって見えるが文字は読める。
+	class BusyScope
+	{
+	public:
+		explicit BusyScope(const GuiContext& ctx);
+		~BusyScope();
+
+		BusyScope(const BusyScope&) = delete;
+		BusyScope& operator=(const BusyScope&) = delete;
+	private:
+		GuiEditorHost& m_editor;
+	};
 
 	// ---- クリップボードと履歴
 	// プロセスに 1 つ。同じプラグインを複数立てても、ほかの窓で写したものを貼れる。

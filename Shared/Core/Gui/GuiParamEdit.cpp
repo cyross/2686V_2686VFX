@@ -16,7 +16,11 @@ namespace ParamEdit
 			inline juce::String copy() { return I18n::pick(u8"コピー (COPY)", u8"Copy"); }
 			inline juce::String paste() { return I18n::pick(u8"貼り付け (PASTE)", u8"Paste"); }
 			inline juce::String clear() { return I18n::pick(u8"初期化 (CLEAR)", u8"Clear"); }
+			inline juce::String duplicating() { return I18n::pick(u8"Duplicating…", u8"Duplicating…"); }
 		}
+
+		// BusyScope の入れ子の深さ (メッセージスレッドだけで触る)
+		int busyDepth = 0;
 
 		// 変調波形の素材のキー。"wave:" + 置き場のキー + ":" + 何枚目か
 		const juce::String wavePrefix = "wave:";
@@ -219,6 +223,27 @@ namespace ParamEdit
 		return {};
 	}
 
+	// ------------------------------------------------------------------ 写している間の覆い
+	BusyScope::BusyScope(const GuiContext& ctx) : m_editor(ctx.editor)
+	{
+		if (busyDepth++ > 0) return;
+
+		m_editor.showLoading(Text::duplicating());
+
+		// 処理の間はメッセージが回らないので、覆いをここで描かせておく
+		if (auto* c = dynamic_cast<juce::Component*>(&m_editor))
+		{
+			if (auto* peer = c->getPeer()) peer->performAnyPendingRepaintsNow();
+		}
+	}
+
+	BusyScope::~BusyScope()
+	{
+		if (--busyDepth > 0) return;
+
+		m_editor.hideLoading();
+	}
+
 	// ------------------------------------------------------------------ 写す・貼る・消す
 	Snapshot capture(const GuiContext& ctx, const Target& target)
 	{
@@ -278,8 +303,9 @@ namespace ParamEdit
 		return s;
 	}
 
-	int paste(const GuiContext& ctx, const Target& target, const Snapshot& snapshot)
+	int paste(const GuiContext& ctx, const Target& target, const Snapshot& snapshot, bool withAssets)
 	{
+		BusyScope busy(ctx);
 		GuiRefresh::Batch batch;
 
 		ctx.audioProcessor.undoManager.beginNewTransaction();
@@ -296,6 +322,13 @@ namespace ParamEdit
 
 			setReal(*p, it->second);
 			++count;
+		}
+
+		if (!withAssets)
+		{
+			repaintEditor(ctx);
+
+			return count;
 		}
 
 		// 変調波形。貼り先の置き場を同じ規則で相対にして、同じものへ入れる
@@ -372,6 +405,7 @@ namespace ParamEdit
 
 	void clear(const GuiContext& ctx, const Target& target)
 	{
+		BusyScope busy(ctx);
 		GuiRefresh::Batch batch;
 
 		ctx.audioProcessor.undoManager.beginNewTransaction();
@@ -415,6 +449,8 @@ namespace ParamEdit
 			return t;
 		};
 
+		BusyScope busy(ctx);
+
 		// 先に全部写してから貼る。写し元と貼り先が近くても取り違えない
 		std::vector<Snapshot> snaps;
 
@@ -438,8 +474,10 @@ namespace ParamEdit
 	}
 
 	void duplicateUnitTo(const GuiContext& ctx, const juce::String& channel, const juce::String& head,
-		int from, const std::vector<int>& to, bool withParams)
+		int from, const std::vector<int>& to, bool withParams, bool withAssets)
 	{
+		BusyScope busy(ctx);
+
 		auto snap = capture(ctx, unitTarget(channel, head, from));
 
 		// 素材だけ。パラメータは貼らない
@@ -449,13 +487,15 @@ namespace ParamEdit
 		{
 			if (index == from) continue;
 
-			paste(ctx, unitTarget(channel, head, index), snap);
+			paste(ctx, unitTarget(channel, head, index), snap, withAssets);
 		}
 	}
 
 	void clearUnits(const GuiContext& ctx, const juce::String& channel, const juce::String& head,
 		const std::vector<int>& units)
 	{
+		BusyScope busy(ctx);
+
 		for (int index : units) clear(ctx, unitTarget(channel, head, index));
 	}
 
@@ -466,6 +506,8 @@ namespace ParamEdit
 
 	void cut(const GuiContext& ctx, const Target& target)
 	{
+		BusyScope busy(ctx);
+
 		copy(ctx, target);
 		clear(ctx, target);
 	}

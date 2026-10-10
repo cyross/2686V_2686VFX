@@ -12,6 +12,8 @@
 #include "Core/Editor/PluginEditor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiParamEdit.h"
+#include "Shared/Core/Gui/GuiColor.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Gui/Components/Edit/TargetsDialog.h"
 #include "Shared/Gui/Components/Edit/CopyHistory.h"
 #include "./EditorTestAccess.h"
@@ -426,4 +428,246 @@ TEST_CASE("CPHIST: 写したものが一覧に出て、絞り込みと再コピ�
 	for (const auto& r : hist->rows()) CHECK(r.unit.startsWith("OP"));
 
 	hist->close();
+}
+
+TEST_CASE("Duplicate Ops Params: SHIFT / UNSHIFT は 1 オペレーターずつずらし、はみ出すと反対の端へ回る")
+{
+	using G = GuiComponentEdit::OpGroup;
+
+	const auto zx = GuiComponentEdit::opzx7Groups();
+	const auto four = GuiComponentEdit::fourOpGroups();
+
+	auto indexOf = [](const std::vector<G>& groups, int first, int size) {
+		for (int i = 0; i < (int)groups.size(); ++i)
+			if (groups[(size_t)i].first == first && groups[(size_t)i].size == size) return i;
+		return -1;
+	};
+
+	auto shifted = [&](const std::vector<G>& groups, int first, int size, int dir) {
+		return groups[(size_t)GuiComponentEdit::shiftedGroup(groups, indexOf(groups, first, size), dir)].name();
+	};
+
+	// 8 オペレーター: [6,7,8] → [1,2,3]、[1,2,3] → [6,7,8]
+	CHECK(shifted(zx, 5, 3, +1) == "[1,2,3]");
+	CHECK(shifted(zx, 0, 3, -1) == "[6,7,8]");
+	CHECK(shifted(zx, 0, 3, +1) == "[2,3,4]");
+	CHECK(shifted(zx, 2, 2, -1) == "[2,3]");
+	CHECK(shifted(zx, 6, 2, +1) == "[1,2]");
+
+	// 4 つは [1-4] と [5-8] しか無いので、その 2 つを行き来する
+	CHECK(shifted(zx, 0, 4, +1) == "[5,6,7,8]");
+	CHECK(shifted(zx, 4, 4, +1) == "[1,2,3,4]");
+	CHECK(shifted(zx, 0, 4, -1) == "[5,6,7,8]");
+
+	// 4 オペレーター音源は [1,2] と [3,4]
+	CHECK(shifted(four, 0, 2, +1) == "[3,4]");
+	CHECK(shifted(four, 2, 2, +1) == "[1,2]");
+	CHECK(shifted(four, 0, 2, -1) == "[3,4]");
+}
+
+TEST_CASE("Duplicate Ops Params: SWAP で FROM と TO を入れ替え、SHIFT は FROM / TO を別々に動かす")
+{
+	Env env;
+
+	int checked = 0;
+
+	for (int i = 0; i < env.tabs().getNumTabs(); ++i)
+	{
+		auto* root = env.openTab(i);
+
+		if (root == nullptr) continue;
+
+		openCategories(env, root, "EDIT");
+
+		auto* swap = findButton(root, "SWAP");
+
+		if (swap == nullptr) continue;
+
+		INFO(env.tabs().getTabNames()[i].toStdString());
+
+		auto* parent = swap->getParentComponent();
+
+		auto combos = findAll<GuiComboBox>(parent, [](GuiComboBox& c) {
+			return c.getNumItems() > 0 && c.getItemText(0).startsWith("[");
+		});
+
+		REQUIRE(combos.size() >= 2);
+
+		auto& from = *combos[0];
+		auto& to = *combos[1];
+
+		auto shifts = findAll<GuiTextButton>(parent, [](GuiTextButton& b) { return b.getButtonText() == "SHIFT" && shown(b); });
+		auto unshifts = findAll<GuiTextButton>(parent, [](GuiTextButton& b) { return b.getButtonText() == "UNSHIFT" && shown(b); });
+
+		REQUIRE(shifts.size() == 2);
+		REQUIRE(unshifts.size() == 2);
+
+		// SWAP は FROM / TO の下、SHIFT はその下に FROM・TO の順
+		CHECK(swap->getY() > to.getY());
+		CHECK(shifts[0]->getY() > swap->getY());
+		CHECK(shifts[1]->getY() > shifts[0]->getY());
+
+		const auto fromText = from.getText();
+		const auto toText = to.getText();
+
+		REQUIRE(fromText != toText);
+
+		click(*swap);
+
+		CHECK(from.getText() == toText);
+		CHECK(to.getText() == fromText);
+
+		// FROM だけが動く
+		const auto toBefore = to.getText();
+		const auto fromBefore = from.getText();
+
+		click(*shifts[0]);
+		CHECK(from.getText() != fromBefore);
+		CHECK(to.getText() == toBefore);
+
+		click(*unshifts[0]);
+		CHECK(from.getText() == fromBefore);
+
+		// TO だけが動く
+		click(*shifts[1]);
+		CHECK(to.getText() != toBefore);
+		CHECK(from.getText() == fromBefore);
+
+		click(*unshifts[1]);
+		CHECK(to.getText() == toBefore);
+
+		++checked;
+	}
+
+	// OPNA / OPN / OPL3 / OPM / OPZX7
+	if (kRequireAll) CHECK(checked == 5);
+	MESSAGE("SWAP / SHIFT: " << checked << " タブ");
+}
+
+TEST_CASE("Duplicate Targets / Clear Targets: もう一度押すと閉じ、ESC でも閉じる。クリアは赤")
+{
+	Env env;
+
+	int checked = 0;
+
+	for (int i = 0; i < env.tabs().getNumTabs(); ++i)
+	{
+		auto* root = env.openTab(i);
+
+		if (root == nullptr) continue;
+
+		openCategories(env, root, "EDIT");
+
+		auto* dup = findButton(root, "Duplicate Targets");
+		auto* clr = findButton(root, "Clear Targets");
+
+		if (dup == nullptr || clr == nullptr) continue;
+
+		INFO(env.tabs().getTabNames()[i].toStdString());
+
+		auto openDialog = [&]() -> GuiTargetsDialog* {
+			auto d = findAll<GuiTargetsDialog>(root);
+			return d.empty() ? nullptr : d.front();
+		};
+
+		// 開いて選び、もう一度押すと閉じる
+		click(*dup);
+		REQUIRE(openDialog() != nullptr);
+		openDialog()->targetToggle(3).setToggleState(true, juce::dontSendNotification);
+
+		click(*dup);
+		CHECK(openDialog() == nullptr);
+
+		// 複写を開いているときにクリアを押すと、クリアに切り替わる
+		click(*dup);
+		click(*clr);
+		REQUIRE(openDialog() != nullptr);
+		CHECK(openDialog()->runButton().findColour(juce::TextButton::buttonColourId) == GuiColor::Edit::ClearBg.get());
+
+		click(*clr);
+		CHECK(openDialog() == nullptr);
+
+		// ESC
+		click(*clr);
+		REQUIRE(openDialog() != nullptr);
+		CHECK(openDialog()->keyPressed(juce::KeyPress(juce::KeyPress::escapeKey)));
+		CHECK(openDialog() == nullptr);
+
+		++checked;
+	}
+
+	if (kRequireAll) CHECK(checked == 2);
+	MESSAGE("ダイアログの開け閉め: " << checked << " タブ");
+}
+
+TEST_CASE("RHYTHM: パッドの EDIT は OPTIONAL の下にあり、Duplicate Pad Params で選んだパッドへ写す")
+{
+	Env env;
+
+	auto* p0 = env.processor->apvts.getParameter("RHYTHM_PAD0_SPEED");
+
+	if (p0 == nullptr) return;
+
+	int checked = 0;
+
+	for (int i = 0; i < env.tabs().getNumTabs(); ++i)
+	{
+		auto* root = env.openTab(i);
+
+		if (root == nullptr) continue;
+
+		openCategories(env, root, "EDIT");
+		openCategories(env, root, "OPTIONAL");
+
+		auto* dup = findButton(root, "Duplicate Pad Params");
+
+		if (dup == nullptr) continue;
+
+		auto* parent = dup->getParentComponent();
+
+		// 同じ列の OPTIONAL より下
+		auto optional = findAll<GuiCategoryLabel>(parent, [](GuiCategoryLabel& c) { return c.getText() == "OPTIONAL"; });
+
+		REQUIRE(optional.size() == 1);
+		CHECK(dup->getY() > optional.front()->getY());
+
+		// UTILITY に古いものは残っていない
+		CHECK(findAll<GuiTextButton>(root, [](GuiTextButton& b) { return b.getButtonText() == "Duplicate Pad Params"; }).size() == 1);
+
+		auto toggles = findAll<GuiToggleButton>(parent, [](GuiToggleButton& t) { return t.getButtonText().containsOnly("0123456789") && shown(t); });
+		auto withFile = findAll<GuiToggleButton>(parent, [](GuiToggleButton& t) { return t.getButtonText() == "WITH FILE"; });
+
+		// パッドは 8 つ (86V は 6 つ)
+		REQUIRE(toggles.size() >= 6);
+		REQUIRE(withFile.size() == 1);
+		CHECK_FALSE(withFile.front()->getToggleState());
+
+		// FROM は 1 (PAD0)。写し元は選べず、写し先を選ぶまで押せない
+		CHECK_FALSE(toggles[0]->isEnabled());
+		CHECK_FALSE(dup->isEnabled());
+
+		auto* p3 = env.processor->apvts.getParameter("RHYTHM_PAD3_SPEED");
+		auto* p5 = env.processor->apvts.getParameter("RHYTHM_PAD5_SPEED");
+		auto* p4 = env.processor->apvts.getParameter("RHYTHM_PAD4_SPEED");
+
+		p0->setValueNotifyingHost(0.8f);
+		const float before4 = p4->getValue();
+
+		toggles[3]->setToggleState(true, juce::dontSendNotification);
+		toggles[5]->setToggleState(true, juce::dontSendNotification);
+		if (toggles[5]->onClick) toggles[5]->onClick();
+
+		CHECK(dup->isEnabled());
+
+		click(*dup);
+
+		CHECK(p3->getValue() == doctest::Approx(0.8f).epsilon(0.01));
+		CHECK(p5->getValue() == doctest::Approx(0.8f).epsilon(0.01));
+		CHECK(p4->getValue() == doctest::Approx(before4));
+
+		++checked;
+	}
+
+	if (kRequireAll) CHECK(checked == 1);
+	MESSAGE("Duplicate Pad Params: " << checked << " タブ");
 }

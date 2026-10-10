@@ -1838,7 +1838,6 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
 
 
 
-
 void AudioPlugin2686VEditor::copyOpnOpParams(int from, int to) {
     // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
     // 入れ終えてからまとめて 1 度だけ描き直す。

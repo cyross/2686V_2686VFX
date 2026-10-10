@@ -20,6 +20,8 @@
 //         切ると波形 (音声) とファイル名だけを写す。
 //   消去: TARGET (番号のトグル、いくつでも) を選ぶ。波形もパラメータも
 //         初期の状態へ戻す。
+//
+// ESC で閉じる。開いているときに同じボタンをもう一度押すと閉じる (open)。
 class GuiTargetsDialog : public juce::Component, public GuiBaseComponent
 {
 public:
@@ -45,9 +47,14 @@ public:
 
 	GuiTargetsDialog(const GuiContext& context);
 
-	// parent の area の中へ出す。高さは中身に合わせ、area を超えない
+	// parent の area の中へ出す。高さは中身に合わせ、area を超えない。
+	// 同じ種類のダイアログを開いているときは、開き直さずに閉じる。
 	void open(juce::Component& parent, juce::Rectangle<int> area, const Config& c);
 	void close();
+
+	bool isOpen() const { return isVisible() && getParentComponent() != nullptr; }
+
+	bool keyPressed(const juce::KeyPress& key) override;
 
 	void paint(juce::Graphics& g) override;
 	void resized() override;

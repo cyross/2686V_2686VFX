@@ -567,6 +567,8 @@ whole channel sits below MIDI.
   copied too, and reloaded when you paste
 - What you copy stays until the DAW closes, and can be pasted into another
   window of the same plug-in
+- While pasting, clearing or duplicating, **Duplicating…** covers the screen
+  until it finishes
 
 **Level -> All Ch** and **Duplicate Op Params**, which copies one operator at a
 time (Copy Op Params up to 3.6.2), have moved here from UTILITY, below the
@@ -575,9 +577,21 @@ separator.
 ### EDIT for an operator / pad
 
 OPNA, OPN, OPL, OPL3, OPM and OPZX7 have a second EDIT below MASK; RHYTHM has
-it at the end of the FORM / PAN / QUALITY column. It works on **the operator /
-pad selected by TARGET**, and can paste into another operator or pad, or into
-an operator of another channel.
+it below OPTIONAL. It works on **the operator / pad selected by TARGET**, and
+can paste into another operator or pad, or into an operator of another channel.
+
+### Duplicate Pad Params — copying a pad onto several pads (RHYTHM)
+
+At the top of the pad EDIT on RHYTHM.
+
+- Pick the source pad with **FROM** and any number of destinations with the
+  numbered **TO** toggles (the source's own number cannot be picked)
+- Every parameter of the pad is copied
+- With **WITH FILE** on, the audio (wave) and its file name are copied too;
+  with it off, the destinations keep their audio
+
+This replaces the Duplicate Pad Params (FROM / TO sliders) that sat in UTILITY up
+to 3.6.2.
 
 ### Right-click a section
 
@@ -590,6 +604,16 @@ frame's heading.
 
 At the top of EDIT on OPNA, OPN, OPL3, OPM and OPZX7. Copies a run of
 consecutive operators onto another run. Pick them with **FROM** and **TO**.
+
+**SWAP** exchanges FROM and TO. Below it, **SHIFT** / **UNSHIFT** come in a FROM
+row and a TO row, and move that run by one operator.
+
+- **SHIFT** counts up (1, 2, 3, 4, 1, 2, …), **UNSHIFT** counts down
+  (4, 3, 2, 1, 4, 3, …)
+- A run that would run off the end wraps to the other end: with 8 operators,
+  SHIFT turns [6,7,8] into [1,2,3], and UNSHIFT turns [1,2,3] into [6,7,8]
+- If the shifted run is not one you can pick, it moves on to the next one that
+  is ([1,2] → [3,4] on 4-operator chips, [1,2,3,4] → [5,6,7,8] on OPZX7)
 
 | Chip | Runs you can pick |
 | --- | --- |
@@ -614,6 +638,8 @@ frames stay in view while you choose.
 - **Clear Targets**: returns the targets picked under **TARGET** to their initial
   state, wave and parameters alike
 - **Check all** / **Uncheck all** select everything at once
+- Press **Esc**, or the button that opened the dialog again, to close it. The
+  **Clear** button in Clear Targets is red
 
 ### Copy history — CPHIST
 

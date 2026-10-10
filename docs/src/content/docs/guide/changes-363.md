@@ -164,23 +164,30 @@ ADPCM などの方式は選べないので、実機が解いたあとのビッ�
 - **EDIT 区分**（MIDI の下）に **CUT / COPY / PASTE / CLEAR**。チャンネルの
   グローバル部分（オペレーター・パッドを除く）を写します
 - OPNA / OPN / OPL / OPL3 / OPM / OPZX7 は MASK の下に、RHYTHM は
-  FORM / PAN / QUALITY の列の最後に、**オペレーター / パッド 1 つぶんの EDIT**
+  OPTIONAL の下に、**オペレーター / パッド 1 つぶんの EDIT**
 - **区分の見出しを右クリック**すると、その区分だけを写すメニュー
   （FX の効果は枠の見出し）
 - 貼るときは**同じ名前のパラメータだけ**へ入れます。音源の種類が違う
   チャンネルへも貼れます。波形メモリ・音声ファイル・変調波形も一緒に写します
 - **Duplicate Ops Params**（OPNA / OPN / OPL3 / OPM / OPZX7）: 並んだ
   オペレーターのまとまりを別のまとまりへ写します。OPZX7 ではフィードバックと
-  アルゴリズムマトリックスのつながりも写します
+  アルゴリズムマトリックスのつながりも写します。**SWAP** で FROM と TO を
+  入れ替え、**SHIFT** / **UNSHIFT** で FROM・TO それぞれを 1 オペレーター
+  ずつずらせます
 - **Duplicate Targets / Clear Targets**（WT+ / ADPCM+）: TARGET をまとめて
-  写す・初期化するダイアログ
+  写す・初期化するダイアログ。ESC か同じボタンをもう一度押すと閉じます
+- **Duplicate Pad Params**（RHYTHM）: パッドの EDIT の一番上。1 つのパッドを、
+  **TO** のトグルで選んだいくつかのパッドへ写します。**WITH FILE** を入れると
+  音声とファイル名も写します
+- 貼る・消す・複写する間は **Duplicating…** の画面を出します
 - システムボタンに **CPHIST**（コピー履歴）。タブ・単位・区分で絞り込み、
   **再コピー** で選び直せます
 
 あわせて次のものを変えました。
 
-- **Copy Op Params** を **Duplicate Op Params** へ、RHYTHM の **Copy Pad Params** を
-  **Duplicate Pad Params** へ改めました
+- **Copy Op Params** を **Duplicate Op Params** へ改めました
+- RHYTHM の UTILITY にあった **Copy Pad Params**（FROM / TO のつまみで 1 つずつ
+  写す）は、パッドの EDIT の **Duplicate Pad Params** に置き換えました
 - **Level -> All Ch** と **Duplicate Op Params** を UTILITY から EDIT へ移し、
   文字をオフホワイトにしました（読めるよう、地は濃い色）
 - WT+ の **Broadcast Level** を、ほかのチャンネルと同じ **Level -> All Ch** に

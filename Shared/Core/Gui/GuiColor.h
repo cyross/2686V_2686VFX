@@ -505,6 +505,9 @@ namespace GuiColor {
 		// Duplicate Ops Params / Duplicate Targets の地。1 つずつ写すボタンと見分けるための青
 		inline Entry DuplicateOpsBg{ "Edit.DuplicateOpsBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x1F, 0x4E, 0xC8); } };
 
+		// Clear Targets のダイアログの「クリア」。消してしまうボタンなので赤
+		inline Entry ClearBg{ "Edit.ClearBg", []() -> juce::Colour { return juce::Colour::fromRGB(0xC0, 0x20, 0x20); } };
+
 		// TARGET の複写・消去のダイアログ
 		inline Entry DialogBg{ "Edit.DialogBg", []() -> juce::Colour { return Editor::defaultBg; } };
 		inline Entry DialogBorder{ "Edit.DialogBorder", []() -> juce::Colour { return Palette::OffWhite; } };

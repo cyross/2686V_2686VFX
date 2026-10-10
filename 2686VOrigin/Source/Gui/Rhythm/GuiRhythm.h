@@ -316,8 +316,6 @@ public:
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
     void setupGraph();
-    void copyParams(CopyRhythmPad& copyObj);
-    void pasteParams(CopyRhythmPad& copyObj);
     void importToneNoiseParam();
 
     // ブラウザから直に読ませるための入口。
@@ -400,10 +398,6 @@ class GuiRhythm : public GuiBase
     GuiCategoryLabel utilityCat;
     GuiComponentPathRoot pathRoot;
     GuiTextButton broadcastLevelButton;
-    GuiTextButton copyPadParamBtn;
-    GuiSlider copyPadFromSlider;
-    GuiSlider copyPadToSlider;
-    NormalSeparator uSep002;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
@@ -480,8 +474,6 @@ public:
     void updatePresetName(const juce::String& name);
     void initParams();
     void setLevel(float level);
-    void copyPadParams(int p, CopyRhythmPad& copyObj);
-    void pastePadParams(int p, CopyRhythmPad& copyObj);
     void importToneNoiseParam(int p);
     void exportToneNoiseParam(int p);
     void importLfoParam(int p);

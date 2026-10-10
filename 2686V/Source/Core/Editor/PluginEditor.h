@@ -320,7 +320,6 @@ public:
     void updateUiScale(float newScale);
     void resetMidiSettings();
     void breadcastLevel(float level);
-    void copyRhythmPadParams(int from, int to);
     void copyOplOpParams(int from, int to);
     void copyOpl3OpParams(int from, int to);
     void copyOpmOpParams(int from, int to);

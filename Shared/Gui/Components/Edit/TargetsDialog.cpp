@@ -89,7 +89,7 @@ void GuiTargetsDialog::build()
 	}
 
 	runBtn.setup({ .parent = *this, .title = duplicate ? Text::duplicate() : Text::clear(),
-		.textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::DuplicateOpsBg });
+		.textColor = GuiColor::Edit::ButtonText, .bgColor = duplicate ? GuiColor::Edit::DuplicateOpsBg : GuiColor::Edit::ClearBg });
 	runBtn.onClick = [this] {
 		const auto targets = checked();
 
@@ -115,6 +115,14 @@ void GuiTargetsDialog::build()
 
 void GuiTargetsDialog::open(juce::Component& parent, juce::Rectangle<int> area, const Config& c)
 {
+	// 開いているときに同じボタンをもう一度押したら閉じる。作り直すと
+	// 選んでいたものが消えてしまうので、開き直しはしない。
+	if (isOpen() && getParentComponent() == &parent && config.mode == c.mode)
+	{
+		close();
+		return;
+	}
+
 	config = c;
 
 	// 作り直す。前に開いたときの選び方は持ち越さない
@@ -132,7 +140,24 @@ void GuiTargetsDialog::open(juce::Component& parent, juce::Rectangle<int> area, 
 	const int height = juce::jmin(area.getHeight(), preferredHeight(area.getWidth()));
 
 	setBounds(area.withHeight(height));
+	setVisible(true);
+
+	// ESC を受けるため、キーボードの行き先をこちらへ移す
+	setWantsKeyboardFocus(true);
 	toFront(true);
+	grabKeyboardFocus();
+}
+
+// 中の部品にキーボードの行き先があるときも、使われなかったキーはここへ来る
+bool GuiTargetsDialog::keyPressed(const juce::KeyPress& key)
+{
+	if (key == juce::KeyPress::escapeKey)
+	{
+		close();
+		return true;
+	}
+
+	return false;
 }
 
 void GuiTargetsDialog::close()

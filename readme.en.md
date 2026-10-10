@@ -64,14 +64,18 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - 2686VFX accepts FX order and FX parameter files (the screen stays as it is)
 - **Cut, copy and paste parameters**
   - An EDIT section below MIDI. CUT / COPY / PASTE / CLEAR work on the channel's global part
-  - An EDIT section for one operator / pad: below MASK on OPNA, OPN, OPL, OPL3, OPM and OPZX7, and at the end of the FORM / PAN / QUALITY column on RHYTHM
+  - An EDIT section for one operator / pad: below MASK on OPNA, OPN, OPL, OPL3, OPM and OPZX7, and below OPTIONAL on RHYTHM
   - Right-click a section heading (for FX effects, the frame's heading) for a menu that copies just that section
   - Pasting fills only parameters with the same name, so a channel of a different chip works too. Wave memory, audio files and modulation waves come along
   - Duplicate Ops Params (OPNA / OPN / OPL3 / OPM / OPZX7): copies a run of operators onto another run; OPZX7 also copies the feedback and the algorithm matrix
+    - SWAP exchanges FROM and TO; SHIFT / UNSHIFT move FROM or TO by one operator (wrapping round at the ends)
   - Duplicate Targets / Clear Targets (WT+ / ADPCM+): dialogs that copy or clear several targets at once
   - A CPHIST (copy history) system button, with filters by tab, unit and section, and Copy again
   - Copy Op Params is now Duplicate Op Params; it moved from UTILITY to EDIT along with Level -> All Ch (off-white text)
-  - RHYTHM's Copy Pad Params is now Duplicate Pad Params
+  - Esc, or the same button again, closes the Duplicate Targets / Clear Targets dialogs; the Clear button is red
+  - Duplicate Pad Params (RHYTHM), in the pad EDIT: copies the FROM pad onto the pads picked with the TO toggles; WITH FILE copies the audio and its file name too
+  - A Duplicating… screen while pasting, clearing or duplicating
+  - RHYTHM's Copy Pad Params in UTILITY (FROM / TO sliders) is replaced by Duplicate Pad Params in the pad EDIT
   - WT+'s Broadcast Level is now Level -> All Ch, like the other channels
 - **WT AMP MOD: switching TARGET no longer reads or writes another operator's waves**
   - On the FM chips and RHYTHM, loading, clearing and showing the modulation waves stayed on the first operator (pad) after switching TARGET

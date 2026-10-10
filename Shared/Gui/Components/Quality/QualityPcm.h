@@ -116,18 +116,5 @@ public:
 	void readNrParams(const Io::ParamReader& reader);
 	void writeNrParams(Io::ParamWriter& writer);
 
-	// 写しと貼り付け (RHYTHM のパッド)
-	void copyNr(CopyPcmQuality& q) const {
-		q.nrResample = nrResampleToggle.getToggleState();
-		q.nrGate = nrGateToggle.getToggleState();
-		q.nrGateLevel = (float)nrGateLevelSlider.getValue();
-		q.nrLpf = nrLpfSelector.getSelectedItemIndex();
-	}
-	void pasteNr(const CopyPcmQuality& q) {
-		nrResampleToggle.setToggleState(q.nrResample, juce::sendNotification);
-		nrGateToggle.setToggleState(q.nrGate, juce::sendNotification);
-		nrGateLevelSlider.setValue(q.nrGateLevel, juce::sendNotification);
-		nrLpfSelector.setSelectedItemIndex(q.nrLpf, juce::sendNotification);
-	}
 	juce::String getExportedParams();
 };
