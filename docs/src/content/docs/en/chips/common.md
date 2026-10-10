@@ -547,6 +547,81 @@ what happens at key-off, and so on.
 
 What appears is covered on each chip's page.
 
+## EDIT
+
+Cut, copy, paste and clear parameters (since 3.6.3). The EDIT section for the
+whole channel sits below MIDI.
+
+| Button | What it does |
+| --- | --- |
+| **CUT** | Copies, then resets to the defaults |
+| **COPY** | Copies |
+| **PASTE** | Pastes what you copied |
+| **CLEAR** | Resets to the defaults |
+
+- These four work on the channel's **global part** (everything except the
+  operators and pads). WT+ / ADPCM+ targets (slots) are included
+- Pasting fills **only parameters with the same name**. You can paste into a
+  channel of a different chip; anything it lacks is skipped
+- Wave memory, audio files and modulation waves (WT PITCH MOD / WT AMP MOD) are
+  copied too, and reloaded when you paste
+- What you copy stays until the DAW closes, and can be pasted into another
+  window of the same plug-in
+
+**Level -> All Ch** and **Duplicate Op Params**, which copies one operator at a
+time (Copy Op Params up to 3.6.2), have moved here from UTILITY, below the
+separator.
+
+### EDIT for an operator / pad
+
+OPNA, OPN, OPL, OPL3, OPM and OPZX7 have a second EDIT below MASK; RHYTHM has
+it at the end of the FORM / PAN / QUALITY column. It works on **the operator /
+pad selected by TARGET**, and can paste into another operator or pad, or into
+an operator of another channel.
+
+### Right-click a section
+
+Right-click a section heading for a CUT / COPY / PASTE / CLEAR menu that works
+on **that section only**. It works on closed sections too. Paste into the same
+section of another channel, operator or pad. For FX effects, right-click the
+frame's heading.
+
+### Duplicate Ops Params — copying a run of operators
+
+At the top of EDIT on OPNA, OPN, OPL3, OPM and OPZX7. Copies a run of
+consecutive operators onto another run. Pick them with **FROM** and **TO**.
+
+| Chip | Runs you can pick |
+| --- | --- |
+| OPNA / OPN / OPL3 / OPM | [1,2] and [3,4] |
+| OPZX7 | two: [1,2] – [7,8]; three: [1,2,3] – [6,7,8]; four: [1,2,3,4] and [5,6,7,8] |
+
+- Either direction works ([1,2]→[3,4] as well as [3,4]→[1,2]). The order inside
+  a run is kept ([1,2] cannot become [2,1])
+- Combinations where source and destination overlap are disabled
+- On OPZX7 the feedback is copied too. With the algorithm matrix in use, the
+  connections inside the run are copied as well. If either run is connected to
+  an operator outside the two, a warning appears and nothing is copied
+
+### Duplicate Targets / Clear Targets (WT+ / ADPCM+)
+
+At the top of EDIT. Each opens a dialog, placed so that the WAVE MEMORY / FORM
+frames stay in view while you choose.
+
+- **Duplicate Targets**: pick the source target with **FROM** and any number of
+  destinations with **TO**. With **Copy parameters too** on, every parameter of
+  the source is copied; with it off, only the wave (audio) and its file name
+- **Clear Targets**: returns the targets picked under **TARGET** to their initial
+  state, wave and parameters alike
+- **Check all** / **Uncheck all** select everything at once
+
+### Copy history — CPHIST
+
+The **CPHIST** system button at the top lists what you have copied (newest
+first, up to 100). Filter by **tab** (channel, curve editing, FX), **unit**
+(global / operator / pad / target) and **section**. **Copy again** at the right
+end of a row makes that row the current copy, ready to paste.
+
 ## UTILITY
 
 Reading and writing parameters. `[IM]` imports and `[EX]` exports.
@@ -555,7 +630,8 @@ Each section can be moved in and out as its own file, so you can carry just the
 AMP ENV over to another channel, or reuse only the LFO settings. A whole channel
 can also go into a single file.
 
-**Level -> All Ch** copies this channel's level to every other channel at once.
+**Level -> All Ch** (copies this channel's level to every other channel at once)
+moved to [EDIT](#edit) in 3.6.3.
 
 For the formats and where they live, see
 [File formats and locations](/2686V_2686VFX/en/files/format/). Parameter files **can be read

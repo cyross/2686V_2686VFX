@@ -62,6 +62,18 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - プリセット・チャンネルパラメータ・FX の順番・FX のパラメータを画面へ落とすと読み込む
   - プリセットとチャンネルパラメータは、そのチャンネルのタブを開く
   - 2686VFX は FX の順番とパラメータに対応(画面は切り替わらない)
+- **パラメータの切り取り・コピー・貼り付けに対応**
+  - MIDI の下に EDIT 区分を追加。CUT / COPY / PASTE / CLEAR でチャンネルのグローバル部分を写す
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7 は MASK の下、RHYTHM は FORM / PAN / QUALITY の列の最後に、オペレーター / パッド 1 つぶんの EDIT を追加
+  - 区分の見出し (FX の効果は枠の見出し) を右クリックすると、その区分だけを写すメニュー
+  - 貼るときは同じ名前のパラメータだけへ入れる。音源の違うチャンネルへも貼れる。波形メモリ・音声ファイル・変調波形も一緒に写す
+  - Duplicate Ops Params (OPNA / OPN / OPL3 / OPM / OPZX7): オペレーターのまとまりを別のまとまりへ写す。OPZX7 はフィードバックとアルゴリズムマトリックスも写す
+  - Duplicate Targets / Clear Targets (WT+ / ADPCM+): TARGET をまとめて写す・初期化するダイアログ
+  - システムボタンに CPHIST (コピー履歴) を追加。タブ・単位・区分で絞り込み、再コピーできる
+  - Copy Op Params を Duplicate Op Params に改名。Level -> All Ch とともに UTILITY から EDIT へ移した (文字はオフホワイト)
+  - WT+ の Broadcast Level を Level -> All Ch にそろえた
+- **WT AMP MOD: TARGET を切り替えると、別のオペレーターの波形を読み書きしていたのを修正**
+  - FM 音源と RHYTHM で、TARGET を変えても変調波形の読み込み・消去と表示が最初のオペレーター (パッド) のままだった
 - **相対パスの基準を選べるように**
   - プリセット・チャンネルパラメータに書く音声・波形の場所の基準を、「指定のディレクトリ(従来)」と「ファイルのディレクトリ」から選ぶ
   - OPZX7 / RHYTHM / PCM / PCM+ / WT / WT2 / WT+ の UTILITY と、SETTINGS のフォルダ設定にある REL.PATH で設定(全体で 1 つ、環境設定にも保存)

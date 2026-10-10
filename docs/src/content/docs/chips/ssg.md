@@ -142,7 +142,8 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | [**MUL/DET**](/2686V_2686VFX/chips/common/#muldet) | 実機・独自 | 音程をずらす |
 | [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 独自 | 同じ音を重ねて厚くする |
 | [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | — | ビット数とサンプリング周波数を落として質感を作る |
-| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | 共通 | レベルの一括設定と、ファイルの読み書き |
+| [**EDIT**](/2686V_2686VFX/chips/common/#edit) | 共通 | 切り取り・コピー・貼り付け・初期化と、レベルの一括設定 |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | 共通 | ファイルの読み書き |
 
 QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 
@@ -152,8 +153,8 @@ QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご
 PITCH ENV・SSG SW ENV・DETUNE・UNISON・QUALITY・TONE/NOISE と、チャンネル
 全体です。
 
-**Level -> All Ch** は、このチャンネルの音量を他のすべてのチャンネルへ
-一度に反映します。
+**Level -> All Ch**（このチャンネルの音量を他のすべてのチャンネルへ一度に
+反映する）は、3.6.3 で [EDIT](/2686V_2686VFX/chips/common/#edit) へ移しました。
 
 ファイルの形式と置き場所は
 [ファイルの形式と置き場所](/2686V_2686VFX/files/format/) を参照してください。

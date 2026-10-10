@@ -62,6 +62,18 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Drop a preset, channel parameter file, FX order or FX parameter file onto the window to load it
   - Presets and channel parameter files open that channel's tab
   - 2686VFX accepts FX order and FX parameter files (the screen stays as it is)
+- **Cut, copy and paste parameters**
+  - An EDIT section below MIDI. CUT / COPY / PASTE / CLEAR work on the channel's global part
+  - An EDIT section for one operator / pad: below MASK on OPNA, OPN, OPL, OPL3, OPM and OPZX7, and at the end of the FORM / PAN / QUALITY column on RHYTHM
+  - Right-click a section heading (for FX effects, the frame's heading) for a menu that copies just that section
+  - Pasting fills only parameters with the same name, so a channel of a different chip works too. Wave memory, audio files and modulation waves come along
+  - Duplicate Ops Params (OPNA / OPN / OPL3 / OPM / OPZX7): copies a run of operators onto another run; OPZX7 also copies the feedback and the algorithm matrix
+  - Duplicate Targets / Clear Targets (WT+ / ADPCM+): dialogs that copy or clear several targets at once
+  - A CPHIST (copy history) system button, with filters by tab, unit and section, and Copy again
+  - Copy Op Params is now Duplicate Op Params; it moved from UTILITY to EDIT along with Level -> All Ch (off-white text)
+  - WT+'s Broadcast Level is now Level -> All Ch, like the other channels
+- **WT AMP MOD: switching TARGET no longer reads or writes another operator's waves**
+  - On the FM chips and RHYTHM, loading, clearing and showing the modulation waves stayed on the first operator (pad) after switching TARGET
 - **Choose the base for relative paths**
   - Locations of audio and wave files in presets and channel parameter files can be relative to the settings folders (as before) or to the file's own folder
   - Set with REL.PATH in the UTILITY of OPZX7, RHYTHM, PCM, PCM+, WT, WT2 and WT+, or in the folder settings of SETTINGS (one value for the plug-in, also stored in the settings file)

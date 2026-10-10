@@ -136,7 +136,8 @@ The following do not belong to any one chip. They are all described under [Share
 | [**MUL/DET**](/2686V_2686VFX/en/chips/common/#muldet) | hardware / ours | Shifts the pitch |
 | [**UNISON/HARMONY**](/2686V_2686VFX/en/chips/common/#unisonharmony) | ours | Stacks copies of the note to thicken it |
 | [**QUALITY**](/2686V_2686VFX/en/chips/common/#quality) | — | Drops bit depth and sample rate for texture |
-| [**UTILITY**](/2686V_2686VFX/en/chips/common/#utility) | shared | Setting levels across channels, and reading and writing files |
+| [**EDIT**](/2686V_2686VFX/en/chips/common/#edit) | shared | Cut, copy, paste and clear, and setting levels across channels |
+| [**UTILITY**](/2686V_2686VFX/en/chips/common/#utility) | shared | Reading and writing files |
 
 For the details of QUALITY, see [the reference](/2686V_2686VFX/en/reference/lists-quality/).
 
@@ -144,7 +145,7 @@ For the details of QUALITY, see [the reference](/2686V_2686VFX/en/reference/list
 
 `[IM]` imports and `[EX]` exports. What can be moved in and out: LFO, AMP ENV, PITCH ENV, SSG SW ENV, DETUNE, UNISON, QUALITY, TONE/NOISE, and the channel as a whole.
 
-**Level -> All Ch** copies this channel's level to every other channel at once.
+**Level -> All Ch** (copies this channel's level to every other channel at once) moved to [EDIT](/2686V_2686VFX/en/chips/common/#edit) in 3.6.3.
 
 For the formats and where they live, see [File formats and locations](/2686V_2686VFX/en/files/format/).
 

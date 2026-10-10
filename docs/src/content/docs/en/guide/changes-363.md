@@ -151,6 +151,46 @@ straight away, behaving exactly as if you had loaded it with the usual button.
 2686VFX accepts FX order and FX parameter files; the screen stays as it is.
 When you drop several files at once, they load in order.
 
+## Cut, copy and paste parameters
+
+Parameters can now be cut, copied, pasted and cleared, by channel, by operator /
+pad, or by section. See [EDIT](/2686V_2686VFX/en/chips/common/#edit) for the
+details.
+
+- An **EDIT section** (below MIDI) with **CUT / COPY / PASTE / CLEAR**, working
+  on the channel's global part (everything except operators and pads)
+- **An EDIT section for one operator / pad**: below MASK on OPNA, OPN, OPL,
+  OPL3, OPM and OPZX7, and at the end of the FORM / PAN / QUALITY column on
+  RHYTHM
+- **Right-click a section heading** for a menu that copies just that section
+  (for FX effects, the frame's heading)
+- Pasting fills **only parameters with the same name**, so you can paste into a
+  channel of a different chip. Wave memory, audio files and modulation waves
+  come along too
+- **Duplicate Ops Params** (OPNA / OPN / OPL3 / OPM / OPZX7): copies a run of
+  operators onto another run. On OPZX7 the feedback and the algorithm-matrix
+  connections are copied as well
+- **Duplicate Targets / Clear Targets** (WT+ / ADPCM+): dialogs that copy or
+  clear several targets at once
+- A **CPHIST** (copy history) system button. Filter by tab, unit and section,
+  and pick a row again with **Copy again**
+
+Along with this:
+
+- **Copy Op Params** is now **Duplicate Op Params**
+- **Level -> All Ch** and **Duplicate Op Params** moved from UTILITY to EDIT,
+  with off-white text (on a dark background so they stay readable)
+- WT+'s **Broadcast Level** is now **Level -> All Ch**, like the other channels
+
+## WT AMP MOD: switching TARGET no longer reads or writes another operator's waves
+
+**In WT AMP MOD on the FM chips and RHYTHM, after switching TARGET away from the
+first one, loading, clearing and showing the modulation waves still went to the
+first operator (pad).** Playback uses the selected operator's waves, so a wave
+you had just loaded made no difference to the sound.
+
+3.6.3 switches the wave storage along with TARGET.
+
 ## Choose the base for relative paths
 
 Presets and channel parameter files record where audio and wave files are, and
