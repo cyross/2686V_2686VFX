@@ -1465,6 +1465,8 @@ void GuiRhythm::setup()
         .parent = mainGroup.contentCanvas,
         .code = code,
         .unitDuplicate = GuiComponentEdit::UnitDuplicate{ .title = "Duplicate Pad Params", .head = "PAD", .count = RhythmPrValue::pads },
+        // NOTE まで貼ると鍵盤の振り分けが変わるので、初めは貼らない
+        .pasteNoteToggle = true,
         .setMovedVisible = [this](bool visible) {
             broadcastLevelButton.setVisible(visible);
             },

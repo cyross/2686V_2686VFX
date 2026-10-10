@@ -175,6 +175,8 @@ details.
 - **Duplicate Pad Params** (RHYTHM): at the top of the global EDIT. Copies one pad
   onto the pads picked with the **TO** toggles; **WITH FILE** copies the audio
   and its file name too
+- **Paste Note** (RHYTHM): a toggle in the global EDIT. While it is off (the
+  default), no way of pasting changes a pad's NOTE
 - A **Duplicating…** screen while pasting, clearing or duplicating
 - A **CPHIST** (copy history) system button. Filter by tab, unit and section,
   and pick a row again with **Copy again**

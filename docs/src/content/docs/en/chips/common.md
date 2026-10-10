@@ -593,6 +593,16 @@ At the top of the global EDIT (below MIDI) on RHYTHM.
 This replaces the Copy Pad Params (FROM / TO sliders) that sat in UTILITY up to
 3.6.2.
 
+### Paste Note (RHYTHM)
+
+A toggle in RHYTHM's global EDIT, below CUT / COPY / PASTE / CLEAR. **While it is
+off, pasting leaves each pad's NOTE alone** (it starts off), because pasting the
+NOTE would change which key plays which pad.
+
+It applies to the global PASTE, the pad EDIT, right-clicking a section (OPTIONAL
+and so on) and Duplicate Pad Params alike. Turn it on only when you want the
+NOTE copied too.
+
 ### Right-click a section
 
 Right-click a section heading for a CUT / COPY / PASTE / CLEAR menu that works

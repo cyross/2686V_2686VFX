@@ -4,6 +4,8 @@
 #include "./GuiI18n.h"
 #include "./GuiRefresh.h"
 
+#include <set>
+
 namespace ParamEdit
 {
 	namespace
@@ -21,6 +23,14 @@ namespace ParamEdit
 
 		// BusyScope の入れ子の深さ (メッセージスレッドだけで触る)
 		int busyDepth = 0;
+
+		// 貼るときに読み飛ばすキー。(APVTS, チャンネル) → キーの集まり
+		std::map<std::pair<const void*, juce::String>, std::set<juce::String>>& skippedKeys()
+		{
+			static std::map<std::pair<const void*, juce::String>, std::set<juce::String>> keys;
+
+			return keys;
+		}
 
 		// 変調波形の素材のキー。"wave:" + 置き場のキー + ":" + 何枚目か
 		const juce::String wavePrefix = "wave:";
@@ -314,11 +324,15 @@ namespace ParamEdit
 
 		for (auto* p : paramsOf(ctx, target))
 		{
-			const auto key = keyOf(p->getParameterID(), target.scope);
+			const auto id = p->getParameterID();
+			const auto key = keyOf(id, target.scope);
 
 			auto it = snapshot.values.find(key);
 
 			if (key.isEmpty() || it == snapshot.values.end()) continue;
+
+			// Paste Note を切っているときの NOTE など
+			if (isPasteSkipped(ctx, channelOf(id), keyOf(id, Scope::Category))) continue;
 
 			setReal(*p, it->second);
 			++count;
@@ -497,6 +511,21 @@ namespace ParamEdit
 		BusyScope busy(ctx);
 
 		for (int index : units) clear(ctx, unitTarget(channel, head, index));
+	}
+
+	void setPasteSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key, bool skipped)
+	{
+		auto& keys = skippedKeys()[{ &ctx.apvts, channel }];
+
+		if (skipped) keys.insert(key);
+		else keys.erase(key);
+	}
+
+	bool isPasteSkipped(const GuiContext& ctx, const juce::String& channel, const juce::String& key)
+	{
+		auto it = skippedKeys().find({ &ctx.apvts, channel });
+
+		return it != skippedKeys().end() && it->second.count(key) > 0;
 	}
 
 	void copy(const GuiContext& ctx, const Target& target)

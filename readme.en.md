@@ -74,6 +74,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Copy Op Params is now Duplicate Op Params; it moved from UTILITY to EDIT along with Level -> All Ch (off-white text)
   - Esc, or the same button again, closes the Duplicate Targets / Clear Targets dialogs; the Clear button is red
   - Duplicate Pad Params (RHYTHM), in the global EDIT: copies the FROM pad onto the pads picked with the TO toggles; WITH FILE copies the audio and its file name too
+  - Paste Note (RHYTHM), a toggle in the global EDIT: while it is off (the default), pasting globally, per pad or per section leaves each pad's NOTE alone
   - A Duplicating… screen while pasting, clearing or duplicating
   - RHYTHM's Copy Pad Params in UTILITY (FROM / TO sliders) is replaced by Duplicate Pad Params in EDIT
   - WT+'s Broadcast Level is now Level -> All Ch, like the other channels

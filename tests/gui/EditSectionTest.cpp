@@ -694,3 +694,74 @@ TEST_CASE("RHYTHM: パッドの EDIT は OPTIONAL の下、Duplicate Pad Params 
 	if (kRequireAll) CHECK(checked == 1);
 	MESSAGE("Duplicate Pad Params: " << checked << " タブ");
 }
+
+TEST_CASE("RHYTHM: Paste Note を切っているあいだは、どの貼り方でも NOTE を貼らない")
+{
+	Env env;
+
+	auto* n0 = env.processor->apvts.getParameter("RHYTHM_PAD0_NOTE");
+
+	if (n0 == nullptr) return;
+
+	auto* n2 = env.processor->apvts.getParameter("RHYTHM_PAD2_NOTE");
+	auto* s0 = env.processor->apvts.getParameter("RHYTHM_PAD0_SPEED");
+	auto* s2 = env.processor->apvts.getParameter("RHYTHM_PAD2_SPEED");
+
+	REQUIRE(n2 != nullptr);
+
+	juce::ToggleButton* toggle = nullptr;
+
+	for (int i = 0; i < env.tabs().getNumTabs() && toggle == nullptr; ++i)
+	{
+		auto* root = env.openTab(i);
+
+		if (root == nullptr) continue;
+
+		openCategories(env, root, "EDIT");
+
+		auto found = findAll<GuiToggleButton>(root, [](GuiToggleButton& t) { return t.getButtonText() == "Paste Note"; });
+
+		if (!found.empty()) toggle = found.front();
+	}
+
+	REQUIRE(toggle != nullptr);
+
+	// 初めは切っている
+	CHECK_FALSE(toggle->getToggleState());
+
+	auto cats = findAll<GuiCategoryLabel>(env.editor.get());
+	REQUIRE_FALSE(cats.empty());
+
+	const auto& ctx = cats.front()->context();
+
+	n0->setValueNotifyingHost(0.2f);
+	s0->setValueNotifyingHost(0.7f);
+
+	const float noteBefore = n2->getValue();
+
+	// 複写 (Duplicate Pad Params と同じ道)
+	ParamEdit::duplicateUnitTo(ctx, "RHYTHM", "PAD", 0, { 2 }, true, false);
+
+	CHECK(s2->getValue() == doctest::Approx(0.7f).epsilon(0.01));
+	CHECK(n2->getValue() == doctest::Approx(noteBefore));
+
+	// パッド単位の COPY / PASTE
+	ParamEdit::Target from, to;
+	from.scope = to.scope = ParamEdit::Scope::Unit;
+	from.channel = to.channel = "RHYTHM";
+	from.unit = "PAD0";
+	to.unit = "PAD2";
+
+	ParamEdit::paste(ctx, to, ParamEdit::capture(ctx, from));
+	CHECK(n2->getValue() == doctest::Approx(noteBefore));
+
+	// 入れると貼る
+	toggle->setToggleState(true, juce::dontSendNotification);
+	if (toggle->onClick) toggle->onClick();
+
+	ParamEdit::paste(ctx, to, ParamEdit::capture(ctx, from));
+	CHECK(n2->getValue() == doctest::Approx(0.2f).epsilon(0.01));
+
+	toggle->setToggleState(false, juce::dontSendNotification);
+	if (toggle->onClick) toggle->onClick();
+}

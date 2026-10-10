@@ -25,6 +25,7 @@
 //   Duplicate Pad Params (RHYTHM): FROM (番号のコンボボックス)、TO (番号の
 //     トグル、いくつでも)、WITH FILE (入れると音声とファイル名も写す)
 //   CUT / COPY / PASTE / CLEAR
+//   Paste Note (RHYTHM): 切っていると、貼るときに NOTE を読み飛ばす
 //   ── 区切り ──
 //   タブから移したもの (Level -> All Ch、Duplicate Op Params など)
 //
@@ -70,6 +71,9 @@ public:
 
 		// 単位 1 つを、いくつかの単位へ写す。無ければ置かない
 		std::optional<UnitDuplicate> unitDuplicate = std::nullopt;
+
+		// Paste Note のトグルを置く (RHYTHM)。初めは切っていて、NOTE を貼らない
+		bool pasteNoteToggle = false;
 
 		// タブから移した部品の出し入れと並べ方
 		std::function<void(bool)> setMovedVisible = nullptr;
@@ -147,6 +151,7 @@ private:
 	NormalSeparator unitSeparator;
 
 	GuiTextButton cutBtn, copyBtn, pasteBtn, clearBtn;
+	GuiToggleButton pasteNoteToggle;
 
 	NormalSeparator movedSeparator;
 
@@ -161,6 +166,10 @@ private:
 	bool hasTargets() const { return config.has_value() && (config->onDuplicateTargets != nullptr || config->onClearTargets != nullptr); }
 	bool hasMoved() const { return config.has_value() && config->layoutMoved != nullptr; }
 	bool hasUnitDuplicate() const { return config.has_value() && config->unitDuplicate.has_value(); }
+	bool hasPasteNote() const { return config.has_value() && config->pasteNoteToggle; }
+
+	// Paste Note のトグルの入り切りを、貼り付けの読み飛ばしへ写す
+	void applyPasteNote();
 };
 
 // ============================================================================

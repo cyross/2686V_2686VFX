@@ -23,6 +23,10 @@ namespace
 		inline const juce::String paste = "PASTE";
 		inline const juce::String clear = "CLEAR";
 		inline const juce::String withFile = "WITH FILE";
+		inline const juce::String pasteNote = "Paste Note";
+
+		// Paste Note で読み飛ばすキー (CPK::note から頭の "_" を外したもの)
+		inline const juce::String noteKey = "NOTE";
 	}
 
 	// CUT / COPY / PASTE / CLEAR の 4 つ
@@ -136,6 +140,7 @@ GuiComponentEdit::GuiComponentEdit(const GuiContext& context) :
 	copyBtn(context),
 	pasteBtn(context),
 	clearBtn(context),
+	pasteNoteToggle(context),
 	movedSeparator(context)
 {
 }
@@ -286,7 +291,24 @@ void GuiComponentEdit::setupComponent(const Config& c, int& tabOrder)
 	// ---- CUT / COPY / PASTE / CLEAR
 	setupEditButtons(ctx, parent, tabOrder, cutBtn, copyBtn, pasteBtn, clearBtn, [this] { return target(); });
 
+	// ---- Paste Note。切っているあいだは、どこから貼っても NOTE を入れない
+	if (hasPasteNote())
+	{
+		pasteNoteToggle.setup({ .parent = parent, .title = Text::pasteNote });
+		pasteNoteToggle.setWantsKeyboardFocus(true);
+		pasteNoteToggle.setExplicitFocusOrder(++tabOrder);
+		pasteNoteToggle.setToggleState(false, juce::dontSendNotification);
+		pasteNoteToggle.onClick = [this] { applyPasteNote(); };
+
+		applyPasteNote();
+	}
+
 	if (hasMoved()) movedSeparator.setupComponent(parent);
+}
+
+void GuiComponentEdit::applyPasteNote()
+{
+	ParamEdit::setPasteSkipped(ctx, config->code, Text::noteKey, !pasteNoteToggle.getToggleState());
 }
 
 // 写し元と同じ番号は写し先に選べない
@@ -522,6 +544,8 @@ void GuiComponentEdit::layoutComponent(juce::Rectangle<int>& rect)
 	pasteBtn.setVisible(visible);
 	clearBtn.setVisible(visible);
 
+	pasteNoteToggle.setVisible(visible && hasPasteNote());
+
 	movedSeparator.setVisible(visible && hasMoved());
 
 	if (config->setMovedVisible) config->setMovedVisible(visible);
@@ -566,6 +590,8 @@ void GuiComponentEdit::layoutComponent(juce::Rectangle<int>& rect)
 	layoutUnit(rect);
 
 	layoutMainFourComps({ .rect = rect, .comp1 = &cutBtn, .comp2 = &copyBtn, .comp3 = &pasteBtn, .comp4 = &clearBtn });
+
+	if (hasPasteNote()) layoutMain({ .mainRect = rect, .component = &pasteNoteToggle });
 
 	if (hasMoved())
 	{

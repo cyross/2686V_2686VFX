@@ -72,6 +72,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - Duplicate Targets / Clear Targets (WT+ / ADPCM+): TARGET をまとめて写す・初期化するダイアログ
     - ESC か同じボタンをもう一度押すと閉じる。クリアのボタンは赤
   - Duplicate Pad Params (RHYTHM): グローバルの EDIT に追加。FROM のパッドを、TO のトグルで選んだいくつかのパッドへ写す。WITH FILE を入れると音声とファイル名も写す
+  - Paste Note (RHYTHM): グローバルの EDIT のトグル。切っているあいだ (初期状態) は、グローバル・パッド単位・区分のどの貼り付けでもパッドの NOTE を貼らない
   - 貼る・消す・複写する間は Duplicating… の画面を出す
   - システムボタンに CPHIST (コピー履歴) を追加。タブ・単位・区分で絞り込み、再コピーできる
   - Copy Op Params を Duplicate Op Params に改名。Level -> All Ch とともに UTILITY から EDIT へ移した (文字はオフホワイト)
