@@ -177,7 +177,8 @@ details.
 
 Along with this:
 
-- **Copy Op Params** is now **Duplicate Op Params**
+- **Copy Op Params** is now **Duplicate Op Params**, and RHYTHM's **Copy Pad Params**
+  is now **Duplicate Pad Params**
 - **Level -> All Ch** and **Duplicate Op Params** moved from UTILITY to EDIT,
   with off-white text (on a dark background so they stay readable)
 - WT+'s **Broadcast Level** is now **Level -> All Ch**, like the other channels

@@ -71,6 +71,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - Duplicate Targets / Clear Targets (WT+ / ADPCM+): TARGET をまとめて写す・初期化するダイアログ
   - システムボタンに CPHIST (コピー履歴) を追加。タブ・単位・区分で絞り込み、再コピーできる
   - Copy Op Params を Duplicate Op Params に改名。Level -> All Ch とともに UTILITY から EDIT へ移した (文字はオフホワイト)
+  - RHYTHM の Copy Pad Params を Duplicate Pad Params に改名
   - WT+ の Broadcast Level を Level -> All Ch にそろえた
 - **WT AMP MOD: TARGET を切り替えると、別のオペレーターの波形を読み書きしていたのを修正**
   - FM 音源と RHYTHM で、TARGET を変えても変調波形の読み込み・消去と表示が最初のオペレーター (パッド) のままだった

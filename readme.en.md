@@ -71,6 +71,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Duplicate Targets / Clear Targets (WT+ / ADPCM+): dialogs that copy or clear several targets at once
   - A CPHIST (copy history) system button, with filters by tab, unit and section, and Copy again
   - Copy Op Params is now Duplicate Op Params; it moved from UTILITY to EDIT along with Level -> All Ch (off-white text)
+  - RHYTHM's Copy Pad Params is now Duplicate Pad Params
   - WT+'s Broadcast Level is now Level -> All Ch, like the other channels
 - **WT AMP MOD: switching TARGET no longer reads or writes another operator's waves**
   - On the FM chips and RHYTHM, loading, clearing and showing the modulation waves stayed on the first operator (pad) after switching TARGET

@@ -618,7 +618,7 @@ frames stay in view while you choose.
 ### Copy history — CPHIST
 
 The **CPHIST** system button at the top lists what you have copied (newest
-first, up to 100). Filter by **tab** (channel, curve editing, FX), **unit**
+first, up to 200). Filter by **tab** (channel, curve editing, FX), **unit**
 (global / operator / pad / target) and **section**. **Copy again** at the right
 end of a row makes that row the current copy, ready to paste.
 

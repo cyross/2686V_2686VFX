@@ -179,7 +179,8 @@ ADPCM などの方式は選べないので、実機が解いたあとのビッ�
 
 あわせて次のものを変えました。
 
-- **Copy Op Params** を **Duplicate Op Params** へ改めました
+- **Copy Op Params** を **Duplicate Op Params** へ、RHYTHM の **Copy Pad Params** を
+  **Duplicate Pad Params** へ改めました
 - **Level -> All Ch** と **Duplicate Op Params** を UTILITY から EDIT へ移し、
   文字をオフホワイトにしました（読めるよう、地は濃い色）
 - WT+ の **Broadcast Level** を、ほかのチャンネルと同じ **Level -> All Ch** に

@@ -1392,7 +1392,7 @@ void GuiRhythm::setup()
         };
 
 
-    copyPadParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Pad Params", .bgColor = juce::Colours::turquoise.darker(0.3f) });
+    copyPadParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Duplicate Pad Params", .bgColor = juce::Colours::turquoise.darker(0.3f) });
     copyPadParamBtn.setWantsKeyboardFocus(true);
     copyPadParamBtn.setExplicitFocusOrder(++tabOrder);
     copyPadParamBtn.onClick = [this] {

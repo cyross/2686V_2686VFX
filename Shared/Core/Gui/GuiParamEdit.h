@@ -132,7 +132,7 @@ namespace ParamEdit
 		// 履歴から選び直す (再コピー)
 		void select(int serial);
 
-		static inline constexpr int maxHistory = 100;
+		static inline constexpr int maxHistory = 200;
 	private:
 		std::optional<Snapshot> m_current;
 		std::deque<Snapshot> m_history;
