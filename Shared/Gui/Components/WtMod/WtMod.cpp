@@ -254,6 +254,8 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     depthSlider.setWantsKeyboardFocus(true);
     depthSlider.setExplicitFocusOrder(++tabOrder);
 
+    depthSteps.setupComponent(parent, { &depthSlider }, tabOrder);
+
     speedSlider.setup({ .parent = parent, .id = code + CPK::WtMod::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);
     speedSlider.setExplicitFocusOrder(++tabOrder);
@@ -396,6 +398,7 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
 
     enableButton.setVisible(visible);
     depthSlider.setVisibleWithLabel(visible);
+    depthSteps.setVisibleWithLabel(visible);
     speedSlider.setVisibleWithLabel(visible);
     shapeSelector.setVisibleWithLabel(visible);
     waveSmoothBtn.setVisible(visible);
@@ -415,6 +418,7 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     {
         layoutMain({ .mainRect = rect, .component = &enableButton });
         layoutMain({ .mainRect = rect, .label = &depthSlider.label, .component = &depthSlider });
+        depthSteps.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider, });
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, });
 
@@ -448,6 +452,7 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
 
     waveHold.setEnables(isMod);
     depthSlider.setEnabledWithLabel(isMod);
+    depthSteps.setEnabledWithLabel(isMod);
     speedSlider.setEnabledWithLabel(isMod);
     shapeSelector.setEnabledWithLabel(isMod);
     waveSmoothBtn.setEnabled(isMod);

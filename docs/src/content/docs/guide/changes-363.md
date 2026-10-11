@@ -24,7 +24,7 @@ SSG HW AMP ENV / SSG HW PITCH ENV と、SSG・RHYTHM・ADPCM・ADPCM+ の FORM �
 [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#実機の設定値で決める--value) と
 [SSG](/2686V_2686VFX/chips/ssg/#実機の設定値で決める--value) を参照してください。
 
-## 音量のエンベロープと WT AMP MOD に STEPS を足しました
+## 音量のエンベロープと WT PITCH MOD / WT AMP MOD に STEPS を足しました
 
 LEVEL と同じ **STEPS** を、次のつまみにも置きました。選んだ刻み（1/2〜1/256・
 1/3・1/6・1/7・1/10・1/100）へ値を寄せます。範囲が 0〜1 なので「1 刻み」は
@@ -36,6 +36,7 @@ LEVEL と同じ **STEPS** を、次のつまみにも置きました。選んだ
 | SSG HW AMP ENV | MIN / MAX |
 | SSG SW AMP ENV | L1〜L6 |
 | SSG SW AMP ENV[11] | L1〜L11・ENDL |
+| WT PITCH MOD | DEPTH（0.1 より下の刻みは 0.1 に寄る） |
 | WT AMP MOD | DEPTH |
 
 LEVEL と同じく画面だけの選択で、保存はしません。初めは「自由」で、既存の

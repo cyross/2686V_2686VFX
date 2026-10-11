@@ -68,9 +68,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - It also gets NOISE: Use VALUE and N.VALUE: the noise value Tn (0–31) instead of N.FREQ, Fnois = 667000 ÷ (32 × Tn)
   - VALUE / T.VALUE / N.VALUE have an N button (as on LEVEL) with step buttons and jumps to common values
   - All start off, so existing patches sound the same; a value of 0 counts as 1, as on the chip
-- **STEPS on the level envelopes and WT AMP MOD**
+- **STEPS on the level envelopes, WT PITCH MOD and WT AMP MOD**
   - The STEPS from LEVEL (without "by 1": 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100) snaps the value to a step
-  - On AMP ENV's SL, SSG HW AMP ENV's MIN / MAX, SSG SW AMP ENV's L1–L6, SSG SW AMP ENV[11]'s L1–L11 and ENDL, and WT AMP MOD's DEPTH, on every channel, operator and pad
+  - On AMP ENV's SL, SSG HW AMP ENV's MIN / MAX, SSG SW AMP ENV's L1–L6, SSG SW AMP ENV[11]'s L1–L11 and ENDL, WT PITCH MOD's DEPTH (steps below 0.1 go to 0.1) and WT AMP MOD's DEPTH, on every channel, operator and pad
   - Screen only, not saved; it starts at Free, so existing sounds do not change
 - **Show the FM envelope and TL the N88-BASIC(86) way**
   - SETTINGS has "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by default), below "Apply MUL/DET and FIX while notes play", after a separator

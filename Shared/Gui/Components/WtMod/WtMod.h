@@ -8,6 +8,7 @@
 #include <array>
 
 #include "Shared/Core/Const/ConstGlobal.h"
+#include "../StepSnap/StepSnap.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "../../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
@@ -71,6 +72,10 @@ class GuiComponentWtMod : public GuiBase {
     GuiCategoryLabel cat;
     GuiToggleButton enableButton;
     GuiSlider depthSlider;
+
+    // DEPTH を決まった刻みへ丸める。下限の 0.1 より下の刻みは 0.1 に寄る
+    GuiComponentStepSnap depthSteps;
+
     GuiSlider speedSlider;
     GuiComboBox shapeSelector;
     GuiToggleButton waveSmoothBtn;
@@ -155,6 +160,7 @@ public:
         cat(context),
         enableButton(context),
         depthSlider(context),
+        depthSteps(context),
         speedSlider(context),
         shapeSelector(context),
         waveSmoothBtn(context),

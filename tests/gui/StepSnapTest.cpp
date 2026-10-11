@@ -1,6 +1,6 @@
 ﻿// ============================================================================
 // STEPS: LEVEL のほかの 0.0〜1.0 のつまみ (AMP ENV の SL、SSG HW / SW AMP ENV、
-// WT AMP MOD の DEPTH) を決まった刻みへ丸める
+// WT AMP MOD / WT PITCH MOD の DEPTH) を決まった刻みへ丸める
 // ============================================================================
 #include "doctest/doctest.h"
 
@@ -75,10 +75,10 @@ TEST_CASE("STEPS: SL / SSG HW・SW AMP ENV / WT AMP MOD の DEPTH の下にあ�
 
 	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
 
-	// 0.0〜1.0 の、刻みのないつまみ (FM の SL のようなレジスタ値は外す)
+	// 上限が 1.0 の、刻みのないつまみ (FM の SL のようなレジスタ値は外す)
 	auto unitSlider = [&](const juce::String& suffix) -> GuiSlider* {
 		auto found = findAll<GuiSlider>(*editor, [&](GuiSlider& s) {
-			return s.getComponentID().endsWith(suffix) && s.getMinimum() == 0.0 && s.getMaximum() == 1.0 && s.getInterval() < 0.01;
+			return s.getComponentID().endsWith(suffix) && s.getMinimum() >= 0.0 && s.getMaximum() == 1.0 && s.getInterval() < 0.01;
 		});
 
 		return found.empty() ? nullptr : found.front();
@@ -111,6 +111,7 @@ TEST_CASE("STEPS: SL / SSG HW・SW AMP ENV / WT AMP MOD の DEPTH の下にあ�
 		{ "SSG SW AMP ENV[11] LEVEL", GuiGraphValues::Keys::ssgSwEnv11Level[0] },
 		{ "SSG SW AMP ENV[11] ENDL", CPK::SsgSwEnv11::endl },
 		{ "WT AMP MOD DEPTH", CPK::WtAmpMod::depth },
+		{ "WT PITCH MOD DEPTH", CPK::WtMod::depth },
 	};
 
 	int checked = 0;
@@ -140,6 +141,10 @@ TEST_CASE("STEPS: SL / SSG HW・SW AMP ENV / WT AMP MOD の DEPTH の下にあ�
 		// 動かしても刻みへ寄る
 		slider->setValue(0.6, juce::sendNotificationSync);
 		CHECK(slider->getValue() == doctest::Approx(0.5));
+
+		// 下限より下の刻みは下限に寄る (WT PITCH MOD の DEPTH は 0.1 から)
+		slider->setValue(0.05, juce::sendNotificationSync);
+		CHECK(slider->getValue() == doctest::Approx(juce::jmax(0.0, slider->getMinimum())));
 
 		// 自由へ戻せば丸めない
 		steps->setSelectedItemIndex(0, juce::sendNotificationSync);

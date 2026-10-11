@@ -164,8 +164,8 @@ The basic shape of the level. It runs **start level → attack → decay → sus
 
 **STEPS** works like the one on LEVEL: it snaps the value to the step you pick
 (from 3.6.3). As the range is 0–1, there is no "by 1" step. SSG HW AMP ENV,
-SSG SW AMP ENV, SSG SW AMP ENV[11] and WT AMP MOD have the same STEPS, on every
-channel, operator and pad.
+SSG SW AMP ENV, SSG SW AMP ENV[11], WT PITCH MOD and WT AMP MOD have the same
+STEPS, on every channel, operator and pad.
 
 FM operators carry a separate register-style envelope of their own
 (AR / DR / SR / SL / RR / TL). That one is covered on each chip's page.
@@ -438,6 +438,7 @@ the wobble.**
 | --- | --- | --- | ---: | --- |
 | **Enable** | Use it or not | False / True | False | [`SSG_MOD_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-enable) |
 | **DEPTH** | How deep the wobble goes | 0.1 – 1 | 0.2 | [`SSG_MOD_DEPTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-depth) |
+| **STEPS** | Snaps DEPTH to a fixed step (screen only, not saved); steps below 0.1 go to 0.1 | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **SPEED** | How fast it wobbles | 0.1 – 10 | 1 | [`SSG_MOD_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-speed) |
 | **SHAPE** | Shape it wobbles with. 9 kinds | 0 – 8 | 0 | [`SSG_MOD_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-shape) |
 | **Smooth** | Round off the corners of the steps | False / True | True | [`SSG_MOD_WAVE_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-wave-smooth) |

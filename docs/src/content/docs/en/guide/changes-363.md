@@ -24,7 +24,7 @@ A value of 0 counts as 1, as on the chip. See
 [SSG HW AMP ENV](/2686V_2686VFX/en/chips/common/#setting-it-with-the-chips-value--value) and
 [SSG](/2686V_2686VFX/en/chips/ssg/#setting-them-with-the-chips-values--value).
 
-## STEPS on the level envelopes and WT AMP MOD
+## STEPS on the level envelopes, WT PITCH MOD and WT AMP MOD
 
 The **STEPS** from LEVEL is now on these knobs too. It snaps the value to the
 step you pick (1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100). As the range is 0–1,
@@ -36,6 +36,7 @@ there is no "by 1" step. It works on every channel, operator and pad.
 | SSG HW AMP ENV | MIN / MAX |
 | SSG SW AMP ENV | L1–L6 |
 | SSG SW AMP ENV[11] | L1–L11, ENDL |
+| WT PITCH MOD | DEPTH (steps below 0.1 go to 0.1) |
 | WT AMP MOD | DEPTH |
 
 As on LEVEL, the choice is screen only and is not saved. It starts at Free, so

@@ -161,7 +161,8 @@ SSG SW AMP ENV でその上に細かい動きを乗せる、という組み立�
 
 **STEPS** は LEVEL の STEPS と同じもので、選んだ刻みへ値を寄せます（3.6.3 から）。
 範囲が 0〜1 なので、LEVEL にある「1 刻み」はありません。SSG HW AMP ENV・
-SSG SW AMP ENV・SSG SW AMP ENV[11]・WT AMP MOD にも、同じ STEPS があります。
+SSG SW AMP ENV・SSG SW AMP ENV[11]・WT PITCH MOD・WT AMP MOD にも、同じ STEPS が
+あります。
 どれもチャンネル・オペレーター・パッドのすべてで使えます。
 
 FM 音源のオペレータでは、これとは別にオペレータごとのレジスタ式の
@@ -433,6 +434,7 @@ START と END は、**1 周を 0.0〜1.0 とした位置**です。END は START
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う・使わない | False / True | False | [`SSG_MOD_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-enable) |
 | **DEPTH** | 揺れの深さ | 0.1 〜 1 | 0.2 | [`SSG_MOD_DEPTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-depth) |
+| **STEPS** | DEPTH を決まった刻みへ丸める（画面だけ・保存しない）。0.1 より下の刻みは 0.1 に寄る | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **SPEED** | 揺れの速さ | 0.1 〜 10 | 1 | [`SSG_MOD_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-speed) |
 | **SHAPE** | 揺らす形。9 種 | 0 〜 8 | 0 | [`SSG_MOD_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-shape) |
 | **Smooth** | 段の角を丸める | False / True | True | [`SSG_MOD_WAVE_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-wave-smooth) |
