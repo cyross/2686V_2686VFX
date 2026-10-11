@@ -668,7 +668,7 @@ frames stay in view while you choose.
   the source is copied; with it off, only the wave (audio) and its file name
 - **Clear Targets**: returns the targets picked under **TARGET** to their initial
   state, wave and parameters alike
-- **Check all** / **Uncheck all** select everything at once
+- **Check all** / **Uncheck all** (on a yellowish background) select everything at once
 - Press **Esc**, or the button that opened the dialog again, to close it. The
   **Clear** button in Clear Targets is red
 
@@ -677,7 +677,8 @@ frames stay in view while you choose.
 The **CPHIST** system button at the top lists what you have copied (newest
 first, up to 200). Filter by **tab** (channel, curve editing, FX), **unit**
 (global / operator / pad / target) and **section**. **Copy again** at the right
-end of a row makes that row the current copy, ready to paste.
+end of a row makes that row the current copy, ready to paste. **Close**, a click
+outside the list, or **Esc** closes it. The button is blue.
 
 ## UTILITY
 

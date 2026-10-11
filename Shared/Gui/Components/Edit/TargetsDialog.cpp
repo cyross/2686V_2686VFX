@@ -70,14 +70,16 @@ void GuiTargetsDialog::build()
 		toggles.push_back(std::move(t));
 	}
 
-	allOnBtn.setup({ .parent = *this, .title = Text::allOn() });
+	allOnBtn.setup({ .parent = *this, .title = Text::allOn(),
+		.textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::CheckAllBg });
 	allOnBtn.onClick = [this] {
 		for (auto& t : toggles) {
 			if (t->isEnabled()) t->setToggleState(true, juce::dontSendNotification);
 		}
 	};
 
-	allOffBtn.setup({ .parent = *this, .title = Text::allOff() });
+	allOffBtn.setup({ .parent = *this, .title = Text::allOff(),
+		.textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::CheckAllBg });
 	allOffBtn.onClick = [this] {
 		for (auto& t : toggles) t->setToggleState(false, juce::dontSendNotification);
 	};

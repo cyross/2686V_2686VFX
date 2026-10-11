@@ -135,9 +135,12 @@ void GuiCopyHistory::open(juce::Component& parent)
 {
 	parent.addAndMakeVisible(*this);
 	setBounds(parent.getLocalBounds());
-	toFront(true);
-
 	refill();
+
+	// ESC を受けるため、キーボードの行き先をこちらへ移す
+	setWantsKeyboardFocus(true);
+	toFront(true);
+	grabKeyboardFocus();
 }
 
 void GuiCopyHistory::close()
@@ -301,4 +304,16 @@ void GuiCopyHistory::paint(juce::Graphics& g)
 void GuiCopyHistory::mouseDown(const juce::MouseEvent& e)
 {
 	if (!panelBounds().contains(e.getPosition())) close();
+}
+
+// 中の部品にキーボードの行き先があるときも、使われなかったキーはここへ来る
+bool GuiCopyHistory::keyPressed(const juce::KeyPress& key)
+{
+	if (key == juce::KeyPress::escapeKey)
+	{
+		close();
+		return true;
+	}
+
+	return false;
 }

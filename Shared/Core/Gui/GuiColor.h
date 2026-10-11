@@ -508,6 +508,9 @@ namespace GuiColor {
 		// Clear Targets のダイアログの「クリア」。消してしまうボタンなので赤
 		inline Entry ClearBg{ "Edit.ClearBg", []() -> juce::Colour { return juce::Colour::fromRGB(0xC0, 0x20, 0x20); } };
 
+		// TARGET の複写・消去のダイアログの「全てチェックを入れる / 外す」。黄を少し差す
+		inline Entry CheckAllBg{ "Edit.CheckAllBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x6E, 0x64, 0x28); } };
+
 		// TARGET の複写・消去のダイアログ
 		inline Entry DialogBg{ "Edit.DialogBg", []() -> juce::Colour { return Editor::defaultBg; } };
 		inline Entry DialogBorder{ "Edit.DialogBorder", []() -> juce::Colour { return Palette::OffWhite; } };
@@ -567,6 +570,10 @@ namespace GuiColor {
 	namespace SystemBtn {
 		inline Entry CategoryToggleBg{ "SystemBtn.CategoryToggleBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x1B, 0x1F, 0x8A); } };
 		inline Entry CategoryToggleText{ "SystemBtn.CategoryToggleText", []() -> juce::Colour { return Palette::OffWhite; } };
+
+		// コピー履歴 (CPHIST)。区分の一括開閉と見分けるための青。
+		// 描くときに暗くするので、元の色は明るめにしてある
+		inline Entry CopyHistoryBg{ "SystemBtn.CopyHistoryBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x20, 0x60, 0xFF); } };
 	};
 
 	namespace FxGroup {

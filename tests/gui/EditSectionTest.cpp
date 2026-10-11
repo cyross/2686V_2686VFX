@@ -375,6 +375,20 @@ TEST_CASE("CPHIST: 写したものが一覧に出て、絞り込みと再コピ�
 
 	REQUIRE(btn.size() == 1);
 
+	// 文字が省略されずに収まる幅で、地は青
+	{
+		auto& b = *btn.front();
+		const auto font = b.getLookAndFeel().getTextButtonFont(b, b.getHeight());
+		const int textWidth = juce::GlyphArrangement::getStringWidthInt(font, b.getButtonText());
+
+		// LookAndFeel_V4::drawButtonText と同じ余白 (文字の高さの 0.6 倍と、角の丸み分の小さいほう)
+		const int cornerSize = juce::jmin(b.getHeight(), b.getWidth()) / 2;
+		const int indent = juce::jmin(juce::roundToInt(font.getHeight() * 0.6f), 2 + cornerSize / 2);
+
+		CHECK(b.getWidth() - 2 * indent >= textWidth);
+		CHECK(b.findColour(juce::TextButton::buttonColourId) == GuiColor::SystemBtn::CopyHistoryBg.get());
+	}
+
 	click(*btn.front());
 
 	auto lists = findAll<GuiCopyHistory>(env.editor.get());
@@ -427,7 +441,16 @@ TEST_CASE("CPHIST: 写したものが一覧に出て、絞り込みと再コピ�
 
 	for (const auto& r : hist->rows()) CHECK(r.unit.startsWith("OP"));
 
-	hist->close();
+	// ESC で閉じる
+	CHECK(hist->keyPressed(juce::KeyPress(juce::KeyPress::escapeKey)));
+	CHECK(hist->getParentComponent() == nullptr);
+	CHECK(findAll<GuiCopyHistory>(env.editor.get()).empty());
+
+	// 開き直しても ESC で閉じる
+	click(*btn.front());
+	REQUIRE(findAll<GuiCopyHistory>(env.editor.get()).size() == 1);
+	CHECK(hist->keyPressed(juce::KeyPress(juce::KeyPress::escapeKey)));
+	CHECK(findAll<GuiCopyHistory>(env.editor.get()).empty());
 }
 
 TEST_CASE("Duplicate Ops Params: SHIFT / UNSHIFT は 1 オペレーターずつずらし、はみ出すと反対の端へ回る")
@@ -574,6 +597,10 @@ TEST_CASE("Duplicate Targets / Clear Targets: もう一度押すと閉じ、ESC 
 		click(*dup);
 		REQUIRE(openDialog() != nullptr);
 		openDialog()->targetToggle(3).setToggleState(true, juce::dontSendNotification);
+
+		// 全てチェックを入れる / 外す は黄を差した地
+		CHECK(openDialog()->allOnButton().findColour(juce::TextButton::buttonColourId) == GuiColor::Edit::CheckAllBg.get());
+		CHECK(openDialog()->allOffButton().findColour(juce::TextButton::buttonColourId) == GuiColor::Edit::CheckAllBg.get());
 
 		click(*dup);
 		CHECK(openDialog() == nullptr);

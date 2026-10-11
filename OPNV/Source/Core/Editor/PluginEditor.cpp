@@ -308,13 +308,13 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
     closeCategoriesBtn.onClick = [this] { closeBypassedCategories(); };
 
-    // コピー履歴。区分の一括開閉と同じ色味にする (表示まわりのボタン)
+    // コピー履歴。区分の一括開閉と見分けられるよう青にする
     addAndMakeVisible(copyHistoryBtn);
     copyHistoryBtn.setLookAndFeel(&categoryToggleBtnLF);
     copyHistoryBtn.setColour(juce::TextButton::textColourOnId, GuiColor::SystemBtn::CategoryToggleText);
     copyHistoryBtn.setColour(juce::TextButton::textColourOffId, GuiColor::SystemBtn::CategoryToggleText);
-    copyHistoryBtn.setColour(juce::TextButton::buttonColourId, GuiColor::SystemBtn::CategoryToggleBg);
-    copyHistoryBtn.setColour(juce::TextButton::buttonOnColourId, GuiColor::SystemBtn::CategoryToggleBg);
+    copyHistoryBtn.setColour(juce::TextButton::buttonColourId, GuiColor::SystemBtn::CopyHistoryBg);
+    copyHistoryBtn.setColour(juce::TextButton::buttonOnColourId, GuiColor::SystemBtn::CopyHistoryBg);
     copyHistoryBtn.setButtonText(EditorGuiText::CopyHistory::title);
     copyHistoryBtn.setTooltip(EditorGuiText::CopyHistory::tooltip);
     copyHistoryBtn.onClick = [this] { openCopyHistory(); };
@@ -788,8 +788,8 @@ void AudioPlugin2686VEditor::resized()
     x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
     openCategoriesBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
-    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::initButtonWidth;
-    copyHistoryBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::initButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::historyButtonWidth;
+    copyHistoryBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::historyButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
     // 開いているコピー履歴は、画面全体に重ね直す
     if (copyHistory != nullptr && copyHistory->isVisible()) copyHistory->setBounds(getLocalBounds());

@@ -81,7 +81,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Duplicate Ops Params (OPNA / OPN / OPL3 / OPM / OPZX7): copies a run of operators onto another run; OPZX7 also copies the feedback and the algorithm matrix
     - SWAP exchanges FROM and TO; SHIFT / UNSHIFT move FROM or TO by one operator (wrapping round at the ends)
   - Duplicate Targets / Clear Targets (WT+ / ADPCM+): dialogs that copy or clear several targets at once
-  - A CPHIST (copy history) system button, with filters by tab, unit and section, and Copy again
+  - A CPHIST (copy history) system button, with filters by tab, unit and section, and Copy again. The button is blue, and Esc closes the list
+  - Check all / Uncheck all in the WT+ / ADPCM+ Duplicate Targets and Clear Targets dialogs get a yellowish background
   - Copy Op Params is now Duplicate Op Params; it moved from UTILITY to EDIT along with Level -> All Ch (off-white text)
   - Esc, or the same button again, closes the Duplicate Targets / Clear Targets dialogs; the Clear button is red
   - Duplicate Pad Params (RHYTHM), in the global EDIT: copies the FROM pad onto the pads picked with the TO toggles; WITH FILE copies the audio and its file name too

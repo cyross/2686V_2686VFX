@@ -206,7 +206,7 @@ details.
   default), PASTE / CUT / CLEAR leave a pad's NOTE alone
 - A **Duplicating…** screen while pasting, clearing or duplicating
 - A **CPHIST** (copy history) system button. Filter by tab, unit and section,
-  and pick a row again with **Copy again**
+  and pick a row again with **Copy again**. Esc closes it too
 
 Along with this:
 

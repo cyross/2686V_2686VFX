@@ -17,7 +17,7 @@
 // 絞り込める。行の右端の「再コピー」で、その行をクリップボードへ戻す。
 // 戻したものは、いつもどおり PASTE で貼れる。
 //
-// 画面全体へ重ねて出す。外側をクリックするか「閉じる」で消える。
+// 画面全体へ重ねて出す。外側をクリックするか「閉じる」か ESC で消える。
 class GuiCopyHistory : public juce::Component,
 	public GuiBaseComponent,
 	private juce::ListBoxModel,
@@ -34,6 +34,7 @@ public:
 	void paint(juce::Graphics& g) override;
 	void resized() override;
 	void mouseDown(const juce::MouseEvent& e) override;
+	bool keyPressed(const juce::KeyPress& key) override;
 
 	// 絞り込んだあとの行 (テストから見る)
 	const std::vector<ParamEdit::Snapshot>& rows() const { return m_rows; }
