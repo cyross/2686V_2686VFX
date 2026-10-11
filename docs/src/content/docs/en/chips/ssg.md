@@ -99,7 +99,8 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | **T.LEVEL** | Level of the wave (tone) | 0.0–1.0 (1.0 by default) | |
 | **N.LEVEL** | Level of the noise | 0.0–1.0 (1.0 by default) | |
 | **N.FREQ** | Frequency of the noise | 0–30000 Hz (12000 by default) | |
-| **TONE: Use VALUE** | Snap the pitch to the chip's tone value To | On / off (off by default) | |
+| **TONE: Use VALUE** | Multiply the played pitch by a ratio set with T.VALUE | On / off (off by default) | |
+| **T.VALUE** | The tone value To | 0–4095 (47 by default) | ratio 47 ÷ To |
 | **NOISE: Use VALUE** | Use N.VALUE instead of N.FREQ | On / off (off by default) | |
 | **N.VALUE** | The noise value Tn | 0–31 (2 by default) | 667000 ÷ (32 × Tn) Hz |
 | **MIX** | Blend of tone and noise | 0.0–1.0 (0.0 by default) | |
@@ -111,7 +112,8 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | **T.LEVEL** | How much of the tone side | [`SSG_TONE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone) |
 | **N.LEVEL** | How much of the grit side | [`SSG_NOISE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise) |
 | **N.FREQ** | How high the grit sits | [`SSG_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noisefreq) |
-| **TONE: Use VALUE** | Snap the pitch to the integer grid of the chip's tone value To | [`SSG_TONE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone-value-on) |
+| **TONE: Use VALUE** | Multiply the played pitch by a ratio set with T.VALUE | [`SSG_TONE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone-value-on) |
+| **T.VALUE** | The chip's tone value To (0–4095). The ratio is 47 ÷ To (1× at the default 47) | [`SSG_TONE_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone-value) |
 | **NOISE: Use VALUE** | Set the grit's pitch with N.VALUE instead of N.FREQ | [`SSG_NOISE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-value-on) |
 | **N.VALUE** | The chip's noise value Tn (0–31): 667000 ÷ (32 × Tn) Hz | [`SSG_NOISE_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-value) |
 | **Noise On Note** | Track the grit to the keyboard (**ours**) | [`SSG_NOISE_ON_NOTE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-on-note) |
@@ -122,9 +124,10 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 Since 3.6.3, TONE / NOISE can also be set with the YM2203's own values. All of
 these start off, and while they are off nothing changes.
 
-- **TONE: Use VALUE**: snaps the pitch to the integer grid of the tone value To
-  (1–4095), Fnote = 667 × 1000 ÷ (32 × To). As on the chip, the higher the note,
-  the coarser the tuning
+- **TONE: Use VALUE**: multiplies the played frequency by a ratio set with
+  **T.VALUE** (the tone value To, 0–4095). The ratio is Fnote(To) ÷ Fnote(47) =
+  47 ÷ To, where Fnote = 667 × 1000 ÷ (32 × To): 1× at the default 47, an octave
+  down at 94, and lower as To grows. With it off, the ratio is 1
 - **NOISE: Use VALUE**: sets the grit's pitch with **N.VALUE** (the noise value
   Tn, 0–31) instead of N.FREQ, Fnois = 667 × 1000 ÷ (32 × Tn). N.FREQ is
   disabled meanwhile

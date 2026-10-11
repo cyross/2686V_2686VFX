@@ -17,7 +17,7 @@ SSG HW AMP ENV / SSG HW PITCH ENV と、SSG・RHYTHM・ADPCM・ADPCM+ の FORM �
 | 場所 | 切り替え | 設定値と周波数 |
 | --- | --- | --- |
 | SSG HW AMP ENV / SSG HW PITCH ENV | **Use VALUE**（PERIOD の代わりに **VALUE**） | Te: 0〜65535、Fenv = 667000 ÷ (512 × Te) |
-| FORM の TONE | **TONE: Use VALUE**（鳴らす音の高さを To の格子へ寄せる） | To: 1〜4095、Fnote = 667000 ÷ (32 × To) |
+| FORM の TONE | **TONE: Use VALUE**（鍵盤の音へ **T.VALUE** から決まる倍率を掛ける） | To: 0〜4095、倍率 = Fnote(To) ÷ Fnote(47) = 47 ÷ To |
 | FORM の NOISE | **NOISE: Use VALUE**（N.FREQ の代わりに **N.VALUE**） | Tn: 0〜31、Fnois = 667000 ÷ (32 × Tn) |
 
 設定値の 0 は、実機と同じく 1 として扱います。くわしくは

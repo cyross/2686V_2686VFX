@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "3.6.3",
-  "count": 14894,
+  "count": 14936,
   "parameters": [
     {
       "id": "MODE",
@@ -70971,6 +70971,14 @@
       "default": false
     },
     {
+      "id": "SSG_TONE_VALUE",
+      "name": "SSG Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "SSG_NOISE_VALUE_ON",
       "name": "SSG Noise Value Enable",
       "type": "Bool",
@@ -91610,6 +91618,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD0_TONE_VALUE",
+      "name": "RHYTHM Pad1 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "RHYTHM_PAD0_NOISE_VALUE_ON",
       "name": "RHYTHM Pad1 Noise Value Enable",
       "type": "Bool",
@@ -94125,6 +94141,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_TONE_VALUE",
+      "name": "RHYTHM Pad2 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "RHYTHM_PAD1_NOISE_VALUE_ON",
@@ -96644,6 +96668,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD2_TONE_VALUE",
+      "name": "RHYTHM Pad3 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "RHYTHM_PAD2_NOISE_VALUE_ON",
       "name": "RHYTHM Pad3 Noise Value Enable",
       "type": "Bool",
@@ -99159,6 +99191,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_TONE_VALUE",
+      "name": "RHYTHM Pad4 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "RHYTHM_PAD3_NOISE_VALUE_ON",
@@ -101678,6 +101718,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD4_TONE_VALUE",
+      "name": "RHYTHM Pad5 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "RHYTHM_PAD4_NOISE_VALUE_ON",
       "name": "RHYTHM Pad5 Noise Value Enable",
       "type": "Bool",
@@ -104193,6 +104241,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_TONE_VALUE",
+      "name": "RHYTHM Pad6 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "RHYTHM_PAD5_NOISE_VALUE_ON",
@@ -106712,6 +106768,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD6_TONE_VALUE",
+      "name": "RHYTHM Pad7 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "RHYTHM_PAD6_NOISE_VALUE_ON",
       "name": "RHYTHM Pad7 Noise Value Enable",
       "type": "Bool",
@@ -109229,6 +109293,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD7_TONE_VALUE",
+      "name": "RHYTHM Pad8 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "RHYTHM_PAD7_NOISE_VALUE_ON",
       "name": "RHYTHM Pad8 Noise Value Enable",
       "type": "Bool",
@@ -111736,6 +111808,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCM_TONE_VALUE",
+      "name": "ADPCM Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCM_NOISE_VALUE_ON",
@@ -114432,6 +114512,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT0_TONE_VALUE",
+      "name": "ADPCMP Slot0 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT0_NOISE_VALUE_ON",
       "name": "ADPCMP Slot0 Noise Value Enable",
       "type": "Bool",
@@ -114576,6 +114664,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT1_TONE_VALUE",
+      "name": "ADPCMP Slot1 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT1_NOISE_VALUE_ON",
@@ -114724,6 +114820,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT2_TONE_VALUE",
+      "name": "ADPCMP Slot2 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT2_NOISE_VALUE_ON",
       "name": "ADPCMP Slot2 Noise Value Enable",
       "type": "Bool",
@@ -114868,6 +114972,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT3_TONE_VALUE",
+      "name": "ADPCMP Slot3 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT3_NOISE_VALUE_ON",
@@ -115016,6 +115128,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT4_TONE_VALUE",
+      "name": "ADPCMP Slot4 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT4_NOISE_VALUE_ON",
       "name": "ADPCMP Slot4 Noise Value Enable",
       "type": "Bool",
@@ -115160,6 +115280,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT5_TONE_VALUE",
+      "name": "ADPCMP Slot5 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT5_NOISE_VALUE_ON",
@@ -115308,6 +115436,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT6_TONE_VALUE",
+      "name": "ADPCMP Slot6 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT6_NOISE_VALUE_ON",
       "name": "ADPCMP Slot6 Noise Value Enable",
       "type": "Bool",
@@ -115452,6 +115588,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT7_TONE_VALUE",
+      "name": "ADPCMP Slot7 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT7_NOISE_VALUE_ON",
@@ -115600,6 +115744,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT8_TONE_VALUE",
+      "name": "ADPCMP Slot8 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT8_NOISE_VALUE_ON",
       "name": "ADPCMP Slot8 Noise Value Enable",
       "type": "Bool",
@@ -115744,6 +115896,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT9_TONE_VALUE",
+      "name": "ADPCMP Slot9 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT9_NOISE_VALUE_ON",
@@ -115892,6 +116052,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT10_TONE_VALUE",
+      "name": "ADPCMP Slot10 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT10_NOISE_VALUE_ON",
       "name": "ADPCMP Slot10 Noise Value Enable",
       "type": "Bool",
@@ -116036,6 +116204,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT11_TONE_VALUE",
+      "name": "ADPCMP Slot11 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT11_NOISE_VALUE_ON",
@@ -116184,6 +116360,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT12_TONE_VALUE",
+      "name": "ADPCMP Slot12 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT12_NOISE_VALUE_ON",
       "name": "ADPCMP Slot12 Noise Value Enable",
       "type": "Bool",
@@ -116328,6 +116512,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT13_TONE_VALUE",
+      "name": "ADPCMP Slot13 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT13_NOISE_VALUE_ON",
@@ -116476,6 +116668,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT14_TONE_VALUE",
+      "name": "ADPCMP Slot14 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT14_NOISE_VALUE_ON",
       "name": "ADPCMP Slot14 Noise Value Enable",
       "type": "Bool",
@@ -116620,6 +116820,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT15_TONE_VALUE",
+      "name": "ADPCMP Slot15 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT15_NOISE_VALUE_ON",
@@ -116768,6 +116976,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT16_TONE_VALUE",
+      "name": "ADPCMP Slot16 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT16_NOISE_VALUE_ON",
       "name": "ADPCMP Slot16 Noise Value Enable",
       "type": "Bool",
@@ -116912,6 +117128,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT17_TONE_VALUE",
+      "name": "ADPCMP Slot17 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT17_NOISE_VALUE_ON",
@@ -117060,6 +117284,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT18_TONE_VALUE",
+      "name": "ADPCMP Slot18 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT18_NOISE_VALUE_ON",
       "name": "ADPCMP Slot18 Noise Value Enable",
       "type": "Bool",
@@ -117204,6 +117436,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT19_TONE_VALUE",
+      "name": "ADPCMP Slot19 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT19_NOISE_VALUE_ON",
@@ -117352,6 +117592,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT20_TONE_VALUE",
+      "name": "ADPCMP Slot20 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT20_NOISE_VALUE_ON",
       "name": "ADPCMP Slot20 Noise Value Enable",
       "type": "Bool",
@@ -117496,6 +117744,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT21_TONE_VALUE",
+      "name": "ADPCMP Slot21 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT21_NOISE_VALUE_ON",
@@ -117644,6 +117900,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT22_TONE_VALUE",
+      "name": "ADPCMP Slot22 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT22_NOISE_VALUE_ON",
       "name": "ADPCMP Slot22 Noise Value Enable",
       "type": "Bool",
@@ -117788,6 +118052,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT23_TONE_VALUE",
+      "name": "ADPCMP Slot23 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT23_NOISE_VALUE_ON",
@@ -117936,6 +118208,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT24_TONE_VALUE",
+      "name": "ADPCMP Slot24 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT24_NOISE_VALUE_ON",
       "name": "ADPCMP Slot24 Noise Value Enable",
       "type": "Bool",
@@ -118080,6 +118360,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT25_TONE_VALUE",
+      "name": "ADPCMP Slot25 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT25_NOISE_VALUE_ON",
@@ -118228,6 +118516,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT26_TONE_VALUE",
+      "name": "ADPCMP Slot26 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT26_NOISE_VALUE_ON",
       "name": "ADPCMP Slot26 Noise Value Enable",
       "type": "Bool",
@@ -118372,6 +118668,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT27_TONE_VALUE",
+      "name": "ADPCMP Slot27 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT27_NOISE_VALUE_ON",
@@ -118520,6 +118824,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT28_TONE_VALUE",
+      "name": "ADPCMP Slot28 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT28_NOISE_VALUE_ON",
       "name": "ADPCMP Slot28 Noise Value Enable",
       "type": "Bool",
@@ -118664,6 +118976,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT29_TONE_VALUE",
+      "name": "ADPCMP Slot29 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT29_NOISE_VALUE_ON",
@@ -118812,6 +119132,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SLOT30_TONE_VALUE",
+      "name": "ADPCMP Slot30 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
       "id": "ADPCMP_SLOT30_NOISE_VALUE_ON",
       "name": "ADPCMP Slot30 Noise Value Enable",
       "type": "Bool",
@@ -118956,6 +119284,14 @@
       "min": false,
       "max": true,
       "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT31_TONE_VALUE",
+      "name": "ADPCMP Slot31 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
     },
     {
       "id": "ADPCMP_SLOT31_NOISE_VALUE_ON",

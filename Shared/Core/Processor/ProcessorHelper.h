@@ -521,6 +521,7 @@ namespace PrHelper {
 		ptPtrs.noiseOnNote = apvts.getRawParameterValue(prefix + CPK::Tn::nON);
 		ptPtrs.mix = apvts.getRawParameterValue(prefix + CPK::Tn::mix);
 		ptPtrs.toneValueOn = apvts.getRawParameterValue(prefix + CPK::Tn::toneValueOn);
+		ptPtrs.toneValue = apvts.getRawParameterValue(prefix + CPK::Tn::toneValue);
 		ptPtrs.noiseValueOn = apvts.getRawParameterValue(prefix + CPK::Tn::noiseValueOn);
 		ptPtrs.noiseValue = apvts.getRawParameterValue(prefix + CPK::Tn::noiseValue);
 	}
@@ -1235,8 +1236,9 @@ namespace PrHelper {
 		params.noiseOnNote = getBool(ptPtrs.noiseOnNote);
 		params.mix = getFloat(ptPtrs.mix);
 
-		// 実機の設定値で決める。NOISE は Tn を Hz へ直して N.FREQ の代わりにする
-		params.toneValueOn = getBool(ptPtrs.toneValueOn);
+		// 実機の設定値で決める。TONE は To から倍率を、NOISE は Tn を Hz へ
+		// 直して N.FREQ の代わりにする
+		params.toneRatio = getBool(ptPtrs.toneValueOn) ? SsgRegister::toneRatio(getInt(ptPtrs.toneValue)) : 1.0f;
 
 		if (getBool(ptPtrs.noiseValueOn)) params.noiseFreq = SsgRegister::noiseHz(getInt(ptPtrs.noiseValue));
 	}
@@ -3867,6 +3869,8 @@ namespace PrHelper {
 
 		// 実機の設定値で決める。どれも既定は切 (これまでどおり)
 		PrHelper::addBool(layout, prefix + CPK::Tn::toneValueOn, prefixName + CPN::Tn::toneValueOn, CPV::Tn::ToneValueOn::initial);
+		PrHelper::addInt(layout, prefix + CPK::Tn::toneValue, prefixName + CPN::Tn::toneValue,
+			CPV::Tn::ToneValue::min, CPV::Tn::ToneValue::max, CPV::Tn::ToneValue::initial);
 		PrHelper::addBool(layout, prefix + CPK::Tn::noiseValueOn, prefixName + CPN::Tn::noiseValueOn, CPV::Tn::NoiseValueOn::initial);
 		PrHelper::addInt(layout, prefix + CPK::Tn::noiseValue, prefixName + CPN::Tn::noiseValue,
 			CPV::Tn::NoiseValue::min, CPV::Tn::NoiseValue::max, CPV::Tn::NoiseValue::initial);

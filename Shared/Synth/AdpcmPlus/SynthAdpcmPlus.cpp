@@ -62,7 +62,7 @@ void AdpcmPlusCore::setParameters(const SynthCoreParams& params)
     m_delaySeconds = params.adpcmPlus.delay;
     m_pan = params.adpcmPlus.pan;
     m_tone = params.adpcmPlus.tn.tone;
-    m_toneValueOn = params.adpcmPlus.tn.toneValueOn;
+    m_toneRatio = params.adpcmPlus.tn.toneRatio;
     m_mix = params.adpcmPlus.tn.mix;
 
 	if (m_pan == 0.5f) {
@@ -754,10 +754,8 @@ float AdpcmPlusCore::getSample()
     m_ampModDelta = m_phaseDelta;
     float freqMult = m_pitchBendRatio * opzx7PitchMod * m_wtMod.process(m_phaseDelta) * m_ssgHwPEnv.process(1.0f);
 
-    // FORM の TONE の VALUE: 鳴らしている周波数を To の整数の格子へ寄せる。
-    // 鳴らしている周波数 = 音の周波数 × (ピッチの揺れを含めた進み幅 ÷ 元の進み幅) × 倍率
-    if (m_toneValueOn && m_pitchRatio > 0.0f)
-        freqMult *= SsgRegister::quantizeToneRatio((float)(m_currentFrequency * (currentIncrement / m_pitchRatio) * freqMult));
+    // FORM の TONE の VALUE: 鍵盤の周波数へ To から決まる倍率を掛ける
+    freqMult *= m_toneRatio;
 
     // Advance position
     m_position += currentIncrement * freqMult * m_speed;

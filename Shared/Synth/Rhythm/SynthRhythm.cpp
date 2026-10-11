@@ -52,7 +52,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_level = params.level;
     m_delaySeconds = params.delay;
     m_tone = params.tn.tone;
-    m_toneValueOn = params.tn.toneValueOn;
+    m_toneRatio = params.tn.toneRatio;
     m_mix = params.tn.mix;
     m_pan = params.pan;
 
@@ -746,10 +746,8 @@ float RhythmPad::getSample()
 
     m_ampModDelta = (float)(m_currentFrequency / m_sampleRate);
 
-    // FORM の TONE の VALUE: 鳴らしている周波数を To の整数の格子へ寄せる。
-    // 鳴らしている周波数 = 音の周波数 × (ピッチの揺れを含めた進み幅 ÷ 元の進み幅) × 倍率
-    if (m_toneValueOn && m_pitchRatio > 0.0f)
-        freqMult *= SsgRegister::quantizeToneRatio((float)(m_currentFrequency * (currentIncrement / m_pitchRatio) * freqMult));
+    // FORM の TONE の VALUE: 鍵盤の周波数へ To から決まる倍率を掛ける
+    freqMult *= m_toneRatio;
 
     // Advance position
     m_position += currentIncrement * freqMult * m_speed;

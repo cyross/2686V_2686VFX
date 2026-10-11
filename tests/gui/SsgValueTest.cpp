@@ -63,14 +63,11 @@ TEST_CASE("SSG の設定値: 式どおりに Hz へ直し、0 は 1 として扱
 	CHECK(SsgRegister::noiseHz(2) == doctest::Approx(667000.0 / 64.0));
 	CHECK(SsgRegister::noiseHz(0) == doctest::Approx(SsgRegister::noiseHz(1)));
 
-	// Fnote = 667000 / (32 * To)。440 Hz は To = 47 (443.48 Hz) へ寄る
-	CHECK(SsgRegister::toneValue(440.0f) == 47);
-	CHECK(SsgRegister::quantizeTone(440.0f) == doctest::Approx(667000.0 / (32.0 * 47.0)));
-	CHECK(SsgRegister::quantizeToneRatio(440.0f) == doctest::Approx((667000.0 / (32.0 * 47.0)) / 440.0));
-
-	// 範囲の外は端へ (To は 1〜4095)
-	CHECK(SsgRegister::toneValue(1.0f) == SsgRegister::toneMax);
-	CHECK(SsgRegister::toneValue(100000.0f) == 1);
+	// Fnote = 667000 / (32 * To)。倍率は Fnote(To) / Fnote(47) なので、初期値 47 で 1 倍
+	CHECK(SsgRegister::toneHz(47) == doctest::Approx(667000.0 / (32.0 * 47.0)));
+	CHECK(SsgRegister::toneRatio(CPV::Tn::ToneValue::initial) == doctest::Approx(1.0));
+	CHECK(SsgRegister::toneRatio(94) == doctest::Approx(0.5));      // 1 オクターブ下
+	CHECK(SsgRegister::toneRatio(0) == doctest::Approx(47.0));     // 0 は 1 として扱う
 }
 
 TEST_CASE("SSG の設定値: VALUE を入れると PERIOD / N.FREQ の代わりになり、切ればこれまでどおり")
@@ -120,14 +117,19 @@ TEST_CASE("SSG の設定値: VALUE を入れると PERIOD / N.FREQ の代わり�
 
 	PrHelper::applyToneNoise(tn, np);
 	CHECK(np.noiseFreq == doctest::Approx(9000.0f));
-	CHECK_FALSE(np.toneValueOn);
+	CHECK(np.toneRatio == doctest::Approx(1.0f));
+
+	// 切っているあいだは T.VALUE を動かしても 1 倍
+	setReal(apvts, "SSG" + CPK::Tn::toneValue, 94.0f);
+	PrHelper::applyToneNoise(tn, np);
+	CHECK(np.toneRatio == doctest::Approx(1.0f));
 
 	setReal(apvts, "SSG" + CPK::Tn::noiseValueOn, 1.0f);
 	setReal(apvts, "SSG" + CPK::Tn::toneValueOn, 1.0f);
 
 	PrHelper::applyToneNoise(tn, np);
 	CHECK(np.noiseFreq == doctest::Approx(SsgRegister::noiseHz(5)));
-	CHECK(np.toneValueOn);
+	CHECK(np.toneRatio == doctest::Approx(0.5f));
 }
 
 TEST_CASE("SSG の設定値: 画面では、効いている方 (PERIOD / VALUE、N.FREQ / N.VALUE) だけ押せる")
@@ -178,7 +180,18 @@ TEST_CASE("SSG の設定値: 画面では、効いている方 (PERIOD / VALUE�
 	REQUIRE(nfreq != nullptr);
 	REQUIRE(nvalue != nullptr);
 	REQUIRE(noiseUse != nullptr);
-	REQUIRE(toggleById("SSG" + CPK::Tn::toneValueOn) != nullptr);
+	// TONE: Use VALUE を入れると T.VALUE が押せる
+	auto* toneUse = toggleById("SSG" + CPK::Tn::toneValueOn);
+	auto* tvalue = byId("SSG" + CPK::Tn::toneValue);
+
+	REQUIRE(toneUse != nullptr);
+	REQUIRE(tvalue != nullptr);
+
+	toneUse->setToggleState(false, juce::sendNotificationSync);
+	CHECK_FALSE(tvalue->isEnabled());
+
+	toneUse->setToggleState(true, juce::sendNotificationSync);
+	CHECK(tvalue->isEnabled());
 
 	noiseUse->setToggleState(false, juce::sendNotificationSync);
 	CHECK(nfreq->isEnabled());

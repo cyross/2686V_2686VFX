@@ -11,12 +11,14 @@
 // ============================================================================
 // SSG・RHYTHM・ADPCM・ADPCM+ の FORM で、N.FREQ の下に置く。
 //
-//   TONE: Use VALUE    鳴らす周波数を To (Fnote = 667000 / (32 * To)) の
-//                      整数の格子へ寄せる。切っていれば鳴らした音のまま
+//   TONE: Use VALUE    鍵盤の周波数へ T.VALUE から決まる倍率を掛ける
+//   T.VALUE            トーンの設定値 To (Fnote = 667000 / (32 * To))。
+//                      倍率は Fnote(To) / Fnote(47)。初期値 47 で 1 倍
 //   NOISE: Use VALUE   N.FREQ の代わりに N.VALUE で決める
 //   N.VALUE            ノイズの設定値 Tn (Fnois = 667000 / (32 * Tn))
 //
-// NOISE の VALUE を入れているあいだは、N.FREQ を押せなくする。
+// VALUE を入れていないあいだは T.VALUE / N.VALUE を、NOISE の VALUE を
+// 入れているあいだは N.FREQ を押せなくする。
 class GuiComponentToneNoiseValue : public GuiBase
 {
 public:
@@ -38,6 +40,7 @@ public:
 	void readParams(const Reader& r)
 	{
 		toneValueToggle.setToggleState(r.getBool(Key::toneValueOn, toneValueToggle.getToggleState()), juce::sendNotification);
+		toneValueSlider.setValue(r.getInt(Key::toneValue, (int)toneValueSlider.getValue()), juce::sendNotification);
 		noiseValueToggle.setToggleState(r.getBool(Key::noiseValueOn, noiseValueToggle.getToggleState()), juce::sendNotification);
 		noiseValueSlider.setValue(r.getInt(Key::noiseValue, (int)noiseValueSlider.getValue()), juce::sendNotification);
 	}
@@ -46,6 +49,7 @@ public:
 	void writeParams(Writer& w)
 	{
 		w.set(Key::toneValueOn, toneValueToggle.getToggleState());
+		w.set(Key::toneValue, (int)toneValueSlider.getValue());
 		w.set(Key::noiseValueOn, noiseValueToggle.getToggleState());
 		w.set(Key::noiseValue, (int)noiseValueSlider.getValue());
 	}
@@ -54,19 +58,22 @@ public:
 	struct Key
 	{
 		static inline const juce::String toneValueOn = "toneValueEnable";
+		static inline const juce::String toneValue = "toneValue";
 		static inline const juce::String noiseValueOn = "noiseValueEnable";
 		static inline const juce::String noiseValue = "noiseValue";
 	};
 
 	// テストから触る口
 	GuiToggleButton& toneValue() { return toneValueToggle; }
+	GuiSlider& toneValueKnob() { return toneValueSlider; }
 	GuiToggleButton& noiseValue() { return noiseValueToggle; }
 	GuiSlider& noiseValueKnob() { return noiseValueSlider; }
 private:
-	// N.FREQ と N.VALUE は、効いている方だけ押せる
+	// 効いているつまみだけ押せる
 	void applyActive();
 
 	GuiToggleButton toneValueToggle;
+	GuiSlider toneValueSlider;
 	GuiToggleButton noiseValueToggle;
 	GuiSlider noiseValueSlider;
 

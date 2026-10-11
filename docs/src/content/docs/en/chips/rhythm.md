@@ -86,7 +86,8 @@ Grit can be mixed into the loaded sound (**ours**).
 | **T.LEVEL** | How much of the loaded sound | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
 | **N.LEVEL** | How much of the grit | [`RHYTHM_PAD[0-7]_NOISE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noise) |
 | **N.FREQ** | How high the grit sits | [`RHYTHM_PAD[0-7]_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noisefreq) |
-| **TONE: Use VALUE** | Snap the pitch to the integer grid of the chip's tone value To | [`RHYTHM_PAD[0-7]_TONE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-tone-value-on) |
+| **TONE: Use VALUE** | Multiply the played pitch by a ratio set with T.VALUE | [`RHYTHM_PAD[0-7]_TONE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-tone-value-on) |
+| **T.VALUE** | The chip's tone value To (0–4095). The ratio is 47 ÷ To (1× at the default 47) | [`RHYTHM_PAD[0-7]_TONE_VALUE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-tone-value) |
 | **NOISE: Use VALUE** | Set the grit's pitch with N.VALUE instead of N.FREQ | [`RHYTHM_PAD[0-7]_NOISE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noise-value-on) |
 | **N.VALUE** | The chip's noise value Tn (0–31): 667000 ÷ (32 × Tn) Hz | [`RHYTHM_PAD[0-7]_NOISE_VALUE`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noise-value) |
 | **MIX** | Blend of the two | [`RHYTHM_PAD[0-7]_NOISEMIX`](/2686V_2686VFX/en/reference/automation/rhythm/#rhythm-pad-0-7-noisemix) |

@@ -9,6 +9,7 @@ namespace
 	namespace Text
 	{
 		inline const juce::String toneValue = "TONE: Use VALUE";
+		inline const juce::String toneValueKnob = "T.VALUE";
 		inline const juce::String noiseValue = "NOISE: Use VALUE";
 		inline const juce::String noiseValueKnob = "N.VALUE";
 	}
@@ -17,6 +18,7 @@ namespace
 GuiComponentToneNoiseValue::GuiComponentToneNoiseValue(const GuiContext& context) :
 	GuiBase(context),
 	toneValueToggle(context),
+	toneValueSlider(context),
 	noiseValueToggle(context),
 	noiseValueSlider(context)
 {
@@ -30,6 +32,10 @@ void GuiComponentToneNoiseValue::setupComponent(juce::Component& parent, const j
 	toneValueToggle.setWantsKeyboardFocus(true);
 	toneValueToggle.setExplicitFocusOrder(++tabOrder);
 
+	toneValueSlider.setup({ .parent = parent, .id = prefix + CPK::Tn::toneValue, .title = Text::toneValueKnob, .isReset = true });
+	toneValueSlider.setWantsKeyboardFocus(true);
+	toneValueSlider.setExplicitFocusOrder(++tabOrder);
+
 	noiseValueToggle.setup({ .parent = parent, .id = prefix + CPK::Tn::noiseValueOn, .title = Text::noiseValue, .isReset = true });
 	noiseValueToggle.setWantsKeyboardFocus(true);
 	noiseValueToggle.setExplicitFocusOrder(++tabOrder);
@@ -39,6 +45,7 @@ void GuiComponentToneNoiseValue::setupComponent(juce::Component& parent, const j
 	noiseValueSlider.setExplicitFocusOrder(++tabOrder);
 
 	// TARGET の切り替えやプリセットの読み込みでも変わるので、状態の変化を受ける
+	toneValueToggle.watchToggle([this] { applyActive(); });
 	noiseValueToggle.watchToggle([this] { applyActive(); });
 
 	applyActive();
@@ -47,6 +54,7 @@ void GuiComponentToneNoiseValue::setupComponent(juce::Component& parent, const j
 void GuiComponentToneNoiseValue::rebind(const juce::String& prefix)
 {
 	toneValueToggle.rebind(prefix + CPK::Tn::toneValueOn);
+	toneValueSlider.rebind(prefix + CPK::Tn::toneValue);
 	noiseValueToggle.rebind(prefix + CPK::Tn::noiseValueOn);
 	noiseValueSlider.rebind(prefix + CPK::Tn::noiseValue);
 
@@ -56,6 +64,7 @@ void GuiComponentToneNoiseValue::rebind(const juce::String& prefix)
 void GuiComponentToneNoiseValue::setVisibles(bool visible)
 {
 	toneValueToggle.setVisible(visible);
+	toneValueSlider.setVisibleWithLabel(visible);
 	noiseValueToggle.setVisible(visible);
 	noiseValueSlider.setVisibleWithLabel(visible);
 }
@@ -63,6 +72,7 @@ void GuiComponentToneNoiseValue::setVisibles(bool visible)
 void GuiComponentToneNoiseValue::layoutComponent(juce::Rectangle<int>& rect)
 {
 	layoutMain({ .mainRect = rect, .component = &toneValueToggle });
+	layoutMain({ .mainRect = rect, .label = &toneValueSlider.label, .component = &toneValueSlider });
 	layoutMain({ .mainRect = rect, .component = &noiseValueToggle });
 	layoutMain({ .mainRect = rect, .label = &noiseValueSlider.label, .component = &noiseValueSlider });
 }
@@ -70,12 +80,15 @@ void GuiComponentToneNoiseValue::layoutComponent(juce::Rectangle<int>& rect)
 void GuiComponentToneNoiseValue::layoutComponentRow(juce::Rectangle<int>& rect)
 {
 	layoutRow({ .rowRect = rect, .component = &toneValueToggle });
+	layoutRow({ .rowRect = rect, .label = &toneValueSlider.label, .component = &toneValueSlider });
 	layoutRow({ .rowRect = rect, .component = &noiseValueToggle });
 	layoutRow({ .rowRect = rect, .label = &noiseValueSlider.label, .component = &noiseValueSlider });
 }
 
 void GuiComponentToneNoiseValue::applyActive()
 {
+	toneValueSlider.setEnabledWithLabel(toneValueToggle.getToggleState());
+
 	const bool useValue = noiseValueToggle.getToggleState();
 
 	noiseValueSlider.setEnabledWithLabel(useValue);

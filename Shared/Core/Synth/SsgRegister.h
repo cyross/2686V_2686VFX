@@ -17,42 +17,19 @@
 //
 // SSG HW AMP ENV / SSG HW PITCH ENV の VALUE と、FORM の NOISE の VALUE は、
 // ここで Hz へ直してから、これまでの PERIOD / N.FREQ と同じ道を通す。
-// FORM の TONE の VALUE は、鳴らす周波数を To の整数の格子へ寄せる。
+// FORM の TONE の VALUE は、鍵盤の周波数へ To から決まる倍率を掛ける (toneRatio)。
 namespace SsgRegister
 {
 	inline constexpr double clock = 667.0 * 1000.0;
-
-	inline constexpr int toneMax = 4095;
-	inline constexpr int noiseMax = 31;
-	inline constexpr int envMax = 65535;
 
 	inline float envHz(int te) { return (float)(clock / (512.0 * std::max(1, te))); }
 	inline float noiseHz(int tn) { return (float)(clock / (32.0 * std::max(1, tn))); }
 	inline float toneHz(int to) { return (float)(clock / (32.0 * std::max(1, to))); }
 
-	// その周波数にいちばん近い To (1〜4095)
-	inline int toneValue(float hz)
-	{
-		if (!(hz > 0.0f)) return toneMax;
+	// FORM の TONE の VALUE。鍵盤の周波数へ Fnote(To) / Fnote(toneBase) を掛ける。
+	// 基準は T.VALUE の初期値なので、初期値のままなら 1 倍。To を大きく
+	// するほど低くなる
+	inline constexpr int toneBase = 47;
 
-		const double to = std::round(clock / (32.0 * (double)hz));
-
-		return (int)std::clamp(to, 1.0, (double)toneMax);
-	}
-
-	// To の格子へ寄せた周波数
-	inline float quantizeTone(float hz)
-	{
-		if (!(hz > 0.0f)) return hz;
-
-		return toneHz(toneValue(hz));
-	}
-
-	// 寄せた周波数 ÷ 元の周波数。再生の進み幅へ掛けて使う (PCM 系)
-	inline float quantizeToneRatio(float hz)
-	{
-		if (!(hz > 0.0f)) return 1.0f;
-
-		return quantizeTone(hz) / hz;
-	}
+	inline float toneRatio(int to) { return toneHz(to) / toneHz(toneBase); }
 }

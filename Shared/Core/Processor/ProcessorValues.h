@@ -153,6 +153,14 @@ namespace CPV
 		namespace ToneValueOn { inline constexpr bool initial = false; }
 		namespace NoiseValueOn { inline constexpr bool initial = false; }
 
+		// トーンの設定値 To。初期値が倍率 1 の基準 (SsgRegister::toneBase)
+		namespace ToneValue
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 4095;
+			inline constexpr int initial = 47;
+		}
+
 		// ノイズの設定値 Tn。初期値は N.FREQ の初期値 (12000 Hz) にいちばん近いもの
 		namespace NoiseValue
 		{

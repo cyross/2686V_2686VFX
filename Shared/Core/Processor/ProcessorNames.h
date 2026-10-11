@@ -83,6 +83,7 @@ namespace CPN
 		static inline const juce::String nON = " Noise On Note";
 		static inline const juce::String mix = " Tone/Noise Mix";
 		static inline const juce::String toneValueOn = " Tone Value Enable";
+		static inline const juce::String toneValue = " Tone Value";
 		static inline const juce::String noiseValueOn = " Noise Value Enable";
 		static inline const juce::String noiseValue = " Noise Value";
 	}

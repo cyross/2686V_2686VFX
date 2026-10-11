@@ -64,7 +64,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - 2686VFX accepts FX order and FX parameter files (the screen stays as it is)
 - **Set SSG frequencies with the chip's own values**
   - SSG HW AMP ENV / SSG HW PITCH ENV (every channel) get Use VALUE and VALUE: the chip's value Te (0–65535) instead of PERIOD, Fenv = 667000 ÷ (512 × Te)
-  - FORM on SSG, RHYTHM, ADPCM and ADPCM+ gets TONE: Use VALUE, which snaps the pitch to the grid of the tone value To (1–4095), Fnote = 667000 ÷ (32 × To)
+  - FORM on SSG, RHYTHM, ADPCM and ADPCM+ gets TONE: Use VALUE and T.VALUE (To, 0–4095), which multiply the played pitch by Fnote(To) ÷ Fnote(47) = 47 ÷ To (1× at the default 47, and 1× while off); Fnote = 667000 ÷ (32 × To)
   - It also gets NOISE: Use VALUE and N.VALUE: the noise value Tn (0–31) instead of N.FREQ, Fnois = 667000 ÷ (32 × Tn)
   - All start off, so existing patches sound the same; a value of 0 counts as 1, as on the chip
 - **Show the FM envelope and TL the N88-BASIC(86) way**

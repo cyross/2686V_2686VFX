@@ -1257,6 +1257,8 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
             r.getFloat("noiseFreq", getParamValue(slotPrefix + CPK::Tn::freq)));
         setParamValue(slotPrefix + CPK::Tn::toneValueOn,
             r.getBool(GuiComponentToneNoiseValue::Key::toneValueOn, getParamValue(slotPrefix + CPK::Tn::toneValueOn) > 0.5f) ? 1.0f : 0.0f);
+        setParamValue(slotPrefix + CPK::Tn::toneValue,
+            (float)r.getInt(GuiComponentToneNoiseValue::Key::toneValue, (int)getParamValue(slotPrefix + CPK::Tn::toneValue)));
         setParamValue(slotPrefix + CPK::Tn::noiseValueOn,
             r.getBool(GuiComponentToneNoiseValue::Key::noiseValueOn, getParamValue(slotPrefix + CPK::Tn::noiseValueOn) > 0.5f) ? 1.0f : 0.0f);
         setParamValue(slotPrefix + CPK::Tn::noiseValue,
@@ -1354,6 +1356,7 @@ void GuiAdpcmPlus::writeChParams(Io::ParamWriter& writer) {
         w.set("noise", getParamValue(slotPrefix + CPK::Tn::noise));
         w.set("noiseFreq", getParamValue(slotPrefix + CPK::Tn::freq));
         w.set(GuiComponentToneNoiseValue::Key::toneValueOn, getParamValue(slotPrefix + CPK::Tn::toneValueOn) > 0.5f);
+        w.set(GuiComponentToneNoiseValue::Key::toneValue, (int)getParamValue(slotPrefix + CPK::Tn::toneValue));
         w.set(GuiComponentToneNoiseValue::Key::noiseValueOn, getParamValue(slotPrefix + CPK::Tn::noiseValueOn) > 0.5f);
         w.set(GuiComponentToneNoiseValue::Key::noiseValue, (int)getParamValue(slotPrefix + CPK::Tn::noiseValue));
         w.set("mix", getParamValue(slotPrefix + CPK::Tn::mix));

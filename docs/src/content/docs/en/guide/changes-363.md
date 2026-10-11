@@ -17,7 +17,7 @@ existing patches sound the same.
 | Where | Switch | Value and frequency |
 | --- | --- | --- |
 | SSG HW AMP ENV / SSG HW PITCH ENV | **Use VALUE** (**VALUE** instead of PERIOD) | Te: 0–65535, Fenv = 667000 ÷ (512 × Te) |
-| FORM's TONE | **TONE: Use VALUE** (snap the pitch to the To grid) | To: 1–4095, Fnote = 667000 ÷ (32 × To) |
+| FORM's TONE | **TONE: Use VALUE** (multiply the played pitch by a ratio set with **T.VALUE**) | To: 0–4095, ratio = Fnote(To) ÷ Fnote(47) = 47 ÷ To |
 | FORM's NOISE | **NOISE: Use VALUE** (**N.VALUE** instead of N.FREQ) | Tn: 0–31, Fnois = 667000 ÷ (32 × Tn) |
 
 A value of 0 counts as 1, as on the chip. See

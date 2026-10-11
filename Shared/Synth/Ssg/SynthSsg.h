@@ -61,8 +61,8 @@ private:
 
     float m_tone = 1.0f;
 
-    // 鳴らす周波数を、実機のトーンの設定値 To の格子へ寄せる (FORM の TONE の VALUE)
-    bool m_toneValueOn = false;
+    // 鍵盤の周波数へ掛ける倍率 (FORM の TONE の VALUE。切っていれば 1)
+    float m_toneRatio = 1.0f;
     float m_noiseLevel = 0.0f;
     float m_mix = 0.5;
     int m_waveform = 0; // 0:Pulse, 1:Triangle

@@ -391,6 +391,7 @@ struct PrPtrsToneNoise {
     std::atomic<float>* noiseOnNote = nullptr;
     std::atomic<float>* mix = nullptr;
     std::atomic<float>* toneValueOn = nullptr;
+    std::atomic<float>* toneValue = nullptr;
     std::atomic<float>* noiseValueOn = nullptr;
     std::atomic<float>* noiseValue = nullptr;
 };

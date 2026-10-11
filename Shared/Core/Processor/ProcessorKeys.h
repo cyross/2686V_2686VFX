@@ -94,9 +94,10 @@ namespace CPK
 		static inline const juce::String nON = "_NOISE_ON_NOTE";
 		static inline const juce::String mix = "_NOISEMIX";
 
-		// 実機の設定値で決める (SsgRegister)。TONE は鳴らす周波数を To の
-		// 格子へ寄せ、NOISE は N.FREQ の代わりに Tn で決める
+		// 実機の設定値で決める (SsgRegister)。TONE は鍵盤の周波数へ To から
+		// 決まる倍率を掛け、NOISE は N.FREQ の代わりに Tn で決める
 		static inline const juce::String toneValueOn = "_TONE_VALUE_ON";
+		static inline const juce::String toneValue = "_TONE_VALUE";
 		static inline const juce::String noiseValueOn = "_NOISE_VALUE_ON";
 		static inline const juce::String noiseValue = "_NOISE_VALUE";
 	}

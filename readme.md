@@ -64,7 +64,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 2686VFX は FX の順番とパラメータに対応(画面は切り替わらない)
 - **SSG の周波数を実機の設定値でも決められるように**
   - SSG HW AMP ENV / SSG HW PITCH ENV (全チャンネル) に Use VALUE と VALUE を追加。入れると PERIOD の代わりに実機の設定値 Te (0〜65535) で決める。Fenv = 667000 ÷ (512 × Te)
-  - SSG・RHYTHM・ADPCM・ADPCM+ の FORM に TONE: Use VALUE を追加。鳴らす音の高さを実機のトーンの設定値 To (1〜4095) の格子へ寄せる。Fnote = 667000 ÷ (32 × To)
+  - SSG・RHYTHM・ADPCM・ADPCM+ の FORM に TONE: Use VALUE と T.VALUE (To, 0〜4095) を追加。入れると鍵盤の音へ Fnote(To) ÷ Fnote(47) = 47 ÷ To の倍率を掛ける (初期値 47 で 1 倍、切っているあいだは 1 倍)。Fnote = 667000 ÷ (32 × To)
   - 同じく NOISE: Use VALUE と N.VALUE を追加。入れると N.FREQ の代わりにノイズの設定値 Tn (0〜31) で決める。Fnois = 667000 ÷ (32 × Tn)
   - どれも初期状態は切で、既存のパッチの鳴りは変わらない。設定値の 0 は実機と同じく 1 として扱う
 - **FM のエンベロープと TL を N88-BASIC(86) の向きで表示できるように**
