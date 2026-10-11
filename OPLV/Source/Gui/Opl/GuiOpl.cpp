@@ -743,9 +743,9 @@ void GuiOpl::applyMmlString(const juce::String& mml)
         { mmlPrefixKl,   [&](int v) { ksl.setSelectedItemIndex(RegisterConverter::convertOplKsl(v), juce::sendNotification); } },
 
         // --- TL系 ---
-        { mmlPrefixTl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
-        { mmlPrefixO,    [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
-        { mmlPrefixOl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
+        { mmlPrefixTl,   [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
+        { mmlPrefixO,    [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
+        { mmlPrefixOl,   [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
 
         // --- エンベロープ系 ---
         { mmlPrefixAr,   [&](int v) { rgAr.setDisplayedValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},

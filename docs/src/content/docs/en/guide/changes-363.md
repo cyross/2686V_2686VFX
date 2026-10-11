@@ -8,10 +8,10 @@ sidebar:
 This page covers changes from 3.6.2 to 3.6.3. **Your files remain compatible**,
 and existing patches sound the same.
 
-## Show the FM envelope the N88-BASIC(86) way
+## Show the FM envelope and TL the N88-BASIC(86) way
 
 SETTINGS has a new "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by
-default). Turned on, the register knobs **AR / DR / SR / RR / SL** of OPNA, OPN,
+default). Turned on, the register knobs **AR / DR / SR / RR / SL / TL** of OPNA, OPN,
 OPL, OPL3, OPM and OPZX7 (D1R / D2R / D1L on OPM and OPZX7) are shown reversed,
 as N88-BASIC(86) numbers them: 0 on screen is 31 inside for AR. MML input reads
 them the same way.

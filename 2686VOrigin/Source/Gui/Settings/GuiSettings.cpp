@@ -692,7 +692,7 @@ void GuiSettings::setup()
 
     separatorFmN88.setupComponent(*this);
 
-    // FM のレジスタの AR / DR / SR / RR / SL を、PC-9801 の N88-BASIC(86) と
+    // FM のレジスタの AR / DR / SR / RR / SL / TL を、PC-9801 の N88-BASIC(86) と
     // 同じ向きで見せる。見た目だけで、パラメータの値は変わらない。
     fmN88Toggle.setup({ .parent = *this, .title = SettingsGuiText::fmN88Display, .font = toggleFont, .isReset = false });
     fmN88Toggle.setToggleState(pluginOf(ctx).fmN88Display, juce::dontSendNotification);

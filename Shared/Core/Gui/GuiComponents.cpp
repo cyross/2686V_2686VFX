@@ -326,7 +326,7 @@ bool GuiSlider::isN88Target(const juce::String& id)
 {
     // OPM / OPZX7 は DR / SR / SL を D1R / D2R / D1L と呼ぶ
     for (const auto& suffix : { CPK::Fm::rgAr, CPK::Fm::rgDr, CPK::Fm::rgSr, CPK::Fm::rgRr, CPK::Fm::rgSl,
-        CPK::Fm::rgD1r, CPK::Fm::rgD2r, CPK::Fm::rgD1l })
+        CPK::Fm::rgD1r, CPK::Fm::rgD2r, CPK::Fm::rgD1l, CPK::Fm::rgTl })
     {
         if (id.endsWith(suffix)) return true;
     }

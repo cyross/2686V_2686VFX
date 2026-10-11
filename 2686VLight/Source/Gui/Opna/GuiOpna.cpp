@@ -868,9 +868,9 @@ void GuiOpna::applyMmlString(const juce::String& mml)
         { mmlPrefixMask, [&](int v) { mask.setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
 
         // --- TL系 (RGモードで分岐) ---
-        { mmlPrefixTl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
-        { mmlPrefixO,    [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
-        { mmlPrefixOl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixTl,   [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixO,    [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixOl,   [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
 
         // --- エンベロープ系 (RGモードで分岐) ---
         { mmlPrefixAr,   [&](int v) { rgAr.setDisplayedValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},

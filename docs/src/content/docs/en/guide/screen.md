@@ -234,15 +234,16 @@ inside is switched off.
 ### N88-BASIC(86)-style display
 
 Turn on "Show some FM parameters as in PC-9801 N88-BASIC(86)" in SETTINGS to
-show the FM register knobs **AR / DR / SR / RR / SL** **reversed**, the way
+show the FM register knobs **AR / DR / SR / RR / SL / TL** **reversed**, the way
 N88-BASIC(86) numbers them (it starts off).
 
 - It covers the register knobs of OPNA, OPN, OPL, OPL3, OPM and OPZX7 (OPZX7S
   included). On OPM and OPZX7, **D1R / D2R / D1L** stand for DR / SR / SL
 - For AR (0–31), setting 0 on screen means 31 inside, 1 means 30, and 31
-  means 0
+  means 0. TL (0–127, or 0–63 on OPL / OPL3) is reversed the same way: 0 on
+  screen is 127 inside
 - The bar fill and the drag direction are reversed too
-- [MML input](/2686V_2686VFX/en/reference/mml/) reads AR / DR / SR / RR / SL
+- [MML input](/2686V_2686VFX/en/reference/mml/) reads AR / DR / SR / RR / SL / TL
   (D1R / D2R / D1L) reversed in the same way
 - **Only the display changes.** Inside, everything keeps working with the
   values you would see with it off, so neither the sound nor the parameter

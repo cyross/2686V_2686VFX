@@ -149,7 +149,7 @@ class GuiSettings : public GuiBase
 
     NormalSeparator separatorFmN88;
 
-    // FM の AR / DR / SR / RR / SL を N88-BASIC(86) の向きで見せるか
+    // FM の AR / DR / SR / RR / SL / TL を N88-BASIC(86) の向きで見せるか
     GuiToggleButton fmN88Toggle;
 
     NormalSeparator separator5;

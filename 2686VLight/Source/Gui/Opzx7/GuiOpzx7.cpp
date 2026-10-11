@@ -1545,15 +1545,15 @@ void GuiOpzx7::applyMmlString(const juce::String& mml)
 
         // --- TL系 (RGモードで分岐) ---
         { mmlPrefixTl,   [&](int v) {
-            rgMode ? rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification)
+            rgMode ? rgTl.setDisplayedValue(RegisterConverter::convertFmRg127(v), juce::sendNotification)
                    : tl.setValue(RegisterConverter::convertFmTl(v), juce::sendNotification);
         }},
         { mmlPrefixO,    [&](int v) {
-            rgMode ? rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification)
+            rgMode ? rgTl.setDisplayedValue(RegisterConverter::convertFmRg127(v), juce::sendNotification)
                    : tl.setValue(RegisterConverter::convertFmTl(v), juce::sendNotification);
         }},
         { mmlPrefixOl,   [&](int v) {
-            rgMode ? rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification)
+            rgMode ? rgTl.setDisplayedValue(RegisterConverter::convertFmRg127(v), juce::sendNotification)
                    : tl.setValue(RegisterConverter::convertFmTl(v), juce::sendNotification);
         }},
 

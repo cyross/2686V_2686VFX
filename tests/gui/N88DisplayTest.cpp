@@ -40,13 +40,13 @@ namespace
 	}
 }
 
-TEST_CASE("N88-BASIC(86) 準拠: 対象は FM のレジスタの AR / DR / SR / RR / SL (D1R / D2R / D1L) だけ")
+TEST_CASE("N88-BASIC(86) 準拠: 対象は FM のレジスタの AR / DR / SR / RR / SL / TL (D1R / D2R / D1L) だけ")
 {
 	for (const char* id : { "OPNA_OP0_R_AR", "OPN_OP1_R_DR", "OPNA_OP2_R_SR", "OPL_OP0_R_RR", "OPM_OP3_R_SL",
-		"OPM_OP0_R_D1R", "OPZX7_OP7_R_D2R", "OPZX7_OP0_R_D1L" })
+		"OPM_OP0_R_D1R", "OPZX7_OP7_R_D2R", "OPZX7_OP0_R_D1L", "OPNA_OP0_R_TL", "OPL_OP1_R_TL" })
 		CHECK(GuiSlider::isN88Target(id));
 
-	for (const char* id : { "OPNA_OP0_R_TL", "OPNA_OP0_AR", "OPM_OP0_R_KS", "SSG_AR" })
+	for (const char* id : { "OPNA_OP0_TL", "OPNA_OP0_AR", "OPM_OP0_R_KS", "SSG_AR" })
 		CHECK_FALSE(GuiSlider::isN88Target(id));
 }
 
@@ -109,10 +109,18 @@ TEST_CASE("N88-BASIC(86) 準拠: 入れると数字と向きが逆になり、�
 	// 打ち込んだ数字も逆に読む
 	CHECK(ar->getValueFromText(juce::String(juce::roundToInt(hi))) == doctest::Approx(lo));
 
-	// 対象でないつまみは変わらない
-	auto tls = slidersEndingWith(*editor, "_R_TL");
+	// TL も逆。0〜127 (OPL は 0〜63) の数字を逆にして見せる
+	auto tls = slidersEndingWith(*tabs.getTabContentComponent(arTab), "_R_TL");
 
-	if (!tls.empty()) CHECK_FALSE(tls.front()->isN88Displayed());
+	REQUIRE_FALSE(tls.empty());
+
+	auto* tl = tls.front();
+
+	CHECK(tl->isN88Displayed());
+	CHECK(tl->getTextFromValue(tl->getMinimum()) == juce::String(juce::roundToInt(tl->getMaximum())));
+
+	tl->setDisplayedValue(tl->getMinimum(), juce::sendNotificationSync);
+	CHECK(tl->getValue() == doctest::Approx(tl->getMaximum()));
 
 	// 切ると戻る。値はそのまま (これも閉じたタブのまま)
 	processor->fmN88Display = false;
