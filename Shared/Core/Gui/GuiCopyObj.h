@@ -157,6 +157,8 @@ struct CopyEnvSsgHw {
 	bool enable;
 	int shape;
 	float period;
+	bool valueOn = false;
+	int value = 1303;
 	float min;
 	float max;
 	bool smooth;
@@ -167,6 +169,8 @@ struct CopyPEnvSsgHw {
 	bool enable;
 	int shape;
 	float period;
+	bool valueOn = false;
+	int value = 1303;
 	int min;
 	int max;
 	bool smooth;

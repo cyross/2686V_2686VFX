@@ -89,6 +89,9 @@ public:
     float m_modWheel = 0.0f;
 
     float m_tone = 1.0f;
+
+    // 鳴らす周波数を、実機のトーンの設定値 To の格子へ寄せる (FORM の TONE の VALUE)
+    bool m_toneValueOn = false;
     float m_noiseLevel = 0.0f; // Noise
     float m_noiseFreq = 12000.0f; // Noise Frequency (Hz)
     float m_mix = 0.0f;

@@ -102,6 +102,9 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | **T.LEVEL** | 波形（トーン）の音量 | 0.0〜1.0（初期 1.0） | |
 | **N.LEVEL** | ノイズの音量 | 0.0〜1.0（初期 1.0） | |
 | **N.FREQ** | ノイズの周波数 | 0〜30000 Hz（初期 12000） | |
+| **TONE: Use VALUE** | 音の高さを実機の設定値 To の格子へ寄せる | 入 / 切（初期は切） | |
+| **NOISE: Use VALUE** | N.FREQ の代わりに N.VALUE を使う | 入 / 切（初期は切） | |
+| **N.VALUE** | ノイズの設定値 Tn | 0〜31（初期 2） | 667000 ÷ (32 × Tn) Hz |
 | **MIX** | トーンとノイズの混ぜ具合 | 0.0〜1.0（初期 0.0） | |
 | **Noise On Note** | 発音のたびにノイズを鳴らし直す | 入 / 切（初期は切） | |
 
@@ -111,8 +114,25 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | **T.LEVEL** | 音の側の量 | [`SSG_TONE`](/2686V_2686VFX/reference/automation/ssg/#ssg-tone) |
 | **N.LEVEL** | ざらつきの側の量 | [`SSG_NOISE`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise) |
 | **N.FREQ** | ざらつきの高さ | [`SSG_NOISEFREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-noisefreq) |
+| **TONE: Use VALUE** | 鳴らす音の高さを、実機のトーンの設定値 To の整数の格子へ寄せる | [`SSG_TONE_VALUE_ON`](/2686V_2686VFX/reference/automation/ssg/#ssg-tone-value-on) |
+| **NOISE: Use VALUE** | N.FREQ の代わりに N.VALUE でざらつきの高さを決める | [`SSG_NOISE_VALUE_ON`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise-value-on) |
+| **N.VALUE** | 実機のノイズの設定値 Tn（0〜31）。667000 ÷ (32 × Tn) Hz | [`SSG_NOISE_VALUE`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise-value) |
 | **Noise On Note** | ざらつきの高さを鍵盤に合わせる（**独自**） | [`SSG_NOISE_ON_NOTE`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise-on-note) |
 | **MIX** | 2 つの混ぜ具合。0 で音だけ、1 でざらつきだけ | [`SSG_NOISEMIX`](/2686V_2686VFX/reference/automation/ssg/#ssg-noisemix) |
+
+### 実機の設定値で決める — VALUE
+
+3.6.3 から、TONE / NOISE も実機（YM2203）の設定値で決められます。どれも
+初めは切で、切っているあいだはこれまでどおりです。
+
+- **TONE: Use VALUE**: 鳴らす音の高さを、トーンの設定値 To（1〜4095）の
+  整数の格子へ寄せます。周波数は Fnote = 667 × 1000 ÷ (32 × To) です。実機と
+  同じく、高い音ほど音程が粗くなります
+- **NOISE: Use VALUE**: N.FREQ の代わりに **N.VALUE**（ノイズの設定値 Tn、
+  0〜31）でざらつきの高さを決めます。Fnois = 667 × 1000 ÷ (32 × Tn) です。
+  入れているあいだ N.FREQ は止まります
+
+0 は実機と同じく 1 として扱います。RHYTHM・ADPCM・ADPCM+ の FORM も同じです。
 
 ## HW ENV — ハードウェアエンベロープ（実機）
 
@@ -124,6 +144,8 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | **Enable** | ハードウェアエンベロープを使う | 入 / 切（初期は切） | |
 | **SHAPE** | 形の種類 | 0〜43 | |
 | **PERIOD** | 一周にかかる時間 | 0.1〜200.0（初期 1.0） | |
+| **Use VALUE** | PERIOD の代わりに VALUE を使う | 入 / 切（初期は切） | |
+| **VALUE** | エンベロープの設定値 Te | 0〜65535（初期 1303） | 667000 ÷ (512 × Te) Hz |
 
 :::note
 実機の形は 8 種類ですが、ここでは **43 種類**まで選べます。8 番目より後ろは

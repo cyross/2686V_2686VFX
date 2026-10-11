@@ -255,6 +255,7 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/ParamEditTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/EditSectionTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/N88DisplayTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/SsgValueTest.cpp"
     )
 
     target_include_directories(${CY_GUI_TEST} PRIVATE

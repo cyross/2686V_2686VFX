@@ -172,6 +172,8 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **Enable** | 使う・使わない | False / True | False | [`SSG_SSGHWENV_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-enable) |
 | **SHAPE** | 波の形。**0〜15 が実機、16 以降が独自** | 0 〜 43 | 0 | [`SSG_SSGHWENV_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-shape) |
 | **PERIOD** | 繰り返しの速さ | 0.1 〜 200 | 1 | [`SSG_SSGHWENV_PERIOD`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-period) |
+| **Use VALUE** | PERIOD の代わりに VALUE で速さを決める | False / True | False | [`SSG_SSGHWENV_VALUE_ON`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-value-on) |
+| **VALUE** | 実機のエンベロープの設定値 Te。667000 ÷ (512 × Te) Hz | 0 〜 65535 | 1303 | [`SSG_SSGHWENV_VALUE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-value) |
 | **MIN** | **独自**。動く範囲の下 | 0 〜 1 | 0 | [`SSG_SSGHWENV_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-min) |
 | **MAX** | **独自**。動く範囲の上 | 0 〜 1 | 1 | [`SSG_SSGHWENV_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-max) |
 | **Smooth** | **独自**。段の角を丸める | False / True | False | [`SSG_SSGHWENV_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-smooth) |
@@ -180,6 +182,20 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 サンプル&ホールド、正弦、ランダムなどを足してあります。
 
 形の一覧は [波形一覧](/2686V_2686VFX/reference/lists-waveform/) にあります。
+
+#### 実機の設定値で決める — VALUE
+
+PERIOD は速さを Hz で決めます。**Use VALUE** を入れると、代わりに実機
+（YM2203）の設定値 **Te** で決めます（3.6.3 から）。速さは次の式です。
+
+> Fenv = 667 × 1000 ÷ (512 × Te)
+
+Te を大きくするほど遅くなります。初期値の 1303 は、PERIOD の初期値（1 Hz）に
+いちばん近い値です。0 は実機と同じく 1 として扱います。SSG HW PITCH ENV も
+同じです。
+
+FORM の TONE / NOISE にも、同じように実機の設定値で決める切り替えがあります
+（[SSG](/2686V_2686VFX/chips/ssg/) を参照）。
 
 ### SSG SW AMP ENV
 
@@ -277,6 +293,8 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **Enable** | 使う・使わない | False / True | False | [`SSG_SSGHWPENV_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-enable) |
 | **SHAPE** | 波の形。SSG HW AMP ENV と同じ 44 種 | 0 〜 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-shape) |
 | **PERIOD** | 繰り返しの速さ | 0.1 〜 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-period) |
+| **Use VALUE** | PERIOD の代わりに VALUE で速さを決める | False / True | False | [`SSG_SSGHWPENV_VALUE_ON`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-value-on) |
+| **VALUE** | 実機のエンベロープの設定値 Te。667000 ÷ (512 × Te) Hz | 0 〜 65535 | 1303 | [`SSG_SSGHWPENV_VALUE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-value) |
 | **MIN** | 動く範囲の下（セント） | -4800 〜 4800 | 0 | [`SSG_SSGHWPENV_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-min) |
 | **MAX** | 動く範囲の上（セント） | -4800 〜 4800 | 1200 | [`SSG_SSGHWPENV_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-max) |
 | **Smooth** | 段の角を丸める | False / True | False | [`SSG_SSGHWPENV_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-smooth) |

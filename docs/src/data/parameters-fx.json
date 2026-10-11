@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDumpFx",
   "version": "3.6.3",
-  "count": 354,
+  "count": 358,
   "parameters": [
     {
       "id": "MODE",
@@ -623,6 +623,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "MOD_SSGHWENV_VALUE_ON",
+      "name": "MOD Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_SSGHWENV_VALUE",
+      "name": "MOD Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "MOD_SSGHWENV_MIN",
@@ -2471,6 +2487,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "MOD_SSGHWPENV_VALUE_ON",
+      "name": "MOD Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "MOD_SSGHWPENV_VALUE",
+      "name": "MOD Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "MOD_SSGHWPENV_MIN",

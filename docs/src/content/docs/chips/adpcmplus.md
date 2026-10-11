@@ -94,6 +94,9 @@ SLOT と TARGET は区分の外にあります。下の区分をすべて束ね�
 | **T.LEVEL** | 読み込んだ音の側の量 | [`ADPCMP_SLOT[0-31]_TONE`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-tone) |
 | **N.LEVEL** | ざらつきの側の量 | [`ADPCMP_SLOT[0-31]_NOISE`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noise) |
 | **N.FREQ** | ざらつきの高さ | [`ADPCMP_SLOT[0-31]_NOISEFREQ`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noisefreq) |
+| **TONE: Use VALUE** | 鳴らす音の高さを、実機のトーンの設定値 To の整数の格子へ寄せる | [`ADPCMP_SLOT[0-31]_TONE_VALUE_ON`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-tone-value-on) |
+| **NOISE: Use VALUE** | N.FREQ の代わりに N.VALUE でざらつきの高さを決める | [`ADPCMP_SLOT[0-31]_NOISE_VALUE_ON`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noise-value-on) |
+| **N.VALUE** | 実機のノイズの設定値 Tn（0〜31）。667000 ÷ (32 × Tn) Hz | [`ADPCMP_SLOT[0-31]_NOISE_VALUE`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noise-value) |
 | **MIX** | 2 つの混ぜ具合 | [`ADPCMP_SLOT[0-31]_NOISEMIX`](/2686V_2686VFX/reference/automation/adpcmplus/#adpcmp-slot-0-31-noisemix) |
 
 ### OPTIONAL — 鳴らし方

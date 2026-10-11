@@ -8,6 +8,22 @@ sidebar:
 3.6.2 から 3.6.3 までの変更をまとめます。**読み込めなくなるファイルはありません。**
 既存のパッチの鳴りも変わりません。
 
+## SSG の周波数を実機の設定値でも決められるようにしました
+
+SSG HW AMP ENV / SSG HW PITCH ENV と、SSG・RHYTHM・ADPCM・ADPCM+ の FORM に、
+実機（YM2203）の設定値で決める切り替えを足しました。どれも初めは切で、既存の
+パッチの鳴りは変わりません。
+
+| 場所 | 切り替え | 設定値と周波数 |
+| --- | --- | --- |
+| SSG HW AMP ENV / SSG HW PITCH ENV | **Use VALUE**（PERIOD の代わりに **VALUE**） | Te: 0〜65535、Fenv = 667000 ÷ (512 × Te) |
+| FORM の TONE | **TONE: Use VALUE**（鳴らす音の高さを To の格子へ寄せる） | To: 1〜4095、Fnote = 667000 ÷ (32 × To) |
+| FORM の NOISE | **NOISE: Use VALUE**（N.FREQ の代わりに **N.VALUE**） | Tn: 0〜31、Fnois = 667000 ÷ (32 × Tn) |
+
+設定値の 0 は、実機と同じく 1 として扱います。くわしくは
+[SSG HW AMP ENV](/2686V_2686VFX/chips/common/#実機の設定値で決める--value) と
+[SSG](/2686V_2686VFX/chips/ssg/#実機の設定値で決める--value) を参照してください。
+
 ## FM のエンベロープと TL を N88-BASIC(86) の向きで表示できるようにしました
 
 SETTINGS に「一部の FM パラメータ表示を、PC-9801 の N88-BASIC(86) 準拠にする」

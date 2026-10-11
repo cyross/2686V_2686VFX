@@ -174,6 +174,8 @@ hardware it was how you moved a level in steps.
 | **Enable** | Use it or not | False / True | False | [`SSG_SSGHWENV_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-enable) |
 | **SHAPE** | Shape of the wave. **0–15 are the hardware's, 16 up are ours** | 0 – 43 | 0 | [`SSG_SSGHWENV_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-shape) |
 | **PERIOD** | How fast it repeats | 0.1 – 200 | 1 | [`SSG_SSGHWENV_PERIOD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-period) |
+| **Use VALUE** | Set the speed with VALUE instead of PERIOD | False / True | False | [`SSG_SSGHWENV_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-value-on) |
+| **VALUE** | The chip's envelope value Te: 667000 ÷ (512 × Te) Hz | 0 – 65535 | 1303 | [`SSG_SSGHWENV_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-value) |
 | **MIN** | **Ours.** Bottom of the range it moves in | 0 – 1 | 0 | [`SSG_SSGHWENV_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-min) |
 | **MAX** | **Ours.** Top of the range it moves in | 0 – 1 | 1 | [`SSG_SSGHWENV_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-max) |
 | **Smooth** | **Ours.** Round off the corners of the steps | False / True | False | [`SSG_SSGHWENV_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-smooth) |
@@ -183,6 +185,19 @@ with a different number of steps, sample-and-hold, sine, random, and more.
 
 The full list of shapes is under
 [Waveform lists](/2686V_2686VFX/en/reference/lists-waveform/).
+
+#### Setting it with the chip's value — VALUE
+
+PERIOD sets the speed in Hz. Turn on **Use VALUE** to set it with the YM2203's
+own value **Te** instead (since 3.6.3). The speed is
+
+> Fenv = 667 × 1000 ÷ (512 × Te)
+
+A larger Te is slower. The default 1303 is the closest to PERIOD's default
+(1 Hz). 0 counts as 1, as on the chip. SSG HW PITCH ENV works the same way.
+
+FORM's TONE / NOISE have the same kind of switch (see
+[SSG](/2686V_2686VFX/en/chips/ssg/)).
 
 ### SSG SW AMP ENV
 
@@ -280,6 +295,8 @@ and trills.
 | **Enable** | Use it or not | False / True | False | [`SSG_SSGHWPENV_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-enable) |
 | **SHAPE** | Shape. The same 44 as SSG HW AMP ENV | 0 – 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-shape) |
 | **PERIOD** | How fast it repeats | 0.1 – 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-period) |
+| **Use VALUE** | Set the speed with VALUE instead of PERIOD | False / True | False | [`SSG_SSGHWPENV_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-value-on) |
+| **VALUE** | The chip's envelope value Te: 667000 ÷ (512 × Te) Hz | 0 – 65535 | 1303 | [`SSG_SSGHWPENV_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-value) |
 | **MIN** | Bottom of the range, in cents | -4800 – 4800 | 0 | [`SSG_SSGHWPENV_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-min) |
 | **MAX** | Top of the range, in cents | -4800 – 4800 | 1200 | [`SSG_SSGHWPENV_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-max) |
 | **Smooth** | Round off the corners of the steps | False / True | False | [`SSG_SSGHWPENV_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-smooth) |

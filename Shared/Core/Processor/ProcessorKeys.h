@@ -93,6 +93,12 @@ namespace CPK
 		static inline const juce::String freq = "_NOISEFREQ";
 		static inline const juce::String nON = "_NOISE_ON_NOTE";
 		static inline const juce::String mix = "_NOISEMIX";
+
+		// 実機の設定値で決める (SsgRegister)。TONE は鳴らす周波数を To の
+		// 格子へ寄せ、NOISE は N.FREQ の代わりに Tn で決める
+		static inline const juce::String toneValueOn = "_TONE_VALUE_ON";
+		static inline const juce::String noiseValueOn = "_NOISE_VALUE_ON";
+		static inline const juce::String noiseValue = "_NOISE_VALUE";
 	}
 
 	namespace Fm
@@ -502,6 +508,10 @@ namespace CPK
 		static inline const juce::String max = "_SSGHWENV_MAX";
 		static inline const juce::String smooth = "_SSGHWENV_SMOOTH";
 
+		// PERIOD の代わりに実機の設定値 Te で決める (SsgRegister)
+		static inline const juce::String valueOn = "_SSGHWENV_VALUE_ON";
+		static inline const juce::String value = "_SSGHWENV_VALUE";
+
 		// ホールドと部分再生。尻尾は CPK::WaveHold が持つ。
 		static inline const juce::String holdPrefix = "_SSGHWENV";
 	};
@@ -516,6 +526,10 @@ namespace CPK
 		static inline const juce::String min = "_SSGHWPENV_MIN";
 		static inline const juce::String max = "_SSGHWPENV_MAX";
 		static inline const juce::String smooth = "_SSGHWPENV_SMOOTH";
+
+		// PERIOD の代わりに実機の設定値 Te で決める (SsgRegister)
+		static inline const juce::String valueOn = "_SSGHWPENV_VALUE_ON";
+		static inline const juce::String value = "_SSGHWPENV_VALUE";
 
 		// ホールドと部分再生。尻尾は CPK::WaveHold が持つ。
 		static inline const juce::String holdPrefix = "_SSGHWPENV";

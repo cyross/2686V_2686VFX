@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Core/Synth/SsgRegister.h"
 #include "Shared/Generator/Fds/GenFdsModTable.h"
 #include <JuceHeader.h>
 #include <array>
@@ -519,6 +520,9 @@ namespace PrHelper {
 		ptPtrs.noiseFreq = apvts.getRawParameterValue(prefix + CPK::Tn::freq);
 		ptPtrs.noiseOnNote = apvts.getRawParameterValue(prefix + CPK::Tn::nON);
 		ptPtrs.mix = apvts.getRawParameterValue(prefix + CPK::Tn::mix);
+		ptPtrs.toneValueOn = apvts.getRawParameterValue(prefix + CPK::Tn::toneValueOn);
+		ptPtrs.noiseValueOn = apvts.getRawParameterValue(prefix + CPK::Tn::noiseValueOn);
+		ptPtrs.noiseValue = apvts.getRawParameterValue(prefix + CPK::Tn::noiseValue);
 	}
 
 	static inline void setupPcm(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPcm& ptPtrs){
@@ -590,6 +594,8 @@ namespace PrHelper {
 		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::min);
 		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::max);
 		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::smooth);
+		ptPtrs.valueOn = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::valueOn);
+		ptPtrs.value = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::value);
 		setupWaveHoldPtrs(apvts, prefix + CPK::SsgHwEnv::holdPrefix, ptPtrs.hold);
 	}
 
@@ -600,6 +606,8 @@ namespace PrHelper {
 		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::min);
 		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::max);
 		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::smooth);
+		ptPtrs.valueOn = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::valueOn);
+		ptPtrs.value = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::value);
 		setupWaveHoldPtrs(apvts, prefix + CPK::SsgHwPEnv::holdPrefix, ptPtrs.hold);
 	}
 
@@ -1226,6 +1234,11 @@ namespace PrHelper {
 		params.noiseFreq = getFloat(ptPtrs.noiseFreq);
 		params.noiseOnNote = getBool(ptPtrs.noiseOnNote);
 		params.mix = getFloat(ptPtrs.mix);
+
+		// 実機の設定値で決める。NOISE は Tn を Hz へ直して N.FREQ の代わりにする
+		params.toneValueOn = getBool(ptPtrs.toneValueOn);
+
+		if (getBool(ptPtrs.noiseValueOn)) params.noiseFreq = SsgRegister::noiseHz(getInt(ptPtrs.noiseValue));
 	}
 
 	static inline void applyPcm(PrPtrsPcm& ptPtrs, PcmParams& params){
@@ -1302,6 +1315,9 @@ namespace PrHelper {
 		params.enable = getBool(ptPtrs.enable);
 		params.shape = getInt(ptPtrs.shape);
 		params.period = getFloat(ptPtrs.period);
+
+		// PERIOD の代わりに実機の設定値 Te で決める (Hz へ直す)
+		if (getBool(ptPtrs.valueOn)) params.period = SsgRegister::envHz(getInt(ptPtrs.value));
 		params.min = getFloat(ptPtrs.min);
 		params.max = getFloat(ptPtrs.max);
 		params.smooth = getBool(ptPtrs.smooth);
@@ -1312,6 +1328,9 @@ namespace PrHelper {
 		params.enable = getBool(ptPtrs.enable);
 		params.shape = getInt(ptPtrs.shape);
 		params.period = getFloat(ptPtrs.period);
+
+		// PERIOD の代わりに実機の設定値 Te で決める (Hz へ直す)
+		if (getBool(ptPtrs.valueOn)) params.period = SsgRegister::envHz(getInt(ptPtrs.value));
 		params.min = getInt(ptPtrs.min);
 		params.max = getInt(ptPtrs.max);
 		params.smooth = getBool(ptPtrs.smooth);
@@ -3845,6 +3864,12 @@ namespace PrHelper {
 			prefixName + CPN::Tn::mix, 
 			CPV::Tn::Mix::min, CPV::Tn::Mix::max, CPV::Tn::Mix::initial
 		);
+
+		// 実機の設定値で決める。どれも既定は切 (これまでどおり)
+		PrHelper::addBool(layout, prefix + CPK::Tn::toneValueOn, prefixName + CPN::Tn::toneValueOn, CPV::Tn::ToneValueOn::initial);
+		PrHelper::addBool(layout, prefix + CPK::Tn::noiseValueOn, prefixName + CPN::Tn::noiseValueOn, CPV::Tn::NoiseValueOn::initial);
+		PrHelper::addInt(layout, prefix + CPK::Tn::noiseValue, prefixName + CPN::Tn::noiseValue,
+			CPV::Tn::NoiseValue::min, CPV::Tn::NoiseValue::max, CPV::Tn::NoiseValue::initial);
 	}
 
 	static inline void addAdpcmBasicParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -4280,6 +4305,11 @@ namespace PrHelper {
 			prefixName + CPN::SsgHwEnv::period, 
 			CPV::SsgHwEnv::Period::min, CPV::SsgHwEnv::Period::max, CPV::SsgHwEnv::Period::initial
 		); // Period: ここでは周波数(Hz)として扱います (0.1Hz ~ 200Hz)
+
+		// PERIOD の代わりに実機の設定値 Te で決める。既定は切 (これまでどおり)
+		PrHelper::addBool(layout, prefix + CPK::SsgHwEnv::valueOn, prefixName + CPN::SsgHwEnv::valueOn, CPV::SsgHwEnv::ValueOn::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgHwEnv::value, prefixName + CPN::SsgHwEnv::value,
+			CPV::SsgHwEnv::Value::min, CPV::SsgHwEnv::Value::max, CPV::SsgHwEnv::Value::initial);
 		PrHelper::addFloat(
 			layout,
 			prefix + CPK::SsgHwEnv::min,
@@ -4326,6 +4356,11 @@ namespace PrHelper {
 			prefixName + CPN::SsgHwPEnv::period,
 			CPV::SsgHwPEnv::Period::min, CPV::SsgHwPEnv::Period::max, CPV::SsgHwPEnv::Period::initial
 		);
+
+		// PERIOD の代わりに実機の設定値 Te で決める。既定は切 (これまでどおり)
+		PrHelper::addBool(layout, prefix + CPK::SsgHwPEnv::valueOn, prefixName + CPN::SsgHwPEnv::valueOn, CPV::SsgHwPEnv::ValueOn::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgHwPEnv::value, prefixName + CPN::SsgHwPEnv::value,
+			CPV::SsgHwPEnv::Value::min, CPV::SsgHwPEnv::Value::max, CPV::SsgHwPEnv::Value::initial);
 		// Min / Max はセント。1200 セントが 1 オクターブ。
 		PrHelper::addInt(
 			layout,

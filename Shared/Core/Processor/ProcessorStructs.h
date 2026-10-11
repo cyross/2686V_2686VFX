@@ -390,6 +390,9 @@ struct PrPtrsToneNoise {
     std::atomic<float>* noiseFreq = nullptr;
     std::atomic<float>* noiseOnNote = nullptr;
     std::atomic<float>* mix = nullptr;
+    std::atomic<float>* toneValueOn = nullptr;
+    std::atomic<float>* noiseValueOn = nullptr;
+    std::atomic<float>* noiseValue = nullptr;
 };
 
 struct PrPtrsPcm {
@@ -463,6 +466,8 @@ struct PrPtrsSsgHwEnv {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::atomic<float>* smooth = nullptr;
+    std::atomic<float>* valueOn = nullptr;
+    std::atomic<float>* value = nullptr;
 
     // ホールドと部分再生
     PrPtrsWaveHold hold;
@@ -475,6 +480,8 @@ struct PrPtrsSsgHwPEnv {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::atomic<float>* smooth = nullptr;
+    std::atomic<float>* valueOn = nullptr;
+    std::atomic<float>* value = nullptr;
 
     // ホールドと部分再生
     PrPtrsWaveHold hold;

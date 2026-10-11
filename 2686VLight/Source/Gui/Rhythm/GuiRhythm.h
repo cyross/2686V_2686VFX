@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 
@@ -155,6 +156,9 @@ private:
     GuiSlider toneSlider;
     GuiSlider noiseSlider;
     GuiSlider noiseFreqSlider;
+
+    // TONE / NOISE を実機の設定値で決める (N.FREQ の下)
+    GuiComponentToneNoiseValue toneNoiseValue;
     GuiSlider mixSlider;
     GuiTextButton mixSetTone;  // 0.0
     GuiTextButton mixSetMix;   // 0.5
@@ -256,6 +260,7 @@ public:
         toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),
+        toneNoiseValue(context),
         mixSlider(context),
         mixSetTone(context),
         mixSetMix(context),

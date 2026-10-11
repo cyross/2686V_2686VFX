@@ -93,6 +93,9 @@ void GuiAdpcmPlus::setup()
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
+    // TONE / NOISE を実機の設定値で決める。NOISE の VALUE を入れると N.FREQ は止まる
+    toneNoiseValue.setupComponent(pcmGroup.contentCanvas, slot0, tabOrder, &noiseFreqSlider);
+
     // 初期状態反映
     mixSlider.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::Tn::mix , .title = AdpcmPlusGuiText::Adpcm::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
@@ -485,6 +488,7 @@ void GuiAdpcmPlus::rebindSlot()
     toneSlider.rebind(prefix + CPK::Tn::tone);
     noiseSlider.rebind(prefix + CPK::Tn::noise);
     noiseFreqSlider.rebind(prefix + CPK::Tn::freq);
+    toneNoiseValue.rebind(prefix);
     mixSlider.rebind(prefix + CPK::Tn::mix);
 
     speedSlider.rebind(prefix + CPK::speed);
@@ -713,6 +717,7 @@ void GuiAdpcmPlus::layoutFormCat(Rectangle<int>& rect) {
     toneSlider.setVisibleWithLabel(visible);
     noiseSlider.setVisibleWithLabel(visible);
     noiseFreqSlider.setVisibleWithLabel(visible);
+    toneNoiseValue.setVisibles(visible);
     mixSlider.setVisibleWithLabel(visible);
     mixSetTone.setVisible(visible);
     mixSetMix.setVisible(visible);
@@ -743,6 +748,7 @@ void GuiAdpcmPlus::layoutFormCat(Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+        toneNoiseValue.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
         layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
 
@@ -990,6 +996,7 @@ void GuiAdpcmPlus::applyToneNoiseParamFile(const juce::File& file)
     toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
     noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
     noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+    toneNoiseValue.readParams(*reader);
     mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
 }
 
@@ -1241,6 +1248,12 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
             r.getFloat("noise", getParamValue(slotPrefix + CPK::Tn::noise)));
         setParamValue(slotPrefix + CPK::Tn::freq,
             r.getFloat("noiseFreq", getParamValue(slotPrefix + CPK::Tn::freq)));
+        setParamValue(slotPrefix + CPK::Tn::toneValueOn,
+            r.getBool(GuiComponentToneNoiseValue::Key::toneValueOn, getParamValue(slotPrefix + CPK::Tn::toneValueOn) > 0.5f) ? 1.0f : 0.0f);
+        setParamValue(slotPrefix + CPK::Tn::noiseValueOn,
+            r.getBool(GuiComponentToneNoiseValue::Key::noiseValueOn, getParamValue(slotPrefix + CPK::Tn::noiseValueOn) > 0.5f) ? 1.0f : 0.0f);
+        setParamValue(slotPrefix + CPK::Tn::noiseValue,
+            (float)r.getInt(GuiComponentToneNoiseValue::Key::noiseValue, (int)getParamValue(slotPrefix + CPK::Tn::noiseValue)));
         setParamValue(slotPrefix + CPK::Tn::mix,
             r.getFloat("mix", getParamValue(slotPrefix + CPK::Tn::mix)));
 
@@ -1333,6 +1346,9 @@ void GuiAdpcmPlus::writeChParams(Io::ParamWriter& writer) {
         w.set("tone", getParamValue(slotPrefix + CPK::Tn::tone));
         w.set("noise", getParamValue(slotPrefix + CPK::Tn::noise));
         w.set("noiseFreq", getParamValue(slotPrefix + CPK::Tn::freq));
+        w.set(GuiComponentToneNoiseValue::Key::toneValueOn, getParamValue(slotPrefix + CPK::Tn::toneValueOn) > 0.5f);
+        w.set(GuiComponentToneNoiseValue::Key::noiseValueOn, getParamValue(slotPrefix + CPK::Tn::noiseValueOn) > 0.5f);
+        w.set(GuiComponentToneNoiseValue::Key::noiseValue, (int)getParamValue(slotPrefix + CPK::Tn::noiseValue));
         w.set("mix", getParamValue(slotPrefix + CPK::Tn::mix));
 
         w.set("pan", getParamValue(slotPrefix + CPK::pan));
@@ -1389,6 +1405,7 @@ void GuiAdpcmPlus::writeToneNoiseParams(Io::ParamWriter& writer) {
 	writer.set("tone", (float)toneSlider.getValue());
 	writer.set("noise", (float)noiseSlider.getValue());
 	writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+	toneNoiseValue.writeParams(writer);
 	writer.set("mix", (float)mixSlider.getValue());
 
 	

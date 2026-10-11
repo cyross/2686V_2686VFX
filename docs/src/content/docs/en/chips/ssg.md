@@ -99,6 +99,9 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | **T.LEVEL** | Level of the wave (tone) | 0.0–1.0 (1.0 by default) | |
 | **N.LEVEL** | Level of the noise | 0.0–1.0 (1.0 by default) | |
 | **N.FREQ** | Frequency of the noise | 0–30000 Hz (12000 by default) | |
+| **TONE: Use VALUE** | Snap the pitch to the chip's tone value To | On / off (off by default) | |
+| **NOISE: Use VALUE** | Use N.VALUE instead of N.FREQ | On / off (off by default) | |
+| **N.VALUE** | The noise value Tn | 0–31 (2 by default) | 667000 ÷ (32 × Tn) Hz |
 | **MIX** | Blend of tone and noise | 0.0–1.0 (0.0 by default) | |
 | **Noise On Note** | Restart the noise on every note | on / off (off by default) | |
 
@@ -108,8 +111,25 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | **T.LEVEL** | How much of the tone side | [`SSG_TONE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone) |
 | **N.LEVEL** | How much of the grit side | [`SSG_NOISE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise) |
 | **N.FREQ** | How high the grit sits | [`SSG_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noisefreq) |
+| **TONE: Use VALUE** | Snap the pitch to the integer grid of the chip's tone value To | [`SSG_TONE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone-value-on) |
+| **NOISE: Use VALUE** | Set the grit's pitch with N.VALUE instead of N.FREQ | [`SSG_NOISE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-value-on) |
+| **N.VALUE** | The chip's noise value Tn (0–31): 667000 ÷ (32 × Tn) Hz | [`SSG_NOISE_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-value) |
 | **Noise On Note** | Track the grit to the keyboard (**ours**) | [`SSG_NOISE_ON_NOTE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-on-note) |
 | **MIX** | Blend of the two. 0 is tone only, 1 is grit only | [`SSG_NOISEMIX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noisemix) |
+
+### Setting them with the chip's values — VALUE
+
+Since 3.6.3, TONE / NOISE can also be set with the YM2203's own values. All of
+these start off, and while they are off nothing changes.
+
+- **TONE: Use VALUE**: snaps the pitch to the integer grid of the tone value To
+  (1–4095), Fnote = 667 × 1000 ÷ (32 × To). As on the chip, the higher the note,
+  the coarser the tuning
+- **NOISE: Use VALUE**: sets the grit's pitch with **N.VALUE** (the noise value
+  Tn, 0–31) instead of N.FREQ, Fnois = 667 × 1000 ÷ (32 × Tn). N.FREQ is
+  disabled meanwhile
+
+0 counts as 1, as on the chip. FORM on RHYTHM, ADPCM and ADPCM+ works the same way.
 
 ## HW ENV — the hardware envelope (hardware)
 
@@ -120,6 +140,8 @@ The mechanism the real SSG had for moving the level on its own. Switch **Enable*
 | **Enable** | Use the hardware envelope | on / off (off by default) | |
 | **SHAPE** | Which shape | 0–43 | |
 | **PERIOD** | How long one cycle takes | 0.1–200.0 (1.0 by default) | |
+| **Use VALUE** | Use VALUE instead of PERIOD | On / off (off by default) | |
+| **VALUE** | The envelope value Te | 0–65535 (1303 by default) | 667000 ÷ (512 × Te) Hz |
 
 :::note
 The hardware had eight shapes; here you can pick from **43**. Everything past the eighth is ours. When you are after the hardware's sound, stay within the first eight.

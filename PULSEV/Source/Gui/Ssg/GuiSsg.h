@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
 #include <array>
 
@@ -66,6 +67,9 @@ class GuiSsg : public GuiBase
     GuiSlider noiseSlider;
 
     GuiSlider noiseFreqSlider;
+
+    // TONE / NOISE を実機の設定値で決める (N.FREQ の下)
+    GuiComponentToneNoiseValue toneNoiseValue;
 
     GuiToggleButton noiseOnNoteButton;
 
@@ -191,6 +195,7 @@ public:
         toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),
+        toneNoiseValue(context),
         noiseOnNoteButton(context),
         mixSlider(context),
         mixSetTone(context),

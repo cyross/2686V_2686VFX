@@ -1,4 +1,5 @@
 ﻿#include "./SynthSsg.h"
+#include "Shared/Core/Synth/SsgRegister.h"
 
 #include "Shared/Core/Synth/SynthHelpers.h"
 
@@ -54,6 +55,7 @@ void SsgCore::setParameters(const SynthCoreParams& params)
     m_hold.setParameters(params.ssg.hold);
 
     m_tone = params.ssg.tn.tone;
+    m_toneValueOn = params.ssg.tn.toneValueOn;
     m_mix = params.ssg.tn.mix;
 
     // ユニゾン・ハーモニー用
@@ -364,6 +366,9 @@ float SsgCore::getSample()
         else {
             phaseInc = newPhaseDelta * freqMult;
         }
+
+        // FORM の TONE の VALUE: 鳴らす周波数を To の整数の格子へ寄せる
+        if (m_toneValueOn) phaseInc = SsgRegister::quantizeTone(phaseInc * (float)m_targetRate) / (float)m_targetRate;
 
         // ==========================================
         // 1. Hardware Envelope Update

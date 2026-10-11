@@ -82,6 +82,9 @@ namespace CPN
 		static inline const juce::String freq = " Noise Freq";
 		static inline const juce::String nON = " Noise On Note";
 		static inline const juce::String mix = " Tone/Noise Mix";
+		static inline const juce::String toneValueOn = " Tone Value Enable";
+		static inline const juce::String noiseValueOn = " Noise Value Enable";
+		static inline const juce::String noiseValue = " Noise Value";
 	}
 
 	namespace Fm
@@ -478,6 +481,8 @@ namespace CPN
 		static inline const juce::String min = " Hardware Env Min";
 		static inline const juce::String max = " Hardware Env Max";
 		static inline const juce::String smooth = " Hardware Env Smooth";
+		static inline const juce::String valueOn = " Hardware Env Value Enable";
+		static inline const juce::String value = " Hardware Env Value";
 
 		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
 		static inline const juce::String holdPrefix = " Hardware Env";
@@ -491,6 +496,8 @@ namespace CPN
 		static inline const juce::String min = " Hardware Pitch Env Min";
 		static inline const juce::String max = " Hardware Pitch Env Max";
 		static inline const juce::String smooth = " Hardware Pitch Env Smooth";
+		static inline const juce::String valueOn = " Hardware Pitch Env Value Enable";
+		static inline const juce::String value = " Hardware Pitch Env Value";
 
 		// ホールドと部分再生。尻尾は CPN::WaveHold が持つ。
 		static inline const juce::String holdPrefix = " Hardware Pitch Env";

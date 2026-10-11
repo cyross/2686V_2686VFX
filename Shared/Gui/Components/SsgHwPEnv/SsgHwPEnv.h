@@ -37,6 +37,10 @@ class GuiComponentSsgHwPEnv : public GuiBase {
     NormalSeparator hwEnvSeparator;
     GuiComboBox shapeSelector;
     GuiSlider periodSlider;
+
+    // PERIOD の代わりに実機の設定値 Te で決める (Fenv = 667000 / (512 * Te))
+    GuiToggleButton valueToggle;
+    GuiSlider valueSlider;
     GuiComponentNudgeSliderFloat minSlider;
     GuiComponentPitchButtons minButtons;
     GuiComponentNudgeSliderFloat maxSlider;
@@ -82,6 +86,8 @@ public:
         hwEnvSeparator(context),
         shapeSelector(context),
         periodSlider(context),
+        valueToggle(context),
+        valueSlider(context),
         minSlider(context),
         minButtons(context),
         maxSlider(context),

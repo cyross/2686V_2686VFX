@@ -62,6 +62,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Drop a preset, channel parameter file, FX order or FX parameter file onto the window to load it
   - Presets and channel parameter files open that channel's tab
   - 2686VFX accepts FX order and FX parameter files (the screen stays as it is)
+- **Set SSG frequencies with the chip's own values**
+  - SSG HW AMP ENV / SSG HW PITCH ENV (every channel) get Use VALUE and VALUE: the chip's value Te (0–65535) instead of PERIOD, Fenv = 667000 ÷ (512 × Te)
+  - FORM on SSG, RHYTHM, ADPCM and ADPCM+ gets TONE: Use VALUE, which snaps the pitch to the grid of the tone value To (1–4095), Fnote = 667000 ÷ (32 × To)
+  - It also gets NOISE: Use VALUE and N.VALUE: the noise value Tn (0–31) instead of N.FREQ, Fnois = 667000 ÷ (32 × Tn)
+  - All start off, so existing patches sound the same; a value of 0 counts as 1, as on the chip
 - **Show the FM envelope and TL the N88-BASIC(86) way**
   - SETTINGS has "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by default), below "Apply MUL/DET and FIX while notes play", after a separator
   - Turned on, the register knobs AR / DR / SR / RR / SL / TL (D1R / D2R / D1L on OPM / OPZX7) of OPNA, OPN, OPL, OPL3, OPM and OPZX7 (OPZX7S included) show reversed numbers and bars: 0 on screen is 31 inside for AR

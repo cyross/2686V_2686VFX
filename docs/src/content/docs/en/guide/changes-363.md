@@ -8,6 +8,22 @@ sidebar:
 This page covers changes from 3.6.2 to 3.6.3. **Your files remain compatible**,
 and existing patches sound the same.
 
+## Set SSG frequencies with the chip's own values
+
+SSG HW AMP ENV / SSG HW PITCH ENV, and FORM on SSG, RHYTHM, ADPCM and ADPCM+,
+can now be set with the YM2203's own values. All of these start off, so
+existing patches sound the same.
+
+| Where | Switch | Value and frequency |
+| --- | --- | --- |
+| SSG HW AMP ENV / SSG HW PITCH ENV | **Use VALUE** (**VALUE** instead of PERIOD) | Te: 0–65535, Fenv = 667000 ÷ (512 × Te) |
+| FORM's TONE | **TONE: Use VALUE** (snap the pitch to the To grid) | To: 1–4095, Fnote = 667000 ÷ (32 × To) |
+| FORM's NOISE | **NOISE: Use VALUE** (**N.VALUE** instead of N.FREQ) | Tn: 0–31, Fnois = 667000 ÷ (32 × Tn) |
+
+A value of 0 counts as 1, as on the chip. See
+[SSG HW AMP ENV](/2686V_2686VFX/en/chips/common/#setting-it-with-the-chips-value--value) and
+[SSG](/2686V_2686VFX/en/chips/ssg/#setting-them-with-the-chips-values--value).
+
 ## Show the FM envelope and TL the N88-BASIC(86) way
 
 SETTINGS has a new "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by
