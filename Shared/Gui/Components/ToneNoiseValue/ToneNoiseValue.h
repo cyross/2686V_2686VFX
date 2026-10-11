@@ -2,6 +2,8 @@
 
 #include <JuceHeader.h>
 
+#include "../NudgeSlider/NudgeSliderInt.h"
+#include "../ValueNudge/ValueNudge.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiContext.h"
@@ -65,17 +67,19 @@ public:
 
 	// テストから触る口
 	GuiToggleButton& toneValue() { return toneValueToggle; }
-	GuiSlider& toneValueKnob() { return toneValueSlider; }
+	GuiSlider& toneValueKnob() { return toneValueSlider.getSlider(); }
 	GuiToggleButton& noiseValue() { return noiseValueToggle; }
-	GuiSlider& noiseValueKnob() { return noiseValueSlider; }
+	GuiSlider& noiseValueKnob() { return noiseValueSlider.getSlider(); }
 private:
 	// 効いているつまみだけ押せる
 	void applyActive();
 
 	GuiToggleButton toneValueToggle;
-	GuiSlider toneValueSlider;
+	GuiComponentNudgeSliderInt toneValueSlider;
+	GuiComponentValueNudge toneValueNudge;
 	GuiToggleButton noiseValueToggle;
-	GuiSlider noiseValueSlider;
+	GuiComponentNudgeSliderInt noiseValueSlider;
+	GuiComponentValueNudge noiseValueNudge;
 
 	GuiSlider* noiseFreqSlider = nullptr;
 };

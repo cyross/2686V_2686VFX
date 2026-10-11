@@ -196,6 +196,10 @@ own value **Te** instead (since 3.6.3). The speed is
 A larger Te is slower. The default 1303 is the closest to PERIOD's default
 (1 Hz). 0 counts as 1, as on the chip. SSG HW PITCH ENV works the same way.
 
+The **N** button to the right of VALUE shows value buttons, as on LEVEL: ±1,
+±10, ±100 and ±1000, plus the values for 0.25 / 0.5 / 1 / 2 / 4 / 8 Hz
+(5211 / 2606 / 1303 / 651 / 326 / 163).
+
 FORM's TONE / NOISE have the same kind of switch (see
 [SSG](/2686V_2686VFX/en/chips/ssg/)).
 

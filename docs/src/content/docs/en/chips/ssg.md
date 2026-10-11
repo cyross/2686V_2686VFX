@@ -132,6 +132,11 @@ these start off, and while they are off nothing changes.
   Tn, 0–31) instead of N.FREQ, Fnois = 667 × 1000 ÷ (32 × Tn). N.FREQ is
   disabled meanwhile
 
+The **N** buttons to the right of T.VALUE / N.VALUE show value buttons, as on
+LEVEL. T.VALUE jumps to one or two octaves up (12 / 24), a fifth up (31), a
+fourth up (35), a fifth down (70) and one or two octaves down (94 / 188);
+N.VALUE to 1 / 4 / 8 / 12 / 16 / 31.
+
 0 counts as 1, as on the chip. FORM on RHYTHM, ADPCM and ADPCM+ works the same way.
 
 ## HW ENV — the hardware envelope (hardware)

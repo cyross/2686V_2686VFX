@@ -66,6 +66,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - SSG HW AMP ENV / SSG HW PITCH ENV (every channel) get Use VALUE and VALUE: the chip's value Te (0–65535) instead of PERIOD, Fenv = 667000 ÷ (512 × Te)
   - FORM on SSG, RHYTHM, ADPCM and ADPCM+ gets TONE: Use VALUE and T.VALUE (To, 0–4095), which multiply the played pitch by Fnote(To) ÷ Fnote(47) = 47 ÷ To (1× at the default 47, and 1× while off); Fnote = 667000 ÷ (32 × To)
   - It also gets NOISE: Use VALUE and N.VALUE: the noise value Tn (0–31) instead of N.FREQ, Fnois = 667000 ÷ (32 × Tn)
+  - VALUE / T.VALUE / N.VALUE have an N button (as on LEVEL) with step buttons and jumps to common values
   - All start off, so existing patches sound the same; a value of 0 counts as 1, as on the chip
 - **Show the FM envelope and TL the N88-BASIC(86) way**
   - SETTINGS has "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by default), below "Apply MUL/DET and FIX while notes play", after a separator

@@ -57,9 +57,8 @@ void GuiComponentSsgHwPEnv::setupComponent(juce::Component& parent, const juce::
     valueToggle.setWantsKeyboardFocus(true);
     valueToggle.setExplicitFocusOrder(++tabOrder);
 
-    valueSlider.setup({ .parent = parent, .id = code + CPK::SsgHwPEnv::value, .title = "VALUE", .isReset = true });
-    valueSlider.setWantsKeyboardFocus(true);
-    valueSlider.setExplicitFocusOrder(++tabOrder);
+    valueSlider.setupComponent(parent, code + CPK::SsgHwPEnv::value, "VALUE", tabOrder, std::nullopt);
+    valueNudge.setupComponent(parent, valueSlider.getSlider(), GuiComponentValueNudge::envValueRows(), tabOrder);
 
     // MIN と MAX は追い越せない。追い越したときは「相手を押す」形にする。
     // 自分へ書き戻すとドラッグ中にマウスと値の押し合いになり、
@@ -132,7 +131,7 @@ void GuiComponentSsgHwPEnv::rebind(const juce::String& code)
     shapeSelector.rebind(code + CPK::SsgHwPEnv::shape);
     periodSlider.rebind(code + CPK::SsgHwPEnv::period);
     valueToggle.rebind(code + CPK::SsgHwPEnv::valueOn);
-    valueSlider.rebind(code + CPK::SsgHwPEnv::value);
+    valueSlider.getSlider().rebind(code + CPK::SsgHwPEnv::value);
     minSlider.getSlider().rebind(code + CPK::SsgHwPEnv::min);
     maxSlider.getSlider().rebind(code + CPK::SsgHwPEnv::max);
 
@@ -155,6 +154,7 @@ void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
     periodSlider.setVisibleWithLabel(visible);
     valueToggle.setVisible(visible);
     valueSlider.setVisibleWithLabel(visible);
+    valueNudge.setVisibles(visible && valueSlider.isVisibleNudge());
     minSlider.setVisibleWithLabel(visible);
     minButtons.setVisibles(visible && minSlider.isVisibleNudge());
     maxSlider.setVisibleWithLabel(visible);
@@ -168,7 +168,8 @@ void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &periodSlider.label, .component = &periodSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .component = &valueToggle, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &valueSlider.label, .component = &valueSlider, .rowHeight = 13 });
+        valueSlider.layoutComponent(rect, 13);
+        if (valueSlider.isVisibleNudge()) valueNudge.layoutComponent(rect);
         minSlider.layoutComponent(rect, 13);
         if (minSlider.isVisibleNudge()) minButtons.layoutComponent(rect, 13);
         maxSlider.layoutComponent(rect, 13);
@@ -199,6 +200,7 @@ void GuiComponentSsgHwPEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     periodSlider.setVisibleWithLabel(visible);
     valueToggle.setVisible(visible);
     valueSlider.setVisibleWithLabel(visible);
+    valueNudge.setVisibles(visible && valueSlider.isVisibleNudge());
     minSlider.setVisibleWithLabel(visible);
     minButtons.setVisibles(visible && minSlider.isVisibleNudge());
     maxSlider.setVisibleWithLabel(visible);
@@ -212,7 +214,8 @@ void GuiComponentSsgHwPEnv::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &periodSlider.label, .component = &periodSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .component = &valueToggle, .rowHeight = 13 });
-        layoutRow({ .rowRect = rect, .label = &valueSlider.label, .component = &valueSlider, .rowHeight = 13 });
+        valueSlider.layoutComponentRow(rect, 13);
+        if (valueSlider.isVisibleNudge()) valueNudge.layoutComponentRow(rect);
         minSlider.layoutComponentRow(rect, 12);
         if (minSlider.isVisibleNudge()) minButtons.layoutComponentRow(rect, 12);
         maxSlider.layoutComponentRow(rect, 12);
@@ -257,6 +260,7 @@ void GuiComponentSsgHwPEnv::applyActive() {
     valueToggle.setEnabled(outerEnabled);
     valueToggle.setDimmed(!active);
     valueSlider.setEnabledWithLabel(active && useValue);
+    valueNudge.setEnables(active && useValue);
     minSlider.setEnabled(active);
     minButtons.setEnables(active);
     maxSlider.setEnabled(active);

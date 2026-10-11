@@ -13,6 +13,7 @@
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Processor/ProcessorHelper.h"
 #include "Shared/Core/Synth/SsgRegister.h"
+#include "Shared/Gui/Components/ValueNudge/ValueNudge.h"
 #include "./EditorTestAccess.h"
 
 namespace
@@ -209,6 +210,77 @@ TEST_CASE("SSG の設定値: 画面では、効いている方 (PERIOD / VALUE�
 		INFO(id);
 		CHECK(toggleById(id) != nullptr);
 	}
+
+	editor.reset();
+}
+
+TEST_CASE("SSG の設定値: N ボタンで出す値のボタンは、足し引きと直置きをし、範囲の外は丸める")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	// 部品の窓口だけ借りる
+	GuiContext ctx(*processor, *dynamic_cast<GuiEditorHost*>(editor.get()), processor->apvts);
+
+	juce::Component parent;
+	GuiSlider slider(ctx);
+	slider.setup({ .parent = parent, .title = "VALUE" });
+	slider.setRange(0.0, 65535.0, 1.0);
+	slider.setValue(1303.0, juce::dontSendNotification);
+
+	GuiComponentValueNudge nudge(ctx);
+	int tabOrder = 0;
+	nudge.setupComponent(parent, slider, GuiComponentValueNudge::envValueRows(), tabOrder);
+
+	auto press = [&](const juce::String& title) {
+		for (int i = 0; i < nudge.buttonCount(); ++i)
+		{
+			if (nudge.button(i).getButtonText() == title)
+			{
+				nudge.button(i).onClick();
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	REQUIRE(press("+1000"));
+	CHECK(slider.getValue() == doctest::Approx(2303.0));
+
+	REQUIRE(press("-10"));
+	CHECK(slider.getValue() == doctest::Approx(2293.0));
+
+	// 直置き (0.25 Hz)
+	REQUIRE(press("5211"));
+	CHECK(slider.getValue() == doctest::Approx(5211.0));
+
+	// 範囲の外は丸める
+	slider.setValue(5.0, juce::dontSendNotification);
+	REQUIRE(press("-10"));
+	CHECK(slider.getValue() == doctest::Approx(0.0));
+
+	// 並べると、行の幅に収まる
+	juce::Rectangle<int> rect(0, 0, 200, 1000);
+	nudge.layoutComponent(rect);
+
+	for (int i = 0; i < nudge.buttonCount(); ++i)
+	{
+		CHECK_FALSE(nudge.button(i).getBounds().isEmpty());
+		CHECK(nudge.button(i).getRight() <= 200);
+	}
+
+	// T.VALUE / N.VALUE の表も、初期値のボタンを持つ
+	auto hasBase = [](const GuiComponentValueNudge::Rows& rows, double base) {
+		for (const auto& row : rows)
+			for (const auto& s : row)
+				if (s.action == GuiComponentValueNudge::Action::Set && s.value == base) return true;
+		return false;
+	};
+
+	CHECK(hasBase(GuiComponentValueNudge::toneValueRows(), CPV::Tn::ToneValue::initial));
+	CHECK(hasBase(GuiComponentValueNudge::noiseValueRows(), CPV::Tn::NoiseValue::initial));
+	CHECK(hasBase(GuiComponentValueNudge::envValueRows(), CPV::SsgHwEnv::Value::initial));
 
 	editor.reset();
 }

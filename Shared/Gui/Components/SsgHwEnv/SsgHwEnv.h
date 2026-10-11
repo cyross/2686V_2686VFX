@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../NudgeSlider/NudgeSliderInt.h"
+#include "../ValueNudge/ValueNudge.h"
 #include <JuceHeader.h>
 
 #include "../../../Core/Io/ParamFile.h"
@@ -34,7 +36,10 @@ class GuiComponentSsgHwEnv : public GuiBase {
 
     // PERIOD の代わりに実機の設定値 Te で決める (Fenv = 667000 / (512 * Te))
     GuiToggleButton valueToggle;
-    GuiSlider valueSlider;
+    GuiComponentNudgeSliderInt valueSlider;
+
+    // VALUE の N ボタンで出す値のボタン
+    GuiComponentValueNudge valueNudge;
     GuiSlider minSlider;
     GuiSlider maxSlider;
 
@@ -80,6 +85,7 @@ public:
         periodSlider(context),
         valueToggle(context),
         valueSlider(context),
+        valueNudge(context),
         minSlider(context),
         maxSlider(context),
         preview(context),

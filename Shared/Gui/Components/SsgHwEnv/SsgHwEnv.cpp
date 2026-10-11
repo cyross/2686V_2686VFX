@@ -57,9 +57,8 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
     valueToggle.setWantsKeyboardFocus(true);
     valueToggle.setExplicitFocusOrder(++tabOrder);
 
-    valueSlider.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::value, .title = "VALUE", .isReset = true });
-    valueSlider.setWantsKeyboardFocus(true);
-    valueSlider.setExplicitFocusOrder(++tabOrder);
+    valueSlider.setupComponent(parent, code + CPK::SsgHwEnv::value, "VALUE", tabOrder, std::nullopt);
+    valueNudge.setupComponent(parent, valueSlider.getSlider(), GuiComponentValueNudge::envValueRows(), tabOrder);
 
     minSlider.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::min, .title = "MIN", .isReset = true });
     minSlider.setWantsKeyboardFocus(true);
@@ -134,7 +133,7 @@ void GuiComponentSsgHwEnv::rebind(const juce::String& code)
     shapeSelector.rebind(code + CPK::SsgHwEnv::shape);
     periodSlider.rebind(code + CPK::SsgHwEnv::period);
     valueToggle.rebind(code + CPK::SsgHwEnv::valueOn);
-    valueSlider.rebind(code + CPK::SsgHwEnv::value);
+    valueSlider.getSlider().rebind(code + CPK::SsgHwEnv::value);
     minSlider.rebind(code + CPK::SsgHwEnv::min);
     maxSlider.rebind(code + CPK::SsgHwEnv::max);
 
@@ -157,6 +156,7 @@ void GuiComponentSsgHwEnv::layoutComponent(juce::Rectangle<int>& rect)
     periodSlider.setVisibleWithLabel(visible);
     valueToggle.setVisible(visible);
     valueSlider.setVisibleWithLabel(visible);
+    valueNudge.setVisibles(visible && valueSlider.isVisibleNudge());
     minSlider.setVisibleWithLabel(visible);
     maxSlider.setVisibleWithLabel(visible);
     waveHold.setVisibles(visible);
@@ -168,7 +168,8 @@ void GuiComponentSsgHwEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &periodSlider.label, .component = &periodSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .component = &valueToggle, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &valueSlider.label, .component = &valueSlider, .rowHeight = 13 });
+        valueSlider.layoutComponent(rect, 13);
+        if (valueSlider.isVisibleNudge()) valueNudge.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &minSlider.label, .component = &minSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .component = &smoothEnableButton });
@@ -197,6 +198,7 @@ void GuiComponentSsgHwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     periodSlider.setVisibleWithLabel(visible);
     valueToggle.setVisible(visible);
     valueSlider.setVisibleWithLabel(visible);
+    valueNudge.setVisibles(visible && valueSlider.isVisibleNudge());
     minSlider.setVisibleWithLabel(visible);
     maxSlider.setVisibleWithLabel(visible);
     waveHold.setVisibles(visible);
@@ -208,7 +210,8 @@ void GuiComponentSsgHwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &periodSlider.label, .component = &periodSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .component = &valueToggle, .rowHeight = 13 });
-        layoutRow({ .rowRect = rect, .label = &valueSlider.label, .component = &valueSlider, .rowHeight = 13 });
+        valueSlider.layoutComponentRow(rect, 13);
+        if (valueSlider.isVisibleNudge()) valueNudge.layoutComponentRow(rect);
         layoutRow({ .rowRect = rect, .label = &minSlider.label, .component = &minSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .component = &smoothEnableButton });
@@ -251,6 +254,7 @@ void GuiComponentSsgHwEnv::applyActive() {
     valueToggle.setEnabled(outerEnabled);
     valueToggle.setDimmed(!active);
     valueSlider.setEnabledWithLabel(active && useValue);
+    valueNudge.setEnables(active && useValue);
     minSlider.setEnabledWithLabel(active);
     maxSlider.setEnabledWithLabel(active);
     preview.setEnabled(active);
