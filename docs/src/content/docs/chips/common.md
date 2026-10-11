@@ -52,6 +52,14 @@ UTILITY の **Level -> All Ch** を押すと、この値を他のすべてのチ
 80 年代の音に寄せたいときは BIT を下げ、RATE も一緒に下げると当時の雰囲気に
 近づきます。
 
+### DAC — 機種に合わせてまとめて切り替える
+
+QUALITY と QUALITY(PCM) の先頭には **DAC** の行があります（3.6.3 から）。
+機種を選んで **適応** を押すと、その機種の出力に合わせて BIT RATE・SMP.RATE・
+INTERP をまとめて切り替えます。選んだ機種そのものは保存しません。残るのは
+切り替えた値だけです。機種ごとの値は
+[v3.6.3 の変更点](/2686V_2686VFX/guide/changes-363/#quality-に「dac」を足しました) にあります。
+
 選べるものの一覧は
 [QUALITY 一覧](/2686V_2686VFX/reference/lists-quality/) にあります。
 
@@ -145,10 +153,17 @@ SSG SW AMP ENV でその上に細かい動きを乗せる、という組み立�
 | **AR** | 最大まで上がる時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_AR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ar) |
 | **DR** | サステインまで下がる時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_DR`](/2686V_2686VFX/reference/automation/ssg/#ssg-dr) |
 | **SL** | 押しているあいだ保つ音量 | 0 〜 1 | 1 | [`SSG_SL`](/2686V_2686VFX/reference/automation/ssg/#ssg-sl) |
+| **STEPS** | SL を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **RR** | 鍵を離してから消えるまでの時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-rr) |
 | **KOR** | **独自**。鍵を離しても最後まで鳴らし切る | False / True | False | [`SSG_KOR`](/2686V_2686VFX/reference/automation/ssg/#ssg-kor) |
 | **Use Endl** | **独自**。リリースのあとに音を残す | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-endl-en) |
 | **ENDL** | **独自**。そのときに保つ音量 | 0 〜 1 | 0 | [`SSG_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-endl) |
+
+**STEPS** は LEVEL の STEPS と同じもので、選んだ刻みへ値を寄せます（3.6.3 から）。
+範囲が 0〜1 なので、LEVEL にある「1 刻み」はありません。SSG HW AMP ENV・
+SSG SW AMP ENV・SSG SW AMP ENV[11]・WT PITCH MOD・WT AMP MOD にも、同じ STEPS が
+あります。
+どれもチャンネル・オペレーター・パッドのすべてで使えます。
 
 FM 音源のオペレータでは、これとは別にオペレータごとのレジスタ式の
 エンベロープ（AR / DR / SR / SL / RR / TL）を持ちます。そちらは各音源の
@@ -164,14 +179,35 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **Enable** | 使う・使わない | False / True | False | [`SSG_SSGHWENV_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-enable) |
 | **SHAPE** | 波の形。**0〜15 が実機、16 以降が独自** | 0 〜 43 | 0 | [`SSG_SSGHWENV_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-shape) |
 | **PERIOD** | 繰り返しの速さ | 0.1 〜 200 | 1 | [`SSG_SSGHWENV_PERIOD`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-period) |
+| **Use VALUE** | PERIOD の代わりに VALUE で速さを決める | False / True | False | [`SSG_SSGHWENV_VALUE_ON`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-value-on) |
+| **VALUE** | 実機のエンベロープの設定値 Te。667000 ÷ (512 × Te) Hz | 0 〜 65535 | 1303 | [`SSG_SSGHWENV_VALUE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-value) |
 | **MIN** | **独自**。動く範囲の下 | 0 〜 1 | 0 | [`SSG_SSGHWENV_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-min) |
 | **MAX** | **独自**。動く範囲の上 | 0 〜 1 | 1 | [`SSG_SSGHWENV_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-max) |
+| **STEPS** | MIN / MAX を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **Smooth** | **独自**。段の角を丸める | False / True | False | [`SSG_SSGHWENV_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-smooth) |
 
 実機は形が 16 種類・範囲は固定でしたが、ここでは段の数を変えたもの、
 サンプル&ホールド、正弦、ランダムなどを足してあります。
 
 形の一覧は [波形一覧](/2686V_2686VFX/reference/lists-waveform/) にあります。
+
+#### 実機の設定値で決める — VALUE
+
+PERIOD は速さを Hz で決めます。**Use VALUE** を入れると、代わりに実機
+（YM2203）の設定値 **Te** で決めます（3.6.3 から）。速さは次の式です。
+
+> Fenv = 667 × 1000 ÷ (512 × Te)
+
+Te を大きくするほど遅くなります。初期値の 1303 は、PERIOD の初期値（1 Hz）に
+いちばん近い値です。0 は実機と同じく 1 として扱います。SSG HW PITCH ENV も
+同じです。
+
+VALUE の右の **N** ボタンで、値のボタンが出ます（LEVEL と同じ様式）。±1・
+±10・±100・±1000 のほか、0.25 / 0.5 / 1 / 2 / 4 / 8 Hz にあたる値
+（5211 / 2606 / 1303 / 651 / 326 / 163）へ直に置けます。
+
+FORM の TONE / NOISE にも、同じように実機の設定値で決める切り替えがあります
+（[SSG](/2686V_2686VFX/chips/ssg/) を参照）。
 
 ### SSG SW AMP ENV
 
@@ -195,6 +231,7 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **L5** | 5 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
 | **R6** | 6 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
 | **L6** | 6 段目の音量 | 0 〜 1 | 0 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
+| **STEPS** | L1〜L6 を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loop) |
 | **LOOP.TO** | 戻り先の段。0〜3 | 0 〜 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopto) |
 | **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
@@ -231,6 +268,7 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **L10** | 10 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
 | **R11** | 11 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
 | **L11** | 11 段目の音量 | 0 〜 1 | 0 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
+| **STEPS** | L1〜L11 と ENDL を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW11_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loop) |
 | **LOOP.TO** | 戻り先の段。0〜8 | 0 〜 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopto) |
 | **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
@@ -269,6 +307,8 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **Enable** | 使う・使わない | False / True | False | [`SSG_SSGHWPENV_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-enable) |
 | **SHAPE** | 波の形。SSG HW AMP ENV と同じ 44 種 | 0 〜 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-shape) |
 | **PERIOD** | 繰り返しの速さ | 0.1 〜 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-period) |
+| **Use VALUE** | PERIOD の代わりに VALUE で速さを決める | False / True | False | [`SSG_SSGHWPENV_VALUE_ON`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-value-on) |
+| **VALUE** | 実機のエンベロープの設定値 Te。667000 ÷ (512 × Te) Hz | 0 〜 65535 | 1303 | [`SSG_SSGHWPENV_VALUE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-value) |
 | **MIN** | 動く範囲の下（セント） | -4800 〜 4800 | 0 | [`SSG_SSGHWPENV_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-min) |
 | **MAX** | 動く範囲の上（セント） | -4800 〜 4800 | 1200 | [`SSG_SSGHWPENV_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-max) |
 | **Smooth** | 段の角を丸める | False / True | False | [`SSG_SSGHWPENV_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwpenv-smooth) |
@@ -394,6 +434,7 @@ START と END は、**1 周を 0.0〜1.0 とした位置**です。END は START
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う・使わない | False / True | False | [`SSG_MOD_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-enable) |
 | **DEPTH** | 揺れの深さ | 0.1 〜 1 | 0.2 | [`SSG_MOD_DEPTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-depth) |
+| **STEPS** | DEPTH を決まった刻みへ丸める（画面だけ・保存しない）。0.1 より下の刻みは 0.1 に寄る | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **SPEED** | 揺れの速さ | 0.1 〜 10 | 1 | [`SSG_MOD_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-speed) |
 | **SHAPE** | 揺らす形。9 種 | 0 〜 8 | 0 | [`SSG_MOD_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-shape) |
 | **Smooth** | 段の角を丸める | False / True | True | [`SSG_MOD_WAVE_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-wave-smooth) |
@@ -417,6 +458,7 @@ SHAPE が **FDS Table** のときは、下の **FDS PITCH TABLE** で 32 段の
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う・使わない | False / True | False | [`SSG_AMPMOD_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-enable) |
 | **DEPTH** | MAX からどれだけ下げるか | 0 〜 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-depth) |
+| **STEPS** | DEPTH を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **SPEED** | 揺れの速さ | 0.1 〜 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-speed) |
 | **SHAPE** | 揺らす形。WT PITCH MOD と同じ 9 種 | 0 〜 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-shape) |
 | **MIN** | 動く範囲の下 | 0 〜 1 | 0 | [`SSG_AMPMOD_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-min) |
@@ -510,10 +552,11 @@ MUL/DET と FIX は、**押したときの値**で音の高さを決めます。
 | **Arpeggio** | 重ねずに順番に鳴らす | False / True | False | [`SSG_UNI_ARP`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arp) |
 | **AR.FREQ** | アルペジオの速さ | 1 〜 4000 | 60 | [`SSG_UNI_ARPFREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arpfreq) |
 | **Arp Smooth** | 切り替わりの角を丸める | False / True | True | [`SSG_UNI_ARPSMTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-arpsmth) |
-| **P-SPREAD** | 声ごとの距離（7 声ぶん） | 0 〜 1 | 0 | [`SSG_UNI_PDIST[1-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdist-1-7) |
-| **P-DETUNE** | 声ごとのずらし幅（7 声ぶん、セント） | -4800 〜 4800 | 0 | [`SSG_UNI_PDET[1-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdet-1-7) |
+| **P-SPREAD** | 声ごとの距離（元の音を含む 8 声ぶん） | 0 〜 1 | 0 | [`SSG_UNI_PDIST[0-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdist-0-7) |
+| **P-DETUNE** | 声ごとのずらし幅（元の音を含む 8 声ぶん、セント） | -4800 〜 4800 | 0 | [`SSG_UNI_PDET[0-7]`](/2686V_2686VFX/reference/automation/ssg/#ssg-uni-pdet-0-7) |
 
-2 声目以降は、**声ごとに距離とずらし幅を別々に決められます**（7 声ぶん）。
+**声ごとに距離とずらし幅を別々に決められます**。VOICES で声を選びます（0 が元の音、
+1〜7 が重ねた声）。0 は 3.6.3 で足しました。
 均等に散らすだけでなく、片側に寄せる、オクターブで積む、といった組み方が
 できます。
 
@@ -529,6 +572,121 @@ MUL/DET と FIX は、**押したときの値**で音の高さを決めます。
 
 何が出るかは各音源のページを参照してください。
 
+## EDIT
+
+パラメータを切り取り・コピー・貼り付け・初期化します（3.6.3 から）。チャンネル
+全体の EDIT は MIDI の下にあります。
+
+| ボタン | 内容 |
+| --- | --- |
+| **CUT** | 写してから、初期値へ戻す |
+| **COPY** | 写す |
+| **PASTE** | 写したものを貼る |
+| **CLEAR** | 初期値へ戻す |
+
+- ここの 4 つは、チャンネルの**グローバル部分**（オペレーター・パッドを除いた
+  ところ）を単位にします。WT+ / ADPCM+ の TARGET（枠）は含みます
+- 貼るときは、**同じ名前のパラメータだけ**へ入れます。音源の種類が違う
+  チャンネルへも貼れて、相手に無いものは読み飛ばします
+- 波形メモリ・音声ファイル・変調波形（WT PITCH MOD / WT AMP MOD）の場所も
+  一緒に写し、貼ると読み直します
+- 写したものは DAW を閉じるまで残ります。同じプラグインの別の窓へも貼れます
+- 貼る・消す・複写する間は、画面全体に **Duplicating…** と出ます。終わると
+  消えます
+
+**Level -> All Ch** と、オペレーターを 1 つずつ写す **Duplicate Op Params**
+（3.6.2 までの Copy Op Params）も、UTILITY からここ（区切り線の下）へ移しました。
+
+### オペレーター / パッドの EDIT
+
+OPNA / OPN / OPL / OPL3 / OPM / OPZX7 では MASK の下に、RHYTHM では
+OPTIONAL の下に、もう 1 つ EDIT があります。こちらは
+**TARGET で選んでいるオペレーター / パッド**を単位にします。別のオペレーター・
+パッドへも、別のチャンネルのオペレーターへも貼れます。
+
+### Duplicate Pad Params — パッドを、いくつかのパッドへ写す（RHYTHM）
+
+RHYTHM のグローバルの EDIT（MIDI の下）の一番上にあります。
+
+- **FROM** で写し元のパッドを、**TO** の番号のトグルで写し先を選びます
+  （いくつでも。写し元と同じ番号は選べません）
+- パッドのパラメータをすべて写します
+- **WITH FILE** を入れると、音声（波形）とファイル名も写します。切って
+  いるときは、写し先の音声はそのまま残ります
+
+3.6.2 までの UTILITY にあった Copy Pad Params（FROM / TO のつまみ）は、
+これに置き換えました。
+
+### With Note（RHYTHM）
+
+RHYTHM のグローバルの EDIT の、CUT / COPY / PASTE / CLEAR の下にある
+トグルです。**切っているあいだは、PASTE / CUT / CLEAR でパッドの NOTE に
+触りません**（初めは切っています）。NOTE まで書き換えると、鍵盤のパッドへの
+振り分けが変わってしまうためです。
+
+グローバルの EDIT、パッドの EDIT、区分の右クリック（OPTIONAL など）、
+Duplicate Pad Params のどれにも効きます。NOTE も写したい・戻したいときだけ
+入れてください。
+
+### 区分を右クリック
+
+区分の見出しを右クリックすると、CUT / COPY / PASTE / CLEAR のメニューが
+出ます。**その区分の中身だけ**を単位にします。閉じている区分でも使えます。
+写したものは、ほかのチャンネル・オペレーター・パッドの同じ区分へ貼れます。
+FX の効果は、枠の見出しを右クリックします。
+
+### Duplicate Ops Params — オペレーターのまとまりを写す
+
+OPNA / OPN / OPL3 / OPM / OPZX7 の EDIT の一番上にあります。並んだ
+オペレーターのまとまりを、別のまとまりへ写します。**FROM** と **TO** で
+選びます。
+
+**SWAP** で FROM と TO を入れ替えます。その下の **SHIFT** / **UNSHIFT** は、
+FROM の行と TO の行に分かれていて、それぞれのまとまりを 1 オペレーター
+ずつずらします。
+
+- **SHIFT** は番号を足す向き（1, 2, 3, 4, 1, 2, …）、**UNSHIFT** は引く向き
+  （4, 3, 2, 1, 4, 3, …）
+- はみ出すときは反対の端へ回ります。8 オペレーターで [6,7,8] を SHIFT すると
+  [1,2,3]、[1,2,3] を UNSHIFT すると [6,7,8]
+- ずらした先が選べないまとまりのときは、次に選べるものまで進みます
+  （4 オペレーター音源の [1,2] → [3,4]、OPZX7 の [1,2,3,4] → [5,6,7,8]）
+
+| 音源 | 選べるまとまり |
+| --- | --- |
+| OPNA / OPN / OPL3 / OPM | [1,2] と [3,4] |
+| OPZX7 | 2 つ: [1,2]〜[7,8]、3 つ: [1,2,3]〜[6,7,8]、4 つ: [1,2,3,4] と [5,6,7,8] |
+
+- どちら向きにも写せます（[1,2]→[3,4] も [3,4]→[1,2] も）。まとまりの中の
+  並びは変わりません（[1,2] を [2,1] にはできません）
+- 写し元と写し先が重なる組み合わせでは押せません
+- OPZX7 では、フィードバックも写します。アルゴリズムマトリックスを使って
+  いるときは、まとまりの中のつながりも写します。まとまりの外のオペレーターと
+  つながっているときは、警告を出して何も写しません
+
+### Duplicate Targets / Clear Targets（WT+ / ADPCM+）
+
+EDIT の一番上にあります。押すとダイアログが出ます。WAVE MEMORY / FORM の枠を
+隠さないところへ出るので、波形を見ながら選べます。
+
+- **Duplicate Targets**: **FROM** で写し元の TARGET を、**TO** で写し先を選びます
+  （いくつでも）。**パラメータも複写** を入れると写し元のパラメータもすべて写し、
+  切ると波形（音声）とファイル名だけを写します
+- **Clear Targets**: **TARGET** で選んだものを、波形もパラメータも初期の状態へ
+  戻します
+- どちらも **全てチェックを入れる** / **全てチェックを外す**（黄みの地）でまとめて選べます
+- **ESC** キーか、開いたときと同じボタンをもう一度押すと閉じます。
+  Clear Targets の **クリア** は赤です
+
+### コピー履歴 — CPHIST
+
+画面の上のシステムボタン **CPHIST** で、これまでに写したものの一覧を出します
+（新しい順、200 件まで）。**タブ**（チャンネル・カーブ編集・FX）、**単位**
+（グローバル / オペレーター / パッド / TARGET）、**区分**で絞り込めます。行の
+右端の **再コピー** で、その行をもう一度写した状態に戻します。あとは PASTE で
+貼れます。**閉じる**、一覧の外側のクリック、**ESC** キーのどれでも閉じます。
+ボタンの地は青です。
+
 ## UTILITY
 
 パラメータの読み書きです。`[IM]` が読み込み、`[EX]` が書き出しです。
@@ -537,8 +695,8 @@ MUL/DET と FIX は、**押したときの値**で音の高さを決めます。
 へ持っていく、LFO の設定だけを使い回す、といったことができます。チャンネル
 全体をまとめて 1 ファイルにすることもできます。
 
-**Level -> All Ch** は、このチャンネルの音量を他のすべてのチャンネルへ一度に
-反映します。
+**Level -> All Ch**（このチャンネルの音量を他のすべてのチャンネルへ一度に
+反映する）は、3.6.3 で [EDIT](#edit) へ移しました。
 
 ファイルの形式と置き場所は
 [ファイルの形式と置き場所](/2686V_2686VFX/files/format/) を参照してください。

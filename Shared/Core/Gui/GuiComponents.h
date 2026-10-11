@@ -150,6 +150,11 @@ public:
     GuiGroup(const GuiContext& context) : GuiBaseComponent(context) {}
 
     void setup(juce::Component& parent, const juce::String title);
+
+    // 右クリックで、枠の中身の切り取り・コピー・貼り付け・初期化を出す
+    // (ParamEdit::showGroupMenu)。FX の効果のように、見出しの代わりに枠で
+    // まとめている区分のため。
+    void mouseDown(const juce::MouseEvent& e) override;
 };
 
 // =======================================================
@@ -459,6 +464,12 @@ protected:
     // 色表の線形探索になる。部品 1 つあたり 1.4KB ほどの確保も付く。
     // 画面 1 枚で数百個できるので、そこが起動時間として出ていた。
     juce::SharedResourcePointer<SliderLF> sharedLF;
+
+    // いま N88-BASIC(86) の向きで見せているか
+    bool n88Displayed = false;
+
+    // rebind の途中か
+    bool rebinding = false;
 public:
     GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context) {
         this->setLookAndFeel(&sharedLF.get());
@@ -491,6 +502,10 @@ public:
 
     void rebind(const juce::String& id)
     {
+        // 束縛し直しているあいだに来る値の知らせは、切り替えた先の値を
+        // 見せるだけのもの。聞き手 (STEPS の丸めなど) が見分けられるよう印を付ける
+        const juce::ScopedValueSetter<bool> rebindingScope(rebinding, true);
+
         // 必ず古い束縛を先に破棄すること。
         // unique_ptr::reset(p) は「新しいポインタを格納してから古い方を破棄」するため、
         // reset(new ...) と書くと新アタッチメントの初期値反映が
@@ -502,6 +517,38 @@ public:
         att.reset(new SliderAttachment(ctx.apvts, id, *this));
         boundId = id;
         setComponentID(id);
+
+        applyN88Display();
+    }
+
+    // ---- N88-BASIC(86) 準拠の表示
+    // FM のレジスタの AR / DR / SR / RR / SL / TL は、PC-9801 の N88-BASIC(86) では
+    // 大小が逆になっている。
+    // 環境設定 (fmN88Display) を入れると、つまみの数字と帯の向きを逆にして
+    // 見せる。AR を 0 にすると内部では 31、31 にすると 0。TL も同じく逆
+    // (0〜127 なら、画面の 0 が内部の 127)。
+    //
+    // 見た目だけを変え、getValue / setValue とパラメータの値は内部の値の
+    // まま。コピーや読み書きはどれもこれまでどおりに動く。
+    static bool isN88Target(const juce::String& id);
+
+    // 束ねているパラメータが対象で、設定が入っていれば逆向きにする。
+    // 束縛を作り直すと元へ戻るので、setup / rebind の後で呼ぶ。
+    void applyN88Display();
+
+    // root の下のつまみを、いまの設定で見せ直す (設定を切り替えたとき)
+    static void refreshN88Display(juce::Component& root);
+
+    bool isN88Displayed() const { return n88Displayed; }
+
+    // rebind の途中か。途中で来る値の知らせは、指し先を切り替えたことによるもの
+    bool isRebinding() const { return rebinding; }
+
+    // 画面に出ている数字で値を入れる (MML の入力など)。N88-BASIC(86) の
+    // 向きで見せているときは、逆にしてから内部の値として入れる。
+    void setDisplayedValue(double displayed, juce::NotificationType notification = juce::sendNotificationAsync)
+    {
+        setValue(n88Displayed ? getMinimum() + getMaximum() - displayed : displayed, notification);
     }
 
     GuiLabel label;
@@ -1223,6 +1270,15 @@ public:
     // 折りたたみを外から開いておく。置いた先によっては、最初から
     // 中身が見えているほうが都合のよいことがある。
     void setDetailVisible(bool visible) { this->detailVisible = visible; }
+
+    // 右クリックで、区分の中身の切り取り・コピー・貼り付け・初期化を出す
+    // (ParamEdit::showCategoryMenu)。
+    void mouseDown(const juce::MouseEvent& e) override;
+
+    // 中身の背後の板の場所。区分に入っている部品を見分けるのに使う。
+    juce::Rectangle<int> backdropBounds() const { return backdrop.isVisible() ? backdrop.getBounds() : juce::Rectangle<int>(); }
+
+    const GuiContext& context() const { return ctx; }
 
     // 簡易表示モードで丸ごと隠すための札。立てると見出しも中身も出さず、
     // 縦の場所も取らない。開閉の状態は覚えたままなので、戻したときに

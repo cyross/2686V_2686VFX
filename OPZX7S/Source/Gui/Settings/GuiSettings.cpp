@@ -201,6 +201,9 @@ void GuiSettings::setup()
     // 見出しの下に中身が続くだけの形になる。
     dirCat.setupCategory({ .parent = *this, .title = SettingsGuiText::dirCat, .enableChangeDetailVisible = true }, GuiColor::Category::SettingsBg);
     
+    // 相対パスの基準。フォルダ設定の先頭に置く
+    pathRoot.setupComponent(*this, tabOrder);
+
     setupFolderRow(sampleDirLabel, SettingsGuiText::Dir::sample, sampleDirPathLabel, sampleDirBrowseBtn);
     sampleDirPathLabel.setText(pluginOf(ctx).defaultSampleDir, juce::dontSendNotification);
     sampleDirPathLabel.setWantsKeyboardFocus(false);
@@ -729,6 +732,20 @@ void GuiSettings::setup()
         pluginOf(ctx).liveDetune = liveDetuneToggle.getToggleState();
         };
 
+    separatorFmN88.setupComponent(*this);
+
+    // FM のレジスタの AR / DR / SR / RR / SL / TL を、PC-9801 の N88-BASIC(86) と
+    // 同じ向きで見せる。見た目だけで、パラメータの値は変わらない。
+    fmN88Toggle.setup({ .parent = *this, .title = SettingsGuiText::fmN88Display, .font = toggleFont, .isReset = false });
+    fmN88Toggle.setToggleState(pluginOf(ctx).fmN88Display, juce::dontSendNotification);
+    fmN88Toggle.setWantsKeyboardFocus(true);
+    fmN88Toggle.setExplicitFocusOrder(++tabOrder);
+    fmN88Toggle.onClick = [this] {
+        pluginOf(ctx).fmN88Display = fmN88Toggle.getToggleState();
+
+        if (auto* editor = dynamic_cast<juce::Component*>(&ctx.editor)) GuiSlider::refreshN88Display(*editor);
+        };
+
     separator5.setupComponent(*this);
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
@@ -976,6 +993,7 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     qualityParamDirLabel.setVisible(dirVisible);
     qualityParamDirPathLabel.setVisible(dirVisible);
     qualityParamDirBrowseBtn.setVisible(dirVisible);
+    pathRoot.setVisible(dirVisible);
     sampleDirLabel.setVisible(dirVisible);
     sampleDirPathLabel.setVisible(dirVisible);
     sampleDirBrowseBtn.setVisible(dirVisible);
@@ -1004,6 +1022,12 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     if (dirVisible)
     {
+        // 相対パスの基準
+        pathRoot.layoutRow(sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight),
+            SettingsGuiValue::Settings::LabelWidth, SettingsGuiValue::Settings::PathRootSelectorWidth);
+
+        sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
         // 4. ADPCM Dir
         auto rowAdpcmDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
         sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
@@ -1215,6 +1239,12 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto rowLiveDetune = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     liveDetuneToggle.setBounds(rowLiveDetune.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
+    separatorFmN88.layoutComponent(sRect);
+
+    // 23-2. 一部の FM パラメータ表示を N88-BASIC(86) 準拠に
+    auto rowFmN88 = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    fmN88Toggle.setBounds(rowFmN88.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+
     separator5.layoutComponent(sRect);
 
     // 22. Virtual Keyboard Row
@@ -1249,6 +1279,7 @@ void GuiSettings::setSettings()
     uiScaleSelector.setSelectedId(pluginOf(ctx).uiScaleIndex + 1, juce::dontSendNotification);
     fileFormatSelector.setSelectedId(pluginOf(ctx).fileFormatIndex + 1, juce::dontSendNotification);
     toggleAlignSelector.setSelectedId(pluginOf(ctx).toggleAlign + 1, juce::dontSendNotification);
+    pathRoot.refresh();
     wallpaperModeSelector.setSelectedId(pluginOf(ctx).wallpaperMode + 1, juce::dontSendNotification);
 
     wallpaperPathLabel.setText(pluginOf(ctx).wallpaperPath.isEmpty()
@@ -1288,6 +1319,11 @@ void GuiSettings::setSettings()
     headroomGainSlider.setValue(pluginOf(ctx).headroomGain, juce::dontSendNotification);
     headroomGainSlider.setEnabledWithLabel(pluginOf(ctx).useHeadroom);
     liveDetuneToggle.setToggleState(pluginOf(ctx).liveDetune, juce::dontSendNotification);
+    fmN88Toggle.setToggleState(pluginOf(ctx).fmN88Display, juce::dontSendNotification);
+
+    // 設定を読み込み直したときも、つまみの見せ方を合わせる
+    if (auto* editor = dynamic_cast<juce::Component*>(&ctx.editor)) GuiSlider::refreshN88Display(*editor);
+
     virtualMidiKeyboardToggle.setToggleState(pluginOf(ctx).showVirtualKeyboard, juce::dontSendNotification);
 }
 

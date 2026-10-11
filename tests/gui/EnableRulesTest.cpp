@@ -20,19 +20,7 @@
 #include "Core/Editor/PluginEditor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 
-// 画面の中で、テストだけが触る口。PluginEditor が friend にしている。
-struct EditorTestAccess
-{
-    // タブの中身を後から作る仕掛けを持たない本 (2686VFX) もある
-    //
-    // 型に依存させないと、無い関数を requires の中で書いた時点で弾かれる。
-    template <typename Editor>
-    static void materializeAll(Editor& e)
-    {
-        if constexpr (requires { e.materializeAllTabs(); }) e.materializeAllTabs();
-    }
-    static juce::TabbedComponent& tabs(AudioPlugin2686VEditor& e) { return e.tabs; }
-};
+#include "./EditorTestAccess.h"
 
 namespace
 {
@@ -552,7 +540,9 @@ TEST_CASE("QUALITY のきれいな間引きは、符号化するモードのと�
         const auto prefix = t->getComponentID().dropLastCharacters(CPK::QualityPcm::nrResample.length());
         auto* mode = env.processor->apvts.getParameter(prefix + CPK::QualityPcm::mode);
 
-        REQUIRE(mode != nullptr);
+        // 2686VFX の PCM ビットクラッシャーも同じ ID の末尾を使うが、MODE を
+        // 持たず、いつも間引くので薄くしない。ここでは見ない。
+        if (mode == nullptr) continue;
 
         INFO(prefix.toStdString());
 
@@ -632,4 +622,265 @@ TEST_CASE("HOLD / KEEP を入り切りすると、中のつまみがその場で
 
         if (kRequireAll) CHECK(sw.covered > 0);
     }
+}
+
+// DAC の行の「適応」ボタンが、見える場所に収まっているか。
+//
+// 3.6.3 の初め、行の幅を固定 (80 + 155 + 35 = 270) で取っていた。区分の
+// 中は 230 ほどしかないので、右端のボタンが枠の外へ出て見えなかった。
+TEST_CASE("DAC: 「適応」ボタンが区分の中に収まっている")
+{
+    Env env;
+
+    auto& tabs = EditorTestAccess::tabs(env.ed());
+    int checked = 0;
+
+    for (int i = 0; i < tabs.getNumTabs(); ++i)
+    {
+        tabs.setCurrentTabIndex(i);
+
+        auto* root = tabs.getTabContentComponent(i);
+
+        if (root == nullptr) continue;
+
+        // QUALITY は閉じていることがあるので、開いてから並べ直す
+        std::vector<juce::Component*> all;
+
+        collect(root, all);
+
+        for (auto* c : all)
+        {
+            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(c)) {
+                if (cat->getText() == "QUALITY") cat->setDetailVisible(true);
+            }
+        }
+
+        env.ed().resized();
+
+        all.clear();
+        collect(root, all);
+
+        for (auto* c : all)
+        {
+            auto* combo = dynamic_cast<GuiComboBox*>(c);
+
+            if (combo == nullptr || !combo->isVisible() || combo->label.getText() != "DAC") continue;
+
+            auto* parent = combo->getParentComponent();
+
+            // 同じ行の右にあるボタンが「適応」
+            GuiTextButton* apply = nullptr;
+
+            for (auto* sibling : parent->getChildren())
+            {
+                auto* btn = dynamic_cast<GuiTextButton*>(sibling);
+
+                if (btn != nullptr && btn->getY() == combo->getY() && btn->getX() >= combo->getRight()) apply = btn;
+            }
+
+            INFO(tabs.getTabNames()[i].toStdString());
+            INFO("combo " << combo->getBounds().toString().toStdString());
+
+            REQUIRE(apply != nullptr);
+
+            INFO("apply " << apply->getBounds().toString().toStdString());
+            INFO("parent " << parent->getLocalBounds().toString().toStdString());
+
+            CHECK(apply->isVisible());
+            CHECK(apply->getWidth() > 0);
+            CHECK(parent->getLocalBounds().contains(apply->getBounds()));
+
+            ++checked;
+        }
+    }
+
+    CHECK(checked > 0);
+}
+
+// PCM のノイズリダクション (QUALITY と、2686VFX のノイズリダクション)。
+// 部品が見える場所に収まっていて、GATE.LV はゲートを入れたときだけ押せる。
+TEST_CASE("NR: 部品が枠の中に収まり、GATE.LV はゲートを入れたときだけ押せる")
+{
+    Env env;
+
+    auto& tabs = EditorTestAccess::tabs(env.ed());
+    int checked = 0;
+
+    for (int i = 0; i < tabs.getNumTabs(); ++i)
+    {
+        tabs.setCurrentTabIndex(i);
+
+        auto* root = tabs.getTabContentComponent(i);
+
+        if (root == nullptr) continue;
+
+        // QUALITY は閉じていることがあるので、開いてから並べ直す
+        std::vector<juce::Component*> all;
+
+        collect(root, all);
+
+        for (auto* c : all)
+        {
+            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(c)) {
+                if (cat->getText() == "QUALITY") cat->setDetailVisible(true);
+            }
+        }
+
+        env.ed().resized();
+
+        all.clear();
+        collect(root, all);
+
+        auto find = [&](const juce::String& id) -> juce::Component* {
+            for (auto* c : all) {
+                if (c->getComponentID() == id) return c;
+            }
+
+            return nullptr;
+        };
+
+        for (auto* c : all)
+        {
+            auto* gate = dynamic_cast<GuiToggleButton*>(c);
+
+            if (gate == nullptr || !gate->isVisible() || !gate->getComponentID().endsWith(CPK::QualityPcm::nrGate)) continue;
+
+            const auto prefix = gate->getComponentID().dropLastCharacters(CPK::QualityPcm::nrGate.length());
+
+            INFO(tabs.getTabNames()[i].toStdString() << " " << prefix.toStdString());
+
+            auto* level = dynamic_cast<GuiSlider*>(find(prefix + CPK::QualityPcm::nrGateLevel));
+            auto* lpf = dynamic_cast<GuiComboBox*>(find(prefix + CPK::QualityPcm::nrLpf));
+
+            REQUIRE(level != nullptr);
+            REQUIRE(lpf != nullptr);
+
+            std::vector<juce::Component*> parts{ gate, level, lpf };
+
+            // QUALITY にはきれいな間引きも並ぶ。2686VFX では PCM ビットクラッシャーの側にある。
+            if (auto* resample = find(prefix + CPK::QualityPcm::nrResample)) parts.push_back(resample);
+
+            for (auto* part : parts)
+            {
+                auto* parent = part->getParentComponent();
+
+                INFO(part->getComponentID().toStdString() << " " << part->getBounds().toString().toStdString()
+                    << " in " << parent->getLocalBounds().toString().toStdString());
+
+                CHECK(part->isVisible());
+                CHECK(part->getWidth() > 0);
+                CHECK(parent->getLocalBounds().contains(part->getBounds()));
+
+                // 枠 (GuiGroup) に載っているなら、枠からはみ出さない。
+                // 列に入りきらないと、下の部品が枠の外へ出る。
+                for (auto* sibling : parent->getChildren())
+                {
+                    auto* group = dynamic_cast<GuiGroup*>(sibling);
+
+                    if (group == nullptr || !group->getBounds().contains(part->getPosition())) continue;
+
+                    INFO("group " << group->getBounds().toString().toStdString());
+                    CHECK(group->getBounds().contains(part->getBounds()));
+                }
+            }
+
+            auto* gateParam = env.processor->apvts.getParameter(prefix + CPK::QualityPcm::nrGate);
+
+            REQUIRE(gateParam != nullptr);
+
+            // 2686VFX のノイズリダクション (FX_NR_GATE) は、既定でバイパスされていて
+            // 中がすべて止まっている。先に効かせる。ID の頭が FX_NR で、
+            // 末尾の _NR_GATE を落とすと FX になるので、バイパスは名前で指す。
+#if defined(GUI_TEST_IS_FX)
+            auto* bypass = env.processor->apvts.getParameter("FX_NR" + CPK::bypass);
+
+            REQUIRE(bypass != nullptr);
+#else
+            auto* bypass = env.processor->apvts.getParameter(prefix + CPK::bypass);
+#endif
+            const float originalBypass = (bypass != nullptr) ? bypass->getValue() : 0.0f;
+
+            if (bypass != nullptr) bypass->setValueNotifyingHost(0.0f);
+
+            const float original = gateParam->getValue();
+
+            gateParam->setValueNotifyingHost(0.0f);
+            CHECK_FALSE(level->isEnabled());
+
+            gateParam->setValueNotifyingHost(1.0f);
+            CHECK(level->isEnabled());
+
+            gateParam->setValueNotifyingHost(original);
+
+#if defined(GUI_TEST_IS_FX)
+            // RATE を通さないあいだは、RATE を選べない
+            {
+                auto* rate = find("FX_NR_RATE");
+                auto* rateBypass = env.processor->apvts.getParameter("FX_NR_RATE_BYPASS");
+
+                REQUIRE(rate != nullptr);
+                REQUIRE(rateBypass != nullptr);
+
+                rateBypass->setValueNotifyingHost(1.0f);
+                CHECK_FALSE(rate->isEnabled());
+
+                rateBypass->setValueNotifyingHost(0.0f);
+                CHECK(rate->isEnabled());
+            }
+#endif
+
+            if (bypass != nullptr) bypass->setValueNotifyingHost(originalBypass);
+
+            ++checked;
+        }
+    }
+
+    if (kRequireAll) CHECK(checked > 0);
+#if defined(GUI_TEST_IS_FX)
+    // 2686VFX はノイズリダクションの 1 か所
+    CHECK(checked == 1);
+#endif
+    MESSAGE("NR: " << checked << " か所");
+}
+
+// 相対パスの基準は環境設定に 1 つだけ。どのチャンネルの UTILITY や SETTINGS で
+// 変えても、ほかの表示がそろう。
+TEST_CASE("REL.PATH: どの UTILITY で変えても、全体の値とほかの表示がそろう")
+{
+    Env env;
+
+    std::vector<GuiComboBox*> selectors;
+
+    for (auto* root : env.tabRoots())
+    {
+        std::vector<juce::Component*> all;
+
+        collect(root, all);
+
+        for (auto* c : all)
+        {
+            auto* combo = dynamic_cast<GuiComboBox*>(c);
+
+            if (combo != nullptr && combo->label.getText() == "REL.PATH") selectors.push_back(combo);
+        }
+    }
+
+    // SETTINGS にも置いていない本 (2686VFX) には無い
+    if (selectors.empty()) return;
+
+    CHECK(env.processor->relativePathRoot == Io::PathRoot::settingsFolder);
+
+    for (auto* s : selectors) CHECK(s->getSelectedItemIndex() == Io::PathRoot::settingsFolder);
+
+    selectors.front()->setSelectedItemIndex(Io::PathRoot::documentFolder, juce::sendNotificationSync);
+
+    CHECK(env.processor->relativePathRoot == Io::PathRoot::documentFolder);
+
+    for (auto* s : selectors) CHECK(s->getSelectedItemIndex() == Io::PathRoot::documentFolder);
+
+    selectors.back()->setSelectedItemIndex(Io::PathRoot::settingsFolder, juce::sendNotificationSync);
+
+    CHECK(env.processor->relativePathRoot == Io::PathRoot::settingsFolder);
+
+    for (auto* s : selectors) CHECK(s->getSelectedItemIndex() == Io::PathRoot::settingsFolder);
 }

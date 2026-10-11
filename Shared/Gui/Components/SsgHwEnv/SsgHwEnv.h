@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../NudgeSlider/NudgeSliderInt.h"
+#include "../ValueNudge/ValueNudge.h"
 #include <JuceHeader.h>
 
 #include "../../../Core/Io/ParamFile.h"
@@ -8,6 +10,7 @@
 #include <functional>
 
 #include "Shared/Core/Const/ConstGlobal.h"
+#include "../StepSnap/StepSnap.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiContext.h"
@@ -31,8 +34,18 @@ class GuiComponentSsgHwEnv : public GuiBase {
     NormalSeparator hwEnvSeparator;
     GuiComboBox shapeSelector;
     GuiSlider periodSlider;
+
+    // PERIOD の代わりに実機の設定値 Te で決める (Fenv = 667000 / (512 * Te))
+    GuiToggleButton valueToggle;
+    GuiComponentNudgeSliderInt valueSlider;
+
+    // VALUE の N ボタンで出す値のボタン
+    GuiComponentValueNudge valueNudge;
     GuiSlider minSlider;
     GuiSlider maxSlider;
+
+    // MIN / MAX を決まった刻みへ丸める
+    GuiComponentStepSnap levelSteps;
 
     // 選んだ Shape がどんな形かを見せる
     GuiWavePreview preview;
@@ -74,8 +87,12 @@ public:
         hwEnvSeparator(context),
         shapeSelector(context),
         periodSlider(context),
+        valueToggle(context),
+        valueSlider(context),
+        valueNudge(context),
         minSlider(context),
         maxSlider(context),
+        levelSteps(context),
         preview(context),
         waveHold(context)
     {

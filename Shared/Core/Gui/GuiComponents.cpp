@@ -1,6 +1,9 @@
 ﻿#include "./GuiI18n.h"
 #include <map>
+#include <set>
 #include "./GuiComponents.h"
+#include "./GuiParamEdit.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 
 
 #include "./GuiText.h"
@@ -175,6 +178,17 @@ void ColoredGroupComponent::paint(juce::Graphics& g)
     g.drawText(title, chip, juce::Justification::centred, true);
 }
 
+void GuiGroup::mouseDown(const juce::MouseEvent& e)
+{
+    if (e.mods.isPopupMenu())
+    {
+        ParamEdit::showGroupMenu(ctx, *this);
+        return;
+    }
+
+    ColoredGroupComponent::mouseDown(e);
+}
+
 void GuiGroup::setup(juce::Component& parent, const juce::String title)
 {
     parent.addAndMakeVisible(*this);
@@ -303,6 +317,85 @@ void GuiSlider::setup(const Config& c)
         att.reset(new SliderAttachment(ctx.apvts, c.id, *this));
         boundId = c.id;
         setComponentID(c.id);
+
+        applyN88Display();
+    }
+}
+
+bool GuiSlider::isN88Target(const juce::String& id)
+{
+    // OPM / OPZX7 は DR / SR / SL を D1R / D2R / D1L と呼ぶ
+    for (const auto& suffix : { CPK::Fm::rgAr, CPK::Fm::rgDr, CPK::Fm::rgSr, CPK::Fm::rgRr, CPK::Fm::rgSl,
+        CPK::Fm::rgD1r, CPK::Fm::rgD2r, CPK::Fm::rgD1l, CPK::Fm::rgTl })
+    {
+        if (id.endsWith(suffix)) return true;
+    }
+
+    return false;
+}
+
+void GuiSlider::applyN88Display()
+{
+    // 束縛を作ると、範囲と文字の作り方はパラメータどおりに戻っている
+    n88Displayed = false;
+
+    if (att == nullptr || !ctx.audioProcessor.fmN88Display || !isN88Target(boundId)) return;
+
+    const double lo = getMinimum();
+    const double hi = getMaximum();
+    const double step = getInterval() > 0.0 ? getInterval() : 1.0;
+
+    if (hi <= lo) return;
+
+    // 左端が最大、右端が最小。帯の塗りも、ドラッグやホイールの向きも逆になる
+    setNormalisableRange(juce::NormalisableRange<double>(lo, hi,
+        [](double start, double end, double p) { return end - p * (end - start); },
+        [](double start, double end, double v) { return (end - v) / (end - start); },
+        [step](double start, double end, double v) {
+            return juce::jlimit(start, end, start + std::round((v - start) / step) * step);
+        }));
+
+    // 数字は lo + hi - 値 (0〜31 なら 31 - 値)
+    textFromValueFunction = [lo, hi](double v) { return juce::String(juce::roundToInt(lo + hi - v)); };
+    valueFromTextFunction = [lo, hi](const juce::String& text) { return lo + hi - text.getDoubleValue(); };
+
+    n88Displayed = true;
+
+    updateText();
+    repaint();
+}
+
+void GuiSlider::refreshN88Display(juce::Component& root)
+{
+    // 先に集めてから結び直す。結び直すと値の知らせで画面が組み替わる
+    // ことがあり、たどりながらだと子の並びが途中で変わってしまう
+    std::vector<juce::Component::SafePointer<GuiSlider>> sliders;
+    std::set<juce::Component*> visited;
+
+    std::function<void(juce::Component&)> collect = [&](juce::Component& c) {
+        if (!visited.insert(&c).second) return;
+
+        if (auto* s = dynamic_cast<GuiSlider*>(&c)) sliders.emplace_back(s);
+
+        for (auto* child : c.getChildren()) collect(*child);
+
+        // タブは、開いているものの中身しか子に持たない。SETTINGS から
+        // 切り替えたとき、閉じている FM のタブにも届くよう中身を直にたどる
+        if (auto* tabs = dynamic_cast<juce::TabbedComponent*>(&c))
+        {
+            for (int i = 0; i < tabs->getNumTabs(); ++i)
+            {
+                if (auto* content = tabs->getTabContentComponent(i)) collect(*content);
+            }
+        }
+    };
+
+    collect(root);
+
+    for (auto& s : sliders)
+    {
+        // 束縛を作り直すと、元の向きへ戻してから設定どおりに見せ直す
+        if (s != nullptr && s->att != nullptr && isN88Target(s->boundId)) s->rebind(s->boundId);
     }
 }
 
@@ -773,6 +866,17 @@ void GuiCategoryLabel::setupInner(const Config& c, juce::Colour background)
             ctx.editor.resized();
             };
     }
+}
+
+void GuiCategoryLabel::mouseDown(const juce::MouseEvent& e)
+{
+    if (e.mods.isPopupMenu())
+    {
+        ParamEdit::showCategoryMenu(*this);
+        return;
+    }
+
+    GuiLabel::mouseDown(e);
 }
 
 void GuiCategoryLabel::paint(juce::Graphics& g)

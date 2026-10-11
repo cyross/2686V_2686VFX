@@ -41,6 +41,7 @@ namespace SettingsGuiText
 	static inline const I18n::Text showTooltips{ u8"ツールチップを表示", u8"Show tooltips" };
 	static inline const I18n::Text useHeadroom{ u8"ヘッドルームを確保", u8"Keep headroom" };
 	static inline const I18n::Text headroomGain{ u8"ヘッドルームゲイン", u8"Headroom gain" };
+	static inline const I18n::Text fmN88Display{ u8"一部の FM パラメータ表示を、PC-9801 の N88-BASIC(86) 準拠にする", u8"Show some FM parameters as in PC-9801 N88-BASIC(86)" };
 	static inline const I18n::Text liveDetune{ u8"MUL/DET・FIX を鳴らしながら反映", u8"Apply MUL/DET and FIX while notes play" };
 	static inline const I18n::Text showVirtualKeyboard{ u8"仮想MIDIキーボード表示", u8"Show the virtual MIDI keyboard" };
 	static inline const I18n::Text saveSettings{ u8"設定ファイルに保存", u8"Save to a settings file" };

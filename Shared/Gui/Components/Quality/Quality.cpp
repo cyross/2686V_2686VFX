@@ -8,6 +8,20 @@
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 
+namespace
+{
+    // DAC の行。ラベルは他の行と揃え、ボタンのぶんをコンボボックスから削る。
+    void layoutDacRow(GuiComponentDac& dac, juce::Rectangle<int>& rect, int rowHeight, int paddingTop, int paddingBottom)
+    {
+        namespace Row = CoreGuiValue::MainGroup::Row;
+
+        dac.layoutComponent(rect, rowHeight, paddingTop, paddingBottom,
+            CoreGuiValue::MainGroup::Label::width,
+            CoreGuiValue::MainGroup::Value::width - Row::Dac::ApplyBtn::width,
+            Row::Dac::ApplyBtn::width);
+    }
+}
+
 // 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
 std::vector<SelectItem> Quality::bdItems = {
     {.name = " 1:  4-bit (16 steps)",       .value = 1 },
@@ -46,6 +60,13 @@ std::vector<SelectItem> Quality::rateItems = {
 void Quality::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
     qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
 
+    // 機種を選んで「適応」を押すと、下の 3 つへまとめて入れる
+    dac.setupComponent(parent, GuiComponentDac::Kind::Quality, tabOrder, [this](const GuiComponentDac::Values& v) {
+        bitSelector.setSelectedItemIndex(v.bit, juce::sendNotification);
+        rateSelector.setSelectedItemIndex(v.rate, juce::sendNotification);
+        interpSelector.setSelectedItemIndex(v.interp, juce::sendNotification);
+    });
+
     bitSelector.setup({ .parent = parent, .id = code + CPK::Quality::bit, .title = "BIT RATE", .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
@@ -77,12 +98,14 @@ void Quality::layoutComponent(juce::Rectangle<int>& rect) {
 
     bool visible = qualityCat.isDetailVisible();
 
+    dac.setVisibles(visible);
     bitSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
     interpSelector.setVisibleWithLabel(visible);
 
     if (visible)
     {
+        layoutDacRow(dac, rect, CoreGuiValue::MainGroup::Row::height, CoreGuiValue::MainGroup::Row::paddingTop, CoreGuiValue::MainGroup::Row::paddingBottom);
         layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutMain({ .mainRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
@@ -96,12 +119,14 @@ void Quality::layoutComponentRow(juce::Rectangle<int>& rect) {
 
     bool visible = qualityCat.isDetailVisible();
 
+    dac.setVisibles(visible);
     bitSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
     interpSelector.setVisibleWithLabel(visible);
 
     if (visible)
     {
+        layoutDacRow(dac, rect, CoreGuiValue::ParamGroup::Row::height, CoreGuiValue::ParamGroup::Row::paddingTop, CoreGuiValue::ParamGroup::Row::paddingBottom);
         layoutRow({ .rowRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });

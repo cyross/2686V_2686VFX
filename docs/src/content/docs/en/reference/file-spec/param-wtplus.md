@@ -58,6 +58,7 @@ Thirty-two keys named `slot` plus a number. From 3.3.0, playback speed and the h
 | `keepStart` | boolean | false / true | false |
 | `waveEnd` | float | 0 – 1 | 1 |
 | `keepEnd` | boolean | false / true | false |
+| `waveFile` | string | Where the wave file is (since 3.6.3) | — |
 
 The wave itself is not stored here. Where it was loaded from is remembered by the preset.
 

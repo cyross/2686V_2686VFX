@@ -8,7 +8,7 @@
 // SynthCore が本体を持ち、各コアは m_unison 経由で参照する。
 struct UnisonState {
     // paraDetuneCents / paraDistance はこのボイス専用の加算値。
-    // ボイス0はメインなので常に 0 が渡される。
+    // ボイス0 (元の音) にも渡される。
     void setParams(int index, int total, float detuneCents, float spread,
                    float paraDetuneCents = 0.0f, float paraDistance = 0.0f) {
         m_index = index;

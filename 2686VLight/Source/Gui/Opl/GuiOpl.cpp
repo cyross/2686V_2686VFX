@@ -135,7 +135,7 @@ void GuiOpl::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Category::util, .enableChangeDetailVisible = true });
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -144,7 +144,6 @@ void GuiOpl::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     initLfoToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Fm::initLfoToOpl });
     initLfoToOplBtn.setWantsKeyboardFocus(true);
@@ -198,7 +197,7 @@ void GuiOpl::setup()
 
     uSep003.setupComponent(mainGroup.contentCanvas);
 
-    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Duplicate Op Params", .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     copyOpParamBtn.setWantsKeyboardFocus(true);
     copyOpParamBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamBtn.onClick = [this] {
@@ -234,7 +233,6 @@ void GuiOpl::setup()
         copyOpParamBtn.setEnabled(from != to);
         };
 
-    uSep004.setupComponent(mainGroup.contentCanvas);
 
     ieOpLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP LFO");
     ieOpLfo.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importLfoParam(opIndex); };
@@ -310,6 +308,24 @@ void GuiOpl::setup()
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            copyOpParamBtn.setVisible(visible);
+            copyOpFromSlider.setVisibleWithLabel(visible);
+            copyOpToSlider.setVisibleWithLabel(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            layoutMain({ .mainRect = r, .component = &copyOpParamBtn });
+            layoutMain({ .mainRect = r, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
+            layoutMain({ .mainRect = r, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
+            },
+        }, tabOrder);
 
     const juce::String opCode = code + CPK::op;
 
@@ -531,6 +547,10 @@ void GuiOpl::setup()
     mask.setWantsKeyboardFocus(true);
     mask.setExplicitFocusOrder(++tabOrder);
 
+    // TARGET で選んでいるオペレーターを単位にする
+    opEditComponent.setupComponent(colMask.contentCanvas, OplPrKey::prefix,
+        [this] { return "OP" + juce::String((int)targerOpSlider.getValue() - 1); }, tabOrder);
+
     mmlSeparator.setupComponent(colMask.contentCanvas);
 
     mml.setup({ .parent = colMask.contentCanvas, .title = I18n::pick(u8"MML風入力", u8"MML-style input"), .isReset = false, .isResized = false });
@@ -605,7 +625,7 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(OplGuiValue::Category::paddingTop);
 
-    auto graphArea = mRect.removeFromTop(90); // 描画領域確保
+    auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(OplPrValue::ops)); // 描画領域確保
     algStaticGraphComp.setBounds(graphArea.reduced(10));
 
 	algFbSep.layoutComponent(mRect);
@@ -653,6 +673,8 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    editComponent.layoutComponent(mRect);
 
     layoutUtilityCat(mRect);
 
@@ -719,15 +741,15 @@ void GuiOpl::applyMmlString(const juce::String& mml)
         { mmlPrefixKl,   [&](int v) { ksl.setSelectedItemIndex(RegisterConverter::convertOplKsl(v), juce::sendNotification); } },
 
         // --- TL系 ---
-        { mmlPrefixTl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
-        { mmlPrefixO,    [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
-        { mmlPrefixOl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
+        { mmlPrefixTl,   [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
+        { mmlPrefixO,    [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
+        { mmlPrefixOl,   [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg63(v), juce::sendNotification); }},
 
         // --- エンベロープ系 ---
-        { mmlPrefixAr,   [&](int v) { rgAr.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
-        { mmlPrefixDr,   [&](int v) { rgDr.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
-        { mmlPrefixSl,   [&](int v) { rgSl.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
-        { mmlPrefixRr,   [&](int v) { rgRr.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }}
+        { mmlPrefixAr,   [&](int v) { rgAr.setDisplayedValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
+        { mmlPrefixDr,   [&](int v) { rgDr.setDisplayedValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
+        { mmlPrefixSl,   [&](int v) { rgSl.setDisplayedValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
+        { mmlPrefixRr,   [&](int v) { rgRr.setDisplayedValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }}
     };
 
     for (const auto& rUnit : units)
@@ -1109,9 +1131,12 @@ void GuiOpl::layoutOpMaskCat(juce::Rectangle<int>& rect) {
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
-    // MASK の後ろには分類の外の行 (セパレータや MML) が続くので、
+    // MASK の下に EDIT
+    opEditComponent.layoutComponentRow(rect);
+
+    // EDIT の後ろには分類の外の行 (セパレータや MML) が続くので、
     // 板をここで閉じないと 1 行ぶん下まで伸びてしまう。
-    closeCategoryBackdrops(catMask.getParentComponent(), rect.getY());
+    closeCategoryBackdrops(opEditComponent.category().getParentComponent(), rect.getY());
 }
 
 void GuiOpl::layoutQualityCat(juce::Rectangle<int>& rect) {
@@ -1274,8 +1299,6 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
 
     exportOpzx7Btn.setVisible(visible);
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
     initLfoToOplBtn.setVisible(visible);
     initLfoToOpllBtn.setVisible(visible);
     uSep002.setVisible(visible);
@@ -1283,10 +1306,6 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
     copyOpParamToOpl312Btn.setVisible(visible);
     copyOpParamToOpl334Btn.setVisible(visible);
     uSep003.setVisible(visible);
-    copyOpParamBtn.setVisible(visible);
-    copyOpFromSlider.setVisibleWithLabel(visible);
-    copyOpToSlider.setVisibleWithLabel(visible);
-    uSep004.setVisible(visible);
     ieOpLfo.setVisible(visible);
     ieOpPitchEnv.setVisible(visible);
     ieOpSsgSwEnv.setVisible(visible);
@@ -1313,9 +1332,7 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
 
-        uSep001.layoutComponent(rect);
 
         layoutMain({ .mainRect = rect, .component = &initLfoToOplBtn });
         layoutMain({ .mainRect = rect, .component = &initLfoToOpllBtn });
@@ -1328,11 +1345,6 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
 
         uSep003.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
-        layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
-        layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
-
-        uSep004.layoutComponent(rect);
 
         ieOpLfo.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1605,6 +1617,15 @@ void GuiOpl::setupOpGraphWiring()
     ssgSwEnv.setupGraph(repaintGraph);
     ssgSwEnv11.setupGraph(repaintGraph);
     ssgSwPEnv11.setupGraph(repaintGraph);
+}
+
+// すべてのオペレータの枠を描き直す。
+//
+// つまみから描き直すのは TARGET で選んでいるオペレータだけなので、
+// ファイルを読み込んだあとは、ほかの枠が前の値のまま残っていた。
+void GuiOpl::updateOpGraphs()
+{
+    for (int i = 0; i < OplPrValue::ops; ++i) updateOpGraph(i);
 }
 
 // 枠に出すエンベロープを描き直す。
@@ -2155,6 +2176,8 @@ void GuiOpl::applyChParamFile(const juce::File& file) {
             setImportingChParams(lines, index);
         }
 
+        updateOpGraphs();
+
         Io::ParamWriter writer(oplFormat);
 
         writeChParams(writer);
@@ -2173,6 +2196,8 @@ void GuiOpl::applyChParamFile(const juce::File& file) {
     GuiRefresh::Batch batch;
 
     readChParams(*reader);
+
+    updateOpGraphs();
 }
 
 void GuiOpl::exportChParam()
@@ -2233,6 +2258,8 @@ void GuiOpl::applyOpChParamFile(int opIndex, const juce::File& file)
             setImportingOpChFileParams(opIndex, lines, index);
         }
 
+        updateOpGraph(opIndex);
+
         Io::ParamWriter writer(oplOpFormat);
 
         writeOpChFileParams(opIndex, writer);
@@ -2250,6 +2277,8 @@ void GuiOpl::applyOpChParamFile(int opIndex, const juce::File& file)
     GuiRefresh::Batch batch;
 
     readOpParams(opIndex, *reader);
+
+    updateOpGraph(opIndex);
 }
 
 void GuiOpl::exportOpChParam(int opIndex)

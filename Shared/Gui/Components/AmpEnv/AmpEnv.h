@@ -8,6 +8,7 @@
 #include <functional>
 
 #include "Shared/Core/Const/ConstGlobal.h"
+#include "../StepSnap/StepSnap.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiContext.h"
@@ -28,6 +29,10 @@ class GuiComponentAmpEnv : public GuiBase {
     GuiSlider attack;
     GuiSlider decay;
     GuiSlider sustain;
+
+    // SL を決まった刻みへ丸める
+    GuiComponentStepSnap sustainSteps;
+
     GuiSlider release;
 
     // リリースを走り終えたあとに保つレベル。
@@ -74,6 +79,7 @@ public:
         attack(context),
         decay(context),
         sustain(context),
+        sustainSteps(context),
         release(context),
         endLevel(context),
         endLevelEnable(context),

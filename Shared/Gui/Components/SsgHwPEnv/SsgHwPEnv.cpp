@@ -52,6 +52,14 @@ void GuiComponentSsgHwPEnv::setupComponent(juce::Component& parent, const juce::
     periodSlider.setWantsKeyboardFocus(true);
     periodSlider.setExplicitFocusOrder(++tabOrder);
 
+    // 入れると PERIOD の代わりに VALUE (実機の設定値 Te) で決める
+    valueToggle.setup({ .parent = parent, .id = code + CPK::SsgHwPEnv::valueOn, .title = "Use VALUE", .isReset = true });
+    valueToggle.setWantsKeyboardFocus(true);
+    valueToggle.setExplicitFocusOrder(++tabOrder);
+
+    valueSlider.setupComponent(parent, code + CPK::SsgHwPEnv::value, "VALUE", tabOrder, std::nullopt);
+    valueNudge.setupComponent(parent, valueSlider.getSlider(), GuiComponentValueNudge::envValueRows(), tabOrder);
+
     // MIN と MAX は追い越せない。追い越したときは「相手を押す」形にする。
     // 自分へ書き戻すとドラッグ中にマウスと値の押し合いになり、
     // つまみが動かせなくなる。
@@ -105,6 +113,9 @@ void GuiComponentSsgHwPEnv::setupComponent(juce::Component& parent, const juce::
     // 押したときではなく状態の変化を受ける。
     envEnableButton.watchToggle([this] { applyActive(); });
 
+    // PERIOD と VALUE のどちらが効いているかで、押せる方を切り替える
+    valueToggle.watchToggle([this] { applyActive(); });
+
     applyActive();
 }
 
@@ -119,6 +130,8 @@ void GuiComponentSsgHwPEnv::rebind(const juce::String& code)
     smoothEnableButton.rebind(code + CPK::SsgHwPEnv::smooth);
     shapeSelector.rebind(code + CPK::SsgHwPEnv::shape);
     periodSlider.rebind(code + CPK::SsgHwPEnv::period);
+    valueToggle.rebind(code + CPK::SsgHwPEnv::valueOn);
+    valueSlider.getSlider().rebind(code + CPK::SsgHwPEnv::value);
     minSlider.getSlider().rebind(code + CPK::SsgHwPEnv::min);
     maxSlider.getSlider().rebind(code + CPK::SsgHwPEnv::max);
 
@@ -139,6 +152,9 @@ void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
     hwEnvSeparator.setVisible(visible);
     shapeSelector.setVisibleWithLabel(visible);
     periodSlider.setVisibleWithLabel(visible);
+    valueToggle.setVisible(visible);
+    valueSlider.setVisibleWithLabel(visible);
+    valueNudge.setVisibles(visible && valueSlider.isVisibleNudge());
     minSlider.setVisibleWithLabel(visible);
     minButtons.setVisibles(visible && minSlider.isVisibleNudge());
     maxSlider.setVisibleWithLabel(visible);
@@ -151,6 +167,9 @@ void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
         hwEnvSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &periodSlider.label, .component = &periodSlider, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .component = &valueToggle, .rowHeight = 13 });
+        valueSlider.layoutComponent(rect, 13);
+        if (valueSlider.isVisibleNudge()) valueNudge.layoutComponent(rect);
         minSlider.layoutComponent(rect, 13);
         if (minSlider.isVisibleNudge()) minButtons.layoutComponent(rect, 13);
         maxSlider.layoutComponent(rect, 13);
@@ -179,6 +198,9 @@ void GuiComponentSsgHwPEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     hwEnvSeparator.setVisible(visible);
     shapeSelector.setVisibleWithLabel(visible);
     periodSlider.setVisibleWithLabel(visible);
+    valueToggle.setVisible(visible);
+    valueSlider.setVisibleWithLabel(visible);
+    valueNudge.setVisibles(visible && valueSlider.isVisibleNudge());
     minSlider.setVisibleWithLabel(visible);
     minButtons.setVisibles(visible && minSlider.isVisibleNudge());
     maxSlider.setVisibleWithLabel(visible);
@@ -191,6 +213,9 @@ void GuiComponentSsgHwPEnv::layoutComponentRow(juce::Rectangle<int>& rect)
         hwEnvSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &periodSlider.label, .component = &periodSlider, .rowHeight = 13 });
+        layoutRow({ .rowRect = rect, .component = &valueToggle, .rowHeight = 13 });
+        valueSlider.layoutComponentRow(rect, 13);
+        if (valueSlider.isVisibleNudge()) valueNudge.layoutComponentRow(rect);
         minSlider.layoutComponentRow(rect, 12);
         if (minSlider.isVisibleNudge()) minButtons.layoutComponentRow(rect, 12);
         maxSlider.layoutComponentRow(rect, 12);
@@ -228,7 +253,14 @@ void GuiComponentSsgHwPEnv::applyActive() {
 
     hwEnvSeparator.setEnabled(active);
     shapeSelector.setEnabledWithLabel(active);
-    periodSlider.setEnabledWithLabel(active);
+    // PERIOD と VALUE は、効いている方だけ押せる
+    const bool useValue = valueToggle.getToggleState();
+
+    periodSlider.setEnabledWithLabel(active && !useValue);
+    valueToggle.setEnabled(outerEnabled);
+    valueToggle.setDimmed(!active);
+    valueSlider.setEnabledWithLabel(active && useValue);
+    valueNudge.setEnables(active && useValue);
     minSlider.setEnabled(active);
     minButtons.setEnables(active);
     maxSlider.setEnabled(active);
@@ -241,6 +273,8 @@ void GuiComponentSsgHwPEnv::copyParams(CopyPEnvSsgHw& copyObj) {
     copyObj.enable = envEnableButton.getToggleState();
     copyObj.shape = shapeSelector.getSelectedItemIndex();
     copyObj.period = periodSlider.getValue();
+    copyObj.valueOn = valueToggle.getToggleState();
+    copyObj.value = (int)valueSlider.getValue();
     copyObj.min = (int)minSlider.getValue();
     copyObj.max = (int)maxSlider.getValue();
     copyObj.smooth = smoothEnableButton.getToggleState();
@@ -250,6 +284,8 @@ void GuiComponentSsgHwPEnv::pasteParams(CopyPEnvSsgHw& copyObj) {
     envEnableButton.setToggleState(copyObj.enable, juce::sendNotification);
     shapeSelector.setSelectedItemIndex(copyObj.shape, juce::sendNotification);
     periodSlider.setValue(copyObj.period, juce::sendNotification);
+    valueToggle.setToggleState(copyObj.valueOn, juce::sendNotification);
+    valueSlider.setValue(copyObj.value, juce::sendNotification);
     minSlider.setValue((float)copyObj.min, juce::sendNotification);
     maxSlider.setValue((float)copyObj.max, juce::sendNotification);
     smoothEnableButton.setToggleState(copyObj.smooth, juce::sendNotification);
@@ -321,6 +357,8 @@ void GuiComponentSsgHwPEnv::readParams(const Io::ParamReader& reader, const juce
     envEnableButton.setToggleState(r.getBool("envEnable", envEnableButton.getToggleState()), juce::sendNotification);
     shapeSelector.setSelectedItemIndex(r.getInt("shape", shapeSelector.getSelectedItemIndex()), juce::sendNotification);
     periodSlider.setValue(r.getFloat("period", (float)periodSlider.getValue()), juce::sendNotification);
+    valueToggle.setToggleState(r.getBool("valueEnable", valueToggle.getToggleState()), juce::sendNotification);
+    valueSlider.setValue(r.getInt("value", (int)valueSlider.getValue()), juce::sendNotification);
     minSlider.setValue((float)r.getInt("min", (int)minSlider.getValue()), juce::sendNotification);
     maxSlider.setValue((float)r.getInt("max", (int)maxSlider.getValue()), juce::sendNotification);
     smoothEnableButton.setToggleState(r.getBool("smoothEnable", smoothEnableButton.getToggleState()), juce::sendNotification);
@@ -347,6 +385,8 @@ void GuiComponentSsgHwPEnv::writeParams(Io::ParamWriter& writer, const juce::Str
     w.set("envEnable", envEnableButton.getToggleState());
     w.set("shape", shapeSelector.getSelectedItemIndex());
     w.set("period", (float)periodSlider.getValue());
+    w.set("valueEnable", valueToggle.getToggleState());
+    w.set("value", (int)valueSlider.getValue());
     w.set("min", (int)minSlider.getValue());
     w.set("max", (int)maxSlider.getValue());
     w.set("smoothEnable", smoothEnableButton.getToggleState());

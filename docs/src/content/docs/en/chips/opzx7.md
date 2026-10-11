@@ -37,6 +37,10 @@ Instead of picking a fixed algorithm, **you can wire the modulation and feedback
 - From 1OP to 8OP, say directly which operator reaches which
 - Routings no real specification would allow are available
 
+The routing grid (modulation and output) and the feedback grid are shown one at a
+time; switch between them with **ROUTING / FEEDBACK** at the top (since 3.6.3). Which
+one is showing is not saved.
+
 The algorithm diagram is drawn on screen as you work, so you can see the wiring you just built.
 
 ## The sections on screen

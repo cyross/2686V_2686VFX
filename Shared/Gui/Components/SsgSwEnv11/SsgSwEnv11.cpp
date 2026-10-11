@@ -251,6 +251,8 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
     endLevel.setWantsKeyboardFocus(true);
     endLevel.setExplicitFocusOrder(++tabOrder);
 
+    levelSteps.setupComponent(parent, { &level.getSlider(), &endLevel }, tabOrder, "STEPS", labelFont);
+
     // onValueChange は値が変わらないと呼ばれないので、最初の束縛はここで明示的に行う。
     rateTarget.setValue(1, juce::dontSendNotification);
     levelTarget.setValue(0, juce::dontSendNotification);
@@ -316,6 +318,7 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
     rateSeparator.setVisible(visible);
     levelTarget.setVisibleWithLabel(visible);
     level.setVisibleWithLabel(visible);
+    levelSteps.setVisibleWithLabel(visible);
     levelBtns.setVisibles(visible && level.isVisibleNudge());
     levelValues.setVisible(visible);
     endLevelSeparator.setVisible(visible);
@@ -342,6 +345,7 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
         rateSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = 13 });
         level.layoutComponent(rect, 13);
+        levelSteps.layoutComponent(rect, 13);
         if (level.isVisibleNudge()) levelBtns.layoutComponent(rect, 13);
         layoutStrip(rect, levelValues);
         endLevelSeparator.layoutComponent(rect);
@@ -375,6 +379,7 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
     rateSeparator.setVisible(visible);
     levelTarget.setVisibleWithLabel(visible);
     level.setVisibleWithLabel(visible);
+    levelSteps.setVisibleWithLabel(visible);
     levelBtns.setVisibles(visible && level.isVisibleNudge());
     levelValues.setVisible(visible);
     endLevelSeparator.setVisible(visible);
@@ -401,6 +406,7 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
         rateSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = 12 });
         level.layoutComponentRow(rect, 12);
+        levelSteps.layoutComponentRow(rect, 12);
         if (level.isVisibleNudge()) levelBtns.layoutComponentRow(rect, 12);
         layoutStrip(rect, levelValues);
         endLevelSeparator.layoutComponent(rect);
@@ -519,6 +525,7 @@ void GuiComponentSsgSwEnv11::applyActive() {
 
     levelTarget.setEnabledWithLabel(active);
     level.setEnabled(active);
+    levelSteps.setEnabledWithLabel(active);
     levelBtns.setEnables(active);
     levelValues.setEnabled(active);
 

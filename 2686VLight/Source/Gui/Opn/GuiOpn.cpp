@@ -143,6 +143,28 @@ void GuiOpn::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .opGroups = GuiComponentEdit::fourOpGroups(),
+        .onDuplicateOps = [this](const GuiComponentEdit::OpGroup& from, const GuiComponentEdit::OpGroup& to) {
+            ParamEdit::duplicateUnits(ctx, OpnPrKey::prefix, "OP", from.first, to.first, from.size);
+            },
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            copyOpParamBtn.setVisible(visible);
+            copyOpFromSlider.setVisibleWithLabel(visible);
+            copyOpToSlider.setVisibleWithLabel(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            layoutMain({ .mainRect = r, .component = &copyOpParamBtn });
+            layoutMain({ .mainRect = r, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
+            layoutMain({ .mainRect = r, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
+            },
+        }, tabOrder);
+
     // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
@@ -156,7 +178,7 @@ void GuiOpn::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Category::util, .enableChangeDetailVisible = true });
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -165,7 +187,6 @@ void GuiOpn::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     copyParamsToOpnaBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPNA", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyParamsToOpnaBtn.setWantsKeyboardFocus(true);
@@ -183,7 +204,7 @@ void GuiOpn::setup()
 
     uSep002.setupComponent(mainGroup.contentCanvas);
 
-    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Duplicate Op Params", .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     copyOpParamBtn.setWantsKeyboardFocus(true);
     copyOpParamBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamBtn.onClick = [this] {
@@ -219,7 +240,6 @@ void GuiOpn::setup()
         copyOpParamBtn.setEnabled(from != to);
         };
 
-    uSep003.setupComponent(mainGroup.contentCanvas);
 
     ieOpPitchEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Pitch Env");
     ieOpPitchEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importPitchEnvParam(opIndex); };
@@ -439,6 +459,10 @@ void GuiOpn::setup()
     mask.setWantsKeyboardFocus(true);
     mask.setExplicitFocusOrder(++tabOrder);
 
+    // TARGET で選んでいるオペレーターを単位にする
+    opEditComponent.setupComponent(colMask.contentCanvas, OpnPrKey::prefix,
+        [this] { return "OP" + juce::String((int)targerOpSlider.getValue() - 1); }, tabOrder);
+
     mmlSeparator.setupComponent(colMask.contentCanvas);
 
     mml.setup({ .parent = colMask.contentCanvas, .title = I18n::pick(u8"MML風入力", u8"MML-style input"), .isReset = false, .isResized = false });
@@ -513,7 +537,7 @@ void GuiOpn::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(OpnGuiValue::Category::paddingTop);
 
-    auto graphArea = mRect.removeFromTop(150); // 描画領域確保
+    auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(OpnPrValue::ops)); // 描画領域確保
     algStaticGraphComp.setBounds(graphArea.reduced(10));
 
     algFbSep.layoutComponent(mRect);
@@ -563,6 +587,8 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    editComponent.layoutComponent(mRect);
 
     layoutUtilityCat(mRect);
 
@@ -621,16 +647,16 @@ void GuiOpn::applyMmlString(const juce::String& mml)
         { mmlPrefixMask, [&](int v) { mask.setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
 
         // --- TL系 (RGモードで分岐) ---
-        { mmlPrefixTl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
-        { mmlPrefixO,    [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
-        { mmlPrefixOl,   [&](int v) { rgTl.setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixTl,   [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixO,    [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixOl,   [&](int v) { rgTl.setDisplayedValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
 
         // --- エンベロープ系 (RGモードで分岐) ---
-        { mmlPrefixAr,   [&](int v) { rgAr.setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
-        { mmlPrefixDr,   [&](int v) { rgDr.setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
-        { mmlPrefixSr,   [&](int v) { rgSr.setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
-        { mmlPrefixSl,   [&](int v) { rgSl.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
-        { mmlPrefixRr,   [&](int v) { rgRr.setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }}
+        { mmlPrefixAr,   [&](int v) { rgAr.setDisplayedValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixDr,   [&](int v) { rgDr.setDisplayedValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixSr,   [&](int v) { rgSr.setDisplayedValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixSl,   [&](int v) { rgSl.setDisplayedValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
+        { mmlPrefixRr,   [&](int v) { rgRr.setDisplayedValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }}
     };
 
     for (const auto& rUnit : units)
@@ -988,9 +1014,12 @@ void GuiOpn::layoutOpMaskCat(juce::Rectangle<int>& rect) {
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 
-    // MASK の後ろには分類の外の行 (セパレータや MML) が続くので、
+    // MASK の下に EDIT
+    opEditComponent.layoutComponentRow(rect);
+
+    // EDIT の後ろには分類の外の行 (セパレータや MML) が続くので、
     // 板をここで閉じないと 1 行ぶん下まで伸びてしまう。
-    closeCategoryBackdrops(catMask.getParentComponent(), rect.getY());
+    closeCategoryBackdrops(opEditComponent.category().getParentComponent(), rect.getY());
 }
 
 // 設定ひとそろいの置き方。
@@ -1150,15 +1179,9 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     exportOpzx7Btn.setVisible(visible);
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
     copyParamsToOpnaBtn.setVisible(visible);
     copyParamsToOpmBtn.setVisible(visible);
     uSep002.setVisible(visible);
-    copyOpParamBtn.setVisible(visible);
-    copyOpFromSlider.setVisibleWithLabel(visible);
-    copyOpToSlider.setVisibleWithLabel(visible);
-    uSep003.setVisible(visible);
     ieOpPitchEnv.setVisible(visible);
     ieOpSsgSwEnv.setVisible(visible);
     ieOpSsgSwEnv11.setVisible(visible);
@@ -1185,20 +1208,13 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
 
-        uSep001.layoutComponent(rect);
 
         layoutMain({ .mainRect = rect, .component = &copyParamsToOpnaBtn });
         layoutMain({ .mainRect = rect, .component = &copyParamsToOpmBtn });
 
         uSep002.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
-        layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
-        layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
-
-        uSep003.layoutComponent(rect);
 
         ieOpPitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1417,6 +1433,15 @@ void GuiOpn::setupOpGraphWiring()
     ssgSwEnv.setupGraph(repaintGraph);
     ssgSwEnv11.setupGraph(repaintGraph);
     ssgSwPEnv11.setupGraph(repaintGraph);
+}
+
+// すべてのオペレータの枠を描き直す。
+//
+// つまみから描き直すのは TARGET で選んでいるオペレータだけなので、
+// ファイルを読み込んだあとは、ほかの枠が前の値のまま残っていた。
+void GuiOpn::updateOpGraphs()
+{
+    for (int i = 0; i < OpnPrValue::ops; ++i) updateOpGraph(i);
 }
 
 // 枠に出すエンベロープを描き直す。
@@ -2090,6 +2115,8 @@ void GuiOpn::applyChParamFile(const juce::File& file) {
             setImportingChParams(lines, index);
         }
 
+        updateOpGraphs();
+
         Io::ParamWriter writer(opnFormat);
 
         writeChParams(writer);
@@ -2108,6 +2135,8 @@ void GuiOpn::applyChParamFile(const juce::File& file) {
     GuiRefresh::Batch batch;
 
     readChParams(*reader);
+
+    updateOpGraphs();
 }
 
 void GuiOpn::exportChParam()
@@ -2168,6 +2197,8 @@ void GuiOpn::applyOpChParamFile(int opIndex, const juce::File& file)
             setImportingOpChFileParams(opIndex, lines, index);
         }
 
+        updateOpGraph(opIndex);
+
         Io::ParamWriter writer(opnOpFormat);
 
         writeOpChFileParams(opIndex, writer);
@@ -2188,6 +2219,8 @@ void GuiOpn::applyOpChParamFile(int opIndex, const juce::File& file)
     updateAlgorithmDisplay();
 
     readOpParams(opIndex, *reader);
+
+    updateOpGraph(opIndex);
 }
 
 void GuiOpn::exportOpChParam(int opIndex)

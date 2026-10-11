@@ -148,6 +148,26 @@ namespace CPV
 			inline constexpr float max = 1.0f;  // 最大値
 			inline constexpr float initial = 0.0f; // 初期値
 		}
+
+		// 実機の設定値で決めるか。既存のパッチの鳴りを変えないよう、切から
+		namespace ToneValueOn { inline constexpr bool initial = false; }
+		namespace NoiseValueOn { inline constexpr bool initial = false; }
+
+		// トーンの設定値 To。初期値が倍率 1 の基準 (SsgRegister::toneBase)
+		namespace ToneValue
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 4095;
+			inline constexpr int initial = 47;
+		}
+
+		// ノイズの設定値 Tn。初期値は N.FREQ の初期値 (12000 Hz) にいちばん近いもの
+		namespace NoiseValue
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 31;
+			inline constexpr int initial = 2;
+		}
 	}
 
 	namespace Wt {
@@ -2121,6 +2141,16 @@ namespace CPV
 			inline constexpr float initial = 1.0f;
 		}
 
+		// PERIOD の代わりに使う設定値 Te。初期値は PERIOD の初期値 (1 Hz) にいちばん近いもの
+		namespace ValueOn { inline constexpr bool initial = false; }
+
+		namespace Value
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 65535;
+			inline constexpr int initial = 1303;
+		}
+
 		namespace Min
 		{
 			inline constexpr float min = 0.0f;
@@ -2163,6 +2193,16 @@ namespace CPV
 			inline constexpr float min = 0.1f;
 			inline constexpr float max = 200.0f;
 			inline constexpr float initial = 1.0f;
+		}
+
+		// PERIOD の代わりに使う設定値 Te。初期値は PERIOD の初期値 (1 Hz) にいちばん近いもの
+		namespace ValueOn { inline constexpr bool initial = false; }
+
+		namespace Value
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 65535;
+			inline constexpr int initial = 1303;
 		}
 
 		// 単位はセント。振れ幅は他のピッチ系と同じく ±4 オクターブ。

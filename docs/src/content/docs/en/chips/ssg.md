@@ -99,6 +99,10 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | **T.LEVEL** | Level of the wave (tone) | 0.0–1.0 (1.0 by default) | |
 | **N.LEVEL** | Level of the noise | 0.0–1.0 (1.0 by default) | |
 | **N.FREQ** | Frequency of the noise | 0–30000 Hz (12000 by default) | |
+| **TONE: Use VALUE** | Multiply the played pitch by a ratio set with T.VALUE | On / off (off by default) | |
+| **T.VALUE** | The tone value To | 0–4095 (47 by default) | ratio 47 ÷ To |
+| **NOISE: Use VALUE** | Use N.VALUE instead of N.FREQ | On / off (off by default) | |
+| **N.VALUE** | The noise value Tn | 0–31 (2 by default) | 667000 ÷ (32 × Tn) Hz |
 | **MIX** | Blend of tone and noise | 0.0–1.0 (0.0 by default) | |
 | **Noise On Note** | Restart the noise on every note | on / off (off by default) | |
 
@@ -108,8 +112,32 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | **T.LEVEL** | How much of the tone side | [`SSG_TONE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone) |
 | **N.LEVEL** | How much of the grit side | [`SSG_NOISE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise) |
 | **N.FREQ** | How high the grit sits | [`SSG_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noisefreq) |
+| **TONE: Use VALUE** | Multiply the played pitch by a ratio set with T.VALUE | [`SSG_TONE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone-value-on) |
+| **T.VALUE** | The chip's tone value To (0–4095). The ratio is 47 ÷ To (1× at the default 47) | [`SSG_TONE_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tone-value) |
+| **NOISE: Use VALUE** | Set the grit's pitch with N.VALUE instead of N.FREQ | [`SSG_NOISE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-value-on) |
+| **N.VALUE** | The chip's noise value Tn (0–31): 667000 ÷ (32 × Tn) Hz | [`SSG_NOISE_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-value) |
 | **Noise On Note** | Track the grit to the keyboard (**ours**) | [`SSG_NOISE_ON_NOTE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-on-note) |
 | **MIX** | Blend of the two. 0 is tone only, 1 is grit only | [`SSG_NOISEMIX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noisemix) |
+
+### Setting them with the chip's values — VALUE
+
+Since 3.6.3, TONE / NOISE can also be set with the YM2203's own values. All of
+these start off, and while they are off nothing changes.
+
+- **TONE: Use VALUE**: multiplies the played frequency by a ratio set with
+  **T.VALUE** (the tone value To, 0–4095). The ratio is Fnote(To) ÷ Fnote(47) =
+  47 ÷ To, where Fnote = 667 × 1000 ÷ (32 × To): 1× at the default 47, an octave
+  down at 94, and lower as To grows. With it off, the ratio is 1
+- **NOISE: Use VALUE**: sets the grit's pitch with **N.VALUE** (the noise value
+  Tn, 0–31) instead of N.FREQ, Fnois = 667 × 1000 ÷ (32 × Tn). N.FREQ is
+  disabled meanwhile
+
+The **N** buttons to the right of T.VALUE / N.VALUE show value buttons, as on
+LEVEL. T.VALUE jumps to one or two octaves up (12 / 24), a fifth up (31), a
+fourth up (35), a fifth down (70) and one or two octaves down (94 / 188);
+N.VALUE to 1 / 4 / 8 / 12 / 16 / 31.
+
+0 counts as 1, as on the chip. FORM on RHYTHM, ADPCM and ADPCM+ works the same way.
 
 ## HW ENV — the hardware envelope (hardware)
 
@@ -120,6 +148,8 @@ The mechanism the real SSG had for moving the level on its own. Switch **Enable*
 | **Enable** | Use the hardware envelope | on / off (off by default) | |
 | **SHAPE** | Which shape | 0–43 | |
 | **PERIOD** | How long one cycle takes | 0.1–200.0 (1.0 by default) | |
+| **Use VALUE** | Use VALUE instead of PERIOD | On / off (off by default) | |
+| **VALUE** | The envelope value Te | 0–65535 (1303 by default) | 667000 ÷ (512 × Te) Hz |
 
 :::note
 The hardware had eight shapes; here you can pick from **43**. Everything past the eighth is ours. When you are after the hardware's sound, stay within the first eight.
@@ -136,7 +166,8 @@ The following do not belong to any one chip. They are all described under [Share
 | [**MUL/DET**](/2686V_2686VFX/en/chips/common/#muldet) | hardware / ours | Shifts the pitch |
 | [**UNISON/HARMONY**](/2686V_2686VFX/en/chips/common/#unisonharmony) | ours | Stacks copies of the note to thicken it |
 | [**QUALITY**](/2686V_2686VFX/en/chips/common/#quality) | — | Drops bit depth and sample rate for texture |
-| [**UTILITY**](/2686V_2686VFX/en/chips/common/#utility) | shared | Setting levels across channels, and reading and writing files |
+| [**EDIT**](/2686V_2686VFX/en/chips/common/#edit) | shared | Cut, copy, paste and clear, and setting levels across channels |
+| [**UTILITY**](/2686V_2686VFX/en/chips/common/#utility) | shared | Reading and writing files |
 
 For the details of QUALITY, see [the reference](/2686V_2686VFX/en/reference/lists-quality/).
 
@@ -144,7 +175,7 @@ For the details of QUALITY, see [the reference](/2686V_2686VFX/en/reference/list
 
 `[IM]` imports and `[EX]` exports. What can be moved in and out: LFO, AMP ENV, PITCH ENV, SSG SW ENV, DETUNE, UNISON, QUALITY, TONE/NOISE, and the channel as a whole.
 
-**Level -> All Ch** copies this channel's level to every other channel at once.
+**Level -> All Ch** (copies this channel's level to every other channel at once) moved to [EDIT](/2686V_2686VFX/en/chips/common/#edit) in 3.6.3.
 
 For the formats and where they live, see [File formats and locations](/2686V_2686VFX/en/files/format/).
 

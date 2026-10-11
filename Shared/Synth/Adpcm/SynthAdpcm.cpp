@@ -1,4 +1,5 @@
 ﻿#include <vector>
+#include "Shared/Core/Synth/SsgRegister.h"
 #include <cmath>
 #include <array>
 
@@ -61,6 +62,7 @@ void AdpcmCore::setParameters(const SynthCoreParams& params)
     m_delaySeconds = params.adpcm.delay;
     m_pan = params.adpcm.pan;
     m_tone = params.adpcm.tn.tone;
+    m_toneRatio = params.adpcm.tn.toneRatio;
     m_mix = params.adpcm.tn.mix;
 
 	if (m_pan == 0.5f) {
@@ -751,6 +753,9 @@ float AdpcmCore::getSample()
     // MODULATION は搬送波の周波数比として掛ける
     m_ampModDelta = m_phaseDelta;
     float freqMult = m_pitchBendRatio * opzx7PitchMod * m_wtMod.process(m_phaseDelta) * m_ssgHwPEnv.process(1.0f);
+
+    // FORM の TONE の VALUE: 鍵盤の周波数へ To から決まる倍率を掛ける
+    freqMult *= m_toneRatio;
 
     // Advance position
     m_position += currentIncrement * freqMult * m_speed;

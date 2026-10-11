@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+#include "Shared/Gui/Components/Edit/CopyHistory.h"
 #include <JuceHeader.h>
 #include <array>
 #include <vector>
@@ -64,7 +66,8 @@ class AudioPlugin2686VEditor :
     public juce::Button::Listener,
     public juce::AudioProcessorValueTreeState::Listener,
     public juce::MultiTimer,
-    public juce::AsyncUpdater
+    public juce::AsyncUpdater,
+    public juce::FileDragAndDropTarget
 {
     // 画面のテスト (tests/gui) だけが、全タブを作る口とタブの並びを触る。
     friend struct EditorTestAccess;
@@ -102,6 +105,11 @@ public:
 
     // チャンネルを持たないので何もしない
     bool applyChannelParamFile(const juce::File&) override { return false; }
+
+    // ファイルを画面へ落として読み込む。受けるのは FX の順番とパラメータ。
+    // 読み込んだあとは、ダイアログから読んだときと同じに振る舞う。
+    bool isInterestedInFileDrag(const juce::StringArray& files) override;
+    void filesDropped(const juce::StringArray& files, int x, int y) override;
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
     void buttonClicked(juce::Button* button) override;
@@ -252,6 +260,11 @@ private:
     juce::TextButton openCategoriesBtn;
     juce::TextButton closeCategoriesBtn;
 
+    // コピー履歴 (CPHIST)。押したときに作って重ねる
+    juce::TextButton copyHistoryBtn;
+    std::unique_ptr<GuiCopyHistory> copyHistory;
+    void openCopyHistory();
+
     // 開いているタブに限らず、持っているタブすべてへ配る。
     void forEachTabGui(const std::function<void(GuiBase&)>& fn);
 
@@ -259,6 +272,11 @@ private:
     juce::TextButton toggleMiniBtn;
     juce::ImageComponent mainIconImage;
     juce::ImageComponent miniIconImage;
+
+    // 画面へ落としたファイルの種類
+    enum class DropKind { none, fxOrder, fxParam };
+
+    static DropKind dropKindOf(const juce::File& file);
 
     std::unique_ptr<GuiFx> fxGui; // FX
     std::unique_ptr<GuiSettings> settingsGui;

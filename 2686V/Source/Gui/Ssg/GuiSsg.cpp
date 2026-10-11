@@ -111,6 +111,18 @@ void GuiSsg::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
+
     // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
@@ -118,7 +130,7 @@ void GuiSsg::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::util, .enableChangeDetailVisible = true });
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::bcLevel });
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -127,7 +139,6 @@ void GuiSsg::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
@@ -179,6 +190,9 @@ void GuiSsg::setup()
     noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::freq, .title = SsgGuiText::Ssg::Voice::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    // TONE / NOISE を実機の設定値で決める。NOISE の VALUE を入れると N.FREQ は止まる
+    toneNoiseValue.setupComponent(mainGroup.contentCanvas, code, tabOrder, &noiseFreqSlider);
 
     noiseOnNoteButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::nON, .title = SsgGuiText::Ssg::Voice::noiseOnNote, .isReset = true });
     noiseOnNoteButton.setWantsKeyboardFocus(true);
@@ -352,6 +366,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     midiComponent.layoutComponent(mRect);
 
+    editComponent.layoutComponent(mRect);
+
     layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
@@ -496,6 +512,7 @@ void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
     toneSlider.setVisibleWithLabel(visible);
     noiseSlider.setVisibleWithLabel(visible);
     noiseFreqSlider.setVisibleWithLabel(visible);
+    toneNoiseValue.setVisibles(visible);
     noiseOnNoteButton.setVisible(visible);
     mixSlider.setVisibleWithLabel(visible);
     mixSetTone.setVisible(visible);
@@ -509,6 +526,7 @@ void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+        toneNoiseValue.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &noiseOnNoteButton, });
         layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
         layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
@@ -527,8 +545,6 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
 
     ieToneNoise.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -548,8 +564,6 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        uSep001.layoutComponent(rect);
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);
@@ -762,6 +776,8 @@ void GuiSsg::applyToneNoiseParamFile(const juce::File& file)
     toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
     noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
     noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+    toneNoiseValue.readParams(*reader);
+    toneNoiseValue.readParams(*reader);
     mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
 }
 
@@ -1045,6 +1061,8 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	writer.set("tone", (float)toneSlider.getValue());
 	writer.set("noise", (float)noiseSlider.getValue());
 	writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+	toneNoiseValue.writeParams(writer);
+	toneNoiseValue.writeParams(writer);
 	writer.set("noiseOnNote", noiseOnNoteButton.getToggleState());
 	writer.set("mix", (float)mixSlider.getValue());
 

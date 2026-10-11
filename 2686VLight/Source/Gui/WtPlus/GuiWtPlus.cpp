@@ -136,6 +136,9 @@ void GuiWtPlus::setup() {
 
     slotFileNameLabel.setup({ .parent = waveGroup.contentCanvas, .title = Io::empty });
 
+    // 区分を右クリックで写すとき、この素材も一緒に写す (持ち主は区分のパラメータから決まる)
+    slotFileNameLabel.getProperties().set(ParamEdit::Property::assetPrefix, ParamEdit::Property::sameOwner);
+
     // 32 個あるので 1 行 3 個では縦に伸びすぎる。8 個ずつ 4 行に収める。
     slotPreviews.setup(waveGroup.contentCanvas, GuiColor::WavePreview::WaveMemory, Global::WtPlus::slots, 8);
 
@@ -178,6 +181,20 @@ void GuiWtPlus::setup() {
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .onDuplicateTargets = [this] { openTargetsDialog(GuiTargetsDialog::Mode::Duplicate); },
+        .onClearTargets = [this] { openTargetsDialog(GuiTargetsDialog::Mode::Clear); },
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
+
     // ==========================================================
     // UTILITY
     // ==========================================================
@@ -188,7 +205,10 @@ void GuiWtPlus::setup() {
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtPlusGuiText::Category::util, .enableChangeDetailVisible = true });
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = WtPlusGuiText::Utility::bcLevel });
+    // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
+    pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = WtPlusGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -197,7 +217,6 @@ void GuiWtPlus::setup() {
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieLfo.setupComponentFor(mainGroup.contentCanvas, tabOrder, "LFO", lfoComponent);
     ieDetune.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Detune", mulDetuneComponent);
@@ -303,6 +322,8 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
 
     midiComponent.layoutComponent(mRect);
 
+    editComponent.layoutComponent(mRect);
+
     layoutUtilityCat(mRect);
 
     int usedHeight = 5000 - mRect.getHeight();
@@ -315,6 +336,15 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
     auto waveArea = pageArea.removeFromLeft(WtPlusGuiValue::WaveGroupWidth);
     waveArea.removeFromBottom(40);
     waveGroup.setBounds(waveArea);
+
+    // TARGET の複写・消去のダイアログは、この枠の右の空きへ出す。
+    // WAVE MEMORY や FORM を見ながら選べるように。空きが狭ければメインの枠の上
+    {
+        auto rest = pageArea.withTrimmedLeft(10).withTrimmedRight(10);
+
+        targetsDialogArea = rest.getWidth() >= 300 ? rest.withTop(waveArea.getY()).withBottom(waveArea.getBottom())
+                                                   : mainGroup.getBounds();
+    }
 
     auto wgRect = waveArea.reduced(WtPlusGuiValue::Group::Padding::width, WtPlusGuiValue::Group::Padding::height);
     wgRect.removeFromTop(WtPlusGuiValue::Group::TitlePaddingTop);
@@ -421,8 +451,8 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
+    pathRoot.setVisible(visible);
+
     ieLfo.setVisible(visible);
     ieDetune.setVisible(visible);
     ieAmpEnv.setVisible(visible);
@@ -440,9 +470,8 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+        pathRoot.layoutComponent(rect);
 
-        uSep001.layoutComponent(rect);
 
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -783,6 +812,9 @@ void GuiWtPlus::importChParam() {
 void GuiWtPlus::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     // 3.0.0 より前のファイルは、当時の処理で読み込んでから
@@ -832,6 +864,23 @@ void GuiWtPlus::applyChParamFile(const juce::File& file) {
             r.getFloat("speed", getParamValue(slotPrefix + CPK::speed)));
 
         waveHold.readParamsFor(slotPrefix, r);
+
+        // 読み込んだ波形の場所 (3.6.3 から)。無いファイルでは今の波形のまま。
+        // 空なら外す。見つからないものは、今の波形のまま残す。
+        if (r.keys().contains("waveFile")) {
+            const auto text = r.getString("waveFile");
+
+            if (!Io::isFileName(text)) {
+                pluginOf(ctx).unloadWtPlusWaveFile(i);
+            }
+            else {
+                const auto file = pluginOf(ctx).fromStoredPath(text, pluginOf(ctx).defaultWavetableDir);
+
+                if (file.existsAsFile()) pluginOf(ctx).loadWtPlusWaveFile(i, file);
+            }
+
+            updateSlotFileName(i);
+        }
     }
 
     // Wave
@@ -871,6 +920,9 @@ void GuiWtPlus::exportChParam()
 void GuiWtPlus::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -927,6 +979,10 @@ void GuiWtPlus::writeChParams(Io::ParamWriter& writer) {
 		w.set("speed", getParamValue(slotPrefix + CPK::speed));
 
 		waveHold.writeParamsFor(slotPrefix, w);
+
+		// 読み込んだ波形の場所。基準は Io::PathRoot で選ぶ。
+		w.set("waveFile", pluginOf(ctx).toStoredPath(pluginOf(ctx).wtPlusWavePaths[i],
+			pluginOf(ctx).defaultWavetableDir, false));
 	}
 
 	// Wave
@@ -1035,4 +1091,71 @@ void GuiWtPlus::closeBypassedCategories()
     // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
     if (allCategoriesBypassed(ampEnvComponent, ampModComponent, ssgHwEnv, ssgSwEnvComponent, ssgSwEnv11Component)) ampMajorCat.setDetailVisible(false);
     if (allCategoriesBypassed(modComponent, pitchEnvComponent, ssgHwPEnv, ssgSwPEnv11Component)) pitchMajorCat.setDetailVisible(false);
+}
+
+// ==============================================================================
+// 素材 (ParamEdit)
+// ==============================================================================
+// WT+ の素材は枠 (SLOT) ごとの波形ファイル。チャンネル全体のときは全部の枠
+std::vector<ParamEdit::AssetSlot> GuiWtPlus::clipAssetSlots(const juce::String& prefix, bool wholeChannel)
+{
+    std::vector<ParamEdit::AssetSlot> slots;
+
+    auto add = [&](int slot, const juce::String& key) {
+        slots.push_back({ key,
+            [this, slot] { return pluginOf(ctx).wtPlusWavePaths[(size_t)slot]; },
+            [this, slot](const juce::File& file) {
+                pluginOf(ctx).unloadWtPlusWaveFile(slot);
+
+                if (file.existsAsFile()) pluginOf(ctx).loadWtPlusWaveFile(slot, file);
+
+                updateSlotFileName(slot);
+            } });
+    };
+
+    if (prefix == WtPlusPrKey::prefix && wholeChannel)
+    {
+        for (int i = 0; i < Global::WtPlus::slots; ++i) add(i, "SLOT" + juce::String(i) + ":wave");
+    }
+
+    const int slot = ParamEdit::unitIndexOf(prefix, WtPlusPrKey::prefix, "SLOT");
+
+    if (slot >= 0 && slot < Global::WtPlus::slots) add(slot, "wave");
+
+    return slots;
+}
+
+void GuiWtPlus::collectClipAssets(const juce::String& prefix, bool wholeChannel,
+    std::map<juce::String, juce::String>& out)
+{
+    ParamEdit::collectAssets(clipAssetSlots(prefix, wholeChannel), out);
+}
+
+void GuiWtPlus::applyClipAssets(const juce::String& prefix, bool wholeChannel,
+    const std::map<juce::String, juce::String>& assets, bool clearOthers)
+{
+    ParamEdit::applyAssets(clipAssetSlots(prefix, wholeChannel), assets, clearOthers);
+}
+
+// ==============================================================================
+// Duplicate Targets / Clear Targets
+// ==============================================================================
+void GuiWtPlus::openTargetsDialog(GuiTargetsDialog::Mode mode)
+{
+    GuiTargetsDialog::Config config;
+
+    config.mode = mode;
+    config.count = Global::WtPlus::slots;
+    config.current = targetSlot();
+    config.firstNumber = 0;
+
+    config.onDuplicate = [this](int from, const std::vector<int>& to, bool withParams) {
+        ParamEdit::duplicateUnitTo(ctx, WtPlusPrKey::prefix, "SLOT", from, to, withParams);
+    };
+
+    config.onClear = [this](const std::vector<int>& targets) {
+        ParamEdit::clearUnits(ctx, WtPlusPrKey::prefix, "SLOT", targets);
+    };
+
+    targetsDialog.open(*this, targetsDialogArea, config);
 }

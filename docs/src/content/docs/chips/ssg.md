@@ -102,6 +102,10 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | **T.LEVEL** | 波形（トーン）の音量 | 0.0〜1.0（初期 1.0） | |
 | **N.LEVEL** | ノイズの音量 | 0.0〜1.0（初期 1.0） | |
 | **N.FREQ** | ノイズの周波数 | 0〜30000 Hz（初期 12000） | |
+| **TONE: Use VALUE** | 鍵盤の音へ T.VALUE から決まる倍率を掛ける | 入 / 切（初期は切） | |
+| **T.VALUE** | トーンの設定値 To | 0〜4095（初期 47） | 倍率 47 ÷ To |
+| **NOISE: Use VALUE** | N.FREQ の代わりに N.VALUE を使う | 入 / 切（初期は切） | |
+| **N.VALUE** | ノイズの設定値 Tn | 0〜31（初期 2） | 667000 ÷ (32 × Tn) Hz |
 | **MIX** | トーンとノイズの混ぜ具合 | 0.0〜1.0（初期 0.0） | |
 | **Noise On Note** | 発音のたびにノイズを鳴らし直す | 入 / 切（初期は切） | |
 
@@ -111,8 +115,32 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | **T.LEVEL** | 音の側の量 | [`SSG_TONE`](/2686V_2686VFX/reference/automation/ssg/#ssg-tone) |
 | **N.LEVEL** | ざらつきの側の量 | [`SSG_NOISE`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise) |
 | **N.FREQ** | ざらつきの高さ | [`SSG_NOISEFREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-noisefreq) |
+| **TONE: Use VALUE** | 鍵盤の音へ T.VALUE から決まる倍率を掛ける | [`SSG_TONE_VALUE_ON`](/2686V_2686VFX/reference/automation/ssg/#ssg-tone-value-on) |
+| **T.VALUE** | 実機のトーンの設定値 To（0〜4095）。倍率は 47 ÷ To（初期値 47 で 1 倍） | [`SSG_TONE_VALUE`](/2686V_2686VFX/reference/automation/ssg/#ssg-tone-value) |
+| **NOISE: Use VALUE** | N.FREQ の代わりに N.VALUE でざらつきの高さを決める | [`SSG_NOISE_VALUE_ON`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise-value-on) |
+| **N.VALUE** | 実機のノイズの設定値 Tn（0〜31）。667000 ÷ (32 × Tn) Hz | [`SSG_NOISE_VALUE`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise-value) |
 | **Noise On Note** | ざらつきの高さを鍵盤に合わせる（**独自**） | [`SSG_NOISE_ON_NOTE`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise-on-note) |
 | **MIX** | 2 つの混ぜ具合。0 で音だけ、1 でざらつきだけ | [`SSG_NOISEMIX`](/2686V_2686VFX/reference/automation/ssg/#ssg-noisemix) |
+
+### 実機の設定値で決める — VALUE
+
+3.6.3 から、TONE / NOISE も実機（YM2203）の設定値で決められます。どれも
+初めは切で、切っているあいだはこれまでどおりです。
+
+- **TONE: Use VALUE**: 鍵盤の音の周波数へ、**T.VALUE**（トーンの設定値 To、
+  0〜4095）から決まる倍率を掛けます。倍率は Fnote(To) ÷ Fnote(47) = 47 ÷ To
+  で、Fnote = 667 × 1000 ÷ (32 × To) です。初期値の 47 で 1 倍、94 で 1 オク
+  ターブ下、To を大きくするほど低くなります。切っているあいだは 1 倍です
+- **NOISE: Use VALUE**: N.FREQ の代わりに **N.VALUE**（ノイズの設定値 Tn、
+  0〜31）でざらつきの高さを決めます。Fnois = 667 × 1000 ÷ (32 × Tn) です。
+  入れているあいだ N.FREQ は止まります
+
+T.VALUE / N.VALUE の右の **N** ボタンで、値のボタンが出ます（LEVEL と同じ
+様式）。T.VALUE は 1〜2 オクターブ上（12 / 24）・5 度上（31）・4 度上（35）・
+5 度下（70）・1〜2 オクターブ下（94 / 188）、N.VALUE は 1 / 4 / 8 / 12 / 16 / 31
+へ直に置けます。
+
+0 は実機と同じく 1 として扱います。RHYTHM・ADPCM・ADPCM+ の FORM も同じです。
 
 ## HW ENV — ハードウェアエンベロープ（実機）
 
@@ -124,6 +152,8 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | **Enable** | ハードウェアエンベロープを使う | 入 / 切（初期は切） | |
 | **SHAPE** | 形の種類 | 0〜43 | |
 | **PERIOD** | 一周にかかる時間 | 0.1〜200.0（初期 1.0） | |
+| **Use VALUE** | PERIOD の代わりに VALUE を使う | 入 / 切（初期は切） | |
+| **VALUE** | エンベロープの設定値 Te | 0〜65535（初期 1303） | 667000 ÷ (512 × Te) Hz |
 
 :::note
 実機の形は 8 種類ですが、ここでは **43 種類**まで選べます。8 番目より後ろは
@@ -142,7 +172,8 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | [**MUL/DET**](/2686V_2686VFX/chips/common/#muldet) | 実機・独自 | 音程をずらす |
 | [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 独自 | 同じ音を重ねて厚くする |
 | [**QUALITY**](/2686V_2686VFX/chips/common/#quality) | — | ビット数とサンプリング周波数を落として質感を作る |
-| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | 共通 | レベルの一括設定と、ファイルの読み書き |
+| [**EDIT**](/2686V_2686VFX/chips/common/#edit) | 共通 | 切り取り・コピー・貼り付け・初期化と、レベルの一括設定 |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | 共通 | ファイルの読み書き |
 
 QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 
@@ -152,8 +183,8 @@ QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご
 PITCH ENV・SSG SW ENV・DETUNE・UNISON・QUALITY・TONE/NOISE と、チャンネル
 全体です。
 
-**Level -> All Ch** は、このチャンネルの音量を他のすべてのチャンネルへ
-一度に反映します。
+**Level -> All Ch**（このチャンネルの音量を他のすべてのチャンネルへ一度に
+反映する）は、3.6.3 で [EDIT](/2686V_2686VFX/chips/common/#edit) へ移しました。
 
 ファイルの形式と置き場所は
 [ファイルの形式と置き場所](/2686V_2686VFX/files/format/) を参照してください。

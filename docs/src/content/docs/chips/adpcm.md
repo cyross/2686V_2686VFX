@@ -60,6 +60,10 @@ RHYTHM が複数のパッドに短い音を並べるのに対し、こちらは*
 | **T.LEVEL** | 読み込んだ音の側の量 | [`ADPCM_TONE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-tone) |
 | **N.LEVEL** | ざらつきの側の量 | [`ADPCM_NOISE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noise) |
 | **N.FREQ** | ざらつきの高さ | [`ADPCM_NOISEFREQ`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisefreq) |
+| **TONE: Use VALUE** | 鍵盤の音へ T.VALUE から決まる倍率を掛ける | [`ADPCM_TONE_VALUE_ON`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-tone-value-on) |
+| **T.VALUE** | 実機のトーンの設定値 To（0〜4095）。倍率は 47 ÷ To（初期値 47 で 1 倍） | [`ADPCM_TONE_VALUE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-tone-value) |
+| **NOISE: Use VALUE** | N.FREQ の代わりに N.VALUE でざらつきの高さを決める | [`ADPCM_NOISE_VALUE_ON`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noise-value-on) |
+| **N.VALUE** | 実機のノイズの設定値 Tn（0〜31）。667000 ÷ (32 × Tn) Hz | [`ADPCM_NOISE_VALUE`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noise-value) |
 | **MIX** | 2 つの混ぜ具合 | [`ADPCM_NOISEMIX`](/2686V_2686VFX/reference/automation/adpcm/#adpcm-noisemix) |
 
 ### PAN

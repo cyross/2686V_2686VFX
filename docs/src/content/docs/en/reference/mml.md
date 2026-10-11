@@ -98,6 +98,11 @@ value.
 
 Anything out of range is rounded to the nearest valid value.
 
+With "Show some FM parameters as in PC-9801 N88-BASIC(86)" turned on in
+SETTINGS, `AR` / `DR` / `SR` / `SL` / `RR` / `TL` (`D1R` / `D2R` / `D1L`, and `O` / `OL`, which set TL) are read
+**reversed**, as in N88-BASIC(86): `AR0` means 31 inside. You write them the way
+the knobs show them ([N88-BASIC(86)-style display](/2686V_2686VFX/en/guide/screen/#n88-basic86-style-display)).
+
 ## Using it
 
 1. Open an FM channel's tab

@@ -1,8 +1,10 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 
+#include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Io/ParamFile.h"
 #include <array>
 
@@ -18,6 +20,7 @@
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -134,6 +137,10 @@ private:
 
     QualityPcm qualityPcmComponent;
 
+    // パッド 1 つぶんの EDIT 区分 (QUALITY の下)。RHYTHM には MASK が無いので、
+    // FORM / PAN / QUALITY の列の最後に置く。
+    GuiComponentUnitEdit padEditComponent;
+
     GuiCategoryLabel panCat;
 
     GuiSlider noteSlider;
@@ -149,6 +156,9 @@ private:
     GuiSlider toneSlider;
     GuiSlider noiseSlider;
     GuiSlider noiseFreqSlider;
+
+    // TONE / NOISE を実機の設定値で決める (N.FREQ の下)
+    GuiComponentToneNoiseValue toneNoiseValue;
     GuiSlider mixSlider;
     GuiTextButton mixSetTone;  // 0.0
     GuiTextButton mixSetMix;   // 0.5
@@ -238,6 +248,7 @@ public:
         loopPointStartSlider(context),
         loopPointEndSlider(context),
 		qualityPcmComponent(context),
+		padEditComponent(context),
         panCat(context),
         noteSlider(context),
         panSlider(context),
@@ -249,6 +260,7 @@ public:
         toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),
+        toneNoiseValue(context),
         mixSlider(context),
         mixSetTone(context),
         mixSetMix(context),
@@ -308,8 +320,6 @@ public:
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
     void setupGraph();
-    void copyParams(CopyRhythmPad& copyObj);
-    void pasteParams(CopyRhythmPad& copyObj);
     void importToneNoiseParam();
 
     // ブラウザから直に読ませるための入口。
@@ -386,13 +396,12 @@ class GuiRhythm : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
     GuiCategoryLabel utilityCat;
+    GuiComponentPathRoot pathRoot;
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
-    GuiTextButton copyPadParamBtn;
-    GuiSlider copyPadFromSlider;
-    GuiSlider copyPadToSlider;
-    NormalSeparator uSep002;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
@@ -427,6 +436,15 @@ class GuiRhythm : public GuiBase
     // 終わったら必ず元へ戻す。
     void withPad(int index, const std::function<void(RhythmPadGui&)>& fn);
 public:
+    // 区分の外に持っている素材 (ParamEdit の切り取り・コピー・貼り付け)
+    void collectClipAssets(const juce::String& prefix, bool wholeChannel,
+        std::map<juce::String, juce::String>& out) override;
+    void applyClipAssets(const juce::String& prefix, bool wholeChannel,
+        const std::map<juce::String, juce::String>& assets, bool clearOthers) override;
+
+private:
+    std::vector<ParamEdit::AssetSlot> clipAssetSlots(const juce::String& prefix, bool wholeChannel);
+public:
     GuiRhythm(const GuiContext& context);
                      
     void setup() override;
@@ -460,8 +478,6 @@ public:
     void updatePresetName(const juce::String& name);
     void initParams();
     void setLevel(float level);
-    void copyPadParams(int p, CopyRhythmPad& copyObj);
-    void pastePadParams(int p, CopyRhythmPad& copyObj);
     void importToneNoiseParam(int p);
     void exportToneNoiseParam(int p);
     void importLfoParam(int p);

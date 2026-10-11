@@ -87,6 +87,8 @@ namespace EditorGuiValue
 		static inline constexpr int buttonWidth = 40;
 		static inline constexpr int miniButtonWidth = 30;
 		static inline constexpr int initButtonWidth = 60;
+		// コピー履歴 (CPHIST)。太字 20pt の 6 文字が省略されずに収まる幅
+		static inline constexpr int historyButtonWidth = 90;
 		static inline constexpr int buttonHeight = 20;
 	}
 

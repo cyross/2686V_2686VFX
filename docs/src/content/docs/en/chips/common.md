@@ -52,6 +52,13 @@ of period gear. Lower numbers are coarser.
 To lean towards the sound of the 1980s, bring BIT down and take RATE down with
 it.
 
+### DAC — switch everything to match a machine
+
+QUALITY and QUALITY(PCM) start with a **DAC** row (since 3.6.3). Pick a machine and
+press **Apply** to set BIT RATE, SMP.RATE and INTERP to match that machine's output in
+one go. The machine itself is not saved, only the values it set. The settings for
+each machine are listed in [What changed in v3.6.3](/2686V_2686VFX/en/guide/changes-363/#quality-gains-a-dac-row).
+
 The full list of what you can pick is under
 [QUALITY lists](/2686V_2686VFX/en/reference/lists-quality/).
 
@@ -149,10 +156,16 @@ The basic shape of the level. It runs **start level → attack → decay → sus
 | **AR** | Time to reach full level (seconds) | 0.001 – 10 | 0.001 | [`SSG_AR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ar) |
 | **DR** | Time to fall to sustain (seconds) | 0.001 – 10 | 0.001 | [`SSG_DR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-dr) |
 | **SL** | Level held while the key is down | 0 – 1 | 1 | [`SSG_SL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-sl) |
+| **STEPS** | Snaps SL to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **RR** | Time to fade out after release (seconds) | 0.001 – 10 | 0.001 | [`SSG_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-rr) |
 | **KOR** | **Ours.** Play the envelope out even after release | False / True | False | [`SSG_KOR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-kor) |
 | **Use Endl** | Ours. Leave sound behind after the release | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-endl-en) |
 | **ENDL** | Ours. The level held once it is there | 0 – 1 | 0 | [`SSG_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-endl) |
+
+**STEPS** works like the one on LEVEL: it snaps the value to the step you pick
+(from 3.6.3). As the range is 0–1, there is no "by 1" step. SSG HW AMP ENV,
+SSG SW AMP ENV, SSG SW AMP ENV[11], WT PITCH MOD and WT AMP MOD have the same
+STEPS, on every channel, operator and pad.
 
 FM operators carry a separate register-style envelope of their own
 (AR / DR / SR / SL / RR / TL). That one is covered on each chip's page.
@@ -167,8 +180,11 @@ hardware it was how you moved a level in steps.
 | **Enable** | Use it or not | False / True | False | [`SSG_SSGHWENV_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-enable) |
 | **SHAPE** | Shape of the wave. **0–15 are the hardware's, 16 up are ours** | 0 – 43 | 0 | [`SSG_SSGHWENV_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-shape) |
 | **PERIOD** | How fast it repeats | 0.1 – 200 | 1 | [`SSG_SSGHWENV_PERIOD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-period) |
+| **Use VALUE** | Set the speed with VALUE instead of PERIOD | False / True | False | [`SSG_SSGHWENV_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-value-on) |
+| **VALUE** | The chip's envelope value Te: 667000 ÷ (512 × Te) Hz | 0 – 65535 | 1303 | [`SSG_SSGHWENV_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-value) |
 | **MIN** | **Ours.** Bottom of the range it moves in | 0 – 1 | 0 | [`SSG_SSGHWENV_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-min) |
 | **MAX** | **Ours.** Top of the range it moves in | 0 – 1 | 1 | [`SSG_SSGHWENV_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-max) |
+| **STEPS** | Snaps MIN / MAX to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **Smooth** | **Ours.** Round off the corners of the steps | False / True | False | [`SSG_SSGHWENV_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-smooth) |
 
 The hardware had sixteen shapes over a fixed range. Here there are also versions
@@ -176,6 +192,23 @@ with a different number of steps, sample-and-hold, sine, random, and more.
 
 The full list of shapes is under
 [Waveform lists](/2686V_2686VFX/en/reference/lists-waveform/).
+
+#### Setting it with the chip's value — VALUE
+
+PERIOD sets the speed in Hz. Turn on **Use VALUE** to set it with the YM2203's
+own value **Te** instead (since 3.6.3). The speed is
+
+> Fenv = 667 × 1000 ÷ (512 × Te)
+
+A larger Te is slower. The default 1303 is the closest to PERIOD's default
+(1 Hz). 0 counts as 1, as on the chip. SSG HW PITCH ENV works the same way.
+
+The **N** button to the right of VALUE shows value buttons, as on LEVEL: ±1,
+±10, ±100 and ±1000, plus the values for 0.25 / 0.5 / 1 / 2 / 4 / 8 Hz
+(5211 / 2606 / 1303 / 651 / 326 / 163).
+
+FORM's TONE / NOISE have the same kind of switch (see
+[SSG](/2686V_2686VFX/en/chips/ssg/)).
 
 ### SSG SW AMP ENV
 
@@ -199,6 +232,7 @@ lets you draw it directly, as **a series of line segments**.
 | **L5** | Level at step 5 | 0 – 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
 | **R6** | Time to reach step 6 | 0.001 – 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
 | **L6** | Level at step 6 | 0 – 1 | 0 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
+| **STEPS** | Snaps L1–L6 to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSW_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loop) |
 | **LOOP.TO** | Step it goes back to. 0–3 | 0 – 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopto) |
 | **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
@@ -235,6 +269,7 @@ movement, use this one rather than the 6-tap version.
 | **L10** | Level at step 10 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
 | **R11** | Time to reach step 11 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
 | **L11** | Level at step 11 | 0 – 1 | 0 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
+| **STEPS** | Snaps L1–L11 and ENDL to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSW11_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loop) |
 | **LOOP.TO** | Step it goes back to. 0–8 | 0 – 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopto) |
 | **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
@@ -273,6 +308,8 @@ and trills.
 | **Enable** | Use it or not | False / True | False | [`SSG_SSGHWPENV_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-enable) |
 | **SHAPE** | Shape. The same 44 as SSG HW AMP ENV | 0 – 43 | 0 | [`SSG_SSGHWPENV_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-shape) |
 | **PERIOD** | How fast it repeats | 0.1 – 200 | 1 | [`SSG_SSGHWPENV_PERIOD`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-period) |
+| **Use VALUE** | Set the speed with VALUE instead of PERIOD | False / True | False | [`SSG_SSGHWPENV_VALUE_ON`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-value-on) |
+| **VALUE** | The chip's envelope value Te: 667000 ÷ (512 × Te) Hz | 0 – 65535 | 1303 | [`SSG_SSGHWPENV_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-value) |
 | **MIN** | Bottom of the range, in cents | -4800 – 4800 | 0 | [`SSG_SSGHWPENV_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-min) |
 | **MAX** | Top of the range, in cents | -4800 – 4800 | 1200 | [`SSG_SSGHWPENV_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-max) |
 | **Smooth** | Round off the corners of the steps | False / True | False | [`SSG_SSGHWPENV_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwpenv-smooth) |
@@ -401,6 +438,7 @@ the wobble.**
 | --- | --- | --- | ---: | --- |
 | **Enable** | Use it or not | False / True | False | [`SSG_MOD_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-enable) |
 | **DEPTH** | How deep the wobble goes | 0.1 – 1 | 0.2 | [`SSG_MOD_DEPTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-depth) |
+| **STEPS** | Snaps DEPTH to a fixed step (screen only, not saved); steps below 0.1 go to 0.1 | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **SPEED** | How fast it wobbles | 0.1 – 10 | 1 | [`SSG_MOD_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-speed) |
 | **SHAPE** | Shape it wobbles with. 9 kinds | 0 – 8 | 0 | [`SSG_MOD_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-shape) |
 | **Smooth** | Round off the corners of the steps | False / True | True | [`SSG_MOD_WAVE_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-wave-smooth) |
@@ -425,6 +463,7 @@ level instead of pitch. The output moves **between MIN and MAX**.
 | --- | --- | --- | ---: | --- |
 | **Enable** | Use it or not | False / True | False | [`SSG_AMPMOD_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-enable) |
 | **DEPTH** | How far the level is pulled down from MAX | 0 – 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-depth) |
+| **STEPS** | Snaps DEPTH to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **SPEED** | How fast it wobbles | 0.1 – 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-speed) |
 | **SHAPE** | Shape it wobbles with. The same 9 as WT PITCH MOD | 0 – 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-shape) |
 | **MIN** | Bottom of the range | 0 – 1 | 0 | [`SSG_AMPMOD_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-min) |
@@ -521,11 +560,11 @@ the real chip does.
 | **Arpeggio** | Sound them one after another instead of stacking | False / True | False | [`SSG_UNI_ARP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arp) |
 | **AR.FREQ** | How fast the arpeggio runs | 1 – 4000 | 60 | [`SSG_UNI_ARPFREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arpfreq) |
 | **Arp Smooth** | Round off the corners as it switches | False / True | True | [`SSG_UNI_ARPSMTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-arpsmth) |
-| **P-SPREAD** | Distance per voice (seven of them) | 0 – 1 | 0 | [`SSG_UNI_PDIST[1-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdist-1-7) |
-| **P-DETUNE** | Shift per voice (seven of them, in cents) | -4800 – 4800 | 0 | [`SSG_UNI_PDET[1-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdet-1-7) |
+| **P-SPREAD** | Distance per voice (eight, including the original) | 0 – 1 | 0 | [`SSG_UNI_PDIST[0-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdist-0-7) |
+| **P-DETUNE** | Shift per voice (eight, including the original, in cents) | -4800 – 4800 | 0 | [`SSG_UNI_PDET[0-7]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-uni-pdet-0-7) |
 
-From the second voice on, **the distance and the amount of shift are set per
-voice** (seven of them). Beyond spreading them evenly you can weight them to one
+**The distance and the amount of shift are set per voice.** Pick the voice with
+VOICES: 0 is the original, 1 to 7 are the stacked voices (0 arrived in 3.6.3). Beyond spreading them evenly you can weight them to one
 side, stack them in octaves, and so on.
 
 Switch **Arpeggio** on and, instead of stacking, the voices sound one after
@@ -540,6 +579,118 @@ what happens at key-off, and so on.
 
 What appears is covered on each chip's page.
 
+## EDIT
+
+Cut, copy, paste and clear parameters (since 3.6.3). The EDIT section for the
+whole channel sits below MIDI.
+
+| Button | What it does |
+| --- | --- |
+| **CUT** | Copies, then resets to the defaults |
+| **COPY** | Copies |
+| **PASTE** | Pastes what you copied |
+| **CLEAR** | Resets to the defaults |
+
+- These four work on the channel's **global part** (everything except the
+  operators and pads). WT+ / ADPCM+ targets (slots) are included
+- Pasting fills **only parameters with the same name**. You can paste into a
+  channel of a different chip; anything it lacks is skipped
+- Wave memory, audio files and modulation waves (WT PITCH MOD / WT AMP MOD) are
+  copied too, and reloaded when you paste
+- What you copy stays until the DAW closes, and can be pasted into another
+  window of the same plug-in
+- While pasting, clearing or duplicating, **Duplicating…** covers the screen
+  until it finishes
+
+**Level -> All Ch** and **Duplicate Op Params**, which copies one operator at a
+time (Copy Op Params up to 3.6.2), have moved here from UTILITY, below the
+separator.
+
+### EDIT for an operator / pad
+
+OPNA, OPN, OPL, OPL3, OPM and OPZX7 have a second EDIT below MASK; RHYTHM has
+it below OPTIONAL. It works on **the operator / pad selected by TARGET**, and
+can paste into another operator or pad, or into an operator of another channel.
+
+### Duplicate Pad Params — copying a pad onto several pads (RHYTHM)
+
+At the top of the global EDIT (below MIDI) on RHYTHM.
+
+- Pick the source pad with **FROM** and any number of destinations with the
+  numbered **TO** toggles (the source's own number cannot be picked)
+- Every parameter of the pad is copied
+- With **WITH FILE** on, the audio (wave) and its file name are copied too;
+  with it off, the destinations keep their audio
+
+This replaces the Copy Pad Params (FROM / TO sliders) that sat in UTILITY up to
+3.6.2.
+
+### With Note (RHYTHM)
+
+A toggle in RHYTHM's global EDIT, below CUT / COPY / PASTE / CLEAR. **While it is
+off, PASTE / CUT / CLEAR leave each pad's NOTE alone** (it starts off), because
+changing the NOTE would change which key plays which pad.
+
+It applies to the global EDIT, the pad EDIT, right-clicking a section (OPTIONAL
+and so on) and Duplicate Pad Params alike. Turn it on only when you want the
+NOTE copied or reset too.
+
+### Right-click a section
+
+Right-click a section heading for a CUT / COPY / PASTE / CLEAR menu that works
+on **that section only**. It works on closed sections too. Paste into the same
+section of another channel, operator or pad. For FX effects, right-click the
+frame's heading.
+
+### Duplicate Ops Params — copying a run of operators
+
+At the top of EDIT on OPNA, OPN, OPL3, OPM and OPZX7. Copies a run of
+consecutive operators onto another run. Pick them with **FROM** and **TO**.
+
+**SWAP** exchanges FROM and TO. Below it, **SHIFT** / **UNSHIFT** come in a FROM
+row and a TO row, and move that run by one operator.
+
+- **SHIFT** counts up (1, 2, 3, 4, 1, 2, …), **UNSHIFT** counts down
+  (4, 3, 2, 1, 4, 3, …)
+- A run that would run off the end wraps to the other end: with 8 operators,
+  SHIFT turns [6,7,8] into [1,2,3], and UNSHIFT turns [1,2,3] into [6,7,8]
+- If the shifted run is not one you can pick, it moves on to the next one that
+  is ([1,2] → [3,4] on 4-operator chips, [1,2,3,4] → [5,6,7,8] on OPZX7)
+
+| Chip | Runs you can pick |
+| --- | --- |
+| OPNA / OPN / OPL3 / OPM | [1,2] and [3,4] |
+| OPZX7 | two: [1,2] – [7,8]; three: [1,2,3] – [6,7,8]; four: [1,2,3,4] and [5,6,7,8] |
+
+- Either direction works ([1,2]→[3,4] as well as [3,4]→[1,2]). The order inside
+  a run is kept ([1,2] cannot become [2,1])
+- Combinations where source and destination overlap are disabled
+- On OPZX7 the feedback is copied too. With the algorithm matrix in use, the
+  connections inside the run are copied as well. If either run is connected to
+  an operator outside the two, a warning appears and nothing is copied
+
+### Duplicate Targets / Clear Targets (WT+ / ADPCM+)
+
+At the top of EDIT. Each opens a dialog, placed so that the WAVE MEMORY / FORM
+frames stay in view while you choose.
+
+- **Duplicate Targets**: pick the source target with **FROM** and any number of
+  destinations with **TO**. With **Copy parameters too** on, every parameter of
+  the source is copied; with it off, only the wave (audio) and its file name
+- **Clear Targets**: returns the targets picked under **TARGET** to their initial
+  state, wave and parameters alike
+- **Check all** / **Uncheck all** (on a yellowish background) select everything at once
+- Press **Esc**, or the button that opened the dialog again, to close it. The
+  **Clear** button in Clear Targets is red
+
+### Copy history — CPHIST
+
+The **CPHIST** system button at the top lists what you have copied (newest
+first, up to 200). Filter by **tab** (channel, curve editing, FX), **unit**
+(global / operator / pad / target) and **section**. **Copy again** at the right
+end of a row makes that row the current copy, ready to paste. **Close**, a click
+outside the list, or **Esc** closes it. The button is blue.
+
 ## UTILITY
 
 Reading and writing parameters. `[IM]` imports and `[EX]` exports.
@@ -548,7 +699,8 @@ Each section can be moved in and out as its own file, so you can carry just the
 AMP ENV over to another channel, or reuse only the LFO settings. A whole channel
 can also go into a single file.
 
-**Level -> All Ch** copies this channel's level to every other channel at once.
+**Level -> All Ch** (copies this channel's level to every other channel at once)
+moved to [EDIT](#edit) in 3.6.3.
 
 For the formats and where they live, see
 [File formats and locations](/2686V_2686VFX/en/files/format/). Parameter files **can be read

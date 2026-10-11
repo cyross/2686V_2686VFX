@@ -2,7 +2,7 @@
 title: Reverb
 description: Setting up the Reverb
 sidebar:
-  order: 8
+  order: 9
 ---
 
 <figure class="shot">

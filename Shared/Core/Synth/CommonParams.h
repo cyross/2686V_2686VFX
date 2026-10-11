@@ -148,6 +148,10 @@ struct ToneNoiseParams {
     // --- Tone and Noise Mix ---
     // 0.0(Tone) - 1.0(Noise)
     float mix = 0.0f;
+
+    // 鍵盤の周波数へ掛ける倍率。FORM の TONE の VALUE を入れていれば
+    // To から決まり (SsgRegister::toneRatio)、切っていれば 1
+    float toneRatio = 1.0f;
 };
 
 struct PcmParams {

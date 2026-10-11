@@ -9,6 +9,7 @@
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Shared/Core/Gui/GuiHelpers.h"
+#include "Shared/Core/Gui/GuiParamEdit.h"
 #include "Shared/Core/Gui/GuiStructs.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "../../../Core/Const/ConstFileValues.h"
@@ -51,12 +52,17 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     cat.setupCategory({ .parent = parent, .title = juce::String("") + "WT AMP MOD", .enableChangeDetailVisible = true }, categoryBg);
 
     enableButton.setup({ .parent = parent, .id = code + CPK::WtAmpMod::enable, .title = "Enable", .isReset = true, .isResized = true });
+
+    // 区分を右クリックで写すとき、変調波形も一緒に写す
+    enableButton.getProperties().set(ParamEdit::Property::waveKey, m_waveKey);
     enableButton.setWantsKeyboardFocus(true);
     enableButton.setExplicitFocusOrder(++tabOrder);
 
     depthSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::depth, .title = "DEPTH", .isReset = true });
     depthSlider.setWantsKeyboardFocus(true);
     depthSlider.setExplicitFocusOrder(++tabOrder);
+
+    depthSteps.setupComponent(parent, { &depthSlider }, tabOrder);
 
     speedSlider.setup({ .parent = parent, .id = code + CPK::WtAmpMod::speed, .title = "SPEED", .isReset = true });
     speedSlider.setWantsKeyboardFocus(true);
@@ -202,7 +208,12 @@ void GuiComponentWtAmpMod::rebind(const juce::String& code)
     // 変調波形の実体はプロセッサがこの鍵で持っている。
     m_code = code;
 
+    // 波形の置き場もオペレーターごと。付け替えないと、TARGET を変えても
+    // 最初のオペレーターの波形を読み書きしてしまう。
+    m_waveKey = code + CPK::WtAmpMod::waveStoreSuffix;
+
     enableButton.rebind(code + CPK::WtAmpMod::enable);
+    enableButton.getProperties().set(ParamEdit::Property::waveKey, m_waveKey);
     depthSlider.rebind(code + CPK::WtAmpMod::depth);
     speedSlider.rebind(code + CPK::WtAmpMod::speed);
     shapeSelector.rebind(code + CPK::WtAmpMod::shape);
@@ -232,6 +243,7 @@ void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
 
     enableButton.setVisible(visible);
     depthSlider.setVisibleWithLabel(visible);
+    depthSteps.setVisibleWithLabel(visible);
     speedSlider.setVisibleWithLabel(visible);
     shapeSelector.setVisibleWithLabel(visible);
     minSlider.setVisibleWithLabel(visible);
@@ -255,6 +267,7 @@ void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
     {
         layoutMain({ .mainRect = rect, .component = &enableButton });
         layoutMain({ .mainRect = rect, .label = &depthSlider.label, .component = &depthSlider });
+        depthSteps.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &speedSlider.label, .component = &speedSlider, });
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, });
 
@@ -293,6 +306,7 @@ void GuiComponentWtAmpMod::layoutComponent(juce::Rectangle<int>& rect)
 
     waveHold.setEnables(isMod);
     depthSlider.setEnabledWithLabel(isMod);
+    depthSteps.setEnabledWithLabel(isMod);
     speedSlider.setEnabledWithLabel(isMod);
     shapeSelector.setEnabledWithLabel(isMod);
     minSlider.setEnabled(isMod);
@@ -604,6 +618,25 @@ void GuiComponentWtAmpMod::readParams(const Io::ParamReader& reader, const juce:
 
     waveHold.readParams(r);
 
+    // 読み込んだ変調波形の場所 (3.6.3 から)。無いファイルでは今の波形のまま。
+    // 空のスロットは外す。見つからないものは、今の波形のまま残す。
+    const auto waves = r.getStringArray("waves");
+
+    for (int i = 0; i < (int)waves.size() && i < Global::WtMod::slots; ++i) {
+        const auto& text = waves[(size_t)i];
+
+        if (!Io::isFileName(text)) {
+            ctx.audioProcessor.unloadWtModWaveFile(m_waveKey, i);
+        }
+        else {
+            const auto file = ctx.audioProcessor.fromStoredPath(text, ctx.audioProcessor.defaultWavetableDir);
+
+            if (file.existsAsFile()) ctx.audioProcessor.loadWtModWaveFile(m_waveKey, i, file);
+        }
+
+        updateSlotFileName(i);
+    }
+
     auto values = r.getIntArray("table");
 
     if (values.empty()) return;
@@ -631,7 +664,25 @@ void GuiComponentWtAmpMod::writeParams(Io::ParamWriter& writer, const juce::Stri
 
     waveHold.writeParams(w);
 
+    // 読み込んだ変調波形の場所。基準は Io::PathRoot で選ぶ。
+    std::vector<juce::String> waves;
+
+    for (int i = 0; i < Global::WtMod::slots; ++i) {
+        waves.push_back(ctx.audioProcessor.toStoredPath(wavePath(i), ctx.audioProcessor.defaultWavetableDir, false));
+    }
+
+    w.setArray("waves", waves);
+
     auto table = fdsEditor.currentTable();
 
     w.setArray("table", std::vector<int>(table.begin(), table.end()));
+}
+
+void GuiComponentWtAmpMod::refreshWaves()
+{
+    for (int i = 0; i < Global::WtMod::slots; ++i) updateSlotPreview(i);
+
+    applySlotTarget();
+
+    updateModPreview();
 }

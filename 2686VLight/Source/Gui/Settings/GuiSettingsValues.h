@@ -93,6 +93,8 @@ namespace SettingsGuiValue
 		static inline constexpr int FileFormatSelectorWidth = 120;
 		static inline constexpr int ToggleAlignLabelWidth = 150;
 		static inline constexpr int ToggleAlignSelectorWidth = 120;
+		// 相対パスの基準。選択肢の名前が長いので、トグルボタン配置より広く取る
+		static inline constexpr int PathRootSelectorWidth = 200;
 		static inline constexpr int ModeSelectorWidth = 320;
 		static inline constexpr int BrowseButtonWidth = 80;
 		static inline constexpr int ClearButtonWidth = 60;

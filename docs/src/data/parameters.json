@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
-  "version": "3.6.2",
-  "count": 14552,
+  "version": "3.6.3",
+  "count": 14936,
   "parameters": [
     {
       "id": "MODE",
@@ -176,6 +176,22 @@
       "default": 1.0
     },
     {
+      "id": "OPNA_SSGHWENV_VALUE_ON",
+      "name": "OPNA Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_SSGHWENV_VALUE",
+      "name": "OPNA Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPNA_SSGHWENV_MIN",
       "name": "OPNA Hardware Env Min",
       "type": "Float",
@@ -309,6 +325,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPNA_SSGHWPENV_VALUE_ON",
+      "name": "OPNA Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_SSGHWPENV_VALUE",
+      "name": "OPNA Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPNA_SSGHWPENV_MIN",
@@ -1982,6 +2014,23 @@
       "default": 0
     },
     {
+      "id": "OPNA_UNI_PDIST0",
+      "name": "OPNA Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPNA_UNI_PDET0",
+      "name": "OPNA Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "OPNA_SSGSW11_BYPASS",
       "name": "OPNA SSG SwEnv11 Bypass",
       "type": "Bool",
@@ -2980,6 +3029,22 @@
       "default": 1.0
     },
     {
+      "id": "OPNA_OP0_SSGHWPENV_VALUE_ON",
+      "name": "OPNA Op1 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_SSGHWPENV_VALUE",
+      "name": "OPNA Op1 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPNA_OP0_SSGHWPENV_MIN",
       "name": "OPNA Op1 Hardware Pitch Env Min",
       "type": "Int",
@@ -3517,6 +3582,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPNA_OP0_SSGHWENV_VALUE_ON",
+      "name": "OPNA Op1 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_SSGHWENV_VALUE",
+      "name": "OPNA Op1 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPNA_OP0_SSGHWENV_MIN",
@@ -5024,6 +5105,22 @@
       "default": 1.0
     },
     {
+      "id": "OPNA_OP1_SSGHWPENV_VALUE_ON",
+      "name": "OPNA Op2 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_SSGHWPENV_VALUE",
+      "name": "OPNA Op2 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPNA_OP1_SSGHWPENV_MIN",
       "name": "OPNA Op2 Hardware Pitch Env Min",
       "type": "Int",
@@ -5561,6 +5658,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPNA_OP1_SSGHWENV_VALUE_ON",
+      "name": "OPNA Op2 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_SSGHWENV_VALUE",
+      "name": "OPNA Op2 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPNA_OP1_SSGHWENV_MIN",
@@ -7068,6 +7181,22 @@
       "default": 1.0
     },
     {
+      "id": "OPNA_OP2_SSGHWPENV_VALUE_ON",
+      "name": "OPNA Op3 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_SSGHWPENV_VALUE",
+      "name": "OPNA Op3 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPNA_OP2_SSGHWPENV_MIN",
       "name": "OPNA Op3 Hardware Pitch Env Min",
       "type": "Int",
@@ -7605,6 +7734,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPNA_OP2_SSGHWENV_VALUE_ON",
+      "name": "OPNA Op3 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_SSGHWENV_VALUE",
+      "name": "OPNA Op3 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPNA_OP2_SSGHWENV_MIN",
@@ -9112,6 +9257,22 @@
       "default": 1.0
     },
     {
+      "id": "OPNA_OP3_SSGHWPENV_VALUE_ON",
+      "name": "OPNA Op4 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_SSGHWPENV_VALUE",
+      "name": "OPNA Op4 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPNA_OP3_SSGHWPENV_MIN",
       "name": "OPNA Op4 Hardware Pitch Env Min",
       "type": "Int",
@@ -9649,6 +9810,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPNA_OP3_SSGHWENV_VALUE_ON",
+      "name": "OPNA Op4 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_SSGHWENV_VALUE",
+      "name": "OPNA Op4 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPNA_OP3_SSGHWENV_MIN",
@@ -10322,6 +10499,22 @@
       "default": 1.0
     },
     {
+      "id": "OPN_SSGHWENV_VALUE_ON",
+      "name": "OPN Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_SSGHWENV_VALUE",
+      "name": "OPN Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPN_SSGHWENV_MIN",
       "name": "OPN Hardware Env Min",
       "type": "Float",
@@ -10455,6 +10648,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPN_SSGHWPENV_VALUE_ON",
+      "name": "OPN Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_SSGHWPENV_VALUE",
+      "name": "OPN Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPN_SSGHWPENV_MIN",
@@ -12128,6 +12337,23 @@
       "default": 0
     },
     {
+      "id": "OPN_UNI_PDIST0",
+      "name": "OPN Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPN_UNI_PDET0",
+      "name": "OPN Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "OPN_SSGSW11_BYPASS",
       "name": "OPN SSG SwEnv11 Bypass",
       "type": "Bool",
@@ -13061,6 +13287,22 @@
       "default": 1.0
     },
     {
+      "id": "OPN_OP0_SSGHWPENV_VALUE_ON",
+      "name": "OPN Op1 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_SSGHWPENV_VALUE",
+      "name": "OPN Op1 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPN_OP0_SSGHWPENV_MIN",
       "name": "OPN Op1 Hardware Pitch Env Min",
       "type": "Int",
@@ -13598,6 +13840,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPN_OP0_SSGHWENV_VALUE_ON",
+      "name": "OPN Op1 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_SSGHWENV_VALUE",
+      "name": "OPN Op1 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPN_OP0_SSGHWENV_MIN",
@@ -15040,6 +15298,22 @@
       "default": 1.0
     },
     {
+      "id": "OPN_OP1_SSGHWPENV_VALUE_ON",
+      "name": "OPN Op2 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_SSGHWPENV_VALUE",
+      "name": "OPN Op2 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPN_OP1_SSGHWPENV_MIN",
       "name": "OPN Op2 Hardware Pitch Env Min",
       "type": "Int",
@@ -15577,6 +15851,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPN_OP1_SSGHWENV_VALUE_ON",
+      "name": "OPN Op2 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_SSGHWENV_VALUE",
+      "name": "OPN Op2 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPN_OP1_SSGHWENV_MIN",
@@ -17019,6 +17309,22 @@
       "default": 1.0
     },
     {
+      "id": "OPN_OP2_SSGHWPENV_VALUE_ON",
+      "name": "OPN Op3 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_SSGHWPENV_VALUE",
+      "name": "OPN Op3 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPN_OP2_SSGHWPENV_MIN",
       "name": "OPN Op3 Hardware Pitch Env Min",
       "type": "Int",
@@ -17556,6 +17862,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPN_OP2_SSGHWENV_VALUE_ON",
+      "name": "OPN Op3 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_SSGHWENV_VALUE",
+      "name": "OPN Op3 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPN_OP2_SSGHWENV_MIN",
@@ -18998,6 +19320,22 @@
       "default": 1.0
     },
     {
+      "id": "OPN_OP3_SSGHWPENV_VALUE_ON",
+      "name": "OPN Op4 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_SSGHWPENV_VALUE",
+      "name": "OPN Op4 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPN_OP3_SSGHWPENV_MIN",
       "name": "OPN Op4 Hardware Pitch Env Min",
       "type": "Int",
@@ -19535,6 +19873,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPN_OP3_SSGHWENV_VALUE_ON",
+      "name": "OPN Op4 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_SSGHWENV_VALUE",
+      "name": "OPN Op4 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPN_OP3_SSGHWENV_MIN",
@@ -20135,6 +20489,22 @@
       "default": 1.0
     },
     {
+      "id": "OPL_SSGHWENV_VALUE_ON",
+      "name": "OPL Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_SSGHWENV_VALUE",
+      "name": "OPL Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPL_SSGHWENV_MIN",
       "name": "OPL Hardware Env Min",
       "type": "Float",
@@ -20268,6 +20638,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPL_SSGHWPENV_VALUE_ON",
+      "name": "OPL Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_SSGHWPENV_VALUE",
+      "name": "OPL Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPL_SSGHWPENV_MIN",
@@ -21941,6 +22327,23 @@
       "default": 0
     },
     {
+      "id": "OPL_UNI_PDIST0",
+      "name": "OPL Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL_UNI_PDET0",
+      "name": "OPL Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "OPL_SSGSW11_BYPASS",
       "name": "OPL SSG SwEnv11 Bypass",
       "type": "Bool",
@@ -22917,6 +23320,22 @@
       "default": 1.0
     },
     {
+      "id": "OPL_OP0_SSGHWPENV_VALUE_ON",
+      "name": "OPL Op1 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_SSGHWPENV_VALUE",
+      "name": "OPL Op1 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPL_OP0_SSGHWPENV_MIN",
       "name": "OPL Op1 Hardware Pitch Env Min",
       "type": "Int",
@@ -23454,6 +23873,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPL_OP0_SSGHWENV_VALUE_ON",
+      "name": "OPL Op1 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_SSGHWENV_VALUE",
+      "name": "OPL Op1 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPL_OP0_SSGHWENV_MIN",
@@ -24939,6 +25374,22 @@
       "default": 1.0
     },
     {
+      "id": "OPL_OP1_SSGHWPENV_VALUE_ON",
+      "name": "OPL Op2 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_SSGHWPENV_VALUE",
+      "name": "OPL Op2 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPL_OP1_SSGHWPENV_MIN",
       "name": "OPL Op2 Hardware Pitch Env Min",
       "type": "Int",
@@ -25476,6 +25927,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPL_OP1_SSGHWENV_VALUE_ON",
+      "name": "OPL Op2 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_SSGHWENV_VALUE",
+      "name": "OPL Op2 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPL_OP1_SSGHWENV_MIN",
@@ -26076,6 +26543,22 @@
       "default": 1.0
     },
     {
+      "id": "OPL3_SSGHWENV_VALUE_ON",
+      "name": "OPL3 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_SSGHWENV_VALUE",
+      "name": "OPL3 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPL3_SSGHWENV_MIN",
       "name": "OPL3 Hardware Env Min",
       "type": "Float",
@@ -26209,6 +26692,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPL3_SSGHWPENV_VALUE_ON",
+      "name": "OPL3 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_SSGHWPENV_VALUE",
+      "name": "OPL3 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPL3_SSGHWPENV_MIN",
@@ -27882,6 +28381,23 @@
       "default": 0
     },
     {
+      "id": "OPL3_UNI_PDIST0",
+      "name": "OPL3 Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL3_UNI_PDET0",
+      "name": "OPL3 Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "OPL3_SSGSW11_BYPASS",
       "name": "OPL3 SSG SwEnv11 Bypass",
       "type": "Bool",
@@ -28850,6 +29366,22 @@
       "default": 1.0
     },
     {
+      "id": "OPL3_OP0_SSGHWPENV_VALUE_ON",
+      "name": "OPL3 Op1 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_SSGHWPENV_VALUE",
+      "name": "OPL3 Op1 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPL3_OP0_SSGHWPENV_MIN",
       "name": "OPL3 Op1 Hardware Pitch Env Min",
       "type": "Int",
@@ -29387,6 +29919,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPL3_OP0_SSGHWENV_VALUE_ON",
+      "name": "OPL3 Op1 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_SSGHWENV_VALUE",
+      "name": "OPL3 Op1 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPL3_OP0_SSGHWENV_MIN",
@@ -30864,6 +31412,22 @@
       "default": 1.0
     },
     {
+      "id": "OPL3_OP1_SSGHWPENV_VALUE_ON",
+      "name": "OPL3 Op2 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_SSGHWPENV_VALUE",
+      "name": "OPL3 Op2 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPL3_OP1_SSGHWPENV_MIN",
       "name": "OPL3 Op2 Hardware Pitch Env Min",
       "type": "Int",
@@ -31401,6 +31965,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPL3_OP1_SSGHWENV_VALUE_ON",
+      "name": "OPL3 Op2 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_SSGHWENV_VALUE",
+      "name": "OPL3 Op2 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPL3_OP1_SSGHWENV_MIN",
@@ -32878,6 +33458,22 @@
       "default": 1.0
     },
     {
+      "id": "OPL3_OP2_SSGHWPENV_VALUE_ON",
+      "name": "OPL3 Op3 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_SSGHWPENV_VALUE",
+      "name": "OPL3 Op3 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPL3_OP2_SSGHWPENV_MIN",
       "name": "OPL3 Op3 Hardware Pitch Env Min",
       "type": "Int",
@@ -33415,6 +34011,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPL3_OP2_SSGHWENV_VALUE_ON",
+      "name": "OPL3 Op3 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_SSGHWENV_VALUE",
+      "name": "OPL3 Op3 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPL3_OP2_SSGHWENV_MIN",
@@ -34892,6 +35504,22 @@
       "default": 1.0
     },
     {
+      "id": "OPL3_OP3_SSGHWPENV_VALUE_ON",
+      "name": "OPL3 Op4 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_SSGHWPENV_VALUE",
+      "name": "OPL3 Op4 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPL3_OP3_SSGHWPENV_MIN",
       "name": "OPL3 Op4 Hardware Pitch Env Min",
       "type": "Int",
@@ -35429,6 +36057,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPL3_OP3_SSGHWENV_VALUE_ON",
+      "name": "OPL3 Op4 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_SSGHWENV_VALUE",
+      "name": "OPL3 Op4 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPL3_OP3_SSGHWENV_MIN",
@@ -36126,6 +36770,22 @@
       "default": 1.0
     },
     {
+      "id": "OPM_SSGHWENV_VALUE_ON",
+      "name": "OPM Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_SSGHWENV_VALUE",
+      "name": "OPM Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPM_SSGHWENV_MIN",
       "name": "OPM Hardware Env Min",
       "type": "Float",
@@ -36259,6 +36919,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPM_SSGHWPENV_VALUE_ON",
+      "name": "OPM Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_SSGHWPENV_VALUE",
+      "name": "OPM Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPM_SSGHWPENV_MIN",
@@ -37932,6 +38608,23 @@
       "default": 0
     },
     {
+      "id": "OPM_UNI_PDIST0",
+      "name": "OPM Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPM_UNI_PDET0",
+      "name": "OPM Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "OPM_SSGSW11_BYPASS",
       "name": "OPM SSG SwEnv11 Bypass",
       "type": "Bool",
@@ -38915,6 +39608,22 @@
       "default": 1.0
     },
     {
+      "id": "OPM_OP0_SSGHWPENV_VALUE_ON",
+      "name": "OPM Op1 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_SSGHWPENV_VALUE",
+      "name": "OPM Op1 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPM_OP0_SSGHWPENV_MIN",
       "name": "OPM Op1 Hardware Pitch Env Min",
       "type": "Int",
@@ -39452,6 +40161,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPM_OP0_SSGHWENV_VALUE_ON",
+      "name": "OPM Op1 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_SSGHWENV_VALUE",
+      "name": "OPM Op1 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPM_OP0_SSGHWENV_MIN",
@@ -40944,6 +41669,22 @@
       "default": 1.0
     },
     {
+      "id": "OPM_OP1_SSGHWPENV_VALUE_ON",
+      "name": "OPM Op2 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_SSGHWPENV_VALUE",
+      "name": "OPM Op2 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPM_OP1_SSGHWPENV_MIN",
       "name": "OPM Op2 Hardware Pitch Env Min",
       "type": "Int",
@@ -41481,6 +42222,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPM_OP1_SSGHWENV_VALUE_ON",
+      "name": "OPM Op2 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_SSGHWENV_VALUE",
+      "name": "OPM Op2 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPM_OP1_SSGHWENV_MIN",
@@ -42973,6 +43730,22 @@
       "default": 1.0
     },
     {
+      "id": "OPM_OP2_SSGHWPENV_VALUE_ON",
+      "name": "OPM Op3 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_SSGHWPENV_VALUE",
+      "name": "OPM Op3 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPM_OP2_SSGHWPENV_MIN",
       "name": "OPM Op3 Hardware Pitch Env Min",
       "type": "Int",
@@ -43510,6 +44283,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPM_OP2_SSGHWENV_VALUE_ON",
+      "name": "OPM Op3 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_SSGHWENV_VALUE",
+      "name": "OPM Op3 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPM_OP2_SSGHWENV_MIN",
@@ -45002,6 +45791,22 @@
       "default": 1.0
     },
     {
+      "id": "OPM_OP3_SSGHWPENV_VALUE_ON",
+      "name": "OPM Op4 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_SSGHWPENV_VALUE",
+      "name": "OPM Op4 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPM_OP3_SSGHWPENV_MIN",
       "name": "OPM Op4 Hardware Pitch Env Min",
       "type": "Int",
@@ -45539,6 +46344,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPM_OP3_SSGHWENV_VALUE_ON",
+      "name": "OPM Op4 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_SSGHWENV_VALUE",
+      "name": "OPM Op4 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPM_OP3_SSGHWENV_MIN",
@@ -46362,6 +47183,23 @@
       "default": 0
     },
     {
+      "id": "OPZX7_UNI_PDIST0",
+      "name": "OPZX7S Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_UNI_PDET0",
+      "name": "OPZX7S Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "OPZX7_LFO_PM_FREQ",
       "name": "OPZX7S LFO PM Freq",
       "type": "Float",
@@ -46666,6 +47504,22 @@
       "default": 1.0
     },
     {
+      "id": "OPZX7_SSGHWENV_VALUE_ON",
+      "name": "OPZX7S Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_SSGHWENV_VALUE",
+      "name": "OPZX7S Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPZX7_SSGHWENV_MIN",
       "name": "OPZX7S Hardware Env Min",
       "type": "Float",
@@ -46799,6 +47653,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPZX7_SSGHWPENV_VALUE_ON",
+      "name": "OPZX7S Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_SSGHWPENV_VALUE",
+      "name": "OPZX7S Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPZX7_SSGHWPENV_MIN",
@@ -49500,6 +50370,22 @@
       "default": 1.0
     },
     {
+      "id": "OPZX7_OP0_SSGHWPENV_VALUE_ON",
+      "name": "OPZX7S Op1 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_SSGHWPENV_VALUE",
+      "name": "OPZX7S Op1 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPZX7_OP0_SSGHWPENV_MIN",
       "name": "OPZX7S Op1 Hardware Pitch Env Min",
       "type": "Int",
@@ -50037,6 +50923,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP0_SSGHWENV_VALUE_ON",
+      "name": "OPZX7S Op1 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_SSGHWENV_VALUE",
+      "name": "OPZX7S Op1 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPZX7_OP0_SSGHWENV_MIN",
@@ -52021,6 +52923,22 @@
       "default": 1.0
     },
     {
+      "id": "OPZX7_OP1_SSGHWPENV_VALUE_ON",
+      "name": "OPZX7S Op2 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_SSGHWPENV_VALUE",
+      "name": "OPZX7S Op2 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPZX7_OP1_SSGHWPENV_MIN",
       "name": "OPZX7S Op2 Hardware Pitch Env Min",
       "type": "Int",
@@ -52558,6 +53476,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP1_SSGHWENV_VALUE_ON",
+      "name": "OPZX7S Op2 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_SSGHWENV_VALUE",
+      "name": "OPZX7S Op2 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPZX7_OP1_SSGHWENV_MIN",
@@ -54542,6 +55476,22 @@
       "default": 1.0
     },
     {
+      "id": "OPZX7_OP2_SSGHWPENV_VALUE_ON",
+      "name": "OPZX7S Op3 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_SSGHWPENV_VALUE",
+      "name": "OPZX7S Op3 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPZX7_OP2_SSGHWPENV_MIN",
       "name": "OPZX7S Op3 Hardware Pitch Env Min",
       "type": "Int",
@@ -55079,6 +56029,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP2_SSGHWENV_VALUE_ON",
+      "name": "OPZX7S Op3 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_SSGHWENV_VALUE",
+      "name": "OPZX7S Op3 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPZX7_OP2_SSGHWENV_MIN",
@@ -57063,6 +58029,22 @@
       "default": 1.0
     },
     {
+      "id": "OPZX7_OP3_SSGHWPENV_VALUE_ON",
+      "name": "OPZX7S Op4 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_SSGHWPENV_VALUE",
+      "name": "OPZX7S Op4 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPZX7_OP3_SSGHWPENV_MIN",
       "name": "OPZX7S Op4 Hardware Pitch Env Min",
       "type": "Int",
@@ -57600,6 +58582,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP3_SSGHWENV_VALUE_ON",
+      "name": "OPZX7S Op4 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_SSGHWENV_VALUE",
+      "name": "OPZX7S Op4 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPZX7_OP3_SSGHWENV_MIN",
@@ -59584,6 +60582,22 @@
       "default": 1.0
     },
     {
+      "id": "OPZX7_OP4_SSGHWPENV_VALUE_ON",
+      "name": "OPZX7S Op5 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_SSGHWPENV_VALUE",
+      "name": "OPZX7S Op5 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPZX7_OP4_SSGHWPENV_MIN",
       "name": "OPZX7S Op5 Hardware Pitch Env Min",
       "type": "Int",
@@ -60121,6 +61135,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP4_SSGHWENV_VALUE_ON",
+      "name": "OPZX7S Op5 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_SSGHWENV_VALUE",
+      "name": "OPZX7S Op5 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPZX7_OP4_SSGHWENV_MIN",
@@ -62105,6 +63135,22 @@
       "default": 1.0
     },
     {
+      "id": "OPZX7_OP5_SSGHWPENV_VALUE_ON",
+      "name": "OPZX7S Op6 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_SSGHWPENV_VALUE",
+      "name": "OPZX7S Op6 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPZX7_OP5_SSGHWPENV_MIN",
       "name": "OPZX7S Op6 Hardware Pitch Env Min",
       "type": "Int",
@@ -62642,6 +63688,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP5_SSGHWENV_VALUE_ON",
+      "name": "OPZX7S Op6 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_SSGHWENV_VALUE",
+      "name": "OPZX7S Op6 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPZX7_OP5_SSGHWENV_MIN",
@@ -64626,6 +65688,22 @@
       "default": 1.0
     },
     {
+      "id": "OPZX7_OP6_SSGHWPENV_VALUE_ON",
+      "name": "OPZX7S Op7 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_SSGHWPENV_VALUE",
+      "name": "OPZX7S Op7 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPZX7_OP6_SSGHWPENV_MIN",
       "name": "OPZX7S Op7 Hardware Pitch Env Min",
       "type": "Int",
@@ -65163,6 +66241,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP6_SSGHWENV_VALUE_ON",
+      "name": "OPZX7S Op7 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_SSGHWENV_VALUE",
+      "name": "OPZX7S Op7 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPZX7_OP6_SSGHWENV_MIN",
@@ -67147,6 +68241,22 @@
       "default": 1.0
     },
     {
+      "id": "OPZX7_OP7_SSGHWPENV_VALUE_ON",
+      "name": "OPZX7S Op8 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_SSGHWPENV_VALUE",
+      "name": "OPZX7S Op8 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "OPZX7_OP7_SSGHWPENV_MIN",
       "name": "OPZX7S Op8 Hardware Pitch Env Min",
       "type": "Int",
@@ -67684,6 +68794,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "OPZX7_OP7_SSGHWENV_VALUE_ON",
+      "name": "OPZX7S Op8 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_SSGHWENV_VALUE",
+      "name": "OPZX7S Op8 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "OPZX7_OP7_SSGHWENV_MIN",
@@ -68700,6 +69826,22 @@
       "default": 1.0
     },
     {
+      "id": "SSG_SSGHWENV_VALUE_ON",
+      "name": "SSG Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_SSGHWENV_VALUE",
+      "name": "SSG Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "SSG_SSGHWENV_MIN",
       "name": "SSG Hardware Env Min",
       "type": "Float",
@@ -68833,6 +69975,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "SSG_SSGHWPENV_VALUE_ON",
+      "name": "SSG Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_SSGHWPENV_VALUE",
+      "name": "SSG Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "SSG_SSGHWPENV_MIN",
@@ -69805,6 +70963,38 @@
       "default": 0.0
     },
     {
+      "id": "SSG_TONE_VALUE_ON",
+      "name": "SSG Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TONE_VALUE",
+      "name": "SSG Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "SSG_NOISE_VALUE_ON",
+      "name": "SSG Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_NOISE_VALUE",
+      "name": "SSG Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "SSG_UNI_VOICES",
       "name": "SSG Unison Voices",
       "type": "Int",
@@ -69967,6 +71157,23 @@
     {
       "id": "SSG_UNI_PDET7",
       "name": "SSG Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "SSG_UNI_PDIST0",
+      "name": "SSG Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "SSG_UNI_PDET0",
+      "name": "SSG Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,
@@ -72298,6 +73505,23 @@
       "default": 0
     },
     {
+      "id": "WT_UNI_PDIST0",
+      "name": "WT Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT_UNI_PDET0",
+      "name": "WT Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "WT_ADSR_BYPASS",
       "name": "WT ADSR Bypass",
       "type": "Bool",
@@ -73517,6 +74741,22 @@
       "default": 1.0
     },
     {
+      "id": "WT_SSGHWENV_VALUE_ON",
+      "name": "WT Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_SSGHWENV_VALUE",
+      "name": "WT Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "WT_SSGHWENV_MIN",
       "name": "WT Hardware Env Min",
       "type": "Float",
@@ -73650,6 +74890,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "WT_SSGHWPENV_VALUE_ON",
+      "name": "WT Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_SSGHWPENV_VALUE",
+      "name": "WT Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "WT_SSGHWPENV_MIN",
@@ -79209,6 +80465,23 @@
       "default": 0
     },
     {
+      "id": "WT2_UNI_PDIST0",
+      "name": "WT2 Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT2_UNI_PDET0",
+      "name": "WT2 Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "WT2_ADSR_BYPASS",
       "name": "WT2 ADSR Bypass",
       "type": "Bool",
@@ -80428,6 +81701,22 @@
       "default": 1.0
     },
     {
+      "id": "WT2_SSGHWENV_VALUE_ON",
+      "name": "WT2 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_SSGHWENV_VALUE",
+      "name": "WT2 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "WT2_SSGHWENV_MIN",
       "name": "WT2 Hardware Env Min",
       "type": "Float",
@@ -80561,6 +81850,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "WT2_SSGHWPENV_VALUE_ON",
+      "name": "WT2 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_SSGHWPENV_VALUE",
+      "name": "WT2 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "WT2_SSGHWPENV_MIN",
@@ -88515,6 +89820,23 @@
       "default": 0
     },
     {
+      "id": "WTPLUS_UNI_PDIST0",
+      "name": "WT+ Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WTPLUS_UNI_PDET0",
+      "name": "WT+ Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "WTPLUS_ADSR_BYPASS",
       "name": "WT+ ADSR Bypass",
       "type": "Bool",
@@ -89734,6 +91056,22 @@
       "default": 1.0
     },
     {
+      "id": "WTPLUS_SSGHWENV_VALUE_ON",
+      "name": "WT+ Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_SSGHWENV_VALUE",
+      "name": "WT+ Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "WTPLUS_SSGHWENV_MIN",
       "name": "WT+ Hardware Env Min",
       "type": "Float",
@@ -89867,6 +91205,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "WTPLUS_SSGHWPENV_VALUE_ON",
+      "name": "WT+ Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_SSGHWPENV_VALUE",
+      "name": "WT+ Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "WTPLUS_SSGHWPENV_MIN",
@@ -90161,6 +91515,23 @@
       "default": 0
     },
     {
+      "id": "RHYTHM_UNI_PDIST0",
+      "name": "RHYTHM Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "RHYTHM_UNI_PDET0",
+      "name": "RHYTHM Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "RHYTHM_PAD0_VOL",
       "name": "RHYTHM Pad1 Vol",
       "type": "Float",
@@ -90237,6 +91608,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PAD0_TONE_VALUE_ON",
+      "name": "RHYTHM Pad1 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_TONE_VALUE",
+      "name": "RHYTHM Pad1 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "RHYTHM_PAD0_NOISE_VALUE_ON",
+      "name": "RHYTHM Pad1 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_NOISE_VALUE",
+      "name": "RHYTHM Pad1 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "RHYTHM_PAD0_PAN",
@@ -91585,6 +92988,22 @@
       "default": 1.0
     },
     {
+      "id": "RHYTHM_PAD0_SSGHWENV_VALUE_ON",
+      "name": "RHYTHM Pad1 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_SSGHWENV_VALUE",
+      "name": "RHYTHM Pad1 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "RHYTHM_PAD0_SSGHWENV_MIN",
       "name": "RHYTHM Pad1 Hardware Env Min",
       "type": "Float",
@@ -91718,6 +93137,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "RHYTHM_PAD0_SSGHWPENV_VALUE_ON",
+      "name": "RHYTHM Pad1 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_SSGHWPENV_VALUE",
+      "name": "RHYTHM Pad1 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "RHYTHM_PAD0_SSGHWPENV_MIN",
@@ -92698,6 +94133,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PAD1_TONE_VALUE_ON",
+      "name": "RHYTHM Pad2 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_TONE_VALUE",
+      "name": "RHYTHM Pad2 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "RHYTHM_PAD1_NOISE_VALUE_ON",
+      "name": "RHYTHM Pad2 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_NOISE_VALUE",
+      "name": "RHYTHM Pad2 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "RHYTHM_PAD1_PAN",
@@ -94046,6 +95513,22 @@
       "default": 1.0
     },
     {
+      "id": "RHYTHM_PAD1_SSGHWENV_VALUE_ON",
+      "name": "RHYTHM Pad2 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_SSGHWENV_VALUE",
+      "name": "RHYTHM Pad2 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "RHYTHM_PAD1_SSGHWENV_MIN",
       "name": "RHYTHM Pad2 Hardware Env Min",
       "type": "Float",
@@ -94179,6 +95662,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "RHYTHM_PAD1_SSGHWPENV_VALUE_ON",
+      "name": "RHYTHM Pad2 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_SSGHWPENV_VALUE",
+      "name": "RHYTHM Pad2 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "RHYTHM_PAD1_SSGHWPENV_MIN",
@@ -95159,6 +96658,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PAD2_TONE_VALUE_ON",
+      "name": "RHYTHM Pad3 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_TONE_VALUE",
+      "name": "RHYTHM Pad3 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "RHYTHM_PAD2_NOISE_VALUE_ON",
+      "name": "RHYTHM Pad3 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_NOISE_VALUE",
+      "name": "RHYTHM Pad3 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "RHYTHM_PAD2_PAN",
@@ -96507,6 +98038,22 @@
       "default": 1.0
     },
     {
+      "id": "RHYTHM_PAD2_SSGHWENV_VALUE_ON",
+      "name": "RHYTHM Pad3 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_SSGHWENV_VALUE",
+      "name": "RHYTHM Pad3 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "RHYTHM_PAD2_SSGHWENV_MIN",
       "name": "RHYTHM Pad3 Hardware Env Min",
       "type": "Float",
@@ -96640,6 +98187,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "RHYTHM_PAD2_SSGHWPENV_VALUE_ON",
+      "name": "RHYTHM Pad3 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_SSGHWPENV_VALUE",
+      "name": "RHYTHM Pad3 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "RHYTHM_PAD2_SSGHWPENV_MIN",
@@ -97620,6 +99183,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PAD3_TONE_VALUE_ON",
+      "name": "RHYTHM Pad4 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_TONE_VALUE",
+      "name": "RHYTHM Pad4 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "RHYTHM_PAD3_NOISE_VALUE_ON",
+      "name": "RHYTHM Pad4 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_NOISE_VALUE",
+      "name": "RHYTHM Pad4 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "RHYTHM_PAD3_PAN",
@@ -98968,6 +100563,22 @@
       "default": 1.0
     },
     {
+      "id": "RHYTHM_PAD3_SSGHWENV_VALUE_ON",
+      "name": "RHYTHM Pad4 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_SSGHWENV_VALUE",
+      "name": "RHYTHM Pad4 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "RHYTHM_PAD3_SSGHWENV_MIN",
       "name": "RHYTHM Pad4 Hardware Env Min",
       "type": "Float",
@@ -99101,6 +100712,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "RHYTHM_PAD3_SSGHWPENV_VALUE_ON",
+      "name": "RHYTHM Pad4 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_SSGHWPENV_VALUE",
+      "name": "RHYTHM Pad4 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "RHYTHM_PAD3_SSGHWPENV_MIN",
@@ -100081,6 +101708,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PAD4_TONE_VALUE_ON",
+      "name": "RHYTHM Pad5 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_TONE_VALUE",
+      "name": "RHYTHM Pad5 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "RHYTHM_PAD4_NOISE_VALUE_ON",
+      "name": "RHYTHM Pad5 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_NOISE_VALUE",
+      "name": "RHYTHM Pad5 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "RHYTHM_PAD4_PAN",
@@ -101429,6 +103088,22 @@
       "default": 1.0
     },
     {
+      "id": "RHYTHM_PAD4_SSGHWENV_VALUE_ON",
+      "name": "RHYTHM Pad5 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_SSGHWENV_VALUE",
+      "name": "RHYTHM Pad5 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "RHYTHM_PAD4_SSGHWENV_MIN",
       "name": "RHYTHM Pad5 Hardware Env Min",
       "type": "Float",
@@ -101562,6 +103237,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "RHYTHM_PAD4_SSGHWPENV_VALUE_ON",
+      "name": "RHYTHM Pad5 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_SSGHWPENV_VALUE",
+      "name": "RHYTHM Pad5 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "RHYTHM_PAD4_SSGHWPENV_MIN",
@@ -102542,6 +104233,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PAD5_TONE_VALUE_ON",
+      "name": "RHYTHM Pad6 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_TONE_VALUE",
+      "name": "RHYTHM Pad6 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "RHYTHM_PAD5_NOISE_VALUE_ON",
+      "name": "RHYTHM Pad6 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_NOISE_VALUE",
+      "name": "RHYTHM Pad6 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "RHYTHM_PAD5_PAN",
@@ -103890,6 +105613,22 @@
       "default": 1.0
     },
     {
+      "id": "RHYTHM_PAD5_SSGHWENV_VALUE_ON",
+      "name": "RHYTHM Pad6 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_SSGHWENV_VALUE",
+      "name": "RHYTHM Pad6 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "RHYTHM_PAD5_SSGHWENV_MIN",
       "name": "RHYTHM Pad6 Hardware Env Min",
       "type": "Float",
@@ -104023,6 +105762,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "RHYTHM_PAD5_SSGHWPENV_VALUE_ON",
+      "name": "RHYTHM Pad6 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_SSGHWPENV_VALUE",
+      "name": "RHYTHM Pad6 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "RHYTHM_PAD5_SSGHWPENV_MIN",
@@ -105003,6 +106758,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PAD6_TONE_VALUE_ON",
+      "name": "RHYTHM Pad7 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_TONE_VALUE",
+      "name": "RHYTHM Pad7 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "RHYTHM_PAD6_NOISE_VALUE_ON",
+      "name": "RHYTHM Pad7 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_NOISE_VALUE",
+      "name": "RHYTHM Pad7 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "RHYTHM_PAD6_PAN",
@@ -106351,6 +108138,22 @@
       "default": 1.0
     },
     {
+      "id": "RHYTHM_PAD6_SSGHWENV_VALUE_ON",
+      "name": "RHYTHM Pad7 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_SSGHWENV_VALUE",
+      "name": "RHYTHM Pad7 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "RHYTHM_PAD6_SSGHWENV_MIN",
       "name": "RHYTHM Pad7 Hardware Env Min",
       "type": "Float",
@@ -106484,6 +108287,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "RHYTHM_PAD6_SSGHWPENV_VALUE_ON",
+      "name": "RHYTHM Pad7 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_SSGHWPENV_VALUE",
+      "name": "RHYTHM Pad7 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "RHYTHM_PAD6_SSGHWPENV_MIN",
@@ -107464,6 +109283,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PAD7_TONE_VALUE_ON",
+      "name": "RHYTHM Pad8 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_TONE_VALUE",
+      "name": "RHYTHM Pad8 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "RHYTHM_PAD7_NOISE_VALUE_ON",
+      "name": "RHYTHM Pad8 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_NOISE_VALUE",
+      "name": "RHYTHM Pad8 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "RHYTHM_PAD7_PAN",
@@ -108812,6 +110663,22 @@
       "default": 1.0
     },
     {
+      "id": "RHYTHM_PAD7_SSGHWENV_VALUE_ON",
+      "name": "RHYTHM Pad8 Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_SSGHWENV_VALUE",
+      "name": "RHYTHM Pad8 Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "RHYTHM_PAD7_SSGHWENV_MIN",
       "name": "RHYTHM Pad8 Hardware Env Min",
       "type": "Float",
@@ -108945,6 +110812,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "RHYTHM_PAD7_SSGHWPENV_VALUE_ON",
+      "name": "RHYTHM Pad8 Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_SSGHWPENV_VALUE",
+      "name": "RHYTHM Pad8 Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "RHYTHM_PAD7_SSGHWPENV_MIN",
@@ -109917,6 +111800,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCM_TONE_VALUE_ON",
+      "name": "ADPCM Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TONE_VALUE",
+      "name": "ADPCM Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCM_NOISE_VALUE_ON",
+      "name": "ADPCM Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_NOISE_VALUE",
+      "name": "ADPCM Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCM_PAN",
@@ -111208,6 +113123,22 @@
       "default": 1.0
     },
     {
+      "id": "ADPCM_SSGHWENV_VALUE_ON",
+      "name": "ADPCM Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_SSGHWENV_VALUE",
+      "name": "ADPCM Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "ADPCM_SSGHWENV_MIN",
       "name": "ADPCM Hardware Env Min",
       "type": "Float",
@@ -111341,6 +113272,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "ADPCM_SSGHWPENV_VALUE_ON",
+      "name": "ADPCM Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_SSGHWPENV_VALUE",
+      "name": "ADPCM Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "ADPCM_SSGHWPENV_MIN",
@@ -112470,6 +114417,23 @@
       "default": 0
     },
     {
+      "id": "ADPCM_UNI_PDIST0",
+      "name": "ADPCM Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCM_UNI_PDET0",
+      "name": "ADPCM Unison Para Detune 0",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
       "id": "ADPCMP_LEVEL",
       "name": "ADPCMP Level",
       "type": "Float",
@@ -112538,6 +114502,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT0_TONE_VALUE_ON",
+      "name": "ADPCMP Slot0 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT0_TONE_VALUE",
+      "name": "ADPCMP Slot0 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT0_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot0 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT0_NOISE_VALUE",
+      "name": "ADPCMP Slot0 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT0_PCM_OFFSET",
@@ -112662,6 +114658,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT1_TONE_VALUE_ON",
+      "name": "ADPCMP Slot1 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT1_TONE_VALUE",
+      "name": "ADPCMP Slot1 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT1_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot1 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT1_NOISE_VALUE",
+      "name": "ADPCMP Slot1 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT1_PCM_OFFSET",
       "name": "ADPCMP Slot1 PCM Offset",
       "type": "Float",
@@ -112782,6 +114810,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT2_TONE_VALUE_ON",
+      "name": "ADPCMP Slot2 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT2_TONE_VALUE",
+      "name": "ADPCMP Slot2 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT2_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot2 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT2_NOISE_VALUE",
+      "name": "ADPCMP Slot2 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT2_PCM_OFFSET",
@@ -112906,6 +114966,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT3_TONE_VALUE_ON",
+      "name": "ADPCMP Slot3 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT3_TONE_VALUE",
+      "name": "ADPCMP Slot3 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT3_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot3 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT3_NOISE_VALUE",
+      "name": "ADPCMP Slot3 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT3_PCM_OFFSET",
       "name": "ADPCMP Slot3 PCM Offset",
       "type": "Float",
@@ -113026,6 +115118,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT4_TONE_VALUE_ON",
+      "name": "ADPCMP Slot4 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT4_TONE_VALUE",
+      "name": "ADPCMP Slot4 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT4_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot4 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT4_NOISE_VALUE",
+      "name": "ADPCMP Slot4 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT4_PCM_OFFSET",
@@ -113150,6 +115274,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT5_TONE_VALUE_ON",
+      "name": "ADPCMP Slot5 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT5_TONE_VALUE",
+      "name": "ADPCMP Slot5 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT5_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot5 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT5_NOISE_VALUE",
+      "name": "ADPCMP Slot5 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT5_PCM_OFFSET",
       "name": "ADPCMP Slot5 PCM Offset",
       "type": "Float",
@@ -113270,6 +115426,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT6_TONE_VALUE_ON",
+      "name": "ADPCMP Slot6 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT6_TONE_VALUE",
+      "name": "ADPCMP Slot6 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT6_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot6 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT6_NOISE_VALUE",
+      "name": "ADPCMP Slot6 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT6_PCM_OFFSET",
@@ -113394,6 +115582,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT7_TONE_VALUE_ON",
+      "name": "ADPCMP Slot7 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT7_TONE_VALUE",
+      "name": "ADPCMP Slot7 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT7_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot7 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT7_NOISE_VALUE",
+      "name": "ADPCMP Slot7 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT7_PCM_OFFSET",
       "name": "ADPCMP Slot7 PCM Offset",
       "type": "Float",
@@ -113514,6 +115734,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT8_TONE_VALUE_ON",
+      "name": "ADPCMP Slot8 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT8_TONE_VALUE",
+      "name": "ADPCMP Slot8 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT8_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot8 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT8_NOISE_VALUE",
+      "name": "ADPCMP Slot8 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT8_PCM_OFFSET",
@@ -113638,6 +115890,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT9_TONE_VALUE_ON",
+      "name": "ADPCMP Slot9 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT9_TONE_VALUE",
+      "name": "ADPCMP Slot9 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT9_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot9 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT9_NOISE_VALUE",
+      "name": "ADPCMP Slot9 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT9_PCM_OFFSET",
       "name": "ADPCMP Slot9 PCM Offset",
       "type": "Float",
@@ -113758,6 +116042,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT10_TONE_VALUE_ON",
+      "name": "ADPCMP Slot10 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT10_TONE_VALUE",
+      "name": "ADPCMP Slot10 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT10_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot10 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT10_NOISE_VALUE",
+      "name": "ADPCMP Slot10 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT10_PCM_OFFSET",
@@ -113882,6 +116198,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT11_TONE_VALUE_ON",
+      "name": "ADPCMP Slot11 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT11_TONE_VALUE",
+      "name": "ADPCMP Slot11 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT11_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot11 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT11_NOISE_VALUE",
+      "name": "ADPCMP Slot11 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT11_PCM_OFFSET",
       "name": "ADPCMP Slot11 PCM Offset",
       "type": "Float",
@@ -114002,6 +116350,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT12_TONE_VALUE_ON",
+      "name": "ADPCMP Slot12 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT12_TONE_VALUE",
+      "name": "ADPCMP Slot12 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT12_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot12 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT12_NOISE_VALUE",
+      "name": "ADPCMP Slot12 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT12_PCM_OFFSET",
@@ -114126,6 +116506,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT13_TONE_VALUE_ON",
+      "name": "ADPCMP Slot13 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT13_TONE_VALUE",
+      "name": "ADPCMP Slot13 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT13_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot13 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT13_NOISE_VALUE",
+      "name": "ADPCMP Slot13 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT13_PCM_OFFSET",
       "name": "ADPCMP Slot13 PCM Offset",
       "type": "Float",
@@ -114246,6 +116658,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT14_TONE_VALUE_ON",
+      "name": "ADPCMP Slot14 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT14_TONE_VALUE",
+      "name": "ADPCMP Slot14 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT14_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot14 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT14_NOISE_VALUE",
+      "name": "ADPCMP Slot14 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT14_PCM_OFFSET",
@@ -114370,6 +116814,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT15_TONE_VALUE_ON",
+      "name": "ADPCMP Slot15 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT15_TONE_VALUE",
+      "name": "ADPCMP Slot15 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT15_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot15 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT15_NOISE_VALUE",
+      "name": "ADPCMP Slot15 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT15_PCM_OFFSET",
       "name": "ADPCMP Slot15 PCM Offset",
       "type": "Float",
@@ -114490,6 +116966,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT16_TONE_VALUE_ON",
+      "name": "ADPCMP Slot16 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT16_TONE_VALUE",
+      "name": "ADPCMP Slot16 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT16_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot16 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT16_NOISE_VALUE",
+      "name": "ADPCMP Slot16 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT16_PCM_OFFSET",
@@ -114614,6 +117122,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT17_TONE_VALUE_ON",
+      "name": "ADPCMP Slot17 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT17_TONE_VALUE",
+      "name": "ADPCMP Slot17 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT17_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot17 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT17_NOISE_VALUE",
+      "name": "ADPCMP Slot17 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT17_PCM_OFFSET",
       "name": "ADPCMP Slot17 PCM Offset",
       "type": "Float",
@@ -114734,6 +117274,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT18_TONE_VALUE_ON",
+      "name": "ADPCMP Slot18 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT18_TONE_VALUE",
+      "name": "ADPCMP Slot18 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT18_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot18 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT18_NOISE_VALUE",
+      "name": "ADPCMP Slot18 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT18_PCM_OFFSET",
@@ -114858,6 +117430,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT19_TONE_VALUE_ON",
+      "name": "ADPCMP Slot19 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT19_TONE_VALUE",
+      "name": "ADPCMP Slot19 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT19_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot19 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT19_NOISE_VALUE",
+      "name": "ADPCMP Slot19 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT19_PCM_OFFSET",
       "name": "ADPCMP Slot19 PCM Offset",
       "type": "Float",
@@ -114978,6 +117582,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT20_TONE_VALUE_ON",
+      "name": "ADPCMP Slot20 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT20_TONE_VALUE",
+      "name": "ADPCMP Slot20 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT20_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot20 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT20_NOISE_VALUE",
+      "name": "ADPCMP Slot20 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT20_PCM_OFFSET",
@@ -115102,6 +117738,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT21_TONE_VALUE_ON",
+      "name": "ADPCMP Slot21 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT21_TONE_VALUE",
+      "name": "ADPCMP Slot21 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT21_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot21 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT21_NOISE_VALUE",
+      "name": "ADPCMP Slot21 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT21_PCM_OFFSET",
       "name": "ADPCMP Slot21 PCM Offset",
       "type": "Float",
@@ -115222,6 +117890,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT22_TONE_VALUE_ON",
+      "name": "ADPCMP Slot22 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT22_TONE_VALUE",
+      "name": "ADPCMP Slot22 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT22_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot22 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT22_NOISE_VALUE",
+      "name": "ADPCMP Slot22 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT22_PCM_OFFSET",
@@ -115346,6 +118046,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT23_TONE_VALUE_ON",
+      "name": "ADPCMP Slot23 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT23_TONE_VALUE",
+      "name": "ADPCMP Slot23 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT23_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot23 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT23_NOISE_VALUE",
+      "name": "ADPCMP Slot23 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT23_PCM_OFFSET",
       "name": "ADPCMP Slot23 PCM Offset",
       "type": "Float",
@@ -115466,6 +118198,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT24_TONE_VALUE_ON",
+      "name": "ADPCMP Slot24 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT24_TONE_VALUE",
+      "name": "ADPCMP Slot24 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT24_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot24 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT24_NOISE_VALUE",
+      "name": "ADPCMP Slot24 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT24_PCM_OFFSET",
@@ -115590,6 +118354,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT25_TONE_VALUE_ON",
+      "name": "ADPCMP Slot25 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT25_TONE_VALUE",
+      "name": "ADPCMP Slot25 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT25_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot25 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT25_NOISE_VALUE",
+      "name": "ADPCMP Slot25 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT25_PCM_OFFSET",
       "name": "ADPCMP Slot25 PCM Offset",
       "type": "Float",
@@ -115710,6 +118506,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT26_TONE_VALUE_ON",
+      "name": "ADPCMP Slot26 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT26_TONE_VALUE",
+      "name": "ADPCMP Slot26 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT26_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot26 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT26_NOISE_VALUE",
+      "name": "ADPCMP Slot26 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT26_PCM_OFFSET",
@@ -115834,6 +118662,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT27_TONE_VALUE_ON",
+      "name": "ADPCMP Slot27 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT27_TONE_VALUE",
+      "name": "ADPCMP Slot27 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT27_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot27 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT27_NOISE_VALUE",
+      "name": "ADPCMP Slot27 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT27_PCM_OFFSET",
       "name": "ADPCMP Slot27 PCM Offset",
       "type": "Float",
@@ -115954,6 +118814,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT28_TONE_VALUE_ON",
+      "name": "ADPCMP Slot28 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT28_TONE_VALUE",
+      "name": "ADPCMP Slot28 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT28_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot28 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT28_NOISE_VALUE",
+      "name": "ADPCMP Slot28 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT28_PCM_OFFSET",
@@ -116078,6 +118970,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT29_TONE_VALUE_ON",
+      "name": "ADPCMP Slot29 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT29_TONE_VALUE",
+      "name": "ADPCMP Slot29 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT29_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot29 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT29_NOISE_VALUE",
+      "name": "ADPCMP Slot29 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT29_PCM_OFFSET",
       "name": "ADPCMP Slot29 PCM Offset",
       "type": "Float",
@@ -116200,6 +119124,38 @@
       "default": 0.0
     },
     {
+      "id": "ADPCMP_SLOT30_TONE_VALUE_ON",
+      "name": "ADPCMP Slot30 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT30_TONE_VALUE",
+      "name": "ADPCMP Slot30 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT30_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot30 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT30_NOISE_VALUE",
+      "name": "ADPCMP Slot30 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
+    },
+    {
       "id": "ADPCMP_SLOT30_PCM_OFFSET",
       "name": "ADPCMP Slot30 PCM Offset",
       "type": "Float",
@@ -116320,6 +119276,38 @@
       "max": 1.0,
       "step": 0.000099999997474,
       "default": 0.0
+    },
+    {
+      "id": "ADPCMP_SLOT31_TONE_VALUE_ON",
+      "name": "ADPCMP Slot31 Tone Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT31_TONE_VALUE",
+      "name": "ADPCMP Slot31 Tone Value",
+      "type": "Int",
+      "min": 0,
+      "max": 4095,
+      "default": 47
+    },
+    {
+      "id": "ADPCMP_SLOT31_NOISE_VALUE_ON",
+      "name": "ADPCMP Slot31 Noise Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SLOT31_NOISE_VALUE",
+      "name": "ADPCMP Slot31 Noise Value",
+      "type": "Int",
+      "min": 0,
+      "max": 31,
+      "default": 2
     },
     {
       "id": "ADPCMP_SLOT31_PCM_OFFSET",
@@ -117619,6 +120607,22 @@
       "default": 1.0
     },
     {
+      "id": "ADPCMP_SSGHWENV_VALUE_ON",
+      "name": "ADPCMP Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SSGHWENV_VALUE",
+      "name": "ADPCMP Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "ADPCMP_SSGHWENV_MIN",
       "name": "ADPCMP Hardware Env Min",
       "type": "Float",
@@ -117752,6 +120756,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "ADPCMP_SSGHWPENV_VALUE_ON",
+      "name": "ADPCMP Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SSGHWPENV_VALUE",
+      "name": "ADPCMP Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "ADPCMP_SSGHWPENV_MIN",
@@ -118875,6 +121895,23 @@
     {
       "id": "ADPCMP_UNI_PDET7",
       "name": "ADPCMP Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "ADPCMP_UNI_PDIST0",
+      "name": "ADPCMP Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCMP_UNI_PDET0",
+      "name": "ADPCMP Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,
@@ -120134,6 +123171,22 @@
       "default": 1.0
     },
     {
+      "id": "BEEP_SSGHWENV_VALUE_ON",
+      "name": "BEEP Hardware Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_SSGHWENV_VALUE",
+      "name": "BEEP Hardware Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
+    },
+    {
       "id": "BEEP_SSGHWENV_MIN",
       "name": "BEEP Hardware Env Min",
       "type": "Float",
@@ -120267,6 +123320,22 @@
       "max": 200.0,
       "step": 0.000099999997474,
       "default": 1.0
+    },
+    {
+      "id": "BEEP_SSGHWPENV_VALUE_ON",
+      "name": "BEEP Hardware Pitch Env Value Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_SSGHWPENV_VALUE",
+      "name": "BEEP Hardware Pitch Env Value",
+      "type": "Int",
+      "min": 0,
+      "max": 65535,
+      "default": 1303
     },
     {
       "id": "BEEP_SSGHWPENV_MIN",
@@ -121333,6 +124402,23 @@
     {
       "id": "BEEP_UNI_PDET7",
       "name": "BEEP Unison Para Detune 7",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "BEEP_UNI_PDIST0",
+      "name": "BEEP Unison Para Distance 0",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "BEEP_UNI_PDET0",
+      "name": "BEEP Unison Para Detune 0",
       "type": "Int",
       "min": -4800,
       "max": 4800,

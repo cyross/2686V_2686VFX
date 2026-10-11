@@ -47,6 +47,7 @@ WT PITCH MOD の設定。`table` は FDS PITCH TABLE の中身です。
 | `speed` | float | — | — |
 | `shape` | int | — | — |
 | `waveSmooth` | bool | — | — |
+| `waves` | 文字の並び | 読み込んだ変調波形の場所。スロットの数だけ（3.6.3 から） | — |
 
 :::note[書き方について]
 - 選択肢のつまみは**番号**で持ちます。表の範囲に「選択肢の番号」と書いてある

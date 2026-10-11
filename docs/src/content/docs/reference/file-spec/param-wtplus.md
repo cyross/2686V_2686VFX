@@ -58,6 +58,7 @@ sidebar:
 | `keepStart` | 真偽 | false / true | false |
 | `waveEnd` | 小数 | 0 〜 1 | 1 |
 | `keepEnd` | 真偽 | false / true | false |
+| `waveFile` | 文字 | 波形ファイルの場所（3.6.3 から） | — |
 
 波形そのものは入りません。読み込んだ場所はプリセット側が覚えます。
 

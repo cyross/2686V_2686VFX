@@ -1,4 +1,6 @@
 ﻿#include "Shared/Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiParamEdit.h"
+#include "../../Gui/Preset/PresetValues.h"
 #include "../Const/ConstPlugin.h"
 #include <cstdio>
 #include <vector>
@@ -304,6 +306,17 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
     closeCategoriesBtn.onClick = [this] { closeBypassedCategories(); };
 
+    // コピー履歴。区分の一括開閉と見分けられるよう青にする
+    addAndMakeVisible(copyHistoryBtn);
+    copyHistoryBtn.setLookAndFeel(&categoryToggleBtnLF);
+    copyHistoryBtn.setColour(juce::TextButton::textColourOnId, GuiColor::SystemBtn::CategoryToggleText);
+    copyHistoryBtn.setColour(juce::TextButton::textColourOffId, GuiColor::SystemBtn::CategoryToggleText);
+    copyHistoryBtn.setColour(juce::TextButton::buttonColourId, GuiColor::SystemBtn::CopyHistoryBg);
+    copyHistoryBtn.setColour(juce::TextButton::buttonOnColourId, GuiColor::SystemBtn::CopyHistoryBg);
+    copyHistoryBtn.setButtonText(EditorGuiText::CopyHistory::title);
+    copyHistoryBtn.setTooltip(EditorGuiText::CopyHistory::tooltip);
+    copyHistoryBtn.onClick = [this] { openCopyHistory(); };
+
     addAndMakeVisible(toggleMiniBtn);
     toggleMiniBtn.setVisible(true);
     toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
@@ -579,6 +592,7 @@ void AudioPlugin2686VEditor::resized()
     undoButton.setVisible(isFull);
     redoButton.setVisible(isFull);
     initParamsButton.setVisible(isFull);
+    copyHistoryBtn.setVisible(isFull);
     togglePreviewBtn.setVisible(isFull);
 
     if (midiKeyboard != nullptr) {
@@ -771,6 +785,12 @@ void AudioPlugin2686VEditor::resized()
 
     x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
     openCategoriesBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::historyButtonWidth;
+    copyHistoryBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::historyButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    // 開いているコピー履歴は、画面全体に重ね直す
+    if (copyHistory != nullptr && copyHistory->isVisible()) copyHistory->setBounds(getLocalBounds());
 
     auto reducedArea = area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
     int mainIconWidth = EditorGuiValue::Preview::logoWidth;
@@ -1802,7 +1822,6 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
 
 
 
-
 void AudioPlugin2686VEditor::copyOpmOpParams(int from, int to) {
     // 値を 1 つ入れるたびに波形を作り直すと、項目の数だけ待たされる。
     // 入れ終えてからまとめて 1 度だけ描き直す。
@@ -2025,6 +2044,8 @@ void AudioPlugin2686VEditor::rebuildForLanguage()
 
     closeCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleClose);
     closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
+
+    copyHistoryBtn.setTooltip(EditorGuiText::CopyHistory::tooltip);
 
     resized();
 
@@ -2327,4 +2348,98 @@ int AudioPlugin2686VEditor::tabForCategory(const juce::String& category)
     if (category == "OPM") return tabOpm;
 
     return -1;
+}
+
+// ============================================================================
+// ファイルを画面へ落として読み込む
+// ============================================================================
+// 受けるのはプリセット、チャンネルのパラメータ、FX の順番とパラメータ。
+// 読み込んだあとは、それぞれを一覧から読んだときと同じに振る舞う。
+// プリセットとチャンネルのパラメータは、そのチャンネルのタブを開く。
+AudioPlugin2686VEditor::DropKind AudioPlugin2686VEditor::dropKindOf(const juce::File& file)
+{
+    if (!file.existsAsFile()) return DropKind::none;
+
+    const auto category = GuiParamBrowser::categoryOf(file);
+
+    if (category == EditorGuiText::ParamBrowser::kindFxOrder) return DropKind::fxOrder;
+    if (category == EditorGuiText::ParamBrowser::kindFxParam) return DropKind::fxParam;
+    if (tabForCategory(category) >= 0) return DropKind::channel;
+
+    // プリセットは名前の印で見分ける。一覧のダイアログと同じ決まりを使う。
+    juce::StringArray globs;
+
+    globs.addTokens(PresetValue::File::glob, ";", "");
+
+    for (const auto& glob : globs)
+    {
+        if (file.getFileName().matchesWildcard(glob.trim(), true)) return DropKind::preset;
+    }
+
+    return DropKind::none;
+}
+
+bool AudioPlugin2686VEditor::isInterestedInFileDrag(const juce::StringArray& files)
+{
+    for (const auto& path : files)
+    {
+        if (dropKindOf(juce::File(path)) != DropKind::none) return true;
+    }
+
+    return false;
+}
+
+void AudioPlugin2686VEditor::filesDropped(const juce::StringArray& files, int x, int y)
+{
+    juce::ignoreUnused(x, y);
+
+    // 複数を落としたときは並びのとおりに読む。読めないものは飛ばす。
+    for (const auto& path : files)
+    {
+        const juce::File file(path);
+
+        switch (dropKindOf(file))
+        {
+        case DropKind::preset: loadPresetFile(file); break;
+        case DropKind::channel: applyChannelParamFile(file); break;
+        case DropKind::fxOrder: fxGui->applyFxOrderFile(file); break;
+        case DropKind::fxParam: fxGui->applyFxParamFile(file); break;
+        case DropKind::none: break;
+        }
+    }
+}
+
+// ==============================================================================
+// パラメータの切り取り・コピー・貼り付け (ParamEdit) の素材
+// ==============================================================================
+GuiBase* AudioPlugin2686VEditor::clipAssetTabFor(const juce::String& prefix)
+{
+    const auto channel = ParamEdit::channelOf(prefix);
+
+
+    juce::ignoreUnused(channel);
+
+    return nullptr;
+}
+
+void AudioPlugin2686VEditor::collectClipAssets(const juce::String& prefix, bool wholeChannel,
+    std::map<juce::String, juce::String>& out)
+{
+    if (auto* gui = clipAssetTabFor(prefix)) gui->collectClipAssets(prefix, wholeChannel, out);
+}
+
+void AudioPlugin2686VEditor::applyClipAssets(const juce::String& prefix, bool wholeChannel,
+    const std::map<juce::String, juce::String>& assets, bool clearOthers)
+{
+    if (auto* gui = clipAssetTabFor(prefix)) gui->applyClipAssets(prefix, wholeChannel, assets, clearOthers);
+}
+
+// ==============================================================================
+// コピー履歴 (CPHIST)
+// ==============================================================================
+void AudioPlugin2686VEditor::openCopyHistory()
+{
+    if (copyHistory == nullptr) copyHistory = std::make_unique<GuiCopyHistory>(GuiContext(audioProcessor, *this, audioProcessor.apvts));
+
+    copyHistory->open(*this);
 }

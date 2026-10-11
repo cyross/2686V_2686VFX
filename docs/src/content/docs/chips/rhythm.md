@@ -90,6 +90,10 @@ RHYTHM は **YM2608B のリズム音源**にあたるチャンネルです。実
 | **T.LEVEL** | 読み込んだ音の側の量 | [`RHYTHM_PAD[0-7]_TONE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-tone) |
 | **N.LEVEL** | ざらつきの側の量 | [`RHYTHM_PAD[0-7]_NOISE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noise) |
 | **N.FREQ** | ざらつきの高さ | [`RHYTHM_PAD[0-7]_NOISEFREQ`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noisefreq) |
+| **TONE: Use VALUE** | 鍵盤の音へ T.VALUE から決まる倍率を掛ける | [`RHYTHM_PAD[0-7]_TONE_VALUE_ON`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-tone-value-on) |
+| **T.VALUE** | 実機のトーンの設定値 To（0〜4095）。倍率は 47 ÷ To（初期値 47 で 1 倍） | [`RHYTHM_PAD[0-7]_TONE_VALUE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-tone-value) |
+| **NOISE: Use VALUE** | N.FREQ の代わりに N.VALUE でざらつきの高さを決める | [`RHYTHM_PAD[0-7]_NOISE_VALUE_ON`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noise-value-on) |
+| **N.VALUE** | 実機のノイズの設定値 Tn（0〜31）。667000 ÷ (32 × Tn) Hz | [`RHYTHM_PAD[0-7]_NOISE_VALUE`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noise-value) |
 | **MIX** | 2 つの混ぜ具合 | [`RHYTHM_PAD[0-7]_NOISEMIX`](/2686V_2686VFX/reference/automation/rhythm/#rhythm-pad-0-7-noisemix) |
 
 ### LEVEL / PAN

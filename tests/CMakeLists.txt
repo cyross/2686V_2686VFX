@@ -193,6 +193,7 @@ juce_generate_juce_header(IoTests)
 target_sources(IoTests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/io/ParamFileTests.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/io/MovedFileTests.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/io/PathRootTests.cpp"
     "${SHARED_SOURCE_ROOT}/Core/Io/ParamFile.cpp"
     "${SHARED_SOURCE_ROOT}/Core/Gui/GuiI18n.cpp"
 )
@@ -251,6 +252,11 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/GuiTestMain.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/EnableRulesTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/PlayingLampTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/ParamEditTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/EditSectionTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/N88DisplayTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/SsgValueTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/StepSnapTest.cpp"
     )
 
     target_include_directories(${CY_GUI_TEST} PRIVATE
@@ -272,7 +278,9 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
     if(CY_PLUGIN STREQUAL "2686VFX")
         target_sources(${CY_GUI_TEST} PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxKeyAssignTest.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxOutputTest.cpp")
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxOutputTest.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/FxPcmNoiseReductionTest.cpp")
+        target_compile_definitions(${CY_GUI_TEST} PRIVATE GUI_TEST_IS_FX)
     endif()
 
     # 音源のチャンネルを持つ本だけ (2686VFX は音を作らない)

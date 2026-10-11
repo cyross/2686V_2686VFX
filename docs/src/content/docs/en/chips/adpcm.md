@@ -55,6 +55,10 @@ Grit can be mixed into the loaded sound (**ours**).
 | **T.LEVEL** | How much of the loaded sound | [`ADPCM_TONE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-tone) |
 | **N.LEVEL** | How much of the grit | [`ADPCM_NOISE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noise) |
 | **N.FREQ** | How high the grit sits | [`ADPCM_NOISEFREQ`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noisefreq) |
+| **TONE: Use VALUE** | Multiply the played pitch by a ratio set with T.VALUE | [`ADPCM_TONE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-tone-value-on) |
+| **T.VALUE** | The chip's tone value To (0–4095). The ratio is 47 ÷ To (1× at the default 47) | [`ADPCM_TONE_VALUE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-tone-value) |
+| **NOISE: Use VALUE** | Set the grit's pitch with N.VALUE instead of N.FREQ | [`ADPCM_NOISE_VALUE_ON`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noise-value-on) |
+| **N.VALUE** | The chip's noise value Tn (0–31): 667000 ÷ (32 × Tn) Hz | [`ADPCM_NOISE_VALUE`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noise-value) |
 | **MIX** | Blend of the two | [`ADPCM_NOISEMIX`](/2686V_2686VFX/en/reference/automation/adpcm/#adpcm-noisemix) |
 
 ### PAN

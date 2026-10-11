@@ -2,7 +2,7 @@
 title: 出力への変調
 description: 2686VFX だけにある、出てきた音そのものへ掛ける変調
 sidebar:
-  order: 10
+  order: 11
 ---
 
 **2686VFX だけ**の区分です。音源が 1 音ごとに持っているエンベロープや LFO を、

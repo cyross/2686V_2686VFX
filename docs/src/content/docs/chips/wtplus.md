@@ -94,7 +94,8 @@ WT / WT2 と同じ変調が使えます。FDS / WonderSwan / HuC6280 の 3 系�
 | [**LFO**](/2686V_2686VFX/chips/common/#lfo) | 音量・音程を周期的に揺らす（OPZX7S のものを使用） |
 | [**MUL/DET**](/2686V_2686VFX/chips/common/#muldet) | 音程をずらす |
 | [**UNISON/HARMONY**](/2686V_2686VFX/chips/common/#unisonharmony) | 同じ音を重ねて厚くする |
-| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き。**Broadcast Level** で他チャンネルへ音量を配れます |
+| [**EDIT**](/2686V_2686VFX/chips/common/#edit) | 切り取り・コピー・貼り付け・初期化。**Duplicate Targets** / **Clear Targets** で TARGET をまとめて写す・消す。**Level -> All Ch** で他チャンネルへ音量を配れます |
+| [**UTILITY**](/2686V_2686VFX/chips/common/#utility) | パラメータの読み書き |
 
 QUALITYの詳細は、[リファレンス](../reference/lists-quality.md) をご参照ください。
 

@@ -2,7 +2,7 @@
 title: Modulating the output
 description: 2686VFX only — the envelopes and LFO applied to the audio itself
 sidebar:
-  order: 10
+  order: 11
 ---
 
 This section exists **only in 2686VFX**. It takes the envelopes and LFO the

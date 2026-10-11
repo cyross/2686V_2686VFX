@@ -61,9 +61,15 @@ Holds the heading information and where the audio files are.
 | `opzx7PcmPath0` – / `opzx7WtPath0` – / `opzx7Wt2Path0` – | The wave on each OPZX7 operator |
 | `wtPlusWavePath0` – | The wave in each WT+ slot |
 
-**Locations are written relative to the `Samples` folder.** An absolute path is
-used as it stands, so a preset someone else made will sound as intended as long
-as you put the material underneath that folder.
+**Locations are written relative to the `Samples` folder (the `Wavetable`
+folder for waves).** An absolute path is used as it stands, so a preset someone
+else made will sound as intended as long as you put the material underneath that
+folder.
+
+From 3.6.3 you can make the base **the folder the preset file is in** instead:
+choose "File's folder" in **REL.PATH** under a channel's UTILITY. Use it when you
+hand out a preset together with its material in one folder. When reading, the
+other base is tried too, so files written either way still load.
 
 ## params
 

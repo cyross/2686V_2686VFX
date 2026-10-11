@@ -73,6 +73,7 @@ Available on every channel, operator and rhythm pad.
 | Reverb | ✔ | ✔ |
 | SFC echo | ✔ | ✔ |
 | **PCM bit crusher** | — | ✔ |
+| **Noise reduction** | — | ✔ |
 
 The processing order can be rearranged, and the order file
 [can be read across plugins](/2686V_2686VFX/en/files/format/).

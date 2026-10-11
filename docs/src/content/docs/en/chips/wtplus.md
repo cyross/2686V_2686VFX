@@ -85,7 +85,8 @@ The following do not belong to any one chip. They are all described under
 | [**LFO**](/2686V_2686VFX/en/chips/common/#lfo) | Wobbles level and pitch at a steady rate (the OPZX7S one) |
 | [**MUL/DET**](/2686V_2686VFX/en/chips/common/#muldet) | Shifts the pitch |
 | [**UNISON/HARMONY**](/2686V_2686VFX/en/chips/common/#unisonharmony) | Stacks copies of the note to thicken it |
-| [**UTILITY**](/2686V_2686VFX/en/chips/common/#utility) | Reading and writing parameters. **Broadcast Level** sends the level out to the other channels |
+| [**EDIT**](/2686V_2686VFX/en/chips/common/#edit) | Cut, copy, paste and clear. **Duplicate Targets** / **Clear Targets** copy or clear several targets at once. **Level -> All Ch** sends the level out to the other channels |
+| [**UTILITY**](/2686V_2686VFX/en/chips/common/#utility) | Reading and writing parameters |
 
 For the details of QUALITY, see [the reference](/2686V_2686VFX/en/reference/lists-quality/).
 

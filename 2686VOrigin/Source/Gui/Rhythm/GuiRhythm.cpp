@@ -158,6 +158,10 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     qualityPcmComponent.setupComponent(colForm.contentCanvas, padPrefix, tabOrder);
 
+    // TARGET で選んでいるパッドを単位にする。OPTIONAL の下に置く
+    padEditComponent.setupComponent(colOptional.contentCanvas, RhythmPrKey::prefix,
+        [this] { return "PAD" + juce::String(m_padIndex); }, tabOrder);
+
     // 音声ファイルロードボタン
     loadButton.setup({ .parent = colForm.contentCanvas, .title = RhythmGuiText::File::load, .isReset = false });
     loadButton.addListener(&editorOf(ctx));
@@ -166,6 +170,9 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     // ロードしている音声ファイル名
     fileNameLabel.setup({ .parent = colForm.contentCanvas, .title = Io::empty });
+
+    // 区分を右クリックで写すとき、この素材も一緒に写す (持ち主は区分のパラメータから決まる)
+    fileNameLabel.getProperties().set(ParamEdit::Property::assetPrefix, ParamEdit::Property::sameOwner);
 
     m_padIndex = index;
 
@@ -261,6 +268,9 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     noiseFreqSlider.setup({ .parent = colForm.contentCanvas, .id = padPrefix + CPK::Tn::freq, .title = RhythmGuiText::Rhythm::Pad::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    // TONE / NOISE を実機の設定値で決める。NOISE の VALUE を入れると N.FREQ は止まる
+    toneNoiseValue.setupComponent(colForm.contentCanvas, padPrefix, tabOrder, &noiseFreqSlider);
 
     // 初期状態反映
     mixSlider.setup({ .parent = colForm.contentCanvas, .id = padPrefix + CPK::Tn::mix , .title = RhythmGuiText::Rhythm::Pad::mix, .isReset = true });
@@ -464,7 +474,11 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
         layoutQualityCat(rect);
         });
 
-    layoutCol(colOptional, true, [&](juce::Rectangle<int>& rect) { layoutOptionalCat(rect); });
+    layoutCol(colOptional, true, [&](juce::Rectangle<int>& rect) {
+        layoutOptionalCat(rect);
+
+        padEditComponent.layoutComponentRow(rect);
+        });
 
     layoutCol(colAmpEnv, shown(SimpleView::AmpEnv), [&](juce::Rectangle<int>& rect) {
         ampEnvComponent.setCategoryVisible(true);
@@ -549,6 +563,7 @@ void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
     toneSlider.setVisibleWithLabel(visible);
     noiseSlider.setVisibleWithLabel(visible);
     noiseFreqSlider.setVisibleWithLabel(visible);
+    toneNoiseValue.setVisibles(visible);
     mixSlider.setVisibleWithLabel(visible);
     mixSetTone.setVisible(visible);
     mixSetMix.setVisible(visible);
@@ -565,6 +580,7 @@ void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+        toneNoiseValue.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
         layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
 
@@ -810,6 +826,7 @@ void RhythmPadGui::rebind(int index)
     toneSlider.rebind(padPrefix + CPK::Tn::tone);
     noiseSlider.rebind(padPrefix + CPK::Tn::noise);
     noiseFreqSlider.rebind(padPrefix + CPK::Tn::freq);
+    toneNoiseValue.rebind(padPrefix);
     mixSlider.rebind(padPrefix + CPK::Tn::mix);
     oneShotButton.rebind(padPrefix + CPK::oneShot);
     noteSlider.rebind(padPrefix + CPK::note);
@@ -843,48 +860,6 @@ void RhythmPadGui::updateFileNameFromProcessor()
     updatePadFileName(path.isNotEmpty()
         ? pluginOf(ctx).resolvePath(path).getFileName()
         : Io::empty);
-}
-
-void RhythmPadGui::copyParams(CopyRhythmPad& copyObj) {
-    copyObj.base.level = volSlider.getValue();
-    copyObj.pan.pan = panSlider.getValue();
-    copyObj.isOneShot = oneShotButton.getToggleState();
-    copyObj.noteNumber = noteSlider.getValue();
-    copyObj.pcm.pcmOffset = pcmOffsetSlider.getValue();
-    copyObj.pcm.speed = speedSlider.getValue();
-    copyObj.pcm.pcmRatio = pcmRatioSlider.getValue();
-    copyObj.quality.mode = qualityPcmComponent.getMode();
-    copyObj.quality.rate = qualityPcmComponent.getRate();
-    copyObj.quality.interp = qualityPcmComponent.getInterp();
-    qualityPcmComponent.copyNr(copyObj.quality);
-    copyObj.toneLevel = toneSlider.getValue();
-    copyObj.noiseLevel = noiseSlider.getValue();
-    copyObj.noiseFreq = noiseFreqSlider.getValue();
-    copyObj.mix = mixSlider.getValue();
-
-    ampEnvComponent.copyParams(copyObj.aAdsr);
-    pitchEnvComponent.copyParams(copyObj.pAdsr);
-}
-
-void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
-    volSlider.setValue(copyObj.base.level, juce::sendNotification);
-    panSlider.setValue(copyObj.pan.pan, juce::sendNotification);
-    oneShotButton.setToggleState(copyObj.isOneShot, juce::sendNotification);
-    noteSlider.setValue(copyObj.noteNumber, juce::sendNotification);
-    pcmOffsetSlider.setValue(copyObj.pcm.pcmOffset, juce::sendNotification);
-    speedSlider.setValue(copyObj.pcm.speed, juce::sendNotification);
-    pcmRatioSlider.setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
-    qualityPcmComponent.setMode(copyObj.quality.mode);
-    qualityPcmComponent.setRate(copyObj.quality.rate);
-    qualityPcmComponent.setInterp(copyObj.quality.interp);
-    qualityPcmComponent.pasteNr(copyObj.quality);
-    toneSlider.setValue(copyObj.toneLevel);
-    noiseSlider.setValue(copyObj.noiseLevel);
-    noiseFreqSlider.setValue(copyObj.noiseFreq);
-    mixSlider.setValue(copyObj.mix);
-
-    ampEnvComponent.pasteParams(copyObj.aAdsr);
-    pitchEnvComponent.pasteParams(copyObj.pAdsr);
 }
 
 void RhythmPadGui::importToneNoiseParam()
@@ -943,6 +918,7 @@ void RhythmPadGui::applyToneNoiseParamFile(const juce::File& file)
     toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
     noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
     noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+    toneNoiseValue.readParams(*reader);
     mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
 }
 
@@ -1220,7 +1196,7 @@ void RhythmPadGui::writeQualityParamFile(const juce::File& file)
 void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     // 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
     // 出しているので、そこから File を作ることはできない。
-    auto path = Io::resolveSamplePath(r.getString("filePath", pluginOf(ctx).rhythmFilePaths[p]), pluginOf(ctx).defaultSampleDir);
+    auto path = pluginOf(ctx).resolveStoredPath(r.getString("filePath", pluginOf(ctx).rhythmFilePaths[p]), pluginOf(ctx).defaultSampleDir);
 
     // 別のファイルへ変わるなら、いま持っているものを先に外す
     if (pluginOf(ctx).rhythmFilePaths[p] != path) {
@@ -1246,6 +1222,7 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     toneSlider.setValue(r.getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
     noiseSlider.setValue(r.getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
     noiseFreqSlider.setValue(r.getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+    toneNoiseValue.readParams(r);
     mixSlider.setValue(r.getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
     pcmOffsetSlider.setValue(r.getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
     padDelaySlider.setValue(r.getFloat("delay", (float)padDelaySlider.getValue()), juce::sendNotification);
@@ -1274,7 +1251,7 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
 
 void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     // 名前ではなく場所を残す。読み戻すときに File を作れるようにするため。
-    w.set("filePath", Io::toStoredFileName(pluginOf(ctx).rhythmFilePaths[p]));
+    w.set("filePath", pluginOf(ctx).toStoredPath(pluginOf(ctx).rhythmFilePaths[p], pluginOf(ctx).defaultSampleDir, false));
 
     w.set("vol", (float)volSlider.getValue());
     w.set("pan", (float)panSlider.getValue());
@@ -1283,6 +1260,7 @@ void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     w.set("tone", (float)toneSlider.getValue());
     w.set("noise", (float)noiseSlider.getValue());
     w.set("noiseFreq", (float)noiseFreqSlider.getValue());
+    toneNoiseValue.writeParams(w);
     w.set("mix", (float)mixSlider.getValue());
     w.set("pcmOffset", (float)pcmOffsetSlider.getValue());
     w.set("delay", (float)padDelaySlider.getValue());
@@ -1316,13 +1294,10 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     levelComponent(context),
     unisonComponent(context),
     midiComponent(context),
+    editComponent(context),
     utilityCat(context),
+    pathRoot(context),
     broadcastLevelButton(context),
-    uSep001(context),
-    copyPadParamBtn(context),
-    copyPadFromSlider(context),
-    copyPadToSlider(context),
-    uSep002(context),
     ieToneNoise(context),
     ieLfo(context),
     ieAmpEnv(context),
@@ -1369,7 +1344,10 @@ void GuiRhythm::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::util, .enableChangeDetailVisible = true });
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::bcLevel });
+    // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
+    pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -1377,46 +1355,6 @@ void GuiRhythm::setup()
 
         editorOf(ctx).breadcastLevel(level);
         };
-
-    uSep001.setupComponent(mainGroup.contentCanvas);
-
-    copyPadParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Pad Params", .bgColor = juce::Colours::turquoise.darker(0.3f) });
-    copyPadParamBtn.setWantsKeyboardFocus(true);
-    copyPadParamBtn.setExplicitFocusOrder(++tabOrder);
-    copyPadParamBtn.onClick = [this] {
-        int from = copyPadFromSlider.getValue() - 1;
-        int to = copyPadToSlider.getValue() - 1;
-
-        editorOf(ctx).copyRhythmPadParams(from, to);
-        };
-
-    copyPadFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
-    copyPadFromSlider.setRange(1.0, (double)RhythmPrValue::pads, 1.0);
-    copyPadFromSlider.setNumDecimalPlacesToDisplay(0);
-    copyPadFromSlider.setValue(1, juce::sendNotification);
-    copyPadFromSlider.setWantsKeyboardFocus(true);
-    copyPadFromSlider.setExplicitFocusOrder(++tabOrder);
-    copyPadFromSlider.onValueChange = [this] {
-        int from = copyPadFromSlider.getValue() - 1;
-        int to = copyPadToSlider.getValue() - 1;
-
-        copyPadParamBtn.setEnabled(from != to);
-        };
-
-    copyPadToSlider.setup({ .parent = mainGroup.contentCanvas, .title = "TO", .isReset = false });
-    copyPadToSlider.setRange(1.0, (double)RhythmPrValue::pads, 1.0);
-    copyPadToSlider.setNumDecimalPlacesToDisplay(0);
-    copyPadToSlider.setValue(2, juce::sendNotification);
-    copyPadToSlider.setWantsKeyboardFocus(true);
-    copyPadToSlider.setExplicitFocusOrder(++tabOrder);
-    copyPadToSlider.onValueChange = [this] {
-        int from = copyPadFromSlider.getValue() - 1;
-        int to = copyPadToSlider.getValue() - 1;
-
-        copyPadParamBtn.setEnabled(from != to);
-        };
-
-    uSep002.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { const int padIndex = currentPad(); importToneNoiseParam(padIndex); };
@@ -1524,6 +1462,22 @@ void GuiRhythm::setup()
     applyPadTarget();
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    // 1 つのパッドを、いくつかのパッドへ写す (Duplicate Pad Params)
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .unitDuplicate = GuiComponentEdit::UnitDuplicate{ .title = "Duplicate Pad Params", .head = "PAD", .count = RhythmPrValue::pads },
+        // NOTE まで貼ったり消したりすると鍵盤の振り分けが変わるので、初めは触らない
+        .withNoteToggle = true,
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
 }
 
 void GuiRhythm::layout(juce::Rectangle<int> content)
@@ -1556,6 +1510,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     unisonComponent.layoutComponent(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    editComponent.layoutComponent(mRect);
 
     layoutUtilityCat(mRect);
 
@@ -1606,12 +1562,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
-    copyPadParamBtn.setVisible(visible);
-    copyPadFromSlider.setVisibleWithLabel(visible);
-    copyPadToSlider.setVisibleWithLabel(visible);
-    uSep002.setVisible(visible);
+    pathRoot.setVisible(visible);
+
     ieToneNoise.setVisible(visible);
     ieLfo.setVisible(visible);
     ieDetune.setVisible(visible);
@@ -1633,15 +1585,7 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-
-        uSep001.layoutComponent(rect);
-
-        layoutMain({ .mainRect = rect, .component = &copyPadParamBtn });
-        layoutMain({ .mainRect = rect, .label = &copyPadFromSlider.label, .component = &copyPadFromSlider });
-        layoutMain({ .mainRect = rect, .label = &copyPadToSlider.label, .component = &copyPadToSlider });
-
-        uSep002.layoutComponent(rect);
+        pathRoot.layoutComponent(rect);
 
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1793,14 +1737,6 @@ void GuiRhythm::setLevel(float level) {
     levelComponent.setLevel(level);
 }
 
-void GuiRhythm::copyPadParams(int p, CopyRhythmPad& copyObj) {
-    withPad(p, [&copyObj](RhythmPadGui& pad) { pad.copyParams(copyObj); });
-}
-
-void GuiRhythm::pastePadParams(int p, CopyRhythmPad& copyObj) {
-    withPad(p, [&copyObj](RhythmPadGui& pad) { pad.pasteParams(copyObj); });
-}
-
 void GuiRhythm::importToneNoiseParam(int p) {
     padPanel.importToneNoiseParam();
 }
@@ -1893,6 +1829,9 @@ void GuiRhythm::importChParam() {
 void GuiRhythm::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     // 次回のダイアログ用にディレクトリを保存
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -1959,6 +1898,9 @@ void GuiRhythm::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(rhythmFormat);
@@ -1981,6 +1923,9 @@ void GuiRhythm::importPadChParam(int p)
 void GuiRhythm::applyPadChParamFile(int p, const juce::File& file)
 {
     if (!file.existsAsFile()) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
 
     // 次回のダイアログ用にディレクトリを保存
@@ -2035,6 +1980,9 @@ void GuiRhythm::exportPadChParam(int p)
 void GuiRhythm::writePadChParamFile(int p, const juce::File& file)
 {
     if (file == juce::File{}) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -2188,6 +2136,7 @@ void RhythmPadGui::writeToneNoiseParams(Io::ParamWriter& writer) {
 	writer.set("tone", (float)toneSlider.getValue());
 	writer.set("noise", (float)noiseSlider.getValue());
 	writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+	toneNoiseValue.writeParams(writer);
 	writer.set("mix", (float)mixSlider.getValue());
 
 	
@@ -2336,4 +2285,40 @@ void GuiRhythm::closeBypassedCategories()
     if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
 
     padPanel.closeBypassedCategories();
+}
+
+// ==============================================================================
+// 素材 (ParamEdit)
+// ==============================================================================
+// RHYTHM の素材はパッドごとの音声ファイル。チャンネル全体 (グローバル部分) には
+// パッドを含めないので、パッドを指したときだけ
+std::vector<ParamEdit::AssetSlot> GuiRhythm::clipAssetSlots(const juce::String& prefix, bool wholeChannel)
+{
+    juce::ignoreUnused(wholeChannel);
+
+    const int pad = ParamEdit::unitIndexOf(prefix, RhythmPrKey::prefix, "PAD");
+
+    if (pad < 0 || pad >= RhythmPrValue::pads) return {};
+
+    return { { "sample",
+        [this, pad] { return pluginOf(ctx).rhythmFilePaths[(size_t)pad]; },
+        [this, pad](const juce::File& file) {
+            pluginOf(ctx).unloadRhythmFile(pad);
+
+            if (file.existsAsFile()) pluginOf(ctx).loadRhythmFile(file, pad);
+
+            updatePadFileName(pad, file.existsAsFile() ? file.getFileName() : Io::empty);
+        } } };
+}
+
+void GuiRhythm::collectClipAssets(const juce::String& prefix, bool wholeChannel,
+    std::map<juce::String, juce::String>& out)
+{
+    ParamEdit::collectAssets(clipAssetSlots(prefix, wholeChannel), out);
+}
+
+void GuiRhythm::applyClipAssets(const juce::String& prefix, bool wholeChannel,
+    const std::map<juce::String, juce::String>& assets, bool clearOthers)
+{
+    ParamEdit::applyAssets(clipAssetSlots(prefix, wholeChannel), assets, clearOthers);
 }

@@ -19,6 +19,7 @@
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
+#include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Processor/Opm/ProcessorOpmValues.h"
 #include "Shared/Gui/Components/PresetName/PresetName.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
@@ -112,6 +113,12 @@ class GuiOpm : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
+    GuiComponentEdit editComponent;
+
+    // オペレーター 1 つぶんの EDIT 区分 (MASK の下)
+    GuiComponentUnitEdit opEditComponent;
+
     GuiCategoryLabel utilityCat;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
@@ -123,14 +130,12 @@ class GuiOpm : public GuiBase
 
     void exportOpzx7Params();
     GuiTextButton broadcastLevelButton;
-    NormalSeparator uSep001;
     GuiTextButton copyParamsToOpnaBtn;
     GuiTextButton copyParamsToOpnBtn;
     NormalSeparator uSep002;
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
-    NormalSeparator uSep003;
     GuiComponentImportExport ieOpPitchEnv;
     GuiComponentImportExport ieOpSsgSwEnv;
     GuiComponentImportExport ieOpSsgSwEnv11;
@@ -286,6 +291,7 @@ class GuiOpm : public GuiBase
         I18n::pick(u8"MML風にパラメータを入力してください。 例: AR:31 AR31 DT-1 等", u8"Type the parameters MML-style. For example: AR:31 AR31 DT-1");
 
     void updateOpGraph(int opIndex);
+    void updateOpGraphs();
     void setGraphMode(GuiEnvGraphMode mode);
 
     // TARGET が今どのオペレータを指しているか (0 から数える)。
@@ -352,14 +358,12 @@ public:
         pitchMajorCat(context),
         exportOpzx7Btn(context),
         broadcastLevelButton(context),
-        uSep001(context),
         copyParamsToOpnaBtn(context),
         copyParamsToOpnBtn(context),
         uSep002(context),
         copyOpParamBtn(context),
         copyOpFromSlider(context),
         copyOpToSlider(context),
-        uSep003(context),
         ieOpPitchEnv(context),
         ieOpSsgSwEnv(context),
         ieOpSsgSwEnv11(context),
@@ -456,6 +460,8 @@ public:
         kor(context),
         bypass(context),
         midiComponent(context),
+        editComponent(context),
+        opEditComponent(context),
         gGraph(),
         gGraphBtnAmp(context),
         gGraphBtnSsg11(context),

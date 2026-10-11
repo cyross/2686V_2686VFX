@@ -1,4 +1,5 @@
 ﻿#include "./SynthRhythm.h"
+#include "Shared/Core/Synth/SsgRegister.h"
 
 #include "Shared/Core/Synth/SynthHelpers.h"
 #include "Shared/Generator/Pcm/Adpcm/GenAdpcm.h"
@@ -51,6 +52,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_level = params.level;
     m_delaySeconds = params.delay;
     m_tone = params.tn.tone;
+    m_toneRatio = params.tn.toneRatio;
     m_mix = params.tn.mix;
     m_pan = params.pan;
 
@@ -743,6 +745,9 @@ float RhythmPad::getSample()
         * m_wtMod.process((float)(m_currentFrequency / m_sampleRate)) * m_ssgHwPEnv.process(1.0f);
 
     m_ampModDelta = (float)(m_currentFrequency / m_sampleRate);
+
+    // FORM の TONE の VALUE: 鍵盤の周波数へ To から決まる倍率を掛ける
+    freqMult *= m_toneRatio;
 
     // Advance position
     m_position += currentIncrement * freqMult * m_speed;

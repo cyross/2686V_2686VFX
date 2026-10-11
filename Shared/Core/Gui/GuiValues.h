@@ -121,6 +121,16 @@ namespace CoreGuiValue
 					static constexpr int width = 35;
 				}
 			}
+
+			// QUALITY の DAC の行。PCM ファイルを読む行に倣い、右端にボタンを置く。
+			// ラベルは他の行と揃え、コンボボックスは値の幅からボタンのぶんを削る。
+			namespace Dac
+			{
+				namespace ApplyBtn
+				{
+					static constexpr int width = 35;
+				}
+			}
 		}
 
 		namespace LastRow

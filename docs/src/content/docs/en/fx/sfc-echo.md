@@ -2,7 +2,7 @@
 title: SFC echo
 description: Setting up the SFC echo
 sidebar:
-  order: 9
+  order: 10
 ---
 
 <figure class="shot">

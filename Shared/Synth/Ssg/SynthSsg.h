@@ -60,6 +60,9 @@ private:
     WaveHold m_hold;
 
     float m_tone = 1.0f;
+
+    // 鍵盤の周波数へ掛ける倍率 (FORM の TONE の VALUE。切っていれば 1)
+    float m_toneRatio = 1.0f;
     float m_noiseLevel = 0.0f;
     float m_mix = 0.5;
     int m_waveform = 0; // 0:Pulse, 1:Triangle

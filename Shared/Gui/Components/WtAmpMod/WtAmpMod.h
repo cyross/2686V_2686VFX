@@ -2,10 +2,13 @@
 
 #include <JuceHeader.h>
 
+#include "Shared/Core/Gui/GuiParamEdit.h"
+
 #include "../../../Core/Io/ParamFile.h"
 #include <array>
 
 #include "Shared/Core/Const/ConstGlobal.h"
+#include "../StepSnap/StepSnap.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "../../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
@@ -35,6 +38,10 @@ class GuiComponentWtAmpMod : public GuiBase {
     GuiCategoryLabel cat;
     GuiToggleButton enableButton;
     GuiSlider depthSlider;
+
+    // DEPTH を決まった刻みへ丸める
+    GuiComponentStepSnap depthSteps;
+
     GuiSlider speedSlider;
     GuiComboBox shapeSelector;
     GuiToggleButton waveSmoothBtn;
@@ -127,6 +134,7 @@ public:
         cat(context),
         enableButton(context),
         depthSlider(context),
+        depthSteps(context),
         speedSlider(context),
         shapeSelector(context),
         waveSmoothBtn(context),
@@ -158,6 +166,10 @@ public:
         juce::Colour categoryBg = GuiColor::Category::SwAmpBg);
     // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
     void rebind(const juce::String& code);
+
+    // 変調波形を貼った・消したら描き直す (ParamEdit)
+    void refreshWaves();
+    ParamEdit::WaveWatcher waveWatcher{ [this] { refreshWaves(); } };
     void layoutComponent(juce::Rectangle<int>& rect);
 
     // 単体ファイル (.wtampmod) での入出力。

@@ -50,6 +50,7 @@ its current value** — it is not reset to the default.
 | `min` | float | 0.0 to 1.0 | 0.0 |
 | `max` | float | 0.0 to 1.0 | 1.0 |
 | `waveSmooth` | bool | — | — |
+| `waves` | list of strings | Where each loaded modulation wave is, one per slot (since 3.6.3) | — |
 | `table` | array of 32 ints | 0 to 7 | — |
 
 :::note[Writing one by hand]

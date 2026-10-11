@@ -616,7 +616,10 @@ void GuiWt::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::util, .enableChangeDetailVisible = true });
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Utility::bcLevel });
+    // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
+    pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -625,7 +628,6 @@ void GuiWt::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Wt::fileImport, .bgColor = GuiColor::WaveFile::ImportBg, .isReset = false, .isResized = false });
     customWaveImportBtn.setWantsKeyboardFocus(true);
@@ -669,6 +671,18 @@ void GuiWt::setup()
     ieChParam.onClickExport = [this] { exportChParam(); };
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
 
     // Custom Wave Group
 	customWaveGroup.setup(*this, WtGuiText::Group::wtCustom);
@@ -813,6 +827,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    editComponent.layoutComponent(mRect);
 
     layoutUtilityCat(mRect);
 
@@ -1103,8 +1119,8 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
+    pathRoot.setVisible(visible);
+
     customWaveImportBtn.setVisible(visible);
     customWaveExportBtn.setVisible(visible);
     uSep002.setVisible(visible);
@@ -1125,8 +1141,8 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        uSep001.layoutComponent(rect);
+        pathRoot.layoutComponent(rect);
+
         layoutMainTwoComps({ .rect = rect, .comp1 = &customWaveImportBtn, .comp2 = &customWaveExportBtn });
         uSep002.layoutComponent(rect);
         ieLfo.layoutComponent(rect);
@@ -1375,6 +1391,9 @@ void GuiWt::importChParam() {
 void GuiWt::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     // 次回のダイアログ用にディレクトリを保存
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -1469,6 +1488,9 @@ void GuiWt::exportChParam()
 void GuiWt::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
+
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
 
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 

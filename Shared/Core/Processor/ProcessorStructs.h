@@ -380,8 +380,8 @@ struct PrPtrsUnison {
     std::atomic<float>* arpEnable = nullptr;
     std::atomic<float>* arpFreq = nullptr;
     std::atomic<float>* arpSmooth = nullptr;
-    std::array<std::atomic<float>*, Global::unisonParaVoices> paraDistance{};
-    std::array<std::atomic<float>*, Global::unisonParaVoices> paraDetune{};
+    std::array<std::atomic<float>*, Global::unisonVoices> paraDistance{};
+    std::array<std::atomic<float>*, Global::unisonVoices> paraDetune{};
 };
 
 struct PrPtrsToneNoise {
@@ -390,6 +390,10 @@ struct PrPtrsToneNoise {
     std::atomic<float>* noiseFreq = nullptr;
     std::atomic<float>* noiseOnNote = nullptr;
     std::atomic<float>* mix = nullptr;
+    std::atomic<float>* toneValueOn = nullptr;
+    std::atomic<float>* toneValue = nullptr;
+    std::atomic<float>* noiseValueOn = nullptr;
+    std::atomic<float>* noiseValue = nullptr;
 };
 
 struct PrPtrsPcm {
@@ -463,6 +467,8 @@ struct PrPtrsSsgHwEnv {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::atomic<float>* smooth = nullptr;
+    std::atomic<float>* valueOn = nullptr;
+    std::atomic<float>* value = nullptr;
 
     // ホールドと部分再生
     PrPtrsWaveHold hold;
@@ -475,6 +481,8 @@ struct PrPtrsSsgHwPEnv {
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
     std::atomic<float>* smooth = nullptr;
+    std::atomic<float>* valueOn = nullptr;
+    std::atomic<float>* value = nullptr;
 
     // ホールドと部分再生
     PrPtrsWaveHold hold;

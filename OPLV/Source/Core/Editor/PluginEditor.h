@@ -9,6 +9,7 @@
 #include "Shared/Core/Gui/GuiLF.h"
 #include "Shared/Core/Gui/GuiLazy.h"
 #include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Gui/Components/Edit/CopyHistory.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
 
@@ -85,7 +86,8 @@ class AudioPlugin2686VEditor :
     public juce::Button::Listener,
     public juce::AudioProcessorValueTreeState::Listener,
     public juce::MultiTimer,
-    public juce::AsyncUpdater
+    public juce::AsyncUpdater,
+    public juce::FileDragAndDropTarget
 {
     // 画面のテスト (tests/gui) だけが、全タブを作る口とタブの並びを触る。
     friend struct EditorTestAccess;
@@ -142,6 +144,18 @@ public:
     // 区分に合うタブへ読ませる。合うタブが無ければ false。
     // そのファイルのための音源へ切り替えたうえで読む。
     bool applyChannelParamFile(const juce::File& file);
+
+    // パラメータの切り取り・コピー・貼り付けで、区分の外の素材を写す。
+    // 素材を持つタブへ取り次ぐ。
+    void collectClipAssets(const juce::String& prefix, bool wholeChannel,
+        std::map<juce::String, juce::String>& out) override;
+    void applyClipAssets(const juce::String& prefix, bool wholeChannel,
+        const std::map<juce::String, juce::String>& assets, bool clearOthers) override;
+
+    // ファイルを画面へ落として読み込む。読み込んだあとは、ダイアログや
+    // 一覧から読んだときと同じに振る舞う。
+    bool isInterestedInFileDrag(const juce::StringArray& files) override;
+    void filesDropped(const juce::StringArray& files, int x, int y) override;
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
     void buttonClicked(juce::Button* button) override;
@@ -378,6 +392,11 @@ private:
     juce::TextButton openCategoriesBtn;
     juce::TextButton closeCategoriesBtn;
 
+    // コピー履歴 (CPHIST)。押したときに作って重ねる
+    juce::TextButton copyHistoryBtn;
+    std::unique_ptr<GuiCopyHistory> copyHistory;
+    void openCopyHistory();
+
     // 開いているタブに限らず、持っているタブすべてへ配る。
     void forEachTabGui(const std::function<void(GuiBase&)>& fn);
 
@@ -444,6 +463,9 @@ private:
     // タブ番号から中身を引く。まだ作っていなければここで作る。
     GuiBase* tabGuiFor(int tabIndex);
 
+    // 素材を持つチャンネルのタブ。prefix は APVTS のプレフィックス
+    GuiBase* clipAssetTabFor(const juce::String& prefix);
+
     // 区分の名前からタブ番号を引く。合うものが無ければ -1。
     static int tabForCategory(const juce::String& category);
 
@@ -492,6 +514,11 @@ private:
     juce::TextButton toggleMiniBtn;
     juce::ImageComponent mainIconImage;
     juce::ImageComponent miniIconImage;
+
+    // 画面へ落としたファイルの種類
+    enum class DropKind { none, preset, channel, fxOrder, fxParam };
+
+    DropKind dropKindOf(const juce::File& file);
 
     std::unique_ptr<GuiFx> fxGui; // FX
     std::unique_ptr<GuiSettings> settingsGui;

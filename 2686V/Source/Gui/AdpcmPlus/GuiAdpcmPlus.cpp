@@ -95,6 +95,9 @@ void GuiAdpcmPlus::setup()
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
+    // TONE / NOISE を実機の設定値で決める。NOISE の VALUE を入れると N.FREQ は止まる
+    toneNoiseValue.setupComponent(pcmGroup.contentCanvas, slot0, tabOrder, &noiseFreqSlider);
+
     // 初期状態反映
     mixSlider.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::Tn::mix , .title = AdpcmPlusGuiText::Adpcm::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
@@ -228,6 +231,9 @@ void GuiAdpcmPlus::setup()
     // ロードしているファイル名
     fileNameLabel.setup({ .parent = pcmGroup.contentCanvas, .title = Io::empty });
 
+    // 区分を右クリックで写すとき、この素材も一緒に写す (持ち主は区分のパラメータから決まる)
+    fileNameLabel.getProperties().set(ParamEdit::Property::assetPrefix, ParamEdit::Property::sameOwner);
+
     samplePreview.setup(pcmGroup.contentCanvas, GuiColor::WavePreview::AudioFile);
 
     // 32 個あるので 1 行 3 個では縦に伸びすぎる。8 個ずつ 4 行に収める。
@@ -262,6 +268,20 @@ void GuiAdpcmPlus::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    // EDIT。Level -> All Ch などは UTILITY からここへ移した
+    editComponent.setupComponent({
+        .parent = mainGroup.contentCanvas,
+        .code = code,
+        .onDuplicateTargets = [this] { openTargetsDialog(GuiTargetsDialog::Mode::Duplicate); },
+        .onClearTargets = [this] { openTargetsDialog(GuiTargetsDialog::Mode::Clear); },
+        .setMovedVisible = [this](bool visible) {
+            broadcastLevelButton.setVisible(visible);
+            },
+        .layoutMoved = [this](juce::Rectangle<int>& r) {
+            layoutMain({ .mainRect = r, .component = &broadcastLevelButton });
+            },
+        }, tabOrder);
+
     // 大区分。音量と音程にかかわる区分を、それぞれまとめて畳めるようにする。
     // 最初は閉じておく。
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
@@ -269,7 +289,10 @@ void GuiAdpcmPlus::setup()
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::util, .enableChangeDetailVisible = true });
 
-    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Utility::bcLevel });
+    // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
+    pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
@@ -278,7 +301,6 @@ void GuiAdpcmPlus::setup()
         editorOf(ctx).breadcastLevel(level);
         };
 
-    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
@@ -406,6 +428,8 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     midiComponent.layoutComponent(mRect);
 
+    editComponent.layoutComponent(mRect);
+
     layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
@@ -420,6 +444,15 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     pcmArea.removeFromBottom(40);
     pcmGroup.setBounds(pcmArea);
+
+    // TARGET の複写・消去のダイアログは、この枠の右の空きへ出す。
+    // WAVE MEMORY や FORM を見ながら選べるように。空きが狭ければメインの枠の上
+    {
+        auto rest = pageArea.withTrimmedLeft(10).withTrimmedRight(10);
+
+        targetsDialogArea = rest.getWidth() >= 300 ? rest.withTop(pcmArea.getY()).withBottom(pcmArea.getBottom())
+                                                   : mainGroup.getBounds();
+    }
 
     auto pgRect = pcmArea.reduced(AdpcmPlusGuiValue::Group::Padding::width, AdpcmPlusGuiValue::Group::Padding::height);
 
@@ -457,6 +490,7 @@ void GuiAdpcmPlus::rebindSlot()
     toneSlider.rebind(prefix + CPK::Tn::tone);
     noiseSlider.rebind(prefix + CPK::Tn::noise);
     noiseFreqSlider.rebind(prefix + CPK::Tn::freq);
+    toneNoiseValue.rebind(prefix);
     mixSlider.rebind(prefix + CPK::Tn::mix);
 
     speedSlider.rebind(prefix + CPK::speed);
@@ -613,8 +647,8 @@ void GuiAdpcmPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    broadcastLevelButton.setVisible(visible);
-    uSep001.setVisible(visible);
+    pathRoot.setVisible(visible);
+
     ieToneNoise.setVisible(visible);
     ieLfo.setVisible(visible);
     ieDetune.setVisible(visible);
@@ -634,9 +668,8 @@ void GuiAdpcmPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+        pathRoot.layoutComponent(rect);
 
-        uSep001.layoutComponent(rect);
 
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -686,6 +719,7 @@ void GuiAdpcmPlus::layoutFormCat(Rectangle<int>& rect) {
     toneSlider.setVisibleWithLabel(visible);
     noiseSlider.setVisibleWithLabel(visible);
     noiseFreqSlider.setVisibleWithLabel(visible);
+    toneNoiseValue.setVisibles(visible);
     mixSlider.setVisibleWithLabel(visible);
     mixSetTone.setVisible(visible);
     mixSetMix.setVisible(visible);
@@ -716,6 +750,7 @@ void GuiAdpcmPlus::layoutFormCat(Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+        toneNoiseValue.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
         layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
 
@@ -968,6 +1003,7 @@ void GuiAdpcmPlus::applyToneNoiseParamFile(const juce::File& file)
     toneSlider.setValue(reader->getFloat("tone", (float)toneSlider.getValue()), juce::sendNotification);
     noiseSlider.setValue(reader->getFloat("noise", (float)noiseSlider.getValue()), juce::sendNotification);
     noiseFreqSlider.setValue(reader->getFloat("noiseFreq", (float)noiseFreqSlider.getValue()), juce::sendNotification);
+    toneNoiseValue.readParams(*reader);
     mixSlider.setValue(reader->getFloat("mix", (float)mixSlider.getValue()), juce::sendNotification);
 }
 
@@ -1173,6 +1209,9 @@ void GuiAdpcmPlus::importChParam() {
 void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
     if (!file.existsAsFile()) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     // 次回のダイアログ用にディレクトリを保存
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
@@ -1198,7 +1237,7 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
         auto r = reader->child("slot" + juce::String(i));
 
         // 素材の場所はプロセッサが持っている
-        auto path = Io::resolveSamplePath(r.getString("filePath", pluginOf(ctx).adpcmPlusFilePaths[(size_t)i]),
+        auto path = pluginOf(ctx).resolveStoredPath(r.getString("filePath", pluginOf(ctx).adpcmPlusFilePaths[(size_t)i]),
             pluginOf(ctx).defaultSampleDir);
 
         // 別のファイルへ変わるなら、いま持っているものを先に外す
@@ -1216,6 +1255,14 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
             r.getFloat("noise", getParamValue(slotPrefix + CPK::Tn::noise)));
         setParamValue(slotPrefix + CPK::Tn::freq,
             r.getFloat("noiseFreq", getParamValue(slotPrefix + CPK::Tn::freq)));
+        setParamValue(slotPrefix + CPK::Tn::toneValueOn,
+            r.getBool(GuiComponentToneNoiseValue::Key::toneValueOn, getParamValue(slotPrefix + CPK::Tn::toneValueOn) > 0.5f) ? 1.0f : 0.0f);
+        setParamValue(slotPrefix + CPK::Tn::toneValue,
+            (float)r.getInt(GuiComponentToneNoiseValue::Key::toneValue, (int)getParamValue(slotPrefix + CPK::Tn::toneValue)));
+        setParamValue(slotPrefix + CPK::Tn::noiseValueOn,
+            r.getBool(GuiComponentToneNoiseValue::Key::noiseValueOn, getParamValue(slotPrefix + CPK::Tn::noiseValueOn) > 0.5f) ? 1.0f : 0.0f);
+        setParamValue(slotPrefix + CPK::Tn::noiseValue,
+            (float)r.getInt(GuiComponentToneNoiseValue::Key::noiseValue, (int)getParamValue(slotPrefix + CPK::Tn::noiseValue)));
         setParamValue(slotPrefix + CPK::Tn::mix,
             r.getFloat("mix", getParamValue(slotPrefix + CPK::Tn::mix)));
 
@@ -1278,6 +1325,9 @@ void GuiAdpcmPlus::writeChParamFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
+    // 中に書く音声・波形の場所は、このファイルを基準にできる
+    PathDocumentScope pathScope(pluginOf(ctx), file);
+
     pluginOf(ctx).defaultChannelParamDir = file.getParentDirectory().getFullPathName();
 
     Io::ParamWriter writer(adpcmPlusFormat);
@@ -1300,11 +1350,15 @@ void GuiAdpcmPlus::writeChParams(Io::ParamWriter& writer) {
         auto w = writer.child("slot" + juce::String(i));
 
         // 名前ではなく場所を残す。読み戻すときに File を作れるようにするため。
-        w.set("filePath", Io::toStoredFileName(pluginOf(ctx).adpcmPlusFilePaths[(size_t)i]));
+        w.set("filePath", pluginOf(ctx).toStoredPath(pluginOf(ctx).adpcmPlusFilePaths[(size_t)i], pluginOf(ctx).defaultSampleDir, false));
 
         w.set("tone", getParamValue(slotPrefix + CPK::Tn::tone));
         w.set("noise", getParamValue(slotPrefix + CPK::Tn::noise));
         w.set("noiseFreq", getParamValue(slotPrefix + CPK::Tn::freq));
+        w.set(GuiComponentToneNoiseValue::Key::toneValueOn, getParamValue(slotPrefix + CPK::Tn::toneValueOn) > 0.5f);
+        w.set(GuiComponentToneNoiseValue::Key::toneValue, (int)getParamValue(slotPrefix + CPK::Tn::toneValue));
+        w.set(GuiComponentToneNoiseValue::Key::noiseValueOn, getParamValue(slotPrefix + CPK::Tn::noiseValueOn) > 0.5f);
+        w.set(GuiComponentToneNoiseValue::Key::noiseValue, (int)getParamValue(slotPrefix + CPK::Tn::noiseValue));
         w.set("mix", getParamValue(slotPrefix + CPK::Tn::mix));
 
         w.set("pan", getParamValue(slotPrefix + CPK::pan));
@@ -1361,6 +1415,7 @@ void GuiAdpcmPlus::writeToneNoiseParams(Io::ParamWriter& writer) {
 	writer.set("tone", (float)toneSlider.getValue());
 	writer.set("noise", (float)noiseSlider.getValue());
 	writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
+	toneNoiseValue.writeParams(writer);
 	writer.set("mix", (float)mixSlider.getValue());
 
 	
@@ -1483,4 +1538,71 @@ void GuiAdpcmPlus::closeBypassedCategories()
     // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
     if (allCategoriesBypassed(ampEnvComponent, ssgHwEnv, ssgSwEnvComponent, ssgSwEnv11Component, ampModComponent)) ampMajorCat.setDetailVisible(false);
     if (allCategoriesBypassed(pitchEnvComponent, ssgHwPEnv, ssgSwPEnv11Component, modComponent)) pitchMajorCat.setDetailVisible(false);
+}
+
+// ==============================================================================
+// 素材 (ParamEdit)
+// ==============================================================================
+// ADPCM+ の素材は枠 (SLOT) ごとの音声ファイル。チャンネル全体のときは全部の枠
+std::vector<ParamEdit::AssetSlot> GuiAdpcmPlus::clipAssetSlots(const juce::String& prefix, bool wholeChannel)
+{
+    std::vector<ParamEdit::AssetSlot> slots;
+
+    auto add = [&](int slot, const juce::String& key) {
+        slots.push_back({ key,
+            [this, slot] { return pluginOf(ctx).adpcmPlusFilePaths[(size_t)slot]; },
+            [this, slot](const juce::File& file) {
+                pluginOf(ctx).unloadAdpcmPlusFile(slot);
+
+                if (file.existsAsFile()) pluginOf(ctx).loadAdpcmPlusFile(slot, file);
+
+                updateSlotFileName(slot);
+            } });
+    };
+
+    if (prefix == AdpcmPlusPrKey::prefix && wholeChannel)
+    {
+        for (int i = 0; i < Global::AdpcmPlus::slots; ++i) add(i, "SLOT" + juce::String(i) + ":sample");
+    }
+
+    const int slot = ParamEdit::unitIndexOf(prefix, AdpcmPlusPrKey::prefix, "SLOT");
+
+    if (slot >= 0 && slot < Global::AdpcmPlus::slots) add(slot, "sample");
+
+    return slots;
+}
+
+void GuiAdpcmPlus::collectClipAssets(const juce::String& prefix, bool wholeChannel,
+    std::map<juce::String, juce::String>& out)
+{
+    ParamEdit::collectAssets(clipAssetSlots(prefix, wholeChannel), out);
+}
+
+void GuiAdpcmPlus::applyClipAssets(const juce::String& prefix, bool wholeChannel,
+    const std::map<juce::String, juce::String>& assets, bool clearOthers)
+{
+    ParamEdit::applyAssets(clipAssetSlots(prefix, wholeChannel), assets, clearOthers);
+}
+
+// ==============================================================================
+// Duplicate Targets / Clear Targets
+// ==============================================================================
+void GuiAdpcmPlus::openTargetsDialog(GuiTargetsDialog::Mode mode)
+{
+    GuiTargetsDialog::Config config;
+
+    config.mode = mode;
+    config.count = Global::AdpcmPlus::slots;
+    config.current = targetSlot();
+    config.firstNumber = 0;
+
+    config.onDuplicate = [this](int from, const std::vector<int>& to, bool withParams) {
+        ParamEdit::duplicateUnitTo(ctx, AdpcmPlusPrKey::prefix, "SLOT", from, to, withParams);
+    };
+
+    config.onClear = [this](const std::vector<int>& targets) {
+        ParamEdit::clearUnits(ctx, AdpcmPlusPrKey::prefix, "SLOT", targets);
+    };
+
+    targetsDialog.open(*this, targetsDialogArea, config);
 }
