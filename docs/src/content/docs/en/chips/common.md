@@ -156,10 +156,16 @@ The basic shape of the level. It runs **start level → attack → decay → sus
 | **AR** | Time to reach full level (seconds) | 0.001 – 10 | 0.001 | [`SSG_AR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ar) |
 | **DR** | Time to fall to sustain (seconds) | 0.001 – 10 | 0.001 | [`SSG_DR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-dr) |
 | **SL** | Level held while the key is down | 0 – 1 | 1 | [`SSG_SL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-sl) |
+| **STEPS** | Snaps SL to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **RR** | Time to fade out after release (seconds) | 0.001 – 10 | 0.001 | [`SSG_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-rr) |
 | **KOR** | **Ours.** Play the envelope out even after release | False / True | False | [`SSG_KOR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-kor) |
 | **Use Endl** | Ours. Leave sound behind after the release | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-endl-en) |
 | **ENDL** | Ours. The level held once it is there | 0 – 1 | 0 | [`SSG_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-endl) |
+
+**STEPS** works like the one on LEVEL: it snaps the value to the step you pick
+(from 3.6.3). As the range is 0–1, there is no "by 1" step. SSG HW AMP ENV,
+SSG SW AMP ENV, SSG SW AMP ENV[11] and WT AMP MOD have the same STEPS, on every
+channel, operator and pad.
 
 FM operators carry a separate register-style envelope of their own
 (AR / DR / SR / SL / RR / TL). That one is covered on each chip's page.
@@ -178,6 +184,7 @@ hardware it was how you moved a level in steps.
 | **VALUE** | The chip's envelope value Te: 667000 ÷ (512 × Te) Hz | 0 – 65535 | 1303 | [`SSG_SSGHWENV_VALUE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-value) |
 | **MIN** | **Ours.** Bottom of the range it moves in | 0 – 1 | 0 | [`SSG_SSGHWENV_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-min) |
 | **MAX** | **Ours.** Top of the range it moves in | 0 – 1 | 1 | [`SSG_SSGHWENV_MAX`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-max) |
+| **STEPS** | Snaps MIN / MAX to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **Smooth** | **Ours.** Round off the corners of the steps | False / True | False | [`SSG_SSGHWENV_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssghwenv-smooth) |
 
 The hardware had sixteen shapes over a fixed range. Here there are also versions
@@ -225,6 +232,7 @@ lets you draw it directly, as **a series of line segments**.
 | **L5** | Level at step 5 | 0 – 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
 | **R6** | Time to reach step 6 | 0.001 – 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
 | **L6** | Level at step 6 | 0 – 1 | 0 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
+| **STEPS** | Snaps L1–L6 to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSW_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loop) |
 | **LOOP.TO** | Step it goes back to. 0–3 | 0 – 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopto) |
 | **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
@@ -261,6 +269,7 @@ movement, use this one rather than the 6-tap version.
 | **L10** | Level at step 10 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
 | **R11** | Time to reach step 11 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
 | **L11** | Level at step 11 | 0 – 1 | 0 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
+| **STEPS** | Snaps L1–L11 and ENDL to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSW11_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loop) |
 | **LOOP.TO** | Step it goes back to. 0–8 | 0 – 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopto) |
 | **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
@@ -453,6 +462,7 @@ level instead of pitch. The output moves **between MIN and MAX**.
 | --- | --- | --- | ---: | --- |
 | **Enable** | Use it or not | False / True | False | [`SSG_AMPMOD_ENABLE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-enable) |
 | **DEPTH** | How far the level is pulled down from MAX | 0 – 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-depth) |
+| **STEPS** | Snaps DEPTH to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
 | **SPEED** | How fast it wobbles | 0.1 – 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-speed) |
 | **SHAPE** | Shape it wobbles with. The same 9 as WT PITCH MOD | 0 – 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-shape) |
 | **MIN** | Bottom of the range | 0 – 1 | 0 | [`SSG_AMPMOD_MIN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ampmod-min) |

@@ -8,6 +8,7 @@
 #include <functional>
 
 #include "Shared/Core/Const/ConstGlobal.h"
+#include "../StepSnap/StepSnap.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiContext.h"
@@ -55,6 +56,10 @@ class GuiComponentSsgSwEnv11 : public GuiBase {
 
     GuiSlider levelTarget;
     GuiComponentNudgeSliderFloat level;
+
+    // LEVEL と ENDL を決まった刻みへ丸める
+    GuiComponentStepSnap levelSteps;
+
     GuiComponentSsgSwButtons levelBtns;
     GuiStepValues levelValues;
 
@@ -131,6 +136,7 @@ public:
         rateSeparator(context),
         levelTarget(context),
         level(context),
+        levelSteps(context),
         levelBtns(context),
         endLevelSeparator(context),
         endLevelEnable(context),

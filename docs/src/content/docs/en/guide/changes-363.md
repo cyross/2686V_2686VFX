@@ -24,6 +24,23 @@ A value of 0 counts as 1, as on the chip. See
 [SSG HW AMP ENV](/2686V_2686VFX/en/chips/common/#setting-it-with-the-chips-value--value) and
 [SSG](/2686V_2686VFX/en/chips/ssg/#setting-them-with-the-chips-values--value).
 
+## STEPS on the level envelopes and WT AMP MOD
+
+The **STEPS** from LEVEL is now on these knobs too. It snaps the value to the
+step you pick (1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100). As the range is 0–1,
+there is no "by 1" step. It works on every channel, operator and pad.
+
+| Section | Knobs it snaps |
+| --- | --- |
+| AMP ENV | SL |
+| SSG HW AMP ENV | MIN / MAX |
+| SSG SW AMP ENV | L1–L6 |
+| SSG SW AMP ENV[11] | L1–L11, ENDL |
+| WT AMP MOD | DEPTH |
+
+As on LEVEL, the choice is screen only and is not saved. It starts at Free, so
+existing patches sound the same.
+
 ## Show the FM envelope and TL the N88-BASIC(86) way
 
 SETTINGS has a new "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by

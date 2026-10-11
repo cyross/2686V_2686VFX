@@ -84,6 +84,8 @@ void GuiComponentSsgHwEnv::setupComponent(juce::Component& parent, const juce::S
     maxSlider.setup({ .parent = parent, .id = code + CPK::SsgHwEnv::max, .title = "MAX", .isReset = true });
     maxSlider.setWantsKeyboardFocus(true);
     maxSlider.setExplicitFocusOrder(++tabOrder);
+
+    levelSteps.setupComponent(parent, { &minSlider, &maxSlider }, tabOrder);
     preview.setup(parent, GuiColor::WavePreview::AmpEnv);
 
     auto refreshPreview = [this] { updatePreview(); };
@@ -159,6 +161,7 @@ void GuiComponentSsgHwEnv::layoutComponent(juce::Rectangle<int>& rect)
     valueNudge.setVisibles(visible && valueSlider.isVisibleNudge());
     minSlider.setVisibleWithLabel(visible);
     maxSlider.setVisibleWithLabel(visible);
+    levelSteps.setVisibleWithLabel(visible);
     waveHold.setVisibles(visible);
 
     if (visible)
@@ -172,6 +175,7 @@ void GuiComponentSsgHwEnv::layoutComponent(juce::Rectangle<int>& rect)
         if (valueSlider.isVisibleNudge()) valueNudge.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &minSlider.label, .component = &minSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
+        levelSteps.layoutComponent(rect, 13);
         layoutMain({ .mainRect = rect, .component = &smoothEnableButton });
 
         preview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
@@ -201,6 +205,7 @@ void GuiComponentSsgHwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     valueNudge.setVisibles(visible && valueSlider.isVisibleNudge());
     minSlider.setVisibleWithLabel(visible);
     maxSlider.setVisibleWithLabel(visible);
+    levelSteps.setVisibleWithLabel(visible);
     waveHold.setVisibles(visible);
 
     if (visible)
@@ -214,6 +219,7 @@ void GuiComponentSsgHwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
         if (valueSlider.isVisibleNudge()) valueNudge.layoutComponentRow(rect);
         layoutRow({ .rowRect = rect, .label = &minSlider.label, .component = &minSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
+        levelSteps.layoutComponentRow(rect, 13);
         layoutRow({ .rowRect = rect, .component = &smoothEnableButton });
 
         preview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
@@ -257,6 +263,7 @@ void GuiComponentSsgHwEnv::applyActive() {
     valueNudge.setEnables(active && useValue);
     minSlider.setEnabledWithLabel(active);
     maxSlider.setEnabledWithLabel(active);
+    levelSteps.setEnabledWithLabel(active);
     preview.setEnabled(active);
     waveHold.setEnables(active);
 }

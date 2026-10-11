@@ -10,6 +10,7 @@
 #include <functional>
 
 #include "Shared/Core/Const/ConstGlobal.h"
+#include "../StepSnap/StepSnap.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiContext.h"
@@ -42,6 +43,9 @@ class GuiComponentSsgHwEnv : public GuiBase {
     GuiComponentValueNudge valueNudge;
     GuiSlider minSlider;
     GuiSlider maxSlider;
+
+    // MIN / MAX を決まった刻みへ丸める
+    GuiComponentStepSnap levelSteps;
 
     // 選んだ Shape がどんな形かを見せる
     GuiWavePreview preview;
@@ -88,6 +92,7 @@ public:
         valueNudge(context),
         minSlider(context),
         maxSlider(context),
+        levelSteps(context),
         preview(context),
         waveHold(context)
     {

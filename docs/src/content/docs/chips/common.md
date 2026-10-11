@@ -153,10 +153,16 @@ SSG SW AMP ENV でその上に細かい動きを乗せる、という組み立�
 | **AR** | 最大まで上がる時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_AR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ar) |
 | **DR** | サステインまで下がる時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_DR`](/2686V_2686VFX/reference/automation/ssg/#ssg-dr) |
 | **SL** | 押しているあいだ保つ音量 | 0 〜 1 | 1 | [`SSG_SL`](/2686V_2686VFX/reference/automation/ssg/#ssg-sl) |
+| **STEPS** | SL を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **RR** | 鍵を離してから消えるまでの時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-rr) |
 | **KOR** | **独自**。鍵を離しても最後まで鳴らし切る | False / True | False | [`SSG_KOR`](/2686V_2686VFX/reference/automation/ssg/#ssg-kor) |
 | **Use Endl** | **独自**。リリースのあとに音を残す | False / True | False | [`SSG_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-endl-en) |
 | **ENDL** | **独自**。そのときに保つ音量 | 0 〜 1 | 0 | [`SSG_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-endl) |
+
+**STEPS** は LEVEL の STEPS と同じもので、選んだ刻みへ値を寄せます（3.6.3 から）。
+範囲が 0〜1 なので、LEVEL にある「1 刻み」はありません。SSG HW AMP ENV・
+SSG SW AMP ENV・SSG SW AMP ENV[11]・WT AMP MOD にも、同じ STEPS があります。
+どれもチャンネル・オペレーター・パッドのすべてで使えます。
 
 FM 音源のオペレータでは、これとは別にオペレータごとのレジスタ式の
 エンベロープ（AR / DR / SR / SL / RR / TL）を持ちます。そちらは各音源の
@@ -176,6 +182,7 @@ SSG のハードウェアエンベロープです。**決まった形の波を�
 | **VALUE** | 実機のエンベロープの設定値 Te。667000 ÷ (512 × Te) Hz | 0 〜 65535 | 1303 | [`SSG_SSGHWENV_VALUE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-value) |
 | **MIN** | **独自**。動く範囲の下 | 0 〜 1 | 0 | [`SSG_SSGHWENV_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-min) |
 | **MAX** | **独自**。動く範囲の上 | 0 〜 1 | 1 | [`SSG_SSGHWENV_MAX`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-max) |
+| **STEPS** | MIN / MAX を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **Smooth** | **独自**。段の角を丸める | False / True | False | [`SSG_SSGHWENV_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssghwenv-smooth) |
 
 実機は形が 16 種類・範囲は固定でしたが、ここでは段の数を変えたもの、
@@ -223,6 +230,7 @@ FORM の TONE / NOISE にも、同じように実機の設定値で決める切�
 | **L5** | 5 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
 | **R6** | 6 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
 | **L6** | 6 段目の音量 | 0 〜 1 | 0 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
+| **STEPS** | L1〜L6 を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loop) |
 | **LOOP.TO** | 戻り先の段。0〜3 | 0 〜 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopto) |
 | **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
@@ -259,6 +267,7 @@ FORM の TONE / NOISE にも、同じように実機の設定値で決める切�
 | **L10** | 10 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
 | **R11** | 11 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
 | **L11** | 11 段目の音量 | 0 〜 1 | 0 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
+| **STEPS** | L1〜L11 と ENDL を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW11_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loop) |
 | **LOOP.TO** | 戻り先の段。0〜8 | 0 〜 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopto) |
 | **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
@@ -447,6 +456,7 @@ SHAPE が **FDS Table** のときは、下の **FDS PITCH TABLE** で 32 段の
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う・使わない | False / True | False | [`SSG_AMPMOD_ENABLE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-enable) |
 | **DEPTH** | MAX からどれだけ下げるか | 0 〜 1 | 0.5 | [`SSG_AMPMOD_DEPTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-depth) |
+| **STEPS** | DEPTH を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **SPEED** | 揺れの速さ | 0.1 〜 10 | 1 | [`SSG_AMPMOD_SPEED`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-speed) |
 | **SHAPE** | 揺らす形。WT PITCH MOD と同じ 9 種 | 0 〜 8 | 0 | [`SSG_AMPMOD_SHAPE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-shape) |
 | **MIN** | 動く範囲の下 | 0 〜 1 | 0 | [`SSG_AMPMOD_MIN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ampmod-min) |

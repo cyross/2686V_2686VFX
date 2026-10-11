@@ -48,6 +48,8 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 	sustain.setWantsKeyboardFocus(true);
 	sustain.setExplicitFocusOrder(++tabOrder);
 
+	sustainSteps.setupComponent(parent, { &sustain }, tabOrder);
+
 	release.setup({ .parent = parent, .id = code + CPK::Adsr::rr, .title = "RR", .isReset = true });
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
@@ -105,6 +107,7 @@ void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
 	attack.setVisibleWithLabel(visible);
 	decay.setVisibleWithLabel(visible);
 	sustain.setVisibleWithLabel(visible);
+	sustainSteps.setVisibleWithLabel(visible);
 	release.setVisibleWithLabel(visible);
 	endLevelEnable.setVisible(visible);
 	endLevel.setVisibleWithLabel(visible);
@@ -119,6 +122,7 @@ void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
 		layoutMain({ .mainRect = rect, .label = &attack.label, .component = &attack });
         layoutMain({ .mainRect = rect, .label = &decay.label, .component = &decay });
 		layoutMain({ .mainRect = rect, .label = &sustain.label, .component = &sustain });
+		sustainSteps.layoutComponent(rect);
 		layoutMain({ .mainRect = rect, .label = &release.label, .component = &release });
 		layoutMain({ .mainRect = rect, .component = &endLevelEnable });
 		layoutMain({ .mainRect = rect, .label = &endLevel.label, .component = &endLevel });
@@ -140,6 +144,7 @@ void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	attack.setVisibleWithLabel(visible);
 	decay.setVisibleWithLabel(visible);
 	sustain.setVisibleWithLabel(visible);
+	sustainSteps.setVisibleWithLabel(visible);
 	release.setVisibleWithLabel(visible);
 	endLevelEnable.setVisible(visible);
 	endLevel.setVisibleWithLabel(visible);
@@ -152,6 +157,7 @@ void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 		layoutRow({ .rowRect = rect, .label = &attack.label, .component = &attack });
 		layoutRow({ .rowRect = rect, .label = &decay.label, .component = &decay });
 		layoutRow({ .rowRect = rect, .label = &sustain.label, .component = &sustain });
+		sustainSteps.layoutComponentRow(rect);
 		layoutRow({ .rowRect = rect, .label = &release.label, .component = &release });
 		layoutRow({ .rowRect = rect, .component = &endLevelEnable });
 		layoutRow({ .rowRect = rect, .label = &endLevel.label, .component = &endLevel });
@@ -177,6 +183,7 @@ void GuiComponentAmpEnv::applyActive() {
 	attack.setEnabledWithLabel(active);
 	decay.setEnabledWithLabel(active);
 	sustain.setEnabledWithLabel(active);
+	sustainSteps.setEnabledWithLabel(active);
 	release.setEnabledWithLabel(active);
 
 	// トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。

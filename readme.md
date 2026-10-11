@@ -68,6 +68,10 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 同じく NOISE: Use VALUE と N.VALUE を追加。入れると N.FREQ の代わりにノイズの設定値 Tn (0〜31) で決める。Fnois = 667000 ÷ (32 × Tn)
   - VALUE / T.VALUE / N.VALUE に N ボタン (LEVEL と同じ様式) を付け、足し引きとよく使う値への直置きができる
   - どれも初期状態は切で、既存のパッチの鳴りは変わらない。設定値の 0 は実機と同じく 1 として扱う
+- **音量のエンベロープと WT AMP MOD に STEPS を追加**
+  - LEVEL と同じ STEPS (1 刻みを除く 1/2〜1/256・1/3・1/6・1/7・1/10・1/100) で値を刻みへ寄せる
+  - AMP ENV の SL、SSG HW AMP ENV の MIN / MAX、SSG SW AMP ENV の L1〜L6、SSG SW AMP ENV[11] の L1〜L11・ENDL、WT AMP MOD の DEPTH。チャンネル・オペレーター・パッドのすべて
+  - 画面だけの選択で保存しない。初めは自由で、これまでの音は変わらない
 - **FM のエンベロープと TL を N88-BASIC(86) の向きで表示できるように**
   - SETTINGS に「一部の FM パラメータ表示を、PC-9801 の N88-BASIC(86) 準拠にする」を追加 (初期状態は切)。「MUL/DET・FIX を鳴らしながら反映」の下、区切り線の下
   - 入れると、OPNA / OPN / OPL / OPL3 / OPM / OPZX7 (OPZX7S を含む) のレジスタの AR / DR / SR / RR / SL / TL (OPM / OPZX7 は D1R / D2R / D1L) の数字と帯の向きを逆にして見せる。AR なら画面の 0 が内部の 31

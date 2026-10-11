@@ -467,6 +467,9 @@ protected:
 
     // いま N88-BASIC(86) の向きで見せているか
     bool n88Displayed = false;
+
+    // rebind の途中か
+    bool rebinding = false;
 public:
     GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context) {
         this->setLookAndFeel(&sharedLF.get());
@@ -499,6 +502,10 @@ public:
 
     void rebind(const juce::String& id)
     {
+        // 束縛し直しているあいだに来る値の知らせは、切り替えた先の値を
+        // 見せるだけのもの。聞き手 (STEPS の丸めなど) が見分けられるよう印を付ける
+        const juce::ScopedValueSetter<bool> rebindingScope(rebinding, true);
+
         // 必ず古い束縛を先に破棄すること。
         // unique_ptr::reset(p) は「新しいポインタを格納してから古い方を破棄」するため、
         // reset(new ...) と書くと新アタッチメントの初期値反映が
@@ -533,6 +540,9 @@ public:
     static void refreshN88Display(juce::Component& root);
 
     bool isN88Displayed() const { return n88Displayed; }
+
+    // rebind の途中か。途中で来る値の知らせは、指し先を切り替えたことによるもの
+    bool isRebinding() const { return rebinding; }
 
     // 画面に出ている数字で値を入れる (MML の入力など)。N88-BASIC(86) の
     // 向きで見せているときは、逆にしてから内部の値として入れる。
