@@ -903,7 +903,7 @@ void AudioPlugin2686V::getStateInformation(juce::MemoryBlock& destData) {
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
 
     // 使われていない項目を落としてから書く
-    removeUnknownParams(*xml);
+    tidyParamsForSave(*xml);
 
     setPresetToXml(xml);
 
@@ -974,7 +974,7 @@ void AudioPlugin2686V::savePreset(const juce::File& file)
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
 
     // 使われていない項目を落としてから書く
-    removeUnknownParams(*xml);
+    tidyParamsForSave(*xml);
 
     setPresetToXml(xml);
 
@@ -2153,17 +2153,17 @@ void AudioPlugin2686V::updateAlgMatrixCacheFromState()
     publishAlgMatrix();
 }
 
-void AudioPlugin2686V::removeUnknownParams(juce::XmlElement& xml) const
+void AudioPlugin2686V::tidyParamsForSave(juce::XmlElement& xml) const
 {
     // 7,000 を超えるので、端から順に見比べると保存のたびに数千万回の
     // 文字列比較になる。引ける形に入れておく。
-    std::set<juce::String> known;
+    std::map<juce::String, const juce::AudioProcessorParameterWithID*> known;
 
     for (auto* param : getParameters())
     {
         if (auto* withId = dynamic_cast<const juce::AudioProcessorParameterWithID*>(param))
         {
-            known.insert(withId->paramID);
+            known.emplace(withId->paramID, withId);
         }
     }
 
@@ -2171,9 +2171,22 @@ void AudioPlugin2686V::removeUnknownParams(juce::XmlElement& xml) const
 
     for (auto* child : xml.getChildWithTagNameIterator(Io::StateKey::param))
     {
-        if (known.find(child->getStringAttribute(Io::StateKey::id)) == known.end())
+        auto found = known.find(child->getStringAttribute(Io::StateKey::id));
+
+        if (found == known.end())
         {
             doomed.add(child);
+            continue;
+        }
+
+        // 値の無い項目は今の値で埋める。APVTS が書くのと同じ、0〜1 へ直す前の値。
+        if (child->getStringAttribute(Io::StateKey::value).isEmpty())
+        {
+            if (auto* ranged = dynamic_cast<const juce::RangedAudioParameter*>(found->second))
+            {
+                child->setAttribute(Io::StateKey::value,
+                    juce::var((double)ranged->convertFrom0to1(ranged->getValue())).toString());
+            }
         }
     }
 

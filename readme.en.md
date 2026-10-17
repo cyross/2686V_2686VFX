@@ -104,6 +104,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - With Use Endl on, AMP ENV, PITCH ENV and the 256-step envelopes draw the move to ENDL after the release and the hold there
 - **A board behind the top row of operator / pad tabs (TARGET, name, graph selector)**
   - A dark board sits behind the row so it stays readable over bright wallpapers. Its colours are TargetRow.Bg / TargetRow.Border in COLORS
+- **Saving after loading a preset with missing parameters no longer turns them into 0 (an existing bug)**
+  - After loading a preset or DAW state that lacks some parameters (for example one written by an older version), saving wrote the missing ones with empty values, and loading that file set them to 0 (STEPS 10 → 1, DUTY RATIO ENVELOPE STL 50 → 0, OPZX7S ALG 15 → 0, SSG LEVEL 1 → 0 and so on)
+  - Saving now fills empty values with the parameter's current value. All plugins
+  - Files already saved this way still load those parameters as 0, and re-saving does not bring them back, so correct the values before saving again
 
 ### 3-0-2. What v3.6.3 fixes and changes
 
