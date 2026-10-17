@@ -37,9 +37,165 @@ void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, cons
     repaint();
 }
 
+namespace
+{
+    // 拡大のつまみの丈 (送り棒 + つまみとボタンの行)
+    constexpr int zoomBarHeight = 8;
+    constexpr int zoomRowHeight = 16;
+
+    constexpr std::array<float, 6> zoomPresets = { 1.0f, 2.0f, 4.0f, 8.0f, 16.0f, 32.0f };
+}
+
+void GuiEnvelopeGraph::setZoomable(bool z)
+{
+    zoomable = z;
+
+    if (zoomable) {
+        scrollBar.setAutoHide(false);
+        scrollBar.addListener(this);
+        addAndMakeVisible(scrollBar);
+
+        zoomSlider.setRange(zoomMin, zoomMax, 0.01);
+        zoomSlider.setSkewFactorFromMidPoint(4.0);
+        zoomSlider.setNumDecimalPlacesToDisplay(2);
+        zoomSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 44, zoomRowHeight);
+        zoomSlider.setValue(zoom, juce::dontSendNotification);
+        zoomSlider.onValueChange = [this] { setZoom((float)zoomSlider.getValue()); };
+        addAndMakeVisible(zoomSlider);
+
+        for (size_t i = 0; i < zoomButtons.size(); ++i) {
+            auto& b = zoomButtons[i];
+            const float value = zoomPresets[i];
+
+            b.setButtonText("x" + juce::String((int)value));
+            b.onClick = [this, value] { setZoom(value); };
+            addAndMakeVisible(b);
+        }
+    }
+    else {
+        scrollBar.removeListener(this);
+        removeChildComponent(&scrollBar);
+        removeChildComponent(&zoomSlider);
+
+        for (auto& b : zoomButtons) removeChildComponent(&b);
+
+        zoom = 1.0f;
+        scroll = 0.0f;
+    }
+
+    resized();
+    repaint();
+}
+
+void GuiEnvelopeGraph::setZoom(float z)
+{
+    z = juce::jlimit(zoomMin, zoomMax, z);
+
+    if (z == zoom) return;
+
+    // 見えている真ん中 (中身の幅に対する割合) を保つ
+    const float view = juce::jmax(1.0f, lastViewW);
+    const float centre = (overflow() * scroll + view * 0.5f) / (view * zoom);
+
+    zoom = z;
+
+    const float newOverflow = overflow();
+
+    scroll = newOverflow > 0.0f ? juce::jlimit(0.0f, 1.0f, (centre * view * zoom - view * 0.5f) / newOverflow) : 0.0f;
+
+    zoomSlider.setValue(zoom, juce::dontSendNotification);
+
+    repaint();
+}
+
+juce::Rectangle<int> GuiEnvelopeGraph::graphBounds() const
+{
+    auto r = getLocalBounds();
+
+    if (zoomable) r.removeFromBottom(zoomBarHeight + zoomRowHeight + 2);
+
+    return r;
+}
+
+void GuiEnvelopeGraph::resized()
+{
+    if (!zoomable) return;
+
+    auto r = getLocalBounds();
+    auto row = r.removeFromBottom(zoomRowHeight);
+
+    scrollBar.setBounds(r.removeFromBottom(zoomBarHeight).reduced(5, 0));
+
+    // 左に拡大率のつまみ、右に x1〜x32 のボタン
+    auto buttons = row.removeFromRight(juce::jmin(row.getWidth() / 2, 6 * 30));
+
+    zoomSlider.setBounds(row.reduced(4, 0));
+
+    const int w = buttons.getWidth() / (int)zoomButtons.size();
+
+    for (auto& b : zoomButtons) b.setBounds(buttons.removeFromLeft(w).reduced(1, 0));
+}
+
+void GuiEnvelopeGraph::syncScrollBar()
+{
+    if (!zoomable) return;
+
+    const juce::ScopedValueSetter<bool> guard(isSyncingScrollBar, true);
+
+    const double view = juce::jmax(1.0f, lastViewW);
+    const double total = view * zoom;
+
+    scrollBar.setRangeLimits(0.0, total, juce::dontSendNotification);
+    scrollBar.setCurrentRange((total - view) * scroll, view, juce::dontSendNotification);
+}
+
+void GuiEnvelopeGraph::scrollBarMoved(juce::ScrollBar*, double newRangeStart)
+{
+    if (isSyncingScrollBar) return;
+
+    const float over = overflow();
+
+    scroll = over > 0.0f ? juce::jlimit(0.0f, 1.0f, (float)newRangeStart / over) : 0.0f;
+
+    repaint();
+}
+
+void GuiEnvelopeGraph::mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel)
+{
+    if (!zoomable || !graphBounds().contains(e.getPosition())) {
+        juce::Component::mouseWheelMove(e, wheel);
+        return;
+    }
+
+    setZoom(zoom * std::pow(2.0f, wheel.deltaY * 2.0f));
+}
+
+void GuiEnvelopeGraph::mouseDown(const juce::MouseEvent& e)
+{
+    isScrollDrag = zoomable && e.mods.isRightButtonDown();
+
+    if (isScrollDrag) {
+        dragStartX = (float)e.position.x;
+        dragStartScroll = scroll;
+    }
+}
+
+void GuiEnvelopeGraph::mouseDrag(const juce::MouseEvent& e)
+{
+    if (!isScrollDrag) return;
+
+    const float over = overflow();
+
+    if (over <= 0.0f) return;
+
+    scroll = juce::jlimit(0.0f, 1.0f, dragStartScroll - ((float)e.position.x - dragStartX) / over);
+
+    repaint();
+}
+
 void GuiEnvelopeGraph::paint(juce::Graphics& g)
 {
-    auto bounds = getLocalBounds().toFloat();
+    auto bounds = graphBounds().toFloat();
     auto graphArea = bounds.reduced(5.0f);
 
     // 背景とグリッド
@@ -107,7 +263,18 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     // 短いエンベロープは基準幅に対する比率で描画されるため左に詰まります。
     float scaleX = graphArea.getWidth() / effectiveTotalWidth;
 
-    float currentPixelX = graphArea.getX();
+    // 横方向の拡大。広げた分は送り具合で左右へずらし、枠の外は描かない。
+    lastViewW = graphArea.getWidth();
+    scaleX *= zoom;
+
+    const float offsetX = overflow() * scroll;
+
+    syncScrollBar();
+
+    juce::Graphics::ScopedSaveState clipState(g);
+    g.reduceClipRegion(graphArea.toNearestInt());
+
+    float currentPixelX = graphArea.getX() - offsetX;
     float basePixelY = isPitch ? graphArea.getCentreY() : graphArea.getBottom();
     float heightScale = isPitch ? (graphArea.getHeight() / 2.0f) : graphArea.getHeight();
 
@@ -121,7 +288,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
 
         // ジャンプ指定がある場合、X座標を移動させて新しい線を引く準備をする
         if (phase.moveToStart) {
-            currentPixelX = graphArea.getX() + (phase.startXOffsetPx * scaleX);
+            currentPixelX = graphArea.getX() - offsetX + (phase.startXOffsetPx * scaleX);
         }
 
         if (phase.isMax) {

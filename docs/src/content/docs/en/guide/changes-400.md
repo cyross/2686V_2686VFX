@@ -137,3 +137,10 @@ See [TAP SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-sequencer) for details.
 The graphs at the top of operator / pad tabs are now **a large TARGET view on the left and small
 views of all of them on the right**. The large view follows TARGET at once and, on OPZX7S / RHYTHM,
 shows the wave large too. The small views stay four to a row; clicking one moves TARGET there.
+
+## Zooming graphs sideways
+
+Channel graphs and the large TARGET view of operators / pads can now be stretched 1.0–32.0 times
+sideways. Change the zoom with the knob or buttons (x1–x32) below, or the mouse wheel over the graph,
+and move along by dragging with the right button or with the scroll bar. Long envelopes such as
+SSG SW ENV[256] with many steps can now be read in detail.

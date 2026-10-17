@@ -90,6 +90,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM. The height matches the OPZX7S / RHYTHM display, and the large view keeps the previous aspect ratio
   - The large view follows TARGET and updates at once. On OPZX7S / RHYTHM the wave is shown large above it
   - The small views stay four to a row (up to eight on screen), shrunk to fit
+- **Graphs can be stretched sideways (1.0–32.0 times)**
+  - Every channel graph and the large TARGET view of operators / pads; the small views are not included
+  - Below them: a zoom knob, x1 / x2 / x4 / x8 / x16 / x32 buttons and a horizontal scroll bar. The mouse wheel over the graph changes the zoom, and dragging with the right button scrolls
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

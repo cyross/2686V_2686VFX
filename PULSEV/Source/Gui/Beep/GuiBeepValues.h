@@ -27,7 +27,7 @@ namespace BeepGuiValue
 
 		namespace Graph
 		{
-			static inline constexpr int height = 120;
+			static inline constexpr int height = 146;
 			static inline constexpr int ButtonHeight = 16;
 		}
 

@@ -66,6 +66,7 @@ which one it points at.
 | Part | What it does |
 | --- | --- |
 | Large frame on the left | a large view of the operator (or pad) TARGET points at (from 4.0.0). On tabs with a wave (OPZX7S / RHYTHM), the wave is shown large above it. Switching TARGET updates it at once |
+| Zoom | The large frame and the channel graphs can be stretched sideways (from 4.0.0): 1.0–32.0 times with the knob below, or directly with the x1 / x2 / x4 / x8 / x16 / x32 buttons. The mouse wheel over the graph changes it too; **drag with the right button** or use the scroll bar below to move along. The small frames do not zoom |
 | Small frames on the right | one envelope display per operator (or pad), four to a row. **Clicking one moves TARGET there** |
 | Outline | only the frame TARGET points at is drawn with a heavy border |
 | TARGET | the operator (or pad) the settings below point at. It is remembered when the window closes |

@@ -843,6 +843,9 @@ void GuiAdpcmPlus::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
 
+    // 4.0.0: 横方向の拡大 (x1〜x32、ホイール、右ボタンで送る)
+    graph.setZoomable(true);
+
     graphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };

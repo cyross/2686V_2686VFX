@@ -39,7 +39,10 @@ void GuiTargetCell::setup(juce::Component& parent, int index, const juce::String
     // 枠のどこを押しても TARGET が動くようにする。
     // 見出しとグラフが押下を食べてしまうと、隙間しか当たらない。
     titleLabel.setInterceptsMouseClicks(false, false);
-    m_graph.setInterceptsMouseClicks(false, false);
+
+    // TARGET の大きな枠 (番号が負) だけ、絵を横へ広げられる。小さな枠は押すと TARGET が移る
+    if (index < 0) m_graph.setZoomable(true);
+    else m_graph.setInterceptsMouseClicks(false, false);
 }
 
 void GuiTargetCell::layout(juce::Rectangle<int> rect)

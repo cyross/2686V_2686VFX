@@ -1722,6 +1722,9 @@ void GuiOpna::setupGlobalGraph()
 {
     addAndMakeVisible(&gGraph);
 
+    // 4.0.0: 横方向の拡大 (x1〜x32、ホイール、右ボタンで送る)
+    gGraph.setZoomable(true);
+
     gGraphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     gGraphBtnAmp.setToggleState(true, juce::dontSendNotification);
     gGraphBtnAmp.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::Amp); };
