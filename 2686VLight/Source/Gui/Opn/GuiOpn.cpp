@@ -110,7 +110,7 @@ void GuiOpn::setup()
 
     qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Category::algFb });
+    algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Category::algFb, .detailVisible = true, .enableChangeDetailVisible = true });
 
     algSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::alg, .title = OpnGuiText::Fm::alg, .items = opnAlgItems, .isReset = true });
     algSelector.setWantsKeyboardFocus(true);
@@ -533,18 +533,30 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     levelComponent.layoutComponent(mRect);
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
-    layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
 
-    mRect.removeFromTop(OpnGuiValue::Category::paddingTop);
+    // 開閉できる。閉じているあいだは中身を出さず、縦の場所も取らない。
+    const bool algFbOpen = algFbCat.isDetailVisible();
 
-    auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(OpnPrValue::ops)); // 描画領域確保
-    algStaticGraphComp.setBounds(graphArea.reduced(10));
+    algSelector.setVisibleWithLabel(algFbOpen);
+    algStaticGraphComp.setVisible(algFbOpen);
+    algFbSep.setVisible(algFbOpen);
+    feedbackSlider.setVisibleWithLabel(algFbOpen);
 
-    algFbSep.layoutComponent(mRect);
+    if (algFbOpen)
+    {
+        layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
 
-    layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
+        mRect.removeFromTop(OpnGuiValue::Category::paddingTop);
 
-    mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
+        auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(OpnPrValue::ops)); // 描画領域確保
+        algStaticGraphComp.setBounds(graphArea.reduced(10));
+
+        algFbSep.layoutComponent(mRect);
+
+        layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
+
+        mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,

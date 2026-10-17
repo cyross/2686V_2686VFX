@@ -582,7 +582,7 @@ void GuiOpzx7::setup()
 
     qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::algFb });
+    algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::algFb, .detailVisible = true, .enableChangeDetailVisible = true });
 
     algModeSelector.setup({ .parent = mainGroup.contentCanvas, .id = "", .title = "Mode", .items = algModeItems(), .isReset = false });
     algModeSelector.setWantsKeyboardFocus(true);
@@ -1383,53 +1383,75 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
 
-    layoutMain({ .mainRect = mRect, .label = &algModeSelector.label, .component = &algModeSelector });
+    // 開閉できる。閉じているあいだは中身を出さず、縦の場所も取らない。
+    // 開いているときのアルゴリズムの部品は、下でモードを見て出し分ける。
+    const bool algFbOpen = algFbCat.isDetailVisible();
 
-    int currentAlgMode = algModeSelector.getSelectedItemIndex();
+    algModeSelector.setVisibleWithLabel(algFbOpen);
+    algFbSep.setVisible(algFbOpen);
+    feedbackTarget.setVisibleWithLabel(algFbOpen);
+    feedbackSlider.setVisibles(algFbOpen);
+    feedbackValues.setVisible(algFbOpen);
 
-    if (currentAlgMode == 0) {
-        // 従来のアルゴリズムモード
-        algMatrixComp.setVisible(false);
-        algGraphComp.setVisible(false);
-        algSelector.setVisibleWithLabel(true);
-        algStaticGraphComp.setVisible(true);
-
-        layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
-        mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
-        auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(Opzx7PrValue::ops)); // 描画領域確保
-        algStaticGraphComp.setBounds(graphArea.reduced(10));
-    }
-    else {
-        // マトリックスモード
+    if (!algFbOpen)
+    {
         algSelector.setVisibleWithLabel(false);
         algStaticGraphComp.setVisible(false);
-        algMatrixComp.setVisible(true);
-        algGraphComp.setVisible(true);
-
-        mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
-
-        // マトリックスが必要とする高さぶんだけ取る。
-        // 固定値で取ると下に余白が残り、グラフとの間が空きすぎる。
-        auto matrixArea = mRect.removeFromTop(algMatrixComp.getNaturalHeight());
-
-        // マトリックスは固定寸法なので、部品ごとグループの中央へ置く。
-        // 中で座標をずらすと本体と枠がばらばらに動いてしまう。
-        algMatrixComp.setBounds(matrixArea.withSizeKeepingCentre(
-            algMatrixComp.getNaturalWidth(), matrixArea.getHeight()));
-
-        auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(Opzx7PrValue::ops)); // 描画領域確保
-        algGraphComp.setBounds(graphArea.reduced(10));
+        algMatrixComp.setVisible(false);
+        algGraphComp.setVisible(false);
+        feedbackNudge.setVisibles(false);
     }
 
-    algFbSep.layoutComponent(mRect);
+    if (algFbOpen)
+    {
+        layoutMain({ .mainRect = mRect, .label = &algModeSelector.label, .component = &algModeSelector });
 
-    layoutMain({ .mainRect = mRect, .label = &feedbackTarget.label, .component = &feedbackTarget });
-    feedbackSlider.layoutComponent(mRect);
-    feedbackNudge.setVisibles(feedbackSlider.isVisibleNudge());
-    if (feedbackSlider.isVisibleNudge()) feedbackNudge.layoutComponent(mRect);
-    feedbackValues.setBounds(mRect.removeFromTop(feedbackValues.getNaturalHeight()));
+        int currentAlgMode = algModeSelector.getSelectedItemIndex();
 
-    mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
+        if (currentAlgMode == 0) {
+            // 従来のアルゴリズムモード
+            algMatrixComp.setVisible(false);
+            algGraphComp.setVisible(false);
+            algSelector.setVisibleWithLabel(true);
+            algStaticGraphComp.setVisible(true);
+
+            layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
+            mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+            auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(Opzx7PrValue::ops)); // 描画領域確保
+            algStaticGraphComp.setBounds(graphArea.reduced(10));
+        }
+        else {
+            // マトリックスモード
+            algSelector.setVisibleWithLabel(false);
+            algStaticGraphComp.setVisible(false);
+            algMatrixComp.setVisible(true);
+            algGraphComp.setVisible(true);
+
+            mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+
+            // マトリックスが必要とする高さぶんだけ取る。
+            // 固定値で取ると下に余白が残り、グラフとの間が空きすぎる。
+            auto matrixArea = mRect.removeFromTop(algMatrixComp.getNaturalHeight());
+
+            // マトリックスは固定寸法なので、部品ごとグループの中央へ置く。
+            // 中で座標をずらすと本体と枠がばらばらに動いてしまう。
+            algMatrixComp.setBounds(matrixArea.withSizeKeepingCentre(
+                algMatrixComp.getNaturalWidth(), matrixArea.getHeight()));
+
+            auto graphArea = mRect.removeFromTop(GuiFmAlgGraph::preferredHeight(Opzx7PrValue::ops)); // 描画領域確保
+            algGraphComp.setBounds(graphArea.reduced(10));
+        }
+
+        algFbSep.layoutComponent(mRect);
+
+        layoutMain({ .mainRect = mRect, .label = &feedbackTarget.label, .component = &feedbackTarget });
+        feedbackSlider.layoutComponent(mRect);
+        feedbackNudge.setVisibles(feedbackSlider.isVisibleNudge());
+        if (feedbackSlider.isVisibleNudge()) feedbackNudge.layoutComponent(mRect);
+        feedbackValues.setBounds(mRect.removeFromTop(feedbackValues.getNaturalHeight()));
+
+        mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
+    }
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,

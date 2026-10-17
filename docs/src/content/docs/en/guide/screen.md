@@ -95,7 +95,8 @@ number ([Keyboard shortcuts](/2686V_2686VFX/en/reference/shortcuts/)).
 ### Category headings
 
 Related controls sit under a heading. **The lamp at its left shows whether it is
-open.** Press the heading to open or close it.
+open.** Press the heading to open or close it. The FM chips' ALGORITHM/FEEDBACK
+can be folded too since 4.0.0, and starts open.
 
 While it is open, a backdrop sits behind its contents, so you can see where the
 category ends.
