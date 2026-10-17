@@ -88,10 +88,10 @@ FX の設定をまとめたファイルです。
 | `ampEnv` | 整数 | 0 〜 127 | 60 | AMP ENV を動かす鍵盤 |
 | `ssgHwEnv` | 整数 | 0 〜 127 | 60 | SSG HW AMP ENV を動かす鍵盤 |
 | `wtAmpMod` | 整数 | 0 〜 127 | 60 | WT AMP MOD を動かす鍵盤 |
-| `ssgSwEnv11` | 整数 | 0 〜 127 | 60 | SSG SW AMP ENV\[11\] を動かす鍵盤 |
+| `ssgSwEnv11` | 整数 | 0 〜 127 | 60 | SSG SW AMP ENV\[256\] を動かす鍵盤 (鍵の名前は [11] のころのまま) |
 | `pitchEnv` | 整数 | 0 〜 127 | 60 | PITCH ENV を動かす鍵盤 |
 | `ssgHwPEnv` | 整数 | 0 〜 127 | 60 | SSG HW PITCH ENV を動かす鍵盤 |
-| `ssgSwPEnv11` | 整数 | 0 〜 127 | 60 | SSG SW PITCH ENV\[11\] を動かす鍵盤 |
+| `ssgSwPEnv11` | 整数 | 0 〜 127 | 60 | SSG SW PITCH ENV\[256\] を動かす鍵盤 |
 | `wtMod` | 整数 | 0 〜 127 | 60 | WT PITCH MOD を動かす鍵盤 |
 | `lfoAm` | 整数 | 0 〜 127 | 60 | LFO AM を動かす鍵盤 |
 | `lfoPm` | 整数 | 0 〜 127 | 60 | LFO PM を動かす鍵盤 |

@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
 #include <array>
@@ -17,7 +18,6 @@
 #include "Shared/Gui/Components/MulDetune/MulDetune.h"
 #include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
-#include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
 #include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Gui/Components/Edit/TargetsDialog.h"
@@ -30,8 +30,8 @@
 #include "Shared/Gui/Components/Separator/NormalSeparator.h"
 #include "Shared/Gui/Components/Separator/ShortSeparator.h"
 #include "Shared/Gui/Components/Quality/QualityPcm.h"
-#include "Shared/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
-#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/SsgSwEnv256/SsgSwEnv256.h"
+#include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "Shared/Gui/Components/WtMod/WtMod.h"
@@ -140,10 +140,9 @@ class GuiAdpcmPlus : public GuiBase
     GuiComponentPitchEnv pitchEnvComponent;
 
     // SSG SW Env
-    GuiComponentSsgSwEnv ssgSwEnvComponent;
 
-	GuiComponentSsgSwEnv11 ssgSwEnv11Component;
-	GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
+	GuiComponentSsgSwEnv256 ssgSwEnv256Component;
+	GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
 
     // Detune
     GuiComponentMulDetune mulDetuneComponent;
@@ -167,18 +166,22 @@ class GuiAdpcmPlus : public GuiBase
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
+
+    // [[TAP SEQUENCER]]。[[PITCH ENV]] の下 (RHYTHM はグローバルの UNISON の下)
+    GuiCategoryLabel tapMajorCat;
+    GuiComponentTapSeq tapAmpSeq;
+    GuiComponentTapSeq tapPitchSeq;
     GuiTextButton broadcastLevelButton;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
-    GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieWtAmpMod;
-    GuiComponentImportExport ieSsgSwEnv11;
-    GuiComponentImportExport ieSsgSwPEnv11;
+    GuiComponentImportExport ieSsgSwEnv256;
+    GuiComponentImportExport ieSsgSwPEnv256;
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport iePcmPlay;
@@ -189,12 +192,11 @@ class GuiAdpcmPlus : public GuiBase
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
-    GuiToggleButton graphBtnSsg11;
-    GuiToggleButton graphBtnSsgP11;
+    GuiToggleButton graphBtnSsg256;
+    GuiToggleButton graphBtnSsgP256;
     NormalSeparator graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
+    enum class GraphMode { Amp, Pitch, SsgSw256, SsgSwP256 };
     GraphMode currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
@@ -264,9 +266,8 @@ public:
         modComponent(context),
         ampModComponent(context),
         pitchEnvComponent(context),
-        ssgSwEnvComponent(context),
-		ssgSwEnv11Component(context),
-		ssgSwPEnv11Component(context),
+		ssgSwEnv256Component(context),
+		ssgSwPEnv256Component(context),
 		mulDetuneComponent(context),
         lfoComponent(context),
         midiComponent(context),
@@ -276,6 +277,9 @@ public:
         pathRoot(context),
         ampMajorCat(context),
         pitchMajorCat(context),
+        tapMajorCat(context),
+        tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
+        tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
         broadcastLevelButton(context),
         ieToneNoise(context),
         ieLfo(context),
@@ -285,9 +289,8 @@ public:
         ieSsgHwPEnv(context),
         ieWtMod(context),
         ieWtAmpMod(context),
-        ieSsgSwEnv(context),
-        ieSsgSwEnv11(context),
-        ieSsgSwPEnv11(context),
+        ieSsgSwEnv256(context),
+        ieSsgSwPEnv256(context),
         ieDetune(context),
         ieQuality(context),
         iePcmPlay(context),
@@ -295,9 +298,8 @@ public:
 		ieChParam(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
-        graphBtnSsg(context),
-        graphBtnSsg11(context),
-        graphBtnSsgP11(context),
+        graphBtnSsg256(context),
+        graphBtnSsgP256(context),
         graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp

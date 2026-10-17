@@ -39,9 +39,8 @@ static std::vector<SelectItem> targetItems = {
     {.name = "RegValue", .value = 1 },
     {.name = "AmpEnv",   .value = 2 },
     {.name = "PitchEnv", .value = 3 },
-    {.name = "SsgSwEnv", .value = 4 },
-    {.name = "SsgSwEnv11", .value = 5 },
-    {.name = "SsgSwPEnv11", .value = 6 }
+    {.name = "SsgSwEnv256", .value = 4 },
+    {.name = "SsgSwPEnv256", .value = 5 }
 };
 
 // ロジックの選択肢。言語で名前が変わるので、その場で作る。
@@ -124,15 +123,6 @@ static std::vector< std::vector<juce::String>> paramTitles = {
         "R4",
         "R5",
         "R6",
-        "Loop To"
-    },
-    {
-        "R1",
-        "R2",
-        "R3",
-        "R4",
-        "R5",
-        "R6",
         "R7",
         "R8",
         "R9",
@@ -156,7 +146,35 @@ static std::vector< std::vector<juce::String>> paramTitles = {
     }
 };
 
-static std::vector<int> paramLengthes = { CurvePrValue::regValParams, CurvePrValue::regAmpEnvParams, CurvePrValue::regPitchEnvParams, CurvePrValue::regSsgSwEnvParams, CurvePrValue::regSsgSwEnv11Params, CurvePrValue::regSsgSwPEnv11Params };
+static std::vector<int> paramLengthes = { CurvePrValue::regValParams, CurvePrValue::regAmpEnvParams, CurvePrValue::regPitchEnvParams, CurvePrValue::regSsgSwEnv256Params, CurvePrValue::regSsgSwPEnv256Params };
+
+// 読み込むファイルの params の並びを、今の対象のどの番号へ入れるか。
+// 3.6.3 までの 6 段の SSG SW ENV のファイル (R1〜R6 / Loop To) は [256] へ入れる。
+// 6 段の R1〜R5 は [256] の R1〜R5、R6 (リリース) は R11、Loop To は Loop To へ。
+static std::vector<int> importOrder(int t, const juce::File& file)
+{
+    const auto name = file.getFileName();
+    const bool sixStep = t == (int)CurveParams::Target::SsgSwEnv256
+        && name.contains("SsgSwEnv") && !name.contains("SsgSwEnv256") && !name.contains("SsgSwEnv11");
+
+    if (sixStep) {
+        return { 0, 1, 2, 3, 4,
+            (int)CurveParams::TargetSsgSwEnv256::R11, (int)CurveParams::TargetSsgSwEnv256::LoopTo };
+    }
+
+    std::vector<int> order;
+
+    for (int vp = 0; vp < paramLengthes[(size_t)t]; vp++) order.push_back(vp);
+
+    return order;
+}
+
+// 読み込むときの名前の縛り。[256] の対象は、3.6.3 までの [11] と 6 段のファイルも
+// 出すよう、名前の後ろの数字を外して比べる (SsgSwEnv256 → SsgSwEnv)。
+static juce::String importNameFilter(const juce::String& ext)
+{
+    return ext.trimCharactersAtEnd("0123456789");
+}
 
 static std::vector<int> valueLengthes = {
     0,    // Linear
@@ -231,6 +249,8 @@ GuiCurve::GuiCurve(const GuiContext& context) :
         for (int vv = 0; vv < CurvePrValue::values; vv++) {
             value[vp][vv] = std::make_unique<GuiSlider>(context);
         }
+
+        for (auto& b : editButtons[vp]) b = std::make_unique<GuiTextButton>(context);
     }
 
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -307,6 +327,25 @@ void GuiCurve::setup()
         paramLabel[vp]->setExplicitFocusOrder(++tabOrder);
 
         curveGroup.contentCanvas.addAndMakeVisible(curveGraphs[vp].get());
+
+        // CUT / COPY / PASTE / DUPLICATE / CLEAR
+        {
+            static const std::array<const char*, 5> editNames = { "CUT", "COPY", "PASTE", "DUPLICATE", "CLEAR" };
+
+            for (size_t b = 0; b < editNames.size(); ++b) {
+                auto& btn = *editButtons[vp][b];
+
+                btn.setup({ .parent = curveGroup.contentCanvas, .title = editNames[b], .isReset = false });
+                btn.setWantsKeyboardFocus(true);
+                btn.setExplicitFocusOrder(++tabOrder);
+            }
+
+            editButtons[vp][0]->onClick = [this, vp] { copyParam(vp); clearParam(vp); };
+            editButtons[vp][1]->onClick = [this, vp] { copyParam(vp); };
+            editButtons[vp][2]->onClick = [this, vp] { pasteParam(vp); };
+            editButtons[vp][3]->onClick = [this, vp] { duplicateParam(vp); };
+            editButtons[vp][4]->onClick = [this, vp] { clearParam(vp); };
+        }
 
         logic[vp]->setup({ .parent = curveGroup.contentCanvas, .id = "", .title = CurveGuiText::logic, .items = curveLogicItems(), .isReset = false });
         logic[vp]->setSelectedItemIndex(0, juce::dontSendNotification);
@@ -396,6 +435,8 @@ void GuiCurve::updateEnabled() {
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         paramLabel[vp]->setEnabled(enabled);
         curveGraphs[vp]->setEnabled(enabled);
+
+        for (auto& b : editButtons[vp]) b->setEnabled(enabled);
     }
 
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
@@ -443,6 +484,8 @@ void GuiCurve::updateVisible()
 
         paramLabel[vp]->setVisible(isParamVisible);
         curveGraphs[vp]->setVisible(isParamVisible);
+
+        for (auto& b : editButtons[vp]) b->setVisible(isParamVisible);
         logic[vp]->label.setVisible(isParamVisible);
         logic[vp]->setVisible(isParamVisible);
         k[vp]->label.setVisible(isParamVisible && showK);
@@ -652,6 +695,17 @@ void GuiCurve::layout(juce::Rectangle<int> content)
         k[vp]->label.setBounds(kRect.removeFromLeft(lw).reduced(px, py));
         k[vp]->setBounds(kRect.reduced(px, py));
 
+        // CUT / COPY / PASTE / DUPLICATE / CLEAR を 1 行に並べる
+        {
+            auto editRect = valueArea.removeFromTop(CurveGuiValue::CurveGroup::Row::height);
+
+            editRect.removeFromLeft(titleWidth);
+
+            const int bw = juce::jmin(96, editRect.getWidth() / 5);
+
+            for (auto& b : editButtons[vp]) b->setBounds(editRect.removeFromLeft(bw).reduced(px, py));
+        }
+
         int logicNum = logic[vp]->getSelectedItemIndex();
         int valuesCount = valueLengthes[logicNum];
 
@@ -720,7 +774,7 @@ void GuiCurve::importCurveParam() {
                         // 読み終えてからまとめて描き直す
                         GuiRefresh::Batch batch;
 
-                        setImportingCurveParams(lines, index);
+                        setImportingCurveParams(lines, index, importOrder(target.getSelectedItemIndex(), file));
                     }
 
                     Io::ParamWriter writer(curveFormat);
@@ -741,12 +795,13 @@ void GuiCurve::importCurveParam() {
 
                 int p = position.getSelectedItemIndex();
                 int t = target.getSelectedItemIndex();
-                int vpLen = paramLengthes[t];
+                const auto order = importOrder(t, file);
 
                 // 今出している Position と Target のぶんだけ戻す。
                 // パラメータごとに入れ子で持つので、数が違っても後ろがずれない。
-                for (int vp = 0; vp < vpLen; vp++) {
-                    auto item = reader->arrayItem("params", vp);
+                for (int i = 0; i < (int)order.size(); i++) {
+                    const int vp = order[(size_t)i];
+                    auto item = reader->arrayItem("params", i);
 
                     pluginOf(ctx).prCurve.setLogic(p, t, vp,
                         item.getInt("logic", pluginOf(ctx).prCurve.getLogic(p, t, vp)));
@@ -769,7 +824,7 @@ void GuiCurve::importCurveParam() {
                 editorOf(ctx).resized();
             }
         },
-        Io::Extension::curveParam + ext);
+        importNameFilter(Io::Extension::curveParam + ext));
 }
 
 void GuiCurve::exportCurveParam() {
@@ -808,7 +863,7 @@ void GuiCurve::exportCurveParam() {
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
 // しまったので、履歴から戻したもの。
-void GuiCurve::setImportingCurveParams(juce::StringArray& lines, int& index) {
+void GuiCurve::setImportingCurveParams(juce::StringArray& lines, int& index, const std::vector<int>& order) {
     // 当時の処理は行数を size で見ていることがある
     int size = lines.size();
 
@@ -816,10 +871,9 @@ void GuiCurve::setImportingCurveParams(juce::StringArray& lines, int& index) {
 
 	int p = position.getSelectedItemIndex();
 	int t = target.getSelectedItemIndex();
-	int vpLen = paramLengthes[t];
 
 	// 現在表示中の Position と Target に該当するパラメータ群のみ復元
-	for (int vp = 0; vp < vpLen; vp++) {
+	for (const int vp : order) {
 	    if (index < size) {
 	        int logicVal = lines[index++].getIntValue();
 	        pluginOf(ctx).prCurve.setLogic(p, t, vp, logicVal);
@@ -870,5 +924,123 @@ void GuiCurve::writeCurveParams(Io::ParamWriter& writer) {
 	    item.setArray("values", values);
 	}
 
-	
+
+}
+
+// ============================================================================
+// パラメータごとの CUT / COPY / PASTE / DUPLICATE / CLEAR (4.0.0)
+// ============================================================================
+namespace
+{
+    // 写したもの。Position・Target を問わず貼れるよう、1 つだけ持つ
+    struct CurveClip
+    {
+        bool valid = false;
+        int logic = 0;
+        float k = 1.0f;
+        std::array<float, CurvePrValue::values> values{};
+    };
+
+    CurveClip& curveClip()
+    {
+        static CurveClip clip;
+        return clip;
+    }
+}
+
+// 書き換えたカーブを処理側へ渡し、画面を読み直す
+void GuiCurve::applyCurveChanges()
+{
+    pluginOf(ctx).bakeCurves();
+    pluginOf(ctx).getCurveCore()->setParameters(pluginOf(ctx).prCurve.m_curveParams);
+
+    updateVisible();
+    editorOf(ctx).resized();
+}
+
+void GuiCurve::copyParam(int vp)
+{
+    const int p = position.getSelectedItemIndex();
+    const int t = target.getSelectedItemIndex();
+    auto& pr = pluginOf(ctx).prCurve;
+    auto& clip = curveClip();
+
+    clip.valid = true;
+    clip.logic = pr.getLogic(p, t, vp);
+    clip.k = pr.getK(p, t, vp);
+
+    for (int vv = 0; vv < CurvePrValue::values; ++vv) clip.values[(size_t)vv] = pr.getValue(p, t, vp, vv);
+}
+
+void GuiCurve::pasteParam(int vp)
+{
+    const auto& clip = curveClip();
+
+    if (!clip.valid) return;
+
+    const int p = position.getSelectedItemIndex();
+    const int t = target.getSelectedItemIndex();
+    auto& pr = pluginOf(ctx).prCurve;
+
+    pr.setLogic(p, t, vp, clip.logic);
+    pr.setK(p, t, vp, clip.k);
+
+    for (int vv = 0; vv < CurvePrValue::values; ++vv) pr.setValue(p, t, vp, vv, clip.values[(size_t)vv]);
+
+    applyCurveChanges();
+}
+
+void GuiCurve::clearParam(int vp)
+{
+    const int p = position.getSelectedItemIndex();
+    const int t = target.getSelectedItemIndex();
+    auto& pr = pluginOf(ctx).prCurve;
+
+    pr.setLogic(p, t, vp, CurvePrValue::Logic::initial);
+    pr.setK(p, t, vp, CurvePrValue::K::initial);
+
+    for (int vv = 0; vv < CurvePrValue::values; ++vv) pr.setValue(p, t, vp, vv, CurvePrValue::Value::initial);
+
+    applyCurveChanges();
+}
+
+// 同じ Position・Target のほかのパラメータへ写す。写し先はダイアログで選ぶ
+void GuiCurve::duplicateParam(int vp)
+{
+    const int t = target.getSelectedItemIndex();
+    const int vpLen = paramLengthes[(size_t)t];
+
+    if (vpLen < 2) return;
+
+    if (duplicateDialog == nullptr) duplicateDialog = std::make_unique<GuiTargetsDialog>(ctx);
+
+    GuiTargetsDialog::Config c;
+
+    c.mode = GuiTargetsDialog::Mode::DuplicateTo;
+    c.count = vpLen;
+    c.current = vp;
+    c.title = "DUPLICATE: " + paramTitles[(size_t)t][(size_t)vp];
+
+    for (int i = 0; i < vpLen; ++i) c.names.push_back(paramTitles[(size_t)t][(size_t)i]);
+
+    c.onDuplicateTo = [this, vp](const std::vector<int>& targets) {
+        const int p = position.getSelectedItemIndex();
+        const int t = target.getSelectedItemIndex();
+        auto& pr = pluginOf(ctx).prCurve;
+
+        for (int to : targets) {
+            if (to == vp) continue;
+
+            pr.setLogic(p, t, to, pr.getLogic(p, t, vp));
+            pr.setK(p, t, to, pr.getK(p, t, vp));
+
+            for (int vv = 0; vv < CurvePrValue::values; ++vv) pr.setValue(p, t, to, vv, pr.getValue(p, t, vp, vv));
+        }
+
+        applyCurveChanges();
+    };
+
+    constexpr int width = 380;
+
+    duplicateDialog->open(*this, getLocalBounds().withSizeKeepingCentre(juce::jmin(width, getWidth() - 20), juce::jmax(100, getHeight() - 40)), c);
 }

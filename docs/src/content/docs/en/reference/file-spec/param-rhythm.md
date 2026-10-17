@@ -65,9 +65,9 @@ It also carries the following nested blocks.
 | `ampEnv` | The same as [ampEnv](/2686V_2686VFX/en/reference/file-spec/ampenv/) |
 | `pitchEnv` | The same as [pitchEnv](/2686V_2686VFX/en/reference/file-spec/pitchenv/) |
 | `ssgHwEnv` | The same as [ssgHwEnv](/2686V_2686VFX/en/reference/file-spec/ssghwenv/) |
-| `ssgSwEnv` | The same as [ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/) |
-| `ssgSwEnv11` | The same as [ssgSwEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswenv11/) |
-| `ssgSwPEnv11` | The same as [ssgSwPEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswpenv11/) |
+| `ssgSwEnv` | The 6-step SSG SW AMP ENV of 3.6.3 and earlier. Not written from 4.0.0; on load it is carried into `ssgSwEnv256` ([ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/)) |
+| `ssgSwEnv256` | The same as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/) |
+| `ssgSwPEnv256` | The same as [ssgSwPEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswpenv256/) |
 | `mulDetune` | The same as [mulDetune](/2686V_2686VFX/en/reference/file-spec/detune/) |
 | `lfo` | The same as [lfo](/2686V_2686VFX/en/reference/file-spec/lfoopzx7/) |
 | `qualityPcm` | The same as [qualityPcm](/2686V_2686VFX/en/reference/file-spec/pcmquality/) |

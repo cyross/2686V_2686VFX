@@ -11,9 +11,8 @@ void RhythmPad::prepare(double hostSampleRate)
     m_sampleRate = hostSampleRate;
 	m_adsr.prepare(m_sampleRate);
 	m_pitchAdsr.prepare(0, m_sampleRate);
-    m_ssgSwEnv.prepare(0, m_sampleRate);
-    m_ssgSwEnv11.prepare(0, m_sampleRate);
-    m_ssgSwPenv11.prepare(0, m_sampleRate);
+    m_ssgSwEnv256.prepare(0, m_sampleRate);
+    m_ssgSwPenv256.prepare(0, m_sampleRate);
     m_lfo.prepare(m_sampleRate);
     m_noiseGen.prepare(m_sampleRate);
     m_ssgHwEnv.prepare(m_sampleRate);
@@ -24,9 +23,8 @@ void RhythmPad::setCurveCore(CurveCore* p_curveCore)
 {
     m_adsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
-    m_ssgSwEnv11.setCurveCore(p_curveCore);
-    m_ssgSwPenv11.setCurveCore(p_curveCore);
+    m_ssgSwEnv256.setCurveCore(p_curveCore);
+    m_ssgSwPenv256.setCurveCore(p_curveCore);
 }
 
 void RhythmPad::setSampleRate(double sampleRate)
@@ -36,9 +34,8 @@ void RhythmPad::setSampleRate(double sampleRate)
     m_pitchAdsr.updateTargetSampleRate(m_sampleRate);
     m_ssgHwEnv.updateSampleRate(m_sampleRate);
     m_ssgHwPEnv.updateSampleRate(m_sampleRate);
-    m_ssgSwEnv.updateSampleRate(m_sampleRate);
-    m_ssgSwEnv11.updateSampleRate(m_sampleRate);
-    m_ssgSwPenv11.updateSampleRate(m_sampleRate);
+    m_ssgSwEnv256.updateSampleRate(m_sampleRate);
+    m_ssgSwPenv256.updateSampleRate(m_sampleRate);
     m_noiseGen.updateTargetRate(m_sampleRate);
     m_lfo.updateTargetSampleRate(m_sampleRate);
 }
@@ -76,9 +73,8 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_adsr.setParameters(params.adsr);
     m_pitchAdsr.setParameters(params.pitchAdsr);
     m_fixMode.setParameters(params.fix);
-    m_ssgSwEnv.setParameters(params.ssgSwEnv);
-    m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
-    m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
+    m_ssgSwEnv256.setParameters(params.ssgSwEnv256);
+    m_ssgSwPenv256.setParameters(params.ssgSwPEnv256);
     m_detune.setParameters(params.detune);
     m_lfo.setParameters(params.lfo);
     m_noiseGen.setParameters({ .level = params.tn.noiseLevel, .noiseOnNote = params.tn.noiseOnNote, .baseFreq = params.tn.noiseFreq });
@@ -106,9 +102,8 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
 
         m_adsr.prepare(rate);
         m_pitchAdsr.prepare(0, rate);
-        m_ssgSwEnv.prepare(0, rate);
-        m_ssgSwEnv11.prepare(0, rate);
-        m_ssgSwPenv11.prepare(0, rate);
+        m_ssgSwEnv256.prepare(0, rate);
+        m_ssgSwPenv256.prepare(0, rate);
         m_noiseGen.prepare(rate);
     }
 
@@ -128,8 +123,10 @@ void RhythmPad::triggerRelease(double hostSampleRate)
         m_pitchAdsr.noteOff();
     }
 
-    if (!m_ssgSwEnv.isBypass()) {
-        m_ssgSwEnv.noteOff();
+    // 3.6.3 までは 6 段の SSG SW AMP ENV をここで離していた。6 段は [256] へ
+    // 写すようになったので、写した音色が同じように鳴るよう [256] も離す。
+    if (!m_ssgSwEnv256.isBypass()) {
+        m_ssgSwEnv256.noteOff();
     }
 }
 
@@ -237,16 +234,12 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
             m_pitchAdsr.noteOn();
         }
 
-        if (!m_ssgSwEnv.isBypass()) {
-            m_ssgSwEnv.noteOn();
+        if (!m_ssgSwEnv256.isBypass()) {
+            m_ssgSwEnv256.noteOn();
         }
 
-        if (!m_ssgSwEnv11.isBypass()) {
-            m_ssgSwEnv11.noteOn();
-        }
-
-        if (!m_ssgSwPenv11.isBypass()) {
-            m_ssgSwPenv11.noteOn();
+        if (!m_ssgSwPenv256.isBypass()) {
+            m_ssgSwPenv256.noteOn();
         }
 
         m_ssgHwEnv.noteOn();
@@ -257,8 +250,8 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
         m_pitchAdsr.noteOn();
     }
 
-    if (!m_ssgSwPenv11.isBypass() && m_pitchResetOnLegato) {
-        m_ssgSwPenv11.noteOn();
+    if (!m_ssgSwPenv256.isBypass() && m_pitchResetOnLegato) {
+        m_ssgSwPenv256.noteOn();
     }
 }
 
@@ -272,22 +265,18 @@ void RhythmPad::stop()
         m_pitchAdsr.noteOff();
     }
 
-    if (!m_ssgSwEnv.isBypass()) {
-        m_ssgSwEnv.noteOff();
+    if (!m_ssgSwEnv256.isBypass()) {
+        m_ssgSwEnv256.noteOff();
     }
 
-    if (!m_ssgSwEnv11.isBypass()) {
-        m_ssgSwEnv11.noteOff();
-    }
-
-    if (!m_ssgSwPenv11.isBypass()) {
-        m_ssgSwPenv11.noteOff();
+    if (!m_ssgSwPenv256.isBypass()) {
+        m_ssgSwPenv256.noteOff();
     }
 }
 
 bool RhythmPad::isPlaying() const
 {
-    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying() || m_ssgSwEnv11.isPlaying();
+    return m_adsr.isPlaying() || m_ssgSwEnv256.isPlaying();
 }
 
 float RhythmPad::getSample()
@@ -298,17 +287,16 @@ float RhythmPad::getSample()
     if (tickDelay()) return 0.0f;
 
     // すべてのアンプエンベロープがバイパスされているかどうかを判定
-    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
+    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv256.isBypass();
 
     if (isAllAmpBypassed) {
         // 全てのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作
         // どれかが Release 状態（noteOffが呼ばれた直後）なら、即座に音を消す
-        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
+        if (m_adsr.isRelease() || m_ssgSwEnv256.isRelease()) {
             m_adsr.bypassedReleasedProcess();
-            m_ssgSwEnv.bypassedReleasedProcess();
-            m_ssgSwEnv11.bypassedReleasedProcess();
+            m_ssgSwEnv256.bypassedReleasedProcess();
             m_pitchAdsr.bypassedReleasedProcess();
-            m_ssgSwPenv11.bypassedReleasedProcess();
+            m_ssgSwPenv256.bypassedReleasedProcess();
             return 0.0f;
         }
     }
@@ -316,20 +304,19 @@ float RhythmPad::getSample()
         // いずれかのアンプエンベロープが有効で、全ての再生が終了（音が減衰しきった）時
         // ピッチエンベロープも強制終了させる（次のノートオンでピッチが変になるのを防ぐ）
         m_pitchAdsr.bypassedReleasedProcess();
-        m_ssgSwPenv11.bypassedReleasedProcess();
+        m_ssgSwPenv256.bypassedReleasedProcess();
         return 0.0f;
     }
 
     float finalEnv = 1.0f;
 
     // --- ADSR & SwEnv Gate Logic ---
-    if (m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass())
+    if (m_adsr.isBypass() && m_ssgSwEnv256.isBypass())
     {
         // どちらもバイパスの時は完全な矩形波（Gate）動作
-        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
+        if (m_adsr.isRelease() || m_ssgSwEnv256.isRelease()) {
             m_adsr.bypassedReleasedProcess();
-            m_ssgSwEnv.bypassedReleasedProcess();
-            m_ssgSwEnv11.bypassedReleasedProcess();
+            m_ssgSwEnv256.bypassedReleasedProcess();
             finalEnv = 1.0f;
         }
     }
@@ -344,19 +331,11 @@ float RhythmPad::getSample()
             if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
         }
 
-        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-        if (!m_ssgSwEnv.isBypass()) {
-            finalEnv *= m_ssgSwEnv.process(); // 掛け算
+        if (!m_ssgSwEnv256.isBypass()) {
+            finalEnv *= m_ssgSwEnv256.process(); // 掛け算
         }
         else {
-            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
-        }
-
-        if (!m_ssgSwEnv11.isBypass()) {
-            finalEnv *= m_ssgSwEnv11.process(); // 掛け算
-        }
-        else {
-            if (m_ssgSwEnv11.isRelease()) m_ssgSwEnv11.bypassedReleasedProcess();
+            if (m_ssgSwEnv256.isRelease()) m_ssgSwEnv256.bypassedReleasedProcess();
         }
     }
 
@@ -734,7 +713,7 @@ float RhythmPad::getSample()
     float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
     float mwPitchMod = 1.0f + (m_lfo.value.pm * (m_modWheel * 0.03f));
     double currentIncrement = m_pitchAdsr.process(m_pitchRatio * m_pitchBendRatio * mwPitchMod);
-    currentIncrement = m_ssgSwPenv11.process(currentIncrement);
+    currentIncrement = m_ssgSwPenv256.process(currentIncrement);
 
     // ==========================================
     // 周波数倍率の決定

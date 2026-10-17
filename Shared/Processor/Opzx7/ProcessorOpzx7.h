@@ -7,6 +7,8 @@
 #include "../../Core/Processor/ProcessorBase.h"
 #include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorTapSeq.h"
+#include "../../Core/Processor/ProcessorValueEnv.h"
 
 class Opzx7Processor : public PrBase
 {
@@ -19,8 +21,8 @@ class Opzx7Processor : public PrBase
     PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsWtMod pWtMod;
     PrPtrsWtAmpMod pWtAmpMod;
-    PrPtrsSsgSwEnv11 pSsgSwEnv11g;
-    PrPtrsSsgSwPEnv11 pSsgSwPEnv11g;
+    PrPtrsSsgSwEnv256 pSsgSwEnv256g;
+    PrPtrsSsgSwPEnv256 pSsgSwPEnv256g;
     PrPtrsPanpot pPanpot;
     PrPtrsUnison pUnison;
     std::array<PrPtrsOpzx7Detune, Opzx7PrValue::ops> pOpzx7Detune;
@@ -32,9 +34,12 @@ class Opzx7Processor : public PrBase
     std::array<PrPtrsPcm, Opzx7PrValue::ops> pPcm;
     std::array<PrPtrsLp, Opzx7PrValue::ops> pLp;
     std::array<PrPtrsPitchEnvOp, Opzx7PrValue::ops> pOpPitchEnv;
-    std::array<PrPtrsSsgSwEnvOp, Opzx7PrValue::ops> pOpSsgSwEnv;
-    std::array<PrPtrsSsgSwEnv11Op, Opzx7PrValue::ops> pOpSsgSwEnv11;
-    std::array<PrPtrsSsgSwPEnv11Op, Opzx7PrValue::ops> pOpSsgSwPEnv11;
+    std::array<PrPtrsSsgSwEnv256Op, Opzx7PrValue::ops> pOpSsgSwEnv256;
+    std::array<ValueEnv::Ptrs, Opzx7PrValue::ops> pTlEnv;
+
+    // ALG ENV (チャンネル)
+    ValueEnv::Ptrs pAlgEnv;
+    std::array<PrPtrsSsgSwPEnv256Op, Opzx7PrValue::ops> pOpSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, Opzx7PrValue::ops> pOpSsgHwPEnv;
     std::array<PrPtrsWtAmpMod, Opzx7PrValue::ops> pOpWtAmpMod;
     std::array<PrPtrsSsgHwEnv, Opzx7PrValue::ops> pOpSsgHwEnv;
@@ -43,10 +48,13 @@ class Opzx7Processor : public PrBase
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpDelay = { nullptr };
 
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpMask = { nullptr };
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::Ptrs pTapAmp;
+    TapSeq::Ptrs pTapPitch;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;
     // modWaves は WT PITCH MOD の変調波形の置き場所。
     // パラメータではなくプロセッサが持つので、ここで受け取る。
-    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables);
 };

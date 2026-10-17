@@ -4,9 +4,9 @@
 
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
+#include "Shared/Effect/Envelope/Step/EnvStep.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
@@ -32,15 +32,20 @@ struct SsgParams
     AmpAdsrParams adsr;
     WtModParams wtMod;
     WtAmpModParams wtAmpMod;
-    SsgSwEnvParams ssgSwEnv;
-    SsgSwEnv11Params ssgSwEnv11;
+    SsgSwEnv256Params ssgSwEnv256;
     PitchAdsrParams pitchAdsr;
-    SsgSwPEnv11Params ssgSwPEnv11;
+    SsgSwPEnv256Params ssgSwPEnv256;
     Opzx7DetuneParams detune;
     LfoOpzx7Params lfo;
     FixModeParams fix;
     SsgDutyParams duty;
     SsgTriParams tri;
+
+    // DUTY RATIO ENV (値はデューティ比の % 0〜100) / PEAK RATIO ENV (頂点 0〜1)
+    bool dutyEnvEnable = false;
+    StepEnvParams dutyEnv;
+    bool peakEnvEnable = false;
+    StepEnvParams peakEnv;
     SsgHwEnvParams env;
     SsgHwPEnvParams ssgHwPEnv;
     QualityParams quality;

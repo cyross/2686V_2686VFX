@@ -39,12 +39,12 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 	// SSG のソフトウェアエンベロープは、入り切りの札だけが別の関数で
 	// まとめて登録される作りになっている。ここは必要なぶんだけ登録する。
-	PrHelper::addSsgSwEnv11Parameters(layout, prefix, displayName);
+	PrHelper::addSsgSwEnv256Parameters(layout, prefix, displayName);
 	PrHelper::addBool(
 		layout,
-		prefix + CPK::ssgSwEnv11 + CPK::bypass,
-		displayName + CPN::SsgSwEnv11::bypass,
-		CPV::SsgSwEnv11::Bypass::initial
+		prefix + CPK::ssgSwEnv256 + CPK::bypass,
+		displayName + CPN::SsgSwEnv256::bypass,
+		CPV::SsgSwEnv256::Bypass::initial
 	);
 
 	// ------------------------------------------------------------------
@@ -77,8 +77,8 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 		CPV::PitchAdsr::Bypass::initial
 	);
 
-	PrHelper::addSsgSwPEnv11Parameters(layout, prefix, displayName);
-	PrHelper::addSsgSwPEnv11BypassParameter(layout, prefix, displayName, CPV::SsgSwPEnv11::Bypass::initial);
+	PrHelper::addSsgSwPEnv256Parameters(layout, prefix, displayName);
+	PrHelper::addSsgSwPEnv256BypassParameter(layout, prefix, displayName, CPV::SsgSwPEnv256::Bypass::initial);
 
 	PrHelper::addWtModParameters(layout, prefix, displayName);
 	PrHelper::addSsgHwPEnvParameters(layout, prefix, displayName);
@@ -109,6 +109,12 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	PrHelper::addUnisonParameters(layout, prefix, displayName);
 
 	// ------------------------------------------------------------------
+	// AMP / PITCH SEQUENCER
+	// ------------------------------------------------------------------
+	TapSeq::addParameters(layout, prefix, displayName, TapSeq::amp());
+	TapSeq::addParameters(layout, prefix, displayName, TapSeq::pitch());
+
+	// ------------------------------------------------------------------
 	// どの鍵盤で動かすか
 	// ------------------------------------------------------------------
 	PrHelper::addInt(
@@ -133,7 +139,7 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	}
 }
 
-void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store)
+void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store, StepTableStore& stepTables)
 {
 	pEnvBypass = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Env::bypass);
 	pLfoBypass = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Lfo::bypass);
@@ -143,11 +149,11 @@ void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 	PrHelper::setupAdsrAmpEnvPtrs(apvts, ModPrKey::prefix, ptAmpEnv);
 	PrHelper::setupSsgHwEnv(apvts, ModPrKey::prefix, ptSsgHwEnv);
 	PrHelper::setupWtAmpMod(apvts, ModPrKey::prefix, ptWtAmpMod, store);
-	PrHelper::setupSsgSwEnv11Ptrs(apvts, ModPrKey::prefix, ptSsgSwEnv11);
+	PrHelper::setupSsgSwEnv256Ptrs(apvts, ModPrKey::prefix, ptSsgSwEnv256, stepTables);
 	PrHelper::setupOpzx7LfoPtrs(apvts, ModPrKey::prefix, ptLfo);
 
 	PrHelper::setupPitchEnvPtrs(apvts, ModPrKey::prefix, ptPitchEnv);
-	PrHelper::setupSsgSwPEnv11Ptrs(apvts, ModPrKey::prefix, ptSsgSwPEnv11);
+	PrHelper::setupSsgSwPEnv256Ptrs(apvts, ModPrKey::prefix, ptSsgSwPEnv256, stepTables);
 	PrHelper::setupWtMod(apvts, ModPrKey::prefix, ptWtMod, store);
 	PrHelper::setupSsgHwPEnv(apvts, ModPrKey::prefix, ptSsgHwPEnv);
 
@@ -155,6 +161,9 @@ void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
 	PrHelper::setupOpzx7DetunePtrs(apvts, ModPrKey::prefix, ptDetune);
 	PrHelper::setupUnisonPtrs(apvts, ModPrKey::prefix, ptUnison);
+
+	TapSeq::setupPtrs(apvts, ModPrKey::prefix, TapSeq::amp(), ptTapAmp, stepTables);
+	TapSeq::setupPtrs(apvts, ModPrKey::prefix, TapSeq::pitch(), ptTapPitch, stepTables);
 
 	pKeyAssignMode = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::KeyAssign::mode);
 
@@ -174,12 +183,12 @@ void ModProcessor::prepare(double sampleRate)
 
 	// SSG のソフトウェアエンベロープは、どの対象へ掛けるかを番号で受ける。
 	// ここでは 1 組しか持たないので 0 を渡す。
-	ssgSwEnv11.prepare(0, sampleRate);
+	ssgSwEnv256.prepare(0, sampleRate);
 
 	lfo.prepare(sampleRate);
 
 	pitchEnv.prepare(0, sampleRate);
-	ssgSwPEnv11.prepare(0, sampleRate);
+	ssgSwPEnv256.prepare(0, sampleRate);
 	wtMod.reset();
 	ssgHwPEnv.prepare(sampleRate);
 
@@ -293,7 +302,14 @@ void ModProcessor::startTargets(const Targets& t)
 		if (t[KA::AmpEnv]) ampLevel = ampEnv.noteOn();
 		if (t[KA::SsgHwEnv]) ssgHwEnv.noteOn();
 		if (t[KA::WtAmpMod]) wtAmpMod.reset();
-		if (t[KA::SsgSwEnv11]) ssgSwEnv11.noteOn();
+		if (t[KA::SsgSwEnv256]) ssgSwEnv256.noteOn();
+
+		// 押すたびに段を 1 つ進める
+		if (t[KA::TapAmp] && tapAmpParams.enable)
+		{
+			tapAmpGain = tapSeqTake(tapAmpParams, 1.0f);
+			tapAmpHeld = true;
+		}
 	}
 
 	if (lfoEnabled)
@@ -305,9 +321,15 @@ void ModProcessor::startTargets(const Targets& t)
 	if (pitchEnabled)
 	{
 		if (t[KA::PitchEnv]) pitchEnv.noteOn();
-		if (t[KA::SsgSwPEnv11]) ssgSwPEnv11.noteOn();
+		if (t[KA::SsgSwPEnv256]) ssgSwPEnv256.noteOn();
 		if (t[KA::WtMod]) wtMod.reset();
 		if (t[KA::SsgHwPEnv]) ssgHwPEnv.noteOn();
+
+		if (t[KA::TapPitch] && tapPitchParams.enable)
+		{
+			tapPitchRatio = std::pow(2.0f, tapSeqTake(tapPitchParams, 0.0f) / 1200.0f);
+			tapPitchHeld = true;
+		}
 	}
 
 	// アルペジオは押したときに 1 声目から始め直す。シングルキーアサインでは
@@ -331,14 +353,18 @@ void ModProcessor::releaseTargets(const Targets& t)
 		if (t[KA::AmpEnv]) ampEnv.noteOff();
 		if (t[KA::SsgHwEnv]) ssgHwEnv.noteOff();
 		if (t[KA::SsgHwPEnv]) ssgHwPEnv.noteOff();
-		if (t[KA::SsgSwEnv11]) ssgSwEnv11.noteOff();
+		if (t[KA::SsgSwEnv256]) ssgSwEnv256.noteOff();
 	}
 
 	if (pitchEnabled)
 	{
 		if (t[KA::PitchEnv]) pitchEnv.noteOff();
-		if (t[KA::SsgSwPEnv11]) ssgSwPEnv11.noteOff();
+		if (t[KA::SsgSwPEnv256]) ssgSwPEnv256.noteOff();
 	}
+
+	// 離したら AMP は音を出さず、PITCH は元の高さへ戻る
+	if (t[KA::TapAmp]) tapAmpHeld = false;
+	if (t[KA::TapPitch]) tapPitchHeld = false;
 }
 
 // 押さえている鍵盤は、どちらのキーアサインでも控えておく。押したまま
@@ -398,6 +424,10 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 	refreshSwitches();
 
+	// AMP / PITCH SEQUENCER。札を見て段を動かす (切っていても札は効かせる)
+	TapSeq::apply(ptTapAmp, tapAmpParams);
+	TapSeq::apply(ptTapPitch, tapPitchParams);
+
 	// どれも切なら何もしない。素通しにする。
 	if (!envEnabled && !lfoEnabled && !pitchEnabled && !shiftEnabled)
 	{
@@ -410,7 +440,7 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 	{
 		AmpAdsrParams ampParams;
 		SsgHwEnvParams hwParams;
-		SsgSwEnv11Params sw11Params;
+		SsgSwEnv256Params sw11Params;
 
 		PrHelper::applyAdsrAmpEnv(ptAmpEnv, ampParams);
 		PrHelper::applySsgHwEnv(ptSsgHwEnv, hwParams);
@@ -419,11 +449,11 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 		PrHelper::applyWtAmpMod(ptWtAmpMod, ampModParams);
 		wtAmpMod.setParameters(ampModParams);
-		PrHelper::applySsgSwEnv11(ptSsgSwEnv11, sw11Params);
+		PrHelper::applySsgSwEnv256(ptSsgSwEnv256, sw11Params);
 
 		ampEnv.setParameters(ampParams);
 		ssgHwEnv.setParameters(hwParams);
-		ssgSwEnv11.setParameters(sw11Params);
+		ssgSwEnv256.setParameters(sw11Params);
 	}
 
 	if (lfoEnabled)
@@ -443,11 +473,11 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 	if (pitchEnabled)
 	{
 		PitchAdsrParams pitchParams;
-		SsgSwPEnv11Params pEnv11Params;
+		SsgSwPEnv256Params pEnv11Params;
 		WtModParams wtModParams;
 
 		PrHelper::applyPitchEnv(ptPitchEnv, pitchParams);
-		PrHelper::applySsgSwPEnv11(ptSsgSwPEnv11, pEnv11Params);
+		PrHelper::applySsgSwPEnv256(ptSsgSwPEnv256, pEnv11Params);
 		PrHelper::applyWtMod(ptWtMod, wtModParams);
 
 		SsgHwPEnvParams hwPEnvParams;
@@ -456,7 +486,7 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 		ssgHwPEnv.setParameters(hwPEnvParams);
 
 		pitchEnv.setParameters(pitchParams);
-		ssgSwPEnv11.setParameters(pEnv11Params);
+		ssgSwPEnv256.setParameters(pEnv11Params);
 		wtMod.setParameters(wtModParams);
 
 		// WT PITCH MOD の速さだけは搬送波との比なので、基準の周波数から
@@ -590,7 +620,10 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 			gain *= ssgHwEnv.process();
 			gain *= wtAmpMod.process(ampModDelta);
 
-			if (!ssgSwEnv11.isBypass()) gain *= ssgSwEnv11.process();
+			if (!ssgSwEnv256.isBypass()) gain *= ssgSwEnv256.process();
+
+			// AMP SEQUENCER。押しているあいだは段の割合、離したら音を出さない
+			if (tapAmpParams.enable) gain *= tapAmpHeld ? tapAmpGain : 0.0f;
 		}
 
 		float ratio = 1.0f;
@@ -628,11 +661,14 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 			float delta = nominalDelta;
 
 			delta = pitchEnv.process(delta);
-			delta = ssgSwPEnv11.process(delta);
+			delta = ssgSwPEnv256.process(delta);
 			delta = ssgHwPEnv.process(delta);
 
 			ratio *= delta / nominalDelta;
 			ratio *= wtMod.process(wtModDelta);
+
+			// PITCH SEQUENCER。押しているあいだだけ段のセントずらす
+			if (tapPitchParams.enable && tapPitchHeld) ratio *= tapPitchRatio;
 		}
 
 		if (arpeggio)

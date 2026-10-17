@@ -29,9 +29,9 @@ LFO と音程ずらしは、押さなくても掛かります。だから入り�
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **エンベロープをバイパス** | AMP ENV・SSG HW AMP ENV・SSG SW AMP ENV[11]・WT AMP MOD をまとめて通さない | オン / オフ | オン | [`MOD_ENV_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-env-bypass) |
+| **エンベロープをバイパス** | AMP ENV・SSG HW AMP ENV・SSG SW AMP ENV[256]・WT AMP MOD をまとめて通さない | オン / オフ | オン | [`MOD_ENV_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-env-bypass) |
 | **LFO をバイパス** | LFO を通さない | オン / オフ | オン | [`MOD_LFO_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-lfo-bypass) |
-| **ピッチ変調をバイパス** | PITCH ENV・SSG HW PITCH ENV・SSG SW PITCH ENV[11]・WT PITCH MOD をまとめて通さない | オン / オフ | オン | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-pitch-bypass) |
+| **ピッチ変調をバイパス** | PITCH ENV・SSG HW PITCH ENV・SSG SW PITCH ENV[256]・WT PITCH MOD をまとめて通さない | オン / オフ | オン | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-pitch-bypass) |
 | **音程ずらしをバイパス** | MUL・DET と UNISON・HARMONY をまとめて通さない | オン / オフ | オン | [`MOD_SHIFT_BYPASS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-shift-bypass) |
 
 ## キーアサイン — 変調を動かす鍵盤
@@ -57,10 +57,12 @@ FIX の音名と同じく、60 が C3 です。
 | **AMP ENV** | AMP ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_AMPENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ampenv) |
 | **SSG HW AMP ENV** | SSG HW AMP ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGHWENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssghwenv) |
 | **WT AMP MOD** | WT AMP MOD を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_WTAMPMOD`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-wtampmod) |
-| **SSG SW AMP ENV\[11\]** | SSG SW AMP ENV\[11\] を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGSWENV11`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssgswenv11) |
+| **SSG SW AMP ENV\[256\]** | SSG SW AMP ENV\[256\] を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGSWENV11`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssgswenv11) |
+| **AMP SEQUENCER** | AMP SEQUENCER を動かす鍵盤（4.0.0 から） | 0 〜 127 | 60 (C3) | [`MOD_KEY_TAPAMP`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-tapamp) |
 | **PITCH ENV** | PITCH ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_PITCHENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-pitchenv) |
 | **SSG HW PITCH ENV** | SSG HW PITCH ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGHWPENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssghwpenv) |
-| **SSG SW PITCH ENV\[11\]** | SSG SW PITCH ENV\[11\] を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGSWPENV11`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssgswpenv11) |
+| **SSG SW PITCH ENV\[256\]** | SSG SW PITCH ENV\[256\] を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGSWPENV11`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssgswpenv11) |
+| **PITCH SEQUENCER** | PITCH SEQUENCER を動かす鍵盤（4.0.0 から） | 0 〜 127 | 60 (C3) | [`MOD_KEY_TAPPITCH`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-tappitch) |
 | **WT PITCH MOD** | WT PITCH MOD を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_WTMOD`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-wtmod) |
 | **LFO AM** | LFO AM を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_LFOAM`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-lfoam) |
 | **LFO PM** | LFO PM を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_LFOPM`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-lfopm) |
@@ -72,10 +74,12 @@ FIX の音名と同じく、60 が C3 です。
 
 | 対象 | ふるまい |
 | --- | --- |
-| エンベロープ（AMP ENV・PITCH ENV・SSG HW・SSG SW[11]・WT MOD の各枠） | 押すと始まり、離すと戻る |
+| エンベロープ（AMP ENV・PITCH ENV・SSG HW・SSG SW[256]・WT MOD の各枠） | 押すと始まり、離すと戻る |
 | LFO AM / LFO PM | **押している間だけ**掛かる。押したときに頭から回る |
 | MUL/DET / UNISON/HARMONY | **押している間だけ**掛かる |
 | ARPEGGIO | **押している間だけ**アルペジオになる。押したときに 1 声目から始まる |
+| AMP SEQUENCER | 押すたびに段を 1 つ進め、**押している間だけ**その段の割合で鳴らす。離すと音を出さない |
+| PITCH SEQUENCER | 押すたびに段を 1 つ進め、**押している間だけ**その段のセントずらす。離すと元の高さに戻る |
 
 - 同じ鍵盤を複数の対象へ割り当てられます。その鍵盤を押すと、まとめて動きます
 - カスタマイズのときは、変調の枠の見出しの色で、いま動いているかが分かります。
@@ -114,7 +118,7 @@ FIX の音名と同じく、60 が C3 です。
 
 同じ「エンベロープをバイパス」の下に、
 [SSG HW AMP ENV](/2686V_2686VFX/chips/common/#ssg-hw-amp-env)、
-[SSG SW AMP ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11)、
+[SSG SW AMP ENV\[256\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env256)、
 [WT AMP MOD](/2686V_2686VFX/chips/common/#wt-amp-mod) の枠もあります。中身は
 音源のものと同じです。
 
@@ -124,8 +128,8 @@ FIX の音名と同じく、60 が C3 です。
 </figure>
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_amp_env_11.png" alt="SSG SW AMP ENV[11]" style="width:400px;" />
-	<figcaption>SSG SW AMP ENV[11]</figcaption>
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_amp_env_11.png" alt="SSG SW AMP ENV[256]" style="width:400px;" />
+	<figcaption>SSG SW AMP ENV[256]</figcaption>
 </figure>
 
 ## LFO
@@ -164,12 +168,12 @@ PM をそれぞれ割り当てた鍵盤を押している間だけ掛かりま�
 
 同じ「ピッチ変調をバイパス」の下に、
 [SSG HW PITCH ENV](/2686V_2686VFX/chips/common/#ssg-hw-pitch-env)、
-[SSG SW PITCH ENV\[11\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11)、
+[SSG SW PITCH ENV\[256\]](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env256)、
 [WT PITCH MOD](/2686V_2686VFX/chips/common/#wt-pitch-mod) の枠もあります。
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_pitch_env_11.png" alt="SSG SW PITCH ENV[11]" style="width:400px;" />
-	<figcaption>SSG SW PITCH ENV[11]</figcaption>
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_pitch_env_11.png" alt="SSG SW PITCH ENV[256]" style="width:400px;" />
+	<figcaption>SSG SW PITCH ENV[256]</figcaption>
 </figure>
 
 <figure class="shot">

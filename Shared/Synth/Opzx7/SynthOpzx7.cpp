@@ -191,8 +191,8 @@ void Opzx7Core::prepare(double sampleRate) {
     m_amSmooth = 0.0f;
 
     m_lfo.prepare(target);
-    m_ssgSwEnv11g.prepare(0, target);
-    m_ssgSwPEnv11g.prepare(0, target);
+    m_ssgSwEnv256g.prepare(0, target);
+    m_ssgSwPEnv256g.prepare(0, target);
 
     // オペレータにチップ全体のピッチ倍率の在りかを教える
     for (int i = 0; i < Opzx7PrValue::ops; ++i) {
@@ -228,7 +228,10 @@ void Opzx7Core::setParameters(const SynthCoreParams& params) {
     m_level = params.opzx7.level;
     m_delaySeconds = params.opzx7.delay;
 
-    m_algorithm = params.opzx7.algFb.algorithm; // Range: 0-27
+    m_algorithmParam = params.opzx7.algFb.algorithm; // Range: 0-27
+    m_algEnvEnable = params.opzx7.algEnvEnable;
+    m_algEnv.setParameters(params.opzx7.algEnv);
+    m_algorithm = m_algEnvEnable ? algEnvAlgorithm() : m_algorithmParam;
     m_algorithmCodeBase = m_algorithm << m_algorithmCodeShift; // x16
     m_algMatrix = params.opzx7.algFb.matrix;
 
@@ -236,8 +239,8 @@ void Opzx7Core::setParameters(const SynthCoreParams& params) {
     m_isMonoMode = params.monoMode;
 
     m_lfo.setParameters(params.opzx7.glLfo);
-    m_ssgSwEnv11g.setParameters(params.opzx7.ssgSwEnv11g);
-    m_ssgSwPEnv11g.setParameters(params.opzx7.ssgSwPEnv11g);
+    m_ssgSwEnv256g.setParameters(params.opzx7.ssgSwEnv256g);
+    m_ssgSwPEnv256g.setParameters(params.opzx7.ssgSwPEnv256g);
     m_ampEnvG.setParameters(params.opzx7.ampEnvG);
     m_wtMod.setParameters(params.opzx7.wtMod);
     m_wtAmpMod.setParameters(params.opzx7.wtAmpMod);
@@ -275,8 +278,8 @@ void Opzx7Core::setParameters(const SynthCoreParams& params) {
         m_operators[7].setSampleRate(target);
 
         m_lfo.updateTargetSampleRate(target);
-        m_ssgSwEnv11g.updateTargetSampleRate(target);
-        m_ssgSwPEnv11g.updateTargetSampleRate(target);
+        m_ssgSwEnv256g.updateTargetSampleRate(target);
+        m_ssgSwPEnv256g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
         m_ssgHwPEnv.updateTargetSampleRate(target);
@@ -375,12 +378,14 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
             m_ampEnvGLevel = m_ampEnvG.noteOn();
         }
 
-        if (!m_ssgSwEnv11g.isBypass()) {
-            m_ssgSwEnv11g.noteOn();
+        if (!m_ssgSwEnv256g.isBypass()) {
+            m_ssgSwEnv256g.noteOn();
         }
 
-        if (!m_ssgSwPEnv11g.isBypass()) {
-            m_ssgSwPEnv11g.noteOn();
+        if (m_algEnvEnable) m_algEnv.noteOn();
+
+        if (!m_ssgSwPEnv256g.isBypass()) {
+            m_ssgSwPEnv256g.noteOn();
         }
     }
 }
@@ -400,12 +405,14 @@ void Opzx7Core::noteOff()
         m_ampEnvG.noteOff();
     }
 
-    if (!m_ssgSwEnv11g.isBypass()) {
-        m_ssgSwEnv11g.noteOff();
+    if (!m_ssgSwEnv256g.isBypass()) {
+        m_ssgSwEnv256g.noteOff();
     }
 
-    if (!m_ssgSwPEnv11g.isBypass()) {
-        m_ssgSwPEnv11g.noteOff();
+    if (m_algEnvEnable) m_algEnv.noteOff();
+
+    if (!m_ssgSwPEnv256g.isBypass()) {
+        m_ssgSwPEnv256g.noteOff();
     }
 }
 
@@ -420,8 +427,8 @@ bool Opzx7Core::isPlaying() const
     if (m_operators[6].isPlaying()) return true;
     if (m_operators[7].isPlaying()) return true;
     if (m_ampEnvG.isPlaying()) return true;
-    if (m_ssgSwEnv11g.isPlaying()) return true;
-    if (m_ssgSwPEnv11g.isPlaying()) return true;
+    if (m_ssgSwEnv256g.isPlaying()) return true;
+    if (m_ssgSwPEnv256g.isPlaying()) return true;
 
     return false;
 }
@@ -451,6 +458,20 @@ void Opzx7Core::setModulationWheel(int wheelValue)
 }
 
 float Opzx7Core::getSample() {
+    // ALG ENV。鍵ごとに 1 サンプル進め、段の ALG が変わったら繋ぎ方を組み直す
+    if (m_algEnvEnable) {
+        m_algEnv.updateTargetSampleRate(m_hostSampleRate);
+        m_algEnv.process();
+
+        const int alg = algEnvAlgorithm();
+
+        if (alg != m_algorithm) {
+            m_algorithm = alg;
+            m_algorithmCodeBase = m_algorithm << m_algorithmCodeShift;
+            updateRoutingCache();
+        }
+    }
+
     const double targetRate = m_targetRate;
 
     // MODULATION の速度は搬送波に対する比なので、ノートの位相増分を渡す
@@ -518,12 +539,12 @@ float Opzx7Core::getSample() {
             if (m_ampEnvG.isRelease()) m_ampEnvG.bypassedReleasedProcess();
         }
 
-        // SSGソフトウェアエンベロープ(SsgSwEnv11)処理
-        if (!m_ssgSwEnv11g.isBypass()) {
-            finalOut *= m_ssgSwEnv11g.process();
+        // SSGソフトウェアエンベロープ(SsgSwEnv256)処理
+        if (!m_ssgSwEnv256g.isBypass()) {
+            finalOut *= m_ssgSwEnv256g.process();
         }
         else {
-            if (m_ssgSwEnv11g.isRelease()) m_ssgSwEnv11g.bypassedReleasedProcess();
+            if (m_ssgSwEnv256g.isRelease()) m_ssgSwEnv256g.bypassedReleasedProcess();
         }
 
         finalOut *= 2.0f; // ゲイン補正
@@ -701,4 +722,10 @@ inline void Opzx7Core::processSingleOperator(float* currentOut, float& finalOut)
 
     // 4. そのまま FinalOutput へ加算
     finalOut += currentOut[I] * routing.outLevel;
+}
+
+// ALG ENV のいまの段の ALG。値は番号なので丸めて、ALG の範囲へ収める
+int Opzx7Core::algEnvAlgorithm() const
+{
+    return std::clamp((int)std::lround(m_algEnv.value()), 0, Opzx7PrValue::algorithms - 1);
 }

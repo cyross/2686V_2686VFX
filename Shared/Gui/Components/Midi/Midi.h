@@ -27,6 +27,9 @@ class GuiComponentMidi : public GuiBase {
     GuiTextButton monoButton;
     GuiTextButton polyButton;
 public:
+    // 区分の見出し。右クリックの IMPORT / EXPORT をつなぐのに使う
+    GuiCategoryLabel& category() { return cat; }
+
     GuiComponentMidi(const GuiContext& context) :
         GuiBase(context),
         cat(context),

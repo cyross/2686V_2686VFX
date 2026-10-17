@@ -5,6 +5,7 @@
 #include "Shared/Core/Synth/SynthCoreParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorTapSeq.h"
 
 class AdpcmPlusProcessor : public PrBase
 {
@@ -14,19 +15,21 @@ class AdpcmPlusProcessor : public PrBase
     PrPtrsWtMod pWtMod;
     PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsPitchEnv pPitchEnv;
-    PrPtrsSsgSwEnv pSsgSwEnv;
-    PrPtrsSsgSwEnv11 pSsgSwEnv11;
-    PrPtrsSsgSwPEnv11 pSsgSwPEnv11;
+    PrPtrsSsgSwEnv256 pSsgSwEnv256;
+    PrPtrsSsgSwPEnv256 pSsgSwPEnv256;
     PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsOpzx7Detune pOpzx7Detune;
     PrPtrsOpzx7Lfo pOpzx7Lfo;
     PrPtrsFix pFix;
     PrPtrsUnison pUnison;
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::Ptrs pTapAmp;
+    TapSeq::Ptrs pTapPitch;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;
     // modWaves は WT PITCH MOD の変調波形の置き場所。
     // パラメータではなくプロセッサが持つので、ここで受け取る。
-    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables);
 };

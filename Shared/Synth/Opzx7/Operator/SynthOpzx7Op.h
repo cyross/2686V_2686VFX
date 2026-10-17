@@ -9,9 +9,8 @@
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.h"
 #include "Shared/Effect/Feedback/Feedback.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "Shared/Generator/WtMod/GenWtAmpModulator.h"
@@ -35,15 +34,13 @@ public:
 	// 全アンプエンベロープがバイパスされているか
 	bool isAllAmpBypassed() const {
 		return m_ampAdsr.isBypass() &&
-			(!m_params.ssgEnvEnable || m_ssgSwEnv.isBypass()) &&
-			(!m_params.ssgEnv11Enable || m_ssgSwEnv11.isBypass());
+			(!m_params.ssgEnv256Enable || m_ssgSwEnv256.isBypass());
 	}
 
 	// アンプエンベロープのどれかが現在鳴っているか
 	bool isPlaying() const {
 		return m_ampAdsr.isPlaying() ||
-			(m_params.ssgEnvEnable && m_ssgSwEnv.isPlaying()) ||
-			(m_params.ssgEnv11Enable && m_ssgSwEnv11.isPlaying());
+			(m_params.ssgEnv256Enable && m_ssgSwEnv256.isPlaying());
 	}
 
 	void getSample(float& output, float modulator, float feedbackModulator, Opzx7LfoCore &glLfo, float modWheel = 0.0f);
@@ -73,9 +70,15 @@ private:
 	PitchAdsrEnv m_pitchAdsr;
 	Opzx7LfoCore m_lfo;
 	Opzx7Adddr m_ampAdsr;
-	SsgSwEnv m_ssgSwEnv;
-	SsgSwEnv11 m_ssgSwEnv11;
-	SsgSwPEnv11 m_ssgSwPenv11;
+	SsgSwEnv256 m_ssgSwEnv256;
+	SsgSwPEnv256 m_ssgSwPenv256;
+
+	// TL ENV。値は TL のレジスタ値。同じ値が続くあいだは倍率を作り直さない
+	StepEnv m_tlEnv;
+	float m_tlEnvValue = -1.0f;
+	float m_tlEnvBaseDb = 0.0f;
+	float m_tlEnvGain = 1.0f;
+	float tlEnvGain();
 
 	// SSG HW PITCH ENV。オペレーターごとに 1 つ持つ。
 	SsgHwPEnv m_ssgHwPEnv;

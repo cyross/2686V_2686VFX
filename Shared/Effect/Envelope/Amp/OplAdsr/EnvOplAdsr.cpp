@@ -107,6 +107,7 @@ float OplAdsr::noteOn(float velocity, int noteNumber) {
     this->m_phaseProgress = 0.0f;
 
     if (this->bypass) {
+        m_tlDb = 0.0f;
         this->m_targetLevel = velocity;
         return velocity;
     }
@@ -117,6 +118,8 @@ float OplAdsr::noteOn(float velocity, int noteNumber) {
     float attenuationDb = (this->m_curveCore == nullptr)
         ? tl * 0.75f
         : (this->totalLevel * 63.0f) * 0.75f;
+
+    m_tlDb = attenuationDb;
 
     // KSL はゲイン(倍率)で返ってくるので、dB に直して TL と合算する
     float kslGain = m_ksOPL.calcLevelScalingGain(noteNumber);

@@ -7,7 +7,7 @@ namespace CurvePrValue
 	inline constexpr float boolThread = CPV::boolThread;
 
 	inline constexpr int positions = 9;
-	inline constexpr int targets = 6;
+	inline constexpr int targets = 5;
 	inline constexpr int params = 16;
 	inline constexpr int logics = 31;
 	inline constexpr int values = 16;
@@ -15,9 +15,8 @@ namespace CurvePrValue
 	inline constexpr int regValParams = 6;
 	inline constexpr int regAmpEnvParams = 4;
 	inline constexpr int regPitchEnvParams = 3;
-	inline constexpr int regSsgSwEnvParams = 7;
-	inline constexpr int regSsgSwEnv11Params = 12;
-	inline constexpr int regSsgSwPEnv11Params = 12;
+	inline constexpr int regSsgSwEnv256Params = 12;
+	inline constexpr int regSsgSwPEnv256Params = 12;
 
 	inline constexpr float posMin = 0.0f;
 	inline constexpr float posMax = 1.0f;

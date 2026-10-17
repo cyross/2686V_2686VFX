@@ -8,9 +8,8 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Generator/WtMod/GenWtModulator.h"
 #include "Shared/Generator/WtMod/GenWtAmpModulator.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
@@ -21,6 +20,7 @@
 #include "Shared/Generator/Fm/Fix/FmFix.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "../../Core/Synth/SynthInterp.h"
+#include "Shared/Generator/Pulse/GenPulse2A03.h"
 
 class SsgCore : public SynthCore
 {
@@ -69,7 +69,6 @@ private:
 
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
-	SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
 
     // 押したときに受け取った周波数 (MUL/DET・FIX を掛ける前)。
@@ -78,8 +77,8 @@ private:
     void updateFrequency();
     Opzx7LfoCore m_lfo;
     FixMode m_fixMode;
-    SsgSwEnv11 m_ssgSwEnv11;
-    SsgSwPEnv11 m_ssgSwPenv11;
+    SsgSwEnv256 m_ssgSwEnv256;
+    SsgSwPEnv256 m_ssgSwPenv256;
     SsgHwEnv m_ssgHwEnv;
 
     // 音量側と同じ形をピッチへ当てるもの。両方を同時に掛けられる。
@@ -93,9 +92,25 @@ private:
     bool m_dutyFc = false;
     float m_dutyFcFluc = 0.2f;
 
+    // More Real FC / More Real NES。2A03 の矩形波を真似る。
+    bool m_dutyMoreFc = false;
+    bool m_dutyMoreNes = false;
+    Pulse2A03::OutputFilter m_2a03Filter;
+
+    // いま 2A03 の鳴り方で出すか (矩形波で、FC が切れていて、どちらかが入っている)
+    bool is2A03() const { return m_waveform == 0 && !m_dutyFc && (m_dutyMoreFc || m_dutyMoreNes); }
+
+    // DUTY RATIO ENV。入っているあいだは MODE・Invert の代わりにこのデューティ比 (%) を使う
+    bool m_dutyEnvEnable = false;
+    StepEnv m_dutyEnv;
+
 	// Triangle Params
     bool m_triKeyTrack = true;
     float m_triPeak = 0.5f; // Peak Position
+
+    // PEAK RATIO ENV。入っているあいだは PEAK の代わりにこの頂点 (0〜1) を使う
+    bool m_peakEnvEnable = false;
+    StepEnv m_peakEnv;
     float m_triFreq = 440.0f;
 
     // Noise LFSR Params

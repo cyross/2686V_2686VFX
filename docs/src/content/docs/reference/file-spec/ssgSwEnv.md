@@ -5,14 +5,18 @@ sidebar:
   order: 5
 ---
 
-SSG SW AMP ENV の設定。
+3.6.3 までの SSG SW AMP ENV（6 段）の設定。
+
+4.0.0 で 6 段の SSG SW AMP ENV は無くなりました。このファイルは書き出しません。
+SSG SW AMP ENV[256] の [IM] で読み込むと、R1〜R5 / L1〜L5 が 1〜5 段に、
+R6 / L6（リリース）が RR / LR になります。
 
 | | |
 | --- | --- |
 | **拡張子** | `.ssgSwEnv.json` / `.ssgSwEnv.yaml` |
 | **表記（format）** | `ssgSwEnv` |
 | **版（version）** | `1` |
-| **書き出し・読み込み** | SSG SW AMP ENV の [EX] / [IM] |
+| **読み込み** | SSG SW AMP ENV[256] の [IM]（4.0.0 から。書き出しはしない） |
 
 ## かたち
 

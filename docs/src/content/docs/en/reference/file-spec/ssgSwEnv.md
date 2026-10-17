@@ -5,14 +5,18 @@ sidebar:
   order: 5
 ---
 
-SSG SW The AMP ENV settings.
+The settings of the 6-step SSG SW AMP ENV (3.6.3 and earlier).
+
+The 6-step SSG SW AMP ENV is gone as of 4.0.0, and this file is no longer written.
+Loading it with SSG SW AMP ENV[256]'s [IM] turns R1–R5 / L1–L5 into steps 1–5 and
+R6 / L6 (the release) into RR / LR.
 
 | | |
 | --- | --- |
 | **Extension** | `.ssgSwEnv.json` / `.ssgSwEnv.yaml` |
 | **format** | `ssgSwEnv` |
 | **version** | `1` |
-| **Export / import** | SSG SW AMP ENV's [EX] / [IM] |
+| **Import** | SSG SW AMP ENV[256]'s [IM] (from 4.0.0; never exported) |
 
 ## Shape
 

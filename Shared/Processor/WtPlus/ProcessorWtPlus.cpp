@@ -12,6 +12,10 @@ void WtPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     const juce::String prefix = WtPlusPrKey::prefix;
     const juce::String prefixName = WtPlusPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addWtPlusBasicParameters(layout, prefix, prefixName);
     // WT 系は階段のまま出していたので、INTERP の初期値は Zero-Order Hold。
@@ -23,9 +27,8 @@ void WtPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
@@ -33,16 +36,18 @@ void WtPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);
 }
 
-void WtPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
+void WtPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = WtPlusPrKey::prefix;
+
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
 
     PrHelper::setupWtPlusBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
-    PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
-    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);
-    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11);
+    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
+    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
@@ -55,13 +60,16 @@ void WtPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
 
 void WtPlusProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyWtPlusBasic(pBasic, params.wtPlus);
     PrHelper::applyQuality(pQuality, params.wtPlus.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.wtPlus.adsr);
-    PrHelper::applySsgSwEnv(pSsgSwEnv, params.wtPlus.ssgSwEnv);
-    PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.wtPlus.ssgSwEnv11);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.wtPlus.ssgSwEnv256);
     PrHelper::applyPitchEnv(pPitchEnv, params.wtPlus.pitchAdsr);
-    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.wtPlus.ssgSwPEnv11);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.wtPlus.ssgSwPEnv256);
     PrHelper::applyOpzx7Detune(pOpzx7Detune, params.wtPlus.detune);
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.wtPlus.lfo);
     PrHelper::applyFix(pFix, params.wtPlus.fix);

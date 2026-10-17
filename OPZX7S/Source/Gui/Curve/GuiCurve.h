@@ -13,6 +13,7 @@
 #include "Shared/Gui/Components/Separator/NormalSeparator.h"
 #include "Shared/Gui/Components/Separator/ShortSeparator.h"
 #include "Shared/Gui/Components/ImportExport/ImportExport.h"
+#include "Shared/Gui/Components/Edit/TargetsDialog.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -49,13 +50,25 @@ public:
     // 再帰呼び出し防止フラグ
     bool isUpdatingUI = false;
 
+    // 4.0.0: パラメータごとの CUT / COPY / PASTE / DUPLICATE / CLEAR。
+    // 貼り付けは Position・Target を問わず、どのパラメータへもできる。
+    // 複写は同じ Position・Target のほかのパラメータへ (選ぶダイアログを出す)。
+    std::array<std::array<std::unique_ptr<GuiTextButton>, 5>, CurvePrValue::params> editButtons;
+    std::unique_ptr<GuiTargetsDialog> duplicateDialog;
+
+    void copyParam(int vp);
+    void pasteParam(int vp);
+    void clearParam(int vp);
+    void duplicateParam(int vp);
+    void applyCurveChanges();
+
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
     void initParams();
     void importCurveParam();
 
     // 3.0.0 より前の形式を読む
-    void setImportingCurveParams(juce::StringArray& lines, int& index);
+    void setImportingCurveParams(juce::StringArray& lines, int& index, const std::vector<int>& order);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeCurveParams(Io::ParamWriter& writer);

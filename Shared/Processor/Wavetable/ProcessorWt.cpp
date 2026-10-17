@@ -13,6 +13,10 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     const juce::String prefix = WtPrKey::prefix;
     const juce::String prefixName = WtPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addWtBasicParameters(layout, prefix, prefixName);
@@ -25,9 +29,8 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
@@ -36,17 +39,19 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     PrHelper::addWtCustomParameters(layout, prefix, prefixName);
 }
 
-void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
+void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = WtPrKey::prefix;
+
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
 
     PrHelper::setupWtBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupWtCustom(apvts, prefix, pc);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
-    PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
-    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);
-    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11);
+    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
+    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
@@ -59,13 +64,16 @@ void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore
 
 void WtProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyWtBasic(pBasic, params.wt);
     PrHelper::applyQuality(pQuality, params.wt.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.wt.adsr);
-    PrHelper::applySsgSwEnv(pSsgSwEnv, params.wt.ssgSwEnv);
-    PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.wt.ssgSwEnv11);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.wt.ssgSwEnv256);
     PrHelper::applyPitchEnv(pPitchEnv, params.wt.pitchAdsr);
-    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.wt.ssgSwPEnv11);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.wt.ssgSwPEnv256);
     PrHelper::applyOpzx7Detune(pOpzx7Detune, params.wt.detune);
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.wt.lfo);
     PrHelper::applyFix(pFix, params.wt.fix);

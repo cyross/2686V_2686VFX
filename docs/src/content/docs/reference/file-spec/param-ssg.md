@@ -44,6 +44,8 @@ sidebar:
 | `dutyInvert` | 真偽 | false / true | false |
 | `dutyFc` | 真偽 | false / true | false |
 | `dutyFcFluc` | 小数 | 0 〜 1 | 0.2 |
+| `dutyMoreFc` | 真偽 | false / true | false |
+| `dutyMoreNes` | 真偽 | false / true | false |
 | `triKeyTrack` | 真偽 | false / true | true |
 | `triFreq` | 小数 | 0 〜 8000 | 440 |
 | `triPeak` | 小数 | 0 〜 1 | 0.5 |
@@ -57,9 +59,11 @@ sidebar:
 | `fix` | 音程の固定。`enable` と `freq` を持ちます |
 | `ampEnv` | [ampEnv](/2686V_2686VFX/reference/file-spec/ampenv/) と同じ |
 | `pitchEnv` | [pitchEnv](/2686V_2686VFX/reference/file-spec/pitchenv/) と同じ |
-| `ssgSwEnv` | [ssgSwEnv](/2686V_2686VFX/reference/file-spec/ssgswenv/) と同じ |
-| `ssgSwEnv11` | [ssgSwEnv11](/2686V_2686VFX/reference/file-spec/ssgswenv11/) と同じ |
-| `ssgSwPEnv11` | [ssgSwPEnv11](/2686V_2686VFX/reference/file-spec/ssgswpenv11/) と同じ |
+| `ssgSwEnv` | 3.6.3 までの 6 段の SSG SW AMP ENV。4.0.0 では書き出さない。読み込むと `ssgSwEnv256` へ写す（[ssgSwEnv](/2686V_2686VFX/reference/file-spec/ssgswenv/)） |
+| `ssgSwEnv256` | [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じ |
+| `ssgSwPEnv256` | [ssgSwPEnv256](/2686V_2686VFX/reference/file-spec/ssgswpenv256/) と同じ |
+| `dutyEnv` | DUTY RATIO ENVELOPE。鍵は [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じで、値はデューティ比 (%)（4.0.0 から） |
+| `peakEnv` | PEAK RATIO ENVELOPE。鍵は [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じで、値は三角波の頂点 0〜1（4.0.0 から） |
 | `mulDetune` | [mulDetune](/2686V_2686VFX/reference/file-spec/detune/) と同じ |
 | `lfo` | [lfo](/2686V_2686VFX/reference/file-spec/lfoopzx7/) と同じ |
 | `quality` | [quality](/2686V_2686VFX/reference/file-spec/quality/) と同じ |

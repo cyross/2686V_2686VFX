@@ -6,9 +6,8 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "Shared/Generator/Fm/Fix/FmFix.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
@@ -69,7 +68,6 @@ private:
     AmpAdsrEnv m_adsr;
     FixMode m_fixMode;
     PitchAdsrEnv m_pitchAdsr;
-    SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
 
     // 押したときに受け取った周波数 (MUL/DET・FIX を掛ける前)。
@@ -77,8 +75,8 @@ private:
     float m_keyFreq = 0.0f;
     void updateFrequency();
     Opzx7LfoCore m_lfo;
-    SsgSwEnv11 m_ssgSwEnv11;
-    SsgSwPEnv11 m_ssgSwPenv11;
+    SsgSwEnv256 m_ssgSwEnv256;
+    SsgSwPEnv256 m_ssgSwPenv256;
     SsgHwEnv m_ssgHwEnv;
 
     // 音量側と同じ形をピッチへ当てるもの。両方を同時に掛けられる。

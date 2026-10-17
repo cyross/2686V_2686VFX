@@ -13,11 +13,17 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     const juce::String prefix = SsgPrKey::prefix;
     const juce::String prefixName = SsgPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addSsgBasicParameters(layout, prefix, prefixName);
     PrHelper::addSsgDutyParameters(layout, prefix, prefixName);
     PrHelper::addSsgTriParameters(layout, prefix, prefixName);
+    ValueEnv::addParameters(layout, prefix, prefixName, ValueEnv::duty());
+    ValueEnv::addParameters(layout, prefix, prefixName, ValueEnv::peak());
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);
     PrHelper::addWtModParameters(layout, prefix, prefixName);
@@ -28,16 +34,18 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
 }
 
-void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
+void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = SsgPrKey::prefix;
+
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
 
     PrHelper::setupSsgBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
@@ -45,15 +53,16 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
-    PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
-    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);
-    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11);
+    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
+    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
     PrHelper::setupToneNoise(apvts, prefix, pToneNoise);
     PrHelper::setupSsgDuty(apvts, prefix, pDuty);
     PrHelper::setupSsgTri(apvts, prefix, pTri);
+    ValueEnv::setupPtrs(apvts, prefix, ValueEnv::duty(), pDutyEnv, stepTables);
+    ValueEnv::setupPtrs(apvts, prefix, ValueEnv::peak(), pPeakEnv, stepTables);
     PrHelper::setupSsgHwEnv(apvts, prefix, pHwEnv);
     PrHelper::setupSsgHwPEnv(apvts, prefix, pHwPEnv);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
@@ -61,21 +70,26 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
 void SsgProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applySsgBasic(pBasic, params.ssg);
     PrHelper::applyFix(pFix, params.ssg.fix);
     PrHelper::applyQuality(pQuality, params.ssg.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.ssg.adsr);
     PrHelper::applyWtMod(pWtMod, params.ssg.wtMod);
     PrHelper::applyWtAmpMod(pWtAmpMod, params.ssg.wtAmpMod);
-    PrHelper::applySsgSwEnv(pSsgSwEnv, params.ssg.ssgSwEnv);
-    PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.ssg.ssgSwEnv11);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.ssg.ssgSwEnv256);
     PrHelper::applyPitchEnv(pPitchEnv, params.ssg.pitchAdsr);
-    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.ssg.ssgSwPEnv11);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.ssg.ssgSwPEnv256);
     PrHelper::applyOpzx7Detune(pOpzx7Detune, params.ssg.detune);
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.ssg.lfo);
     PrHelper::applyToneNoise(pToneNoise, params.ssg.tn);
     PrHelper::applySsgDuty(pDuty, params.ssg.duty);
     PrHelper::applySsgTri(pTri, params.ssg.tri);
+    ValueEnv::apply(pDutyEnv, params.ssg.dutyEnv, params.ssg.dutyEnvEnable);
+    ValueEnv::apply(pPeakEnv, params.ssg.peakEnv, params.ssg.peakEnvEnable);
     PrHelper::applySsgHwEnv(pHwEnv, params.ssg.env);
     PrHelper::applySsgHwPEnv(pHwPEnv, params.ssg.ssgHwPEnv);
     PrHelper::applyUnison(pUnison, params.ssg.unison);

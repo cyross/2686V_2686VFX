@@ -250,6 +250,9 @@ void CurveProcessor::saveToXml(juce::XmlElement* xml) {
     // 切れた状態に戻っていた (以前は DSP が見ていなかったので表に出なかった)。
     if (!m_alwaysOn) curveXml->setAttribute("enable", enable ? 1 : 0);
 
+    // 対象の並びの版。3.6.3 までは 6 段の SSG SW ENV が 3 番にあった (これの無いもの)。
+    curveXml->setAttribute(targetsAttr, targetsVersion);
+
     for (int p = 0; p < CurvePrValue::positions; p++) {
         for (int t = 0; t < CurvePrValue::targets; t++) {
             for (int vp = 0; vp < CurvePrValue::params; vp++) {
@@ -312,25 +315,67 @@ void CurveProcessor::loadFromXml(juce::XmlElement* xml) {
             setEnable(curveXml->getFirstChildElement() != nullptr);
         }
 
+        // 3.6.3 までは対象が 6 つで、3 番が 6 段の SSG SW ENV、4 番が [11] (いまの
+        // [256])、5 番が PITCH の [11] だった。6 段は 4.0.0 で無くなったので、
+        // その置き場に [256] のカーブが無いときに限り、[256] へ写す。
+        const bool legacyTargets = curveXml->getIntAttribute(targetsAttr, 0) < targetsVersion;
+        constexpr int legacySixStep = 3;
+        const int sixStepTo = (int)CurveParams::Target::SsgSwEnv256;
+
+        // 6 段の R1〜R5 は [256] の R1〜R5、R6 (リリース) は R11、LoopTo は LoopTo へ
+        auto sixStepParam = [](int vp) {
+            if (vp <= 4) return vp;
+            if (vp == 5) return (int)CurveParams::TargetSsgSwEnv256::R11;
+            if (vp == 6) return (int)CurveParams::TargetSsgSwEnv256::LoopTo;
+            return -1;
+        };
+
+        std::vector<juce::XmlElement*> sixStep;
+        bool has256[CurvePrValue::positions] = {};
+
+        auto apply = [this](juce::XmlElement* paramXml, int p, int t, int vp) {
+            rawLogic[p][t][vp] = paramXml->getIntAttribute("l");
+            rawK[p][t][vp] = paramXml->getDoubleAttribute("k", 1.0);
+
+            juce::String vStr = paramXml->getStringAttribute("v");
+            juce::StringArray vals;
+            vals.addTokens(vStr, ",", "");
+            for (int vv = 0; vv < CurvePrValue::values && vv < vals.size(); vv++) {
+                rawValues[p][t][vp][vv] = vals[vv].getFloatValue();
+            }
+            updateCurveParamStructure(p, t, vp);
+        };
+
         for (auto* paramXml : curveXml->getChildIterator()) {
             if (paramXml->hasTagName("CP")) {
                 int p = paramXml->getIntAttribute("p");
                 int t = paramXml->getIntAttribute("t");
                 int vp = paramXml->getIntAttribute("vp");
 
-                if (p >= 0 && p < CurvePrValue::positions && t >= 0 && t < CurvePrValue::targets && vp >= 0 && vp < CurvePrValue::params) {
-                    rawLogic[p][t][vp] = paramXml->getIntAttribute("l");
-                    rawK[p][t][vp] = paramXml->getDoubleAttribute("k", 1.0);
-
-                    juce::String vStr = paramXml->getStringAttribute("v");
-                    juce::StringArray vals;
-                    vals.addTokens(vStr, ",", "");
-                    for (int vv = 0; vv < CurvePrValue::values && vv < vals.size(); vv++) {
-                        rawValues[p][t][vp][vv] = vals[vv].getFloatValue();
+                if (legacyTargets) {
+                    if (t == legacySixStep) {
+                        sixStep.push_back(paramXml);
+                        continue;
                     }
-                    updateCurveParamStructure(p, t, vp);
+
+                    if (t > legacySixStep) --t;
+                }
+
+                if (p >= 0 && p < CurvePrValue::positions && t >= 0 && t < CurvePrValue::targets && vp >= 0 && vp < CurvePrValue::params) {
+                    apply(paramXml, p, t, vp);
+
+                    if (t == sixStepTo) has256[p] = true;
                 }
             }
+        }
+
+        for (auto* paramXml : sixStep) {
+            int p = paramXml->getIntAttribute("p");
+            int vp = sixStepParam(paramXml->getIntAttribute("vp"));
+
+            if (p < 0 || p >= CurvePrValue::positions || vp < 0 || has256[p]) continue;
+
+            apply(paramXml, p, sixStepTo, vp);
         }
     }
 }

@@ -108,6 +108,7 @@ float FmRgAdssr::noteOn(float velocity, int noteNumber) {
     this->m_phaseProgress = 0.0f;
 
     if (this->bypass) {
+        m_tlDb = 0.0f;
         return velocity;
     }
 
@@ -117,6 +118,7 @@ float FmRgAdssr::noteOn(float velocity, int noteNumber) {
         // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
         // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
         float attenuationDb = tl * 0.75f;
+        m_tlDb = attenuationDb;
         float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
 
         return velocity * tlGain;
@@ -125,6 +127,7 @@ float FmRgAdssr::noteOn(float velocity, int noteNumber) {
         // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
         // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
         float attenuationDb = (this->totalLevel * 127.0f) * 0.75f;
+        m_tlDb = attenuationDb;
         float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
 
         return velocity * tlGain;

@@ -5,6 +5,7 @@
 #include "Shared/Core/Synth/SynthCoreParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorTapSeq.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 
 class AdpcmProcessor : public PrBase
@@ -15,9 +16,8 @@ class AdpcmProcessor : public PrBase
     PrPtrsWtMod pWtMod;
     PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsPitchEnv pPitchEnv;
-    PrPtrsSsgSwEnv pSsgSwEnv;
-    PrPtrsSsgSwEnv11 pSsgSwEnv11;
-    PrPtrsSsgSwPEnv11 pSsgSwPEnv11;
+    PrPtrsSsgSwEnv256 pSsgSwEnv256;
+    PrPtrsSsgSwPEnv256 pSsgSwPEnv256;
     PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsOpzx7Detune pOpzx7Detune;
@@ -30,6 +30,9 @@ class AdpcmProcessor : public PrBase
 
     // QUALITY(PCM) の BIT の初期値。プラグインが作るときに決める。
     int m_pcmBitInitial;
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::Ptrs pTapAmp;
+    TapSeq::Ptrs pTapPitch;
 public:
     explicit AdpcmProcessor(int pcmBitInitial = CPV::QualityPcm::Bit::initial) : m_pcmBitInitial(pcmBitInitial) {}
 
@@ -37,5 +40,5 @@ public:
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;
     // modWaves は WT PITCH MOD の変調波形の置き場所。
     // パラメータではなくプロセッサが持つので、ここで受け取る。
-    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables);
 };

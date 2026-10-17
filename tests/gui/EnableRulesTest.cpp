@@ -165,31 +165,24 @@ namespace
             { CPK::SsgHwPEnv::smooth, CPK::SsgHwPEnv::shape, CPK::SsgHwPEnv::period,
               CPK::SsgHwPEnv::min, CPK::SsgHwPEnv::max }, {} });
 
-        // SSG SW AMP ENV (6 タップ)
-        const std::vector<juce::String> swDeps{ CPK::SsgSwEnv::steps, CPK::SsgSwEnv::loop };
-        const std::vector<Nested> swNested{ { CPK::SsgSwEnv::loop, { CPK::SsgSwEnv::loopTo, CPK::SsgSwEnv::loopCount } } };
-
-        r.push_back({ "SSG SW AMP ENV (Bypass)", CPK::SsgSwEnv::bypass, false, { CPK::SsgSwEnv::steps }, swDeps, swNested });
-        r.push_back({ "SSG SW AMP ENV (Enable)", CPK::SsgSwEnv::enable, true, { CPK::SsgSwEnv::steps }, swDeps, swNested });
-
-        // SSG SW AMP ENV[11] / SSG SW PITCH ENV[11]
+        // SSG SW AMP ENV[256] / SSG SW PITCH ENV[256]
         const std::vector<juce::String> sw11Deps{
-            CPK::SsgSwEnv11::steps, CPK::SsgSwEnv11::keep, CPK::SsgSwEnv11::loop, CPK::SsgSwEnv11::endlEnable };
+            CPK::SsgSwEnv256::steps, CPK::SsgSwEnv256::keep, CPK::SsgSwEnv256::loop, CPK::SsgSwEnv256::endlEnable };
         const std::vector<Nested> sw11Nested{
-            { CPK::SsgSwEnv11::loop, { CPK::SsgSwEnv11::loopTo, CPK::SsgSwEnv11::loopCount } },
-            { CPK::SsgSwEnv11::endlEnable, { CPK::SsgSwEnv11::endl } } };
+            { CPK::SsgSwEnv256::loop, { CPK::SsgSwEnv256::loopTo, CPK::SsgSwEnv256::loopCount } },
+            { CPK::SsgSwEnv256::endlEnable, { CPK::SsgSwEnv256::endl } } };
 
-        r.push_back({ "SSG SW AMP ENV[11] (Bypass)", CPK::SsgSwEnv11::bypass, false, { CPK::SsgSwEnv11::steps }, sw11Deps, sw11Nested });
-        r.push_back({ "SSG SW AMP ENV[11] (Enable)", CPK::SsgSwEnv11::enable, true, { CPK::SsgSwEnv11::steps }, sw11Deps, sw11Nested });
+        r.push_back({ "SSG SW AMP ENV[256] (Bypass)", CPK::SsgSwEnv256::bypass, false, { CPK::SsgSwEnv256::steps }, sw11Deps, sw11Nested });
+        r.push_back({ "SSG SW AMP ENV[256] (Enable)", CPK::SsgSwEnv256::enable, true, { CPK::SsgSwEnv256::steps }, sw11Deps, sw11Nested });
 
         const std::vector<juce::String> swp11Deps{
-            CPK::SsgSwPEnv11::steps, CPK::SsgSwPEnv11::keep, CPK::SsgSwPEnv11::loop, CPK::SsgSwPEnv11::endlEnable };
+            CPK::SsgSwPEnv256::steps, CPK::SsgSwPEnv256::keep, CPK::SsgSwPEnv256::loop, CPK::SsgSwPEnv256::endlEnable };
         const std::vector<Nested> swp11Nested{
-            { CPK::SsgSwPEnv11::loop, { CPK::SsgSwPEnv11::loopTo, CPK::SsgSwPEnv11::loopCount } },
-            { CPK::SsgSwPEnv11::endlEnable, { CPK::SsgSwPEnv11::endl } } };
+            { CPK::SsgSwPEnv256::loop, { CPK::SsgSwPEnv256::loopTo, CPK::SsgSwPEnv256::loopCount } },
+            { CPK::SsgSwPEnv256::endlEnable, { CPK::SsgSwPEnv256::endl } } };
 
-        r.push_back({ "SSG SW PITCH ENV[11] (Bypass)", CPK::SsgSwPEnv11::bypass, false, { CPK::SsgSwPEnv11::steps }, swp11Deps, swp11Nested });
-        r.push_back({ "SSG SW PITCH ENV[11] (Enable)", CPK::SsgSwPEnv11::enable, true, { CPK::SsgSwPEnv11::steps }, swp11Deps, swp11Nested });
+        r.push_back({ "SSG SW PITCH ENV[256] (Bypass)", CPK::SsgSwPEnv256::bypass, false, { CPK::SsgSwPEnv256::steps }, swp11Deps, swp11Nested });
+        r.push_back({ "SSG SW PITCH ENV[256] (Enable)", CPK::SsgSwPEnv256::enable, true, { CPK::SsgSwPEnv256::steps }, swp11Deps, swp11Nested });
 
         // OPZX7 の LFO。PM と AM は別々の札
         r.push_back({ "LFO (OPZX7S) PM", CPK::Opzx7Lfo::pm, true, { CPK::Opzx7Lfo::pmFreq },

@@ -41,9 +41,8 @@ void BeepCore::prepare(double sampleRate) {
 
 	m_adsr.prepare(44100.0);
     m_pitchAdsr.prepare(0, 44100.0);
-    m_ssgSwEnv.prepare(0, 44100.0);
-    m_ssgSwEnv11.prepare(0, 44100.0);
-    m_ssgSwPenv11.prepare(0, 44100.0);
+    m_ssgSwEnv256.prepare(0, 44100.0);
+    m_ssgSwPenv256.prepare(0, 44100.0);
     m_fixMode.setParameters({ .enable = false, .freq = 2000.0f });
     m_lfo.prepare(44100.0);
     m_ssgHwEnv.prepare(44100.0);
@@ -54,9 +53,8 @@ void BeepCore::setCurveCore(CurveCore* p_curveCore)
 {
     m_adsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
-    m_ssgSwEnv11.setCurveCore(p_curveCore);
-    m_ssgSwPenv11.setCurveCore(p_curveCore);
+    m_ssgSwEnv256.setCurveCore(p_curveCore);
+    m_ssgSwPenv256.setCurveCore(p_curveCore);
 }
 
 void BeepCore::setSampleRate(double sampleRate) {
@@ -64,9 +62,8 @@ void BeepCore::setSampleRate(double sampleRate) {
 
     m_adsr.updateSampleRate(sampleRate);
 	m_pitchAdsr.updateSampleRate(sampleRate);
-	m_ssgSwEnv.updateSampleRate(sampleRate);
-    m_ssgSwEnv11.updateSampleRate(sampleRate);
-    m_ssgSwPenv11.updateSampleRate(sampleRate);
+    m_ssgSwEnv256.updateSampleRate(sampleRate);
+    m_ssgSwPenv256.updateSampleRate(sampleRate);
     m_ssgHwEnv.updateSampleRate(m_sampleRate);
     m_ssgHwPEnv.updateSampleRate(m_sampleRate);
 }
@@ -82,9 +79,8 @@ void BeepCore::setParameters(const SynthCoreParams& params) {
 
     m_adsr.setParameters(params.beep.adsr);
     m_pitchAdsr.setParameters(params.beep.pitchAdsr);
-    m_ssgSwEnv.setParameters(params.beep.ssgSwEnv);
-    m_ssgSwEnv11.setParameters(params.beep.ssgSwEnv11);
-    m_ssgSwPenv11.setParameters(params.beep.ssgSwPEnv11);
+    m_ssgSwEnv256.setParameters(params.beep.ssgSwEnv256);
+    m_ssgSwPenv256.setParameters(params.beep.ssgSwPEnv256);
     m_detune.setParameters(params.beep.detune);
     m_fixMode.setParameters(params.beep.fix);
     m_lfo.setParameters(params.beep.lfo);
@@ -140,16 +136,12 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
             m_pitchAdsr.noteOn();
         }
 
-        if (!m_ssgSwEnv.isBypass()) {
-            m_ssgSwEnv.noteOn();
+        if (!m_ssgSwEnv256.isBypass()) {
+            m_ssgSwEnv256.noteOn();
         }
 
-        if (!m_ssgSwEnv11.isBypass()) {
-            m_ssgSwEnv11.noteOn();
-        }
-
-        if (!m_ssgSwPenv11.isBypass()) {
-            m_ssgSwPenv11.noteOn();
+        if (!m_ssgSwPenv256.isBypass()) {
+            m_ssgSwPenv256.noteOn();
         }
 
         m_lfo.noteOn();
@@ -161,8 +153,8 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
         m_pitchAdsr.noteOn();
     }
 
-    if (!m_ssgSwPenv11.isBypass() && m_pitchResetOnLegato) {
-        m_ssgSwPenv11.noteOn();
+    if (!m_ssgSwPenv256.isBypass() && m_pitchResetOnLegato) {
+        m_ssgSwPenv256.noteOn();
     }
 }
 
@@ -172,20 +164,17 @@ void BeepCore::noteOff() {
     if (!m_pitchAdsr.isBypass()) {
         m_pitchAdsr.noteOff();
     }
-    if (!m_ssgSwEnv.isBypass()) {
-        m_ssgSwEnv.noteOff();
+
+    if (!m_ssgSwEnv256.isBypass()) {
+        m_ssgSwEnv256.noteOff();
     }
 
-    if (!m_ssgSwEnv11.isBypass()) {
-        m_ssgSwEnv11.noteOff();
-    }
-
-    if (!m_ssgSwPenv11.isBypass()) {
-        m_ssgSwPenv11.noteOff();
+    if (!m_ssgSwPenv256.isBypass()) {
+        m_ssgSwPenv256.noteOff();
     }
 }
 
-bool BeepCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying() || m_ssgSwEnv11.isPlaying(); }
+bool BeepCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv256.isPlaying(); }
 
 void BeepCore::setPitchBend(int pitchWheelValue) {
     float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
@@ -197,17 +186,16 @@ void BeepCore::setPitchBend(int pitchWheelValue) {
 
 float BeepCore::getSample() {
     // すべてのアンプエンベロープがバイパスされているかどうかを判定
-    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
+    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv256.isBypass();
 
     if (isAllAmpBypassed) {
         // 全てのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作
         // どれかが Release 状態（noteOffが呼ばれた直後）なら、即座に音を消す
-        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
+        if (m_adsr.isRelease() || m_ssgSwEnv256.isRelease()) {
             m_adsr.bypassedReleasedProcess();
-            m_ssgSwEnv.bypassedReleasedProcess();
-            m_ssgSwEnv11.bypassedReleasedProcess();
+            m_ssgSwEnv256.bypassedReleasedProcess();
             m_pitchAdsr.bypassedReleasedProcess();
-            m_ssgSwPenv11.bypassedReleasedProcess();
+            m_ssgSwPenv256.bypassedReleasedProcess();
             return 0.0f;
         }
     }
@@ -215,7 +203,7 @@ float BeepCore::getSample() {
         // いずれかのアンプエンベロープが有効で、全ての再生が終了（音が減衰しきった）時
         // ピッチエンベロープも強制終了させる（次のノートオンでピッチが変になるのを防ぐ）
         m_pitchAdsr.bypassedReleasedProcess();
-        m_ssgSwPenv11.bypassedReleasedProcess();
+        m_ssgSwPenv256.bypassedReleasedProcess();
         return 0.0f;
     }
 
@@ -237,20 +225,12 @@ float BeepCore::getSample() {
             }
         }
 
-        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-        if (!m_ssgSwEnv.isBypass()) {
-            finalEnv *= m_ssgSwEnv.process();
-        }
-        else {
-            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
-        }
-
         // 3. SSG Sw Env 11 処理
-        if (!m_ssgSwEnv11.isBypass()) {
-            finalEnv *= m_ssgSwEnv11.process();
+        if (!m_ssgSwEnv256.isBypass()) {
+            finalEnv *= m_ssgSwEnv256.process();
         }
         else {
-            if (m_ssgSwEnv11.isRelease()) m_ssgSwEnv11.bypassedReleasedProcess();
+            if (m_ssgSwEnv256.isRelease()) m_ssgSwEnv256.bypassedReleasedProcess();
         }
     }
 
@@ -259,7 +239,7 @@ float BeepCore::getSample() {
     float sshHwEnvVal = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
 
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
-    newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
+    newPhaseDelta = m_ssgSwPenv256.process(newPhaseDelta);
 
     // ==========================================
     // Opzx7 LFO の計算 (AM / PM)

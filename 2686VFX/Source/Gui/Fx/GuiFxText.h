@@ -12,12 +12,7 @@ namespace FxGuiText
 	// どれを止めるかの札を外から渡す作りなので、ここで文言を持つ。
 	namespace Mod
 	{
-		namespace SsgSwEnv
-		{
-			static inline const I18n::Text bypass{ u8"バイパス", u8"Bypass" };
-		}
-
-		namespace SsgSwEnv11
+		namespace SsgSwEnv256
 		{
 			static inline const I18n::Text bypass{ u8"バイパス", u8"Bypass" };
 		}
@@ -27,7 +22,7 @@ namespace FxGuiText
 			static inline const I18n::Text bypass{ u8"バイパス", u8"Bypass" };
 		}
 
-		namespace SsgSwPEnv11
+		namespace SsgSwPEnv256
 		{
 			static inline const I18n::Text bypass{ u8"バイパス", u8"Bypass" };
 		}

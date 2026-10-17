@@ -5,7 +5,7 @@
 namespace
 {
     // 枠の内側へ残す余白。枠線が見切れないだけの幅を取る。
-    constexpr int inset = 4;
+    constexpr int inset = GuiTargetCell::insetPx;
 
     constexpr int titleHeight = 14;
     constexpr int gap = 2;
@@ -21,6 +21,11 @@ int GuiTargetCell::naturalHeight(bool withPreview)
     if (withPreview) h += GuiWavePreview::defaultHeight + gap;
 
     return h;
+}
+
+int GuiTargetCell::chromeHeight(bool withPreview)
+{
+    return naturalHeight(withPreview) - graphHeight;
 }
 
 void GuiTargetCell::setup(juce::Component& parent, int index, const juce::String& title, bool withPreview)
@@ -39,7 +44,10 @@ void GuiTargetCell::setup(juce::Component& parent, int index, const juce::String
     // 枠のどこを押しても TARGET が動くようにする。
     // 見出しとグラフが押下を食べてしまうと、隙間しか当たらない。
     titleLabel.setInterceptsMouseClicks(false, false);
-    m_graph.setInterceptsMouseClicks(false, false);
+
+    // TARGET の大きな枠 (番号が負) だけ、絵を横へ広げられる。小さな枠は押すと TARGET が移る
+    if (index < 0) m_graph.setZoomable(true);
+    else m_graph.setInterceptsMouseClicks(false, false);
 }
 
 void GuiTargetCell::layout(juce::Rectangle<int> rect)
@@ -82,4 +90,24 @@ void GuiTargetCell::mouseDown(const juce::MouseEvent&)
 {
     // 枠を押したらそこへ TARGET を移す。下の設定もまとめて切り替わる。
     if (onSelect) onSelect(m_index);
+}
+
+void GuiTargetCell::follow(const GuiTargetCell* source)
+{
+    m_source = source;
+
+    timerCallback();
+
+    if (m_source != nullptr) startTimerHz(10);
+    else stopTimer();
+}
+
+void GuiTargetCell::timerCallback()
+{
+    if (m_source == nullptr) return;
+
+    titleLabel.setText(m_source->titleLabel.getText(), juce::dontSendNotification);
+    m_graph.copyFrom(m_source->m_graph);
+
+    if (hasPreview && m_source->hasPreview) m_preview.copyFrom(m_source->m_preview);
 }

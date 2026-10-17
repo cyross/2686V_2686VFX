@@ -48,9 +48,9 @@ namespace CPK
 
 	static inline const juce::String pitchAdsr = "_PITCHENV";
 	static inline const juce::String adsr = "_ADSR";
-	static inline const juce::String ssgSwEnv = "_SSGSW";
-	static inline const juce::String ssgSwEnv11 = "_SSGSW11";
-	static inline const juce::String ssgSwPEnv11 = "_SSGSWP11";
+	// SSG SW AMP / PITCH ENV[256]。段の表 (StepTable) の鍵にも使う
+	static inline const juce::String ssgSwEnv256 = "_SSGSW256";
+	static inline const juce::String ssgSwPEnv256 = "_SSGSWP256";
 
 	static inline const juce::String bypass = "_BYPASS";
 
@@ -268,99 +268,36 @@ namespace CPK
 		static inline const juce::String keep = "_PITCH_KEEP";
 	};
 
-	namespace SsgSwEnv
+	namespace SsgSwEnv256
 	{
-		static inline const juce::String enable = "_SSGSW_ENABLE";
-		static inline const juce::String bypass = "_SSGSW_BYPASS";
-		static inline const juce::String steps = "_SSGSW_STEPS";
-		static inline const juce::String loop = "_SSGSW_LOOP";
-		static inline const juce::String loopTo = "_SSGSW_LOOPTO";
-		static inline const juce::String loopCount = "_SSGSW_LOOPCNT";
-		static inline const juce::String stl = "_SSGSW_STL";
-		static inline const juce::String r1 = "_SSGSW_R1";
-		static inline const juce::String l1 = "_SSGSW_L1";
-		static inline const juce::String r2 = "_SSGSW_R2";
-		static inline const juce::String l2 = "_SSGSW_L2";
-		static inline const juce::String r3 = "_SSGSW_R3";
-		static inline const juce::String l3 = "_SSGSW_L3";
-		static inline const juce::String r4 = "_SSGSW_R4";
-		static inline const juce::String l4 = "_SSGSW_L4";
-		static inline const juce::String r5 = "_SSGSW_R5";
-		static inline const juce::String l5 = "_SSGSW_L5";
-		static inline const juce::String r6 = "_SSGSW_R6";
-		static inline const juce::String l6 = "_SSGSW_L6";
+		static inline const juce::String enable = "_SSGSW256_ENABLE";
+		static inline const juce::String bypass = "_SSGSW256_BYPASS";
+		static inline const juce::String steps = "_SSGSW256_STEPS";
+		static inline const juce::String loop = "_SSGSW256_LOOP";
+		static inline const juce::String loopTo = "_SSGSW256_LOOPTO";
+		static inline const juce::String loopCount = "_SSGSW256_LOOPCNT";
+		static inline const juce::String stl = "_SSGSW256_STL";
+		static inline const juce::String lr = "_SSGSW256_LR";
+		static inline const juce::String rr = "_SSGSW256_RR";
+		static inline const juce::String endl = "_SSGSW256_ENDL";
+		static inline const juce::String endlEnable = "_SSGSW256_ENDL_EN";
+		static inline const juce::String keep = "_SSGSW256_KEEP";
 	};
 
-	namespace SsgSwEnv11
+	namespace SsgSwPEnv256
 	{
-		static inline const juce::String enable = "_SSGSW11_ENABLE";
-		static inline const juce::String bypass = "_SSGSW11_BYPASS";
-		static inline const juce::String steps = "_SSGSW11_STEPS";
-		static inline const juce::String loop = "_SSGSW11_LOOP";
-		static inline const juce::String loopTo = "_SSGSW11_LOOPTO";
-		static inline const juce::String loopCount = "_SSGSW11_LOOPCNT";
-		static inline const juce::String stl = "_SSGSW11_STL";
-		static inline const juce::String r1 = "_SSGSW11_R1";
-		static inline const juce::String l1 = "_SSGSW11_L1";
-		static inline const juce::String r2 = "_SSGSW11_R2";
-		static inline const juce::String l2 = "_SSGSW11_L2";
-		static inline const juce::String r3 = "_SSGSW11_R3";
-		static inline const juce::String l3 = "_SSGSW11_L3";
-		static inline const juce::String r4 = "_SSGSW11_R4";
-		static inline const juce::String l4 = "_SSGSW11_L4";
-		static inline const juce::String r5 = "_SSGSW11_R5";
-		static inline const juce::String l5 = "_SSGSW11_L5";
-		static inline const juce::String r6 = "_SSGSW11_R6";
-		static inline const juce::String l6 = "_SSGSW11_L6";
-		static inline const juce::String r7 = "_SSGSW11_R7";
-		static inline const juce::String l7 = "_SSGSW11_L7";
-		static inline const juce::String r8 = "_SSGSW11_R8";
-		static inline const juce::String l8 = "_SSGSW11_L8";
-		static inline const juce::String r9 = "_SSGSW11_R9";
-		static inline const juce::String l9 = "_SSGSW11_L9";
-		static inline const juce::String r10 = "_SSGSW11_R10";
-		static inline const juce::String l10 = "_SSGSW11_L10";
-		static inline const juce::String r11 = "_SSGSW11_R11";
-		static inline const juce::String l11 = "_SSGSW11_L11";
-		static inline const juce::String endl = "_SSGSW11_ENDL";
-		static inline const juce::String endlEnable = "_SSGSW11_ENDL_EN";
-		static inline const juce::String keep = "_SSGSW11_KEEP";
-	};
-
-	namespace SsgSwPEnv11
-	{
-		static inline const juce::String enable = "_SSGSWP11_ENABLE";
-		static inline const juce::String bypass = "_SSGSWP11_BYPASS";
-		static inline const juce::String steps = "_SSGSWP11_STEPS";
-		static inline const juce::String loop = "_SSGSWP11_LOOP";
-		static inline const juce::String loopTo = "_SSGSWP11_LOOPTO";
-		static inline const juce::String loopCount = "_SSGSWP11_LOOPCNT";
-		static inline const juce::String stl = "_SSGSWP11_STL";
-		static inline const juce::String r1 = "_SSGSWP11_R1";
-		static inline const juce::String l1 = "_SSGSWP11_L1";
-		static inline const juce::String r2 = "_SSGSWP11_R2";
-		static inline const juce::String l2 = "_SSGSWP11_L2";
-		static inline const juce::String r3 = "_SSGSWP11_R3";
-		static inline const juce::String l3 = "_SSGSWP11_L3";
-		static inline const juce::String r4 = "_SSGSWP11_R4";
-		static inline const juce::String l4 = "_SSGSWP11_L4";
-		static inline const juce::String r5 = "_SSGSWP11_R5";
-		static inline const juce::String l5 = "_SSGSWP11_L5";
-		static inline const juce::String r6 = "_SSGSWP11_R6";
-		static inline const juce::String l6 = "_SSGSWP11_L6";
-		static inline const juce::String r7 = "_SSGSWP11_R7";
-		static inline const juce::String l7 = "_SSGSWP11_L7";
-		static inline const juce::String r8 = "_SSGSWP11_R8";
-		static inline const juce::String l8 = "_SSGSWP11_L8";
-		static inline const juce::String r9 = "_SSGSWP11_R9";
-		static inline const juce::String l9 = "_SSGSWP11_L9";
-		static inline const juce::String r10 = "_SSGSWP11_R10";
-		static inline const juce::String l10 = "_SSGSWP11_L10";
-		static inline const juce::String r11 = "_SSGSWP11_R11";
-		static inline const juce::String l11 = "_SSGSWP11_L11";
-		static inline const juce::String endl = "_SSGSWP11_ENDL";
-		static inline const juce::String endlEnable = "_SSGSWP11_ENDL_EN";
-		static inline const juce::String keep = "_SSGSWP11_KEEP";
+		static inline const juce::String enable = "_SSGSWP256_ENABLE";
+		static inline const juce::String bypass = "_SSGSWP256_BYPASS";
+		static inline const juce::String steps = "_SSGSWP256_STEPS";
+		static inline const juce::String loop = "_SSGSWP256_LOOP";
+		static inline const juce::String loopTo = "_SSGSWP256_LOOPTO";
+		static inline const juce::String loopCount = "_SSGSWP256_LOOPCNT";
+		static inline const juce::String stl = "_SSGSWP256_STL";
+		static inline const juce::String lr = "_SSGSWP256_LR";
+		static inline const juce::String rr = "_SSGSWP256_RR";
+		static inline const juce::String endl = "_SSGSWP256_ENDL";
+		static inline const juce::String endlEnable = "_SSGSWP256_ENDL_EN";
+		static inline const juce::String keep = "_SSGSWP256_KEEP";
 	};
 
 	namespace Opzx7Lfo
@@ -491,6 +428,10 @@ namespace CPK
 		static inline const juce::String inv = "_DUTY_INV";
 		static inline const juce::String fc = "_DUTY_FC_MODE";
 		static inline const juce::String fcFluc = "_DUTY_FC_FLUC";
+
+		// ファミコン / NES (2A03) の鳴り方。FC と合わせて 3 つのうち 1 つだけ入る。
+		static inline const juce::String moreFc = "_DUTY_MORE_FC";
+		static inline const juce::String moreNes = "_DUTY_MORE_NES";
 	};
 
 	namespace SsgTri

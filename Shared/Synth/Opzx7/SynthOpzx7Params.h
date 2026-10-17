@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Shared/Effect/Envelope/Step/EnvStep.h"
+
 #include <array>
 
 #include "./Operator/SynthOpzx7OpParams.h"
@@ -10,8 +12,8 @@
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
 
 struct Opzx7Params
 {
@@ -21,6 +23,10 @@ struct Opzx7Params
     float delay = 0.0f;
 
     Opzx7AlgFbParams algFb;
+
+    // ALG ENV。段の ALG を ALG の代わりに使う
+    bool algEnvEnable = false;
+    StepEnvParams algEnv;
     LfoOpzx7Params glLfo;
     QualityParams quality;
     UnisonParams unison;
@@ -30,8 +36,8 @@ struct Opzx7Params
     WtAmpModParams wtAmpMod;
     SsgHwEnvParams ssgHwEnv;
     SsgHwPEnvParams ssgHwPEnv;
-    SsgSwEnv11Params ssgSwEnv11g;
-    SsgSwPEnv11Params ssgSwPEnv11g;
+    SsgSwEnv256Params ssgSwEnv256g;
+    SsgSwPEnv256Params ssgSwPEnv256g;
 
     std::array<Opzx7OpParams, Opzx7PrValue::ops> op;
 };

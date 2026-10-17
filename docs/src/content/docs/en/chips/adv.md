@@ -40,9 +40,8 @@ You settle three things: *where*, *what* and *how*.
 | **RegValue** | AR / DR(D1R) / SL(D1L) / RR / SR(D2R) / TL |
 | [**AmpEnv**](/2686V_2686VFX/en/chips/common/#amp-env) | AR / DR / RR / SR |
 | [**PitchEnv**](/2686V_2686VFX/en/chips/common/#pitch-env) | AR / DR / RR |
-| [**SsgSwEnv**](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env) | R1–R6 and LoopTo |
-| [**SsgSwEnv11**](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env11) | R1–R11 and LoopTo |
-| [**SsgSwPEnv11**](/2686V_2686VFX/en/chips/common/#ssg-sw-pitch-env11) | R1–R11 and LoopTo |
+| [**SsgSwEnv256**](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env256) | R1–R10 (steps; from step 11 on, R10), R11 (release) and LoopTo |
+| [**SsgSwPEnv256**](/2686V_2686VFX/en/chips/common/#ssg-sw-pitch-env256) | R1–R10 (steps; from step 11 on, R10), R11 (release) and LoopTo |
 
 It reaches both the register values themselves and the rates of each envelope. For what is inside those envelopes, see [Shared sections](/2686V_2686VFX/en/chips/common/).
 
@@ -84,6 +83,18 @@ Where the stretches divide, and how hard they bend, are set by values on screen.
 | **CX** / **CY** (`C1X`–`C6Y`) | Control points that decide the bend |
 
 X is the time direction, Y the value direction. Picking a spline adds control points.
+
+## Edit buttons per parameter
+
+Under each parameter's Logic / K there are **CUT, COPY, PASTE, DUPLICATE and CLEAR** buttons (from 4.0.0).
+
+| Button | What it does |
+| --- | --- |
+| **CUT** | Copies the parameter's curve (Logic, K and waypoints), then resets it |
+| **COPY** | Copies the parameter's curve |
+| **PASTE** | Pastes the copied curve. It can go to a parameter of any Position or Target |
+| **DUPLICATE** | Copies to other parameters of the same Position and Target, picked in a checkbox dialog |
+| **CLEAR** | Resets to the initial state (linear) |
 
 ## Where to use it
 

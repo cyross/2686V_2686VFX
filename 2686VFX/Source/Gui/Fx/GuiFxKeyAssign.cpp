@@ -60,10 +60,10 @@ GuiFxKeyAssign::GuiFxKeyAssign(const GuiContext& context) :
         GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context),
         GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context),
         GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context),
-        GuiComboBox(context),
+        GuiComboBox(context), GuiComboBox(context), GuiComboBox(context),
     }
 {
-    static_assert(ModPrKey::KeyAssign::NumTargets == 13, "keys の初期化の数を合わせる");
+    static_assert(ModPrKey::KeyAssign::NumTargets == 15, "keys の初期化の数を合わせる");
 }
 
 void GuiFxKeyAssign::setup(juce::Component& parent, int& tabOrder)

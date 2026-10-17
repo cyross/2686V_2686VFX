@@ -45,6 +45,8 @@ the default.
 | `dutyInvert` | boolean | false / true | false |
 | `dutyFc` | boolean | false / true | false |
 | `dutyFcFluc` | decimal | 0 – 1 | 0.2 |
+| `dutyMoreFc` | boolean | false / true | false |
+| `dutyMoreNes` | boolean | false / true | false |
 | `triKeyTrack` | boolean | false / true | true |
 | `triFreq` | decimal | 0 – 8000 | 440 |
 | `triPeak` | decimal | 0 – 1 | 0.5 |
@@ -58,9 +60,11 @@ the default.
 | `fix` | Holding the pitch. It holds `enable` and `freq` |
 | `ampEnv` | The same as [ampEnv](/2686V_2686VFX/en/reference/file-spec/ampenv/) |
 | `pitchEnv` | The same as [pitchEnv](/2686V_2686VFX/en/reference/file-spec/pitchenv/) |
-| `ssgSwEnv` | The same as [ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/) |
-| `ssgSwEnv11` | The same as [ssgSwEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswenv11/) |
-| `ssgSwPEnv11` | The same as [ssgSwPEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswpenv11/) |
+| `ssgSwEnv` | The 6-step SSG SW AMP ENV of 3.6.3 and earlier. Not written from 4.0.0; on load it is carried into `ssgSwEnv256` ([ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/)) |
+| `ssgSwEnv256` | The same as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/) |
+| `ssgSwPEnv256` | The same as [ssgSwPEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswpenv256/) |
+| `dutyEnv` | DUTY RATIO ENVELOPE. Same keys as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/); the values are duty cycles (%) (from 4.0.0) |
+| `peakEnv` | PEAK RATIO ENVELOPE. Same keys as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/); the values are triangle peaks, 0–1 (from 4.0.0) |
 | `mulDetune` | The same as [mulDetune](/2686V_2686VFX/en/reference/file-spec/detune/) |
 | `lfo` | The same as [lfo](/2686V_2686VFX/en/reference/file-spec/lfoopzx7/) |
 | `quality` | The same as [quality](/2686V_2686VFX/en/reference/file-spec/quality/) |

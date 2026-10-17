@@ -353,7 +353,7 @@ TEST_CASE("キーアサイン: FX のパラメータファイルへ書き、読�
     GuiFxKeyAssign::readParams(p.apvts, old.reader());
 
     CHECK((int)std::lround(p.apvts.getRawParameterValue(modId(KA::mode))->load()) == ModPrValue::KeyAssign::custom);
-    CHECK((int)std::lround(p.apvts.getRawParameterValue(keyId(KA::Arpeggio))->load()) == 40 + 12 * 3);
+    CHECK((int)std::lround(p.apvts.getRawParameterValue(keyId(KA::Arpeggio))->load()) == 40 + (int)KA::Arpeggio * 3);
 }
 
 TEST_CASE("キーアサイン: 一覧はカスタマイズのときだけ出る")

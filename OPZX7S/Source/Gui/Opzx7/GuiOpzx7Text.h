@@ -44,17 +44,12 @@ namespace Opzx7GuiText
 		static inline const juce::String enable = u8"Enable";
 	}
 
-	namespace SsgSwEnv
+	namespace SsgSwEnv256
 	{
 		static inline const juce::String enable = u8"Enable";
 	}
 
-	namespace SsgSwEnv11
-	{
-		static inline const juce::String enable = u8"Enable";
-	}
-
-	namespace SsgSwPEnv11
+	namespace SsgSwPEnv256
 	{
 		static inline const juce::String enable = u8"Enable";
 	}
@@ -144,8 +139,6 @@ namespace Opzx7GuiText
 		static inline const juce::String ampEnvFileExport = u8"[EX]Amp Env";
 		static inline const juce::String pitchEnvFileImport = u8"[IM]Pitch Env";
 		static inline const juce::String pitchEnvFileExport = u8"[EX]Pitch Env";
-		static inline const juce::String ssgSwEnvFileImport = u8"[IM]SSG SW Env";
-		static inline const juce::String ssgSwEnvFileExport = u8"[EX]SSG SW Env";
 		static inline const juce::String detuneFileImport = u8"[IM]Detune";
 		static inline const juce::String detuneFileExport = u8"[EX]Detune";
 		static inline const juce::String unisonFileImport = u8"[IM]Unison";

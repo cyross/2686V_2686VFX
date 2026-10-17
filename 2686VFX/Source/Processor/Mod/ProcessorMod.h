@@ -7,12 +7,13 @@
 
 #include "Shared/Core/Processor/ProcessorHelper.h"
 #include "Shared/Core/Processor/ProcessorStructs.h"
+#include "Shared/Core/Processor/ProcessorTapSeq.h"
 
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7.h"
@@ -44,15 +45,28 @@ class ModProcessor
 	// --- 音量側 ---
 	PrPtrsAdsrAmpEnv ptAmpEnv;
 	PrPtrsSsgHwEnv ptSsgHwEnv;
-	PrPtrsSsgSwEnv11 ptSsgSwEnv11;
+	PrPtrsSsgSwEnv256 ptSsgSwEnv256;
 	PrPtrsWtAmpMod ptWtAmpMod;
 	PrPtrsOpzx7Lfo ptLfo;
 
 	// --- 音程側 ---
 	PrPtrsPitchEnv ptPitchEnv;
-	PrPtrsSsgSwPEnv11 ptSsgSwPEnv11;
+	PrPtrsSsgSwPEnv256 ptSsgSwPEnv256;
 	PrPtrsWtMod ptWtMod;
 	PrPtrsSsgHwPEnv ptSsgHwPEnv;
+
+	// --- AMP / PITCH SEQUENCER (4.0.0) ---
+	// 鍵を押すたびに段を 1 つ進める。AMP は押しているあいだ段の割合を掛け、
+	// 離すと音を出さない。PITCH は押しているあいだ段のセントだけずらし、
+	// 離すと元の高さに戻る。
+	TapSeq::Ptrs ptTapAmp;
+	TapSeq::Ptrs ptTapPitch;
+	TapSeqParams tapAmpParams;
+	TapSeqParams tapPitchParams;
+	float tapAmpGain = 1.0f;
+	float tapPitchRatio = 1.0f;
+	bool tapAmpHeld = false;
+	bool tapPitchHeld = false;
 
 	// --- 音程を一定量ずらすもの ---
 	PrPtrsOpzx7Detune ptDetune;
@@ -94,12 +108,12 @@ class ModProcessor
 
 	AmpAdsrEnv ampEnv;
 	SsgHwEnv ssgHwEnv;
-	SsgSwEnv11 ssgSwEnv11;
+	SsgSwEnv256 ssgSwEnv256;
 	WtAmpModulator wtAmpMod;
 	Opzx7LfoCore lfo;
 
 	PitchAdsrEnv pitchEnv;
-	SsgSwPEnv11 ssgSwPEnv11;
+	SsgSwPEnv256 ssgSwPEnv256;
 	WtModulator wtMod;
 	SsgHwPEnv ssgHwPEnv;
 
@@ -153,7 +167,7 @@ public:
 	void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
 
 	// WT PITCH MOD は波形の置き場を見に行くので、一緒に受け取る。
-	void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store);
+	void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store, StepTableStore& stepTables);
 
 	void prepare(double sampleRate);
 

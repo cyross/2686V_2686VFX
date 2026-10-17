@@ -13,6 +13,10 @@ void AdpcmPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parame
     const juce::String prefix = AdpcmPlusPrKey::prefix;
     const juce::String prefixName = AdpcmPlusPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
 
     // FORM・OPTIONAL・PAN は PCM ごと。まとめてここで並べる。
@@ -20,9 +24,8 @@ void AdpcmPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parame
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
@@ -34,8 +37,11 @@ void AdpcmPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parame
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
 }
 
-void AdpcmPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
+void AdpcmPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = AdpcmPlusPrKey::prefix;
+
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
 
     PrHelper::setupAdpcmPlusPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPcmPtrs(apvts, prefix, pQuality);
@@ -43,9 +49,8 @@ void AdpcmPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWa
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
-    PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
-    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);
-    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11);
+    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
+    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
@@ -56,15 +61,18 @@ void AdpcmPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWa
 
 void AdpcmPlusProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyAdpcmPlusBasic(pBasic, params.adpcmPlus);
     PrHelper::applyQualityPcm(pQuality, params.adpcmPlus.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.adpcmPlus.adsr);
     PrHelper::applyWtMod(pWtMod, params.adpcmPlus.wtMod);
     PrHelper::applyWtAmpMod(pWtAmpMod, params.adpcmPlus.wtAmpMod);
-    PrHelper::applySsgSwEnv(pSsgSwEnv, params.adpcmPlus.ssgSwEnv);
-    PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.adpcmPlus.ssgSwEnv11);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.adpcmPlus.ssgSwEnv256);
     PrHelper::applyPitchEnv(pPitchEnv, params.adpcmPlus.pitchAdsr);
-    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.adpcmPlus.ssgSwPEnv11);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.adpcmPlus.ssgSwPEnv256);
     PrHelper::applyOpzx7Detune(pOpzx7Detune, params.adpcmPlus.detune);
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.adpcmPlus.lfo);
     PrHelper::applyFix(pFix, params.adpcmPlus.fix);

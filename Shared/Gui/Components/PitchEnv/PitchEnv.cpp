@@ -306,6 +306,8 @@ void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_cur
 	v.atl = (float)attackLevel.getSlider().getValue();
 	v.ssl = (float)sustainLevel.getSlider().getValue();
 	v.rll = (float)releaseLevel.getSlider().getValue();
+	v.endlEnable = endLevelEnable.getToggleState();
+	v.endl = (float)endLevel.getSlider().getValue();
 
 	graph.updatePitchEnv(
 		v,

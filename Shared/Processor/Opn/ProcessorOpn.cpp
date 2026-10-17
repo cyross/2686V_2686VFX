@@ -12,6 +12,10 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     const juce::String prefix = OpnPrKey::prefix;
     const juce::String prefixName = OpnPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addAlgFbParameters(layout, prefix, prefixName, OpnPrValue::Alg::max, OpnPrValue::Alg::initial);
     PrHelper::addQualityParameters(layout, prefix, prefixName);
@@ -24,12 +28,13 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     // チップ全体へ掛かる MODULATION
     PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addWtAmpModParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
-    // チップ全体へ掛かる SSG SW PENV11。既定はバイパス。
-    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwPEnv11BypassParameter(layout, prefix, prefixName, true);
+    PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
+    // チップ全体へ掛かる SSG SW PITCH ENV[256]。既定はバイパス。
+    PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv256BypassParameter(layout, prefix, prefixName, true);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnv11BypassParameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv256BypassParameters(layout, prefix, prefixName);
+    ValueEnv::addParameters(layout, prefix, prefixName, ValueEnv::alg(OpnPrValue::algorithms));
 
     for (int op = 0; op < OpnPrValue::ops; ++op)
     {
@@ -42,9 +47,9 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         PrHelper::addOpFixParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpEnvEnableParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpPitchEnvParameters(layout, opPrefix, opPrefixName);
-        PrHelper::addOpSsgSwEnvParameters(layout, opPrefix, opPrefixName);
-        PrHelper::addOpSsgSwEnv11Parameters(layout, opPrefix, opPrefixName);
-        PrHelper::addOpSsgSwPEnv11Parameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpSsgSwEnv256Parameters(layout, opPrefix, opPrefixName);
+        ValueEnv::addParameters(layout, opPrefix, opPrefixName, ValueEnv::tl127());
+        PrHelper::addOpSsgSwPEnv256Parameters(layout, opPrefix, opPrefixName);
         PrHelper::addSsgHwPEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addWtAmpModParameters(layout, opPrefix, opPrefixName);
         PrHelper::addSsgHwEnvParameters(layout, opPrefix, opPrefixName);
@@ -54,8 +59,11 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     }
 }
 
-void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
+void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = OpnPrKey::prefix;
+
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
 
     PrHelper::setupOpnBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
@@ -66,8 +74,9 @@ void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
-    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
-    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11g);
+    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256g, stepTables);
+    ValueEnv::setupPtrs(apvts, prefix, ValueEnv::alg(OpnPrValue::algorithms), pAlgEnv, stepTables);
+    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256g, stepTables);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
     for (int op = 0; op < OpnPrValue::ops; ++op)
@@ -78,9 +87,9 @@ void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
         PrHelper::setupOpnAdsrPtrs(apvts, p, pOpAdsr[op]);
         PrHelper::setupFixPtrs(apvts, p, pFix[op]);
         PrHelper::setupPitchEnvPtrsOp(apvts, p, pPitchEnv[op]);
-        PrHelper::setupSsgSwEnvPtrsOp(apvts, p, pSsgSwEnv[op]);
-        PrHelper::setupSsgSwEnv11PtrsOp(apvts, p, pSsgSwEnv11[op]);
-        PrHelper::setupSsgSwPEnv11PtrsOp(apvts, p, pSsgSwPEnv11[op]);
+        PrHelper::setupSsgSwEnv256PtrsOp(apvts, p, pSsgSwEnv256[op], stepTables);
+        ValueEnv::setupPtrs(apvts, p, ValueEnv::tl127(), pTlEnv[op], stepTables);
+        PrHelper::setupSsgSwPEnv256PtrsOp(apvts, p, pSsgSwPEnv256[op], stepTables);
         PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);
         PrHelper::setupWtAmpMod(apvts, p, pOpWtAmpMod[op], modWaves);
         PrHelper::setupSsgHwEnv(apvts, p, pOpSsgHwEnv[op]);
@@ -94,6 +103,10 @@ void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
 void OpnProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyOpnBasic(pBasic, params.opn);
     PrHelper::applyQuality(pQuality, params.opn.quality);
     PrHelper::applyAlgFb(pAlgFb, params.opn.algFb);
@@ -104,18 +117,19 @@ void OpnProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorVal
     PrHelper::applyAdsrAmpEnv(pAmpEnvG, params.opn.ampEnvG);
     PrHelper::applyWtMod(pWtMod, params.opn.wtMod);
     PrHelper::applyWtAmpMod(pWtAmpMod, params.opn.wtAmpMod);
-    PrHelper::applySsgSwEnv11(pSsgSwEnv11g, params.opn.ssgSwEnv11g);
-    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11g, params.opn.ssgSwPEnv11g);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256g, params.opn.ssgSwEnv256g);
+    ValueEnv::apply(pAlgEnv, params.opn.algEnv, params.opn.algEnvEnable);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256g, params.opn.ssgSwPEnv256g);
 
     for (int op = 0; op < OpnPrValue::ops; ++op)
     {
         PrHelper::applyOpnDetune(pOpDetune[op], params.opn.op[op].detune);
         PrHelper::applyOpnAdsr(pOpAdsr[op], params.opn.op[op].m_adsrParams);
         PrHelper::applyFix(pFix[op], params.opn.op[op].fix);
-        PrHelper::applySsgSwEnvOp(pSsgSwEnv[op], params.opn.op[op].ssgSwEnv, params.opn.op[op].ssgEnvEnable);
-        PrHelper::applySsgSwEnv11Op(pSsgSwEnv11[op], params.opn.op[op].ssgSwEnv11, params.opn.op[op].ssgEnv11Enable);
+        PrHelper::applySsgSwEnv256Op(pSsgSwEnv256[op], params.opn.op[op].ssgSwEnv256, params.opn.op[op].ssgEnv256Enable);
+        ValueEnv::apply(pTlEnv[op], params.opn.op[op].tlEnv, params.opn.op[op].tlEnvEnable);
         PrHelper::applyPitchEnvOp(pPitchEnv[op], params.opn.op[op].pitchAdsr, params.opn.op[op].pitchEnvEnable);
-        PrHelper::applySsgSwPEnv11Op(pSsgSwPEnv11[op], params.opn.op[op].ssgSwPEnv11, params.opn.op[op].ssgPEnv11Enable);
+        PrHelper::applySsgSwPEnv256Op(pSsgSwPEnv256[op], params.opn.op[op].ssgSwPEnv256, params.opn.op[op].ssgPEnv256Enable);
         PrHelper::applySsgHwPEnv(pOpSsgHwPEnv[op], params.opn.op[op].ssgHwPEnv);
         PrHelper::applyWtAmpMod(pOpWtAmpMod[op], params.opn.op[op].wtAmpMod);
         PrHelper::applySsgHwEnv(pOpSsgHwEnv[op], params.opn.op[op].ssgHwEnv);

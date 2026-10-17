@@ -28,6 +28,9 @@ class Quality : public GuiBase {
     GuiComboBox rateSelector;
     GuiComboBox interpSelector;
 public:
+    // 区分の見出し。右クリックの IMPORT / EXPORT をつなぐのに使う
+    GuiCategoryLabel& category() { return qualityCat; }
+
     Quality(const GuiContext& context) :
         GuiBase(context),
         qualityCat(context),

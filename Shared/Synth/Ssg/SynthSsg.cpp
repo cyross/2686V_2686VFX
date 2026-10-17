@@ -15,9 +15,12 @@ void SsgCore::prepare(double sampleRate) {
 
     m_adsr.prepare(m_sampleRate);
 	m_pitchAdsr.prepare(0, m_sampleRate);
-	m_ssgSwEnv.prepare(0, m_sampleRate);
-    m_ssgSwEnv11.prepare(0, m_sampleRate);
-    m_ssgSwPenv11.prepare(0, m_sampleRate);
+    m_ssgSwEnv256.prepare(0, m_sampleRate);
+    m_ssgSwPenv256.prepare(0, m_sampleRate);
+
+    // DUTY / PEAK RATIO ENV はカーブを持たない
+    m_dutyEnv.prepare(0, -1, m_sampleRate);
+    m_peakEnv.prepare(0, -1, m_sampleRate);
 
     m_targetRate = getTargetRate(m_rateIndex);
 
@@ -32,9 +35,8 @@ void SsgCore::setCurveCore(CurveCore* p_curveCore)
 {
     m_adsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
-    m_ssgSwEnv11.setCurveCore(p_curveCore);
-    m_ssgSwPenv11.setCurveCore(p_curveCore);
+    m_ssgSwEnv256.setCurveCore(p_curveCore);
+    m_ssgSwPenv256.setCurveCore(p_curveCore);
 }
 
 void SsgCore::setSampleRate(double sampleRate) {
@@ -42,9 +44,10 @@ void SsgCore::setSampleRate(double sampleRate) {
 
     m_adsr.updateSampleRate(m_sampleRate);
     m_pitchAdsr.updateSampleRate(m_sampleRate);
-    m_ssgSwEnv.updateSampleRate(m_sampleRate);
-    m_ssgSwEnv11.updateSampleRate(m_sampleRate);
-    m_ssgSwPenv11.updateSampleRate(m_sampleRate);
+    m_ssgSwEnv256.updateSampleRate(m_sampleRate);
+    m_ssgSwPenv256.updateSampleRate(m_sampleRate);
+    m_dutyEnv.updateTargetSampleRate(m_sampleRate);
+    m_peakEnv.updateTargetSampleRate(m_sampleRate);
 }
 
 void SsgCore::setParameters(const SynthCoreParams& params)
@@ -64,9 +67,12 @@ void SsgCore::setParameters(const SynthCoreParams& params)
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
     m_detune.setParameters(params.ssg.detune);
-	m_ssgSwEnv.setParameters(params.ssg.ssgSwEnv);
-    m_ssgSwEnv11.setParameters(params.ssg.ssgSwEnv11);
-    m_ssgSwPenv11.setParameters(params.ssg.ssgSwPEnv11);
+    m_ssgSwEnv256.setParameters(params.ssg.ssgSwEnv256);
+    m_ssgSwPenv256.setParameters(params.ssg.ssgSwPEnv256);
+    m_dutyEnvEnable = params.ssg.dutyEnvEnable;
+    m_dutyEnv.setParameters(params.ssg.dutyEnv);
+    m_peakEnvEnable = params.ssg.peakEnvEnable;
+    m_peakEnv.setParameters(params.ssg.peakEnv);
     m_lfo.setParameters(params.ssg.lfo);
     m_ssgHwEnv.setParameters(params.ssg.env);
     m_ssgHwPEnv.setParameters(params.ssg.ssgHwPEnv);
@@ -83,6 +89,8 @@ void SsgCore::setParameters(const SynthCoreParams& params)
     m_dutyInvert = params.ssg.duty.invert;
     m_dutyFc = params.ssg.duty.fc;
     m_dutyFcFluc = params.ssg.duty.fcFluc;
+    m_dutyMoreFc = params.ssg.duty.moreFc;
+    m_dutyMoreNes = params.ssg.duty.moreNes;
 
     m_triKeyTrack = params.ssg.tri.keyTrack;
     m_triPeak = params.ssg.tri.peak;
@@ -157,11 +165,17 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
             m_lfo.noteOn();
         }
 
+        // 2A03 は $4003 / $4007 を書くとシーケンサが先頭へ戻る。ドライバは
+        // 押すたびに書くので、ユニゾンのずらしを使わず先頭から鳴らす
+        // (デューティ比 12.5〜50% は Low の段から始まる)。
+        if (is2A03()) m_phase = 0.0f;
+
         m_ssgHwEnv.noteOn();
         m_ssgHwPEnv.noteOn();
         m_rateAccumulator = 0.0;
         m_interp.reset();
         m_lastSample = 0.0f;
+        m_2a03Filter.reset();
     }
 
     if (!isLegato) {
@@ -171,25 +185,24 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
             m_pitchAdsr.noteOn();
         }
 
-        if (!m_ssgSwEnv.isBypass()) {
-            m_ssgSwEnv.noteOn();
+        if (!m_ssgSwEnv256.isBypass()) {
+            m_ssgSwEnv256.noteOn();
         }
 
-        if (!m_ssgSwEnv11.isBypass()) {
-            m_ssgSwEnv11.noteOn();
+        if (!m_ssgSwPenv256.isBypass()) {
+            m_ssgSwPenv256.noteOn();
         }
 
-        if (!m_ssgSwPenv11.isBypass()) {
-            m_ssgSwPenv11.noteOn();
-        }
+        if (m_dutyEnvEnable) m_dutyEnv.noteOn();
+        if (m_peakEnvEnable) m_peakEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
     }
 
-    if (!m_ssgSwPenv11.isBypass() && m_pitchResetOnLegato) {
-        m_ssgSwPenv11.noteOn();
+    if (!m_ssgSwPenv256.isBypass() && m_pitchResetOnLegato) {
+        m_ssgSwPenv256.noteOn();
     }
 }
 
@@ -201,20 +214,19 @@ void SsgCore::noteOff()
         m_pitchAdsr.noteOff();
     }
 
-    if (!m_ssgSwEnv.isBypass()) {
-        m_ssgSwEnv.noteOff();
+    if (!m_ssgSwEnv256.isBypass()) {
+        m_ssgSwEnv256.noteOff();
     }
 
-    if (!m_ssgSwEnv11.isBypass()) {
-        m_ssgSwEnv11.noteOff();
+    if (!m_ssgSwPenv256.isBypass()) {
+        m_ssgSwPenv256.noteOff();
     }
 
-    if (!m_ssgSwPenv11.isBypass()) {
-        m_ssgSwPenv11.noteOff();
-    }
+    if (m_dutyEnvEnable) m_dutyEnv.noteOff();
+    if (m_peakEnvEnable) m_peakEnv.noteOff();
 }
 
-bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying() || m_ssgSwEnv11.isPlaying(); }
+bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv256.isPlaying(); }
 
 // ピッチベンド (0 - 16383, Center=8192)
 void SsgCore::setPitchBend(int pitchWheelValue)
@@ -250,17 +262,16 @@ void SsgCore::setPitchBendRatio(float ratio)
 float SsgCore::getSample()
 {
     // すべてのアンプエンベロープがバイパスされているかどうかを判定
-    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
+    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv256.isBypass();
 
     if (isAllAmpBypassed) {
         // 全てのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作
         // どれかが Release 状態（noteOffが呼ばれた直後）なら、即座に音を消す
-        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
+        if (m_adsr.isRelease() || m_ssgSwEnv256.isRelease()) {
             m_adsr.bypassedReleasedProcess();
-            m_ssgSwEnv.bypassedReleasedProcess();
-            m_ssgSwEnv11.bypassedReleasedProcess();
+            m_ssgSwEnv256.bypassedReleasedProcess();
             m_pitchAdsr.bypassedReleasedProcess();
-            m_ssgSwPenv11.bypassedReleasedProcess();
+            m_ssgSwPenv256.bypassedReleasedProcess();
             return 0.0f;
         }
     }
@@ -268,7 +279,7 @@ float SsgCore::getSample()
         // いずれかのアンプエンベロープが有効で、全ての再生が終了（音が減衰しきった）時
         // ピッチエンベロープも強制終了させる（次のノートオンでピッチが変になるのを防ぐ）
         m_pitchAdsr.bypassedReleasedProcess();
-        m_ssgSwPenv11.bypassedReleasedProcess();
+        m_ssgSwPenv256.bypassedReleasedProcess();
         return 0.0f;
     }
 
@@ -290,20 +301,12 @@ float SsgCore::getSample()
             }
         }
 
-        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-        if (!m_ssgSwEnv.isBypass()) {
-            finalEnv *= m_ssgSwEnv.process();
-        }
-        else {
-            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
-        }
-
         // 3. SSG Sw Env 11 処理
-        if (!m_ssgSwEnv11.isBypass()) {
-            finalEnv *= m_ssgSwEnv11.process();
+        if (!m_ssgSwEnv256.isBypass()) {
+            finalEnv *= m_ssgSwEnv256.process();
         }
         else {
-            if (m_ssgSwEnv11.isRelease()) m_ssgSwEnv11.bypassedReleasedProcess();
+            if (m_ssgSwEnv256.isRelease()) m_ssgSwEnv256.bypassedReleasedProcess();
         }
     }
 
@@ -312,7 +315,17 @@ float SsgCore::getSample()
     m_rateAccumulator += stepSize;
 
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
-    newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
+    newPhaseDelta = m_ssgSwPenv256.process(newPhaseDelta);
+
+    // 矩形波のデューティ比。DUTY RATIO ENV が入っていればその値 (Invert は掛けない)、
+    // 切っていれば MODE と Invert で決まる値。
+    float pulseDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
+
+    if (m_dutyInvert) pulseDuty = 1.0f - pulseDuty;
+    if (m_dutyEnvEnable) pulseDuty = std::clamp(m_dutyEnv.process() / 100.0f, 0.0f, 1.0f);
+
+    // 三角波の頂点。PEAK RATIO ENV が入っていればその値。
+    const float triPeak = m_peakEnvEnable ? std::clamp(m_peakEnv.process(), 0.0f, 1.0f) : m_triPeak;
 
     // Update core logic only when virtual clock ticks
     while (m_rateAccumulator >= 1.0)
@@ -370,6 +383,21 @@ float SsgCore::getSample()
         // FORM の TONE の VALUE: 鍵盤の周波数へ To から決まる倍率を掛ける
         phaseInc *= m_toneRatio;
 
+        // 2A03 の鳴り方では、周波数を 11bit タイマーの刻みへ寄せる。
+        // 実際に位相を進める量 (速さを掛けたもの) で寄せ、t < 8 は鳴らさない。
+        const bool use2A03 = is2A03();
+        bool silent2A03 = false;
+
+        if (use2A03) {
+            m_2a03Filter.prepare(m_targetRate, m_dutyMoreFc ? Pulse2A03::OutputFilter::Model::Fc : Pulse2A03::OutputFilter::Model::Nes);
+
+            const double effective = (double)phaseInc * (double)m_speed * m_targetRate;
+            const double quantized = Pulse2A03::quantizeFrequency(effective);
+
+            if (quantized <= 0.0 || m_speed <= 0.0f) silent2A03 = true;
+            else phaseInc = (float)(quantized / m_targetRate / (double)m_speed);
+        }
+
         // ==========================================
         // 1. Hardware Envelope Update
         // ==========================================
@@ -390,10 +418,15 @@ float SsgCore::getSample()
 
         if (m_waveform == 0) // Pulse
         {
-            if (m_dutyFc) {
-                float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
+            if (use2A03) {
+                // FC FLUC とは別物。実機の 4 種のデューティ比へ寄せ、0 / 1 の単極で出す。
+                // 直流はあとのフィルタが抜く。
+                float currentDuty = pulseDuty;
 
-                if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
+                toneSample = silent2A03 ? 0.0f : Pulse2A03::sample(wavePhase, Pulse2A03::nearestDuty(currentDuty));
+            }
+            else if (m_dutyFc) {
+                float currentDuty = pulseDuty;
 
                 // 極端なデューティ比による波形消失を防ぐ最低保証
                 float minDuty = phaseInc;
@@ -404,9 +437,7 @@ float SsgCore::getSample()
                 fcFluc = (wavePhase < currentDuty) ? -m_dutyFcFluc * (wavePhase / currentDuty) : m_dutyFcFluc * ((wavePhase - currentDuty) / (1.0f - currentDuty));
             }
             else {
-                float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
-
-                if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
+                float currentDuty = pulseDuty;
 
                 // 極端なデューティ比による波形消失を防ぐ最低保証
                 float minDuty = phaseInc;
@@ -419,7 +450,7 @@ float SsgCore::getSample()
         else // Triangle
         {
             float phaseNorm = wavePhase;
-            float k = m_triPeak;
+            float k = triPeak;
             if (k < 0.001f) k = 0.001f;
             if (k > 0.999f) k = 0.999f;
 
@@ -432,6 +463,10 @@ float SsgCore::getSample()
 
         // 決めた回数まで回したら、キーが離れるまで同じ値を出し続ける
         if (m_hold.isHolding()) toneSample = m_hold.holdValue();
+
+        // 2A03 の出力の後ろのフィルタ。単極の 0〜1 を通すので、振れ幅を
+        // ほかの矩形波 (-1〜1) へ揃えるために 2 倍する。
+        if (use2A03) toneSample = m_2a03Filter.process(toneSample) * 2.0f;
 
         m_phase += phaseInc * m_speed;
         // ピッチエンベロープや PM で 1 サンプルの進みが 1.0 を超えても
@@ -486,6 +521,9 @@ float SsgCore::getSample()
     float fraction = (float)m_rateAccumulator;
 
     float interpolatedSample = m_interp.read(m_interpMode, fraction);
+
+    // 2A03 の音量は 4bit。エンベロープの値を 16 段へ丸め、DAC の曲がりを通す。
+    if (is2A03()) finalEnv = Pulse2A03::volume(finalEnv);
 
     return interpolatedSample * finalEnv * m_baseLevel * m_level * 4.0f;
 }

@@ -1901,7 +1901,6 @@ void AudioPlugin2686VEditor::copyOpnParamsToOpna() {
         opnaOpParams.fix = opnOpParams.fix;
         opnaOpParams.n88Lfo = opnOpParams.n88Lfo;
         opnaOpParams.pAdsr = opnOpParams.pAdsr;
-        opnaOpParams.aSsgSw = opnOpParams.aSsgSw;
         opnaOpParams.mask = opnOpParams.mask;
         opnaOpParams.waveSelect = 0;
         opnaOpParams.ssgEg.ssgEg = 0;
@@ -1946,7 +1945,6 @@ void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
         opnOpParams.fix = opnaOpParams.fix;
         opnOpParams.n88Lfo = opnaOpParams.n88Lfo;
         opnOpParams.pAdsr = opnaOpParams.pAdsr;
-        opnOpParams.aSsgSw = opnaOpParams.aSsgSw;
         opnOpParams.mask = opnaOpParams.mask;
 
         opnGui->pasteOpParams(i, opnOpParams); // OP1 -> OP1 / OP2 -> OP2

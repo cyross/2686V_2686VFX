@@ -176,48 +176,6 @@ struct CopyPEnvSsgHw {
 	bool smooth;
 };
 
-struct CopyEnvSsgSw {
-	bool flag;
-
-	int steps;
-	bool loop;
-	int loopTo;
-	int loopCount;
-	float stl;
-	std::array<float, 6> r = { 0.0f };
-	std::array<float, 6> l = { 0.0f };
-};
-
-struct CopyEnvSsgSw11 {
-	bool flag;
-
-	int steps;
-	bool loop;
-	int loopTo;
-	int loopCount;
-	float stl;
-	std::array<float, 11> r = { 0.0f };
-	std::array<float, 11> l = { 0.0f };
-	float endl;
-	bool endlEnable;
-	bool keep;
-};
-
-struct CopyPEnvSsgSw11 {
-	bool flag;
-
-	int steps;
-	bool loop;
-	int loopTo;
-	int loopCount;
-	int stl;
-	std::array<float, 11> r = { 0.0f };
-	std::array<int, 11> l = { 0 };
-	int endl;
-	bool endlEnable;
-	bool keep;
-};
-
 struct CopyEnvPitchAdsr {
 	bool flag;
 
@@ -388,9 +346,6 @@ struct CopyOplOp {
 	CopyEnvOplAdsr aAdsr;
 	CopyLfoOpl lfo;
 	CopyEnvPitchAdsr pAdsr;
-	CopyEnvSsgSw aSsgSw;
-	CopyEnvSsgSw11 aSsgSw11;
-	CopyPEnvSsgSw11 pEnvSsgSw11;
 	CopyMask mask;
 
 	int waveSelect;
@@ -407,9 +362,6 @@ struct CopyOpl3Op {
 	CopyEnvOplAdsr aAdsr;
 	CopyLfoOpl lfo;
 	CopyEnvPitchAdsr pAdsr;
-	CopyEnvSsgSw aSsgSw;
-	CopyEnvSsgSw11 aSsgSw11;
-	CopyPEnvSsgSw11 pEnvSsgSw11;
 	CopyMask mask;
 
 	int waveSelect;
@@ -430,9 +382,6 @@ struct CopyOpmOp {
 	CopyFix fix;
 	CopyLfoOpmOp lfo;
 	CopyEnvPitchAdsr pAdsr;
-	CopyEnvSsgSw aSsgSw;
-	CopyEnvSsgSw11 aSsgSw11;
-	CopyPEnvSsgSw11 pEnvSsgSw11;
 	CopyMask mask;
 
 	int waveSelect;
@@ -457,9 +406,6 @@ struct CopyOpnOp {
 	CopyFix fix;
 	CopyLfoN88Op n88Lfo;
 	CopyEnvPitchAdsr pAdsr;
-	CopyEnvSsgSw aSsgSw;
-	CopyEnvSsgSw11 aSsgSw11;
-	CopyPEnvSsgSw11 pEnvSsgSw11;
 	CopyMask mask;
 };
 
@@ -468,9 +414,6 @@ struct CopyOpnOpmOp {
 	CopyEnvRgAdssr aAdsr;
 	CopyFix fix;
 	CopyEnvPitchAdsr pAdsr;
-	CopyEnvSsgSw aSsgSw;
-	CopyEnvSsgSw11 aSsgSw11;
-	CopyPEnvSsgSw11 pEnvSsgSw11;
 	CopyMask mask;
 };
 
@@ -490,9 +433,6 @@ struct CopyOpnaOp {
 	CopyLfoOpna opnaLfo;
 	CopyLfoN88Op n88Lfo;
 	CopyEnvPitchAdsr pAdsr;
-	CopyEnvSsgSw aSsgSw;
-	CopyEnvSsgSw11 aSsgSw11;
-	CopyPEnvSsgSw11 pEnvSsgSw11;
 	CopyMask mask;
 
 	int waveSelect;
@@ -512,9 +452,6 @@ struct CopyOpnaOpnOpmOp {
 	CopyLfoOpna opnaLfo;
 	CopyLfoN88Op n88Lfo;
 	CopyEnvPitchAdsr pAdsr;
-	CopyEnvSsgSw aSsgSw;
-	CopyEnvSsgSw11 aSsgSw11;
-	CopyPEnvSsgSw11 pEnvSsgSw11;
 	CopyMask mask;
 
 	int waveSelect;
@@ -538,9 +475,6 @@ struct CopyOpzx7Op {
 	CopyWt wt2;
 	CopyLfoOpzx7 lfo;
 	CopyEnvPitchAdsr pAdsr;
-	CopyEnvSsgSw aSsgSw;
-	CopyEnvSsgSw11 aSsgSw11;
-	CopyPEnvSsgSw11 pEnvSsgSw11;
 	CopyMask mask;
 
 	int waveSelect;

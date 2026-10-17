@@ -20,12 +20,15 @@
 //         切ると波形 (音声) とファイル名だけを写す。
 //   消去: TARGET (番号のトグル、いくつでも) を選ぶ。波形もパラメータも
 //         初期の状態へ戻す。
+//   区分の複写: 区分の見出しの右クリック (DUPLICATE) から出す。写し元は
+//         いま見ている単位 (OP / PAD / TARGET) で、写し先をトグルで選ぶ。
+//         FROM と「パラメータも複写」は出さない。
 //
 // ESC で閉じる。開いているときに同じボタンをもう一度押すと閉じる (open)。
 class GuiTargetsDialog : public juce::Component, public GuiBaseComponent
 {
 public:
-	enum class Mode { Duplicate, Clear };
+	enum class Mode { Duplicate, Clear, DuplicateTo };
 
 	struct Config
 	{
@@ -43,6 +46,17 @@ public:
 
 		// 消す。targets は 0 から数えた番目
 		std::function<void(const std::vector<int>& targets)> onClear = nullptr;
+
+		// 区分の複写 (DuplicateTo)。targets は 0 から数えた番目。写し元
+		// (current) は選べない
+		std::function<void(const std::vector<int>& targets)> onDuplicateTo = nullptr;
+
+		// 見出しとトグルの名前。空なら既定 (見出しは種類から、トグルは番号)
+		juce::String title;
+		std::vector<juce::String> names;
+
+		// 閉じたあとに呼ぶ。持ち主が片付けるときに使う
+		std::function<void()> onClosed = nullptr;
 	};
 
 	GuiTargetsDialog(const GuiContext& context);

@@ -17,10 +17,9 @@
 #include "Shared/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
 #include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Effect/Detune/Opl/DetuneOplParams.h"
@@ -201,114 +200,38 @@ namespace PrHelper {
 		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::Adsr::endlEnable);
 	}
 
-	static inline void setupSsgSwEnvPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv& ptPtrs){
-		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::ssgSwEnv + CPK::bypass);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopCount);
-		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r1);
-		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r2);
-		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r3);
-		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r4);
-		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r5);
-		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r6);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::stl);
-		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l1);
-		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l2);
-		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l3);
-		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l4);
-		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l5);
-		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l6);
+	static inline void setupSsgSwEnv256Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv256& ptPtrs, StepTableStore& tables){
+		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::bypass);
+		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::steps);
+		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loop);
+		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopTo);
+		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopCount);
+		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::stl);
+		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::lr);
+		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::rr);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::keep);
+
+		// 段の R / L はプロセッサが持つ表から引く
+		ptPtrs.table = &tables.get(prefix + CPK::ssgSwEnv256, (float)CPV::SsgSwEnv256::R::initial, (float)CPV::SsgSwEnv256::L::initial);
 	}
 
-	static inline void setupSsgSwEnvPtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnvOp& ptPtrs){
-		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::enable);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopCount);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::stl);
-		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r1);
-		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l1);
-		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r2);
-		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l2);
-		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r3);
-		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l3);
-		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r4);
-		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l4);
-		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r5);
-		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l5);
-		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r6);
-		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l6);
-	}
+	static inline void setupSsgSwEnv256PtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv256Op& ptPtrs, StepTableStore& tables){
+		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::enable);
+		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::steps);
+		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loop);
+		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopTo);
+		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopCount);
+		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::stl);
+		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::lr);
+		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::rr);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::keep);
 
-	static inline void setupSsgSwEnv11Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv11& ptPtrs){
-		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::bypass);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::loopCount);
-		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r1);
-		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r2);
-		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r3);
-		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r4);
-		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r5);
-		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r6);
-		ptPtrs.r7 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r7);
-		ptPtrs.r8 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r8);
-		ptPtrs.r9 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r9);
-		ptPtrs.r10 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r10);
-		ptPtrs.r11 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r11);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::stl);
-		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l1);
-		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l2);
-		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l3);
-		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l4);
-		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l5);
-		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l6);
-		ptPtrs.l7 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l7);
-		ptPtrs.l8 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l8);
-		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l9);
-		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l10);
-		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l11);
-		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::endl);
-		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::endlEnable);
-		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::keep);
-	}
-
-	static inline void setupSsgSwEnv11PtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv11Op& ptPtrs){
-		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::enable);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::loopCount);
-		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r1);
-		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r2);
-		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r3);
-		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r4);
-		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r5);
-		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r6);
-		ptPtrs.r7 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r7);
-		ptPtrs.r8 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r8);
-		ptPtrs.r9 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r9);
-		ptPtrs.r10 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r10);
-		ptPtrs.r11 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::r11);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::stl);
-		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l1);
-		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l2);
-		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l3);
-		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l4);
-		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l5);
-		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l6);
-		ptPtrs.l7 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l7);
-		ptPtrs.l8 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l8);
-		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l9);
-		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l10);
-		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::l11);
-		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::endl);
-		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::endlEnable);
-		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv11::keep);
+		// 段の R / L はプロセッサが持つ表から引く
+		ptPtrs.table = &tables.get(prefix + CPK::ssgSwEnv256, (float)CPV::SsgSwEnv256::R::initial, (float)CPV::SsgSwEnv256::L::initial);
 	}
 
 	static inline void setupPitchEnvPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPitchEnv& ptPtrs){
@@ -339,72 +262,38 @@ namespace PrHelper {
 		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::PitchAdsr::keep);
 	}
 
-	static inline void setupSsgSwPEnv11Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwPEnv11& ptPtrs){
-		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::bypass);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::loopCount);
-		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r1);
-		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r2);
-		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r3);
-		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r4);
-		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r5);
-		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r6);
-		ptPtrs.r7 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r7);
-		ptPtrs.r8 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r8);
-		ptPtrs.r9 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r9);
-		ptPtrs.r10 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r10);
-		ptPtrs.r11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r11);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::stl);
-		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l1);
-		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l2);
-		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l3);
-		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l4);
-		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l5);
-		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l6);
-		ptPtrs.l7 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l7);
-		ptPtrs.l8 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l8);
-		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l9);
-		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l10);
-		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l11);
-		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::endl);
-		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::endlEnable);
-		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::keep);
+	static inline void setupSsgSwPEnv256Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwPEnv256& ptPtrs, StepTableStore& tables){
+		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::bypass);
+		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::steps);
+		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loop);
+		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopTo);
+		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopCount);
+		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::stl);
+		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::lr);
+		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::rr);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::keep);
+
+		// 段の R / L はプロセッサが持つ表から引く
+		ptPtrs.table = &tables.get(prefix + CPK::ssgSwPEnv256, (float)CPV::SsgSwPEnv256::R::initial, (float)CPV::SsgSwPEnv256::L::initial);
 	}
 
-	static inline void setupSsgSwPEnv11PtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwPEnv11Op& ptPtrs){
-		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::enable);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::loopCount);
-		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r1);
-		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r2);
-		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r3);
-		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r4);
-		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r5);
-		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r6);
-		ptPtrs.r7 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r7);
-		ptPtrs.r8 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r8);
-		ptPtrs.r9 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r9);
-		ptPtrs.r10 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r10);
-		ptPtrs.r11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::r11);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::stl);
-		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l1);
-		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l2);
-		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l3);
-		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l4);
-		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l5);
-		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l6);
-		ptPtrs.l7 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l7);
-		ptPtrs.l8 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l8);
-		ptPtrs.l9 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l9);
-		ptPtrs.l10 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l10);
-		ptPtrs.l11 = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::l11);
-		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::endl);
-		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::endlEnable);
-		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv11::keep);
+	static inline void setupSsgSwPEnv256PtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwPEnv256Op& ptPtrs, StepTableStore& tables){
+		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::enable);
+		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::steps);
+		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loop);
+		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopTo);
+		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopCount);
+		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::stl);
+		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::lr);
+		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::rr);
+		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endl);
+		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endlEnable);
+		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::keep);
+
+		// 段の R / L はプロセッサが持つ表から引く
+		ptPtrs.table = &tables.get(prefix + CPK::ssgSwPEnv256, (float)CPV::SsgSwPEnv256::R::initial, (float)CPV::SsgSwPEnv256::L::initial);
 	}
 
 	static inline void setupOplDetunePtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOplDetune& ptPtrs){
@@ -580,6 +469,8 @@ namespace PrHelper {
 		ptPtrs.invert = apvts.getRawParameterValue(prefix + CPK::SsgDuty::inv);
 		ptPtrs.fc = apvts.getRawParameterValue(prefix + CPK::SsgDuty::fc);
 		ptPtrs.fcFluc = apvts.getRawParameterValue(prefix + CPK::SsgDuty::fcFluc);
+		ptPtrs.moreFc = apvts.getRawParameterValue(prefix + CPK::SsgDuty::moreFc);
+		ptPtrs.moreNes = apvts.getRawParameterValue(prefix + CPK::SsgDuty::moreNes);
 	}
 
 	static inline void setupSsgTri(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgTri& ptPtrs){
@@ -906,116 +797,35 @@ namespace PrHelper {
 		params.endlEnable = getBool(ptPtrs.endlEnable);
 	}
 
-	static inline void applySsgSwEnv(PrPtrsSsgSwEnv& ptPtrs, SsgSwEnvParams& params){
+	static inline void applySsgSwEnv256(PrPtrsSsgSwEnv256& ptPtrs, SsgSwEnv256Params& params){
 		params.bypass = getBool(ptPtrs.bypass);
 		params.steps = getInt(ptPtrs.steps);
 		params.loop = getBool(ptPtrs.loop);
 		params.loopTo = getInt(ptPtrs.loopTo);
 		params.loopCount = getInt(ptPtrs.loopCount);
-		params.r1 = getFloat(ptPtrs.r1);
-		params.r2 = getFloat(ptPtrs.r2);
-		params.r3 = getFloat(ptPtrs.r3);
-		params.r4 = getFloat(ptPtrs.r4);
-		params.r5 = getFloat(ptPtrs.r5);
-		params.r6 = getFloat(ptPtrs.r6);
 		params.stl = getFloat(ptPtrs.stl);
-		params.l1 = getFloat(ptPtrs.l1);
-		params.l2 = getFloat(ptPtrs.l2);
-		params.l3 = getFloat(ptPtrs.l3);
-		params.l4 = getFloat(ptPtrs.l4);
-		params.l5 = getFloat(ptPtrs.l5);
-		params.l6 = getFloat(ptPtrs.l6);
+		params.lr = getFloat(ptPtrs.lr);
+		params.rr = getFloat(ptPtrs.rr);
+		params.endl = getFloat(ptPtrs.endl);
+		params.endlEnable = getBool(ptPtrs.endlEnable);
+		params.keep = getBool(ptPtrs.keep);
+		params.table = ptPtrs.table;
 	}
 
-	static inline void applySsgSwEnvOp(PrPtrsSsgSwEnvOp& ptPtrs, SsgSwEnvParams& params, bool& enable){
+	static inline void applySsgSwEnv256Op(PrPtrsSsgSwEnv256Op& ptPtrs, SsgSwEnv256Params& params, bool& enable){
 		enable = getBool(ptPtrs.enable);
 		params.bypass = false;
 		params.steps = getInt(ptPtrs.steps);
 		params.loop = getBool(ptPtrs.loop);
 		params.loopTo = getInt(ptPtrs.loopTo);
 		params.loopCount = getInt(ptPtrs.loopCount);
-		params.r1 = getFloat(ptPtrs.r1);
-		params.r2 = getFloat(ptPtrs.r2);
-		params.r3 = getFloat(ptPtrs.r3);
-		params.r4 = getFloat(ptPtrs.r4);
-		params.r5 = getFloat(ptPtrs.r5);
-		params.r6 = getFloat(ptPtrs.r6);
 		params.stl = getFloat(ptPtrs.stl);
-		params.l1 = getFloat(ptPtrs.l1);
-		params.l2 = getFloat(ptPtrs.l2);
-		params.l3 = getFloat(ptPtrs.l3);
-		params.l4 = getFloat(ptPtrs.l4);
-		params.l5 = getFloat(ptPtrs.l5);
-		params.l6 = getFloat(ptPtrs.l6);
-	}
-
-	static inline void applySsgSwEnv11(PrPtrsSsgSwEnv11& ptPtrs, SsgSwEnv11Params& params){
-		params.bypass = getBool(ptPtrs.bypass);
-		params.steps = getInt(ptPtrs.steps);
-		params.loop = getBool(ptPtrs.loop);
-		params.loopTo = getInt(ptPtrs.loopTo);
-		params.loopCount = getInt(ptPtrs.loopCount);
-		params.r1 = getFloat(ptPtrs.r1);
-		params.r2 = getFloat(ptPtrs.r2);
-		params.r3 = getFloat(ptPtrs.r3);
-		params.r4 = getFloat(ptPtrs.r4);
-		params.r5 = getFloat(ptPtrs.r5);
-		params.r6 = getFloat(ptPtrs.r6);
-		params.r7 = getFloat(ptPtrs.r7);
-		params.r8 = getFloat(ptPtrs.r8);
-		params.r9 = getFloat(ptPtrs.r9);
-		params.r10 = getFloat(ptPtrs.r10);
-		params.r11 = getFloat(ptPtrs.r11);
-		params.stl = getFloat(ptPtrs.stl);
-		params.l1 = getFloat(ptPtrs.l1);
-		params.l2 = getFloat(ptPtrs.l2);
-		params.l3 = getFloat(ptPtrs.l3);
-		params.l4 = getFloat(ptPtrs.l4);
-		params.l5 = getFloat(ptPtrs.l5);
-		params.l6 = getFloat(ptPtrs.l6);
-		params.l7 = getFloat(ptPtrs.l7);
-		params.l8 = getFloat(ptPtrs.l8);
-		params.l9 = getFloat(ptPtrs.l9);
-		params.l10 = getFloat(ptPtrs.l10);
-		params.l11 = getFloat(ptPtrs.l11);
+		params.lr = getFloat(ptPtrs.lr);
+		params.rr = getFloat(ptPtrs.rr);
 		params.endl = getFloat(ptPtrs.endl);
 		params.endlEnable = getBool(ptPtrs.endlEnable);
 		params.keep = getBool(ptPtrs.keep);
-	}
-
-	static inline void applySsgSwEnv11Op(PrPtrsSsgSwEnv11Op& ptPtrs, SsgSwEnv11Params& params, bool& enable){
-		enable = getBool(ptPtrs.enable);
-		params.bypass = false;
-		params.steps = getInt(ptPtrs.steps);
-		params.loop = getBool(ptPtrs.loop);
-		params.loopTo = getInt(ptPtrs.loopTo);
-		params.loopCount = getInt(ptPtrs.loopCount);
-		params.r1 = getFloat(ptPtrs.r1);
-		params.r2 = getFloat(ptPtrs.r2);
-		params.r3 = getFloat(ptPtrs.r3);
-		params.r4 = getFloat(ptPtrs.r4);
-		params.r5 = getFloat(ptPtrs.r5);
-		params.r6 = getFloat(ptPtrs.r6);
-		params.r7 = getFloat(ptPtrs.r7);
-		params.r8 = getFloat(ptPtrs.r8);
-		params.r9 = getFloat(ptPtrs.r9);
-		params.r10 = getFloat(ptPtrs.r10);
-		params.r11 = getFloat(ptPtrs.r11);
-		params.stl = getFloat(ptPtrs.stl);
-		params.l1 = getFloat(ptPtrs.l1);
-		params.l2 = getFloat(ptPtrs.l2);
-		params.l3 = getFloat(ptPtrs.l3);
-		params.l4 = getFloat(ptPtrs.l4);
-		params.l5 = getFloat(ptPtrs.l5);
-		params.l6 = getFloat(ptPtrs.l6);
-		params.l7 = getFloat(ptPtrs.l7);
-		params.l8 = getFloat(ptPtrs.l8);
-		params.l9 = getFloat(ptPtrs.l9);
-		params.l10 = getFloat(ptPtrs.l10);
-		params.l11 = getFloat(ptPtrs.l11);
-		params.endl = getFloat(ptPtrs.endl);
-		params.endlEnable = getBool(ptPtrs.endlEnable);
-		params.keep = getBool(ptPtrs.keep);
+		params.table = ptPtrs.table;
 	}
 
 	static inline void applyPitchEnv(PrPtrsPitchEnv& ptPtrs, PitchAdsrParams& params){
@@ -1047,73 +857,35 @@ namespace PrHelper {
 		params.keep = getBool(ptPtrs.keep);
 	}
 
-	static inline void applySsgSwPEnv11(PrPtrsSsgSwPEnv11& ptPtrs, SsgSwPEnv11Params& params){
+	static inline void applySsgSwPEnv256(PrPtrsSsgSwPEnv256& ptPtrs, SsgSwPEnv256Params& params){
 		params.bypass = getBool(ptPtrs.bypass);
 		params.steps = getInt(ptPtrs.steps);
 		params.loop = getBool(ptPtrs.loop);
 		params.loopTo = getInt(ptPtrs.loopTo);
 		params.loopCount = getInt(ptPtrs.loopCount);
-		params.r1 = getFloat(ptPtrs.r1);
-		params.r2 = getFloat(ptPtrs.r2);
-		params.r3 = getFloat(ptPtrs.r3);
-		params.r4 = getFloat(ptPtrs.r4);
-		params.r5 = getFloat(ptPtrs.r5);
-		params.r6 = getFloat(ptPtrs.r6);
-		params.r7 = getFloat(ptPtrs.r7);
-		params.r8 = getFloat(ptPtrs.r8);
-		params.r9 = getFloat(ptPtrs.r9);
-		params.r10 = getFloat(ptPtrs.r10);
-		params.r11 = getFloat(ptPtrs.r11);
-		params.stl = getInt(ptPtrs.stl);
-		params.l1 = getInt(ptPtrs.l1);
-		params.l2 = getInt(ptPtrs.l2);
-		params.l3 = getInt(ptPtrs.l3);
-		params.l4 = getInt(ptPtrs.l4);
-		params.l5 = getInt(ptPtrs.l5);
-		params.l6 = getInt(ptPtrs.l6);
-		params.l7 = getInt(ptPtrs.l7);
-		params.l8 = getInt(ptPtrs.l8);
-		params.l9 = getInt(ptPtrs.l9);
-		params.l10 = getInt(ptPtrs.l10);
-		params.l11 = getInt(ptPtrs.l11);
-		params.endl = getInt(ptPtrs.endl);
+		params.stl = getFloat(ptPtrs.stl);
+		params.lr = getFloat(ptPtrs.lr);
+		params.rr = getFloat(ptPtrs.rr);
+		params.endl = getFloat(ptPtrs.endl);
 		params.endlEnable = getBool(ptPtrs.endlEnable);
 		params.keep = getBool(ptPtrs.keep);
+		params.table = ptPtrs.table;
 	}
 
-	static inline void applySsgSwPEnv11Op(PrPtrsSsgSwPEnv11Op& ptPtrs, SsgSwPEnv11Params& params, bool& enable){
+	static inline void applySsgSwPEnv256Op(PrPtrsSsgSwPEnv256Op& ptPtrs, SsgSwPEnv256Params& params, bool& enable){
 		enable = getBool(ptPtrs.enable);
 		params.bypass = false;
 		params.steps = getInt(ptPtrs.steps);
 		params.loop = getBool(ptPtrs.loop);
 		params.loopTo = getInt(ptPtrs.loopTo);
 		params.loopCount = getInt(ptPtrs.loopCount);
-		params.r1 = getFloat(ptPtrs.r1);
-		params.r2 = getFloat(ptPtrs.r2);
-		params.r3 = getFloat(ptPtrs.r3);
-		params.r4 = getFloat(ptPtrs.r4);
-		params.r5 = getFloat(ptPtrs.r5);
-		params.r6 = getFloat(ptPtrs.r6);
-		params.r7 = getFloat(ptPtrs.r7);
-		params.r8 = getFloat(ptPtrs.r8);
-		params.r9 = getFloat(ptPtrs.r9);
-		params.r10 = getFloat(ptPtrs.r10);
-		params.r11 = getFloat(ptPtrs.r11);
-		params.stl = getInt(ptPtrs.stl);
-		params.l1 = getInt(ptPtrs.l1);
-		params.l2 = getInt(ptPtrs.l2);
-		params.l3 = getInt(ptPtrs.l3);
-		params.l4 = getInt(ptPtrs.l4);
-		params.l5 = getInt(ptPtrs.l5);
-		params.l6 = getInt(ptPtrs.l6);
-		params.l7 = getInt(ptPtrs.l7);
-		params.l8 = getInt(ptPtrs.l8);
-		params.l9 = getInt(ptPtrs.l9);
-		params.l10 = getInt(ptPtrs.l10);
-		params.l11 = getInt(ptPtrs.l11);
-		params.endl = getInt(ptPtrs.endl);
+		params.stl = getFloat(ptPtrs.stl);
+		params.lr = getFloat(ptPtrs.lr);
+		params.rr = getFloat(ptPtrs.rr);
+		params.endl = getFloat(ptPtrs.endl);
 		params.endlEnable = getBool(ptPtrs.endlEnable);
 		params.keep = getBool(ptPtrs.keep);
+		params.table = ptPtrs.table;
 	}
 
 	static inline void applyOplDetune(PrPtrsOplDetune& ptPtrs, OplDetuneParams& params){
@@ -1305,6 +1077,8 @@ namespace PrHelper {
 		params.invert = getBool(ptPtrs.invert);
 		params.fc = getBool(ptPtrs.fc);
 		params.fcFluc = getFloat(ptPtrs.fcFluc);
+		params.moreFc = getBool(ptPtrs.moreFc);
+		params.moreNes = getBool(ptPtrs.moreNes);
 	}
 
 	static inline void applySsgTri(PrPtrsSsgTri& ptPtrs, SsgTriParams& params){
@@ -1754,46 +1528,6 @@ namespace PrHelper {
 	static inline void addPitchEnvLevel(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
 	{
 		PrHelper::addInt(layout, code, name, CPV::PitchAdsr::L::min, CPV::PitchAdsr::L::max, CPV::PitchAdsr::L::initial);
-	}
-
-	static inline void addSsgSwEnvRate(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwEnv::R::min, CPV::SsgSwEnv::R::max, CPV::SsgSwEnv::R::initial);
-	}
-
-	static inline void addSsgSwEnvLevel(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwEnv::L::min, CPV::SsgSwEnv::L::max, CPV::SsgSwEnv::L::initial);
-	}
-
-	static inline void addSsgSwEnvSRLevel(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwEnv::SRL::min, CPV::SsgSwEnv::SRL::max, CPV::SsgSwEnv::SRL::initial);
-	}
-
-	static inline void addSsgSwEnv11Rate(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwEnv11::R::min, CPV::SsgSwEnv11::R::max, CPV::SsgSwEnv11::R::initial);
-	}
-
-	static inline void addSsgSwEnv11Level(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwEnv11::L::min, CPV::SsgSwEnv11::L::max, CPV::SsgSwEnv11::L::initial);
-	}
-
-	static inline void addSsgSwEnv11SRLevel(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwEnv11::SRL::min, CPV::SsgSwEnv11::SRL::max, CPV::SsgSwEnv11::SRL::initial);
-	}
-
-	static inline void addSsgSwPenv11Rate(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwPEnv11::R::min, CPV::SsgSwPEnv11::R::max, CPV::SsgSwPEnv11::R::initial);
-	}
-
-	static inline void addSsgSwPenv11Level(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addInt(layout, code, name, CPV::SsgSwPEnv11::L::min, CPV::SsgSwPEnv11::L::max, CPV::SsgSwPEnv11::L::initial);
 	}
 
 	static inline void addDelayParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -2482,362 +2216,88 @@ namespace PrHelper {
 		);
 	}
 
-	static inline void addSsgSwEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
+	static inline void addSsgSwEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
 	{
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::steps, 
-			prefixName + CPN::SsgSwEnv::steps, 
-			CPV::SsgSwEnv::Steps::min, CPV::SsgSwEnv::Steps::max, CPV::SsgSwEnv::Steps::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwEnv::loop, 
-			prefixName + CPN::SsgSwEnv::loop, 
-			CPV::SsgSwEnv::Loop::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::loopTo, 
-			prefixName + CPN::SsgSwEnv::loopTo, 
-			CPV::SsgSwEnv::LoopTo::min, CPV::SsgSwEnv::LoopTo::max, CPV::SsgSwEnv::LoopTo::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::loopCount, 
-			prefixName + CPN::SsgSwEnv::loopCount, 
-			CPV::SsgSwEnv::LoopCount::min, CPV::SsgSwEnv::LoopCount::max, CPV::SsgSwEnv::LoopCount::initial
-		);
-		PrHelper::addSsgSwEnvSRLevel(layout, prefix + CPK::SsgSwEnv::stl, prefixName + CPN::SsgSwEnv::stl);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r1, prefixName + CPN::SsgSwEnv::r1);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l1, prefixName + CPN::SsgSwEnv::l1);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r2, prefixName + CPN::SsgSwEnv::r2);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l2, prefixName + CPN::SsgSwEnv::l2);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r3, prefixName + CPN::SsgSwEnv::r3);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l3, prefixName + CPN::SsgSwEnv::l3);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r4, prefixName + CPN::SsgSwEnv::r4);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l4, prefixName + CPN::SsgSwEnv::l4);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r5, prefixName + CPN::SsgSwEnv::r5);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l5, prefixName + CPN::SsgSwEnv::l5);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r6, prefixName + CPN::SsgSwEnv::r6);
-		PrHelper::addSsgSwEnvSRLevel(layout, prefix + CPK::SsgSwEnv::l6, prefixName + CPN::SsgSwEnv::l6);
+		// 段の R / L はパラメータにしない (表で持つ)。ここで登録するのは頭だけ。
+		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::steps, prefixName + CPN::SsgSwEnv256::steps,
+			CPV::SsgSwEnv256::Steps::min, CPV::SsgSwEnv256::Steps::max, CPV::SsgSwEnv256::Steps::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::loop, prefixName + CPN::SsgSwEnv256::loop, CPV::SsgSwEnv256::Loop::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::loopTo, prefixName + CPN::SsgSwEnv256::loopTo,
+			CPV::SsgSwEnv256::LoopTo::min, CPV::SsgSwEnv256::LoopTo::max, CPV::SsgSwEnv256::LoopTo::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::loopCount, prefixName + CPN::SsgSwEnv256::loopCount,
+			CPV::SsgSwEnv256::LoopCount::min, CPV::SsgSwEnv256::LoopCount::max, CPV::SsgSwEnv256::LoopCount::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::stl, prefixName + CPN::SsgSwEnv256::stl, CPV::SsgSwEnv256::SRL::min, CPV::SsgSwEnv256::SRL::max, CPV::SsgSwEnv256::SRL::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::lr, prefixName + CPN::SsgSwEnv256::lr,
+			CPV::SsgSwEnv256::LR::min, CPV::SsgSwEnv256::LR::max, CPV::SsgSwEnv256::LR::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::rr, prefixName + CPN::SsgSwEnv256::rr,
+			CPV::SsgSwEnv256::RR::min, CPV::SsgSwEnv256::RR::max, CPV::SsgSwEnv256::RR::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::endl, prefixName + CPN::SsgSwEnv256::endl,
+			CPV::SsgSwEnv256::EndL::min, CPV::SsgSwEnv256::EndL::max, CPV::SsgSwEnv256::EndL::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::endlEnable, prefixName + CPN::SsgSwEnv256::endlEnable, CPV::SsgSwEnv256::EndLEnable::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::keep, prefixName + CPN::SsgSwEnv256::keep, CPV::SsgSwEnv256::Keep::initial);
 	}
 
-	static inline void addOpSsgSwEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
+	static inline void addOpSsgSwEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
 	{
-		PrHelper::addInt(
-			layout,
-			prefix + CPK::SsgSwEnv::steps, 
-			namePrefix + CPN::SsgSwEnv::steps, 
-			CPV::SsgSwEnv::Steps::min, CPV::SsgSwEnv::Steps::max, CPV::SsgSwEnv::Steps::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwEnv::loop, 
-			namePrefix + CPN::SsgSwEnv::loop, 
-			CPV::SsgSwEnv::Loop::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::loopTo, 
-			namePrefix + CPN::SsgSwEnv::loopTo, 
-			CPV::SsgSwEnv::LoopTo::min, CPV::SsgSwEnv::LoopTo::max, CPV::SsgSwEnv::LoopTo::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::loopCount, 
-			namePrefix + CPN::SsgSwEnv::loopCount, 
-			CPV::SsgSwEnv::LoopCount::min, CPV::SsgSwEnv::LoopCount::max, CPV::SsgSwEnv::LoopCount::initial
-		);
-		PrHelper::addSsgSwEnvSRLevel(layout, prefix + CPK::SsgSwEnv::stl, namePrefix + CPN::SsgSwEnv::stl);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r1, namePrefix + CPN::SsgSwEnv::r1);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l1, namePrefix + CPN::SsgSwEnv::l1);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r2, namePrefix + CPN::SsgSwEnv::r2);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l2, namePrefix + CPN::SsgSwEnv::l2);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r3, namePrefix + CPN::SsgSwEnv::r3);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l3, namePrefix + CPN::SsgSwEnv::l3);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r4, namePrefix + CPN::SsgSwEnv::r4);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l4, namePrefix + CPN::SsgSwEnv::l4);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r5, namePrefix + CPN::SsgSwEnv::r5);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l5, namePrefix + CPN::SsgSwEnv::l5);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r6, namePrefix + CPN::SsgSwEnv::r6);
-		PrHelper::addSsgSwEnvSRLevel(layout, prefix + CPK::SsgSwEnv::l6, namePrefix + CPN::SsgSwEnv::l6);
+		// 段の R / L はパラメータにしない (表で持つ)。ここで登録するのは頭だけ。
+		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::steps, namePrefix + CPN::SsgSwEnv256::steps,
+			CPV::SsgSwEnv256::Steps::min, CPV::SsgSwEnv256::Steps::max, CPV::SsgSwEnv256::Steps::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::loop, namePrefix + CPN::SsgSwEnv256::loop, CPV::SsgSwEnv256::Loop::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::loopTo, namePrefix + CPN::SsgSwEnv256::loopTo,
+			CPV::SsgSwEnv256::LoopTo::min, CPV::SsgSwEnv256::LoopTo::max, CPV::SsgSwEnv256::LoopTo::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::loopCount, namePrefix + CPN::SsgSwEnv256::loopCount,
+			CPV::SsgSwEnv256::LoopCount::min, CPV::SsgSwEnv256::LoopCount::max, CPV::SsgSwEnv256::LoopCount::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::stl, namePrefix + CPN::SsgSwEnv256::stl, CPV::SsgSwEnv256::SRL::min, CPV::SsgSwEnv256::SRL::max, CPV::SsgSwEnv256::SRL::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::lr, namePrefix + CPN::SsgSwEnv256::lr,
+			CPV::SsgSwEnv256::LR::min, CPV::SsgSwEnv256::LR::max, CPV::SsgSwEnv256::LR::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::rr, namePrefix + CPN::SsgSwEnv256::rr,
+			CPV::SsgSwEnv256::RR::min, CPV::SsgSwEnv256::RR::max, CPV::SsgSwEnv256::RR::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::endl, namePrefix + CPN::SsgSwEnv256::endl,
+			CPV::SsgSwEnv256::EndL::min, CPV::SsgSwEnv256::EndL::max, CPV::SsgSwEnv256::EndL::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::endlEnable, namePrefix + CPN::SsgSwEnv256::endlEnable, CPV::SsgSwEnv256::EndLEnable::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::keep, namePrefix + CPN::SsgSwEnv256::keep, CPV::SsgSwEnv256::Keep::initial);
 	}
 
-	static inline void addSsgSwEnv11Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
+	static inline void addSsgSwPEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
 	{
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv11::steps, 
-			prefixName + CPN::SsgSwEnv11::steps, 
-			CPV::SsgSwEnv11::Steps::min, CPV::SsgSwEnv11::Steps::max, CPV::SsgSwEnv11::Steps::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwEnv11::loop, 
-			prefixName + CPN::SsgSwEnv11::loop, 
-			CPV::SsgSwEnv11::Loop::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv11::loopTo, 
-			prefixName + CPN::SsgSwEnv11::loopTo, 
-			CPV::SsgSwEnv11::LoopTo::min, CPV::SsgSwEnv11::LoopTo::max, CPV::SsgSwEnv11::LoopTo::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv11::loopCount, 
-			prefixName + CPN::SsgSwEnv11::loopCount, 
-			CPV::SsgSwEnv11::LoopCount::min, CPV::SsgSwEnv11::LoopCount::max, CPV::SsgSwEnv11::LoopCount::initial
-		);
-		PrHelper::addSsgSwEnv11SRLevel(layout, prefix + CPK::SsgSwEnv11::stl, prefixName + CPN::SsgSwEnv11::stl);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r1, prefixName + CPN::SsgSwEnv11::r1);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l1, prefixName + CPN::SsgSwEnv11::l1);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r2, prefixName + CPN::SsgSwEnv11::r2);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l2, prefixName + CPN::SsgSwEnv11::l2);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r3, prefixName + CPN::SsgSwEnv11::r3);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l3, prefixName + CPN::SsgSwEnv11::l3);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r4, prefixName + CPN::SsgSwEnv11::r4);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l4, prefixName + CPN::SsgSwEnv11::l4);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r5, prefixName + CPN::SsgSwEnv11::r5);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l5, prefixName + CPN::SsgSwEnv11::l5);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r6, prefixName + CPN::SsgSwEnv11::r6);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l6, prefixName + CPN::SsgSwEnv11::l6);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r7, prefixName + CPN::SsgSwEnv11::r7);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l7, prefixName + CPN::SsgSwEnv11::l7);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r8, prefixName + CPN::SsgSwEnv11::r8);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l8, prefixName + CPN::SsgSwEnv11::l8);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r9, prefixName + CPN::SsgSwEnv11::r9);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l9, prefixName + CPN::SsgSwEnv11::l9);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r10, prefixName + CPN::SsgSwEnv11::r10);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l10, prefixName + CPN::SsgSwEnv11::l10);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r11, prefixName + CPN::SsgSwEnv11::r11);
-		PrHelper::addSsgSwEnv11SRLevel(layout, prefix + CPK::SsgSwEnv11::l11, prefixName + CPN::SsgSwEnv11::l11);
-		PrHelper::addFloat(
-			layout,
-			prefix + CPK::SsgSwEnv11::endl,
-			prefixName + CPN::SsgSwEnv11::endl,
-			CPV::SsgSwEnv11::EndL::min, CPV::SsgSwEnv11::EndL::max, CPV::SsgSwEnv11::EndL::initial
-		);
-		PrHelper::addBool(
-			layout,
-			prefix + CPK::SsgSwEnv11::endlEnable,
-			prefixName + CPN::SsgSwEnv11::endlEnable,
-			CPV::SsgSwEnv11::EndLEnable::initial
-		);
-		PrHelper::addBool(
-			layout,
-			prefix + CPK::SsgSwEnv11::keep,
-			prefixName + CPN::SsgSwEnv11::keep,
-			CPV::SsgSwEnv11::Keep::initial
-		);
+		// 段の R / L はパラメータにしない (表で持つ)。ここで登録するのは頭だけ。
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::steps, prefixName + CPN::SsgSwPEnv256::steps,
+			CPV::SsgSwPEnv256::Steps::min, CPV::SsgSwPEnv256::Steps::max, CPV::SsgSwPEnv256::Steps::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::loop, prefixName + CPN::SsgSwPEnv256::loop, CPV::SsgSwPEnv256::Loop::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::loopTo, prefixName + CPN::SsgSwPEnv256::loopTo,
+			CPV::SsgSwPEnv256::LoopTo::min, CPV::SsgSwPEnv256::LoopTo::max, CPV::SsgSwPEnv256::LoopTo::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::loopCount, prefixName + CPN::SsgSwPEnv256::loopCount,
+			CPV::SsgSwPEnv256::LoopCount::min, CPV::SsgSwPEnv256::LoopCount::max, CPV::SsgSwPEnv256::LoopCount::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::stl, prefixName + CPN::SsgSwPEnv256::stl, CPV::SsgSwPEnv256::L::min, CPV::SsgSwPEnv256::L::max, CPV::SsgSwPEnv256::L::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::lr, prefixName + CPN::SsgSwPEnv256::lr,
+			CPV::SsgSwPEnv256::LR::min, CPV::SsgSwPEnv256::LR::max, CPV::SsgSwPEnv256::LR::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwPEnv256::rr, prefixName + CPN::SsgSwPEnv256::rr,
+			CPV::SsgSwPEnv256::RR::min, CPV::SsgSwPEnv256::RR::max, CPV::SsgSwPEnv256::RR::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::endl, prefixName + CPN::SsgSwPEnv256::endl,
+			CPV::SsgSwPEnv256::EndL::min, CPV::SsgSwPEnv256::EndL::max, CPV::SsgSwPEnv256::EndL::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::endlEnable, prefixName + CPN::SsgSwPEnv256::endlEnable, CPV::SsgSwPEnv256::EndLEnable::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::keep, prefixName + CPN::SsgSwPEnv256::keep, CPV::SsgSwPEnv256::Keep::initial);
 	}
 
-	static inline void addOpSsgSwEnv11Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
+	static inline void addOpSsgSwPEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
 	{
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv11::steps, 
-			namePrefix + CPN::SsgSwEnv11::steps, 
-			CPV::SsgSwEnv11::Steps::min, CPV::SsgSwEnv11::Steps::max, CPV::SsgSwEnv11::Steps::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwEnv11::loop, 
-			namePrefix + CPN::SsgSwEnv11::loop, 
-			CPV::SsgSwEnv11::Loop::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv11::loopTo, 
-			namePrefix + CPN::SsgSwEnv11::loopTo, 
-			CPV::SsgSwEnv11::LoopTo::min, CPV::SsgSwEnv11::LoopTo::max, CPV::SsgSwEnv11::LoopTo::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv11::loopCount, 
-			namePrefix + CPN::SsgSwEnv11::loopCount, 
-			CPV::SsgSwEnv11::LoopCount::min, CPV::SsgSwEnv11::LoopCount::max, CPV::SsgSwEnv11::LoopCount::initial
-		);
-		PrHelper::addSsgSwEnv11SRLevel(layout, prefix + CPK::SsgSwEnv11::stl, namePrefix + CPN::SsgSwEnv11::stl);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r1, namePrefix + CPN::SsgSwEnv11::r1);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l1, namePrefix + CPN::SsgSwEnv11::l1);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r2, namePrefix + CPN::SsgSwEnv11::r2);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l2, namePrefix + CPN::SsgSwEnv11::l2);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r3, namePrefix + CPN::SsgSwEnv11::r3);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l3, namePrefix + CPN::SsgSwEnv11::l3);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r4, namePrefix + CPN::SsgSwEnv11::r4);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l4, namePrefix + CPN::SsgSwEnv11::l4);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r5, namePrefix + CPN::SsgSwEnv11::r5);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l5, namePrefix + CPN::SsgSwEnv11::l5);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r6, namePrefix + CPN::SsgSwEnv11::r6);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l6, namePrefix + CPN::SsgSwEnv11::l6);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r7, namePrefix + CPN::SsgSwEnv11::r7);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l7, namePrefix + CPN::SsgSwEnv11::l7);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r8, namePrefix + CPN::SsgSwEnv11::r8);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l8, namePrefix + CPN::SsgSwEnv11::l8);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r9, namePrefix + CPN::SsgSwEnv11::r9);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l9, namePrefix + CPN::SsgSwEnv11::l9);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r10, namePrefix + CPN::SsgSwEnv11::r10);
-		PrHelper::addSsgSwEnv11Level(layout, prefix + CPK::SsgSwEnv11::l10, namePrefix + CPN::SsgSwEnv11::l10);
-		PrHelper::addSsgSwEnv11Rate(layout, prefix + CPK::SsgSwEnv11::r11, namePrefix + CPN::SsgSwEnv11::r11);
-		PrHelper::addSsgSwEnv11SRLevel(layout, prefix + CPK::SsgSwEnv11::l11, namePrefix + CPN::SsgSwEnv11::l11);
-		PrHelper::addFloat(
-			layout,
-			prefix + CPK::SsgSwEnv11::endl,
-			namePrefix + CPN::SsgSwEnv11::endl,
-			CPV::SsgSwEnv11::EndL::min, CPV::SsgSwEnv11::EndL::max, CPV::SsgSwEnv11::EndL::initial
-		);
-		PrHelper::addBool(
-			layout,
-			prefix + CPK::SsgSwEnv11::endlEnable,
-			namePrefix + CPN::SsgSwEnv11::endlEnable,
-			CPV::SsgSwEnv11::EndLEnable::initial
-		);
-		PrHelper::addBool(
-			layout,
-			prefix + CPK::SsgSwEnv11::keep,
-			namePrefix + CPN::SsgSwEnv11::keep,
-			CPV::SsgSwEnv11::Keep::initial
-		);
-	}
-
-	static inline void addSsgSwPEnv11Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
-	{
-		PrHelper::addInt(
-			layout,
-			prefix + CPK::SsgSwPEnv11::steps, 
-			prefixName + CPN::SsgSwPEnv11::steps, 
-			CPV::SsgSwPEnv11::Steps::min, CPV::SsgSwPEnv11::Steps::max, CPV::SsgSwPEnv11::Steps::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwPEnv11::loop, 
-			prefixName + CPN::SsgSwPEnv11::loop, 
-			CPV::SsgSwPEnv11::Loop::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwPEnv11::loopTo, 
-			prefixName + CPN::SsgSwPEnv11::loopTo, 
-			CPV::SsgSwPEnv11::LoopTo::min, CPV::SsgSwPEnv11::LoopTo::max, CPV::SsgSwPEnv11::LoopTo::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwPEnv11::loopCount, 
-			prefixName + CPN::SsgSwPEnv11::loopCount, 
-			CPV::SsgSwPEnv11::LoopCount::min, CPV::SsgSwEnv11::LoopCount::max, CPV::SsgSwEnv11::LoopCount::initial
-		);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::stl, prefixName + CPN::SsgSwPEnv11::stl);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r1, prefixName + CPN::SsgSwPEnv11::r1);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l1, prefixName + CPN::SsgSwPEnv11::l1);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r2, prefixName + CPN::SsgSwPEnv11::r2);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l2, prefixName + CPN::SsgSwPEnv11::l2);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r3, prefixName + CPN::SsgSwPEnv11::r3);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l3, prefixName + CPN::SsgSwPEnv11::l3);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r4, prefixName + CPN::SsgSwPEnv11::r4);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l4, prefixName + CPN::SsgSwPEnv11::l4);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r5, prefixName + CPN::SsgSwPEnv11::r5);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l5, prefixName + CPN::SsgSwPEnv11::l5);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r6, prefixName + CPN::SsgSwPEnv11::r6);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l6, prefixName + CPN::SsgSwPEnv11::l6);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r7, prefixName + CPN::SsgSwPEnv11::r7);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l7, prefixName + CPN::SsgSwPEnv11::l7);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r8, prefixName + CPN::SsgSwPEnv11::r8);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l8, prefixName + CPN::SsgSwPEnv11::l8);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r9, prefixName + CPN::SsgSwPEnv11::r9);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l9, prefixName + CPN::SsgSwPEnv11::l9);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r10, prefixName + CPN::SsgSwPEnv11::r10);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l10, prefixName + CPN::SsgSwPEnv11::l10);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r11, prefixName + CPN::SsgSwPEnv11::r11);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l11, prefixName + CPN::SsgSwPEnv11::l11);
-		PrHelper::addInt(
-			layout,
-			prefix + CPK::SsgSwPEnv11::endl,
-			prefixName + CPN::SsgSwPEnv11::endl,
-			CPV::SsgSwPEnv11::EndL::min, CPV::SsgSwPEnv11::EndL::max, CPV::SsgSwPEnv11::EndL::initial
-		);
-		PrHelper::addBool(
-			layout,
-			prefix + CPK::SsgSwPEnv11::endlEnable,
-			prefixName + CPN::SsgSwPEnv11::endlEnable,
-			CPV::SsgSwPEnv11::EndLEnable::initial
-		);
-		PrHelper::addBool(
-			layout,
-			prefix + CPK::SsgSwPEnv11::keep,
-			prefixName + CPN::SsgSwPEnv11::keep,
-			CPV::SsgSwPEnv11::Keep::initial
-		);
-	}
-
-	static inline void addOpSsgSwPEnv11Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
-	{
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwPEnv11::steps, 
-			namePrefix + CPN::SsgSwPEnv11::steps, 
-			CPV::SsgSwPEnv11::Steps::min, CPV::SsgSwPEnv11::Steps::max, CPV::SsgSwPEnv11::Steps::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwPEnv11::loop, 
-			namePrefix + CPN::SsgSwPEnv11::loop, 
-			CPV::SsgSwPEnv11::Loop::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwPEnv11::loopTo, 
-			namePrefix + CPN::SsgSwPEnv11::loopTo, 
-			CPV::SsgSwPEnv11::LoopTo::min, CPV::SsgSwPEnv11::LoopTo::max, CPV::SsgSwPEnv11::LoopTo::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwPEnv11::loopCount, 
-			namePrefix + CPN::SsgSwPEnv11::loopCount, 
-			CPV::SsgSwPEnv11::LoopCount::min, CPV::SsgSwPEnv11::LoopCount::max, CPV::SsgSwPEnv11::LoopCount::initial
-		);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::stl, namePrefix + CPN::SsgSwPEnv11::stl);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r1, namePrefix + CPN::SsgSwPEnv11::r1);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l1, namePrefix + CPN::SsgSwPEnv11::l1);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r2, namePrefix + CPN::SsgSwPEnv11::r2);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l2, namePrefix + CPN::SsgSwPEnv11::l2);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r3, namePrefix + CPN::SsgSwPEnv11::r3);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l3, namePrefix + CPN::SsgSwPEnv11::l3);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r4, namePrefix + CPN::SsgSwPEnv11::r4);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l4, namePrefix + CPN::SsgSwPEnv11::l4);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r5, namePrefix + CPN::SsgSwPEnv11::r5);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l5, namePrefix + CPN::SsgSwPEnv11::l5);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r6, namePrefix + CPN::SsgSwPEnv11::r6);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l6, namePrefix + CPN::SsgSwPEnv11::l6);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r7, namePrefix + CPN::SsgSwPEnv11::r7);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l7, namePrefix + CPN::SsgSwPEnv11::l7);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r8, namePrefix + CPN::SsgSwPEnv11::r8);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l8, namePrefix + CPN::SsgSwPEnv11::l8);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r9, namePrefix + CPN::SsgSwPEnv11::r9);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l9, namePrefix + CPN::SsgSwPEnv11::l9);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r10, namePrefix + CPN::SsgSwPEnv11::r10);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l10, namePrefix + CPN::SsgSwPEnv11::l10);
-		PrHelper::addSsgSwPenv11Rate(layout, prefix + CPK::SsgSwPEnv11::r11, namePrefix + CPN::SsgSwPEnv11::r11);
-		PrHelper::addSsgSwPenv11Level(layout, prefix + CPK::SsgSwPEnv11::l11, namePrefix + CPN::SsgSwPEnv11::l11);
-		PrHelper::addInt(
-			layout,
-			prefix + CPK::SsgSwPEnv11::endl,
-			namePrefix + CPN::SsgSwPEnv11::endl,
-			CPV::SsgSwPEnv11::EndL::min, CPV::SsgSwPEnv11::EndL::max, CPV::SsgSwPEnv11::EndL::initial
-		);
-		PrHelper::addBool(
-			layout,
-			prefix + CPK::SsgSwPEnv11::endlEnable,
-			namePrefix + CPN::SsgSwPEnv11::endlEnable,
-			CPV::SsgSwPEnv11::EndLEnable::initial
-		);
-		PrHelper::addBool(
-			layout,
-			prefix + CPK::SsgSwPEnv11::keep,
-			namePrefix + CPN::SsgSwPEnv11::keep,
-			CPV::SsgSwPEnv11::Keep::initial
-		);
+		// 段の R / L はパラメータにしない (表で持つ)。ここで登録するのは頭だけ。
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::steps, namePrefix + CPN::SsgSwPEnv256::steps,
+			CPV::SsgSwPEnv256::Steps::min, CPV::SsgSwPEnv256::Steps::max, CPV::SsgSwPEnv256::Steps::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::loop, namePrefix + CPN::SsgSwPEnv256::loop, CPV::SsgSwPEnv256::Loop::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::loopTo, namePrefix + CPN::SsgSwPEnv256::loopTo,
+			CPV::SsgSwPEnv256::LoopTo::min, CPV::SsgSwPEnv256::LoopTo::max, CPV::SsgSwPEnv256::LoopTo::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::loopCount, namePrefix + CPN::SsgSwPEnv256::loopCount,
+			CPV::SsgSwPEnv256::LoopCount::min, CPV::SsgSwPEnv256::LoopCount::max, CPV::SsgSwPEnv256::LoopCount::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::stl, namePrefix + CPN::SsgSwPEnv256::stl, CPV::SsgSwPEnv256::L::min, CPV::SsgSwPEnv256::L::max, CPV::SsgSwPEnv256::L::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::lr, namePrefix + CPN::SsgSwPEnv256::lr,
+			CPV::SsgSwPEnv256::LR::min, CPV::SsgSwPEnv256::LR::max, CPV::SsgSwPEnv256::LR::initial);
+		PrHelper::addFloat(layout, prefix + CPK::SsgSwPEnv256::rr, namePrefix + CPN::SsgSwPEnv256::rr,
+			CPV::SsgSwPEnv256::RR::min, CPV::SsgSwPEnv256::RR::max, CPV::SsgSwPEnv256::RR::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::endl, namePrefix + CPN::SsgSwPEnv256::endl,
+			CPV::SsgSwPEnv256::EndL::min, CPV::SsgSwPEnv256::EndL::max, CPV::SsgSwPEnv256::EndL::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::endlEnable, namePrefix + CPN::SsgSwPEnv256::endlEnable, CPV::SsgSwPEnv256::EndLEnable::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::keep, namePrefix + CPN::SsgSwPEnv256::keep, CPV::SsgSwPEnv256::Keep::initial);
 	}
 
 	static inline void addOpmLfoParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -3317,21 +2777,15 @@ namespace PrHelper {
 		);
 		PrHelper::addBool(
 			layout, 
-			prefix + CPK::ssgSwEnv + CPK::bypass, 
-			prefixName + CPN::SsgSwEnv::bypass, 
-			CPV::SsgSwEnv::Bypass::initial
+			prefix + CPK::ssgSwEnv256 + CPK::bypass, 
+			prefixName + CPN::SsgSwEnv256::bypass, 
+			CPV::SsgSwEnv256::Bypass::initial
 		);
 		PrHelper::addBool(
 			layout, 
-			prefix + CPK::ssgSwEnv11 + CPK::bypass, 
-			prefixName + CPN::SsgSwEnv11::bypass, 
-			CPV::SsgSwEnv11::Bypass::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::ssgSwPEnv11 + CPK::bypass, 
-			prefixName + CPN::SsgSwPEnv11::bypass, 
-			CPV::SsgSwPEnv11::Bypass::initial
+			prefix + CPK::ssgSwPEnv256 + CPK::bypass, 
+			prefixName + CPN::SsgSwPEnv256::bypass, 
+			CPV::SsgSwPEnv256::Bypass::initial
 		);
 	}
 
@@ -3348,24 +2802,24 @@ namespace PrHelper {
 		);
 	}
 
-	// SSG SW PENV11 のバイパスだけを、初期値を指定して登録する。
+	// SSG SW PITCH ENV[256] のバイパスだけを、初期値を指定して登録する。
 	// FM 音源はオペレータごとに同じものを持っているため、チップ全体へ
 	// 掛けるぶんは既定でバイパスにしておく。
-	static inline void addSsgSwPEnv11BypassParameter(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName, bool initial) {
+	static inline void addSsgSwPEnv256BypassParameter(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName, bool initial) {
 		PrHelper::addBool(
 			layout,
-			prefix + CPK::ssgSwPEnv11 + CPK::bypass,
-			prefixName + CPN::SsgSwPEnv11::bypass,
+			prefix + CPK::ssgSwPEnv256 + CPK::bypass,
+			prefixName + CPN::SsgSwPEnv256::bypass,
 			initial
 		);
 	}
 
-	static inline void addSsgSwEnv11BypassParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+	static inline void addSsgSwEnv256BypassParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		PrHelper::addBool(
 			layout,
-			prefix + CPK::ssgSwEnv11 + CPK::bypass,
-			prefixName + CPN::SsgSwEnv11::bypass,
-			CPV::SsgSwEnv11::Bypass::initial
+			prefix + CPK::ssgSwEnv256 + CPK::bypass,
+			prefixName + CPN::SsgSwEnv256::bypass,
+			CPV::SsgSwEnv256::Bypass::initial
 		);
 	}
 
@@ -3378,21 +2832,15 @@ namespace PrHelper {
 		);
 		PrHelper::addBool(
 			layout, 
-			prefix + CPK::SsgSwEnv::enable, 
-			namePrefix + CPN::SsgSwEnv::enable, 
-			CPV::SsgSwEnv::Enable::initial
+			prefix + CPK::SsgSwEnv256::enable, 
+			namePrefix + CPN::SsgSwEnv256::enable, 
+			CPV::SsgSwEnv256::Enable::initial
 		);
 		PrHelper::addBool(
 			layout, 
-			prefix + CPK::SsgSwEnv11::enable, 
-			namePrefix + CPN::SsgSwEnv11::enable, 
-			CPV::SsgSwEnv11::Enable::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwPEnv11::enable, 
-			namePrefix + CPN::SsgSwPEnv11::enable, 
-			CPV::SsgSwPEnv11::Enable::initial
+			prefix + CPK::SsgSwPEnv256::enable, 
+			namePrefix + CPN::SsgSwPEnv256::enable, 
+			CPV::SsgSwPEnv256::Enable::initial
 		);
 	}
 
@@ -4263,6 +3711,18 @@ namespace PrHelper {
 			prefixName + CPN::SsgDuty::fcFluc, 
 			CPV::SsgDuty::FcFluc::min, CPV::SsgDuty::FcFluc::max, CPV::SsgDuty::FcFluc::initial
 		); // Famicom Mode Fluctuation: 0.0 ~ 1.0
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::SsgDuty::moreFc, 
+			prefixName + CPN::SsgDuty::moreFc, 
+			CPV::SsgDuty::MoreFc::initial
+		); // More Real FC
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::SsgDuty::moreNes, 
+			prefixName + CPN::SsgDuty::moreNes, 
+			CPV::SsgDuty::MoreNes::initial
+		); // More Real NES
 	}
 
 	static inline void addSsgTriParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {

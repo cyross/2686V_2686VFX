@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
@@ -17,7 +18,6 @@
 #include "Shared/Gui/Components/Unison/Unison.h"
 #include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
-#include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
 #include "Shared/Gui/Components/Edit/Edit.h"
@@ -33,8 +33,8 @@
 #include "Shared/Gui/Components/Separator/NormalSeparator.h"
 #include "Shared/Gui/Components/Separator/ShortSeparator.h"
 #include "Shared/Gui/Components/Quality/QualityPcm.h"
-#include "Shared/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
-#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/SsgSwEnv256/SsgSwEnv256.h"
+#include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "Shared/Gui/Components/WtMod/WtMod.h"
@@ -49,6 +49,9 @@ class AudioPlugin2686VEditor;
 
 class RhythmPadGui: public GuiBase
 {
+    // タブが区分の見出しへ UTILITY の [IM] / [EX] をつなぐため
+    friend class GuiRhythm;
+
     // 今指しているパッドの名前。TARGET の隣に出す。
     GuiLabel padNameLabel;
 
@@ -59,9 +62,8 @@ class RhythmPadGui: public GuiBase
     // どれがどれを映しているのかを一枚ずつ確かめることになる。
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
-    GuiToggleButton graphBtnSsg11;
-    GuiToggleButton graphBtnSsgP11;
+    GuiToggleButton graphBtnSsg256;
+    GuiToggleButton graphBtnSsgP256;
 
     GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
 
@@ -84,12 +86,11 @@ private:
     GuiScrollGroup colOptional;
     GuiScrollGroup colAmpEnv;
     GuiScrollGroup colSsgHwEnv;
-    GuiScrollGroup colSsgSwEnv;
-    GuiScrollGroup colSsgSwEnv11;
+    GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
     GuiScrollGroup colPitchEnv;
     GuiScrollGroup colSsgHwPEnv;
-    GuiScrollGroup colSsgSwPEnv11;
+    GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colLfo;
     GuiScrollGroup colMulDet;
@@ -182,10 +183,9 @@ private:
     GuiComponentPitchEnv pitchEnvComponent;
 
     // SSG SW Env
-    GuiComponentSsgSwEnv ssgSwEnvComponent;
 
-    GuiComponentSsgSwEnv11 ssgSwEnv11Component;
-    GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
+    GuiComponentSsgSwEnv256 ssgSwEnv256Component;
+    GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
 
     // Detune
     GuiComponentMulDetune mulDetuneComponent;
@@ -200,6 +200,9 @@ private:
     GuiSlider padTarget;
     NormalSeparator padTargetSeparator;
 
+    // 一番上の帯の背後へ敷く板。壁紙の上でも読めるようにする
+    GuiRowBoard padTargetBoard;
+
     // 描き直しが入れ子で走らないようにする印。
     bool isUpdatingGraph = false;
 public:
@@ -209,19 +212,17 @@ public:
         padNameLabel(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
-        graphBtnSsg(context),
-        graphBtnSsg11(context),
-        graphBtnSsgP11(context),
+        graphBtnSsg256(context),
+        graphBtnSsgP256(context),
         colForm(context),
         colOptional(context),
         colAmpEnv(context),
         colSsgHwEnv(context),
-        colSsgSwEnv(context),
-        colSsgSwEnv11(context),
+        colSsgSwEnv256(context),
         colAmpMod(context),
         colPitchEnv(context),
         colSsgHwPEnv(context),
-        colSsgSwPEnv11(context),
+        colSsgSwPEnv256(context),
         colMod(context),
         colLfo(context),
         colMulDet(context),
@@ -271,9 +272,8 @@ public:
         modComponent(context),
         ampModComponent(context),
         pitchEnvComponent(context),
-        ssgSwEnvComponent(context),
-        ssgSwEnv11Component(context),
-        ssgSwPEnv11Component(context),
+        ssgSwEnv256Component(context),
+        ssgSwPEnv256Component(context),
         mulDetuneComponent(context),
         lfoComponent(context),
         ssgHwEnv(context),
@@ -346,12 +346,10 @@ public:
     void exportSsgHwPEnvParam();
     void exportWtModParam();
     void exportWtAmpModParam();
-    void importSsgSwEnvParam();
-    void exportSsgSwEnvParam();
-    void importSsgSwEnv11Param();
-    void exportSsgSwEnv11Param();
-    void importSsgSwPEnv11Param();
-    void exportSsgSwPEnv11Param();
+    void importSsgSwEnv256Param();
+    void exportSsgSwEnv256Param();
+    void importSsgSwPEnv256Param();
+    void exportSsgSwPEnv256Param();
     void importDetuneParam();
     void exportDetuneParam();
     void importQualityParam();
@@ -394,6 +392,11 @@ class GuiRhythm : public GuiBase
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
 
+    // [[TAP SEQUENCER]]。[[PITCH ENV]] の下 (RHYTHM はグローバルの UNISON の下)
+    GuiCategoryLabel tapMajorCat;
+    GuiComponentTapSeq tapAmpSeq;
+    GuiComponentTapSeq tapPitchSeq;
+
     GuiComponentMidi midiComponent;
 
     // EDIT 区分 (切り取り・コピー・貼り付け・初期化)
@@ -410,9 +413,8 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieWtAmpMod;
-    GuiComponentImportExport ieSsgSwEnv;
-    GuiComponentImportExport ieSsgSwEnv11;
-    GuiComponentImportExport ieSsgSwPEnv11;
+    GuiComponentImportExport ieSsgSwEnv256;
+    GuiComponentImportExport ieSsgSwPEnv256;
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport iePcmPlay;
@@ -427,6 +429,9 @@ class GuiRhythm : public GuiBase
 
     // 上に並ぶ絵。こちらはパッドの数だけ置く。
     std::array<GuiTargetCell, RhythmPrValue::pads> cells;
+
+    // 4.0.0: TARGET の大きな枠。指している小さな枠を写す
+    GuiTargetCell bigCell;
 
 
     // 指し先を一時的に動かして何かをする。
@@ -486,12 +491,10 @@ public:
     void exportAmpEnvParam(int p);
     void importPitchEnvParam(int p);
     void exportPitchEnvParam(int p);
-    void importSsgSwEnvParam(int p);
-    void exportSsgSwEnvParam(int p);
-    void importSsgSwEnv11Param(int p);
-    void exportSsgSwEnv11Param(int p);
-    void importSsgSwPEnv11Param(int p);
-    void exportSsgSwPEnv11Param(int p);
+    void importSsgSwEnv256Param(int p);
+    void exportSsgSwEnv256Param(int p);
+    void importSsgSwPEnv256Param(int p);
+    void exportSsgSwPEnv256Param(int p);
     void importDetuneParam(int p);
     void exportDetuneParam(int p);
     void importQualityParam(int p);

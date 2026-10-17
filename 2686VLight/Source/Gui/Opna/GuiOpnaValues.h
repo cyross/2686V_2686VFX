@@ -23,7 +23,7 @@ namespace OpnaGuiValue
 
 	namespace MainGroup
 	{
-		static inline constexpr int width = 260;
+		static inline constexpr int width = 312;
 
 		namespace Separator
 		{
@@ -64,7 +64,7 @@ namespace OpnaGuiValue
 			// 区分を横へ並べるときの、1 列ぶんの幅と隙間
 			namespace Col
 			{
-				static inline constexpr int width = 280;
+				static inline constexpr int width = 336;
 				static inline constexpr int gap = 10;
 
 				// TARGET の右へ出す「オペレーター1」などの名前と、その右の余白

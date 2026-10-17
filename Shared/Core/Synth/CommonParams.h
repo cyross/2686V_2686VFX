@@ -197,6 +197,11 @@ struct SsgDutyParams {
 
     // Famicom Mode Fluctuation
     float fcFluc = 0.2f;
+
+    // ファミコン / NES (2A03) の鳴り方。FC と合わせて 1 つだけ入る想定。
+    // 重なったときは FC → More Real FC → More Real NES の順で先のものを使う。
+    bool moreFc = false;
+    bool moreNes = false;
 };
 
 struct SsgTriParams {

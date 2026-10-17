@@ -1,4 +1,6 @@
 ﻿#include "PluginProcessor.h"
+#include "Shared/Core/Synth/StepTableIo.h"
+#include "Shared/Core/Io/IoStepEnvLegacy.h"
 #include "../Const/ConstPlugin.h"
 #include "../../Effect/Fx/FxOrder.h"
 #include <limits>
@@ -101,9 +103,9 @@ AudioPlugin2686V::AudioPlugin2686V()
     pPitchResetOnLegato = apvts.getRawParameterValue(CPK::Midi::pitchResetOnLegato);
     pFixedVelocity = apvts.getRawParameterValue(CPK::Midi::fixedVelocity);
 
-    prWt.init(apvts, modWaveSlots);
-    prWt2.init(apvts, modWaveSlots);
-    prWtPlus.init(apvts, modWaveSlots);
+    prWt.init(apvts, modWaveSlots, stepTables);
+    prWt2.init(apvts, modWaveSlots, stepTables);
+    prWtPlus.init(apvts, modWaveSlots, stepTables);
     prFx.init(apvts);
     prCurve.init(apvts);
     m_curveCore.setParameters(prCurve.m_curveParams);
@@ -444,12 +446,24 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     xml->setAttribute(SettingsKey::fxOrder, sa.joinIntoString(" "));
 
     prCurve.saveToXml(xml.get());
+
+    // 段の表 (SSG SW AMP / PITCH ENV[256] など)
+    StepTableIo::write(stepTables, *xml);
 };
 
 void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState)
 {
     if (xmlState.get() != nullptr && xmlState->hasTagName(apvts.state.getType()))
     {
+        // 段の表 (SSG SW AMP / PITCH ENV[256] など)。3.6.3 までの [11] と 6 段は [256] へ写す。
+        // 表はパラメータではないので、APVTS へ渡す前に読んで外しておく。
+        StepTableIo::read(stepTables, *xmlState);
+        StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwEnv);
+        StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwPEnv);
+        StepEnvLegacy::convertSixStep(*xmlState, stepTables);
+
+        while (auto* tables = xmlState->getChildByName(StepTableIo::xmlTag)) xmlState->removeChildElement(tables, true);
+
         // パラメータ復帰
         apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
 
@@ -499,7 +513,6 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
                 loadWtPlusWaveFile(i, wtPlusFile);
             }
         }
-
 
 
         // チャンネルごとの WT PITCH MOD 変調波形。
@@ -1193,6 +1206,9 @@ void AudioPlugin2686V::initPreset()
         }
     }
 
+    // 段の表 (SSG SW AMP / PITCH ENV[256] など) も初期の値へ
+    stepTables.resetAll();
+
     // 2. メタデータのリセット
     presetName = PresetValue::MetaData::Initial::name;
     presetAuthor = PresetValue::MetaData::Initial::author;
@@ -1222,6 +1238,11 @@ void AudioPlugin2686V::initParams(const juce::String& code)
             }
         }
     }
+
+    // 段の表 (SSG SW AMP / PITCH ENV[256] など) も、このチャンネルのぶんを初期の値へ
+    stepTables.forEach([&code](const juce::String& key, StepTable& table) {
+        if (key.startsWith(code)) table.reset();
+    });
 
 
     if (code == "ADPCM_") {
@@ -1649,6 +1670,11 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     if (found == prMap.end() || found->second == nullptr) return params;
 
     found->second->processBlock(params, apvts);
+
+    // TAP SEQUENCER は鍵を押すたびに段を進めるので、プレビューでは切る。
+    // 切らないと、プレビューを描き直すたびに段が進み、次に押した音が 1 段目にならない。
+    params.tapAmp.enable = false;
+    params.tapPitch.enable = false;
 
 
 

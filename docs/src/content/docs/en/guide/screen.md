@@ -65,11 +65,13 @@ which one it points at.
 
 | Part | What it does |
 | --- | --- |
-| Frames at the top | one envelope display per operator (or pad), four to a row. **Clicking one moves TARGET there** |
+| Large frame on the left | a large view of the operator (or pad) TARGET points at (from 4.0.0). On tabs with a wave (OPZX7S / RHYTHM), the wave is shown large above it. Switching TARGET updates it at once |
+| Zoom | The large frame and the channel graphs can be stretched sideways (from 4.0.0): 1.0–32.0 times with the knob below, or directly with the x1 / x2 / x4 / x8 / x16 / x32 buttons. The mouse wheel over the graph changes it too; **drag with the right button** or use the scroll bar below to move along. The small frames do not zoom |
+| Small frames on the right | one envelope display per operator (or pad), four to a row. **Clicking one moves TARGET there** |
 | Outline | only the frame TARGET points at is drawn with a heavy border |
 | TARGET | the operator (or pad) the settings below point at. It is remembered when the window closes |
 | Name | to the right of TARGET, the name of what it points at ("オペレーター1", "Pad 1 (BD)" and so on) |
-| AMP / PIT / SSG / S11 / P11 | **which envelope the envelope displays show** — switched for all frames at once, not per frame |
+| AMP / PIT / SSG / S256 / P256 | **which envelope the envelope displays show** — switched for all frames at once, not per frame |
 | Setting columns | one section per column, side by side; the scrollbar underneath reaches the rest |
 
 What a frame shows differs a little by tab.
@@ -95,7 +97,8 @@ number ([Keyboard shortcuts](/2686V_2686VFX/en/reference/shortcuts/)).
 ### Category headings
 
 Related controls sit under a heading. **The lamp at its left shows whether it is
-open.** Press the heading to open or close it.
+open.** Press the heading to open or close it. The FM chips' ALGORITHM/FEEDBACK
+can be folded too since 4.0.0, and starts open.
 
 While it is open, a backdrop sits behind its contents, so you can see where the
 category ends.
@@ -105,7 +108,7 @@ category ends.
 | Colour | Meaning |
 | --- | --- |
 | Yellow | a feature the real chip had |
-| Blue | something that moves level (AMP ENV, SSG SW AMP ENV, WT AMP MOD, …) |
+| Blue | something that moves level (AMP ENV, SSG SW AMP ENV[256], WT AMP MOD, …) |
 | Turquoise | something that moves pitch (PITCH ENV, SSG SW PITCH ENV, WT PITCH MOD, …) |
 | Purple | the LFO |
 | Cyan | anything else (OPTIONAL, UNISON・HARMONY, FIX, MUL・DET) |
@@ -148,13 +151,13 @@ to follow. Added in 3.4.0.
 
 | Major category | Sections inside |
 | --- | --- |
-| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
-| **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 
 - They appear on the OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 /
   WT+ / ADPCM / ADPCM+ / BEEP tabs. The order of the sections is unchanged
 - Only the sections the tab actually has go inside. The FM tabs have no
-  channel-wide SSG SW AMP ENV or PITCH ENV
+  channel-wide PITCH ENV
 - The heading has an off-white background. The lamp colours, and pressing it to
   open or close, work like any other heading
 - **They start closed.** Opening one lays its sections out on a backdrop
@@ -190,8 +193,8 @@ there is kept on screen even while simple view is on.
 
 | Sections |
 | --- |
-| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
-| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 | LFO / MUL・DET / FIX / UNISON・HARMONY |
 
 The setting is saved to the settings file along with everything else.

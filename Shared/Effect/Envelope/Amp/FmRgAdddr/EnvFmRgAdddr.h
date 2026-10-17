@@ -43,6 +43,9 @@ class FmRgAdddr
 
 	float totalLevel = 0.0f;
 
+	// 押したときに TL で下げた量 (dB)
+	float m_tlDb = 0.0f;
+
 	float attackInc = 0.0f;
 	float decayDec = 0.0f;
 	float releaseDec = 0.0f;
@@ -66,6 +69,10 @@ class FmRgAdddr
 	int calcRateScaling() const;
 	float calcLevelScalingDb() const;
 public:
+
+	// 押したときに TL で下げた量 (dB)。KSL は含まない。TL ENV がこれを
+	// 段の TL に置き換えるのに使う。バイパスのあいだは 0。
+	float tlDb() const { return m_tlDb; }
 	FmRgAdddr();
 	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);

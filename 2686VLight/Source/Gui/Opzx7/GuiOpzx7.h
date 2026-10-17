@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
@@ -18,7 +19,6 @@
 #include "Shared/Gui/Components/Unison/Unison.h"
 #include "Shared/Gui/Components/Fix/Fix.h"
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
-#include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
 #include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Gui/Components/PitchButtons/PitchButtons.h"
@@ -35,13 +35,14 @@
 #include "Shared/Gui/Components/Separator/NormalSeparator.h"
 #include "Shared/Gui/Components/Separator/ShortSeparator.h"
 #include "Shared/Gui/Components/Quality/Quality.h"
-#include "Shared/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
-#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
-#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/SsgSwEnv256/SsgSwEnv256.h"
+#include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
+#include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
 #include "Shared/Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
 #include "Shared/Gui/Components/WtMod/WtMod.h"
 #include "Shared/Gui/Components/WtAmpMod/WtAmpMod.h"
+#include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/WavePreview/WavePreview.h"
 #include "Shared/Gui/Components/TargetCell/TargetCell.h"
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
@@ -103,9 +104,9 @@ class GuiOpzx7 : public GuiBase
     GuiComponentSsgHwEnv ssgHwEnv;
     GuiComponentSsgHwPEnv ssgHwPEnv;
     // SSG Sw Env
-    GuiComponentSsgSwEnv11 ssgSwEnv11g;
+    GuiComponentSsgSwEnv256 ssgSwEnv256g;
     // チップ全体へ掛かるピッチ側
-    GuiComponentSsgSwPEnv11 ssgSwPEnv11g;
+    GuiComponentSsgSwPEnv256 ssgSwPEnv256g;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -128,6 +129,11 @@ class GuiOpzx7 : public GuiBase
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
 
+    // [[TAP SEQUENCER]]。[[PITCH ENV]] の下 (RHYTHM はグローバルの UNISON の下)
+    GuiCategoryLabel tapMajorCat;
+    GuiComponentTapSeq tapAmpSeq;
+    GuiComponentTapSeq tapPitchSeq;
+
     // FM 音源のパラメータファイルを読み込む
     GuiTextButton importFmBtn;
 
@@ -139,9 +145,8 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpLfo;
     GuiComponentImportExport ieOpDetune;
     GuiComponentImportExport ieOpPitchEnv;
-    GuiComponentImportExport ieOpSsgSwEnv;
-    GuiComponentImportExport ieOpSsgSwEnv11;
-    GuiComponentImportExport ieOpSsgSwPEnv11;
+    GuiComponentImportExport ieOpSsgSwEnv256;
+    GuiComponentImportExport ieOpSsgSwPEnv256;
     GuiComponentImportExport ieOpSsgHwPEnv;
     GuiComponentImportExport ieOpWtAmpMod;
     GuiComponentImportExport ieOpSsgHwEnv;
@@ -155,8 +160,8 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieWtAmpMod;
-    GuiComponentImportExport ieSsgSwEnv11;
-    GuiComponentImportExport ieSsgSwPEnv11g;
+    GuiComponentImportExport ieSsgSwEnv256;
+    GuiComponentImportExport ieSsgSwPEnv256g;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
@@ -167,6 +172,9 @@ class GuiOpzx7 : public GuiBase
     GuiLabel opNameLabel;
     NormalSeparator opTargetSeparator;
 
+    // 一番上の帯の背後へ敷く板。壁紙の上でも読めるようにする
+    GuiRowBoard opTargetBoard;
+
     // 区分を横へ並べる送り台。縦へは送らず、あふれたぶんは横へ送る。
     juce::Viewport stripViewport;
     juce::Component stripCanvas;
@@ -175,12 +183,11 @@ class GuiOpzx7 : public GuiBase
     GuiScrollGroup colAmp;
     GuiScrollGroup colWs;
     GuiScrollGroup colSsgHwEnv;
-    GuiScrollGroup colSsgSwEnv;
-    GuiScrollGroup colSsgSwEnv11;
+    GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
     GuiScrollGroup colPitchEnv;
     GuiScrollGroup colSsgHwPEnv;
-    GuiScrollGroup colSsgSwPEnv11;
+    GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
     GuiScrollGroup colLfo;
@@ -254,12 +261,17 @@ class GuiOpzx7 : public GuiBase
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnv;
     // SSG SW Env
-    GuiComponentSsgSwEnv ssgSwEnv;
 
-    GuiComponentSsgSwEnv11 ssgSwEnv11;
-    GuiComponentSsgSwPEnv11 ssgSwPEnv11;
+    GuiComponentSsgSwEnv256 ssgSwEnv256;
+    GuiComponentSsgSwPEnv256 ssgSwPEnv256;
     GuiComponentSsgHwPEnv ssgHwPEnvOp;
     GuiComponentWtAmpMod wtAmpModOp;
+
+    // TL ENV。オペレーターの AMP ENV 区分のすぐ下 (同じ列)
+    GuiComponentTlEnv tlEnv;
+
+    // ALG ENV。ALGORITHM/FEEDBACK の FEEDBACK の下
+    GuiComponentAlgEnv algEnv;
     GuiComponentSsgHwEnv ssgHwEnvOp;
     GuiComponentWtMod wtModOp;
 
@@ -292,23 +304,25 @@ class GuiOpzx7 : public GuiBase
     // チップ全体のエンベロープを見るグラフ
     GuiEnvelopeGraph gGraph;
     GuiToggleButton gGraphBtnAmp;
-    GuiToggleButton gGraphBtnSsg11;
-    GuiToggleButton gGraphBtnSsgP11;
+    GuiToggleButton gGraphBtnSsg256;
+    GuiToggleButton gGraphBtnSsgP256;
     NormalSeparator gGraphSeparator;
 
-    enum class GlobalGraphMode { Amp, SsgSw11, SsgSwP11 };
+    enum class GlobalGraphMode { Amp, SsgSw256, SsgSwP256 };
     GlobalGraphMode currentGlobalGraphMode = GlobalGraphMode::Amp;
 
     // 上に並ぶ絵。オペレータの数だけ置く。
     std::array<GuiTargetCell, Opzx7PrValue::ops> cells;
 
+    // 4.0.0: TARGET の大きな枠。指している小さな枠を写す
+    GuiTargetCell bigCell;
+
     // どのエンベロープを映すかの切り替え。絵ごとではなく、まとめて 1 つ。
     // TARGET のすぐ右へ置く。
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
-    GuiToggleButton graphBtnSsg11;
-    GuiToggleButton graphBtnSsgP11;
+    GuiToggleButton graphBtnSsg256;
+    GuiToggleButton graphBtnSsgP256;
 
     GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
 
@@ -460,12 +474,10 @@ public:
     void exportOpLfoParam(int opIndex);
     void importPitchEnvParam(int opIndex);
     void exportPitchEnvParam(int opIndex);
-    void importSsgSwEnvParam(int opIndex);
-    void exportSsgSwEnvParam(int opIndex);
-    void importSsgSwEnv11Param(int opIndex);
-    void exportSsgSwEnv11Param(int opIndex);
-    void importSsgSwPEnv11Param(int opIndex);
-    void exportSsgSwPEnv11Param(int opIndex);
+    void importSsgSwEnv256Param(int opIndex);
+    void exportSsgSwEnv256Param(int opIndex);
+    void importSsgSwPEnv256Param(int opIndex);
+    void exportSsgSwPEnv256Param(int opIndex);
     void importOpSsgHwPEnvParam(int opIndex);
     void exportOpSsgHwPEnvParam(int opIndex);
     void importOpWtAmpModParam(int opIndex);

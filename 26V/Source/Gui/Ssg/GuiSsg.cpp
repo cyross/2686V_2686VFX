@@ -2,6 +2,7 @@
 
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiSsg.h"
+#include "Shared/Core/Processor/ProcessorValueEnv.h"
 
 #include "Shared/Core/Gui/GuiRefresh.h"
 
@@ -85,11 +86,10 @@ void GuiSsg::setup()
 
     pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::pitchAdsr + CPK::bypass, SsgGuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv + CPK::bypass, SsgGuiText::SsgSwEnv::bypass);
 
-    ssgSwEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, SsgGuiText::SsgSwEnv11::bypass);
+    ssgSwEnv256Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv256 + CPK::bypass, SsgGuiText::SsgSwEnv256::bypass);
 
-    ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, SsgGuiText::SsgSwPEnv11::bypass);
+    ssgSwPEnv256Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv256 + CPK::bypass, SsgGuiText::SsgSwPEnv256::bypass);
 
     // SSG チャンネル自身の機能なのでハード扱いにする
     ssgHwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, GuiColor::Category::HwBg);
@@ -126,6 +126,15 @@ void GuiSsg::setup()
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
     pitchMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::pitchEnv, .enableChangeDetailVisible = true });
 
+    // [[TAP SEQUENCER]]
+    tapMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::tapSeq, .enableChangeDetailVisible = true });
+    tapAmpSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapAmpSeq.category().onImport = [this] { tapAmpSeq.importParams(); };
+    tapAmpSeq.category().onExport = [this] { tapAmpSeq.exportParams(); };
+    tapPitchSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
+    tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
+
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
@@ -155,11 +164,10 @@ void GuiSsg::setup()
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
     ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
-    ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
-    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11Component);
+    ieSsgSwEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E256", ssgSwEnv256Component);
 
-    ieSsgSwPEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11Component);
+    ieSsgSwPEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P256", ssgSwPEnv256Component);
 
     ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
@@ -170,6 +178,11 @@ void GuiSsg::setup()
     ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
     ieChParam.onClickImport = [this] { importChParam(); };
     ieChParam.onClickExport = [this] { exportChParam(); };
+
+    // 区分の見出しの右クリックの IMPORT / EXPORT を、UTILITY の [IM] / [EX] とつなぐ。
+    // 部品ごと渡したもの (setupComponentFor) は、そこでつないである。
+    ieQuality.bindCategory(qualityComponent.category());
+    ieToneNoise.bindCategory(formCat);
 
     waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::ssgWaveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
@@ -219,62 +232,96 @@ void GuiSsg::setup()
     // Duty Controls Setup
     dutyGroup.setup(*this, SsgGuiText::Group::ssgDuty);
 
-    dutyModeSelector.setup({ .parent = *this, .id = code + CPK::SsgDuty::mode, .title = SsgGuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
+    dutyModeSelector.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::mode, .title = SsgGuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
     dutyModeSelector.setWantsKeyboardFocus(true);
     dutyModeSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyPresetSelector.setup({ .parent = *this, .id = code + CPK::SsgDuty::preset, .title = SsgGuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
+    dutyPresetSelector.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::preset, .title = SsgGuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
     dutyPresetSelector.setWantsKeyboardFocus(true);
     dutyPresetSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyVarSlider.setup({ .parent = *this, .id = code + CPK::SsgDuty::var, .title = SsgGuiText::Ssg::Duty::var, .isReset = true });
+    dutyVarSlider.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::var, .title = SsgGuiText::Ssg::Duty::var, .isReset = true });
     dutyVarSlider.setWantsKeyboardFocus(true);
     dutyVarSlider.setExplicitFocusOrder(++tabOrder);
 
-    dutyFcButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::fc, .title = SsgGuiText::Ssg::Duty::fc, .isReset = true });
+    dutyFcButton.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::fc, .title = SsgGuiText::Ssg::Duty::fc, .isReset = true });
     dutyFcButton.setWantsKeyboardFocus(true);
     dutyFcButton.setExplicitFocusOrder(++tabOrder);
 
-    dutyFcFlucSlider.setup({ .parent = *this, .id = code + CPK::SsgDuty::fcFluc, .title = SsgGuiText::Ssg::Duty::fcFluc, .isReset = true });
+    dutyFcFlucSlider.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::fcFluc, .title = SsgGuiText::Ssg::Duty::fcFluc, .isReset = true });
     dutyFcFlucSlider.setWantsKeyboardFocus(true);
     dutyFcFlucSlider.setExplicitFocusOrder(++tabOrder);
 
-    pulseInvCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::invert });
+    dutyMoreFcButton.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::moreFc, .title = SsgGuiText::Ssg::Duty::moreFc, .isReset = true });
+    dutyMoreFcButton.setWantsKeyboardFocus(true);
+    dutyMoreFcButton.setExplicitFocusOrder(++tabOrder);
 
-    dutyInvertButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true });
+    dutyMoreNesButton.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::moreNes, .title = SsgGuiText::Ssg::Duty::moreNes, .isReset = true });
+    dutyMoreNesButton.setWantsKeyboardFocus(true);
+    dutyMoreNesButton.setExplicitFocusOrder(++tabOrder);
+
+    // FC Mode / More Real FC / More Real NES は 1 つだけ入る。入れたときに残りを切る。
+    // すべて切るのはかまわない。
+    auto makeExclusive = [this](GuiToggleButton& self, std::vector<GuiToggleButton*> others) {
+        self.onClick = [&self, others] {
+            if (!self.getToggleState()) return;
+
+            for (auto* other : others) {
+                if (other->getToggleState()) other->setToggleState(false, juce::sendNotification);
+            }
+            };
+        };
+
+    makeExclusive(dutyFcButton, { &dutyMoreFcButton, &dutyMoreNesButton });
+    makeExclusive(dutyMoreFcButton, { &dutyFcButton, &dutyMoreNesButton });
+    makeExclusive(dutyMoreNesButton, { &dutyFcButton, &dutyMoreFcButton });
+
+    pulseInvCat.setupSwCategory({ .parent = dutyGroup.contentCanvas, .title = SsgGuiText::Category::invert });
+
+    dutyInvertButton.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true });
     dutyInvertButton.setWantsKeyboardFocus(true);
     dutyInvertButton.setExplicitFocusOrder(++tabOrder);
 
+    // DUTY RATIO ENVELOPE。グループの一番下
+    dutyEnvComponent.setupComponent(dutyGroup.contentCanvas, code, tabOrder, ValueEnv::duty().keys.enable, "Enable", true);
+    dutyEnvComponent.category().onImport = [this] { dutyEnvComponent.importParams(); };
+    dutyEnvComponent.category().onExport = [this] { dutyEnvComponent.exportParams(); };
+
     triGroup.setup(*this, SsgGuiText::Group::ssgTri);
 
-    triKeyTrackButton.setup({ .parent = *this, .id = code + CPK::SsgTri::keyTrk, .title = SsgGuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
+    triKeyTrackButton.setup({ .parent = triGroup.contentCanvas, .id = code + CPK::SsgTri::keyTrk, .title = SsgGuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
     triKeyTrackButton.setWantsKeyboardFocus(true);
     triKeyTrackButton.setExplicitFocusOrder(++tabOrder);
 
-    triFreqSlider.setup({ .parent = *this, .id = code + CPK::SsgTri::freq, .title = SsgGuiText::Ssg::Tri::manualFreq, .isReset = true });
+    triFreqSlider.setup({ .parent = triGroup.contentCanvas, .id = code + CPK::SsgTri::freq, .title = SsgGuiText::Ssg::Tri::manualFreq, .isReset = true });
     triFreqSlider.setWantsKeyboardFocus(true);
     triFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    triPeakCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::peak });
+    triPeakCat.setupSwCategory({ .parent = triGroup.contentCanvas, .title = SsgGuiText::Category::peak });
 
-    triPeakSlider.setup({ .parent = *this, .id = code + CPK::SsgTri::peak, .title = SsgGuiText::Ssg::Tri::peak, .isReset = true });
+    triPeakSlider.setup({ .parent = triGroup.contentCanvas, .id = code + CPK::SsgTri::peak, .title = SsgGuiText::Ssg::Tri::peak, .isReset = true });
     triPeakSlider.setWantsKeyboardFocus(true);
     triPeakSlider.setExplicitFocusOrder(++tabOrder);
 
-    triSetSawDown.setup({ .parent = *this, .title = SsgGuiText::Ssg::Tri::peakTo00, .isReset = false, .isResized = false });
+    triSetSawDown.setup({ .parent = triGroup.contentCanvas, .title = SsgGuiText::Ssg::Tri::peakTo00, .isReset = false, .isResized = false });
     triSetSawDown.setWantsKeyboardFocus(true);
     triSetSawDown.setExplicitFocusOrder(++tabOrder);
     triSetSawDown.onClick = [this] { triPeakSlider.setValue(0.0, juce::sendNotification); };
 
-    triSetTri.setup({ .parent = *this, .title = SsgGuiText::Ssg::Tri::peakTo05, .isReset = false, .isResized = false });
+    triSetTri.setup({ .parent = triGroup.contentCanvas, .title = SsgGuiText::Ssg::Tri::peakTo05, .isReset = false, .isResized = false });
     triSetTri.setWantsKeyboardFocus(true);
     triSetTri.setExplicitFocusOrder(++tabOrder);
     triSetTri.onClick = [this] { triPeakSlider.setValue(0.5, juce::sendNotification); };
 
-    triSetSawUp.setup({ .parent = *this, .title = SsgGuiText::Ssg::Tri::peakTo10, .isReset = false, .isResized = false });
+    triSetSawUp.setup({ .parent = triGroup.contentCanvas, .title = SsgGuiText::Ssg::Tri::peakTo10, .isReset = false, .isResized = false });
     triSetSawUp.setWantsKeyboardFocus(true);
     triSetSawUp.setExplicitFocusOrder(++tabOrder);
     triSetSawUp.onClick = [this] { triPeakSlider.setValue(1.0, juce::sendNotification); };
+
+    // PEAK RATIO ENVELOPE。グループの一番下
+    peakEnvComponent.setupComponent(triGroup.contentCanvas, code, tabOrder, ValueEnv::peak().keys.enable, "Enable", true);
+    peakEnvComponent.category().onImport = [this] { peakEnvComponent.importParams(); };
+    peakEnvComponent.category().onExport = [this] { peakEnvComponent.exportParams(); };
 
     setupGraph();
     updateGraph();
@@ -321,10 +368,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     ampEnvComponent.layoutComponent(mRect);
     ssgHwEnvComponent.setCategoryVisible(ampOpen);
     ssgHwEnvComponent.layoutComponent(mRect);
-    ssgSwEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv));
-    ssgSwEnvComponent.layoutComponent(mRect);
-    ssgSwEnv11Component.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
-    ssgSwEnv11Component.layoutComponent(mRect);
+    ssgSwEnv256Component.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv256));
+    ssgSwEnv256Component.layoutComponent(mRect);
     ampModComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod));
     ampModComponent.layoutComponent(mRect);
 
@@ -334,19 +379,29 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     const bool pitchOpen = layoutMajorCategory(pitchMajorCat, mRect,
         pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)
         || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)
-        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256)
         || pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
 
     pitchEnvComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv));
     pitchEnvComponent.layoutComponent(mRect);
     ssgHwPEnvComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnvComponent.layoutComponent(mRect);
-    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
-    ssgSwPEnv11Component.layoutComponent(mRect);
+    ssgSwPEnv256Component.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256));
+    ssgSwPEnv256Component.layoutComponent(mRect);
     modComponent.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod));
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
+
+    // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, true);
+
+    tapAmpSeq.setCategoryVisible(tapOpen);
+    tapAmpSeq.layoutComponent(mRect);
+    tapPitchSeq.setCategoryVisible(tapOpen);
+    tapPitchSeq.layoutComponent(mRect);
+
+    tapMajorCat.endMajor(mRect);
 
     lfo.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Lfo));
     lfo.layoutComponent(mRect);
@@ -378,7 +433,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     // Wave Group
     float waveParam = *pluginOf(ctx).apvts.getRawParameterValue(code + CPK::ssgWaveform);
     int waveMode = PrHelper::floatToBoolToInt(waveParam);
-    auto waveArea = paramArea.removeFromTop(140);
+    // 一番下に段の数で伸びるエンベロープを持つので、欄の下まで使って中を縦に送る
+    auto waveArea = paramArea;
+
+    // 送る中身の高さを決めるための仮の長さ
+    constexpr int canvasHeight = 20000;
 
     if (waveMode == 0) // Pulse
     {
@@ -396,12 +455,14 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyVarSlider.setVisibleWithLabel(true);
         dutyFcButton.setVisible(true);
         dutyFcFlucSlider.setVisibleWithLabel(true);
+        dutyMoreFcButton.setVisible(true);
+        dutyMoreNesButton.setVisible(true);
         dutyInvertButton.setVisible(true);
 
         dutyGroup.setBounds(waveArea);
-        auto dRect = dutyGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
 
-        dRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
+        // 中身は送る板 (contentCanvas) の上に並べる。板はグループの枠から 4 だけ内側にある
+        auto dRect = juce::Rectangle<int>(0, 0, dutyGroup.getContentWidth(), canvasHeight).reduced(SsgGuiValue::Group::Padding::width - 4, 0);
 
         layoutRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
 
@@ -419,8 +480,15 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         layoutRow({ .rowRect = dRect, .component = &dutyFcButton });
         layoutRow({ .rowRect = dRect, .label = &dutyFcFlucSlider.label, .component = &dutyFcFlucSlider, });
+        layoutRow({ .rowRect = dRect, .component = &dutyMoreFcButton });
+        layoutRow({ .rowRect = dRect, .component = &dutyMoreNesButton });
 
-        layoutRow({ .rowRect = dRect, .component = &dutyInvertButton, .paddingBottom = 0 });
+        layoutRow({ .rowRect = dRect, .component = &dutyInvertButton });
+
+        dutyEnvComponent.setCategoryVisible(true);
+        dutyEnvComponent.layoutComponent(dRect);
+
+        dutyGroup.setContentHeight(canvasHeight - dRect.getHeight() + SsgGuiValue::Group::Padding::height);
     }
     else // Triangle
     {
@@ -432,6 +500,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyPresetSelector.setVisibleWithLabel(false);
         dutyFcButton.setVisible(false);
         dutyFcFlucSlider.setVisibleWithLabel(false);
+        dutyMoreFcButton.setVisible(false);
+        dutyMoreNesButton.setVisible(false);
         dutyVarSlider.setVisibleWithLabel(false);
 
         triKeyTrackButton.setVisible(true);
@@ -442,9 +512,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triSetSawUp.setVisible(true);
 
         triGroup.setBounds(waveArea);
-        auto tRect = triGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
 
-        tRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
+        auto tRect = juce::Rectangle<int>(0, 0, triGroup.getContentWidth(), canvasHeight).reduced(SsgGuiValue::Group::Padding::width - 4, 0);
 
         layoutRow({ .rowRect = tRect, .component = &triKeyTrackButton });
 
@@ -460,7 +529,12 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         }
 
         layoutRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
-        layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp, .paddingBottom = 0 });
+        layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp });
+
+        peakEnvComponent.setCategoryVisible(true);
+        peakEnvComponent.layoutComponent(tRect);
+
+        triGroup.setContentHeight(canvasHeight - tRect.getHeight() + SsgGuiValue::Group::Padding::height);
     }
 }
 
@@ -553,9 +627,8 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgHwPEnv.setVisible(visible);
     ieWtMod.setVisible(visible);
     ieWtAmpMod.setVisible(visible);
-    ieSsgSwEnv.setVisible(visible);
-    ieSsgSwEnv11.setVisible(visible);
-    ieSsgSwPEnv11.setVisible(visible);
+    ieSsgSwEnv256.setVisible(visible);
+    ieSsgSwPEnv256.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
     ieChParam.setVisible(visible);
@@ -576,11 +649,9 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieWtMod.layoutComponent(rect);
         ieWtAmpMod.layoutComponent(rect);
         rect.removeFromTop(4);
-        ieSsgSwEnv.layoutComponent(rect);
+        ieSsgSwEnv256.layoutComponent(rect);
         rect.removeFromTop(4);
-        ieSsgSwEnv11.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwPEnv11.layoutComponent(rect);
+        ieSsgSwPEnv256.layoutComponent(rect);
         rect.removeFromTop(4);
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -598,6 +669,9 @@ void GuiSsg::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
 
+    // 4.0.0: 横方向の拡大 (x1〜x32、ホイール、右ボタンで送る)
+    graph.setZoomable(true);
+
     graphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
@@ -605,14 +679,12 @@ void GuiSsg::setupGraph()
     graphBtnPitch.setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
     graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
 
-    graphBtnSsg.setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
-    graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
 
-    graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
-    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw11); };
+    graphBtnSsg256.setup({ .parent = *this, .title = "S256", .isReset = false, .isResized = false });
+    graphBtnSsg256.onClick = [this] { setGraphMode(GraphMode::SsgSw256); };
 
-    graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
-    graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
+    graphBtnSsgP256.setup({ .parent = *this, .title = "P256", .isReset = false, .isResized = false });
+    graphBtnSsgP256.onClick = [this] { setGraphMode(GraphMode::SsgSwP256); };
 
     auto repaintGraph = [this]() {
         if (this->isUpdatingGraph) return;
@@ -628,11 +700,10 @@ void GuiSsg::setupGraph()
 
     pitchEnvComponent.setupGraph(repaintGraph);
 
-    ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    ssgSwEnv11Component.setupGraph(repaintGraph);
+    ssgSwEnv256Component.setupGraph(repaintGraph);
 
-    ssgSwPEnv11Component.setupGraph(repaintGraph);
+    ssgSwPEnv256Component.setupGraph(repaintGraph);
 
     graphSeparator.setupComponent(*this);
 }
@@ -644,9 +715,8 @@ void GuiSsg::setGraphMode(GraphMode mode)
     // ラジオボタン的な排他制御
     graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
-    graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
-    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
-    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
+    graphBtnSsg256.setToggleState(mode == GraphMode::SsgSw256, juce::dontSendNotification);
+    graphBtnSsgP256.setToggleState(mode == GraphMode::SsgSwP256, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -660,13 +730,12 @@ void GuiSsg::layoutGraph(juce::Rectangle<int>& rect)
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(SsgGuiValue::MainGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 5;
+    int btnWidth = btnArea.getWidth() / 4;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsgP11.setBounds(btnArea);
+    graphBtnSsg256.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsgP256.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -684,22 +753,16 @@ void GuiSsg::updateGraph()
         pitchEnvComponent.updateGraph(graph);
     }
     // =============================================================
-    // SSG SW Env
-    // =============================================================
-    else if (mode == GraphMode::SsgSw) {
-        ssgSwEnvComponent.updateGraph(graph);
-    }
-    // =============================================================
     // SSG SW Env 11
     // =============================================================
-    else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11Component.updateGraph(graph);
+    else if (mode == GraphMode::SsgSw256) {
+        ssgSwEnv256Component.updateGraph(graph);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
-    else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11Component.updateGraph(graph);
+    else if (mode == GraphMode::SsgSwP256) {
+        ssgSwPEnv256Component.updateGraph(graph);
     }
     // =============================================================
     // Amp Env
@@ -928,6 +991,8 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
+    tapAmpSeq.readParams(*reader, "tapAmp");
+    tapPitchSeq.readParams(*reader, "tapPitch");
     speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
     waveHold.readParams(*reader);
 
@@ -946,6 +1011,9 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
     dutyInvertButton.setToggleState(reader->getBool("dutyInvert", dutyInvertButton.getToggleState()), juce::sendNotification);
     dutyFcButton.setToggleState(reader->getBool("dutyFc", dutyFcButton.getToggleState()), juce::sendNotification);
     dutyFcFlucSlider.setValue(reader->getFloat("dutyFcFluc", (float)dutyFcFlucSlider.getValue()), juce::sendNotification);
+    // 4.0.0 で足した。古いファイルには無いので、無ければ切にする。
+    dutyMoreFcButton.setToggleState(reader->getBool("dutyMoreFc", false), juce::sendNotification);
+    dutyMoreNesButton.setToggleState(reader->getBool("dutyMoreNes", false), juce::sendNotification);
 
     // Triangle
     triKeyTrackButton.setToggleState(reader->getBool("triKeyTrack", triKeyTrackButton.getToggleState()), juce::sendNotification);
@@ -958,9 +1026,10 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
     fixComponent.readParams(*reader, "fix");
     ampEnvComponent.readParams(*reader, "ampEnv");
     pitchEnvComponent.readParams(*reader, "pitchEnv");
-    ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
-    ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
-    ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
+    ssgSwEnv256Component.readParams(*reader, "ssgSwEnv256");
+    ssgSwPEnv256Component.readParams(*reader, "ssgSwPEnv256");
+    dutyEnvComponent.readParams(*reader, "dutyEnv");
+    peakEnvComponent.readParams(*reader, "peakEnv");
     mulDetuneComponent.readParams(*reader, "mulDetune");
     lfo.readParams(*reader, "lfo");
     qualityComponent.readParams(*reader, "quality");
@@ -1025,9 +1094,8 @@ void GuiSsg::setImportingChParams(juce::StringArray& lines, int& index) {
 	fixComponent.setImportingParams(lines, index);
 	ampEnvComponent.setImportingParams(lines, index);
 	pitchEnvComponent.setImportingParams(lines, index);
-	ssgSwEnvComponent.setImportingParams(lines, index);
-	ssgSwEnv11Component.setImportingParams(lines, index);
-	ssgSwPEnv11Component.setImportingParams(lines, index);
+	ssgSwEnv256Component.setImportingParamsWithSixStep(lines, index);
+	ssgSwPEnv256Component.setImportingParams(lines, index);
 	mulDetuneComponent.setImportingParams(lines, index);
 	lfo.setImportingParams(lines, index);
 	qualityComponent.setImportingParams(lines, index);
@@ -1046,6 +1114,8 @@ void GuiSsg::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
+	tapAmpSeq.writeParams(writer, "tapAmp");
+	tapPitchSeq.writeParams(writer, "tapPitch");
 	writer.set("speed", (float)speedSlider.getValue());
 	waveHold.writeParams(writer);
 
@@ -1066,6 +1136,8 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	writer.set("dutyInvert", dutyInvertButton.getToggleState());
 	writer.set("dutyFc", dutyFcButton.getToggleState());
 	writer.set("dutyFcFluc", (float)dutyFcFlucSlider.getValue());
+	writer.set("dutyMoreFc", dutyMoreFcButton.getToggleState());
+	writer.set("dutyMoreNes", dutyMoreNesButton.getToggleState());
 
 	// Triangle
 	writer.set("triKeyTrack", triKeyTrackButton.getToggleState());
@@ -1078,9 +1150,10 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	fixComponent.writeParams(writer, "fix");
 	ampEnvComponent.writeParams(writer, "ampEnv");
 	pitchEnvComponent.writeParams(writer, "pitchEnv");
-	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
-	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
-	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+	ssgSwEnv256Component.writeParams(writer, "ssgSwEnv256");
+	ssgSwPEnv256Component.writeParams(writer, "ssgSwPEnv256");
+	dutyEnvComponent.writeParams(writer, "dutyEnv");
+	peakEnvComponent.writeParams(writer, "peakEnv");
 	mulDetuneComponent.writeParams(writer, "mulDetune");
 	lfo.writeParams(writer, "lfo");
 	qualityComponent.writeParams(writer, "quality");
@@ -1090,7 +1163,7 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	modComponent.writeParams(writer, "wtMod");
 	ampModComponent.writeParams(writer, "wtAmpMod");
 
-	
+
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
@@ -1117,7 +1190,7 @@ void GuiSsg::writeToneNoiseParams(Io::ParamWriter& writer) {
 	writer.set("noiseFreq", (float)noiseFreqSlider.getValue());
 	writer.set("mix", (float)mixSlider.getValue());
 
-	
+
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
@@ -1140,19 +1213,18 @@ void GuiSsg::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("bit", qualityComponent.getBit());
 	writer.set("rate", qualityComponent.getRate());
 
-	
+
 }
 
 void GuiSsg::bypassHiddenCategories()
 {
     // いま隠れている区分だけを切る。出したままの区分は触らない。
     if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv256)) ssgSwEnv256Component.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256)) ssgSwPEnv256Component.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) modComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfo.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
@@ -1164,12 +1236,11 @@ void GuiSsg::openEnabledCategories()
 {
     // 効いている区分を開く。札を持たない区分は触らない。
     if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
-    if (ssgSwEnvComponent.hasBypassSwitch() && !ssgSwEnvComponent.isCategoryBypassed()) ssgSwEnvComponent.setCategoryOpen(true);
-    if (ssgSwEnv11Component.hasBypassSwitch() && !ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(true);
+    if (ssgSwEnv256Component.hasBypassSwitch() && !ssgSwEnv256Component.isCategoryBypassed()) ssgSwEnv256Component.setCategoryOpen(true);
     if (ampModComponent.hasBypassSwitch() && !ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(true);
     if (pitchEnvComponent.hasBypassSwitch() && !pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(true);
     if (ssgHwPEnvComponent.hasBypassSwitch() && !ssgHwPEnvComponent.isCategoryBypassed()) ssgHwPEnvComponent.setCategoryOpen(true);
-    if (ssgSwPEnv11Component.hasBypassSwitch() && !ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(true);
+    if (ssgSwPEnv256Component.hasBypassSwitch() && !ssgSwPEnv256Component.isCategoryBypassed()) ssgSwPEnv256Component.setCategoryOpen(true);
     if (modComponent.hasBypassSwitch() && !modComponent.isCategoryBypassed()) modComponent.setCategoryOpen(true);
     if (lfo.hasBypassSwitch() && !lfo.isCategoryBypassed()) lfo.setCategoryOpen(true);
     if (mulDetuneComponent.hasBypassSwitch() && !mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(true);
@@ -1177,20 +1248,19 @@ void GuiSsg::openEnabledCategories()
     if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
 
     // 大区分は中の区分に合わせる。効いている区分があれば開く。
-    if (anyCategoryEnabled(ampEnvComponent, ssgHwEnvComponent, ssgSwEnvComponent, ssgSwEnv11Component, ampModComponent)) ampMajorCat.setDetailVisible(true);
-    if (anyCategoryEnabled(pitchEnvComponent, ssgHwPEnvComponent, ssgSwPEnv11Component, modComponent)) pitchMajorCat.setDetailVisible(true);
+    if (anyCategoryEnabled(ampEnvComponent, ssgHwEnvComponent, ssgSwEnv256Component, ampModComponent)) ampMajorCat.setDetailVisible(true);
+    if (anyCategoryEnabled(pitchEnvComponent, ssgHwPEnvComponent, ssgSwPEnv256Component, modComponent)) pitchMajorCat.setDetailVisible(true);
 }
 
 void GuiSsg::closeBypassedCategories()
 {
     // 切ってある区分を閉じる。札を持たない区分は触らない。
     if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
-    if (ssgSwEnvComponent.hasBypassSwitch() && ssgSwEnvComponent.isCategoryBypassed()) ssgSwEnvComponent.setCategoryOpen(false);
-    if (ssgSwEnv11Component.hasBypassSwitch() && ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(false);
+    if (ssgSwEnv256Component.hasBypassSwitch() && ssgSwEnv256Component.isCategoryBypassed()) ssgSwEnv256Component.setCategoryOpen(false);
     if (ampModComponent.hasBypassSwitch() && ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(false);
     if (pitchEnvComponent.hasBypassSwitch() && pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(false);
     if (ssgHwPEnvComponent.hasBypassSwitch() && ssgHwPEnvComponent.isCategoryBypassed()) ssgHwPEnvComponent.setCategoryOpen(false);
-    if (ssgSwPEnv11Component.hasBypassSwitch() && ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(false);
+    if (ssgSwPEnv256Component.hasBypassSwitch() && ssgSwPEnv256Component.isCategoryBypassed()) ssgSwPEnv256Component.setCategoryOpen(false);
     if (modComponent.hasBypassSwitch() && modComponent.isCategoryBypassed()) modComponent.setCategoryOpen(false);
     if (lfo.hasBypassSwitch() && lfo.isCategoryBypassed()) lfo.setCategoryOpen(false);
     if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
@@ -1198,6 +1268,6 @@ void GuiSsg::closeBypassedCategories()
     if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
 
     // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
-    if (allCategoriesBypassed(ampEnvComponent, ssgHwEnvComponent, ssgSwEnvComponent, ssgSwEnv11Component, ampModComponent)) ampMajorCat.setDetailVisible(false);
-    if (allCategoriesBypassed(pitchEnvComponent, ssgHwPEnvComponent, ssgSwPEnv11Component, modComponent)) pitchMajorCat.setDetailVisible(false);
+    if (allCategoriesBypassed(ampEnvComponent, ssgHwEnvComponent, ssgSwEnv256Component, ampModComponent)) ampMajorCat.setDetailVisible(false);
+    if (allCategoriesBypassed(pitchEnvComponent, ssgHwPEnvComponent, ssgSwPEnv256Component, modComponent)) pitchMajorCat.setDetailVisible(false);
 }

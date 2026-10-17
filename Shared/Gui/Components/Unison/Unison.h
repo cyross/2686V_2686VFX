@@ -46,6 +46,9 @@ class GuiComponentUnison : public GuiBase {
     std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
+    // 区分の見出し。右クリックの IMPORT / EXPORT をつなぐのに使う
+    GuiCategoryLabel& category() { return cat; }
+
 
     // 簡易表示モードで丸ごと隠す。見出しごと消え、縦の場所も取らない。
     //

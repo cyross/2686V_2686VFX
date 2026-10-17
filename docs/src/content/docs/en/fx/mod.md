@@ -30,9 +30,9 @@ doing nothing). Switch off only the ones you want.
 
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
-| **Bypass envelopes** | Takes AMP ENV, SSG HW AMP ENV, SSG SW AMP ENV[11] and WT AMP MOD out together | on / off | on | [`MOD_ENV_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-env-bypass) |
+| **Bypass envelopes** | Takes AMP ENV, SSG HW AMP ENV, SSG SW AMP ENV[256] and WT AMP MOD out together | on / off | on | [`MOD_ENV_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-env-bypass) |
 | **Bypass LFO** | Takes the LFO out | on / off | on | [`MOD_LFO_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-lfo-bypass) |
-| **Bypass pitch modulation** | Takes PITCH ENV, SSG HW PITCH ENV, SSG SW PITCH ENV[11] and WT PITCH MOD out together | on / off | on | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-pitch-bypass) |
+| **Bypass pitch modulation** | Takes PITCH ENV, SSG HW PITCH ENV, SSG SW PITCH ENV[256] and WT PITCH MOD out together | on / off | on | [`MOD_PITCH_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-pitch-bypass) |
 | **Bypass pitch shift** | Takes MUL・DET and UNISON・HARMONY out together | on / off | on | [`MOD_SHIFT_BYPASS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-shift-bypass) |
 
 ## Key assign — which key drives the modulation
@@ -58,10 +58,12 @@ note names, 60 is C3.
 | **AMP ENV** | The key that drives AMP ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_AMPENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ampenv) |
 | **SSG HW AMP ENV** | The key that drives SSG HW AMP ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGHWENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssghwenv) |
 | **WT AMP MOD** | The key that drives WT AMP MOD | 0 to 127 | 60 (C3) | [`MOD_KEY_WTAMPMOD`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-wtampmod) |
-| **SSG SW AMP ENV\[11\]** | The key that drives SSG SW AMP ENV\[11\] | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGSWENV11`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssgswenv11) |
+| **SSG SW AMP ENV\[256\]** | The key that drives SSG SW AMP ENV\[256\] | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGSWENV11`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssgswenv11) |
+| **AMP SEQUENCER** | The key that drives AMP SEQUENCER (from 4.0.0) | 0 to 127 | 60 (C3) | [`MOD_KEY_TAPAMP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-tapamp) |
 | **PITCH ENV** | The key that drives PITCH ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_PITCHENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-pitchenv) |
 | **SSG HW PITCH ENV** | The key that drives SSG HW PITCH ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGHWPENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssghwpenv) |
-| **SSG SW PITCH ENV\[11\]** | The key that drives SSG SW PITCH ENV\[11\] | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGSWPENV11`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssgswpenv11) |
+| **SSG SW PITCH ENV\[256\]** | The key that drives SSG SW PITCH ENV\[256\] | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGSWPENV11`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssgswpenv11) |
+| **PITCH SEQUENCER** | The key that drives PITCH SEQUENCER (from 4.0.0) | 0 to 127 | 60 (C3) | [`MOD_KEY_TAPPITCH`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-tappitch) |
 | **WT PITCH MOD** | The key that drives WT PITCH MOD | 0 to 127 | 60 (C3) | [`MOD_KEY_WTMOD`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-wtmod) |
 | **LFO AM** | The key that drives LFO AM | 0 to 127 | 60 (C3) | [`MOD_KEY_LFOAM`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-lfoam) |
 | **LFO PM** | The key that drives LFO PM | 0 to 127 | 60 (C3) | [`MOD_KEY_LFOPM`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-lfopm) |
@@ -73,10 +75,12 @@ What the assigned key does depends on the target:
 
 | Target | Behavior |
 | --- | --- |
-| Envelopes (AMP ENV, PITCH ENV, SSG HW, SSG SW[11] and WT MOD panels) | Start on key down, release on key up |
+| Envelopes (AMP ENV, PITCH ENV, SSG HW, SSG SW[256] and WT MOD panels) | Start on key down, release on key up |
 | LFO AM / LFO PM | Applied **only while the key is held**. Restarts from the top on key down |
 | MUL/DET / UNISON/HARMONY | Applied **only while the key is held** |
 | ARPEGGIO | Arpeggiates **only while the key is held**. Starts from the first voice on key down |
+| AMP SEQUENCER | Each press moves on one step; **only while the key is held** the sound plays at that step's ratio. Released, it is silent |
+| PITCH SEQUENCER | Each press moves on one step; **only while the key is held** the pitch shifts by that step's cents. Released, it returns to the original pitch |
 
 - The same key can be assigned to several targets; pressing it drives all of them.
 - In Customize mode, the colour of each modulation panel's title shows whether it
@@ -114,7 +118,7 @@ Moves the level from the moment the key goes down to after it comes up.
 
 Under the same "bypass envelopes" switch there are also
 [SSG HW AMP ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-amp-env),
-[SSG SW AMP ENV\[11\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env11) and
+[SSG SW AMP ENV\[256\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env256) and
 [WT AMP MOD](/2686V_2686VFX/en/chips/common/#wt-amp-mod). They work exactly as they do on
 the instruments.
 
@@ -124,8 +128,8 @@ the instruments.
 </figure>
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_amp_env_11.png" alt="SSG SW AMP ENV[11]" style="width:400px;" />
-	<figcaption>SSG SW AMP ENV[11]</figcaption>
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_amp_env_11.png" alt="SSG SW AMP ENV[256]" style="width:400px;" />
+	<figcaption>SSG SW AMP ENV[256]</figcaption>
 </figure>
 
 ## LFO
@@ -164,12 +168,12 @@ Moves the pitch from the moment the key goes down to after it comes up.
 
 Under the same "bypass pitch modulation" switch there are also
 [SSG HW PITCH ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-pitch-env),
-[SSG SW PITCH ENV\[11\]](/2686V_2686VFX/en/chips/common/#ssg-sw-pitch-env11) and
+[SSG SW PITCH ENV\[256\]](/2686V_2686VFX/en/chips/common/#ssg-sw-pitch-env256) and
 [WT PITCH MOD](/2686V_2686VFX/en/chips/common/#wt-pitch-mod).
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_pitch_env_11.png" alt="SSG SW PITCH ENV[11]" style="width:400px;" />
-	<figcaption>SSG SW PITCH ENV[11]</figcaption>
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_pitch_env_11.png" alt="SSG SW PITCH ENV[256]" style="width:400px;" />
+	<figcaption>SSG SW PITCH ENV[256]</figcaption>
 </figure>
 
 <figure class="shot">

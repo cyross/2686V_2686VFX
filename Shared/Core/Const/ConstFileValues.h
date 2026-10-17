@@ -86,7 +86,22 @@ namespace Io
 		static inline const juce::String SsgHwPEnvParam = "ssgHwPEnv";
 		static inline const juce::String WtModParam = "wtmod";
 		static inline const juce::String WtAmpModParam = "wtampmod";
-		static inline const juce::String SsgSwEnvParam = "ssgSwEnv";
+		static inline const juce::String SsgSwEnvParam256 = "ssgSwEnv256";
+		static inline const juce::String SsgSwPEnvParam256 = "ssgSwPEnv256";
+
+		// SSG の DUTY RATIO ENV / PEAK RATIO ENV (4.0.0 から)
+		static inline const juce::String DutyEnvParam = "dutyEnv";
+		static inline const juce::String PeakEnvParam = "peakEnv";
+
+		// FM 音源のオペレーターの TL ENV (4.0.0 から)
+		static inline const juce::String TlEnvParam = "tlEnv";
+		static inline const juce::String AlgEnvParam = "algEnv";
+
+		// TAP AMP / PITCH SEQUENCER (4.0.0 から)
+		static inline const juce::String TapAmpParam = "tapAmp";
+		static inline const juce::String TapPitchParam = "tapPitch";
+
+		// 3.6.3 までの SSG SW AMP / PITCH ENV[11] のファイル。読み込みだけ。
 		static inline const juce::String SsgSwEnvParam11 = "ssgSwEnv11";
 		static inline const juce::String SsgSwPEnvParam11 = "ssgSwPEnv11";
 		static inline const juce::String PitchEnvParam = "pitchEnv";
@@ -137,10 +152,10 @@ namespace Io
 		static inline const juce::String SsgHwPEnvParam = "*.ssgHwPEnv.json;*.ssgHwPEnv.yaml;*.ssgHwPEnv";
 		static inline const juce::String WtModParam = "*.wtmod.json;*.wtmod.yaml;*.wtmod";
 		static inline const juce::String WtAmpModParam = "*.wtampmod.json;*.wtampmod.yaml;*.wtampmod";
-		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv.json;*.ssgSwEnv.yaml;*.ssgSwEnv";
 		static inline const juce::String PitchEnvParam = "*.pitchEnv.json;*.pitchEnv.yaml;*.pitchEnv";
-		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11.json;*.ssgSwEnv11.yaml;*.ssgSwEnv11";
-		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11.json;*.ssgSwPEnv11.yaml;*.ssgSwPEnv11";
+		// 読み込みでは 3.6.3 までの [11] と、それより前の 6 段のファイルも選べる
+		static inline const juce::String SsgSwEnvParam256 = "*.ssgSwEnv256.json;*.ssgSwEnv256.yaml;*.ssgSwEnv256;*.ssgSwEnv11.json;*.ssgSwEnv11.yaml;*.ssgSwEnv11;*.ssgSwEnv.json;*.ssgSwEnv.yaml;*.ssgSwEnv";
+		static inline const juce::String SsgSwPEnvParam256 = "*.ssgSwPEnv256.json;*.ssgSwPEnv256.yaml;*.ssgSwPEnv256;*.ssgSwPEnv11.json;*.ssgSwPEnv11.yaml;*.ssgSwPEnv11";
 		static inline const juce::String DetuneParam = "*.detune.json;*.detune.yaml;*.detune";
 		static inline const juce::String UnisonParam = "*.unison.json;*.unison.yaml;*.unison";
 		static inline const juce::String QualityParam = "*.quality.json;*.quality.yaml;*.quality";

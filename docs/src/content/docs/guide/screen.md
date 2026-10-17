@@ -71,11 +71,13 @@ OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM のタブは、**上にエンベ
 
 | ところ | はたらき |
 | --- | --- |
-| 上の枠 | オペレーター（パッド）ごとのエンベロープグラフ。横 4 枚ずつ並びます。**押すとそこへ TARGET が移ります** |
+| 左の大きな枠 | TARGET が指しているオペレーター（パッド）のグラフを大きく出します（4.0.0 から）。波形のあるタブ（OPZX7S / RHYTHM）は波形もその上に大きく出ます。TARGET を切り替えると、すぐにその内容になります |
+| 拡大 | 左の大きな枠と、チャンネルのグラフは横に広げられます（4.0.0 から）。下のつまみで 1.0〜32.0 倍、x1 / x2 / x4 / x8 / x16 / x32 のボタンで直に。グラフの中でホイールを回しても変わり、**右ボタンで引きずる**か下の送り棒で横へ送ります。小さな枠は広げられません |
+| 右の小さな枠 | オペレーター（パッド）ごとのエンベロープグラフ。横 4 枚ずつ並びます。**押すとそこへ TARGET が移ります** |
 | 枠線 | TARGET が指している枠だけ濃く囲います |
 | TARGET | 下の設定が指しているオペレーター（パッド）。画面を閉じても覚えています |
 | 名前 | TARGET の右に、指しているものの名前（「オペレーター1」「Pad 1 (BD)」など）が出ます |
-| AMP / PIT / SSG / S11 / P11 | 上のエンベロープグラフに**どのエンベロープを映すか**。枠ごとではなく全部まとめて切り替わります |
+| AMP / PIT / SSG / S256 / P256 | 上のエンベロープグラフに**どのエンベロープを映すか**。枠ごとではなく全部まとめて切り替わります |
 | 設定の列 | 区分が横へ 1 列ずつ並びます。あふれたぶんは下の送り棒で送ります |
 
 エンベロープグラフに出るものはタブによって少し違います。
@@ -100,7 +102,8 @@ TARGET は **Ctrl + ← / →** でひとつずつ、**Ctrl + 数字**でその�
 ### カテゴリの見出し
 
 中身のまとまりごとに見出しが付きます。**左端のランプで開閉が分かります。**
-見出しを押すと開閉します。
+見出しを押すと開閉します。FM 音源の ALGORITHM/FEEDBACK も 4.0.0 から開閉でき、
+最初は開いています。
 
 開いているあいだは、中身の後ろに板が敷かれます。どこまでがそのカテゴリかを
 目で追えるようにするためです。
@@ -110,7 +113,7 @@ TARGET は **Ctrl + ← / →** でひとつずつ、**Ctrl + 数字**でその�
 | 色 | 意味 |
 | --- | --- |
 | 黄色 | 実機にあった機能 |
-| 青色 | 音量にかかわるもの（AMP ENV / SSG SW AMP ENV / WT AMP MOD など） |
+| 青色 | 音量にかかわるもの（AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD など） |
 | ターコイズ | 音程にかかわるもの（PITCH ENV / SSG SW PITCH ENV / WT PITCH MOD など） |
 | 紫色 | LFO |
 | シアン | 上のどれでもないもの（OPTIONAL / UNISON・HARMONY / FIX / MUL・DET） |
@@ -152,13 +155,13 @@ TARGET で指し先を切り替えたときや、プリセットを読み込ん�
 
 | 大区分 | 中に入る区分 |
 | --- | --- |
-| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
-| **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 
 - 対象は OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 / WT+ /
   ADPCM / ADPCM+ / BEEP のタブです。区分の並び順は変わりません
 - 中に入るのは、そのタブが持っている区分だけです。FM 音源のタブには、
-  チャンネル全体の SSG SW AMP ENV と PITCH ENV がありません
+  チャンネル全体の PITCH ENV がありません
 - 見出しは下地がオフホワイトです。ランプの色と、押して開閉するのは
   ほかの見出しと同じです
 - **最初は閉じています。** 開くと、中の区分が板の上に並びます
@@ -195,8 +198,8 @@ WT PITCH MOD が残るのはそのためです。2686VFX では変調の枠が�
 
 | 区分 |
 | --- |
-| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
-| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 | LFO / MUL・DET / FIX / UNISON・HARMONY |
 
 設定は他の項目と同じく設定ファイルへ保存されます。

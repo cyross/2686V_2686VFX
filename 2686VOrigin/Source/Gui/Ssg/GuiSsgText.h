@@ -49,17 +49,12 @@ namespace SsgGuiText
 		static inline const juce::String bypass = u8"Bypass";
 	}
 
-	namespace SsgSwEnv
+	namespace SsgSwEnv256
 	{
 		static inline const juce::String bypass = u8"Bypass";
 	}
 
-	namespace SsgSwEnv11
-	{
-		static inline const juce::String bypass = u8"Bypass";
-	}
-
-	namespace SsgSwPEnv11
+	namespace SsgSwPEnv256
 	{
 		static inline const juce::String bypass = u8"Bypass";
 	}
@@ -102,6 +97,8 @@ namespace SsgGuiText
 			static inline const juce::String invert = u8"Invert Phrase";
 			static inline const juce::String fc = u8"FC Mode";
 			static inline const juce::String fcFluc = u8"FC FLUC";
+			static inline const juce::String moreFc = u8"More Real FC";
+			static inline const juce::String moreNes = u8"More Real NES";
 		}
 
 		namespace Tri
@@ -132,8 +129,6 @@ namespace SsgGuiText
 		static inline const juce::String ampEnvFileExport = u8"[EX]Amp Env";
 		static inline const juce::String pitchEnvFileImport = u8"[IM]Pitch Env";
 		static inline const juce::String pitchEnvFileExport = u8"[EX]Pitch Env";
-		static inline const juce::String ssgSwEnvFileImport = u8"[IM]SSG SW Env";
-		static inline const juce::String ssgSwEnvFileExport = u8"[EX]SSG SW Env";
 		static inline const juce::String detuneFileImport = u8"[IM]Detune";
 		static inline const juce::String detuneFileExport = u8"[EX]Detune";
 		static inline const juce::String unisonFileImport = u8"[IM]Unison";

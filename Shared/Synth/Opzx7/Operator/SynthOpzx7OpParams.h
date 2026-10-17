@@ -1,12 +1,13 @@
 ﻿#pragma once
 
+#include "Shared/Effect/Envelope/Step/EnvStep.h"
+
 #include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Generator/Fm/Fix/FmFixParams.h"
@@ -19,14 +20,16 @@ struct Opzx7OpParams
     float delay = 0.0f;
 
     Opzx7AdddrParams m_adsrParams;
-    bool ssgEnvEnable = false;
-    SsgSwEnvParams ssgSwEnv;
-    bool ssgEnv11Enable = false;
-    SsgSwEnv11Params ssgSwEnv11;
+    bool ssgEnv256Enable = false;
+    SsgSwEnv256Params ssgSwEnv256;
+
+    // TL ENV。段の TL を押したときの TL と置き換える
+    bool tlEnvEnable = false;
+    StepEnvParams tlEnv;
     bool pitchEnvEnable = true;
     PitchAdsrParams pitchAdsr;
-    bool ssgPEnv11Enable = true;
-    SsgSwPEnv11Params ssgSwPEnv11;
+    bool ssgPEnv256Enable = true;
+    SsgSwPEnv256Params ssgSwPEnv256;
     SsgHwPEnvParams ssgHwPEnv;
     WtAmpModParams wtAmpMod;
     SsgHwEnvParams ssgHwEnv;

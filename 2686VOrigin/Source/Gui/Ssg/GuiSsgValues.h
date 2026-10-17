@@ -23,11 +23,11 @@ namespace SsgGuiValue
 
 	namespace MainGroup
 	{
-		static inline constexpr int width = 260;
+		static inline constexpr int width = 312;
 
 		namespace Graph
 		{
-			static inline constexpr int height = 120;
+			static inline constexpr int height = 146;
 			static inline constexpr int ButtonHeight = 16;
 		}
 
@@ -39,6 +39,6 @@ namespace SsgGuiValue
 
 	namespace ParamGroup
 	{
-		static inline constexpr int width = 250;
+		static inline constexpr int width = 300;
 	}
 }

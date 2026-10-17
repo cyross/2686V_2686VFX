@@ -42,9 +42,8 @@ sidebar:
 | **RegValue** | AR / DR(D1R) / SL(D1L) / RR / SR(D2R) / TL |
 | [**AmpEnv**](/2686V_2686VFX/chips/common/#amp-env) | AR / DR / RR / SR |
 | [**PitchEnv**](/2686V_2686VFX/chips/common/#pitch-env) | AR / DR / RR |
-| [**SsgSwEnv**](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) | R1〜R6 と LoopTo |
-| [**SsgSwEnv11**](/2686V_2686VFX/chips/common/#ssg-sw-amp-env11) | R1〜R11 と LoopTo |
-| [**SsgSwPEnv11**](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env11) | R1〜R11 と LoopTo |
+| [**SsgSwEnv256**](/2686V_2686VFX/chips/common/#ssg-sw-amp-env256) | R1〜R10（段。11 段目からは R10）、R11（リリース）と LoopTo |
+| [**SsgSwPEnv256**](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env256) | R1〜R10（段。11 段目からは R10）、R11（リリース）と LoopTo |
 
 レジスタの値そのものにも、各エンベロープのレートにも掛けられます。
 それぞれのエンベロープの中身は
@@ -89,6 +88,18 @@ sidebar:
 | **CX** / **CY**（`C1X`〜`C6Y`） | 曲がり具合を決める制御点 |
 
 X が時間の方向、Y が値の方向です。スプラインを選ぶと制御点が増えます。
+
+## パラメータの編集ボタン
+
+各パラメータの Logic / K の下に、**CUT・COPY・PASTE・DUPLICATE・CLEAR** のボタンがあります（4.0.0 から）。
+
+| ボタン | 内容 |
+| --- | --- |
+| **CUT** | そのパラメータのカーブ（Logic・K・通過ポイント）を写してから、初期の状態に戻す |
+| **COPY** | そのパラメータのカーブを写す |
+| **PASTE** | 写したカーブを貼る。Position・Target が違うパラメータへも貼れる |
+| **DUPLICATE** | 同じ Position・Target のほかのパラメータへ写す。写し先はチェックボックスのダイアログで選ぶ |
+| **CLEAR** | 初期の状態（線形）に戻す |
 
 ## 使いどころ
 

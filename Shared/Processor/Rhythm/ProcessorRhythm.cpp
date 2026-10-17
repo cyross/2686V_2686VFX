@@ -13,6 +13,10 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     const juce::String prefix = RhythmPrKey::prefix;
     const juce::String prefixName = RhythmPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addRhythmLevelParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
 
@@ -30,9 +34,8 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         PrHelper::addEnvBypassParameters(layout, padPrefix, padPrefixName);
         PrHelper::addOpEnvParameters(layout, padPrefix, padPrefixName);
         PrHelper::addOpPitchEnvParameters(layout, padPrefix, padPrefixName);
-        PrHelper::addSsgSwEnvParameters(layout, padPrefix, padPrefixName);
-        PrHelper::addSsgSwEnv11Parameters(layout, padPrefix, padPrefixName);
-        PrHelper::addSsgSwPEnv11Parameters(layout, padPrefix, padPrefixName);
+        PrHelper::addSsgSwEnv256Parameters(layout, padPrefix, padPrefixName);
+        PrHelper::addSsgSwPEnv256Parameters(layout, padPrefix, padPrefixName);
         PrHelper::addOpzx7LfoParameters(layout, padPrefix, padPrefixName);
         PrHelper::addFixParameters(layout, padPrefix, padPrefixName);
         PrHelper::addOpzx7DetuneParameters(layout, padPrefix, padPrefixName);
@@ -44,8 +47,11 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     }
 }
 
-void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
+void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = RhythmPrKey::prefix;
+
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
 
     PrHelper::setupRhythmBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
@@ -59,9 +65,8 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
         PrHelper::setupWtMod(apvts, padPrefix, pWtMod[i], modWaves);
         PrHelper::setupWtAmpMod(apvts, padPrefix, pWtAmpMod[i], modWaves);
         PrHelper::setupPitchEnvPtrs(apvts, padPrefix, pPitchEnv[i]);
-        PrHelper::setupSsgSwEnvPtrs(apvts, padPrefix, pSsgSwEnv[i]);
-        PrHelper::setupSsgSwEnv11Ptrs(apvts, padPrefix, pSsgSwEnv11[i]);
-        PrHelper::setupSsgSwPEnv11Ptrs(apvts, padPrefix, pSsgSwPEnv11[i]);
+        PrHelper::setupSsgSwEnv256Ptrs(apvts, padPrefix, pSsgSwEnv256[i], stepTables);
+        PrHelper::setupSsgSwPEnv256Ptrs(apvts, padPrefix, pSsgSwPEnv256[i], stepTables);
         PrHelper::setupOpzx7DetunePtrs(apvts, padPrefix, pOpzx7Detune[i]);
         PrHelper::setupFixPtrs(apvts, padPrefix, pFix[i]);
         PrHelper::setupOpzx7LfoPtrs(apvts, padPrefix, pOpzx7Lfo[i]);
@@ -75,6 +80,10 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
 
 void RhythmProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyRhythmBasic(pBasic, params.rhythm);
     PrHelper::applyUnison(pUnison, params.rhythm.unison);
 
@@ -86,10 +95,9 @@ void RhythmProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessor
         PrHelper::applyAdsrAmpEnv(pAmpEnv[i], pad.adsr);
         PrHelper::applyWtMod(pWtMod[i], pad.wtMod);
         PrHelper::applyWtAmpMod(pWtAmpMod[i], pad.wtAmpMod);
-        PrHelper::applySsgSwEnv(pSsgSwEnv[i], pad.ssgSwEnv);
-        PrHelper::applySsgSwEnv11(pSsgSwEnv11[i], pad.ssgSwEnv11);
+        PrHelper::applySsgSwEnv256(pSsgSwEnv256[i], pad.ssgSwEnv256);
         PrHelper::applyPitchEnv(pPitchEnv[i], pad.pitchAdsr);
-        PrHelper::applySsgSwPEnv11(pSsgSwPEnv11[i], pad.ssgSwPEnv11);
+        PrHelper::applySsgSwPEnv256(pSsgSwPEnv256[i], pad.ssgSwPEnv256);
         PrHelper::applyOpzx7Detune(pOpzx7Detune[i], pad.detune);
         PrHelper::applyOpzx7Lfo(pOpzx7Lfo[i], pad.lfo);
         PrHelper::applyToneNoise(pToneNoise[i], pad.tn);

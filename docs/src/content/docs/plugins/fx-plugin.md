@@ -105,7 +105,7 @@ PITCH ENV は D3、のように**対象ごとに動かす鍵盤を決められ�
 | --- | --- |
 | AMP ENV | 音量の ADSR |
 | SSG HW AMP ENV | SSG のハードウェアエンベロープ |
-| SSG SW AMP ENV[11] | SSG のソフトウェアエンベロープ (11 ステップ) |
+| SSG SW AMP ENV[256] | SSG のソフトウェアエンベロープ (11 ステップ) |
 | WT AMP MOD | 波形メモリ系の音量変調 (FDS / WonderSwan / HuC6280) |
 | LFO | OPZX7 の LFO のうち AM 側 |
 
@@ -115,7 +115,7 @@ PITCH ENV は D3、のように**対象ごとに動かす鍵盤を決められ�
 | --- | --- |
 | PITCH ENV | 音程の ADSR |
 | SSG HW PITCH ENV | SSG のハードウェアエンベロープの形を音程へ |
-| SSG SW PITCH ENV[11] | 音程のソフトウェアエンベロープ (11 ステップ) |
+| SSG SW PITCH ENV[256] | 音程のソフトウェアエンベロープ (11 ステップ) |
 | WT PITCH MOD | 波形メモリ系の音程変調 (FDS / WonderSwan / HuC6280) |
 | LFO | OPZX7 の LFO のうち PM 側 |
 

@@ -6,6 +6,7 @@
 #include "../../Core/Processor/ProcessorBase.h"
 #include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorTapSeq.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 
 class RhythmProcessor : public PrBase
@@ -19,9 +20,8 @@ class RhythmProcessor : public PrBase
     std::array<PrPtrsWtMod, RhythmPrValue::maxPads> pWtMod;
     std::array<PrPtrsWtAmpMod, RhythmPrValue::maxPads> pWtAmpMod;
     std::array<PrPtrsPitchEnv, RhythmPrValue::maxPads> pPitchEnv;
-    std::array<PrPtrsSsgSwEnv, RhythmPrValue::maxPads> pSsgSwEnv;
-    std::array<PrPtrsSsgSwEnv11, RhythmPrValue::maxPads> pSsgSwEnv11;
-    std::array<PrPtrsSsgSwPEnv11, RhythmPrValue::maxPads> pSsgSwPEnv11;
+    std::array<PrPtrsSsgSwEnv256, RhythmPrValue::maxPads> pSsgSwEnv256;
+    std::array<PrPtrsSsgSwPEnv256, RhythmPrValue::maxPads> pSsgSwPEnv256;
     std::array<PrPtrsOpzx7Detune, RhythmPrValue::maxPads> pOpzx7Detune;
     std::array<PrPtrsFix, RhythmPrValue::maxPads> pFix;
     std::array<PrPtrsOpzx7Lfo, RhythmPrValue::maxPads> pOpzx7Lfo;
@@ -35,6 +35,9 @@ class RhythmProcessor : public PrBase
     // プラグインが作るときに決める。入れ物は最大数 (maxPads) ぶん持つ。
     int m_pads;
     int m_pcmBitInitial;
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::Ptrs pTapAmp;
+    TapSeq::Ptrs pTapPitch;
 public:
     explicit RhythmProcessor(int pads = RhythmPrValue::maxPads, int pcmBitInitial = CPV::QualityPcm::Bit::initial)
         : m_pads(juce::jlimit(1, RhythmPrValue::maxPads, pads)), m_pcmBitInitial(pcmBitInitial) {}
@@ -43,5 +46,5 @@ public:
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;
     // modWaves は WT PITCH MOD の変調波形の置き場所。
     // パラメータではなくプロセッサが持つので、ここで受け取る。
-    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables);
 };

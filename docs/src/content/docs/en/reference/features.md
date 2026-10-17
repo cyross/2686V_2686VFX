@@ -41,10 +41,9 @@ Available on every channel, operator and rhythm pad.
 | --- | --- | --- |
 | AMP ENV | level | ADSR, with the original KOR / XOF / bypass options |
 | SSG HW AMP ENV | level | the hardware envelope, plus original waveforms and a settable range |
-| SSG SW ENV | level | 6-tap, with a settable loop count (0 loops forever) |
-| SSG SW ENV11 | level | 11-tap |
+| SSG SW ENV256 | level | up to 256 steps |
 | PITCH ENV | pitch | 3-tap, ±4800 cents |
-| SSG SW PENV11 | pitch | 11-tap, ±4800 cents |
+| SSG SW PENV256 | pitch | up to 256 steps, ±4800 cents |
 | SSG HW PITCH ENV | pitch | the SSG HW AMP ENV shapes pointed at pitch, ±4800 cents |
 | WT PITCH MOD | pitch | modulation from wave memory: FDS / WonderSwan / HuC6280 |
 | WT AMP MOD | level | the same modulation shapes pointed at level, swinging between MIN and MAX |
@@ -86,9 +85,9 @@ to the output itself, driven from a MIDI keyboard. See
 
 | Panel | What it moves |
 | --- | --- |
-| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD | level |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD | level |
 | LFO | level (AM) and pitch (PM) |
-| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD | pitch |
+| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD | pitch |
 | MUL・DET / UNISON・HARMONY | pitch, by a fixed amount |
 
 ## Playing

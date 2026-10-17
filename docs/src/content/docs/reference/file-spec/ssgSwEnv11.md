@@ -12,7 +12,7 @@ SSG SW AMP ENV[11] の設定。
 | **拡張子** | `.ssgSwEnv11.json` / `.ssgSwEnv11.yaml` |
 | **表記（format）** | `ssgSwEnv11` |
 | **版（version）** | `1` |
-| **書き出し・読み込み** | SSG SW AMP ENV[11] の [EX] / [IM] |
+| **読み込み** | SSG SW AMP ENV[256] の [IM]（4.0.0 から。書き出しはしない） |
 
 ## かたち
 

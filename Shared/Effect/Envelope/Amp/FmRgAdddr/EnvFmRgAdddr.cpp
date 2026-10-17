@@ -139,6 +139,7 @@ float FmRgAdddr::noteOn(float velocity, int noteNumber) {
     this->m_phaseProgress = 0.0f;
 
     if (this->bypass) {
+        m_tlDb = 0.0f;
         return velocity;
     }
 
@@ -149,6 +150,8 @@ float FmRgAdddr::noteOn(float velocity, int noteNumber) {
     float attenuationDb = (this->m_curveCore == nullptr)
         ? this->tl * 0.75f
         : (this->totalLevel * 127.0f) * 0.75f;
+
+    m_tlDb = attenuationDb;
 
     float kslDb = calcLevelScalingDb();
 

@@ -37,9 +37,165 @@ void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, cons
     repaint();
 }
 
+namespace
+{
+    // 拡大のつまみの丈 (送り棒 + つまみとボタンの行)
+    constexpr int zoomBarHeight = 8;
+    constexpr int zoomRowHeight = 16;
+
+    constexpr std::array<float, 6> zoomPresets = { 1.0f, 2.0f, 4.0f, 8.0f, 16.0f, 32.0f };
+}
+
+void GuiEnvelopeGraph::setZoomable(bool z)
+{
+    zoomable = z;
+
+    if (zoomable) {
+        scrollBar.setAutoHide(false);
+        scrollBar.addListener(this);
+        addAndMakeVisible(scrollBar);
+
+        zoomSlider.setRange(zoomMin, zoomMax, 0.01);
+        zoomSlider.setSkewFactorFromMidPoint(4.0);
+        zoomSlider.setNumDecimalPlacesToDisplay(2);
+        zoomSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 44, zoomRowHeight);
+        zoomSlider.setValue(zoom, juce::dontSendNotification);
+        zoomSlider.onValueChange = [this] { setZoom((float)zoomSlider.getValue()); };
+        addAndMakeVisible(zoomSlider);
+
+        for (size_t i = 0; i < zoomButtons.size(); ++i) {
+            auto& b = zoomButtons[i];
+            const float value = zoomPresets[i];
+
+            b.setButtonText("x" + juce::String((int)value));
+            b.onClick = [this, value] { setZoom(value); };
+            addAndMakeVisible(b);
+        }
+    }
+    else {
+        scrollBar.removeListener(this);
+        removeChildComponent(&scrollBar);
+        removeChildComponent(&zoomSlider);
+
+        for (auto& b : zoomButtons) removeChildComponent(&b);
+
+        zoom = 1.0f;
+        scroll = 0.0f;
+    }
+
+    resized();
+    repaint();
+}
+
+void GuiEnvelopeGraph::setZoom(float z)
+{
+    z = juce::jlimit(zoomMin, zoomMax, z);
+
+    if (z == zoom) return;
+
+    // 見えている真ん中 (中身の幅に対する割合) を保つ
+    const float view = juce::jmax(1.0f, lastViewW);
+    const float centre = (overflow() * scroll + view * 0.5f) / (view * zoom);
+
+    zoom = z;
+
+    const float newOverflow = overflow();
+
+    scroll = newOverflow > 0.0f ? juce::jlimit(0.0f, 1.0f, (centre * view * zoom - view * 0.5f) / newOverflow) : 0.0f;
+
+    zoomSlider.setValue(zoom, juce::dontSendNotification);
+
+    repaint();
+}
+
+juce::Rectangle<int> GuiEnvelopeGraph::graphBounds() const
+{
+    auto r = getLocalBounds();
+
+    if (zoomable) r.removeFromBottom(zoomBarHeight + zoomRowHeight + 2);
+
+    return r;
+}
+
+void GuiEnvelopeGraph::resized()
+{
+    if (!zoomable) return;
+
+    auto r = getLocalBounds();
+    auto row = r.removeFromBottom(zoomRowHeight);
+
+    scrollBar.setBounds(r.removeFromBottom(zoomBarHeight).reduced(5, 0));
+
+    // 左に拡大率のつまみ、右に x1〜x32 のボタン
+    auto buttons = row.removeFromRight(juce::jmin(row.getWidth() / 2, 6 * 30));
+
+    zoomSlider.setBounds(row.reduced(4, 0));
+
+    const int w = buttons.getWidth() / (int)zoomButtons.size();
+
+    for (auto& b : zoomButtons) b.setBounds(buttons.removeFromLeft(w).reduced(1, 0));
+}
+
+void GuiEnvelopeGraph::syncScrollBar()
+{
+    if (!zoomable) return;
+
+    const juce::ScopedValueSetter<bool> guard(isSyncingScrollBar, true);
+
+    const double view = juce::jmax(1.0f, lastViewW);
+    const double total = view * zoom;
+
+    scrollBar.setRangeLimits(0.0, total, juce::dontSendNotification);
+    scrollBar.setCurrentRange((total - view) * scroll, view, juce::dontSendNotification);
+}
+
+void GuiEnvelopeGraph::scrollBarMoved(juce::ScrollBar*, double newRangeStart)
+{
+    if (isSyncingScrollBar) return;
+
+    const float over = overflow();
+
+    scroll = over > 0.0f ? juce::jlimit(0.0f, 1.0f, (float)newRangeStart / over) : 0.0f;
+
+    repaint();
+}
+
+void GuiEnvelopeGraph::mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel)
+{
+    if (!zoomable || !graphBounds().contains(e.getPosition())) {
+        juce::Component::mouseWheelMove(e, wheel);
+        return;
+    }
+
+    setZoom(zoom * std::pow(2.0f, wheel.deltaY * 2.0f));
+}
+
+void GuiEnvelopeGraph::mouseDown(const juce::MouseEvent& e)
+{
+    isScrollDrag = zoomable && e.mods.isRightButtonDown();
+
+    if (isScrollDrag) {
+        dragStartX = (float)e.position.x;
+        dragStartScroll = scroll;
+    }
+}
+
+void GuiEnvelopeGraph::mouseDrag(const juce::MouseEvent& e)
+{
+    if (!isScrollDrag) return;
+
+    const float over = overflow();
+
+    if (over <= 0.0f) return;
+
+    scroll = juce::jlimit(0.0f, 1.0f, dragStartScroll - ((float)e.position.x - dragStartX) / over);
+
+    repaint();
+}
+
 void GuiEnvelopeGraph::paint(juce::Graphics& g)
 {
-    auto bounds = getLocalBounds().toFloat();
+    auto bounds = graphBounds().toFloat();
     auto graphArea = bounds.reduced(5.0f);
 
     // 背景とグリッド
@@ -56,7 +212,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
         return;
     }
 
-    bool isPitch = currentType == EnvType::Pitch || currentType == EnvType::SsgSwP11;
+    bool isPitch = currentType == EnvType::Pitch || currentType == EnvType::SsgSwP256;
 
     // センターライン (Pitch用)
     if (isPitch) {
@@ -107,7 +263,18 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     // 短いエンベロープは基準幅に対する比率で描画されるため左に詰まります。
     float scaleX = graphArea.getWidth() / effectiveTotalWidth;
 
-    float currentPixelX = graphArea.getX();
+    // 横方向の拡大。広げた分は送り具合で左右へずらし、枠の外は描かない。
+    lastViewW = graphArea.getWidth();
+    scaleX *= zoom;
+
+    const float offsetX = overflow() * scroll;
+
+    syncScrollBar();
+
+    juce::Graphics::ScopedSaveState clipState(g);
+    g.reduceClipRegion(graphArea.toNearestInt());
+
+    float currentPixelX = graphArea.getX() - offsetX;
     float basePixelY = isPitch ? graphArea.getCentreY() : graphArea.getBottom();
     float heightScale = isPitch ? (graphArea.getHeight() / 2.0f) : graphArea.getHeight();
 
@@ -121,7 +288,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
 
         // ジャンプ指定がある場合、X座標を移動させて新しい線を引く準備をする
         if (phase.moveToStart) {
-            currentPixelX = graphArea.getX() + (phase.startXOffsetPx * scaleX);
+            currentPixelX = graphArea.getX() - offsetX + (phase.startXOffsetPx * scaleX);
         }
 
         if (phase.isMax) {
@@ -218,6 +385,28 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     }
 }
 
+void GuiEnvelopeGraph::appendEndLevel(std::vector<PhaseDef>& phases, float releaseEnd, float endl)
+{
+    // 走り終えたところで ENDL へ移る (ほぼ縦の線)
+    phases.push_back({
+        .widthPx = 0.01f,
+        .startLevel = releaseEnd,
+        .endLevel = endl,
+        .color = GuiColor::EnvelopeGraph::ReleaseLine,
+        .drawPhaseLine = false
+        });
+
+    // ENDL を保つ
+    phases.push_back({
+        .widthPx = 40.0f,
+        .startLevel = endl,
+        .endLevel = endl,
+        .isDashed = true,
+        .color = GuiColor::EnvelopeGraph::ReleaseLine,
+        .drawPhaseLine = false
+        });
+}
+
 void GuiEnvelopeGraph::updatePitchEnv(
     const PitchEnvValues& v,
     CurveCore* p_curveCore,
@@ -289,256 +478,38 @@ void GuiEnvelopeGraph::updatePitchEnv(
         .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Rr)
         });
 
+    if (v.endlEnable) appendEndLevel(phases, rll, v.endl / maxCents);
+
     setEnvelope(GuiEnvelopeGraph::EnvType::Pitch, "Pitch Env", phases);
 }
 
-void GuiEnvelopeGraph::updateSsgSwEnv(
-    const StepEnvHead& head,
-    const std::array<float, 7>& rVal, float rMax,
-    const std::array<float, 7>& lVal, float lMax,
-    CurveCore* p_curveCore,
-    bool isCurveMode,
-    int posIdx
-) {
-    // -------------------------------------------------------------
-    // Helper: カーブ関数を生成する
-    // -------------------------------------------------------------
-    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
-        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
-            if (!isCurveMode || p_curveCore == nullptr) return progress;
-            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
-            };
-        };
-
-    // -------------------------------------------------------------
-    // Helper: 幅の計算
-    // -------------------------------------------------------------
-    auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
-        if (maxRate <= 0.0001f) return 2.0f;
-
-        if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
-
-        return (rateValue / maxRate) * maxWidth;
-        };
-
-    int steps = head.steps;
-    if (steps < 1) steps = 1;
-    bool isLoop = head.loop;
-    int loopTo = head.loopTo;
-    int loopCount = head.loopCount;
-
-    std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;
-    int targetIdx = (int)CurveParams::Target::SsgSwEnv;
-
-    float currentTotalWidth = 0.0f;
-    float loopToLevel = isLoop ? lVal[loopTo] / lMax : 0.0f;
-    float loopEndWidth = 0.0f;
-
-    for (int s = 1; s <= steps; ++s) {
-        float rate = rVal[s];
-        float rateMax = rMax;
-        float startL = lVal[s - 1] / lMax;
-        float endL = lVal[s] / lMax;
-
-        int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwEnv::LoopTo : (s - 1);
-        float width = rateToWidth(rate, rateMax);
-
-        if (isLoop && s == steps) {
-            phases.push_back({
-                .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                });
-
-            loopEndWidth = currentTotalWidth;
-
-            if (loopCount > 0) {
-                phases.push_back({
-                    .widthPx = 30.0f,
-                    .startLevel = loopToLevel,
-                    .endLevel = loopToLevel,
-                    .isDashed = true,
-                    .color = color,
-                    .drawPhaseLine = false
-                    });
-                phases.push_back({
-                    .widthPx = width,
-                    .startLevel = startL,
-                    .endLevel = endL,
-                    .color = color.darker(0.3f),
-                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
-                    .moveToStart = true,
-                    .startXOffsetPx = loopEndWidth,
-                    .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                    });
-            }
-
-            loopEndWidth += width;
-        }
-        else {
-            phases.push_back({
-                .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                });
-        }
-        currentTotalWidth += width;
-    }
-
-    // Release
-    float rr = rVal[6];
-    float rrMax = rMax;
-    float rStartL = lVal[steps] / lMax;
-    float rEndL = lVal[6] / lMax;
-
-    phases.push_back({
-        .widthPx = rateToWidth(rr, rrMax),
-        .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
-        .endLevel = rEndL,
-        .color = GuiColor::EnvelopeGraph::ReleaseLine,
-        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetSsgSwEnv::R6),
-        .moveToStart = isLoop,
-        .startXOffsetPx = loopEndWidth
-        });
-
-    setEnvelope(GuiEnvelopeGraph::EnvType::SsgSw, "SSG SW Env", phases);
+void GuiEnvelopeGraph::updateSsgSwEnv256(const StepEnvValues& v, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
+{
+    updateStepEnv(GuiEnvelopeGraph::EnvType::SsgSw256, "SSG SW Env256", GuiColor::EnvelopeGraph::AmpLine,
+        (int)CurveParams::Target::SsgSwEnv256, v, p_curveCore, isCurveMode, posIdx);
 }
 
-void GuiEnvelopeGraph::updateSsgSwEnv11(
-    const StepEnvHead& head,
-    const std::array<float, 12>& rVal, float rMax,
-    const std::array<float, 12>& lVal, float lMax,
-    CurveCore* p_curveCore,
-    bool isCurveMode,
-    int posIdx
-) {
-    // -------------------------------------------------------------
-    // Helper: カーブ関数を生成する
-    // -------------------------------------------------------------
-    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
-        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
-            if (!isCurveMode || p_curveCore == nullptr) return progress;
-            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
-            };
-        };
-
-    // -------------------------------------------------------------
-    // Helper: 幅の計算
-    // -------------------------------------------------------------
-    auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
-        if (maxRate <= 0.0001f) return 2.0f;
-
-        if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
-
-        return (rateValue / maxRate) * maxWidth;
-        };
-
-    int steps = head.steps;
-    if (steps < 1) steps = 1;
-    bool isLoop = head.loop;
-    int loopTo = head.loopTo;
-    int loopCount = head.loopCount;
-
-    std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;
-    int targetIdx = (int)CurveParams::Target::SsgSwEnv11;
-
-    float currentTotalWidth = 0.0f;
-    float loopToLevel = isLoop ? lVal[loopTo] / lMax : 0.0f;
-    float loopEndWidth = 0.0f;
-
-    for (int s = 1; s <= steps; ++s) {
-        float rate = rVal[s];
-        float rateMax = rMax;
-        float startL = lVal[s - 1] / lMax;
-        float endL = lVal[s] / lMax;
-
-        int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwEnv11::LoopTo : (s - 1);
-        float width = rateToWidth(rate, rateMax);
-
-        if (isLoop && s == steps) {
-            phases.push_back({
-                .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                });
-
-            loopEndWidth = currentTotalWidth;
-
-            if (loopCount > 0) {
-                phases.push_back({
-                    .widthPx = 30.0f,
-                    .startLevel = loopToLevel,
-                    .endLevel = loopToLevel,
-                    .isDashed = true,
-                    .color = color,
-                    .drawPhaseLine = false
-                    });
-                phases.push_back({
-                    .widthPx = width,
-                    .startLevel = startL,
-                    .endLevel = endL,
-                    .color = color.darker(0.3f),
-                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
-                    .moveToStart = true,
-                    .startXOffsetPx = loopEndWidth,
-                    .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                    });
-            }
-
-            loopEndWidth += width;
-        }
-        else {
-            phases.push_back({
-                .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                });
-        }
-        currentTotalWidth += width;
-    }
-
-    // Release
-    float rr = rVal[11];
-    float rrMax = rMax;
-    float rStartL = lVal[steps] / lMax;
-    float rEndL = lVal[11] / lMax;
-
-    phases.push_back({
-        .widthPx = rateToWidth(rr, rrMax),
-        .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
-        .endLevel = rEndL,
-        .color = GuiColor::EnvelopeGraph::ReleaseLine,
-        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetSsgSwEnv11::R11),
-        .moveToStart = isLoop,
-        .startXOffsetPx = loopEndWidth
-        });
-
-    setEnvelope(GuiEnvelopeGraph::EnvType::SsgSw11, "SSG SW Env11", phases);
+void GuiEnvelopeGraph::updateSsgSwPEnv256(const StepEnvValues& v, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
+{
+    updateStepEnv(GuiEnvelopeGraph::EnvType::SsgSwP256, "SSG SW PitchEnv256", GuiColor::EnvelopeGraph::PitchLine,
+        (int)CurveParams::Target::SsgSwPEnv256, v, p_curveCore, isCurveMode, posIdx);
 }
 
-void GuiEnvelopeGraph::updateSsgSwPEnv11(
-    const StepEnvHead& head,
-    const std::array<float, 12>& rVal, float rMax,
-    const std::array<float, 12>& lVal, float lMax,
-    CurveCore* p_curveCore,
-    bool isCurveMode,
-    int posIdx
-) {
-    // -------------------------------------------------------------
-    // Helper: カーブ関数を生成する
-    // -------------------------------------------------------------
-    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
-        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
+// 段のエンベロープの絵。
+//
+// 段の幅は R に比例させる。段が多いと全体が長くなるが、絵の幅に収めるのは
+// setEnvelope の側 (全体を縮めて入れる)。カーブは段 1〜10 が R1〜R10、
+// 11 段目からは R10、リリースが R11、ループで戻る段が LoopTo を使う。
+void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, juce::Colour color, int targetIdx,
+    const StepEnvValues& v, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
+{
+    auto getCurveFunc = [isCurveMode, p_curveCore, posIdx, targetIdx](int prmIdx) {
+        return [isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
             if (!isCurveMode || p_curveCore == nullptr) return progress;
             return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
             };
         };
 
-    // -------------------------------------------------------------
-    // Helper: 幅の計算
-    // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
         if (maxRate <= 0.0001f) return 2.0f;
 
@@ -547,34 +518,35 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
         return (rateValue / maxRate) * maxWidth;
         };
 
-    const float maxCents = 4800.0f; // 仮の最大値
-    int steps = head.steps;
-    if (steps < 1) steps = 1;
-    bool isLoop = head.loop;
-    int loopTo = head.loopTo;
-    int loopCount = head.loopCount;
+    constexpr int curveStepParams = 10;
+    constexpr int curveRelease = 10;
+    constexpr int curveLoopTo = 11;
+
+    const int steps = juce::jlimit(1, (int)v.l.size() - 1, v.head.steps);
+    const bool isLoop = v.head.loop;
+    const int loopTo = juce::jlimit(0, steps - 1, v.head.loopTo);
+    const int loopCount = v.head.loopCount;
+    const float lMax = v.lMax <= 0.0f ? 1.0f : v.lMax;
+
+    auto levelAt = [&](int i) { return v.l[(size_t)juce::jlimit(0, (int)v.l.size() - 1, i)] / lMax; };
+    auto rateAt = [&](int i) { return v.r[(size_t)juce::jlimit(0, (int)v.r.size() - 1, i)]; };
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    juce::Colour color = GuiColor::EnvelopeGraph::PitchLine;
-    int targetIdx = (int)CurveParams::Target::SsgSwPEnv11;
 
     float currentTotalWidth = 0.0f;
-    float loopToLevel = isLoop ? lVal[loopTo] / lMax : 0.0f;
+    const float loopToLevel = isLoop ? levelAt(loopTo) : 0.0f;
     float loopEndWidth = 0.0f;
 
     for (int s = 1; s <= steps; ++s) {
-        float rate = rVal[s];
-        float rateMax = rMax;
-        float startL = lVal[s - 1] / lMax;
-        float endL = lVal[s] / lMax;
-
-        int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwPEnv11::LoopTo : (s - 1);
-        float width = rateToWidth(rate, rateMax);
+        const float startL = levelAt(s - 1);
+        const float endL = levelAt(s);
+        const int prmIdx = (isLoop && s == steps) ? curveLoopTo : std::min(s, curveStepParams) - 1;
+        const float width = rateToWidth(rateAt(s), v.rMax);
 
         if (isLoop && s == steps) {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
+                .curveFunc = getCurveFunc(prmIdx),
                 .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
 
@@ -594,7 +566,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
                     .startLevel = startL,
                     .endLevel = endL,
                     .color = color.darker(0.3f),
-                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
+                    .curveFunc = getCurveFunc(prmIdx),
                     .moveToStart = true,
                     .startXOffsetPx = loopEndWidth,
                     .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
@@ -606,30 +578,28 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
         else {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
+                .curveFunc = getCurveFunc(prmIdx),
                 .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
         }
+
         currentTotalWidth += width;
     }
 
     // Release
-    float rr = rVal[11];
-    float rrMax = rMax;
-    float rStartL = lVal[steps] / lMax;
-    float rEndL = lVal[11] / lMax;
-
     phases.push_back({
-        .widthPx = rateToWidth(rr, rrMax),
-        .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
-        .endLevel = rEndL,
+        .widthPx = rateToWidth(v.rr, v.rMax),
+        .startLevel = (isLoop && loopCount == 0) ? loopToLevel : levelAt(steps),
+        .endLevel = v.lr / lMax,
         .color = GuiColor::EnvelopeGraph::ReleaseLine,
-        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetSsgSwPEnv11::R11),
+        .curveFunc = getCurveFunc(curveRelease),
         .moveToStart = isLoop,
         .startXOffsetPx = loopEndWidth
         });
 
-    setEnvelope(GuiEnvelopeGraph::EnvType::SsgSwP11, "SSG SW PitchEnv11", phases);
+    if (v.endlEnable) appendEndLevel(phases, v.lr / lMax, v.endl / lMax);
+
+    setEnvelope(type, title, phases);
 }
 
 void GuiEnvelopeGraph::updateAmpEnv(
@@ -729,6 +699,8 @@ void GuiEnvelopeGraph::updateAmpEnv(
             .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
             });
     }
+
+    if (v.endlEnable) appendEndLevel(phases, isKor ? sl : 0.0f, v.endl / slMax);
 
     setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
 }

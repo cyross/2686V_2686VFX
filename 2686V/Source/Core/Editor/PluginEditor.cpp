@@ -2276,7 +2276,6 @@ void AudioPlugin2686VEditor::copyOplParamsToOpl3() {
         // waveSelectは、母数が違うためコピーしない
         opl3OpParams.lfo = oplOpParams.lfo;
         opl3OpParams.pAdsr = oplOpParams.pAdsr;
-        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
         opl3OpParams.mask = oplOpParams.mask;
 
         opl3Gui->pasteOpParams(i, opl3OpParams); // OP1 -> OP1 / OP2 -> OP2
@@ -2300,7 +2299,6 @@ void AudioPlugin2686VEditor::copyOplParamsToOpl312() {
         // waveSelectは、母数が違うためコピーしない
         opl3OpParams.lfo = oplOpParams.lfo;
         opl3OpParams.pAdsr = oplOpParams.pAdsr;
-        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
         opl3OpParams.mask = oplOpParams.mask;
 
         opl3Gui->pasteOpParams(i, opl3OpParams); // OP1 -> OP1 / OP2 -> OP2
@@ -2323,7 +2321,6 @@ void AudioPlugin2686VEditor::copyOplParamsToOpl334() {
         // waveSelectは、母数が違うためコピーしない
         opl3OpParams.lfo = oplOpParams.lfo;
         opl3OpParams.pAdsr = oplOpParams.pAdsr;
-        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
         opl3OpParams.mask = oplOpParams.mask;
 
         opl3Gui->pasteOpParams(i + 2, opl3OpParams); // OP1 -> OP3 / OP2 -> OP4
@@ -2361,7 +2358,6 @@ void AudioPlugin2686VEditor::copyOpl3ParamsToOpl() {
         // waveSelectは、母数が違うためコピーしない
         oplOpParams.lfo = opl3OpParams.lfo;
         oplOpParams.pAdsr = opl3OpParams.pAdsr;
-        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
         oplOpParams.mask = opl3OpParams.mask;
 
         oplGui->pasteOpParams(i, oplOpParams); // OP1 -> OP1 / OP2 -> OP2
@@ -2386,7 +2382,6 @@ void AudioPlugin2686VEditor::copyOpl312ParamsToOpl() {
         // waveSelectは、母数が違うためコピーしない
         oplOpParams.lfo = opl3OpParams.lfo;
         oplOpParams.pAdsr = opl3OpParams.pAdsr;
-        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
         oplOpParams.mask = opl3OpParams.mask;
 
         oplGui->pasteOpParams(i, oplOpParams); // OP1 -> OP1 / OP2 -> OP2
@@ -2411,7 +2406,6 @@ void AudioPlugin2686VEditor::copyOpl334ParamsToOpl() {
         // waveSelectは、母数が違うためコピーしない
         oplOpParams.lfo = opl3OpParams.lfo;
         oplOpParams.pAdsr = opl3OpParams.pAdsr;
-        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
         oplOpParams.mask = opl3OpParams.mask;
 
         oplGui->pasteOpParams(i, oplOpParams); // OP3 -> OP1 / OP4 -> OP2
@@ -2448,7 +2442,6 @@ void AudioPlugin2686VEditor::copyOpnParamsToOpna() {
         opnaOpParams.fix = opnOpParams.fix;
         opnaOpParams.n88Lfo = opnOpParams.n88Lfo;
         opnaOpParams.pAdsr = opnOpParams.pAdsr;
-        opnaOpParams.aSsgSw = opnOpParams.aSsgSw;
         opnaOpParams.mask = opnOpParams.mask;
         opnaOpParams.waveSelect = 0;
         opnaOpParams.ssgEg.ssgEg = 0;
@@ -2493,7 +2486,6 @@ void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
         opnOpParams.fix = opnaOpParams.fix;
         opnOpParams.n88Lfo = opnaOpParams.n88Lfo;
         opnOpParams.pAdsr = opnaOpParams.pAdsr;
-        opnOpParams.aSsgSw = opnaOpParams.aSsgSw;
         opnOpParams.mask = opnaOpParams.mask;
 
         opnGui->pasteOpParams(i, opnOpParams); // OP1 -> OP1 / OP2 -> OP2

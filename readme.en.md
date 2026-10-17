@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v3.6.3 README
+# Retro Sound VST "2686V" v4.0.0 README
 
 (C)2026 CYROSS
 
@@ -29,7 +29,83 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0-1. What v3.6.3 fixes and changes
+### 3-0-1. What v4.0.0 adds and changes
+
+- **The ALGORITHM/FEEDBACK section can now be folded**
+  - In the global part of OPNA / OPN / OPL / OPL3 / OPM / OPZX7 (including OPZX7S). It starts open
+- **LEVEL / STEPS / DELAY now sit in an UNCATEGORIZED section**
+  - The channel-wide LEVEL, STEPS and DELAY, which had no heading, now sit under "UNCATEGORIZED". It can be folded and starts open
+  - Every channel. 2686VFX's output LEVEL is unchanged
+- **SSG: "More Real FC" and "More Real NES" for the pulse wave**
+  - Below FC FLUC in the pulse (duty) settings. They mimic the Famicom / NES (2A03) pulse channel (unrelated to FC FLUC)
+  - The duty snaps to the chip's 12.5 / 25 / 50 / 75%, the pitch to the 11-bit timer and the volume to 16 steps through the DAC curve. The output filter is a 37 Hz high-pass for FC, and 90 Hz / 440 Hz high-passes plus a 14 kHz low-pass for NES
+  - Only one of FC Mode, More Real FC and More Real NES can be on (all off is fine). Off by default, so existing sounds are unchanged
+  - Saved in parameter files and presets (`dutyMoreFc` / `dutyMoreNes`)
+- **The section right-click menu gains Duplicate, Import and Export**
+  - Duplicate below CLEAR, then a separator, then Import / Export
+  - Duplicate: copies an operator, pad or TARGET section to the same section of other operators, pads or TARGETs on the channel, picked in a check-box dialog (Check all / Uncheck all, a blue Duplicate, Cancel)
+  - Import / Export: same as that section's [IM]… / [EX]… in UTILITY. The UTILITY buttons stay
+- **SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] (replacing SSG SW AMP / PITCH ENV[11])**
+  - Every channel, operator and pad, plus 2686VFX. Up to 256 steps (STEP 1–256), with the release done by RR / LR
+  - The per-step R / L are saved as a table in presets and channel parameters (256 × 2 as parameters would mean tens of thousands). Head values such as STL, RR and LR are parameters
+  - The value strip lists only STEP steps, so the section grows as you add steps
+  - Section files are `.ssgSwEnv256` / `.ssgSwPEnv256`, from the right-click menu and UTILITY [IM] / [EX]
+  - 2686VFX's key input and key-assign customisation carry over the [11] assignments
+  - [11] data from 3.6.3 and earlier (presets, DAW state, channel parameters, `.ssgSwEnv11`) is converted on load: R1–R10 / L1–L10 become steps 1–10 and R11 / L11 become RR / LR, so it sounds the same
+- **Removed the 6-step SSG SW AMP ENV and folded it into SSG SW AMP ENV[256]**
+  - Gone from every channel, operator and pad: the section, the graph's "SSG" button, the [IM] / [EX] in UTILITY, the simple-view item, and the SsgSwEnv target of ADV curves
+  - 6-step data from 3.6.3 and earlier (presets, DAW state, channel parameters, `.ssgSwEnv`, curves) is carried into [256] on load. R1–R5 / L1–L5 become steps 1–5 and R6 / L6 become RR / LR, so it sounds the same
+  - A sound that used both the 6-step and [11] keeps [256] (the former [11]) and drops the 6-step, because one [256] cannot express the two multiplied together
+  - RHYTHM pads now send [256] into its release on key-off too (the 6-step was released, [11] was not)
+  - Fixed old parameters staying in the state after [11] was carried into [256], which overwrote the table with the old values on every load
+- **Groups are 1.2 times wider**
+  - Every channel's global group (260 → 312), the operator and pad columns (280 → 336), and SSG's square-wave (duty) and triangle-wave groups (250 → 300)
+- **SSG: added DUTY RATIO ENVELOPE and PEAK RATIO ENVELOPE**
+  - DUTY RATIO ENVELOPE sits at the bottom of the pulse (duty) group, PEAK RATIO ENVELOPE at the bottom of the triangle group. Both are 256-step envelopes like SSG SW AMP ENV[256], switched on with Enable at the top
+  - DUTY: values are duty cycles, 0.0–100.0% (STDR / DR1…, DR.TARGET / DUTY). While on, it replaces MODE and Invert Phrase. The value buttons set PRESET's duty cycles directly
+  - PEAK: values are triangle peaks, 0.0–1.0 (STPK / PK1…, PK.TARGET / PEAK). While on, it replaces PEAK
+  - Both groups grow with the step count, so they now reach the bottom of the column and scroll vertically
+  - Saved in presets and channel parameters (`dutyEnv` / `peakEnv`). The section parameter files are `.dutyEnv` / `.peakEnv` (heading right-click)
+- **Added TL ENV to the FM chips' operators**
+  - Operators of OPNA / OPN / OPL / OPL3 / OPM / OPZX7S, directly below the AMP ENV section (in the same column)
+  - A TL version of SSG SW AMP ENV[256]. Values are TL register values (0–127 on OPNA / OPN / OPM, 0–63 on OPL / OPL3 / OPZX7S). STTL / TL1…, TL.TARGET / TL
+  - Switched on with Enable at the top. While on, the step's TL replaces the TL at key-on. Always KEEP (no KEEP switch)
+  - STEPS snaps to TL steps. Value buttons (−8 / −1 / 0 / +1 / +8 / max)
+  - Saved in presets and channel parameters (`tlEnv`). The section parameter file is `.tlEnv` (heading right-click)
+- **Added ALG ENV to the FM chips' channels**
+  - Global section of OPNA / OPN / OPL / OPL3 / OPM / OPZX7S, below FEEDBACK in ALGORITHM/FEEDBACK
+  - An ALG version of SSG SW AMP ENV[256]. Values are ALG numbers from 0. STALG / ALG1…, ALG.TARGET / ALG
+  - Switched on with Enable at the top. While on, the step's ALG replaces ALG and the routing is rebuilt when it changes. Always KEEP (no KEEP switch). No value buttons, no STEPS
+  - Saved in presets and channel parameters (`algEnv`). The section parameter file is `.algEnv` (heading right-click)
+- **Added [[TAP SEQUENCER]] (TAP AMP SEQUENCER / TAP PITCH SEQUENCER)**
+  - In every channel's global section, below [[PITCH ENV]] (below UNISON/HARMONY on RHYTHM)
+  - Each key press moves on one step and that step corrects the sound: AMP multiplies the final level by a ratio of 0.0–4.0 (default 1.0), PITCH adds −2400–2400 cents (default 0) to the final pitch. STEPS is 1–256 (with 1, every note gets the same value)
+  - Steps are drawn as horizontal bars; values are edited with a separate knob (S.TARGET / RATIO・CENT) and value buttons
+  - INCREMENT / DECREMENT / RESET move the next step. They can also be pressed by automation (once when rising past 0.5)
+  - 2686VFX gains AMP SEQUENCER / PITCH SEQUENCER too, with key input and key-assign customisation (AMP plays at the step's ratio only while held and is silent when released; PITCH shifts only while held and returns when released)
+  - Saved in presets and channel parameters (`tapAmp` / `tapPitch`). The section parameter files are `.tapAmp` / `.tapPitch`
+- **Step value lists show four per row**
+  - The value lists of SSG SW AMP / PITCH ENV[256], DUTY / PEAK RATIO ENVELOPE, TL ENV, ALG ENV and TAP SEQUENCER, as "label: value" separated by " / "
+- **Operator / pad graphs: a large TARGET view on the left, small views of all on the right**
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM. The height matches the OPZX7S / RHYTHM display, and the large view keeps the previous aspect ratio
+  - The large view follows TARGET and updates at once. On OPZX7S / RHYTHM the wave is shown large above it
+  - The small views are two per row in two rows on OPNA / OPN / OPL3 / OPM, two in one row on OPL, and four per row on OPZX7S / RHYTHM. Their graphs keep the large view's aspect ratio; the wave height is unchanged
+- **Graphs can be stretched sideways (1.0–32.0 times)**
+  - Every channel graph and the large TARGET view of operators / pads; the small views are not included
+  - Below them: a zoom knob, x1 / x2 / x4 / x8 / x16 / x32 buttons and a horizontal scroll bar. The mouse wheel over the graph changes the zoom, and dragging with the right button scrolls
+- **Added CUT / COPY / PASTE / DUPLICATE / CLEAR to each parameter in curve editing (ADV)**
+  - 2686V / OPNV / OPLV / OPMV / OPZX7S / PULSEV / WTV / PCMV, under each parameter's Logic / K
+  - PASTE works on any parameter regardless of Position or Target. DUPLICATE copies to other parameters of the same Target, chosen in a checkbox dialog
+- **Easier knobs on the 256-step envelopes (SSG SW AMP / PITCH ENV[256], DUTY / PEAK RATIO ENVELOPE, TL ENV, ALG ENV)**
+  - RATE is shown as a decimal (0.001 steps)
+  - RATE buttons are now ±0.001 / ±0.01 / ±0.1 / ±1.0 plus 0.001 / 0.01 / 0.1 / 1.0 set directly (the minimum is 0.001, so "0.0" became "0.001")
+  - RR gets the same buttons as RATE, and LR the same as the value knob (not on ALG ENV's LR)
+- **Graphs now show ENDL (an existing bug)**
+  - With Use Endl on, AMP ENV, PITCH ENV and the 256-step envelopes draw the move to ENDL after the release and the hold there
+- **A board behind the top row of operator / pad tabs (TARGET, name, graph selector)**
+  - A dark board sits behind the row so it stays readable over bright wallpapers. Its colours are TargetRow.Bg / TargetRow.Border in COLORS
+
+### 3-0-2. What v3.6.3 fixes and changes
 
 - **2686VFX: stopping playback no longer lets out a short blip**
   - With DELAY / REVERB / SFC ECHO or modulation in use, a burst of sound came out when you stopped
@@ -102,7 +178,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Both bases are tried when reading, so files written either way still load
   - WT, WT2 and WT+ channel parameter files now record their wave files too
 
-### 3-0-2. What v3.6.2 fixes and changes
+### 3-0-3. What v3.6.2 fixes and changes
 
 - **Fixed polyphonic mode getting heavy with fast short notes**
   - Polyphonic mode could stack up to 80 notes, far beyond the 10-note polyphony
@@ -133,7 +209,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - It was checked only inside the effects, so the headroom and the output modulation stayed on
   - It now skips the modulation, the effects and LEVEL, and passes the input straight through
 
-### 3-0-3. What v3.6.1 fixes and changes
+### 3-0-4. What v3.6.1 fixes and changes
 
 - **Fixed loaded waveforms sometimes missing after reopening a project**
   - Found with WT+; it happened in every DAW and in the standalone
@@ -167,7 +243,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - A seek bar (one cycle per frame; the mouse wheel steps one frame; right-click to type a frame number, with the total shown beside it)
     - Vertical zoom (x1 to x8; stretches the waveform, not the view)
 
-### 3-0-4. What v3.6.0 adds and changes
+### 3-0-5. What v3.6.0 adds and changes
 
 - **2686VFX: assign which key drives each modulation**
   - Added "Key assign" to the Effects frame, above the file import/export buttons.
@@ -262,7 +338,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - The tabs (the chip screens, SETTINGS, PRESET and so on) stay per plugin as before.
     - Sound, parameters and saved files are unchanged; the parameters of all twelve were compared before and after.
 
-### 3-0-5. What v3.5.0 adds and changes
+### 3-0-6. What v3.5.0 adds and changes
 
 - **Support for on-the-fly display language selection**
   - Added a "Language (LANGUAGE)" dropdown setting to the top of the **SETTINGS** tab.
@@ -276,7 +352,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Slightly expanded the width of the "Format" label on the **PRESET** tab to accommodate the English word.
   - Removed the parenthesized "(Oscilloscope)" from the wave preview heading in the English layout to ensure the "Waveform preview" text fits within the frame.
 
-### 3-0-6. What v3.4.0 adds and changes
+### 3-0-7. What v3.4.0 adds and changes
 
 - **Passing sounds between the FM chips and OPZX7S**
   - **[EX]OPZX7S Params** added to UTILITY on OPNA / OPN / OPL / OPL3 / OPM
@@ -307,7 +383,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The OPL3 tab did not show its left panel (LEVEL through UTILITY).
   - Opening the save browser after loading a file left out the name field and the save button.
 
-### 3-0-7. What v3.3.0 adds and changes
+### 3-0-8. What v3.3.0 adds and changes
 
 - **The ADPCM+ channel**
   - Loads up to 32 audio files and switches between them while you play.
@@ -379,7 +455,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **More bundled wallpapers**
   - Five wallpaper images have been added alongside the existing one.
 
-### 3-0-8. What v3.2.0 adds and changes
+### 3-0-9. What v3.2.0 adds and changes
 
 - **Control steps are now 0.0001**
   - Floating-point controls moved in steps of 0.01 (the framework default).
@@ -443,7 +519,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **A great many more bundled presets and parameter files**
   - A `fromCC2` folder has been added.
 
-### 3-0-9. What v3.1.0 adds and changes
+### 3-0-10. What v3.1.0 adds and changes
 
 - New modulation
   - **SSG HW PITCH ENV**

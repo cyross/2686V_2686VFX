@@ -132,14 +132,13 @@ B-Spline はこもるので、遠くで鳴っている感じを作れます。
 | --- | --- | --- | --- |
 | [AMP ENV](#amp-env) | 音量 | ADSR | 実機・独自 |
 | [SSG HW AMP ENV](#ssg-hw-amp-env) | 音量 | 波形 44 種 | 実機・独自 |
-| [SSG SW AMP ENV](#ssg-sw-amp-env) | 音量 | 6 タップ | 独自 |
-| [SSG SW AMP ENV\[11\]](#ssg-sw-amp-env11) | 音量 | 11 タップ | 独自 |
+| [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) | 音量 | 最大 256 段 | 独自 |
 | [PITCH ENV](#pitch-env) | 音程 | 3 タップ | 独自 |
 | [SSG HW PITCH ENV](#ssg-hw-pitch-env) | 音程 | 波形 44 種 | 独自 |
-| [SSG SW PITCH ENV\[11\]](#ssg-sw-pitch-env11) | 音程 | 11 タップ | 独自 |
+| [SSG SW PITCH ENV\[256\]](#ssg-sw-pitch-env256) | 音程 | 最大 256 段 | 独自 |
 
 音量側は掛け算で重なります。AMP ENV で全体の形を作り、SSG HW AMP ENV や
-SSG SW AMP ENV でその上に細かい動きを乗せる、という組み立てになります。
+SSG SW AMP ENV[256] でその上に細かい動きを乗せる、という組み立てになります。
 
 ### AMP ENV
 
@@ -161,7 +160,7 @@ SSG SW AMP ENV でその上に細かい動きを乗せる、という組み立�
 
 **STEPS** は LEVEL の STEPS と同じもので、選んだ刻みへ値を寄せます（3.6.3 から）。
 範囲が 0〜1 なので、LEVEL にある「1 刻み」はありません。SSG HW AMP ENV・
-SSG SW AMP ENV・SSG SW AMP ENV[11]・WT PITCH MOD・WT AMP MOD にも、同じ STEPS が
+SSG SW AMP ENV[256]・WT PITCH MOD・WT AMP MOD にも、同じ STEPS が
 あります。
 どれもチャンネル・オペレーター・パッドのすべてで使えます。
 
@@ -209,69 +208,85 @@ VALUE の右の **N** ボタンで、値のボタンが出ます（LEVEL と同�
 FORM の TONE / NOISE にも、同じように実機の設定値で決める切り替えがあります
 （[SSG](/2686V_2686VFX/chips/ssg/) を参照）。
 
-### SSG SW AMP ENV
+### SSG SW AMP ENV[256]
 
-**独自**の区分です。ドライバがソフトウェアで作っていた音量変化を、
-**折れ線**として直接描けるようにしたものです。
+**独自**の区分です。ドライバがソフトウェアで作っていた音量変化を、最大
+**256 段**の折れ線として描けます。4.0.0 で、3.6.3 までの
+SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置き換わりました。
 
-| つまみ | 内容 | 範囲 | 初期値 | オートメーション |
-| --- | --- | --- | ---: | --- |
-| **Bypass / Enable** | 使う・使わない。チャンネルでは「バイパス」、オペレータでは「有効」の意味になる | False / True | True | [`SSG_SSGSW_BYPASS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-bypass) |
-| **STEP** | 使う段の数 | 1 〜 5 | 5 | [`SSG_SSGSW_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-steps) |
-| **STL** | 始まりの高さ | 0 〜 1 | 0 | [`SSG_SSGSW_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-stl) |
-| **R1** | 1 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L1** | 1 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R2** | 2 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L2** | 2 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R3** | 3 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L3** | 3 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R4** | 4 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L4** | 4 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R5** | 5 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L5** | 5 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R6** | 6 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L6** | 6 段目の音量 | 0 〜 1 | 0 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **STEPS** | L1〜L6 を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
-| **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loop) |
-| **LOOP.TO** | 戻り先の段。0〜3 | 0 〜 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopto) |
-| **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
-
-### SSG SW AMP ENV[11]
-
-上と同じ作りで、段が **11 タップ**に増えたものです。こまかい動きを作りたい
-ときは、6 タップではなくこちらを使います。
+鍵を押すと **STL** から始まり、**R1** 秒かけて **L1** へ、**R2** 秒かけて
+**L2** へ…と **STEP** の段数まで進みます。最後の段まで来たら、離すまでその
+音量を保ちます。離すと、そのときの音量から **RR** 秒かけて **LR** へ向かい
+ます。
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **Bypass / Enable** | 使う・使わない。チャンネルでは「バイパス」、オペレータでは「有効」の意味になる | False / True | True | [`SSG_SSGSW11_BYPASS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-bypass) |
-| **STEP** | 使う段の数 | 1 〜 10 | 10 | [`SSG_SSGSW11_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-steps) |
-| **STL** | 始まりの高さ | 0 〜 1 | 0 | [`SSG_SSGSW11_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-stl) |
-| **R1** | 1 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L1** | 1 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R2** | 2 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L2** | 2 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R3** | 3 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L3** | 3 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R4** | 4 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L4** | 4 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R5** | 5 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L5** | 5 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R6** | 6 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L6** | 6 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R7** | 7 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L7** | 7 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R8** | 8 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L8** | 8 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R9** | 9 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L9** | 9 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R10** | 10 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L10** | 10 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R11** | 11 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L11** | 11 段目の音量 | 0 〜 1 | 0 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **STEPS** | L1〜L11 と ENDL を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
-| **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW11_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loop) |
-| **LOOP.TO** | 戻り先の段。0〜8 | 0 〜 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopto) |
-| **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
+| **Bypass / Enable** | 使う・使わない。チャンネルでは「バイパス」、オペレータでは「有効」の意味になる | False / True | True | [`SSG_SSGSW256_BYPASS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-bypass) |
+| **STEP** | 使う段の数 | 1 〜 256 | 10 | [`SSG_SSGSW256_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-steps) |
+| **KEEP** | 段のあいだを斜めに繋がず、その段の頭の値を保つ | False / True | False | [`SSG_SSGSW256_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-keep) |
+| **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW256_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loop) |
+| **LOOP.TO** | 戻り先の段 | 0 〜 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopto) |
+| **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW256_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopcnt) |
+| **R.TARGET** / **RATE** | R を変える段と、その段の時間（秒） | 1 〜 STEP / 0.001 〜 10 | — / 0.001 | —（表で持つ） |
+| **L.TARGET** / **LEVEL** | L を変える段（0 が STL）と、その段の音量 | 0 〜 STEP / 0 〜 1 | — / 1 | STL だけ [`SSG_SSGSW256_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-stl) |
+| **STEPS** | LEVEL・LR・ENDL を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
+| **RR** | 離してから LR へ届くまでの時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_SSGSW256_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-rr) |
+| **LR** | 離したあとに向かう音量 | 0 〜 1 | 0 | [`SSG_SSGSW256_LR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-lr) |
+| **Use Endl** | リリースを走り終えたあと、LR の代わりに ENDL を保つ | False / True | False | [`SSG_SSGSW256_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-endl-en) |
+| **ENDL** | そのときに保つ音量 | 0 〜 1 | 0 | [`SSG_SSGSW256_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-endl) |
+
+段ごとの R / L は 256 段 × 2 あるので、**パラメータではなく表として
+プリセットとチャンネルパラメータへ保存します**。オートメーションでは動かせ
+ません（STL・RR・LR などの頭はパラメータです）。
+
+- つまみは「対象を選ぶもの（R.TARGET / L.TARGET）+ 値」の 1 組だけで、
+  選んでいない段の値は下の帯に並びます。**帯は STEP の段数ぶんだけ並ぶ**ので、
+  段を増やすと区分が縦に伸びます
+- RATE / LEVEL の右の **N** で、値を少しずつ動かすボタンが出ます
+- 区分の見出しの右クリックで、表ごと写せます（CUT / COPY / PASTE / CLEAR /
+  DUPLICATE）
+
+#### 3.6.3 までの [11] から
+
+プリセット・DAW に保存した状態・チャンネルパラメータ・区分のパラメータ
+ファイル（`.ssgSwEnv11`）は、読み込むときに [256] へ写します。R1〜R10 / L1〜L10
+が表の 1〜10 段に、R11 / L11（リリース）が RR / LR になり、同じように鳴ります。
+書き出すと `.ssgSwEnv256` になります。
+
+### TL ENV
+
+**独自**の区分です。FM 音源（OPNA / OPN / OPL / OPL3 / OPM / OPZX7S）の
+オペレーターにだけあり、AMP ENV 区分のすぐ下（同じ列）に並びます（4.0.0 から）。
+ドライバがキーオンのたびに TL を書き換えていた音量の動きを、段ごとの **TL** として描けます。
+
+作りは [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) と同じ 256 段のエンベロープで、
+値が音量ではなく **TL のレジスタ値（整数）**になります。
+
+- 一番上の **Enable** で入れます。入っているあいだは、押したときの TL の代わりに
+  段の TL を使います（AMP ENV の Bypass が入っているときは、TL そのものが効かないので何もしません）
+- 値は OPNA / OPN / OPM が **0〜127**、OPL / OPL3 / OPZX7S が **0〜63**。名前は STL が **STTL**、
+  L が **TL1〜TL256**、対象のつまみが **TL.TARGET**、値のつまみが **TL** です
+- 実機と同じく、段のあいだは値を斜めに繋がず保ちます（常に KEEP。KEEP の札はありません）
+- 値のつまみの下の **STEPS** で TL の刻みへ丸められ、ボタン（−8 / −1 / 0 / +1 / +8 / 最大）で動かせます
+- RATE・STEP・LOOP・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- 区分のパラメータファイルは `.tlEnv` で、見出しの右クリックから読み書きします
+
+### ALG ENV
+
+**独自**の区分です。FM 音源（OPNA / OPN / OPL / OPL3 / OPM / OPZX7S）のチャンネルにだけあり、
+ALGORITHM/FEEDBACK の FEEDBACK の下に並びます（4.0.0 から）。**ALG（アルゴリズム）**を
+段ごとに切り替えて、オペレーターの繋ぎ方を時間で変えられます。
+
+作りは [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) と同じ 256 段のエンベロープで、
+値が音量ではなく **ALG の番号**になります。
+
+- 一番上の **Enable** で入れます。入っているあいだは ALG の代わりに段の ALG を使います
+- 値は ALG の番号（0 から。OPNA / OPN / OPM / OPL3 は 0〜7、OPL は 0〜1、OPZX7S は ALG の数まで）。
+  名前は STL が **STALG**、L が **ALG1〜ALG256**、対象のつまみが **ALG.TARGET**、値のつまみが **ALG** です
+- 段のあいだは値を保ちます（常に KEEP。KEEP の札はありません）。値を動かすボタンと STEPS はありません
+- RATE・STEP・LOOP・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- FEEDBACK を掛けるオペレーターは、ブロックの頭の ALG で決まります
+- 区分のパラメータファイルは `.algEnv` で、見出しの右クリックから読み書きします
 
 ### PITCH ENV
 
@@ -322,45 +337,58 @@ Enable にすると 1 オクターブの範囲で音程が動きます。MIN と
 
 形の一覧は [波形一覧](/2686V_2686VFX/reference/lists-waveform/) にあります。
 
-### SSG SW PITCH ENV[11]
+### SSG SW PITCH ENV[256]
 
-音程側の **11 タップ**版です。作りは
-[SSG SW AMP ENV\[11\]](#ssg-sw-amp-env11) と同じで、L1〜L11 が音量ではなく
-**セント**（±4800）になります。
+音程側の **256 段**版です。作りは [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) と
+同じで、STL・L・LR・ENDL が音量ではなく**セント**（±4800）になります。
+4.0.0 で、3.6.3 までの SSG SW PITCH ENV[11] と置き換わりました。
 
 段ごとに音程を置けるので、**アルペジオ**やサイレンのような動きを 1 音の中で
-作れます。LOOP を入れれば、鳴っているあいだ繰り返します。
+作れます。LOOP を入れれば、鳴っているあいだ繰り返します。リリースを走り
+終えたあとは、元の音程へ戻ります（Use Endl なら ENDL を保ちます）。
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
-| **Bypass / Enable** | 使う・使わない。チャンネルでは「バイパス」、オペレータでは「有効」の意味になる | False / True | True | [`SSG_SSGSWP11_BYPASS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-bypass) |
-| **STEP** | 使う段の数 | 1 〜 10 | 10 | [`SSG_SSGSWP11_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-steps) |
-| **STL** | 始まりの高さ | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-stl) |
-| **R1** | 1 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L1** | 1 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R2** | 2 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L2** | 2 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R3** | 3 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L3** | 3 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R4** | 4 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L4** | 4 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R5** | 5 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L5** | 5 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R6** | 6 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L6** | 6 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R7** | 7 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L7** | 7 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R8** | 8 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L8** | 8 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R9** | 9 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L9** | 9 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R10** | 10 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L10** | 10 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R11** | 11 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L11** | 11 段目の音程（セント） | -4800 〜 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSWP11_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loop) |
-| **LOOP.TO** | 戻り先の段。0〜8 | 0 〜 8 | 0 | [`SSG_SSGSWP11_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loopto) |
-| **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSWP11_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp11-loopcnt) |
+| **Bypass / Enable** | 使う・使わない | False / True | True | [`SSG_SSGSWP256_BYPASS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-bypass) |
+| **STEP** | 使う段の数 | 1 〜 256 | 10 | [`SSG_SSGSWP256_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-steps) |
+| **KEEP** | 段の頭の値を保つ | False / True | False | [`SSG_SSGSWP256_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-keep) |
+| **LOOP** / **LOOP.TO** / **LOOP.CNT** | 繰り返し | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-loop) など |
+| **R.TARGET** / **RATE** | R を変える段と、その段の時間（秒） | 1 〜 STEP / 0.001 〜 10 | — / 0.001 | —（表で持つ） |
+| **L.TARGET** / **LEVEL** | L を変える段（0 が STL）と、その段の音程（セント） | 0 〜 STEP / -4800 〜 4800 | — / 0 | STL だけ [`SSG_SSGSWP256_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-stl) |
+| **RR** / **LR** | 離してから LR へ届くまでの時間と、向かう音程 | 0.001 〜 10 / -4800 〜 4800 | 0.001 / 0 | [`SSG_SSGSWP256_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-rr) / [`SSG_SSGSWP256_LR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-lr) |
+| **Use Endl** / **ENDL** | リリースのあとも音程を残す | — | — | [`SSG_SSGSWP256_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-endl) |
+
+LEVEL の右の **N** では、半音・オクターブなど音程向けのボタンが出ます。
+3.6.3 までの [11] は、AMP と同じく読み込むときに写します（`.ssgSwPEnv11` も読めます）。
+
+## TAP SEQUENCER
+
+**独自**の大区分 **[[TAP SEQUENCER]]** です（4.0.0 から）。各チャンネルのグローバルにあり、
+[[PITCH ENV]] の下に並びます（RHYTHM は UNISON/HARMONY の下）。**鍵を押すたびに段を 1 つ進め**、
+その段の値で音量や音程を補正します。ドライバが音符ごとに音量や音程を少しずつ変えていた
+手法を、段の並びとして持てます。
+
+| 区分 | 段の値 | 範囲 | 初期値 | 掛け方 |
+| --- | --- | --- | ---: | --- |
+| **TAP AMP SEQUENCER** | 割合 | 0.0 〜 4.0 | 1.0 | 最後に決まった音量へ掛ける |
+| **TAP PITCH SEQUENCER** | セント | −2400 〜 2400 | 0 | 最後に決まった音程へ足す |
+
+| つまみ | 内容 | 範囲 | 初期値 |
+| --- | --- | --- | ---: |
+| **Enable** | 使う | 入 / 切 | 切 |
+| **STEPS** | 段の数。1 のときは毎回同じ値で補正する | 1 〜 256 | 1 |
+| **S.TARGET** | 値のつまみで直す段 | 1 〜 STEPS | 1 |
+| **RATIO / CENT** | その段の値。下のボタンで少しずつ動かせる | 上の表 | 上の表 |
+| **INCREMENT** | 次に使う段を 1 つ進める（最後の段の次は 1） | — | — |
+| **DECREMENT** | 次に使う段を 1 つ戻す（1 の前は最後の段） | — | — |
+| **RESET** | 次に使う段を 1 に戻す | — | — |
+
+- 段の値は横向きの棒で並びます。地の色が変わっている段が、次に押したときに使う段です
+- その下に「S1: 値 / S2: 値 / …」の一覧が 1 行 4 個ずつ並びます。STEPS を変えると、すぐに高さが変わります
+- 次に使う段はチャンネルで 1 つです。どのボイスで押しても同じ並びを進みます
+- INCREMENT / DECREMENT / RESET はオートメーションでも押せます（値が 0.5 を下から越えたときに 1 回動く）
+- 段の値は表としてプリセット・チャンネルパラメータへ保存します（オートメーションでは動かせません）。
+  区分のパラメータファイルは `.tapAmp` / `.tapPitch` で、見出しの右クリックから読み書きします
 
 ## SPEED — 再生の速さ
 
@@ -634,6 +662,19 @@ Duplicate Pad Params のどれにも効きます。NOTE も写したい・戻し
 出ます。**その区分の中身だけ**を単位にします。閉じている区分でも使えます。
 写したものは、ほかのチャンネル・オペレーター・パッドの同じ区分へ貼れます。
 FX の効果は、枠の見出しを右クリックします。
+
+4.0.0 から、CLEAR の下に次の項目が加わりました。
+
+| 項目 | はたらき |
+| --- | --- |
+| **複写 (DUPLICATE)** | オペレーター・パッド・TARGET（WT+ / ADPCM+ の OPTIONAL、ADPCM+ の PAN など）の区分を、同じチャンネルのほかのオペレーター・パッド・TARGET の同じ区分へ写します。写し先をチェックボックスで選ぶダイアログが出ます。グローバルの区分では押せません |
+| **読み込み (IMPORT)** | UTILITY のその区分の **[IM]…** を押したのと同じです |
+| **書き出し (EXPORT)** | UTILITY のその区分の **[EX]…** を押したのと同じです |
+
+複写のダイアログには「全てチェックを入れる」「全てチェックを外す」と、
+「複写」「キャンセル」のボタンがあります。写し元（いま TARGET で選んでいる
+もの）は選べません。ESC でも閉じます。読み込み・書き出しは、UTILITY に
+[IM] / [EX] のある区分だけで押せます。UTILITY のボタンはこれまでどおり残っています。
 
 ### Duplicate Ops Params — オペレーターのまとまりを写す
 

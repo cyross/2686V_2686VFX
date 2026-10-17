@@ -48,6 +48,9 @@ class QualityPcm : public GuiBase {
     // ときだけ、しきい値は無音ゲートを入れたときだけ効く。
     void applyActive();
 public:
+    // 区分の見出し。右クリックの IMPORT / EXPORT をつなぐのに使う
+    GuiCategoryLabel& category() { return qualityCat; }
+
     QualityPcm(const GuiContext& context) :
         GuiBase(context),
         qualityCat(context),

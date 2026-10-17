@@ -10,6 +10,7 @@
 // ごとに違い、MODE パラメータとして保存されているため。mode は各プラグインの
 // SynthParams (これを受け継ぐ) が持つ。音源の本体は mode を見ない。
 
+#include "./TapSequencer.h"
 #include <array>
 
 #include "../../Synth/Opna/SynthOpnaParams.h"
@@ -54,4 +55,9 @@ struct SynthCoreParams
     AdpcmParams adpcm;
     AdpcmPlusParams adpcmPlus;
     BeepParams beep;
+
+    // TAP AMP / PITCH SEQUENCER。鳴らしているチャンネルのもの (そのチャンネルの
+    // プロセッサが入れる)。ボイスが押したときに読む。
+    TapSeqParams tapAmp;
+    TapSeqParams tapPitch;
 };

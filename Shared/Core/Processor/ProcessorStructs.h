@@ -5,6 +5,7 @@
 
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Synth/WtModWave.h"
+#include "Shared/Core/Synth/StepTable.h"
 
 // ホールドと部分再生。付ける先ごとに頭の印が違うだけなので、
 // APVTS を指す口もまとめて 1 つの入れ物にしてある。
@@ -66,114 +67,28 @@ struct PrPtrsAdsrAmpEnv {
     std::atomic<float>* endlEnable = nullptr;
 };
 
-struct PrPtrsSsgSwEnv {
-    std::atomic<float>* bypass = nullptr;
+// SSG SW AMP / PITCH ENV[256] の頭のパラメータと、段の R / L を持つ表。
+// 表はプロセッサが持つ (StepTableStore)。音を出し始める前に引いて持っておく。
+struct PrPtrsStepEnv {
     std::atomic<float>* steps = nullptr;
     std::atomic<float>* loop = nullptr;
     std::atomic<float>* loopTo = nullptr;
     std::atomic<float>* loopCount = nullptr;
-    std::atomic<float>* r1 = nullptr;
-    std::atomic<float>* r2 = nullptr;
-    std::atomic<float>* r3 = nullptr;
-    std::atomic<float>* r4 = nullptr;
-    std::atomic<float>* r5 = nullptr;
-    std::atomic<float>* r6 = nullptr;
     std::atomic<float>* stl = nullptr;
-    std::atomic<float>* l1 = nullptr;
-    std::atomic<float>* l2 = nullptr;
-    std::atomic<float>* l3 = nullptr;
-    std::atomic<float>* l4 = nullptr;
-    std::atomic<float>* l5 = nullptr;
-    std::atomic<float>* l6 = nullptr;
-};
-
-struct PrPtrsSsgSwEnvOp {
-    std::atomic<float>* enable = nullptr;
-    std::atomic<float>* steps = nullptr;
-    std::atomic<float>* loop = nullptr;
-    std::atomic<float>* loopTo = nullptr;
-    std::atomic<float>* loopCount = nullptr;
-    std::atomic<float>* r1 = nullptr;
-    std::atomic<float>* r2 = nullptr;
-    std::atomic<float>* r3 = nullptr;
-    std::atomic<float>* r4 = nullptr;
-    std::atomic<float>* r5 = nullptr;
-    std::atomic<float>* r6 = nullptr;
-    std::atomic<float>* stl = nullptr;
-    std::atomic<float>* l1 = nullptr;
-    std::atomic<float>* l2 = nullptr;
-    std::atomic<float>* l3 = nullptr;
-    std::atomic<float>* l4 = nullptr;
-    std::atomic<float>* l5 = nullptr;
-    std::atomic<float>* l6 = nullptr;
-};
-
-struct PrPtrsSsgSwEnv11 {
-    std::atomic<float>* bypass = nullptr;
-    std::atomic<float>* steps = nullptr;
-    std::atomic<float>* loop = nullptr;
-    std::atomic<float>* loopTo = nullptr;
-    std::atomic<float>* loopCount = nullptr;
-    std::atomic<float>* r1 = nullptr;
-    std::atomic<float>* r2 = nullptr;
-    std::atomic<float>* r3 = nullptr;
-    std::atomic<float>* r4 = nullptr;
-    std::atomic<float>* r5 = nullptr;
-    std::atomic<float>* r6 = nullptr;
-    std::atomic<float>* r7 = nullptr;
-    std::atomic<float>* r8 = nullptr;
-    std::atomic<float>* r9 = nullptr;
-    std::atomic<float>* r10 = nullptr;
-    std::atomic<float>* r11 = nullptr;
-    std::atomic<float>* stl = nullptr;
-    std::atomic<float>* l1 = nullptr;
-    std::atomic<float>* l2 = nullptr;
-    std::atomic<float>* l3 = nullptr;
-    std::atomic<float>* l4 = nullptr;
-    std::atomic<float>* l5 = nullptr;
-    std::atomic<float>* l6 = nullptr;
-    std::atomic<float>* l7 = nullptr;
-    std::atomic<float>* l8 = nullptr;
-    std::atomic<float>* l9 = nullptr;
-    std::atomic<float>* l10 = nullptr;
-    std::atomic<float>* l11 = nullptr;
+    std::atomic<float>* lr = nullptr;
+    std::atomic<float>* rr = nullptr;
     std::atomic<float>* endl = nullptr;
     std::atomic<float>* endlEnable = nullptr;
     std::atomic<float>* keep = nullptr;
+    const StepTable* table = nullptr;
 };
 
-struct PrPtrsSsgSwEnv11Op {
+struct PrPtrsSsgSwEnv256 : PrPtrsStepEnv {
+    std::atomic<float>* bypass = nullptr;
+};
+
+struct PrPtrsSsgSwEnv256Op : PrPtrsStepEnv {
     std::atomic<float>* enable = nullptr;
-    std::atomic<float>* steps = nullptr;
-    std::atomic<float>* loop = nullptr;
-    std::atomic<float>* loopTo = nullptr;
-    std::atomic<float>* loopCount = nullptr;
-    std::atomic<float>* r1 = nullptr;
-    std::atomic<float>* r2 = nullptr;
-    std::atomic<float>* r3 = nullptr;
-    std::atomic<float>* r4 = nullptr;
-    std::atomic<float>* r5 = nullptr;
-    std::atomic<float>* r6 = nullptr;
-    std::atomic<float>* r7 = nullptr;
-    std::atomic<float>* r8 = nullptr;
-    std::atomic<float>* r9 = nullptr;
-    std::atomic<float>* r10 = nullptr;
-    std::atomic<float>* r11 = nullptr;
-    std::atomic<float>* stl = nullptr;
-    std::atomic<float>* l1 = nullptr;
-    std::atomic<float>* l2 = nullptr;
-    std::atomic<float>* l3 = nullptr;
-    std::atomic<float>* l4 = nullptr;
-    std::atomic<float>* l5 = nullptr;
-    std::atomic<float>* l6 = nullptr;
-    std::atomic<float>* l7 = nullptr;
-    std::atomic<float>* l8 = nullptr;
-    std::atomic<float>* l9 = nullptr;
-    std::atomic<float>* l10 = nullptr;
-    std::atomic<float>* l11 = nullptr;
-    std::atomic<float>* endl = nullptr;
-    std::atomic<float>* endlEnable = nullptr;
-    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsPitchEnv {
@@ -204,72 +119,12 @@ struct PrPtrsPitchEnvOp {
     std::atomic<float>* keep = nullptr;
 };
 
-struct PrPtrsSsgSwPEnv11 {
+struct PrPtrsSsgSwPEnv256 : PrPtrsStepEnv {
     std::atomic<float>* bypass = nullptr;
-    std::atomic<float>* steps = nullptr;
-    std::atomic<float>* loop = nullptr;
-    std::atomic<float>* loopTo = nullptr;
-    std::atomic<float>* loopCount = nullptr;
-    std::atomic<float>* r1 = nullptr;
-    std::atomic<float>* r2 = nullptr;
-    std::atomic<float>* r3 = nullptr;
-    std::atomic<float>* r4 = nullptr;
-    std::atomic<float>* r5 = nullptr;
-    std::atomic<float>* r6 = nullptr;
-    std::atomic<float>* r7 = nullptr;
-    std::atomic<float>* r8 = nullptr;
-    std::atomic<float>* r9 = nullptr;
-    std::atomic<float>* r10 = nullptr;
-    std::atomic<float>* r11 = nullptr;
-    std::atomic<float>* stl = nullptr;
-    std::atomic<float>* l1 = nullptr;
-    std::atomic<float>* l2 = nullptr;
-    std::atomic<float>* l3 = nullptr;
-    std::atomic<float>* l4 = nullptr;
-    std::atomic<float>* l5 = nullptr;
-    std::atomic<float>* l6 = nullptr;
-    std::atomic<float>* l7 = nullptr;
-    std::atomic<float>* l8 = nullptr;
-    std::atomic<float>* l9 = nullptr;
-    std::atomic<float>* l10 = nullptr;
-    std::atomic<float>* l11 = nullptr;
-    std::atomic<float>* endl = nullptr;
-    std::atomic<float>* endlEnable = nullptr;
-    std::atomic<float>* keep = nullptr;
 };
 
-struct PrPtrsSsgSwPEnv11Op {
+struct PrPtrsSsgSwPEnv256Op : PrPtrsStepEnv {
     std::atomic<float>* enable = nullptr;
-    std::atomic<float>* steps = nullptr;
-    std::atomic<float>* loop = nullptr;
-    std::atomic<float>* loopTo = nullptr;
-    std::atomic<float>* loopCount = nullptr;
-    std::atomic<float>* r1 = nullptr;
-    std::atomic<float>* r2 = nullptr;
-    std::atomic<float>* r3 = nullptr;
-    std::atomic<float>* r4 = nullptr;
-    std::atomic<float>* r5 = nullptr;
-    std::atomic<float>* r6 = nullptr;
-    std::atomic<float>* r7 = nullptr;
-    std::atomic<float>* r8 = nullptr;
-    std::atomic<float>* r9 = nullptr;
-    std::atomic<float>* r10 = nullptr;
-    std::atomic<float>* r11 = nullptr;
-    std::atomic<float>* stl = nullptr;
-    std::atomic<float>* l1 = nullptr;
-    std::atomic<float>* l2 = nullptr;
-    std::atomic<float>* l3 = nullptr;
-    std::atomic<float>* l4 = nullptr;
-    std::atomic<float>* l5 = nullptr;
-    std::atomic<float>* l6 = nullptr;
-    std::atomic<float>* l7 = nullptr;
-    std::atomic<float>* l8 = nullptr;
-    std::atomic<float>* l9 = nullptr;
-    std::atomic<float>* l10 = nullptr;
-    std::atomic<float>* l11 = nullptr;
-    std::atomic<float>* endl = nullptr;
-    std::atomic<float>* endlEnable = nullptr;
-    std::atomic<float>* keep = nullptr;
 };
 
 struct PrPtrsOplDetune {
@@ -452,6 +307,8 @@ struct PrPtrsSsgDuty {
     std::atomic<float>* invert = nullptr;
     std::atomic<float>* fc = nullptr;
     std::atomic<float>* fcFluc = nullptr;
+    std::atomic<float>* moreFc = nullptr;
+    std::atomic<float>* moreNes = nullptr;
 };
 
 struct PrPtrsSsgTri {

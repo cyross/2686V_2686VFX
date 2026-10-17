@@ -49,6 +49,20 @@ What appears below changes with the waveform you pick.
 | **RATIO** | The ratio when MODE is Variable | 0.0–1.0 | |
 | **FC Mode** | Behave the way the Famicom did (**ours**) | on / off (off by default) | |
 | **FC FLUC** | How much it fluctuates in FC Mode (**ours**) | 0.0–1.0 (0.2 by default) | |
+| **More Real FC** | Sound like the Famicom's (2A03) pulse channel (**ours**) | on / off (off by default) | 4.0.0 |
+| **More Real NES** | Sound like the NES's (2A03) pulse channel (**ours**) | on / off (off by default) | 4.0.0 |
+
+**Only one of FC Mode, More Real FC and More Real NES can be on** (all off is fine).
+Turning one on turns the other two off.
+
+More Real FC / More Real NES have nothing to do with FC FLUC. They mimic the 2A03 like this:
+
+- Only the chip's four duty cycles, **12.5% / 25% / 50% / 75%**. The one closest to the ratio from MODE, PRESET, RATIO and Invert Phrase is used, played with the chip's 8-step sequence
+- Pitch snaps to the 11-bit timer (fpulse = 1789772.7 / (16 × (t + 1))). Notes high enough to need t below 8 are silent
+- Volume is rounded to 16 steps and sent through the chip's non-linear DAC (95.88 / (8128 / v + 100))
+- The output swings between 0 and the volume, and the filters after it remove the DC. **This is where FC and NES differ**
+  - More Real FC: a 37 Hz high-pass
+  - More Real NES: 90 Hz and 440 Hz high-passes and a 14 kHz low-pass (thinner bass, a droop on long pulses)
 
 PRESET offers these eight duty cycles.
 
@@ -72,6 +86,27 @@ PRESET offers these eight duty cycles.
 | **Invert Phrase** | Turn the wave upside down | [`SSG_DUTY_INV`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-inv) |
 | **FC Mode** | Make the ratio waver slightly, the way the Famicom's did (**ours**) | [`SSG_DUTY_FC_MODE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-mode) |
 | **FC FLUC** | How large that wavering is | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-fluc) |
+| **More Real FC** | Sound like the Famicom's pulse channel (**ours**) | [`SSG_DUTY_MORE_FC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-more-fc) |
+| **More Real NES** | Sound like the NES's pulse channel (**ours**) | [`SSG_DUTY_MORE_NES`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-more-nes) |
+
+#### DUTY RATIO ENVELOPE (ours, 4.0.0)
+
+A 256-step envelope at the bottom of the group that moves the duty cycle over time.
+It works like [SSG SW AMP ENV\[256\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env256),
+except that the value is a **duty cycle (%)** instead of a level.
+
+- Switch it on with **Enable** at the top. While it is on, its value replaces MODE, PRESET,
+  RATIO and Invert Phrase (Invert Phrase is not applied)
+- Values run **0.0–100.0%**. STL is called **STDR**, the L values **DR1–DR256**, the target knob
+  **DR.TARGET** and the value knob **DUTY**
+- The buttons under the value knob set the duty cycles PRESET offers
+  (50 / 43.75 / 37.5 / 31.25 / 25 / 20 / 18.75 / 12.5 / 6.25%) directly
+- RATE, STEP, KEEP, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- With More Real FC / NES, this value is also snapped to the nearest of 12.5 / 25 / 50 / 75%
+- The per-step R / L values are saved as a table in presets and channel parameters (they cannot be
+  automated). The section's parameter file is `.dutyEnv`, read and written from the heading's right-click menu
+
+The group grows with the number of steps, so its contents scroll vertically.
 
 ### Triangle settings (ours)
 
@@ -91,6 +126,17 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | **Key Track (Pitch)** | Sound the pitch of the key. Switched off, it stays at FQ | [`SSG_TRI_KEYTRK`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-keytrk) |
 | **FREQ** | The frequency it is fixed at | [`SSG_TRI_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-freq) |
 | **PEAK** | Where the peak of the triangle sits. 0.5 is symmetrical | [`SSG_TRI_PEAK`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-peak) |
+
+#### PEAK RATIO ENVELOPE (ours, 4.0.0)
+
+A 256-step envelope at the bottom of the group that moves the triangle's peak over time.
+It works like DUTY RATIO ENVELOPE.
+
+- Switch it on with **Enable** at the top. While it is on, its value replaces PEAK
+- Values run **0.0–1.0**. STL is called **STPK**, the L values **PK1–PK256**, the target knob
+  **PK.TARGET** and the value knob **PEAK**
+- The buttons under the value knob (−0.01 / −0.1 / 0.0 / 1.0 / +0.1 / +0.01) move the value
+- The section's parameter file is `.peakEnv`
 
 ## TONE / NOISE / MIX — blending the sound (hardware)
 
@@ -161,7 +207,7 @@ The following do not belong to any one chip. They are all described under [Share
 
 | Section | Marked | What it does |
 | --- | --- | --- |
-| [**ENVELOPE**](/2686V_2686VFX/en/chips/common/#envelope) | ours | [AMP ENV](/2686V_2686VFX/en/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env) / [SSG SW AMP ENV\[11\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env11) / [PITCH ENV](/2686V_2686VFX/en/chips/common/#pitch-env) / [SSG HW PITCH ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-pitch-env) / [SSG SW PITCH ENV\[11\]](/2686V_2686VFX/en/chips/common/#ssg-sw-pitch-env11) |
+| [**ENVELOPE**](/2686V_2686VFX/en/chips/common/#envelope) | ours | [AMP ENV](/2686V_2686VFX/en/chips/common/#amp-env) / [SSG HW AMP ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-amp-env) / [SSG SW AMP ENV\[256\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env256) / [PITCH ENV](/2686V_2686VFX/en/chips/common/#pitch-env) / [SSG HW PITCH ENV](/2686V_2686VFX/en/chips/common/#ssg-hw-pitch-env) / [SSG SW PITCH ENV\[256\]](/2686V_2686VFX/en/chips/common/#ssg-sw-pitch-env256) |
 | [**LFO**](/2686V_2686VFX/en/chips/common/#lfo) | ours | Wobbles level and pitch at a steady rate |
 | [**MUL/DET**](/2686V_2686VFX/en/chips/common/#muldet) | hardware / ours | Shifts the pitch |
 | [**UNISON/HARMONY**](/2686V_2686VFX/en/chips/common/#unisonharmony) | ours | Stacks copies of the note to thicken it |

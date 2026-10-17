@@ -5,9 +5,8 @@
 
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
 #include "../../Core/Synth/UnisonParams.h"
@@ -27,10 +26,9 @@ struct AdpcmPlusParams
     AmpAdsrParams adsr;
     WtModParams wtMod;
     WtAmpModParams wtAmpMod;
-    SsgSwEnvParams ssgSwEnv;
-    SsgSwEnv11Params ssgSwEnv11;
+    SsgSwEnv256Params ssgSwEnv256;
     PitchAdsrParams pitchAdsr;
-    SsgSwPEnv11Params ssgSwPEnv11;
+    SsgSwPEnv256Params ssgSwPEnv256;
     Opzx7DetuneParams detune;
     LfoOpzx7Params lfo;
     FixModeParams fix;

@@ -12,7 +12,7 @@ The SSG SW AMP ENV[11] settings.
 | **Extension** | `.ssgSwEnv11.json` / `.ssgSwEnv11.yaml` |
 | **format** | `ssgSwEnv11` |
 | **version** | `1` |
-| **Export / import** | SSG SW AMP ENV[11]'s [EX] / [IM] |
+| **Import** | SSG SW AMP ENV[256]'s [IM] (from 4.0.0; never exported) |
 
 ## Shape
 

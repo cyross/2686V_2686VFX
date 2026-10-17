@@ -500,6 +500,17 @@ public:
 
     void resized() override;
 
+    // 束縛を外す。パラメータでない値 (段の表など) をつまみで動かすときに使う。
+    // 範囲は呼び出し側が setRange で決めること。
+    void unbind()
+    {
+        flushToAttachment();
+
+        att.reset();
+        boundId = {};
+        setComponentID({});
+    }
+
     void rebind(const juce::String& id)
     {
         // 束縛し直しているあいだに来る値の知らせは、切り替えた先の値を
@@ -1209,6 +1220,32 @@ public:
         g.fillRoundedRectangle(getLocalBounds().toFloat(), 3.0f);
     }
 };
+
+// 操作面の一番上の帯 (TARGET・名前・映すものの切り替え) の背後へ敷く板。
+// 壁紙の上でも文字が読めるようにする。装飾なのでマウスは素通し。
+class GuiRowBoard : public juce::Component
+{
+public:
+    GuiRowBoard() { setInterceptsMouseClicks(false, false); }
+
+    // 親へ入れて最背面へ送る。帯の部品より後に入れても、部品を隠さない。
+    void setupComponent(juce::Component& parent)
+    {
+        parent.addAndMakeVisible(*this);
+        toBack();
+    }
+
+    void paint(juce::Graphics& g) override
+    {
+        const auto r = getLocalBounds().toFloat().reduced(0.5f);
+
+        g.setColour(GuiColor::TargetRow::Bg);
+        g.fillRoundedRectangle(r, 3.0f);
+
+        g.setColour(GuiColor::TargetRow::Border);
+        g.drawRoundedRectangle(r, 3.0f, 1.0f);
+    }
+};
 class GuiCategoryLabel : public GuiLabel
 {
     bool enableChangeDetailVisible = false;
@@ -1271,9 +1308,15 @@ public:
     // 中身が見えているほうが都合のよいことがある。
     void setDetailVisible(bool visible) { this->detailVisible = visible; }
 
-    // 右クリックで、区分の中身の切り取り・コピー・貼り付け・初期化を出す
-    // (ParamEdit::showCategoryMenu)。
+    // 右クリックで、区分の中身の切り取り・コピー・貼り付け・初期化・複写と
+    // 読み込み・書き出しを出す (ParamEdit::showCategoryMenu)。
     void mouseDown(const juce::MouseEvent& e) override;
+
+    // 右クリックの「読み込み (IMPORT)」「書き出し (EXPORT)」で呼ぶもの。
+    // UTILITY の [IM] / [EX] と同じ処理をつなぐ (GuiComponentImportExport::bindCategory)。
+    // 空なら、その項目は押せない。
+    std::function<void()> onImport = nullptr;
+    std::function<void()> onExport = nullptr;
 
     // 中身の背後の板の場所。区分に入っている部品を見分けるのに使う。
     juce::Rectangle<int> backdropBounds() const { return backdrop.isVisible() ? backdrop.getBounds() : juce::Rectangle<int>(); }
