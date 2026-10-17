@@ -1291,6 +1291,11 @@ SynthParams AudioPlugin2686V::buildRenderParams()
 
     found->second->processBlock(params, apvts);
 
+    // TAP SEQUENCER は鍵を押すたびに段を進めるので、プレビューでは切る。
+    // 切らないと、プレビューを描き直すたびに段が進み、次に押した音が 1 段目にならない。
+    params.tapAmp.enable = false;
+    params.tapPitch.enable = false;
+
     params.monoMode = PrHelper::getBool(pMonoMode);
     params.useVelocity = PrHelper::getBool(pUseVelocity);
     params.pitchResetOnLegato = PrHelper::getBool(pPitchResetOnLegato);
