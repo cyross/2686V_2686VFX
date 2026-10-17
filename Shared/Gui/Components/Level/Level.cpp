@@ -55,6 +55,10 @@ void GuiComponentLevel::applyStepSnap()
 void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& prefix, bool withDelay) {
     m_withDelay = withDelay;
 
+    if (m_withDelay) {
+        category.setupSwCategory({ .parent = parent, .title = "UNCATEGORIZED", .detailVisible = true, .enableChangeDetailVisible = true });
+    }
+
     // 出力レベル
     levelSlider.setupComponent(
         parent,
@@ -87,6 +91,16 @@ void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, c
 }
 
 void GuiComponentLevel::layoutComponent(juce::Rectangle<int>& rect) {
+    if (m_withDelay) {
+        layoutMainCategory({ .mainRect = rect, .label = &category });
+
+        // 閉じているあいだは中身を出さず、縦の場所も取らない。
+        if (!category.isDetailVisible()) {
+            setVisible(false);
+            return;
+        }
+    }
+
     setVisible(true);
 
     levelSlider.layoutComponent(rect);

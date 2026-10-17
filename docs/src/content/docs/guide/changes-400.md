@@ -13,3 +13,10 @@ sidebar:
 OPNA / OPN / OPL / OPL3 / OPM / OPZX7（OPZX7S を含む）のグローバルにある
 **ALGORITHM/FEEDBACK** の見出しを押すと、ほかの区分と同じく開閉します。
 最初は開いています。閉じても音は変わりません。
+
+## LEVEL / STEPS / DELAY を UNCATEGORIZED にまとめました
+
+チャンネルのグローバルで、どの区分にも入っていなかった **LEVEL・STEPS・DELAY**
+を、見出し **UNCATEGORIZED** の下へまとめました。全チャンネルが対象です。
+開閉でき、最初は開いています。見出しを右クリックすると、ほかの区分と同じく
+この 3 つだけを写すメニューが出ます。2686VFX の出力の LEVEL は変わりません。

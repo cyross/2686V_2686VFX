@@ -33,6 +33,9 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 
 - **ALGORITHM/FEEDBACK 区分を開閉できるように**
   - OPNA / OPN / OPL / OPL3 / OPM / OPZX7 (OPZX7S を含む) のグローバル。最初は開いている
+- **LEVEL / STEPS / DELAY を UNCATEGORIZED 区分にまとめた**
+  - どの区分にも入っていなかったチャンネルのグローバルの LEVEL・STEPS・DELAY を、見出し「UNCATEGORIZED」の下へ。開閉でき、最初は開いている
+  - 全チャンネルが対象。2686VFX の出力の LEVEL はこれまでどおり
 
 ### 3-0-2. v3.6.3での修正・変更
 

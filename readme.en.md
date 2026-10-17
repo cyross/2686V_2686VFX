@@ -33,6 +33,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 - **The ALGORITHM/FEEDBACK section can now be folded**
   - In the global part of OPNA / OPN / OPL / OPL3 / OPM / OPZX7 (including OPZX7S). It starts open
+- **LEVEL / STEPS / DELAY now sit in an UNCATEGORIZED section**
+  - The channel-wide LEVEL, STEPS and DELAY, which had no heading, now sit under "UNCATEGORIZED". It can be folded and starts open
+  - Every channel. 2686VFX's output LEVEL is unchanged
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

@@ -17,6 +17,10 @@
 #include "../Separator/NormalSeparator.h"
 
 class GuiComponentLevel : public GuiBase {
+    // どの区分にも入っていなかった LEVEL / STEPS / DELAY をまとめる見出し。
+    // チャンネル (DELAY を持つ側) だけが持ち、開閉できる。最初は開いている。
+    GuiCategoryLabel category;
+
     GuiComponentNudgeSliderFloat levelSlider;
 
     // 押してから鳴り始めるまでの間 (秒)。
@@ -57,6 +61,7 @@ class GuiComponentLevel : public GuiBase {
 public:
     GuiComponentLevel(const GuiContext& context) :
         GuiBase(context),
+        category(context),
         levelSlider(context),
         delaySeparator(context),
         delaySlider(context),

@@ -14,3 +14,10 @@ automation as little as possible.
 Press the **ALGORITHM/FEEDBACK** heading in the global part of OPNA / OPN / OPL /
 OPL3 / OPM / OPZX7 (including OPZX7S) to open or close it, like the other
 sections. It starts open. Folding it does not change the sound.
+
+## LEVEL / STEPS / DELAY grouped under UNCATEGORIZED
+
+The channel-wide **LEVEL, STEPS and DELAY**, which had no heading, now sit under
+an **UNCATEGORIZED** heading on every channel. It can be folded and starts open.
+Right-click the heading for the same copy menu as other sections, limited to
+these three. 2686VFX's output LEVEL is unchanged.
