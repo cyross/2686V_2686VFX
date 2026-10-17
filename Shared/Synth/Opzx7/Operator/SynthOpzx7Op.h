@@ -73,6 +73,13 @@ private:
 	SsgSwEnv256 m_ssgSwEnv256;
 	SsgSwPEnv256 m_ssgSwPenv256;
 
+	// TL ENV。値は TL のレジスタ値。同じ値が続くあいだは倍率を作り直さない
+	StepEnv m_tlEnv;
+	float m_tlEnvValue = -1.0f;
+	float m_tlEnvBaseDb = 0.0f;
+	float m_tlEnvGain = 1.0f;
+	float tlEnvGain();
+
 	// SSG HW PITCH ENV。オペレーターごとに 1 つ持つ。
 	SsgHwPEnv m_ssgHwPEnv;
 

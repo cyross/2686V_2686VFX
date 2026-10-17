@@ -253,6 +253,25 @@ converted to [256] when loaded: R1–R10 / L1–L10 become steps 1–10 of the t
 R11 / L11 (the release) become RR / LR, so they sound the same. Exports are written
 as `.ssgSwEnv256`.
 
+### TL ENV
+
+**Ours.** Only the FM chips' operators have it (OPNA / OPN / OPL / OPL3 / OPM / OPZX7S), at the
+bottom of [[AMP ENV]] after WT AMP MOD (from 4.0.0). It lets you draw, as a **TL** per step, the
+level movement drivers made by rewriting TL on every key-on.
+
+It is the same 256-step envelope as [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256), except that the
+values are **TL register values (integers)** instead of levels.
+
+- Switch it on with **Enable** at the top. While it is on, the step's TL is used instead of the TL at
+  key-on (with AMP ENV bypassed, TL itself has no effect, so neither does this)
+- Values are **0–127** on OPNA / OPN / OPM and **0–63** on OPL / OPL3 / OPZX7S. STL is called
+  **STTL**, the L values **TL1–TL256**, the target knob **TL.TARGET** and the value knob **TL**
+- As on the chips, a value is held for its step rather than sloped into the next (always KEEP, so there
+  is no KEEP switch)
+- **STEPS** under the value knob snaps to TL steps, and buttons (−8 / −1 / 0 / +1 / +8 / max) move it
+- RATE, STEP, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- The section's parameter file is `.tlEnv`, read and written from the heading's right-click menu
+
 ### PITCH ENV
 
 Moves the pitch over time. Values are in **cents**, from **−4800 to +4800**

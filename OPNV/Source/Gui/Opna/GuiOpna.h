@@ -39,6 +39,7 @@
 #include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
 #include "Shared/Gui/Components/WtMod/WtMod.h"
 #include "Shared/Gui/Components/WtAmpMod/WtAmpMod.h"
+#include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 
@@ -160,6 +161,7 @@ class GuiOpna : public GuiBase
     GuiScrollGroup colSsgHwEnv;
     GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
+    GuiScrollGroup colTlEnv;
     GuiScrollGroup colPitchEnv;
     GuiScrollGroup colSsgHwPEnv;
     GuiScrollGroup colSsgSwPEnv256;
@@ -190,6 +192,9 @@ class GuiOpna : public GuiBase
     GuiComponentSsgSwPEnv256 ssgSwPEnv256;
     GuiComponentSsgHwPEnv ssgHwPEnvOp;
     GuiComponentWtAmpMod wtAmpModOp;
+
+    // TL ENV。[[AMP ENV]] の一番下
+    GuiComponentTlEnv tlEnv;
     GuiComponentSsgHwEnv ssgHwEnvOp;
     GuiComponentWtMod wtModOp;
 
@@ -355,6 +360,7 @@ public:
         colSsgHwEnv(context),
         colSsgSwEnv256(context),
         colAmpMod(context),
+        colTlEnv(context),
         colPitchEnv(context),
         colSsgHwPEnv(context),
         colSsgSwPEnv256(context),
@@ -377,6 +383,7 @@ public:
         ssgSwPEnv256(context),
         ssgHwPEnvOp(context),
         wtAmpModOp(context),
+        tlEnv(context, 127),
         ssgHwEnvOp(context),
         wtModOp(context),
         fix(context),

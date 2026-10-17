@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Shared/Effect/Envelope/Step/EnvStep.h"
+
 #include "Shared/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
 #include "Shared/Effect/Lfo/N88/LfoN88Params.h"
@@ -20,6 +22,10 @@ struct OpnOpParams
     FmRgAdssrParams m_adsrParams;
     bool ssgEnv256Enable = false;
     SsgSwEnv256Params ssgSwEnv256;
+
+    // TL ENV。段の TL を押したときの TL と置き換える
+    bool tlEnvEnable = false;
+    StepEnvParams tlEnv;
     bool pitchEnvEnable = true;
     PitchAdsrParams pitchAdsr;
     bool ssgPEnv256Enable = true;

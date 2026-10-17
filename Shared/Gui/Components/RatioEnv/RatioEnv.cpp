@@ -84,3 +84,34 @@ const GuiComponentStepEnv::Spec& GuiComponentPeakRatioEnv::spec()
 
     return s;
 }
+
+const GuiComponentStepEnv::Spec& GuiComponentTlEnv::spec(int tlMax)
+{
+    auto build = [](const ValueEnv::Spec& v) {
+        Spec x = make(v);
+
+        x.kind = Spec::Kind::Tl;
+        x.title = "TL ENV";
+
+        // 常に KEEP。KEEP の札を持たない
+        x.keep = {};
+
+        x.levelInterval = 1.0;
+        x.levelDecimals = 0;
+        x.startLabel = "STTL";
+        x.levelPrefix = "TL";
+        x.levelLabel = "TL";
+        x.levelTargetLabel = "TL.TARGET";
+
+        x.fileFormat = "tlEnv";
+        x.browserKind = EditorGuiText::ParamBrowser::kindTlEnv;
+        x.extension = Io::Extension::TlEnvParam;
+
+        return x;
+    };
+
+    static const Spec s127 = build(ValueEnv::tl127());
+    static const Spec s63 = build(ValueEnv::tl63());
+
+    return tlMax > 63 ? s127 : s63;
+}

@@ -41,6 +41,7 @@
 #include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
 #include "Shared/Gui/Components/WtMod/WtMod.h"
 #include "Shared/Gui/Components/WtAmpMod/WtAmpMod.h"
+#include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/WavePreview/WavePreview.h"
 #include "Shared/Gui/Components/TargetCell/TargetCell.h"
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
@@ -175,6 +176,7 @@ class GuiOpzx7 : public GuiBase
     GuiScrollGroup colSsgHwEnv;
     GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
+    GuiScrollGroup colTlEnv;
     GuiScrollGroup colPitchEnv;
     GuiScrollGroup colSsgHwPEnv;
     GuiScrollGroup colSsgSwPEnv256;
@@ -256,6 +258,9 @@ class GuiOpzx7 : public GuiBase
     GuiComponentSsgSwPEnv256 ssgSwPEnv256;
     GuiComponentSsgHwPEnv ssgHwPEnvOp;
     GuiComponentWtAmpMod wtAmpModOp;
+
+    // TL ENV。[[AMP ENV]] の一番下
+    GuiComponentTlEnv tlEnv;
     GuiComponentSsgHwEnv ssgHwEnvOp;
     GuiComponentWtMod wtModOp;
 

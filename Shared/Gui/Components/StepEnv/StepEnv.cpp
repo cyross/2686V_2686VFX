@@ -50,7 +50,7 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     levelSteps(context),
     ampBtns(context),
     pitchBtns(context),
-    dutyBtns(context),
+    valueBtns(context),
     releaseSeparator(context),
     releaseRate(context),
     releaseLevel(context),
@@ -95,7 +95,7 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     const GuiCategoryLabel::Config catConfig{ .parent = parent, .title = spec.title, .enableChangeDetailVisible = true };
 
-    if (isAmp()) cat.setupSwAmpCategory(catConfig);
+    if (isAmp() || isTl()) cat.setupSwAmpCategory(catConfig);
     else if (isPitch()) cat.setupSwPitchCategory(catConfig);
     else cat.setupSwCategory(catConfig);
 
@@ -118,11 +118,13 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     stepsSeparator.setupComponent(parent);
 
-    keep.setup({ .parent = parent, .id = code + spec.keep, .title = "KEEP", .isReset = true });
-    keep.setWantsKeyboardFocus(true);
-    keep.setExplicitFocusOrder(++tabOrder);
+    if (hasKeep()) {
+        keep.setup({ .parent = parent, .id = code + spec.keep, .title = "KEEP", .isReset = true });
+        keep.setWantsKeyboardFocus(true);
+        keep.setExplicitFocusOrder(++tabOrder);
 
-    keepSeparator.setupComponent(parent);
+        keepSeparator.setupComponent(parent);
+    }
 
     loop.setup({ .parent = parent, .id = code + spec.loop, .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
@@ -176,7 +178,7 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     level.getSlider().onValueChange = [this] { onLevelChanged(); };
 
     if (usesUnitButtons()) ampBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
-    else if (isDuty()) dutyBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
+    else if (usesValueButtons()) valueBtns.setupComponent(parent, level.getSlider(), tabOrder, valueButtonEntries(), labelFont);
     else pitchBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
 
     parent.addAndMakeVisible(levelValues);
@@ -207,10 +209,10 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     endLevel.onValueChange = [this] { changed(); };
 
     // 音量だけ、LEVEL・LR・ENDL を決まった刻みへ丸められる
-    if (isAmp()) levelSteps.setupComponent(parent, { &level.getSlider(), &releaseLevel, &endLevel }, tabOrder, "STEPS", labelFont);
+    if (hasLevelSteps()) levelSteps.setupComponent(parent, { &level.getSlider(), &releaseLevel, &endLevel }, tabOrder, "STEPS", labelFont);
 
     flag.onStateChange = [this] { changed(); };
-    keep.onStateChange = [this] { changed(); };
+    if (hasKeep()) keep.onStateChange = [this] { changed(); };
     loop.onStateChange = [this] { changed(); };
 
     rateTarget.setValue(1, juce::dontSendNotification);
@@ -236,7 +238,7 @@ void GuiComponentStepEnv::rebind(const juce::String& code)
 
     flag.rebind(code + m_flagKey);
     steps.rebind(code + spec.steps);
-    keep.rebind(code + spec.keep);
+    if (hasKeep()) keep.rebind(code + spec.keep);
     loop.rebind(code + spec.loop);
     loopTo.rebind(code + spec.loopTo);
     loopCount.rebind(code + spec.loopCount);
@@ -258,6 +260,21 @@ void GuiComponentStepEnv::setLevelRange()
 {
     level.getSlider().setRange(spec.levelMin, spec.levelMax, spec.levelInterval);
     level.getSlider().setNumDecimalPlacesToDisplay(spec.levelInterval >= 1.0 ? 0 : spec.levelDecimals);
+}
+
+// 値のつまみの下のボタン。DUTY は PRESET のデューティ比、TL は刻みと両端。
+std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::valueButtonEntries() const
+{
+    if (isDuty()) {
+        // 並びは SSG の PRESET と同じ (SsgCore::dutyPresets)
+        return { { "50", false, 50.0 }, { "43.75", false, 43.75 }, { "37.5", false, 37.5 }, { "31.25", false, 31.25 }, { "25", false, 25.0 },
+                 { "20", false, 20.0 }, { "18.75", false, 18.75 }, { "12.5", false, 12.5 }, { "6.25", false, 6.25 } };
+    }
+
+    const juce::String maxLabel((int)spec.levelMax);
+
+    return { { "-8", true, -8.0 }, { "-1", true, -1.0 }, { "0", false, 0.0 }, { "+1", true, 1.0 }, { "+8", true, 8.0 },
+             { maxLabel, false, spec.levelMax } };
 }
 
 // ---------------------------------------------------------------- 段の数
@@ -425,8 +442,8 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     flagSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
     stepsSeparator.setVisible(visible);
-    keep.setVisible(visible);
-    keepSeparator.setVisible(visible);
+    keep.setVisible(visible && hasKeep());
+    keepSeparator.setVisible(visible && hasKeep());
     loop.setVisible(visible);
     loopTo.setVisibleWithLabel(visible);
     loopCount.setVisibleWithLabel(visible);
@@ -438,10 +455,10 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     rateSeparator.setVisible(visible);
     levelTarget.setVisibleWithLabel(visible);
     level.setVisibleWithLabel(visible);
-    levelSteps.setVisibleWithLabel(visible && isAmp());
+    levelSteps.setVisibleWithLabel(visible && hasLevelSteps());
     ampBtns.setVisibles(visible && usesUnitButtons() && level.isVisibleNudge());
     pitchBtns.setVisibles(visible && isPitch() && level.isVisibleNudge());
-    dutyBtns.setVisibles(visible && isDuty() && level.isVisibleNudge());
+    valueBtns.setVisibles(visible && usesValueButtons() && level.isVisibleNudge());
     levelValues.setVisible(visible);
     releaseSeparator.setVisible(visible);
     releaseRate.setVisibleWithLabel(visible);
@@ -458,8 +475,10 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     flagSeparator.layoutComponent(rect);
     layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = h });
     stepsSeparator.layoutComponent(rect);
-    layoutMain({ .mainRect = rect, .component = &keep, .rowHeight = h });
-    keepSeparator.layoutComponent(rect);
+    if (hasKeep()) {
+        layoutMain({ .mainRect = rect, .component = &keep, .rowHeight = h });
+        keepSeparator.layoutComponent(rect);
+    }
     layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = h });
     layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = h });
     layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = h });
@@ -475,11 +494,11 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = h });
     level.layoutComponent(rect, h);
 
-    if (isAmp()) levelSteps.layoutComponent(rect, h);
+    if (hasLevelSteps()) levelSteps.layoutComponent(rect, h);
 
     if (level.isVisibleNudge()) {
         if (usesUnitButtons()) ampBtns.layoutComponent(rect, h);
-        else if (isDuty()) dutyBtns.layoutComponent(rect, h);
+        else if (usesValueButtons()) valueBtns.layoutComponent(rect, h);
         else pitchBtns.layoutComponent(rect, h);
     }
 
@@ -516,7 +535,8 @@ void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curv
     graph.updateBypass(isCategoryBypassed());
 
     // KEEP のときはカーブを効かせない。音の側も補間そのものを止めてある。
-    const bool keepOn = keep.getToggleState();
+    // TL ENV は常に KEEP。
+    const bool keepOn = !hasKeep() || keep.getToggleState();
 
     graph.setKeepLevels(keepOn);
 
@@ -569,7 +589,7 @@ void GuiComponentStepEnv::applyActive()
     levelSteps.setEnabledWithLabel(active);
     ampBtns.setEnables(active);
     pitchBtns.setEnables(active);
-    dutyBtns.setEnables(active);
+    valueBtns.setEnables(active);
     levelValues.setEnabled(active);
 
     releaseSeparator.setEnabled(active);
@@ -682,7 +702,7 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r)
     loop.setToggleState(r.getBool("loop", loop.getToggleState()), juce::sendNotification);
     loopTo.setValue(r.getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
     loopCount.setValue(r.getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
-    keep.setToggleState(r.getBool("keep", keep.getToggleState()), juce::sendNotification);
+    if (hasKeep()) keep.setToggleState(r.getBool("keep", keep.getToggleState()), juce::sendNotification);
     endLevel.setValue(r.getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
     endLevelEnable.setToggleState(r.getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
 
@@ -850,7 +870,7 @@ void GuiComponentStepEnv::writeValues(Io::ParamWriter& w)
     w.set("loop", loop.getToggleState());
     w.set("loopTo", (float)loopTo.getValue());
     w.set("loopCount", (float)loopCount.getValue());
-    w.set("keep", keep.getToggleState());
+    if (hasKeep()) w.set("keep", keep.getToggleState());
     w.set("endLevel", (float)endLevel.getValue());
     w.set("endLevelEnable", endLevelEnable.getToggleState());
 

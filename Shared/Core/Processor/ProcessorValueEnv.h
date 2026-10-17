@@ -9,7 +9,7 @@
 #include "Shared/Effect/Envelope/Step/EnvStep.h"
 
 // ============================================================================
-// 値のエンベロープ (DUTY RATIO ENV / PEAK RATIO ENV など)
+// 値のエンベロープ (DUTY RATIO ENV / PEAK RATIO ENV / TL ENV など)
 // ============================================================================
 // SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、音量ではなく別の値
 // (矩形波のデューティ比・三角波の頂点など) を動かすもの。どれも「Enable」で
@@ -55,6 +55,12 @@ namespace ValueEnv
 		float levelMin = 0.0f;
 		float levelMax = 1.0f;
 		float levelInitial = 0.0f;
+
+		// 値が整数 (TL など)。STL / LR / ENDL を整数のパラメータにする
+		bool integerLevel = false;
+
+		// 常に KEEP (段の頭の値を保つ)。KEEP のパラメータを持たない
+		bool alwaysKeep = false;
 	};
 
 	// 起動時の初期化の順に頼らないよう、関数の中で作る (CPK の文字列と同じ理由)
@@ -67,6 +73,20 @@ namespace ValueEnv
 	inline const Spec& peak()
 	{
 		static const Spec s{ Keys("_PEAKENV"), " SSG PeakEnv", 0.0f, 1.0f, 0.5f };
+		return s;
+	}
+
+	// TL ENV。オペレーターの TL を段ごとに置き換える。値は TL のレジスタ値で、
+	// 実機と同じく段を斜めに繋がない (常に KEEP)。TL の幅は音源で違う。
+	inline const Spec& tl127()
+	{
+		static const Spec s{ Keys("_TLENV"), " TlEnv", 0.0f, 127.0f, 0.0f, true, true };
+		return s;
+	}
+
+	inline const Spec& tl63()
+	{
+		static const Spec s{ Keys("_TLENV"), " TlEnv", 0.0f, 63.0f, 0.0f, true, true };
 		return s;
 	}
 
@@ -91,12 +111,18 @@ namespace ValueEnv
 			CPV::SsgSwEnv256::LoopTo::min, CPV::SsgSwEnv256::LoopTo::max, CPV::SsgSwEnv256::LoopTo::initial);
 		PrHelper::addInt(layout, prefix + k.loopCount, n + " Loop Count",
 			CPV::SsgSwEnv256::LoopCount::min, CPV::SsgSwEnv256::LoopCount::max, CPV::SsgSwEnv256::LoopCount::initial);
-		PrHelper::addFloat(layout, prefix + k.stl, n + " STL", s.levelMin, s.levelMax, s.levelInitial);
-		PrHelper::addFloat(layout, prefix + k.lr, n + " LR", s.levelMin, s.levelMax, s.levelInitial);
+		auto addLevel = [&](const juce::String& key, const juce::String& name) {
+			if (s.integerLevel) PrHelper::addInt(layout, prefix + key, n + name, (int)s.levelMin, (int)s.levelMax, (int)s.levelInitial);
+			else PrHelper::addFloat(layout, prefix + key, n + name, s.levelMin, s.levelMax, s.levelInitial);
+		};
+
+		addLevel(k.stl, " STL");
+		addLevel(k.lr, " LR");
 		PrHelper::addFloat(layout, prefix + k.rr, n + " RR", CPV::SsgSwEnv256::RR::min, CPV::SsgSwEnv256::RR::max, CPV::SsgSwEnv256::RR::initial);
-		PrHelper::addFloat(layout, prefix + k.endl, n + " EndL", s.levelMin, s.levelMax, s.levelInitial);
+		addLevel(k.endl, " EndL");
 		PrHelper::addBool(layout, prefix + k.endlEnable, n + " EndL Enable", false);
-		PrHelper::addBool(layout, prefix + k.keep, n + " Keep", false);
+
+		if (!s.alwaysKeep) PrHelper::addBool(layout, prefix + k.keep, n + " Keep", false);
 	}
 
 	inline void setupPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, const Spec& s, Ptrs& p, StepTableStore& tables)
@@ -113,7 +139,7 @@ namespace ValueEnv
 		p.rr = apvts.getRawParameterValue(prefix + k.rr);
 		p.endl = apvts.getRawParameterValue(prefix + k.endl);
 		p.endlEnable = apvts.getRawParameterValue(prefix + k.endlEnable);
-		p.keep = apvts.getRawParameterValue(prefix + k.keep);
+		p.keep = s.alwaysKeep ? nullptr : apvts.getRawParameterValue(prefix + k.keep);
 
 		// 段の R / L はプロセッサが持つ表から引く
 		p.table = &tables.get(prefix + k.base, rateInitial, s.levelInitial);
@@ -132,7 +158,7 @@ namespace ValueEnv
 		params.rr = PrHelper::getFloat(p.rr);
 		params.endl = PrHelper::getFloat(p.endl);
 		params.endlEnable = PrHelper::getBool(p.endlEnable);
-		params.keep = PrHelper::getBool(p.keep);
+		params.keep = p.keep == nullptr || PrHelper::getBool(p.keep);
 		params.table = p.table;
 	}
 }

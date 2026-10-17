@@ -62,6 +62,9 @@ class Opzx7Adddr
 
 	float m_totalLevel = 0.0f;
 
+	// 押したときに TL で下げた量 (dB)
+	float m_tlDb = 0.0f;
+
 	float m_attackInc = 0.0f;
 	float m_decayDec = 0.0f;
 	float m_sustainRateDec = 0.0f;
@@ -99,6 +102,10 @@ class Opzx7Adddr
 	int calcRateScaling() const;
 	float calcLevelScalingDb() const;
 public:
+
+	// 押したときに TL で下げた量 (dB)。KSL は含まない。TL ENV がこれを
+	// 段の TL に置き換えるのに使う。バイパスのあいだは 0。
+	float tlDb() const { return m_tlDb; }
 	Opzx7Adddr();
 	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);

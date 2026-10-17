@@ -507,6 +507,7 @@ void GuiOpna::setup()
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
     colSsgSwEnv256.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[256]");
     colAmpMod.setup(stripCanvas, juce::String("") + "WT AMP MOD");
+    colTlEnv.setup(stripCanvas, juce::String("") + "TL ENV");
     colPitchEnv.setup(stripCanvas, juce::String("") + "PITCH ENV");
     colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
     colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[256]");
@@ -612,6 +613,10 @@ void GuiOpna::setup()
     ssgSwPEnv256.setupComponent(colSsgSwPEnv256.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv256::enable, OpnaGuiText::SsgSwPEnv256::enable, true);
     ssgHwPEnvOp.setupComponent(colSsgHwPEnv.contentCanvas, paramPrefix, tabOrder);
     wtAmpModOp.setupComponent(colAmpMod.contentCanvas, paramPrefix, tabOrder);
+
+    tlEnv.setupComponent(colTlEnv.contentCanvas, paramPrefix, tabOrder, tlEnv.spec(127).tableKey + "_ENABLE", "Enable", true);
+    tlEnv.category().onImport = [this] { tlEnv.importParams(); };
+    tlEnv.category().onExport = [this] { tlEnv.exportParams(); };
     ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
@@ -708,7 +713,7 @@ void GuiOpna::setup()
     // 畳んだままだと見出しだけの列が並ぶことになる。
     for (auto* group : {
         &colAmp, &colSsgHwEnv, &colSsgSwEnv256,
-        &colAmpMod, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv256,
+        &colAmpMod, &colTlEnv, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv256,
         &colMod, &colKs, &colHwLfo, &colMask,
         })
     {
@@ -942,6 +947,7 @@ void GuiOpna::updateOpEnable(int idx, bool enable)
     mmlSeparator.setEnabled(enable);
     mml.setEnabled(enable);
     pitchEnv.setEnabled(enable);
+    tlEnv.setEnabled(enable);
 }
 
 void GuiOpna::updateRgDisplayAsOp(bool rgMode)
@@ -1006,6 +1012,7 @@ void GuiOpna::rebind(int opIndex)
     ssgSwPEnv256.rebind(code);
     ssgHwPEnvOp.rebind(code);
     wtAmpModOp.rebind(code);
+    tlEnv.rebind(code);
     ssgHwEnvOp.rebind(code);
     wtModOp.rebind(code);
     fix.rebind(code);
@@ -1360,6 +1367,12 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
     layoutCol(colAmpMod, shown(SimpleView::WtAmpMod), [&](juce::Rectangle<int>& rect) {
         wtAmpModOp.setCategoryVisible(true);
         wtAmpModOp.layoutComponent(rect);
+        });
+
+    // TL ENV。[[AMP ENV]] の一番下 (WT AMP MOD の次)
+    layoutCol(colTlEnv, true, [&](juce::Rectangle<int>& rect) {
+        tlEnv.setCategoryVisible(true);
+        tlEnv.layoutComponent(rect);
         });
 
     layoutCol(colPitchEnv, shown(SimpleView::PitchEnv), [&](juce::Rectangle<int>& rect) {
@@ -2820,6 +2833,7 @@ void GuiOpna::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgSwPEnv256.readParams(r, "ssgSwPEnv256");
     ssgHwPEnvOp.readParams(r, "ssgHwPEnv");
     wtAmpModOp.readParams(r, "wtAmpMod");
+    tlEnv.readParams(r, "tlEnv");
     ssgHwEnvOp.readParams(r, "ssgHwEnv");
     wtModOp.readParams(r, "wtMod");
 }
@@ -2868,6 +2882,7 @@ void GuiOpna::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwPEnv256.writeParams(w, "ssgSwPEnv256");
     ssgHwPEnvOp.writeParams(w, "ssgHwPEnv");
     wtAmpModOp.writeParams(w, "wtAmpMod");
+    tlEnv.writeParams(w, "tlEnv");
     ssgHwEnvOp.writeParams(w, "ssgHwEnv");
     wtModOp.writeParams(w, "wtMod");
 }

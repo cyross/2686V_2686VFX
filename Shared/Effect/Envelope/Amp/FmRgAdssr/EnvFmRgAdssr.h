@@ -43,6 +43,9 @@ class FmRgAdssr
 
 	float totalLevel = 0.0f;
 
+	// 押したときに TL で下げた量 (dB)
+	float m_tlDb = 0.0f;
+
 	float attackInc = 0.0f;
 	float decayDec = 0.0f;
 	float releaseDec = 0.0f;
@@ -64,6 +67,10 @@ class FmRgAdssr
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
 public:
+
+	// 押したときに TL で下げた量 (dB)。KSL は含まない。TL ENV がこれを
+	// 段の TL に置き換えるのに使う。バイパスのあいだは 0。
+	float tlDb() const { return m_tlDb; }
 	FmRgAdssr();
 	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);

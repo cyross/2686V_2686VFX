@@ -6,6 +6,7 @@
 #include "../../Core/Processor/ProcessorBase.h"
 #include "Shared/Processor/Opl/ProcessorOplValues.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorValueEnv.h"
 
 class OplProcessor : public PrBase
 {
@@ -27,6 +28,7 @@ class OplProcessor : public PrBase
     std::array<PrPtrsOplLfo, OplPrValue::ops> pLfo;
     std::array<PrPtrsPitchEnvOp, OplPrValue::ops> pPitchEnv;
     std::array<PrPtrsSsgSwEnv256Op, OplPrValue::ops> pSsgSwEnv256;
+    std::array<ValueEnv::Ptrs, OplPrValue::ops> pTlEnv;
     std::array<PrPtrsSsgSwPEnv256Op, OplPrValue::ops> pSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, OplPrValue::ops> pOpSsgHwPEnv;
     std::array<PrPtrsWtAmpMod, OplPrValue::ops> pOpWtAmpMod;

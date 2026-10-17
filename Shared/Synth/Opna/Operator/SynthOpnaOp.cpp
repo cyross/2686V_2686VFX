@@ -7,6 +7,7 @@ void OpnaOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv256.prepare(opIndex, sampleRate);
+    m_tlEnv.prepare(opIndex, -1, sampleRate);
     m_ssgSwPenv256.prepare(opIndex, sampleRate);
     m_ssgHwPEnv.prepare(sampleRate);
     m_ssgHwEnv.prepare(sampleRate);
@@ -38,6 +39,7 @@ void OpnaOperator::setSampleRate(double sampleRate)
 	m_ampAdsr.updateTargetSampleRate(sampleRate);
 	m_pitchAdsr.updateTargetSampleRate(sampleRate);
     m_ssgSwEnv256.updateSampleRate(sampleRate);
+    m_tlEnv.updateTargetSampleRate(sampleRate);
     m_ssgSwPenv256.updateSampleRate(sampleRate);
     m_ssgHwPEnv.updateSampleRate(sampleRate);
     m_ssgHwEnv.updateSampleRate(sampleRate);
@@ -53,6 +55,7 @@ void OpnaOperator::setParameters(const OpnaOpParams& params, int feedback)
     m_ampAdsr.setParameters(params.m_adsrParams);
     m_pitchAdsr.setParameters(params.pitchAdsr);
     m_ssgSwEnv256.setParameters(params.ssgSwEnv256);
+    m_tlEnv.setParameters(params.tlEnv);
     m_ssgSwPenv256.setParameters(params.ssgSwPEnv256);
     m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
     m_wtAmpMod.setParameters(params.wtAmpMod);
@@ -134,6 +137,8 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber, bool 
         if (m_params.ssgEnv256Enable) {
             m_ssgSwEnv256.noteOn();
         }
+
+        if (m_params.tlEnvEnable) m_tlEnv.noteOn();
     }
 
     if (m_params.pitchEnvEnable && m_pitchResetOnLegato) {
@@ -163,6 +168,8 @@ void OpnaOperator::noteOff()
     if (m_params.ssgEnv256Enable) {
         m_ssgSwEnv256.noteOff();
     }
+
+    if (m_params.tlEnvEnable) m_tlEnv.noteOff();
 
     if (m_params.ssgPEnv256Enable) {
         m_ssgSwPenv256.noteOff();
@@ -230,6 +237,10 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
                 envVal *= m_currentLevel;
             }
         }
+
+        // TL ENV。押したときの TL を段の TL に置き換える (AMP ENV が効いているときだけ。
+        // バイパスのあいだは TL そのものが効いていない)
+        if (m_params.tlEnvEnable && !m_ampAdsr.isBypass()) envVal *= tlEnvGain();
 
         // 3. SSG Sw Env 11 処理
         if (m_params.ssgEnv256Enable) {
@@ -429,4 +440,20 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
 
     while (m_phase >= 1.0) m_phase -= 1.0;
     while (m_phase < 0.0) m_phase += 1.0;
+}
+
+// TL ENV の倍率。押したときに TL で下げた量 (tlDb) を、段の TL の量へ置き換える。
+// 段は常に KEEP なので値は段の頭でしか変わらない。同じあいだは作り直さない。
+float OpnaOperator::tlEnvGain()
+{
+    const float value = m_tlEnv.process();
+    const float baseDb = m_ampAdsr.tlDb();
+
+    if (value != m_tlEnvValue || baseDb != m_tlEnvBaseDb) {
+        m_tlEnvValue = value;
+        m_tlEnvBaseDb = baseDb;
+        m_tlEnvGain = std::pow(10.0f, -(value * 0.75f - baseDb) / 20.0f);
+    }
+
+    return m_tlEnvGain;
 }

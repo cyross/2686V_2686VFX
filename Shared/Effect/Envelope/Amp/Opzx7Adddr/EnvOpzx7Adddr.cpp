@@ -182,6 +182,7 @@ float Opzx7Adddr::noteOn(float velocity, int noteNumber) {
     this->m_phaseProgress = 0.0f;
 
     if (this->m_bypass) {
+        m_tlDb = 0.0f;
         return velocity;
     }
 
@@ -210,6 +211,8 @@ float Opzx7Adddr::noteOn(float velocity, int noteNumber) {
 
         attenuationDb = -20.0f * std::log10(level);
     }
+
+    m_tlDb = attenuationDb;
 
     float kslDb = calcLevelScalingDb();
 

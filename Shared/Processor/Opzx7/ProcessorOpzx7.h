@@ -7,6 +7,7 @@
 #include "../../Core/Processor/ProcessorBase.h"
 #include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorValueEnv.h"
 
 class Opzx7Processor : public PrBase
 {
@@ -33,6 +34,7 @@ class Opzx7Processor : public PrBase
     std::array<PrPtrsLp, Opzx7PrValue::ops> pLp;
     std::array<PrPtrsPitchEnvOp, Opzx7PrValue::ops> pOpPitchEnv;
     std::array<PrPtrsSsgSwEnv256Op, Opzx7PrValue::ops> pOpSsgSwEnv256;
+    std::array<ValueEnv::Ptrs, Opzx7PrValue::ops> pTlEnv;
     std::array<PrPtrsSsgSwPEnv256Op, Opzx7PrValue::ops> pOpSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, Opzx7PrValue::ops> pOpSsgHwPEnv;
     std::array<PrPtrsWtAmpMod, Opzx7PrValue::ops> pOpWtAmpMod;

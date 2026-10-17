@@ -5,6 +5,7 @@
 #include "Shared/Core/Synth/SynthCoreParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorValueEnv.h"
 
 class OpmProcessor : public PrBase
 {
@@ -27,6 +28,7 @@ class OpmProcessor : public PrBase
     std::array<PrPtrsFix, OpmPrValue::ops> pFix;
     std::array<PrPtrsPitchEnvOp, OpmPrValue::ops> pPitchEnv;
     std::array<PrPtrsSsgSwEnv256Op, OpmPrValue::ops> pSsgSwEnv256;
+    std::array<ValueEnv::Ptrs, OpmPrValue::ops> pTlEnv;
     std::array<PrPtrsSsgSwPEnv256Op, OpmPrValue::ops> pSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, OpmPrValue::ops> pOpSsgHwPEnv;
     std::array<PrPtrsWtAmpMod, OpmPrValue::ops> pOpWtAmpMod;

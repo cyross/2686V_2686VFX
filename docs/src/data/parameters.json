@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.0.0",
-  "count": 12342,
+  "count": 12602,
   "parameters": [
     {
       "id": "MODE",
@@ -2066,6 +2066,87 @@
       "default": false
     },
     {
+      "id": "OPNA_OP0_TLENV_ENABLE",
+      "name": "OPNA Op1 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_TLENV_STEPS",
+      "name": "OPNA Op1 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPNA_OP0_TLENV_LOOP",
+      "name": "OPNA Op1 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_TLENV_LOOPTO",
+      "name": "OPNA Op1 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP0_TLENV_LOOPCNT",
+      "name": "OPNA Op1 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP0_TLENV_STL",
+      "name": "OPNA Op1 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP0_TLENV_LR",
+      "name": "OPNA Op1 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP0_TLENV_RR",
+      "name": "OPNA Op1 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPNA_OP0_TLENV_ENDL",
+      "name": "OPNA Op1 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP0_TLENV_ENDL_EN",
+      "name": "OPNA Op1 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP0_SSGSWP256_STEPS",
       "name": "OPNA Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -3629,6 +3710,87 @@
     {
       "id": "OPNA_OP1_SSGSW256_KEEP",
       "name": "OPNA Op2 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_TLENV_ENABLE",
+      "name": "OPNA Op2 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_TLENV_STEPS",
+      "name": "OPNA Op2 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPNA_OP1_TLENV_LOOP",
+      "name": "OPNA Op2 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_TLENV_LOOPTO",
+      "name": "OPNA Op2 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP1_TLENV_LOOPCNT",
+      "name": "OPNA Op2 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP1_TLENV_STL",
+      "name": "OPNA Op2 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP1_TLENV_LR",
+      "name": "OPNA Op2 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP1_TLENV_RR",
+      "name": "OPNA Op2 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPNA_OP1_TLENV_ENDL",
+      "name": "OPNA Op2 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP1_TLENV_ENDL_EN",
+      "name": "OPNA Op2 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -5204,6 +5366,87 @@
       "default": false
     },
     {
+      "id": "OPNA_OP2_TLENV_ENABLE",
+      "name": "OPNA Op3 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_TLENV_STEPS",
+      "name": "OPNA Op3 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPNA_OP2_TLENV_LOOP",
+      "name": "OPNA Op3 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_TLENV_LOOPTO",
+      "name": "OPNA Op3 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP2_TLENV_LOOPCNT",
+      "name": "OPNA Op3 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP2_TLENV_STL",
+      "name": "OPNA Op3 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP2_TLENV_LR",
+      "name": "OPNA Op3 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP2_TLENV_RR",
+      "name": "OPNA Op3 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPNA_OP2_TLENV_ENDL",
+      "name": "OPNA Op3 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP2_TLENV_ENDL_EN",
+      "name": "OPNA Op3 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP2_SSGSWP256_STEPS",
       "name": "OPNA Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -6767,6 +7010,87 @@
     {
       "id": "OPNA_OP3_SSGSW256_KEEP",
       "name": "OPNA Op4 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_TLENV_ENABLE",
+      "name": "OPNA Op4 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_TLENV_STEPS",
+      "name": "OPNA Op4 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPNA_OP3_TLENV_LOOP",
+      "name": "OPNA Op4 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_TLENV_LOOPTO",
+      "name": "OPNA Op4 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP3_TLENV_LOOPCNT",
+      "name": "OPNA Op4 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP3_TLENV_STL",
+      "name": "OPNA Op4 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP3_TLENV_LR",
+      "name": "OPNA Op4 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP3_TLENV_RR",
+      "name": "OPNA Op4 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPNA_OP3_TLENV_ENDL",
+      "name": "OPNA Op4 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP3_TLENV_ENDL_EN",
+      "name": "OPNA Op4 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -9946,6 +10270,87 @@
       "default": false
     },
     {
+      "id": "OPN_OP0_TLENV_ENABLE",
+      "name": "OPN Op1 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_TLENV_STEPS",
+      "name": "OPN Op1 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPN_OP0_TLENV_LOOP",
+      "name": "OPN Op1 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_TLENV_LOOPTO",
+      "name": "OPN Op1 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP0_TLENV_LOOPCNT",
+      "name": "OPN Op1 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP0_TLENV_STL",
+      "name": "OPN Op1 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP0_TLENV_LR",
+      "name": "OPN Op1 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP0_TLENV_RR",
+      "name": "OPN Op1 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPN_OP0_TLENV_ENDL",
+      "name": "OPN Op1 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP0_TLENV_ENDL_EN",
+      "name": "OPN Op1 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP0_SSGSWP256_STEPS",
       "name": "OPN Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -11444,6 +11849,87 @@
     {
       "id": "OPN_OP1_SSGSW256_KEEP",
       "name": "OPN Op2 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_TLENV_ENABLE",
+      "name": "OPN Op2 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_TLENV_STEPS",
+      "name": "OPN Op2 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPN_OP1_TLENV_LOOP",
+      "name": "OPN Op2 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_TLENV_LOOPTO",
+      "name": "OPN Op2 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP1_TLENV_LOOPCNT",
+      "name": "OPN Op2 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP1_TLENV_STL",
+      "name": "OPN Op2 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP1_TLENV_LR",
+      "name": "OPN Op2 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP1_TLENV_RR",
+      "name": "OPN Op2 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPN_OP1_TLENV_ENDL",
+      "name": "OPN Op2 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP1_TLENV_ENDL_EN",
+      "name": "OPN Op2 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -12954,6 +13440,87 @@
       "default": false
     },
     {
+      "id": "OPN_OP2_TLENV_ENABLE",
+      "name": "OPN Op3 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_TLENV_STEPS",
+      "name": "OPN Op3 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPN_OP2_TLENV_LOOP",
+      "name": "OPN Op3 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_TLENV_LOOPTO",
+      "name": "OPN Op3 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP2_TLENV_LOOPCNT",
+      "name": "OPN Op3 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP2_TLENV_STL",
+      "name": "OPN Op3 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP2_TLENV_LR",
+      "name": "OPN Op3 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP2_TLENV_RR",
+      "name": "OPN Op3 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPN_OP2_TLENV_ENDL",
+      "name": "OPN Op3 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP2_TLENV_ENDL_EN",
+      "name": "OPN Op3 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP2_SSGSWP256_STEPS",
       "name": "OPN Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -14452,6 +15019,87 @@
     {
       "id": "OPN_OP3_SSGSW256_KEEP",
       "name": "OPN Op4 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_TLENV_ENABLE",
+      "name": "OPN Op4 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_TLENV_STEPS",
+      "name": "OPN Op4 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPN_OP3_TLENV_LOOP",
+      "name": "OPN Op4 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_TLENV_LOOPTO",
+      "name": "OPN Op4 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP3_TLENV_LOOPCNT",
+      "name": "OPN Op4 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP3_TLENV_STL",
+      "name": "OPN Op4 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP3_TLENV_LR",
+      "name": "OPN Op4 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP3_TLENV_RR",
+      "name": "OPN Op4 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPN_OP3_TLENV_ENDL",
+      "name": "OPN Op4 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP3_TLENV_ENDL_EN",
+      "name": "OPN Op4 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -17601,6 +18249,87 @@
       "default": false
     },
     {
+      "id": "OPL_OP0_TLENV_ENABLE",
+      "name": "OPL Op1 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_TLENV_STEPS",
+      "name": "OPL Op1 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL_OP0_TLENV_LOOP",
+      "name": "OPL Op1 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_TLENV_LOOPTO",
+      "name": "OPL Op1 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP0_TLENV_LOOPCNT",
+      "name": "OPL Op1 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP0_TLENV_STL",
+      "name": "OPL Op1 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP0_TLENV_LR",
+      "name": "OPL Op1 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP0_TLENV_RR",
+      "name": "OPL Op1 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL_OP0_TLENV_ENDL",
+      "name": "OPL Op1 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP0_TLENV_ENDL_EN",
+      "name": "OPL Op1 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_OP0_SSGSWP256_STEPS",
       "name": "OPL Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -19142,6 +19871,87 @@
     {
       "id": "OPL_OP1_SSGSW256_KEEP",
       "name": "OPL Op2 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_TLENV_ENABLE",
+      "name": "OPL Op2 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_TLENV_STEPS",
+      "name": "OPL Op2 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL_OP1_TLENV_LOOP",
+      "name": "OPL Op2 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_TLENV_LOOPTO",
+      "name": "OPL Op2 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP1_TLENV_LOOPCNT",
+      "name": "OPL Op2 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP1_TLENV_STL",
+      "name": "OPL Op2 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP1_TLENV_LR",
+      "name": "OPL Op2 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP1_TLENV_RR",
+      "name": "OPL Op2 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL_OP1_TLENV_ENDL",
+      "name": "OPL Op2 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP1_TLENV_ENDL_EN",
+      "name": "OPL Op2 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -22283,6 +23093,87 @@
       "default": false
     },
     {
+      "id": "OPL3_OP0_TLENV_ENABLE",
+      "name": "OPL3 Op1 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_TLENV_STEPS",
+      "name": "OPL3 Op1 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL3_OP0_TLENV_LOOP",
+      "name": "OPL3 Op1 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_TLENV_LOOPTO",
+      "name": "OPL3 Op1 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP0_TLENV_LOOPCNT",
+      "name": "OPL3 Op1 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP0_TLENV_STL",
+      "name": "OPL3 Op1 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP0_TLENV_LR",
+      "name": "OPL3 Op1 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP0_TLENV_RR",
+      "name": "OPL3 Op1 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL3_OP0_TLENV_ENDL",
+      "name": "OPL3 Op1 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP0_TLENV_ENDL_EN",
+      "name": "OPL3 Op1 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP0_SSGSWP256_STEPS",
       "name": "OPL3 Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -23816,6 +24707,87 @@
     {
       "id": "OPL3_OP1_SSGSW256_KEEP",
       "name": "OPL3 Op2 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_TLENV_ENABLE",
+      "name": "OPL3 Op2 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_TLENV_STEPS",
+      "name": "OPL3 Op2 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL3_OP1_TLENV_LOOP",
+      "name": "OPL3 Op2 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_TLENV_LOOPTO",
+      "name": "OPL3 Op2 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP1_TLENV_LOOPCNT",
+      "name": "OPL3 Op2 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP1_TLENV_STL",
+      "name": "OPL3 Op2 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP1_TLENV_LR",
+      "name": "OPL3 Op2 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP1_TLENV_RR",
+      "name": "OPL3 Op2 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL3_OP1_TLENV_ENDL",
+      "name": "OPL3 Op2 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP1_TLENV_ENDL_EN",
+      "name": "OPL3 Op2 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25361,6 +26333,87 @@
       "default": false
     },
     {
+      "id": "OPL3_OP2_TLENV_ENABLE",
+      "name": "OPL3 Op3 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_TLENV_STEPS",
+      "name": "OPL3 Op3 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL3_OP2_TLENV_LOOP",
+      "name": "OPL3 Op3 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_TLENV_LOOPTO",
+      "name": "OPL3 Op3 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP2_TLENV_LOOPCNT",
+      "name": "OPL3 Op3 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP2_TLENV_STL",
+      "name": "OPL3 Op3 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP2_TLENV_LR",
+      "name": "OPL3 Op3 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP2_TLENV_RR",
+      "name": "OPL3 Op3 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL3_OP2_TLENV_ENDL",
+      "name": "OPL3 Op3 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP2_TLENV_ENDL_EN",
+      "name": "OPL3 Op3 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP2_SSGSWP256_STEPS",
       "name": "OPL3 Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -26894,6 +27947,87 @@
     {
       "id": "OPL3_OP3_SSGSW256_KEEP",
       "name": "OPL3 Op4 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_TLENV_ENABLE",
+      "name": "OPL3 Op4 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_TLENV_STEPS",
+      "name": "OPL3 Op4 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL3_OP3_TLENV_LOOP",
+      "name": "OPL3 Op4 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_TLENV_LOOPTO",
+      "name": "OPL3 Op4 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP3_TLENV_LOOPCNT",
+      "name": "OPL3 Op4 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP3_TLENV_STL",
+      "name": "OPL3 Op4 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP3_TLENV_LR",
+      "name": "OPL3 Op4 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP3_TLENV_RR",
+      "name": "OPL3 Op4 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL3_OP3_TLENV_ENDL",
+      "name": "OPL3 Op4 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP3_TLENV_ENDL_EN",
+      "name": "OPL3 Op4 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -30147,6 +31281,87 @@
       "default": false
     },
     {
+      "id": "OPM_OP0_TLENV_ENABLE",
+      "name": "OPM Op1 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_TLENV_STEPS",
+      "name": "OPM Op1 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPM_OP0_TLENV_LOOP",
+      "name": "OPM Op1 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_TLENV_LOOPTO",
+      "name": "OPM Op1 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP0_TLENV_LOOPCNT",
+      "name": "OPM Op1 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP0_TLENV_STL",
+      "name": "OPM Op1 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP0_TLENV_LR",
+      "name": "OPM Op1 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP0_TLENV_RR",
+      "name": "OPM Op1 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPM_OP0_TLENV_ENDL",
+      "name": "OPM Op1 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP0_TLENV_ENDL_EN",
+      "name": "OPM Op1 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP0_SSGSWP256_STEPS",
       "name": "OPM Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -31695,6 +32910,87 @@
     {
       "id": "OPM_OP1_SSGSW256_KEEP",
       "name": "OPM Op2 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_TLENV_ENABLE",
+      "name": "OPM Op2 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_TLENV_STEPS",
+      "name": "OPM Op2 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPM_OP1_TLENV_LOOP",
+      "name": "OPM Op2 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_TLENV_LOOPTO",
+      "name": "OPM Op2 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP1_TLENV_LOOPCNT",
+      "name": "OPM Op2 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP1_TLENV_STL",
+      "name": "OPM Op2 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP1_TLENV_LR",
+      "name": "OPM Op2 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP1_TLENV_RR",
+      "name": "OPM Op2 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPM_OP1_TLENV_ENDL",
+      "name": "OPM Op2 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP1_TLENV_ENDL_EN",
+      "name": "OPM Op2 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33255,6 +34551,87 @@
       "default": false
     },
     {
+      "id": "OPM_OP2_TLENV_ENABLE",
+      "name": "OPM Op3 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_TLENV_STEPS",
+      "name": "OPM Op3 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPM_OP2_TLENV_LOOP",
+      "name": "OPM Op3 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_TLENV_LOOPTO",
+      "name": "OPM Op3 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP2_TLENV_LOOPCNT",
+      "name": "OPM Op3 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP2_TLENV_STL",
+      "name": "OPM Op3 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP2_TLENV_LR",
+      "name": "OPM Op3 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP2_TLENV_RR",
+      "name": "OPM Op3 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPM_OP2_TLENV_ENDL",
+      "name": "OPM Op3 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP2_TLENV_ENDL_EN",
+      "name": "OPM Op3 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP2_SSGSWP256_STEPS",
       "name": "OPM Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -34803,6 +36180,87 @@
     {
       "id": "OPM_OP3_SSGSW256_KEEP",
       "name": "OPM Op4 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_TLENV_ENABLE",
+      "name": "OPM Op4 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_TLENV_STEPS",
+      "name": "OPM Op4 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPM_OP3_TLENV_LOOP",
+      "name": "OPM Op4 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_TLENV_LOOPTO",
+      "name": "OPM Op4 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP3_TLENV_LOOPCNT",
+      "name": "OPM Op4 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP3_TLENV_STL",
+      "name": "OPM Op4 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP3_TLENV_LR",
+      "name": "OPM Op4 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP3_TLENV_RR",
+      "name": "OPM Op4 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPM_OP3_TLENV_ENDL",
+      "name": "OPM Op4 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 127,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP3_TLENV_ENDL_EN",
+      "name": "OPM Op4 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -38531,6 +39989,87 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP0_TLENV_ENABLE",
+      "name": "OPZX7S Op1 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_TLENV_STEPS",
+      "name": "OPZX7S Op1 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_OP0_TLENV_LOOP",
+      "name": "OPZX7S Op1 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_TLENV_LOOPTO",
+      "name": "OPZX7S Op1 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP0_TLENV_LOOPCNT",
+      "name": "OPZX7S Op1 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP0_TLENV_STL",
+      "name": "OPZX7S Op1 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP0_TLENV_LR",
+      "name": "OPZX7S Op1 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP0_TLENV_RR",
+      "name": "OPZX7S Op1 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_OP0_TLENV_ENDL",
+      "name": "OPZX7S Op1 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP0_TLENV_ENDL_EN",
+      "name": "OPZX7S Op1 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP0_SSGSWP256_STEPS",
       "name": "OPZX7S Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -40571,6 +42110,87 @@
     {
       "id": "OPZX7_OP1_SSGSW256_KEEP",
       "name": "OPZX7S Op2 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_ENABLE",
+      "name": "OPZX7S Op2 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_STEPS",
+      "name": "OPZX7S Op2 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_LOOP",
+      "name": "OPZX7S Op2 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_LOOPTO",
+      "name": "OPZX7S Op2 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_LOOPCNT",
+      "name": "OPZX7S Op2 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_STL",
+      "name": "OPZX7S Op2 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_LR",
+      "name": "OPZX7S Op2 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_RR",
+      "name": "OPZX7S Op2 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_ENDL",
+      "name": "OPZX7S Op2 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP1_TLENV_ENDL_EN",
+      "name": "OPZX7S Op2 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -42623,6 +44243,87 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP2_TLENV_ENABLE",
+      "name": "OPZX7S Op3 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_TLENV_STEPS",
+      "name": "OPZX7S Op3 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_OP2_TLENV_LOOP",
+      "name": "OPZX7S Op3 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_TLENV_LOOPTO",
+      "name": "OPZX7S Op3 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP2_TLENV_LOOPCNT",
+      "name": "OPZX7S Op3 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP2_TLENV_STL",
+      "name": "OPZX7S Op3 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP2_TLENV_LR",
+      "name": "OPZX7S Op3 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP2_TLENV_RR",
+      "name": "OPZX7S Op3 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_OP2_TLENV_ENDL",
+      "name": "OPZX7S Op3 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP2_TLENV_ENDL_EN",
+      "name": "OPZX7S Op3 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP2_SSGSWP256_STEPS",
       "name": "OPZX7S Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -44663,6 +46364,87 @@
     {
       "id": "OPZX7_OP3_SSGSW256_KEEP",
       "name": "OPZX7S Op4 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_ENABLE",
+      "name": "OPZX7S Op4 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_STEPS",
+      "name": "OPZX7S Op4 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_LOOP",
+      "name": "OPZX7S Op4 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_LOOPTO",
+      "name": "OPZX7S Op4 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_LOOPCNT",
+      "name": "OPZX7S Op4 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_STL",
+      "name": "OPZX7S Op4 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_LR",
+      "name": "OPZX7S Op4 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_RR",
+      "name": "OPZX7S Op4 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_ENDL",
+      "name": "OPZX7S Op4 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP3_TLENV_ENDL_EN",
+      "name": "OPZX7S Op4 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -46715,6 +48497,87 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP4_TLENV_ENABLE",
+      "name": "OPZX7S Op5 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_TLENV_STEPS",
+      "name": "OPZX7S Op5 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_OP4_TLENV_LOOP",
+      "name": "OPZX7S Op5 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_TLENV_LOOPTO",
+      "name": "OPZX7S Op5 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP4_TLENV_LOOPCNT",
+      "name": "OPZX7S Op5 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP4_TLENV_STL",
+      "name": "OPZX7S Op5 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP4_TLENV_LR",
+      "name": "OPZX7S Op5 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP4_TLENV_RR",
+      "name": "OPZX7S Op5 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_OP4_TLENV_ENDL",
+      "name": "OPZX7S Op5 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP4_TLENV_ENDL_EN",
+      "name": "OPZX7S Op5 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP4_SSGSWP256_STEPS",
       "name": "OPZX7S Op5 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -48755,6 +50618,87 @@
     {
       "id": "OPZX7_OP5_SSGSW256_KEEP",
       "name": "OPZX7S Op6 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_ENABLE",
+      "name": "OPZX7S Op6 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_STEPS",
+      "name": "OPZX7S Op6 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_LOOP",
+      "name": "OPZX7S Op6 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_LOOPTO",
+      "name": "OPZX7S Op6 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_LOOPCNT",
+      "name": "OPZX7S Op6 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_STL",
+      "name": "OPZX7S Op6 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_LR",
+      "name": "OPZX7S Op6 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_RR",
+      "name": "OPZX7S Op6 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_ENDL",
+      "name": "OPZX7S Op6 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP5_TLENV_ENDL_EN",
+      "name": "OPZX7S Op6 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -50807,6 +52751,87 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP6_TLENV_ENABLE",
+      "name": "OPZX7S Op7 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_TLENV_STEPS",
+      "name": "OPZX7S Op7 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_OP6_TLENV_LOOP",
+      "name": "OPZX7S Op7 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_TLENV_LOOPTO",
+      "name": "OPZX7S Op7 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP6_TLENV_LOOPCNT",
+      "name": "OPZX7S Op7 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP6_TLENV_STL",
+      "name": "OPZX7S Op7 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP6_TLENV_LR",
+      "name": "OPZX7S Op7 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP6_TLENV_RR",
+      "name": "OPZX7S Op7 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_OP6_TLENV_ENDL",
+      "name": "OPZX7S Op7 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP6_TLENV_ENDL_EN",
+      "name": "OPZX7S Op7 TlEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP6_SSGSWP256_STEPS",
       "name": "OPZX7S Op7 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -52847,6 +54872,87 @@
     {
       "id": "OPZX7_OP7_SSGSW256_KEEP",
       "name": "OPZX7S Op8 SSG SwEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_ENABLE",
+      "name": "OPZX7S Op8 TlEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_STEPS",
+      "name": "OPZX7S Op8 TlEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_LOOP",
+      "name": "OPZX7S Op8 TlEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_LOOPTO",
+      "name": "OPZX7S Op8 TlEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_LOOPCNT",
+      "name": "OPZX7S Op8 TlEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_STL",
+      "name": "OPZX7S Op8 TlEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_LR",
+      "name": "OPZX7S Op8 TlEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_RR",
+      "name": "OPZX7S Op8 TlEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_ENDL",
+      "name": "OPZX7S Op8 TlEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 63,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP7_TLENV_ENDL_EN",
+      "name": "OPZX7S Op8 TlEnv EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,

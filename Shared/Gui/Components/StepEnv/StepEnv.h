@@ -17,7 +17,7 @@
 #include "../StepSnap/StepSnap.h"
 #include "../SsgSwButtons/SsgSwButtons.h"
 #include "../PitchButtons/PitchButtons.h"
-#include "../DutyButtons/DutyButtons.h"
+#include "../ValueButtons/ValueButtons.h"
 #include "../NudgeButtons/NudgeButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../StepValues/StepValues.h"
@@ -50,7 +50,8 @@ public:
         // Pitch : 音程 (SSG SW PITCH ENV[256])
         // Duty  : 矩形波のデューティ比 % (DUTY RATIO ENV)
         // Peak  : 三角波の頂点 0〜1 (PEAK RATIO ENV)
-        enum class Kind { Amp, Pitch, Duty, Peak };
+        // Tl    : オペレーターの TL (TL ENV)。常に KEEP で、KEEP の札を持たない
+        enum class Kind { Amp, Pitch, Duty, Peak, Tl };
 
         Kind kind = Kind::Amp;
         juce::String title;
@@ -175,8 +176,8 @@ private:
     GuiComponentSsgSwButtons ampBtns;
     GuiComponentPitchButtons pitchBtns;
 
-    // DUTY RATIO ENV は MODE で選べるデューティ比を直に置く
-    GuiComponentDutyButtons dutyBtns;
+    // DUTY RATIO ENV は MODE で選べるデューティ比を直に置き、TL ENV は TL を少しずつ動かす
+    GuiComponentValueButtons valueBtns;
     GuiStepValues levelValues;
 
     NormalSeparator releaseSeparator;
@@ -207,6 +208,16 @@ private:
     bool isAmp() const { return spec.kind == Spec::Kind::Amp; }
     bool isPitch() const { return spec.kind == Spec::Kind::Pitch; }
     bool isDuty() const { return spec.kind == Spec::Kind::Duty; }
+    bool isTl() const { return spec.kind == Spec::Kind::Tl; }
+
+    // 値を置く・足すボタン (valueBtns) を使うもの
+    bool usesValueButtons() const { return isDuty() || isTl(); }
+
+    // LEVEL・LR・ENDL を決まった刻みへ丸める STEPS を持つもの
+    bool hasLevelSteps() const { return isAmp() || isTl(); }
+
+    // KEEP の札を持つもの (TL ENV は常に KEEP)
+    bool hasKeep() const { return spec.keep.isNotEmpty(); }
 
     // 0〜1 の値を少しずつ動かすボタン (ampBtns) を使うもの
     bool usesUnitButtons() const { return spec.kind == Spec::Kind::Amp || spec.kind == Spec::Kind::Peak; }
@@ -224,6 +235,7 @@ private:
     void changed();
 
     void setLevelRange();
+    std::vector<GuiComponentValueButtons::Entry> valueButtonEntries() const;
     void readValues(const Io::ParamReader& r);
     void readSixStepValues(const Io::ParamReader& r);
     void setImportingSixStepParams(juce::StringArray& lines, int& index);
