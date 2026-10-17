@@ -57,7 +57,7 @@ public:
     void importCurveParam();
 
     // 3.0.0 より前の形式を読む
-    void setImportingCurveParams(juce::StringArray& lines, int& index);
+    void setImportingCurveParams(juce::StringArray& lines, int& index, const std::vector<int>& order);
 
     // 書き出す中身。エクスポートと変換の両方から使う。
     void writeCurveParams(Io::ParamWriter& writer);

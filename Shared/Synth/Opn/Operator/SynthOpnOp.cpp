@@ -4,7 +4,6 @@
 void OpnOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
-    m_ssgSwEnv.prepare(opIndex, sampleRate);
     m_ssgSwEnv256.prepare(opIndex, sampleRate);
     m_ssgSwPenv256.prepare(opIndex, sampleRate);
     m_ssgHwPEnv.prepare(sampleRate);
@@ -24,7 +23,6 @@ void OpnOperator::setCurveCore(CurveCore* p_curveCore)
 {
     m_ampAdsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
     m_ssgSwEnv256.setCurveCore(p_curveCore);
     m_ssgSwPenv256.setCurveCore(p_curveCore);
 }
@@ -38,7 +36,6 @@ void OpnOperator::setParameters(const OpnOpParams& params, int feedback)
     m_ams = (float)params.n88Lfo.ams / 15.0f;
     m_ampAdsr.setParameters(params.m_adsrParams);
     m_pitchAdsr.setParameters(params.pitchAdsr);
-    m_ssgSwEnv.setParameters(params.ssgSwEnv);
     m_ssgSwEnv256.setParameters(params.ssgSwEnv256);
     m_ssgSwPenv256.setParameters(params.ssgSwPEnv256);
     m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
@@ -55,7 +52,6 @@ void OpnOperator::setSampleRate(double sampleRate)
 
     m_ampAdsr.updateTargetSampleRate(sampleRate);
     m_pitchAdsr.updateSampleRate(sampleRate);
-    m_ssgSwEnv.updateTargetSampleRate(sampleRate);
     m_ssgSwEnv256.updateSampleRate(sampleRate);
     m_ssgSwPenv256.updateSampleRate(sampleRate);
     m_ssgHwPEnv.updateSampleRate(sampleRate);
@@ -127,10 +123,6 @@ void OpnOperator::noteOn(float frequency, float velocity, int noteNumber, bool i
             m_pitchAdsr.noteOn();
         }
 
-        if (m_params.ssgEnvEnable) {
-            m_ssgSwEnv.noteOn();
-        }
-
         if (m_params.ssgEnv256Enable && !m_pitchResetOnLegato) {
             m_ssgSwPenv256.noteOn();
         }
@@ -164,10 +156,6 @@ void OpnOperator::noteOff()
         m_pitchAdsr.noteOff();
     }
 
-    if (m_params.ssgEnvEnable) {
-        m_ssgSwEnv.noteOff();
-    }
-
     if (m_params.ssgEnv256Enable) {
         m_ssgSwEnv256.noteOff();
     }
@@ -191,9 +179,8 @@ void OpnOperator::getSample(float& output, float modulator, float feedbackModula
     if (allAmpBypassed) {
         // すべてのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作。
         // リリース状態になったら即座にミュートして終了する。
-        if (m_ampAdsr.isRelease() || (m_params.ssgEnvEnable && m_ssgSwEnv.isRelease()) || (m_params.ssgEnv256Enable && m_ssgSwEnv256.isRelease())) {
+        if (m_ampAdsr.isRelease() || (m_params.ssgEnv256Enable && m_ssgSwEnv256.isRelease())) {
             m_ampAdsr.bypassedReleasedProcess();
-            if (m_params.ssgEnvEnable) m_ssgSwEnv.bypassedReleasedProcess();
             if (m_params.ssgEnv256Enable) m_ssgSwEnv256.bypassedReleasedProcess();
 
             if (m_params.pitchEnvEnable) m_pitchAdsr.bypassedReleasedProcess();
@@ -232,16 +219,6 @@ void OpnOperator::getSample(float& output, float modulator, float feedbackModula
             else {
                 m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
                 envVal *= m_currentLevel;
-            }
-        }
-
-        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-        if (m_params.ssgEnvEnable) {
-            if (!m_ssgSwEnv.isBypass()) {
-                envVal *= m_ssgSwEnv.process();
-            }
-            else if (m_ssgSwEnv.isRelease()) {
-                m_ssgSwEnv.bypassedReleasedProcess();
             }
         }
 

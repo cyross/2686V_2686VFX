@@ -86,7 +86,6 @@ namespace Io
 		static inline const juce::String SsgHwPEnvParam = "ssgHwPEnv";
 		static inline const juce::String WtModParam = "wtmod";
 		static inline const juce::String WtAmpModParam = "wtampmod";
-		static inline const juce::String SsgSwEnvParam = "ssgSwEnv";
 		static inline const juce::String SsgSwEnvParam256 = "ssgSwEnv256";
 		static inline const juce::String SsgSwPEnvParam256 = "ssgSwPEnv256";
 
@@ -141,7 +140,6 @@ namespace Io
 		static inline const juce::String SsgHwPEnvParam = "*.ssgHwPEnv.json;*.ssgHwPEnv.yaml;*.ssgHwPEnv";
 		static inline const juce::String WtModParam = "*.wtmod.json;*.wtmod.yaml;*.wtmod";
 		static inline const juce::String WtAmpModParam = "*.wtampmod.json;*.wtampmod.yaml;*.wtampmod";
-		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv.json;*.ssgSwEnv.yaml;*.ssgSwEnv";
 		static inline const juce::String PitchEnvParam = "*.pitchEnv.json;*.pitchEnv.yaml;*.pitchEnv";
 		// 読み込みでは 3.6.3 までの [11] と、それより前の 6 段のファイルも選べる
 		static inline const juce::String SsgSwEnvParam256 = "*.ssgSwEnv256.json;*.ssgSwEnv256.yaml;*.ssgSwEnv256;*.ssgSwEnv11.json;*.ssgSwEnv11.yaml;*.ssgSwEnv11;*.ssgSwEnv.json;*.ssgSwEnv.yaml;*.ssgSwEnv";

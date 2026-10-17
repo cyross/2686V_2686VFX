@@ -17,6 +17,14 @@ namespace
     // 3.6.3 までの [11] は 10 段 + リリース。11 番目がリリース。
     constexpr int legacySteps = 10;
     constexpr int legacyRelease = 11;
+
+    // 3.6.3 までの 6 段は 5 段 + リリース。6 番目がリリース。
+    constexpr int sixStepSteps = 5;
+    constexpr int sixStepRelease = 6;
+
+    // 3.0.0 より前の行の並びのファイルの行数。頭の 6 行 + R / L の組。
+    // [11] は 6 + 22 = 28 行、6 段は 6 + 12 = 18 行。
+    constexpr int legacyLines = 6 + legacyRelease * 2;
 }
 
 GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& s) :
@@ -595,7 +603,11 @@ void GuiComponentStepEnv::applyParamsFile(const juce::File& file)
         {
             GuiRefresh::Batch batch;
 
-            setImportingParams(lines, index);
+            lines.removeEmptyStrings();
+
+            // 6 段のファイルは [11] より行が少ない
+            if (spec.sixStepFileFormat.isNotEmpty() && lines.size() < legacyLines) setImportingSixStepParams(lines, index);
+            else setImportingParams(lines, index);
         }
 
         Io::ParamWriter writer(Io::ParamFormat{ spec.fileFormat, 1 });
@@ -614,6 +626,16 @@ void GuiComponentStepEnv::applyParamsFile(const juce::File& file)
 
         readValues(*legacy);
         return;
+    }
+
+    // 3.6.3 までの 6 段のファイルも、[256] へ写して読む
+    if (spec.sixStepFileFormat.isNotEmpty()) {
+        if (auto six = Io::ParamReader::open(file, Io::ParamFormat{ spec.sixStepFileFormat, 1 }, false)) {
+            GuiRefresh::Batch batch;
+
+            readSixStepValues(*six);
+            return;
+        }
     }
 
     auto reader = Io::ParamReader::open(file, Io::ParamFormat{ spec.fileFormat, 1 });
@@ -703,6 +725,117 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r)
     changed();
 }
 
+// 3.6.3 までの 6 段の形 (r1〜r6 / l1〜l6)。1〜5 段が表、6 番目がリリース。
+// 6 段に無かった KEEP と ENDL は切る。
+void GuiComponentStepEnv::readSixStepValues(const Io::ParamReader& r)
+{
+    flag.setToggleState(r.getBool("flag", flag.getToggleState()), juce::sendNotification);
+    steps.setValue(r.getInt("steps", (int)steps.getValue()), juce::sendNotification);
+    loop.setToggleState(r.getBool("loop", loop.getToggleState()), juce::sendNotification);
+    loopTo.setValue(r.getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
+    loopCount.setValue(r.getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+    keep.setToggleState(false, juce::sendNotification);
+    endLevelEnable.setToggleState(false, juce::sendNotification);
+
+    if (auto* p = ctx.apvts.getParameter(paramCode + spec.stl)) {
+        auto* raw = ctx.apvts.getRawParameterValue(paramCode + spec.stl);
+
+        p->setValueNotifyingHost(p->convertTo0to1(r.getFloat("startLevel", raw != nullptr ? raw->load() : 0.0f)));
+    }
+
+    const auto names = r.keys();
+    const juce::String release(sixStepRelease);
+
+    if (names.contains("r" + release)) releaseRate.setValue(r.getFloat("r" + release), juce::sendNotification);
+    if (names.contains("l" + release)) releaseLevel.setValue(r.getFloat("l" + release), juce::sendNotification);
+
+    if (auto* t = table()) {
+        t->reset();
+
+        for (int i = 1; i <= sixStepSteps; ++i) {
+            const juce::String no(i);
+
+            if (names.contains("r" + no)) t->setRate(i, r.getFloat("r" + no));
+            if (names.contains("l" + no)) t->setLevel(i, r.getFloat("l" + no));
+        }
+    }
+
+    applyStepCount();
+    changed();
+}
+
+// 3.0.0 より前の、行の並びで書いた 6 段のファイル
+void GuiComponentStepEnv::setImportingSixStepParams(juce::StringArray& lines, int& index)
+{
+    flag.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    steps.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    loop.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    loopTo.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    loopCount.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    keep.setToggleState(false, juce::sendNotification);
+    endLevelEnable.setToggleState(false, juce::sendNotification);
+
+    if (auto* p = ctx.apvts.getParameter(paramCode + spec.stl)) p->setValueNotifyingHost(p->convertTo0to1(lines[index].getFloatValue()));
+
+    ++index;
+
+    auto* t = table();
+
+    if (t != nullptr) t->reset();
+
+    for (int i = 1; i <= sixStepRelease; ++i) {
+        const float r = lines[index++].getFloatValue();
+        const float l = lines[index++].getFloatValue();
+
+        if (i == sixStepRelease) {
+            releaseRate.setValue(r, juce::sendNotification);
+            releaseLevel.setValue(l, juce::sendNotification);
+        }
+        else if (t != nullptr) {
+            t->setRate(i, r);
+            t->setLevel(i, l);
+        }
+    }
+
+    applyStepCount();
+    changed();
+}
+
+void GuiComponentStepEnv::setImportingParamsWithSixStep(juce::StringArray& lines, int& index)
+{
+    constexpr int sixStepLines = 6 + sixStepRelease * 2;
+
+    const int sixAt = index;
+    const int elevenAt = index + sixStepLines;
+
+    auto activeAt = [&](int at) {
+        const bool on = lines[at].getIntValue() == 1;
+
+        return m_flagKey.endsWith(CPK::bypass) ? !on : on;
+    };
+
+    if (activeAt(sixAt) && !activeAt(elevenAt)) {
+        int at = sixAt;
+
+        setImportingSixStepParams(lines, at);
+        index = elevenAt + legacyLines;
+        return;
+    }
+
+    index = elevenAt;
+    setImportingParams(lines, index);
+}
+
+// ファイルに書いた入切が「使う」になっているか。入切の鍵が BYPASS なら切が「使う」。
+bool GuiComponentStepEnv::isActiveIn(const Io::ParamReader& r) const
+{
+    if (r.keys().isEmpty()) return false;
+
+    const bool on = r.getBool("flag", false);
+
+    return m_flagKey.endsWith(CPK::bypass) ? !on : on;
+}
+
 void GuiComponentStepEnv::writeValues(Io::ParamWriter& w)
 {
     w.set("flag", flag.getToggleState());
@@ -777,6 +910,17 @@ void GuiComponentStepEnv::readParams(const Io::ParamReader& reader, const juce::
 
     // 3.6.3 までの [11] の鍵 (ssgSwEnv11 など) で書いたファイル
     if (r.keys().isEmpty() && key.contains("256")) r = reader.child(key.replace("256", "11"));
+
+    // 3.6.3 までの 6 段 (ssgSwEnv)。6 段だけが使われていたときは 6 段を写す。
+    // 両方が使われていたときは [256] を残す (掛け合わせは 1 つでは表せない)。
+    if (spec.sixStepFileFormat.isNotEmpty() && key.contains("256")) {
+        const auto six = reader.child(key.replace("256", ""));
+
+        if (isActiveIn(six) && !isActiveIn(r)) {
+            readSixStepValues(six);
+            return;
+        }
+    }
 
     readValues(r);
 }

@@ -17,7 +17,6 @@
 #include "Shared/Gui/Components/Unison/Unison.h"
 #include "Shared/Gui/Components/Fix/Fix.h"
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
-#include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
 #include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Processor/Opm/ProcessorOpmValues.h"
@@ -137,7 +136,6 @@ class GuiOpm : public GuiBase
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
     GuiComponentImportExport ieOpPitchEnv;
-    GuiComponentImportExport ieOpSsgSwEnv;
     GuiComponentImportExport ieOpSsgSwEnv256;
     GuiComponentImportExport ieOpSsgSwPEnv256;
     GuiComponentImportExport ieOpSsgHwPEnv;
@@ -171,7 +169,6 @@ class GuiOpm : public GuiBase
     // 区分ごとの枠。基本は 1 列 1 区分。
     GuiScrollGroup colAmp;
     GuiScrollGroup colSsgHwEnv;
-    GuiScrollGroup colSsgSwEnv;
     GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
     GuiScrollGroup colPitchEnv;
@@ -220,7 +217,6 @@ class GuiOpm : public GuiBase
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnv;
     // SSG SW Env
-    GuiComponentSsgSwEnv ssgSwEnv;
 
     GuiComponentSsgSwEnv256 ssgSwEnv256;
     GuiComponentSsgSwPEnv256 ssgSwPEnv256;
@@ -272,7 +268,6 @@ class GuiOpm : public GuiBase
     // TARGET のすぐ右へ置く。
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
     GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
 
@@ -365,7 +360,6 @@ public:
         copyOpFromSlider(context),
         copyOpToSlider(context),
         ieOpPitchEnv(context),
-        ieOpSsgSwEnv(context),
         ieOpSsgSwEnv256(context),
         ieOpSsgSwPEnv256(context),
         ieOpSsgHwPEnv(context),
@@ -390,7 +384,6 @@ public:
         opTargetSeparator(context),
         colAmp(context),
         colSsgHwEnv(context),
-        colSsgSwEnv(context),
         colSsgSwEnv256(context),
         colAmpMod(context),
         colPitchEnv(context),
@@ -432,7 +425,6 @@ public:
         ksrOPP(context),
         kslOPP(context),
         pitchEnv(context),
-        ssgSwEnv(context),
         ssgSwEnv256(context),
         ssgSwPEnv256(context),
         ssgHwPEnvOp(context),
@@ -469,7 +461,6 @@ public:
         gGraphSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
-        graphBtnSsg(context),
         graphBtnSsg256(context),
         graphBtnSsgP256(context),
         cells{ GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context) }
@@ -532,8 +523,6 @@ public:
     void pasteOpParamsOpnaOpn(int p, CopyOpnaOpnOpmOp& copyObj);
     void importPitchEnvParam(int opIndex);
     void exportPitchEnvParam(int opIndex);
-    void importSsgSwEnvParam(int opIndex);
-    void exportSsgSwEnvParam(int opIndex);
     void importSsgSwEnv256Param(int opIndex);
     void exportSsgSwEnv256Param(int opIndex);
     void importSsgSwPEnv256Param(int opIndex);

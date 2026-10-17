@@ -68,11 +68,11 @@ namespace
         { ".ampenv", EditorGuiText::ParamBrowser::kindAmpEnv },
         { ".ssghwenv", EditorGuiText::ParamBrowser::kindSsgHwEnv },
         { ".ssghwpenv", EditorGuiText::ParamBrowser::kindSsgHwPEnv },
-        { ".ssgswenv", EditorGuiText::ParamBrowser::kindSsgSwEnv },
         { ".ssgswenv256", EditorGuiText::ParamBrowser::kindSsgSwEnv256 },
         { ".ssgswpenv256", EditorGuiText::ParamBrowser::kindSsgSwPEnv256 },
 
-        // 3.6.3 までの [11] のファイル。[256] として読み込める
+        // 3.6.3 までの 6 段と [11] のファイル。[256] として読み込める
+        { ".ssgswenv", EditorGuiText::ParamBrowser::kindSsgSwEnv256 },
         { ".ssgswenv11", EditorGuiText::ParamBrowser::kindSsgSwEnv256 },
         { ".ssgswpenv11", EditorGuiText::ParamBrowser::kindSsgSwPEnv256 },
         { ".pitchenv", EditorGuiText::ParamBrowser::kindPitchEnv },

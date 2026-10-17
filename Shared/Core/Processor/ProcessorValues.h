@@ -675,66 +675,6 @@ namespace CPV
 		}
 	}
 
-	namespace SsgSwEnv
-	{
-		namespace Bypass
-		{
-			inline constexpr float initial = true;
-		}
-
-		namespace Enable
-		{
-			inline constexpr float initial = false;
-		}
-
-		namespace Steps
-		{
-			inline constexpr int min = 1;
-			inline constexpr int max = 5;
-			inline constexpr int initial = 5;
-		}
-
-		namespace Loop
-		{
-			inline constexpr float initial = false;
-		}
-
-		namespace LoopTo
-		{
-			inline constexpr int min = 0;
-			inline constexpr int max = 3;
-			inline constexpr int initial = 0;
-		}
-
-		namespace LoopCount
-		{
-			inline constexpr int min = 0;
-			inline constexpr int max = 200;
-			inline constexpr int initial = 0;
-		}
-
-		namespace R
-		{
-			inline constexpr float min = CPV::rateMin;
-			inline constexpr float max = CPV::rateMax;
-			inline constexpr float initial = CPV::rateMin;
-		}
-
-		namespace L
-		{
-			inline constexpr float min = 0.0f;
-			inline constexpr float max = 1.0f;
-			inline constexpr float initial = 1.0f;
-		}
-
-		namespace SRL
-		{
-			inline constexpr float min = 0.0f;
-			inline constexpr float max = 1.0f;
-			inline constexpr float initial = 0.0f;
-		}
-	}
-
 	namespace SsgSwEnv256
 	{
 		namespace Bypass

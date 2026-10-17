@@ -32,7 +32,6 @@ class Opzx7Processor : public PrBase
     std::array<PrPtrsPcm, Opzx7PrValue::ops> pPcm;
     std::array<PrPtrsLp, Opzx7PrValue::ops> pLp;
     std::array<PrPtrsPitchEnvOp, Opzx7PrValue::ops> pOpPitchEnv;
-    std::array<PrPtrsSsgSwEnvOp, Opzx7PrValue::ops> pOpSsgSwEnv;
     std::array<PrPtrsSsgSwEnv256Op, Opzx7PrValue::ops> pOpSsgSwEnv256;
     std::array<PrPtrsSsgSwPEnv256Op, Opzx7PrValue::ops> pOpSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, Opzx7PrValue::ops> pOpSsgHwPEnv;

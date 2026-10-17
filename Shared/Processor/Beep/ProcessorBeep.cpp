@@ -29,7 +29,6 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnvParameters(layout, prefix, prefixName);
     PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
@@ -52,7 +51,6 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
-    PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
     PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
     PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
@@ -69,7 +67,6 @@ void BeepProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorVa
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.beep.adsr);
     PrHelper::applyWtMod(pWtMod, params.beep.wtMod);
     PrHelper::applyWtAmpMod(pWtAmpMod, params.beep.wtAmpMod);
-    PrHelper::applySsgSwEnv(pSsgSwEnv, params.beep.ssgSwEnv);
     PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.beep.ssgSwEnv256);
     PrHelper::applyPitchEnv(pPitchEnv, params.beep.pitchAdsr);
     PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.beep.ssgSwPEnv256);

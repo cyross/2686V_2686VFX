@@ -42,7 +42,6 @@ sidebar:
 | **RegValue** | AR / DR(D1R) / SL(D1L) / RR / SR(D2R) / TL |
 | [**AmpEnv**](/2686V_2686VFX/chips/common/#amp-env) | AR / DR / RR / SR |
 | [**PitchEnv**](/2686V_2686VFX/chips/common/#pitch-env) | AR / DR / RR |
-| [**SsgSwEnv**](/2686V_2686VFX/chips/common/#ssg-sw-amp-env) | R1〜R6 と LoopTo |
 | [**SsgSwEnv256**](/2686V_2686VFX/chips/common/#ssg-sw-amp-env256) | R1〜R10（段。11 段目からは R10）、R11（リリース）と LoopTo |
 | [**SsgSwPEnv256**](/2686V_2686VFX/chips/common/#ssg-sw-pitch-env256) | R1〜R10（段。11 段目からは R10）、R11（リリース）と LoopTo |
 

@@ -40,7 +40,6 @@ You settle three things: *where*, *what* and *how*.
 | **RegValue** | AR / DR(D1R) / SL(D1L) / RR / SR(D2R) / TL |
 | [**AmpEnv**](/2686V_2686VFX/en/chips/common/#amp-env) | AR / DR / RR / SR |
 | [**PitchEnv**](/2686V_2686VFX/en/chips/common/#pitch-env) | AR / DR / RR |
-| [**SsgSwEnv**](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env) | R1–R6 and LoopTo |
 | [**SsgSwEnv256**](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env256) | R1–R10 (steps; from step 11 on, R10), R11 (release) and LoopTo |
 | [**SsgSwPEnv256**](/2686V_2686VFX/en/chips/common/#ssg-sw-pitch-env256) | R1–R10 (steps; from step 11 on, R10), R11 (release) and LoopTo |
 

@@ -20,6 +20,11 @@ class CurveProcessor : public PrBase {
     float rawValues[CurvePrValue::positions][CurvePrValue::targets][CurvePrValue::params][CurvePrValue::values] = { 0.0f };
 
     void updateCurveParamStructure(int p, int t, int vp);
+
+    // 保存するカーブの対象の並びの版 (CURVE_DATA の属性)。
+    // 1 = 4.0.0 (6 段の SSG SW ENV を外した並び)。
+    static inline const juce::String targetsAttr = "targets";
+    static constexpr int targetsVersion = 1;
 public:
     CurveParams m_curveParams;
 

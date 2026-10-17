@@ -234,9 +234,6 @@ void GuiOpl::setup()
     ieOpPitchEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importPitchEnvParam(opIndex); };
     ieOpPitchEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportPitchEnvParam(opIndex); };
 
-    ieOpSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
-    ieOpSsgSwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnvParam(opIndex); };
-    ieOpSsgSwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnvParam(opIndex); };
 
     ieOpSsgSwEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E256");
     ieOpSsgSwEnv256.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnv256Param(opIndex); };
@@ -298,7 +295,6 @@ void GuiOpl::setup()
     // 部品ごと渡したもの (setupComponentFor) は、そこでつないである。
     ieQuality.bindCategory(qualityComponent.category());
     ieOpPitchEnv.bindCategory(pitchEnv.category());
-    ieOpSsgSwEnv.bindCategory(ssgSwEnv.category());
     ieOpSsgSwEnv256.bindCategory(ssgSwEnv256.category());
     ieOpSsgSwPEnv256.bindCategory(ssgSwPEnv256.category());
     ieOpSsgHwPEnv.bindCategory(ssgHwPEnvOp.category());
@@ -366,7 +362,6 @@ void GuiOpl::setup()
 
     colAmp.setup(stripCanvas, juce::String("") + "AMP ENV / OPTIONAL / EG");
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
-    colSsgSwEnv.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV");
     colSsgSwEnv256.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[256]");
     colAmpMod.setup(stripCanvas, juce::String("") + "WT AMP MOD");
     colPitchEnv.setup(stripCanvas, juce::String("") + "PITCH ENV");
@@ -393,7 +388,6 @@ void GuiOpl::setup()
 
     setupModeBtn(graphBtnAmp, "AMP", GuiEnvGraphMode::Amp);
     setupModeBtn(graphBtnPitch, "PIT", GuiEnvGraphMode::Pitch);
-    setupModeBtn(graphBtnSsg, "SSG", GuiEnvGraphMode::SsgSw);
     setupModeBtn(graphBtnSsg256, "S256", GuiEnvGraphMode::SsgSw256);
     setupModeBtn(graphBtnSsgP256, "P256", GuiEnvGraphMode::SsgSwP256);
 
@@ -470,7 +464,6 @@ void GuiOpl::setup()
 
     pitchEnv.setupComponent(colPitchEnv.contentCanvas, paramPrefix, tabOrder, CPK::PitchAdsr::enable, OplGuiText::PitchAdsr::enable, true);
 
-    ssgSwEnv.setupComponent(colSsgSwEnv.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv::enable, OplGuiText::SsgSwEnv::enable, true);
 
     ssgSwEnv256.setupComponent(colSsgSwEnv256.contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv256::enable, OplGuiText::SsgSwEnv256::enable, true);
 
@@ -585,7 +578,7 @@ void GuiOpl::setup()
     // 区分の中身は最初から開いておく。1 列 1 区分にしたので、
     // 畳んだままだと見出しだけの列が並ぶことになる。
     for (auto* group : {
-        &colAmp, &colSsgHwEnv, &colSsgSwEnv,
+        &colAmp, &colSsgHwEnv,
         &colSsgSwEnv256, &colAmpMod, &colPitchEnv, &colSsgHwPEnv,
         &colSsgSwPEnv256, &colMod, &colKs,
         &colMask,
@@ -830,7 +823,6 @@ void GuiOpl::updateOpEnable(int idx, bool enable)
     mmlSeparator.setEnabled(enable);
     mml.setEnabled(enable);
     pitchEnv.setEnabled(enable);
-    ssgSwEnv.setEnabled(enable);
 }
 
 void GuiOpl::updateAlgorithmDisplay()
@@ -923,7 +915,6 @@ void GuiOpl::rebind(int opIndex)
     mask.rebind(code + CPK::Fm::mask);
 
     pitchEnv.rebind(code);
-    ssgSwEnv.rebind(code);
     ssgSwEnv256.rebind(code);
     ssgSwPEnv256.rebind(code);
     ssgHwPEnvOp.rebind(code);
@@ -978,7 +969,6 @@ void GuiOpl::setGraphMode(GuiEnvGraphMode mode)
     // 札は排他。押したものだけを入れる。
     graphBtnAmp.setToggleState(mode == GuiEnvGraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GuiEnvGraphMode::Pitch, juce::dontSendNotification);
-    graphBtnSsg.setToggleState(mode == GuiEnvGraphMode::SsgSw, juce::dontSendNotification);
     graphBtnSsg256.setToggleState(mode == GuiEnvGraphMode::SsgSw256, juce::dontSendNotification);
     graphBtnSsgP256.setToggleState(mode == GuiEnvGraphMode::SsgSwP256, juce::dontSendNotification);
 
@@ -1194,11 +1184,10 @@ void GuiOpl::layoutOpPanel(juce::Rectangle<int> area)
         {
             const int w = OplGuiValue::ParamGroup::Graph::ModeButtonWidth;
 
-            auto btnRow = row.removeFromLeft(w * 5).withHeight(OplGuiValue::ParamGroup::Graph::ButtonHeight);
+            auto btnRow = row.removeFromLeft(w * 4).withHeight(OplGuiValue::ParamGroup::Graph::ButtonHeight);
 
             graphBtnAmp.setBounds(btnRow.removeFromLeft(w));
             graphBtnPitch.setBounds(btnRow.removeFromLeft(w));
-            graphBtnSsg.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsg256.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP256.setBounds(btnRow);
         }
@@ -1261,11 +1250,6 @@ void GuiOpl::layoutOpPanel(juce::Rectangle<int> area)
     layoutCol(colSsgHwEnv, shown(SimpleView::SsgHwAmpEnv), [&](juce::Rectangle<int>& rect) {
         ssgHwEnvOp.setCategoryVisible(true);
         ssgHwEnvOp.layoutComponent(rect);
-        });
-
-    layoutCol(colSsgSwEnv, shown(SimpleView::SsgSwAmpEnv), [&](juce::Rectangle<int>& rect) {
-        ssgSwEnv.setCategoryVisible(true);
-        ssgSwEnv.layoutComponent(rect);
         });
 
     layoutCol(colSsgSwEnv256, shown(SimpleView::SsgSwAmpEnv256), [&](juce::Rectangle<int>& rect) {
@@ -1335,7 +1319,6 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
     uSep003.setVisible(visible);
     ieOpLfo.setVisible(visible);
     ieOpPitchEnv.setVisible(visible);
-    ieOpSsgSwEnv.setVisible(visible);
     ieOpSsgSwEnv256.setVisible(visible);
     ieOpSsgSwPEnv256.setVisible(visible);
     ieOpSsgHwPEnv.setVisible(visible);
@@ -1377,8 +1360,6 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieOpPitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
-        ieOpSsgSwEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
         ieOpSsgSwEnv256.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpSsgSwPEnv256.layoutComponent(rect);
@@ -1412,8 +1393,6 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
         imOpl3ChParam.layoutComponent(rect);
-        rect.removeFromTop(4);
-
         rect.removeFromTop(4);
 
         layoutMain({ .mainRect = rect, .component = &exportOpzx7Btn });
@@ -1644,7 +1623,6 @@ void GuiOpl::setupOpGraphWiring()
     rgTl.onValueChange = repaintGraph;
 
     pitchEnv.setupGraph(repaintGraph);
-    ssgSwEnv.setupGraph(repaintGraph);
     ssgSwEnv256.setupGraph(repaintGraph);
     ssgSwPEnv256.setupGraph(repaintGraph);
 }
@@ -1711,15 +1689,6 @@ void GuiOpl::updateOpGraph(int opIndex)
         graph.setKeepLevels(keepOn);
         graph.updatePitchEnv(GuiGraphValues::pitchEnv(apvts, code),
             keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
-    }
-    // =============================================================
-    // SSG SW Env
-    // =============================================================
-    else if (currentGraphMode == GuiEnvGraphMode::SsgSw) {
-        const auto v = GuiGraphValues::ssgSwEnv(apvts, code);
-
-        graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwEnv::enable));
-        graph.updateSsgSwEnv(v.head, v.rVal, v.rMax, v.lVal, v.lMax, p_curveCore, isCurveMode, posIdx);
     }
     // =============================================================
     // SSG SW Env 11
@@ -1931,7 +1900,6 @@ void GuiOpl::copyOpParams(int p, CopyOplOp& copyObj) {
     copyObj.mask.mask = mask.getToggleState();
 
     pitchEnv.copyParams(copyObj.pAdsr);
-    ssgSwEnv.copyParams(copyObj.aSsgSw);
 }
 
 void GuiOpl::pasteParams(CopyOpl& copyObj) {
@@ -1969,7 +1937,6 @@ void GuiOpl::pasteOpParams(int p, CopyOplOp& copyObj) {
     mask.setToggleState(copyObj.mask.mask, juce::sendNotification);
 
     pitchEnv.pasteParams(copyObj.pAdsr);
-    ssgSwEnv.pasteParams(copyObj.aSsgSw);
 }
 
 void GuiOpl::importLfoParam(int opIndex)
@@ -2062,14 +2029,6 @@ void GuiOpl::importPitchEnvParam(int opIndex) {
 
 void GuiOpl::exportPitchEnvParam(int opIndex) {
     pitchEnv.exportParams();
-}
-
-void GuiOpl::importSsgSwEnvParam(int opIndex) {
-    ssgSwEnv.importParams();
-}
-
-void GuiOpl::exportSsgSwEnvParam(int opIndex) {
-    ssgSwEnv.exportParams();
 }
 
 void GuiOpl::importQualityParam()
@@ -2430,7 +2389,6 @@ void GuiOpl::readOpParams(int opIndex, const Io::ParamReader& r) {
 
     // Components
     pitchEnv.readParams(r, "pitchEnv");
-    ssgSwEnv.readParams(r, "ssgSwEnv");
     ssgSwEnv256.readParams(r, "ssgSwEnv256");
     ssgSwPEnv256.readParams(r, "ssgSwPEnv256");
     ssgHwPEnvOp.readParams(r, "ssgHwPEnv");
@@ -2475,7 +2433,6 @@ void GuiOpl::writeOpParams(int opIndex, Io::ParamWriter& w) {
 
     // Components
     pitchEnv.writeParams(w, "pitchEnv");
-    ssgSwEnv.writeParams(w, "ssgSwEnv");
     ssgSwEnv256.writeParams(w, "ssgSwEnv256");
     ssgSwPEnv256.writeParams(w, "ssgSwPEnv256");
     ssgHwPEnvOp.writeParams(w, "ssgHwPEnv");
@@ -2608,7 +2565,7 @@ void GuiOpl::writeChParams(Io::ParamWriter& writer) {
 	            modComponent.writeParams(writer, "wtMod");
 	            ampModComponent.writeParams(writer, "wtAmpMod");
 
-	            
+
 }
 
 // 3.0.0 より前の形式を読むための補助。履歴から戻したもの。
@@ -2648,8 +2605,7 @@ void GuiOpl::getImportingOpParams(int opIndex, juce::StringArray& lines, int& in
 
     // Components
     pitchEnv.setImportingParams(lines, index);
-    ssgSwEnv.setImportingParams(lines, index);
-    ssgSwEnv256.setImportingParams(lines, index);
+    ssgSwEnv256.setImportingParamsWithSixStep(lines, index);
     ssgSwPEnv256.setImportingParams(lines, index);
 }
 
@@ -2673,7 +2629,7 @@ void GuiOpl::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("bit", qualityComponent.getBit());
 	writer.set("rate", qualityComponent.getRate());
 
-	
+
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
@@ -2692,7 +2648,7 @@ void GuiOpl::setImportingOpChFileParams(int opIndex, juce::StringArray& lines, i
 void GuiOpl::writeOpChFileParams(int opIndex, Io::ParamWriter& writer) {
 	writeOpParams(opIndex, writer);
 
-	
+
 }
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
@@ -2723,7 +2679,7 @@ void GuiOpl::writeLfoParams(int opIndex, Io::ParamWriter& writer) {
 	writer.set("ams", (float)ams.getValue());
 	writer.set("amd", (float)amd.getValue());
 
-	
+
 }
 
 void GuiOpl::bypassHiddenCategories()
@@ -2739,7 +2695,6 @@ void GuiOpl::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
 
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvOp.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnv.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv256)) ssgSwEnv256.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) wtAmpModOp.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnv.setCategoryBypassed(true);
@@ -2761,7 +2716,6 @@ void GuiOpl::openEnabledCategories()
     if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
 
     if (ssgHwEnvOp.hasBypassSwitch() && !ssgHwEnvOp.isCategoryBypassed()) ssgHwEnvOp.setCategoryOpen(true);
-    if (ssgSwEnv.hasBypassSwitch() && !ssgSwEnv.isCategoryBypassed()) ssgSwEnv.setCategoryOpen(true);
     if (ssgSwEnv256.hasBypassSwitch() && !ssgSwEnv256.isCategoryBypassed()) ssgSwEnv256.setCategoryOpen(true);
     if (wtAmpModOp.hasBypassSwitch() && !wtAmpModOp.isCategoryBypassed()) wtAmpModOp.setCategoryOpen(true);
     if (pitchEnv.hasBypassSwitch() && !pitchEnv.isCategoryBypassed()) pitchEnv.setCategoryOpen(true);
@@ -2787,7 +2741,6 @@ void GuiOpl::closeBypassedCategories()
     if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
 
     if (ssgHwEnvOp.hasBypassSwitch() && ssgHwEnvOp.isCategoryBypassed()) ssgHwEnvOp.setCategoryOpen(false);
-    if (ssgSwEnv.hasBypassSwitch() && ssgSwEnv.isCategoryBypassed()) ssgSwEnv.setCategoryOpen(false);
     if (ssgSwEnv256.hasBypassSwitch() && ssgSwEnv256.isCategoryBypassed()) ssgSwEnv256.setCategoryOpen(false);
     if (wtAmpModOp.hasBypassSwitch() && wtAmpModOp.isCategoryBypassed()) wtAmpModOp.setCategoryOpen(false);
     if (pitchEnv.hasBypassSwitch() && pitchEnv.isCategoryBypassed()) pitchEnv.setCategoryOpen(false);

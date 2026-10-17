@@ -13,7 +13,6 @@ class WtProcessor : public PrBase
     PrPtrsQuality pQuality;
     PrPtrsAdsrAmpEnv pAmpEnv;
     PrPtrsPitchEnv pPitchEnv;
-    PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv256 pSsgSwEnv256;
     PrPtrsSsgSwPEnv256 pSsgSwPEnv256;
     PrPtrsOpzx7Detune pOpzx7Detune;

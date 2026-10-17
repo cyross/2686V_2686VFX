@@ -52,6 +52,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Section files are `.ssgSwEnv256` / `.ssgSwPEnv256`, from the right-click menu and UTILITY [IM] / [EX]
   - 2686VFX's key input and key-assign customisation carry over the [11] assignments
   - [11] data from 3.6.3 and earlier (presets, DAW state, channel parameters, `.ssgSwEnv11`) is converted on load: R1–R10 / L1–L10 become steps 1–10 and R11 / L11 become RR / LR, so it sounds the same
+- **Removed the 6-step SSG SW AMP ENV and folded it into SSG SW AMP ENV[256]**
+  - Gone from every channel, operator and pad: the section, the graph's "SSG" button, the [IM] / [EX] in UTILITY, the simple-view item, and the SsgSwEnv target of ADV curves
+  - 6-step data from 3.6.3 and earlier (presets, DAW state, channel parameters, `.ssgSwEnv`, curves) is carried into [256] on load. R1–R5 / L1–L5 become steps 1–5 and R6 / L6 become RR / LR, so it sounds the same
+  - A sound that used both the 6-step and [11] keeps [256] (the former [11]) and drops the 6-step, because one [256] cannot express the two multiplied together
+  - RHYTHM pads now send [256] into its release on key-off too (the 6-step was released, [11] was not)
+  - Fixed old parameters staying in the state after [11] was carried into [256], which overwrote the table with the old values on every load
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

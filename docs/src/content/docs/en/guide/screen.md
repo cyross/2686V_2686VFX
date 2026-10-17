@@ -106,7 +106,7 @@ category ends.
 | Colour | Meaning |
 | --- | --- |
 | Yellow | a feature the real chip had |
-| Blue | something that moves level (AMP ENV, SSG SW AMP ENV, WT AMP MOD, …) |
+| Blue | something that moves level (AMP ENV, SSG SW AMP ENV[256], WT AMP MOD, …) |
 | Turquoise | something that moves pitch (PITCH ENV, SSG SW PITCH ENV, WT PITCH MOD, …) |
 | Purple | the LFO |
 | Cyan | anything else (OPTIONAL, UNISON・HARMONY, FIX, MUL・DET) |
@@ -149,13 +149,13 @@ to follow. Added in 3.4.0.
 
 | Major category | Sections inside |
 | --- | --- |
-| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
 | **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 
 - They appear on the OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 /
   WT+ / ADPCM / ADPCM+ / BEEP tabs. The order of the sections is unchanged
 - Only the sections the tab actually has go inside. The FM tabs have no
-  channel-wide SSG SW AMP ENV or PITCH ENV
+  channel-wide PITCH ENV
 - The heading has an off-white background. The lamp colours, and pressing it to
   open or close, work like any other heading
 - **They start closed.** Opening one lays its sections out on a backdrop
@@ -191,7 +191,7 @@ there is kept on screen even while simple view is on.
 
 | Sections |
 | --- |
-| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
 | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 | LFO / MUL・DET / FIX / UNISON・HARMONY |
 

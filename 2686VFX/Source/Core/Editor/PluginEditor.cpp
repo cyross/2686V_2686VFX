@@ -1428,7 +1428,6 @@ namespace
             { K::kindPitchEnv, T::importPitchEnvParamFile, T::exportPitchEnvParamFile, Io::Extension::PitchEnvParam, Io::ExtensionGlob::PitchEnvParam },
             { K::kindSsgHwEnv, T::importSsgHwEnvParamFile, T::exportSsgHwEnvParamFile, Io::Extension::SsgHwEnvParam, Io::ExtensionGlob::SsgHwEnvParam },
             { K::kindSsgHwPEnv, T::importSsgHwPEnvParamFile, T::exportSsgHwPEnvParamFile, Io::Extension::SsgHwPEnvParam, Io::ExtensionGlob::SsgHwPEnvParam },
-            { K::kindSsgSwEnv, T::importSsgSwEnvParamFile, T::exportSsgSwEnvParamFile, Io::Extension::SsgSwEnvParam, Io::ExtensionGlob::SsgSwEnvParam },
             { K::kindSsgSwEnv256, T::importSsgSwEnvParamFile, T::exportSsgSwEnvParamFile, Io::Extension::SsgSwEnvParam256, Io::ExtensionGlob::SsgSwEnvParam256 },
             { K::kindSsgSwPEnv256, T::importSsgSwEnvParamFile, T::exportSsgSwEnvParamFile, Io::Extension::SsgSwPEnvParam256, Io::ExtensionGlob::SsgSwPEnvParam256 },
             { K::kindWtMod, T::importWtModParamFile, T::exportWtModParamFile, Io::Extension::WtModParam, Io::ExtensionGlob::WtModParam },

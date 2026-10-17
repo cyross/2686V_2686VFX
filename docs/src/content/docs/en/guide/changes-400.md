@@ -64,3 +64,21 @@ channel, operator and pad, plus 2686VFX.
 **[11] data is converted to [256] on load.** R1–R10 / L1–L10 become steps 1–10 and
 R11 / L11 become RR / LR, so it sounds the same. See
 [SSG SW AMP ENV\[256\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env256).
+
+## The 6-step SSG SW AMP ENV is gone
+
+The 6-step SSG SW AMP ENV of 3.6.3 and earlier (5 steps + release) is removed and folded into
+[SSG SW AMP ENV\[256\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env256).
+The section, the graph's "SSG" button, the [IM] / [EX] in UTILITY, the simple-view item and the
+SsgSwEnv target of ADV curves are gone.
+
+**Anything made with the 6-step is carried into [256] on load.** That covers presets, DAW state,
+channel parameters, `.ssgSwEnv` files and curves.
+
+- R1–R5 / L1–L5 become steps 1–5, and R6 / L6 (the release) become RR / LR
+- KEEP and Use Endl are turned off (the 6-step had neither)
+- A sound that used **both** the 6-step and [11] keeps [256] (the former [11]) and drops the
+  6-step, because one [256] cannot express the two multiplied together
+
+Along with this, RHYTHM pads now send [256] into its release on key-off too (the 6-step was
+released, [11] was not).

@@ -12,7 +12,6 @@
 #include "Shared/Gui/Components/MulDetune/MulDetune.h"
 #include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
-#include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
 #include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
@@ -57,7 +56,6 @@ class GuiBeep : public GuiBase {
     GuiComponentPitchEnv pitchEnvComponent;
 
     // SSG SW Env
-    GuiComponentSsgSwEnv ssgSwEnvComponent;
 
     GuiComponentSsgSwEnv256 ssgSwEnv256Component;
     GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
@@ -88,7 +86,6 @@ class GuiBeep : public GuiBase {
     GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieWtAmpMod;
-    GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv256;
     GuiComponentImportExport ieSsgSwPEnv256;
     GuiComponentImportExport ieDetune;
@@ -99,12 +96,11 @@ class GuiBeep : public GuiBase {
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
     GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
     NormalSeparator graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw256, SsgSwP256 };
+    enum class GraphMode { Amp, Pitch, SsgSw256, SsgSwP256 };
     GraphMode currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
@@ -126,7 +122,6 @@ public:
         modComponent(context),
         ampModComponent(context),
         pitchEnvComponent(context),
-        ssgSwEnvComponent(context),
         ssgSwEnv256Component(context),
         ssgSwPEnv256Component(context),
         mulDetuneComponent(context),
@@ -147,7 +142,6 @@ public:
         ieSsgHwPEnv(context),
         ieWtMod(context),
         ieWtAmpMod(context),
-        ieSsgSwEnv(context),
         ieSsgSwEnv256(context),
         ieSsgSwPEnv256(context),
         ieDetune(context),
@@ -155,7 +149,6 @@ public:
         ieChParam(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
-        graphBtnSsg(context),
         graphBtnSsg256(context),
         graphBtnSsgP256(context),
         graphSeparator(context)

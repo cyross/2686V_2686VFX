@@ -132,14 +132,13 @@ B-Spline はこもるので、遠くで鳴っている感じを作れます。
 | --- | --- | --- | --- |
 | [AMP ENV](#amp-env) | 音量 | ADSR | 実機・独自 |
 | [SSG HW AMP ENV](#ssg-hw-amp-env) | 音量 | 波形 44 種 | 実機・独自 |
-| [SSG SW AMP ENV](#ssg-sw-amp-env) | 音量 | 6 タップ | 独自 |
-| [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) | 音量 | 11 タップ | 独自 |
+| [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) | 音量 | 最大 256 段 | 独自 |
 | [PITCH ENV](#pitch-env) | 音程 | 3 タップ | 独自 |
 | [SSG HW PITCH ENV](#ssg-hw-pitch-env) | 音程 | 波形 44 種 | 独自 |
-| [SSG SW PITCH ENV\[256\]](#ssg-sw-pitch-env256) | 音程 | 11 タップ | 独自 |
+| [SSG SW PITCH ENV\[256\]](#ssg-sw-pitch-env256) | 音程 | 最大 256 段 | 独自 |
 
 音量側は掛け算で重なります。AMP ENV で全体の形を作り、SSG HW AMP ENV や
-SSG SW AMP ENV でその上に細かい動きを乗せる、という組み立てになります。
+SSG SW AMP ENV[256] でその上に細かい動きを乗せる、という組み立てになります。
 
 ### AMP ENV
 
@@ -161,7 +160,7 @@ SSG SW AMP ENV でその上に細かい動きを乗せる、という組み立�
 
 **STEPS** は LEVEL の STEPS と同じもので、選んだ刻みへ値を寄せます（3.6.3 から）。
 範囲が 0〜1 なので、LEVEL にある「1 刻み」はありません。SSG HW AMP ENV・
-SSG SW AMP ENV・SSG SW AMP ENV[256]・WT PITCH MOD・WT AMP MOD にも、同じ STEPS が
+SSG SW AMP ENV[256]・WT PITCH MOD・WT AMP MOD にも、同じ STEPS が
 あります。
 どれもチャンネル・オペレーター・パッドのすべてで使えます。
 
@@ -209,38 +208,11 @@ VALUE の右の **N** ボタンで、値のボタンが出ます（LEVEL と同�
 FORM の TONE / NOISE にも、同じように実機の設定値で決める切り替えがあります
 （[SSG](/2686V_2686VFX/chips/ssg/) を参照）。
 
-### SSG SW AMP ENV
-
-**独自**の区分です。ドライバがソフトウェアで作っていた音量変化を、
-**折れ線**として直接描けるようにしたものです。
-
-| つまみ | 内容 | 範囲 | 初期値 | オートメーション |
-| --- | --- | --- | ---: | --- |
-| **Bypass / Enable** | 使う・使わない。チャンネルでは「バイパス」、オペレータでは「有効」の意味になる | False / True | True | [`SSG_SSGSW_BYPASS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-bypass) |
-| **STEP** | 使う段の数 | 1 〜 5 | 5 | [`SSG_SSGSW_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-steps) |
-| **STL** | 始まりの高さ | 0 〜 1 | 0 | [`SSG_SSGSW_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-stl) |
-| **R1** | 1 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L1** | 1 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R2** | 2 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L2** | 2 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R3** | 3 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L3** | 3 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R4** | 4 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L4** | 4 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R5** | 5 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L5** | 5 段目の音量 | 0 〜 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R6** | 6 段目へ移るまでの時間 | 0.001 〜 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L6** | 6 段目の音量 | 0 〜 1 | 0 | [`SSG_SSGSW_L6`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **STEPS** | L1〜L6 を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
-| **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loop) |
-| **LOOP.TO** | 戻り先の段。0〜3 | 0 〜 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopto) |
-| **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
-
 ### SSG SW AMP ENV[256]
 
 **独自**の区分です。ドライバがソフトウェアで作っていた音量変化を、最大
 **256 段**の折れ線として描けます。4.0.0 で、3.6.3 までの
-SSG SW AMP ENV[256]（10 段 + リリース）と置き換わりました。
+SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置き換わりました。
 
 鍵を押すと **STL** から始まり、**R1** 秒かけて **L1** へ、**R2** 秒かけて
 **L2** へ…と **STEP** の段数まで進みます。最後の段まで来たら、離すまでその
@@ -334,7 +306,7 @@ Enable にすると 1 オクターブの範囲で音程が動きます。MIN と
 
 音程側の **256 段**版です。作りは [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) と
 同じで、STL・L・LR・ENDL が音量ではなく**セント**（±4800）になります。
-4.0.0 で SSG SW PITCH ENV[256] と置き換わりました。
+4.0.0 で、3.6.3 までの SSG SW PITCH ENV[11] と置き換わりました。
 
 段ごとに音程を置けるので、**アルペジオ**やサイレンのような動きを 1 音の中で
 作れます。LOOP を入れれば、鳴っているあいだ繰り返します。リリースを走り

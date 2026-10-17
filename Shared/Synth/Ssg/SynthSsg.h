@@ -8,7 +8,6 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Generator/WtMod/GenWtModulator.h"
@@ -70,7 +69,6 @@ private:
 
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
-	SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
 
     // 押したときに受け取った周波数 (MUL/DET・FIX を掛ける前)。

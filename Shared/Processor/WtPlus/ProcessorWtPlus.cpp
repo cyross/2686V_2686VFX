@@ -23,7 +23,6 @@ void WtPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnvParameters(layout, prefix, prefixName);
     PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
@@ -40,7 +39,6 @@ void WtPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
-    PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
     PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
     PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
@@ -58,7 +56,6 @@ void WtPlusProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessor
     PrHelper::applyWtPlusBasic(pBasic, params.wtPlus);
     PrHelper::applyQuality(pQuality, params.wtPlus.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.wtPlus.adsr);
-    PrHelper::applySsgSwEnv(pSsgSwEnv, params.wtPlus.ssgSwEnv);
     PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.wtPlus.ssgSwEnv256);
     PrHelper::applyPitchEnv(pPitchEnv, params.wtPlus.pitchAdsr);
     PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.wtPlus.ssgSwPEnv256);

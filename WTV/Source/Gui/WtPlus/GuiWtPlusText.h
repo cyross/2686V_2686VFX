@@ -42,11 +42,6 @@ namespace WtPlusGuiText
 		static inline const juce::String bypass = u8"Bypass";
 	}
 
-	namespace SsgSwEnv
-	{
-		static inline const juce::String bypass = u8"Bypass";
-	}
-
 	namespace SsgSwEnv256
 	{
 		static inline const juce::String bypass = u8"Bypass";

@@ -111,7 +111,7 @@ TARGET は **Ctrl + ← / →** でひとつずつ、**Ctrl + 数字**でその�
 | 色 | 意味 |
 | --- | --- |
 | 黄色 | 実機にあった機能 |
-| 青色 | 音量にかかわるもの（AMP ENV / SSG SW AMP ENV / WT AMP MOD など） |
+| 青色 | 音量にかかわるもの（AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD など） |
 | ターコイズ | 音程にかかわるもの（PITCH ENV / SSG SW PITCH ENV / WT PITCH MOD など） |
 | 紫色 | LFO |
 | シアン | 上のどれでもないもの（OPTIONAL / UNISON・HARMONY / FIX / MUL・DET） |
@@ -153,13 +153,13 @@ TARGET で指し先を切り替えたときや、プリセットを読み込ん�
 
 | 大区分 | 中に入る区分 |
 | --- | --- |
-| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
 | **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 
 - 対象は OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 / WT+ /
   ADPCM / ADPCM+ / BEEP のタブです。区分の並び順は変わりません
 - 中に入るのは、そのタブが持っている区分だけです。FM 音源のタブには、
-  チャンネル全体の SSG SW AMP ENV と PITCH ENV がありません
+  チャンネル全体の PITCH ENV がありません
 - 見出しは下地がオフホワイトです。ランプの色と、押して開閉するのは
   ほかの見出しと同じです
 - **最初は閉じています。** 開くと、中の区分が板の上に並びます
@@ -196,7 +196,7 @@ WT PITCH MOD が残るのはそのためです。2686VFX では変調の枠が�
 
 | 区分 |
 | --- |
-| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
 | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 | LFO / MUL・DET / FIX / UNISON・HARMONY |
 

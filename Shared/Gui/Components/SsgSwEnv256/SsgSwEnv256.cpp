@@ -35,6 +35,7 @@ const GuiComponentStepEnv::Spec& GuiComponentSsgSwEnv256::spec()
 
         x.fileFormat = "ssgSwEnv256";
         x.legacyFileFormat = "ssgSwEnv11";
+        x.sixStepFileFormat = "ssgSwEnv";
         x.browserKind = EditorGuiText::ParamBrowser::kindSsgSwEnv256;
         x.extension = Io::Extension::SsgSwEnvParam256;
 

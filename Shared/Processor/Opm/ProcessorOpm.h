@@ -26,7 +26,6 @@ class OpmProcessor : public PrBase
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpLfoAmsEnable = { nullptr };
     std::array<PrPtrsFix, OpmPrValue::ops> pFix;
     std::array<PrPtrsPitchEnvOp, OpmPrValue::ops> pPitchEnv;
-    std::array<PrPtrsSsgSwEnvOp, OpmPrValue::ops> pSsgSwEnv;
     std::array<PrPtrsSsgSwEnv256Op, OpmPrValue::ops> pSsgSwEnv256;
     std::array<PrPtrsSsgSwPEnv256Op, OpmPrValue::ops> pSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, OpmPrValue::ops> pOpSsgHwPEnv;

@@ -12,7 +12,7 @@ The SSG SW PITCH ENV[11] settings.
 | **Extension** | `.ssgSwPEnv11.json` / `.ssgSwPEnv11.yaml` |
 | **format** | `ssgSwPEnv11` |
 | **version** | `1` |
-| **Export / import** | SSG SW PITCH ENV[11]'s [EX] / [IM] |
+| **Import** | SSG SW PITCH ENV[256]'s [IM] (from 4.0.0; never exported) |
 
 ## Shape
 

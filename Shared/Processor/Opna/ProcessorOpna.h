@@ -29,7 +29,6 @@ class OpnaProcessor : public PrBase
     std::array<PrPtrsOpnaLfo, OpnaPrValue::ops> pLfo;
     std::array<PrPtrsFix, OpnaPrValue::ops> pFix;
     std::array<PrPtrsPitchEnvOp, OpnaPrValue::ops> pPitchEnv;
-    std::array<PrPtrsSsgSwEnvOp, OpnaPrValue::ops> pSsgSwEnv;
     std::array<PrPtrsSsgSwEnv256Op, OpnaPrValue::ops> pSsgSwEnv256;
     std::array<PrPtrsSsgSwPEnv256Op, OpnaPrValue::ops> pSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, OpnaPrValue::ops> pOpSsgHwPEnv;

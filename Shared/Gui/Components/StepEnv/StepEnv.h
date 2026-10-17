@@ -70,6 +70,7 @@ public:
         // 区分のパラメータファイル
         juce::String fileFormat;            // 印 ("ssgSwEnv256")
         juce::String legacyFileFormat;      // 3.6.3 までの [11] の印 ("ssgSwEnv11")
+        juce::String sixStepFileFormat;     // 3.6.3 までの 6 段の印 ("ssgSwEnv")。無ければ空
         juce::String browserKind;
         juce::String extension;
     };
@@ -122,6 +123,10 @@ public:
 
     // 3.0.0 より前の、行の並びで書いたファイル ([11] の形)
     void setImportingParams(juce::StringArray& lines, int& index);
+
+    // 3.0.0 より前のチャンネルのファイルは、6 段の行のすぐ後に [11] の行が続く。
+    // 両方を読み進め、6 段だけが使われていたら 6 段を、そうでなければ [11] を写す。
+    void setImportingParamsWithSixStep(juce::StringArray& lines, int& index);
 
     // 名前で受け渡す。key の中身が無ければ、3.6.3 までの [11] の鍵
     // (key の "256" を "11" にしたもの) を読み、[256] へ写す。
@@ -207,5 +212,8 @@ private:
 
     void setLevelRange();
     void readValues(const Io::ParamReader& r);
+    void readSixStepValues(const Io::ParamReader& r);
+    void setImportingSixStepParams(juce::StringArray& lines, int& index);
+    bool isActiveIn(const Io::ParamReader& r) const;
     void writeValues(Io::ParamWriter& w);
 };

@@ -23,7 +23,6 @@ namespace SimpleView
 	{
 		AmpEnv = 0,
 		SsgHwAmpEnv,
-		SsgSwAmpEnv,
 		SsgSwAmpEnv256,
 		WtAmpMod,
 		PitchEnv,
@@ -52,7 +51,6 @@ namespace SimpleView
 		static const std::array<Item, Size> list = { {
 			{ "AMP ENV",              "simpleViewShowAmpEnv" },
 			{ "SSG HW AMP ENV",       "simpleViewShowSsgHwAmpEnv" },
-			{ "SSG SW AMP ENV",       "simpleViewShowSsgSwAmpEnv" },
 			// 鍵は [11] のころのまま。[256] が [11] の代わりなので、選んでいたものを引き継ぐ
 			{ "SSG SW AMP ENV[256]",  "simpleViewShowSsgSwAmpEnv11" },
 			{ "WT AMP MOD",           "simpleViewShowWtAmpMod" },

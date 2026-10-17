@@ -81,7 +81,7 @@ sidebar:
 | 鍵 | 中身 |
 | --- | --- |
 | `pitchEnv` | [pitchEnv](/2686V_2686VFX/reference/file-spec/pitchenv/) と同じ |
-| `ssgSwEnv` | [ssgSwEnv](/2686V_2686VFX/reference/file-spec/ssgswenv/) と同じ |
+| `ssgSwEnv` | 3.6.3 までの 6 段の SSG SW AMP ENV。4.0.0 では書き出さない。読み込むと `ssgSwEnv256` へ写す（[ssgSwEnv](/2686V_2686VFX/reference/file-spec/ssgswenv/)） |
 | `ssgSwEnv256` | [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じ |
 | `ssgSwPEnv256` | [ssgSwPEnv256](/2686V_2686VFX/reference/file-spec/ssgswpenv256/) と同じ |
 

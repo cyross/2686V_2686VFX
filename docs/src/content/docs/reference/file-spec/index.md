@@ -36,7 +36,7 @@ sidebar:
 | [`.pitchEnv.json`](/2686V_2686VFX/reference/file-spec/pitchenv/) | 音程エンベロープ |
 | [`.ssgHwEnv.json`](/2686V_2686VFX/reference/file-spec/ssghwenv/) | SSG ハードウェア音量エンベロープ |
 | [`.ssgHwPEnv.json`](/2686V_2686VFX/reference/file-spec/ssghwpenv/) | SSG ハードウェア音程エンベロープ |
-| [`.ssgSwEnv.json`](/2686V_2686VFX/reference/file-spec/ssgswenv/) | SSG ソフトウェアエンベロープ（6 タップ） |
+| [`.ssgSwEnv.json`](/2686V_2686VFX/reference/file-spec/ssgswenv/) | SSG ソフトウェアエンベロープ（6 タップ。3.6.3 まで。読み込みだけ） |
 | [`.ssgSwEnv256.json`](/2686V_2686VFX/reference/file-spec/ssgswenv256/) | SSG ソフトウェア音量エンベロープ（256 段） |
 | [`.ssgSwPEnv256.json`](/2686V_2686VFX/reference/file-spec/ssgswpenv256/) | SSG ソフトウェア音程エンベロープ（256 段） |
 | [`.ssgSwEnv11.json`](/2686V_2686VFX/reference/file-spec/ssgswenv11/) | 同（11 タップ。3.6.3 まで。読み込みだけ） |

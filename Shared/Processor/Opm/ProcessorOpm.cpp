@@ -45,7 +45,6 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         PrHelper::addOpOpmAmpEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpEnvEnableParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpPitchEnvParameters(layout, opPrefix, opPrefixName);
-        PrHelper::addOpSsgSwEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpSsgSwEnv256Parameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpSsgSwPEnv256Parameters(layout, opPrefix, opPrefixName);
         PrHelper::addSsgHwPEnvParameters(layout, opPrefix, opPrefixName);
@@ -81,7 +80,6 @@ void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
         PrHelper::setupOpmAdsrPtrs(apvts, p, pOpAdsr[op]);
         PrHelper::setupFixPtrs(apvts, p, pFix[op]);
         PrHelper::setupPitchEnvPtrsOp(apvts, p, pPitchEnv[op]);
-        PrHelper::setupSsgSwEnvPtrsOp(apvts, p, pSsgSwEnv[op]);
         PrHelper::setupSsgSwEnv256PtrsOp(apvts, p, pSsgSwEnv256[op], stepTables);
         PrHelper::setupSsgSwPEnv256PtrsOp(apvts, p, pSsgSwPEnv256[op], stepTables);
         PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);
@@ -118,7 +116,6 @@ void OpmProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorVal
         PrHelper::applyOpmDetune(pOpDetune[op], params.opm.op[op].detune);
         PrHelper::applyOpmAdsr(pOpAdsr[op], params.opm.op[op].m_adsrParams);
         PrHelper::applyFix(pFix[op], params.opm.op[op].fix);
-        PrHelper::applySsgSwEnvOp(pSsgSwEnv[op], params.opm.op[op].ssgSwEnv, params.opm.op[op].ssgEnvEnable);
         PrHelper::applySsgSwEnv256Op(pSsgSwEnv256[op], params.opm.op[op].ssgSwEnv256, params.opm.op[op].ssgEnv256Enable);
         PrHelper::applyPitchEnvOp(pPitchEnv[op], params.opm.op[op].pitchAdsr, params.opm.op[op].pitchEnvEnable);
         PrHelper::applySsgSwPEnv256Op(pSsgSwPEnv256[op], params.opm.op[op].ssgSwPEnv256, params.opm.op[op].ssgPEnv256Enable);

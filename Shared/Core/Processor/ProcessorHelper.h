@@ -17,7 +17,6 @@
 #include "Shared/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
 #include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
@@ -199,48 +198,6 @@ namespace PrHelper {
 		ptPtrs.kor = apvts.getRawParameterValue(prefix + CPK::Adsr::kor);
 		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::Adsr::endl);
 		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::Adsr::endlEnable);
-	}
-
-	static inline void setupSsgSwEnvPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv& ptPtrs){
-		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::ssgSwEnv + CPK::bypass);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopCount);
-		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r1);
-		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r2);
-		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r3);
-		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r4);
-		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r5);
-		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r6);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::stl);
-		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l1);
-		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l2);
-		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l3);
-		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l4);
-		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l5);
-		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l6);
-	}
-
-	static inline void setupSsgSwEnvPtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnvOp& ptPtrs){
-		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::enable);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::loopCount);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::stl);
-		ptPtrs.r1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r1);
-		ptPtrs.l1 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l1);
-		ptPtrs.r2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r2);
-		ptPtrs.l2 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l2);
-		ptPtrs.r3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r3);
-		ptPtrs.l3 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l3);
-		ptPtrs.r4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r4);
-		ptPtrs.l4 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l4);
-		ptPtrs.r5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r5);
-		ptPtrs.l5 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l5);
-		ptPtrs.r6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::r6);
-		ptPtrs.l6 = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv::l6);
 	}
 
 	static inline void setupSsgSwEnv256Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv256& ptPtrs, StepTableStore& tables){
@@ -838,49 +795,6 @@ namespace PrHelper {
 		params.kor = getFloat(ptPtrs.kor);
 		params.endl = getFloat(ptPtrs.endl);
 		params.endlEnable = getBool(ptPtrs.endlEnable);
-	}
-
-	static inline void applySsgSwEnv(PrPtrsSsgSwEnv& ptPtrs, SsgSwEnvParams& params){
-		params.bypass = getBool(ptPtrs.bypass);
-		params.steps = getInt(ptPtrs.steps);
-		params.loop = getBool(ptPtrs.loop);
-		params.loopTo = getInt(ptPtrs.loopTo);
-		params.loopCount = getInt(ptPtrs.loopCount);
-		params.r1 = getFloat(ptPtrs.r1);
-		params.r2 = getFloat(ptPtrs.r2);
-		params.r3 = getFloat(ptPtrs.r3);
-		params.r4 = getFloat(ptPtrs.r4);
-		params.r5 = getFloat(ptPtrs.r5);
-		params.r6 = getFloat(ptPtrs.r6);
-		params.stl = getFloat(ptPtrs.stl);
-		params.l1 = getFloat(ptPtrs.l1);
-		params.l2 = getFloat(ptPtrs.l2);
-		params.l3 = getFloat(ptPtrs.l3);
-		params.l4 = getFloat(ptPtrs.l4);
-		params.l5 = getFloat(ptPtrs.l5);
-		params.l6 = getFloat(ptPtrs.l6);
-	}
-
-	static inline void applySsgSwEnvOp(PrPtrsSsgSwEnvOp& ptPtrs, SsgSwEnvParams& params, bool& enable){
-		enable = getBool(ptPtrs.enable);
-		params.bypass = false;
-		params.steps = getInt(ptPtrs.steps);
-		params.loop = getBool(ptPtrs.loop);
-		params.loopTo = getInt(ptPtrs.loopTo);
-		params.loopCount = getInt(ptPtrs.loopCount);
-		params.r1 = getFloat(ptPtrs.r1);
-		params.r2 = getFloat(ptPtrs.r2);
-		params.r3 = getFloat(ptPtrs.r3);
-		params.r4 = getFloat(ptPtrs.r4);
-		params.r5 = getFloat(ptPtrs.r5);
-		params.r6 = getFloat(ptPtrs.r6);
-		params.stl = getFloat(ptPtrs.stl);
-		params.l1 = getFloat(ptPtrs.l1);
-		params.l2 = getFloat(ptPtrs.l2);
-		params.l3 = getFloat(ptPtrs.l3);
-		params.l4 = getFloat(ptPtrs.l4);
-		params.l5 = getFloat(ptPtrs.l5);
-		params.l6 = getFloat(ptPtrs.l6);
 	}
 
 	static inline void applySsgSwEnv256(PrPtrsSsgSwEnv256& ptPtrs, SsgSwEnv256Params& params){
@@ -1616,21 +1530,6 @@ namespace PrHelper {
 		PrHelper::addInt(layout, code, name, CPV::PitchAdsr::L::min, CPV::PitchAdsr::L::max, CPV::PitchAdsr::L::initial);
 	}
 
-	static inline void addSsgSwEnvRate(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwEnv::R::min, CPV::SsgSwEnv::R::max, CPV::SsgSwEnv::R::initial);
-	}
-
-	static inline void addSsgSwEnvLevel(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwEnv::L::min, CPV::SsgSwEnv::L::max, CPV::SsgSwEnv::L::initial);
-	}
-
-	static inline void addSsgSwEnvSRLevel(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name)
-	{
-		PrHelper::addFloat(layout, code, name, CPV::SsgSwEnv::SRL::min, CPV::SsgSwEnv::SRL::max, CPV::SsgSwEnv::SRL::initial);
-	}
-
 	static inline void addDelayParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		PrHelper::addFloat(
 			layout,
@@ -2317,88 +2216,6 @@ namespace PrHelper {
 		);
 	}
 
-	static inline void addSsgSwEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
-	{
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::steps, 
-			prefixName + CPN::SsgSwEnv::steps, 
-			CPV::SsgSwEnv::Steps::min, CPV::SsgSwEnv::Steps::max, CPV::SsgSwEnv::Steps::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwEnv::loop, 
-			prefixName + CPN::SsgSwEnv::loop, 
-			CPV::SsgSwEnv::Loop::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::loopTo, 
-			prefixName + CPN::SsgSwEnv::loopTo, 
-			CPV::SsgSwEnv::LoopTo::min, CPV::SsgSwEnv::LoopTo::max, CPV::SsgSwEnv::LoopTo::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::loopCount, 
-			prefixName + CPN::SsgSwEnv::loopCount, 
-			CPV::SsgSwEnv::LoopCount::min, CPV::SsgSwEnv::LoopCount::max, CPV::SsgSwEnv::LoopCount::initial
-		);
-		PrHelper::addSsgSwEnvSRLevel(layout, prefix + CPK::SsgSwEnv::stl, prefixName + CPN::SsgSwEnv::stl);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r1, prefixName + CPN::SsgSwEnv::r1);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l1, prefixName + CPN::SsgSwEnv::l1);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r2, prefixName + CPN::SsgSwEnv::r2);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l2, prefixName + CPN::SsgSwEnv::l2);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r3, prefixName + CPN::SsgSwEnv::r3);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l3, prefixName + CPN::SsgSwEnv::l3);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r4, prefixName + CPN::SsgSwEnv::r4);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l4, prefixName + CPN::SsgSwEnv::l4);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r5, prefixName + CPN::SsgSwEnv::r5);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l5, prefixName + CPN::SsgSwEnv::l5);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r6, prefixName + CPN::SsgSwEnv::r6);
-		PrHelper::addSsgSwEnvSRLevel(layout, prefix + CPK::SsgSwEnv::l6, prefixName + CPN::SsgSwEnv::l6);
-	}
-
-	static inline void addOpSsgSwEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
-	{
-		PrHelper::addInt(
-			layout,
-			prefix + CPK::SsgSwEnv::steps, 
-			namePrefix + CPN::SsgSwEnv::steps, 
-			CPV::SsgSwEnv::Steps::min, CPV::SsgSwEnv::Steps::max, CPV::SsgSwEnv::Steps::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwEnv::loop, 
-			namePrefix + CPN::SsgSwEnv::loop, 
-			CPV::SsgSwEnv::Loop::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::loopTo, 
-			namePrefix + CPN::SsgSwEnv::loopTo, 
-			CPV::SsgSwEnv::LoopTo::min, CPV::SsgSwEnv::LoopTo::max, CPV::SsgSwEnv::LoopTo::initial
-		);
-		PrHelper::addInt(
-			layout, 
-			prefix + CPK::SsgSwEnv::loopCount, 
-			namePrefix + CPN::SsgSwEnv::loopCount, 
-			CPV::SsgSwEnv::LoopCount::min, CPV::SsgSwEnv::LoopCount::max, CPV::SsgSwEnv::LoopCount::initial
-		);
-		PrHelper::addSsgSwEnvSRLevel(layout, prefix + CPK::SsgSwEnv::stl, namePrefix + CPN::SsgSwEnv::stl);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r1, namePrefix + CPN::SsgSwEnv::r1);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l1, namePrefix + CPN::SsgSwEnv::l1);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r2, namePrefix + CPN::SsgSwEnv::r2);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l2, namePrefix + CPN::SsgSwEnv::l2);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r3, namePrefix + CPN::SsgSwEnv::r3);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l3, namePrefix + CPN::SsgSwEnv::l3);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r4, namePrefix + CPN::SsgSwEnv::r4);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l4, namePrefix + CPN::SsgSwEnv::l4);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r5, namePrefix + CPN::SsgSwEnv::r5);
-		PrHelper::addSsgSwEnvLevel(layout, prefix + CPK::SsgSwEnv::l5, namePrefix + CPN::SsgSwEnv::l5);
-		PrHelper::addSsgSwEnvRate(layout, prefix + CPK::SsgSwEnv::r6, namePrefix + CPN::SsgSwEnv::r6);
-		PrHelper::addSsgSwEnvSRLevel(layout, prefix + CPK::SsgSwEnv::l6, namePrefix + CPN::SsgSwEnv::l6);
-	}
-
 	static inline void addSsgSwEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
 	{
 		// 段の R / L はパラメータにしない (表で持つ)。ここで登録するのは頭だけ。
@@ -2960,12 +2777,6 @@ namespace PrHelper {
 		);
 		PrHelper::addBool(
 			layout, 
-			prefix + CPK::ssgSwEnv + CPK::bypass, 
-			prefixName + CPN::SsgSwEnv::bypass, 
-			CPV::SsgSwEnv::Bypass::initial
-		);
-		PrHelper::addBool(
-			layout, 
 			prefix + CPK::ssgSwEnv256 + CPK::bypass, 
 			prefixName + CPN::SsgSwEnv256::bypass, 
 			CPV::SsgSwEnv256::Bypass::initial
@@ -3018,12 +2829,6 @@ namespace PrHelper {
 			prefix + CPK::PitchAdsr::enable, 
 			namePrefix + CPN::PitchAdsr::enable, 
 			CPV::PitchAdsr::Enable::initial
-		);
-		PrHelper::addBool(
-			layout, 
-			prefix + CPK::SsgSwEnv::enable, 
-			namePrefix + CPN::SsgSwEnv::enable, 
-			CPV::SsgSwEnv::Enable::initial
 		);
 		PrHelper::addBool(
 			layout, 

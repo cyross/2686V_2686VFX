@@ -53,7 +53,6 @@ set(UNDER_TEST_SOURCES
     "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/SsgHw/EnvSsgHw.cpp"
-    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/SsgSw/EnvSsgSw.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.cpp"

@@ -87,7 +87,6 @@ namespace EditorGuiText
 		static inline const juce::String kindAmpEnv = "AMP ENV";
 		static inline const juce::String kindSsgHwEnv = "SSG HW ENV";
 		static inline const juce::String kindSsgHwPEnv = "SSG HW PENV";
-		static inline const juce::String kindSsgSwEnv = "SSG SW ENV";
 		static inline const juce::String kindSsgSwEnv256 = "SSG SW ENV256";
 		static inline const juce::String kindSsgSwPEnv256 = "SSG SW PENV256";
 		static inline const juce::String kindPitchEnv = "PITCH ENV";

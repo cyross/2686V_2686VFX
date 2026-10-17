@@ -2,7 +2,6 @@
 
 #include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
 #include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
@@ -19,8 +18,6 @@ struct Opzx7OpParams
     float delay = 0.0f;
 
     Opzx7AdddrParams m_adsrParams;
-    bool ssgEnvEnable = false;
-    SsgSwEnvParams ssgSwEnv;
     bool ssgEnv256Enable = false;
     SsgSwEnv256Params ssgSwEnv256;
     bool pitchEnvEnable = true;

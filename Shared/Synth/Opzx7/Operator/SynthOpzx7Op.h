@@ -9,7 +9,6 @@
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "Shared/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.h"
 #include "Shared/Effect/Feedback/Feedback.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
@@ -35,14 +34,12 @@ public:
 	// 全アンプエンベロープがバイパスされているか
 	bool isAllAmpBypassed() const {
 		return m_ampAdsr.isBypass() &&
-			(!m_params.ssgEnvEnable || m_ssgSwEnv.isBypass()) &&
 			(!m_params.ssgEnv256Enable || m_ssgSwEnv256.isBypass());
 	}
 
 	// アンプエンベロープのどれかが現在鳴っているか
 	bool isPlaying() const {
 		return m_ampAdsr.isPlaying() ||
-			(m_params.ssgEnvEnable && m_ssgSwEnv.isPlaying()) ||
 			(m_params.ssgEnv256Enable && m_ssgSwEnv256.isPlaying());
 	}
 
@@ -73,7 +70,6 @@ private:
 	PitchAdsrEnv m_pitchAdsr;
 	Opzx7LfoCore m_lfo;
 	Opzx7Adddr m_ampAdsr;
-	SsgSwEnv m_ssgSwEnv;
 	SsgSwEnv256 m_ssgSwEnv256;
 	SsgSwPEnv256 m_ssgSwPenv256;
 

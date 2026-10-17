@@ -165,13 +165,6 @@ namespace
             { CPK::SsgHwPEnv::smooth, CPK::SsgHwPEnv::shape, CPK::SsgHwPEnv::period,
               CPK::SsgHwPEnv::min, CPK::SsgHwPEnv::max }, {} });
 
-        // SSG SW AMP ENV (6 タップ)
-        const std::vector<juce::String> swDeps{ CPK::SsgSwEnv::steps, CPK::SsgSwEnv::loop };
-        const std::vector<Nested> swNested{ { CPK::SsgSwEnv::loop, { CPK::SsgSwEnv::loopTo, CPK::SsgSwEnv::loopCount } } };
-
-        r.push_back({ "SSG SW AMP ENV (Bypass)", CPK::SsgSwEnv::bypass, false, { CPK::SsgSwEnv::steps }, swDeps, swNested });
-        r.push_back({ "SSG SW AMP ENV (Enable)", CPK::SsgSwEnv::enable, true, { CPK::SsgSwEnv::steps }, swDeps, swNested });
-
         // SSG SW AMP ENV[256] / SSG SW PITCH ENV[256]
         const std::vector<juce::String> sw11Deps{
             CPK::SsgSwEnv256::steps, CPK::SsgSwEnv256::keep, CPK::SsgSwEnv256::loop, CPK::SsgSwEnv256::endlEnable };

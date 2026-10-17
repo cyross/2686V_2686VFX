@@ -18,7 +18,6 @@
 #include "Shared/Gui/Components/Unison/Unison.h"
 #include "Shared/Gui/Components/Fix/Fix.h"
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
-#include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
 #include "Shared/Gui/Components/Edit/Edit.h"
 #include "Shared/Gui/Components/PitchButtons/PitchButtons.h"
@@ -139,7 +138,6 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpLfo;
     GuiComponentImportExport ieOpDetune;
     GuiComponentImportExport ieOpPitchEnv;
-    GuiComponentImportExport ieOpSsgSwEnv;
     GuiComponentImportExport ieOpSsgSwEnv256;
     GuiComponentImportExport ieOpSsgSwPEnv256;
     GuiComponentImportExport ieOpSsgHwPEnv;
@@ -175,7 +173,6 @@ class GuiOpzx7 : public GuiBase
     GuiScrollGroup colAmp;
     GuiScrollGroup colWs;
     GuiScrollGroup colSsgHwEnv;
-    GuiScrollGroup colSsgSwEnv;
     GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
     GuiScrollGroup colPitchEnv;
@@ -254,7 +251,6 @@ class GuiOpzx7 : public GuiBase
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnv;
     // SSG SW Env
-    GuiComponentSsgSwEnv ssgSwEnv;
 
     GuiComponentSsgSwEnv256 ssgSwEnv256;
     GuiComponentSsgSwPEnv256 ssgSwPEnv256;
@@ -306,7 +302,6 @@ class GuiOpzx7 : public GuiBase
     // TARGET のすぐ右へ置く。
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
     GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
 
@@ -460,8 +455,6 @@ public:
     void exportOpLfoParam(int opIndex);
     void importPitchEnvParam(int opIndex);
     void exportPitchEnvParam(int opIndex);
-    void importSsgSwEnvParam(int opIndex);
-    void exportSsgSwEnvParam(int opIndex);
     void importSsgSwEnv256Param(int opIndex);
     void exportSsgSwEnv256Param(int opIndex);
     void importSsgSwPEnv256Param(int opIndex);

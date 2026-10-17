@@ -67,48 +67,6 @@ struct PrPtrsAdsrAmpEnv {
     std::atomic<float>* endlEnable = nullptr;
 };
 
-struct PrPtrsSsgSwEnv {
-    std::atomic<float>* bypass = nullptr;
-    std::atomic<float>* steps = nullptr;
-    std::atomic<float>* loop = nullptr;
-    std::atomic<float>* loopTo = nullptr;
-    std::atomic<float>* loopCount = nullptr;
-    std::atomic<float>* r1 = nullptr;
-    std::atomic<float>* r2 = nullptr;
-    std::atomic<float>* r3 = nullptr;
-    std::atomic<float>* r4 = nullptr;
-    std::atomic<float>* r5 = nullptr;
-    std::atomic<float>* r6 = nullptr;
-    std::atomic<float>* stl = nullptr;
-    std::atomic<float>* l1 = nullptr;
-    std::atomic<float>* l2 = nullptr;
-    std::atomic<float>* l3 = nullptr;
-    std::atomic<float>* l4 = nullptr;
-    std::atomic<float>* l5 = nullptr;
-    std::atomic<float>* l6 = nullptr;
-};
-
-struct PrPtrsSsgSwEnvOp {
-    std::atomic<float>* enable = nullptr;
-    std::atomic<float>* steps = nullptr;
-    std::atomic<float>* loop = nullptr;
-    std::atomic<float>* loopTo = nullptr;
-    std::atomic<float>* loopCount = nullptr;
-    std::atomic<float>* r1 = nullptr;
-    std::atomic<float>* r2 = nullptr;
-    std::atomic<float>* r3 = nullptr;
-    std::atomic<float>* r4 = nullptr;
-    std::atomic<float>* r5 = nullptr;
-    std::atomic<float>* r6 = nullptr;
-    std::atomic<float>* stl = nullptr;
-    std::atomic<float>* l1 = nullptr;
-    std::atomic<float>* l2 = nullptr;
-    std::atomic<float>* l3 = nullptr;
-    std::atomic<float>* l4 = nullptr;
-    std::atomic<float>* l5 = nullptr;
-    std::atomic<float>* l6 = nullptr;
-};
-
 // SSG SW AMP / PITCH ENV[256] の頭のパラメータと、段の R / L を持つ表。
 // 表はプロセッサが持つ (StepTableStore)。音を出し始める前に引いて持っておく。
 struct PrPtrsStepEnv {

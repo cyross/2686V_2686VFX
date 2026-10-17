@@ -93,7 +93,7 @@ It also carries the following nested blocks.
 | --- | --- |
 | `fix` | Holding the pitch. It holds `enable` and `freq` |
 | `pitchEnv` | The same as [pitchEnv](/2686V_2686VFX/en/reference/file-spec/pitchenv/) |
-| `ssgSwEnv` | The same as [ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/) |
+| `ssgSwEnv` | The 6-step SSG SW AMP ENV of 3.6.3 and earlier. Not written from 4.0.0; on load it is carried into `ssgSwEnv256` ([ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/)) |
 | `ssgSwEnv256` | The same as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/) |
 | `ssgSwPEnv256` | The same as [ssgSwPEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswpenv256/) |
 

@@ -39,9 +39,8 @@ static std::vector<SelectItem> targetItems = {
     {.name = "RegValue", .value = 1 },
     {.name = "AmpEnv",   .value = 2 },
     {.name = "PitchEnv", .value = 3 },
-    {.name = "SsgSwEnv", .value = 4 },
-    {.name = "SsgSwEnv256", .value = 5 },
-    {.name = "SsgSwPEnv256", .value = 6 }
+    {.name = "SsgSwEnv256", .value = 4 },
+    {.name = "SsgSwPEnv256", .value = 5 }
 };
 
 // ロジックの選択肢。言語で名前が変わるので、その場で作る。
@@ -124,15 +123,6 @@ static std::vector< std::vector<juce::String>> paramTitles = {
         "R4",
         "R5",
         "R6",
-        "Loop To"
-    },
-    {
-        "R1",
-        "R2",
-        "R3",
-        "R4",
-        "R5",
-        "R6",
         "R7",
         "R8",
         "R9",
@@ -156,7 +146,35 @@ static std::vector< std::vector<juce::String>> paramTitles = {
     }
 };
 
-static std::vector<int> paramLengthes = { CurvePrValue::regValParams, CurvePrValue::regAmpEnvParams, CurvePrValue::regPitchEnvParams, CurvePrValue::regSsgSwEnvParams, CurvePrValue::regSsgSwEnv256Params, CurvePrValue::regSsgSwPEnv256Params };
+static std::vector<int> paramLengthes = { CurvePrValue::regValParams, CurvePrValue::regAmpEnvParams, CurvePrValue::regPitchEnvParams, CurvePrValue::regSsgSwEnv256Params, CurvePrValue::regSsgSwPEnv256Params };
+
+// 読み込むファイルの params の並びを、今の対象のどの番号へ入れるか。
+// 3.6.3 までの 6 段の SSG SW ENV のファイル (R1〜R6 / Loop To) は [256] へ入れる。
+// 6 段の R1〜R5 は [256] の R1〜R5、R6 (リリース) は R11、Loop To は Loop To へ。
+static std::vector<int> importOrder(int t, const juce::File& file)
+{
+    const auto name = file.getFileName();
+    const bool sixStep = t == (int)CurveParams::Target::SsgSwEnv256
+        && name.contains("SsgSwEnv") && !name.contains("SsgSwEnv256") && !name.contains("SsgSwEnv11");
+
+    if (sixStep) {
+        return { 0, 1, 2, 3, 4,
+            (int)CurveParams::TargetSsgSwEnv256::R11, (int)CurveParams::TargetSsgSwEnv256::LoopTo };
+    }
+
+    std::vector<int> order;
+
+    for (int vp = 0; vp < paramLengthes[(size_t)t]; vp++) order.push_back(vp);
+
+    return order;
+}
+
+// 読み込むときの名前の縛り。[256] の対象は、3.6.3 までの [11] と 6 段のファイルも
+// 出すよう、名前の後ろの数字を外して比べる (SsgSwEnv256 → SsgSwEnv)。
+static juce::String importNameFilter(const juce::String& ext)
+{
+    return ext.trimCharactersAtEnd("0123456789");
+}
 
 static std::vector<int> valueLengthes = {
     0,    // Linear
@@ -720,7 +738,7 @@ void GuiCurve::importCurveParam() {
                         // 読み終えてからまとめて描き直す
                         GuiRefresh::Batch batch;
 
-                        setImportingCurveParams(lines, index);
+                        setImportingCurveParams(lines, index, importOrder(target.getSelectedItemIndex(), file));
                     }
 
                     Io::ParamWriter writer(curveFormat);
@@ -741,12 +759,13 @@ void GuiCurve::importCurveParam() {
 
                 int p = position.getSelectedItemIndex();
                 int t = target.getSelectedItemIndex();
-                int vpLen = paramLengthes[t];
+                const auto order = importOrder(t, file);
 
                 // 今出している Position と Target のぶんだけ戻す。
                 // パラメータごとに入れ子で持つので、数が違っても後ろがずれない。
-                for (int vp = 0; vp < vpLen; vp++) {
-                    auto item = reader->arrayItem("params", vp);
+                for (int i = 0; i < (int)order.size(); i++) {
+                    const int vp = order[(size_t)i];
+                    auto item = reader->arrayItem("params", i);
 
                     pluginOf(ctx).prCurve.setLogic(p, t, vp,
                         item.getInt("logic", pluginOf(ctx).prCurve.getLogic(p, t, vp)));
@@ -769,7 +788,7 @@ void GuiCurve::importCurveParam() {
                 editorOf(ctx).resized();
             }
         },
-        Io::Extension::curveParam + ext);
+        importNameFilter(Io::Extension::curveParam + ext));
 }
 
 void GuiCurve::exportCurveParam() {
@@ -808,7 +827,7 @@ void GuiCurve::exportCurveParam() {
 
 // 3.0.0 より前の形式を読む。移行のときに当時の読み手ごと書き換えて
 // しまったので、履歴から戻したもの。
-void GuiCurve::setImportingCurveParams(juce::StringArray& lines, int& index) {
+void GuiCurve::setImportingCurveParams(juce::StringArray& lines, int& index, const std::vector<int>& order) {
     // 当時の処理は行数を size で見ていることがある
     int size = lines.size();
 
@@ -816,10 +835,9 @@ void GuiCurve::setImportingCurveParams(juce::StringArray& lines, int& index) {
 
 	int p = position.getSelectedItemIndex();
 	int t = target.getSelectedItemIndex();
-	int vpLen = paramLengthes[t];
 
 	// 現在表示中の Position と Target に該当するパラメータ群のみ復元
-	for (int vp = 0; vp < vpLen; vp++) {
+	for (const int vp : order) {
 	    if (index < size) {
 	        int logicVal = lines[index++].getIntValue();
 	        pluginOf(ctx).prCurve.setLogic(p, t, vp, logicVal);
@@ -870,5 +888,5 @@ void GuiCurve::writeCurveParams(Io::ParamWriter& writer) {
 	    item.setArray("values", values);
 	}
 
-	
+
 }

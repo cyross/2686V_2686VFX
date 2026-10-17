@@ -378,11 +378,12 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
 {
     if (xmlState.get() != nullptr && xmlState->hasTagName(apvts.state.getType()))
     {
-        // 段の表 (SSG SW AMP / PITCH ENV[256] など)。3.6.3 までの [11] は [256] へ写す。
+        // 段の表 (SSG SW AMP / PITCH ENV[256] など)。3.6.3 までの [11] と 6 段は [256] へ写す。
         // 表はパラメータではないので、APVTS へ渡す前に読んで外しておく。
         StepTableIo::read(stepTables, *xmlState);
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwEnv);
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwPEnv);
+        StepEnvLegacy::convertSixStep(*xmlState, stepTables);
 
         while (auto* tables = xmlState->getChildByName(StepTableIo::xmlTag)) xmlState->removeChildElement(tables, true);
 

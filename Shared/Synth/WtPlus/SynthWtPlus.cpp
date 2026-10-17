@@ -11,7 +11,6 @@ void WtPlusCore::setCurveCore(CurveCore* p_curveCore)
 {
     m_adsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
     m_ssgSwEnv256.setCurveCore(p_curveCore);
     m_ssgSwPenv256.setCurveCore(p_curveCore);
 }
@@ -22,7 +21,6 @@ void WtPlusCore::prepare(double sampleRate)
 
     m_adsr.prepare(m_sampleRate);
     m_pitchAdsr.prepare(0, m_sampleRate);
-    m_ssgSwEnv.prepare(0, m_sampleRate);
     m_ssgSwEnv256.prepare(0, m_sampleRate);
     m_ssgSwPenv256.prepare(0, m_sampleRate);
     m_ssgHwEnv.prepare(m_sampleRate);
@@ -41,7 +39,6 @@ void WtPlusCore::setSampleRate(double sampleRate)
 
     m_adsr.updateSampleRate(m_sampleRate);
 	m_pitchAdsr.updateSampleRate(m_sampleRate);
-	m_ssgSwEnv.updateSampleRate(m_sampleRate);
     m_ssgSwEnv256.updateSampleRate(m_sampleRate);
     m_ssgSwPenv256.updateSampleRate(m_sampleRate);
     m_ssgHwEnv.updateSampleRate(m_sampleRate);
@@ -64,7 +61,6 @@ void WtPlusCore::setParameters(const SynthCoreParams& params)
 
     m_adsr.setParameters(params.wtPlus.adsr);
     m_pitchAdsr.setParameters(params.wtPlus.pitchAdsr);
-	m_ssgSwEnv.setParameters(params.wtPlus.ssgSwEnv);
     m_ssgSwEnv256.setParameters(params.wtPlus.ssgSwEnv256);
     m_ssgSwPenv256.setParameters(params.wtPlus.ssgSwPEnv256);
     m_detune.setParameters(params.wtPlus.detune);
@@ -157,10 +153,6 @@ void WtPlusCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
             m_pitchAdsr.noteOn();
         }
 
-        if (!m_ssgSwEnv.isBypass()) {
-            m_ssgSwEnv.noteOn();
-        }
-
         if (!m_ssgSwEnv256.isBypass()) {
             m_ssgSwEnv256.noteOn();
         }
@@ -189,9 +181,6 @@ void WtPlusCore::noteOff()
     if (!m_pitchAdsr.isBypass()) {
         m_pitchAdsr.noteOff();
     }
-    if (!m_ssgSwEnv.isBypass()) {
-        m_ssgSwEnv.noteOff();
-    }
 
     if (!m_ssgSwEnv256.isBypass()) {
         m_ssgSwEnv256.noteOff();
@@ -204,7 +193,7 @@ void WtPlusCore::noteOff()
 
 bool WtPlusCore::isPlaying() const
 {
-    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying() || m_ssgSwEnv256.isPlaying();
+    return m_adsr.isPlaying() || m_ssgSwEnv256.isPlaying();
 }
 
 // ピッチベンド (0 - 16383, Center=8192)
@@ -238,14 +227,13 @@ void WtPlusCore::setPitchBendRatio(float ratio)
 float WtPlusCore::getSample()
 {
     // すべてのアンプエンベロープがバイパスされているかどうかを判定
-    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv256.isBypass();
+    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv256.isBypass();
 
     if (isAllAmpBypassed) {
         // 全てのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作
         // どれかが Release 状態（noteOffが呼ばれた直後）なら、即座に音を消す
-        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv256.isRelease()) {
+        if (m_adsr.isRelease() || m_ssgSwEnv256.isRelease()) {
             m_adsr.bypassedReleasedProcess();
-            m_ssgSwEnv.bypassedReleasedProcess();
             m_ssgSwEnv256.bypassedReleasedProcess();
             m_pitchAdsr.bypassedReleasedProcess();
             m_ssgSwPenv256.bypassedReleasedProcess();
@@ -276,14 +264,6 @@ float WtPlusCore::getSample()
                 m_currentLevel = m_adsr.process(m_currentLevel);
                 finalEnv *= m_currentLevel;
             }
-        }
-
-        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-        if (!m_ssgSwEnv.isBypass()) {
-            finalEnv *= m_ssgSwEnv.process();
-        }
-        else {
-            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
         }
 
         // 3. SSG Sw Env 11 処理

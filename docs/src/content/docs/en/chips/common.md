@@ -134,11 +134,10 @@ The parts that move level or pitch over time. Several kinds can run at once.
 | --- | --- | --- | --- |
 | [AMP ENV](#amp-env) | level | ADSR | hardware / ours |
 | [SSG HW AMP ENV](#ssg-hw-amp-env) | level | 44 shapes | hardware / ours |
-| [SSG SW AMP ENV](#ssg-sw-amp-env) | level | 6 taps | ours |
-| [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) | level | 11 taps | ours |
+| [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) | level | up to 256 steps | ours |
 | [PITCH ENV](#pitch-env) | pitch | 3 taps | ours |
 | [SSG HW PITCH ENV](#ssg-hw-pitch-env) | pitch | 44 shapes | ours |
-| [SSG SW PITCH ENV\[256\]](#ssg-sw-pitch-env256) | pitch | 11 taps | ours |
+| [SSG SW PITCH ENV\[256\]](#ssg-sw-pitch-env256) | pitch | up to 256 steps | ours |
 
 On the level side they multiply together. The usual arrangement is to shape the
 whole with AMP ENV and then lay finer movement on top with SSG HW AMP ENV or
@@ -210,38 +209,11 @@ The **N** button to the right of VALUE shows value buttons, as on LEVEL: ±1,
 FORM's TONE / NOISE have the same kind of switch (see
 [SSG](/2686V_2686VFX/en/chips/ssg/)).
 
-### SSG SW AMP ENV
-
-**Ours.** It takes the level movement a driver used to produce in software and
-lets you draw it directly, as **a series of line segments**.
-
-| Knob | What it does | Range | Default | Automation |
-| --- | --- | --- | ---: | --- |
-| **Bypass / Enable** | Use it or not. On a channel it reads as bypass, on an operator as enable | False / True | True | [`SSG_SSGSW_BYPASS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-bypass) |
-| **STEP** | How many steps are used | 1 – 5 | 5 | [`SSG_SSGSW_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-steps) |
-| **STL** | Level it starts from | 0 – 1 | 0 | [`SSG_SSGSW_STL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-stl) |
-| **R1** | Time to reach step 1 | 0.001 – 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L1** | Level at step 1 | 0 – 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R2** | Time to reach step 2 | 0.001 – 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L2** | Level at step 2 | 0 – 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R3** | Time to reach step 3 | 0.001 – 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L3** | Level at step 3 | 0 – 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R4** | Time to reach step 4 | 0.001 – 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L4** | Level at step 4 | 0 – 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R5** | Time to reach step 5 | 0.001 – 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L5** | Level at step 5 | 0 – 1 | 1 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **R6** | Time to reach step 6 | 0.001 – 10 | 0.001 | [`SSG_SSGSW_R[1-6]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-r-1-6) |
-| **L6** | Level at step 6 | 0 – 1 | 0 | [`SSG_SSGSW_L6`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-l6) |
-| **STEPS** | Snaps L1–L6 to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
-| **LOOP** | Repeat | False / True | False | [`SSG_SSGSW_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loop) |
-| **LOOP.TO** | Step it goes back to. 0–3 | 0 – 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopto) |
-| **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
-
 ### SSG SW AMP ENV[256]
 
 A section of **our own**. It draws a volume contour of up to **256 steps**, the
 kind of change drivers used to make in software. In 4.0.0 it replaced SSG SW AMP
-ENV[11] (10 steps plus release) from 3.6.3 and earlier.
+ENV[11] (10 steps plus release) and the 6-step SSG SW AMP ENV from 3.6.3 and earlier.
 
 A key press starts at **STL**, moves to **L1** over **R1** seconds, to **L2** over
 **R2** seconds and so on up to **STEP** steps, then holds the last level until
@@ -333,7 +305,7 @@ The shapes are listed under [Waveforms](/2686V_2686VFX/en/reference/lists-wavefo
 
 The **256-step** pitch version. It works like [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256),
 with STL, L, LR and ENDL in **cents** (±4800) instead of volume. In 4.0.0 it
-replaced SSG SW PITCH ENV[256].
+replaced SSG SW PITCH ENV[11] from 3.6.3 and earlier.
 
 Placing a pitch per step makes **arpeggios** and siren-like moves within one note,
 and LOOP repeats them while the note sounds. After the release the pitch returns to

@@ -41,7 +41,6 @@ Available on every channel, operator and rhythm pad.
 | --- | --- | --- |
 | AMP ENV | level | ADSR, with the original KOR / XOF / bypass options |
 | SSG HW AMP ENV | level | the hardware envelope, plus original waveforms and a settable range |
-| SSG SW ENV | level | 6-tap, with a settable loop count (0 loops forever) |
 | SSG SW ENV256 | level | up to 256 steps |
 | PITCH ENV | pitch | 3-tap, ±4800 cents |
 | SSG SW PENV256 | pitch | up to 256 steps, ±4800 cents |

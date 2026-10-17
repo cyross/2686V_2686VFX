@@ -15,7 +15,6 @@ class AdpcmProcessor : public PrBase
     PrPtrsWtMod pWtMod;
     PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsPitchEnv pPitchEnv;
-    PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv256 pSsgSwEnv256;
     PrPtrsSsgSwPEnv256 pSsgSwPEnv256;
     PrPtrsSsgHwEnv pSsgHwEnv;

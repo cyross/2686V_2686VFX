@@ -2,7 +2,6 @@
 
 #include "Shared/Effect/Envelope/Amp/OplAdsr/EnvOplAdsrParams.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
 #include "Shared/Effect/Lfo/Opl/LfoOplParams.h"
 #include "Shared/Effect/Detune/Opl/DetuneOplParams.h"
 #include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
@@ -18,8 +17,6 @@ struct Opl3OpParams
     float delay = 0.0f;
 
     OplAdsrParams m_adsrParams;
-    bool ssgEnvEnable = false;
-    SsgSwEnvParams ssgSwEnv;
     bool ssgEnv256Enable = false;
     SsgSwEnv256Params ssgSwEnv256;
     bool pitchEnvEnable = true;

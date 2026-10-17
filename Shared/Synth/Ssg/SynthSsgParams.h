@@ -4,7 +4,6 @@
 
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
 #include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
 #include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
@@ -32,7 +31,6 @@ struct SsgParams
     AmpAdsrParams adsr;
     WtModParams wtMod;
     WtAmpModParams wtAmpMod;
-    SsgSwEnvParams ssgSwEnv;
     SsgSwEnv256Params ssgSwEnv256;
     PitchAdsrParams pitchAdsr;
     SsgSwPEnv256Params ssgSwPEnv256;

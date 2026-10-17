@@ -17,7 +17,6 @@
 #include "Shared/Gui/Components/Unison/Unison.h"
 #include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
-#include "Shared/Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/Midi/Midi.h"
 #include "Shared/Gui/Components/Edit/Edit.h"
@@ -62,7 +61,6 @@ class RhythmPadGui: public GuiBase
     // どれがどれを映しているのかを一枚ずつ確かめることになる。
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
-    GuiToggleButton graphBtnSsg;
     GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
 
@@ -87,7 +85,6 @@ private:
     GuiScrollGroup colOptional;
     GuiScrollGroup colAmpEnv;
     GuiScrollGroup colSsgHwEnv;
-    GuiScrollGroup colSsgSwEnv;
     GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
     GuiScrollGroup colPitchEnv;
@@ -181,7 +178,6 @@ private:
     GuiComponentPitchEnv pitchEnvComponent;
 
     // SSG SW Env
-    GuiComponentSsgSwEnv ssgSwEnvComponent;
 
     GuiComponentSsgSwEnv256 ssgSwEnv256Component;
     GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
@@ -213,14 +209,12 @@ public:
         padNameLabel(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
-        graphBtnSsg(context),
         graphBtnSsg256(context),
         graphBtnSsgP256(context),
         colForm(context),
         colOptional(context),
         colAmpEnv(context),
         colSsgHwEnv(context),
-        colSsgSwEnv(context),
         colSsgSwEnv256(context),
         colAmpMod(context),
         colPitchEnv(context),
@@ -275,7 +269,6 @@ public:
         modComponent(context),
         ampModComponent(context),
         pitchEnvComponent(context),
-        ssgSwEnvComponent(context),
         ssgSwEnv256Component(context),
         ssgSwPEnv256Component(context),
         mulDetuneComponent(context),
@@ -350,8 +343,6 @@ public:
     void exportSsgHwPEnvParam();
     void exportWtModParam();
     void exportWtAmpModParam();
-    void importSsgSwEnvParam();
-    void exportSsgSwEnvParam();
     void importSsgSwEnv256Param();
     void exportSsgSwEnv256Param();
     void importSsgSwPEnv256Param();
@@ -414,7 +405,6 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieWtAmpMod;
-    GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv256;
     GuiComponentImportExport ieSsgSwPEnv256;
     GuiComponentImportExport ieDetune;
@@ -490,8 +480,6 @@ public:
     void exportAmpEnvParam(int p);
     void importPitchEnvParam(int p);
     void exportPitchEnvParam(int p);
-    void importSsgSwEnvParam(int p);
-    void exportSsgSwEnvParam(int p);
     void importSsgSwEnv256Param(int p);
     void exportSsgSwEnv256Param(int p);
     void importSsgSwPEnv256Param(int p);

@@ -14,7 +14,7 @@ public:
 
     void paint(juce::Graphics& g) override;
 
-    enum class EnvType { Amp, Pitch, SsgSw, SsgSw256, SsgSwP256 };
+    enum class EnvType { Amp, Pitch, SsgSw256, SsgSwP256 };
 
     struct PhaseDef {
         float widthPx;
@@ -68,16 +68,6 @@ public:
     void setEnvelope(EnvType type, const juce::String& title, const std::vector<PhaseDef>& phases);
     void updatePitchEnv(
         const PitchEnvValues& v,
-        CurveCore* p_curveCore = nullptr,
-        bool isCurveMode = false,
-        int posIdx = 0
-    );
-    void updateSsgSwEnv(
-        const StepEnvHead& head,
-        // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
-        // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
-        const std::array<float, 7>& rVal, float rMax,
-        const std::array<float, 7>& lVal, float lMax,
         CurveCore* p_curveCore = nullptr,
         bool isCurveMode = false,
         int posIdx = 0

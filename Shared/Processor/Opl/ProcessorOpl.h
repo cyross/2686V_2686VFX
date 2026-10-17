@@ -26,7 +26,6 @@ class OplProcessor : public PrBase
     std::array<PrPtrsOplEg, OplPrValue::ops> pOpEg;
     std::array<PrPtrsOplLfo, OplPrValue::ops> pLfo;
     std::array<PrPtrsPitchEnvOp, OplPrValue::ops> pPitchEnv;
-    std::array<PrPtrsSsgSwEnvOp, OplPrValue::ops> pSsgSwEnv;
     std::array<PrPtrsSsgSwEnv256Op, OplPrValue::ops> pSsgSwEnv256;
     std::array<PrPtrsSsgSwPEnv256Op, OplPrValue::ops> pSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, OplPrValue::ops> pOpSsgHwPEnv;

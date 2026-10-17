@@ -39,7 +39,7 @@ are laid out the same either way.
 | [`.pitchEnv.json`](/2686V_2686VFX/en/reference/file-spec/pitchenv/) | Pitch envelope |
 | [`.ssgHwEnv.json`](/2686V_2686VFX/en/reference/file-spec/ssghwenv/) | SSG hardware level envelope |
 | [`.ssgHwPEnv.json`](/2686V_2686VFX/en/reference/file-spec/ssghwpenv/) | SSG hardware pitch envelope |
-| [`.ssgSwEnv.json`](/2686V_2686VFX/en/reference/file-spec/ssgswenv/) | SSG software envelope (6 taps) |
+| [`.ssgSwEnv.json`](/2686V_2686VFX/en/reference/file-spec/ssgswenv/) | SSG software envelope (6 taps; 3.6.3 and earlier; load only) |
 | [`.ssgSwEnv256.json`](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/) | SSG software level envelope (256 steps) |
 | [`.ssgSwPEnv256.json`](/2686V_2686VFX/en/reference/file-spec/ssgswpenv256/) | SSG software pitch envelope (256 steps) |
 | [`.ssgSwEnv11.json`](/2686V_2686VFX/en/reference/file-spec/ssgswenv11/) | The same, with 11 taps (3.6.3 and earlier; load only) |

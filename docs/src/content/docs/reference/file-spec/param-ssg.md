@@ -59,7 +59,7 @@ sidebar:
 | `fix` | 音程の固定。`enable` と `freq` を持ちます |
 | `ampEnv` | [ampEnv](/2686V_2686VFX/reference/file-spec/ampenv/) と同じ |
 | `pitchEnv` | [pitchEnv](/2686V_2686VFX/reference/file-spec/pitchenv/) と同じ |
-| `ssgSwEnv` | [ssgSwEnv](/2686V_2686VFX/reference/file-spec/ssgswenv/) と同じ |
+| `ssgSwEnv` | 3.6.3 までの 6 段の SSG SW AMP ENV。4.0.0 では書き出さない。読み込むと `ssgSwEnv256` へ写す（[ssgSwEnv](/2686V_2686VFX/reference/file-spec/ssgswenv/)） |
 | `ssgSwEnv256` | [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じ |
 | `ssgSwPEnv256` | [ssgSwPEnv256](/2686V_2686VFX/reference/file-spec/ssgswpenv256/) と同じ |
 | `mulDetune` | [mulDetune](/2686V_2686VFX/reference/file-spec/detune/) と同じ |
