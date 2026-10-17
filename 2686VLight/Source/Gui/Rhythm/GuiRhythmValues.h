@@ -23,7 +23,7 @@ namespace RhythmGuiValue
 
 	namespace MainGroup
 	{
-		static inline constexpr int width = 260;
+		static inline constexpr int width = 312;
 
 		namespace Separator
 		{
@@ -93,7 +93,7 @@ namespace RhythmGuiValue
 		// ぶんを足したものより狭くすると、Clear が見切れる。
 		namespace Col
 		{
-			static inline constexpr int width = 280;
+			static inline constexpr int width = 336;
 			static inline constexpr int gap = 10;
 
 			// TARGET の右へ出す「オペレーター1」などの名前と、その右の余白

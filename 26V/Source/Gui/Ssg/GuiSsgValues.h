@@ -23,7 +23,7 @@ namespace SsgGuiValue
 
 	namespace MainGroup
 	{
-		static inline constexpr int width = 260;
+		static inline constexpr int width = 312;
 
 		namespace Graph
 		{
@@ -39,6 +39,6 @@ namespace SsgGuiValue
 
 	namespace ParamGroup
 	{
-		static inline constexpr int width = 250;
+		static inline constexpr int width = 300;
 	}
 }

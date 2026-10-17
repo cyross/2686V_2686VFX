@@ -37,7 +37,7 @@ namespace WtPlusGuiValue
 
 	namespace MainGroup
 	{
-		static inline constexpr int width = 260;
+		static inline constexpr int width = 312;
 
 		namespace Graph
 		{

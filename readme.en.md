@@ -58,6 +58,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - A sound that used both the 6-step and [11] keeps [256] (the former [11]) and drops the 6-step, because one [256] cannot express the two multiplied together
   - RHYTHM pads now send [256] into its release on key-off too (the 6-step was released, [11] was not)
   - Fixed old parameters staying in the state after [11] was carried into [256], which overwrote the table with the old values on every load
+- **Groups are 1.2 times wider**
+  - Every channel's global group (260 → 312), the operator and pad columns (280 → 336), and SSG's square-wave (duty) and triangle-wave groups (250 → 300)
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

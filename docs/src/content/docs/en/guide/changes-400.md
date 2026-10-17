@@ -82,3 +82,11 @@ channel parameters, `.ssgSwEnv` files and curves.
 
 Along with this, RHYTHM pads now send [256] into its release on key-off too (the 6-step was
 released, [11] was not).
+
+## Wider groups
+
+Knobs and value fields were cramped, so groups are now 1.2 times wider.
+
+- Every channel's global group: 260 → 312
+- Operator and pad columns: 280 → 336
+- SSG's square-wave (duty) and triangle-wave groups: 250 → 300
