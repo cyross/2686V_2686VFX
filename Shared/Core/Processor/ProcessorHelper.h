@@ -580,6 +580,8 @@ namespace PrHelper {
 		ptPtrs.invert = apvts.getRawParameterValue(prefix + CPK::SsgDuty::inv);
 		ptPtrs.fc = apvts.getRawParameterValue(prefix + CPK::SsgDuty::fc);
 		ptPtrs.fcFluc = apvts.getRawParameterValue(prefix + CPK::SsgDuty::fcFluc);
+		ptPtrs.moreFc = apvts.getRawParameterValue(prefix + CPK::SsgDuty::moreFc);
+		ptPtrs.moreNes = apvts.getRawParameterValue(prefix + CPK::SsgDuty::moreNes);
 	}
 
 	static inline void setupSsgTri(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgTri& ptPtrs){
@@ -1305,6 +1307,8 @@ namespace PrHelper {
 		params.invert = getBool(ptPtrs.invert);
 		params.fc = getBool(ptPtrs.fc);
 		params.fcFluc = getFloat(ptPtrs.fcFluc);
+		params.moreFc = getBool(ptPtrs.moreFc);
+		params.moreNes = getBool(ptPtrs.moreNes);
 	}
 
 	static inline void applySsgTri(PrPtrsSsgTri& ptPtrs, SsgTriParams& params){
@@ -4263,6 +4267,18 @@ namespace PrHelper {
 			prefixName + CPN::SsgDuty::fcFluc, 
 			CPV::SsgDuty::FcFluc::min, CPV::SsgDuty::FcFluc::max, CPV::SsgDuty::FcFluc::initial
 		); // Famicom Mode Fluctuation: 0.0 ~ 1.0
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::SsgDuty::moreFc, 
+			prefixName + CPN::SsgDuty::moreFc, 
+			CPV::SsgDuty::MoreFc::initial
+		); // More Real FC
+		PrHelper::addBool(
+			layout, 
+			prefix + CPK::SsgDuty::moreNes, 
+			prefixName + CPN::SsgDuty::moreNes, 
+			CPV::SsgDuty::MoreNes::initial
+		); // More Real NES
 	}
 
 	static inline void addSsgTriParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {

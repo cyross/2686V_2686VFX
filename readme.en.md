@@ -36,6 +36,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **LEVEL / STEPS / DELAY now sit in an UNCATEGORIZED section**
   - The channel-wide LEVEL, STEPS and DELAY, which had no heading, now sit under "UNCATEGORIZED". It can be folded and starts open
   - Every channel. 2686VFX's output LEVEL is unchanged
+- **SSG: "More Real FC" and "More Real NES" for the pulse wave**
+  - Below FC FLUC in the pulse (duty) settings. They mimic the Famicom / NES (2A03) pulse channel (unrelated to FC FLUC)
+  - The duty snaps to the chip's 12.5 / 25 / 50 / 75%, the pitch to the 11-bit timer and the volume to 16 steps through the DAC curve. The output filter is a 37 Hz high-pass for FC, and 90 Hz / 440 Hz high-passes plus a 14 kHz low-pass for NES
+  - Only one of FC Mode, More Real FC and More Real NES can be on (all off is fine). Off by default, so existing sounds are unchanged
+  - Saved in parameter files and presets (`dutyMoreFc` / `dutyMoreNes`)
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

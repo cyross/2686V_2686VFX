@@ -119,6 +119,10 @@ class GuiSsg : public GuiBase
     GuiToggleButton dutyFcButton;
     GuiSlider dutyFcFlucSlider;
 
+    // ファミコン / NES の鳴り方。FC Mode と合わせて 1 つだけ入れられる。
+    GuiToggleButton dutyMoreFcButton;
+    GuiToggleButton dutyMoreNesButton;
+
     // Triangle
     GuiToggleButton triKeyTrackButton;
     GuiSlider triFreqSlider;
@@ -218,6 +222,8 @@ public:
         dutyInvertButton(context),
         dutyFcButton(context),
         dutyFcFlucSlider(context),
+        dutyMoreFcButton(context),
+        dutyMoreNesButton(context),
         triKeyTrackButton(context),
         triFreqSlider(context),
         triPeakSlider(context),

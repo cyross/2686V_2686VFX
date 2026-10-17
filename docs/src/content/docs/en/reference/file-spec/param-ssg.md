@@ -45,6 +45,8 @@ the default.
 | `dutyInvert` | boolean | false / true | false |
 | `dutyFc` | boolean | false / true | false |
 | `dutyFcFluc` | decimal | 0 – 1 | 0.2 |
+| `dutyMoreFc` | boolean | false / true | false |
+| `dutyMoreNes` | boolean | false / true | false |
 | `triKeyTrack` | boolean | false / true | true |
 | `triFreq` | decimal | 0 – 8000 | 440 |
 | `triPeak` | decimal | 0 – 1 | 0.5 |

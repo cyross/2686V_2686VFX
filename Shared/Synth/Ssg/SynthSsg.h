@@ -21,6 +21,7 @@
 #include "Shared/Generator/Fm/Fix/FmFix.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "../../Core/Synth/SynthInterp.h"
+#include "Shared/Generator/Pulse/GenPulse2A03.h"
 
 class SsgCore : public SynthCore
 {
@@ -92,6 +93,14 @@ private:
     bool m_dutyInvert = false;
     bool m_dutyFc = false;
     float m_dutyFcFluc = 0.2f;
+
+    // More Real FC / More Real NES。2A03 の矩形波を真似る。
+    bool m_dutyMoreFc = false;
+    bool m_dutyMoreNes = false;
+    Pulse2A03::OutputFilter m_2a03Filter;
+
+    // いま 2A03 の鳴り方で出すか (矩形波で、FC が切れていて、どちらかが入っている)
+    bool is2A03() const { return m_waveform == 0 && !m_dutyFc && (m_dutyMoreFc || m_dutyMoreNes); }
 
 	// Triangle Params
     bool m_triKeyTrack = true;

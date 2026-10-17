@@ -465,6 +465,8 @@ namespace CPN
 		static inline const juce::String invert = " Duty Invert";
 		static inline const juce::String fc = " Duty FC Mode";
 		static inline const juce::String fcFluc = " Duty FC Fluctuation";
+		static inline const juce::String moreFc = " Duty More Real FC";
+		static inline const juce::String moreNes = " Duty More Real NES";
 	}
 
 	namespace SsgTri

@@ -49,6 +49,20 @@ What appears below changes with the waveform you pick.
 | **RATIO** | The ratio when MODE is Variable | 0.0–1.0 | |
 | **FC Mode** | Behave the way the Famicom did (**ours**) | on / off (off by default) | |
 | **FC FLUC** | How much it fluctuates in FC Mode (**ours**) | 0.0–1.0 (0.2 by default) | |
+| **More Real FC** | Sound like the Famicom's (2A03) pulse channel (**ours**) | on / off (off by default) | 4.0.0 |
+| **More Real NES** | Sound like the NES's (2A03) pulse channel (**ours**) | on / off (off by default) | 4.0.0 |
+
+**Only one of FC Mode, More Real FC and More Real NES can be on** (all off is fine).
+Turning one on turns the other two off.
+
+More Real FC / More Real NES have nothing to do with FC FLUC. They mimic the 2A03 like this:
+
+- Only the chip's four duty cycles, **12.5% / 25% / 50% / 75%**. The one closest to the ratio from MODE, PRESET, RATIO and Invert Phrase is used, played with the chip's 8-step sequence
+- Pitch snaps to the 11-bit timer (fpulse = 1789772.7 / (16 × (t + 1))). Notes high enough to need t below 8 are silent
+- Volume is rounded to 16 steps and sent through the chip's non-linear DAC (95.88 / (8128 / v + 100))
+- The output swings between 0 and the volume, and the filters after it remove the DC. **This is where FC and NES differ**
+  - More Real FC: a 37 Hz high-pass
+  - More Real NES: 90 Hz and 440 Hz high-passes and a 14 kHz low-pass (thinner bass, a droop on long pulses)
 
 PRESET offers these eight duty cycles.
 
@@ -72,6 +86,8 @@ PRESET offers these eight duty cycles.
 | **Invert Phrase** | Turn the wave upside down | [`SSG_DUTY_INV`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-inv) |
 | **FC Mode** | Make the ratio waver slightly, the way the Famicom's did (**ours**) | [`SSG_DUTY_FC_MODE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-mode) |
 | **FC FLUC** | How large that wavering is | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-fluc) |
+| **More Real FC** | Sound like the Famicom's pulse channel (**ours**) | [`SSG_DUTY_MORE_FC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-more-fc) |
+| **More Real NES** | Sound like the NES's pulse channel (**ours**) | [`SSG_DUTY_MORE_NES`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-more-nes) |
 
 ### Triangle settings (ours)
 

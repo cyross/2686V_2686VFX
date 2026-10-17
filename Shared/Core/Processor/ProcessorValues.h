@@ -2094,6 +2094,16 @@ namespace CPV
 			inline constexpr float max = 1.0f;
 			inline constexpr float initial = 0.2f;
 		}
+
+		namespace MoreFc
+		{
+			inline constexpr bool initial = false;
+		}
+
+		namespace MoreNes
+		{
+			inline constexpr bool initial = false;
+		}
 	}
 
 	namespace SsgTri

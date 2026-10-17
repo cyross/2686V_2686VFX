@@ -50,6 +50,20 @@ SSG は、YM-2203/YM-2608B の SSG 部分(ルーツは、 AY-3-8910 系のいわ
 | **RATIO** | MODE が Variable のときの比率 | 0.0〜1.0 | |
 | **FC Mode** | ファミコン風の挙動にする（**独自**） | 入 / 切（初期は切） | |
 | **FC FLUC** | FC Mode のときの揺らぎの量（**独自**） | 0.0〜1.0（初期 0.2） | |
+| **More Real FC** | ファミコン（2A03）の矩形波の鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.0.0 |
+| **More Real NES** | NES（2A03）の矩形波の鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.0.0 |
+
+**FC Mode・More Real FC・More Real NES は、どれか 1 つだけ入れられます**（すべて切は可）。
+1 つを入れると、ほかの 2 つは切れます。
+
+More Real FC / More Real NES は FC FLUC とは別物で、2A03 の作りを次のように真似ます。
+
+- デューティ比は実機の **12.5% / 25% / 50% / 75%** の 4 種類だけ。MODE・PRESET・RATIO・Invert Phrase で決まる比に最も近いものを使い、実機と同じ 8 段の並びで出します
+- 音程は 11bit のタイマーの刻みへ寄せます（fpulse = 1789772.7 ÷ (16 × (t + 1))）。t が 8 未満になる高い音は鳴りません
+- 音量は 16 段へ丸め、実機の DAC の曲がり（95.88 ÷ (8128 ÷ v + 100)）を通します
+- 出力は 0 と音量の間を振れる単極で、後ろのフィルタが直流を抜きます。**ここが FC と NES の違いです**
+  - More Real FC: 37Hz のハイパス
+  - More Real NES: 90Hz と 440Hz のハイパス、14kHz のローパス（低音が細く、高い音のなまりが出る）
 
 PRESET で選べるデューティ比は次の 8 種類です。
 
@@ -73,6 +87,8 @@ PRESET で選べるデューティ比は次の 8 種類です。
 | **Invert Phrase** | 上下を入れ替える | [`SSG_DUTY_INV`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-inv) |
 | **FC Mode** | ファミコンのように、比が細かく揺れる動きにする（**独自**） | [`SSG_DUTY_FC_MODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-mode) |
 | **FC FLUC** | その揺れの大きさ | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-fluc) |
+| **More Real FC** | ファミコンの矩形波の鳴り方にする（**独自**） | [`SSG_DUTY_MORE_FC`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-more-fc) |
+| **More Real NES** | NES の矩形波の鳴り方にする（**独自**） | [`SSG_DUTY_MORE_NES`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-more-nes) |
 
 ### 三角波設定（独自）
 

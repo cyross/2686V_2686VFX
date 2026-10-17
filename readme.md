@@ -36,6 +36,11 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 - **LEVEL / STEPS / DELAY を UNCATEGORIZED 区分にまとめた**
   - どの区分にも入っていなかったチャンネルのグローバルの LEVEL・STEPS・DELAY を、見出し「UNCATEGORIZED」の下へ。開閉でき、最初は開いている
   - 全チャンネルが対象。2686VFX の出力の LEVEL はこれまでどおり
+- **SSG: 矩形波に「More Real FC」「More Real NES」を追加**
+  - 矩形波(デューティ比)設定の FC FLUC の下。ファミコン / NES (2A03) の矩形波の鳴り方を真似る (FC FLUC とは別物)
+  - デューティ比を実機の 12.5 / 25 / 50 / 75% へ寄せ、音程を 11bit タイマーの刻みへ、音量を 16 段と DAC の曲がりへ。出力のフィルタは FC が 37Hz のハイパス、NES が 90Hz・440Hz のハイパスと 14kHz のローパス
+  - FC Mode・More Real FC・More Real NES はどれか 1 つだけ入る (すべて切も可)。初期状態は切で、これまでの音は変わらない
+  - パラメータファイル・プリセットにも保存 (`dutyMoreFc` / `dutyMoreNes`)
 
 ### 3-0-2. v3.6.3での修正・変更
 

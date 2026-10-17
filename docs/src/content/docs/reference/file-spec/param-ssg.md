@@ -44,6 +44,8 @@ sidebar:
 | `dutyInvert` | 真偽 | false / true | false |
 | `dutyFc` | 真偽 | false / true | false |
 | `dutyFcFluc` | 小数 | 0 〜 1 | 0.2 |
+| `dutyMoreFc` | 真偽 | false / true | false |
+| `dutyMoreNes` | 真偽 | false / true | false |
 | `triKeyTrack` | 真偽 | false / true | true |
 | `triFreq` | 小数 | 0 〜 8000 | 440 |
 | `triPeak` | 小数 | 0 〜 1 | 0.5 |

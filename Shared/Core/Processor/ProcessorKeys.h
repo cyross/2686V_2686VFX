@@ -491,6 +491,10 @@ namespace CPK
 		static inline const juce::String inv = "_DUTY_INV";
 		static inline const juce::String fc = "_DUTY_FC_MODE";
 		static inline const juce::String fcFluc = "_DUTY_FC_FLUC";
+
+		// ファミコン / NES (2A03) の鳴り方。FC と合わせて 3 つのうち 1 つだけ入る。
+		static inline const juce::String moreFc = "_DUTY_MORE_FC";
+		static inline const juce::String moreNes = "_DUTY_MORE_NES";
 	};
 
 	namespace SsgTri

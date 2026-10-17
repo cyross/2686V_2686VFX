@@ -83,6 +83,8 @@ void SsgCore::setParameters(const SynthCoreParams& params)
     m_dutyInvert = params.ssg.duty.invert;
     m_dutyFc = params.ssg.duty.fc;
     m_dutyFcFluc = params.ssg.duty.fcFluc;
+    m_dutyMoreFc = params.ssg.duty.moreFc;
+    m_dutyMoreNes = params.ssg.duty.moreNes;
 
     m_triKeyTrack = params.ssg.tri.keyTrack;
     m_triPeak = params.ssg.tri.peak;
@@ -162,6 +164,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         m_rateAccumulator = 0.0;
         m_interp.reset();
         m_lastSample = 0.0f;
+        m_2a03Filter.reset();
     }
 
     if (!isLegato) {
@@ -370,6 +373,21 @@ float SsgCore::getSample()
         // FORM の TONE の VALUE: 鍵盤の周波数へ To から決まる倍率を掛ける
         phaseInc *= m_toneRatio;
 
+        // 2A03 の鳴り方では、周波数を 11bit タイマーの刻みへ寄せる。
+        // 実際に位相を進める量 (速さを掛けたもの) で寄せ、t < 8 は鳴らさない。
+        const bool use2A03 = is2A03();
+        bool silent2A03 = false;
+
+        if (use2A03) {
+            m_2a03Filter.prepare(m_targetRate, m_dutyMoreFc ? Pulse2A03::OutputFilter::Model::Fc : Pulse2A03::OutputFilter::Model::Nes);
+
+            const double effective = (double)phaseInc * (double)m_speed * m_targetRate;
+            const double quantized = Pulse2A03::quantizeFrequency(effective);
+
+            if (quantized <= 0.0 || m_speed <= 0.0f) silent2A03 = true;
+            else phaseInc = (float)(quantized / m_targetRate / (double)m_speed);
+        }
+
         // ==========================================
         // 1. Hardware Envelope Update
         // ==========================================
@@ -390,7 +408,16 @@ float SsgCore::getSample()
 
         if (m_waveform == 0) // Pulse
         {
-            if (m_dutyFc) {
+            if (use2A03) {
+                // FC FLUC とは別物。実機の 4 種のデューティ比へ寄せ、0 / 1 の単極で出す。
+                // 直流はあとのフィルタが抜く。
+                float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
+
+                if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
+
+                toneSample = silent2A03 ? 0.0f : Pulse2A03::sample(wavePhase, Pulse2A03::nearestDuty(currentDuty));
+            }
+            else if (m_dutyFc) {
                 float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
 
                 if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
@@ -432,6 +459,10 @@ float SsgCore::getSample()
 
         // 決めた回数まで回したら、キーが離れるまで同じ値を出し続ける
         if (m_hold.isHolding()) toneSample = m_hold.holdValue();
+
+        // 2A03 の出力の後ろのフィルタ。単極の 0〜1 を通すので、振れ幅を
+        // ほかの矩形波 (-1〜1) へ揃えるために 2 倍する。
+        if (use2A03) toneSample = m_2a03Filter.process(toneSample) * 2.0f;
 
         m_phase += phaseInc * m_speed;
         // ピッチエンベロープや PM で 1 サンプルの進みが 1.0 を超えても
@@ -486,6 +517,9 @@ float SsgCore::getSample()
     float fraction = (float)m_rateAccumulator;
 
     float interpolatedSample = m_interp.read(m_interpMode, fraction);
+
+    // 2A03 の音量は 4bit。エンベロープの値を 16 段へ丸め、DAC の曲がりを通す。
+    if (is2A03()) finalEnv = Pulse2A03::volume(finalEnv);
 
     return interpolatedSample * finalEnv * m_baseLevel * m_level * 4.0f;
 }

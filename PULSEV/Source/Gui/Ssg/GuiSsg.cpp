@@ -241,6 +241,30 @@ void GuiSsg::setup()
     dutyFcFlucSlider.setWantsKeyboardFocus(true);
     dutyFcFlucSlider.setExplicitFocusOrder(++tabOrder);
 
+    dutyMoreFcButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::moreFc, .title = SsgGuiText::Ssg::Duty::moreFc, .isReset = true });
+    dutyMoreFcButton.setWantsKeyboardFocus(true);
+    dutyMoreFcButton.setExplicitFocusOrder(++tabOrder);
+
+    dutyMoreNesButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::moreNes, .title = SsgGuiText::Ssg::Duty::moreNes, .isReset = true });
+    dutyMoreNesButton.setWantsKeyboardFocus(true);
+    dutyMoreNesButton.setExplicitFocusOrder(++tabOrder);
+
+    // FC Mode / More Real FC / More Real NES は 1 つだけ入る。入れたときに残りを切る。
+    // すべて切るのはかまわない。
+    auto makeExclusive = [this](GuiToggleButton& self, std::vector<GuiToggleButton*> others) {
+        self.onClick = [&self, others] {
+            if (!self.getToggleState()) return;
+
+            for (auto* other : others) {
+                if (other->getToggleState()) other->setToggleState(false, juce::sendNotification);
+            }
+            };
+        };
+
+    makeExclusive(dutyFcButton, { &dutyMoreFcButton, &dutyMoreNesButton });
+    makeExclusive(dutyMoreFcButton, { &dutyFcButton, &dutyMoreNesButton });
+    makeExclusive(dutyMoreNesButton, { &dutyFcButton, &dutyMoreFcButton });
+
     pulseInvCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::invert });
 
     dutyInvertButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true });
@@ -380,7 +404,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     // Wave Group
     float waveParam = *pluginOf(ctx).apvts.getRawParameterValue(code + CPK::ssgWaveform);
     int waveMode = PrHelper::floatToBoolToInt(waveParam);
-    auto waveArea = paramArea.removeFromTop(140);
+    // More Real FC / More Real NES の 2 行ぶん高くしてある
+    auto waveArea = paramArea.removeFromTop(140 + (CoreGuiValue::ParamGroup::Row::height + CoreGuiValue::ParamGroup::Row::paddingTop) * 2);
 
     if (waveMode == 0) // Pulse
     {
@@ -398,6 +423,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyVarSlider.setVisibleWithLabel(true);
         dutyFcButton.setVisible(true);
         dutyFcFlucSlider.setVisibleWithLabel(true);
+        dutyMoreFcButton.setVisible(true);
+        dutyMoreNesButton.setVisible(true);
         dutyInvertButton.setVisible(true);
 
         dutyGroup.setBounds(waveArea);
@@ -421,6 +448,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         layoutRow({ .rowRect = dRect, .component = &dutyFcButton });
         layoutRow({ .rowRect = dRect, .label = &dutyFcFlucSlider.label, .component = &dutyFcFlucSlider, });
+        layoutRow({ .rowRect = dRect, .component = &dutyMoreFcButton });
+        layoutRow({ .rowRect = dRect, .component = &dutyMoreNesButton });
 
         layoutRow({ .rowRect = dRect, .component = &dutyInvertButton, .paddingBottom = 0 });
     }
@@ -434,6 +463,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyPresetSelector.setVisibleWithLabel(false);
         dutyFcButton.setVisible(false);
         dutyFcFlucSlider.setVisibleWithLabel(false);
+        dutyMoreFcButton.setVisible(false);
+        dutyMoreNesButton.setVisible(false);
         dutyVarSlider.setVisibleWithLabel(false);
 
         triKeyTrackButton.setVisible(true);
@@ -953,6 +984,9 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
     dutyInvertButton.setToggleState(reader->getBool("dutyInvert", dutyInvertButton.getToggleState()), juce::sendNotification);
     dutyFcButton.setToggleState(reader->getBool("dutyFc", dutyFcButton.getToggleState()), juce::sendNotification);
     dutyFcFlucSlider.setValue(reader->getFloat("dutyFcFluc", (float)dutyFcFlucSlider.getValue()), juce::sendNotification);
+    // 4.0.0 で足した。古いファイルには無いので、無ければ切にする。
+    dutyMoreFcButton.setToggleState(reader->getBool("dutyMoreFc", false), juce::sendNotification);
+    dutyMoreNesButton.setToggleState(reader->getBool("dutyMoreNes", false), juce::sendNotification);
 
     // Triangle
     triKeyTrackButton.setToggleState(reader->getBool("triKeyTrack", triKeyTrackButton.getToggleState()), juce::sendNotification);
@@ -1073,6 +1107,8 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	writer.set("dutyInvert", dutyInvertButton.getToggleState());
 	writer.set("dutyFc", dutyFcButton.getToggleState());
 	writer.set("dutyFcFluc", (float)dutyFcFlucSlider.getValue());
+	writer.set("dutyMoreFc", dutyMoreFcButton.getToggleState());
+	writer.set("dutyMoreNes", dutyMoreNesButton.getToggleState());
 
 	// Triangle
 	writer.set("triKeyTrack", triKeyTrackButton.getToggleState());

@@ -102,6 +102,8 @@ namespace SsgGuiText
 			static inline const juce::String invert = u8"Invert Phrase";
 			static inline const juce::String fc = u8"FC Mode";
 			static inline const juce::String fcFluc = u8"FC FLUC";
+			static inline const juce::String moreFc = u8"More Real FC";
+			static inline const juce::String moreNes = u8"More Real NES";
 		}
 
 		namespace Tri

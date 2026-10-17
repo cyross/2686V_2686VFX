@@ -452,6 +452,8 @@ struct PrPtrsSsgDuty {
     std::atomic<float>* invert = nullptr;
     std::atomic<float>* fc = nullptr;
     std::atomic<float>* fcFluc = nullptr;
+    std::atomic<float>* moreFc = nullptr;
+    std::atomic<float>* moreNes = nullptr;
 };
 
 struct PrPtrsSsgTri {
