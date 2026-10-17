@@ -356,6 +356,10 @@ void GuiOpl::setup()
     //
     // 絵はオペレータの数だけ。設定はひとそろいだけ置き、TARGET で
     // 指し先を切り替える。
+    // TARGET の大きな枠。押しても何もしない (見るだけ)
+    bigCell.setup(*this, -1, "", false);
+    bigCell.setActive(true);
+
     for (int i = 0; i < OplPrValue::ops; ++i)
     {
         cells[(size_t)i].setup(*this, i, OplGuiText::Group::opPrefix + juce::String(i + 1), false);
@@ -738,29 +742,14 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     //
     // 絵は横 4 枚ずつ並べる。オペレータが 4 の倍数でないときは、
     // 足りないところを空けたままにする (詰めると番号と場所がずれる)。
-    constexpr int cols = 4;
-    constexpr int rows = (OplPrValue::ops + cols - 1) / cols;
+    // 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 (横 4 枚ずつ) を並べる。
+    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, OplPrValue::ops, false);
 
-    const int cellW = pageArea.getWidth() / cols;
-    const int cellH = GuiTargetCell::naturalHeight(false);
-
-    auto cellsArea = pageArea.removeFromTop(cellH * rows);
-
-    for (int r = 0; r < rows; ++r) {
-        auto rowArea = cellsArea.removeFromTop(cellH);
-
-        for (int col = 0; col < cols; ++col) {
-            const int i = r * cols + col;
-
-            auto cellArea = rowArea.removeFromLeft(cellW);
-
-            if (i >= OplPrValue::ops) continue;
-
-            cells[(size_t)i].layout(cellArea);
-
-            updateOpGraph(i);
-        }
+    for (int i = 0; i < OplPrValue::ops; ++i) {
+        updateOpGraph(i);
     }
+
+    bigCell.follow(&cells[(size_t)juce::jlimit(0, OplPrValue::ops - 1, currentOp())]);
 
     // 残りはすべて設定。
     layoutOpPanel(pageArea);
@@ -969,6 +958,9 @@ void GuiOpl::applyOpTarget()
     rebind(op);
 
     for (int i = 0; i < OplPrValue::ops; ++i) cells[(size_t)i].setActive(i == op);
+
+    // 大きな枠は指した枠を写す
+    bigCell.follow(&cells[(size_t)op]);
 
     // 鳴っていないオペレータは触れないようにしてある。指し先が変わったので
     // 入り切りを引き直す。

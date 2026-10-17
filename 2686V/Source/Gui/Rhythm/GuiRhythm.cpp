@@ -1294,7 +1294,8 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     ieUnison(context),
     ieChParam(context),
     padPanel(context),
-    cells{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
+    cells{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } },
+    bigCell(context)
 {
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
 }
@@ -1426,6 +1427,10 @@ void GuiRhythm::setup()
     //
     // 絵はパッドの数だけ。設定はひとそろいだけ置き、TARGET で
     // 指し先を切り替える。
+    // TARGET の大きな枠。押しても何もしない (見るだけ)
+    bigCell.setup(*this, -1, "", true);
+    bigCell.setActive(true);
+
     for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
         cells[(size_t)i].setup(*this, i,
@@ -1534,32 +1539,14 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     //
     // 絵は横 4 枚ずつ並べる。パッドが 4 の倍数でないときは、
     // 足りないところを空けたままにする (詰めると番号と場所がずれる)。
-    constexpr int cols = 4;
-    constexpr int rows = (RhythmPrValue::pads + cols - 1) / cols;
+    // 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 (横 4 枚ずつ) を並べる。
+    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, RhythmPrValue::pads, true);
 
-    const int cellW = pageArea.getWidth() / cols;
-
-    // 枠 1 枚の丈は部品が決める。見出し・波形・グラフを積んだ高さ。
-    const int cellH = GuiTargetCell::naturalHeight(true);
-
-
-    auto cellsArea = pageArea.removeFromTop(cellH * rows);
-
-    for (int r = 0; r < rows; ++r) {
-        auto rowArea = cellsArea.removeFromTop(cellH);
-
-        for (int col = 0; col < cols; ++col) {
-            const int i = r * cols + col;
-
-            auto cellArea = rowArea.removeFromLeft(cellW);
-
-            if (i >= RhythmPrValue::pads) continue;
-
-            cells[(size_t)i].layout(cellArea);
-
-            updatePadGraph(i);
-        }
+    for (int i = 0; i < RhythmPrValue::pads; ++i) {
+        updatePadGraph(i);
     }
+
+    bigCell.follow(&cells[(size_t)juce::jlimit(0, RhythmPrValue::pads - 1, currentPad())]);
 
     // 残りはすべて設定。
     padPanel.setBounds(pageArea);
@@ -1721,6 +1708,9 @@ void GuiRhythm::applyPadTarget()
     padPanel.rebind(pad);
 
     for (int i = 0; i < RhythmPrValue::pads; ++i) cells[(size_t)i].setActive(i == pad);
+
+    // 大きな枠は指した枠を写す
+    bigCell.follow(&cells[(size_t)pad]);
 }
 
 // 指し先を一時的に動かして何かをする。

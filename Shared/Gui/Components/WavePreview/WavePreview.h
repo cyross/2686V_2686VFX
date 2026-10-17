@@ -70,5 +70,20 @@ public:
 
     void clear();
 
+    // ほかの波形と同じものを描く
+    void copyFrom(const GuiWavePreview& other)
+    {
+        m_points = other.m_points;
+        m_mins = other.m_mins;
+        m_maxs = other.m_maxs;
+        m_markers = other.m_markers;
+        m_bipolar = other.m_bipolar;
+        m_hasData = other.m_hasData;
+        m_isEnvelope = other.m_isEnvelope;
+        m_lineColour = other.m_lineColour;
+        setEnabled(other.isEnabled());
+        repaint();
+    }
+
     void paint(juce::Graphics& g) override;
 };

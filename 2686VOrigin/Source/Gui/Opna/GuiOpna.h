@@ -251,6 +251,9 @@ class GuiOpna : public GuiBase
     // 上に並ぶ絵。オペレータの数だけ置く。
     std::array<GuiTargetCell, OpnaPrValue::ops> cells;
 
+    // 4.0.0: TARGET の大きな枠。指している小さな枠を写す
+    GuiTargetCell bigCell;
+
     // どのエンベロープを映すかの切り替え。絵ごとではなく、まとめて 1 つ。
     // TARGET のすぐ右へ置く。
     GuiToggleButton graphBtnAmp;
@@ -429,7 +432,8 @@ public:
         graphBtnPitch(context),
         graphBtnSsg256(context),
         graphBtnSsgP256(context),
-        cells{ GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context) }
+        cells{ GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context) },
+        bigCell(context)
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }

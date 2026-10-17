@@ -501,7 +501,8 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     graphBtnPitch(context),
     graphBtnSsg256(context),
     graphBtnSsgP256(context),
-    cells{ GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context) }
+    cells{ GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context) },
+    bigCell(context)
 {
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
 
@@ -893,6 +894,10 @@ void GuiOpzx7::setup()
     // 絵はオペレータの数だけ。WS の波形とエンベロープを積む。
     // 設定はひとそろいだけ置き、TARGET で
     // 指し先を切り替える。
+    // TARGET の大きな枠。押しても何もしない (見るだけ)
+    bigCell.setup(*this, -1, "", true);
+    bigCell.setActive(true);
+
     for (int i = 0; i < Opzx7PrValue::ops; ++i)
     {
         cells[(size_t)i].setup(*this, i, Opzx7GuiText::Group::opPrefix + juce::String(i + 1), true);
@@ -1550,30 +1555,15 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     //
     // 絵は横 4 枚ずつ並べる。オペレータが 4 の倍数でないときは、
     // 足りないところを空けたままにする (詰めると番号と場所がずれる)。
-    constexpr int cols = 4;
-    constexpr int rows = (Opzx7PrValue::ops + cols - 1) / cols;
+    // 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 (横 4 枚ずつ) を並べる。
+    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, Opzx7PrValue::ops, true);
 
-    const int cellW = pageArea.getWidth() / cols;
-    const int cellH = GuiTargetCell::naturalHeight(true);
-
-    auto cellsArea = pageArea.removeFromTop(cellH * rows);
-
-    for (int r = 0; r < rows; ++r) {
-        auto rowArea = cellsArea.removeFromTop(cellH);
-
-        for (int col = 0; col < cols; ++col) {
-            const int i = r * cols + col;
-
-            auto cellArea = rowArea.removeFromLeft(cellW);
-
-            if (i >= Opzx7PrValue::ops) continue;
-
-            cells[(size_t)i].layout(cellArea);
-
-            updateOpGraph(i);
-            updateCellWs(i);
-        }
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        updateOpGraph(i);
+        updateCellWs(i);
     }
+
+    bigCell.follow(&cells[(size_t)juce::jlimit(0, Opzx7PrValue::ops - 1, currentOp())]);
 
     // 残りはすべて設定。
     layoutOpPanel(pageArea);
@@ -2102,6 +2092,9 @@ void GuiOpzx7::applyOpTarget()
     rebind(op);
 
     for (int i = 0; i < Opzx7PrValue::ops; ++i) cells[(size_t)i].setActive(i == op);
+
+    // 大きな枠は指した枠を写す
+    bigCell.follow(&cells[(size_t)op]);
 
     // 鳴っていないオペレータは触れないようにしてある。指し先が変わったので
     // 入り切りを引き直す。

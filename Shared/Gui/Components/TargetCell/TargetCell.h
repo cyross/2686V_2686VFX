@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+#include <array>
 #include <functional>
 
 #include "Shared/Core/Gui/GuiBase.h"
@@ -29,7 +30,7 @@ enum class GuiEnvGraphMode { Amp, Pitch, SsgSw256, SsgSwP256 };
 // 枝が生える。
 //
 // 枠を押すと TARGET がそこへ移る。下の設定はまとめて切り替わる。
-class GuiTargetCell : public GuiBase
+class GuiTargetCell : public GuiBase, private juce::Timer
 {
     int m_index = 0;
 
@@ -43,6 +44,11 @@ class GuiTargetCell : public GuiBase
 
     // TARGET が指しているか。指している枠だけ濃い線で囲う。
     bool isActive = false;
+
+    // 写し元 (TARGET の大きな枠のときだけ)。見出し・波形・絵をそのまま写す。
+    const GuiTargetCell* m_source = nullptr;
+
+    void timerCallback() override;
 public:
     GuiTargetCell(const GuiContext& context) :
         GuiBase(context),
@@ -68,4 +74,48 @@ public:
 
     // 見出し・波形・グラフを積んだときの丈。枠を並べる側が区画を取るのに使う。
     static int naturalHeight(bool withPreview);
+
+    ~GuiTargetCell() override { stopTimer(); }
+
+    // TARGET の大きな枠にする。source の見出し・波形・絵を写し続ける
+    // (小さな枠は値が変わるたびに描き直されるので、それを追う)。
+    void follow(const GuiTargetCell* source);
+
+    // ---- 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 ----
+    //
+    // 丈は波形つきの枠 2 段ぶん (OPZX7S / RHYTHM の絵の丈) にそろえる。大きな
+    // 枠の幅は、これまでの枠の縦横比 (横 4 枚に割った幅 × 1 枚の丈) を保つ。
+    // 小さな枠はこれまでどおり横 4 枚ずつで、残りの幅と丈へ縮めて並べる。
+    template <size_t N>
+    static void layoutBigAndSmall(juce::Rectangle<int>& pageArea, GuiTargetCell& big, std::array<GuiTargetCell, N>& cells, int count, bool withPreview)
+    {
+        constexpr int cols = 4;
+
+        const int rows = juce::jmax(1, (count + cols - 1) / cols);
+        const int oldW = pageArea.getWidth() / cols;
+        const int oldH = naturalHeight(withPreview);
+        const int height = naturalHeight(true) * 2;
+
+        auto area = pageArea.removeFromTop(height);
+
+        // 小さな枠が潰れないよう、大きな枠は幅の半分までにする
+        const int bigW = juce::jmin(area.getWidth() / 2, (int)((double)height * oldW / juce::jmax(1, oldH)));
+
+        big.layout(area.removeFromLeft(bigW));
+
+        const int cellW = area.getWidth() / cols;
+        const int cellH = height / rows;
+
+        for (int r = 0; r < rows; ++r) {
+            auto rowArea = area.removeFromTop(cellH);
+
+            for (int c = 0; c < cols; ++c) {
+                const int i = r * cols + c;
+
+                auto cellArea = rowArea.removeFromLeft(cellW);
+
+                if (i < count && i < (int)N) cells[(size_t)i].layout(cellArea);
+            }
+        }
+    }
 };

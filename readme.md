@@ -86,6 +86,10 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - プリセット・チャンネルパラメータ (`tapAmp` / `tapPitch`) に保存。区分のパラメータファイルは `.tapAmp` / `.tapPitch`
 - **段の値の一覧を 1 行 4 個に**
   - SSG SW AMP / PITCH ENV[256]・DUTY / PEAK RATIO ENVELOPE・TL ENV・ALG ENV・TAP SEQUENCER の値の一覧。「見出し: 値」を「 / 」で区切って並べる
+- **オペレーター / パッドのグラフを「左に大きな TARGET の絵、右に小さな全部の絵」に**
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM。丈は OPZX7S / RHYTHM の絵の丈にそろえ、大きな絵の幅はこれまでの縦横比に合わせた
+  - 大きな絵は TARGET で切り替え、すぐにそのオペレーター・パッドの値になる。OPZX7S / RHYTHM は波形も大きな絵の上に出す
+  - 小さな絵はこれまでどおり横 4 枚ずつ (1 画面に最大 8 枚) で、そのぶん縮めた
 
 ### 3-0-2. v3.6.3での修正・変更
 

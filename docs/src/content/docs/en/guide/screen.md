@@ -65,7 +65,8 @@ which one it points at.
 
 | Part | What it does |
 | --- | --- |
-| Frames at the top | one envelope display per operator (or pad), four to a row. **Clicking one moves TARGET there** |
+| Large frame on the left | a large view of the operator (or pad) TARGET points at (from 4.0.0). On tabs with a wave (OPZX7S / RHYTHM), the wave is shown large above it. Switching TARGET updates it at once |
+| Small frames on the right | one envelope display per operator (or pad), four to a row. **Clicking one moves TARGET there** |
 | Outline | only the frame TARGET points at is drawn with a heavy border |
 | TARGET | the operator (or pad) the settings below point at. It is remembered when the window closes |
 | Name | to the right of TARGET, the name of what it points at ("オペレーター1", "Pad 1 (BD)" and so on) |

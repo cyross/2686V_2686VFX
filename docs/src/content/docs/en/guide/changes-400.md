@@ -131,3 +131,9 @@ Along with this, step value lists now show four per row, as "label: value" separ
 
 Switch them on with **Enable**. They start off, so existing patches sound the same.
 See [TAP SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-sequencer) for details.
+
+## Larger operator / pad graphs
+
+The graphs at the top of operator / pad tabs are now **a large TARGET view on the left and small
+views of all of them on the right**. The large view follows TARGET at once and, on OPZX7S / RHYTHM,
+shows the wave large too. The small views stay four to a row; clicking one moves TARGET there.

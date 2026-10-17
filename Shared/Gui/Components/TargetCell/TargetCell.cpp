@@ -83,3 +83,23 @@ void GuiTargetCell::mouseDown(const juce::MouseEvent&)
     // 枠を押したらそこへ TARGET を移す。下の設定もまとめて切り替わる。
     if (onSelect) onSelect(m_index);
 }
+
+void GuiTargetCell::follow(const GuiTargetCell* source)
+{
+    m_source = source;
+
+    timerCallback();
+
+    if (m_source != nullptr) startTimerHz(10);
+    else stopTimer();
+}
+
+void GuiTargetCell::timerCallback()
+{
+    if (m_source == nullptr) return;
+
+    titleLabel.setText(m_source->titleLabel.getText(), juce::dontSendNotification);
+    m_graph.copyFrom(m_source->m_graph);
+
+    if (hasPreview && m_source->hasPreview) m_preview.copyFrom(m_source->m_preview);
+}

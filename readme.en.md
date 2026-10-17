@@ -86,6 +86,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Saved in presets and channel parameters (`tapAmp` / `tapPitch`). The section parameter files are `.tapAmp` / `.tapPitch`
 - **Step value lists show four per row**
   - The value lists of SSG SW AMP / PITCH ENV[256], DUTY / PEAK RATIO ENVELOPE, TL ENV, ALG ENV and TAP SEQUENCER, as "label: value" separated by " / "
+- **Operator / pad graphs: a large TARGET view on the left, small views of all on the right**
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM. The height matches the OPZX7S / RHYTHM display, and the large view keeps the previous aspect ratio
+  - The large view follows TARGET and updates at once. On OPZX7S / RHYTHM the wave is shown large above it
+  - The small views stay four to a row (up to eight on screen), shrunk to fit
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

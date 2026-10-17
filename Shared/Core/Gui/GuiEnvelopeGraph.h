@@ -104,6 +104,18 @@ public:
     );
     void updateBypass(bool bypass) { this->isBypass = bypass; }
 
+    // ほかの絵と同じものを描く (TARGET の大きな枠が、指している小さな枠を写す)
+    void copyFrom(const GuiEnvelopeGraph& other)
+    {
+        currentType = other.currentType;
+        currentTitle = other.currentTitle;
+        currentPhases = other.currentPhases;
+        isBypass = other.isBypass;
+        keepLevels = other.keepLevels;
+        setEnabled(other.isEnabled());
+        repaint();
+    }
+
     // KEEP のとき、段のあいだレベルを保つ絵にする。
     //
     // setEnvelope へ渡す前に立てておくこと。渡された段の並びを

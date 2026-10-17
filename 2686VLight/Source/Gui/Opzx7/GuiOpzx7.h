@@ -312,6 +312,9 @@ class GuiOpzx7 : public GuiBase
     // 上に並ぶ絵。オペレータの数だけ置く。
     std::array<GuiTargetCell, Opzx7PrValue::ops> cells;
 
+    // 4.0.0: TARGET の大きな枠。指している小さな枠を写す
+    GuiTargetCell bigCell;
+
     // どのエンベロープを映すかの切り替え。絵ごとではなく、まとめて 1 つ。
     // TARGET のすぐ右へ置く。
     GuiToggleButton graphBtnAmp;

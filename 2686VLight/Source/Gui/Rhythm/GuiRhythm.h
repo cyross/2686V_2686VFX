@@ -427,6 +427,9 @@ class GuiRhythm : public GuiBase
     // 上に並ぶ絵。こちらはパッドの数だけ置く。
     std::array<GuiTargetCell, RhythmPrValue::pads> cells;
 
+    // 4.0.0: TARGET の大きな枠。指している小さな枠を写す
+    GuiTargetCell bigCell;
+
 
     // 指し先を一時的に動かして何かをする。
     //
