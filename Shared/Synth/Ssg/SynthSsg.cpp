@@ -159,6 +159,11 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
             m_lfo.noteOn();
         }
 
+        // 2A03 は $4003 / $4007 を書くとシーケンサが先頭へ戻る。ドライバは
+        // 押すたびに書くので、ユニゾンのずらしを使わず先頭から鳴らす
+        // (デューティ比 12.5〜50% は Low の段から始まる)。
+        if (is2A03()) m_phase = 0.0f;
+
         m_ssgHwEnv.noteOn();
         m_ssgHwPEnv.noteOn();
         m_rateAccumulator = 0.0;
