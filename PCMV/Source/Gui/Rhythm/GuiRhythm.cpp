@@ -135,6 +135,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     padTarget.onValueChange = [this] { if (onTargetChange) onTargetChange(); };
 
     padTargetSeparator.setupComponent(*this);
+    padTargetBoard.setupComponent(*this);
 
     // どのエンベロープを映すかの切り替え。TARGET のすぐ右へ置く。
     auto setupModeBtn = [this, &tabOrder](GuiToggleButton& btn, const juce::String& text,
@@ -380,6 +381,7 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     // その下へ区切り線を引いて、設定と切り離す。
     {
         auto row = area.removeFromTop(20);
+        const auto rowAll = row;
         auto slot = row.removeFromLeft(RhythmGuiValue::Pad::Col::width);
 
         layoutMain({ .mainRect = slot, .label = &padTarget.label, .component = &padTarget });
@@ -403,6 +405,9 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
             graphBtnSsg256.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP256.setBounds(btnRow);
         }
+
+        // 帯の背後へ板を敷く。左端から切り替えの右端まで
+        padTargetBoard.setBounds(rowAll.withRight(row.getX()).expanded(2, 1));
     }
 
     padTargetSeparator.layoutComponent(area);
@@ -1540,7 +1545,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     // 絵は横 4 枚ずつ並べる。パッドが 4 の倍数でないときは、
     // 足りないところを空けたままにする (詰めると番号と場所がずれる)。
     // 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 (横 4 枚ずつ) を並べる。
-    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, RhythmPrValue::pads, true);
+    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, RhythmPrValue::pads, true, 4);
 
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
         updatePadGraph(i);

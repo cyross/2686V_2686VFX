@@ -203,6 +203,9 @@ private:
     GuiSlider padTarget;
     NormalSeparator padTargetSeparator;
 
+    // 一番上の帯の背後へ敷く板。壁紙の上でも読めるようにする
+    GuiRowBoard padTargetBoard;
+
     // 描き直しが入れ子で走らないようにする印。
     bool isUpdatingGraph = false;
 public:

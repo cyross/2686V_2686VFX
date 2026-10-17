@@ -538,6 +538,7 @@ void GuiOpna::setup()
         .justification = juce::Justification::centredLeft });
 
     opTargetSeparator.setupComponent(*this);
+    opTargetBoard.setupComponent(*this);
 
     // どのエンベロープを映すかの切り替え。TARGET のすぐ右へ置く。
     auto setupModeBtn = [this, &tabOrder](GuiToggleButton& btn, const juce::String& text,
@@ -876,8 +877,8 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     //
     // 絵は横 4 枚ずつ並べる。オペレータが 4 の倍数でないときは、
     // 足りないところを空けたままにする (詰めると番号と場所がずれる)。
-    // 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 (横 4 枚ずつ) を並べる。
-    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, OpnaPrValue::ops, false);
+    // 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 (横 2 枚ずつ) を並べる。
+    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, OpnaPrValue::ops, false, 2);
 
     for (int i = 0; i < OpnaPrValue::ops; ++i) {
         updateOpGraph(i);
@@ -1293,6 +1294,7 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
 {
     {
         auto row = area.removeFromTop(20);
+        const auto rowAll = row;
         auto slot = row.removeFromLeft(OpnaGuiValue::Fm::Op::Col::width);
 
         layoutMain({ .mainRect = slot, .label = &targerOpSlider.label, .component = &targerOpSlider });
@@ -1316,6 +1318,9 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
             graphBtnSsg256.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP256.setBounds(btnRow);
         }
+
+        // 帯の背後へ板を敷く。左端から切り替えの右端まで
+        opTargetBoard.setBounds(rowAll.withRight(row.getX()).expanded(2, 1));
     }
 
     opTargetSeparator.layoutComponent(area);
