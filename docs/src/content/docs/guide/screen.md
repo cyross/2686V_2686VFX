@@ -75,7 +75,7 @@ OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM のタブは、**上にエンベ
 | 枠線 | TARGET が指している枠だけ濃く囲います |
 | TARGET | 下の設定が指しているオペレーター（パッド）。画面を閉じても覚えています |
 | 名前 | TARGET の右に、指しているものの名前（「オペレーター1」「Pad 1 (BD)」など）が出ます |
-| AMP / PIT / SSG / S11 / P11 | 上のエンベロープグラフに**どのエンベロープを映すか**。枠ごとではなく全部まとめて切り替わります |
+| AMP / PIT / SSG / S256 / P256 | 上のエンベロープグラフに**どのエンベロープを映すか**。枠ごとではなく全部まとめて切り替わります |
 | 設定の列 | 区分が横へ 1 列ずつ並びます。あふれたぶんは下の送り棒で送ります |
 
 エンベロープグラフに出るものはタブによって少し違います。
@@ -153,8 +153,8 @@ TARGET で指し先を切り替えたときや、プリセットを読み込ん�
 
 | 大区分 | 中に入る区分 |
 | --- | --- |
-| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
-| **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 
 - 対象は OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 / WT+ /
   ADPCM / ADPCM+ / BEEP のタブです。区分の並び順は変わりません
@@ -196,8 +196,8 @@ WT PITCH MOD が残るのはそのためです。2686VFX では変調の枠が�
 
 | 区分 |
 | --- |
-| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
-| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 | LFO / MUL・DET / FIX / UNISON・HARMONY |
 
 設定は他の項目と同じく設定ファイルへ保存されます。

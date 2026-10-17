@@ -69,7 +69,7 @@ which one it points at.
 | Outline | only the frame TARGET points at is drawn with a heavy border |
 | TARGET | the operator (or pad) the settings below point at. It is remembered when the window closes |
 | Name | to the right of TARGET, the name of what it points at ("オペレーター1", "Pad 1 (BD)" and so on) |
-| AMP / PIT / SSG / S11 / P11 | **which envelope the envelope displays show** — switched for all frames at once, not per frame |
+| AMP / PIT / SSG / S256 / P256 | **which envelope the envelope displays show** — switched for all frames at once, not per frame |
 | Setting columns | one section per column, side by side; the scrollbar underneath reaches the rest |
 
 What a frame shows differs a little by tab.
@@ -149,8 +149,8 @@ to follow. Added in 3.4.0.
 
 | Major category | Sections inside |
 | --- | --- |
-| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
-| **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 
 - They appear on the OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 /
   WT+ / ADPCM / ADPCM+ / BEEP tabs. The order of the sections is unchanged
@@ -191,8 +191,8 @@ there is kept on screen even while simple view is on.
 
 | Sections |
 | --- |
-| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[11] / WT AMP MOD |
-| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[11] / WT PITCH MOD |
+| AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
+| PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 | LFO / MUL・DET / FIX / UNISON・HARMONY |
 
 The setting is saved to the settings file along with everything else.

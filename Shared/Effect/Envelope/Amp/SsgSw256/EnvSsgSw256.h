@@ -1,74 +1,27 @@
 ﻿#pragma once
 
-#include <array>
-#include <functional>
-
 #include "./EnvSsgSw256Params.h"
-#include "../../../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Step/EnvStep.h"
 
+// SSG SW AMP ENV[256]。音量へ掛ける倍率を返す。中身は 256 段の
+// エンベロープ (StepEnv) で、バイパスのあいだは 1 (掛けない) を返す。
+//
+// 3.6.3 までの SSG SW AMP ENV[11] (10 段 + リリース) と SSG SW AMP ENV
+// (6 段) の代わり。どちらも、段を表へ写せばこれで同じ動きになる。
 class SsgSwEnv256 {
-	enum class State { Idle, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11 };
-	State state = State::Idle;
-
-	float m_currentRate = 0.0f;
-
-	int steps = 4;
-	bool loop = false;
-	int loopTo = 0;
-	int loopCount = 0;
-	std::array<float, 12> r = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-	std::array<float, 12> l = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-
-	// リリースを走り終えたあとに保つレベル。
-	// 0.0 のままなら、これまでどおり l[11] を保つ。
-	float endl = 0.0f;
-
-	// ENDL を使うかどうか。切のあいだは、これまでどおり l[11] を保つ。
-	bool endlEnable = false;
-
-	// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
-	bool keep = false;
-
-	// KEEP のときに返す値。段が変わるたびに取り直す。
-	float m_keepLevel = 0.0f;
-
-	bool bypass = false;
-
-	double sampleRate = 44100.0; // DAW Host Sample Rate
-
-	float currentLevel = 0.0f;
-
-	std::array<float, 12> rInc = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-	std::array<float, 12> rIncLoop = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-
-	int loopCounter = 0;
-
-	void updateIncrements();
-	inline bool isReached(float inc, float current, float target) const; 
-
-	// カーブモード用の変数
-	int targetIndex = 0;
-	CurveCore* m_curveCore = nullptr;
-
-	// カーブモード用の時間管理変数
-	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
-	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
+	StepEnv env;
 public:
-	SsgSwEnv256();
 	void prepare(int targetIndex, double sampleRate);
-	void updateSampleRate(double newSampleRate);
-	void updateTargetSampleRate(double newSampleRate);
-	bool isPlaying() const { return state != State::Idle; }
-	bool isIdle() const { return state == State::Idle; }
-	bool isRelease() const { return state == State::S6; }
-	bool isBypass() const { return bypass; }
-	void setParameters(const SsgSwEnv256Params& params);
-	void setCurveCore(CurveCore* core) { m_curveCore = core; }
-	void noteOn();
-	void noteOff();
-
-	// 段を 1 サンプルぶん進める。KEEP を挟むため process から呼ぶ。
-	float processStep();
+	void updateSampleRate(double newSampleRate) { env.updateTargetSampleRate(newSampleRate); }
+	void updateTargetSampleRate(double newSampleRate) { env.updateTargetSampleRate(newSampleRate); }
+	bool isPlaying() const { return env.isPlaying(); }
+	bool isIdle() const { return env.isIdle(); }
+	bool isRelease() const { return env.isRelease(); }
+	bool isBypass() const { return env.isBypass(); }
+	void setParameters(const SsgSwEnv256Params& params) { env.setParameters(params); }
+	void setCurveCore(CurveCore* core) { env.setCurveCore(core); }
+	void noteOn() { env.noteOn(); }
+	void noteOff() { env.noteOff(); }
 	float process();
-	void bypassedReleasedProcess();
+	void bypassedReleasedProcess() { env.stop(); }
 };

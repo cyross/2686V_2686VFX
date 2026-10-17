@@ -1,10 +1,12 @@
 ﻿#pragma once
 
+#include "Shared/Core/Synth/StepTable.h"
 #include <JuceHeader.h>
 #include <array>
 
 #include "./GuiEnvelopeGraph.h"
 #include "../Processor/ProcessorKeys.h"
+#include "../Processor/ProcessorValues.h"
 
 // ==========================================================
 // グラフの材料を、つまみを通さずにパラメータから採る
@@ -69,57 +71,6 @@ namespace GuiGraphValues
 
         inline constexpr List ssgSwEnvLevel{ makeSsgSwEnvLevel };
 
-        inline const juce::String* makeSsgSwEnv256Rate()
-        {
-            static const juce::String keys[] = {
-                CPK::SsgSwEnv256::r1, CPK::SsgSwEnv256::r2, CPK::SsgSwEnv256::r3, CPK::SsgSwEnv256::r4,
-                CPK::SsgSwEnv256::r5, CPK::SsgSwEnv256::r6, CPK::SsgSwEnv256::r7, CPK::SsgSwEnv256::r8,
-                CPK::SsgSwEnv256::r9, CPK::SsgSwEnv256::r10, CPK::SsgSwEnv256::r11
-            };
-
-            return keys;
-        }
-
-        inline constexpr List ssgSwEnv256Rate{ makeSsgSwEnv256Rate };
-
-        inline const juce::String* makeSsgSwEnv256Level()
-        {
-            static const juce::String keys[] = {
-                CPK::SsgSwEnv256::stl, CPK::SsgSwEnv256::l1, CPK::SsgSwEnv256::l2, CPK::SsgSwEnv256::l3,
-                CPK::SsgSwEnv256::l4, CPK::SsgSwEnv256::l5, CPK::SsgSwEnv256::l6, CPK::SsgSwEnv256::l7,
-                CPK::SsgSwEnv256::l8, CPK::SsgSwEnv256::l9, CPK::SsgSwEnv256::l10, CPK::SsgSwEnv256::l11
-            };
-
-            return keys;
-        }
-
-        inline constexpr List ssgSwEnv256Level{ makeSsgSwEnv256Level };
-
-        inline const juce::String* makeSsgSwPEnv256Rate()
-        {
-            static const juce::String keys[] = {
-                CPK::SsgSwPEnv256::r1, CPK::SsgSwPEnv256::r2, CPK::SsgSwPEnv256::r3, CPK::SsgSwPEnv256::r4,
-                CPK::SsgSwPEnv256::r5, CPK::SsgSwPEnv256::r6, CPK::SsgSwPEnv256::r7, CPK::SsgSwPEnv256::r8,
-                CPK::SsgSwPEnv256::r9, CPK::SsgSwPEnv256::r10, CPK::SsgSwPEnv256::r11
-            };
-
-            return keys;
-        }
-
-        inline constexpr List ssgSwPEnv256Rate{ makeSsgSwPEnv256Rate };
-
-        inline const juce::String* makeSsgSwPEnv256Level()
-        {
-            static const juce::String keys[] = {
-                CPK::SsgSwPEnv256::stl, CPK::SsgSwPEnv256::l1, CPK::SsgSwPEnv256::l2, CPK::SsgSwPEnv256::l3,
-                CPK::SsgSwPEnv256::l4, CPK::SsgSwPEnv256::l5, CPK::SsgSwPEnv256::l6, CPK::SsgSwPEnv256::l7,
-                CPK::SsgSwPEnv256::l8, CPK::SsgSwPEnv256::l9, CPK::SsgSwPEnv256::l10, CPK::SsgSwPEnv256::l11
-            };
-
-            return keys;
-        }
-
-        inline constexpr List ssgSwPEnv256Level{ makeSsgSwPEnv256Level };
     }
 
     // ------------------------------------------------------
@@ -246,18 +197,51 @@ namespace GuiGraphValues
             Keys::ssgSwEnvRate.data(), Keys::ssgSwEnvLevel.data());
     }
 
-    inline StepEnvValues<12> ssgSwEnv256(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
+    // 256 段のエンベロープ。頭はパラメータ、段の R / L は表から引く。
+    // 段の数ぶんだけ (使っている段まで) を並べる。
+    inline GuiEnvelopeGraph::StepEnvValues stepEnv256(juce::AudioProcessorValueTreeState& apvts, const StepTableStore& tables,
+        const juce::String& code, const juce::String& tableKey,
+        const juce::String& stepsKey, const juce::String& loopKey, const juce::String& loopToKey, const juce::String& loopCountKey,
+        const juce::String& stlKey, const juce::String& rrKey, const juce::String& lrKey, float levelMax)
     {
-        return stepEnv<12>(apvts, code,
-            CPK::SsgSwEnv256::steps, CPK::SsgSwEnv256::loop, CPK::SsgSwEnv256::loopTo, CPK::SsgSwEnv256::loopCount,
-            Keys::ssgSwEnv256Rate.data(), Keys::ssgSwEnv256Level.data());
+        GuiEnvelopeGraph::StepEnvValues v;
+
+        v.head.steps = juce::jmax(1, (int)value(apvts, code + stepsKey));
+        v.head.loop = flag(apvts, code + loopKey);
+        v.head.loopTo = (int)value(apvts, code + loopToKey);
+        v.head.loopCount = (int)value(apvts, code + loopCountKey);
+
+        const auto* table = tables.find(code + tableKey);
+
+        v.r.assign((size_t)v.head.steps + 1, 0.0f);
+        v.l.assign((size_t)v.head.steps + 1, 0.0f);
+        v.l[0] = value(apvts, code + stlKey);
+
+        for (int s = 1; s <= v.head.steps && table != nullptr; ++s) {
+            v.r[(size_t)s] = table->rate(s);
+            v.l[(size_t)s] = table->level(s);
+        }
+
+        v.rr = value(apvts, code + rrKey);
+        v.lr = value(apvts, code + lrKey);
+        v.rMax = maxOf(apvts, code + rrKey);
+        v.lMax = levelMax;
+
+        return v;
     }
 
-    inline StepEnvValues<12> ssgSwPEnv256(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
+    inline GuiEnvelopeGraph::StepEnvValues ssgSwEnv256(juce::AudioProcessorValueTreeState& apvts, const StepTableStore& tables, const juce::String& code)
     {
-        return stepEnv<12>(apvts, code,
+        return stepEnv256(apvts, tables, code, CPK::ssgSwEnv256,
+            CPK::SsgSwEnv256::steps, CPK::SsgSwEnv256::loop, CPK::SsgSwEnv256::loopTo, CPK::SsgSwEnv256::loopCount,
+            CPK::SsgSwEnv256::stl, CPK::SsgSwEnv256::rr, CPK::SsgSwEnv256::lr, CPV::SsgSwEnv256::L::max);
+    }
+
+    inline GuiEnvelopeGraph::StepEnvValues ssgSwPEnv256(juce::AudioProcessorValueTreeState& apvts, const StepTableStore& tables, const juce::String& code)
+    {
+        return stepEnv256(apvts, tables, code, CPK::ssgSwPEnv256,
             CPK::SsgSwPEnv256::steps, CPK::SsgSwPEnv256::loop, CPK::SsgSwPEnv256::loopTo, CPK::SsgSwPEnv256::loopCount,
-            Keys::ssgSwPEnv256Rate.data(), Keys::ssgSwPEnv256Level.data());
+            CPK::SsgSwPEnv256::stl, CPK::SsgSwPEnv256::rr, CPK::SsgSwPEnv256::lr, (float)CPV::SsgSwPEnv256::L::max);
     }
 
     inline bool ssgSwEnv256Keep(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)

@@ -26,5 +26,5 @@ public:
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;
     // modWaves は WT PITCH MOD の変調波形の置き場所。
     // パラメータではなくプロセッサが持つので、ここで受け取る。
-    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves);
+    void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables);
 };

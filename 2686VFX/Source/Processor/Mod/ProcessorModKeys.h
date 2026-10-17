@@ -100,10 +100,11 @@ namespace ModPrKey
 			{ "_KEY_AMPENV",      "ampEnv",      "AMP ENV" },
 			{ "_KEY_SSGHWENV",    "ssgHwEnv",    "SSG HW AMP ENV" },
 			{ "_KEY_WTAMPMOD",    "wtAmpMod",    "WT AMP MOD" },
-			{ "_KEY_SSGSWENV11",  "ssgSwEnv256",  "SSG SW AMP ENV[11]" },
+			// ID と鍵は [11] のころのまま。割り当てていた鍵盤を引き継ぐ
+			{ "_KEY_SSGSWENV11",  "ssgSwEnv11",  "SSG SW AMP ENV[256]" },
 			{ "_KEY_PITCHENV",    "pitchEnv",    "PITCH ENV" },
 			{ "_KEY_SSGHWPENV",   "ssgHwPEnv",   "SSG HW PITCH ENV" },
-			{ "_KEY_SSGSWPENV11", "ssgSwPEnv256", "SSG SW PITCH ENV[11]" },
+			{ "_KEY_SSGSWPENV11", "ssgSwPEnv11", "SSG SW PITCH ENV[256]" },
 			{ "_KEY_WTMOD",       "wtMod",       "WT PITCH MOD" },
 			{ "_KEY_LFOAM",       "lfoAm",       "LFO AM" },
 			{ "_KEY_LFOPM",       "lfoPm",       "LFO PM" },

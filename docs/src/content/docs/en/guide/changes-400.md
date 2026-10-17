@@ -48,3 +48,19 @@ The section heading's right-click menu gains **Duplicate** below CLEAR, and
   UTILITY buttons stay
 
 See [Right-click a section](/2686V_2686VFX/en/chips/common/#right-click-a-section).
+
+## SSG SW AMP / PITCH ENV[256]
+
+SSG SW AMP ENV[11] / SSG SW PITCH ENV[11] (10 steps plus release) are replaced by
+SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] with up to **256 steps**, on every
+channel, operator and pad, plus 2686VFX.
+
+- STEP is 1–256. The release uses **RR** (seconds) and **LR** (target)
+- With 256 × 2 values, the per-step R / L are **saved as a table** in presets and
+  channel parameters rather than as parameters, so they can't be automated
+- The value strip lists only STEP steps
+- Section files are `.ssgSwEnv256` / `.ssgSwPEnv256`
+
+**[11] data is converted to [256] on load.** R1–R10 / L1–L10 become steps 1–10 and
+R11 / L11 become RR / LR, so it sounds the same. See
+[SSG SW AMP ENV\[256\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env256).

@@ -26,7 +26,7 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addWtAmpModParameters(layout, prefix, prefixName);
     PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
-    // チップ全体へ掛かる SSG SW PENV11。既定はバイパス。
+    // チップ全体へ掛かる SSG SW PITCH ENV[256]。既定はバイパス。
     PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addSsgSwPEnv256BypassParameter(layout, prefix, prefixName, true);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
@@ -57,7 +57,7 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     }
 }
 
-void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
+void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = OpnaPrKey::prefix;
 
     PrHelper::setupOpnaBasicPtrs(apvts, prefix, pBasic);
@@ -69,8 +69,8 @@ void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
-    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256g);
-    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256g);
+    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256g, stepTables);
+    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256g, stepTables);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
     for (int op = 0; op < OpnaPrValue::ops; ++op)
@@ -84,8 +84,8 @@ void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
         PrHelper::setupOpnaLfoPtrs(apvts, p, pLfo[op]);
         PrHelper::setupPitchEnvPtrsOp(apvts, p, pPitchEnv[op]);
         PrHelper::setupSsgSwEnvPtrsOp(apvts, p, pSsgSwEnv[op]);
-        PrHelper::setupSsgSwEnv256PtrsOp(apvts, p, pSsgSwEnv256[op]);
-        PrHelper::setupSsgSwPEnv256PtrsOp(apvts, p, pSsgSwPEnv256[op]);
+        PrHelper::setupSsgSwEnv256PtrsOp(apvts, p, pSsgSwEnv256[op], stepTables);
+        PrHelper::setupSsgSwPEnv256PtrsOp(apvts, p, pSsgSwPEnv256[op], stepTables);
         PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);
         PrHelper::setupWtAmpMod(apvts, p, pOpWtAmpMod[op], modWaves);
         PrHelper::setupSsgHwEnv(apvts, p, pOpSsgHwEnv[op]);

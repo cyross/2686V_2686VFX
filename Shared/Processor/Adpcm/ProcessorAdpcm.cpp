@@ -36,7 +36,7 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
 }
 
-void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves) {
+void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = AdpcmPrKey::prefix;
 
     PrHelper::setupAdpcmBasicPtrs(apvts, prefix, pBasic);
@@ -46,8 +46,8 @@ void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
-    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256);
-    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256);
+    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
+    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);

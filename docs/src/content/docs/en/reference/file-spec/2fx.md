@@ -87,10 +87,10 @@ The `keyAssign` block holds which keys drive the modulation. Added in 3.6.0.
 | `ampEnv` | integer | 0 to 127 | 60 | The key that drives AMP ENV |
 | `ssgHwEnv` | integer | 0 to 127 | 60 | The key that drives SSG HW AMP ENV |
 | `wtAmpMod` | integer | 0 to 127 | 60 | The key that drives WT AMP MOD |
-| `ssgSwEnv11` | integer | 0 to 127 | 60 | The key that drives SSG SW AMP ENV\[11\] |
+| `ssgSwEnv11` | integer | 0 to 127 | 60 | The key that drives SSG SW AMP ENV\[256\] |
 | `pitchEnv` | integer | 0 to 127 | 60 | The key that drives PITCH ENV |
 | `ssgHwPEnv` | integer | 0 to 127 | 60 | The key that drives SSG HW PITCH ENV |
-| `ssgSwPEnv11` | integer | 0 to 127 | 60 | The key that drives SSG SW PITCH ENV\[11\] |
+| `ssgSwPEnv11` | integer | 0 to 127 | 60 | The key that drives SSG SW PITCH ENV\[256\] |
 | `wtMod` | integer | 0 to 127 | 60 | The key that drives WT PITCH MOD |
 | `lfoAm` | integer | 0 to 127 | 60 | The key that drives LFO AM |
 | `lfoPm` | integer | 0 to 127 | 60 | The key that drives LFO PM |

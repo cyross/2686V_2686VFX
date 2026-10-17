@@ -747,10 +747,11 @@ namespace CPV
 			inline constexpr float initial = false;
 		}
 
+		// 段の数。リリース (LR / RR) は別に持つので、ここには入らない。
 		namespace Steps
 		{
 			inline constexpr int min = 1;
-			inline constexpr int max = 10;
+			inline constexpr int max = 256;
 			inline constexpr int initial = 10;
 		}
 
@@ -762,7 +763,7 @@ namespace CPV
 		namespace LoopTo
 		{
 			inline constexpr int min = 0;
-			inline constexpr int max = 8;
+			inline constexpr int max = 254;
 			inline constexpr int initial = 0;
 		}
 
@@ -773,6 +774,7 @@ namespace CPV
 			inline constexpr int initial = 0;
 		}
 
+		// 段の R。表 (StepTable) の初期値にも使う。
 		namespace R
 		{
 			inline constexpr float min = CPV::rateMin;
@@ -780,6 +782,7 @@ namespace CPV
 			inline constexpr float initial = CPV::rateMin;
 		}
 
+		// 段の L。表 (StepTable) の初期値にも使う。
 		namespace L
 		{
 			inline constexpr float min = 0.0f;
@@ -794,6 +797,21 @@ namespace CPV
 			inline constexpr float initial = 0.0f;
 		}
 
+		// 離したあとに向かうレベルと、そこへ届くまでの秒
+		namespace LR
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace RR
+		{
+			inline constexpr float min = CPV::rateMin;
+			inline constexpr float max = CPV::rateMax;
+			inline constexpr float initial = CPV::rateMin;
+		}
+
 		// リリースを走り終えたあとに保つレベル。
 		namespace EndL
 		{
@@ -802,15 +820,14 @@ namespace CPV
 			inline constexpr float initial = 0.0f;
 		}
 
-		// ENDL を使うかどうか。切のあいだは、これまでどおり
-		// リリースが到達する先をそのまま保つ。
+		// ENDL を使うかどうか。切のあいだは LR をそのまま保つ。
 		namespace EndLEnable
 		{
 			inline constexpr float initial = false;
 		}
 
 		// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
-		// 切ってあるときはこれまでどおり補間する。
+		// 切ってあるときは補間する。
 		namespace Keep
 		{
 			inline constexpr float initial = false;
@@ -825,7 +842,7 @@ namespace CPV
 		}
 
 		// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
-		// 切ってあるときはこれまでどおり補間する。
+		// 切ってあるときは補間する。
 		namespace Keep
 		{
 			inline constexpr float initial = false;
@@ -839,7 +856,7 @@ namespace CPV
 		namespace Steps
 		{
 			inline constexpr int min = 1;
-			inline constexpr int max = 10;
+			inline constexpr int max = 256;
 			inline constexpr int initial = 10;
 		}
 
@@ -851,7 +868,7 @@ namespace CPV
 		namespace LoopTo
 		{
 			inline constexpr int min = 0;
-			inline constexpr int max = 8;
+			inline constexpr int max = 254;
 			inline constexpr int initial = 0;
 		}
 
@@ -869,11 +886,27 @@ namespace CPV
 			inline constexpr float initial = CPV::rateMin;
 		}
 
+		// 段の値 (セント)
 		namespace L
 		{
 			inline constexpr int min = CPV::pitchLevelMin;
 			inline constexpr int max = CPV::pitchLevelMax;
 			inline constexpr int initial = CPV::pitchLevelIni;
+		}
+
+		// 離したあとに向かうセントと、そこへ届くまでの秒
+		namespace LR
+		{
+			inline constexpr int min = CPV::pitchLevelMin;
+			inline constexpr int max = CPV::pitchLevelMax;
+			inline constexpr int initial = CPV::pitchLevelIni;
+		}
+
+		namespace RR
+		{
+			inline constexpr float min = CPV::rateMin;
+			inline constexpr float max = CPV::rateMax;
+			inline constexpr float initial = CPV::rateMin;
 		}
 
 		// リリースを走り終えたあとに保つセント。
@@ -884,8 +917,7 @@ namespace CPV
 			inline constexpr int initial = CPV::pitchLevelIni;
 		}
 
-		// ENDL を使うかどうか。切のあいだは、これまでどおり
-		// リリースが到達する先をそのまま保つ。
+		// ENDL を使うかどうか。切のあいだは、リリースを走り終えたら素通しする。
 		namespace EndLEnable
 		{
 			inline constexpr float initial = false;

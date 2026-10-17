@@ -114,11 +114,11 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     colAmpEnv.setup(stripCanvas, juce::String("") + "AMP ENV");
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
     colSsgSwEnv.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV");
-    colSsgSwEnv256.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[11]");
+    colSsgSwEnv256.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[256]");
     colAmpMod.setup(stripCanvas, juce::String("") + "WT AMP MOD");
     colPitchEnv.setup(stripCanvas, juce::String("") + "PITCH ENV");
     colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
-    colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
+    colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[256]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colLfo.setup(stripCanvas, juce::String("") + "LFO");
     colMulDet.setup(stripCanvas, juce::String("") + "MUL/DET / FIX");
@@ -149,8 +149,8 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     setupModeBtn(graphBtnAmp, "AMP", GuiEnvGraphMode::Amp);
     setupModeBtn(graphBtnPitch, "PIT", GuiEnvGraphMode::Pitch);
     setupModeBtn(graphBtnSsg, "SSG", GuiEnvGraphMode::SsgSw);
-    setupModeBtn(graphBtnSsg11, "S11", GuiEnvGraphMode::SsgSw256);
-    setupModeBtn(graphBtnSsgP256, "P11", GuiEnvGraphMode::SsgSwP256);
+    setupModeBtn(graphBtnSsg256, "S256", GuiEnvGraphMode::SsgSw256);
+    setupModeBtn(graphBtnSsgP256, "P256", GuiEnvGraphMode::SsgSwP256);
 
     graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
@@ -404,7 +404,7 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
             graphBtnAmp.setBounds(btnRow.removeFromLeft(w));
             graphBtnPitch.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsg.setBounds(btnRow.removeFromLeft(w));
-            graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
+            graphBtnSsg256.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP256.setBounds(btnRow);
         }
     }
@@ -761,20 +761,20 @@ void GuiRhythm::updatePadGraph(int p)
         graph.updateSsgSwEnv(v.head, v.rVal, v.rMax, v.lVal, v.lMax, p_curveCore, isCurveMode, 0);
     }
     else if (mode == GuiEnvGraphMode::SsgSw256) {
-        const auto v = GuiGraphValues::ssgSwEnv256(apvts, code);
+        const auto v = GuiGraphValues::ssgSwEnv256(apvts, ctx.audioProcessor.stepTables, code);
         const bool keepOn = GuiGraphValues::ssgSwEnv256Keep(apvts, code);
 
         graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwEnv256 + CPK::bypass));
         graph.setKeepLevels(keepOn);
-        graph.updateSsgSwEnv256(v.head, v.rVal, v.rMax, v.lVal, v.lMax, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
+        graph.updateSsgSwEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
     }
     else if (mode == GuiEnvGraphMode::SsgSwP256) {
-        const auto v = GuiGraphValues::ssgSwPEnv256(apvts, code);
+        const auto v = GuiGraphValues::ssgSwPEnv256(apvts, ctx.audioProcessor.stepTables, code);
         const bool keepOn = GuiGraphValues::ssgSwPEnv256Keep(apvts, code);
 
         graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwPEnv256 + CPK::bypass));
         graph.setKeepLevels(keepOn);
-        graph.updateSsgSwPEnv256(v.head, v.rVal, v.rMax, v.lVal, v.lMax, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
+        graph.updateSsgSwPEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
     }
     else {
         graph.updateBypass(GuiGraphValues::ampEnvBypassed(apvts, code));
@@ -795,7 +795,7 @@ void RhythmPadGui::setGraphMode(GuiEnvGraphMode mode)
     graphBtnAmp.setToggleState(mode == GuiEnvGraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GuiEnvGraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GuiEnvGraphMode::SsgSw, juce::dontSendNotification);
-    graphBtnSsg11.setToggleState(mode == GuiEnvGraphMode::SsgSw256, juce::dontSendNotification);
+    graphBtnSsg256.setToggleState(mode == GuiEnvGraphMode::SsgSw256, juce::dontSendNotification);
     graphBtnSsgP256.setToggleState(mode == GuiEnvGraphMode::SsgSwP256, juce::dontSendNotification);
 
     if (onGraphModeChange) onGraphModeChange(mode);
@@ -1399,11 +1399,11 @@ void GuiRhythm::setup()
     ieSsgSwEnv.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwEnvParam(padIndex); };
     ieSsgSwEnv.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwEnvParam(padIndex); };
 
-    ieSsgSwEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E256");
     ieSsgSwEnv256.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwEnv256Param(padIndex); };
     ieSsgSwEnv256.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwEnv256Param(padIndex); };
 
-    ieSsgSwPEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P256");
     ieSsgSwPEnv256.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwPEnv256Param(padIndex); };
     ieSsgSwPEnv256.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwPEnv256Param(padIndex); };
 

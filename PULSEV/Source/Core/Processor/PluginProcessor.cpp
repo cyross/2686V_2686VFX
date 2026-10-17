@@ -1,4 +1,6 @@
 ﻿#include "PluginProcessor.h"
+#include "Shared/Core/Synth/StepTableIo.h"
+#include "Shared/Core/Io/IoStepEnvLegacy.h"
 #include "../Const/ConstPlugin.h"
 #include "../../Effect/Fx/FxOrder.h"
 #include <limits>
@@ -99,8 +101,8 @@ AudioPlugin2686V::AudioPlugin2686V()
     pPitchResetOnLegato = apvts.getRawParameterValue(CPK::Midi::pitchResetOnLegato);
     pFixedVelocity = apvts.getRawParameterValue(CPK::Midi::fixedVelocity);
 
-    prSsg.init(apvts, modWaveSlots);
-    prBeep.init(apvts, modWaveSlots);
+    prSsg.init(apvts, modWaveSlots, stepTables);
+    prBeep.init(apvts, modWaveSlots, stepTables);
     prFx.init(apvts);
     prCurve.init(apvts);
     m_curveCore.setParameters(prCurve.m_curveParams);
@@ -436,12 +438,23 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     xml->setAttribute(SettingsKey::fxOrder, sa.joinIntoString(" "));
 
     prCurve.saveToXml(xml.get());
+
+    // 段の表 (SSG SW AMP / PITCH ENV[256] など)
+    StepTableIo::write(stepTables, *xml);
 };
 
 void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState)
 {
     if (xmlState.get() != nullptr && xmlState->hasTagName(apvts.state.getType()))
     {
+        // 段の表 (SSG SW AMP / PITCH ENV[256] など)。3.6.3 までの [11] は [256] へ写す。
+        // 表はパラメータではないので、APVTS へ渡す前に読んで外しておく。
+        StepTableIo::read(stepTables, *xmlState);
+        StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwEnv);
+        StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwPEnv);
+
+        while (auto* tables = xmlState->getChildByName(StepTableIo::xmlTag)) xmlState->removeChildElement(tables, true);
+
         // パラメータ復帰
         apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
 
@@ -1159,6 +1172,9 @@ void AudioPlugin2686V::initPreset()
         }
     }
 
+    // 段の表 (SSG SW AMP / PITCH ENV[256] など) も初期の値へ
+    stepTables.resetAll();
+
     // 2. メタデータのリセット
     presetName = PresetValue::MetaData::Initial::name;
     presetAuthor = PresetValue::MetaData::Initial::author;
@@ -1188,6 +1204,11 @@ void AudioPlugin2686V::initParams(const juce::String& code)
             }
         }
     }
+
+    // 段の表 (SSG SW AMP / PITCH ENV[256] など) も、このチャンネルのぶんを初期の値へ
+    stepTables.forEach([&code](const juce::String& key, StepTable& table) {
+        if (key.startsWith(code)) table.reset();
+    });
 
 
     if (code == "ADPCM_") {

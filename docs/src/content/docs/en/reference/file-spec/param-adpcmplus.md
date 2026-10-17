@@ -74,8 +74,8 @@ Thirty-two keys named `slot` plus a number. Each has the same shape.
 | `ssgHwEnv` | Same as [ssgHwEnv](/2686V_2686VFX/en/reference/file-spec/ssghwenv/) |
 | `ssgHwPEnv` | Same shape as [ssgHwEnv](/2686V_2686VFX/en/reference/file-spec/ssghwenv/) |
 | `ssgSwEnv` | Same as [ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/) |
-| `ssgSwEnv11` | Same as [ssgSwEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswenv11/) |
-| `ssgSwPEnv11` | Same as [ssgSwPEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswpenv11/) |
+| `ssgSwEnv256` | Same as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/) |
+| `ssgSwPEnv256` | Same as [ssgSwPEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswpenv256/) |
 | `mulDetune` | Same as [mulDetune](/2686V_2686VFX/en/reference/file-spec/detune/) |
 | `lfo` | Same as [lfo](/2686V_2686VFX/en/reference/file-spec/lfoopzx7/) |
 | `qualityPcm` | Same as [qualityPcm](/2686V_2686VFX/en/reference/file-spec/pcmquality/) |

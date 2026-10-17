@@ -46,8 +46,8 @@ the default.
 | `pitchEnv` | The same as [pitchEnv](/2686V_2686VFX/en/reference/file-spec/pitchenv/) |
 | `ssgHwEnv` | The same as [ssgHwEnv](/2686V_2686VFX/en/reference/file-spec/ssghwenv/) |
 | `ssgSwEnv` | The same as [ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/) |
-| `ssgSwEnv11` | The same as [ssgSwEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswenv11/) |
-| `ssgSwPEnv11` | The same as [ssgSwPEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswpenv11/) |
+| `ssgSwEnv256` | The same as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/) |
+| `ssgSwPEnv256` | The same as [ssgSwPEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswpenv256/) |
 | `mulDetune` | The same as [mulDetune](/2686V_2686VFX/en/reference/file-spec/detune/) |
 | `lfo` | The same as [lfo](/2686V_2686VFX/en/reference/file-spec/lfoopzx7/) |
 | `unison` | The same as [unison](/2686V_2686VFX/en/reference/file-spec/unison/) |

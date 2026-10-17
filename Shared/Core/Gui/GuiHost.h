@@ -9,6 +9,7 @@
 
 #include "./GuiToggleAlign.h"
 #include "../Synth/WtModWave.h"
+#include "../Synth/StepTable.h"
 #include "../Io/IoPathRoot.h"
 
 // ============================================================================
@@ -73,6 +74,10 @@ public:
     // 32 サンプル × 枚数をパラメータで持つと数が膨大になるため、
     // 実データはここが所有し、state には相対パスだけを保存する。
     WtModWaveStore modWaveSlots;
+
+    // SSG SW AMP / PITCH ENV[256] などの段の表。256 段 × 2 をパラメータで
+    // 持つと数が膨大になるため、ここが持って state へ書く。
+    StepTableStore stepTables;
 
     // トグルボタンの並べ方。ToggleAlign::Centred で従来どおり行の真ん中、
     // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。

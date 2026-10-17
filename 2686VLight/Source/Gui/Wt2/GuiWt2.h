@@ -176,7 +176,7 @@ class GuiWt2 : public GuiBase
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
-    GuiToggleButton graphBtnSsg11;
+    GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
     NormalSeparator graphSeparator;
 
@@ -251,7 +251,7 @@ public:
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
-        graphBtnSsg11(context),
+        graphBtnSsg256(context),
         graphBtnSsgP256(context),
         graphSeparator(context)
     {

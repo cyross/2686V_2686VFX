@@ -1,72 +1,28 @@
 ﻿#pragma once
 
-#include <array>
-#include <functional>
-
 #include "./EnvSsgSw256Params.h"
-#include "../../../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Step/EnvStep.h"
 
+// SSG SW PITCH ENV[256]。段の値 (セント) を周波数比にして phaseDelta へ掛ける。
+// 中身は 256 段のエンベロープ (StepEnv)。
+//
+// リリースを走り終えたあとは素通しする (Use Endl のときだけ ENDL を保つ)。
+// 3.6.3 までの SSG SW PITCH ENV[11] と同じ。
 class SsgSwPEnv256 {
-	enum class State { Idle, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11 };
-	State state = State::Idle;
-
-	float m_currentRate = 0.0f;
-
-	int steps = 4;
-	bool loop = false;
-	int loopTo = 0;
-	int loopCount = 0;
-	std::array<float, 12> r = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-	std::array<int, 12> l = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-	// リリースを走り終えたあとに保つセント。
-	// 0 のままなら、これまでどおり素通しする。
-	int endl = 0;
-
-	// ENDL を使うかどうか。切のあいだは、これまでどおり素通しする。
-	bool endlEnable = false;
-
-	// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
-	bool keep = false;
-
-	// KEEP のときに返す値。段が変わるたびに取り直す。
-	float m_keepLevel = 0.0f;
-
-	bool bypass = false;
-
-	double sampleRate = 44100.0; // DAW Host Sample Rate
-
-	float currentLevel = 0.0f;
-
-	std::array<float, 12> rInc = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-	std::array<float, 12> rIncLoop = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-
-	int loopCounter = 0;
-
-	void updateIncrements();
-	inline bool isReached(float inc, float current, float target) const; 
-
-	// カーブモード用の変数
-	int targetIndex = 0; // 0,1,2,3,4
-	CurveCore* m_curveCore = nullptr;
-
-	// カーブモード用の時間管理変数
-	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
-	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
+	StepEnv env;
 public:
-	SsgSwPEnv256();
 	void prepare(int targetIndex, double sampleRate);
-	void updateSampleRate(double newSampleRate);
-	void updateTargetSampleRate(double newSampleRate);
-	bool isPlaying() const { return state != State::Idle; }
-	bool isIdle() const { return state == State::Idle; }
-	bool isRelease() const { return state == State::S6; }
-	bool isBypass() const { return bypass; }
-	void setParameters(const SsgSwPEnv256Params& params);
-	void setCurveCore(CurveCore* core) { m_curveCore = core; }
-	void noteOn();
-	void noteOff();
+	void updateSampleRate(double newSampleRate) { env.updateTargetSampleRate(newSampleRate); }
+	void updateTargetSampleRate(double newSampleRate) { env.updateTargetSampleRate(newSampleRate); }
+	bool isPlaying() const { return env.isPlaying(); }
+	bool isIdle() const { return env.isIdle(); }
+	bool isRelease() const { return env.isRelease(); }
+	bool isBypass() const { return env.isBypass(); }
+	void setParameters(const SsgSwPEnv256Params& params) { env.setParameters(params); }
+	void setCurveCore(CurveCore* core) { env.setCurveCore(core); }
+	void noteOn() { env.noteOn(); }
+	void noteOff() { env.noteOff(); }
 	float process(float phaseDelta);
-	float bypassedReleasedProcess();
-	float bypassedProcess();
+	float bypassedReleasedProcess() { env.stop(); return 0.0f; }
+	float bypassedProcess() { return 1.0f; }
 };

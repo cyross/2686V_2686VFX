@@ -133,7 +133,7 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	}
 }
 
-void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store)
+void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store, StepTableStore& stepTables)
 {
 	pEnvBypass = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Env::bypass);
 	pLfoBypass = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::Lfo::bypass);
@@ -143,11 +143,11 @@ void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 	PrHelper::setupAdsrAmpEnvPtrs(apvts, ModPrKey::prefix, ptAmpEnv);
 	PrHelper::setupSsgHwEnv(apvts, ModPrKey::prefix, ptSsgHwEnv);
 	PrHelper::setupWtAmpMod(apvts, ModPrKey::prefix, ptWtAmpMod, store);
-	PrHelper::setupSsgSwEnv256Ptrs(apvts, ModPrKey::prefix, ptSsgSwEnv256);
+	PrHelper::setupSsgSwEnv256Ptrs(apvts, ModPrKey::prefix, ptSsgSwEnv256, stepTables);
 	PrHelper::setupOpzx7LfoPtrs(apvts, ModPrKey::prefix, ptLfo);
 
 	PrHelper::setupPitchEnvPtrs(apvts, ModPrKey::prefix, ptPitchEnv);
-	PrHelper::setupSsgSwPEnv256Ptrs(apvts, ModPrKey::prefix, ptSsgSwPEnv256);
+	PrHelper::setupSsgSwPEnv256Ptrs(apvts, ModPrKey::prefix, ptSsgSwPEnv256, stepTables);
 	PrHelper::setupWtMod(apvts, ModPrKey::prefix, ptWtMod, store);
 	PrHelper::setupSsgHwPEnv(apvts, ModPrKey::prefix, ptSsgHwPEnv);
 

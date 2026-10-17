@@ -405,140 +405,33 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
     setEnvelope(GuiEnvelopeGraph::EnvType::SsgSw, "SSG SW Env", phases);
 }
 
-void GuiEnvelopeGraph::updateSsgSwEnv256(
-    const StepEnvHead& head,
-    const std::array<float, 12>& rVal, float rMax,
-    const std::array<float, 12>& lVal, float lMax,
-    CurveCore* p_curveCore,
-    bool isCurveMode,
-    int posIdx
-) {
-    // -------------------------------------------------------------
-    // Helper: カーブ関数を生成する
-    // -------------------------------------------------------------
-    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
-        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
-            if (!isCurveMode || p_curveCore == nullptr) return progress;
-            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
-            };
-        };
-
-    // -------------------------------------------------------------
-    // Helper: 幅の計算
-    // -------------------------------------------------------------
-    auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
-        if (maxRate <= 0.0001f) return 2.0f;
-
-        if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
-
-        return (rateValue / maxRate) * maxWidth;
-        };
-
-    int steps = head.steps;
-    if (steps < 1) steps = 1;
-    bool isLoop = head.loop;
-    int loopTo = head.loopTo;
-    int loopCount = head.loopCount;
-
-    std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    juce::Colour color = GuiColor::EnvelopeGraph::AmpLine;
-    int targetIdx = (int)CurveParams::Target::SsgSwEnv256;
-
-    float currentTotalWidth = 0.0f;
-    float loopToLevel = isLoop ? lVal[loopTo] / lMax : 0.0f;
-    float loopEndWidth = 0.0f;
-
-    for (int s = 1; s <= steps; ++s) {
-        float rate = rVal[s];
-        float rateMax = rMax;
-        float startL = lVal[s - 1] / lMax;
-        float endL = lVal[s] / lMax;
-
-        int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwEnv256::LoopTo : (s - 1);
-        float width = rateToWidth(rate, rateMax);
-
-        if (isLoop && s == steps) {
-            phases.push_back({
-                .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                });
-
-            loopEndWidth = currentTotalWidth;
-
-            if (loopCount > 0) {
-                phases.push_back({
-                    .widthPx = 30.0f,
-                    .startLevel = loopToLevel,
-                    .endLevel = loopToLevel,
-                    .isDashed = true,
-                    .color = color,
-                    .drawPhaseLine = false
-                    });
-                phases.push_back({
-                    .widthPx = width,
-                    .startLevel = startL,
-                    .endLevel = endL,
-                    .color = color.darker(0.3f),
-                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
-                    .moveToStart = true,
-                    .startXOffsetPx = loopEndWidth,
-                    .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                    });
-            }
-
-            loopEndWidth += width;
-        }
-        else {
-            phases.push_back({
-                .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                });
-        }
-        currentTotalWidth += width;
-    }
-
-    // Release
-    float rr = rVal[11];
-    float rrMax = rMax;
-    float rStartL = lVal[steps] / lMax;
-    float rEndL = lVal[11] / lMax;
-
-    phases.push_back({
-        .widthPx = rateToWidth(rr, rrMax),
-        .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
-        .endLevel = rEndL,
-        .color = GuiColor::EnvelopeGraph::ReleaseLine,
-        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetSsgSwEnv256::R11),
-        .moveToStart = isLoop,
-        .startXOffsetPx = loopEndWidth
-        });
-
-    setEnvelope(GuiEnvelopeGraph::EnvType::SsgSw256, "SSG SW Env11", phases);
+void GuiEnvelopeGraph::updateSsgSwEnv256(const StepEnvValues& v, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
+{
+    updateStepEnv(GuiEnvelopeGraph::EnvType::SsgSw256, "SSG SW Env256", GuiColor::EnvelopeGraph::AmpLine,
+        (int)CurveParams::Target::SsgSwEnv256, v, p_curveCore, isCurveMode, posIdx);
 }
 
-void GuiEnvelopeGraph::updateSsgSwPEnv256(
-    const StepEnvHead& head,
-    const std::array<float, 12>& rVal, float rMax,
-    const std::array<float, 12>& lVal, float lMax,
-    CurveCore* p_curveCore,
-    bool isCurveMode,
-    int posIdx
-) {
-    // -------------------------------------------------------------
-    // Helper: カーブ関数を生成する
-    // -------------------------------------------------------------
-    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
-        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
+void GuiEnvelopeGraph::updateSsgSwPEnv256(const StepEnvValues& v, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
+{
+    updateStepEnv(GuiEnvelopeGraph::EnvType::SsgSwP256, "SSG SW PitchEnv256", GuiColor::EnvelopeGraph::PitchLine,
+        (int)CurveParams::Target::SsgSwPEnv256, v, p_curveCore, isCurveMode, posIdx);
+}
+
+// 段のエンベロープの絵。
+//
+// 段の幅は R に比例させる。段が多いと全体が長くなるが、絵の幅に収めるのは
+// setEnvelope の側 (全体を縮めて入れる)。カーブは段 1〜10 が R1〜R10、
+// 11 段目からは R10、リリースが R11、ループで戻る段が LoopTo を使う。
+void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, juce::Colour color, int targetIdx,
+    const StepEnvValues& v, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
+{
+    auto getCurveFunc = [isCurveMode, p_curveCore, posIdx, targetIdx](int prmIdx) {
+        return [isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
             if (!isCurveMode || p_curveCore == nullptr) return progress;
             return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
             };
         };
 
-    // -------------------------------------------------------------
-    // Helper: 幅の計算
-    // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
         if (maxRate <= 0.0001f) return 2.0f;
 
@@ -547,34 +440,35 @@ void GuiEnvelopeGraph::updateSsgSwPEnv256(
         return (rateValue / maxRate) * maxWidth;
         };
 
-    const float maxCents = 4800.0f; // 仮の最大値
-    int steps = head.steps;
-    if (steps < 1) steps = 1;
-    bool isLoop = head.loop;
-    int loopTo = head.loopTo;
-    int loopCount = head.loopCount;
+    constexpr int curveStepParams = 10;
+    constexpr int curveRelease = 10;
+    constexpr int curveLoopTo = 11;
+
+    const int steps = juce::jlimit(1, (int)v.l.size() - 1, v.head.steps);
+    const bool isLoop = v.head.loop;
+    const int loopTo = juce::jlimit(0, steps - 1, v.head.loopTo);
+    const int loopCount = v.head.loopCount;
+    const float lMax = v.lMax <= 0.0f ? 1.0f : v.lMax;
+
+    auto levelAt = [&](int i) { return v.l[(size_t)juce::jlimit(0, (int)v.l.size() - 1, i)] / lMax; };
+    auto rateAt = [&](int i) { return v.r[(size_t)juce::jlimit(0, (int)v.r.size() - 1, i)]; };
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-    juce::Colour color = GuiColor::EnvelopeGraph::PitchLine;
-    int targetIdx = (int)CurveParams::Target::SsgSwPEnv256;
 
     float currentTotalWidth = 0.0f;
-    float loopToLevel = isLoop ? lVal[loopTo] / lMax : 0.0f;
+    const float loopToLevel = isLoop ? levelAt(loopTo) : 0.0f;
     float loopEndWidth = 0.0f;
 
     for (int s = 1; s <= steps; ++s) {
-        float rate = rVal[s];
-        float rateMax = rMax;
-        float startL = lVal[s - 1] / lMax;
-        float endL = lVal[s] / lMax;
-
-        int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwPEnv256::LoopTo : (s - 1);
-        float width = rateToWidth(rate, rateMax);
+        const float startL = levelAt(s - 1);
+        const float endL = levelAt(s);
+        const int prmIdx = (isLoop && s == steps) ? curveLoopTo : std::min(s, curveStepParams) - 1;
+        const float width = rateToWidth(rateAt(s), v.rMax);
 
         if (isLoop && s == steps) {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
+                .curveFunc = getCurveFunc(prmIdx),
                 .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
 
@@ -594,7 +488,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv256(
                     .startLevel = startL,
                     .endLevel = endL,
                     .color = color.darker(0.3f),
-                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
+                    .curveFunc = getCurveFunc(prmIdx),
                     .moveToStart = true,
                     .startXOffsetPx = loopEndWidth,
                     .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
@@ -606,30 +500,26 @@ void GuiEnvelopeGraph::updateSsgSwPEnv256(
         else {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
+                .curveFunc = getCurveFunc(prmIdx),
                 .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                 });
         }
+
         currentTotalWidth += width;
     }
 
     // Release
-    float rr = rVal[11];
-    float rrMax = rMax;
-    float rStartL = lVal[steps] / lMax;
-    float rEndL = lVal[11] / lMax;
-
     phases.push_back({
-        .widthPx = rateToWidth(rr, rrMax),
-        .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
-        .endLevel = rEndL,
+        .widthPx = rateToWidth(v.rr, v.rMax),
+        .startLevel = (isLoop && loopCount == 0) ? loopToLevel : levelAt(steps),
+        .endLevel = v.lr / lMax,
         .color = GuiColor::EnvelopeGraph::ReleaseLine,
-        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetSsgSwPEnv256::R11),
+        .curveFunc = getCurveFunc(curveRelease),
         .moveToStart = isLoop,
         .startXOffsetPx = loopEndWidth
         });
 
-    setEnvelope(GuiEnvelopeGraph::EnvType::SsgSwP256, "SSG SW PitchEnv11", phases);
+    setEnvelope(type, title, phases);
 }
 
 void GuiEnvelopeGraph::updateAmpEnv(

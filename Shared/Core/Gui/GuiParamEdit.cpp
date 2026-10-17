@@ -1,4 +1,5 @@
 ﻿#include "./GuiParamEdit.h"
+#include "Shared/Core/Synth/StepTableIo.h"
 
 #include "./GuiComponents.h"
 #include "./GuiI18n.h"
@@ -43,6 +44,9 @@ namespace ParamEdit
 		// タブの素材のキー。"asset:" + 持ち主のキー + ":" + 素材の名前
 		const juce::String assetPrefix = "asset:";
 
+		// 段の表のキー。"table:" + 表のキー (チャンネル・単位の名前を外したもの)
+		const juce::String tablePrefix = "table:";
+
 		// ID を "_" で切った頭の 2 つ
 		std::pair<juce::String, juce::String> firstTokens(const juce::String& id)
 		{
@@ -71,6 +75,34 @@ namespace ParamEdit
 		juce::String absoluteWaveKey(const juce::String& relative, const juce::String& prefix)
 		{
 			return relative.isEmpty() ? prefix : prefix + "_" + relative;
+		}
+
+		// 単位に入っている段の表
+		std::vector<juce::String> tablesOf(const GuiContext& ctx, const Target& target)
+		{
+			if (target.scope == Scope::Category) return target.stepTables;
+
+			std::vector<juce::String> keys;
+			const auto prefix = target.prefix();
+
+			ctx.audioProcessor.stepTables.forEach([&](const juce::String& key, StepTable&) {
+				if (!key.startsWith(prefix + "_")) return;
+
+				// グローバルにはオペレーター・パッドの持ち物を入れない
+				if (target.scope == Scope::Channel && isUnitToken(firstTokens(key).second)) return;
+
+				keys.push_back(key);
+			});
+
+			return keys;
+		}
+
+		// 表のキーを、写し先でも同じ名前になるよう相対にする
+		juce::String relativeTableKey(const juce::String& key, const Target& target)
+		{
+			if (target.scope == Scope::Category) return keyOf(key + "_X", Scope::Category).dropLastCharacters(2);
+
+			return key.substring(target.prefix().length() + 1);
 		}
 
 		// 単位に入っている変調波形の置き場
@@ -297,6 +329,13 @@ namespace ParamEdit
 			}
 		}
 
+		// 段の表
+		for (const auto& key : tablesOf(ctx, target))
+		{
+			if (auto* table = ctx.audioProcessor.stepTables.find(key))
+				s.assets[tablePrefix + relativeTableKey(key, target)] = StepTableIo::toText(*table);
+		}
+
 		// タブが持つ素材
 		auto collect = [&](const juce::String& owner, const juce::String& relOwner, bool whole) {
 			std::map<juce::String, juce::String> found;
@@ -341,6 +380,19 @@ namespace ParamEdit
 
 			setReal(*p, it->second);
 			++count;
+		}
+
+		// 段の表。写し元に無い表は、同じ単位で写したものなら初期の値へ戻す
+		for (const auto& key : tablesOf(ctx, target))
+		{
+			auto* table = ctx.audioProcessor.stepTables.find(key);
+
+			if (table == nullptr) continue;
+
+			auto it = snapshot.assets.find(tablePrefix + relativeTableKey(key, target));
+
+			if (it != snapshot.assets.end()) StepTableIo::fromText(*table, it->second);
+			else if (snapshot.scope == target.scope && target.scope != Scope::Category) table->reset();
 		}
 
 		if (!withAssets)
@@ -444,6 +496,11 @@ namespace ParamEdit
 		for (const auto& key : waveKeysOf(ctx, target))
 		{
 			for (int i = 0; i < Global::WtMod::slots; ++i) ctx.audioProcessor.unloadWtModWaveFile(key, i);
+		}
+
+		for (const auto& key : tablesOf(ctx, target))
+		{
+			if (auto* table = ctx.audioProcessor.stepTables.find(key)) table->reset();
 		}
 
 		const std::map<juce::String, juce::String> none;
@@ -553,6 +610,7 @@ namespace ParamEdit
 			for (auto& id : t.ids) id = replaceToken(id, source.unit, unit);
 			for (auto& key : t.waveKeys) key = replaceToken(key, source.unit, unit);
 			for (auto& owner : t.assetPrefixes) owner = replaceToken(owner, source.unit, unit);
+			for (auto& key : t.stepTables) key = replaceToken(key, source.unit, unit);
 
 			// 写し先に無いパラメータ (相手の単位が持たないもの) は外す
 			t.ids.erase(std::remove_if(t.ids.begin(), t.ids.end(),
@@ -760,6 +818,13 @@ namespace ParamEdit
 				if (std::find(t.waveKeys.begin(), t.waveKeys.end(), key) == t.waveKeys.end()) t.waveKeys.push_back(key);
 			}
 
+			if (props.contains(Property::stepTable))
+			{
+				const auto key = props[Property::stepTable].toString();
+
+				if (std::find(t.stepTables.begin(), t.stepTables.end(), key) == t.stepTables.end()) t.stepTables.push_back(key);
+			}
+
 			if (props.contains(Property::assetPrefix))
 			{
 				const auto key = props[Property::assetPrefix].toString();
@@ -956,7 +1021,7 @@ namespace ParamEdit
 		// CUT / COPY / PASTE / CLEAR / DUPLICATE / IMPORT / EXPORT のメニュー
 		void showMenu(juce::Component& anchor, const GuiContext& ctx, const Target& target, const ImportExport& io = {})
 		{
-			const bool has = !target.ids.empty() || !target.waveKeys.empty() || !target.assetPrefixes.empty();
+			const bool has = !target.ids.empty() || !target.waveKeys.empty() || !target.assetPrefixes.empty() || !target.stepTables.empty();
 			const bool canPaste = has && Clipboard::get().current().has_value();
 
 			// 複写はオペレーター・パッド・TARGET の区分だけ。写し先が要る

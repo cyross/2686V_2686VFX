@@ -82,22 +82,26 @@ public:
         bool isCurveMode = false,
         int posIdx = 0
     );
+    // 256 段のエンベロープ (SSG SW AMP / PITCH ENV[256] など) の値。
+    // r / l の [0] は STL のぶんで、r[0] は使わない。段の数 (head.steps) + 1 個。
+    struct StepEnvValues {
+        StepEnvHead head;
+        std::vector<float> r;
+        std::vector<float> l;
+        float rr = 0.0f;   // リリースの秒
+        float lr = 0.0f;   // リリースの行き先
+        float rMax = 1.0f;
+        float lMax = 1.0f;
+    };
+
     void updateSsgSwEnv256(
-        const StepEnvHead& head,
-        // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
-        // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
-        const std::array<float, 12>& rVal, float rMax,
-        const std::array<float, 12>& lVal, float lMax,
+        const StepEnvValues& v,
         CurveCore* p_curveCore = nullptr,
         bool isCurveMode = false,
         int posIdx = 0
     );
     void updateSsgSwPEnv256(
-        const StepEnvHead& head,
-        // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
-        // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
-        const std::array<float, 12>& rVal, float rMax,
-        const std::array<float, 12>& lVal, float lMax,
+        const StepEnvValues& v,
         CurveCore* p_curveCore = nullptr,
         bool isCurveMode = false,
         int posIdx = 0
@@ -121,6 +125,10 @@ private:
     juce::String currentTitle;
     std::vector<PhaseDef> currentPhases;
     bool isBypass;
+
+    // 段のエンベロープの並びを組む。種類ごとに違うのは色・見出し・カーブの的だけ。
+    void updateStepEnv(EnvType type, const juce::String& title, juce::Colour color, int curveTarget,
+        const StepEnvValues& v, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
 
     // 段のあいだレベルを保つか。KEEP を入れた区分から立てられる。
     bool keepLevels = false;

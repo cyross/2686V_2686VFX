@@ -1,0 +1,118 @@
+﻿#pragma once
+
+#include <algorithm>
+#include <array>
+#include <atomic>
+#include <cstdint>
+#include <functional>
+#include <map>
+#include <memory>
+
+#include <JuceHeader.h>
+
+// ============================================================================
+// 段の表 (SSG SW AMP / PITCH ENV[256] など)
+// ============================================================================
+// 段ごとの R (秒) と L (値) を 256 段ぶん持つ。
+//
+// 256 段 × 2 をチャンネル・オペレーター・パッドごとにパラメータで持つと
+// 数万になるため、WT PITCH MOD の変調波形と同じく実データはプロセッサが
+// 持ち、state へ書く。パラメータに残すのは STEPS や LOOP などの頭だけで、
+// 段の値はオートメーションでは動かさない (画面とファイルで決める)。
+//
+// 音の側は表のポインタを持ち続けてよい (StepTableStore の要素は動かない)。
+// 書き換えるたびに version を進めるので、音の側は版が変わったときだけ
+// 写し直す。値は原子的に読み書きするので、どのスレッドから読んでもよい。
+//
+// 文字や state (XML) への出し入れは StepTableIo.h にある。
+struct StepTable
+{
+    static constexpr int size = 256;
+
+    std::array<std::atomic<float>, size> r;
+    std::array<std::atomic<float>, size> l;
+    std::atomic<std::uint32_t> version{ 1 };
+
+    const float defaultR;
+    const float defaultL;
+
+    StepTable(float defR, float defL) : defaultR(defR), defaultL(defL) { reset(); }
+
+    // step は 1〜256
+    float rate(int step) const { return r[(size_t)index(step)].load(std::memory_order_relaxed); }
+    float level(int step) const { return l[(size_t)index(step)].load(std::memory_order_relaxed); }
+
+    void setRate(int step, float value)
+    {
+        r[(size_t)index(step)].store(value, std::memory_order_relaxed);
+        version.fetch_add(1, std::memory_order_release);
+    }
+
+    void setLevel(int step, float value)
+    {
+        l[(size_t)index(step)].store(value, std::memory_order_relaxed);
+        version.fetch_add(1, std::memory_order_release);
+    }
+
+    void reset()
+    {
+        for (int i = 0; i < size; ++i) {
+            r[(size_t)i].store(defaultR, std::memory_order_relaxed);
+            l[(size_t)i].store(defaultL, std::memory_order_relaxed);
+        }
+
+        version.fetch_add(1, std::memory_order_release);
+    }
+
+    void copyFrom(const StepTable& other)
+    {
+        for (int i = 0; i < size; ++i) {
+            r[(size_t)i].store(other.r[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
+            l[(size_t)i].store(other.l[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
+        }
+
+        version.fetch_add(1, std::memory_order_release);
+    }
+
+private:
+    static int index(int step) { return std::clamp(step - 1, 0, size - 1); }
+};
+
+// プラグインの実体ごとに 1 つ。キーは APVTS のパラメータ ID と同じ形
+// (OPNA_OP0_SSGSW256 など)。
+//
+// 表はプロセッサを組み立てるとき (音を出し始める前) に get で作る。
+// 作ったあとは消さない。音の側へ配ったポインタが動かないようにするため。
+class StepTableStore
+{
+public:
+    // 無ければ作る。メッセージスレッドから、音を出し始める前に呼ぶこと。
+    StepTable& get(const juce::String& key, float defaultR, float defaultL)
+    {
+        auto it = tables.find(key);
+
+        if (it == tables.end()) it = tables.emplace(key, std::make_unique<StepTable>(defaultR, defaultL)).first;
+
+        return *it->second;
+    }
+
+    StepTable* find(const juce::String& key) const
+    {
+        auto it = tables.find(key);
+
+        return it == tables.end() ? nullptr : it->second.get();
+    }
+
+    void forEach(const std::function<void(const juce::String&, StepTable&)>& fn) const
+    {
+        for (const auto& [key, table] : tables) fn(key, *table);
+    }
+
+    void resetAll()
+    {
+        for (auto& [key, table] : tables) table->reset();
+    }
+
+private:
+    std::map<juce::String, std::unique_ptr<StepTable>> tables;
+};

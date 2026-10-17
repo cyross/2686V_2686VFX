@@ -500,6 +500,17 @@ public:
 
     void resized() override;
 
+    // 束縛を外す。パラメータでない値 (段の表など) をつまみで動かすときに使う。
+    // 範囲は呼び出し側が setRange で決めること。
+    void unbind()
+    {
+        flushToAttachment();
+
+        att.reset();
+        boundId = {};
+        setComponentID({});
+    }
+
     void rebind(const juce::String& id)
     {
         // 束縛し直しているあいだに来る値の知らせは、切り替えた先の値を

@@ -253,7 +253,7 @@ void GuiFx::setup()
     modAmpEnvGroup.setup(*this, juce::String("") + "AMP ENV");
     modSsgHwEnvGroup.setup(*this, juce::String("") + "SSG HW AMP ENV");
     modWtAmpModGroup.setup(*this, juce::String("") + "WT AMP MOD");
-    modSsgSwEnv256Group.setup(*this, juce::String("") + "SSG SW AMP ENV[11]");
+    modSsgSwEnv256Group.setup(*this, juce::String("") + "SSG SW AMP ENV[256]");
     modLfoGroup.setup(*this, juce::String("") + "LFO");
 
     // 変調の枠は赤系統。効果の青と見分けが付くようにする。
@@ -290,7 +290,7 @@ void GuiFx::setup()
     pitchBypassToggle.setExplicitFocusOrder(++tabOrder);
 
     modPitchEnvGroup.setup(*this, juce::String("") + "PITCH ENV");
-    modSsgSwPEnv256Group.setup(*this, juce::String("") + "SSG SW PITCH ENV[11]");
+    modSsgSwPEnv256Group.setup(*this, juce::String("") + "SSG SW PITCH ENV[256]");
     modWtModGroup.setup(*this, juce::String("") + "WT PITCH MOD");
     modSsgHwPEnvGroup.setup(*this, juce::String("") + "SSG HW PITCH ENV");
 

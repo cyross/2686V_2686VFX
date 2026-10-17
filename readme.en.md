@@ -45,6 +45,13 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Duplicate below CLEAR, then a separator, then Import / Export
   - Duplicate: copies an operator, pad or TARGET section to the same section of other operators, pads or TARGETs on the channel, picked in a check-box dialog (Check all / Uncheck all, a blue Duplicate, Cancel)
   - Import / Export: same as that section's [IM]… / [EX]… in UTILITY. The UTILITY buttons stay
+- **SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] (replacing SSG SW AMP / PITCH ENV[11])**
+  - Every channel, operator and pad, plus 2686VFX. Up to 256 steps (STEP 1–256), with the release done by RR / LR
+  - The per-step R / L are saved as a table in presets and channel parameters (256 × 2 as parameters would mean tens of thousands). Head values such as STL, RR and LR are parameters
+  - The value strip lists only STEP steps, so the section grows as you add steps
+  - Section files are `.ssgSwEnv256` / `.ssgSwPEnv256`, from the right-click menu and UTILITY [IM] / [EX]
+  - 2686VFX's key input and key-assign customisation carry over the [11] assignments
+  - [11] data from 3.6.3 and earlier (presets, DAW state, channel parameters, `.ssgSwEnv11`) is converted on load: R1–R10 / L1–L10 become steps 1–10 and R11 / L11 become RR / LR, so it sounds the same
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

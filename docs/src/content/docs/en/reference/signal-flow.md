@@ -111,7 +111,7 @@ from it**, though, so those follow the order shown.
 | 1 | The base pitch | the key you pressed |
 | 2 | Pitch bend | the MIDI keyboard |
 | 3 | **PITCH ENV** | 3-tap; runs on press and release |
-| 4 | **SSG SW PITCH ENV[11]** | 11-tap; runs on press and release |
+| 4 | **SSG SW PITCH ENV[256]** | 11-tap; runs on press and release |
 | 5 | **SSG HW PITCH ENV** | repeats a fixed shape; depth is given in cents |
 | 6 | **The LFO's PM** | depth is given in cents |
 | 7 | **WT PITCH MOD** | its rate is a ratio against the carrier |
@@ -128,7 +128,7 @@ downstream is silent.
 | 1 | The waveform | what the oscillator produced |
 | 2 | The TONE / NOISE blend | channels that carry noise, such as SSG |
 | 3 | **LEVEL** | the slider on screen |
-| 4 | **AMP ENV** | the ADSR; SSG SW ENV / ENV11 stack in here too |
+| 4 | **AMP ENV** | the ADSR; SSG SW ENV / ENV256 stack in here too |
 | 5 | The base level | a per-channel baseline |
 | 6 | **The LFO's AM** | depth is given as dB of attenuation |
 | 7 | **SSG HW AMP ENV** | the hardware envelope |

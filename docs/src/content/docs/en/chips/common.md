@@ -135,10 +135,10 @@ The parts that move level or pitch over time. Several kinds can run at once.
 | [AMP ENV](#amp-env) | level | ADSR | hardware / ours |
 | [SSG HW AMP ENV](#ssg-hw-amp-env) | level | 44 shapes | hardware / ours |
 | [SSG SW AMP ENV](#ssg-sw-amp-env) | level | 6 taps | ours |
-| [SSG SW AMP ENV\[11\]](#ssg-sw-amp-env11) | level | 11 taps | ours |
+| [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) | level | 11 taps | ours |
 | [PITCH ENV](#pitch-env) | pitch | 3 taps | ours |
 | [SSG HW PITCH ENV](#ssg-hw-pitch-env) | pitch | 44 shapes | ours |
-| [SSG SW PITCH ENV\[11\]](#ssg-sw-pitch-env11) | pitch | 11 taps | ours |
+| [SSG SW PITCH ENV\[256\]](#ssg-sw-pitch-env256) | pitch | 11 taps | ours |
 
 On the level side they multiply together. The usual arrangement is to shape the
 whole with AMP ENV and then lay finer movement on top with SSG HW AMP ENV or
@@ -164,7 +164,7 @@ The basic shape of the level. It runs **start level → attack → decay → sus
 
 **STEPS** works like the one on LEVEL: it snaps the value to the step you pick
 (from 3.6.3). As the range is 0–1, there is no "by 1" step. SSG HW AMP ENV,
-SSG SW AMP ENV, SSG SW AMP ENV[11], WT PITCH MOD and WT AMP MOD have the same
+SSG SW AMP ENV, SSG SW AMP ENV[256], WT PITCH MOD and WT AMP MOD have the same
 STEPS, on every channel, operator and pad.
 
 FM operators carry a separate register-style envelope of their own
@@ -237,42 +237,49 @@ lets you draw it directly, as **a series of line segments**.
 | **LOOP.TO** | Step it goes back to. 0–3 | 0 – 3 | 0 | [`SSG_SSGSW_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopto) |
 | **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw-loopcnt) |
 
-### SSG SW AMP ENV[11]
+### SSG SW AMP ENV[256]
 
-The same thing with the steps taken up to **11 taps**. When you want finer
-movement, use this one rather than the 6-tap version.
+A section of **our own**. It draws a volume contour of up to **256 steps**, the
+kind of change drivers used to make in software. In 4.0.0 it replaced SSG SW AMP
+ENV[11] (10 steps plus release) from 3.6.3 and earlier.
 
-| Knob | What it does | Range | Default | Automation |
+A key press starts at **STL**, moves to **L1** over **R1** seconds, to **L2** over
+**R2** seconds and so on up to **STEP** steps, then holds the last level until
+release. On release it heads from the current level to **LR** over **RR** seconds.
+
+| Control | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
-| **Bypass / Enable** | Use it or not. On a channel it reads as bypass, on an operator as enable | False / True | True | [`SSG_SSGSW11_BYPASS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-bypass) |
-| **STEP** | How many steps are used | 1 – 10 | 10 | [`SSG_SSGSW11_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-steps) |
-| **STL** | Level it starts from | 0 – 1 | 0 | [`SSG_SSGSW11_STL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-stl) |
-| **R1** | Time to reach step 1 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L1** | Level at step 1 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R2** | Time to reach step 2 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L2** | Level at step 2 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R3** | Time to reach step 3 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L3** | Level at step 3 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R4** | Time to reach step 4 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L4** | Level at step 4 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R5** | Time to reach step 5 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L5** | Level at step 5 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R6** | Time to reach step 6 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L6** | Level at step 6 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R7** | Time to reach step 7 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L7** | Level at step 7 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R8** | Time to reach step 8 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L8** | Level at step 8 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R9** | Time to reach step 9 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L9** | Level at step 9 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R10** | Time to reach step 10 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L10** | Level at step 10 | 0 – 1 | 1 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **R11** | Time to reach step 11 | 0.001 – 10 | 0.001 | [`SSG_SSGSW11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-r-1-11) |
-| **L11** | Level at step 11 | 0 – 1 | 0 | [`SSG_SSGSW11_L11`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-l11) |
-| **STEPS** | Snaps L1–L11 and ENDL to a fixed step (screen only, not saved) | Free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | Free | — |
-| **LOOP** | Repeat | False / True | False | [`SSG_SSGSW11_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loop) |
-| **LOOP.TO** | Step it goes back to. 0–8 | 0 – 8 | 0 | [`SSG_SSGSW11_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopto) |
-| **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSW11_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw11-loopcnt) |
+| **Bypass / Enable** | Use it or not. "Bypass" on a channel, "Enable" on an operator | False / True | True | [`SSG_SSGSW256_BYPASS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-bypass) |
+| **STEP** | Number of steps | 1 – 256 | 10 | [`SSG_SSGSW256_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-steps) |
+| **KEEP** | Hold each step's starting value instead of sloping between steps | False / True | False | [`SSG_SSGSW256_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-keep) |
+| **LOOP** | Repeat | False / True | False | [`SSG_SSGSW256_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loop) |
+| **LOOP.TO** | Step to return to | 0 – 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopto) |
+| **LOOP.CNT** | How many times. **0 repeats forever** | 0 – 200 | 0 | [`SSG_SSGSW256_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopcnt) |
+| **R.TARGET** / **RATE** | The step whose R you edit, and its time (seconds) | 1 – STEP / 0.001 – 10 | — / 0.001 | — (kept in a table) |
+| **L.TARGET** / **LEVEL** | The step whose L you edit (0 is STL), and its volume | 0 – STEP / 0 – 1 | — / 1 | STL only: [`SSG_SSGSW256_STL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-stl) |
+| **STEPS** | Snap LEVEL, LR and ENDL to fixed steps (screen only, not saved) | free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | free | — |
+| **RR** | Time from release to reaching LR (seconds) | 0.001 – 10 | 0.001 | [`SSG_SSGSW256_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-rr) |
+| **LR** | Volume to head for after release | 0 – 1 | 0 | [`SSG_SSGSW256_LR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-lr) |
+| **Use Endl** | After the release, hold ENDL instead of LR | False / True | False | [`SSG_SSGSW256_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-endl-en) |
+| **ENDL** | The volume to hold then | 0 – 1 | 0 | [`SSG_SSGSW256_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-endl) |
+
+With 256 × 2 values per envelope, the per-step R / L **are saved as a table in
+presets and channel parameters, not as parameters**, so they can't be automated
+(the head values such as STL, RR and LR are parameters).
+
+- There is one pair of controls, a selector (R.TARGET / L.TARGET) plus a value;
+  the other steps are listed in the strip below. **The strip lists only STEP
+  steps**, so adding steps makes the section taller
+- **N** next to RATE / LEVEL shows nudge buttons
+- Right-clicking the heading copies the table too (CUT / COPY / PASTE / CLEAR /
+  DUPLICATE)
+
+#### From [11] (3.6.3 and earlier)
+
+Presets, DAW state, channel parameters and section files (`.ssgSwEnv11`) are
+converted to [256] when loaded: R1–R10 / L1–L10 become steps 1–10 of the table, and
+R11 / L11 (the release) become RR / LR, so they sound the same. Exports are written
+as `.ssgSwEnv256`.
 
 ### PITCH ENV
 
@@ -322,46 +329,29 @@ A step in pitch is heard as a jump, so turn Smooth on once PERIOD is high.
 
 The shapes are listed under [Waveforms](/2686V_2686VFX/en/reference/lists-waveform/).
 
-### SSG SW PITCH ENV[11]
+### SSG SW PITCH ENV[256]
 
-The **11-tap** version on the pitch side. It is built like
-[SSG SW AMP ENV\[11\]](#ssg-sw-amp-env11), except that L1–L11 hold **cents**
-(±4800) rather than levels.
+The **256-step** pitch version. It works like [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256),
+with STL, L, LR and ENDL in **cents** (±4800) instead of volume. In 4.0.0 it
+replaced SSG SW PITCH ENV[256].
 
-Because you can place a pitch on every step, you can build an **arpeggio** or a
-siren inside a single note. Switch LOOP on and it repeats for as long as the
-note sounds.
+Placing a pitch per step makes **arpeggios** and siren-like moves within one note,
+and LOOP repeats them while the note sounds. After the release the pitch returns to
+normal (with Use Endl it holds ENDL).
 
-| Knob | What it does | Range | Default | Automation |
+| Control | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
-| **Bypass / Enable** | Use it or not. On a channel it reads as bypass, on an operator as enable | False / True | True | [`SSG_SSGSWP11_BYPASS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-bypass) |
-| **STEP** | How many steps are used | 1 – 10 | 10 | [`SSG_SSGSWP11_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-steps) |
-| **STL** | Pitch it starts from | -4800 – 4800 | 0 | [`SSG_SSGSWP11_STL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-stl) |
-| **R1** | Time to reach step 1 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L1** | Pitch at step 1 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R2** | Time to reach step 2 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L2** | Pitch at step 2 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R3** | Time to reach step 3 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L3** | Pitch at step 3 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R4** | Time to reach step 4 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L4** | Pitch at step 4 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R5** | Time to reach step 5 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L5** | Pitch at step 5 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R6** | Time to reach step 6 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L6** | Pitch at step 6 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R7** | Time to reach step 7 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L7** | Pitch at step 7 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R8** | Time to reach step 8 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L8** | Pitch at step 8 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R9** | Time to reach step 9 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L9** | Pitch at step 9 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R10** | Time to reach step 10 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L10** | Pitch at step 10 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **R11** | Time to reach step 11 | 0.001 – 10 | 0.001 | [`SSG_SSGSWP11_R[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-r-1-11) |
-| **L11** | Pitch at step 11 (cents) | -4800 – 4800 | 0 | [`SSG_SSGSWP11_L[1-11]`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-l-1-11) |
-| **LOOP** | Repeat | False / True | False | [`SSG_SSGSWP11_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loop) |
-| **LOOP.TO** | Step it goes back to. 0–8 | 0 – 8 | 0 | [`SSG_SSGSWP11_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loopto) |
-| **LOOP.CNT** | How many times. **0 means forever** | 0 – 200 | 0 | [`SSG_SSGSWP11_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp11-loopcnt) |
+| **Bypass / Enable** | Use it or not | False / True | True | [`SSG_SSGSWP256_BYPASS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-bypass) |
+| **STEP** | Number of steps | 1 – 256 | 10 | [`SSG_SSGSWP256_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-steps) |
+| **KEEP** | Hold each step's starting value | False / True | False | [`SSG_SSGSWP256_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-keep) |
+| **LOOP** / **LOOP.TO** / **LOOP.CNT** | Repeat | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-loop) etc. |
+| **R.TARGET** / **RATE** | The step whose R you edit, and its time (seconds) | 1 – STEP / 0.001 – 10 | — / 0.001 | — (kept in a table) |
+| **L.TARGET** / **LEVEL** | The step whose L you edit (0 is STL), and its pitch (cents) | 0 – STEP / -4800 – 4800 | — / 0 | STL only: [`SSG_SSGSWP256_STL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-stl) |
+| **RR** / **LR** | Time from release to LR, and the pitch to head for | 0.001 – 10 / -4800 – 4800 | 0.001 / 0 | [`SSG_SSGSWP256_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-rr) / [`SSG_SSGSWP256_LR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-lr) |
+| **Use Endl** / **ENDL** | Keep a pitch after the release | — | — | [`SSG_SSGSWP256_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-endl) |
+
+**N** next to LEVEL shows pitch buttons (semitone, octave and so on). [11] data from
+3.6.3 and earlier is converted on load, as with AMP (`.ssgSwPEnv11` files load too).
 
 ## SPEED – playback rate
 

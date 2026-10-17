@@ -108,7 +108,7 @@ C3, PITCH ENV on D3, and so on. See
 | --- | --- |
 | AMP ENV | the amplitude ADSR |
 | SSG HW AMP ENV | the SSG hardware envelope |
-| SSG SW AMP ENV[11] | the SSG software envelope (11 steps) |
+| SSG SW AMP ENV[256] | the SSG software envelope (11 steps) |
 | WT AMP MOD | wavetable level modulation (FDS / WonderSwan / HuC6280) |
 | LFO | the AM side of the OPZX7 LFO |
 
@@ -118,7 +118,7 @@ C3, PITCH ENV on D3, and so on. See
 | --- | --- |
 | PITCH ENV | the pitch ADSR |
 | SSG HW PITCH ENV | the SSG hardware envelope shapes pointed at pitch |
-| SSG SW PITCH ENV[11] | the pitch software envelope (11 steps) |
+| SSG SW PITCH ENV[256] | the pitch software envelope (11 steps) |
 | WT PITCH MOD | wavetable pitch modulation (FDS / WonderSwan / HuC6280) |
 | LFO | the PM side of the OPZX7 LFO |
 

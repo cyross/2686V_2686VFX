@@ -52,11 +52,11 @@ the default.
 | --- | --- |
 | `level` | The channel level and start delay. It holds `level` and `delay` |
 | `ssgHwEnv` | The same as [ssgHwEnv](/2686V_2686VFX/en/reference/file-spec/ssghwenv/) |
-| `ssgSwEnv11` | The same as [ssgSwEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswenv11/) |
+| `ssgSwEnv256` | The same as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/) |
 | `quality` | The same as [quality](/2686V_2686VFX/en/reference/file-spec/quality/) |
 | `unison` | The same as [unison](/2686V_2686VFX/en/reference/file-spec/unison/) |
 | `ampEnv` | The same as [ampEnv](/2686V_2686VFX/en/reference/file-spec/ampenv/) |
-| `ssgSwPEnv11` | The same as [ssgSwPEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswpenv11/) |
+| `ssgSwPEnv256` | The same as [ssgSwPEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswpenv256/) |
 | `wtMod` | The same as [wtMod](/2686V_2686VFX/en/reference/file-spec/wtmod/) |
 
 ## The `ops` list
@@ -95,8 +95,8 @@ It also carries the following nested blocks.
 | `fix` | Holding the pitch. It holds `enable` and `freq` |
 | `pitchEnv` | The same as [pitchEnv](/2686V_2686VFX/en/reference/file-spec/pitchenv/) |
 | `ssgSwEnv` | The same as [ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/) |
-| `ssgSwEnv11` | The same as [ssgSwEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswenv11/) |
-| `ssgSwPEnv11` | The same as [ssgSwPEnv11](/2686V_2686VFX/en/reference/file-spec/ssgswpenv11/) |
+| `ssgSwEnv256` | The same as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/) |
+| `ssgSwPEnv256` | The same as [ssgSwPEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswpenv256/) |
 
 :::note
 The **file locations** inside `ops` (`filePath` / `pcmFile` /

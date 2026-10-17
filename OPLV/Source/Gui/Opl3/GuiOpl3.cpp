@@ -286,11 +286,11 @@ void GuiOpl3::setup()
     ieOpSsgSwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnvParam(opIndex); };
     ieOpSsgSwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnvParam(opIndex); };
 
-    ieOpSsgSwEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieOpSsgSwEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E256");
     ieOpSsgSwEnv256.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnv256Param(opIndex); };
     ieOpSsgSwEnv256.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnv256Param(opIndex); };
 
-    ieOpSsgSwPEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieOpSsgSwPEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P256");
     ieOpSsgSwPEnv256.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwPEnv256Param(opIndex); };
     ieOpSsgSwPEnv256.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwPEnv256Param(opIndex); };
     ieOpSsgHwPEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW PEnv");
@@ -329,8 +329,8 @@ void GuiOpl3::setup()
     ieWtMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Modulation", modComponent);
     ieWtAmpMod.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Mod", ampModComponent);
 
-    ieSsgSwEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv256g);
-    ieSsgSwPEnv256g.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv256g);
+    ieSsgSwEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E256", ssgSwEnv256g);
+    ieSsgSwPEnv256g.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P256", ssgSwPEnv256g);
 
     ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
@@ -386,11 +386,11 @@ void GuiOpl3::setup()
     colAmp.setup(stripCanvas, juce::String("") + "AMP ENV / OPTIONAL / EG");
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
     colSsgSwEnv.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV");
-    colSsgSwEnv256.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[11]");
+    colSsgSwEnv256.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[256]");
     colAmpMod.setup(stripCanvas, juce::String("") + "WT AMP MOD");
     colPitchEnv.setup(stripCanvas, juce::String("") + "PITCH ENV");
     colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
-    colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
+    colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[256]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL / LFO");
     colMask.setup(stripCanvas, juce::String("") + "MASK / MML");
@@ -413,8 +413,8 @@ void GuiOpl3::setup()
     setupModeBtn(graphBtnAmp, "AMP", GuiEnvGraphMode::Amp);
     setupModeBtn(graphBtnPitch, "PIT", GuiEnvGraphMode::Pitch);
     setupModeBtn(graphBtnSsg, "SSG", GuiEnvGraphMode::SsgSw);
-    setupModeBtn(graphBtnSsg11, "S11", GuiEnvGraphMode::SsgSw256);
-    setupModeBtn(graphBtnSsgP256, "P11", GuiEnvGraphMode::SsgSwP256);
+    setupModeBtn(graphBtnSsg256, "S256", GuiEnvGraphMode::SsgSw256);
+    setupModeBtn(graphBtnSsgP256, "P256", GuiEnvGraphMode::SsgSwP256);
 
     graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
@@ -976,7 +976,7 @@ void GuiOpl3::setGraphMode(GuiEnvGraphMode mode)
     graphBtnAmp.setToggleState(mode == GuiEnvGraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GuiEnvGraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GuiEnvGraphMode::SsgSw, juce::dontSendNotification);
-    graphBtnSsg11.setToggleState(mode == GuiEnvGraphMode::SsgSw256, juce::dontSendNotification);
+    graphBtnSsg256.setToggleState(mode == GuiEnvGraphMode::SsgSw256, juce::dontSendNotification);
     graphBtnSsgP256.setToggleState(mode == GuiEnvGraphMode::SsgSwP256, juce::dontSendNotification);
 
     for (int i = 0; i < Opl3PrValue::ops; ++i) updateOpGraph(i);
@@ -1172,7 +1172,7 @@ void GuiOpl3::layoutOpPanel(juce::Rectangle<int> area)
             graphBtnAmp.setBounds(btnRow.removeFromLeft(w));
             graphBtnPitch.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsg.setBounds(btnRow.removeFromLeft(w));
-            graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
+            graphBtnSsg256.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP256.setBounds(btnRow);
         }
     }
@@ -1543,10 +1543,10 @@ void GuiOpl3::setupGlobalGraph()
     gGraphBtnAmp.setToggleState(true, juce::dontSendNotification);
     gGraphBtnAmp.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::Amp); };
 
-    gGraphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
-    gGraphBtnSsg11.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::SsgSw256); };
+    gGraphBtnSsg256.setup({ .parent = *this, .title = "S256", .isReset = false, .isResized = false });
+    gGraphBtnSsg256.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::SsgSw256); };
 
-    gGraphBtnSsgP256.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    gGraphBtnSsgP256.setup({ .parent = *this, .title = "P256", .isReset = false, .isResized = false });
     gGraphBtnSsgP256.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::SsgSwP256); };
 
     auto repaintGraph = [this]() {
@@ -1576,7 +1576,7 @@ void GuiOpl3::layoutGlobalGraph(juce::Rectangle<int>& rect)
     int btnWidth = btnArea.getWidth() / 3;
 
     gGraphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
-    gGraphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    gGraphBtnSsg256.setBounds(btnArea.removeFromLeft(btnWidth));
     gGraphBtnSsgP256.setBounds(btnArea);
 
     gGraph.setBounds(mainArea);
@@ -1605,7 +1605,7 @@ void GuiOpl3::setGlobalGraphMode(GlobalGraphMode mode)
 
     // ラジオボタン的な排他制御
     gGraphBtnAmp.setToggleState(mode == GlobalGraphMode::Amp, juce::dontSendNotification);
-    gGraphBtnSsg11.setToggleState(mode == GlobalGraphMode::SsgSw256, juce::dontSendNotification);
+    gGraphBtnSsg256.setToggleState(mode == GlobalGraphMode::SsgSw256, juce::dontSendNotification);
     gGraphBtnSsgP256.setToggleState(mode == GlobalGraphMode::SsgSwP256, juce::dontSendNotification);
 
     updateGlobalGraph();
@@ -1720,24 +1720,24 @@ void GuiOpl3::updateOpGraph(int opIndex)
     // SSG SW Env 11
     // =============================================================
     else if (currentGraphMode == GuiEnvGraphMode::SsgSw256) {
-        const auto v = GuiGraphValues::ssgSwEnv256(apvts, code);
+        const auto v = GuiGraphValues::ssgSwEnv256(apvts, ctx.audioProcessor.stepTables, code);
         const bool keepOn = GuiGraphValues::ssgSwEnv256Keep(apvts, code);
 
         graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwEnv256::enable));
         graph.setKeepLevels(keepOn);
-        graph.updateSsgSwEnv256(v.head, v.rVal, v.rMax, v.lVal, v.lMax,
+        graph.updateSsgSwEnv256(v,
             keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
     else if (currentGraphMode == GuiEnvGraphMode::SsgSwP256) {
-        const auto v = GuiGraphValues::ssgSwPEnv256(apvts, code);
+        const auto v = GuiGraphValues::ssgSwPEnv256(apvts, ctx.audioProcessor.stepTables, code);
         const bool keepOn = GuiGraphValues::ssgSwPEnv256Keep(apvts, code);
 
         graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwPEnv256::enable));
         graph.setKeepLevels(keepOn);
-        graph.updateSsgSwPEnv256(v.head, v.rVal, v.rMax, v.lVal, v.lMax,
+        graph.updateSsgSwPEnv256(v,
             keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
     }
     // =============================================================

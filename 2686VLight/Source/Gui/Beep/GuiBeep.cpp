@@ -120,9 +120,9 @@ void GuiBeep::setup() {
 
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
-    ieSsgSwEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv256Component);
+    ieSsgSwEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E256", ssgSwEnv256Component);
 
-    ieSsgSwPEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv256Component);
+    ieSsgSwPEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P256", ssgSwPEnv256Component);
 
     ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
@@ -325,10 +325,10 @@ void GuiBeep::setupGraph()
     graphBtnSsg.setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
     graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
 
-    graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
-    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw256); };
+    graphBtnSsg256.setup({ .parent = *this, .title = "S256", .isReset = false, .isResized = false });
+    graphBtnSsg256.onClick = [this] { setGraphMode(GraphMode::SsgSw256); };
 
-    graphBtnSsgP256.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP256.setup({ .parent = *this, .title = "P256", .isReset = false, .isResized = false });
     graphBtnSsgP256.onClick = [this] { setGraphMode(GraphMode::SsgSwP256); };
 
     auto repaintGraph = [this]() {
@@ -362,7 +362,7 @@ void GuiBeep::setGraphMode(GraphMode mode)
     graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
-    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw256, juce::dontSendNotification);
+    graphBtnSsg256.setToggleState(mode == GraphMode::SsgSw256, juce::dontSendNotification);
     graphBtnSsgP256.setToggleState(mode == GraphMode::SsgSwP256, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
@@ -382,7 +382,7 @@ void GuiBeep::layoutGraph(juce::Rectangle<int>& rect)
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnSsg.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg256.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnSsgP256.setBounds(btnArea);
 
     // 残りをグラフエリアにする

@@ -53,11 +53,11 @@ sidebar:
 | --- | --- |
 | `level` | チャンネルの音量と再生遅延。`level` と `delay` を持ちます |
 | `ssgHwEnv` | [ssgHwEnv](/2686V_2686VFX/reference/file-spec/ssghwenv/) と同じ |
-| `ssgSwEnv11` | [ssgSwEnv11](/2686V_2686VFX/reference/file-spec/ssgswenv11/) と同じ |
+| `ssgSwEnv256` | [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じ |
 | `quality` | [quality](/2686V_2686VFX/reference/file-spec/quality/) と同じ |
 | `unison` | [unison](/2686V_2686VFX/reference/file-spec/unison/) と同じ |
 | `ampEnv` | [ampEnv](/2686V_2686VFX/reference/file-spec/ampenv/) と同じ |
-| `ssgSwPEnv11` | [ssgSwPEnv11](/2686V_2686VFX/reference/file-spec/ssgswpenv11/) と同じ |
+| `ssgSwPEnv256` | [ssgSwPEnv256](/2686V_2686VFX/reference/file-spec/ssgswpenv256/) と同じ |
 | `wtMod` | [wtMod](/2686V_2686VFX/reference/file-spec/wtmod/) と同じ |
 
 ## `ops` の並び
@@ -93,8 +93,8 @@ sidebar:
 | `fix` | 音程の固定。`enable` と `freq` を持ちます |
 | `pitchEnv` | [pitchEnv](/2686V_2686VFX/reference/file-spec/pitchenv/) と同じ |
 | `ssgSwEnv` | [ssgSwEnv](/2686V_2686VFX/reference/file-spec/ssgswenv/) と同じ |
-| `ssgSwEnv11` | [ssgSwEnv11](/2686V_2686VFX/reference/file-spec/ssgswenv11/) と同じ |
-| `ssgSwPEnv11` | [ssgSwPEnv11](/2686V_2686VFX/reference/file-spec/ssgswpenv11/) と同じ |
+| `ssgSwEnv256` | [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じ |
+| `ssgSwPEnv256` | [ssgSwPEnv256](/2686V_2686VFX/reference/file-spec/ssgswpenv256/) と同じ |
 
 :::note
 `ops` の中の**ファイルの場所**（`filePath` / `pcmFile` /

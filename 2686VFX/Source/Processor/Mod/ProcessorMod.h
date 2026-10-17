@@ -153,7 +153,7 @@ public:
 	void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
 
 	// WT PITCH MOD は波形の置き場を見に行くので、一緒に受け取る。
-	void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store);
+	void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& store, StepTableStore& stepTables);
 
 	void prepare(double sampleRate);
 

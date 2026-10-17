@@ -80,6 +80,9 @@ namespace ParamEdit
 		// Category のとき、区分に入っている素材の持ち主 (collectClipAssets の prefix)
 		std::vector<juce::String> assetPrefixes;
 
+		// Category のとき、区分に入っている段の表 (StepTableStore のキー)
+		std::vector<juce::String> stepTables;
+
 		juce::String prefix() const { return unit.isEmpty() ? channel : channel + "_" + unit; }
 	};
 
@@ -230,6 +233,9 @@ namespace ParamEdit
 	{
 		// 変調波形の置き場 (modWavePaths のキー)
 		inline const juce::Identifier waveKey{ "clipWaveKey" };
+
+		// 段の表 (StepTableStore のキー)。SSG SW AMP / PITCH ENV[256] など
+		inline const juce::Identifier stepTable{ "clipStepTable" };
 
 		// タブが持つ素材の持ち主 (collectClipAssets の prefix)
 		inline const juce::Identifier assetPrefix{ "clipAssetPrefix" };

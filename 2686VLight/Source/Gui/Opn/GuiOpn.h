@@ -204,7 +204,7 @@ class GuiOpn : public GuiBase
     // チップ全体のエンベロープを見るグラフ
     GuiEnvelopeGraph gGraph;
     GuiToggleButton gGraphBtnAmp;
-    GuiToggleButton gGraphBtnSsg11;
+    GuiToggleButton gGraphBtnSsg256;
     GuiToggleButton gGraphBtnSsgP256;
     NormalSeparator gGraphSeparator;
 
@@ -219,7 +219,7 @@ class GuiOpn : public GuiBase
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
-    GuiToggleButton graphBtnSsg11;
+    GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
 
     GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
@@ -363,13 +363,13 @@ public:
         opEditComponent(context),
         gGraph(),
         gGraphBtnAmp(context),
-        gGraphBtnSsg11(context),
+        gGraphBtnSsg256(context),
         gGraphBtnSsgP256(context),
         gGraphSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
-        graphBtnSsg11(context),
+        graphBtnSsg256(context),
         graphBtnSsgP256(context),
         cells{ GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context) }
     {

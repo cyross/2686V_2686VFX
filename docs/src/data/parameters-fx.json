@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDumpFx",
-  "version": "3.6.3",
-  "count": 358,
+  "version": "4.0.0",
+  "count": 318,
   "parameters": [
     {
       "id": "MODE",
@@ -1159,40 +1159,40 @@
       "default": 3
     },
     {
-      "id": "MOD_SSGSW11_STEPS",
-      "name": "MOD SSG SwEnv11 Steps",
+      "id": "MOD_SSGSW256_STEPS",
+      "name": "MOD SSG SwEnv256 Steps",
       "type": "Int",
       "min": 1,
-      "max": 10,
+      "max": 256,
       "default": 10
     },
     {
-      "id": "MOD_SSGSW11_LOOP",
-      "name": "MOD SSG SwEnv11 Loop",
+      "id": "MOD_SSGSW256_LOOP",
+      "name": "MOD SSG SwEnv256 Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "MOD_SSGSW11_LOOPTO",
-      "name": "MOD SSG SwEnv11 Loop To",
+      "id": "MOD_SSGSW256_LOOPTO",
+      "name": "MOD SSG SwEnv256 Loop To",
       "type": "Int",
       "min": 0,
-      "max": 8,
+      "max": 254,
       "default": 0
     },
     {
-      "id": "MOD_SSGSW11_LOOPCNT",
-      "name": "MOD SSG SwEnv11 Loop Count",
+      "id": "MOD_SSGSW256_LOOPCNT",
+      "name": "MOD SSG SwEnv256 Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "MOD_SSGSW11_STL",
-      "name": "MOD SSG SwEnv11 STL",
+      "id": "MOD_SSGSW256_STL",
+      "name": "MOD SSG SwEnv256 STL",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -1200,197 +1200,8 @@
       "default": 0.0
     },
     {
-      "id": "MOD_SSGSW11_R1",
-      "name": "MOD SSG SwEnv11 R1",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L1",
-      "name": "MOD SSG SwEnv11 L1",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R2",
-      "name": "MOD SSG SwEnv11 R2",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L2",
-      "name": "MOD SSG SwEnv11 L2",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R3",
-      "name": "MOD SSG SwEnv11 R3",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L3",
-      "name": "MOD SSG SwEnv11 L3",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R4",
-      "name": "MOD SSG SwEnv11 R4",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L4",
-      "name": "MOD SSG SwEnv11 L4",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R5",
-      "name": "MOD SSG SwEnv11 R5",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L5",
-      "name": "MOD SSG SwEnv11 L5",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R6",
-      "name": "MOD SSG SwEnv11 R6",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L6",
-      "name": "MOD SSG SwEnv11 L6",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R7",
-      "name": "MOD SSG SwEnv11 R7",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L7",
-      "name": "MOD SSG SwEnv11 L7",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R8",
-      "name": "MOD SSG SwEnv11 R8",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L8",
-      "name": "MOD SSG SwEnv11 L8",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R9",
-      "name": "MOD SSG SwEnv11 R9",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L9",
-      "name": "MOD SSG SwEnv11 L9",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R10",
-      "name": "MOD SSG SwEnv11 R10",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L10",
-      "name": "MOD SSG SwEnv11 L10",
-      "type": "Float",
-      "min": 0.0,
-      "max": 1.0,
-      "step": 0.000099999997474,
-      "default": 1.0
-    },
-    {
-      "id": "MOD_SSGSW11_R11",
-      "name": "MOD SSG SwEnv11 R11",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSW11_L11",
-      "name": "MOD SSG SwEnv11 L11",
+      "id": "MOD_SSGSW256_LR",
+      "name": "MOD SSG SwEnv256 LR",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -1398,8 +1209,17 @@
       "default": 0.0
     },
     {
-      "id": "MOD_SSGSW11_ENDL",
-      "name": "MOD SSG SwEnv11 EndL",
+      "id": "MOD_SSGSW256_RR",
+      "name": "MOD SSG SwEnv256 RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "MOD_SSGSW256_ENDL",
+      "name": "MOD SSG SwEnv256 EndL",
       "type": "Float",
       "min": 0.0,
       "max": 1.0,
@@ -1407,24 +1227,24 @@
       "default": 0.0
     },
     {
-      "id": "MOD_SSGSW11_ENDL_EN",
-      "name": "MOD SSG SwEnv11 EndL Enable",
+      "id": "MOD_SSGSW256_ENDL_EN",
+      "name": "MOD SSG SwEnv256 EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "MOD_SSGSW11_KEEP",
-      "name": "MOD SSG SwEnv11 Keep",
+      "id": "MOD_SSGSW256_KEEP",
+      "name": "MOD SSG SwEnv256 Keep",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "MOD_SSGSW11_BYPASS",
-      "name": "MOD SSG SwEnv11 Bypass",
+      "id": "MOD_SSGSW256_BYPASS",
+      "name": "MOD SSG SwEnv256 Bypass",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -1817,48 +1637,56 @@
       "default": false
     },
     {
-      "id": "MOD_SSGSWP11_STEPS",
-      "name": "MOD SSG SwPEnv11 Steps",
+      "id": "MOD_SSGSWP256_STEPS",
+      "name": "MOD SSG SwPEnv256 Steps",
       "type": "Int",
       "min": 1,
-      "max": 10,
+      "max": 256,
       "default": 10
     },
     {
-      "id": "MOD_SSGSWP11_LOOP",
-      "name": "MOD SSG SwPEnv11 Loop",
+      "id": "MOD_SSGSWP256_LOOP",
+      "name": "MOD SSG SwPEnv256 Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "MOD_SSGSWP11_LOOPTO",
-      "name": "MOD SSG SwPEnv11 Loop To",
+      "id": "MOD_SSGSWP256_LOOPTO",
+      "name": "MOD SSG SwPEnv256 Loop To",
       "type": "Int",
       "min": 0,
-      "max": 8,
+      "max": 254,
       "default": 0
     },
     {
-      "id": "MOD_SSGSWP11_LOOPCNT",
-      "name": "MOD SSG SwPEnv11 Loop Count",
+      "id": "MOD_SSGSWP256_LOOPCNT",
+      "name": "MOD SSG SwPEnv256 Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "MOD_SSGSWP11_STL",
-      "name": "MOD SSG SwPEnv11 STL",
+      "id": "MOD_SSGSWP256_STL",
+      "name": "MOD SSG SwPEnv256 STL",
       "type": "Int",
       "min": -4800,
       "max": 4800,
       "default": 0
     },
     {
-      "id": "MOD_SSGSWP11_R1",
-      "name": "MOD SSG SwPEnv11 R1",
+      "id": "MOD_SSGSWP256_LR",
+      "name": "MOD SSG SwPEnv256 LR",
+      "type": "Int",
+      "min": -4800,
+      "max": 4800,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP256_RR",
+      "name": "MOD SSG SwPEnv256 RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -1866,210 +1694,32 @@
       "default": 0.001000000047497
     },
     {
-      "id": "MOD_SSGSWP11_L1",
-      "name": "MOD SSG SwPEnv11 L1",
+      "id": "MOD_SSGSWP256_ENDL",
+      "name": "MOD SSG SwPEnv256 EndL",
       "type": "Int",
       "min": -4800,
       "max": 4800,
       "default": 0
     },
     {
-      "id": "MOD_SSGSWP11_R2",
-      "name": "MOD SSG SwPEnv11 R2",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L2",
-      "name": "MOD SSG SwPEnv11 L2",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_R3",
-      "name": "MOD SSG SwPEnv11 R3",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L3",
-      "name": "MOD SSG SwPEnv11 L3",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_R4",
-      "name": "MOD SSG SwPEnv11 R4",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L4",
-      "name": "MOD SSG SwPEnv11 L4",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_R5",
-      "name": "MOD SSG SwPEnv11 R5",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L5",
-      "name": "MOD SSG SwPEnv11 L5",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_R6",
-      "name": "MOD SSG SwPEnv11 R6",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L6",
-      "name": "MOD SSG SwPEnv11 L6",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_R7",
-      "name": "MOD SSG SwPEnv11 R7",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L7",
-      "name": "MOD SSG SwPEnv11 L7",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_R8",
-      "name": "MOD SSG SwPEnv11 R8",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L8",
-      "name": "MOD SSG SwPEnv11 L8",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_R9",
-      "name": "MOD SSG SwPEnv11 R9",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L9",
-      "name": "MOD SSG SwPEnv11 L9",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_R10",
-      "name": "MOD SSG SwPEnv11 R10",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L10",
-      "name": "MOD SSG SwPEnv11 L10",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_R11",
-      "name": "MOD SSG SwPEnv11 R11",
-      "type": "Float",
-      "min": 0.001000000047497,
-      "max": 10.0,
-      "step": 0.000099999997474,
-      "default": 0.001000000047497
-    },
-    {
-      "id": "MOD_SSGSWP11_L11",
-      "name": "MOD SSG SwPEnv11 L11",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_ENDL",
-      "name": "MOD SSG SwPEnv11 EndL",
-      "type": "Int",
-      "min": -4800,
-      "max": 4800,
-      "default": 0
-    },
-    {
-      "id": "MOD_SSGSWP11_ENDL_EN",
-      "name": "MOD SSG SwPEnv11 EndL Enable",
+      "id": "MOD_SSGSWP256_ENDL_EN",
+      "name": "MOD SSG SwPEnv256 EndL Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "MOD_SSGSWP11_KEEP",
-      "name": "MOD SSG SwPEnv11 Keep",
+      "id": "MOD_SSGSWP256_KEEP",
+      "name": "MOD SSG SwPEnv256 Keep",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "MOD_SSGSWP11_BYPASS",
-      "name": "MOD SSG SwPEnv11 Bypass",
+      "id": "MOD_SSGSWP256_BYPASS",
+      "name": "MOD SSG SwPEnv256 Bypass",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2887,7 +2537,7 @@
     },
     {
       "id": "MOD_KEY_SSGSWENV11",
-      "name": "MOD Key SSG SW AMP ENV[11]",
+      "name": "MOD Key SSG SW AMP ENV[256]",
       "type": "Int",
       "min": 0,
       "max": 127,
@@ -2911,7 +2561,7 @@
     },
     {
       "id": "MOD_KEY_SSGSWPENV11",
-      "name": "MOD Key SSG SW PITCH ENV[11]",
+      "name": "MOD Key SSG SW PITCH ENV[256]",
       "type": "Int",
       "min": 0,
       "max": 127,

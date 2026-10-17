@@ -58,6 +58,7 @@ set(UNDER_TEST_SOURCES
     "${SHARED_SOURCE_ROOT}/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.cpp"
+    "${SHARED_SOURCE_ROOT}/Effect/Envelope/Step/EnvStep.cpp"
 
     "${SHARED_SOURCE_ROOT}/Effect/KeyScale/Ma7/KSMa7.cpp"
     "${SHARED_SOURCE_ROOT}/Effect/KeyScale/Opl/KSOpl.cpp"
@@ -194,6 +195,7 @@ target_sources(IoTests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/io/ParamFileTests.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/io/MovedFileTests.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/io/PathRootTests.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/io/StepTableTests.cpp"
     "${SHARED_SOURCE_ROOT}/Core/Io/ParamFile.cpp"
     "${SHARED_SOURCE_ROOT}/Core/Gui/GuiI18n.cpp"
 )
