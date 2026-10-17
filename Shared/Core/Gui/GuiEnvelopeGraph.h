@@ -68,12 +68,20 @@ public:
         float stl = 0.0f, ar = 0.0f, dr = 0.0f, sl = 0.0f, rr = 0.0f;
         float stlMax = 1.0f, arMax = 1.0f, drMax = 1.0f, slMax = 1.0f, rrMax = 1.0f;
         bool kor = false;
+
+        // リリースを走り終えたあとに保つ値 (Use Endl)
+        bool endlEnable = false;
+        float endl = 0.0f;
     };
 
     struct PitchEnvValues {
         float ar = 0.0f, dr = 0.0f, rr = 0.0f;
         float arMax = 1.0f, drMax = 1.0f, rrMax = 1.0f;
         float stl = 0.0f, atl = 0.0f, ssl = 0.0f, rll = 0.0f;
+
+        // リリースを走り終えたあとに保つ値 (Use Endl)
+        bool endlEnable = false;
+        float endl = 0.0f;
     };
 
     // 段のエンベロープの、段そのもの以外。段の値は別に配列で渡す。
@@ -101,6 +109,10 @@ public:
         float lr = 0.0f;   // リリースの行き先
         float rMax = 1.0f;
         float lMax = 1.0f;
+
+        // リリースを走り終えたあとに保つ値 (Use Endl)
+        bool endlEnable = false;
+        float endl = 0.0f;
     };
 
     void updateSsgSwEnv256(
@@ -141,6 +153,9 @@ public:
     // そこで横一直線へ均し、印は使い捨てにする (区分ごとにグラフを
     // 使い回すため)。
     void setKeepLevels(bool keep) { this->keepLevels = keep; }
+
+    // リリースのあとに ENDL を描く。リリースの終わりから ENDL へ移り、そこで保つ。
+    static void appendEndLevel(std::vector<PhaseDef>& phases, float releaseEnd, float endl);
 private:
     EnvType currentType = EnvType::Amp;
     juce::String currentTitle;

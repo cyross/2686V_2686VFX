@@ -62,6 +62,8 @@ namespace GuiGraphValues
         v.rrMax = maxOf(apvts, code + CPK::Adsr::rr);
 
         v.kor = flag(apvts, code + CPK::Adsr::kor);
+        v.endlEnable = flag(apvts, code + CPK::Adsr::endlEnable);
+        v.endl = value(apvts, code + CPK::Adsr::endl);
 
         return v;
     }
@@ -90,6 +92,8 @@ namespace GuiGraphValues
         v.atl = value(apvts, code + CPK::PitchAdsr::atl);
         v.ssl = value(apvts, code + CPK::PitchAdsr::ssl);
         v.rll = value(apvts, code + CPK::PitchAdsr::rll);
+        v.endlEnable = flag(apvts, code + CPK::PitchAdsr::endlEnable);
+        v.endl = value(apvts, code + CPK::PitchAdsr::endl);
 
         return v;
     }
@@ -131,6 +135,14 @@ namespace GuiGraphValues
         v.lr = value(apvts, code + lrKey);
         v.rMax = maxOf(apvts, code + rrKey);
         v.lMax = levelMax;
+
+        // ENDL の鍵は LR の鍵と同じ頭を持つ (<頭>_LR / <頭>_ENDL / <頭>_ENDL_EN)
+        if (lrKey.endsWith("_LR")) {
+            const auto head = lrKey.dropLastCharacters(3);
+
+            v.endlEnable = flag(apvts, code + head + "_ENDL_EN");
+            v.endl = value(apvts, code + head + "_ENDL");
+        }
 
         return v;
     }

@@ -100,6 +100,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - RATE is shown as a decimal (0.001 steps)
   - RATE buttons are now ±0.001 / ±0.01 / ±0.1 / ±1.0 plus 0.001 / 0.01 / 0.1 / 1.0 set directly (the minimum is 0.001, so "0.0" became "0.001")
   - RR gets the same buttons as RATE, and LR the same as the value knob (not on ALG ENV's LR)
+- **Graphs now show ENDL (an existing bug)**
+  - With Use Endl on, AMP ENV, PITCH ENV and the 256-step envelopes draw the move to ENDL after the release and the hold there
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

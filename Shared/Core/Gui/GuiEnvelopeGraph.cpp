@@ -385,6 +385,28 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     }
 }
 
+void GuiEnvelopeGraph::appendEndLevel(std::vector<PhaseDef>& phases, float releaseEnd, float endl)
+{
+    // 走り終えたところで ENDL へ移る (ほぼ縦の線)
+    phases.push_back({
+        .widthPx = 0.01f,
+        .startLevel = releaseEnd,
+        .endLevel = endl,
+        .color = GuiColor::EnvelopeGraph::ReleaseLine,
+        .drawPhaseLine = false
+        });
+
+    // ENDL を保つ
+    phases.push_back({
+        .widthPx = 40.0f,
+        .startLevel = endl,
+        .endLevel = endl,
+        .isDashed = true,
+        .color = GuiColor::EnvelopeGraph::ReleaseLine,
+        .drawPhaseLine = false
+        });
+}
+
 void GuiEnvelopeGraph::updatePitchEnv(
     const PitchEnvValues& v,
     CurveCore* p_curveCore,
@@ -455,6 +477,8 @@ void GuiEnvelopeGraph::updatePitchEnv(
         .startLevel = ssl, .endLevel = rll, .color = color,
         .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Rr)
         });
+
+    if (v.endlEnable) appendEndLevel(phases, rll, v.endl / maxCents);
 
     setEnvelope(GuiEnvelopeGraph::EnvType::Pitch, "Pitch Env", phases);
 }
@@ -573,6 +597,8 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
         .startXOffsetPx = loopEndWidth
         });
 
+    if (v.endlEnable) appendEndLevel(phases, v.lr / lMax, v.endl / lMax);
+
     setEnvelope(type, title, phases);
 }
 
@@ -673,6 +699,8 @@ void GuiEnvelopeGraph::updateAmpEnv(
             .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
             });
     }
+
+    if (v.endlEnable) appendEndLevel(phases, isKor ? sl : 0.0f, v.endl / slMax);
 
     setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
 }

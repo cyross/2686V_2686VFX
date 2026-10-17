@@ -227,6 +227,8 @@ void GuiComponentAmpEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curve
 	v.rrMax = (float)release.getMaximum();
 
 	v.kor = kor.getToggleState();
+	v.endlEnable = endLevelEnable.getToggleState();
+	v.endl = (float)endLevel.getValue();
 
 	graph.updateAmpEnv(
 		v,
