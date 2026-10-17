@@ -738,8 +738,8 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     //
     // 絵は横 4 枚ずつ並べる。オペレータが 4 の倍数でないときは、
     // 足りないところを空けたままにする (詰めると番号と場所がずれる)。
-    // 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 (横 4 枚ずつ) を並べる。
-    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, Opl3PrValue::ops, false);
+    // 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 (横 2 枚ずつ) を並べる。
+    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, Opl3PrValue::ops, false, 2);
 
     for (int i = 0; i < Opl3PrValue::ops; ++i) {
         updateOpGraph(i);

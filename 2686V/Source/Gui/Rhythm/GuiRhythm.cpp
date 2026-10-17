@@ -1540,7 +1540,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     // 絵は横 4 枚ずつ並べる。パッドが 4 の倍数でないときは、
     // 足りないところを空けたままにする (詰めると番号と場所がずれる)。
     // 4.0.0: 左に TARGET の大きな枠、右に全部の小さな枠 (横 4 枚ずつ) を並べる。
-    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, RhythmPrValue::pads, true);
+    GuiTargetCell::layoutBigAndSmall(pageArea, bigCell, cells, RhythmPrValue::pads, true, 4);
 
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
         updatePadGraph(i);

@@ -5,7 +5,7 @@
 namespace
 {
     // 枠の内側へ残す余白。枠線が見切れないだけの幅を取る。
-    constexpr int inset = 4;
+    constexpr int inset = GuiTargetCell::insetPx;
 
     constexpr int titleHeight = 14;
     constexpr int gap = 2;
@@ -21,6 +21,11 @@ int GuiTargetCell::naturalHeight(bool withPreview)
     if (withPreview) h += GuiWavePreview::defaultHeight + gap;
 
     return h;
+}
+
+int GuiTargetCell::chromeHeight(bool withPreview)
+{
+    return naturalHeight(withPreview) - graphHeight;
 }
 
 void GuiTargetCell::setup(juce::Component& parent, int index, const juce::String& title, bool withPreview)
