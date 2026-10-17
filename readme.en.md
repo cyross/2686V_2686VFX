@@ -1210,36 +1210,47 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - SSG RHYTHM Sample.xml      : a preset for the rhythm sound source sample
       - Tekitou PSG.xml            : a rough-and-ready PSG preset, for reference
       - M-M-Pro                    : presets for the rhythm and ADPCM (DPCM quality) channels doing the voice synthesis from a certain baseball game
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]2686VLPresets           : the preset file folder for 2686VLight
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]26VPresets              : the preset file folder for 26V
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]2686VOPresets           : the preset file folder for 86V
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]OPZX7Presets            : the preset file folder for OPZX7S
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]OPNVPresets             : the preset file folder for OPNV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]OPLVPresets             : the preset file folder for OPLV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]OPMVPresets             : the preset file folder for OPMV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]WTVPresets              : the preset file folder for WTV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]PCMVPresets             : the preset file folder for PCMV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]PULSEVPresets           : the preset file folder for PULSEV
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]Resources               : resource files (**never rename, edit or delete this folder or its contents!**)
     - [Dir]Samples                 : the folder for the initial sample (audio) files
       - [Dir]fromCC                : the folder of files made for me by Claude Code
@@ -1257,9 +1268,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - [Dir]ChannelParams           : the parameter file folder for each channel
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]CustomizeColorSettings  : the folder for colour customisation files
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
     - [Dir]DetuneParams            : the parameter file folder for MUL/DET
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
@@ -1279,8 +1292,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - [Dir]PitchEnvParams          : the parameter file folder for pitch envelopes
       - [Dir]fromCC                : the folder of files made for me by Claude Code
         - [Dir]PitchEnv            : the parameter file folder for the traditional pitch envelope
-        - [Dir]SsgSwPenv11         : the parameter file folder for SSG SW Pitch ENV11
+        - [Dir]SsgSwPenv11         : for SSG SW Pitch ENV11; replaced with the [256] form (.ssgSwPEnv256) in v4.0.0
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
+        - [Dir]SsgSwPEnv256        : for SSG SW PITCH ENV[256] (Arp / Vibrato / Trill / Se / Bend) (-ch is for a channel's head, -op for operators and pads, because the ON/OFF direction is reversed)
+        - [Dir]TapPitch            : for TAP PITCH SEQUENCER
     - [Dir]QualityParams           : the parameter file folder for audio quality
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
@@ -1288,11 +1304,18 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
       - [Dir]fromCC3               : the folder of files made for me by Claude Code (v3.3.0 onwards)
-    - [Dir]SsgSwEnvParams          : the parameter file folder for SSG SW ENV(11)
+    - [Dir]SsgSwEnvParams          : the parameter file folder for step envelopes such as SSG SW AMP ENV[256] and for TAP AMP SEQUENCER
       - [Dir]fromCC                : the folder of files made for me by Claude Code
-        - [Dir]SsgSwEnv            : the parameter file folder for the traditional SSG SW AMP ENV
-        - [Dir]SsgSwEnv11          : the parameter file folder for SSG SW AMP ENV(11)
+        - [Dir]SsgSwEnv            : for the traditional 6-step SSG SW AMP ENV; replaced with the [256] form (.ssgSwEnv256) in v4.0.0
+        - [Dir]SsgSwEnv11          : for SSG SW AMP ENV(11); replaced with the [256] form (.ssgSwEnv256) in v4.0.0
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
+      - [Dir]fromCCv4              : the folder of files made for me by Claude Code (v4.0.0 onwards, using v4.0.0 features)
+        - [Dir]SsgSwEnv256         : for SSG SW AMP ENV[256] (Amp: echoes, NES-style decays, gates, tremolos and more) (-ch is for a channel's head, -op for operators and pads, because the ON/OFF direction is reversed)
+        - [Dir]DutyEnv             : for DUTY RATIO ENVELOPE
+        - [Dir]PeakEnv             : for PEAK RATIO ENVELOPE
+        - [Dir]TlEnv               : for TL ENV (-tl127 for OPNA / OPN / OPM, -tl63 for OPL / OPL3 / OPZX7S)
+        - [Dir]AlgEnv              : for ALG ENV (-alg8 for chips with 8 ALGs, -alg2 for OPL)
+        - [Dir]TapAmp              : for TAP AMP SEQUENCER
     - [Dir]CurveParams             : the parameter file folder for curve editing (only on plugins that have it)
       - [Dir]fromCC                : the folder of files made for me by Claude Code
       - [Dir]fromCC2               : the folder of files made for me by Claude Code (v3.2.0 onwards)
