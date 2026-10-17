@@ -1427,6 +1427,22 @@ void GuiRhythm::setup()
     ieChParam.onClickImport = [this] { importChParam(); };
     ieChParam.onClickExport = [this] { exportChParam(); };
 
+    // 区分の見出しの右クリックの IMPORT / EXPORT を、UTILITY の [IM] / [EX] とつなぐ。
+    // 部品ごと渡したもの (setupComponentFor) は、そこでつないである。
+    ieQuality.bindCategory(padPanel.qualityPcmComponent.category());
+    ieToneNoise.bindCategory(padPanel.formCat);
+    ieLfo.bindCategory(padPanel.lfoComponent.category());
+    ieDetune.bindCategory(padPanel.mulDetuneComponent.category());
+    ieAmpEnv.bindCategory(padPanel.ampEnvComponent.category());
+    iePitchEnv.bindCategory(padPanel.pitchEnvComponent.category());
+    ieSsgHwEnv.bindCategory(padPanel.ssgHwEnv.category());
+    ieSsgHwPEnv.bindCategory(padPanel.ssgHwPEnv.category());
+    ieWtMod.bindCategory(padPanel.modComponent.category());
+    ieWtAmpMod.bindCategory(padPanel.ampModComponent.category());
+    ieSsgSwEnv.bindCategory(padPanel.ssgSwEnvComponent.category());
+    ieSsgSwEnv11.bindCategory(padPanel.ssgSwEnv11Component.category());
+    ieSsgSwPEnv11.bindCategory(padPanel.ssgSwPEnv11Component.category());
+
     // ---- 上の絵と、下の設定 ----
     //
     // 絵はパッドの数だけ。設定はひとそろいだけ置き、TARGET で

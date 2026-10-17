@@ -4,6 +4,8 @@
 #include "./GuiI18n.h"
 #include "./GuiRefresh.h"
 
+#include "Shared/Gui/Components/Edit/TargetsDialog.h"
+
 #include <set>
 
 namespace ParamEdit
@@ -18,6 +20,9 @@ namespace ParamEdit
 			inline juce::String copy() { return I18n::pick(u8"コピー (COPY)", u8"Copy"); }
 			inline juce::String paste() { return I18n::pick(u8"貼り付け (PASTE)", u8"Paste"); }
 			inline juce::String clear() { return I18n::pick(u8"初期化 (CLEAR)", u8"Clear"); }
+			inline juce::String duplicate() { return I18n::pick(u8"複写 (DUPLICATE)", u8"Duplicate"); }
+			inline juce::String importParams() { return I18n::pick(u8"読み込み (IMPORT)", u8"Import"); }
+			inline juce::String exportParams() { return I18n::pick(u8"書き出し (EXPORT)", u8"Export"); }
 			inline juce::String duplicating() { return I18n::pick(u8"Duplicating…", u8"Duplicating…"); }
 		}
 
@@ -510,6 +515,79 @@ namespace ParamEdit
 		}
 	}
 
+	namespace
+	{
+		// "_" で区切った語のうち、from と同じものを to へ置き換える
+		juce::String replaceToken(const juce::String& s, const juce::String& from, const juce::String& to)
+		{
+			auto tokens = juce::StringArray::fromTokens(s, "_", "");
+
+			for (auto& t : tokens) if (t == from) t = to;
+
+			return tokens.joinIntoString("_");
+		}
+
+		// 単位の名前の頭 (OP3 なら OP)
+		juce::String unitHead(const juce::String& unit)
+		{
+			return unit.trimCharactersAtEnd("0123456789");
+		}
+	}
+
+	void duplicateCategoryTo(const GuiContext& ctx, const Target& source, const std::vector<juce::String>& units)
+	{
+		if (source.unit.isEmpty()) return;
+
+		BusyScope busy(ctx);
+
+		const auto snap = capture(ctx, source);
+
+		for (const auto& unit : units)
+		{
+			if (unit == source.unit) continue;
+
+			Target t = source;
+
+			t.unit = unit;
+
+			for (auto& id : t.ids) id = replaceToken(id, source.unit, unit);
+			for (auto& key : t.waveKeys) key = replaceToken(key, source.unit, unit);
+			for (auto& owner : t.assetPrefixes) owner = replaceToken(owner, source.unit, unit);
+
+			// 写し先に無いパラメータ (相手の単位が持たないもの) は外す
+			t.ids.erase(std::remove_if(t.ids.begin(), t.ids.end(),
+				[&](const juce::String& id) { return ctx.apvts.getParameter(id) == nullptr; }), t.ids.end());
+
+			paste(ctx, t, snap);
+		}
+	}
+
+	std::vector<int> unitNumbers(const GuiContext& ctx, const juce::String& channel, const juce::String& head)
+	{
+		std::set<int> found;
+		const auto lead = channel + "_" + head;
+
+		for (auto* raw : ctx.apvts.processor.getParameters())
+		{
+			auto* p = dynamic_cast<juce::RangedAudioParameter*>(raw);
+
+			if (p == nullptr) continue;
+
+			const auto id = p->getParameterID();
+
+			if (!id.startsWith(lead)) continue;
+
+			const auto rest = id.substring(lead.length());
+			const auto digits = rest.initialSectionContainingOnly("0123456789");
+
+			if (digits.isEmpty() || !rest.substring(digits.length()).startsWith("_")) continue;
+
+			found.insert(digits.getIntValue());
+		}
+
+		return { found.begin(), found.end() };
+	}
+
 	void clearUnits(const GuiContext& ctx, const juce::String& channel, const juce::String& head,
 		const std::vector<int>& units)
 	{
@@ -780,11 +858,110 @@ namespace ParamEdit
 
 	namespace
 	{
-		// CUT / COPY / PASTE / CLEAR のメニュー
-		void showMenu(juce::Component& anchor, const GuiContext& ctx, const Target& target)
+		// 区分の複写のダイアログ。区分の見出しから開くので持ち主の部品が無い。
+		// 自分で自分を持ち、閉じたら片付く。出した先 (エディタ) が先に消える
+		// ときも一緒に消える。
+		class OwnedDuplicateDialog : public GuiTargetsDialog, private juce::ComponentListener
+		{
+		public:
+			static void open(const GuiContext& ctx, juce::Component& anchor, const Target& source)
+			{
+				auto* top = anchor.getTopLevelComponent();
+
+				if (top == nullptr || source.unit.isEmpty()) return;
+
+				const auto head = unitHead(source.unit);
+				const auto numbers = unitNumbers(ctx, source.channel, head);
+
+				if (numbers.size() < 2) return;
+
+				// 画面の番号は TARGET のつまみに合わせる。OP / PAD は 1 から、
+				// WT+ / ADPCM+ の TARGET (SLOT) は 0 から
+				const bool slot = head == "SLOT";
+
+				Config c;
+
+				c.mode = Mode::DuplicateTo;
+				c.count = (int)numbers.size();
+				c.current = 0;
+				c.title = Text::duplicate() + ": " + source.category;
+
+				std::vector<juce::String> units;
+
+				for (int i = 0; i < (int)numbers.size(); ++i)
+				{
+					const auto unit = head + juce::String(numbers[(size_t)i]);
+
+					if (unit == source.unit) c.current = i;
+
+					units.push_back(unit);
+					c.names.push_back(slot ? juce::String(numbers[(size_t)i]) : head + juce::String(numbers[(size_t)i] + 1));
+				}
+
+				c.onDuplicateTo = [ctx, source, units](const std::vector<int>& targets) {
+					std::vector<juce::String> to;
+
+					for (int i : targets) to.push_back(units[(size_t)i]);
+
+					duplicateCategoryTo(ctx, source, to);
+				};
+
+				auto* dialog = new OwnedDuplicateDialog(ctx, *top);
+
+				c.onClosed = [dialog] {
+					juce::MessageManager::callAsync([dialog] { delete dialog; });
+				};
+
+				constexpr int width = 380;
+
+				const auto area = top->getLocalBounds().withSizeKeepingCentre(
+					juce::jmin(width, top->getWidth() - 20), juce::jmax(100, top->getHeight() - 40));
+
+				dialog->GuiTargetsDialog::open(*top, area, c);
+
+				// 中身の高さに合わせて縦も真ん中へ寄せる
+				dialog->setCentrePosition(top->getLocalBounds().getCentre());
+			}
+
+			~OwnedDuplicateDialog() override
+			{
+				if (auto* owner = m_owner.getComponent()) owner->removeComponentListener(this);
+			}
+		private:
+			OwnedDuplicateDialog(const GuiContext& ctx, juce::Component& owner) : GuiTargetsDialog(ctx), m_owner(&owner)
+			{
+				owner.addComponentListener(this);
+			}
+
+			void componentBeingDeleted(juce::Component& c) override
+			{
+				if (&c != m_owner.getComponent()) return;
+
+				c.removeComponentListener(this);
+				m_owner = nullptr;
+
+				delete this;
+			}
+
+			juce::Component::SafePointer<juce::Component> m_owner;
+		};
+
+		// 読み込み・書き出し (区分の見出しから。空なら押せない)
+		struct ImportExport
+		{
+			std::function<void()> onImport;
+			std::function<void()> onExport;
+		};
+
+		// CUT / COPY / PASTE / CLEAR / DUPLICATE / IMPORT / EXPORT のメニュー
+		void showMenu(juce::Component& anchor, const GuiContext& ctx, const Target& target, const ImportExport& io = {})
 		{
 			const bool has = !target.ids.empty() || !target.waveKeys.empty() || !target.assetPrefixes.empty();
 			const bool canPaste = has && Clipboard::get().current().has_value();
+
+			// 複写はオペレーター・パッド・TARGET の区分だけ。写し先が要る
+			const bool canDuplicate = has && target.unit.isNotEmpty()
+				&& unitNumbers(ctx, target.channel, unitHead(target.unit)).size() > 1;
 
 			juce::PopupMenu menu;
 
@@ -792,11 +969,15 @@ namespace ParamEdit
 			menu.addItem(2, Text::copy(), has);
 			menu.addItem(3, Text::paste(), canPaste);
 			menu.addItem(4, Text::clear(), has);
+			menu.addItem(5, Text::duplicate(), canDuplicate);
+			menu.addSeparator();
+			menu.addItem(6, Text::importParams(), io.onImport != nullptr);
+			menu.addItem(7, Text::exportParams(), io.onExport != nullptr);
 
 			juce::Component::SafePointer<juce::Component> safe(&anchor);
 
 			menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&anchor),
-				[safe, target, ctx](int result) {
+				[safe, target, ctx, io](int result) {
 					if (safe == nullptr || result == 0) return;
 
 					switch (result)
@@ -805,6 +986,9 @@ namespace ParamEdit
 					case 2: copy(ctx, target); break;
 					case 3: pasteClipboard(ctx, target); break;
 					case 4: clear(ctx, target); break;
+					case 5: OwnedDuplicateDialog::open(ctx, *safe, target); break;
+					case 6: if (io.onImport) io.onImport(); break;
+					case 7: if (io.onExport) io.onExport(); break;
 					default: break;
 					}
 				});
@@ -813,7 +997,7 @@ namespace ParamEdit
 
 	void showCategoryMenu(GuiCategoryLabel& label)
 	{
-		showMenu(label, label.context(), categoryTarget(label));
+		showMenu(label, label.context(), categoryTarget(label), { label.onImport, label.onExport });
 	}
 
 	Target groupTarget(const GuiContext& ctx, juce::GroupComponent& group)

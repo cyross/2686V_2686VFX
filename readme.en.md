@@ -41,6 +41,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The duty snaps to the chip's 12.5 / 25 / 50 / 75%, the pitch to the 11-bit timer and the volume to 16 steps through the DAC curve. The output filter is a 37 Hz high-pass for FC, and 90 Hz / 440 Hz high-passes plus a 14 kHz low-pass for NES
   - Only one of FC Mode, More Real FC and More Real NES can be on (all off is fine). Off by default, so existing sounds are unchanged
   - Saved in parameter files and presets (`dutyMoreFc` / `dutyMoreNes`)
+- **The section right-click menu gains Duplicate, Import and Export**
+  - Duplicate below CLEAR, then a separator, then Import / Export
+  - Duplicate: copies an operator, pad or TARGET section to the same section of other operators, pads or TARGETs on the channel, picked in a check-box dialog (Check all / Uncheck all, a blue Duplicate, Cancel)
+  - Import / Export: same as that section's [IM]… / [EX]… in UTILITY. The UTILITY buttons stay
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

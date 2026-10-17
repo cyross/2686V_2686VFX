@@ -31,6 +31,17 @@ public:
         setupComponent(parent, tabOrder, title);
         onClickImport = [&target] { target.importParams(); };
         onClickExport = [&target] { target.exportParams(); };
+
+        // 区分の見出しを持つ部品なら、右クリックの IMPORT / EXPORT もつなぐ
+        if constexpr (requires { target.category(); }) bindCategory(target.category());
+    }
+
+    // 区分の見出しの右クリックの「読み込み (IMPORT)」「書き出し (EXPORT)」を、
+    // このボタンと同じ処理へつなぐ。押したときに onClickImport / onClickExport を
+    // 引くので、あとから差し替えてもかまわない。
+    void bindCategory(GuiCategoryLabel& label) {
+        label.onImport = [this] { if (onClickImport != nullptr) onClickImport(); };
+        label.onExport = [this] { if (onClickExport != nullptr) onClickExport(); };
     }
 
     void layoutComponent(juce::Rectangle<int>& rect);

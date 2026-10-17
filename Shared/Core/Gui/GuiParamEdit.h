@@ -109,6 +109,14 @@ namespace ParamEdit
 	void duplicateUnitTo(const GuiContext& ctx, const juce::String& channel, const juce::String& head,
 		int from, const std::vector<int>& to, bool withParams, bool withAssets = true);
 
+	// 区分 1 つを、同じ種類のほかの単位 (OP / PAD / TARGET) の同じ区分へ写す。
+	// units は写し先の単位の名前 (OP3 など)。区分のパラメータ ID などに入って
+	// いる写し元の単位の名前を、写し先のものへ置き換えて貼る。
+	void duplicateCategoryTo(const GuiContext& ctx, const Target& source, const std::vector<juce::String>& units);
+
+	// チャンネルにある、head (OP / PAD / SLOT) の単位の番号。小さい順
+	std::vector<int> unitNumbers(const GuiContext& ctx, const juce::String& channel, const juce::String& head);
+
 	// 番号付きの単位をいくつか、初期の状態へ戻す (パラメータも素材も)
 	void clearUnits(const GuiContext& ctx, const juce::String& channel, const juce::String& head,
 		const std::vector<int>& units);

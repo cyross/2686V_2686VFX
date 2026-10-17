@@ -19,6 +19,9 @@ class GuiComponentN88LfoOp : public GuiBase {
     GuiSlider ams;
 
 public:
+    // 区分の見出し。右クリックの IMPORT / EXPORT をつなぐのに使う
+    GuiCategoryLabel& category() { return cat; }
+
     GuiComponentN88LfoOp(const GuiContext& context) :
         GuiBase(context),
         cat(context),

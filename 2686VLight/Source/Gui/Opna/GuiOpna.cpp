@@ -469,6 +469,20 @@ void GuiOpna::setup()
     ieChParam.onClickImport = [this] { importChParam(); };
     ieChParam.onClickExport = [this] { exportChParam(); };
 
+    // 区分の見出しの右クリックの IMPORT / EXPORT を、UTILITY の [IM] / [EX] とつなぐ。
+    // 部品ごと渡したもの (setupComponentFor) は、そこでつないである。
+    ieQuality.bindCategory(qualityComponent.category());
+    ieOpPitchEnv.bindCategory(pitchEnv.category());
+    ieOpSsgSwEnv.bindCategory(ssgSwEnv.category());
+    ieOpSsgSwEnv11.bindCategory(ssgSwEnv11.category());
+    ieOpSsgSwPEnv11.bindCategory(ssgSwPEnv11.category());
+    ieOpSsgHwPEnv.bindCategory(ssgHwPEnvOp.category());
+    ieOpWtAmpMod.bindCategory(wtAmpModOp.category());
+    ieOpSsgHwEnv.bindCategory(ssgHwEnvOp.category());
+    ieOpWtMod.bindCategory(wtModOp.category());
+    ieHwLfo.bindCategory(catLfo);
+    ieLfo.bindCategory(n88Lfo.category());
+
     imOpnChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "OPN CH Params");
     imOpnChParam.onClickImport = [this] { importOpnChParam(); };
 

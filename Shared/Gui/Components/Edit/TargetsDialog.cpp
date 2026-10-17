@@ -43,8 +43,12 @@ GuiTargetsDialog::GuiTargetsDialog(const GuiContext& context) :
 void GuiTargetsDialog::build()
 {
 	const bool duplicate = config.mode == Mode::Duplicate;
+	const bool duplicateTo = config.mode == Mode::DuplicateTo;
 
-	title.setup({ .parent = *this, .title = duplicate ? Text::duplicateTitle() : Text::clearTitle(),
+	const juce::String heading = config.title.isNotEmpty() ? config.title
+		: (duplicate || duplicateTo) ? Text::duplicateTitle() : Text::clearTitle();
+
+	title.setup({ .parent = *this, .title = heading,
 		.font = juce::Font(juce::FontOptions(16.0f, juce::Font::bold)) });
 
 	if (duplicate)
@@ -55,7 +59,7 @@ void GuiTargetsDialog::build()
 		from.onValueChange = [this] { applyFrom(); };
 	}
 
-	targetsLabel.setup({ .parent = *this, .title = duplicate ? Text::to() : Text::target(),
+	targetsLabel.setup({ .parent = *this, .title = (duplicate || duplicateTo) ? Text::to() : Text::target(),
 		.justification = juce::Justification::centredLeft });
 
 	toggles.clear();
@@ -64,7 +68,9 @@ void GuiTargetsDialog::build()
 	{
 		auto t = std::make_unique<GuiToggleButton>(ctx);
 
-		t->setup({ .parent = *this, .title = juce::String(config.firstNumber + i) });
+		const juce::String name = i < (int)config.names.size() ? config.names[(size_t)i] : juce::String(config.firstNumber + i);
+
+		t->setup({ .parent = *this, .title = name });
 		t->setWantsKeyboardFocus(true);
 
 		toggles.push_back(std::move(t));
@@ -90,8 +96,8 @@ void GuiTargetsDialog::build()
 		withParams.setToggleState(true, juce::dontSendNotification);
 	}
 
-	runBtn.setup({ .parent = *this, .title = duplicate ? Text::duplicate() : Text::clear(),
-		.textColor = GuiColor::Edit::ButtonText, .bgColor = duplicate ? GuiColor::Edit::DuplicateOpsBg : GuiColor::Edit::ClearBg });
+	runBtn.setup({ .parent = *this, .title = (duplicate || duplicateTo) ? Text::duplicate() : Text::clear(),
+		.textColor = GuiColor::Edit::ButtonText, .bgColor = (duplicate || duplicateTo) ? GuiColor::Edit::DuplicateOpsBg : GuiColor::Edit::ClearBg });
 	runBtn.onClick = [this] {
 		const auto targets = checked();
 
@@ -100,6 +106,10 @@ void GuiTargetsDialog::build()
 		if (config.mode == Mode::Duplicate)
 		{
 			if (config.onDuplicate) config.onDuplicate((int)from.getValue() - config.firstNumber, targets, withParams.getToggleState());
+		}
+		else if (config.mode == Mode::DuplicateTo)
+		{
+			if (config.onDuplicateTo) config.onDuplicateTo(targets);
 		}
 		else
 		{
@@ -135,6 +145,11 @@ void GuiTargetsDialog::open(juce::Component& parent, juce::Rectangle<int> area, 
 	{
 		from.setValue(config.firstNumber + juce::jlimit(0, config.count - 1, config.current), juce::dontSendNotification);
 		applyFrom();
+	}
+	else if (config.mode == Mode::DuplicateTo)
+	{
+		// 写し元は写し先に選べない
+		for (int i = 0; i < (int)toggles.size(); ++i) toggles[(size_t)i]->setEnabled(i != config.current);
 	}
 
 	parent.addAndMakeVisible(*this);
@@ -173,6 +188,8 @@ void GuiTargetsDialog::close()
 	setVisible(false);
 
 	if (auto* parent = getParentComponent()) parent->removeChildComponent(this);
+
+	if (config.onClosed) config.onClosed();
 }
 
 // 写し元と同じ番号は写し先に選べない

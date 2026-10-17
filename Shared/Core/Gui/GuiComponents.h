@@ -1271,9 +1271,15 @@ public:
     // 中身が見えているほうが都合のよいことがある。
     void setDetailVisible(bool visible) { this->detailVisible = visible; }
 
-    // 右クリックで、区分の中身の切り取り・コピー・貼り付け・初期化を出す
-    // (ParamEdit::showCategoryMenu)。
+    // 右クリックで、区分の中身の切り取り・コピー・貼り付け・初期化・複写と
+    // 読み込み・書き出しを出す (ParamEdit::showCategoryMenu)。
     void mouseDown(const juce::MouseEvent& e) override;
+
+    // 右クリックの「読み込み (IMPORT)」「書き出し (EXPORT)」で呼ぶもの。
+    // UTILITY の [IM] / [EX] と同じ処理をつなぐ (GuiComponentImportExport::bindCategory)。
+    // 空なら、その項目は押せない。
+    std::function<void()> onImport = nullptr;
+    std::function<void()> onExport = nullptr;
 
     // 中身の背後の板の場所。区分に入っている部品を見分けるのに使う。
     juce::Rectangle<int> backdropBounds() const { return backdrop.isVisible() ? backdrop.getBounds() : juce::Rectangle<int>(); }

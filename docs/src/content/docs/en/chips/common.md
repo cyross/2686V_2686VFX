@@ -642,6 +642,19 @@ on **that section only**. It works on closed sections too. Paste into the same
 section of another channel, operator or pad. For FX effects, right-click the
 frame's heading.
 
+Since 4.0.0 these items follow CLEAR:
+
+| Item | What it does |
+| --- | --- |
+| **Duplicate** | Copies an operator, pad or TARGET section (OPTIONAL on WT+ / ADPCM+, PAN on ADPCM+ and so on) into the same section of other operators, pads or TARGETs on the same channel. A dialog with check boxes picks the destinations. Not available for global sections |
+| **Import** | Same as pressing that section's **[IM]…** in UTILITY |
+| **Export** | Same as pressing that section's **[EX]…** in UTILITY |
+
+The Duplicate dialog has "Check all" / "Uncheck all" and "Duplicate" / "Cancel"
+buttons. The source (what TARGET points at now) can't be picked. ESC also closes
+it. Import and Export work only for sections that have [IM] / [EX] in UTILITY; those
+UTILITY buttons are still there.
+
 ### Duplicate Ops Params — copying a run of operators
 
 At the top of EDIT on OPNA, OPN, OPL3, OPM and OPZX7. Copies a run of

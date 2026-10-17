@@ -474,6 +474,10 @@ void GuiWt2::setup()
     ieChParam.onClickImport = [this] { importChParam(); };
     ieChParam.onClickExport = [this] { exportChParam(); };
 
+    // 区分の見出しの右クリックの IMPORT / EXPORT を、UTILITY の [IM] / [EX] とつなぐ。
+    // 部品ごと渡したもの (setupComponentFor) は、そこでつないである。
+    ieQuality.bindCategory(qualityComponent.category());
+
     // Custom Wave Group
     customWaveGroup.setup(*this, Wt2GuiText::Group::wtCustom);
 

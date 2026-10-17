@@ -38,6 +38,9 @@ class GuiComponentN88Lfo : public GuiBase {
     NormalSeparator sep2;
 
 public:
+    // 区分の見出し。右クリックの IMPORT / EXPORT をつなぐのに使う
+    GuiCategoryLabel& category() { return cat; }
+
     GuiComponentN88Lfo(const GuiContext& context) :
         GuiBase(context),
         cat(context),

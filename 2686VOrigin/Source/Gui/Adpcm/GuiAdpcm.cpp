@@ -299,6 +299,11 @@ void GuiAdpcm::setup()
     ieChParam.onClickImport = [this] { importChParam(); };
     ieChParam.onClickExport = [this] { exportChParam(); };
 
+    // 区分の見出しの右クリックの IMPORT / EXPORT を、UTILITY の [IM] / [EX] とつなぐ。
+    // 部品ごと渡したもの (setupComponentFor) は、そこでつないである。
+    ieQuality.bindCategory(qualityPcmComponent.category());
+    ieToneNoise.bindCategory(formCat);
+
     setupGraph();
     updateGraph();
 }

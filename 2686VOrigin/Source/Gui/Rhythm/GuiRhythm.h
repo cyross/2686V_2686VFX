@@ -49,6 +49,9 @@ class AudioPlugin2686VEditor;
 
 class RhythmPadGui: public GuiBase
 {
+    // タブが区分の見出しへ UTILITY の [IM] / [EX] をつなぐため
+    friend class GuiRhythm;
+
     // 今指しているパッドの名前。TARGET の隣に出す。
     GuiLabel padNameLabel;
 

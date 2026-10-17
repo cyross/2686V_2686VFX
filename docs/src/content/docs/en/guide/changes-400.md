@@ -36,3 +36,15 @@ FC FLUC's wavering.
 Only one of FC Mode, More Real FC and More Real NES can be on (all off is fine).
 They are off by default, so existing patches sound the same. See
 [SSG](/2686V_2686VFX/en/chips/ssg/) for details.
+
+## Duplicate, Import and Export on the section right-click menu
+
+The section heading's right-click menu gains **Duplicate** below CLEAR, and
+**Import** and **Export** below a separator.
+
+- **Duplicate** copies an operator, pad or TARGET section into the same section
+  of other operators, pads or TARGETs on the channel, picked in a check-box dialog
+- **Import / Export** do what that section's [IM]… / [EX]… in UTILITY do. The
+  UTILITY buttons stay
+
+See [Right-click a section](/2686V_2686VFX/en/chips/common/#right-click-a-section).

@@ -171,6 +171,11 @@ void GuiSsg::setup()
     ieChParam.onClickImport = [this] { importChParam(); };
     ieChParam.onClickExport = [this] { exportChParam(); };
 
+    // 区分の見出しの右クリックの IMPORT / EXPORT を、UTILITY の [IM] / [EX] とつなぐ。
+    // 部品ごと渡したもの (setupComponentFor) は、そこでつないである。
+    ieQuality.bindCategory(qualityComponent.category());
+    ieToneNoise.bindCategory(formCat);
+
     waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::ssgWaveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
