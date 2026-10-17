@@ -256,7 +256,7 @@ as `.ssgSwEnv256`.
 ### TL ENV
 
 **Ours.** Only the FM chips' operators have it (OPNA / OPN / OPL / OPL3 / OPM / OPZX7S), at the
-bottom of [[AMP ENV]] after WT AMP MOD (from 4.0.0). It lets you draw, as a **TL** per step, the
+AMP ENV section, directly below it in the same column (from 4.0.0). It lets you draw, as a **TL** per step, the
 level movement drivers made by rewriting TL on every key-on.
 
 It is the same 256-step envelope as [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256), except that the

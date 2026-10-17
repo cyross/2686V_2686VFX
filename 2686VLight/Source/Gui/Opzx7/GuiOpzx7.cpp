@@ -403,7 +403,6 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     colSsgHwEnv(context),
     colSsgSwEnv256(context),
     colAmpMod(context),
-    colTlEnv(context),
     colPitchEnv(context),
     colSsgHwPEnv(context),
     colSsgSwPEnv256(context),
@@ -919,7 +918,6 @@ void GuiOpzx7::setup()
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
     colSsgSwEnv256.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[256]");
     colAmpMod.setup(stripCanvas, juce::String("") + "WT AMP MOD");
-    colTlEnv.setup(stripCanvas, juce::String("") + "TL ENV");
     colPitchEnv.setup(stripCanvas, juce::String("") + "PITCH ENV");
     colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
     colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[256]");
@@ -1323,7 +1321,7 @@ void GuiOpzx7::setup()
     ssgHwPEnvOp.setupComponent(colSsgHwPEnv.contentCanvas, paramPrefix, tabOrder);
     wtAmpModOp.setupComponent(colAmpMod.contentCanvas, paramPrefix, tabOrder);
 
-    tlEnv.setupComponent(colTlEnv.contentCanvas, paramPrefix, tabOrder, tlEnv.spec(63).tableKey + "_ENABLE", "Enable", true);
+    tlEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, tlEnv.spec(63).tableKey + "_ENABLE", "Enable", true);
     tlEnv.category().onImport = [this] { tlEnv.importParams(); };
     tlEnv.category().onExport = [this] { tlEnv.exportParams(); };
     ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
@@ -1363,7 +1361,7 @@ void GuiOpzx7::setup()
     // 畳んだままだと見出しだけの列が並ぶことになる。
     for (auto* group : {
         &colAmp, &colWs, &colSsgHwEnv,
-        &colSsgSwEnv256, &colAmpMod, &colTlEnv, &colPitchEnv, &colSsgHwPEnv,
+        &colSsgSwEnv256, &colAmpMod, &colPitchEnv, &colSsgHwPEnv,
         &colSsgSwPEnv256, &colMod, &colKs, &colLfo,
         &colMask,
         })
@@ -2344,6 +2342,11 @@ void GuiOpzx7::layoutOpPanel(juce::Rectangle<int> area)
 
     layoutCol(colAmp, true, [&](juce::Rectangle<int>& rect) {
         layoutOpAmpCat(rect, rgMode);
+
+        // TL ENV。オペレーターの AMP ENV 区分のすぐ下
+        tlEnv.setCategoryVisible(true);
+        tlEnv.layoutComponent(rect);
+
         layoutOpOptionalCat(rect);
         layoutOpSsgEnvCat(rect);
         });
@@ -2363,12 +2366,6 @@ void GuiOpzx7::layoutOpPanel(juce::Rectangle<int> area)
     layoutCol(colAmpMod, shown(SimpleView::WtAmpMod), [&](juce::Rectangle<int>& rect) {
         wtAmpModOp.setCategoryVisible(true);
         wtAmpModOp.layoutComponent(rect);
-        });
-
-    // TL ENV。[[AMP ENV]] の一番下 (WT AMP MOD の次)
-    layoutCol(colTlEnv, true, [&](juce::Rectangle<int>& rect) {
-        tlEnv.setCategoryVisible(true);
-        tlEnv.layoutComponent(rect);
         });
 
     layoutCol(colPitchEnv, shown(SimpleView::PitchEnv), [&](juce::Rectangle<int>& rect) {

@@ -178,7 +178,6 @@ class GuiOpm : public GuiBase
     GuiScrollGroup colSsgHwEnv;
     GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
-    GuiScrollGroup colTlEnv;
     GuiScrollGroup colPitchEnv;
     GuiScrollGroup colSsgHwPEnv;
     GuiScrollGroup colSsgSwPEnv256;
@@ -231,7 +230,7 @@ class GuiOpm : public GuiBase
     GuiComponentSsgHwPEnv ssgHwPEnvOp;
     GuiComponentWtAmpMod wtAmpModOp;
 
-    // TL ENV。[[AMP ENV]] の一番下
+    // TL ENV。オペレーターの AMP ENV 区分のすぐ下 (同じ列)
     GuiComponentTlEnv tlEnv;
 
     // ALG ENV。ALGORITHM/FEEDBACK の FEEDBACK の下
@@ -406,7 +405,6 @@ public:
         colSsgHwEnv(context),
         colSsgSwEnv256(context),
         colAmpMod(context),
-        colTlEnv(context),
         colPitchEnv(context),
         colSsgHwPEnv(context),
         colSsgSwPEnv256(context),

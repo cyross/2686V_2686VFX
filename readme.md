@@ -67,7 +67,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 2 つのグループは段の数で伸びるので、欄の下まで広げて中を縦に送れるようにした
   - プリセット・チャンネルパラメータ (`dutyEnv` / `peakEnv`) に保存。区分のパラメータファイルは `.dutyEnv` / `.peakEnv` (見出しの右クリック)
 - **FM 音源のオペレーターに「TL ENV」を追加**
-  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7S のオペレーター。[[AMP ENV]] の一番下 (WT AMP MOD の次)
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7S のオペレーター。AMP ENV 区分のすぐ下 (同じ列)
   - SSG SW AMP ENV[256] の TL 版。値は TL のレジスタ値 (OPNA / OPN / OPM は 0〜127、OPL / OPL3 / OPZX7S は 0〜63)。STTL / TL1〜、TL.TARGET / TL
   - 一番上の Enable で入れる。入っているあいだは押したときの TL の代わりに段の TL を使う。常に KEEP (KEEP の札は無い)
   - STEPS で TL の刻みへ丸められる。値のボタン (−8 / −1 / 0 / +1 / +8 / 最大)

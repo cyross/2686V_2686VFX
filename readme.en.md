@@ -67,7 +67,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Both groups grow with the step count, so they now reach the bottom of the column and scroll vertically
   - Saved in presets and channel parameters (`dutyEnv` / `peakEnv`). The section parameter files are `.dutyEnv` / `.peakEnv` (heading right-click)
 - **Added TL ENV to the FM chips' operators**
-  - Operators of OPNA / OPN / OPL / OPL3 / OPM / OPZX7S, at the bottom of [[AMP ENV]] (after WT AMP MOD)
+  - Operators of OPNA / OPN / OPL / OPL3 / OPM / OPZX7S, directly below the AMP ENV section (in the same column)
   - A TL version of SSG SW AMP ENV[256]. Values are TL register values (0–127 on OPNA / OPN / OPM, 0–63 on OPL / OPL3 / OPZX7S). STTL / TL1…, TL.TARGET / TL
   - Switched on with Enable at the top. While on, the step's TL replaces the TL at key-on. Always KEEP (no KEEP switch)
   - STEPS snaps to TL steps. Value buttons (−8 / −1 / 0 / +1 / +8 / max)

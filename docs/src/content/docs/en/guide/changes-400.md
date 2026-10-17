@@ -106,8 +106,7 @@ See [SSG](/2686V_2686VFX/en/chips/ssg/) for details.
 ## TL ENV for FM operators
 
 The driver trick of rewriting TL on every key-on to move the level can now be drawn as a
-**TL ENV**. It is a TL version of SSG SW AMP ENV[256], with TL register values, at the bottom of
-each operator's [[AMP ENV]].
+**TL ENV**. It is a TL version of SSG SW AMP ENV[256], with TL register values, directly below each operator's AMP ENV section.
 
 Switch it on with **Enable** at the top. It starts off, so existing patches sound the same.
 See [TL ENV](/2686V_2686VFX/en/chips/common/#tl-env) for details.
