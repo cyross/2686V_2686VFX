@@ -104,6 +104,10 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - AMP ENV・PITCH ENV・256 段のエンベロープで Use Endl を入れたとき、リリースのあとに ENDL へ移って保つところを描く
 - **オペレーター / パッドの一番上の帯 (TARGET・名前・グラフの切り替え) に板を敷く**
   - 壁紙が明るくても読めるよう、帯の背後へ濃い板を敷く。色は COLORS の TargetRow.Bg / TargetRow.Border で変えられる
+- **項目の欠けたプリセットを読んで保存すると、欠けていたパラメータが 0 になっていたのを直した (これまでの不具合)**
+  - 古い版で書いたプリセット・DAW の状態など、一部のパラメータを持たないものを読んだあとに保存すると、欠けていたものが値の空な項目として書かれ、読み直すと 0 になっていた (STEPS が 10 から 1、DUTY RATIO ENVELOPE の STL が 50 から 0、OPZX7S の ALG が 15 から 0、SSG の LEVEL が 1 から 0 など)
+  - 保存するときに、値の空な項目を今の値で埋めるようにした。全プラグイン
+  - すでにこの形で保存したファイルは、空だった項目が 0 のまま読まれる。保存し直しても戻らないので、値を直してから保存する
 
 ### 3-0-2. v3.6.3での修正・変更
 
@@ -1207,36 +1211,47 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
       - SSG RHYTHM Sample.xml      : リズム音源サンプル用のプリセット
       - Tekitou PSG.xml            : 適当に作った、参考用PSGプリセット
       - M-M-Pro                    : 某野球ゲーム音声合成のリズム音源・ADPCM(DPCM品質)チャンネル用プリセット
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]2686VLPresets           : 2686VLight用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]26VPresets              : 26V用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]2686VOPresets           : 86V用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]OPZX7Presets            : OPZX7S用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]OPNVPresets             : OPNV用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]OPLVPresets             : OPLV用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]OPMVPresets             : OPMV用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]WTVPresets              : WTV用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]PCMVPresets             : PCMV用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]PULSEVPresets           : PULSEV用プリセットファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]Resources               : リソースファイル(**フォルダ名や中のファイルは絶対に変更・編集・削除しないでください！**)
     - [Dir]Samples                 : 初期サンプル(音声)ファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
@@ -1254,9 +1269,11 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
     - [Dir]ChannelParams           : 各チャンネルのパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]CustomizeColorSettings  : 色情報のカスタマイズファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
     - [Dir]DetuneParams            : MUL/DET用パラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
@@ -1276,8 +1293,11 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
     - [Dir]PitchEnvParams          : ピッチエンベロープ用のパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
         - [Dir]PitchEnv            : 従来のピッチエンベロープ用のパラメータファイルフォルダ
-        - [Dir]SsgSwPenv11         : SSG SW Pitch ENV11用のパラメータファイルフォルダ
+        - [Dir]SsgSwPenv11         : SSG SW Pitch ENV11 用。v4.0.0 から [256] の形 (.ssgSwPEnv256) に置き換え
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
+        - [Dir]SsgSwPEnv256        : SSG SW PITCH ENV[256] 用 (Arp / Vibrato / Trill / Se / Bend) (-ch はチャンネルの頭、-op はオペレーター・パッド向け。ON/OFF の向きが逆のため)
+        - [Dir]TapPitch            : TAP PITCH SEQUENCER 用
     - [Dir]QualityParams           : 音質用のパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
@@ -1285,11 +1305,18 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
       - [Dir]fromCC3               : Claude Code に作ってもらったファイルフォルダ(v3.3.0～)
-    - [Dir]SsgSwEnvParams          : SSG SW ENV(11)用のパラメータファイルフォルダ
+    - [Dir]SsgSwEnvParams          : SSG SW AMP ENV[256] などの段のエンベロープと TAP AMP SEQUENCER 用のパラメータファイルフォルダ
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
-        - [Dir]SsgSwEnv            : 従来のSSG SW AMP ENV用のパラメータファイルフォルダ
-        - [Dir]SsgSwEnv11          : SSG SW AMP ENV(11)用のパラメータファイルフォルダ
+        - [Dir]SsgSwEnv            : 従来の 6 段の SSG SW AMP ENV 用。v4.0.0 から [256] の形 (.ssgSwEnv256) に置き換え
+        - [Dir]SsgSwEnv11          : SSG SW AMP ENV(11) 用。v4.0.0 から [256] の形 (.ssgSwEnv256) に置き換え
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
+      - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
+        - [Dir]SsgSwEnv256         : SSG SW AMP ENV[256] 用 (Amp: エコー・ファミコン風の減衰・ゲート・トレモロなど) (-ch はチャンネルの頭、-op はオペレーター・パッド向け。ON/OFF の向きが逆のため)
+        - [Dir]DutyEnv             : DUTY RATIO ENVELOPE 用
+        - [Dir]PeakEnv             : PEAK RATIO ENVELOPE 用
+        - [Dir]TlEnv               : TL ENV 用 (-tl127 は OPNA / OPN / OPM、-tl63 は OPL / OPL3 / OPZX7S 向け)
+        - [Dir]AlgEnv              : ALG ENV 用 (-alg8 は ALG が 8 つの音源、-alg2 は OPL 向け)
+        - [Dir]TapAmp              : TAP AMP SEQUENCER 用
     - [Dir]CurveParams             : カーブ編集用のパラメータファイルフォルダ(カーブ編集を持つプラグインのみ)
       - [Dir]fromCC                : Claude Code に作ってもらったファイルフォルダ
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
