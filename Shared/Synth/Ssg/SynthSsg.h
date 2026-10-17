@@ -100,9 +100,17 @@ private:
     // いま 2A03 の鳴り方で出すか (矩形波で、FC が切れていて、どちらかが入っている)
     bool is2A03() const { return m_waveform == 0 && !m_dutyFc && (m_dutyMoreFc || m_dutyMoreNes); }
 
+    // DUTY RATIO ENV。入っているあいだは MODE・Invert の代わりにこのデューティ比 (%) を使う
+    bool m_dutyEnvEnable = false;
+    StepEnv m_dutyEnv;
+
 	// Triangle Params
     bool m_triKeyTrack = true;
     float m_triPeak = 0.5f; // Peak Position
+
+    // PEAK RATIO ENV。入っているあいだは PEAK の代わりにこの頂点 (0〜1) を使う
+    bool m_peakEnvEnable = false;
+    StepEnv m_peakEnv;
     float m_triFreq = 440.0f;
 
     // Noise LFSR Params

@@ -90,3 +90,15 @@ Knobs and value fields were cramped, so groups are now 1.2 times wider.
 - Every channel's global group: 260 → 312
 - Operator and pad columns: 280 → 336
 - SSG's square-wave (duty) and triangle-wave groups: 250 → 300
+
+## DUTY / PEAK RATIO ENVELOPE for SSG
+
+The pulse wave's duty cycle and the triangle's peak can now move over time. Both are 256-step
+envelopes like SSG SW AMP ENV[256], at the bottom of their groups.
+
+- **DUTY RATIO ENVELOPE** (pulse): values are duty cycles, 0.0–100.0%. While on, it replaces MODE
+  and Invert Phrase
+- **PEAK RATIO ENVELOPE** (triangle): values are peak positions, 0.0–1.0. While on, it replaces PEAK
+
+Switch them on with **Enable** at the top. They start off, so existing patches sound the same.
+See [SSG](/2686V_2686VFX/en/chips/ssg/) for details.

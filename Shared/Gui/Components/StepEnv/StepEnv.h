@@ -17,6 +17,7 @@
 #include "../StepSnap/StepSnap.h"
 #include "../SsgSwButtons/SsgSwButtons.h"
 #include "../PitchButtons/PitchButtons.h"
+#include "../DutyButtons/DutyButtons.h"
 #include "../NudgeButtons/NudgeButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../StepValues/StepValues.h"
@@ -45,7 +46,11 @@
 class GuiComponentStepEnv : public GuiBase, private juce::Timer {
 public:
     struct Spec {
-        enum class Kind { Amp, Pitch };
+        // Amp   : 音量 (SSG SW AMP ENV[256])
+        // Pitch : 音程 (SSG SW PITCH ENV[256])
+        // Duty  : 矩形波のデューティ比 % (DUTY RATIO ENV)
+        // Peak  : 三角波の頂点 0〜1 (PEAK RATIO ENV)
+        enum class Kind { Amp, Pitch, Duty, Peak };
 
         Kind kind = Kind::Amp;
         juce::String title;
@@ -169,6 +174,9 @@ private:
     // 値を少しずつ動かすボタン。Amp は音量の、Pitch は音程の刻み
     GuiComponentSsgSwButtons ampBtns;
     GuiComponentPitchButtons pitchBtns;
+
+    // DUTY RATIO ENV は MODE で選べるデューティ比を直に置く
+    GuiComponentDutyButtons dutyBtns;
     GuiStepValues levelValues;
 
     NormalSeparator releaseSeparator;
@@ -197,6 +205,11 @@ private:
     void markSeen();
 
     bool isAmp() const { return spec.kind == Spec::Kind::Amp; }
+    bool isPitch() const { return spec.kind == Spec::Kind::Pitch; }
+    bool isDuty() const { return spec.kind == Spec::Kind::Duty; }
+
+    // 0〜1 の値を少しずつ動かすボタン (ampBtns) を使うもの
+    bool usesUnitButtons() const { return spec.kind == Spec::Kind::Amp || spec.kind == Spec::Kind::Peak; }
 
     StepTable* table() const;
     int stepCount() const { return juce::jlimit(1, StepTable::size, (int)steps.getValue()); }

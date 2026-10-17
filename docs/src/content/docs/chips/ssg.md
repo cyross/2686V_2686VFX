@@ -90,6 +90,25 @@ PRESET で選べるデューティ比は次の 8 種類です。
 | **More Real FC** | ファミコンの矩形波の鳴り方にする（**独自**） | [`SSG_DUTY_MORE_FC`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-more-fc) |
 | **More Real NES** | NES の矩形波の鳴り方にする（**独自**） | [`SSG_DUTY_MORE_NES`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-more-nes) |
 
+#### DUTY RATIO ENVELOPE（独自・4.0.0）
+
+グループの一番下にある、デューティ比を時間で動かす 256 段のエンベロープです。
+作りは [SSG SW AMP ENV\[256\]](/2686V_2686VFX/chips/common/#ssg-sw-amp-env256) と同じで、
+値が音量ではなく**デューティ比（%）**になります。
+
+- 一番上の **Enable** で入れます。入っているあいだは MODE・PRESET・RATIO・
+  Invert Phrase の代わりに、このエンベロープの値を使います（Invert Phrase は掛けません）
+- 値は **0.0〜100.0%**。名前は STL が **STDR**、L が **DR1〜DR256**、対象のつまみが
+  **DR.TARGET**、値のつまみが **DUTY** です
+- 値のつまみの下のボタンで、PRESET で選べるデューティ比
+  （50 / 43.75 / 37.5 / 31.25 / 25 / 20 / 18.75 / 12.5 / 6.25%）を直に置けます
+- RATE・STEP・KEEP・LOOP・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- More Real FC / NES では、この値も 12.5 / 25 / 50 / 75% のうち最も近いものへ寄せます
+- 段の R / L は表としてプリセット・チャンネルパラメータへ保存します（オートメーションでは動かせません）。
+  区分のパラメータファイルは `.dutyEnv` で、見出しの右クリックから読み書きします
+
+グループは段の数で縦に伸びるので、中を縦に送れるようにしてあります。
+
 ### 三角波設定（独自）
 
 FORM で `1: Triangle / Saw` を選んだときに出ます。**PEAK** で波形の頂点の位置を
@@ -110,6 +129,17 @@ PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、�
 | **Key Track (Pitch)** | 鍵盤の音程で鳴らす。切ると FQ の高さで固定される | [`SSG_TRI_KEYTRK`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-keytrk) |
 | **FREQ** | 固定するときの周波数 | [`SSG_TRI_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-freq) |
 | **PEAK** | 三角形の頂点の位置。0.5 で左右対称 | [`SSG_TRI_PEAK`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-peak) |
+
+#### PEAK RATIO ENVELOPE（独自・4.0.0）
+
+グループの一番下にある、三角波の頂点を時間で動かす 256 段のエンベロープです。
+作りは DUTY RATIO ENVELOPE と同じです。
+
+- 一番上の **Enable** で入れます。入っているあいだは PEAK の代わりにこの値を使います
+- 値は **0.0〜1.0**。名前は STL が **STPK**、L が **PK1〜PK256**、対象のつまみが
+  **PK.TARGET**、値のつまみが **PEAK** です
+- 値のつまみの下のボタン（−0.01 / −0.1 / 0.0 / 1.0 / +0.1 / +0.01）で値を動かせます
+- 区分のパラメータファイルは `.peakEnv` です
 
 ## TONE / NOISE / MIX — 音の混ぜ方（実機）
 

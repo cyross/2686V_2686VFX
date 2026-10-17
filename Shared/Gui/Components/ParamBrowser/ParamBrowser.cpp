@@ -70,6 +70,8 @@ namespace
         { ".ssghwpenv", EditorGuiText::ParamBrowser::kindSsgHwPEnv },
         { ".ssgswenv256", EditorGuiText::ParamBrowser::kindSsgSwEnv256 },
         { ".ssgswpenv256", EditorGuiText::ParamBrowser::kindSsgSwPEnv256 },
+        { ".dutyenv", EditorGuiText::ParamBrowser::kindDutyEnv },
+        { ".peakenv", EditorGuiText::ParamBrowser::kindPeakEnv },
 
         // 3.6.3 までの 6 段と [11] のファイル。[256] として読み込める
         { ".ssgswenv", EditorGuiText::ParamBrowser::kindSsgSwEnv256 },

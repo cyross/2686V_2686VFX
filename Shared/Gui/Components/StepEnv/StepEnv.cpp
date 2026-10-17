@@ -50,6 +50,7 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     levelSteps(context),
     ampBtns(context),
     pitchBtns(context),
+    dutyBtns(context),
     releaseSeparator(context),
     releaseRate(context),
     releaseLevel(context),
@@ -95,7 +96,8 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     const GuiCategoryLabel::Config catConfig{ .parent = parent, .title = spec.title, .enableChangeDetailVisible = true };
 
     if (isAmp()) cat.setupSwAmpCategory(catConfig);
-    else cat.setupSwPitchCategory(catConfig);
+    else if (isPitch()) cat.setupSwPitchCategory(catConfig);
+    else cat.setupSwCategory(catConfig);
 
     m_flagKey = flagKey;
 
@@ -173,7 +175,8 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     setLevelRange();
     level.getSlider().onValueChange = [this] { onLevelChanged(); };
 
-    if (isAmp()) ampBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
+    if (usesUnitButtons()) ampBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
+    else if (isDuty()) dutyBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
     else pitchBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
 
     parent.addAndMakeVisible(levelValues);
@@ -436,8 +439,9 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     levelTarget.setVisibleWithLabel(visible);
     level.setVisibleWithLabel(visible);
     levelSteps.setVisibleWithLabel(visible && isAmp());
-    ampBtns.setVisibles(visible && isAmp() && level.isVisibleNudge());
-    pitchBtns.setVisibles(visible && !isAmp() && level.isVisibleNudge());
+    ampBtns.setVisibles(visible && usesUnitButtons() && level.isVisibleNudge());
+    pitchBtns.setVisibles(visible && isPitch() && level.isVisibleNudge());
+    dutyBtns.setVisibles(visible && isDuty() && level.isVisibleNudge());
     levelValues.setVisible(visible);
     releaseSeparator.setVisible(visible);
     releaseRate.setVisibleWithLabel(visible);
@@ -471,12 +475,12 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = h });
     level.layoutComponent(rect, h);
 
-    if (isAmp()) {
-        levelSteps.layoutComponent(rect, h);
-        if (level.isVisibleNudge()) ampBtns.layoutComponent(rect, h);
-    }
-    else if (level.isVisibleNudge()) {
-        pitchBtns.layoutComponent(rect, h);
+    if (isAmp()) levelSteps.layoutComponent(rect, h);
+
+    if (level.isVisibleNudge()) {
+        if (usesUnitButtons()) ampBtns.layoutComponent(rect, h);
+        else if (isDuty()) dutyBtns.layoutComponent(rect, h);
+        else pitchBtns.layoutComponent(rect, h);
     }
 
     layoutStrip(rect, levelValues);
@@ -516,8 +520,8 @@ void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curv
 
     graph.setKeepLevels(keepOn);
 
-    if (isAmp()) graph.updateSsgSwEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
-    else graph.updateSsgSwPEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
+    if (isPitch()) graph.updateSsgSwPEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
+    else graph.updateSsgSwEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
 }
 
 // ---------------------------------------------------------------- 止める
@@ -565,6 +569,7 @@ void GuiComponentStepEnv::applyActive()
     levelSteps.setEnabledWithLabel(active);
     ampBtns.setEnables(active);
     pitchBtns.setEnables(active);
+    dutyBtns.setEnables(active);
     levelValues.setEnabled(active);
 
     releaseSeparator.setEnabled(active);
@@ -621,11 +626,13 @@ void GuiComponentStepEnv::applyParamsFile(const juce::File& file)
     }
 
     // 3.6.3 までの [11] のファイルは、[256] へ写して読む
-    if (auto legacy = Io::ParamReader::open(file, Io::ParamFormat{ spec.legacyFileFormat, 1 }, false)) {
-        GuiRefresh::Batch batch;
+    if (spec.legacyFileFormat.isNotEmpty()) {
+        if (auto legacy = Io::ParamReader::open(file, Io::ParamFormat{ spec.legacyFileFormat, 1 }, false)) {
+            GuiRefresh::Batch batch;
 
-        readValues(*legacy);
-        return;
+            readValues(*legacy);
+            return;
+        }
     }
 
     // 3.6.3 までの 6 段のファイルも、[256] へ写して読む

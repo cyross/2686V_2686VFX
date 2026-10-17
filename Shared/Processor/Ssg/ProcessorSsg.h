@@ -5,6 +5,7 @@
 #include "Shared/Core/Synth/SynthCoreParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorValueEnv.h"
 
 class SsgProcessor : public PrBase
 {
@@ -22,6 +23,8 @@ class SsgProcessor : public PrBase
     PrPtrsToneNoise pToneNoise;
     PrPtrsSsgDuty pDuty;
     PrPtrsSsgTri pTri;
+    ValueEnv::Ptrs pDutyEnv;
+    ValueEnv::Ptrs pPeakEnv;
     PrPtrsSsgHwEnv pHwEnv;
     PrPtrsSsgHwPEnv pHwPEnv;
     PrPtrsUnison pUnison;

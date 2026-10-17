@@ -27,6 +27,7 @@
 #include "Shared/Gui/Components/Quality/Quality.h"
 #include "Shared/Gui/Components/SsgSwEnv256/SsgSwEnv256.h"
 #include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
+#include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "Shared/Gui/Components/WtMod/WtMod.h"
@@ -39,8 +40,9 @@ class GuiSsg : public GuiBase
 {
     // Pane Groups
     GuiScrollGroup mainGroup;
-    GuiGroup dutyGroup;
-    GuiGroup triGroup;
+    // 中に DUTY / PEAK RATIO ENVELOPE (段の数で縦に伸びる) を持つので、縦に送れるようにしてある
+    GuiScrollGroup dutyGroup;
+    GuiScrollGroup triGroup;
 
     GuiComponentPresetName presetName;
 
@@ -102,6 +104,10 @@ class GuiSsg : public GuiBase
 
     GuiComponentSsgSwEnv256 ssgSwEnv256Component;
     GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
+
+    // 矩形波のデューティ比・三角波の頂点を動かすエンベロープ
+    GuiComponentDutyRatioEnv dutyEnvComponent;
+    GuiComponentPeakRatioEnv peakEnvComponent;
     GuiComponentSsgHwEnv ssgHwEnvComponent;
     GuiComponentSsgHwPEnv ssgHwPEnvComponent;
 
@@ -211,6 +217,8 @@ public:
         pitchEnvComponent(context),
         ssgSwEnv256Component(context),
         ssgSwPEnv256Component(context),
+        dutyEnvComponent(context),
+        peakEnvComponent(context),
         ssgHwEnvComponent(context),
         ssgHwPEnvComponent(context),
         mulDetuneComponent(context),

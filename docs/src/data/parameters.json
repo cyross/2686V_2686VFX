@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.0.0",
-  "count": 12320,
+  "count": 12342,
   "parameters": [
     {
       "id": "MODE",
@@ -54533,6 +54533,190 @@
       "max": 8000.0,
       "step": 0.000099999997474,
       "default": 440.0
+    },
+    {
+      "id": "SSG_DUTYENV_ENABLE",
+      "name": "SSG SSG DutyEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_DUTYENV_STEPS",
+      "name": "SSG SSG DutyEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "SSG_DUTYENV_LOOP",
+      "name": "SSG SSG DutyEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_DUTYENV_LOOPTO",
+      "name": "SSG SSG DutyEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "SSG_DUTYENV_LOOPCNT",
+      "name": "SSG SSG DutyEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "SSG_DUTYENV_STL",
+      "name": "SSG SSG DutyEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 100.0,
+      "step": 0.000099999997474,
+      "default": 50.0
+    },
+    {
+      "id": "SSG_DUTYENV_LR",
+      "name": "SSG SSG DutyEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 100.0,
+      "step": 0.000099999997474,
+      "default": 50.0
+    },
+    {
+      "id": "SSG_DUTYENV_RR",
+      "name": "SSG SSG DutyEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "SSG_DUTYENV_ENDL",
+      "name": "SSG SSG DutyEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 100.0,
+      "step": 0.000099999997474,
+      "default": 50.0
+    },
+    {
+      "id": "SSG_DUTYENV_ENDL_EN",
+      "name": "SSG SSG DutyEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_DUTYENV_KEEP",
+      "name": "SSG SSG DutyEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PEAKENV_ENABLE",
+      "name": "SSG SSG PeakEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PEAKENV_STEPS",
+      "name": "SSG SSG PeakEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "SSG_PEAKENV_LOOP",
+      "name": "SSG SSG PeakEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PEAKENV_LOOPTO",
+      "name": "SSG SSG PeakEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "SSG_PEAKENV_LOOPCNT",
+      "name": "SSG SSG PeakEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "SSG_PEAKENV_STL",
+      "name": "SSG SSG PeakEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.5
+    },
+    {
+      "id": "SSG_PEAKENV_LR",
+      "name": "SSG SSG PeakEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.5
+    },
+    {
+      "id": "SSG_PEAKENV_RR",
+      "name": "SSG SSG PeakEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "SSG_PEAKENV_ENDL",
+      "name": "SSG SSG PeakEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.5
+    },
+    {
+      "id": "SSG_PEAKENV_ENDL_EN",
+      "name": "SSG SSG PeakEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PEAKENV_KEEP",
+      "name": "SSG SSG PeakEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "SSG_SSGHWENV_ENABLE",

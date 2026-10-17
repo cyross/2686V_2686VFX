@@ -89,6 +89,10 @@ namespace Io
 		static inline const juce::String SsgSwEnvParam256 = "ssgSwEnv256";
 		static inline const juce::String SsgSwPEnvParam256 = "ssgSwPEnv256";
 
+		// SSG の DUTY RATIO ENV / PEAK RATIO ENV (4.0.0 から)
+		static inline const juce::String DutyEnvParam = "dutyEnv";
+		static inline const juce::String PeakEnvParam = "peakEnv";
+
 		// 3.6.3 までの SSG SW AMP / PITCH ENV[11] のファイル。読み込みだけ。
 		static inline const juce::String SsgSwEnvParam11 = "ssgSwEnv11";
 		static inline const juce::String SsgSwPEnvParam11 = "ssgSwPEnv11";

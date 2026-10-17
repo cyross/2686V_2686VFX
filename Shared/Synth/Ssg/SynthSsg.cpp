@@ -18,6 +18,10 @@ void SsgCore::prepare(double sampleRate) {
     m_ssgSwEnv256.prepare(0, m_sampleRate);
     m_ssgSwPenv256.prepare(0, m_sampleRate);
 
+    // DUTY / PEAK RATIO ENV はカーブを持たない
+    m_dutyEnv.prepare(0, -1, m_sampleRate);
+    m_peakEnv.prepare(0, -1, m_sampleRate);
+
     m_targetRate = getTargetRate(m_rateIndex);
 
     m_lfo.prepare(m_targetRate);
@@ -42,6 +46,8 @@ void SsgCore::setSampleRate(double sampleRate) {
     m_pitchAdsr.updateSampleRate(m_sampleRate);
     m_ssgSwEnv256.updateSampleRate(m_sampleRate);
     m_ssgSwPenv256.updateSampleRate(m_sampleRate);
+    m_dutyEnv.updateTargetSampleRate(m_sampleRate);
+    m_peakEnv.updateTargetSampleRate(m_sampleRate);
 }
 
 void SsgCore::setParameters(const SynthCoreParams& params)
@@ -63,6 +69,10 @@ void SsgCore::setParameters(const SynthCoreParams& params)
     m_detune.setParameters(params.ssg.detune);
     m_ssgSwEnv256.setParameters(params.ssg.ssgSwEnv256);
     m_ssgSwPenv256.setParameters(params.ssg.ssgSwPEnv256);
+    m_dutyEnvEnable = params.ssg.dutyEnvEnable;
+    m_dutyEnv.setParameters(params.ssg.dutyEnv);
+    m_peakEnvEnable = params.ssg.peakEnvEnable;
+    m_peakEnv.setParameters(params.ssg.peakEnv);
     m_lfo.setParameters(params.ssg.lfo);
     m_ssgHwEnv.setParameters(params.ssg.env);
     m_ssgHwPEnv.setParameters(params.ssg.ssgHwPEnv);
@@ -182,6 +192,9 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         if (!m_ssgSwPenv256.isBypass()) {
             m_ssgSwPenv256.noteOn();
         }
+
+        if (m_dutyEnvEnable) m_dutyEnv.noteOn();
+        if (m_peakEnvEnable) m_peakEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -208,6 +221,9 @@ void SsgCore::noteOff()
     if (!m_ssgSwPenv256.isBypass()) {
         m_ssgSwPenv256.noteOff();
     }
+
+    if (m_dutyEnvEnable) m_dutyEnv.noteOff();
+    if (m_peakEnvEnable) m_peakEnv.noteOff();
 }
 
 bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv256.isPlaying(); }
@@ -300,6 +316,16 @@ float SsgCore::getSample()
 
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
     newPhaseDelta = m_ssgSwPenv256.process(newPhaseDelta);
+
+    // 矩形波のデューティ比。DUTY RATIO ENV が入っていればその値 (Invert は掛けない)、
+    // 切っていれば MODE と Invert で決まる値。
+    float pulseDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
+
+    if (m_dutyInvert) pulseDuty = 1.0f - pulseDuty;
+    if (m_dutyEnvEnable) pulseDuty = std::clamp(m_dutyEnv.process() / 100.0f, 0.0f, 1.0f);
+
+    // 三角波の頂点。PEAK RATIO ENV が入っていればその値。
+    const float triPeak = m_peakEnvEnable ? std::clamp(m_peakEnv.process(), 0.0f, 1.0f) : m_triPeak;
 
     // Update core logic only when virtual clock ticks
     while (m_rateAccumulator >= 1.0)
@@ -395,16 +421,12 @@ float SsgCore::getSample()
             if (use2A03) {
                 // FC FLUC とは別物。実機の 4 種のデューティ比へ寄せ、0 / 1 の単極で出す。
                 // 直流はあとのフィルタが抜く。
-                float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
-
-                if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
+                float currentDuty = pulseDuty;
 
                 toneSample = silent2A03 ? 0.0f : Pulse2A03::sample(wavePhase, Pulse2A03::nearestDuty(currentDuty));
             }
             else if (m_dutyFc) {
-                float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
-
-                if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
+                float currentDuty = pulseDuty;
 
                 // 極端なデューティ比による波形消失を防ぐ最低保証
                 float minDuty = phaseInc;
@@ -415,9 +437,7 @@ float SsgCore::getSample()
                 fcFluc = (wavePhase < currentDuty) ? -m_dutyFcFluc * (wavePhase / currentDuty) : m_dutyFcFluc * ((wavePhase - currentDuty) / (1.0f - currentDuty));
             }
             else {
-                float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
-
-                if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
+                float currentDuty = pulseDuty;
 
                 // 極端なデューティ比による波形消失を防ぐ最低保証
                 float minDuty = phaseInc;
@@ -430,7 +450,7 @@ float SsgCore::getSample()
         else // Triangle
         {
             float phaseNorm = wavePhase;
-            float k = m_triPeak;
+            float k = triPeak;
             if (k < 0.001f) k = 0.001f;
             if (k > 0.999f) k = 0.999f;
 

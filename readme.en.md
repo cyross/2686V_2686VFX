@@ -60,6 +60,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Fixed old parameters staying in the state after [11] was carried into [256], which overwrote the table with the old values on every load
 - **Groups are 1.2 times wider**
   - Every channel's global group (260 → 312), the operator and pad columns (280 → 336), and SSG's square-wave (duty) and triangle-wave groups (250 → 300)
+- **SSG: added DUTY RATIO ENVELOPE and PEAK RATIO ENVELOPE**
+  - DUTY RATIO ENVELOPE sits at the bottom of the pulse (duty) group, PEAK RATIO ENVELOPE at the bottom of the triangle group. Both are 256-step envelopes like SSG SW AMP ENV[256], switched on with Enable at the top
+  - DUTY: values are duty cycles, 0.0–100.0% (STDR / DR1…, DR.TARGET / DUTY). While on, it replaces MODE and Invert Phrase. The value buttons set PRESET's duty cycles directly
+  - PEAK: values are triangle peaks, 0.0–1.0 (STPK / PK1…, PK.TARGET / PEAK). While on, it replaces PEAK
+  - Both groups grow with the step count, so they now reach the bottom of the column and scroll vertically
+  - Saved in presets and channel parameters (`dutyEnv` / `peakEnv`). The section parameter files are `.dutyEnv` / `.peakEnv` (heading right-click)
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

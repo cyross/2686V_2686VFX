@@ -2,6 +2,7 @@
 
 #include "../../Core/Editor/EditorGuiValues.h"
 #include "./GuiSsg.h"
+#include "Shared/Core/Processor/ProcessorValueEnv.h"
 
 #include "Shared/Core/Gui/GuiRefresh.h"
 
@@ -224,31 +225,31 @@ void GuiSsg::setup()
     // Duty Controls Setup
     dutyGroup.setup(*this, SsgGuiText::Group::ssgDuty);
 
-    dutyModeSelector.setup({ .parent = *this, .id = code + CPK::SsgDuty::mode, .title = SsgGuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
+    dutyModeSelector.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::mode, .title = SsgGuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
     dutyModeSelector.setWantsKeyboardFocus(true);
     dutyModeSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyPresetSelector.setup({ .parent = *this, .id = code + CPK::SsgDuty::preset, .title = SsgGuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
+    dutyPresetSelector.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::preset, .title = SsgGuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
     dutyPresetSelector.setWantsKeyboardFocus(true);
     dutyPresetSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyVarSlider.setup({ .parent = *this, .id = code + CPK::SsgDuty::var, .title = SsgGuiText::Ssg::Duty::var, .isReset = true });
+    dutyVarSlider.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::var, .title = SsgGuiText::Ssg::Duty::var, .isReset = true });
     dutyVarSlider.setWantsKeyboardFocus(true);
     dutyVarSlider.setExplicitFocusOrder(++tabOrder);
 
-    dutyFcButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::fc, .title = SsgGuiText::Ssg::Duty::fc, .isReset = true });
+    dutyFcButton.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::fc, .title = SsgGuiText::Ssg::Duty::fc, .isReset = true });
     dutyFcButton.setWantsKeyboardFocus(true);
     dutyFcButton.setExplicitFocusOrder(++tabOrder);
 
-    dutyFcFlucSlider.setup({ .parent = *this, .id = code + CPK::SsgDuty::fcFluc, .title = SsgGuiText::Ssg::Duty::fcFluc, .isReset = true });
+    dutyFcFlucSlider.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::fcFluc, .title = SsgGuiText::Ssg::Duty::fcFluc, .isReset = true });
     dutyFcFlucSlider.setWantsKeyboardFocus(true);
     dutyFcFlucSlider.setExplicitFocusOrder(++tabOrder);
 
-    dutyMoreFcButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::moreFc, .title = SsgGuiText::Ssg::Duty::moreFc, .isReset = true });
+    dutyMoreFcButton.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::moreFc, .title = SsgGuiText::Ssg::Duty::moreFc, .isReset = true });
     dutyMoreFcButton.setWantsKeyboardFocus(true);
     dutyMoreFcButton.setExplicitFocusOrder(++tabOrder);
 
-    dutyMoreNesButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::moreNes, .title = SsgGuiText::Ssg::Duty::moreNes, .isReset = true });
+    dutyMoreNesButton.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::moreNes, .title = SsgGuiText::Ssg::Duty::moreNes, .isReset = true });
     dutyMoreNesButton.setWantsKeyboardFocus(true);
     dutyMoreNesButton.setExplicitFocusOrder(++tabOrder);
 
@@ -268,42 +269,52 @@ void GuiSsg::setup()
     makeExclusive(dutyMoreFcButton, { &dutyFcButton, &dutyMoreNesButton });
     makeExclusive(dutyMoreNesButton, { &dutyFcButton, &dutyMoreFcButton });
 
-    pulseInvCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::invert });
+    pulseInvCat.setupSwCategory({ .parent = dutyGroup.contentCanvas, .title = SsgGuiText::Category::invert });
 
-    dutyInvertButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true });
+    dutyInvertButton.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true });
     dutyInvertButton.setWantsKeyboardFocus(true);
     dutyInvertButton.setExplicitFocusOrder(++tabOrder);
 
+    // DUTY RATIO ENVELOPE。グループの一番下
+    dutyEnvComponent.setupComponent(dutyGroup.contentCanvas, code, tabOrder, ValueEnv::duty().keys.enable, "Enable", true);
+    dutyEnvComponent.category().onImport = [this] { dutyEnvComponent.importParams(); };
+    dutyEnvComponent.category().onExport = [this] { dutyEnvComponent.exportParams(); };
+
     triGroup.setup(*this, SsgGuiText::Group::ssgTri);
 
-    triKeyTrackButton.setup({ .parent = *this, .id = code + CPK::SsgTri::keyTrk, .title = SsgGuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
+    triKeyTrackButton.setup({ .parent = triGroup.contentCanvas, .id = code + CPK::SsgTri::keyTrk, .title = SsgGuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
     triKeyTrackButton.setWantsKeyboardFocus(true);
     triKeyTrackButton.setExplicitFocusOrder(++tabOrder);
 
-    triFreqSlider.setup({ .parent = *this, .id = code + CPK::SsgTri::freq, .title = SsgGuiText::Ssg::Tri::manualFreq, .isReset = true });
+    triFreqSlider.setup({ .parent = triGroup.contentCanvas, .id = code + CPK::SsgTri::freq, .title = SsgGuiText::Ssg::Tri::manualFreq, .isReset = true });
     triFreqSlider.setWantsKeyboardFocus(true);
     triFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    triPeakCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::peak });
+    triPeakCat.setupSwCategory({ .parent = triGroup.contentCanvas, .title = SsgGuiText::Category::peak });
 
-    triPeakSlider.setup({ .parent = *this, .id = code + CPK::SsgTri::peak, .title = SsgGuiText::Ssg::Tri::peak, .isReset = true });
+    triPeakSlider.setup({ .parent = triGroup.contentCanvas, .id = code + CPK::SsgTri::peak, .title = SsgGuiText::Ssg::Tri::peak, .isReset = true });
     triPeakSlider.setWantsKeyboardFocus(true);
     triPeakSlider.setExplicitFocusOrder(++tabOrder);
 
-    triSetSawDown.setup({ .parent = *this, .title = SsgGuiText::Ssg::Tri::peakTo00, .isReset = false, .isResized = false });
+    triSetSawDown.setup({ .parent = triGroup.contentCanvas, .title = SsgGuiText::Ssg::Tri::peakTo00, .isReset = false, .isResized = false });
     triSetSawDown.setWantsKeyboardFocus(true);
     triSetSawDown.setExplicitFocusOrder(++tabOrder);
     triSetSawDown.onClick = [this] { triPeakSlider.setValue(0.0, juce::sendNotification); };
 
-    triSetTri.setup({ .parent = *this, .title = SsgGuiText::Ssg::Tri::peakTo05, .isReset = false, .isResized = false });
+    triSetTri.setup({ .parent = triGroup.contentCanvas, .title = SsgGuiText::Ssg::Tri::peakTo05, .isReset = false, .isResized = false });
     triSetTri.setWantsKeyboardFocus(true);
     triSetTri.setExplicitFocusOrder(++tabOrder);
     triSetTri.onClick = [this] { triPeakSlider.setValue(0.5, juce::sendNotification); };
 
-    triSetSawUp.setup({ .parent = *this, .title = SsgGuiText::Ssg::Tri::peakTo10, .isReset = false, .isResized = false });
+    triSetSawUp.setup({ .parent = triGroup.contentCanvas, .title = SsgGuiText::Ssg::Tri::peakTo10, .isReset = false, .isResized = false });
     triSetSawUp.setWantsKeyboardFocus(true);
     triSetSawUp.setExplicitFocusOrder(++tabOrder);
     triSetSawUp.onClick = [this] { triPeakSlider.setValue(1.0, juce::sendNotification); };
+
+    // PEAK RATIO ENVELOPE。グループの一番下
+    peakEnvComponent.setupComponent(triGroup.contentCanvas, code, tabOrder, ValueEnv::peak().keys.enable, "Enable", true);
+    peakEnvComponent.category().onImport = [this] { peakEnvComponent.importParams(); };
+    peakEnvComponent.category().onExport = [this] { peakEnvComponent.exportParams(); };
 
     setupGraph();
     updateGraph();
@@ -405,8 +416,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     // Wave Group
     float waveParam = *pluginOf(ctx).apvts.getRawParameterValue(code + CPK::ssgWaveform);
     int waveMode = PrHelper::floatToBoolToInt(waveParam);
-    // More Real FC / More Real NES の 2 行ぶん高くしてある
-    auto waveArea = paramArea.removeFromTop(140 + (CoreGuiValue::ParamGroup::Row::height + CoreGuiValue::ParamGroup::Row::paddingTop) * 2);
+    // 一番下に段の数で伸びるエンベロープを持つので、欄の下まで使って中を縦に送る
+    auto waveArea = paramArea;
+
+    // 送る中身の高さを決めるための仮の長さ
+    constexpr int canvasHeight = 20000;
 
     if (waveMode == 0) // Pulse
     {
@@ -429,9 +443,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyInvertButton.setVisible(true);
 
         dutyGroup.setBounds(waveArea);
-        auto dRect = dutyGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
 
-        dRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
+        // 中身は送る板 (contentCanvas) の上に並べる。板はグループの枠から 4 だけ内側にある
+        auto dRect = juce::Rectangle<int>(0, 0, dutyGroup.getContentWidth(), canvasHeight).reduced(SsgGuiValue::Group::Padding::width - 4, 0);
 
         layoutRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
 
@@ -452,7 +466,12 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = dRect, .component = &dutyMoreFcButton });
         layoutRow({ .rowRect = dRect, .component = &dutyMoreNesButton });
 
-        layoutRow({ .rowRect = dRect, .component = &dutyInvertButton, .paddingBottom = 0 });
+        layoutRow({ .rowRect = dRect, .component = &dutyInvertButton });
+
+        dutyEnvComponent.setCategoryVisible(true);
+        dutyEnvComponent.layoutComponent(dRect);
+
+        dutyGroup.setContentHeight(canvasHeight - dRect.getHeight() + SsgGuiValue::Group::Padding::height);
     }
     else // Triangle
     {
@@ -476,9 +495,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triSetSawUp.setVisible(true);
 
         triGroup.setBounds(waveArea);
-        auto tRect = triGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
 
-        tRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
+        auto tRect = juce::Rectangle<int>(0, 0, triGroup.getContentWidth(), canvasHeight).reduced(SsgGuiValue::Group::Padding::width - 4, 0);
 
         layoutRow({ .rowRect = tRect, .component = &triKeyTrackButton });
 
@@ -494,7 +512,12 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         }
 
         layoutRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
-        layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp, .paddingBottom = 0 });
+        layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp });
+
+        peakEnvComponent.setCategoryVisible(true);
+        peakEnvComponent.layoutComponent(tRect);
+
+        triGroup.setContentHeight(canvasHeight - tRect.getHeight() + SsgGuiValue::Group::Padding::height);
     }
 }
 
@@ -988,6 +1011,8 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
     pitchEnvComponent.readParams(*reader, "pitchEnv");
     ssgSwEnv256Component.readParams(*reader, "ssgSwEnv256");
     ssgSwPEnv256Component.readParams(*reader, "ssgSwPEnv256");
+    dutyEnvComponent.readParams(*reader, "dutyEnv");
+    peakEnvComponent.readParams(*reader, "peakEnv");
     mulDetuneComponent.readParams(*reader, "mulDetune");
     lfo.readParams(*reader, "lfo");
     qualityComponent.readParams(*reader, "quality");
@@ -1108,6 +1133,8 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	pitchEnvComponent.writeParams(writer, "pitchEnv");
 	ssgSwEnv256Component.writeParams(writer, "ssgSwEnv256");
 	ssgSwPEnv256Component.writeParams(writer, "ssgSwPEnv256");
+	dutyEnvComponent.writeParams(writer, "dutyEnv");
+	peakEnvComponent.writeParams(writer, "peakEnv");
 	mulDetuneComponent.writeParams(writer, "mulDetune");
 	lfo.writeParams(writer, "lfo");
 	qualityComponent.writeParams(writer, "quality");

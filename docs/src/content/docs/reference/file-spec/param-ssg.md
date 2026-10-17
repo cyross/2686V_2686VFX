@@ -62,6 +62,8 @@ sidebar:
 | `ssgSwEnv` | 3.6.3 までの 6 段の SSG SW AMP ENV。4.0.0 では書き出さない。読み込むと `ssgSwEnv256` へ写す（[ssgSwEnv](/2686V_2686VFX/reference/file-spec/ssgswenv/)） |
 | `ssgSwEnv256` | [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じ |
 | `ssgSwPEnv256` | [ssgSwPEnv256](/2686V_2686VFX/reference/file-spec/ssgswpenv256/) と同じ |
+| `dutyEnv` | DUTY RATIO ENVELOPE。鍵は [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じで、値はデューティ比 (%)（4.0.0 から） |
+| `peakEnv` | PEAK RATIO ENVELOPE。鍵は [ssgSwEnv256](/2686V_2686VFX/reference/file-spec/ssgswenv256/) と同じで、値は三角波の頂点 0〜1（4.0.0 から） |
 | `mulDetune` | [mulDetune](/2686V_2686VFX/reference/file-spec/detune/) と同じ |
 | `lfo` | [lfo](/2686V_2686VFX/reference/file-spec/lfoopzx7/) と同じ |
 | `quality` | [quality](/2686V_2686VFX/reference/file-spec/quality/) と同じ |

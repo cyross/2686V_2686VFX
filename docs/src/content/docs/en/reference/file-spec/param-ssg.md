@@ -63,6 +63,8 @@ the default.
 | `ssgSwEnv` | The 6-step SSG SW AMP ENV of 3.6.3 and earlier. Not written from 4.0.0; on load it is carried into `ssgSwEnv256` ([ssgSwEnv](/2686V_2686VFX/en/reference/file-spec/ssgswenv/)) |
 | `ssgSwEnv256` | The same as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/) |
 | `ssgSwPEnv256` | The same as [ssgSwPEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswpenv256/) |
+| `dutyEnv` | DUTY RATIO ENVELOPE. Same keys as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/); the values are duty cycles (%) (from 4.0.0) |
+| `peakEnv` | PEAK RATIO ENVELOPE. Same keys as [ssgSwEnv256](/2686V_2686VFX/en/reference/file-spec/ssgswenv256/); the values are triangle peaks, 0–1 (from 4.0.0) |
 | `mulDetune` | The same as [mulDetune](/2686V_2686VFX/en/reference/file-spec/detune/) |
 | `lfo` | The same as [lfo](/2686V_2686VFX/en/reference/file-spec/lfoopzx7/) |
 | `quality` | The same as [quality](/2686V_2686VFX/en/reference/file-spec/quality/) |

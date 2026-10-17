@@ -89,6 +89,25 @@ PRESET offers these eight duty cycles.
 | **More Real FC** | Sound like the Famicom's pulse channel (**ours**) | [`SSG_DUTY_MORE_FC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-more-fc) |
 | **More Real NES** | Sound like the NES's pulse channel (**ours**) | [`SSG_DUTY_MORE_NES`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-more-nes) |
 
+#### DUTY RATIO ENVELOPE (ours, 4.0.0)
+
+A 256-step envelope at the bottom of the group that moves the duty cycle over time.
+It works like [SSG SW AMP ENV\[256\]](/2686V_2686VFX/en/chips/common/#ssg-sw-amp-env256),
+except that the value is a **duty cycle (%)** instead of a level.
+
+- Switch it on with **Enable** at the top. While it is on, its value replaces MODE, PRESET,
+  RATIO and Invert Phrase (Invert Phrase is not applied)
+- Values run **0.0–100.0%**. STL is called **STDR**, the L values **DR1–DR256**, the target knob
+  **DR.TARGET** and the value knob **DUTY**
+- The buttons under the value knob set the duty cycles PRESET offers
+  (50 / 43.75 / 37.5 / 31.25 / 25 / 20 / 18.75 / 12.5 / 6.25%) directly
+- RATE, STEP, KEEP, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- With More Real FC / NES, this value is also snapped to the nearest of 12.5 / 25 / 50 / 75%
+- The per-step R / L values are saved as a table in presets and channel parameters (they cannot be
+  automated). The section's parameter file is `.dutyEnv`, read and written from the heading's right-click menu
+
+The group grows with the number of steps, so its contents scroll vertically.
+
 ### Triangle settings (ours)
 
 These appear when FORM is set to `1: Triangle / Saw`. **PEAK** moves where the peak of the wave sits, sweeping continuously from triangle through to saw.
@@ -107,6 +126,17 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | **Key Track (Pitch)** | Sound the pitch of the key. Switched off, it stays at FQ | [`SSG_TRI_KEYTRK`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-keytrk) |
 | **FREQ** | The frequency it is fixed at | [`SSG_TRI_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-freq) |
 | **PEAK** | Where the peak of the triangle sits. 0.5 is symmetrical | [`SSG_TRI_PEAK`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-peak) |
+
+#### PEAK RATIO ENVELOPE (ours, 4.0.0)
+
+A 256-step envelope at the bottom of the group that moves the triangle's peak over time.
+It works like DUTY RATIO ENVELOPE.
+
+- Switch it on with **Enable** at the top. While it is on, its value replaces PEAK
+- Values run **0.0–1.0**. STL is called **STPK**, the L values **PK1–PK256**, the target knob
+  **PK.TARGET** and the value knob **PEAK**
+- The buttons under the value knob (−0.01 / −0.1 / 0.0 / 1.0 / +0.1 / +0.01) move the value
+- The section's parameter file is `.peakEnv`
 
 ## TONE / NOISE / MIX — blending the sound (hardware)
 
