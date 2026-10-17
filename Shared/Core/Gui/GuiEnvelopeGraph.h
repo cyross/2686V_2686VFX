@@ -14,7 +14,7 @@ public:
 
     void paint(juce::Graphics& g) override;
 
-    enum class EnvType { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
+    enum class EnvType { Amp, Pitch, SsgSw, SsgSw256, SsgSwP256 };
 
     struct PhaseDef {
         float widthPx;
@@ -82,7 +82,7 @@ public:
         bool isCurveMode = false,
         int posIdx = 0
     );
-    void updateSsgSwEnv11(
+    void updateSsgSwEnv256(
         const StepEnvHead& head,
         // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
         // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。
@@ -92,7 +92,7 @@ public:
         bool isCurveMode = false,
         int posIdx = 0
     );
-    void updateSsgSwPEnv11(
+    void updateSsgSwPEnv256(
         const StepEnvHead& head,
         // つまみを段の数だけ置かなくなったので、値と上限だけを受け取る。
         // 並びは元のつまみ配列と同じ (R 側の [0] は使わない)。

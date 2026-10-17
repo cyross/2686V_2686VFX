@@ -9,8 +9,8 @@
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
@@ -120,8 +120,8 @@ private:
     FixMode m_fixMode;
     Opzx7LfoCore m_lfo;
     SsgNoiseGen m_noiseGen;
-    SsgSwEnv11 m_ssgSwEnv11;
-    SsgSwPEnv11 m_ssgSwPenv11;
+    SsgSwEnv256 m_ssgSwEnv256;
+    SsgSwPEnv256 m_ssgSwPenv256;
     SsgHwEnv m_ssgHwEnv;
 
     // 音量側と同じ形をピッチへ当てるもの。両方を同時に掛けられる。

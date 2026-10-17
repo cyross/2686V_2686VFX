@@ -3,10 +3,10 @@
 #include <array>
 #include <functional>
 
-#include "./EnvSsgSw11Params.h"
+#include "./EnvSsgSw256Params.h"
 #include "../../../../Advanced/Curve/AdvancedCurve.h"
 
-class SsgSwPEnv11 {
+class SsgSwEnv256 {
 	enum class State { Idle, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11 };
 	State state = State::Idle;
 
@@ -16,14 +16,14 @@ class SsgSwPEnv11 {
 	bool loop = false;
 	int loopTo = 0;
 	int loopCount = 0;
-	std::array<float, 12> r = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-	std::array<int, 12> l = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	std::array<float, 12> r = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	std::array<float, 12> l = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
-	// リリースを走り終えたあとに保つセント。
-	// 0 のままなら、これまでどおり素通しする。
-	int endl = 0;
+	// リリースを走り終えたあとに保つレベル。
+	// 0.0 のままなら、これまでどおり l[11] を保つ。
+	float endl = 0.0f;
 
-	// ENDL を使うかどうか。切のあいだは、これまでどおり素通しする。
+	// ENDL を使うかどうか。切のあいだは、これまでどおり l[11] を保つ。
 	bool endlEnable = false;
 
 	// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
@@ -47,14 +47,14 @@ class SsgSwPEnv11 {
 	inline bool isReached(float inc, float current, float target) const; 
 
 	// カーブモード用の変数
-	int targetIndex = 0; // 0,1,2,3,4
+	int targetIndex = 0;
 	CurveCore* m_curveCore = nullptr;
 
 	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
 public:
-	SsgSwPEnv11();
+	SsgSwEnv256();
 	void prepare(int targetIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
@@ -62,11 +62,13 @@ public:
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::S6; }
 	bool isBypass() const { return bypass; }
-	void setParameters(const SsgSwPEnv11Params& params);
+	void setParameters(const SsgSwEnv256Params& params);
 	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void noteOn();
 	void noteOff();
-	float process(float phaseDelta);
-	float bypassedReleasedProcess();
-	float bypassedProcess();
+
+	// 段を 1 サンプルぶん進める。KEEP を挟むため process から呼ぶ。
+	float processStep();
+	float process();
+	void bypassedReleasedProcess();
 };

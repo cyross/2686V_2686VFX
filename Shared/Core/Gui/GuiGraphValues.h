@@ -69,57 +69,57 @@ namespace GuiGraphValues
 
         inline constexpr List ssgSwEnvLevel{ makeSsgSwEnvLevel };
 
-        inline const juce::String* makeSsgSwEnv11Rate()
+        inline const juce::String* makeSsgSwEnv256Rate()
         {
             static const juce::String keys[] = {
-                CPK::SsgSwEnv11::r1, CPK::SsgSwEnv11::r2, CPK::SsgSwEnv11::r3, CPK::SsgSwEnv11::r4,
-                CPK::SsgSwEnv11::r5, CPK::SsgSwEnv11::r6, CPK::SsgSwEnv11::r7, CPK::SsgSwEnv11::r8,
-                CPK::SsgSwEnv11::r9, CPK::SsgSwEnv11::r10, CPK::SsgSwEnv11::r11
+                CPK::SsgSwEnv256::r1, CPK::SsgSwEnv256::r2, CPK::SsgSwEnv256::r3, CPK::SsgSwEnv256::r4,
+                CPK::SsgSwEnv256::r5, CPK::SsgSwEnv256::r6, CPK::SsgSwEnv256::r7, CPK::SsgSwEnv256::r8,
+                CPK::SsgSwEnv256::r9, CPK::SsgSwEnv256::r10, CPK::SsgSwEnv256::r11
             };
 
             return keys;
         }
 
-        inline constexpr List ssgSwEnv11Rate{ makeSsgSwEnv11Rate };
+        inline constexpr List ssgSwEnv256Rate{ makeSsgSwEnv256Rate };
 
-        inline const juce::String* makeSsgSwEnv11Level()
+        inline const juce::String* makeSsgSwEnv256Level()
         {
             static const juce::String keys[] = {
-                CPK::SsgSwEnv11::stl, CPK::SsgSwEnv11::l1, CPK::SsgSwEnv11::l2, CPK::SsgSwEnv11::l3,
-                CPK::SsgSwEnv11::l4, CPK::SsgSwEnv11::l5, CPK::SsgSwEnv11::l6, CPK::SsgSwEnv11::l7,
-                CPK::SsgSwEnv11::l8, CPK::SsgSwEnv11::l9, CPK::SsgSwEnv11::l10, CPK::SsgSwEnv11::l11
+                CPK::SsgSwEnv256::stl, CPK::SsgSwEnv256::l1, CPK::SsgSwEnv256::l2, CPK::SsgSwEnv256::l3,
+                CPK::SsgSwEnv256::l4, CPK::SsgSwEnv256::l5, CPK::SsgSwEnv256::l6, CPK::SsgSwEnv256::l7,
+                CPK::SsgSwEnv256::l8, CPK::SsgSwEnv256::l9, CPK::SsgSwEnv256::l10, CPK::SsgSwEnv256::l11
             };
 
             return keys;
         }
 
-        inline constexpr List ssgSwEnv11Level{ makeSsgSwEnv11Level };
+        inline constexpr List ssgSwEnv256Level{ makeSsgSwEnv256Level };
 
-        inline const juce::String* makeSsgSwPEnv11Rate()
+        inline const juce::String* makeSsgSwPEnv256Rate()
         {
             static const juce::String keys[] = {
-                CPK::SsgSwPEnv11::r1, CPK::SsgSwPEnv11::r2, CPK::SsgSwPEnv11::r3, CPK::SsgSwPEnv11::r4,
-                CPK::SsgSwPEnv11::r5, CPK::SsgSwPEnv11::r6, CPK::SsgSwPEnv11::r7, CPK::SsgSwPEnv11::r8,
-                CPK::SsgSwPEnv11::r9, CPK::SsgSwPEnv11::r10, CPK::SsgSwPEnv11::r11
+                CPK::SsgSwPEnv256::r1, CPK::SsgSwPEnv256::r2, CPK::SsgSwPEnv256::r3, CPK::SsgSwPEnv256::r4,
+                CPK::SsgSwPEnv256::r5, CPK::SsgSwPEnv256::r6, CPK::SsgSwPEnv256::r7, CPK::SsgSwPEnv256::r8,
+                CPK::SsgSwPEnv256::r9, CPK::SsgSwPEnv256::r10, CPK::SsgSwPEnv256::r11
             };
 
             return keys;
         }
 
-        inline constexpr List ssgSwPEnv11Rate{ makeSsgSwPEnv11Rate };
+        inline constexpr List ssgSwPEnv256Rate{ makeSsgSwPEnv256Rate };
 
-        inline const juce::String* makeSsgSwPEnv11Level()
+        inline const juce::String* makeSsgSwPEnv256Level()
         {
             static const juce::String keys[] = {
-                CPK::SsgSwPEnv11::stl, CPK::SsgSwPEnv11::l1, CPK::SsgSwPEnv11::l2, CPK::SsgSwPEnv11::l3,
-                CPK::SsgSwPEnv11::l4, CPK::SsgSwPEnv11::l5, CPK::SsgSwPEnv11::l6, CPK::SsgSwPEnv11::l7,
-                CPK::SsgSwPEnv11::l8, CPK::SsgSwPEnv11::l9, CPK::SsgSwPEnv11::l10, CPK::SsgSwPEnv11::l11
+                CPK::SsgSwPEnv256::stl, CPK::SsgSwPEnv256::l1, CPK::SsgSwPEnv256::l2, CPK::SsgSwPEnv256::l3,
+                CPK::SsgSwPEnv256::l4, CPK::SsgSwPEnv256::l5, CPK::SsgSwPEnv256::l6, CPK::SsgSwPEnv256::l7,
+                CPK::SsgSwPEnv256::l8, CPK::SsgSwPEnv256::l9, CPK::SsgSwPEnv256::l10, CPK::SsgSwPEnv256::l11
             };
 
             return keys;
         }
 
-        inline constexpr List ssgSwPEnv11Level{ makeSsgSwPEnv11Level };
+        inline constexpr List ssgSwPEnv256Level{ makeSsgSwPEnv256Level };
     }
 
     // ------------------------------------------------------
@@ -246,27 +246,27 @@ namespace GuiGraphValues
             Keys::ssgSwEnvRate.data(), Keys::ssgSwEnvLevel.data());
     }
 
-    inline StepEnvValues<12> ssgSwEnv11(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
+    inline StepEnvValues<12> ssgSwEnv256(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
     {
         return stepEnv<12>(apvts, code,
-            CPK::SsgSwEnv11::steps, CPK::SsgSwEnv11::loop, CPK::SsgSwEnv11::loopTo, CPK::SsgSwEnv11::loopCount,
-            Keys::ssgSwEnv11Rate.data(), Keys::ssgSwEnv11Level.data());
+            CPK::SsgSwEnv256::steps, CPK::SsgSwEnv256::loop, CPK::SsgSwEnv256::loopTo, CPK::SsgSwEnv256::loopCount,
+            Keys::ssgSwEnv256Rate.data(), Keys::ssgSwEnv256Level.data());
     }
 
-    inline StepEnvValues<12> ssgSwPEnv11(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
+    inline StepEnvValues<12> ssgSwPEnv256(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
     {
         return stepEnv<12>(apvts, code,
-            CPK::SsgSwPEnv11::steps, CPK::SsgSwPEnv11::loop, CPK::SsgSwPEnv11::loopTo, CPK::SsgSwPEnv11::loopCount,
-            Keys::ssgSwPEnv11Rate.data(), Keys::ssgSwPEnv11Level.data());
+            CPK::SsgSwPEnv256::steps, CPK::SsgSwPEnv256::loop, CPK::SsgSwPEnv256::loopTo, CPK::SsgSwPEnv256::loopCount,
+            Keys::ssgSwPEnv256Rate.data(), Keys::ssgSwPEnv256Level.data());
     }
 
-    inline bool ssgSwEnv11Keep(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
+    inline bool ssgSwEnv256Keep(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
     {
-        return flag(apvts, code + CPK::SsgSwEnv11::keep);
+        return flag(apvts, code + CPK::SsgSwEnv256::keep);
     }
 
-    inline bool ssgSwPEnv11Keep(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
+    inline bool ssgSwPEnv256Keep(juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
     {
-        return flag(apvts, code + CPK::SsgSwPEnv11::keep);
+        return flag(apvts, code + CPK::SsgSwPEnv256::keep);
     }
 }

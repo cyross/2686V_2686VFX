@@ -35,9 +35,9 @@
 #include "Shared/Gui/Components/Separator/NormalSeparator.h"
 #include "Shared/Gui/Components/Separator/ShortSeparator.h"
 #include "Shared/Gui/Components/Quality/Quality.h"
-#include "Shared/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
-#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
-#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/SsgSwEnv256/SsgSwEnv256.h"
+#include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
+#include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
 #include "Shared/Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
 #include "Shared/Gui/Components/WtMod/WtMod.h"
@@ -103,9 +103,9 @@ class GuiOpzx7 : public GuiBase
     GuiComponentSsgHwEnv ssgHwEnv;
     GuiComponentSsgHwPEnv ssgHwPEnv;
     // SSG Sw Env
-    GuiComponentSsgSwEnv11 ssgSwEnv11g;
+    GuiComponentSsgSwEnv256 ssgSwEnv256g;
     // チップ全体へ掛かるピッチ側
-    GuiComponentSsgSwPEnv11 ssgSwPEnv11g;
+    GuiComponentSsgSwPEnv256 ssgSwPEnv256g;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -140,8 +140,8 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpDetune;
     GuiComponentImportExport ieOpPitchEnv;
     GuiComponentImportExport ieOpSsgSwEnv;
-    GuiComponentImportExport ieOpSsgSwEnv11;
-    GuiComponentImportExport ieOpSsgSwPEnv11;
+    GuiComponentImportExport ieOpSsgSwEnv256;
+    GuiComponentImportExport ieOpSsgSwPEnv256;
     GuiComponentImportExport ieOpSsgHwPEnv;
     GuiComponentImportExport ieOpWtAmpMod;
     GuiComponentImportExport ieOpSsgHwEnv;
@@ -155,8 +155,8 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieSsgHwPEnv;
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieWtAmpMod;
-    GuiComponentImportExport ieSsgSwEnv11;
-    GuiComponentImportExport ieSsgSwPEnv11g;
+    GuiComponentImportExport ieSsgSwEnv256;
+    GuiComponentImportExport ieSsgSwPEnv256g;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
@@ -176,11 +176,11 @@ class GuiOpzx7 : public GuiBase
     GuiScrollGroup colWs;
     GuiScrollGroup colSsgHwEnv;
     GuiScrollGroup colSsgSwEnv;
-    GuiScrollGroup colSsgSwEnv11;
+    GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
     GuiScrollGroup colPitchEnv;
     GuiScrollGroup colSsgHwPEnv;
-    GuiScrollGroup colSsgSwPEnv11;
+    GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
     GuiScrollGroup colLfo;
@@ -256,8 +256,8 @@ class GuiOpzx7 : public GuiBase
     // SSG SW Env
     GuiComponentSsgSwEnv ssgSwEnv;
 
-    GuiComponentSsgSwEnv11 ssgSwEnv11;
-    GuiComponentSsgSwPEnv11 ssgSwPEnv11;
+    GuiComponentSsgSwEnv256 ssgSwEnv256;
+    GuiComponentSsgSwPEnv256 ssgSwPEnv256;
     GuiComponentSsgHwPEnv ssgHwPEnvOp;
     GuiComponentWtAmpMod wtAmpModOp;
     GuiComponentSsgHwEnv ssgHwEnvOp;
@@ -293,10 +293,10 @@ class GuiOpzx7 : public GuiBase
     GuiEnvelopeGraph gGraph;
     GuiToggleButton gGraphBtnAmp;
     GuiToggleButton gGraphBtnSsg11;
-    GuiToggleButton gGraphBtnSsgP11;
+    GuiToggleButton gGraphBtnSsgP256;
     NormalSeparator gGraphSeparator;
 
-    enum class GlobalGraphMode { Amp, SsgSw11, SsgSwP11 };
+    enum class GlobalGraphMode { Amp, SsgSw256, SsgSwP256 };
     GlobalGraphMode currentGlobalGraphMode = GlobalGraphMode::Amp;
 
     // 上に並ぶ絵。オペレータの数だけ置く。
@@ -308,7 +308,7 @@ class GuiOpzx7 : public GuiBase
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
     GuiToggleButton graphBtnSsg11;
-    GuiToggleButton graphBtnSsgP11;
+    GuiToggleButton graphBtnSsgP256;
 
     GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
 
@@ -462,10 +462,10 @@ public:
     void exportPitchEnvParam(int opIndex);
     void importSsgSwEnvParam(int opIndex);
     void exportSsgSwEnvParam(int opIndex);
-    void importSsgSwEnv11Param(int opIndex);
-    void exportSsgSwEnv11Param(int opIndex);
-    void importSsgSwPEnv11Param(int opIndex);
-    void exportSsgSwPEnv11Param(int opIndex);
+    void importSsgSwEnv256Param(int opIndex);
+    void exportSsgSwEnv256Param(int opIndex);
+    void importSsgSwPEnv256Param(int opIndex);
+    void exportSsgSwPEnv256Param(int opIndex);
     void importOpSsgHwPEnvParam(int opIndex);
     void exportOpSsgHwPEnvParam(int opIndex);
     void importOpWtAmpModParam(int opIndex);

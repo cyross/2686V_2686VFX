@@ -1,23 +1,23 @@
 ﻿#include <algorithm>
 
-#include "./EnvSsgSw11.h"
+#include "./EnvSsgSw256.h"
 
-SsgSwEnv11::SsgSwEnv11() {
+SsgSwEnv256::SsgSwEnv256() {
 }
 
-void SsgSwEnv11::prepare(int targetIndex, double sampleRate) {
+void SsgSwEnv256::prepare(int targetIndex, double sampleRate) {
     this->targetIndex = targetIndex;
 
     updateTargetSampleRate(sampleRate);
 }
 
-void SsgSwEnv11::updateTargetSampleRate(double newSampleRate)
+void SsgSwEnv256::updateTargetSampleRate(double newSampleRate)
 {
     this->sampleRate = newSampleRate;
     this->updateIncrements();
 }
 
-void SsgSwEnv11::setParameters(const SsgSwEnv11Params& params) {
+void SsgSwEnv256::setParameters(const SsgSwEnv256Params& params) {
 	this->bypass = params.bypass;
 	this->steps = params.steps;
 	this->loop = params.loop;
@@ -66,14 +66,14 @@ void SsgSwEnv11::setParameters(const SsgSwEnv11Params& params) {
     this->updateIncrements();
 }
 
-inline bool SsgSwEnv11::isReached(float inc, float current, float target) const {
+inline bool SsgSwEnv256::isReached(float inc, float current, float target) const {
     if (inc >= 0.0f && current >= target) return true;
     if (inc < 0.0f && current <= target) return true;
 
     return false;
 }
 
-void SsgSwEnv11::updateIncrements()
+void SsgSwEnv256::updateIncrements()
 {
     if (sampleRate <= 0.0) return;
 
@@ -99,12 +99,12 @@ void SsgSwEnv11::updateIncrements()
     }
 }
 
-void SsgSwEnv11::updateSampleRate(double newSampleRate) {
+void SsgSwEnv256::updateSampleRate(double newSampleRate) {
     this->sampleRate = newSampleRate;
     this->updateIncrements();
 }
 
-void SsgSwEnv11::noteOn() {
+void SsgSwEnv256::noteOn() {
     if (this->m_curveCore == nullptr) {
         this->state = State::S1;
         this->loopCounter = 0;
@@ -121,7 +121,7 @@ void SsgSwEnv11::noteOn() {
     this->m_keepLevel = this->l[0];
 }
 
-void SsgSwEnv11::noteOff() {
+void SsgSwEnv256::noteOff() {
     if (this->m_curveCore == nullptr) {
         this->state = State::S11;
         float r = std::max(0.001f, this->r[11]);
@@ -134,7 +134,7 @@ void SsgSwEnv11::noteOff() {
     }
 }
 
-void SsgSwEnv11::bypassedReleasedProcess() {
+void SsgSwEnv256::bypassedReleasedProcess() {
     this->state = State::Idle;
 }
 
@@ -143,7 +143,7 @@ void SsgSwEnv11::bypassedReleasedProcess() {
 // 段の終わりで currentLevel はその段の行き先へ揃えられるので、変わった
 // 直後の値が「次の段のあいだ保つレベル」になる。押した直後は STL、
 // R1 を走り終えたら L1、という並びになる。
-float SsgSwEnv11::process() {
+float SsgSwEnv256::process() {
     if (this->bypass) return 1.0f; // バイパス時は音量1.0(影響なし)を返す
     if (this->state == State::Idle) return this->keep ? this->m_keepLevel : this->currentLevel;
 
@@ -161,7 +161,7 @@ float SsgSwEnv11::process() {
     return this->keep ? this->m_keepLevel : this->currentLevel;
 }
 
-float SsgSwEnv11::processStep() {
+float SsgSwEnv256::processStep() {
     if (this->state == State::Idle) return this->currentLevel;
 
     if (this->m_curveCore == nullptr) {
@@ -533,8 +533,8 @@ float SsgSwEnv11::processStep() {
 
             float y = m_curveCore->processAudio(
                 this->targetIndex,
-                (int)CurveParams::Target::SsgSwEnv11,
-                (int)CurveParams::TargetSsgSwEnv11::R11,
+                (int)CurveParams::Target::SsgSwEnv256,
+                (int)CurveParams::TargetSsgSwEnv256::R11,
                 this->m_phaseProgress
             );
 
@@ -567,8 +567,8 @@ float SsgSwEnv11::processStep() {
         // (TargetSsgSwEnv::R1 = 0, R2 = 1 ... LoopTo = 6)
         float y = m_curveCore->processAudio(
             this->targetIndex,
-            (int)CurveParams::Target::SsgSwEnv11,
-            doLoop ? (int)CurveParams::TargetSsgSwEnv11::LoopTo : (s - 1),
+            (int)CurveParams::Target::SsgSwEnv256,
+            doLoop ? (int)CurveParams::TargetSsgSwEnv256::LoopTo : (s - 1),
             this->m_phaseProgress
         );
         this->currentLevel = startLevel + y * (targetLevel - startLevel);

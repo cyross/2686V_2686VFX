@@ -1,23 +1,23 @@
 ﻿#include <algorithm>
 
-#include "./EnvSsgSw11.h"
+#include "./EnvSsgSw256.h"
 
-SsgSwPEnv11::SsgSwPEnv11() {
+SsgSwPEnv256::SsgSwPEnv256() {
 }
 
-void SsgSwPEnv11::prepare(int targetIndex, double sampleRate) {
+void SsgSwPEnv256::prepare(int targetIndex, double sampleRate) {
     this->targetIndex = targetIndex;
 
     updateTargetSampleRate(sampleRate);
 }
 
-void SsgSwPEnv11::updateTargetSampleRate(double newSampleRate)
+void SsgSwPEnv256::updateTargetSampleRate(double newSampleRate)
 {
     this->sampleRate = newSampleRate;
     this->updateIncrements();
 }
 
-void SsgSwPEnv11::setParameters(const SsgSwPEnv11Params& params) {
+void SsgSwPEnv256::setParameters(const SsgSwPEnv256Params& params) {
 	this->bypass = params.bypass;
 	this->steps = params.steps;
 	this->loop = params.loop;
@@ -66,14 +66,14 @@ void SsgSwPEnv11::setParameters(const SsgSwPEnv11Params& params) {
     this->updateIncrements();
 }
 
-inline bool SsgSwPEnv11::isReached(float inc, float current, float target) const {
+inline bool SsgSwPEnv256::isReached(float inc, float current, float target) const {
     if (inc >= 0.0f && current >= target) return true;
     if (inc < 0.0f && current <= target) return true;
 
     return false;
 }
 
-void SsgSwPEnv11::updateIncrements()
+void SsgSwPEnv256::updateIncrements()
 {
     if (sampleRate <= 0.0) return;
 
@@ -99,12 +99,12 @@ void SsgSwPEnv11::updateIncrements()
     }
 }
 
-void SsgSwPEnv11::updateSampleRate(double newSampleRate) {
+void SsgSwPEnv256::updateSampleRate(double newSampleRate) {
     this->sampleRate = newSampleRate;
     this->updateIncrements();
 }
 
-void SsgSwPEnv11::noteOn() {
+void SsgSwPEnv256::noteOn() {
     if (this->m_curveCore == nullptr) {
         this->state = State::S1;
         this->loopCounter = 0;
@@ -121,7 +121,7 @@ void SsgSwPEnv11::noteOn() {
     this->m_keepLevel = (float)this->l[0];
 }
 
-void SsgSwPEnv11::noteOff() {
+void SsgSwPEnv256::noteOff() {
     if (this->m_curveCore == nullptr) {
         this->state = State::S11;
 
@@ -144,16 +144,16 @@ void SsgSwPEnv11::noteOff() {
     }
 }
 
-float SsgSwPEnv11::bypassedReleasedProcess() {
+float SsgSwPEnv256::bypassedReleasedProcess() {
     this->state = State::Idle;
     return 0.0f;
 }
 
-float SsgSwPEnv11::bypassedProcess() {
+float SsgSwPEnv256::bypassedProcess() {
     return 1.0f;
 }
 
-float SsgSwPEnv11::process(float phaseDelta) {
+float SsgSwPEnv256::process(float phaseDelta) {
     if (this->bypass) return phaseDelta;
 
     // リリースを走り終えたあと。ENDL を触っていなければ、これまでどおり
@@ -470,8 +470,8 @@ float SsgSwPEnv11::process(float phaseDelta) {
             else {
                 float y = m_curveCore->processAudio(
                     this->targetIndex,
-                    (int)CurveParams::Target::SsgSwPEnv11,
-                    (int)CurveParams::TargetSsgSwPEnv11::R11,
+                    (int)CurveParams::Target::SsgSwPEnv256,
+                    (int)CurveParams::TargetSsgSwPEnv256::R11,
                     this->m_phaseProgress
                 );
                 this->currentLevel = this->m_releaseStartLevel + y * (targetLevel - this->m_releaseStartLevel);
@@ -498,8 +498,8 @@ float SsgSwPEnv11::process(float phaseDelta) {
 
             float y = m_curveCore->processAudio(
                 this->targetIndex,
-                (int)CurveParams::Target::SsgSwPEnv11,
-                doLoop ? (int)CurveParams::TargetSsgSwPEnv11::LoopTo : (s - 1),
+                (int)CurveParams::Target::SsgSwPEnv256,
+                doLoop ? (int)CurveParams::TargetSsgSwPEnv256::LoopTo : (s - 1),
                 this->m_phaseProgress
             );
             this->currentLevel = startLevel + y * (targetLevel - startLevel);

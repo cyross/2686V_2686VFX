@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "Shared/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 
 namespace
 {
@@ -46,13 +46,13 @@ TEST_CASE("SsgSwEnv: output stays finite and non-negative")
     }
 }
 
-// SsgSwEnv11 : 出力が有限で 0 以上
-TEST_CASE("SsgSwEnv11: output stays finite and non-negative")
+// SsgSwEnv256 : 出力が有限で 0 以上
+TEST_CASE("SsgSwEnv256: output stays finite and non-negative")
 {
-    SsgSwEnv11 env;
+    SsgSwEnv256 env;
     env.prepare(0, kRate);
 
-    SsgSwEnv11Params p;
+    SsgSwEnv256Params p;
     p.bypass = false;
     env.setParameters(p);
     env.noteOn();
@@ -67,13 +67,13 @@ TEST_CASE("SsgSwEnv11: output stays finite and non-negative")
     }
 }
 
-// SsgSwPEnv11 : バイパス時は位相増分を素通しする
-TEST_CASE("SsgSwPEnv11: bypass passes the phase delta through")
+// SsgSwPEnv256 : バイパス時は位相増分を素通しする
+TEST_CASE("SsgSwPEnv256: bypass passes the phase delta through")
 {
-    SsgSwPEnv11 env;
+    SsgSwPEnv256 env;
     env.prepare(0, kRate);
 
-    SsgSwPEnv11Params p;
+    SsgSwPEnv256Params p;
     p.bypass = true;
     env.setParameters(p);
 
@@ -82,18 +82,18 @@ TEST_CASE("SsgSwPEnv11: bypass passes the phase delta through")
     }
 }
 
-// SsgSwPEnv11 : process(1.0f) が周波数比そのものになる
-TEST_CASE("SsgSwPEnv11: process(1.0f) yields the frequency ratio")
+// SsgSwPEnv256 : process(1.0f) が周波数比そのものになる
+TEST_CASE("SsgSwPEnv256: process(1.0f) yields the frequency ratio")
 {
     // FM のチップ全体へ掛けるときに process(1.0f) を比として使っている。
     // 任意の位相増分に対して線形であることを確かめる。
-    SsgSwPEnv11 a;
+    SsgSwPEnv256 a;
     a.prepare(0, kRate);
 
-    SsgSwPEnv11 b;
+    SsgSwPEnv256 b;
     b.prepare(0, kRate);
 
-    SsgSwPEnv11Params p;
+    SsgSwPEnv256Params p;
     p.bypass = false;
     a.setParameters(p);
     b.setParameters(p);
@@ -110,14 +110,14 @@ TEST_CASE("SsgSwPEnv11: process(1.0f) yields the frequency ratio")
     }
 }
 
-// SsgSwPEnv11 : 比が正で有限のまま
-TEST_CASE("SsgSwPEnv11: ratio stays positive and finite")
+// SsgSwPEnv256 : 比が正で有限のまま
+TEST_CASE("SsgSwPEnv256: ratio stays positive and finite")
 {
     // 比が 0 以下になると位相が止まる / 逆行する。
-    SsgSwPEnv11 env;
+    SsgSwPEnv256 env;
     env.prepare(0, kRate);
 
-    SsgSwPEnv11Params p;
+    SsgSwPEnv256Params p;
     p.bypass = false;
     env.setParameters(p);
     env.noteOn();

@@ -26,8 +26,8 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
     PrHelper::addSsgSwEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
@@ -45,8 +45,8 @@ void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
-    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);
-    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11);
+    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256);
+    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
@@ -63,9 +63,9 @@ void WtProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValu
     PrHelper::applyQuality(pQuality, params.wt.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.wt.adsr);
     PrHelper::applySsgSwEnv(pSsgSwEnv, params.wt.ssgSwEnv);
-    PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.wt.ssgSwEnv11);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.wt.ssgSwEnv256);
     PrHelper::applyPitchEnv(pPitchEnv, params.wt.pitchAdsr);
-    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.wt.ssgSwPEnv11);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.wt.ssgSwPEnv256);
     PrHelper::applyOpzx7Detune(pOpzx7Detune, params.wt.detune);
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.wt.lfo);
     PrHelper::applyFix(pFix, params.wt.fix);

@@ -735,7 +735,7 @@ namespace CPV
 		}
 	}
 
-	namespace SsgSwEnv11
+	namespace SsgSwEnv256
 	{
 		namespace Bypass
 		{
@@ -817,7 +817,7 @@ namespace CPV
 		}
 	}
 
-	namespace SsgSwPEnv11
+	namespace SsgSwPEnv256
 	{
 		namespace Bypass
 		{

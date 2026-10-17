@@ -9,8 +9,8 @@
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
 
 struct Opl3Params
 {
@@ -27,8 +27,8 @@ struct Opl3Params
     WtAmpModParams wtAmpMod;
     SsgHwEnvParams ssgHwEnv;
     SsgHwPEnvParams ssgHwPEnv;
-    SsgSwEnv11Params ssgSwEnv11g;
-    SsgSwPEnv11Params ssgSwPEnv11g;
+    SsgSwEnv256Params ssgSwEnv256g;
+    SsgSwPEnv256Params ssgSwPEnv256g;
 
     std::array<Opl3OpParams, Opl3PrValue::ops> op;
 };

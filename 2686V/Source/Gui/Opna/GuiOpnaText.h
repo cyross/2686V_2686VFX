@@ -43,12 +43,12 @@ namespace OpnaGuiText
 		static inline const juce::String enable = u8"Enable";
 	}
 
-	namespace SsgSwEnv11
+	namespace SsgSwEnv256
 	{
 		static inline const juce::String enable = u8"Enable";
 	}
 
-	namespace SsgSwPEnv11
+	namespace SsgSwPEnv256
 	{
 		static inline const juce::String enable = u8"Enable";
 	}

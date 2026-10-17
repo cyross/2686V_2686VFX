@@ -18,7 +18,7 @@ namespace
     // ファイル名の後ろと、画面に出す区分の名前。
     //
     // ".param.opl" は ".param.opl3" の一部、".ssgSwEnv" は
-    // ".ssgSwEnv11" の一部になっている。前から順に見ると取り違えるので、
+    // ".ssgSwEnv256" の一部になっている。前から順に見ると取り違えるので、
     // いちばん長く一致したものを採ること。
     // 表示名を切り出すための目印。パラメータファイルは
     // 「名前 + .param.〜」という形をしている。
@@ -69,8 +69,8 @@ namespace
         { ".ssghwenv", EditorGuiText::ParamBrowser::kindSsgHwEnv },
         { ".ssghwpenv", EditorGuiText::ParamBrowser::kindSsgHwPEnv },
         { ".ssgswenv", EditorGuiText::ParamBrowser::kindSsgSwEnv },
-        { ".ssgswenv11", EditorGuiText::ParamBrowser::kindSsgSwEnv11 },
-        { ".ssgswpenv11", EditorGuiText::ParamBrowser::kindSsgSwPEnv11 },
+        { ".ssgswenv11", EditorGuiText::ParamBrowser::kindSsgSwEnv256 },
+        { ".ssgswpenv11", EditorGuiText::ParamBrowser::kindSsgSwPEnv256 },
         { ".pitchenv", EditorGuiText::ParamBrowser::kindPitchEnv },
         { ".detune", EditorGuiText::ParamBrowser::kindDetune },
         { ".unison", EditorGuiText::ParamBrowser::kindUnison },

@@ -39,12 +39,12 @@ namespace BeepGuiText
 		static inline const juce::String bypass = u8"Bypass";
 	}
 
-	namespace SsgSwEnv11
+	namespace SsgSwEnv256
 	{
 		static inline const juce::String bypass = u8"Bypass";
 	}
 
-	namespace SsgSwPEnv11
+	namespace SsgSwPEnv256
 	{
 		static inline const juce::String bypass = u8"Bypass";
 	}

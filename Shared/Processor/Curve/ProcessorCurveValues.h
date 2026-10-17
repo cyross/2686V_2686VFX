@@ -16,8 +16,8 @@ namespace CurvePrValue
 	inline constexpr int regAmpEnvParams = 4;
 	inline constexpr int regPitchEnvParams = 3;
 	inline constexpr int regSsgSwEnvParams = 7;
-	inline constexpr int regSsgSwEnv11Params = 12;
-	inline constexpr int regSsgSwPEnv11Params = 12;
+	inline constexpr int regSsgSwEnv256Params = 12;
+	inline constexpr int regSsgSwPEnv256Params = 12;
 
 	inline constexpr float posMin = 0.0f;
 	inline constexpr float posMax = 1.0f;

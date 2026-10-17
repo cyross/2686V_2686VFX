@@ -49,8 +49,8 @@ namespace CPK
 	static inline const juce::String pitchAdsr = "_PITCHENV";
 	static inline const juce::String adsr = "_ADSR";
 	static inline const juce::String ssgSwEnv = "_SSGSW";
-	static inline const juce::String ssgSwEnv11 = "_SSGSW11";
-	static inline const juce::String ssgSwPEnv11 = "_SSGSWP11";
+	static inline const juce::String ssgSwEnv256 = "_SSGSW11";
+	static inline const juce::String ssgSwPEnv256 = "_SSGSWP11";
 
 	static inline const juce::String bypass = "_BYPASS";
 
@@ -291,7 +291,7 @@ namespace CPK
 		static inline const juce::String l6 = "_SSGSW_L6";
 	};
 
-	namespace SsgSwEnv11
+	namespace SsgSwEnv256
 	{
 		static inline const juce::String enable = "_SSGSW11_ENABLE";
 		static inline const juce::String bypass = "_SSGSW11_BYPASS";
@@ -327,7 +327,7 @@ namespace CPK
 		static inline const juce::String keep = "_SSGSW11_KEEP";
 	};
 
-	namespace SsgSwPEnv11
+	namespace SsgSwPEnv256
 	{
 		static inline const juce::String enable = "_SSGSWP11_ENABLE";
 		static inline const juce::String bypass = "_SSGSWP11_BYPASS";

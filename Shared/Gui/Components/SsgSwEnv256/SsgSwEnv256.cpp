@@ -1,4 +1,4 @@
-﻿#include "./SsgSwEnv11.h"
+﻿#include "./SsgSwEnv256.h"
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
 
 #include "Shared/Core/Gui/GuiRefresh.h"
@@ -8,7 +8,7 @@
 namespace
 {
 	// ファイルの中身を見分ける印
-	const Io::ParamFormat ssgSwEnv11Format{ "ssgSwEnv11", 1 };
+	const Io::ParamFormat ssgSwEnv256Format{ "ssgSwEnv256", 1 };
 }
 
 #include "Shared/Core/Processor/ProcessorKeys.h"
@@ -23,8 +23,8 @@ namespace
 {
     // 段ごとのパラメータ名は GuiGraphValues へ一本化してある。
     // つまみを持たない小さなグラフも、同じ並びで引くため。
-    const auto& rateKeys = GuiGraphValues::Keys::ssgSwEnv11Rate;
-    const auto& levelKeys = GuiGraphValues::Keys::ssgSwEnv11Level;
+    const auto& rateKeys = GuiGraphValues::Keys::ssgSwEnv256Rate;
+    const auto& levelKeys = GuiGraphValues::Keys::ssgSwEnv256Level;
 
     constexpr int rateCount = 11;
     constexpr int levelCount = 11 + 1; // 先頭の STL のぶん
@@ -36,21 +36,21 @@ namespace
     }
 }
 
-float GuiComponentSsgSwEnv11::getStepValue(const juce::String& key) const
+float GuiComponentSsgSwEnv256::getStepValue(const juce::String& key) const
 {
     auto* v = ctx.apvts.getRawParameterValue(paramCode + key);
 
     return (v != nullptr) ? v->load() : 0.0f;
 }
 
-void GuiComponentSsgSwEnv11::setStepValue(const juce::String& key, float value)
+void GuiComponentSsgSwEnv256::setStepValue(const juce::String& key, float value)
 {
     if (auto* p = ctx.apvts.getParameter(paramCode + key)) {
         p->setValueNotifyingHost(p->convertTo0to1(value));
     }
 }
 
-void GuiComponentSsgSwEnv11::rebindRate()
+void GuiComponentSsgSwEnv256::rebindRate()
 {
     const int idx = juce::jlimit(0, rateCount - 1, (int)rateTarget.getValue() - 1);
 
@@ -59,7 +59,7 @@ void GuiComponentSsgSwEnv11::rebindRate()
     refreshStepValues();
 }
 
-void GuiComponentSsgSwEnv11::rebindLevel()
+void GuiComponentSsgSwEnv256::rebindLevel()
 {
     // 対象は 0 が STL、1 以降が L1 以降。表の並びと同じ。
     const int idx = juce::jlimit(0, levelCount - 1, (int)levelTarget.getValue());
@@ -69,7 +69,7 @@ void GuiComponentSsgSwEnv11::rebindLevel()
     refreshStepValues();
 }
 
-void GuiComponentSsgSwEnv11::refreshStepValues()
+void GuiComponentSsgSwEnv256::refreshStepValues()
 {
     // setup の途中で呼ばれることがある。束縛先が決まる前は出すものがない。
     if (paramCode.isEmpty()) return;
@@ -106,7 +106,7 @@ void GuiComponentSsgSwEnv11::refreshStepValues()
     levelValues.repaint();
 }
 
-void GuiComponentSsgSwEnv11::applyLoopValues(bool enabled)
+void GuiComponentSsgSwEnv256::applyLoopValues(bool enabled)
 {
     // setValue は同期で onValueChange を呼び返すので、ここから値を
     // 直すと自分自身が入れ子で呼ばれる。ドラッグ中はマウスと値の
@@ -139,7 +139,7 @@ void GuiComponentSsgSwEnv11::applyLoopValues(bool enabled)
     refreshStepValues();
 }
 
-void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder, const juce::String& flagKey, const juce::String& flagText, bool isEnable)
+void GuiComponentSsgSwEnv256::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder, const juce::String& flagKey, const juce::String& flagText, bool isEnable)
 {
     this->isEnable = isEnable;
 
@@ -157,7 +157,7 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 
     flagSeparator.setupComponent(parent);
 
-    steps.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::steps, .title = "STEP", .isReset = true, .labelFont = labelFont });
+    steps.setup({ .parent = parent, .id = code + CPK::SsgSwEnv256::steps, .title = "STEP", .isReset = true, .labelFont = labelFont });
     steps.setWantsKeyboardFocus(true);
     steps.setExplicitFocusOrder(++tabOrder);
     steps.onValueChange = [this] {
@@ -168,13 +168,13 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 
     stepsSeparator.setupComponent(parent);
 
-    keep.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::keep, .title = "KEEP", .isReset = true });
+    keep.setup({ .parent = parent, .id = code + CPK::SsgSwEnv256::keep, .title = "KEEP", .isReset = true });
     keep.setWantsKeyboardFocus(true);
     keep.setExplicitFocusOrder(++tabOrder);
 
     keepSeparator.setupComponent(parent);
 
-    loop.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::loop, .title = "LOOP", .isReset = true });
+    loop.setup({ .parent = parent, .id = code + CPK::SsgSwEnv256::loop, .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
     loop.setExplicitFocusOrder(++tabOrder);
     // 押したときだけ、ループできる形へ STEP と LOOP.TO を直す。
@@ -183,7 +183,7 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
         applyLoopValues(loop.getToggleState());
         };
 
-    loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::loopTo, .title = "LOOP.TO", .isReset = true, .labelFont = labelFont });
+    loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwEnv256::loopTo, .title = "LOOP.TO", .isReset = true, .labelFont = labelFont });
     loopTo.setWantsKeyboardFocus(true);
     loopTo.setExplicitFocusOrder(++tabOrder);
     loopTo.onValueChange = [this] {
@@ -192,7 +192,7 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopCount.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::loopCount, .title = "LOOP.CNT", .isReset = true, .labelFont = labelFont });
+    loopCount.setup({ .parent = parent, .id = code + CPK::SsgSwEnv256::loopCount, .title = "LOOP.CNT", .isReset = true, .labelFont = labelFont });
     loopCount.setWantsKeyboardFocus(true);
     loopCount.setExplicitFocusOrder(++tabOrder);
 
@@ -243,11 +243,11 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 
     endLevelSeparator.setupComponent(parent);
 
-    endLevelEnable.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::endlEnable, .title = "Use Endl", .isReset = true });
+    endLevelEnable.setup({ .parent = parent, .id = code + CPK::SsgSwEnv256::endlEnable, .title = "Use Endl", .isReset = true });
     endLevelEnable.setWantsKeyboardFocus(true);
     endLevelEnable.setExplicitFocusOrder(++tabOrder);
 
-    endLevel.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::endl, .title = "ENDL", .isReset = true, .labelFont = labelFont });
+    endLevel.setup({ .parent = parent, .id = code + CPK::SsgSwEnv256::endl, .title = "ENDL", .isReset = true, .labelFont = labelFont });
     endLevel.setWantsKeyboardFocus(true);
     endLevel.setExplicitFocusOrder(++tabOrder);
 
@@ -275,19 +275,19 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 // 同じ部品を並べる代わりに 1 つだけ置き、TARGET で指し先を切り替える
 // ための口。setup で組んだ見た目はそのままに、APVTS への繋ぎだけを
 // 張り替える。
-void GuiComponentSsgSwEnv11::rebind(const juce::String& code)
+void GuiComponentSsgSwEnv256::rebind(const juce::String& code)
 {
     paramCode = code;
 
     // 入り切りの鍵は呼ぶ側が決めるので、setup で受けたものを使う。
     flag.rebind(code + m_flagKey);
-    steps.rebind(code + CPK::SsgSwEnv11::steps);
-    keep.rebind(code + CPK::SsgSwEnv11::keep);
-    loop.rebind(code + CPK::SsgSwEnv11::loop);
-    loopTo.rebind(code + CPK::SsgSwEnv11::loopTo);
-    loopCount.rebind(code + CPK::SsgSwEnv11::loopCount);
-    endLevelEnable.rebind(code + CPK::SsgSwEnv11::endlEnable);
-    endLevel.rebind(code + CPK::SsgSwEnv11::endl);
+    steps.rebind(code + CPK::SsgSwEnv256::steps);
+    keep.rebind(code + CPK::SsgSwEnv256::keep);
+    loop.rebind(code + CPK::SsgSwEnv256::loop);
+    loopTo.rebind(code + CPK::SsgSwEnv256::loopTo);
+    loopCount.rebind(code + CPK::SsgSwEnv256::loopCount);
+    endLevelEnable.rebind(code + CPK::SsgSwEnv256::endlEnable);
+    endLevel.rebind(code + CPK::SsgSwEnv256::endl);
 
     // 段の値のつまみは 1 組しかない。今指している段へ繋ぎ直し、
     // 帯に出している各段の値も作り直す。
@@ -295,7 +295,7 @@ void GuiComponentSsgSwEnv11::rebind(const juce::String& code)
     rebindLevel();
 }
 
-void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
+void GuiComponentSsgSwEnv256::layoutComponent(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });
 
@@ -356,7 +356,7 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
     }
 }
 
-void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
+void GuiComponentSsgSwEnv256::layoutComponentRow(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });
 
@@ -417,7 +417,7 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
     }
 }
 
-void GuiComponentSsgSwEnv11::setupGraph(std::function<void()> repaintGraph) {
+void GuiComponentSsgSwEnv256::setupGraph(std::function<void()> repaintGraph) {
 
     flag.onStateChange = repaintGraph;
     keep.onStateChange = repaintGraph;
@@ -449,7 +449,7 @@ void GuiComponentSsgSwEnv11::setupGraph(std::function<void()> repaintGraph) {
     level.getSlider().onValueChange = [this, repaintGraph] { refreshStepValues(); repaintGraph(); };
 }
 
-void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx) {
+void GuiComponentSsgSwEnv256::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx) {
     // つまみは 1 組しかないので、値を並べ直して渡す。
     // R 側の [0] は使わない (元のつまみ配列と同じ並び)。
     std::array<float, (size_t)levelCount> rArr{};
@@ -472,7 +472,7 @@ void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_c
     head.loop = loop.getToggleState();
     head.loopTo = (int)loopTo.getValue();
     head.loopCount = (int)loopCount.getValue();
-    graph.updateSsgSwEnv11(
+    graph.updateSsgSwEnv256(
         head,
         rArr, (float)rate.getSlider().getMaximum(),
         lArr, (float)level.getSlider().getMaximum(),
@@ -482,7 +482,7 @@ void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_c
     );
 }
 
-void GuiComponentSsgSwEnv11::setEnabled(bool enabled) {
+void GuiComponentSsgSwEnv256::setEnabled(bool enabled) {
     outerEnabled = enabled;
 
     cat.setEnabled(enabled);
@@ -495,7 +495,7 @@ void GuiComponentSsgSwEnv11::setEnabled(bool enabled) {
 //
 // 札が効いていなければ札のほかをすべて止める。LOOP.TO / LOOP.CNT は
 // LOOP が切れていても止める。ENDL は Use Endl が切れていても止める。
-void GuiComponentSsgSwEnv11::applyActive() {
+void GuiComponentSsgSwEnv256::applyActive() {
     const bool active = outerEnabled && !isCategoryBypassed();
     const bool looping = active && loop.getToggleState();
 
@@ -535,7 +535,7 @@ void GuiComponentSsgSwEnv11::applyActive() {
     endLevel.setEnabledWithLabel(active && endLevelEnable.getToggleState());
 }
 
-void GuiComponentSsgSwEnv11::copyParams(CopyEnvSsgSw11& copyObj) {
+void GuiComponentSsgSwEnv256::copyParams(CopyEnvSsgSw256& copyObj) {
     copyObj.flag = flag.getToggleState();
     copyObj.steps = steps.getValue();
     copyObj.loop = loop.getToggleState();
@@ -552,7 +552,7 @@ void GuiComponentSsgSwEnv11::copyParams(CopyEnvSsgSw11& copyObj) {
     }
 }
 
-void GuiComponentSsgSwEnv11::pasteParams(CopyEnvSsgSw11& copyObj) {
+void GuiComponentSsgSwEnv256::pasteParams(CopyEnvSsgSw256& copyObj) {
     flag.setToggleState(copyObj.flag, juce::sendNotification);
     steps.setValue(copyObj.steps, juce::sendNotification);
     loop.setToggleState(copyObj.loop, juce::sendNotification);
@@ -571,18 +571,18 @@ void GuiComponentSsgSwEnv11::pasteParams(CopyEnvSsgSw11& copyObj) {
     refreshStepValues();
 }
 
-void GuiComponentSsgSwEnv11::importParams()
+void GuiComponentSsgSwEnv256::importParams()
 {
     // ファイルを選ぶダイアログではなく、一覧から選ぶ画面を出す。
     // 読めるのはこの区分だけなので、ほかは選べない。
     ctx.editor.openParamBrowser(ctx.audioProcessor.defaultSsgSwEnvParamDir,
-        { EditorGuiText::ParamBrowser::kindSsgSwEnv11 },
+        { EditorGuiText::ParamBrowser::kindSsgSwEnv256 },
         [this](const juce::File& file) { applyParamsFile(file); });
 }
 
 // ブラウザから直に渡せるよう、ダイアログを出すところと
 // 読んで反映するところを分けてある。
-void GuiComponentSsgSwEnv11::applyParamsFile(const juce::File& file)
+void GuiComponentSsgSwEnv256::applyParamsFile(const juce::File& file)
 {
     if (!file.existsAsFile()) return;
 
@@ -607,7 +607,7 @@ void GuiComponentSsgSwEnv11::applyParamsFile(const juce::File& file)
         }
 
         // 単体のファイルは入れ子にせず、そのまま中身として書く
-        Io::ParamWriter writer(ssgSwEnv11Format);
+        Io::ParamWriter writer(ssgSwEnv256Format);
 
         writeParams(writer, Io::ParamKey::values);
         writer.hoist(Io::ParamKey::values);
@@ -617,7 +617,7 @@ void GuiComponentSsgSwEnv11::applyParamsFile(const juce::File& file)
         return;
     }
 
-    auto reader = Io::ParamReader::open(file, ssgSwEnv11Format);
+    auto reader = Io::ParamReader::open(file, ssgSwEnv256Format);
 
     if (!reader.has_value()) return;
 
@@ -645,24 +645,24 @@ void GuiComponentSsgSwEnv11::applyParamsFile(const juce::File& file)
     refreshStepValues();
 }
 
-void GuiComponentSsgSwEnv11::exportParams()
+void GuiComponentSsgSwEnv256::exportParams()
 {
     // 書き出す先も一覧から決める。名前は下の欄で直せる。
     ctx.editor.openParamBrowserToSave(ctx.audioProcessor.defaultSsgSwEnvParamDir,
-        { EditorGuiText::ParamBrowser::kindSsgSwEnv11 }, Io::Extension::SsgSwEnvParam11,
+        { EditorGuiText::ParamBrowser::kindSsgSwEnv256 }, Io::Extension::SsgSwEnvParam11,
         [this](const juce::File& file) { writeParamsFile(file); });
 }
 
 // ブラウザから直に渡せるよう、書き出す先を決めるところと
 // 実際に書くところを分けてある。
-void GuiComponentSsgSwEnv11::writeParamsFile(const juce::File& file)
+void GuiComponentSsgSwEnv256::writeParamsFile(const juce::File& file)
 {
     if (file == juce::File{}) return;
 
     // 次回のダイアログ用にディレクトリを保存
     ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
 
-    Io::ParamWriter writer(ssgSwEnv11Format);
+    Io::ParamWriter writer(ssgSwEnv256Format);
 
     writer.set("flag", flag.getToggleState());
     writer.set("steps", (float)steps.getValue());
@@ -684,7 +684,7 @@ void GuiComponentSsgSwEnv11::writeParamsFile(const juce::File& file)
     writer.writeTo(file);
 }
 
-void GuiComponentSsgSwEnv11::setImportingParams(juce::StringArray& lines, int& index) {
+void GuiComponentSsgSwEnv256::setImportingParams(juce::StringArray& lines, int& index) {
     flag.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
     steps.setValue(lines[index++].getIntValue(), juce::sendNotification);
     loop.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
@@ -700,7 +700,7 @@ void GuiComponentSsgSwEnv11::setImportingParams(juce::StringArray& lines, int& i
     refreshStepValues();
 }
 
-void GuiComponentSsgSwEnv11::readParams(const Io::ParamReader& reader, const juce::String& key)
+void GuiComponentSsgSwEnv256::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
     auto r = reader.child(key);
 
@@ -724,7 +724,7 @@ void GuiComponentSsgSwEnv11::readParams(const Io::ParamReader& reader, const juc
     refreshStepValues();
 }
 
-juce::String GuiComponentSsgSwEnv11::getExportedParams() {
+juce::String GuiComponentSsgSwEnv256::getExportedParams() {
     juce::String content = "";
 
     content += juce::String(flag.getToggleState() ? 1 : 0) + "\n";
@@ -742,7 +742,7 @@ juce::String GuiComponentSsgSwEnv11::getExportedParams() {
     return content;
 }
 
-void GuiComponentSsgSwEnv11::writeParams(Io::ParamWriter& writer, const juce::String& key)
+void GuiComponentSsgSwEnv256::writeParams(Io::ParamWriter& writer, const juce::String& key)
 {
     auto w = writer.child(key);
 

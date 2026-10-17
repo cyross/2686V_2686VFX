@@ -10,9 +10,9 @@
 
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "Shared/Effect/Detune/Opzx7/DetuneOpzx7.h"
@@ -44,13 +44,13 @@ class ModProcessor
 	// --- 音量側 ---
 	PrPtrsAdsrAmpEnv ptAmpEnv;
 	PrPtrsSsgHwEnv ptSsgHwEnv;
-	PrPtrsSsgSwEnv11 ptSsgSwEnv11;
+	PrPtrsSsgSwEnv256 ptSsgSwEnv256;
 	PrPtrsWtAmpMod ptWtAmpMod;
 	PrPtrsOpzx7Lfo ptLfo;
 
 	// --- 音程側 ---
 	PrPtrsPitchEnv ptPitchEnv;
-	PrPtrsSsgSwPEnv11 ptSsgSwPEnv11;
+	PrPtrsSsgSwPEnv256 ptSsgSwPEnv256;
 	PrPtrsWtMod ptWtMod;
 	PrPtrsSsgHwPEnv ptSsgHwPEnv;
 
@@ -94,12 +94,12 @@ class ModProcessor
 
 	AmpAdsrEnv ampEnv;
 	SsgHwEnv ssgHwEnv;
-	SsgSwEnv11 ssgSwEnv11;
+	SsgSwEnv256 ssgSwEnv256;
 	WtAmpModulator wtAmpMod;
 	Opzx7LfoCore lfo;
 
 	PitchAdsrEnv pitchEnv;
-	SsgSwPEnv11 ssgSwPEnv11;
+	SsgSwPEnv256 ssgSwPEnv256;
 	WtModulator wtMod;
 	SsgHwPEnv ssgHwPEnv;
 

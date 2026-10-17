@@ -108,8 +108,8 @@ TEST_CASE("STEPS: SL / SSG HW・SW AMP ENV / WT AMP MOD の DEPTH の下にあ�
 		{ "SSG HW AMP ENV MIN", CPK::SsgHwEnv::min },
 		{ "SSG HW AMP ENV MAX", CPK::SsgHwEnv::max },
 		{ "SSG SW AMP ENV LEVEL", GuiGraphValues::Keys::ssgSwEnvLevel[0] },
-		{ "SSG SW AMP ENV[11] LEVEL", GuiGraphValues::Keys::ssgSwEnv11Level[0] },
-		{ "SSG SW AMP ENV[11] ENDL", CPK::SsgSwEnv11::endl },
+		{ "SSG SW AMP ENV[11] LEVEL", GuiGraphValues::Keys::ssgSwEnv256Level[0] },
+		{ "SSG SW AMP ENV[11] ENDL", CPK::SsgSwEnv256::endl },
 		{ "WT AMP MOD DEPTH", CPK::WtAmpMod::depth },
 		{ "WT PITCH MOD DEPTH", CPK::WtMod::depth },
 	};

@@ -30,8 +30,8 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
     PrHelper::addSsgSwEnvParameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
-    PrHelper::addSsgSwPEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv256Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwPEnv256Parameters(layout, prefix, prefixName);
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
@@ -53,8 +53,8 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
-    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);
-    PrHelper::setupSsgSwPEnv11Ptrs(apvts, prefix, pSsgSwPEnv11);
+    PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256);
+    PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
@@ -70,9 +70,9 @@ void BeepProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorVa
     PrHelper::applyWtMod(pWtMod, params.beep.wtMod);
     PrHelper::applyWtAmpMod(pWtAmpMod, params.beep.wtAmpMod);
     PrHelper::applySsgSwEnv(pSsgSwEnv, params.beep.ssgSwEnv);
-    PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.beep.ssgSwEnv11);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.beep.ssgSwEnv256);
     PrHelper::applyPitchEnv(pPitchEnv, params.beep.pitchAdsr);
-    PrHelper::applySsgSwPEnv11(pSsgSwPEnv11, params.beep.ssgSwPEnv11);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.beep.ssgSwPEnv256);
     PrHelper::applyOpzx7Detune(pOpzx7Detune, params.beep.detune);
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.beep.lfo);
     PrHelper::applyFix(pFix, params.beep.fix);

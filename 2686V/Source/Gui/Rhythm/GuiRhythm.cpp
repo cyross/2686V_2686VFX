@@ -114,11 +114,11 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     colAmpEnv.setup(stripCanvas, juce::String("") + "AMP ENV");
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
     colSsgSwEnv.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV");
-    colSsgSwEnv11.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[11]");
+    colSsgSwEnv256.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[11]");
     colAmpMod.setup(stripCanvas, juce::String("") + "WT AMP MOD");
     colPitchEnv.setup(stripCanvas, juce::String("") + "PITCH ENV");
     colSsgHwPEnv.setup(stripCanvas, juce::String("") + "SSG HW PITCH ENV");
-    colSsgSwPEnv11.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
+    colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[11]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colLfo.setup(stripCanvas, juce::String("") + "LFO");
     colMulDet.setup(stripCanvas, juce::String("") + "MUL/DET / FIX");
@@ -149,8 +149,8 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     setupModeBtn(graphBtnAmp, "AMP", GuiEnvGraphMode::Amp);
     setupModeBtn(graphBtnPitch, "PIT", GuiEnvGraphMode::Pitch);
     setupModeBtn(graphBtnSsg, "SSG", GuiEnvGraphMode::SsgSw);
-    setupModeBtn(graphBtnSsg11, "S11", GuiEnvGraphMode::SsgSw11);
-    setupModeBtn(graphBtnSsgP11, "P11", GuiEnvGraphMode::SsgSwP11);
+    setupModeBtn(graphBtnSsg11, "S11", GuiEnvGraphMode::SsgSw256);
+    setupModeBtn(graphBtnSsgP256, "P11", GuiEnvGraphMode::SsgSwP256);
 
     graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
@@ -344,9 +344,9 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     ssgSwEnvComponent.setupComponent(colSsgSwEnv.contentCanvas, padPrefix, tabOrder, CPK::ssgSwEnv + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwEnv::bypass);
 
-    ssgSwEnv11Component.setupComponent(colSsgSwEnv11.contentCanvas, padPrefix, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwEnv11::bypass);
+    ssgSwEnv256Component.setupComponent(colSsgSwEnv256.contentCanvas, padPrefix, tabOrder, CPK::ssgSwEnv256 + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwEnv256::bypass);
 
-    ssgSwPEnv11Component.setupComponent(colSsgSwPEnv11.contentCanvas, padPrefix, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwPEnv11::bypass);
+    ssgSwPEnv256Component.setupComponent(colSsgSwPEnv256.contentCanvas, padPrefix, tabOrder, CPK::ssgSwPEnv256 + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwPEnv256::bypass);
 
     mulDetuneComponent.setupComponent(colMulDet.contentCanvas, padPrefix, tabOrder);
 
@@ -363,8 +363,8 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     // 畳んだままだと見出しだけの列が並ぶことになる。
     for (auto* group : {
         &colForm, &colOptional, &colAmpEnv, &colSsgHwEnv,
-        &colSsgSwEnv, &colSsgSwEnv11, &colAmpMod, &colPitchEnv,
-        &colSsgHwPEnv, &colSsgSwPEnv11, &colMod, &colLfo,
+        &colSsgSwEnv, &colSsgSwEnv256, &colAmpMod, &colPitchEnv,
+        &colSsgHwPEnv, &colSsgSwPEnv256, &colMod, &colLfo,
         &colMulDet,
         })
     {
@@ -405,7 +405,7 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
             graphBtnPitch.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsg.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsg11.setBounds(btnRow.removeFromLeft(w));
-            graphBtnSsgP11.setBounds(btnRow);
+            graphBtnSsgP256.setBounds(btnRow);
         }
     }
 
@@ -495,9 +495,9 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
         ssgSwEnvComponent.layoutComponent(rect);
         });
 
-    layoutCol(colSsgSwEnv11, shown(SimpleView::SsgSwAmpEnv11), [&](juce::Rectangle<int>& rect) {
-        ssgSwEnv11Component.setCategoryVisible(true);
-        ssgSwEnv11Component.layoutComponent(rect);
+    layoutCol(colSsgSwEnv256, shown(SimpleView::SsgSwAmpEnv256), [&](juce::Rectangle<int>& rect) {
+        ssgSwEnv256Component.setCategoryVisible(true);
+        ssgSwEnv256Component.layoutComponent(rect);
         });
 
     layoutCol(colAmpMod, shown(SimpleView::WtAmpMod), [&](juce::Rectangle<int>& rect) {
@@ -515,9 +515,9 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
         ssgHwPEnv.layoutComponent(rect);
         });
 
-    layoutCol(colSsgSwPEnv11, shown(SimpleView::SsgSwPitchEnv11), [&](juce::Rectangle<int>& rect) {
-        ssgSwPEnv11Component.setCategoryVisible(true);
-        ssgSwPEnv11Component.layoutComponent(rect);
+    layoutCol(colSsgSwPEnv256, shown(SimpleView::SsgSwPitchEnv256), [&](juce::Rectangle<int>& rect) {
+        ssgSwPEnv256Component.setCategoryVisible(true);
+        ssgSwPEnv256Component.layoutComponent(rect);
         });
 
     layoutCol(colMod, true, [&](juce::Rectangle<int>& rect) { modComponent.layoutComponent(rect); });
@@ -689,9 +689,9 @@ void RhythmPadGui::setupGraph()
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    ssgSwEnv11Component.setupGraph(repaintGraph);
+    ssgSwEnv256Component.setupGraph(repaintGraph);
 
-    ssgSwPEnv11Component.setupGraph(repaintGraph);
+    ssgSwPEnv256Component.setupGraph(repaintGraph);
 }
 
 // 枠に出す波形を作り直す。
@@ -760,21 +760,21 @@ void GuiRhythm::updatePadGraph(int p)
         graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwEnv + CPK::bypass));
         graph.updateSsgSwEnv(v.head, v.rVal, v.rMax, v.lVal, v.lMax, p_curveCore, isCurveMode, 0);
     }
-    else if (mode == GuiEnvGraphMode::SsgSw11) {
-        const auto v = GuiGraphValues::ssgSwEnv11(apvts, code);
-        const bool keepOn = GuiGraphValues::ssgSwEnv11Keep(apvts, code);
+    else if (mode == GuiEnvGraphMode::SsgSw256) {
+        const auto v = GuiGraphValues::ssgSwEnv256(apvts, code);
+        const bool keepOn = GuiGraphValues::ssgSwEnv256Keep(apvts, code);
 
-        graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwEnv11 + CPK::bypass));
+        graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwEnv256 + CPK::bypass));
         graph.setKeepLevels(keepOn);
-        graph.updateSsgSwEnv11(v.head, v.rVal, v.rMax, v.lVal, v.lMax, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
+        graph.updateSsgSwEnv256(v.head, v.rVal, v.rMax, v.lVal, v.lMax, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
     }
-    else if (mode == GuiEnvGraphMode::SsgSwP11) {
-        const auto v = GuiGraphValues::ssgSwPEnv11(apvts, code);
-        const bool keepOn = GuiGraphValues::ssgSwPEnv11Keep(apvts, code);
+    else if (mode == GuiEnvGraphMode::SsgSwP256) {
+        const auto v = GuiGraphValues::ssgSwPEnv256(apvts, code);
+        const bool keepOn = GuiGraphValues::ssgSwPEnv256Keep(apvts, code);
 
-        graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwPEnv11 + CPK::bypass));
+        graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwPEnv256 + CPK::bypass));
         graph.setKeepLevels(keepOn);
-        graph.updateSsgSwPEnv11(v.head, v.rVal, v.rMax, v.lVal, v.lMax, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
+        graph.updateSsgSwPEnv256(v.head, v.rVal, v.rMax, v.lVal, v.lMax, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
     }
     else {
         graph.updateBypass(GuiGraphValues::ampEnvBypassed(apvts, code));
@@ -795,8 +795,8 @@ void RhythmPadGui::setGraphMode(GuiEnvGraphMode mode)
     graphBtnAmp.setToggleState(mode == GuiEnvGraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GuiEnvGraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GuiEnvGraphMode::SsgSw, juce::dontSendNotification);
-    graphBtnSsg11.setToggleState(mode == GuiEnvGraphMode::SsgSw11, juce::dontSendNotification);
-    graphBtnSsgP11.setToggleState(mode == GuiEnvGraphMode::SsgSwP11, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GuiEnvGraphMode::SsgSw256, juce::dontSendNotification);
+    graphBtnSsgP256.setToggleState(mode == GuiEnvGraphMode::SsgSwP256, juce::dontSendNotification);
 
     if (onGraphModeChange) onGraphModeChange(mode);
 }
@@ -839,8 +839,8 @@ void RhythmPadGui::rebind(int index)
     ampEnvComponent.rebind(padPrefix);
     pitchEnvComponent.rebind(padPrefix);
     ssgSwEnvComponent.rebind(padPrefix);
-    ssgSwEnv11Component.rebind(padPrefix);
-    ssgSwPEnv11Component.rebind(padPrefix);
+    ssgSwEnv256Component.rebind(padPrefix);
+    ssgSwPEnv256Component.rebind(padPrefix);
     mulDetuneComponent.rebind(padPrefix);
     lfoComponent.rebind(padPrefix);
     ssgHwEnv.rebind(padPrefix);
@@ -1004,20 +1004,20 @@ void RhythmPadGui::exportSsgSwEnvParam() {
     ssgSwEnvComponent.exportParams();
 }
 
-void RhythmPadGui::importSsgSwEnv11Param() {
-    ssgSwEnv11Component.importParams();
+void RhythmPadGui::importSsgSwEnv256Param() {
+    ssgSwEnv256Component.importParams();
 }
 
-void RhythmPadGui::exportSsgSwEnv11Param() {
-    ssgSwEnv11Component.exportParams();
+void RhythmPadGui::exportSsgSwEnv256Param() {
+    ssgSwEnv256Component.exportParams();
 }
 
-void RhythmPadGui::importSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.importParams();
+void RhythmPadGui::importSsgSwPEnv256Param() {
+    ssgSwPEnv256Component.importParams();
 }
 
-void RhythmPadGui::exportSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.exportParams();
+void RhythmPadGui::exportSsgSwPEnv256Param() {
+    ssgSwPEnv256Component.exportParams();
 }
 
 void RhythmPadGui::importDetuneParam() {
@@ -1245,8 +1245,8 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     modComponent.readParams(r, "wtMod");
     ampModComponent.readParams(r, "wtAmpMod");
     ssgSwEnvComponent.readParams(r, "ssgSwEnv");
-    ssgSwEnv11Component.readParams(r, "ssgSwEnv11");
-    ssgSwPEnv11Component.readParams(r, "ssgSwPEnv11");
+    ssgSwEnv256Component.readParams(r, "ssgSwEnv256");
+    ssgSwPEnv256Component.readParams(r, "ssgSwPEnv256");
     mulDetuneComponent.readParams(r, "mulDetune");
     lfoComponent.readParams(r, "lfo");
     qualityPcmComponent.readParams(r, "qualityPcm");
@@ -1283,8 +1283,8 @@ void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     modComponent.writeParams(w, "wtMod");
     ampModComponent.writeParams(w, "wtAmpMod");
     ssgSwEnvComponent.writeParams(w, "ssgSwEnv");
-    ssgSwEnv11Component.writeParams(w, "ssgSwEnv11");
-    ssgSwPEnv11Component.writeParams(w, "ssgSwPEnv11");
+    ssgSwEnv256Component.writeParams(w, "ssgSwEnv256");
+    ssgSwPEnv256Component.writeParams(w, "ssgSwPEnv256");
     mulDetuneComponent.writeParams(w, "mulDetune");
     lfoComponent.writeParams(w, "lfo");
     qualityPcmComponent.writeParams(w, "qualityPcm");
@@ -1310,8 +1310,8 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     ieWtMod(context),
     ieWtAmpMod(context),
     ieSsgSwEnv(context),
-    ieSsgSwEnv11(context),
-    ieSsgSwPEnv11(context),
+    ieSsgSwEnv256(context),
+    ieSsgSwPEnv256(context),
     ieDetune(context),
     ieQuality(context),
     iePcmPlay(context),
@@ -1399,13 +1399,13 @@ void GuiRhythm::setup()
     ieSsgSwEnv.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwEnvParam(padIndex); };
     ieSsgSwEnv.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwEnvParam(padIndex); };
 
-    ieSsgSwEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
-    ieSsgSwEnv11.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwEnv11Param(padIndex); };
-    ieSsgSwEnv11.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwEnv11Param(padIndex); };
+    ieSsgSwEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv256.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwEnv256Param(padIndex); };
+    ieSsgSwEnv256.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwEnv256Param(padIndex); };
 
-    ieSsgSwPEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
-    ieSsgSwPEnv11.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwPEnv11Param(padIndex); };
-    ieSsgSwPEnv11.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwPEnv11Param(padIndex); };
+    ieSsgSwPEnv256.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv256.onClickImport = [this] { const int padIndex = currentPad(); importSsgSwPEnv256Param(padIndex); };
+    ieSsgSwPEnv256.onClickExport = [this] { const int padIndex = currentPad(); exportSsgSwPEnv256Param(padIndex); };
 
     ieQuality.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Quality");
     ieQuality.onClickImport = [this] { const int padIndex = currentPad(); importQualityParam(padIndex); };
@@ -1440,8 +1440,8 @@ void GuiRhythm::setup()
     ieWtMod.bindCategory(padPanel.modComponent.category());
     ieWtAmpMod.bindCategory(padPanel.ampModComponent.category());
     ieSsgSwEnv.bindCategory(padPanel.ssgSwEnvComponent.category());
-    ieSsgSwEnv11.bindCategory(padPanel.ssgSwEnv11Component.category());
-    ieSsgSwPEnv11.bindCategory(padPanel.ssgSwPEnv11Component.category());
+    ieSsgSwEnv256.bindCategory(padPanel.ssgSwEnv256Component.category());
+    ieSsgSwPEnv256.bindCategory(padPanel.ssgSwPEnv256Component.category());
 
     // ---- 上の絵と、下の設定 ----
     //
@@ -1595,8 +1595,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieWtMod.setVisible(visible);
     ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
-    ieSsgSwEnv11.setVisible(visible);
-    ieSsgSwPEnv11.setVisible(visible);
+    ieSsgSwEnv256.setVisible(visible);
+    ieSsgSwPEnv256.setVisible(visible);
     ieChPadParam.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
@@ -1624,9 +1624,9 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
-        ieSsgSwEnv11.layoutComponent(rect);
+        ieSsgSwEnv256.layoutComponent(rect);
         rect.removeFromTop(4);
-        ieSsgSwPEnv11.layoutComponent(rect);
+        ieSsgSwPEnv256.layoutComponent(rect);
         rect.removeFromTop(4);
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1822,20 +1822,20 @@ void GuiRhythm::exportPcmPlayParam(int p) {
     padPanel.exportPcmPlayParam();
 }
 
-void GuiRhythm::importSsgSwEnv11Param(int p) {
-    padPanel.importSsgSwEnv11Param();
+void GuiRhythm::importSsgSwEnv256Param(int p) {
+    padPanel.importSsgSwEnv256Param();
 }
 
-void GuiRhythm::exportSsgSwEnv11Param(int p) {
-    padPanel.exportSsgSwEnv11Param();
+void GuiRhythm::exportSsgSwEnv256Param(int p) {
+    padPanel.exportSsgSwEnv256Param();
 }
 
-void GuiRhythm::importSsgSwPEnv11Param(int p) {
-    padPanel.importSsgSwPEnv11Param();
+void GuiRhythm::importSsgSwPEnv256Param(int p) {
+    padPanel.importSsgSwPEnv256Param();
 }
 
-void GuiRhythm::exportSsgSwPEnv11Param(int p) {
-    padPanel.exportSsgSwPEnv11Param();
+void GuiRhythm::exportSsgSwPEnv256Param(int p) {
+    padPanel.exportSsgSwPEnv256Param();
 }
 
 void GuiRhythm::importChParam() {
@@ -2084,8 +2084,8 @@ void RhythmPadGui::setImportingParams(int p, juce::StringArray& lines, int& inde
         pitchEnvComponent.setImportingParams(emptyLines, dummyIndex);
         ssgHwEnv.setImportingParams(emptyLines, dummyIndex);
         ssgSwEnvComponent.setImportingParams(emptyLines, dummyIndex);
-        ssgSwEnv11Component.setImportingParams(emptyLines, dummyIndex);
-        ssgSwPEnv11Component.setImportingParams(emptyLines, dummyIndex);
+        ssgSwEnv256Component.setImportingParams(emptyLines, dummyIndex);
+        ssgSwPEnv256Component.setImportingParams(emptyLines, dummyIndex);
         mulDetuneComponent.setImportingParams(emptyLines, dummyIndex);
         lfoComponent.setImportingParams(emptyLines, dummyIndex);
         qualityPcmComponent.setImportingParams(emptyLines, dummyIndex);
@@ -2128,8 +2128,8 @@ void RhythmPadGui::setImportingParams(int p, juce::StringArray& lines, int& inde
     pitchEnvComponent.setImportingParams(lines, index);
     ssgHwEnv.setImportingParams(lines, index);
     ssgSwEnvComponent.setImportingParams(lines, index);
-    ssgSwEnv11Component.setImportingParams(lines, index);
-    ssgSwPEnv11Component.setImportingParams(lines, index);
+    ssgSwEnv256Component.setImportingParams(lines, index);
+    ssgSwPEnv256Component.setImportingParams(lines, index);
     mulDetuneComponent.setImportingParams(lines, index);
     lfoComponent.setImportingParams(lines, index);
     qualityPcmComponent.setImportingParams(lines, index);
@@ -2244,11 +2244,11 @@ void RhythmPadGui::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv256)) ssgSwEnv256Component.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256)) ssgSwPEnv256Component.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
@@ -2260,11 +2260,11 @@ void RhythmPadGui::openEnabledCategories()
     if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
     if (ssgHwEnv.hasBypassSwitch() && !ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(true);
     if (ssgSwEnvComponent.hasBypassSwitch() && !ssgSwEnvComponent.isCategoryBypassed()) ssgSwEnvComponent.setCategoryOpen(true);
-    if (ssgSwEnv11Component.hasBypassSwitch() && !ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(true);
+    if (ssgSwEnv256Component.hasBypassSwitch() && !ssgSwEnv256Component.isCategoryBypassed()) ssgSwEnv256Component.setCategoryOpen(true);
     if (ampModComponent.hasBypassSwitch() && !ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(true);
     if (pitchEnvComponent.hasBypassSwitch() && !pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(true);
     if (ssgHwPEnv.hasBypassSwitch() && !ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(true);
-    if (ssgSwPEnv11Component.hasBypassSwitch() && !ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(true);
+    if (ssgSwPEnv256Component.hasBypassSwitch() && !ssgSwPEnv256Component.isCategoryBypassed()) ssgSwPEnv256Component.setCategoryOpen(true);
     if (lfoComponent.hasBypassSwitch() && !lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(true);
     if (mulDetuneComponent.hasBypassSwitch() && !mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(true);
     if (fixComponent.hasBypassSwitch() && !fixComponent.isCategoryBypassed()) fixComponent.setCategoryOpen(true);
@@ -2276,11 +2276,11 @@ void RhythmPadGui::closeBypassedCategories()
     if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
     if (ssgHwEnv.hasBypassSwitch() && ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(false);
     if (ssgSwEnvComponent.hasBypassSwitch() && ssgSwEnvComponent.isCategoryBypassed()) ssgSwEnvComponent.setCategoryOpen(false);
-    if (ssgSwEnv11Component.hasBypassSwitch() && ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(false);
+    if (ssgSwEnv256Component.hasBypassSwitch() && ssgSwEnv256Component.isCategoryBypassed()) ssgSwEnv256Component.setCategoryOpen(false);
     if (ampModComponent.hasBypassSwitch() && ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(false);
     if (pitchEnvComponent.hasBypassSwitch() && pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(false);
     if (ssgHwPEnv.hasBypassSwitch() && ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(false);
-    if (ssgSwPEnv11Component.hasBypassSwitch() && ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(false);
+    if (ssgSwPEnv256Component.hasBypassSwitch() && ssgSwPEnv256Component.isCategoryBypassed()) ssgSwPEnv256Component.setCategoryOpen(false);
     if (lfoComponent.hasBypassSwitch() && lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(false);
     if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
     if (fixComponent.hasBypassSwitch() && fixComponent.isCategoryBypassed()) fixComponent.setCategoryOpen(false);

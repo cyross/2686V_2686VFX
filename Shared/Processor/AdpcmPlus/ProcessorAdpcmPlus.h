@@ -15,8 +15,8 @@ class AdpcmPlusProcessor : public PrBase
     PrPtrsWtAmpMod pWtAmpMod;
     PrPtrsPitchEnv pPitchEnv;
     PrPtrsSsgSwEnv pSsgSwEnv;
-    PrPtrsSsgSwEnv11 pSsgSwEnv11;
-    PrPtrsSsgSwPEnv11 pSsgSwPEnv11;
+    PrPtrsSsgSwEnv256 pSsgSwEnv256;
+    PrPtrsSsgSwPEnv256 pSsgSwPEnv256;
     PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsOpzx7Detune pOpzx7Detune;

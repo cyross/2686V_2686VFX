@@ -35,8 +35,8 @@
 #include "Shared/Gui/Components/Separator/NormalSeparator.h"
 #include "Shared/Gui/Components/Separator/ShortSeparator.h"
 #include "Shared/Gui/Components/Quality/QualityPcm.h"
-#include "Shared/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
-#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/SsgSwEnv256/SsgSwEnv256.h"
+#include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "Shared/Gui/Components/WtMod/WtMod.h"
@@ -66,7 +66,7 @@ class RhythmPadGui: public GuiBase
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
     GuiToggleButton graphBtnSsg11;
-    GuiToggleButton graphBtnSsgP11;
+    GuiToggleButton graphBtnSsgP256;
 
     GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
 
@@ -90,11 +90,11 @@ private:
     GuiScrollGroup colAmpEnv;
     GuiScrollGroup colSsgHwEnv;
     GuiScrollGroup colSsgSwEnv;
-    GuiScrollGroup colSsgSwEnv11;
+    GuiScrollGroup colSsgSwEnv256;
     GuiScrollGroup colAmpMod;
     GuiScrollGroup colPitchEnv;
     GuiScrollGroup colSsgHwPEnv;
-    GuiScrollGroup colSsgSwPEnv11;
+    GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colLfo;
     GuiScrollGroup colMulDet;
@@ -185,8 +185,8 @@ private:
     // SSG SW Env
     GuiComponentSsgSwEnv ssgSwEnvComponent;
 
-    GuiComponentSsgSwEnv11 ssgSwEnv11Component;
-    GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
+    GuiComponentSsgSwEnv256 ssgSwEnv256Component;
+    GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
 
     // Detune
     GuiComponentMulDetune mulDetuneComponent;
@@ -217,17 +217,17 @@ public:
         graphBtnPitch(context),
         graphBtnSsg(context),
         graphBtnSsg11(context),
-        graphBtnSsgP11(context),
+        graphBtnSsgP256(context),
         colForm(context),
         colOptional(context),
         colAmpEnv(context),
         colSsgHwEnv(context),
         colSsgSwEnv(context),
-        colSsgSwEnv11(context),
+        colSsgSwEnv256(context),
         colAmpMod(context),
         colPitchEnv(context),
         colSsgHwPEnv(context),
-        colSsgSwPEnv11(context),
+        colSsgSwPEnv256(context),
         colMod(context),
         colLfo(context),
         colMulDet(context),
@@ -278,8 +278,8 @@ public:
         ampModComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
-        ssgSwEnv11Component(context),
-        ssgSwPEnv11Component(context),
+        ssgSwEnv256Component(context),
+        ssgSwPEnv256Component(context),
         mulDetuneComponent(context),
         lfoComponent(context),
         ssgHwEnv(context),
@@ -354,10 +354,10 @@ public:
     void exportWtAmpModParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
-    void importSsgSwEnv11Param();
-    void exportSsgSwEnv11Param();
-    void importSsgSwPEnv11Param();
-    void exportSsgSwPEnv11Param();
+    void importSsgSwEnv256Param();
+    void exportSsgSwEnv256Param();
+    void importSsgSwPEnv256Param();
+    void exportSsgSwPEnv256Param();
     void importDetuneParam();
     void exportDetuneParam();
     void importQualityParam();
@@ -417,8 +417,8 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv;
-    GuiComponentImportExport ieSsgSwEnv11;
-    GuiComponentImportExport ieSsgSwPEnv11;
+    GuiComponentImportExport ieSsgSwEnv256;
+    GuiComponentImportExport ieSsgSwPEnv256;
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport iePcmPlay;
@@ -496,10 +496,10 @@ public:
     void exportPitchEnvParam(int p);
     void importSsgSwEnvParam(int p);
     void exportSsgSwEnvParam(int p);
-    void importSsgSwEnv11Param(int p);
-    void exportSsgSwEnv11Param(int p);
-    void importSsgSwPEnv11Param(int p);
-    void exportSsgSwPEnv11Param(int p);
+    void importSsgSwEnv256Param(int p);
+    void exportSsgSwEnv256Param(int p);
+    void importSsgSwPEnv256Param(int p);
+    void exportSsgSwPEnv256Param(int p);
     void importDetuneParam(int p);
     void exportDetuneParam(int p);
     void importQualityParam(int p);

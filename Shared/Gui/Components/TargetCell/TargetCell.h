@@ -14,7 +14,7 @@
 // どれを映すかは枠ごとではなく、TARGET の隣の札でまとめて決める。
 // 並べた枠は見比べるためのものなので、一枚ずつ違うものを映しても
 // 比べようがない。
-enum class GuiEnvGraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
+enum class GuiEnvGraphMode { Amp, Pitch, SsgSw, SsgSw256, SsgSwP256 };
 
 // ==========================================================
 // TARGET で選ぶ枠

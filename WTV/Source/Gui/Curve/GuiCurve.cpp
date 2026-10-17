@@ -40,8 +40,8 @@ static std::vector<SelectItem> targetItems = {
     {.name = "AmpEnv",   .value = 2 },
     {.name = "PitchEnv", .value = 3 },
     {.name = "SsgSwEnv", .value = 4 },
-    {.name = "SsgSwEnv11", .value = 5 },
-    {.name = "SsgSwPEnv11", .value = 6 }
+    {.name = "SsgSwEnv256", .value = 5 },
+    {.name = "SsgSwPEnv256", .value = 6 }
 };
 
 // ロジックの選択肢。言語で名前が変わるので、その場で作る。
@@ -156,7 +156,7 @@ static std::vector< std::vector<juce::String>> paramTitles = {
     }
 };
 
-static std::vector<int> paramLengthes = { CurvePrValue::regValParams, CurvePrValue::regAmpEnvParams, CurvePrValue::regPitchEnvParams, CurvePrValue::regSsgSwEnvParams, CurvePrValue::regSsgSwEnv11Params, CurvePrValue::regSsgSwPEnv11Params };
+static std::vector<int> paramLengthes = { CurvePrValue::regValParams, CurvePrValue::regAmpEnvParams, CurvePrValue::regPitchEnvParams, CurvePrValue::regSsgSwEnvParams, CurvePrValue::regSsgSwEnv256Params, CurvePrValue::regSsgSwPEnv256Params };
 
 static std::vector<int> valueLengthes = {
     0,    // Linear

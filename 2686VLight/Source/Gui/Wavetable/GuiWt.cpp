@@ -592,9 +592,9 @@ void GuiWt::setup()
 
     ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv + CPK::bypass, WtGuiText::SsgSwEnv::bypass);
 
-    ssgSwEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, WtGuiText::SsgSwEnv11::bypass);
+    ssgSwEnv256Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv256 + CPK::bypass, WtGuiText::SsgSwEnv256::bypass);
 
-    ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, WtGuiText::SsgSwPEnv11::bypass);
+    ssgSwPEnv256Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv256 + CPK::bypass, WtGuiText::SsgSwPEnv256::bypass);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -654,9 +654,9 @@ void GuiWt::setup()
 
     ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
-    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11Component);
+    ieSsgSwEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv256Component);
 
-    ieSsgSwPEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11Component);
+    ieSsgSwPEnv256.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv256Component);
 
     ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
@@ -785,7 +785,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
         || pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)
         || pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)
         || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)
-        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
+        || pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv256));
 
     ampEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv));
     ampEnvComponent.layoutComponent(mRect);
@@ -795,8 +795,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnvComponent.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv));
     ssgSwEnvComponent.layoutComponent(mRect);
-    ssgSwEnv11Component.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11));
-    ssgSwEnv11Component.layoutComponent(mRect);
+    ssgSwEnv256Component.setCategoryVisible(ampOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv256));
+    ssgSwEnv256Component.layoutComponent(mRect);
 
     ampMajorCat.endMajor(mRect);
 
@@ -809,8 +809,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     pitchEnvComponent.layoutComponent(mRect);
     ssgHwPEnv.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv));
     ssgHwPEnv.layoutComponent(mRect);
-    ssgSwPEnv11Component.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11));
-    ssgSwPEnv11Component.layoutComponent(mRect);
+    ssgSwPEnv256Component.setCategoryVisible(pitchOpen && pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256));
+    ssgSwPEnv256Component.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
 
@@ -1135,8 +1135,8 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieWtMod.setVisible(visible);
     ieWtAmpMod.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
-    ieSsgSwEnv11.setVisible(visible);
-    ieSsgSwPEnv11.setVisible(visible);
+    ieSsgSwEnv256.setVisible(visible);
+    ieSsgSwPEnv256.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
     ieChParam.setVisible(visible);
@@ -1161,9 +1161,9 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
-        ieSsgSwEnv11.layoutComponent(rect);
+        ieSsgSwEnv256.layoutComponent(rect);
         rect.removeFromTop(4);
-        ieSsgSwPEnv11.layoutComponent(rect);
+        ieSsgSwPEnv256.layoutComponent(rect);
         rect.removeFromTop(4);
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1192,10 +1192,10 @@ void GuiWt::setupGraph()
     graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
 
     graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
-    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw11); };
+    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw256); };
 
-    graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
-    graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
+    graphBtnSsgP256.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP256.onClick = [this] { setGraphMode(GraphMode::SsgSwP256); };
 
     auto repaintGraph = [this]() {
         if (this->isUpdatingGraph) return;
@@ -1213,9 +1213,9 @@ void GuiWt::setupGraph()
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    ssgSwEnv11Component.setupGraph(repaintGraph);
+    ssgSwEnv256Component.setupGraph(repaintGraph);
 
-    ssgSwPEnv11Component.setupGraph(repaintGraph);
+    ssgSwPEnv256Component.setupGraph(repaintGraph);
 
     graphSeparator.setupComponent(*this);
 }
@@ -1228,8 +1228,8 @@ void GuiWt::setGraphMode(GraphMode mode)
     graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
-    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
-    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw256, juce::dontSendNotification);
+    graphBtnSsgP256.setToggleState(mode == GraphMode::SsgSwP256, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -1249,7 +1249,7 @@ void GuiWt::layoutGraph(juce::Rectangle<int>& rect)
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnSsg.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsgP11.setBounds(btnArea);
+    graphBtnSsgP256.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -1275,14 +1275,14 @@ void GuiWt::updateGraph()
     // =============================================================
     // SSG SW Env 11
     // =============================================================
-    else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11Component.updateGraph(graph);
+    else if (mode == GraphMode::SsgSw256) {
+        ssgSwEnv256Component.updateGraph(graph);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
-    else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11Component.updateGraph(graph);
+    else if (mode == GraphMode::SsgSwP256) {
+        ssgSwPEnv256Component.updateGraph(graph);
     }
     // =============================================================
     // Amp Env
@@ -1449,8 +1449,8 @@ void GuiWt::applyChParamFile(const juce::File& file) {
     ssgHwEnv.readParams(*reader, "ssgHwEnv");
     ssgHwPEnv.readParams(*reader, "ssgHwPEnv");
     ssgSwEnvComponent.readParams(*reader, "ssgSwEnv");
-    ssgSwEnv11Component.readParams(*reader, "ssgSwEnv11");
-    ssgSwPEnv11Component.readParams(*reader, "ssgSwPEnv11");
+    ssgSwEnv256Component.readParams(*reader, "ssgSwEnv256");
+    ssgSwPEnv256Component.readParams(*reader, "ssgSwPEnv256");
     mulDetuneComponent.readParams(*reader, "mulDetune");
     lfo.readParams(*reader, "lfo");
     qualityComponent.readParams(*reader, "quality");
@@ -1522,8 +1522,8 @@ void GuiWt::setImportingChParams(juce::StringArray& lines, int& index) {
 	pitchEnvComponent.setImportingParams(lines, index);
 	ssgHwEnv.setImportingParams(lines, index);
 	ssgSwEnvComponent.setImportingParams(lines, index);
-	ssgSwEnv11Component.setImportingParams(lines, index);
-	ssgSwPEnv11Component.setImportingParams(lines, index);
+	ssgSwEnv256Component.setImportingParams(lines, index);
+	ssgSwPEnv256Component.setImportingParams(lines, index);
 	mulDetuneComponent.setImportingParams(lines, index);
 	lfo.setImportingParams(lines, index);
 	qualityComponent.setImportingParams(lines, index);
@@ -1582,8 +1582,8 @@ void GuiWt::writeChParams(Io::ParamWriter& writer) {
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
 	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnvComponent.writeParams(writer, "ssgSwEnv");
-	ssgSwEnv11Component.writeParams(writer, "ssgSwEnv11");
-	ssgSwPEnv11Component.writeParams(writer, "ssgSwPEnv11");
+	ssgSwEnv256Component.writeParams(writer, "ssgSwEnv256");
+	ssgSwPEnv256Component.writeParams(writer, "ssgSwPEnv256");
 	mulDetuneComponent.writeParams(writer, "mulDetune");
 	lfo.writeParams(writer, "lfo");
 	qualityComponent.writeParams(writer, "quality");
@@ -1638,11 +1638,11 @@ void GuiWt::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnv.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv)) ssgSwEnvComponent.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv256)) ssgSwEnv256Component.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) ampModComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256)) ssgSwPEnv256Component.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfo.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
@@ -1655,19 +1655,19 @@ void GuiWt::openEnabledCategories()
     if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
     if (ssgHwEnv.hasBypassSwitch() && !ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(true);
     if (ssgSwEnvComponent.hasBypassSwitch() && !ssgSwEnvComponent.isCategoryBypassed()) ssgSwEnvComponent.setCategoryOpen(true);
-    if (ssgSwEnv11Component.hasBypassSwitch() && !ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(true);
+    if (ssgSwEnv256Component.hasBypassSwitch() && !ssgSwEnv256Component.isCategoryBypassed()) ssgSwEnv256Component.setCategoryOpen(true);
     if (ampModComponent.hasBypassSwitch() && !ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(true);
     if (pitchEnvComponent.hasBypassSwitch() && !pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(true);
     if (ssgHwPEnv.hasBypassSwitch() && !ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(true);
-    if (ssgSwPEnv11Component.hasBypassSwitch() && !ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(true);
+    if (ssgSwPEnv256Component.hasBypassSwitch() && !ssgSwPEnv256Component.isCategoryBypassed()) ssgSwPEnv256Component.setCategoryOpen(true);
     if (lfo.hasBypassSwitch() && !lfo.isCategoryBypassed()) lfo.setCategoryOpen(true);
     if (mulDetuneComponent.hasBypassSwitch() && !mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(true);
     if (fixComponent.hasBypassSwitch() && !fixComponent.isCategoryBypassed()) fixComponent.setCategoryOpen(true);
     if (unisonComponent.hasBypassSwitch() && !unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(true);
 
     // 大区分は中の区分に合わせる。効いている区分があれば開く。
-    if (anyCategoryEnabled(ampEnvComponent, ampModComponent, ssgHwEnv, ssgSwEnvComponent, ssgSwEnv11Component)) ampMajorCat.setDetailVisible(true);
-    if (anyCategoryEnabled(modComponent, pitchEnvComponent, ssgHwPEnv, ssgSwPEnv11Component)) pitchMajorCat.setDetailVisible(true);
+    if (anyCategoryEnabled(ampEnvComponent, ampModComponent, ssgHwEnv, ssgSwEnvComponent, ssgSwEnv256Component)) ampMajorCat.setDetailVisible(true);
+    if (anyCategoryEnabled(modComponent, pitchEnvComponent, ssgHwPEnv, ssgSwPEnv256Component)) pitchMajorCat.setDetailVisible(true);
 }
 
 void GuiWt::closeBypassedCategories()
@@ -1676,17 +1676,17 @@ void GuiWt::closeBypassedCategories()
     if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
     if (ssgHwEnv.hasBypassSwitch() && ssgHwEnv.isCategoryBypassed()) ssgHwEnv.setCategoryOpen(false);
     if (ssgSwEnvComponent.hasBypassSwitch() && ssgSwEnvComponent.isCategoryBypassed()) ssgSwEnvComponent.setCategoryOpen(false);
-    if (ssgSwEnv11Component.hasBypassSwitch() && ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(false);
+    if (ssgSwEnv256Component.hasBypassSwitch() && ssgSwEnv256Component.isCategoryBypassed()) ssgSwEnv256Component.setCategoryOpen(false);
     if (ampModComponent.hasBypassSwitch() && ampModComponent.isCategoryBypassed()) ampModComponent.setCategoryOpen(false);
     if (pitchEnvComponent.hasBypassSwitch() && pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(false);
     if (ssgHwPEnv.hasBypassSwitch() && ssgHwPEnv.isCategoryBypassed()) ssgHwPEnv.setCategoryOpen(false);
-    if (ssgSwPEnv11Component.hasBypassSwitch() && ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(false);
+    if (ssgSwPEnv256Component.hasBypassSwitch() && ssgSwPEnv256Component.isCategoryBypassed()) ssgSwPEnv256Component.setCategoryOpen(false);
     if (lfo.hasBypassSwitch() && lfo.isCategoryBypassed()) lfo.setCategoryOpen(false);
     if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
     if (fixComponent.hasBypassSwitch() && fixComponent.isCategoryBypassed()) fixComponent.setCategoryOpen(false);
     if (unisonComponent.hasBypassSwitch() && unisonComponent.isCategoryBypassed()) unisonComponent.setCategoryOpen(false);
 
     // 大区分は中の区分に合わせる。どれも切ってあれば閉じる。
-    if (allCategoriesBypassed(ampEnvComponent, ampModComponent, ssgHwEnv, ssgSwEnvComponent, ssgSwEnv11Component)) ampMajorCat.setDetailVisible(false);
-    if (allCategoriesBypassed(modComponent, pitchEnvComponent, ssgHwPEnv, ssgSwPEnv11Component)) pitchMajorCat.setDetailVisible(false);
+    if (allCategoriesBypassed(ampEnvComponent, ampModComponent, ssgHwEnv, ssgSwEnvComponent, ssgSwEnv256Component)) ampMajorCat.setDetailVisible(false);
+    if (allCategoriesBypassed(modComponent, pitchEnvComponent, ssgHwPEnv, ssgSwPEnv256Component)) pitchMajorCat.setDetailVisible(false);
 }

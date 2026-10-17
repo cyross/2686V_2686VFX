@@ -8,8 +8,8 @@
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256.h"
 
 #include "./Operator/SynthOpl3Op.h"
 #include "../../Core/Synth/SynthInterp.h"
@@ -93,11 +93,11 @@ private:
 
     // 音量側と同じ形をピッチへ当てるもの。チップ全体のピッチ倍率へ掛ける。
     SsgHwPEnv m_ssgHwPEnv;
-    SsgSwEnv11 m_ssgSwEnv11g;
+    SsgSwEnv256 m_ssgSwEnv256g;
 
     // チップ全体へ掛かるピッチ側。オペレータは m_globalPitchRatio を
     // 参照しているので、ここを毎サンプル更新すれば全オペレータへ届く。
-    SsgSwPEnv11 m_ssgSwPEnv11g;
+    SsgSwPEnv256 m_ssgSwPEnv256g;
     float m_globalPitchRatio = 1.0f;
 
     // チップ全体へ掛かる MODULATION。変調速度は搬送波との比なので、
@@ -112,11 +112,11 @@ private:
     inline void updateGlobalPitchRatio(float notePhaseDelta) {
         float ratio = m_wtMod.process(notePhaseDelta) * m_ssgHwPEnv.process(1.0f);
 
-        if (!m_ssgSwPEnv11g.isBypass()) {
-            ratio *= m_ssgSwPEnv11g.process(1.0f);
+        if (!m_ssgSwPEnv256g.isBypass()) {
+            ratio *= m_ssgSwPEnv256g.process(1.0f);
         }
         else {
-            if (m_ssgSwPEnv11g.isRelease()) m_ssgSwPEnv11g.bypassedReleasedProcess();
+            if (m_ssgSwPEnv256g.isRelease()) m_ssgSwPEnv256g.bypassedReleasedProcess();
         }
 
         m_globalPitchRatio = ratio;

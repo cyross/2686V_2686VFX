@@ -191,8 +191,8 @@ void Opzx7Core::prepare(double sampleRate) {
     m_amSmooth = 0.0f;
 
     m_lfo.prepare(target);
-    m_ssgSwEnv11g.prepare(0, target);
-    m_ssgSwPEnv11g.prepare(0, target);
+    m_ssgSwEnv256g.prepare(0, target);
+    m_ssgSwPEnv256g.prepare(0, target);
 
     // オペレータにチップ全体のピッチ倍率の在りかを教える
     for (int i = 0; i < Opzx7PrValue::ops; ++i) {
@@ -236,8 +236,8 @@ void Opzx7Core::setParameters(const SynthCoreParams& params) {
     m_isMonoMode = params.monoMode;
 
     m_lfo.setParameters(params.opzx7.glLfo);
-    m_ssgSwEnv11g.setParameters(params.opzx7.ssgSwEnv11g);
-    m_ssgSwPEnv11g.setParameters(params.opzx7.ssgSwPEnv11g);
+    m_ssgSwEnv256g.setParameters(params.opzx7.ssgSwEnv256g);
+    m_ssgSwPEnv256g.setParameters(params.opzx7.ssgSwPEnv256g);
     m_ampEnvG.setParameters(params.opzx7.ampEnvG);
     m_wtMod.setParameters(params.opzx7.wtMod);
     m_wtAmpMod.setParameters(params.opzx7.wtAmpMod);
@@ -275,8 +275,8 @@ void Opzx7Core::setParameters(const SynthCoreParams& params) {
         m_operators[7].setSampleRate(target);
 
         m_lfo.updateTargetSampleRate(target);
-        m_ssgSwEnv11g.updateTargetSampleRate(target);
-        m_ssgSwPEnv11g.updateTargetSampleRate(target);
+        m_ssgSwEnv256g.updateTargetSampleRate(target);
+        m_ssgSwPEnv256g.updateTargetSampleRate(target);
         m_ampEnvG.updateTargetSampleRate(target);
         m_ssgHwEnv.updateTargetSampleRate(target);
         m_ssgHwPEnv.updateTargetSampleRate(target);
@@ -375,12 +375,12 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
             m_ampEnvGLevel = m_ampEnvG.noteOn();
         }
 
-        if (!m_ssgSwEnv11g.isBypass()) {
-            m_ssgSwEnv11g.noteOn();
+        if (!m_ssgSwEnv256g.isBypass()) {
+            m_ssgSwEnv256g.noteOn();
         }
 
-        if (!m_ssgSwPEnv11g.isBypass()) {
-            m_ssgSwPEnv11g.noteOn();
+        if (!m_ssgSwPEnv256g.isBypass()) {
+            m_ssgSwPEnv256g.noteOn();
         }
     }
 }
@@ -400,12 +400,12 @@ void Opzx7Core::noteOff()
         m_ampEnvG.noteOff();
     }
 
-    if (!m_ssgSwEnv11g.isBypass()) {
-        m_ssgSwEnv11g.noteOff();
+    if (!m_ssgSwEnv256g.isBypass()) {
+        m_ssgSwEnv256g.noteOff();
     }
 
-    if (!m_ssgSwPEnv11g.isBypass()) {
-        m_ssgSwPEnv11g.noteOff();
+    if (!m_ssgSwPEnv256g.isBypass()) {
+        m_ssgSwPEnv256g.noteOff();
     }
 }
 
@@ -420,8 +420,8 @@ bool Opzx7Core::isPlaying() const
     if (m_operators[6].isPlaying()) return true;
     if (m_operators[7].isPlaying()) return true;
     if (m_ampEnvG.isPlaying()) return true;
-    if (m_ssgSwEnv11g.isPlaying()) return true;
-    if (m_ssgSwPEnv11g.isPlaying()) return true;
+    if (m_ssgSwEnv256g.isPlaying()) return true;
+    if (m_ssgSwPEnv256g.isPlaying()) return true;
 
     return false;
 }
@@ -518,12 +518,12 @@ float Opzx7Core::getSample() {
             if (m_ampEnvG.isRelease()) m_ampEnvG.bypassedReleasedProcess();
         }
 
-        // SSGソフトウェアエンベロープ(SsgSwEnv11)処理
-        if (!m_ssgSwEnv11g.isBypass()) {
-            finalOut *= m_ssgSwEnv11g.process();
+        // SSGソフトウェアエンベロープ(SsgSwEnv256)処理
+        if (!m_ssgSwEnv256g.isBypass()) {
+            finalOut *= m_ssgSwEnv256g.process();
         }
         else {
-            if (m_ssgSwEnv11g.isRelease()) m_ssgSwEnv11g.bypassedReleasedProcess();
+            if (m_ssgSwEnv256g.isRelease()) m_ssgSwEnv256g.bypassedReleasedProcess();
         }
 
         finalOut *= 2.0f; // ゲイン補正

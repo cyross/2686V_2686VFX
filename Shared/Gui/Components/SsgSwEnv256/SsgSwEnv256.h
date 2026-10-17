@@ -8,6 +8,7 @@
 #include <functional>
 
 #include "Shared/Core/Const/ConstGlobal.h"
+#include "../StepSnap/StepSnap.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiContext.h"
@@ -16,14 +17,14 @@
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
-#include "../PitchButtons/PitchButtons.h"
+#include "../../../Gui/Components/SsgSwButtons/SsgSwButtons.h"
 #include "../NudgeButtons/NudgeButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../StepValues/StepValues.h"
 
 #include "Shared/Core/Gui/GuiCopyObj.h"
 
-class GuiComponentSsgSwPEnv11 : public GuiBase {
+class GuiComponentSsgSwEnv256 : public GuiBase {
     bool isEnable = false;
     juce::Font labelFont = juce::Font(juce::FontOptions(12.0f));
 
@@ -55,7 +56,11 @@ class GuiComponentSsgSwPEnv11 : public GuiBase {
 
     GuiSlider levelTarget;
     GuiComponentNudgeSliderFloat level;
-    GuiComponentPitchButtons levelBtns;
+
+    // LEVEL と ENDL を決まった刻みへ丸める
+    GuiComponentStepSnap levelSteps;
+
+    GuiComponentSsgSwButtons levelBtns;
     GuiStepValues levelValues;
 
     NormalSeparator endLevelSeparator;
@@ -115,7 +120,7 @@ public:
 
     // 見出しの開閉
     void setCategoryOpen(bool open) { cat.setDetailVisible(open); }
-    GuiComponentSsgSwPEnv11(const GuiContext& context) :
+    GuiComponentSsgSwEnv256(const GuiContext& context) :
         GuiBase(context),
         cat(context),
         flag(context),
@@ -134,6 +139,7 @@ public:
         rateSeparator(context),
         levelTarget(context),
         level(context),
+        levelSteps(context),
         levelBtns(context),
         endLevelSeparator(context),
         endLevelEnable(context),
@@ -158,8 +164,8 @@ public:
     // 札 (Bypass / Enable) が効いていないあいだは、札のほかをすべて止める。
     // 札そのものは外から止められたときだけ止める。
     void applyActive();
-    void copyParams(CopyPEnvSsgSw11& copyObj);
-    void pasteParams(CopyPEnvSsgSw11& copyObj);
+    void copyParams(CopyEnvSsgSw256& copyObj);
+    void pasteParams(CopyEnvSsgSw256& copyObj);
     void importParams();
     // ブラウザから直に読ませるための入口。
     void applyParamsFile(const juce::File& file);

@@ -31,8 +31,8 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         PrHelper::addOpEnvParameters(layout, padPrefix, padPrefixName);
         PrHelper::addOpPitchEnvParameters(layout, padPrefix, padPrefixName);
         PrHelper::addSsgSwEnvParameters(layout, padPrefix, padPrefixName);
-        PrHelper::addSsgSwEnv11Parameters(layout, padPrefix, padPrefixName);
-        PrHelper::addSsgSwPEnv11Parameters(layout, padPrefix, padPrefixName);
+        PrHelper::addSsgSwEnv256Parameters(layout, padPrefix, padPrefixName);
+        PrHelper::addSsgSwPEnv256Parameters(layout, padPrefix, padPrefixName);
         PrHelper::addOpzx7LfoParameters(layout, padPrefix, padPrefixName);
         PrHelper::addFixParameters(layout, padPrefix, padPrefixName);
         PrHelper::addOpzx7DetuneParameters(layout, padPrefix, padPrefixName);
@@ -60,8 +60,8 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
         PrHelper::setupWtAmpMod(apvts, padPrefix, pWtAmpMod[i], modWaves);
         PrHelper::setupPitchEnvPtrs(apvts, padPrefix, pPitchEnv[i]);
         PrHelper::setupSsgSwEnvPtrs(apvts, padPrefix, pSsgSwEnv[i]);
-        PrHelper::setupSsgSwEnv11Ptrs(apvts, padPrefix, pSsgSwEnv11[i]);
-        PrHelper::setupSsgSwPEnv11Ptrs(apvts, padPrefix, pSsgSwPEnv11[i]);
+        PrHelper::setupSsgSwEnv256Ptrs(apvts, padPrefix, pSsgSwEnv256[i]);
+        PrHelper::setupSsgSwPEnv256Ptrs(apvts, padPrefix, pSsgSwPEnv256[i]);
         PrHelper::setupOpzx7DetunePtrs(apvts, padPrefix, pOpzx7Detune[i]);
         PrHelper::setupFixPtrs(apvts, padPrefix, pFix[i]);
         PrHelper::setupOpzx7LfoPtrs(apvts, padPrefix, pOpzx7Lfo[i]);
@@ -87,9 +87,9 @@ void RhythmProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessor
         PrHelper::applyWtMod(pWtMod[i], pad.wtMod);
         PrHelper::applyWtAmpMod(pWtAmpMod[i], pad.wtAmpMod);
         PrHelper::applySsgSwEnv(pSsgSwEnv[i], pad.ssgSwEnv);
-        PrHelper::applySsgSwEnv11(pSsgSwEnv11[i], pad.ssgSwEnv11);
+        PrHelper::applySsgSwEnv256(pSsgSwEnv256[i], pad.ssgSwEnv256);
         PrHelper::applyPitchEnv(pPitchEnv[i], pad.pitchAdsr);
-        PrHelper::applySsgSwPEnv11(pSsgSwPEnv11[i], pad.ssgSwPEnv11);
+        PrHelper::applySsgSwPEnv256(pSsgSwPEnv256[i], pad.ssgSwPEnv256);
         PrHelper::applyOpzx7Detune(pOpzx7Detune[i], pad.detune);
         PrHelper::applyOpzx7Lfo(pOpzx7Lfo[i], pad.lfo);
         PrHelper::applyToneNoise(pToneNoise[i], pad.tn);

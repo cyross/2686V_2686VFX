@@ -68,10 +68,10 @@ GuiFx::GuiFx(const GuiContext& context) :
     modAmpEnvGroup(context),
     modSsgHwEnvGroup(context),
     modWtAmpModGroup(context),
-    modSsgSwEnv11Group(context),
+    modSsgSwEnv256Group(context),
     modLfoGroup(context),
     modPitchEnvGroup(context),
-    modSsgSwPEnv11Group(context),
+    modSsgSwPEnv256Group(context),
     modWtModGroup(context),
     modSsgHwPEnvGroup(context),
     modMulDetuneGroup(context),
@@ -79,10 +79,10 @@ GuiFx::GuiFx(const GuiContext& context) :
     ampEnvComponent(context),
     ssgHwEnvComponent(context),
     wtAmpModComponent(context),
-    ssgSwEnv11Component(context),
+    ssgSwEnv256Component(context),
     lfoComponent(context),
     pitchEnvComponent(context),
-    ssgSwPEnv11Component(context),
+    ssgSwPEnv256Component(context),
     wtModComponent(context),
     ssgHwPEnvComponent(context),
     mulDetuneComponent(context),
@@ -253,12 +253,12 @@ void GuiFx::setup()
     modAmpEnvGroup.setup(*this, juce::String("") + "AMP ENV");
     modSsgHwEnvGroup.setup(*this, juce::String("") + "SSG HW AMP ENV");
     modWtAmpModGroup.setup(*this, juce::String("") + "WT AMP MOD");
-    modSsgSwEnv11Group.setup(*this, juce::String("") + "SSG SW AMP ENV[11]");
+    modSsgSwEnv256Group.setup(*this, juce::String("") + "SSG SW AMP ENV[11]");
     modLfoGroup.setup(*this, juce::String("") + "LFO");
 
     // 変調の枠は赤系統。効果の青と見分けが付くようにする。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modWtAmpModGroup })
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv256Group, &modWtAmpModGroup })
     {
         group->setBackgroundColor(modBgColour);
     }
@@ -275,8 +275,8 @@ void GuiFx::setup()
     wtAmpModComponent.setupComponent(modWtAmpModGroup.contentCanvas, ModPrKey::prefix, tabOrder);
 
 
-    ssgSwEnv11Component.setupComponent(modSsgSwEnv11Group.contentCanvas, ModPrKey::prefix, tabOrder,
-        CPK::ssgSwEnv11 + CPK::bypass, FxGuiText::Mod::SsgSwEnv11::bypass);
+    ssgSwEnv256Component.setupComponent(modSsgSwEnv256Group.contentCanvas, ModPrKey::prefix, tabOrder,
+        CPK::ssgSwEnv256 + CPK::bypass, FxGuiText::Mod::SsgSwEnv256::bypass);
 
     lfoComponent.setupComponent(modLfoGroup.contentCanvas, ModPrKey::prefix, tabOrder);
 
@@ -290,11 +290,11 @@ void GuiFx::setup()
     pitchBypassToggle.setExplicitFocusOrder(++tabOrder);
 
     modPitchEnvGroup.setup(*this, juce::String("") + "PITCH ENV");
-    modSsgSwPEnv11Group.setup(*this, juce::String("") + "SSG SW PITCH ENV[11]");
+    modSsgSwPEnv256Group.setup(*this, juce::String("") + "SSG SW PITCH ENV[11]");
     modWtModGroup.setup(*this, juce::String("") + "WT PITCH MOD");
     modSsgHwPEnvGroup.setup(*this, juce::String("") + "SSG HW PITCH ENV");
 
-    for (auto* group : { &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup })
+    for (auto* group : { &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv256Group, &modWtModGroup })
     {
         group->setBackgroundColor(modBgColour);
     }
@@ -302,8 +302,8 @@ void GuiFx::setup()
     pitchEnvComponent.setupComponent(modPitchEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder,
         CPK::pitchAdsr + CPK::bypass, FxGuiText::Mod::PitchEnv::bypass);
 
-    ssgSwPEnv11Component.setupComponent(modSsgSwPEnv11Group.contentCanvas, ModPrKey::prefix, tabOrder,
-        CPK::ssgSwPEnv11 + CPK::bypass, FxGuiText::Mod::SsgSwPEnv11::bypass);
+    ssgSwPEnv256Component.setupComponent(modSsgSwPEnv256Group.contentCanvas, ModPrKey::prefix, tabOrder,
+        CPK::ssgSwPEnv256 + CPK::bypass, FxGuiText::Mod::SsgSwPEnv256::bypass);
 
     wtModComponent.setupComponent(modWtModGroup.contentCanvas, ModPrKey::prefix, tabOrder);
     ssgHwPEnvComponent.setupComponent(modSsgHwPEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
@@ -948,8 +948,8 @@ void GuiFx::setup()
     // 変調の中身は最初から開いておく。FX タブでは 1 枠が小さく、
     // たたまれていると何が入っているのか分からないため。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv11Group, &modWtAmpModGroup, &modLfoGroup,
-        &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv11Group, &modWtModGroup,
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv256Group, &modWtAmpModGroup, &modLfoGroup,
+        &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv256Group, &modWtModGroup,
         &modMulDetuneGroup, &modUnisonGroup })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -1042,8 +1042,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     // 逆に列を隠したときは、隠したぶんの空きが右に残っていた。
     static const SimpleView::Cat modCats[] = {
         SimpleView::AmpEnv, SimpleView::SsgHwAmpEnv, SimpleView::WtAmpMod,
-        SimpleView::SsgSwAmpEnv11, SimpleView::PitchEnv, SimpleView::SsgHwPitchEnv,
-        SimpleView::SsgSwPitchEnv11, SimpleView::WtPitchMod, SimpleView::Lfo,
+        SimpleView::SsgSwAmpEnv256, SimpleView::PitchEnv, SimpleView::SsgHwPitchEnv,
+        SimpleView::SsgSwPitchEnv256, SimpleView::WtPitchMod, SimpleView::Lfo,
         SimpleView::MulDet, SimpleView::Unison,
     };
 
@@ -1110,11 +1110,11 @@ void GuiFx::layout(juce::Rectangle<int> content)
         layoutModColumn(modArea, modAmpEnvGroup, [&](juce::Rectangle<int>& rect) { ampEnvComponent.layoutComponent(rect); }, SimpleView::AmpEnv);
         layoutModColumn(modArea, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwAmpEnv);
         layoutModColumn(modArea, modWtAmpModGroup, [&](juce::Rectangle<int>& rect) { wtAmpModComponent.layoutComponent(rect); }, SimpleView::WtAmpMod);
-        layoutModColumn(modArea, modSsgSwEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv11Component.layoutComponent(rect); }, SimpleView::SsgSwAmpEnv11);
+        layoutModColumn(modArea, modSsgSwEnv256Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv256Component.layoutComponent(rect); }, SimpleView::SsgSwAmpEnv256);
 
         layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); }, SimpleView::PitchEnv);
         layoutModColumn(modArea, modSsgHwPEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwPEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwPitchEnv);
-        layoutModColumn(modArea, modSsgSwPEnv11Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv11Component.layoutComponent(rect); }, SimpleView::SsgSwPitchEnv11);
+        layoutModColumn(modArea, modSsgSwPEnv256Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv256Component.layoutComponent(rect); }, SimpleView::SsgSwPitchEnv256);
         layoutModColumn(modArea, modWtModGroup, [&](juce::Rectangle<int>& rect)
         {
             wtModComponent.layoutComponent(rect);
@@ -2143,10 +2143,10 @@ void GuiFx::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::AmpEnv)) ampEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwAmpEnv)) ssgHwEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::WtAmpMod)) wtAmpModComponent.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv11)) ssgSwEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwAmpEnv256)) ssgSwEnv256Component.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvComponent.setCategoryBypassed(true);
-    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv11)) ssgSwPEnv11Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256)) ssgSwPEnv256Component.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) wtModComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
@@ -2159,10 +2159,10 @@ void GuiFx::openEnabledCategories()
     if (ampEnvComponent.hasBypassSwitch() && !ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(true);
     if (ssgHwEnvComponent.hasBypassSwitch() && !ssgHwEnvComponent.isCategoryBypassed()) ssgHwEnvComponent.setCategoryOpen(true);
     if (wtAmpModComponent.hasBypassSwitch() && !wtAmpModComponent.isCategoryBypassed()) wtAmpModComponent.setCategoryOpen(true);
-    if (ssgSwEnv11Component.hasBypassSwitch() && !ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(true);
+    if (ssgSwEnv256Component.hasBypassSwitch() && !ssgSwEnv256Component.isCategoryBypassed()) ssgSwEnv256Component.setCategoryOpen(true);
     if (pitchEnvComponent.hasBypassSwitch() && !pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(true);
     if (ssgHwPEnvComponent.hasBypassSwitch() && !ssgHwPEnvComponent.isCategoryBypassed()) ssgHwPEnvComponent.setCategoryOpen(true);
-    if (ssgSwPEnv11Component.hasBypassSwitch() && !ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(true);
+    if (ssgSwPEnv256Component.hasBypassSwitch() && !ssgSwPEnv256Component.isCategoryBypassed()) ssgSwPEnv256Component.setCategoryOpen(true);
     if (wtModComponent.hasBypassSwitch() && !wtModComponent.isCategoryBypassed()) wtModComponent.setCategoryOpen(true);
     if (lfoComponent.hasBypassSwitch() && !lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(true);
     if (mulDetuneComponent.hasBypassSwitch() && !mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(true);
@@ -2175,10 +2175,10 @@ void GuiFx::closeBypassedCategories()
     if (ampEnvComponent.hasBypassSwitch() && ampEnvComponent.isCategoryBypassed()) ampEnvComponent.setCategoryOpen(false);
     if (ssgHwEnvComponent.hasBypassSwitch() && ssgHwEnvComponent.isCategoryBypassed()) ssgHwEnvComponent.setCategoryOpen(false);
     if (wtAmpModComponent.hasBypassSwitch() && wtAmpModComponent.isCategoryBypassed()) wtAmpModComponent.setCategoryOpen(false);
-    if (ssgSwEnv11Component.hasBypassSwitch() && ssgSwEnv11Component.isCategoryBypassed()) ssgSwEnv11Component.setCategoryOpen(false);
+    if (ssgSwEnv256Component.hasBypassSwitch() && ssgSwEnv256Component.isCategoryBypassed()) ssgSwEnv256Component.setCategoryOpen(false);
     if (pitchEnvComponent.hasBypassSwitch() && pitchEnvComponent.isCategoryBypassed()) pitchEnvComponent.setCategoryOpen(false);
     if (ssgHwPEnvComponent.hasBypassSwitch() && ssgHwPEnvComponent.isCategoryBypassed()) ssgHwPEnvComponent.setCategoryOpen(false);
-    if (ssgSwPEnv11Component.hasBypassSwitch() && ssgSwPEnv11Component.isCategoryBypassed()) ssgSwPEnv11Component.setCategoryOpen(false);
+    if (ssgSwPEnv256Component.hasBypassSwitch() && ssgSwPEnv256Component.isCategoryBypassed()) ssgSwPEnv256Component.setCategoryOpen(false);
     if (wtModComponent.hasBypassSwitch() && wtModComponent.isCategoryBypassed()) wtModComponent.setCategoryOpen(false);
     if (lfoComponent.hasBypassSwitch() && lfoComponent.isCategoryBypassed()) lfoComponent.setCategoryOpen(false);
     if (mulDetuneComponent.hasBypassSwitch() && mulDetuneComponent.isCategoryBypassed()) mulDetuneComponent.setCategoryOpen(false);
@@ -2212,11 +2212,11 @@ void GuiFx::updateKeyAssignTitles()
         { &modAmpEnvGroup, isHeld({ KA::AmpEnv }) },
         { &modSsgHwEnvGroup, isHeld({ KA::SsgHwEnv }) },
         { &modWtAmpModGroup, isHeld({ KA::WtAmpMod }) },
-        { &modSsgSwEnv11Group, isHeld({ KA::SsgSwEnv11 }) },
+        { &modSsgSwEnv256Group, isHeld({ KA::SsgSwEnv256 }) },
         { &modLfoGroup, isHeld({ KA::LfoAm, KA::LfoPm }) },
         { &modPitchEnvGroup, isHeld({ KA::PitchEnv }) },
         { &modSsgHwPEnvGroup, isHeld({ KA::SsgHwPEnv }) },
-        { &modSsgSwPEnv11Group, isHeld({ KA::SsgSwPEnv11 }) },
+        { &modSsgSwPEnv256Group, isHeld({ KA::SsgSwPEnv256 }) },
         { &modWtModGroup, isHeld({ KA::WtMod }) },
         { &modMulDetuneGroup, isHeld({ KA::MulDet }) },
         { &modUnisonGroup, isHeld({ KA::Unison, KA::Arpeggio }) },

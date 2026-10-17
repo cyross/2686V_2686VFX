@@ -30,8 +30,8 @@
 #include "Shared/Gui/Components/WtAmpMod/WtAmpMod.h"
 #include "Shared/Gui/Components/WavePreview/WavePreview.h"
 #include "Shared/Gui/Components/WavePreview/WavePreviewGrid.h"
-#include "Shared/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
-#include "Shared/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "Shared/Gui/Components/SsgSwEnv256/SsgSwEnv256.h"
+#include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 
@@ -61,8 +61,8 @@ class GuiWtPlus : public GuiBase {
     GuiComponentAmpEnv ampEnvComponent;
     GuiComponentPitchEnv pitchEnvComponent;
     GuiComponentSsgSwEnv ssgSwEnvComponent;
-    GuiComponentSsgSwEnv11 ssgSwEnv11Component;
-    GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
+    GuiComponentSsgSwEnv256 ssgSwEnv256Component;
+    GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
 
     GuiComponentMulDetune mulDetuneComponent;
 
@@ -128,8 +128,8 @@ class GuiWtPlus : public GuiBase {
     GuiComponentImportExport ieWtMod;
     GuiComponentImportExport ieWtAmpMod;
     GuiComponentImportExport ieSsgSwEnv;
-    GuiComponentImportExport ieSsgSwEnv11;
-    GuiComponentImportExport ieSsgSwPEnv11;
+    GuiComponentImportExport ieSsgSwEnv256;
+    GuiComponentImportExport ieSsgSwPEnv256;
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
@@ -141,10 +141,10 @@ class GuiWtPlus : public GuiBase {
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
     GuiToggleButton graphBtnSsg11;
-    GuiToggleButton graphBtnSsgP11;
+    GuiToggleButton graphBtnSsgP256;
     NormalSeparator graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
+    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw256, SsgSwP256 };
     GraphMode currentGraphMode;
 
     bool isUpdatingGraph = false;
@@ -172,8 +172,8 @@ public:
         ampEnvComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
-        ssgSwEnv11Component(context),
-        ssgSwPEnv11Component(context),
+        ssgSwEnv256Component(context),
+        ssgSwPEnv256Component(context),
         mulDetuneComponent(context),
         lfoComponent(context),
         ssgHwEnv(context),
@@ -211,8 +211,8 @@ public:
         ieWtMod(context),
         ieWtAmpMod(context),
         ieSsgSwEnv(context),
-        ieSsgSwEnv11(context),
-        ieSsgSwPEnv11(context),
+        ieSsgSwEnv256(context),
+        ieSsgSwPEnv256(context),
         ieDetune(context),
         ieUnison(context),
         ieQuality(context),
@@ -221,7 +221,7 @@ public:
         graphBtnPitch(context),
         graphBtnSsg(context),
         graphBtnSsg11(context),
-        graphBtnSsgP11(context),
+        graphBtnSsgP256(context),
         graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp

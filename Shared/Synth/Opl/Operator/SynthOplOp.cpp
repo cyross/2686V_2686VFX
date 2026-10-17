@@ -7,8 +7,8 @@ void OplOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv.prepare(opIndex, sampleRate);
-    m_ssgSwEnv11.prepare(opIndex, sampleRate);
-    m_ssgSwPenv11.prepare(opIndex, sampleRate);
+    m_ssgSwEnv256.prepare(opIndex, sampleRate);
+    m_ssgSwPenv256.prepare(opIndex, sampleRate);
     m_ssgHwPEnv.prepare(sampleRate);
     m_ssgHwEnv.prepare(sampleRate);
     m_lfo.prepare(sampleRate);
@@ -27,8 +27,8 @@ void OplOperator::setCurveCore(CurveCore* p_curveCore)
     m_ampAdsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
     m_ssgSwEnv.setCurveCore(p_curveCore);
-    m_ssgSwEnv11.setCurveCore(p_curveCore);
-    m_ssgSwPenv11.setCurveCore(p_curveCore);
+    m_ssgSwEnv256.setCurveCore(p_curveCore);
+    m_ssgSwPenv256.setCurveCore(p_curveCore);
 }
 
 void OplOperator::setSampleRate(double sampleRate)
@@ -39,8 +39,8 @@ void OplOperator::setSampleRate(double sampleRate)
 	m_ampAdsr.updateTargetSampleRate(sampleRate);
     m_pitchAdsr.updateSampleRate(sampleRate);
     m_ssgSwEnv.updateTargetSampleRate(sampleRate);
-    m_ssgSwEnv11.updateSampleRate(sampleRate);
-    m_ssgSwPenv11.updateSampleRate(sampleRate);
+    m_ssgSwEnv256.updateSampleRate(sampleRate);
+    m_ssgSwPenv256.updateSampleRate(sampleRate);
     m_ssgHwPEnv.updateSampleRate(sampleRate);
     m_ssgHwEnv.updateSampleRate(sampleRate);
 }
@@ -55,8 +55,8 @@ void OplOperator::setParameters(const OplOpParams& params, int feedback)
     m_ampAdsr.setParameters(params.m_adsrParams);
     m_pitchAdsr.setParameters(params.pitchAdsr);
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
-    m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
-    m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
+    m_ssgSwEnv256.setParameters(params.ssgSwEnv256);
+    m_ssgSwPenv256.setParameters(params.ssgSwPEnv256);
     m_ssgHwPEnv.setParameters(params.ssgHwPEnv);
     m_wtAmpMod.setParameters(params.wtAmpMod);
     m_ssgHwEnv.setParameters(params.ssgHwEnv);
@@ -156,12 +156,12 @@ void OplOperator::noteOn(float frequency, float velocity, int noteNumber, bool i
             m_ssgSwEnv.noteOn();
         }
 
-        if (m_params.ssgEnv11Enable && !m_pitchResetOnLegato) {
-            m_ssgSwPenv11.noteOn();
+        if (m_params.ssgEnv256Enable && !m_pitchResetOnLegato) {
+            m_ssgSwPenv256.noteOn();
         }
 
-        if (m_params.ssgEnv11Enable) {
-            m_ssgSwEnv11.noteOn();
+        if (m_params.ssgEnv256Enable) {
+            m_ssgSwEnv256.noteOn();
         }
     }
 
@@ -169,8 +169,8 @@ void OplOperator::noteOn(float frequency, float velocity, int noteNumber, bool i
         m_pitchAdsr.noteOn();
     }
 
-    if (m_params.ssgPEnv11Enable && m_pitchResetOnLegato) {
-        m_ssgSwPenv11.noteOn();
+    if (m_params.ssgPEnv256Enable && m_pitchResetOnLegato) {
+        m_ssgSwPenv256.noteOn();
     }
 
     // KeyScale はピッチ(音程)に依存するため、レガート時も必ず更新する
@@ -193,12 +193,12 @@ void OplOperator::noteOff()
         m_ssgSwEnv.noteOff();
     }
 
-    if (m_params.ssgEnv11Enable) {
-        m_ssgSwEnv11.noteOff();
+    if (m_params.ssgEnv256Enable) {
+        m_ssgSwEnv256.noteOff();
     }
 
-    if (m_params.ssgPEnv11Enable) {
-        m_ssgSwPenv11.noteOff();
+    if (m_params.ssgPEnv256Enable) {
+        m_ssgSwPenv256.noteOff();
     }
 }
 
@@ -221,13 +221,13 @@ void OplOperator::getSample(float& output, float modulator, float feedbackModula
     if (allAmpBypassed) {
         // すべてのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作。
         // リリース状態になったら即座にミュートして終了する。
-        if (m_ampAdsr.isRelease() || (m_params.ssgEnvEnable && m_ssgSwEnv.isRelease()) || (m_params.ssgEnv11Enable && m_ssgSwEnv11.isRelease())) {
+        if (m_ampAdsr.isRelease() || (m_params.ssgEnvEnable && m_ssgSwEnv.isRelease()) || (m_params.ssgEnv256Enable && m_ssgSwEnv256.isRelease())) {
             m_ampAdsr.bypassedReleasedProcess();
             if (m_params.ssgEnvEnable) m_ssgSwEnv.bypassedReleasedProcess();
-            if (m_params.ssgEnv11Enable) m_ssgSwEnv11.bypassedReleasedProcess();
+            if (m_params.ssgEnv256Enable) m_ssgSwEnv256.bypassedReleasedProcess();
 
             if (m_params.pitchEnvEnable) m_pitchAdsr.bypassedReleasedProcess();
-            if (m_params.ssgPEnv11Enable) m_ssgSwPenv11.bypassedReleasedProcess();
+            if (m_params.ssgPEnv256Enable) m_ssgSwPenv256.bypassedReleasedProcess();
 
             output = 0.0f;
             m_fb1 = 0.0f;
@@ -239,7 +239,7 @@ void OplOperator::getSample(float& output, float modulator, float feedbackModula
         // 有効なエンベロープがあり、かつ全て再生終了（音が減衰しきった）時は、
         // ピッチエンベロープなども状態をクリアして安全に停止させる
         if (m_params.pitchEnvEnable) m_pitchAdsr.bypassedReleasedProcess();
-        if (m_params.ssgPEnv11Enable) m_ssgSwPenv11.bypassedReleasedProcess();
+        if (m_params.ssgPEnv256Enable) m_ssgSwPenv256.bypassedReleasedProcess();
 
         output = 0.0f;
         m_fb1 = 0.0f;
@@ -276,12 +276,12 @@ void OplOperator::getSample(float& output, float modulator, float feedbackModula
         }
 
         // 3. SSG Sw Env 11 処理
-        if (m_params.ssgEnv11Enable) {
-            if (!m_ssgSwEnv11.isBypass()) {
-                envVal *= m_ssgSwEnv11.process();
+        if (m_params.ssgEnv256Enable) {
+            if (!m_ssgSwEnv256.isBypass()) {
+                envVal *= m_ssgSwEnv256.process();
             }
-            else if (m_ssgSwEnv11.isRelease()) {
-                m_ssgSwEnv11.bypassedReleasedProcess();
+            else if (m_ssgSwEnv256.isRelease()) {
+                m_ssgSwEnv256.bypassedReleasedProcess();
             }
         }
     }
@@ -294,7 +294,7 @@ void OplOperator::getSample(float& output, float modulator, float feedbackModula
     // ========================================================
     float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * (*m_p_globalPitchRatio) * m_lfo.value.pm;
     float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
-    currentPhaseDelta = m_params.ssgPEnv11Enable ? m_ssgSwPenv11.process(currentPhaseDelta) : currentPhaseDelta;
+    currentPhaseDelta = m_params.ssgPEnv256Enable ? m_ssgSwPenv256.process(currentPhaseDelta) : currentPhaseDelta;
 
     // SSG HW PITCH ENV。切ってあるときは倍率 1.0 が返るので、
     // 位相を進める意味でも毎サンプル通しておく。

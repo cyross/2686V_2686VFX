@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class SsgSwPEnv11Params {
+class SsgSwPEnv256Params {
 public:
 	int steps = 5;
 	bool loop = false;

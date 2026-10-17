@@ -20,8 +20,8 @@ class RhythmProcessor : public PrBase
     std::array<PrPtrsWtAmpMod, RhythmPrValue::maxPads> pWtAmpMod;
     std::array<PrPtrsPitchEnv, RhythmPrValue::maxPads> pPitchEnv;
     std::array<PrPtrsSsgSwEnv, RhythmPrValue::maxPads> pSsgSwEnv;
-    std::array<PrPtrsSsgSwEnv11, RhythmPrValue::maxPads> pSsgSwEnv11;
-    std::array<PrPtrsSsgSwPEnv11, RhythmPrValue::maxPads> pSsgSwPEnv11;
+    std::array<PrPtrsSsgSwEnv256, RhythmPrValue::maxPads> pSsgSwEnv256;
+    std::array<PrPtrsSsgSwPEnv256, RhythmPrValue::maxPads> pSsgSwPEnv256;
     std::array<PrPtrsOpzx7Detune, RhythmPrValue::maxPads> pOpzx7Detune;
     std::array<PrPtrsFix, RhythmPrValue::maxPads> pFix;
     std::array<PrPtrsOpzx7Lfo, RhythmPrValue::maxPads> pOpzx7Lfo;

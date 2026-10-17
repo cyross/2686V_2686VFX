@@ -18,8 +18,8 @@ class OpnProcessor : public PrBase
     PrPtrsAdsrAmpEnv pAmpEnvG;
     PrPtrsWtMod pWtMod;
     PrPtrsWtAmpMod pWtAmpMod;
-    PrPtrsSsgSwEnv11 pSsgSwEnv11g;
-    PrPtrsSsgSwPEnv11 pSsgSwPEnv11g;
+    PrPtrsSsgSwEnv256 pSsgSwEnv256g;
+    PrPtrsSsgSwPEnv256 pSsgSwPEnv256g;
     PrPtrsUnison pUnison;
 
     std::array<PrPtrsOpnDetune, OpnPrValue::ops> pOpDetune;
@@ -28,8 +28,8 @@ class OpnProcessor : public PrBase
     std::array<PrPtrsFix, OpnPrValue::ops> pFix;
     std::array<PrPtrsPitchEnvOp, OpnPrValue::ops> pPitchEnv;
     std::array<PrPtrsSsgSwEnvOp, OpnPrValue::ops> pSsgSwEnv;
-    std::array<PrPtrsSsgSwEnv11Op, OpnPrValue::ops> pSsgSwEnv11;
-    std::array<PrPtrsSsgSwPEnv11Op, OpnPrValue::ops> pSsgSwPEnv11;
+    std::array<PrPtrsSsgSwEnv256Op, OpnPrValue::ops> pSsgSwEnv256;
+    std::array<PrPtrsSsgSwPEnv256Op, OpnPrValue::ops> pSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, OpnPrValue::ops> pOpSsgHwPEnv;
     std::array<PrPtrsWtAmpMod, OpnPrValue::ops> pOpWtAmpMod;
     std::array<PrPtrsSsgHwEnv, OpnPrValue::ops> pOpSsgHwEnv;

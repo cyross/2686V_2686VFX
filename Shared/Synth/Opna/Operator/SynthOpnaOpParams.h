@@ -6,8 +6,8 @@
 #include "Shared/Effect/Lfo/Opna/LfoOpnaParams.h"
 #include "Shared/Effect/Lfo/N88/LfoN88Params.h"
 #include "Shared/Effect/Detune/Opn/DetuneOpnParams.h"
-#include "Shared/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
-#include "Shared/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "Shared/Effect/Envelope/Amp/SsgSw256/EnvSsgSw256Params.h"
+#include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
 #include "Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "Shared/Generator/Fm/Fix/FmFixParams.h"
@@ -22,12 +22,12 @@ struct OpnaOpParams
     FmRgAdssrParams m_adsrParams;
     bool ssgEnvEnable = false;
     SsgSwEnvParams ssgSwEnv;
-    bool ssgEnv11Enable = false;
-    SsgSwEnv11Params ssgSwEnv11;
+    bool ssgEnv256Enable = false;
+    SsgSwEnv256Params ssgSwEnv256;
     bool pitchEnvEnable = true;
     PitchAdsrParams pitchAdsr;
-    bool ssgPEnv11Enable = true;
-    SsgSwPEnv11Params ssgSwPEnv11;
+    bool ssgPEnv256Enable = true;
+    SsgSwPEnv256Params ssgSwPEnv256;
     SsgHwPEnvParams ssgHwPEnv;
     WtAmpModParams wtAmpMod;
     SsgHwEnvParams ssgHwEnv;

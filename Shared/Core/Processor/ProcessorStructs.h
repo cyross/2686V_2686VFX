@@ -108,7 +108,7 @@ struct PrPtrsSsgSwEnvOp {
     std::atomic<float>* l6 = nullptr;
 };
 
-struct PrPtrsSsgSwEnv11 {
+struct PrPtrsSsgSwEnv256 {
     std::atomic<float>* bypass = nullptr;
     std::atomic<float>* steps = nullptr;
     std::atomic<float>* loop = nullptr;
@@ -142,7 +142,7 @@ struct PrPtrsSsgSwEnv11 {
     std::atomic<float>* keep = nullptr;
 };
 
-struct PrPtrsSsgSwEnv11Op {
+struct PrPtrsSsgSwEnv256Op {
     std::atomic<float>* enable = nullptr;
     std::atomic<float>* steps = nullptr;
     std::atomic<float>* loop = nullptr;
@@ -204,7 +204,7 @@ struct PrPtrsPitchEnvOp {
     std::atomic<float>* keep = nullptr;
 };
 
-struct PrPtrsSsgSwPEnv11 {
+struct PrPtrsSsgSwPEnv256 {
     std::atomic<float>* bypass = nullptr;
     std::atomic<float>* steps = nullptr;
     std::atomic<float>* loop = nullptr;
@@ -238,7 +238,7 @@ struct PrPtrsSsgSwPEnv11 {
     std::atomic<float>* keep = nullptr;
 };
 
-struct PrPtrsSsgSwPEnv11Op {
+struct PrPtrsSsgSwPEnv256Op {
     std::atomic<float>* enable = nullptr;
     std::atomic<float>* steps = nullptr;
     std::atomic<float>* loop = nullptr;
