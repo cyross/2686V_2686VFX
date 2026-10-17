@@ -47,7 +47,6 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     rateSeparator(context),
     levelTarget(context),
     level(context),
-    levelSteps(context),
     ampBtns(context),
     pitchBtns(context),
     valueBtns(context),
@@ -56,7 +55,8 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     releaseLevel(context),
     endLevelSeparator(context),
     endLevelEnable(context),
-    endLevel(context)
+    endLevel(context),
+    levelSteps(context)
 {
 }
 

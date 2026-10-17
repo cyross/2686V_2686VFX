@@ -170,9 +170,6 @@ private:
     GuiSlider levelTarget;
     GuiComponentNudgeSliderFloat level;
 
-    // 音量の LEVEL / LR / ENDL を決まった刻みへ丸める (Amp だけ)
-    GuiComponentStepSnap levelSteps;
-
     // 値を少しずつ動かすボタン。Amp は音量の、Pitch は音程の刻み
     GuiComponentSsgSwButtons ampBtns;
     GuiComponentPitchButtons pitchBtns;
@@ -188,6 +185,11 @@ private:
     NormalSeparator endLevelSeparator;
     GuiToggleButton endLevelEnable;
     GuiSlider endLevel;
+
+    // LEVEL / LR / ENDL を決まった刻みへ丸める (Amp と TL)。
+    // 3 つのつまみへ聞き手を付けるので、つまみより後に置く (先に壊れて外す側になる)。
+    // 前に置いていたら、壊すときに先に消えたつまみから聞き手を外しに行って落ちていた。
+    GuiComponentStepSnap levelSteps;
 
     juce::String paramCode;
     juce::String m_flagKey;
