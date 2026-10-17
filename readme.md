@@ -72,6 +72,11 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 一番上の Enable で入れる。入っているあいだは押したときの TL の代わりに段の TL を使う。常に KEEP (KEEP の札は無い)
   - STEPS で TL の刻みへ丸められる。値のボタン (−8 / −1 / 0 / +1 / +8 / 最大)
   - プリセット・チャンネルパラメータ (`tlEnv`) に保存。区分のパラメータファイルは `.tlEnv` (見出しの右クリック)
+- **FM 音源のチャンネルに「ALG ENV」を追加**
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7S のグローバル。ALGORITHM/FEEDBACK の FEEDBACK の下
+  - SSG SW AMP ENV[256] の ALG 版。値は ALG の番号 (0 から)。STALG / ALG1〜、ALG.TARGET / ALG
+  - 一番上の Enable で入れる。入っているあいだは ALG の代わりに段の ALG を使い、変わったところで繋ぎ方を組み直す。常に KEEP (KEEP の札は無い)。値のボタン・STEPS は無い
+  - プリセット・チャンネルパラメータ (`algEnv`) に保存。区分のパラメータファイルは `.algEnv` (見出しの右クリック)
 
 ### 3-0-2. v3.6.3での修正・変更
 

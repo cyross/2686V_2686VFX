@@ -32,6 +32,9 @@ class OpnaProcessor : public PrBase
     std::array<PrPtrsPitchEnvOp, OpnaPrValue::ops> pPitchEnv;
     std::array<PrPtrsSsgSwEnv256Op, OpnaPrValue::ops> pSsgSwEnv256;
     std::array<ValueEnv::Ptrs, OpnaPrValue::ops> pTlEnv;
+
+    // ALG ENV (チャンネル)
+    ValueEnv::Ptrs pAlgEnv;
     std::array<PrPtrsSsgSwPEnv256Op, OpnaPrValue::ops> pSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, OpnaPrValue::ops> pOpSsgHwPEnv;
     std::array<PrPtrsWtAmpMod, OpnaPrValue::ops> pOpWtAmpMod;

@@ -216,6 +216,11 @@ void GuiOpna::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
+    // ALG ENV。FEEDBACK の下
+    algEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder, algEnv.spec(OpnaPrValue::algorithms).tableKey + "_ENABLE", "Enable", true);
+    algEnv.category().onImport = [this] { algEnv.importParams(); };
+    algEnv.category().onExport = [this] { algEnv.exportParams(); };
+
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Category::pan, .enableChangeDetailVisible = true });
 
     panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::pan, .title = OpnaGuiText::Fm::pan, .isReset = true });
@@ -787,6 +792,10 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
         mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
+
+    // ALG ENV。FEEDBACK の下。ALGORITHM/FEEDBACK を閉じているあいだは出さない
+    algEnv.setCategoryVisible(algFbOpen);
+    algEnv.layoutComponent(mRect);
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
@@ -2776,6 +2785,7 @@ void GuiOpna::readChParams(const Io::ParamReader& reader) {
     ssgHwEnv.readParams(reader, "ssgHwEnv");
     ssgHwPEnv.readParams(reader, "ssgHwPEnv");
     ssgSwEnv256g.readParams(reader, "ssgSwEnv256");
+    algEnv.readParams(reader, "algEnv");
     qualityComponent.readParams(reader, "quality");
     unisonComponent.readParams(reader, "unison");
     ampEnvComponent.readParams(reader, "ampEnv");
@@ -3013,6 +3023,7 @@ void GuiOpna::writeChParams(Io::ParamWriter& writer) {
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
 	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnv256g.writeParams(writer, "ssgSwEnv256");
+	algEnv.writeParams(writer, "algEnv");
 	qualityComponent.writeParams(writer, "quality");
 	unisonComponent.writeParams(writer, "unison");
 	ampEnvComponent.writeParams(writer, "ampEnv");

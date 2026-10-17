@@ -72,6 +72,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Switched on with Enable at the top. While on, the step's TL replaces the TL at key-on. Always KEEP (no KEEP switch)
   - STEPS snaps to TL steps. Value buttons (−8 / −1 / 0 / +1 / +8 / max)
   - Saved in presets and channel parameters (`tlEnv`). The section parameter file is `.tlEnv` (heading right-click)
+- **Added ALG ENV to the FM chips' channels**
+  - Global section of OPNA / OPN / OPL / OPL3 / OPM / OPZX7S, below FEEDBACK in ALGORITHM/FEEDBACK
+  - An ALG version of SSG SW AMP ENV[256]. Values are ALG numbers from 0. STALG / ALG1…, ALG.TARGET / ALG
+  - Switched on with Enable at the top. While on, the step's ALG replaces ALG and the routing is rebuilt when it changes. Always KEEP (no KEEP switch). No value buttons, no STEPS
+  - Saved in presets and channel parameters (`algEnv`). The section parameter file is `.algEnv` (heading right-click)
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

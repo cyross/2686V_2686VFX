@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+#include <map>
 
 #include "./ProcessorHelper.h"
 #include "./ProcessorStructs.h"
@@ -88,6 +89,22 @@ namespace ValueEnv
 	{
 		static const Spec s{ Keys("_TLENV"), " TlEnv", 0.0f, 63.0f, 0.0f, true, true };
 		return s;
+	}
+
+	// ALG ENV。チャンネルの ALG (アルゴリズムの番号) を段ごとに置き換える。
+	// 値は ALG の番号 (0 から)。段のあいだは斜めに繋がない (常に KEEP)。
+	// 番号の数は音源で違うので、数ごとに 1 つずつ作る。
+	inline const Spec& alg(int algorithms)
+	{
+		static std::map<int, Spec> specs;
+
+		auto it = specs.find(algorithms);
+
+		if (it == specs.end()) {
+			it = specs.emplace(algorithms, Spec{ Keys("_ALGENV"), " AlgEnv", 0.0f, (float)(algorithms - 1), 0.0f, true, true }).first;
+		}
+
+		return it->second;
 	}
 
 	struct Ptrs : PrPtrsStepEnv

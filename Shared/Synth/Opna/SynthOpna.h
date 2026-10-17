@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Shared/Effect/Envelope/Step/EnvStep.h"
+
 #include "../../Core/Fm/FmCore.h"
 #include "Shared/Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "Shared/Effect/Lfo/N88/LfoN88.h"
@@ -134,6 +136,12 @@ private:
 
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;
+
+    // ALG ENV。入っているあいだは ALG (m_algorithmParam) の代わりに段の ALG を使う
+    int m_algorithmParam = 0;
+    bool m_algEnvEnable = false;
+    StepEnv m_algEnv;
+    int algEnvAlgorithm() const;
 
     // Rate & Quality
     int m_rateIndex = 1;

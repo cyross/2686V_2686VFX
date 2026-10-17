@@ -51,7 +51,8 @@ public:
         // Duty  : 矩形波のデューティ比 % (DUTY RATIO ENV)
         // Peak  : 三角波の頂点 0〜1 (PEAK RATIO ENV)
         // Tl    : オペレーターの TL (TL ENV)。常に KEEP で、KEEP の札を持たない
-        enum class Kind { Amp, Pitch, Duty, Peak, Tl };
+        // Alg   : チャンネルの ALG (ALG ENV)。常に KEEP。値を動かすボタンも STEPS も持たない
+        enum class Kind { Amp, Pitch, Duty, Peak, Tl, Alg };
 
         Kind kind = Kind::Amp;
         juce::String title;

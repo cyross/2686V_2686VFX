@@ -1,5 +1,7 @@
 ﻿#include "./RatioEnv.h"
 
+#include <map>
+
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
 #include "Shared/Core/Processor/ProcessorValueEnv.h"
 #include "../../../Core/Const/ConstFileValues.h"
@@ -114,4 +116,36 @@ const GuiComponentStepEnv::Spec& GuiComponentTlEnv::spec(int tlMax)
     static const Spec s63 = build(ValueEnv::tl63());
 
     return tlMax > 63 ? s127 : s63;
+}
+
+const GuiComponentStepEnv::Spec& GuiComponentAlgEnv::spec(int algorithms)
+{
+    static std::map<int, Spec> specs;
+
+    auto it = specs.find(algorithms);
+
+    if (it == specs.end()) {
+        Spec x = make(ValueEnv::alg(algorithms));
+
+        x.kind = Spec::Kind::Alg;
+        x.title = "ALG ENV";
+
+        // 常に KEEP。KEEP の札を持たない
+        x.keep = {};
+
+        x.levelInterval = 1.0;
+        x.levelDecimals = 0;
+        x.startLabel = "STALG";
+        x.levelPrefix = "ALG";
+        x.levelLabel = "ALG";
+        x.levelTargetLabel = "ALG.TARGET";
+
+        x.fileFormat = "algEnv";
+        x.browserKind = EditorGuiText::ParamBrowser::kindAlgEnv;
+        x.extension = Io::Extension::AlgEnvParam;
+
+        it = specs.emplace(algorithms, x).first;
+    }
+
+    return it->second;
 }

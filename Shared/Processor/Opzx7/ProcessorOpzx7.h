@@ -35,6 +35,9 @@ class Opzx7Processor : public PrBase
     std::array<PrPtrsPitchEnvOp, Opzx7PrValue::ops> pOpPitchEnv;
     std::array<PrPtrsSsgSwEnv256Op, Opzx7PrValue::ops> pOpSsgSwEnv256;
     std::array<ValueEnv::Ptrs, Opzx7PrValue::ops> pTlEnv;
+
+    // ALG ENV (チャンネル)
+    ValueEnv::Ptrs pAlgEnv;
     std::array<PrPtrsSsgSwPEnv256Op, Opzx7PrValue::ops> pOpSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, Opzx7PrValue::ops> pOpSsgHwPEnv;
     std::array<PrPtrsWtAmpMod, Opzx7PrValue::ops> pOpWtAmpMod;

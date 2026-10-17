@@ -272,6 +272,25 @@ values are **TL register values (integers)** instead of levels.
 - RATE, STEP, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
 - The section's parameter file is `.tlEnv`, read and written from the heading's right-click menu
 
+### ALG ENV
+
+**Ours.** Only the FM chips' channels have it (OPNA / OPN / OPL / OPL3 / OPM / OPZX7S), below
+FEEDBACK in ALGORITHM/FEEDBACK (from 4.0.0). It switches the **ALG (algorithm)** step by step, so
+the way the operators are connected changes over time.
+
+It is the same 256-step envelope as [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256), except that the
+values are **ALG numbers** instead of levels.
+
+- Switch it on with **Enable** at the top. While it is on, the step's ALG is used instead of ALG
+- Values are ALG numbers counted from 0 (0–7 on OPNA / OPN / OPM / OPL3, 0–1 on OPL, up to the
+  number of ALGs on OPZX7S). STL is called **STALG**, the L values **ALG1–ALG256**, the target knob
+  **ALG.TARGET** and the value knob **ALG**
+- A value is held for its step (always KEEP, so there is no KEEP switch). There are no value buttons
+  and no STEPS
+- RATE, STEP, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- Which operator gets FEEDBACK is decided by the ALG at the start of each block
+- The section's parameter file is `.algEnv`, read and written from the heading's right-click menu
+
 ### PITCH ENV
 
 Moves the pitch over time. Values are in **cents**, from **−4800 to +4800**

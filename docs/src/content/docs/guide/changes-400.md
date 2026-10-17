@@ -113,3 +113,12 @@ SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、グループの�
 
 一番上の **Enable** で入れます。初期状態は切で、既存のパッチの鳴りは変わりません。
 くわしくは [TL ENV](/2686V_2686VFX/chips/common/#tl-env) を参照してください。
+
+## FM 音源のチャンネルに ALG ENV を足しました
+
+ALG（アルゴリズム）を段ごとに切り替える **ALG ENV** を足しました。SSG SW AMP ENV[256] の
+ALG 版で、ALGORITHM/FEEDBACK の FEEDBACK の下にあります。発音の頭だけ繋ぎ方を変える、
+といった使い方ができます。
+
+一番上の **Enable** で入れます。初期状態は切で、既存のパッチの鳴りは変わりません。
+くわしくは [ALG ENV](/2686V_2686VFX/chips/common/#alg-env) を参照してください。

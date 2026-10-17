@@ -464,6 +464,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
         ssgHwPEnvOp(context),
         wtAmpModOp(context),
         tlEnv(context, 63),
+        algEnv(context, Opzx7PrValue::algorithms),
         ssgHwEnvOp(context),
         wtModOp(context),
     catMask(context),
@@ -642,6 +643,11 @@ void GuiOpzx7::setup()
     feedbackTarget.setValue(1, juce::dontSendNotification);
 
     rebindFeedback();
+
+    // ALG ENV。FEEDBACK の下
+    algEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder, algEnv.spec(Opzx7PrValue::algorithms).tableKey + "_ENABLE", "Enable", true);
+    algEnv.category().onImport = [this] { algEnv.importParams(); };
+    algEnv.category().onExport = [this] { algEnv.exportParams(); };
 
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::panpot, .enableChangeDetailVisible = true });
 
@@ -1462,6 +1468,10 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
         mRect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
+
+    // ALG ENV。FEEDBACK の下。ALGORITHM/FEEDBACK を閉じているあいだは出さない
+    algEnv.setCategoryVisible(algFbOpen);
+    algEnv.layoutComponent(mRect);
 
     // [[AMP ENV]] の大区分。閉じているあいだは、中の区分を見出しごと出さない。
     const bool ampOpen = layoutMajorCategory(ampMajorCat, mRect,
@@ -3732,6 +3742,7 @@ void GuiOpzx7::readChParams(const Io::ParamReader& reader) {
     ssgHwEnv.readParams(reader, "ssgHwEnv");
     ssgHwPEnv.readParams(reader, "ssgHwPEnv");
     ssgSwEnv256g.readParams(reader, "ssgSwEnv256");
+    algEnv.readParams(reader, "algEnv");
     glLfo.readParams(reader, "glLfo");
     qualityComponent.readParams(reader, "quality");
     unisonComponent.readParams(reader, "unison");
@@ -4015,6 +4026,7 @@ void GuiOpzx7::writeChParams(Io::ParamWriter& writer) {
 	ssgHwEnv.writeParams(writer, "ssgHwEnv");
 	ssgHwPEnv.writeParams(writer, "ssgHwPEnv");
 	ssgSwEnv256g.writeParams(writer, "ssgSwEnv256");
+	algEnv.writeParams(writer, "algEnv");
 	glLfo.writeParams(writer, "glLfo");
 	qualityComponent.writeParams(writer, "quality");
 	unisonComponent.writeParams(writer, "unison");

@@ -271,6 +271,23 @@ SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置�
 - RATE・STEP・LOOP・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
 - 区分のパラメータファイルは `.tlEnv` で、見出しの右クリックから読み書きします
 
+### ALG ENV
+
+**独自**の区分です。FM 音源（OPNA / OPN / OPL / OPL3 / OPM / OPZX7S）のチャンネルにだけあり、
+ALGORITHM/FEEDBACK の FEEDBACK の下に並びます（4.0.0 から）。**ALG（アルゴリズム）**を
+段ごとに切り替えて、オペレーターの繋ぎ方を時間で変えられます。
+
+作りは [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) と同じ 256 段のエンベロープで、
+値が音量ではなく **ALG の番号**になります。
+
+- 一番上の **Enable** で入れます。入っているあいだは ALG の代わりに段の ALG を使います
+- 値は ALG の番号（0 から。OPNA / OPN / OPM / OPL3 は 0〜7、OPL は 0〜1、OPZX7S は ALG の数まで）。
+  名前は STL が **STALG**、L が **ALG1〜ALG256**、対象のつまみが **ALG.TARGET**、値のつまみが **ALG** です
+- 段のあいだは値を保ちます（常に KEEP。KEEP の札はありません）。値を動かすボタンと STEPS はありません
+- RATE・STEP・LOOP・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- FEEDBACK を掛けるオペレーターは、ブロックの頭の ALG で決まります
+- 区分のパラメータファイルは `.algEnv` で、見出しの右クリックから読み書きします
+
 ### PITCH ENV
 
 音程を時間で動かします。値は**セント**で、**−4800〜+4800**（上下 4 オクターブ）

@@ -179,7 +179,7 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     if (usesUnitButtons()) ampBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
     else if (usesValueButtons()) valueBtns.setupComponent(parent, level.getSlider(), tabOrder, valueButtonEntries(), labelFont);
-    else pitchBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
+    else if (isPitch()) pitchBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
 
     parent.addAndMakeVisible(levelValues);
 
@@ -499,7 +499,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     if (level.isVisibleNudge()) {
         if (usesUnitButtons()) ampBtns.layoutComponent(rect, h);
         else if (usesValueButtons()) valueBtns.layoutComponent(rect, h);
-        else pitchBtns.layoutComponent(rect, h);
+        else if (isPitch()) pitchBtns.layoutComponent(rect, h);
     }
 
     layoutStrip(rect, levelValues);

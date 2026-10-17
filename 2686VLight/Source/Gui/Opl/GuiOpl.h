@@ -178,6 +178,9 @@ class GuiOpl : public GuiBase
 
     // TL ENV。[[AMP ENV]] の一番下
     GuiComponentTlEnv tlEnv;
+
+    // ALG ENV。ALGORITHM/FEEDBACK の FEEDBACK の下
+    GuiComponentAlgEnv algEnv;
     GuiComponentSsgHwEnv ssgHwEnvOp;
     GuiComponentWtMod wtModOp;
 
@@ -362,6 +365,7 @@ public:
         ssgHwPEnvOp(context),
         wtAmpModOp(context),
         tlEnv(context, 63),
+        algEnv(context, OplPrValue::algorithms),
         ssgHwEnvOp(context),
         wtModOp(context),
         catShape(context),

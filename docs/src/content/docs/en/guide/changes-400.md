@@ -111,3 +111,12 @@ each operator's [[AMP ENV]].
 
 Switch it on with **Enable** at the top. It starts off, so existing patches sound the same.
 See [TL ENV](/2686V_2686VFX/en/chips/common/#tl-env) for details.
+
+## ALG ENV for FM channels
+
+**ALG ENV** switches the ALG (algorithm) step by step. It is an ALG version of SSG SW AMP ENV[256],
+below FEEDBACK in ALGORITHM/FEEDBACK. You can, for example, use a different routing just for the
+start of a note.
+
+Switch it on with **Enable** at the top. It starts off, so existing patches sound the same.
+See [ALG ENV](/2686V_2686VFX/en/chips/common/#alg-env) for details.

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Shared/Effect/Envelope/Step/EnvStep.h"
+
 #include <array>
 
 #include "./Operator/SynthOpnOpParams.h"
@@ -21,6 +23,10 @@ struct OpnParams
     float delay = 0.0f;
 
     AlgFbParams algFb;
+
+    // ALG ENV。段の ALG を ALG の代わりに使う
+    bool algEnvEnable = false;
+    StepEnvParams algEnv;
     LfoN88Params glLfo;
     QualityParams quality;
     UnisonParams unison;

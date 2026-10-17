@@ -8,6 +8,7 @@
 // DUTY RATIO ENV : 矩形波のデューティ比 (%)。「矩形波(デューティ比)設定」の一番下
 // PEAK RATIO ENV : 三角波の頂点 (0〜1)。「三角波設定」の一番下
 // TL ENV         : FM 音源のオペレーターの TL。[[AMP ENV]] の一番下
+// ALG ENV        : FM 音源のチャンネルの ALG。FEEDBACK の下
 //
 // どちらも SSG SW AMP ENV[256] と同じ作り (GuiComponentStepEnv) で、
 // 値の名前と範囲、値を置くボタンだけが違う。
@@ -32,4 +33,13 @@ public:
     GuiComponentTlEnv(const GuiContext& context, int tlMax) : GuiComponentStepEnv(context, spec(tlMax)) {}
 
     static const Spec& spec(int tlMax);
+};
+
+// ALG ENV。FM 音源のチャンネルの ALG を段ごとに置き換える。値は ALG の番号 (0 から)。
+// ALGORITHM/FEEDBACK の FEEDBACK の下に置く。
+class GuiComponentAlgEnv : public GuiComponentStepEnv {
+public:
+    GuiComponentAlgEnv(const GuiContext& context, int algorithms) : GuiComponentStepEnv(context, spec(algorithms)) {}
+
+    static const Spec& spec(int algorithms);
 };

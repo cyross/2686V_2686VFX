@@ -29,6 +29,9 @@ class OplProcessor : public PrBase
     std::array<PrPtrsPitchEnvOp, OplPrValue::ops> pPitchEnv;
     std::array<PrPtrsSsgSwEnv256Op, OplPrValue::ops> pSsgSwEnv256;
     std::array<ValueEnv::Ptrs, OplPrValue::ops> pTlEnv;
+
+    // ALG ENV (チャンネル)
+    ValueEnv::Ptrs pAlgEnv;
     std::array<PrPtrsSsgSwPEnv256Op, OplPrValue::ops> pSsgSwPEnv256;
     std::array<PrPtrsSsgHwPEnv, OplPrValue::ops> pOpSsgHwPEnv;
     std::array<PrPtrsWtAmpMod, OplPrValue::ops> pOpWtAmpMod;

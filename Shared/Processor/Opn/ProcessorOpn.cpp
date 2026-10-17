@@ -30,6 +30,7 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addSsgSwPEnv256BypassParameter(layout, prefix, prefixName, true);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
     PrHelper::addSsgSwEnv256BypassParameters(layout, prefix, prefixName);
+    ValueEnv::addParameters(layout, prefix, prefixName, ValueEnv::alg(OpnPrValue::algorithms));
 
     for (int op = 0; op < OpnPrValue::ops; ++op)
     {
@@ -67,6 +68,7 @@ void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256g, stepTables);
+    ValueEnv::setupPtrs(apvts, prefix, ValueEnv::alg(OpnPrValue::algorithms), pAlgEnv, stepTables);
     PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256g, stepTables);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
@@ -105,6 +107,7 @@ void OpnProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorVal
     PrHelper::applyWtMod(pWtMod, params.opn.wtMod);
     PrHelper::applyWtAmpMod(pWtAmpMod, params.opn.wtAmpMod);
     PrHelper::applySsgSwEnv256(pSsgSwEnv256g, params.opn.ssgSwEnv256g);
+    ValueEnv::apply(pAlgEnv, params.opn.algEnv, params.opn.algEnvEnable);
     PrHelper::applySsgSwPEnv256(pSsgSwPEnv256g, params.opn.ssgSwPEnv256g);
 
     for (int op = 0; op < OpnPrValue::ops; ++op)

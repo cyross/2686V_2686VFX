@@ -263,6 +263,9 @@ class GuiOpzx7 : public GuiBase
 
     // TL ENV。[[AMP ENV]] の一番下
     GuiComponentTlEnv tlEnv;
+
+    // ALG ENV。ALGORITHM/FEEDBACK の FEEDBACK の下
+    GuiComponentAlgEnv algEnv;
     GuiComponentSsgHwEnv ssgHwEnvOp;
     GuiComponentWtMod wtModOp;
 

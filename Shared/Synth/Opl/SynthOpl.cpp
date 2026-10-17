@@ -84,7 +84,10 @@ void OplCore::setParameters(const SynthCoreParams& params) {
     m_level = params.opl.level;
     m_delaySeconds = params.opl.delay;
 
-    m_algorithm = params.opl.algFb.algorithm; // 0:Serial(FM), 1:Parallel(AM)
+    m_algorithmParam = params.opl.algFb.algorithm; // 0:Serial(FM), 1:Parallel(AM)
+    m_algEnvEnable = params.opl.algEnvEnable;
+    m_algEnv.setParameters(params.opl.algEnv);
+    m_algorithm = m_algEnvEnable ? algEnvAlgorithm() : m_algorithmParam;
 
     m_ssgSwEnv256g.setParameters(params.opl.ssgSwEnv256g);
     m_ssgSwPEnv256g.setParameters(params.opl.ssgSwPEnv256g);
@@ -170,6 +173,8 @@ void OplCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
             m_ssgSwEnv256g.noteOn();
         }
 
+        if (m_algEnvEnable) m_algEnv.noteOn();
+
         if (!m_ssgSwPEnv256g.isBypass()) {
             m_ssgSwPEnv256g.noteOn();
         }
@@ -187,6 +192,8 @@ void OplCore::noteOff() {
     if (!m_ssgSwEnv256g.isBypass()) {
         m_ssgSwEnv256g.noteOff();
     }
+
+    if (m_algEnvEnable) m_algEnv.noteOff();
 
     if (!m_ssgSwPEnv256g.isBypass()) {
         m_ssgSwPEnv256g.noteOff();
@@ -238,6 +245,19 @@ void OplCore::setModulationWheel(int wheelValue)
 }
 
 float OplCore::getSample() {
+    // ALG ENV。鍵ごとに 1 サンプル進め、段の ALG が変わったら繋ぎ方を組み直す
+    if (m_algEnvEnable) {
+        m_algEnv.updateTargetSampleRate(m_hostSampleRate);
+        m_algEnv.process();
+
+        const int alg = algEnvAlgorithm();
+
+        if (alg != m_algorithm) {
+            m_algorithm = alg;
+            updateRoutingCache();
+        }
+    }
+
     const double targetRate = m_targetRate;
 
     // MODULATION の速度は搬送波に対する比なので、ノートの位相増分を渡す
@@ -399,4 +419,10 @@ inline void OplCore::processSingleOperator(float* currentOut, float& finalOut)
 
     // 4. そのまま FinalOutput へ加算
     finalOut += currentOut[I] * routing.outLevel;
+}
+
+// ALG ENV のいまの段の ALG。値は番号なので丸めて、ALG の範囲へ収める
+int OplCore::algEnvAlgorithm() const
+{
+    return std::clamp((int)std::lround(m_algEnv.value()), 0, OplPrValue::algorithms - 1);
 }

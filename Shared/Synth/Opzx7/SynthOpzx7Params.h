@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Shared/Effect/Envelope/Step/EnvStep.h"
+
 #include <array>
 
 #include "./Operator/SynthOpzx7OpParams.h"
@@ -21,6 +23,10 @@ struct Opzx7Params
     float delay = 0.0f;
 
     Opzx7AlgFbParams algFb;
+
+    // ALG ENV。段の ALG を ALG の代わりに使う
+    bool algEnvEnable = false;
+    StepEnvParams algEnv;
     LfoOpzx7Params glLfo;
     QualityParams quality;
     UnisonParams unison;

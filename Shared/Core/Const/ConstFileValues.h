@@ -95,6 +95,7 @@ namespace Io
 
 		// FM 音源のオペレーターの TL ENV (4.0.0 から)
 		static inline const juce::String TlEnvParam = "tlEnv";
+		static inline const juce::String AlgEnvParam = "algEnv";
 
 		// 3.6.3 までの SSG SW AMP / PITCH ENV[11] のファイル。読み込みだけ。
 		static inline const juce::String SsgSwEnvParam11 = "ssgSwEnv11";

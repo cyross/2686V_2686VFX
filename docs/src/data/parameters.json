@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.0.0",
-  "count": 12602,
+  "count": 12662,
   "parameters": [
     {
       "id": "MODE",
@@ -1687,6 +1687,87 @@
       "min": false,
       "max": true,
       "default": true
+    },
+    {
+      "id": "OPNA_ALGENV_ENABLE",
+      "name": "OPNA AlgEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_ALGENV_STEPS",
+      "name": "OPNA AlgEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPNA_ALGENV_LOOP",
+      "name": "OPNA AlgEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_ALGENV_LOOPTO",
+      "name": "OPNA AlgEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPNA_ALGENV_LOOPCNT",
+      "name": "OPNA AlgEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_ALGENV_STL",
+      "name": "OPNA AlgEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPNA_ALGENV_LR",
+      "name": "OPNA AlgEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPNA_ALGENV_RR",
+      "name": "OPNA AlgEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPNA_ALGENV_ENDL",
+      "name": "OPNA AlgEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPNA_ALGENV_ENDL_EN",
+      "name": "OPNA AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPNA_OP0_MUL",
@@ -9958,6 +10039,87 @@
       "default": true
     },
     {
+      "id": "OPN_ALGENV_ENABLE",
+      "name": "OPN AlgEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_ALGENV_STEPS",
+      "name": "OPN AlgEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPN_ALGENV_LOOP",
+      "name": "OPN AlgEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_ALGENV_LOOPTO",
+      "name": "OPN AlgEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPN_ALGENV_LOOPCNT",
+      "name": "OPN AlgEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_ALGENV_STL",
+      "name": "OPN AlgEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPN_ALGENV_LR",
+      "name": "OPN AlgEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPN_ALGENV_RR",
+      "name": "OPN AlgEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPN_ALGENV_ENDL",
+      "name": "OPN AlgEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPN_ALGENV_ENDL_EN",
+      "name": "OPN AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP0_MUL",
       "name": "OPN Op1 MUL",
       "type": "Int",
@@ -17894,6 +18056,87 @@
       "default": true
     },
     {
+      "id": "OPL_ALGENV_ENABLE",
+      "name": "OPL AlgEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_ALGENV_STEPS",
+      "name": "OPL AlgEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL_ALGENV_LOOP",
+      "name": "OPL AlgEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_ALGENV_LOOPTO",
+      "name": "OPL AlgEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL_ALGENV_LOOPCNT",
+      "name": "OPL AlgEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL_ALGENV_STL",
+      "name": "OPL AlgEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "OPL_ALGENV_LR",
+      "name": "OPL AlgEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "OPL_ALGENV_RR",
+      "name": "OPL AlgEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL_ALGENV_ENDL",
+      "name": "OPL AlgEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "OPL_ALGENV_ENDL_EN",
+      "name": "OPL AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_OP0_MUL",
       "name": "OPL Op1 MUL",
       "type": "Int",
@@ -22744,6 +22987,87 @@
       "min": false,
       "max": true,
       "default": true
+    },
+    {
+      "id": "OPL3_ALGENV_ENABLE",
+      "name": "OPL3 AlgEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_ALGENV_STEPS",
+      "name": "OPL3 AlgEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL3_ALGENV_LOOP",
+      "name": "OPL3 AlgEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_ALGENV_LOOPTO",
+      "name": "OPL3 AlgEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL3_ALGENV_LOOPCNT",
+      "name": "OPL3 AlgEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_ALGENV_STL",
+      "name": "OPL3 AlgEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPL3_ALGENV_LR",
+      "name": "OPL3 AlgEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPL3_ALGENV_RR",
+      "name": "OPL3 AlgEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL3_ALGENV_ENDL",
+      "name": "OPL3 AlgEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPL3_ALGENV_ENDL_EN",
+      "name": "OPL3 AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPL3_OP0_MUL",
@@ -30917,6 +31241,87 @@
       "min": false,
       "max": true,
       "default": true
+    },
+    {
+      "id": "OPM_ALGENV_ENABLE",
+      "name": "OPM AlgEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_ALGENV_STEPS",
+      "name": "OPM AlgEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPM_ALGENV_LOOP",
+      "name": "OPM AlgEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_ALGENV_LOOPTO",
+      "name": "OPM AlgEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPM_ALGENV_LOOPCNT",
+      "name": "OPM AlgEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_ALGENV_STL",
+      "name": "OPM AlgEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPM_ALGENV_LR",
+      "name": "OPM AlgEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPM_ALGENV_RR",
+      "name": "OPM AlgEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPM_ALGENV_ENDL",
+      "name": "OPM AlgEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 7,
+      "default": 0
+    },
+    {
+      "id": "OPM_ALGENV_ENDL_EN",
+      "name": "OPM AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPM_OP0_MUL",
@@ -39412,6 +39817,87 @@
       "min": false,
       "max": true,
       "default": true
+    },
+    {
+      "id": "OPZX7_ALGENV_ENABLE",
+      "name": "OPZX7S AlgEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_ALGENV_STEPS",
+      "name": "OPZX7S AlgEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_ALGENV_LOOP",
+      "name": "OPZX7S AlgEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_ALGENV_LOOPTO",
+      "name": "OPZX7S AlgEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_ALGENV_LOOPCNT",
+      "name": "OPZX7S AlgEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_ALGENV_STL",
+      "name": "OPZX7S AlgEnv STL",
+      "type": "Int",
+      "min": 0,
+      "max": 129,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_ALGENV_LR",
+      "name": "OPZX7S AlgEnv LR",
+      "type": "Int",
+      "min": 0,
+      "max": 129,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_ALGENV_RR",
+      "name": "OPZX7S AlgEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_ALGENV_ENDL",
+      "name": "OPZX7S AlgEnv EndL",
+      "type": "Int",
+      "min": 0,
+      "max": 129,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_ALGENV_ENDL_EN",
+      "name": "OPZX7S AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPZX7_OP0_MUL",
