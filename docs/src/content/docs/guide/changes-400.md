@@ -139,7 +139,9 @@ ALG 版で、ALGORITHM/FEEDBACK の FEEDBACK の下にあります。発音の�
 
 オペレーター / パッドのタブの上の絵を、**左に TARGET の大きな絵、右に全部の小さな絵**へ
 組み替えました。大きな絵は TARGET を切り替えるとすぐにその内容になり、OPZX7S / RHYTHM では
-波形も大きく出ます。小さな絵はこれまでどおり横 4 枚ずつで、押すとそこへ TARGET が移ります。
+波形も大きく出ます。小さな絵は OPNA / OPN / OPL3 / OPM が横 2 枚 × 2 段、OPL が横 2 枚 × 1 段、
+OPZX7S / RHYTHM が横 4 枚ずつで、絵の縦横比は大きな絵とそろえてあります (波形の丈は変わりません)。
+押すとそこへ TARGET が移ります。
 
 ## グラフを横に広げられるようにしました
 
@@ -152,3 +154,8 @@ ALG 版で、ALGORITHM/FEEDBACK の FEEDBACK の下にあります。発音の�
 ADV のカーブ編集で、パラメータごとに **CUT・COPY・PASTE・DUPLICATE・CLEAR** を使えるように
 しました。PASTE は Position・Target を問わず貼れ、DUPLICATE は同じ Target のほかのパラメータへ
 まとめて写せます。くわしくは [ADV](/2686V_2686VFX/chips/adv/) を参照してください。
+
+## TARGET の帯に板を敷きました
+
+オペレーター / パッドのタブの一番上の帯 (TARGET・名前・グラフの切り替え) の背後へ濃い板を敷き、
+壁紙が明るくても読めるようにしました。色は COLORS の `TargetRow.Bg` / `TargetRow.Border` で変えられます。

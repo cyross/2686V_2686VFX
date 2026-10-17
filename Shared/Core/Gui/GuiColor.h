@@ -211,6 +211,16 @@ namespace GuiColor {
 		inline Entry Active{ "TargetFrame.Active", []() -> juce::Colour { return juce::Colours::orange; } };
 	};
 
+	// ==========================================================
+	// TARGET の帯の板
+	// ==========================================================
+	// 操作面の一番上の帯 (TARGET・名前・映すものの切り替え) の背後へ敷く板。
+	// 壁紙が明るいと文字が読めなくなるので、カテゴリの板より一段濃くする。
+	namespace TargetRow {
+		inline Entry Bg{ "TargetRow.Bg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.65f); } };
+		inline Entry Border{ "TargetRow.Border", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.4f); } };
+	};
+
 	namespace Separator {
 		// 白のベタ線は主張が強すぎるので、カテゴリの板と同じくらいまで落とす
 		inline Entry Line{ "Separator.Line", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.45f); } };

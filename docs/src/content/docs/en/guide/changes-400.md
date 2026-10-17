@@ -135,7 +135,9 @@ See [TAP SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-sequencer) for details.
 
 The graphs at the top of operator / pad tabs are now **a large TARGET view on the left and small
 views of all of them on the right**. The large view follows TARGET at once and, on OPZX7S / RHYTHM,
-shows the wave large too. The small views stay four to a row; clicking one moves TARGET there.
+shows the wave large too. The small views are two per row in two rows on OPNA / OPN / OPL3 / OPM,
+two in one row on OPL, and four per row on OPZX7S / RHYTHM, with the same graph aspect ratio as the
+large view (the wave height is unchanged). Clicking one moves TARGET there.
 
 ## Zooming graphs sideways
 
@@ -149,3 +151,8 @@ SSG SW ENV[256] with many steps can now be read in detail.
 ADV curve editing now has **CUT, COPY, PASTE, DUPLICATE and CLEAR** per parameter. PASTE works
 across Positions and Targets, and DUPLICATE copies to several other parameters of the same Target at
 once. See [ADV](/2686V_2686VFX/en/chips/adv/) for details.
+
+## A board behind the TARGET row
+
+The top row of operator / pad tabs (TARGET, name and graph selector) now has a dark board behind it,
+so it stays readable over bright wallpapers. Change its colours with `TargetRow.Bg` / `TargetRow.Border` in COLORS.

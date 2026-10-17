@@ -536,6 +536,7 @@ void GuiOpna::setup()
         .justification = juce::Justification::centredLeft });
 
     opTargetSeparator.setupComponent(*this);
+    opTargetBoard.setupComponent(*this);
 
     // どのエンベロープを映すかの切り替え。TARGET のすぐ右へ置く。
     auto setupModeBtn = [this, &tabOrder](GuiToggleButton& btn, const juce::String& text,
@@ -1291,6 +1292,7 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
 {
     {
         auto row = area.removeFromTop(20);
+        const auto rowAll = row;
         auto slot = row.removeFromLeft(OpnaGuiValue::Fm::Op::Col::width);
 
         layoutMain({ .mainRect = slot, .label = &targerOpSlider.label, .component = &targerOpSlider });
@@ -1314,6 +1316,9 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
             graphBtnSsg256.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsgP256.setBounds(btnRow);
         }
+
+        // 帯の背後へ板を敷く。左端から切り替えの右端まで
+        opTargetBoard.setBounds(rowAll.withRight(row.getX()).expanded(2, 1));
     }
 
     opTargetSeparator.layoutComponent(area);

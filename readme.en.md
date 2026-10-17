@@ -89,7 +89,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **Operator / pad graphs: a large TARGET view on the left, small views of all on the right**
   - OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM. The height matches the OPZX7S / RHYTHM display, and the large view keeps the previous aspect ratio
   - The large view follows TARGET and updates at once. On OPZX7S / RHYTHM the wave is shown large above it
-  - The small views stay four to a row (up to eight on screen), shrunk to fit
+  - The small views are two per row in two rows on OPNA / OPN / OPL3 / OPM, two in one row on OPL, and four per row on OPZX7S / RHYTHM. Their graphs keep the large view's aspect ratio; the wave height is unchanged
 - **Graphs can be stretched sideways (1.0–32.0 times)**
   - Every channel graph and the large TARGET view of operators / pads; the small views are not included
   - Below them: a zoom knob, x1 / x2 / x4 / x8 / x16 / x32 buttons and a horizontal scroll bar. The mouse wheel over the graph changes the zoom, and dragging with the right button scrolls
@@ -102,6 +102,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - RR gets the same buttons as RATE, and LR the same as the value knob (not on ALG ENV's LR)
 - **Graphs now show ENDL (an existing bug)**
   - With Use Endl on, AMP ENV, PITCH ENV and the 256-step envelopes draw the move to ENDL after the release and the hold there
+- **A board behind the top row of operator / pad tabs (TARGET, name, graph selector)**
+  - A dark board sits behind the row so it stays readable over bright wallpapers. Its colours are TargetRow.Bg / TargetRow.Border in COLORS
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

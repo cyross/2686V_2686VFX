@@ -153,6 +153,9 @@ class GuiOpna : public GuiBase
     GuiLabel opNameLabel;
     NormalSeparator opTargetSeparator;
 
+    // 一番上の帯の背後へ敷く板。壁紙の上でも読めるようにする
+    GuiRowBoard opTargetBoard;
+
     // 区分を横へ並べる送り台。縦へは送らず、あふれたぶんは横へ送る。
     juce::Viewport stripViewport;
     juce::Component stripCanvas;

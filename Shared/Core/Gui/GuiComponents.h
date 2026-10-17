@@ -1220,6 +1220,32 @@ public:
         g.fillRoundedRectangle(getLocalBounds().toFloat(), 3.0f);
     }
 };
+
+// 操作面の一番上の帯 (TARGET・名前・映すものの切り替え) の背後へ敷く板。
+// 壁紙の上でも文字が読めるようにする。装飾なのでマウスは素通し。
+class GuiRowBoard : public juce::Component
+{
+public:
+    GuiRowBoard() { setInterceptsMouseClicks(false, false); }
+
+    // 親へ入れて最背面へ送る。帯の部品より後に入れても、部品を隠さない。
+    void setupComponent(juce::Component& parent)
+    {
+        parent.addAndMakeVisible(*this);
+        toBack();
+    }
+
+    void paint(juce::Graphics& g) override
+    {
+        const auto r = getLocalBounds().toFloat().reduced(0.5f);
+
+        g.setColour(GuiColor::TargetRow::Bg);
+        g.fillRoundedRectangle(r, 3.0f);
+
+        g.setColour(GuiColor::TargetRow::Border);
+        g.drawRoundedRectangle(r, 3.0f, 1.0f);
+    }
+};
 class GuiCategoryLabel : public GuiLabel
 {
     bool enableChangeDetailVisible = false;
