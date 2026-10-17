@@ -7,6 +7,7 @@
 #include "../../Core/Processor/ProcessorBase.h"
 #include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorTapSeq.h"
 #include "../../Core/Processor/ProcessorValueEnv.h"
 
 class Opzx7Processor : public PrBase
@@ -47,6 +48,9 @@ class Opzx7Processor : public PrBase
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpDelay = { nullptr };
 
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpMask = { nullptr };
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::Ptrs pTapAmp;
+    TapSeq::Ptrs pTapPitch;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;

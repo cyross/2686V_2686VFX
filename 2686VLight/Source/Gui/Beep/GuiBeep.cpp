@@ -92,6 +92,15 @@ void GuiBeep::setup() {
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
     pitchMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::pitchEnv, .enableChangeDetailVisible = true });
 
+    // [[TAP SEQUENCER]]
+    tapMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::tapSeq, .enableChangeDetailVisible = true });
+    tapAmpSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapAmpSeq.category().onImport = [this] { tapAmpSeq.importParams(); };
+    tapAmpSeq.category().onExport = [this] { tapAmpSeq.exportParams(); };
+    tapPitchSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
+    tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
+
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::util, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
@@ -201,6 +210,16 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
+
+    // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, true);
+
+    tapAmpSeq.setCategoryVisible(tapOpen);
+    tapAmpSeq.layoutComponent(mRect);
+    tapPitchSeq.setCategoryVisible(tapOpen);
+    tapPitchSeq.layoutComponent(mRect);
+
+    tapMajorCat.endMajor(mRect);
 
     lfoComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Lfo));
     lfoComponent.layoutComponent(mRect);
@@ -462,6 +481,8 @@ void GuiBeep::applyChParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
+    tapAmpSeq.readParams(*reader, "tapAmp");
+    tapPitchSeq.readParams(*reader, "tapPitch");
 
     // Components
     fixComponent.readParams(*reader, "fix");
@@ -540,6 +561,8 @@ void GuiBeep::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiBeep::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
+	tapAmpSeq.writeParams(writer, "tapAmp");
+	tapPitchSeq.writeParams(writer, "tapPitch");
 
 	// Components
 	fixComponent.writeParams(writer, "fix");

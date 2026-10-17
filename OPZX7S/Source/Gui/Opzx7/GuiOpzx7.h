@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
@@ -129,6 +130,11 @@ class GuiOpzx7 : public GuiBase
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
+
+    // [[TAP SEQUENCER]]。[[PITCH ENV]] の下 (RHYTHM はグローバルの UNISON の下)
+    GuiCategoryLabel tapMajorCat;
+    GuiComponentTapSeq tapAmpSeq;
+    GuiComponentTapSeq tapPitchSeq;
 
     // FM 音源のパラメータファイルを読み込む
     GuiTextButton importFmBtn;

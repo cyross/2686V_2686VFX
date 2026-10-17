@@ -59,9 +59,11 @@ note names, 60 is C3.
 | **SSG HW AMP ENV** | The key that drives SSG HW AMP ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGHWENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssghwenv) |
 | **WT AMP MOD** | The key that drives WT AMP MOD | 0 to 127 | 60 (C3) | [`MOD_KEY_WTAMPMOD`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-wtampmod) |
 | **SSG SW AMP ENV\[256\]** | The key that drives SSG SW AMP ENV\[256\] | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGSWENV11`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssgswenv11) |
+| **AMP SEQUENCER** | The key that drives AMP SEQUENCER (from 4.0.0) | 0 to 127 | 60 (C3) | [`MOD_KEY_TAPAMP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-tapamp) |
 | **PITCH ENV** | The key that drives PITCH ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_PITCHENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-pitchenv) |
 | **SSG HW PITCH ENV** | The key that drives SSG HW PITCH ENV | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGHWPENV`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssghwpenv) |
 | **SSG SW PITCH ENV\[256\]** | The key that drives SSG SW PITCH ENV\[256\] | 0 to 127 | 60 (C3) | [`MOD_KEY_SSGSWPENV11`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-ssgswpenv11) |
+| **PITCH SEQUENCER** | The key that drives PITCH SEQUENCER (from 4.0.0) | 0 to 127 | 60 (C3) | [`MOD_KEY_TAPPITCH`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-tappitch) |
 | **WT PITCH MOD** | The key that drives WT PITCH MOD | 0 to 127 | 60 (C3) | [`MOD_KEY_WTMOD`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-wtmod) |
 | **LFO AM** | The key that drives LFO AM | 0 to 127 | 60 (C3) | [`MOD_KEY_LFOAM`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-lfoam) |
 | **LFO PM** | The key that drives LFO PM | 0 to 127 | 60 (C3) | [`MOD_KEY_LFOPM`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-key-lfopm) |
@@ -77,6 +79,8 @@ What the assigned key does depends on the target:
 | LFO AM / LFO PM | Applied **only while the key is held**. Restarts from the top on key down |
 | MUL/DET / UNISON/HARMONY | Applied **only while the key is held** |
 | ARPEGGIO | Arpeggiates **only while the key is held**. Starts from the first voice on key down |
+| AMP SEQUENCER | Each press moves on one step; **only while the key is held** the sound plays at that step's ratio. Released, it is silent |
+| PITCH SEQUENCER | Each press moves on one step; **only while the key is held** the pitch shifts by that step's cents. Released, it returns to the original pitch |
 
 - The same key can be assigned to several targets; pressing it drives all of them.
 - In Customize mode, the colour of each modulation panel's title shows whether it

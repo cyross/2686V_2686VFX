@@ -13,6 +13,10 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     const juce::String prefix = RhythmPrKey::prefix;
     const juce::String prefixName = RhythmPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addRhythmLevelParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
 
@@ -46,6 +50,9 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
 void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = RhythmPrKey::prefix;
 
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+
     PrHelper::setupRhythmBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
     
@@ -73,6 +80,10 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
 
 void RhythmProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyRhythmBasic(pBasic, params.rhythm);
     PrHelper::applyUnison(pUnison, params.rhythm.unison);
 

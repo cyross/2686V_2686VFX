@@ -23,7 +23,8 @@ public:
     void enablementChanged() override { setAlpha(isEnabled() ? 1.0f : 0.4f); }
 
     // 1 行に並べる数。詰めすぎると桁が省略されて読めなくなる。
-    static inline constexpr int columns = 3;
+    // 4.0.0 でグループの幅を広げたので、3 から 4 にした。
+    static inline constexpr int columns = 4;
 
     // 1 行の高さ。見出しと値を横に並べるので 1 行ぶんで足りる。
     static inline constexpr int rowHeight = 16;

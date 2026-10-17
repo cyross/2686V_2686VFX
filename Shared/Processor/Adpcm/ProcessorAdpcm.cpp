@@ -13,6 +13,10 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     const juce::String prefix = AdpcmPrKey::prefix;
     const juce::String prefixName = AdpcmPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addAdpcmBasicParameters(layout, prefix, prefixName);
     PrHelper::addTnParameters(layout, prefix, prefixName);
@@ -38,6 +42,9 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
 void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = AdpcmPrKey::prefix;
 
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+
     PrHelper::setupAdpcmBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPcmPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
@@ -59,6 +66,10 @@ void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
 
 void AdpcmProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyAdpcmBasic(pBasic, params.adpcm);
     PrHelper::applyQualityPcm(pQuality, params.adpcm.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.adpcm.adsr);

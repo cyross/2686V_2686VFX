@@ -33,6 +33,10 @@ struct StepTable
     std::array<std::atomic<float>, size> l;
     std::atomic<std::uint32_t> version{ 1 };
 
+    // 次に使う段 (0 から)。TAP SEQUENCER が鍵を押すたびに進める。
+    // 保存はしない (読み込みや初期化で 0 に戻る)。
+    std::atomic<int> cursor{ 0 };
+
     const float defaultR;
     const float defaultL;
 
@@ -61,6 +65,7 @@ struct StepTable
             l[(size_t)i].store(defaultL, std::memory_order_relaxed);
         }
 
+        cursor.store(0, std::memory_order_relaxed);
         version.fetch_add(1, std::memory_order_release);
     }
 

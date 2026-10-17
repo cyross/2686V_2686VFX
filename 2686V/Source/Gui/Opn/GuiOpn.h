@@ -3,6 +3,7 @@
 #include "Shared/Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
 
+#include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/FmToOpzx7/FmToOpzx7.h"
 
 #include "Shared/Core/Io/ParamFile.h"
@@ -100,6 +101,11 @@ class GuiOpn : public GuiBase
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
+
+    // [[TAP SEQUENCER]]。[[PITCH ENV]] の下 (RHYTHM はグローバルの UNISON の下)
+    GuiCategoryLabel tapMajorCat;
+    GuiComponentTapSeq tapAmpSeq;
+    GuiComponentTapSeq tapPitchSeq;
 
     // OPZX7S のパラメータファイルへ書き出す
     GuiTextButton exportOpzx7Btn;
@@ -287,6 +293,9 @@ public:
         utilityCat(context),
         ampMajorCat(context),
         pitchMajorCat(context),
+        tapMajorCat(context),
+        tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
+        tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
         exportOpzx7Btn(context),
         broadcastLevelButton(context),
         copyParamsToOpnaBtn(context),

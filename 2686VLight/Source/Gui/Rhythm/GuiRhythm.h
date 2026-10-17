@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
@@ -387,6 +388,11 @@ class GuiRhythm : public GuiBase
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
+
+    // [[TAP SEQUENCER]]。[[PITCH ENV]] の下 (RHYTHM はグローバルの UNISON の下)
+    GuiCategoryLabel tapMajorCat;
+    GuiComponentTapSeq tapAmpSeq;
+    GuiComponentTapSeq tapPitchSeq;
 
     GuiComponentMidi midiComponent;
 

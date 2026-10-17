@@ -13,6 +13,10 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     const juce::String prefix = BeepPrKey::prefix;
     const juce::String prefixName = BeepPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addBool(
         layout,
@@ -44,6 +48,9 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
 void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = BeepPrKey::prefix;
 
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+
     PrHelper::setupBeepBasicPtrs(apvts, prefix, pBasic);
     pBasic.antiAlias = apvts.getRawParameterValue(prefix + BeepPrKey::antiAlias);
     pBasic.timerClock = apvts.getRawParameterValue(prefix + BeepPrKey::timerClock);
@@ -63,6 +70,10 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
 
 void BeepProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyBeepBasic(pBasic, params.beep);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.beep.adsr);
     PrHelper::applyWtMod(pWtMod, params.beep.wtMod);

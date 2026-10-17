@@ -120,3 +120,14 @@ start of a note.
 
 Switch it on with **Enable** at the top. It starts off, so existing patches sound the same.
 See [ALG ENV](/2686V_2686VFX/en/chips/common/#alg-env) for details.
+
+## [[TAP SEQUENCER]]
+
+**TAP AMP SEQUENCER / TAP PITCH SEQUENCER** move on one step with every key press and correct the
+level (as a ratio) or the pitch (in cents). They sit in each channel as the [[TAP SEQUENCER]] major
+section below [[PITCH ENV]]. 2686VFX has AMP / PITCH SEQUENCER too, with the key chosen in key assign.
+
+Along with this, step value lists now show four per row, as "label: value" separated by " / ".
+
+Switch them on with **Enable**. They start off, so existing patches sound the same.
+See [TAP SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-sequencer) for details.

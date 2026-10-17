@@ -77,6 +77,15 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - An ALG version of SSG SW AMP ENV[256]. Values are ALG numbers from 0. STALG / ALG1…, ALG.TARGET / ALG
   - Switched on with Enable at the top. While on, the step's ALG replaces ALG and the routing is rebuilt when it changes. Always KEEP (no KEEP switch). No value buttons, no STEPS
   - Saved in presets and channel parameters (`algEnv`). The section parameter file is `.algEnv` (heading right-click)
+- **Added [[TAP SEQUENCER]] (TAP AMP SEQUENCER / TAP PITCH SEQUENCER)**
+  - In every channel's global section, below [[PITCH ENV]] (below UNISON/HARMONY on RHYTHM)
+  - Each key press moves on one step and that step corrects the sound: AMP multiplies the final level by a ratio of 0.0–4.0 (default 1.0), PITCH adds −2400–2400 cents (default 0) to the final pitch. STEPS is 1–256 (with 1, every note gets the same value)
+  - Steps are drawn as horizontal bars; values are edited with a separate knob (S.TARGET / RATIO・CENT) and value buttons
+  - INCREMENT / DECREMENT / RESET move the next step. They can also be pressed by automation (once when rising past 0.5)
+  - 2686VFX gains AMP SEQUENCER / PITCH SEQUENCER too, with key input and key-assign customisation (AMP plays at the step's ratio only while held and is silent when released; PITCH shifts only while held and returns when released)
+  - Saved in presets and channel parameters (`tapAmp` / `tapPitch`). The section parameter files are `.tapAmp` / `.tapPitch`
+- **Step value lists show four per row**
+  - The value lists of SSG SW AMP / PITCH ENV[256], DUTY / PEAK RATIO ENVELOPE, TL ENV, ALG ENV and TAP SEQUENCER, as "label: value" separated by " / "
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

@@ -74,6 +74,8 @@ namespace
         { ".peakenv", EditorGuiText::ParamBrowser::kindPeakEnv },
         { ".tlenv", EditorGuiText::ParamBrowser::kindTlEnv },
         { ".algenv", EditorGuiText::ParamBrowser::kindAlgEnv },
+        { ".tapamp", EditorGuiText::ParamBrowser::kindTapAmp },
+        { ".tappitch", EditorGuiText::ParamBrowser::kindTapPitch },
 
         // 3.6.3 までの 6 段と [11] のファイル。[256] として読み込める
         { ".ssgswenv", EditorGuiText::ParamBrowser::kindSsgSwEnv256 },

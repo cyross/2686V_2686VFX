@@ -100,5 +100,15 @@ private:
     double m_arpPhase = 0.0; // スロット単位の位相 (1.0 で次のボイスへ)
 
     OscMode m_mode = OscMode::OPZX7;
+
+    // TAP AMP / PITCH SEQUENCER。押したときに段の値を取り出す。
+    // 音量は鳴らしているあいだ出力へ掛け、音程は押したときの周波数へ掛ける。
+    TapSeqParams m_tapAmp;
+    TapSeqParams m_tapPitch;
+    float m_tapGain = 1.0f;
+
+    // 出力へ倍率を掛けるときの、描く前の値の控え
+    std::vector<float> m_tapKeepL;
+    std::vector<float> m_tapKeepR;
     Opzx7Core m_opzx7Core;
 };

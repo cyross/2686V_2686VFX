@@ -109,6 +109,12 @@ void ModProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	PrHelper::addUnisonParameters(layout, prefix, displayName);
 
 	// ------------------------------------------------------------------
+	// AMP / PITCH SEQUENCER
+	// ------------------------------------------------------------------
+	TapSeq::addParameters(layout, prefix, displayName, TapSeq::amp());
+	TapSeq::addParameters(layout, prefix, displayName, TapSeq::pitch());
+
+	// ------------------------------------------------------------------
 	// どの鍵盤で動かすか
 	// ------------------------------------------------------------------
 	PrHelper::addInt(
@@ -155,6 +161,9 @@ void ModProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
 	PrHelper::setupOpzx7DetunePtrs(apvts, ModPrKey::prefix, ptDetune);
 	PrHelper::setupUnisonPtrs(apvts, ModPrKey::prefix, ptUnison);
+
+	TapSeq::setupPtrs(apvts, ModPrKey::prefix, TapSeq::amp(), ptTapAmp, stepTables);
+	TapSeq::setupPtrs(apvts, ModPrKey::prefix, TapSeq::pitch(), ptTapPitch, stepTables);
 
 	pKeyAssignMode = apvts.getRawParameterValue(ModPrKey::prefix + ModPrKey::KeyAssign::mode);
 
@@ -294,6 +303,13 @@ void ModProcessor::startTargets(const Targets& t)
 		if (t[KA::SsgHwEnv]) ssgHwEnv.noteOn();
 		if (t[KA::WtAmpMod]) wtAmpMod.reset();
 		if (t[KA::SsgSwEnv256]) ssgSwEnv256.noteOn();
+
+		// 押すたびに段を 1 つ進める
+		if (t[KA::TapAmp] && tapAmpParams.enable)
+		{
+			tapAmpGain = tapSeqTake(tapAmpParams, 1.0f);
+			tapAmpHeld = true;
+		}
 	}
 
 	if (lfoEnabled)
@@ -308,6 +324,12 @@ void ModProcessor::startTargets(const Targets& t)
 		if (t[KA::SsgSwPEnv256]) ssgSwPEnv256.noteOn();
 		if (t[KA::WtMod]) wtMod.reset();
 		if (t[KA::SsgHwPEnv]) ssgHwPEnv.noteOn();
+
+		if (t[KA::TapPitch] && tapPitchParams.enable)
+		{
+			tapPitchRatio = std::pow(2.0f, tapSeqTake(tapPitchParams, 0.0f) / 1200.0f);
+			tapPitchHeld = true;
+		}
 	}
 
 	// アルペジオは押したときに 1 声目から始め直す。シングルキーアサインでは
@@ -339,6 +361,10 @@ void ModProcessor::releaseTargets(const Targets& t)
 		if (t[KA::PitchEnv]) pitchEnv.noteOff();
 		if (t[KA::SsgSwPEnv256]) ssgSwPEnv256.noteOff();
 	}
+
+	// 離したら AMP は音を出さず、PITCH は元の高さへ戻る
+	if (t[KA::TapAmp]) tapAmpHeld = false;
+	if (t[KA::TapPitch]) tapPitchHeld = false;
 }
 
 // 押さえている鍵盤は、どちらのキーアサインでも控えておく。押したまま
@@ -397,6 +423,10 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 	activeForGui.store(envEnabled && ampEnv.isPlaying(), std::memory_order_relaxed);
 
 	refreshSwitches();
+
+	// AMP / PITCH SEQUENCER。札を見て段を動かす (切っていても札は効かせる)
+	TapSeq::apply(ptTapAmp, tapAmpParams);
+	TapSeq::apply(ptTapPitch, tapPitchParams);
 
 	// どれも切なら何もしない。素通しにする。
 	if (!envEnabled && !lfoEnabled && !pitchEnabled && !shiftEnabled)
@@ -591,6 +621,9 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 			gain *= wtAmpMod.process(ampModDelta);
 
 			if (!ssgSwEnv256.isBypass()) gain *= ssgSwEnv256.process();
+
+			// AMP SEQUENCER。押しているあいだは段の割合、離したら音を出さない
+			if (tapAmpParams.enable) gain *= tapAmpHeld ? tapAmpGain : 0.0f;
 		}
 
 		float ratio = 1.0f;
@@ -633,6 +666,9 @@ void ModProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::AudioPro
 
 			ratio *= delta / nominalDelta;
 			ratio *= wtMod.process(wtModDelta);
+
+			// PITCH SEQUENCER。押しているあいだだけ段のセントずらす
+			if (tapPitchParams.enable && tapPitchHeld) ratio *= tapPitchRatio;
 		}
 
 		if (arpeggio)

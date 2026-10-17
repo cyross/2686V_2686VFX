@@ -5,6 +5,7 @@
 #include "Shared/Core/Synth/SynthCoreParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorTapSeq.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 
 class AdpcmProcessor : public PrBase
@@ -29,6 +30,9 @@ class AdpcmProcessor : public PrBase
 
     // QUALITY(PCM) の BIT の初期値。プラグインが作るときに決める。
     int m_pcmBitInitial;
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::Ptrs pTapAmp;
+    TapSeq::Ptrs pTapPitch;
 public:
     explicit AdpcmProcessor(int pcmBitInitial = CPV::QualityPcm::Bit::initial) : m_pcmBitInitial(pcmBitInitial) {}
 

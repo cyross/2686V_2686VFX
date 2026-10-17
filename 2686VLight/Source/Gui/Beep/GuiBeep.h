@@ -5,6 +5,7 @@
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiEnvelopeGraph.h"
+#include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/Unison/Unison.h"
 #include "Shared/Gui/Components/Fix/Fix.h"
 #include "Shared/Gui/Components/MulDetune/MulDetune.h"
@@ -76,6 +77,11 @@ class GuiBeep : public GuiBase {
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
+
+    // [[TAP SEQUENCER]]。[[PITCH ENV]] の下 (RHYTHM はグローバルの UNISON の下)
+    GuiCategoryLabel tapMajorCat;
+    GuiComponentTapSeq tapAmpSeq;
+    GuiComponentTapSeq tapPitchSeq;
     GuiTextButton broadcastLevelButton;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
@@ -130,6 +136,9 @@ public:
         utilityCat(context),
         ampMajorCat(context),
         pitchMajorCat(context),
+        tapMajorCat(context),
+        tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
+        tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
         broadcastLevelButton(context),
         ieLfo(context),
         ieAmpEnv(context),

@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.0.0",
-  "count": 12662,
+  "count": 12802,
   "parameters": [
     {
       "id": "MODE",
@@ -10,6 +10,86 @@
       "min": 0,
       "max": 16,
       "default": 0
+    },
+    {
+      "id": "OPNA_TAPAMP_ENABLE",
+      "name": "OPNA TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPAMP_STEPS",
+      "name": "OPNA TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPNA_TAPAMP_INC",
+      "name": "OPNA TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPAMP_DEC",
+      "name": "OPNA TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPAMP_RESET",
+      "name": "OPNA TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPPITCH_ENABLE",
+      "name": "OPNA TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPPITCH_STEPS",
+      "name": "OPNA TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPNA_TAPPITCH_INC",
+      "name": "OPNA TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPPITCH_DEC",
+      "name": "OPNA TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPPITCH_RESET",
+      "name": "OPNA TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPNA_LEVEL",
@@ -8370,6 +8450,86 @@
       "default": false
     },
     {
+      "id": "OPN_TAPAMP_ENABLE",
+      "name": "OPN TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPAMP_STEPS",
+      "name": "OPN TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPN_TAPAMP_INC",
+      "name": "OPN TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPAMP_DEC",
+      "name": "OPN TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPAMP_RESET",
+      "name": "OPN TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPPITCH_ENABLE",
+      "name": "OPN TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPPITCH_STEPS",
+      "name": "OPN TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPN_TAPPITCH_INC",
+      "name": "OPN TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPPITCH_DEC",
+      "name": "OPN TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPPITCH_RESET",
+      "name": "OPN TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_LEVEL",
       "name": "OPN Level",
       "type": "Float",
@@ -16460,6 +16620,86 @@
       "default": false
     },
     {
+      "id": "OPL_TAPAMP_ENABLE",
+      "name": "OPL TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPAMP_STEPS",
+      "name": "OPL TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL_TAPAMP_INC",
+      "name": "OPL TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPAMP_DEC",
+      "name": "OPL TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPAMP_RESET",
+      "name": "OPL TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPPITCH_ENABLE",
+      "name": "OPL TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPPITCH_STEPS",
+      "name": "OPL TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL_TAPPITCH_INC",
+      "name": "OPL TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPPITCH_DEC",
+      "name": "OPL TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPPITCH_RESET",
+      "name": "OPL TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_LEVEL",
       "name": "OPL Level",
       "type": "Float",
@@ -21387,6 +21627,86 @@
     {
       "id": "OPL_OP1_MASK",
       "name": "OPL Op2 Mask",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPAMP_ENABLE",
+      "name": "OPL3 TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPAMP_STEPS",
+      "name": "OPL3 TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL3_TAPAMP_INC",
+      "name": "OPL3 TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPAMP_DEC",
+      "name": "OPL3 TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPAMP_RESET",
+      "name": "OPL3 TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPPITCH_ENABLE",
+      "name": "OPL3 TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPPITCH_STEPS",
+      "name": "OPL3 TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL3_TAPPITCH_INC",
+      "name": "OPL3 TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPPITCH_DEC",
+      "name": "OPL3 TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPPITCH_RESET",
+      "name": "OPL3 TapPitch Reset",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -29544,6 +29864,86 @@
     {
       "id": "OPL3_OP3_MASK",
       "name": "OPL3 Op4 Mask",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPAMP_ENABLE",
+      "name": "OPM TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPAMP_STEPS",
+      "name": "OPM TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPM_TAPAMP_INC",
+      "name": "OPM TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPAMP_DEC",
+      "name": "OPM TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPAMP_RESET",
+      "name": "OPM TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPPITCH_ENABLE",
+      "name": "OPM TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPPITCH_STEPS",
+      "name": "OPM TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPM_TAPPITCH_INC",
+      "name": "OPM TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPPITCH_DEC",
+      "name": "OPM TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPPITCH_RESET",
+      "name": "OPM TapPitch Reset",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -37858,6 +38258,86 @@
     {
       "id": "OPM_OP3_MASK",
       "name": "OPM Op4 Mask",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPAMP_ENABLE",
+      "name": "OPZX7S TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPAMP_STEPS",
+      "name": "OPZX7S TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_TAPAMP_INC",
+      "name": "OPZX7S TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPAMP_DEC",
+      "name": "OPZX7S TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPAMP_RESET",
+      "name": "OPZX7S TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPPITCH_ENABLE",
+      "name": "OPZX7S TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPPITCH_STEPS",
+      "name": "OPZX7S TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_TAPPITCH_INC",
+      "name": "OPZX7S TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPPITCH_DEC",
+      "name": "OPZX7S TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPPITCH_RESET",
+      "name": "OPZX7S TapPitch Reset",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -56916,6 +57396,86 @@
       "default": false
     },
     {
+      "id": "SSG_TAPAMP_ENABLE",
+      "name": "SSG TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPAMP_STEPS",
+      "name": "SSG TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "SSG_TAPAMP_INC",
+      "name": "SSG TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPAMP_DEC",
+      "name": "SSG TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPAMP_RESET",
+      "name": "SSG TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPPITCH_ENABLE",
+      "name": "SSG TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPPITCH_STEPS",
+      "name": "SSG TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "SSG_TAPPITCH_INC",
+      "name": "SSG TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPPITCH_DEC",
+      "name": "SSG TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPPITCH_RESET",
+      "name": "SSG TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "SSG_LEVEL",
       "name": "SSG Level",
       "type": "Float",
@@ -59375,6 +59935,86 @@
       "min": -4800,
       "max": 4800,
       "default": 0
+    },
+    {
+      "id": "WT_TAPAMP_ENABLE",
+      "name": "WT TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPAMP_STEPS",
+      "name": "WT TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "WT_TAPAMP_INC",
+      "name": "WT TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPAMP_DEC",
+      "name": "WT TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPAMP_RESET",
+      "name": "WT TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPPITCH_ENABLE",
+      "name": "WT TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPPITCH_STEPS",
+      "name": "WT TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "WT_TAPPITCH_INC",
+      "name": "WT TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPPITCH_DEC",
+      "name": "WT TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPPITCH_RESET",
+      "name": "WT TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "WT_LEVEL",
@@ -65830,6 +66470,86 @@
       "default": 0.0
     },
     {
+      "id": "WT2_TAPAMP_ENABLE",
+      "name": "WT2 TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPAMP_STEPS",
+      "name": "WT2 TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "WT2_TAPAMP_INC",
+      "name": "WT2 TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPAMP_DEC",
+      "name": "WT2 TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPAMP_RESET",
+      "name": "WT2 TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPPITCH_ENABLE",
+      "name": "WT2 TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPPITCH_STEPS",
+      "name": "WT2 TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "WT2_TAPPITCH_INC",
+      "name": "WT2 TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPPITCH_DEC",
+      "name": "WT2 TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPPITCH_RESET",
+      "name": "WT2 TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT2_LEVEL",
       "name": "WT2 Level",
       "type": "Float",
@@ -71803,6 +72523,86 @@
       "default": 0
     },
     {
+      "id": "WTPLUS_TAPAMP_ENABLE",
+      "name": "WT+ TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPAMP_STEPS",
+      "name": "WT+ TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "WTPLUS_TAPAMP_INC",
+      "name": "WT+ TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPAMP_DEC",
+      "name": "WT+ TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPAMP_RESET",
+      "name": "WT+ TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPPITCH_ENABLE",
+      "name": "WT+ TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPPITCH_STEPS",
+      "name": "WT+ TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "WTPLUS_TAPPITCH_INC",
+      "name": "WT+ TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPPITCH_DEC",
+      "name": "WT+ TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPPITCH_RESET",
+      "name": "WT+ TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WTPLUS_LEVEL",
       "name": "WT+ Level",
       "type": "Float",
@@ -76805,6 +77605,86 @@
     {
       "id": "WTPLUS_SSGHWPENV_KEEP_ED",
       "name": "WT+ Hardware Pitch Env Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPAMP_ENABLE",
+      "name": "RHYTHM TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPAMP_STEPS",
+      "name": "RHYTHM TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_TAPAMP_INC",
+      "name": "RHYTHM TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPAMP_DEC",
+      "name": "RHYTHM TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPAMP_RESET",
+      "name": "RHYTHM TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPPITCH_ENABLE",
+      "name": "RHYTHM TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPPITCH_STEPS",
+      "name": "RHYTHM TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_TAPPITCH_INC",
+      "name": "RHYTHM TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPPITCH_DEC",
+      "name": "RHYTHM TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPPITCH_RESET",
+      "name": "RHYTHM TapPitch Reset",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -93158,6 +94038,86 @@
       "default": 3
     },
     {
+      "id": "ADPCM_TAPAMP_ENABLE",
+      "name": "ADPCM TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPAMP_STEPS",
+      "name": "ADPCM TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "ADPCM_TAPAMP_INC",
+      "name": "ADPCM TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPAMP_DEC",
+      "name": "ADPCM TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPAMP_RESET",
+      "name": "ADPCM TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPPITCH_ENABLE",
+      "name": "ADPCM TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPPITCH_STEPS",
+      "name": "ADPCM TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "ADPCM_TAPPITCH_INC",
+      "name": "ADPCM TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPPITCH_DEC",
+      "name": "ADPCM TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPPITCH_RESET",
+      "name": "ADPCM TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCM_LEVEL",
       "name": "ADPCM Level",
       "type": "Float",
@@ -95351,6 +96311,86 @@
       "min": -4800,
       "max": 4800,
       "default": 0
+    },
+    {
+      "id": "ADPCMP_TAPAMP_ENABLE",
+      "name": "ADPCMP TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPAMP_STEPS",
+      "name": "ADPCMP TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "ADPCMP_TAPAMP_INC",
+      "name": "ADPCMP TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPAMP_DEC",
+      "name": "ADPCMP TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPAMP_RESET",
+      "name": "ADPCMP TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPPITCH_ENABLE",
+      "name": "ADPCMP TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPPITCH_STEPS",
+      "name": "ADPCMP TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "ADPCMP_TAPPITCH_INC",
+      "name": "ADPCMP TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPPITCH_DEC",
+      "name": "ADPCMP TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPPITCH_RESET",
+      "name": "ADPCMP TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "ADPCMP_LEVEL",
@@ -102328,6 +103368,86 @@
       "min": -4800,
       "max": 4800,
       "default": 0
+    },
+    {
+      "id": "BEEP_TAPAMP_ENABLE",
+      "name": "BEEP TapAmp Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPAMP_STEPS",
+      "name": "BEEP TapAmp Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "BEEP_TAPAMP_INC",
+      "name": "BEEP TapAmp Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPAMP_DEC",
+      "name": "BEEP TapAmp Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPAMP_RESET",
+      "name": "BEEP TapAmp Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPPITCH_ENABLE",
+      "name": "BEEP TapPitch Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPPITCH_STEPS",
+      "name": "BEEP TapPitch Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "BEEP_TAPPITCH_INC",
+      "name": "BEEP TapPitch Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPPITCH_DEC",
+      "name": "BEEP TapPitch Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPPITCH_RESET",
+      "name": "BEEP TapPitch Reset",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "BEEP_LEVEL",

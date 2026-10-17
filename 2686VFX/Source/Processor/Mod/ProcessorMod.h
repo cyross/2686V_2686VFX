@@ -7,6 +7,7 @@
 
 #include "Shared/Core/Processor/ProcessorHelper.h"
 #include "Shared/Core/Processor/ProcessorStructs.h"
+#include "Shared/Core/Processor/ProcessorTapSeq.h"
 
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
@@ -53,6 +54,19 @@ class ModProcessor
 	PrPtrsSsgSwPEnv256 ptSsgSwPEnv256;
 	PrPtrsWtMod ptWtMod;
 	PrPtrsSsgHwPEnv ptSsgHwPEnv;
+
+	// --- AMP / PITCH SEQUENCER (4.0.0) ---
+	// 鍵を押すたびに段を 1 つ進める。AMP は押しているあいだ段の割合を掛け、
+	// 離すと音を出さない。PITCH は押しているあいだ段のセントだけずらし、
+	// 離すと元の高さに戻る。
+	TapSeq::Ptrs ptTapAmp;
+	TapSeq::Ptrs ptTapPitch;
+	TapSeqParams tapAmpParams;
+	TapSeqParams tapPitchParams;
+	float tapAmpGain = 1.0f;
+	float tapPitchRatio = 1.0f;
+	bool tapAmpHeld = false;
+	bool tapPitchHeld = false;
 
 	// --- 音程を一定量ずらすもの ---
 	PrPtrsOpzx7Detune ptDetune;

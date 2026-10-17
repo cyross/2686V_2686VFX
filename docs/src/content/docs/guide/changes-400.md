@@ -122,3 +122,15 @@ ALG 版で、ALGORITHM/FEEDBACK の FEEDBACK の下にあります。発音の�
 
 一番上の **Enable** で入れます。初期状態は切で、既存のパッチの鳴りは変わりません。
 くわしくは [ALG ENV](/2686V_2686VFX/chips/common/#alg-env) を参照してください。
+
+## [[TAP SEQUENCER]] を足しました
+
+鍵を押すたびに段を 1 つ進めて、音量（割合）や音程（セント）を補正する
+**TAP AMP SEQUENCER / TAP PITCH SEQUENCER** を足しました。各チャンネルの [[PITCH ENV]] の下に
+大区分 [[TAP SEQUENCER]] としてあります。2686VFX にも AMP / PITCH SEQUENCER があり、
+キーアサインで動かす鍵盤を選べます。
+
+あわせて、段の値の一覧を 1 行 4 個にし、「見出し: 値」を「 / 」で区切るようにしました。
+
+**Enable** で入れます。初期状態は切で、既存のパッチの鳴りは変わりません。
+くわしくは [TAP SEQUENCER](/2686V_2686VFX/chips/common/#tap-sequencer) を参照してください。

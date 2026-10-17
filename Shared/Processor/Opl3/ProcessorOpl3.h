@@ -6,6 +6,7 @@
 #include "../../Core/Processor/ProcessorBase.h"
 #include "Shared/Processor/Opl3/ProcessorOpl3Values.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorTapSeq.h"
 #include "../../Core/Processor/ProcessorValueEnv.h"
 
 class Opl3Processor : public PrBase
@@ -41,6 +42,9 @@ class Opl3Processor : public PrBase
     std::array<std::atomic<float>*, Opl3PrValue::ops> pOpDelay = { nullptr };
 
     std::array<std::atomic<float>*, Opl3PrValue::ops> pOpMask = { nullptr };
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::Ptrs pTapAmp;
+    TapSeq::Ptrs pTapPitch;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;

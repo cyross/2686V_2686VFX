@@ -363,6 +363,35 @@ normal (with Use Endl it holds ENDL).
 **N** next to LEVEL shows pitch buttons (semitone, octave and so on). [11] data from
 3.6.3 and earlier is converted on load, as with AMP (`.ssgSwPEnv11` files load too).
 
+## TAP SEQUENCER
+
+**Ours**: the **[[TAP SEQUENCER]]** major section (from 4.0.0), in every channel's global section
+below [[PITCH ENV]] (below UNISON/HARMONY on RHYTHM). **Each key press moves on one step**, and that
+step's value corrects the level or the pitch. It captures the driver trick of nudging level or pitch
+note by note as a row of steps.
+
+| Section | Step value | Range | Default | Applied as |
+| --- | --- | --- | ---: | --- |
+| **TAP AMP SEQUENCER** | ratio | 0.0 – 4.0 | 1.0 | multiplied into the final level |
+| **TAP PITCH SEQUENCER** | cents | −2400 – 2400 | 0 | added to the final pitch |
+
+| Knob | What it does | Range | Default |
+| --- | --- | --- | ---: |
+| **Enable** | Use it | on / off | off |
+| **STEPS** | How many steps. With 1, every note gets the same correction | 1 – 256 | 1 |
+| **S.TARGET** | The step the value knob edits | 1 – STEPS | 1 |
+| **RATIO / CENT** | That step's value; the buttons below nudge it | see above | see above |
+| **INCREMENT** | Move the next step on by one (after the last comes 1) | — | — |
+| **DECREMENT** | Move the next step back by one (before 1 comes the last) | — | — |
+| **RESET** | Set the next step back to 1 | — | — |
+
+- The step values are drawn as horizontal bars; the row with a different background is the step the next key press uses
+- Below that, a list "S1: value / S2: value / …" shows four per row. Changing STEPS resizes it at once
+- There is one "next step" per channel, so every voice moves along the same row
+- INCREMENT / DECREMENT / RESET can also be pressed by automation (they act once when the value rises past 0.5)
+- Step values are saved as a table in presets and channel parameters (they cannot be automated).
+  The section parameter files are `.tapAmp` / `.tapPitch`, read and written from the heading's right-click menu
+
 ## SPEED – playback rate
 
 Ours, new in 3.3.0. A multiplier on the rate at which a wave or a sample is

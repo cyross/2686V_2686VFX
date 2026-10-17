@@ -12,6 +12,10 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     const juce::String prefix = Opzx7PrKey::prefix;
     const juce::String prefixName = Opzx7PrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7AlgFbParameters(layout, prefix, prefixName, Opzx7PrValue::Alg::max, Opzx7PrValue::Alg::initial);
     PrHelper::addQualityParameters(layout, prefix, prefixName);
@@ -63,6 +67,9 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
 void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = Opzx7PrKey::prefix;
 
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+
     PrHelper::setupOpzx7BasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupOpzx7AlgFbPtrs(apvts, prefix, pAlgFb);
@@ -106,6 +113,10 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
 
 void Opzx7Processor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyOpzx7Basic(pBasic, params.opzx7);
     PrHelper::applyQuality(pQuality, params.opzx7.quality);
     PrHelper::applyOpzx7AlgFb(pAlgFb, params.opzx7.algFb);

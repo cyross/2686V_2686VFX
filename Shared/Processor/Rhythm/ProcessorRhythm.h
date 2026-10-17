@@ -6,6 +6,7 @@
 #include "../../Core/Processor/ProcessorBase.h"
 #include "Shared/Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorTapSeq.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 
 class RhythmProcessor : public PrBase
@@ -34,6 +35,9 @@ class RhythmProcessor : public PrBase
     // プラグインが作るときに決める。入れ物は最大数 (maxPads) ぶん持つ。
     int m_pads;
     int m_pcmBitInitial;
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::Ptrs pTapAmp;
+    TapSeq::Ptrs pTapPitch;
 public:
     explicit RhythmProcessor(int pads = RhythmPrValue::maxPads, int pcmBitInitial = CPV::QualityPcm::Bit::initial)
         : m_pads(juce::jlimit(1, RhythmPrValue::maxPads, pads)), m_pcmBitInitial(pcmBitInitial) {}

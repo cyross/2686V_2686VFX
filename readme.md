@@ -77,6 +77,15 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - SSG SW AMP ENV[256] の ALG 版。値は ALG の番号 (0 から)。STALG / ALG1〜、ALG.TARGET / ALG
   - 一番上の Enable で入れる。入っているあいだは ALG の代わりに段の ALG を使い、変わったところで繋ぎ方を組み直す。常に KEEP (KEEP の札は無い)。値のボタン・STEPS は無い
   - プリセット・チャンネルパラメータ (`algEnv`) に保存。区分のパラメータファイルは `.algEnv` (見出しの右クリック)
+- **[[TAP SEQUENCER]] (TAP AMP SEQUENCER / TAP PITCH SEQUENCER) を追加**
+  - 全チャンネルのグローバル。[[PITCH ENV]] の下 (RHYTHM は UNISON/HARMONY の下)
+  - 鍵を押すたびに段を 1 つ進め、その段の値で補正する。AMP は割合 0.0〜4.0 (初期 1.0) を最後の音量へ掛け、PITCH はセント −2400〜2400 (初期 0) を最後の音程へ足す。STEPS は 1〜256 (1 なら毎回同じ値)
+  - 段は横向きの棒グラフで表示し、値は別のつまみ (S.TARGET / RATIO・CENT) と値のボタンで直す
+  - INCREMENT / DECREMENT / RESET で次に使う段を動かす。オートメーションでも押せる (0.5 を下から越えたときに 1 回)
+  - 2686VFX にも AMP SEQUENCER / PITCH SEQUENCER を追加。キー入力・キーアサインのカスタマイズに対応 (AMP は押している間だけ段の割合で鳴らし離すと鳴らさない、PITCH は押している間だけずらし離すと元の高さ)
+  - プリセット・チャンネルパラメータ (`tapAmp` / `tapPitch`) に保存。区分のパラメータファイルは `.tapAmp` / `.tapPitch`
+- **段の値の一覧を 1 行 4 個に**
+  - SSG SW AMP / PITCH ENV[256]・DUTY / PEAK RATIO ENVELOPE・TL ENV・ALG ENV・TAP SEQUENCER の値の一覧。「見出し: 値」を「 / 」で区切って並べる
 
 ### 3-0-2. v3.6.3での修正・変更
 

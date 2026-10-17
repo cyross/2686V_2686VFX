@@ -172,6 +172,15 @@ void GuiOpl3::setup()
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
     pitchMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::pitchEnv, .enableChangeDetailVisible = true });
 
+    // [[TAP SEQUENCER]]
+    tapMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::tapSeq, .enableChangeDetailVisible = true });
+    tapAmpSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapAmpSeq.category().onImport = [this] { tapAmpSeq.importParams(); };
+    tapAmpSeq.category().onExport = [this] { tapAmpSeq.exportParams(); };
+    tapPitchSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
+    tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
+
     // チャンネルの設定を OPZX7S のパラメータファイルとして書き出す
     exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     exportOpzx7Btn.setWantsKeyboardFocus(true);
@@ -697,6 +706,16 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
+
+    // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, true);
+
+    tapAmpSeq.setCategoryVisible(tapOpen);
+    tapAmpSeq.layoutComponent(mRect);
+    tapPitchSeq.setCategoryVisible(tapOpen);
+    tapPitchSeq.layoutComponent(mRect);
+
+    tapMajorCat.endMajor(mRect);
 
     unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
@@ -2328,6 +2347,8 @@ void GuiOpl3::writeOpChParamFile(int opIndex, const juce::File& file)
 void GuiOpl3::readChParams(const Io::ParamReader& reader) {
     // Level
     levelComponent.readParams(reader, "level");
+    tapAmpSeq.readParams(reader, "tapAmp");
+    tapPitchSeq.readParams(reader, "tapPitch");
 
     // Algorithm & Feedback
     algSelector.setSelectedId(reader.getInt("alg", algSelector.getSelectedId()), juce::sendNotification);
@@ -2499,6 +2520,8 @@ void GuiOpl3::applyOplChAllOpParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
+    tapAmpSeq.readParams(*reader, "tapAmp");
+    tapPitchSeq.readParams(*reader, "tapPitch");
 
     // Algorithm & Feedback
     algSelector.setSelectedId(reader->getInt("alg", algSelector.getSelectedId()), juce::sendNotification);
@@ -2592,6 +2615,8 @@ void GuiOpl3::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiOpl3::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
+	tapAmpSeq.writeParams(writer, "tapAmp");
+	tapPitchSeq.writeParams(writer, "tapPitch");
 
 	// Algorithm & Feedback
 	writer.set("alg", algSelector.getSelectedId());

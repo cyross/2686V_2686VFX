@@ -13,6 +13,10 @@ void AdpcmPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parame
     const juce::String prefix = AdpcmPlusPrKey::prefix;
     const juce::String prefixName = AdpcmPlusPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
 
     // FORM・OPTIONAL・PAN は PCM ごと。まとめてここで並べる。
@@ -36,6 +40,9 @@ void AdpcmPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parame
 void AdpcmPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = AdpcmPlusPrKey::prefix;
 
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+
     PrHelper::setupAdpcmPlusPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPcmPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
@@ -54,6 +61,10 @@ void AdpcmPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWa
 
 void AdpcmPlusProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyAdpcmPlusBasic(pBasic, params.adpcmPlus);
     PrHelper::applyQualityPcm(pQuality, params.adpcmPlus.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.adpcmPlus.adsr);

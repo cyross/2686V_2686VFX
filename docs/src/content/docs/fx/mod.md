@@ -58,9 +58,11 @@ FIX の音名と同じく、60 が C3 です。
 | **SSG HW AMP ENV** | SSG HW AMP ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGHWENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssghwenv) |
 | **WT AMP MOD** | WT AMP MOD を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_WTAMPMOD`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-wtampmod) |
 | **SSG SW AMP ENV\[256\]** | SSG SW AMP ENV\[256\] を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGSWENV11`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssgswenv11) |
+| **AMP SEQUENCER** | AMP SEQUENCER を動かす鍵盤（4.0.0 から） | 0 〜 127 | 60 (C3) | [`MOD_KEY_TAPAMP`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-tapamp) |
 | **PITCH ENV** | PITCH ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_PITCHENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-pitchenv) |
 | **SSG HW PITCH ENV** | SSG HW PITCH ENV を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGHWPENV`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssghwpenv) |
 | **SSG SW PITCH ENV\[256\]** | SSG SW PITCH ENV\[256\] を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_SSGSWPENV11`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-ssgswpenv11) |
+| **PITCH SEQUENCER** | PITCH SEQUENCER を動かす鍵盤（4.0.0 から） | 0 〜 127 | 60 (C3) | [`MOD_KEY_TAPPITCH`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-tappitch) |
 | **WT PITCH MOD** | WT PITCH MOD を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_WTMOD`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-wtmod) |
 | **LFO AM** | LFO AM を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_LFOAM`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-lfoam) |
 | **LFO PM** | LFO PM を動かす鍵盤 | 0 〜 127 | 60 (C3) | [`MOD_KEY_LFOPM`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-key-lfopm) |
@@ -76,6 +78,8 @@ FIX の音名と同じく、60 が C3 です。
 | LFO AM / LFO PM | **押している間だけ**掛かる。押したときに頭から回る |
 | MUL/DET / UNISON/HARMONY | **押している間だけ**掛かる |
 | ARPEGGIO | **押している間だけ**アルペジオになる。押したときに 1 声目から始まる |
+| AMP SEQUENCER | 押すたびに段を 1 つ進め、**押している間だけ**その段の割合で鳴らす。離すと音を出さない |
+| PITCH SEQUENCER | 押すたびに段を 1 つ進め、**押している間だけ**その段のセントずらす。離すと元の高さに戻る |
 
 - 同じ鍵盤を複数の対象へ割り当てられます。その鍵盤を押すと、まとめて動きます
 - カスタマイズのときは、変調の枠の見出しの色で、いま動いているかが分かります。

@@ -1268,6 +1268,9 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     presetName(context),
     levelComponent(context),
     unisonComponent(context),
+    tapMajorCat(context),
+    tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
+    tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
     midiComponent(context),
     editComponent(context),
     utilityCat(context),
@@ -1317,6 +1320,15 @@ void GuiRhythm::setup()
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+
+    // [[TAP SEQUENCER]]
+    tapMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::tapSeq, .enableChangeDetailVisible = true });
+    tapAmpSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapAmpSeq.category().onImport = [this] { tapAmpSeq.importParams(); };
+    tapAmpSeq.category().onExport = [this] { tapAmpSeq.exportParams(); };
+    tapPitchSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
+    tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::util, .enableChangeDetailVisible = true });
 
@@ -1496,6 +1508,16 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
+
+    // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, true);
+
+    tapAmpSeq.setCategoryVisible(tapOpen);
+    tapAmpSeq.layoutComponent(mRect);
+    tapPitchSeq.setCategoryVisible(tapOpen);
+    tapPitchSeq.layoutComponent(mRect);
+
+    tapMajorCat.endMajor(mRect);
 
     midiComponent.layoutComponent(mRect);
 
@@ -1848,6 +1870,8 @@ void GuiRhythm::applyChParamFile(const juce::File& file) {
 
     // Level
     levelComponent.readParams(*reader, "level");
+    tapAmpSeq.readParams(*reader, "tapAmp");
+    tapPitchSeq.readParams(*reader, "tapPitch");
 
     // Components
     unisonComponent.readParams(*reader, "unison");
@@ -1989,6 +2013,8 @@ void GuiRhythm::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiRhythm::writeChParams(Io::ParamWriter& writer) {
 	// Level
 	levelComponent.writeParams(writer, "level");
+	tapAmpSeq.writeParams(writer, "tapAmp");
+	tapPitchSeq.writeParams(writer, "tapPitch");
 
 	// Components
 	unisonComponent.writeParams(writer, "unison");

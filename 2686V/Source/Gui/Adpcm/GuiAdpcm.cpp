@@ -248,6 +248,15 @@ void GuiAdpcm::setup()
     ampMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::ampEnv, .enableChangeDetailVisible = true });
     pitchMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::pitchEnv, .enableChangeDetailVisible = true });
 
+    // [[TAP SEQUENCER]]
+    tapMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::tapSeq, .enableChangeDetailVisible = true });
+    tapAmpSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapAmpSeq.category().onImport = [this] { tapAmpSeq.importParams(); };
+    tapAmpSeq.category().onExport = [this] { tapAmpSeq.exportParams(); };
+    tapPitchSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
+    tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
+
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::util, .enableChangeDetailVisible = true });
 
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
@@ -378,6 +387,16 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     modComponent.layoutComponent(mRect);
 
     pitchMajorCat.endMajor(mRect);
+
+    // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, true);
+
+    tapAmpSeq.setCategoryVisible(tapOpen);
+    tapAmpSeq.layoutComponent(mRect);
+    tapPitchSeq.setCategoryVisible(tapOpen);
+    tapPitchSeq.layoutComponent(mRect);
+
+    tapMajorCat.endMajor(mRect);
 
     lfoComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Lfo));
     lfoComponent.layoutComponent(mRect);
@@ -1071,6 +1090,8 @@ void GuiAdpcm::applyChParamFile(const juce::File& file) {
 
     // Level
 				levelComponent.readParams(*reader, "level");
+				tapAmpSeq.readParams(*reader, "tapAmp");
+				tapPitchSeq.readParams(*reader, "tapPitch");
 
     // Form
 				// 場所はプロセッサが持っているものを使う。ラベルはファイル名だけを
@@ -1219,6 +1240,8 @@ void GuiAdpcm::setImportingChParams(juce::StringArray& lines, int& index) {
 void GuiAdpcm::writeChParams(Io::ParamWriter& writer) {
 	            // Level
 	            levelComponent.writeParams(writer, "level");
+	            tapAmpSeq.writeParams(writer, "tapAmp");
+	            tapPitchSeq.writeParams(writer, "tapPitch");
 
 	            // Form
 	// 名前ではなく場所を残す。読み戻すときに File を作れるようにするため。

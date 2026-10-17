@@ -13,6 +13,10 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     const juce::String prefix = SsgPrKey::prefix;
     const juce::String prefixName = SsgPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addSsgBasicParameters(layout, prefix, prefixName);
@@ -40,6 +44,9 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = SsgPrKey::prefix;
 
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+
     PrHelper::setupSsgBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
@@ -63,6 +70,10 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
 void SsgProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applySsgBasic(pBasic, params.ssg);
     PrHelper::applyFix(pFix, params.ssg.fix);
     PrHelper::applyQuality(pQuality, params.ssg.quality);

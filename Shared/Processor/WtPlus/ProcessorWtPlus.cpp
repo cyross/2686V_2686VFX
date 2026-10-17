@@ -12,6 +12,10 @@ void WtPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     const juce::String prefix = WtPlusPrKey::prefix;
     const juce::String prefixName = WtPlusPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addWtPlusBasicParameters(layout, prefix, prefixName);
     // WT 系は階段のまま出していたので、INTERP の初期値は Zero-Order Hold。
@@ -35,6 +39,9 @@ void WtPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
 void WtPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = WtPlusPrKey::prefix;
 
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+
     PrHelper::setupWtPlusBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
@@ -53,6 +60,10 @@ void WtPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
 
 void WtPlusProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyWtPlusBasic(pBasic, params.wtPlus);
     PrHelper::applyQuality(pQuality, params.wtPlus.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.wtPlus.adsr);

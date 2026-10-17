@@ -11,6 +11,7 @@
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "Shared/Gui/Components/SsgHwPEnv/SsgHwPEnv.h"
 #include "Shared/Gui/Components/SsgSwEnv256/SsgSwEnv256.h"
+#include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "Shared/Gui/Components/PitchEnv/PitchEnv.h"
 #include "Shared/Gui/Components/SsgSwPEnv256/SsgSwPEnv256.h"
@@ -87,6 +88,10 @@ class GuiFx : public GuiBase, private juce::Timer
     GuiScrollGroup modLfoGroup;
     GuiScrollGroup modPitchEnvGroup;
     GuiScrollGroup modSsgSwPEnv256Group;
+
+    // AMP / PITCH SEQUENCER (4.0.0)
+    GuiScrollGroup modTapAmpGroup;
+    GuiScrollGroup modTapPitchGroup;
     GuiScrollGroup modWtModGroup;
     GuiScrollGroup modSsgHwPEnvGroup;
     GuiScrollGroup modMulDetuneGroup;
@@ -99,6 +104,8 @@ class GuiFx : public GuiBase, private juce::Timer
     GuiComponentLfoOpzx7 lfoComponent;
     GuiComponentPitchEnv pitchEnvComponent;
     GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
+    GuiComponentTapSeq tapAmpSeq;
+    GuiComponentTapSeq tapPitchSeq;
     GuiComponentWtMod wtModComponent;
     GuiComponentSsgHwPEnv ssgHwPEnvComponent;
     GuiComponentMulDetune mulDetuneComponent;

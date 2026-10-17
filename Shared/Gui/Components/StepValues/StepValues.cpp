@@ -44,16 +44,24 @@ void GuiStepValues::paint(juce::Graphics& g)
 
         g.setFont(font);
 
-        // 見出しは左、値は右。値のほうが桁を食うので広く取る。
+        // 「見出し: 値」を 1 つにして並べ、隣とは「 / 」で区切る。
         auto inner = cell.reduced(2.0f, 0.0f);
-        auto labelArea = inner.removeFromLeft(inner.getWidth() * 0.4f);
 
-        if (i < (int)labels.size()) {
-            g.drawFittedText(labels[(size_t)i], labelArea.toNearestInt(), juce::Justification::centredLeft, 1, 0.7f);
+        if (col > 0) {
+            auto slash = inner.removeFromLeft(juce::GlyphArrangement::getStringWidth(font, " / "));
+
+            g.setColour(GuiColor::StepValues::DimText.get());
+            g.drawText("/", slash, juce::Justification::centred);
+            g.setColour(isSelected ? GuiColor::StepValues::Selected.get()
+                                   : (isActive ? GuiColor::StepValues::Text.get()
+                                               : GuiColor::StepValues::DimText.get()));
         }
 
-        g.drawFittedText(juce::String(values[(size_t)i], decimals), inner.toNearestInt(),
-                         juce::Justification::centredRight, 1, 0.7f);
+        const juce::String label = i < (int)labels.size() ? labels[(size_t)i] : juce::String();
+        const juce::String value(values[(size_t)i], decimals);
+
+        g.drawFittedText(label.isEmpty() ? value : label + ": " + value, inner.toNearestInt(),
+                         juce::Justification::centredLeft, 1, 0.7f);
     }
 
     g.setColour(GuiColor::StepValues::Frame.get());

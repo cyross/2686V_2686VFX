@@ -72,6 +72,8 @@ GuiFx::GuiFx(const GuiContext& context) :
     modLfoGroup(context),
     modPitchEnvGroup(context),
     modSsgSwPEnv256Group(context),
+    modTapAmpGroup(context),
+    modTapPitchGroup(context),
     modWtModGroup(context),
     modSsgHwPEnvGroup(context),
     modMulDetuneGroup(context),
@@ -83,6 +85,8 @@ GuiFx::GuiFx(const GuiContext& context) :
     lfoComponent(context),
     pitchEnvComponent(context),
     ssgSwPEnv256Component(context),
+    tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
+    tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
     wtModComponent(context),
     ssgHwPEnvComponent(context),
     mulDetuneComponent(context),
@@ -254,11 +258,12 @@ void GuiFx::setup()
     modSsgHwEnvGroup.setup(*this, juce::String("") + "SSG HW AMP ENV");
     modWtAmpModGroup.setup(*this, juce::String("") + "WT AMP MOD");
     modSsgSwEnv256Group.setup(*this, juce::String("") + "SSG SW AMP ENV[256]");
+    modTapAmpGroup.setup(*this, juce::String("") + "AMP SEQUENCER");
     modLfoGroup.setup(*this, juce::String("") + "LFO");
 
     // 変調の枠は赤系統。効果の青と見分けが付くようにする。
     for (auto* group : {
-        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv256Group, &modWtAmpModGroup })
+        &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv256Group, &modWtAmpModGroup, &modTapAmpGroup })
     {
         group->setBackgroundColor(modBgColour);
     }
@@ -278,6 +283,11 @@ void GuiFx::setup()
     ssgSwEnv256Component.setupComponent(modSsgSwEnv256Group.contentCanvas, ModPrKey::prefix, tabOrder,
         CPK::ssgSwEnv256 + CPK::bypass, FxGuiText::Mod::SsgSwEnv256::bypass);
 
+    // AMP SEQUENCER。押すたびに段を進め、押しているあいだだけ段の割合で鳴らす
+    tapAmpSeq.setupComponent(modTapAmpGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+    tapAmpSeq.category().onImport = [this] { tapAmpSeq.importParams(); };
+    tapAmpSeq.category().onExport = [this] { tapAmpSeq.exportParams(); };
+
     lfoComponent.setupComponent(modLfoGroup.contentCanvas, ModPrKey::prefix, tabOrder);
 
     // 音程側。入ってきた音を溜めてから読み出す速さを変えるので、
@@ -291,10 +301,11 @@ void GuiFx::setup()
 
     modPitchEnvGroup.setup(*this, juce::String("") + "PITCH ENV");
     modSsgSwPEnv256Group.setup(*this, juce::String("") + "SSG SW PITCH ENV[256]");
+    modTapPitchGroup.setup(*this, juce::String("") + "PITCH SEQUENCER");
     modWtModGroup.setup(*this, juce::String("") + "WT PITCH MOD");
     modSsgHwPEnvGroup.setup(*this, juce::String("") + "SSG HW PITCH ENV");
 
-    for (auto* group : { &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv256Group, &modWtModGroup })
+    for (auto* group : { &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv256Group, &modWtModGroup, &modTapPitchGroup })
     {
         group->setBackgroundColor(modBgColour);
     }
@@ -304,6 +315,11 @@ void GuiFx::setup()
 
     ssgSwPEnv256Component.setupComponent(modSsgSwPEnv256Group.contentCanvas, ModPrKey::prefix, tabOrder,
         CPK::ssgSwPEnv256 + CPK::bypass, FxGuiText::Mod::SsgSwPEnv256::bypass);
+
+    // PITCH SEQUENCER。押すたびに段を進め、押しているあいだだけ段のセントずらす
+    tapPitchSeq.setupComponent(modTapPitchGroup.contentCanvas, ModPrKey::prefix, tabOrder);
+    tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
+    tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
 
     wtModComponent.setupComponent(modWtModGroup.contentCanvas, ModPrKey::prefix, tabOrder);
     ssgHwPEnvComponent.setupComponent(modSsgHwPEnvGroup.contentCanvas, ModPrKey::prefix, tabOrder);
@@ -950,6 +966,7 @@ void GuiFx::setup()
     for (auto* group : {
         &modAmpEnvGroup, &modSsgHwEnvGroup, &modSsgSwEnv256Group, &modWtAmpModGroup, &modLfoGroup,
         &modPitchEnvGroup, &modSsgHwPEnvGroup, &modSsgSwPEnv256Group, &modWtModGroup,
+        &modTapAmpGroup, &modTapPitchGroup,
         &modMulDetuneGroup, &modUnisonGroup })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -1053,6 +1070,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
         if (pluginOf(ctx).isSimpleShown(cat)) ++modColumns;
     }
 
+    // AMP / PITCH SEQUENCER の 2 列は簡易表示の対象でなく、いつも出す
+    modColumns += 2;
+
     int columns = FxGuiValue::Fx::EffectCols + modColumns;
 
     int canvasWidth = columns * FxGuiValue::Fx::ColWidth
@@ -1080,7 +1100,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
         auto layoutModColumn = [&](juce::Rectangle<int>& row, GuiScrollGroup& group, auto&& layoutBody,
             SimpleView::Cat cat)
         {
-            if (!pluginOf(ctx).isSimpleShown(cat)) {
+            // SimpleView::Size は簡易表示の対象でない (いつも出す) 枠
+            if (cat != SimpleView::Size && !pluginOf(ctx).isSimpleShown(cat)) {
                 group.setVisible(false);
 
                 return;
@@ -1111,10 +1132,12 @@ void GuiFx::layout(juce::Rectangle<int> content)
         layoutModColumn(modArea, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwAmpEnv);
         layoutModColumn(modArea, modWtAmpModGroup, [&](juce::Rectangle<int>& rect) { wtAmpModComponent.layoutComponent(rect); }, SimpleView::WtAmpMod);
         layoutModColumn(modArea, modSsgSwEnv256Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv256Component.layoutComponent(rect); }, SimpleView::SsgSwAmpEnv256);
+        layoutModColumn(modArea, modTapAmpGroup, [&](juce::Rectangle<int>& rect) { tapAmpSeq.layoutComponent(rect); }, SimpleView::Size);
 
         layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); }, SimpleView::PitchEnv);
         layoutModColumn(modArea, modSsgHwPEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwPEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwPitchEnv);
         layoutModColumn(modArea, modSsgSwPEnv256Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv256Component.layoutComponent(rect); }, SimpleView::SsgSwPitchEnv256);
+        layoutModColumn(modArea, modTapPitchGroup, [&](juce::Rectangle<int>& rect) { tapPitchSeq.layoutComponent(rect); }, SimpleView::Size);
         layoutModColumn(modArea, modWtModGroup, [&](juce::Rectangle<int>& rect)
         {
             wtModComponent.layoutComponent(rect);
@@ -2208,15 +2231,17 @@ void GuiFx::updateKeyAssignTitles()
 
     // 1 つの枠に対象が 2 つある (LFO の AM / PM、UNISON とアルペジオ) ときは、
     // どちらかの鍵盤が押されていれば明るくする。
-    const std::array<std::pair<GuiScrollGroup*, bool>, 11> groups = { {
+    const std::array<std::pair<GuiScrollGroup*, bool>, 13> groups = { {
         { &modAmpEnvGroup, isHeld({ KA::AmpEnv }) },
         { &modSsgHwEnvGroup, isHeld({ KA::SsgHwEnv }) },
         { &modWtAmpModGroup, isHeld({ KA::WtAmpMod }) },
         { &modSsgSwEnv256Group, isHeld({ KA::SsgSwEnv256 }) },
+        { &modTapAmpGroup, isHeld({ KA::TapAmp }) },
         { &modLfoGroup, isHeld({ KA::LfoAm, KA::LfoPm }) },
         { &modPitchEnvGroup, isHeld({ KA::PitchEnv }) },
         { &modSsgHwPEnvGroup, isHeld({ KA::SsgHwPEnv }) },
         { &modSsgSwPEnv256Group, isHeld({ KA::SsgSwPEnv256 }) },
+        { &modTapPitchGroup, isHeld({ KA::TapPitch }) },
         { &modWtModGroup, isHeld({ KA::WtMod }) },
         { &modMulDetuneGroup, isHeld({ KA::MulDet }) },
         { &modUnisonGroup, isHeld({ KA::Unison, KA::Arpeggio }) },

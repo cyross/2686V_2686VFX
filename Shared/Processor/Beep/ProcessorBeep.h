@@ -5,6 +5,7 @@
 #include "Shared/Core/Synth/SynthCoreParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
 #include "../../Core/Processor/ProcessorStructs.h"
+#include "../../Core/Processor/ProcessorTapSeq.h"
 
 class BeepProcessor : public PrBase {
     PrPtrsBeepBasic pBasic;
@@ -20,6 +21,9 @@ class BeepProcessor : public PrBase {
     PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsSsgHwPEnv pSsgHwPEnv;
     PrPtrsUnison pUnison;
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::Ptrs pTapAmp;
+    TapSeq::Ptrs pTapPitch;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;

@@ -13,6 +13,10 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     const juce::String prefix = WtPrKey::prefix;
     const juce::String prefixName = WtPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addWtBasicParameters(layout, prefix, prefixName);
@@ -38,6 +42,9 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
 void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = WtPrKey::prefix;
 
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+
     PrHelper::setupWtBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupWtCustom(apvts, prefix, pc);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
@@ -57,6 +64,10 @@ void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore
 
 void WtProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyWtBasic(pBasic, params.wt);
     PrHelper::applyQuality(pQuality, params.wt.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.wt.adsr);

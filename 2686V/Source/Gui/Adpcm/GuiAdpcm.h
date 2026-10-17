@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
 #include <array>
@@ -143,6 +144,11 @@ class GuiAdpcm : public GuiBase
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
+
+    // [[TAP SEQUENCER]]。[[PITCH ENV]] の下 (RHYTHM はグローバルの UNISON の下)
+    GuiCategoryLabel tapMajorCat;
+    GuiComponentTapSeq tapAmpSeq;
+    GuiComponentTapSeq tapPitchSeq;
     GuiTextButton broadcastLevelButton;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
@@ -244,6 +250,9 @@ public:
         pathRoot(context),
         ampMajorCat(context),
         pitchMajorCat(context),
+        tapMajorCat(context),
+        tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
+        tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
         broadcastLevelButton(context),
         ieToneNoise(context),
         ieLfo(context),

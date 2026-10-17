@@ -12,6 +12,10 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     const juce::String prefix = OpnaPrKey::prefix;
     const juce::String prefixName = OpnaPrName::prefix;
 
+    // TAP AMP / PITCH SEQUENCER
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
+    TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addAlgFbParameters(layout, prefix, prefixName, OpnaPrValue::Alg::max, OpnaPrValue::Alg::initial);
     PrHelper::addOpnaPanParameters(layout, prefix, prefixName);
@@ -61,6 +65,9 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
 void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables) {
     const juce::String prefix = OpnaPrKey::prefix;
 
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
+    TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+
     PrHelper::setupOpnaBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAlgFbPtrs(apvts, prefix, pAlgFb);
@@ -101,6 +108,10 @@ void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
 
 void OpnaProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    // TAP AMP / PITCH SEQUENCER。札を見て段を動かし、ボイスへ渡す
+    TapSeq::apply(pTapAmp, params.tapAmp);
+    TapSeq::apply(pTapPitch, params.tapPitch);
+
     PrHelper::applyOpnaBasic(pBasic, params.opna);
     PrHelper::applyQuality(pQuality, params.opna.quality);
     PrHelper::applyAlgFb(pAlgFb, params.opna.algFb);
