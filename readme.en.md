@@ -96,6 +96,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **Added CUT / COPY / PASTE / DUPLICATE / CLEAR to each parameter in curve editing (ADV)**
   - 2686V / OPNV / OPLV / OPMV / OPZX7S / PULSEV / WTV / PCMV, under each parameter's Logic / K
   - PASTE works on any parameter regardless of Position or Target. DUPLICATE copies to other parameters of the same Target, chosen in a checkbox dialog
+- **Easier knobs on the 256-step envelopes (SSG SW AMP / PITCH ENV[256], DUTY / PEAK RATIO ENVELOPE, TL ENV, ALG ENV)**
+  - RATE is shown as a decimal (0.001 steps)
+  - RATE buttons are now ±0.001 / ±0.01 / ±0.1 / ±1.0 plus 0.001 / 0.01 / 0.1 / 1.0 set directly (the minimum is 0.001, so "0.0" became "0.001")
+  - RR gets the same buttons as RATE, and LR the same as the value knob (not on ALG ENV's LR)
 
 ### 3-0-2. What v3.6.3 fixes and changes
 

@@ -96,6 +96,10 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 - **カーブ編集 (ADV) のパラメータごとに CUT / COPY / PASTE / DUPLICATE / CLEAR を追加**
   - 2686V / OPNV / OPLV / OPMV / OPZX7S / PULSEV / WTV / PCMV。各パラメータの Logic / K の下
   - PASTE は Position・Target を問わずどのパラメータへも貼れる。DUPLICATE は同じ Target のほかのパラメータへ写し、写し先はチェックボックスのダイアログで選ぶ
+- **256 段のエンベロープ (SSG SW AMP / PITCH ENV[256]・DUTY / PEAK RATIO ENVELOPE・TL ENV・ALG ENV) のつまみを使いやすく**
+  - RATE の値を小数 (0.001 刻み) で表示
+  - RATE のボタンを ±0.001 / ±0.01 / ±0.1 / ±1.0 と、0.001 / 0.01 / 0.1 / 1.0 を直に置くものにした (下限が 0.001 なので「0.0」は「0.001」に)
+  - RR に RATE と同じボタン、LR に値と同じボタンを追加 (ALG ENV の LR は除く)
 
 ### 3-0-2. v3.6.3での修正・変更
 

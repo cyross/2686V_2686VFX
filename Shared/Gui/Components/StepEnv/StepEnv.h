@@ -18,7 +18,6 @@
 #include "../SsgSwButtons/SsgSwButtons.h"
 #include "../PitchButtons/PitchButtons.h"
 #include "../ValueButtons/ValueButtons.h"
-#include "../NudgeButtons/NudgeButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../StepValues/StepValues.h"
 
@@ -163,7 +162,9 @@ private:
 
     GuiSlider rateTarget;
     GuiComponentNudgeSliderFloat rate;
-    GuiComponentNudgeButtons rateNudge;
+    // RATE を動かすボタン。±0.001〜±1.0 と、0.001 / 0.01 / 0.1 / 1.0 を直に置くもの。
+    // RATE の下限は 0.001 なので、「0」ではなく「0.001」を置く。
+    GuiComponentValueButtons rateNudge;
     GuiStepValues rateValues;
     NormalSeparator rateSeparator;
 
@@ -181,6 +182,10 @@ private:
     NormalSeparator releaseSeparator;
     GuiSlider releaseRate;
     GuiSlider releaseLevel;
+
+    // RR / LR を動かすボタン。RR は RATE と、LR は値 (LEVEL など) と同じ並び
+    GuiComponentValueButtons releaseRateBtns;
+    GuiComponentValueButtons releaseLevelBtns;
 
     NormalSeparator endLevelSeparator;
     GuiToggleButton endLevelEnable;
@@ -239,6 +244,11 @@ private:
 
     void setLevelRange();
     std::vector<GuiComponentValueButtons::Entry> valueButtonEntries() const;
+    static std::vector<GuiComponentValueButtons::Entry> rateButtonEntries();
+    std::vector<GuiComponentValueButtons::Entry> releaseLevelEntries() const;
+
+    // LR にボタンを置くか (ALG ENV は置かない)
+    bool hasReleaseLevelButtons() const { return spec.kind != Spec::Kind::Alg; }
     void readValues(const Io::ParamReader& r);
     void readSixStepValues(const Io::ParamReader& r);
     void setImportingSixStepParams(juce::StringArray& lines, int& index);

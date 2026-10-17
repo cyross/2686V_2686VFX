@@ -53,6 +53,8 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     releaseSeparator(context),
     releaseRate(context),
     releaseLevel(context),
+    releaseRateBtns(context),
+    releaseLevelBtns(context),
     endLevelSeparator(context),
     endLevelEnable(context),
     endLevel(context),
@@ -157,9 +159,10 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     // 値は表にあるので、つまみはパラメータへ繋がない
     rate.setupComponent(parent, "", "RATE", tabOrder, std::nullopt, labelFont, false);
     rate.getSlider().setRange(spec.rateMin, spec.rateMax, spec.rateInterval);
+    rate.getSlider().setNumDecimalPlacesToDisplay(3);
     rate.getSlider().onValueChange = [this] { onRateChanged(); };
 
-    rateNudge.setupComponent(parent, rate.getSlider(), tabOrder);
+    rateNudge.setupComponent(parent, rate.getSlider(), tabOrder, rateButtonEntries(), labelFont, 4);
 
     parent.addAndMakeVisible(rateValues);
 
@@ -195,6 +198,10 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     releaseLevel.setWantsKeyboardFocus(true);
     releaseLevel.setExplicitFocusOrder(++tabOrder);
     releaseLevel.onValueChange = [this] { changed(); };
+
+    releaseRateBtns.setupComponent(parent, releaseRate, tabOrder, rateButtonEntries(), labelFont, 4);
+
+    if (hasReleaseLevelButtons()) releaseLevelBtns.setupComponent(parent, releaseLevel, tabOrder, releaseLevelEntries(), labelFont);
 
     endLevelSeparator.setupComponent(parent);
 
@@ -275,6 +282,27 @@ std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::valueButtonEnt
 
     return { { "-8", true, -8.0 }, { "-1", true, -1.0 }, { "0", false, 0.0 }, { "+1", true, 1.0 }, { "+8", true, 8.0 },
              { maxLabel, false, spec.levelMax } };
+}
+
+// RATE / RR のボタン。上の 2 行は足し引き、下の行は直に置く値
+std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::rateButtonEntries()
+{
+    return { { "-1.0", true, -1.0 }, { "-0.1", true, -0.1 }, { "-0.01", true, -0.01 }, { "-0.001", true, -0.001 },
+             { "+0.001", true, 0.001 }, { "+0.01", true, 0.01 }, { "+0.1", true, 0.1 }, { "+1.0", true, 1.0 },
+             { "0.001", false, 0.001 }, { "0.01", false, 0.01 }, { "0.1", false, 0.1 }, { "1.0", false, 1.0 } };
+}
+
+// LR のボタン。値のつまみ (LEVEL / CENT / DUTY / PEAK / TL) と同じ刻み
+std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::releaseLevelEntries() const
+{
+    if (isPitch()) {
+        return { { "-1200", true, -1200.0 }, { "-100", true, -100.0 }, { "0", false, 0.0 }, { "+100", true, 100.0 }, { "+1200", true, 1200.0 } };
+    }
+
+    if (usesValueButtons()) return valueButtonEntries();
+
+    // 0〜1 の値 (AMP / PEAK)
+    return { { "-0.01", true, -0.01 }, { "-0.1", true, -0.1 }, { "0.0", false, 0.0 }, { "1.0", false, 1.0 }, { "+0.1", true, 0.1 }, { "+0.01", true, 0.01 } };
 }
 
 // ---------------------------------------------------------------- 段の数
@@ -463,6 +491,8 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     releaseSeparator.setVisible(visible);
     releaseRate.setVisibleWithLabel(visible);
     releaseLevel.setVisibleWithLabel(visible);
+    releaseRateBtns.setVisibles(visible && rate.isVisibleNudge());
+    releaseLevelBtns.setVisibles(visible && hasReleaseLevelButtons() && level.isVisibleNudge());
     endLevelSeparator.setVisible(visible);
     endLevelEnable.setVisible(visible);
     endLevel.setVisibleWithLabel(visible);
@@ -506,7 +536,9 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
 
     releaseSeparator.layoutComponent(rect);
     layoutMain({ .mainRect = rect, .label = &releaseRate.label, .component = &releaseRate, .rowHeight = h });
+    if (rate.isVisibleNudge()) releaseRateBtns.layoutComponent(rect, h);
     layoutMain({ .mainRect = rect, .label = &releaseLevel.label, .component = &releaseLevel, .rowHeight = h });
+    if (hasReleaseLevelButtons() && level.isVisibleNudge()) releaseLevelBtns.layoutComponent(rect, h);
 
     endLevelSeparator.layoutComponent(rect);
     layoutMain({ .mainRect = rect, .component = &endLevelEnable, .rowHeight = h });
@@ -595,6 +627,8 @@ void GuiComponentStepEnv::applyActive()
     releaseSeparator.setEnabled(active);
     releaseRate.setEnabledWithLabel(active);
     releaseLevel.setEnabledWithLabel(active);
+    releaseRateBtns.setEnables(active);
+    releaseLevelBtns.setEnables(active);
 
     endLevelSeparator.setEnabled(active);
     endLevelEnable.setEnabled(outerEnabled);
