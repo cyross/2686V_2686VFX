@@ -84,6 +84,18 @@ Where the stretches divide, and how hard they bend, are set by values on screen.
 
 X is the time direction, Y the value direction. Picking a spline adds control points.
 
+## Edit buttons per parameter
+
+Under each parameter's Logic / K there are **CUT, COPY, PASTE, DUPLICATE and CLEAR** buttons (from 4.0.0).
+
+| Button | What it does |
+| --- | --- |
+| **CUT** | Copies the parameter's curve (Logic, K and waypoints), then resets it |
+| **COPY** | Copies the parameter's curve |
+| **PASTE** | Pastes the copied curve. It can go to a parameter of any Position or Target |
+| **DUPLICATE** | Copies to other parameters of the same Position and Target, picked in a checkbox dialog |
+| **CLEAR** | Resets to the initial state (linear) |
+
 ## Where to use it
 
 :::tip[Making a note feel like it rings on]

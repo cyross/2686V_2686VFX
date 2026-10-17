@@ -144,3 +144,9 @@ Channel graphs and the large TARGET view of operators / pads can now be stretche
 sideways. Change the zoom with the knob or buttons (x1–x32) below, or the mouse wheel over the graph,
 and move along by dragging with the right button or with the scroll bar. Long envelopes such as
 SSG SW ENV[256] with many steps can now be read in detail.
+
+## Edit buttons for curve editing
+
+ADV curve editing now has **CUT, COPY, PASTE, DUPLICATE and CLEAR** per parameter. PASTE works
+across Positions and Targets, and DUPLICATE copies to several other parameters of the same Target at
+once. See [ADV](/2686V_2686VFX/en/chips/adv/) for details.
