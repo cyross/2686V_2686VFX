@@ -84,6 +84,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - INCREMENT / DECREMENT / RESET で次に使う段を動かす。オートメーションでも押せる (0.5 を下から越えたときに 1 回)
   - 2686VFX にも AMP SEQUENCER / PITCH SEQUENCER を追加。キー入力・キーアサインのカスタマイズに対応 (AMP は押している間だけ段の割合で鳴らし離すと鳴らさない、PITCH は押している間だけずらし離すと元の高さ)
   - プリセット・チャンネルパラメータ (`tapAmp` / `tapPitch`) に保存。区分のパラメータファイルは `.tapAmp` / `.tapPitch`
+  - 簡易表示モードで隠す対象。SETTINGS の簡易表示モードカスタマイズの「TAP SEQUENCER」を入れると出したままにできる (2686VFX の AMP / PITCH SEQUENCER の枠も同じ)。[非表示中の区分をバイパス] でも切れる
 - **段の値の一覧を 1 行 4 個に**
   - SSG SW AMP / PITCH ENV[256]・DUTY / PEAK RATIO ENVELOPE・TL ENV・ALG ENV・TAP SEQUENCER の値の一覧。「見出し: 値」を「 / 」で区切って並べる
 - **オペレーター / パッドのグラフを「左に大きな TARGET の絵、右に小さな全部の絵」に**

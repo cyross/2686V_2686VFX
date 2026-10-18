@@ -33,6 +33,7 @@ namespace SimpleView
 		MulDet,
 		Fix,
 		Unison,
+		TapSeq,
 
 		Size
 	};
@@ -62,6 +63,8 @@ namespace SimpleView
 			{ "MUL/DET",              "simpleViewShowMulDet" },
 			{ "FIX",                  "simpleViewShowFix" },
 			{ "UNISON/HARMONY",       "simpleViewShowUnison" },
+			// TAP AMP / PITCH SEQUENCER をまとめて 1 つ (4.0.0 から)
+			{ "TAP SEQUENCER",        "simpleViewShowTapSeq" },
 		} };
 
 		return list;

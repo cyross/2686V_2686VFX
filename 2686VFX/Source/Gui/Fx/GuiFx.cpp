@@ -1070,8 +1070,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
         if (pluginOf(ctx).isSimpleShown(cat)) ++modColumns;
     }
 
-    // AMP / PITCH SEQUENCER の 2 列は簡易表示の対象でなく、いつも出す
-    modColumns += 2;
+    // AMP / PITCH SEQUENCER の 2 列は、まとめて TAP SEQUENCER として隠す
+    if (pluginOf(ctx).isSimpleShown(SimpleView::TapSeq)) modColumns += 2;
 
     int columns = FxGuiValue::Fx::EffectCols + modColumns;
 
@@ -1132,12 +1132,12 @@ void GuiFx::layout(juce::Rectangle<int> content)
         layoutModColumn(modArea, modSsgHwEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwAmpEnv);
         layoutModColumn(modArea, modWtAmpModGroup, [&](juce::Rectangle<int>& rect) { wtAmpModComponent.layoutComponent(rect); }, SimpleView::WtAmpMod);
         layoutModColumn(modArea, modSsgSwEnv256Group, [&](juce::Rectangle<int>& rect) { ssgSwEnv256Component.layoutComponent(rect); }, SimpleView::SsgSwAmpEnv256);
-        layoutModColumn(modArea, modTapAmpGroup, [&](juce::Rectangle<int>& rect) { tapAmpSeq.layoutComponent(rect); }, SimpleView::Size);
+        layoutModColumn(modArea, modTapAmpGroup, [&](juce::Rectangle<int>& rect) { tapAmpSeq.layoutComponent(rect); }, SimpleView::TapSeq);
 
         layoutModColumn(modArea, modPitchEnvGroup, [&](juce::Rectangle<int>& rect) { pitchEnvComponent.layoutComponent(rect); }, SimpleView::PitchEnv);
         layoutModColumn(modArea, modSsgHwPEnvGroup, [&](juce::Rectangle<int>& rect) { ssgHwPEnvComponent.layoutComponent(rect); }, SimpleView::SsgHwPitchEnv);
         layoutModColumn(modArea, modSsgSwPEnv256Group, [&](juce::Rectangle<int>& rect) { ssgSwPEnv256Component.layoutComponent(rect); }, SimpleView::SsgSwPitchEnv256);
-        layoutModColumn(modArea, modTapPitchGroup, [&](juce::Rectangle<int>& rect) { tapPitchSeq.layoutComponent(rect); }, SimpleView::Size);
+        layoutModColumn(modArea, modTapPitchGroup, [&](juce::Rectangle<int>& rect) { tapPitchSeq.layoutComponent(rect); }, SimpleView::TapSeq);
         layoutModColumn(modArea, modWtModGroup, [&](juce::Rectangle<int>& rect)
         {
             wtModComponent.layoutComponent(rect);
@@ -2174,6 +2174,11 @@ void GuiFx::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Unison)) unisonComponent.setCategoryBypassed(true);
+
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapSeq)) {
+        tapAmpSeq.setCategoryBypassed(true);
+        tapPitchSeq.setCategoryBypassed(true);
+    }
 }
 
 void GuiFx::openEnabledCategories()

@@ -84,6 +84,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - INCREMENT / DECREMENT / RESET move the next step. They can also be pressed by automation (once when rising past 0.5)
   - 2686VFX gains AMP SEQUENCER / PITCH SEQUENCER too, with key input and key-assign customisation (AMP plays at the step's ratio only while held and is silent when released; PITCH shifts only while held and returns when released)
   - Saved in presets and channel parameters (`tapAmp` / `tapPitch`). The section parameter files are `.tapAmp` / `.tapPitch`
+  - Hidden in simple view mode. Tick "TAP SEQUENCER" in SETTINGS' simple view customisation to keep it shown (this also covers 2686VFX's AMP / PITCH SEQUENCER panels). [Bypass hidden sections] switches it off as well
 - **Step value lists show four per row**
   - The value lists of SSG SW AMP / PITCH ENV[256], DUTY / PEAK RATIO ENVELOPE, TL ENV, ALG ENV and TAP SEQUENCER, as "label: value" separated by " / "
 - **Operator / pad graphs: a large TARGET view on the left, small views of all on the right**

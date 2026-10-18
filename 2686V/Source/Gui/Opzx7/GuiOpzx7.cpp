@@ -1523,11 +1523,11 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     pitchMajorCat.endMajor(mRect);
 
     // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
-    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, true);
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
 
-    tapAmpSeq.setCategoryVisible(tapOpen);
+    tapAmpSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapAmpSeq.layoutComponent(mRect);
-    tapPitchSeq.setCategoryVisible(tapOpen);
+    tapPitchSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapPitchSeq.layoutComponent(mRect);
 
     tapMajorCat.endMajor(mRect);
@@ -4256,6 +4256,10 @@ void GuiOpzx7::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnvOp.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256)) ssgSwPEnv256.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::WtPitchMod)) wtModOp.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapSeq)) {
+        tapAmpSeq.setCategoryBypassed(true);
+        tapPitchSeq.setCategoryBypassed(true);
+    }
 }
 
 void GuiOpzx7::openEnabledCategories()
