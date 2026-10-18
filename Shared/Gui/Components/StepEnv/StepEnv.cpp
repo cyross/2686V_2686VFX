@@ -308,10 +308,12 @@ std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::releaseLevelEn
 // ---------------------------------------------------------------- 段の数
 // 対象のつまみの範囲と帯を、段の数に合わせる。帯の行数が変わったときは
 // 区分の高さが変わるので、並べ直してもらう。
+// 行数は、最後に並べたときのもの (laidOutRows) と比べる。STEPS を動かすと
+// ここより先に applyLoopValues が帯を作り直すので、ここで測った行数は
+// もう新しい段数のものになっていて、比べても変わったと分からなかった。
 void GuiComponentStepEnv::applyStepCount()
 {
     const int n = stepCount();
-    const int rowsBefore = rateValues.getRowCount() + levelValues.getRowCount();
 
     // 範囲は幅を持たせる必要があるので、1 段のときも 1〜2 にして先で丸める
     rateTarget.setRange(1.0, (double)juce::jmax(2, n), 1.0);
@@ -325,9 +327,8 @@ void GuiComponentStepEnv::applyStepCount()
 
     markSeen();
 
-    const int rowsAfter = rateValues.getRowCount() + levelValues.getRowCount();
-
-    if (rowsBefore != rowsAfter && rowsBefore > 0) ctx.editor.resized();
+    // まだ一度も並べていない (組み立ての途中) ときは、後で並べられるので呼ばない
+    if (laidOutRows > 0 && laidOutRows != stripRowCount()) ctx.editor.resized();
 }
 
 void GuiComponentStepEnv::applyLoopValues(bool enabled)
@@ -463,6 +464,8 @@ void GuiComponentStepEnv::refreshStepValues()
 void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });
+
+    laidOutRows = stripRowCount();
 
     const bool visible = cat.isDetailVisible();
 
