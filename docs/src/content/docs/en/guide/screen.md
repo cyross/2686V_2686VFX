@@ -196,6 +196,7 @@ there is kept on screen even while simple view is on.
 | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
 | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 | LFO / MUL・DET / FIX / UNISON・HARMONY |
+| TAP SEQUENCER (TAP AMP / TAP PITCH SEQUENCER) |
 
 The setting is saved to the settings file along with everything else.
 

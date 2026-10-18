@@ -133,6 +133,8 @@ ALG 版で、ALGORITHM/FEEDBACK の FEEDBACK の下にあります。発音の�
 あわせて、段の値の一覧を 1 行 4 個にし、「見出し: 値」を「 / 」で区切るようにしました。
 
 **Enable** で入れます。初期状態は切で、既存のパッチの鳴りは変わりません。
+簡易表示モードでは隠れます。出したままにしたいときは、SETTINGS の簡易表示モードカスタマイズで
+**TAP SEQUENCER** を入れてください (2686VFX の AMP / PITCH SEQUENCER の枠も同じです)。
 くわしくは [TAP SEQUENCER](/2686V_2686VFX/chips/common/#tap-sequencer) を参照してください。
 
 ## オペレーター / パッドのグラフを大きくしました

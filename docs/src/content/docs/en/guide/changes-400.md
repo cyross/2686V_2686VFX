@@ -129,6 +129,8 @@ section below [[PITCH ENV]]. 2686VFX has AMP / PITCH SEQUENCER too, with the key
 Along with this, step value lists now show four per row, as "label: value" separated by " / ".
 
 Switch them on with **Enable**. They start off, so existing patches sound the same.
+They are hidden in simple view mode; tick **TAP SEQUENCER** in SETTINGS' simple view customisation to
+keep them shown (2686VFX's AMP / PITCH SEQUENCER panels follow the same setting).
 See [TAP SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-sequencer) for details.
 
 ## Larger operator / pad graphs
