@@ -128,7 +128,7 @@ FIX の音名と同じく、60 が C3 です。
 </figure>
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_amp_env_11.png" alt="SSG SW AMP ENV[256]" style="width:400px;" />
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_amp_env_256.png" alt="SSG SW AMP ENV[256]" style="width:400px;" />
 	<figcaption>SSG SW AMP ENV[256]</figcaption>
 </figure>
 
@@ -172,7 +172,7 @@ PM をそれぞれ割り当てた鍵盤を押している間だけ掛かりま�
 [WT PITCH MOD](/2686V_2686VFX/chips/common/#wt-pitch-mod) の枠もあります。
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_pitch_env_11.png" alt="SSG SW PITCH ENV[256]" style="width:400px;" />
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_pitch_env_256.png" alt="SSG SW PITCH ENV[256]" style="width:400px;" />
 	<figcaption>SSG SW PITCH ENV[256]</figcaption>
 </figure>
 
