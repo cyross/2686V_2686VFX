@@ -157,9 +157,10 @@ once. See [ADV](/2686V_2686VFX/en/chips/adv/) for details.
 The top row of operator / pad tabs (TARGET, name and graph selector) now has a dark board behind it,
 so it stays readable over bright wallpapers. Change its colours with `TargetRow.Bg` / `TargetRow.Border` in COLORS.
 
-## Re-saving a preset with missing parameters no longer zeroes them
+## Missing parameters go back to their defaults when a preset loads
 
-After loading a preset or DAW state that lacks some parameters (such as one written by an older
-version), saving wrote the missing ones with empty values, and loading that file set them to 0
-(STEPS dropping from 10 to 1, for example). Saving now fills them with their current values.
-Files already saved this way still load those parameters as 0, so correct the values and save again.
+Loading a preset or DAW state that lacks some parameters (such as one written by an older version)
+left the missing ones at the values of the previously loaded preset. Saving after that wrote them with
+empty values, and loading that file set them to 0 (STEPS dropping from 10 to 1, for example).
+Loading now sets parameters that are missing or have empty values to their defaults, so files already
+saved with empty values load those parameters at their defaults too.

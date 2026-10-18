@@ -1,10 +1,12 @@
 ﻿// ============================================================================
-// 項目の欠けた状態を読んで保存し、読み直す
+// 項目の欠けた状態を読む
 // ============================================================================
 // 古い版のプリセットや、項目を絞って配るプリセットは、すべてのパラメータを
-// 持っていない。それを読むと JUCE は欠けたパラメータへ値の無い子を作り、
-// 保存でそのまま値の空な項目として書かれていた。読み直すと 0 として入り、
-// STEPS が 10 から 1 になるなど、初期値から外れていた。
+// 持っていない。これまでは
+//   ・書かれていないパラメータが、前に読んだプリセットの値のまま残る
+//   ・保存すると値の空な項目として書かれ、読み直すと 0 になる
+//     (STEPS が 10 から 1 になるなど)
+// だった。読むときに、書かれていないものを初期値へ戻す。
 #include "doctest/doctest.h"
 
 #include <JuceHeader.h>
@@ -123,4 +125,51 @@ TEST_CASE("PresetState: a state missing params saves them and reloads at their d
 
 		checkDefaults(missing);
 	}
+}
+
+TEST_CASE("PresetState: params missing from a loaded state return to their defaults")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	auto missing = pickParams(*processor, 32);
+
+	REQUIRE(!missing.empty());
+
+	// 前のプリセットの値が残っていないことを見るため、先にずらしておく
+	moveToZero(missing);
+
+	loadStateWithout(*processor, missing);
+
+	checkDefaults(missing);
+}
+
+TEST_CASE("PresetState: empty values written by the old save bug load as defaults")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	auto broken = pickParams(*processor, 32);
+
+	REQUIRE(!broken.empty());
+
+	auto xml = processor->apvts.copyState().createXml();
+
+	REQUIRE(xml != nullptr);
+
+	for (auto* param : broken)
+	{
+		auto* child = xml->getChildByAttribute("id", param->paramID);
+
+		REQUIRE_MESSAGE(child != nullptr, param->paramID.toStdString());
+
+		child->setAttribute("value", juce::String());
+	}
+
+	moveToZero(broken);
+
+	juce::MemoryBlock block;
+	juce::AudioProcessor::copyXmlToBinary(*xml, block);
+
+	processor->setStateInformation(block.getData(), (int)block.getSize());
+
+	checkDefaults(broken);
 }
