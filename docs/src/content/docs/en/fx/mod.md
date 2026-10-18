@@ -48,10 +48,20 @@ Found in the Effects frame, above the file import/export buttons. It decides
 - **Customize**: each target only responds to its own key. Choosing it shows the
   list of keys below.
 
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_single_key_assign.png" alt="Single key assign" style="width:400px;" />
+	<figcaption>Single key assign</figcaption>
+</figure>
+
 ### A key per target
 
 Shown only in Customize mode. Keys range from C-2 (0) to G8 (127); as with FIX's
 note names, 60 is C3.
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_key_assign.png" alt="Customized key assign" style="width:400px;" />
+	<figcaption>Customized key assign</figcaption>
+</figure>
 
 | Knob | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
@@ -128,8 +138,13 @@ the instruments.
 </figure>
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_amp_env_11.png" alt="SSG SW AMP ENV[256]" style="width:400px;" />
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_amp_env_256.png" alt="SSG SW AMP ENV[256]" style="width:400px;" />
 	<figcaption>SSG SW AMP ENV[256]</figcaption>
+</figure>
+
+<figure class="shot">
+	<img src="/2686V_2686VFX/ui/fx/fx_wt_amp_mod.png" alt="WT AMP MOD" style="width:400px;" />
+	<figcaption>WT AMP MOD</figcaption>
 </figure>
 
 ### AMP SEQUENCER
@@ -206,7 +221,7 @@ Under the same "bypass pitch modulation" switch there are also
 [WT PITCH MOD](/2686V_2686VFX/en/chips/common/#wt-pitch-mod).
 
 <figure class="shot">
-	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_pitch_env_11.png" alt="SSG SW PITCH ENV[256]" style="width:400px;" />
+	<img src="/2686V_2686VFX/ui/fx/fx_ssg_sw_pitch_env_256.png" alt="SSG SW PITCH ENV[256]" style="width:400px;" />
 	<figcaption>SSG SW PITCH ENV[256]</figcaption>
 </figure>
 
