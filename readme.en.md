@@ -29,7 +29,13 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0-1. What v4.0.0 adds and changes
+### 3-0-1. What v4.0.1 fixes and changes
+
+- **Fixed: in SSG SW AMP / PITCH ENV, changing STEPS did not resize the value display right away**
+  - When the number of rows in the per-step value display (R1... / STL, L1...) changed, the section was not laid out again, so its height stayed the same until the section was folded and unfolded
+  - The height now follows STEPS as soon as it changes. The same goes for sections built the same way, such as DUTY RATIO ENV. All plugins
+
+### 3-0-2. What v4.0.0 adds and changes
 
 - **The ALGORITHM/FEEDBACK section can now be folded**
   - In the global part of OPNA / OPN / OPL / OPL3 / OPM / OPZX7 (including OPZX7S). It starts open
@@ -110,7 +116,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Saving after that wrote the missing ones with empty values, and loading that file set them to 0 (STEPS 10 → 1, DUTY RATIO ENVELOPE STL 50 → 0, OPZX7S ALG 15 → 0, SSG LEVEL 1 → 0 and so on)
   - Loading now sets parameters that are missing or have empty values to their defaults, so files already saved with empty values also load those parameters at their defaults. All plugins
 
-### 3-0-2. What v3.6.3 fixes and changes
+### 3-0-3. What v3.6.3 fixes and changes
 
 - **2686VFX: stopping playback no longer lets out a short blip**
   - With DELAY / REVERB / SFC ECHO or modulation in use, a burst of sound came out when you stopped
@@ -183,7 +189,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Both bases are tried when reading, so files written either way still load
   - WT, WT2 and WT+ channel parameter files now record their wave files too
 
-### 3-0-3. What v3.6.2 fixes and changes
+### 3-0-4. What v3.6.2 fixes and changes
 
 - **Fixed polyphonic mode getting heavy with fast short notes**
   - Polyphonic mode could stack up to 80 notes, far beyond the 10-note polyphony
@@ -214,7 +220,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - It was checked only inside the effects, so the headroom and the output modulation stayed on
   - It now skips the modulation, the effects and LEVEL, and passes the input straight through
 
-### 3-0-4. What v3.6.1 fixes and changes
+### 3-0-5. What v3.6.1 fixes and changes
 
 - **Fixed loaded waveforms sometimes missing after reopening a project**
   - Found with WT+; it happened in every DAW and in the standalone
@@ -248,7 +254,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - A seek bar (one cycle per frame; the mouse wheel steps one frame; right-click to type a frame number, with the total shown beside it)
     - Vertical zoom (x1 to x8; stretches the waveform, not the view)
 
-### 3-0-5. What v3.6.0 adds and changes
+### 3-0-6. What v3.6.0 adds and changes
 
 - **2686VFX: assign which key drives each modulation**
   - Added "Key assign" to the Effects frame, above the file import/export buttons.
@@ -343,7 +349,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - The tabs (the chip screens, SETTINGS, PRESET and so on) stay per plugin as before.
     - Sound, parameters and saved files are unchanged; the parameters of all twelve were compared before and after.
 
-### 3-0-6. What v3.5.0 adds and changes
+### 3-0-7. What v3.5.0 adds and changes
 
 - **Support for on-the-fly display language selection**
   - Added a "Language (LANGUAGE)" dropdown setting to the top of the **SETTINGS** tab.
@@ -357,7 +363,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Slightly expanded the width of the "Format" label on the **PRESET** tab to accommodate the English word.
   - Removed the parenthesized "(Oscilloscope)" from the wave preview heading in the English layout to ensure the "Waveform preview" text fits within the frame.
 
-### 3-0-7. What v3.4.0 adds and changes
+### 3-0-8. What v3.4.0 adds and changes
 
 - **Passing sounds between the FM chips and OPZX7S**
   - **[EX]OPZX7S Params** added to UTILITY on OPNA / OPN / OPL / OPL3 / OPM
@@ -388,7 +394,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The OPL3 tab did not show its left panel (LEVEL through UTILITY).
   - Opening the save browser after loading a file left out the name field and the save button.
 
-### 3-0-8. What v3.3.0 adds and changes
+### 3-0-9. What v3.3.0 adds and changes
 
 - **The ADPCM+ channel**
   - Loads up to 32 audio files and switches between them while you play.
@@ -460,7 +466,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **More bundled wallpapers**
   - Five wallpaper images have been added alongside the existing one.
 
-### 3-0-9. What v3.2.0 adds and changes
+### 3-0-10. What v3.2.0 adds and changes
 
 - **Control steps are now 0.0001**
   - Floating-point controls moved in steps of 0.01 (the framework default).
@@ -524,7 +530,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **A great many more bundled presets and parameter files**
   - A `fromCC2` folder has been added.
 
-### 3-0-10. What v3.1.0 adds and changes
+### 3-0-11. What v3.1.0 adds and changes
 
 - New modulation
   - **SSG HW PITCH ENV**
