@@ -131,7 +131,8 @@ namespace TapSeq
 		};
 
 		const int steps = params.steps;
-		int cursor = std::clamp(p.table->cursor.load(std::memory_order_relaxed), 0, steps - 1);
+		int stored = p.table->cursor.load(std::memory_order_relaxed);
+		int cursor = std::clamp(stored, 0, steps - 1);
 
 		// INCREMENT は押したときと同じくループに沿って進む。DECREMENT は 1 段ずつ戻る
 		if (rose(p.inc, p.lastInc)) cursor = tapSeqNext(params, cursor);
@@ -142,6 +143,8 @@ namespace TapSeq
 			return;
 		}
 
-		p.table->cursor.store(cursor, std::memory_order_relaxed);
+		// 波形プレビューの組み立てで、画面のスレッドからも呼ばれる。変わったときだけ、
+		// それも読んだあとに鍵で進んでいなければ書く (進めた段を古い値で潰さない)
+		if (cursor != stored) p.table->cursor.compare_exchange_strong(stored, cursor, std::memory_order_relaxed);
 	}
 }

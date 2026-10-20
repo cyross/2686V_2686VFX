@@ -148,9 +148,11 @@ void StepEnv::advance()
 		return;
 	}
 
-	// 最後の段を走り終えて保っているところ。値を動かしたときに追うよう、毎回取り直す。
+	// 最後の段を走り終えて保っているところ (サステイン)。値を動かしたときに追うよう、
+	// 毎回取り直す。KEEP のときも、ここからは最後の段の値を出す。
 	if (holding) {
 		current = levelOf(step);
+		keepLevel = current;
 		return;
 	}
 
@@ -185,7 +187,7 @@ void StepEnv::advance()
 		const int nextStep = table != nullptr ? StepLoop::next(table->loopView(), table->loopCount(), steps, richState, step) : step + 1;
 
 		if (nextStep > steps) {
-			holding = true;
+			hold();
 			return;
 		}
 
@@ -195,13 +197,19 @@ void StepEnv::advance()
 		beginStep(step + 1);
 	}
 	else {
-		// 最後の段を保つ。段は変わらないので KEEP の値も取り直さない
-		// ([11] と同じ。KEEP のあいだ、最後の段の値はリリースの後に出る)。
-		holding = true;
+		hold();
 		return;
 	}
 
 	// 段が変わったので、KEEP で保つ値を取り直す
+	keepLevel = current;
+}
+
+// 最後の段を走り終えた。離すまで最後の段の値を保つ (サステイン)。
+// KEEP のときも最後の段の値へ移る。離すと、この値から RR 秒で LR へ向かう。
+void StepEnv::hold()
+{
+	holding = true;
 	keepLevel = current;
 }
 

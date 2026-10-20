@@ -15,7 +15,7 @@
 //
 //   押す        : STL から始め、R1 秒で L1、R2 秒で L2 … と進む
 //   STEPS 段目  : LOOP が入っていれば L.TO の段へ戻る (CNT 回。0 は無限)。
-//                 入っていなければ、離すまで L(STEPS) を保つ
+//                 入っていなければ、離すまで L(STEPS) を保つ (サステイン。KEEP でも同じ)
 //   Rich Mode   : LOOP MODE が Rich なら、L.TO / CNT の代わりに表のループの組
 //                 (START・END・COUNT) で戻る (StepLoop.h)。END の段を終えたら
 //                 START の段へ、L(END) から L(START) へ R(START) 秒かけて進む
@@ -135,6 +135,7 @@ private:
 
 	void beginStep(int s);
 	void advance();
+	void hold();
 	float levelOf(int index) const { return l[(size_t)std::clamp(index, 0, maxSteps)]; }
 	float curve(int param, float x) const;
 	bool useCurve() const { return curveCore != nullptr && curveTarget >= 0; }

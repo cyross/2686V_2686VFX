@@ -83,6 +83,15 @@ public:
     // ユニゾンの各ボイスを arpFreq[Hz] のスロットで順番に鳴らす。
     // ボイスは全て voiceUnison() の同一ループで発音されるため、
     // ここで位相をリセットしておけば各ボイスのスロットが自動的に揃う。
+    // 次に鳴らす音の TAP AMP / PITCH SEQUENCER の値。段はシンセ (RetroSynthesiser) が
+    // 打鍵ごとに 1 回だけ取り出し、ユニゾンの声すべてへ同じ値を配る。ボイスごとに
+    // 取り出すと、ユニゾンの声の数だけ段が進んでしまう。
+    void setTapValues(float gain, float cents)
+    {
+        m_tapGain = gain;
+        m_tapCents = cents;
+    }
+
     void setArpParams(bool enable, int freq, bool smooth)
     {
         m_arpEnable = enable;
@@ -101,11 +110,10 @@ private:
 
     OscMode m_mode = OscMode::WAVETABLE;
 
-    // TAP AMP / PITCH SEQUENCER。押したときに段の値を取り出す。
+    // TAP AMP / PITCH SEQUENCER の、打鍵 1 回ぶんの値 (割合とセント)。
     // 音量は鳴らしているあいだ出力へ掛け、音程は押したときの周波数へ掛ける。
-    TapSeqParams m_tapAmp;
-    TapSeqParams m_tapPitch;
     float m_tapGain = 1.0f;
+    float m_tapCents = 0.0f;
 
     // 出力へ倍率を掛けるときの、描く前の値の控え
     std::vector<float> m_tapKeepL;

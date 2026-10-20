@@ -51,3 +51,26 @@ advances on each key press can go back.
   file (`loop` / `loops`)
 
 See [TAP SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-sequencer) for details.
+
+## Fixes
+
+### With KEEP on, the last step's value was never heard
+
+In SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] and the sections built the same way (TL ENV, ALG ENV,
+DUTY RATIO ENV, PEAK RATIO ENV), finishing the last step with KEEP on left the value of the step
+before it. L(STEP) was never heard, and the release started from that value too (TL ENV and ALG ENV
+are always KEEP, so they always behaved this way).
+
+Once the last step is reached, L(STEP) is now held until release (sustain). With STEPS = 4 it stays
+at L4 after reaching it, and on release goes from L4 to LR over RR seconds.
+
+### The TAP SEQUENCER step did not advance, or did not match the screen
+
+Since 4.0.0, two things went wrong:
+
+- In **mono** mode, while a note was still sounding (legato, or pressing again right after release), the step did not advance
+- With **unison**, the step advanced once per voice, and each voice played a different step's value. It also disagreed with the "next step" on screen
+
+It now advances by exactly one step per key press and gives every unison voice the same value.
+Releasing a key in mono mode and going back to a key still held does not advance it.
+2686VFX's AMP SEQUENCER / PITCH SEQUENCER already worked correctly.
