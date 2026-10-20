@@ -68,7 +68,7 @@ at the step after the one that sounded, so it looked out of step with what was p
 
 ### SKIP
 
-**SKIP** now sits under RATIO (CENT). Pressing it makes the S.TARGET step a SKIP step, which changes nothing
+A **SKIP** row now sits under RATIO (CENT). Pressing its OFF / ON button makes the S.TARGET step a SKIP step (ON; the button turns red), which changes nothing
 (level x1, pitch 0 cents). The step itself still advances.
 
 - A SKIP step's bar is full-width red, orange while S.TARGET points at it, and the list shows "SKIP"

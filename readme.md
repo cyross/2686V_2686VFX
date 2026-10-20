@@ -64,7 +64,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - INCREMENT / DECREMENT は、いまの段を動かす。開始前からは、INCREMENT は 1 段目、DECREMENT は最後の段へ
   - 全チャンネルと 2686VFX (AMP SEQUENCER / PITCH SEQUENCER)。全プラグイン
 - **TAP AMP / PITCH SEQUENCER に SKIP を追加**
-  - RATIO (CENT) の下に **SKIP** を置いた。押すと S.TARGET の段が SKIP になり、その段では何も変えない (音量 1 倍・音程 0 セント)。段は進む
+  - RATIO (CENT) の下に **SKIP** の行を置いた。右の OFF / ON のボタンを押すと S.TARGET の段が SKIP になり (ON、ボタンが赤くなる)、その段では何も変えない (音量 1 倍・音程 0 セント)。段は進む
   - SKIP の段は、棒が左から右までいっぱいの赤 (S.TARGET が指しているときは橙) になり、一覧には「SKIP」と出る。もう一度押すと外れる
   - SKIP のまま RATIO (CENT) を動かすと SKIP は外れ、棒は元の色に戻る
   - 段の表と一緒にプリセット・DAW の状態・チャンネルパラメータ・区分のパラメータファイルへ保存 (`skips`)。初期値は無しで、これまでの鳴りは変わらない

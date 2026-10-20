@@ -83,6 +83,7 @@ GuiComponentTapSeq::GuiComponentTapSeq(const GuiContext& context, Kind k) :
     loopSeparator(context),
     target(context),
     value(context),
+    skipLabel(context),
     skip(context),
     ampBtns(context),
     pitchBtns(context),
@@ -147,8 +148,9 @@ void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::Str
     value.getSlider().setNumDecimalPlacesToDisplay(spec.integer ? 0 : 3);
     value.getSlider().onValueChange = [this] { onValueChanged(); };
 
-    // S.TARGET の段を補正しない段にする。立っているあいだはボタンも赤くする
-    skip.setup({ .parent = parent, .title = "SKIP", .isReset = false });
+    // S.TARGET の段を補正しない段にする。立っているあいだはボタンを赤くして ON と出す
+    skipLabel.setup({ .parent = parent, .title = "SKIP", .bgColor = GuiColor::Label::RowBg });
+    skip.setup({ .parent = parent, .title = "OFF", .isReset = false });
     skip.setColour(juce::TextButton::buttonOnColourId, GuiColor::StepValues::Skip.get());
     skip.setWantsKeyboardFocus(true);
     skip.setExplicitFocusOrder(++tabOrder);
@@ -227,7 +229,7 @@ void GuiComponentTapSeq::rebindValue()
         const juce::ScopedValueSetter<bool> loading(isLoadingValue, true);
 
         value.getSlider().setValue(t->level(idx), juce::dontSendNotification);
-        skip.setToggleState(t->skipped(idx), juce::dontSendNotification);
+        showSkip(t->skipped(idx));
     }
 
     refresh();
@@ -245,7 +247,7 @@ void GuiComponentTapSeq::onValueChanged()
 
         if (t->skipped(idx)) t->setSkip(idx, false);
 
-        skip.setToggleState(false, juce::dontSendNotification);
+        showSkip(false);
     }
 
     refresh();
@@ -260,9 +262,15 @@ void GuiComponentTapSeq::toggleSkip()
     const int idx = juce::jlimit(1, stepCount(), (int)target.getValue());
 
     t->setSkip(idx, !t->skipped(idx));
-    skip.setToggleState(t->skipped(idx), juce::dontSendNotification);
+    showSkip(t->skipped(idx));
 
     refresh();
+}
+
+void GuiComponentTapSeq::showSkip(bool on)
+{
+    skip.setToggleState(on, juce::dontSendNotification);
+    skip.setButtonText(on ? "ON" : "OFF");
 }
 
 // いまの段を動かす。音の側も同じ cursor を見る。
@@ -373,6 +381,7 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     loopSeparator.setVisible(visible);
     target.setVisibleWithLabel(visible);
     value.setVisibleWithLabel(visible);
+    skipLabel.setVisible(visible);
     skip.setVisible(visible);
     ampBtns.setVisibles(visible && isAmp() && value.isVisibleNudge());
     pitchBtns.setVisibles(visible && !isAmp() && value.isVisibleNudge());
@@ -399,7 +408,7 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
 
     layoutMain({ .mainRect = rect, .label = &target.label, .component = &target, .rowHeight = h });
     value.layoutComponent(rect, h);
-    layoutMain({ .mainRect = rect, .component = &skip, .rowHeight = h });
+    layoutMain({ .mainRect = rect, .label = &skipLabel, .component = &skip, .rowHeight = h });
 
     if (value.isVisibleNudge()) {
         if (isAmp()) ampBtns.layoutComponent(rect, h);
@@ -443,6 +452,7 @@ void GuiComponentTapSeq::applyActive()
 
     target.setEnabledWithLabel(active);
     value.setEnabled(active);
+    skipLabel.setEnabled(active);
     skip.setEnabled(active);
     ampBtns.setEnables(active);
     pitchBtns.setEnables(active);
