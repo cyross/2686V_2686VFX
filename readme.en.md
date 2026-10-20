@@ -64,7 +64,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - INCREMENT / DECREMENT move the current step. From not started, INCREMENT goes to step 1 and DECREMENT to the last step
   - Every channel, and 2686VFX (AMP SEQUENCER / PITCH SEQUENCER). All plugins
 - **Added SKIP to TAP AMP / PITCH SEQUENCER**
-  - **SKIP** sits under RATIO (CENT). Pressing it makes the S.TARGET step a SKIP step, which changes nothing (level x1, pitch 0 cents). The step still advances
+  - A **SKIP** row sits under RATIO (CENT). Pressing its OFF / ON button makes the S.TARGET step a SKIP step (ON, the button turns red), which changes nothing (level x1, pitch 0 cents). The step still advances
   - A SKIP step is drawn as a full-width red bar (orange while S.TARGET points at it), and the list shows "SKIP". Press again to clear it
   - Moving RATIO (CENT) on a SKIP step clears the SKIP and the bar goes back to its usual colour
   - Saved with the step table in presets, the DAW state, channel parameters and the section's parameter file (`skips`). None by default, so existing sounds do not change

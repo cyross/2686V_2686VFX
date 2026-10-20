@@ -64,7 +64,7 @@ STEPS の下に **LOOP** を置きました。上と同じ START・END・COUNT �
 
 ### SKIP
 
-RATIO（CENT）の下に **SKIP** を置きました。押すと S.TARGET の段が SKIP になり、その段では何も変えません
+RATIO（CENT）の下に **SKIP** の行を置きました。右の OFF / ON のボタンを押すと S.TARGET の段が SKIP になり（ON。ボタンが赤くなる）、その段では何も変えません
 （音量 1 倍・音程 0 セント）。段そのものは進みます。
 
 - SKIP の段は、棒が左から右までいっぱいの赤になります。S.TARGET が指しているときは橙です。一覧には「SKIP」と出ます

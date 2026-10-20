@@ -423,7 +423,7 @@ note by note as a row of steps.
 | **ADD** / **DELETE** | Add or remove a loop set (up to 256) | — | — |
 | **S.TARGET** | The step the value knob edits | 1 – STEPS | 1 |
 | **RATIO / CENT** | That step's value; the buttons below nudge it | see above | see above |
-| **SKIP** | Make the S.TARGET step a SKIP step, or clear it (from 4.1.0). A SKIP step changes nothing | — | — |
+| **SKIP** | Make the S.TARGET step a SKIP step (ON; the button turns red), or clear it (OFF) (from 4.1.0). A SKIP step changes nothing | OFF / ON | OFF |
 | **INCREMENT** | Move the current step on by one (after the last comes 1; from not started, 1). With LOOP on, it follows the loop sets like a key press | — | — |
 | **DECREMENT** | Move the current step back by one (before 1 comes the last; from not started, the last) | — | — |
 | **CLEAR STEP** | Go back to not started (the next press uses step 1), and restart the loop counts. RESET in 4.0.0 | — | — |

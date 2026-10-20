@@ -114,6 +114,10 @@ private:
 
     GuiSlider target;
     GuiComponentNudgeSliderFloat value;
+
+    // SKIP は RATIO と同じ形の行にする (左にラベル、右に OFF / ON のボタン)。
+    // 横いっぱいのボタン 1 つだと、細い帯に見えて区切りと見分けにくかった。
+    GuiLabel skipLabel;
     GuiTextButton skip;
     GuiComponentSsgSwButtons ampBtns;
     GuiComponentPitchButtons pitchBtns;
@@ -151,6 +155,7 @@ private:
     void rebindValue();
     void onValueChanged();
     void toggleSkip();
+    void showSkip(bool on);
     void moveCursor(int delta, bool toStart);
     void refresh();
     void applyActive();

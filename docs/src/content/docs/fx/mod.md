@@ -166,7 +166,7 @@ FIX の音名と同じく、60 が C3 です。
 | **LOOP** | ループの組（LP.TARGET / START / END / COUNT / ADD / DELETE）に沿って段を戻す（4.1.0 から） | 入 / 切 | 切 | [`MOD_TAPAMP_LOOP`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-loop) |
 | **S.TARGET** | 値のつまみで直す段 | 1 〜 STEPS | 1 | — |
 | **RATIO** | その段の割合。下のボタンで少しずつ動かせる | 0.0 〜 4.0 | 1.0 | — |
-| **SKIP** | S.TARGET の段を SKIP にする・外す（4.1.0 から）。SKIP の段では割合を掛けない | — | — | — |
+| **SKIP** | S.TARGET の段を SKIP にする（ON。ボタンが赤くなる）・外す（OFF）（4.1.0 から）。SKIP の段では割合を掛けない | OFF / ON | OFF | — |
 | **INCREMENT** | いまの段を 1 つ進める（最後の段の次は 1。開始前からは 1） | — | — | [`MOD_TAPAMP_INC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-inc) |
 | **DECREMENT** | いまの段を 1 つ戻す（1 の前は最後の段。開始前からは最後の段） | — | — | [`MOD_TAPAMP_DEC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-dec) |
 | **CLEAR STEP** | 開始前へ戻す（次に押すと 1 段目）。4.0.0 の RESET | — | — | [`MOD_TAPAMP_RESET`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-reset) |
@@ -257,7 +257,7 @@ PM をそれぞれ割り当てた鍵盤を押している間だけ掛かりま�
 | **LOOP** | ループの組に沿って段を戻す（4.1.0 から。AMP SEQUENCER と同じ） | 入 / 切 | 切 | [`MOD_TAPPITCH_LOOP`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-loop) |
 | **S.TARGET** | 値のつまみで直す段 | 1 〜 STEPS | 1 | — |
 | **CENT** | その段のずらし幅（セント）。下のボタンで少しずつ動かせる | −2400 〜 2400 | 0 | — |
-| **SKIP** | S.TARGET の段を SKIP にする・外す（4.1.0 から）。SKIP の段ではずらさない | — | — | — |
+| **SKIP** | S.TARGET の段を SKIP にする（ON。ボタンが赤くなる）・外す（OFF）（4.1.0 から）。SKIP の段ではずらさない | OFF / ON | OFF | — |
 | **INCREMENT** | いまの段を 1 つ進める（最後の段の次は 1。開始前からは 1） | — | — | [`MOD_TAPPITCH_INC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-inc) |
 | **DECREMENT** | いまの段を 1 つ戻す（1 の前は最後の段。開始前からは最後の段） | — | — | [`MOD_TAPPITCH_DEC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-dec) |
 | **CLEAR STEP** | 開始前へ戻す（次に押すと 1 段目）。4.0.0 の RESET | — | — | [`MOD_TAPPITCH_RESET`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-reset) |

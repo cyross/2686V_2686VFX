@@ -165,7 +165,7 @@ multiplied by that step's ratio. Use it, for example, to give each hit of a drum
 | **LOOP** | Goes back along the loop sets (LP.TARGET / START / END / COUNT / ADD / DELETE). From 4.1.0 | on / off | off | [`MOD_TAPAMP_LOOP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-loop) |
 | **S.TARGET** | The step the value knob edits | 1 to STEPS | 1 | — |
 | **RATIO** | That step's ratio. The buttons below nudge it | 0.0 to 4.0 | 1.0 | — |
-| **SKIP** | Makes the S.TARGET step a SKIP step, or clears it (from 4.1.0). A SKIP step applies no ratio | — | — | — |
+| **SKIP** | Makes the S.TARGET step a SKIP step (ON; the button turns red), or clears it (OFF) (from 4.1.0). A SKIP step applies no ratio | OFF / ON | OFF | — |
 | **INCREMENT** | Moves the current step on by one (after the last comes 1; from not started, 1) | — | — | [`MOD_TAPAMP_INC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-inc) |
 | **DECREMENT** | Moves the current step back by one (before 1 comes the last; from not started, the last) | — | — | [`MOD_TAPAMP_DEC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-dec) |
 | **CLEAR STEP** | Goes back to not started (the next press uses step 1). RESET in 4.0.0 | — | — | [`MOD_TAPAMP_RESET`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-reset) |
@@ -255,7 +255,7 @@ that step's cents.
 | **LOOP** | Goes back along the loop sets (from 4.1.0; same as AMP SEQUENCER) | on / off | off | [`MOD_TAPPITCH_LOOP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-loop) |
 | **S.TARGET** | The step the value knob edits | 1 to STEPS | 1 | — |
 | **CENT** | That step's shift in cents. The buttons below nudge it | −2400 to 2400 | 0 | — |
-| **SKIP** | Makes the S.TARGET step a SKIP step, or clears it (from 4.1.0). A SKIP step does not shift | — | — | — |
+| **SKIP** | Makes the S.TARGET step a SKIP step (ON; the button turns red), or clears it (OFF) (from 4.1.0). A SKIP step does not shift | OFF / ON | OFF | — |
 | **INCREMENT** | Moves the current step on by one (after the last comes 1; from not started, 1) | — | — | [`MOD_TAPPITCH_INC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-inc) |
 | **DECREMENT** | Moves the current step back by one (before 1 comes the last; from not started, the last) | — | — | [`MOD_TAPPITCH_DEC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-dec) |
 | **CLEAR STEP** | Goes back to not started (the next press uses step 1). RESET in 4.0.0 | — | — | [`MOD_TAPPITCH_RESET`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-reset) |
