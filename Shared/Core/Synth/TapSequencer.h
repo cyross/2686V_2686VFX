@@ -13,13 +13,15 @@
 //   TAP AMP   : 値は割合 (0〜4)。最後に決まった音量へ掛ける
 //   TAP PITCH : 値はセント (-2400〜2400)。最後に決まった音程へ足す
 //
-// 段の値と「次に使う段」(cursor) は表 (StepTable) が持つ。cursor はチャンネルで
-// 1 つなので、どのボイスで押しても同じ並びを進む。STEPS が 1 のときは、毎回
-// 同じ値で補正する。
+// 段の値と「いまの段」(cursor。最後に使った段) は表 (StepTable) が持つ。cursor は
+// チャンネルで 1 つなので、どのボイスで押しても同じ並びを進む。cursor が負なら
+// 開始前で、次に押すと 1 段目を使う。STEPS が 1 のときは、毎回同じ値で補正する。
 //
 // LOOP (4.1.0) が入っていれば、表のループの組 (START・END・COUNT) に沿って進む
 // (StepLoop.h)。最後の段を使ったら 1 段目へ戻り、ループも数え直す。ループの
 // 進み具合も cursor と同じくチャンネルで 1 つ。
+//
+// SKIP (4.1.0) の段では、段は進めるが補正しない (音量 1 倍・音程 0 セント)。
 struct TapSeqParams
 {
     bool enable = false;
@@ -45,27 +47,43 @@ inline int tapSeqNext(const TapSeqParams& p, int s)
     return next - 1;
 }
 
-// 1 段目へ戻す。ループも数え直す
-inline void tapSeqRewind(StepTable& table)
+// いまの段 cursor の次に使う段 (0 から)。開始前 (負) や範囲の外なら 1 段目
+inline int tapSeqForward(const TapSeqParams& p, int cursor)
 {
-    table.cursor.store(0, std::memory_order_relaxed);
-    table.tapLoops.clear();
+    const int steps = std::clamp(p.steps, 1, StepTable::size);
+
+    if (cursor < 0 || cursor >= steps) return 0;
+
+    return tapSeqNext(p, cursor);
 }
 
-// 押したときの値を取り出し、次の段へ進める。切れていれば neutral を返す。
+// いまの段を 1 つ戻す (DECREMENT)。開始前なら最後の段
+inline int tapSeqBack(int steps, int cursor)
+{
+    steps = std::clamp(steps, 1, StepTable::size);
+
+    if (cursor < 0 || cursor >= steps) return steps - 1;
+
+    return (cursor + steps - 1) % steps;
+}
+
+// 開始前へ戻す。ループも数え直す
+inline void tapSeqRewind(StepTable& table)
+{
+    table.clearCursor();
+}
+
+// 押したときに次の段へ進め、その段の値を取り出す。切れていれば neutral を返す。
+// SKIP の段では、進めたうえで neutral を返す。
 inline float tapSeqTake(const TapSeqParams& p, float neutral)
 {
     if (!p.enable || p.table == nullptr) return neutral;
 
-    const int steps = std::clamp(p.steps, 1, StepTable::size);
+    const int s = tapSeqForward(p, p.table->cursor.load(std::memory_order_relaxed));
 
-    int s = p.table->cursor.load(std::memory_order_relaxed);
+    p.table->cursor.store(s, std::memory_order_relaxed);
 
-    if (s < 0 || s >= steps) s = 0;
+    if (p.table->skipped(s + 1)) return neutral;
 
-    const float value = p.table->level(s + 1);
-
-    p.table->cursor.store(tapSeqNext(p, s), std::memory_order_relaxed);
-
-    return value;
+    return p.table->level(s + 1);
 }

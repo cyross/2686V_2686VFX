@@ -46,7 +46,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **Added LOOP to TAP AMP / PITCH SEQUENCER**
   - Under STEPS there is now **LOOP** and the same START, END and COUNT sets as above (up to 256). When it is on, the step that advances on each key press goes back along the sets
   - After the last step is used, it returns to step 1 and the loops start counting again
-  - INCREMENT advances along the sets just like a key press, and RESET also restarts the loop counts. DECREMENT still steps back one at a time
+  - INCREMENT advances along the sets just like a key press, and CLEAR STEP (formerly RESET) also restarts the loop counts. DECREMENT still steps back one at a time
   - Off by default, so existing sounds do not change. Also saved in the section's parameter file (`loop` / `loops`)
   - Every channel, and 2686VFX (AMP SEQUENCER / PITCH SEQUENCER). All plugins
 - **Fixed: with KEEP on, SSG SW AMP / PITCH ENV[256] and friends never played the last step's value**
@@ -57,6 +57,18 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - In mono mode, while a note was still sounding (legato, or pressing again right after releasing), the step did not advance
   - With unison, the step advanced once per unison voice, and each voice played a different step's value. It also disagreed with the "next step" on screen
   - It now advances by exactly one step per key press and gives every unison voice the same value. In mono mode, releasing a key and going back to a key still held does not advance it. All plugins (2686VFX was already correct)
+- **TAP AMP / PITCH SEQUENCER now shows the step just played, and has a "not started" state**
+  - It used to show the "next step", so it pointed at step 1 before any key was pressed, and after a press it pointed at the step after the one that sounded
+  - The row with a different background is now the step the last key press used (the current step). Before the first press, and after the DAW stops playing, it is **not started** and no row is highlighted. The next press uses step 1
+  - **RESET** is renamed **CLEAR STEP**. It goes back to not started and restarts the loop counts (it sounds the same as RESET did, and the automation ID `_RESET` is unchanged)
+  - INCREMENT / DECREMENT move the current step. From not started, INCREMENT goes to step 1 and DECREMENT to the last step
+  - Every channel, and 2686VFX (AMP SEQUENCER / PITCH SEQUENCER). All plugins
+- **Added SKIP to TAP AMP / PITCH SEQUENCER**
+  - **SKIP** sits under RATIO (CENT). Pressing it makes the S.TARGET step a SKIP step, which changes nothing (level x1, pitch 0 cents). The step still advances
+  - A SKIP step is drawn as a full-width red bar (orange while S.TARGET points at it), and the list shows "SKIP". Press again to clear it
+  - Moving RATIO (CENT) on a SKIP step clears the SKIP and the bar goes back to its usual colour
+  - Saved with the step table in presets, the DAW state, channel parameters and the section's parameter file (`skips`). None by default, so existing sounds do not change
+  - Every channel, and 2686VFX. All plugins
 
 ### 3-0-2. What v4.0.1 fixes and changes
 

@@ -45,12 +45,35 @@ SEQUENCER on 2686VFX). With the same START, END and COUNT sets as above (up to 2
 advances on each key press can go back.
 
 - After the last step is used it returns to step 1, and the loops start counting again
-- INCREMENT follows the sets just like a key press, and RESET also restarts the loop counts.
+- INCREMENT follows the sets just like a key press, and CLEAR STEP (formerly RESET) also restarts the loop counts.
   DECREMENT still steps back one at a time
 - Off by default, so existing sounds do not change. It is also saved in the section's parameter
   file (`loop` / `loops`)
 
 See [TAP SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-sequencer) for details.
+
+## The TAP SEQUENCER shows the current step, and gains SKIP
+
+### The current step, and not started
+
+The row with a different background now shows the **current step** (the one the last key press used)
+instead of the "next step". Before, it pointed at step 1 before any press, and after a press it pointed
+at the step after the one that sounded, so it looked out of step with what was playing.
+
+- Before the first press, and **after the DAW stops playing**, it is **not started** and no row is highlighted.
+  The next press uses step 1, so every playback from the top of the song plays the same row
+- **RESET** is renamed **CLEAR STEP**. It goes back to not started and restarts the loop counts. It sounds the
+  same as RESET did, and the automation ID (`_RESET`) is unchanged
+- INCREMENT / DECREMENT move the current step. From not started, INCREMENT goes to step 1 and DECREMENT to the last step
+
+### SKIP
+
+**SKIP** now sits under RATIO (CENT). Pressing it makes the S.TARGET step a SKIP step, which changes nothing
+(level x1, pitch 0 cents). The step itself still advances.
+
+- A SKIP step's bar is full-width red, orange while S.TARGET points at it, and the list shows "SKIP"
+- Press it again, or move RATIO (CENT) on that step, to clear it; the bar goes back to its usual colour
+- Saved with the step table in presets, the DAW state, channel parameters and the section's parameter file (`skips`)
 
 ## Fixes
 

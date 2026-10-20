@@ -53,7 +53,7 @@
     },
     {
       "id": "OPNA_TAPAMP_RESET",
-      "name": "OPNA TapAmp Reset",
+      "name": "OPNA TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -101,7 +101,7 @@
     },
     {
       "id": "OPNA_TAPPITCH_RESET",
-      "name": "OPNA TapPitch Reset",
+      "name": "OPNA TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -8627,7 +8627,7 @@
     },
     {
       "id": "OPN_TAPAMP_RESET",
-      "name": "OPN TapAmp Reset",
+      "name": "OPN TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -8675,7 +8675,7 @@
     },
     {
       "id": "OPN_TAPPITCH_RESET",
-      "name": "OPN TapPitch Reset",
+      "name": "OPN TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -16933,7 +16933,7 @@
     },
     {
       "id": "OPL_TAPAMP_RESET",
-      "name": "OPL TapAmp Reset",
+      "name": "OPL TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -16981,7 +16981,7 @@
     },
     {
       "id": "OPL_TAPPITCH_RESET",
-      "name": "OPL TapPitch Reset",
+      "name": "OPL TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -22034,7 +22034,7 @@
     },
     {
       "id": "OPL3_TAPAMP_RESET",
-      "name": "OPL3 TapAmp Reset",
+      "name": "OPL3 TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -22082,7 +22082,7 @@
     },
     {
       "id": "OPL3_TAPPITCH_RESET",
-      "name": "OPL3 TapPitch Reset",
+      "name": "OPL3 TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -30407,7 +30407,7 @@
     },
     {
       "id": "OPM_TAPAMP_RESET",
-      "name": "OPM TapAmp Reset",
+      "name": "OPM TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -30455,7 +30455,7 @@
     },
     {
       "id": "OPM_TAPPITCH_RESET",
-      "name": "OPM TapPitch Reset",
+      "name": "OPM TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -38937,7 +38937,7 @@
     },
     {
       "id": "OPZX7_TAPAMP_RESET",
-      "name": "OPZX7S TapAmp Reset",
+      "name": "OPZX7S TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -38985,7 +38985,7 @@
     },
     {
       "id": "OPZX7_TAPPITCH_RESET",
-      "name": "OPZX7S TapPitch Reset",
+      "name": "OPZX7S TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -58301,7 +58301,7 @@
     },
     {
       "id": "SSG_TAPAMP_RESET",
-      "name": "SSG TapAmp Reset",
+      "name": "SSG TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -58349,7 +58349,7 @@
     },
     {
       "id": "SSG_TAPPITCH_RESET",
-      "name": "SSG TapPitch Reset",
+      "name": "SSG TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -60890,7 +60890,7 @@
     },
     {
       "id": "WT_TAPAMP_RESET",
-      "name": "WT TapAmp Reset",
+      "name": "WT TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -60938,7 +60938,7 @@
     },
     {
       "id": "WT_TAPPITCH_RESET",
-      "name": "WT TapPitch Reset",
+      "name": "WT TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -67455,7 +67455,7 @@
     },
     {
       "id": "WT2_TAPAMP_RESET",
-      "name": "WT2 TapAmp Reset",
+      "name": "WT2 TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -67503,7 +67503,7 @@
     },
     {
       "id": "WT2_TAPPITCH_RESET",
-      "name": "WT2 TapPitch Reset",
+      "name": "WT2 TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -73540,7 +73540,7 @@
     },
     {
       "id": "WTPLUS_TAPAMP_RESET",
-      "name": "WT+ TapAmp Reset",
+      "name": "WT+ TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -73588,7 +73588,7 @@
     },
     {
       "id": "WTPLUS_TAPPITCH_RESET",
-      "name": "WT+ TapPitch Reset",
+      "name": "WT+ TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -78660,7 +78660,7 @@
     },
     {
       "id": "RHYTHM_TAPAMP_RESET",
-      "name": "RHYTHM TapAmp Reset",
+      "name": "RHYTHM TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -78708,7 +78708,7 @@
     },
     {
       "id": "RHYTHM_TAPPITCH_RESET",
-      "name": "RHYTHM TapPitch Reset",
+      "name": "RHYTHM TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -95231,7 +95231,7 @@
     },
     {
       "id": "ADPCM_TAPAMP_RESET",
-      "name": "ADPCM TapAmp Reset",
+      "name": "ADPCM TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -95279,7 +95279,7 @@
     },
     {
       "id": "ADPCM_TAPPITCH_RESET",
-      "name": "ADPCM TapPitch Reset",
+      "name": "ADPCM TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -97538,7 +97538,7 @@
     },
     {
       "id": "ADPCMP_TAPAMP_RESET",
-      "name": "ADPCMP TapAmp Reset",
+      "name": "ADPCMP TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -97586,7 +97586,7 @@
     },
     {
       "id": "ADPCMP_TAPPITCH_RESET",
-      "name": "ADPCMP TapPitch Reset",
+      "name": "ADPCMP TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -104627,7 +104627,7 @@
     },
     {
       "id": "BEEP_TAPAMP_RESET",
-      "name": "BEEP TapAmp Reset",
+      "name": "BEEP TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -104675,7 +104675,7 @@
     },
     {
       "id": "BEEP_TAPPITCH_RESET",
-      "name": "BEEP TapPitch Reset",
+      "name": "BEEP TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,

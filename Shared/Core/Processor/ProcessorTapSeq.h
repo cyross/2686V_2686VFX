@@ -10,10 +10,11 @@
 // TAP AMP / PITCH SEQUENCER (パラメータの側)
 // ============================================================================
 // チャンネルごとに 2 つ持つ。パラメータは頭 (Enable・STEPS・LOOP) と、段を動かす
-// 3 つの札 (INCREMENT / DECREMENT / RESET) だけ。段の値とループの組は表に持つ。
+// 3 つの札 (INCREMENT / DECREMENT / CLEAR STEP) だけ。段の値・SKIP・ループの組は表に持つ。
 //
 //   <base>_ENABLE / _STEPS / _LOOP / _INC / _DEC / _RESET
 //
+// CLEAR STEP は 4.0.0 の RESET で、ID はそのまま (オートメーションを生かす)。
 // 札はオートメーションで押せるよう、0.5 を下から上へ越えたときに 1 回動く。
 // 画面のボタンは表の cursor を直に動かす (札は経由しない)。
 namespace TapSeq
@@ -93,7 +94,7 @@ namespace TapSeq
 		PrHelper::addBool(layout, prefix + k.loop, n + " Loop", false);
 		PrHelper::addBool(layout, prefix + k.inc, n + " Increment", false);
 		PrHelper::addBool(layout, prefix + k.dec, n + " Decrement", false);
-		PrHelper::addBool(layout, prefix + k.reset, n + " Reset", false);
+		PrHelper::addBool(layout, prefix + k.reset, n + " Clear Step", false);
 	}
 
 	inline void setupPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, const Spec& s, Ptrs& p, StepTableStore& tables)
@@ -132,12 +133,16 @@ namespace TapSeq
 
 		const int steps = params.steps;
 		int stored = p.table->cursor.load(std::memory_order_relaxed);
-		int cursor = std::clamp(stored, 0, steps - 1);
 
-		// INCREMENT は押したときと同じくループに沿って進む。DECREMENT は 1 段ずつ戻る
-		if (rose(p.inc, p.lastInc)) cursor = tapSeqNext(params, cursor);
-		if (rose(p.dec, p.lastDec)) cursor = (cursor + steps - 1) % steps;
+		// 負は開始前。STEPS を減らして外へ出たら、最後の段にする (次に押すと 1 段目)
+		int cursor = stored < 0 ? -1 : std::min(stored, steps - 1);
 
+		// INCREMENT は押したときと同じくループに沿って進む。DECREMENT は 1 段ずつ戻る。
+		// 開始前からなら、INCREMENT は 1 段目、DECREMENT は最後の段へ。
+		if (rose(p.inc, p.lastInc)) cursor = tapSeqForward(params, cursor);
+		if (rose(p.dec, p.lastDec)) cursor = tapSeqBack(steps, cursor);
+
+		// CLEAR STEP。開始前へ戻す
 		if (rose(p.reset, p.lastReset)) {
 			tapSeqRewind(*p.table);
 			return;

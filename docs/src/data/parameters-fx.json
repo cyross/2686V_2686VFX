@@ -2561,7 +2561,7 @@
     },
     {
       "id": "MOD_TAPAMP_RESET",
-      "name": "MOD TapAmp Reset",
+      "name": "MOD TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2609,7 +2609,7 @@
     },
     {
       "id": "MOD_TAPPITCH_RESET",
-      "name": "MOD TapPitch Reset",
+      "name": "MOD TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
