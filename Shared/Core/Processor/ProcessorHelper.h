@@ -206,6 +206,7 @@ namespace PrHelper {
 		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loop);
 		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopTo);
 		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopCount);
+		ptPtrs.loopMode = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopMode);
 		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::stl);
 		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::lr);
 		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::rr);
@@ -223,6 +224,7 @@ namespace PrHelper {
 		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loop);
 		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopTo);
 		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopCount);
+		ptPtrs.loopMode = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopMode);
 		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::stl);
 		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::lr);
 		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::rr);
@@ -268,6 +270,7 @@ namespace PrHelper {
 		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loop);
 		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopTo);
 		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopCount);
+		ptPtrs.loopMode = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopMode);
 		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::stl);
 		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::lr);
 		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::rr);
@@ -285,6 +288,7 @@ namespace PrHelper {
 		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loop);
 		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopTo);
 		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopCount);
+		ptPtrs.loopMode = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopMode);
 		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::stl);
 		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::lr);
 		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::rr);
@@ -803,6 +807,7 @@ namespace PrHelper {
 		params.loop = getBool(ptPtrs.loop);
 		params.loopTo = getInt(ptPtrs.loopTo);
 		params.loopCount = getInt(ptPtrs.loopCount);
+		params.loopMode = getInt(ptPtrs.loopMode);
 		params.stl = getFloat(ptPtrs.stl);
 		params.lr = getFloat(ptPtrs.lr);
 		params.rr = getFloat(ptPtrs.rr);
@@ -819,6 +824,7 @@ namespace PrHelper {
 		params.loop = getBool(ptPtrs.loop);
 		params.loopTo = getInt(ptPtrs.loopTo);
 		params.loopCount = getInt(ptPtrs.loopCount);
+		params.loopMode = getInt(ptPtrs.loopMode);
 		params.stl = getFloat(ptPtrs.stl);
 		params.lr = getFloat(ptPtrs.lr);
 		params.rr = getFloat(ptPtrs.rr);
@@ -863,6 +869,7 @@ namespace PrHelper {
 		params.loop = getBool(ptPtrs.loop);
 		params.loopTo = getInt(ptPtrs.loopTo);
 		params.loopCount = getInt(ptPtrs.loopCount);
+		params.loopMode = getInt(ptPtrs.loopMode);
 		params.stl = getFloat(ptPtrs.stl);
 		params.lr = getFloat(ptPtrs.lr);
 		params.rr = getFloat(ptPtrs.rr);
@@ -879,6 +886,7 @@ namespace PrHelper {
 		params.loop = getBool(ptPtrs.loop);
 		params.loopTo = getInt(ptPtrs.loopTo);
 		params.loopCount = getInt(ptPtrs.loopCount);
+		params.loopMode = getInt(ptPtrs.loopMode);
 		params.stl = getFloat(ptPtrs.stl);
 		params.lr = getFloat(ptPtrs.lr);
 		params.rr = getFloat(ptPtrs.rr);
@@ -2226,6 +2234,8 @@ namespace PrHelper {
 			CPV::SsgSwEnv256::LoopTo::min, CPV::SsgSwEnv256::LoopTo::max, CPV::SsgSwEnv256::LoopTo::initial);
 		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::loopCount, prefixName + CPN::SsgSwEnv256::loopCount,
 			CPV::SsgSwEnv256::LoopCount::min, CPV::SsgSwEnv256::LoopCount::max, CPV::SsgSwEnv256::LoopCount::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::loopMode, prefixName + CPN::SsgSwEnv256::loopMode,
+			StepLoop::modeMin, StepLoop::modeMax, StepLoop::modeInitial);
 		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::stl, prefixName + CPN::SsgSwEnv256::stl, CPV::SsgSwEnv256::SRL::min, CPV::SsgSwEnv256::SRL::max, CPV::SsgSwEnv256::SRL::initial);
 		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::lr, prefixName + CPN::SsgSwEnv256::lr,
 			CPV::SsgSwEnv256::LR::min, CPV::SsgSwEnv256::LR::max, CPV::SsgSwEnv256::LR::initial);
@@ -2247,6 +2257,8 @@ namespace PrHelper {
 			CPV::SsgSwEnv256::LoopTo::min, CPV::SsgSwEnv256::LoopTo::max, CPV::SsgSwEnv256::LoopTo::initial);
 		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::loopCount, namePrefix + CPN::SsgSwEnv256::loopCount,
 			CPV::SsgSwEnv256::LoopCount::min, CPV::SsgSwEnv256::LoopCount::max, CPV::SsgSwEnv256::LoopCount::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwEnv256::loopMode, namePrefix + CPN::SsgSwEnv256::loopMode,
+			StepLoop::modeMin, StepLoop::modeMax, StepLoop::modeInitial);
 		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::stl, namePrefix + CPN::SsgSwEnv256::stl, CPV::SsgSwEnv256::SRL::min, CPV::SsgSwEnv256::SRL::max, CPV::SsgSwEnv256::SRL::initial);
 		PrHelper::addFloat(layout, prefix + CPK::SsgSwEnv256::lr, namePrefix + CPN::SsgSwEnv256::lr,
 			CPV::SsgSwEnv256::LR::min, CPV::SsgSwEnv256::LR::max, CPV::SsgSwEnv256::LR::initial);
@@ -2268,6 +2280,8 @@ namespace PrHelper {
 			CPV::SsgSwPEnv256::LoopTo::min, CPV::SsgSwPEnv256::LoopTo::max, CPV::SsgSwPEnv256::LoopTo::initial);
 		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::loopCount, prefixName + CPN::SsgSwPEnv256::loopCount,
 			CPV::SsgSwPEnv256::LoopCount::min, CPV::SsgSwPEnv256::LoopCount::max, CPV::SsgSwPEnv256::LoopCount::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::loopMode, prefixName + CPN::SsgSwPEnv256::loopMode,
+			StepLoop::modeMin, StepLoop::modeMax, StepLoop::modeInitial);
 		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::stl, prefixName + CPN::SsgSwPEnv256::stl, CPV::SsgSwPEnv256::L::min, CPV::SsgSwPEnv256::L::max, CPV::SsgSwPEnv256::L::initial);
 		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::lr, prefixName + CPN::SsgSwPEnv256::lr,
 			CPV::SsgSwPEnv256::LR::min, CPV::SsgSwPEnv256::LR::max, CPV::SsgSwPEnv256::LR::initial);
@@ -2289,6 +2303,8 @@ namespace PrHelper {
 			CPV::SsgSwPEnv256::LoopTo::min, CPV::SsgSwPEnv256::LoopTo::max, CPV::SsgSwPEnv256::LoopTo::initial);
 		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::loopCount, namePrefix + CPN::SsgSwPEnv256::loopCount,
 			CPV::SsgSwPEnv256::LoopCount::min, CPV::SsgSwPEnv256::LoopCount::max, CPV::SsgSwPEnv256::LoopCount::initial);
+		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::loopMode, namePrefix + CPN::SsgSwPEnv256::loopMode,
+			StepLoop::modeMin, StepLoop::modeMax, StepLoop::modeInitial);
 		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::stl, namePrefix + CPN::SsgSwPEnv256::stl, CPV::SsgSwPEnv256::L::min, CPV::SsgSwPEnv256::L::max, CPV::SsgSwPEnv256::L::initial);
 		PrHelper::addInt(layout, prefix + CPK::SsgSwPEnv256::lr, namePrefix + CPN::SsgSwPEnv256::lr,
 			CPV::SsgSwPEnv256::LR::min, CPV::SsgSwPEnv256::LR::max, CPV::SsgSwPEnv256::LR::initial);

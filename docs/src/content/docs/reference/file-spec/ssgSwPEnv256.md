@@ -37,6 +37,8 @@ SSG SW PITCH ENV[256] の設定（4.0.0 から）。
 | `flag` | bool | Bypass / Enable |
 | `steps` | float | STEP（1〜256） |
 | `loop` / `loopTo` / `loopCount` | bool / float / float | LOOP / LOOP.TO / LOOP.CNT |
+| `loopMode` | float | LOOP MODE（0 = Original Mode、1 = Rich Mode）。4.1.0 から。無ければ Original Mode |
+| `loops` | float の並び | Rich Mode のループの組。START, END, COUNT の 3 つずつを組の順に並べる。4.1.0 から。無ければ組は空 |
 | `keep` | bool | KEEP |
 | `startLevel` | float | STL（セント） |
 | `releaseRate` / `releaseLevel` | float | RR（秒） / LR（セント） |

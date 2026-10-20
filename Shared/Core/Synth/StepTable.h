@@ -10,6 +10,8 @@
 
 #include <JuceHeader.h>
 
+#include "./StepLoop.h"
+
 // ============================================================================
 // 段の表 (SSG SW AMP / PITCH ENV[256] など)
 // ============================================================================
@@ -24,6 +26,9 @@
 // 書き換えるたびに version を進めるので、音の側は版が変わったときだけ
 // 写し直す。値は原子的に読み書きするので、どのスレッドから読んでもよい。
 //
+// 段のループ (Rich Mode / TAP SEQUENCER の LOOP) の START・END・COUNT の組も、
+// 同じ理由でここに持つ (StepLoop.h)。組はいつも START・END の昇順に並べておく。
+//
 // 文字や state (XML) への出し入れは StepTableIo.h にある。
 struct StepTable
 {
@@ -36,6 +41,13 @@ struct StepTable
     // 次に使う段 (0 から)。TAP SEQUENCER が鍵を押すたびに進める。
     // 保存はしない (読み込みや初期化で 0 に戻る)。
     std::atomic<int> cursor{ 0 };
+
+    // ループの組。loops[0..loopNum) を使う。並びは START・END の昇順。
+    std::array<std::atomic<std::uint32_t>, StepLoop::maxEntries> loops{};
+    std::atomic<int> loopNum{ 0 };
+
+    // TAP SEQUENCER のループの進み具合。cursor と同じくチャンネルで 1 つ。保存はしない。
+    StepLoop::AtomicState tapLoops;
 
     const float defaultR;
     const float defaultL;
@@ -58,6 +70,49 @@ struct StepTable
         version.fetch_add(1, std::memory_order_release);
     }
 
+    int loopCount() const { return std::clamp(loopNum.load(std::memory_order_relaxed), 0, StepLoop::maxEntries); }
+
+    // i は 0 から
+    StepLoop::Entry loopAt(int i) const
+    {
+        return StepLoop::unpack(loops[(size_t)std::clamp(i, 0, StepLoop::maxEntries - 1)].load(std::memory_order_relaxed));
+    }
+
+    std::vector<StepLoop::Entry> loopList() const
+    {
+        std::vector<StepLoop::Entry> list;
+
+        for (int i = 0; i < loopCount(); ++i) list.push_back(loopAt(i));
+
+        return list;
+    }
+
+    // 組を丸ごと差し替える。範囲へ収めて並べ直す。256 個より後ろは捨てる
+    void setLoops(std::vector<StepLoop::Entry> list)
+    {
+        for (auto& e : list) e = StepLoop::normalize(e, size);
+
+        StepLoop::sort(list);
+
+        const int n = std::min((int)list.size(), StepLoop::maxEntries);
+
+        for (int i = 0; i < n; ++i) loops[(size_t)i].store(StepLoop::pack(list[(size_t)i]), std::memory_order_relaxed);
+
+        loopNum.store(n, std::memory_order_relaxed);
+        tapLoops.clear();
+        version.fetch_add(1, std::memory_order_release);
+    }
+
+    // 音の側がループの組を引くときの形 (StepLoop::next に渡す)
+    struct LoopView
+    {
+        const StepTable& table;
+
+        StepLoop::Entry operator[](int i) const { return table.loopAt(i); }
+    };
+
+    LoopView loopView() const { return { *this }; }
+
     void reset()
     {
         for (int i = 0; i < size; ++i) {
@@ -65,6 +120,8 @@ struct StepTable
             l[(size_t)i].store(defaultL, std::memory_order_relaxed);
         }
 
+        loopNum.store(0, std::memory_order_relaxed);
+        tapLoops.clear();
         cursor.store(0, std::memory_order_relaxed);
         version.fetch_add(1, std::memory_order_release);
     }
@@ -75,6 +132,11 @@ struct StepTable
             r[(size_t)i].store(other.r[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
             l[(size_t)i].store(other.l[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
         }
+
+        for (int i = 0; i < StepLoop::maxEntries; ++i) loops[(size_t)i].store(other.loops[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
+
+        loopNum.store(other.loopNum.load(std::memory_order_relaxed), std::memory_order_relaxed);
+        tapLoops.clear();
 
         version.fetch_add(1, std::memory_order_release);
     }

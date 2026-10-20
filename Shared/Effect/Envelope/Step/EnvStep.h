@@ -16,6 +16,9 @@
 //   押す        : STL から始め、R1 秒で L1、R2 秒で L2 … と進む
 //   STEPS 段目  : LOOP が入っていれば L.TO の段へ戻る (CNT 回。0 は無限)。
 //                 入っていなければ、離すまで L(STEPS) を保つ
+//   Rich Mode   : LOOP MODE が Rich なら、L.TO / CNT の代わりに表のループの組
+//                 (START・END・COUNT) で戻る (StepLoop.h)。END の段を終えたら
+//                 START の段へ、L(END) から L(START) へ R(START) 秒かけて進む
 //   離す        : そのときの値から RR 秒で LR へ。走り終えたら LR を保つ
 //                 (Use Endl のときは ENDL)
 //   KEEP        : 段のあいだ値を斜めに繋がず、段の頭の値を保つ
@@ -29,6 +32,9 @@ struct StepEnvParams
 	bool loop = false;
 	int loopTo = 0;
 	int loopCount = 0;
+
+	// LOOP MODE (StepLoop::Mode)。Rich のときは表のループの組を使う
+	int loopMode = StepLoop::Original;
 
 	float stl = 0.0f;   // 押した瞬間の値
 	float lr = 0.0f;    // 離したあとに向かう値
@@ -88,6 +94,7 @@ private:
 	bool loop = false;
 	int loopTo = 0;
 	int loopCount = 0;
+	bool rich = false;
 	float lr = 0.0f;
 	float rr = 0.0f;
 	float endl = 0.0f;
@@ -108,6 +115,9 @@ private:
 	bool holding = false;
 	bool looping = false;
 	int loopCounter = 0;
+
+	// Rich Mode のループの進み具合 (ループの組は表から直に引く)
+	StepLoop::State richState;
 	float current = 0.0f;
 	float startLevel = 0.0f;
 	float target = 0.0f;

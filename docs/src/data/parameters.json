@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
-  "version": "4.0.0",
-  "count": 12802,
+  "version": "4.1.0",
+  "count": 12958,
   "parameters": [
     {
       "id": "MODE",
@@ -26,6 +26,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "OPNA_TAPAMP_LOOP",
+      "name": "OPNA TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPNA_TAPAMP_INC",
@@ -66,6 +74,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "OPNA_TAPPITCH_LOOP",
+      "name": "OPNA TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPNA_TAPPITCH_INC",
@@ -1435,6 +1451,14 @@
       "default": 0
     },
     {
+      "id": "OPNA_SSGSW256_LOOPMODE",
+      "name": "OPNA SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPNA_SSGSW256_STL",
       "name": "OPNA SSG SwEnv256 STL",
       "type": "Float",
@@ -1516,6 +1540,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_SSGSWP256_LOOPMODE",
+      "name": "OPNA SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -1806,6 +1838,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_ALGENV_LOOPMODE",
+      "name": "OPNA AlgEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -2175,6 +2215,14 @@
       "default": 0
     },
     {
+      "id": "OPNA_OP0_SSGSW256_LOOPMODE",
+      "name": "OPNA Op1 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPNA_OP0_SSGSW256_STL",
       "name": "OPNA Op1 SSG SwEnv256 STL",
       "type": "Float",
@@ -2267,6 +2315,14 @@
       "default": 0
     },
     {
+      "id": "OPNA_OP0_TLENV_LOOPMODE",
+      "name": "OPNA Op1 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPNA_OP0_TLENV_STL",
       "name": "OPNA Op1 TlEnv STL",
       "type": "Int",
@@ -2337,6 +2393,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP0_SSGSWP256_LOOPMODE",
+      "name": "OPNA Op1 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -3825,6 +3889,14 @@
       "default": 0
     },
     {
+      "id": "OPNA_OP1_SSGSW256_LOOPMODE",
+      "name": "OPNA Op2 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPNA_OP1_SSGSW256_STL",
       "name": "OPNA Op2 SSG SwEnv256 STL",
       "type": "Float",
@@ -3917,6 +3989,14 @@
       "default": 0
     },
     {
+      "id": "OPNA_OP1_TLENV_LOOPMODE",
+      "name": "OPNA Op2 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPNA_OP1_TLENV_STL",
       "name": "OPNA Op2 TlEnv STL",
       "type": "Int",
@@ -3987,6 +4067,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP1_SSGSWP256_LOOPMODE",
+      "name": "OPNA Op2 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -5475,6 +5563,14 @@
       "default": 0
     },
     {
+      "id": "OPNA_OP2_SSGSW256_LOOPMODE",
+      "name": "OPNA Op3 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPNA_OP2_SSGSW256_STL",
       "name": "OPNA Op3 SSG SwEnv256 STL",
       "type": "Float",
@@ -5567,6 +5663,14 @@
       "default": 0
     },
     {
+      "id": "OPNA_OP2_TLENV_LOOPMODE",
+      "name": "OPNA Op3 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPNA_OP2_TLENV_STL",
       "name": "OPNA Op3 TlEnv STL",
       "type": "Int",
@@ -5637,6 +5741,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP2_SSGSWP256_LOOPMODE",
+      "name": "OPNA Op3 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -7125,6 +7237,14 @@
       "default": 0
     },
     {
+      "id": "OPNA_OP3_SSGSW256_LOOPMODE",
+      "name": "OPNA Op4 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPNA_OP3_SSGSW256_STL",
       "name": "OPNA Op4 SSG SwEnv256 STL",
       "type": "Float",
@@ -7217,6 +7337,14 @@
       "default": 0
     },
     {
+      "id": "OPNA_OP3_TLENV_LOOPMODE",
+      "name": "OPNA Op4 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPNA_OP3_TLENV_STL",
       "name": "OPNA Op4 TlEnv STL",
       "type": "Int",
@@ -7287,6 +7415,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP3_SSGSWP256_LOOPMODE",
+      "name": "OPNA Op4 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -8466,6 +8602,14 @@
       "default": 1
     },
     {
+      "id": "OPN_TAPAMP_LOOP",
+      "name": "OPN TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_TAPAMP_INC",
       "name": "OPN TapAmp Increment",
       "type": "Bool",
@@ -8504,6 +8648,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "OPN_TAPPITCH_LOOP",
+      "name": "OPN TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPN_TAPPITCH_INC",
@@ -9865,6 +10017,14 @@
       "default": 0
     },
     {
+      "id": "OPN_SSGSW256_LOOPMODE",
+      "name": "OPN SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPN_SSGSW256_STL",
       "name": "OPN SSG SwEnv256 STL",
       "type": "Float",
@@ -9946,6 +10106,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_SSGSWP256_LOOPMODE",
+      "name": "OPN SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -10236,6 +10404,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_ALGENV_LOOPMODE",
+      "name": "OPN AlgEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -10540,6 +10716,14 @@
       "default": 0
     },
     {
+      "id": "OPN_OP0_SSGSW256_LOOPMODE",
+      "name": "OPN Op1 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPN_OP0_SSGSW256_STL",
       "name": "OPN Op1 SSG SwEnv256 STL",
       "type": "Float",
@@ -10632,6 +10816,14 @@
       "default": 0
     },
     {
+      "id": "OPN_OP0_TLENV_LOOPMODE",
+      "name": "OPN Op1 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPN_OP0_TLENV_STL",
       "name": "OPN Op1 TlEnv STL",
       "type": "Int",
@@ -10702,6 +10894,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP0_SSGSWP256_LOOPMODE",
+      "name": "OPN Op1 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -12125,6 +12325,14 @@
       "default": 0
     },
     {
+      "id": "OPN_OP1_SSGSW256_LOOPMODE",
+      "name": "OPN Op2 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPN_OP1_SSGSW256_STL",
       "name": "OPN Op2 SSG SwEnv256 STL",
       "type": "Float",
@@ -12217,6 +12425,14 @@
       "default": 0
     },
     {
+      "id": "OPN_OP1_TLENV_LOOPMODE",
+      "name": "OPN Op2 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPN_OP1_TLENV_STL",
       "name": "OPN Op2 TlEnv STL",
       "type": "Int",
@@ -12287,6 +12503,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP1_SSGSWP256_LOOPMODE",
+      "name": "OPN Op2 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -13710,6 +13934,14 @@
       "default": 0
     },
     {
+      "id": "OPN_OP2_SSGSW256_LOOPMODE",
+      "name": "OPN Op3 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPN_OP2_SSGSW256_STL",
       "name": "OPN Op3 SSG SwEnv256 STL",
       "type": "Float",
@@ -13802,6 +14034,14 @@
       "default": 0
     },
     {
+      "id": "OPN_OP2_TLENV_LOOPMODE",
+      "name": "OPN Op3 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPN_OP2_TLENV_STL",
       "name": "OPN Op3 TlEnv STL",
       "type": "Int",
@@ -13872,6 +14112,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP2_SSGSWP256_LOOPMODE",
+      "name": "OPN Op3 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -15295,6 +15543,14 @@
       "default": 0
     },
     {
+      "id": "OPN_OP3_SSGSW256_LOOPMODE",
+      "name": "OPN Op4 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPN_OP3_SSGSW256_STL",
       "name": "OPN Op4 SSG SwEnv256 STL",
       "type": "Float",
@@ -15387,6 +15643,14 @@
       "default": 0
     },
     {
+      "id": "OPN_OP3_TLENV_LOOPMODE",
+      "name": "OPN Op4 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPN_OP3_TLENV_STL",
       "name": "OPN Op4 TlEnv STL",
       "type": "Int",
@@ -15457,6 +15721,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP3_SSGSWP256_LOOPMODE",
+      "name": "OPN Op4 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -16636,6 +16908,14 @@
       "default": 1
     },
     {
+      "id": "OPL_TAPAMP_LOOP",
+      "name": "OPL TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_TAPAMP_INC",
       "name": "OPL TapAmp Increment",
       "type": "Bool",
@@ -16674,6 +16954,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "OPL_TAPPITCH_LOOP",
+      "name": "OPL TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPL_TAPPITCH_INC",
@@ -17962,6 +18250,14 @@
       "default": 0
     },
     {
+      "id": "OPL_SSGSW256_LOOPMODE",
+      "name": "OPL SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL_SSGSW256_STL",
       "name": "OPL SSG SwEnv256 STL",
       "type": "Float",
@@ -18043,6 +18339,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL_SSGSWP256_LOOPMODE",
+      "name": "OPL SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -18333,6 +18637,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL_ALGENV_LOOPMODE",
+      "name": "OPL AlgEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -18680,6 +18992,14 @@
       "default": 0
     },
     {
+      "id": "OPL_OP0_SSGSW256_LOOPMODE",
+      "name": "OPL Op1 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL_OP0_SSGSW256_STL",
       "name": "OPL Op1 SSG SwEnv256 STL",
       "type": "Float",
@@ -18772,6 +19092,14 @@
       "default": 0
     },
     {
+      "id": "OPL_OP0_TLENV_LOOPMODE",
+      "name": "OPL Op1 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL_OP0_TLENV_STL",
       "name": "OPL Op1 TlEnv STL",
       "type": "Int",
@@ -18842,6 +19170,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP0_SSGSWP256_LOOPMODE",
+      "name": "OPL Op1 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -20308,6 +20644,14 @@
       "default": 0
     },
     {
+      "id": "OPL_OP1_SSGSW256_LOOPMODE",
+      "name": "OPL Op2 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL_OP1_SSGSW256_STL",
       "name": "OPL Op2 SSG SwEnv256 STL",
       "type": "Float",
@@ -20400,6 +20744,14 @@
       "default": 0
     },
     {
+      "id": "OPL_OP1_TLENV_LOOPMODE",
+      "name": "OPL Op2 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL_OP1_TLENV_STL",
       "name": "OPL Op2 TlEnv STL",
       "type": "Int",
@@ -20470,6 +20822,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP1_SSGSWP256_LOOPMODE",
+      "name": "OPL Op2 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -21649,6 +22009,14 @@
       "default": 1
     },
     {
+      "id": "OPL3_TAPAMP_LOOP",
+      "name": "OPL3 TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_TAPAMP_INC",
       "name": "OPL3 TapAmp Increment",
       "type": "Bool",
@@ -21687,6 +22055,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "OPL3_TAPPITCH_LOOP",
+      "name": "OPL3 TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPL3_TAPPITCH_INC",
@@ -22975,6 +23351,14 @@
       "default": 0
     },
     {
+      "id": "OPL3_SSGSW256_LOOPMODE",
+      "name": "OPL3 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL3_SSGSW256_STL",
       "name": "OPL3 SSG SwEnv256 STL",
       "type": "Float",
@@ -23056,6 +23440,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_SSGSWP256_LOOPMODE",
+      "name": "OPL3 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -23346,6 +23738,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_ALGENV_LOOPMODE",
+      "name": "OPL3 AlgEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -23685,6 +24085,14 @@
       "default": 0
     },
     {
+      "id": "OPL3_OP0_SSGSW256_LOOPMODE",
+      "name": "OPL3 Op1 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL3_OP0_SSGSW256_STL",
       "name": "OPL3 Op1 SSG SwEnv256 STL",
       "type": "Float",
@@ -23777,6 +24185,14 @@
       "default": 0
     },
     {
+      "id": "OPL3_OP0_TLENV_LOOPMODE",
+      "name": "OPL3 Op1 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL3_OP0_TLENV_STL",
       "name": "OPL3 Op1 TlEnv STL",
       "type": "Int",
@@ -23847,6 +24263,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP0_SSGSWP256_LOOPMODE",
+      "name": "OPL3 Op1 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -25305,6 +25729,14 @@
       "default": 0
     },
     {
+      "id": "OPL3_OP1_SSGSW256_LOOPMODE",
+      "name": "OPL3 Op2 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL3_OP1_SSGSW256_STL",
       "name": "OPL3 Op2 SSG SwEnv256 STL",
       "type": "Float",
@@ -25397,6 +25829,14 @@
       "default": 0
     },
     {
+      "id": "OPL3_OP1_TLENV_LOOPMODE",
+      "name": "OPL3 Op2 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL3_OP1_TLENV_STL",
       "name": "OPL3 Op2 TlEnv STL",
       "type": "Int",
@@ -25467,6 +25907,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP1_SSGSWP256_LOOPMODE",
+      "name": "OPL3 Op2 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -26925,6 +27373,14 @@
       "default": 0
     },
     {
+      "id": "OPL3_OP2_SSGSW256_LOOPMODE",
+      "name": "OPL3 Op3 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL3_OP2_SSGSW256_STL",
       "name": "OPL3 Op3 SSG SwEnv256 STL",
       "type": "Float",
@@ -27017,6 +27473,14 @@
       "default": 0
     },
     {
+      "id": "OPL3_OP2_TLENV_LOOPMODE",
+      "name": "OPL3 Op3 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL3_OP2_TLENV_STL",
       "name": "OPL3 Op3 TlEnv STL",
       "type": "Int",
@@ -27087,6 +27551,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP2_SSGSWP256_LOOPMODE",
+      "name": "OPL3 Op3 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -28545,6 +29017,14 @@
       "default": 0
     },
     {
+      "id": "OPL3_OP3_SSGSW256_LOOPMODE",
+      "name": "OPL3 Op4 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL3_OP3_SSGSW256_STL",
       "name": "OPL3 Op4 SSG SwEnv256 STL",
       "type": "Float",
@@ -28637,6 +29117,14 @@
       "default": 0
     },
     {
+      "id": "OPL3_OP3_TLENV_LOOPMODE",
+      "name": "OPL3 Op4 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPL3_OP3_TLENV_STL",
       "name": "OPL3 Op4 TlEnv STL",
       "type": "Int",
@@ -28707,6 +29195,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP3_SSGSWP256_LOOPMODE",
+      "name": "OPL3 Op4 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -29886,6 +30382,14 @@
       "default": 1
     },
     {
+      "id": "OPM_TAPAMP_LOOP",
+      "name": "OPM TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_TAPAMP_INC",
       "name": "OPM TapAmp Increment",
       "type": "Bool",
@@ -29924,6 +30428,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "OPM_TAPPITCH_LOOP",
+      "name": "OPM TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPM_TAPPITCH_INC",
@@ -31309,6 +31821,14 @@
       "default": 0
     },
     {
+      "id": "OPM_SSGSW256_LOOPMODE",
+      "name": "OPM SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPM_SSGSW256_STL",
       "name": "OPM SSG SwEnv256 STL",
       "type": "Float",
@@ -31390,6 +31910,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_SSGSWP256_LOOPMODE",
+      "name": "OPM SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -31680,6 +32208,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_ALGENV_LOOPMODE",
+      "name": "OPM AlgEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -32034,6 +32570,14 @@
       "default": 0
     },
     {
+      "id": "OPM_OP0_SSGSW256_LOOPMODE",
+      "name": "OPM Op1 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPM_OP0_SSGSW256_STL",
       "name": "OPM Op1 SSG SwEnv256 STL",
       "type": "Float",
@@ -32126,6 +32670,14 @@
       "default": 0
     },
     {
+      "id": "OPM_OP0_TLENV_LOOPMODE",
+      "name": "OPM Op1 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPM_OP0_TLENV_STL",
       "name": "OPM Op1 TlEnv STL",
       "type": "Int",
@@ -32196,6 +32748,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP0_SSGSWP256_LOOPMODE",
+      "name": "OPM Op1 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -33669,6 +34229,14 @@
       "default": 0
     },
     {
+      "id": "OPM_OP1_SSGSW256_LOOPMODE",
+      "name": "OPM Op2 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPM_OP1_SSGSW256_STL",
       "name": "OPM Op2 SSG SwEnv256 STL",
       "type": "Float",
@@ -33761,6 +34329,14 @@
       "default": 0
     },
     {
+      "id": "OPM_OP1_TLENV_LOOPMODE",
+      "name": "OPM Op2 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPM_OP1_TLENV_STL",
       "name": "OPM Op2 TlEnv STL",
       "type": "Int",
@@ -33831,6 +34407,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP1_SSGSWP256_LOOPMODE",
+      "name": "OPM Op2 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -35304,6 +35888,14 @@
       "default": 0
     },
     {
+      "id": "OPM_OP2_SSGSW256_LOOPMODE",
+      "name": "OPM Op3 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPM_OP2_SSGSW256_STL",
       "name": "OPM Op3 SSG SwEnv256 STL",
       "type": "Float",
@@ -35396,6 +35988,14 @@
       "default": 0
     },
     {
+      "id": "OPM_OP2_TLENV_LOOPMODE",
+      "name": "OPM Op3 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPM_OP2_TLENV_STL",
       "name": "OPM Op3 TlEnv STL",
       "type": "Int",
@@ -35466,6 +36066,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP2_SSGSWP256_LOOPMODE",
+      "name": "OPM Op3 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -36939,6 +37547,14 @@
       "default": 0
     },
     {
+      "id": "OPM_OP3_SSGSW256_LOOPMODE",
+      "name": "OPM Op4 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPM_OP3_SSGSW256_STL",
       "name": "OPM Op4 SSG SwEnv256 STL",
       "type": "Float",
@@ -37031,6 +37647,14 @@
       "default": 0
     },
     {
+      "id": "OPM_OP3_TLENV_LOOPMODE",
+      "name": "OPM Op4 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPM_OP3_TLENV_STL",
       "name": "OPM Op4 TlEnv STL",
       "type": "Int",
@@ -37101,6 +37725,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP3_SSGSWP256_LOOPMODE",
+      "name": "OPM Op4 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -38280,6 +38912,14 @@
       "default": 1
     },
     {
+      "id": "OPZX7_TAPAMP_LOOP",
+      "name": "OPZX7S TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_TAPAMP_INC",
       "name": "OPZX7S TapAmp Increment",
       "type": "Bool",
@@ -38318,6 +38958,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "OPZX7_TAPPITCH_LOOP",
+      "name": "OPZX7S TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPZX7_TAPPITCH_INC",
@@ -40150,6 +40798,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_SSGSW256_LOOPMODE",
+      "name": "OPZX7S SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_SSGSW256_STL",
       "name": "OPZX7S SSG SwEnv256 STL",
       "type": "Float",
@@ -40231,6 +40887,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_SSGSWP256_LOOPMODE",
+      "name": "OPZX7S SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -40336,6 +41000,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_ALGENV_LOOPMODE",
+      "name": "OPZX7S AlgEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -40903,6 +41575,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP0_SSGSW256_LOOPMODE",
+      "name": "OPZX7S Op1 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP0_SSGSW256_STL",
       "name": "OPZX7S Op1 SSG SwEnv256 STL",
       "type": "Float",
@@ -40995,6 +41675,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP0_TLENV_LOOPMODE",
+      "name": "OPZX7S Op1 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP0_TLENV_STL",
       "name": "OPZX7S Op1 TlEnv STL",
       "type": "Int",
@@ -41065,6 +41753,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP0_SSGSWP256_LOOPMODE",
+      "name": "OPZX7S Op1 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -43030,6 +43726,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP1_SSGSW256_LOOPMODE",
+      "name": "OPZX7S Op2 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP1_SSGSW256_STL",
       "name": "OPZX7S Op2 SSG SwEnv256 STL",
       "type": "Float",
@@ -43122,6 +43826,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP1_TLENV_LOOPMODE",
+      "name": "OPZX7S Op2 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP1_TLENV_STL",
       "name": "OPZX7S Op2 TlEnv STL",
       "type": "Int",
@@ -43192,6 +43904,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP1_SSGSWP256_LOOPMODE",
+      "name": "OPZX7S Op2 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -45157,6 +45877,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP2_SSGSW256_LOOPMODE",
+      "name": "OPZX7S Op3 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP2_SSGSW256_STL",
       "name": "OPZX7S Op3 SSG SwEnv256 STL",
       "type": "Float",
@@ -45249,6 +45977,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP2_TLENV_LOOPMODE",
+      "name": "OPZX7S Op3 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP2_TLENV_STL",
       "name": "OPZX7S Op3 TlEnv STL",
       "type": "Int",
@@ -45319,6 +46055,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP2_SSGSWP256_LOOPMODE",
+      "name": "OPZX7S Op3 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -47284,6 +48028,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP3_SSGSW256_LOOPMODE",
+      "name": "OPZX7S Op4 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP3_SSGSW256_STL",
       "name": "OPZX7S Op4 SSG SwEnv256 STL",
       "type": "Float",
@@ -47376,6 +48128,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP3_TLENV_LOOPMODE",
+      "name": "OPZX7S Op4 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP3_TLENV_STL",
       "name": "OPZX7S Op4 TlEnv STL",
       "type": "Int",
@@ -47446,6 +48206,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP3_SSGSWP256_LOOPMODE",
+      "name": "OPZX7S Op4 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -49411,6 +50179,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP4_SSGSW256_LOOPMODE",
+      "name": "OPZX7S Op5 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP4_SSGSW256_STL",
       "name": "OPZX7S Op5 SSG SwEnv256 STL",
       "type": "Float",
@@ -49503,6 +50279,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP4_TLENV_LOOPMODE",
+      "name": "OPZX7S Op5 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP4_TLENV_STL",
       "name": "OPZX7S Op5 TlEnv STL",
       "type": "Int",
@@ -49573,6 +50357,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP4_SSGSWP256_LOOPMODE",
+      "name": "OPZX7S Op5 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -51538,6 +52330,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP5_SSGSW256_LOOPMODE",
+      "name": "OPZX7S Op6 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP5_SSGSW256_STL",
       "name": "OPZX7S Op6 SSG SwEnv256 STL",
       "type": "Float",
@@ -51630,6 +52430,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP5_TLENV_LOOPMODE",
+      "name": "OPZX7S Op6 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP5_TLENV_STL",
       "name": "OPZX7S Op6 TlEnv STL",
       "type": "Int",
@@ -51700,6 +52508,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP5_SSGSWP256_LOOPMODE",
+      "name": "OPZX7S Op6 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -53665,6 +54481,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP6_SSGSW256_LOOPMODE",
+      "name": "OPZX7S Op7 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP6_SSGSW256_STL",
       "name": "OPZX7S Op7 SSG SwEnv256 STL",
       "type": "Float",
@@ -53757,6 +54581,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP6_TLENV_LOOPMODE",
+      "name": "OPZX7S Op7 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP6_TLENV_STL",
       "name": "OPZX7S Op7 TlEnv STL",
       "type": "Int",
@@ -53827,6 +54659,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP6_SSGSWP256_LOOPMODE",
+      "name": "OPZX7S Op7 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -55792,6 +56632,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP7_SSGSW256_LOOPMODE",
+      "name": "OPZX7S Op8 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP7_SSGSW256_STL",
       "name": "OPZX7S Op8 SSG SwEnv256 STL",
       "type": "Float",
@@ -55884,6 +56732,14 @@
       "default": 0
     },
     {
+      "id": "OPZX7_OP7_TLENV_LOOPMODE",
+      "name": "OPZX7S Op8 TlEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "OPZX7_OP7_TLENV_STL",
       "name": "OPZX7S Op8 TlEnv STL",
       "type": "Int",
@@ -55954,6 +56810,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP7_SSGSWP256_LOOPMODE",
+      "name": "OPZX7S Op8 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -57412,6 +58276,14 @@
       "default": 1
     },
     {
+      "id": "SSG_TAPAMP_LOOP",
+      "name": "SSG TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "SSG_TAPAMP_INC",
       "name": "SSG TapAmp Increment",
       "type": "Bool",
@@ -57450,6 +58322,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "SSG_TAPPITCH_LOOP",
+      "name": "SSG TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "SSG_TAPPITCH_INC",
@@ -57727,6 +58607,14 @@
       "default": 0
     },
     {
+      "id": "SSG_DUTYENV_LOOPMODE",
+      "name": "SSG SSG DutyEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "SSG_DUTYENV_STL",
       "name": "SSG SSG DutyEnv STL",
       "type": "Float",
@@ -57816,6 +58704,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "SSG_PEAKENV_LOOPMODE",
+      "name": "SSG SSG PeakEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -59467,6 +60363,14 @@
       "default": 0
     },
     {
+      "id": "SSG_SSGSW256_LOOPMODE",
+      "name": "SSG SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "SSG_SSGSW256_STL",
       "name": "SSG SSG SwEnv256 STL",
       "type": "Float",
@@ -59548,6 +60452,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "SSG_SSGSWP256_LOOPMODE",
+      "name": "SSG SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -59953,6 +60865,14 @@
       "default": 1
     },
     {
+      "id": "WT_TAPAMP_LOOP",
+      "name": "WT TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT_TAPAMP_INC",
       "name": "WT TapAmp Increment",
       "type": "Bool",
@@ -59991,6 +60911,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "WT_TAPPITCH_LOOP",
+      "name": "WT TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "WT_TAPPITCH_INC",
@@ -61382,6 +62310,14 @@
       "default": 0
     },
     {
+      "id": "WT_SSGSW256_LOOPMODE",
+      "name": "WT SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "WT_SSGSW256_STL",
       "name": "WT SSG SwEnv256 STL",
       "type": "Float",
@@ -61463,6 +62399,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "WT_SSGSWP256_LOOPMODE",
+      "name": "WT SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -66486,6 +67430,14 @@
       "default": 1
     },
     {
+      "id": "WT2_TAPAMP_LOOP",
+      "name": "WT2 TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT2_TAPAMP_INC",
       "name": "WT2 TapAmp Increment",
       "type": "Bool",
@@ -66524,6 +67476,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "WT2_TAPPITCH_LOOP",
+      "name": "WT2 TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "WT2_TAPPITCH_INC",
@@ -67915,6 +68875,14 @@
       "default": 0
     },
     {
+      "id": "WT2_SSGSW256_LOOPMODE",
+      "name": "WT2 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "WT2_SSGSW256_STL",
       "name": "WT2 SSG SwEnv256 STL",
       "type": "Float",
@@ -67996,6 +68964,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "WT2_SSGSWP256_LOOPMODE",
+      "name": "WT2 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -72539,6 +73515,14 @@
       "default": 1
     },
     {
+      "id": "WTPLUS_TAPAMP_LOOP",
+      "name": "WT+ TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WTPLUS_TAPAMP_INC",
       "name": "WT+ TapAmp Increment",
       "type": "Bool",
@@ -72577,6 +73561,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "WTPLUS_TAPPITCH_LOOP",
+      "name": "WT+ TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "WTPLUS_TAPPITCH_INC",
@@ -76843,6 +77835,14 @@
       "default": 0
     },
     {
+      "id": "WTPLUS_SSGSW256_LOOPMODE",
+      "name": "WT+ SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "WTPLUS_SSGSW256_STL",
       "name": "WT+ SSG SwEnv256 STL",
       "type": "Float",
@@ -76924,6 +77924,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "WTPLUS_SSGSWP256_LOOPMODE",
+      "name": "WT+ SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -77627,6 +78635,14 @@
       "default": 1
     },
     {
+      "id": "RHYTHM_TAPAMP_LOOP",
+      "name": "RHYTHM TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_TAPAMP_INC",
       "name": "RHYTHM TapAmp Increment",
       "type": "Bool",
@@ -77665,6 +78681,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "RHYTHM_TAPPITCH_LOOP",
+      "name": "RHYTHM TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "RHYTHM_TAPPITCH_INC",
@@ -78291,6 +79315,14 @@
       "default": 0
     },
     {
+      "id": "RHYTHM_PAD0_SSGSW256_LOOPMODE",
+      "name": "RHYTHM Pad1 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "RHYTHM_PAD0_SSGSW256_STL",
       "name": "RHYTHM Pad1 SSG SwEnv256 STL",
       "type": "Float",
@@ -78372,6 +79404,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD0_SSGSWP256_LOOPMODE",
+      "name": "RHYTHM Pad1 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -80309,6 +81349,14 @@
       "default": 0
     },
     {
+      "id": "RHYTHM_PAD1_SSGSW256_LOOPMODE",
+      "name": "RHYTHM Pad2 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "RHYTHM_PAD1_SSGSW256_STL",
       "name": "RHYTHM Pad2 SSG SwEnv256 STL",
       "type": "Float",
@@ -80390,6 +81438,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD1_SSGSWP256_LOOPMODE",
+      "name": "RHYTHM Pad2 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -82327,6 +83383,14 @@
       "default": 0
     },
     {
+      "id": "RHYTHM_PAD2_SSGSW256_LOOPMODE",
+      "name": "RHYTHM Pad3 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "RHYTHM_PAD2_SSGSW256_STL",
       "name": "RHYTHM Pad3 SSG SwEnv256 STL",
       "type": "Float",
@@ -82408,6 +83472,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD2_SSGSWP256_LOOPMODE",
+      "name": "RHYTHM Pad3 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -84345,6 +85417,14 @@
       "default": 0
     },
     {
+      "id": "RHYTHM_PAD3_SSGSW256_LOOPMODE",
+      "name": "RHYTHM Pad4 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "RHYTHM_PAD3_SSGSW256_STL",
       "name": "RHYTHM Pad4 SSG SwEnv256 STL",
       "type": "Float",
@@ -84426,6 +85506,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD3_SSGSWP256_LOOPMODE",
+      "name": "RHYTHM Pad4 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -86363,6 +87451,14 @@
       "default": 0
     },
     {
+      "id": "RHYTHM_PAD4_SSGSW256_LOOPMODE",
+      "name": "RHYTHM Pad5 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "RHYTHM_PAD4_SSGSW256_STL",
       "name": "RHYTHM Pad5 SSG SwEnv256 STL",
       "type": "Float",
@@ -86444,6 +87540,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD4_SSGSWP256_LOOPMODE",
+      "name": "RHYTHM Pad5 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -88381,6 +89485,14 @@
       "default": 0
     },
     {
+      "id": "RHYTHM_PAD5_SSGSW256_LOOPMODE",
+      "name": "RHYTHM Pad6 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "RHYTHM_PAD5_SSGSW256_STL",
       "name": "RHYTHM Pad6 SSG SwEnv256 STL",
       "type": "Float",
@@ -88462,6 +89574,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD5_SSGSWP256_LOOPMODE",
+      "name": "RHYTHM Pad6 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -90399,6 +91519,14 @@
       "default": 0
     },
     {
+      "id": "RHYTHM_PAD6_SSGSW256_LOOPMODE",
+      "name": "RHYTHM Pad7 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "RHYTHM_PAD6_SSGSW256_STL",
       "name": "RHYTHM Pad7 SSG SwEnv256 STL",
       "type": "Float",
@@ -90480,6 +91608,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD6_SSGSWP256_LOOPMODE",
+      "name": "RHYTHM Pad7 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -92417,6 +93553,14 @@
       "default": 0
     },
     {
+      "id": "RHYTHM_PAD7_SSGSW256_LOOPMODE",
+      "name": "RHYTHM Pad8 SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "RHYTHM_PAD7_SSGSW256_STL",
       "name": "RHYTHM Pad8 SSG SwEnv256 STL",
       "type": "Float",
@@ -92498,6 +93642,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD7_SSGSWP256_LOOPMODE",
+      "name": "RHYTHM Pad8 SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -94054,6 +95206,14 @@
       "default": 1
     },
     {
+      "id": "ADPCM_TAPAMP_LOOP",
+      "name": "ADPCM TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCM_TAPAMP_INC",
       "name": "ADPCM TapAmp Increment",
       "type": "Bool",
@@ -94092,6 +95252,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "ADPCM_TAPPITCH_LOOP",
+      "name": "ADPCM TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "ADPCM_TAPPITCH_INC",
@@ -94507,6 +95675,14 @@
       "default": 0
     },
     {
+      "id": "ADPCM_SSGSW256_LOOPMODE",
+      "name": "ADPCM SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "ADPCM_SSGSW256_STL",
       "name": "ADPCM SSG SwEnv256 STL",
       "type": "Float",
@@ -94588,6 +95764,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "ADPCM_SSGSWP256_LOOPMODE",
+      "name": "ADPCM SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -96329,6 +97513,14 @@
       "default": 1
     },
     {
+      "id": "ADPCMP_TAPAMP_LOOP",
+      "name": "ADPCMP TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCMP_TAPAMP_INC",
       "name": "ADPCMP TapAmp Increment",
       "type": "Bool",
@@ -96367,6 +97559,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "ADPCMP_TAPPITCH_LOOP",
+      "name": "ADPCMP TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "ADPCMP_TAPPITCH_INC",
@@ -101564,6 +102764,14 @@
       "default": 0
     },
     {
+      "id": "ADPCMP_SSGSW256_LOOPMODE",
+      "name": "ADPCMP SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "ADPCMP_SSGSW256_STL",
       "name": "ADPCMP SSG SwEnv256 STL",
       "type": "Float",
@@ -101645,6 +102853,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "ADPCMP_SSGSWP256_LOOPMODE",
+      "name": "ADPCMP SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -103386,6 +104602,14 @@
       "default": 1
     },
     {
+      "id": "BEEP_TAPAMP_LOOP",
+      "name": "BEEP TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "BEEP_TAPAMP_INC",
       "name": "BEEP TapAmp Increment",
       "type": "Bool",
@@ -103424,6 +104648,14 @@
       "min": 1,
       "max": 256,
       "default": 1
+    },
+    {
+      "id": "BEEP_TAPPITCH_LOOP",
+      "name": "BEEP TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "BEEP_TAPPITCH_INC",
@@ -103701,6 +104933,14 @@
       "default": 0
     },
     {
+      "id": "BEEP_SSGSW256_LOOPMODE",
+      "name": "BEEP SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "BEEP_SSGSW256_STL",
       "name": "BEEP SSG SwEnv256 STL",
       "type": "Float",
@@ -103782,6 +105022,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "BEEP_SSGSWP256_LOOPMODE",
+      "name": "BEEP SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {

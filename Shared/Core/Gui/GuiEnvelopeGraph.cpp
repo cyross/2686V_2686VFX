@@ -533,6 +533,66 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
 
+    // Rich Mode。ループの組で実際に通る段の順を、音の側と同じ決まりで並べる。
+    // 無限のループで戻るところまで来たら、戻る先へ破線を引いてそこで止める
+    // (Original Mode の無限ループと同じ見せ方)。回数が多すぎるときも同じ。
+    if (isLoop && v.head.loopMode == StepLoop::Rich) {
+        constexpr int maxPhases = 1024;
+
+        const auto& loops = v.head.loops;
+        const int num = (int)loops.size();
+
+        StepLoop::State state;
+
+        int s = 1;
+        int visited = 0;
+        float level = levelAt(0);
+
+        while (s <= steps) {
+            phases.push_back({
+                .widthPx = rateToWidth(rateAt(s), v.rMax), .startLevel = level, .endLevel = levelAt(s), .color = color,
+                .curveFunc = getCurveFunc(std::min(s, curveStepParams) - 1),
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
+                });
+
+            level = levelAt(s);
+
+            const int nextStep = StepLoop::next(loops, num, steps, state, s);
+
+            // 無限のループで戻るところか
+            bool infinite = false;
+
+            for (const auto& e : loops) {
+                if (e.count == 0 && e.end == s && e.start == nextStep && StepLoop::isValid(e, steps)) infinite = true;
+            }
+
+            if (infinite || ++visited >= maxPhases) {
+                phases.push_back({
+                    .widthPx = 30.0f, .startLevel = level, .endLevel = levelAt(nextStep), .isDashed = true,
+                    .color = color, .drawPhaseLine = false
+                    });
+
+                level = levelAt(nextStep);
+                break;
+            }
+
+            s = nextStep;
+        }
+
+        phases.push_back({
+            .widthPx = rateToWidth(v.rr, v.rMax),
+            .startLevel = level,
+            .endLevel = v.lr / lMax,
+            .color = GuiColor::EnvelopeGraph::ReleaseLine,
+            .curveFunc = getCurveFunc(curveRelease)
+            });
+
+        if (v.endlEnable) appendEndLevel(phases, v.lr / lMax, v.endl / lMax);
+
+        setEnvelope(type, title, phases);
+        return;
+    }
+
     float currentTotalWidth = 0.0f;
     const float loopToLevel = isLoop ? levelAt(loopTo) : 0.0f;
     float loopEndWidth = 0.0f;

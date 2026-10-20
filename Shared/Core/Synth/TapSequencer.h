@@ -16,12 +16,41 @@
 // 段の値と「次に使う段」(cursor) は表 (StepTable) が持つ。cursor はチャンネルで
 // 1 つなので、どのボイスで押しても同じ並びを進む。STEPS が 1 のときは、毎回
 // 同じ値で補正する。
+//
+// LOOP (4.1.0) が入っていれば、表のループの組 (START・END・COUNT) に沿って進む
+// (StepLoop.h)。最後の段を使ったら 1 段目へ戻り、ループも数え直す。ループの
+// 進み具合も cursor と同じくチャンネルで 1 つ。
 struct TapSeqParams
 {
     bool enable = false;
     int steps = 1;
+    bool loop = false;
     StepTable* table = nullptr;
 };
+
+// 段 s (0 から) を使ったあと、次に使う段 (0 から) を返す
+inline int tapSeqNext(const TapSeqParams& p, int s)
+{
+    const int steps = std::clamp(p.steps, 1, StepTable::size);
+
+    if (!p.loop || p.table == nullptr) return (s + 1) % steps;
+
+    const int next = StepLoop::next(p.table->loopView(), p.table->loopCount(), steps, p.table->tapLoops, s + 1);
+
+    if (next > steps) {
+        p.table->tapLoops.clear();
+        return 0;
+    }
+
+    return next - 1;
+}
+
+// 1 段目へ戻す。ループも数え直す
+inline void tapSeqRewind(StepTable& table)
+{
+    table.cursor.store(0, std::memory_order_relaxed);
+    table.tapLoops.clear();
+}
 
 // 押したときの値を取り出し、次の段へ進める。切れていれば neutral を返す。
 inline float tapSeqTake(const TapSeqParams& p, float neutral)
@@ -36,7 +65,7 @@ inline float tapSeqTake(const TapSeqParams& p, float neutral)
 
     const float value = p.table->level(s + 1);
 
-    p.table->cursor.store((s + 1) % steps, std::memory_order_relaxed);
+    p.table->cursor.store(tapSeqNext(p, s), std::memory_order_relaxed);
 
     return value;
 }

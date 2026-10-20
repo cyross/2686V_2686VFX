@@ -37,13 +37,43 @@ namespace StepTableIo
         }
     }
 
-    // 文字で書き出す。"r1,r2,...|l1,l2,..."。後ろの既定の値は省く。
-    inline juce::String toText(const StepTable& table)
+    // ループの組を文字にする。"start:end:count;start:end:count;..."
+    inline juce::String loopsToText(const std::vector<StepLoop::Entry>& loops)
     {
-        return detail::join(table.r, table.defaultR) + "|" + detail::join(table.l, table.defaultL);
+        juce::StringArray parts;
+
+        for (const auto& e : loops) parts.add(juce::String(e.start) + ":" + juce::String(e.end) + ":" + juce::String(e.count));
+
+        return parts.joinIntoString(";");
     }
 
-    // toText の逆。書かれていない段は既定の値に戻す。
+    inline std::vector<StepLoop::Entry> loopsFromText(const juce::String& text)
+    {
+        std::vector<StepLoop::Entry> loops;
+
+        for (const auto& part : juce::StringArray::fromTokens(text, ";", "")) {
+            const auto v = juce::StringArray::fromTokens(part, ":", "");
+
+            if (v.size() < 3) continue;
+
+            loops.push_back({ v[0].getIntValue(), v[1].getIntValue(), v[2].getIntValue() });
+        }
+
+        return loops;
+    }
+
+    // 文字で書き出す。"r1,r2,...|l1,l2,..."。後ろの既定の値は省く。
+    // ループの組があるときだけ、後ろへ "|start:end:count;..." を足す (4.1.0)。
+    inline juce::String toText(const StepTable& table)
+    {
+        auto text = detail::join(table.r, table.defaultR) + "|" + detail::join(table.l, table.defaultL);
+
+        if (table.loopCount() > 0) text << "|" << loopsToText(table.loopList());
+
+        return text;
+    }
+
+    // toText の逆。書かれていない段は既定の値に戻す。ループの組が無ければ空にする。
     inline void fromText(StepTable& table, const juce::String& text)
     {
         const auto halves = juce::StringArray::fromTokens(text, "|", "");
@@ -51,7 +81,8 @@ namespace StepTableIo
         detail::split(halves.size() > 0 ? halves[0] : juce::String(), table.r, table.defaultR);
         detail::split(halves.size() > 1 ? halves[1] : juce::String(), table.l, table.defaultL);
 
-        table.version.fetch_add(1, std::memory_order_release);
+        // 版を進めるのは setLoops がする
+        table.setLoops(loopsFromText(halves.size() > 2 ? halves[2] : juce::String()));
     }
 
     // state の要素の名前

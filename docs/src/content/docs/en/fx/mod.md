@@ -162,6 +162,7 @@ multiplied by that step's ratio. Use it, for example, to give each hit of a drum
 | --- | --- | --- | ---: | --- |
 | **Enable** | Turns it on | on / off | off | [`MOD_TAPAMP_ENABLE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-enable) |
 | **STEPS** | Number of steps. At 1, every press uses the same ratio | 1 to 256 | 1 | [`MOD_TAPAMP_STEPS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-steps) |
+| **LOOP** | Goes back along the loop sets (LP.TARGET / START / END / COUNT / ADD / DELETE). From 4.1.0 | on / off | off | [`MOD_TAPAMP_LOOP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-loop) |
 | **S.TARGET** | The step the value knob edits | 1 to STEPS | 1 | — |
 | **RATIO** | That step's ratio. The buttons below nudge it | 0.0 to 4.0 | 1.0 | — |
 | **INCREMENT** | Moves the next step on by one (after the last comes 1) | — | — | [`MOD_TAPAMP_INC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-inc) |
@@ -175,6 +176,8 @@ multiplied by that step's ratio. Use it, for example, to give each hit of a drum
 - INCREMENT / DECREMENT / RESET can also be pressed by automation (once each time the value rises past 0.5)
 - The step values are saved as a table in the FX parameter file and the DAW state (automation cannot move them).
   The section's own parameter file is `.tapAmp`, read and written from the heading's right-click menu
+- LOOP and the loop sets work as in the instruments' [TAP SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-sequencer).
+  INCREMENT follows the sets, and RESET also restarts the loop counts
 
 :::caution[Send MIDI once Enable is on]
 With Enable on, **nothing comes out while no key is held**. Unlike AMP ENV and the others, it does
@@ -245,6 +248,7 @@ that step's cents.
 | --- | --- | --- | ---: | --- |
 | **Enable** | Turns it on | on / off | off | [`MOD_TAPPITCH_ENABLE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-enable) |
 | **STEPS** | Number of steps. At 1, every press shifts by the same amount | 1 to 256 | 1 | [`MOD_TAPPITCH_STEPS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-steps) |
+| **LOOP** | Goes back along the loop sets (from 4.1.0; same as AMP SEQUENCER) | on / off | off | [`MOD_TAPPITCH_LOOP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-loop) |
 | **S.TARGET** | The step the value knob edits | 1 to STEPS | 1 | — |
 | **CENT** | That step's shift in cents. The buttons below nudge it | −2400 to 2400 | 0 | — |
 | **INCREMENT** | Moves the next step on by one (after the last comes 1) | — | — | [`MOD_TAPPITCH_INC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-inc) |

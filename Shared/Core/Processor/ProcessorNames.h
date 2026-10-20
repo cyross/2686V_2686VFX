@@ -257,6 +257,7 @@ namespace CPN
 		static inline const juce::String loop = " SSG SwEnv256 Loop";
 		static inline const juce::String loopTo = " SSG SwEnv256 Loop To";
 		static inline const juce::String loopCount = " SSG SwEnv256 Loop Count";
+		static inline const juce::String loopMode = " SSG SwEnv256 Loop Mode";
 		static inline const juce::String stl = " SSG SwEnv256 STL";
 		static inline const juce::String lr = " SSG SwEnv256 LR";
 		static inline const juce::String rr = " SSG SwEnv256 RR";
@@ -273,6 +274,7 @@ namespace CPN
 		static inline const juce::String loop = " SSG SwPEnv256 Loop";
 		static inline const juce::String loopTo = " SSG SwPEnv256 Loop To";
 		static inline const juce::String loopCount = " SSG SwPEnv256 Loop Count";
+		static inline const juce::String loopMode = " SSG SwPEnv256 Loop Mode";
 		static inline const juce::String stl = " SSG SwPEnv256 STL";
 		static inline const juce::String lr = " SSG SwPEnv256 LR";
 		static inline const juce::String rr = " SSG SwPEnv256 RR";

@@ -16,6 +16,7 @@
 #include "../PitchButtons/PitchButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../StepValues/StepValues.h"
+#include "../StepLoops/StepLoops.h"
 
 // ============================================================================
 // 段の値を横向きの棒で並べる (TAP SEQUENCER)
@@ -50,12 +51,14 @@ public:
 //
 //   Enable
 //   STEPS
+//   LOOP / LP.TARGET / START / END / COUNT / ADD・DELETE / 一覧 (4.1.0)
 //   S.TARGET / RATIO (CENT) / 値のボタン
 //   棒 (段ごとの値)
 //   帯 (S1: 値 / S2: 値 / ...)
 //   INCREMENT / DECREMENT / RESET  (次に使う段を動かす)
 //
-// 頭 (Enable・STEPS と、段を動かす札) はパラメータ、段の値は表 (StepTable) にある。
+// 頭 (Enable・STEPS・LOOP と、段を動かす札) はパラメータ、段の値とループの組は
+// 表 (StepTable) にある。
 class GuiComponentTapSeq : public GuiBase, private juce::Timer {
 public:
     enum class Kind { Amp, Pitch };
@@ -99,6 +102,11 @@ private:
     GuiSlider steps;
     NormalSeparator stepsSeparator;
 
+    // ループの組に沿って段を進めるか。組そのものは表に持つ
+    GuiToggleButton loop;
+    GuiComponentStepLoops loops;
+    NormalSeparator loopSeparator;
+
     GuiSlider target;
     GuiComponentNudgeSliderFloat value;
     GuiComponentSsgSwButtons ampBtns;
@@ -121,6 +129,12 @@ private:
 
     std::uint32_t seenVersion = 0;
     int seenCursor = -1;
+
+    // 最後に並べたときのループの一覧の行数。0 はまだ並べていない
+    int laidOutLoopRows = 0;
+
+    // ループの一覧の行数が、最後に並べたときと変わっていれば並べ直してもらう
+    void relayoutIfNeeded();
 
     bool isAmp() const { return kind == Kind::Amp; }
 

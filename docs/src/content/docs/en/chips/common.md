@@ -225,8 +225,11 @@ release. On release it heads from the current level to **LR** over **RR** second
 | **STEP** | Number of steps | 1 – 256 | 10 | [`SSG_SSGSW256_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-steps) |
 | **KEEP** | Hold each step's starting value instead of sloping between steps | False / True | False | [`SSG_SSGSW256_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-keep) |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSW256_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loop) |
-| **LOOP.TO** | Step to return to | 0 – 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopto) |
-| **LOOP.CNT** | How many times. **0 repeats forever** | 0 – 200 | 0 | [`SSG_SSGSW256_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopcnt) |
+| **LOOP MODE** | How to repeat: Original Mode / Rich Mode ([below](#loop-mode--rich-mode)) | 0 – 1 | 0 (Original) | [`SSG_SSGSW256_LOOPMODE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopmode) |
+| **LOOP.TO** | Original Mode. Step to return to | 0 – 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopto) |
+| **LOOP.CNT** | Original Mode. How many times. **0 repeats forever** | 0 – 200 | 0 | [`SSG_SSGSW256_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopcnt) |
+| **LP.TARGET** / **START** / **END** / **COUNT** | Rich Mode. The loop set you edit, and its START, END and COUNT | 1 – number of sets / 1 – STEP / 1 – STEP / 0 – 200 | — | — (kept in a table) |
+| **ADD** / **DELETE** | Rich Mode. Add or remove a loop set (up to 256) | — | — | — |
 | **R.TARGET** / **RATE** | The step whose R you edit, and its time (seconds) | 1 – STEP / 0.001 – 10 | — / 0.001 | — (kept in a table) |
 | **L.TARGET** / **LEVEL** | The step whose L you edit (0 is STL), and its volume | 0 – STEP / 0 – 1 | — / 1 | STL only: [`SSG_SSGSW256_STL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-stl) |
 | **STEPS** | Snap LEVEL, LR and ENDL to fixed steps (screen only, not saved) | free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | free | — |
@@ -245,6 +248,41 @@ presets and channel parameters, not as parameters**, so they can't be automated
 - **N** next to RATE / LEVEL shows nudge buttons
 - Right-clicking the heading copies the table too (CUT / COPY / PASTE / CLEAR /
   DUPLICATE)
+
+#### LOOP MODE – Rich Mode
+
+**LOOP MODE**, under LOOP, picks how the envelope repeats (from 4.1.0). The default is
+**Original Mode**: as before, the last step goes back to **LOOP.TO**, **LOOP.CNT** times.
+
+**Rich Mode** replaces LOOP.TO / LOOP.CNT with up to **256 sets of START, END and COUNT**.
+In either mode, nothing repeats while LOOP is off.
+
+- After the **END** step finishes, playback goes back to the **START** step, **COUNT** times
+  (**0 is endless**), so START to END plays COUNT + 1 times (counted the same way as LOOP.CNT).
+  On the way back it moves from L(END) to L(START) over R(START) seconds
+- The sets are always sorted by START, then END. Pick one with **LP.TARGET** and edit it with
+  START / END / COUNT. If moving START or END reorders the sets, LP.TARGET keeps pointing at the
+  set you moved
+- **ADD** adds a set that goes back over 1 to STEP once; **DELETE** removes the selected set
+- The sets are listed below in **No / START / END / COUNT** columns, and the section grows taller
+  as sets are added. Clicking a row also picks that set. Sets that reach past STEP have no effect,
+  so they are dimmed
+- The sets are saved with the step table. Only LOOP MODE can be automated
+
+With several sets, they take effect **from the one whose START comes first** (with the same START,
+the one whose END comes first).
+
+- **Nested**: the inner loop finishes first, then the outer one goes back, and the inner one starts
+  counting again each time. For example, 1–4 once and 2–3 once plays "1 2 3 2 3 4 1 2 3 2 3 4"
+- **Crossing**: when a set starts inside an earlier loop and ends after its END, the earlier loop
+  finishes first, then playback moves on to the START of the next loop. For example, 1–3 once and
+  2–5 once plays "1 2 3 1 2 3 2 3 4 5 2 3 4 5", and 1–3 does not repeat again
+
+:::caution[Do not make an inner or crossed loop endless]
+If an inner loop, or a loop that is crossed, has COUNT 0 (endless), playback never gets to the outer
+or crossing loop. It just plays that way and does not hang, but the list shows an orange **! INF**
+in its COUNT.
+:::
 
 #### From [11] (3.6.3 and earlier)
 
@@ -269,7 +307,7 @@ values are **TL register values (integers)** instead of levels.
 - As on the chips, a value is held for its step rather than sloped into the next (always KEEP, so there
   is no KEEP switch)
 - **STEPS** under the value knob snaps to TL steps, and buttons (−8 / −1 / 0 / +1 / +8 / max) move it
-- RATE, STEP, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- RATE, STEP, LOOP (including LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
 - The section's parameter file is `.tlEnv`, read and written from the heading's right-click menu
 
 ### ALG ENV
@@ -287,7 +325,7 @@ values are **ALG numbers** instead of levels.
   **ALG.TARGET** and the value knob **ALG**
 - A value is held for its step (always KEEP, so there is no KEEP switch). There are no value buttons
   and no STEPS
-- RATE, STEP, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- RATE, STEP, LOOP (including LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
 - Which operator gets FEEDBACK is decided by the ALG at the start of each block
 - The section's parameter file is `.algEnv`, read and written from the heading's right-click menu
 
@@ -354,7 +392,8 @@ normal (with Use Endl it holds ENDL).
 | **Bypass / Enable** | Use it or not | False / True | True | [`SSG_SSGSWP256_BYPASS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-bypass) |
 | **STEP** | Number of steps | 1 – 256 | 10 | [`SSG_SSGSWP256_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-steps) |
 | **KEEP** | Hold each step's starting value | False / True | False | [`SSG_SSGSWP256_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-keep) |
-| **LOOP** / **LOOP.TO** / **LOOP.CNT** | Repeat | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-loop) etc. |
+| **LOOP** / **LOOP MODE** / **LOOP.TO** / **LOOP.CNT** | Repeat. LOOP MODE ([Rich Mode](#loop-mode--rich-mode)) works as on AMP | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-loop) etc. |
+| **LP.TARGET** / **START** / **END** / **COUNT** / **ADD** / **DELETE** | The Rich Mode loop sets | — | — | — (kept in a table) |
 | **R.TARGET** / **RATE** | The step whose R you edit, and its time (seconds) | 1 – STEP / 0.001 – 10 | — / 0.001 | — (kept in a table) |
 | **L.TARGET** / **LEVEL** | The step whose L you edit (0 is STL), and its pitch (cents) | 0 – STEP / -4800 – 4800 | — / 0 | STL only: [`SSG_SSGSWP256_STL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-stl) |
 | **RR** / **LR** | Time from release to LR, and the pitch to head for | 0.001 – 10 / -4800 – 4800 | 0.001 / 0 | [`SSG_SSGSWP256_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-rr) / [`SSG_SSGSWP256_LR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-lr) |
@@ -379,11 +418,14 @@ note by note as a row of steps.
 | --- | --- | --- | ---: |
 | **Enable** | Use it | on / off | off |
 | **STEPS** | How many steps. With 1, every note gets the same correction | 1 – 256 | 1 |
+| **LOOP** | Go back along the loop sets (from 4.1.0) | on / off | off |
+| **LP.TARGET** / **START** / **END** / **COUNT** | The loop set you edit, and its START, END and COUNT (0 is endless) | 1 – number of sets / 1 – STEPS / 1 – STEPS / 0 – 200 | — |
+| **ADD** / **DELETE** | Add or remove a loop set (up to 256) | — | — |
 | **S.TARGET** | The step the value knob edits | 1 – STEPS | 1 |
 | **RATIO / CENT** | That step's value; the buttons below nudge it | see above | see above |
-| **INCREMENT** | Move the next step on by one (after the last comes 1) | — | — |
+| **INCREMENT** | Move the next step on by one (after the last comes 1). With LOOP on, it follows the loop sets like a key press | — | — |
 | **DECREMENT** | Move the next step back by one (before 1 comes the last) | — | — |
-| **RESET** | Set the next step back to 1 | — | — |
+| **RESET** | Set the next step back to 1, and restart the loop counts | — | — |
 
 - The step values are drawn as horizontal bars; the row with a different background is the step the next key press uses
 - Below that, a list "S1: value / S2: value / …" shows four per row. Changing STEPS resizes it at once
@@ -391,6 +433,10 @@ note by note as a row of steps.
 - INCREMENT / DECREMENT / RESET can also be pressed by automation (they act once when the value rises past 0.5)
 - Step values are saved as a table in presets and channel parameters (they cannot be automated).
   The section parameter files are `.tapAmp` / `.tapPitch`, read and written from the heading's right-click menu
+- With **LOOP** on (from 4.1.0), the step that advances on each key press goes back along the loop sets.
+  The rules for the sets (START, END, COUNT, nesting, crossing and the endless mark) are the same as
+  [SSG SW AMP ENV\[256\] Rich Mode](#loop-mode--rich-mode). After the last step is used it returns to
+  step 1 and the loops start counting again. Like the next step, the loop progress is one per channel
 
 ## SPEED – playback rate
 

@@ -7,6 +7,7 @@
 #include "./GuiComponents.h"
 #include "./GuiColor.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
+#include "Shared/Core/Synth/StepLoop.h"
 
 class GuiEnvelopeGraph : public juce::Component, private juce::ScrollBar::Listener
 {
@@ -90,6 +91,10 @@ public:
         bool loop = false;
         int loopTo = 0;
         int loopCount = 0;
+
+        // LOOP MODE (StepLoop::Mode) と、Rich Mode のループの組
+        int loopMode = 0;
+        std::vector<StepLoop::Entry> loops;
     };
 
     void setEnvelope(EnvType type, const juce::String& title, const std::vector<PhaseDef>& phases);
