@@ -233,6 +233,12 @@ private:
     StepTable* table() const;
     int stepCount() const { return juce::jlimit(1, StepTable::size, (int)steps.getValue()); }
 
+    // 帯 (R と L) の行数の合計。区分の高さはこれで決まる
+    int stripRowCount() const { return rateValues.getRowCount() + levelValues.getRowCount(); }
+
+    // 最後に並べたときの帯の行数。0 はまだ並べていない
+    int laidOutRows = 0;
+
     void applyLoopValues(bool enabled);
     void applyStepCount();
     void rebindRate();
