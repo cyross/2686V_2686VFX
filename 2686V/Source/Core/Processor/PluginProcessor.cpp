@@ -251,6 +251,9 @@ void AudioPlugin2686V::releaseResources()
 void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+
+    // DAW の再生を止めたら、TAP SEQUENCER を開始前へ戻す。鍵を見る前に
+    stepTables.followTransport(getPlayHead());
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 

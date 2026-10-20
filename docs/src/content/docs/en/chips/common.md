@@ -423,23 +423,30 @@ note by note as a row of steps.
 | **ADD** / **DELETE** | Add or remove a loop set (up to 256) | — | — |
 | **S.TARGET** | The step the value knob edits | 1 – STEPS | 1 |
 | **RATIO / CENT** | That step's value; the buttons below nudge it | see above | see above |
-| **INCREMENT** | Move the next step on by one (after the last comes 1). With LOOP on, it follows the loop sets like a key press | — | — |
-| **DECREMENT** | Move the next step back by one (before 1 comes the last) | — | — |
-| **RESET** | Set the next step back to 1, and restart the loop counts | — | — |
+| **SKIP** | Make the S.TARGET step a SKIP step, or clear it (from 4.1.0). A SKIP step changes nothing | — | — |
+| **INCREMENT** | Move the current step on by one (after the last comes 1; from not started, 1). With LOOP on, it follows the loop sets like a key press | — | — |
+| **DECREMENT** | Move the current step back by one (before 1 comes the last; from not started, the last) | — | — |
+| **CLEAR STEP** | Go back to not started (the next press uses step 1), and restart the loop counts. RESET in 4.0.0 | — | — |
 
-- The step values are drawn as horizontal bars; the row with a different background is the step the next key press uses
+- The step values are drawn as horizontal bars; the row with a different background is the **current step** (the one the last key press used)
+- Before the first press, and after the DAW stops playing, it is **not started** and no row is highlighted. The next press uses step 1.
+  4.0.0 showed the "next step" instead, so it pointed at step 1 before any press, and at the step after the one that sounded
+- A **SKIP** step (from 4.1.0) still advances, but changes neither level nor pitch (level x1, pitch 0 cents).
+  Its bar is full-width red (orange while S.TARGET points at it), and the list shows "SKIP".
+  Press SKIP again, or move that step's RATIO / CENT, to clear it
 - Below that, a list "S1: value / S2: value / …" shows four per row. Changing STEPS resizes it at once
-- There is one "next step" per channel, so every voice moves along the same row
+- There is one current step per channel, so every voice moves along the same row
 - The step advances by **exactly one per key press**. Unison does not advance it once per voice, and every voice plays the
   same step's value. It also advances on mono legato, and when a key is pressed again right after release. Releasing a key in mono mode and going back to a key
   still held does not advance it (fixed in 4.1.0)
-- INCREMENT / DECREMENT / RESET can also be pressed by automation (they act once when the value rises past 0.5)
-- Step values are saved as a table in presets and channel parameters (they cannot be automated).
+- INCREMENT / DECREMENT / CLEAR STEP can also be pressed by automation (they act once when the value rises past 0.5).
+  CLEAR STEP keeps the ID of 4.0.0's RESET (`_RESET`)
+- Step values and SKIP are saved as a table in presets and channel parameters (they cannot be automated).
   The section parameter files are `.tapAmp` / `.tapPitch`, read and written from the heading's right-click menu
 - With **LOOP** on (from 4.1.0), the step that advances on each key press goes back along the loop sets.
   The rules for the sets (START, END, COUNT, nesting, crossing and the endless mark) are the same as
   [SSG SW AMP ENV\[256\] Rich Mode](#loop-mode--rich-mode). After the last step is used it returns to
-  step 1 and the loops start counting again. Like the next step, the loop progress is one per channel
+  step 1 and the loops start counting again. Like the current step, the loop progress is one per channel
 
 ## SPEED – playback rate
 

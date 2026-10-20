@@ -184,7 +184,7 @@ TEST_CASE("TapSeq: LOOP が入っていれば組に沿って進み、最後の�
     CHECK(got == std::vector<float>{ 1, 2, 2, 3, 1, 2, 2, 3 });
 }
 
-TEST_CASE("TapSeq: LOOP が切れていれば組は効かない。RESET でループも数え直す")
+TEST_CASE("TapSeq: LOOP が切れていれば組は効かない。CLEAR STEP でループも数え直す")
 {
     StepTable table(0.0f, 0.0f);
 

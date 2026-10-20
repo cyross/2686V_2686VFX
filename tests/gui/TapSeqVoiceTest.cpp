@@ -9,6 +9,8 @@
 //                   ので、レガートや、離してすぐ押し直したときに段が進まなかった
 //
 // どれもビルドもテストも素通りし、鳴らして初めて分かった。
+//
+// 4.1.0 から、cursor は「いまの段」(最後に鍵で使った段。負は開始前) を持つ。
 #include "doctest/doctest.h"
 
 #include <JuceHeader.h>
@@ -119,12 +121,14 @@ TEST_CASE("TAP SEQUENCER: 打鍵 1 回につき段を 1 つだけ進める (ユ�
 
                 rig.run();
 
+                CHECK(table->cursor.load() < 0);
+
                 rig.send({ on(60) });
-                CHECK(table->cursor.load() == 1);
+                CHECK(table->cursor.load() == 0);
 
                 rig.send({ off(60) });
                 rig.send({ on(62) });
-                CHECK(table->cursor.load() == 2);
+                CHECK(table->cursor.load() == 1);
 
                 if (!hasUnison) MESSAGE("UNISON が無いチャンネル");
             }
@@ -140,19 +144,22 @@ TEST_CASE("TAP SEQUENCER: 打鍵 1 回につき段を 1 つだけ進める (ユ�
                 rig.run();
 
                 rig.send({ on(60) });
-                CHECK(table->cursor.load() == 1);
+                CHECK(table->cursor.load() == 0);
 
                 // レガート (前の鍵を押したまま)
                 rig.send({ on(62) });
-                CHECK(table->cursor.load() == 2);
+                CHECK(table->cursor.load() == 1);
 
                 // 離して、同じブロックのうちに押し直す。ボイスはまだリリースで鳴っている。
                 // 60 を離したときは 62 を押したままなので、62 へ戻るだけで段は進まない
                 rig.send({ off(60), off(62), on(64) });
+                CHECK(table->cursor.load() == 2);
+
+                rig.send({ off(64), on(65) });
                 CHECK(table->cursor.load() == 3);
 
                 // 4 段なので 1 段目へ戻る
-                rig.send({ off(64), on(65) });
+                rig.send({ off(65), on(67) });
                 CHECK(table->cursor.load() == 0);
             }
 

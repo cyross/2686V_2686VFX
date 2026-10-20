@@ -51,6 +51,43 @@ TEST_CASE("StepTable: ループの組も文字へ書き出して読み戻せる�
     CHECK(b.loopCount() == 0);
 }
 
+TEST_CASE("StepTable: SKIP の段も文字へ書き出して読み戻せる。組が無くても挟んで書く")
+{
+    StepTable a(0.0f, 1.0f);
+    a.setLevel(2, 0.5f);
+    a.setSkip(3, true);
+    a.setSkip(200, true);
+
+    const auto text = StepTableIo::toText(a);
+
+    CHECK(text.endsWith("||3,200"));
+
+    StepTable b(0.0f, 1.0f);
+    b.setSkip(5, true);
+    StepTableIo::fromText(b, text);
+
+    CHECK(b.skipped(3));
+    CHECK(b.skipped(200));
+    CHECK_FALSE(b.skipped(5));
+    CHECK(b.loopCount() == 0);
+    CHECK(b.level(2) == doctest::Approx(0.5f));
+
+    // 組と並べても読める
+    a.setLoops({ { 1, 2, 1 } });
+    StepTableIo::fromText(b, StepTableIo::toText(a));
+
+    CHECK(b.loopCount() == 1);
+    CHECK(b.skipped(3));
+
+    // SKIP の無い文字 (4.0.x まで) を読むと、SKIP は外れる
+    StepTable plain(0.0f, 1.0f);
+    plain.setLevel(2, 0.5f);
+    StepTableIo::fromText(b, StepTableIo::toText(plain));
+
+    CHECK_FALSE(b.skipped(3));
+    CHECK_FALSE(b.hasSkips());
+}
+
 TEST_CASE("StepEnvLegacy: [11] の state を [256] のパラメータと表へ写す")
 {
     StepTableStore store;

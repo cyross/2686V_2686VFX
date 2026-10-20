@@ -39,16 +39,23 @@ void GuiTapBars::paint(juce::Graphics& g)
         for (int i = 0; i < n; ++i) {
             const float y = area.getY() + rowH * (float)i;
             const float x1 = xOf(values[(size_t)i]);
+            const bool isSkip = i < (int)skips.size() && skips[(size_t)i];
 
-            auto bar = juce::Rectangle<float>(std::min(x0, x1), y, std::abs(x1 - x0), rowH).reduced(0.0f, rowH > 3.0f ? 0.5f : 0.0f);
+            auto bar = isSkip
+                ? juce::Rectangle<float>(area.getX(), y, area.getWidth(), rowH)
+                : juce::Rectangle<float>(std::min(x0, x1), y, std::abs(x1 - x0), rowH);
+
+            bar = bar.reduced(0.0f, rowH > 3.0f ? 0.5f : 0.0f);
 
             if (i == cursor) {
-                // 次に押したときに使う段は、行ごと地を変える
+                // いまの段は、行ごと地を変える (開始前は cursor が負で、どこも変えない)
                 g.setColour(GuiColor::StepValues::SelectedBg.get());
                 g.fillRect(juce::Rectangle<float>(area.getX(), y, area.getWidth(), rowH));
             }
 
-            g.setColour(i == selected ? GuiColor::StepValues::Selected.get() : GuiColor::StepValues::Text.get());
+            if (isSkip) g.setColour(i == selected ? GuiColor::StepValues::SkipSelected.get() : GuiColor::StepValues::Skip.get());
+            else g.setColour(i == selected ? GuiColor::StepValues::Selected.get() : GuiColor::StepValues::Text.get());
+
             g.fillRect(bar);
         }
 
@@ -76,12 +83,13 @@ GuiComponentTapSeq::GuiComponentTapSeq(const GuiContext& context, Kind k) :
     loopSeparator(context),
     target(context),
     value(context),
+    skip(context),
     ampBtns(context),
     pitchBtns(context),
     listSeparator(context),
     increment(context),
     decrement(context),
-    reset(context)
+    clearStep(context)
 {
 }
 
@@ -139,6 +147,13 @@ void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::Str
     value.getSlider().setNumDecimalPlacesToDisplay(spec.integer ? 0 : 3);
     value.getSlider().onValueChange = [this] { onValueChanged(); };
 
+    // S.TARGET の段を補正しない段にする。立っているあいだはボタンも赤くする
+    skip.setup({ .parent = parent, .title = "SKIP", .isReset = false });
+    skip.setColour(juce::TextButton::buttonOnColourId, GuiColor::StepValues::Skip.get());
+    skip.setWantsKeyboardFocus(true);
+    skip.setExplicitFocusOrder(++tabOrder);
+    skip.onClick = [this] { toggleSkip(); };
+
     if (isAmp()) ampBtns.setupComponent(parent, value.getSlider(), tabOrder, labelFont);
     else pitchBtns.setupComponent(parent, value.getSlider(), tabOrder, labelFont);
 
@@ -159,10 +174,11 @@ void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::Str
     decrement.setExplicitFocusOrder(++tabOrder);
     decrement.onClick = [this] { moveCursor(-1, false); };
 
-    reset.setup({ .parent = parent, .title = "RESET", .isReset = false });
-    reset.setWantsKeyboardFocus(true);
-    reset.setExplicitFocusOrder(++tabOrder);
-    reset.onClick = [this] { moveCursor(0, true); };
+    // 開始前へ戻す (4.0.0 の RESET。次に押すと 1 段目)
+    clearStep.setup({ .parent = parent, .title = "CLEAR STEP", .isReset = false });
+    clearStep.setWantsKeyboardFocus(true);
+    clearStep.setExplicitFocusOrder(++tabOrder);
+    clearStep.onClick = [this] { moveCursor(0, true); };
 
     // 区分の右クリックの COPY / PASTE で表も写す
     value.getSlider().getProperties().set(ParamEdit::Property::stepTable, code + spec.keys.base);
@@ -211,22 +227,47 @@ void GuiComponentTapSeq::rebindValue()
         const juce::ScopedValueSetter<bool> loading(isLoadingValue, true);
 
         value.getSlider().setValue(t->level(idx), juce::dontSendNotification);
+        skip.setToggleState(t->skipped(idx), juce::dontSendNotification);
     }
 
     refresh();
 }
 
+// 値を動かしたら、その段の SKIP は外す (棒を元の色へ戻す)
 void GuiComponentTapSeq::onValueChanged()
 {
     if (isLoadingValue) return;
 
-    if (auto* t = table()) t->setLevel(juce::jlimit(1, stepCount(), (int)target.getValue()), (float)value.getSlider().getValue());
+    if (auto* t = table()) {
+        const int idx = juce::jlimit(1, stepCount(), (int)target.getValue());
+
+        t->setLevel(idx, (float)value.getSlider().getValue());
+
+        if (t->skipped(idx)) t->setSkip(idx, false);
+
+        skip.setToggleState(false, juce::dontSendNotification);
+    }
 
     refresh();
 }
 
-// 次に使う段を動かす。音の側も同じ cursor を見る。
-// INCREMENT は押したときと同じくループに沿って進み、RESET はループも数え直す。
+void GuiComponentTapSeq::toggleSkip()
+{
+    auto* t = table();
+
+    if (t == nullptr) return;
+
+    const int idx = juce::jlimit(1, stepCount(), (int)target.getValue());
+
+    t->setSkip(idx, !t->skipped(idx));
+    skip.setToggleState(t->skipped(idx), juce::dontSendNotification);
+
+    refresh();
+}
+
+// いまの段を動かす。音の側も同じ cursor を見る。
+// INCREMENT は押したときと同じくループに沿って進み、CLEAR STEP は開始前へ戻して
+// ループも数え直す。開始前からは、INCREMENT は 1 段目、DECREMENT は最後の段へ。
 void GuiComponentTapSeq::moveCursor(int delta, bool toStart)
 {
     auto* t = table();
@@ -240,7 +281,7 @@ void GuiComponentTapSeq::moveCursor(int delta, bool toStart)
     }
 
     const int n = stepCount();
-    int c = juce::jlimit(0, n - 1, t->cursor.load());
+    int c = t->cursor.load();
 
     if (delta > 0) {
         TapSeqParams p;
@@ -250,10 +291,10 @@ void GuiComponentTapSeq::moveCursor(int delta, bool toStart)
         p.loop = loop.getToggleState();
         p.table = t;
 
-        c = tapSeqNext(p, c);
+        c = tapSeqForward(p, c);
     }
     else {
-        c = (c + delta + n) % n;
+        c = tapSeqBack(n, c);
     }
 
     t->cursor.store(c);
@@ -267,19 +308,28 @@ void GuiComponentTapSeq::refresh()
     const auto* t = table();
 
     bars.values.clear();
+    bars.skips.clear();
     list.labels.clear();
     list.values.clear();
+    list.skipped.clear();
 
     for (int s = 1; s <= n; ++s) {
         const float v = t != nullptr ? t->level(s) : spec.valueInitial;
+        const bool skipped = t != nullptr && t->skipped(s);
 
         bars.values.push_back(v);
+        bars.skips.push_back(skipped);
         list.labels.push_back("S" + juce::String(s));
         list.values.push_back(v);
+        list.skipped.push_back(skipped);
     }
 
     bars.selected = juce::jlimit(1, n, (int)target.getValue()) - 1;
-    bars.cursor = t != nullptr ? juce::jlimit(0, n - 1, t->cursor.load()) : -1;
+
+    // 開始前 (負) や、STEPS を減らして外へ出た段は、どの行も変えない
+    const int c = t != nullptr ? t->cursor.load() : -1;
+
+    bars.cursor = (c >= 0 && c < n) ? c : -1;
     bars.repaint();
 
     list.selected = bars.selected;
@@ -295,7 +345,8 @@ void GuiComponentTapSeq::refresh()
     }
 }
 
-// 表は外から書き換わる (読み込み・初期化・貼り付け)。次に使う段は鍵を押すと進む。
+// 表は外から書き換わる (読み込み・初期化・貼り付け)。いまの段は鍵を押すと進み、
+// DAW の再生を止めると開始前へ戻る。
 void GuiComponentTapSeq::timerCallback()
 {
     auto* t = table();
@@ -322,6 +373,7 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     loopSeparator.setVisible(visible);
     target.setVisibleWithLabel(visible);
     value.setVisibleWithLabel(visible);
+    skip.setVisible(visible);
     ampBtns.setVisibles(visible && isAmp() && value.isVisibleNudge());
     pitchBtns.setVisibles(visible && !isAmp() && value.isVisibleNudge());
     bars.setVisible(visible);
@@ -329,7 +381,7 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     listSeparator.setVisible(visible);
     increment.setVisible(visible);
     decrement.setVisible(visible);
-    reset.setVisible(visible);
+    clearStep.setVisible(visible);
 
     if (!visible) return;
 
@@ -347,6 +399,7 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
 
     layoutMain({ .mainRect = rect, .label = &target.label, .component = &target, .rowHeight = h });
     value.layoutComponent(rect, h);
+    layoutMain({ .mainRect = rect, .component = &skip, .rowHeight = h });
 
     if (value.isVisibleNudge()) {
         if (isAmp()) ampBtns.layoutComponent(rect, h);
@@ -358,7 +411,7 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     list.setBounds(rect.removeFromTop(list.getNaturalHeight()));
 
     listSeparator.layoutComponent(rect);
-    layoutMainThreeComps({ .rect = rect, .comp1 = &increment, .comp2 = &decrement, .comp3 = &reset, .rowHeight = h });
+    layoutMainThreeComps({ .rect = rect, .comp1 = &increment, .comp2 = &decrement, .comp3 = &clearStep, .rowHeight = h });
 
     rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
@@ -390,6 +443,7 @@ void GuiComponentTapSeq::applyActive()
 
     target.setEnabledWithLabel(active);
     value.setEnabled(active);
+    skip.setEnabled(active);
     ampBtns.setEnables(active);
     pitchBtns.setEnables(active);
     bars.setEnabled(active);
@@ -397,7 +451,7 @@ void GuiComponentTapSeq::applyActive()
     listSeparator.setEnabled(active);
     increment.setEnabled(active);
     decrement.setEnabled(active);
-    reset.setEnabled(active);
+    clearStep.setEnabled(active);
 }
 
 // ---------------------------------------------------------------- ファイル
@@ -462,6 +516,12 @@ void GuiComponentTapSeq::readValues(const Io::ParamReader& r)
 
         for (size_t i = 0; i + 2 < flat.size(); i += 3) entries.push_back({ (int)flat[i], (int)flat[i + 1], (int)flat[i + 2] });
 
+        // SKIP の段も 4.1.0 から。段の番号 (1 から) を並べる。無ければ外す
+        const auto skips = r.getFloatArray("skips");
+
+        for (int s = 1; s <= StepTable::size; ++s) t->skips[(size_t)s - 1].store(false);
+        for (const float s : skips) if ((int)s >= 1 && (int)s <= StepTable::size) t->skips[(size_t)s - 1].store(true);
+
         t->setLoops(entries);
     }
 
@@ -499,6 +559,15 @@ void GuiComponentTapSeq::writeValues(Io::ParamWriter& w)
     }
 
     w.setArray("loops", flat);
+
+    // SKIP の段の番号 (1 から)
+    std::vector<float> skips;
+
+    if (auto* t = table()) {
+        for (int s = 1; s <= StepTable::size; ++s) if (t->skipped(s)) skips.push_back((float)s);
+    }
+
+    w.setArray("skips", skips);
 }
 
 void GuiComponentTapSeq::readParams(const Io::ParamReader& reader, const juce::String& key)
