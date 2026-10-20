@@ -28,6 +28,7 @@ void StepEnv::setParameters(const StepEnvParams& p)
 	loop = p.loop;
 	loopTo = p.loopTo;
 	loopCount = p.loopCount;
+	rich = p.loopMode == StepLoop::Rich;
 	lr = p.lr;
 	rr = p.rr;
 	endl = p.endl;
@@ -35,8 +36,9 @@ void StepEnv::setParameters(const StepEnvParams& p)
 	keep = p.keep;
 	l[0] = p.stl;
 
-	// 画面でも直しているが、念のためここでもループできる形にする
-	if (loop) {
+	// 画面でも直しているが、念のためここでもループできる形にする。
+	// Rich Mode は 1 段でもループできるので直さない。
+	if (loop && !rich) {
 		if (steps < 2) steps = 2;
 		if (steps - loopTo < 2) loopTo = steps - 2;
 	}
@@ -75,6 +77,7 @@ float StepEnv::curve(int param, float x) const
 void StepEnv::noteOn()
 {
 	loopCounter = 0;
+	richState.clear();
 	current = l[0];
 	keepLevel = current;
 	state = State::Running;
@@ -104,7 +107,7 @@ void StepEnv::beginStep(int s)
 {
 	step = s;
 	holding = false;
-	looping = loop && s == steps && (loopCount == 0 || loopCounter < loopCount);
+	looping = loop && !rich && s == steps && (loopCount == 0 || loopCounter < loopCount);
 	startLevel = current;
 	target = looping ? levelOf(loopTo) : levelOf(s);
 	progress = 0.0f;
@@ -145,9 +148,11 @@ void StepEnv::advance()
 		return;
 	}
 
-	// 最後の段を走り終えて保っているところ。値を動かしたときに追うよう、毎回取り直す。
+	// 最後の段を走り終えて保っているところ (サステイン)。値を動かしたときに追うよう、
+	// 毎回取り直す。KEEP のときも、ここからは最後の段の値を出す。
 	if (holding) {
 		current = levelOf(step);
+		keepLevel = current;
 		return;
 	}
 
@@ -177,17 +182,34 @@ void StepEnv::advance()
 
 		beginStep(loopTo + 1);
 	}
+	else if (loop && rich) {
+		// 表のループの組で、次に進む段を決める。STEPS を越えたら最後の段を保つ
+		const int nextStep = table != nullptr ? StepLoop::next(table->loopView(), table->loopCount(), steps, richState, step) : step + 1;
+
+		if (nextStep > steps) {
+			hold();
+			return;
+		}
+
+		beginStep(nextStep);
+	}
 	else if (step < steps) {
 		beginStep(step + 1);
 	}
 	else {
-		// 最後の段を保つ。段は変わらないので KEEP の値も取り直さない
-		// ([11] と同じ。KEEP のあいだ、最後の段の値はリリースの後に出る)。
-		holding = true;
+		hold();
 		return;
 	}
 
 	// 段が変わったので、KEEP で保つ値を取り直す
+	keepLevel = current;
+}
+
+// 最後の段を走り終えた。離すまで最後の段の値を保つ (サステイン)。
+// KEEP のときも最後の段の値へ移る。離すと、この値から RR 秒で LR へ向かう。
+void StepEnv::hold()
+{
+	holding = true;
 	keepLevel = current;
 }
 

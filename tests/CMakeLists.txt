@@ -289,7 +289,9 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
     if(NOT CY_PLUGIN STREQUAL "2686VFX")
         target_sources(${CY_GUI_TEST} PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/gui/ChannelQualityTest.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/gui/VoicePitchTest.cpp")
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/VoicePitchTest.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/TapSeqVoiceTest.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/TapSeqLayoutTest.cpp")
     endif()
 
     target_link_libraries(${CY_GUI_TEST} PRIVATE ${CY_PLUGIN})

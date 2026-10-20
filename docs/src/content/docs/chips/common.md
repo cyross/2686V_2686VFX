@@ -216,8 +216,8 @@ SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置�
 
 鍵を押すと **STL** から始まり、**R1** 秒かけて **L1** へ、**R2** 秒かけて
 **L2** へ…と **STEP** の段数まで進みます。最後の段まで来たら、離すまでその
-音量を保ちます。離すと、そのときの音量から **RR** 秒かけて **LR** へ向かい
-ます。
+音量を保ちます（サステイン。KEEP を入れていても最後の段の値を保ちます）。離すと、
+そのときの音量から **RR** 秒かけて **LR** へ向かいます。
 
 | つまみ | 内容 | 範囲 | 初期値 | オートメーション |
 | --- | --- | --- | ---: | --- |
@@ -225,8 +225,11 @@ SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置�
 | **STEP** | 使う段の数 | 1 〜 256 | 10 | [`SSG_SSGSW256_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-steps) |
 | **KEEP** | 段のあいだを斜めに繋がず、その段の頭の値を保つ | False / True | False | [`SSG_SSGSW256_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-keep) |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW256_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loop) |
-| **LOOP.TO** | 戻り先の段 | 0 〜 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopto) |
-| **LOOP.CNT** | 繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW256_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopcnt) |
+| **LOOP MODE** | 繰り返し方。Original Mode / Rich Mode（[下](#loop-mode--rich-mode)） | 0 〜 1 | 0（Original） | [`SSG_SSGSW256_LOOPMODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopmode) |
+| **LOOP.TO** | Original Mode。戻り先の段 | 0 〜 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopto) |
+| **LOOP.CNT** | Original Mode。繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW256_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopcnt) |
+| **LP.TARGET** / **START** / **END** / **COUNT** | Rich Mode。直すループの組と、その START・END・COUNT | 1 〜 組の数 / 1 〜 STEP / 1 〜 STEP / 0 〜 200 | — | —（表で持つ） |
+| **ADD** / **DELETE** | Rich Mode。ループの組を足す・消す（最大 256 個） | — | — | — |
 | **R.TARGET** / **RATE** | R を変える段と、その段の時間（秒） | 1 〜 STEP / 0.001 〜 10 | — / 0.001 | —（表で持つ） |
 | **L.TARGET** / **LEVEL** | L を変える段（0 が STL）と、その段の音量 | 0 〜 STEP / 0 〜 1 | — / 1 | STL だけ [`SSG_SSGSW256_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-stl) |
 | **STEPS** | LEVEL・LR・ENDL を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
@@ -245,6 +248,38 @@ SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置�
 - RATE / LEVEL の右の **N** で、値を少しずつ動かすボタンが出ます
 - 区分の見出しの右クリックで、表ごと写せます（CUT / COPY / PASTE / CLEAR /
   DUPLICATE）
+
+#### LOOP MODE — Rich Mode
+
+LOOP の下の **LOOP MODE** で、繰り返し方を選びます（4.1.0 から）。初期値は
+**Original Mode** で、これまでと同じく最後の段から **LOOP.TO** へ **LOOP.CNT** 回戻ります。
+
+**Rich Mode** にすると、LOOP.TO / LOOP.CNT の代わりに **START・END・COUNT** の組を
+最大 **256 個**かけられます。どちらのモードでも、LOOP を切っているあいだは繰り返しません。
+
+- **END** の段を終えたら **START** の段へ戻ります。戻るのは **COUNT** 回（**0 は無限**）で、
+  START〜END の段を COUNT + 1 回通ります（LOOP.CNT と同じ数え方）。戻ったときは
+  L(END) から L(START) へ、R(START) 秒かけて進みます
+- 組はいつも START・END の昇順に並べます。**LP.TARGET** で組を選び、START / END / COUNT で
+  直します。START や END を動かして並びが変わっても、LP.TARGET は動かした組を指し続けます
+- **ADD** で「1〜STEP を 1 回戻る」組を足し、**DELETE** で選んでいる組を消します
+- 組は下の一覧に **No / START / END / COUNT** の列で並びます。組が増えるたびに区分が縦に
+  伸びます。行を押しても組を選べます。STEP より後ろの段にかかる組は効かないので薄く出ます
+- 組は段の表と一緒に保存します。オートメーションで動かせるのは LOOP MODE だけです
+
+組がいくつもあるときは、**START が先の組から順に**効きます（START が同じなら END が先の組から）。
+
+- **入れ子**: 内側を回し終えてから外側が戻ります。外側が戻るたびに、内側は数え直します。
+  たとえば 1〜4 を 1 回、2〜3 を 1 回なら「1 2 3 2 3 4 1 2 3 2 3 4」と進みます
+- **跨ぎ**: 先に始まったループの中で始まり、その END より後で終わる組があるときは、
+  先のループを回し終えてから、次のループの START へ進みます。たとえば 1〜3 を 1 回、
+  2〜5 を 1 回なら「1 2 3 1 2 3 2 3 4 5 2 3 4 5」と進み、1〜3 はもう回しません
+
+:::caution[入れ子の内側や、跨がれている側を無限にしない]
+入れ子の内側や、跨がれている側の COUNT を 0（無限）にすると、外側や跨いでいる側へ
+進めなくなります。そのとおりに鳴るだけで止まりはしませんが、一覧の COUNT に橙色の
+**! INF** が出ます。
+:::
 
 #### 3.6.3 までの [11] から
 
@@ -268,7 +303,7 @@ SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置�
   L が **TL1〜TL256**、対象のつまみが **TL.TARGET**、値のつまみが **TL** です
 - 実機と同じく、段のあいだは値を斜めに繋がず保ちます（常に KEEP。KEEP の札はありません）
 - 値のつまみの下の **STEPS** で TL の刻みへ丸められ、ボタン（−8 / −1 / 0 / +1 / +8 / 最大）で動かせます
-- RATE・STEP・LOOP・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- RATE・STEP・LOOP（LOOP MODE を含む）・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
 - 区分のパラメータファイルは `.tlEnv` で、見出しの右クリックから読み書きします
 
 ### ALG ENV
@@ -284,7 +319,7 @@ ALGORITHM/FEEDBACK の FEEDBACK の下に並びます（4.0.0 から）。**ALG�
 - 値は ALG の番号（0 から。OPNA / OPN / OPM / OPL3 は 0〜7、OPL は 0〜1、OPZX7S は ALG の数まで）。
   名前は STL が **STALG**、L が **ALG1〜ALG256**、対象のつまみが **ALG.TARGET**、値のつまみが **ALG** です
 - 段のあいだは値を保ちます（常に KEEP。KEEP の札はありません）。値を動かすボタンと STEPS はありません
-- RATE・STEP・LOOP・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- RATE・STEP・LOOP（LOOP MODE を含む）・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
 - FEEDBACK を掛けるオペレーターは、ブロックの頭の ALG で決まります
 - 区分のパラメータファイルは `.algEnv` で、見出しの右クリックから読み書きします
 
@@ -352,7 +387,8 @@ Enable にすると 1 オクターブの範囲で音程が動きます。MIN と
 | **Bypass / Enable** | 使う・使わない | False / True | True | [`SSG_SSGSWP256_BYPASS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-bypass) |
 | **STEP** | 使う段の数 | 1 〜 256 | 10 | [`SSG_SSGSWP256_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-steps) |
 | **KEEP** | 段の頭の値を保つ | False / True | False | [`SSG_SSGSWP256_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-keep) |
-| **LOOP** / **LOOP.TO** / **LOOP.CNT** | 繰り返し | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-loop) など |
+| **LOOP** / **LOOP MODE** / **LOOP.TO** / **LOOP.CNT** | 繰り返し。LOOP MODE（[Rich Mode](#loop-mode--rich-mode)）も AMP と同じ | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-loop) など |
+| **LP.TARGET** / **START** / **END** / **COUNT** / **ADD** / **DELETE** | Rich Mode のループの組 | — | — | —（表で持つ） |
 | **R.TARGET** / **RATE** | R を変える段と、その段の時間（秒） | 1 〜 STEP / 0.001 〜 10 | — / 0.001 | —（表で持つ） |
 | **L.TARGET** / **LEVEL** | L を変える段（0 が STL）と、その段の音程（セント） | 0 〜 STEP / -4800 〜 4800 | — / 0 | STL だけ [`SSG_SSGSWP256_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-stl) |
 | **RR** / **LR** | 離してから LR へ届くまでの時間と、向かう音程 | 0.001 〜 10 / -4800 〜 4800 | 0.001 / 0 | [`SSG_SSGSWP256_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-rr) / [`SSG_SSGSWP256_LR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-lr) |
@@ -377,18 +413,34 @@ LEVEL の右の **N** では、半音・オクターブなど音程向けのボ�
 | --- | --- | --- | ---: |
 | **Enable** | 使う | 入 / 切 | 切 |
 | **STEPS** | 段の数。1 のときは毎回同じ値で補正する | 1 〜 256 | 1 |
+| **LOOP** | ループの組に沿って段を戻す（4.1.0 から） | 入 / 切 | 切 |
+| **LP.TARGET** / **START** / **END** / **COUNT** | 直すループの組と、その START・END・COUNT（0 は無限） | 1 〜 組の数 / 1 〜 STEPS / 1 〜 STEPS / 0 〜 200 | — |
+| **ADD** / **DELETE** | ループの組を足す・消す（最大 256 個） | — | — |
 | **S.TARGET** | 値のつまみで直す段 | 1 〜 STEPS | 1 |
 | **RATIO / CENT** | その段の値。下のボタンで少しずつ動かせる | 上の表 | 上の表 |
-| **INCREMENT** | 次に使う段を 1 つ進める（最後の段の次は 1） | — | — |
-| **DECREMENT** | 次に使う段を 1 つ戻す（1 の前は最後の段） | — | — |
-| **RESET** | 次に使う段を 1 に戻す | — | — |
+| **SKIP** | S.TARGET の段を SKIP にする（ON。ボタンが赤くなる）・外す（OFF）（4.1.0 から）。SKIP の段では何も変えない | OFF / ON | OFF |
+| **INCREMENT** | いまの段を 1 つ進める（最後の段の次は 1。開始前からは 1）。LOOP が入っていれば、押したときと同じく組に沿って進む | — | — |
+| **DECREMENT** | いまの段を 1 つ戻す（1 の前は最後の段。開始前からは最後の段） | — | — |
+| **CLEAR STEP** | 開始前へ戻す（次に押すと 1 段目）。ループも数え直す。4.0.0 の RESET | — | — |
 
-- 段の値は横向きの棒で並びます。地の色が変わっている段が、次に押したときに使う段です
+- 段の値は横向きの棒で並びます。地の色が変わっている段が、**いまの段**（最後に鍵で使った段）です
+- 押す前と、DAW の再生を止めたあとは**開始前**で、どの段の地も変わりません。次に押すと 1 段目を使います。
+  4.0.0 では「次に使う段」を出していたので、押す前から 1 段目を指し、押すと鳴らした段の次を指していました
+- **SKIP**（4.1.0 から）の段では、段は進みますが音量・音程を何も変えません（音量 1 倍・音程 0 セント）。
+  棒は左から右までいっぱいの赤（S.TARGET が指しているときは橙）になり、一覧には「SKIP」と出ます。
+  もう一度押すか、その段の RATIO / CENT を動かすと外れます
 - その下に「S1: 値 / S2: 値 / …」の一覧が 1 行 4 個ずつ並びます。STEPS を変えると、すぐに高さが変わります
-- 次に使う段はチャンネルで 1 つです。どのボイスで押しても同じ並びを進みます
-- INCREMENT / DECREMENT / RESET はオートメーションでも押せます（値が 0.5 を下から越えたときに 1 回動く）
-- 段の値は表としてプリセット・チャンネルパラメータへ保存します（オートメーションでは動かせません）。
+- いまの段はチャンネルで 1 つです。どのボイスで押しても同じ並びを進みます
+- 段は**打鍵 1 回につき 1 つ**だけ進みます。ユニゾンでも声の数だけ進むことはなく、声すべてが同じ段の値で鳴ります。
+  モノのレガートや、離してすぐ押し直したときも進みます。モノで鍵を離して、押したままの前の鍵へ戻るときは進みません（4.1.0 で直しました）
+- INCREMENT / DECREMENT / CLEAR STEP はオートメーションでも押せます（値が 0.5 を下から越えたときに 1 回動く）。
+  CLEAR STEP の ID は 4.0.0 の RESET のまま（`_RESET`）です
+- 段の値と SKIP は表としてプリセット・チャンネルパラメータへ保存します（オートメーションでは動かせません）。
   区分のパラメータファイルは `.tapAmp` / `.tapPitch` で、見出しの右クリックから読み書きします
+- **LOOP**（4.1.0 から）を入れると、押すたびに進む段が、ループの組に沿って戻ります。組の決まり
+  （START・END・COUNT、入れ子、跨ぎ、無限の印）は [SSG SW AMP ENV\[256\] の Rich Mode](#loop-mode--rich-mode)
+  と同じです。最後の段を使ったら 1 段目へ戻り、ループも数え直します。ループの進み具合も、
+  いまの段と同じくチャンネルで 1 つです
 
 ## SPEED — 再生の速さ
 

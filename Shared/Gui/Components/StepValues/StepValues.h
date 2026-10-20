@@ -33,6 +33,9 @@ public:
     std::vector<juce::String> labels;
     std::vector<float> values;
 
+    // 値の代わりに「SKIP」と出す段 (TAP SEQUENCER)。空なら無し。
+    std::vector<bool> skipped;
+
     // いま値のつまみが束縛されている段。-1 なら無し。
     int selected = -1;
 

@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDumpFx",
-  "version": "4.0.0",
-  "count": 330,
+  "version": "4.1.0",
+  "count": 334,
   "parameters": [
     {
       "id": "MODE",
@@ -1191,6 +1191,14 @@
       "default": 0
     },
     {
+      "id": "MOD_SSGSW256_LOOPMODE",
+      "name": "MOD SSG SwEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
       "id": "MOD_SSGSW256_STL",
       "name": "MOD SSG SwEnv256 STL",
       "type": "Float",
@@ -1666,6 +1674,14 @@
       "type": "Int",
       "min": 0,
       "max": 200,
+      "default": 0
+    },
+    {
+      "id": "MOD_SSGSWP256_LOOPMODE",
+      "name": "MOD SSG SwPEnv256 Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
       "default": 0
     },
     {
@@ -2520,6 +2536,14 @@
       "default": 1
     },
     {
+      "id": "MOD_TAPAMP_LOOP",
+      "name": "MOD TapAmp Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "MOD_TAPAMP_INC",
       "name": "MOD TapAmp Increment",
       "type": "Bool",
@@ -2537,7 +2561,7 @@
     },
     {
       "id": "MOD_TAPAMP_RESET",
-      "name": "MOD TapAmp Reset",
+      "name": "MOD TapAmp Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2560,6 +2584,14 @@
       "default": 1
     },
     {
+      "id": "MOD_TAPPITCH_LOOP",
+      "name": "MOD TapPitch Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "MOD_TAPPITCH_INC",
       "name": "MOD TapPitch Increment",
       "type": "Bool",
@@ -2577,7 +2609,7 @@
     },
     {
       "id": "MOD_TAPPITCH_RESET",
-      "name": "MOD TapPitch Reset",
+      "name": "MOD TapPitch Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,

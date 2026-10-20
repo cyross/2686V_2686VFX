@@ -16,12 +16,15 @@
 #include "../PitchButtons/PitchButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../StepValues/StepValues.h"
+#include "../StepLoops/StepLoops.h"
 
 // ============================================================================
 // 段の値を横向きの棒で並べる (TAP SEQUENCER)
 // ============================================================================
 // 段ごとに 1 本。上から 1 段目、2 段目 … と並べ、値の大きさを横の長さで描く。
-// 次に押したときに使う段 (cursor) と、値のつまみが指している段を色で分ける。
+// いまの段 (cursor。最後に鍵で使った段) は行の地を変え、値のつまみが指している段は
+// 棒の色を変える。開始前は、どの行の地も変えない。
+// SKIP の段は、値によらず左から右までいっぱいの赤い棒 (指しているときは橙) で描く。
 class GuiTapBars : public juce::Component
 {
 public:
@@ -34,7 +37,9 @@ public:
     // 0 の線 (音程は 0 から左右へ伸ばす)。範囲の外なら左端
     float zero = 0.0f;
 
-    int cursor = -1;    // 次に使う段 (0 から)
+    std::vector<bool> skips;
+
+    int cursor = -1;    // いまの段 (0 から)。負は開始前
     int selected = -1;  // 値のつまみが指している段 (0 から)
 
     // 段の数で 1 本の高さを決める。多いときは細くして、全体を抑える
@@ -50,12 +55,15 @@ public:
 //
 //   Enable
 //   STEPS
-//   S.TARGET / RATIO (CENT) / 値のボタン
+//   LOOP / LP.TARGET / START / END / COUNT / ADD・DELETE / 一覧 (4.1.0)
+//   S.TARGET / RATIO (CENT) / SKIP (4.1.0) / 値のボタン
 //   棒 (段ごとの値)
 //   帯 (S1: 値 / S2: 値 / ...)
-//   INCREMENT / DECREMENT / RESET  (次に使う段を動かす)
+//   INCREMENT / DECREMENT / CLEAR STEP  (いまの段を動かす。CLEAR STEP は開始前へ戻す)
 //
-// 頭 (Enable・STEPS と、段を動かす札) はパラメータ、段の値は表 (StepTable) にある。
+// 頭 (Enable・STEPS・LOOP と、段を動かす札) はパラメータ、段の値・SKIP・ループの組は
+// 表 (StepTable) にある。SKIP は S.TARGET の段を補正しない段にする。立てたまま
+// RATIO (CENT) を動かすと外れる。
 class GuiComponentTapSeq : public GuiBase, private juce::Timer {
 public:
     enum class Kind { Amp, Pitch };
@@ -99,8 +107,18 @@ private:
     GuiSlider steps;
     NormalSeparator stepsSeparator;
 
+    // ループの組に沿って段を進めるか。組そのものは表に持つ
+    GuiToggleButton loop;
+    GuiComponentStepLoops loops;
+    NormalSeparator loopSeparator;
+
     GuiSlider target;
     GuiComponentNudgeSliderFloat value;
+
+    // SKIP は RATIO と同じ形の行にする (左にラベル、右に OFF / ON のボタン)。
+    // 横いっぱいのボタン 1 つだと、細い帯に見えて区切りと見分けにくかった。
+    GuiLabel skipLabel;
+    GuiTextButton skip;
     GuiComponentSsgSwButtons ampBtns;
     GuiComponentPitchButtons pitchBtns;
     GuiTapBars bars;
@@ -109,7 +127,7 @@ private:
 
     GuiTextButton increment;
     GuiTextButton decrement;
-    GuiTextButton reset;
+    GuiTextButton clearStep;
 
     juce::String paramCode;
     bool outerEnabled = true;
@@ -122,6 +140,12 @@ private:
     std::uint32_t seenVersion = 0;
     int seenCursor = -1;
 
+    // 最後に並べたときのループの一覧の行数。0 はまだ並べていない
+    int laidOutLoopRows = 0;
+
+    // ループの一覧の行数が、最後に並べたときと変わっていれば並べ直してもらう
+    void relayoutIfNeeded();
+
     bool isAmp() const { return kind == Kind::Amp; }
 
     StepTable* table() const;
@@ -130,6 +154,8 @@ private:
     void applyStepCount();
     void rebindValue();
     void onValueChanged();
+    void toggleSkip();
+    void showSkip(bool on);
     void moveCursor(int delta, bool toStart);
     void refresh();
     void applyActive();

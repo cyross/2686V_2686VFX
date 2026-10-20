@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v4.0.0 README
+# Retro Sound VST "2686V" v4.1.0 README
 
 (C)2026 CYROSS
 
@@ -29,13 +29,54 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0-1. What v4.0.1 fixes and changes
+### 3-0-1. What v4.1.0 adds and changes
+
+- **Added "LOOP MODE" to the [256] loops (Rich Mode)**
+  - Applies to SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] and the sections built the same way: TL ENV and ALG ENV (FM chips), DUTY RATIO ENV and PEAK RATIO ENV (SSG). Every channel, operator and pad, and 2686VFX. All plugins
+  - **LOOP MODE** sits under LOOP. The LOOP toggle stays as it was
+  - **Original Mode**: the existing LOOP.TO / LOOP.CNT. This is the default, so existing sounds do not change
+  - **Rich Mode**: up to 256 sets of **START, END and COUNT**. After the END step finishes, playback goes back to the START step, COUNT times (0 is endless; START to END plays COUNT + 1 times)
+  - The sets are sorted by START, then END, and shown as a No / START / END / COUNT list. The section grows taller as sets are added. Pick a set with **LP.TARGET**, edit it with START / END / COUNT, and add or remove sets with **ADD** / **DELETE**. Clicking a row in the list also picks it
+  - Loops take effect from the set whose START comes first; with the same START, the one whose END comes first
+  - Loops can be nested. The inner one finishes first, then the outer one goes back, and the inner one starts counting again each time
+  - When a set crosses another set's END, the loop that started first finishes, then playback moves on to the START of the next loop
+  - Making an inner loop, or a loop that is crossed, endless (COUNT 0) means playback never gets past it. It just plays that way and does not hang, but the list marks its COUNT with an orange "! INF"
+  - Sets that reach past STEP have no effect (they are dimmed in the list)
+  - The sets are saved with the step table in presets, the DAW state, channel parameters and the section's parameter file (`loopMode` / `loops`). Only LOOP MODE can be automated
+- **Added LOOP to TAP AMP / PITCH SEQUENCER**
+  - Under STEPS there is now **LOOP** and the same START, END and COUNT sets as above (up to 256). When it is on, the step that advances on each key press goes back along the sets
+  - After the last step is used, it returns to step 1 and the loops start counting again
+  - INCREMENT advances along the sets just like a key press, and CLEAR STEP (formerly RESET) also restarts the loop counts. DECREMENT still steps back one at a time
+  - Off by default, so existing sounds do not change. Also saved in the section's parameter file (`loop` / `loops`)
+  - Every channel, and 2686VFX (AMP SEQUENCER / PITCH SEQUENCER). All plugins
+- **Fixed: with KEEP on, SSG SW AMP / PITCH ENV[256] and friends never played the last step's value**
+  - While KEEP was on, finishing the last step left the value of the step before it, so L(STEP) was never heard, and the release started from that value too
+  - Once the last step is reached, L(STEP) is now held until release (sustain). With STEPS = 4, it stays at L4 after reaching it, and on release goes from L4 to LR over RR seconds
+  - The same goes for TL ENV, ALG ENV (always KEEP), DUTY RATIO ENV and PEAK RATIO ENV. All plugins
+- **Fixed: TAP AMP / PITCH SEQUENCER did not advance, or did not match the step on screen (since 4.0.0)**
+  - In mono mode, while a note was still sounding (legato, or pressing again right after releasing), the step did not advance
+  - With unison, the step advanced once per unison voice, and each voice played a different step's value. It also disagreed with the "next step" on screen
+  - It now advances by exactly one step per key press and gives every unison voice the same value. In mono mode, releasing a key and going back to a key still held does not advance it. All plugins (2686VFX was already correct)
+- **TAP AMP / PITCH SEQUENCER now shows the step just played, and has a "not started" state**
+  - It used to show the "next step", so it pointed at step 1 before any key was pressed, and after a press it pointed at the step after the one that sounded
+  - The row with a different background is now the step the last key press used (the current step). Before the first press, and after the DAW stops playing, it is **not started** and no row is highlighted. The next press uses step 1
+  - **RESET** is renamed **CLEAR STEP**. It goes back to not started and restarts the loop counts (it sounds the same as RESET did, and the automation ID `_RESET` is unchanged)
+  - INCREMENT / DECREMENT move the current step. From not started, INCREMENT goes to step 1 and DECREMENT to the last step
+  - Every channel, and 2686VFX (AMP SEQUENCER / PITCH SEQUENCER). All plugins
+- **Added SKIP to TAP AMP / PITCH SEQUENCER**
+  - A **SKIP** row sits under RATIO (CENT). Pressing its OFF / ON button makes the S.TARGET step a SKIP step (ON, the button turns red), which changes nothing (level x1, pitch 0 cents). The step still advances
+  - A SKIP step is drawn as a full-width red bar (orange while S.TARGET points at it), and the list shows "SKIP". Press again to clear it
+  - Moving RATIO (CENT) on a SKIP step clears the SKIP and the bar goes back to its usual colour
+  - Saved with the step table in presets, the DAW state, channel parameters and the section's parameter file (`skips`). None by default, so existing sounds do not change
+  - Every channel, and 2686VFX. All plugins
+
+### 3-0-2. What v4.0.1 fixes and changes
 
 - **Fixed: in SSG SW AMP / PITCH ENV, changing STEPS did not resize the value display right away**
   - When the number of rows in the per-step value display (R1... / STL, L1...) changed, the section was not laid out again, so its height stayed the same until the section was folded and unfolded
   - The height now follows STEPS as soon as it changes. The same goes for sections built the same way, such as DUTY RATIO ENV. All plugins
 
-### 3-0-2. What v4.0.0 adds and changes
+### 3-0-3. What v4.0.0 adds and changes
 
 - **The ALGORITHM/FEEDBACK section can now be folded**
   - In the global part of OPNA / OPN / OPL / OPL3 / OPM / OPZX7 (including OPZX7S). It starts open
@@ -116,7 +157,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Saving after that wrote the missing ones with empty values, and loading that file set them to 0 (STEPS 10 → 1, DUTY RATIO ENVELOPE STL 50 → 0, OPZX7S ALG 15 → 0, SSG LEVEL 1 → 0 and so on)
   - Loading now sets parameters that are missing or have empty values to their defaults, so files already saved with empty values also load those parameters at their defaults. All plugins
 
-### 3-0-3. What v3.6.3 fixes and changes
+### 3-0-4. What v3.6.3 fixes and changes
 
 - **2686VFX: stopping playback no longer lets out a short blip**
   - With DELAY / REVERB / SFC ECHO or modulation in use, a burst of sound came out when you stopped
@@ -189,7 +230,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Both bases are tried when reading, so files written either way still load
   - WT, WT2 and WT+ channel parameter files now record their wave files too
 
-### 3-0-4. What v3.6.2 fixes and changes
+### 3-0-5. What v3.6.2 fixes and changes
 
 - **Fixed polyphonic mode getting heavy with fast short notes**
   - Polyphonic mode could stack up to 80 notes, far beyond the 10-note polyphony
@@ -220,7 +261,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - It was checked only inside the effects, so the headroom and the output modulation stayed on
   - It now skips the modulation, the effects and LEVEL, and passes the input straight through
 
-### 3-0-5. What v3.6.1 fixes and changes
+### 3-0-6. What v3.6.1 fixes and changes
 
 - **Fixed loaded waveforms sometimes missing after reopening a project**
   - Found with WT+; it happened in every DAW and in the standalone
@@ -254,7 +295,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - A seek bar (one cycle per frame; the mouse wheel steps one frame; right-click to type a frame number, with the total shown beside it)
     - Vertical zoom (x1 to x8; stretches the waveform, not the view)
 
-### 3-0-6. What v3.6.0 adds and changes
+### 3-0-7. What v3.6.0 adds and changes
 
 - **2686VFX: assign which key drives each modulation**
   - Added "Key assign" to the Effects frame, above the file import/export buttons.
@@ -349,7 +390,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - The tabs (the chip screens, SETTINGS, PRESET and so on) stay per plugin as before.
     - Sound, parameters and saved files are unchanged; the parameters of all twelve were compared before and after.
 
-### 3-0-7. What v3.5.0 adds and changes
+### 3-0-8. What v3.5.0 adds and changes
 
 - **Support for on-the-fly display language selection**
   - Added a "Language (LANGUAGE)" dropdown setting to the top of the **SETTINGS** tab.
@@ -363,7 +404,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Slightly expanded the width of the "Format" label on the **PRESET** tab to accommodate the English word.
   - Removed the parenthesized "(Oscilloscope)" from the wave preview heading in the English layout to ensure the "Waveform preview" text fits within the frame.
 
-### 3-0-8. What v3.4.0 adds and changes
+### 3-0-9. What v3.4.0 adds and changes
 
 - **Passing sounds between the FM chips and OPZX7S**
   - **[EX]OPZX7S Params** added to UTILITY on OPNA / OPN / OPL / OPL3 / OPM
@@ -394,7 +435,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The OPL3 tab did not show its left panel (LEVEL through UTILITY).
   - Opening the save browser after loading a file left out the name field and the save button.
 
-### 3-0-9. What v3.3.0 adds and changes
+### 3-0-10. What v3.3.0 adds and changes
 
 - **The ADPCM+ channel**
   - Loads up to 32 audio files and switches between them while you play.
@@ -466,7 +507,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **More bundled wallpapers**
   - Five wallpaper images have been added alongside the existing one.
 
-### 3-0-10. What v3.2.0 adds and changes
+### 3-0-11. What v3.2.0 adds and changes
 
 - **Control steps are now 0.0001**
   - Floating-point controls moved in steps of 0.01 (the framework default).
@@ -530,7 +571,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **A great many more bundled presets and parameter files**
   - A `fromCC2` folder has been added.
 
-### 3-0-11. What v3.1.0 adds and changes
+### 3-0-12. What v3.1.0 adds and changes
 
 - New modulation
   - **SSG HW PITCH ENV**

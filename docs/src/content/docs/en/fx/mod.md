@@ -162,19 +162,26 @@ multiplied by that step's ratio. Use it, for example, to give each hit of a drum
 | --- | --- | --- | ---: | --- |
 | **Enable** | Turns it on | on / off | off | [`MOD_TAPAMP_ENABLE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-enable) |
 | **STEPS** | Number of steps. At 1, every press uses the same ratio | 1 to 256 | 1 | [`MOD_TAPAMP_STEPS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-steps) |
+| **LOOP** | Goes back along the loop sets (LP.TARGET / START / END / COUNT / ADD / DELETE). From 4.1.0 | on / off | off | [`MOD_TAPAMP_LOOP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-loop) |
 | **S.TARGET** | The step the value knob edits | 1 to STEPS | 1 | — |
 | **RATIO** | That step's ratio. The buttons below nudge it | 0.0 to 4.0 | 1.0 | — |
-| **INCREMENT** | Moves the next step on by one (after the last comes 1) | — | — | [`MOD_TAPAMP_INC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-inc) |
-| **DECREMENT** | Moves the next step back by one (before 1 comes the last) | — | — | [`MOD_TAPAMP_DEC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-dec) |
-| **RESET** | Sets the next step back to 1 | — | — | [`MOD_TAPAMP_RESET`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-reset) |
+| **SKIP** | Makes the S.TARGET step a SKIP step (ON; the button turns red), or clears it (OFF) (from 4.1.0). A SKIP step applies no ratio | OFF / ON | OFF | — |
+| **INCREMENT** | Moves the current step on by one (after the last comes 1; from not started, 1) | — | — | [`MOD_TAPAMP_INC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-inc) |
+| **DECREMENT** | Moves the current step back by one (before 1 comes the last; from not started, the last) | — | — | [`MOD_TAPAMP_DEC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-dec) |
+| **CLEAR STEP** | Goes back to not started (the next press uses step 1). RESET in 4.0.0 | — | — | [`MOD_TAPAMP_RESET`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tapamp-reset) |
 
 - The step values are drawn as horizontal bars, with an "S1: value / S2: value / …" list under them.
-  The step with the changed background is the one the next press will use
+  The step with the changed background is the current step (the one the last press used). Before the
+  first press, and after the DAW stops playing, it is not started and no row is highlighted
+- A SKIP step applies no ratio when pressed (it plays at x1). Its bar is red (orange while S.TARGET
+  points at it). Moving RATIO on a SKIP step clears it
 - Releasing the key silences the output, so the keys also work as a gate that chops the sound
 - It works only while "Bypass envelopes" is off. With that switch on, Enable has no effect
-- INCREMENT / DECREMENT / RESET can also be pressed by automation (once each time the value rises past 0.5)
-- The step values are saved as a table in the FX parameter file and the DAW state (automation cannot move them).
+- INCREMENT / DECREMENT / CLEAR STEP can also be pressed by automation (once each time the value rises past 0.5)
+- The step values and SKIP are saved as a table in the FX parameter file and the DAW state (automation cannot move them).
   The section's own parameter file is `.tapAmp`, read and written from the heading's right-click menu
+- LOOP and the loop sets work as in the instruments' [TAP SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-sequencer).
+  INCREMENT follows the sets, and CLEAR STEP also restarts the loop counts
 
 :::caution[Send MIDI once Enable is on]
 With Enable on, **nothing comes out while no key is held**. Unlike AMP ENV and the others, it does
@@ -245,15 +252,17 @@ that step's cents.
 | --- | --- | --- | ---: | --- |
 | **Enable** | Turns it on | on / off | off | [`MOD_TAPPITCH_ENABLE`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-enable) |
 | **STEPS** | Number of steps. At 1, every press shifts by the same amount | 1 to 256 | 1 | [`MOD_TAPPITCH_STEPS`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-steps) |
+| **LOOP** | Goes back along the loop sets (from 4.1.0; same as AMP SEQUENCER) | on / off | off | [`MOD_TAPPITCH_LOOP`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-loop) |
 | **S.TARGET** | The step the value knob edits | 1 to STEPS | 1 | — |
 | **CENT** | That step's shift in cents. The buttons below nudge it | −2400 to 2400 | 0 | — |
-| **INCREMENT** | Moves the next step on by one (after the last comes 1) | — | — | [`MOD_TAPPITCH_INC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-inc) |
-| **DECREMENT** | Moves the next step back by one (before 1 comes the last) | — | — | [`MOD_TAPPITCH_DEC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-dec) |
-| **RESET** | Sets the next step back to 1 | — | — | [`MOD_TAPPITCH_RESET`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-reset) |
+| **SKIP** | Makes the S.TARGET step a SKIP step (ON; the button turns red), or clears it (OFF) (from 4.1.0). A SKIP step does not shift | OFF / ON | OFF | — |
+| **INCREMENT** | Moves the current step on by one (after the last comes 1; from not started, 1) | — | — | [`MOD_TAPPITCH_INC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-inc) |
+| **DECREMENT** | Moves the current step back by one (before 1 comes the last; from not started, the last) | — | — | [`MOD_TAPPITCH_DEC`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-dec) |
+| **CLEAR STEP** | Goes back to not started (the next press uses step 1). RESET in 4.0.0 | — | — | [`MOD_TAPPITCH_RESET`](/2686V_2686VFX/en/reference/automation/fx-plugin/#mod-tappitch-reset) |
 
 - Releasing the key returns to the original pitch. While no key is held, the sound passes through
 - It works only while "Bypass pitch modulation" is off
-- The step display, the INCREMENT buttons and how it is saved are the same as AMP SEQUENCER.
+- The step display, SKIP, the INCREMENT buttons and how it is saved are the same as AMP SEQUENCER.
   The section's own parameter file is `.tapPitch`
 - Like the other pitch modulation, it works by changing how fast the incoming sound is read back,
   so larger shifts sound grainier

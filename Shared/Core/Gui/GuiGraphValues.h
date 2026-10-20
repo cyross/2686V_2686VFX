@@ -111,7 +111,7 @@ namespace GuiGraphValues
     inline GuiEnvelopeGraph::StepEnvValues stepEnv256(juce::AudioProcessorValueTreeState& apvts, const StepTableStore& tables,
         const juce::String& code, const juce::String& tableKey,
         const juce::String& stepsKey, const juce::String& loopKey, const juce::String& loopToKey, const juce::String& loopCountKey,
-        const juce::String& stlKey, const juce::String& rrKey, const juce::String& lrKey, float levelMax)
+        const juce::String& loopModeKey, const juce::String& stlKey, const juce::String& rrKey, const juce::String& lrKey, float levelMax)
     {
         GuiEnvelopeGraph::StepEnvValues v;
 
@@ -119,8 +119,11 @@ namespace GuiGraphValues
         v.head.loop = flag(apvts, code + loopKey);
         v.head.loopTo = (int)value(apvts, code + loopToKey);
         v.head.loopCount = (int)value(apvts, code + loopCountKey);
+        v.head.loopMode = (int)value(apvts, code + loopModeKey);
 
         const auto* table = tables.find(code + tableKey);
+
+        if (table != nullptr) v.head.loops = table->loopList();
 
         v.r.assign((size_t)v.head.steps + 1, 0.0f);
         v.l.assign((size_t)v.head.steps + 1, 0.0f);
@@ -150,14 +153,14 @@ namespace GuiGraphValues
     inline GuiEnvelopeGraph::StepEnvValues ssgSwEnv256(juce::AudioProcessorValueTreeState& apvts, const StepTableStore& tables, const juce::String& code)
     {
         return stepEnv256(apvts, tables, code, CPK::ssgSwEnv256,
-            CPK::SsgSwEnv256::steps, CPK::SsgSwEnv256::loop, CPK::SsgSwEnv256::loopTo, CPK::SsgSwEnv256::loopCount,
+            CPK::SsgSwEnv256::steps, CPK::SsgSwEnv256::loop, CPK::SsgSwEnv256::loopTo, CPK::SsgSwEnv256::loopCount, CPK::SsgSwEnv256::loopMode,
             CPK::SsgSwEnv256::stl, CPK::SsgSwEnv256::rr, CPK::SsgSwEnv256::lr, CPV::SsgSwEnv256::L::max);
     }
 
     inline GuiEnvelopeGraph::StepEnvValues ssgSwPEnv256(juce::AudioProcessorValueTreeState& apvts, const StepTableStore& tables, const juce::String& code)
     {
         return stepEnv256(apvts, tables, code, CPK::ssgSwPEnv256,
-            CPK::SsgSwPEnv256::steps, CPK::SsgSwPEnv256::loop, CPK::SsgSwPEnv256::loopTo, CPK::SsgSwPEnv256::loopCount,
+            CPK::SsgSwPEnv256::steps, CPK::SsgSwPEnv256::loop, CPK::SsgSwPEnv256::loopTo, CPK::SsgSwPEnv256::loopCount, CPK::SsgSwPEnv256::loopMode,
             CPK::SsgSwPEnv256::stl, CPK::SsgSwPEnv256::rr, CPK::SsgSwPEnv256::lr, (float)CPV::SsgSwPEnv256::L::max);
     }
 

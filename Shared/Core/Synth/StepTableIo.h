@@ -37,21 +37,80 @@ namespace StepTableIo
         }
     }
 
-    // 文字で書き出す。"r1,r2,...|l1,l2,..."。後ろの既定の値は省く。
-    inline juce::String toText(const StepTable& table)
+    // ループの組を文字にする。"start:end:count;start:end:count;..."
+    inline juce::String loopsToText(const std::vector<StepLoop::Entry>& loops)
     {
-        return detail::join(table.r, table.defaultR) + "|" + detail::join(table.l, table.defaultL);
+        juce::StringArray parts;
+
+        for (const auto& e : loops) parts.add(juce::String(e.start) + ":" + juce::String(e.end) + ":" + juce::String(e.count));
+
+        return parts.joinIntoString(";");
     }
 
-    // toText の逆。書かれていない段は既定の値に戻す。
+    inline std::vector<StepLoop::Entry> loopsFromText(const juce::String& text)
+    {
+        std::vector<StepLoop::Entry> loops;
+
+        for (const auto& part : juce::StringArray::fromTokens(text, ";", "")) {
+            const auto v = juce::StringArray::fromTokens(part, ":", "");
+
+            if (v.size() < 3) continue;
+
+            loops.push_back({ v[0].getIntValue(), v[1].getIntValue(), v[2].getIntValue() });
+        }
+
+        return loops;
+    }
+
+    // SKIP の段を文字にする。段の番号 (1 から) を "," で並べる
+    inline juce::String skipsToText(const StepTable& table)
+    {
+        juce::StringArray parts;
+
+        for (int s = 1; s <= StepTable::size; ++s) if (table.skipped(s)) parts.add(juce::String(s));
+
+        return parts.joinIntoString(",");
+    }
+
+    inline void skipsFromText(StepTable& table, const juce::String& text)
+    {
+        std::array<bool, StepTable::size> on{};
+
+        for (const auto& part : juce::StringArray::fromTokens(text, ",", "")) {
+            const int s = part.trim().getIntValue();
+
+            if (s >= 1 && s <= StepTable::size) on[(size_t)s - 1] = true;
+        }
+
+        for (int i = 0; i < StepTable::size; ++i) table.skips[(size_t)i].store(on[(size_t)i], std::memory_order_relaxed);
+    }
+
+    // 文字で書き出す。"r1,r2,...|l1,l2,..."。後ろの既定の値は省く。
+    // ループの組があるときだけ、後ろへ "|start:end:count;..." を足す (4.1.0)。
+    // SKIP の段があるときは、さらに後ろへ "|s1,s2,..." を足す (組が無ければ空のまま挟む)。
+    inline juce::String toText(const StepTable& table)
+    {
+        auto text = detail::join(table.r, table.defaultR) + "|" + detail::join(table.l, table.defaultL);
+
+        const bool skips = table.hasSkips();
+
+        if (table.loopCount() > 0 || skips) text << "|" << loopsToText(table.loopList());
+        if (skips) text << "|" << skipsToText(table);
+
+        return text;
+    }
+
+    // toText の逆。書かれていない段は既定の値に戻す。ループの組や SKIP が無ければ空にする。
     inline void fromText(StepTable& table, const juce::String& text)
     {
         const auto halves = juce::StringArray::fromTokens(text, "|", "");
 
         detail::split(halves.size() > 0 ? halves[0] : juce::String(), table.r, table.defaultR);
         detail::split(halves.size() > 1 ? halves[1] : juce::String(), table.l, table.defaultL);
+        skipsFromText(table, halves.size() > 3 ? halves[3] : juce::String());
 
-        table.version.fetch_add(1, std::memory_order_release);
+        // 版を進めるのは setLoops がする
+        table.setLoops(loopsFromText(halves.size() > 2 ? halves[2] : juce::String()));
     }
 
     // state の要素の名前

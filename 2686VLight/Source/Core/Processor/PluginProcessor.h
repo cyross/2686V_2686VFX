@@ -114,7 +114,13 @@ public:
 
     SynthParams* currentParams = nullptr;
 
-    void voiceUnison(const UnisonParams& unison, int midiChannel, int midiNoteNumber, float velocity, bool isLegato)
+    // TAP AMP / PITCH SEQUENCER の、いま鳴らしている打鍵の値 (割合とセント)。
+    // モノで鍵を離して前の鍵へ戻るときは、段を進めずにこの値で鳴らし続ける。
+    float m_tapGain = 1.0f;
+    float m_tapCents = 0.0f;
+
+    // pressed は鍵を押したとき。モノで鍵を離して前の鍵へ戻るときは false
+    void voiceUnison(const UnisonParams& unison, int midiChannel, int midiNoteNumber, float velocity, bool isLegato, bool pressed = true)
     {
         const int voices = unison.voices;
         const int detune = unison.detuneCents;
@@ -136,10 +142,24 @@ public:
         // ユニゾンは 1 音でボイスをその数だけ使うので、上限もその倍にする。
         m_polyVoiceLimit = Global::voices * juce::jmax(1, uVoices);
 
+        // TAP AMP / PITCH SEQUENCER は打鍵 1 回につき 1 段だけ進め、ユニゾンの声すべてへ
+        // 同じ値を配る。鳴り残っているボイスのコアを直に叩く経路 (モノ) でも同じ。
+        // ボイスの startNote で取り出していたころは、ユニゾンの声の数だけ段が進み、
+        // モノで鳴り残っているあいだは startNote を通らないので段が進まなかった。
+        // 鍵を離して前の鍵へ戻るのは打鍵ではないので、段を進めない。
+        if (pressed) {
+            m_tapGain = tapSeqTake(currentParams->tapAmp, 1.0f);
+            m_tapCents = tapSeqTake(currentParams->tapPitch, 0.0f);
+        }
+
+        const float tapGain = m_tapGain;
+        const float tapCents = m_tapCents;
+
         if (!isMonoMode && uVoices <= 1) {
             if (auto* voice = dynamic_cast<SynthVoice*>(findFreeVoice(getSound(0).get(), midiChannel, midiNoteNumber, true))) {
                 voice->setUnisonParams(0, 1, 0.0f, 0.0f);
                 voice->setArpParams(false, unison.arpFreq, unison.arpSmooth);
+                voice->setTapValues(tapGain, tapCents);
                 startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
             }
             return;
@@ -152,11 +172,15 @@ public:
                 if (auto* voice = dynamic_cast<SynthVoice*>(getVoice(i))) {
                     voice->setUnisonParams(i, uVoices, detune, spread, paraDetuneOf(i), paraDistanceOf(i));
                     voice->setArpParams(unison.arpEnable, unison.arpFreq, unison.arpSmooth);
+                    voice->setTapValues(tapGain, tapCents);
 
                     // 真のレガート処理: JUCEの startVoice は呼ばず、直接コアを叩く！
                     // これにより、波形が強制キルされず、位相や音量が完全に引き継がれます。
                     if (voice->isVoiceActive()) {
                         auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+
+                        if (tapCents != 0.0f) cyclesPerSecond *= std::pow(2.0, (double)tapCents / 1200.0);
+
                         voice->coreMap[(size_t)currentParams->mode]->noteOn(cyclesPerSecond, velocity, midiNoteNumber, isLegato);
                     }
                     else {
@@ -171,6 +195,7 @@ public:
                 if (auto* voice = dynamic_cast<SynthVoice*>(rawVoice)) {
                     voice->setUnisonParams(i, uVoices, detune, spread, paraDetuneOf(i), paraDistanceOf(i));
                     voice->setArpParams(unison.arpEnable, unison.arpFreq, unison.arpSmooth);
+                    voice->setTapValues(tapGain, tapCents);
                     startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
                 }
             }
@@ -370,7 +395,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::OPN:
@@ -379,7 +405,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::OPL:
@@ -388,7 +415,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::OPL3:
@@ -397,7 +425,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::OPM:
@@ -406,7 +435,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::OPZX7:
@@ -415,7 +445,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::SSG:
@@ -424,7 +455,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::WAVETABLE:
@@ -433,7 +465,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::WT2:
@@ -442,7 +475,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::WTPLUS:
@@ -451,7 +485,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::RHYTHM:
@@ -460,7 +495,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::ADPCM:
@@ -469,7 +505,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
 
@@ -479,7 +516,8 @@ public:
                         midiChannel,
                         previousNote,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 case OscMode::BEEP:
@@ -488,7 +526,8 @@ public:
                         midiChannel,
                         midiNoteNumber,
                         targetVelocity,
-                        true
+                        true,
+                        false
                     );
                     break;
                 };

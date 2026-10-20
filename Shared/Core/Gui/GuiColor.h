@@ -496,6 +496,14 @@ namespace GuiColor {
 		inline Entry Selected{ "StepValues.Selected", []() -> juce::Colour { return juce::Colours::yellow; } };
 		inline Entry SelectedBg{ "StepValues.SelectedBg", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.18f); } };
 		inline Entry Frame{ "StepValues.Frame", []() -> juce::Colour { return Palette::BorderGray; } };
+
+		// 段のループの一覧で、無限のまま外側や跨いでいる側へ進めなくしている組の印。
+		inline Entry Warning{ "StepValues.Warning", []() -> juce::Colour { return juce::Colours::orange; } };
+
+		// TAP SEQUENCER の SKIP の段 (補正しない段)。棒を左から右までいっぱいに引く。
+		// 値のつまみが指しているときは SkipSelected。
+		inline Entry Skip{ "StepValues.Skip", []() -> juce::Colour { return juce::Colours::red; } };
+		inline Entry SkipSelected{ "StepValues.SkipSelected", []() -> juce::Colour { return juce::Colours::orange; } };
 	};
 
 	namespace TextButton {

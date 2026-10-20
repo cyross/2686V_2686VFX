@@ -32,9 +32,6 @@ void SynthVoice::setParameters(const SynthParams& params)
     // 各コアの setParameters は代入と派生値の作り直しだけで、値を溜め込まない
     // (refreshPcmBuffer や updatePhaseDelta も、そのとき持っている値から作り直すだけ)。
     if (auto* core = activeCore()) core->setParameters(params);
-
-    m_tapAmp = params.tapAmp;
-    m_tapPitch = params.tapPitch;
 }
 
 void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*, int)
@@ -48,13 +45,10 @@ void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*
     core->setDelaySampleRate(getSampleRate());
     core->beginDelay();
 
-    // TAP AMP / PITCH SEQUENCER。押すたびに段を 1 つ進める。
-    // 音量は割合 (最後に決まった音量へ掛ける)、音程はセント (最後に決まった音程へ足す)。
-    m_tapGain = tapSeqTake(m_tapAmp, 1.0f);
-
-    const float tapCents = tapSeqTake(m_tapPitch, 0.0f);
-
-    if (tapCents != 0.0f) cyclesPerSecond *= std::pow(2.0, (double)tapCents / 1200.0);
+    // TAP AMP / PITCH SEQUENCER。段はシンセが打鍵ごとに 1 回だけ取り出して、
+    // setTapValues で渡してある。音量は割合 (最後に決まった音量へ掛ける)、
+    // 音程はセント (最後に決まった音程へ足す)。
+    if (m_tapCents != 0.0f) cyclesPerSecond *= std::pow(2.0, (double)m_tapCents / 1200.0);
 
     core->noteOn(cyclesPerSecond, velocity, midiNote);
 }

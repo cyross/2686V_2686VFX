@@ -186,6 +186,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 {
     juce::ScopedNoDenormals noDenormals;
 
+    // DAW の再生を止めたら、TAP SEQUENCER を開始前へ戻す。鍵を見る前に
+    stepTables.followTransport(getPlayHead());
+
     // 画面の鍵盤から入った音も混ぜる
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 

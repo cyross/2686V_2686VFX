@@ -37,6 +37,8 @@ The SSG SW AMP ENV[256] settings (since 4.0.0).
 | `flag` | bool | Bypass / Enable |
 | `steps` | float | STEP (1–256) |
 | `loop` / `loopTo` / `loopCount` | bool / float / float | LOOP / LOOP.TO / LOOP.CNT |
+| `loopMode` | float | LOOP MODE (0 = Original Mode, 1 = Rich Mode). From 4.1.0; Original Mode if missing |
+| `loops` | array of float | The Rich Mode loop sets: START, END and COUNT, three per set, in order. From 4.1.0; no sets if missing |
 | `keep` | bool | KEEP |
 | `startLevel` | float | STL (0–1) |
 | `releaseRate` / `releaseLevel` | float | RR (seconds) / LR (0–1) |

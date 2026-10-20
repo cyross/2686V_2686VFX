@@ -16,8 +16,8 @@
 // (矩形波のデューティ比・三角波の頂点など) を動かすもの。どれも「Enable」で
 // 入切し、パラメータの名前は頭 (base) に決まった尻尾を付けて作る。
 //
-//   <base>_ENABLE / _STEPS / _LOOP / _LOOPTO / _LOOPCNT / _STL / _LR / _RR /
-//   _ENDL / _ENDL_EN / _KEEP
+//   <base>_ENABLE / _STEPS / _LOOP / _LOOPTO / _LOOPCNT / _LOOPMODE / _STL / _LR /
+//   _RR / _ENDL / _ENDL_EN / _KEEP
 //
 // 段の R / L は SSG SW AMP ENV[256] と同じく表 (StepTable) に持つ。表の鍵は
 // 頭 + base (例 "SSG_DUTYENV")。
@@ -26,7 +26,7 @@ namespace ValueEnv
 	struct Keys
 	{
 		juce::String base;
-		juce::String enable, steps, loop, loopTo, loopCount, stl, lr, rr, endl, endlEnable, keep;
+		juce::String enable, steps, loop, loopTo, loopCount, loopMode, stl, lr, rr, endl, endlEnable, keep;
 
 		explicit Keys(const juce::String& b) :
 			base(b),
@@ -35,6 +35,7 @@ namespace ValueEnv
 			loop(b + "_LOOP"),
 			loopTo(b + "_LOOPTO"),
 			loopCount(b + "_LOOPCNT"),
+			loopMode(b + "_LOOPMODE"),
 			stl(b + "_STL"),
 			lr(b + "_LR"),
 			rr(b + "_RR"),
@@ -128,6 +129,8 @@ namespace ValueEnv
 			CPV::SsgSwEnv256::LoopTo::min, CPV::SsgSwEnv256::LoopTo::max, CPV::SsgSwEnv256::LoopTo::initial);
 		PrHelper::addInt(layout, prefix + k.loopCount, n + " Loop Count",
 			CPV::SsgSwEnv256::LoopCount::min, CPV::SsgSwEnv256::LoopCount::max, CPV::SsgSwEnv256::LoopCount::initial);
+		PrHelper::addInt(layout, prefix + k.loopMode, n + " Loop Mode", StepLoop::modeMin, StepLoop::modeMax, StepLoop::modeInitial);
+
 		auto addLevel = [&](const juce::String& key, const juce::String& name) {
 			if (s.integerLevel) PrHelper::addInt(layout, prefix + key, n + name, (int)s.levelMin, (int)s.levelMax, (int)s.levelInitial);
 			else PrHelper::addFloat(layout, prefix + key, n + name, s.levelMin, s.levelMax, s.levelInitial);
@@ -151,6 +154,7 @@ namespace ValueEnv
 		p.loop = apvts.getRawParameterValue(prefix + k.loop);
 		p.loopTo = apvts.getRawParameterValue(prefix + k.loopTo);
 		p.loopCount = apvts.getRawParameterValue(prefix + k.loopCount);
+		p.loopMode = apvts.getRawParameterValue(prefix + k.loopMode);
 		p.stl = apvts.getRawParameterValue(prefix + k.stl);
 		p.lr = apvts.getRawParameterValue(prefix + k.lr);
 		p.rr = apvts.getRawParameterValue(prefix + k.rr);
@@ -170,6 +174,7 @@ namespace ValueEnv
 		params.loop = PrHelper::getBool(p.loop);
 		params.loopTo = PrHelper::getInt(p.loopTo);
 		params.loopCount = PrHelper::getInt(p.loopCount);
+		params.loopMode = PrHelper::getInt(p.loopMode);
 		params.stl = PrHelper::getFloat(p.stl);
 		params.lr = PrHelper::getFloat(p.lr);
 		params.rr = PrHelper::getFloat(p.rr);

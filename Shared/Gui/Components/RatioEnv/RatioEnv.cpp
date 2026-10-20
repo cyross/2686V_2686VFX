@@ -20,6 +20,7 @@ namespace
         x.loop = v.keys.loop;
         x.loopTo = v.keys.loopTo;
         x.loopCount = v.keys.loopCount;
+        x.loopMode = v.keys.loopMode;
         x.stl = v.keys.stl;
         x.lr = v.keys.lr;
         x.rr = v.keys.rr;

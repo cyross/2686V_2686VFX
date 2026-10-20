@@ -163,20 +163,27 @@ FIX の音名と同じく、60 が C3 です。
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う | 入 / 切 | 切 | [`MOD_TAPAMP_ENABLE`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-enable) |
 | **STEPS** | 段の数。1 のときは毎回同じ割合で鳴らす | 1 〜 256 | 1 | [`MOD_TAPAMP_STEPS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-steps) |
+| **LOOP** | ループの組（LP.TARGET / START / END / COUNT / ADD / DELETE）に沿って段を戻す（4.1.0 から） | 入 / 切 | 切 | [`MOD_TAPAMP_LOOP`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-loop) |
 | **S.TARGET** | 値のつまみで直す段 | 1 〜 STEPS | 1 | — |
 | **RATIO** | その段の割合。下のボタンで少しずつ動かせる | 0.0 〜 4.0 | 1.0 | — |
-| **INCREMENT** | 次に使う段を 1 つ進める（最後の段の次は 1） | — | — | [`MOD_TAPAMP_INC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-inc) |
-| **DECREMENT** | 次に使う段を 1 つ戻す（1 の前は最後の段） | — | — | [`MOD_TAPAMP_DEC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-dec) |
-| **RESET** | 次に使う段を 1 に戻す | — | — | [`MOD_TAPAMP_RESET`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-reset) |
+| **SKIP** | S.TARGET の段を SKIP にする（ON。ボタンが赤くなる）・外す（OFF）（4.1.0 から）。SKIP の段では割合を掛けない | OFF / ON | OFF | — |
+| **INCREMENT** | いまの段を 1 つ進める（最後の段の次は 1。開始前からは 1） | — | — | [`MOD_TAPAMP_INC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-inc) |
+| **DECREMENT** | いまの段を 1 つ戻す（1 の前は最後の段。開始前からは最後の段） | — | — | [`MOD_TAPAMP_DEC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-dec) |
+| **CLEAR STEP** | 開始前へ戻す（次に押すと 1 段目）。4.0.0 の RESET | — | — | [`MOD_TAPAMP_RESET`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-reset) |
 
 - 段の値は横向きの棒で並び、その下に「S1: 値 / S2: 値 / …」の一覧が出ます。地の色が
-  変わっている段が、次に押したときに使う段です
+  変わっている段が、いまの段（最後に押したときに使った段）です。押す前と、DAW の再生を
+  止めたあとは開始前で、どの段の地も変わりません
+- SKIP の段は、押しても割合を掛けません（1 倍のまま鳴らす）。棒は赤（S.TARGET が指している
+  ときは橙）になります。SKIP のまま RATIO を動かすと外れます
 - 鍵盤を離すと音を出しません。鍵盤の押し方で、音を区切るゲートとしても働きます
 - 掛かるのは「エンベロープをバイパス」が外れているときだけです。札が入っていると、
   Enable を入れても掛かりません
-- INCREMENT / DECREMENT / RESET はオートメーションでも押せます（値が 0.5 を下から越えたときに 1 回動く）
-- 段の値は表として FX のパラメータファイルと DAW の状態へ保存します（オートメーションでは
+- INCREMENT / DECREMENT / CLEAR STEP はオートメーションでも押せます（値が 0.5 を下から越えたときに 1 回動く）
+- 段の値と SKIP は表として FX のパラメータファイルと DAW の状態へ保存します（オートメーションでは
   動かせません）。区分のパラメータファイルは `.tapAmp` で、見出しの右クリックから読み書きします
+- LOOP とループの組は、音源の [TAP SEQUENCER](/2686V_2686VFX/chips/common/#tap-sequencer) と同じです。
+  INCREMENT は組に沿って進み、CLEAR STEP はループも数え直します
 
 :::caution[Enable を入れたら MIDI を送る]
 Enable が入っていると、**鍵盤を押していないあいだは音が出ません**。AMP ENV などと違い、
@@ -247,15 +254,17 @@ PM をそれぞれ割り当てた鍵盤を押している間だけ掛かりま�
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う | 入 / 切 | 切 | [`MOD_TAPPITCH_ENABLE`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-enable) |
 | **STEPS** | 段の数。1 のときは毎回同じだけずらす | 1 〜 256 | 1 | [`MOD_TAPPITCH_STEPS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-steps) |
+| **LOOP** | ループの組に沿って段を戻す（4.1.0 から。AMP SEQUENCER と同じ） | 入 / 切 | 切 | [`MOD_TAPPITCH_LOOP`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-loop) |
 | **S.TARGET** | 値のつまみで直す段 | 1 〜 STEPS | 1 | — |
 | **CENT** | その段のずらし幅（セント）。下のボタンで少しずつ動かせる | −2400 〜 2400 | 0 | — |
-| **INCREMENT** | 次に使う段を 1 つ進める（最後の段の次は 1） | — | — | [`MOD_TAPPITCH_INC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-inc) |
-| **DECREMENT** | 次に使う段を 1 つ戻す（1 の前は最後の段） | — | — | [`MOD_TAPPITCH_DEC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-dec) |
-| **RESET** | 次に使う段を 1 に戻す | — | — | [`MOD_TAPPITCH_RESET`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-reset) |
+| **SKIP** | S.TARGET の段を SKIP にする（ON。ボタンが赤くなる）・外す（OFF）（4.1.0 から）。SKIP の段ではずらさない | OFF / ON | OFF | — |
+| **INCREMENT** | いまの段を 1 つ進める（最後の段の次は 1。開始前からは 1） | — | — | [`MOD_TAPPITCH_INC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-inc) |
+| **DECREMENT** | いまの段を 1 つ戻す（1 の前は最後の段。開始前からは最後の段） | — | — | [`MOD_TAPPITCH_DEC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-dec) |
+| **CLEAR STEP** | 開始前へ戻す（次に押すと 1 段目）。4.0.0 の RESET | — | — | [`MOD_TAPPITCH_RESET`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-reset) |
 
 - 鍵盤を離すと元の高さに戻ります。押していないあいだは素通しです
 - 掛かるのは「ピッチ変調をバイパス」が外れているときだけです
-- 段の並び・INCREMENT などのボタン・保存のしかたは AMP SEQUENCER と同じです。
+- 段の並び・SKIP・INCREMENT などのボタン・保存のしかたは AMP SEQUENCER と同じです。
   区分のパラメータファイルは `.tapPitch` です
 - ほかの音程の変調と同じく、入ってきた音を読み出す速さを変えて作っているので、
   大きくずらすほどざらつきます

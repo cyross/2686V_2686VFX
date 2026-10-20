@@ -103,6 +103,7 @@ export default defineConfig({
 						{ slug: 'guide/features' },
 						{ slug: 'guide/screen' },
 						{ slug: 'guide/install' },
+						{ slug: 'guide/changes-410' },
 						{ slug: 'guide/changes-400' },
 						{ slug: 'guide/changes-363' },
 						{ slug: 'guide/changes-362' },

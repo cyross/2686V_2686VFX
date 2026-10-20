@@ -9,23 +9,25 @@
 // ============================================================================
 // TAP AMP / PITCH SEQUENCER (パラメータの側)
 // ============================================================================
-// チャンネルごとに 2 つ持つ。パラメータは頭 (Enable・STEPS) と、段を動かす
-// 3 つの札 (INCREMENT / DECREMENT / RESET) だけ。段の値は表に持つ。
+// チャンネルごとに 2 つ持つ。パラメータは頭 (Enable・STEPS・LOOP) と、段を動かす
+// 3 つの札 (INCREMENT / DECREMENT / CLEAR STEP) だけ。段の値・SKIP・ループの組は表に持つ。
 //
-//   <base>_ENABLE / _STEPS / _INC / _DEC / _RESET
+//   <base>_ENABLE / _STEPS / _LOOP / _INC / _DEC / _RESET
 //
+// CLEAR STEP は 4.0.0 の RESET で、ID はそのまま (オートメーションを生かす)。
 // 札はオートメーションで押せるよう、0.5 を下から上へ越えたときに 1 回動く。
 // 画面のボタンは表の cursor を直に動かす (札は経由しない)。
 namespace TapSeq
 {
 	struct Keys
 	{
-		juce::String base, enable, steps, inc, dec, reset;
+		juce::String base, enable, steps, loop, inc, dec, reset;
 
 		explicit Keys(const juce::String& b) :
 			base(b),
 			enable(b + "_ENABLE"),
 			steps(b + "_STEPS"),
+			loop(b + "_LOOP"),
 			inc(b + "_INC"),
 			dec(b + "_DEC"),
 			reset(b + "_RESET")
@@ -70,6 +72,7 @@ namespace TapSeq
 	{
 		std::atomic<float>* enable = nullptr;
 		std::atomic<float>* steps = nullptr;
+		std::atomic<float>* loop = nullptr;
 		std::atomic<float>* inc = nullptr;
 		std::atomic<float>* dec = nullptr;
 		std::atomic<float>* reset = nullptr;
@@ -88,9 +91,10 @@ namespace TapSeq
 
 		PrHelper::addBool(layout, prefix + k.enable, n + " Enable", false);
 		PrHelper::addInt(layout, prefix + k.steps, n + " Steps", stepsMin, stepsMax, stepsInitial);
+		PrHelper::addBool(layout, prefix + k.loop, n + " Loop", false);
 		PrHelper::addBool(layout, prefix + k.inc, n + " Increment", false);
 		PrHelper::addBool(layout, prefix + k.dec, n + " Decrement", false);
-		PrHelper::addBool(layout, prefix + k.reset, n + " Reset", false);
+		PrHelper::addBool(layout, prefix + k.reset, n + " Clear Step", false);
 	}
 
 	inline void setupPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, const Spec& s, Ptrs& p, StepTableStore& tables)
@@ -99,6 +103,7 @@ namespace TapSeq
 
 		p.enable = apvts.getRawParameterValue(prefix + k.enable);
 		p.steps = apvts.getRawParameterValue(prefix + k.steps);
+		p.loop = apvts.getRawParameterValue(prefix + k.loop);
 		p.inc = apvts.getRawParameterValue(prefix + k.inc);
 		p.dec = apvts.getRawParameterValue(prefix + k.dec);
 		p.reset = apvts.getRawParameterValue(prefix + k.reset);
@@ -112,6 +117,7 @@ namespace TapSeq
 	{
 		params.enable = PrHelper::getBool(p.enable);
 		params.steps = std::clamp(PrHelper::getInt(p.steps), stepsMin, stepsMax);
+		params.loop = PrHelper::getBool(p.loop);
 		params.table = p.table;
 
 		if (p.table == nullptr) return;
@@ -126,12 +132,24 @@ namespace TapSeq
 		};
 
 		const int steps = params.steps;
-		int cursor = std::clamp(p.table->cursor.load(std::memory_order_relaxed), 0, steps - 1);
+		int stored = p.table->cursor.load(std::memory_order_relaxed);
 
-		if (rose(p.inc, p.lastInc)) cursor = (cursor + 1) % steps;
-		if (rose(p.dec, p.lastDec)) cursor = (cursor + steps - 1) % steps;
-		if (rose(p.reset, p.lastReset)) cursor = 0;
+		// 負は開始前。STEPS を減らして外へ出たら、最後の段にする (次に押すと 1 段目)
+		int cursor = stored < 0 ? -1 : std::min(stored, steps - 1);
 
-		p.table->cursor.store(cursor, std::memory_order_relaxed);
+		// INCREMENT は押したときと同じくループに沿って進む。DECREMENT は 1 段ずつ戻る。
+		// 開始前からなら、INCREMENT は 1 段目、DECREMENT は最後の段へ。
+		if (rose(p.inc, p.lastInc)) cursor = tapSeqForward(params, cursor);
+		if (rose(p.dec, p.lastDec)) cursor = tapSeqBack(steps, cursor);
+
+		// CLEAR STEP。開始前へ戻す
+		if (rose(p.reset, p.lastReset)) {
+			tapSeqRewind(*p.table);
+			return;
+		}
+
+		// 波形プレビューの組み立てで、画面のスレッドからも呼ばれる。変わったときだけ、
+		// それも読んだあとに鍵で進んでいなければ書く (進めた段を古い値で潰さない)
+		if (cursor != stored) p.table->cursor.compare_exchange_strong(stored, cursor, std::memory_order_relaxed);
 	}
 }

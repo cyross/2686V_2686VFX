@@ -122,7 +122,7 @@ TEST_CASE("StepEnv: LOOP は L.TO の段へ戻り、CNT 回で抜ける")
     CHECK(env.process() == doctest::Approx(0.3f));
 }
 
-TEST_CASE("StepEnv: KEEP は段の頭の値を保つ ([11] と同じ)")
+TEST_CASE("StepEnv: KEEP は段の頭の値を保ち、最後の段まで来たらその値を保つ")
 {
     StepTable t(0.0f, 0.0f);
     t.setRate(1, 0.01f);
@@ -147,10 +147,54 @@ TEST_CASE("StepEnv: KEEP は段の頭の値を保つ ([11] と同じ)")
     // 2 段目のあいだは L1
     CHECK(env.process() == doctest::Approx(1.0f));
 
-    // 最後の段を保っているあいだも L1 のまま (L2 はリリースの後に出る)
+    // 最後の段を走り終えたら、離すまで L2 を保つ (サステイン)
     for (int i = 0; i < 30; ++i) env.process();
 
-    CHECK(env.process() == doctest::Approx(1.0f));
+    CHECK(env.process() == doctest::Approx(0.5f));
+}
+
+TEST_CASE("StepEnv: 最後の段の値を保ち、離すとその値から RR 秒で LR へ向かう")
+{
+    for (const bool keep : { false, true }) {
+        CAPTURE(keep);
+
+        StepTable t(0.0f, 0.0f);
+
+        for (int s = 1; s <= 4; ++s) {
+            t.setRate(s, 0.01f);   // 10 サンプル
+            t.setLevel(s, 0.25f * (float)s);
+        }
+
+        auto p = makeParams(t, 4);
+        p.keep = keep;
+        p.rr = 0.1f;               // 100 サンプル
+        p.lr = 0.0f;
+
+        StepEnv env;
+        env.prepare(0, -1, kRate);
+        env.setParameters(p);
+        env.noteOn();
+
+        float v = 0.0f;
+
+        for (int i = 0; i < 200; ++i) v = env.process();
+
+        // STEPS = 4。L4 へ届いたあとは L4 のまま
+        CHECK(v == doctest::Approx(1.0f));
+
+        env.noteOff();
+
+        for (int i = 0; i < 50; ++i) v = env.process();
+
+        // KEEP でなければ斜めに下がり、KEEP なら走り終えるまで L4 を保つ
+        if (keep) CHECK(v == doctest::Approx(1.0f));
+        else CHECK(v == doctest::Approx(0.5f).epsilon(0.05));
+
+        for (int i = 0; i < 60; ++i) v = env.process();
+
+        CHECK(v == doctest::Approx(0.0f));
+        CHECK(env.isIdle());
+    }
 }
 
 TEST_CASE("StepEnv: 表を書き換えると、次の setParameters で写し直す")
