@@ -25,6 +25,32 @@ TEST_CASE("StepTable: 文字へ書き出して読み戻せる")
     CHECK(b.rate(256) == doctest::Approx(0.001f));
 }
 
+TEST_CASE("StepTable: ループの組も文字へ書き出して読み戻せる。組が無ければこれまでと同じ文字")
+{
+    StepTable a(0.001f, 1.0f);
+    a.setLevel(2, 0.5f);
+
+    const auto plain = StepTableIo::toText(a);
+
+    CHECK(plain.indexOfChar('|') == plain.lastIndexOfChar('|'));
+
+    a.setLoops({ { 3, 5, 0 }, { 1, 8, 2 } });
+
+    StepTable b(0.001f, 1.0f);
+    b.setLoops({ { 7, 7, 7 } });
+    StepTableIo::fromText(b, StepTableIo::toText(a));
+
+    REQUIRE(b.loopCount() == 2);
+    CHECK(b.loopAt(0) == StepLoop::Entry{ 1, 8, 2 });
+    CHECK(b.loopAt(1) == StepLoop::Entry{ 3, 5, 0 });
+    CHECK(b.level(2) == doctest::Approx(0.5f));
+
+    // 4.0.x までの文字 (組が無い) を読むと、組は空になる
+    StepTableIo::fromText(b, plain);
+
+    CHECK(b.loopCount() == 0);
+}
+
 TEST_CASE("StepEnvLegacy: [11] の state を [256] のパラメータと表へ写す")
 {
     StepTableStore store;

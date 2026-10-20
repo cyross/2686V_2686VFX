@@ -163,6 +163,7 @@ FIX の音名と同じく、60 が C3 です。
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う | 入 / 切 | 切 | [`MOD_TAPAMP_ENABLE`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-enable) |
 | **STEPS** | 段の数。1 のときは毎回同じ割合で鳴らす | 1 〜 256 | 1 | [`MOD_TAPAMP_STEPS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-steps) |
+| **LOOP** | ループの組（LP.TARGET / START / END / COUNT / ADD / DELETE）に沿って段を戻す（4.1.0 から） | 入 / 切 | 切 | [`MOD_TAPAMP_LOOP`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-loop) |
 | **S.TARGET** | 値のつまみで直す段 | 1 〜 STEPS | 1 | — |
 | **RATIO** | その段の割合。下のボタンで少しずつ動かせる | 0.0 〜 4.0 | 1.0 | — |
 | **INCREMENT** | 次に使う段を 1 つ進める（最後の段の次は 1） | — | — | [`MOD_TAPAMP_INC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tapamp-inc) |
@@ -177,6 +178,8 @@ FIX の音名と同じく、60 が C3 です。
 - INCREMENT / DECREMENT / RESET はオートメーションでも押せます（値が 0.5 を下から越えたときに 1 回動く）
 - 段の値は表として FX のパラメータファイルと DAW の状態へ保存します（オートメーションでは
   動かせません）。区分のパラメータファイルは `.tapAmp` で、見出しの右クリックから読み書きします
+- LOOP とループの組は、音源の [TAP SEQUENCER](/2686V_2686VFX/chips/common/#tap-sequencer) と同じです。
+  INCREMENT は組に沿って進み、RESET はループも数え直します
 
 :::caution[Enable を入れたら MIDI を送る]
 Enable が入っていると、**鍵盤を押していないあいだは音が出ません**。AMP ENV などと違い、
@@ -247,6 +250,7 @@ PM をそれぞれ割り当てた鍵盤を押している間だけ掛かりま�
 | --- | --- | --- | ---: | --- |
 | **Enable** | 使う | 入 / 切 | 切 | [`MOD_TAPPITCH_ENABLE`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-enable) |
 | **STEPS** | 段の数。1 のときは毎回同じだけずらす | 1 〜 256 | 1 | [`MOD_TAPPITCH_STEPS`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-steps) |
+| **LOOP** | ループの組に沿って段を戻す（4.1.0 から。AMP SEQUENCER と同じ） | 入 / 切 | 切 | [`MOD_TAPPITCH_LOOP`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-loop) |
 | **S.TARGET** | 値のつまみで直す段 | 1 〜 STEPS | 1 | — |
 | **CENT** | その段のずらし幅（セント）。下のボタンで少しずつ動かせる | −2400 〜 2400 | 0 | — |
 | **INCREMENT** | 次に使う段を 1 つ進める（最後の段の次は 1） | — | — | [`MOD_TAPPITCH_INC`](/2686V_2686VFX/reference/automation/fx-plugin/#mod-tappitch-inc) |

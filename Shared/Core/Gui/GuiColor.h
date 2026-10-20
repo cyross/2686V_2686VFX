@@ -496,6 +496,9 @@ namespace GuiColor {
 		inline Entry Selected{ "StepValues.Selected", []() -> juce::Colour { return juce::Colours::yellow; } };
 		inline Entry SelectedBg{ "StepValues.SelectedBg", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.18f); } };
 		inline Entry Frame{ "StepValues.Frame", []() -> juce::Colour { return Palette::BorderGray; } };
+
+		// 段のループの一覧で、無限のまま外側や跨いでいる側へ進めなくしている組の印。
+		inline Entry Warning{ "StepValues.Warning", []() -> juce::Colour { return juce::Colours::orange; } };
 	};
 
 	namespace TextButton {

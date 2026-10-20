@@ -9,10 +9,10 @@
 // ============================================================================
 // TAP AMP / PITCH SEQUENCER (パラメータの側)
 // ============================================================================
-// チャンネルごとに 2 つ持つ。パラメータは頭 (Enable・STEPS) と、段を動かす
-// 3 つの札 (INCREMENT / DECREMENT / RESET) だけ。段の値は表に持つ。
+// チャンネルごとに 2 つ持つ。パラメータは頭 (Enable・STEPS・LOOP) と、段を動かす
+// 3 つの札 (INCREMENT / DECREMENT / RESET) だけ。段の値とループの組は表に持つ。
 //
-//   <base>_ENABLE / _STEPS / _INC / _DEC / _RESET
+//   <base>_ENABLE / _STEPS / _LOOP / _INC / _DEC / _RESET
 //
 // 札はオートメーションで押せるよう、0.5 を下から上へ越えたときに 1 回動く。
 // 画面のボタンは表の cursor を直に動かす (札は経由しない)。
@@ -20,12 +20,13 @@ namespace TapSeq
 {
 	struct Keys
 	{
-		juce::String base, enable, steps, inc, dec, reset;
+		juce::String base, enable, steps, loop, inc, dec, reset;
 
 		explicit Keys(const juce::String& b) :
 			base(b),
 			enable(b + "_ENABLE"),
 			steps(b + "_STEPS"),
+			loop(b + "_LOOP"),
 			inc(b + "_INC"),
 			dec(b + "_DEC"),
 			reset(b + "_RESET")
@@ -70,6 +71,7 @@ namespace TapSeq
 	{
 		std::atomic<float>* enable = nullptr;
 		std::atomic<float>* steps = nullptr;
+		std::atomic<float>* loop = nullptr;
 		std::atomic<float>* inc = nullptr;
 		std::atomic<float>* dec = nullptr;
 		std::atomic<float>* reset = nullptr;
@@ -88,6 +90,7 @@ namespace TapSeq
 
 		PrHelper::addBool(layout, prefix + k.enable, n + " Enable", false);
 		PrHelper::addInt(layout, prefix + k.steps, n + " Steps", stepsMin, stepsMax, stepsInitial);
+		PrHelper::addBool(layout, prefix + k.loop, n + " Loop", false);
 		PrHelper::addBool(layout, prefix + k.inc, n + " Increment", false);
 		PrHelper::addBool(layout, prefix + k.dec, n + " Decrement", false);
 		PrHelper::addBool(layout, prefix + k.reset, n + " Reset", false);
@@ -99,6 +102,7 @@ namespace TapSeq
 
 		p.enable = apvts.getRawParameterValue(prefix + k.enable);
 		p.steps = apvts.getRawParameterValue(prefix + k.steps);
+		p.loop = apvts.getRawParameterValue(prefix + k.loop);
 		p.inc = apvts.getRawParameterValue(prefix + k.inc);
 		p.dec = apvts.getRawParameterValue(prefix + k.dec);
 		p.reset = apvts.getRawParameterValue(prefix + k.reset);
@@ -112,6 +116,7 @@ namespace TapSeq
 	{
 		params.enable = PrHelper::getBool(p.enable);
 		params.steps = std::clamp(PrHelper::getInt(p.steps), stepsMin, stepsMax);
+		params.loop = PrHelper::getBool(p.loop);
 		params.table = p.table;
 
 		if (p.table == nullptr) return;
@@ -128,9 +133,14 @@ namespace TapSeq
 		const int steps = params.steps;
 		int cursor = std::clamp(p.table->cursor.load(std::memory_order_relaxed), 0, steps - 1);
 
-		if (rose(p.inc, p.lastInc)) cursor = (cursor + 1) % steps;
+		// INCREMENT は押したときと同じくループに沿って進む。DECREMENT は 1 段ずつ戻る
+		if (rose(p.inc, p.lastInc)) cursor = tapSeqNext(params, cursor);
 		if (rose(p.dec, p.lastDec)) cursor = (cursor + steps - 1) % steps;
-		if (rose(p.reset, p.lastReset)) cursor = 0;
+
+		if (rose(p.reset, p.lastReset)) {
+			tapSeqRewind(*p.table);
+			return;
+		}
 
 		p.table->cursor.store(cursor, std::memory_order_relaxed);
 	}

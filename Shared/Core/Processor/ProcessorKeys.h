@@ -276,6 +276,7 @@ namespace CPK
 		static inline const juce::String loop = "_SSGSW256_LOOP";
 		static inline const juce::String loopTo = "_SSGSW256_LOOPTO";
 		static inline const juce::String loopCount = "_SSGSW256_LOOPCNT";
+		static inline const juce::String loopMode = "_SSGSW256_LOOPMODE";
 		static inline const juce::String stl = "_SSGSW256_STL";
 		static inline const juce::String lr = "_SSGSW256_LR";
 		static inline const juce::String rr = "_SSGSW256_RR";
@@ -292,6 +293,7 @@ namespace CPK
 		static inline const juce::String loop = "_SSGSWP256_LOOP";
 		static inline const juce::String loopTo = "_SSGSWP256_LOOPTO";
 		static inline const juce::String loopCount = "_SSGSWP256_LOOPCNT";
+		static inline const juce::String loopMode = "_SSGSWP256_LOOPMODE";
 		static inline const juce::String stl = "_SSGSWP256_STL";
 		static inline const juce::String lr = "_SSGSWP256_LR";
 		static inline const juce::String rr = "_SSGSWP256_RR";

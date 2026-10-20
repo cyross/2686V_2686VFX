@@ -25,6 +25,42 @@ namespace
     // 3.0.0 より前の行の並びのファイルの行数。頭の 6 行 + R / L の組。
     // [11] は 6 + 22 = 28 行、6 段は 6 + 12 = 18 行。
     constexpr int legacyLines = 6 + legacyRelease * 2;
+
+    // LOOP MODE の並び。並びの番号がパラメータの値 (StepLoop::Mode) になる
+    const std::vector<SelectItem>& loopModeItems()
+    {
+        static const std::vector<SelectItem> items = {
+            { .name = "Original Mode", .value = 1 },
+            { .name = "Rich Mode", .value = 2 },
+        };
+
+        return items;
+    }
+
+    // ループの組をパラメータファイルへ書く形。START, END, COUNT を順に並べる
+    std::vector<float> flattenLoops(const std::vector<StepLoop::Entry>& loops)
+    {
+        std::vector<float> values;
+
+        for (const auto& e : loops) {
+            values.push_back((float)e.start);
+            values.push_back((float)e.end);
+            values.push_back((float)e.count);
+        }
+
+        return values;
+    }
+
+    std::vector<StepLoop::Entry> unflattenLoops(const std::vector<float>& values)
+    {
+        std::vector<StepLoop::Entry> loops;
+
+        for (size_t i = 0; i + 2 < values.size(); i += 3) {
+            loops.push_back({ (int)values[i], (int)values[i + 1], (int)values[i + 2] });
+        }
+
+        return loops;
+    }
 }
 
 GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& s) :
@@ -38,8 +74,10 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     keep(context),
     keepSeparator(context),
     loop(context),
+    loopMode(context),
     loopTo(context),
     loopCount(context),
+    loops(context),
     loopSeparator(context),
     rateTarget(context),
     rate(context),
@@ -134,6 +172,11 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     // 押したときだけ、ループできる形へ STEP と LOOP.TO を直す
     loop.onClick = [this] { applyLoopValues(loop.getToggleState()); };
 
+    loopMode.setup({ .parent = parent, .id = code + spec.loopMode, .title = "LOOP MODE", .items = loopModeItems(), .isReset = true, .labelFont = labelFont });
+    loopMode.setWantsKeyboardFocus(true);
+    loopMode.setExplicitFocusOrder(++tabOrder);
+    loopMode.onChange = [this] { applyLoopMode(); };
+
     loopTo.setup({ .parent = parent, .id = code + spec.loopTo, .title = "LOOP.TO", .isReset = true, .labelFont = labelFont });
     loopTo.setWantsKeyboardFocus(true);
     loopTo.setExplicitFocusOrder(++tabOrder);
@@ -143,6 +186,15 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     loopCount.setWantsKeyboardFocus(true);
     loopCount.setExplicitFocusOrder(++tabOrder);
     loopCount.onValueChange = [this] { changed(); };
+
+    loops.setupComponent(parent, tabOrder, labelFont,
+        [this] { return table(); },
+        [this] { return stepCount(); },
+        [this] {
+            markSeen();
+            relayoutIfNeeded();
+            changed();
+        });
 
     loopSeparator.setupComponent(parent);
 
@@ -247,6 +299,7 @@ void GuiComponentStepEnv::rebind(const juce::String& code)
     steps.rebind(code + spec.steps);
     if (hasKeep()) keep.rebind(code + spec.keep);
     loop.rebind(code + spec.loop);
+    loopMode.rebind(code + spec.loopMode);
     loopTo.rebind(code + spec.loopTo);
     loopCount.rebind(code + spec.loopCount);
     releaseRate.rebind(code + spec.rr);
@@ -324,11 +377,28 @@ void GuiComponentStepEnv::applyStepCount()
 
     rebindRate();
     rebindLevel();
+    loops.refresh();
 
     markSeen();
 
+    relayoutIfNeeded();
+}
+
+void GuiComponentStepEnv::relayoutIfNeeded()
+{
     // まだ一度も並べていない (組み立ての途中) ときは、後で並べられるので呼ばない
-    if (laidOutRows > 0 && laidOutRows != stripRowCount()) ctx.editor.resized();
+    if (laidOutRows > 0 && (laidOutRows != stripRowCount() || laidOutRich != isRich())) ctx.editor.resized();
+}
+
+// LOOP MODE を切り替えた。Original は LOOP.TO / LOOP.CNT、Rich はループの組を並べる。
+// 並ぶつまみが変わるので、並べ直してもらう。
+void GuiComponentStepEnv::applyLoopMode()
+{
+    applyLoopValues(loop.getToggleState());
+    loops.refresh();
+    applyActive();
+    relayoutIfNeeded();
+    changed();
 }
 
 void GuiComponentStepEnv::applyLoopValues(bool enabled)
@@ -340,7 +410,8 @@ void GuiComponentStepEnv::applyLoopValues(bool enabled)
 
     loopTo.setRange(0.0, (double)juce::jmax(1, stepCount() - 1), 1.0);
 
-    if (enabled)
+    // Rich Mode は 1 段でもループできるので、STEP と LOOP.TO を直さない
+    if (enabled && !isRich())
     {
         int stepsValue = stepCount();
 
@@ -466,6 +537,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     layoutMainCategory({ .mainRect = rect, .component = &cat });
 
     laidOutRows = stripRowCount();
+    laidOutRich = isRich();
 
     const bool visible = cat.isDetailVisible();
 
@@ -476,8 +548,10 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     keep.setVisible(visible && hasKeep());
     keepSeparator.setVisible(visible && hasKeep());
     loop.setVisible(visible);
-    loopTo.setVisibleWithLabel(visible);
-    loopCount.setVisibleWithLabel(visible);
+    loopMode.setVisibleWithLabel(visible);
+    loopTo.setVisibleWithLabel(visible && !isRich());
+    loopCount.setVisibleWithLabel(visible && !isRich());
+    loops.setVisibles(visible && isRich());
     loopSeparator.setVisible(visible);
     rateTarget.setVisibleWithLabel(visible);
     rate.setVisibleWithLabel(visible);
@@ -513,8 +587,16 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
         keepSeparator.layoutComponent(rect);
     }
     layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = h });
-    layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = h });
-    layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = h });
+    layoutMain({ .mainRect = rect, .label = &loopMode.label, .component = &loopMode, .rowHeight = h });
+
+    if (isRich()) {
+        loops.layoutComponent(rect, h);
+    }
+    else {
+        layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = h });
+        layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = h });
+    }
+
     loopSeparator.layoutComponent(rect);
 
     // 対象 → 値 → 各段の値、の順。
@@ -565,7 +647,7 @@ void GuiComponentStepEnv::setupGraph(std::function<void()> repaint)
 void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
 {
     const auto v = GuiGraphValues::stepEnv256(ctx.apvts, ctx.audioProcessor.stepTables, paramCode, spec.tableKey,
-        spec.steps, spec.loop, spec.loopTo, spec.loopCount, spec.stl, spec.rr, spec.lr, (float)spec.levelMax);
+        spec.steps, spec.loop, spec.loopTo, spec.loopCount, spec.loopMode, spec.stl, spec.rr, spec.lr, (float)spec.levelMax);
 
     graph.updateBypass(isCategoryBypassed());
 
@@ -589,8 +671,8 @@ void GuiComponentStepEnv::setEnabled(bool enabled)
     applyActive();
 }
 
-// 効いていないつまみは押せなくする。LOOP.TO / LOOP.CNT は LOOP が切れていても、
-// ENDL は Use Endl が切れていても止める。
+// 効いていないつまみは押せなくする。LOOP.TO / LOOP.CNT とループの組は LOOP が
+// 切れていても、ENDL は Use Endl が切れていても止める。
 void GuiComponentStepEnv::applyActive()
 {
     const bool active = outerEnabled && !isCategoryBypassed();
@@ -609,8 +691,10 @@ void GuiComponentStepEnv::applyActive()
 
     loop.setEnabled(outerEnabled);
     loop.setDimmed(!active);
+    loopMode.setEnabledWithLabel(active);
     loopTo.setEnabledWithLabel(looping);
     loopCount.setEnabledWithLabel(looping);
+    loops.setEnables(looping);
     loopSeparator.setEnabled(active);
 
     rateTarget.setEnabledWithLabel(active);
@@ -739,6 +823,10 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r)
     loop.setToggleState(r.getBool("loop", loop.getToggleState()), juce::sendNotification);
     loopTo.setValue(r.getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
     loopCount.setValue(r.getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+
+    // 4.1.0 より前のファイルには無い。無ければ Original Mode にする
+    loopMode.setSelectedItemIndex(juce::jlimit((int)StepLoop::modeMin, (int)StepLoop::modeMax, r.getInt("loopMode", StepLoop::Original)), juce::sendNotification);
+
     if (hasKeep()) keep.setToggleState(r.getBool("keep", keep.getToggleState()), juce::sendNotification);
     endLevel.setValue(r.getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
     endLevelEnable.setToggleState(r.getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
@@ -765,10 +853,15 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r)
                 t->setRate(s, s <= (int)rates.size() ? rates[(size_t)s - 1] : t->defaultR);
                 t->setLevel(s, s <= (int)levels.size() ? levels[(size_t)s - 1] : t->defaultL);
             }
+
+            // ループの組 (4.1.0)。無ければ空にする
+            t->setLoops(unflattenLoops(r.getFloatArray("loops")));
         }
     }
     else {
-        // 3.6.3 までの [11] の形。1〜10 段が表、11 番目がリリース。
+        // 3.6.3 までの [11] の形。1〜10 段が表、11 番目がリリース。ループの組は無い
+        if (t != nullptr) t->setLoops({});
+
         for (int i = 1; i <= legacyRelease; ++i) {
             const juce::String no(i);
 
@@ -798,6 +891,7 @@ void GuiComponentStepEnv::readSixStepValues(const Io::ParamReader& r)
     loop.setToggleState(r.getBool("loop", loop.getToggleState()), juce::sendNotification);
     loopTo.setValue(r.getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
     loopCount.setValue(r.getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
+    loopMode.setSelectedItemIndex(StepLoop::Original, juce::sendNotification);
     keep.setToggleState(false, juce::sendNotification);
     endLevelEnable.setToggleState(false, juce::sendNotification);
 
@@ -836,6 +930,7 @@ void GuiComponentStepEnv::setImportingSixStepParams(juce::StringArray& lines, in
     loop.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
     loopTo.setValue(lines[index++].getIntValue(), juce::sendNotification);
     loopCount.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    loopMode.setSelectedItemIndex(StepLoop::Original, juce::sendNotification);
     keep.setToggleState(false, juce::sendNotification);
     endLevelEnable.setToggleState(false, juce::sendNotification);
 
@@ -907,6 +1002,7 @@ void GuiComponentStepEnv::writeValues(Io::ParamWriter& w)
     w.set("loop", loop.getToggleState());
     w.set("loopTo", (float)loopTo.getValue());
     w.set("loopCount", (float)loopCount.getValue());
+    w.set("loopMode", (float)juce::jmax(0, loopMode.getSelectedItemIndex()));
     if (hasKeep()) w.set("keep", keep.getToggleState());
     w.set("endLevel", (float)endLevel.getValue());
     w.set("endLevelEnable", endLevelEnable.getToggleState());
@@ -933,6 +1029,8 @@ void GuiComponentStepEnv::writeValues(Io::ParamWriter& w)
 
     w.setArray("rates", rates);
     w.setArray("levels", levels);
+
+    if (auto* t = table()) w.setArray("loops", flattenLoops(t->loopList()));
 }
 
 // 3.0.0 より前の、行の並びで書いたファイル。並びは [11] のもの。
@@ -943,12 +1041,15 @@ void GuiComponentStepEnv::setImportingParams(juce::StringArray& lines, int& inde
     loop.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
     loopTo.setValue(lines[index++].getIntValue(), juce::sendNotification);
     loopCount.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    loopMode.setSelectedItemIndex(StepLoop::Original, juce::sendNotification);
 
     if (auto* p = ctx.apvts.getParameter(paramCode + spec.stl)) p->setValueNotifyingHost(p->convertTo0to1(lines[index].getFloatValue()));
 
     ++index;
 
     auto* t = table();
+
+    if (t != nullptr) t->setLoops({});
 
     for (int i = 1; i <= legacyRelease; ++i) {
         const float r = lines[index++].getFloatValue();

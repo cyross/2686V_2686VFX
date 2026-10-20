@@ -167,7 +167,7 @@ namespace
 
         // SSG SW AMP ENV[256] / SSG SW PITCH ENV[256]
         const std::vector<juce::String> sw11Deps{
-            CPK::SsgSwEnv256::steps, CPK::SsgSwEnv256::keep, CPK::SsgSwEnv256::loop, CPK::SsgSwEnv256::endlEnable };
+            CPK::SsgSwEnv256::steps, CPK::SsgSwEnv256::keep, CPK::SsgSwEnv256::loop, CPK::SsgSwEnv256::loopMode, CPK::SsgSwEnv256::endlEnable };
         const std::vector<Nested> sw11Nested{
             { CPK::SsgSwEnv256::loop, { CPK::SsgSwEnv256::loopTo, CPK::SsgSwEnv256::loopCount } },
             { CPK::SsgSwEnv256::endlEnable, { CPK::SsgSwEnv256::endl } } };
@@ -176,7 +176,7 @@ namespace
         r.push_back({ "SSG SW AMP ENV[256] (Enable)", CPK::SsgSwEnv256::enable, true, { CPK::SsgSwEnv256::steps }, sw11Deps, sw11Nested });
 
         const std::vector<juce::String> swp11Deps{
-            CPK::SsgSwPEnv256::steps, CPK::SsgSwPEnv256::keep, CPK::SsgSwPEnv256::loop, CPK::SsgSwPEnv256::endlEnable };
+            CPK::SsgSwPEnv256::steps, CPK::SsgSwPEnv256::keep, CPK::SsgSwPEnv256::loop, CPK::SsgSwPEnv256::loopMode, CPK::SsgSwPEnv256::endlEnable };
         const std::vector<Nested> swp11Nested{
             { CPK::SsgSwPEnv256::loop, { CPK::SsgSwPEnv256::loopTo, CPK::SsgSwPEnv256::loopCount } },
             { CPK::SsgSwPEnv256::endlEnable, { CPK::SsgSwPEnv256::endl } } };

@@ -19,6 +19,7 @@ const GuiComponentStepEnv::Spec& GuiComponentSsgSwEnv256::spec()
         x.loop = CPK::SsgSwEnv256::loop;
         x.loopTo = CPK::SsgSwEnv256::loopTo;
         x.loopCount = CPK::SsgSwEnv256::loopCount;
+        x.loopMode = CPK::SsgSwEnv256::loopMode;
         x.stl = CPK::SsgSwEnv256::stl;
         x.lr = CPK::SsgSwEnv256::lr;
         x.rr = CPK::SsgSwEnv256::rr;

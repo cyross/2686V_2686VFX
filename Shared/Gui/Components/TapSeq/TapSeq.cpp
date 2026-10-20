@@ -71,6 +71,9 @@ GuiComponentTapSeq::GuiComponentTapSeq(const GuiContext& context, Kind k) :
     enableSeparator(context),
     steps(context),
     stepsSeparator(context),
+    loop(context),
+    loops(context),
+    loopSeparator(context),
     target(context),
     value(context),
     ampBtns(context),
@@ -108,6 +111,20 @@ void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::Str
     steps.setExplicitFocusOrder(++tabOrder);
     steps.onValueChange = [this] { applyStepCount(); };
     stepsSeparator.setupComponent(parent);
+
+    loop.setup({ .parent = parent, .id = code + spec.keys.loop, .title = "LOOP", .isReset = true });
+    loop.setWantsKeyboardFocus(true);
+    loop.setExplicitFocusOrder(++tabOrder);
+
+    loops.setupComponent(parent, tabOrder, labelFont,
+        [this] { return table(); },
+        [this] { return stepCount(); },
+        [this] {
+            refresh();
+            relayoutIfNeeded();
+        });
+
+    loopSeparator.setupComponent(parent);
 
     target.setup({ .parent = parent, .title = "S.TARGET", .isReset = false, .labelFont = labelFont });
     target.setRange(1.0, 2.0, 1.0);
@@ -151,6 +168,7 @@ void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::Str
     value.getSlider().getProperties().set(ParamEdit::Property::stepTable, code + spec.keys.base);
 
     enable.watchToggle([this] { applyActive(); });
+    loop.watchToggle([this] { applyActive(); });
 
     target.setValue(1, juce::dontSendNotification);
 
@@ -177,6 +195,12 @@ void GuiComponentTapSeq::applyStepCount()
 
     // 行の数や棒の高さが変わると区分の高さが変わるので、並べ直してもらう
     if (isReady && (rowsBefore != list.getRowCount() || barsBefore != bars.getNaturalHeight())) ctx.editor.resized();
+    else relayoutIfNeeded();
+}
+
+void GuiComponentTapSeq::relayoutIfNeeded()
+{
+    if (isReady && laidOutLoopRows > 0 && laidOutLoopRows != loops.getRowCount()) ctx.editor.resized();
 }
 
 void GuiComponentTapSeq::rebindValue()
@@ -201,17 +225,36 @@ void GuiComponentTapSeq::onValueChanged()
     refresh();
 }
 
-// 次に使う段を動かす。音の側も同じ cursor を見る
+// 次に使う段を動かす。音の側も同じ cursor を見る。
+// INCREMENT は押したときと同じくループに沿って進み、RESET はループも数え直す。
 void GuiComponentTapSeq::moveCursor(int delta, bool toStart)
 {
     auto* t = table();
 
     if (t == nullptr) return;
 
+    if (toStart) {
+        tapSeqRewind(*t);
+        refresh();
+        return;
+    }
+
     const int n = stepCount();
     int c = juce::jlimit(0, n - 1, t->cursor.load());
 
-    c = toStart ? 0 : (c + delta + n) % n;
+    if (delta > 0) {
+        TapSeqParams p;
+
+        p.enable = true;
+        p.steps = n;
+        p.loop = loop.getToggleState();
+        p.table = t;
+
+        c = tapSeqNext(p, c);
+    }
+    else {
+        c = (c + delta + n) % n;
+    }
 
     t->cursor.store(c);
 
@@ -244,6 +287,8 @@ void GuiComponentTapSeq::refresh()
     list.decimals = spec.integer ? 0 : 3;
     list.repaint();
 
+    loops.refresh();
+
     if (t != nullptr) {
         seenVersion = t->version.load();
         seenCursor = t->cursor.load();
@@ -272,6 +317,9 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     enableSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
     stepsSeparator.setVisible(visible);
+    loop.setVisible(visible);
+    loops.setVisibles(visible);
+    loopSeparator.setVisible(visible);
     target.setVisibleWithLabel(visible);
     value.setVisibleWithLabel(visible);
     ampBtns.setVisibles(visible && isAmp() && value.isVisibleNudge());
@@ -291,6 +339,11 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     enableSeparator.layoutComponent(rect);
     layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = h });
     stepsSeparator.layoutComponent(rect);
+
+    layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = h });
+    loops.layoutComponent(rect, h);
+    laidOutLoopRows = loops.getRowCount();
+    loopSeparator.layoutComponent(rect);
 
     layoutMain({ .mainRect = rect, .label = &target.label, .component = &target, .rowHeight = h });
     value.layoutComponent(rect, h);
@@ -328,6 +381,13 @@ void GuiComponentTapSeq::applyActive()
     enableSeparator.setEnabled(active);
     steps.setEnabledWithLabel(active);
     stepsSeparator.setEnabled(active);
+
+    // トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。
+    loop.setEnabled(outerEnabled);
+    loop.setDimmed(!active);
+    loops.setEnables(active && loop.getToggleState());
+    loopSeparator.setEnabled(active);
+
     target.setEnabledWithLabel(active);
     value.setEnabled(active);
     ampBtns.setEnables(active);
@@ -389,10 +449,20 @@ void GuiComponentTapSeq::readValues(const Io::ParamReader& r)
     enable.setToggleState(r.getBool("flag", enable.getToggleState()), juce::sendNotification);
     steps.setValue(r.getInt("steps", (int)steps.getValue()), juce::sendNotification);
 
+    // LOOP とループの組は 4.1.0 から。無ければ切って空にする (これまでと同じ鳴り)
+    loop.setToggleState(r.getBool("loop", false), juce::sendNotification);
+
     if (auto* t = table()) {
         const auto values = r.getFloatArray("values");
 
         for (int s = 1; s <= StepTable::size; ++s) t->setLevel(s, s <= (int)values.size() ? values[(size_t)s - 1] : t->defaultL);
+
+        const auto flat = r.getFloatArray("loops");
+        std::vector<StepLoop::Entry> entries;
+
+        for (size_t i = 0; i + 2 < flat.size(); i += 3) entries.push_back({ (int)flat[i], (int)flat[i + 1], (int)flat[i + 2] });
+
+        t->setLoops(entries);
     }
 
     applyStepCount();
@@ -402,6 +472,7 @@ void GuiComponentTapSeq::writeValues(Io::ParamWriter& w)
 {
     w.set("flag", enable.getToggleState());
     w.set("steps", (float)steps.getValue());
+    w.set("loop", loop.getToggleState());
 
     // 後ろの初期値のままの段は書かない
     std::vector<float> values;
@@ -415,6 +486,19 @@ void GuiComponentTapSeq::writeValues(Io::ParamWriter& w)
     }
 
     w.setArray("values", values);
+
+    // ループの組。START, END, COUNT を順に並べる
+    std::vector<float> flat;
+
+    if (auto* t = table()) {
+        for (const auto& e : t->loopList()) {
+            flat.push_back((float)e.start);
+            flat.push_back((float)e.end);
+            flat.push_back((float)e.count);
+        }
+    }
+
+    w.setArray("loops", flat);
 }
 
 void GuiComponentTapSeq::readParams(const Io::ParamReader& reader, const juce::String& key)

@@ -74,6 +74,7 @@ struct PrPtrsStepEnv {
     std::atomic<float>* loop = nullptr;
     std::atomic<float>* loopTo = nullptr;
     std::atomic<float>* loopCount = nullptr;
+    std::atomic<float>* loopMode = nullptr;
     std::atomic<float>* stl = nullptr;
     std::atomic<float>* lr = nullptr;
     std::atomic<float>* rr = nullptr;

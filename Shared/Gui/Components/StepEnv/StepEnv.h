@@ -20,6 +20,7 @@
 #include "../ValueButtons/ValueButtons.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../StepValues/StepValues.h"
+#include "../StepLoops/StepLoops.h"
 
 // ============================================================================
 // 256 段のエンベロープの区分 (SSG SW AMP / PITCH ENV[256] など)
@@ -35,7 +36,9 @@
 //   Bypass / Enable
 //   STEPS
 //   KEEP
-//   LOOP / LOOP.TO / LOOP.CNT
+//   LOOP / LOOP MODE
+//     Original Mode : LOOP.TO / LOOP.CNT
+//     Rich Mode     : LP.TARGET / START / END / COUNT / ADD・DELETE / 一覧 (4.1.0)
 //   R.TARGET / RATE / 帯 (R1〜)
 //   L.TARGET / LEVEL / (STEPS) / 帯 (STL, L1〜)
 //   RR / LR      リリース
@@ -60,7 +63,7 @@ public:
         juce::String tableKey;
 
         // パラメータの鍵 (code の後ろ)
-        juce::String steps, keep, loop, loopTo, loopCount, stl, lr, rr, endl, endlEnable;
+        juce::String steps, keep, loop, loopTo, loopCount, loopMode, stl, lr, rr, endl, endlEnable;
 
         // 値の範囲。整数なら interval を 1 にする
         double rateMin = 0.0, rateMax = 1.0, rateInterval = 0.001;
@@ -156,8 +159,14 @@ private:
     GuiToggleButton keep;
     NormalSeparator keepSeparator;
     GuiToggleButton loop;
+
+    // Original Mode (LOOP.TO / LOOP.CNT) か Rich Mode (ループの組) か
+    GuiComboBox loopMode;
     GuiSlider loopTo;
     GuiSlider loopCount;
+
+    // Rich Mode のループの組。表に持つ
+    GuiComponentStepLoops loops;
     NormalSeparator loopSeparator;
 
     GuiSlider rateTarget;
@@ -233,11 +242,21 @@ private:
     StepTable* table() const;
     int stepCount() const { return juce::jlimit(1, StepTable::size, (int)steps.getValue()); }
 
-    // 帯 (R と L) の行数の合計。区分の高さはこれで決まる
-    int stripRowCount() const { return rateValues.getRowCount() + levelValues.getRowCount(); }
+    bool isRich() const { return loopMode.getSelectedItemIndex() == StepLoop::Rich; }
+
+    // 帯 (R と L) とループの一覧の行数の合計。区分の高さはこれで決まる
+    int stripRowCount() const { return rateValues.getRowCount() + levelValues.getRowCount() + (isRich() ? loops.getRowCount() : 0); }
 
     // 最後に並べたときの帯の行数。0 はまだ並べていない
     int laidOutRows = 0;
+
+    // 最後に並べたときの LOOP MODE。Original と Rich で並ぶつまみが違う
+    bool laidOutRich = false;
+
+    // 帯の行数か LOOP MODE が、最後に並べたときと変わっていれば並べ直してもらう
+    void relayoutIfNeeded();
+
+    void applyLoopMode();
 
     void applyLoopValues(bool enabled);
     void applyStepCount();
