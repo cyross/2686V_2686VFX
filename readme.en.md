@@ -49,6 +49,14 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - INCREMENT advances along the sets just like a key press, and RESET also restarts the loop counts. DECREMENT still steps back one at a time
   - Off by default, so existing sounds do not change. Also saved in the section's parameter file (`loop` / `loops`)
   - Every channel, and 2686VFX (AMP SEQUENCER / PITCH SEQUENCER). All plugins
+- **Fixed: with KEEP on, SSG SW AMP / PITCH ENV[256] and friends never played the last step's value**
+  - While KEEP was on, finishing the last step left the value of the step before it, so L(STEP) was never heard, and the release started from that value too
+  - Once the last step is reached, L(STEP) is now held until release (sustain). With STEPS = 4, it stays at L4 after reaching it, and on release goes from L4 to LR over RR seconds
+  - The same goes for TL ENV, ALG ENV (always KEEP), DUTY RATIO ENV and PEAK RATIO ENV. All plugins
+- **Fixed: TAP AMP / PITCH SEQUENCER did not advance, or did not match the step on screen (since 4.0.0)**
+  - In mono mode, while a note was still sounding (legato, or pressing again right after releasing), the step did not advance
+  - With unison, the step advanced once per unison voice, and each voice played a different step's value. It also disagreed with the "next step" on screen
+  - It now advances by exactly one step per key press and gives every unison voice the same value. In mono mode, releasing a key and going back to a key still held does not advance it. All plugins (2686VFX was already correct)
 
 ### 3-0-2. What v4.0.1 fixes and changes
 

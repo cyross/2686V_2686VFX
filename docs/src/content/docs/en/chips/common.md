@@ -217,7 +217,7 @@ ENV[11] (10 steps plus release) and the 6-step SSG SW AMP ENV from 3.6.3 and ear
 
 A key press starts at **STL**, moves to **L1** over **R1** seconds, to **L2** over
 **R2** seconds and so on up to **STEP** steps, then holds the last level until
-release. On release it heads from the current level to **LR** over **RR** seconds.
+release (sustain; the last step's value is held even with KEEP on). On release it heads from the current level to **LR** over **RR** seconds.
 
 | Control | What it does | Range | Default | Automation |
 | --- | --- | --- | ---: | --- |
@@ -430,6 +430,9 @@ note by note as a row of steps.
 - The step values are drawn as horizontal bars; the row with a different background is the step the next key press uses
 - Below that, a list "S1: value / S2: value / …" shows four per row. Changing STEPS resizes it at once
 - There is one "next step" per channel, so every voice moves along the same row
+- The step advances by **exactly one per key press**. Unison does not advance it once per voice, and every voice plays the
+  same step's value. It also advances on mono legato, and when a key is pressed again right after release. Releasing a key in mono mode and going back to a key
+  still held does not advance it (fixed in 4.1.0)
 - INCREMENT / DECREMENT / RESET can also be pressed by automation (they act once when the value rises past 0.5)
 - Step values are saved as a table in presets and channel parameters (they cannot be automated).
   The section parameter files are `.tapAmp` / `.tapPitch`, read and written from the heading's right-click menu
