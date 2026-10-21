@@ -258,6 +258,7 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/N88DisplayTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/SsgValueTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/StepSnapTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/SliderNudgeTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/PresetStateTest.cpp"
     )
 

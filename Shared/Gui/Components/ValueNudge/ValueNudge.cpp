@@ -75,7 +75,7 @@ void GuiComponentValueNudge::setupComponent(juce::Component& parent, GuiSlider& 
 
 			b->setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = s.title,
 				.font = small ? std::optional<juce::Font>(juce::Font(juce::FontOptions(smallFontHeight))) : std::nullopt,
-				.bgColor = s.colour, .isReset = false });
+				.bgColor = s.colour, .isReset = false, .darkenWhenPressed = true });
 			b->setWantsKeyboardFocus(true);
 			b->setExplicitFocusOrder(++tabOrder);
 

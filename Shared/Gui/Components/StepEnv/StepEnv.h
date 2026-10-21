@@ -53,7 +53,7 @@ public:
         // Duty  : 矩形波のデューティ比 % (DUTY RATIO ENV)
         // Peak  : 三角波の頂点 0〜1 (PEAK RATIO ENV)
         // Tl    : オペレーターの TL (TL ENV)。常に KEEP で、KEEP の札を持たない
-        // Alg   : チャンネルの ALG (ALG ENV)。常に KEEP。値を動かすボタンも STEPS も持たない
+        // Alg   : チャンネルの ALG (ALG ENV)。常に KEEP。STEPS は持たない
         enum class Kind { Amp, Pitch, Duty, Peak, Tl, Alg };
 
         Kind kind = Kind::Amp;
@@ -226,9 +226,10 @@ private:
     bool isPitch() const { return spec.kind == Spec::Kind::Pitch; }
     bool isDuty() const { return spec.kind == Spec::Kind::Duty; }
     bool isTl() const { return spec.kind == Spec::Kind::Tl; }
+    bool isAlg() const { return spec.kind == Spec::Kind::Alg; }
 
     // 値を置く・足すボタン (valueBtns) を使うもの
-    bool usesValueButtons() const { return isDuty() || isTl(); }
+    bool usesValueButtons() const { return isDuty() || isTl() || isAlg(); }
 
     // LEVEL・LR・ENDL を決まった刻みへ丸める STEPS を持つもの
     bool hasLevelSteps() const { return isAmp() || isTl(); }

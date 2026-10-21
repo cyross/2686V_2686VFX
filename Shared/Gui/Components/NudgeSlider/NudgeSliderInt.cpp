@@ -20,15 +20,22 @@ void GuiComponentNudgeSliderInt::setupComponent(
     mainSlider.setNumDecimalPlacesToDisplay(0);
     mainSlider.setWantsKeyboardFocus(true);
     mainSlider.setExplicitFocusOrder(++tabOrder);
+
+    // N ボタンと並びはこの部品が自前で持つ。つまみ本体の N ボタンは出さない
+    mainSlider.setNudgeButtonWanted(false);
+
     if (onValueChange.has_value()) {
         mainSlider.onValueChange = onValueChange.value();
     }
 
-    nudgeVisibleButton.setup({ .parent = parent, .title = "N", .bgColor = juce::Colours::darkorange });
+    nudgeVisibleButton.setup({ .parent = parent, .title = "N", .bgColor = GuiColor::Slider::Nudge::Toggle, .darkenWhenPressed = true });
     nudgeVisibleButton.setWantsKeyboardFocus(true);
     nudgeVisibleButton.setExplicitFocusOrder(++tabOrder);
     nudgeVisibleButton.onClick = [this] {
         visibleNudgeButtons = !visibleNudgeButtons;
+
+        // 並びを出しているあいだは、N ボタンの地を濃くする
+        nudgeVisibleButton.setToggleState(visibleNudgeButtons, juce::dontSendNotification);
 
         ctx.editor.resized();
         };

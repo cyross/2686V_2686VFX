@@ -9,35 +9,35 @@ void GuiComponentPitchButtons::setupComponent(juce::Component& parent, GuiSlider
 		font = juce::Font(juce::FontOptions(16.0f));
 	}
 
-    minus1200.setup({ .parent = parent, .id = "", .title = "-1200", .font = font, .isReset = false });
+    minus1200.setup({ .parent = parent, .id = "", .title = "-1200", .font = font, .isReset = false, .darkenWhenPressed = true });
     minus1200.setWantsKeyboardFocus(true);
     minus1200.setExplicitFocusOrder(++tabOrder);
     minus1200.onClick = [this, &slider] {
         slider.setValue(slider.getValue() - 1200);
         };
 
-    minus100.setup({ .parent = parent, .id = "", .title = "-100", .font = font, .isReset = false });
+    minus100.setup({ .parent = parent, .id = "", .title = "-100", .font = font, .isReset = false, .darkenWhenPressed = true });
     minus100.setWantsKeyboardFocus(true);
     minus100.setExplicitFocusOrder(++tabOrder);
     minus100.onClick = [this, &slider] {
         slider.setValue(slider.getValue() - 100);
         };
 
-    pm0.setup({ .parent = parent, .id = "", .title = "0", .font = font, .bgColor = juce::Colours::aquamarine, .isReset = false });
+    pm0.setup({ .parent = parent, .id = "", .title = "0", .font = font, .bgColor = GuiColor::Slider::Nudge::Reset, .isReset = false, .darkenWhenPressed = true });
     pm0.setWantsKeyboardFocus(true);
     pm0.setExplicitFocusOrder(++tabOrder);
     pm0.onClick = [this, &slider] {
         slider.setValue(0);
         };
 
-    plus100.setup({ .parent = parent, .id = "", .title = "+100", .font = font, .isReset = false });
+    plus100.setup({ .parent = parent, .id = "", .title = "+100", .font = font, .isReset = false, .darkenWhenPressed = true });
     plus100.setWantsKeyboardFocus(true);
     plus100.setExplicitFocusOrder(++tabOrder);
     plus100.onClick = [this, &slider] {
         slider.setValue(slider.getValue() + 100);
         };
 
-    plus1200.setup({ .parent = parent, .id = "", .title = "+1200", .font = font, .isReset = false });
+    plus1200.setup({ .parent = parent, .id = "", .title = "+1200", .font = font, .isReset = false, .darkenWhenPressed = true });
     plus1200.setWantsKeyboardFocus(true);
     plus1200.setExplicitFocusOrder(++tabOrder);
     plus1200.onClick = [this, &slider] {

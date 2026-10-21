@@ -368,6 +368,10 @@ void GuiCurve::setup()
 
         k[vp]->setup({ .parent = curveGroup.contentCanvas, .id = "", .title = CurveGuiText::k, .isReset = false });
         k[vp]->setValue(0.0f, juce::dontSendNotification);
+
+        // K の初期値 (曲げない) へ戻すボタンを、N で開く並びに足す
+        k[vp]->addNudgeValue("1", 1.0);
+
         k[vp]->setWantsKeyboardFocus(true);
         k[vp]->setExplicitFocusOrder(++tabOrder);
         k[vp]->onValueChange = [this, vp] {

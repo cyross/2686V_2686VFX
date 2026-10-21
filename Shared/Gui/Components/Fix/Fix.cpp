@@ -48,157 +48,157 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
 
 	freqToSeparator.setupComponent(parent);
 
-    freqTo.setup({ .parent = parent, .title = toLabel, .isReset = false, .isResized = false });
+    freqTo.setup({ .parent = parent, .title = toLabel, .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqTo.setWantsKeyboardFocus(true);
     freqTo.setExplicitFocusOrder(++tabOrder);
     freqTo.onClick = [this, toValue] { freq.setValue(toValue, juce::sendNotification); };
 
-    freqToZero.setup(GuiTextButton::Config{ .parent = parent, .title = "->0", .isReset = false, .isResized = false});
+    freqToZero.setup(GuiTextButton::Config{ .parent = parent, .title = "->0", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqToZero.setWantsKeyboardFocus(true);
     freqToZero.setExplicitFocusOrder(++tabOrder);
     freqToZero.onClick = [this] { freq.setValue(0, juce::sendNotification); };
 
-    freqTo05.setup(GuiTextButton::Config{ .parent = parent, .title = "->0.5", .isReset = false, .isResized = false });
+    freqTo05.setup(GuiTextButton::Config{ .parent = parent, .title = "->0.5", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqTo05.setWantsKeyboardFocus(true);
     freqTo05.setExplicitFocusOrder(++tabOrder);
     freqTo05.onClick = [this] { freq.setValue(0.5, juce::sendNotification); };
 
-    freqTo1.setup(GuiTextButton::Config{ .parent = parent, .title = "->1", .isReset = false, .isResized = false });
+    freqTo1.setup(GuiTextButton::Config{ .parent = parent, .title = "->1", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqTo1.setWantsKeyboardFocus(true);
     freqTo1.setExplicitFocusOrder(++tabOrder);
     freqTo1.onClick = [this] { freq.setValue(1, juce::sendNotification); };
 
-    freqTo2.setup(GuiTextButton::Config{ .parent = parent, .title = "->2", .isReset = false, .isResized = false });
+    freqTo2.setup(GuiTextButton::Config{ .parent = parent, .title = "->2", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqTo2.setWantsKeyboardFocus(true);
     freqTo2.setExplicitFocusOrder(++tabOrder);
     freqTo2.onClick = [this] { freq.setValue(2, juce::sendNotification); };
 
-    freqM05.setup(GuiTextButton::Config{ .parent = parent, .title = "-0.5", .isReset = false, .isResized = false });
+    freqM05.setup(GuiTextButton::Config{ .parent = parent, .title = "-0.5", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM05.setWantsKeyboardFocus(true);
     freqM05.setExplicitFocusOrder(++tabOrder);
     freqM05.onClick = [this] { freq.setValue(freq.getValue() - 0.5f, juce::sendNotification); };
 
-    freqM02.setup(GuiTextButton::Config{ .parent = parent, .title = "-0.2", .isReset = false, .isResized = false });
+    freqM02.setup(GuiTextButton::Config{ .parent = parent, .title = "-0.2", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM02.setWantsKeyboardFocus(true);
     freqM02.setExplicitFocusOrder(++tabOrder);
     freqM02.onClick = [this] { freq.setValue(freq.getValue() - 0.2f, juce::sendNotification); };
 
-    freqM01.setup(GuiTextButton::Config{ .parent = parent, .title = "-0.1", .isReset = false, .isResized = false });
+    freqM01.setup(GuiTextButton::Config{ .parent = parent, .title = "-0.1", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM01.setWantsKeyboardFocus(true);
     freqM01.setExplicitFocusOrder(++tabOrder);
     freqM01.onClick = [this] { freq.setValue(freq.getValue() - 0.1f, juce::sendNotification); };
 
-    freqP01.setup(GuiTextButton::Config{ .parent = parent, .title = "+0.1", .isReset = false, .isResized = false });
+    freqP01.setup(GuiTextButton::Config{ .parent = parent, .title = "+0.1", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP01.setWantsKeyboardFocus(true);
     freqP01.setExplicitFocusOrder(++tabOrder);
     freqP01.onClick = [this] { freq.setValue(freq.getValue() + 0.1f, juce::sendNotification); };
 
-    freqP02.setup(GuiTextButton::Config{ .parent = parent, .title = "+0.2", .isReset = false, .isResized = false });
+    freqP02.setup(GuiTextButton::Config{ .parent = parent, .title = "+0.2", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP02.setWantsKeyboardFocus(true);
     freqP02.setExplicitFocusOrder(++tabOrder);
     freqP02.onClick = [this] { freq.setValue(freq.getValue() + 0.2f, juce::sendNotification); };
 
-    freqP05.setup(GuiTextButton::Config{ .parent = parent, .title = "+0.5", .isReset = false, .isResized = false });
+    freqP05.setup(GuiTextButton::Config{ .parent = parent, .title = "+0.5", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP05.setWantsKeyboardFocus(true);
     freqP05.setExplicitFocusOrder(++tabOrder);
     freqP05.onClick = [this] { freq.setValue(freq.getValue() + 0.5f, juce::sendNotification); };
 
-    freqM5.setup(GuiTextButton::Config{ .parent = parent, .title = "-5", .isReset = false, .isResized = false });
+    freqM5.setup(GuiTextButton::Config{ .parent = parent, .title = "-5", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM5.setWantsKeyboardFocus(true);
     freqM5.setExplicitFocusOrder(++tabOrder);
     freqM5.onClick = [this] { freq.setValue(freq.getValue() - 5.0f, juce::sendNotification); };
 
-    freqM2.setup(GuiTextButton::Config{ .parent = parent, .title = "-2", .isReset = false, .isResized = false });
+    freqM2.setup(GuiTextButton::Config{ .parent = parent, .title = "-2", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM2.setWantsKeyboardFocus(true);
     freqM2.setExplicitFocusOrder(++tabOrder);
     freqM2.onClick = [this] { freq.setValue(freq.getValue() - 2.0f, juce::sendNotification); };
 
-    freqM1.setup(GuiTextButton::Config{ .parent = parent, .title = "-1", .isReset = false, .isResized = false });
+    freqM1.setup(GuiTextButton::Config{ .parent = parent, .title = "-1", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM1.setWantsKeyboardFocus(true);
     freqM1.setExplicitFocusOrder(++tabOrder);
     freqM1.onClick = [this] { freq.setValue(freq.getValue() - 1.0f, juce::sendNotification); };
 
-    freqP1.setup(GuiTextButton::Config{ .parent = parent, .title = "+1", .isReset = false, .isResized = false });
+    freqP1.setup(GuiTextButton::Config{ .parent = parent, .title = "+1", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP1.setWantsKeyboardFocus(true);
     freqP1.setExplicitFocusOrder(++tabOrder);
     freqP1.onClick = [this] { freq.setValue(freq.getValue() + 1.0f, juce::sendNotification); };
 
-    freqP2.setup(GuiTextButton::Config{ .parent = parent, .title = "+2", .isReset = false, .isResized = false });
+    freqP2.setup(GuiTextButton::Config{ .parent = parent, .title = "+2", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP2.setWantsKeyboardFocus(true);
     freqP2.setExplicitFocusOrder(++tabOrder);
     freqP2.onClick = [this] { freq.setValue(freq.getValue() + 2.0f, juce::sendNotification); };
 
-    freqP5.setup(GuiTextButton::Config{ .parent = parent, .title = "+5", .isReset = false, .isResized = false });
+    freqP5.setup(GuiTextButton::Config{ .parent = parent, .title = "+5", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP5.setWantsKeyboardFocus(true);
     freqP5.setExplicitFocusOrder(++tabOrder);
     freqP5.onClick = [this] { freq.setValue(freq.getValue() + 5.0f, juce::sendNotification); };
 
-    freqM50.setup(GuiTextButton::Config{ .parent = parent, .title = "-50", .isReset = false, .isResized = false });
+    freqM50.setup(GuiTextButton::Config{ .parent = parent, .title = "-50", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM50.setWantsKeyboardFocus(true);
     freqM50.setExplicitFocusOrder(++tabOrder);
     freqM50.onClick = [this] { freq.setValue(freq.getValue() - 50.0f, juce::sendNotification); };
 
-    freqM20.setup(GuiTextButton::Config{ .parent = parent, .title = "-20", .isReset = false, .isResized = false });
+    freqM20.setup(GuiTextButton::Config{ .parent = parent, .title = "-20", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM20.setWantsKeyboardFocus(true);
     freqM20.setExplicitFocusOrder(++tabOrder);
     freqM20.onClick = [this] { freq.setValue(freq.getValue() - 20.0f, juce::sendNotification); };
 
-    freqM10.setup(GuiTextButton::Config{ .parent = parent, .title = "-10", .isReset = false, .isResized = false });
+    freqM10.setup(GuiTextButton::Config{ .parent = parent, .title = "-10", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM10.setWantsKeyboardFocus(true);
     freqM10.setExplicitFocusOrder(++tabOrder);
     freqM10.onClick = [this] { freq.setValue(freq.getValue() - 10.0f, juce::sendNotification); };
 
-    freqP10.setup(GuiTextButton::Config{ .parent = parent, .title = "+10", .isReset = false, .isResized = false });
+    freqP10.setup(GuiTextButton::Config{ .parent = parent, .title = "+10", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP10.setWantsKeyboardFocus(true);
     freqP10.setExplicitFocusOrder(++tabOrder);
     freqP10.onClick = [this] { freq.setValue(freq.getValue() + 10.0f, juce::sendNotification); };
 
-    freqP20.setup(GuiTextButton::Config{ .parent = parent, .title = "+20", .isReset = false, .isResized = false });
+    freqP20.setup(GuiTextButton::Config{ .parent = parent, .title = "+20", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP20.setWantsKeyboardFocus(true);
     freqP20.setExplicitFocusOrder(++tabOrder);
     freqP20.onClick = [this] { freq.setValue(freq.getValue() + 20.0f, juce::sendNotification); };
 
-    freqP50.setup(GuiTextButton::Config{ .parent = parent, .title = "+50", .isReset = false, .isResized = false });
+    freqP50.setup(GuiTextButton::Config{ .parent = parent, .title = "+50", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP50.setWantsKeyboardFocus(true);
     freqP50.setExplicitFocusOrder(++tabOrder);
     freqP50.onClick = [this] { freq.setValue(freq.getValue() + 50.0f, juce::sendNotification); };
 
-    freqM500.setup(GuiTextButton::Config{ .parent = parent, .title = "-500", .isReset = false, .isResized = false });
+    freqM500.setup(GuiTextButton::Config{ .parent = parent, .title = "-500", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM500.setWantsKeyboardFocus(true);
     freqM500.setExplicitFocusOrder(++tabOrder);
     freqM500.onClick = [this] { freq.setValue(freq.getValue() - 500.0f, juce::sendNotification); };
 
-    freqM200.setup(GuiTextButton::Config{ .parent = parent, .title = "-200", .isReset = false, .isResized = false });
+    freqM200.setup(GuiTextButton::Config{ .parent = parent, .title = "-200", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM200.setWantsKeyboardFocus(true);
     freqM200.setExplicitFocusOrder(++tabOrder);
     freqM200.onClick = [this] { freq.setValue(freq.getValue() - 200.0f, juce::sendNotification); };
 
-    freqM100.setup(GuiTextButton::Config{ .parent = parent, .title = "-100", .isReset = false, .isResized = false });
+    freqM100.setup(GuiTextButton::Config{ .parent = parent, .title = "-100", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM100.setWantsKeyboardFocus(true);
     freqM100.setExplicitFocusOrder(++tabOrder);
     freqM100.onClick = [this] { freq.setValue(freq.getValue() - 100.0f, juce::sendNotification); };
 
-    freqP100.setup(GuiTextButton::Config{ .parent = parent, .title = "+100", .isReset = false, .isResized = false });
+    freqP100.setup(GuiTextButton::Config{ .parent = parent, .title = "+100", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP100.setWantsKeyboardFocus(true);
     freqP100.setExplicitFocusOrder(++tabOrder);
     freqP100.onClick = [this] { freq.setValue(freq.getValue() + 100.0f, juce::sendNotification); };
 
-    freqP200.setup(GuiTextButton::Config{ .parent = parent, .title = "+200", .isReset = false, .isResized = false });
+    freqP200.setup(GuiTextButton::Config{ .parent = parent, .title = "+200", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP200.setWantsKeyboardFocus(true);
     freqP200.setExplicitFocusOrder(++tabOrder);
     freqP200.onClick = [this] { freq.setValue(freq.getValue() + 200.0f, juce::sendNotification); };
 
-    freqP500.setup(GuiTextButton::Config{ .parent = parent, .title = "+500", .isReset = false, .isResized = false });
+    freqP500.setup(GuiTextButton::Config{ .parent = parent, .title = "+500", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP500.setWantsKeyboardFocus(true);
     freqP500.setExplicitFocusOrder(++tabOrder);
     freqP500.onClick = [this] { freq.setValue(freq.getValue() + 500.0f, juce::sendNotification); };
 
-    freqM1000.setup(GuiTextButton::Config{ .parent = parent, .title = "-1k", .isReset = false, .isResized = false });
+    freqM1000.setup(GuiTextButton::Config{ .parent = parent, .title = "-1k", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqM1000.setWantsKeyboardFocus(true);
     freqM1000.setExplicitFocusOrder(++tabOrder);
     freqM1000.onClick = [this] { freq.setValue(freq.getValue() - 1000.0f, juce::sendNotification); };
 
-    freqP1000.setup(GuiTextButton::Config{ .parent = parent, .title = "+1k", .isReset = false, .isResized = false });
+    freqP1000.setup(GuiTextButton::Config{ .parent = parent, .title = "+1k", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     freqP1000.setWantsKeyboardFocus(true);
     freqP1000.setExplicitFocusOrder(++tabOrder);
     freqP1000.onClick = [this] { freq.setValue(freq.getValue() + 1000.0f, juce::sendNotification); };
@@ -218,14 +218,14 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     note.setup({ .parent = parent, .title = "" });
     note.setText(noteLabelText[(int)freqNote.getValue()], juce::NotificationType::dontSendNotification);
 
-    applyNote.setup(GuiTextButton::Config{ .parent = parent, .title = "Apply", .bgColor = juce::Colours::blue.darker(0.1f).withAlpha(0.6f), .isReset = false, .isResized = false});
+    applyNote.setup(GuiTextButton::Config{ .parent = parent, .title = "Apply", .bgColor = juce::Colours::blue.darker(0.1f).withAlpha(0.6f), .isReset = false, .isResized = false, .darkenWhenPressed = true });
     applyNote.setWantsKeyboardFocus(true);
     applyNote.setExplicitFocusOrder(++tabOrder);
     applyNote.onClick = [this] {
         freq.setValue(440.0 * std::pow(2.0, (freqNote.getValue() - 69.0) / 12.0));
         };
 
-    applyToC3.setup(GuiTextButton::Config{ .parent = parent, .title = "-> C3", .isReset = false, .isResized = false });
+    applyToC3.setup(GuiTextButton::Config{ .parent = parent, .title = "-> C3", .isReset = false, .isResized = false, .darkenWhenPressed = true });
     applyToC3.setWantsKeyboardFocus(true);
     applyToC3.setExplicitFocusOrder(++tabOrder);
     applyToC3.onClick = [this] {

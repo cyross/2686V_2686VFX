@@ -53,6 +53,7 @@ public:
     }
     void updateVisibleNudge(bool visibleNudge) {
         this->visibleNudgeButtons = visibleNudge;
+        nudgeVisibleButton.setToggleState(visibleNudge, juce::dontSendNotification);
     }
     bool isVisibleNudge() {
         return this->visibleNudgeButtons;
