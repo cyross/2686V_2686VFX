@@ -50,6 +50,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - ALG ENV was the only one without a row of buttons for its N button
   - It now shows **-1** / **+1** and buttons that set the algorithm number directly (0-7 for OPN, OPM and the like). OPZX7 (130 algorithms) gets -10 / -1 / 0 / +1 / +10 / 129
   - Every FM channel
+- **Fixed: the x16 / x32 zoom buttons on the global graph were cut down to "x..." (since 4.0.0)**
+  - The buttons now take the width their text needs, instead of an equal share of half the row. Wide frames keep the same even widths as before
+  - All plugins
 
 ### 3-0-2. What v4.1.0 adds and changes
 

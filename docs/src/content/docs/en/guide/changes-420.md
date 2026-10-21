@@ -77,3 +77,10 @@ one without a row of buttons for its N button.
 
 It now shows **-1** / **+1** and buttons that set the algorithm number directly (0-7 for OPN, OPM and
 the like). OPZX7, with 130 algorithms, gets -10 / -1 / 0 / +1 / +10 / 129.
+
+## Fixed the zoom buttons on the global graph
+
+Since 4.0.0, the **x16** / **x32** zoom buttons on the global graph were cut down to "x...". The buttons
+only got an equal share of half the row, which in a narrow frame left no room for the text.
+
+The buttons now take the width their text needs. Wide frames keep the same even widths as before.

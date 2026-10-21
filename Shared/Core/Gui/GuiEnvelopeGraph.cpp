@@ -44,6 +44,15 @@ namespace
     constexpr int zoomRowHeight = 16;
 
     constexpr std::array<float, 6> zoomPresets = { 1.0f, 2.0f, 4.0f, 8.0f, 16.0f, 32.0f };
+
+    // x1〜x32 のボタン 1 個の幅。広い枠ではこの幅、狭い枠では文字が収まる幅まで詰める
+    constexpr int zoomButtonWidth = 30;
+
+    // 文字の左右に要る余白 (JUCE がボタンの文字の左右へ空けるぶんと、並べるときの隙間)
+    constexpr int zoomButtonTextPadding = 16;
+
+    // 拡大率のつまみに残す幅の下限 (数値の枠と帯)
+    constexpr int zoomSliderMinWidth = 100;
 }
 
 double GuiZoomSlider::align(double value, double step, double lo, double hi)
@@ -143,14 +152,44 @@ void GuiEnvelopeGraph::resized()
 
     scrollBar.setBounds(r.removeFromBottom(zoomBarHeight).reduced(5, 0));
 
-    // 左に拡大率のつまみ、右に x1〜x32 のボタン
-    auto buttons = row.removeFromRight(juce::jmin(row.getWidth() / 2, 6 * 30));
+    // 左に拡大率のつまみ、右に x1〜x32 のボタン。
+    //
+    // ボタンは文字が収まる幅を取る。行の半分を等分していたころは、狭い枠
+    // (グローバルのグラフ) で x16 / x32 が「x...」と省略されていた。
+    std::array<int, std::tuple_size_v<decltype(zoomButtons)>> widths{};
+
+    int needed = 0;
+    int preferred = 0;
+
+    for (size_t i = 0; i < zoomButtons.size(); ++i) {
+        auto& b = zoomButtons[i];
+        const auto font = b.getLookAndFeel().getTextButtonFont(b, zoomRowHeight);
+
+        widths[i] = (int)std::ceil(juce::GlyphArrangement::getStringWidth(font, b.getButtonText())) + zoomButtonTextPadding;
+
+        needed += widths[i];
+        preferred += juce::jmax(widths[i], zoomButtonWidth);
+    }
+
+    const int room = juce::jmax(0, row.getWidth() - zoomSliderMinWidth);
+
+    // 場所があれば揃いの幅にする。無ければ文字が収まる幅、それでも足りなければ縮める
+    if (preferred <= room) {
+        for (auto& w : widths) w = juce::jmax(w, zoomButtonWidth);
+    }
+    else if (needed > room && needed > 0) {
+        for (auto& w : widths) w = w * room / needed;
+    }
+
+    int total = 0;
+
+    for (auto w : widths) total += w;
+
+    auto buttons = row.removeFromRight(total);
 
     zoomSlider.setBounds(row.reduced(4, 0));
 
-    const int w = buttons.getWidth() / (int)zoomButtons.size();
-
-    for (auto& b : zoomButtons) b.setBounds(buttons.removeFromLeft(w).reduced(1, 0));
+    for (size_t i = 0; i < zoomButtons.size(); ++i) zoomButtons[i].setBounds(buttons.removeFromLeft(widths[i]).reduced(1, 0));
 }
 
 void GuiEnvelopeGraph::syncScrollBar()
