@@ -322,7 +322,8 @@ void GuiComponentStepEnv::setLevelRange()
     level.getSlider().setNumDecimalPlacesToDisplay(spec.levelInterval >= 1.0 ? 0 : spec.levelDecimals);
 }
 
-// 値のつまみの下のボタン。DUTY は PRESET のデューティ比、TL は刻みと両端。
+// 値のつまみの下のボタン。DUTY は PRESET のデューティ比、TL は刻みと両端、
+// ALG は ±1 と、アルゴリズムの番号。
 std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::valueButtonEntries() const
 {
     if (isDuty()) {
@@ -332,6 +333,24 @@ std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::valueButtonEnt
     }
 
     const juce::String maxLabel((int)spec.levelMax);
+
+    if (isAlg()) {
+        const int lo = (int)spec.levelMin;
+        const int hi = (int)spec.levelMax;
+
+        // 数が少なければ (OPN などは 8 個)、番号を直に置くボタンを並べる
+        if (hi - lo < 8) {
+            std::vector<GuiComponentValueButtons::Entry> entries = { { "-1", true, -1.0 }, { "+1", true, 1.0 } };
+
+            for (int a = lo; a <= hi; ++a) entries.push_back({ juce::String(a), false, (double)a });
+
+            return entries;
+        }
+
+        // OPZX7 は 130 個あるので、TL と同じく刻みと両端
+        return { { "-10", true, -10.0 }, { "-1", true, -1.0 }, { juce::String(lo), false, (double)lo }, { "+1", true, 1.0 }, { "+10", true, 10.0 },
+                 { maxLabel, false, spec.levelMax } };
+    }
 
     return { { "-8", true, -8.0 }, { "-1", true, -1.0 }, { "0", false, 0.0 }, { "+1", true, 1.0 }, { "+8", true, 8.0 },
              { maxLabel, false, spec.levelMax } };

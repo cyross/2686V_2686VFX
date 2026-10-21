@@ -67,6 +67,9 @@ void GuiComponentStepSnap::setupComponent(juce::Component& parent, const std::ve
 
 	for (auto* s : m_sliders) s->addListener(this);
 
+	// 初めは自由
+	for (auto* s : m_sliders) s->setSnapSteps(0);
+
 	stepSelector.setup({ .parent = parent, .id = "", .title = title, .items = stepItems(), .isReset = false, .labelFont = labelFont });
 	stepSelector.setSelectedItemIndex(0, juce::dontSendNotification); // 初めは自由
 	stepSelector.setWantsKeyboardFocus(true);
@@ -94,6 +97,11 @@ void GuiComponentStepSnap::snapOne(GuiSlider& slider)
 
 void GuiComponentStepSnap::snapAll()
 {
+	// ラベルのドラッグやナッジの並びが、選んだ刻みで動かせるよう知らせる
+	const int steps = stepsOf(stepSelector.getSelectedItemIndex());
+
+	for (auto* s : m_sliders) s->setSnapSteps(steps);
+
 	for (auto* s : m_sliders) snapOne(*s);
 }
 

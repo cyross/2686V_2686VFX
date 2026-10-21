@@ -64,7 +64,7 @@ void GuiComponentLevelNudge::setupComponent(juce::Component& parent, GuiSlider& 
         const Spec& s = specs[i];
         auto& b = *buttons[(size_t)i];
 
-        b.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = s.title, .bgColor = s.colour(), .isReset = false });
+        b.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = s.title, .bgColor = s.colour(), .isReset = false, .darkenWhenPressed = true });
         b.setWantsKeyboardFocus(true);
         b.setExplicitFocusOrder(++tabOrder);
 

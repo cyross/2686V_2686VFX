@@ -269,11 +269,415 @@ void GuiSlider::updateValueBoxWidth()
         CoreGuiValue::Slider::ValueBox::height);
 }
 
+// ============================================================================
+// つまみの N ボタンで開く、値を動かすボタンの並び
+// ============================================================================
+// 編集画面のいちばん上へ重ねて、つまみのすぐ下 (下に場所が無ければ上) に出す。
+// 並びの外を押すか、ホイールを回すと閉じる。つまみそのものとラベルを
+// 触っているあいだは閉じない (帯のドラッグや N ボタンでの閉じ直しのため)。
+namespace
+{
+    class GuiSliderNudgePopup : public juce::Component
+    {
+    public:
+        GuiSliderNudgePopup(GuiSlider& s, const GuiContext& ctx) : slider(s)
+        {
+            namespace V = CoreGuiValue::Slider::Nudge;
+
+            const juce::Font font{ juce::FontOptions(V::popupFontHeight) };
+
+            int width = V::popupPadding;
+
+            for (const auto& spec : slider.nudgeSpecs())
+            {
+                auto b = std::make_unique<GuiTextButton>(ctx);
+
+                b->setup({ .parent = *this, .title = spec.title, .font = font,
+                    .bgColor = spec.isReset ? GuiColor::Slider::Nudge::Reset.get() : GuiColor::TextButton::Bg.get(),
+                    .darkenWhenPressed = true });
+                b->setWantsKeyboardFocus(false);
+                b->onClick = [this, spec] { slider.applyNudge(spec); };
+
+                const int w = juce::jmax(V::popupButtonMinWidth,
+                    (int)std::ceil(juce::GlyphArrangement::getStringWidth(font, spec.title)) + 10);
+
+                b->setSize(w, V::popupButtonHeight);
+
+                width += w + V::popupButtonGap;
+
+                buttons.push_back(std::move(b));
+            }
+
+            width += V::popupPadding - V::popupButtonGap;
+
+            setSize(width, V::popupButtonHeight + V::popupPadding * 2);
+
+            juce::Desktop::getInstance().addGlobalMouseListener(&outside);
+        }
+
+        ~GuiSliderNudgePopup() override
+        {
+            juce::Desktop::getInstance().removeGlobalMouseListener(&outside);
+        }
+
+        int buttonCount() const { return (int)buttons.size(); }
+
+        void paint(juce::Graphics& g) override
+        {
+            auto bounds = getLocalBounds().toFloat();
+
+            g.setColour(GuiColor::Slider::Nudge::PopupBg);
+            g.fillRoundedRectangle(bounds, guiCornerRadius);
+
+            g.setColour(GuiColor::Slider::Nudge::PopupBorder);
+            g.drawRoundedRectangle(bounds.reduced(0.5f), guiCornerRadius, 1.0f);
+        }
+
+        void resized() override
+        {
+            namespace V = CoreGuiValue::Slider::Nudge;
+
+            int x = V::popupPadding;
+
+            for (auto& b : buttons)
+            {
+                b->setTopLeftPosition(x, V::popupPadding);
+                x += b->getWidth() + V::popupButtonGap;
+            }
+        }
+    private:
+        // 並びの外で押されたら閉じる
+        struct Outside : public juce::MouseListener
+        {
+            GuiSliderNudgePopup& popup;
+
+            explicit Outside(GuiSliderNudgePopup& p) : popup(p) {}
+
+            void mouseDown(const juce::MouseEvent& e) override { popup.touchedSomewhere(e); }
+            void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails&) override { popup.touchedSomewhere(e); }
+        };
+
+        void touchedSomewhere(const juce::MouseEvent& e)
+        {
+            auto* c = e.eventComponent;
+
+            if (c == nullptr || c == this || isParentOf(c)) return;
+            if (c == &slider || slider.isParentOf(c) || c == &slider.label) return;
+
+            // 知らせの途中で自分を消さないよう、閉じるのは後で
+            juce::Component::SafePointer<GuiSlider> target(&slider);
+
+            juce::MessageManager::callAsync([target] {
+                if (target != nullptr) target->hideNudgePopup();
+                });
+        }
+
+        GuiSlider& slider;
+        std::vector<std::unique_ptr<GuiTextButton>> buttons;
+        Outside outside{ *this };
+    };
+
+    // 刻みの数字を、要るだけの桁で書く (0.5 / 0.25 / 10 など)
+    juce::String formatMagnitude(double m)
+    {
+        for (int d = 0; d <= 6; ++d)
+        {
+            const double scaled = m * std::pow(10.0, d);
+
+            if (std::abs(scaled - std::round(scaled)) < 1.0e-6 * juce::jmax(1.0, scaled)) return juce::String(m, d);
+        }
+
+        return juce::String(m, 6);
+    }
+}
+
+GuiSlider::GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context)
+{
+    this->setLookAndFeel(&sharedLF.get());
+    this->addListener(this);
+}
+
+GuiSlider::~GuiSlider()
+{
+    nudgePopup.reset();
+
+    label.removeMouseListener(&labelDragger);
+
+    this->removeListener(this);
+
+    // 分け合っているものを指したままにしない
+    this->setLookAndFeel(nullptr);
+}
+
 void GuiSlider::resized()
 {
     updateValueBoxWidth();
 
     juce::Slider::resized();
+
+    if (nudgeButton == nullptr) return;
+
+    const bool shown = isNudgeButtonShown();
+
+    nudgeButton->setVisible(shown);
+
+    if (!shown)
+    {
+        hideNudgePopup();
+        return;
+    }
+
+    auto area = getLocalBounds().removeFromRight(CoreGuiValue::Slider::Nudge::buttonWidth);
+
+    nudgeButton->setBounds(area.withSizeKeepingCentre(area.getWidth(),
+        juce::jmin(area.getHeight(), CoreGuiValue::Slider::ValueBox::height)));
+}
+
+bool GuiSlider::isNudgeButtonShown() const
+{
+    if (nudgeButton == nullptr || !nudgeButtonWanted) return false;
+
+    namespace V = CoreGuiValue::Slider::Nudge;
+
+    return getWidth() >= getTextBoxWidth() + V::buttonWidth + V::buttonGap + V::minBarWidth;
+}
+
+void GuiSlider::setNudgeButtonWanted(bool wanted)
+{
+    if (nudgeButtonWanted == wanted) return;
+
+    nudgeButtonWanted = wanted;
+
+    if (!wanted) hideNudgePopup();
+
+    // 帯と数値の枠の置き場所が変わる
+    resized();
+}
+
+void GuiSlider::showNudgePopup()
+{
+    if (nudgePopup != nullptr) return;
+
+    juce::Component* host = findParentComponentOfClass<juce::AudioProcessorEditor>();
+
+    if (host == nullptr) host = getTopLevelComponent();
+
+    if (host == nullptr || host == this) return;
+
+    auto popup = std::make_unique<GuiSliderNudgePopup>(*this, ctx);
+
+    if (popup->buttonCount() == 0) return;
+
+    const auto area = host->getLocalArea(this, getLocalBounds());
+    const int gap = CoreGuiValue::Slider::Nudge::buttonGap;
+
+    // つまみの右端にそろえて下へ。下に収まらなければ上へ
+    auto bounds = popup->getBounds().withPosition(area.getRight() - popup->getWidth(), area.getBottom() + gap);
+
+    if (bounds.getBottom() > host->getHeight()) bounds.setY(area.getY() - bounds.getHeight() - gap);
+
+    popup->setBounds(bounds.constrainedWithin(host->getLocalBounds()));
+
+    host->addAndMakeVisible(*popup);
+    popup->toFront(false);
+
+    nudgePopup = std::move(popup);
+
+    // 開いているあいだは、N ボタンの地を濃くする
+    if (nudgeButton != nullptr) nudgeButton->setToggleState(true, juce::dontSendNotification);
+}
+
+void GuiSlider::hideNudgePopup()
+{
+    nudgePopup.reset();
+
+    if (nudgeButton != nullptr) nudgeButton->setToggleState(false, juce::dontSendNotification);
+}
+
+std::vector<GuiSlider::NudgeSpec> GuiSlider::nudgeSpecs() const
+{
+    std::vector<NudgeSpec> out;
+
+    const double lo = getMinimum();
+    const double hi = getMaximum();
+    const double span = hi - lo;
+
+    if (span <= 0.0) return out;
+
+    // 足し引きする幅 (小さい順) と、ボタンに出す文字
+    std::vector<std::pair<double, juce::String>> steps;
+
+    if (snapSteps > 0)
+    {
+        // STEPS で丸めているあいだは、刻みの倍数だけ動かす。
+        // 半端な幅で動かすと、丸めで元の値へ戻されてしまう
+        const double step = 1.0 / snapSteps;
+
+        auto name = [this](int k) {
+            return snapSteps == 1 ? juce::String(k) : juce::String(k) + "/" + juce::String(snapSteps);
+        };
+
+        steps.push_back({ step, name(1) });
+
+        if (step * 10.0 <= span / 2.0) steps.push_back({ step * 10.0, name(10) });
+    }
+    else
+    {
+        // 範囲の半分までの 10 の累乗を、大きいほうから 3 つまで。
+        // 間隔 (整数のつまみなら 1) より細かいものは出さない
+        const double interval = getInterval();
+
+        for (int k = (int)std::floor(std::log10(span / 2.0)); (int)steps.size() < 3 && k >= -6; --k)
+        {
+            const double m = std::pow(10.0, k);
+
+            if (interval > 0.0 && m < interval * (1.0 - 1.0e-9)) break;
+
+            steps.insert(steps.begin(), { m, formatMagnitude(m) });
+        }
+
+        if (steps.empty())
+        {
+            const double m = interval > 0.0 ? interval : span / 10.0;
+
+            steps.push_back({ m, formatMagnitude(m) });
+        }
+    }
+
+    // 画面の数字で端を決める。N88-BASIC(86) の向きなら、内部の値は逆になる
+    out.push_back({ "MIN", true, n88Displayed ? hi : lo });
+
+    for (auto it = steps.rbegin(); it != steps.rend(); ++it) out.push_back({ "-" + it->second, false, -it->first });
+
+    // 既定の値。パラメータを束ねていないつまみは、範囲に 0 があれば 0 へ戻す
+    if (auto* param = att != nullptr ? ctx.apvts.getParameter(boundId) : nullptr)
+    {
+        out.push_back({ "DEF", true, (double)param->convertFrom0to1(param->getDefaultValue()), true });
+    }
+    else if (lo <= 0.0 && 0.0 <= hi)
+    {
+        out.push_back({ "0", true, n88Displayed ? lo + hi : 0.0, true });
+    }
+
+    for (const auto& [title, value] : nudgeExtras) out.push_back({ title, true, value, true });
+
+    for (const auto& [m, title] : steps) out.push_back({ "+" + title, false, m });
+
+    out.push_back({ "MAX", true, n88Displayed ? lo : hi });
+
+    return out;
+}
+
+void GuiSlider::applyNudge(const NudgeSpec& spec)
+{
+    if (!isEnabled()) return;
+
+    // 帯のドラッグと同じく、始まりと終わりを知らせる。カーブ編集は終わりの
+    // 知らせで表を作り直すので、値の知らせはその前に届けておく (Sync)
+    if (onDragStart) onDragStart();
+
+    if (spec.isSet) setValue(spec.value, juce::sendNotificationSync);
+    else setDisplayedValue(getDisplayedValue() + spec.value, juce::sendNotificationSync);
+
+    if (onDragEnd) onDragEnd();
+}
+
+double GuiSlider::valueForLabelDrag(double startValue, int dy, double alignStep)
+{
+    namespace V = CoreGuiValue::Slider::LabelDrag;
+
+    const double lo = getMinimum();
+    const double hi = getMaximum();
+
+    if (hi <= lo) return startValue;
+
+    const double pixels = V::pixelsForFullRange;
+
+    // STEPS で丸めているあいだは、その刻み。キーでそろえる刻みより先に効く
+    const double step = snapSteps > 0 ? 1.0 / snapSteps : alignStep;
+
+    // 範囲より粗い刻みでは、そろえる先が端しか無いので使わない
+    if (step > 0.0 && step <= hi - lo)
+    {
+        // 画面の数字を刻みへそろえ、刻みの数で数える。
+        // 刻みが粗いほど、1 刻みに長い距離を使う
+        const double perStep = juce::jmax((double)V::minPixelsPerStep, pixels * step / (hi - lo));
+
+        const double shown = n88Displayed ? lo + hi - startValue : startValue;
+        const double aligned = std::round(shown / step) * step + std::round((double)dy / perStep) * step;
+        const double next = juce::jlimit(lo, hi, aligned);
+
+        return n88Displayed ? lo + hi - next : next;
+    }
+
+    // 帯の上の位置で動かす。片寄せのある範囲でも、N88-BASIC(86) の向きでも、
+    // 帯を右へ動かしたのと同じ向きになる (画面の数字が増える)
+    const double proportion = valueToProportionOfLength(startValue) + (double)dy / pixels;
+
+    return proportionOfLengthToValue(juce::jlimit(0.0, 1.0, proportion));
+}
+
+double GuiSlider::labelDragAlignStep(const juce::ModifierKeys& mods) const
+{
+    if (snapSteps > 0) return 0.0;
+
+    // macOS では Command も Ctrl と同じに扱う
+    const bool ctrl = mods.isCtrlDown() || mods.isCommandDown();
+    const bool shift = mods.isShiftDown();
+
+    if (ctrl && shift) return 10.0;
+    if (ctrl) return 1.0;
+
+    if (shift)
+    {
+        // 0.1 刻みは実数のつまみだけ。整数のつまみでは何もしない
+        const double interval = getInterval();
+        const bool isReal = interval <= 0.0 || std::abs(interval - std::round(interval)) > 1.0e-9;
+
+        return isReal ? 0.1 : 0.0;
+    }
+
+    return 0.0;
+}
+
+void GuiSlider::LabelDragger::mouseDown(const juce::MouseEvent& e)
+{
+    dragging = e.mods.isLeftButtonDown() && owner.isEnabled();
+
+    if (!dragging) return;
+
+    startValue = owner.getValue();
+    anchorY = e.y;
+    alignStep = owner.labelDragAlignStep(e.mods);
+
+    // 帯のドラッグと同じく、始まりと終わりを知らせる (カーブ編集の表の作り直しなど)
+    if (owner.onDragStart) owner.onDragStart();
+}
+
+void GuiSlider::LabelDragger::mouseDrag(const juce::MouseEvent& e)
+{
+    if (!dragging || !owner.isEnabled()) return;
+
+    // キーを押したり離したりしたら、いまの位置から数え直す。
+    // そうしないと、刻みが変わった瞬間に値が跳ぶ
+    const double step = owner.labelDragAlignStep(e.mods);
+
+    if (step != alignStep)
+    {
+        alignStep = step;
+        startValue = owner.getValue();
+        anchorY = e.y;
+    }
+
+    // 終わりの知らせより前に値が届くよう、知らせはその場で出す
+    owner.setValue(owner.valueForLabelDrag(startValue, anchorY - e.y, alignStep), juce::sendNotificationSync);
+}
+
+void GuiSlider::LabelDragger::mouseUp(const juce::MouseEvent&)
+{
+    if (!std::exchange(dragging, false)) return;
+
+    if (owner.onDragEnd) owner.onDragEnd();
 }
 
 void GuiSlider::setup(const Config& c)
@@ -319,6 +723,25 @@ void GuiSlider::setup(const Config& c)
         setComponentID(c.id);
 
         applyN88Display();
+    }
+
+    // ラベルを上下へドラッグして値を動かす
+    label.addMouseListener(&labelDragger, false);
+    label.setMouseCursor(juce::MouseCursor::UpDownResizeCursor);
+
+    // 右端の N ボタン。押すと値を動かすボタンの並びを開く
+    if (nudgeButton == nullptr)
+    {
+        nudgeButton = std::make_unique<GuiTextButton>(ctx);
+        nudgeButton->setup({ .parent = *this, .title = "N",
+            .font = juce::Font(juce::FontOptions(CoreGuiValue::Slider::Nudge::popupFontHeight)),
+            .bgColor = GuiColor::Slider::Nudge::Toggle, .darkenWhenPressed = true });
+        nudgeButton->setWantsKeyboardFocus(false);
+        nudgeButton->onClick = [this] {
+            if (isNudgePopupShown()) hideNudgePopup();
+            else showNudgePopup();
+            };
+        nudgeButton->setVisible(isNudgeButtonShown());
     }
 }
 
@@ -648,6 +1071,8 @@ void GuiTextButton::setup(const Config& c)
     if (c.isResized) {
         this->onClick = [this] { ctx.editor.resized(); };
     }
+
+    darkenWhenPressed = c.darkenWhenPressed;
 }
 
 void GuiHyperLink::setup(const Config& c)
