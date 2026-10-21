@@ -35,6 +35,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - **Drag the label**: press the name (label) to the left of a slider and drag up or down to change the value. Up raises it, down lowers it. 200 px covers the whole range
   - When **STEPS** has a step size selected, dragging the label moves by that step (with 1/4 steps on 0.0-1.0, one step every 50 px)
   - When STEPS is not in use, holding a key while dragging aligns the value to a step: **Shift** for 0.1 steps (real-valued sliders only), **Ctrl** for 1, **Ctrl + Shift** for 10. Changing keys mid-drag starts counting again from that point
+  - The graph **zoom slider** aligns the same way while you drag its bar: 0.1 / 1 / 10 with the same keys (kept within 1.0-32.0)
   - **A nudge (N) button on every slider**: an orange **N** button now sits at the right end of each slider. Clicking it opens a row of buttons that move the value, overlaid just below the slider. Clicking outside the row, turning the mouse wheel, or clicking N again closes it
   - From left to right the row holds **MIN**, the minus buttons, **DEF** (the default; **0** for sliders not bound to a parameter), the plus buttons and **MAX**. The amounts come from the range and interval (±1 / ±10 for 0-127, ±0.001 / ±0.01 / ±0.1 for 0.0-1.0)
   - While STEPS has a step size selected, the row moves by whole steps (±1/4 for 1/4 steps; ±1/100 and ±10/100 for 1/100 steps)

@@ -8,6 +8,7 @@
 #include "Core/Processor/PluginProcessor.h"
 #include "Core/Editor/PluginEditor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiEnvelopeGraph.h"
 #include "Shared/Gui/Components/StepSnap/StepSnap.h"
 #include "./EditorTestAccess.h"
 
@@ -298,4 +299,34 @@ TEST_CASE("ALG ENV: ALG の N ボタンで出す、値を動かすボタンが�
 #if defined(GUI_TEST_REQUIRE_ALL)
 	CHECK(checked > 0);
 #endif
+}
+
+TEST_CASE("グラフの拡大率: 帯のドラッグも Shift / Ctrl で刻みへそろう")
+{
+	using MK = juce::ModifierKeys;
+
+	GuiZoomSlider slider;
+	slider.setRange(GuiEnvelopeGraph::zoomMin, GuiEnvelopeGraph::zoomMax, 0.01);
+	slider.setSkewFactorFromMidPoint(4.0);
+
+	const auto saved = MK::currentModifiers;
+
+	auto snapWith = [&](int mods, double v) {
+		MK::currentModifiers = MK(mods);
+		return slider.snapValue(v, juce::Slider::absoluteDrag);
+	};
+
+	CHECK(snapWith(0, 3.37) == doctest::Approx(3.37));
+	CHECK(snapWith(MK::shiftModifier, 3.37) == doctest::Approx(3.4));
+	CHECK(snapWith(MK::ctrlModifier, 3.37) == doctest::Approx(3.0));
+	CHECK(snapWith(MK::ctrlModifier | MK::shiftModifier, 13.7) == doctest::Approx(10.0));
+
+	// 範囲 (1〜32) へ収める
+	CHECK(snapWith(MK::ctrlModifier | MK::shiftModifier, 2.0) == doctest::Approx(1.0));
+
+	// ドラッグでないとき (数字の打ち込みなど) は、そろえない
+	MK::currentModifiers = MK(MK::ctrlModifier);
+	CHECK(slider.snapValue(3.37, juce::Slider::notDragging) == doctest::Approx(3.37));
+
+	MK::currentModifiers = saved;
 }

@@ -27,6 +27,9 @@ Up raises it, down lowers it. Hovering over the label shows an up-down arrow cur
 The value moves a whole step at a time, so coarser steps take more distance each. Changing keys
 mid-drag starts counting again from that point.
 
+The graph **zoom slider** aligns the same way while you drag its bar: 0.1 / 1 / 10 with the same
+keys (kept within 1.0-32.0).
+
 ## Every slider gets an N button
 
 A small orange **N** button now sits at the right end of each slider. Clicking it opens a row of

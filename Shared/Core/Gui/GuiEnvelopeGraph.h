@@ -9,6 +9,24 @@
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "Shared/Core/Synth/StepLoop.h"
 
+// 拡大率のつまみ。帯をドラッグしているあいだ、押しているキーで刻みへそろえる
+// (Shift で 0.1、Ctrl で 1、Ctrl + Shift で 10。つまみのラベルのドラッグと同じ決まり)
+class GuiZoomSlider : public juce::Slider
+{
+public:
+    GuiZoomSlider() : juce::Slider(juce::Slider::LinearHorizontal, juce::Slider::TextBoxRight)
+    {
+        // JUCE の既定では、Ctrl などを押すとドラッグが速度で動かす形に切り替わる。
+        // Ctrl は刻みに使うので、切り替えは止める
+        setVelocityModeParameters(1.0, 1, 0.0, false);
+    }
+
+    double snapValue(double attemptedValue, juce::Slider::DragMode dragMode) override;
+
+    // value を step の刻みへそろえ、[lo, hi] へ収める。step が 0 か範囲より粗ければそのまま
+    static double align(double value, double step, double lo, double hi);
+};
+
 class GuiEnvelopeGraph : public juce::Component, private juce::ScrollBar::Listener
 {
 public:
@@ -192,7 +210,7 @@ private:
     bool isSyncingScrollBar = false;
 
     juce::ScrollBar scrollBar{ false };
-    juce::Slider zoomSlider{ juce::Slider::LinearHorizontal, juce::Slider::TextBoxRight };
+    GuiZoomSlider zoomSlider;
     std::array<juce::TextButton, 6> zoomButtons;
 
     // 絵を描く場所 (拡大のつまみの分を除いたもの)
