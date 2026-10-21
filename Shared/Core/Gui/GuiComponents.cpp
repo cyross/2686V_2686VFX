@@ -621,6 +621,11 @@ double GuiSlider::labelDragAlignStep(const juce::ModifierKeys& mods) const
 {
     if (snapSteps > 0) return 0.0;
 
+    return alignStepForKeys(mods, getInterval());
+}
+
+double GuiSlider::alignStepForKeys(const juce::ModifierKeys& mods, double interval)
+{
     // macOS では Command も Ctrl と同じに扱う
     const bool ctrl = mods.isCtrlDown() || mods.isCommandDown();
     const bool shift = mods.isShiftDown();
@@ -631,7 +636,6 @@ double GuiSlider::labelDragAlignStep(const juce::ModifierKeys& mods) const
     if (shift)
     {
         // 0.1 刻みは実数のつまみだけ。整数のつまみでは何もしない
-        const double interval = getInterval();
         const bool isReal = interval <= 0.0 || std::abs(interval - std::round(interval)) > 1.0e-9;
 
         return isReal ? 0.1 : 0.0;

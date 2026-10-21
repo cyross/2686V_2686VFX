@@ -634,6 +634,10 @@ public:
     //   Ctrl + Shift  … 10
     double labelDragAlignStep(const juce::ModifierKeys& mods) const;
 
+    // 押しているキーからそろえる刻みを決める (上の決まり)。interval はつまみの間隔で、
+    // 0 か整数でなければ実数のつまみとみなす。グラフの拡大率のつまみとも分け合う
+    static double alignStepForKeys(const juce::ModifierKeys& mods, double interval);
+
     // ---- 値を動かすボタン (ナッジ)
     struct NudgeSpec
     {

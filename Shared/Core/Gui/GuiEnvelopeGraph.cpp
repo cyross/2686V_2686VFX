@@ -46,6 +46,23 @@ namespace
     constexpr std::array<float, 6> zoomPresets = { 1.0f, 2.0f, 4.0f, 8.0f, 16.0f, 32.0f };
 }
 
+double GuiZoomSlider::align(double value, double step, double lo, double hi)
+{
+    if (step <= 0.0 || step > hi - lo) return value;
+
+    return juce::jlimit(lo, hi, std::round(value / step) * step);
+}
+
+double GuiZoomSlider::snapValue(double attemptedValue, juce::Slider::DragMode dragMode)
+{
+    // ドラッグのときだけ。数字の打ち込みやボタン・ホイールでは、そろえない
+    if (dragMode == juce::Slider::notDragging) return attemptedValue;
+
+    const double step = GuiSlider::alignStepForKeys(juce::ModifierKeys::currentModifiers, getInterval());
+
+    return align(attemptedValue, step, getMinimum(), getMaximum());
+}
+
 void GuiEnvelopeGraph::setZoomable(bool z)
 {
     zoomable = z;
