@@ -32,17 +32,23 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 ### 3-0-1. What v4.2.0 adds and changes
 
 - **More ways to change a slider's value**
-  - **Drag the label**: press the name (label) to the left of a slider and drag up or down to change the value. Up raises it, down lowers it. 200 px covers the whole range; hold Shift for 10x finer movement
+  - **Drag the label**: press the name (label) to the left of a slider and drag up or down to change the value. Up raises it, down lowers it. 200 px covers the whole range
   - When **STEPS** has a step size selected, dragging the label moves by that step (with 1/4 steps on 0.0-1.0, one step every 50 px)
+  - When STEPS is not in use, holding a key while dragging aligns the value to a step: **Shift** for 0.1 steps (real-valued sliders only), **Ctrl** for 1, **Ctrl + Shift** for 10. Changing keys mid-drag starts counting again from that point
   - **A nudge (N) button on every slider**: an orange **N** button now sits at the right end of each slider. Clicking it opens a row of buttons that move the value, overlaid just below the slider. Clicking outside the row, turning the mouse wheel, or clicking N again closes it
   - From left to right the row holds **MIN**, the minus buttons, **DEF** (the default; **0** for sliders not bound to a parameter), the plus buttons and **MAX**. The amounts come from the range and interval (±1 / ±10 for 0-127, ±0.001 / ±0.01 / ±0.1 for 0.0-1.0)
   - While STEPS has a step size selected, the row moves by whole steps (±1/4 for 1/4 steps; ±1/100 and ±10/100 for 1/100 steps)
   - AR / DR / SR / RR / SL / TL shown the N88-BASIC(86) way go up and down by the number on screen
-  - **The K and value sliders in Curve editing (ADV) get the N button too**
+  - **The K and value sliders in Curve editing (ADV) get the N button too**. K's row also has a **1** button that returns it to its default
+  - Nudge buttons darken while pressed. An N button stays dark while its row is open. The same goes for the existing nudge rows (LEVEL, FIX and so on) and their N buttons
   - Sliders that already have their own N button and nudge row, such as LEVEL and FIX's FREQ, keep using those (no N inside the slider)
   - Sliders too narrow to keep their bar once the N button is placed do not show it
   - The COLORS tab gains colours for the N button, the reset button, and the row's background and border (`Slider.Nudge.*`)
   - All plugins (including 2686VFX)
+- **Fixed: clicking the N button on ALG ENV's ALG showed no nudge buttons**
+  - ALG ENV was the only one without a row of buttons for its N button
+  - It now shows **-1** / **+1** and buttons that set the algorithm number directly (0-7 for OPN, OPM and the like). OPZX7 (130 algorithms) gets -10 / -1 / 0 / +1 / +10 / 129
+  - Every FM channel
 
 ### 3-0-2. What v4.1.0 adds and changes
 

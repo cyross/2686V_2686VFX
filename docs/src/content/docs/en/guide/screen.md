@@ -262,9 +262,10 @@ Drag the control, or type a number in directly.
   SETTINGS)
 - Double-click to return to the default
 - **Press the name (label) on the left and drag up or down** to change the value
-  too (from 4.2.0). Up raises it, and 200 px covers the whole range. Hold
-  **Shift** for 10x finer movement. When **STEPS** has a step size selected, it
-  moves by that step
+  too (from 4.2.0). Up raises it, and 200 px covers the whole range. When
+  **STEPS** has a step size selected, it moves by that step. Without STEPS,
+  **Shift** aligns to 0.1 (real-valued sliders only), **Ctrl** to 1 and
+  **Ctrl + Shift** to 10
 
 ### Nudge
 
@@ -274,7 +275,9 @@ buttons, **DEF** (the default), the plus buttons and **MAX**. The amounts come
 from the range and interval (±1 / ±10 for 0-127, ±0.001 / ±0.01 / ±0.1 for
 0.0-1.0). While **STEPS** has a step size selected, it moves by whole steps.
 Click outside the row or turn the mouse wheel to close it. The sliders in Curve
-editing (ADV) have it too.
+editing (ADV) have it too, and K's row also has a **1** button for its default.
+Nudge buttons darken while pressed, and an N button stays dark while its row is
+open.
 
 Some sliders, such as LEVEL and FIX's FREQ, keep their N button to the right of
 the row and lay the nudge buttons out as rows of their own. **That "N" button

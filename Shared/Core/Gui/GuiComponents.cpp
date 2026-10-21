@@ -293,7 +293,8 @@ namespace
                 auto b = std::make_unique<GuiTextButton>(ctx);
 
                 b->setup({ .parent = *this, .title = spec.title, .font = font,
-                    .bgColor = spec.isReset ? GuiColor::Slider::Nudge::Reset.get() : GuiColor::TextButton::Bg.get() });
+                    .bgColor = spec.isReset ? GuiColor::Slider::Nudge::Reset.get() : GuiColor::TextButton::Bg.get(),
+                    .darkenWhenPressed = true });
                 b->setWantsKeyboardFocus(false);
                 b->onClick = [this, spec] { slider.applyNudge(spec); };
 
@@ -481,11 +482,16 @@ void GuiSlider::showNudgePopup()
     popup->toFront(false);
 
     nudgePopup = std::move(popup);
+
+    // 開いているあいだは、N ボタンの地を濃くする
+    if (nudgeButton != nullptr) nudgeButton->setToggleState(true, juce::dontSendNotification);
 }
 
 void GuiSlider::hideNudgePopup()
 {
     nudgePopup.reset();
+
+    if (nudgeButton != nullptr) nudgeButton->setToggleState(false, juce::dontSendNotification);
 }
 
 std::vector<GuiSlider::NudgeSpec> GuiSlider::nudgeSpecs() const
@@ -553,6 +559,8 @@ std::vector<GuiSlider::NudgeSpec> GuiSlider::nudgeSpecs() const
         out.push_back({ "0", true, n88Displayed ? lo + hi : 0.0, true });
     }
 
+    for (const auto& [title, value] : nudgeExtras) out.push_back({ title, true, value, true });
+
     for (const auto& [m, title] : steps) out.push_back({ "+" + title, false, m });
 
     out.push_back({ "MAX", true, n88Displayed ? lo : hi });
@@ -564,11 +572,17 @@ void GuiSlider::applyNudge(const NudgeSpec& spec)
 {
     if (!isEnabled()) return;
 
-    if (spec.isSet) setValue(spec.value);
-    else setDisplayedValue(getDisplayedValue() + spec.value);
+    // 帯のドラッグと同じく、始まりと終わりを知らせる。カーブ編集は終わりの
+    // 知らせで表を作り直すので、値の知らせはその前に届けておく (Sync)
+    if (onDragStart) onDragStart();
+
+    if (spec.isSet) setValue(spec.value, juce::sendNotificationSync);
+    else setDisplayedValue(getDisplayedValue() + spec.value, juce::sendNotificationSync);
+
+    if (onDragEnd) onDragEnd();
 }
 
-double GuiSlider::valueForLabelDrag(double startValue, int dy, bool fine)
+double GuiSlider::valueForLabelDrag(double startValue, int dy, double alignStep)
 {
     namespace V = CoreGuiValue::Slider::LabelDrag;
 
@@ -577,17 +591,23 @@ double GuiSlider::valueForLabelDrag(double startValue, int dy, bool fine)
 
     if (hi <= lo) return startValue;
 
-    const double pixels = V::pixelsForFullRange * (fine ? V::fineFactor : 1.0);
+    const double pixels = V::pixelsForFullRange;
 
-    if (snapSteps > 0)
+    // STEPS で丸めているあいだは、その刻み。キーでそろえる刻みより先に効く
+    const double step = snapSteps > 0 ? 1.0 / snapSteps : alignStep;
+
+    // 範囲より粗い刻みでは、そろえる先が端しか無いので使わない
+    if (step > 0.0 && step <= hi - lo)
     {
-        // STEPS で丸めているあいだは、刻みの数で数える。
+        // 画面の数字を刻みへそろえ、刻みの数で数える。
         // 刻みが粗いほど、1 刻みに長い距離を使う
-        const double step = 1.0 / snapSteps;
         const double perStep = juce::jmax((double)V::minPixelsPerStep, pixels * step / (hi - lo));
-        const double moved = std::round((double)dy / perStep) * step;
 
-        return juce::jlimit(lo, hi, startValue + (n88Displayed ? -moved : moved));
+        const double shown = n88Displayed ? lo + hi - startValue : startValue;
+        const double aligned = std::round(shown / step) * step + std::round((double)dy / perStep) * step;
+        const double next = juce::jlimit(lo, hi, aligned);
+
+        return n88Displayed ? lo + hi - next : next;
     }
 
     // 帯の上の位置で動かす。片寄せのある範囲でも、N88-BASIC(86) の向きでも、
@@ -595,6 +615,29 @@ double GuiSlider::valueForLabelDrag(double startValue, int dy, bool fine)
     const double proportion = valueToProportionOfLength(startValue) + (double)dy / pixels;
 
     return proportionOfLengthToValue(juce::jlimit(0.0, 1.0, proportion));
+}
+
+double GuiSlider::labelDragAlignStep(const juce::ModifierKeys& mods) const
+{
+    if (snapSteps > 0) return 0.0;
+
+    // macOS では Command も Ctrl と同じに扱う
+    const bool ctrl = mods.isCtrlDown() || mods.isCommandDown();
+    const bool shift = mods.isShiftDown();
+
+    if (ctrl && shift) return 10.0;
+    if (ctrl) return 1.0;
+
+    if (shift)
+    {
+        // 0.1 刻みは実数のつまみだけ。整数のつまみでは何もしない
+        const double interval = getInterval();
+        const bool isReal = interval <= 0.0 || std::abs(interval - std::round(interval)) > 1.0e-9;
+
+        return isReal ? 0.1 : 0.0;
+    }
+
+    return 0.0;
 }
 
 void GuiSlider::LabelDragger::mouseDown(const juce::MouseEvent& e)
@@ -605,28 +648,36 @@ void GuiSlider::LabelDragger::mouseDown(const juce::MouseEvent& e)
 
     startValue = owner.getValue();
     anchorY = e.y;
-    fine = e.mods.isShiftDown();
+    alignStep = owner.labelDragAlignStep(e.mods);
+
+    // 帯のドラッグと同じく、始まりと終わりを知らせる (カーブ編集の表の作り直しなど)
+    if (owner.onDragStart) owner.onDragStart();
 }
 
 void GuiSlider::LabelDragger::mouseDrag(const juce::MouseEvent& e)
 {
     if (!dragging || !owner.isEnabled()) return;
 
-    // Shift を押したり離したりしたら、いまの位置から数え直す。
-    // そうしないと、感度が変わった瞬間に値が跳ぶ
-    if (e.mods.isShiftDown() != fine)
+    // キーを押したり離したりしたら、いまの位置から数え直す。
+    // そうしないと、刻みが変わった瞬間に値が跳ぶ
+    const double step = owner.labelDragAlignStep(e.mods);
+
+    if (step != alignStep)
     {
-        fine = e.mods.isShiftDown();
+        alignStep = step;
         startValue = owner.getValue();
         anchorY = e.y;
     }
 
-    owner.setValue(owner.valueForLabelDrag(startValue, anchorY - e.y, fine));
+    // 終わりの知らせより前に値が届くよう、知らせはその場で出す
+    owner.setValue(owner.valueForLabelDrag(startValue, anchorY - e.y, alignStep), juce::sendNotificationSync);
 }
 
 void GuiSlider::LabelDragger::mouseUp(const juce::MouseEvent&)
 {
-    dragging = false;
+    if (!std::exchange(dragging, false)) return;
+
+    if (owner.onDragEnd) owner.onDragEnd();
 }
 
 void GuiSlider::setup(const Config& c)
@@ -684,7 +735,7 @@ void GuiSlider::setup(const Config& c)
         nudgeButton = std::make_unique<GuiTextButton>(ctx);
         nudgeButton->setup({ .parent = *this, .title = "N",
             .font = juce::Font(juce::FontOptions(CoreGuiValue::Slider::Nudge::popupFontHeight)),
-            .bgColor = GuiColor::Slider::Nudge::Toggle });
+            .bgColor = GuiColor::Slider::Nudge::Toggle, .darkenWhenPressed = true });
         nudgeButton->setWantsKeyboardFocus(false);
         nudgeButton->onClick = [this] {
             if (isNudgePopupShown()) hideNudgePopup();
@@ -1020,6 +1071,8 @@ void GuiTextButton::setup(const Config& c)
     if (c.isResized) {
         this->onClick = [this] { ctx.editor.resized(); };
     }
+
+    darkenWhenPressed = c.darkenWhenPressed;
 }
 
 void GuiHyperLink::setup(const Config& c)

@@ -28,11 +28,14 @@ void GuiComponentNudgeSliderInt::setupComponent(
         mainSlider.onValueChange = onValueChange.value();
     }
 
-    nudgeVisibleButton.setup({ .parent = parent, .title = "N", .bgColor = GuiColor::Slider::Nudge::Toggle });
+    nudgeVisibleButton.setup({ .parent = parent, .title = "N", .bgColor = GuiColor::Slider::Nudge::Toggle, .darkenWhenPressed = true });
     nudgeVisibleButton.setWantsKeyboardFocus(true);
     nudgeVisibleButton.setExplicitFocusOrder(++tabOrder);
     nudgeVisibleButton.onClick = [this] {
         visibleNudgeButtons = !visibleNudgeButtons;
+
+        // 並びを出しているあいだは、N ボタンの地を濃くする
+        nudgeVisibleButton.setToggleState(visibleNudgeButtons, juce::dontSendNotification);
 
         ctx.editor.resized();
         };

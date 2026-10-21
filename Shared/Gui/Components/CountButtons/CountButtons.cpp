@@ -14,7 +14,7 @@ void GuiComponentCountButtons::setupComponent(juce::Component& parent, GuiSlider
     // 刻む量と札を組にして並べる。押したときの中身はどれも同じなので、
     // 1 か所にまとめて配る。
     auto bind = [&](GuiTextButton& button, const juce::String& title, int delta) {
-        button.setup({ .parent = parent, .id = "", .title = title, .font = font, .isReset = false });
+        button.setup({ .parent = parent, .id = "", .title = title, .font = font, .isReset = false, .darkenWhenPressed = true });
         button.setWantsKeyboardFocus(true);
         button.setExplicitFocusOrder(++tabOrder);
         button.onClick = [&slider, delta] { slider.setValue(slider.getValue() + delta); };
@@ -24,7 +24,7 @@ void GuiComponentCountButtons::setupComponent(juce::Component& parent, GuiSlider
     bind(minus1, "-1", -1);
 
     // 0 は足すのではなく 0 そのものへ戻す。無限に回す指定がこれ。
-    pm0.setup({ .parent = parent, .id = "", .title = "0", .font = font, .bgColor = GuiColor::Slider::Nudge::Reset, .isReset = false });
+    pm0.setup({ .parent = parent, .id = "", .title = "0", .font = font, .bgColor = GuiColor::Slider::Nudge::Reset, .isReset = false, .darkenWhenPressed = true });
     pm0.setWantsKeyboardFocus(true);
     pm0.setExplicitFocusOrder(++tabOrder);
     pm0.onClick = [&slider] { slider.setValue(0); };

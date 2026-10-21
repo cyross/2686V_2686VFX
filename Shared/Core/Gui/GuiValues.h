@@ -296,10 +296,8 @@ namespace CoreGuiValue
 			// この距離 (px) で範囲の端から端まで動く
 			static inline constexpr int pixelsForFullRange = 200;
 
-			// Shift を押しているあいだは、この倍だけ細かくなる
-			static inline constexpr double fineFactor = 10.0;
-
-			// STEPS で刻むとき、1 刻みに使う距離の下限 (px)
+			// 刻み (STEPS や Shift / Ctrl でそろえるもの) で動かすとき、
+			// 1 刻みに使う距離の下限 (px)
 			static inline constexpr int minPixelsPerStep = 2;
 		}
 	}

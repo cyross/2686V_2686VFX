@@ -14,9 +14,18 @@ Press the name (label) to the left of a slider and **drag up or down** to change
 Up raises it, down lowers it. Hovering over the label shows an up-down arrow cursor.
 
 - 200 px covers the whole range
-- Hold **Shift** for 10x finer movement (pressing it mid-drag makes it finer from that point on)
 - When **STEPS** has a step size selected, the value moves by that step. With 1/4 steps on 0.0-1.0, that is one step every 50 px
 - For AR / DR / SR / RR / SL / TL shown the N88-BASIC(86) way, dragging up still raises the number on screen
+- When STEPS is not in use, holding a key while dragging aligns the value to a step
+
+| Key | Step |
+| --- | --- |
+| **Shift** | 0.1 (real-valued sliders only; does nothing on integer sliders) |
+| **Ctrl** | 1 |
+| **Ctrl + Shift** | 10 |
+
+The value moves a whole step at a time, so coarser steps take more distance each. Changing keys
+mid-drag starts counting again from that point.
 
 ## Every slider gets an N button
 
@@ -46,11 +55,22 @@ While **STEPS** has a step size selected, the row moves by whole steps (±1/4 fo
 Click outside the row or turn the mouse wheel to close it; clicking **N** again closes it too.
 Touching the slider itself or its label does not close it, so you can mix it with dragging the bar.
 
-- **The K and value sliders in Curve editing (ADV) get it too**
+- **The K and value sliders in Curve editing (ADV) get it too**. K's row also has a **1** button that returns it to its default
 - Sliders that already have their own N button and nudge row, such as LEVEL and FIX's FREQ,
   keep using those (no N inside the slider)
 - Sliders too narrow to keep their bar once the N button is placed do not show it
 
+Nudge buttons **darken while pressed**. An N button stays dark while its row is open. The same goes
+for the existing nudge rows (LEVEL, FIX and so on) and their N buttons.
+
 The COLORS tab gains colours for the N button (`Slider.Nudge.Toggle`), the reset button
 (`Slider.Nudge.Reset`), and the row's background and border
 (`Slider.Nudge.PopupBg` / `Slider.Nudge.PopupBorder`).
+
+## Fixed the N button on ALG ENV's ALG
+
+On an FM chip's ALG ENV, clicking the N button on ALG showed no nudge buttons. ALG ENV was the only
+one without a row of buttons for its N button.
+
+It now shows **-1** / **+1** and buttons that set the algorithm number directly (0-7 for OPN, OPM and
+the like). OPZX7, with 130 algorithms, gets -10 / -1 / 0 / +1 / +10 / 129.

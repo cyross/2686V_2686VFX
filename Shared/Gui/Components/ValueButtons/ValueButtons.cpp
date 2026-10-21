@@ -14,7 +14,7 @@ void GuiComponentValueButtons::setupComponent(juce::Component& parent, GuiSlider
     for (const auto& e : entries) {
         auto b = std::make_unique<GuiTextButton>(ctx);
 
-        b->setup({ .parent = parent, .id = "", .title = e.label, .font = font, .isReset = false });
+        b->setup({ .parent = parent, .id = "", .title = e.label, .font = font, .isReset = false, .darkenWhenPressed = true });
         b->setWantsKeyboardFocus(true);
         b->setExplicitFocusOrder(++tabOrder);
         b->onClick = [&slider, e] { slider.setValue(e.add ? slider.getValue() + e.value : e.value); };

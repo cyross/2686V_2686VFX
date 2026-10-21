@@ -504,6 +504,9 @@ protected:
     // 丸めるのは STEPS の側で、ここでは動かす幅を刻みに合わせるのに使う。
     int snapSteps = 0;
 
+    // 並びへ足す、値を直に置くボタン (カーブ編集の K の「1」など)。内部の値
+    std::vector<std::pair<juce::String, double>> nudgeExtras;
+
     // ---- ラベルのドラッグ
     // ラベルを上下へドラッグすると値が動く。上へ動かすと、画面の数字が増える。
     class LabelDragger : public juce::MouseListener
@@ -511,7 +514,7 @@ protected:
         GuiSlider& owner;
         double startValue = 0.0;
         int anchorY = 0;
-        bool fine = false;
+        double alignStep = 0.0;
         bool dragging = false;
     public:
         explicit LabelDragger(GuiSlider& s) : owner(s) {}
@@ -618,9 +621,18 @@ public:
 
     // ---- ラベルのドラッグ
     // ドラッグを始めたときの値 startValue から、上へ dy (px) 動かしたときの値。
-    // fine は Shift を押しているとき。値は範囲へ収め、刻みへの丸めは setValue
-    // (間隔) と STEPS に任せる。
-    double valueForLabelDrag(double startValue, int dy, bool fine);
+    //
+    // 刻み (STEPS で選んだもの、なければ alignStep) があれば、画面の数字を
+    // その刻みへそろえ、刻みの数で動かす。刻みが粗いほど 1 刻みに長い距離を使う。
+    // 刻みがなければ帯の上の位置で動かし、間隔への丸めは setValue に任せる。
+    double valueForLabelDrag(double startValue, int dy, double alignStep = 0.0);
+
+    // 押しているキーから、ラベルのドラッグでそろえる刻みを決める。
+    // STEPS で刻みを選んでいるあいだは使わない (0)。
+    //   Shift         … 0.1 (実数のつまみだけ。整数のつまみでは 0)
+    //   Ctrl          … 1
+    //   Ctrl + Shift  … 10
+    double labelDragAlignStep(const juce::ModifierKeys& mods) const;
 
     // ---- 値を動かすボタン (ナッジ)
     struct NudgeSpec
@@ -638,6 +650,9 @@ public:
     // 左から MIN・引くボタン (大きい順)・DEF・足すボタン (小さい順)・MAX。
     std::vector<NudgeSpec> nudgeSpecs() const;
     void applyNudge(const NudgeSpec& spec);
+
+    // 並びへ、値を直に置くボタンを足す (DEF の右に並ぶ)。value は内部の値
+    void addNudgeValue(const juce::String& title, double value) { nudgeExtras.push_back({ title, value }); }
 
     // N ボタンを出すか。既定は出す。自前の N ボタンと並びを持つ部品
     // (GuiComponentNudgeSliderInt / Float) は、二重にならないよう外す
@@ -1033,11 +1048,20 @@ protected:
 
             if (button.isEnabled()) GuiShadow::drawRounded(g, face, guiCornerRadius);
 
-            // 背景の塗りつぶし
-            juce::Colour baseColour = backgroundColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f);
+            // 押しているあいだ (と、開いているあいだ) 地を濃くするボタン。
+            // 地はいつも元の色から作る。入り切りの色 (buttonOnColourId) は使わない
+            auto* own = dynamic_cast<GuiTextButton*>(&button);
+            const bool darkens = own != nullptr && own->darkenWhenPressed;
 
+            const juce::Colour face0 = darkens ? button.findColour(juce::TextButton::buttonColourId) : backgroundColour;
+
+            // 背景の塗りつぶし
+            juce::Colour baseColour = face0.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f);
+
+            if (darkens && (shouldDrawButtonAsDown || button.getToggleState()))
+                baseColour = baseColour.darker(pressedDarkness);
             // マウスホバー時やクリック時は少し明るくする
-            if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
+            else if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
                 baseColour = baseColour.brighter(0.5f);
 
             g.setColour(baseColour);
@@ -1054,6 +1078,13 @@ protected:
 public:
     // 描き方は皆で分け合い、フォントの指定だけここで持つ。
     std::optional<juce::Font> customFont = juce::Font(juce::FontOptions(13.0f));
+
+    // 押しているあいだ、地を濃くする (ナッジのボタン)。
+    // 入り切りを持たせたもの (N ボタン) は、入っているあいだも濃くする
+    bool darkenWhenPressed = false;
+
+    // 濃くする度合い (juce::Colour::darker へ渡す)
+    static inline constexpr float pressedDarkness = 0.4f;
 
     GuiTextButton(const GuiContext& context) : GuiBaseComponent(context) {
         this->setLookAndFeel(&sharedLF.get());
@@ -1083,6 +1114,9 @@ public:
 
         bool isReset = false;
         bool isResized = false;
+
+        // 押しているあいだ、地を濃くする (ナッジのボタン)
+        bool darkenWhenPressed = false;
     };
 
     void setup(const Config& c);
