@@ -13,6 +13,11 @@ static const double roundingPrecisionBase = std::pow(10, Global::floatDecimalPla
 void GuiComponentLevel::applyStepSnap()
 {
     int index = stepSelector.getSelectedItemIndex();
+
+    // ラベルのドラッグやナッジの並びが、選んだ刻みで動かせるよう知らせる
+    static constexpr int stepsOfIndex[] = { 0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 3, 6, 7, 10, 100 };
+    levelSlider.getSlider().setSnapSteps(index >= 0 && index < (int)std::size(stepsOfIndex) ? stepsOfIndex[index] : 0);
+
     if (index <= 0) return; // 0 (Free) の場合は何もしない
 
     double numSteps = 1.0;

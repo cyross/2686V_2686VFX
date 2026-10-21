@@ -261,12 +261,25 @@ Drag the control, or type a number in directly.
 - **Hover over the button** to see the value's range (can be turned off in
   SETTINGS)
 - Double-click to return to the default
+- **Press the name (label) on the left and drag up or down** to change the value
+  too (from 4.2.0). Up raises it, and 200 px covers the whole range. Hold
+  **Shift** for 10x finer movement. When **STEPS** has a step size selected, it
+  moves by that step
 
 ### Nudge
 
-The small buttons beside a slider move the value a step at a time. **The "N"
-button shows and hides them** — fold them away when you don't need them and the
-screen gets roomier.
+Every slider has a small orange **N** button at its right end (from 4.2.0).
+Clicking it overlays a row of buttons just below the slider: **MIN**, the minus
+buttons, **DEF** (the default), the plus buttons and **MAX**. The amounts come
+from the range and interval (±1 / ±10 for 0-127, ±0.001 / ±0.01 / ±0.1 for
+0.0-1.0). While **STEPS** has a step size selected, it moves by whole steps.
+Click outside the row or turn the mouse wheel to close it. The sliders in Curve
+editing (ADV) have it too.
+
+Some sliders, such as LEVEL and FIX's FREQ, keep their N button to the right of
+the row and lay the nudge buttons out as rows of their own. **That "N" button
+shows and hides them** — fold them away when you don't need them and the screen
+gets roomier.
 
 LEVEL also takes stepped input through **Steps**. Its N button brings up
 buttons that move the value by ±1.0 / ±0.1 / ±0.01 and ones that set it straight

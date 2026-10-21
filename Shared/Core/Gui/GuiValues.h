@@ -272,6 +272,36 @@ namespace CoreGuiValue
 			// 既定より少し小さくして、桁数を稼ぐ
 			static inline constexpr float fontHeight = 12.0f;
 		}
+
+		// つまみの右端に置く N ボタンと、押すと開く値を動かすボタンの並び
+		namespace Nudge
+		{
+			static inline constexpr int buttonWidth = 14;
+			static inline constexpr int buttonGap = 1;
+
+			// N ボタンを置いても帯がこれだけ残る幅のときだけ出す
+			static inline constexpr int minBarWidth = 30;
+
+			// 並びのボタン 1 個の大きさと文字
+			static inline constexpr int popupButtonMinWidth = 30;
+			static inline constexpr int popupButtonHeight = 18;
+			static inline constexpr int popupButtonGap = 2;
+			static inline constexpr int popupPadding = 4;
+			static inline constexpr float popupFontHeight = 11.0f;
+		}
+
+		// ラベルを上下へドラッグして値を動かすときの感度
+		namespace LabelDrag
+		{
+			// この距離 (px) で範囲の端から端まで動く
+			static inline constexpr int pixelsForFullRange = 200;
+
+			// Shift を押しているあいだは、この倍だけ細かくなる
+			static inline constexpr double fineFactor = 10.0;
+
+			// STEPS で刻むとき、1 刻みに使う距離の下限 (px)
+			static inline constexpr int minPixelsPerStep = 2;
+		}
 	}
 
 	namespace ComboBox

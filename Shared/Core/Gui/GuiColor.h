@@ -463,6 +463,16 @@ namespace GuiColor {
 			inline Entry Highlight{ "Slider.Value.Highlight", []() -> juce::Colour { return juce::Colour::fromFloatRGBA(0.7f, 0.7f, 0.03f, 0.2f); } };
 			inline Entry Border{ "Slider.Value.Border", []() -> juce::Colour { return Palette::BorderGray; } };
 		};
+		// 値を動かすボタン (ナッジ)
+		namespace Nudge {
+			// 並びを出し入れする N ボタン
+			inline Entry Toggle{ "Slider.Nudge.Toggle", []() -> juce::Colour { return juce::Colours::darkorange; } };
+			// 既定の値・0 へ戻すボタン
+			inline Entry Reset{ "Slider.Nudge.Reset", []() -> juce::Colour { return juce::Colours::aquamarine; } };
+			// つまみの N ボタンで開く並びの地と縁
+			inline Entry PopupBg{ "Slider.Nudge.PopupBg", []() -> juce::Colour { return Palette::OffBlack; } };
+			inline Entry PopupBorder{ "Slider.Nudge.PopupBorder", []() -> juce::Colour { return Palette::BorderGray; } };
+		};
 	};
 	namespace ComboBox {
 		inline Entry Text{ "ComboBox.Text", []() -> juce::Colour { return Palette::OffBlack; } };

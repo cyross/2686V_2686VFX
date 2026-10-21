@@ -24,7 +24,7 @@ void GuiComponentCountButtons::setupComponent(juce::Component& parent, GuiSlider
     bind(minus1, "-1", -1);
 
     // 0 は足すのではなく 0 そのものへ戻す。無限に回す指定がこれ。
-    pm0.setup({ .parent = parent, .id = "", .title = "0", .font = font, .bgColor = juce::Colours::aquamarine, .isReset = false });
+    pm0.setup({ .parent = parent, .id = "", .title = "0", .font = font, .bgColor = GuiColor::Slider::Nudge::Reset, .isReset = false });
     pm0.setWantsKeyboardFocus(true);
     pm0.setExplicitFocusOrder(++tabOrder);
     pm0.onClick = [&slider] { slider.setValue(0); };
