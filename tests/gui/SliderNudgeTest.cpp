@@ -330,3 +330,36 @@ TEST_CASE("グラフの拡大率: 帯のドラッグも Shift / Ctrl で刻み�
 
 	MK::currentModifiers = saved;
 }
+
+TEST_CASE("グラフの拡大率: 狭い枠でも x1〜x32 のボタンの文字が省略されない")
+{
+	for (int width : { 270, 400, 900 })
+	{
+		INFO("幅 " << width);
+
+		GuiEnvelopeGraph graph;
+		graph.setZoomable(true);
+		graph.setBounds(0, 0, width, 200);
+
+		int checked = 0;
+
+		for (auto* child : graph.getChildren())
+		{
+			auto* b = dynamic_cast<juce::TextButton*>(child);
+
+			if (b == nullptr || !b->getButtonText().startsWith("x")) continue;
+
+			// JUCE は文字の左右に、文字の高さの 6 割ほどを空けて描く
+			const auto font = b->getLookAndFeel().getTextButtonFont(*b, b->getHeight());
+			const float text = juce::GlyphArrangement::getStringWidth(font, b->getButtonText());
+			const int indent = juce::roundToInt(font.getHeight() * 0.6f);
+
+			INFO(b->getButtonText());
+			CHECK((float)b->getWidth() >= text + (float)indent * 2.0f);
+
+			++checked;
+		}
+
+		CHECK(checked == 6);
+	}
+}
