@@ -66,7 +66,7 @@ which one it points at.
 | Part | What it does |
 | --- | --- |
 | Large frame on the left | a large view of the operator (or pad) TARGET points at (from 4.0.0). On tabs with a wave (OPZX7S / RHYTHM), the wave is shown large above it. Switching TARGET updates it at once |
-| Zoom | The large frame and the channel graphs can be stretched sideways (from 4.0.0): 1.0–32.0 times with the knob below, or directly with the x1 / x2 / x4 / x8 / x16 / x32 buttons. The mouse wheel over the graph changes it too; **drag with the right button** or use the scroll bar below to move along. The small frames do not zoom |
+| Zoom | The large frame and the channel graphs can be stretched sideways (from 4.0.0): 1.0–32.0 times with the knob below (while dragging its bar, **Shift** aligns to 0.1, **Ctrl** to 1 and **Ctrl + Shift** to 10; from 4.2.0), or directly with the x1 / x2 / x4 / x8 / x16 / x32 buttons. The mouse wheel over the graph changes it too; **drag with the right button** or use the scroll bar below to move along. The small frames do not zoom |
 | Small frames on the right | one envelope display per operator (or pad), four to a row. **Clicking one moves TARGET there** |
 | Outline | only the frame TARGET points at is drawn with a heavy border |
 | TARGET | the operator (or pad) the settings below point at. It is remembered when the window closes |
@@ -261,12 +261,28 @@ Drag the control, or type a number in directly.
 - **Hover over the button** to see the value's range (can be turned off in
   SETTINGS)
 - Double-click to return to the default
+- **Press the name (label) on the left and drag up or down** to change the value
+  too (from 4.2.0). Up raises it, and 200 px covers the whole range. When
+  **STEPS** has a step size selected, it moves by that step. Without STEPS,
+  **Shift** aligns to 0.1 (real-valued sliders only), **Ctrl** to 1 and
+  **Ctrl + Shift** to 10
 
 ### Nudge
 
-The small buttons beside a slider move the value a step at a time. **The "N"
-button shows and hides them** — fold them away when you don't need them and the
-screen gets roomier.
+Every slider has a small orange **N** button at its right end (from 4.2.0).
+Clicking it overlays a row of buttons just below the slider: **MIN**, the minus
+buttons, **DEF** (the default), the plus buttons and **MAX**. The amounts come
+from the range and interval (±1 / ±10 for 0-127, ±0.001 / ±0.01 / ±0.1 for
+0.0-1.0). While **STEPS** has a step size selected, it moves by whole steps.
+Click outside the row or turn the mouse wheel to close it. The sliders in Curve
+editing (ADV) have it too, and K's row also has a **1** button for its default.
+Nudge buttons darken while pressed, and an N button stays dark while its row is
+open.
+
+Some sliders, such as LEVEL and FIX's FREQ, keep their N button to the right of
+the row and lay the nudge buttons out as rows of their own. **That "N" button
+shows and hides them** — fold them away when you don't need them and the screen
+gets roomier.
 
 LEVEL also takes stepped input through **Steps**. Its N button brings up
 buttons that move the value by ±1.0 / ±0.1 / ±0.01 and ones that set it straight
