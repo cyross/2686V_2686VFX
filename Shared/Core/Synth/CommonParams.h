@@ -23,6 +23,10 @@ struct QualityParams {
     // --- Interpolation ---
     // 目標レートで作った波を、ホストのレートへ戻すときの埋め方 (SynthInterp)
     int interp = 1;
+
+    // --- CHIP DAC ---
+    // 実機の DAC を通す (ChipDac.h)。FM 音源と SSG だけが使う。
+    bool chipDac = false;
 };
 
 struct QualityPcmParams {

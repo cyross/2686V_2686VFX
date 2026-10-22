@@ -27,6 +27,11 @@ class Quality : public GuiBase {
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
     GuiComboBox interpSelector;
+
+    // CHIP DAC。実機の DAC が分かっている音源 (FM 音源と SSG) だけが持つ。
+    // 持たない音源では作るだけで、並べも見せもしない。
+    GuiToggleButton chipDacToggle;
+    bool hasChipDac = false;
 public:
     // 区分の見出し。右クリックの IMPORT / EXPORT をつなぐのに使う
     GuiCategoryLabel& category() { return qualityCat; }
@@ -37,14 +42,16 @@ public:
         dac(context),
         bitSelector(context),
         rateSelector(context),
-        interpSelector(context)
+        interpSelector(context),
+        chipDacToggle(context)
     {
     }
 
 	static std::vector<SelectItem> bdItems;
 	static std::vector<SelectItem> rateItems;
 
-    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder);
+    // withChipDac は CHIP DAC の行を置くか。パラメータを登録した音源だけが渡す。
+    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, bool withChipDac = false);
     // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
     void rebind(const juce::String& code);
     void layoutComponent(juce::Rectangle<int>& rect);
@@ -61,6 +68,7 @@ public:
 		bitSelector.setVisibleWithLabel(visible);
 		rateSelector.setVisibleWithLabel(visible);
 		interpSelector.setVisibleWithLabel(visible);
+		chipDacToggle.setVisible(visible && hasChipDac);
 	}
     void setEnableds(bool enabled) {
         qualityCat.setEnabled(enabled);
@@ -68,6 +76,7 @@ public:
         bitSelector.setEnabled(enabled);
         rateSelector.setEnabled(enabled);
         interpSelector.setEnabled(enabled);
+        chipDacToggle.setEnabled(enabled);
     }
     void setImportingParams(juce::StringArray& lines, int& index);
 

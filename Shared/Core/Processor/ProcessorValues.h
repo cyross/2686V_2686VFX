@@ -351,6 +351,9 @@ namespace CPV
 			inline constexpr int initial = 1;          // Linear
 			inline constexpr int initialStepped = 3;   // Zero-Order Hold (WT / WT2 / WT+)
 		}
+
+		// CHIP DAC。切っていればこれまでと同じ音で鳴る。
+		inline constexpr bool chipDac = false;
 	}
 
 	namespace QualityPcm

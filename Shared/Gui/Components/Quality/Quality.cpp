@@ -57,7 +57,7 @@ std::vector<SelectItem> Quality::rateItems = {
     {.name = "15: 2.21kHz",  .value = 15 },
 };
 
-void Quality::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
+void Quality::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, bool withChipDac) {
     qualityCat.setupCategory({ .parent = parent, .title = juce::String("") + "QUALITY", .enableChangeDetailVisible = true }, GuiColor::Category::QualityBg);
 
     // 機種を選んで「適応」を押すと、下の 3 つへまとめて入れる
@@ -79,6 +79,14 @@ void Quality::setupComponent(juce::Component& parent, const juce::String& code, 
     interpSelector.setup({ .parent = parent, .id = code + CPK::Quality::interp, .title = "INTERP", .items = QualityPcm::interpItems(), .isReset = true });
     interpSelector.setWantsKeyboardFocus(true);
     interpSelector.setExplicitFocusOrder(++tabOrder);
+
+    hasChipDac = withChipDac;
+
+    if (hasChipDac) {
+        chipDacToggle.setup({ .parent = parent, .id = code + CPK::Quality::chipDac, .title = "CHIP DAC", .isReset = true });
+        chipDacToggle.setWantsKeyboardFocus(true);
+        chipDacToggle.setExplicitFocusOrder(++tabOrder);
+    }
 }
 
 // 束縛先を丸ごと差し替える。
@@ -91,6 +99,8 @@ void Quality::rebind(const juce::String& code)
     bitSelector.rebind(code + CPK::Quality::bit);
     rateSelector.rebind(code + CPK::Quality::rate);
     interpSelector.rebind(code + CPK::Quality::interp);
+
+    if (hasChipDac) chipDacToggle.rebind(code + CPK::Quality::chipDac);
 }
 
 void Quality::layoutComponent(juce::Rectangle<int>& rect) {
@@ -102,6 +112,7 @@ void Quality::layoutComponent(juce::Rectangle<int>& rect) {
     bitSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
     interpSelector.setVisibleWithLabel(visible);
+    chipDacToggle.setVisible(visible && hasChipDac);
 
     if (visible)
     {
@@ -109,6 +120,8 @@ void Quality::layoutComponent(juce::Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutMain({ .mainRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
+
+        if (hasChipDac) layoutMain({ .mainRect = rect, .component = &chipDacToggle });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -123,6 +136,7 @@ void Quality::layoutComponentRow(juce::Rectangle<int>& rect) {
     bitSelector.setVisibleWithLabel(visible);
     rateSelector.setVisibleWithLabel(visible);
     interpSelector.setVisibleWithLabel(visible);
+    chipDacToggle.setVisible(visible && hasChipDac);
 
     if (visible)
     {
@@ -130,6 +144,8 @@ void Quality::layoutComponentRow(juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
+
+        if (hasChipDac) layoutRow({ .rowRect = rect, .component = &chipDacToggle });
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -151,6 +167,9 @@ void Quality::readParams(const Io::ParamReader& reader, const juce::String& key)
 
     // INTERP は 3.6.0 で足したもの。持たないファイルは、いまの値のままにする。
     interpSelector.setSelectedItemIndex(r.getInt("interp", interpSelector.getSelectedItemIndex()), juce::sendNotification);
+
+    // CHIP DAC はあとから足したもの。持たないファイルは、いまの値のままにする。
+    if (hasChipDac) chipDacToggle.setToggleState(r.getBool("chipDac", chipDacToggle.getToggleState()), juce::sendNotification);
 }
 
 juce::String Quality::getExportedParams() {
@@ -169,4 +188,6 @@ void Quality::writeParams(Io::ParamWriter& writer, const juce::String& key)
     w.set("bit", bitSelector.getSelectedItemIndex());
     w.set("rate", rateSelector.getSelectedItemIndex());
     w.set("interp", interpSelector.getSelectedItemIndex());
+
+    if (hasChipDac) w.set("chipDac", chipDacToggle.getToggleState());
 }

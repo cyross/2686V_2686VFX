@@ -159,6 +159,9 @@ namespace PrHelper {
 		ptPtrs.depth = apvts.getRawParameterValue(prefix + CPK::Quality::bit);
 		ptPtrs.rate = apvts.getRawParameterValue(prefix + CPK::Quality::rate);
 		ptPtrs.interp = apvts.getRawParameterValue(prefix + CPK::Quality::interp);
+
+		// CHIP DAC を登録していない音源では空が返る
+		ptPtrs.chipDac = apvts.getRawParameterValue(prefix + CPK::Quality::chipDac);
 	}
 
 	static inline void setupQualityPcmPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsQualityPcm& ptPtrs){
@@ -760,6 +763,7 @@ namespace PrHelper {
 		params.bit = getInt(ptPtrs.depth);
 		params.rate = getInt(ptPtrs.rate);
 		params.interp = getInt(ptPtrs.interp);
+		params.chipDac = ptPtrs.chipDac != nullptr && getBool(ptPtrs.chipDac);
 	}
 
 	static inline void applyQualityPcm(PrPtrsQualityPcm& ptPtrs, QualityPcmParams& params){
@@ -3104,8 +3108,12 @@ namespace PrHelper {
 
 	// interpInitial は INTERP の初期値。3.6.0 より前の音をそのまま保つため、
 	// 階段のまま出していた WT 系だけ Zero-Order Hold を渡す。
+	//
+	// withChipDac は CHIP DAC を持つか。実機の DAC が分かっている FM 音源と
+	// SSG だけが持つ。
 	static inline void addQualityParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName,
-		int interpInitial = CPV::Quality::Interp::initial) {
+		int interpInitial = CPV::Quality::Interp::initial, bool withChipDac = false) {
+
 		PrHelper::addInt(
 			layout, 
 			prefix + CPK::Quality::bit, 
@@ -3124,6 +3132,11 @@ namespace PrHelper {
 			prefixName + CPN::Quality::interp, 
 			CPV::Quality::Interp::min, CPV::Quality::Interp::max, interpInitial
 		);
+
+		if (withChipDac) {
+			PrHelper::addBool(layout, prefix + CPK::Quality::chipDac,
+				prefixName + CPN::Quality::chipDac, CPV::Quality::chipDac);
+		}
 	}
 
 	// bitInitial は BIT の初期値。86V はこれまで 4-bit PCM (12) を使ってきたので、
