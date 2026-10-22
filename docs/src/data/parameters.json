@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
-  "version": "4.1.0",
-  "count": 12958,
+  "version": "4.3.0",
+  "count": 12964,
   "parameters": [
     {
       "id": "MODE",
@@ -172,6 +172,14 @@
       "min": 0,
       "max": 6,
       "default": 1
+    },
+    {
+      "id": "OPNA_CHIP_DAC",
+      "name": "OPNA Chip DAC",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPNA_LFO_FREQ",
@@ -8740,6 +8748,14 @@
       "default": 1
     },
     {
+      "id": "OPN_CHIP_DAC",
+      "name": "OPN Chip DAC",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_LFO_FREQ",
       "name": "OPN LFO Freq",
       "type": "Int",
@@ -17046,6 +17062,14 @@
       "default": 1
     },
     {
+      "id": "OPL_CHIP_DAC",
+      "name": "OPL Chip DAC",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_SSGHWENV_ENABLE",
       "name": "OPL Hardware Env Enable",
       "type": "Bool",
@@ -22145,6 +22169,14 @@
       "min": 0,
       "max": 6,
       "default": 1
+    },
+    {
+      "id": "OPL3_CHIP_DAC",
+      "name": "OPL3 Chip DAC",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPL3_SSGHWENV_ENABLE",
@@ -30526,6 +30558,14 @@
       "min": 0,
       "max": 6,
       "default": 1
+    },
+    {
+      "id": "OPM_CHIP_DAC",
+      "name": "OPM Chip DAC",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "OPM_LFO_FREQ",
@@ -59883,6 +59923,14 @@
       "min": 0,
       "max": 6,
       "default": 1
+    },
+    {
+      "id": "SSG_CHIP_DAC",
+      "name": "SSG Chip DAC",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "SSG_TONE",

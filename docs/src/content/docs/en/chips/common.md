@@ -62,6 +62,47 @@ each machine are listed in [What changed in v3.6.3](/2686V_2686VFX/en/guide/chan
 The full list of what you can pick is under
 [QUALITY lists](/2686V_2686VFX/en/reference/lists-quality/).
 
+### CHIP DAC — run the sound through the real DAC
+
+The QUALITY section of the FM chips (OPNA, OPN, OPL, OPL3, OPM) and SSG has a
+**CHIP DAC** toggle below INTERP (since 4.3.0). Turn it on to follow the quirks of the
+DAC the real chip's sound passes through. **It is off by default**, and while it is off
+the sound is the same as before. Its automation ID is the channel name followed by
+`_CHIP_DAC`, such as `OPN_CHIP_DAC`.
+
+The **FM chips** add up every sounding voice first and then run the sum through the
+DAC, because the real chip sends the 16-bit sum of all channels to its DAC. BIT RATE
+rounds each voice on its own; CHIP DAC rounds the mix.
+
+| Chip | DAC | What it does |
+| --- | --- | --- |
+| OPN (YM2203) | YM3014B | Floating point (10-bit mantissa + 3-bit exponent). The louder the sound, the more low bits drop |
+| OPM (YM2151) | YM3012 | Same as above |
+| OPL (YM3526) | YM3014B | Same as above |
+| OPNA (YM2608) | — | Snaps to 16-bit steps |
+| OPL3 (YMF262) | YAC512 | Snaps to 16-bit steps |
+
+- On every chip, anything beyond 16 bits is clipped. As on the real chip, stacking too
+  many notes distorts
+- One channel at full scale matches one carrier played at velocity 127 and LEVEL 1.0.
+  That is 14 bits on OPN, OPM and OPL3, and 13 bits on OPNA and OPL. With carriers that
+  loud, OPN, OPM and OPL3 reach 16 bits with 4 of them, OPNA and OPL with 8
+- OPNA follows ymfm, the reference used here, which does not round it to floating point
+- The FM waveform previews do not include it, because it is applied after the mix
+
+**SSG** plays its volume through the real chip's logarithmic table (YM2149 compatible;
+the SSG in OPN and OPNA is the same).
+
+- The envelope value is treated as the 16-step volume register and looked up in the
+  table. As the value falls, the level drops faster than with the toggle off (linear).
+  Full level (1.0) stays the same
+- With SSG HW AMP ENV on, that envelope looks up the table in 32 steps
+- With More Real FC / More Real NES on in DUTY, the sound goes through the 2A03 DAC
+  instead, so CHIP DAC has no effect
+
+The DAC formats come from the YM3012 data sheet and ymfm (the FM core of MAME). The SSG
+table comes from ymfm, which bases it on MAME's measurements.
+
 ## QUALITY(PCM)
 
 Channels that play audio files (**RHYTHM / ADPCM**, and OPZX7's PCM) get this

@@ -106,7 +106,8 @@ void GuiOpl3::setup()
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    // CHIP DAC (実機の DAC を通す) の行も置く
+    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, true);
 
     algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Category::algFb, .detailVisible = true, .enableChangeDetailVisible = true });
     algSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::alg, .title = Opl3GuiText::Fm::alg, .items = opl3AlgItems, .isReset = true });
@@ -2077,6 +2078,7 @@ void GuiOpl3::applyQualityParamFile(const juce::File& file)
 
     qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
     qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
+    qualityComponent.readOutputStage(*reader);
 }
 
 void GuiOpl3::exportQualityParam()
@@ -2671,6 +2673,7 @@ void GuiOpl3::setImportingQualityParams(juce::StringArray& lines, int& index) {
 void GuiOpl3::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("bit", qualityComponent.getBit());
 	writer.set("rate", qualityComponent.getRate());
+	qualityComponent.writeOutputStage(writer);
 
 
 }
