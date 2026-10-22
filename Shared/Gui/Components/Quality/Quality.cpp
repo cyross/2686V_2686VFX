@@ -172,6 +172,20 @@ void Quality::readParams(const Io::ParamReader& reader, const juce::String& key)
     if (hasChipDac) chipDacToggle.setToggleState(r.getBool("chipDac", chipDacToggle.getToggleState()), juce::sendNotification);
 }
 
+void Quality::readOutputStage(const Io::ParamReader& reader)
+{
+    if (!hasChipDac) return;
+
+    chipDacToggle.setToggleState(reader.getBool("chipDac", chipDacToggle.getToggleState()), juce::sendNotification);
+}
+
+void Quality::writeOutputStage(Io::ParamWriter& writer)
+{
+    if (!hasChipDac) return;
+
+    writer.set("chipDac", chipDacToggle.getToggleState());
+}
+
 juce::String Quality::getExportedParams() {
     juce::String content = "";
 

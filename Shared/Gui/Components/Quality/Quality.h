@@ -83,6 +83,11 @@ public:
     // 名前で受け渡す。行の並びに頼ると、呼ぶ順番を間違えたときに
     // 黙って別の値が入り、項目を足すと後ろが全部ずれるため。
     void readParams(const Io::ParamReader& reader, const juce::String& key);
+
+    // 区分のパラメータファイル (QUALITY だけを書き出したもの) の CHIP DAC。
+    // ファイルの頭に直に置く。持たない音源では何もしない。
+    void readOutputStage(const Io::ParamReader& reader);
+    void writeOutputStage(Io::ParamWriter& writer);
     void writeParams(Io::ParamWriter& writer, const juce::String& key);
     juce::String getExportedParams();
 };
