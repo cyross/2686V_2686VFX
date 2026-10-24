@@ -146,7 +146,7 @@ public:
         tapMajorCat(context),
         tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
         tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
-        tapParamSeq(context, ParamModCatalog::beep(), 0),
+        tapParamSeq(context, ParamModCatalog::beep()),
         paramEnvMajorCat(context),
         paramEnv(context, GuiComponentParamEnv::channelSpec(ParamModCatalog::beep(), 0)),
         broadcastLevelButton(context),

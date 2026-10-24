@@ -134,7 +134,7 @@ public:
         if (pressed) {
             m_tapGain = tapSeqTake(currentParams->tapAmp, 1.0f);
             m_tapCents = tapSeqTake(currentParams->tapPitch, 0.0f);
-            tapParamTake(currentParams->tapParam, m_tapParam);
+            tapParamTakeAll(currentParams->tapParam, currentParams->tapParamOps.data(), currentParams->tapParamOpCount, m_tapParam);
         }
 
         const float tapGain = m_tapGain;

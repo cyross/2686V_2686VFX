@@ -509,19 +509,26 @@ pairs** stored in that step replace parameters **for that note**. As an extensio
 **up to 16 pairs**. Steps advance exactly as in TAP AMP / PITCH SEQUENCER (current step, not started, LOOP, SKIP,
 INCREMENT / DECREMENT / CLEAR STEP, one step per key press).
 
+| Where | What PARAM lists |
+| --- | --- |
+| Channel (inside [[TAP SEQUENCER]]) | The channel's parameters |
+| FM operators (the "TAP PARAM SEQUENCER" column of the settings, right of KEY SCALE / MUL/DET) | That operator's parameters. TARGET switches the operator |
+| RHYTHM pads (the "TAP PARAM SEQUENCER" column of the settings, right of MUL/DET / FIX) | That pad's parameters |
+
+Each has its own Enable / STEPS / LOOP and step table, and each advances on its own with every key press.
+
 | Knob | What it does |
 | --- | --- |
 | **S.TARGET** | The step you edit |
 | **SKIP** | Replace nothing on the S.TARGET step (its pairs are kept) |
 | **P.TARGET** | The pair you edit (1 – the number of pairs in the step) |
-| **OP** | **CH** (channel) or operator **OP1** onwards (pad **PAD1** onwards on RHYTHM). FM chips and RHYTHM only |
-| **PARAM** | The parameter to replace, from the place chosen with OP |
+| **PARAM** | The parameter to replace, from its owner (channel, operator or pad) |
 | **VALUE** | The value to use, shown the way the target shows it. **MIN** / **-1** / **+1** / **MAX** move it |
-| **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** | Add the current OP / PARAM / VALUE pair at the end of the step, delete the P.TARGET pair, delete every pair of the step |
+| **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** | Add the current PARAM / VALUE pair at the end of the step, delete the P.TARGET pair, delete every pair of the step |
 
-- On a step without pairs, choose OP / PARAM / VALUE and press ADD PAIR to add that pair. On a step with pairs,
-  moving OP / PARAM / VALUE changes the P.TARGET pair (and clears that step's SKIP)
-- The list below shows one line per step, such as "S1: OP1 AR 31, OP2 TL 20". The row with a different background is
+- On a step without pairs, choose PARAM / VALUE and press ADD PAIR to add that pair. On a step with pairs,
+  moving PARAM / VALUE changes the P.TARGET pair (and clears that step's SKIP)
+- The list below shows one line per step, such as "S1: AR 31, TL 20". The row with a different background is
   the current step; the row with a different text colour is the S.TARGET step
 - Like PARAM ENV, values are kept as a fraction of the target's range. When a PARAM ENV drives the same parameter,
   the PARAM ENV wins
@@ -530,7 +537,7 @@ INCREMENT / DECREMENT / CLEAR STEP, one step per key press).
 
 Parameters you can choose (PARAM ENV's TARGET lists the same):
 
-| Chip | Channel | Operator / pad |
+| Chip | Channel | Operator / pad (their own TAP PARAM SEQUENCER) |
 | --- | --- | --- |
 | OPNA / OPN | ALG / FB / N88 LFO FREQ | TL / AR / DR / SR / SL / RR / KS / MUL / DT / FIX FREQ / N88 LFO AMS (OPNA also SSG-EG / SSG-EG FREQ / HW LFO FREQ / PMS / AMS) |
 | OPM | ALG / FB / HW LFO FREQ | TL / AR / D1R / D1L / D2R / RR / KS MODE / KS / KSR / KSL / MUL / MUL RATIO / DT1 / DT2 / FIX FREQ / SSG-EG FREQ |

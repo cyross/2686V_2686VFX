@@ -45,10 +45,10 @@ void GuiTapPairList::paint(juce::Graphics& g)
 }
 
 // ---------------------------------------------------------------- 区分
-GuiComponentTapParam::GuiComponentTapParam(const GuiContext& context, const ParamModCatalog::Catalog& c, int ops) :
+GuiComponentTapParam::GuiComponentTapParam(const GuiContext& context, const ParamModCatalog::Catalog& c, bool op) :
     GuiBase(context),
     catalog(c),
-    opCount(c.op.empty() ? 0 : juce::jmax(0, ops)),
+    operatorMode(op),
     cat(context),
     enable(context),
     enableSeparator(context),
@@ -62,7 +62,6 @@ GuiComponentTapParam::GuiComponentTapParam(const GuiContext& context, const Para
     skip(context),
     skipSeparator(context),
     pairTarget(context),
-    scope(context),
     param(context),
     value(context),
     valueMin(context),
@@ -86,23 +85,26 @@ StepTable* GuiComponentTapParam::table() const
     return ctx.audioProcessor.stepTables.find(paramCode + TapParam::spec().keys.base);
 }
 
-juce::RangedAudioParameter* GuiComponentTapParam::paramOf(int scopeIndex, int index) const
+// 頭 (チャンネルかオペレーター・パッド) に尻尾を足せば、指し先の鍵
+juce::RangedAudioParameter* GuiComponentTapParam::paramOf(int index) const
 {
-    const auto id = ParamModCatalog::paramId(paramCode, catalog, scopeIndex, index);
+    const auto& list = entries();
 
-    return id.isEmpty() ? nullptr : ctx.apvts.getParameter(id);
+    if (paramCode.isEmpty() || index < 0 || index >= (int)list.size()) return nullptr;
+
+    return ctx.apvts.getParameter(paramCode + list[(size_t)index].suffix);
 }
 
 juce::String GuiComponentTapParam::valueText(const StepPair& p) const
 {
-    auto* prm = paramOf(p.scope, p.index);
+    auto* prm = paramOf(p.index);
 
     return prm != nullptr ? prm->getText(juce::jlimit(0.0f, 1.0f, p.value), 0) : juce::String(p.value, 3);
 }
 
-double GuiComponentTapParam::stepOf(int scopeIndex, int index) const
+double GuiComponentTapParam::stepOf(int index) const
 {
-    auto* p = paramOf(scopeIndex, index);
+    auto* p = paramOf(index);
 
     const bool stepped = p != nullptr && (dynamic_cast<juce::AudioParameterInt*>(p) != nullptr
         || dynamic_cast<juce::AudioParameterChoice*>(p) != nullptr
@@ -165,7 +167,7 @@ void GuiComponentTapParam::setupComponent(juce::Component& parent, const juce::S
     skip.onClick = [this] { toggleSkip(); };
     skipSeparator.setupComponent(parent);
 
-    // ---- 段の組。P.TARGET で組を選び、OP / PARAM / VALUE で中身を決める
+    // ---- 段の組。P.TARGET で組を選び、PARAM / VALUE で中身を決める
     pairTarget.setup({ .parent = parent, .title = "P.TARGET", .isReset = false, .labelFont = labelFont });
     pairTarget.setRange(1.0, 2.0, 1.0);
     pairTarget.setNumDecimalPlacesToDisplay(0);
@@ -173,40 +175,19 @@ void GuiComponentTapParam::setupComponent(juce::Component& parent, const juce::S
     pairTarget.setExplicitFocusOrder(++tabOrder);
     pairTarget.onValueChange = [this] { rebindPair(); };
 
-    // 0 がチャンネル (CH)、1 からがオペレーター (RHYTHM はパッド)
-    scope.setup({ .parent = parent, .title = catalog.opLabel, .isReset = false, .labelFont = labelFont });
-    scope.setRange(0.0, (double)juce::jmax(1, opCount), 1.0);
-    scope.textFromValueFunction = [this](double v) {
-        const int i = juce::roundToInt(v);
+    // 並べるのは持ち主 (チャンネルかオペレーター・パッド) の指し先だけ
+    std::vector<SelectItem> items;
 
-        return i <= 0 ? juce::String("CH") : catalog.opLabel + juce::String(i);
-    };
-    scope.valueFromTextFunction = [this](const juce::String& t) {
-        return t.trim().equalsIgnoreCase("CH") ? 0.0 : (double)t.retainCharacters("0123456789").getIntValue();
-    };
-    scope.setWantsKeyboardFocus(true);
-    scope.setExplicitFocusOrder(++tabOrder);
-    scope.onValueChange = [this] {
-        listParams(currentScope());
-        writePair();
-        rebindPair();
-    };
+    for (int i = 0; i < (int)entries().size(); ++i) items.push_back({ entries()[(size_t)i].label, i + 1 });
 
-    // RHYTHM のようにチャンネルの指し先が少なければ、初めはパッド 1 を指す
-    scope.setValue(catalog.ch.size() <= 1 && opCount > 0 ? 1.0 : 0.0, juce::dontSendNotification);
-    scope.updateText();
-
-    static const std::vector<SelectItem> noItems;
-
-    param.setup({ .parent = parent, .id = "", .title = "PARAM", .items = noItems, .isReset = false, .labelFont = labelFont });
+    param.setup({ .parent = parent, .id = "", .title = "PARAM", .items = items, .isReset = false, .labelFont = labelFont });
+    param.setSelectedItemIndex(0, juce::dontSendNotification);
     param.setWantsKeyboardFocus(true);
     param.setExplicitFocusOrder(++tabOrder);
     param.onChange = [this] {
         writePair();
         rebindPair();
     };
-
-    listParams(currentScope());
 
     // 値は表にあるので、つまみはパラメータへ繋がない
     value.setupComponent(parent, "", "VALUE", tabOrder, std::nullopt, labelFont, false);
@@ -252,6 +233,7 @@ void GuiComponentTapParam::setupComponent(juce::Component& parent, const juce::S
     // 区分の右クリックの COPY / PASTE で表も写す
     value.getSlider().getProperties().set(ParamEdit::Property::stepTable, code + keys.base);
 
+    // 札の入り切りは、押したときだけでなく TARGET の切り替えやプリセットの読み込みでも変わる
     enable.watchToggle([this] { applyActive(); });
     loop.watchToggle([this] { applyActive(); });
 
@@ -261,27 +243,24 @@ void GuiComponentTapParam::setupComponent(juce::Component& parent, const juce::S
     applyStepCount();
     applyActive();
 
-    isReady = true;
-
     startTimerHz(10);
 }
 
-// PARAM に並べる名前を scope の一覧にする
-void GuiComponentTapParam::listParams(int scopeIndex)
+// 束縛先を丸ごと差し替える。setup で組んだ見た目はそのままに、繋ぎと表だけを張り替える
+void GuiComponentTapParam::rebind(const juce::String& code)
 {
-    if (scopeIndex == listedScope) return;
+    const auto& keys = TapParam::spec().keys;
 
-    listedScope = scopeIndex;
+    paramCode = code;
 
-    const int before = param.getSelectedItemIndex();
+    enable.rebind(code + keys.enable);
+    steps.rebind(code + keys.steps);
+    loop.rebind(code + keys.loop);
 
-    param.clear(juce::dontSendNotification);
+    value.getSlider().getProperties().set(ParamEdit::Property::stepTable, code + keys.base);
 
-    const auto& entries = scopeIndex < 0 ? catalog.ch : catalog.op;
-
-    for (int i = 0; i < (int)entries.size(); ++i) param.addItem(entries[(size_t)i].label, i + 1);
-
-    param.setSelectedItemIndex(juce::jlimit(0, juce::jmax(0, (int)entries.size() - 1), before), juce::dontSendNotification);
+    applyStepCount();
+    applyActive();
 }
 
 // ---------------------------------------------------------------- 段
@@ -297,13 +276,13 @@ void GuiComponentTapParam::applyStepCount()
     rebindValue();
 
     // 行の数が変わると区分の高さが変わるので、並べ直してもらう
-    if (isReady && before != list.getNaturalHeight()) ctx.editor.resized();
+    if (laidOut && before != list.getNaturalHeight()) ctx.editor.resized();
     else relayoutIfNeeded();
 }
 
 void GuiComponentTapParam::relayoutIfNeeded()
 {
-    if (isReady && laidOutLoopRows > 0 && laidOutLoopRows != loops.getRowCount()) ctx.editor.resized();
+    if (laidOut && laidOutLoopRows > 0 && laidOutLoopRows != loops.getRowCount()) ctx.editor.resized();
 }
 
 // S.TARGET の段へ合わせる
@@ -334,21 +313,18 @@ void GuiComponentTapParam::rebindPair()
         if (count > 0) {
             const auto p = t->pairAt(step, juce::jlimit(1, count, (int)pairTarget.getValue()) - 1);
 
-            scope.setValue(juce::jlimit(0, opCount, p.scope + 1), juce::dontSendNotification);
-            listParams(currentScope());
             param.setSelectedItemIndex(p.index, juce::dontSendNotification);
             value.getSlider().setValue(p.value, juce::dontSendNotification);
         }
 
         const int index = juce::jmax(0, param.getSelectedItemIndex());
-        auto* prm = paramOf(currentScope(), index);
+        auto* prm = paramOf(index);
 
         // 値は指し先の書き方で出し、打ち込みも指し先の値で受ける
         value.getSlider().textFromValueFunction = [prm](double v) { return prm != nullptr ? prm->getText((float)juce::jlimit(0.0, 1.0, v), 0) : juce::String(v, 3); };
         value.getSlider().valueFromTextFunction = [prm](const juce::String& s) { return prm != nullptr ? (double)prm->getValueForText(s) : s.getDoubleValue(); };
-        value.getSlider().setRange(0.0, 1.0, stepOf(currentScope(), index));
+        value.getSlider().setRange(0.0, 1.0, stepOf(index));
         value.getSlider().updateText();
-        scope.updateText();
     }
 
     refresh();
@@ -373,7 +349,7 @@ void GuiComponentTapParam::writePair()
 
     const int at = juce::jlimit(1, (int)pairs.size(), (int)pairTarget.getValue()) - 1;
 
-    pairs[(size_t)at] = { currentScope(), juce::jmax(0, param.getSelectedItemIndex()), (float)value.getSlider().getValue() };
+    pairs[(size_t)at] = { -1, juce::jmax(0, param.getSelectedItemIndex()), (float)value.getSlider().getValue() };
 
     t->setPairs(step, pairs);
 
@@ -383,7 +359,7 @@ void GuiComponentTapParam::writePair()
     refresh();
 }
 
-// いまの OP / PARAM / VALUE の組を、段の後ろへ足して選ぶ
+// いまの PARAM / VALUE の組を、段の後ろへ足して選ぶ。組の scope は表の持ち主で決まるので -1 を書く
 void GuiComponentTapParam::addCurrentPair()
 {
     auto* t = table();
@@ -395,7 +371,7 @@ void GuiComponentTapParam::addCurrentPair()
 
     if ((int)pairs.size() >= StepTable::maxPairs) return;
 
-    pairs.push_back({ currentScope(), juce::jmax(0, param.getSelectedItemIndex()), (float)value.getSlider().getValue() });
+    pairs.push_back({ -1, juce::jmax(0, param.getSelectedItemIndex()), (float)value.getSlider().getValue() });
 
     t->setPairs(step, pairs);
 
@@ -437,7 +413,7 @@ void GuiComponentTapParam::clearCurrentPairs()
 void GuiComponentTapParam::nudgeValue(double delta, bool set)
 {
     auto& s = value.getSlider();
-    const double step = stepOf(currentScope(), juce::jmax(0, param.getSelectedItemIndex()));
+    const double step = stepOf(juce::jmax(0, param.getSelectedItemIndex()));
 
     // 実数の指し先は 0.001 ずつ
     s.setValue(juce::jlimit(0.0, 1.0, set ? delta : s.getValue() + delta * (step > 0.0 ? step : 0.001)));
@@ -512,7 +488,11 @@ void GuiComponentTapParam::refresh()
         juce::StringArray parts;
 
         if (t != nullptr) {
-            for (const auto& p : t->pairList(s)) parts.add(ParamModCatalog::label(catalog, p.scope, p.index) + " " + valueText(p));
+            for (const auto& p : t->pairList(s)) {
+                const auto name = p.index >= 0 && p.index < (int)entries().size() ? entries()[(size_t)p.index].label : juce::String("?");
+
+                parts.add(name + " " + valueText(p));
+            }
         }
 
         juce::String body = skipped ? juce::String("SKIP") : (parts.isEmpty() ? juce::String("-") : parts.joinIntoString(", "));
@@ -550,13 +530,15 @@ void GuiComponentTapParam::timerCallback()
 
     rebindValue();
 
-    if (before != list.getNaturalHeight()) ctx.editor.resized();
+    if (laidOut && before != list.getNaturalHeight()) ctx.editor.resized();
 }
 
 // ---------------------------------------------------------------- 並べる
 void GuiComponentTapParam::layoutComponent(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });
+
+    laidOut = true;
 
     const bool visible = cat.isDetailVisible();
 
@@ -572,7 +554,6 @@ void GuiComponentTapParam::layoutComponent(juce::Rectangle<int>& rect)
     skip.setVisible(visible);
     skipSeparator.setVisible(visible);
     pairTarget.setVisibleWithLabel(visible);
-    scope.setVisibleWithLabel(visible && opCount > 0);
     param.setVisibleWithLabel(visible);
     value.setVisibleWithLabel(visible);
     valueMin.setVisible(visible);
@@ -607,8 +588,6 @@ void GuiComponentTapParam::layoutComponent(juce::Rectangle<int>& rect)
     skipSeparator.layoutComponent(rect);
 
     layoutMain({ .mainRect = rect, .label = &pairTarget.label, .component = &pairTarget, .rowHeight = h });
-
-    if (opCount > 0) layoutMain({ .mainRect = rect, .label = &scope.label, .component = &scope, .rowHeight = h });
 
     layoutMain({ .mainRect = rect, .label = &param.label, .component = &param, .rowHeight = h });
     value.layoutComponent(rect, h);
@@ -653,7 +632,6 @@ void GuiComponentTapParam::applyActive()
     skip.setEnabled(active);
     skipSeparator.setEnabled(active);
     pairTarget.setEnabledWithLabel(active);
-    scope.setEnabledWithLabel(active);
     param.setEnabledWithLabel(active);
     value.setEnabled(active);
 
@@ -707,7 +685,8 @@ void GuiComponentTapParam::writeParamsFile(const juce::File& file)
     writer.writeTo(file);
 }
 
-// 組は "段:scope:index:値:名前" を並べる。番号は音源で違うので、名前が合えば名前で選ぶ
+// 組は "段:scope:index:値:名前" を並べる (scope は -1。持ち主で決まる)。
+// 番号は音源で違うので、名前が合えば名前で選ぶ
 void GuiComponentTapParam::readValues(const Io::ParamReader& r)
 {
     enable.setToggleState(r.getBool("flag", enable.getToggleState()), juce::sendNotification);
@@ -716,9 +695,9 @@ void GuiComponentTapParam::readValues(const Io::ParamReader& r)
 
     if (auto* t = table()) {
         const auto flat = r.getFloatArray("loops");
-        std::vector<StepLoop::Entry> entries;
+        std::vector<StepLoop::Entry> loopList;
 
-        for (size_t i = 0; i + 2 < flat.size(); i += 3) entries.push_back({ (int)flat[i], (int)flat[i + 1], (int)flat[i + 2] });
+        for (size_t i = 0; i + 2 < flat.size(); i += 3) loopList.push_back({ (int)flat[i], (int)flat[i + 1], (int)flat[i + 2] });
 
         const auto skips = r.getFloatArray("skips");
 
@@ -736,13 +715,11 @@ void GuiComponentTapParam::readValues(const Io::ParamReader& r)
 
             if (s < 1 || s > StepTable::size) continue;
 
-            StepPair p{ v[1].getIntValue(), v[2].getIntValue(), juce::jlimit(0.0f, 1.0f, v[3].getFloatValue()) };
+            StepPair p{ -1, v[2].getIntValue(), juce::jlimit(0.0f, 1.0f, v[3].getFloatValue()) };
 
             if (v.size() >= 5) {
-                const auto& entries = p.scope < 0 ? catalog.ch : catalog.op;
-
-                for (int i = 0; i < (int)entries.size(); ++i) {
-                    if (entries[(size_t)i].label == v[4]) p.index = i;
+                for (int i = 0; i < (int)entries().size(); ++i) {
+                    if (entries()[(size_t)i].label == v[4]) p.index = i;
                 }
             }
 
@@ -751,7 +728,7 @@ void GuiComponentTapParam::readValues(const Io::ParamReader& r)
 
         for (int s = 1; s <= StepTable::size; ++s) t->setPairs(s, pairs[(size_t)s - 1]);
 
-        t->setLoops(entries);
+        t->setLoops(loopList);
     }
 
     applyStepCount();
@@ -778,8 +755,7 @@ void GuiComponentTapParam::writeValues(Io::ParamWriter& w)
             if (t->skipped(s)) skips.push_back((float)s);
 
             for (const auto& p : t->pairList(s)) {
-                const auto& entries = p.scope < 0 ? catalog.ch : catalog.op;
-                const auto name = p.index >= 0 && p.index < (int)entries.size() ? entries[(size_t)p.index].label : juce::String();
+                const auto name = p.index >= 0 && p.index < (int)entries().size() ? entries()[(size_t)p.index].label : juce::String();
 
                 pairs.push_back(juce::String(s) + ":" + juce::String(p.scope) + ":" + juce::String(p.index) + ":" + juce::String(p.value, 6) + ":" + name);
             }

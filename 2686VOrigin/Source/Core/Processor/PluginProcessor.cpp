@@ -1602,6 +1602,7 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     params.tapAmp.enable = false;
     params.tapPitch.enable = false;
     params.tapParam.enable = false;
+    params.tapParamOpCount = 0;
 
     // 素材は今できているものをそのまま指す
     params.adpcm.source = &m_adpcmPcm.forAudio();

@@ -72,8 +72,10 @@ void AdpcmPlusProcessor::processBlock(SynthCoreParams& params, juce::AudioProces
     TapSeq::apply(pTapAmp, params.tapAmp);
     TapSeq::apply(pTapPitch, params.tapPitch);
 
-    // TAP PARAM SEQUENCER
+    // TAP PARAM SEQUENCER (オペレーターを持たないので、チャンネルの 1 つだけ)
     TapSeq::apply(pTapParam, params.tapParam);
+
+    params.tapParamOpCount = 0;
 
     applyChannel(params.adpcmPlus);
 }

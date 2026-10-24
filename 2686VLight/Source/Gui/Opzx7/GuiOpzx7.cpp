@@ -367,7 +367,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     tapMajorCat(context),
     tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
     tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
-    tapParamSeq(context, ParamModCatalog::opzx7(), Opzx7PrValue::ops),
+    tapParamSeq(context, ParamModCatalog::opzx7()),
     paramEnvMajorCat(context),
     paramEnv(context, GuiComponentParamEnv::channelSpec(ParamModCatalog::opzx7(), Opzx7PrValue::ops)),
     importFmBtn(context),
@@ -411,6 +411,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     colSsgSwPEnv256(context),
     colMod(context),
     colKs(context),
+    colTapParam(context),
     colLfo(context),
     colMask(context),
     mulDetune(context),
@@ -469,6 +470,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
         ssgHwPEnvOp(context),
         wtAmpModOp(context),
         opParamEnv(context, GuiComponentParamEnv::opSpec(ParamModCatalog::opzx7(), 63.0f)),
+        opTapParam(context, ParamModCatalog::opzx7(), true),
         algEnv(context, Opzx7PrValue::algorithms),
         ssgHwEnvOp(context),
         wtModOp(context),
@@ -935,6 +937,7 @@ void GuiOpzx7::setup()
     colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[256]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL/DET / FIX");
+    colTapParam.setup(stripCanvas, juce::String("") + "TAP PARAM SEQUENCER");
     colLfo.setup(stripCanvas, juce::String("") + "LFO");
     colMask.setup(stripCanvas, juce::String("") + "MASK / MML");
 
@@ -1337,6 +1340,10 @@ void GuiOpzx7::setup()
     opParamEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, ParamEnv::keys().enable, "Enable", true);
     opParamEnv.category().onImport = [this] { opParamEnv.importParams(); };
     opParamEnv.category().onExport = [this] { opParamEnv.exportParams(); };
+
+    opTapParam.setupComponent(colTapParam.contentCanvas, paramPrefix, tabOrder);
+    opTapParam.category().onImport = [this] { opTapParam.importParams(); };
+    opTapParam.category().onExport = [this] { opTapParam.exportParams(); };
     ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
@@ -1375,7 +1382,7 @@ void GuiOpzx7::setup()
     for (auto* group : {
         &colAmp, &colWs, &colSsgHwEnv,
         &colSsgSwEnv256, &colAmpMod, &colPitchEnv, &colSsgHwPEnv,
-        &colSsgSwPEnv256, &colMod, &colKs, &colLfo,
+        &colSsgSwPEnv256, &colMod, &colKs, &colTapParam, &colLfo,
         &colMask,
         })
     {
@@ -1747,6 +1754,7 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     kor.setEnabled(enable);
     pitchEnv.setEnabled(enable);
     opParamEnv.setEnabled(enable);
+    opTapParam.setEnabled(enable);
     ssgSwEnv256.setEnabled(enable);
     ssgSwPEnv256.setEnabled(enable);
     catSsgEnv.setEnabled(enable);
@@ -2085,6 +2093,7 @@ void GuiOpzx7::rebind(int opIndex)
     ssgHwPEnvOp.rebind(code);
     wtAmpModOp.rebind(code);
     opParamEnv.rebind(code);
+    opTapParam.rebind(code);
     ssgHwEnvOp.rebind(code);
     wtModOp.rebind(code);
     lfo.rebind(code);
@@ -2386,6 +2395,12 @@ void GuiOpzx7::layoutOpPanel(juce::Rectangle<int> area)
 
         fix.setCategoryVisible(shown(SimpleView::Fix));
         fix.layoutComponent(rect);
+        });
+
+    // TAP PARAM SEQUENCER (オペレーター)。KEY SCALE / MUL/DET の右
+    layoutCol(colTapParam, pluginOf(ctx).isSimpleShown(SimpleView::TapParam), [&](juce::Rectangle<int>& rect) {
+        opTapParam.setCategoryVisible(true);
+        opTapParam.layoutComponent(rect);
         });
 
     layoutCol(colWs, true, [&](juce::Rectangle<int>& rect) { layoutOpWsCat(rect, selectedWs); });
@@ -3876,6 +3891,7 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgHwPEnvOp.readParams(r, "ssgHwPEnv");
     wtAmpModOp.readParams(r, "wtAmpMod");
     opParamEnv.readParams(r, "paramEnv");
+    opTapParam.readParams(r, "tapParam");
     ssgHwEnvOp.readParams(r, "ssgHwEnv");
     wtModOp.readParams(r, "wtMod");
 }
@@ -3952,6 +3968,7 @@ void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgHwPEnvOp.writeParams(w, "ssgHwPEnv");
     wtAmpModOp.writeParams(w, "wtAmpMod");
     opParamEnv.writeParams(w, "paramEnv");
+    opTapParam.writeParams(w, "tapParam");
     ssgHwEnvOp.writeParams(w, "ssgHwEnv");
     wtModOp.writeParams(w, "wtMod");
 }
@@ -4252,6 +4269,7 @@ void GuiOpzx7::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) tapParamSeq.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) paramEnv.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) opParamEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) opTapParam.setCategoryBypassed(true);
 }
 
 void GuiOpzx7::openEnabledCategories()

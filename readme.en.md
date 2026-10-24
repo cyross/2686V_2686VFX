@@ -47,11 +47,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - All plugins (including 2686VFX)
 - **"TAP PARAM SEQUENCER" added to [[TAP SEQUENCER]]**
   - Each key press advances one step and replaces parameters with the (parameter, value) pairs stored in that step, for the length of that note
-  - As an extension of our own, one step holds up to 16 pairs. On FM channels the pairs can also point at operator parameters (OP1 onwards); on RHYTHM, at pad parameters (PAD1 onwards)
+  - As an extension of our own, one step holds up to 16 pairs
+  - There is one per channel (inside [[TAP SEQUENCER]], choosing channel parameters) and one per FM operator and per RHYTHM pad (the "TAP PARAM SEQUENCER" column of the operator / pad settings, right of KEY SCALE / MUL/DET, or of MUL/DET / FIX on RHYTHM, choosing that operator's or pad's parameters). Each advances on its own with every key press
   - Parameters you can choose: the numeric parameters of FM operators (TL / AR / DR / SR / SL / RR / KS / MUL / DT; OPM's D1R / D1L / D2R, DT2 and KSR / KSL; OPL / OPL3's KSL, EG and LFO; OPZX7's real-valued envelope, KS details, DT2 / DT3, WS, PCM SPEED and LFO, and so on) and FIX frequency, the channel's ALG / FB (FB OP1-8 on OPZX7), the WT PITCH MOD / WT AMP MOD waveform and speed, the WT+ waveform, the ADPCM+ voice (slot), SSG duty (PRESET / variable) and triangle peak, FIX frequency, and the various frequencies and speeds (LFO FREQ, SSG HW ENV / SSG HW PITCH ENV period, noise frequency, triangle frequency, SPEED, TIMER CLOCK, ARP FREQ and so on). On/off toggles are not offered
   - Steps advance exactly as in TAP AMP / PITCH SEQUENCER (LOOP, SKIP, INCREMENT / DECREMENT / CLEAR STEP; one step per key press; stopping DAW playback returns to before the start)
-  - Pick the step with S.TARGET and the pair with **P.TARGET**, then set it with **OP** / **PARAM** / **VALUE**. **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** add and remove pairs. Values are shown the way the target parameter shows them, and the MIN / -1 / +1 / MAX buttons move them
-  - The list shows one line per step, such as "S1: OP1 AR 31, OP2 TL 20". The current step has a different background
+  - Pick the step with S.TARGET and the pair with **P.TARGET**, then set it with **PARAM** / **VALUE**. **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** add and remove pairs. Values are shown the way the target parameter shows them, and the MIN / -1 / +1 / MAX buttons move them
+  - The list shows one line per step, such as "S1: AR 31, TL 20". The current step has a different background
   - Saved in presets, DAW state and channel parameters (`tapParam`). The section's parameter file is `.tapParam` (right-click the heading). The pairs cannot be automated
   - Hidden in simple view mode. "TAP PARAM SEQUENCER" was added to the simple view customization in SETTINGS, and [Bypass hidden sections] turns it off too
   - Every channel. All plugins except 2686VFX

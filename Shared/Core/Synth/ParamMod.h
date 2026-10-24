@@ -37,15 +37,21 @@ namespace ParamMod
 	// TAP PARAM SEQUENCER の 1 段に持てる組の数
 	inline constexpr int maxPairs = StepTable::maxPairs;
 
+	// オペレーター (パッド) の数の上限 (OPZX7 の 8)
+	inline constexpr int maxOps = 8;
+
 	// PARAM ENV の本数。チャンネル 1 + オペレーター 8 (OPZX7)
-	inline constexpr int maxEnvs = 9;
+	inline constexpr int maxEnvs = 1 + maxOps;
 
-	inline constexpr int maxOverrides = maxPairs + maxEnvs;
+	// TAP PARAM SEQUENCER はチャンネルと、オペレーター (パッド) ごとに 1 つずつ持つ
+	inline constexpr int maxTapPairs = maxPairs * (1 + maxOps);
 
-	// 打鍵 1 回ぶんの TAP PARAM SEQUENCER の組
+	inline constexpr int maxOverrides = maxTapPairs + maxEnvs;
+
+	// 打鍵 1 回ぶんの TAP PARAM SEQUENCER の組 (チャンネルとオペレーターのぶんを合わせたもの)
 	struct TapStep
 	{
-		std::array<Override, maxPairs> pairs{};
+		std::array<Override, maxTapPairs> pairs{};
 		int count = 0;
 	};
 

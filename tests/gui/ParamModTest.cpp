@@ -159,33 +159,47 @@ TEST_CASE("TAP PARAM SEQUENCER: 押したときの段の組で、その音のあ
 
         REQUIRE(base > 1.0e-4);
 
-        // 1 段目: すべてのオペレーターの TL を最大 (いちばん小さい音) にする。2 段目: SKIP
-        auto* table = rig.plugin->stepTables.find(chip.prefix + "_TAPPARAM");
+        // オペレーターごとの TAP PARAM SEQUENCER。1 段目: そのオペレーターの TL を最大
+        // (いちばん小さい音) にする。2 段目: SKIP。どのオペレーターも別々に段を進める
+        std::vector<StepTable*> tables;
 
-        REQUIRE(table != nullptr);
-        REQUIRE(table->hasPairs());
+        for (int op = 0; op < chip.ops; ++op) {
+            const auto head = chip.prefix + "_OP" + juce::String(op) + "_TAPPARAM";
+            auto* table = rig.plugin->stepTables.find(head);
 
-        std::vector<StepPair> pairs;
+            REQUIRE(table != nullptr);
+            REQUIRE(table->hasPairs());
 
-        for (int op = 0; op < chip.ops; ++op) pairs.push_back({ op, 0, 1.0f });
+            // 組の scope は表の持ち主で決まる (-1 を書く)。0 は一覧の TL
+            table->setPairs(1, { { -1, 0, 1.0f } });
+            table->setSkip(2, true);
 
-        table->setPairs(1, pairs);
-        table->setSkip(2, true);
+            REQUIRE(rig.set(head + "_ENABLE", 1.0f));
+            REQUIRE(rig.set(head + "_STEPS", 2.0f));
 
-        REQUIRE(rig.set(chip.prefix + "_TAPPARAM_ENABLE", 1.0f));
-        REQUIRE(rig.set(chip.prefix + "_TAPPARAM_STEPS", 2.0f));
+            tables.push_back(table);
+        }
+
         rig.run();
 
         const double muted = rig.play(60, 10);
 
-        CHECK(table->cursor.load() == 0);
+        for (auto* t : tables) CHECK(t->cursor.load() == 0);
+
         CHECK(muted < base * 0.05);
 
         // SKIP の段は置き換えない
         const double skipped = rig.play(60, 10);
 
-        CHECK(table->cursor.load() == 1);
+        for (auto* t : tables) CHECK(t->cursor.load() == 1);
+
         CHECK(skipped > base * 0.5);
+
+        // チャンネルの TAP PARAM SEQUENCER は使っていないので、開始前のまま
+        auto* channel = rig.plugin->stepTables.find(chip.prefix + "_TAPPARAM");
+
+        REQUIRE(channel != nullptr);
+        CHECK(channel->cursor.load() < 0);
 
         // 置き換えたのはボイスだけ。パラメータそのものは変わらない
         CHECK(rig.get(chip.prefix + "_OP0_R_TL") == doctest::Approx(0.0f));

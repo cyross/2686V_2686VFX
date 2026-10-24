@@ -75,7 +75,10 @@ Sliders whose range is narrower than 100 are left alone. All plugins (including 
 
 [[TAP SEQUENCER]] has a third section, **TAP PARAM SEQUENCER**. Each key press moves on one step, and the
 **(parameter, value) pairs** stored in that step replace parameters **for that note**. As an extension of our own,
-one step holds **up to 16 pairs**. On FM channels the pairs can point at operator parameters; on RHYTHM, at pad parameters.
+one step holds **up to 16 pairs**.
+
+There is one per channel (inside [[TAP SEQUENCER]]) and one per FM operator and per RHYTHM pad (a column of the
+operator / pad settings). Each lists only its owner's parameters, and each advances on its own with every key press.
 
 You can choose the following. On/off toggles are not offered.
 

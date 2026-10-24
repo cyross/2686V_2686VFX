@@ -414,6 +414,7 @@ void GuiOpl3::setup()
     colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[256]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL / LFO");
+    colTapParam.setup(stripCanvas, juce::String("") + "TAP PARAM SEQUENCER");
     colMask.setup(stripCanvas, juce::String("") + "MASK / MML");
 
     // 今どのオペレータを触っているか。名前は rebind で入れ替える。
@@ -518,6 +519,10 @@ void GuiOpl3::setup()
     opParamEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, ParamEnv::keys().enable, "Enable", true);
     opParamEnv.category().onImport = [this] { opParamEnv.importParams(); };
     opParamEnv.category().onExport = [this] { opParamEnv.exportParams(); };
+
+    opTapParam.setupComponent(colTapParam.contentCanvas, paramPrefix, tabOrder);
+    opTapParam.category().onImport = [this] { opTapParam.importParams(); };
+    opTapParam.category().onExport = [this] { opTapParam.exportParams(); };
     ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
@@ -608,7 +613,7 @@ void GuiOpl3::setup()
     for (auto* group : {
         &colAmp, &colSsgHwEnv,
         &colSsgSwEnv256, &colAmpMod, &colPitchEnv, &colSsgHwPEnv,
-        &colSsgSwPEnv256, &colMod, &colKs,
+        &colSsgSwPEnv256, &colMod, &colKs, &colTapParam,
         &colMask,
         })
     {
@@ -862,6 +867,7 @@ void GuiOpl3::updateOpEnable(int idx, bool enable)
     mml.setEnabled(enable);
     pitchEnv.setEnabled(enable);
     opParamEnv.setEnabled(enable);
+    opTapParam.setEnabled(enable);
 }
 
 void GuiOpl3::updateAlgorithmDisplay()
@@ -958,6 +964,7 @@ void GuiOpl3::rebind(int opIndex)
     ssgHwPEnvOp.rebind(code);
     wtAmpModOp.rebind(code);
     opParamEnv.rebind(code);
+    opTapParam.rebind(code);
     ssgHwEnvOp.rebind(code);
     wtModOp.rebind(code);
 }
@@ -1280,6 +1287,12 @@ void GuiOpl3::layoutOpPanel(juce::Rectangle<int> area)
         layoutOpDetCat(rect);
 
         layoutOpLfoCat(rect);
+        });
+
+    // TAP PARAM SEQUENCER (オペレーター)。KEY SCALE / MUL/DET の右
+    layoutCol(colTapParam, pluginOf(ctx).isSimpleShown(SimpleView::TapParam), [&](juce::Rectangle<int>& rect) {
+        opTapParam.setCategoryVisible(true);
+        opTapParam.layoutComponent(rect);
         });
 
     layoutCol(colSsgHwEnv, shown(SimpleView::SsgHwAmpEnv), [&](juce::Rectangle<int>& rect) {
@@ -2410,6 +2423,7 @@ void GuiOpl3::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgHwPEnvOp.readParams(r, "ssgHwPEnv");
     wtAmpModOp.readParams(r, "wtAmpMod");
     opParamEnv.readParams(r, "paramEnv");
+    opTapParam.readParams(r, "tapParam");
     ssgHwEnvOp.readParams(r, "ssgHwEnv");
     wtModOp.readParams(r, "wtMod");
 }
@@ -2454,6 +2468,7 @@ void GuiOpl3::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgHwPEnvOp.writeParams(w, "ssgHwPEnv");
     wtAmpModOp.writeParams(w, "wtAmpMod");
     opParamEnv.writeParams(w, "paramEnv");
+    opTapParam.writeParams(w, "tapParam");
     ssgHwEnvOp.writeParams(w, "ssgHwEnv");
     wtModOp.writeParams(w, "wtMod");
 }
@@ -2779,6 +2794,7 @@ void GuiOpl3::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) tapParamSeq.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) paramEnv.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) opParamEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) opTapParam.setCategoryBypassed(true);
 }
 
 void GuiOpl3::openEnabledCategories()
