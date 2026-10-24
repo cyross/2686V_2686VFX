@@ -4,6 +4,8 @@
 #include <array>
 
 #include "Shared/Gui/Components/TapSeq/TapSeq.h"
+#include "Shared/Gui/Components/TapParam/TapParam.h"
+#include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
@@ -153,6 +155,11 @@ class GuiWt2 : public GuiBase
     GuiCategoryLabel tapMajorCat;
     GuiComponentTapSeq tapAmpSeq;
     GuiComponentTapSeq tapPitchSeq;
+
+    // TAP PARAM SEQUENCER と、チャンネルの PARAM ENV[256] (4.3.0)
+    GuiComponentTapParam tapParamSeq;
+    GuiCategoryLabel paramEnvMajorCat;
+    GuiComponentParamEnv paramEnv;
     GuiTextButton broadcastLevelButton;
     GuiTextButton customWaveImportBtn;
     GuiTextButton customWaveExportBtn;
@@ -229,6 +236,9 @@ public:
 		tapMajorCat(context),
 		tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
 		tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
+		tapParamSeq(context, ParamModCatalog::wt2(), 0),
+		paramEnvMajorCat(context),
+		paramEnv(context, GuiComponentParamEnv::channelSpec(ParamModCatalog::wt2(), 0)),
         broadcastLevelButton(context),
         customWaveImportBtn(context),
         customWaveExportBtn(context),

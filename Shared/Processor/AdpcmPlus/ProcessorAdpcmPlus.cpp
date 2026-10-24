@@ -17,6 +17,10 @@ void AdpcmPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parame
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
 
+    // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
+    TapParam::addParameters(layout, prefix, prefixName);
+    ParamEnv::addParameters(layout, prefix, prefixName, ParamModCatalog::channelTargetCount(ParamModCatalog::adpcmPlus(), 0), 0);
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
 
     // FORM・OPTIONAL・PAN は PCM ごと。まとめてここで並べる。
@@ -42,6 +46,9 @@ void AdpcmPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWa
 
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+    TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    modResolver.init(apvts, prefix, ParamModCatalog::adpcmPlus(), 0);
 
     PrHelper::setupAdpcmPlusPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPcmPtrs(apvts, prefix, pQuality);
@@ -65,18 +72,50 @@ void AdpcmPlusProcessor::processBlock(SynthCoreParams& params, juce::AudioProces
     TapSeq::apply(pTapAmp, params.tapAmp);
     TapSeq::apply(pTapPitch, params.tapPitch);
 
-    PrHelper::applyAdpcmPlusBasic(pBasic, params.adpcmPlus);
-    PrHelper::applyQualityPcm(pQuality, params.adpcmPlus.quality);
-    PrHelper::applyAdsrAmpEnv(pAmpEnv, params.adpcmPlus.adsr);
-    PrHelper::applyWtMod(pWtMod, params.adpcmPlus.wtMod);
-    PrHelper::applyWtAmpMod(pWtAmpMod, params.adpcmPlus.wtAmpMod);
-    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.adpcmPlus.ssgSwEnv256);
-    PrHelper::applyPitchEnv(pPitchEnv, params.adpcmPlus.pitchAdsr);
-    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.adpcmPlus.ssgSwPEnv256);
-    PrHelper::applyOpzx7Detune(pOpzx7Detune, params.adpcmPlus.detune);
-    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.adpcmPlus.lfo);
-    PrHelper::applyFix(pFix, params.adpcmPlus.fix);
-    PrHelper::applySsgHwEnv(pSsgHwEnv, params.adpcmPlus.ssgHwEnv);
-    PrHelper::applySsgHwPEnv(pSsgHwPEnv, params.adpcmPlus.ssgHwPEnv);
-    PrHelper::applyUnison(pUnison, params.adpcmPlus.unison);
+    // TAP PARAM SEQUENCER
+    TapSeq::apply(pTapParam, params.tapParam);
+
+    applyChannel(params.adpcmPlus);
+}
+
+// チャンネルの値。ボイスが PARAM ENV / TAP PARAM SEQUENCER で置き換えて読み直すときにも使う
+void AdpcmPlusProcessor::applyChannel(AdpcmPlusParams& p)
+{
+    PrHelper::applyAdpcmPlusBasic(pBasic, p);
+    PrHelper::applyQualityPcm(pQuality, p.quality);
+    PrHelper::applyAdsrAmpEnv(pAmpEnv, p.adsr);
+    PrHelper::applyWtMod(pWtMod, p.wtMod);
+    PrHelper::applyWtAmpMod(pWtAmpMod, p.wtAmpMod);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, p.ssgSwEnv256);
+    PrHelper::applyPitchEnv(pPitchEnv, p.pitchAdsr);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, p.ssgSwPEnv256);
+    PrHelper::applyOpzx7Detune(pOpzx7Detune, p.detune);
+    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, p.lfo);
+    PrHelper::applyFix(pFix, p.fix);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, p.ssgHwEnv);
+    PrHelper::applySsgHwPEnv(pSsgHwPEnv, p.ssgHwPEnv);
+    PrHelper::applyUnison(pUnison, p.unison);
+
+    // PARAM ENV[256] (チャンネル)
+    modResolver.applyChannelEnv(pParamEnv, p.paramMod.envs[0]);
+    p.paramMod.envCount = 1;
+    p.paramMod.applier = this;
+    modResolver.fillArp(p.paramMod);
+}
+
+// ボイスから。置き換えた値で、変わる区分だけ読み直す
+void AdpcmPlusProcessor::apply(void* chip, const ParamMod::Override* list, int count)
+{
+    auto& p = *static_cast<AdpcmPlusParams*>(chip);
+
+    std::array<PrOverride::Entry, ParamMod::maxOverrides> entries;
+    ParamModResolver::Dirty dirty;
+
+    const int n = modResolver.resolve(list, count, entries, dirty);
+
+    if (n == 0) return;
+
+    PrOverride::Scope scope(entries.data(), n);
+
+    if (dirty.channel) applyChannel(p);
 }

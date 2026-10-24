@@ -88,37 +88,6 @@ const GuiComponentStepEnv::Spec& GuiComponentPeakRatioEnv::spec()
     return s;
 }
 
-const GuiComponentStepEnv::Spec& GuiComponentTlEnv::spec(int tlMax)
-{
-    auto build = [](const ValueEnv::Spec& v) {
-        Spec x = make(v);
-
-        x.kind = Spec::Kind::Tl;
-        x.title = "TL ENV";
-
-        // 常に KEEP。KEEP の札を持たない
-        x.keep = {};
-
-        x.levelInterval = 1.0;
-        x.levelDecimals = 0;
-        x.startLabel = "STTL";
-        x.levelPrefix = "TL";
-        x.levelLabel = "TL";
-        x.levelTargetLabel = "TL.TARGET";
-
-        x.fileFormat = "tlEnv";
-        x.browserKind = EditorGuiText::ParamBrowser::kindTlEnv;
-        x.extension = Io::Extension::TlEnvParam;
-
-        return x;
-    };
-
-    static const Spec s127 = build(ValueEnv::tl127());
-    static const Spec s63 = build(ValueEnv::tl63());
-
-    return tlMax > 63 ? s127 : s63;
-}
-
 const GuiComponentStepEnv::Spec& GuiComponentAlgEnv::spec(int algorithms)
 {
     static std::map<int, Spec> specs;
@@ -149,4 +118,89 @@ const GuiComponentStepEnv::Spec& GuiComponentAlgEnv::spec(int algorithms)
     }
 
     return it->second;
+}
+
+namespace
+{
+    // PARAM ENV の頭。鍵は ParamEnv (音の側) と同じものから作る
+    GuiComponentStepEnv::Spec paramEnvBase()
+    {
+        const auto& k = ParamEnv::keys();
+
+        GuiComponentStepEnv::Spec x;
+
+        x.kind = GuiComponentStepEnv::Spec::Kind::Param;
+        x.title = "PARAM ENV[256]";
+        x.tableKey = k.base;
+
+        x.steps = k.steps;
+        x.keep = k.keep;
+        x.loop = k.loop;
+        x.loopTo = k.loopTo;
+        x.loopCount = k.loopCount;
+        x.loopMode = k.loopMode;
+        x.stl = k.stl;
+        x.lr = k.lr;
+        x.rr = k.rr;
+        x.endl = k.endl;
+        x.endlEnable = k.endlEnable;
+        x.target = k.target;
+
+        x.rateMin = CPV::SsgSwEnv256::R::min;
+        x.rateMax = CPV::SsgSwEnv256::R::max;
+        x.rateInterval = 0.001;
+        x.levelMin = 0.0;
+        x.levelMax = 1.0;
+        x.levelInterval = 0.001;
+        x.levelDecimals = 3;
+
+        x.startLabel = "STL";
+        x.levelPrefix = "L";
+        x.levelLabel = "VALUE";
+        x.levelTargetLabel = "L.TARGET";
+
+        x.fileFormat = "paramEnv";
+        x.browserKind = EditorGuiText::ParamBrowser::kindParamEnv;
+        x.extension = Io::Extension::ParamEnvParam;
+
+        return x;
+    }
+}
+
+GuiComponentStepEnv::Spec GuiComponentParamEnv::opSpec(const ParamModCatalog::Catalog& catalog, float tlMax)
+{
+    Spec x = paramEnvBase();
+
+    x.targetLabels = ParamModCatalog::opTargetLabels(catalog);
+
+    // code はオペレーターの頭 (OPNA_OP0)。尻尾を足せば指し先の鍵
+    x.targetParamId = [&catalog](const juce::String& code, int target) {
+        return target >= 0 && target < (int)catalog.op.size() ? code + catalog.op[(size_t)target].suffix : juce::String();
+    };
+
+    // 4.2.x までの TL ENV。ファイル (.tlEnv) は一覧で PARAM ENV の種類として出る
+    x.legacyTlFormat = "tlEnv";
+    x.legacyTlKey = "tlEnv";
+    x.tlTarget = juce::jmax(0, catalog.tlIndex);
+    x.tlMax = tlMax;
+
+    return x;
+}
+
+GuiComponentStepEnv::Spec GuiComponentParamEnv::channelSpec(const ParamModCatalog::Catalog& catalog, int ops)
+{
+    Spec x = paramEnvBase();
+
+    x.targetLabels = ParamModCatalog::channelTargetLabels(catalog, ops);
+
+    // code はチャンネルの頭 (OPNA)。RHYTHM はパッドの指し先も並ぶ
+    x.targetParamId = [&catalog](const juce::String& code, int target) {
+        int scope = -1, index = 0;
+
+        ParamModCatalog::decodeChannelTarget(catalog, target, scope, index);
+
+        return ParamModCatalog::paramId(code, catalog, scope, index);
+    };
+
+    return x;
 }

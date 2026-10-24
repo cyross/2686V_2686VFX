@@ -85,6 +85,40 @@ namespace StepTableIo
         for (int i = 0; i < StepTable::size; ++i) table.skips[(size_t)i].store(on[(size_t)i], std::memory_order_relaxed);
     }
 
+    // TAP PARAM SEQUENCER の組を文字にする (4.3.0)。
+    // "段:scope:index:値;段:scope:index:値;..."。段は 1 から、同じ段の組は並び順のまま。
+    inline juce::String pairsToText(const StepTable& table)
+    {
+        juce::StringArray parts;
+
+        for (int s = 1; s <= StepTable::size; ++s) {
+            for (const auto& p : table.pairList(s)) {
+                parts.add(juce::String(s) + ":" + juce::String(p.scope) + ":" + juce::String(p.index) + ":" + juce::String(p.value, 6));
+            }
+        }
+
+        return parts.joinIntoString(";");
+    }
+
+    inline void pairsFromText(StepTable& table, const juce::String& text)
+    {
+        std::array<std::vector<StepPair>, StepTable::size> steps;
+
+        for (const auto& part : juce::StringArray::fromTokens(text, ";", "")) {
+            const auto v = juce::StringArray::fromTokens(part, ":", "");
+
+            if (v.size() < 4) continue;
+
+            const int s = v[0].getIntValue();
+
+            if (s < 1 || s > StepTable::size) continue;
+
+            steps[(size_t)s - 1].push_back({ v[1].getIntValue(), v[2].getIntValue(), juce::jlimit(0.0f, 1.0f, v[3].getFloatValue()) });
+        }
+
+        for (int s = 1; s <= StepTable::size; ++s) table.setPairs(s, steps[(size_t)s - 1]);
+    }
+
     // 文字で書き出す。"r1,r2,...|l1,l2,..."。後ろの既定の値は省く。
     // ループの組があるときだけ、後ろへ "|start:end:count;..." を足す (4.1.0)。
     // SKIP の段があるときは、さらに後ろへ "|s1,s2,..." を足す (組が無ければ空のまま挟む)。
@@ -127,13 +161,17 @@ namespace StepTableIo
 
         store.forEach([node](const juce::String& key, StepTable& table) {
             const auto text = toText(table);
+            const bool pairs = table.hasAnyPairs();
 
-            if (text == "|") return;
+            if (text == "|" && !pairs) return;
 
             auto* item = node->createNewChildElement(xmlItem);
 
             item->setAttribute("key", key);
             item->setAttribute("values", text);
+
+            // TAP PARAM SEQUENCER の組 (4.3.0)
+            if (pairs) item->setAttribute("pairs", pairsToText(table));
         });
     }
 
@@ -144,7 +182,11 @@ namespace StepTableIo
 
         if (auto* node = parent.getChildByName(xmlTag)) {
             for (auto* item : node->getChildWithTagNameIterator(xmlItem)) {
-                if (auto* table = store.find(item->getStringAttribute("key"))) fromText(*table, item->getStringAttribute("values"));
+                if (auto* table = store.find(item->getStringAttribute("key"))) {
+                    fromText(*table, item->getStringAttribute("values"));
+
+                    if (table->hasPairs()) pairsFromText(*table, item->getStringAttribute("pairs"));
+                }
             }
         }
     }

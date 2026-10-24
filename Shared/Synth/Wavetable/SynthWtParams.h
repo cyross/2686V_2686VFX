@@ -2,6 +2,8 @@
 
 #include <array>
 
+#include "Shared/Core/Synth/ParamMod.h"
+
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
 #include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
@@ -56,4 +58,7 @@ struct WtParams
     std::array<float, 128> customWave128 = { 0.0f };
     // Custom Waveform Data (256 steps)
     std::array<float, 256> customWave256 = { 0.0f };
+
+    // PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0)。ボイスごとに値を置き換える
+    ParamMod::ChipParams paramMod;
 };

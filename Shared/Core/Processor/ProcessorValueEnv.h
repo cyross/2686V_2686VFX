@@ -10,7 +10,7 @@
 #include "Shared/Effect/Envelope/Step/EnvStep.h"
 
 // ============================================================================
-// 値のエンベロープ (DUTY RATIO ENV / PEAK RATIO ENV / TL ENV など)
+// 値のエンベロープ (DUTY RATIO ENV / PEAK RATIO ENV / ALG ENV)
 // ============================================================================
 // SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、音量ではなく別の値
 // (矩形波のデューティ比・三角波の頂点など) を動かすもの。どれも「Enable」で
@@ -58,7 +58,7 @@ namespace ValueEnv
 		float levelMax = 1.0f;
 		float levelInitial = 0.0f;
 
-		// 値が整数 (TL など)。STL / LR / ENDL を整数のパラメータにする
+		// 値が整数 (ALG など)。STL / LR / ENDL を整数のパラメータにする
 		bool integerLevel = false;
 
 		// 常に KEEP (段の頭の値を保つ)。KEEP のパラメータを持たない
@@ -78,19 +78,8 @@ namespace ValueEnv
 		return s;
 	}
 
-	// TL ENV。オペレーターの TL を段ごとに置き換える。値は TL のレジスタ値で、
-	// 実機と同じく段を斜めに繋がない (常に KEEP)。TL の幅は音源で違う。
-	inline const Spec& tl127()
-	{
-		static const Spec s{ Keys("_TLENV"), " TlEnv", 0.0f, 127.0f, 0.0f, true, true };
-		return s;
-	}
-
-	inline const Spec& tl63()
-	{
-		static const Spec s{ Keys("_TLENV"), " TlEnv", 0.0f, 63.0f, 0.0f, true, true };
-		return s;
-	}
+	// 4.0.0〜4.2.x の TL ENV は、4.3.0 で PARAM ENV[256] の指し先 TL になった
+	// (ProcessorParamMod.h)。古い state は IoParamEnvLegacy.h が写す。
 
 	// ALG ENV。チャンネルの ALG (アルゴリズムの番号) を段ごとに置き換える。
 	// 値は ALG の番号 (0 から)。段のあいだは斜めに繋がない (常に KEEP)。

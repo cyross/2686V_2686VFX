@@ -93,27 +93,30 @@ void OpmCore::setSampleRate(double sampleRate) {
 }
 
 void OpmCore::setParameters(const SynthCoreParams& params) {
-    m_level = params.opm.level;
-    m_delaySeconds = params.opm.delay;
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.opm そのもの)
+    const auto& chipParams = paramModResolve(params, params.opm, m_modParams);
 
-    m_algorithmParam = params.opm.algFb.algorithm;
-    m_algEnvEnable = params.opm.algEnvEnable;
-    m_algEnv.setParameters(params.opm.algEnv);
+    m_level = chipParams.level;
+    m_delaySeconds = chipParams.delay;
+
+    m_algorithmParam = chipParams.algFb.algorithm;
+    m_algEnvEnable = chipParams.algEnvEnable;
+    m_algEnv.setParameters(chipParams.algEnv);
     m_algorithm = m_algEnvEnable ? algEnvAlgorithm() : m_algorithmParam;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_lfo.setParameters(params.opm.glLfo);
-    m_ssgSwEnv256g.setParameters(params.opm.ssgSwEnv256g);
-    m_ssgSwPEnv256g.setParameters(params.opm.ssgSwPEnv256g);
-    m_ampEnvG.setParameters(params.opm.ampEnvG);
-    m_wtMod.setParameters(params.opm.wtMod);
-    m_wtAmpMod.setParameters(params.opm.wtAmpMod);
-    m_ssgHwEnv.setParameters(params.opm.ssgHwEnv);
-    m_ssgHwPEnv.setParameters(params.opm.ssgHwPEnv);
+    m_lfo.setParameters(chipParams.glLfo);
+    m_ssgSwEnv256g.setParameters(chipParams.ssgSwEnv256g);
+    m_ssgSwPEnv256g.setParameters(chipParams.ssgSwPEnv256g);
+    m_ampEnvG.setParameters(chipParams.ampEnvG);
+    m_wtMod.setParameters(chipParams.wtMod);
+    m_wtAmpMod.setParameters(chipParams.wtAmpMod);
+    m_ssgHwEnv.setParameters(chipParams.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(chipParams.ssgHwPEnv);
 
-    m_pan = params.opm.pan;
+    m_pan = chipParams.pan;
 
     if (m_pan == 0) {
         m_pan_l_rate = 1.0f;
@@ -124,8 +127,8 @@ void OpmCore::setParameters(const SynthCoreParams& params) {
         m_pan_r_rate = (float)((m_pan + 1) >> 1);
     }
 
-    if (m_rateIndex != params.opm.quality.rate) {
-        m_rateIndex = params.opm.quality.rate;
+    if (m_rateIndex != chipParams.quality.rate) {
+        m_rateIndex = chipParams.quality.rate;
 
 		m_targetRate = getTargetRate(m_rateIndex);
 		double target = m_targetRate;
@@ -145,26 +148,26 @@ void OpmCore::setParameters(const SynthCoreParams& params) {
         m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opm.quality.bit);
-	m_interpMode = params.opm.quality.interp;
+    m_quantizeSteps = getTargetBitDepth(chipParams.quality.bit);
+	m_interpMode = chipParams.quality.interp;
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opm.op[0], m_algorithm != 2 ? params.opm.algFb.feedback : 0.0f);
+    m_operators[0].setParameters(chipParams.op[0], m_algorithm != 2 ? chipParams.algFb.feedback : 0.0f);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[0] = params.opm.op[0].mask;
-    m_operators[1].setParameters(params.opm.op[1], 0.0f);
+    m_opMask[0] = chipParams.op[0].mask;
+    m_operators[1].setParameters(chipParams.op[1], 0.0f);
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[1] = params.opm.op[1].mask;
-    m_operators[2].setParameters(params.opm.op[2], m_algorithm == 2 ? params.opm.algFb.feedback : 0.0f);
+    m_opMask[1] = chipParams.op[1].mask;
+    m_operators[2].setParameters(chipParams.op[2], m_algorithm == 2 ? chipParams.algFb.feedback : 0.0f);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[2] = params.opm.op[2].mask;
-    m_operators[3].setParameters(params.opm.op[3], 0.0f);
+    m_opMask[2] = chipParams.op[2].mask;
+    m_operators[3].setParameters(chipParams.op[3], 0.0f);
     m_operators[3].setMonoMode(m_isMonoMode);
     m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[3] = params.opm.op[3].mask;
+    m_opMask[3] = chipParams.op[3].mask;
 
     // アルゴリズムに基づくルーティングのキャッシュを更新
     updateRoutingCache();

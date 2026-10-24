@@ -69,27 +69,30 @@ void BeepCore::setSampleRate(double sampleRate) {
 }
 
 void BeepCore::setParameters(const SynthCoreParams& params) {
-    m_level = params.beep.level;
-    m_delaySeconds = params.beep.delay;
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.beep そのもの)
+    const auto& chipParams = paramModResolve(params, params.beep, m_modParams);
+
+    m_level = chipParams.level;
+    m_delaySeconds = chipParams.delay;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 
-    m_adsr.setParameters(params.beep.adsr);
-    m_pitchAdsr.setParameters(params.beep.pitchAdsr);
-    m_ssgSwEnv256.setParameters(params.beep.ssgSwEnv256);
-    m_ssgSwPenv256.setParameters(params.beep.ssgSwPEnv256);
-    m_detune.setParameters(params.beep.detune);
-    m_fixMode.setParameters(params.beep.fix);
-    m_lfo.setParameters(params.beep.lfo);
-    m_ssgHwEnv.setParameters(params.beep.ssgHwEnv);
-    m_ssgHwPEnv.setParameters(params.beep.ssgHwPEnv);
-    m_wtMod.setParameters(params.beep.wtMod);
-    m_wtAmpMod.setParameters(params.beep.wtAmpMod);
-    m_antiAlias = params.beep.antiAlias;
-    m_timerClock = getBeepTimerClock(params.beep.timerClock);
+    m_adsr.setParameters(chipParams.adsr);
+    m_pitchAdsr.setParameters(chipParams.pitchAdsr);
+    m_ssgSwEnv256.setParameters(chipParams.ssgSwEnv256);
+    m_ssgSwPenv256.setParameters(chipParams.ssgSwPEnv256);
+    m_detune.setParameters(chipParams.detune);
+    m_fixMode.setParameters(chipParams.fix);
+    m_lfo.setParameters(chipParams.lfo);
+    m_ssgHwEnv.setParameters(chipParams.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(chipParams.ssgHwPEnv);
+    m_wtMod.setParameters(chipParams.wtMod);
+    m_wtAmpMod.setParameters(chipParams.wtAmpMod);
+    m_antiAlias = chipParams.antiAlias;
+    m_timerClock = getBeepTimerClock(chipParams.timerClock);
 
     // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
     if (params.liveDetune && m_keyFreq > 0.0f && isPlaying()) updateFrequency();

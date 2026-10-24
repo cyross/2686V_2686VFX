@@ -16,6 +16,10 @@ void WtPlusProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
 
+    // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
+    TapParam::addParameters(layout, prefix, prefixName);
+    ParamEnv::addParameters(layout, prefix, prefixName, ParamModCatalog::channelTargetCount(ParamModCatalog::wtPlus(), 0), 0);
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addWtPlusBasicParameters(layout, prefix, prefixName);
     // WT 系は階段のまま出していたので、INTERP の初期値は Zero-Order Hold。
@@ -41,6 +45,9 @@ void WtPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
 
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+    TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    modResolver.init(apvts, prefix, ParamModCatalog::wtPlus(), 0);
 
     PrHelper::setupWtPlusBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
@@ -64,18 +71,50 @@ void WtPlusProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessor
     TapSeq::apply(pTapAmp, params.tapAmp);
     TapSeq::apply(pTapPitch, params.tapPitch);
 
-    PrHelper::applyWtPlusBasic(pBasic, params.wtPlus);
-    PrHelper::applyQuality(pQuality, params.wtPlus.quality);
-    PrHelper::applyAdsrAmpEnv(pAmpEnv, params.wtPlus.adsr);
-    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.wtPlus.ssgSwEnv256);
-    PrHelper::applyPitchEnv(pPitchEnv, params.wtPlus.pitchAdsr);
-    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.wtPlus.ssgSwPEnv256);
-    PrHelper::applyOpzx7Detune(pOpzx7Detune, params.wtPlus.detune);
-    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.wtPlus.lfo);
-    PrHelper::applyFix(pFix, params.wtPlus.fix);
-    PrHelper::applyWtMod(pMod, params.wtPlus.mod);
-    PrHelper::applyWtAmpMod(pWtAmpMod, params.wtPlus.wtAmpMod);
-    PrHelper::applySsgHwEnv(pSsgHwEnv, params.wtPlus.ssgHwEnv);
-    PrHelper::applySsgHwPEnv(pSsgHwPEnv, params.wtPlus.ssgHwPEnv);
-    PrHelper::applyUnison(pUnison, params.wtPlus.unison);
+    // TAP PARAM SEQUENCER
+    TapSeq::apply(pTapParam, params.tapParam);
+
+    applyChannel(params.wtPlus);
+}
+
+// チャンネルの値。ボイスが PARAM ENV / TAP PARAM SEQUENCER で置き換えて読み直すときにも使う
+void WtPlusProcessor::applyChannel(WtPlusParams& p)
+{
+    PrHelper::applyWtPlusBasic(pBasic, p);
+    PrHelper::applyQuality(pQuality, p.quality);
+    PrHelper::applyAdsrAmpEnv(pAmpEnv, p.adsr);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, p.ssgSwEnv256);
+    PrHelper::applyPitchEnv(pPitchEnv, p.pitchAdsr);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, p.ssgSwPEnv256);
+    PrHelper::applyOpzx7Detune(pOpzx7Detune, p.detune);
+    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, p.lfo);
+    PrHelper::applyFix(pFix, p.fix);
+    PrHelper::applyWtMod(pMod, p.mod);
+    PrHelper::applyWtAmpMod(pWtAmpMod, p.wtAmpMod);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, p.ssgHwEnv);
+    PrHelper::applySsgHwPEnv(pSsgHwPEnv, p.ssgHwPEnv);
+    PrHelper::applyUnison(pUnison, p.unison);
+
+    // PARAM ENV[256] (チャンネル)
+    modResolver.applyChannelEnv(pParamEnv, p.paramMod.envs[0]);
+    p.paramMod.envCount = 1;
+    p.paramMod.applier = this;
+    modResolver.fillArp(p.paramMod);
+}
+
+// ボイスから。置き換えた値で、変わる区分だけ読み直す
+void WtPlusProcessor::apply(void* chip, const ParamMod::Override* list, int count)
+{
+    auto& p = *static_cast<WtPlusParams*>(chip);
+
+    std::array<PrOverride::Entry, ParamMod::maxOverrides> entries;
+    ParamModResolver::Dirty dirty;
+
+    const int n = modResolver.resolve(list, count, entries, dirty);
+
+    if (n == 0) return;
+
+    PrOverride::Scope scope(entries.data(), n);
+
+    if (dirty.channel) applyChannel(p);
 }

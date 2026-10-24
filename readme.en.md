@@ -1,4 +1,4 @@
-# Retro Sound VST "2686V" v4.2.0 README
+# Retro Sound VST "2686V" v4.3.0 README
 
 (C)2026 CYROSS
 
@@ -29,7 +29,41 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ## 3. Overview
 
-### 3-0-1. What v4.2.0 adds and changes
+### 3-0-1. What v4.3.0 adds and changes
+
+- **New column order for FM operators**
+  - The KEY SCALE / MUL/DET column (with FIX and LFO) now sits right next to the AMP ENV / OPTIONAL column. On OPZX7 it comes before the WAVEFORM column
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7. Every plugin with FM channels
+- **Alt key for slider dragging**
+  - While dragging a label, or the bar of a graph's zoom slider, holding **Alt** aligns the value to steps of 100. Sliders whose range is narrower than 100 are left alone
+  - All plugins (including 2686VFX)
+- **"TAP PARAM SEQUENCER" added to [[TAP SEQUENCER]]**
+  - Each key press advances one step and replaces parameters with the (parameter, value) pairs stored in that step, for the length of that note
+  - As an extension of our own, one step holds up to 16 pairs. On FM channels the pairs can also point at operator parameters (OP1 onwards); on RHYTHM, at pad parameters (PAD1 onwards)
+  - Parameters you can choose: the numeric parameters of FM operators (TL / AR / DR / SR / SL / RR / KS / MUL / DT; OPM's D1R / D1L / D2R, DT2 and KSR / KSL; OPL / OPL3's KSL, EG and LFO; OPZX7's real-valued envelope, KS details, DT2 / DT3, WS, PCM SPEED and LFO, and so on) and FIX frequency, the channel's ALG / FB (FB OP1-8 on OPZX7), the WT PITCH MOD / WT AMP MOD waveform and speed, the WT+ waveform, the ADPCM+ voice (slot), SSG duty (PRESET / variable) and triangle peak, FIX frequency, and the various frequencies and speeds (LFO FREQ, SSG HW ENV / SSG HW PITCH ENV period, noise frequency, triangle frequency, SPEED, TIMER CLOCK, ARP FREQ and so on). On/off toggles are not offered
+  - Steps advance exactly as in TAP AMP / PITCH SEQUENCER (LOOP, SKIP, INCREMENT / DECREMENT / CLEAR STEP; one step per key press; stopping DAW playback returns to before the start)
+  - Pick the step with S.TARGET and the pair with **P.TARGET**, then set it with **OP** / **PARAM** / **VALUE**. **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** add and remove pairs. Values are shown the way the target parameter shows them, and the MIN / -1 / +1 / MAX buttons move them
+  - The list shows one line per step, such as "S1: OP1 AR 31, OP2 TL 20". The current step has a different background
+  - Saved in presets, DAW state and channel parameters (`tapParam`). The section's parameter file is `.tapParam` (right-click the heading). The pairs cannot be automated
+  - Hidden in simple view mode. "TAP PARAM SEQUENCER" was added to the simple view customization in SETTINGS, and [Bypass hidden sections] turns it off too
+  - Every channel. All plugins except 2686VFX
+- **"PARAM ENV[256]" added; TL ENV is now part of it**
+  - The same 256-step envelope as SSG SW AMP ENV[256], driving the parameter chosen with **TARGET**. The choice of parameters is the same as TAP PARAM SEQUENCER
+  - One per channel (the new [[PARAM ENV]] major section, above [[TAP SEQUENCER]]). FM channels also have one per operator (just below the AMP ENV section, where TL ENV used to be). The RHYTHM channel's PARAM ENV can also point at pad parameters
+  - Values are kept as a fraction of the target parameter's range and shown the way the target shows them (0-127 for TL, and so on). Changing TARGET keeps each value as "where in the range"
+  - Integer and choice parameters hold their value through each step whatever KEEP says. Real-valued parameters glide between steps when KEEP is off
+  - STEP, LOOP (with LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]. The buttons below the value slider are MIN / -10% / -1 / +1 / +10% / MAX (±1 is one step of the target)
+  - TARGET can be automated
+  - **TL ENV on FM operators became PARAM ENV with TARGET set to TL**. Presets, DAW state, channel parameters and section parameter files (`.tlEnv`) from 4.2.x and earlier are converted to PARAM ENV when loaded, and sound the same
+  - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again
+  - Saved in presets, DAW state and channel parameters (`paramEnv`). The section's parameter file is `.paramEnv` (right-click the heading)
+  - Hidden in simple view mode. "PARAM ENV[256]" was added to the simple view customization in SETTINGS, and [Bypass hidden sections] turns it off too
+  - Every channel and every FM operator. All plugins except 2686VFX
+- **ADPCM+ now keeps every loaded slot encoded**
+  - Changing VOICE with TAP PARAM SEQUENCER / PARAM ENV can play slots other than the selected one. Every loaded slot is encoded again when QUALITY changes
+  - Plugins with ADPCM+ (2686V / 2686VLight / PCMV)
+
+### 3-0-2. What v4.2.0 adds and changes
 
 - **More ways to change a slider's value**
   - **Drag the label**: press the name (label) to the left of a slider and drag up or down to change the value. Up raises it, down lowers it. 200 px covers the whole range
@@ -54,7 +88,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The buttons now take the width their text needs, instead of an equal share of half the row. Wide frames keep the same even widths as before
   - All plugins
 
-### 3-0-2. What v4.1.0 adds and changes
+### 3-0-3. What v4.1.0 adds and changes
 
 - **Added "LOOP MODE" to the [256] loops (Rich Mode)**
   - Applies to SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] and the sections built the same way: TL ENV and ALG ENV (FM chips), DUTY RATIO ENV and PEAK RATIO ENV (SSG). Every channel, operator and pad, and 2686VFX. All plugins
@@ -95,13 +129,13 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Saved with the step table in presets, the DAW state, channel parameters and the section's parameter file (`skips`). None by default, so existing sounds do not change
   - Every channel, and 2686VFX. All plugins
 
-### 3-0-3. What v4.0.1 fixes and changes
+### 3-0-4. What v4.0.1 fixes and changes
 
 - **Fixed: in SSG SW AMP / PITCH ENV, changing STEPS did not resize the value display right away**
   - When the number of rows in the per-step value display (R1... / STL, L1...) changed, the section was not laid out again, so its height stayed the same until the section was folded and unfolded
   - The height now follows STEPS as soon as it changes. The same goes for sections built the same way, such as DUTY RATIO ENV. All plugins
 
-### 3-0-4. What v4.0.0 adds and changes
+### 3-0-5. What v4.0.0 adds and changes
 
 - **The ALGORITHM/FEEDBACK section can now be folded**
   - In the global part of OPNA / OPN / OPL / OPL3 / OPM / OPZX7 (including OPZX7S). It starts open
@@ -182,7 +216,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Saving after that wrote the missing ones with empty values, and loading that file set them to 0 (STEPS 10 → 1, DUTY RATIO ENVELOPE STL 50 → 0, OPZX7S ALG 15 → 0, SSG LEVEL 1 → 0 and so on)
   - Loading now sets parameters that are missing or have empty values to their defaults, so files already saved with empty values also load those parameters at their defaults. All plugins
 
-### 3-0-5. What v3.6.3 fixes and changes
+### 3-0-6. What v3.6.3 fixes and changes
 
 - **2686VFX: stopping playback no longer lets out a short blip**
   - With DELAY / REVERB / SFC ECHO or modulation in use, a burst of sound came out when you stopped
@@ -255,7 +289,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Both bases are tried when reading, so files written either way still load
   - WT, WT2 and WT+ channel parameter files now record their wave files too
 
-### 3-0-6. What v3.6.2 fixes and changes
+### 3-0-7. What v3.6.2 fixes and changes
 
 - **Fixed polyphonic mode getting heavy with fast short notes**
   - Polyphonic mode could stack up to 80 notes, far beyond the 10-note polyphony
@@ -286,7 +320,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - It was checked only inside the effects, so the headroom and the output modulation stayed on
   - It now skips the modulation, the effects and LEVEL, and passes the input straight through
 
-### 3-0-7. What v3.6.1 fixes and changes
+### 3-0-8. What v3.6.1 fixes and changes
 
 - **Fixed loaded waveforms sometimes missing after reopening a project**
   - Found with WT+; it happened in every DAW and in the standalone
@@ -320,7 +354,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - A seek bar (one cycle per frame; the mouse wheel steps one frame; right-click to type a frame number, with the total shown beside it)
     - Vertical zoom (x1 to x8; stretches the waveform, not the view)
 
-### 3-0-8. What v3.6.0 adds and changes
+### 3-0-9. What v3.6.0 adds and changes
 
 - **2686VFX: assign which key drives each modulation**
   - Added "Key assign" to the Effects frame, above the file import/export buttons.
@@ -415,7 +449,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - The tabs (the chip screens, SETTINGS, PRESET and so on) stay per plugin as before.
     - Sound, parameters and saved files are unchanged; the parameters of all twelve were compared before and after.
 
-### 3-0-9. What v3.5.0 adds and changes
+### 3-0-10. What v3.5.0 adds and changes
 
 - **Support for on-the-fly display language selection**
   - Added a "Language (LANGUAGE)" dropdown setting to the top of the **SETTINGS** tab.
@@ -429,7 +463,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Slightly expanded the width of the "Format" label on the **PRESET** tab to accommodate the English word.
   - Removed the parenthesized "(Oscilloscope)" from the wave preview heading in the English layout to ensure the "Waveform preview" text fits within the frame.
 
-### 3-0-10. What v3.4.0 adds and changes
+### 3-0-11. What v3.4.0 adds and changes
 
 - **Passing sounds between the FM chips and OPZX7S**
   - **[EX]OPZX7S Params** added to UTILITY on OPNA / OPN / OPL / OPL3 / OPM
@@ -460,7 +494,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The OPL3 tab did not show its left panel (LEVEL through UTILITY).
   - Opening the save browser after loading a file left out the name field and the save button.
 
-### 3-0-11. What v3.3.0 adds and changes
+### 3-0-12. What v3.3.0 adds and changes
 
 - **The ADPCM+ channel**
   - Loads up to 32 audio files and switches between them while you play.
@@ -532,7 +566,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **More bundled wallpapers**
   - Five wallpaper images have been added alongside the existing one.
 
-### 3-0-12. What v3.2.0 adds and changes
+### 3-0-13. What v3.2.0 adds and changes
 
 - **Control steps are now 0.0001**
   - Floating-point controls moved in steps of 0.01 (the framework default).
@@ -596,7 +630,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **A great many more bundled presets and parameter files**
   - A `fromCC2` folder has been added.
 
-### 3-0-13. What v3.1.0 adds and changes
+### 3-0-14. What v3.1.0 adds and changes
 
 - New modulation
   - **SSG HW PITCH ENV**
@@ -1386,7 +1420,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
         - [Dir]SsgSwEnv256         : for SSG SW AMP ENV[256] (Amp: echoes, NES-style decays, gates, tremolos and more) (-ch is for a channel's head, -op for operators and pads, because the ON/OFF direction is reversed)
         - [Dir]DutyEnv             : for DUTY RATIO ENVELOPE
         - [Dir]PeakEnv             : for PEAK RATIO ENVELOPE
-        - [Dir]TlEnv               : for TL ENV (-tl127 for OPNA / OPN / OPM, -tl63 for OPL / OPL3 / OPZX7S)
+        - [Dir]TlEnv               : for TL ENV (-tl127 for OPNA / OPN / OPM, -tl63 for OPL / OPL3 / OPZX7S). From v4.3.0 they load into the operator PARAM ENV[256] with TARGET set to TL
         - [Dir]AlgEnv              : for ALG ENV (-alg8 for chips with 8 ALGs, -alg2 for OPL)
         - [Dir]TapAmp              : for TAP AMP SEQUENCER
     - [Dir]CurveParams             : the parameter file folder for curve editing (only on plugins that have it)

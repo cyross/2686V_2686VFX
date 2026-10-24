@@ -124,4 +124,8 @@ private:
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
+
+private:
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値の置き場 (setParameters で使う)
+    WtParams m_modParams;
 };

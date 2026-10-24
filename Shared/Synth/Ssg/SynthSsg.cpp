@@ -52,54 +52,57 @@ void SsgCore::setSampleRate(double sampleRate) {
 
 void SsgCore::setParameters(const SynthCoreParams& params)
 {
-    m_level = params.ssg.level;
-    m_delaySeconds = params.ssg.delay;
-    m_speed = params.ssg.speed;
-    m_hold.setParameters(params.ssg.hold);
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.ssg そのもの)
+    const auto& chipParams = paramModResolve(params, params.ssg, m_modParams);
 
-    m_tone = params.ssg.tn.tone;
-    m_toneRatio = params.ssg.tn.toneRatio;
-    m_mix = params.ssg.tn.mix;
+    m_level = chipParams.level;
+    m_delaySeconds = chipParams.delay;
+    m_speed = chipParams.speed;
+    m_hold.setParameters(chipParams.hold);
+
+    m_tone = chipParams.tn.tone;
+    m_toneRatio = chipParams.tn.toneRatio;
+    m_mix = chipParams.tn.mix;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_adsr.setParameters(params.ssg.adsr);
-	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
-    m_detune.setParameters(params.ssg.detune);
-    m_ssgSwEnv256.setParameters(params.ssg.ssgSwEnv256);
-    m_ssgSwPenv256.setParameters(params.ssg.ssgSwPEnv256);
-    m_dutyEnvEnable = params.ssg.dutyEnvEnable;
-    m_dutyEnv.setParameters(params.ssg.dutyEnv);
-    m_peakEnvEnable = params.ssg.peakEnvEnable;
-    m_peakEnv.setParameters(params.ssg.peakEnv);
-    m_lfo.setParameters(params.ssg.lfo);
-    m_ssgHwEnv.setParameters(params.ssg.env);
-    m_ssgHwPEnv.setParameters(params.ssg.ssgHwPEnv);
-    m_wtMod.setParameters(params.ssg.wtMod);
-    m_wtAmpMod.setParameters(params.ssg.wtAmpMod);
+    m_adsr.setParameters(chipParams.adsr);
+	m_pitchAdsr.setParameters(chipParams.pitchAdsr);
+    m_detune.setParameters(chipParams.detune);
+    m_ssgSwEnv256.setParameters(chipParams.ssgSwEnv256);
+    m_ssgSwPenv256.setParameters(chipParams.ssgSwPEnv256);
+    m_dutyEnvEnable = chipParams.dutyEnvEnable;
+    m_dutyEnv.setParameters(chipParams.dutyEnv);
+    m_peakEnvEnable = chipParams.peakEnvEnable;
+    m_peakEnv.setParameters(chipParams.peakEnv);
+    m_lfo.setParameters(chipParams.lfo);
+    m_ssgHwEnv.setParameters(chipParams.env);
+    m_ssgHwPEnv.setParameters(chipParams.ssgHwPEnv);
+    m_wtMod.setParameters(chipParams.wtMod);
+    m_wtAmpMod.setParameters(chipParams.wtAmpMod);
 
-    m_fixMode.setParameters(params.ssg.fix);
+    m_fixMode.setParameters(chipParams.fix);
 
-    m_waveform = params.ssg.waveform;
+    m_waveform = chipParams.waveform;
 
-    m_dutyMode = params.ssg.duty.mode;
-    m_dutyPreset = params.ssg.duty.preset;
-    m_dutyVar = params.ssg.duty.var;
-    m_dutyInvert = params.ssg.duty.invert;
-    m_dutyFc = params.ssg.duty.fc;
-    m_dutyFcFluc = params.ssg.duty.fcFluc;
-    m_dutyMoreFc = params.ssg.duty.moreFc;
-    m_dutyMoreNes = params.ssg.duty.moreNes;
+    m_dutyMode = chipParams.duty.mode;
+    m_dutyPreset = chipParams.duty.preset;
+    m_dutyVar = chipParams.duty.var;
+    m_dutyInvert = chipParams.duty.invert;
+    m_dutyFc = chipParams.duty.fc;
+    m_dutyFcFluc = chipParams.duty.fcFluc;
+    m_dutyMoreFc = chipParams.duty.moreFc;
+    m_dutyMoreNes = chipParams.duty.moreNes;
 
-    m_triKeyTrack = params.ssg.tri.keyTrack;
-    m_triPeak = params.ssg.tri.peak;
-    m_triFreq = params.ssg.tri.freq;
+    m_triKeyTrack = chipParams.tri.keyTrack;
+    m_triPeak = chipParams.tri.peak;
+    m_triFreq = chipParams.tri.freq;
 
-    m_noiseGen.setParameters({ .level = params.ssg.tn.noiseLevel, .noiseOnNote = params.ssg.tn.noiseOnNote, .baseFreq = params.ssg.tn.noiseFreq });
+    m_noiseGen.setParameters({ .level = chipParams.tn.noiseLevel, .noiseOnNote = chipParams.tn.noiseOnNote, .baseFreq = chipParams.tn.noiseFreq });
 
-    if (m_rateIndex != params.ssg.quality.rate) {
-        m_rateIndex = params.ssg.quality.rate;
+    if (m_rateIndex != chipParams.quality.rate) {
+        m_rateIndex = chipParams.quality.rate;
 
         m_targetRate = getTargetRate(m_rateIndex);
 
@@ -113,8 +116,8 @@ void SsgCore::setParameters(const SynthCoreParams& params)
     m_noiseGen.updateFrequency(m_currentFrequency);
     m_noiseGen.updateDelta();
 
-    m_quantizeSteps = getTargetBitDepth(params.ssg.quality.bit);
-	m_interpMode = params.ssg.quality.interp;
+    m_quantizeSteps = getTargetBitDepth(chipParams.quality.bit);
+	m_interpMode = chipParams.quality.interp;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 

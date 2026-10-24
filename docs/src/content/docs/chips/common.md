@@ -288,23 +288,38 @@ LOOP の下の **LOOP MODE** で、繰り返し方を選びます（4.1.0 から
 が表の 1〜10 段に、R11 / L11（リリース）が RR / LR になり、同じように鳴ります。
 書き出すと `.ssgSwEnv256` になります。
 
-### TL ENV
+### PARAM ENV[256]
 
-**独自**の区分です。FM 音源（OPNA / OPN / OPL / OPL3 / OPM / OPZX7S）の
-オペレーターにだけあり、AMP ENV 区分のすぐ下（同じ列）に並びます（4.0.0 から）。
-ドライバがキーオンのたびに TL を書き換えていた音量の動きを、段ごとの **TL** として描けます。
+**独自**の区分です（4.3.0 から）。[SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) と同じ 256 段の
+エンベロープで、**TARGET** で選んだパラメータを段ごとに動かします。
 
-作りは [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256) と同じ 256 段のエンベロープで、
-値が音量ではなく **TL のレジスタ値（整数）**になります。
+| 置き場所 | TARGET に並ぶもの |
+| --- | --- |
+| チャンネル（大区分 **[[PARAM ENV]]**。[[TAP SEQUENCER]] の上） | チャンネルのパラメータ。RHYTHM はパッドごとのパラメータ（PAD1 SPEED など）も並ぶ |
+| FM 音源のオペレーター（AMP ENV 区分のすぐ下、同じ列） | オペレーターのパラメータ。初期値は **TL** |
 
-- 一番上の **Enable** で入れます。入っているあいだは、押したときの TL の代わりに
-  段の TL を使います（AMP ENV の Bypass が入っているときは、TL そのものが効かないので何もしません）
-- 値は OPNA / OPN / OPM が **0〜127**、OPL / OPL3 / OPZX7S が **0〜63**。名前は STL が **STTL**、
-  L が **TL1〜TL256**、対象のつまみが **TL.TARGET**、値のつまみが **TL** です
-- 実機と同じく、段のあいだは値を斜めに繋がず保ちます（常に KEEP。KEEP の札はありません）
-- 値のつまみの下の **STEPS** で TL の刻みへ丸められ、ボタン（−8 / −1 / 0 / +1 / +8 / 最大）で動かせます
-- RATE・STEP・LOOP（LOOP MODE を含む）・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
-- 区分のパラメータファイルは `.tlEnv` で、見出しの右クリックから読み書きします
+TARGET に並ぶパラメータは [TAP PARAM SEQUENCER](#tap-param-sequencer) と同じです。
+
+- 一番上の **Enable** で入れます。その下の **TARGET** で動かすパラメータを選びます（オートメーションでも動かせます）
+- 値は**指し先のパラメータの範囲の割合**で持ち、画面には指し先の書き方で出します（TL なら 0〜127、
+  FIX の FREQ なら Hz）。TARGET を変えても、値は「範囲のどのあたりか」として残ります
+- 名前は STL が **STL**、L が **L1〜L256**、対象のつまみが **L.TARGET**、値のつまみが **VALUE** です。
+  値のつまみの下のボタンは **MIN** / **-10%** / **-1** / **+1** / **+10%** / **MAX**（±1 は指し先の 1 刻み）
+- 整数や選択肢のパラメータ（AR・MUL・ALG・波形の番号など）は、段のあいだ値を保ちます（KEEP の札によらず）。
+  実数のパラメータ（FIX の FREQ・LFO の FREQ など）は、KEEP を切ると段のあいだを斜めに繋ぎます
+- 置き換えるのは**その音だけ**です。パラメータそのものの値は変わりません。値は鳴っているあいだ読み直すので、
+  押したときだけ効くパラメータ（MUL・AR など）も段ごとに変わります
+- 押してからの動き・RATE・STEP・LOOP（LOOP MODE を含む）・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- 区分のパラメータファイルは `.paramEnv` で、見出しの右クリックから読み書きします。指し先は名前でも書くので、
+  別のチャンネルのファイルでも名前が合えば同じ指し先になります
+
+#### 4.2.x までの TL ENV から
+
+4.0.0〜4.2.x のオペレーターの **TL ENV** は、PARAM ENV の指し先 **TL** になりました。プリセット・DAW に
+保存した状態・チャンネルパラメータ（`tlEnv`）・区分のパラメータファイル（`.tlEnv`）は、読み込むときに
+PARAM ENV（TARGET が TL）へ写します。値は TL の最大値（OPNA / OPN / OPM は 127、OPL / OPL3 / OPZX7S は 63）で
+割って割合にするので、同じように鳴ります。パラメータの ID は `_TLENV_*` から `_PRMENV_*` に変わったため、
+DAW で TL ENV をオートメーションしていたときは割り当て直してください。
 
 ### ALG ENV
 
@@ -400,7 +415,7 @@ LEVEL の右の **N** では、半音・オクターブなど音程向けのボ�
 ## TAP SEQUENCER
 
 **独自**の大区分 **[[TAP SEQUENCER]]** です（4.0.0 から）。各チャンネルのグローバルにあり、
-[[PITCH ENV]] の下に並びます（RHYTHM は UNISON/HARMONY の下）。**鍵を押すたびに段を 1 つ進め**、
+[[PITCH ENV]] の下（4.3.0 からは [[PARAM ENV]] の下）に並びます（RHYTHM は UNISON/HARMONY の下）。**鍵を押すたびに段を 1 つ進め**、
 その段の値で音量や音程を補正します。ドライバが音符ごとに音量や音程を少しずつ変えていた
 手法を、段の並びとして持てます。
 
@@ -441,6 +456,56 @@ LEVEL の右の **N** では、半音・オクターブなど音程向けのボ�
   （START・END・COUNT、入れ子、跨ぎ、無限の印）は [SSG SW AMP ENV\[256\] の Rich Mode](#loop-mode--rich-mode)
   と同じです。最後の段を使ったら 1 段目へ戻り、ループも数え直します。ループの進み具合も、
   いまの段と同じくチャンネルで 1 つです
+
+### TAP PARAM SEQUENCER
+
+[[TAP SEQUENCER]] の 3 つ目の区分です（4.3.0 から）。鍵を押すたびに段を 1 つ進め、その段に入れた
+**(パラメータ, 値) の組**で、パラメータを**その音のあいだ**置き換えます。独自拡張として、1 つの段に組を
+**最大 16 個**入れられます。段の進め方（いまの段・開始前・LOOP・SKIP・INCREMENT / DECREMENT / CLEAR STEP・
+打鍵 1 回につき 1 段）は TAP AMP / PITCH SEQUENCER と同じです。
+
+| つまみ | 内容 |
+| --- | --- |
+| **S.TARGET** | 直す段 |
+| **SKIP** | S.TARGET の段で何も置き換えない（組は残る） |
+| **P.TARGET** | 直す組（1 〜 その段の組の数） |
+| **OP** | **CH**（チャンネル）か、オペレーター **OP1〜**（RHYTHM はパッド **PAD1〜**）。FM 音源と RHYTHM だけ |
+| **PARAM** | 置き換えるパラメータ。OP で選んだところのものが並ぶ |
+| **VALUE** | 置き換える値。指し先の書き方で出る。**MIN** / **-1** / **+1** / **MAX** で動かせる |
+| **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** | いまの OP / PARAM / VALUE の組を段の後ろへ足す・P.TARGET の組を消す・段の組を全部消す |
+
+- 組が無い段で OP / PARAM / VALUE を選んでから ADD PAIR を押すと、その組が足されます。組がある段では、
+  OP / PARAM / VALUE を動かすと P.TARGET の組が変わります（その段の SKIP は外れます）
+- 下の一覧に、段ごとの組が「S1: OP1 AR 31, OP2 TL 20」のように 1 段 1 行で並びます。地の色が変わっている行が
+  いまの段、文字の色が変わっている行が S.TARGET の段です
+- 値は PARAM ENV と同じく指し先の範囲の割合で持ちます。PARAM ENV が同じパラメータを動かしているときは、
+  PARAM ENV が勝ちます
+- 段の組はプリセット・DAW の状態・チャンネルパラメータ（`tapParam`）へ保存します（オートメーションでは動かせません）。
+  区分のパラメータファイルは `.tapParam` です
+
+選べるパラメータ（PARAM ENV の TARGET も同じ）:
+
+| 音源 | チャンネル | オペレーター / パッド |
+| --- | --- | --- |
+| OPNA / OPN | ALG / FB / N88 LFO FREQ | TL / AR / DR / SR / SL / RR / KS / MUL / DT / FIX FREQ / N88 LFO AMS（OPNA は SSG-EG / SSG-EG FREQ / HW LFO FREQ / PMS / AMS も） |
+| OPM | ALG / FB / HW LFO FREQ | TL / AR / D1R / D1L / D2R / RR / KS MODE / KS / KSR / KSL / MUL / MUL RATIO / DT1 / DT2 / FIX FREQ / SSG-EG FREQ |
+| OPL / OPL3 | ALG / FB | TL / AR / DR / SL / RR / KSL / MUL / EG / LFO の AM・PM の SPEED と DEPTH |
+| OPZX7S | ALG / FB OP1〜8 / LFO PM FREQ / LFO AM FREQ | レジスタ値と実数（(F)）の TL / AR / D1R / D1L / D2R / RR、KS の各項目、MUL / MUL RATIO / DT1〜3 / WS / FIX FREQ / SSG-EG / SSG-EG FREQ / PCM SPEED、LFO の PM FREQ・AM FREQ・PMS・AMS・PMD・AMD |
+| SSG | DUTY PRESET / DUTY / TRI PEAK / TRI FREQ / NOISE FREQ / TONE VALUE / NOISE VALUE / SPEED | — |
+| WT / WT2 | WAVE / SPEED | — |
+| WT+ | WAVE（波形メモリのスロット） | — |
+| ADPCM | SPEED / NOISE FREQ | — |
+| ADPCM+ | VOICE（PCM のスロット） | — |
+| BEEP | TIMER CLOCK | — |
+| RHYTHM | — | SPEED / NOISE FREQ / FIX FREQ / LFO PM FREQ / LFO AM FREQ |
+
+どのチャンネルにも（FM 音源はオペレーターにも）、WT PITCH MOD / WT AMP MOD の SPEED と波形（WAVE）、
+SSG HW AMP ENV / SSG HW PITCH ENV の PERIOD が並びます。FM 音源以外のチャンネルには FIX FREQ と LFO の
+PM FREQ / AM FREQ が、RHYTHM 以外のチャンネルには ARP FREQ（UNISON/HARMONY のアルペジオ）が並びます。
+オン / オフのトグルは選べません。
+
+ADPCM+ の VOICE を変えると、選んでいないスロットも鳴ります。そのため 4.3.0 から、読み込んである
+スロットは QUALITY を変えたときにすべて符号化し直します。
 
 ## SPEED — 再生の速さ
 

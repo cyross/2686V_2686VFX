@@ -90,8 +90,9 @@ namespace EditorGuiText
 		static inline const juce::String kindSsgSwEnv256 = "SSG SW ENV256";
 		static inline const juce::String kindDutyEnv = "DUTY RATIO ENV";
 		static inline const juce::String kindPeakEnv = "PEAK RATIO ENV";
-		static inline const juce::String kindTlEnv = "TL ENV";
 		static inline const juce::String kindAlgEnv = "ALG ENV";
+		static inline const juce::String kindParamEnv = "PARAM ENV";
+		static inline const juce::String kindTapParam = "TAP PARAM SEQUENCER";
 		static inline const juce::String kindTapAmp = "TAP AMP SEQUENCER";
 		static inline const juce::String kindTapPitch = "TAP PITCH SEQUENCER";
 		static inline const juce::String kindSsgSwPEnv256 = "SSG SW PENV256";

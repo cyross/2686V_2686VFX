@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 
+#include <functional>
 #include <vector>
 
 #include "Shared/Core/Gui/GuiColor.h"
@@ -50,6 +51,9 @@ public:
 
     // 値の小数桁。
     int decimals = 2;
+
+    // 値の書き方。空なら decimals の桁で書く (PARAM ENV は指し先のパラメータの書き方)
+    std::function<juce::String(float)> format;
 
     // 折り返した結果の行数。
     int getRowCount() const

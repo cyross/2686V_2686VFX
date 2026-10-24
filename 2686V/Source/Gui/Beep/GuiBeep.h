@@ -8,6 +8,8 @@
 #include "../../Gui/Curve/GuiCurve.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "Shared/Gui/Components/TapSeq/TapSeq.h"
+#include "Shared/Gui/Components/TapParam/TapParam.h"
+#include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/Unison/Unison.h"
 #include "Shared/Gui/Components/Fix/Fix.h"
 #include "Shared/Gui/Components/MulDetune/MulDetune.h"
@@ -84,6 +86,11 @@ class GuiBeep : public GuiBase {
     GuiCategoryLabel tapMajorCat;
     GuiComponentTapSeq tapAmpSeq;
     GuiComponentTapSeq tapPitchSeq;
+
+    // TAP PARAM SEQUENCER と、チャンネルの PARAM ENV[256] (4.3.0)
+    GuiComponentTapParam tapParamSeq;
+    GuiCategoryLabel paramEnvMajorCat;
+    GuiComponentParamEnv paramEnv;
     GuiTextButton broadcastLevelButton;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
@@ -143,6 +150,9 @@ public:
         tapMajorCat(context),
         tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
         tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
+        tapParamSeq(context, ParamModCatalog::beep(), 0),
+        paramEnvMajorCat(context),
+        paramEnv(context, GuiComponentParamEnv::channelSpec(ParamModCatalog::beep(), 0)),
         broadcastLevelButton(context),
         ieLfo(context),
         ieAmpEnv(context),

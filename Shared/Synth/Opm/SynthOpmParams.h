@@ -4,6 +4,8 @@
 
 #include <array>
 
+#include "Shared/Core/Synth/ParamMod.h"
+
 #include "./Operator/SynthOpmOpParams.h"
 #include "../../Processor/Opm/ProcessorOpmValues.h"
 #include "Shared/Effect/Lfo/Opm/LfoOpmParams.h"
@@ -41,4 +43,7 @@ struct OpmParams
     int pan = 0;
 
     std::array<OpmOpParams, OpmPrValue::ops> op;
+
+    // PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0)。ボイスごとに値を置き換える
+    ParamMod::ChipParams paramMod;
 };

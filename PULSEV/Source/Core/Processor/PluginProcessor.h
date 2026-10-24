@@ -104,6 +104,9 @@ public:
     float m_tapGain = 1.0f;
     float m_tapCents = 0.0f;
 
+    // TAP PARAM SEQUENCER の、いま鳴らしている打鍵の組 (4.3.0)
+    ParamMod::TapStep m_tapParam;
+
     // pressed は鍵を押したとき。モノで鍵を離して前の鍵へ戻るときは false
     void voiceUnison(const UnisonParams& unison, int midiChannel, int midiNoteNumber, float velocity, bool isLegato, bool pressed = true)
     {
@@ -135,6 +138,7 @@ public:
         if (pressed) {
             m_tapGain = tapSeqTake(currentParams->tapAmp, 1.0f);
             m_tapCents = tapSeqTake(currentParams->tapPitch, 0.0f);
+            tapParamTake(currentParams->tapParam, m_tapParam);
         }
 
         const float tapGain = m_tapGain;
@@ -145,6 +149,7 @@ public:
                 voice->setUnisonParams(0, 1, 0.0f, 0.0f);
                 voice->setArpParams(false, unison.arpFreq, unison.arpSmooth);
                 voice->setTapValues(tapGain, tapCents);
+                voice->setTapParams(m_tapParam);
                 startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
             }
             return;
@@ -158,6 +163,7 @@ public:
                     voice->setUnisonParams(i, uVoices, detune, spread, paraDetuneOf(i), paraDistanceOf(i));
                     voice->setArpParams(unison.arpEnable, unison.arpFreq, unison.arpSmooth);
                     voice->setTapValues(tapGain, tapCents);
+                    voice->setTapParams(m_tapParam);
 
                     // 真のレガート処理: JUCEの startVoice は呼ばず、直接コアを叩く！
                     // これにより、波形が強制キルされず、位相や音量が完全に引き継がれます。
@@ -166,6 +172,7 @@ public:
 
                         if (tapCents != 0.0f) cyclesPerSecond *= std::pow(2.0, (double)tapCents / 1200.0);
 
+                        voice->beginParamMod(isLegato);
                         voice->coreMap[(size_t)currentParams->mode]->noteOn(cyclesPerSecond, velocity, midiNoteNumber, isLegato);
                     }
                     else {
@@ -181,6 +188,7 @@ public:
                     voice->setUnisonParams(i, uVoices, detune, spread, paraDetuneOf(i), paraDistanceOf(i));
                     voice->setArpParams(unison.arpEnable, unison.arpFreq, unison.arpSmooth);
                     voice->setTapValues(tapGain, tapCents);
+                    voice->setTapParams(m_tapParam);
                     startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
                 }
             }

@@ -25,6 +25,9 @@ struct OplOpParams
     // TL ENV。段の TL を押したときの TL と置き換える
     bool tlEnvEnable = false;
     StepEnvParams tlEnv;
+
+    // TL ENV の値は 0〜1 で持つ (4.3.0 から PARAM ENV の TL)。これを掛けて TL のレジスタ値にする
+    float tlEnvMax = 127.0f;
     bool pitchEnvEnable = true;
     PitchAdsrParams pitchAdsr;
     bool ssgPEnv256Enable = true;

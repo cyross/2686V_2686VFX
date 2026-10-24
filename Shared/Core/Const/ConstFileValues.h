@@ -93,9 +93,12 @@ namespace Io
 		static inline const juce::String DutyEnvParam = "dutyEnv";
 		static inline const juce::String PeakEnvParam = "peakEnv";
 
-		// FM 音源のオペレーターの TL ENV (4.0.0 から)
-		static inline const juce::String TlEnvParam = "tlEnv";
 		static inline const juce::String AlgEnvParam = "algEnv";
+
+		// PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0 から)。4.2.x までの TL ENV (.tlEnv) は
+		// PARAM ENV として読み込める
+		static inline const juce::String ParamEnvParam = "paramEnv";
+		static inline const juce::String TapParamParam = "tapParam";
 
 		// TAP AMP / PITCH SEQUENCER (4.0.0 から)
 		static inline const juce::String TapAmpParam = "tapAmp";

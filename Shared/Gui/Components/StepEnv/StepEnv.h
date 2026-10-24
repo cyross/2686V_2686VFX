@@ -34,6 +34,7 @@
 // 値の対象の 0 は STL (パラメータ)、1 以降が表の L1〜。
 //
 //   Bypass / Enable
+//   TARGET       (PARAM ENV だけ。動かすパラメータ)
 //   STEPS
 //   KEEP
 //   LOOP / LOOP MODE
@@ -52,9 +53,10 @@ public:
         // Pitch : 音程 (SSG SW PITCH ENV[256])
         // Duty  : 矩形波のデューティ比 % (DUTY RATIO ENV)
         // Peak  : 三角波の頂点 0〜1 (PEAK RATIO ENV)
-        // Tl    : オペレーターの TL (TL ENV)。常に KEEP で、KEEP の札を持たない
         // Alg   : チャンネルの ALG (ALG ENV)。常に KEEP。STEPS は持たない
-        enum class Kind { Amp, Pitch, Duty, Peak, Tl, Alg };
+        // Param : 選んだパラメータ (PARAM ENV[256], 4.3.0)。値は指し先のパラメータの 0〜1 で
+        //         持ち、画面には指し先のパラメータの書き方で出す
+        enum class Kind { Amp, Pitch, Duty, Peak, Alg, Param };
 
         Kind kind = Kind::Amp;
         juce::String title;
@@ -82,6 +84,21 @@ public:
         juce::String sixStepFileFormat;     // 3.6.3 までの 6 段の印 ("ssgSwEnv")。無ければ空
         juce::String browserKind;
         juce::String extension;
+
+        // ---- PARAM ENV (Kind::Param)
+        // TARGET のパラメータの鍵 (code の後ろ) と、並べる名前
+        juce::String target;
+        juce::StringArray targetLabels;
+
+        // 指し先のパラメータの鍵。code はつまみを束ねている頭 (OPNA_OP0 など)、target は TARGET の値
+        std::function<juce::String(const juce::String& code, int target)> targetParamId;
+
+        // 4.2.x までの TL ENV のファイルの印と、チャンネルのファイルでの鍵。
+        // 読んだら TARGET を tlTarget にして、値を tlMax で割って 0〜1 にする
+        juce::String legacyTlFormat;
+        juce::String legacyTlKey;
+        int tlTarget = 0;
+        float tlMax = 127.0f;
     };
 
     GuiComponentStepEnv(const GuiContext& context, const Spec& spec);
@@ -152,6 +169,10 @@ private:
     GuiCategoryLabel cat;
     GuiToggleButton flag; // Bypass or Enable
     NormalSeparator flagSeparator;
+
+    // PARAM ENV の指し先
+    GuiComboBox targetBox;
+    NormalSeparator targetSeparator;
     GuiSlider steps;
     NormalSeparator stepsSeparator;
 
@@ -184,7 +205,7 @@ private:
     GuiComponentSsgSwButtons ampBtns;
     GuiComponentPitchButtons pitchBtns;
 
-    // DUTY RATIO ENV は MODE で選べるデューティ比を直に置き、TL ENV は TL を少しずつ動かす
+    // DUTY RATIO ENV は MODE で選べるデューティ比を直に置き、PARAM ENV は指し先の刻みで動かす
     GuiComponentValueButtons valueBtns;
     GuiStepValues levelValues;
 
@@ -200,7 +221,7 @@ private:
     GuiToggleButton endLevelEnable;
     GuiSlider endLevel;
 
-    // LEVEL / LR / ENDL を決まった刻みへ丸める (Amp と TL)。
+    // LEVEL / LR / ENDL を決まった刻みへ丸める (Amp)。
     // 3 つのつまみへ聞き手を付けるので、つまみより後に置く (先に壊れて外す側になる)。
     // 前に置いていたら、壊すときに先に消えたつまみから聞き手を外しに行って落ちていた。
     GuiComponentStepSnap levelSteps;
@@ -225,16 +246,32 @@ private:
     bool isAmp() const { return spec.kind == Spec::Kind::Amp; }
     bool isPitch() const { return spec.kind == Spec::Kind::Pitch; }
     bool isDuty() const { return spec.kind == Spec::Kind::Duty; }
-    bool isTl() const { return spec.kind == Spec::Kind::Tl; }
     bool isAlg() const { return spec.kind == Spec::Kind::Alg; }
+    bool isParam() const { return spec.kind == Spec::Kind::Param; }
 
     // 値を置く・足すボタン (valueBtns) を使うもの
-    bool usesValueButtons() const { return isDuty() || isTl() || isAlg(); }
+    bool usesValueButtons() const { return isDuty() || isAlg() || isParam(); }
+
+    // ---- PARAM ENV
+    // いま指しているパラメータ。無ければ nullptr
+    juce::RangedAudioParameter* targetParam() const;
+
+    // 指し先の 1 刻み (0〜1 の値で)。整数や選択肢は 1 つぶん、実数は 0.001
+    double paramInterval = 0.001;
+
+    // 値のつまみ・LR・ENDL・帯を、指し先のパラメータの書き方にする
+    void applyTargetDisplay();
+
+    // つまみ 1 つを指し先の書き方にする (束ね直すと元に戻るので、そのたびに掛け直す)
+    void applyTargetText(GuiSlider& slider);
+
+    // TL ENV のファイル (4.2.x まで) を読む。TARGET を TL にして値を 0〜1 にする
+    void readLegacyTl(const Io::ParamReader& r);
 
     // LEVEL・LR・ENDL を決まった刻みへ丸める STEPS を持つもの
-    bool hasLevelSteps() const { return isAmp() || isTl(); }
+    bool hasLevelSteps() const { return isAmp(); }
 
-    // KEEP の札を持つもの (TL ENV は常に KEEP)
+    // KEEP の札を持つもの (ALG ENV は常に KEEP)
     bool hasKeep() const { return spec.keep.isNotEmpty(); }
 
     // 0〜1 の値を少しずつ動かすボタン (ampBtns) を使うもの
@@ -275,7 +312,8 @@ private:
 
     // LR にボタンを置くか (ALG ENV は置かない)
     bool hasReleaseLevelButtons() const { return spec.kind != Spec::Kind::Alg; }
-    void readValues(const Io::ParamReader& r);
+    // levelScale は値 (STL・段の L・LR・ENDL) に掛ける数 (TL ENV を読むとき)
+    void readValues(const Io::ParamReader& r, float levelScale = 1.0f);
     void readSixStepValues(const Io::ParamReader& r);
     void setImportingSixStepParams(juce::StringArray& lines, int& index);
     bool isActiveIn(const Io::ParamReader& r) const;

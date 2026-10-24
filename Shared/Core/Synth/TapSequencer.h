@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "./StepTable.h"
+#include "./ParamMod.h"
 
 // ============================================================================
 // TAP AMP / PITCH SEQUENCER (音の側)
@@ -86,4 +87,29 @@ inline float tapSeqTake(const TapSeqParams& p, float neutral)
     if (p.table->skipped(s + 1)) return neutral;
 
     return p.table->level(s + 1);
+}
+
+// TAP PARAM SEQUENCER (4.3.0)。押したときに次の段へ進め、その段の組を out へ写す。
+// 切れていれば組は空。SKIP の段では進めたうえで空にする。段の進め方は TAP AMP / PITCH と同じ。
+inline void tapParamTake(const TapSeqParams& p, ParamMod::TapStep& out)
+{
+    out.count = 0;
+
+    if (!p.enable || p.table == nullptr) return;
+
+    const int s = tapSeqForward(p, p.table->cursor.load(std::memory_order_relaxed));
+
+    p.table->cursor.store(s, std::memory_order_relaxed);
+
+    if (p.table->skipped(s + 1)) return;
+
+    const int n = std::min(p.table->pairCount(s + 1), ParamMod::maxPairs);
+
+    for (int i = 0; i < n; ++i) {
+        const auto pair = p.table->pairAt(s + 1, i);
+
+        out.pairs[(size_t)i] = { pair.scope, pair.index, pair.value };
+    }
+
+    out.count = n;
 }

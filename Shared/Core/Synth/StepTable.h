@@ -4,6 +4,7 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <cstring>
 #include <functional>
 #include <map>
 #include <memory>
@@ -30,10 +31,60 @@
 // 同じ理由でここに持つ (StepLoop.h)。組はいつも START・END の昇順に並べておく。
 // TAP SEQUENCER の SKIP (その段では補正しない) の印も、段ごとにここへ持つ (4.1.0)。
 //
+// TAP PARAM SEQUENCER (4.3.0) は、段ごとに (パラメータ, 値) の組をいくつも持つ。
+// 組の置き場 (pairs) は、それを使う表だけが持つ (StepTableStore::getWithPairs)。
+//
 // 文字や state (XML) への出し入れは StepTableIo.h にある。
+
+// TAP PARAM SEQUENCER の組。scope は -1 がチャンネル、0 からがオペレーター (RHYTHM は
+// パッド)。index はその scope の指し先の一覧の番号。value はパラメータの 0〜1。
+struct StepPair
+{
+    int scope = -1;
+    int index = 0;
+    float value = 0.0f;
+
+    bool operator==(const StepPair& o) const { return scope == o.scope && index == o.index && value == o.value; }
+};
+
 struct StepTable
 {
     static constexpr int size = 256;
+
+    // TAP PARAM SEQUENCER の 1 段に持てる組の数
+    static constexpr int maxPairs = 16;
+
+    // 組の置き場。1 つの組を 64 bit に詰めて原子的に読み書きする
+    //   0〜31 : 値 (float のビット) / 32〜47 : index / 48〜55 : scope + 1
+    struct Pairs
+    {
+        std::array<std::array<std::atomic<std::uint64_t>, maxPairs>, size> items{};
+        std::array<std::atomic<int>, size> counts{};
+
+        static std::uint64_t pack(const StepPair& p)
+        {
+            std::uint32_t bits = 0;
+
+            std::memcpy(&bits, &p.value, sizeof(bits));
+
+            return (std::uint64_t)bits
+                | ((std::uint64_t)(std::uint16_t)std::clamp(p.index, 0, 0xffff) << 32)
+                | ((std::uint64_t)(std::uint8_t)std::clamp(p.scope + 1, 0, 0xff) << 48);
+        }
+
+        static StepPair unpack(std::uint64_t v)
+        {
+            StepPair p;
+            const auto bits = (std::uint32_t)(v & 0xffffffffu);
+
+            std::memcpy(&p.value, &bits, sizeof(bits));
+
+            p.index = (int)((v >> 32) & 0xffff);
+            p.scope = (int)((v >> 48) & 0xff) - 1;
+
+            return p;
+        }
+    };
 
     std::array<std::atomic<float>, size> r;
     std::array<std::atomic<float>, size> l;
@@ -60,7 +111,64 @@ struct StepTable
     const float defaultR;
     const float defaultL;
 
-    StepTable(float defR, float defL) : defaultR(defR), defaultL(defL) { reset(); }
+    // TAP PARAM SEQUENCER の組。使わない表では nullptr
+    std::unique_ptr<Pairs> pairs;
+
+    StepTable(float defR, float defL, bool withPairs = false) : defaultR(defR), defaultL(defL)
+    {
+        if (withPairs) pairs = std::make_unique<Pairs>();
+
+        reset();
+    }
+
+    bool hasPairs() const { return pairs != nullptr; }
+
+    // step は 1〜256
+    int pairCount(int step) const
+    {
+        if (pairs == nullptr) return 0;
+
+        return std::clamp(pairs->counts[(size_t)index(step)].load(std::memory_order_relaxed), 0, maxPairs);
+    }
+
+    StepPair pairAt(int step, int i) const
+    {
+        if (pairs == nullptr) return {};
+
+        return Pairs::unpack(pairs->items[(size_t)index(step)][(size_t)std::clamp(i, 0, maxPairs - 1)].load(std::memory_order_relaxed));
+    }
+
+    std::vector<StepPair> pairList(int step) const
+    {
+        std::vector<StepPair> list;
+
+        for (int i = 0; i < pairCount(step); ++i) list.push_back(pairAt(step, i));
+
+        return list;
+    }
+
+    // 段の組を丸ごと差し替える。maxPairs より後ろは捨てる
+    void setPairs(int step, const std::vector<StepPair>& list)
+    {
+        if (pairs == nullptr) return;
+
+        const auto s = (size_t)index(step);
+        const int n = std::min((int)list.size(), maxPairs);
+
+        for (int i = 0; i < n; ++i) pairs->items[s][(size_t)i].store(Pairs::pack(list[(size_t)i]), std::memory_order_relaxed);
+
+        pairs->counts[s].store(n, std::memory_order_relaxed);
+        version.fetch_add(1, std::memory_order_release);
+    }
+
+    bool hasAnyPairs() const
+    {
+        if (pairs == nullptr) return false;
+
+        for (const auto& c : pairs->counts) if (c.load(std::memory_order_relaxed) > 0) return true;
+
+        return false;
+    }
 
     // step は 1〜256
     float rate(int step) const { return r[(size_t)index(step)].load(std::memory_order_relaxed); }
@@ -149,6 +257,8 @@ struct StepTable
             r[(size_t)i].store(defaultR, std::memory_order_relaxed);
             l[(size_t)i].store(defaultL, std::memory_order_relaxed);
             skips[(size_t)i].store(false, std::memory_order_relaxed);
+
+            if (pairs != nullptr) pairs->counts[(size_t)i].store(0, std::memory_order_relaxed);
         }
 
         loopNum.store(0, std::memory_order_relaxed);
@@ -162,6 +272,14 @@ struct StepTable
             r[(size_t)i].store(other.r[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
             l[(size_t)i].store(other.l[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
             skips[(size_t)i].store(other.skips[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
+
+            if (pairs != nullptr) {
+                const int n = other.pairs != nullptr ? other.pairs->counts[(size_t)i].load(std::memory_order_relaxed) : 0;
+
+                for (int k = 0; k < n; ++k) pairs->items[(size_t)i][(size_t)k].store(other.pairs->items[(size_t)i][(size_t)k].load(std::memory_order_relaxed), std::memory_order_relaxed);
+
+                pairs->counts[(size_t)i].store(n, std::memory_order_relaxed);
+            }
         }
 
         for (int i = 0; i < StepLoop::maxEntries; ++i) loops[(size_t)i].store(other.loops[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
@@ -190,6 +308,16 @@ public:
         auto it = tables.find(key);
 
         if (it == tables.end()) it = tables.emplace(key, std::make_unique<StepTable>(defaultR, defaultL)).first;
+
+        return *it->second;
+    }
+
+    // TAP PARAM SEQUENCER の組の置き場を持つ表。無ければ作る
+    StepTable& getWithPairs(const juce::String& key)
+    {
+        auto it = tables.find(key);
+
+        if (it == tables.end()) it = tables.emplace(key, std::make_unique<StepTable>(0.0f, 0.0f, true)).first;
 
         return *it->second;
     }

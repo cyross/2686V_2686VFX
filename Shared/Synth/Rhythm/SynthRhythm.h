@@ -224,4 +224,8 @@ private:
     // 使うパッドだけを回す
     std::span<RhythmPad> activePads() { return { pads.data(), (size_t)m_padCount }; }
     std::span<const RhythmPad> activePads() const { return { pads.data(), (size_t)m_padCount }; }
+
+private:
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値の置き場 (setParameters で使う)
+    RhythmParams m_modParams;
 };

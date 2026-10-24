@@ -43,13 +43,70 @@ void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*
     // 音程はセント (最後に決まった音程へ足す)。
     if (m_tapCents != 0.0f) cyclesPerSecond *= std::pow(2.0, (double)m_tapCents / 1200.0);
 
+    // PARAM ENV / TAP PARAM SEQUENCER。押す前に値を置き換えておく (MUL や AR などは押したときに効く)
+    beginParamMod(false);
+
     core->noteOn(cyclesPerSecond, velocity, midiNote);
+}
+
+void SynthVoice::beginParamMod(bool isLegato)
+{
+    auto* core = activeCore();
+
+    core->m_paramMod.setTap(m_tapParam);
+    core->m_paramMod.noteOn(isLegato);
+    core->reapplyParamMod();
+
+    applyArpOverride();
+}
+
+void SynthVoice::applyArpOverride()
+{
+    int freq = m_arpFreqBase;
+
+    if (activeCore()->m_paramMod.arpOverride(freq)) freq = juce::jmax(1, freq);
+
+    m_arpFreq = freq;
+}
+
+// n サンプルぶん PARAM ENV を進め、値が変わっていれば音源の値を読み直す
+void SynthVoice::advanceParamMod(SynthCore* core, int n)
+{
+    if (!core->m_paramMod.advance(n)) return;
+
+    core->reapplyParamMod();
+
+    applyArpOverride();
+}
+
+// コアにブロックを描かせる。PARAM ENV が走っているあいだは paramModChunk サンプルずつ
+// 区切り、区切りごとに値を進める (ブロックの途中でも指し先が動くように)
+void SynthVoice::renderCore(SynthCore* core, float* outR, float* outL, int startSample, int numSamples, bool& isActive)
+{
+    if (!core->m_paramMod.hasEnvs()) {
+        core->renderRange(outR, outL, startSample, numSamples, isActive);
+        return;
+    }
+
+    for (int done = 0; done < numSamples;) {
+        const int len = std::min(paramModChunk, numSamples - done);
+
+        advanceParamMod(core, len);
+
+        core->renderRange(outR, outL, startSample + done, len, isActive);
+
+        done += len;
+
+        if (!isActive) return;
+    }
 }
 
 void SynthVoice::stopNote(float, bool allowTailOff)
 {
     if (allowTailOff)
     {
+        activeCore()->m_paramMod.noteOff();
+
         m_opnaCore.noteOff();
         m_opnCore.noteOff();
     }
@@ -124,7 +181,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         bool isActive = false;
 
         if (m_tapGain == 1.0f) {
-            core->renderRange(outR, outL, startSample, numSamples, isActive);
+            renderCore(core, outR, outL, startSample, numSamples, isActive);
         }
         else {
             // コアは出力へ足し込むので、足した分だけに TAP AMP の倍率を掛ける
@@ -136,7 +193,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
             std::copy(outL + startSample, outL + startSample + numSamples, m_tapKeepL.begin());
             std::copy(outR + startSample, outR + startSample + numSamples, m_tapKeepR.begin());
 
-            core->renderRange(outR, outL, startSample, numSamples, isActive);
+            renderCore(core, outR, outL, startSample, numSamples, isActive);
 
             for (int i = 0; i < numSamples; ++i) {
                 outL[startSample + i] = m_tapKeepL[(size_t)i] + (outL[startSample + i] - m_tapKeepL[(size_t)i]) * m_tapGain;
@@ -158,6 +215,9 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         // 消音中もコアを回すことで位相とエンベロープは走り続ける。
         float scratchL = 0.0f;
         float scratchR = 0.0f;
+
+        // PARAM ENV。区切りごとに値を進める (アルペジオのない描き方と同じ間隔)
+        if (i % paramModChunk == 0 && core->m_paramMod.hasEnvs()) advanceParamMod(core, std::min(paramModChunk, numSamples - i));
 
         core->renderNextBlock(&scratchR, &scratchL, 0, 0, isActive);
 
@@ -186,6 +246,9 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
 
     if (newRate > 0.0)
     {
+        // PARAM ENV はホストのレートで進める
+        for (auto* core : coreMap) if (core != nullptr) core->m_paramMod.prepare(newRate);
+
         m_opnaCore.prepare(newRate);
         m_opnCore.prepare(newRate);
     }

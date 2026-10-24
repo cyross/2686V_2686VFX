@@ -630,6 +630,9 @@ double GuiSlider::alignStepForKeys(const juce::ModifierKeys& mods, double interv
     const bool ctrl = mods.isCtrlDown() || mods.isCommandDown();
     const bool shift = mods.isShiftDown();
 
+    // Alt は 100 刻み (4.3.0)。範囲が 100 より狭いつまみでは、呼ぶ側が使わない
+    if (mods.isAltDown()) return 100.0;
+
     if (ctrl && shift) return 10.0;
     if (ctrl) return 1.0;
 

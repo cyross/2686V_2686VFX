@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "Shared/Gui/Components/TapSeq/TapSeq.h"
+#include "Shared/Gui/Components/TapParam/TapParam.h"
+#include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
@@ -397,6 +399,11 @@ class GuiRhythm : public GuiBase
     GuiCategoryLabel tapMajorCat;
     GuiComponentTapSeq tapAmpSeq;
     GuiComponentTapSeq tapPitchSeq;
+
+    // TAP PARAM SEQUENCER と、チャンネルの PARAM ENV[256] (4.3.0)
+    GuiComponentTapParam tapParamSeq;
+    GuiCategoryLabel paramEnvMajorCat;
+    GuiComponentParamEnv paramEnv;
 
     GuiComponentMidi midiComponent;
 

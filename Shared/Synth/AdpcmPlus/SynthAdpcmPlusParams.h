@@ -3,6 +3,10 @@
 
 #include <array>
 
+#include "Shared/Core/Const/ConstGlobal.h"
+
+#include "Shared/Core/Synth/ParamMod.h"
+
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
@@ -40,6 +44,10 @@ struct AdpcmPlusParams
     // 中身を作るのはメッセージスレッドで、オーディオスレッドは読むだけ。
     const PcmSharedData* source = nullptr;
 
+    // スロットごとの素材 (4.3.0)。PARAM ENV / TAP PARAM SEQUENCER が VOICE (slot) を
+    // ボイスごとに置き換えたとき、ここから選ぶ。空ならいつも source を使う
+    std::array<const PcmSharedData*, Global::AdpcmPlus::slots> sources{};
+
     UnisonParams unison;
     SsgHwEnvParams ssgHwEnv;
     SsgHwPEnvParams ssgHwPEnv;
@@ -51,4 +59,7 @@ struct AdpcmPlusParams
     // 鳴らす PCM のスロット番号 (0 〜 Global::AdpcmPlus::slots - 1)。
     // オートメーションで振れるので、切り替えは即時に反映する。
     int slot = 0;
+
+    // PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0)。ボイスごとに値を置き換える
+    ParamMod::ChipParams paramMod;
 };
