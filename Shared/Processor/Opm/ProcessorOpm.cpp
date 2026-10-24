@@ -24,7 +24,7 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addOpmPanParameters(layout, prefix, prefixName);
     PrHelper::addAlgFbParameters(layout, prefix, prefixName, OpmPrValue::Alg::max, OpmPrValue::Alg::initial);
-    PrHelper::addQualityParameters(layout, prefix, prefixName);
+    PrHelper::addQualityParameters(layout, prefix, prefixName, CPV::Quality::Interp::initial, true);
     PrHelper::addOpmLfoParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);

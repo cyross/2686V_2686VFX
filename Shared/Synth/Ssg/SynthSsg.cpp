@@ -118,6 +118,8 @@ void SsgCore::setParameters(const SynthCoreParams& params)
 
     m_quantizeSteps = getTargetBitDepth(chipParams.quality.bit);
 	m_interpMode = chipParams.quality.interp;
+    m_chipDac = chipParams.quality.chipDac;
+    m_hwEnvEnable = chipParams.env.enable;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 
@@ -404,7 +406,13 @@ float SsgCore::getSample()
         // ==========================================
         // 1. Hardware Envelope Update
         // ==========================================
-        float hwEnvGain = m_ssgHwEnv.process() * m_wtAmpMod.process(m_ampModDelta);
+        float hwEnv = m_ssgHwEnv.process();
+
+        // CHIP DAC。ハードウェアエンベロープは 32 段で表を引く。
+        // 切っているときは最大のまま出てくるので、触らない。
+        if (useChipDac() && m_hwEnvEnable) hwEnv = SsgDac::envelope(hwEnv);
+
+        float hwEnvGain = hwEnv * m_wtAmpMod.process(m_ampModDelta);
 
         // ==========================================
         // 2. Waveform Generation
@@ -527,6 +535,9 @@ float SsgCore::getSample()
 
     // 2A03 の音量は 4bit。エンベロープの値を 16 段へ丸め、DAC の曲がりを通す。
     if (is2A03()) finalEnv = Pulse2A03::volume(finalEnv);
+
+    // CHIP DAC。エンベロープの値を音量のレジスタ (16 段) と見なし、表を引く。
+    else if (useChipDac()) finalEnv = SsgDac::volume(finalEnv);
 
     return interpolatedSample * finalEnv * m_baseLevel * m_level * 4.0f;
 }

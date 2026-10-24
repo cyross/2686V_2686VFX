@@ -31,6 +31,14 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 
 ### 3-0-1. What v4.3.0 adds and changes
 
+- **QUALITY gains "CHIP DAC" (run the sound through the real DAC)**
+  - A **CHIP DAC** toggle sits below INTERP in the QUALITY section of the FM chips (OPNA, OPN, OPL, OPL3, OPM) and SSG. It is off by default, so the sound so far is unchanged
+  - The FM chips add up every sounding voice and run the sum through the real chip's DAC. OPN (YM3014B), OPM (YM3012) and OPL (YM3014B) are floating point (10-bit mantissa + 3-bit exponent), so the louder the sound, the more low bits drop. OPNA and OPL3 (YAC512) snap to 16-bit steps. On every chip, anything beyond 16 bits is clipped
+  - One carrier at velocity 127 and LEVEL 1.0 is matched to one channel of the real chip at full scale (14 bits on OPN, OPM and OPL3; 13 bits on OPNA and OPL)
+  - SSG plays its volume through the real chip's logarithmic table (YM2149 compatible). The envelope value is treated as the 16-step volume register, and SSG HW AMP ENV looks the table up in 32 steps. It has no effect while More Real FC / NES is on in DUTY
+  - The values come from the YM3012 data sheet and ymfm (the FM core of MAME)
+  - Saved in channel parameters, the QUALITY section parameter file, presets and the DAW state (`chipDac`). Automation IDs such as `OPN_CHIP_DAC`
+  - 2686V, 2686VLight, 26V, 86V, OPNV, OPLV, OPMV, PULSEV
 - **New column order for FM operators**
   - The KEY SCALE / MUL/DET column (with FIX and LFO) now sits right next to the AMP ENV / OPTIONAL column. On OPZX7 it comes before the WAVEFORM column
   - OPNA / OPN / OPL / OPL3 / OPM / OPZX7. Every plugin with FM channels

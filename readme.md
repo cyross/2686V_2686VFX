@@ -31,6 +31,14 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 
 ### 3-0-1. v4.3.0での追加・変更
 
+- **QUALITY に「CHIP DAC」を追加 (実機の DAC を通す)**
+  - FM 音源 (OPNA・OPN・OPL・OPL3・OPM) と SSG の QUALITY の INTERP の下に **CHIP DAC** のトグルを置いた。初期値は切で、これまでの音は変わらない
+  - FM 音源は、鳴っている音をすべて足してから実機の DAC へ通す。OPN (YM3014B)・OPM (YM3012)・OPL (YM3014B) は浮動小数点 (仮数 10bit + 指数 3bit) で、大きい音ほど下の桁が落ちる。OPNA・OPL3 (YAC512) は 16bit の刻みへ寄せる。どれも 16bit を超えたぶんは頭打ちになる
+  - 1 キャリアをベロシティ 127・LEVEL 1.0 で鳴らした大きさを、実機の 1 チャンネルの最大に合わせた (OPN・OPM・OPL3 は 14bit、OPNA・OPL は 13bit)
+  - SSG は、音量を実機 (YM2149 互換) の対数の表で鳴らす。エンベロープの値を 16 段の音量レジスタと見なし、SSG HW AMP ENV は 32 段で表を引く。DUTY の More Real FC / NES を入れているときは効かない
+  - 値は YM3012 のデータシートと ymfm (MAME の FM 音源の核) による
+  - チャンネルパラメータ・区分のパラメータファイル (QUALITY)・プリセット・DAW の状態に保存 (`chipDac`)。オートメーションは `OPN_CHIP_DAC` など
+  - 2686V・2686VLight・26V・86V・OPNV・OPLV・OPMV・PULSEV
 - **FM 音源のオペレーターの列の並びを変えた**
   - KEY SCALE / MUL/DET (FIX・LFO を含む列) を、AMP ENV / OPTIONAL の列のすぐ右へ移した。OPZX7 は WAVEFORM の列より左に来る
   - OPNA / OPN / OPL / OPL3 / OPM / OPZX7。FM 音源を持つ全プラグイン

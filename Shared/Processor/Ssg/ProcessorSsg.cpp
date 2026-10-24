@@ -32,7 +32,7 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);
     PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addWtAmpModParameters(layout, prefix, prefixName);
-    PrHelper::addQualityParameters(layout, prefix, prefixName);
+    PrHelper::addQualityParameters(layout, prefix, prefixName, CPV::Quality::Interp::initial, true);
     PrHelper::addTnParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);

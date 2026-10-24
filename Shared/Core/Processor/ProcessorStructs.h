@@ -43,6 +43,9 @@ struct PrPtrsQuality {
     std::atomic<float>* depth = nullptr;
     std::atomic<float>* rate = nullptr;
     std::atomic<float>* interp = nullptr;
+
+    // CHIP DAC を持たない音源では空のまま
+    std::atomic<float>* chipDac = nullptr;
 };
 
 struct PrPtrsQualityPcm {

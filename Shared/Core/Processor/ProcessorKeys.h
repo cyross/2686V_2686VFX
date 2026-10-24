@@ -214,6 +214,9 @@ namespace CPK
 		static inline const juce::String bit = "_BIT";
 		static inline const juce::String rate = "_RATE";
 		static inline const juce::String interp = "_INTERP";
+
+		// CHIP DAC。FM 音源と SSG だけが持つ。既定は切れている。
+		static inline const juce::String chipDac = "_CHIP_DAC";
 	}
 
 	namespace QualityPcm {

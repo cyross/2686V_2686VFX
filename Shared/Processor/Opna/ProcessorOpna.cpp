@@ -23,7 +23,7 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addAlgFbParameters(layout, prefix, prefixName, OpnaPrValue::Alg::max, OpnaPrValue::Alg::initial);
     PrHelper::addOpnaPanParameters(layout, prefix, prefixName);
-    PrHelper::addQualityParameters(layout, prefix, prefixName);
+    PrHelper::addQualityParameters(layout, prefix, prefixName, CPV::Quality::Interp::initial, true);
     PrHelper::addN88LfoParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);

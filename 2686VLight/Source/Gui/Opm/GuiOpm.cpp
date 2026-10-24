@@ -145,7 +145,8 @@ void GuiOpm::setup()
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    // CHIP DAC (実機の DAC を通す) の行も置く
+    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, true);
 
     algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::algFb, .detailVisible = true, .enableChangeDetailVisible = true });
 
@@ -2604,6 +2605,7 @@ void GuiOpm::applyQualityParamFile(const juce::File& file)
 
     qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
     qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
+    qualityComponent.readOutputStage(*reader);
 }
 
 void GuiOpm::exportQualityParam()
@@ -3188,6 +3190,7 @@ void GuiOpm::setImportingQualityParams(juce::StringArray& lines, int& index) {
 void GuiOpm::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("bit", qualityComponent.getBit());
 	writer.set("rate", qualityComponent.getRate());
+	qualityComponent.writeOutputStage(writer);
 
 
 }

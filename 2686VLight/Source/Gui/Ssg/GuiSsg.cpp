@@ -76,7 +76,8 @@ void GuiSsg::setup()
 
     formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
 
-    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    // CHIP DAC (実機の DAC を通す) の行も置く
+    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, true);
 
     fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
@@ -934,6 +935,7 @@ void GuiSsg::applyQualityParamFile(const juce::File& file)
 
     qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
     qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
+    qualityComponent.readOutputStage(*reader);
 }
 
 void GuiSsg::exportQualityParam()
@@ -1235,6 +1237,7 @@ void GuiSsg::setImportingQualityParams(juce::StringArray& lines, int& index) {
 void GuiSsg::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("bit", qualityComponent.getBit());
 	writer.set("rate", qualityComponent.getRate());
+	qualityComponent.writeOutputStage(writer);
 
 
 }

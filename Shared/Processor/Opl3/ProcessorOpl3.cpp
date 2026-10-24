@@ -22,7 +22,7 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
 
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addAlgFbParameters(layout, prefix, prefixName, Opl3PrValue::Alg::max, Opl3PrValue::Alg::initial);
-    PrHelper::addQualityParameters(layout, prefix, prefixName);
+    PrHelper::addQualityParameters(layout, prefix, prefixName, CPV::Quality::Interp::initial, true);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);
     // チップ全体へ掛かる AMP ENV。既定はバイパス。

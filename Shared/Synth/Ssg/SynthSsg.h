@@ -21,6 +21,7 @@
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "../../Core/Synth/SynthInterp.h"
 #include "Shared/Generator/Pulse/GenPulse2A03.h"
+#include "../../Core/Synth/ChipDac.h"
 
 class SsgCore : public SynthCore
 {
@@ -99,6 +100,12 @@ private:
 
     // いま 2A03 の鳴り方で出すか (矩形波で、FC が切れていて、どちらかが入っている)
     bool is2A03() const { return m_waveform == 0 && !m_dutyFc && (m_dutyMoreFc || m_dutyMoreNes); }
+
+    // CHIP DAC (QUALITY)。音量を SSG の対数の表で鳴らす。2A03 の鳴り方が
+    // 入っていれば、そちらの DAC を通すので使わない。
+    bool m_chipDac = false;
+    bool m_hwEnvEnable = false;
+    bool useChipDac() const { return m_chipDac && !is2A03(); }
 
     // DUTY RATIO ENV。入っているあいだは MODE・Invert の代わりにこのデューティ比 (%) を使う
     bool m_dutyEnvEnable = false;
