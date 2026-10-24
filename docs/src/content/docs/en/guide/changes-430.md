@@ -100,7 +100,10 @@ It offers the same parameters as TAP PARAM SEQUENCER.
 - One per channel (the new **[[PARAM ENV]]** major section, above [[TAP SEQUENCER]])
 - FM channels also have one per operator (just below the AMP ENV section, where TL ENV used to be)
 - Values are kept as a fraction of the target parameter's range and shown the way the target shows them
+- The values (STL, L, LR, ENDL) are kept separately for each TARGET. Changing TARGET switches to that target's values
 - Integer and choice parameters hold their value for each step
+- Parameters set at key-on, such as MUL, DT and FIX FREQ, also change with each step while the note plays
+- With STEP at 1, R.TARGET is disabled (likewise in the other step envelopes, S.TARGET in TAP SEQUENCER and so on)
 
 **TL ENV on FM operators became the PARAM ENV target TL.** Presets, DAW state, channel parameters and section parameter
 files (`.tlEnv`) from 4.2.x and earlier are converted to PARAM ENV (TARGET set to TL) when loaded, so they sound the same.

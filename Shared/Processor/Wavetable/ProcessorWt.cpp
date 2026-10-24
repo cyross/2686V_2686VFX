@@ -49,7 +49,7 @@ void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
     TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
-    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::channelTargetIds(prefix, ParamModCatalog::wt(), 0)));
     modResolver.init(apvts, prefix, ParamModCatalog::wt(), 0);
 
     PrHelper::setupWtBasicPtrs(apvts, prefix, pBasic);

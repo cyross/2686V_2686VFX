@@ -45,8 +45,9 @@ void StepEnv::setParameters(const StepEnvParams& p)
 
 	loopTo = std::clamp(loopTo, 0, steps - 1);
 
-	if (p.table != table) {
+	if (p.table != table || p.levelSet != levelSet) {
 		table = p.table;
+		levelSet = p.levelSet;
 		tableVersion = 0;
 	}
 
@@ -57,10 +58,19 @@ void StepEnv::setParameters(const StepEnvParams& p)
 		if (v != tableVersion) {
 			tableVersion = v;
 
+			const bool fromSet = levelSet >= 0 && levelSet < table->setCount();
+
 			for (int s = 1; s <= maxSteps; ++s) {
 				r[(size_t)s] = table->rate(s);
-				l[(size_t)s] = table->level(s);
+				l[(size_t)s] = fromSet ? table->setValue(levelSet, s) : table->level(s);
 			}
+		}
+
+		// PARAM ENV。STL・LR・ENDL も指し先の組から取る
+		if (levelSet >= 0 && levelSet < table->setCount()) {
+			l[0] = table->setValue(levelSet, StepTable::setStl);
+			lr = table->setValue(levelSet, StepTable::setLr);
+			endl = table->setValue(levelSet, StepTable::setEndl);
 		}
 	}
 	else {

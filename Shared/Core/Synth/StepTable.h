@@ -34,6 +34,10 @@
 // TAP PARAM SEQUENCER (4.3.0) は、段ごとに (パラメータ, 値) の組をいくつも持つ。
 // 組の置き場 (pairs) は、それを使う表だけが持つ (StepTableStore::getWithPairs)。
 //
+// PARAM ENV[256] (4.3.0) は、指し先 (TARGET) ごとに値 (STL・段の L・LR・ENDL) を別に持つ。
+// 値の組 (sets) も、それを使う表だけが持つ (StepTableStore::getWithLevelSets)。R・ループ・
+// SKIP は指し先によらず 1 つ。
+//
 // 文字や state (XML) への出し入れは StepTableIo.h にある。
 
 // TAP PARAM SEQUENCER の組。scope は -1 がチャンネル、0 からがオペレーター (RHYTHM は
@@ -53,6 +57,19 @@ struct StepTable
 
     // TAP PARAM SEQUENCER の 1 段に持てる組の数
     static constexpr int maxPairs = 16;
+
+    // PARAM ENV の値の組の並び。[0] が STL、[1〜256] が段の L、そのあとが LR と ENDL
+    static constexpr int setStl = 0;
+    static constexpr int setLr = size + 1;
+    static constexpr int setEndl = size + 2;
+    static constexpr int setSlots = size + 3;
+
+    // 値の組の置き場。組ごとに初期値 (指し先のパラメータの初期値) を持つ
+    struct LevelSets
+    {
+        std::vector<std::unique_ptr<std::array<std::atomic<float>, setSlots>>> values;
+        std::vector<float> defaults;
+    };
 
     // 組の置き場。1 つの組を 64 bit に詰めて原子的に読み書きする
     //   0〜31 : 値 (float のビット) / 32〜47 : index / 48〜55 : scope + 1
@@ -114,11 +131,44 @@ struct StepTable
     // TAP PARAM SEQUENCER の組。使わない表では nullptr
     std::unique_ptr<Pairs> pairs;
 
-    StepTable(float defR, float defL, bool withPairs = false) : defaultR(defR), defaultL(defL)
+    // PARAM ENV の指し先ごとの値の組。使わない表では nullptr
+    std::unique_ptr<LevelSets> sets;
+
+    StepTable(float defR, float defL, bool withPairs = false, const std::vector<float>* setDefaults = nullptr) : defaultR(defR), defaultL(defL)
     {
         if (withPairs) pairs = std::make_unique<Pairs>();
 
+        if (setDefaults != nullptr) {
+            sets = std::make_unique<LevelSets>();
+            sets->defaults = *setDefaults;
+
+            for (size_t i = 0; i < setDefaults->size(); ++i) sets->values.push_back(std::make_unique<std::array<std::atomic<float>, setSlots>>());
+        }
+
         reset();
+    }
+
+    int setCount() const { return sets != nullptr ? (int)sets->values.size() : 0; }
+
+    float setDefault(int set) const
+    {
+        return set >= 0 && set < setCount() ? sets->defaults[(size_t)set] : 0.0f;
+    }
+
+    // set は 0 から、slot は setStl / 1〜256 / setLr / setEndl
+    float setValue(int set, int slot) const
+    {
+        if (set < 0 || set >= setCount()) return 0.0f;
+
+        return (*sets->values[(size_t)set])[(size_t)std::clamp(slot, 0, setSlots - 1)].load(std::memory_order_relaxed);
+    }
+
+    void setSetValue(int set, int slot, float value)
+    {
+        if (set < 0 || set >= setCount()) return;
+
+        (*sets->values[(size_t)set])[(size_t)std::clamp(slot, 0, setSlots - 1)].store(value, std::memory_order_relaxed);
+        version.fetch_add(1, std::memory_order_release);
     }
 
     bool hasPairs() const { return pairs != nullptr; }
@@ -261,6 +311,10 @@ struct StepTable
             if (pairs != nullptr) pairs->counts[(size_t)i].store(0, std::memory_order_relaxed);
         }
 
+        for (int set = 0; set < setCount(); ++set) {
+            for (auto& v : *sets->values[(size_t)set]) v.store(sets->defaults[(size_t)set], std::memory_order_relaxed);
+        }
+
         loopNum.store(0, std::memory_order_relaxed);
         clearCursor();
         version.fetch_add(1, std::memory_order_release);
@@ -280,6 +334,12 @@ struct StepTable
 
                 pairs->counts[(size_t)i].store(n, std::memory_order_relaxed);
             }
+        }
+
+        const int sharedSets = std::min(setCount(), other.setCount());
+
+        for (int set = 0; set < sharedSets; ++set) {
+            for (int slot = 0; slot < setSlots; ++slot) (*sets->values[(size_t)set])[(size_t)slot].store(other.setValue(set, slot), std::memory_order_relaxed);
         }
 
         for (int i = 0; i < StepLoop::maxEntries; ++i) loops[(size_t)i].store(other.loops[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
@@ -308,6 +368,16 @@ public:
         auto it = tables.find(key);
 
         if (it == tables.end()) it = tables.emplace(key, std::make_unique<StepTable>(defaultR, defaultL)).first;
+
+        return *it->second;
+    }
+
+    // PARAM ENV の、指し先ごとの値の組を持つ表。無ければ作る。defaults は組ごとの初期値
+    StepTable& getWithLevelSets(const juce::String& key, float defaultR, const std::vector<float>& defaults)
+    {
+        auto it = tables.find(key);
+
+        if (it == tables.end()) it = tables.emplace(key, std::make_unique<StepTable>(defaultR, 0.0f, false, &defaults)).first;
 
         return *it->second;
     }

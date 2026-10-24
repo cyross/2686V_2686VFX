@@ -119,6 +119,36 @@ namespace StepTableIo
         for (int s = 1; s <= StepTable::size; ++s) table.setPairs(s, steps[(size_t)s - 1]);
     }
 
+    // PARAM ENV の指し先ごとの値を文字にする (4.3.0)。初期値と違うものだけを
+    // "組:位置:値;組:位置:値;..." で並べる。位置は 0 が STL、1〜256 が段、257 が LR、258 が ENDL
+    inline juce::String setsToText(const StepTable& table)
+    {
+        juce::StringArray parts;
+
+        for (int set = 0; set < table.setCount(); ++set) {
+            const float def = table.setDefault(set);
+
+            for (int slot = 0; slot < StepTable::setSlots; ++slot) {
+                const float v = table.setValue(set, slot);
+
+                if (v != def) parts.add(juce::String(set) + ":" + juce::String(slot) + ":" + juce::String(v, 6));
+            }
+        }
+
+        return parts.joinIntoString(";");
+    }
+
+    inline void setsFromText(StepTable& table, const juce::String& text)
+    {
+        for (const auto& part : juce::StringArray::fromTokens(text, ";", "")) {
+            const auto v = juce::StringArray::fromTokens(part, ":", "");
+
+            if (v.size() < 3) continue;
+
+            table.setSetValue(v[0].getIntValue(), v[1].getIntValue(), juce::jlimit(0.0f, 1.0f, v[2].getFloatValue()));
+        }
+    }
+
     // 文字で書き出す。"r1,r2,...|l1,l2,..."。後ろの既定の値は省く。
     // ループの組があるときだけ、後ろへ "|start:end:count;..." を足す (4.1.0)。
     // SKIP の段があるときは、さらに後ろへ "|s1,s2,..." を足す (組が無ければ空のまま挟む)。
@@ -162,16 +192,18 @@ namespace StepTableIo
         store.forEach([node](const juce::String& key, StepTable& table) {
             const auto text = toText(table);
             const bool pairs = table.hasAnyPairs();
+            const auto setText = setsToText(table);
 
-            if (text == "|" && !pairs) return;
+            if (text == "|" && !pairs && setText.isEmpty()) return;
 
             auto* item = node->createNewChildElement(xmlItem);
 
             item->setAttribute("key", key);
             item->setAttribute("values", text);
 
-            // TAP PARAM SEQUENCER の組 (4.3.0)
+            // TAP PARAM SEQUENCER の組と、PARAM ENV の指し先ごとの値 (4.3.0)
             if (pairs) item->setAttribute("pairs", pairsToText(table));
+            if (setText.isNotEmpty()) item->setAttribute("sets", setText);
         });
     }
 
@@ -186,6 +218,7 @@ namespace StepTableIo
                     fromText(*table, item->getStringAttribute("values"));
 
                     if (table->hasPairs()) pairsFromText(*table, item->getStringAttribute("pairs"));
+                    if (table->setCount() > 0) setsFromText(*table, item->getStringAttribute("sets"));
                 }
             }
         }

@@ -143,6 +143,14 @@ namespace ParamMod
 
 		bool active() const { return tap.count > 0 || hasEnvs(); }
 
+		// 鳴らしている最中に値を動かしているエンベロープがあるか (押したあとも値が変わる)
+		bool envRunning() const
+		{
+			for (int i = 0; i < count; ++i) if (config[(size_t)i].enable && started[(size_t)i]) return true;
+
+			return false;
+		}
+
 		// 押したとき。レガートでは走らせ直さない (ほかの 256 段のエンベロープと同じ)
 		void noteOn(bool isLegato)
 		{

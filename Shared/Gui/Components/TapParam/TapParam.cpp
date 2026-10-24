@@ -298,6 +298,7 @@ void GuiComponentTapParam::rebindValue()
     if (t != nullptr) showSkip(t->skipped(currentStep()));
 
     rebindPair();
+    applyActive();
 }
 
 // P.TARGET の組へ合わせる。組が無ければ、つまみは次に足す組の中身として残す
@@ -627,11 +628,14 @@ void GuiComponentTapParam::applyActive()
     loops.setEnables(active && loop.getToggleState());
     loopSeparator.setEnabled(active);
 
-    target.setEnabledWithLabel(active);
+    // 1 段・組が 1 つ以下のときは選ぶものが無い
+    const auto* t = table();
+
+    target.setEnabledWithLabel(active && stepCount() > 1);
     skipLabel.setEnabled(active);
     skip.setEnabled(active);
     skipSeparator.setEnabled(active);
-    pairTarget.setEnabledWithLabel(active);
+    pairTarget.setEnabledWithLabel(active && t != nullptr && t->pairCount(currentStep()) > 1);
     param.setEnabledWithLabel(active);
     value.setEnabled(active);
 

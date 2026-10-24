@@ -323,12 +323,12 @@ void GuiComponentStepLoops::setEnables(bool enabled)
     applyEnables();
 }
 
-// 組が無いあいだは、組を足すボタンのほかは押せない
+// 組が無いあいだは、組を足すボタンのほかは押せない。組が 1 つなら選ぶものが無い
 void GuiComponentStepLoops::applyEnables()
 {
     const bool has = entryCount() > 0;
 
-    target.setEnabledWithLabel(outerEnabled && has);
+    target.setEnabledWithLabel(outerEnabled && entryCount() > 1);
     start.setEnabledWithLabel(outerEnabled && has);
     end.setEnabledWithLabel(outerEnabled && has);
     count.setEnabledWithLabel(outerEnabled && has);

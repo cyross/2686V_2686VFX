@@ -60,7 +60,7 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
     TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
-    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::channelTargetIds(prefix, ParamModCatalog::rhythm(), m_pads)));
     modResolver.init(apvts, prefix, ParamModCatalog::rhythm(), m_pads);
 
     PrHelper::setupRhythmBasicPtrs(apvts, prefix, pBasic);

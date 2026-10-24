@@ -55,7 +55,7 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
     TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
-    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::channelTargetIds(prefix, ParamModCatalog::beep(), 0)));
     modResolver.init(apvts, prefix, ParamModCatalog::beep(), 0);
 
     PrHelper::setupBeepBasicPtrs(apvts, prefix, pBasic);

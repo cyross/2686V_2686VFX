@@ -23,6 +23,13 @@
 //                                  → <頭>_PRMENV_TARGET は TL (0)、KEEP は切 (TL は常に段を保つ)
 //
 // 写したあと、TL ENV のパラメータと表は state から外す。写した PARAM ENV は TL ENV と同じに鳴る。
+//
+// また、4.3.0 の最初の形の PARAM ENV は値 (STL / LR / ENDL と段の L) を指し先によらず
+// 1 つだけ持っていた。いまは指し先ごとに値の組を持つので、保存したときの指し先の組へ写す
+// (convertLevelSets)。TL ENV から写したものも、ここで TL の組へ移る。
+//
+//   <頭>_PRMENV_STL / LR / ENDL    → 表 <頭>_PRMENV の、<頭>_PRMENV_TARGET の組の STL / LR / ENDL
+//   表 <頭>_PRMENV の段の L        → 同じ組の段の L (表の L は 0 へ戻す)
 namespace ParamEnvLegacy
 {
 	inline const juce::String oldBase = "_TLENV";
@@ -40,6 +47,62 @@ namespace ParamEnvLegacy
 	inline juce::String normalised(const juce::String& value, float tlMax)
 	{
 		return juce::String(juce::jlimit(0.0f, 1.0f, value.getFloatValue() / tlMax), 6);
+	}
+
+	// 指し先によらず 1 つだった値を、保存したときの指し先の組へ写す。写したものがあれば true
+	inline bool convertLevelSets(juce::XmlElement& state, StepTableStore& tables)
+	{
+		using StepEnvLegacy::paramTag;
+		using StepEnvLegacy::idAttr;
+		using StepEnvLegacy::valueAttr;
+
+		const auto stlMark = newBase + "_STL";
+
+		std::map<juce::String, juce::XmlElement*> byId;
+
+		for (auto* p : state.getChildWithTagNameIterator(paramTag))
+			byId[p->getStringAttribute(idAttr)] = p;
+
+		auto valueOf = [&](const juce::String& id, float fallback) {
+			auto it = byId.find(id);
+
+			return it != byId.end() ? (float)it->second->getDoubleAttribute(valueAttr, fallback) : fallback;
+		};
+
+		bool converted = false;
+
+		for (const auto& [id, p] : byId) {
+			if (!id.endsWith(stlMark)) continue;
+
+			const auto head = id.dropLastCharacters(juce::String("_STL").length());   // <頭>_PRMENV
+			auto* table = tables.find(head);
+
+			if (table == nullptr || table->setCount() == 0) continue;
+
+			const int set = juce::jlimit(0, table->setCount() - 1, juce::roundToInt(valueOf(head + "_TARGET", 0.0f)));
+
+			table->setSetValue(set, StepTable::setStl, juce::jlimit(0.0f, 1.0f, valueOf(head + "_STL", 0.0f)));
+			table->setSetValue(set, StepTable::setLr, juce::jlimit(0.0f, 1.0f, valueOf(head + "_LR", 0.0f)));
+			table->setSetValue(set, StepTable::setEndl, juce::jlimit(0.0f, 1.0f, valueOf(head + "_ENDL", 0.0f)));
+
+			for (int s = 1; s <= StepTable::size; ++s) {
+				table->setSetValue(set, s, juce::jlimit(0.0f, 1.0f, table->level(s)));
+				table->setLevel(s, 0.0f);
+			}
+
+			converted = true;
+		}
+
+		for (const auto& field : { "_STL", "_LR", "_ENDL" }) {
+			std::vector<juce::XmlElement*> old;
+
+			for (const auto& [id, p] : byId)
+				if (id.endsWith(newBase + field)) old.push_back(p);
+
+			for (auto* p : old) state.removeChildElement(p, true);
+		}
+
+		return converted;
 	}
 
 	// 写したものがあれば true
@@ -134,6 +197,9 @@ namespace ParamEnvLegacy
 		}
 
 		StepEnvLegacy::removeParams(state, oldMark);
+
+		// 指し先によらず 1 つだった値 (TL ENV から写したものを含む) を、指し先の組へ
+		if (convertLevelSets(state, tables)) converted = true;
 
 		return converted;
 	}

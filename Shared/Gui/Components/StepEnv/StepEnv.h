@@ -64,7 +64,7 @@ public:
         // 表の鍵とパラメータの頭 (CPK::ssgSwEnv256 など)。表は code + tableKey。
         juce::String tableKey;
 
-        // パラメータの鍵 (code の後ろ)
+        // パラメータの鍵 (code の後ろ)。PARAM ENV は STL / LR / ENDL を持たない (表の値の組にある)
         juce::String steps, keep, loop, loopTo, loopCount, loopMode, stl, lr, rr, endl, endlEnable;
 
         // 値の範囲。整数なら interval を 1 にする
@@ -301,6 +301,24 @@ private:
     void rebindRate();
     void rebindLevel();
     void refreshStepValues();
+
+    // PARAM ENV の値の組 (いまの TARGET の値)。PARAM ENV でなければ -1
+    int levelSet() const;
+
+    // 値。slot の 0 は開始の値 (STL)、1〜256 は段、StepTable::setLr / setEndl は LR / ENDL
+    // (この 2 つは PARAM ENV だけ)。PARAM ENV は TARGET の組から、ほかは STL がパラメータ、段が表
+    float levelAt(int slot) const;
+    void setLevelAt(int slot, float value);
+    float levelDefault() const;
+
+    // PARAM ENV の LR / ENDL のつまみへ、TARGET の組の値を映す
+    void loadSetLevels();
+
+    // LR / ENDL のつまみが動いた。PARAM ENV なら TARGET の組へ書く
+    void onSetLevelChanged(GuiSlider& slider, int slot);
+
+    // LR / ENDL へ値を置く (ファイルを読むとき)。PARAM ENV は組へ直に書く
+    void putSetLevel(GuiSlider& slider, int slot, float value);
     void onRateChanged();
     void onLevelChanged();
     void changed();

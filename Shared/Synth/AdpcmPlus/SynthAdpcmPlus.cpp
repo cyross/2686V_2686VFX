@@ -142,7 +142,7 @@ void AdpcmPlusCore::setParameters(const SynthCoreParams& params)
     }
 
     // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
-    if (params.liveDetune && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
+    if ((params.liveDetune || m_paramModLive) && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
 }
 
 // Set sample data from external source

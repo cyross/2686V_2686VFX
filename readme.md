@@ -59,9 +59,12 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 - **「PARAM ENV[256]」を足した。TL ENV はこの機能にまとめた**
   - SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、**TARGET** で選んだパラメータを動かす。選べるパラメータは TAP PARAM SEQUENCER と同じ
   - チャンネルに 1 本 (新しい大区分 [[PARAM ENV]]。[[TAP SEQUENCER]] の上)。FM 音源はオペレーターごとにも 1 本 (AMP ENV 区分のすぐ下。これまでの TL ENV の場所)。RHYTHM のチャンネルの PARAM ENV は、パッドごとのパラメータも選べる
-  - 値は指し先のパラメータの範囲の割合で持ち、画面には指し先の書き方 (TL なら 0〜127 など) で出す。TARGET を変えても、値は「範囲のどのあたりか」として残る
+  - 値は指し先のパラメータの範囲の割合で持ち、画面には指し先の書き方 (TL なら 0〜127 など) で出す
+  - 値 (STL・L1〜L256・LR・ENDL) は **TARGET ごとに別に持つ**。TARGET を変えると、その指し先の値に切り替わる (はじめは指し先のパラメータの初期値)。R・STEP・LOOP・RR・Use Endl・KEEP は TARGET によらず 1 つ。保存されるのは全部の TARGET の値。区分のパラメータファイルには、いまの TARGET の値を書く
+  - 押したときに決まるパラメータ (MUL・DT・FIX の FREQ など) も、鳴っているあいだ段ごとに変わる (SETTINGS の LIVE DETUNE によらず)
   - 整数や選択肢のパラメータは、段のあいだ値を保つ (KEEP の札によらず)。実数のパラメータは KEEP を切ると斜めに繋ぐ
   - STEP・LOOP (LOOP MODE を含む)・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じ。値のつまみの下のボタンは MIN / -10% / -1 / +1 / +10% / MAX (±1 は指し先の 1 刻み)
+  - STEP が 1 のときは R.TARGET を動かせない (選ぶ段が無い)。SSG SW AMP / PITCH ENV[256]・ALG ENV など同じ形の区分も同じ。TAP SEQUENCER の S.TARGET (STEPS が 1 のとき)・TAP PARAM SEQUENCER の P.TARGET (組が 1 つ以下のとき)・Rich Mode の LP.TARGET (組が 1 つのとき) も同じく止める
   - TARGET はオートメーションでも動かせる
   - **FM 音源のオペレーターの TL ENV は、PARAM ENV (TARGET が TL) になった**。4.2.x までのプリセット・DAW の状態・チャンネルパラメータ・区分のパラメータファイル (`.tlEnv`) は、読み込むときに PARAM ENV へ写す。同じように鳴る
   - パラメータの ID は `_TLENV_*` から `_PRMENV_*` に変わった。DAW で TL ENV をオートメーションしていたときは割り当て直しが要る

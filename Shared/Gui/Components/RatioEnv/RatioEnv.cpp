@@ -139,10 +139,7 @@ namespace
         x.loopTo = k.loopTo;
         x.loopCount = k.loopCount;
         x.loopMode = k.loopMode;
-        x.stl = k.stl;
-        x.lr = k.lr;
         x.rr = k.rr;
-        x.endl = k.endl;
         x.endlEnable = k.endlEnable;
         x.target = k.target;
 

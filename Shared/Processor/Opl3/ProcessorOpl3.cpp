@@ -71,7 +71,7 @@ void Opl3Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
     TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
-    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::channelTargetIds(prefix, ParamModCatalog::opl3(), Opl3PrValue::ops)));
     modResolver.init(apvts, prefix, ParamModCatalog::opl3(), Opl3PrValue::ops);
 
     PrHelper::setupOpl3BasicPtrs(apvts, prefix, pBasic);
@@ -97,7 +97,7 @@ void Opl3Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
         PrHelper::setupOplLfoPtrs(apvts, p, pLfo[op]);
         PrHelper::setupPitchEnvPtrsOp(apvts, p, pPitchEnv[op]);
         PrHelper::setupSsgSwEnv256PtrsOp(apvts, p, pSsgSwEnv256[op], stepTables);
-        ParamEnv::setupPtrs(apvts, p, pOpParamEnv[op], stepTables);
+        ParamEnv::setupPtrs(apvts, p, pOpParamEnv[op], stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::opTargetIds(p, ParamModCatalog::opl3())));
         TapParam::setupPtrs(apvts, p, pOpTapParam[op], stepTables);
         PrHelper::setupSsgSwPEnv256PtrsOp(apvts, p, pSsgSwPEnv256[op], stepTables);
         PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);

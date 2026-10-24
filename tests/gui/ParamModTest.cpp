@@ -6,7 +6,10 @@
 //
 //   TAP PARAM SEQUENCER : 押したときの段の組で、その音のあいだ置き換える
 //   PARAM ENV (オペレーター) : TL は 4.0.0 の TL ENV と同じ道、それ以外は読み直し
+//   PARAM ENV の値 (STL・段の L・LR・ENDL) は TARGET ごとに別に持つ
+//   MUL などキーオンで決まる値も、鳴っているあいだに変わる
 //   4.2.x の TL ENV の state は、PARAM ENV (TARGET が TL) へ写して読む
+//   4.3.0 の最初の形 (値を TARGET によらず 1 つ) の state は、保存したときの TARGET の組へ写す
 #include "doctest/doctest.h"
 
 #include <JuceHeader.h>
@@ -14,6 +17,7 @@
 #include <cmath>
 
 #include "Core/Processor/PluginProcessor.h"
+#include "Shared/Core/Processor/ProcessorParamMod.h"
 #include "Shared/Core/Synth/StepTable.h"
 #include "Shared/Core/Synth/StepTableIo.h"
 
@@ -70,6 +74,28 @@ namespace
             }
 
             return std::sqrt(sum / (double)(kBlock * buffer.getNumChannels()));
+        }
+
+        // 直前に鳴らしたブロックの、0 を横切った数 (左)。音の高さを見る
+        int crossings() const
+        {
+            const auto* p = buffer.getReadPointer(0);
+
+            int n = 0;
+
+            for (int i = 1; i < kBlock; ++i) {
+                if ((p[i - 1] < 0.0f) != (p[i] < 0.0f)) ++n;
+            }
+
+            return n;
+        }
+
+        // 指し先のパラメータの値を 0〜1 にする
+        float normalised(const juce::String& id, float value) const
+        {
+            auto* param = plugin->apvts.getParameter(id);
+
+            return param != nullptr ? param->convertTo0to1(value) : 0.0f;
         }
 
         // 鍵を押して、blocks ブロックぶんの大きさを足す
@@ -133,6 +159,16 @@ namespace
     }
 
     const auto allFm = { "OPNA", "OPN", "OPL", "OPL3", "OPM", "OPZX7" };
+
+    // オペレーターの指し先の一覧での番号
+    int opTargetIndex(const ParamModCatalog::Catalog& c, const juce::String& label)
+    {
+        for (int i = 0; i < (int)c.op.size(); ++i) {
+            if (c.op[(size_t)i].label == label) return i;
+        }
+
+        return -1;
+    }
 }
 
 TEST_CASE("TAP PARAM SEQUENCER: 押したときの段の組で、その音のあいだパラメータを置き換える")
@@ -230,13 +266,19 @@ TEST_CASE("PARAM ENV (オペレーター): TL 以外を指せば、その値で�
 
         REQUIRE(base > 1.0e-4);
 
-        // すべてのオペレーターの PARAM ENV を AR (一覧の 1 番) へ向け、STL と段を 0 にする
+        // すべてのオペレーターの PARAM ENV を AR (一覧の 1 番) へ向け、AR の組の STL と段を 0 にする
         for (int op = 0; op < chip.ops; ++op) {
             const auto p = chip.prefix + "_OP" + juce::String(op) + "_PRMENV";
+            auto* table = rig.plugin->stepTables.find(p);
+
+            REQUIRE(table != nullptr);
+            REQUIRE(table->setCount() > 2);
+
+            table->setSetValue(1, StepTable::setStl, 0.0f);
+            table->setSetValue(1, 1, 0.0f);
 
             REQUIRE(rig.set(p + "_ENABLE", 1.0f));
             REQUIRE(rig.set(p + "_TARGET", 1.0f));
-            REQUIRE(rig.set(p + "_STL", 0.0f));
             REQUIRE(rig.set(p + "_STEPS", 1.0f));
         }
 
@@ -248,7 +290,234 @@ TEST_CASE("PARAM ENV (オペレーター): TL 以外を指せば、その値で�
 
         // パラメータの AR はそのまま
         CHECK(rig.get(chip.prefix + "_OP0_R_AR") > 0.0f);
+
+        // TARGET を DR (2 番) へ変えると、DR の組 (初期値は DR の初期値) で鳴る。
+        // AR の組に入れた 0 は持ち越さない
+        for (int op = 0; op < chip.ops; ++op) REQUIRE(rig.set(chip.prefix + "_OP" + juce::String(op) + "_PRMENV_TARGET", 2.0f));
+
+        rig.run();
+
+        const double other = rig.play(60, 10);
+
+        CHECK(other > base * 0.5);
     }
+}
+
+TEST_CASE("PARAM ENV (オペレーター): MUL は鳴っているあいだも変わる")
+{
+    Rig probe;
+
+    const auto chips = fmChips(probe, { "OPNA" });
+
+    if (chips.empty()) {
+        MESSAGE("OPNA を持たないプラグイン");
+        return;
+    }
+
+    const auto& chip = chips.front();
+    const auto& catalog = ParamModCatalog::opna();
+    const int mul = opTargetIndex(catalog, "MUL");
+
+    REQUIRE(mul >= 0);
+
+    Rig rig;
+
+    REQUIRE(rig.set("MODE", (float)chip.mode));
+
+    // 4 つとも出力に出る並び (ALG 7)、FB なし。どのオペレーターも同じ高さで鳴る
+    REQUIRE(rig.set(chip.prefix + catalog.ch[0].suffix, 7.0f));
+    REQUIRE(rig.set(chip.prefix + catalog.ch[1].suffix, 0.0f));
+
+    // MUL を、はじめ x1、0.3 秒の 1 段を走り終えたら x2 にする (MUL は整数なので常に KEEP)。
+    // SETTINGS の LIVE DETUNE は切のまま
+    for (int op = 0; op < chip.ops; ++op) {
+        const auto head = chip.prefix + "_OP" + juce::String(op);
+        const auto p = head + "_PRMENV";
+        auto* table = rig.plugin->stepTables.find(p);
+
+        REQUIRE(table != nullptr);
+        REQUIRE(table->setCount() > mul);
+
+        table->setSetValue(mul, StepTable::setStl, rig.normalised(head + catalog.op[(size_t)mul].suffix, 1.0f));
+        table->setSetValue(mul, 1, rig.normalised(head + catalog.op[(size_t)mul].suffix, 2.0f));
+        table->setRate(1, 0.3f);
+
+        REQUIRE(rig.set(p + "_ENABLE", 1.0f));
+        REQUIRE(rig.set(p + "_TARGET", (float)mul));
+        REQUIRE(rig.set(p + "_STEPS", 1.0f));
+    }
+
+    rig.run();
+
+    juce::MidiBuffer midi;
+
+    midi.addEvent(juce::MidiMessage::noteOn(1, 81, (juce::uint8)100), 0);
+    rig.run(midi);
+    rig.run();
+    rig.run();
+
+    // 20〜30 ms (まだ x1)
+    const int early = rig.crossings();
+
+    // 0.5 秒すぎ (x2)
+    for (int i = 0; i < 50; ++i) rig.run();
+
+    const int late = rig.crossings();
+
+    CAPTURE(early);
+    CAPTURE(late);
+
+    REQUIRE(early > 4);
+    CHECK((double)late > (double)early * 1.6);
+    CHECK((double)late < (double)early * 2.4);
+}
+
+TEST_CASE("PARAM ENV: 値は TARGET ごとに別に持ち、state へ書いて読み直せる")
+{
+    Rig rig;
+
+    std::vector<juce::String> heads;
+
+    // チャンネルの PARAM ENV (どの音源にもある)
+    for (const auto& chip : GuiTestChips::all) {
+        const juce::String prefix(chip.prefix);
+
+        heads.push_back(prefix.upToFirstOccurrenceOf("_PAD", false, false) + "_PRMENV");
+    }
+
+    // オペレーターの PARAM ENV
+    for (const auto& chip : fmChips(rig, allFm)) heads.push_back(chip.prefix + "_OP0_PRMENV");
+
+    int checked = 0;
+
+    for (const auto& head : heads) {
+        auto* table = rig.plugin->stepTables.find(head);
+
+        if (table == nullptr || table->setCount() < 2) continue;
+
+        CAPTURE(head);
+
+        // 組ごとの初期値は、指し先のパラメータの初期値
+        CHECK(table->setValue(0, StepTable::setStl) == doctest::Approx(table->setDefault(0)));
+        CHECK(table->setValue(1, 5) == doctest::Approx(table->setDefault(1)));
+
+        table->setSetValue(0, StepTable::setStl, 0.25f);
+        table->setSetValue(0, 3, 0.5f);
+        table->setSetValue(1, StepTable::setStl, 0.75f);
+        table->setSetValue(1, StepTable::setLr, 0.125f);
+        table->setSetValue(1, StepTable::setEndl, 0.375f);
+
+        // 組 0 に書いたものは組 1 へ映らない
+        CHECK(table->setValue(1, 3) == doctest::Approx(table->setDefault(1)));
+
+        juce::MemoryBlock block;
+
+        rig.plugin->getStateInformation(block);
+
+        table->reset();
+
+        REQUIRE(table->setValue(0, StepTable::setStl) == doctest::Approx(table->setDefault(0)));
+
+        rig.plugin->setStateInformation(block.getData(), (int)block.getSize());
+
+        CHECK(table->setValue(0, StepTable::setStl) == doctest::Approx(0.25f));
+        CHECK(table->setValue(0, 3) == doctest::Approx(0.5f));
+        CHECK(table->setValue(1, StepTable::setStl) == doctest::Approx(0.75f));
+        CHECK(table->setValue(1, StepTable::setLr) == doctest::Approx(0.125f));
+        CHECK(table->setValue(1, StepTable::setEndl) == doctest::Approx(0.375f));
+        CHECK(table->setValue(1, 3) == doctest::Approx(table->setDefault(1)));
+
+        // STL / LR / ENDL はもうパラメータではない
+        CHECK_FALSE(rig.has(head + "_STL"));
+        CHECK_FALSE(rig.has(head + "_LR"));
+        CHECK_FALSE(rig.has(head + "_ENDL"));
+
+        ++checked;
+    }
+
+    CHECK(checked > 0);
+}
+
+TEST_CASE("PARAM ENV: 4.3.0 の最初の形の state は、保存したときの TARGET の組へ写す")
+{
+    Rig rig;
+
+    // プラグインが持つ音源のうち、はじめのもの
+    juce::String head;
+    StepTable* table = nullptr;
+
+    for (const auto& chip : GuiTestChips::all) {
+        head = juce::String(chip.prefix).upToFirstOccurrenceOf("_PAD", false, false) + "_PRMENV";
+        table = rig.plugin->stepTables.find(head);
+
+        if (table != nullptr && table->setCount() > 1) break;
+
+        table = nullptr;
+    }
+
+    REQUIRE(table != nullptr);
+
+    juce::MemoryBlock block;
+
+    rig.plugin->getStateInformation(block);
+
+    auto xml = juce::AudioProcessor::getXmlFromBinary(block.getData(), (int)block.getSize());
+
+    REQUIRE(xml != nullptr);
+
+    auto setParam = [&xml](const juce::String& id, const juce::String& value) {
+        auto* p = xml->getChildByAttribute("id", id);
+
+        if (p == nullptr) {
+            p = xml->createNewChildElement("PARAM");
+            p->setAttribute("id", id);
+        }
+
+        p->setAttribute("value", value);
+    };
+
+    // TARGET は 1 番。値は TARGET によらない 1 つ (パラメータと表の L)
+    setParam(head + "_TARGET", "1");
+    setParam(head + "_STL", "0.25");
+    setParam(head + "_LR", "0.5");
+    setParam(head + "_ENDL", "0.125");
+
+    auto* tables = xml->getChildByName(StepTableIo::xmlTag);
+
+    if (tables == nullptr) tables = xml->createNewChildElement(StepTableIo::xmlTag);
+
+    auto* item = tables->createNewChildElement(StepTableIo::xmlItem);
+
+    item->setAttribute("key", head);
+    item->setAttribute("values", "0.2|0.75");
+
+    juce::MemoryBlock old;
+
+    juce::AudioProcessor::copyXmlToBinary(*xml, old);
+
+    rig.plugin->setStateInformation(old.getData(), (int)old.getSize());
+
+    CHECK(rig.get(head + "_TARGET") == doctest::Approx(1.0f));
+    CHECK(table->rate(1) == doctest::Approx(0.2f));
+
+    CHECK(table->setValue(1, StepTable::setStl) == doctest::Approx(0.25f));
+    CHECK(table->setValue(1, StepTable::setLr) == doctest::Approx(0.5f));
+    CHECK(table->setValue(1, StepTable::setEndl) == doctest::Approx(0.125f));
+    CHECK(table->setValue(1, 1) == doctest::Approx(0.75f));
+
+    // ほかの組は初期値のまま。表の L は使わなくなる
+    CHECK(table->setValue(0, StepTable::setStl) == doctest::Approx(table->setDefault(0)));
+    CHECK(table->level(1) == doctest::Approx(0.0f));
+
+    // 書き出した state には、もう STL / LR / ENDL は無い
+    juce::MemoryBlock saved;
+
+    rig.plugin->getStateInformation(saved);
+
+    auto again = juce::AudioProcessor::getXmlFromBinary(saved.getData(), (int)saved.getSize());
+
+    REQUIRE(again != nullptr);
+    CHECK(again->getChildByAttribute("id", head + "_STL") == nullptr);
 }
 
 TEST_CASE("PARAM ENV (オペレーター): 4.2.x の TL ENV の state は TARGET が TL の PARAM ENV へ写す")
@@ -313,18 +582,20 @@ TEST_CASE("PARAM ENV (オペレーター): 4.2.x の TL ENV の state は TARGET
     CHECK(rig.get(head + "_PRMENV_ENABLE") == doctest::Approx(1.0f));
     CHECK(rig.get(head + "_PRMENV_TARGET") == doctest::Approx(0.0f));
     CHECK(rig.get(head + "_PRMENV_STEPS") == doctest::Approx(3.0f));
-    CHECK(rig.get(head + "_PRMENV_STL") == doctest::Approx(1.0f).epsilon(0.001));
-    CHECK(rig.get(head + "_PRMENV_LR") == doctest::Approx(10.0f / tlMax).epsilon(0.001));
     CHECK(rig.get(head + "_PRMENV_RR") == doctest::Approx(0.5f).epsilon(0.001));
 
     auto* table = rig.plugin->stepTables.find(head + "_PRMENV");
 
     REQUIRE(table != nullptr);
+    REQUIRE(table->setCount() > 0);
 
+    // 値は TL (0 番) の組へ入る
     CHECK(table->rate(1) == doctest::Approx(0.2f));
     CHECK(table->rate(2) == doctest::Approx(0.3f));
-    CHECK(table->level(1) == doctest::Approx(32.0f / tlMax).epsilon(0.001));
-    CHECK(table->level(2) == doctest::Approx(48.0f / tlMax).epsilon(0.001));
+    CHECK(table->setValue(0, StepTable::setStl) == doctest::Approx(1.0f).epsilon(0.001));
+    CHECK(table->setValue(0, StepTable::setLr) == doctest::Approx(10.0f / tlMax).epsilon(0.001));
+    CHECK(table->setValue(0, 1) == doctest::Approx(32.0f / tlMax).epsilon(0.001));
+    CHECK(table->setValue(0, 2) == doctest::Approx(48.0f / tlMax).epsilon(0.001));
 
     // 写したあとに書き出した state には、TL ENV は残らない
     juce::MemoryBlock saved;

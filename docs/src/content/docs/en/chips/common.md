@@ -285,7 +285,8 @@ presets and channel parameters, not as parameters**, so they can't be automated
 
 - There is one pair of controls, a selector (R.TARGET / L.TARGET) plus a value;
   the other steps are listed in the strip below. **The strip lists only STEP
-  steps**, so adding steps makes the section taller
+  steps**, so adding steps makes the section taller. With STEP at 1 there is no
+  step to choose, so R.TARGET is disabled
 - **N** next to RATE / LEVEL shows nudge buttons
 - Right-clicking the heading copies the table too (CUT / COPY / PASTE / CLEAR /
   DUPLICATE)
@@ -346,13 +347,16 @@ TARGET lists the same parameters as [TAP PARAM SEQUENCER](#tap-param-sequencer).
 
 - Switch it on with **Enable** at the top, and choose the parameter with **TARGET** below it (TARGET can be automated)
 - Values are kept as **a fraction of the target parameter's range** and shown the way the target shows them
-  (0–127 for TL, Hz for FIX FREQ). Changing TARGET keeps each value as "where in the range"
+  (0–127 for TL, Hz for FIX FREQ)
+- The values (STL, L1–L256, LR, ENDL) are **kept separately for each TARGET**. Changing TARGET switches to that
+  target's values (which start at the target parameter's default). R, STEP, LOOP, RR, Use Endl and KEEP are shared
+  by every TARGET. Presets and the like save the values of every TARGET; a section parameter file holds the values of the current TARGET
 - STL is called **STL**, the L values **L1–L256**, the target knob **L.TARGET** and the value knob **VALUE**.
   The buttons under the value knob are **MIN** / **-10%** / **-1** / **+1** / **+10%** / **MAX** (±1 is one step of the target)
 - Integer and choice parameters (AR, MUL, ALG, waveform numbers and so on) hold their value for each step, whatever
   KEEP says. Real-valued parameters (FIX FREQ, LFO FREQ and so on) glide between steps when KEEP is off
 - Only **that note** is changed; the parameter itself keeps its value. Values are read again while the note plays,
-  so parameters that only act at key-on (MUL, AR and so on) also change with each step
+  so parameters that only act at key-on (MUL, DT, FIX FREQ, AR and so on) also change with each step, whatever LIVE DETUNE in SETTINGS says
 - Key-on behaviour, RATE, STEP, LOOP (including LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
 - The section parameter file is `.paramEnv`, read and written from the heading's right-click menu. The target is written by
   name as well, so a file from another channel lands on the same target when the name matches

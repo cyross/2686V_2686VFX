@@ -59,9 +59,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **"PARAM ENV[256]" added; TL ENV is now part of it**
   - The same 256-step envelope as SSG SW AMP ENV[256], driving the parameter chosen with **TARGET**. The choice of parameters is the same as TAP PARAM SEQUENCER
   - One per channel (the new [[PARAM ENV]] major section, above [[TAP SEQUENCER]]). FM channels also have one per operator (just below the AMP ENV section, where TL ENV used to be). The RHYTHM channel's PARAM ENV can also point at pad parameters
-  - Values are kept as a fraction of the target parameter's range and shown the way the target shows them (0-127 for TL, and so on). Changing TARGET keeps each value as "where in the range"
+  - Values are kept as a fraction of the target parameter's range and shown the way the target shows them (0-127 for TL, and so on)
+  - The values (STL, L1-L256, LR, ENDL) are **kept separately for each TARGET**. Changing TARGET switches to that target's values (which start at the target parameter's default). R, STEP, LOOP, RR, Use Endl and KEEP are shared by every TARGET. The values of every TARGET are saved; a section parameter file holds the values of the current TARGET
+  - Parameters that are set at key-on (MUL, DT, FIX FREQ and so on) also change with each step while the note plays, whatever LIVE DETUNE in SETTINGS says
   - Integer and choice parameters hold their value through each step whatever KEEP says. Real-valued parameters glide between steps when KEEP is off
   - STEP, LOOP (with LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]. The buttons below the value slider are MIN / -10% / -1 / +1 / +10% / MAX (±1 is one step of the target)
+  - With STEP at 1, R.TARGET is disabled (there is no step to choose). The same goes for sections of the same shape (SSG SW AMP / PITCH ENV[256], ALG ENV and so on). S.TARGET in TAP SEQUENCER (with STEPS at 1), P.TARGET in TAP PARAM SEQUENCER (with one pair or none) and LP.TARGET in Rich Mode (with one set) are disabled the same way
   - TARGET can be automated
   - **TL ENV on FM operators became PARAM ENV with TARGET set to TL**. Presets, DAW state, channel parameters and section parameter files (`.tlEnv`) from 4.2.x and earlier are converted to PARAM ENV when loaded, and sound the same
   - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again

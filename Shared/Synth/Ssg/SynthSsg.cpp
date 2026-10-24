@@ -124,7 +124,7 @@ void SsgCore::setParameters(const SynthCoreParams& params)
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 
     // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
-    if (params.liveDetune && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
+    if ((params.liveDetune || m_paramModLive) && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
 }
 
 // MUL/DET・FIX から周波数を決める

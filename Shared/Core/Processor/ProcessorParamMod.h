@@ -413,6 +413,47 @@ namespace ParamModCatalog
 		return names;
 	}
 
+	// 指し先のパラメータの鍵。チャンネルの PARAM ENV の TARGET の並び (flattenOps を含む)
+	inline std::vector<juce::String> channelTargetIds(const juce::String& prefix, const Catalog& c, int ops)
+	{
+		std::vector<juce::String> ids;
+
+		const int n = channelTargetCount(c, ops);
+
+		for (int t = 0; t < n; ++t) {
+			int scope = -1, index = 0;
+
+			decodeChannelTarget(c, t, scope, index);
+			ids.push_back(paramId(prefix, c, scope, index));
+		}
+
+		return ids;
+	}
+
+	// オペレーター (パッド) の頭 (OPNA_OP0) に尻尾を足した鍵。オペレーターの PARAM ENV の TARGET の並び
+	inline std::vector<juce::String> opTargetIds(const juce::String& opPrefix, const Catalog& c)
+	{
+		std::vector<juce::String> ids;
+
+		for (const auto& e : c.op) ids.push_back(opPrefix + e.suffix);
+
+		return ids;
+	}
+
+	// パラメータの初期値 (0〜1)。PARAM ENV の値の組を、指し先の初期値から始めるのに使う
+	inline std::vector<float> defaultsOf(juce::AudioProcessorValueTreeState& apvts, const std::vector<juce::String>& ids)
+	{
+		std::vector<float> defaults;
+
+		for (const auto& id : ids) {
+			auto* param = apvts.getParameter(id);
+
+			defaults.push_back(param != nullptr ? param->getDefaultValue() : 0.0f);
+		}
+
+		return defaults;
+	}
+
 	inline juce::StringArray opTargetLabels(const Catalog& c)
 	{
 		juce::StringArray names;
@@ -426,11 +467,15 @@ namespace ParamModCatalog
 // ============================================================================
 // PARAM ENV[256] のパラメータ
 // ============================================================================
-// SSG SW AMP ENV[256] と同じ頭に、指し先 (TARGET) を足したもの。値 (STL / LR / ENDL
-// と段の L) は指し先のパラメータの 0〜1 で持つ。
+// SSG SW AMP ENV[256] と同じ頭に、指し先 (TARGET) を足したもの。値 (STL・段の L・LR・
+// ENDL) は指し先のパラメータの 0〜1 で、指し先ごとに表の値の組 (StepTable::sets) へ持つ。
+// 指し先を変えると、その指し先の値で鳴る。R・STEP・ループは指し先によらず 1 つ。
 //
 //   <base>_ENABLE / _TARGET / _STEPS / _LOOP / _LOOPTO / _LOOPCNT / _LOOPMODE /
-//   _STL / _LR / _RR / _ENDL / _ENDL_EN / _KEEP
+//   _RR / _ENDL_EN / _KEEP
+//
+// 4.3.0 の最初の形は STL / LR / ENDL をパラメータに持ち、指し先で分けていなかった。
+// その state は IoParamEnvLegacy.h が、保存したときの指し先の組へ写す。
 //
 // チャンネルに 1 本 (頭 + base)、FM はオペレーターごとにも 1 本 (頭 + _OPn + base)。
 // オペレーターの PARAM ENV は 4.0.0 の TL ENV の代わりで、TARGET の初期値は TL。
@@ -441,7 +486,7 @@ namespace ParamEnv
 	struct Keys
 	{
 		juce::String base;
-		juce::String enable, target, steps, loop, loopTo, loopCount, loopMode, stl, lr, rr, endl, endlEnable, keep;
+		juce::String enable, target, steps, loop, loopTo, loopCount, loopMode, rr, endlEnable, keep;
 
 		explicit Keys(const juce::String& b) :
 			base(b),
@@ -452,10 +497,7 @@ namespace ParamEnv
 			loopTo(b + "_LOOPTO"),
 			loopCount(b + "_LOOPCNT"),
 			loopMode(b + "_LOOPMODE"),
-			stl(b + "_STL"),
-			lr(b + "_LR"),
 			rr(b + "_RR"),
-			endl(b + "_ENDL"),
 			endlEnable(b + "_ENDL_EN"),
 			keep(b + "_KEEP")
 		{
@@ -493,15 +535,13 @@ namespace ParamEnv
 		PrHelper::addInt(layout, prefix + k.loopCount, n + " Loop Count",
 			CPV::SsgSwEnv256::LoopCount::min, CPV::SsgSwEnv256::LoopCount::max, CPV::SsgSwEnv256::LoopCount::initial);
 		PrHelper::addInt(layout, prefix + k.loopMode, n + " Loop Mode", StepLoop::modeMin, StepLoop::modeMax, StepLoop::modeInitial);
-		PrHelper::addFloat(layout, prefix + k.stl, n + " STL", 0.0f, 1.0f, 0.0f);
-		PrHelper::addFloat(layout, prefix + k.lr, n + " LR", 0.0f, 1.0f, 0.0f);
 		PrHelper::addFloat(layout, prefix + k.rr, n + " RR", CPV::SsgSwEnv256::RR::min, CPV::SsgSwEnv256::RR::max, CPV::SsgSwEnv256::RR::initial);
-		PrHelper::addFloat(layout, prefix + k.endl, n + " EndL", 0.0f, 1.0f, 0.0f);
 		PrHelper::addBool(layout, prefix + k.endlEnable, n + " EndL Enable", false);
 		PrHelper::addBool(layout, prefix + k.keep, n + " Keep", false);
 	}
 
-	inline void setupPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, Ptrs& p, StepTableStore& tables)
+	// defaults は指し先ごとの値の組の初期値 (TARGET の並びの順)
+	inline void setupPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, Ptrs& p, StepTableStore& tables, const std::vector<float>& defaults)
 	{
 		const auto& k = keys();
 
@@ -512,21 +552,19 @@ namespace ParamEnv
 		p.loopTo = apvts.getRawParameterValue(prefix + k.loopTo);
 		p.loopCount = apvts.getRawParameterValue(prefix + k.loopCount);
 		p.loopMode = apvts.getRawParameterValue(prefix + k.loopMode);
-		p.stl = apvts.getRawParameterValue(prefix + k.stl);
-		p.lr = apvts.getRawParameterValue(prefix + k.lr);
 		p.rr = apvts.getRawParameterValue(prefix + k.rr);
-		p.endl = apvts.getRawParameterValue(prefix + k.endl);
 		p.endlEnable = apvts.getRawParameterValue(prefix + k.endlEnable);
 		p.keep = apvts.getRawParameterValue(prefix + k.keep);
 
-		// 段の R / L はプロセッサが持つ表から引く
-		p.table = &tables.get(prefix + k.base, rateInitial, 0.0f);
+		// 段の R と、指し先ごとの値の組はプロセッサが持つ表から引く
+		p.table = &tables.getWithLevelSets(prefix + k.base, rateInitial, defaults);
 	}
 
 	inline int target(const Ptrs& p) { return PrHelper::getInt(p.target); }
 
-	// stepped は指し先が整数や選択肢か。そのときは常に KEEP にする
-	inline void applyEnv(const Ptrs& p, StepEnvParams& params, bool stepped)
+	// stepped は指し先が整数や選択肢か。そのときは常に KEEP にする。
+	// set は値の組 (TARGET の値)。STL・L・LR・ENDL は音の側 (StepEnv) が組から取る
+	inline void applyEnv(const Ptrs& p, StepEnvParams& params, bool stepped, int set)
 	{
 		params.bypass = false;
 		params.steps = PrHelper::getInt(p.steps);
@@ -534,13 +572,14 @@ namespace ParamEnv
 		params.loopTo = PrHelper::getInt(p.loopTo);
 		params.loopCount = PrHelper::getInt(p.loopCount);
 		params.loopMode = PrHelper::getInt(p.loopMode);
-		params.stl = PrHelper::getFloat(p.stl);
-		params.lr = PrHelper::getFloat(p.lr);
+		params.stl = 0.0f;
+		params.lr = 0.0f;
 		params.rr = PrHelper::getFloat(p.rr);
-		params.endl = PrHelper::getFloat(p.endl);
+		params.endl = 0.0f;
 		params.endlEnable = PrHelper::getBool(p.endlEnable);
 		params.keep = stepped || PrHelper::getBool(p.keep);
 		params.table = p.table;
+		params.levelSet = set;
 	}
 }
 
@@ -674,14 +713,16 @@ public:
 	{
 		int scope = -1, index = 0;
 
-		ParamModCatalog::decodeChannelTarget(*catalog, ParamEnv::target(p), scope, index);
+		const int target = ParamEnv::target(p);
+
+		ParamModCatalog::decodeChannelTarget(*catalog, target, scope, index);
 
 		out.enable = PrHelper::getBool(p.enable) && slot(scope, index) != nullptr;
 		out.scope = scope;
 		out.index = index;
 		out.stepped = isStepped(scope, index);
 
-		ParamEnv::applyEnv(p, out.env, out.stepped);
+		ParamEnv::applyEnv(p, out.env, out.stepped, target);
 	}
 
 	// オペレーターの PARAM ENV を音の側の値にする。TL を指しているときは、
@@ -696,7 +737,7 @@ public:
 		out.index = index;
 		out.stepped = stepped;
 
-		ParamEnv::applyEnv(p, out.env, stepped);
+		ParamEnv::applyEnv(p, out.env, stepped, index);
 
 		if (index == catalog->tlIndex) {
 			out.enable = false;

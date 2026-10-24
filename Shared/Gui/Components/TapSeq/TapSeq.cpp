@@ -210,6 +210,7 @@ void GuiComponentTapSeq::applyStepCount()
     if ((int)target.getValue() > n) target.setValue(n, juce::dontSendNotification);
 
     rebindValue();
+    applyActive();
 
     // 行の数や棒の高さが変わると区分の高さが変わるので、並べ直してもらう
     if (isReady && (rowsBefore != list.getRowCount() || barsBefore != bars.getNaturalHeight())) ctx.editor.resized();
@@ -450,7 +451,8 @@ void GuiComponentTapSeq::applyActive()
     loops.setEnables(active && loop.getToggleState());
     loopSeparator.setEnabled(active);
 
-    target.setEnabledWithLabel(active);
+    // 1 段のときは選ぶ段が無い
+    target.setEnabledWithLabel(active && stepCount() > 1);
     value.setEnabled(active);
     skipLabel.setEnabled(active);
     skip.setEnabled(active);

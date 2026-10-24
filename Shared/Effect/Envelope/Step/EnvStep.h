@@ -48,6 +48,9 @@ struct StepEnvParams
 
 	// 段の R / L。nullptr なら表を持たない (段の値はすべて 0)。
 	const StepTable* table = nullptr;
+
+	// PARAM ENV (4.3.0)。0 以上なら、STL・段の L・LR・ENDL を表の値の組 (指し先ごと) から取る
+	int levelSet = -1;
 };
 
 class StepEnv
@@ -107,6 +110,9 @@ private:
 
 	const StepTable* table = nullptr;
 	std::uint32_t tableVersion = 0;
+
+	// 写している値の組 (PARAM ENV)。-1 は組を使わない
+	int levelSet = -1;
 
 	double sampleRate = 44100.0;
 

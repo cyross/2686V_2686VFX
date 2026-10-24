@@ -786,7 +786,7 @@ void RhythmCore::setParameters(const SynthCoreParams& params)
     }
 
     // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
-    if (params.liveDetune) {
+    if ((params.liveDetune || m_paramModLive)) {
         for (auto& pad : activePads()) pad.refreshFrequency();
     }
 }
