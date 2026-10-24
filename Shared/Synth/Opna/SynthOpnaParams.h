@@ -4,6 +4,8 @@
 
 #include <array>
 
+#include "Shared/Core/Synth/ParamMod.h"
+
 #include "./SynthOpnaParams.h"
 #include "./Operator/SynthOpnaOpParams.h"
 #include "../../Processor/Opna/ProcessorOpnaValues.h"
@@ -42,4 +44,7 @@ struct OpnaParams
     int pan = 0;
 
     std::array<OpnaOpParams, OpnaPrValue::ops> op;
+
+    // PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0)。ボイスごとに値を置き換える
+    ParamMod::ChipParams paramMod;
 };

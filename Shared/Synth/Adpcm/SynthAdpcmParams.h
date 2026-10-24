@@ -3,6 +3,8 @@
 
 #include <array>
 
+#include "Shared/Core/Synth/ParamMod.h"
+
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
@@ -47,4 +49,7 @@ struct AdpcmParams
     float pan = 0.5f; // ADDED: Pan
     bool loop = false; // Default false for drums
     int rootNote = 60; // Root Key (Middle C)
+
+    // PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0)。ボイスごとに値を置き換える
+    ParamMod::ChipParams paramMod;
 };

@@ -197,7 +197,8 @@ void GuiOpna::setup()
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    // CHIP DAC (実機の DAC を通す) の行も置く
+    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, true);
 
     algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Category::algFb, .detailVisible = true, .enableChangeDetailVisible = true });
 
@@ -299,6 +300,15 @@ void GuiOpna::setup()
     tapPitchSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
     tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
+    tapParamSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapParamSeq.category().onImport = [this] { tapParamSeq.importParams(); };
+    tapParamSeq.category().onExport = [this] { tapParamSeq.exportParams(); };
+
+    // [[PARAM ENV]] の大区分。チャンネルの PARAM ENV[256] (4.3.0)
+    paramEnvMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::paramEnv, .enableChangeDetailVisible = true });
+    paramEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder, ParamEnv::keys().enable, "Enable", true);
+    paramEnv.category().onImport = [this] { paramEnv.importParams(); };
+    paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     // チャンネルの設定を OPZX7S のパラメータファイルとして書き出す
     exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
@@ -530,6 +540,7 @@ void GuiOpna::setup()
     colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[256]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL/DET / FIX");
+    colTapParam.setup(stripCanvas, juce::String("") + "TAP PARAM SEQUENCER");
     colHwLfo.setup(stripCanvas, juce::String("") + "HW LFO / N88 LFO");
     colMask.setup(stripCanvas, juce::String("") + "MASK / MML");
 
@@ -632,9 +643,13 @@ void GuiOpna::setup()
     ssgHwPEnvOp.setupComponent(colSsgHwPEnv.contentCanvas, paramPrefix, tabOrder);
     wtAmpModOp.setupComponent(colAmpMod.contentCanvas, paramPrefix, tabOrder);
 
-    tlEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, tlEnv.spec(127).tableKey + "_ENABLE", "Enable", true);
-    tlEnv.category().onImport = [this] { tlEnv.importParams(); };
-    tlEnv.category().onExport = [this] { tlEnv.exportParams(); };
+    opParamEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, ParamEnv::keys().enable, "Enable", true);
+    opParamEnv.category().onImport = [this] { opParamEnv.importParams(); };
+    opParamEnv.category().onExport = [this] { opParamEnv.exportParams(); };
+
+    opTapParam.setupComponent(colTapParam.contentCanvas, paramPrefix, tabOrder);
+    opTapParam.category().onImport = [this] { opTapParam.importParams(); };
+    opTapParam.category().onExport = [this] { opTapParam.exportParams(); };
     ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
@@ -732,7 +747,7 @@ void GuiOpna::setup()
     for (auto* group : {
         &colAmp, &colSsgHwEnv, &colSsgSwEnv256,
         &colAmpMod, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv256,
-        &colMod, &colKs, &colHwLfo, &colMask,
+        &colMod, &colKs, &colTapParam, &colHwLfo, &colMask,
         })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -843,13 +858,23 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
     pitchMajorCat.endMajor(mRect);
 
+    // [[PARAM ENV]] の大区分。チャンネルの PARAM ENV[256] (4.3.0)
+    const bool paramEnvOpen = layoutMajorCategory(paramEnvMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+
+    paramEnv.setCategoryVisible(paramEnvOpen && pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+    paramEnv.layoutComponent(mRect);
+
+    paramEnvMajorCat.endMajor(mRect);
+
     // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
-    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::TapSeq) || pluginOf(ctx).isSimpleShown(SimpleView::TapParam));
 
     tapAmpSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapAmpSeq.layoutComponent(mRect);
     tapPitchSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapPitchSeq.layoutComponent(mRect);
+    tapParamSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapParam));
+    tapParamSeq.layoutComponent(mRect);
 
     tapMajorCat.endMajor(mRect);
 
@@ -964,7 +989,8 @@ void GuiOpna::updateOpEnable(int idx, bool enable)
     mmlSeparator.setEnabled(enable);
     mml.setEnabled(enable);
     pitchEnv.setEnabled(enable);
-    tlEnv.setEnabled(enable);
+    opParamEnv.setEnabled(enable);
+    opTapParam.setEnabled(enable);
 }
 
 void GuiOpna::updateRgDisplayAsOp(bool rgMode)
@@ -1029,7 +1055,8 @@ void GuiOpna::rebind(int opIndex)
     ssgSwPEnv256.rebind(code);
     ssgHwPEnvOp.rebind(code);
     wtAmpModOp.rebind(code);
-    tlEnv.rebind(code);
+    opParamEnv.rebind(code);
+    opTapParam.rebind(code);
     ssgHwEnvOp.rebind(code);
     wtModOp.rebind(code);
     fix.rebind(code);
@@ -1374,12 +1401,26 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
         updateRgDisplayAsOp(true);
         layoutOpAmpCat(rect);
 
-        // TL ENV。オペレーターの AMP ENV 区分のすぐ下
-        tlEnv.setCategoryVisible(true);
-        tlEnv.layoutComponent(rect);
+        // PARAM ENV[256] (4.0.0 の TL ENV の代わり)。オペレーターの AMP ENV 区分のすぐ下
+        opParamEnv.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+        opParamEnv.layoutComponent(rect);
 
         layoutOpOptionalCat(rect);
         layoutOpSsgEnvelopeCat(rect);
+        });
+
+    layoutCol(colKs, true, [&](juce::Rectangle<int>& rect) {
+        layoutOpKsCat(rect);
+        layoutOpDetCat(rect);
+
+        fix.setCategoryVisible(shown(SimpleView::Fix));
+        fix.layoutComponent(rect);
+        });
+
+    // TAP PARAM SEQUENCER (オペレーター)。KEY SCALE / MUL/DET の右
+    layoutCol(colTapParam, pluginOf(ctx).isSimpleShown(SimpleView::TapParam), [&](juce::Rectangle<int>& rect) {
+        opTapParam.setCategoryVisible(true);
+        opTapParam.layoutComponent(rect);
         });
 
     layoutCol(colSsgHwEnv, shown(SimpleView::SsgHwAmpEnv), [&](juce::Rectangle<int>& rect) {
@@ -1416,14 +1457,6 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
     layoutCol(colMod, shown(SimpleView::WtPitchMod), [&](juce::Rectangle<int>& rect) {
         wtModOp.setCategoryVisible(true);
         wtModOp.layoutComponent(rect);
-        });
-
-    layoutCol(colKs, true, [&](juce::Rectangle<int>& rect) {
-        layoutOpKsCat(rect);
-        layoutOpDetCat(rect);
-
-        fix.setCategoryVisible(shown(SimpleView::Fix));
-        fix.layoutComponent(rect);
         });
 
     layoutCol(colHwLfo, true, [&](juce::Rectangle<int>& rect) {
@@ -2545,6 +2578,7 @@ void GuiOpna::applyQualityParamFile(const juce::File& file)
 
     qualityComponent.setBit(reader->getInt("bit", qualityComponent.getBit()));
     qualityComponent.setRate(reader->getInt("rate", qualityComponent.getRate()));
+    qualityComponent.readOutputStage(*reader);
 }
 
 void GuiOpna::exportQualityParam()
@@ -2787,6 +2821,8 @@ void GuiOpna::readChParams(const Io::ParamReader& reader) {
     levelComponent.readParams(reader, "level");
     tapAmpSeq.readParams(reader, "tapAmp");
     tapPitchSeq.readParams(reader, "tapPitch");
+    tapParamSeq.readParams(reader, "tapParam");
+    paramEnv.readParams(reader, "paramEnv");
 
     // Algorithm & Feedback
     algSelector.setSelectedId(reader.getInt("alg", algSelector.getSelectedId()), juce::sendNotification);
@@ -2862,7 +2898,8 @@ void GuiOpna::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgSwPEnv256.readParams(r, "ssgSwPEnv256");
     ssgHwPEnvOp.readParams(r, "ssgHwPEnv");
     wtAmpModOp.readParams(r, "wtAmpMod");
-    tlEnv.readParams(r, "tlEnv");
+    opParamEnv.readParams(r, "paramEnv");
+    opTapParam.readParams(r, "tapParam");
     ssgHwEnvOp.readParams(r, "ssgHwEnv");
     wtModOp.readParams(r, "wtMod");
 }
@@ -2911,7 +2948,8 @@ void GuiOpna::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwPEnv256.writeParams(w, "ssgSwPEnv256");
     ssgHwPEnvOp.writeParams(w, "ssgHwPEnv");
     wtAmpModOp.writeParams(w, "wtAmpMod");
-    tlEnv.writeParams(w, "tlEnv");
+    opParamEnv.writeParams(w, "paramEnv");
+    opTapParam.writeParams(w, "tapParam");
     ssgHwEnvOp.writeParams(w, "ssgHwEnv");
     wtModOp.writeParams(w, "wtMod");
 }
@@ -3028,6 +3066,8 @@ void GuiOpna::writeChParams(Io::ParamWriter& writer) {
 	levelComponent.writeParams(writer, "level");
 	tapAmpSeq.writeParams(writer, "tapAmp");
 	tapPitchSeq.writeParams(writer, "tapPitch");
+	tapParamSeq.writeParams(writer, "tapParam");
+	paramEnv.writeParams(writer, "paramEnv");
 
 	// Algorithm & Feedback
 	writer.set("alg", algSelector.getSelectedId());
@@ -3158,6 +3198,7 @@ void GuiOpna::setImportingQualityParams(juce::StringArray& lines, int& index) {
 void GuiOpna::writeQualityParams(Io::ParamWriter& writer) {
 	writer.set("bit", qualityComponent.getBit());
 	writer.set("rate", qualityComponent.getRate());
+	qualityComponent.writeOutputStage(writer);
 
 
 }
@@ -3237,6 +3278,10 @@ void GuiOpna::bypassHiddenCategories()
         tapAmpSeq.setCategoryBypassed(true);
         tapPitchSeq.setCategoryBypassed(true);
     }
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) tapParamSeq.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) paramEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) opParamEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) opTapParam.setCategoryBypassed(true);
 }
 
 void GuiOpna::openEnabledCategories()

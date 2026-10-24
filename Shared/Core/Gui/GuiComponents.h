@@ -632,6 +632,7 @@ public:
     //   Shift         … 0.1 (実数のつまみだけ。整数のつまみでは 0)
     //   Ctrl          … 1
     //   Ctrl + Shift  … 10
+    //   Alt           … 100
     double labelDragAlignStep(const juce::ModifierKeys& mods) const;
 
     // 押しているキーからそろえる刻みを決める (上の決まり)。interval はつまみの間隔で、

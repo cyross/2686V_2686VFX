@@ -109,7 +109,7 @@ The driver trick of rewriting TL on every key-on to move the level can now be dr
 **TL ENV**. It is a TL version of SSG SW AMP ENV[256], with TL register values, directly below each operator's AMP ENV section.
 
 Switch it on with **Enable** at the top. It starts off, so existing patches sound the same.
-See [TL ENV](/2686V_2686VFX/en/chips/common/#tl-env) for details.
+See [PARAM ENV\[256\]](/2686V_2686VFX/en/chips/common/#param-env256) for details (in 4.3.0, TL ENV became the PARAM ENV target TL).
 
 ## ALG ENV for FM channels
 

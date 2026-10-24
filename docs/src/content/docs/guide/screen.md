@@ -72,7 +72,7 @@ OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM のタブは、**上にエンベ
 | ところ | はたらき |
 | --- | --- |
 | 左の大きな枠 | TARGET が指しているオペレーター（パッド）のグラフを大きく出します（4.0.0 から）。波形のあるタブ（OPZX7S / RHYTHM）は波形もその上に大きく出ます。TARGET を切り替えると、すぐにその内容になります |
-| 拡大 | 左の大きな枠と、チャンネルのグラフは横に広げられます（4.0.0 から）。下のつまみで 1.0〜32.0 倍（帯のドラッグ中に **Shift** で 0.1、**Ctrl** で 1、**Ctrl + Shift** で 10 刻みへそろう。4.2.0 から）、x1 / x2 / x4 / x8 / x16 / x32 のボタンで直に。グラフの中でホイールを回しても変わり、**右ボタンで引きずる**か下の送り棒で横へ送ります。小さな枠は広げられません |
+| 拡大 | 左の大きな枠と、チャンネルのグラフは横に広げられます（4.0.0 から）。下のつまみで 1.0〜32.0 倍（帯のドラッグ中に **Shift** で 0.1、**Ctrl** で 1、**Ctrl + Shift** で 10 刻みへそろう。4.2.0 から。**Alt** で 100 刻みは 4.3.0 から）、x1 / x2 / x4 / x8 / x16 / x32 のボタンで直に。グラフの中でホイールを回しても変わり、**右ボタンで引きずる**か下の送り棒で横へ送ります。小さな枠は広げられません |
 | 右の小さな枠 | オペレーター（パッド）ごとのエンベロープグラフ。横 4 枚ずつ並びます。**押すとそこへ TARGET が移ります** |
 | 枠線 | TARGET が指している枠だけ濃く囲います |
 | TARGET | 下の設定が指しているオペレーター（パッド）。画面を閉じても覚えています |
@@ -93,6 +93,9 @@ OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / RHYTHM のタブは、**上にエンベ
 
 設定の列は最初から開いた状態です。縦に短い区分は、いくつかを 1 列へまとめて
 あります（たとえば OPN の「KEY SCALE / MUL/DET / FIX / N88 LFO」）。
+
+FM 音源のタブでは、KEY SCALE / MUL/DET の列が AMP ENV / OPTIONAL の列のすぐ右に
+並びます（4.3.0 から）。音色を作るときに一緒に触ることが多いためです。
 
 TARGET は **Ctrl + ← / →** でひとつずつ、**Ctrl + 数字**でその番号へ動かせます
 （[ショートカットキー](/2686V_2686VFX/reference/shortcuts/)）。
@@ -157,6 +160,8 @@ TARGET で指し先を切り替えたときや、プリセットを読み込ん�
 | --- | --- |
 | **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
 | **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
+| **[[PARAM ENV]]** | PARAM ENV[256]（チャンネル。4.3.0 から） |
+| **[[TAP SEQUENCER]]** | TAP AMP SEQUENCER / TAP PITCH SEQUENCER / TAP PARAM SEQUENCER（4.3.0 から） |
 
 - 対象は OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 / WT+ /
   ADPCM / ADPCM+ / BEEP のタブです。区分の並び順は変わりません
@@ -202,6 +207,8 @@ WT PITCH MOD が残るのはそのためです。2686VFX では変調の枠が�
 | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 | LFO / MUL・DET / FIX / UNISON・HARMONY |
 | TAP SEQUENCER (TAP AMP / TAP PITCH SEQUENCER) |
+| PARAM ENV[256] (チャンネルとオペレーター。4.3.0 から) |
+| TAP PARAM SEQUENCER (4.3.0 から) |
 
 設定は他の項目と同じく設定ファイルへ保存されます。
 
@@ -262,7 +269,8 @@ N88-BASIC(86) と同じく**大小を逆にして**見せます（初期状態�
 - **左の名前（ラベル）を押したまま上下へドラッグ**しても値が動きます（4.2.0 から）。
   上へで増え、200 px で範囲の端から端まで。**STEPS** で刻みを選んでいるときは、
   その刻みごとに動きます。STEPS を使っていないときは、**Shift** で 0.1 刻み
-  （実数のスライダーだけ）、**Ctrl** で 1 刻み、**Ctrl + Shift** で 10 刻みへ
+  （実数のスライダーだけ）、**Ctrl** で 1 刻み、**Ctrl + Shift** で 10 刻み、
+  **Alt** で 100 刻み（4.3.0 から。範囲が 100 より狭いスライダーでは何もしない）へ
   そろいます
 
 ### ナッジ

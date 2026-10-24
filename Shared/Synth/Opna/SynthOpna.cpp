@@ -100,26 +100,29 @@ void OpnaCore::setSampleRate(double sampleRate) {
 }
 
 void OpnaCore::setParameters(const SynthCoreParams& params) {
-    m_level = params.opna.level;
-    m_delaySeconds = params.opna.delay;
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.opna そのもの)
+    const auto& chipParams = paramModResolve(params, params.opna, m_modParams);
 
-    m_algorithmParam = params.opna.algFb.algorithm;
-    m_algEnvEnable = params.opna.algEnvEnable;
-    m_algEnv.setParameters(params.opna.algEnv);
+    m_level = chipParams.level;
+    m_delaySeconds = chipParams.delay;
+
+    m_algorithmParam = chipParams.algFb.algorithm;
+    m_algEnvEnable = chipParams.algEnvEnable;
+    m_algEnv.setParameters(chipParams.algEnv);
     m_algorithm = m_algEnvEnable ? algEnvAlgorithm() : m_algorithmParam;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_n88Lfo.setParameters(params.opna.glLfo);
-    m_ssgSwEnv256g.setParameters(params.opna.ssgSwEnv256g);
-    m_ssgSwPEnv256g.setParameters(params.opna.ssgSwPEnv256g);
-    m_ampEnvG.setParameters(params.opna.ampEnvG);
-    m_wtMod.setParameters(params.opna.wtMod);
-    m_wtAmpMod.setParameters(params.opna.wtAmpMod);
-    m_ssgHwEnv.setParameters(params.opna.ssgHwEnv);
-    m_ssgHwPEnv.setParameters(params.opna.ssgHwPEnv);
-    m_pan = params.opna.pan;
+    m_n88Lfo.setParameters(chipParams.glLfo);
+    m_ssgSwEnv256g.setParameters(chipParams.ssgSwEnv256g);
+    m_ssgSwPEnv256g.setParameters(chipParams.ssgSwPEnv256g);
+    m_ampEnvG.setParameters(chipParams.ampEnvG);
+    m_wtMod.setParameters(chipParams.wtMod);
+    m_wtAmpMod.setParameters(chipParams.wtAmpMod);
+    m_ssgHwEnv.setParameters(chipParams.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(chipParams.ssgHwPEnv);
+    m_pan = chipParams.pan;
 
     if (m_pan == 0) {
 		m_pan_l_rate = 1.0f;
@@ -130,8 +133,8 @@ void OpnaCore::setParameters(const SynthCoreParams& params) {
         m_pan_r_rate = (float)((m_pan + 1) >> 1);
     }
 
-    if (m_rateIndex != params.opna.quality.rate) {
-        m_rateIndex = params.opna.quality.rate;
+    if (m_rateIndex != chipParams.quality.rate) {
+        m_rateIndex = chipParams.quality.rate;
 
 		m_targetRate = getTargetRate(m_rateIndex);
 		float target = (float)m_targetRate;
@@ -151,26 +154,26 @@ void OpnaCore::setParameters(const SynthCoreParams& params) {
         m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opna.quality.bit);
-	m_interpMode = params.opna.quality.interp;
+    m_quantizeSteps = getTargetBitDepth(chipParams.quality.bit);
+	m_interpMode = chipParams.quality.interp;
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opna.op[0], m_algorithm != 2 ? params.opna.algFb.feedback : 0.0f);
+    m_operators[0].setParameters(chipParams.op[0], m_algorithm != 2 ? chipParams.algFb.feedback : 0.0f);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[0] = params.opna.op[0].mask;
-    m_operators[1].setParameters(params.opna.op[1], 0.0f);
+    m_opMask[0] = chipParams.op[0].mask;
+    m_operators[1].setParameters(chipParams.op[1], 0.0f);
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[1] = params.opna.op[1].mask;
-    m_operators[2].setParameters(params.opna.op[2], m_algorithm == 2 ? params.opna.algFb.feedback : 0.0f);
+    m_opMask[1] = chipParams.op[1].mask;
+    m_operators[2].setParameters(chipParams.op[2], m_algorithm == 2 ? chipParams.algFb.feedback : 0.0f);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[2] = params.opna.op[2].mask;
-    m_operators[3].setParameters(params.opna.op[3], 0.0f);
+    m_opMask[2] = chipParams.op[2].mask;
+    m_operators[3].setParameters(chipParams.op[3], 0.0f);
     m_operators[3].setMonoMode(m_isMonoMode);
     m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[3] = params.opna.op[3].mask;
+    m_opMask[3] = chipParams.op[3].mask;
 
     // アルゴリズムに基づくルーティングのキャッシュを更新
     updateRoutingCache();

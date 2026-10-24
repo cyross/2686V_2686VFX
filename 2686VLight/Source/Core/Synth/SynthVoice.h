@@ -109,9 +109,18 @@ public:
         m_tapCents = cents;
     }
 
+    // 次に鳴らす音の TAP PARAM SEQUENCER の組。TAP AMP / PITCH と同じく、シンセが打鍵ごとに
+    // 1 回だけ取り出してユニゾンの声すべてへ配る
+    void setTapParams(const ParamMod::TapStep& step) { m_tapParam = step; }
+
+    // PARAM ENV / TAP PARAM SEQUENCER を始める。押したとき (startNote) と、モノで
+    // 鳴り残っているコアを直に叩くとき (レガート) に呼ぶ
+    void beginParamMod(bool isLegato);
+
     void setArpParams(bool enable, int freq, bool smooth)
     {
         m_arpEnable = enable;
+        m_arpFreqBase = freq;
         m_arpFreq = freq;
         m_arpSmooth = smooth;
         m_arpPhase = 0.0;
@@ -122,6 +131,19 @@ private:
 
     bool m_arpEnable = false;
     int m_arpFreq = 60;
+
+    // パラメータの ARP FREQ。PARAM ENV / TAP PARAM SEQUENCER が置き換えていないときは m_arpFreq もこれ
+    int m_arpFreqBase = 60;
+
+    // TAP PARAM SEQUENCER の、打鍵 1 回ぶんの組
+    ParamMod::TapStep m_tapParam;
+
+    // PARAM ENV を進める間隔 (サンプル)
+    static constexpr int paramModChunk = 16;
+
+    void applyArpOverride();
+    void advanceParamMod(SynthCore* core, int n);
+    void renderCore(SynthCore* core, float* outR, float* outL, int startSample, int numSamples, bool& isActive);
     bool m_arpSmooth = true;
     double m_arpPhase = 0.0; // スロット単位の位相 (1.0 で次のボイスへ)
 

@@ -6,9 +6,10 @@
 #include "../../Core/Processor/ProcessorBase.h"
 #include "../../Core/Processor/ProcessorStructs.h"
 #include "../../Core/Processor/ProcessorTapSeq.h"
+#include "../../Core/Processor/ProcessorParamMod.h"
 #include "../../Core/Processor/ProcessorValueEnv.h"
 
-class OpmProcessor : public PrBase
+class OpmProcessor : public PrBase, public ParamMod::Applier
 {
     PrPtrsOpmBasic pBasic;
     PrPtrsAlgFb pAlgFb;
@@ -29,7 +30,8 @@ class OpmProcessor : public PrBase
     std::array<PrPtrsFix, OpmPrValue::ops> pFix;
     std::array<PrPtrsPitchEnvOp, OpmPrValue::ops> pPitchEnv;
     std::array<PrPtrsSsgSwEnv256Op, OpmPrValue::ops> pSsgSwEnv256;
-    std::array<ValueEnv::Ptrs, OpmPrValue::ops> pTlEnv;
+    // PARAM ENV[256] (オペレーター)。4.0.0 の TL ENV の代わり
+    std::array<ParamEnv::Ptrs, OpmPrValue::ops> pOpParamEnv;
 
     // ALG ENV (チャンネル)
     ValueEnv::Ptrs pAlgEnv;
@@ -45,10 +47,28 @@ class OpmProcessor : public PrBase
     // TAP AMP / PITCH SEQUENCER
     TapSeq::Ptrs pTapAmp;
     TapSeq::Ptrs pTapPitch;
+
+    // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
+    TapSeq::Ptrs pTapParam;
+
+    // TAP PARAM SEQUENCER (オペレーターごと)
+    std::array<TapSeq::Ptrs, OpmPrValue::ops> pOpTapParam;
+    ParamEnv::Ptrs pParamEnv;
+
+    // PARAM ENV / TAP PARAM SEQUENCER の指し先
+    ParamModResolver modResolver;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;
     // modWaves は WT PITCH MOD の変調波形の置き場所。
     // パラメータではなくプロセッサが持つので、ここで受け取る。
     void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables);
+
+    // PARAM ENV / TAP PARAM SEQUENCER (4.3.0)。ボイスが置き換えた値で読み直す
+    void apply(void* chip, const ParamMod::Override* list, int count) override;
+
+    const ParamModResolver& paramMod() const { return modResolver; }
+private:
+    void applyChannel(OpmParams& p);
+    void applyOp(OpmParams& p, int op);
 };

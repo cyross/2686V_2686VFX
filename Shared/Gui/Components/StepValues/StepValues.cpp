@@ -59,7 +59,7 @@ void GuiStepValues::paint(juce::Graphics& g)
 
         const juce::String label = i < (int)labels.size() ? labels[(size_t)i] : juce::String();
         const bool isSkipped = i < (int)skipped.size() && skipped[(size_t)i];
-        const juce::String value = isSkipped ? juce::String("SKIP") : juce::String(values[(size_t)i], decimals);
+        const juce::String value = isSkipped ? juce::String("SKIP") : (format ? format(values[(size_t)i]) : juce::String(values[(size_t)i], decimals));
 
         g.drawFittedText(label.isEmpty() ? value : label + ": " + value, inner.toNearestInt(),
                          juce::Justification::centredLeft, 1, 0.7f);

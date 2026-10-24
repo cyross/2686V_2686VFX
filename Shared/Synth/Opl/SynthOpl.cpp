@@ -81,24 +81,27 @@ void OplCore::setSampleRate(double sampleRate) {
 }
 
 void OplCore::setParameters(const SynthCoreParams& params) {
-    m_level = params.opl.level;
-    m_delaySeconds = params.opl.delay;
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.opl そのもの)
+    const auto& chipParams = paramModResolve(params, params.opl, m_modParams);
 
-    m_algorithmParam = params.opl.algFb.algorithm; // 0:Serial(FM), 1:Parallel(AM)
-    m_algEnvEnable = params.opl.algEnvEnable;
-    m_algEnv.setParameters(params.opl.algEnv);
+    m_level = chipParams.level;
+    m_delaySeconds = chipParams.delay;
+
+    m_algorithmParam = chipParams.algFb.algorithm; // 0:Serial(FM), 1:Parallel(AM)
+    m_algEnvEnable = chipParams.algEnvEnable;
+    m_algEnv.setParameters(chipParams.algEnv);
     m_algorithm = m_algEnvEnable ? algEnvAlgorithm() : m_algorithmParam;
 
-    m_ssgSwEnv256g.setParameters(params.opl.ssgSwEnv256g);
-    m_ssgSwPEnv256g.setParameters(params.opl.ssgSwPEnv256g);
-    m_ampEnvG.setParameters(params.opl.ampEnvG);
-    m_wtMod.setParameters(params.opl.wtMod);
-    m_wtAmpMod.setParameters(params.opl.wtAmpMod);
-    m_ssgHwEnv.setParameters(params.opl.ssgHwEnv);
-    m_ssgHwPEnv.setParameters(params.opl.ssgHwPEnv);
+    m_ssgSwEnv256g.setParameters(chipParams.ssgSwEnv256g);
+    m_ssgSwPEnv256g.setParameters(chipParams.ssgSwPEnv256g);
+    m_ampEnvG.setParameters(chipParams.ampEnvG);
+    m_wtMod.setParameters(chipParams.wtMod);
+    m_wtAmpMod.setParameters(chipParams.wtAmpMod);
+    m_ssgHwEnv.setParameters(chipParams.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(chipParams.ssgHwPEnv);
 
-    if (m_rateIndex != params.opl.quality.rate) {
-        m_rateIndex = params.opl.quality.rate;
+    if (m_rateIndex != chipParams.quality.rate) {
+        m_rateIndex = chipParams.quality.rate;
 
 		m_targetRate = getTargetRate(m_rateIndex);
 		double target = m_targetRate;
@@ -114,18 +117,18 @@ void OplCore::setParameters(const SynthCoreParams& params) {
         m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opl.quality.bit);
-	m_interpMode = params.opl.quality.interp;
+    m_quantizeSteps = getTargetBitDepth(chipParams.quality.bit);
+	m_interpMode = chipParams.quality.interp;
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opl.op[0], params.opl.algFb.feedback);
+    m_operators[0].setParameters(chipParams.op[0], chipParams.algFb.feedback);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[0] = params.opl.op[0].mask;
-    m_operators[1].setParameters(params.opl.op[1], 0.0f);
+    m_opMask[0] = chipParams.op[0].mask;
+    m_operators[1].setParameters(chipParams.op[1], 0.0f);
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[1] = params.opl.op[1].mask;
+    m_opMask[1] = chipParams.op[1].mask;
 
     // アルゴリズムに基づくルーティングのキャッシュを更新
     updateRoutingCache();

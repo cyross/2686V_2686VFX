@@ -4,6 +4,7 @@
 #include <JuceHeader.h>
 
 #include "Shared/Gui/Components/TapSeq/TapSeq.h"
+#include "Shared/Gui/Components/TapParam/TapParam.h"
 #include "Shared/Gui/Components/FmToOpzx7/FmToOpzx7.h"
 
 #include "Shared/Core/Io/ParamFile.h"
@@ -105,6 +106,11 @@ class GuiOpn : public GuiBase
     GuiComponentTapSeq tapAmpSeq;
     GuiComponentTapSeq tapPitchSeq;
 
+    // TAP PARAM SEQUENCER と、チャンネルの PARAM ENV[256] (4.3.0)
+    GuiComponentTapParam tapParamSeq;
+    GuiCategoryLabel paramEnvMajorCat;
+    GuiComponentParamEnv paramEnv;
+
     // OPZX7S のパラメータファイルへ書き出す
     GuiTextButton exportOpzx7Btn;
 
@@ -167,6 +173,7 @@ class GuiOpn : public GuiBase
     GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
+    GuiScrollGroup colTapParam;
     GuiScrollGroup colMask;
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnv;
@@ -178,7 +185,11 @@ class GuiOpn : public GuiBase
     GuiComponentWtAmpMod wtAmpModOp;
 
     // TL ENV。オペレーターの AMP ENV 区分のすぐ下 (同じ列)
-    GuiComponentTlEnv tlEnv;
+    // PARAM ENV[256] (オペレーター)。4.0.0 の TL ENV の代わり。TARGET の初期値は TL
+    GuiComponentParamEnv opParamEnv;
+
+    // TAP PARAM SEQUENCER (オペレーター)。そのオペレーターのパラメータを打鍵ごとに置き換える
+    GuiComponentTapParam opTapParam;
 
     // ALG ENV。ALGORITHM/FEEDBACK の FEEDBACK の下
     GuiComponentAlgEnv algEnv;
@@ -294,6 +305,9 @@ public:
         tapMajorCat(context),
         tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
         tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
+        tapParamSeq(context, ParamModCatalog::opn()),
+        paramEnvMajorCat(context),
+        paramEnv(context, GuiComponentParamEnv::channelSpec(ParamModCatalog::opn(), OpnPrValue::ops)),
         exportOpzx7Btn(context),
         broadcastLevelButton(context),
         copyOpParamBtn(context),
@@ -333,6 +347,7 @@ public:
         colSsgSwPEnv256(context),
         colMod(context),
         colKs(context),
+        colTapParam(context),
         colMask(context),
         catDet(context),
         catAmp(context),
@@ -345,7 +360,8 @@ public:
         ssgSwPEnv256(context),
         ssgHwPEnvOp(context),
         wtAmpModOp(context),
-        tlEnv(context, 127),
+        opParamEnv(context, GuiComponentParamEnv::opSpec(ParamModCatalog::opn(), 127.0f)),
+        opTapParam(context, ParamModCatalog::opn(), true),
         algEnv(context, OpnPrValue::algorithms),
         ssgHwEnvOp(context),
         wtModOp(context),

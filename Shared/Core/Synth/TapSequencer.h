@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "./StepTable.h"
+#include "./ParamMod.h"
 
 // ============================================================================
 // TAP AMP / PITCH SEQUENCER (音の側)
@@ -86,4 +87,37 @@ inline float tapSeqTake(const TapSeqParams& p, float neutral)
     if (p.table->skipped(s + 1)) return neutral;
 
     return p.table->level(s + 1);
+}
+
+// TAP PARAM SEQUENCER (4.3.0)。押したときに次の段へ進め、その段の組を out の後ろへ足す。
+// 切れていれば足さない。SKIP の段では進めたうえで足さない。段の進め方は TAP AMP / PITCH と同じ。
+// 表の組は持ち主 (チャンネルかオペレーター) の指し先なので、scope は持ち主のものにする
+// (-1 がチャンネル、0 からがオペレーター・パッド)。
+inline void tapParamTake(const TapSeqParams& p, int scope, ParamMod::TapStep& out)
+{
+    if (!p.enable || p.table == nullptr) return;
+
+    const int s = tapSeqForward(p, p.table->cursor.load(std::memory_order_relaxed));
+
+    p.table->cursor.store(s, std::memory_order_relaxed);
+
+    if (p.table->skipped(s + 1)) return;
+
+    const int n = p.table->pairCount(s + 1);
+
+    for (int i = 0; i < n && out.count < ParamMod::maxTapPairs; ++i) {
+        const auto pair = p.table->pairAt(s + 1, i);
+
+        out.pairs[(size_t)out.count++] = { scope, pair.index, pair.value };
+    }
+}
+
+// チャンネルと、オペレーター (パッド) ごとの TAP PARAM SEQUENCER を 1 打鍵ぶん進め、組をまとめる
+inline void tapParamTakeAll(const TapSeqParams& channel, const TapSeqParams* ops, int opCount, ParamMod::TapStep& out)
+{
+    out.count = 0;
+
+    tapParamTake(channel, -1, out);
+
+    for (int op = 0; op < opCount && op < ParamMod::maxOps; ++op) tapParamTake(ops[op], op, out);
 }

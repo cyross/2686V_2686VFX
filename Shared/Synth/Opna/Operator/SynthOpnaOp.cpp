@@ -446,7 +446,8 @@ void OpnaOperator::getSample(float& output, float modulator, float feedbackModul
 // 段は常に KEEP なので値は段の頭でしか変わらない。同じあいだは作り直さない。
 float OpnaOperator::tlEnvGain()
 {
-    const float value = m_tlEnv.process();
+    // 段の値は 0〜1 (4.3.0 の PARAM ENV)。TL のレジスタ値へ戻す
+    const float value = std::round(m_tlEnv.process() * m_params.tlEnvMax);
     const float baseDb = m_ampAdsr.tlDb();
 
     if (value != m_tlEnvValue || baseDb != m_tlEnvBaseDb) {

@@ -1,6 +1,7 @@
 ﻿#include "PluginProcessor.h"
 #include "Shared/Core/Synth/StepTableIo.h"
 #include "Shared/Core/Io/IoStepEnvLegacy.h"
+#include "Shared/Core/Io/IoParamEnvLegacy.h"
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 #include "../Const/ConstPlugin.h"
 #include "../../Effect/Fx/FxOrder.h"
@@ -11,6 +12,7 @@
 
 #include "Shared/Core/Processor/ProcessorNames.h"
 #include "Shared/Core/Processor/ProcessorHelper.h"
+#include "Shared/Core/Synth/ChipDac.h"
 #include "Shared/Core/Io/IoMovedFile.h"
 #include "Shared/Core/Io/IoVersion.h"
 #include "Shared/Processor/Wt2/ProcessorWt2Keys.h"
@@ -26,6 +28,20 @@ namespace
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat settingsFormat{ "settings", 1 };
 	const Io::ParamFormat presetFormat{ "preset", 1 };
+
+	// CHIP DAC (QUALITY)。鳴らしている音源が実機の DAC を通すよう指定して
+	// いれば、その DAC の形を返す。SSG は音源の中で通すので、ここには無い。
+	const ChipDac::Spec* chipDacOf(const SynthParams& params)
+	{
+		switch (params.mode) {
+		case OscMode::OPNA: return params.opna.quality.chipDac ? &ChipDac::opna : nullptr;
+		case OscMode::OPN:  return params.opn.quality.chipDac ? &ChipDac::opn : nullptr;
+		case OscMode::OPL:  return params.opl.quality.chipDac ? &ChipDac::opl : nullptr;
+		case OscMode::OPL3: return params.opl3.quality.chipDac ? &ChipDac::opl3 : nullptr;
+		case OscMode::OPM:  return params.opm.quality.chipDac ? &ChipDac::opm : nullptr;
+		default: return nullptr;
+		}
+	}
 
 	// 読み込んだ音声ファイルが、そのまま扱える大きさかどうか。
 	// createReaderFor は「形式が分かった」ことしか言わない。チャンネル数 0 や、
@@ -329,6 +345,10 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     m_adpcmPlusPcm[(size_t)adpcmPlusSlot].acquireForAudio();
     m_currentParams.adpcmPlus.source = &m_adpcmPlusPcm[(size_t)adpcmPlusSlot].forAudio();
 
+    // PARAM ENV / TAP PARAM SEQUENCER が ADPCM+ の VOICE を置き換えると、選んでいないスロットも鳴る (4.3.0)。
+    // ADPCM+ の行は音源を絞ったプラグインで丸ごと落とすので、1 行に収めてある (tools/gen_plugin.py)
+    for (int adpcmPlusIdx = 0; adpcmPlusIdx < Global::AdpcmPlus::slots; ++adpcmPlusIdx) { m_adpcmPlusPcm[(size_t)adpcmPlusIdx].acquireForAudio(); m_currentParams.adpcmPlus.sources[(size_t)adpcmPlusIdx] = &m_adpcmPlusPcm[(size_t)adpcmPlusIdx].forAudio(); }
+
     if (m_currentParams.mode == OscMode::RHYTHM)
     {
         for (int i = 0; i < RhythmPrValue::pads; ++i) {
@@ -358,6 +378,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
             triggerAsyncUpdate();
         }
+
+        // VOICE を置き換えると選んでいないスロットも鳴るので、読み込んであるスロットはすべて符号化しておく (4.3.0)
+        for (int adpcmPlusIdx = 0; adpcmPlusIdx < Global::AdpcmPlus::slots; ++adpcmPlusIdx) if (adpcmPlusIdx != adpcmPlusSlot && m_adpcmPlusPcm[(size_t)adpcmPlusIdx].needsRebuild(q, r, clean)) { m_adpcmPlusWantQuality[(size_t)adpcmPlusIdx].store(q, std::memory_order_relaxed); m_adpcmPlusWantRate[(size_t)adpcmPlusIdx].store(r, std::memory_order_relaxed); m_adpcmPlusWantClean[(size_t)adpcmPlusIdx].store(clean, std::memory_order_relaxed); triggerAsyncUpdate(); }
     }
 
     if (m_currentParams.mode == OscMode::ADPCM)
@@ -411,6 +434,14 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     // シンセの発音
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+    // CHIP DAC。実機は全チャンネルを足してから DAC へ送るので、ボイスを
+    // 混ぜ終えたあとの音へ通す。
+    if (const auto* dac = chipDacOf(m_currentParams)) {
+        for (int ch = 0; ch < buffer.getNumChannels(); ++ch) {
+            ChipDac::process(buffer.getWritePointer(ch), buffer.getNumSamples(), *dac);
+        }
+    }
 
     // 再生ランプ用に、音が出ているかを見る。FX を通す前の、音源そのものの音。
     {
@@ -712,6 +743,9 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwEnv);
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwPEnv);
         StepEnvLegacy::convertSixStep(*xmlState, stepTables);
+
+        // 4.2.x までの TL ENV は PARAM ENV[256] (TARGET が TL) へ写す
+        ParamEnvLegacy::convertState(*xmlState, stepTables);
 
         while (auto* tables = xmlState->getChildByName(StepTableIo::xmlTag)) xmlState->removeChildElement(tables, true);
 
@@ -2202,6 +2236,8 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     // 切らないと、プレビューを描き直すたびに段が進み、次に押した音が 1 段目にならない。
     params.tapAmp.enable = false;
     params.tapPitch.enable = false;
+    params.tapParam.enable = false;
+    params.tapParamOpCount = 0;
 
     if (params.mode == OscMode::OPZX7)
     {
@@ -2229,6 +2265,7 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     const int adpcmPlusSlot = std::clamp(params.adpcmPlus.slot, 0, Global::AdpcmPlus::slots - 1);
 
     params.adpcmPlus.source = &m_adpcmPlusPcm[(size_t)adpcmPlusSlot].forAudio();
+    for (int adpcmPlusIdx = 0; adpcmPlusIdx < Global::AdpcmPlus::slots; ++adpcmPlusIdx) params.adpcmPlus.sources[(size_t)adpcmPlusIdx] = &m_adpcmPlusPcm[(size_t)adpcmPlusIdx].forAudio();
 
     params.monoMode = PrHelper::getBool(pMonoMode);
     params.useVelocity = PrHelper::getBool(pUseVelocity);

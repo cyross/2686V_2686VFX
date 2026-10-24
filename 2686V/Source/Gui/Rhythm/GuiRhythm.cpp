@@ -121,6 +121,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colLfo.setup(stripCanvas, juce::String("") + "LFO");
     colMulDet.setup(stripCanvas, juce::String("") + "MUL/DET / FIX");
+    colTapParam.setup(stripCanvas, juce::String("") + "TAP PARAM SEQUENCER");
 
     // 今どのパッドを触っているか。名前は rebind で入れ替える。
     padNameLabel.setup({ .parent = *this, .title = Io::empty,
@@ -346,6 +347,10 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     ssgSwPEnv256Component.setupComponent(colSsgSwPEnv256.contentCanvas, padPrefix, tabOrder, CPK::ssgSwPEnv256 + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwPEnv256::bypass);
 
+    tapParamComponent.setupComponent(colTapParam.contentCanvas, padPrefix, tabOrder);
+    tapParamComponent.category().onImport = [this] { tapParamComponent.importParams(); };
+    tapParamComponent.category().onExport = [this] { tapParamComponent.exportParams(); };
+
     mulDetuneComponent.setupComponent(colMulDet.contentCanvas, padPrefix, tabOrder);
 
     lfoComponent.setupComponent(colLfo.contentCanvas, padPrefix, tabOrder);
@@ -363,7 +368,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
         &colForm, &colOptional, &colAmpEnv, &colSsgHwEnv,
         &colSsgSwEnv256, &colAmpMod, &colPitchEnv,
         &colSsgHwPEnv, &colSsgSwPEnv256, &colMod, &colLfo,
-        &colMulDet,
+        &colMulDet, &colTapParam,
         })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -531,6 +536,12 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
         fixComponent.setCategoryVisible(shown(SimpleView::Fix));
         fixComponent.layoutComponent(rect);
+        });
+
+    // TAP PARAM SEQUENCER (パッド)。MUL/DET / FIX の右
+    layoutCol(colTapParam, pluginOf(ctx).isSimpleShown(SimpleView::TapParam), [&](juce::Rectangle<int>& rect) {
+        tapParamComponent.setCategoryVisible(true);
+        tapParamComponent.layoutComponent(rect);
         });
 
     stripCanvas.setSize(juce::jmax(1, x - colGap), colH);
@@ -828,6 +839,7 @@ void RhythmPadGui::rebind(int index)
     pitchEnvComponent.rebind(padPrefix);
     ssgSwEnv256Component.rebind(padPrefix);
     ssgSwPEnv256Component.rebind(padPrefix);
+    tapParamComponent.rebind(padPrefix);
     mulDetuneComponent.rebind(padPrefix);
     lfoComponent.rebind(padPrefix);
     ssgHwEnv.rebind(padPrefix);
@@ -1225,6 +1237,7 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     ampModComponent.readParams(r, "wtAmpMod");
     ssgSwEnv256Component.readParams(r, "ssgSwEnv256");
     ssgSwPEnv256Component.readParams(r, "ssgSwPEnv256");
+    tapParamComponent.readParams(r, "tapParam");
     mulDetuneComponent.readParams(r, "mulDetune");
     lfoComponent.readParams(r, "lfo");
     qualityPcmComponent.readParams(r, "qualityPcm");
@@ -1262,6 +1275,7 @@ void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     ampModComponent.writeParams(w, "wtAmpMod");
     ssgSwEnv256Component.writeParams(w, "ssgSwEnv256");
     ssgSwPEnv256Component.writeParams(w, "ssgSwPEnv256");
+    tapParamComponent.writeParams(w, "tapParam");
     mulDetuneComponent.writeParams(w, "mulDetune");
     lfoComponent.writeParams(w, "lfo");
     qualityPcmComponent.writeParams(w, "qualityPcm");
@@ -1276,6 +1290,9 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     tapMajorCat(context),
     tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
     tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
+    tapParamSeq(context, ParamModCatalog::rhythm()),
+    paramEnvMajorCat(context),
+    paramEnv(context, GuiComponentParamEnv::channelSpec(ParamModCatalog::rhythm(), RhythmPrValue::pads)),
     midiComponent(context),
     editComponent(context),
     utilityCat(context),
@@ -1335,6 +1352,15 @@ void GuiRhythm::setup()
     tapPitchSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
     tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
+    tapParamSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapParamSeq.category().onImport = [this] { tapParamSeq.importParams(); };
+    tapParamSeq.category().onExport = [this] { tapParamSeq.exportParams(); };
+
+    // [[PARAM ENV]] の大区分。チャンネルの PARAM ENV[256] (4.3.0)
+    paramEnvMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::paramEnv, .enableChangeDetailVisible = true });
+    paramEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder, ParamEnv::keys().enable, "Enable", true);
+    paramEnv.category().onImport = [this] { paramEnv.importParams(); };
+    paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::util, .enableChangeDetailVisible = true });
 
@@ -1519,13 +1545,23 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     unisonComponent.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::Unison));
     unisonComponent.layoutComponent(mRect);
 
+    // [[PARAM ENV]] の大区分。チャンネルの PARAM ENV[256] (4.3.0)
+    const bool paramEnvOpen = layoutMajorCategory(paramEnvMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+
+    paramEnv.setCategoryVisible(paramEnvOpen && pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+    paramEnv.layoutComponent(mRect);
+
+    paramEnvMajorCat.endMajor(mRect);
+
     // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
-    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::TapSeq) || pluginOf(ctx).isSimpleShown(SimpleView::TapParam));
 
     tapAmpSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapAmpSeq.layoutComponent(mRect);
     tapPitchSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapPitchSeq.layoutComponent(mRect);
+    tapParamSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapParam));
+    tapParamSeq.layoutComponent(mRect);
 
     tapMajorCat.endMajor(mRect);
 
@@ -1867,6 +1903,8 @@ void GuiRhythm::applyChParamFile(const juce::File& file) {
     levelComponent.readParams(*reader, "level");
     tapAmpSeq.readParams(*reader, "tapAmp");
     tapPitchSeq.readParams(*reader, "tapPitch");
+    tapParamSeq.readParams(*reader, "tapParam");
+    paramEnv.readParams(*reader, "paramEnv");
 
     // Components
     unisonComponent.readParams(*reader, "unison");
@@ -2010,6 +2048,8 @@ void GuiRhythm::writeChParams(Io::ParamWriter& writer) {
 	levelComponent.writeParams(writer, "level");
 	tapAmpSeq.writeParams(writer, "tapAmp");
 	tapPitchSeq.writeParams(writer, "tapPitch");
+	tapParamSeq.writeParams(writer, "tapParam");
+	paramEnv.writeParams(writer, "paramEnv");
 
 	// Components
 	unisonComponent.writeParams(writer, "unison");
@@ -2223,6 +2263,7 @@ void RhythmPadGui::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256)) ssgSwPEnv256Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) tapParamComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Fix)) fixComponent.setCategoryBypassed(true);
@@ -2268,6 +2309,8 @@ void GuiRhythm::bypassHiddenCategories()
         tapAmpSeq.setCategoryBypassed(true);
         tapPitchSeq.setCategoryBypassed(true);
     }
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) tapParamSeq.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) paramEnv.setCategoryBypassed(true);
 }
 
 void GuiRhythm::openEnabledCategories()

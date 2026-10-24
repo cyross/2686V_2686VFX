@@ -260,6 +260,7 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/StepSnapTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/SliderNudgeTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/PresetStateTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/ParamModLayoutTest.cpp"
     )
 
     target_include_directories(${CY_GUI_TEST} PRIVATE
@@ -292,7 +293,8 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
             "${CMAKE_CURRENT_SOURCE_DIR}/gui/ChannelQualityTest.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/gui/VoicePitchTest.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/gui/TapSeqVoiceTest.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/gui/TapSeqLayoutTest.cpp")
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/TapSeqLayoutTest.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/ParamModTest.cpp")
     endif()
 
     target_link_libraries(${CY_GUI_TEST} PRIVATE ${CY_PLUGIN})

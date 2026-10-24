@@ -17,7 +17,16 @@ void GuiComponentValueButtons::setupComponent(juce::Component& parent, GuiSlider
         b->setup({ .parent = parent, .id = "", .title = e.label, .font = font, .isReset = false, .darkenWhenPressed = true });
         b->setWantsKeyboardFocus(true);
         b->setExplicitFocusOrder(++tabOrder);
-        b->onClick = [&slider, e] { slider.setValue(e.add ? slider.getValue() + e.value : e.value); };
+        b->onClick = [this, &slider, e] {
+            if (e.step) {
+                const double size = stepSize ? stepSize() : slider.getInterval();
+
+                slider.setValue(slider.getValue() + e.value * size);
+                return;
+            }
+
+            slider.setValue(e.add ? slider.getValue() + e.value : e.value);
+        };
 
         buttons.push_back(std::move(b));
     }

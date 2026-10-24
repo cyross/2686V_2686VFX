@@ -60,4 +60,10 @@ struct SynthCoreParams
     // プロセッサが入れる)。ボイスが押したときに読む。
     TapSeqParams tapAmp;
     TapSeqParams tapPitch;
+
+    // TAP PARAM SEQUENCER (4.3.0)。段の組は表 (table の pairs) にある。
+    // チャンネルに 1 つと、オペレーター (RHYTHM はパッド) ごとに 1 つずつ。使うのは前の tapParamOpCount 個
+    TapSeqParams tapParam;
+    std::array<TapSeqParams, ParamMod::maxOps> tapParamOps{};
+    int tapParamOpCount = 0;
 };

@@ -1,6 +1,7 @@
 ﻿#include "PluginProcessor.h"
 #include "Shared/Core/Synth/StepTableIo.h"
 #include "Shared/Core/Io/IoStepEnvLegacy.h"
+#include "Shared/Core/Io/IoParamEnvLegacy.h"
 #include "../Const/ConstPlugin.h"
 #include "../../Effect/Fx/FxOrder.h"
 #include <algorithm>
@@ -9,6 +10,7 @@
 
 #include "Shared/Core/Processor/ProcessorNames.h"
 #include "Shared/Core/Processor/ProcessorHelper.h"
+#include "Shared/Core/Synth/ChipDac.h"
 #include "Shared/Core/Io/IoMovedFile.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
@@ -22,6 +24,16 @@ namespace
 	// ファイルの中身を見分ける印
 	const Io::ParamFormat settingsFormat{ "settings", 1 };
 	const Io::ParamFormat presetFormat{ "preset", 1 };
+
+	// CHIP DAC (QUALITY)。鳴らしている音源が実機の DAC を通すよう指定して
+	// いれば、その DAC の形を返す。SSG は音源の中で通すので、ここには無い。
+	const ChipDac::Spec* chipDacOf(const SynthParams& params)
+	{
+		switch (params.mode) {
+		case OscMode::OPN:  return params.opn.quality.chipDac ? &ChipDac::opn : nullptr;
+		default: return nullptr;
+		}
+	}
 
 	// 環境設定を書き出す側。項目の型ごとに受け口を分けてある。
 	struct EnvironmentWriter
@@ -253,6 +265,14 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     // シンセの発音
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
+    // CHIP DAC。実機は全チャンネルを足してから DAC へ送るので、ボイスを
+    // 混ぜ終えたあとの音へ通す。
+    if (const auto* dac = chipDacOf(m_currentParams)) {
+        for (int ch = 0; ch < buffer.getNumChannels(); ++ch) {
+            ChipDac::process(buffer.getWritePointer(ch), buffer.getNumSamples(), *dac);
+        }
+    }
+
     // 再生ランプ用に、音が出ているかを見る。FX を通す前の、音源そのものの音。
     {
         const int numSamples = buffer.getNumSamples();
@@ -387,6 +407,9 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwEnv);
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwPEnv);
         StepEnvLegacy::convertSixStep(*xmlState, stepTables);
+
+        // 4.2.x までの TL ENV は PARAM ENV[256] (TARGET が TL) へ写す
+        ParamEnvLegacy::convertState(*xmlState, stepTables);
 
         while (auto* tables = xmlState->getChildByName(StepTableIo::xmlTag)) xmlState->removeChildElement(tables, true);
 
@@ -1332,6 +1355,8 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     // 切らないと、プレビューを描き直すたびに段が進み、次に押した音が 1 段目にならない。
     params.tapAmp.enable = false;
     params.tapPitch.enable = false;
+    params.tapParam.enable = false;
+    params.tapParamOpCount = 0;
 
     params.monoMode = PrHelper::getBool(pMonoMode);
     params.useVelocity = PrHelper::getBool(pUseVelocity);

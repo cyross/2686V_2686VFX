@@ -8,9 +8,10 @@
 #include "Shared/Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Core/Processor/ProcessorStructs.h"
 #include "../../Core/Processor/ProcessorTapSeq.h"
+#include "../../Core/Processor/ProcessorParamMod.h"
 #include "../../Core/Processor/ProcessorValueEnv.h"
 
-class Opzx7Processor : public PrBase
+class Opzx7Processor : public PrBase, public ParamMod::Applier
 {
     PrPtrsOpzx7Basic pBasic;
     PrPtrsOpzx7AlgFb pAlgFb;
@@ -35,7 +36,8 @@ class Opzx7Processor : public PrBase
     std::array<PrPtrsLp, Opzx7PrValue::ops> pLp;
     std::array<PrPtrsPitchEnvOp, Opzx7PrValue::ops> pOpPitchEnv;
     std::array<PrPtrsSsgSwEnv256Op, Opzx7PrValue::ops> pOpSsgSwEnv256;
-    std::array<ValueEnv::Ptrs, Opzx7PrValue::ops> pTlEnv;
+    // PARAM ENV[256] (オペレーター)。4.0.0 の TL ENV の代わり
+    std::array<ParamEnv::Ptrs, Opzx7PrValue::ops> pOpParamEnv;
 
     // ALG ENV (チャンネル)
     ValueEnv::Ptrs pAlgEnv;
@@ -51,10 +53,28 @@ class Opzx7Processor : public PrBase
     // TAP AMP / PITCH SEQUENCER
     TapSeq::Ptrs pTapAmp;
     TapSeq::Ptrs pTapPitch;
+
+    // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
+    TapSeq::Ptrs pTapParam;
+
+    // TAP PARAM SEQUENCER (オペレーターごと)
+    std::array<TapSeq::Ptrs, Opzx7PrValue::ops> pOpTapParam;
+    ParamEnv::Ptrs pParamEnv;
+
+    // PARAM ENV / TAP PARAM SEQUENCER の指し先
+    ParamModResolver modResolver;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;
     // modWaves は WT PITCH MOD の変調波形の置き場所。
     // パラメータではなくプロセッサが持つので、ここで受け取る。
     void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables);
+
+    // PARAM ENV / TAP PARAM SEQUENCER (4.3.0)。ボイスが置き換えた値で読み直す
+    void apply(void* chip, const ParamMod::Override* list, int count) override;
+
+    const ParamModResolver& paramMod() const { return modResolver; }
+private:
+    void applyChannel(Opzx7Params& p);
+    void applyOp(Opzx7Params& p, int op);
 };

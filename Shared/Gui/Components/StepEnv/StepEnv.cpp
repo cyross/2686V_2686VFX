@@ -69,6 +69,8 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     cat(context),
     flag(context),
     flagSeparator(context),
+    targetBox(context),
+    targetSeparator(context),
     steps(context),
     stepsSeparator(context),
     keep(context),
@@ -135,7 +137,7 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     const GuiCategoryLabel::Config catConfig{ .parent = parent, .title = spec.title, .enableChangeDetailVisible = true };
 
-    if (isAmp() || isTl()) cat.setupSwAmpCategory(catConfig);
+    if (isAmp()) cat.setupSwAmpCategory(catConfig);
     else if (isPitch()) cat.setupSwPitchCategory(catConfig);
     else cat.setupSwCategory(catConfig);
 
@@ -146,6 +148,24 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     flag.setExplicitFocusOrder(++tabOrder);
 
     flagSeparator.setupComponent(parent);
+
+    // PARAM ENV。動かすパラメータを選ぶ。変えたら値の書き方も変わる
+    if (isParam()) {
+        std::vector<SelectItem> items;
+
+        for (int i = 0; i < spec.targetLabels.size(); ++i) items.push_back({ spec.targetLabels[i], i + 1 });
+
+        targetBox.setup({ .parent = parent, .id = code + spec.target, .title = "TARGET", .items = items, .isReset = true, .labelFont = labelFont });
+        targetBox.setWantsKeyboardFocus(true);
+        targetBox.setExplicitFocusOrder(++tabOrder);
+        targetBox.onChange = [this] {
+            applyTargetDisplay();
+            rebindLevel();
+            changed();
+        };
+
+        targetSeparator.setupComponent(parent);
+    }
 
     steps.setup({ .parent = parent, .id = code + spec.steps, .title = "STEP", .isReset = true, .labelFont = labelFont });
     steps.setWantsKeyboardFocus(true);
@@ -233,7 +253,7 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     level.getSlider().onValueChange = [this] { onLevelChanged(); };
 
     if (usesUnitButtons()) ampBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
-    else if (usesValueButtons()) valueBtns.setupComponent(parent, level.getSlider(), tabOrder, valueButtonEntries(), labelFont);
+    else if (usesValueButtons()) valueBtns.setupComponent(parent, level.getSlider(), tabOrder, valueButtonEntries(), labelFont, isParam() ? 6 : GuiComponentValueButtons::defaultPerRow);
     else if (isPitch()) pitchBtns.setupComponent(parent, level.getSlider(), tabOrder, labelFont);
 
     parent.addAndMakeVisible(levelValues);
@@ -253,7 +273,13 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     releaseRateBtns.setupComponent(parent, releaseRate, tabOrder, rateButtonEntries(), labelFont, 4);
 
-    if (hasReleaseLevelButtons()) releaseLevelBtns.setupComponent(parent, releaseLevel, tabOrder, releaseLevelEntries(), labelFont);
+    if (hasReleaseLevelButtons()) releaseLevelBtns.setupComponent(parent, releaseLevel, tabOrder, releaseLevelEntries(), labelFont, isParam() ? 6 : GuiComponentValueButtons::defaultPerRow);
+
+    // PARAM ENV の ±1 は指し先の 1 刻み
+    if (isParam()) {
+        valueBtns.setStepSize([this] { return paramInterval; });
+        releaseLevelBtns.setStepSize([this] { return paramInterval; });
+    }
 
     endLevelSeparator.setupComponent(parent);
 
@@ -296,6 +322,7 @@ void GuiComponentStepEnv::rebind(const juce::String& code)
     paramCode = code;
 
     flag.rebind(code + m_flagKey);
+    if (isParam()) targetBox.rebind(code + spec.target);
     steps.rebind(code + spec.steps);
     if (hasKeep()) keep.rebind(code + spec.keep);
     loop.rebind(code + spec.loop);
@@ -314,18 +341,86 @@ void GuiComponentStepEnv::rebind(const juce::String& code)
     level.getSlider().getProperties().set(ParamEdit::Property::stepTable, key);
 
     applyStepCount();
+    applyTargetDisplay();
+}
+
+// ---------------------------------------------------------------- PARAM ENV
+juce::RangedAudioParameter* GuiComponentStepEnv::targetParam() const
+{
+    if (!isParam() || !spec.targetParamId || paramCode.isEmpty()) return nullptr;
+
+    auto* raw = ctx.apvts.getRawParameterValue(paramCode + spec.target);
+    const int t = raw != nullptr ? juce::roundToInt(raw->load()) : 0;
+
+    return ctx.apvts.getParameter(spec.targetParamId(paramCode, t));
+}
+
+void GuiComponentStepEnv::applyTargetText(GuiSlider& slider)
+{
+    auto* p = targetParam();
+
+    slider.textFromValueFunction = [p](double v) { return p != nullptr ? p->getText((float)juce::jlimit(0.0, 1.0, v), 0) : juce::String(v, 3); };
+    slider.valueFromTextFunction = [p](const juce::String& t) { return p != nullptr ? (double)p->getValueForText(t) : t.getDoubleValue(); };
+    slider.updateText();
+}
+
+// 値は指し先のパラメータの 0〜1。画面には指し先の書き方で出し、打ち込みも指し先の値で受ける。
+// LR・ENDL・STL はパラメータに束ねてあり、束ね直すたびに書き方が戻るので、ここで掛け直す。
+void GuiComponentStepEnv::applyTargetDisplay()
+{
+    if (!isParam()) return;
+
+    auto* p = targetParam();
+
+    const bool stepped = p != nullptr && (dynamic_cast<juce::AudioParameterInt*>(p) != nullptr
+        || dynamic_cast<juce::AudioParameterChoice*>(p) != nullptr
+        || dynamic_cast<juce::AudioParameterBool*>(p) != nullptr);
+
+    const auto range = p != nullptr ? p->getNormalisableRange() : juce::NormalisableRange<float>(0.0f, 1.0f);
+    const int span = stepped ? juce::roundToInt(range.end - range.start) : 0;
+
+    paramInterval = span > 0 ? 1.0 / (double)span : 0.001;
+
+    applyTargetText(level.getSlider());
+    applyTargetText(releaseLevel);
+    applyTargetText(endLevel);
+
+    levelValues.format = [p](float v) { return p != nullptr ? p->getText(juce::jlimit(0.0f, 1.0f, v), 0) : juce::String(v, 3); };
+
+    // 段の値のつまみ (表) は刻みも指し先に合わせる。STL のときはパラメータの刻みのまま。
+    // 丸められた値を表へ書き戻さない (表は元の値のまま、音の側で丸める)
+    if ((int)levelTarget.getValue() > 0) {
+        const juce::ScopedValueSetter<bool> loading(isLoadingValue, true);
+
+        setLevelRange();
+
+        if (auto* t = table()) level.getSlider().setValue(t->level((int)levelTarget.getValue()), juce::dontSendNotification);
+    }
+
+    refreshStepValues();
 }
 
 void GuiComponentStepEnv::setLevelRange()
 {
+    if (isParam()) {
+        level.getSlider().setRange(0.0, 1.0, paramInterval);
+        return;
+    }
+
     level.getSlider().setRange(spec.levelMin, spec.levelMax, spec.levelInterval);
     level.getSlider().setNumDecimalPlacesToDisplay(spec.levelInterval >= 1.0 ? 0 : spec.levelDecimals);
 }
 
-// 値のつまみの下のボタン。DUTY は PRESET のデューティ比、TL は刻みと両端、
-// ALG は ±1 と、アルゴリズムの番号。
+// 値のつまみの下のボタン。DUTY は PRESET のデューティ比、ALG は ±1 と、アルゴリズムの番号。
+// PARAM ENV は両端と、指し先の 1 刻み、範囲の 1 割。
 std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::valueButtonEntries() const
 {
+    // PARAM ENV は 0〜1。両端と、指し先の 1 刻み、範囲の 1 割
+    if (isParam()) {
+        return { { "MIN", false, 0.0 }, { "-10%", true, -0.1 }, { "-1", true, -1.0, true },
+                 { "+1", true, 1.0, true }, { "+10%", true, 0.1 }, { "MAX", false, 1.0 } };
+    }
+
     if (isDuty()) {
         // 並びは SSG の PRESET と同じ (SsgCore::dutyPresets)
         return { { "50", false, 50.0 }, { "43.75", false, 43.75 }, { "37.5", false, 37.5 }, { "31.25", false, 31.25 }, { "25", false, 25.0 },
@@ -347,7 +442,7 @@ std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::valueButtonEnt
             return entries;
         }
 
-        // OPZX7 は 130 個あるので、TL と同じく刻みと両端
+        // OPZX7 は 130 個あるので、刻みと両端
         return { { "-10", true, -10.0 }, { "-1", true, -1.0 }, { juce::String(lo), false, (double)lo }, { "+1", true, 1.0 }, { "+10", true, 10.0 },
                  { maxLabel, false, spec.levelMax } };
     }
@@ -364,7 +459,7 @@ std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::rateButtonEntr
              { "0.001", false, 0.001 }, { "0.01", false, 0.01 }, { "0.1", false, 0.1 }, { "1.0", false, 1.0 } };
 }
 
-// LR のボタン。値のつまみ (LEVEL / CENT / DUTY / PEAK / TL) と同じ刻み
+// LR のボタン。値のつまみ (LEVEL / CENT / DUTY / PEAK / ALG / PARAM) と同じ刻み
 std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::releaseLevelEntries() const
 {
     if (isPitch()) {
@@ -468,16 +563,18 @@ void GuiComponentStepEnv::rebindLevel()
     // 0 は開始の値。これだけはパラメータなので、つまみをそのまま繋ぐ
     if (idx == 0) {
         level.getSlider().rebind(paramCode + spec.stl);
+
+        // 束ね直すと書き方がパラメータのものに戻る。PARAM ENV は指し先の書き方にする
+        if (isParam()) applyTargetText(level.getSlider());
     }
     else {
+        // 範囲を変えると値が丸められて知らせが来る。表へ書き戻さないよう、読み込み中にしておく
+        const juce::ScopedValueSetter<bool> loading(isLoadingValue, true);
+
         level.getSlider().unbind();
         setLevelRange();
 
-        if (auto* t = table()) {
-            const juce::ScopedValueSetter<bool> loading(isLoadingValue, true);
-
-            level.getSlider().setValue(t->level(idx), juce::dontSendNotification);
-        }
+        if (auto* t = table()) level.getSlider().setValue(t->level(idx), juce::dontSendNotification);
     }
 
     refreshStepValues();
@@ -562,6 +659,8 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
 
     flag.setVisible(visible);
     flagSeparator.setVisible(visible);
+    targetBox.setVisibleWithLabel(visible && isParam());
+    targetSeparator.setVisible(visible && isParam());
     steps.setVisibleWithLabel(visible);
     stepsSeparator.setVisible(visible);
     keep.setVisible(visible && hasKeep());
@@ -599,6 +698,12 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
 
     layoutMain({ .mainRect = rect, .component = &flag });
     flagSeparator.layoutComponent(rect);
+
+    if (isParam()) {
+        layoutMain({ .mainRect = rect, .label = &targetBox.label, .component = &targetBox, .rowHeight = h });
+        targetSeparator.layoutComponent(rect);
+    }
+
     layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = h });
     stepsSeparator.layoutComponent(rect);
     if (hasKeep()) {
@@ -671,7 +776,7 @@ void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curv
     graph.updateBypass(isCategoryBypassed());
 
     // KEEP のときはカーブを効かせない。音の側も補間そのものを止めてある。
-    // TL ENV は常に KEEP。
+    // ALG ENV は常に KEEP。
     const bool keepOn = !hasKeep() || keep.getToggleState();
 
     graph.setKeepLevels(keepOn);
@@ -700,6 +805,8 @@ void GuiComponentStepEnv::applyActive()
     flag.setEnabled(outerEnabled);
 
     flagSeparator.setEnabled(active);
+    targetBox.setEnabledWithLabel(active);
+    targetSeparator.setEnabled(active);
     steps.setEnabledWithLabel(active);
     stepsSeparator.setEnabled(active);
 
@@ -785,6 +892,16 @@ void GuiComponentStepEnv::applyParamsFile(const juce::File& file)
         return;
     }
 
+    // 4.2.x までの TL ENV のファイルは、TARGET を TL にして読む
+    if (spec.legacyTlFormat.isNotEmpty()) {
+        if (auto legacy = Io::ParamReader::open(file, Io::ParamFormat{ spec.legacyTlFormat, 1 }, false)) {
+            GuiRefresh::Batch batch;
+
+            readLegacyTl(*legacy);
+            return;
+        }
+    }
+
     // 3.6.3 までの [11] のファイルは、[256] へ写して読む
     if (spec.legacyFileFormat.isNotEmpty()) {
         if (auto legacy = Io::ParamReader::open(file, Io::ParamFormat{ spec.legacyFileFormat, 1 }, false)) {
@@ -835,9 +952,19 @@ void GuiComponentStepEnv::writeParamsFile(const juce::File& file)
 }
 
 // 段の値は r / l の並びに入れる。[11] のファイル (r1〜r11 / l1〜l11) も読める。
-void GuiComponentStepEnv::readValues(const Io::ParamReader& r)
+void GuiComponentStepEnv::readValues(const Io::ParamReader& r, float levelScale)
 {
     flag.setToggleState(r.getBool("flag", flag.getToggleState()), juce::sendNotification);
+
+    // PARAM ENV の指し先。番号は音源で違うので、名前が合えば名前で選ぶ
+    if (isParam()) {
+        int t = spec.targetLabels.indexOf(r.getString("targetName", {}));
+
+        if (t < 0) t = r.getInt("target", -1);
+
+        if (t >= 0 && t < spec.targetLabels.size()) targetBox.setSelectedItemIndex(t, juce::sendNotificationSync);
+    }
+
     steps.setValue(r.getInt("steps", (int)steps.getValue()), juce::sendNotification);
     loop.setToggleState(r.getBool("loop", loop.getToggleState()), juce::sendNotification);
     loopTo.setValue(r.getInt("loopTo", (int)loopTo.getValue()), juce::sendNotification);
@@ -847,13 +974,14 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r)
     loopMode.setSelectedItemIndex(juce::jlimit((int)StepLoop::modeMin, (int)StepLoop::modeMax, r.getInt("loopMode", StepLoop::Original)), juce::sendNotification);
 
     if (hasKeep()) keep.setToggleState(r.getBool("keep", keep.getToggleState()), juce::sendNotification);
-    endLevel.setValue(r.getFloat("endLevel", (float)endLevel.getValue()), juce::sendNotification);
+    endLevel.setValue(r.getFloat("endLevel", (float)endLevel.getValue() / levelScale) * levelScale, juce::sendNotification);
     endLevelEnable.setToggleState(r.getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
 
     if (auto* p = ctx.apvts.getParameter(paramCode + spec.stl)) {
         auto* raw = ctx.apvts.getRawParameterValue(paramCode + spec.stl);
+        const float current = raw != nullptr ? raw->load() : 0.0f;
 
-        p->setValueNotifyingHost(p->convertTo0to1(r.getFloat("startLevel", raw != nullptr ? raw->load() : 0.0f)));
+        p->setValueNotifyingHost(p->convertTo0to1(r.getFloat("startLevel", current / levelScale) * levelScale));
     }
 
     auto* t = table();
@@ -862,7 +990,7 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r)
     if (names.contains("rates") || names.contains("levels")) {
         // [256] の形
         releaseRate.setValue(r.getFloat("releaseRate", (float)releaseRate.getValue()), juce::sendNotification);
-        releaseLevel.setValue(r.getFloat("releaseLevel", (float)releaseLevel.getValue()), juce::sendNotification);
+        releaseLevel.setValue(r.getFloat("releaseLevel", (float)releaseLevel.getValue() / levelScale) * levelScale, juce::sendNotification);
 
         if (t != nullptr) {
             const auto rates = r.getFloatArray("rates");
@@ -870,7 +998,7 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r)
 
             for (int s = 1; s <= StepTable::size; ++s) {
                 t->setRate(s, s <= (int)rates.size() ? rates[(size_t)s - 1] : t->defaultR);
-                t->setLevel(s, s <= (int)levels.size() ? levels[(size_t)s - 1] : t->defaultL);
+                t->setLevel(s, s <= (int)levels.size() ? levels[(size_t)s - 1] * levelScale : t->defaultL);
             }
 
             // ループの組 (4.1.0)。無ければ空にする
@@ -1017,6 +1145,15 @@ bool GuiComponentStepEnv::isActiveIn(const Io::ParamReader& r) const
 void GuiComponentStepEnv::writeValues(Io::ParamWriter& w)
 {
     w.set("flag", flag.getToggleState());
+
+    // PARAM ENV の指し先。番号は音源で違うので名前も書く
+    if (isParam()) {
+        const int t = juce::jmax(0, targetBox.getSelectedItemIndex());
+
+        w.set("target", (float)t);
+        w.set("targetName", spec.targetLabels[t]);
+    }
+
     w.set("steps", (float)steps.getValue());
     w.set("loop", loop.getToggleState());
     w.set("loopTo", (float)loopTo.getValue());
@@ -1088,9 +1225,30 @@ void GuiComponentStepEnv::setImportingParams(juce::StringArray& lines, int& inde
     changed();
 }
 
+// 4.2.x までの TL ENV。値は TL のレジスタ値なので、TL の最大値で割って 0〜1 にする。
+// TL ENV は常に段を保っていたので KEEP は切ったまま (TL は整数なので段を保つ)。
+void GuiComponentStepEnv::readLegacyTl(const Io::ParamReader& r)
+{
+    if (!isParam()) return;
+
+    targetBox.setSelectedItemIndex(spec.tlTarget, juce::sendNotificationSync);
+    keep.setToggleState(false, juce::sendNotification);
+
+    readValues(r, 1.0f / juce::jmax(1.0f, spec.tlMax));
+}
+
 void GuiComponentStepEnv::readParams(const Io::ParamReader& reader, const juce::String& key)
 {
     auto r = reader.child(key);
+
+    // 4.2.x までのチャンネルのファイルの TL ENV (tlEnv)
+    if (r.keys().isEmpty() && isParam() && spec.legacyTlKey.isNotEmpty()) {
+        const auto tl = reader.child(spec.legacyTlKey);
+
+        if (!tl.keys().isEmpty()) readLegacyTl(tl);
+
+        return;
+    }
 
     // 3.6.3 までの [11] の鍵 (ssgSwEnv11 など) で書いたファイル
     if (r.keys().isEmpty() && key.contains("256")) r = reader.child(key.replace("256", "11"));

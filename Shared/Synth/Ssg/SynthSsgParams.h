@@ -2,6 +2,8 @@
 
 #include <array>
 
+#include "Shared/Core/Synth/ParamMod.h"
+
 #include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "Shared/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
 #include "Shared/Effect/Envelope/Pitch/SsgSw256/EnvSsgSw256Params.h"
@@ -54,4 +56,7 @@ struct SsgParams
     // --- Waveform ---
     // 0: Pulse, 1: Triangle
     int waveform = 0;
+
+    // PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0)。ボイスごとに値を置き換える
+    ParamMod::ChipParams paramMod;
 };

@@ -54,31 +54,34 @@ void Wt2Core::setSampleRate(double sampleRate)
 
 void Wt2Core::setParameters(const SynthCoreParams& params)
 {
-    m_level = params.wt2.level;
-    m_delaySeconds = params.wt2.delay;
-    m_speed = params.wt2.speed;
-    m_hold.setParameters(params.wt2.hold);
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.wt2 そのもの)
+    const auto& chipParams = paramModResolve(params, params.wt2, m_modParams);
 
-    m_fixMode.setParameters(params.wt2.fix);
+    m_level = chipParams.level;
+    m_delaySeconds = chipParams.delay;
+    m_speed = chipParams.speed;
+    m_hold.setParameters(chipParams.hold);
+
+    m_fixMode.setParameters(chipParams.fix);
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_adsr.setParameters(params.wt2.adsr);
-    m_pitchAdsr.setParameters(params.wt2.pitchAdsr);
-    m_ssgSwEnv256.setParameters(params.wt2.ssgSwEnv256);
-    m_ssgSwPenv256.setParameters(params.wt2.ssgSwPEnv256);
-    m_detune.setParameters(params.wt2.detune);
-    m_lfo.setParameters(params.wt2.lfo);
-    m_ssgHwEnv.setParameters(params.wt2.ssgHwEnv);
-    m_ssgHwPEnv.setParameters(params.wt2.ssgHwPEnv);
+    m_adsr.setParameters(chipParams.adsr);
+    m_pitchAdsr.setParameters(chipParams.pitchAdsr);
+    m_ssgSwEnv256.setParameters(chipParams.ssgSwEnv256);
+    m_ssgSwPenv256.setParameters(chipParams.ssgSwPEnv256);
+    m_detune.setParameters(chipParams.detune);
+    m_lfo.setParameters(chipParams.lfo);
+    m_ssgHwEnv.setParameters(chipParams.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(chipParams.ssgHwPEnv);
 
     // Bit Depth & Table Size
-    m_quantizeSteps = getTargetBitDepth(params.wt2.quality.bit);
-	m_interpMode = params.wt2.quality.interp;
+    m_quantizeSteps = getTargetBitDepth(chipParams.quality.bit);
+	m_interpMode = chipParams.quality.interp;
 
-    if (m_rateIndex != params.wt2.quality.rate) {
-        m_rateIndex = params.wt2.quality.rate;
+    if (m_rateIndex != chipParams.quality.rate) {
+        m_rateIndex = chipParams.quality.rate;
 
         m_targetRate = getTargetRate(m_rateIndex);
 
@@ -86,40 +89,40 @@ void Wt2Core::setParameters(const SynthCoreParams& params)
     }
 
     // 波形・テーブルサイズ変更検知
-    int newTableSize = m_tableSizes[params.wt2.tableSize];
-    bool waveformChanged = (m_waveform != params.wt2.waveform);
+    int newTableSize = m_tableSizes[chipParams.tableSize];
+    bool waveformChanged = (m_waveform != chipParams.waveform);
     bool sizeChanged = (m_prevTableSize != newTableSize);
-    bool resChanged = (m_customWaveResolution != params.wt2.customWaveResolution);
+    bool resChanged = (m_customWaveResolution != chipParams.customWaveResolution);
 
-    m_tableSizeIndex = params.wt2.tableSize;
+    m_tableSizeIndex = chipParams.tableSize;
     m_tableSize = newTableSize;
     m_prevTableSize = newTableSize;
-    m_waveform = params.wt2.waveform;
-    m_customWaveResolution = params.wt2.customWaveResolution;
+    m_waveform = chipParams.waveform;
+    m_customWaveResolution = chipParams.customWaveResolution;
 
     // 波形変更検知
     // カスタム波形データのコピー (値が変わっていれば更新するため)
-    if (params.wt2.waveform == 8) // 8 = Custom
+    if (chipParams.waveform == 8) // 8 = Custom
     {
         // int配列をメンバに保存
-        m_customWaveCache32 = params.wt2.customWave32;
-        m_customWaveCache64 = params.wt2.customWave64;
-        m_customWaveCache128 = params.wt2.customWave128;
-        m_customWaveCache256 = params.wt2.customWave256;
+        m_customWaveCache32 = chipParams.customWave32;
+        m_customWaveCache64 = chipParams.customWave64;
+        m_customWaveCache128 = chipParams.customWave128;
+        m_customWaveCache256 = chipParams.customWave256;
         // 強制的に再生成
         generateWaveform(8);
     }
     else if (waveformChanged || sizeChanged)
     {
-        m_waveform = params.wt2.waveform;
+        m_waveform = chipParams.waveform;
 
         generateWaveform(m_waveform);
     }
 
-    m_wtMod.setParameters(params.wt2.mod);
-    m_wtAmpMod.setParameters(params.wt2.wtAmpMod);
+    m_wtMod.setParameters(chipParams.mod);
+    m_wtAmpMod.setParameters(chipParams.wtAmpMod);
 
-    m_interpolate = params.wt2.interpolate;
+    m_interpolate = chipParams.interpolate;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 

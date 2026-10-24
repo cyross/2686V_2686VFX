@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Shared/Gui/Components/TapSeq/TapSeq.h"
+#include "Shared/Gui/Components/TapParam/TapParam.h"
 #include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
@@ -134,6 +135,11 @@ class GuiOpzx7 : public GuiBase
     GuiComponentTapSeq tapAmpSeq;
     GuiComponentTapSeq tapPitchSeq;
 
+    // TAP PARAM SEQUENCER と、チャンネルの PARAM ENV[256] (4.3.0)
+    GuiComponentTapParam tapParamSeq;
+    GuiCategoryLabel paramEnvMajorCat;
+    GuiComponentParamEnv paramEnv;
+
     // FM 音源のパラメータファイルを読み込む
     GuiTextButton importFmBtn;
 
@@ -190,6 +196,7 @@ class GuiOpzx7 : public GuiBase
     GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
+    GuiScrollGroup colTapParam;
     GuiScrollGroup colLfo;
     GuiScrollGroup colMask;
     // Operator Sliders
@@ -268,7 +275,11 @@ class GuiOpzx7 : public GuiBase
     GuiComponentWtAmpMod wtAmpModOp;
 
     // TL ENV。オペレーターの AMP ENV 区分のすぐ下 (同じ列)
-    GuiComponentTlEnv tlEnv;
+    // PARAM ENV[256] (オペレーター)。4.0.0 の TL ENV の代わり。TARGET の初期値は TL
+    GuiComponentParamEnv opParamEnv;
+
+    // TAP PARAM SEQUENCER (オペレーター)。そのオペレーターのパラメータを打鍵ごとに置き換える
+    GuiComponentTapParam opTapParam;
 
     // ALG ENV。ALGORITHM/FEEDBACK の FEEDBACK の下
     GuiComponentAlgEnv algEnv;

@@ -16,6 +16,9 @@ sidebar:
 INTERP は 3.6.0 から FM・SSG・波形メモリ系にも付きました。BIT の中身は
 FM 系と PCM 系で違うので、それぞれ別の表に分けてあります。
 
+FM 音源と SSG には、4.3.0 から **CHIP DAC**（実機の DAC を通すトグル）もあります。
+中身は [チャンネル共通の CHIP DAC](/2686V_2686VFX/chips/common/#chip-dac--実機の-dac-を通す) にあります。
+
 ## BIT — ビット数（FM・SSG・波形メモリ系）
 
 単純に段階の数を落とします。`Raw` は落としません。

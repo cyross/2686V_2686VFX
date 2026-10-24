@@ -17,6 +17,10 @@ void Wt2Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
 
+    // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
+    TapParam::addParameters(layout, prefix, prefixName);
+    ParamEnv::addParameters(layout, prefix, prefixName, ParamModCatalog::channelTargetCount(ParamModCatalog::wt2(), 0), 0);
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addSpeedParameters(layout, prefix, prefixName);
     PrHelper::addWt2BasicParameters(layout, prefix, prefixName);
@@ -45,6 +49,9 @@ void Wt2Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+    TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    modResolver.init(apvts, prefix, ParamModCatalog::wt2(), 0);
 
     PrHelper::setupWt2BasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupWtCustom(apvts, prefix, pc);
@@ -69,19 +76,53 @@ void Wt2Processor::processBlock(SynthCoreParams& params, juce::AudioProcessorVal
     TapSeq::apply(pTapAmp, params.tapAmp);
     TapSeq::apply(pTapPitch, params.tapPitch);
 
-    PrHelper::applyWt2Basic(pBasic, params.wt2);
-    PrHelper::applyQuality(pQuality, params.wt2.quality);
-    PrHelper::applyAdsrAmpEnv(pAmpEnv, params.wt2.adsr);
-    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.wt2.ssgSwEnv256);
-    PrHelper::applyPitchEnv(pPitchEnv, params.wt2.pitchAdsr);
-    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.wt2.ssgSwPEnv256);
-    PrHelper::applyOpzx7Detune(pOpzx7Detune, params.wt2.detune);
-    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.wt2.lfo);
-    PrHelper::applyFix(pFix, params.wt2.fix);
-    PrHelper::applyWtMod(pMod, params.wt2.mod);
-    PrHelper::applyWtAmpMod(pWtAmpMod, params.wt2.wtAmpMod);
-    PrHelper::applySsgHwEnv(pSsgHwEnv, params.wt2.ssgHwEnv);
-    PrHelper::applySsgHwPEnv(pSsgHwPEnv, params.wt2.ssgHwPEnv);
-    PrHelper::applyUnison(pUnison, params.wt2.unison);
-    PrHelper::applyWt2CustomWave(pc, params.wt2);
+    // TAP PARAM SEQUENCER (オペレーターを持たないので、チャンネルの 1 つだけ)
+    TapSeq::apply(pTapParam, params.tapParam);
+
+    params.tapParamOpCount = 0;
+
+    applyChannel(params.wt2);
+}
+
+// チャンネルの値。ボイスが PARAM ENV / TAP PARAM SEQUENCER で置き換えて読み直すときにも使う
+void Wt2Processor::applyChannel(Wt2Params& p)
+{
+    PrHelper::applyWt2Basic(pBasic, p);
+    PrHelper::applyQuality(pQuality, p.quality);
+    PrHelper::applyAdsrAmpEnv(pAmpEnv, p.adsr);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, p.ssgSwEnv256);
+    PrHelper::applyPitchEnv(pPitchEnv, p.pitchAdsr);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, p.ssgSwPEnv256);
+    PrHelper::applyOpzx7Detune(pOpzx7Detune, p.detune);
+    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, p.lfo);
+    PrHelper::applyFix(pFix, p.fix);
+    PrHelper::applyWtMod(pMod, p.mod);
+    PrHelper::applyWtAmpMod(pWtAmpMod, p.wtAmpMod);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, p.ssgHwEnv);
+    PrHelper::applySsgHwPEnv(pSsgHwPEnv, p.ssgHwPEnv);
+    PrHelper::applyUnison(pUnison, p.unison);
+    PrHelper::applyWt2CustomWave(pc, p);
+
+    // PARAM ENV[256] (チャンネル)
+    modResolver.applyChannelEnv(pParamEnv, p.paramMod.envs[0]);
+    p.paramMod.envCount = 1;
+    p.paramMod.applier = this;
+    modResolver.fillArp(p.paramMod);
+}
+
+// ボイスから。置き換えた値で、変わる区分だけ読み直す
+void Wt2Processor::apply(void* chip, const ParamMod::Override* list, int count)
+{
+    auto& p = *static_cast<Wt2Params*>(chip);
+
+    std::array<PrOverride::Entry, ParamMod::maxOverrides> entries;
+    ParamModResolver::Dirty dirty;
+
+    const int n = modResolver.resolve(list, count, entries, dirty);
+
+    if (n == 0) return;
+
+    PrOverride::Scope scope(entries.data(), n);
+
+    if (dirty.channel) applyChannel(p);
 }

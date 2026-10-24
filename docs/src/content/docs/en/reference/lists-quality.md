@@ -15,6 +15,9 @@ sidebar:
 INTERP reached the FM, SSG and wavetable channels in 3.6.0. The BIT values differ
 between the FM and PCM families, so they have a table each.
 
+Since 4.3.0 the FM chips and SSG also have **CHIP DAC**, a toggle that runs the sound
+through the real chip's DAC. See [CHIP DAC in the shared channel controls](/2686V_2686VFX/en/chips/common/#chip-dac--run-the-sound-through-the-real-dac).
+
 ## BIT — bit depth (FM, SSG, wavetable)
 
 Simply reduces the number of steps. `Raw` reduces nothing.

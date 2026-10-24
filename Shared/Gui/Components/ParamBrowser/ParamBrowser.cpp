@@ -72,10 +72,14 @@ namespace
         { ".ssgswpenv256", EditorGuiText::ParamBrowser::kindSsgSwPEnv256 },
         { ".dutyenv", EditorGuiText::ParamBrowser::kindDutyEnv },
         { ".peakenv", EditorGuiText::ParamBrowser::kindPeakEnv },
-        { ".tlenv", EditorGuiText::ParamBrowser::kindTlEnv },
         { ".algenv", EditorGuiText::ParamBrowser::kindAlgEnv },
+        { ".paramenv", EditorGuiText::ParamBrowser::kindParamEnv },
         { ".tapamp", EditorGuiText::ParamBrowser::kindTapAmp },
         { ".tappitch", EditorGuiText::ParamBrowser::kindTapPitch },
+        { ".tapparam", EditorGuiText::ParamBrowser::kindTapParam },
+
+        // 4.2.x までの TL ENV のファイル。PARAM ENV (TARGET が TL) として読み込める
+        { ".tlenv", EditorGuiText::ParamBrowser::kindParamEnv },
 
         // 3.6.3 までの 6 段と [11] のファイル。[256] として読み込める
         { ".ssgswenv", EditorGuiText::ParamBrowser::kindSsgSwEnv256 },

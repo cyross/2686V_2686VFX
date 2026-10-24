@@ -17,10 +17,14 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
 
+    // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
+    TapParam::addParameters(layout, prefix, prefixName);
+    ParamEnv::addParameters(layout, prefix, prefixName, ParamModCatalog::channelTargetCount(ParamModCatalog::opm(), OpmPrValue::ops), 0);
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addOpmPanParameters(layout, prefix, prefixName);
     PrHelper::addAlgFbParameters(layout, prefix, prefixName, OpmPrValue::Alg::max, OpmPrValue::Alg::initial);
-    PrHelper::addQualityParameters(layout, prefix, prefixName);
+    PrHelper::addQualityParameters(layout, prefix, prefixName, CPV::Quality::Interp::initial, true);
     PrHelper::addOpmLfoParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwPEnvParameters(layout, prefix, prefixName);
@@ -51,7 +55,10 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         PrHelper::addOpEnvEnableParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpPitchEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpSsgSwEnv256Parameters(layout, opPrefix, opPrefixName);
-        ValueEnv::addParameters(layout, opPrefix, opPrefixName, ValueEnv::tl127());
+        // PARAM ENV[256] (オペレーター)。4.0.0 の TL ENV の代わり。TARGET の初期値は TL
+        ParamEnv::addParameters(layout, opPrefix, opPrefixName, (int)ParamModCatalog::opm().op.size(), ParamModCatalog::opm().tlIndex);
+        // TAP PARAM SEQUENCER (オペレーター)。指し先はそのオペレーターのパラメータ
+        TapParam::addParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpSsgSwPEnv256Parameters(layout, opPrefix, opPrefixName);
         PrHelper::addSsgHwPEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addWtAmpModParameters(layout, opPrefix, opPrefixName);
@@ -67,6 +74,9 @@ void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+    TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    modResolver.init(apvts, prefix, ParamModCatalog::opm(), OpmPrValue::ops);
 
     PrHelper::setupOpmBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
@@ -91,7 +101,8 @@ void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
         PrHelper::setupFixPtrs(apvts, p, pFix[op]);
         PrHelper::setupPitchEnvPtrsOp(apvts, p, pPitchEnv[op]);
         PrHelper::setupSsgSwEnv256PtrsOp(apvts, p, pSsgSwEnv256[op], stepTables);
-        ValueEnv::setupPtrs(apvts, p, ValueEnv::tl127(), pTlEnv[op], stepTables);
+        ParamEnv::setupPtrs(apvts, p, pOpParamEnv[op], stepTables);
+        TapParam::setupPtrs(apvts, p, pOpTapParam[op], stepTables);
         PrHelper::setupSsgSwPEnv256PtrsOp(apvts, p, pSsgSwPEnv256[op], stepTables);
         PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);
         PrHelper::setupWtAmpMod(apvts, p, pOpWtAmpMod[op], modWaves);
@@ -110,39 +121,83 @@ void OpmProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorVal
     TapSeq::apply(pTapAmp, params.tapAmp);
     TapSeq::apply(pTapPitch, params.tapPitch);
 
-    PrHelper::applyOpmBasic(pBasic, params.opm);
-    PrHelper::applyOpmLfo(pGlLfo, params.opm.glLfo);
-    PrHelper::applyQuality(pQuality, params.opm.quality);
-    PrHelper::applyAlgFb(pAlgFb, params.opm.algFb);
-    PrHelper::applyUnison(pUnison, params.opm.unison);
-    PrHelper::applySsgHwEnv(pSsgHwEnv, params.opm.ssgHwEnv);
-    PrHelper::applySsgHwPEnv(pSsgHwPEnv, params.opm.ssgHwPEnv);
-    PrHelper::applyAdsrAmpEnv(pAmpEnvG, params.opm.ampEnvG);
-    PrHelper::applyWtMod(pWtMod, params.opm.wtMod);
-    PrHelper::applyWtAmpMod(pWtAmpMod, params.opm.wtAmpMod);
-    PrHelper::applySsgSwEnv256(pSsgSwEnv256g, params.opm.ssgSwEnv256g);
-    ValueEnv::apply(pAlgEnv, params.opm.algEnv, params.opm.algEnvEnable);
-    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256g, params.opm.ssgSwPEnv256g);
+    // TAP PARAM SEQUENCER (チャンネルと、オペレーターごと)
+    TapSeq::apply(pTapParam, params.tapParam);
 
-    for (int op = 0; op < OpmPrValue::ops; ++op)
-    {
-        params.opm.op[op].se.eg = 0;
-        params.opm.op[op].se.freq = 0;
+    params.tapParamOpCount = std::min(OpmPrValue::ops, ParamMod::maxOps);
 
-        PrHelper::applyOpmDetune(pOpDetune[op], params.opm.op[op].detune);
-        PrHelper::applyOpmAdsr(pOpAdsr[op], params.opm.op[op].m_adsrParams);
-        PrHelper::applyFix(pFix[op], params.opm.op[op].fix);
-        PrHelper::applySsgSwEnv256Op(pSsgSwEnv256[op], params.opm.op[op].ssgSwEnv256, params.opm.op[op].ssgEnv256Enable);
-        ValueEnv::apply(pTlEnv[op], params.opm.op[op].tlEnv, params.opm.op[op].tlEnvEnable);
-        PrHelper::applyPitchEnvOp(pPitchEnv[op], params.opm.op[op].pitchAdsr, params.opm.op[op].pitchEnvEnable);
-        PrHelper::applySsgSwPEnv256Op(pSsgSwPEnv256[op], params.opm.op[op].ssgSwPEnv256, params.opm.op[op].ssgPEnv256Enable);
-        PrHelper::applySsgHwPEnv(pOpSsgHwPEnv[op], params.opm.op[op].ssgHwPEnv);
-        PrHelper::applyWtAmpMod(pOpWtAmpMod[op], params.opm.op[op].wtAmpMod);
-        PrHelper::applySsgHwEnv(pOpSsgHwEnv[op], params.opm.op[op].ssgHwEnv);
-        PrHelper::applyWtMod(pOpWtMod[op], params.opm.op[op].wtMod);
+    for (int op = 0; op < params.tapParamOpCount; ++op) TapSeq::apply(pOpTapParam[(size_t)op], params.tapParamOps[(size_t)op]);
 
-        params.opm.op[op].lfo.amsEnable = PrHelper::getBool(pOpLfoAmsEnable[op]);
-        params.opm.op[op].mask = PrHelper::getBool(pOpMask[op]);
-        params.opm.op[op].delay = PrHelper::getFloat(pOpDelay[op]);
+    applyChannel(params.opm);
+
+    for (int op = 0; op < OpmPrValue::ops; ++op) applyOp(params.opm, op);
+}
+
+// チャンネルの値。ボイスが PARAM ENV / TAP PARAM SEQUENCER で置き換えて読み直すときにも使う
+void OpmProcessor::applyChannel(OpmParams& p)
+{
+    PrHelper::applyOpmBasic(pBasic, p);
+    PrHelper::applyOpmLfo(pGlLfo, p.glLfo);
+    PrHelper::applyQuality(pQuality, p.quality);
+    PrHelper::applyAlgFb(pAlgFb, p.algFb);
+    PrHelper::applyUnison(pUnison, p.unison);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, p.ssgHwEnv);
+    PrHelper::applySsgHwPEnv(pSsgHwPEnv, p.ssgHwPEnv);
+    PrHelper::applyAdsrAmpEnv(pAmpEnvG, p.ampEnvG);
+    PrHelper::applyWtMod(pWtMod, p.wtMod);
+    PrHelper::applyWtAmpMod(pWtAmpMod, p.wtAmpMod);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256g, p.ssgSwEnv256g);
+    ValueEnv::apply(pAlgEnv, p.algEnv, p.algEnvEnable);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256g, p.ssgSwPEnv256g);
+
+    // PARAM ENV[256] (チャンネル)
+    modResolver.applyChannelEnv(pParamEnv, p.paramMod.envs[0]);
+    p.paramMod.envCount = 1 + OpmPrValue::ops;
+    p.paramMod.applier = this;
+    modResolver.fillArp(p.paramMod);
+}
+
+// オペレーター 1 つぶんの値
+void OpmProcessor::applyOp(OpmParams& p, int op)
+{
+    p.op[op].se.eg = 0;
+    p.op[op].se.freq = 0;
+
+    PrHelper::applyOpmDetune(pOpDetune[op], p.op[op].detune);
+    PrHelper::applyOpmAdsr(pOpAdsr[op], p.op[op].m_adsrParams);
+    PrHelper::applyFix(pFix[op], p.op[op].fix);
+    PrHelper::applySsgSwEnv256Op(pSsgSwEnv256[op], p.op[op].ssgSwEnv256, p.op[op].ssgEnv256Enable);
+    // PARAM ENV[256] (オペレーター)。TL を指しているときはオペレーターの TL ENV の道へ渡す
+    modResolver.applyOpEnv(pOpParamEnv[op], op, p.paramMod.envs[(size_t)op + 1], p.op[op].tlEnvEnable, p.op[op].tlEnv, p.op[op].tlEnvMax);
+    PrHelper::applyPitchEnvOp(pPitchEnv[op], p.op[op].pitchAdsr, p.op[op].pitchEnvEnable);
+    PrHelper::applySsgSwPEnv256Op(pSsgSwPEnv256[op], p.op[op].ssgSwPEnv256, p.op[op].ssgPEnv256Enable);
+    PrHelper::applySsgHwPEnv(pOpSsgHwPEnv[op], p.op[op].ssgHwPEnv);
+    PrHelper::applyWtAmpMod(pOpWtAmpMod[op], p.op[op].wtAmpMod);
+    PrHelper::applySsgHwEnv(pOpSsgHwEnv[op], p.op[op].ssgHwEnv);
+    PrHelper::applyWtMod(pOpWtMod[op], p.op[op].wtMod);
+
+    p.op[op].lfo.amsEnable = PrHelper::getBool(pOpLfoAmsEnable[op]);
+    p.op[op].mask = PrHelper::getBool(pOpMask[op]);
+    p.op[op].delay = PrHelper::getFloat(pOpDelay[op]);
+}
+
+// ボイスから。置き換えた値で、変わる区分だけ読み直す
+void OpmProcessor::apply(void* chip, const ParamMod::Override* list, int count)
+{
+    auto& p = *static_cast<OpmParams*>(chip);
+
+    std::array<PrOverride::Entry, ParamMod::maxOverrides> entries;
+    ParamModResolver::Dirty dirty;
+
+    const int n = modResolver.resolve(list, count, entries, dirty);
+
+    if (n == 0) return;
+
+    PrOverride::Scope scope(entries.data(), n);
+
+    if (dirty.channel) applyChannel(p);
+
+    for (int op = 0; op < OpmPrValue::ops && op < ParamMod::maxEnvs; ++op) {
+        if (dirty.ops[(size_t)op]) applyOp(p, op);
     }
 }

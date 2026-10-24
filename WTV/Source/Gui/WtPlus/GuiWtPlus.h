@@ -4,6 +4,8 @@
 #include <array>
 
 #include "Shared/Gui/Components/TapSeq/TapSeq.h"
+#include "Shared/Gui/Components/TapParam/TapParam.h"
+#include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
@@ -125,6 +127,11 @@ class GuiWtPlus : public GuiBase {
     GuiCategoryLabel tapMajorCat;
     GuiComponentTapSeq tapAmpSeq;
     GuiComponentTapSeq tapPitchSeq;
+
+    // TAP PARAM SEQUENCER と、チャンネルの PARAM ENV[256] (4.3.0)
+    GuiComponentTapParam tapParamSeq;
+    GuiCategoryLabel paramEnvMajorCat;
+    GuiComponentParamEnv paramEnv;
     GuiTextButton broadcastLevelButton;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
@@ -210,6 +217,9 @@ public:
         tapMajorCat(context),
         tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
         tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
+        tapParamSeq(context, ParamModCatalog::wtPlus()),
+        paramEnvMajorCat(context),
+        paramEnv(context, GuiComponentParamEnv::channelSpec(ParamModCatalog::wtPlus(), 0)),
         broadcastLevelButton(context),
         ieLfo(context),
         ieAmpEnv(context),

@@ -4,6 +4,8 @@
 
 #include <array>
 
+#include "Shared/Core/Synth/ParamMod.h"
+
 #include "./Operator/SynthOpzx7OpParams.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "Shared/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
@@ -40,4 +42,7 @@ struct Opzx7Params
     SsgSwPEnv256Params ssgSwPEnv256g;
 
     std::array<Opzx7OpParams, Opzx7PrValue::ops> op;
+
+    // PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0)。ボイスごとに値を置き換える
+    ParamMod::ChipParams paramMod;
 };

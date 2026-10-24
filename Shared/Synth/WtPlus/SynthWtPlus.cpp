@@ -49,31 +49,34 @@ void WtPlusCore::setSampleRate(double sampleRate)
 
 void WtPlusCore::setParameters(const SynthCoreParams& params)
 {
-    m_level = params.wtPlus.level;
-    m_delaySeconds = params.wtPlus.delay;
-    m_speed = params.wtPlus.speed;
-    m_hold.setParameters(params.wtPlus.hold);
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.wtPlus そのもの)
+    const auto& chipParams = paramModResolve(params, params.wtPlus, m_modParams);
 
-    m_fixMode.setParameters(params.wtPlus.fix);
+    m_level = chipParams.level;
+    m_delaySeconds = chipParams.delay;
+    m_speed = chipParams.speed;
+    m_hold.setParameters(chipParams.hold);
+
+    m_fixMode.setParameters(chipParams.fix);
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_adsr.setParameters(params.wtPlus.adsr);
-    m_pitchAdsr.setParameters(params.wtPlus.pitchAdsr);
-    m_ssgSwEnv256.setParameters(params.wtPlus.ssgSwEnv256);
-    m_ssgSwPenv256.setParameters(params.wtPlus.ssgSwPEnv256);
-    m_detune.setParameters(params.wtPlus.detune);
-    m_lfo.setParameters(params.wtPlus.lfo);
-    m_ssgHwEnv.setParameters(params.wtPlus.ssgHwEnv);
-    m_ssgHwPEnv.setParameters(params.wtPlus.ssgHwPEnv);
+    m_adsr.setParameters(chipParams.adsr);
+    m_pitchAdsr.setParameters(chipParams.pitchAdsr);
+    m_ssgSwEnv256.setParameters(chipParams.ssgSwEnv256);
+    m_ssgSwPenv256.setParameters(chipParams.ssgSwPEnv256);
+    m_detune.setParameters(chipParams.detune);
+    m_lfo.setParameters(chipParams.lfo);
+    m_ssgHwEnv.setParameters(chipParams.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(chipParams.ssgHwPEnv);
 
     // Bit Depth & Table Size
-    m_quantizeSteps = getTargetBitDepth(params.wtPlus.quality.bit);
-	m_interpMode = params.wtPlus.quality.interp;
+    m_quantizeSteps = getTargetBitDepth(chipParams.quality.bit);
+	m_interpMode = chipParams.quality.interp;
 
-    if (m_rateIndex != params.wtPlus.quality.rate) {
-        m_rateIndex = params.wtPlus.quality.rate;
+    if (m_rateIndex != chipParams.quality.rate) {
+        m_rateIndex = chipParams.quality.rate;
 
         m_targetRate = getTargetRate(m_rateIndex);
 
@@ -83,12 +86,12 @@ void WtPlusCore::setParameters(const SynthCoreParams& params)
     // スロット選択。
     // 即切り替えなので、番号が変わればその場で参照先の波形が変わる。
     // 実機の波形メモリを書き換えたときと同じで、段差が出るのは仕様。
-    m_slot = std::clamp(params.wtPlus.slot, 0, Global::WtPlus::slots - 1);
+    m_slot = std::clamp(chipParams.slot, 0, Global::WtPlus::slots - 1);
 
-    m_wtMod.setParameters(params.wtPlus.mod);
-    m_wtAmpMod.setParameters(params.wtPlus.wtAmpMod);
+    m_wtMod.setParameters(chipParams.mod);
+    m_wtAmpMod.setParameters(chipParams.wtAmpMod);
 
-    m_interpolate = params.wtPlus.interpolate;
+    m_interpolate = chipParams.interpolate;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 

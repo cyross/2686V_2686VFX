@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "Shared/Gui/Components/TapSeq/TapSeq.h"
+#include "Shared/Gui/Components/TapParam/TapParam.h"
+#include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
 #include <array>
@@ -171,6 +173,11 @@ class GuiAdpcmPlus : public GuiBase
     GuiCategoryLabel tapMajorCat;
     GuiComponentTapSeq tapAmpSeq;
     GuiComponentTapSeq tapPitchSeq;
+
+    // TAP PARAM SEQUENCER と、チャンネルの PARAM ENV[256] (4.3.0)
+    GuiComponentTapParam tapParamSeq;
+    GuiCategoryLabel paramEnvMajorCat;
+    GuiComponentParamEnv paramEnv;
     GuiTextButton broadcastLevelButton;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
@@ -280,6 +287,9 @@ public:
         tapMajorCat(context),
         tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
         tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
+        tapParamSeq(context, ParamModCatalog::adpcmPlus()),
+        paramEnvMajorCat(context),
+        paramEnv(context, GuiComponentParamEnv::channelSpec(ParamModCatalog::adpcmPlus(), 0)),
         broadcastLevelButton(context),
         ieToneNoise(context),
         ieLfo(context),
