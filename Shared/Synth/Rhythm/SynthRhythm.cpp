@@ -773,12 +773,15 @@ void RhythmCore::setSampleRate(double sampleRate)
 
 void RhythmCore::setParameters(const SynthCoreParams& params)
 {
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.rhythm そのもの)
+    const auto& chipParams = paramModResolve(params, params.rhythm, m_modParams);
+
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
-    m_delaySeconds = params.rhythm.delay;
+    m_delaySeconds = chipParams.delay;
 
     for (int i = 0; i < m_padCount; ++i) {
-        pads[i].setParameters(params.rhythm.pads[i]);
+        pads[i].setParameters(chipParams.pads[i]);
         pads[i].m_pitchResetOnLegato = params.pitchResetOnLegato;
     }
 

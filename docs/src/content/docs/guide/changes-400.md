@@ -112,7 +112,7 @@ SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、グループの�
 レジスタ値です。オペレーターの AMP ENV 区分のすぐ下にあります。
 
 一番上の **Enable** で入れます。初期状態は切で、既存のパッチの鳴りは変わりません。
-くわしくは [TL ENV](/2686V_2686VFX/chips/common/#tl-env) を参照してください。
+くわしくは [PARAM ENV\[256\]](/2686V_2686VFX/chips/common/#param-env256) を参照してください（4.3.0 で TL ENV は PARAM ENV の指し先 TL になりました）。
 
 ## FM 音源のチャンネルに ALG ENV を足しました
 

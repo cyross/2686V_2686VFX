@@ -4,6 +4,8 @@
 
 #include <array>
 
+#include "Shared/Core/Synth/ParamMod.h"
+
 #include "./Operator/SynthOplOpParams.h"
 #include "../../Processor/Opl/ProcessorOplValues.h"
 #include "../../Core/Synth/UnisonParams.h"
@@ -37,4 +39,7 @@ struct OplParams
     SsgSwPEnv256Params ssgSwPEnv256g;
 
     std::array<OplOpParams, OplPrValue::ops> op;
+
+    // PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0)。ボイスごとに値を置き換える
+    ParamMod::ChipParams paramMod;
 };

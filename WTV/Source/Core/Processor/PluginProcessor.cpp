@@ -1,6 +1,7 @@
 ﻿#include "PluginProcessor.h"
 #include "Shared/Core/Synth/StepTableIo.h"
 #include "Shared/Core/Io/IoStepEnvLegacy.h"
+#include "Shared/Core/Io/IoParamEnvLegacy.h"
 #include "../Const/ConstPlugin.h"
 #include "../../Effect/Fx/FxOrder.h"
 #include <limits>
@@ -285,6 +286,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
 
 
+
     bool isMono = PrHelper::getBool(pMonoMode);
 
     m_synth.isMonoMode = isMono;
@@ -482,6 +484,9 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwEnv);
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwPEnv);
         StepEnvLegacy::convertSixStep(*xmlState, stepTables);
+
+        // 4.2.x までの TL ENV は PARAM ENV[256] (TARGET が TL) へ写す
+        ParamEnvLegacy::convertState(*xmlState, stepTables);
 
         while (auto* tables = xmlState->getChildByName(StepTableIo::xmlTag)) xmlState->removeChildElement(tables, true);
 
@@ -1730,6 +1735,7 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     // 切らないと、プレビューを描き直すたびに段が進み、次に押した音が 1 段目にならない。
     params.tapAmp.enable = false;
     params.tapPitch.enable = false;
+    params.tapParam.enable = false;
 
 
 

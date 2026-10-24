@@ -22,6 +22,9 @@ public:
         // true なら今の値へ足す。false なら value を置く
         bool add = false;
         double value = 0.0;
+
+        // true なら value に「1 刻み」(setStepSize で渡した幅) を掛けて足す (PARAM ENV)
+        bool step = false;
     };
 
     // 1 行に並べる数の既定
@@ -34,7 +37,12 @@ public:
     void setVisibles(bool visible);
     void setEnables(bool enabled);
 
+    // step の付いたボタンの 1 刻みの幅。押すたびに引く (指し先で変わるため)
+    void setStepSize(std::function<double()> size) { stepSize = std::move(size); }
+
 private:
+    std::function<double()> stepSize;
+
     std::vector<std::unique_ptr<GuiTextButton>> buttons;
     int perRow = defaultPerRow;
 };

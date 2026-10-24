@@ -334,6 +334,15 @@ void GuiOpm::setup()
     tapPitchSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
     tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
+    tapParamSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapParamSeq.category().onImport = [this] { tapParamSeq.importParams(); };
+    tapParamSeq.category().onExport = [this] { tapParamSeq.exportParams(); };
+
+    // [[PARAM ENV]] の大区分。チャンネルの PARAM ENV[256] (4.3.0)
+    paramEnvMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::paramEnv, .enableChangeDetailVisible = true });
+    paramEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder, ParamEnv::keys().enable, "Enable", true);
+    paramEnv.category().onImport = [this] { paramEnv.importParams(); };
+    paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     // チャンネルの設定を OPZX7S のパラメータファイルとして書き出す
     exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
@@ -783,9 +792,9 @@ void GuiOpm::setup()
     ssgHwPEnvOp.setupComponent(colSsgHwPEnv.contentCanvas, paramPrefix, tabOrder);
     wtAmpModOp.setupComponent(colAmpMod.contentCanvas, paramPrefix, tabOrder);
 
-    tlEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, tlEnv.spec(127).tableKey + "_ENABLE", "Enable", true);
-    tlEnv.category().onImport = [this] { tlEnv.importParams(); };
-    tlEnv.category().onExport = [this] { tlEnv.exportParams(); };
+    opParamEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, ParamEnv::keys().enable, "Enable", true);
+    opParamEnv.category().onImport = [this] { opParamEnv.importParams(); };
+    opParamEnv.category().onExport = [this] { opParamEnv.exportParams(); };
     ssgHwEnvOp.setupComponent(colSsgHwEnv.contentCanvas, paramPrefix, tabOrder);
     wtModOp.setupComponent(colMod.contentCanvas, paramPrefix, tabOrder);
 
@@ -938,13 +947,23 @@ void GuiOpm::layout(juce::Rectangle<int> content)
 
     pitchMajorCat.endMajor(mRect);
 
+    // [[PARAM ENV]] の大区分。チャンネルの PARAM ENV[256] (4.3.0)
+    const bool paramEnvOpen = layoutMajorCategory(paramEnvMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+
+    paramEnv.setCategoryVisible(paramEnvOpen && pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+    paramEnv.layoutComponent(mRect);
+
+    paramEnvMajorCat.endMajor(mRect);
+
     // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
-    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::TapSeq) || pluginOf(ctx).isSimpleShown(SimpleView::TapParam));
 
     tapAmpSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapAmpSeq.layoutComponent(mRect);
     tapPitchSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapPitchSeq.layoutComponent(mRect);
+    tapParamSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapParam));
+    tapParamSeq.layoutComponent(mRect);
 
     tapMajorCat.endMajor(mRect);
 
@@ -1056,7 +1075,7 @@ void GuiOpm::updateOpEnable(int idx, bool enable)
     mmlSeparator.setEnabled(enable);
     mml.setEnabled(enable);
     pitchEnv.setEnabled(enable);
-    tlEnv.setEnabled(enable);
+    opParamEnv.setEnabled(enable);
 }
 
 // MUL が Ratio のときだけ、比率のつまみを触れるようにする。
@@ -1161,7 +1180,7 @@ void GuiOpm::rebind(int opIndex)
     ssgSwPEnv256.rebind(code);
     ssgHwPEnvOp.rebind(code);
     wtAmpModOp.rebind(code);
-    tlEnv.rebind(code);
+    opParamEnv.rebind(code);
     ssgHwEnvOp.rebind(code);
     wtModOp.rebind(code);
     fix.rebind(code);
@@ -1475,11 +1494,21 @@ void GuiOpm::layoutOpPanel(juce::Rectangle<int> area)
         updateRgDisplayAsOp(true);
         layoutOpAmpCat(rect);
 
-        // TL ENV。オペレーターの AMP ENV 区分のすぐ下
-        tlEnv.setCategoryVisible(true);
-        tlEnv.layoutComponent(rect);
+        // PARAM ENV[256] (4.0.0 の TL ENV の代わり)。オペレーターの AMP ENV 区分のすぐ下
+        opParamEnv.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+        opParamEnv.layoutComponent(rect);
 
         layoutOpOptionalCat(rect);
+        });
+
+    layoutCol(colKs, true, [&](juce::Rectangle<int>& rect) {
+        layoutOpKsCat(rect);
+        layoutOpDetCat(rect);
+
+        fix.setCategoryVisible(shown(SimpleView::Fix));
+        fix.layoutComponent(rect);
+
+        layoutOpHwLfoCat(rect);
         });
 
     layoutCol(colSsgHwEnv, shown(SimpleView::SsgHwAmpEnv), [&](juce::Rectangle<int>& rect) {
@@ -1515,16 +1544,6 @@ void GuiOpm::layoutOpPanel(juce::Rectangle<int> area)
     layoutCol(colMod, shown(SimpleView::WtPitchMod), [&](juce::Rectangle<int>& rect) {
         wtModOp.setCategoryVisible(true);
         wtModOp.layoutComponent(rect);
-        });
-
-    layoutCol(colKs, true, [&](juce::Rectangle<int>& rect) {
-        layoutOpKsCat(rect);
-        layoutOpDetCat(rect);
-
-        fix.setCategoryVisible(shown(SimpleView::Fix));
-        fix.layoutComponent(rect);
-
-        layoutOpHwLfoCat(rect);
         });
 
     // MASK と MML の札も 1 列へまとめてある。
@@ -2861,6 +2880,8 @@ void GuiOpm::readChParams(const Io::ParamReader& reader) {
     levelComponent.readParams(reader, "level");
     tapAmpSeq.readParams(reader, "tapAmp");
     tapPitchSeq.readParams(reader, "tapPitch");
+    tapParamSeq.readParams(reader, "tapParam");
+    paramEnv.readParams(reader, "paramEnv");
 
     // Algorithm & Feedback
     algSelector.setSelectedId(reader.getInt("alg", algSelector.getSelectedId()), juce::sendNotification);
@@ -2943,7 +2964,7 @@ void GuiOpm::readOpParams(int opIndex, const Io::ParamReader& r) {
     ssgSwPEnv256.readParams(r, "ssgSwPEnv256");
     ssgHwPEnvOp.readParams(r, "ssgHwPEnv");
     wtAmpModOp.readParams(r, "wtAmpMod");
-    tlEnv.readParams(r, "tlEnv");
+    opParamEnv.readParams(r, "paramEnv");
     ssgHwEnvOp.readParams(r, "ssgHwEnv");
     wtModOp.readParams(r, "wtMod");
 }
@@ -2983,7 +3004,7 @@ void GuiOpm::writeOpParams(int opIndex, Io::ParamWriter& w) {
     ssgSwPEnv256.writeParams(w, "ssgSwPEnv256");
     ssgHwPEnvOp.writeParams(w, "ssgHwPEnv");
     wtAmpModOp.writeParams(w, "wtAmpMod");
-    tlEnv.writeParams(w, "tlEnv");
+    opParamEnv.writeParams(w, "paramEnv");
     ssgHwEnvOp.writeParams(w, "ssgHwEnv");
     wtModOp.writeParams(w, "wtMod");
 }
@@ -3050,6 +3071,8 @@ void GuiOpm::writeChParams(Io::ParamWriter& writer) {
 	levelComponent.writeParams(writer, "level");
 	tapAmpSeq.writeParams(writer, "tapAmp");
 	tapPitchSeq.writeParams(writer, "tapPitch");
+	tapParamSeq.writeParams(writer, "tapParam");
+	paramEnv.writeParams(writer, "paramEnv");
 
 	// Algorithm & Feedback
 	writer.set("alg", algSelector.getSelectedId());
@@ -3249,6 +3272,9 @@ void GuiOpm::bypassHiddenCategories()
         tapAmpSeq.setCategoryBypassed(true);
         tapPitchSeq.setCategoryBypassed(true);
     }
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) tapParamSeq.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) paramEnv.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) opParamEnv.setCategoryBypassed(true);
 }
 
 void GuiOpm::openEnabledCategories()

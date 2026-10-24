@@ -12,6 +12,7 @@ namespace CoreGuiText
 		static inline const juce::String ampEnv = u8"[[AMP ENV]]";
 		static inline const juce::String pitchEnv = u8"[[PITCH ENV]]";
 		static inline const juce::String tapSeq = u8"[[TAP SEQUENCER]]";
+		static inline const juce::String paramEnv = u8"[[PARAM ENV]]";
 	}
 
 	namespace MasterVol

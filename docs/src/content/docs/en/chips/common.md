@@ -332,24 +332,37 @@ converted to [256] when loaded: R1–R10 / L1–L10 become steps 1–10 of the t
 R11 / L11 (the release) become RR / LR, so they sound the same. Exports are written
 as `.ssgSwEnv256`.
 
-### TL ENV
+### PARAM ENV[256]
 
-**Ours.** Only the FM chips' operators have it (OPNA / OPN / OPL / OPL3 / OPM / OPZX7S), at the
-AMP ENV section, directly below it in the same column (from 4.0.0). It lets you draw, as a **TL** per step, the
-level movement drivers made by rewriting TL on every key-on.
+**Ours** (from 4.3.0). The same 256-step envelope as [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256),
+driving the parameter chosen with **TARGET** step by step.
 
-It is the same 256-step envelope as [SSG SW AMP ENV\[256\]](#ssg-sw-amp-env256), except that the
-values are **TL register values (integers)** instead of levels.
+| Where | What TARGET lists |
+| --- | --- |
+| Channel (the **[[PARAM ENV]]** major section, above [[TAP SEQUENCER]]) | The channel's parameters. On RHYTHM, the pads' parameters too (PAD1 SPEED and so on) |
+| FM operators (directly below the AMP ENV section, in the same column) | The operator's parameters. The default is **TL** |
 
-- Switch it on with **Enable** at the top. While it is on, the step's TL is used instead of the TL at
-  key-on (with AMP ENV bypassed, TL itself has no effect, so neither does this)
-- Values are **0–127** on OPNA / OPN / OPM and **0–63** on OPL / OPL3 / OPZX7S. STL is called
-  **STTL**, the L values **TL1–TL256**, the target knob **TL.TARGET** and the value knob **TL**
-- As on the chips, a value is held for its step rather than sloped into the next (always KEEP, so there
-  is no KEEP switch)
-- **STEPS** under the value knob snaps to TL steps, and buttons (−8 / −1 / 0 / +1 / +8 / max) move it
-- RATE, STEP, LOOP (including LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
-- The section's parameter file is `.tlEnv`, read and written from the heading's right-click menu
+TARGET lists the same parameters as [TAP PARAM SEQUENCER](#tap-param-sequencer).
+
+- Switch it on with **Enable** at the top, and choose the parameter with **TARGET** below it (TARGET can be automated)
+- Values are kept as **a fraction of the target parameter's range** and shown the way the target shows them
+  (0–127 for TL, Hz for FIX FREQ). Changing TARGET keeps each value as "where in the range"
+- STL is called **STL**, the L values **L1–L256**, the target knob **L.TARGET** and the value knob **VALUE**.
+  The buttons under the value knob are **MIN** / **-10%** / **-1** / **+1** / **+10%** / **MAX** (±1 is one step of the target)
+- Integer and choice parameters (AR, MUL, ALG, waveform numbers and so on) hold their value for each step, whatever
+  KEEP says. Real-valued parameters (FIX FREQ, LFO FREQ and so on) glide between steps when KEEP is off
+- Only **that note** is changed; the parameter itself keeps its value. Values are read again while the note plays,
+  so parameters that only act at key-on (MUL, AR and so on) also change with each step
+- Key-on behaviour, RATE, STEP, LOOP (including LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- The section parameter file is `.paramEnv`, read and written from the heading's right-click menu. The target is written by
+  name as well, so a file from another channel lands on the same target when the name matches
+
+#### From TL ENV in 4.2.x and earlier
+
+The operators' **TL ENV** of 4.0.0–4.2.x is now the PARAM ENV target **TL**. Presets, DAW state, channel parameters
+(`tlEnv`) and section parameter files (`.tlEnv`) are converted to PARAM ENV (TARGET set to TL) when loaded. The values
+are divided by the TL maximum (127 on OPNA / OPN / OPM, 63 on OPL / OPL3 / OPZX7S), so they sound the same. The parameter
+IDs changed from `_TLENV_*` to `_PRMENV_*`; if you automated TL ENV in your DAW, assign the automation again.
 
 ### ALG ENV
 
@@ -446,7 +459,7 @@ normal (with Use Endl it holds ENDL).
 ## TAP SEQUENCER
 
 **Ours**: the **[[TAP SEQUENCER]]** major section (from 4.0.0), in every channel's global section
-below [[PITCH ENV]] (below UNISON/HARMONY on RHYTHM). **Each key press moves on one step**, and that
+below [[PITCH ENV]] (below [[PARAM ENV]] from 4.3.0) (below UNISON/HARMONY on RHYTHM). **Each key press moves on one step**, and that
 step's value corrects the level or the pitch. It captures the driver trick of nudging level or pitch
 note by note as a row of steps.
 
@@ -488,6 +501,55 @@ note by note as a row of steps.
   The rules for the sets (START, END, COUNT, nesting, crossing and the endless mark) are the same as
   [SSG SW AMP ENV\[256\] Rich Mode](#loop-mode--rich-mode). After the last step is used it returns to
   step 1 and the loops start counting again. Like the current step, the loop progress is one per channel
+
+### TAP PARAM SEQUENCER
+
+The third section of [[TAP SEQUENCER]] (from 4.3.0). Each key press moves on one step, and the **(parameter, value)
+pairs** stored in that step replace parameters **for that note**. As an extension of our own, one step holds
+**up to 16 pairs**. Steps advance exactly as in TAP AMP / PITCH SEQUENCER (current step, not started, LOOP, SKIP,
+INCREMENT / DECREMENT / CLEAR STEP, one step per key press).
+
+| Knob | What it does |
+| --- | --- |
+| **S.TARGET** | The step you edit |
+| **SKIP** | Replace nothing on the S.TARGET step (its pairs are kept) |
+| **P.TARGET** | The pair you edit (1 – the number of pairs in the step) |
+| **OP** | **CH** (channel) or operator **OP1** onwards (pad **PAD1** onwards on RHYTHM). FM chips and RHYTHM only |
+| **PARAM** | The parameter to replace, from the place chosen with OP |
+| **VALUE** | The value to use, shown the way the target shows it. **MIN** / **-1** / **+1** / **MAX** move it |
+| **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** | Add the current OP / PARAM / VALUE pair at the end of the step, delete the P.TARGET pair, delete every pair of the step |
+
+- On a step without pairs, choose OP / PARAM / VALUE and press ADD PAIR to add that pair. On a step with pairs,
+  moving OP / PARAM / VALUE changes the P.TARGET pair (and clears that step's SKIP)
+- The list below shows one line per step, such as "S1: OP1 AR 31, OP2 TL 20". The row with a different background is
+  the current step; the row with a different text colour is the S.TARGET step
+- Like PARAM ENV, values are kept as a fraction of the target's range. When a PARAM ENV drives the same parameter,
+  the PARAM ENV wins
+- The pairs are saved in presets, DAW state and channel parameters (`tapParam`); they cannot be automated.
+  The section parameter file is `.tapParam`
+
+Parameters you can choose (PARAM ENV's TARGET lists the same):
+
+| Chip | Channel | Operator / pad |
+| --- | --- | --- |
+| OPNA / OPN | ALG / FB / N88 LFO FREQ | TL / AR / DR / SR / SL / RR / KS / MUL / DT / FIX FREQ / N88 LFO AMS (OPNA also SSG-EG / SSG-EG FREQ / HW LFO FREQ / PMS / AMS) |
+| OPM | ALG / FB / HW LFO FREQ | TL / AR / D1R / D1L / D2R / RR / KS MODE / KS / KSR / KSL / MUL / MUL RATIO / DT1 / DT2 / FIX FREQ / SSG-EG FREQ |
+| OPL / OPL3 | ALG / FB | TL / AR / DR / SL / RR / KSL / MUL / EG / LFO AM and PM SPEED and DEPTH |
+| OPZX7S | ALG / FB OP1–8 / LFO PM FREQ / LFO AM FREQ | Register and real-valued ((F)) TL / AR / D1R / D1L / D2R / RR, the KS items, MUL / MUL RATIO / DT1–3 / WS / FIX FREQ / SSG-EG / SSG-EG FREQ / PCM SPEED, LFO PM FREQ, AM FREQ, PMS, AMS, PMD, AMD |
+| SSG | DUTY PRESET / DUTY / TRI PEAK / TRI FREQ / NOISE FREQ / TONE VALUE / NOISE VALUE / SPEED | — |
+| WT / WT2 | WAVE / SPEED | — |
+| WT+ | WAVE (wave memory slot) | — |
+| ADPCM | SPEED / NOISE FREQ | — |
+| ADPCM+ | VOICE (PCM slot) | — |
+| BEEP | TIMER CLOCK | — |
+| RHYTHM | — | SPEED / NOISE FREQ / FIX FREQ / LFO PM FREQ / LFO AM FREQ |
+
+Every channel (and every FM operator) also lists the WT PITCH MOD / WT AMP MOD SPEED and waveform (WAVE), and the
+SSG HW AMP ENV / SSG HW PITCH ENV PERIOD. Channels other than FM add FIX FREQ and LFO PM FREQ / AM FREQ, and every
+channel except RHYTHM adds ARP FREQ (the UNISON/HARMONY arpeggio). On/off toggles are not offered.
+
+Changing the ADPCM+ VOICE can play slots other than the selected one. So from 4.3.0, every loaded slot is encoded
+again when QUALITY changes.
 
 ## SPEED – playback rate
 

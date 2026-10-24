@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Shared/Core/Synth/ParamMod.h"
 #include "Shared/Generator/Pcm/Helper/GenPcmShared.h"
 
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
@@ -56,4 +57,7 @@ struct RhythmParams
     UnisonParams unison;
 
     std::array<RhythmPadParams, RhythmPrValue::maxPads> pads;
+
+    // PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0)。ボイスごとに値を置き換える
+    ParamMod::ChipParams paramMod;
 };

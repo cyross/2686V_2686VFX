@@ -39,6 +39,37 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The values come from the YM3012 data sheet and ymfm (the FM core of MAME)
   - Saved in channel parameters, the QUALITY section parameter file, presets and the DAW state (`chipDac`). Automation IDs such as `OPN_CHIP_DAC`
   - 2686V, 2686VLight, 26V, 86V, OPNV, OPLV, OPMV, PULSEV
+- **New column order for FM operators**
+  - The KEY SCALE / MUL/DET column (with FIX and LFO) now sits right next to the AMP ENV / OPTIONAL column. On OPZX7 it comes before the WAVEFORM column
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7. Every plugin with FM channels
+- **Alt key for slider dragging**
+  - While dragging a label, or the bar of a graph's zoom slider, holding **Alt** aligns the value to steps of 100. Sliders whose range is narrower than 100 are left alone
+  - All plugins (including 2686VFX)
+- **"TAP PARAM SEQUENCER" added to [[TAP SEQUENCER]]**
+  - Each key press advances one step and replaces parameters with the (parameter, value) pairs stored in that step, for the length of that note
+  - As an extension of our own, one step holds up to 16 pairs. On FM channels the pairs can also point at operator parameters (OP1 onwards); on RHYTHM, at pad parameters (PAD1 onwards)
+  - Parameters you can choose: the numeric parameters of FM operators (TL / AR / DR / SR / SL / RR / KS / MUL / DT; OPM's D1R / D1L / D2R, DT2 and KSR / KSL; OPL / OPL3's KSL, EG and LFO; OPZX7's real-valued envelope, KS details, DT2 / DT3, WS, PCM SPEED and LFO, and so on) and FIX frequency, the channel's ALG / FB (FB OP1-8 on OPZX7), the WT PITCH MOD / WT AMP MOD waveform and speed, the WT+ waveform, the ADPCM+ voice (slot), SSG duty (PRESET / variable) and triangle peak, FIX frequency, and the various frequencies and speeds (LFO FREQ, SSG HW ENV / SSG HW PITCH ENV period, noise frequency, triangle frequency, SPEED, TIMER CLOCK, ARP FREQ and so on). On/off toggles are not offered
+  - Steps advance exactly as in TAP AMP / PITCH SEQUENCER (LOOP, SKIP, INCREMENT / DECREMENT / CLEAR STEP; one step per key press; stopping DAW playback returns to before the start)
+  - Pick the step with S.TARGET and the pair with **P.TARGET**, then set it with **OP** / **PARAM** / **VALUE**. **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** add and remove pairs. Values are shown the way the target parameter shows them, and the MIN / -1 / +1 / MAX buttons move them
+  - The list shows one line per step, such as "S1: OP1 AR 31, OP2 TL 20". The current step has a different background
+  - Saved in presets, DAW state and channel parameters (`tapParam`). The section's parameter file is `.tapParam` (right-click the heading). The pairs cannot be automated
+  - Hidden in simple view mode. "TAP PARAM SEQUENCER" was added to the simple view customization in SETTINGS, and [Bypass hidden sections] turns it off too
+  - Every channel. All plugins except 2686VFX
+- **"PARAM ENV[256]" added; TL ENV is now part of it**
+  - The same 256-step envelope as SSG SW AMP ENV[256], driving the parameter chosen with **TARGET**. The choice of parameters is the same as TAP PARAM SEQUENCER
+  - One per channel (the new [[PARAM ENV]] major section, above [[TAP SEQUENCER]]). FM channels also have one per operator (just below the AMP ENV section, where TL ENV used to be). The RHYTHM channel's PARAM ENV can also point at pad parameters
+  - Values are kept as a fraction of the target parameter's range and shown the way the target shows them (0-127 for TL, and so on). Changing TARGET keeps each value as "where in the range"
+  - Integer and choice parameters hold their value through each step whatever KEEP says. Real-valued parameters glide between steps when KEEP is off
+  - STEP, LOOP (with LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]. The buttons below the value slider are MIN / -10% / -1 / +1 / +10% / MAX (±1 is one step of the target)
+  - TARGET can be automated
+  - **TL ENV on FM operators became PARAM ENV with TARGET set to TL**. Presets, DAW state, channel parameters and section parameter files (`.tlEnv`) from 4.2.x and earlier are converted to PARAM ENV when loaded, and sound the same
+  - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again
+  - Saved in presets, DAW state and channel parameters (`paramEnv`). The section's parameter file is `.paramEnv` (right-click the heading)
+  - Hidden in simple view mode. "PARAM ENV[256]" was added to the simple view customization in SETTINGS, and [Bypass hidden sections] turns it off too
+  - Every channel and every FM operator. All plugins except 2686VFX
+- **ADPCM+ now keeps every loaded slot encoded**
+  - Changing VOICE with TAP PARAM SEQUENCER / PARAM ENV can play slots other than the selected one. Every loaded slot is encoded again when QUALITY changes
+  - Plugins with ADPCM+ (2686V / 2686VLight / PCMV)
 
 ### 3-0-2. What v4.2.0 adds and changes
 
@@ -1397,7 +1428,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
         - [Dir]SsgSwEnv256         : for SSG SW AMP ENV[256] (Amp: echoes, NES-style decays, gates, tremolos and more) (-ch is for a channel's head, -op for operators and pads, because the ON/OFF direction is reversed)
         - [Dir]DutyEnv             : for DUTY RATIO ENVELOPE
         - [Dir]PeakEnv             : for PEAK RATIO ENVELOPE
-        - [Dir]TlEnv               : for TL ENV (-tl127 for OPNA / OPN / OPM, -tl63 for OPL / OPL3 / OPZX7S)
+        - [Dir]TlEnv               : for TL ENV (-tl127 for OPNA / OPN / OPM, -tl63 for OPL / OPL3 / OPZX7S). From v4.3.0 they load into the operator PARAM ENV[256] with TARGET set to TL
         - [Dir]AlgEnv              : for ALG ENV (-alg8 for chips with 8 ALGs, -alg2 for OPL)
         - [Dir]TapAmp              : for TAP AMP SEQUENCER
     - [Dir]CurveParams             : the parameter file folder for curve editing (only on plugins that have it)

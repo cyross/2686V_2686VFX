@@ -55,12 +55,15 @@ void AdpcmCore::setSampleRate(double sampleRate)
 
 void AdpcmCore::setParameters(const SynthCoreParams& params)
 {
-    m_level = params.adpcm.level;
-    m_delaySeconds = params.adpcm.delay;
-    m_pan = params.adpcm.pan;
-    m_tone = params.adpcm.tn.tone;
-    m_toneRatio = params.adpcm.tn.toneRatio;
-    m_mix = params.adpcm.tn.mix;
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.adpcm そのもの)
+    const auto& chipParams = paramModResolve(params, params.adpcm, m_modParams);
+
+    m_level = chipParams.level;
+    m_delaySeconds = chipParams.delay;
+    m_pan = chipParams.pan;
+    m_tone = chipParams.tn.tone;
+    m_toneRatio = chipParams.tn.toneRatio;
+    m_mix = chipParams.tn.mix;
 
 	if (m_pan == 0.5f) {
 		m_panL = 1.0f;
@@ -71,17 +74,17 @@ void AdpcmCore::setParameters(const SynthCoreParams& params)
 		m_panR = (float)((m_pan) * 2);
 	}
 
-    m_pcmOffset = params.adpcm.pcm.offset;
-    m_pcmRatio = params.adpcm.pcm.ratio;
-    m_speed = params.adpcm.pcm.speed;
-    m_loopPointEnable = params.adpcm.lp.enable;
-    m_lpCount = params.adpcm.lp.count;
-    m_loopPointStart = std::clamp(params.adpcm.lp.start, 0.0f, 0.999999f);
-    m_loopPointEnd = std::clamp(params.adpcm.lp.end, m_loopPointStart + 0.000001f, 1.0f);
+    m_pcmOffset = chipParams.pcm.offset;
+    m_pcmRatio = chipParams.pcm.ratio;
+    m_speed = chipParams.pcm.speed;
+    m_loopPointEnable = chipParams.lp.enable;
+    m_lpCount = chipParams.lp.count;
+    m_loopPointStart = std::clamp(chipParams.lp.start, 0.0f, 0.999999f);
+    m_loopPointEnd = std::clamp(chipParams.lp.end, m_loopPointStart + 0.000001f, 1.0f);
 
-    m_fixMode.setParameters(params.adpcm.fix);
+    m_fixMode.setParameters(chipParams.fix);
 
-    bool newLoopState = params.adpcm.loop;
+    bool newLoopState = chipParams.loop;
     if (m_isLooping != newLoopState) {
         m_isLooping = newLoopState;
         if (m_isLooping) m_hasFinished = false;
@@ -92,36 +95,36 @@ void AdpcmCore::setParameters(const SynthCoreParams& params)
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 
-    m_adsr.setParameters(params.adpcm.adsr);
-    m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
-    m_ssgSwEnv256.setParameters(params.adpcm.ssgSwEnv256);
-    m_ssgSwPenv256.setParameters(params.adpcm.ssgSwPEnv256);
-    m_detune.setParameters(params.adpcm.detune);
-    m_lfo.setParameters(params.adpcm.lfo);
-    m_noiseGen.setParameters({ .level = params.adpcm.tn.noiseLevel, .noiseOnNote = false, .baseFreq = params.adpcm.tn.noiseFreq });
-    m_ssgHwEnv.setParameters(params.adpcm.ssgHwEnv);
-    m_ssgHwPEnv.setParameters(params.adpcm.ssgHwPEnv);
-    m_wtMod.setParameters(params.adpcm.wtMod);
-    m_wtAmpMod.setParameters(params.adpcm.wtAmpMod);
+    m_adsr.setParameters(chipParams.adsr);
+    m_pitchAdsr.setParameters(chipParams.pitchAdsr);
+    m_ssgSwEnv256.setParameters(chipParams.ssgSwEnv256);
+    m_ssgSwPenv256.setParameters(chipParams.ssgSwPEnv256);
+    m_detune.setParameters(chipParams.detune);
+    m_lfo.setParameters(chipParams.lfo);
+    m_noiseGen.setParameters({ .level = chipParams.tn.noiseLevel, .noiseOnNote = false, .baseFreq = chipParams.tn.noiseFreq });
+    m_ssgHwEnv.setParameters(chipParams.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(chipParams.ssgHwPEnv);
+    m_wtMod.setParameters(chipParams.wtMod);
+    m_wtAmpMod.setParameters(chipParams.wtAmpMod);
 
-    m_rootNote = params.adpcm.rootNote;
+    m_rootNote = chipParams.rootNote;
 
-    m_qualityMode = params.adpcm.quality.mode;
+    m_qualityMode = chipParams.quality.mode;
 
-    if (m_rateIndex != params.adpcm.quality.rate) {
-        m_rateIndex = params.adpcm.quality.rate;
+    if (m_rateIndex != chipParams.quality.rate) {
+        m_rateIndex = chipParams.quality.rate;
         m_targetRate = getTargetRate(m_rateIndex);
     }
 
-    m_interpolationMode = params.adpcm.quality.interp;
+    m_interpolationMode = chipParams.quality.interp;
 
-    m_nrGate = params.adpcm.quality.nrGate;
-    m_nrGateDb = params.adpcm.quality.nrGateDb;
-    m_nrLpf = params.adpcm.quality.nrLpf;
+    m_nrGate = chipParams.quality.nrGate;
+    m_nrGateDb = chipParams.quality.nrGateDb;
+    m_nrLpf = chipParams.quality.nrLpf;
 
     // 符号化はプロセッサがメッセージスレッドで行い、出来たものを差してくる。
     // ここでは受け取った標本化周波数にエンベロープを合わせるだけ。
-    m_pcm = params.adpcm.source;
+    m_pcm = chipParams.source;
 
     const double rate = (m_pcm != nullptr) ? m_pcm->encodedRate : 16000.0;
 

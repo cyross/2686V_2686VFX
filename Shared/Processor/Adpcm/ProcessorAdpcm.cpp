@@ -17,6 +17,10 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::amp());
     TapSeq::addParameters(layout, prefix, prefixName, TapSeq::pitch());
 
+    // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
+    TapParam::addParameters(layout, prefix, prefixName);
+    ParamEnv::addParameters(layout, prefix, prefixName, ParamModCatalog::channelTargetCount(ParamModCatalog::adpcm(), 0), 0);
+
     PrHelper::addLevelParameters(layout, prefix, prefixName);
     PrHelper::addAdpcmBasicParameters(layout, prefix, prefixName);
     PrHelper::addTnParameters(layout, prefix, prefixName);
@@ -44,6 +48,9 @@ void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
 
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
+    TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    modResolver.init(apvts, prefix, ParamModCatalog::adpcm(), 0);
 
     PrHelper::setupAdpcmBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPcmPtrs(apvts, prefix, pQuality);
@@ -70,21 +77,53 @@ void AdpcmProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorV
     TapSeq::apply(pTapAmp, params.tapAmp);
     TapSeq::apply(pTapPitch, params.tapPitch);
 
-    PrHelper::applyAdpcmBasic(pBasic, params.adpcm);
-    PrHelper::applyQualityPcm(pQuality, params.adpcm.quality);
-    PrHelper::applyAdsrAmpEnv(pAmpEnv, params.adpcm.adsr);
-    PrHelper::applyWtMod(pWtMod, params.adpcm.wtMod);
-    PrHelper::applyWtAmpMod(pWtAmpMod, params.adpcm.wtAmpMod);
-    PrHelper::applySsgSwEnv256(pSsgSwEnv256, params.adpcm.ssgSwEnv256);
-    PrHelper::applyPitchEnv(pPitchEnv, params.adpcm.pitchAdsr);
-    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, params.adpcm.ssgSwPEnv256);
-    PrHelper::applyOpzx7Detune(pOpzx7Detune, params.adpcm.detune);
-    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.adpcm.lfo);
-    PrHelper::applyFix(pFix, params.adpcm.fix);
-    PrHelper::applyToneNoise(pToneNoise, params.adpcm.tn);
-    PrHelper::applyPcm(pPcm, params.adpcm.pcm);
-    PrHelper::applyLp(pLp, params.adpcm.lp);
-    PrHelper::applySsgHwEnv(pSsgHwEnv, params.adpcm.ssgHwEnv);
-    PrHelper::applySsgHwPEnv(pSsgHwPEnv, params.adpcm.ssgHwPEnv);
-    PrHelper::applyUnison(pUnison, params.adpcm.unison);
+    // TAP PARAM SEQUENCER
+    TapSeq::apply(pTapParam, params.tapParam);
+
+    applyChannel(params.adpcm);
+}
+
+// チャンネルの値。ボイスが PARAM ENV / TAP PARAM SEQUENCER で置き換えて読み直すときにも使う
+void AdpcmProcessor::applyChannel(AdpcmParams& p)
+{
+    PrHelper::applyAdpcmBasic(pBasic, p);
+    PrHelper::applyQualityPcm(pQuality, p.quality);
+    PrHelper::applyAdsrAmpEnv(pAmpEnv, p.adsr);
+    PrHelper::applyWtMod(pWtMod, p.wtMod);
+    PrHelper::applyWtAmpMod(pWtAmpMod, p.wtAmpMod);
+    PrHelper::applySsgSwEnv256(pSsgSwEnv256, p.ssgSwEnv256);
+    PrHelper::applyPitchEnv(pPitchEnv, p.pitchAdsr);
+    PrHelper::applySsgSwPEnv256(pSsgSwPEnv256, p.ssgSwPEnv256);
+    PrHelper::applyOpzx7Detune(pOpzx7Detune, p.detune);
+    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, p.lfo);
+    PrHelper::applyFix(pFix, p.fix);
+    PrHelper::applyToneNoise(pToneNoise, p.tn);
+    PrHelper::applyPcm(pPcm, p.pcm);
+    PrHelper::applyLp(pLp, p.lp);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, p.ssgHwEnv);
+    PrHelper::applySsgHwPEnv(pSsgHwPEnv, p.ssgHwPEnv);
+    PrHelper::applyUnison(pUnison, p.unison);
+
+    // PARAM ENV[256] (チャンネル)
+    modResolver.applyChannelEnv(pParamEnv, p.paramMod.envs[0]);
+    p.paramMod.envCount = 1;
+    p.paramMod.applier = this;
+    modResolver.fillArp(p.paramMod);
+}
+
+// ボイスから。置き換えた値で、変わる区分だけ読み直す
+void AdpcmProcessor::apply(void* chip, const ParamMod::Override* list, int count)
+{
+    auto& p = *static_cast<AdpcmParams*>(chip);
+
+    std::array<PrOverride::Entry, ParamMod::maxOverrides> entries;
+    ParamModResolver::Dirty dirty;
+
+    const int n = modResolver.resolve(list, count, entries, dirty);
+
+    if (n == 0) return;
+
+    PrOverride::Scope scope(entries.data(), n);
+
+    if (dirty.channel) applyChannel(p);
 }

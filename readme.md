@@ -39,6 +39,37 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 値は YM3012 のデータシートと ymfm (MAME の FM 音源の核) による
   - チャンネルパラメータ・区分のパラメータファイル (QUALITY)・プリセット・DAW の状態に保存 (`chipDac`)。オートメーションは `OPN_CHIP_DAC` など
   - 2686V・2686VLight・26V・86V・OPNV・OPLV・OPMV・PULSEV
+- **FM 音源のオペレーターの列の並びを変えた**
+  - KEY SCALE / MUL/DET (FIX・LFO を含む列) を、AMP ENV / OPTIONAL の列のすぐ右へ移した。OPZX7 は WAVEFORM の列より左に来る
+  - OPNA / OPN / OPL / OPL3 / OPM / OPZX7。FM 音源を持つ全プラグイン
+- **スライダーの値の動かし方に Alt キーを足した**
+  - ラベルのドラッグと、グラフの拡大率のつまみのドラッグで、**Alt** を押しているあいだ 100 刻みへそろう。範囲が 100 より狭いスライダーでは何もしない
+  - 全プラグイン (2686VFX を含む)
+- **[[TAP SEQUENCER]] に「TAP PARAM SEQUENCER」を足した**
+  - 鍵を押すたびに段を 1 つ進め、その段に入れた (パラメータ, 値) の組で、パラメータをその音のあいだ置き換える
+  - 独自拡張として、1 つの段に組を最大 16 個入れられる。FM 音源はオペレーター (OP1〜) ごとのパラメータも選べる。RHYTHM はパッド (PAD1〜) ごと
+  - 選べるパラメータ: FM 音源のオペレーターの数値のパラメータ (TL / AR / DR / SR / SL / RR / KS / MUL / DT。OPM の D1R / D1L / D2R・DT2・KSR / KSL、OPL / OPL3 の KSL・EG・LFO、OPZX7 の実数のエンベロープ・KS の細目・DT2 / DT3・WS・PCM SPEED・LFO など) と FIX の周波数、チャンネルの ALG / FB (OPZX7 は FB OP1〜8)、WT PITCH MOD / WT AMP MOD の波形と速さ、WT+ の波形、ADPCM+ の音声 (スロット)、SSG のデューティ比 (PRESET / 可変) と三角波の頂点、FIX の周波数、各種の周波数・速さ (LFO の FREQ・SSG HW ENV / SSG HW PITCH ENV の周期・ノイズの周波数・三角波の周波数・SPEED・TIMER CLOCK・ARP FREQ など)。オン/オフのトグルは選べない
+  - 段の進め方は TAP AMP / PITCH SEQUENCER と同じ (LOOP・SKIP・INCREMENT / DECREMENT / CLEAR STEP。打鍵 1 回につき 1 段。DAW の再生を止めると開始前へ戻る)
+  - S.TARGET で段を、**P.TARGET** で組を選び、**OP** / **PARAM** / **VALUE** で中身を決める。**ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** で組を足し引きする。値は指し先のパラメータの書き方で出し、MIN / -1 / +1 / MAX のボタンで動かせる
+  - 段の組は一覧に「S1: OP1 AR 31, OP2 TL 20」のように 1 段 1 行で並ぶ。いまの段は地の色が変わる
+  - プリセット・DAW の状態・チャンネルパラメータ (`tapParam`) に保存。区分のパラメータファイルは `.tapParam` (見出しの右クリック)。段の組はオートメーションでは動かせない
+  - 簡易表示モードでは隠す。SETTINGS の簡易表示モードカスタマイズに「TAP PARAM SEQUENCER」を足した。[非表示中の区分をバイパス] でも切れる
+  - 全チャンネル。2686VFX 以外の全プラグイン
+- **「PARAM ENV[256]」を足した。TL ENV はこの機能にまとめた**
+  - SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、**TARGET** で選んだパラメータを動かす。選べるパラメータは TAP PARAM SEQUENCER と同じ
+  - チャンネルに 1 本 (新しい大区分 [[PARAM ENV]]。[[TAP SEQUENCER]] の上)。FM 音源はオペレーターごとにも 1 本 (AMP ENV 区分のすぐ下。これまでの TL ENV の場所)。RHYTHM のチャンネルの PARAM ENV は、パッドごとのパラメータも選べる
+  - 値は指し先のパラメータの範囲の割合で持ち、画面には指し先の書き方 (TL なら 0〜127 など) で出す。TARGET を変えても、値は「範囲のどのあたりか」として残る
+  - 整数や選択肢のパラメータは、段のあいだ値を保つ (KEEP の札によらず)。実数のパラメータは KEEP を切ると斜めに繋ぐ
+  - STEP・LOOP (LOOP MODE を含む)・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じ。値のつまみの下のボタンは MIN / -10% / -1 / +1 / +10% / MAX (±1 は指し先の 1 刻み)
+  - TARGET はオートメーションでも動かせる
+  - **FM 音源のオペレーターの TL ENV は、PARAM ENV (TARGET が TL) になった**。4.2.x までのプリセット・DAW の状態・チャンネルパラメータ・区分のパラメータファイル (`.tlEnv`) は、読み込むときに PARAM ENV へ写す。同じように鳴る
+  - パラメータの ID は `_TLENV_*` から `_PRMENV_*` に変わった。DAW で TL ENV をオートメーションしていたときは割り当て直しが要る
+  - プリセット・DAW の状態・チャンネルパラメータ (`paramEnv`) に保存。区分のパラメータファイルは `.paramEnv` (見出しの右クリック)
+  - 簡易表示モードでは隠す。SETTINGS の簡易表示モードカスタマイズに「PARAM ENV[256]」を足した。[非表示中の区分をバイパス] でも切れる
+  - 全チャンネル・FM 音源のオペレーター。2686VFX 以外の全プラグイン
+- **ADPCM+ の、選んでいないスロットも符号化しておくようにした**
+  - TAP PARAM SEQUENCER / PARAM ENV で VOICE を変えると、選んでいないスロットも鳴るため。読み込んであるスロットは、QUALITY を変えたときにすべて符号化し直す
+  - ADPCM+ を持つプラグイン (2686V / 2686VLight / PCMV)
 
 ### 3-0-2. v4.2.0での追加・変更
 
@@ -1398,7 +1429,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
         - [Dir]SsgSwEnv256         : SSG SW AMP ENV[256] 用 (Amp: エコー・ファミコン風の減衰・ゲート・トレモロなど) (-ch はチャンネルの頭、-op はオペレーター・パッド向け。ON/OFF の向きが逆のため)
         - [Dir]DutyEnv             : DUTY RATIO ENVELOPE 用
         - [Dir]PeakEnv             : PEAK RATIO ENVELOPE 用
-        - [Dir]TlEnv               : TL ENV 用 (-tl127 は OPNA / OPN / OPM、-tl63 は OPL / OPL3 / OPZX7S 向け)
+        - [Dir]TlEnv               : TL ENV 用 (-tl127 は OPNA / OPN / OPM、-tl63 は OPL / OPL3 / OPZX7S 向け)。v4.3.0 からはオペレーターの PARAM ENV[256] (TARGET が TL) として読み込む
         - [Dir]AlgEnv              : ALG ENV 用 (-alg8 は ALG が 8 つの音源、-alg2 は OPL 向け)
         - [Dir]TapAmp              : TAP AMP SEQUENCER 用
     - [Dir]CurveParams             : カーブ編集用のパラメータファイルフォルダ(カーブ編集を持つプラグインのみ)

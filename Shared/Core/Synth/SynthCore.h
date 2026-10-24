@@ -1,9 +1,11 @@
 ﻿#pragma once
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 #include "./SynthCoreParams.h"
+#include "./ParamMod.h"
 #include "./UnisonState.h"
 
 class SynthCore
@@ -42,6 +44,41 @@ public:
 
         return skip;
     }
+    // --- PARAM ENV[256] / TAP PARAM SEQUENCER (4.3.0) ---
+    //
+    // 音源のパラメータを、このボイスだけ別の値へ置き換える (ParamMod.h)。
+    // 各コアの setParameters は、受け取った音源の値を paramModResolve に通してから使う。
+    // 置き換えるものが無ければ、受け取った値をそのまま返す (写さない)。
+    ParamMod::Runtime m_paramMod;
+
+    // 最後に受け取った値。エンベロープが動いたとき、ブロックの途中で読み直すのに使う。
+    // プロセッサが持つ値を指すので、ブロックのあいだは生きている。
+    const SynthCoreParams* m_paramModSrc = nullptr;
+
+    // 置き換えた値で読み直す。setParameters を同じ値で呼び直すだけ
+    void reapplyParamMod()
+    {
+        if (m_paramModSrc != nullptr) setParameters(*m_paramModSrc);
+    }
+
+    template <typename Chip>
+    const Chip& paramModResolve(const SynthCoreParams& params, const Chip& chip, Chip& scratch)
+    {
+        m_paramModSrc = &params;
+        m_paramMod.configure(chip.paramMod);
+
+        std::array<ParamMod::Override, ParamMod::maxOverrides> list;
+
+        const int n = m_paramMod.collect(list);
+
+        if (n == 0 || chip.paramMod.applier == nullptr) return chip;
+
+        scratch = chip;
+        chip.paramMod.applier->apply(&scratch, list.data(), n);
+
+        return scratch;
+    }
+
     void virtual prepare(double sampleRate) {};
     void virtual setSampleRate(double sampleRate) {};
     void virtual setParameters(const SynthCoreParams& params) {};

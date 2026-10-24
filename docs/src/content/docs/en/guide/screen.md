@@ -66,7 +66,7 @@ which one it points at.
 | Part | What it does |
 | --- | --- |
 | Large frame on the left | a large view of the operator (or pad) TARGET points at (from 4.0.0). On tabs with a wave (OPZX7S / RHYTHM), the wave is shown large above it. Switching TARGET updates it at once |
-| Zoom | The large frame and the channel graphs can be stretched sideways (from 4.0.0): 1.0–32.0 times with the knob below (while dragging its bar, **Shift** aligns to 0.1, **Ctrl** to 1 and **Ctrl + Shift** to 10; from 4.2.0), or directly with the x1 / x2 / x4 / x8 / x16 / x32 buttons. The mouse wheel over the graph changes it too; **drag with the right button** or use the scroll bar below to move along. The small frames do not zoom |
+| Zoom | The large frame and the channel graphs can be stretched sideways (from 4.0.0): 1.0–32.0 times with the knob below (while dragging its bar, **Shift** aligns to 0.1, **Ctrl** to 1 and **Ctrl + Shift** to 10, from 4.2.0; **Alt** to 100, from 4.3.0), or directly with the x1 / x2 / x4 / x8 / x16 / x32 buttons. The mouse wheel over the graph changes it too; **drag with the right button** or use the scroll bar below to move along. The small frames do not zoom |
 | Small frames on the right | one envelope display per operator (or pad), four to a row. **Clicking one moves TARGET there** |
 | Outline | only the frame TARGET points at is drawn with a heavy border |
 | TARGET | the operator (or pad) the settings below point at. It is remembered when the window closes |
@@ -88,6 +88,9 @@ compare.
 
 The columns start open. A few short sections share a column (OPN's
 "KEY SCALE / MUL/DET / FIX / N88 LFO", for example).
+
+On the FM tabs, the KEY SCALE / MUL/DET column sits right next to the
+AMP ENV / OPTIONAL column (from 4.3.0), since the two are often edited together.
 
 **Ctrl + ← / →** steps TARGET one at a time and **Ctrl + a digit** jumps to that
 number ([Keyboard shortcuts](/2686V_2686VFX/en/reference/shortcuts/)).
@@ -153,6 +156,8 @@ to follow. Added in 3.4.0.
 | --- | --- |
 | **[[AMP ENV]]** | AMP ENV / SSG HW AMP ENV / SSG SW AMP ENV[256] / WT AMP MOD |
 | **[[PITCH ENV]]** | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
+| **[[PARAM ENV]]** | PARAM ENV[256] (channel; from 4.3.0) |
+| **[[TAP SEQUENCER]]** | TAP AMP SEQUENCER / TAP PITCH SEQUENCER / TAP PARAM SEQUENCER (from 4.3.0) |
 
 - They appear on the OPNA / OPN / OPL / OPL3 / OPM / OPZX7S / SSG / WT / WT2 /
   WT+ / ADPCM / ADPCM+ / BEEP tabs. The order of the sections is unchanged
@@ -197,6 +202,8 @@ there is kept on screen even while simple view is on.
 | PITCH ENV / SSG HW PITCH ENV / SSG SW PITCH ENV[256] / WT PITCH MOD |
 | LFO / MUL・DET / FIX / UNISON・HARMONY |
 | TAP SEQUENCER (TAP AMP / TAP PITCH SEQUENCER) |
+| PARAM ENV[256] (channel and operators; from 4.3.0) |
+| TAP PARAM SEQUENCER (from 4.3.0) |
 
 The setting is saved to the settings file along with everything else.
 
@@ -264,8 +271,9 @@ Drag the control, or type a number in directly.
 - **Press the name (label) on the left and drag up or down** to change the value
   too (from 4.2.0). Up raises it, and 200 px covers the whole range. When
   **STEPS** has a step size selected, it moves by that step. Without STEPS,
-  **Shift** aligns to 0.1 (real-valued sliders only), **Ctrl** to 1 and
-  **Ctrl + Shift** to 10
+  **Shift** aligns to 0.1 (real-valued sliders only), **Ctrl** to 1,
+  **Ctrl + Shift** to 10 and **Alt** to 100 (from 4.3.0; sliders whose range is
+  narrower than 100 are left alone)
 
 ### Nudge
 

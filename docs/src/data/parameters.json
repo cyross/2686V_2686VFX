@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.3.0",
-  "count": 12964,
+  "count": 13282,
   "parameters": [
     {
       "id": "MODE",
@@ -102,6 +102,162 @@
     {
       "id": "OPNA_TAPPITCH_RESET",
       "name": "OPNA TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPPARAM_ENABLE",
+      "name": "OPNA TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPPARAM_STEPS",
+      "name": "OPNA TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPNA_TAPPARAM_LOOP",
+      "name": "OPNA TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPPARAM_INC",
+      "name": "OPNA TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPPARAM_DEC",
+      "name": "OPNA TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_TAPPARAM_RESET",
+      "name": "OPNA TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_PRMENV_ENABLE",
+      "name": "OPNA ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_PRMENV_TARGET",
+      "name": "OPNA ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 9,
+      "default": 0
+    },
+    {
+      "id": "OPNA_PRMENV_STEPS",
+      "name": "OPNA ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPNA_PRMENV_LOOP",
+      "name": "OPNA ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_PRMENV_LOOPTO",
+      "name": "OPNA ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPNA_PRMENV_LOOPCNT",
+      "name": "OPNA ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPNA_PRMENV_LOOPMODE",
+      "name": "OPNA ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "OPNA_PRMENV_STL",
+      "name": "OPNA ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPNA_PRMENV_LR",
+      "name": "OPNA ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPNA_PRMENV_RR",
+      "name": "OPNA ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPNA_PRMENV_ENDL",
+      "name": "OPNA ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPNA_PRMENV_ENDL_EN",
+      "name": "OPNA ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_PRMENV_KEEP",
+      "name": "OPNA ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2283,72 +2439,82 @@
       "default": false
     },
     {
-      "id": "OPNA_OP0_TLENV_ENABLE",
-      "name": "OPNA Op1 TlEnv Enable",
+      "id": "OPNA_OP0_PRMENV_ENABLE",
+      "name": "OPNA Op1 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPNA_OP0_TLENV_STEPS",
-      "name": "OPNA Op1 TlEnv Steps",
+      "id": "OPNA_OP0_PRMENV_TARGET",
+      "name": "OPNA Op1 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 21,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP0_PRMENV_STEPS",
+      "name": "OPNA Op1 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPNA_OP0_TLENV_LOOP",
-      "name": "OPNA Op1 TlEnv Loop",
+      "id": "OPNA_OP0_PRMENV_LOOP",
+      "name": "OPNA Op1 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPNA_OP0_TLENV_LOOPTO",
-      "name": "OPNA Op1 TlEnv Loop To",
+      "id": "OPNA_OP0_PRMENV_LOOPTO",
+      "name": "OPNA Op1 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPNA_OP0_TLENV_LOOPCNT",
-      "name": "OPNA Op1 TlEnv Loop Count",
+      "id": "OPNA_OP0_PRMENV_LOOPCNT",
+      "name": "OPNA Op1 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPNA_OP0_TLENV_LOOPMODE",
-      "name": "OPNA Op1 TlEnv Loop Mode",
+      "id": "OPNA_OP0_PRMENV_LOOPMODE",
+      "name": "OPNA Op1 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPNA_OP0_TLENV_STL",
-      "name": "OPNA Op1 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP0_PRMENV_STL",
+      "name": "OPNA Op1 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP0_TLENV_LR",
-      "name": "OPNA Op1 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP0_PRMENV_LR",
+      "name": "OPNA Op1 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP0_TLENV_RR",
-      "name": "OPNA Op1 TlEnv RR",
+      "id": "OPNA_OP0_PRMENV_RR",
+      "name": "OPNA Op1 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -2356,16 +2522,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPNA_OP0_TLENV_ENDL",
-      "name": "OPNA Op1 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP0_PRMENV_ENDL",
+      "name": "OPNA Op1 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP0_TLENV_ENDL_EN",
-      "name": "OPNA Op1 TlEnv EndL Enable",
+      "id": "OPNA_OP0_PRMENV_ENDL_EN",
+      "name": "OPNA Op1 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_PRMENV_KEEP",
+      "name": "OPNA Op1 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -3957,72 +4132,82 @@
       "default": false
     },
     {
-      "id": "OPNA_OP1_TLENV_ENABLE",
-      "name": "OPNA Op2 TlEnv Enable",
+      "id": "OPNA_OP1_PRMENV_ENABLE",
+      "name": "OPNA Op2 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPNA_OP1_TLENV_STEPS",
-      "name": "OPNA Op2 TlEnv Steps",
+      "id": "OPNA_OP1_PRMENV_TARGET",
+      "name": "OPNA Op2 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 21,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP1_PRMENV_STEPS",
+      "name": "OPNA Op2 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPNA_OP1_TLENV_LOOP",
-      "name": "OPNA Op2 TlEnv Loop",
+      "id": "OPNA_OP1_PRMENV_LOOP",
+      "name": "OPNA Op2 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPNA_OP1_TLENV_LOOPTO",
-      "name": "OPNA Op2 TlEnv Loop To",
+      "id": "OPNA_OP1_PRMENV_LOOPTO",
+      "name": "OPNA Op2 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPNA_OP1_TLENV_LOOPCNT",
-      "name": "OPNA Op2 TlEnv Loop Count",
+      "id": "OPNA_OP1_PRMENV_LOOPCNT",
+      "name": "OPNA Op2 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPNA_OP1_TLENV_LOOPMODE",
-      "name": "OPNA Op2 TlEnv Loop Mode",
+      "id": "OPNA_OP1_PRMENV_LOOPMODE",
+      "name": "OPNA Op2 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPNA_OP1_TLENV_STL",
-      "name": "OPNA Op2 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP1_PRMENV_STL",
+      "name": "OPNA Op2 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP1_TLENV_LR",
-      "name": "OPNA Op2 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP1_PRMENV_LR",
+      "name": "OPNA Op2 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP1_TLENV_RR",
-      "name": "OPNA Op2 TlEnv RR",
+      "id": "OPNA_OP1_PRMENV_RR",
+      "name": "OPNA Op2 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -4030,16 +4215,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPNA_OP1_TLENV_ENDL",
-      "name": "OPNA Op2 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP1_PRMENV_ENDL",
+      "name": "OPNA Op2 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP1_TLENV_ENDL_EN",
-      "name": "OPNA Op2 TlEnv EndL Enable",
+      "id": "OPNA_OP1_PRMENV_ENDL_EN",
+      "name": "OPNA Op2 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_PRMENV_KEEP",
+      "name": "OPNA Op2 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -5631,72 +5825,82 @@
       "default": false
     },
     {
-      "id": "OPNA_OP2_TLENV_ENABLE",
-      "name": "OPNA Op3 TlEnv Enable",
+      "id": "OPNA_OP2_PRMENV_ENABLE",
+      "name": "OPNA Op3 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPNA_OP2_TLENV_STEPS",
-      "name": "OPNA Op3 TlEnv Steps",
+      "id": "OPNA_OP2_PRMENV_TARGET",
+      "name": "OPNA Op3 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 21,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP2_PRMENV_STEPS",
+      "name": "OPNA Op3 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPNA_OP2_TLENV_LOOP",
-      "name": "OPNA Op3 TlEnv Loop",
+      "id": "OPNA_OP2_PRMENV_LOOP",
+      "name": "OPNA Op3 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPNA_OP2_TLENV_LOOPTO",
-      "name": "OPNA Op3 TlEnv Loop To",
+      "id": "OPNA_OP2_PRMENV_LOOPTO",
+      "name": "OPNA Op3 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPNA_OP2_TLENV_LOOPCNT",
-      "name": "OPNA Op3 TlEnv Loop Count",
+      "id": "OPNA_OP2_PRMENV_LOOPCNT",
+      "name": "OPNA Op3 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPNA_OP2_TLENV_LOOPMODE",
-      "name": "OPNA Op3 TlEnv Loop Mode",
+      "id": "OPNA_OP2_PRMENV_LOOPMODE",
+      "name": "OPNA Op3 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPNA_OP2_TLENV_STL",
-      "name": "OPNA Op3 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP2_PRMENV_STL",
+      "name": "OPNA Op3 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP2_TLENV_LR",
-      "name": "OPNA Op3 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP2_PRMENV_LR",
+      "name": "OPNA Op3 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP2_TLENV_RR",
-      "name": "OPNA Op3 TlEnv RR",
+      "id": "OPNA_OP2_PRMENV_RR",
+      "name": "OPNA Op3 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -5704,16 +5908,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPNA_OP2_TLENV_ENDL",
-      "name": "OPNA Op3 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP2_PRMENV_ENDL",
+      "name": "OPNA Op3 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP2_TLENV_ENDL_EN",
-      "name": "OPNA Op3 TlEnv EndL Enable",
+      "id": "OPNA_OP2_PRMENV_ENDL_EN",
+      "name": "OPNA Op3 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_PRMENV_KEEP",
+      "name": "OPNA Op3 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -7305,72 +7518,82 @@
       "default": false
     },
     {
-      "id": "OPNA_OP3_TLENV_ENABLE",
-      "name": "OPNA Op4 TlEnv Enable",
+      "id": "OPNA_OP3_PRMENV_ENABLE",
+      "name": "OPNA Op4 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPNA_OP3_TLENV_STEPS",
-      "name": "OPNA Op4 TlEnv Steps",
+      "id": "OPNA_OP3_PRMENV_TARGET",
+      "name": "OPNA Op4 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 21,
+      "default": 0
+    },
+    {
+      "id": "OPNA_OP3_PRMENV_STEPS",
+      "name": "OPNA Op4 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPNA_OP3_TLENV_LOOP",
-      "name": "OPNA Op4 TlEnv Loop",
+      "id": "OPNA_OP3_PRMENV_LOOP",
+      "name": "OPNA Op4 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPNA_OP3_TLENV_LOOPTO",
-      "name": "OPNA Op4 TlEnv Loop To",
+      "id": "OPNA_OP3_PRMENV_LOOPTO",
+      "name": "OPNA Op4 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPNA_OP3_TLENV_LOOPCNT",
-      "name": "OPNA Op4 TlEnv Loop Count",
+      "id": "OPNA_OP3_PRMENV_LOOPCNT",
+      "name": "OPNA Op4 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPNA_OP3_TLENV_LOOPMODE",
-      "name": "OPNA Op4 TlEnv Loop Mode",
+      "id": "OPNA_OP3_PRMENV_LOOPMODE",
+      "name": "OPNA Op4 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPNA_OP3_TLENV_STL",
-      "name": "OPNA Op4 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP3_PRMENV_STL",
+      "name": "OPNA Op4 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP3_TLENV_LR",
-      "name": "OPNA Op4 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP3_PRMENV_LR",
+      "name": "OPNA Op4 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP3_TLENV_RR",
-      "name": "OPNA Op4 TlEnv RR",
+      "id": "OPNA_OP3_PRMENV_RR",
+      "name": "OPNA Op4 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -7378,16 +7601,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPNA_OP3_TLENV_ENDL",
-      "name": "OPNA Op4 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPNA_OP3_PRMENV_ENDL",
+      "name": "OPNA Op4 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPNA_OP3_TLENV_ENDL_EN",
-      "name": "OPNA Op4 TlEnv EndL Enable",
+      "id": "OPNA_OP3_PRMENV_ENDL_EN",
+      "name": "OPNA Op4 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_PRMENV_KEEP",
+      "name": "OPNA Op4 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -8684,6 +8916,162 @@
     {
       "id": "OPN_TAPPITCH_RESET",
       "name": "OPN TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPPARAM_ENABLE",
+      "name": "OPN TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPPARAM_STEPS",
+      "name": "OPN TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPN_TAPPARAM_LOOP",
+      "name": "OPN TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPPARAM_INC",
+      "name": "OPN TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPPARAM_DEC",
+      "name": "OPN TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_TAPPARAM_RESET",
+      "name": "OPN TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_PRMENV_ENABLE",
+      "name": "OPN ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_PRMENV_TARGET",
+      "name": "OPN ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 9,
+      "default": 0
+    },
+    {
+      "id": "OPN_PRMENV_STEPS",
+      "name": "OPN ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPN_PRMENV_LOOP",
+      "name": "OPN ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_PRMENV_LOOPTO",
+      "name": "OPN ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPN_PRMENV_LOOPCNT",
+      "name": "OPN ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPN_PRMENV_LOOPMODE",
+      "name": "OPN ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "OPN_PRMENV_STL",
+      "name": "OPN ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPN_PRMENV_LR",
+      "name": "OPN ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPN_PRMENV_RR",
+      "name": "OPN ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPN_PRMENV_ENDL",
+      "name": "OPN ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPN_PRMENV_ENDL_EN",
+      "name": "OPN ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_PRMENV_KEEP",
+      "name": "OPN ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -10792,72 +11180,82 @@
       "default": false
     },
     {
-      "id": "OPN_OP0_TLENV_ENABLE",
-      "name": "OPN Op1 TlEnv Enable",
+      "id": "OPN_OP0_PRMENV_ENABLE",
+      "name": "OPN Op1 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPN_OP0_TLENV_STEPS",
-      "name": "OPN Op1 TlEnv Steps",
+      "id": "OPN_OP0_PRMENV_TARGET",
+      "name": "OPN Op1 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 16,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP0_PRMENV_STEPS",
+      "name": "OPN Op1 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPN_OP0_TLENV_LOOP",
-      "name": "OPN Op1 TlEnv Loop",
+      "id": "OPN_OP0_PRMENV_LOOP",
+      "name": "OPN Op1 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPN_OP0_TLENV_LOOPTO",
-      "name": "OPN Op1 TlEnv Loop To",
+      "id": "OPN_OP0_PRMENV_LOOPTO",
+      "name": "OPN Op1 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPN_OP0_TLENV_LOOPCNT",
-      "name": "OPN Op1 TlEnv Loop Count",
+      "id": "OPN_OP0_PRMENV_LOOPCNT",
+      "name": "OPN Op1 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPN_OP0_TLENV_LOOPMODE",
-      "name": "OPN Op1 TlEnv Loop Mode",
+      "id": "OPN_OP0_PRMENV_LOOPMODE",
+      "name": "OPN Op1 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPN_OP0_TLENV_STL",
-      "name": "OPN Op1 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP0_PRMENV_STL",
+      "name": "OPN Op1 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP0_TLENV_LR",
-      "name": "OPN Op1 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP0_PRMENV_LR",
+      "name": "OPN Op1 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP0_TLENV_RR",
-      "name": "OPN Op1 TlEnv RR",
+      "id": "OPN_OP0_PRMENV_RR",
+      "name": "OPN Op1 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -10865,16 +11263,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPN_OP0_TLENV_ENDL",
-      "name": "OPN Op1 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP0_PRMENV_ENDL",
+      "name": "OPN Op1 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP0_TLENV_ENDL_EN",
-      "name": "OPN Op1 TlEnv EndL Enable",
+      "id": "OPN_OP0_PRMENV_ENDL_EN",
+      "name": "OPN Op1 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_PRMENV_KEEP",
+      "name": "OPN Op1 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -12401,72 +12808,82 @@
       "default": false
     },
     {
-      "id": "OPN_OP1_TLENV_ENABLE",
-      "name": "OPN Op2 TlEnv Enable",
+      "id": "OPN_OP1_PRMENV_ENABLE",
+      "name": "OPN Op2 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPN_OP1_TLENV_STEPS",
-      "name": "OPN Op2 TlEnv Steps",
+      "id": "OPN_OP1_PRMENV_TARGET",
+      "name": "OPN Op2 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 16,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP1_PRMENV_STEPS",
+      "name": "OPN Op2 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPN_OP1_TLENV_LOOP",
-      "name": "OPN Op2 TlEnv Loop",
+      "id": "OPN_OP1_PRMENV_LOOP",
+      "name": "OPN Op2 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPN_OP1_TLENV_LOOPTO",
-      "name": "OPN Op2 TlEnv Loop To",
+      "id": "OPN_OP1_PRMENV_LOOPTO",
+      "name": "OPN Op2 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPN_OP1_TLENV_LOOPCNT",
-      "name": "OPN Op2 TlEnv Loop Count",
+      "id": "OPN_OP1_PRMENV_LOOPCNT",
+      "name": "OPN Op2 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPN_OP1_TLENV_LOOPMODE",
-      "name": "OPN Op2 TlEnv Loop Mode",
+      "id": "OPN_OP1_PRMENV_LOOPMODE",
+      "name": "OPN Op2 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPN_OP1_TLENV_STL",
-      "name": "OPN Op2 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP1_PRMENV_STL",
+      "name": "OPN Op2 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP1_TLENV_LR",
-      "name": "OPN Op2 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP1_PRMENV_LR",
+      "name": "OPN Op2 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP1_TLENV_RR",
-      "name": "OPN Op2 TlEnv RR",
+      "id": "OPN_OP1_PRMENV_RR",
+      "name": "OPN Op2 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -12474,16 +12891,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPN_OP1_TLENV_ENDL",
-      "name": "OPN Op2 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP1_PRMENV_ENDL",
+      "name": "OPN Op2 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP1_TLENV_ENDL_EN",
-      "name": "OPN Op2 TlEnv EndL Enable",
+      "id": "OPN_OP1_PRMENV_ENDL_EN",
+      "name": "OPN Op2 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_PRMENV_KEEP",
+      "name": "OPN Op2 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -14010,72 +14436,82 @@
       "default": false
     },
     {
-      "id": "OPN_OP2_TLENV_ENABLE",
-      "name": "OPN Op3 TlEnv Enable",
+      "id": "OPN_OP2_PRMENV_ENABLE",
+      "name": "OPN Op3 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPN_OP2_TLENV_STEPS",
-      "name": "OPN Op3 TlEnv Steps",
+      "id": "OPN_OP2_PRMENV_TARGET",
+      "name": "OPN Op3 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 16,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP2_PRMENV_STEPS",
+      "name": "OPN Op3 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPN_OP2_TLENV_LOOP",
-      "name": "OPN Op3 TlEnv Loop",
+      "id": "OPN_OP2_PRMENV_LOOP",
+      "name": "OPN Op3 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPN_OP2_TLENV_LOOPTO",
-      "name": "OPN Op3 TlEnv Loop To",
+      "id": "OPN_OP2_PRMENV_LOOPTO",
+      "name": "OPN Op3 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPN_OP2_TLENV_LOOPCNT",
-      "name": "OPN Op3 TlEnv Loop Count",
+      "id": "OPN_OP2_PRMENV_LOOPCNT",
+      "name": "OPN Op3 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPN_OP2_TLENV_LOOPMODE",
-      "name": "OPN Op3 TlEnv Loop Mode",
+      "id": "OPN_OP2_PRMENV_LOOPMODE",
+      "name": "OPN Op3 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPN_OP2_TLENV_STL",
-      "name": "OPN Op3 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP2_PRMENV_STL",
+      "name": "OPN Op3 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP2_TLENV_LR",
-      "name": "OPN Op3 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP2_PRMENV_LR",
+      "name": "OPN Op3 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP2_TLENV_RR",
-      "name": "OPN Op3 TlEnv RR",
+      "id": "OPN_OP2_PRMENV_RR",
+      "name": "OPN Op3 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -14083,16 +14519,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPN_OP2_TLENV_ENDL",
-      "name": "OPN Op3 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP2_PRMENV_ENDL",
+      "name": "OPN Op3 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP2_TLENV_ENDL_EN",
-      "name": "OPN Op3 TlEnv EndL Enable",
+      "id": "OPN_OP2_PRMENV_ENDL_EN",
+      "name": "OPN Op3 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_PRMENV_KEEP",
+      "name": "OPN Op3 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -15619,72 +16064,82 @@
       "default": false
     },
     {
-      "id": "OPN_OP3_TLENV_ENABLE",
-      "name": "OPN Op4 TlEnv Enable",
+      "id": "OPN_OP3_PRMENV_ENABLE",
+      "name": "OPN Op4 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPN_OP3_TLENV_STEPS",
-      "name": "OPN Op4 TlEnv Steps",
+      "id": "OPN_OP3_PRMENV_TARGET",
+      "name": "OPN Op4 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 16,
+      "default": 0
+    },
+    {
+      "id": "OPN_OP3_PRMENV_STEPS",
+      "name": "OPN Op4 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPN_OP3_TLENV_LOOP",
-      "name": "OPN Op4 TlEnv Loop",
+      "id": "OPN_OP3_PRMENV_LOOP",
+      "name": "OPN Op4 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPN_OP3_TLENV_LOOPTO",
-      "name": "OPN Op4 TlEnv Loop To",
+      "id": "OPN_OP3_PRMENV_LOOPTO",
+      "name": "OPN Op4 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPN_OP3_TLENV_LOOPCNT",
-      "name": "OPN Op4 TlEnv Loop Count",
+      "id": "OPN_OP3_PRMENV_LOOPCNT",
+      "name": "OPN Op4 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPN_OP3_TLENV_LOOPMODE",
-      "name": "OPN Op4 TlEnv Loop Mode",
+      "id": "OPN_OP3_PRMENV_LOOPMODE",
+      "name": "OPN Op4 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPN_OP3_TLENV_STL",
-      "name": "OPN Op4 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP3_PRMENV_STL",
+      "name": "OPN Op4 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP3_TLENV_LR",
-      "name": "OPN Op4 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP3_PRMENV_LR",
+      "name": "OPN Op4 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP3_TLENV_RR",
-      "name": "OPN Op4 TlEnv RR",
+      "id": "OPN_OP3_PRMENV_RR",
+      "name": "OPN Op4 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -15692,16 +16147,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPN_OP3_TLENV_ENDL",
-      "name": "OPN Op4 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPN_OP3_PRMENV_ENDL",
+      "name": "OPN Op4 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPN_OP3_TLENV_ENDL_EN",
-      "name": "OPN Op4 TlEnv EndL Enable",
+      "id": "OPN_OP3_PRMENV_ENDL_EN",
+      "name": "OPN Op4 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_PRMENV_KEEP",
+      "name": "OPN Op4 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -16998,6 +17462,162 @@
     {
       "id": "OPL_TAPPITCH_RESET",
       "name": "OPL TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPPARAM_ENABLE",
+      "name": "OPL TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPPARAM_STEPS",
+      "name": "OPL TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL_TAPPARAM_LOOP",
+      "name": "OPL TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPPARAM_INC",
+      "name": "OPL TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPPARAM_DEC",
+      "name": "OPL TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_TAPPARAM_RESET",
+      "name": "OPL TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_PRMENV_ENABLE",
+      "name": "OPL ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_PRMENV_TARGET",
+      "name": "OPL ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 8,
+      "default": 0
+    },
+    {
+      "id": "OPL_PRMENV_STEPS",
+      "name": "OPL ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL_PRMENV_LOOP",
+      "name": "OPL ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_PRMENV_LOOPTO",
+      "name": "OPL ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL_PRMENV_LOOPCNT",
+      "name": "OPL ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL_PRMENV_LOOPMODE",
+      "name": "OPL ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "OPL_PRMENV_STL",
+      "name": "OPL ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL_PRMENV_LR",
+      "name": "OPL ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL_PRMENV_RR",
+      "name": "OPL ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL_PRMENV_ENDL",
+      "name": "OPL ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL_PRMENV_ENDL_EN",
+      "name": "OPL ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_PRMENV_KEEP",
+      "name": "OPL ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -19076,72 +19696,82 @@
       "default": false
     },
     {
-      "id": "OPL_OP0_TLENV_ENABLE",
-      "name": "OPL Op1 TlEnv Enable",
+      "id": "OPL_OP0_PRMENV_ENABLE",
+      "name": "OPL Op1 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL_OP0_TLENV_STEPS",
-      "name": "OPL Op1 TlEnv Steps",
+      "id": "OPL_OP0_PRMENV_TARGET",
+      "name": "OPL Op1 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 17,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP0_PRMENV_STEPS",
+      "name": "OPL Op1 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPL_OP0_TLENV_LOOP",
-      "name": "OPL Op1 TlEnv Loop",
+      "id": "OPL_OP0_PRMENV_LOOP",
+      "name": "OPL Op1 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL_OP0_TLENV_LOOPTO",
-      "name": "OPL Op1 TlEnv Loop To",
+      "id": "OPL_OP0_PRMENV_LOOPTO",
+      "name": "OPL Op1 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPL_OP0_TLENV_LOOPCNT",
-      "name": "OPL Op1 TlEnv Loop Count",
+      "id": "OPL_OP0_PRMENV_LOOPCNT",
+      "name": "OPL Op1 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPL_OP0_TLENV_LOOPMODE",
-      "name": "OPL Op1 TlEnv Loop Mode",
+      "id": "OPL_OP0_PRMENV_LOOPMODE",
+      "name": "OPL Op1 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPL_OP0_TLENV_STL",
-      "name": "OPL Op1 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL_OP0_PRMENV_STL",
+      "name": "OPL Op1 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL_OP0_TLENV_LR",
-      "name": "OPL Op1 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL_OP0_PRMENV_LR",
+      "name": "OPL Op1 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL_OP0_TLENV_RR",
-      "name": "OPL Op1 TlEnv RR",
+      "id": "OPL_OP0_PRMENV_RR",
+      "name": "OPL Op1 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -19149,16 +19779,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPL_OP0_TLENV_ENDL",
-      "name": "OPL Op1 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL_OP0_PRMENV_ENDL",
+      "name": "OPL Op1 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL_OP0_TLENV_ENDL_EN",
-      "name": "OPL Op1 TlEnv EndL Enable",
+      "id": "OPL_OP0_PRMENV_ENDL_EN",
+      "name": "OPL Op1 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_PRMENV_KEEP",
+      "name": "OPL Op1 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -20728,72 +21367,82 @@
       "default": false
     },
     {
-      "id": "OPL_OP1_TLENV_ENABLE",
-      "name": "OPL Op2 TlEnv Enable",
+      "id": "OPL_OP1_PRMENV_ENABLE",
+      "name": "OPL Op2 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL_OP1_TLENV_STEPS",
-      "name": "OPL Op2 TlEnv Steps",
+      "id": "OPL_OP1_PRMENV_TARGET",
+      "name": "OPL Op2 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 17,
+      "default": 0
+    },
+    {
+      "id": "OPL_OP1_PRMENV_STEPS",
+      "name": "OPL Op2 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPL_OP1_TLENV_LOOP",
-      "name": "OPL Op2 TlEnv Loop",
+      "id": "OPL_OP1_PRMENV_LOOP",
+      "name": "OPL Op2 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL_OP1_TLENV_LOOPTO",
-      "name": "OPL Op2 TlEnv Loop To",
+      "id": "OPL_OP1_PRMENV_LOOPTO",
+      "name": "OPL Op2 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPL_OP1_TLENV_LOOPCNT",
-      "name": "OPL Op2 TlEnv Loop Count",
+      "id": "OPL_OP1_PRMENV_LOOPCNT",
+      "name": "OPL Op2 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPL_OP1_TLENV_LOOPMODE",
-      "name": "OPL Op2 TlEnv Loop Mode",
+      "id": "OPL_OP1_PRMENV_LOOPMODE",
+      "name": "OPL Op2 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPL_OP1_TLENV_STL",
-      "name": "OPL Op2 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL_OP1_PRMENV_STL",
+      "name": "OPL Op2 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL_OP1_TLENV_LR",
-      "name": "OPL Op2 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL_OP1_PRMENV_LR",
+      "name": "OPL Op2 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL_OP1_TLENV_RR",
-      "name": "OPL Op2 TlEnv RR",
+      "id": "OPL_OP1_PRMENV_RR",
+      "name": "OPL Op2 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -20801,16 +21450,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPL_OP1_TLENV_ENDL",
-      "name": "OPL Op2 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL_OP1_PRMENV_ENDL",
+      "name": "OPL Op2 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL_OP1_TLENV_ENDL_EN",
-      "name": "OPL Op2 TlEnv EndL Enable",
+      "id": "OPL_OP1_PRMENV_ENDL_EN",
+      "name": "OPL Op2 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_PRMENV_KEEP",
+      "name": "OPL Op2 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -22107,6 +22765,162 @@
     {
       "id": "OPL3_TAPPITCH_RESET",
       "name": "OPL3 TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPPARAM_ENABLE",
+      "name": "OPL3 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPPARAM_STEPS",
+      "name": "OPL3 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL3_TAPPARAM_LOOP",
+      "name": "OPL3 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPPARAM_INC",
+      "name": "OPL3 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPPARAM_DEC",
+      "name": "OPL3 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_TAPPARAM_RESET",
+      "name": "OPL3 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_PRMENV_ENABLE",
+      "name": "OPL3 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_PRMENV_TARGET",
+      "name": "OPL3 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 8,
+      "default": 0
+    },
+    {
+      "id": "OPL3_PRMENV_STEPS",
+      "name": "OPL3 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPL3_PRMENV_LOOP",
+      "name": "OPL3 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_PRMENV_LOOPTO",
+      "name": "OPL3 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPL3_PRMENV_LOOPCNT",
+      "name": "OPL3 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPL3_PRMENV_LOOPMODE",
+      "name": "OPL3 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "OPL3_PRMENV_STL",
+      "name": "OPL3 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL3_PRMENV_LR",
+      "name": "OPL3 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL3_PRMENV_RR",
+      "name": "OPL3 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPL3_PRMENV_ENDL",
+      "name": "OPL3 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPL3_PRMENV_ENDL_EN",
+      "name": "OPL3 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_PRMENV_KEEP",
+      "name": "OPL3 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -24177,72 +24991,82 @@
       "default": false
     },
     {
-      "id": "OPL3_OP0_TLENV_ENABLE",
-      "name": "OPL3 Op1 TlEnv Enable",
+      "id": "OPL3_OP0_PRMENV_ENABLE",
+      "name": "OPL3 Op1 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL3_OP0_TLENV_STEPS",
-      "name": "OPL3 Op1 TlEnv Steps",
+      "id": "OPL3_OP0_PRMENV_TARGET",
+      "name": "OPL3 Op1 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 17,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP0_PRMENV_STEPS",
+      "name": "OPL3 Op1 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPL3_OP0_TLENV_LOOP",
-      "name": "OPL3 Op1 TlEnv Loop",
+      "id": "OPL3_OP0_PRMENV_LOOP",
+      "name": "OPL3 Op1 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL3_OP0_TLENV_LOOPTO",
-      "name": "OPL3 Op1 TlEnv Loop To",
+      "id": "OPL3_OP0_PRMENV_LOOPTO",
+      "name": "OPL3 Op1 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPL3_OP0_TLENV_LOOPCNT",
-      "name": "OPL3 Op1 TlEnv Loop Count",
+      "id": "OPL3_OP0_PRMENV_LOOPCNT",
+      "name": "OPL3 Op1 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPL3_OP0_TLENV_LOOPMODE",
-      "name": "OPL3 Op1 TlEnv Loop Mode",
+      "id": "OPL3_OP0_PRMENV_LOOPMODE",
+      "name": "OPL3 Op1 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPL3_OP0_TLENV_STL",
-      "name": "OPL3 Op1 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP0_PRMENV_STL",
+      "name": "OPL3 Op1 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP0_TLENV_LR",
-      "name": "OPL3 Op1 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP0_PRMENV_LR",
+      "name": "OPL3 Op1 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP0_TLENV_RR",
-      "name": "OPL3 Op1 TlEnv RR",
+      "id": "OPL3_OP0_PRMENV_RR",
+      "name": "OPL3 Op1 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -24250,16 +25074,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPL3_OP0_TLENV_ENDL",
-      "name": "OPL3 Op1 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP0_PRMENV_ENDL",
+      "name": "OPL3 Op1 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP0_TLENV_ENDL_EN",
-      "name": "OPL3 Op1 TlEnv EndL Enable",
+      "id": "OPL3_OP0_PRMENV_ENDL_EN",
+      "name": "OPL3 Op1 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_PRMENV_KEEP",
+      "name": "OPL3 Op1 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25821,72 +26654,82 @@
       "default": false
     },
     {
-      "id": "OPL3_OP1_TLENV_ENABLE",
-      "name": "OPL3 Op2 TlEnv Enable",
+      "id": "OPL3_OP1_PRMENV_ENABLE",
+      "name": "OPL3 Op2 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL3_OP1_TLENV_STEPS",
-      "name": "OPL3 Op2 TlEnv Steps",
+      "id": "OPL3_OP1_PRMENV_TARGET",
+      "name": "OPL3 Op2 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 17,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP1_PRMENV_STEPS",
+      "name": "OPL3 Op2 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPL3_OP1_TLENV_LOOP",
-      "name": "OPL3 Op2 TlEnv Loop",
+      "id": "OPL3_OP1_PRMENV_LOOP",
+      "name": "OPL3 Op2 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL3_OP1_TLENV_LOOPTO",
-      "name": "OPL3 Op2 TlEnv Loop To",
+      "id": "OPL3_OP1_PRMENV_LOOPTO",
+      "name": "OPL3 Op2 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPL3_OP1_TLENV_LOOPCNT",
-      "name": "OPL3 Op2 TlEnv Loop Count",
+      "id": "OPL3_OP1_PRMENV_LOOPCNT",
+      "name": "OPL3 Op2 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPL3_OP1_TLENV_LOOPMODE",
-      "name": "OPL3 Op2 TlEnv Loop Mode",
+      "id": "OPL3_OP1_PRMENV_LOOPMODE",
+      "name": "OPL3 Op2 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPL3_OP1_TLENV_STL",
-      "name": "OPL3 Op2 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP1_PRMENV_STL",
+      "name": "OPL3 Op2 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP1_TLENV_LR",
-      "name": "OPL3 Op2 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP1_PRMENV_LR",
+      "name": "OPL3 Op2 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP1_TLENV_RR",
-      "name": "OPL3 Op2 TlEnv RR",
+      "id": "OPL3_OP1_PRMENV_RR",
+      "name": "OPL3 Op2 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -25894,16 +26737,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPL3_OP1_TLENV_ENDL",
-      "name": "OPL3 Op2 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP1_PRMENV_ENDL",
+      "name": "OPL3 Op2 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP1_TLENV_ENDL_EN",
-      "name": "OPL3 Op2 TlEnv EndL Enable",
+      "id": "OPL3_OP1_PRMENV_ENDL_EN",
+      "name": "OPL3 Op2 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_PRMENV_KEEP",
+      "name": "OPL3 Op2 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -27465,72 +28317,82 @@
       "default": false
     },
     {
-      "id": "OPL3_OP2_TLENV_ENABLE",
-      "name": "OPL3 Op3 TlEnv Enable",
+      "id": "OPL3_OP2_PRMENV_ENABLE",
+      "name": "OPL3 Op3 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL3_OP2_TLENV_STEPS",
-      "name": "OPL3 Op3 TlEnv Steps",
+      "id": "OPL3_OP2_PRMENV_TARGET",
+      "name": "OPL3 Op3 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 17,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP2_PRMENV_STEPS",
+      "name": "OPL3 Op3 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPL3_OP2_TLENV_LOOP",
-      "name": "OPL3 Op3 TlEnv Loop",
+      "id": "OPL3_OP2_PRMENV_LOOP",
+      "name": "OPL3 Op3 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL3_OP2_TLENV_LOOPTO",
-      "name": "OPL3 Op3 TlEnv Loop To",
+      "id": "OPL3_OP2_PRMENV_LOOPTO",
+      "name": "OPL3 Op3 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPL3_OP2_TLENV_LOOPCNT",
-      "name": "OPL3 Op3 TlEnv Loop Count",
+      "id": "OPL3_OP2_PRMENV_LOOPCNT",
+      "name": "OPL3 Op3 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPL3_OP2_TLENV_LOOPMODE",
-      "name": "OPL3 Op3 TlEnv Loop Mode",
+      "id": "OPL3_OP2_PRMENV_LOOPMODE",
+      "name": "OPL3 Op3 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPL3_OP2_TLENV_STL",
-      "name": "OPL3 Op3 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP2_PRMENV_STL",
+      "name": "OPL3 Op3 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP2_TLENV_LR",
-      "name": "OPL3 Op3 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP2_PRMENV_LR",
+      "name": "OPL3 Op3 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP2_TLENV_RR",
-      "name": "OPL3 Op3 TlEnv RR",
+      "id": "OPL3_OP2_PRMENV_RR",
+      "name": "OPL3 Op3 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -27538,16 +28400,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPL3_OP2_TLENV_ENDL",
-      "name": "OPL3 Op3 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP2_PRMENV_ENDL",
+      "name": "OPL3 Op3 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP2_TLENV_ENDL_EN",
-      "name": "OPL3 Op3 TlEnv EndL Enable",
+      "id": "OPL3_OP2_PRMENV_ENDL_EN",
+      "name": "OPL3 Op3 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_PRMENV_KEEP",
+      "name": "OPL3 Op3 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -29109,72 +29980,82 @@
       "default": false
     },
     {
-      "id": "OPL3_OP3_TLENV_ENABLE",
-      "name": "OPL3 Op4 TlEnv Enable",
+      "id": "OPL3_OP3_PRMENV_ENABLE",
+      "name": "OPL3 Op4 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL3_OP3_TLENV_STEPS",
-      "name": "OPL3 Op4 TlEnv Steps",
+      "id": "OPL3_OP3_PRMENV_TARGET",
+      "name": "OPL3 Op4 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 17,
+      "default": 0
+    },
+    {
+      "id": "OPL3_OP3_PRMENV_STEPS",
+      "name": "OPL3 Op4 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPL3_OP3_TLENV_LOOP",
-      "name": "OPL3 Op4 TlEnv Loop",
+      "id": "OPL3_OP3_PRMENV_LOOP",
+      "name": "OPL3 Op4 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPL3_OP3_TLENV_LOOPTO",
-      "name": "OPL3 Op4 TlEnv Loop To",
+      "id": "OPL3_OP3_PRMENV_LOOPTO",
+      "name": "OPL3 Op4 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPL3_OP3_TLENV_LOOPCNT",
-      "name": "OPL3 Op4 TlEnv Loop Count",
+      "id": "OPL3_OP3_PRMENV_LOOPCNT",
+      "name": "OPL3 Op4 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPL3_OP3_TLENV_LOOPMODE",
-      "name": "OPL3 Op4 TlEnv Loop Mode",
+      "id": "OPL3_OP3_PRMENV_LOOPMODE",
+      "name": "OPL3 Op4 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPL3_OP3_TLENV_STL",
-      "name": "OPL3 Op4 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP3_PRMENV_STL",
+      "name": "OPL3 Op4 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP3_TLENV_LR",
-      "name": "OPL3 Op4 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP3_PRMENV_LR",
+      "name": "OPL3 Op4 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP3_TLENV_RR",
-      "name": "OPL3 Op4 TlEnv RR",
+      "id": "OPL3_OP3_PRMENV_RR",
+      "name": "OPL3 Op4 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -29182,16 +30063,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPL3_OP3_TLENV_ENDL",
-      "name": "OPL3 Op4 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPL3_OP3_PRMENV_ENDL",
+      "name": "OPL3 Op4 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPL3_OP3_TLENV_ENDL_EN",
-      "name": "OPL3 Op4 TlEnv EndL Enable",
+      "id": "OPL3_OP3_PRMENV_ENDL_EN",
+      "name": "OPL3 Op4 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_PRMENV_KEEP",
+      "name": "OPL3 Op4 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -30488,6 +31378,162 @@
     {
       "id": "OPM_TAPPITCH_RESET",
       "name": "OPM TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPPARAM_ENABLE",
+      "name": "OPM TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPPARAM_STEPS",
+      "name": "OPM TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPM_TAPPARAM_LOOP",
+      "name": "OPM TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPPARAM_INC",
+      "name": "OPM TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPPARAM_DEC",
+      "name": "OPM TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_TAPPARAM_RESET",
+      "name": "OPM TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_PRMENV_ENABLE",
+      "name": "OPM ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_PRMENV_TARGET",
+      "name": "OPM ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 9,
+      "default": 0
+    },
+    {
+      "id": "OPM_PRMENV_STEPS",
+      "name": "OPM ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPM_PRMENV_LOOP",
+      "name": "OPM ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_PRMENV_LOOPTO",
+      "name": "OPM ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPM_PRMENV_LOOPCNT",
+      "name": "OPM ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPM_PRMENV_LOOPMODE",
+      "name": "OPM ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "OPM_PRMENV_STL",
+      "name": "OPM ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPM_PRMENV_LR",
+      "name": "OPM ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPM_PRMENV_RR",
+      "name": "OPM ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPM_PRMENV_ENDL",
+      "name": "OPM ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPM_PRMENV_ENDL_EN",
+      "name": "OPM ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_PRMENV_KEEP",
+      "name": "OPM ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -32670,72 +33716,82 @@
       "default": false
     },
     {
-      "id": "OPM_OP0_TLENV_ENABLE",
-      "name": "OPM Op1 TlEnv Enable",
+      "id": "OPM_OP0_PRMENV_ENABLE",
+      "name": "OPM Op1 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPM_OP0_TLENV_STEPS",
-      "name": "OPM Op1 TlEnv Steps",
+      "id": "OPM_OP0_PRMENV_TARGET",
+      "name": "OPM Op1 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 21,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP0_PRMENV_STEPS",
+      "name": "OPM Op1 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPM_OP0_TLENV_LOOP",
-      "name": "OPM Op1 TlEnv Loop",
+      "id": "OPM_OP0_PRMENV_LOOP",
+      "name": "OPM Op1 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPM_OP0_TLENV_LOOPTO",
-      "name": "OPM Op1 TlEnv Loop To",
+      "id": "OPM_OP0_PRMENV_LOOPTO",
+      "name": "OPM Op1 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPM_OP0_TLENV_LOOPCNT",
-      "name": "OPM Op1 TlEnv Loop Count",
+      "id": "OPM_OP0_PRMENV_LOOPCNT",
+      "name": "OPM Op1 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPM_OP0_TLENV_LOOPMODE",
-      "name": "OPM Op1 TlEnv Loop Mode",
+      "id": "OPM_OP0_PRMENV_LOOPMODE",
+      "name": "OPM Op1 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPM_OP0_TLENV_STL",
-      "name": "OPM Op1 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP0_PRMENV_STL",
+      "name": "OPM Op1 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP0_TLENV_LR",
-      "name": "OPM Op1 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP0_PRMENV_LR",
+      "name": "OPM Op1 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP0_TLENV_RR",
-      "name": "OPM Op1 TlEnv RR",
+      "id": "OPM_OP0_PRMENV_RR",
+      "name": "OPM Op1 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -32743,16 +33799,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPM_OP0_TLENV_ENDL",
-      "name": "OPM Op1 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP0_PRMENV_ENDL",
+      "name": "OPM Op1 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP0_TLENV_ENDL_EN",
-      "name": "OPM Op1 TlEnv EndL Enable",
+      "id": "OPM_OP0_PRMENV_ENDL_EN",
+      "name": "OPM Op1 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_PRMENV_KEEP",
+      "name": "OPM Op1 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -34329,72 +35394,82 @@
       "default": false
     },
     {
-      "id": "OPM_OP1_TLENV_ENABLE",
-      "name": "OPM Op2 TlEnv Enable",
+      "id": "OPM_OP1_PRMENV_ENABLE",
+      "name": "OPM Op2 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPM_OP1_TLENV_STEPS",
-      "name": "OPM Op2 TlEnv Steps",
+      "id": "OPM_OP1_PRMENV_TARGET",
+      "name": "OPM Op2 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 21,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP1_PRMENV_STEPS",
+      "name": "OPM Op2 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPM_OP1_TLENV_LOOP",
-      "name": "OPM Op2 TlEnv Loop",
+      "id": "OPM_OP1_PRMENV_LOOP",
+      "name": "OPM Op2 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPM_OP1_TLENV_LOOPTO",
-      "name": "OPM Op2 TlEnv Loop To",
+      "id": "OPM_OP1_PRMENV_LOOPTO",
+      "name": "OPM Op2 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPM_OP1_TLENV_LOOPCNT",
-      "name": "OPM Op2 TlEnv Loop Count",
+      "id": "OPM_OP1_PRMENV_LOOPCNT",
+      "name": "OPM Op2 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPM_OP1_TLENV_LOOPMODE",
-      "name": "OPM Op2 TlEnv Loop Mode",
+      "id": "OPM_OP1_PRMENV_LOOPMODE",
+      "name": "OPM Op2 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPM_OP1_TLENV_STL",
-      "name": "OPM Op2 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP1_PRMENV_STL",
+      "name": "OPM Op2 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP1_TLENV_LR",
-      "name": "OPM Op2 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP1_PRMENV_LR",
+      "name": "OPM Op2 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP1_TLENV_RR",
-      "name": "OPM Op2 TlEnv RR",
+      "id": "OPM_OP1_PRMENV_RR",
+      "name": "OPM Op2 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -34402,16 +35477,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPM_OP1_TLENV_ENDL",
-      "name": "OPM Op2 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP1_PRMENV_ENDL",
+      "name": "OPM Op2 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP1_TLENV_ENDL_EN",
-      "name": "OPM Op2 TlEnv EndL Enable",
+      "id": "OPM_OP1_PRMENV_ENDL_EN",
+      "name": "OPM Op2 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_PRMENV_KEEP",
+      "name": "OPM Op2 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -35988,72 +37072,82 @@
       "default": false
     },
     {
-      "id": "OPM_OP2_TLENV_ENABLE",
-      "name": "OPM Op3 TlEnv Enable",
+      "id": "OPM_OP2_PRMENV_ENABLE",
+      "name": "OPM Op3 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPM_OP2_TLENV_STEPS",
-      "name": "OPM Op3 TlEnv Steps",
+      "id": "OPM_OP2_PRMENV_TARGET",
+      "name": "OPM Op3 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 21,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP2_PRMENV_STEPS",
+      "name": "OPM Op3 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPM_OP2_TLENV_LOOP",
-      "name": "OPM Op3 TlEnv Loop",
+      "id": "OPM_OP2_PRMENV_LOOP",
+      "name": "OPM Op3 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPM_OP2_TLENV_LOOPTO",
-      "name": "OPM Op3 TlEnv Loop To",
+      "id": "OPM_OP2_PRMENV_LOOPTO",
+      "name": "OPM Op3 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPM_OP2_TLENV_LOOPCNT",
-      "name": "OPM Op3 TlEnv Loop Count",
+      "id": "OPM_OP2_PRMENV_LOOPCNT",
+      "name": "OPM Op3 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPM_OP2_TLENV_LOOPMODE",
-      "name": "OPM Op3 TlEnv Loop Mode",
+      "id": "OPM_OP2_PRMENV_LOOPMODE",
+      "name": "OPM Op3 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPM_OP2_TLENV_STL",
-      "name": "OPM Op3 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP2_PRMENV_STL",
+      "name": "OPM Op3 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP2_TLENV_LR",
-      "name": "OPM Op3 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP2_PRMENV_LR",
+      "name": "OPM Op3 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP2_TLENV_RR",
-      "name": "OPM Op3 TlEnv RR",
+      "id": "OPM_OP2_PRMENV_RR",
+      "name": "OPM Op3 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -36061,16 +37155,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPM_OP2_TLENV_ENDL",
-      "name": "OPM Op3 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP2_PRMENV_ENDL",
+      "name": "OPM Op3 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP2_TLENV_ENDL_EN",
-      "name": "OPM Op3 TlEnv EndL Enable",
+      "id": "OPM_OP2_PRMENV_ENDL_EN",
+      "name": "OPM Op3 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_PRMENV_KEEP",
+      "name": "OPM Op3 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -37647,72 +38750,82 @@
       "default": false
     },
     {
-      "id": "OPM_OP3_TLENV_ENABLE",
-      "name": "OPM Op4 TlEnv Enable",
+      "id": "OPM_OP3_PRMENV_ENABLE",
+      "name": "OPM Op4 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPM_OP3_TLENV_STEPS",
-      "name": "OPM Op4 TlEnv Steps",
+      "id": "OPM_OP3_PRMENV_TARGET",
+      "name": "OPM Op4 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 21,
+      "default": 0
+    },
+    {
+      "id": "OPM_OP3_PRMENV_STEPS",
+      "name": "OPM Op4 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPM_OP3_TLENV_LOOP",
-      "name": "OPM Op4 TlEnv Loop",
+      "id": "OPM_OP3_PRMENV_LOOP",
+      "name": "OPM Op4 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPM_OP3_TLENV_LOOPTO",
-      "name": "OPM Op4 TlEnv Loop To",
+      "id": "OPM_OP3_PRMENV_LOOPTO",
+      "name": "OPM Op4 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPM_OP3_TLENV_LOOPCNT",
-      "name": "OPM Op4 TlEnv Loop Count",
+      "id": "OPM_OP3_PRMENV_LOOPCNT",
+      "name": "OPM Op4 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPM_OP3_TLENV_LOOPMODE",
-      "name": "OPM Op4 TlEnv Loop Mode",
+      "id": "OPM_OP3_PRMENV_LOOPMODE",
+      "name": "OPM Op4 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPM_OP3_TLENV_STL",
-      "name": "OPM Op4 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP3_PRMENV_STL",
+      "name": "OPM Op4 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP3_TLENV_LR",
-      "name": "OPM Op4 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP3_PRMENV_LR",
+      "name": "OPM Op4 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP3_TLENV_RR",
-      "name": "OPM Op4 TlEnv RR",
+      "id": "OPM_OP3_PRMENV_RR",
+      "name": "OPM Op4 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -37720,16 +38833,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPM_OP3_TLENV_ENDL",
-      "name": "OPM Op4 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 127,
-      "default": 0
+      "id": "OPM_OP3_PRMENV_ENDL",
+      "name": "OPM Op4 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPM_OP3_TLENV_ENDL_EN",
-      "name": "OPM Op4 TlEnv EndL Enable",
+      "id": "OPM_OP3_PRMENV_ENDL_EN",
+      "name": "OPM Op4 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_PRMENV_KEEP",
+      "name": "OPM Op4 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -39026,6 +40148,162 @@
     {
       "id": "OPZX7_TAPPITCH_RESET",
       "name": "OPZX7S TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPPARAM_ENABLE",
+      "name": "OPZX7S TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPPARAM_STEPS",
+      "name": "OPZX7S TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_TAPPARAM_LOOP",
+      "name": "OPZX7S TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPPARAM_INC",
+      "name": "OPZX7S TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPPARAM_DEC",
+      "name": "OPZX7S TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_TAPPARAM_RESET",
+      "name": "OPZX7S TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_PRMENV_ENABLE",
+      "name": "OPZX7S ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_PRMENV_TARGET",
+      "name": "OPZX7S ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 17,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_PRMENV_STEPS",
+      "name": "OPZX7S ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "OPZX7_PRMENV_LOOP",
+      "name": "OPZX7S ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_PRMENV_LOOPTO",
+      "name": "OPZX7S ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_PRMENV_LOOPCNT",
+      "name": "OPZX7S ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_PRMENV_LOOPMODE",
+      "name": "OPZX7S ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_PRMENV_STL",
+      "name": "OPZX7S ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_PRMENV_LR",
+      "name": "OPZX7S ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_PRMENV_RR",
+      "name": "OPZX7S ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "OPZX7_PRMENV_ENDL",
+      "name": "OPZX7S ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "OPZX7_PRMENV_ENDL_EN",
+      "name": "OPZX7S ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_PRMENV_KEEP",
+      "name": "OPZX7S ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -41675,72 +42953,82 @@
       "default": false
     },
     {
-      "id": "OPZX7_OP0_TLENV_ENABLE",
-      "name": "OPZX7S Op1 TlEnv Enable",
+      "id": "OPZX7_OP0_PRMENV_ENABLE",
+      "name": "OPZX7S Op1 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP0_TLENV_STEPS",
-      "name": "OPZX7S Op1 TlEnv Steps",
+      "id": "OPZX7_OP0_PRMENV_TARGET",
+      "name": "OPZX7S Op1 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP0_PRMENV_STEPS",
+      "name": "OPZX7S Op1 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPZX7_OP0_TLENV_LOOP",
-      "name": "OPZX7S Op1 TlEnv Loop",
+      "id": "OPZX7_OP0_PRMENV_LOOP",
+      "name": "OPZX7S Op1 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP0_TLENV_LOOPTO",
-      "name": "OPZX7S Op1 TlEnv Loop To",
+      "id": "OPZX7_OP0_PRMENV_LOOPTO",
+      "name": "OPZX7S Op1 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPZX7_OP0_TLENV_LOOPCNT",
-      "name": "OPZX7S Op1 TlEnv Loop Count",
+      "id": "OPZX7_OP0_PRMENV_LOOPCNT",
+      "name": "OPZX7S Op1 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPZX7_OP0_TLENV_LOOPMODE",
-      "name": "OPZX7S Op1 TlEnv Loop Mode",
+      "id": "OPZX7_OP0_PRMENV_LOOPMODE",
+      "name": "OPZX7S Op1 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPZX7_OP0_TLENV_STL",
-      "name": "OPZX7S Op1 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP0_PRMENV_STL",
+      "name": "OPZX7S Op1 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP0_TLENV_LR",
-      "name": "OPZX7S Op1 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP0_PRMENV_LR",
+      "name": "OPZX7S Op1 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP0_TLENV_RR",
-      "name": "OPZX7S Op1 TlEnv RR",
+      "id": "OPZX7_OP0_PRMENV_RR",
+      "name": "OPZX7S Op1 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -41748,16 +43036,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPZX7_OP0_TLENV_ENDL",
-      "name": "OPZX7S Op1 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP0_PRMENV_ENDL",
+      "name": "OPZX7S Op1 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP0_TLENV_ENDL_EN",
-      "name": "OPZX7S Op1 TlEnv EndL Enable",
+      "id": "OPZX7_OP0_PRMENV_ENDL_EN",
+      "name": "OPZX7S Op1 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_PRMENV_KEEP",
+      "name": "OPZX7S Op1 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -43826,72 +45123,82 @@
       "default": false
     },
     {
-      "id": "OPZX7_OP1_TLENV_ENABLE",
-      "name": "OPZX7S Op2 TlEnv Enable",
+      "id": "OPZX7_OP1_PRMENV_ENABLE",
+      "name": "OPZX7S Op2 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP1_TLENV_STEPS",
-      "name": "OPZX7S Op2 TlEnv Steps",
+      "id": "OPZX7_OP1_PRMENV_TARGET",
+      "name": "OPZX7S Op2 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP1_PRMENV_STEPS",
+      "name": "OPZX7S Op2 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPZX7_OP1_TLENV_LOOP",
-      "name": "OPZX7S Op2 TlEnv Loop",
+      "id": "OPZX7_OP1_PRMENV_LOOP",
+      "name": "OPZX7S Op2 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP1_TLENV_LOOPTO",
-      "name": "OPZX7S Op2 TlEnv Loop To",
+      "id": "OPZX7_OP1_PRMENV_LOOPTO",
+      "name": "OPZX7S Op2 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPZX7_OP1_TLENV_LOOPCNT",
-      "name": "OPZX7S Op2 TlEnv Loop Count",
+      "id": "OPZX7_OP1_PRMENV_LOOPCNT",
+      "name": "OPZX7S Op2 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPZX7_OP1_TLENV_LOOPMODE",
-      "name": "OPZX7S Op2 TlEnv Loop Mode",
+      "id": "OPZX7_OP1_PRMENV_LOOPMODE",
+      "name": "OPZX7S Op2 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPZX7_OP1_TLENV_STL",
-      "name": "OPZX7S Op2 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP1_PRMENV_STL",
+      "name": "OPZX7S Op2 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP1_TLENV_LR",
-      "name": "OPZX7S Op2 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP1_PRMENV_LR",
+      "name": "OPZX7S Op2 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP1_TLENV_RR",
-      "name": "OPZX7S Op2 TlEnv RR",
+      "id": "OPZX7_OP1_PRMENV_RR",
+      "name": "OPZX7S Op2 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -43899,16 +45206,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPZX7_OP1_TLENV_ENDL",
-      "name": "OPZX7S Op2 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP1_PRMENV_ENDL",
+      "name": "OPZX7S Op2 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP1_TLENV_ENDL_EN",
-      "name": "OPZX7S Op2 TlEnv EndL Enable",
+      "id": "OPZX7_OP1_PRMENV_ENDL_EN",
+      "name": "OPZX7S Op2 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_PRMENV_KEEP",
+      "name": "OPZX7S Op2 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -45977,72 +47293,82 @@
       "default": false
     },
     {
-      "id": "OPZX7_OP2_TLENV_ENABLE",
-      "name": "OPZX7S Op3 TlEnv Enable",
+      "id": "OPZX7_OP2_PRMENV_ENABLE",
+      "name": "OPZX7S Op3 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP2_TLENV_STEPS",
-      "name": "OPZX7S Op3 TlEnv Steps",
+      "id": "OPZX7_OP2_PRMENV_TARGET",
+      "name": "OPZX7S Op3 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP2_PRMENV_STEPS",
+      "name": "OPZX7S Op3 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPZX7_OP2_TLENV_LOOP",
-      "name": "OPZX7S Op3 TlEnv Loop",
+      "id": "OPZX7_OP2_PRMENV_LOOP",
+      "name": "OPZX7S Op3 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP2_TLENV_LOOPTO",
-      "name": "OPZX7S Op3 TlEnv Loop To",
+      "id": "OPZX7_OP2_PRMENV_LOOPTO",
+      "name": "OPZX7S Op3 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPZX7_OP2_TLENV_LOOPCNT",
-      "name": "OPZX7S Op3 TlEnv Loop Count",
+      "id": "OPZX7_OP2_PRMENV_LOOPCNT",
+      "name": "OPZX7S Op3 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPZX7_OP2_TLENV_LOOPMODE",
-      "name": "OPZX7S Op3 TlEnv Loop Mode",
+      "id": "OPZX7_OP2_PRMENV_LOOPMODE",
+      "name": "OPZX7S Op3 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPZX7_OP2_TLENV_STL",
-      "name": "OPZX7S Op3 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP2_PRMENV_STL",
+      "name": "OPZX7S Op3 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP2_TLENV_LR",
-      "name": "OPZX7S Op3 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP2_PRMENV_LR",
+      "name": "OPZX7S Op3 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP2_TLENV_RR",
-      "name": "OPZX7S Op3 TlEnv RR",
+      "id": "OPZX7_OP2_PRMENV_RR",
+      "name": "OPZX7S Op3 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -46050,16 +47376,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPZX7_OP2_TLENV_ENDL",
-      "name": "OPZX7S Op3 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP2_PRMENV_ENDL",
+      "name": "OPZX7S Op3 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP2_TLENV_ENDL_EN",
-      "name": "OPZX7S Op3 TlEnv EndL Enable",
+      "id": "OPZX7_OP2_PRMENV_ENDL_EN",
+      "name": "OPZX7S Op3 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_PRMENV_KEEP",
+      "name": "OPZX7S Op3 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -48128,72 +49463,82 @@
       "default": false
     },
     {
-      "id": "OPZX7_OP3_TLENV_ENABLE",
-      "name": "OPZX7S Op4 TlEnv Enable",
+      "id": "OPZX7_OP3_PRMENV_ENABLE",
+      "name": "OPZX7S Op4 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP3_TLENV_STEPS",
-      "name": "OPZX7S Op4 TlEnv Steps",
+      "id": "OPZX7_OP3_PRMENV_TARGET",
+      "name": "OPZX7S Op4 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP3_PRMENV_STEPS",
+      "name": "OPZX7S Op4 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPZX7_OP3_TLENV_LOOP",
-      "name": "OPZX7S Op4 TlEnv Loop",
+      "id": "OPZX7_OP3_PRMENV_LOOP",
+      "name": "OPZX7S Op4 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP3_TLENV_LOOPTO",
-      "name": "OPZX7S Op4 TlEnv Loop To",
+      "id": "OPZX7_OP3_PRMENV_LOOPTO",
+      "name": "OPZX7S Op4 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPZX7_OP3_TLENV_LOOPCNT",
-      "name": "OPZX7S Op4 TlEnv Loop Count",
+      "id": "OPZX7_OP3_PRMENV_LOOPCNT",
+      "name": "OPZX7S Op4 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPZX7_OP3_TLENV_LOOPMODE",
-      "name": "OPZX7S Op4 TlEnv Loop Mode",
+      "id": "OPZX7_OP3_PRMENV_LOOPMODE",
+      "name": "OPZX7S Op4 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPZX7_OP3_TLENV_STL",
-      "name": "OPZX7S Op4 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP3_PRMENV_STL",
+      "name": "OPZX7S Op4 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP3_TLENV_LR",
-      "name": "OPZX7S Op4 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP3_PRMENV_LR",
+      "name": "OPZX7S Op4 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP3_TLENV_RR",
-      "name": "OPZX7S Op4 TlEnv RR",
+      "id": "OPZX7_OP3_PRMENV_RR",
+      "name": "OPZX7S Op4 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -48201,16 +49546,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPZX7_OP3_TLENV_ENDL",
-      "name": "OPZX7S Op4 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP3_PRMENV_ENDL",
+      "name": "OPZX7S Op4 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP3_TLENV_ENDL_EN",
-      "name": "OPZX7S Op4 TlEnv EndL Enable",
+      "id": "OPZX7_OP3_PRMENV_ENDL_EN",
+      "name": "OPZX7S Op4 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_PRMENV_KEEP",
+      "name": "OPZX7S Op4 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -50279,72 +51633,82 @@
       "default": false
     },
     {
-      "id": "OPZX7_OP4_TLENV_ENABLE",
-      "name": "OPZX7S Op5 TlEnv Enable",
+      "id": "OPZX7_OP4_PRMENV_ENABLE",
+      "name": "OPZX7S Op5 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP4_TLENV_STEPS",
-      "name": "OPZX7S Op5 TlEnv Steps",
+      "id": "OPZX7_OP4_PRMENV_TARGET",
+      "name": "OPZX7S Op5 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP4_PRMENV_STEPS",
+      "name": "OPZX7S Op5 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPZX7_OP4_TLENV_LOOP",
-      "name": "OPZX7S Op5 TlEnv Loop",
+      "id": "OPZX7_OP4_PRMENV_LOOP",
+      "name": "OPZX7S Op5 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP4_TLENV_LOOPTO",
-      "name": "OPZX7S Op5 TlEnv Loop To",
+      "id": "OPZX7_OP4_PRMENV_LOOPTO",
+      "name": "OPZX7S Op5 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPZX7_OP4_TLENV_LOOPCNT",
-      "name": "OPZX7S Op5 TlEnv Loop Count",
+      "id": "OPZX7_OP4_PRMENV_LOOPCNT",
+      "name": "OPZX7S Op5 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPZX7_OP4_TLENV_LOOPMODE",
-      "name": "OPZX7S Op5 TlEnv Loop Mode",
+      "id": "OPZX7_OP4_PRMENV_LOOPMODE",
+      "name": "OPZX7S Op5 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPZX7_OP4_TLENV_STL",
-      "name": "OPZX7S Op5 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP4_PRMENV_STL",
+      "name": "OPZX7S Op5 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP4_TLENV_LR",
-      "name": "OPZX7S Op5 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP4_PRMENV_LR",
+      "name": "OPZX7S Op5 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP4_TLENV_RR",
-      "name": "OPZX7S Op5 TlEnv RR",
+      "id": "OPZX7_OP4_PRMENV_RR",
+      "name": "OPZX7S Op5 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -50352,16 +51716,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPZX7_OP4_TLENV_ENDL",
-      "name": "OPZX7S Op5 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP4_PRMENV_ENDL",
+      "name": "OPZX7S Op5 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP4_TLENV_ENDL_EN",
-      "name": "OPZX7S Op5 TlEnv EndL Enable",
+      "id": "OPZX7_OP4_PRMENV_ENDL_EN",
+      "name": "OPZX7S Op5 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_PRMENV_KEEP",
+      "name": "OPZX7S Op5 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -52430,72 +53803,82 @@
       "default": false
     },
     {
-      "id": "OPZX7_OP5_TLENV_ENABLE",
-      "name": "OPZX7S Op6 TlEnv Enable",
+      "id": "OPZX7_OP5_PRMENV_ENABLE",
+      "name": "OPZX7S Op6 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP5_TLENV_STEPS",
-      "name": "OPZX7S Op6 TlEnv Steps",
+      "id": "OPZX7_OP5_PRMENV_TARGET",
+      "name": "OPZX7S Op6 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP5_PRMENV_STEPS",
+      "name": "OPZX7S Op6 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPZX7_OP5_TLENV_LOOP",
-      "name": "OPZX7S Op6 TlEnv Loop",
+      "id": "OPZX7_OP5_PRMENV_LOOP",
+      "name": "OPZX7S Op6 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP5_TLENV_LOOPTO",
-      "name": "OPZX7S Op6 TlEnv Loop To",
+      "id": "OPZX7_OP5_PRMENV_LOOPTO",
+      "name": "OPZX7S Op6 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPZX7_OP5_TLENV_LOOPCNT",
-      "name": "OPZX7S Op6 TlEnv Loop Count",
+      "id": "OPZX7_OP5_PRMENV_LOOPCNT",
+      "name": "OPZX7S Op6 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPZX7_OP5_TLENV_LOOPMODE",
-      "name": "OPZX7S Op6 TlEnv Loop Mode",
+      "id": "OPZX7_OP5_PRMENV_LOOPMODE",
+      "name": "OPZX7S Op6 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPZX7_OP5_TLENV_STL",
-      "name": "OPZX7S Op6 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP5_PRMENV_STL",
+      "name": "OPZX7S Op6 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP5_TLENV_LR",
-      "name": "OPZX7S Op6 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP5_PRMENV_LR",
+      "name": "OPZX7S Op6 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP5_TLENV_RR",
-      "name": "OPZX7S Op6 TlEnv RR",
+      "id": "OPZX7_OP5_PRMENV_RR",
+      "name": "OPZX7S Op6 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -52503,16 +53886,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPZX7_OP5_TLENV_ENDL",
-      "name": "OPZX7S Op6 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP5_PRMENV_ENDL",
+      "name": "OPZX7S Op6 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP5_TLENV_ENDL_EN",
-      "name": "OPZX7S Op6 TlEnv EndL Enable",
+      "id": "OPZX7_OP5_PRMENV_ENDL_EN",
+      "name": "OPZX7S Op6 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_PRMENV_KEEP",
+      "name": "OPZX7S Op6 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -54581,72 +55973,82 @@
       "default": false
     },
     {
-      "id": "OPZX7_OP6_TLENV_ENABLE",
-      "name": "OPZX7S Op7 TlEnv Enable",
+      "id": "OPZX7_OP6_PRMENV_ENABLE",
+      "name": "OPZX7S Op7 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP6_TLENV_STEPS",
-      "name": "OPZX7S Op7 TlEnv Steps",
+      "id": "OPZX7_OP6_PRMENV_TARGET",
+      "name": "OPZX7S Op7 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP6_PRMENV_STEPS",
+      "name": "OPZX7S Op7 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPZX7_OP6_TLENV_LOOP",
-      "name": "OPZX7S Op7 TlEnv Loop",
+      "id": "OPZX7_OP6_PRMENV_LOOP",
+      "name": "OPZX7S Op7 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP6_TLENV_LOOPTO",
-      "name": "OPZX7S Op7 TlEnv Loop To",
+      "id": "OPZX7_OP6_PRMENV_LOOPTO",
+      "name": "OPZX7S Op7 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPZX7_OP6_TLENV_LOOPCNT",
-      "name": "OPZX7S Op7 TlEnv Loop Count",
+      "id": "OPZX7_OP6_PRMENV_LOOPCNT",
+      "name": "OPZX7S Op7 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPZX7_OP6_TLENV_LOOPMODE",
-      "name": "OPZX7S Op7 TlEnv Loop Mode",
+      "id": "OPZX7_OP6_PRMENV_LOOPMODE",
+      "name": "OPZX7S Op7 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPZX7_OP6_TLENV_STL",
-      "name": "OPZX7S Op7 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP6_PRMENV_STL",
+      "name": "OPZX7S Op7 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP6_TLENV_LR",
-      "name": "OPZX7S Op7 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP6_PRMENV_LR",
+      "name": "OPZX7S Op7 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP6_TLENV_RR",
-      "name": "OPZX7S Op7 TlEnv RR",
+      "id": "OPZX7_OP6_PRMENV_RR",
+      "name": "OPZX7S Op7 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -54654,16 +56056,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPZX7_OP6_TLENV_ENDL",
-      "name": "OPZX7S Op7 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP6_PRMENV_ENDL",
+      "name": "OPZX7S Op7 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP6_TLENV_ENDL_EN",
-      "name": "OPZX7S Op7 TlEnv EndL Enable",
+      "id": "OPZX7_OP6_PRMENV_ENDL_EN",
+      "name": "OPZX7S Op7 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_PRMENV_KEEP",
+      "name": "OPZX7S Op7 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -56732,72 +58143,82 @@
       "default": false
     },
     {
-      "id": "OPZX7_OP7_TLENV_ENABLE",
-      "name": "OPZX7S Op8 TlEnv Enable",
+      "id": "OPZX7_OP7_PRMENV_ENABLE",
+      "name": "OPZX7S Op8 ParamEnv Enable",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP7_TLENV_STEPS",
-      "name": "OPZX7S Op8 TlEnv Steps",
+      "id": "OPZX7_OP7_PRMENV_TARGET",
+      "name": "OPZX7S Op8 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 43,
+      "default": 0
+    },
+    {
+      "id": "OPZX7_OP7_PRMENV_STEPS",
+      "name": "OPZX7S Op8 ParamEnv Steps",
       "type": "Int",
       "min": 1,
       "max": 256,
       "default": 10
     },
     {
-      "id": "OPZX7_OP7_TLENV_LOOP",
-      "name": "OPZX7S Op8 TlEnv Loop",
+      "id": "OPZX7_OP7_PRMENV_LOOP",
+      "name": "OPZX7S Op8 ParamEnv Loop",
       "type": "Bool",
       "min": false,
       "max": true,
       "default": false
     },
     {
-      "id": "OPZX7_OP7_TLENV_LOOPTO",
-      "name": "OPZX7S Op8 TlEnv Loop To",
+      "id": "OPZX7_OP7_PRMENV_LOOPTO",
+      "name": "OPZX7S Op8 ParamEnv Loop To",
       "type": "Int",
       "min": 0,
       "max": 254,
       "default": 0
     },
     {
-      "id": "OPZX7_OP7_TLENV_LOOPCNT",
-      "name": "OPZX7S Op8 TlEnv Loop Count",
+      "id": "OPZX7_OP7_PRMENV_LOOPCNT",
+      "name": "OPZX7S Op8 ParamEnv Loop Count",
       "type": "Int",
       "min": 0,
       "max": 200,
       "default": 0
     },
     {
-      "id": "OPZX7_OP7_TLENV_LOOPMODE",
-      "name": "OPZX7S Op8 TlEnv Loop Mode",
+      "id": "OPZX7_OP7_PRMENV_LOOPMODE",
+      "name": "OPZX7S Op8 ParamEnv Loop Mode",
       "type": "Int",
       "min": 0,
       "max": 1,
       "default": 0
     },
     {
-      "id": "OPZX7_OP7_TLENV_STL",
-      "name": "OPZX7S Op8 TlEnv STL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP7_PRMENV_STL",
+      "name": "OPZX7S Op8 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP7_TLENV_LR",
-      "name": "OPZX7S Op8 TlEnv LR",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP7_PRMENV_LR",
+      "name": "OPZX7S Op8 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP7_TLENV_RR",
-      "name": "OPZX7S Op8 TlEnv RR",
+      "id": "OPZX7_OP7_PRMENV_RR",
+      "name": "OPZX7S Op8 ParamEnv RR",
       "type": "Float",
       "min": 0.001000000047497,
       "max": 10.0,
@@ -56805,16 +58226,25 @@
       "default": 0.001000000047497
     },
     {
-      "id": "OPZX7_OP7_TLENV_ENDL",
-      "name": "OPZX7S Op8 TlEnv EndL",
-      "type": "Int",
-      "min": 0,
-      "max": 63,
-      "default": 0
+      "id": "OPZX7_OP7_PRMENV_ENDL",
+      "name": "OPZX7S Op8 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
     },
     {
-      "id": "OPZX7_OP7_TLENV_ENDL_EN",
-      "name": "OPZX7S Op8 TlEnv EndL Enable",
+      "id": "OPZX7_OP7_PRMENV_ENDL_EN",
+      "name": "OPZX7S Op8 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_PRMENV_KEEP",
+      "name": "OPZX7S Op8 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -58390,6 +59820,162 @@
     {
       "id": "SSG_TAPPITCH_RESET",
       "name": "SSG TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPPARAM_ENABLE",
+      "name": "SSG TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPPARAM_STEPS",
+      "name": "SSG TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "SSG_TAPPARAM_LOOP",
+      "name": "SSG TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPPARAM_INC",
+      "name": "SSG TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPPARAM_DEC",
+      "name": "SSG TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_TAPPARAM_RESET",
+      "name": "SSG TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PRMENV_ENABLE",
+      "name": "SSG ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PRMENV_TARGET",
+      "name": "SSG ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 17,
+      "default": 0
+    },
+    {
+      "id": "SSG_PRMENV_STEPS",
+      "name": "SSG ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "SSG_PRMENV_LOOP",
+      "name": "SSG ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PRMENV_LOOPTO",
+      "name": "SSG ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "SSG_PRMENV_LOOPCNT",
+      "name": "SSG ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "SSG_PRMENV_LOOPMODE",
+      "name": "SSG ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "SSG_PRMENV_STL",
+      "name": "SSG ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "SSG_PRMENV_LR",
+      "name": "SSG ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "SSG_PRMENV_RR",
+      "name": "SSG ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "SSG_PRMENV_ENDL",
+      "name": "SSG ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "SSG_PRMENV_ENDL_EN",
+      "name": "SSG ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PRMENV_KEEP",
+      "name": "SSG ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -60987,6 +62573,162 @@
     {
       "id": "WT_TAPPITCH_RESET",
       "name": "WT TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPPARAM_ENABLE",
+      "name": "WT TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPPARAM_STEPS",
+      "name": "WT TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "WT_TAPPARAM_LOOP",
+      "name": "WT TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPPARAM_INC",
+      "name": "WT TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPPARAM_DEC",
+      "name": "WT TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_TAPPARAM_RESET",
+      "name": "WT TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_PRMENV_ENABLE",
+      "name": "WT ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_PRMENV_TARGET",
+      "name": "WT ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 11,
+      "default": 0
+    },
+    {
+      "id": "WT_PRMENV_STEPS",
+      "name": "WT ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "WT_PRMENV_LOOP",
+      "name": "WT ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_PRMENV_LOOPTO",
+      "name": "WT ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "WT_PRMENV_LOOPCNT",
+      "name": "WT ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "WT_PRMENV_LOOPMODE",
+      "name": "WT ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "WT_PRMENV_STL",
+      "name": "WT ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT_PRMENV_LR",
+      "name": "WT ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT_PRMENV_RR",
+      "name": "WT ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "WT_PRMENV_ENDL",
+      "name": "WT ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT_PRMENV_ENDL_EN",
+      "name": "WT ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_PRMENV_KEEP",
+      "name": "WT ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -67558,6 +69300,162 @@
       "default": false
     },
     {
+      "id": "WT2_TAPPARAM_ENABLE",
+      "name": "WT2 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPPARAM_STEPS",
+      "name": "WT2 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "WT2_TAPPARAM_LOOP",
+      "name": "WT2 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPPARAM_INC",
+      "name": "WT2 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPPARAM_DEC",
+      "name": "WT2 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_TAPPARAM_RESET",
+      "name": "WT2 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_PRMENV_ENABLE",
+      "name": "WT2 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_PRMENV_TARGET",
+      "name": "WT2 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 11,
+      "default": 0
+    },
+    {
+      "id": "WT2_PRMENV_STEPS",
+      "name": "WT2 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "WT2_PRMENV_LOOP",
+      "name": "WT2 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_PRMENV_LOOPTO",
+      "name": "WT2 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "WT2_PRMENV_LOOPCNT",
+      "name": "WT2 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "WT2_PRMENV_LOOPMODE",
+      "name": "WT2 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "WT2_PRMENV_STL",
+      "name": "WT2 ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT2_PRMENV_LR",
+      "name": "WT2 ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT2_PRMENV_RR",
+      "name": "WT2 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "WT2_PRMENV_ENDL",
+      "name": "WT2 ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WT2_PRMENV_ENDL_EN",
+      "name": "WT2 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_PRMENV_KEEP",
+      "name": "WT2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT2_LEVEL",
       "name": "WT2 Level",
       "type": "Float",
@@ -73643,6 +75541,162 @@
       "default": false
     },
     {
+      "id": "WTPLUS_TAPPARAM_ENABLE",
+      "name": "WT+ TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPPARAM_STEPS",
+      "name": "WT+ TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "WTPLUS_TAPPARAM_LOOP",
+      "name": "WT+ TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPPARAM_INC",
+      "name": "WT+ TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPPARAM_DEC",
+      "name": "WT+ TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_TAPPARAM_RESET",
+      "name": "WT+ TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_PRMENV_ENABLE",
+      "name": "WT+ ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_PRMENV_TARGET",
+      "name": "WT+ ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "WTPLUS_PRMENV_STEPS",
+      "name": "WT+ ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "WTPLUS_PRMENV_LOOP",
+      "name": "WT+ ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_PRMENV_LOOPTO",
+      "name": "WT+ ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "WTPLUS_PRMENV_LOOPCNT",
+      "name": "WT+ ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "WTPLUS_PRMENV_LOOPMODE",
+      "name": "WT+ ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "WTPLUS_PRMENV_STL",
+      "name": "WT+ ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WTPLUS_PRMENV_LR",
+      "name": "WT+ ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WTPLUS_PRMENV_RR",
+      "name": "WT+ ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "WTPLUS_PRMENV_ENDL",
+      "name": "WT+ ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "WTPLUS_PRMENV_ENDL_EN",
+      "name": "WT+ ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_PRMENV_KEEP",
+      "name": "WT+ ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WTPLUS_LEVEL",
       "name": "WT+ Level",
       "type": "Float",
@@ -78757,6 +80811,162 @@
     {
       "id": "RHYTHM_TAPPITCH_RESET",
       "name": "RHYTHM TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPPARAM_ENABLE",
+      "name": "RHYTHM TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPPARAM_STEPS",
+      "name": "RHYTHM TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_TAPPARAM_LOOP",
+      "name": "RHYTHM TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPPARAM_INC",
+      "name": "RHYTHM TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPPARAM_DEC",
+      "name": "RHYTHM TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_TAPPARAM_RESET",
+      "name": "RHYTHM TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PRMENV_ENABLE",
+      "name": "RHYTHM ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PRMENV_TARGET",
+      "name": "RHYTHM ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 88,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PRMENV_STEPS",
+      "name": "RHYTHM ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "RHYTHM_PRMENV_LOOP",
+      "name": "RHYTHM ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PRMENV_LOOPTO",
+      "name": "RHYTHM ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PRMENV_LOOPCNT",
+      "name": "RHYTHM ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PRMENV_LOOPMODE",
+      "name": "RHYTHM ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PRMENV_STL",
+      "name": "RHYTHM ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PRMENV_LR",
+      "name": "RHYTHM ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PRMENV_RR",
+      "name": "RHYTHM ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "RHYTHM_PRMENV_ENDL",
+      "name": "RHYTHM ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "RHYTHM_PRMENV_ENDL_EN",
+      "name": "RHYTHM ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PRMENV_KEEP",
+      "name": "RHYTHM ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -95334,6 +97544,162 @@
       "default": false
     },
     {
+      "id": "ADPCM_TAPPARAM_ENABLE",
+      "name": "ADPCM TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPPARAM_STEPS",
+      "name": "ADPCM TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "ADPCM_TAPPARAM_LOOP",
+      "name": "ADPCM TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPPARAM_INC",
+      "name": "ADPCM TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPPARAM_DEC",
+      "name": "ADPCM TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_TAPPARAM_RESET",
+      "name": "ADPCM TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_PRMENV_ENABLE",
+      "name": "ADPCM ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_PRMENV_TARGET",
+      "name": "ADPCM ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 11,
+      "default": 0
+    },
+    {
+      "id": "ADPCM_PRMENV_STEPS",
+      "name": "ADPCM ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "ADPCM_PRMENV_LOOP",
+      "name": "ADPCM ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_PRMENV_LOOPTO",
+      "name": "ADPCM ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "ADPCM_PRMENV_LOOPCNT",
+      "name": "ADPCM ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "ADPCM_PRMENV_LOOPMODE",
+      "name": "ADPCM ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "ADPCM_PRMENV_STL",
+      "name": "ADPCM ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCM_PRMENV_LR",
+      "name": "ADPCM ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCM_PRMENV_RR",
+      "name": "ADPCM ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "ADPCM_PRMENV_ENDL",
+      "name": "ADPCM ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCM_PRMENV_ENDL_EN",
+      "name": "ADPCM ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_PRMENV_KEEP",
+      "name": "ADPCM ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCM_LEVEL",
       "name": "ADPCM Level",
       "type": "Float",
@@ -97635,6 +100001,162 @@
     {
       "id": "ADPCMP_TAPPITCH_RESET",
       "name": "ADPCMP TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPPARAM_ENABLE",
+      "name": "ADPCMP TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPPARAM_STEPS",
+      "name": "ADPCMP TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "ADPCMP_TAPPARAM_LOOP",
+      "name": "ADPCMP TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPPARAM_INC",
+      "name": "ADPCMP TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPPARAM_DEC",
+      "name": "ADPCMP TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_TAPPARAM_RESET",
+      "name": "ADPCMP TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_PRMENV_ENABLE",
+      "name": "ADPCMP ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_PRMENV_TARGET",
+      "name": "ADPCMP ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "ADPCMP_PRMENV_STEPS",
+      "name": "ADPCMP ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "ADPCMP_PRMENV_LOOP",
+      "name": "ADPCMP ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_PRMENV_LOOPTO",
+      "name": "ADPCMP ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "ADPCMP_PRMENV_LOOPCNT",
+      "name": "ADPCMP ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "ADPCMP_PRMENV_LOOPMODE",
+      "name": "ADPCMP ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "ADPCMP_PRMENV_STL",
+      "name": "ADPCMP ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCMP_PRMENV_LR",
+      "name": "ADPCMP ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCMP_PRMENV_RR",
+      "name": "ADPCMP ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "ADPCMP_PRMENV_ENDL",
+      "name": "ADPCMP ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "ADPCMP_PRMENV_ENDL_EN",
+      "name": "ADPCMP ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_PRMENV_KEEP",
+      "name": "ADPCMP ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -104724,6 +107246,162 @@
     {
       "id": "BEEP_TAPPITCH_RESET",
       "name": "BEEP TapPitch Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPPARAM_ENABLE",
+      "name": "BEEP TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPPARAM_STEPS",
+      "name": "BEEP TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "BEEP_TAPPARAM_LOOP",
+      "name": "BEEP TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPPARAM_INC",
+      "name": "BEEP TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPPARAM_DEC",
+      "name": "BEEP TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_TAPPARAM_RESET",
+      "name": "BEEP TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_PRMENV_ENABLE",
+      "name": "BEEP ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_PRMENV_TARGET",
+      "name": "BEEP ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "BEEP_PRMENV_STEPS",
+      "name": "BEEP ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "BEEP_PRMENV_LOOP",
+      "name": "BEEP ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_PRMENV_LOOPTO",
+      "name": "BEEP ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "BEEP_PRMENV_LOOPCNT",
+      "name": "BEEP ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "BEEP_PRMENV_LOOPMODE",
+      "name": "BEEP ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "BEEP_PRMENV_STL",
+      "name": "BEEP ParamEnv STL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "BEEP_PRMENV_LR",
+      "name": "BEEP ParamEnv LR",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "BEEP_PRMENV_RR",
+      "name": "BEEP ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "BEEP_PRMENV_ENDL",
+      "name": "BEEP ParamEnv EndL",
+      "type": "Float",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.000099999997474,
+      "default": 0.0
+    },
+    {
+      "id": "BEEP_PRMENV_ENDL_EN",
+      "name": "BEEP ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_PRMENV_KEEP",
+      "name": "BEEP ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,

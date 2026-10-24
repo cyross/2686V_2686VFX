@@ -225,30 +225,33 @@ void Opzx7Core::setSampleRate(double sampleRate) {
 }
 
 void Opzx7Core::setParameters(const SynthCoreParams& params) {
-    m_level = params.opzx7.level;
-    m_delaySeconds = params.opzx7.delay;
+    // PARAM ENV / TAP PARAM SEQUENCER で置き換えた値 (置き換えが無ければ params.opzx7 そのもの)
+    const auto& chipParams = paramModResolve(params, params.opzx7, m_modParams);
 
-    m_algorithmParam = params.opzx7.algFb.algorithm; // Range: 0-27
-    m_algEnvEnable = params.opzx7.algEnvEnable;
-    m_algEnv.setParameters(params.opzx7.algEnv);
+    m_level = chipParams.level;
+    m_delaySeconds = chipParams.delay;
+
+    m_algorithmParam = chipParams.algFb.algorithm; // Range: 0-27
+    m_algEnvEnable = chipParams.algEnvEnable;
+    m_algEnv.setParameters(chipParams.algEnv);
     m_algorithm = m_algEnvEnable ? algEnvAlgorithm() : m_algorithmParam;
     m_algorithmCodeBase = m_algorithm << m_algorithmCodeShift; // x16
-    m_algMatrix = params.opzx7.algFb.matrix;
+    m_algMatrix = chipParams.algFb.matrix;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_lfo.setParameters(params.opzx7.glLfo);
-    m_ssgSwEnv256g.setParameters(params.opzx7.ssgSwEnv256g);
-    m_ssgSwPEnv256g.setParameters(params.opzx7.ssgSwPEnv256g);
-    m_ampEnvG.setParameters(params.opzx7.ampEnvG);
-    m_wtMod.setParameters(params.opzx7.wtMod);
-    m_wtAmpMod.setParameters(params.opzx7.wtAmpMod);
-    m_ssgHwEnv.setParameters(params.opzx7.ssgHwEnv);
-    m_ssgHwPEnv.setParameters(params.opzx7.ssgHwPEnv);
+    m_lfo.setParameters(chipParams.glLfo);
+    m_ssgSwEnv256g.setParameters(chipParams.ssgSwEnv256g);
+    m_ssgSwPEnv256g.setParameters(chipParams.ssgSwPEnv256g);
+    m_ampEnvG.setParameters(chipParams.ampEnvG);
+    m_wtMod.setParameters(chipParams.wtMod);
+    m_wtAmpMod.setParameters(chipParams.wtAmpMod);
+    m_ssgHwEnv.setParameters(chipParams.ssgHwEnv);
+    m_ssgHwPEnv.setParameters(chipParams.ssgHwPEnv);
 
-    m_panpot = params.opzx7.panpot.pan;
-    m_panpot_enable = params.opzx7.panpot.enable;
+    m_panpot = chipParams.panpot.pan;
+    m_panpot_enable = chipParams.panpot.enable;
 
     if (m_panpot_enable) {
         float pan = (float)(m_panpot + 1) / 33.0f;
@@ -261,8 +264,8 @@ void Opzx7Core::setParameters(const SynthCoreParams& params) {
         m_panpot_r_rate = 1.0f;
     }
 
-    if (m_rateIndex != params.opzx7.quality.rate) {
-        m_rateIndex = params.opzx7.quality.rate;
+    if (m_rateIndex != chipParams.quality.rate) {
+        m_rateIndex = chipParams.quality.rate;
 
         m_targetRate = getTargetRate(m_rateIndex);
         double target = m_targetRate;
@@ -285,42 +288,42 @@ void Opzx7Core::setParameters(const SynthCoreParams& params) {
         m_ssgHwPEnv.updateTargetSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opzx7.quality.bit);
-	m_interpMode = params.opzx7.quality.interp;
+    m_quantizeSteps = getTargetBitDepth(chipParams.quality.bit);
+	m_interpMode = chipParams.quality.interp;
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opzx7.op[0], params.opzx7.algFb.feedback1);
+    m_operators[0].setParameters(chipParams.op[0], chipParams.algFb.feedback1);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[0] = params.opzx7.op[0].mask;
-    m_operators[1].setParameters(params.opzx7.op[1], params.opzx7.algFb.feedback2);
+    m_opMask[0] = chipParams.op[0].mask;
+    m_operators[1].setParameters(chipParams.op[1], chipParams.algFb.feedback2);
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[1] = params.opzx7.op[1].mask;
-    m_operators[2].setParameters(params.opzx7.op[2], params.opzx7.algFb.feedback3);
+    m_opMask[1] = chipParams.op[1].mask;
+    m_operators[2].setParameters(chipParams.op[2], chipParams.algFb.feedback3);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[2] = params.opzx7.op[2].mask;
-    m_operators[3].setParameters(params.opzx7.op[3], params.opzx7.algFb.feedback4);
+    m_opMask[2] = chipParams.op[2].mask;
+    m_operators[3].setParameters(chipParams.op[3], chipParams.algFb.feedback4);
     m_operators[3].setMonoMode(m_isMonoMode);
     m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[3] = params.opzx7.op[3].mask;
-    m_operators[4].setParameters(params.opzx7.op[4], params.opzx7.algFb.feedback5);
+    m_opMask[3] = chipParams.op[3].mask;
+    m_operators[4].setParameters(chipParams.op[4], chipParams.algFb.feedback5);
     m_operators[4].setMonoMode(m_isMonoMode);
     m_operators[4].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[4] = params.opzx7.op[4].mask;
-    m_operators[5].setParameters(params.opzx7.op[5], params.opzx7.algFb.feedback6);
+    m_opMask[4] = chipParams.op[4].mask;
+    m_operators[5].setParameters(chipParams.op[5], chipParams.algFb.feedback6);
     m_operators[5].setMonoMode(m_isMonoMode);
     m_operators[5].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[5] = params.opzx7.op[5].mask;
-    m_operators[6].setParameters(params.opzx7.op[6], params.opzx7.algFb.feedback7);
+    m_opMask[5] = chipParams.op[5].mask;
+    m_operators[6].setParameters(chipParams.op[6], chipParams.algFb.feedback7);
     m_operators[6].setMonoMode(m_isMonoMode);
     m_operators[6].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[6] = params.opzx7.op[6].mask;
-    m_operators[7].setParameters(params.opzx7.op[7], params.opzx7.algFb.feedback8);
+    m_opMask[6] = chipParams.op[6].mask;
+    m_operators[7].setParameters(chipParams.op[7], chipParams.algFb.feedback8);
     m_operators[7].setMonoMode(m_isMonoMode);
     m_operators[7].m_pitchResetOnLegato = params.pitchResetOnLegato;
-    m_opMask[7] = params.opzx7.op[7].mask;
+    m_opMask[7] = chipParams.op[7].mask;
 
     // アルゴリズムに基づくルーティングのキャッシュを更新
     updateRoutingCache();

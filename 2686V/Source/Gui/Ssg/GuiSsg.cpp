@@ -137,6 +137,15 @@ void GuiSsg::setup()
     tapPitchSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     tapPitchSeq.category().onImport = [this] { tapPitchSeq.importParams(); };
     tapPitchSeq.category().onExport = [this] { tapPitchSeq.exportParams(); };
+    tapParamSeq.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    tapParamSeq.category().onImport = [this] { tapParamSeq.importParams(); };
+    tapParamSeq.category().onExport = [this] { tapParamSeq.exportParams(); };
+
+    // [[PARAM ENV]] の大区分。チャンネルの PARAM ENV[256] (4.3.0)
+    paramEnvMajorCat.setupMajorCategory({ .parent = mainGroup.contentCanvas, .title = CoreGuiText::MajorCategory::paramEnv, .enableChangeDetailVisible = true });
+    paramEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder, ParamEnv::keys().enable, "Enable", true);
+    paramEnv.category().onImport = [this] { paramEnv.importParams(); };
+    paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::util, .enableChangeDetailVisible = true });
 
@@ -396,13 +405,23 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     pitchMajorCat.endMajor(mRect);
 
+    // [[PARAM ENV]] の大区分。チャンネルの PARAM ENV[256] (4.3.0)
+    const bool paramEnvOpen = layoutMajorCategory(paramEnvMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+
+    paramEnv.setCategoryVisible(paramEnvOpen && pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
+    paramEnv.layoutComponent(mRect);
+
+    paramEnvMajorCat.endMajor(mRect);
+
     // [[TAP SEQUENCER]] の大区分。鍵を押すたびに段を進めて音量・音程を補正する
-    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
+    const bool tapOpen = layoutMajorCategory(tapMajorCat, mRect, pluginOf(ctx).isSimpleShown(SimpleView::TapSeq) || pluginOf(ctx).isSimpleShown(SimpleView::TapParam));
 
     tapAmpSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapAmpSeq.layoutComponent(mRect);
     tapPitchSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapSeq));
     tapPitchSeq.layoutComponent(mRect);
+    tapParamSeq.setCategoryVisible(tapOpen && pluginOf(ctx).isSimpleShown(SimpleView::TapParam));
+    tapParamSeq.layoutComponent(mRect);
 
     tapMajorCat.endMajor(mRect);
 
@@ -1002,6 +1021,8 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
     levelComponent.readParams(*reader, "level");
     tapAmpSeq.readParams(*reader, "tapAmp");
     tapPitchSeq.readParams(*reader, "tapPitch");
+    tapParamSeq.readParams(*reader, "tapParam");
+    paramEnv.readParams(*reader, "paramEnv");
     speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
     waveHold.readParams(*reader);
 
@@ -1125,6 +1146,8 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	levelComponent.writeParams(writer, "level");
 	tapAmpSeq.writeParams(writer, "tapAmp");
 	tapPitchSeq.writeParams(writer, "tapPitch");
+	tapParamSeq.writeParams(writer, "tapParam");
+	paramEnv.writeParams(writer, "paramEnv");
 	writer.set("speed", (float)speedSlider.getValue());
 	waveHold.writeParams(writer);
 
@@ -1244,6 +1267,8 @@ void GuiSsg::bypassHiddenCategories()
         tapAmpSeq.setCategoryBypassed(true);
         tapPitchSeq.setCategoryBypassed(true);
     }
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) tapParamSeq.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) paramEnv.setCategoryBypassed(true);
 }
 
 void GuiSsg::openEnabledCategories()

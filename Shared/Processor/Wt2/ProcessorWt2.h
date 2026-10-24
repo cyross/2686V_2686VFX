@@ -6,8 +6,9 @@
 #include "../../Core/Processor/ProcessorBase.h"
 #include "../../Core/Processor/ProcessorStructs.h"
 #include "../../Core/Processor/ProcessorTapSeq.h"
+#include "../../Core/Processor/ProcessorParamMod.h"
 
-class Wt2Processor : public PrBase
+class Wt2Processor : public PrBase, public ParamMod::Applier
 {
     PrPtrsWt2Basic pBasic;
     PrPtrsWtCustomWave pc;
@@ -27,10 +28,24 @@ class Wt2Processor : public PrBase
     // TAP AMP / PITCH SEQUENCER
     TapSeq::Ptrs pTapAmp;
     TapSeq::Ptrs pTapPitch;
+
+    // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
+    TapSeq::Ptrs pTapParam;
+    ParamEnv::Ptrs pParamEnv;
+
+    // PARAM ENV / TAP PARAM SEQUENCER の指し先
+    ParamModResolver modResolver;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthCoreParams& params, juce::AudioProcessorValueTreeState& apvts) override;
     // modWaves は WT PITCH MOD の変調波形の置き場所。
     // パラメータではなくプロセッサが持つので、ここで受け取る。
     void init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore& modWaves, StepTableStore& stepTables);
+
+    // PARAM ENV / TAP PARAM SEQUENCER (4.3.0)。ボイスが置き換えた値で読み直す
+    void apply(void* chip, const ParamMod::Override* list, int count) override;
+
+    const ParamModResolver& paramMod() const { return modResolver; }
+private:
+    void applyChannel(Wt2Params& p);
 };

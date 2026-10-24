@@ -60,4 +60,7 @@ struct SynthCoreParams
     // プロセッサが入れる)。ボイスが押したときに読む。
     TapSeqParams tapAmp;
     TapSeqParams tapPitch;
+
+    // TAP PARAM SEQUENCER (4.3.0)。段の組は表 (table の pairs) にある
+    TapSeqParams tapParam;
 };

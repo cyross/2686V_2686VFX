@@ -10,6 +10,7 @@
 #include "./ProcessorNames.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "./ProcessorFloat.h"
+#include "./ProcessorOverride.h"
 
 #include "Shared/Core/Synth/CommonParams.h"
 #include "Shared/Effect/Envelope/Amp/OplAdsr/EnvOplAdsrParams.h"
@@ -49,16 +50,17 @@
 #include "Shared/Synth/WtPlus/SynthWtPlusParams.h"
 
 namespace PrHelper {
+	// 値は PrOverride を通して読む (PARAM ENV / TAP PARAM SEQUENCER が置き換えるため)
 	static inline bool getBool(std::atomic<float>* ptr){
-		return ptr->load(std::memory_order_relaxed) > CPV::boolThread;
+		return PrOverride::load(ptr) > CPV::boolThread;
 	}
 
 	static inline int getInt(std::atomic<float>* ptr){
-		return (int)(ptr->load(std::memory_order_relaxed));
+		return (int)(PrOverride::load(ptr));
 	}
 
 	static inline float getFloat(std::atomic<float>* ptr){
-		return ptr->load(std::memory_order_relaxed);
+		return PrOverride::load(ptr);
 	}
 
 	// ------------------------------------------------------------------

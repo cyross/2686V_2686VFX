@@ -34,6 +34,8 @@ namespace SimpleView
 		Fix,
 		Unison,
 		TapSeq,
+		ParamEnv,
+		TapParam,
 
 		Size
 	};
@@ -65,6 +67,9 @@ namespace SimpleView
 			{ "UNISON/HARMONY",       "simpleViewShowUnison" },
 			// TAP AMP / PITCH SEQUENCER をまとめて 1 つ (4.0.0 から)
 			{ "TAP SEQUENCER",        "simpleViewShowTapSeq" },
+			// PARAM ENV[256] (チャンネル・オペレーター) と TAP PARAM SEQUENCER (4.3.0 から)
+			{ "PARAM ENV[256]",       "simpleViewShowParamEnv" },
+			{ "TAP PARAM SEQUENCER",  "simpleViewShowTapParam" },
 		} };
 
 		return list;

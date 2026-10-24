@@ -1,6 +1,7 @@
 ﻿#include "PluginProcessor.h"
 #include "Shared/Core/Synth/StepTableIo.h"
 #include "Shared/Core/Io/IoStepEnvLegacy.h"
+#include "Shared/Core/Io/IoParamEnvLegacy.h"
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 #include "../Const/ConstPlugin.h"
 #include "../../Effect/Fx/FxOrder.h"
@@ -293,6 +294,10 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     m_adpcmPlusPcm[(size_t)adpcmPlusSlot].acquireForAudio();
     m_currentParams.adpcmPlus.source = &m_adpcmPlusPcm[(size_t)adpcmPlusSlot].forAudio();
 
+    // PARAM ENV / TAP PARAM SEQUENCER が ADPCM+ の VOICE を置き換えると、選んでいないスロットも鳴る (4.3.0)。
+    // ADPCM+ の行は音源を絞ったプラグインで丸ごと落とすので、1 行に収めてある (tools/gen_plugin.py)
+    for (int adpcmPlusIdx = 0; adpcmPlusIdx < Global::AdpcmPlus::slots; ++adpcmPlusIdx) { m_adpcmPlusPcm[(size_t)adpcmPlusIdx].acquireForAudio(); m_currentParams.adpcmPlus.sources[(size_t)adpcmPlusIdx] = &m_adpcmPlusPcm[(size_t)adpcmPlusIdx].forAudio(); }
+
     if (m_currentParams.mode == OscMode::RHYTHM)
     {
         for (int i = 0; i < RhythmPrValue::pads; ++i) {
@@ -322,6 +327,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
             triggerAsyncUpdate();
         }
+
+        // VOICE を置き換えると選んでいないスロットも鳴るので、読み込んであるスロットはすべて符号化しておく (4.3.0)
+        for (int adpcmPlusIdx = 0; adpcmPlusIdx < Global::AdpcmPlus::slots; ++adpcmPlusIdx) if (adpcmPlusIdx != adpcmPlusSlot && m_adpcmPlusPcm[(size_t)adpcmPlusIdx].needsRebuild(q, r, clean)) { m_adpcmPlusWantQuality[(size_t)adpcmPlusIdx].store(q, std::memory_order_relaxed); m_adpcmPlusWantRate[(size_t)adpcmPlusIdx].store(r, std::memory_order_relaxed); m_adpcmPlusWantClean[(size_t)adpcmPlusIdx].store(clean, std::memory_order_relaxed); triggerAsyncUpdate(); }
     }
 
     if (m_currentParams.mode == OscMode::ADPCM)
@@ -681,6 +689,9 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwEnv);
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwPEnv);
         StepEnvLegacy::convertSixStep(*xmlState, stepTables);
+
+        // 4.2.x までの TL ENV は PARAM ENV[256] (TARGET が TL) へ写す
+        ParamEnvLegacy::convertState(*xmlState, stepTables);
 
         while (auto* tables = xmlState->getChildByName(StepTableIo::xmlTag)) xmlState->removeChildElement(tables, true);
 
@@ -1883,6 +1894,7 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     // 切らないと、プレビューを描き直すたびに段が進み、次に押した音が 1 段目にならない。
     params.tapAmp.enable = false;
     params.tapPitch.enable = false;
+    params.tapParam.enable = false;
 
 
     // 素材は今できているものをそのまま指す
@@ -1895,6 +1907,7 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     const int adpcmPlusSlot = std::clamp(params.adpcmPlus.slot, 0, Global::AdpcmPlus::slots - 1);
 
     params.adpcmPlus.source = &m_adpcmPlusPcm[(size_t)adpcmPlusSlot].forAudio();
+    for (int adpcmPlusIdx = 0; adpcmPlusIdx < Global::AdpcmPlus::slots; ++adpcmPlusIdx) params.adpcmPlus.sources[(size_t)adpcmPlusIdx] = &m_adpcmPlusPcm[(size_t)adpcmPlusIdx].forAudio();
 
     params.monoMode = PrHelper::getBool(pMonoMode);
     params.useVelocity = PrHelper::getBool(pUseVelocity);
