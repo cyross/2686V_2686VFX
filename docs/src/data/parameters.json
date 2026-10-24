@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.3.0",
-  "count": 13282,
+  "count": 13486,
   "parameters": [
     {
       "id": "MODE",
@@ -2547,6 +2547,54 @@
       "default": false
     },
     {
+      "id": "OPNA_OP0_TAPPARAM_ENABLE",
+      "name": "OPNA Op1 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_TAPPARAM_STEPS",
+      "name": "OPNA Op1 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPNA_OP0_TAPPARAM_LOOP",
+      "name": "OPNA Op1 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_TAPPARAM_INC",
+      "name": "OPNA Op1 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_TAPPARAM_DEC",
+      "name": "OPNA Op1 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_TAPPARAM_RESET",
+      "name": "OPNA Op1 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP0_SSGSWP256_STEPS",
       "name": "OPNA Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -4234,6 +4282,54 @@
     {
       "id": "OPNA_OP1_PRMENV_KEEP",
       "name": "OPNA Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_TAPPARAM_ENABLE",
+      "name": "OPNA Op2 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_TAPPARAM_STEPS",
+      "name": "OPNA Op2 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPNA_OP1_TAPPARAM_LOOP",
+      "name": "OPNA Op2 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_TAPPARAM_INC",
+      "name": "OPNA Op2 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_TAPPARAM_DEC",
+      "name": "OPNA Op2 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_TAPPARAM_RESET",
+      "name": "OPNA Op2 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -5933,6 +6029,54 @@
       "default": false
     },
     {
+      "id": "OPNA_OP2_TAPPARAM_ENABLE",
+      "name": "OPNA Op3 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_TAPPARAM_STEPS",
+      "name": "OPNA Op3 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPNA_OP2_TAPPARAM_LOOP",
+      "name": "OPNA Op3 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_TAPPARAM_INC",
+      "name": "OPNA Op3 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_TAPPARAM_DEC",
+      "name": "OPNA Op3 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_TAPPARAM_RESET",
+      "name": "OPNA Op3 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP2_SSGSWP256_STEPS",
       "name": "OPNA Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -7620,6 +7764,54 @@
     {
       "id": "OPNA_OP3_PRMENV_KEEP",
       "name": "OPNA Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_TAPPARAM_ENABLE",
+      "name": "OPNA Op4 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_TAPPARAM_STEPS",
+      "name": "OPNA Op4 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPNA_OP3_TAPPARAM_LOOP",
+      "name": "OPNA Op4 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_TAPPARAM_INC",
+      "name": "OPNA Op4 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_TAPPARAM_DEC",
+      "name": "OPNA Op4 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_TAPPARAM_RESET",
+      "name": "OPNA Op4 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -11288,6 +11480,54 @@
       "default": false
     },
     {
+      "id": "OPN_OP0_TAPPARAM_ENABLE",
+      "name": "OPN Op1 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_TAPPARAM_STEPS",
+      "name": "OPN Op1 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPN_OP0_TAPPARAM_LOOP",
+      "name": "OPN Op1 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_TAPPARAM_INC",
+      "name": "OPN Op1 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_TAPPARAM_DEC",
+      "name": "OPN Op1 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_TAPPARAM_RESET",
+      "name": "OPN Op1 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP0_SSGSWP256_STEPS",
       "name": "OPN Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -12910,6 +13150,54 @@
     {
       "id": "OPN_OP1_PRMENV_KEEP",
       "name": "OPN Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_TAPPARAM_ENABLE",
+      "name": "OPN Op2 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_TAPPARAM_STEPS",
+      "name": "OPN Op2 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPN_OP1_TAPPARAM_LOOP",
+      "name": "OPN Op2 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_TAPPARAM_INC",
+      "name": "OPN Op2 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_TAPPARAM_DEC",
+      "name": "OPN Op2 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_TAPPARAM_RESET",
+      "name": "OPN Op2 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -14544,6 +14832,54 @@
       "default": false
     },
     {
+      "id": "OPN_OP2_TAPPARAM_ENABLE",
+      "name": "OPN Op3 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_TAPPARAM_STEPS",
+      "name": "OPN Op3 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPN_OP2_TAPPARAM_LOOP",
+      "name": "OPN Op3 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_TAPPARAM_INC",
+      "name": "OPN Op3 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_TAPPARAM_DEC",
+      "name": "OPN Op3 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_TAPPARAM_RESET",
+      "name": "OPN Op3 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP2_SSGSWP256_STEPS",
       "name": "OPN Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -16166,6 +16502,54 @@
     {
       "id": "OPN_OP3_PRMENV_KEEP",
       "name": "OPN Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_TAPPARAM_ENABLE",
+      "name": "OPN Op4 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_TAPPARAM_STEPS",
+      "name": "OPN Op4 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPN_OP3_TAPPARAM_LOOP",
+      "name": "OPN Op4 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_TAPPARAM_INC",
+      "name": "OPN Op4 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_TAPPARAM_DEC",
+      "name": "OPN Op4 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_TAPPARAM_RESET",
+      "name": "OPN Op4 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -19804,6 +20188,54 @@
       "default": false
     },
     {
+      "id": "OPL_OP0_TAPPARAM_ENABLE",
+      "name": "OPL Op1 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_TAPPARAM_STEPS",
+      "name": "OPL Op1 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL_OP0_TAPPARAM_LOOP",
+      "name": "OPL Op1 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_TAPPARAM_INC",
+      "name": "OPL Op1 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_TAPPARAM_DEC",
+      "name": "OPL Op1 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_TAPPARAM_RESET",
+      "name": "OPL Op1 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_OP0_SSGSWP256_STEPS",
       "name": "OPL Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -21469,6 +21901,54 @@
     {
       "id": "OPL_OP1_PRMENV_KEEP",
       "name": "OPL Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_TAPPARAM_ENABLE",
+      "name": "OPL Op2 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_TAPPARAM_STEPS",
+      "name": "OPL Op2 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL_OP1_TAPPARAM_LOOP",
+      "name": "OPL Op2 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_TAPPARAM_INC",
+      "name": "OPL Op2 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_TAPPARAM_DEC",
+      "name": "OPL Op2 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_TAPPARAM_RESET",
+      "name": "OPL Op2 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25099,6 +25579,54 @@
       "default": false
     },
     {
+      "id": "OPL3_OP0_TAPPARAM_ENABLE",
+      "name": "OPL3 Op1 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_TAPPARAM_STEPS",
+      "name": "OPL3 Op1 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL3_OP0_TAPPARAM_LOOP",
+      "name": "OPL3 Op1 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_TAPPARAM_INC",
+      "name": "OPL3 Op1 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_TAPPARAM_DEC",
+      "name": "OPL3 Op1 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_TAPPARAM_RESET",
+      "name": "OPL3 Op1 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP0_SSGSWP256_STEPS",
       "name": "OPL3 Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -26756,6 +27284,54 @@
     {
       "id": "OPL3_OP1_PRMENV_KEEP",
       "name": "OPL3 Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_TAPPARAM_ENABLE",
+      "name": "OPL3 Op2 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_TAPPARAM_STEPS",
+      "name": "OPL3 Op2 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL3_OP1_TAPPARAM_LOOP",
+      "name": "OPL3 Op2 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_TAPPARAM_INC",
+      "name": "OPL3 Op2 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_TAPPARAM_DEC",
+      "name": "OPL3 Op2 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_TAPPARAM_RESET",
+      "name": "OPL3 Op2 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -28425,6 +29001,54 @@
       "default": false
     },
     {
+      "id": "OPL3_OP2_TAPPARAM_ENABLE",
+      "name": "OPL3 Op3 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_TAPPARAM_STEPS",
+      "name": "OPL3 Op3 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL3_OP2_TAPPARAM_LOOP",
+      "name": "OPL3 Op3 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_TAPPARAM_INC",
+      "name": "OPL3 Op3 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_TAPPARAM_DEC",
+      "name": "OPL3 Op3 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_TAPPARAM_RESET",
+      "name": "OPL3 Op3 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP2_SSGSWP256_STEPS",
       "name": "OPL3 Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -30082,6 +30706,54 @@
     {
       "id": "OPL3_OP3_PRMENV_KEEP",
       "name": "OPL3 Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_TAPPARAM_ENABLE",
+      "name": "OPL3 Op4 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_TAPPARAM_STEPS",
+      "name": "OPL3 Op4 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPL3_OP3_TAPPARAM_LOOP",
+      "name": "OPL3 Op4 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_TAPPARAM_INC",
+      "name": "OPL3 Op4 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_TAPPARAM_DEC",
+      "name": "OPL3 Op4 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_TAPPARAM_RESET",
+      "name": "OPL3 Op4 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33824,6 +34496,54 @@
       "default": false
     },
     {
+      "id": "OPM_OP0_TAPPARAM_ENABLE",
+      "name": "OPM Op1 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_TAPPARAM_STEPS",
+      "name": "OPM Op1 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPM_OP0_TAPPARAM_LOOP",
+      "name": "OPM Op1 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_TAPPARAM_INC",
+      "name": "OPM Op1 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_TAPPARAM_DEC",
+      "name": "OPM Op1 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_TAPPARAM_RESET",
+      "name": "OPM Op1 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP0_SSGSWP256_STEPS",
       "name": "OPM Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -35496,6 +36216,54 @@
     {
       "id": "OPM_OP1_PRMENV_KEEP",
       "name": "OPM Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_TAPPARAM_ENABLE",
+      "name": "OPM Op2 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_TAPPARAM_STEPS",
+      "name": "OPM Op2 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPM_OP1_TAPPARAM_LOOP",
+      "name": "OPM Op2 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_TAPPARAM_INC",
+      "name": "OPM Op2 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_TAPPARAM_DEC",
+      "name": "OPM Op2 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_TAPPARAM_RESET",
+      "name": "OPM Op2 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -37180,6 +37948,54 @@
       "default": false
     },
     {
+      "id": "OPM_OP2_TAPPARAM_ENABLE",
+      "name": "OPM Op3 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_TAPPARAM_STEPS",
+      "name": "OPM Op3 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPM_OP2_TAPPARAM_LOOP",
+      "name": "OPM Op3 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_TAPPARAM_INC",
+      "name": "OPM Op3 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_TAPPARAM_DEC",
+      "name": "OPM Op3 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_TAPPARAM_RESET",
+      "name": "OPM Op3 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP2_SSGSWP256_STEPS",
       "name": "OPM Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -38852,6 +39668,54 @@
     {
       "id": "OPM_OP3_PRMENV_KEEP",
       "name": "OPM Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_TAPPARAM_ENABLE",
+      "name": "OPM Op4 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_TAPPARAM_STEPS",
+      "name": "OPM Op4 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPM_OP3_TAPPARAM_LOOP",
+      "name": "OPM Op4 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_TAPPARAM_INC",
+      "name": "OPM Op4 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_TAPPARAM_DEC",
+      "name": "OPM Op4 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_TAPPARAM_RESET",
+      "name": "OPM Op4 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -43061,6 +43925,54 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP0_TAPPARAM_ENABLE",
+      "name": "OPZX7S Op1 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_TAPPARAM_STEPS",
+      "name": "OPZX7S Op1 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP0_TAPPARAM_LOOP",
+      "name": "OPZX7S Op1 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_TAPPARAM_INC",
+      "name": "OPZX7S Op1 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_TAPPARAM_DEC",
+      "name": "OPZX7S Op1 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_TAPPARAM_RESET",
+      "name": "OPZX7S Op1 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP0_SSGSWP256_STEPS",
       "name": "OPZX7S Op1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -45225,6 +46137,54 @@
     {
       "id": "OPZX7_OP1_PRMENV_KEEP",
       "name": "OPZX7S Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_TAPPARAM_ENABLE",
+      "name": "OPZX7S Op2 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_TAPPARAM_STEPS",
+      "name": "OPZX7S Op2 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP1_TAPPARAM_LOOP",
+      "name": "OPZX7S Op2 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_TAPPARAM_INC",
+      "name": "OPZX7S Op2 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_TAPPARAM_DEC",
+      "name": "OPZX7S Op2 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_TAPPARAM_RESET",
+      "name": "OPZX7S Op2 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -47401,6 +48361,54 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP2_TAPPARAM_ENABLE",
+      "name": "OPZX7S Op3 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_TAPPARAM_STEPS",
+      "name": "OPZX7S Op3 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP2_TAPPARAM_LOOP",
+      "name": "OPZX7S Op3 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_TAPPARAM_INC",
+      "name": "OPZX7S Op3 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_TAPPARAM_DEC",
+      "name": "OPZX7S Op3 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_TAPPARAM_RESET",
+      "name": "OPZX7S Op3 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP2_SSGSWP256_STEPS",
       "name": "OPZX7S Op3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -49565,6 +50573,54 @@
     {
       "id": "OPZX7_OP3_PRMENV_KEEP",
       "name": "OPZX7S Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_TAPPARAM_ENABLE",
+      "name": "OPZX7S Op4 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_TAPPARAM_STEPS",
+      "name": "OPZX7S Op4 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP3_TAPPARAM_LOOP",
+      "name": "OPZX7S Op4 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_TAPPARAM_INC",
+      "name": "OPZX7S Op4 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_TAPPARAM_DEC",
+      "name": "OPZX7S Op4 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_TAPPARAM_RESET",
+      "name": "OPZX7S Op4 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -51741,6 +52797,54 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP4_TAPPARAM_ENABLE",
+      "name": "OPZX7S Op5 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_TAPPARAM_STEPS",
+      "name": "OPZX7S Op5 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP4_TAPPARAM_LOOP",
+      "name": "OPZX7S Op5 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_TAPPARAM_INC",
+      "name": "OPZX7S Op5 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_TAPPARAM_DEC",
+      "name": "OPZX7S Op5 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_TAPPARAM_RESET",
+      "name": "OPZX7S Op5 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP4_SSGSWP256_STEPS",
       "name": "OPZX7S Op5 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -53905,6 +55009,54 @@
     {
       "id": "OPZX7_OP5_PRMENV_KEEP",
       "name": "OPZX7S Op6 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_TAPPARAM_ENABLE",
+      "name": "OPZX7S Op6 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_TAPPARAM_STEPS",
+      "name": "OPZX7S Op6 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP5_TAPPARAM_LOOP",
+      "name": "OPZX7S Op6 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_TAPPARAM_INC",
+      "name": "OPZX7S Op6 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_TAPPARAM_DEC",
+      "name": "OPZX7S Op6 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_TAPPARAM_RESET",
+      "name": "OPZX7S Op6 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -56081,6 +57233,54 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP6_TAPPARAM_ENABLE",
+      "name": "OPZX7S Op7 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_TAPPARAM_STEPS",
+      "name": "OPZX7S Op7 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP6_TAPPARAM_LOOP",
+      "name": "OPZX7S Op7 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_TAPPARAM_INC",
+      "name": "OPZX7S Op7 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_TAPPARAM_DEC",
+      "name": "OPZX7S Op7 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_TAPPARAM_RESET",
+      "name": "OPZX7S Op7 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP6_SSGSWP256_STEPS",
       "name": "OPZX7S Op7 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -58245,6 +59445,54 @@
     {
       "id": "OPZX7_OP7_PRMENV_KEEP",
       "name": "OPZX7S Op8 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_TAPPARAM_ENABLE",
+      "name": "OPZX7S Op8 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_TAPPARAM_STEPS",
+      "name": "OPZX7S Op8 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "OPZX7_OP7_TAPPARAM_LOOP",
+      "name": "OPZX7S Op8 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_TAPPARAM_INC",
+      "name": "OPZX7S Op8 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_TAPPARAM_DEC",
+      "name": "OPZX7S Op8 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_TAPPARAM_RESET",
+      "name": "OPZX7S Op8 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -82414,6 +83662,54 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD0_TAPPARAM_ENABLE",
+      "name": "RHYTHM Pad1 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_TAPPARAM_STEPS",
+      "name": "RHYTHM Pad1 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD0_TAPPARAM_LOOP",
+      "name": "RHYTHM Pad1 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_TAPPARAM_INC",
+      "name": "RHYTHM Pad1 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_TAPPARAM_DEC",
+      "name": "RHYTHM Pad1 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_TAPPARAM_RESET",
+      "name": "RHYTHM Pad1 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD0_MOD_ENABLE",
       "name": "RHYTHM Pad1 Mod Enable",
       "type": "Bool",
@@ -84442,6 +85738,54 @@
     {
       "id": "RHYTHM_PAD1_SSGHWPENV_KEEP_ED",
       "name": "RHYTHM Pad2 Hardware Pitch Env Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_TAPPARAM_ENABLE",
+      "name": "RHYTHM Pad2 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_TAPPARAM_STEPS",
+      "name": "RHYTHM Pad2 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD1_TAPPARAM_LOOP",
+      "name": "RHYTHM Pad2 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_TAPPARAM_INC",
+      "name": "RHYTHM Pad2 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_TAPPARAM_DEC",
+      "name": "RHYTHM Pad2 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_TAPPARAM_RESET",
+      "name": "RHYTHM Pad2 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -86482,6 +87826,54 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD2_TAPPARAM_ENABLE",
+      "name": "RHYTHM Pad3 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_TAPPARAM_STEPS",
+      "name": "RHYTHM Pad3 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD2_TAPPARAM_LOOP",
+      "name": "RHYTHM Pad3 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_TAPPARAM_INC",
+      "name": "RHYTHM Pad3 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_TAPPARAM_DEC",
+      "name": "RHYTHM Pad3 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_TAPPARAM_RESET",
+      "name": "RHYTHM Pad3 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD2_MOD_ENABLE",
       "name": "RHYTHM Pad3 Mod Enable",
       "type": "Bool",
@@ -88510,6 +89902,54 @@
     {
       "id": "RHYTHM_PAD3_SSGHWPENV_KEEP_ED",
       "name": "RHYTHM Pad4 Hardware Pitch Env Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_TAPPARAM_ENABLE",
+      "name": "RHYTHM Pad4 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_TAPPARAM_STEPS",
+      "name": "RHYTHM Pad4 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD3_TAPPARAM_LOOP",
+      "name": "RHYTHM Pad4 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_TAPPARAM_INC",
+      "name": "RHYTHM Pad4 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_TAPPARAM_DEC",
+      "name": "RHYTHM Pad4 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_TAPPARAM_RESET",
+      "name": "RHYTHM Pad4 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -90550,6 +91990,54 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD4_TAPPARAM_ENABLE",
+      "name": "RHYTHM Pad5 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_TAPPARAM_STEPS",
+      "name": "RHYTHM Pad5 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD4_TAPPARAM_LOOP",
+      "name": "RHYTHM Pad5 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_TAPPARAM_INC",
+      "name": "RHYTHM Pad5 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_TAPPARAM_DEC",
+      "name": "RHYTHM Pad5 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_TAPPARAM_RESET",
+      "name": "RHYTHM Pad5 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD4_MOD_ENABLE",
       "name": "RHYTHM Pad5 Mod Enable",
       "type": "Bool",
@@ -92578,6 +94066,54 @@
     {
       "id": "RHYTHM_PAD5_SSGHWPENV_KEEP_ED",
       "name": "RHYTHM Pad6 Hardware Pitch Env Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_TAPPARAM_ENABLE",
+      "name": "RHYTHM Pad6 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_TAPPARAM_STEPS",
+      "name": "RHYTHM Pad6 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD5_TAPPARAM_LOOP",
+      "name": "RHYTHM Pad6 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_TAPPARAM_INC",
+      "name": "RHYTHM Pad6 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_TAPPARAM_DEC",
+      "name": "RHYTHM Pad6 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_TAPPARAM_RESET",
+      "name": "RHYTHM Pad6 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -94618,6 +96154,54 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD6_TAPPARAM_ENABLE",
+      "name": "RHYTHM Pad7 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_TAPPARAM_STEPS",
+      "name": "RHYTHM Pad7 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD6_TAPPARAM_LOOP",
+      "name": "RHYTHM Pad7 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_TAPPARAM_INC",
+      "name": "RHYTHM Pad7 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_TAPPARAM_DEC",
+      "name": "RHYTHM Pad7 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_TAPPARAM_RESET",
+      "name": "RHYTHM Pad7 TapParam Clear Step",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD6_MOD_ENABLE",
       "name": "RHYTHM Pad7 Mod Enable",
       "type": "Bool",
@@ -96646,6 +98230,54 @@
     {
       "id": "RHYTHM_PAD7_SSGHWPENV_KEEP_ED",
       "name": "RHYTHM Pad8 Hardware Pitch Env Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_TAPPARAM_ENABLE",
+      "name": "RHYTHM Pad8 TapParam Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_TAPPARAM_STEPS",
+      "name": "RHYTHM Pad8 TapParam Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 1
+    },
+    {
+      "id": "RHYTHM_PAD7_TAPPARAM_LOOP",
+      "name": "RHYTHM Pad8 TapParam Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_TAPPARAM_INC",
+      "name": "RHYTHM Pad8 TapParam Increment",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_TAPPARAM_DEC",
+      "name": "RHYTHM Pad8 TapParam Decrement",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_TAPPARAM_RESET",
+      "name": "RHYTHM Pad8 TapParam Clear Step",
       "type": "Bool",
       "min": false,
       "max": true,

@@ -1613,6 +1613,7 @@ SynthParams AudioPlugin2686V::buildRenderParams()
     params.tapAmp.enable = false;
     params.tapPitch.enable = false;
     params.tapParam.enable = false;
+    params.tapParamOpCount = 0;
 
 
 

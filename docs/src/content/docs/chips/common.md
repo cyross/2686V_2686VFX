@@ -501,19 +501,26 @@ LEVEL の右の **N** では、半音・オクターブなど音程向けのボ�
 **最大 16 個**入れられます。段の進め方（いまの段・開始前・LOOP・SKIP・INCREMENT / DECREMENT / CLEAR STEP・
 打鍵 1 回につき 1 段）は TAP AMP / PITCH SEQUENCER と同じです。
 
+| 置き場所 | PARAM に並ぶもの |
+| --- | --- |
+| チャンネル（[[TAP SEQUENCER]] の中） | チャンネルのパラメータ |
+| FM 音源のオペレーター（設定の列「TAP PARAM SEQUENCER」。KEY SCALE / MUL/DET の右） | そのオペレーターのパラメータ。TARGET で指すオペレーターを切り替える |
+| RHYTHM のパッド（設定の列「TAP PARAM SEQUENCER」。MUL/DET / FIX の右） | そのパッドのパラメータ |
+
+どれも Enable / STEPS / LOOP と段の表を別々に持ち、打鍵ごとに別々に段を進めます。
+
 | つまみ | 内容 |
 | --- | --- |
 | **S.TARGET** | 直す段 |
 | **SKIP** | S.TARGET の段で何も置き換えない（組は残る） |
 | **P.TARGET** | 直す組（1 〜 その段の組の数） |
-| **OP** | **CH**（チャンネル）か、オペレーター **OP1〜**（RHYTHM はパッド **PAD1〜**）。FM 音源と RHYTHM だけ |
-| **PARAM** | 置き換えるパラメータ。OP で選んだところのものが並ぶ |
+| **PARAM** | 置き換えるパラメータ。持ち主（チャンネル・オペレーター・パッド）のものが並ぶ |
 | **VALUE** | 置き換える値。指し先の書き方で出る。**MIN** / **-1** / **+1** / **MAX** で動かせる |
-| **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** | いまの OP / PARAM / VALUE の組を段の後ろへ足す・P.TARGET の組を消す・段の組を全部消す |
+| **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** | いまの PARAM / VALUE の組を段の後ろへ足す・P.TARGET の組を消す・段の組を全部消す |
 
-- 組が無い段で OP / PARAM / VALUE を選んでから ADD PAIR を押すと、その組が足されます。組がある段では、
-  OP / PARAM / VALUE を動かすと P.TARGET の組が変わります（その段の SKIP は外れます）
-- 下の一覧に、段ごとの組が「S1: OP1 AR 31, OP2 TL 20」のように 1 段 1 行で並びます。地の色が変わっている行が
+- 組が無い段で PARAM / VALUE を選んでから ADD PAIR を押すと、その組が足されます。組がある段では、
+  PARAM / VALUE を動かすと P.TARGET の組が変わります（その段の SKIP は外れます）
+- 下の一覧に、段ごとの組が「S1: AR 31, TL 20」のように 1 段 1 行で並びます。地の色が変わっている行が
   いまの段、文字の色が変わっている行が S.TARGET の段です
 - 値は PARAM ENV と同じく指し先の範囲の割合で持ちます。PARAM ENV が同じパラメータを動かしているときは、
   PARAM ENV が勝ちます
@@ -522,7 +529,7 @@ LEVEL の右の **N** では、半音・オクターブなど音程向けのボ�
 
 選べるパラメータ（PARAM ENV の TARGET も同じ）:
 
-| 音源 | チャンネル | オペレーター / パッド |
+| 音源 | チャンネル | オペレーター / パッド（それぞれの TAP PARAM SEQUENCER） |
 | --- | --- | --- |
 | OPNA / OPN | ALG / FB / N88 LFO FREQ | TL / AR / DR / SR / SL / RR / KS / MUL / DT / FIX FREQ / N88 LFO AMS（OPNA は SSG-EG / SSG-EG FREQ / HW LFO FREQ / PMS / AMS も） |
 | OPM | ALG / FB / HW LFO FREQ | TL / AR / D1R / D1L / D2R / RR / KS MODE / KS / KSR / KSL / MUL / MUL RATIO / DT1 / DT2 / FIX FREQ / SSG-EG FREQ |

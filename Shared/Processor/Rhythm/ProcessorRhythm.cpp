@@ -46,6 +46,9 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         PrHelper::addQualityPcmParameters(layout, padPrefix, padPrefixName, m_pcmBitInitial);
         PrHelper::addSsgHwEnvParameters(layout, padPrefix, padPrefixName);
         PrHelper::addSsgHwPEnvParameters(layout, padPrefix, padPrefixName);
+
+        // TAP PARAM SEQUENCER (パッド)。指し先はそのパッドのパラメータ
+        TapParam::addParameters(layout, padPrefix, padPrefixName);
         PrHelper::addWtModParameters(layout, padPrefix, padPrefixName);
         PrHelper::addWtAmpModParameters(layout, padPrefix, padPrefixName);
     }
@@ -65,6 +68,8 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
     
     for (int i = 0; i < m_pads; i++) {
         juce::String padPrefix = prefix + RhythmPrKey::pad + juce::String(i);
+
+        TapParam::setupPtrs(apvts, padPrefix, pOpTapParam[(size_t)i], stepTables);
 
         PrHelper::setupRhythmPadBasicPtrs(apvts, padPrefix, pPadBasic[i]);
         PrHelper::setupQualityPcmPtrs(apvts, padPrefix, pQuality[i]);
@@ -91,8 +96,12 @@ void RhythmProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessor
     TapSeq::apply(pTapAmp, params.tapAmp);
     TapSeq::apply(pTapPitch, params.tapPitch);
 
-    // TAP PARAM SEQUENCER
+    // TAP PARAM SEQUENCER (チャンネルと、パッドごと)
     TapSeq::apply(pTapParam, params.tapParam);
+
+    params.tapParamOpCount = std::min(m_pads, ParamMod::maxOps);
+
+    for (int i = 0; i < params.tapParamOpCount; ++i) TapSeq::apply(pOpTapParam[(size_t)i], params.tapParamOps[(size_t)i]);
 
     applyChannel(params.rhythm);
 

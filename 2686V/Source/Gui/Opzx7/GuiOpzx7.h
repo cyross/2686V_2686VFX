@@ -198,6 +198,7 @@ class GuiOpzx7 : public GuiBase
     GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
+    GuiScrollGroup colTapParam;
     GuiScrollGroup colLfo;
     GuiScrollGroup colMask;
     // Operator Sliders
@@ -278,6 +279,9 @@ class GuiOpzx7 : public GuiBase
     // TL ENV。オペレーターの AMP ENV 区分のすぐ下 (同じ列)
     // PARAM ENV[256] (オペレーター)。4.0.0 の TL ENV の代わり。TARGET の初期値は TL
     GuiComponentParamEnv opParamEnv;
+
+    // TAP PARAM SEQUENCER (オペレーター)。そのオペレーターのパラメータを打鍵ごとに置き換える
+    GuiComponentTapParam opTapParam;
 
     // ALG ENV。ALGORITHM/FEEDBACK の FEEDBACK の下
     GuiComponentAlgEnv algEnv;

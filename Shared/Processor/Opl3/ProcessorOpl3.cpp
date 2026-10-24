@@ -53,6 +53,8 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
         PrHelper::addOpSsgSwEnv256Parameters(layout, opPrefix, opPrefixName);
         // PARAM ENV[256] (オペレーター)。4.0.0 の TL ENV の代わり。TARGET の初期値は TL
         ParamEnv::addParameters(layout, opPrefix, opPrefixName, (int)ParamModCatalog::opl3().op.size(), ParamModCatalog::opl3().tlIndex);
+        // TAP PARAM SEQUENCER (オペレーター)。指し先はそのオペレーターのパラメータ
+        TapParam::addParameters(layout, opPrefix, opPrefixName);
         PrHelper::addOpSsgSwPEnv256Parameters(layout, opPrefix, opPrefixName);
         PrHelper::addSsgHwPEnvParameters(layout, opPrefix, opPrefixName);
         PrHelper::addWtAmpModParameters(layout, opPrefix, opPrefixName);
@@ -96,6 +98,7 @@ void Opl3Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
         PrHelper::setupPitchEnvPtrsOp(apvts, p, pPitchEnv[op]);
         PrHelper::setupSsgSwEnv256PtrsOp(apvts, p, pSsgSwEnv256[op], stepTables);
         ParamEnv::setupPtrs(apvts, p, pOpParamEnv[op], stepTables);
+        TapParam::setupPtrs(apvts, p, pOpTapParam[op], stepTables);
         PrHelper::setupSsgSwPEnv256PtrsOp(apvts, p, pSsgSwPEnv256[op], stepTables);
         PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);
         PrHelper::setupWtAmpMod(apvts, p, pOpWtAmpMod[op], modWaves);
@@ -113,8 +116,12 @@ void Opl3Processor::processBlock(SynthCoreParams& params, juce::AudioProcessorVa
     TapSeq::apply(pTapAmp, params.tapAmp);
     TapSeq::apply(pTapPitch, params.tapPitch);
 
-    // TAP PARAM SEQUENCER
+    // TAP PARAM SEQUENCER (チャンネルと、オペレーターごと)
     TapSeq::apply(pTapParam, params.tapParam);
+
+    params.tapParamOpCount = std::min(Opl3PrValue::ops, ParamMod::maxOps);
+
+    for (int op = 0; op < params.tapParamOpCount; ++op) TapSeq::apply(pOpTapParam[(size_t)op], params.tapParamOps[(size_t)op]);
 
     applyChannel(params.opl3);
 

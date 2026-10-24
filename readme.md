@@ -47,11 +47,12 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 全プラグイン (2686VFX を含む)
 - **[[TAP SEQUENCER]] に「TAP PARAM SEQUENCER」を足した**
   - 鍵を押すたびに段を 1 つ進め、その段に入れた (パラメータ, 値) の組で、パラメータをその音のあいだ置き換える
-  - 独自拡張として、1 つの段に組を最大 16 個入れられる。FM 音源はオペレーター (OP1〜) ごとのパラメータも選べる。RHYTHM はパッド (PAD1〜) ごと
+  - 独自拡張として、1 つの段に組を最大 16 個入れられる
+  - チャンネルに 1 つ ([[TAP SEQUENCER]] の中。チャンネルのパラメータを選ぶ) と、FM 音源のオペレーターごと・RHYTHM のパッドごとに 1 つずつ (オペレーター・パッドの設定の列「TAP PARAM SEQUENCER」。KEY SCALE / MUL/DET、RHYTHM は MUL/DET / FIX の右。そのオペレーター・パッドのパラメータを選ぶ) ある。どれも打鍵ごとに別々に段を進める
   - 選べるパラメータ: FM 音源のオペレーターの数値のパラメータ (TL / AR / DR / SR / SL / RR / KS / MUL / DT。OPM の D1R / D1L / D2R・DT2・KSR / KSL、OPL / OPL3 の KSL・EG・LFO、OPZX7 の実数のエンベロープ・KS の細目・DT2 / DT3・WS・PCM SPEED・LFO など) と FIX の周波数、チャンネルの ALG / FB (OPZX7 は FB OP1〜8)、WT PITCH MOD / WT AMP MOD の波形と速さ、WT+ の波形、ADPCM+ の音声 (スロット)、SSG のデューティ比 (PRESET / 可変) と三角波の頂点、FIX の周波数、各種の周波数・速さ (LFO の FREQ・SSG HW ENV / SSG HW PITCH ENV の周期・ノイズの周波数・三角波の周波数・SPEED・TIMER CLOCK・ARP FREQ など)。オン/オフのトグルは選べない
   - 段の進め方は TAP AMP / PITCH SEQUENCER と同じ (LOOP・SKIP・INCREMENT / DECREMENT / CLEAR STEP。打鍵 1 回につき 1 段。DAW の再生を止めると開始前へ戻る)
-  - S.TARGET で段を、**P.TARGET** で組を選び、**OP** / **PARAM** / **VALUE** で中身を決める。**ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** で組を足し引きする。値は指し先のパラメータの書き方で出し、MIN / -1 / +1 / MAX のボタンで動かせる
-  - 段の組は一覧に「S1: OP1 AR 31, OP2 TL 20」のように 1 段 1 行で並ぶ。いまの段は地の色が変わる
+  - S.TARGET で段を、**P.TARGET** で組を選び、**PARAM** / **VALUE** で中身を決める。**ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** で組を足し引きする。値は指し先のパラメータの書き方で出し、MIN / -1 / +1 / MAX のボタンで動かせる
+  - 段の組は一覧に「S1: AR 31, TL 20」のように 1 段 1 行で並ぶ。いまの段は地の色が変わる
   - プリセット・DAW の状態・チャンネルパラメータ (`tapParam`) に保存。区分のパラメータファイルは `.tapParam` (見出しの右クリック)。段の組はオートメーションでは動かせない
   - 簡易表示モードでは隠す。SETTINGS の簡易表示モードカスタマイズに「TAP PARAM SEQUENCER」を足した。[非表示中の区分をバイパス] でも切れる
   - 全チャンネル。2686VFX 以外の全プラグイン

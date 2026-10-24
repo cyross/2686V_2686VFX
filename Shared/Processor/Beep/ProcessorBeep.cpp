@@ -81,8 +81,10 @@ void BeepProcessor::processBlock(SynthCoreParams& params, juce::AudioProcessorVa
     TapSeq::apply(pTapAmp, params.tapAmp);
     TapSeq::apply(pTapPitch, params.tapPitch);
 
-    // TAP PARAM SEQUENCER
+    // TAP PARAM SEQUENCER (オペレーターを持たないので、チャンネルの 1 つだけ)
     TapSeq::apply(pTapParam, params.tapParam);
+
+    params.tapParamOpCount = 0;
 
     applyChannel(params.beep);
 }

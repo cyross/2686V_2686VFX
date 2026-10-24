@@ -170,6 +170,7 @@ class GuiOpl3 : public GuiBase
     GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
+    GuiScrollGroup colTapParam;
     GuiScrollGroup colMask;
     GuiCategoryLabel catDet;
     GuiCategoryLabel catAmp;
@@ -195,6 +196,9 @@ class GuiOpl3 : public GuiBase
     // TL ENV。オペレーターの AMP ENV 区分のすぐ下 (同じ列)
     // PARAM ENV[256] (オペレーター)。4.0.0 の TL ENV の代わり。TARGET の初期値は TL
     GuiComponentParamEnv opParamEnv;
+
+    // TAP PARAM SEQUENCER (オペレーター)。そのオペレーターのパラメータを打鍵ごとに置き換える
+    GuiComponentTapParam opTapParam;
 
     // ALG ENV。ALGORITHM/FEEDBACK の FEEDBACK の下
     GuiComponentAlgEnv algEnv;
@@ -321,7 +325,7 @@ public:
         tapMajorCat(context),
         tapAmpSeq(context, GuiComponentTapSeq::Kind::Amp),
         tapPitchSeq(context, GuiComponentTapSeq::Kind::Pitch),
-        tapParamSeq(context, ParamModCatalog::opl3(), Opl3PrValue::ops),
+        tapParamSeq(context, ParamModCatalog::opl3()),
         paramEnvMajorCat(context),
         paramEnv(context, GuiComponentParamEnv::channelSpec(ParamModCatalog::opl3(), Opl3PrValue::ops)),
         exportOpzx7Btn(context),
@@ -371,6 +375,7 @@ public:
         colSsgSwPEnv256(context),
         colMod(context),
         colKs(context),
+        colTapParam(context),
         colMask(context),
         catLfo(context),
         catDet(context),
@@ -388,6 +393,7 @@ public:
         ssgHwPEnvOp(context),
         wtAmpModOp(context),
         opParamEnv(context, GuiComponentParamEnv::opSpec(ParamModCatalog::opl3(), 63.0f)),
+        opTapParam(context, ParamModCatalog::opl3(), true),
         algEnv(context, Opl3PrValue::algorithms),
         ssgHwEnvOp(context),
         wtModOp(context),

@@ -50,6 +50,9 @@ class OpmProcessor : public PrBase, public ParamMod::Applier
 
     // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
     TapSeq::Ptrs pTapParam;
+
+    // TAP PARAM SEQUENCER (オペレーターごと)
+    std::array<TapSeq::Ptrs, OpmPrValue::ops> pOpTapParam;
     ParamEnv::Ptrs pParamEnv;
 
     // PARAM ENV / TAP PARAM SEQUENCER の指し先

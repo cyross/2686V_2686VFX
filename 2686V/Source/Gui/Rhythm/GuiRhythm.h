@@ -98,6 +98,7 @@ private:
     GuiScrollGroup colMod;
     GuiScrollGroup colLfo;
     GuiScrollGroup colMulDet;
+    GuiScrollGroup colTapParam;
 
     GuiLabel fileNameLabel;
     GuiTextButton loadButton;
@@ -187,6 +188,9 @@ private:
     GuiComponentSsgSwEnv256 ssgSwEnv256Component;
     GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
 
+    // TAP PARAM SEQUENCER (パッド)。そのパッドのパラメータを打鍵ごとに置き換える
+    GuiComponentTapParam tapParamComponent;
+
     // Detune
     GuiComponentMulDetune mulDetuneComponent;
 
@@ -231,6 +235,7 @@ public:
         colMod(context),
         colLfo(context),
         colMulDet(context),
+        colTapParam(context),
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
@@ -279,6 +284,7 @@ public:
         pitchEnvComponent(context),
         ssgSwEnv256Component(context),
         ssgSwPEnv256Component(context),
+        tapParamComponent(context, ParamModCatalog::rhythm(), true),
         mulDetuneComponent(context),
         lfoComponent(context),
         ssgHwEnv(context),
