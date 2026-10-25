@@ -8,7 +8,7 @@
 #include "./GuiColor.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "Shared/Core/Synth/StepLoop.h"
-#include "Shared/Core/Synth/StepTable.h"
+#include "Shared/Core/Synth/LivePosition.h"
 #include "./GuiLiveGraph.h"
 
 // 拡大率のつまみ。帯をドラッグしているあいだ、押しているキーで刻みへそろえる
@@ -75,10 +75,20 @@ public:
         juce::Colour phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine;
         bool isMax = false; // 値が最大値 = 縦の直線
 
-        // 鳴っている位置の印 (4.3.0)。段のエンベロープの段なら段の番号 (1〜)、
-        // リリースなら StepTable::liveRelease。0 は印を付けない (ループの破線など)
-        int liveStep = StepTable::liveIdle;
+        // 鳴っている位置の印 (4.3.0。LivePosition の区間)。段のエンベロープの段なら段の番号 (1〜)、
+        // ADSR のアタック・ディケイなら LivePosition::attack / decay、リリース・サスティンは
+        // LivePosition::release / sustain。0 は印を付けない (ループの破線など)
+        int liveStep = LivePosition::idle;
+
+        // リリースの区間か。KEEP のときは、走り終えるまで前の値を保ち、終わりで行き先へ移る
+        bool isRelease = false;
+
+        // KEEP のときも形を変えない (行き先へ移る縦の線など)
+        bool keepShape = false;
     };
+
+    // サスティン (鍵を押しているあいだ保つ区間) の幅。時間ではなく、決まった長さで描く
+    static constexpr float sustainWidthPx = 60.0f;
 
 
     // つまみではなく値で受け取るための束。
@@ -160,15 +170,15 @@ public:
     // PARAM ENV[256] (4.3.0)。値は指し先の範囲の割合 (0〜1)。カーブは無い
     void updateParamEnv256(const StepEnvValues& v, const juce::String& title);
 
-    // ---- 鳴っている位置 (4.3.0。PARAM ENV)
+    // ---- 鳴っている位置 (4.3.0)
     //
-    // 表に書かれた位置 (StepTable::liveStep / liveFrac) を読み、段の印
-    // (PhaseDef::liveStep) を持つ絵の上へ縦線を引く。fps は読みに行く速さで、
-    // 0 を返すあいだは引かない (SETTINGS で切っているとき)。
+    // 音の側が書いた位置 (LivePosition) を読み、区間の印 (PhaseDef::liveStep) を
+    // 持つ絵の上へ縦線を引く。fps は読みに行く速さで、0 を返すあいだは引かない
+    // (SETTINGS で切っているとき)。
     //
     // setEnvelope で外れるので、絵を組んだあとに付けること。グラフは区分ごとに
     // 使い回すため、関係のない区分の絵に線を残さない。
-    void setLiveSource(const StepTable* table, std::function<int()> fps);
+    void setLiveSource(const LivePosition* position, std::function<int()> fps);
     void updateAmpEnv(
         const AmpEnvValues& v,
         CurveCore* p_curveCore = nullptr,
@@ -230,9 +240,9 @@ private:
     bool isSyncingScrollBar = false;
 
     // ---- 鳴っている位置
-    const StepTable* liveTable = nullptr;
+    const LivePosition* liveTable = nullptr;
     std::function<int()> liveFps;
-    int liveStep = StepTable::liveIdle;
+    int liveStep = LivePosition::idle;
     float liveFrac = 0.0f;
 
     void timerCallback() override;

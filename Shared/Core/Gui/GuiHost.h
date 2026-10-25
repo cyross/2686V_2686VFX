@@ -97,6 +97,21 @@ public:
     bool paramEnvLiveGraph = true;
     int paramEnvLiveFps = LiveGraph::fpsInitial;
 
+    // AMP / PITCH ENV・SSG SW AMP / PITCH ENV[256]・FM 音源の EG (グラフの AMP / PIT / S256 / P256)
+    bool envLiveGraph = true;
+    int envLiveFps = LiveGraph::fpsInitial;
+
+    // グラフが読みに行く速さ。切っているあいだは 0 (GuiEnvelopeGraph::setLiveSource)
+    std::function<int()> paramEnvLiveRate()
+    {
+        return [this] { return paramEnvLiveGraph ? LiveGraph::clampFps(paramEnvLiveFps) : 0; };
+    }
+
+    std::function<int()> envLiveRate()
+    {
+        return [this] { return envLiveGraph ? LiveGraph::clampFps(envLiveFps) : 0; };
+    }
+
     // ---- 音声・波形ファイルの場所をどこからの相対で書くか (Io::PathRoot)
     // 環境設定に 1 つだけ持つ。どのチャンネルの UTILITY から変えても同じ値。
     int relativePathRoot = Io::PathRoot::settingsFolder;

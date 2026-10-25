@@ -18,15 +18,42 @@ void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, cons
     // KEEP のときは、行き先へ向かって斜めに引かず、その段の始まりの値で
     // 横一直線を引く。つなぎ目だけが縦に飛ぶ (階段状)。カーブも同じ理由で
     // 効かないので、曲げるはたらきごと外す。
+    //
+    // リリースも走り終えるまで前の値を保ち、終わりで行き先 (LR) へ移る。
+    // 均すと行き先が消えてしまうので、終わりに縦の線を足す。
     if (keepLevels)
     {
-        for (auto& phase : currentPhases)
+        std::vector<PhaseDef> kept;
+
+        for (auto phase : currentPhases)
         {
+            if (phase.keepShape) {
+                kept.push_back(phase);
+                continue;
+            }
+
+            const float target = phase.endLevel;
+
             phase.endLevel = phase.startLevel;
             phase.curveFunc = [](float x) { return x; };
             phase.curveStartX = 0.0f;
             phase.curveEndX = 1.0f;
+
+            kept.push_back(phase);
+
+            if (phase.isRelease && target != phase.startLevel) {
+                kept.push_back({
+                    .widthPx = 0.01f,
+                    .startLevel = phase.startLevel,
+                    .endLevel = target,
+                    .color = phase.color,
+                    .drawPhaseLine = false,
+                    .keepShape = true
+                    });
+            }
         }
+
+        currentPhases = std::move(kept);
     }
 
     // 1 回きりの印。次に描く区分へ持ち越さない。グラフは区分ごとに
@@ -40,16 +67,16 @@ void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, cons
     repaint();
 }
 
-void GuiEnvelopeGraph::setLiveSource(const StepTable* table, std::function<int()> fps)
+void GuiEnvelopeGraph::setLiveSource(const LivePosition* position, std::function<int()> fps)
 {
-    liveTable = table;
+    liveTable = position;
     liveFps = std::move(fps);
 
     if (liveTable == nullptr || !liveFps) {
         stopTimer();
 
-        if (liveStep != StepTable::liveIdle) {
-            liveStep = StepTable::liveIdle;
+        if (liveStep != LivePosition::idle) {
+            liveStep = LivePosition::idle;
             repaint();
         }
 
@@ -72,8 +99,8 @@ void GuiEnvelopeGraph::timerCallback()
 
     LiveGraph::pace(*this, fps > 0 ? fps : LiveGraph::idleHz);
 
-    const int step = fps > 0 ? liveTable->liveStep.load(std::memory_order_relaxed) : StepTable::liveIdle;
-    const float frac = step != StepTable::liveIdle ? liveTable->liveFrac.load(std::memory_order_relaxed) : 0.0f;
+    const int step = fps > 0 ? liveTable->phase.load(std::memory_order_relaxed) : LivePosition::idle;
+    const float frac = step != LivePosition::idle ? liveTable->frac.load(std::memory_order_relaxed) : 0.0f;
 
     if (step == liveStep && std::abs(frac - liveFrac) < 0.001f) return;
 
@@ -389,6 +416,10 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     bool hasLive = false;
     float liveX = 0.0f;
 
+    // サスティンの区間 (保っているあいだは、線ではなく区間ごと塗る)
+    float liveStartX = 0.0f;
+    float liveWidth = 0.0f;
+
     for (const auto& phase : currentPhases) {
         if (phase.widthPx <= 0.0f && !phase.isMax) continue;
 
@@ -412,9 +443,11 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
         // 長さを刻む処理が終わらなくなり、画面ごと固まってしまう。
         if (!std::isfinite(actualWidth)) continue;
 
-        if (!hasLive && liveStep != StepTable::liveIdle && phase.liveStep == liveStep) {
+        if (!hasLive && liveStep != LivePosition::idle && phase.liveStep == liveStep) {
             hasLive = true;
             liveX = currentPixelX + juce::jlimit(0.0f, 1.0f, liveFrac) * actualWidth;
+            liveStartX = currentPixelX;
+            liveWidth = actualWidth;
         }
 
         juce::Path envPath;
@@ -495,7 +528,12 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
         g.drawLine(maxX, maxY, maxX, basePixelY, 2.0f);
     }
 
-    if (hasLive && std::isfinite(liveX)) {
+    // 保っているあいだ (サスティン) は、区間を半透明の黄色で塗る。ほかは縦線
+    if (hasLive && liveStep == LivePosition::sustain && std::isfinite(liveStartX) && std::isfinite(liveWidth)) {
+        g.setColour(GuiColor::EnvelopeGraph::LiveFill);
+        g.fillRect(juce::Rectangle<float>(liveStartX, graphArea.getY(), juce::jmax(2.0f, liveWidth), graphArea.getHeight()));
+    }
+    else if (hasLive && std::isfinite(liveX)) {
         g.setColour(GuiColor::EnvelopeGraph::LiveLine);
         g.drawLine(liveX, graphArea.getY(), liveX, graphArea.getBottom(), 2.0f);
     }
@@ -509,7 +547,8 @@ void GuiEnvelopeGraph::appendEndLevel(std::vector<PhaseDef>& phases, float relea
         .startLevel = releaseEnd,
         .endLevel = endl,
         .color = GuiColor::EnvelopeGraph::ReleaseLine,
-        .drawPhaseLine = false
+        .drawPhaseLine = false,
+        .keepShape = true
         });
 
     // ENDL を保つ
@@ -519,7 +558,8 @@ void GuiEnvelopeGraph::appendEndLevel(std::vector<PhaseDef>& phases, float relea
         .endLevel = endl,
         .isDashed = true,
         .color = GuiColor::EnvelopeGraph::ReleaseLine,
-        .drawPhaseLine = false
+        .drawPhaseLine = false,
+        .keepShape = true
         });
 }
 
@@ -573,7 +613,8 @@ void GuiEnvelopeGraph::updatePitchEnv(
         .widthPx = rateToWidth(ar, arMax),
         .startLevel = stl, .endLevel = atl, .color = color,
         .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Ar),
-        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
+        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+        .liveStep = LivePosition::attack
         });
 
     // Decay
@@ -581,17 +622,20 @@ void GuiEnvelopeGraph::updatePitchEnv(
         .widthPx = rateToWidth(dr, drMax),
         .startLevel = atl, .endLevel = ssl, .color = color,
         .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Dr),
-        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
+        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+        .liveStep = LivePosition::decay
         });
 
-    // Sustain
-    phases.push_back({ .widthPx = 60.0f, .startLevel = ssl, .endLevel = ssl, .color = color, .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine });
+    // Sustain (決まった幅・別の色)
+    phases.push_back({ .widthPx = sustainWidthPx, .startLevel = ssl, .endLevel = ssl, .color = GuiColor::EnvelopeGraph::SustainLine, .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine, .liveStep = LivePosition::sustain });
 
     // Release
     phases.push_back({
         .widthPx = rateToWidth(rr, rrMax),
         .startLevel = ssl, .endLevel = rll, .color = color,
-        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Rr)
+        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Rr),
+        .liveStep = LivePosition::release,
+        .isRelease = true
         });
 
     if (v.endlEnable) appendEndLevel(phases, rll, v.endl / maxCents);
@@ -668,6 +712,7 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
         int s = 1;
         int visited = 0;
         float level = levelAt(0);
+        bool endless = false;
 
         while (s <= steps) {
             phases.push_back({
@@ -695,10 +740,21 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
                     });
 
                 level = levelAt(nextStep);
+                endless = true;
                 break;
             }
 
             s = nextStep;
+        }
+
+        // 最後の段を走り終えたら、離すまで保つ (サスティン。決まった幅・別の色)
+        if (!endless) {
+            phases.push_back({
+                .widthPx = sustainWidthPx, .startLevel = level, .endLevel = level,
+                .color = GuiColor::EnvelopeGraph::SustainLine,
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+                .liveStep = LivePosition::sustain
+                });
         }
 
         phases.push_back({
@@ -707,7 +763,8 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
             .endLevel = v.lr / lMax,
             .color = GuiColor::EnvelopeGraph::ReleaseLine,
             .curveFunc = getCurveFunc(curveRelease),
-            .liveStep = StepTable::liveRelease
+            .liveStep = LivePosition::release,
+            .isRelease = true
             });
 
         if (v.endlEnable) appendEndLevel(phases, v.lr / lMax, v.endl / lMax);
@@ -755,9 +812,19 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
                     .startXOffsetPx = loopEndWidth,
                     .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
                     });
+
+                // 回り終えたら、離すまで最後の段を保つ (サスティン)
+                phases.push_back({
+                    .widthPx = sustainWidthPx, .startLevel = endL, .endLevel = endL,
+                    .color = GuiColor::EnvelopeGraph::SustainLine,
+                    .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+                    .liveStep = LivePosition::sustain
+                    });
             }
 
             loopEndWidth += width;
+
+            if (loopCount > 0) loopEndWidth += sustainWidthPx;
         }
         else {
             phases.push_back({
@@ -771,6 +838,16 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
         currentTotalWidth += width;
     }
 
+    // ループしないときは、最後の段を走り終えたら離すまで保つ (サスティン。決まった幅・別の色)
+    if (!isLoop) {
+        phases.push_back({
+            .widthPx = sustainWidthPx, .startLevel = levelAt(steps), .endLevel = levelAt(steps),
+            .color = GuiColor::EnvelopeGraph::SustainLine,
+            .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+            .liveStep = LivePosition::sustain
+            });
+    }
+
     // Release
     phases.push_back({
         .widthPx = rateToWidth(v.rr, v.rMax),
@@ -780,7 +857,8 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
         .curveFunc = getCurveFunc(curveRelease),
         .moveToStart = isLoop,
         .startXOffsetPx = loopEndWidth,
-        .liveStep = StepTable::liveRelease
+        .liveStep = LivePosition::release,
+        .isRelease = true
         });
 
     if (v.endlEnable) appendEndLevel(phases, v.lr / lMax, v.endl / lMax);
@@ -844,7 +922,8 @@ void GuiEnvelopeGraph::updateAmpEnv(
     phases.push_back({
         .widthPx = attackWidth, .startLevel = stlVal / stlMax, .endLevel = 1.0f, .color = color,
         .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
-        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
+        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+        .liveStep = LivePosition::attack
         });
     currentTotalWidth += attackWidth;
 
@@ -853,14 +932,15 @@ void GuiEnvelopeGraph::updateAmpEnv(
     phases.push_back({
         .widthPx = decayWidth, .startLevel = 1.0f, .endLevel = sl, .color = color,
         .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
-        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
+        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+        .liveStep = LivePosition::decay
         });
     currentTotalWidth += decayWidth;
 
-    // 3. Sustain
-    float keyOnWidth = 60.0f;
+    // 3. Sustain (決まった幅・別の色)
+    float keyOnWidth = sustainWidthPx;
 
-    phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl, .endLevel = sl, .color = color, .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine });
+    phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl, .endLevel = sl, .color = GuiColor::EnvelopeGraph::SustainLine, .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine, .liveStep = LivePosition::sustain });
 
     currentTotalWidth += keyOnWidth;
     float noteOffPositionX = currentTotalWidth;
@@ -873,7 +953,9 @@ void GuiEnvelopeGraph::updateAmpEnv(
             .startLevel = sl,
             .endLevel = sl,
             .color = GuiColor::EnvelopeGraph::ReleaseLine,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
+            .liveStep = LivePosition::release,
+            .isRelease = true
             });
     }
     else {
@@ -882,7 +964,9 @@ void GuiEnvelopeGraph::updateAmpEnv(
             .startLevel = sl,
             .endLevel = 0.0f,
             .color = color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
+            .liveStep = LivePosition::release,
+            .isRelease = true
             });
     }
 

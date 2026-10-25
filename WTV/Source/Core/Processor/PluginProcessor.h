@@ -685,6 +685,8 @@ public:
         visit(SettingsKey::tapLiveFps, tapLiveFps);
         visit(SettingsKey::paramEnvLiveGraph, paramEnvLiveGraph);
         visit(SettingsKey::paramEnvLiveFps, paramEnvLiveFps);
+        visit(SettingsKey::envLiveGraph, envLiveGraph);
+        visit(SettingsKey::envLiveFps, envLiveFps);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop

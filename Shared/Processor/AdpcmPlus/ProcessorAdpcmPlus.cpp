@@ -53,9 +53,11 @@ void AdpcmPlusProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWa
     PrHelper::setupAdpcmPlusPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPcmPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
+    pAmpEnv.live = &stepTables.position(prefix + LiveKey::ampEnv);
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
+    pPitchEnv.live = &stepTables.position(prefix + LiveKey::pitchEnv);
     PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
     PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);

@@ -114,9 +114,9 @@ private:
 	// 写している値の組 (PARAM ENV)。-1 は組を使わない
 	int levelSet = -1;
 
-	// 鳴っている位置を表へ書くときの番号 (PARAM ENV のグラフ)。0 は書かない。
+	// 鳴っている位置を表へ書く (グラフの縦線)。
 	// 段 (リリース) を始めてからのサンプル数と、その段の長さ
-	std::uint32_t liveId = 0;
+	LiveWriter liveWriter;
 	float elapsed = 0.0f;
 	float stepLength = 1.0f;
 

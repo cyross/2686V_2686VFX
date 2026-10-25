@@ -46,6 +46,7 @@ void FmRgAdddr::updateSampleRate(double newSampleRate) {
 }
 
 void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
+    m_livePos = params.live;
     this->ar = params.ar;
     this->d1r = params.d1r;
     this->d1l = params.d1l;
@@ -144,6 +145,9 @@ float FmRgAdddr::noteOn(float velocity, int noteNumber) {
     }
 
     state = State::Attack;
+
+    // いちばん新しく押した音の位置をグラフへ見せる
+    m_live.start(m_livePos);
 
     // TLレジスタ値から直接減衰量(dB)を計算
     // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
@@ -286,7 +290,7 @@ void FmRgAdddr::updateIncrementsWithKeyScale(int noteNumber)
     }
 }
 
-float FmRgAdddr::updateEnvelopeState(float currentLevel)
+float FmRgAdddr::advanceEnvelope(float currentLevel)
 {
     if (this->bypass) {
         return 1.0f;

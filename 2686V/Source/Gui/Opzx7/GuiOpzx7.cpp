@@ -3023,6 +3023,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         graph.setKeepLevels(keepOn);
         graph.updatePitchEnv(GuiGraphValues::pitchEnv(apvts, code),
             keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
+        graph.setLiveSource(GuiGraphValues::liveOf(ctx.audioProcessor.stepTables, code + LiveKey::pitchEnv), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // SSG SW Env 11
@@ -3035,6 +3036,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwEnv256(v,
             keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwEnv256), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // SSG SW PEnv 11
@@ -3047,6 +3049,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwPEnv256(v,
             keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwPEnv256), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // PARAM ENV[256] (4.3.0)。値は TARGET の組から。鳴っている位置も出す
@@ -3114,7 +3117,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         phases.push_back({
             .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f * tlScale, .color = color,
             .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
-            .phaseLineColor = juce::Colours::red
+            .phaseLineColor = juce::Colours::red, .liveStep = LivePosition::attack
             });
         currentTotalWidth += attackWidth;
 
@@ -3123,7 +3126,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         phases.push_back({
             .widthPx = decayWidth, .startLevel = 1.0f * tlScale, .endLevel = sl * tlScale, .color = color,
             .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
-            .phaseLineColor = juce::Colours::blue
+            .phaseLineColor = juce::Colours::blue, .liveStep = LivePosition::decay
             });
         currentTotalWidth += decayWidth;
 
@@ -3143,7 +3146,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
             phases.push_back({
                 .widthPx = sustainTotalWidth, .startLevel = sl * tlScale, .endLevel = 0.0f, .color = color,
                 .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Sr),
-                .phaseLineColor = juce::Colours::green
+                .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain
                 });
 
             currentTotalWidth += sustainTotalWidth * 0.5f;
@@ -3154,7 +3157,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .startLevel = sl * tlScale,
                 .endLevel = sl * tlScale,
                 .color = color,
-                .phaseLineColor = juce::Colours::green
+                .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain
                 });
 
             currentTotalWidth += keyOnWidth;
@@ -3171,7 +3174,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .isDashed = true,
                 .color = juce::Colours::yellow,
                 .moveToStart = true,
-                .startXOffsetPx = noteOffPositionX
+                .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
         }
         else if (isSus) {
@@ -3182,7 +3185,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .isDashed = true,
                 .color = juce::Colours::yellow,
                 .moveToStart = true,
-                .startXOffsetPx = noteOffPositionX
+                .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
         }
         else if (isKor) {
@@ -3192,7 +3195,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .endLevel = releaseStartLevel * tlScale,
                 .color = juce::Colours::yellow,
                 .moveToStart = true,
-                .startXOffsetPx = noteOffPositionX
+                .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
         }
         else {
@@ -3204,11 +3207,14 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX,
-                .isMax = (rrVal == rrMax)
+                .isMax = (rrVal == rrMax), .liveStep = LivePosition::release
                 });
         }
 
         graph.setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
+
+        // 鳴っている位置 (グラフの縦線)
+        graph.setLiveSource(GuiGraphValues::liveOf(ctx.audioProcessor.stepTables, code + LiveKey::eg), ctx.audioProcessor.envLiveRate());
     }
 
     graph.repaint();

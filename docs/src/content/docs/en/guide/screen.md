@@ -263,16 +263,19 @@ N88-BASIC(86) numbers them (it starts off).
 
 ### Where the sound is playing on the graphs
 
-The graphs can show where the sound is playing, moving as you play (from 4.3.0). SETTINGS switches the two
-separately, and on the same row you choose the rate from **15 / 30 / 60 / 120 FPS** (both start on, at 30 FPS).
+The graphs can show where the sound is playing, moving as you play (from 4.3.0). SETTINGS switches the three
+separately, and on the same row you choose the rate from **15 / 30 / 60 / 120 FPS** (all start on, at 30 FPS).
 Faster rates move more smoothly but cost the screen more.
 
 | Setting | What moves |
 | --- | --- |
 | Move the current TAP SEQUENCER step as you play | The current-step mark of TAP AMP / PITCH / PARAM SEQUENCER (the bar and list highlight) |
 | Show where PARAM ENV[256] is playing on the graph | A yellow vertical line when the graph switch is set to **PRM** |
+| Show where AMP / PITCH ENV, SSG SW ENV and EG are playing on the graph | A yellow vertical line when the graph switch is set to **AMP / PIT / S256 / P256** (channel, operator and pad; AMP on FM operators is the EG) |
 
-- The PARAM ENV line follows the most recent note. It moves into the release when you let go and disappears when the note ends
+- The line follows the most recent note. It moves into the release when you let go and disappears when the note ends. While the envelope is held, the whole sustain part is filled in translucent yellow instead
+- Within a part, volume envelopes (AMP ENV, EG) place it by the current level, the others by the time elapsed
+- Notes played to compute the waveform previews are not shown
 - While a setting is off nothing moves; the display only updates when values change
 - **It only changes the display.** The sound stays the same
 

@@ -16,6 +16,7 @@ void AmpAdsrEnv::updateTargetSampleRate(double newSampleRate)
 }
 
 void AmpAdsrEnv::setParameters(const AmpAdsrParams& params) {
+	this->m_livePos = params.live;
 	this->ar = params.ar;
 	this->dr = params.dr;
 	this->sl = params.sl;
@@ -52,6 +53,9 @@ float AmpAdsrEnv::noteOn() {
     if (this->bypass) {
         return 1.0f;
     }
+
+    // いちばん新しく押した音の位置をグラフへ見せる
+    this->m_live.start(this->m_livePos);
 
     if (this->m_curveCore == nullptr) {
         this->state = State::Attack;
@@ -91,7 +95,16 @@ float AmpAdsrEnv::bypassedProcess() {
     return 1.0f;
 }
 
+// 1 サンプル進め、鳴っている位置を書く
 float AmpAdsrEnv::process(float currentLevel) {
+    const float level = this->advance(currentLevel);
+
+    if (this->m_live.active()) this->m_live.write(this->livePhase(), level, this->liveTarget());
+
+    return level;
+}
+
+float AmpAdsrEnv::advance(float currentLevel) {
     if (this->bypass) {
         return 1.0f;
     }

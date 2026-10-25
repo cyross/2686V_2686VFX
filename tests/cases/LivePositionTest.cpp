@@ -1,0 +1,152 @@
+﻿// ============================================================================
+// 鳴っている位置 (グラフの縦線。4.3.0)
+// ============================================================================
+//   ・書き手は、区間に入ったときの音量から行き先までのどこにいるかで進みを出す
+//   ・AMP ENV は、区間 (アタック・ディケイ・サスティン・リリース) と進みを書き、鳴り終えたら止まる
+//   ・あとから押した音が持ち主になる。波形プレビューの計算 (Mute) では書かない
+#include "doctest/doctest.h"
+
+#include "Shared/Core/Synth/LivePosition.h"
+#include "Shared/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
+
+namespace
+{
+    constexpr double kRate = 1000.0;
+
+    AmpAdsrParams ampParams(LivePosition& live)
+    {
+        AmpAdsrParams p;
+
+        p.stl = 0.0f;
+        p.ar = 0.1f;   // 100 サンプル
+        p.dr = 0.1f;
+        p.sl = 0.5f;
+        p.rr = 0.1f;
+        p.live = &live;
+
+        return p;
+    }
+
+    // 音量を noteOn の値から n サンプル進める
+    float run(AmpAdsrEnv& env, float level, int n)
+    {
+        for (int i = 0; i < n; ++i) level = env.process(level);
+
+        return level;
+    }
+}
+
+TEST_CASE("LiveLevelWriter: 区間の中の進みは、入ったときの音量から行き先までのどこにいるか")
+{
+    LivePosition live;
+    LiveLevelWriter writer;
+
+    writer.start(&live);
+
+    REQUIRE(writer.active());
+
+    writer.write(LivePosition::attack, 0.0f, 1.0f);
+    writer.write(LivePosition::attack, 0.25f, 1.0f);
+
+    CHECK(live.phase.load() == LivePosition::attack);
+    CHECK(live.frac.load() == doctest::Approx(0.25f));
+
+    // ディケイは 1 から SL (0.5) へ
+    writer.write(LivePosition::decay, 1.0f, 0.5f);
+    writer.write(LivePosition::decay, 0.75f, 0.5f);
+
+    CHECK(live.phase.load() == LivePosition::decay);
+    CHECK(live.frac.load() == doctest::Approx(0.5f));
+
+    // 動かないサスティンは真ん中
+    writer.write(LivePosition::sustain, 0.5f, 0.0f);
+
+    CHECK(live.frac.load() == doctest::Approx(0.5f));
+
+    // 鳴り終えたら書いて手を離す
+    writer.write(LivePosition::idle, 0.0f, 0.0f);
+
+    CHECK(live.phase.load() == LivePosition::idle);
+    CHECK_FALSE(writer.active());
+}
+
+TEST_CASE("AMP ENV: 区間と進みを書き、鳴り終えたら止まる")
+{
+    LivePosition live;
+    AmpAdsrEnv env;
+
+    env.prepare(kRate);
+    env.setParameters(ampParams(live));
+
+    float level = env.noteOn();
+
+    level = run(env, level, 50);
+
+    CHECK(live.phase.load() == LivePosition::attack);
+    CHECK(live.frac.load() == doctest::Approx(0.5f).epsilon(0.05));
+
+    level = run(env, level, 100);
+
+    CHECK(live.phase.load() == LivePosition::decay);
+    CHECK(live.frac.load() == doctest::Approx(0.5f).epsilon(0.1));
+
+    level = run(env, level, 200);
+
+    CHECK(live.phase.load() == LivePosition::sustain);
+    CHECK(live.frac.load() == doctest::Approx(0.5f));
+
+    env.noteOff();
+    level = run(env, level, 50);
+
+    CHECK(live.phase.load() == LivePosition::release);
+    CHECK(live.frac.load() == doctest::Approx(0.5f).epsilon(0.1));
+
+    level = run(env, level, 100);
+
+    CHECK(env.isIdle());
+    CHECK(live.phase.load() == LivePosition::idle);
+}
+
+TEST_CASE("AMP ENV: あとから押した音が持ち主になり、プレビューの計算では書かない")
+{
+    LivePosition live;
+    AmpAdsrEnv a, b;
+
+    a.prepare(kRate);
+    b.prepare(kRate);
+    a.setParameters(ampParams(live));
+    b.setParameters(ampParams(live));
+
+    float la = a.noteOn();
+
+    la = run(a, la, 150);
+
+    REQUIRE(live.phase.load() == LivePosition::decay);
+
+    float lb = b.noteOn();
+
+    lb = run(b, lb, 10);
+
+    CHECK(live.phase.load() == LivePosition::attack);
+
+    // 先の音はもう書かない
+    la = run(a, la, 300);
+
+    CHECK(live.phase.load() == LivePosition::attack);
+
+    // プレビューの計算 (Mute) で押した音は持ち主にならない
+    {
+        const LivePosition::Mute mute;
+
+        AmpAdsrEnv preview;
+
+        preview.prepare(kRate);
+        preview.setParameters(ampParams(live));
+
+        float lp = preview.noteOn();
+
+        lp = run(preview, lp, 300);
+    }
+
+    CHECK(live.phase.load() == LivePosition::attack);
+}

@@ -158,11 +158,13 @@ class GuiSettings : public GuiBase
 
     NormalSeparator separatorLiveGraph;
 
-    // グラフの、鳴っている位置を動かして見せるか (TAP SEQUENCER / PARAM ENV[256]) と、その速さ
+    // グラフの、鳴っている位置を動かして見せるか (TAP SEQUENCER / PARAM ENV[256] / エンベロープ) と、その速さ
     GuiToggleButton tapLiveToggle;
     GuiComboBox tapLiveFpsSelector;
     GuiToggleButton paramEnvLiveToggle;
     GuiComboBox paramEnvLiveFpsSelector;
+    GuiToggleButton envLiveToggle;
+    GuiComboBox envLiveFpsSelector;
 
     NormalSeparator separator5;
 
@@ -279,6 +281,8 @@ public:
         tapLiveFpsSelector(context),
         paramEnvLiveToggle(context),
         paramEnvLiveFpsSelector(context),
+        envLiveToggle(context),
+        envLiveFpsSelector(context),
         separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),

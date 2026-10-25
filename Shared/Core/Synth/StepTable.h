@@ -12,6 +12,7 @@
 #include <JuceHeader.h>
 
 #include "./StepLoop.h"
+#include "./LivePosition.h"
 
 // ============================================================================
 // 段の表 (SSG SW AMP / PITCH ENV[256] など)
@@ -134,27 +135,9 @@ struct StepTable
     // PARAM ENV の指し先ごとの値の組。使わない表では nullptr
     std::unique_ptr<LevelSets> sets;
 
-    // ---- 鳴っている位置 (PARAM ENV のグラフ。4.3.0)
-    // いちばん新しく押した音のエンベロープだけが書き (liveOwner)、画面が読んで印を動かす。
-    // 音の側は表を const で持つので、ここだけは const の表からも書けるようにしておく。
-    static constexpr int liveIdle = 0;      // 鳴っていない
-    static constexpr int liveRelease = -1;  // 離したあと (リリース)
-
-    mutable std::atomic<std::uint32_t> liveOwner{ 0 };
-    mutable std::atomic<int> liveStep{ liveIdle };   // 1 以上は段
-    mutable std::atomic<float> liveFrac{ 0.0f };     // 段 (リリース) の中の進み (0〜1)
-
-    // 押した音ごとに振る番号。0 は使わない
-    static std::uint32_t nextLiveId()
-    {
-        static std::atomic<std::uint32_t> counter{ 0 };
-
-        std::uint32_t id = counter.fetch_add(1, std::memory_order_relaxed) + 1;
-
-        if (id == 0) id = counter.fetch_add(1, std::memory_order_relaxed) + 1;
-
-        return id;
-    }
+    // 鳴っている位置 (グラフの縦線。4.3.0)。音の側は表を const で持つので、
+    // ここだけは const の表からも書けるようにしておく
+    mutable LivePosition live;
 
     StepTable(float defR, float defL, bool withPairs = false, const std::vector<float>* setDefaults = nullptr) : defaultR(defR), defaultL(defL)
     {
@@ -381,6 +364,14 @@ private:
 //
 // 表はプロセッサを組み立てるとき (音を出し始める前) に get で作る。
 // 作ったあとは消さない。音の側へ配ったポインタが動かないようにするため。
+// 鳴っている位置の鍵 (StepTableStore::position)。チャンネル・オペレーター・パッドの頭に足す
+namespace LiveKey
+{
+    inline const juce::String ampEnv = "_LIVE_AMPENV";
+    inline const juce::String pitchEnv = "_LIVE_PITCHENV";
+    inline const juce::String eg = "_LIVE_EG";       // FM 音源のオペレーターの EG
+}
+
 class StepTableStore
 {
 public:
@@ -421,6 +412,25 @@ public:
         return it == tables.end() ? nullptr : it->second.get();
     }
 
+    // 段の表を持たないエンベロープ (AMP / PITCH ENV・FM 音源の EG) の、鳴っている位置
+    // (4.3.0)。鍵は頭に LiveKey を足したもの。無ければ作る。メッセージスレッドから、
+    // 音を出し始める前に呼ぶこと。作ったものは消さない (音の側が指したまま持つ)
+    LivePosition& position(const juce::String& key)
+    {
+        auto it = positions.find(key);
+
+        if (it == positions.end()) it = positions.emplace(key, std::make_unique<LivePosition>()).first;
+
+        return *it->second;
+    }
+
+    const LivePosition* findPosition(const juce::String& key) const
+    {
+        auto it = positions.find(key);
+
+        return it == positions.end() ? nullptr : it->second.get();
+    }
+
     void forEach(const std::function<void(const juce::String&, StepTable&)>& fn) const
     {
         for (const auto& [key, table] : tables) fn(key, *table);
@@ -459,6 +469,7 @@ public:
 
 private:
     std::map<juce::String, std::unique_ptr<StepTable>> tables;
+    std::map<juce::String, std::unique_ptr<LivePosition>> positions;
 
     // 前のブロックで DAW が再生していたか (followTransport)
     bool wasPlaying = false;

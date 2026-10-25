@@ -74,9 +74,11 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
         PrHelper::setupRhythmPadBasicPtrs(apvts, padPrefix, pPadBasic[i]);
         PrHelper::setupQualityPcmPtrs(apvts, padPrefix, pQuality[i]);
         PrHelper::setupAdsrAmpEnvPtrs(apvts, padPrefix, pAmpEnv[i]);
+        pAmpEnv[i].live = &stepTables.position(padPrefix + LiveKey::ampEnv);
         PrHelper::setupWtMod(apvts, padPrefix, pWtMod[i], modWaves);
         PrHelper::setupWtAmpMod(apvts, padPrefix, pWtAmpMod[i], modWaves);
         PrHelper::setupPitchEnvPtrs(apvts, padPrefix, pPitchEnv[i]);
+        pPitchEnv[i].live = &stepTables.position(padPrefix + LiveKey::pitchEnv);
         PrHelper::setupSsgSwEnv256Ptrs(apvts, padPrefix, pSsgSwEnv256[i], stepTables);
         PrHelper::setupSsgSwPEnv256Ptrs(apvts, padPrefix, pSsgSwPEnv256[i], stepTables);
         PrHelper::setupOpzx7DetunePtrs(apvts, padPrefix, pOpzx7Detune[i]);

@@ -74,9 +74,23 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **Graphs can show where the sound is playing**
   - TAP SEQUENCER (TAP AMP / PITCH / PARAM SEQUENCER) moves the current-step mark (the bar and list highlight) as you play
   - PARAM ENV[256] shows where it is playing as a yellow vertical line on the graph. It follows the most recent note, moves into the release when you let go, and disappears when the note ends
-  - SETTINGS gains "Move the current TAP SEQUENCER step as you play" and "Show where PARAM ENV[256] is playing on the graph". Both start on. On the same row you choose the rate from 15 / 30 / 60 / 120 FPS (30 FPS to start). When off, nothing moves and the display only updates when values change. It only affects the display, not the sound
+  - The graph's AMP / PIT / S256 / P256 views show the same yellow line: AMP ENV, PITCH ENV and SSG SW AMP / PITCH ENV[256] (channel, operator and pad), and the FM operator EG (AR / DR / SR / SL / RR). Within a part, volume envelopes (AMP ENV, EG) place it by the current level and the others by the time elapsed
+  - SETTINGS gains "Move the current TAP SEQUENCER step as you play", "Show where PARAM ENV[256] is playing on the graph" and "Show where AMP / PITCH ENV, SSG SW ENV and EG are playing on the graph". All start on. On the same row you choose the rate from 15 / 30 / 60 / 120 FPS (30 FPS to start). When off, nothing moves and the display only updates when values change. It only affects the display, not the sound
   - The channel graph switch and the FM operator graph switch gain **PRM** (PARAM ENV[256]). The values drawn are those of the current TARGET, and the title shows the target's name. Integer and choice targets are drawn holding each step. RHYTHM only has pad graphs, so it has no PRM
+  - Notes played to compute the waveform previews are not shown
   - Every plugin (2686VFX only has the TAP SEQUENCER setting)
+- **Step envelopes: a step with the same value as the one before no longer ends at once**
+  - A step used to end when it reached its target value, so a step with the same value as the previous one ended without waiting R seconds and the later steps came early. KEEP behaved the same way. Steps now end once R seconds have passed
+  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE. With a curve on, steps already ended after R seconds
+  - **Patches with repeated values in a row step differently (sound different).** Steps with different values keep their length
+  - Every plugin except 2686VFX
+- **The sustain part of the graphs stands out**
+  - On the AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] graphs, the part held while the key is down (the sustain) is drawn with a fixed width in its own colour (yellow-green)
+  - The step envelopes (SSG SW AMP / PITCH ENV[256] and PARAM ENV[256]) had no sustain part and drew the release right after the last step. They now show it where the last step is held (without a loop, or after a counted loop ends)
+  - With KEEP (always on for integer and choice PARAM ENV targets) the release was flattened too, so the move to LR at its end was missing. The graph now draws the move to LR (ENDL with Use Endl) at the end of the release
+  - While the envelope is held (sustain), the playing position is shown by filling the whole sustain part in translucent yellow instead of a line (COLORS tab name: EnvelopeGraph.LiveFill)
+  - Its COLORS tab name is EnvelopeGraph.SustainLine. The FM operator EG graphs (AR / DR / SR / SL / RR) are unchanged
+  - Every plugin
 - **New section heading colours**
   - TAP AMP SEQUENCER is now cyan and TAP PITCH SEQUENCER whitish purple (the other way round from before)
   - PARAM ENV[256] and TAP PARAM SEQUENCER are whitish dark blue

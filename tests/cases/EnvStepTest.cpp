@@ -69,6 +69,44 @@ TEST_CASE("StepEnv: R 秒かけて次の段へ進む")
     CHECK(v == doctest::Approx(1.0f));
 }
 
+TEST_CASE("StepEnv: 前の段と同じ値の段も、R 秒ぶん保つ")
+{
+    StepTable t(0.0f, 0.0f);
+    t.setRate(1, 0.1f);   // 100 サンプル
+    t.setRate(2, 0.1f);
+    t.setRate(3, 0.1f);
+    fill(t, { 1.0f, 1.0f, 0.0f });
+
+    for (bool keep : { false, true }) {
+        CAPTURE(keep);
+
+        auto p = makeParams(t, 3);
+        p.keep = keep;
+
+        StepEnv env;
+        env.prepare(0, -1, kRate);
+        env.setParameters(p);
+        env.noteOn();
+
+        float v = 0.0f;
+
+        // 段 1 (0 から 1 へ) と段 2 (1 のまま) で 200 サンプル。段 2 の終わりまで 1 を保つ
+        for (int i = 0; i < 190; ++i) v = env.process();
+
+        CHECK(v == doctest::Approx(1.0f));
+
+        // 段 3 で 0 へ。KEEP なら段の頭の 1 を保ち、走り終えて 0 になる
+        for (int i = 0; i < 60; ++i) v = env.process();
+
+        if (keep) CHECK(v == doctest::Approx(1.0f));
+        else CHECK(v == doctest::Approx(0.5f).epsilon(0.05));
+
+        for (int i = 0; i < 60; ++i) v = env.process();
+
+        CHECK(v == doctest::Approx(0.0f));
+    }
+}
+
 TEST_CASE("StepEnv: 離すと RR 秒で LR へ。Use Endl なら ENDL を保つ")
 {
     StepTable t(0.0f, 0.0f);
@@ -224,7 +262,7 @@ TEST_CASE("StepEnv: PARAM ENV は鳴っている位置を表へ書き、いち�
     t.setRate(1, 0.1f);   // 100 サンプル
     t.setRate(2, 0.1f);
     t.setSetValue(0, 1, 1.0f);
-    t.setSetValue(0, 2, 1.0f);
+    t.setSetValue(0, 2, 0.5f);
 
     auto p = makeParams(t, 2);
     p.levelSet = 0;
@@ -235,16 +273,21 @@ TEST_CASE("StepEnv: PARAM ENV は鳴っている位置を表へ書き、いち�
     a.setParameters(p);
     a.noteOn();
 
-    CHECK(t.liveStep.load() == 1);
+    CHECK(t.live.phase.load() == 1);
 
     for (int i = 0; i < 50; ++i) a.process();
 
-    CHECK(t.liveStep.load() == 1);
-    CHECK(t.liveFrac.load() == doctest::Approx(0.5f).epsilon(0.05));
+    CHECK(t.live.phase.load() == 1);
+    CHECK(t.live.frac.load() == doctest::Approx(0.5f).epsilon(0.05));
 
     for (int i = 0; i < 60; ++i) a.process();
 
-    CHECK(t.liveStep.load() == 2);
+    CHECK(t.live.phase.load() == 2);
+
+    // 最後の段を走り終えたら、保っている (サスティン)
+    for (int i = 0; i < 100; ++i) a.process();
+
+    CHECK(t.live.phase.load() == LivePosition::sustain);
 
     // あとから押した音が持ち主になる。先の音はもう書かない
     StepEnv b;
@@ -252,11 +295,11 @@ TEST_CASE("StepEnv: PARAM ENV は鳴っている位置を表へ書き、いち�
     b.setParameters(p);
     b.noteOn();
 
-    CHECK(t.liveStep.load() == 1);
+    CHECK(t.live.phase.load() == 1);
 
     for (int i = 0; i < 300; ++i) a.process();
 
-    CHECK(t.liveStep.load() == 1);
+    CHECK(t.live.phase.load() == 1);
 
     // 離すとリリース、走り終えたら鳴っていない
     for (int i = 0; i < 50; ++i) b.process();
@@ -264,15 +307,15 @@ TEST_CASE("StepEnv: PARAM ENV は鳴っている位置を表へ書き、いち�
     b.noteOff();
     b.process();
 
-    CHECK(t.liveStep.load() == StepTable::liveRelease);
+    CHECK(t.live.phase.load() == LivePosition::release);
 
     for (int i = 0; i < 100; ++i) b.process();
 
     CHECK(b.isIdle());
-    CHECK(t.liveStep.load() == StepTable::liveIdle);
+    CHECK(t.live.phase.load() == LivePosition::idle);
 }
 
-TEST_CASE("StepEnv: PARAM ENV でない段のエンベロープは、鳴っている位置を書かない")
+TEST_CASE("StepEnv: SSG SW ENV[256] など、どの段のエンベロープも鳴っている位置を書く")
 {
     StepTable t(0.0f, 0.0f);
     t.setRate(1, 0.1f);
@@ -285,6 +328,7 @@ TEST_CASE("StepEnv: PARAM ENV でない段のエンベロープは、鳴って�
 
     for (int i = 0; i < 50; ++i) env.process();
 
-    CHECK(t.liveOwner.load() == 0u);
-    CHECK(t.liveStep.load() == StepTable::liveIdle);
+    CHECK(t.live.owner.load() != 0u);
+    CHECK(t.live.phase.load() == 1);
+    CHECK(t.live.frac.load() == doctest::Approx(0.5f).epsilon(0.05));
 }

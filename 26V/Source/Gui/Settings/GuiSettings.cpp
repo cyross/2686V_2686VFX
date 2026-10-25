@@ -754,6 +754,7 @@ void GuiSettings::setup()
 
     setupLive(tapLiveToggle, tapLiveFpsSelector, SettingsGuiText::tapLiveGraph, pluginOf(ctx).tapLiveGraph, pluginOf(ctx).tapLiveFps);
     setupLive(paramEnvLiveToggle, paramEnvLiveFpsSelector, SettingsGuiText::paramEnvLiveGraph, pluginOf(ctx).paramEnvLiveGraph, pluginOf(ctx).paramEnvLiveFps);
+    setupLive(envLiveToggle, envLiveFpsSelector, SettingsGuiText::envLiveGraph, pluginOf(ctx).envLiveGraph, pluginOf(ctx).envLiveFps);
 
     separator5.setupComponent(*this);
 
@@ -1259,7 +1260,7 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     separatorLiveGraph.layoutComponent(sRect);
 
     // 23-3. グラフの、鳴っている位置を動かして見せる (4.3.0)。同じ行に速さ (FPS)
-    for (auto [toggle, selector] : std::initializer_list<std::pair<GuiToggleButton*, GuiComboBox*>>{ { &tapLiveToggle, &tapLiveFpsSelector }, { &paramEnvLiveToggle, &paramEnvLiveFpsSelector } }) {
+    for (auto [toggle, selector] : std::initializer_list<std::pair<GuiToggleButton*, GuiComboBox*>>{ { &tapLiveToggle, &tapLiveFpsSelector }, { &paramEnvLiveToggle, &paramEnvLiveFpsSelector }, { &envLiveToggle, &envLiveFpsSelector } }) {
         auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
 
         toggle->setBounds(row.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
@@ -1348,6 +1349,9 @@ void GuiSettings::setSettings()
     paramEnvLiveToggle.setToggleState(pluginOf(ctx).paramEnvLiveGraph, juce::dontSendNotification);
     paramEnvLiveFpsSelector.setSelectedId(LiveGraph::clampFps(pluginOf(ctx).paramEnvLiveFps), juce::dontSendNotification);
     paramEnvLiveFpsSelector.setEnabledWithLabel(pluginOf(ctx).paramEnvLiveGraph);
+    envLiveToggle.setToggleState(pluginOf(ctx).envLiveGraph, juce::dontSendNotification);
+    envLiveFpsSelector.setSelectedId(LiveGraph::clampFps(pluginOf(ctx).envLiveFps), juce::dontSendNotification);
+    envLiveFpsSelector.setEnabledWithLabel(pluginOf(ctx).envLiveGraph);
 
     // 設定を読み込み直したときも、つまみの見せ方を合わせる
     if (auto* editor = dynamic_cast<juce::Component*>(&ctx.editor)) GuiSlider::refreshN88Display(*editor);

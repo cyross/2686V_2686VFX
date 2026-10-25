@@ -1,7 +1,12 @@
 ﻿#pragma once
 
+#include "Shared/Core/Synth/LivePosition.h"
+
 class AmpAdsrParams {
 public:
+	// 鳴っている位置を書く先 (グラフの縦線。4.3.0)。nullptr なら書かない
+	LivePosition* live = nullptr;
+
 	float stl = 0.0f;
 	float ar = 0.01f;
 	float dr = 0.0f;

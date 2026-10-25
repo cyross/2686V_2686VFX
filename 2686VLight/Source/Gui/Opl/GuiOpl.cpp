@@ -1752,6 +1752,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::PitchAdsr::enable));
         graph.setKeepLevels(GuiGraphValues::pitchEnvKeep(apvts, code));
         graph.updatePitchEnv(GuiGraphValues::pitchEnv(apvts, code));
+        graph.setLiveSource(GuiGraphValues::liveOf(ctx.audioProcessor.stepTables, code + LiveKey::pitchEnv), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // SSG SW Env 11
@@ -1762,6 +1763,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwEnv256::enable));
         graph.setKeepLevels(GuiGraphValues::ssgSwEnv256Keep(apvts, code));
         graph.updateSsgSwEnv256(v);
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwEnv256), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // SSG SW PEnv 11
@@ -1772,6 +1774,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwPEnv256::enable));
         graph.setKeepLevels(GuiGraphValues::ssgSwPEnv256Keep(apvts, code));
         graph.updateSsgSwPEnv256(v);
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwPEnv256), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // PARAM ENV[256] (4.3.0)。値は TARGET の組から。鳴っている位置も出す
@@ -1824,7 +1827,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         float attackWidth = rateToWidth(arVal, arMax);
         phases.push_back({
             .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f * tlScale, .color = color,
-            .phaseLineColor = juce::Colours::red
+            .phaseLineColor = juce::Colours::red, .liveStep = LivePosition::attack
             });
         currentTotalWidth += attackWidth;
 
@@ -1832,7 +1835,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         float decayWidth = rateToWidth(drVal, drMax);
         phases.push_back({
             .widthPx = decayWidth, .startLevel = 1.0f * tlScale, .endLevel = sl * tlScale, .color = color,
-            .phaseLineColor = juce::Colours::blue
+            .phaseLineColor = juce::Colours::blue, .liveStep = LivePosition::decay
             });
         currentTotalWidth += decayWidth;
 
@@ -1840,7 +1843,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         float releaseStartLevel = sl;
         float keyOnWidth = 60.0f;
 
-        phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl * tlScale, .endLevel = sl * tlScale, .color = color, .phaseLineColor = juce::Colours::green });
+        phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl * tlScale, .endLevel = sl * tlScale, .color = color, .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain });
 
         currentTotalWidth += keyOnWidth;
         float noteOffPositionX = currentTotalWidth;
@@ -1854,7 +1857,7 @@ void GuiOpl::updateOpGraph(int opIndex)
                 .isDashed = true,
                 .color = juce::Colours::yellow,
                 .moveToStart = true,
-                .startXOffsetPx = noteOffPositionX
+                .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
         }
         else if (isSus) {
@@ -1865,7 +1868,7 @@ void GuiOpl::updateOpGraph(int opIndex)
                 .isDashed = true,
                 .color = juce::Colours::yellow,
                 .moveToStart = true,
-                .startXOffsetPx = noteOffPositionX
+                .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
         }
         else if (isKor) {
@@ -1875,7 +1878,7 @@ void GuiOpl::updateOpGraph(int opIndex)
                 .endLevel = releaseStartLevel * tlScale,
                 .color = juce::Colours::yellow,
                 .moveToStart = true,
-                .startXOffsetPx = noteOffPositionX
+                .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
         }
         else {
@@ -1886,11 +1889,14 @@ void GuiOpl::updateOpGraph(int opIndex)
                 .color = color,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX,
-                .isMax = (rrVal == rrMax)
+                .isMax = (rrVal == rrMax), .liveStep = LivePosition::release
                 });
         }
 
         graph.setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
+
+        // 鳴っている位置 (グラフの縦線)
+        graph.setLiveSource(GuiGraphValues::liveOf(ctx.audioProcessor.stepTables, code + LiveKey::eg), ctx.audioProcessor.envLiveRate());
     }
 
     graph.repaint();

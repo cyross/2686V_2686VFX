@@ -1,4 +1,5 @@
 ﻿#include "./PitchEnv.h"
+#include "Shared/Core/Gui/GuiGraphValues.h"
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
 
 #include "Shared/Core/Gui/GuiRefresh.h"
@@ -19,6 +20,8 @@ namespace
 
 void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder, const juce::String& flagKey, const juce::String& flagText, bool isEnable)
 {
+    liveCode = code;
+
 	this->isEnable = isEnable;
 
 	cat.setupSwPitchCategory({
@@ -95,6 +98,8 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 // 張り替える。
 void GuiComponentPitchEnv::rebind(const juce::String& code)
 {
+    liveCode = code;
+
     // 入り切りの鍵は呼ぶ側が決めるので、setup で受けたものを使う。
     flag.rebind(code + m_flagKey);
     keep.rebind(code + CPK::PitchAdsr::keep);
@@ -315,6 +320,7 @@ void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_cur
 		keepOn ? false : isCurveMode,
 		posIdx
 	);
+	graph.setLiveSource(GuiGraphValues::liveOf(ctx.audioProcessor.stepTables, liveCode + LiveKey::pitchEnv), ctx.audioProcessor.envLiveRate());
 }
 
 void GuiComponentPitchEnv::setEnabled(bool enabled) {

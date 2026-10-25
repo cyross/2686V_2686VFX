@@ -796,6 +796,7 @@ namespace PrHelper {
 	}
 
 	static inline void applyAdsrAmpEnv(PrPtrsAdsrAmpEnv& ptPtrs, AmpAdsrParams& params){
+		params.live = ptPtrs.live;
 		params.bypass = getBool(ptPtrs.bypass);
 		params.stl = getFloat(ptPtrs.stl);
 		params.ar = getFloat(ptPtrs.ar);
@@ -841,6 +842,7 @@ namespace PrHelper {
 	}
 
 	static inline void applyPitchEnv(PrPtrsPitchEnv& ptPtrs, PitchAdsrParams& params){
+		params.live = ptPtrs.live;
 		params.bypass = getBool(ptPtrs.bypass);
 		params.ar = getFloat(ptPtrs.ar);
 		params.dr = getFloat(ptPtrs.dr);
@@ -855,6 +857,7 @@ namespace PrHelper {
 	}
 
 	static inline void applyPitchEnvOp(PrPtrsPitchEnvOp& ptPtrs, PitchAdsrParams& params, bool& enable){
+		params.live = ptPtrs.live;
 		enable = getBool(ptPtrs.enable);
 		params.bypass = false;
 		params.ar = getFloat(ptPtrs.ar);
@@ -1256,6 +1259,7 @@ namespace PrHelper {
 	}
 
 	static inline void applyOplAdsr(PrPtrsOplAdsr& ptPtrs, OplAdsrParams& params){
+		params.live = ptPtrs.live;
 		params.bypass = PrHelper::getBool(ptPtrs.bypass);
 
 		params.ar = PrHelper::getInt(ptPtrs.ar);
@@ -1274,6 +1278,7 @@ namespace PrHelper {
 	}
 
 	static inline void applyOpl3Adsr(PrPtrsOpl3Adsr& ptPtrs, OplAdsrParams& params){
+		params.live = ptPtrs.live;
 		params.bypass = PrHelper::getBool(ptPtrs.bypass);
 
 		params.ar = PrHelper::getInt(ptPtrs.ar);
@@ -1291,6 +1296,7 @@ namespace PrHelper {
 	}
 
 	static inline void applyOpmAdsr(PrPtrsOpmAdsr& ptPtrs, FmRgAdddrParams& params){
+		params.live = ptPtrs.live;
 		params.bypass = PrHelper::getBool(ptPtrs.bypass);
 
 		params.ar = PrHelper::getInt(ptPtrs.ar);
@@ -1310,6 +1316,7 @@ namespace PrHelper {
 	}
 
 	static inline void applyOpnAdsr(PrPtrsOpnAdsr& ptPtrs, FmRgAdssrParams& params){
+		params.live = ptPtrs.live;
 		params.bypass = PrHelper::getBool(ptPtrs.bypass);
 
 		params.ar = PrHelper::getInt(ptPtrs.ar);
@@ -1326,6 +1333,7 @@ namespace PrHelper {
 	}
 
 	static inline void applyOpzx7Adsr(PrPtrsOpzx7Adsr& ptPtrs, Opzx7AdddrParams& params){
+		params.live = ptPtrs.live;
 		params.bypass = PrHelper::getBool(ptPtrs.bypass);
 		params.rgEnable = PrHelper::getBool(ptPtrs.rgEnable);
 

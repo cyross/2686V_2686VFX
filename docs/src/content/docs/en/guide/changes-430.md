@@ -113,12 +113,31 @@ See [PARAM ENV\[256\]](/2686V_2686VFX/en/chips/common/#param-env256) for details
 
 ## Graphs can show where the sound is playing
 
-As you play, the current-step mark of TAP SEQUENCER and the playing position of PARAM ENV[256] (a yellow vertical line
-on the graph) move along. SETTINGS switches them separately and lets you choose the rate from 15 / 30 / 60 / 120 FPS
-(both start on, at 30 FPS).
+As you play, the current-step mark of TAP SEQUENCER and the playing position of the envelopes (a yellow vertical line on
+the graph) move along. The line appears for PARAM ENV[256] (PRM) and for AMP ENV, PITCH ENV, SSG SW AMP / PITCH ENV[256] and
+the FM operator EG (AMP / PIT / S256 / P256). SETTINGS switches "TAP SEQUENCER", "PARAM ENV" and "the other envelopes"
+separately and lets you choose the rate from 15 / 30 / 60 / 120 FPS (all start on, at 30 FPS).
 
 The channel graph switch and the FM operator graph switch gain **PRM** (PARAM ENV[256]). See
 [Where the sound is playing on the graphs](/2686V_2686VFX/en/guide/screen/#where-the-sound-is-playing-on-the-graphs).
+
+## Step envelopes hold a repeated value for R seconds
+
+A step used to end when it reached its target value, so a step with the same value as the one before ended without waiting
+R seconds and the later steps came early (KEEP behaved the same way). Steps now end once R seconds have passed. This applies to
+SSG SW AMP / PITCH ENV[256], PARAM ENV[256], ALG ENV, DUTY RATIO ENVELOPE and PEAK RATIO ENVELOPE.
+
+Patches with repeated values in a row step differently. Steps with different values keep their length.
+
+## The sustain part of the graphs stands out
+
+On the AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] graphs, the part held while the key
+is down (the sustain) is drawn with a fixed width in its own colour (yellow-green).
+
+- The step envelopes (SSG SW AMP / PITCH ENV[256] and PARAM ENV[256]) now show the part where the last step is held. Before,
+  the release was drawn right after the last step
+- With KEEP (always on for integer and choice PARAM ENV targets), the graph now draws the move to LR (ENDL with Use Endl) at the
+  end of the release
 
 ## New section heading colours
 

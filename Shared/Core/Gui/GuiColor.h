@@ -241,7 +241,14 @@ namespace GuiColor {
 		// PARAM ENV[256] の線 (4.3.0)。区分の見出しと同じダークブルーを、暗い下地で読めるよう白へ寄せる
 		inline Entry ParamLine{ "EnvelopeGraph.ParamLine", []() -> juce::Colour { return juce::Colour(0xff00008b).interpolatedWith(juce::Colours::white, 0.55f); } };
 
+		// 鍵を押しているあいだ保つ区間 (サスティン。4.3.0)。幅は時間ではなく決まった長さで描くので、
+		// 時間で進む区間と見分けられるよう別の色にする
+		inline Entry SustainLine{ "EnvelopeGraph.SustainLine", []() -> juce::Colour { return juce::Colours::lime.interpolatedWith(juce::Colours::white, 0.45f); } };
+
 		// 鳴っている位置の縦線 (4.3.0)。線の色と紛れないよう、明るい黄色にする
+		// 保っているあいだ (サスティン) の塗り (4.3.0)。縦線と同じ黄色を、線が透けて見える濃さで
+		inline Entry LiveFill{ "EnvelopeGraph.LiveFill", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.5f); } };
+
 		inline Entry LiveLine{ "EnvelopeGraph.LiveLine", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.85f); } };
 	};
 

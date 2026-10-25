@@ -19,6 +19,20 @@
 // だけなので、接頭辞さえ分かれば同じものが直に採れる。
 namespace GuiGraphValues
 {
+    // 鳴っている位置 (グラフの縦線。4.3.0)。段の表を持つエンベロープは表の中、
+    // 持たないもの (AMP / PITCH ENV・FM 音源の EG) は StepTableStore::position にある
+    inline const LivePosition* liveOfTable(const StepTableStore& tables, const juce::String& key)
+    {
+        const auto* table = tables.find(key);
+
+        return table != nullptr ? &table->live : nullptr;
+    }
+
+    inline const LivePosition* liveOf(const StepTableStore& tables, const juce::String& key)
+    {
+        return tables.findPosition(key);
+    }
+
     // ------------------------------------------------------
     // パラメータを引く
     // ------------------------------------------------------

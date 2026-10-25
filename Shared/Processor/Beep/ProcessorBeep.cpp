@@ -62,9 +62,11 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSto
     pBasic.antiAlias = apvts.getRawParameterValue(prefix + BeepPrKey::antiAlias);
     pBasic.timerClock = apvts.getRawParameterValue(prefix + BeepPrKey::timerClock);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
+    pAmpEnv.live = &stepTables.position(prefix + LiveKey::ampEnv);
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
+    pPitchEnv.live = &stepTables.position(prefix + LiveKey::pitchEnv);
     PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
     PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);

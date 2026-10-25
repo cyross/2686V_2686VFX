@@ -759,6 +759,7 @@ void GuiRhythm::updatePadGraph(int p)
         graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::pitchAdsr + CPK::bypass));
         graph.setKeepLevels(keepOn);
         graph.updatePitchEnv(GuiGraphValues::pitchEnv(apvts, code), keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
+        graph.setLiveSource(GuiGraphValues::liveOf(ctx.audioProcessor.stepTables, code + LiveKey::pitchEnv), ctx.audioProcessor.envLiveRate());
     }
     else if (mode == GuiEnvGraphMode::SsgSw256) {
         const auto v = GuiGraphValues::ssgSwEnv256(apvts, ctx.audioProcessor.stepTables, code);
@@ -767,6 +768,7 @@ void GuiRhythm::updatePadGraph(int p)
         graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwEnv256 + CPK::bypass));
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwEnv256), ctx.audioProcessor.envLiveRate());
     }
     else if (mode == GuiEnvGraphMode::SsgSwP256) {
         const auto v = GuiGraphValues::ssgSwPEnv256(apvts, ctx.audioProcessor.stepTables, code);
@@ -775,10 +777,12 @@ void GuiRhythm::updatePadGraph(int p)
         graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwPEnv256 + CPK::bypass));
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwPEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwPEnv256), ctx.audioProcessor.envLiveRate());
     }
     else {
         graph.updateBypass(GuiGraphValues::ampEnvBypassed(apvts, code));
         graph.updateAmpEnv(GuiGraphValues::ampEnv(apvts, code), p_curveCore, isCurveMode, 0);
+        graph.setLiveSource(GuiGraphValues::liveOf(ctx.audioProcessor.stepTables, code + LiveKey::ampEnv), ctx.audioProcessor.envLiveRate());
     }
 
     graph.repaint();

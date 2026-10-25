@@ -56,7 +56,9 @@ void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStore
     PrHelper::setupWtCustom(apvts, prefix, pc);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
+    pAmpEnv.live = &stepTables.position(prefix + LiveKey::ampEnv);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
+    pPitchEnv.live = &stepTables.position(prefix + LiveKey::pitchEnv);
     PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
     PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);

@@ -39,6 +39,7 @@ void PitchAdsrEnv::updateIncrements()
 }
 
 void PitchAdsrEnv::setParameters(const PitchAdsrParams& params) {
+	this->m_livePos = params.live;
 	this->ar = params.ar;
 	this->dr = params.dr;
 	this->sl = params.sl;
@@ -65,6 +66,9 @@ void PitchAdsrEnv::noteOn() {
         this->phaseProgress = 0.0f;
         this->currentCents = this->stl;
     }
+
+    // いちばん新しく押した音の位置をグラフへ見せる
+    this->m_live.start(this->bypass ? nullptr : this->m_livePos);
 }
 
 void PitchAdsrEnv::noteOff() {
@@ -82,7 +86,20 @@ void PitchAdsrEnv::noteOff() {
     }
 }
 
+// 1 サンプル進め、鳴っている位置を書く
 float PitchAdsrEnv::process(float phaseDelta) {
+    const float out = this->advance(phaseDelta);
+
+    if (this->m_live.active()) {
+        const int phase = this->livePhase();
+
+        this->m_live.write(phase, phase == LivePosition::sustain ? 0.5f : this->phaseProgress);
+    }
+
+    return out;
+}
+
+float PitchAdsrEnv::advance(float phaseDelta) {
     if (this->bypass) {
         return phaseDelta;
     }

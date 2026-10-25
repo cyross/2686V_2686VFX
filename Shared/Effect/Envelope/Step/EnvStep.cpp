@@ -94,40 +94,32 @@ void StepEnv::noteOn()
 
 	beginStep(1);
 
-	// PARAM ENV は、いちばん新しく押した音の位置をグラフへ見せる
-	liveId = 0;
-
-	if (levelSet >= 0 && table != nullptr) {
-		liveId = StepTable::nextLiveId();
-		table->liveOwner.store(liveId, std::memory_order_relaxed);
-		publish();
-	}
+	// いちばん新しく押した音の位置を、表を通してグラフへ見せる
+	liveWriter.start(table != nullptr ? &table->live : nullptr);
+	publish();
 }
 
 void StepEnv::stop()
 {
 	state = State::Idle;
 
-	if (liveId != 0) publish();
+	publish();
 }
 
 void StepEnv::publish()
 {
-	if (table == nullptr || table->liveOwner.load(std::memory_order_relaxed) != liveId) {
-		liveId = 0;
-		return;
-	}
+	if (!liveWriter.active()) return;
 
 	if (state == State::Idle) {
-		table->liveStep.store(StepTable::liveIdle, std::memory_order_relaxed);
-		liveId = 0;
+		liveWriter.write(LivePosition::idle, 0.0f);
 		return;
 	}
 
-	const float frac = holding ? 1.0f : std::clamp(elapsed / std::max(1.0f, stepLength), 0.0f, 1.0f);
+	// 保っているあいだは長さが無いので、サスティンの区間の真ん中に置く
+	const float frac = holding ? 0.5f : elapsed / std::max(1.0f, stepLength);
+	const int phase = state == State::Release ? LivePosition::release : holding ? LivePosition::sustain : step;
 
-	table->liveFrac.store(frac, std::memory_order_relaxed);
-	table->liveStep.store(state == State::Release ? StepTable::liveRelease : step, std::memory_order_relaxed);
+	liveWriter.write(phase, frac);
 }
 
 void StepEnv::noteOff()
@@ -221,8 +213,14 @@ void StepEnv::advance()
 			if (!ended) current = startLevel + curve(param, progress) * (target - startLevel);
 		}
 		else {
+			// 行き先に着いたら、そこで止めておく
 			current += inc;
-			ended = (inc >= 0.0f && current >= target) || (inc < 0.0f && current <= target);
+
+			if ((inc >= 0.0f && current >= target) || (inc < 0.0f && current <= target)) current = target;
+
+			// 段は R 秒たったところで終える。着いたかで決めると、前の段と同じ値の段
+			// (傾きが 0) がすぐ終わってしまい、R が効かなかった (4.3.0 で直した)
+			ended = elapsed >= stepLength;
 		}
 	}
 
@@ -270,7 +268,7 @@ float StepEnv::process()
 {
 	advance();
 
-	if (liveId != 0) publish();
+	publish();
 
 	return keep ? keepLevel : current;
 }

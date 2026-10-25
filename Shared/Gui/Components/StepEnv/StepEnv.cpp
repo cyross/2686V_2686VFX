@@ -907,9 +907,7 @@ void GuiComponentStepEnv::drawParamGraph(GuiEnvelopeGraph& graph, const GuiConte
     graph.setKeepLevels(isSteppedParam(targetParam) || GuiGraphValues::flag(apvts, code + spec.keep));
     graph.updateParamEnv256(v, label.isEmpty() ? spec.title : spec.title + " : " + label);
 
-    auto& host = ctx.audioProcessor;
-
-    graph.setLiveSource(table, [&host] { return host.paramEnvLiveGraph ? LiveGraph::clampFps(host.paramEnvLiveFps) : 0; });
+    graph.setLiveSource(table != nullptr ? &table->live : nullptr, ctx.audioProcessor.paramEnvLiveRate());
 }
 
 void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
@@ -932,6 +930,9 @@ void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curv
 
     if (isPitch()) graph.updateSsgSwPEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
     else graph.updateSsgSwEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
+
+    // 鳴っている位置 (グラフの縦線)
+    graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, paramCode + spec.tableKey), ctx.audioProcessor.envLiveRate());
 }
 
 // ---------------------------------------------------------------- 止める

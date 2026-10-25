@@ -47,6 +47,7 @@ void Opzx7Adddr::updateSampleRate(double newSampleRate) {
 }
 
 void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
+    m_livePos = params.live;
     this->m_rgEnable = params.rgEnable;
 
     this->m_real.ar = params.real.ar;
@@ -187,6 +188,9 @@ float Opzx7Adddr::noteOn(float velocity, int noteNumber) {
     }
 
     m_state = State::Attack;
+
+    // いちばん新しく押した音の位置をグラフへ見せる
+    m_live.start(m_livePos);
 
     float attenuationDb = 0.0f;
 
@@ -432,7 +436,7 @@ void Opzx7Adddr::updateIncrements(int noteNumber)
         }
 }
 
-float Opzx7Adddr::updateEnvelopeState(float currentLevel)
+float Opzx7Adddr::advanceEnvelope(float currentLevel)
 {
     if (this->m_bypass) {
         return 1.0f;

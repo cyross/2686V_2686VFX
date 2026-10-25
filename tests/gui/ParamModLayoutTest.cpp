@@ -191,7 +191,8 @@ TEST_CASE("SETTINGS: グラフの鳴っている位置の表示は入り切り�
 	// 2686VFX は TAP SEQUENCER だけ
 	const size_t expected = 1;
 #else
-	const size_t expected = 2;
+	// TAP SEQUENCER・PARAM ENV[256]・エンベロープ
+	const size_t expected = 3;
 #endif
 
 	REQUIRE(toggles.size() == expected);
