@@ -120,6 +120,12 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'チュートリアル',
+					translations: { en: 'Tutorials' },
+					// 書けたものから足していくので、フォルダの中身をそのまま出す
+					items: [{ autogenerate: { directory: 'tutorials' } }],
+				},
+				{
 					label: '各プラグインの紹介',
 					translations: { en: 'Per plugin' },
 					items: [

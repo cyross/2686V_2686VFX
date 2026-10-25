@@ -134,6 +134,28 @@ struct StepTable
     // PARAM ENV の指し先ごとの値の組。使わない表では nullptr
     std::unique_ptr<LevelSets> sets;
 
+    // ---- 鳴っている位置 (PARAM ENV のグラフ。4.3.0)
+    // いちばん新しく押した音のエンベロープだけが書き (liveOwner)、画面が読んで印を動かす。
+    // 音の側は表を const で持つので、ここだけは const の表からも書けるようにしておく。
+    static constexpr int liveIdle = 0;      // 鳴っていない
+    static constexpr int liveRelease = -1;  // 離したあと (リリース)
+
+    mutable std::atomic<std::uint32_t> liveOwner{ 0 };
+    mutable std::atomic<int> liveStep{ liveIdle };   // 1 以上は段
+    mutable std::atomic<float> liveFrac{ 0.0f };     // 段 (リリース) の中の進み (0〜1)
+
+    // 押した音ごとに振る番号。0 は使わない
+    static std::uint32_t nextLiveId()
+    {
+        static std::atomic<std::uint32_t> counter{ 0 };
+
+        std::uint32_t id = counter.fetch_add(1, std::memory_order_relaxed) + 1;
+
+        if (id == 0) id = counter.fetch_add(1, std::memory_order_relaxed) + 1;
+
+        return id;
+    }
+
     StepTable(float defR, float defL, bool withPairs = false, const std::vector<float>* setDefaults = nullptr) : defaultR(defR), defaultL(defL)
     {
         if (withPairs) pairs = std::make_unique<Pairs>();

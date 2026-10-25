@@ -196,6 +196,9 @@ class GuiOpzx7 : public GuiBase
     GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
+
+    // PARAM ENV[256] (4.3.0)。KEY SCALE / MUL/DET / FIX の右に、独立した列で置く
+    GuiScrollGroup colParamEnv;
     GuiScrollGroup colTapParam;
     GuiScrollGroup colLfo;
     GuiScrollGroup colMask;
@@ -317,9 +320,10 @@ class GuiOpzx7 : public GuiBase
     GuiToggleButton gGraphBtnAmp;
     GuiToggleButton gGraphBtnSsg256;
     GuiToggleButton gGraphBtnSsgP256;
+    GuiToggleButton gGraphBtnParam;
     NormalSeparator gGraphSeparator;
 
-    enum class GlobalGraphMode { Amp, SsgSw256, SsgSwP256 };
+    enum class GlobalGraphMode { Amp, SsgSw256, SsgSwP256, ParamEnv256 };
     GlobalGraphMode currentGlobalGraphMode = GlobalGraphMode::Amp;
 
     // 上に並ぶ絵。オペレータの数だけ置く。
@@ -334,6 +338,7 @@ class GuiOpzx7 : public GuiBase
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
+    GuiToggleButton graphBtnParam;
 
     GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
 

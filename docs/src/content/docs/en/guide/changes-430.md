@@ -98,7 +98,7 @@ press). See [TAP PARAM SEQUENCER](/2686V_2686VFX/en/chips/common/#tap-param-sequ
 It offers the same parameters as TAP PARAM SEQUENCER.
 
 - One per channel (the new **[[PARAM ENV]]** major section, above [[TAP SEQUENCER]])
-- FM channels also have one per operator (just below the AMP ENV section, where TL ENV used to be)
+- FM channels also have one per operator (in its own "PARAM ENV" column of the settings, right of KEY SCALE / MUL/DET / FIX)
 - Values are kept as a fraction of the target parameter's range and shown the way the target shows them
 - The values (STL, L, LR, ENDL) are kept separately for each TARGET. Changing TARGET switches to that target's values
 - Integer and choice parameters hold their value for each step
@@ -110,6 +110,24 @@ files (`.tlEnv`) from 4.2.x and earlier are converted to PARAM ENV (TARGET set t
 The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`; if you automated TL ENV in your DAW, assign the automation again.
 
 See [PARAM ENV\[256\]](/2686V_2686VFX/en/chips/common/#param-env256) for details.
+
+## Graphs can show where the sound is playing
+
+As you play, the current-step mark of TAP SEQUENCER and the playing position of PARAM ENV[256] (a yellow vertical line
+on the graph) move along. SETTINGS switches them separately and lets you choose the rate from 15 / 30 / 60 / 120 FPS
+(both start on, at 30 FPS).
+
+The channel graph switch and the FM operator graph switch gain **PRM** (PARAM ENV[256]). See
+[Where the sound is playing on the graphs](/2686V_2686VFX/en/guide/screen/#where-the-sound-is-playing-on-the-graphs).
+
+## New section heading colours
+
+- TAP AMP SEQUENCER is now cyan and TAP PITCH SEQUENCER whitish purple (the other way round from before)
+- PARAM ENV[256] and TAP PARAM SEQUENCER are whitish dark blue
+
+## A "Tutorials" chapter in the manual
+
+Pages that teach the controls while you build sounds will be added over time. They can embed videos and animated pictures.
 
 ## More sections hidden in simple view mode
 

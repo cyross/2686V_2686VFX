@@ -383,6 +383,7 @@ void GuiOpn::setup()
     colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[256]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colKs.setup(stripCanvas, juce::String("") + "KEY SCALE / MUL/DET / FIX / N88 LFO");
+    colParamEnv.setup(stripCanvas, juce::String("") + "PARAM ENV");
     colTapParam.setup(stripCanvas, juce::String("") + "TAP PARAM SEQUENCER");
     colMask.setup(stripCanvas, juce::String("") + "MASK / MML");
 
@@ -406,6 +407,7 @@ void GuiOpn::setup()
     setupModeBtn(graphBtnPitch, "PIT", GuiEnvGraphMode::Pitch);
     setupModeBtn(graphBtnSsg256, "S256", GuiEnvGraphMode::SsgSw256);
     setupModeBtn(graphBtnSsgP256, "P256", GuiEnvGraphMode::SsgSwP256);
+    setupModeBtn(graphBtnParam, "PRM", GuiEnvGraphMode::ParamEnv256);
 
     graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
@@ -485,7 +487,7 @@ void GuiOpn::setup()
     ssgHwPEnvOp.setupComponent(colSsgHwPEnv.contentCanvas, paramPrefix, tabOrder);
     wtAmpModOp.setupComponent(colAmpMod.contentCanvas, paramPrefix, tabOrder);
 
-    opParamEnv.setupComponent(colAmp.contentCanvas, paramPrefix, tabOrder, ParamEnv::keys().enable, "Enable", true);
+    opParamEnv.setupComponent(colParamEnv.contentCanvas, paramPrefix, tabOrder, ParamEnv::keys().enable, "Enable", true);
     opParamEnv.category().onImport = [this] { opParamEnv.importParams(); };
     opParamEnv.category().onExport = [this] { opParamEnv.exportParams(); };
 
@@ -530,7 +532,7 @@ void GuiOpn::setup()
     for (auto* group : {
         &colAmp, &colSsgHwEnv, &colSsgSwEnv256,
         &colAmpMod, &colPitchEnv, &colSsgHwPEnv, &colSsgSwPEnv256,
-        &colMod, &colKs, &colTapParam, &colMask,
+        &colMod, &colKs, &colParamEnv, &colTapParam, &colMask,
         })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -910,6 +912,7 @@ void GuiOpn::setGraphMode(GuiEnvGraphMode mode)
     graphBtnPitch.setToggleState(mode == GuiEnvGraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg256.setToggleState(mode == GuiEnvGraphMode::SsgSw256, juce::dontSendNotification);
     graphBtnSsgP256.setToggleState(mode == GuiEnvGraphMode::SsgSwP256, juce::dontSendNotification);
+    graphBtnParam.setToggleState(mode == GuiEnvGraphMode::ParamEnv256, juce::dontSendNotification);
 
     for (int i = 0; i < OpnPrValue::ops; ++i) updateOpGraph(i);
 }
@@ -1118,12 +1121,13 @@ void GuiOpn::layoutOpPanel(juce::Rectangle<int> area)
         {
             const int w = OpnGuiValue::ParamGroup::Graph::ModeButtonWidth;
 
-            auto btnRow = row.removeFromLeft(w * 4).withHeight(OpnGuiValue::ParamGroup::Graph::ButtonHeight);
+            auto btnRow = row.removeFromLeft(w * 5).withHeight(OpnGuiValue::ParamGroup::Graph::ButtonHeight);
 
             graphBtnAmp.setBounds(btnRow.removeFromLeft(w));
             graphBtnPitch.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsg256.setBounds(btnRow.removeFromLeft(w));
-            graphBtnSsgP256.setBounds(btnRow);
+            graphBtnSsgP256.setBounds(btnRow.removeFromLeft(w));
+            graphBtnParam.setBounds(btnRow);
         }
 
         // 帯の背後へ板を敷く。左端から切り替えの右端まで
@@ -1181,10 +1185,6 @@ void GuiOpn::layoutOpPanel(juce::Rectangle<int> area)
         updateRgDisplayAsOp(true);
         layoutOpAmpCat(rect);
 
-        // PARAM ENV[256] (4.0.0 の TL ENV の代わり)。オペレーターの AMP ENV 区分のすぐ下
-        opParamEnv.setCategoryVisible(pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv));
-        opParamEnv.layoutComponent(rect);
-
         layoutOpOptionalCat(rect);
         });
 
@@ -1198,7 +1198,13 @@ void GuiOpn::layoutOpPanel(juce::Rectangle<int> area)
         n88LfoOp.layoutComponentRow(rect);
         });
 
-    // TAP PARAM SEQUENCER (オペレーター)。KEY SCALE / MUL/DET の右
+    // PARAM ENV[256] (4.0.0 の TL ENV の代わり)。KEY SCALE / MUL/DET / FIX の右に、独立した列で置く
+    layoutCol(colParamEnv, pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv), [&](juce::Rectangle<int>& rect) {
+        opParamEnv.setCategoryVisible(true);
+        opParamEnv.layoutComponent(rect);
+        });
+
+    // TAP PARAM SEQUENCER (オペレーター)。PARAM ENV の右
     layoutCol(colTapParam, pluginOf(ctx).isSimpleShown(SimpleView::TapParam), [&](juce::Rectangle<int>& rect) {
         opTapParam.setCategoryVisible(true);
         opTapParam.layoutComponent(rect);
@@ -1422,6 +1428,10 @@ void GuiOpn::setupGlobalGraph()
     gGraphBtnSsgP256.setup({ .parent = *this, .title = "P256", .isReset = false, .isResized = false });
     gGraphBtnSsgP256.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::SsgSwP256); };
 
+    // PARAM ENV[256] (4.3.0)。鳴っている位置も出す
+    gGraphBtnParam.setup({ .parent = *this, .title = "PRM", .isReset = false, .isResized = false });
+    gGraphBtnParam.onClick = [this] { setGlobalGraphMode(GlobalGraphMode::ParamEnv256); };
+
     auto repaintGraph = [this]() {
         if (this->isUpdatingGraph) return;
 
@@ -1435,6 +1445,7 @@ void GuiOpn::setupGlobalGraph()
     ampEnvComponent.setupGraph(repaintGraph);
     ssgSwEnv256g.setupGraph(repaintGraph);
     ssgSwPEnv256g.setupGraph(repaintGraph);
+    paramEnv.setupGraph(repaintGraph);
 
     gGraphSeparator.setupComponent(*this);
 }
@@ -1446,11 +1457,12 @@ void GuiOpn::layoutGlobalGraph(juce::Rectangle<int>& rect)
     gGraphSeparator.layoutComponentBottom(mainArea);
 
     auto btnArea = mainArea.removeFromBottom(OpnGuiValue::MainGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 3;
+    int btnWidth = btnArea.getWidth() / 4;
 
     gGraphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     gGraphBtnSsg256.setBounds(btnArea.removeFromLeft(btnWidth));
-    gGraphBtnSsgP256.setBounds(btnArea);
+    gGraphBtnSsgP256.setBounds(btnArea.removeFromLeft(btnWidth));
+    gGraphBtnParam.setBounds(btnArea);
 
     gGraph.setBounds(mainArea);
 }
@@ -1467,6 +1479,9 @@ void GuiOpn::updateGlobalGraph()
     else if (currentGlobalGraphMode == GlobalGraphMode::SsgSwP256) {
         ssgSwPEnv256g.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
     }
+    else if (currentGlobalGraphMode == GlobalGraphMode::ParamEnv256) {
+        paramEnv.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
+    }
     else {
         ampEnvComponent.updateGraph(gGraph, p_curveCore, isCurveMode, 0);
     }
@@ -1480,6 +1495,7 @@ void GuiOpn::setGlobalGraphMode(GlobalGraphMode mode)
     gGraphBtnAmp.setToggleState(mode == GlobalGraphMode::Amp, juce::dontSendNotification);
     gGraphBtnSsg256.setToggleState(mode == GlobalGraphMode::SsgSw256, juce::dontSendNotification);
     gGraphBtnSsgP256.setToggleState(mode == GlobalGraphMode::SsgSwP256, juce::dontSendNotification);
+    gGraphBtnParam.setToggleState(mode == GlobalGraphMode::ParamEnv256, juce::dontSendNotification);
 
     updateGlobalGraph();
 }
@@ -1515,6 +1531,7 @@ void GuiOpn::setupOpGraphWiring()
     pitchEnv.setupGraph(repaintGraph);
     ssgSwEnv256.setupGraph(repaintGraph);
     ssgSwPEnv256.setupGraph(repaintGraph);
+    opParamEnv.setupGraph(repaintGraph);
 }
 
 // すべてのオペレータの枠を描き直す。
@@ -1603,6 +1620,12 @@ void GuiOpn::updateOpGraph(int opIndex)
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwPEnv256(v,
             keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
+    }
+    // =============================================================
+    // PARAM ENV[256] (4.3.0)。値は TARGET の組から。鳴っている位置も出す
+    // =============================================================
+    else if (currentGraphMode == GuiEnvGraphMode::ParamEnv256) {
+        GuiComponentStepEnv::drawParamGraph(graph, ctx, opParamEnv.getSpec(), code);
     }
     // =============================================================
     // Amp Env

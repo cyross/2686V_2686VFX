@@ -124,7 +124,7 @@ void GuiComponentTapParam::setupComponent(juce::Component& parent, const juce::S
 
     const auto& keys = TapParam::spec().keys;
 
-    cat.setupSwCategory({ .parent = parent, .title = "TAP PARAM SEQUENCER", .enableChangeDetailVisible = true });
+    cat.setupParamCategory({ .parent = parent, .title = "TAP PARAM SEQUENCER", .enableChangeDetailVisible = true });
 
     enable.setup({ .parent = parent, .id = code + keys.enable, .title = "Enable", .isReset = true });
     enable.setWantsKeyboardFocus(true);
@@ -243,7 +243,7 @@ void GuiComponentTapParam::setupComponent(juce::Component& parent, const juce::S
     applyStepCount();
     applyActive();
 
-    startTimerHz(10);
+    startTimerHz(LiveGraph::idleHz);
 }
 
 // 束縛先を丸ごと差し替える。setup で組んだ見た目はそのままに、繋ぎと表だけを張り替える
@@ -520,12 +520,18 @@ void GuiComponentTapParam::refresh()
 
 // 表は外から書き換わる (読み込み・初期化・貼り付け)。いまの段は鍵を押すと進み、
 // DAW の再生を止めると開始前へ戻る。
+// 表の書き換えと、いまの段の動きを見に行く。いまの段は SETTINGS で入れたときだけ、
+// 選んだ速さ (FPS) で追う。切っているときは、表を書き換えたときにだけ映し直す
 void GuiComponentTapParam::timerCallback()
 {
+    const bool live = ctx.audioProcessor.tapLiveGraph;
+
+    LiveGraph::pace(*this, LiveGraph::hzOf(live, ctx.audioProcessor.tapLiveFps));
+
     auto* t = table();
 
     if (t == nullptr) return;
-    if (t->version.load() == seenVersion && t->cursor.load() == seenCursor) return;
+    if (t->version.load() == seenVersion && (!live || t->cursor.load() == seenCursor)) return;
 
     const int before = list.getNaturalHeight();
 

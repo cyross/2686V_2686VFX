@@ -1,6 +1,7 @@
 ﻿#include "doctest/doctest.h"
 
 #include <cmath>
+#include <vector>
 
 #include "Shared/Effect/Envelope/Step/EnvStep.h"
 #include "Shared/Core/Synth/StepTable.h"
@@ -213,4 +214,77 @@ TEST_CASE("StepEnv: 表を書き換えると、次の setParameters で写し直
     env.setParameters(makeParams(t, 1));
 
     CHECK(env.process() == doctest::Approx(0.9f));
+}
+
+TEST_CASE("StepEnv: PARAM ENV は鳴っている位置を表へ書き、いちばん新しく押した音が持ち主になる")
+{
+    const std::vector<float> defaults{ 0.0f, 0.0f };
+
+    StepTable t(0.0f, 0.0f, false, &defaults);
+    t.setRate(1, 0.1f);   // 100 サンプル
+    t.setRate(2, 0.1f);
+    t.setSetValue(0, 1, 1.0f);
+    t.setSetValue(0, 2, 1.0f);
+
+    auto p = makeParams(t, 2);
+    p.levelSet = 0;
+    p.rr = 0.05f;         // 50 サンプル
+
+    StepEnv a;
+    a.prepare(0, -1, kRate);
+    a.setParameters(p);
+    a.noteOn();
+
+    CHECK(t.liveStep.load() == 1);
+
+    for (int i = 0; i < 50; ++i) a.process();
+
+    CHECK(t.liveStep.load() == 1);
+    CHECK(t.liveFrac.load() == doctest::Approx(0.5f).epsilon(0.05));
+
+    for (int i = 0; i < 60; ++i) a.process();
+
+    CHECK(t.liveStep.load() == 2);
+
+    // あとから押した音が持ち主になる。先の音はもう書かない
+    StepEnv b;
+    b.prepare(0, -1, kRate);
+    b.setParameters(p);
+    b.noteOn();
+
+    CHECK(t.liveStep.load() == 1);
+
+    for (int i = 0; i < 300; ++i) a.process();
+
+    CHECK(t.liveStep.load() == 1);
+
+    // 離すとリリース、走り終えたら鳴っていない
+    for (int i = 0; i < 50; ++i) b.process();
+
+    b.noteOff();
+    b.process();
+
+    CHECK(t.liveStep.load() == StepTable::liveRelease);
+
+    for (int i = 0; i < 100; ++i) b.process();
+
+    CHECK(b.isIdle());
+    CHECK(t.liveStep.load() == StepTable::liveIdle);
+}
+
+TEST_CASE("StepEnv: PARAM ENV でない段のエンベロープは、鳴っている位置を書かない")
+{
+    StepTable t(0.0f, 0.0f);
+    t.setRate(1, 0.1f);
+    t.setLevel(1, 1.0f);
+
+    StepEnv env;
+    env.prepare(0, -1, kRate);
+    env.setParameters(makeParams(t, 1));
+    env.noteOn();
+
+    for (int i = 0; i < 50; ++i) env.process();
+
+    CHECK(t.liveOwner.load() == 0u);
+    CHECK(t.liveStep.load() == StepTable::liveIdle);
 }

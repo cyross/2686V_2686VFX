@@ -1418,6 +1418,9 @@ public:
 	void setupSwAmpCategory(const Config& c);   // ソフトウェア(音量系)カテゴリ用
 	void setupSwPitchCategory(const Config& c); // ソフトウェア(ピッチ系)カテゴリ用
 	void setupSwLfoCategory(const Config& c);   // ソフトウェア(LFO)カテゴリ用
+	void setupTapAmpCategory(const Config& c);   // TAP AMP SEQUENCER 用
+	void setupTapPitchCategory(const Config& c); // TAP PITCH SEQUENCER 用
+	void setupParamCategory(const Config& c);    // PARAM ENV[256] / TAP PARAM SEQUENCER 用
 	void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
 
 	// 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって

@@ -152,6 +152,14 @@ class GuiSettings : public GuiBase
     // FM の AR / DR / SR / RR / SL / TL を N88-BASIC(86) の向きで見せるか
     GuiToggleButton fmN88Toggle;
 
+    NormalSeparator separatorLiveGraph;
+
+    // グラフの、鳴っている位置を動かして見せるか (TAP SEQUENCER / PARAM ENV[256]) と、その速さ
+    GuiToggleButton tapLiveToggle;
+    GuiComboBox tapLiveFpsSelector;
+    GuiToggleButton paramEnvLiveToggle;
+    GuiComboBox paramEnvLiveFpsSelector;
+
     NormalSeparator separator5;
 
     // 仮想MIDIキーボード表示制御
@@ -259,6 +267,11 @@ public:
         liveDetuneToggle(context),
         separatorFmN88(context),
         fmN88Toggle(context),
+        separatorLiveGraph(context),
+        tapLiveToggle(context),
+        tapLiveFpsSelector(context),
+        paramEnvLiveToggle(context),
+        paramEnvLiveFpsSelector(context),
         separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),

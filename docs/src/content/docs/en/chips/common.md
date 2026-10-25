@@ -341,7 +341,7 @@ driving the parameter chosen with **TARGET** step by step.
 | Where | What TARGET lists |
 | --- | --- |
 | Channel (the **[[PARAM ENV]]** major section, above [[TAP SEQUENCER]]) | The channel's parameters. On RHYTHM, the pads' parameters too (PAD1 SPEED and so on) |
-| FM operators (directly below the AMP ENV section, in the same column) | The operator's parameters. The default is **TL** |
+| FM operators (the "PARAM ENV" column of the settings, right of KEY SCALE / MUL/DET / FIX) | The operator's parameters. The default is **TL** |
 
 TARGET lists the same parameters as [TAP PARAM SEQUENCER](#tap-param-sequencer).
 
@@ -360,6 +360,9 @@ TARGET lists the same parameters as [TAP PARAM SEQUENCER](#tap-param-sequencer).
 - Key-on behaviour, RATE, STEP, LOOP (including LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
 - The section parameter file is `.paramEnv`, read and written from the heading's right-click menu. The target is written by
   name as well, so a file from another channel lands on the same target when the name matches
+- **PRM** in the graph switch shows it on the channel (operator) graph, drawn with the values of the current TARGET.
+  While notes play, a **yellow vertical line** shows where the most recent note is (switch it and choose its rate in
+  SETTINGS; see [Screen layout](/2686V_2686VFX/en/guide/screen/#where-the-sound-is-playing-on-the-graphs))
 
 #### From TL ENV in 4.2.x and earlier
 
@@ -516,7 +519,7 @@ INCREMENT / DECREMENT / CLEAR STEP, one step per key press).
 | Where | What PARAM lists |
 | --- | --- |
 | Channel (inside [[TAP SEQUENCER]]) | The channel's parameters |
-| FM operators (the "TAP PARAM SEQUENCER" column of the settings, right of KEY SCALE / MUL/DET) | That operator's parameters. TARGET switches the operator |
+| FM operators (the "TAP PARAM SEQUENCER" column of the settings, right of PARAM ENV) | That operator's parameters. TARGET switches the operator |
 | RHYTHM pads (the "TAP PARAM SEQUENCER" column of the settings, right of MUL/DET / FIX) | That pad's parameters |
 
 Each has its own Enable / STEPS / LOOP and step table, and each advances on its own with every key press.

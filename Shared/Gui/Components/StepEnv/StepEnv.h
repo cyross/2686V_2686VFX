@@ -134,6 +134,14 @@ public:
 
     // Curve を持たないプラグインは graph だけを渡す。
     void updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore = nullptr, bool isCurveMode = false, int posIdx = 0);
+
+    const Spec& getSpec() const { return spec; }
+
+    // PARAM ENV[256] の絵を、つまみを通さずにパラメータと表 (TARGET の組) から描く。
+    // 鳴っている位置の縦線も付ける (SETTINGS で入れているとき)。オペレーターの枠は
+    // TARGET で選んでいないものも描くので、部品を通さずにここから描く。
+    // code はチャンネルかオペレーター・パッドの頭 (OPNA / OPNA_OP0)
+    static void drawParamGraph(GuiEnvelopeGraph& graph, const GuiContext& ctx, const Spec& spec, const juce::String& code);
     void setEnabled(bool enabled);
 
     // 外から止められているか (鳴っていないオペレーターなど)。setEnabled で入る。

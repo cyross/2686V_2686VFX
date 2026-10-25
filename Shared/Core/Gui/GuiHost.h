@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "./GuiToggleAlign.h"
+#include "./GuiLiveGraph.h"
 #include "../Synth/WtModWave.h"
 #include "../Synth/StepTable.h"
 #include "../Io/IoPathRoot.h"
@@ -87,6 +88,14 @@ public:
     // 同じ向き (大小を逆にした値) で見せるか。見た目だけの話で、パラメータの
     // 値と音は変わらない (GuiSlider::applyN88Display)。
     bool fmN88Display = false;
+
+    // ---- グラフの、鳴っている位置を動かして見せるか (4.3.0。GuiLiveGraph.h)
+    // TAP SEQUENCER はいまの段、PARAM ENV[256] はエンベロープの位置。
+    // 見た目だけの話で、音には影響しない。
+    bool tapLiveGraph = true;
+    int tapLiveFps = LiveGraph::fpsInitial;
+    bool paramEnvLiveGraph = true;
+    int paramEnvLiveFps = LiveGraph::fpsInitial;
 
     // ---- 音声・波形ファイルの場所をどこからの相対で書くか (Io::PathRoot)
     // 環境設定に 1 つだけ持つ。どのチャンネルの UTILITY から変えても同じ値。

@@ -1,0 +1,26 @@
+---
+# チュートリアルのひな形。名前が _ で始まるファイルはサイトに出ない。
+# 複写して名前を変え (例: opna-first-sound.mdx)、中身を書き換えて使う。
+# 英語版は docs/src/content/docs/en/tutorials/ に同じ名前で置く。
+title: (題名)
+description: (一行の説明。検索結果やリンクの下に出る)
+sidebar:
+  # 小さい番号ほど上に並ぶ。0 は「チュートリアルについて」
+  order: 10
+---
+
+import TutorialMedia from '../../../components/TutorialMedia.astro';
+
+(このチュートリアルで作るもの・覚えることを、2〜3 行で書く)
+
+## 1. (手順の見出し)
+
+(何をどう触るか)
+
+{/* 動画 (.mp4 / .webm) は docs/public/tutorials/ に置き、名前だけ書く。自動では流れない */}
+<TutorialMedia src="sample.mp4" caption="(動画の説明)" />
+
+## 2. (手順の見出し)
+
+{/* 動く絵 (.gif) や静止画 (.png / .jpg / .webp) も同じ書き方で貼れる */}
+<TutorialMedia src="sample.gif" caption="(絵の説明)" />

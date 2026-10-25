@@ -93,6 +93,41 @@ void StepEnv::noteOn()
 	state = State::Running;
 
 	beginStep(1);
+
+	// PARAM ENV は、いちばん新しく押した音の位置をグラフへ見せる
+	liveId = 0;
+
+	if (levelSet >= 0 && table != nullptr) {
+		liveId = StepTable::nextLiveId();
+		table->liveOwner.store(liveId, std::memory_order_relaxed);
+		publish();
+	}
+}
+
+void StepEnv::stop()
+{
+	state = State::Idle;
+
+	if (liveId != 0) publish();
+}
+
+void StepEnv::publish()
+{
+	if (table == nullptr || table->liveOwner.load(std::memory_order_relaxed) != liveId) {
+		liveId = 0;
+		return;
+	}
+
+	if (state == State::Idle) {
+		table->liveStep.store(StepTable::liveIdle, std::memory_order_relaxed);
+		liveId = 0;
+		return;
+	}
+
+	const float frac = holding ? 1.0f : std::clamp(elapsed / std::max(1.0f, stepLength), 0.0f, 1.0f);
+
+	table->liveFrac.store(frac, std::memory_order_relaxed);
+	table->liveStep.store(state == State::Release ? StepTable::liveRelease : step, std::memory_order_relaxed);
 }
 
 void StepEnv::noteOff()
@@ -107,6 +142,9 @@ void StepEnv::noteOff()
 	const float rate = std::max(instantRate, rr);
 
 	inc = sampleRate > 0.0 ? (lr - current) / (rate * (float)sampleRate) : (lr - current);
+
+	elapsed = 0.0f;
+	stepLength = rate * (float)sampleRate;
 
 	// KEEP の値はここでは取り直さない。[11] と同じく、リリースのあいだは
 	// 前の段の値を保ち、走り終えたところで LR (ENDL) へ移る。
@@ -126,11 +164,16 @@ void StepEnv::beginStep(int s)
 
 	instant = rate <= instantRate || sampleRate <= 0.0;
 	inc = instant ? (target - current) : (target - current) / (rate * (float)sampleRate);
+
+	elapsed = 0.0f;
+	stepLength = instant ? 1.0f : rate * (float)sampleRate;
 }
 
 void StepEnv::advance()
 {
 	if (state == State::Idle) return;
+
+	if (!holding) elapsed += 1.0f;
 
 	if (state == State::Release) {
 		bool ended = false;
@@ -226,6 +269,8 @@ void StepEnv::hold()
 float StepEnv::process()
 {
 	advance();
+
+	if (liveId != 0) publish();
 
 	return keep ? keepLevel : current;
 }

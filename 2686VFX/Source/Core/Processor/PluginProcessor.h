@@ -256,6 +256,8 @@ public:
         visit(SettingsKey::toggleAlign, toggleAlign);
         visit(SettingsKey::relativePathRoot, relativePathRoot);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
+        visit(SettingsKey::tapLiveGraph, tapLiveGraph);
+        visit(SettingsKey::tapLiveFps, tapLiveFps);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
 

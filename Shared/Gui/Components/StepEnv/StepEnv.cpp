@@ -4,10 +4,20 @@
 #include "Shared/Core/Gui/GuiHelpers.h"
 #include "Shared/Core/Gui/GuiGraphValues.h"
 #include "Shared/Core/Gui/GuiParamEdit.h"
+#include "Shared/Core/Gui/GuiLiveGraph.h"
+#include "Shared/Core/Processor/ProcessorParamMod.h"
 #include "Shared/Core/Const/ConstGlobal.h"
 
 namespace
 {
+    // 整数や選択肢のパラメータか。PARAM ENV はそういう指し先では常に段を保つ (KEEP)
+    bool isSteppedParam(const juce::RangedAudioParameter* p)
+    {
+        return p != nullptr && (dynamic_cast<const juce::AudioParameterInt*>(p) != nullptr
+            || dynamic_cast<const juce::AudioParameterChoice*>(p) != nullptr
+            || dynamic_cast<const juce::AudioParameterBool*>(p) != nullptr);
+    }
+
     // 値の帯を置く。段の数だけ折り返した行数ぶんを取る。
     void layoutStrip(juce::Rectangle<int>& rect, GuiStepValues& strip)
     {
@@ -139,6 +149,7 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     if (isAmp()) cat.setupSwAmpCategory(catConfig);
     else if (isPitch()) cat.setupSwPitchCategory(catConfig);
+    else if (isParam()) cat.setupParamCategory(catConfig);
     else cat.setupSwCategory(catConfig);
 
     m_flagKey = flagKey;
@@ -376,9 +387,7 @@ void GuiComponentStepEnv::applyTargetDisplay()
 
     auto* p = targetParam();
 
-    const bool stepped = p != nullptr && (dynamic_cast<juce::AudioParameterInt*>(p) != nullptr
-        || dynamic_cast<juce::AudioParameterChoice*>(p) != nullptr
-        || dynamic_cast<juce::AudioParameterBool*>(p) != nullptr);
+    const bool stepped = isSteppedParam(p);
 
     const auto range = p != nullptr ? p->getNormalisableRange() : juce::NormalisableRange<float>(0.0f, 1.0f);
     const int span = stepped ? juce::roundToInt(range.end - range.start) : 0;
@@ -868,19 +877,50 @@ void GuiComponentStepEnv::setupGraph(std::function<void()> repaint)
     repaintGraph = std::move(repaint);
 }
 
-void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
+void GuiComponentStepEnv::drawParamGraph(GuiEnvelopeGraph& graph, const GuiContext& ctx, const Spec& spec, const juce::String& code)
 {
-    auto v = GuiGraphValues::stepEnv256(ctx.apvts, ctx.audioProcessor.stepTables, paramCode, spec.tableKey,
+    auto& apvts = ctx.apvts;
+    const auto& tables = ctx.audioProcessor.stepTables;
+
+    auto v = GuiGraphValues::stepEnv256(apvts, tables, code, spec.tableKey,
         spec.steps, spec.loop, spec.loopTo, spec.loopCount, spec.loopMode, spec.stl, spec.rr, spec.lr, (float)spec.levelMax);
 
-    // PARAM ENV の値は TARGET の組から
-    if (levelSet() >= 0) {
-        for (size_t s = 0; s < v.l.size(); ++s) v.l[s] = levelAt((int)s);
+    const auto* table = tables.find(code + spec.tableKey);
+    const int target = juce::roundToInt(GuiGraphValues::value(apvts, code + spec.target));
 
-        v.lr = levelAt(StepTable::setLr);
-        v.endl = levelAt(StepTable::setEndl);
-        v.endlEnable = GuiGraphValues::flag(ctx.apvts, paramCode + spec.endlEnable);
+    // 値 (STL・段の L・LR・ENDL) は TARGET の組から
+    if (table != nullptr && table->setCount() > 0) {
+        const int set = juce::jlimit(0, table->setCount() - 1, target);
+
+        for (size_t s = 0; s < v.l.size(); ++s) v.l[s] = table->setValue(set, (int)s);
+
+        v.lr = table->setValue(set, StepTable::setLr);
+        v.endl = table->setValue(set, StepTable::setEndl);
     }
+
+    v.endlEnable = GuiGraphValues::flag(apvts, code + spec.endlEnable);
+
+    const auto* targetParam = spec.targetParamId ? apvts.getParameter(spec.targetParamId(code, target)) : nullptr;
+    const auto label = target >= 0 && target < spec.targetLabels.size() ? spec.targetLabels[target] : juce::String();
+
+    graph.updateBypass(!GuiGraphValues::flag(apvts, code + ParamEnv::keys().enable));
+    graph.setKeepLevels(isSteppedParam(targetParam) || GuiGraphValues::flag(apvts, code + spec.keep));
+    graph.updateParamEnv256(v, label.isEmpty() ? spec.title : spec.title + " : " + label);
+
+    auto& host = ctx.audioProcessor;
+
+    graph.setLiveSource(table, [&host] { return host.paramEnvLiveGraph ? LiveGraph::clampFps(host.paramEnvLiveFps) : 0; });
+}
+
+void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx)
+{
+    if (isParam()) {
+        drawParamGraph(graph, ctx, spec, paramCode);
+        return;
+    }
+
+    const auto v = GuiGraphValues::stepEnv256(ctx.apvts, ctx.audioProcessor.stepTables, paramCode, spec.tableKey,
+        spec.steps, spec.loop, spec.loopTo, spec.loopCount, spec.loopMode, spec.stl, spec.rr, spec.lr, (float)spec.levelMax);
 
     graph.updateBypass(isCategoryBypassed());
 

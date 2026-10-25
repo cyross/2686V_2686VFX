@@ -48,7 +48,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 - **[[TAP SEQUENCER]] に「TAP PARAM SEQUENCER」を足した**
   - 鍵を押すたびに段を 1 つ進め、その段に入れた (パラメータ, 値) の組で、パラメータをその音のあいだ置き換える
   - 独自拡張として、1 つの段に組を最大 16 個入れられる
-  - チャンネルに 1 つ ([[TAP SEQUENCER]] の中。チャンネルのパラメータを選ぶ) と、FM 音源のオペレーターごと・RHYTHM のパッドごとに 1 つずつ (オペレーター・パッドの設定の列「TAP PARAM SEQUENCER」。KEY SCALE / MUL/DET、RHYTHM は MUL/DET / FIX の右。そのオペレーター・パッドのパラメータを選ぶ) ある。どれも打鍵ごとに別々に段を進める
+  - チャンネルに 1 つ ([[TAP SEQUENCER]] の中。チャンネルのパラメータを選ぶ) と、FM 音源のオペレーターごと・RHYTHM のパッドごとに 1 つずつ (オペレーター・パッドの設定の列「TAP PARAM SEQUENCER」。FM 音源は PARAM ENV、RHYTHM は MUL/DET / FIX の右。そのオペレーター・パッドのパラメータを選ぶ) ある。どれも打鍵ごとに別々に段を進める
   - 選べるパラメータ: FM 音源のオペレーターの数値のパラメータ (TL / AR / DR / SR / SL / RR / KS / MUL / DT。OPM の D1R / D1L / D2R・DT2・KSR / KSL、OPL / OPL3 の KSL・EG・LFO、OPZX7 の実数のエンベロープ・KS の細目・DT2 / DT3・WS・PCM SPEED・LFO など) と FIX の周波数、チャンネルの ALG / FB (OPZX7 は FB OP1〜8)、WT PITCH MOD / WT AMP MOD の波形と速さ、WT+ の波形、ADPCM+ の音声 (スロット)、SSG のデューティ比 (PRESET / 可変) と三角波の頂点、FIX の周波数、各種の周波数・速さ (LFO の FREQ・SSG HW ENV / SSG HW PITCH ENV の周期・ノイズの周波数・三角波の周波数・SPEED・TIMER CLOCK・ARP FREQ など)。オン/オフのトグルは選べない
   - 段の進め方は TAP AMP / PITCH SEQUENCER と同じ (LOOP・SKIP・INCREMENT / DECREMENT / CLEAR STEP。打鍵 1 回につき 1 段。DAW の再生を止めると開始前へ戻る)
   - S.TARGET で段を、**P.TARGET** で組を選び、**PARAM** / **VALUE** で中身を決める。**ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** で組を足し引きする。値は指し先のパラメータの書き方で出し、MIN / -1 / +1 / MAX のボタンで動かせる
@@ -58,7 +58,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 全チャンネル。2686VFX 以外の全プラグイン
 - **「PARAM ENV[256]」を足した。TL ENV はこの機能にまとめた**
   - SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、**TARGET** で選んだパラメータを動かす。選べるパラメータは TAP PARAM SEQUENCER と同じ
-  - チャンネルに 1 本 (新しい大区分 [[PARAM ENV]]。[[TAP SEQUENCER]] の上)。FM 音源はオペレーターごとにも 1 本 (AMP ENV 区分のすぐ下。これまでの TL ENV の場所)。RHYTHM のチャンネルの PARAM ENV は、パッドごとのパラメータも選べる
+  - チャンネルに 1 本 (新しい大区分 [[PARAM ENV]]。[[TAP SEQUENCER]] の上)。FM 音源はオペレーターごとにも 1 本 (設定の列「PARAM ENV」。KEY SCALE / MUL/DET / FIX の右に、独立した列で置く)。RHYTHM のチャンネルの PARAM ENV は、パッドごとのパラメータも選べる
   - 値は指し先のパラメータの範囲の割合で持ち、画面には指し先の書き方 (TL なら 0〜127 など) で出す
   - 値 (STL・L1〜L256・LR・ENDL) は **TARGET ごとに別に持つ**。TARGET を変えると、その指し先の値に切り替わる (はじめは指し先のパラメータの初期値)。R・STEP・LOOP・RR・Use Endl・KEEP は TARGET によらず 1 つ。保存されるのは全部の TARGET の値。区分のパラメータファイルには、いまの TARGET の値を書く
   - 押したときに決まるパラメータ (MUL・DT・FIX の FREQ など) も、鳴っているあいだ段ごとに変わる (SETTINGS の LIVE DETUNE によらず)
@@ -71,6 +71,19 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - プリセット・DAW の状態・チャンネルパラメータ (`paramEnv`) に保存。区分のパラメータファイルは `.paramEnv` (見出しの右クリック)
   - 簡易表示モードでは隠す。SETTINGS の簡易表示モードカスタマイズに「PARAM ENV[256]」を足した。[非表示中の区分をバイパス] でも切れる
   - 全チャンネル・FM 音源のオペレーター。2686VFX 以外の全プラグイン
+- **グラフに、鳴っている位置を動かして出せるようにした**
+  - TAP SEQUENCER (TAP AMP / PITCH / PARAM SEQUENCER) は、いまの段の印 (棒・一覧の地の色) を弾くのに合わせて動かす
+  - PARAM ENV[256] は、グラフの上に黄色の縦線で鳴っている位置を出す。いちばん新しく押した音の位置で、離すとリリースへ移り、鳴り終えると消える
+  - SETTINGS に「TAP SEQUENCER のいまの段を、弾くのに合わせて動かす」と「PARAM ENV[256] の鳴っている位置を、グラフに動かして出す」を足した。どちらも初期値は入。同じ行で速さを 15 / 30 / 60 / 120 FPS から選ぶ (初期値は 30 FPS)。切ると動かさず、値を書き換えたときだけ映し直す。見た目だけの設定で、音は変わらない
+  - チャンネルのグラフの切り替えと、FM 音源のオペレーターのグラフの切り替えに **PRM** (PARAM ENV[256]) を足した。値は TARGET の組で描き、見出しに指し先の名前を出す。整数や選択肢の指し先は段を保つ絵になる。RHYTHM はパッドのグラフしか無いので足していない
+  - 全プラグイン (2686VFX は TAP SEQUENCER の設定だけ)
+- **区分の見出しの色を変えた**
+  - TAP AMP SEQUENCER はシアン、TAP PITCH SEQUENCER は白寄りの紫にした (これまでと逆の組み合わせ)
+  - PARAM ENV[256] と TAP PARAM SEQUENCER は白寄りのダークブルーにした
+  - COLORS タブで変えられる。名前は Category.TapAmpBg / Category.TapPitchBg / Category.ParamBg。グラフの PARAM ENV の線は EnvelopeGraph.ParamLine、鳴っている位置の線は EnvelopeGraph.LiveLine
+  - 全プラグイン (2686VFX は TAP AMP / PITCH SEQUENCER だけ)
+- **マニュアルに「チュートリアル」の章を足した**
+  - 音を作りながら操作を覚えるページを、これから足していく。動画 (.mp4 / .webm) や動く絵 (.gif) を貼れる
 - **ADPCM+ の、選んでいないスロットも符号化しておくようにした**
   - TAP PARAM SEQUENCER / PARAM ENV で VOICE を変えると、選んでいないスロットも鳴るため。読み込んであるスロットは、QUALITY を変えたときにすべて符号化し直す
   - ADPCM+ を持つプラグイン (2686V / 2686VLight / PCMV)

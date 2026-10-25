@@ -173,6 +173,9 @@ class GuiOpn : public GuiBase
     GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colKs;
+
+    // PARAM ENV[256] (4.3.0)。KEY SCALE / MUL/DET / FIX の右に、独立した列で置く
+    GuiScrollGroup colParamEnv;
     GuiScrollGroup colTapParam;
     GuiScrollGroup colMask;
     // Pitch ADSR
@@ -226,9 +229,10 @@ class GuiOpn : public GuiBase
     GuiToggleButton gGraphBtnAmp;
     GuiToggleButton gGraphBtnSsg256;
     GuiToggleButton gGraphBtnSsgP256;
+    GuiToggleButton gGraphBtnParam;
     NormalSeparator gGraphSeparator;
 
-    enum class GlobalGraphMode { Amp, SsgSw256, SsgSwP256 };
+    enum class GlobalGraphMode { Amp, SsgSw256, SsgSwP256, ParamEnv256 };
     GlobalGraphMode currentGlobalGraphMode = GlobalGraphMode::Amp;
 
     // 上に並ぶ絵。オペレータの数だけ置く。
@@ -243,6 +247,7 @@ class GuiOpn : public GuiBase
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
+    GuiToggleButton graphBtnParam;
 
     GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
 
@@ -347,6 +352,7 @@ public:
         colSsgSwPEnv256(context),
         colMod(context),
         colKs(context),
+        colParamEnv(context),
         colTapParam(context),
         colMask(context),
         catDet(context),
@@ -391,11 +397,13 @@ public:
         gGraphBtnAmp(context),
         gGraphBtnSsg256(context),
         gGraphBtnSsgP256(context),
+        gGraphBtnParam(context),
         gGraphSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg256(context),
         graphBtnSsgP256(context),
+        graphBtnParam(context),
         cells{ GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context), GuiTargetCell(context) },
         bigCell(context)
     {

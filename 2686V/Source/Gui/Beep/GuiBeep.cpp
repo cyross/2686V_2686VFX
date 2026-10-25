@@ -364,6 +364,10 @@ void GuiBeep::setupGraph()
     graphBtnSsgP256.setup({ .parent = *this, .title = "P256", .isReset = false, .isResized = false });
     graphBtnSsgP256.onClick = [this] { setGraphMode(GraphMode::SsgSwP256); };
 
+    // PARAM ENV[256] (4.3.0)。鳴っている位置も出す
+    graphBtnParam.setup({ .parent = *this, .title = "PRM", .isReset = false, .isResized = false });
+    graphBtnParam.onClick = [this] { setGraphMode(GraphMode::ParamEnv256); };
+
     auto repaintGraph = [this]() {
         if (this->isUpdatingGraph) return; // 既に更新中なら無視
 
@@ -375,6 +379,7 @@ void GuiBeep::setupGraph()
         };
 
     ampEnvComponent.setupGraph(repaintGraph);
+    paramEnv.setupGraph(repaintGraph);
 
     pitchEnvComponent.setupGraph(repaintGraph);
 
@@ -395,6 +400,7 @@ void GuiBeep::setGraphMode(GraphMode mode)
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg256.setToggleState(mode == GraphMode::SsgSw256, juce::dontSendNotification);
     graphBtnSsgP256.setToggleState(mode == GraphMode::SsgSwP256, juce::dontSendNotification);
+    graphBtnParam.setToggleState(mode == GraphMode::ParamEnv256, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -408,12 +414,13 @@ void GuiBeep::layoutGraph(juce::Rectangle<int>& rect)
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(BeepGuiValue::MainGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 4;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnSsg256.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsgP256.setBounds(btnArea);
+    graphBtnSsgP256.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnParam.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -446,6 +453,12 @@ void GuiBeep::updateGraph()
     // =============================================================
     else if (mode == GraphMode::SsgSwP256) {
         ssgSwPEnv256Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // PARAM ENV[256] (4.3.0)
+    // =============================================================
+    else if (mode == GraphMode::ParamEnv256) {
+        paramEnv.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env

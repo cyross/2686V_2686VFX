@@ -746,6 +746,36 @@ void GuiSettings::setup()
         if (auto* editor = dynamic_cast<juce::Component*>(&ctx.editor)) GuiSlider::refreshN88Display(*editor);
         };
 
+    separatorLiveGraph.setupComponent(*this);
+
+    // グラフの、鳴っている位置を動かして見せるか (4.3.0)。見た目だけで、音は変わらない。
+    // 動かすときの速さ (FPS) も選ぶ。切っているあいだは速さを選べない
+    auto setupLive = [&](GuiToggleButton& toggle, GuiComboBox& selector, const I18n::Text& title, bool& live, int& fps) {
+        toggle.setup({ .parent = *this, .title = title, .font = toggleFont, .isReset = false });
+        toggle.setToggleState(live, juce::dontSendNotification);
+        toggle.setWantsKeyboardFocus(true);
+        toggle.setExplicitFocusOrder(++tabOrder);
+
+        std::vector<SelectItem> items;
+
+        for (int f : LiveGraph::fpsChoices) items.push_back({ .name = juce::String(f) + " FPS", .value = f });
+
+        selector.setup({ .parent = *this, .id = "", .title = SettingsGuiText::liveGraphFps, .items = items, .isReset = false });
+        selector.setSelectedId(LiveGraph::clampFps(fps), juce::dontSendNotification);
+        selector.setWantsKeyboardFocus(true);
+        selector.setExplicitFocusOrder(++tabOrder);
+        selector.setEnabledWithLabel(live);
+
+        toggle.onClick = [&toggle, &selector, &live] {
+            live = toggle.getToggleState();
+            selector.setEnabledWithLabel(live);
+            };
+        selector.onChange = [&selector, &fps] { fps = selector.getSelectedId(); };
+        };
+
+    setupLive(tapLiveToggle, tapLiveFpsSelector, SettingsGuiText::tapLiveGraph, pluginOf(ctx).tapLiveGraph, pluginOf(ctx).tapLiveFps);
+    setupLive(paramEnvLiveToggle, paramEnvLiveFpsSelector, SettingsGuiText::paramEnvLiveGraph, pluginOf(ctx).paramEnvLiveGraph, pluginOf(ctx).paramEnvLiveFps);
+
     separator5.setupComponent(*this);
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
@@ -1269,6 +1299,18 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto rowFmN88 = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     fmN88Toggle.setBounds(rowFmN88.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
+    separatorLiveGraph.layoutComponent(sRect);
+
+    // 23-3. グラフの、鳴っている位置を動かして見せる (4.3.0)。同じ行に速さ (FPS)
+    for (auto [toggle, selector] : std::initializer_list<std::pair<GuiToggleButton*, GuiComboBox*>>{ { &tapLiveToggle, &tapLiveFpsSelector }, { &paramEnvLiveToggle, &paramEnvLiveFpsSelector } }) {
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        toggle->setBounds(row.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+        row.removeFromLeft(SettingsGuiValue::Settings::PaddingWidth);
+        selector->label.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LiveFpsLabelWidth));
+        selector->setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LiveFpsSelectorWidth));
+    }
+
     separator5.layoutComponent(sRect);
 
     // 24. Virtual Keyboard Row
@@ -1344,6 +1386,12 @@ void GuiSettings::setSettings()
     headroomGainSlider.setEnabledWithLabel(pluginOf(ctx).useHeadroom);
     liveDetuneToggle.setToggleState(pluginOf(ctx).liveDetune, juce::dontSendNotification);
     fmN88Toggle.setToggleState(pluginOf(ctx).fmN88Display, juce::dontSendNotification);
+    tapLiveToggle.setToggleState(pluginOf(ctx).tapLiveGraph, juce::dontSendNotification);
+    tapLiveFpsSelector.setSelectedId(LiveGraph::clampFps(pluginOf(ctx).tapLiveFps), juce::dontSendNotification);
+    tapLiveFpsSelector.setEnabledWithLabel(pluginOf(ctx).tapLiveGraph);
+    paramEnvLiveToggle.setToggleState(pluginOf(ctx).paramEnvLiveGraph, juce::dontSendNotification);
+    paramEnvLiveFpsSelector.setSelectedId(LiveGraph::clampFps(pluginOf(ctx).paramEnvLiveFps), juce::dontSendNotification);
+    paramEnvLiveFpsSelector.setEnabledWithLabel(pluginOf(ctx).paramEnvLiveGraph);
 
     // 設定を読み込み直したときも、つまみの見せ方を合わせる
     if (auto* editor = dynamic_cast<juce::Component*>(&ctx.editor)) GuiSlider::refreshN88Display(*editor);

@@ -8,6 +8,8 @@
 #include "./GuiColor.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "Shared/Core/Synth/StepLoop.h"
+#include "Shared/Core/Synth/StepTable.h"
+#include "./GuiLiveGraph.h"
 
 // 拡大率のつまみ。帯をドラッグしているあいだ、押しているキーで刻みへそろえる
 // (Shift で 0.1、Ctrl で 1、Ctrl + Shift で 10。つまみのラベルのドラッグと同じ決まり)
@@ -27,7 +29,7 @@ public:
     static double align(double value, double step, double lo, double hi);
 };
 
-class GuiEnvelopeGraph : public juce::Component, private juce::ScrollBar::Listener
+class GuiEnvelopeGraph : public juce::Component, private juce::ScrollBar::Listener, private juce::Timer
 {
 public:
     GuiEnvelopeGraph();
@@ -52,7 +54,7 @@ public:
     void mouseDown(const juce::MouseEvent& e) override;
     void mouseDrag(const juce::MouseEvent& e) override;
 
-    enum class EnvType { Amp, Pitch, SsgSw256, SsgSwP256 };
+    enum class EnvType { Amp, Pitch, SsgSw256, SsgSwP256, ParamEnv256 };
 
     struct PhaseDef {
         float widthPx;
@@ -72,6 +74,10 @@ public:
         bool drawPhaseLine = true;
         juce::Colour phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine;
         bool isMax = false; // 値が最大値 = 縦の直線
+
+        // 鳴っている位置の印 (4.3.0)。段のエンベロープの段なら段の番号 (1〜)、
+        // リリースなら StepTable::liveRelease。0 は印を付けない (ループの破線など)
+        int liveStep = StepTable::liveIdle;
     };
 
 
@@ -150,6 +156,19 @@ public:
         bool isCurveMode = false,
         int posIdx = 0
     );
+
+    // PARAM ENV[256] (4.3.0)。値は指し先の範囲の割合 (0〜1)。カーブは無い
+    void updateParamEnv256(const StepEnvValues& v, const juce::String& title);
+
+    // ---- 鳴っている位置 (4.3.0。PARAM ENV)
+    //
+    // 表に書かれた位置 (StepTable::liveStep / liveFrac) を読み、段の印
+    // (PhaseDef::liveStep) を持つ絵の上へ縦線を引く。fps は読みに行く速さで、
+    // 0 を返すあいだは引かない (SETTINGS で切っているとき)。
+    //
+    // setEnvelope で外れるので、絵を組んだあとに付けること。グラフは区分ごとに
+    // 使い回すため、関係のない区分の絵に線を残さない。
+    void setLiveSource(const StepTable* table, std::function<int()> fps);
     void updateAmpEnv(
         const AmpEnvValues& v,
         CurveCore* p_curveCore = nullptr,
@@ -167,6 +186,7 @@ public:
         isBypass = other.isBypass;
         keepLevels = other.keepLevels;
         setEnabled(other.isEnabled());
+        setLiveSource(other.liveTable, other.liveFps);
         repaint();
     }
 
@@ -208,6 +228,14 @@ private:
     bool isScrollDrag = false;
 
     bool isSyncingScrollBar = false;
+
+    // ---- 鳴っている位置
+    const StepTable* liveTable = nullptr;
+    std::function<int()> liveFps;
+    int liveStep = StepTable::liveIdle;
+    float liveFrac = 0.0f;
+
+    void timerCallback() override;
 
     juce::ScrollBar scrollBar{ false };
     GuiZoomSlider zoomSlider;

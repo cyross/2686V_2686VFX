@@ -4,6 +4,7 @@
 //   ・TARGET の並びは、束ねたパラメータの範囲と同じ数でなければならない
 //     (選んだ番号と値の対応は、並びの数で割って決まるため)
 //   ・TAP PARAM SEQUENCER の ADD PAIR は見えて押せ、押すと段へ組が入る
+//   ・SETTINGS で、グラフの鳴っている位置の表示を入り切りでき、速さ (FPS) を選べる
 #include "doctest/doctest.h"
 
 #include <JuceHeader.h>
@@ -14,6 +15,7 @@
 #include "Core/Processor/PluginProcessor.h"
 #include "Core/Editor/PluginEditor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiBase.h"
 #include "./EditorTestAccess.h"
 
 namespace
@@ -144,4 +146,82 @@ TEST_CASE("TAP PARAM SEQUENCER: ADD PAIR は見えて押せ、押すと段へ組
 
 	CHECK(withPairs == pressed);
 #endif
+}
+
+TEST_CASE("SETTINGS: グラフの鳴っている位置の表示は入り切りでき、切ると速さは選べない")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	auto selectors = findAll<GuiComboBox>(*editor, [](GuiComboBox& b) {
+		return b.getNumItems() == 4 && b.getItemText(0) == "15 FPS" && b.getItemText(3) == "120 FPS";
+	});
+
+	REQUIRE(!selectors.empty());
+
+	// SETTINGS は裏のタブなので、表に出るまで並べられない。ここで並べてもらう
+	auto* page = selectors[0]->getParentComponent();
+	auto* settings = dynamic_cast<GuiBase*>(page);
+
+	REQUIRE(settings != nullptr);
+
+	settings->layout(page->getLocalBounds());
+
+	// 入り切りは、速さと同じ行の左に置いてある
+	std::vector<GuiToggleButton*> toggles;
+
+	for (auto* selector : selectors)
+	{
+		auto row = findAll<GuiToggleButton>(*page, [selector](GuiToggleButton& t) {
+			return t.isVisible() && !t.getBounds().isEmpty()
+				&& t.getParentComponent() == selector->getParentComponent() && t.getY() == selector->getY() && t.getRight() <= selector->getX();
+		});
+
+		REQUIRE(row.size() == 1);
+
+		// 頁からはみ出さない
+		CHECK(selector->getBottom() <= page->getHeight());
+
+		toggles.push_back(row[0]);
+	}
+
+#if GUI_TEST_IS_FX
+	// 2686VFX は TAP SEQUENCER だけ
+	const size_t expected = 1;
+#else
+	const size_t expected = 2;
+#endif
+
+	REQUIRE(toggles.size() == expected);
+	REQUIRE(selectors.size() == expected);
+
+	// 初期値は入、30 FPS
+	CHECK(processor->tapLiveGraph);
+	CHECK(processor->tapLiveFps == 30);
+
+	for (size_t i = 0; i < expected; ++i)
+	{
+		CHECK(toggles[i]->getToggleState());
+		CHECK(selectors[i]->isEnabled());
+		CHECK(selectors[i]->getSelectedId() == 30);
+	}
+
+	// 速さを選ぶと、プロセッサの値が変わる
+	selectors[0]->setSelectedId(60, juce::sendNotificationSync);
+
+	CHECK(processor->tapLiveFps == 60);
+
+	// 切ると速さは選べない
+	toggles[0]->setToggleState(false, juce::dontSendNotification);
+
+	REQUIRE(toggles[0]->onClick != nullptr);
+
+	toggles[0]->onClick();
+
+	CHECK_FALSE(processor->tapLiveGraph);
+	CHECK_FALSE(selectors[0]->isEnabled());
+
+	editor.reset();
 }

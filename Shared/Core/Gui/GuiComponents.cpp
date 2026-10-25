@@ -1470,6 +1470,21 @@ void GuiCategoryLabel::setupSwLfoCategory(const Config& c)
     setupInner(c, GuiColor::Category::SwLfoBg);
 }
 
+void GuiCategoryLabel::setupTapAmpCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::TapAmpBg);
+}
+
+void GuiCategoryLabel::setupTapPitchCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::TapPitchBg);
+}
+
+void GuiCategoryLabel::setupParamCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::ParamBg);
+}
+
 void GuiCategoryLabel::setupOtherCategory(const Config& c)
 {
     setupInner(c, GuiColor::Category::OtherBg);

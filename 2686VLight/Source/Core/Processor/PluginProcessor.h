@@ -954,6 +954,10 @@ public:
         visit(SettingsKey::headroomGain, headroomGain);
         visit(SettingsKey::liveDetune, liveDetune);
         visit(SettingsKey::fmN88Display, fmN88Display);
+        visit(SettingsKey::tapLiveGraph, tapLiveGraph);
+        visit(SettingsKey::tapLiveFps, tapLiveFps);
+        visit(SettingsKey::paramEnvLiveGraph, paramEnvLiveGraph);
+        visit(SettingsKey::paramEnvLiveFps, paramEnvLiveFps);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop

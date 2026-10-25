@@ -39,6 +39,8 @@ namespace SettingsGuiText
 	static inline const I18n::Text toggleAlignLeft{ u8"左寄せ", u8"Left" };
 	static inline const I18n::Text showTooltips{ u8"ツールチップを表示", u8"Show tooltips" };
 	static inline const I18n::Text showVirtualKeyboard{ u8"仮想MIDIキーボード表示", u8"Show the virtual MIDI keyboard" };
+	static inline const I18n::Text tapLiveGraph{ u8"TAP SEQUENCER のいまの段を、弾くのに合わせて動かす", u8"Move the current TAP SEQUENCER step as you play" };
+	static inline const I18n::Text liveGraphFps{ u8"速さ", u8"Rate" };
 	static inline const I18n::Text saveSettings{ u8"設定ファイルに保存", u8"Save to a settings file" };
 	static inline const I18n::Text loadSettings{ u8"設定ファイルから読み込み", u8"Load from a settings file" };
 	static inline const I18n::Text chooseSettingsFile{ u8"設定ファイルを選択してください", u8"Choose a settings file" };

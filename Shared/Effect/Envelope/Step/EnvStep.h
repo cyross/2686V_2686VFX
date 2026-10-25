@@ -82,7 +82,7 @@ public:
 	bool isBypass() const { return bypass; }
 
 	// バイパスのまま離されたとき。走らせずに終える。
-	void stop() { state = State::Idle; }
+	void stop();
 
 	bool usesEndl() const { return endlEnable; }
 	float endLevel() const { return endl; }
@@ -114,6 +114,12 @@ private:
 	// 写している値の組 (PARAM ENV)。-1 は組を使わない
 	int levelSet = -1;
 
+	// 鳴っている位置を表へ書くときの番号 (PARAM ENV のグラフ)。0 は書かない。
+	// 段 (リリース) を始めてからのサンプル数と、その段の長さ
+	std::uint32_t liveId = 0;
+	float elapsed = 0.0f;
+	float stepLength = 1.0f;
+
 	double sampleRate = 44100.0;
 
 	// いまの段と、その段の行き先
@@ -142,6 +148,9 @@ private:
 	void beginStep(int s);
 	void advance();
 	void hold();
+
+	// 鳴っている位置を表へ書く。ほかの音が押されて持ち主が代わったら、もう書かない
+	void publish();
 	float levelOf(int index) const { return l[(size_t)std::clamp(index, 0, maxSteps)]; }
 	float curve(int param, float x) const;
 	bool useCurve() const { return curveCore != nullptr && curveTarget >= 0; }

@@ -93,6 +93,9 @@ namespace SettingsGuiValue
 		static inline constexpr int FileFormatSelectorWidth = 120;
 		static inline constexpr int ToggleAlignLabelWidth = 150;
 		static inline constexpr int ToggleAlignSelectorWidth = 120;
+		// グラフの、鳴っている位置を動かす速さ (FPS)。入り切りのトグルと同じ行に置く
+		static inline constexpr int LiveFpsLabelWidth = 50;
+		static inline constexpr int LiveFpsSelectorWidth = 100;
 		// 相対パスの基準。選択肢の名前が長いので、トグルボタン配置より広く取る
 		static inline constexpr int PathRootSelectorWidth = 200;
 		static inline constexpr int ModeSelectorWidth = 320;

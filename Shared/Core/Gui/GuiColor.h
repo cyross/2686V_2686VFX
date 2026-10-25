@@ -237,6 +237,12 @@ namespace GuiColor {
 		// 区間の切れ目に引く縦線。目盛りとして読めればよいので、
 		// 本体より一段引いた白にして色数を増やさない。
 		inline Entry PhaseLine{ "EnvelopeGraph.PhaseLine", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.35f); } };
+
+		// PARAM ENV[256] の線 (4.3.0)。区分の見出しと同じダークブルーを、暗い下地で読めるよう白へ寄せる
+		inline Entry ParamLine{ "EnvelopeGraph.ParamLine", []() -> juce::Colour { return juce::Colour(0xff00008b).interpolatedWith(juce::Colours::white, 0.55f); } };
+
+		// 鳴っている位置の縦線 (4.3.0)。線の色と紛れないよう、明るい黄色にする
+		inline Entry LiveLine{ "EnvelopeGraph.LiveLine", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.85f); } };
 	};
 
 	namespace WavePreview {
@@ -415,6 +421,16 @@ namespace GuiColor {
 
 		// 音程にかかわるもの (PITCH ENV / SSG SW PITCH ENV / WT PITCH MOD など)
 		inline Entry SwPitchBg{ "Category.SwPitchBg", []() -> juce::Colour { return juce::Colours::turquoise.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
+
+		// TAP AMP / PITCH SEQUENCER (4.3.0)。鍵を押すたびに段を進める区分は、
+		// 時間で動くエンベロープの区分と見分けられるよう、色の組を変える。
+		// 音量がシアン、音程が白寄りの紫
+		inline Entry TapAmpBg{ "Category.TapAmpBg", []() -> juce::Colour { return juce::Colour(0xff00ffff).interpolatedWith(juce::Colours::white, 0.35f); } };      // cyan
+		inline Entry TapPitchBg{ "Category.TapPitchBg", []() -> juce::Colour { return juce::Colour(0xff9370db).interpolatedWith(juce::Colours::white, 0.4f); } }; // mediumpurple
+
+		// パラメータを動かす区分 (PARAM ENV[256] / TAP PARAM SEQUENCER。4.3.0)。
+		// 白寄りのダークブルー
+		inline Entry ParamBg{ "Category.ParamBg", []() -> juce::Colour { return juce::Colour(0xff00008b).interpolatedWith(juce::Colours::white, 0.5f); } };     // darkblue
 
 		// LFO。音量と音程の両方へ掛かるので、どちらとも別の色相にする。
 		inline Entry SwLfoBg{ "Category.SwLfoBg", []() -> juce::Colour { return juce::Colours::purple.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };

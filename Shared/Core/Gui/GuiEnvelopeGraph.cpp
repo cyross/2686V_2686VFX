@@ -34,6 +34,52 @@ void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, cons
     // なってしまう。
     keepLevels = false;
 
+    // 鳴っている位置も同じ。付けるのは絵を組んだ側 (setLiveSource)
+    setLiveSource(nullptr, nullptr);
+
+    repaint();
+}
+
+void GuiEnvelopeGraph::setLiveSource(const StepTable* table, std::function<int()> fps)
+{
+    liveTable = table;
+    liveFps = std::move(fps);
+
+    if (liveTable == nullptr || !liveFps) {
+        stopTimer();
+
+        if (liveStep != StepTable::liveIdle) {
+            liveStep = StepTable::liveIdle;
+            repaint();
+        }
+
+        return;
+    }
+
+    timerCallback();
+}
+
+// 表に書かれた位置を読み、変わっていれば描き直す。切っているあいだも、
+// 入れ直したときに追えるよう、ゆっくり見に行く
+void GuiEnvelopeGraph::timerCallback()
+{
+    if (liveTable == nullptr || !liveFps) {
+        stopTimer();
+        return;
+    }
+
+    const int fps = liveFps();
+
+    LiveGraph::pace(*this, fps > 0 ? fps : LiveGraph::idleHz);
+
+    const int step = fps > 0 ? liveTable->liveStep.load(std::memory_order_relaxed) : StepTable::liveIdle;
+    const float frac = step != StepTable::liveIdle ? liveTable->liveFrac.load(std::memory_order_relaxed) : 0.0f;
+
+    if (step == liveStep && std::abs(frac - liveFrac) < 0.001f) return;
+
+    liveStep = step;
+    liveFrac = frac;
+
     repaint();
 }
 
@@ -339,6 +385,10 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     float maxY = 0.0f;
     juce::Colour maxColour = juce::Colours::white;
 
+    // 鳴っている位置。印の付いた最初の段に引く (ループで戻っても同じ段の上)
+    bool hasLive = false;
+    float liveX = 0.0f;
+
     for (const auto& phase : currentPhases) {
         if (phase.widthPx <= 0.0f && !phase.isMax) continue;
 
@@ -361,6 +411,11 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
         // 有限でない幅は描かない。無限や NaN の座標を点線にすると、
         // 長さを刻む処理が終わらなくなり、画面ごと固まってしまう。
         if (!std::isfinite(actualWidth)) continue;
+
+        if (!hasLive && liveStep != StepTable::liveIdle && phase.liveStep == liveStep) {
+            hasLive = true;
+            liveX = currentPixelX + juce::jlimit(0.0f, 1.0f, liveFrac) * actualWidth;
+        }
 
         juce::Path envPath;
         float startY = basePixelY - (phase.startLevel * heightScale);
@@ -438,6 +493,11 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     if (hasMax) {
         g.setColour(maxColour);
         g.drawLine(maxX, maxY, maxX, basePixelY, 2.0f);
+    }
+
+    if (hasLive && std::isfinite(liveX)) {
+        g.setColour(GuiColor::EnvelopeGraph::LiveLine);
+        g.drawLine(liveX, graphArea.getY(), liveX, graphArea.getBottom(), 2.0f);
     }
 }
 
@@ -551,6 +611,11 @@ void GuiEnvelopeGraph::updateSsgSwPEnv256(const StepEnvValues& v, CurveCore* p_c
         (int)CurveParams::Target::SsgSwPEnv256, v, p_curveCore, isCurveMode, posIdx);
 }
 
+void GuiEnvelopeGraph::updateParamEnv256(const StepEnvValues& v, const juce::String& title)
+{
+    updateStepEnv(GuiEnvelopeGraph::EnvType::ParamEnv256, title, GuiColor::EnvelopeGraph::ParamLine, -1, v, nullptr, false, 0);
+}
+
 // 段のエンベロープの絵。
 //
 // 段の幅は R に比例させる。段が多いと全体が長くなるが、絵の幅に収めるのは
@@ -608,7 +673,8 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
             phases.push_back({
                 .widthPx = rateToWidth(rateAt(s), v.rMax), .startLevel = level, .endLevel = levelAt(s), .color = color,
                 .curveFunc = getCurveFunc(std::min(s, curveStepParams) - 1),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+                .liveStep = s
                 });
 
             level = levelAt(s);
@@ -640,7 +706,8 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
             .startLevel = level,
             .endLevel = v.lr / lMax,
             .color = GuiColor::EnvelopeGraph::ReleaseLine,
-            .curveFunc = getCurveFunc(curveRelease)
+            .curveFunc = getCurveFunc(curveRelease),
+            .liveStep = StepTable::liveRelease
             });
 
         if (v.endlEnable) appendEndLevel(phases, v.lr / lMax, v.endl / lMax);
@@ -663,7 +730,8 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
                 .curveFunc = getCurveFunc(prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+                .liveStep = s
                 });
 
             loopEndWidth = currentTotalWidth;
@@ -695,7 +763,8 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
                 .curveFunc = getCurveFunc(prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
+                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+                .liveStep = s
                 });
         }
 
@@ -710,7 +779,8 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
         .color = GuiColor::EnvelopeGraph::ReleaseLine,
         .curveFunc = getCurveFunc(curveRelease),
         .moveToStart = isLoop,
-        .startXOffsetPx = loopEndWidth
+        .startXOffsetPx = loopEndWidth,
+        .liveStep = StepTable::liveRelease
         });
 
     if (v.endlEnable) appendEndLevel(phases, v.lr / lMax, v.endl / lMax);

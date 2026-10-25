@@ -187,9 +187,10 @@ class GuiWt2 : public GuiBase
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
+    GuiToggleButton graphBtnParam;
     NormalSeparator graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw256, SsgSwP256 };
+    enum class GraphMode { Amp, Pitch, SsgSw256, SsgSwP256, ParamEnv256 };
     GraphMode currentGraphMode;
 
     bool isUpdatingGraph = false;
@@ -265,6 +266,7 @@ public:
         graphBtnPitch(context),
         graphBtnSsg256(context),
         graphBtnSsgP256(context),
+        graphBtnParam(context),
         graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp
