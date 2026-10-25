@@ -98,6 +98,12 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 全プラグイン (2686VFX は TAP AMP / PITCH SEQUENCER だけ)
 - **マニュアルに「チュートリアル」の章を足した**
   - 音を作りながら操作を覚えるページを、これから足していく。動画 (.mp4 / .webm) や動く絵 (.gif) を貼れる
+- **SSG に実機の鳴り方を足した (More Real SSG / 三角波・ノイズの More Real FC)**
+  - 矩形波の設定に **More Real SSG** を足した。SSG (YM2203 / YM2608B) の鳴り方を真似る。デューティ比は 50% に固定 (DUTY の設定は薄くなり効かない)、0 から上だけに振れる単極で鳴らし、約 30Hz の直流カット (サグと、音量を急に上げたときの「パツッ」)、音量は SSG の対数の表 (CHIP DAC によらず)、トーンとノイズは論理積 (AND) で混ぜる (MIX 0 でトーンだけ、1 でノイズだけ、0.5 で AND)。FC Mode / More Real FC / More Real NES と排他
+  - 三角波の設定に **More Real FC** を足した。2A03 の三角波 (4bit × 32 段の階段、11bit タイマーの音程、三角波とノイズの DAC の曲がり、37Hz のハイパス) を真似る。PEAK と PEAK RATIO ENVELOPE は薄くなり効かない
+  - 矩形波・三角波のグループの下半分を **NOISE** グループにし、**More Real FC** を置いた。2A03 のノイズ (15bit LFSR の長周期 32,767 段、16 段の表の速さ、37Hz のハイパス) を真似る。初期型ファミコンと同じく短周期は無い
+  - どれも初期値は切で、これまでの音は変わらない。チャンネルパラメータ・プリセット・DAW の状態に保存。オートメーションは `SSG_DUTY_MORE_SSG` / `SSG_TRI_MORE_FC` / `SSG_NOISE_MORE_FC`
+  - SSG を持つプラグイン (2686V・2686VLight・26V・86V・PULSEV)
 - **ADPCM+ の、選んでいないスロットも符号化しておくようにした**
   - TAP PARAM SEQUENCER / PARAM ENV で VOICE を変えると、選んでいないスロットも鳴るため。読み込んであるスロットは、QUALITY を変えたときにすべて符号化し直す
   - ADPCM+ を持つプラグイン (2686V / 2686VLight / PCMV)

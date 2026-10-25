@@ -148,6 +148,15 @@ is down (the sustain) is drawn with a fixed width in its own colour (yellow-gree
 
 Pages that teach the controls while you build sounds will be added over time. They can embed videos and animated pictures.
 
+## More chip-accurate modes for the SSG
+
+- The pulse settings gain **More Real SSG**, which mimics the SSG (YM2203 / YM2608B): a fixed 50% duty cycle, a unipolar
+  output, the DC cut, the logarithmic volume and the AND of tone and noise. It is exclusive with FC Mode / More Real FC / More Real NES
+- The triangle settings gain **More Real FC**, the Famicom's 4-bit × 32-step staircase triangle
+- The lower half of the pulse / triangle group is now the **NOISE** group, with **More Real FC** (the Famicom's 15-bit LFSR noise)
+
+All of them start off, so existing sounds don't change. See [SSG](/2686V_2686VFX/en/chips/ssg/).
+
 ## More sections hidden in simple view mode
 
 PARAM ENV[256] and TAP PARAM SEQUENCER are hidden in simple view mode. "PARAM ENV[256]" and "TAP PARAM SEQUENCER" were

@@ -324,12 +324,18 @@ struct PrPtrsSsgDuty {
     std::atomic<float>* fcFluc = nullptr;
     std::atomic<float>* moreFc = nullptr;
     std::atomic<float>* moreNes = nullptr;
+    std::atomic<float>* moreSsg = nullptr;
 };
 
 struct PrPtrsSsgTri {
     std::atomic<float>* keyTrk = nullptr;
     std::atomic<float>* peak = nullptr;
     std::atomic<float>* freq = nullptr;
+    std::atomic<float>* moreFc = nullptr;
+};
+
+struct PrPtrsSsgNoise {
+    std::atomic<float>* moreFc = nullptr;
 };
 
 struct PrPtrsSsgHwEnv {

@@ -480,12 +480,18 @@ namespace PrHelper {
 		ptPtrs.fcFluc = apvts.getRawParameterValue(prefix + CPK::SsgDuty::fcFluc);
 		ptPtrs.moreFc = apvts.getRawParameterValue(prefix + CPK::SsgDuty::moreFc);
 		ptPtrs.moreNes = apvts.getRawParameterValue(prefix + CPK::SsgDuty::moreNes);
+		ptPtrs.moreSsg = apvts.getRawParameterValue(prefix + CPK::SsgDuty::moreSsg);
 	}
 
 	static inline void setupSsgTri(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgTri& ptPtrs){
 		ptPtrs.keyTrk = apvts.getRawParameterValue(prefix + CPK::SsgTri::keyTrk);
 		ptPtrs.peak = apvts.getRawParameterValue(prefix + CPK::SsgTri::peak);
 		ptPtrs.freq = apvts.getRawParameterValue(prefix + CPK::SsgTri::freq);
+		ptPtrs.moreFc = apvts.getRawParameterValue(prefix + CPK::SsgTri::moreFc);
+	}
+
+	static inline void setupSsgNoise(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgNoise& ptPtrs){
+		ptPtrs.moreFc = apvts.getRawParameterValue(prefix + CPK::SsgNoise::moreFc);
 	}
 
 	static inline void setupSsgHwEnv(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgHwEnv& ptPtrs) {
@@ -1096,12 +1102,18 @@ namespace PrHelper {
 		params.fcFluc = getFloat(ptPtrs.fcFluc);
 		params.moreFc = getBool(ptPtrs.moreFc);
 		params.moreNes = getBool(ptPtrs.moreNes);
+		params.moreSsg = getBool(ptPtrs.moreSsg);
 	}
 
 	static inline void applySsgTri(PrPtrsSsgTri& ptPtrs, SsgTriParams& params){
 		params.keyTrack = getBool(ptPtrs.keyTrk);
 		params.peak = getFloat(ptPtrs.peak);
 		params.freq = getFloat(ptPtrs.freq);
+		params.moreFc = getBool(ptPtrs.moreFc);
+	}
+
+	static inline void applySsgNoise(PrPtrsSsgNoise& ptPtrs, SsgNoiseParams& params){
+		params.moreFc = getBool(ptPtrs.moreFc);
 	}
 
 	static inline void applySsgHwEnv(PrPtrsSsgHwEnv& ptPtrs, SsgHwEnvParams& params) {
@@ -3762,6 +3774,12 @@ namespace PrHelper {
 			prefixName + CPN::SsgDuty::moreNes, 
 			CPV::SsgDuty::MoreNes::initial
 		); // More Real NES
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgDuty::moreSsg,
+			prefixName + CPN::SsgDuty::moreSsg,
+			CPV::SsgDuty::MoreSsg::initial
+		); // More Real SSG (4.3.0)
 	}
 
 	static inline void addSsgTriParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -3785,6 +3803,22 @@ namespace PrHelper {
 			prefixName + CPN::SsgTri::manualFreq, 
 			CPV::SsgTri::ManualFreq::min, CPV::SsgTri::ManualFreq::max, CPV::SsgTri::ManualFreq::initial
 		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgTri::moreFc,
+			prefixName + CPN::SsgTri::moreFc,
+			CPV::SsgTri::MoreFc::initial
+		); // More Real FC (4.3.0)
+	}
+
+	// SSG の NOISE グループ (4.3.0)
+	static inline void addSsgNoiseParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgNoise::moreFc,
+			prefixName + CPN::SsgNoise::moreFc,
+			CPV::SsgNoise::MoreFc::initial
+		); // More Real FC
 	}
 
 	static inline void addSsgHwEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {

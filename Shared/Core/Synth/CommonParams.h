@@ -202,10 +202,12 @@ struct SsgDutyParams {
     // Famicom Mode Fluctuation
     float fcFluc = 0.2f;
 
-    // ファミコン / NES (2A03) の鳴り方。FC と合わせて 1 つだけ入る想定。
-    // 重なったときは FC → More Real FC → More Real NES の順で先のものを使う。
+    // ファミコン / NES (2A03) の鳴り方と、SSG (YM2203 / YM2608B) の鳴り方 (4.3.0)。
+    // FC と合わせて 1 つだけ入る想定。重なったときは
+    // FC → More Real FC → More Real NES → More Real SSG の順で先のものを使う。
     bool moreFc = false;
     bool moreNes = false;
+    bool moreSsg = false;
 };
 
 struct SsgTriParams {
@@ -218,4 +220,13 @@ struct SsgTriParams {
 
     // Triangle Manual Spped Freq
     float freq = 440.0f;
+
+    // ファミコン (2A03) の三角波の鳴り方 (4.3.0)。PEAK は使わない
+    bool moreFc = false;
+};
+
+// SSG の NOISE グループ (4.3.0)
+struct SsgNoiseParams {
+    // ファミコン (2A03) のノイズの鳴り方 (15bit LFSR の長周期)
+    bool moreFc = false;
 };

@@ -94,10 +94,15 @@ void SsgCore::setParameters(const SynthCoreParams& params)
     m_dutyFcFluc = chipParams.duty.fcFluc;
     m_dutyMoreFc = chipParams.duty.moreFc;
     m_dutyMoreNes = chipParams.duty.moreNes;
+    m_dutyMoreSsg = chipParams.duty.moreSsg;
 
     m_triKeyTrack = chipParams.tri.keyTrack;
     m_triPeak = chipParams.tri.peak;
     m_triFreq = chipParams.tri.freq;
+    m_triMoreFc = chipParams.tri.moreFc;
+
+    m_noiseMoreFc = chipParams.noise.moreFc;
+    m_noiseGen.setFcMode(m_noiseMoreFc);
 
     m_noiseGen.setParameters({ .level = chipParams.tn.noiseLevel, .noiseOnNote = chipParams.tn.noiseOnNote, .baseFreq = chipParams.tn.noiseFreq });
 
@@ -181,6 +186,9 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         m_interp.reset();
         m_lastSample = 0.0f;
         m_2a03Filter.reset();
+        m_triFcFilter.reset();
+        m_noiseFcFilter.reset();
+        m_ssgDcCut.reset();
     }
 
     if (!isLegato) {
@@ -403,6 +411,21 @@ float SsgCore::getSample()
             else phaseInc = (float)(quantized / m_targetRate / (double)m_speed);
         }
 
+        // 三角波の More Real FC。周波数を三角波のタイマー (矩形波の倍の段) へ寄せる
+        const bool useTri2A03 = isTri2A03();
+
+        if (useTri2A03) {
+            m_triFcFilter.prepare(m_targetRate, Pulse2A03::OutputFilter::Model::Fc);
+
+            const double effective = (double)phaseInc * (double)m_speed * m_targetRate;
+            const double quantized = Tnd2A03::quantizeTriangleFrequency(effective);
+
+            if (quantized <= 0.0 || m_speed <= 0.0f) silent2A03 = true;
+            else phaseInc = (float)(quantized / m_targetRate / (double)m_speed);
+        }
+
+        const bool ssgReal = isSsgReal();
+
         // ==========================================
         // 1. Hardware Envelope Update
         // ==========================================
@@ -410,7 +433,7 @@ float SsgCore::getSample()
 
         // CHIP DAC。ハードウェアエンベロープは 32 段で表を引く。
         // 切っているときは最大のまま出てくるので、触らない。
-        if (useChipDac() && m_hwEnvEnable) hwEnv = SsgDac::envelope(hwEnv);
+        if (useSsgDac() && m_hwEnvEnable) hwEnv = SsgDac::envelope(hwEnv);
 
         float hwEnvGain = hwEnv * m_wtAmpMod.process(m_ampModDelta);
 
@@ -436,6 +459,10 @@ float SsgCore::getSample()
 
                 toneSample = silent2A03 ? 0.0f : Pulse2A03::sample(wavePhase, Pulse2A03::nearestDuty(currentDuty));
             }
+            else if (ssgReal) {
+                // SSG はデューティ比 50% 固定。0 / 1 の単極で出し、直流はあとで抜く
+                toneSample = wavePhase < 0.5f ? 1.0f : 0.0f;
+            }
             else if (m_dutyFc) {
                 float currentDuty = pulseDuty;
 
@@ -458,6 +485,11 @@ float SsgCore::getSample()
                 toneSample = (wavePhase < currentDuty) ? 1.0f : -1.0f;
             }
         }
+        else if (useTri2A03) // Triangle (2A03)
+        {
+            // 4bit × 32 段の階段。0〜1 の単極で出し、直流はあとのフィルタが抜く
+            toneSample = silent2A03 ? 0.0f : Tnd2A03::triangle(wavePhase);
+        }
         else // Triangle
         {
             float phaseNorm = wavePhase;
@@ -478,6 +510,7 @@ float SsgCore::getSample()
         // 2A03 の出力の後ろのフィルタ。単極の 0〜1 を通すので、振れ幅を
         // ほかの矩形波 (-1〜1) へ揃えるために 2 倍する。
         if (use2A03) toneSample = m_2a03Filter.process(toneSample) * 2.0f;
+        else if (useTri2A03) toneSample = m_triFcFilter.process(toneSample) * 2.0f;
 
         m_phase += phaseInc * m_speed;
         // ピッチエンベロープや PM で 1 サンプルの進みが 1.0 を超えても
@@ -499,7 +532,23 @@ float SsgCore::getSample()
         // ==========================================
         float toneGain = 1.0f - m_mix;
         float noiseGain = m_mix;
-        float rawMixed = (toneSample * m_tone * toneGain) + m_noiseGen.generateSample(noiseGain);
+        float rawMixed = 0.0f;
+
+        if (ssgReal) {
+            // SSG はトーンとノイズを論理積で混ぜる。0〜1 の単極のまま
+            rawMixed = SsgReal::mix(toneSample * m_tone, m_noiseGen.bit() * m_noiseGen.gainLevel(), m_mix);
+        }
+        else {
+            float noiseSample = m_noiseGen.generateSample(noiseGain);
+
+            // ノイズの More Real FC。単極の 0〜1 を FC の出力のフィルタへ通し、振れ幅を揃える
+            if (m_noiseMoreFc) {
+                m_noiseFcFilter.prepare(m_targetRate, Pulse2A03::OutputFilter::Model::Fc);
+                noiseSample = m_noiseFcFilter.process(noiseSample) * 2.0f;
+            }
+
+            rawMixed = (toneSample * m_tone * toneGain) + noiseSample;
+        }
 
         // AM（トレモロ効果）をここで掛け合わせる
         rawMixed *= hwEnvGain * amMultiplier;
@@ -537,7 +586,16 @@ float SsgCore::getSample()
     if (is2A03()) finalEnv = Pulse2A03::volume(finalEnv);
 
     // CHIP DAC。エンベロープの値を音量のレジスタ (16 段) と見なし、表を引く。
-    else if (useChipDac()) finalEnv = SsgDac::volume(finalEnv);
+    // More Real SSG も同じ表を通す
+    else if (useSsgDac()) finalEnv = SsgDac::volume(finalEnv);
+
+    // More Real SSG。音量を掛けた単極の出力を直流カットへ通す。音量を急に上げると
+    // 直流が跳ねて「パツッ」と鳴り、矩形波の平らなところが傾く。振れ幅はほかの矩形波へ揃える
+    if (isSsgReal()) {
+        m_ssgDcCut.prepare(m_sampleRate);
+
+        return m_ssgDcCut.process(interpolatedSample * finalEnv) * 2.0f * m_baseLevel * m_level * 4.0f;
+    }
 
     return interpolatedSample * finalEnv * m_baseLevel * m_level * 4.0f;
 }

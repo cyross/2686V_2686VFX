@@ -51,9 +51,10 @@ What appears below changes with the waveform you pick.
 | **FC FLUC** | How much it fluctuates in FC Mode (**ours**) | 0.0–1.0 (0.2 by default) | |
 | **More Real FC** | Sound like the Famicom's (2A03) pulse channel (**ours**) | on / off (off by default) | 4.0.0 |
 | **More Real NES** | Sound like the NES's (2A03) pulse channel (**ours**) | on / off (off by default) | 4.0.0 |
+| **More Real SSG** | Sound like the SSG's (YM2203 / YM2608B) pulse channel (**ours**) | on / off (off by default) | 4.3.0 |
 
-**Only one of FC Mode, More Real FC and More Real NES can be on** (all off is fine).
-Turning one on turns the other two off.
+**Only one of FC Mode, More Real FC, More Real NES and More Real SSG can be on** (all off is fine).
+Turning one on turns the other three off.
 
 More Real FC / More Real NES have nothing to do with FC FLUC. They mimic the 2A03 like this:
 
@@ -63,6 +64,18 @@ More Real FC / More Real NES have nothing to do with FC FLUC. They mimic the 2A0
 - The output swings between 0 and the volume, and the filters after it remove the DC. **This is where FC and NES differ**
   - More Real FC: a 37 Hz high-pass
   - More Real NES: 90 Hz and 440 Hz high-passes and a 14 kHz low-pass (thinner bass, a droop on long pulses)
+
+More Real SSG mimics how the SSG's output is built (4.3.0):
+
+- The duty cycle is **fixed at 50%**, as on the chip. While it is on, MODE, PRESET, RATIO, Invert Phrase and
+  DUTY RATIO ENVELOPE are dimmed and have no effect
+- The output only swings upwards from 0 and goes through the board's DC cut (a first-order high-pass at about
+  30 Hz) to come back around 0. The flat tops of the pulse lean a little (sag), and raising the volume suddenly
+  makes the DC jump with a "click"
+- Volume goes through the SSG's logarithmic table (the same one as CHIP DAC), whatever CHIP DAC in QUALITY says
+- **Tone and noise are combined with a logical AND.** MIX at 0 is tone only, at 1 noise only, and at 0.5 the AND
+  of both (noise only gets through while the pulse is high — a gritty, metallic sound). In between, the nearer
+  one is blended with the AND
 
 PRESET offers these eight duty cycles.
 
@@ -88,6 +101,7 @@ PRESET offers these eight duty cycles.
 | **FC FLUC** | How large that wavering is | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-fc-fluc) |
 | **More Real FC** | Sound like the Famicom's pulse channel (**ours**) | [`SSG_DUTY_MORE_FC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-more-fc) |
 | **More Real NES** | Sound like the NES's pulse channel (**ours**) | [`SSG_DUTY_MORE_NES`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-more-nes) |
+| **More Real SSG** | Sound like the SSG's pulse channel (**ours**, 4.3.0) | [`SSG_DUTY_MORE_SSG`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-duty-more-ssg) |
 
 #### DUTY RATIO ENVELOPE (ours, 4.0.0)
 
@@ -117,8 +131,19 @@ These appear when FORM is set to `1: Triangle / Saw`. **PEAK** moves where the p
 | **PEAK** | Where the peak sits. `0.0` is a falling saw, `0.5` a triangle, `1.0` a rising saw | 0.0–1.0 (0.5 by default) | |
 | **Key Track (Pitch)** | Follow the keyboard. Switched off, it stays at the FQ frequency | on / off (on by default) | |
 | **FREQ** | The frequency used when Key Track is off | 0–8000 Hz (440 by default) | |
+| **More Real FC** | Sound like the Famicom's (2A03) triangle channel (**ours**) | on / off (off by default) | 4.3.0 |
 
 Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump straight to those values.
+
+More Real FC mimics the 2A03 triangle like this (4.3.0):
+
+- The wave is a **4-bit (0–15) × 32-step staircase**: 15, 14 … 1, 0, 0, 1 … 14, 15, with the top and bottom held
+  for two steps each. The steps give the chip's buzzy overtones. PEAK and PEAK RATIO ENVELOPE are dimmed and have no effect
+- Pitch snaps to the 11-bit timer (ftri = 1789772.7 / (32 × (t + 1)) — an octave below the pulse for the same timer).
+  Notes high enough to need t below 2 are silent
+- The step values go through the non-linear DAC shared by triangle and noise (159.79 / (8227 / T + 100))
+- The output is unipolar, and the Famicom's output filter (a 37 Hz high-pass) removes the DC
+- The real triangle has no volume register, but here AMP ENV and the other volume controls still apply
 
 
 | Knob | What it does | Automation |
@@ -126,6 +151,7 @@ Below PEAK there are `0.0 (Down)`, `0.5 (Tri)` and `1.0 (Up)` buttons that jump 
 | **Key Track (Pitch)** | Sound the pitch of the key. Switched off, it stays at FQ | [`SSG_TRI_KEYTRK`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-keytrk) |
 | **FREQ** | The frequency it is fixed at | [`SSG_TRI_FREQ`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-freq) |
 | **PEAK** | Where the peak of the triangle sits. 0.5 is symmetrical | [`SSG_TRI_PEAK`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-peak) |
+| **More Real FC** | Sound like the Famicom's triangle channel (**ours**, 4.3.0) | [`SSG_TRI_MORE_FC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-tri-more-fc) |
 
 #### PEAK RATIO ENVELOPE (ours, 4.0.0)
 
@@ -137,6 +163,26 @@ It works like DUTY RATIO ENVELOPE.
   **PK.TARGET** and the value knob **PEAK**
 - The buttons under the value knob (−0.01 / −0.1 / 0.0 / 1.0 / +0.1 / +0.01) move the value
 - The section's parameter file is `.peakEnv`
+
+### NOISE (ours, 4.3.0)
+
+The lower half of the pulse / triangle group is the **NOISE** group (it shows whatever FORM is set to).
+
+| Item | What it does | Range | Notes |
+| --- | --- | --- | --- |
+| **More Real FC** | Sound like the Famicom's (2A03) noise channel (**ours**) | on / off (off by default) | 4.3.0 |
+
+More Real FC mimics the 2A03 noise like this:
+
+- A **15-bit LFSR** makes the noise (bit 0 XOR bit 1 fed back into bit 14 — the long mode, 32,767 steps).
+  As on the early Famicom (the plain RP2A03), there is no short mode (the 93-step metallic sound)
+- The LFSR rate snaps to the closest entry of the chip's **16-step table** (every 4 / 8 / 16 / 32 / 64 / 96 / 128 /
+  160 / 202 / 254 / 380 / 508 / 762 / 1016 / 2034 / 4068 CPU cycles) to the rate set by N.FREQ (or N.VALUE, or key tracking)
+- The output is unipolar — it sounds while bit 0 is 0 — and the Famicom's output filter (a 37 Hz high-pass) removes the DC
+
+| Knob | What it does | Automation |
+| --- | --- | --- |
+| **More Real FC** | Sound like the Famicom's noise channel (**ours**) | [`SSG_NOISE_MORE_FC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-noise-more-fc) |
 
 ## TONE / NOISE / MIX — blending the sound (hardware)
 

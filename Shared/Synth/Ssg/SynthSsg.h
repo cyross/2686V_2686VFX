@@ -21,6 +21,7 @@
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "../../Core/Synth/SynthInterp.h"
 #include "Shared/Generator/Pulse/GenPulse2A03.h"
+#include "Shared/Generator/Pulse/GenTnd2A03.h"
 #include "../../Core/Synth/ChipDac.h"
 
 class SsgCore : public SynthCore
@@ -101,11 +102,30 @@ private:
     // いま 2A03 の鳴り方で出すか (矩形波で、FC が切れていて、どちらかが入っている)
     bool is2A03() const { return m_waveform == 0 && !m_dutyFc && (m_dutyMoreFc || m_dutyMoreNes); }
 
+    // More Real SSG (4.3.0)。SSG (YM2203 / YM2608B) の鳴り方。デューティ比 50% の
+    // 単極の矩形波を、トーンとノイズの論理積で混ぜ、対数の DAC と直流カットを通す。
+    // FC / More Real FC / More Real NES とは排他 (重なったときはそちらを使う)
+    bool m_dutyMoreSsg = false;
+    SsgReal::DcBlocker m_ssgDcCut;
+    bool isSsgReal() const { return m_waveform == 0 && !m_dutyFc && !m_dutyMoreFc && !m_dutyMoreNes && m_dutyMoreSsg; }
+
+    // 三角波の More Real FC (4.3.0)。2A03 の 4bit × 32 段の階段で鳴らす。PEAK は使わない
+    bool m_triMoreFc = false;
+    Pulse2A03::OutputFilter m_triFcFilter;
+    bool isTri2A03() const { return m_waveform == 1 && m_triMoreFc; }
+
+    // ノイズの More Real FC (4.3.0)。2A03 の 15bit LFSR (長周期) と、出力の後ろのフィルタ
+    bool m_noiseMoreFc = false;
+    Pulse2A03::OutputFilter m_noiseFcFilter;
+
     // CHIP DAC (QUALITY)。音量を SSG の対数の表で鳴らす。2A03 の鳴り方が
     // 入っていれば、そちらの DAC を通すので使わない。
     bool m_chipDac = false;
     bool m_hwEnvEnable = false;
-    bool useChipDac() const { return m_chipDac && !is2A03(); }
+    bool useChipDac() const { return m_chipDac && !is2A03() && !isTri2A03(); }
+
+    // SSG の対数の表を通すか。More Real SSG は CHIP DAC によらず通す
+    bool useSsgDac() const { return useChipDac() || isSsgReal(); }
 
     // DUTY RATIO ENV。入っているあいだは MODE・Invert の代わりにこのデューティ比 (%) を使う
     bool m_dutyEnvEnable = false;

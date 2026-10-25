@@ -407,6 +407,7 @@ namespace CPN
 		static inline const juce::String fcFluc = " Duty FC Fluctuation";
 		static inline const juce::String moreFc = " Duty More Real FC";
 		static inline const juce::String moreNes = " Duty More Real NES";
+		static inline const juce::String moreSsg = " Duty More Real SSG";
 	}
 
 	namespace SsgTri
@@ -414,6 +415,12 @@ namespace CPN
 		static inline const juce::String keyTrack = " Triangle Key Track";
 		static inline const juce::String peak = " Triangle Peak";
 		static inline const juce::String manualFreq = " Tri Manual Freq";
+		static inline const juce::String moreFc = " Triangle More Real FC";
+	}
+
+	namespace SsgNoise
+	{
+		static inline const juce::String moreFc = " Noise More Real FC";
 	}
 
 	namespace SsgHwEnv

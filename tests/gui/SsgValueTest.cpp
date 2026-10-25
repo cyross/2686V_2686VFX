@@ -1,10 +1,12 @@
 ﻿// ============================================================================
 // SSG の設定値 (VALUE) で決める: SSG HW AMP ENV / SSG HW PITCH ENV / FORM
+// More Real SSG / 三角波・ノイズの More Real FC (4.3.0)
 // ============================================================================
 #include "doctest/doctest.h"
 
 #include <JuceHeader.h>
 
+#include <cmath>
 #include <functional>
 #include <vector>
 
@@ -283,4 +285,144 @@ TEST_CASE("SSG の設定値: N ボタンで出す値のボタンは、足し引�
 	CHECK(hasBase(GuiComponentValueNudge::envValueRows(), CPV::SsgHwEnv::Value::initial));
 
 	editor.reset();
+}
+
+namespace
+{
+	// SSG を鳴らした大きさ (RMS)。鳴らない・壊れた値なら 0 以下
+	double playSsg(AudioPlugin2686V& processor)
+	{
+		constexpr double rate = 48000.0;
+		constexpr int block = 480;
+
+		processor.setRateAndBufferSizeDetails(rate, block);
+		processor.prepareToPlay(rate, block);
+
+		juce::AudioBuffer<float> buffer(2, block);
+		juce::MidiBuffer midi;
+
+		midi.addEvent(juce::MidiMessage::noteOn(1, 60, (juce::uint8)100), 0);
+
+		double sum = 0.0;
+
+		for (int b = 0; b < 20; ++b) {
+			buffer.clear();
+			processor.processBlock(buffer, midi);
+			midi.clear();
+
+			for (int ch = 0; ch < 2; ++ch) {
+				const auto* x = buffer.getReadPointer(ch);
+
+				for (int i = 0; i < block; ++i) {
+					if (!std::isfinite(x[i])) return -1.0;
+
+					sum += (double)x[i] * (double)x[i];
+				}
+			}
+		}
+
+		return std::sqrt(sum / (20.0 * block * 2.0));
+	}
+
+	bool selectSsg(AudioPlugin2686V& processor)
+	{
+		for (int m = 0; m < (int)OscMode::Count; ++m) {
+			if (getModeName((OscMode)m) != "SSG") continue;
+
+			setReal(processor.apvts, "MODE", (float)m);
+			return true;
+		}
+
+		return false;
+	}
+}
+
+TEST_CASE("SSG の More Real: More Real SSG は FC / More Real FC / More Real NES と排他。三角波・NOISE にも More Real FC がある")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	auto& apvts = processor->apvts;
+
+	if (apvts.getParameter("SSG" + CPK::SsgDuty::moreSsg) == nullptr) return;
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	auto toggleOf = [&](const juce::String& id) -> GuiToggleButton* {
+		auto found = findAll<GuiToggleButton>(*editor, [&id](GuiToggleButton& t) { return t.getComponentID() == id; });
+
+		return found.empty() ? nullptr : found[0];
+	};
+
+	auto* fc = toggleOf("SSG" + CPK::SsgDuty::fc);
+	auto* moreFc = toggleOf("SSG" + CPK::SsgDuty::moreFc);
+	auto* moreNes = toggleOf("SSG" + CPK::SsgDuty::moreNes);
+	auto* moreSsg = toggleOf("SSG" + CPK::SsgDuty::moreSsg);
+
+	REQUIRE(fc != nullptr);
+	REQUIRE(moreFc != nullptr);
+	REQUIRE(moreNes != nullptr);
+	REQUIRE(moreSsg != nullptr);
+
+	CHECK(toggleOf("SSG" + CPK::SsgTri::moreFc) != nullptr);
+	CHECK(toggleOf("SSG" + CPK::SsgNoise::moreFc) != nullptr);
+
+	// 初めはどれも切 (これまでの音のまま)
+	CHECK_FALSE(moreSsg->getToggleState());
+
+	// More Real FC を入れてから More Real SSG を入れると、More Real FC が切れる
+	moreFc->setToggleState(true, juce::sendNotificationSync);
+	REQUIRE(moreFc->onClick != nullptr);
+	moreFc->onClick();
+
+	moreSsg->setToggleState(true, juce::sendNotificationSync);
+	REQUIRE(moreSsg->onClick != nullptr);
+	moreSsg->onClick();
+
+	CHECK(moreSsg->getToggleState());
+	CHECK_FALSE(moreFc->getToggleState());
+	CHECK_FALSE(moreNes->getToggleState());
+	CHECK_FALSE(fc->getToggleState());
+
+	// 逆に FC Mode を入れると More Real SSG が切れる
+	fc->setToggleState(true, juce::sendNotificationSync);
+	fc->onClick();
+
+	CHECK_FALSE(moreSsg->getToggleState());
+
+	editor.reset();
+}
+
+TEST_CASE("SSG の More Real: More Real SSG / 三角波・ノイズの More Real FC で鳴る")
+{
+	struct Case
+	{
+		const char* name;
+		float waveform;
+		juce::String flag;
+		float mix;
+	};
+
+	const Case cases[] = {
+		{ "More Real SSG (トーン)", 0.0f, "SSG" + CPK::SsgDuty::moreSsg, 0.0f },
+		{ "More Real SSG (AND)", 0.0f, "SSG" + CPK::SsgDuty::moreSsg, 0.5f },
+		{ "三角波 More Real FC", 1.0f, "SSG" + CPK::SsgTri::moreFc, 0.0f },
+		{ "ノイズ More Real FC", 0.0f, "SSG" + CPK::SsgNoise::moreFc, 1.0f },
+	};
+
+	for (const auto& c : cases)
+	{
+		CAPTURE(c.name);
+
+		auto processor = std::make_unique<AudioPlugin2686V>();
+		auto& apvts = processor->apvts;
+
+		if (apvts.getParameter(c.flag) == nullptr || !selectSsg(*processor)) return;
+
+		setReal(apvts, "SSG" + CPK::ssgWaveform, c.waveform);
+		setReal(apvts, c.flag, 1.0f);
+		setReal(apvts, "SSG" + CPK::Tn::mix, c.mix);
+
+		CHECK(playSsg(*processor) > 1.0e-4);
+	}
 }

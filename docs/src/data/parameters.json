@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.3.0",
-  "count": 13366,
+  "count": 13369,
   "parameters": [
     {
       "id": "MODE",
@@ -60524,6 +60524,14 @@
       "default": false
     },
     {
+      "id": "SSG_DUTY_MORE_SSG",
+      "name": "SSG Duty More Real SSG",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "SSG_TRI_KEYTRK",
       "name": "SSG Triangle Key Track",
       "type": "Bool",
@@ -60548,6 +60556,22 @@
       "max": 8000.0,
       "step": 0.000099999997474,
       "default": 440.0
+    },
+    {
+      "id": "SSG_TRI_MORE_FC",
+      "name": "SSG Triangle More Real FC",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_NOISE_MORE_FC",
+      "name": "SSG Noise More Real FC",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
     },
     {
       "id": "SSG_DUTYENV_ENABLE",

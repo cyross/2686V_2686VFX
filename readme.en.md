@@ -98,6 +98,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Every plugin (2686VFX only has TAP AMP / PITCH SEQUENCER)
 - **A "Tutorials" chapter in the manual**
   - Pages that teach the controls while you build sounds will be added over time. They can embed videos (.mp4 / .webm) and animated pictures (.gif)
+- **The SSG gains more chip-accurate modes (More Real SSG, More Real FC for triangle and noise)**
+  - The pulse settings gain **More Real SSG**, which mimics the SSG (YM2203 / YM2608B): the duty cycle is fixed at 50% (the DUTY settings are dimmed and have no effect), the output swings only upwards from 0, a DC cut at about 30 Hz adds the sag and the "click" when the volume jumps, volume goes through the SSG's logarithmic table (whatever CHIP DAC says), and tone and noise are combined with a logical AND (MIX 0 is tone only, 1 noise only, 0.5 the AND). It is exclusive with FC Mode / More Real FC / More Real NES
+  - The triangle settings gain **More Real FC**, which mimics the 2A03 triangle (a 4-bit × 32-step staircase, the 11-bit timer pitch, the triangle/noise DAC curve and a 37 Hz high-pass). PEAK and PEAK RATIO ENVELOPE are dimmed and have no effect
+  - The lower half of the pulse / triangle group is now the **NOISE** group, with **More Real FC**: the 2A03 noise (the long mode of a 15-bit LFSR, 32,767 steps, rates from the 16-entry table, and a 37 Hz high-pass). As on the early Famicom, there is no short mode
+  - All of them start off, so existing sounds don't change. Saved in channel parameters, presets and DAW state. Automation: `SSG_DUTY_MORE_SSG` / `SSG_TRI_MORE_FC` / `SSG_NOISE_MORE_FC`
+  - Plugins with SSG (2686V, 2686VLight, 26V, 86V, PULSEV)
 - **ADPCM+ now keeps every loaded slot encoded**
   - Changing VOICE with TAP PARAM SEQUENCER / PARAM ENV can play slots other than the selected one. Every loaded slot is encoded again when QUALITY changes
   - Plugins with ADPCM+ (2686V / 2686VLight / PCMV)

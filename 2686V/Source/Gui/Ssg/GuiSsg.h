@@ -46,6 +46,9 @@ class GuiSsg : public GuiBase
     GuiScrollGroup dutyGroup;
     GuiScrollGroup triGroup;
 
+    // 波形のグループの下半分 (4.3.0)
+    GuiScrollGroup noiseGroup;
+
     GuiComponentPresetName presetName;
 
     // OPTIONAL。いまは再生速度だけだが、この先もここへ足していく。
@@ -131,13 +134,22 @@ class GuiSsg : public GuiBase
     GuiToggleButton dutyMoreFcButton;
     GuiToggleButton dutyMoreNesButton;
 
+    // SSG (YM2203 / YM2608B) の鳴り方 (4.3.0)。上の 3 つとも排他
+    GuiToggleButton dutyMoreSsgButton;
+
     // Triangle
     GuiToggleButton triKeyTrackButton;
+
+    // ファミコン (2A03) の三角波の鳴り方 (4.3.0)
+    GuiToggleButton triMoreFcButton;
     GuiSlider triFreqSlider;
     GuiSlider triPeakSlider;
     GuiTextButton triSetSawDown; // 0.0
     GuiTextButton triSetTri;     // 0.5
     GuiTextButton triSetSawUp;   // 1.0
+
+    // NOISE。ファミコン (2A03) のノイズの鳴り方 (4.3.0)
+    GuiToggleButton noiseMoreFcButton;
 
     GuiComponentMidi midiComponent;
 
@@ -201,6 +213,7 @@ public:
         presetName(context),
         dutyGroup(context),
         triGroup(context),
+        noiseGroup(context),
         optionalCat(context),
         speedSlider(context),
         optSpeedSeparator(context),
@@ -244,12 +257,15 @@ public:
         dutyFcFlucSlider(context),
         dutyMoreFcButton(context),
         dutyMoreNesButton(context),
+        dutyMoreSsgButton(context),
         triKeyTrackButton(context),
+        triMoreFcButton(context),
         triFreqSlider(context),
         triPeakSlider(context),
         triSetSawDown(context),
         triSetTri(context),
         triSetSawUp(context),
+        noiseMoreFcButton(context),
         midiComponent(context),
         editComponent(context),
         utilityCat(context),
