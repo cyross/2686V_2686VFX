@@ -117,6 +117,8 @@ except that the value is a **duty cycle (%)** instead of a level.
   (50 / 43.75 / 37.5 / 31.25 / 25 / 20 / 18.75 / 12.5 / 6.25%) directly
 - RATE, STEP, KEEP, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
 - With More Real FC / NES, this value is also snapped to the nearest of 12.5 / 25 / 50 / 75%
+- **STEPS** under the value knob (4.3.0) snaps the values (STL, the step values, LR, ENDL) to **10% / 25% / 20% / 12.5% / 6.25%**
+  (1/10, 1/4, 1/5, 1/8, 1/16). The choice is only on screen and isn't saved
 - The per-step R / L values are saved as a table in presets and channel parameters (they cannot be
   automated). The section's parameter file is `.dutyEnv`, read and written from the heading's right-click menu
 
@@ -162,6 +164,8 @@ It works like DUTY RATIO ENVELOPE.
 - Values run **0.0–1.0**. STL is called **STPK**, the L values **PK1–PK256**, the target knob
   **PK.TARGET** and the value knob **PEAK**
 - The buttons under the value knob (−0.01 / −0.1 / 0.0 / 1.0 / +0.1 / +0.01) move the value
+- **STEPS** under the value knob (4.3.0) snaps the values to **0.1 / 0.25 / 0.2 / 0.125 / 0.0625**
+  (1/10, 1/4, 1/5, 1/8, 1/16). The choice is only on screen and isn't saved
 - The section's parameter file is `.peakEnv`
 
 ### NOISE (ours, 4.3.0)

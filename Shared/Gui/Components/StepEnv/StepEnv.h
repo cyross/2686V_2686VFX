@@ -254,6 +254,7 @@ private:
     bool isAmp() const { return spec.kind == Spec::Kind::Amp; }
     bool isPitch() const { return spec.kind == Spec::Kind::Pitch; }
     bool isDuty() const { return spec.kind == Spec::Kind::Duty; }
+    bool isPeak() const { return spec.kind == Spec::Kind::Peak; }
     bool isAlg() const { return spec.kind == Spec::Kind::Alg; }
     bool isParam() const { return spec.kind == Spec::Kind::Param; }
 
@@ -277,7 +278,8 @@ private:
     void readLegacyTl(const Io::ParamReader& r);
 
     // LEVEL・LR・ENDL を決まった刻みへ丸める STEPS を持つもの
-    bool hasLevelSteps() const { return isAmp(); }
+    // DUTY / PEAK RATIO ENVELOPE にもある (4.3.0。範囲に対する 1/10・1/4・1/5・1/8・1/16)
+    bool hasLevelSteps() const { return isAmp() || isDuty() || isPeak(); }
 
     // KEEP の札を持つもの (ALG ENV は常に KEEP)
     bool hasKeep() const { return spec.keep.isNotEmpty(); }

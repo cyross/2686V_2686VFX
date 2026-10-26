@@ -156,6 +156,11 @@ AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[25
 
 どれも初期値は切で、これまでの音は変わりません。くわしくは [SSG](/2686V_2686VFX/chips/ssg/) を参照してください。
 
+## DUTY / PEAK RATIO ENVELOPE に STEPS を足しました
+
+値のつまみの下の **STEPS** で、値を 1/10・1/4・1/5・1/8・1/16 の刻みへ丸められます。DUTY RATIO ENVELOPE は
+10% / 25% / 20% / 12.5% / 6.25%、PEAK RATIO ENVELOPE は 0.1 / 0.25 / 0.2 / 0.125 / 0.0625 単位です。
+
 ## 簡易表示モードで隠すものを足しました
 
 PARAM ENV[256] と TAP PARAM SEQUENCER は、簡易表示モードで隠れます。SETTINGS の**簡易表示モードカスタマイズ**に

@@ -305,8 +305,11 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     endLevel.setExplicitFocusOrder(++tabOrder);
     endLevel.onValueChange = [this] { onSetLevelChanged(endLevel, StepTable::setEndl); };
 
-    // 音量だけ、LEVEL・LR・ENDL を決まった刻みへ丸められる
-    if (hasLevelSteps()) levelSteps.setupComponent(parent, { &level.getSlider(), &releaseLevel, &endLevel }, tabOrder, "STEPS", labelFont);
+    // 音量と DUTY / PEAK RATIO ENVELOPE は、LEVEL・LR・ENDL を決まった刻みへ丸められる
+    if (hasLevelSteps()) {
+        levelSteps.setupComponent(parent, { &level.getSlider(), &releaseLevel, &endLevel }, tabOrder, "STEPS", labelFont,
+            isAmp() ? GuiComponentStepSnap::Choices::Level : GuiComponentStepSnap::Choices::Ratio);
+    }
 
     flag.onStateChange = [this] { changed(); };
     if (hasKeep()) keep.onStateChange = [this] { changed(); };

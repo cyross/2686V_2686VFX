@@ -104,6 +104,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The lower half of the pulse / triangle group is now the **NOISE** group, with **More Real FC**: the 2A03 noise (the long mode of a 15-bit LFSR, 32,767 steps, rates from the 16-entry table, and a 37 Hz high-pass). As on the early Famicom, there is no short mode
   - All of them start off, so existing sounds don't change. Saved in channel parameters, presets and DAW state. Automation: `SSG_DUTY_MORE_SSG` / `SSG_TRI_MORE_FC` / `SSG_NOISE_MORE_FC`
   - Plugins with SSG (2686V, 2686VLight, 26V, 86V, PULSEV)
+- **STEPS for DUTY RATIO ENVELOPE and PEAK RATIO ENVELOPE**
+  - A **STEPS** selector sits under the value knob and snaps the values (STL, the step values, LR, ENDL) to fixed steps: Free, 1/10, 1/4, 1/5, 1/8 or 1/16
+  - The steps follow the range: DUTY RATIO ENVELOPE (0–100%) uses 10% / 25% / 20% / 12.5% / 6.25%, PEAK RATIO ENVELOPE (0–1) uses 0.1 / 0.25 / 0.2 / 0.125 / 0.0625
+  - The choice is only on screen and isn't saved (as with the STEPS of SSG SW AMP ENV[256] and the like)
+  - Plugins with SSG (2686V, 2686VLight, 26V, 86V, PULSEV)
 - **ADPCM+ now keeps every loaded slot encoded**
   - Changing VOICE with TAP PARAM SEQUENCER / PARAM ENV can play slots other than the selected one. Every loaded slot is encoded again when QUALITY changes
   - Plugins with ADPCM+ (2686V / 2686VLight / PCMV)

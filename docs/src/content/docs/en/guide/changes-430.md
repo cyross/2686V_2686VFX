@@ -157,6 +157,11 @@ Pages that teach the controls while you build sounds will be added over time. Th
 
 All of them start off, so existing sounds don't change. See [SSG](/2686V_2686VFX/en/chips/ssg/).
 
+## STEPS for DUTY / PEAK RATIO ENVELOPE
+
+**STEPS** under the value knob snaps the values to 1/10, 1/4, 1/5, 1/8 or 1/16 steps: 10% / 25% / 20% / 12.5% / 6.25%
+for DUTY RATIO ENVELOPE, and 0.1 / 0.25 / 0.2 / 0.125 / 0.0625 for PEAK RATIO ENVELOPE.
+
 ## More sections hidden in simple view mode
 
 PARAM ENV[256] and TAP PARAM SEQUENCER are hidden in simple view mode. "PARAM ENV[256]" and "TAP PARAM SEQUENCER" were

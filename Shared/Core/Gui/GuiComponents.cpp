@@ -511,7 +511,7 @@ std::vector<GuiSlider::NudgeSpec> GuiSlider::nudgeSpecs() const
     {
         // STEPS で丸めているあいだは、刻みの倍数だけ動かす。
         // 半端な幅で動かすと、丸めで元の値へ戻されてしまう
-        const double step = 1.0 / snapSteps;
+        const double step = snapScale / snapSteps;
 
         auto name = [this](int k) {
             return snapSteps == 1 ? juce::String(k) : juce::String(k) + "/" + juce::String(snapSteps);
@@ -594,7 +594,7 @@ double GuiSlider::valueForLabelDrag(double startValue, int dy, double alignStep)
     const double pixels = V::pixelsForFullRange;
 
     // STEPS で丸めているあいだは、その刻み。キーでそろえる刻みより先に効く
-    const double step = snapSteps > 0 ? 1.0 / snapSteps : alignStep;
+    const double step = snapSteps > 0 ? snapScale / snapSteps : alignStep;
 
     // 範囲より粗い刻みでは、そろえる先が端しか無いので使わない
     if (step > 0.0 && step <= hi - lo)

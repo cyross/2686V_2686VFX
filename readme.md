@@ -104,6 +104,11 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 矩形波・三角波のグループの下半分を **NOISE** グループにし、**More Real FC** を置いた。2A03 のノイズ (15bit LFSR の長周期 32,767 段、16 段の表の速さ、37Hz のハイパス) を真似る。初期型ファミコンと同じく短周期は無い
   - どれも初期値は切で、これまでの音は変わらない。チャンネルパラメータ・プリセット・DAW の状態に保存。オートメーションは `SSG_DUTY_MORE_SSG` / `SSG_TRI_MORE_FC` / `SSG_NOISE_MORE_FC`
   - SSG を持つプラグイン (2686V・2686VLight・26V・86V・PULSEV)
+- **DUTY RATIO ENVELOPE と PEAK RATIO ENVELOPE に STEPS を足した**
+  - 値のつまみの下に **STEPS** を置いた。値 (STL・段の値・LR・ENDL) を決まった刻みへ丸める。選択肢は自由・1/10・1/4・1/5・1/8・1/16
+  - 刻みは範囲に対して決まる。DUTY RATIO ENVELOPE (0〜100%) は 10% / 25% / 20% / 12.5% / 6.25%、PEAK RATIO ENVELOPE (0〜1) は 0.1 / 0.25 / 0.2 / 0.125 / 0.0625 単位
+  - 選んだ刻みは画面だけのもので保存しない (SSG SW AMP ENV[256] などの STEPS と同じ)
+  - SSG を持つプラグイン (2686V・2686VLight・26V・86V・PULSEV)
 - **ADPCM+ の、選んでいないスロットも符号化しておくようにした**
   - TAP PARAM SEQUENCER / PARAM ENV で VOICE を変えると、選んでいないスロットも鳴るため。読み込んであるスロットは、QUALITY を変えたときにすべて符号化し直す
   - ADPCM+ を持つプラグイン (2686V / 2686VLight / PCMV)

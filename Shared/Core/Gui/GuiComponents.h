@@ -503,6 +503,7 @@ protected:
     // 値を 1 / snapSteps の刻みへ丸めているとき、その刻みの数。0 は自由。
     // 丸めるのは STEPS の側で、ここでは動かす幅を刻みに合わせるのに使う。
     int snapSteps = 0;
+    double snapScale = 1.0;
 
     // 並びへ足す、値を直に置くボタン (カーブ編集の K の「1」など)。内部の値
     std::vector<std::pair<juce::String, double>> nudgeExtras;
@@ -618,6 +619,11 @@ public:
     // ラベルのドラッグとナッジの並びが、動かす幅を刻みに合わせる。
     void setSnapSteps(int steps) { snapSteps = juce::jmax(0, steps); }
     int getSnapSteps() const { return snapSteps; }
+
+    // 刻みの基準の幅。刻みは snapScale / snapSteps になる。既定は 1 (0〜1 のつまみ)。
+    // 0〜100% のつまみ (DUTY RATIO ENVELOPE) は 100 にして、1/10 刻みを 10% にする
+    void setSnapScale(double scale) { snapScale = scale > 0.0 ? scale : 1.0; }
+    double getSnapScale() const { return snapScale; }
 
     // ---- ラベルのドラッグ
     // ドラッグを始めたときの値 startValue から、上へ dy (px) 動かしたときの値。
