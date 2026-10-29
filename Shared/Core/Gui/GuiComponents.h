@@ -110,6 +110,13 @@ public:
     bool hitTest(int x, int y) override;
     void mouseDown(const juce::MouseEvent& e) override;
 
+    // 畳める見出しにマウスが乗ると、帯の色を変える
+    void mouseEnter(const juce::MouseEvent& e) override;
+    void mouseMove(const juce::MouseEvent& e) override;
+    void mouseExit(const juce::MouseEvent& e) override;
+
+    bool isTitleHovered() const { return titleHovered; }
+
 protected:
     // 畳み具合が変わったとき。中身を隠すのは派生の側
     virtual void foldedChanged() {}
@@ -117,6 +124,12 @@ protected:
 private:
     bool foldable = false;
     bool folded = false;
+
+    // 畳める見出しの上にマウスが乗っているか
+    bool titleHovered = false;
+
+    // 見出しの上にマウスが乗っているかを見直す。外へ出たときは nullopt
+    void updateTitleHover(std::optional<juce::Point<float>> position);
 
     // 見出しの帯の場所。開いていれば左上に横向き、畳んでいれば上から縦向き
     juce::Rectangle<float> titleChipBounds() const;
@@ -1486,6 +1499,10 @@ public:
     // 右クリックで、区分の中身の切り取り・コピー・貼り付け・初期化・複写と
     // 読み込み・書き出しを出す (ParamEdit::showCategoryMenu)。
     void mouseDown(const juce::MouseEvent& e) override;
+
+    // 押して開閉できる見出しは、マウスが乗ると地の色を変える
+    void mouseEnter(const juce::MouseEvent& e) override;
+    void mouseExit(const juce::MouseEvent& e) override;
 
     // 右クリックの「読み込み (IMPORT)」「書き出し (EXPORT)」で呼ぶもの。
     // UTILITY の [IM] / [EX] と同じ処理をつなぐ (GuiComponentImportExport::bindCategory)。

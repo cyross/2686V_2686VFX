@@ -114,6 +114,17 @@ namespace
 	{
 		if (b.onClick) b.onClick();
 	}
+
+	// c の上の場所 at へマウスを動かした知らせ
+	juce::MouseEvent mouseAt(juce::Component& c, juce::Point<float> at)
+	{
+		const auto now = juce::Time::getCurrentTime();
+
+		return { juce::Desktop::getInstance().getMainMouseSource(), at, {},
+			juce::MouseInputSource::defaultPressure, juce::MouseInputSource::defaultOrientation,
+			juce::MouseInputSource::defaultRotation, juce::MouseInputSource::defaultTiltX, juce::MouseInputSource::defaultTiltY,
+			&c, &c, now, at, now, 0, false };
+	}
 }
 
 TEST_CASE("GroupFold: 見出しを押すと幅が 30px になり、もう一度押すと戻る。state に残り、開き直しても畳んだまま")
@@ -240,4 +251,76 @@ TEST_CASE("GroupFold: 「><」で全て畳み、「<>」で全て開く")
 		CHECK_FALSE(g->isFolded());
 		CHECK(g->getWidth() > ColoredGroupComponent::foldedWidth);
 	}
+}
+
+TEST_CASE("GroupFold: 「<>」は濃い緑、「><」は濃い青の地にオフホワイトの文字")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	Editor e(*processor);
+
+	if (!e.openFoldableTab())
+	{
+		if (kRequireAll) FAIL("畳める枠が見つからない");
+
+		MESSAGE("畳める枠が無いので飛ばす");
+
+		return;
+	}
+
+	auto* openAll = e.button("<>");
+	auto* closeAll = e.button("><");
+
+	REQUIRE(openAll != nullptr);
+	REQUIRE(closeAll != nullptr);
+
+	CHECK(openAll->findColour(juce::TextButton::buttonColourId) == GuiColor::GroupFoldBtn::OpenBg.get());
+	CHECK(closeAll->findColour(juce::TextButton::buttonColourId) == GuiColor::GroupFoldBtn::CloseBg.get());
+
+	for (auto* b : { openAll, closeAll }) CHECK(b->findColour(juce::TextButton::textColourOffId) == GuiColor::GroupFoldBtn::Text.get());
+}
+
+TEST_CASE("GroupFold: 見出しにマウスが乗ると色を変える。畳んだ見出しでも同じ")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	Editor e(*processor);
+
+	if (!e.openFoldableTab())
+	{
+		if (kRequireAll) FAIL("畳める枠が見つからない");
+
+		MESSAGE("畳める枠が無いので飛ばす");
+
+		return;
+	}
+
+	auto* group = e.foldables().front();
+
+	// 開いた見出しは左上に横向き
+	const juce::Point<float> openTitle{ ColoredGroupComponent::titleInsetX + 2.0f, ColoredGroupComponent::titleHeight * 0.5f };
+
+	group->mouseEnter(mouseAt(*group, openTitle));
+	CHECK(group->isTitleHovered());
+
+	group->mouseExit(mouseAt(*group, openTitle));
+	CHECK_FALSE(group->isTitleHovered());
+
+	// 見出しの外では変えない
+	group->mouseMove(mouseAt(*group, group->getLocalBounds().toFloat().getBottomRight() - juce::Point<float>{ 4.0f, 4.0f }));
+	CHECK_FALSE(group->isTitleHovered());
+
+	// 畳んだ見出しは上から縦向き
+	group->onTitleClick();
+	e.ed().resized();
+
+	REQUIRE(group->isFolded());
+
+	const juce::Point<float> foldedTitle{ group->getWidth() * 0.5f, 6.0f };
+
+	group->mouseMove(mouseAt(*group, foldedTitle));
+	CHECK(group->isTitleHovered());
+
+	group->mouseExit(mouseAt(*group, foldedTitle));
+	CHECK_FALSE(group->isTitleHovered());
 }

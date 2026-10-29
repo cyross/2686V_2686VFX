@@ -163,8 +163,12 @@ void ColoredGroupComponent::paint(juce::Graphics& g)
 
     GuiShadow::drawRounded(g, chip, titleCornerRadius);
 
-    // 畳んでいるときも灰にする
-    g.setColour(titleIdle || folded ? GuiColor::Group::TitleBgIdle : GuiColor::Group::TitleBg);
+    // 畳んでいるときも灰にする。マウスが乗っていれば差し色へ寄せる
+    juce::Colour chipColour = titleIdle || folded ? GuiColor::Group::TitleBgIdle : GuiColor::Group::TitleBg;
+
+    if (titleHovered) chipColour = chipColour.interpolatedWith(GuiColor::Hover::TitleTint, GuiColor::Hover::titleTintAmount);
+
+    g.setColour(chipColour);
     g.fillRoundedRectangle(chip, titleCornerRadius);
 
     g.setColour(GuiColor::Group::TitleText);
@@ -246,10 +250,46 @@ void ColoredGroupComponent::mouseDown(const juce::MouseEvent& e)
     {
         onTitleClick();
 
+        // 畳むと見出しの場所が変わるので、マウスがまだ乗っているかを見直す
+        updateTitleHover(getMouseXYRelative().toFloat());
+
         return;
     }
 
     juce::GroupComponent::mouseDown(e);
+}
+
+void ColoredGroupComponent::mouseEnter(const juce::MouseEvent& e)
+{
+    updateTitleHover(e.position);
+
+    juce::GroupComponent::mouseEnter(e);
+}
+
+void ColoredGroupComponent::mouseMove(const juce::MouseEvent& e)
+{
+    updateTitleHover(e.position);
+
+    juce::GroupComponent::mouseMove(e);
+}
+
+void ColoredGroupComponent::mouseExit(const juce::MouseEvent& e)
+{
+    updateTitleHover(std::nullopt);
+
+    juce::GroupComponent::mouseExit(e);
+}
+
+void ColoredGroupComponent::updateTitleHover(std::optional<juce::Point<float>> position)
+{
+    const bool hovered = foldable && position.has_value()
+        && titleChipBounds().expanded(2.0f).contains(*position);
+
+    if (titleHovered == hovered) return;
+
+    titleHovered = hovered;
+
+    repaint();
 }
 
 void GuiGroup::mouseDown(const juce::MouseEvent& e)
@@ -1385,6 +1425,20 @@ void GuiCategoryLabel::mouseDown(const juce::MouseEvent& e)
     GuiLabel::mouseDown(e);
 }
 
+void GuiCategoryLabel::mouseEnter(const juce::MouseEvent& e)
+{
+    if (onClick != nullptr) repaint();
+
+    GuiLabel::mouseEnter(e);
+}
+
+void GuiCategoryLabel::mouseExit(const juce::MouseEvent& e)
+{
+    if (onClick != nullptr) repaint();
+
+    GuiLabel::mouseExit(e);
+}
+
 void GuiCategoryLabel::paint(juce::Graphics& g)
 {
     auto bounds = getLocalBounds().toFloat();
@@ -1397,7 +1451,10 @@ void GuiCategoryLabel::paint(juce::Graphics& g)
 
     GuiShadow::drawRounded(g, bounds, cornerRadius);
 
-    g.setColour(bgColor);
+    // 押して開閉できる見出しは、マウスが乗っていれば差し色へ寄せる
+    const bool hovered = onClick != nullptr && isMouseOver();
+
+    g.setColour(hovered ? bgColor.interpolatedWith(GuiColor::Hover::TitleTint, GuiColor::Hover::titleTintAmount) : bgColor);
     g.fillRoundedRectangle(bounds, cornerRadius);
 
     auto textArea = bounds.reduced(paddingX, 0.0f);

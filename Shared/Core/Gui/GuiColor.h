@@ -202,6 +202,28 @@ namespace GuiColor {
 	};
 
 	// ==========================================================
+	// 枠をすべて開く「<>」・すべて閉じる「><」のボタン (4.3.0)
+	// ==========================================================
+	// 開くほうが濃い緑、閉じるほうが濃い青。並んでいても取り違えないようにする
+	namespace GroupFoldBtn {
+		inline Entry OpenBg{ "GroupFoldBtn.OpenBg", []() -> juce::Colour { return juce::Colour(0xff006400); } };   // darkgreen
+		inline Entry CloseBg{ "GroupFoldBtn.CloseBg", []() -> juce::Colour { return juce::Colour(0xff00008b); } }; // darkblue
+		inline Entry Text{ "GroupFoldBtn.Text", []() -> juce::Colour { return Palette::OffWhite; } };
+	};
+
+	// ==========================================================
+	// 押せる見出しにマウスが乗ったとき (4.3.0)
+	// ==========================================================
+	// 区分の見出しと、畳める枠の見出しの帯を、この色へ少し寄せて描く。
+	// 見出しの地はどれも明るいので、明るくするより差し色を混ぜるほうが見て分かる
+	namespace Hover {
+		inline Entry TitleTint{ "Hover.TitleTint", []() -> juce::Colour { return Palette::MikuPink; } };
+
+		// 地の色へ TitleTint を混ぜる割合
+		inline constexpr float titleTintAmount = 0.35f;
+	};
+
+	// ==========================================================
 	// TARGET の枠
 	// ==========================================================
 	// 上に並ぶ小さな絵を 1 枚ずつ囲う線。TARGET が指しているものだけ

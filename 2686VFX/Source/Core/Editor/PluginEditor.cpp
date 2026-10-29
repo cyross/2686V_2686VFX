@@ -245,15 +245,16 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
     closeCategoriesBtn.onClick = [this] { closeBypassedCategories(); };
 
-    // 枠を全て開く・全て閉じる。区分の一括開閉と同じ色味にする
-    for (auto* button : { &openGroupsBtn, &closeGroupsBtn })
+    // 枠を全て開く・全て閉じる。開くほうは濃い緑、閉じるほうは濃い青
+    for (auto [button, bg] : { std::pair{ &openGroupsBtn, GuiColor::GroupFoldBtn::OpenBg.get() },
+                               std::pair{ &closeGroupsBtn, GuiColor::GroupFoldBtn::CloseBg.get() } })
     {
         addAndMakeVisible(button);
         button->setLookAndFeel(&categoryToggleBtnLF);
-        button->setColour(juce::TextButton::textColourOnId, GuiColor::SystemBtn::CategoryToggleText);
-        button->setColour(juce::TextButton::textColourOffId, GuiColor::SystemBtn::CategoryToggleText);
-        button->setColour(juce::TextButton::buttonColourId, GuiColor::SystemBtn::CategoryToggleBg);
-        button->setColour(juce::TextButton::buttonOnColourId, GuiColor::SystemBtn::CategoryToggleBg);
+        button->setColour(juce::TextButton::textColourOnId, GuiColor::GroupFoldBtn::Text);
+        button->setColour(juce::TextButton::textColourOffId, GuiColor::GroupFoldBtn::Text);
+        button->setColour(juce::TextButton::buttonColourId, bg);
+        button->setColour(juce::TextButton::buttonOnColourId, bg);
     }
 
     openGroupsBtn.setButtonText(EditorGuiText::GroupFold::titleOpen);

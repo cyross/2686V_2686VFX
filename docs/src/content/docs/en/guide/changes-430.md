@@ -75,11 +75,16 @@ This applies to every plugin with RHYTHM (2686V, 2686VLight, 86V, PCMV).
 Click a group's name (its title) and the group shrinks to **30 px** wide. The title turns into a grey strip written vertically, and the contents are hidden.
 Click it again to get the full width back. Folding the groups you are not using lets you see more without scrolling sideways.
 
-- Added **<>** (open all groups) and **><** (fold all groups). On FM chips and RHYTHM they sit a little to the right of the operator / pad graph switches (AMP / PIT / S256 / P256 / PRM); in 2686VFX they sit a little to the left of CPHIST at the top of the window
+- Added **<>** (open all groups) and **><** (fold all groups). On FM chips and RHYTHM they sit a little to the right of the operator / pad graph switches (AMP / PIT / S256 / P256 / PRM); in 2686VFX they sit a little to the left of CPHIST at the top of the window. **<>** is dark green and **><** dark blue, both with off-white text
 - Which groups are folded is saved in the preset and the DAW state. 2686VFX has no presets, so there it is only the DAW state. Presets from before 4.3.0 open with every group open
 - In 2686VFX two or three effects are stacked in one column, so the column only becomes 30 px wide once all of its groups are folded. The main group does not fold
 
 This applies to the FM operator columns (OPNA / OPN / OPL / OPL3 / OPM / OPZX7), the RHYTHM pad columns, and the effect and modulation groups of 2686VFX.
+
+## Clickable titles change colour under the mouse
+
+The titles of sections that open and close on a click, and the titles of foldable groups (including the vertical strip of
+a folded group), turn pinkish while the mouse is over them, so you can see what can be clicked. All plugins (including 2686VFX).
 
 ## Alt key for slider dragging
 

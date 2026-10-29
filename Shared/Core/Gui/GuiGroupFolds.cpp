@@ -54,13 +54,14 @@ void GuiGroupFolds::setAllFolded(bool folded)
 
 void GuiGroupFolds::setupButtons(juce::Component& parent, int& tabOrder)
 {
-    openAllButton.setup({ .parent = parent, .title = "<>" });
+    // 開くほうは濃い緑、閉じるほうは濃い青
+    openAllButton.setup({ .parent = parent, .title = "<>", .textColor = GuiColor::GroupFoldBtn::Text, .textOnColor = GuiColor::GroupFoldBtn::Text, .bgColor = GuiColor::GroupFoldBtn::OpenBg });
     openAllButton.setTooltip(I18n::pick(u8"枠をすべて開く", u8"Open all groups"));
     openAllButton.setWantsKeyboardFocus(true);
     openAllButton.setExplicitFocusOrder(++tabOrder);
     openAllButton.onClick = [this] { setAllFolded(false); };
 
-    closeAllButton.setup({ .parent = parent, .title = "><" });
+    closeAllButton.setup({ .parent = parent, .title = "><", .textColor = GuiColor::GroupFoldBtn::Text, .textOnColor = GuiColor::GroupFoldBtn::Text, .bgColor = GuiColor::GroupFoldBtn::CloseBg });
     closeAllButton.setTooltip(I18n::pick(u8"枠をすべて閉じる", u8"Close all groups"));
     closeAllButton.setWantsKeyboardFocus(true);
     closeAllButton.setExplicitFocusOrder(++tabOrder);
