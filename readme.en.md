@@ -54,8 +54,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - Which groups are folded is saved in the preset and the DAW state (2686VFX has no presets, so only in the DAW state). Older presets open with every group open
   - FM operator columns (OPNA / OPN / OPL / OPL3 / OPM / OPZX7), RHYTHM pad columns, and the effect and modulation groups of 2686VFX. In 2686VFX two or three effects are stacked in one column, so the column only becomes 30 px wide once all of its groups are folded. The main group does not fold
   - Plugins with an FM chip or RHYTHM, and 2686VFX
-- **Clickable titles change colour under the mouse**
+- **Things under the mouse change colour**
   - The titles of sections that open and close on a click, and the titles of foldable groups (including the vertical strip of a folded group), turn pinkish while the mouse is over them
+  - The panel behind the contents of the section under the mouse gets a little lighter. Inside a major section, only the minor section under the mouse lights up
+  - Text buttons, combo boxes, toggle buttons, sliders and text editors change their fill and border colour while the mouse is over them. How they change depends on the colour (dark colours get lighter, light colours a little darker, see-through colours a little more solid). On toggle buttons it is the square's frame and the lamp inside; on sliders, the bar and the value box
   - All plugins (including 2686VFX)
 - **Alt key for slider dragging**
   - While dragging a label, or the bar of a graph's zoom slider, holding **Alt** aligns the value to steps of 100. Sliders whose range is narrower than 100 are left alone

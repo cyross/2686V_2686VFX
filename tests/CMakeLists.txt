@@ -262,6 +262,7 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/PresetStateTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/ParamModLayoutTest.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/gui/GroupFoldTest.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/gui/HoverTest.cpp"
     )
 
     target_include_directories(${CY_GUI_TEST} PRIVATE

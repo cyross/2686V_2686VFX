@@ -221,6 +221,22 @@ namespace GuiColor {
 
 		// 地の色へ TitleTint を混ぜる割合
 		inline constexpr float titleTintAmount = 0.35f;
+
+		// 部品 (テキストボタン・コンボボックス・トグルボタン・スライダー・
+		// テキストエディタ) にマウスが乗ったときの地と枠。決まった色へは変えず、
+		// 元の色から作る。暗い色は明るく、明るい色は少し暗くし、
+		// 透けている色は少し濃くする。枠は地より強く変える。
+		inline juce::Colour shifted(juce::Colour c, float brighten, float darken, float alphaGain)
+		{
+			auto out = c.getPerceivedBrightness() > 0.75f ? c.darker(darken) : c.brighter(brighten);
+
+			if (c.getFloatAlpha() < 1.0f) out = out.withAlpha(juce::jmin(1.0f, c.getFloatAlpha() + alphaGain));
+
+			return out;
+		}
+
+		inline juce::Colour face(juce::Colour c) { return shifted(c, 0.4f, 0.2f, 0.2f); }
+		inline juce::Colour border(juce::Colour c) { return shifted(c, 0.8f, 0.4f, 0.4f); }
 	};
 
 	// ==========================================================
@@ -479,6 +495,9 @@ namespace GuiColor {
 
 		// カテゴリを開いたとき、中身の背後へ敷く色。
 		inline Entry ContentBg{ "Category.ContentBg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.5f); } };
+
+		// マウスが乗っている区分の中身の背後。ContentBg より少し明るい (4.3.0)
+		inline Entry ContentBgHover{ "Category.ContentBgHover", []() -> juce::Colour { return ContentBg.get().brighter(0.3f); } };
 
 		// 開閉マーカー。閉じているときは黒、開いているときはピンク。
 		// ピンクは初音ミクの髪留めやイヤホンの色を参照した差し色。

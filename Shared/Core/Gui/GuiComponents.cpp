@@ -1129,7 +1129,12 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     // 角の丸みは他の部品と揃える。小さな四角なので、辺の半分を上限にする。
     float boxRadius = juce::jmin(guiCornerRadius, juce::jmin(boxW, boxH) * 0.5f);
 
-    g.setColour(GuiColor::ToggleButton::Box.get().withMultipliedAlpha(alpha));
+    // マウスが乗っているときは、枠とランプをそれぞれの色に合わせて変える (4.3.0)
+    const bool hovered = shouldDrawButtonAsHighlighted && isEnabled() && !dimmed;
+
+    juce::Colour frame = GuiColor::ToggleButton::Box.get().withMultipliedAlpha(alpha);
+
+    g.setColour(hovered ? GuiColor::Hover::border(frame) : frame);
     g.drawRoundedRectangle(box, boxRadius, 1.0f);
 
     // 2. 中のランプ。消えているときも枠の中を塗って、
@@ -1141,7 +1146,9 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
         ? GuiColor::ToggleButton::LampOn.get()
         : GuiColor::ToggleButton::LampOff.get();
 
-    g.setColour(lamp.withMultipliedAlpha(alpha));
+    lamp = lamp.withMultipliedAlpha(alpha);
+
+    g.setColour(hovered ? GuiColor::Hover::face(lamp) : lamp);
     g.fillRoundedRectangle(inner, juce::jmin(boxRadius, juce::jmin(inner.getWidth(), inner.getHeight()) * 0.5f));
 
     // 3. テキストの描画
@@ -1483,6 +1490,114 @@ void GuiCategoryLabel::paint(juce::Graphics& g)
     g.setColour(GuiColor::Category::Text);
     g.setFont(font);
     g.drawText(captionText, textArea, getJustificationType(), false);
+}
+
+// ----------------------------------------------------------------------------
+// マウスが乗っている区分の板 (4.3.0)
+// ----------------------------------------------------------------------------
+// 板はマウスを受けないので、画面全体のマウスの動きを 1 か所で受けて、
+// 乗っている板を探す。板ができているあいだだけ受ける。
+struct GuiCategoryBackdropHover : private juce::MouseListener
+{
+    std::vector<GuiCategoryBackdrop*> backdrops;
+    GuiCategoryBackdrop* current = nullptr;
+
+    static GuiCategoryBackdropHover& get()
+    {
+        static GuiCategoryBackdropHover instance;
+        return instance;
+    }
+
+    void add(GuiCategoryBackdrop* b)
+    {
+        if (backdrops.empty()) juce::Desktop::getInstance().addGlobalMouseListener(this);
+
+        backdrops.push_back(b);
+    }
+
+    void remove(GuiCategoryBackdrop* b)
+    {
+        std::erase(backdrops, b);
+
+        if (current == b) current = nullptr;
+
+        if (backdrops.empty()) juce::Desktop::getInstance().removeGlobalMouseListener(this);
+    }
+
+    // 板が見えていて、その場所にある部品が板と同じ親の中にあるか。
+    // 送り棒で隠れた場所や、手前の別の窓に重なった場所では明るくしない
+    static bool isUnder(GuiCategoryBackdrop& b, juce::Point<float> screenPos)
+    {
+        if (!b.isVisible() || b.getParentComponent() == nullptr) return false;
+
+        if (!b.getLocalBounds().toFloat().contains(b.getLocalPoint(nullptr, screenPos))) return false;
+
+        auto* top = b.getTopLevelComponent();
+
+        if (top->isOnDesktop()) {
+            auto* front = juce::Desktop::getInstance().findComponentAt(screenPos.roundToInt());
+
+            if (front == nullptr || front->getTopLevelComponent() != top) return false;
+        }
+
+        auto* under = top->getComponentAt(top->getLocalPoint(nullptr, screenPos).roundToInt());
+
+        auto* parent = b.getParentComponent();
+
+        return under != nullptr && (under == parent || parent->isParentOf(under));
+    }
+
+    void update(juce::Point<float> screenPos)
+    {
+        // 大区分の板は中の小区分の板も覆うので、乗っている中でいちばん小さい板を選ぶ
+        GuiCategoryBackdrop* best = nullptr;
+
+        for (auto* b : backdrops)
+        {
+            if (!isUnder(*b, screenPos)) continue;
+
+            if (best == nullptr || b->getWidth() * b->getHeight() < best->getWidth() * best->getHeight()) best = b;
+        }
+
+        if (best == current) return;
+
+        if (current != nullptr) {
+            current->hovered = false;
+            current->repaint();
+        }
+
+        current = best;
+
+        if (current != nullptr) {
+            current->hovered = true;
+            current->repaint();
+        }
+    }
+
+    void refresh() { update(juce::Desktop::getInstance().getMainMouseSource().getScreenPosition()); }
+
+    void mouseMove(const juce::MouseEvent&) override { refresh(); }
+    void mouseDrag(const juce::MouseEvent&) override { refresh(); }
+    void mouseEnter(const juce::MouseEvent&) override { refresh(); }
+    void mouseExit(const juce::MouseEvent&) override { refresh(); }
+    void mouseWheelMove(const juce::MouseEvent&, const juce::MouseWheelDetails&) override { refresh(); }
+};
+
+GuiCategoryBackdrop::GuiCategoryBackdrop()
+{
+    setInterceptsMouseClicks(false, false);
+
+    GuiCategoryBackdropHover::get().add(this);
+}
+
+GuiCategoryBackdrop::~GuiCategoryBackdrop()
+{
+    GuiCategoryBackdropHover::get().remove(this);
+}
+
+void GuiCategoryBackdrop::updateHover(juce::Point<float> screenPos)
+{
+    GuiCategoryBackdropHover::get().update(screenPos);
 }
 
 // ----------------------------------------------------------------------------

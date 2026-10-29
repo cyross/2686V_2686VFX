@@ -81,10 +81,17 @@ Click it again to get the full width back. Folding the groups you are not using 
 
 This applies to the FM operator columns (OPNA / OPN / OPL / OPL3 / OPM / OPZX7), the RHYTHM pad columns, and the effect and modulation groups of 2686VFX.
 
-## Clickable titles change colour under the mouse
+## Things under the mouse change colour
 
-The titles of sections that open and close on a click, and the titles of foldable groups (including the vertical strip of
-a folded group), turn pinkish while the mouse is over them, so you can see what can be clicked. All plugins (including 2686VFX).
+So you can see what you are about to touch. All plugins (including 2686VFX).
+
+- The titles of sections that open and close on a click, and the titles of foldable groups (including the vertical strip of
+  a folded group), turn pinkish while the mouse is over them
+- The panel behind the contents of the section under the mouse gets a little lighter. Inside a major section, only the minor
+  section under the mouse lights up
+- Text buttons, combo boxes, toggle buttons, sliders and text editors change their fill and border colour while the mouse is
+  over them. How they change depends on the colour (dark colours get lighter, light colours a little darker, see-through
+  colours a little more solid). On toggle buttons it is the square's frame and the lamp inside; on sliders, the bar and the value box
 
 ## Alt key for slider dragging
 
