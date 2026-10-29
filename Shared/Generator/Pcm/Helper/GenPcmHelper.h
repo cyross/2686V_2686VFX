@@ -5,22 +5,22 @@
 #include <vector>
 
 // --- 圧縮系のモード番号 (Quality の BIT リストの並びと対応) ---
-// 13: YM2608 ADPCM / 14: 1bit DPCM / 15: SNES BRR / 16: PS1 VAG
-// 17: IMA ADPCM   / 18: CD-ROM XA / 19: YMZ280B  / 20: K053260 / 21: K054539
+// 13: YM2608 ADPCM / 14: 1bit DPCM / 15: SFC BRR / 16: PS1 VAG
+// 17: IMA ADPCM   / 18: CD-ROM XA / 19: Z280  / 20: K53 / 21: K54
 namespace PcmCodecMode
 {
 	inline constexpr int ym2608Adpcm = 13;
 	inline constexpr int dpcm        = 14;
-	inline constexpr int snesBrr     = 15;
+	inline constexpr int sfcBrr     = 15;
 	inline constexpr int psxVag      = 16;
 	inline constexpr int imaAdpcm    = 17;
 	inline constexpr int cdromXa     = 18;
-	inline constexpr int ymz280b     = 19;
-	inline constexpr int k053260     = 20;
-	inline constexpr int k054539     = 21;
+	inline constexpr int z280     = 19;
+	inline constexpr int k53     = 20;
+	inline constexpr int k54     = 21;
 
 	inline constexpr int first = ym2608Adpcm;
-	inline constexpr int last  = k054539;
+	inline constexpr int last  = k54;
 }
 
 namespace GenPcmHelper

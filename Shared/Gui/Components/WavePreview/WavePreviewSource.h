@@ -44,7 +44,7 @@ namespace WavePreviewSource
 
     // ---- WT MODULATION ----
     // 変調の深さは最大で回すので、Depth の設定は渡さなくてよい。
-    // wave は HuC6280 モードの 32 サンプル、fdsTable は FdsUser モードの
+    // wave は PCE モードの 32 サンプル、fdsTable は FdsUser モードの
     // 32 エントリ。それぞれ使わない Shape では無視される。
     std::vector<float> wtMod(int shapeIndex, const std::array<float, 32>& wave, const std::array<int, 32>& fdsTable,
         const WaveHoldParams& hold = {});

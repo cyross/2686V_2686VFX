@@ -61,7 +61,7 @@ its current value** — it is not reset to the default.
 - `table` is the FDS AMP TABLE — the 32 register values used when `shape` is
   FDS Table. The values mean the same thing as in
   [Wavetable pitch modulation](/2686V_2686VFX/en/reference/file-spec/wtmod/).
-- The 32-sample wave used by the HuC6280 mode is not part of this file. Waves
+- The 32-sample wave used by the PCE mode is not part of this file. Waves
   are loaded from `.wt` / `.wt2`, and only their location is kept in the
   plugin state.
 - The saved form can be `JSON` or `YAML`, chosen in the settings. The contents

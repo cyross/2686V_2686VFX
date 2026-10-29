@@ -57,7 +57,7 @@ namespace Global
 	}
 
 	namespace WtMod {
-		// HuC6280 モードの変調波形。実機と同じ 32 サンプル。
+		// PCE モードの変調波形。実機と同じ 32 サンプル。
 		static inline constexpr int waveSize = 32;
 
 		// 持てる枚数。演奏中に切り替えられる。

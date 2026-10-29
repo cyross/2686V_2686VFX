@@ -271,7 +271,7 @@ std::vector<float> WavePreviewSource::wtMod(int shapeIndex, const std::array<flo
     for (int i = 0; i < points; ++i) {
         // 返ってくるのは搬送波の周波数に掛ける比。比のままだと上げ側と
         // 下げ側で振れ幅が揃わないので、オクターブ (log2) に直して見る。
-        // WonderSwan のスイープは比が 0 に近づくため、下は頭打ちにする。
+        // WS のスイープは比が 0 に近づくため、下は頭打ちにする。
         float ratio = std::max(mod.process(delta), 1.0f / 16.0f);
         float octaves = std::log2(ratio);
 
@@ -280,7 +280,7 @@ std::vector<float> WavePreviewSource::wtMod(int shapeIndex, const std::array<flo
     }
 
     // いちばん振れたところが上下いっぱいに来るよう揃える。
-    // まったく振れない (波形未読込の HuC6280 など) ときは 0 のまま。
+    // まったく振れない (波形未読込の PCE など) ときは 0 のまま。
     if (peak > 1.0e-6f) {
         for (auto& v : out) v /= peak;
     }

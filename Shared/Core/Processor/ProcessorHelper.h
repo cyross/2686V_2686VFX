@@ -3452,7 +3452,7 @@ namespace PrHelper {
 			prefixName + CPN::WtMod::waveSmooth, 
 			CPV::WtMod::WaveSmooth::initial
 		);
-		// HuC6280 モードで使う変調波形スロットの番号。
+		// PCE モードで使う変調波形スロットの番号。
 		// 波形そのものはプロセッサが持つので、ここには出てこない。
 		PrHelper::addInt(
 			layout,
@@ -3755,13 +3755,13 @@ namespace PrHelper {
 			prefix + CPK::SsgDuty::fc, 
 			prefixName + CPN::SsgDuty::fc, 
 			CPV::SsgDuty::Fc::initial
-		); // Famicom Mode
+		); // FC Mode
 		PrHelper::addFloat(
 			layout, 
 			prefix + CPK::SsgDuty::fcFluc, 
 			prefixName + CPN::SsgDuty::fcFluc, 
 			CPV::SsgDuty::FcFluc::min, CPV::SsgDuty::FcFluc::max, CPV::SsgDuty::FcFluc::initial
-		); // Famicom Mode Fluctuation: 0.0 ~ 1.0
+		); // FC Mode Fluctuation: 0.0 ~ 1.0
 		PrHelper::addBool(
 			layout, 
 			prefix + CPK::SsgDuty::moreFc, 

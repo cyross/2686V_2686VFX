@@ -7,7 +7,7 @@ enum class OscMode
     OPN = 1,    // YM2203
     OPL = 2,    // YM3526 (2op + WaveSelect)
     OPL3 = 3, // YMF262
-    OPM = 4,   // YM2151 (X68000/Arcade)
+    OPM = 4,   // YM2151 (X68K/Arcade)
     OPZX7 = 5,
     SSG = 6,
     WAVETABLE = 7,

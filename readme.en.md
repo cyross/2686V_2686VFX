@@ -10,8 +10,8 @@ The "2686V" family is made up of the following plugins.
 
 - **2686V**: my dream ultimate retro sound VST plugin. Everything is in here.
 - **2686VLight**: a lightweight version of 2686V
-- **26V**: 2686VLight brought closer to the "PC-9801-26(K)" configuration
-- **86V**: 2686VLight brought closer to the "PC-9801-86" configuration
+- **26V**: 2686VLight brought closer to the "26" configuration
+- **86V**: 2686VLight brought closer to the "86" configuration
 - **OPNV**: the OPN-family channels lifted out of 2686V
 - **OPLV**: the OPL-family channels lifted out of 2686V
 - **OPMV**: the OPM-family channels lifted out of 2686V
@@ -23,7 +23,7 @@ The "2686V" family is made up of the following plugins.
 
 ## 2. Purpose
 
-I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26" or a "PC-9801-86", and nothing out there met my standards. So I set out to build a plugin... or at least, that was the plan...
+I wanted to write tracks in my DAW that sounded like they came off a "26" or a "86", and nothing out there met my standards. So I set out to build a plugin... or at least, that was the plan...
 
 *The original goal was met in v3.0.0.*
 
@@ -107,7 +107,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **The SSG gains more chip-accurate modes (More Real SSG, More Real FC for triangle and noise)**
   - The pulse settings gain **More Real SSG**, which mimics the SSG (YM2203 / YM2608B): the duty cycle is fixed at 50% (the DUTY settings are dimmed and have no effect), the output swings only upwards from 0, a DC cut at about 30 Hz adds the sag and the "click" when the volume jumps, volume goes through the SSG's logarithmic table (whatever CHIP DAC says), and tone and noise are combined with a logical AND (MIX 0 is tone only, 1 noise only, 0.5 the AND). It is exclusive with FC Mode / More Real FC / More Real NES
   - The triangle settings gain **More Real FC**, which mimics the 2A03 triangle (a 4-bit × 32-step staircase, the 11-bit timer pitch, the triangle/noise DAC curve and a 37 Hz high-pass). PEAK and PEAK RATIO ENVELOPE are dimmed and have no effect
-  - The lower half of the pulse / triangle group is now the **NOISE** group, with **More Real FC**: the 2A03 noise (the long mode of a 15-bit LFSR, 32,767 steps, rates from the 16-entry table, and a 37 Hz high-pass). As on the early Famicom, there is no short mode
+  - The lower half of the pulse / triangle group is now the **NOISE** group, with **More Real FC**: the 2A03 noise (the long mode of a 15-bit LFSR, 32,767 steps, rates from the 16-entry table, and a 37 Hz high-pass). As on the early FC, there is no short mode
   - All of them start off, so existing sounds don't change. Saved in channel parameters, presets and DAW state. Automation: `SSG_DUTY_MORE_SSG` / `SSG_TRI_MORE_FC` / `SSG_NOISE_MORE_FC`
   - Plugins with SSG (2686V, 2686VLight, 26V, 86V, PULSEV)
 - **STEPS for DUTY RATIO ENVELOPE and PEAK RATIO ENVELOPE**
@@ -118,6 +118,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **ADPCM+ now keeps every loaded slot encoded**
   - Changing VOICE with TAP PARAM SEQUENCER / PARAM ENV can play slots other than the selected one. Every loaded slot is encoded again when QUALITY changes
   - Plugins with ADPCM+ (2686V / 2686VLight / PCMV)
+- **Machine and part names are now written as short forms**
+  - The screens, the manual and this readme now use short forms such as FC, PCE, MD, 98, 88, X68K, 26 and 86 for machine and part names. This covers the real-machine palettes of the COLORS tab, the machine choice of QUALITY (MSX is split into 2413 and TR), "7: PCE Wave" of WT PITCH / AMP MOD, "15: SFC BRR", "19: Z280", "20: K53" and "21: K54" of the QUALITY(PCM) BIT, "98" of the BEEP TIMER CLOCK, and so on
+  - Only the names change. The sound, the parameter IDs and the saved format stay the same, so existing presets and DAW states load as before
+  - The titles in the references are left as they are
+  - Every plugin
 
 ### 3-0-2. What v4.2.0 adds and changes
 
@@ -199,7 +204,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The channel-wide LEVEL, STEPS and DELAY, which had no heading, now sit under "UNCATEGORIZED". It can be folded and starts open
   - Every channel. 2686VFX's output LEVEL is unchanged
 - **SSG: "More Real FC" and "More Real NES" for the pulse wave**
-  - Below FC FLUC in the pulse (duty) settings. They mimic the Famicom / NES (2A03) pulse channel (unrelated to FC FLUC)
+  - Below FC FLUC in the pulse (duty) settings. They mimic the FC / NES (2A03) pulse channel (unrelated to FC FLUC)
   - The duty snaps to the chip's 12.5 / 25 / 50 / 75%, the pitch to the 11-bit timer and the volume to 16 steps through the DAC curve. The output filter is a 37 Hz high-pass for FC, and 90 Hz / 440 Hz high-passes plus a 14 kHz low-pass for NES
   - Only one of FC Mode, More Real FC and More Real NES can be on (all off is fine). Off by default, so existing sounds are unchanged
   - Saved in parameter files and presets (`dutyMoreFc` / `dutyMoreNes`)
@@ -294,7 +299,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - OP8's colour is lighter, and the diagram is shorter
 - **QUALITY gains a "DAC" row**
   - In non-PCM and PCM QUALITY, and in the 2686VFX PCM Bit Crusher
-  - Pick a machine (98/88, MSX, X68K, FC, SFC, PCE, MD, GB, TOWNS, PS1) and press Apply to set BIT, RATE and INTERP in one go
+  - Pick a machine (98/88, 2413, TR, X68K, FC, SFC, PCE, MD, GB, TOWNS, PS1) and press Apply to set BIT, RATE and INTERP in one go
   - The machine you pick is not saved to presets or channel parameter files
 - **2686VFX: noise reduction**
   - The gate and high cut from the instruments' QUALITY(PCM) are now an effect of their own, "Noise reduction" (RATE sets where the LPF cuts)
@@ -316,7 +321,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - On AMP ENV's SL, SSG HW AMP ENV's MIN / MAX, SSG SW AMP ENV's L1–L6, SSG SW AMP ENV[11]'s L1–L11 and ENDL, WT PITCH MOD's DEPTH (steps below 0.1 go to 0.1) and WT AMP MOD's DEPTH, on every channel, operator and pad
   - Screen only, not saved; it starts at Free, so existing sounds do not change
 - **Show the FM envelope and TL the N88-BASIC(86) way**
-  - SETTINGS has "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by default), below "Apply MUL/DET and FIX while notes play", after a separator
+  - SETTINGS has "Show some FM parameters as in 98 N88-BASIC(86)" (off by default), below "Apply MUL/DET and FIX while notes play", after a separator
   - Turned on, the register knobs AR / DR / SR / RR / SL / TL (D1R / D2R / D1L on OPM / OPZX7) of OPNA, OPN, OPL, OPL3, OPM and OPZX7 (OPZX7S included) show reversed numbers and bars: 0 on screen is 31 inside for AR
   - MML input reads AR / DR / SR / RR / SL / TL (D1R / D2R / D1L) reversed as well
   - Only the display changes; processing uses the values as they are with it off, so the sound and parameter values stay the same
@@ -700,7 +705,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - Swings between MIN and MAX (MIN=0.0 / MAX=1.0 by default).
       - MIN/MAX apply across every wave and every SLOT it carries.
     - Nudge buttons included.
-    - HuC6280 and FDS TABLE supported.
+    - PCE and FDS TABLE supported.
     - Available on every channel (FM included), every operator and every RHYTHM pad.
     - Import / export supported (`.wtampmod`).
   - **FDS TABLE is now two tables**
@@ -768,10 +773,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - A lightweight version of 2686V.
   - Curve Edit Mode is removed from 2686V to lower the CPU load.
 - **26V**:
-  - 2686VLight brought closer to the "PC-9801-26(K)" configuration.
+  - 2686VLight brought closer to the "26" configuration.
     - Channels are OPN and SSG only.
 - **86V**:
-  - 2686VLight brought closer to the "PC-9801-86" configuration.
+  - 2686VLight brought closer to the "86" configuration.
     - Channels are OPNA, SSG, RHYTHM and PCM only.
     - The "ADPCM" channel is renamed "PCM", and its initial audio quality is changed to "4-bit PCM".
     - The RHYTHM channel has 6 pads.
@@ -945,10 +950,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - The SSG (PSG) channel, familiar from the YM2303/YM2608
   - Not an exact reproduction, but an enhanced version that folds in PSG features.
   - Square and triangle waves are provided.
-  - The pulse wave covers the duty ratios of the SSG, the Famicom and the KONAMI VRC VI.
+  - The pulse wave covers the duty ratios of the SSG, the FC and the KONAMI VRC VI.
   - The duty ratio can also be set freely.
   - The phase can be inverted.
-  - A switch changes the waveform to a Famicom-like one.
+  - A switch changes the waveform to a FC-like one.
   - The triangle wave's peak position can be adjusted.
     - This also gives you a sawtooth.
   - As software features, global envelopes
@@ -1216,7 +1221,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **Colour customisation (the COLORS tab)**
   - Customise the colours used in the UI.
   - One button restores the defaults.
-  - Besides RGB/HSV, colours can be taken from colour names (JUCE plus original ones) and palettes (PC-8801/PC-9801/X68000/PC Engine/Mega Drive).
+  - Besides RGB/HSV, colours can be taken from colour names (JUCE plus original ones) and palettes (88/98/X68K/PCE/MD).
   - Take a look through the entries — you may spot a few names you recognise...
 - **A major UI overhaul**
   - The tabs are a little wider.

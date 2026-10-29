@@ -60,7 +60,7 @@ static std::vector<SelectItem> wtRsItems = {
     {.name = "5: 256",  .value = 5 },
 };
 
-// MODULATION の変調波形。実機ディスクシステムは 32 段の階段状。
+// MODULATION の変調波形。実機 FDS は 32 段の階段状。
 static std::vector<SelectItem> lfoPmShapeItems = {
     {.name = "0: Sine",                .value = 1 },
     {.name = "1: Saw Up",              .value = 2 },

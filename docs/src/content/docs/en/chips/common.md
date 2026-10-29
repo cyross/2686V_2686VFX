@@ -125,8 +125,8 @@ storage scheme the hardware actually used**.
 | --- | --- |
 | 32-bit to 4-bit PCM | Simply drops the bit depth |
 | **4-bit ADPCM** | The YM2608's ADPCM (**hardware**) |
-| **1-bit DPCM** | The Famicom's DPCM |
-| SNES BRR / PS1 VAG / IMA ADPCM / CD-ROM XA / YMZ280B / K053260 / K054539 | Each machine's compression scheme (**ours**) |
+| **1-bit DPCM** | The FC's DPCM |
+| SFC BRR / PS1 VAG / IMA ADPCM / CD-ROM XA / Z280 / K53 / K54 | Each machine's compression scheme (**ours**) |
 
 **A compression scheme distorts differently from simply dropping bits.** When
 you are after the texture of a particular machine, pick the scheme that machine
@@ -647,8 +647,8 @@ the wobble.**
 | **Smooth** | Round off the corners of the steps | False / True | True | [`SSG_MOD_WAVE_SMOOTH`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-mod-wave-smooth) |
 
 The nine shapes are **Sine / FDS Triangle / FDS Saw / FDS Reset / FDS Pulse /
-WS Sweep Up / WS Sweep Down / HuC6280 Wave / FDS Table**. They come from the
-modulation the Famicom Disk System, the WonderSwan and the PC Engine(TurboGrafx-16) chips
+WS Sweep Up / WS Sweep Down / PCE Wave / FDS Table**. They come from the
+modulation the FDS, WS and PCE chips
 could apply.
 
 You can also load a `.wt` or `.wt2` file and wobble with a shape of your own.

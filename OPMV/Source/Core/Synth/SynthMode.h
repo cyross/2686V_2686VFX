@@ -3,7 +3,7 @@
 
 enum class OscMode
 {
-    OPM = 0, // YM2151 (X68000/Arcade)
+    OPM = 0, // YM2151 (X68K/Arcade)
     Count = 1, // カウント用
 };
 

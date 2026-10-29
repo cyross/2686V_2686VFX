@@ -10,7 +10,7 @@ sidebar:
 	<figcaption>SFC echo</figcaption>
 </figure>
 
-A recreation of the echo built into the Super Famicom(SNES)'s sound hardware. It is a delay with **an eight-coefficient filter** on it, so the tone changes with every repeat.
+A recreation of the echo built into the SFC's sound hardware. It is a delay with **an eight-coefficient filter** on it, so the tone changes with every repeat.
 
 ## Knobs
 

@@ -44,7 +44,7 @@ LEVEL と同じく画面だけの選択で、保存はしません。初めは�
 
 ## FM のエンベロープと TL を N88-BASIC(86) の向きで表示できるようにしました
 
-SETTINGS に「一部の FM パラメータ表示を、PC-9801 の N88-BASIC(86) 準拠にする」
+SETTINGS に「一部の FM パラメータ表示を、98 の N88-BASIC(86) 準拠にする」
 を足しました（初期状態は切）。入れると、OPNA / OPN / OPL / OPL3 / OPM / OPZX7 の
 レジスタの **AR / DR / SR / RR / SL / TL**（OPM / OPZX7 は D1R / D2R / D1L）を、
 N88-BASIC(86) と同じく大小を逆にして見せます。AR なら画面の 0 が内部の 31 です。
@@ -119,7 +119,7 @@ BIT RATE・SMP.RATE・INTERP をまとめて切り替えます。
 - 選んだ機種は画面だけのもので、プリセットやチャンネルパラメータには書きません。
   残るのは、切り替えた BIT RATE・SMP.RATE・INTERP の値です
 - 同じ値になる機種は「98/88」のように 1 つにまとめてあります
-- 一覧にないサンプリング周波数は、近いものを選んでいます（例: X68000 の OPM の
+- 一覧にないサンプリング周波数は、近いものを選んでいます（例: X68K の OPM の
   62.5kHz は 55.5kHz）
 
 ### QUALITY（PCM 以外）
@@ -129,7 +129,7 @@ BIT RATE・SMP.RATE・INTERP をまとめて切り替えます。
 | 機種 | BIT RATE | SMP.RATE | INTERP |
 | --- | --- | --- | --- |
 | 98/88/X68K | 10-bit | 55.5kHz | ZOH |
-| MSX | 9-bit | 49.7kHz | ZOH |
+| 2413 | 9-bit | 49.7kHz | ZOH |
 | FC/GB | 4-bit | 96kHz | ZOH |
 | SFC | 16-bit | 32kHz | ZOH |
 | PCE | 5-bit | 96kHz | ZOH |
@@ -142,12 +142,12 @@ BIT RATE・SMP.RATE・INTERP をまとめて切り替えます。
 
 | 機種 | BIT RATE | SMP.RATE | INTERP |
 | --- | --- | --- | --- |
-| 98 | 16-bit PCM（PC-9801-86） | 44.1kHz | ZOH |
+| 98 | 16-bit PCM（86） | 44.1kHz | ZOH |
 | 88 | 4-bit ADPCM（OPNA） | 16kHz | ZOH |
-| MSX | 8-bit PCM（turbo R） | 16kHz | ZOH |
+| TR | 8-bit PCM | 16kHz | ZOH |
 | X68K | IMA ADPCM（MSM6258 に近いもの） | 16kHz | ZOH |
 | FC | 1-bit DPCM | 33.08kHz | ZOH |
-| SFC | SNES BRR | 32kHz | Gaussian |
+| SFC | SFC BRR | 32kHz | Gaussian |
 | PCE | 5-bit PCM | 8kHz | ZOH |
 | MD/TOWNS | 8-bit PCM | 22.05kHz | ZOH |
 | GB | 4-bit PCM | 8kHz | ZOH |
@@ -161,7 +161,7 @@ ADPCM などの方式は選べないので、実機が解いたあとのビッ�
 | --- | --- | --- | --- |
 | 98 | 16-bit PCM | 44.1kHz | ZOH |
 | 88 | 16-bit PCM | 16kHz | ZOH |
-| MSX | 8-bit PCM | 16kHz | ZOH |
+| TR | 8-bit PCM | 16kHz | ZOH |
 | X68K | 12-bit PCM | 16kHz | ZOH |
 | FC | 7-bit PCM | 33.08kHz | ZOH |
 | SFC | 16-bit PCM | 32kHz | Gaussian |

@@ -27,8 +27,8 @@ namespace
 static std::vector<SelectItem> beepTimerClockItems = {
     {.name = "1: Free",                  .value = 1 },
     {.name = "2: IBM PC 1.1932MHz",      .value = 2 },
-    {.name = "3: PC-9801 1.9968MHz",     .value = 3 },
-    {.name = "4: PC-9801 2.4576MHz",     .value = 4 },
+    {.name = "3: 98 1.9968MHz",     .value = 3 },
+    {.name = "4: 98 2.4576MHz",     .value = 4 },
 };
 
 void GuiBeep::setup() {

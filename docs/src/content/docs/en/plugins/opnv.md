@@ -46,7 +46,7 @@ See [Curve editing](/2686V_2686VFX/en/chips/adv/) for the details.
 ## When to reach for it
 
 - Adding a single FM part to a track
-- Writing PC-9801-flavoured FM patches without the SSG side
+- Writing 98-flavoured FM patches without the SSG side
 
 ## Files
 

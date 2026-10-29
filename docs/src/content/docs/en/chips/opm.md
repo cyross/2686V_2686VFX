@@ -10,7 +10,7 @@ sidebar:
 	<figcaption>OPM channel</figcaption>
 </figure>
 
-OPM is the channel that stands for the FM part of the **YM2151**. It was everywhere on the X68000 and on arcade boards, and for a lot of people it *is* the sound of FM.
+OPM is the channel that stands for the FM part of the **YM2151**. It was everywhere on the X68K and on arcade boards, and for a lot of people it *is* the sound of FM.
 
 It has four operators, like the OPN family, but **the envelope is put together differently and the detuning is finer**. **DT2** in particular belongs to the OPM family alone: it shifts the pitch a long way and is how you get a metallic ring.
 

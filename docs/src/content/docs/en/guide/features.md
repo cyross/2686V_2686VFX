@@ -63,7 +63,7 @@ view is aligned to the cycle, so it does not drift sideways.
 ### Every colour is yours
 
 The COLORS tab lets you change each colour the interface uses. Besides RGB and
-HSV you can pick from the **PC-8801 / PC-9801 / X68000 / PC Engine / Mega
+HSV you can pick from the **88 / 98 / X68K / PCE / Mega
 Drive** palettes. One button puts the defaults back.
 
 ### Files are JSON or YAML
@@ -76,11 +76,11 @@ text editor or diff them.
 
 ### You want the sound of the machines of the day
 
-**86V** is the short path. It matches the PC-9801-86 layout, so choices that
+**86V** is the short path. It matches the 86 layout, so choices that
 never existed back then never appear. There is less to be distracted by.
 
-**26V** matches the PC-9801-26(K) layout. With only OPN and SSG, it is the
-one to reach for when you want the sound of the earliest PC-98 machines.
+**26V** matches the 26 layout. With only OPN and SSG, it is the
+one to reach for when you want the sound of the earliest 98 machines.
 
 For a wider range of period sounds use **2686V**; if you don't need curve
 editing and want it to run lighter, **2686VLight**.

@@ -45,7 +45,7 @@ sidebar:
 | PITCH ENV | 音程 | 3 タップ。±4800 セント |
 | SSG SW PENV256 | 音程 | 最大 256 段。±4800 セント |
 | SSG HW PITCH ENV | 音程 | SSG HW AMP ENV と同じ形を音程へ。±4800 セント |
-| WT PITCH MOD | 音程 | 波形メモリによる変調。FDS / WonderSwan / HuC6280 |
+| WT PITCH MOD | 音程 | 波形メモリによる変調。FDS / WS / PCE |
 | WT AMP MOD | 音量 | 同じ変調波形を音量へ。MIN〜MAX の範囲で振れる |
 
 ## そのほかの音づくり

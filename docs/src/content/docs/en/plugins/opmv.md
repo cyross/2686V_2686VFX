@@ -11,7 +11,7 @@ sidebar:
 </figure>
 
 Narrowed down to **OPM (YM2151) alone**. A good fit when you want one
-part with the X68000 or arcade character.
+part with the X68K or arcade character.
 
 ## What the plugin looks like
 
@@ -43,7 +43,7 @@ See [Curve editing](/2686V_2686VFX/en/chips/adv/) for the details.
 
 ## When to reach for it
 
-- Adding a single X68000 or arcade part
+- Adding a single X68K or arcade part
 - Concentrating on OPM patch design
 
 ## Files

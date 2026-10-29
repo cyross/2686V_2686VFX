@@ -74,7 +74,7 @@ Waves read and write as `.wt2` files. They are plain text.
 
 ## MOD — wavetable pitch modulation (hardware / ours)
 
-The same thing WT has. You can pick from the FDS, WonderSwan and HuC6280 families of modulation.
+The same thing WT has. You can pick from the FDS, WS and PCE families of modulation.
 
 | Item | What it does | Range |
 | --- | --- | --- |

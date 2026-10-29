@@ -122,8 +122,8 @@ QUALITY の代わりにこちらが出ます。単にビット数を落とすだ
 | --- | --- |
 | 32bit 〜 4bit PCM | 単純にビット数を落とす |
 | **4bit ADPCM** | YM2608 の ADPCM（**実機**） |
-| **1bit DPCM** | ファミコンの DPCM |
-| SNES BRR / PS1 VAG / IMA ADPCM / CD-ROM XA / YMZ280B / K053260 / K054539 | 各機の圧縮方式（**独自**） |
+| **1bit DPCM** | FC の DPCM |
+| SFC BRR / PS1 VAG / IMA ADPCM / CD-ROM XA / Z280 / K53 / K54 | 各機の圧縮方式（**独自**） |
 
 **圧縮方式は、単にビット数を落とすのとは歪み方が違います。** 実機の質感を
 狙うなら、その機種が使っていた方式を選びます。
@@ -636,8 +636,8 @@ START と END は、**1 周を 0.0〜1.0 とした位置**です。END は START
 | **Smooth** | 段の角を丸める | False / True | True | [`SSG_MOD_WAVE_SMOOTH`](/2686V_2686VFX/reference/automation/ssg/#ssg-mod-wave-smooth) |
 
 形は **Sine / FDS Triangle / FDS Saw / FDS Reset / FDS Pulse / WS Sweep Up /
-WS Sweep Down / HuC6280 Wave / FDS Table** の 9 種類です。ファミコンの
-ディスクシステム、ワンダースワン、PC エンジンの音源が持っていた変調の
+WS Sweep Down / PCE Wave / FDS Table** の 9 種類です。
+FDS、WS、PCE の音源が持っていた変調の
 かかり方を持ってきたものです。
 
 `.wt` `.wt2` ファイルを読み込んで、自分で描いた形で揺らすこともできます。

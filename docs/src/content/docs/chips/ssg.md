@@ -48,9 +48,9 @@ SSG は、YM-2203/YM-2608B の SSG 部分(ルーツは、 AY-3-8910 系のいわ
 | **MODE** | デューティ比の決め方。`0: Preset Ratio` は実機にある 8 種類から選ぶ、`1: Variable (Slider)` は連続で変える（**独自**） | — | |
 | **PRESET** | 実機にある 8 種類のデューティ比 | 下表 | |
 | **RATIO** | MODE が Variable のときの比率 | 0.0〜1.0 | |
-| **FC Mode** | ファミコン風の挙動にする（**独自**） | 入 / 切（初期は切） | |
+| **FC Mode** | FC 風の挙動にする（**独自**） | 入 / 切（初期は切） | |
 | **FC FLUC** | FC Mode のときの揺らぎの量（**独自**） | 0.0〜1.0（初期 0.2） | |
-| **More Real FC** | ファミコン（2A03）の矩形波の鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.0.0 |
+| **More Real FC** | FC（2A03）の矩形波の鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.0.0 |
 | **More Real NES** | NES（2A03）の矩形波の鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.0.0 |
 | **More Real SSG** | SSG（YM2203 / YM2608B）の矩形波の鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.3.0 |
 
@@ -96,9 +96,9 @@ PRESET で選べるデューティ比は次の 8 種類です。
 | **PRESET** | 実機で使われていた比。9 種 | [`SSG_DUTY_PRESET`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-preset) |
 | **RATIO** | 自由に決めるときの比 | [`SSG_DUTY_VAR`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-var) |
 | **Invert Phrase** | 上下を入れ替える | [`SSG_DUTY_INV`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-inv) |
-| **FC Mode** | ファミコンのように、比が細かく揺れる動きにする（**独自**） | [`SSG_DUTY_FC_MODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-mode) |
+| **FC Mode** | FC のように、比が細かく揺れる動きにする（**独自**） | [`SSG_DUTY_FC_MODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-mode) |
 | **FC FLUC** | その揺れの大きさ | [`SSG_DUTY_FC_FLUC`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-fc-fluc) |
-| **More Real FC** | ファミコンの矩形波の鳴り方にする（**独自**） | [`SSG_DUTY_MORE_FC`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-more-fc) |
+| **More Real FC** | FC の矩形波の鳴り方にする（**独自**） | [`SSG_DUTY_MORE_FC`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-more-fc) |
 | **More Real NES** | NES の矩形波の鳴り方にする（**独自**） | [`SSG_DUTY_MORE_NES`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-more-nes) |
 | **More Real SSG** | SSG の矩形波の鳴り方にする（**独自**・4.3.0） | [`SSG_DUTY_MORE_SSG`](/2686V_2686VFX/reference/automation/ssg/#ssg-duty-more-ssg) |
 
@@ -133,7 +133,7 @@ FORM で `1: Triangle / Saw` を選んだときに出ます。**PEAK** で波形
 | **PEAK** | 頂点の位置。`0.0` で下降鋸波、`0.5` で三角波、`1.0` で上昇鋸波 | 0.0〜1.0（初期 0.5） | |
 | **Key Track (Pitch)** | 音程に追従させる。切ると FQ の周波数で固定される | 入 / 切（初期は入） | |
 | **FREQ** | Key Track を切ったときの周波数 | 0〜8000 Hz（初期 440） | |
-| **More Real FC** | ファミコン（2A03）の三角波の鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.3.0 |
+| **More Real FC** | FC（2A03）の三角波の鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.3.0 |
 
 PEAK の下には `0.0 (Down)` `0.5 (Tri)` `1.0 (Up)` のボタンがあり、押すと
 その値へ一度に移ります。
@@ -145,7 +145,7 @@ More Real FC は、2A03 の三角波を次のように真似ます（4.3.0）。
 - 音程は 11bit のタイマーの刻みへ寄せます（ftri = 1789772.7 ÷ (32 × (t + 1))。矩形波より 1 オクターブ低い刻み）。
   t が 2 未満になる高すぎる音は鳴りません
 - 段の値は、三角波とノイズが通る DAC の曲がり（159.79 ÷ (8227 ÷ T + 100)）を通します
-- 出力は単極で、ファミコンの出力の後ろのフィルタ（37Hz のハイパス）が直流を抜きます
+- 出力は単極で、FC の出力の後ろのフィルタ（37Hz のハイパス）が直流を抜きます
 - 実機の三角波には音量のレジスタがありませんが、ここでは AMP ENV などの音量はそのまま掛かります
 
 
@@ -154,7 +154,7 @@ More Real FC は、2A03 の三角波を次のように真似ます（4.3.0）。
 | **Key Track (Pitch)** | 鍵盤の音程で鳴らす。切ると FQ の高さで固定される | [`SSG_TRI_KEYTRK`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-keytrk) |
 | **FREQ** | 固定するときの周波数 | [`SSG_TRI_FREQ`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-freq) |
 | **PEAK** | 三角形の頂点の位置。0.5 で左右対称 | [`SSG_TRI_PEAK`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-peak) |
-| **More Real FC** | ファミコンの三角波の鳴り方にする（**独自**・4.3.0） | [`SSG_TRI_MORE_FC`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-more-fc) |
+| **More Real FC** | FC の三角波の鳴り方にする（**独自**・4.3.0） | [`SSG_TRI_MORE_FC`](/2686V_2686VFX/reference/automation/ssg/#ssg-tri-more-fc) |
 
 #### PEAK RATIO ENVELOPE（独自・4.0.0）
 
@@ -175,19 +175,19 @@ More Real FC は、2A03 の三角波を次のように真似ます（4.3.0）。
 
 | 項目 | 説明 | 範囲 | 備考 |
 | --- | --- | --- | --- |
-| **More Real FC** | ファミコン（2A03）のノイズの鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.3.0 |
+| **More Real FC** | FC（2A03）のノイズの鳴り方を真似る（**独自**） | 入 / 切（初期は切） | 4.3.0 |
 
 More Real FC は、2A03 のノイズを次のように真似ます。
 
 - **15bit の LFSR** で鳴らします（ビット 0 とビット 1 の XOR をビット 14 へ戻す長周期。32,767 段）。
-  初期型ファミコン（RP2A03 無印）と同じく、短周期（93 段の金属音）はありません
+  初期型 FC（RP2A03 無印）と同じく、短周期（93 段の金属音）はありません
 - LFSR の進む速さは、N.FREQ（または N.VALUE・鍵盤への追従）で決まる速さに最も近い、実機の **16 段の表**
   （CPU の 4 / 8 / 16 / 32 / 64 / 96 / 128 / 160 / 202 / 254 / 380 / 508 / 762 / 1016 / 2034 / 4068 サイクルごと）へ寄せます
-- 出力はビット 0 が 0 のときに鳴る単極で、ファミコンの出力の後ろのフィルタ（37Hz のハイパス）が直流を抜きます
+- 出力はビット 0 が 0 のときに鳴る単極で、FC の出力の後ろのフィルタ（37Hz のハイパス）が直流を抜きます
 
 | つまみ | 内容 | オートメーション |
 | --- | --- | --- |
-| **More Real FC** | ファミコンのノイズの鳴り方にする（**独自**） | [`SSG_NOISE_MORE_FC`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise-more-fc) |
+| **More Real FC** | FC のノイズの鳴り方にする（**独自**） | [`SSG_NOISE_MORE_FC`](/2686V_2686VFX/reference/automation/ssg/#ssg-noise-more-fc) |
 
 ## TONE / NOISE / MIX — 音の混ぜ方（実機）
 

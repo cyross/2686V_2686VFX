@@ -339,7 +339,7 @@ void AudioPlugin2686V::setCurrentProgram(int index) {}
 const juce::String AudioPlugin2686V::getProgramName(int index) { return {}; }
 void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName) {}
 
-// WT PITCH MOD (HuC6280 モード) の変調波形を読み込む。
+// WT PITCH MOD (PCE モード) の変調波形を読み込む。
 //
 // 実機の波形メモリは 32 サンプルなので、そこへ落としてから持つ。
 // 落とし方は Smooth の設定で変わる。

@@ -15,7 +15,7 @@ ADPCM **loads one audio file and plays it like a sampler**. It stands for the AD
 Where RHYTHM lays short sounds across several pads, this one **plays a single sound chromatically from the keyboard**. It suits bringing in a voice or an ambience and roughing it up until it sounds like the hardware.
 
 :::note[Called PCM on 86V]
-On 86V, to match the PC-9801-86, this channel is named **PCM** and its quality defaults to **4-bit PCM**. What it does and how you use it are unchanged.
+On 86V, to match the 86, this channel is named **PCM** and its quality defaults to **4-bit PCM**. What it does and how you use it are unchanged.
 :::
 
 <figure class="shot">

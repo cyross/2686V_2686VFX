@@ -10,7 +10,7 @@ sidebar:
 	<figcaption>WT channel</figcaption>
 </figure>
 
-WT is the **wavetable** channel. It is the approach used by the Famicom Disk System, the PC Engine and the WonderSwan, and also by Namco's arcade hardware (C30) and Konami's MSX cartridges (SCC): **you draw one cycle of a wave yourself** and it is sounded over and over.
+WT is the **wavetable** channel. It is the approach used by FDS, the PCE and the WS, and also by Namco's arcade hardware (C30) and Konami's SCC cartridges: **you draw one cycle of a wave yourself** and it is sounded over and over.
 
 Rather than building a sound through modulation the way FM does, **the shape of the wave is the tone.** You can lay out exactly the overtones you want; in exchange, movement has to come from somewhere else — the envelopes and the modulation.
 
@@ -101,11 +101,11 @@ The **pitch modulation** the wavetable chips had. This is the heart of WT.
 | --- | --- | --- |
 | 0 | Sine | A simplified FDS |
 | 1–4 | The **FDS (2C33)** 32-step tables (triangle / saw / reset / trapezoid) | |
-| 5–6 | The **WonderSwan ch3** sweep (up / down) | As used on the WonderSwan |
-| 7 | **HuC6280** — uses the wavetable itself as the modulator | As used on the PC Engine |
+| 5–6 | The **WS ch3** sweep (up / down) | As used on the WS |
+| 7 | **PCE** — uses the wavetable itself as the modulator | As used on the PCE |
 | 8 | **FdsUser** — edit the FDS table in place | |
 
-**HuC6280 mode** can hold up to eight modulation waves and switch between them as it plays. **FdsUser** lets you edit a 32-entry table directly, in the same 3-bit values the hardware used.
+**PCE mode** can hold up to eight modulation waves and switch between them as it plays. **FdsUser** lets you edit a 32-entry table directly, in the same 3-bit values the hardware used.
 
 SPEED being a ratio against the carrier is exactly as the hardware was. **Whole-number ratios lock in as overtones**; ratios in between give you beating and unsteady wobble.
 

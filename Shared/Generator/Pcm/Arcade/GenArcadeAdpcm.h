@@ -13,9 +13,9 @@
 // 差し替えが必要になるのは「テーブルの値」だけで、処理の骨格は変わりません。
 // =====================================================================
 
-// --- YMZ280B ---
+// --- Z280 ---
 // ステップ幅をテーブル索引ではなく「倍率」で更新するのが特徴。
-namespace Ymz280bAdpcm {
+namespace Z280Adpcm {
     // ステップ倍率 (1/256 単位)。nibble の下位 3bit で選ぶ。
     inline const int StepScale[8] = { 0x0e6, 0x0e6, 0x0e6, 0x0e6, 0x133, 0x199, 0x200, 0x266 };
 
@@ -23,9 +23,9 @@ namespace Ymz280bAdpcm {
     inline constexpr int stepMax = 0x6000;
 }
 
-// --- Konami K053260 ---
+// --- Konami K53 ---
 // ステップ適応を持たない固定 DPCM。指数的に並んだ差分を足していく。
-namespace K053260Adpcm {
+namespace K53Adpcm {
     inline const int Delta[16] = {
         0, 1, 2, 4, 8, 16, 32, 64,
         -128, -64, -32, -16, -8, -4, -2, -1
@@ -35,9 +35,9 @@ namespace K053260Adpcm {
     inline constexpr int scale = 64;
 }
 
-// --- Konami K054539 ---
-// K053260 と同じく固定 DPCM だが、差分が二乗的に並ぶ。
-namespace K054539Adpcm {
+// --- Konami K54 ---
+// K53 と同じく固定 DPCM だが、差分が二乗的に並ぶ。
+namespace K54Adpcm {
     inline const int Delta[16] = {
         0, 1, 4, 9, 16, 25, 36, 49,
         -64, -49, -36, -25, -16, -9, -4, -1
@@ -46,13 +46,13 @@ namespace K054539Adpcm {
     inline constexpr int scale = 256;
 }
 
-class Ymz280bAdpcmCodec {
+class Z280AdpcmCodec {
 public:
     static void process(std::vector<int16_t>& samples);
 };
 
 class KonamiAdpcmCodec {
 public:
-    // isK054539 = false で K053260、true で K054539
-    static void process(std::vector<int16_t>& samples, bool isK054539);
+    // isK54 = false で K53、true で K54
+    static void process(std::vector<int16_t>& samples, bool isK54);
 };

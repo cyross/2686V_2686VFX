@@ -22,7 +22,7 @@ namespace
     namespace PBit
     {
         constexpr int b16 = 3, b12 = 4, b8 = 7, b7 = 8, b5 = 10, b4 = 11;
-        constexpr int ym2608Adpcm = 12, dpcm1 = 13, snesBrr = 14, ps1Vag = 15, imaAdpcm = 16;
+        constexpr int ym2608Adpcm = 12, dpcm1 = 13, sfcBrr = 14, ps1Vag = 15, imaAdpcm = 16;
     }
 
     // SMP.RATE (音源・PCM で同じ)
@@ -47,11 +47,11 @@ namespace
     const std::vector<Machine> qualityMachines = {
         { "98",    { QBit::b10, Rate::k55_5,  Interp::zoh } }, // OPN / OPNA + YM3014 (仮数 10bit)
         { "88",    { QBit::b10, Rate::k55_5,  Interp::zoh } }, // OPN / OPNA + YM3014
-        { "MSX",   { QBit::b9,  Rate::k49_7,  Interp::zoh } }, // OPLL (YM2413) の 9bit DAC
+        { "2413",  { QBit::b9,  Rate::k49_7,  Interp::zoh } }, // OPLL (YM2413) の 9bit DAC
         { "X68K",  { QBit::b10, Rate::k55_5,  Interp::zoh } }, // OPM + YM3012 (62.5kHz は一覧に無い)
         { "FC",    { QBit::b4,  Rate::k96,    Interp::zoh } }, // 2A03 の矩形波・三角波 (4bit)
         { "SFC",   { QBit::b16, Rate::k32,    Interp::zoh } }, // S-DSP (16bit / 32kHz)
-        { "PCE",   { QBit::b5,  Rate::k96,    Interp::zoh } }, // HuC6280 (5bit)
+        { "PCE",   { QBit::b5,  Rate::k96,    Interp::zoh } }, // PCE (5bit)
         { "MD",    { QBit::b9,  Rate::k55_5,  Interp::zoh } }, // YM2612 の 9bit DAC (53.3kHz)
         { "GB",    { QBit::b4,  Rate::k96,    Interp::zoh } }, // 4bit DAC
         { "TOWNS", { QBit::b9,  Rate::k55_5,  Interp::zoh } }, // YM3438 (OPN2C)
@@ -60,12 +60,12 @@ namespace
 
     // PCM の QUALITY: サンプルを鳴らす回路
     const std::vector<Machine> qualityPcmMachines = {
-        { "98",    { PBit::b16,         Rate::k44_1,  Interp::zoh } },      // PC-9801-86 の PCM (16bit / 44.1kHz)
+        { "98",    { PBit::b16,         Rate::k44_1,  Interp::zoh } },      // 86 の PCM (16bit / 44.1kHz)
         { "88",    { PBit::ym2608Adpcm, Rate::k16,    Interp::zoh } },      // OPNA の ADPCM
-        { "MSX",   { PBit::b8,          Rate::k16,    Interp::zoh } },      // turbo R の PCM (8bit / 15.7kHz)
+        { "TR",    { PBit::b8,          Rate::k16,    Interp::zoh } },      // TR の PCM (8bit / 15.7kHz)
         { "X68K",  { PBit::imaAdpcm,    Rate::k16,    Interp::zoh } },      // MSM6258 (OKI ADPCM / 15.6kHz)
         { "FC",    { PBit::dpcm1,       Rate::k33_08, Interp::zoh } },      // DMC (1bit DPCM / 33.1kHz)
-        { "SFC",   { PBit::snesBrr,     Rate::k32,    Interp::gaussian } }, // BRR + ガウス補間
+        { "SFC",   { PBit::sfcBrr,     Rate::k32,    Interp::gaussian } }, // BRR + ガウス補間
         { "PCE",   { PBit::b5,          Rate::k8,     Interp::zoh } },      // DDA (5bit / 約 7kHz)
         { "MD",    { PBit::b8,          Rate::k22_05, Interp::zoh } },      // YM2612 の DAC チャンネル (8bit)
         { "GB",    { PBit::b4,          Rate::k8,     Interp::zoh } },      // 波形メモリ (4bit)
@@ -78,7 +78,7 @@ namespace
     const std::vector<Machine> fxPcmMachines = {
         { "98",    { PBit::b16, Rate::k44_1,  Interp::zoh } },
         { "88",    { PBit::b16, Rate::k16,    Interp::zoh } },      // OPNA の ADPCM は 16bit へ解く
-        { "MSX",   { PBit::b8,  Rate::k16,    Interp::zoh } },
+        { "TR",    { PBit::b8,  Rate::k16,    Interp::zoh } },
         { "X68K",  { PBit::b12, Rate::k16,    Interp::zoh } },      // MSM6258 は 12bit へ解く
         { "FC",    { PBit::b7,  Rate::k33_08, Interp::zoh } },      // DMC の 7bit DAC
         { "SFC",   { PBit::b16, Rate::k32,    Interp::gaussian } },

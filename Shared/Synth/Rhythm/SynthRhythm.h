@@ -153,7 +153,7 @@ private:
     // 音量側と同じ形をピッチへ当てるもの。両方を同時に掛けられる。
     SsgHwPEnv m_ssgHwPEnv;
 
-    // パッドごとの MODULATION (FDS / WonderSwan / HuC6280)
+    // パッドごとの MODULATION (FDS / WS / PCE)
     WtModulator m_wtMod;
 
     // WT PITCH MOD と同じ変調波形を音量へ当てるもの。

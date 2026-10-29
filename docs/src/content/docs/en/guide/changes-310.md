@@ -62,7 +62,7 @@ instead of pitch. The output moves between MIN and MAX.
   modulator**, not per wave slot
 - DPTH is how far the level is pulled down from MAX; at 0.0 nothing changes
 - Nudge buttons sit beside the values
-- The HuC6280 wave memory and the FDS user table are supported too
+- The PCE wave memory and the FDS user table are supported too
 - Available on every channel (FM included), every operator and every RHYTHM pad
 - Reads and writes its own file (`.wtampmod`)
 

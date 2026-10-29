@@ -10,7 +10,7 @@ sidebar:
 	<figcaption>OPL channel</figcaption>
 </figure>
 
-OPL is the channel that stands for the FM part of the **YM3812 (OPL2)** and the **YM2413 (OPLL)** — the family behind MSX-MUSIC and a great many arcade boards. It builds its sound quite differently from the OPN family.
+OPL is the channel that stands for the FM part of the **YM3812 (OPL2)** and the **YM2413 (OPLL)** — the family behind OPLL and a great many arcade boards. It builds its sound quite differently from the OPN family.
 
 The biggest difference is that it has **only two operators**. That limits what you can combine, but it comes with a weapon of its own: **you can pick the waveform**.
 

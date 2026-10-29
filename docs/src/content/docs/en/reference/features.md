@@ -45,7 +45,7 @@ Available on every channel, operator and rhythm pad.
 | PITCH ENV | pitch | 3-tap, ±4800 cents |
 | SSG SW PENV256 | pitch | up to 256 steps, ±4800 cents |
 | SSG HW PITCH ENV | pitch | the SSG HW AMP ENV shapes pointed at pitch, ±4800 cents |
-| WT PITCH MOD | pitch | modulation from wave memory: FDS / WonderSwan / HuC6280 |
+| WT PITCH MOD | pitch | modulation from wave memory: FDS / WS / PCE |
 | WT AMP MOD | level | the same modulation shapes pointed at level, swinging between MIN and MAX |
 
 ## Other sound-shaping

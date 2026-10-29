@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-// --- PlayStation SPU (VAG) / CD-ROM XA の 4bit ADPCM ---
+// --- PS1 SPU (VAG) / CD-ROM XA の 4bit ADPCM ---
 //
 // どちらも「ブロックごとに shift と IIR フィルタを選ぶ」方式で、
 // 復号式は共通。違いは 1 ブロックのサンプル数とフィルタの本数。

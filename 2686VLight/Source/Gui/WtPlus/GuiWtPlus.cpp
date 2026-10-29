@@ -25,7 +25,7 @@ namespace
 #include "./GuiWtPlusText.h"
 #include "../../Core/Gui/GuiPluginContext.h"
 
-// MODULATION の変調波形。実機ディスクシステムは 32 段の階段状。
+// MODULATION の変調波形。実機 FDS は 32 段の階段状。
 static std::vector<SelectItem> wtPlusModShapeItems = {
     {.name = "0: Sine",            .value = 1 },
     {.name = "1: FDS Triangle",    .value = 2 },
@@ -34,7 +34,7 @@ static std::vector<SelectItem> wtPlusModShapeItems = {
     {.name = "4: FDS Pulse",       .value = 5 },
     {.name = "5: WS Sweep Up",     .value = 6 },
     {.name = "6: WS Sweep Down",   .value = 7 },
-    {.name = "7: HuC6280 Wave",    .value = 8 },
+    {.name = "7: PCE Wave",    .value = 8 },
 };
 
 // 言語で名前が変わるので、静的な置き場には持たない。プログラムが

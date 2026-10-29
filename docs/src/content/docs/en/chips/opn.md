@@ -11,7 +11,7 @@ sidebar:
 </figure>
 
 OPN is the channel that stands for the FM part of the **YM2203** — the chip on
-the PC-9801-26 board, a generation earlier than the OPNA.
+the 26 board, a generation earlier than the OPNA.
 
 It is built almost exactly like OPNA, but **there is no hardware LFO and no
 panning**, because the hardware had neither. When you want the line-up of a

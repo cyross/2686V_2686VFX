@@ -44,7 +44,7 @@ CHIPS = {
     "OPL3":  dict(dirs=["Gui/Opl3", "Synth/Opl3", "Processor/Opl3"],
                   camel="Opl3", lower="opl3", mode="OPL3", color="Fm", label="YMF262"),
     "OPM":   dict(dirs=["Gui/Opm", "Synth/Opm", "Processor/Opm"],
-                  camel="Opm", lower="opm", mode="OPM", color="Fm", label="YM2151 (X68000/Arcade)"),
+                  camel="Opm", lower="opm", mode="OPM", color="Fm", label="YM2151 (X68K/Arcade)"),
     "OPZX7": dict(dirs=["Gui/Opzx7", "Synth/Opzx7", "Processor/Opzx7"],
                   camel="Opzx7", lower="opzx7", mode="OPZX7", color="Fm", label="OPZ 系の拡張 8 オペレータ"),
     "SSG":   dict(dirs=["Gui/Ssg", "Synth/Ssg", "Processor/Ssg"],

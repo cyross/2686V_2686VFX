@@ -44,7 +44,7 @@ existing patches sound the same.
 
 ## Show the FM envelope and TL the N88-BASIC(86) way
 
-SETTINGS has a new "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by
+SETTINGS has a new "Show some FM parameters as in 98 N88-BASIC(86)" (off by
 default). Turned on, the register knobs **AR / DR / SR / RR / SL / TL** of OPNA, OPN,
 OPL, OPL3, OPM and OPZX7 (D1R / D2R / D1L on OPM and OPZX7) are shown reversed,
 as N88-BASIC(86) numbers them: 0 on screen is 31 inside for AR. MML input reads
@@ -115,7 +115,7 @@ match that machine's output in one go.
   parameter files. What stays is the BIT RATE, SMP.RATE and INTERP it set
 - Machines that give identical settings share one entry, such as "98/88"
 - Where a machine's sample rate is not on the list, the nearest one is used (for
-  example, the X68000's OPM runs at 62.5kHz and gets 55.5kHz)
+  example, the X68K's OPM runs at 62.5kHz and gets 55.5kHz)
 
 ### QUALITY (non-PCM)
 
@@ -124,7 +124,7 @@ Matches the DAC the synth output goes through.
 | Machine | BIT RATE | SMP.RATE | INTERP |
 | --- | --- | --- | --- |
 | 98/88/X68K | 10-bit | 55.5kHz | ZOH |
-| MSX | 9-bit | 49.7kHz | ZOH |
+| 2413 | 9-bit | 49.7kHz | ZOH |
 | FC/GB | 4-bit | 96kHz | ZOH |
 | SFC | 16-bit | 32kHz | ZOH |
 | PCE | 5-bit | 96kHz | ZOH |
@@ -137,12 +137,12 @@ Matches the circuit that plays samples.
 
 | Machine | BIT RATE | SMP.RATE | INTERP |
 | --- | --- | --- | --- |
-| 98 | 16-bit PCM (PC-9801-86) | 44.1kHz | ZOH |
+| 98 | 16-bit PCM (86) | 44.1kHz | ZOH |
 | 88 | 4-bit ADPCM (OPNA) | 16kHz | ZOH |
-| MSX | 8-bit PCM (turbo R) | 16kHz | ZOH |
+| TR | 8-bit PCM | 16kHz | ZOH |
 | X68K | IMA ADPCM (close to the MSM6258) | 16kHz | ZOH |
 | FC | 1-bit DPCM | 33.08kHz | ZOH |
-| SFC | SNES BRR | 32kHz | Gaussian |
+| SFC | SFC BRR | 32kHz | Gaussian |
 | PCE | 5-bit PCM | 8kHz | ZOH |
 | MD/TOWNS | 8-bit PCM | 22.05kHz | ZOH |
 | GB | 4-bit PCM | 8kHz | ZOH |
@@ -157,7 +157,7 @@ bit depth its hardware decodes to.
 | --- | --- | --- | --- |
 | 98 | 16-bit PCM | 44.1kHz | ZOH |
 | 88 | 16-bit PCM | 16kHz | ZOH |
-| MSX | 8-bit PCM | 16kHz | ZOH |
+| TR | 8-bit PCM | 16kHz | ZOH |
 | X68K | 12-bit PCM | 16kHz | ZOH |
 | FC | 7-bit PCM | 33.08kHz | ZOH |
 | SFC | 16-bit PCM | 32kHz | Gaussian |

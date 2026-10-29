@@ -24,7 +24,7 @@ OPNA / OPN / OPL / OPL3 / OPM / OPZX7（OPZX7S を含む）のグローバルに
 ## SSG に More Real FC / More Real NES を足しました
 
 SSG の矩形波（デューティ比）設定で、FC FLUC の下に **More Real FC** と
-**More Real NES** を置きました。ファミコン / NES（2A03）の矩形波の鳴り方を
+**More Real NES** を置きました。FC / NES（2A03）の矩形波の鳴り方を
 真似ます。FC FLUC の揺らぎとは別物です。
 
 - デューティ比は実機の 12.5% / 25% / 50% / 75% のうち最も近いもの

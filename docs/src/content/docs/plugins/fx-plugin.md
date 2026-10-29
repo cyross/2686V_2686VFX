@@ -59,7 +59,7 @@ FX タブは横一列に並びます。一番左が **エフェクター**（全
 | ビットクラッシャー | 今風の粗くしかた |
 | ディレイ | やまびこ |
 | リバーブ | 残響 |
-| SFCエコー | スーパーファミコンのエコー (8 タップの FIR 付き) |
+| SFCエコー | SFC のエコー (8 タップの FIR 付き) |
 | **PCMビットクラッシャー** | 実機のレートとビットの刻みで落とす |
 | **ノイズリダクション** | 音源の QUALITY(PCM) のゲートと高域カット |
 
@@ -106,7 +106,7 @@ PITCH ENV は D3、のように**対象ごとに動かす鍵盤を決められ�
 | AMP ENV | 音量の ADSR |
 | SSG HW AMP ENV | SSG のハードウェアエンベロープ |
 | SSG SW AMP ENV[256] | SSG のソフトウェアエンベロープ (11 ステップ) |
-| WT AMP MOD | 波形メモリ系の音量変調 (FDS / WonderSwan / HuC6280) |
+| WT AMP MOD | 波形メモリ系の音量変調 (FDS / WS / PCE) |
 | LFO | OPZX7 の LFO のうち AM 側 |
 
 ### 音程を動かすもの
@@ -116,7 +116,7 @@ PITCH ENV は D3、のように**対象ごとに動かす鍵盤を決められ�
 | PITCH ENV | 音程の ADSR |
 | SSG HW PITCH ENV | SSG のハードウェアエンベロープの形を音程へ |
 | SSG SW PITCH ENV[256] | 音程のソフトウェアエンベロープ (11 ステップ) |
-| WT PITCH MOD | 波形メモリ系の音程変調 (FDS / WonderSwan / HuC6280) |
+| WT PITCH MOD | 波形メモリ系の音程変調 (FDS / WS / PCE) |
 | LFO | OPZX7 の LFO のうち PM 側 |
 
 ### 音程を一定量ずらすもの

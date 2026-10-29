@@ -62,7 +62,7 @@ Whatever resolution the loaded waves have, this evens the coarseness out. **Swit
 
 ## MOD — wavetable pitch modulation (hardware / ours)
 
-The same modulation WT and WT2 have: the FDS, WonderSwan and HuC6280 families.
+The same modulation WT and WT2 have: the FDS, WS and PCE families.
 
 | Item | What it does | Range |
 | --- | --- | --- |

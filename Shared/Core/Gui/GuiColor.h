@@ -142,22 +142,22 @@ namespace GuiColor {
 			inline Entry P66mk2Label{ "Palette.Retro.P66mk2Label", []() -> juce::Colour { return juce::Colour::fromRGB(0x61, 0x68, 0x70); } }; // P66mk2 Label   PC-6601mk2 のラベル背景色
 			inline Entry P66mk2Key{ "Palette.Retro.P66mk2Key", []() -> juce::Colour { return juce::Colour::fromRGB(0xB6, 0xB1, 0x94); } }; // P66mk2 Key     PC-6601mk2 のキー色
 			inline Entry P66mk2FncKey{ "Palette.Retro.P66mk2FncKey", []() -> juce::Colour { return juce::Colour::fromRGB(0x5D, 0x58, 0x52); } }; // P66mk2 FncKey  PC-6601mk2 のファンクションキー色
-			inline Entry Pc88Ma2Hd{ "Palette.Retro.Pc88Ma2Hd", []() -> juce::Colour { return juce::Colour::fromRGB(0xF7, 0xA1, 0x0C); } }; // PC88MA2 2HD    PC-8801MA2 の「2HD」ラベル背景色
-			inline Entry Pc98FBody2{ "Palette.Retro.Pc98FBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x47, 0x42, 0x3E); } }; // PC98F Body2    PC-9801F の筐体に入っていた灰色
-			inline Entry Pc98RxBody{ "Palette.Retro.Pc98RxBody", []() -> juce::Colour { return juce::Colour::fromRGB(0xB1, 0xB2, 0xAB); } }; // PC98RX Body    PC-9801RX21 の筐体色
-			inline Entry Pc98RxLogo{ "Palette.Retro.Pc98RxLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0x36, 0x35, 0x39); } }; // PC98RX Logo    PC-9801RX21 のロゴ色
-			inline Entry MdGold{ "Palette.Retro.MdGold", []() -> juce::Colour { return juce::Colour::fromRGB(0xD0, 0xA6, 0x70); } }; // MD Gold        メガドライブの「16-BIT」の文字色
-			inline Entry MdBody2{ "Palette.Retro.MdBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x9E, 0x2B, 0x58); } }; // MD Body2       メガドライブの差し色のマゼンタ
-			inline Entry MdSwitch{ "Palette.Retro.MdSwitch", []() -> juce::Colour { return juce::Colour::fromRGB(0x00, 0x68, 0xAB); } }; // MD Switch      メガドライブのスイッチの青
-			inline Entry PceLogo{ "Palette.Retro.PceLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0x5C, 0x42); } }; // PCE Logo       PC エンジンのロゴのオレンジ
-			inline Entry PceBody2{ "Palette.Retro.PceBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x65, 0x64, 0x64); } }; // PCE Body2      PC エンジンのコントローラーの灰色
-			inline Entry PceBody{ "Palette.Retro.PceBody", []() -> juce::Colour { return juce::Colour::fromRGB(0xE8, 0xE7, 0xE4); } }; // PCE Body       初代 PC エンジンの筐体の白
-			inline Entry FcLabel{ "Palette.Retro.FcLabel", []() -> juce::Colour { return juce::Colour::fromRGB(0xCF, 0x29, 0x37); } }; // FC Label       初代ファミコンのレバーやカバーの赤
-			inline Entry FcGold{ "Palette.Retro.FcGold", []() -> juce::Colour { return juce::Colour::fromRGB(0xD1, 0xB6, 0x8C); } }; // FC Gold        初代ファミコンのロゴの金
-			inline Entry GbScrOn{ "Palette.Retro.GbScrOn", []() -> juce::Colour { return juce::Colour::fromRGB(0x33, 0x52, 0x3A); } }; // GB SCR ON      初代ゲームボーイの液晶 (点灯)
-			inline Entry GbScrOff{ "Palette.Retro.GbScrOff", []() -> juce::Colour { return juce::Colour::fromRGB(0x89, 0x97, 0x28); } }; // GB SCR OFF     初代ゲームボーイの液晶 (消灯)
-			inline Entry TownsBody{ "Palette.Retro.TownsBody", []() -> juce::Colour { return juce::Colour::fromRGB(0x45, 0x4E, 0x5C); } }; // TOWNS Body     初代 FM-TOWNS の筐体色
-			inline Entry TownsLogo{ "Palette.Retro.TownsLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0x34, 0x81, 0x78); } }; // TOWNS Logo     初代 FM-TOWNS のロゴ
+			inline Entry Pc88Ma2Hd{ "Palette.Retro.Pc88Ma2Hd", []() -> juce::Colour { return juce::Colour::fromRGB(0xF7, 0xA1, 0x0C); } }; // 88MA2 2HD    88MA2 の「2HD」ラベル背景色
+			inline Entry Pc98FBody2{ "Palette.Retro.Pc98FBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x47, 0x42, 0x3E); } }; // 98F Body2    98F の筐体に入っていた灰色
+			inline Entry Pc98RxBody{ "Palette.Retro.Pc98RxBody", []() -> juce::Colour { return juce::Colour::fromRGB(0xB1, 0xB2, 0xAB); } }; // 98RX Body    98RX21 の筐体色
+			inline Entry Pc98RxLogo{ "Palette.Retro.Pc98RxLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0x36, 0x35, 0x39); } }; // 98RX Logo    98RX21 のロゴ色
+			inline Entry MdGold{ "Palette.Retro.MdGold", []() -> juce::Colour { return juce::Colour::fromRGB(0xD0, 0xA6, 0x70); } }; // MD Gold        MD の「16-BIT」の文字色
+			inline Entry MdBody2{ "Palette.Retro.MdBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x9E, 0x2B, 0x58); } }; // MD Body2       MD の差し色のマゼンタ
+			inline Entry MdSwitch{ "Palette.Retro.MdSwitch", []() -> juce::Colour { return juce::Colour::fromRGB(0x00, 0x68, 0xAB); } }; // MD Switch      MD のスイッチの青
+			inline Entry PceLogo{ "Palette.Retro.PceLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0x5C, 0x42); } }; // PCE Logo       PCE のロゴのオレンジ
+			inline Entry PceBody2{ "Palette.Retro.PceBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x65, 0x64, 0x64); } }; // PCE Body2      PCE のコントローラーの灰色
+			inline Entry PceBody{ "Palette.Retro.PceBody", []() -> juce::Colour { return juce::Colour::fromRGB(0xE8, 0xE7, 0xE4); } }; // PCE Body       初代 PCE の筐体の白
+			inline Entry FcLabel{ "Palette.Retro.FcLabel", []() -> juce::Colour { return juce::Colour::fromRGB(0xCF, 0x29, 0x37); } }; // FC Label       初代 FC のレバーやカバーの赤
+			inline Entry FcGold{ "Palette.Retro.FcGold", []() -> juce::Colour { return juce::Colour::fromRGB(0xD1, 0xB6, 0x8C); } }; // FC Gold        初代 FC のロゴの金
+			inline Entry GbScrOn{ "Palette.Retro.GbScrOn", []() -> juce::Colour { return juce::Colour::fromRGB(0x33, 0x52, 0x3A); } }; // GB SCR ON      初代 GB の液晶 (点灯)
+			inline Entry GbScrOff{ "Palette.Retro.GbScrOff", []() -> juce::Colour { return juce::Colour::fromRGB(0x89, 0x97, 0x28); } }; // GB SCR OFF     初代 GB の液晶 (消灯)
+			inline Entry TownsBody{ "Palette.Retro.TownsBody", []() -> juce::Colour { return juce::Colour::fromRGB(0x45, 0x4E, 0x5C); } }; // TOWNS Body     初代 TOWNS の筐体色
+			inline Entry TownsLogo{ "Palette.Retro.TownsLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0x34, 0x81, 0x78); } }; // TOWNS Logo     初代 TOWNS のロゴ
 		};
 
 		// ------------------------------------------------------------------

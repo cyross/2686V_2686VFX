@@ -20,12 +20,12 @@ collected in [Choosing a plugin](/2686V_2686VFX/en/plugins/compare/).
 | :---: | --- | --- |
 | <img src="/2686V_2686VFX/logos/2686V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686V** | the full one, with every sound chip |
 | <img src="/2686V_2686VFX/logos/2686VLight.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **2686VLight** | 2686V with curve editing removed, so it runs lighter |
-| <img src="/2686V_2686VFX/logos/26V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **26V** | matched to the PC-9801-26(K) layout |
-| <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **86V** | matched to the PC-9801-86 layout |
+| <img src="/2686V_2686VFX/logos/26V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **26V** | matched to the 26 layout |
+| <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **86V** | matched to the 86 layout |
 | <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPZX7S** | focused on the OPZX7 chip. Curve editing is standard |
 | <img src="/2686V_2686VFX/logos/OPNV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPNV** | OPNA and OPN, for a single FM part |
 | <img src="/2686V_2686VFX/logos/OPLV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPLV** | OPL and OPL3, moving between two and four operators |
-| <img src="/2686V_2686VFX/logos/OPMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPMV** | OPM alone, for one X68000 or arcade part |
+| <img src="/2686V_2686VFX/logos/OPMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **OPMV** | OPM alone, for one X68K or arcade part |
 | <img src="/2686V_2686VFX/logos/WTV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **WTV** | WT, WT2 and WT+, for wavetable parts |
 | <img src="/2686V_2686VFX/logos/PCMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **PCMV** | RHYTHM and ADPCM, the drum kit and sample playback |
 | <img src="/2686V_2686VFX/logos/PULSEV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | **PULSEV** | SSG and BEEP, for square-wave parts |

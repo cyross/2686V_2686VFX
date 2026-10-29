@@ -11,9 +11,9 @@ namespace
 		return (juce::uint8)juce::roundToInt((double)value * 255.0 / (double)maxValue);
 	}
 
-	// メガドライブの段。DAC の出力が等間隔でないので、実測でよく使われる
+	// MD の段。DAC の出力が等間隔でないので、実測でよく使われる
 	// 値を並べてある。等間隔で作ると当時の見た目から外れる。
-	constexpr juce::uint8 megaDriveLevels[8] = { 0, 52, 87, 116, 144, 172, 206, 255 };
+	constexpr juce::uint8 mdLevels[8] = { 0, 52, 87, 116, 144, 172, 206, 255 };
 
 	std::vector<juce::Colour> makeEven(int bits)
 	{
@@ -38,14 +38,14 @@ std::vector<juce::Colour> RetroPalette::colours(Machine machine)
 {
 	switch (machine)
 	{
-	case Machine::Pc8801:
-	case Machine::PcEngine:
+	case Machine::Pc88:
+	case Machine::Pce:
 		return makeEven(3);
 
-	case Machine::Pc9801:
+	case Machine::Pc98:
 		return makeEven(4);
 
-	case Machine::MegaDrive:
+	case Machine::Md:
 	{
 		std::vector<juce::Colour> out;
 		out.reserve(512);
@@ -53,7 +53,7 @@ std::vector<juce::Colour> RetroPalette::colours(Machine machine)
 		for (int r = 0; r < 8; ++r) {
 			for (int g = 0; g < 8; ++g) {
 				for (int b = 0; b < 8; ++b) {
-					out.push_back(juce::Colour::fromRGB(megaDriveLevels[r], megaDriveLevels[g], megaDriveLevels[b]));
+					out.push_back(juce::Colour::fromRGB(mdLevels[r], mdLevels[g], mdLevels[b]));
 				}
 			}
 		}
@@ -61,7 +61,7 @@ std::vector<juce::Colour> RetroPalette::colours(Machine machine)
 		return out;
 	}
 
-	case Machine::X68000:
+	case Machine::X68k:
 	{
 		// RGB 各 5bit に輝度 1bit が付く。輝度は各成分の最下位ビットとして
 		// 効くので、6bit ぶんの段を 32 段 + 半段で作るのと同じことになる。
@@ -93,11 +93,11 @@ juce::String RetroPalette::name(Machine machine)
 {
 	switch (machine)
 	{
-	case Machine::Pc8801:    return I18n::pick(u8"PC-8801 (512色)", u8"PC-8801 (512 colours)");
-	case Machine::Pc9801:    return I18n::pick(u8"PC-9801 (4096色)", u8"PC-9801 (4096 colours)");
-	case Machine::PcEngine:  return I18n::pick(u8"PCエンジン (512色)", u8"PC Engine (512 colours)");
-	case Machine::MegaDrive: return I18n::pick(u8"メガドライブ (512色)", u8"Mega Drive (512 colours)");
-	case Machine::X68000:    return I18n::pick(u8"X68000 (65536色)", u8"X68000 (65536 colours)");
+	case Machine::Pc88:    return I18n::pick(u8"88 (512色)", u8"88 (512 colours)");
+	case Machine::Pc98:    return I18n::pick(u8"98 (4096色)", u8"98 (4096 colours)");
+	case Machine::Pce:  return I18n::pick(u8"PCE (512色)", u8"PCE (512 colours)");
+	case Machine::Md: return I18n::pick(u8"MD (512色)", u8"MD (512 colours)");
+	case Machine::X68k:    return I18n::pick(u8"X68K (65536色)", u8"X68K (65536 colours)");
 	}
 
 	return {};
@@ -108,15 +108,15 @@ int RetroPalette::columns(Machine machine)
 	// 同じ色相がまとまって見えるよう、青の段数を 1 行の長さにする
 	switch (machine)
 	{
-	case Machine::Pc8801:
-	case Machine::PcEngine:
-	case Machine::MegaDrive:
+	case Machine::Pc88:
+	case Machine::Pce:
+	case Machine::Md:
 		return 8 * 8;
 
-	case Machine::Pc9801:
+	case Machine::Pc98:
 		return 16 * 8;
 
-	case Machine::X68000:
+	case Machine::X68k:
 		return 32 * 8;
 	}
 
