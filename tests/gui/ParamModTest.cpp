@@ -388,6 +388,9 @@ TEST_CASE("PARAM ENV: 値は TARGET ごとに別に持ち、state へ書いて�
     // オペレーターの PARAM ENV
     for (const auto& chip : fmChips(rig, allFm)) heads.push_back(chip.prefix + "_OP0_PRMENV");
 
+    // RHYTHM のパッドの PARAM ENV。RHYTHM を持たないプラグインでは表が無く、飛ばす
+    heads.push_back("RHYTHM_PAD0_PRMENV");
+
     int checked = 0;
 
     for (const auto& head : heads) {

@@ -184,6 +184,20 @@ GuiComponentStepEnv::Spec GuiComponentParamEnv::opSpec(const ParamModCatalog::Ca
     return x;
 }
 
+GuiComponentStepEnv::Spec GuiComponentParamEnv::padSpec(const ParamModCatalog::Catalog& catalog)
+{
+    Spec x = paramEnvBase();
+
+    x.targetLabels = ParamModCatalog::opTargetLabels(catalog);
+
+    // code はパッドの頭 (RHYTHM_PAD0)。尻尾を足せば指し先の鍵
+    x.targetParamId = [&catalog](const juce::String& code, int target) {
+        return target >= 0 && target < (int)catalog.op.size() ? code + catalog.op[(size_t)target].suffix : juce::String();
+    };
+
+    return x;
+}
+
 GuiComponentStepEnv::Spec GuiComponentParamEnv::channelSpec(const ParamModCatalog::Catalog& catalog, int ops)
 {
     Spec x = paramEnvBase();

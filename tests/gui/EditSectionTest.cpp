@@ -640,7 +640,7 @@ TEST_CASE("Duplicate Targets / Clear Targets: もう一度押すと閉じ、ESC 
 	MESSAGE("ダイアログの開け閉め: " << checked << " タブ");
 }
 
-TEST_CASE("RHYTHM: パッドの EDIT は OPTIONAL の下、Duplicate Pad Params はグローバルの EDIT にあり、選んだパッドへ写す")
+TEST_CASE("RHYTHM: パッドの EDIT は一番右の列、MUL/DET は OPTIONAL の下、Duplicate Pad Params はグローバルの EDIT にあり、選んだパッドへ写す")
 {
 	Env env;
 
@@ -671,15 +671,34 @@ TEST_CASE("RHYTHM: パッドの EDIT は OPTIONAL の下、Duplicate Pad Params 
 		REQUIRE(level != nullptr);
 		CHECK(level->getParentComponent() == parent);
 
-		// パッドの EDIT は、OPTIONAL と同じ列のその下
+		// MUL/DET は、OPTIONAL と同じ列のその下 (FM 音源のオペレーターと同じ)
 		auto optional = findAll<GuiCategoryLabel>(root, [](GuiCategoryLabel& c) { return c.getText() == "OPTIONAL"; });
 
 		REQUIRE(optional.size() == 1);
 
-		auto padEdit = findAll<GuiCategoryLabel>(optional.front()->getParentComponent(), [](GuiCategoryLabel& c) { return c.getText() == "EDIT"; });
+		auto* optionalCol = optional.front()->getParentComponent();
+		auto mulDet = findAll<GuiCategoryLabel>(optionalCol, [](GuiCategoryLabel& c) { return c.getText() == "MUL/DET"; });
+
+		REQUIRE(mulDet.size() == 1);
+		CHECK(mulDet.front()->getY() > optional.front()->getY());
+
+		// パッドの EDIT は OPTIONAL の列には無く、区分の並びの一番右の列にある
+		CHECK(findAll<GuiCategoryLabel>(optionalCol, [](GuiCategoryLabel& c) { return c.getText() == "EDIT"; }).empty());
+
+		auto* strip = optionalCol->findParentComponentOfClass<GuiScrollGroup>()->getParentComponent();
+
+		REQUIRE(strip != nullptr);
+
+		auto padEdit = findAll<GuiCategoryLabel>(strip, [](GuiCategoryLabel& c) { return c.getText() == "EDIT"; });
 
 		REQUIRE(padEdit.size() == 1);
-		CHECK(padEdit.front()->getY() > optional.front()->getY());
+
+		auto* editCol = padEdit.front()->findParentComponentOfClass<GuiScrollGroup>();
+
+		REQUIRE(editCol != nullptr);
+
+		for (auto* col : strip->getChildren())
+			if (col != editCol && col->isVisible()) CHECK(col->getX() < editCol->getX());
 
 		// UTILITY に古いものは残っていない
 		CHECK(findAll<GuiTextButton>(root, [](GuiTextButton& b) { return b.getButtonText() == "Duplicate Pad Params"; }).size() == 1);

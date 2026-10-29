@@ -59,6 +59,17 @@ since the two are often edited together. On OPZX7 it comes before the WAVEFORM c
 
 This applies to the OPNA / OPN / OPL / OPL3 / OPM / OPZX7 tabs in every plugin with FM channels.
 
+## New column order for RHYTHM pads
+
+The pad settings are now laid out like those of FM operators.
+
+- **MUL/DET and FIX** moved below OPTIONAL, in the same column. The column is now called "OPTIONAL / MUL/DET / FIX"
+- To its right come the pad's **PARAM ENV** column (see PARAM ENV[256] below) and its **TAP PARAM SEQUENCER** column
+- The pad's **EDIT** left the OPTIONAL column and now has its own "EDIT" column at the far right
+
+The order is FORM / PAN / QUALITY → OPTIONAL / MUL/DET / FIX → PARAM ENV → TAP PARAM SEQUENCER → AMP ENV → … → LFO → EDIT.
+This applies to every plugin with RHYTHM (2686V, 2686VLight, 86V, PCMV).
+
 ## Alt key for slider dragging
 
 While dragging a label, or the bar of a graph's zoom slider, holding **Alt** aligns the value to **steps of 100**.
@@ -99,6 +110,7 @@ It offers the same parameters as TAP PARAM SEQUENCER.
 
 - One per channel (the new **[[PARAM ENV]]** major section, above [[TAP SEQUENCER]])
 - FM channels also have one per operator (in its own "PARAM ENV" column of the settings, right of KEY SCALE / MUL/DET / FIX)
+- RHYTHM also has one per pad (the "PARAM ENV" column of the pad settings, right of OPTIONAL / MUL/DET / FIX), listing that pad's parameters
 - Values are kept as a fraction of the target parameter's range and shown the way the target shows them
 - The values (STL, L, LR, ENDL) are kept separately for each TARGET. Changing TARGET switches to that target's values
 - Integer and choice parameters hold their value for each step
@@ -118,7 +130,7 @@ the graph) move along. The line appears for PARAM ENV[256] (PRM) and for AMP ENV
 the FM operator EG (AMP / PIT / S256 / P256). SETTINGS switches "TAP SEQUENCER", "PARAM ENV" and "the other envelopes"
 separately and lets you choose the rate from 15 / 30 / 60 / 120 FPS (all start on, at 30 FPS).
 
-The channel graph switch and the FM operator graph switch gain **PRM** (PARAM ENV[256]). See
+The channel graph switch, the FM operator graph switch and the RHYTHM pad graph switch gain **PRM** (PARAM ENV[256]). See
 [Where the sound is playing on the graphs](/2686V_2686VFX/en/guide/screen/#where-the-sound-is-playing-on-the-graphs).
 
 ## Step envelopes hold a repeated value for R seconds

@@ -110,7 +110,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     addAndMakeVisible(stripViewport);
 
     colForm.setup(stripCanvas, juce::String("") + "FORM / PAN / QUALITY");
-    colOptional.setup(stripCanvas, juce::String("") + "OPTIONAL");
+    colOptional.setup(stripCanvas, juce::String("") + "OPTIONAL / MUL/DET / FIX");
     colAmpEnv.setup(stripCanvas, juce::String("") + "AMP ENV");
     colSsgHwEnv.setup(stripCanvas, juce::String("") + "SSG HW AMP ENV");
     colSsgSwEnv256.setup(stripCanvas, juce::String("") + "SSG SW AMP ENV[256]");
@@ -120,8 +120,9 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     colSsgSwPEnv256.setup(stripCanvas, juce::String("") + "SSG SW PITCH ENV[256]");
     colMod.setup(stripCanvas, juce::String("") + "WT PITCH MOD");
     colLfo.setup(stripCanvas, juce::String("") + "LFO");
-    colMulDet.setup(stripCanvas, juce::String("") + "MUL/DET / FIX");
+    colParamEnv.setup(stripCanvas, juce::String("") + "PARAM ENV");
     colTapParam.setup(stripCanvas, juce::String("") + "TAP PARAM SEQUENCER");
+    colEdit.setup(stripCanvas, juce::String("") + "EDIT");
 
     // 今どのパッドを触っているか。名前は rebind で入れ替える。
     padNameLabel.setup({ .parent = *this, .title = Io::empty,
@@ -151,6 +152,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     setupModeBtn(graphBtnPitch, "PIT", GuiEnvGraphMode::Pitch);
     setupModeBtn(graphBtnSsg256, "S256", GuiEnvGraphMode::SsgSw256);
     setupModeBtn(graphBtnSsgP256, "P256", GuiEnvGraphMode::SsgSwP256);
+    setupModeBtn(graphBtnParam, "PRM", GuiEnvGraphMode::ParamEnv256);
 
     graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
@@ -158,8 +160,8 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     qualityPcmComponent.setupComponent(colForm.contentCanvas, padPrefix, tabOrder);
 
-    // TARGET で選んでいるパッドを単位にする。OPTIONAL の下に置く
-    padEditComponent.setupComponent(colOptional.contentCanvas, RhythmPrKey::prefix,
+    // TARGET で選んでいるパッドを単位にする。一番右の EDIT の列に置く
+    padEditComponent.setupComponent(colEdit.contentCanvas, RhythmPrKey::prefix,
         [this] { return "PAD" + juce::String(m_padIndex); }, tabOrder);
 
     // 音声ファイルロードボタン
@@ -336,7 +338,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
         panSlider.setValue(1.0f, juce::sendNotification);
         };
 
-    fixComponent.setupComponent(colMulDet.contentCanvas, padPrefix, tabOrder, "-> 440", 440);
+    fixComponent.setupComponent(colOptional.contentCanvas, padPrefix, tabOrder, "-> 440", 440);
 
     ampEnvComponent.setupComponent(colAmpEnv.contentCanvas, padPrefix, tabOrder);
 
@@ -347,11 +349,15 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     ssgSwPEnv256Component.setupComponent(colSsgSwPEnv256.contentCanvas, padPrefix, tabOrder, CPK::ssgSwPEnv256 + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwPEnv256::bypass);
 
+    paramEnvComponent.setupComponent(colParamEnv.contentCanvas, padPrefix, tabOrder, ParamEnv::keys().enable, "Enable", true);
+    paramEnvComponent.category().onImport = [this] { paramEnvComponent.importParams(); };
+    paramEnvComponent.category().onExport = [this] { paramEnvComponent.exportParams(); };
+
     tapParamComponent.setupComponent(colTapParam.contentCanvas, padPrefix, tabOrder);
     tapParamComponent.category().onImport = [this] { tapParamComponent.importParams(); };
     tapParamComponent.category().onExport = [this] { tapParamComponent.exportParams(); };
 
-    mulDetuneComponent.setupComponent(colMulDet.contentCanvas, padPrefix, tabOrder);
+    mulDetuneComponent.setupComponent(colOptional.contentCanvas, padPrefix, tabOrder);
 
     lfoComponent.setupComponent(colLfo.contentCanvas, padPrefix, tabOrder);
 
@@ -368,7 +374,7 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
         &colForm, &colOptional, &colAmpEnv, &colSsgHwEnv,
         &colSsgSwEnv256, &colAmpMod, &colPitchEnv,
         &colSsgHwPEnv, &colSsgSwPEnv256, &colMod, &colLfo,
-        &colMulDet, &colTapParam,
+        &colParamEnv, &colTapParam, &colEdit,
         })
     {
         for (auto* child : group->contentCanvas.getChildren())
@@ -403,12 +409,13 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
         {
             const int w = RhythmGuiValue::Pad::Graph::ModeButtonWidth;
 
-            auto btnRow = row.removeFromLeft(w * 4).withHeight(RhythmGuiValue::Pad::Graph::ButtonHeight);
+            auto btnRow = row.removeFromLeft(w * 5).withHeight(RhythmGuiValue::Pad::Graph::ButtonHeight);
 
             graphBtnAmp.setBounds(btnRow.removeFromLeft(w));
             graphBtnPitch.setBounds(btnRow.removeFromLeft(w));
             graphBtnSsg256.setBounds(btnRow.removeFromLeft(w));
-            graphBtnSsgP256.setBounds(btnRow);
+            graphBtnSsgP256.setBounds(btnRow.removeFromLeft(w));
+            graphBtnParam.setBounds(btnRow);
         }
 
         // 帯の背後へ板を敷く。左端から切り替えの右端まで
@@ -480,10 +487,28 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
         layoutQualityCat(rect);
         });
 
+    // OPTIONAL の下に MUL/DET と FIX を積む (FM 音源のオペレーターと同じ)。
+    // どちらかだけを隠すことができるので、それぞれ見て決める。
     layoutCol(colOptional, true, [&](juce::Rectangle<int>& rect) {
         layoutOptionalCat(rect);
 
-        padEditComponent.layoutComponentRow(rect);
+        mulDetuneComponent.setCategoryVisible(shown(SimpleView::MulDet));
+        mulDetuneComponent.layoutComponent(rect);
+
+        fixComponent.setCategoryVisible(shown(SimpleView::Fix));
+        fixComponent.layoutComponent(rect);
+        });
+
+    // PARAM ENV[256] (パッド)。OPTIONAL / MUL/DET / FIX の右に、独立した列で置く
+    layoutCol(colParamEnv, shown(SimpleView::ParamEnv), [&](juce::Rectangle<int>& rect) {
+        paramEnvComponent.setCategoryVisible(true);
+        paramEnvComponent.layoutComponent(rect);
+        });
+
+    // TAP PARAM SEQUENCER (パッド)。PARAM ENV の右
+    layoutCol(colTapParam, shown(SimpleView::TapParam), [&](juce::Rectangle<int>& rect) {
+        tapParamComponent.setCategoryVisible(true);
+        tapParamComponent.layoutComponent(rect);
         });
 
     layoutCol(colAmpEnv, shown(SimpleView::AmpEnv), [&](juce::Rectangle<int>& rect) {
@@ -528,20 +553,9 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
         lfoComponent.layoutComponent(rect);
         });
 
-    // MUL/DET と FIX も 1 列へまとめてある。どちらかだけを隠すことが
-    // できるので、列を出すかどうかは両方を見て決める。
-    layoutCol(colMulDet, shown(SimpleView::MulDet) || shown(SimpleView::Fix), [&](juce::Rectangle<int>& rect) {
-        mulDetuneComponent.setCategoryVisible(shown(SimpleView::MulDet));
-        mulDetuneComponent.layoutComponent(rect);
-
-        fixComponent.setCategoryVisible(shown(SimpleView::Fix));
-        fixComponent.layoutComponent(rect);
-        });
-
-    // TAP PARAM SEQUENCER (パッド)。MUL/DET / FIX の右
-    layoutCol(colTapParam, pluginOf(ctx).isSimpleShown(SimpleView::TapParam), [&](juce::Rectangle<int>& rect) {
-        tapParamComponent.setCategoryVisible(true);
-        tapParamComponent.layoutComponent(rect);
+    // EDIT (パッド)。区分の並びの一番右
+    layoutCol(colEdit, true, [&](juce::Rectangle<int>& rect) {
+        padEditComponent.layoutComponentRow(rect);
         });
 
     stripCanvas.setSize(juce::jmax(1, x - colGap), colH);
@@ -698,6 +712,8 @@ void RhythmPadGui::setupGraph()
     ssgSwEnv256Component.setupGraph(repaintGraph);
 
     ssgSwPEnv256Component.setupGraph(repaintGraph);
+
+    paramEnvComponent.setupGraph(repaintGraph);
 }
 
 // 枠に出す波形を作り直す。
@@ -776,6 +792,10 @@ void GuiRhythm::updatePadGraph(int p)
         graph.updateSsgSwPEnv256(v);
         graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwPEnv256), ctx.audioProcessor.envLiveRate());
     }
+    // PARAM ENV[256] (4.3.0)。値は TARGET の組から。鳴っている位置も出す
+    else if (mode == GuiEnvGraphMode::ParamEnv256) {
+        GuiComponentStepEnv::drawParamGraph(graph, ctx, padPanel.paramEnvSpec(), code);
+    }
     else {
         graph.updateBypass(GuiGraphValues::ampEnvBypassed(apvts, code));
         graph.updateAmpEnv(GuiGraphValues::ampEnv(apvts, code));
@@ -797,6 +817,7 @@ void RhythmPadGui::setGraphMode(GuiEnvGraphMode mode)
     graphBtnPitch.setToggleState(mode == GuiEnvGraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg256.setToggleState(mode == GuiEnvGraphMode::SsgSw256, juce::dontSendNotification);
     graphBtnSsgP256.setToggleState(mode == GuiEnvGraphMode::SsgSwP256, juce::dontSendNotification);
+    graphBtnParam.setToggleState(mode == GuiEnvGraphMode::ParamEnv256, juce::dontSendNotification);
 
     if (onGraphModeChange) onGraphModeChange(mode);
 }
@@ -840,6 +861,7 @@ void RhythmPadGui::rebind(int index)
     pitchEnvComponent.rebind(padPrefix);
     ssgSwEnv256Component.rebind(padPrefix);
     ssgSwPEnv256Component.rebind(padPrefix);
+    paramEnvComponent.rebind(padPrefix);
     tapParamComponent.rebind(padPrefix);
     mulDetuneComponent.rebind(padPrefix);
     lfoComponent.rebind(padPrefix);
@@ -1238,6 +1260,7 @@ void RhythmPadGui::readParams(int p, const Io::ParamReader& r) {
     ampModComponent.readParams(r, "wtAmpMod");
     ssgSwEnv256Component.readParams(r, "ssgSwEnv256");
     ssgSwPEnv256Component.readParams(r, "ssgSwPEnv256");
+    paramEnvComponent.readParams(r, "paramEnv");
     tapParamComponent.readParams(r, "tapParam");
     mulDetuneComponent.readParams(r, "mulDetune");
     lfoComponent.readParams(r, "lfo");
@@ -1276,6 +1299,7 @@ void RhythmPadGui::writeParams(int p, Io::ParamWriter& w) {
     ampModComponent.writeParams(w, "wtAmpMod");
     ssgSwEnv256Component.writeParams(w, "ssgSwEnv256");
     ssgSwPEnv256Component.writeParams(w, "ssgSwPEnv256");
+    paramEnvComponent.writeParams(w, "paramEnv");
     tapParamComponent.writeParams(w, "tapParam");
     mulDetuneComponent.writeParams(w, "mulDetune");
     lfoComponent.writeParams(w, "lfo");
@@ -2262,6 +2286,7 @@ void RhythmPadGui::bypassHiddenCategories()
     if (!pluginOf(ctx).isSimpleShown(SimpleView::PitchEnv)) pitchEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgHwPitchEnv)) ssgHwPEnv.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::SsgSwPitchEnv256)) ssgSwPEnv256Component.setCategoryBypassed(true);
+    if (!pluginOf(ctx).isSimpleShown(SimpleView::ParamEnv)) paramEnvComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::TapParam)) tapParamComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::Lfo)) lfoComponent.setCategoryBypassed(true);
     if (!pluginOf(ctx).isSimpleShown(SimpleView::MulDet)) mulDetuneComponent.setCategoryBypassed(true);

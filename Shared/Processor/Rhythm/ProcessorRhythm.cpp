@@ -47,7 +47,8 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         PrHelper::addSsgHwEnvParameters(layout, padPrefix, padPrefixName);
         PrHelper::addSsgHwPEnvParameters(layout, padPrefix, padPrefixName);
 
-        // TAP PARAM SEQUENCER (パッド)。指し先はそのパッドのパラメータ
+        // PARAM ENV[256] / TAP PARAM SEQUENCER (パッド)。指し先はそのパッドのパラメータ
+        ParamEnv::addParameters(layout, padPrefix, padPrefixName, (int)ParamModCatalog::rhythm().op.size(), 0);
         TapParam::addParameters(layout, padPrefix, padPrefixName);
         PrHelper::addWtModParameters(layout, padPrefix, padPrefixName);
         PrHelper::addWtAmpModParameters(layout, padPrefix, padPrefixName);
@@ -70,6 +71,7 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveS
         juce::String padPrefix = prefix + RhythmPrKey::pad + juce::String(i);
 
         TapParam::setupPtrs(apvts, padPrefix, pOpTapParam[(size_t)i], stepTables);
+        ParamEnv::setupPtrs(apvts, padPrefix, pOpParamEnv[(size_t)i], stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::opTargetIds(padPrefix, ParamModCatalog::rhythm())));
 
         PrHelper::setupRhythmPadBasicPtrs(apvts, padPrefix, pPadBasic[i]);
         PrHelper::setupQualityPcmPtrs(apvts, padPrefix, pQuality[i]);
@@ -118,7 +120,7 @@ void RhythmProcessor::applyChannel(RhythmParams& p)
 
     // PARAM ENV[256] (チャンネル)
     modResolver.applyChannelEnv(pParamEnv, p.paramMod.envs[0]);
-    p.paramMod.envCount = 1;
+    p.paramMod.envCount = 1 + m_pads;
     p.paramMod.applier = this;
     modResolver.fillArp(p.paramMod);
 }
@@ -144,6 +146,9 @@ void RhythmProcessor::applyOp(RhythmParams& p, int i)
     PrHelper::applyFix(pFix[i], pad.fix);
     PrHelper::applySsgHwEnv(pSsgHwEnv[i], pad.ssgHwEnv);
     PrHelper::applySsgHwPEnv(pSsgHwPEnv[i], pad.ssgHwPEnv);
+
+    // PARAM ENV[256] (パッド)
+    modResolver.applyOpEnv(pOpParamEnv[(size_t)i], i, p.paramMod.envs[(size_t)i + 1]);
 }
 
 // ボイスから。置き換えた値で、変わる区分だけ読み直す

@@ -57,6 +57,17 @@ KEY SCALE / MUL/DET の列（FIX や LFO を含む列）を、**AMP ENV / OPTION
 
 OPNA / OPN / OPL / OPL3 / OPM / OPZX7 のタブで、FM 音源を持つ全プラグインが対象です。
 
+## RHYTHM のパッドの列の並びを変えました
+
+パッドの設定の列を、FM 音源のオペレーターと同じ形に並べ直しました。
+
+- **MUL/DET と FIX** を OPTIONAL の下（同じ列）へ移しました。列の名前は「OPTIONAL / MUL/DET / FIX」です
+- その右に、パッドの **PARAM ENV** の列（下の PARAM ENV[256] を参照）と **TAP PARAM SEQUENCER** の列を置きました
+- パッドの **EDIT** は OPTIONAL の下から外し、区分の並びの一番右の「EDIT」の列へ移しました
+
+並びは FORM / PAN / QUALITY → OPTIONAL / MUL/DET / FIX → PARAM ENV → TAP PARAM SEQUENCER → AMP ENV → … → LFO → EDIT です。
+RHYTHM を持つプラグイン（2686V・2686VLight・86V・PCMV）が対象です。
+
 ## スライダーのドラッグに Alt を足しました
 
 ラベルのドラッグと、グラフの拡大率のつまみのドラッグで、**Alt** を押しているあいだ値が **100 刻み**へ
@@ -97,6 +108,7 @@ SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、**TARGET** で�
 
 - チャンネルに 1 本（新しい大区分 **[[PARAM ENV]]**。[[TAP SEQUENCER]] の上）
 - FM 音源はオペレーターごとにも 1 本（設定の列「PARAM ENV」。KEY SCALE / MUL/DET / FIX の右に、独立した列で置きます）
+- RHYTHM はパッドごとにも 1 本（設定の列「PARAM ENV」。OPTIONAL / MUL/DET / FIX の右）。並ぶのはそのパッドのパラメータです
 - 値は指し先のパラメータの範囲の割合で持ち、画面には指し先の書き方で出します
 - 値（STL・L・LR・ENDL）は TARGET ごとに別に持ちます。TARGET を変えると、その指し先の値に切り替わります
 - 整数や選択肢のパラメータは、段のあいだ値を保ちます
@@ -117,7 +129,7 @@ SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、**TARGET** で�
 （AMP / PIT / S256 / P256）に出ます。SETTINGS で「TAP SEQUENCER」「PARAM ENV」「そのほかのエンベロープ」を別々に入り切りでき、
 速さを 15 / 30 / 60 / 120 FPS から選べます（初期値は入・30 FPS）。
 
-チャンネルのグラフと FM 音源のオペレーターのグラフの切り替えに **PRM**（PARAM ENV[256]）を足しました。
+チャンネルのグラフ、FM 音源のオペレーターのグラフ、RHYTHM のパッドのグラフの切り替えに **PRM**（PARAM ENV[256]）を足しました。
 くわしくは [グラフの鳴っている位置](/2686V_2686VFX/guide/screen/#グラフの鳴っている位置) を参照してください。
 
 ## 段のエンベロープで、前の段と同じ値の段も R 秒保つようにしました

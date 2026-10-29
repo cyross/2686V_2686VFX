@@ -342,6 +342,7 @@ driving the parameter chosen with **TARGET** step by step.
 | --- | --- |
 | Channel (the **[[PARAM ENV]]** major section, above [[TAP SEQUENCER]]) | The channel's parameters. On RHYTHM, the pads' parameters too (PAD1 SPEED and so on) |
 | FM operators (the "PARAM ENV" column of the settings, right of KEY SCALE / MUL/DET / FIX) | The operator's parameters. The default is **TL** |
+| RHYTHM pads (the "PARAM ENV" column of the settings, right of OPTIONAL / MUL/DET / FIX) | That pad's parameters. The default is **SPEED** |
 
 TARGET lists the same parameters as [TAP PARAM SEQUENCER](#tap-param-sequencer).
 
@@ -360,7 +361,7 @@ TARGET lists the same parameters as [TAP PARAM SEQUENCER](#tap-param-sequencer).
 - Key-on behaviour, RATE, STEP, LOOP (including LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
 - The section parameter file is `.paramEnv`, read and written from the heading's right-click menu. The target is written by
   name as well, so a file from another channel lands on the same target when the name matches
-- **PRM** in the graph switch shows it on the channel (operator) graph, drawn with the values of the current TARGET.
+- **PRM** in the graph switch shows it on the channel (operator / pad) graph, drawn with the values of the current TARGET.
   While notes play, a **yellow vertical line** shows where the most recent note is (switch it and choose its rate in
   SETTINGS; see [Screen layout](/2686V_2686VFX/en/guide/screen/#where-the-sound-is-playing-on-the-graphs))
 
@@ -520,7 +521,7 @@ INCREMENT / DECREMENT / CLEAR STEP, one step per key press).
 | --- | --- |
 | Channel (inside [[TAP SEQUENCER]]) | The channel's parameters |
 | FM operators (the "TAP PARAM SEQUENCER" column of the settings, right of PARAM ENV) | That operator's parameters. TARGET switches the operator |
-| RHYTHM pads (the "TAP PARAM SEQUENCER" column of the settings, right of MUL/DET / FIX) | That pad's parameters |
+| RHYTHM pads (the "TAP PARAM SEQUENCER" column of the settings, right of PARAM ENV) | That pad's parameters |
 
 Each has its own Enable / STEPS / LOOP and step table, and each advances on its own with every key press.
 
@@ -811,7 +812,7 @@ separator.
 ### EDIT for an operator / pad
 
 OPNA, OPN, OPL, OPL3, OPM and OPZX7 have a second EDIT below MASK; RHYTHM has
-it below OPTIONAL. It works on **the operator / pad selected by TARGET**, and
+it in its own "EDIT" column at the far right of the pad settings. It works on **the operator / pad selected by TARGET**, and
 can paste into another operator or pad, or into an operator of another channel.
 
 ### Duplicate Pad Params — copying a pad onto several pads (RHYTHM)

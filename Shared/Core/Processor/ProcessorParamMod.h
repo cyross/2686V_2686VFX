@@ -45,7 +45,8 @@ namespace ParamModCatalog
 		juce::String opLabel = "OP";
 
 		// チャンネルの PARAM ENV に、オペレーター (パッド) の指し先も並べる (RHYTHM)。
-		// RHYTHM はパッドごとの PARAM ENV を持たないため。
+		// RHYTHM は 4.3.0 の途中までパッドごとの PARAM ENV を持たなかった。
+		// パッドごとのものを足したあとも、保存した TARGET の番号を変えないよう残す。
 		bool flattenOps = false;
 
 		// TL (op の一覧の番号)。PARAM ENV の TARGET の初期値で、TL ENV を写す先。無ければ -1
@@ -477,7 +478,8 @@ namespace ParamModCatalog
 // 4.3.0 の最初の形は STL / LR / ENDL をパラメータに持ち、指し先で分けていなかった。
 // その state は IoParamEnvLegacy.h が、保存したときの指し先の組へ写す。
 //
-// チャンネルに 1 本 (頭 + base)、FM はオペレーターごとにも 1 本 (頭 + _OPn + base)。
+// チャンネルに 1 本 (頭 + base)、FM はオペレーターごとにも 1 本 (頭 + _OPn + base)、
+// RHYTHM はパッドごとにも 1 本 (頭 + _PADn + base)。
 // オペレーターの PARAM ENV は 4.0.0 の TL ENV の代わりで、TARGET の初期値は TL。
 namespace ParamEnv
 {
@@ -749,6 +751,19 @@ public:
 			out.enable = enable;
 			tlEnable = false;
 		}
+	}
+
+	// TL の道を持たないもの (RHYTHM のパッド) の PARAM ENV を音の側の値にする
+	void applyOpEnv(const ParamEnv::Ptrs& p, int opIndex, ParamMod::EnvParams& out) const
+	{
+		const int index = ParamEnv::target(p);
+
+		out.enable = PrHelper::getBool(p.enable) && slot(opIndex, index) != nullptr;
+		out.scope = opIndex;
+		out.index = index;
+		out.stepped = isStepped(opIndex, index);
+
+		ParamEnv::applyEnv(p, out.env, out.stepped, index);
 	}
 
 	// 音源の値に、ARP FREQ の在りかと範囲を入れる

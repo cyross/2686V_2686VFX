@@ -334,6 +334,7 @@ LOOP の下の **LOOP MODE** で、繰り返し方を選びます（4.1.0 から
 | --- | --- |
 | チャンネル（大区分 **[[PARAM ENV]]**。[[TAP SEQUENCER]] の上） | チャンネルのパラメータ。RHYTHM はパッドごとのパラメータ（PAD1 SPEED など）も並ぶ |
 | FM 音源のオペレーター（設定の列「PARAM ENV」。KEY SCALE / MUL/DET / FIX の右） | オペレーターのパラメータ。初期値は **TL** |
+| RHYTHM のパッド（設定の列「PARAM ENV」。OPTIONAL / MUL/DET / FIX の右） | そのパッドのパラメータ。初期値は **SPEED** |
 
 TARGET に並ぶパラメータは [TAP PARAM SEQUENCER](#tap-param-sequencer) と同じです。
 
@@ -352,7 +353,7 @@ TARGET に並ぶパラメータは [TAP PARAM SEQUENCER](#tap-param-sequencer) �
 - 押してからの動き・RATE・STEP・LOOP（LOOP MODE を含む）・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
 - 区分のパラメータファイルは `.paramEnv` で、見出しの右クリックから読み書きします。指し先は名前でも書くので、
   別のチャンネルのファイルでも名前が合えば同じ指し先になります
-- グラフの切り替えの **PRM** で、チャンネル（オペレーター）のグラフに映せます。値はいまの TARGET の組で描きます。
+- グラフの切り替えの **PRM** で、チャンネル（オペレーター・パッド）のグラフに映せます。値はいまの TARGET の組で描きます。
   鳴らしているあいだは、いちばん新しく押した音の位置を**黄色の縦線**で出します（SETTINGS で入り切りと速さを選べます。
   [画面の見かた](/2686V_2686VFX/guide/screen/#グラフの鳴っている位置) を参照）
 
@@ -511,7 +512,7 @@ LEVEL の右の **N** では、半音・オクターブなど音程向けのボ�
 | --- | --- |
 | チャンネル（[[TAP SEQUENCER]] の中） | チャンネルのパラメータ |
 | FM 音源のオペレーター（設定の列「TAP PARAM SEQUENCER」。PARAM ENV の右） | そのオペレーターのパラメータ。TARGET で指すオペレーターを切り替える |
-| RHYTHM のパッド（設定の列「TAP PARAM SEQUENCER」。MUL/DET / FIX の右） | そのパッドのパラメータ |
+| RHYTHM のパッド（設定の列「TAP PARAM SEQUENCER」。PARAM ENV の右） | そのパッドのパラメータ |
 
 どれも Enable / STEPS / LOOP と段の表を別々に持ち、打鍵ごとに別々に段を進めます。
 
@@ -795,7 +796,7 @@ MUL/DET と FIX は、**押したときの値**で音の高さを決めます。
 ### オペレーター / パッドの EDIT
 
 OPNA / OPN / OPL / OPL3 / OPM / OPZX7 では MASK の下に、RHYTHM では
-OPTIONAL の下に、もう 1 つ EDIT があります。こちらは
+区分の並びの一番右の列「EDIT」に、もう 1 つ EDIT があります。こちらは
 **TARGET で選んでいるオペレーター / パッド**を単位にします。別のオペレーター・
 パッドへも、別のチャンネルのオペレーターへも貼れます。
 

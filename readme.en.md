@@ -42,13 +42,19 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **New column order for FM operators**
   - The KEY SCALE / MUL/DET column (with FIX and LFO) now sits right next to the AMP ENV / OPTIONAL column. On OPZX7 it comes before the WAVEFORM column
   - OPNA / OPN / OPL / OPL3 / OPM / OPZX7. Every plugin with FM channels
+- **New column order for RHYTHM pads (laid out like FM operators)**
+  - MUL/DET and FIX moved below OPTIONAL, in the same column. The column is now called "OPTIONAL / MUL/DET / FIX"
+  - To its right come the pad's "PARAM ENV" column (see PARAM ENV[256] below) and its "TAP PARAM SEQUENCER" column
+  - The pad's EDIT section left the OPTIONAL column and now has its own "EDIT" column at the far right
+  - The order is FORM / PAN / QUALITY → OPTIONAL / MUL/DET / FIX → PARAM ENV → TAP PARAM SEQUENCER → AMP ENV → … → LFO → EDIT
+  - Plugins with RHYTHM (2686V, 2686VLight, 86V, PCMV)
 - **Alt key for slider dragging**
   - While dragging a label, or the bar of a graph's zoom slider, holding **Alt** aligns the value to steps of 100. Sliders whose range is narrower than 100 are left alone
   - All plugins (including 2686VFX)
 - **"TAP PARAM SEQUENCER" added to [[TAP SEQUENCER]]**
   - Each key press advances one step and replaces parameters with the (parameter, value) pairs stored in that step, for the length of that note
   - As an extension of our own, one step holds up to 16 pairs
-  - There is one per channel (inside [[TAP SEQUENCER]], choosing channel parameters) and one per FM operator and per RHYTHM pad (the "TAP PARAM SEQUENCER" column of the operator / pad settings, right of PARAM ENV on FM chips, or of MUL/DET / FIX on RHYTHM, choosing that operator's or pad's parameters). Each advances on its own with every key press
+  - There is one per channel (inside [[TAP SEQUENCER]], choosing channel parameters) and one per FM operator and per RHYTHM pad (the "TAP PARAM SEQUENCER" column of the operator / pad settings, right of PARAM ENV on both FM chips and RHYTHM, choosing that operator's or pad's parameters). Each advances on its own with every key press
   - Parameters you can choose: the numeric parameters of FM operators (TL / AR / DR / SR / SL / RR / KS / MUL / DT; OPM's D1R / D1L / D2R, DT2 and KSR / KSL; OPL / OPL3's KSL, EG and LFO; OPZX7's real-valued envelope, KS details, DT2 / DT3, WS, PCM SPEED and LFO, and so on) and FIX frequency, the channel's ALG / FB (FB OP1-8 on OPZX7), the WT PITCH MOD / WT AMP MOD waveform and speed, the WT+ waveform, the ADPCM+ voice (slot), SSG duty (PRESET / variable) and triangle peak, FIX frequency, and the various frequencies and speeds (LFO FREQ, SSG HW ENV / SSG HW PITCH ENV period, noise frequency, triangle frequency, SPEED, TIMER CLOCK, ARP FREQ and so on). On/off toggles are not offered
   - Steps advance exactly as in TAP AMP / PITCH SEQUENCER (LOOP, SKIP, INCREMENT / DECREMENT / CLEAR STEP; one step per key press; stopping DAW playback returns to before the start)
   - Pick the step with S.TARGET and the pair with **P.TARGET**, then set it with **PARAM** / **VALUE**. **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** add and remove pairs. Values are shown the way the target parameter shows them, and the MIN / -1 / +1 / MAX buttons move them
@@ -58,7 +64,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Every channel. All plugins except 2686VFX
 - **"PARAM ENV[256]" added; TL ENV is now part of it**
   - The same 256-step envelope as SSG SW AMP ENV[256], driving the parameter chosen with **TARGET**. The choice of parameters is the same as TAP PARAM SEQUENCER
-  - One per channel (the new [[PARAM ENV]] major section, above [[TAP SEQUENCER]]). FM channels also have one per operator (in its own "PARAM ENV" column of the settings, right of KEY SCALE / MUL/DET / FIX). The RHYTHM channel's PARAM ENV can also point at pad parameters
+  - One per channel (the new [[PARAM ENV]] major section, above [[TAP SEQUENCER]]). FM channels also have one per operator (in its own "PARAM ENV" column of the settings, right of KEY SCALE / MUL/DET / FIX). RHYTHM also has one per pad (the "PARAM ENV" column of the pad settings, right of OPTIONAL / MUL/DET / FIX, choosing that pad's parameters). The RHYTHM channel's PARAM ENV can still point at pad parameters too
   - Values are kept as a fraction of the target parameter's range and shown the way the target shows them (0-127 for TL, and so on)
   - The values (STL, L1-L256, LR, ENDL) are **kept separately for each TARGET**. Changing TARGET switches to that target's values (which start at the target parameter's default). R, STEP, LOOP, RR, Use Endl and KEEP are shared by every TARGET. The values of every TARGET are saved; a section parameter file holds the values of the current TARGET
   - Parameters that are set at key-on (MUL, DT, FIX FREQ and so on) also change with each step while the note plays, whatever LIVE DETUNE in SETTINGS says
@@ -70,13 +76,13 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again
   - Saved in presets, DAW state and channel parameters (`paramEnv`). The section's parameter file is `.paramEnv` (right-click the heading)
   - Hidden in simple view mode. "PARAM ENV[256]" was added to the simple view customization in SETTINGS, and [Bypass hidden sections] turns it off too
-  - Every channel and every FM operator. All plugins except 2686VFX
+  - Every channel, every FM operator and every RHYTHM pad. All plugins except 2686VFX
 - **Graphs can show where the sound is playing**
   - TAP SEQUENCER (TAP AMP / PITCH / PARAM SEQUENCER) moves the current-step mark (the bar and list highlight) as you play
   - PARAM ENV[256] shows where it is playing as a yellow vertical line on the graph. It follows the most recent note, moves into the release when you let go, and disappears when the note ends
   - The graph's AMP / PIT / S256 / P256 views show the same yellow line: AMP ENV, PITCH ENV and SSG SW AMP / PITCH ENV[256] (channel, operator and pad), and the FM operator EG (AR / DR / SR / SL / RR). Within a part, volume envelopes (AMP ENV, EG) place it by the current level and the others by the time elapsed
   - SETTINGS gains "Move the current TAP SEQUENCER step as you play", "Show where PARAM ENV[256] is playing on the graph" and "Show where AMP / PITCH ENV, SSG SW ENV and EG are playing on the graph". All start on. On the same row you choose the rate from 15 / 30 / 60 / 120 FPS (30 FPS to start). When off, nothing moves and the display only updates when values change. It only affects the display, not the sound
-  - The channel graph switch and the FM operator graph switch gain **PRM** (PARAM ENV[256]). The values drawn are those of the current TARGET, and the title shows the target's name. Integer and choice targets are drawn holding each step. RHYTHM only has pad graphs, so it has no PRM
+  - The channel graph switch and the FM operator graph switch gain **PRM** (PARAM ENV[256]). The values drawn are those of the current TARGET, and the title shows the target's name. Integer and choice targets are drawn holding each step. RHYTHM gains it on the pad graph switch (it draws the pad's PARAM ENV)
   - Notes played to compute the waveform previews are not shown
   - Every plugin (2686VFX only has the TAP SEQUENCER setting)
 - **Step envelopes: a step with the same value as the one before no longer ends at once**

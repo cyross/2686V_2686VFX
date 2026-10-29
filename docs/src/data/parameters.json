@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.3.0",
-  "count": 13369,
+  "count": 13449,
   "parameters": [
     {
       "id": "MODE",
@@ -82687,6 +82687,87 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD0_PRMENV_ENABLE",
+      "name": "RHYTHM Pad1 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_TARGET",
+      "name": "RHYTHM Pad1 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_STEPS",
+      "name": "RHYTHM Pad1 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_LOOP",
+      "name": "RHYTHM Pad1 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_LOOPTO",
+      "name": "RHYTHM Pad1 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_LOOPCNT",
+      "name": "RHYTHM Pad1 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_LOOPMODE",
+      "name": "RHYTHM Pad1 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_RR",
+      "name": "RHYTHM Pad1 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_ENDL_EN",
+      "name": "RHYTHM Pad1 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_KEEP",
+      "name": "RHYTHM Pad1 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD0_TAPPARAM_ENABLE",
       "name": "RHYTHM Pad1 TapParam Enable",
       "type": "Bool",
@@ -84763,6 +84844,87 @@
     {
       "id": "RHYTHM_PAD1_SSGHWPENV_KEEP_ED",
       "name": "RHYTHM Pad2 Hardware Pitch Env Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_ENABLE",
+      "name": "RHYTHM Pad2 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_TARGET",
+      "name": "RHYTHM Pad2 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_STEPS",
+      "name": "RHYTHM Pad2 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_LOOP",
+      "name": "RHYTHM Pad2 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_LOOPTO",
+      "name": "RHYTHM Pad2 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_LOOPCNT",
+      "name": "RHYTHM Pad2 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_LOOPMODE",
+      "name": "RHYTHM Pad2 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_RR",
+      "name": "RHYTHM Pad2 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_ENDL_EN",
+      "name": "RHYTHM Pad2 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_KEEP",
+      "name": "RHYTHM Pad2 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -86851,6 +87013,87 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD2_PRMENV_ENABLE",
+      "name": "RHYTHM Pad3 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_TARGET",
+      "name": "RHYTHM Pad3 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_STEPS",
+      "name": "RHYTHM Pad3 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_LOOP",
+      "name": "RHYTHM Pad3 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_LOOPTO",
+      "name": "RHYTHM Pad3 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_LOOPCNT",
+      "name": "RHYTHM Pad3 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_LOOPMODE",
+      "name": "RHYTHM Pad3 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_RR",
+      "name": "RHYTHM Pad3 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_ENDL_EN",
+      "name": "RHYTHM Pad3 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_KEEP",
+      "name": "RHYTHM Pad3 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD2_TAPPARAM_ENABLE",
       "name": "RHYTHM Pad3 TapParam Enable",
       "type": "Bool",
@@ -88927,6 +89170,87 @@
     {
       "id": "RHYTHM_PAD3_SSGHWPENV_KEEP_ED",
       "name": "RHYTHM Pad4 Hardware Pitch Env Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_ENABLE",
+      "name": "RHYTHM Pad4 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_TARGET",
+      "name": "RHYTHM Pad4 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_STEPS",
+      "name": "RHYTHM Pad4 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_LOOP",
+      "name": "RHYTHM Pad4 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_LOOPTO",
+      "name": "RHYTHM Pad4 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_LOOPCNT",
+      "name": "RHYTHM Pad4 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_LOOPMODE",
+      "name": "RHYTHM Pad4 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_RR",
+      "name": "RHYTHM Pad4 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_ENDL_EN",
+      "name": "RHYTHM Pad4 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_KEEP",
+      "name": "RHYTHM Pad4 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -91015,6 +91339,87 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD4_PRMENV_ENABLE",
+      "name": "RHYTHM Pad5 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_TARGET",
+      "name": "RHYTHM Pad5 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_STEPS",
+      "name": "RHYTHM Pad5 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_LOOP",
+      "name": "RHYTHM Pad5 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_LOOPTO",
+      "name": "RHYTHM Pad5 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_LOOPCNT",
+      "name": "RHYTHM Pad5 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_LOOPMODE",
+      "name": "RHYTHM Pad5 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_RR",
+      "name": "RHYTHM Pad5 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_ENDL_EN",
+      "name": "RHYTHM Pad5 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_KEEP",
+      "name": "RHYTHM Pad5 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD4_TAPPARAM_ENABLE",
       "name": "RHYTHM Pad5 TapParam Enable",
       "type": "Bool",
@@ -93091,6 +93496,87 @@
     {
       "id": "RHYTHM_PAD5_SSGHWPENV_KEEP_ED",
       "name": "RHYTHM Pad6 Hardware Pitch Env Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_ENABLE",
+      "name": "RHYTHM Pad6 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_TARGET",
+      "name": "RHYTHM Pad6 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_STEPS",
+      "name": "RHYTHM Pad6 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_LOOP",
+      "name": "RHYTHM Pad6 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_LOOPTO",
+      "name": "RHYTHM Pad6 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_LOOPCNT",
+      "name": "RHYTHM Pad6 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_LOOPMODE",
+      "name": "RHYTHM Pad6 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_RR",
+      "name": "RHYTHM Pad6 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_ENDL_EN",
+      "name": "RHYTHM Pad6 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_KEEP",
+      "name": "RHYTHM Pad6 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -95179,6 +95665,87 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD6_PRMENV_ENABLE",
+      "name": "RHYTHM Pad7 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_TARGET",
+      "name": "RHYTHM Pad7 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_STEPS",
+      "name": "RHYTHM Pad7 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_LOOP",
+      "name": "RHYTHM Pad7 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_LOOPTO",
+      "name": "RHYTHM Pad7 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_LOOPCNT",
+      "name": "RHYTHM Pad7 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_LOOPMODE",
+      "name": "RHYTHM Pad7 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_RR",
+      "name": "RHYTHM Pad7 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_ENDL_EN",
+      "name": "RHYTHM Pad7 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_KEEP",
+      "name": "RHYTHM Pad7 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD6_TAPPARAM_ENABLE",
       "name": "RHYTHM Pad7 TapParam Enable",
       "type": "Bool",
@@ -97255,6 +97822,87 @@
     {
       "id": "RHYTHM_PAD7_SSGHWPENV_KEEP_ED",
       "name": "RHYTHM Pad8 Hardware Pitch Env Keep End",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_ENABLE",
+      "name": "RHYTHM Pad8 ParamEnv Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_TARGET",
+      "name": "RHYTHM Pad8 ParamEnv Target",
+      "type": "Int",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_STEPS",
+      "name": "RHYTHM Pad8 ParamEnv Steps",
+      "type": "Int",
+      "min": 1,
+      "max": 256,
+      "default": 10
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_LOOP",
+      "name": "RHYTHM Pad8 ParamEnv Loop",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_LOOPTO",
+      "name": "RHYTHM Pad8 ParamEnv Loop To",
+      "type": "Int",
+      "min": 0,
+      "max": 254,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_LOOPCNT",
+      "name": "RHYTHM Pad8 ParamEnv Loop Count",
+      "type": "Int",
+      "min": 0,
+      "max": 200,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_LOOPMODE",
+      "name": "RHYTHM Pad8 ParamEnv Loop Mode",
+      "type": "Int",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_RR",
+      "name": "RHYTHM Pad8 ParamEnv RR",
+      "type": "Float",
+      "min": 0.001000000047497,
+      "max": 10.0,
+      "step": 0.000099999997474,
+      "default": 0.001000000047497
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_ENDL_EN",
+      "name": "RHYTHM Pad8 ParamEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_KEEP",
+      "name": "RHYTHM Pad8 ParamEnv Keep",
       "type": "Bool",
       "min": false,
       "max": true,
