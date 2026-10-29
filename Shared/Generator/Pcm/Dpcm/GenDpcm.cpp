@@ -18,7 +18,7 @@ void DpcmCodec::process(std::vector<int16_t>& samples)
     }
 }
 
-// Encode: 16bit PCM -> 1bit DPCM (ファミコン風デルタ変調)
+// Encode: 16bit PCM -> 1bit DPCM (FC 風デルタ変調)
 uint8_t DpcmCodec::encode(int16_t pcmSample) {
     // 16bit PCM (-32768〜32767) を、FCの7bitカウンタ (0〜127) スケールに変換して目標値を算出
     // (pcmSample + 32768) の範囲は 0〜65535。これを512で割ると 0〜127 になる。
@@ -43,7 +43,7 @@ int16_t DpcmCodec::decode(uint8_t bit) {
 }
 
 int16_t DpcmCodec::decodeAndUpdateState(uint8_t bit) {
-    // ファミコンのDPCM仕様: データが1なら +2、0なら -2
+    // FC のDPCM仕様: データが1なら +2、0なら -2
     // カウンタの範囲(0〜127)をはみ出しそうになる場合は増減させない（仕様上のクリップ動作）
     if (bit & 1) {
         if (counter <= 125) {

@@ -434,7 +434,7 @@ namespace CPK
 		static inline const juce::String fc = "_DUTY_FC_MODE";
 		static inline const juce::String fcFluc = "_DUTY_FC_FLUC";
 
-		// ファミコン / NES (2A03) の鳴り方。FC と合わせて 3 つのうち 1 つだけ入る。
+		// FC / NES (2A03) の鳴り方。FC と合わせて 3 つのうち 1 つだけ入る。
 		static inline const juce::String moreFc = "_DUTY_MORE_FC";
 		static inline const juce::String moreNes = "_DUTY_MORE_NES";
 
@@ -448,14 +448,14 @@ namespace CPK
 		static inline const juce::String peak = "_TRI_PEAK";
 		static inline const juce::String freq = "_TRI_FREQ";
 
-		// ファミコン (2A03) の三角波の鳴り方 (4.3.0)
+		// FC (2A03) の三角波の鳴り方 (4.3.0)
 		static inline const juce::String moreFc = "_TRI_MORE_FC";
 	};
 
 	// SSG のノイズ (4.3.0)
 	namespace SsgNoise
 	{
-		// ファミコン (2A03) のノイズの鳴り方
+		// FC (2A03) のノイズの鳴り方
 		static inline const juce::String moreFc = "_NOISE_MORE_FC";
 	};
 

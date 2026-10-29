@@ -25,7 +25,7 @@ these three. 2686VFX's output LEVEL is unchanged.
 ## More Real FC / More Real NES for SSG
 
 The SSG pulse (duty) settings gain **More Real FC** and **More Real NES** below
-FC FLUC. They mimic the Famicom / NES (2A03) pulse channel, and are unrelated to
+FC FLUC. They mimic the FC / NES (2A03) pulse channel, and are unrelated to
 FC FLUC's wavering.
 
 - The duty is the closest of the chip's 12.5% / 25% / 50% / 75%

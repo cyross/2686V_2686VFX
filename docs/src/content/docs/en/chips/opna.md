@@ -11,7 +11,7 @@ sidebar:
 </figure>
 
 OPNA is the channel that stands for the FM part of the **YM2608B** — the chip on
-the PC-9801-86 board, and where this series gets its name.
+the 86 board, and where this series gets its name.
 
 Alongside four-operator FM it carries what the hardware had: **the SSG hardware
 envelope**, **the hardware LFO**, and even the **software LFO** N88-BASIC used at

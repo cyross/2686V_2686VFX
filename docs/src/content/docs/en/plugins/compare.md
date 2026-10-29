@@ -52,9 +52,9 @@ The narrower plugins exist for exactly that: reach for one per part.
 - **When in doubt, 2686V** — it has everything
 - **2686VLight** — 2686V with curve editing removed. If you don't use curves,
   this one runs lighter
-- **26V** — matched to the PC-9801-26(K) layout. It carries **only OPN and
-  SSG**, which suits writing in the sound of the earliest PC-98 machines
-- **86V** — matched to the PC-9801-86 layout. ADPCM is called **PCM**, and the
+- **26V** — matched to the 26 layout. It carries **only OPN and
+  SSG**, which suits writing in the sound of the earliest 98 machines
+- **86V** — matched to the 86 layout. ADPCM is called **PCM**, and the
   rhythm section has **6 pads instead of 8**. When you want to work within the
   original hardware's limits, nothing extra gets in the way
 - **OPZX7S** — when you want to focus on OPZX7. **Curve editing is standard**
@@ -85,9 +85,9 @@ curve editing.**
 
 ### Which one to pick
 
-- **[OPNV](/2686V_2686VFX/en/plugins/opnv/)** — OPNA and OPN. One PC-9801-flavoured FM part
+- **[OPNV](/2686V_2686VFX/en/plugins/opnv/)** — OPNA and OPN. One 98-flavoured FM part
 - **[OPLV](/2686V_2686VFX/en/plugins/oplv/)** — OPL and OPL3. Moving between the light two-operator sound and the thicker four-operator one
-- **[OPMV](/2686V_2686VFX/en/plugins/opmv/)** — OPM alone. One X68000 or arcade part
+- **[OPMV](/2686V_2686VFX/en/plugins/opmv/)** — OPM alone. One X68K or arcade part
 - **[WTV](/2686V_2686VFX/en/plugins/wtv/)** — WT, WT2 and WT+. Parts built from waveforms you draw or load
 - **[PCMV](/2686V_2686VFX/en/plugins/pcmv/)** — RHYTHM, ADPCM and ADPCM+. The drum kit and sample playback in one place
 - **[PULSEV](/2686V_2686VFX/en/plugins/pulsev/)** — SSG and BEEP. A square-wave bass line or arpeggio

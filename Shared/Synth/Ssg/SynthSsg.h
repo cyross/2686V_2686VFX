@@ -163,7 +163,7 @@ private:
     float m_baseLevel = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
-    // MODULATION (FDS / WonderSwan / HuC6280)
+    // MODULATION (FDS / WS / PCE)
     WtModulator m_wtMod;
 
     // WT PITCH MOD と同じ変調波形を音量へ当てるもの。

@@ -17,7 +17,7 @@ class SsgNoiseGen
 
     float currentSample = 0.0f;
 
-    // More Real FC (4.3.0)。ファミコン (2A03) の 15bit LFSR (長周期) で鳴らし、
+    // More Real FC (4.3.0)。FC (2A03) の 15bit LFSR (長周期) で鳴らし、
     // 進む速さを 16 段の表へ寄せる。出力は 0 / 1 の単極
     bool fcMode = false;
     unsigned int lfsrFc = Tnd2A03::noiseInitial;

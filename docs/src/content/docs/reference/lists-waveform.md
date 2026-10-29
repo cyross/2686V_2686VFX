@@ -242,5 +242,5 @@ AM側では **4 種類**あります。
 | 4 | FDS Pulse | <img src="/2686V_2686VFX/figures/wave/wt-mod/04.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
 | 5 | WS Sweep Up | <img src="/2686V_2686VFX/figures/wave/wt-mod/05.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
 | 6 | WS Sweep Down | <img src="/2686V_2686VFX/figures/wave/wt-mod/06.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
-| 7 | HuC6280 Wave | <img src="/2686V_2686VFX/figures/wave/wt-mod/07.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> | ※読み込む波形メモリファイルの内容によって変わります |
+| 7 | PCE Wave | <img src="/2686V_2686VFX/figures/wave/wt-mod/07.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> | ※読み込む波形メモリファイルの内容によって変わります |
 | 8 | FDS Table | <img src="/2686V_2686VFX/figures/wave/wt-mod/08.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> | ※FDS TABLEの内容によって変わります |

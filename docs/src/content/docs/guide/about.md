@@ -20,12 +20,12 @@ sidebar:
 | :---: | --- | --- | --- |
 | <img src="/2686V_2686VFX/logos/2686V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**2686V**](/2686V_2686VFX/plugins/2686v/) | 音源 | すべての音源を収録した本体 |
 | <img src="/2686V_2686VFX/logos/2686VLight.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**2686VLight**](/2686V_2686VFX/plugins/2686vlight/) | 音源 | 2686V からカーブ編集を外した軽い版 |
-| <img src="/2686V_2686VFX/logos/26V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**26V**](/2686V_2686VFX/plugins/26v/) | 音源 | PC-9801-26(K) に構成を合わせた版 |
-| <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**86V**](/2686V_2686VFX/plugins/86v/) | 音源 | PC-9801-86 に構成を合わせた版 |
+| <img src="/2686V_2686VFX/logos/26V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**26V**](/2686V_2686VFX/plugins/26v/) | 音源 | 26 に構成を合わせた版 |
+| <img src="/2686V_2686VFX/logos/86V.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**86V**](/2686V_2686VFX/plugins/86v/) | 音源 | 86 に構成を合わせた版 |
 | <img src="/2686V_2686VFX/logos/OPZX7S.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**OPZX7S**](/2686V_2686VFX/plugins/opzx7s/) | 音源 | OPZX7 音源に特化した版。カーブ編集は標準で付く |
 | <img src="/2686V_2686VFX/logos/OPNV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**OPNV**](/2686V_2686VFX/plugins/opnv/) | 音源 | OPNA と OPN。FM のパートを 1 つ差したいとき |
 | <img src="/2686V_2686VFX/logos/OPLV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**OPLV**](/2686V_2686VFX/plugins/oplv/) | 音源 | OPL と OPL3。2 オペレータと 4 オペレータを行き来したいとき |
-| <img src="/2686V_2686VFX/logos/OPMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**OPMV**](/2686V_2686VFX/plugins/opmv/) | 音源 | OPM だけ。X68000 やアーケードの音を 1 パート差したいとき |
+| <img src="/2686V_2686VFX/logos/OPMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**OPMV**](/2686V_2686VFX/plugins/opmv/) | 音源 | OPM だけ。X68K やアーケードの音を 1 パート差したいとき |
 | <img src="/2686V_2686VFX/logos/WTV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**WTV**](/2686V_2686VFX/plugins/wtv/) | 音源 | WT・WT2・WT+。波形メモリのパートを作りたいとき |
 | <img src="/2686V_2686VFX/logos/PCMV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**PCMV**](/2686V_2686VFX/plugins/pcmv/) | 音源 | RHYTHM と ADPCM。リズムとサンプル再生をまとめたいとき |
 | <img src="/2686V_2686VFX/logos/PULSEV.png" alt="" width="28" height="28" style="vertical-align:middle;" /> | [**PULSEV**](/2686V_2686VFX/plugins/pulsev/) | 音源 | SSG と BEEP。矩形波のパートを差したいとき |

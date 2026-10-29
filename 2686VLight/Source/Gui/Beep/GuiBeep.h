@@ -45,7 +45,7 @@ class GuiBeep : public GuiBase {
 
     // Amp ADSR
     GuiComponentAmpEnv ampEnvComponent;
-    // MODULATION (FDS / WonderSwan / HuC6280)
+    // MODULATION (FDS / WS / PCE)
     GuiComponentWtMod modComponent;
     GuiComponentWtAmpMod ampModComponent;
 

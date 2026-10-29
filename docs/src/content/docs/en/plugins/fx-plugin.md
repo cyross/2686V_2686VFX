@@ -64,7 +64,7 @@ which is still set in the Effector list.
 | Bit crusher | the modern kind |
 | Delay | echo |
 | Reverb | room tail |
-| SFC echo | the Super Famicom echo, with its 8-tap FIR |
+| SFC echo | the SFC echo, with its 8-tap FIR |
 | **PCM bit crusher** | crushes on the real chips' rate and bit steps |
 | **Noise reduction** | the gate and high cut from the instruments' QUALITY(PCM) |
 
@@ -109,7 +109,7 @@ C3, PITCH ENV on D3, and so on. See
 | AMP ENV | the amplitude ADSR |
 | SSG HW AMP ENV | the SSG hardware envelope |
 | SSG SW AMP ENV[256] | the SSG software envelope (11 steps) |
-| WT AMP MOD | wavetable level modulation (FDS / WonderSwan / HuC6280) |
+| WT AMP MOD | wavetable level modulation (FDS / WS / PCE) |
 | LFO | the AM side of the OPZX7 LFO |
 
 ### Moving the pitch
@@ -119,7 +119,7 @@ C3, PITCH ENV on D3, and so on. See
 | PITCH ENV | the pitch ADSR |
 | SSG HW PITCH ENV | the SSG hardware envelope shapes pointed at pitch |
 | SSG SW PITCH ENV[256] | the pitch software envelope (11 steps) |
-| WT PITCH MOD | wavetable pitch modulation (FDS / WonderSwan / HuC6280) |
+| WT PITCH MOD | wavetable pitch modulation (FDS / WS / PCE) |
 | LFO | the PM side of the OPZX7 LFO |
 
 ### Shifting the pitch by a fixed amount

@@ -151,8 +151,8 @@ AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[25
 
 - 矩形波の設定に **More Real SSG** を足しました。SSG（YM2203 / YM2608B）の鳴り方（デューティ比 50% 固定・単極・
   直流カット・対数の音量・トーンとノイズの論理積）を真似ます。FC Mode / More Real FC / More Real NES とは排他です
-- 三角波の設定に **More Real FC** を足しました。ファミコンの 4bit × 32 段の階段の三角波を真似ます
-- 矩形波・三角波のグループの下半分を **NOISE** グループにし、**More Real FC**（ファミコンの 15bit LFSR のノイズ）を置きました
+- 三角波の設定に **More Real FC** を足しました。FC の 4bit × 32 段の階段の三角波を真似ます
+- 矩形波・三角波のグループの下半分を **NOISE** グループにし、**More Real FC**（FC の 15bit LFSR のノイズ）を置きました
 
 どれも初期値は切で、これまでの音は変わりません。くわしくは [SSG](/2686V_2686VFX/chips/ssg/) を参照してください。
 
@@ -171,3 +171,11 @@ PARAM ENV[256] と TAP PARAM SEQUENCER は、簡易表示モードで隠れま�
 
 TAP PARAM SEQUENCER / PARAM ENV で ADPCM+ の VOICE を変えると、選んでいないスロットも鳴ります。そのため、
 読み込んであるスロットは QUALITY を変えたときにすべて符号化し直すようにしました。
+
+## 機種名・部品名を略記で書くようにしました
+
+画面の文字とマニュアルの機種名・部品名を、FC・PCE・MD・98・88・X68K・26・86 などの略記にしました。
+COLORS タブの実機のパレット、QUALITY の機種選び（MSX は 2413 と TR に分けました）、WT PITCH / AMP MOD の
+「7: PCE Wave」、QUALITY(PCM) の BIT の「15: SFC BRR」「19: Z280」「20: K53」「21: K54」などが変わります。
+
+名前だけの変更です。音・パラメータの ID・保存の形は変わらないので、これまでのプリセットや DAW の状態はそのまま読めます。

@@ -57,13 +57,13 @@ them when you want the look of that machine.
 
 | Machine | How its colours are built |
 | --- | --- |
-| **PC-8801** | 3 bits each of R, G and B |
-| **PC Engine** | 3 bits each |
-| **Mega Drive** | 3 bits each, but the steps are not evenly spaced |
-| **PC-9801** | 4 bits each |
-| **X68000** | 5 bits each plus 1 bit of brightness |
+| **88** | 3 bits each of R, G and B |
+| **PCE** | 3 bits each |
+| **MD** | 3 bits each, but the steps are not evenly spaced |
+| **98** | 4 bits each |
+| **X68K** | 5 bits each plus 1 bit of brightness |
 
-They are ordered by how few colours they have. **The Mega Drive is the odd one
+They are ordered by how few colours they have. **The MD is the odd one
 out**: its steps are not evenly spaced, so despite also being 3-bit it produces
 different colours from the other two. The hardware worked that way, and this
 reproduces it.

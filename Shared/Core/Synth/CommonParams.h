@@ -88,7 +88,7 @@ struct WtModParams {
     float speed = 1.0f; // 搬送波の周波数に対する比率
     int shape = 0;      // WtModShape を参照
 
-    // HuC6280 モード用の変調波形 (32 サンプル / -1.0〜1.0)
+    // PCE モード用の変調波形 (32 サンプル / -1.0〜1.0)
     std::array<float, 32> wave = { 0.0f };
 
     // FdsUser モード用の変調テーブル (32 エントリ / 実機と同じ 3bit のレジスタ値)
@@ -112,7 +112,7 @@ struct WtAmpModParams {
     float min = 0.0f;
     float max = 1.0f;
 
-    // HuC6280 モード用の変調波形 (32 サンプル / -1.0〜1.0)
+    // PCE モード用の変調波形 (32 サンプル / -1.0〜1.0)
     std::array<float, 32> wave = { 0.0f };
 
     // FdsUser モード用の変調テーブル (32 エントリ / 実機と同じ 3bit のレジスタ値)
@@ -128,9 +128,9 @@ enum class WtModShape {
     FdsSaw,         // FDS(2C33) 32ステップ : 非対称のこぎり
     FdsReset,       // FDS(2C33) 32ステップ : リセットで断ち切る
     FdsPulse,       // FDS(2C33) 32ステップ : 上下端で保持する台形
-    WsSweepUp,      // WonderSwan ch3 スイープ (上昇)
-    WsSweepDown,    // WonderSwan ch3 スイープ (下降)
-    HuC6280Wave,    // PC Engine HuC6280 LFO (波形メモリで分周器を変調)
+    WsSweepUp,      // WS ch3 スイープ (上昇)
+    WsSweepDown,    // WS ch3 スイープ (下降)
+    PceWave,    // PCE LFO (波形メモリで分周器を変調)
     FdsUser,        // FDS(2C33) 32ステップ : ユーザーが編集したテーブル
     Size
 };
@@ -196,13 +196,13 @@ struct SsgDutyParams {
     // Duty Invert Switch
     bool invert = false;
 
-    // Famicom Mode
+    // FC Mode
     bool fc = false;
 
-    // Famicom Mode Fluctuation
+    // FC Mode Fluctuation
     float fcFluc = 0.2f;
 
-    // ファミコン / NES (2A03) の鳴り方と、SSG (YM2203 / YM2608B) の鳴り方 (4.3.0)。
+    // FC / NES (2A03) の鳴り方と、SSG (YM2203 / YM2608B) の鳴り方 (4.3.0)。
     // FC と合わせて 1 つだけ入る想定。重なったときは
     // FC → More Real FC → More Real NES → More Real SSG の順で先のものを使う。
     bool moreFc = false;
@@ -221,12 +221,12 @@ struct SsgTriParams {
     // Triangle Manual Spped Freq
     float freq = 440.0f;
 
-    // ファミコン (2A03) の三角波の鳴り方 (4.3.0)。PEAK は使わない
+    // FC (2A03) の三角波の鳴り方 (4.3.0)。PEAK は使わない
     bool moreFc = false;
 };
 
 // SSG の NOISE グループ (4.3.0)
 struct SsgNoiseParams {
-    // ファミコン (2A03) のノイズの鳴り方 (15bit LFSR の長周期)
+    // FC (2A03) のノイズの鳴り方 (15bit LFSR の長周期)
     bool moreFc = false;
 };

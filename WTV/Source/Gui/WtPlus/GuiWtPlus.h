@@ -311,5 +311,5 @@ public:
     int targetSlot() const { return juce::jlimit(0, Global::WtPlus::slots - 1, (int)slotTarget.getValue()); }
     void updateSlotPreview(int slot);
 
-    // HuC6280 モード用の変調波形
+    // PCE モード用の変調波形
 };

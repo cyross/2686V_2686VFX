@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-// --- SNES / SPC700 (S-DSP) BRR (Bit Rate Reduction) ---
+// --- SFC / SPC700 (S-DSP) BRR (Bit Rate Reduction) ---
 //
 // 9バイト = 16サンプルのブロック単位で圧縮する。
 //   ヘッダ 1バイト : shift(4bit) | filter(2bit) | loop(1bit) | end(1bit)
@@ -11,7 +11,7 @@
 //
 // 予測に IIR フィルタを 4 種持つのが特徴で、YM2608 系の
 // 「ステップ幅を適応させる」方式とは根本的に考え方が違う。
-namespace SnesBrr {
+namespace SfcBrr {
     inline constexpr int samplesPerBlock = 16;
 
     // shift は 0〜12 が通常。13〜15 は実機では特殊動作になるため使わない。

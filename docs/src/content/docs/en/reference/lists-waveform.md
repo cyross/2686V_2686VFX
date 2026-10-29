@@ -244,5 +244,5 @@ MAX.
 | 4 | FDS Pulse | <img src="/2686V_2686VFX/figures/wave/wt-mod/04.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
 | 5 | WS Sweep Up | <img src="/2686V_2686VFX/figures/wave/wt-mod/05.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
 | 6 | WS Sweep Down | <img src="/2686V_2686VFX/figures/wave/wt-mod/06.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> |   |
-| 7 | HuC6280 Wave | <img src="/2686V_2686VFX/figures/wave/wt-mod/07.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> | Varies with the wavetable file you load |
+| 7 | PCE Wave | <img src="/2686V_2686VFX/figures/wave/wt-mod/07.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> | Varies with the wavetable file you load |
 | 8 | FDS Table | <img src="/2686V_2686VFX/figures/wave/wt-mod/08.png" alt="" loading="lazy" style="max-width:200px;width:200px;height:auto;" onerror="this.style.display=&#39;none&#39;" /> | Varies with the contents of the FDS TABLE |

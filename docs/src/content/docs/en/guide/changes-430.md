@@ -152,8 +152,8 @@ Pages that teach the controls while you build sounds will be added over time. Th
 
 - The pulse settings gain **More Real SSG**, which mimics the SSG (YM2203 / YM2608B): a fixed 50% duty cycle, a unipolar
   output, the DC cut, the logarithmic volume and the AND of tone and noise. It is exclusive with FC Mode / More Real FC / More Real NES
-- The triangle settings gain **More Real FC**, the Famicom's 4-bit × 32-step staircase triangle
-- The lower half of the pulse / triangle group is now the **NOISE** group, with **More Real FC** (the Famicom's 15-bit LFSR noise)
+- The triangle settings gain **More Real FC**, the FC's 4-bit × 32-step staircase triangle
+- The lower half of the pulse / triangle group is now the **NOISE** group, with **More Real FC** (the FC's 15-bit LFSR noise)
 
 All of them start off, so existing sounds don't change. See [SSG](/2686V_2686VFX/en/chips/ssg/).
 
@@ -172,3 +172,11 @@ them off too.
 
 Changing the ADPCM+ VOICE with TAP PARAM SEQUENCER / PARAM ENV can play slots other than the selected one. So every
 loaded slot is now encoded again when QUALITY changes.
+
+## Machine and part names are written as short forms
+
+The screens and the manual now use short forms such as FC, PCE, MD, 98, 88, X68K, 26 and 86 for machine and part names.
+This changes the real-machine palettes of the COLORS tab, the machine choice of QUALITY (MSX is split into 2413 and TR),
+"7: PCE Wave" of WT PITCH / AMP MOD, and "15: SFC BRR", "19: Z280", "20: K53" and "21: K54" of the QUALITY(PCM) BIT, among others.
+
+Only the names change. The sound, the parameter IDs and the saved format stay the same, so existing presets and DAW states load as before.

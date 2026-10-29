@@ -244,7 +244,7 @@ inside is switched off.
 
 ### N88-BASIC(86)-style display
 
-Turn on "Show some FM parameters as in PC-9801 N88-BASIC(86)" in SETTINGS to
+Turn on "Show some FM parameters as in 98 N88-BASIC(86)" in SETTINGS to
 show the FM register knobs **AR / DR / SR / RR / SL / TL** **reversed**, the way
 N88-BASIC(86) numbers them (it starts off).
 

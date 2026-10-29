@@ -96,7 +96,7 @@ class GuiSsg : public GuiBase
 
     // Amp ADSR
     GuiComponentAmpEnv ampEnvComponent;
-    // MODULATION (FDS / WonderSwan / HuC6280)
+    // MODULATION (FDS / WS / PCE)
     GuiComponentWtMod modComponent;
     GuiComponentWtAmpMod ampModComponent;
 
@@ -128,7 +128,7 @@ class GuiSsg : public GuiBase
     GuiToggleButton dutyFcButton;
     GuiSlider dutyFcFlucSlider;
 
-    // ファミコン / NES の鳴り方。FC Mode と合わせて 1 つだけ入れられる。
+    // FC / NES の鳴り方。FC Mode と合わせて 1 つだけ入れられる。
     GuiToggleButton dutyMoreFcButton;
     GuiToggleButton dutyMoreNesButton;
 
@@ -138,7 +138,7 @@ class GuiSsg : public GuiBase
     // Triangle
     GuiToggleButton triKeyTrackButton;
 
-    // ファミコン (2A03) の三角波の鳴り方 (4.3.0)
+    // FC (2A03) の三角波の鳴り方 (4.3.0)
     GuiToggleButton triMoreFcButton;
     GuiSlider triFreqSlider;
     GuiSlider triPeakSlider;
@@ -146,7 +146,7 @@ class GuiSsg : public GuiBase
     GuiTextButton triSetTri;     // 0.5
     GuiTextButton triSetSawUp;   // 1.0
 
-    // NOISE。ファミコン (2A03) のノイズの鳴り方 (4.3.0)
+    // NOISE。FC (2A03) のノイズの鳴り方 (4.3.0)
     GuiToggleButton noiseMoreFcButton;
 
     GuiComponentMidi midiComponent;

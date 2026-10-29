@@ -49,7 +49,7 @@ TEST_CASE("WtModulator: the mod wheel alone drives it")
 TEST_CASE("WtModulator: ratio is 1.0 at phase 0")
 {
     for (int shape = 0; shape <= (int)WtModShape::FdsUser; ++shape) {
-        if (shape == (int)WtModShape::HuC6280Wave) continue;   // 波形が空だと 1.0 固定
+        if (shape == (int)WtModShape::PceWave) continue;   // 波形が空だと 1.0 固定
 
         WtModulator m;
         m.setParameters(makeParams(shape));
@@ -79,11 +79,11 @@ TEST_CASE("WtModulator: every shape returns a finite positive ratio")
     }
 }
 
-// WtModulator : FDS は周波数側、WonderSwan と HuC6280 は分周器側
-TEST_CASE("WtModulator: FDS drives frequency, WonderSwan drives the divider")
+// WtModulator : FDS は周波数側、WS と PCE は分周器側
+TEST_CASE("WtModulator: FDS drives frequency, WS drives the divider")
 {
     // FDS は freq * (1 + temp/64) なので比が 1 より大きくなる局面がある。
-    // WonderSwan と HuC6280 は分周器を動かすので比は逆数側に効く。
+    // WS と PCE は分周器を動かすので比は逆数側に効く。
     WtModulator fds;
     fds.setParameters(makeParams((int)WtModShape::FdsTriangle, 0.5f));
 

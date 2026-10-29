@@ -18,8 +18,8 @@ is [What to watch for when you move over](#what-to-watch-for-when-you-move-over)
 | --- | --- |
 | 2686V | the full one |
 | 2686VLight | curve editing removed, runs lighter |
-| 26V | matched to the PC-9801-26(K) layout |
-| 86V | matched to the PC-9801-86 layout |
+| 26V | matched to the 26 layout |
+| 86V | matched to the 86 layout |
 | OPZX7S | focused on the OPZX7 chip; curve editing is standard |
 | 2686VFX | an effect that processes audio |
 
@@ -54,9 +54,9 @@ editor or diff them.
 
 ### Wave memory pitch modulation
 
-- **FDS / WonderSwan / HuC6280 modulation added**
+- **FDS / WS / PCE modulation added**
 - The FDS modulation table can be edited on the spot across its 32 entries
-- HuC6280 mode holds up to 8 modulation waveforms, switchable in real time
+- PCE mode holds up to 8 modulation waveforms, switchable in real time
 - **Available on FM, SSG, RHYTHM, ADPCM and BEEP alike**
 
 ### A new channel
@@ -79,7 +79,7 @@ editor or diff them.
 
 Change each colour the interface uses. Besides RGB and HSV you can pick from
 **colour names (JUCE plus original ones) and the palettes of real machines**
-(PC-8801 / PC-9801 / X68000 / PC Engine / Mega Drive). One button puts the
+(88 / 98 / X68K / PCE / MD). One button puts the
 defaults back.
 
 The settings are saved to a file, and changes reach the screen immediately.

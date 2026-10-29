@@ -4,12 +4,12 @@
 #include "./GenArcadeAdpcm.h"
 
 // =====================================================================
-// YMZ280B
+// Z280
 // =====================================================================
-void Ymz280bAdpcmCodec::process(std::vector<int16_t>& samples)
+void Z280AdpcmCodec::process(std::vector<int16_t>& samples)
 {
     int predicted = 0;
-    int step = Ymz280bAdpcm::stepMin;
+    int step = Z280Adpcm::stepMin;
 
     for (auto& s : samples) {
         int diff = (int)s - predicted;
@@ -35,20 +35,20 @@ void Ymz280bAdpcmCodec::process(std::vector<int16_t>& samples)
         predicted = std::clamp(predicted, -32768, 32767);
 
         // ステップ幅は倍率で更新する
-        step = (step * Ymz280bAdpcm::StepScale[delta]) >> 8;
-        step = std::clamp(step, Ymz280bAdpcm::stepMin, Ymz280bAdpcm::stepMax);
+        step = (step * Z280Adpcm::StepScale[delta]) >> 8;
+        step = std::clamp(step, Z280Adpcm::stepMin, Z280Adpcm::stepMax);
 
         s = (int16_t)predicted;
     }
 }
 
 // =====================================================================
-// Konami K053260 / K054539
+// Konami K53 / K54
 // =====================================================================
-void KonamiAdpcmCodec::process(std::vector<int16_t>& samples, bool isK054539)
+void KonamiAdpcmCodec::process(std::vector<int16_t>& samples, bool isK54)
 {
-    const int* table = isK054539 ? K054539Adpcm::Delta : K053260Adpcm::Delta;
-    const int scale = isK054539 ? K054539Adpcm::scale : K053260Adpcm::scale;
+    const int* table = isK54 ? K54Adpcm::Delta : K53Adpcm::Delta;
+    const int scale = isK54 ? K54Adpcm::scale : K53Adpcm::scale;
 
     int predicted = 0;
 
