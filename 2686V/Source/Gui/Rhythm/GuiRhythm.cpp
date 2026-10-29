@@ -154,6 +154,9 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
     setupModeBtn(graphBtnSsgP256, "P256", GuiEnvGraphMode::SsgSwP256);
     setupModeBtn(graphBtnParam, "PRM", GuiEnvGraphMode::ParamEnv256);
 
+    // 枠を全て開く「<>」・全て閉じる「><」。切り替えの右に置く
+    groupFolds.setupButtons(*this, tabOrder);
+
     graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
     formCat.setupHwCategory({ .parent = colForm.contentCanvas, .title = RhythmGuiText::Category::form, .detailVisible = true, .enableChangeDetailVisible = true });
@@ -377,6 +380,8 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
         &colParamEnv, &colTapParam, &colEdit,
         })
     {
+        groupFolds.add(*group);
+
         for (auto* child : group->contentCanvas.getChildren())
         {
             if (auto* cat = dynamic_cast<GuiCategoryLabel*>(child)) cat->setDetailVisible(true);
@@ -418,6 +423,9 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
             graphBtnParam.setBounds(btnRow);
         }
 
+        // 少し空けて、枠を全て開く・全て閉じる
+        groupFolds.layoutButtons(row, RhythmGuiValue::Pad::Graph::ButtonHeight);
+
         // 帯の背後へ板を敷く。左端から切り替えの右端まで
         padTargetBoard.setBounds(rowAll.withRight(row.getX()).expanded(2, 1));
     }
@@ -454,9 +462,9 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
             juce::Rectangle<int> colArea(x, 0, colW, colH);
 
-            x += colW + colGap;
+            x += group.columnWidth(colW) + colGap;
 
-            group.setBounds(colArea);
+            group.setBounds(colArea.withWidth(group.columnWidth(colW)));
 
             auto inner = colArea.reduced(RhythmGuiValue::Group::Padding::width, RhythmGuiValue::Group::Padding::height);
 

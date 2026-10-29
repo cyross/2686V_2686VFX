@@ -95,6 +95,15 @@ namespace EditorGuiText
 		static inline const I18n::Text tooltip{ u8"これまでにコピーしたパラメータの一覧を出します。選び直して貼り付けられます。", u8"Lists the parameters you have copied. Pick one again to paste it." };
 	}
 
+	// 枠の幅の畳み (4.3.0)
+	namespace GroupFold
+	{
+		static inline const juce::String titleOpen = u8"<>";
+		static inline const juce::String titleClose = u8"><";
+		static inline const I18n::Text tooltipOpen{ u8"畳んだ枠をすべて元の幅へ開きます。", u8"Opens every folded group to its full width." };
+		static inline const I18n::Text tooltipClose{ u8"枠をすべて 30px の幅へ畳みます。", u8"Folds every group to 30 px wide." };
+	}
+
 	namespace CategoryToggle
 	{
 		static inline const juce::String titleOpen = u8"OP";

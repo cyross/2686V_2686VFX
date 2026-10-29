@@ -89,6 +89,8 @@ namespace EditorGuiValue
 		static inline constexpr int initButtonWidth = 60;
 		// コピー履歴 (CPHIST)。太字 20pt の 6 文字が省略されずに収まる幅
 		static inline constexpr int historyButtonWidth = 90;
+		// 枠を全て開く「<>」・全て閉じる「><」と CPHIST の間の隙間。ほかのボタンより少し広く空ける
+		static inline constexpr int groupFoldGap = 15;
 		static inline constexpr int buttonHeight = 20;
 	}
 

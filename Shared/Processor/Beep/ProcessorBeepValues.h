@@ -12,7 +12,7 @@ namespace BeepPrValue
 
 	namespace TimerClock
 	{
-		// 1: Free (分周なし) / 2: IBM PC / 3: 98 8MHz系 / 4: 98 5MHz系
+		// 1: Free (分周なし) / 2: PCAT / 3: 98 8MHz系 / 4: 98 5MHz系
 		inline constexpr int min = 1;
 		inline constexpr int max = 4;
 		// 既定は Free。既存のパッチの音程を変えないため。

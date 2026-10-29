@@ -260,6 +260,10 @@ private:
     juce::TextButton openCategoriesBtn;
     juce::TextButton closeCategoriesBtn;
 
+    // 枠を全て開く「<>」・全て閉じる「><」(4.3.0)。CPHIST の左に置く
+    juce::TextButton openGroupsBtn;
+    juce::TextButton closeGroupsBtn;
+
     // コピー履歴 (CPHIST)。押したときに作って重ねる
     juce::TextButton copyHistoryBtn;
     std::unique_ptr<GuiCopyHistory> copyHistory;

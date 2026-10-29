@@ -12,6 +12,7 @@
 
 #include "Shared/Core/Const/ConstGlobal.h"
 #include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiGroupFolds.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiContext.h"
 #include "Shared/Core/Gui/GuiEnvelopeGraph.h"
@@ -280,6 +281,9 @@ class GuiOpna : public GuiBase
     GuiToggleButton graphBtnParam;
 
     GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
+
+    // 枠の幅の畳み (4.3.0)。見出しを押すと幅が 30px になる
+    GuiGroupFolds groupFolds{ ctx, GuiGroupFoldKey::opna };
 
     bool isUpdatingGraph = false;
 

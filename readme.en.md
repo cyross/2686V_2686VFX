@@ -48,6 +48,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The pad's EDIT section left the OPTIONAL column and now has its own "EDIT" column at the far right
   - The order is FORM / PAN / QUALITY → OPTIONAL / MUL/DET / FIX → PARAM ENV → TAP PARAM SEQUENCER → AMP ENV → … → LFO → EDIT
   - Plugins with RHYTHM (2686V, 2686VLight, 86V, PCMV)
+- **The groups laid out side by side can be folded to a narrow width (accordion)**
+  - Click a group's name (its title) and the group shrinks to 30 px wide. The title turns into a grey strip written vertically, and the contents are hidden. Click it again to get the full width back
+  - Added **<>** (open all groups) and **><** (fold all groups). On FM chips and RHYTHM they sit a little to the right of the operator / pad graph switches (AMP / PIT / S256 / P256 / PRM); in 2686VFX they sit a little to the left of CPHIST at the top of the window
+  - Which groups are folded is saved in the preset and the DAW state (2686VFX has no presets, so only in the DAW state). Older presets open with every group open
+  - FM operator columns (OPNA / OPN / OPL / OPL3 / OPM / OPZX7), RHYTHM pad columns, and the effect and modulation groups of 2686VFX. In 2686VFX two or three effects are stacked in one column, so the column only becomes 30 px wide once all of its groups are folded. The main group does not fold
+  - Plugins with an FM chip or RHYTHM, and 2686VFX
 - **Alt key for slider dragging**
   - While dragging a label, or the bar of a graph's zoom slider, holding **Alt** aligns the value to steps of 100. Sliders whose range is narrower than 100 are left alone
   - All plugins (including 2686VFX)
@@ -119,7 +125,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - Changing VOICE with TAP PARAM SEQUENCER / PARAM ENV can play slots other than the selected one. Every loaded slot is encoded again when QUALITY changes
   - Plugins with ADPCM+ (2686V / 2686VLight / PCMV)
 - **Machine and part names are now written as short forms**
-  - The screens, the manual and this readme now use short forms such as FC, PCE, MD, 98, 88, X68K, 26 and 86 for machine and part names. This covers the real-machine palettes of the COLORS tab, the machine choice of QUALITY (MSX is split into 2413 and TR), "7: PCE Wave" of WT PITCH / AMP MOD, "15: SFC BRR", "19: Z280", "20: K53" and "21: K54" of the QUALITY(PCM) BIT, "98" of the BEEP TIMER CLOCK, and so on
+  - The screens, the manual and this readme now use short forms such as FC, PCE, MD, 98, 88, X68K, 26 and 86 for machine and part names. This covers the real-machine palettes of the COLORS tab, the machine choice of QUALITY (MSX is split into 2413 and TR), "7: PCE Wave" of WT PITCH / AMP MOD, "15: SFC BRR", "19: Z280", "20: K53" and "21: K54" of the QUALITY(PCM) BIT, "PCAT" and "98" of the BEEP TIMER CLOCK, and so on
   - Only the names change. The sound, the parameter IDs and the saved format stay the same, so existing presets and DAW states load as before
   - The titles in the references are left as they are
   - Every plugin

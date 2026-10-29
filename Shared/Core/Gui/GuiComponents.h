@@ -87,7 +87,39 @@ public:
     void setTitleIdle(bool idle);
     bool isTitleIdle() const { return titleIdle; }
 
+    // ---------------- 幅の畳み (4.3.0) ----------------
+    // 見出しを押すと、枠の幅を foldedWidth まで縮める。もう一度押すと戻る。
+    // 畳んでいるあいだ、見出しは灰の帯にして縦に書く。中身は隠れてよい。
+    // 状態を覚えて並べ直すのは GuiGroupFolds (GuiGroupFolds.h) の役目。
+    static inline constexpr int foldedWidth = 30;
+
+    // 見出しを押して畳めるようにする
+    void setFoldable(bool foldable);
+    bool isFoldable() const { return foldable; }
+
+    void setFolded(bool folded);
+    bool isFolded() const { return folded; }
+
+    // 列の幅。畳んでいれば foldedWidth、開いていれば openWidth
+    int columnWidth(int openWidth) const { return folded ? foldedWidth : openWidth; }
+
+    // 見出しが押されたとき。畳むかどうかは受け取った側が決める
+    std::function<void()> onTitleClick;
+
     void paint(juce::Graphics& g) override;
+    bool hitTest(int x, int y) override;
+    void mouseDown(const juce::MouseEvent& e) override;
+
+protected:
+    // 畳み具合が変わったとき。中身を隠すのは派生の側
+    virtual void foldedChanged() {}
+
+private:
+    bool foldable = false;
+    bool folded = false;
+
+    // 見出しの帯の場所。開いていれば左上に横向き、畳んでいれば上から縦向き
+    juce::Rectangle<float> titleChipBounds() const;
 };
 
 class GuiWaveformPreview : public juce::Component
@@ -268,6 +300,10 @@ public:
         // 渡ってくる高さには末尾の余白が含まれているため、そのぶんを引く。
         closeCategoryBackdrops(&contentCanvas, totalHeight - categoryContentTrailingPadding);
     }
+
+protected:
+    // 畳んでいるあいだは中身ごと隠す。並べ方は開いているときのまま残す
+    void foldedChanged() override { viewport.setVisible(!isFolded()); }
 };
 
 class GuiLabel : public juce::Label, public GuiBaseComponent

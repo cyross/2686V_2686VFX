@@ -6,7 +6,7 @@
 static inline double getBeepTimerClock(int index)
 {
     switch (index) {
-    case 2: return 1193182.0;  // IBM PC / PC-AT  (14.31818MHz / 12)
+    case 2: return 1193182.0;  // PCAT  (14.31818MHz / 12)
     case 3: return 1996800.0;  // 98 8MHz系  (7.9872MHz / 4)
     case 4: return 2457600.0;  // 98 5MHz系  (9.8304MHz / 4)
     }

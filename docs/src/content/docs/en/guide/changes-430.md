@@ -70,6 +70,17 @@ The pad settings are now laid out like those of FM operators.
 The order is FORM / PAN / QUALITY → OPTIONAL / MUL/DET / FIX → PARAM ENV → TAP PARAM SEQUENCER → AMP ENV → … → LFO → EDIT.
 This applies to every plugin with RHYTHM (2686V, 2686VLight, 86V, PCMV).
 
+## Groups laid out side by side can be folded
+
+Click a group's name (its title) and the group shrinks to **30 px** wide. The title turns into a grey strip written vertically, and the contents are hidden.
+Click it again to get the full width back. Folding the groups you are not using lets you see more without scrolling sideways.
+
+- Added **<>** (open all groups) and **><** (fold all groups). On FM chips and RHYTHM they sit a little to the right of the operator / pad graph switches (AMP / PIT / S256 / P256 / PRM); in 2686VFX they sit a little to the left of CPHIST at the top of the window
+- Which groups are folded is saved in the preset and the DAW state. 2686VFX has no presets, so there it is only the DAW state. Presets from before 4.3.0 open with every group open
+- In 2686VFX two or three effects are stacked in one column, so the column only becomes 30 px wide once all of its groups are folded. The main group does not fold
+
+This applies to the FM operator columns (OPNA / OPN / OPL / OPL3 / OPM / OPZX7), the RHYTHM pad columns, and the effect and modulation groups of 2686VFX.
+
 ## Alt key for slider dragging
 
 While dragging a label, or the bar of a graph's zoom slider, holding **Alt** aligns the value to **steps of 100**.
@@ -189,6 +200,6 @@ loaded slot is now encoded again when QUALITY changes.
 
 The screens and the manual now use short forms such as FC, PCE, MD, 98, 88, X68K, 26 and 86 for machine and part names.
 This changes the real-machine palettes of the COLORS tab, the machine choice of QUALITY (MSX is split into 2413 and TR),
-"7: PCE Wave" of WT PITCH / AMP MOD, and "15: SFC BRR", "19: Z280", "20: K53" and "21: K54" of the QUALITY(PCM) BIT, among others.
+"7: PCE Wave" of WT PITCH / AMP MOD, and "15: SFC BRR", "19: Z280", "20: K53" and "21: K54" of the QUALITY(PCM) BIT, and "2: PCAT" of the BEEP TIMER CLOCK, among others.
 
 Only the names change. The sound, the parameter IDs and the saved format stay the same, so existing presets and DAW states load as before.

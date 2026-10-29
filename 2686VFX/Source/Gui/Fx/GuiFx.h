@@ -6,6 +6,7 @@
 #include <array>
 #include <vector>
 #include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiGroupFolds.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Gui/Components/AmpEnv/AmpEnv.h"
 #include "Shared/Gui/Components/SsgHwEnv/SsgHwEnv.h"
@@ -291,7 +292,13 @@ class GuiFx : public GuiBase, private juce::Timer
     // 読み込む中身
     void readFxParams(const Io::ParamReader& reader);
     void exportFxParam();
+    // 枠の幅の畳み (4.3.0)。見出しを押すと幅が 30px になる。
+    // 全て開く・全て閉じるのボタンは、編集画面の CPHIST の左にある
+    GuiGroupFolds groupFolds{ ctx, GuiGroupFoldKey::fx };
 public:
+    // 枠を全て畳む / 全て開く。編集画面の「><」「<>」から呼ぶ
+    void setAllGroupsFolded(bool folded) { groupFolds.setAllFolded(folded); }
+
     // FX のパラメータを初期値へ戻す。編集画面の INIT から呼ぶ。
     void initParams();
     GuiFx(const GuiContext& context);

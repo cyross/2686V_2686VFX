@@ -442,6 +442,9 @@ void GuiOpl3::setup()
     setupModeBtn(graphBtnSsgP256, "P256", GuiEnvGraphMode::SsgSwP256);
     setupModeBtn(graphBtnParam, "PRM", GuiEnvGraphMode::ParamEnv256);
 
+    // 枠を全て開く「<>」・全て閉じる「><」。切り替えの右に置く
+    groupFolds.setupButtons(*this, tabOrder);
+
     graphBtnAmp.setToggleState(true, juce::dontSendNotification);
 
     // 組み立ての間だけ 1 番のオペレータへ繋いでおく。
@@ -621,6 +624,8 @@ void GuiOpl3::setup()
         &colMask,
         })
     {
+        groupFolds.add(*group);
+
         for (auto* child : group->contentCanvas.getChildren())
         {
             if (auto* cat = dynamic_cast<GuiCategoryLabel*>(child)) cat->setDetailVisible(true);
@@ -1224,6 +1229,9 @@ void GuiOpl3::layoutOpPanel(juce::Rectangle<int> area)
             graphBtnParam.setBounds(btnRow);
         }
 
+        // 少し空けて、枠を全て開く・全て閉じる
+        groupFolds.layoutButtons(row, Opl3GuiValue::ParamGroup::Graph::ButtonHeight);
+
         // 帯の背後へ板を敷く。左端から切り替えの右端まで
         opTargetBoard.setBounds(rowAll.withRight(row.getX()).expanded(2, 1));
     }
@@ -1255,9 +1263,9 @@ void GuiOpl3::layoutOpPanel(juce::Rectangle<int> area)
 
             juce::Rectangle<int> colArea(x, 0, colW, colH);
 
-            x += colW + colGap;
+            x += group.columnWidth(colW) + colGap;
 
-            group.setBounds(colArea);
+            group.setBounds(colArea.withWidth(group.columnWidth(colW)));
 
             auto inner = colArea.reduced(Opl3GuiValue::Group::Padding::width, Opl3GuiValue::Group::Padding::height);
 

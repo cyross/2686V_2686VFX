@@ -154,28 +154,102 @@ void ColoredGroupComponent::paint(juce::Graphics& g)
     // 枠線より後に描くことで、線が文字の後ろを通らないようにする。
     auto title = getText();
 
-    if (title.isEmpty()) return;
+    auto chip = titleChipBounds();
 
-    auto font = juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold);
-
-    float textWidth = (float)juce::GlyphArrangement::getStringWidthInt(font, title);
-    float chipWidth = juce::jmin(textWidth + titlePaddingX * 2.0f, bounds.getWidth() - titleInsetX * 2.0f);
-
-    if (chipWidth <= 0.0f) return;
-
-    juce::Rectangle<float> chip(bounds.getX() + titleInsetX, bounds.getY(), chipWidth, titleHeight);
+    if (title.isEmpty() || chip.isEmpty()) return;
 
     // 見出しの帯も面を持つので、同じ影を落とす
     chip = GuiShadow::reserve(chip);
 
     GuiShadow::drawRounded(g, chip, titleCornerRadius);
 
-    g.setColour(titleIdle ? GuiColor::Group::TitleBgIdle : GuiColor::Group::TitleBg);
+    // 畳んでいるときも灰にする
+    g.setColour(titleIdle || folded ? GuiColor::Group::TitleBgIdle : GuiColor::Group::TitleBg);
     g.fillRoundedRectangle(chip, titleCornerRadius);
 
     g.setColour(GuiColor::Group::TitleText);
-    g.setFont(font);
-    g.drawText(title, chip, juce::Justification::centred, true);
+    g.setFont(juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold));
+
+    if (!folded) {
+        g.drawText(title, chip, juce::Justification::centred, true);
+
+        return;
+    }
+
+    // 畳んだ帯は縦長なので、文字を右へ 90 度寝かせて上から下へ書く
+    const auto centre = chip.getCentre();
+
+    juce::Graphics::ScopedSaveState save(g);
+
+    g.addTransform(juce::AffineTransform::rotation(juce::MathConstants<float>::halfPi, centre.x, centre.y));
+    g.drawText(title, juce::Rectangle<float>(chip.getHeight(), chip.getWidth()).withCentre(centre),
+        juce::Justification::centred, true);
+}
+
+juce::Rectangle<float> ColoredGroupComponent::titleChipBounds() const
+{
+    auto title = getText();
+
+    if (title.isEmpty()) return {};
+
+    auto bounds = getLocalBounds().toFloat();
+
+    auto font = juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold);
+
+    float textWidth = (float)juce::GlyphArrangement::getStringWidthInt(font, title);
+
+    if (folded) {
+        // 縦の帯。丈は枠の内側まで
+        float chipLength = juce::jmin(textWidth + titlePaddingX * 2.0f, bounds.getHeight() - titleInsetX * 2.0f);
+
+        if (chipLength <= 0.0f) return {};
+
+        return { bounds.getCentreX() - titleHeight * 0.5f, bounds.getY(), titleHeight, chipLength };
+    }
+
+    float chipWidth = juce::jmin(textWidth + titlePaddingX * 2.0f, bounds.getWidth() - titleInsetX * 2.0f);
+
+    if (chipWidth <= 0.0f) return {};
+
+    return { bounds.getX() + titleInsetX, bounds.getY(), chipWidth, titleHeight };
+}
+
+void ColoredGroupComponent::setFoldable(bool shouldFold)
+{
+    foldable = shouldFold;
+
+    setMouseCursor(foldable ? juce::MouseCursor::PointingHandCursor : juce::MouseCursor::NormalCursor);
+}
+
+void ColoredGroupComponent::setFolded(bool shouldFold)
+{
+    if (folded == shouldFold) return;
+
+    folded = shouldFold;
+
+    foldedChanged();
+    repaint();
+}
+
+bool ColoredGroupComponent::hitTest(int x, int y)
+{
+    // 枠そのものはマウスを受けない (中身へ通す) ので、見出しの上だけ受ける
+    if (foldable && titleChipBounds().expanded(2.0f).contains((float)x, (float)y)) return true;
+
+    return juce::GroupComponent::hitTest(x, y);
+}
+
+void ColoredGroupComponent::mouseDown(const juce::MouseEvent& e)
+{
+    if (foldable && e.mods.isLeftButtonDown() && onTitleClick != nullptr
+        && titleChipBounds().expanded(2.0f).contains(e.position))
+    {
+        onTitleClick();
+
+        return;
+    }
+
+    juce::GroupComponent::mouseDown(e);
 }
 
 void GuiGroup::mouseDown(const juce::MouseEvent& e)
