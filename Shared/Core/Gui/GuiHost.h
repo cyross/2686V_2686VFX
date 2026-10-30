@@ -47,6 +47,11 @@ class GuiProcessorHost
 public:
     virtual ~GuiProcessorHost() = default;
 
+    // ---- state を差し替えた回数 (プリセット・DAW の状態を読んだとき)。
+    // DAW がほかのスレッドで差し替えることもあるので、画面は apvts.state へ
+    // リスナーを付けずに、この回数が変わったかを見に行く (GuiGroupFolds)
+    std::atomic<int> stateLoads{ 0 };
+
     // ---- 区分ごとのパラメータファイルの既定の置き場
     juce::String defaultWavetableDir; // 波形メモリ (WT / WT2)
     juce::String defaultChannelParamDir;

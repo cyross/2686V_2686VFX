@@ -311,7 +311,8 @@ float WtPlusCore::getSample()
         if (m_lfo.pm.enable) {
             pitchModCents += m_lfo.value.pm * m_lfo.pm.depthCent;
         }
-        float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+        // PM を切っていれば 1 倍。pow は重いので、0 セントのときは呼ばない
+        const float opzx7PitchMod = pitchModCents != 0.0f ? std::pow(2.0f, pitchModCents / 1200.0f) : 1.0f;
 
         // ==========================================
         // Wavetable固有の Modulation (Vibrato / Table Scan)

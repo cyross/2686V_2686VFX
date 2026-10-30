@@ -84,7 +84,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - With STEP at 1, R.TARGET is disabled (there is no step to choose). The same goes for sections of the same shape (SSG SW AMP / PITCH ENV[256], ALG ENV and so on). S.TARGET in TAP SEQUENCER (with STEPS at 1), P.TARGET in TAP PARAM SEQUENCER (with one pair or none) and LP.TARGET in Rich Mode (with one set) are disabled the same way
   - TARGET can be automated
   - **TL ENV on FM operators became PARAM ENV with TARGET set to TL**. Presets, DAW state, channel parameters and section parameter files (`.tlEnv`) from 4.2.x and earlier are converted to PARAM ENV when loaded, and sound the same
-  - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again
+  - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again. STL, the step values, LR and ENDL are now kept per TARGET, so they are no longer parameters and cannot be automated (there is nothing to re-assign them to)
   - Saved in presets, DAW state and channel parameters (`paramEnv`). The section's parameter file is `.paramEnv` (right-click the heading)
   - Hidden in simple view mode. "PARAM ENV[256]" was added to the simple view customization in SETTINGS, and [Bypass hidden sections] turns it off too
   - Every channel, every FM operator and every RHYTHM pad. All plugins except 2686VFX
@@ -134,6 +134,20 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - Only the names change. The sound, the parameter IDs and the saved format stay the same, so existing presets and DAW states load as before
   - The titles in the references are left as they are
   - Every plugin
+
+- **Fixed problems found in review**
+  - The SSG channel parameter export and import did not include More Real SSG or the triangle and noise More Real FC, so the settings were lost after exporting and importing again. Older files do not have them, so they are read as off (plugins with SSG)
+  - Turning More Real SSG on or off did not update the dimming of the DUTY settings (plugins with SSG)
+  - Copying and pasting a channel, operator or category did not copy the PARAM ENV[256] STL, step values, LR and ENDL (the per-TARGET values) or the TAP PARAM SEQUENCER pairs (every plugin)
+  - The vertical line in the graphs stayed on screen after a voice finished, or after the PARAM ENV TARGET or ENABLE was changed while a note played. The line is now removed once its position stops being written (every plugin)
+  - The section and progress of the graph's vertical line are now read and written together. On ARM64 a new section could be read with an old progress, and the line jumped for a moment (every plugin)
+  - With any PARAM ENV TARGET, MUL / DET / FIX changed while notes played even when SETTINGS "Apply MUL/DET and FIX while notes play" was off. The frequency is now re-read while notes play only when the PARAM ENV points at MUL, DT, FIX FREQ or SPEED (every plugin)
+  - The noise More Real FC could not reach the four fastest 2A03 rates (period 4 to 32). The N.FREQ range is now stretched up to the fastest rate, so all 16 rates can be reached (plugins with SSG)
+  - The DAW could crash when it loaded a state on another thread at the same time as the editor was opened or closed (including when a tab is rebuilt after switching the language). Group folds are now re-applied by checking how many times the state has been loaded, instead of listening to the state (every plugin)
+- **Lighter sound engine calculations (the sound does not change)**
+  - When LFO PM is off, the pitch ratio calculation (pow) is skipped. SSG, WT, WT2, WT+, ADPCM, ADPCM+, BEEP and the RHYTHM pads
+  - Choosing a rate from the 16 2A03 rates for the noise More Real FC now takes one log instead of 16
+  - When PARAM ENV points at something other than MUL, DT, FIX FREQ or SPEED, the frequency is no longer rebuilt while notes play (the same change as the LIVE DETUNE fix above)
 
 ### 3-0-2. What v4.2.0 adds and changes
 

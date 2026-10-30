@@ -143,6 +143,7 @@ It offers the same parameters as TAP PARAM SEQUENCER.
 **TL ENV on FM operators became the PARAM ENV target TL.** Presets, DAW state, channel parameters and section parameter
 files (`.tlEnv`) from 4.2.x and earlier are converted to PARAM ENV (TARGET set to TL) when loaded, so they sound the same.
 The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`; if you automated TL ENV in your DAW, assign the automation again.
+STL, the step values, LR and ENDL are now kept per TARGET, so they are no longer parameters and cannot be automated (there is nothing to re-assign them to).
 
 See [PARAM ENV\[256\]](/2686V_2686VFX/en/chips/common/#param-env256) for details.
 

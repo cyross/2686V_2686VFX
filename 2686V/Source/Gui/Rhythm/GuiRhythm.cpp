@@ -373,14 +373,15 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     // 区分の中身は最初から開いておく。1 列 1 区分にしたので、
     // 畳んだままだと見出しだけの列が並ぶことになる。
-    for (auto* group : {
-        &colForm, &colOptional, &colAmpEnv, &colSsgHwEnv,
-        &colSsgSwEnv256, &colAmpMod, &colPitchEnv,
-        &colSsgHwPEnv, &colSsgSwPEnv256, &colMod, &colLfo,
-        &colParamEnv, &colTapParam, &colEdit,
+    for (auto [group, foldName] : std::initializer_list<std::pair<GuiScrollGroup*, const char*>>{
+        { &colForm, "form" }, { &colOptional, "optional" }, { &colAmpEnv, "ampEnv" }, { &colSsgHwEnv, "ssgHwEnv" },
+        { &colSsgSwEnv256, "ssgSwEnv256" }, { &colAmpMod, "ampMod" }, { &colPitchEnv, "pitchEnv" },
+        { &colSsgHwPEnv, "ssgHwPEnv" }, { &colSsgSwPEnv256, "ssgSwPEnv256" }, { &colMod, "mod" }, { &colLfo, "lfo" },
+        { &colParamEnv, "paramEnv" }, { &colTapParam, "tapParam" }, { &colEdit, "edit" },
         })
     {
-        groupFolds.add(*group);
+        // 畳み具合は見出しの文字ではなく、決まった名前で覚える (見出しを直しても消えない)
+        groupFolds.add(*group, foldName);
 
         for (auto* child : group->contentCanvas.getChildren())
         {

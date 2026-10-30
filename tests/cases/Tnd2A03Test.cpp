@@ -87,6 +87,22 @@ TEST_CASE("2A03 ノイズ: 速さは 16 段の表のうち、比で最も近い�
     CHECK(Tnd2A03::nearestNoiseRate(1.0) == doctest::Approx(Pulse2A03::cpuClock / 4068.0));
 }
 
+TEST_CASE("2A03 ノイズ: SSG の N.FREQ の範囲で、16 段すべてに届く")
+{
+    constexpr double knobMax = 30000.0;
+
+    std::set<double> reached;
+
+    for (int hz = 0; hz <= (int)knobMax; hz += 5) reached.insert(Tnd2A03::noiseRateFromSsg((double)hz, knobMax));
+
+    reached.erase(0.0);
+
+    CHECK(reached.size() == Tnd2A03::noisePeriods.size());
+
+    // いちばん上はいちばん速い段
+    CHECK(Tnd2A03::noiseRateFromSsg(knobMax, knobMax) == doctest::Approx(Pulse2A03::cpuClock / 4.0));
+}
+
 TEST_CASE("SSG: トーンとノイズは論理積で混ざる")
 {
     // MIX 0 はトーンだけ、1 はノイズだけ

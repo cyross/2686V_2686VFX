@@ -65,6 +65,9 @@ namespace ParamMod
 		// 指し先が整数や選択肢。段のあいだは値を斜めに繋がない
 		bool stepped = false;
 
+		// 指し先が押したときに決まる値 (MUL・DT・FIX など)。鳴っている最中も読み直す
+		bool live = false;
+
 		StepEnvParams env;
 	};
 
@@ -116,19 +119,21 @@ namespace ParamMod
 				const auto& src = p.envs[(size_t)i];
 				auto& c = config[(size_t)i];
 
-				if (src.enable != c.enable || src.scope != c.scope || src.index != c.index) started[(size_t)i] = false;
+				// 走っていたものは止める (グラフの縦線も消える)
+				if (src.enable != c.enable || src.scope != c.scope || src.index != c.index) stopEnv(i);
 
 				c.enable = src.enable;
 				c.scope = src.scope;
 				c.index = src.index;
 				c.stepped = src.stepped;
+				c.live = src.live;
 
 				if (c.enable) envs[(size_t)i].setParameters(src.env);
 			}
 
 			for (int i = count; i < maxEnvs; ++i) {
 				config[(size_t)i].enable = false;
-				started[(size_t)i] = false;
+				stopEnv(i);
 			}
 		}
 
@@ -143,10 +148,15 @@ namespace ParamMod
 
 		bool active() const { return tap.count > 0 || hasEnvs(); }
 
-		// 鳴らしている最中に値を動かしているエンベロープがあるか (押したあとも値が変わる)
+		// 押したときに決まる値 (MUL・DT・FIX など) を、鳴らしている最中に動かしているか。
+		// ほかの指し先は毎ブロック置き換えるので、周波数を読み直さなくてよい
 		bool envRunning() const
 		{
-			for (int i = 0; i < count; ++i) if (config[(size_t)i].enable && started[(size_t)i]) return true;
+			for (int i = 0; i < count; ++i) {
+				const auto& c = config[(size_t)i];
+
+				if (c.enable && c.live && started[(size_t)i]) return true;
+			}
 
 			return false;
 		}
@@ -252,7 +262,15 @@ namespace ParamMod
 			int scope = -1;
 			int index = 0;
 			bool stepped = false;
+			bool live = false;
 		};
+
+		void stopEnv(int i)
+		{
+			if (started[(size_t)i]) envs[(size_t)i].stop();
+
+			started[(size_t)i] = false;
+		}
 
 		// 斜めに動く値を読み直す間隔 (サンプル) と、待たずに読み直す跳び幅
 		static constexpr int continuousInterval = 64;

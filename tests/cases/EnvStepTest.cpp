@@ -273,21 +273,21 @@ TEST_CASE("StepEnv: PARAM ENV は鳴っている位置を表へ書き、いち�
     a.setParameters(p);
     a.noteOn();
 
-    CHECK(t.live.phase.load() == 1);
+    CHECK(t.live.read().phase == 1);
 
     for (int i = 0; i < 50; ++i) a.process();
 
-    CHECK(t.live.phase.load() == 1);
-    CHECK(t.live.frac.load() == doctest::Approx(0.5f).epsilon(0.05));
+    CHECK(t.live.read().phase == 1);
+    CHECK(t.live.read().frac == doctest::Approx(0.5f).epsilon(0.05));
 
     for (int i = 0; i < 60; ++i) a.process();
 
-    CHECK(t.live.phase.load() == 2);
+    CHECK(t.live.read().phase == 2);
 
     // 最後の段を走り終えたら、保っている (サスティン)
     for (int i = 0; i < 100; ++i) a.process();
 
-    CHECK(t.live.phase.load() == LivePosition::sustain);
+    CHECK(t.live.read().phase == LivePosition::sustain);
 
     // あとから押した音が持ち主になる。先の音はもう書かない
     StepEnv b;
@@ -295,11 +295,11 @@ TEST_CASE("StepEnv: PARAM ENV は鳴っている位置を表へ書き、いち�
     b.setParameters(p);
     b.noteOn();
 
-    CHECK(t.live.phase.load() == 1);
+    CHECK(t.live.read().phase == 1);
 
     for (int i = 0; i < 300; ++i) a.process();
 
-    CHECK(t.live.phase.load() == 1);
+    CHECK(t.live.read().phase == 1);
 
     // 離すとリリース、走り終えたら鳴っていない
     for (int i = 0; i < 50; ++i) b.process();
@@ -307,12 +307,12 @@ TEST_CASE("StepEnv: PARAM ENV は鳴っている位置を表へ書き、いち�
     b.noteOff();
     b.process();
 
-    CHECK(t.live.phase.load() == LivePosition::release);
+    CHECK(t.live.read().phase == LivePosition::release);
 
     for (int i = 0; i < 100; ++i) b.process();
 
     CHECK(b.isIdle());
-    CHECK(t.live.phase.load() == LivePosition::idle);
+    CHECK(t.live.read().phase == LivePosition::idle);
 }
 
 TEST_CASE("StepEnv: SSG SW ENV[256] など、どの段のエンベロープも鳴っている位置を書く")
@@ -329,6 +329,6 @@ TEST_CASE("StepEnv: SSG SW ENV[256] など、どの段のエンベロープも�
     for (int i = 0; i < 50; ++i) env.process();
 
     CHECK(t.live.owner.load() != 0u);
-    CHECK(t.live.phase.load() == 1);
-    CHECK(t.live.frac.load() == doctest::Approx(0.5f).epsilon(0.05));
+    CHECK(t.live.read().phase == 1);
+    CHECK(t.live.read().frac == doctest::Approx(0.5f).epsilon(0.05));
 }

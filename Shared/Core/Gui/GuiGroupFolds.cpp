@@ -11,19 +11,16 @@ GuiGroupFolds::GuiGroupFolds(const GuiContext& context, const juce::String& stat
     openAllButton(context),
     closeAllButton(context),
     ctx(context),
-    key(stateKey),
-    keyId(stateKey)
+    key(stateKey)
 {
-    // apvts.state そのものへ付ける。プリセットを読むと中身が差し替わるが、
-    // 付けた先は同じなので valueTreeRedirected で知らせが来る
-    ctx.apvts.state.addListener(this);
+    seenLoads = ctx.audioProcessor.stateLoads.load(std::memory_order_acquire);
+
+    startTimer(pollMs);
 }
 
 GuiGroupFolds::~GuiGroupFolds()
 {
-    cancelPendingUpdate();
-
-    ctx.apvts.state.removeListener(this);
+    stopTimer();
 }
 
 void GuiGroupFolds::add(ColoredGroupComponent& group, const juce::String& name)
@@ -115,18 +112,13 @@ bool GuiGroupFolds::load()
     return changed;
 }
 
-void GuiGroupFolds::valueTreePropertyChanged(juce::ValueTree&, const juce::Identifier& property)
+void GuiGroupFolds::timerCallback()
 {
-    if (property == keyId) triggerAsyncUpdate();
-}
+    const int loads = ctx.audioProcessor.stateLoads.load(std::memory_order_acquire);
 
-void GuiGroupFolds::valueTreeRedirected(juce::ValueTree&)
-{
-    // DAW がほかのスレッドから state を差し替えることもあるので、画面は後で触る
-    triggerAsyncUpdate();
-}
+    if (loads == seenLoads) return;
 
-void GuiGroupFolds::handleAsyncUpdate()
-{
+    seenLoads = loads;
+
     if (load()) ctx.editor.resized();
 }

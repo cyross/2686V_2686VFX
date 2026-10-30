@@ -372,7 +372,8 @@ float SsgCore::getSample()
         }
 
         // セントを周波数倍率(レシオ)に変換
-        float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+        // PM を切っていれば 1 倍。pow は重いので、0 セントのときは呼ばない
+        const float opzx7PitchMod = pitchModCents != 0.0f ? std::pow(2.0f, pitchModCents / 1200.0f) : 1.0f;
  
         float modDepth = m_modWheel * 0.03f;
         float mwPitchMod = 1.0f + (m_lfo.value.pm * modDepth);

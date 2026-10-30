@@ -244,6 +244,11 @@ private:
     std::function<int()> liveFps;
     int liveStep = LivePosition::idle;
     float liveFrac = 0.0f;
+    std::uint32_t liveSeq = 0;
+    juce::uint32 liveSeqMs = 0;
+
+    // 位置がこの間 (ms) 書かれなければ、鳴っていないとみなす
+    static constexpr juce::uint32 liveStaleMs = 200;
 
     void timerCallback() override;
 

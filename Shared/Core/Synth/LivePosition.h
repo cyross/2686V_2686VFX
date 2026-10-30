@@ -14,6 +14,10 @@
 // 区間 (phase) は、段のエンベロープなら段の番号 (1〜)、ADSR ならアタック・
 // ディケイ。サスティンとリリースはどちらも決まった値で表す。進み (frac) は
 // 区間の中の 0〜1。
+//
+// 区間・進み・書いた回数 (seq) は 64 bit 1 つに詰めて書く。別々に書くと、ARM では
+// 新しい区間と古い進みの組を読むことがある。書く側は鳴っているあいだ毎回書くので、
+// seq が止まったら (ボイスが止まった、指し先を変えたなど) 読む側は鳴っていないとみなす。
 struct LivePosition
 {
 	static constexpr int idle = 0;       // 鳴っていない
@@ -25,8 +29,28 @@ struct LivePosition
 	static constexpr int decay = 2;
 
 	std::atomic<std::uint32_t> owner{ 0 };
-	std::atomic<int> phase{ idle };
-	std::atomic<float> frac{ 0.0f };
+	std::atomic<std::uint64_t> packed{ 0 };
+
+	struct Snapshot
+	{
+		int phase = idle;
+		float frac = 0.0f;
+		std::uint32_t seq = 0;
+	};
+
+	static std::uint64_t pack(int p, float f, std::uint32_t seq)
+	{
+		const auto q = (std::uint64_t)std::lround(std::clamp(f, 0.0f, 1.0f) * 65535.0f);
+
+		return ((std::uint64_t)seq << 32) | ((std::uint64_t)(std::uint16_t)(std::int16_t)p << 16) | q;
+	}
+
+	Snapshot read() const
+	{
+		const std::uint64_t v = packed.load(std::memory_order_relaxed);
+
+		return { (int)(std::int16_t)(std::uint16_t)(v >> 16), (float)(v & 0xffff) / 65535.0f, (std::uint32_t)(v >> 32) };
+	}
 
 	// 押した音ごとに振る番号。0 は使わない
 	static std::uint32_t nextId()
@@ -68,12 +92,11 @@ struct LivePosition
 	};
 
 	// 持ち主のときだけ書く。ほかの音に代わっていたら false
-	bool write(std::uint32_t id, int p, float f)
+	bool write(std::uint32_t id, int p, float f, std::uint32_t seq)
 	{
 		if (owner.load(std::memory_order_relaxed) != id) return false;
 
-		frac.store(f, std::memory_order_relaxed);
-		phase.store(p, std::memory_order_relaxed);
+		packed.store(pack(p, f, seq), std::memory_order_relaxed);
 
 		return true;
 	}
@@ -101,13 +124,14 @@ public:
 
 		current = phase;
 
-		if (!pos->write(id, phase, std::clamp(frac, 0.0f, 1.0f)) || phase == LivePosition::idle) id = 0;
+		if (!pos->write(id, phase, frac, ++seq) || phase == LivePosition::idle) id = 0;
 	}
 
 protected:
 	LivePosition* pos = nullptr;
 	std::uint32_t id = 0;
 	int current = LivePosition::idle;
+	std::uint32_t seq = 0;
 };
 
 // 音量のエンベロープ (AMP ENV・FM 音源の EG) の位置を書く。どれも 0〜1 の音量で、
