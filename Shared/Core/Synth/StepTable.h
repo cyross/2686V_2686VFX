@@ -325,32 +325,12 @@ struct StepTable
         version.fetch_add(1, std::memory_order_release);
     }
 
-    void copyFrom(const StepTable& other)
+    // PARAM ENV の指し先ごとの値を初期値へ戻す
+    void resetSets()
     {
-        for (int i = 0; i < size; ++i) {
-            r[(size_t)i].store(other.r[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
-            l[(size_t)i].store(other.l[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
-            skips[(size_t)i].store(other.skips[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
-
-            if (pairs != nullptr) {
-                const int n = other.pairs != nullptr ? other.pairs->counts[(size_t)i].load(std::memory_order_relaxed) : 0;
-
-                for (int k = 0; k < n; ++k) pairs->items[(size_t)i][(size_t)k].store(other.pairs->items[(size_t)i][(size_t)k].load(std::memory_order_relaxed), std::memory_order_relaxed);
-
-                pairs->counts[(size_t)i].store(n, std::memory_order_relaxed);
-            }
+        for (int set = 0; set < setCount(); ++set) {
+            for (auto& v : *sets->values[(size_t)set]) v.store(sets->defaults[(size_t)set], std::memory_order_relaxed);
         }
-
-        const int sharedSets = std::min(setCount(), other.setCount());
-
-        for (int set = 0; set < sharedSets; ++set) {
-            for (int slot = 0; slot < setSlots; ++slot) (*sets->values[(size_t)set])[(size_t)slot].store(other.setValue(set, slot), std::memory_order_relaxed);
-        }
-
-        for (int i = 0; i < StepLoop::maxEntries; ++i) loops[(size_t)i].store(other.loops[(size_t)i].load(std::memory_order_relaxed), std::memory_order_relaxed);
-
-        loopNum.store(other.loopNum.load(std::memory_order_relaxed), std::memory_order_relaxed);
-        tapLoops.clear();
 
         version.fetch_add(1, std::memory_order_release);
     }

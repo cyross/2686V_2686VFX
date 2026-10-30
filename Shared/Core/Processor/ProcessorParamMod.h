@@ -633,8 +633,20 @@ public:
 		catalog = &c;
 		opCount = juce::jlimit(0, ParamMod::maxEnvs - 1, ops);
 
-		auto slotOf = [&apvts](const juce::String& id) {
+		// 押したときに決まる値 (MUL・DT・FIX・SPEED)。PARAM ENV が指していれば、
+		// LIVE DETUNE を切っていても鳴っている最中に読み直す
+		auto isLiveSuffix = [](const juce::String& suffix) {
+			for (const auto& k : { CPK::mul, CPK::mulRatio, CPK::dt, CPK::dt2, CPK::dt3, CPK::fixFreq, CPK::speed }) {
+				if (suffix == juce::String(k)) return true;
+			}
+
+			return false;
+		};
+
+		auto slotOf = [&apvts, &isLiveSuffix](const juce::String& id, const juce::String& suffix) {
 			Slot s;
+
+			s.live = isLiveSuffix(suffix);
 
 			s.ptr = apvts.getRawParameterValue(id);
 			s.param = apvts.getParameter(id);
@@ -652,12 +664,12 @@ public:
 		ch.clear();
 		op.clear();
 
-		for (int i = 0; i < (int)c.ch.size(); ++i) ch.push_back(slotOf(ParamModCatalog::paramId(prefix, c, -1, i)));
+		for (int i = 0; i < (int)c.ch.size(); ++i) ch.push_back(slotOf(ParamModCatalog::paramId(prefix, c, -1, i), c.ch[(size_t)i].suffix));
 
 		op.resize((size_t)opCount);
 
 		for (int o = 0; o < opCount; ++o) {
-			for (int i = 0; i < (int)c.op.size(); ++i) op[(size_t)o].push_back(slotOf(ParamModCatalog::paramId(prefix, c, o, i)));
+			for (int i = 0; i < (int)c.op.size(); ++i) op[(size_t)o].push_back(slotOf(ParamModCatalog::paramId(prefix, c, o, i), c.op[(size_t)i].suffix));
 		}
 	}
 
@@ -669,6 +681,13 @@ public:
 		const auto* s = slot(scope, index);
 
 		return s != nullptr && s->stepped;
+	}
+
+	bool isLive(int scope, int index) const
+	{
+		const auto* s = slot(scope, index);
+
+		return s != nullptr && s->live;
 	}
 
 	// TL の最大値 (TL ENV の値を TL のレジスタ値へ戻すのに使う)
@@ -723,6 +742,7 @@ public:
 		out.scope = scope;
 		out.index = index;
 		out.stepped = isStepped(scope, index);
+		out.live = isLive(scope, index);
 
 		ParamEnv::applyEnv(p, out.env, out.stepped, target);
 	}
@@ -738,6 +758,7 @@ public:
 		out.scope = opIndex;
 		out.index = index;
 		out.stepped = stepped;
+		out.live = isLive(opIndex, index);
 
 		ParamEnv::applyEnv(p, out.env, stepped, index);
 
@@ -762,6 +783,7 @@ public:
 		out.scope = opIndex;
 		out.index = index;
 		out.stepped = isStepped(opIndex, index);
+		out.live = isLive(opIndex, index);
 
 		ParamEnv::applyEnv(p, out.env, out.stepped, index);
 	}
@@ -787,6 +809,7 @@ private:
 		std::atomic<float>* ptr = nullptr;
 		juce::RangedAudioParameter* param = nullptr;
 		bool stepped = false;
+		bool live = false;
 	};
 
 	const Slot* slot(int scope, int index) const

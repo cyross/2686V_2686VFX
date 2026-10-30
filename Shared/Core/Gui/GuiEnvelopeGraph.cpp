@@ -99,8 +99,20 @@ void GuiEnvelopeGraph::timerCallback()
 
     LiveGraph::pace(*this, fps > 0 ? fps : LiveGraph::idleHz);
 
-    const int step = fps > 0 ? liveTable->phase.load(std::memory_order_relaxed) : LivePosition::idle;
-    const float frac = step != LivePosition::idle ? liveTable->frac.load(std::memory_order_relaxed) : 0.0f;
+    const auto live = liveTable->read();
+    const auto now = juce::Time::getMillisecondCounter();
+
+    // 書く側は鳴っているあいだ毎回書く。書かれなくなったら (ボイスが止まった、
+    // 指し先を変えたなど) 最後の位置が残るので、しばらく変わらなければ消す
+    if (live.seq != liveSeq) {
+        liveSeq = live.seq;
+        liveSeqMs = now;
+    }
+
+    const bool stale = now - liveSeqMs > liveStaleMs;
+
+    const int step = fps > 0 && !stale ? live.phase : LivePosition::idle;
+    const float frac = step != LivePosition::idle ? live.frac : 0.0f;
 
     if (step == liveStep && std::abs(frac - liveFrac) < 0.001f) return;
 

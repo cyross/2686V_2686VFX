@@ -36,6 +36,31 @@ namespace
     }
 }
 
+TEST_CASE("LivePosition: 区間・進み・書いた回数を 1 つに詰めて読み書きする")
+{
+    LivePosition live;
+    LiveWriter writer;
+
+    writer.start(&live);
+
+    writer.write(LivePosition::release, 0.75f);
+
+    const auto a = live.read();
+
+    CHECK(a.phase == LivePosition::release);
+    CHECK(a.frac == doctest::Approx(0.75f).epsilon(1.0e-4));
+
+    // 同じ区間・進みでも、書くたびに回数が進む (読む側はこれが止まったら消す)
+    writer.write(LivePosition::release, 0.75f);
+
+    CHECK(live.read().seq != a.seq);
+
+    writer.write(200, 2.0f);
+
+    CHECK(live.read().phase == 200);
+    CHECK(live.read().frac == doctest::Approx(1.0f));
+}
+
 TEST_CASE("LiveLevelWriter: 区間の中の進みは、入ったときの音量から行き先までのどこにいるか")
 {
     LivePosition live;
@@ -48,25 +73,25 @@ TEST_CASE("LiveLevelWriter: 区間の中の進みは、入ったときの音量�
     writer.write(LivePosition::attack, 0.0f, 1.0f);
     writer.write(LivePosition::attack, 0.25f, 1.0f);
 
-    CHECK(live.phase.load() == LivePosition::attack);
-    CHECK(live.frac.load() == doctest::Approx(0.25f));
+    CHECK(live.read().phase == LivePosition::attack);
+    CHECK(live.read().frac == doctest::Approx(0.25f));
 
     // ディケイは 1 から SL (0.5) へ
     writer.write(LivePosition::decay, 1.0f, 0.5f);
     writer.write(LivePosition::decay, 0.75f, 0.5f);
 
-    CHECK(live.phase.load() == LivePosition::decay);
-    CHECK(live.frac.load() == doctest::Approx(0.5f));
+    CHECK(live.read().phase == LivePosition::decay);
+    CHECK(live.read().frac == doctest::Approx(0.5f));
 
     // 動かないサスティンは真ん中
     writer.write(LivePosition::sustain, 0.5f, 0.0f);
 
-    CHECK(live.frac.load() == doctest::Approx(0.5f));
+    CHECK(live.read().frac == doctest::Approx(0.5f));
 
     // 鳴り終えたら書いて手を離す
     writer.write(LivePosition::idle, 0.0f, 0.0f);
 
-    CHECK(live.phase.load() == LivePosition::idle);
+    CHECK(live.read().phase == LivePosition::idle);
     CHECK_FALSE(writer.active());
 }
 
@@ -82,29 +107,29 @@ TEST_CASE("AMP ENV: 区間と進みを書き、鳴り終えたら止まる")
 
     level = run(env, level, 50);
 
-    CHECK(live.phase.load() == LivePosition::attack);
-    CHECK(live.frac.load() == doctest::Approx(0.5f).epsilon(0.05));
+    CHECK(live.read().phase == LivePosition::attack);
+    CHECK(live.read().frac == doctest::Approx(0.5f).epsilon(0.05));
 
     level = run(env, level, 100);
 
-    CHECK(live.phase.load() == LivePosition::decay);
-    CHECK(live.frac.load() == doctest::Approx(0.5f).epsilon(0.1));
+    CHECK(live.read().phase == LivePosition::decay);
+    CHECK(live.read().frac == doctest::Approx(0.5f).epsilon(0.1));
 
     level = run(env, level, 200);
 
-    CHECK(live.phase.load() == LivePosition::sustain);
-    CHECK(live.frac.load() == doctest::Approx(0.5f));
+    CHECK(live.read().phase == LivePosition::sustain);
+    CHECK(live.read().frac == doctest::Approx(0.5f));
 
     env.noteOff();
     level = run(env, level, 50);
 
-    CHECK(live.phase.load() == LivePosition::release);
-    CHECK(live.frac.load() == doctest::Approx(0.5f).epsilon(0.1));
+    CHECK(live.read().phase == LivePosition::release);
+    CHECK(live.read().frac == doctest::Approx(0.5f).epsilon(0.1));
 
     level = run(env, level, 100);
 
     CHECK(env.isIdle());
-    CHECK(live.phase.load() == LivePosition::idle);
+    CHECK(live.read().phase == LivePosition::idle);
 }
 
 TEST_CASE("AMP ENV: あとから押した音が持ち主になり、プレビューの計算では書かない")
@@ -121,18 +146,18 @@ TEST_CASE("AMP ENV: あとから押した音が持ち主になり、プレビュ
 
     la = run(a, la, 150);
 
-    REQUIRE(live.phase.load() == LivePosition::decay);
+    REQUIRE(live.read().phase == LivePosition::decay);
 
     float lb = b.noteOn();
 
     lb = run(b, lb, 10);
 
-    CHECK(live.phase.load() == LivePosition::attack);
+    CHECK(live.read().phase == LivePosition::attack);
 
     // 先の音はもう書かない
     la = run(a, la, 300);
 
-    CHECK(live.phase.load() == LivePosition::attack);
+    CHECK(live.read().phase == LivePosition::attack);
 
     // プレビューの計算 (Mute) で押した音は持ち主にならない
     {
@@ -148,5 +173,5 @@ TEST_CASE("AMP ENV: あとから押した音が持ち主になり、プレビュ
         lp = run(preview, lp, 300);
     }
 
-    CHECK(live.phase.load() == LivePosition::attack);
+    CHECK(live.read().phase == LivePosition::attack);
 }

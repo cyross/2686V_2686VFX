@@ -135,6 +135,15 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The titles in the references are left as they are
   - Every plugin
 
+- **Fixed problems found in review**
+  - The SSG channel parameter export and import did not include More Real SSG or the triangle and noise More Real FC, so the settings were lost after exporting and importing again. Older files do not have them, so they are read as off (plugins with SSG)
+  - Turning More Real SSG on or off did not update the dimming of the DUTY settings (plugins with SSG)
+  - Copying and pasting a channel, operator or category did not copy the PARAM ENV[256] STL, step values, LR and ENDL (the per-TARGET values) or the TAP PARAM SEQUENCER pairs (every plugin)
+  - The vertical line in the graphs stayed on screen after a voice finished, or after the PARAM ENV TARGET or ENABLE was changed while a note played. The line is now removed once its position stops being written (every plugin)
+  - The section and progress of the graph's vertical line are now read and written together. On ARM64 a new section could be read with an old progress, and the line jumped for a moment (every plugin)
+  - With any PARAM ENV TARGET, MUL / DET / FIX changed while notes played even when SETTINGS "Apply MUL/DET and FIX while notes play" was off. The frequency is now re-read while notes play only when the PARAM ENV points at MUL, DT, FIX FREQ or SPEED (every plugin)
+  - The noise More Real FC could not reach the four fastest 2A03 rates (period 4 to 32). The N.FREQ range is now stretched up to the fastest rate, so all 16 rates can be reached (plugins with SSG)
+
 ### 3-0-2. What v4.2.0 adds and changes
 
 - **More ways to change a slider's value**

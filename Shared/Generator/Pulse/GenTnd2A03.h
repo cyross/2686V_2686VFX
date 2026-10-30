@@ -96,6 +96,18 @@ namespace Tnd2A03
         return best;
     }
 
+    // SSG のノイズの速さ (0〜knobMax Hz) を、表の速さへ写す。SSG の範囲のままでは
+    // 表の速い 4 段 (period 4〜32) に届かないので、knobMax を表のいちばん速い段に
+    // 合わせて引き伸ばしてから、最も近い段を選ぶ
+    inline double noiseRateFromSsg(double rate, double knobMax)
+    {
+        if (knobMax <= 0.0) return nearestNoiseRate(rate);
+
+        const double fastest = Pulse2A03::cpuClock / (double)noisePeriods.front();
+
+        return nearestNoiseRate(rate * fastest / knobMax);
+    }
+
     // 1 段進める。戻り値は進めたあとの出力 (0 / 1)
     inline float stepNoise(unsigned int& lfsr)
     {

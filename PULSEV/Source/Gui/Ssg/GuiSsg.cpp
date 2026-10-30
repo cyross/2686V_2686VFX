@@ -279,8 +279,11 @@ void GuiSsg::setup()
 
     // FC Mode / More Real FC / More Real NES / More Real SSG は 1 つだけ入る。入れたときに残りを切る。
     // すべて切るのはかまわない。
+    // setup が入れた onClick (isResized の並べ直し) は消さずに、先に呼ぶ。
     auto makeExclusive = [this](GuiToggleButton& self, std::vector<GuiToggleButton*> others) {
-        self.onClick = [&self, others] {
+        self.onClick = [&self, others, before = std::move(self.onClick)] {
+            if (before) before();
+
             if (!self.getToggleState()) return;
 
             for (auto* other : others) {
@@ -1112,11 +1115,17 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
     // 4.0.0 で足した。古いファイルには無いので、無ければ切にする。
     dutyMoreFcButton.setToggleState(reader->getBool("dutyMoreFc", false), juce::sendNotification);
     dutyMoreNesButton.setToggleState(reader->getBool("dutyMoreNes", false), juce::sendNotification);
+    // 4.3.0 で足した。古いファイルには無いので、無ければ切にする。
+    dutyMoreSsgButton.setToggleState(reader->getBool("dutyMoreSsg", false), juce::sendNotification);
 
     // Triangle
     triKeyTrackButton.setToggleState(reader->getBool("triKeyTrack", triKeyTrackButton.getToggleState()), juce::sendNotification);
     triFreqSlider.setValue(reader->getFloat("triFreq", (float)triFreqSlider.getValue()), juce::sendNotification);
     triPeakSlider.setValue(reader->getFloat("triPeak", (float)triPeakSlider.getValue()), juce::sendNotification);
+    triMoreFcButton.setToggleState(reader->getBool("triMoreFc", false), juce::sendNotification);
+
+    // Noise (4.3.0 で足した。無ければ切にする)
+    noiseMoreFcButton.setToggleState(reader->getBool("noiseMoreFc", false), juce::sendNotification);
 
     // Components
     ssgHwEnvComponent.readParams(*reader, "ssgHwEnv");
@@ -1238,11 +1247,16 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	writer.set("dutyFcFluc", (float)dutyFcFlucSlider.getValue());
 	writer.set("dutyMoreFc", dutyMoreFcButton.getToggleState());
 	writer.set("dutyMoreNes", dutyMoreNesButton.getToggleState());
+	writer.set("dutyMoreSsg", dutyMoreSsgButton.getToggleState());
 
 	// Triangle
 	writer.set("triKeyTrack", triKeyTrackButton.getToggleState());
 	writer.set("triFreq", (float)triFreqSlider.getValue());
 	writer.set("triPeak", (float)triPeakSlider.getValue());
+	writer.set("triMoreFc", triMoreFcButton.getToggleState());
+
+	// Noise
+	writer.set("noiseMoreFc", noiseMoreFcButton.getToggleState());
 
 	// Components
 	ssgHwEnvComponent.writeParams(writer, "ssgHwEnv");
