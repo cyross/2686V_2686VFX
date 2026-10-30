@@ -97,3 +97,107 @@
 4. **P1-4** — 畳みではタブだけ並べ直す。
 
 測り方の提案: Windows の Standalone で、FM タブ (OPM) と RHYTHM を開いた状態で、オペレーターの列の上をマウスで往復させ、Visual Studio の CPU 使用率プロファイラで `GuiCategoryBackdropHover::update` と `GlyphArrangement::addLineOfText` の占める割合を見る。次にタブを 5〜6 枚開いてから同じことをして、増え方 (タブ数に比例するか) を見ると P1-1 の 5 番を確かめられる。
+
+---
+
+## 第 2 段階: 共有 GUI ライブラリの描画全般
+
+### P2-1. エンベロープのグラフは、鳴っている位置が動くたびに線をすべて組み直して描く (既定で 30fps) 【高・確実 (頻度) / 推測 (重さ)】
+
+- 場所: `Shared/Core/Gui/GuiEnvelopeGraph.cpp:91-111` (`timerCallback` → `repaint()`)、`:325-539` (`paint`)、既定値 `Shared/Core/Gui/GuiHost.h:101` (`envLiveGraph = true`)、`:95` (`tapLiveGraph = true`)
+- 何が重いか:
+  - 鳴っている位置 (`phase` / `frac`) が変わると、グラフ **全体** を `repaint()` する。動いているのは縦線 1 本 (またはサスティンの帯) だけ。
+  - `paint` は段 (phase) ごとに `juce::Path` を新しく作り、`resolution = max(10, 幅/2)` 点ぶん `curveFunc` (`std::function`。カーブを使うときは `CurveCore::process`) を呼んで線を組み、段ごとに `strokePath` (点線なら `createDashedStroke` も) する。SSG SW ENV[256] / PARAM ENV[256] のように段が多いものは、1 回の描画で段の数 (最大 256) だけ Path の確保と stroke が走る。
+  - これが鍵を弾いているあいだ、FPS の設定 (既定 30、最大 120) で、**表に見えているグラフの数** (オペレーター 4 つ × 区分。さらに TARGET の大きな枠の写し、P2-2) だけ繰り返される。
+  - 不透明な部品が 1 つも無い (P2-4) ので、グラフの矩形ぶん、背後のエディタの背景 (壁紙の拡大描画を含む)・枠・区分の板もそのたびに描かれる。
+- 直し方の案:
+  - 線 (段の Path を全部つないだもの) を、`currentPhases` / 大きさ / 拡大率 / 送り具合が変わったときだけ作ってメンバに持つ。`paint` での `strokePath` は色・線種ごとにまとめて数回にする。さらに軽くするなら、線をまるごと `juce::Image` へ焼いておき、`paint` は画像を置いて縦線を足すだけにする。
+  - 鳴っている位置が変わったときは、前の縦線と新しい縦線の細い矩形 2 つだけ `repaint(rect)` する (サスティンの帯は帯の矩形だけ)。
+  - `timerCallback` の頭で `isShowing()` を見て、見えていなければ何もしない (P2-5)。
+
+### P2-2. TARGET の大きな枠は、10Hz で小さな枠の絵を写し、変わっていなくても毎回描き直す 【中・確実】
+
+- 場所: `Shared/Gui/Components/TargetCell/TargetCell.cpp:101` (`startTimerHz(10)`)、`:105-113` (`timerCallback`)。写す側は `Shared/Core/Gui/GuiEnvelopeGraph.h:191-201` と `Shared/Gui/Components/WavePreview/WavePreview.h:74-86` (`copyFrom` の最後で無条件に `repaint()`)
+- 何が重いか: 毎秒 10 回、見出しの `setText`、エンベロープの段の並び (`std::vector<PhaseDef>`。段ごとの `curveFunc` の `std::function` も写す) の丸写し、`setLiveSource` (`std::function` の写しと `timerCallback` の即時呼び出し)、波形の点列 (`m_points` / `m_mins` / `m_maxs` / `m_markers`) の丸写しをして、**変化の有無にかかわらず** グラフとプレビューを `repaint()` する。グラフの `paint` は P2-1 のとおり重いので、何も触っていなくても TARGET の枠の全描画が 10Hz で回り続ける。
+- 直し方の案: 写し元に「版」(更新のたびに増やす整数) を持たせ、版が変わったときだけ写して描き直す。あるいはタイマーをやめ、写し元の更新 (`setEnvelope` / `setPoints`) から TARGET の枠へ知らせる形にする。
+
+### P2-3. TAP SEQUENCER / TAP PARAM SEQUENCER は、いまの段が 1 つ進むたびに全部の段の表示を作り直す 【中・確実】
+
+- 場所: `Shared/Gui/Components/TapParam/TapParam.cpp:525-541` (`timerCallback`)、`:289-332` (`rebindValue` / `rebindPair`)、`:478-518` (`refresh`)。`Shared/Gui/Components/TapSeq/TapSeq.cpp:361-373`、`:225-237`、`:314-` (`refresh`)
+- 何が重いか: 鍵を弾いていまの段 (`cursor`) が変わっただけでも、値が書き換わったとき (`version`) と同じ `rebindValue()` を通る。中では
+  - TAP PARAM は **全部の段 (最大 256)** について `pairList()` (段ごとに `std::vector` を確保) を取り、指し先の名前と値の文字列 (`valueText`) を `juce::String` で組み立て、`StringArray::joinIntoString` で 1 行にする。
+  - P.TARGET のつまみの `setRange` / `setValue`、`textFromValueFunction` / `valueFromTextFunction` への `std::function` の作り直し、`updateText()`、コンボボックスの `setSelectedItemIndex` も毎回やり直す。段が進んでも選んでいる段 (`target`) は変わらないので、これらは要らない。
+  - TAP SEQUENCER も全段ぶん `"S" + String(s)` の文字列を作り直す。
+  - 4.3.0 で TAP PARAM SEQUENCER はオペレーター・パッドごとに分かれた (478e67ad) ので、1 音ごとに、オペレーターの数 × 作ったタブの数だけこれが走る。**隠れたタブ・閉じた区分でも走る** (`isShowing()` を見ていない)。
+- 直し方の案: `cursor` だけが変わったとき (`version` が同じとき) は `list.cursor` / `bars.cursor` だけ書き換え、前の行と新しい行の矩形だけ `repaint` する。`rebindValue()` と全段の作り直しは `version` が変わったときだけにする。見えていないときは後回しでよい。
+
+### P2-4. 不透明な部品が無く、小さな描き直しのたびにエディタの背景 (壁紙の拡大描画) から描き直す 【中・確実 (仕組み) / 推測 (重さ)】
+
+- 場所: `setOpaque(true)` はリポジトリのどこにも無い (`setOpaque(false)` だけ)。背景は `2686V/Source/Core/Editor/PluginEditor.cpp:866-919` (`drawBg`)。2686VFX も同じ形。
+- 何が重いか: JUCE は描き直す矩形について、いちばん近い不透明な祖先から下へ全部描く。不透明な部品が無いので、スライダー 1 本のホバー、グラフの 30fps、プレビューの 30Hz (P2-6) のような小さな描き直しのたびに、
+  - エディタの `paint` → `drawBg` の `g.drawImage(backgroundImage, baseArea, placement)` (壁紙を **拡大・縮小しながら** 描く。Fit / Original では、ぼかし画像も同じく拡大描画) と、`fillAll` での半透明の重ね、
+  - 透かしのロゴ (`mainIconImage`、アルファ付き)、タブ、枠 (`ColoredGroupComponent::paint` の角丸の塗り)、区分の板 (半透明の角丸)
+  が、その矩形ぶん毎回描かれる。拡大しながらの画像描画は、等倍の転送よりかなり重い (推測)。
+- 直し方の案:
+  - 壁紙は、壁紙・置き方・エディタの大きさが変わったときに、エディタの大きさの `juce::Image` へ一度だけ (暗い重ねも含めて) 焼いておき、`drawBg` は `drawImageAt` で等倍に置くだけにする。これだけでも効く見込み (推測)。
+  - 動きの多い部品 (エンベロープのグラフ、リアルタイムの波形、GENWAVE) は、矩形全体を塗りつぶせるなら `setOpaque(true)` にできる。いまは角丸・半透明で塗っているので、そのままでは不透明にできない (見た目が変わるので要相談)。
+
+### P2-5. 見えていない部品のタイマーも全部回り続ける 【低〜中・確実】
+
+- 場所: `Shared/Core/Gui/GuiEnvelopeGraph.cpp:91` (グラフ 1 枚ごと、10Hz〜FPS)、`Shared/Gui/Components/TapParam/TapParam.cpp:246` / `Shared/Gui/Components/TapSeq/TapSeq.cpp:198` (区分ごと、10Hz〜FPS)、`Shared/Gui/Components/StepEnv/StepEnv.cpp:331` (区分ごと、10Hz)、`Shared/Gui/Components/TargetCell/TargetCell.cpp:101` (10Hz)
+- 何が重いか: どれも `juce::Timer` を部品ごとに持ち、作られてから消えるまで止まらない。タブは遅延生成だが一度作ると残るので、触ったタブが増えるほど裏で回るタイマーが増える (FM タブ 1 枚でグラフ・TAP 系が数十、推測)。鍵を弾いていないあいだの 1 回の中身は原子変数の読み比べだけで軽いが、合わせると毎秒数百〜千回単位のコールバックがメッセージスレッドに積まれる (推測)。弾いているあいだは P2-3 の重い処理が隠れた部品でも走る (確実)。P2-1 の `repaint()` は隠れた親で止まるので、こちらは重くない。
+- 直し方の案: タブ (またはエディタ) に 1 つだけタイマーを持ち、表に出ているタブの部品だけを回す。最低でも各 `timerCallback` の頭で `if (!isShowing()) return;` とし、`visibilityChanged()` で止め・再開する。
+
+### P2-6. リアルタイムの波形 3 本と GENWAVE は、変化が無くても 30Hz で描き直す 【低〜中・確実】
+
+- 場所: `2686V/Source/Core/Editor/PluginEditor.cpp:1830-1871` (30Hz、`previewHz`) → `Shared/Core/Gui/GuiComponents.cpp:44-49` (`pushBuffer` は無条件に `repaint()`)、`:21-42` (`strokeWave`: 毎回 `juce::Path` を作って 200 点、補助線 10 本も毎回)。`Shared/Gui/Components/GenWave/GenWave.h:101` (`timerCallback() { repaint(); }`、33ms)
+- 何が重いか:
+  - 音が出ていない (中身がずっと 0) あいだも、L / M / R の 3 つを毎秒 30 回、背景から描き直す (P2-4 により壁紙の拡大描画込み)。
+  - GENWAVE は波形を読み込んでいれば、**再生を止めていても** (`drawWave` のコメントどおり「止めていればそのコマのまま」) 33ms ごとに 3 段の Path を組み直して描く。
+- 直し方の案:
+  - `pushBuffer` で、前回と中身が同じ (無音なら全部 0) なら `repaint()` しない。200 点を `std::equal` で比べるのは描くよりずっと安い。
+  - GENWAVE は再生中だけタイマーを回し、止めたら `stopTimer()`。
+  - Path はメンバに持って `clear()` で使い回すと確保が減る (小さい)。
+
+### P2-7. 2686VFX: 鍵盤の割り当てを自分で決めているとき、鍵を押すたびに変調の枠を丸ごと描き直す 【低・確実】
+
+- 場所: `2686VFX/Source/Gui/Fx/GuiFx.cpp:2280-2322` (30Hz、`keyAssignTitleHz`) → `Shared/Core/Gui/GuiComponents.cpp:124-130` (`setTitleIdle` → 枠全体の `repaint()`)
+- 何が重いか: 変化したときだけ描き直す作りなのは良いが、変わるのは見出しの帯の色だけなのに、縦長の枠全体 (中のスクロール欄の部品すべて) を描き直す。鍵の上げ下げのたびなので、速いフレーズでは連続する。P1-8 と同じ根。
+- 直し方の案: P1-8 と同じく、見出しの帯の矩形だけ `repaint(rect)` する。
+
+### P2-8. 波形プレビューの再計算は、値が変わったときだけ・読み込み中はまとめて 1 回 — 問題なし 【—・確実】
+
+- 場所: `Shared/Core/Gui/GuiRefresh.h`、例 `Shared/Gui/Components/SsgHwEnv/SsgHwEnv.cpp:428-445`
+- 見たこと: プレビューは `paint` では計算せず、値が変わったときに `WavePreviewSource` (出荷する DSP を回す) で点列を作り、プリセットの読み込み中は `GuiRefresh::defer` で溜めて 1 回にまとめている。つまみをドラッグしているあいだはドラッグの頻度で再計算が走るが、1 回の点数は小さい (推測)。見えていない区分でも計算するが、値が変わったときだけなので許容範囲。
+- 直し方の案: 不要。気になるなら、見えていないときは「要再計算」の札だけ立て、`visibilityChanged()` で計算する。
+
+### P2-9. GUI スレッドから音声スレッドを止めかねないロック — 見つからない 【—・確実】
+
+- 見たこと: `CriticalSection` / `ScopedLock` / `std::mutex` / `SpinLock` / `MessageManagerLock` / `suspendProcessing` / `getCallbackLock` は、GUI・エディタ・共有 GUI ライブラリ・プロセッサのどこにも無い (`2686V/Source/Core/Processor/PluginProcessor.h:1084` のコメントのとおり、以前の `CriticalSection` は 3 枚回しの受け渡しへ置き換え済み)。
+  - GUI ↔ 音声の受け渡しは、`StepTable` (`Shared/Core/Synth/StepTable.h`) の原子変数 + `version`、リアルタイム波形のリングバッファ + `realTimeWritePos` (acquire)、`LivePosition` の原子変数で、どれも待ちが無い。
+  - `GuiGroupFolds` の `valueTreeRedirected` は、別スレッドから来ても `triggerAsyncUpdate` するだけ。
+  - エディタの `parameterChanged` (音声スレッドから来ることがある) は、原子変数へ預けて `triggerAsyncUpdate` するだけ (`2686V/Source/Core/Editor/PluginEditor.cpp:1898-1915`)。
+- 性能の観点では問題なし。リングバッファを読む途中で書き手と重なると波形が一部ちぎれて見えることはあり得るが、見た目だけの話。
+
+### P2-10. コンボボックスは 1 個ごとに LookAndFeel を作る 【低・確実 (タブを開く時間のみ)】
+
+- 場所: `Shared/Core/Gui/GuiComponents.h:896` (`class ComboBoxLF : public juce::LookAndFeel_V4`)、`:986` (`ComboBoxLF customLF;` を部品ごとのメンバに持つ)
+- 何が重いか: `LookAndFeel_V4` は作るときに色の表を組むので、部品ごとに作るとタブを開く時間に効く。スライダーは同じ理由で `SharedResourcePointer<SliderLF>` に変えてある (コメント「画面 1 枚で数百個できるので、そこが起動時間として出ていた」) が、コンボボックスは部品ごとのまま。部品ごとにフォント (`selectedFont` / `dropdownFont`) を変えられるようにしているのが理由と思われる。動いているあいだの重さには関係しない。
+- 直し方の案: フォントを LookAndFeel ではなく `GuiComboBox` 側に持ち、`getComboBoxFont(box)` で部品から引く形にして、LookAndFeel を共有にする。
+
+---
+
+## 全体の優先順 (第 1・第 2 段階を合わせて)
+
+1. **P1-1** (区分の板のホバー判定) — マウスを動かすだけで、作ったタブの数に比例して重くなる。`isShowing()` を足すだけでも大きく減る見込み。
+2. **P2-1** (エンベロープのグラフの描き直し) — 既定の設定のまま、鍵を弾くだけで 30fps × 見えているグラフの数だけ、線の組み直しと stroke が走る。線のキャッシュと、縦線の矩形だけの描き直し。
+3. **P1-2** (枠の見出しの文字幅を毎回測る) — P1-1 の当たり判定にも乗っている。
+4. **P2-4** (不透明な部品が無く、壁紙を毎回拡大描画) — P2-1 / P2-6 / ホバーのすべてに掛け算で効く。壁紙を等倍の画像に焼いておくだけでも効く見込み。
+5. **P2-3** (TAP 系の全段作り直し) — 1 音ごと × オペレーター数 × タブ数。`cursor` だけの変化を分ける。
+6. **P2-2** (TARGET の枠の 10Hz 無条件写し) — 何もしていなくても回る。版を持たせる。
+7. **P1-3 / P1-8 / P2-7** (描き直し範囲を帯・縁だけに)、**P1-4** (畳みでタブだけ並べ直す)、**P2-5 / P2-6** (見えていない・変化の無いときに止める)。
+
+測り方の提案 (第 2 段階ぶん):
+- P2-1: SETTINGS で ENV のライブ表示を 30 / 120 fps / OFF に切り替え、OPM で 4 オペレーターのエンベロープを開いた状態で鍵を押しっぱなしにしたときの、メッセージスレッドの CPU を比べる。プロファイラでは `GuiEnvelopeGraph::paint` と stroke の割合を見る。
+- P2-4: 壁紙あり (Fit) と無しで、上と同じ操作の CPU を比べる。差が大きければ P2-4 が効いている。
+- P2-3: TAP PARAM SEQUENCER の STEPS を 256 にして各段に組を入れ、FM タブを数枚開いてから速いフレーズを弾き、`GuiComponentTapParam::refresh` の割合を見る。
