@@ -1387,14 +1387,15 @@ void GuiOpzx7::setup()
 
     // 区分の中身は最初から開いておく。1 列 1 区分にしたので、
     // 畳んだままだと見出しだけの列が並ぶことになる。
-    for (auto* group : {
-        &colAmp, &colWs, &colSsgHwEnv,
-        &colSsgSwEnv256, &colAmpMod, &colPitchEnv, &colSsgHwPEnv,
-        &colSsgSwPEnv256, &colMod, &colKs, &colParamEnv, &colTapParam, &colLfo,
-        &colMask,
+    for (auto [group, foldName] : std::initializer_list<std::pair<GuiScrollGroup*, const char*>>{
+        { &colAmp, "amp" }, { &colWs, "ws" }, { &colSsgHwEnv, "ssgHwEnv" },
+        { &colSsgSwEnv256, "ssgSwEnv256" }, { &colAmpMod, "ampMod" }, { &colPitchEnv, "pitchEnv" }, { &colSsgHwPEnv, "ssgHwPEnv" },
+        { &colSsgSwPEnv256, "ssgSwPEnv256" }, { &colMod, "mod" }, { &colKs, "ks" }, { &colParamEnv, "paramEnv" }, { &colTapParam, "tapParam" }, { &colLfo, "lfo" },
+        { &colMask, "mask" },
         })
     {
-        groupFolds.add(*group);
+        // 畳み具合は見出しの文字ではなく、決まった名前で覚える (見出しを直しても消えない)
+        groupFolds.add(*group, foldName);
 
         for (auto* child : group->contentCanvas.getChildren())
         {

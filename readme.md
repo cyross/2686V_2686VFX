@@ -84,7 +84,7 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - STEP が 1 のときは R.TARGET を動かせない (選ぶ段が無い)。SSG SW AMP / PITCH ENV[256]・ALG ENV など同じ形の区分も同じ。TAP SEQUENCER の S.TARGET (STEPS が 1 のとき)・TAP PARAM SEQUENCER の P.TARGET (組が 1 つ以下のとき)・Rich Mode の LP.TARGET (組が 1 つのとき) も同じく止める
   - TARGET はオートメーションでも動かせる
   - **FM 音源のオペレーターの TL ENV は、PARAM ENV (TARGET が TL) になった**。4.2.x までのプリセット・DAW の状態・チャンネルパラメータ・区分のパラメータファイル (`.tlEnv`) は、読み込むときに PARAM ENV へ写す。同じように鳴る
-  - パラメータの ID は `_TLENV_*` から `_PRMENV_*` に変わった。DAW で TL ENV をオートメーションしていたときは割り当て直しが要る
+  - パラメータの ID は `_TLENV_*` から `_PRMENV_*` に変わった。DAW で TL ENV をオートメーションしていたときは割り当て直しが要る。ただし STL・段の値・LR・ENDL は TARGET ごとに値を持つようにしたのでパラメータではなくなり、オートメーションでは動かせない (割り当て直す先も無い)
   - プリセット・DAW の状態・チャンネルパラメータ (`paramEnv`) に保存。区分のパラメータファイルは `.paramEnv` (見出しの右クリック)
   - 簡易表示モードでは隠す。SETTINGS の簡易表示モードカスタマイズに「PARAM ENV[256]」を足した。[非表示中の区分をバイパス] でも切れる
   - 全チャンネル・FM 音源のオペレーター・RHYTHM のパッド。2686VFX 以外の全プラグイン

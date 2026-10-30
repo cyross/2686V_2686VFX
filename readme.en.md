@@ -84,7 +84,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - With STEP at 1, R.TARGET is disabled (there is no step to choose). The same goes for sections of the same shape (SSG SW AMP / PITCH ENV[256], ALG ENV and so on). S.TARGET in TAP SEQUENCER (with STEPS at 1), P.TARGET in TAP PARAM SEQUENCER (with one pair or none) and LP.TARGET in Rich Mode (with one set) are disabled the same way
   - TARGET can be automated
   - **TL ENV on FM operators became PARAM ENV with TARGET set to TL**. Presets, DAW state, channel parameters and section parameter files (`.tlEnv`) from 4.2.x and earlier are converted to PARAM ENV when loaded, and sound the same
-  - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again
+  - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again. STL, the step values, LR and ENDL are now kept per TARGET, so they are no longer parameters and cannot be automated (there is nothing to re-assign them to)
   - Saved in presets, DAW state and channel parameters (`paramEnv`). The section's parameter file is `.paramEnv` (right-click the heading)
   - Hidden in simple view mode. "PARAM ENV[256]" was added to the simple view customization in SETTINGS, and [Bypass hidden sections] turns it off too
   - Every channel, every FM operator and every RHYTHM pad. All plugins except 2686VFX
