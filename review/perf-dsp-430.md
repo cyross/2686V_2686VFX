@@ -172,3 +172,159 @@ LivePosition、PARAM ENV の値の組など）。4.3.0 全体の DSP を見る�
 - More Real SSG の `DcBlocker`（`GenTnd2A03.h`）は入力が 0 になると出力が指数的に 0 へ近づくが、
   `processBlock` の頭の `juce::ScopedNoDenormals`（`2686V/Source/Core/Processor/PluginProcessor.cpp:269`）が効いている。
 - `LivePosition::nextId` の `fetch_add` は押したときに 1 回だけ。
+
+---
+
+# 第 2 段階: 差分の外の、毎サンプル（毎ブロック）通る共有 DSP
+
+## P2-1. 鳴っていないボイスへも、毎ブロック音源の値を丸ごと配る（P1-1 の土台）
+
+- 場所:
+  - `2686V/Source/Core/Processor/PluginProcessor.cpp:433-440`（`m_synth.getNumVoices()` の全ボイスへ `setParameters`）
+  - `2686V/Source/Core/Synth/SynthVoice.cpp:41-55`（作動中のコアにだけ配る。ボイスが鳴っているかは見ない）
+  - 例: `Shared/Synth/Opna/Operator/SynthOpnaOp.cpp:48-67`（`m_params = params` で OpnaOpParams を丸ごと写し、
+    11 個の部品の `setParameters` を呼ぶ）、`Shared/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.cpp:74`
+    （`std::pow` と `updateIncrementsWithKeyScale`）
+- 何が重いか:
+  80 ボイスすべてが毎ブロック、作動中のコアの `setParameters` を通る。FM なら 4 オペレーターぶんの値の写し
+  （WtModParams / WtAmpModParams の 32 要素の表を含む）、エンベロープの増分の作り直し、`pow` などが、
+  鳴っているボイスが 1 つでも 80 回走る。ブロックが短い（64 サンプルなど）ほど比率が上がる。
+  4.3.0 の PARAM ENV / TAP PARAM（P1-1）で、ここにさらに値の丸ごとのコピーと読み直しが乗った。
+- 効き: **中**（推測。ブロック長が短い設定や、軽い音源（SSG・BEEP）で目立ちやすい）
+- 確からしさ: 流れは**確実**、量は推測
+- 直し方の案: `isVoiceActive()` のボイスにだけ配り、`startNote` の頭（`SynthVoice.cpp:57` 付近）で 1 回配る。
+  `SynthVoice.cpp:44-50` の注記のとおり各コアの `setParameters` は値を溜め込まないので、鳴る前に配れば音は変わらない
+  はず（要確認: リリース中のボイスは `isVoiceActive()` が true なので配られ続ける）。
+  加えて、プロセッサ側で「パラメータが変わったか」の版を持ち、変わらないブロックは配らない手もある。
+
+## P2-2. LFO を切っていても、チップのサンプルごとに `pow(2, 0)` を呼ぶ（8 つのコア）
+
+- 場所:
+  - `Shared/Synth/Ssg/SynthSsg.cpp:375`
+  - `Shared/Synth/Wavetable/SynthWt.cpp:343`、`Shared/Synth/Wt2/SynthWt2.cpp:345`、`Shared/Synth/WtPlus/SynthWtPlus.cpp:314`
+  - `Shared/Synth/Adpcm/SynthAdpcm.cpp:725`、`Shared/Synth/AdpcmPlus/SynthAdpcmPlus.cpp:728`、`Shared/Synth/Beep/SynthBeep.cpp:270`
+  - `Shared/Synth/Rhythm/SynthRhythm.cpp:713`（**パッドごと**）
+- 何が重いか:
+  `float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);` が `if (m_lfo.pm.enable)` の外にあり、
+  PM を切っていて `pitchModCents == 0` でも毎回 `pow` を呼ぶ。AM のほうは `if (m_lfo.am.enable)` の中にあるので
+  形がそろっていない。SSG・WT 系はチップのレート（`m_rateAccumulator` の刻み。既定の 96kHz なら 48kHz のホストで
+  1 サンプルに 2 回）で回る。`powf` は 1 回 20〜40 サイクル前後なので、80 ボイスが鳴れば無視できない。
+- 効き: **中**（推測。PM を使わない普通のパッチで、鳴っているボイス数 × チップのレートぶん）
+- 確からしさ: **確実**
+- 直し方の案: `if (m_lfo.pm.enable)` の中へ入れ、切っているときは 1.0f にする。
+  使うときも `std::exp2(x * (1.0f / 1200.0f))` にすれば `pow` より軽い。
+
+## P2-3. FM オペレーターの波形が、仮想呼び出し + double の `floor` + `std::sin`
+
+- 場所:
+  - `Shared/Core/Fm/FmOperator.h:79`（`float virtual calcWaveform(double phase, int wave)`）
+  - `Shared/Core/Fm/FmOperator.cpp:21-30`（別の翻訳単位にあり、LTCG が無いとインライン化されない）
+  - 呼び出し: `Shared/Synth/Opna/Operator/SynthOpnaOp.cpp:428` ほか、全 FM オペレーターの `getSample`
+- 何が重いか:
+  オペレーターごと・チップのサンプルごとに、仮想呼び出し、double の `floor` と掛け算、float の `sin`。
+  4 オペレーター × 96kHz（既定）× 鳴っているボイス数。OPZX7 は 8 オペレーター。FM 音源の中ではいちばん数の多い計算。
+  OPNA・OPN・OPM は `calcWaveform` を上書きしていないので、仮想にする必要がない。
+- 効き: **中**（推測）
+- 確からしさ: 流れは**確実**、量は推測
+- 直し方の案:
+  1. 各オペレーターのクラスを `final` にするか、`calcWaveform` を非仮想のインライン関数にして、`getSample` から
+     直接呼べるようにする。
+  2. サインは表引き（たとえば 4096 点 + 線形補間）にする。実機の FM 音源も 1/4 周期の log-sin 表を引いているので、
+     実機に寄せる方向でもある（ただし音が変わるので「使う」トグルの扱いを検討すること）。
+
+## P2-4. OPNA の N88 LFO・オペレーターの LFO で、サンプルごとに `pow`
+
+- 場所:
+  - `Shared/Synth/Opna/Operator/SynthOpnaOp.cpp:358`（AM。`n88Lfo.amEnable` のとき）
+  - `Shared/Synth/Opna/Operator/SynthOpnaOp.cpp:379`（PM。`n88Lfo.pmEnable` のとき）
+  - `Shared/Effect/Lfo/Opna/LfoOpna.cpp:91,194`（オペレーターの LFO の AM）
+  - 同じ形がほかの FM オペレーターにもある見込み（OPN・OPM・OPL・OPZX7 は未確認）
+- 何が重いか:
+  LFO を入れたとき、オペレーターごと・チップのサンプルごとに `pow(10, x)` と `pow(2, x)`。
+  LFO の値は 1 サンプルで少ししか動かないうえ、N88 LFO の値はコアで 1 つ（全オペレーター共通）なのに、
+  オペレーターの数だけ同じ `pow` を計算している（PM は `n88Lfo.value.pm * n88Lfo.depthNorm` で全オペレーター同じ値）。
+- 効き: **中**（推測。LFO を使うパッチで）
+- 確からしさ: **確実**
+- 直し方の案:
+  1. PM の倍率はコアで 1 回求め（`m_n88Lfo.getSample()` の直後）、オペレーターへ渡す。
+  2. `pow(10, -dB/20)` は `exp2(dB * -0.16609640f)`、`pow(2, c/1200)` は `exp2(c * (1/1200.f))` に置き換える。
+
+## P2-5. 切っている部品も、オペレーターごとに毎サンプル通す
+
+- 場所: `Shared/Synth/Opna/Operator/SynthOpnaOp.cpp:392-406`（`m_ssgHwPEnv.process`、`m_wtMod.process`、
+  `m_wtAmpMod.process`、`m_ssgHwEnv.process`）、`Shared/Effect/Envelope/Pitch/SsgHw/EnvSsgHw.cpp:270-301`
+- 何が重いか:
+  コメントにあるとおり「切ってあるときは 1.0 / MAX が返るので毎サンプル通しておく」造り。1 つずつは分岐と
+  数回の演算だが、4 部品 × オペレーター数 × チップのレート × ボイス数。SSG HW PITCH ENV は切っていても
+  スムージングの 1 次ローパスまで回る（`m_smooth` が切れていれば早めに抜ける）。
+- 効き: **低**（推測）
+- 確からしさ: **確実**
+- 直し方の案: `setParameters` で「すべて切れている」を 1 つの bool にまとめ、そのときは 4 つを飛ばす。
+  ただし位相を進め続ける意図（切り替えた瞬間に飛ばない）があるので、飛ばすなら切り替え時に位相を合わせ直すこと。
+
+## P2-6. WT PITCH / AMP MOD のサイン形で、サンプルごとに double の `sin`
+
+- 場所: `Shared/Generator/WtMod/GenWtModulator.h:139`、`Shared/Generator/WtMod/GenWtAmpModulator.h:126`、
+  `Shared/Effect/Lfo/Opna/LfoOpna.cpp:137,160`
+- 何が重いか: 有効なとき（またはモジュレーションホイールを上げたとき。`GenWtModulator.h:88`）、オペレーターごと・
+  サンプルごとに `sin` と `pow`（`centsToRatio`）。FM ではオペレーター 4 本 + チャンネル 1 本ぶん。
+- 効き: **低〜中**（推測。使ったときだけ）
+- 確からしさ: **確実**
+- 直し方の案: LFO のサインは回転（複素数の掛け算）か表引きにする。
+
+## P2-7. TAP AMP を使うと、ブロックが長くなったときに音声スレッドで `vector::resize`
+
+- 場所: `2686V/Source/Core/Synth/SynthVoice.cpp:227-230`（`m_tapKeepL` / `m_tapKeepR`）
+- 何が重いか: `numSamples` がそれまでより大きいと、音声スレッドでヒープを確保する。ホストのブロック長が変わった
+  直後に 1 回だけ（ボイスごと）起きる。4.2.0 以前（TAP SEQUENCER を足したとき）からある。
+- 効き: **低**（1 回だけだが、リアルタイムの決まりとしては違反）
+- 確からしさ: **確実**
+- 直し方の案: `setCurrentPlaybackSampleRate` か `prepareToPlay` の経路で、最大ブロック長ぶん確保しておく。
+
+## P2-8. EQ（3 BAND）をオートメーションすると、毎ブロック係数を new / delete
+
+- 場所: `2686V/Source/Effect/Fx/Fx.cpp:427-470`（2686VFX は `2686VFX/Source/Effect/Fx/Fx.cpp:495-535`）
+- 何が重いか: 値が同じなら作り直さない守りは入っている（3.x で直したもの）。ただしオートメーションで値が動く
+  あいだは、毎ブロック `makeLowShelf` / `makePeakFilter` / `makeHighShelf` がヒープに確保し、古い係数の参照が外れて
+  音声スレッドで解放される。
+- 効き: **低**（オートメーション中だけ）
+- 確からしさ: **確実**
+- 直し方の案: 係数は `juce::dsp::IIR::ArrayCoefficients<float>::makeLowShelf`（確保しない）で求め、既にある
+  `Coefficients` の `coefficients` 配列へ書き込む。
+
+## P2-9. ユニゾンの音量補正で、サンプルごとに `sqrt`
+
+- 場所: `Shared/Core/Synth/UnisonState.h:60-63`（`getGainComp`）。呼び出しは例として `Shared/Synth/Opna/SynthOpna.cpp:413`
+- 何が重いか: ボイスごと・ホストのサンプルごとに `1 / sqrt(total)`。`total` はノートの間変わらない。
+- 効き: **低**
+- 確からしさ: **確実**
+- 直し方の案: `total` を決めたときに 1 回求めて持つ。
+
+## 確かめて問題なしとしたもの（第 2 段階）
+
+- `processBlock` の頭に `juce::ScopedNoDenormals` がある（2686V・2686VFX とも）。FX のディレイ・フィルタ、
+  2A03 の出力フィルタ、SSG の DcBlocker の非正規化数はこれで防がれている。
+  波形プレビュー（画面のスレッドで DSP を回す）はこの外だが、音声スレッドではない。
+- RHYTHM は鳴っているパッドだけを回す（`Shared/Synth/Rhythm/SynthRhythm.cpp:873-874`）。
+- `SynthVoice::renderNextBlock` はアルペジオを使わないとき、ブロックごとに 1 回だけ仮想呼び出しする（`renderRange`）。
+- AdvancedCurve の `processAudio` はスロットを読むだけで、ロックも確保もない。
+- 2686VFX の `ModPitchShifter` のバッファ確保（`assign`）は準備のときだけ。
+
+---
+
+## まとめ（優先順の案）
+
+| # | 指摘 | 効き | 確からしさ |
+|---|---|---|---|
+| P1-1 / P2-1 | 鳴っていないボイスへの毎ブロックの setParameters と、PARAM ENV / TAP PARAM の丸ごとのコピー + 読み直し | 中〜高 | 流れは確実・量は推測 |
+| P2-2 | LFO を切っていても `pow(2, 0)`（8 コア、RHYTHM はパッドごと） | 中 | 確実 |
+| P1-2 | PARAM ENV の読み直しが最短 16 サンプルごとにコア全体をやり直す | 中 | 流れは確実・量は推測 |
+| P2-3 | FM の `calcWaveform`（仮想 + `floor` + `sin`） | 中 | 流れは確実・量は推測 |
+| P2-4 | FM の LFO の `pow` をオペレーターごとに | 中 | 確実 |
+| P1-3 | PARAM ENV が何を指していても周波数を作り直す | 低〜中 | 確実 |
+| P1-4 | More Real FC のノイズで `log` を 16 回 | 低〜中 | 確実 |
+| その他 | P1-5〜P1-8、P2-5〜P2-9 | 低 | 確実 |
+
+手元で裏を取るときは、P1-1 / P2-1 は「PARAM ENV を入れた FM のパッチでユニゾン 8 を何度か弾いてから止め、
+無音のまま CPU 使用率を比べる（PARAM ENV を切ったときと）」、P2-2 は「SSG で PM を切ったまま 10 音鳴らし、
+`pow` を外す前後で比べる」と差が見えやすいはず。
