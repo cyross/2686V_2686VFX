@@ -143,6 +143,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The section and progress of the graph's vertical line are now read and written together. On ARM64 a new section could be read with an old progress, and the line jumped for a moment (every plugin)
   - With any PARAM ENV TARGET, MUL / DET / FIX changed while notes played even when SETTINGS "Apply MUL/DET and FIX while notes play" was off. The frequency is now re-read while notes play only when the PARAM ENV points at MUL, DT, FIX FREQ or SPEED (every plugin)
   - The noise More Real FC could not reach the four fastest 2A03 rates (period 4 to 32). The N.FREQ range is now stretched up to the fastest rate, so all 16 rates can be reached (plugins with SSG)
+  - The DAW could crash when it loaded a state on another thread at the same time as the editor was opened or closed (including when a tab is rebuilt after switching the language). Group folds are now re-applied by checking how many times the state has been loaded, instead of listening to the state (every plugin)
+- **Lighter sound engine calculations (the sound does not change)**
+  - When LFO PM is off, the pitch ratio calculation (pow) is skipped. SSG, WT, WT2, WT+, ADPCM, ADPCM+, BEEP and the RHYTHM pads
+  - Choosing a rate from the 16 2A03 rates for the noise More Real FC now takes one log instead of 16
+  - When PARAM ENV points at something other than MUL, DT, FIX FREQ or SPEED, the frequency is no longer rebuilt while notes play (the same change as the LIVE DETUNE fix above)
 
 ### 3-0-2. What v4.2.0 adds and changes
 

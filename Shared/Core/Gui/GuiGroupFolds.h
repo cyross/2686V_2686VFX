@@ -14,7 +14,9 @@
 //
 // どれを畳んだかは apvts.state の属性へ書く。属性はプリセットにも DAW の保存にも
 // そのまま入るので、別に書き出す手間が要らない。プリセットを読んで state が
-// 差し替わったときは、それを聞いて畳み具合を当て直す。
+// 差し替わったときは、畳み具合を当て直す。DAW はほかのスレッドで state を差し替える
+// ことがあるので、apvts.state へリスナーは付けない (付け外しと差し替えが重なると
+// 落ちる)。プロセッサが数える差し替えの回数 (stateLoads) を時々見に行く。
 //
 // 並べ直しはタブの側で行う。列の幅を columnWidth() で決めるだけでよい。
 namespace GuiGroupFoldKey
@@ -30,7 +32,7 @@ namespace GuiGroupFoldKey
     static inline const juce::String fx = "fxGroupFolds";
 }
 
-class GuiGroupFolds : private juce::ValueTree::Listener, private juce::AsyncUpdater
+class GuiGroupFolds : private juce::Timer
 {
 public:
     GuiGroupFolds(const GuiContext& context, const juce::String& stateKey);
@@ -68,9 +70,13 @@ private:
     GuiContext ctx;
     juce::String key;
 
-    // 書き換えの知らせはパラメータの値でも山ほど来るので、名前は引ける形で持つ
-    juce::Identifier keyId;
     std::vector<Entry> entries;
+
+    // 最後に当てたときの差し替えの回数
+    int seenLoads = 0;
+
+    // 差し替えを見に行く間隔 (ms)
+    static inline constexpr int pollMs = 250;
 
     // 畳んでいる枠の名前を | でつないで書く
     void save();
@@ -78,7 +84,5 @@ private:
     // 書いてあるとおりに畳む。何か変わったら true
     bool load();
 
-    void valueTreePropertyChanged(juce::ValueTree&, const juce::Identifier& property) override;
-    void valueTreeRedirected(juce::ValueTree&) override;
-    void handleAsyncUpdate() override;
+    void timerCallback() override;
 };

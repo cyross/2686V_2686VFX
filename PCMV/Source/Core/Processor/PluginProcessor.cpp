@@ -699,6 +699,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         fillMissingParamsWithDefaults(*xmlState);
 
         apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+        stateLoads.fetch_add(1, std::memory_order_release); // 画面が畳み具合などを当て直す (GuiGroupFolds)
 
         // メタデータ復帰
         presetName = xmlState->getStringAttribute(PresetKey::name, PresetValue::MetaData::Initial::name);

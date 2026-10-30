@@ -75,25 +75,36 @@ namespace Tnd2A03
         4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068,
     };
 
-    // 求めた速さ (Hz) に最も近い表の速さ。比で近いものを選ぶ
+    // 求めた速さ (Hz) に最も近い表の速さ。比で近いものを選ぶ。
+    // ボイスごとに毎ブロック呼ばれるので、表の速さの log は前もって求めておき、
+    // 呼ぶたびの log は 1 回だけにする
     inline double nearestNoiseRate(double rate)
     {
         if (rate <= 0.0) return 0.0;
 
-        double best = 0.0;
+        static const std::array<double, noisePeriods.size()> logRates = [] {
+            std::array<double, noisePeriods.size()> v{};
+
+            for (size_t i = 0; i < noisePeriods.size(); ++i) v[i] = std::log(Pulse2A03::cpuClock / (double)noisePeriods[i]);
+
+            return v;
+        }();
+
+        const double lr = std::log(rate);
+
+        size_t best = 0;
         double bestDist = 1.0e30;
 
-        for (int period : noisePeriods) {
-            const double r = Pulse2A03::cpuClock / (double)period;
-            const double d = std::abs(std::log(r / rate));
+        for (size_t i = 0; i < noisePeriods.size(); ++i) {
+            const double d = std::abs(logRates[i] - lr);
 
             if (d < bestDist) {
                 bestDist = d;
-                best = r;
+                best = i;
             }
         }
 
-        return best;
+        return Pulse2A03::cpuClock / (double)noisePeriods[best];
     }
 
     // SSG のノイズの速さ (0〜knobMax Hz) を、表の速さへ写す。SSG の範囲のままでは
