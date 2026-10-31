@@ -11,6 +11,7 @@
 #include "./GuiLiveGraph.h"
 #include "../Synth/WtModWave.h"
 #include "../Synth/StepTable.h"
+#include "../Synth/StepTableUndo.h"
 #include "../Io/IoPathRoot.h"
 
 // ============================================================================
@@ -84,6 +85,9 @@ public:
     // SSG SW AMP / PITCH ENV[256] などの段の表。256 段 × 2 をパラメータで
     // 持つと数が膨大になるため、ここが持って state へ書く。
     StepTableStore stepTables;
+
+    // 段の表の書き換えを Undo に載せるための、最後に載せた中身 (GuiStepTableUndo)
+    StepTableUndo::History stepTableHistory;
 
     // トグルボタンの並べ方。ToggleAlign::Centred で従来どおり行の真ん中、
     // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。

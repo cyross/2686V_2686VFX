@@ -136,6 +136,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The titles in the references are left as they are
   - Every plugin
 
+- **Step table edits can now be undone and redone**
+  - The PARAM ENV[256] STL, step values, LR and ENDL (the per-TARGET values) are not parameters, so until now Undo did not bring them back and the DAW was not told they had changed (the project was not marked as unsaved). An edit now becomes one Undo step and the DAW is notified
+  - The same goes for everything else kept in the step tables: the step R / L of SSG SW AMP / PITCH ENV[256], ALG ENV and DUTY / PEAK RATIO ENVELOPE, the TAP SEQUENCER steps and SKIP, the TAP PARAM SEQUENCER pairs and the step loop sets
+  - Dragging in a graph becomes one step when the mouse button is released. Operations that also change parameters, such as pasting a section, are undone together in one Undo
+  - Loading a preset or a DAW state is not put on the Undo history
+  - Every plugin
 - **Fixed problems found in review**
   - The SSG channel parameter export and import did not include More Real SSG or the triangle and noise More Real FC, so the settings were lost after exporting and importing again. Older files do not have them, so they are read as off (plugins with SSG)
   - Turning More Real SSG on or off did not update the dimming of the DUTY settings (plugins with SSG)
