@@ -488,7 +488,7 @@ namespace ParamEnv
 	struct Keys
 	{
 		juce::String base;
-		juce::String enable, target, steps, loop, loopTo, loopCount, loopMode, rr, endlEnable, keep;
+		juce::String enable, target, steps, loop, loopTo, loopCount, loopMode, rr, endlEnable, keep, strictRate;
 
 		explicit Keys(const juce::String& b) :
 			base(b),
@@ -501,7 +501,8 @@ namespace ParamEnv
 			loopMode(b + "_LOOPMODE"),
 			rr(b + "_RR"),
 			endlEnable(b + "_ENDL_EN"),
-			keep(b + "_KEEP")
+			keep(b + "_KEEP"),
+			strictRate(b + "_STRICT_R")
 		{
 		}
 	};
@@ -540,6 +541,7 @@ namespace ParamEnv
 		PrHelper::addFloat(layout, prefix + k.rr, n + " RR", CPV::SsgSwEnv256::RR::min, CPV::SsgSwEnv256::RR::max, CPV::SsgSwEnv256::RR::initial);
 		PrHelper::addBool(layout, prefix + k.endlEnable, n + " EndL Enable", false);
 		PrHelper::addBool(layout, prefix + k.keep, n + " Keep", false);
+		PrHelper::addBool(layout, prefix + k.strictRate, n + " Strict R", false);
 	}
 
 	// defaults は指し先ごとの値の組の初期値 (TARGET の並びの順)
@@ -557,6 +559,7 @@ namespace ParamEnv
 		p.rr = apvts.getRawParameterValue(prefix + k.rr);
 		p.endlEnable = apvts.getRawParameterValue(prefix + k.endlEnable);
 		p.keep = apvts.getRawParameterValue(prefix + k.keep);
+		p.strictRate = apvts.getRawParameterValue(prefix + k.strictRate);
 
 		// 段の R と、指し先ごとの値の組はプロセッサが持つ表から引く
 		p.table = &tables.getWithLevelSets(prefix + k.base, rateInitial, defaults);
@@ -580,6 +583,7 @@ namespace ParamEnv
 		params.endl = 0.0f;
 		params.endlEnable = PrHelper::getBool(p.endlEnable);
 		params.keep = stepped || PrHelper::getBool(p.keep);
+		params.strictRate = PrHelper::getBool(p.strictRate);
 		params.table = p.table;
 		params.levelSet = set;
 	}

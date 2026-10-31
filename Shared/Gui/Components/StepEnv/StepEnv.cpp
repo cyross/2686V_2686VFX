@@ -1,6 +1,7 @@
 ﻿#include "./StepEnv.h"
 
 #include "Shared/Core/Gui/GuiRefresh.h"
+#include "Shared/Core/Gui/GuiI18n.h"
 #include "Shared/Core/Gui/GuiHelpers.h"
 #include "Shared/Core/Gui/GuiGraphValues.h"
 #include "Shared/Core/Gui/GuiParamEdit.h"
@@ -84,6 +85,7 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     steps(context),
     stepsSeparator(context),
     keep(context),
+    strictRate(context),
     keepSeparator(context),
     loop(context),
     loopMode(context),
@@ -193,9 +195,18 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
         keep.setup({ .parent = parent, .id = code + spec.keep, .title = "KEEP", .isReset = true });
         keep.setWantsKeyboardFocus(true);
         keep.setExplicitFocusOrder(++tabOrder);
-
-        keepSeparator.setupComponent(parent);
     }
+
+    // 切っていると、行き先の値に着いたところで段を終える (4.2.x までと同じ)
+    if (hasStrictRate()) {
+        strictRate.setup({ .parent = parent, .id = code + spec.strictRate, .title = "STRICT R", .isReset = true });
+        strictRate.setTooltip(I18n::pick(u8"段もリリースも R (RR) 秒を守る。切ると、前の段と同じ値の段はすぐ終わる",
+            u8"Keep each step and the release for R (RR) seconds. When off, a step with the same value as the previous one ends at once"));
+        strictRate.setWantsKeyboardFocus(true);
+        strictRate.setExplicitFocusOrder(++tabOrder);
+    }
+
+    if (hasKeep() || hasStrictRate()) keepSeparator.setupComponent(parent);
 
     loop.setup({ .parent = parent, .id = code + spec.loop, .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
@@ -340,6 +351,7 @@ void GuiComponentStepEnv::rebind(const juce::String& code)
     if (isParam()) targetBox.rebind(code + spec.target);
     steps.rebind(code + spec.steps);
     if (hasKeep()) keep.rebind(code + spec.keep);
+    if (hasStrictRate()) strictRate.rebind(code + spec.strictRate);
     loop.rebind(code + spec.loop);
     loopMode.rebind(code + spec.loopMode);
     loopTo.rebind(code + spec.loopTo);
@@ -776,7 +788,8 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     steps.setVisibleWithLabel(visible);
     stepsSeparator.setVisible(visible);
     keep.setVisible(visible && hasKeep());
-    keepSeparator.setVisible(visible && hasKeep());
+    strictRate.setVisible(visible && hasStrictRate());
+    keepSeparator.setVisible(visible && (hasKeep() || hasStrictRate()));
     loop.setVisible(visible);
     loopMode.setVisibleWithLabel(visible);
     loopTo.setVisibleWithLabel(visible && !isRich());
@@ -818,10 +831,9 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
 
     layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = h });
     stepsSeparator.layoutComponent(rect);
-    if (hasKeep()) {
-        layoutMain({ .mainRect = rect, .component = &keep, .rowHeight = h });
-        keepSeparator.layoutComponent(rect);
-    }
+    if (hasKeep()) layoutMain({ .mainRect = rect, .component = &keep, .rowHeight = h });
+    if (hasStrictRate()) layoutMain({ .mainRect = rect, .component = &strictRate, .rowHeight = h });
+    if (hasKeep() || hasStrictRate()) keepSeparator.layoutComponent(rect);
     layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = h });
     layoutMain({ .mainRect = rect, .label = &loopMode.label, .component = &loopMode, .rowHeight = h });
 
@@ -966,6 +978,8 @@ void GuiComponentStepEnv::applyActive()
     // トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう。
     keep.setEnabled(outerEnabled);
     keep.setDimmed(!active);
+    strictRate.setEnabled(outerEnabled);
+    strictRate.setDimmed(!active);
     keepSeparator.setEnabled(active);
 
     loop.setEnabled(outerEnabled);
@@ -1128,6 +1142,9 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r, float levelScale)
     loopMode.setSelectedItemIndex(juce::jlimit((int)StepLoop::modeMin, (int)StepLoop::modeMax, r.getInt("loopMode", StepLoop::Original)), juce::sendNotification);
 
     if (hasKeep()) keep.setToggleState(r.getBool("keep", keep.getToggleState()), juce::sendNotification);
+
+    // 4.3.0 で足した。古いファイルには無いので、無ければ切 (4.2.x までの鳴り方) にする
+    if (hasStrictRate()) strictRate.setToggleState(r.getBool("strictRate", false), juce::sendNotification);
     putSetLevel(endLevel, StepTable::setEndl, r.getFloat("endLevel", (float)endLevel.getValue() / levelScale) * levelScale);
     endLevelEnable.setToggleState(r.getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
 
@@ -1191,6 +1208,7 @@ void GuiComponentStepEnv::readSixStepValues(const Io::ParamReader& r)
     loopCount.setValue(r.getInt("loopCount", (int)loopCount.getValue()), juce::sendNotification);
     loopMode.setSelectedItemIndex(StepLoop::Original, juce::sendNotification);
     keep.setToggleState(false, juce::sendNotification);
+    strictRate.setToggleState(false, juce::sendNotification);
     endLevelEnable.setToggleState(false, juce::sendNotification);
 
     if (auto* p = ctx.apvts.getParameter(paramCode + spec.stl)) {
@@ -1230,6 +1248,7 @@ void GuiComponentStepEnv::setImportingSixStepParams(juce::StringArray& lines, in
     loopCount.setValue(lines[index++].getIntValue(), juce::sendNotification);
     loopMode.setSelectedItemIndex(StepLoop::Original, juce::sendNotification);
     keep.setToggleState(false, juce::sendNotification);
+    strictRate.setToggleState(false, juce::sendNotification);
     endLevelEnable.setToggleState(false, juce::sendNotification);
 
     if (auto* p = ctx.apvts.getParameter(paramCode + spec.stl)) p->setValueNotifyingHost(p->convertTo0to1(lines[index].getFloatValue()));
@@ -1311,6 +1330,7 @@ void GuiComponentStepEnv::writeValues(Io::ParamWriter& w)
     w.set("loopCount", (float)loopCount.getValue());
     w.set("loopMode", (float)juce::jmax(0, loopMode.getSelectedItemIndex()));
     if (hasKeep()) w.set("keep", keep.getToggleState());
+    if (hasStrictRate()) w.set("strictRate", strictRate.getToggleState());
     w.set("endLevel", (float)endLevel.getValue());
     w.set("endLevelEnable", endLevelEnable.getToggleState());
 

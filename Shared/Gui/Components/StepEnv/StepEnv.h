@@ -37,6 +37,7 @@
 //   TARGET       (PARAM ENV だけ。動かすパラメータ)
 //   STEPS
 //   KEEP
+//   STRICT R     (4.3.0。段もリリースも R 秒を守る)
 //   LOOP / LOOP MODE
 //     Original Mode : LOOP.TO / LOOP.CNT
 //     Rich Mode     : LP.TARGET / START / END / COUNT / ADD・DELETE / 一覧 (4.1.0)
@@ -66,6 +67,9 @@ public:
 
         // パラメータの鍵 (code の後ろ)。PARAM ENV は STL / LR / ENDL を持たない (表の値の組にある)
         juce::String steps, keep, loop, loopTo, loopCount, loopMode, stl, lr, rr, endl, endlEnable;
+
+        // STRICT R (4.3.0)。入れると段もリリースも R 秒を守る。空なら置かない
+        juce::String strictRate;
 
         // 値の範囲。整数なら interval を 1 にする
         double rateMin = 0.0, rateMax = 1.0, rateInterval = 0.001;
@@ -186,6 +190,7 @@ private:
 
     // 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
     GuiToggleButton keep;
+    GuiToggleButton strictRate;
     NormalSeparator keepSeparator;
     GuiToggleButton loop;
 
@@ -283,6 +288,7 @@ private:
 
     // KEEP の札を持つもの (ALG ENV は常に KEEP)
     bool hasKeep() const { return spec.keep.isNotEmpty(); }
+    bool hasStrictRate() const { return spec.strictRate.isNotEmpty(); }
 
     // 0〜1 の値を少しずつ動かすボタン (ampBtns) を使うもの
     bool usesUnitButtons() const { return spec.kind == Spec::Kind::Amp || spec.kind == Spec::Kind::Peak; }

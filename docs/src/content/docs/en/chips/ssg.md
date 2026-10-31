@@ -115,7 +115,7 @@ except that the value is a **duty cycle (%)** instead of a level.
   **DR.TARGET** and the value knob **DUTY**
 - The buttons under the value knob set the duty cycles PRESET offers
   (50 / 43.75 / 37.5 / 31.25 / 25 / 20 / 18.75 / 12.5 / 6.25%) directly
-- RATE, STEP, KEEP, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- RATE, STEP, KEEP, STRICT R, LOOP, RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
 - With More Real FC / NES, this value is also snapped to the nearest of 12.5 / 25 / 50 / 75%
 - **STEPS** under the value knob (4.3.0) snaps the values (STL, the step values, LR, ENDL) to **10% / 25% / 20% / 12.5% / 6.25%**
   (1/10, 1/4, 1/5, 1/8, 1/16). The choice is only on screen and isn't saved

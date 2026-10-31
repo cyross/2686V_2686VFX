@@ -775,6 +775,12 @@ namespace CPV
 		{
 			inline constexpr float initial = false;
 		}
+
+		// R を厳密に守る (4.3.0)。切ると 4.2.x までと同じく、行き先に着いたら段を終える
+		namespace StrictRate
+		{
+			inline constexpr float initial = false;
+		}
 	}
 
 	namespace SsgSwPEnv256
@@ -787,6 +793,12 @@ namespace CPV
 		// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
 		// 切ってあるときは補間する。
 		namespace Keep
+		{
+			inline constexpr float initial = false;
+		}
+
+		// R を厳密に守る (4.3.0)。切ると 4.2.x までと同じく、行き先に着いたら段を終える
+		namespace StrictRate
 		{
 			inline constexpr float initial = false;
 		}

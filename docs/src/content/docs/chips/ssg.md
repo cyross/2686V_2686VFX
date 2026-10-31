@@ -114,7 +114,7 @@ PRESET で選べるデューティ比は次の 8 種類です。
   **DR.TARGET**、値のつまみが **DUTY** です
 - 値のつまみの下のボタンで、PRESET で選べるデューティ比
   （50 / 43.75 / 37.5 / 31.25 / 25 / 20 / 18.75 / 12.5 / 6.25%）を直に置けます
-- RATE・STEP・KEEP・LOOP・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- RATE・STEP・KEEP・STRICT R・LOOP・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
 - More Real FC / NES では、この値も 12.5 / 25 / 50 / 75% のうち最も近いものへ寄せます
 - 値のつまみの下の **STEPS**（4.3.0）で、値（STL・段の値・LR・ENDL）を **10% / 25% / 20% / 12.5% / 6.25%**
   （1/10・1/4・1/5・1/8・1/16）の刻みへ丸められます。選んだ刻みは画面だけのもので、保存しません

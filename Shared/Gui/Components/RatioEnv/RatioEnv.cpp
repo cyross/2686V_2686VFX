@@ -17,6 +17,7 @@ namespace
 
         x.steps = v.keys.steps;
         x.keep = v.keys.keep;
+        x.strictRate = v.keys.strictRate;
         x.loop = v.keys.loop;
         x.loopTo = v.keys.loopTo;
         x.loopCount = v.keys.loopCount;
@@ -135,6 +136,7 @@ namespace
 
         x.steps = k.steps;
         x.keep = k.keep;
+        x.strictRate = k.strictRate;
         x.loop = k.loop;
         x.loopTo = k.loopTo;
         x.loopCount = k.loopCount;

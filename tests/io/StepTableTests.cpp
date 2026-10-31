@@ -4,6 +4,7 @@
 
 #include "Shared/Core/Synth/StepTableIo.h"
 #include "Shared/Core/Io/IoStepEnvLegacy.h"
+#include "Shared/Core/Synth/StepTableUndo.h"
 
 TEST_CASE("StepTable: 文字へ書き出して読み戻せる")
 {
@@ -244,4 +245,77 @@ TEST_CASE("StepEnvLegacy: [256] も使われていれば 6 段は捨てる")
     CHECK(dropped[0] == "SSG");
     CHECK(s.valueOf("SSG_SSGSW256_STEPS") == "7");
     CHECK(table.level(2) == doctest::Approx(0.4f));
+}
+
+TEST_CASE("StepTableUndo: 書き換えを Undo / Redo で戻せる。値の組も戻る")
+{
+    const std::vector<float> defaults{ 0.5f, 0.0f };
+    StepTableStore store;
+    auto& table = store.getWithLevelSets("SSG_PRMENV", 0.001f, defaults);
+
+    StepTableUndo::History history;
+    history.resync(store);
+
+    int notified = 0;
+    history.notify = [&] { ++notified; };
+
+    const auto before = history.entries["SSG_PRMENV"].snapshot;
+
+    table.setLevel(3, 0.25f);
+    table.setSetValue(1, 10, 0.75f);
+    table.setLoops({ { 2, 4, 1 } });
+
+    const auto after = StepTableUndo::Snapshot::take(table);
+
+    CHECK(after != before);
+
+    juce::UndoManager undo;
+    undo.beginNewTransaction();
+    undo.perform(new StepTableUndo::Action(history, { { "SSG_PRMENV", &table, before, after } }));
+
+    // 初めの perform では表に触らない
+    CHECK(notified == 0);
+    CHECK(table.level(3) == doctest::Approx(0.25f));
+
+    undo.undo();
+
+    CHECK(notified == 1);
+    CHECK(table.level(3) == doctest::Approx(0.0f));
+    CHECK(table.setValue(1, 10) == doctest::Approx(0.0f));
+    CHECK(table.setValue(0, 10) == doctest::Approx(0.5f));
+    CHECK(table.loopCount() == 0);
+    CHECK(history.entries["SSG_PRMENV"].snapshot == before);
+    CHECK(history.entries["SSG_PRMENV"].version == table.version.load());
+
+    undo.redo();
+
+    CHECK(notified == 2);
+    CHECK(table.level(3) == doctest::Approx(0.25f));
+    CHECK(table.setValue(1, 10) == doctest::Approx(0.75f));
+    CHECK(table.loopCount() == 1);
+    CHECK(history.entries["SSG_PRMENV"].snapshot == after);
+}
+
+TEST_CASE("StepTableUndo: TAP PARAM SEQUENCER の組も戻る")
+{
+    StepTableStore store;
+    auto& table = store.getWithPairs("SSG_TAPPRM");
+
+    const auto before = StepTableUndo::Snapshot::take(table);
+
+    table.setPairs(5, { { -1, 3, 0.5f } });
+    table.setSkip(7, true);
+
+    const auto after = StepTableUndo::Snapshot::take(table);
+
+    before.apply(table);
+
+    CHECK(table.pairCount(5) == 0);
+    CHECK(!table.skipped(7));
+
+    after.apply(table);
+
+    CHECK(table.pairCount(5) == 1);
+    CHECK(table.pairAt(5, 0).index == 3);
+    CHECK(table.skipped(7));
 }

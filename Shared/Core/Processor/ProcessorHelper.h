@@ -218,6 +218,7 @@ namespace PrHelper {
 		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endl);
 		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endlEnable);
 		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::keep);
+		ptPtrs.strictRate = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::strictRate);
 
 		// 段の R / L はプロセッサが持つ表から引く
 		ptPtrs.table = &tables.get(prefix + CPK::ssgSwEnv256, (float)CPV::SsgSwEnv256::R::initial, (float)CPV::SsgSwEnv256::L::initial);
@@ -236,6 +237,7 @@ namespace PrHelper {
 		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endl);
 		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endlEnable);
 		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::keep);
+		ptPtrs.strictRate = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::strictRate);
 
 		// 段の R / L はプロセッサが持つ表から引く
 		ptPtrs.table = &tables.get(prefix + CPK::ssgSwEnv256, (float)CPV::SsgSwEnv256::R::initial, (float)CPV::SsgSwEnv256::L::initial);
@@ -282,6 +284,7 @@ namespace PrHelper {
 		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endl);
 		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endlEnable);
 		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::keep);
+		ptPtrs.strictRate = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::strictRate);
 
 		// 段の R / L はプロセッサが持つ表から引く
 		ptPtrs.table = &tables.get(prefix + CPK::ssgSwPEnv256, (float)CPV::SsgSwPEnv256::R::initial, (float)CPV::SsgSwPEnv256::L::initial);
@@ -300,6 +303,7 @@ namespace PrHelper {
 		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endl);
 		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endlEnable);
 		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::keep);
+		ptPtrs.strictRate = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::strictRate);
 
 		// 段の R / L はプロセッサが持つ表から引く
 		ptPtrs.table = &tables.get(prefix + CPK::ssgSwPEnv256, (float)CPV::SsgSwPEnv256::R::initial, (float)CPV::SsgSwPEnv256::L::initial);
@@ -827,6 +831,7 @@ namespace PrHelper {
 		params.endl = getFloat(ptPtrs.endl);
 		params.endlEnable = getBool(ptPtrs.endlEnable);
 		params.keep = getBool(ptPtrs.keep);
+		params.strictRate = getBool(ptPtrs.strictRate);
 		params.table = ptPtrs.table;
 	}
 
@@ -844,6 +849,7 @@ namespace PrHelper {
 		params.endl = getFloat(ptPtrs.endl);
 		params.endlEnable = getBool(ptPtrs.endlEnable);
 		params.keep = getBool(ptPtrs.keep);
+		params.strictRate = getBool(ptPtrs.strictRate);
 		params.table = ptPtrs.table;
 	}
 
@@ -891,6 +897,7 @@ namespace PrHelper {
 		params.endl = getFloat(ptPtrs.endl);
 		params.endlEnable = getBool(ptPtrs.endlEnable);
 		params.keep = getBool(ptPtrs.keep);
+		params.strictRate = getBool(ptPtrs.strictRate);
 		params.table = ptPtrs.table;
 	}
 
@@ -908,6 +915,7 @@ namespace PrHelper {
 		params.endl = getFloat(ptPtrs.endl);
 		params.endlEnable = getBool(ptPtrs.endlEnable);
 		params.keep = getBool(ptPtrs.keep);
+		params.strictRate = getBool(ptPtrs.strictRate);
 		params.table = ptPtrs.table;
 	}
 
@@ -2271,6 +2279,7 @@ namespace PrHelper {
 			CPV::SsgSwEnv256::EndL::min, CPV::SsgSwEnv256::EndL::max, CPV::SsgSwEnv256::EndL::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::endlEnable, prefixName + CPN::SsgSwEnv256::endlEnable, CPV::SsgSwEnv256::EndLEnable::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::keep, prefixName + CPN::SsgSwEnv256::keep, CPV::SsgSwEnv256::Keep::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::strictRate, prefixName + CPN::SsgSwEnv256::strictRate, CPV::SsgSwEnv256::StrictRate::initial);
 	}
 
 	static inline void addOpSsgSwEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
@@ -2294,6 +2303,7 @@ namespace PrHelper {
 			CPV::SsgSwEnv256::EndL::min, CPV::SsgSwEnv256::EndL::max, CPV::SsgSwEnv256::EndL::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::endlEnable, namePrefix + CPN::SsgSwEnv256::endlEnable, CPV::SsgSwEnv256::EndLEnable::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::keep, namePrefix + CPN::SsgSwEnv256::keep, CPV::SsgSwEnv256::Keep::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::strictRate, namePrefix + CPN::SsgSwEnv256::strictRate, CPV::SsgSwEnv256::StrictRate::initial);
 	}
 
 	static inline void addSsgSwPEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
@@ -2317,6 +2327,7 @@ namespace PrHelper {
 			CPV::SsgSwPEnv256::EndL::min, CPV::SsgSwPEnv256::EndL::max, CPV::SsgSwPEnv256::EndL::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::endlEnable, prefixName + CPN::SsgSwPEnv256::endlEnable, CPV::SsgSwPEnv256::EndLEnable::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::keep, prefixName + CPN::SsgSwPEnv256::keep, CPV::SsgSwPEnv256::Keep::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::strictRate, prefixName + CPN::SsgSwPEnv256::strictRate, CPV::SsgSwPEnv256::StrictRate::initial);
 	}
 
 	static inline void addOpSsgSwPEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
@@ -2340,6 +2351,7 @@ namespace PrHelper {
 			CPV::SsgSwPEnv256::EndL::min, CPV::SsgSwPEnv256::EndL::max, CPV::SsgSwPEnv256::EndL::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::endlEnable, namePrefix + CPN::SsgSwPEnv256::endlEnable, CPV::SsgSwPEnv256::EndLEnable::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::keep, namePrefix + CPN::SsgSwPEnv256::keep, CPV::SsgSwPEnv256::Keep::initial);
+		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::strictRate, namePrefix + CPN::SsgSwPEnv256::strictRate, CPV::SsgSwPEnv256::StrictRate::initial);
 	}
 
 	static inline void addOpmLfoParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
