@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.3.0",
-  "count": 13449,
+  "count": 13599,
   "parameters": [
     {
       "id": "MODE",
@@ -231,6 +231,14 @@
     {
       "id": "OPNA_PRMENV_KEEP",
       "name": "OPNA ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_PRMENV_STRICT_R",
+      "name": "OPNA ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -1648,6 +1656,14 @@
       "default": false
     },
     {
+      "id": "OPNA_SSGSW256_STRICT_R",
+      "name": "OPNA SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_SSGSWP256_STEPS",
       "name": "OPNA SSG SwPEnv256 Steps",
       "type": "Int",
@@ -1731,6 +1747,14 @@
     {
       "id": "OPNA_SSGSWP256_KEEP",
       "name": "OPNA SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_SSGSWP256_STRICT_R",
+      "name": "OPNA SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2021,6 +2045,14 @@
     {
       "id": "OPNA_ALGENV_ENDL_EN",
       "name": "OPNA AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_ALGENV_STRICT_R",
+      "name": "OPNA AlgEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2412,6 +2444,14 @@
       "default": false
     },
     {
+      "id": "OPNA_OP0_SSGSW256_STRICT_R",
+      "name": "OPNA Op1 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP0_PRMENV_ENABLE",
       "name": "OPNA Op1 ParamEnv Enable",
       "type": "Bool",
@@ -2487,6 +2527,14 @@
     {
       "id": "OPNA_OP0_PRMENV_KEEP",
       "name": "OPNA Op1 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_PRMENV_STRICT_R",
+      "name": "OPNA Op1 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2624,6 +2672,14 @@
     {
       "id": "OPNA_OP0_SSGSWP256_KEEP",
       "name": "OPNA Op1 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_SSGSWP256_STRICT_R",
+      "name": "OPNA Op1 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -4126,6 +4182,14 @@
       "default": false
     },
     {
+      "id": "OPNA_OP1_SSGSW256_STRICT_R",
+      "name": "OPNA Op2 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP1_PRMENV_ENABLE",
       "name": "OPNA Op2 ParamEnv Enable",
       "type": "Bool",
@@ -4201,6 +4265,14 @@
     {
       "id": "OPNA_OP1_PRMENV_KEEP",
       "name": "OPNA Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_PRMENV_STRICT_R",
+      "name": "OPNA Op2 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -4338,6 +4410,14 @@
     {
       "id": "OPNA_OP1_SSGSWP256_KEEP",
       "name": "OPNA Op2 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_SSGSWP256_STRICT_R",
+      "name": "OPNA Op2 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -5840,6 +5920,14 @@
       "default": false
     },
     {
+      "id": "OPNA_OP2_SSGSW256_STRICT_R",
+      "name": "OPNA Op3 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP2_PRMENV_ENABLE",
       "name": "OPNA Op3 ParamEnv Enable",
       "type": "Bool",
@@ -5915,6 +6003,14 @@
     {
       "id": "OPNA_OP2_PRMENV_KEEP",
       "name": "OPNA Op3 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_PRMENV_STRICT_R",
+      "name": "OPNA Op3 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -6052,6 +6148,14 @@
     {
       "id": "OPNA_OP2_SSGSWP256_KEEP",
       "name": "OPNA Op3 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_SSGSWP256_STRICT_R",
+      "name": "OPNA Op3 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -7554,6 +7658,14 @@
       "default": false
     },
     {
+      "id": "OPNA_OP3_SSGSW256_STRICT_R",
+      "name": "OPNA Op4 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP3_PRMENV_ENABLE",
       "name": "OPNA Op4 ParamEnv Enable",
       "type": "Bool",
@@ -7629,6 +7741,14 @@
     {
       "id": "OPNA_OP3_PRMENV_KEEP",
       "name": "OPNA Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_PRMENV_STRICT_R",
+      "name": "OPNA Op4 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -7766,6 +7886,14 @@
     {
       "id": "OPNA_OP3_SSGSWP256_KEEP",
       "name": "OPNA Op4 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_SSGSWP256_STRICT_R",
+      "name": "OPNA Op4 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -9102,6 +9230,14 @@
     {
       "id": "OPN_PRMENV_KEEP",
       "name": "OPN ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_PRMENV_STRICT_R",
+      "name": "OPN ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -10511,6 +10647,14 @@
       "default": false
     },
     {
+      "id": "OPN_SSGSW256_STRICT_R",
+      "name": "OPN SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_SSGSWP256_STEPS",
       "name": "OPN SSG SwPEnv256 Steps",
       "type": "Int",
@@ -10594,6 +10738,14 @@
     {
       "id": "OPN_SSGSWP256_KEEP",
       "name": "OPN SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_SSGSWP256_STRICT_R",
+      "name": "OPN SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -10884,6 +11036,14 @@
     {
       "id": "OPN_ALGENV_ENDL_EN",
       "name": "OPN AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_ALGENV_STRICT_R",
+      "name": "OPN AlgEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -11210,6 +11370,14 @@
       "default": false
     },
     {
+      "id": "OPN_OP0_SSGSW256_STRICT_R",
+      "name": "OPN Op1 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP0_PRMENV_ENABLE",
       "name": "OPN Op1 ParamEnv Enable",
       "type": "Bool",
@@ -11285,6 +11453,14 @@
     {
       "id": "OPN_OP0_PRMENV_KEEP",
       "name": "OPN Op1 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_PRMENV_STRICT_R",
+      "name": "OPN Op1 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -11422,6 +11598,14 @@
     {
       "id": "OPN_OP0_SSGSWP256_KEEP",
       "name": "OPN Op1 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_SSGSWP256_STRICT_R",
+      "name": "OPN Op1 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -12859,6 +13043,14 @@
       "default": false
     },
     {
+      "id": "OPN_OP1_SSGSW256_STRICT_R",
+      "name": "OPN Op2 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP1_PRMENV_ENABLE",
       "name": "OPN Op2 ParamEnv Enable",
       "type": "Bool",
@@ -12934,6 +13126,14 @@
     {
       "id": "OPN_OP1_PRMENV_KEEP",
       "name": "OPN Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_PRMENV_STRICT_R",
+      "name": "OPN Op2 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -13071,6 +13271,14 @@
     {
       "id": "OPN_OP1_SSGSWP256_KEEP",
       "name": "OPN Op2 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_SSGSWP256_STRICT_R",
+      "name": "OPN Op2 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -14508,6 +14716,14 @@
       "default": false
     },
     {
+      "id": "OPN_OP2_SSGSW256_STRICT_R",
+      "name": "OPN Op3 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP2_PRMENV_ENABLE",
       "name": "OPN Op3 ParamEnv Enable",
       "type": "Bool",
@@ -14583,6 +14799,14 @@
     {
       "id": "OPN_OP2_PRMENV_KEEP",
       "name": "OPN Op3 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_PRMENV_STRICT_R",
+      "name": "OPN Op3 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -14720,6 +14944,14 @@
     {
       "id": "OPN_OP2_SSGSWP256_KEEP",
       "name": "OPN Op3 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_SSGSWP256_STRICT_R",
+      "name": "OPN Op3 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -16157,6 +16389,14 @@
       "default": false
     },
     {
+      "id": "OPN_OP3_SSGSW256_STRICT_R",
+      "name": "OPN Op4 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP3_PRMENV_ENABLE",
       "name": "OPN Op4 ParamEnv Enable",
       "type": "Bool",
@@ -16232,6 +16472,14 @@
     {
       "id": "OPN_OP3_PRMENV_KEEP",
       "name": "OPN Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_PRMENV_STRICT_R",
+      "name": "OPN Op4 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -16369,6 +16617,14 @@
     {
       "id": "OPN_OP3_SSGSWP256_KEEP",
       "name": "OPN Op4 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_SSGSWP256_STRICT_R",
+      "name": "OPN Op4 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -17711,6 +17967,14 @@
       "default": false
     },
     {
+      "id": "OPL_PRMENV_STRICT_R",
+      "name": "OPL ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_LEVEL",
       "name": "OPL Level",
       "type": "Float",
@@ -19041,6 +19305,14 @@
       "default": false
     },
     {
+      "id": "OPL_SSGSW256_STRICT_R",
+      "name": "OPL SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_SSGSWP256_STEPS",
       "name": "OPL SSG SwPEnv256 Steps",
       "type": "Int",
@@ -19124,6 +19396,14 @@
     {
       "id": "OPL_SSGSWP256_KEEP",
       "name": "OPL SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_SSGSWP256_STRICT_R",
+      "name": "OPL SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -19414,6 +19694,14 @@
     {
       "id": "OPL_ALGENV_ENDL_EN",
       "name": "OPL AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_ALGENV_STRICT_R",
+      "name": "OPL AlgEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -19783,6 +20071,14 @@
       "default": false
     },
     {
+      "id": "OPL_OP0_SSGSW256_STRICT_R",
+      "name": "OPL Op1 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_OP0_PRMENV_ENABLE",
       "name": "OPL Op1 ParamEnv Enable",
       "type": "Bool",
@@ -19858,6 +20154,14 @@
     {
       "id": "OPL_OP0_PRMENV_KEEP",
       "name": "OPL Op1 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_PRMENV_STRICT_R",
+      "name": "OPL Op1 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -19995,6 +20299,14 @@
     {
       "id": "OPL_OP0_SSGSWP256_KEEP",
       "name": "OPL Op1 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_SSGSWP256_STRICT_R",
+      "name": "OPL Op1 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -21475,6 +21787,14 @@
       "default": false
     },
     {
+      "id": "OPL_OP1_SSGSW256_STRICT_R",
+      "name": "OPL Op2 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_OP1_PRMENV_ENABLE",
       "name": "OPL Op2 ParamEnv Enable",
       "type": "Bool",
@@ -21550,6 +21870,14 @@
     {
       "id": "OPL_OP1_PRMENV_KEEP",
       "name": "OPL Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_PRMENV_STRICT_R",
+      "name": "OPL Op2 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -21687,6 +22015,14 @@
     {
       "id": "OPL_OP1_SSGSWP256_KEEP",
       "name": "OPL Op2 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_SSGSWP256_STRICT_R",
+      "name": "OPL Op2 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -23029,6 +23365,14 @@
       "default": false
     },
     {
+      "id": "OPL3_PRMENV_STRICT_R",
+      "name": "OPL3 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_LEVEL",
       "name": "OPL3 Level",
       "type": "Float",
@@ -24359,6 +24703,14 @@
       "default": false
     },
     {
+      "id": "OPL3_SSGSW256_STRICT_R",
+      "name": "OPL3 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_SSGSWP256_STEPS",
       "name": "OPL3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -24442,6 +24794,14 @@
     {
       "id": "OPL3_SSGSWP256_KEEP",
       "name": "OPL3 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_SSGSWP256_STRICT_R",
+      "name": "OPL3 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -24732,6 +25092,14 @@
     {
       "id": "OPL3_ALGENV_ENDL_EN",
       "name": "OPL3 AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_ALGENV_STRICT_R",
+      "name": "OPL3 AlgEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25093,6 +25461,14 @@
       "default": false
     },
     {
+      "id": "OPL3_OP0_SSGSW256_STRICT_R",
+      "name": "OPL3 Op1 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP0_PRMENV_ENABLE",
       "name": "OPL3 Op1 ParamEnv Enable",
       "type": "Bool",
@@ -25168,6 +25544,14 @@
     {
       "id": "OPL3_OP0_PRMENV_KEEP",
       "name": "OPL3 Op1 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_PRMENV_STRICT_R",
+      "name": "OPL3 Op1 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25305,6 +25689,14 @@
     {
       "id": "OPL3_OP0_SSGSWP256_KEEP",
       "name": "OPL3 Op1 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_SSGSWP256_STRICT_R",
+      "name": "OPL3 Op1 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -26777,6 +27169,14 @@
       "default": false
     },
     {
+      "id": "OPL3_OP1_SSGSW256_STRICT_R",
+      "name": "OPL3 Op2 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP1_PRMENV_ENABLE",
       "name": "OPL3 Op2 ParamEnv Enable",
       "type": "Bool",
@@ -26852,6 +27252,14 @@
     {
       "id": "OPL3_OP1_PRMENV_KEEP",
       "name": "OPL3 Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_PRMENV_STRICT_R",
+      "name": "OPL3 Op2 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -26989,6 +27397,14 @@
     {
       "id": "OPL3_OP1_SSGSWP256_KEEP",
       "name": "OPL3 Op2 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_SSGSWP256_STRICT_R",
+      "name": "OPL3 Op2 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -28461,6 +28877,14 @@
       "default": false
     },
     {
+      "id": "OPL3_OP2_SSGSW256_STRICT_R",
+      "name": "OPL3 Op3 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP2_PRMENV_ENABLE",
       "name": "OPL3 Op3 ParamEnv Enable",
       "type": "Bool",
@@ -28536,6 +28960,14 @@
     {
       "id": "OPL3_OP2_PRMENV_KEEP",
       "name": "OPL3 Op3 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_PRMENV_STRICT_R",
+      "name": "OPL3 Op3 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -28673,6 +29105,14 @@
     {
       "id": "OPL3_OP2_SSGSWP256_KEEP",
       "name": "OPL3 Op3 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_SSGSWP256_STRICT_R",
+      "name": "OPL3 Op3 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -30145,6 +30585,14 @@
       "default": false
     },
     {
+      "id": "OPL3_OP3_SSGSW256_STRICT_R",
+      "name": "OPL3 Op4 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP3_PRMENV_ENABLE",
       "name": "OPL3 Op4 ParamEnv Enable",
       "type": "Bool",
@@ -30220,6 +30668,14 @@
     {
       "id": "OPL3_OP3_PRMENV_KEEP",
       "name": "OPL3 Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_PRMENV_STRICT_R",
+      "name": "OPL3 Op4 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -30357,6 +30813,14 @@
     {
       "id": "OPL3_OP3_SSGSWP256_KEEP",
       "name": "OPL3 Op4 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_SSGSWP256_STRICT_R",
+      "name": "OPL3 Op4 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -31693,6 +32157,14 @@
     {
       "id": "OPM_PRMENV_KEEP",
       "name": "OPM ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_PRMENV_STRICT_R",
+      "name": "OPM ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33126,6 +33598,14 @@
       "default": false
     },
     {
+      "id": "OPM_SSGSW256_STRICT_R",
+      "name": "OPM SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_SSGSWP256_STEPS",
       "name": "OPM SSG SwPEnv256 Steps",
       "type": "Int",
@@ -33209,6 +33689,14 @@
     {
       "id": "OPM_SSGSWP256_KEEP",
       "name": "OPM SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_SSGSWP256_STRICT_R",
+      "name": "OPM SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33499,6 +33987,14 @@
     {
       "id": "OPM_ALGENV_ENDL_EN",
       "name": "OPM AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_ALGENV_STRICT_R",
+      "name": "OPM AlgEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33875,6 +34371,14 @@
       "default": false
     },
     {
+      "id": "OPM_OP0_SSGSW256_STRICT_R",
+      "name": "OPM Op1 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP0_PRMENV_ENABLE",
       "name": "OPM Op1 ParamEnv Enable",
       "type": "Bool",
@@ -33950,6 +34454,14 @@
     {
       "id": "OPM_OP0_PRMENV_KEEP",
       "name": "OPM Op1 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_PRMENV_STRICT_R",
+      "name": "OPM Op1 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -34087,6 +34599,14 @@
     {
       "id": "OPM_OP0_SSGSWP256_KEEP",
       "name": "OPM Op1 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_SSGSWP256_STRICT_R",
+      "name": "OPM Op1 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -35574,6 +36094,14 @@
       "default": false
     },
     {
+      "id": "OPM_OP1_SSGSW256_STRICT_R",
+      "name": "OPM Op2 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP1_PRMENV_ENABLE",
       "name": "OPM Op2 ParamEnv Enable",
       "type": "Bool",
@@ -35649,6 +36177,14 @@
     {
       "id": "OPM_OP1_PRMENV_KEEP",
       "name": "OPM Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_PRMENV_STRICT_R",
+      "name": "OPM Op2 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -35786,6 +36322,14 @@
     {
       "id": "OPM_OP1_SSGSWP256_KEEP",
       "name": "OPM Op2 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_SSGSWP256_STRICT_R",
+      "name": "OPM Op2 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -37273,6 +37817,14 @@
       "default": false
     },
     {
+      "id": "OPM_OP2_SSGSW256_STRICT_R",
+      "name": "OPM Op3 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP2_PRMENV_ENABLE",
       "name": "OPM Op3 ParamEnv Enable",
       "type": "Bool",
@@ -37348,6 +37900,14 @@
     {
       "id": "OPM_OP2_PRMENV_KEEP",
       "name": "OPM Op3 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_PRMENV_STRICT_R",
+      "name": "OPM Op3 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -37485,6 +38045,14 @@
     {
       "id": "OPM_OP2_SSGSWP256_KEEP",
       "name": "OPM Op3 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_SSGSWP256_STRICT_R",
+      "name": "OPM Op3 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -38972,6 +39540,14 @@
       "default": false
     },
     {
+      "id": "OPM_OP3_SSGSW256_STRICT_R",
+      "name": "OPM Op4 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP3_PRMENV_ENABLE",
       "name": "OPM Op4 ParamEnv Enable",
       "type": "Bool",
@@ -39047,6 +39623,14 @@
     {
       "id": "OPM_OP3_PRMENV_KEEP",
       "name": "OPM Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_PRMENV_STRICT_R",
+      "name": "OPM Op4 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -39184,6 +39768,14 @@
     {
       "id": "OPM_OP3_SSGSWP256_KEEP",
       "name": "OPM Op4 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_SSGSWP256_STRICT_R",
+      "name": "OPM Op4 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -40520,6 +41112,14 @@
     {
       "id": "OPZX7_PRMENV_KEEP",
       "name": "OPZX7S ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_PRMENV_STRICT_R",
+      "name": "OPZX7S ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -42392,6 +42992,14 @@
       "default": false
     },
     {
+      "id": "OPZX7_SSGSW256_STRICT_R",
+      "name": "OPZX7S SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_SSGSWP256_STEPS",
       "name": "OPZX7S SSG SwPEnv256 Steps",
       "type": "Int",
@@ -42475,6 +43083,14 @@
     {
       "id": "OPZX7_SSGSWP256_KEEP",
       "name": "OPZX7S SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_SSGSWP256_STRICT_R",
+      "name": "OPZX7S SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -42580,6 +43196,14 @@
     {
       "id": "OPZX7_ALGENV_ENDL_EN",
       "name": "OPZX7S AlgEnv EndL Enable",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_ALGENV_STRICT_R",
+      "name": "OPZX7S AlgEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -43169,6 +43793,14 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP0_SSGSW256_STRICT_R",
+      "name": "OPZX7S Op1 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP0_PRMENV_ENABLE",
       "name": "OPZX7S Op1 ParamEnv Enable",
       "type": "Bool",
@@ -43244,6 +43876,14 @@
     {
       "id": "OPZX7_OP0_PRMENV_KEEP",
       "name": "OPZX7S Op1 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_PRMENV_STRICT_R",
+      "name": "OPZX7S Op1 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -43381,6 +44021,14 @@
     {
       "id": "OPZX7_OP0_SSGSWP256_KEEP",
       "name": "OPZX7S Op1 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_SSGSWP256_STRICT_R",
+      "name": "OPZX7S Op1 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -45360,6 +46008,14 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP1_SSGSW256_STRICT_R",
+      "name": "OPZX7S Op2 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP1_PRMENV_ENABLE",
       "name": "OPZX7S Op2 ParamEnv Enable",
       "type": "Bool",
@@ -45435,6 +46091,14 @@
     {
       "id": "OPZX7_OP1_PRMENV_KEEP",
       "name": "OPZX7S Op2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_PRMENV_STRICT_R",
+      "name": "OPZX7S Op2 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -45572,6 +46236,14 @@
     {
       "id": "OPZX7_OP1_SSGSWP256_KEEP",
       "name": "OPZX7S Op2 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_SSGSWP256_STRICT_R",
+      "name": "OPZX7S Op2 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -47551,6 +48223,14 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP2_SSGSW256_STRICT_R",
+      "name": "OPZX7S Op3 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP2_PRMENV_ENABLE",
       "name": "OPZX7S Op3 ParamEnv Enable",
       "type": "Bool",
@@ -47626,6 +48306,14 @@
     {
       "id": "OPZX7_OP2_PRMENV_KEEP",
       "name": "OPZX7S Op3 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_PRMENV_STRICT_R",
+      "name": "OPZX7S Op3 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -47763,6 +48451,14 @@
     {
       "id": "OPZX7_OP2_SSGSWP256_KEEP",
       "name": "OPZX7S Op3 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_SSGSWP256_STRICT_R",
+      "name": "OPZX7S Op3 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -49742,6 +50438,14 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP3_SSGSW256_STRICT_R",
+      "name": "OPZX7S Op4 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP3_PRMENV_ENABLE",
       "name": "OPZX7S Op4 ParamEnv Enable",
       "type": "Bool",
@@ -49817,6 +50521,14 @@
     {
       "id": "OPZX7_OP3_PRMENV_KEEP",
       "name": "OPZX7S Op4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_PRMENV_STRICT_R",
+      "name": "OPZX7S Op4 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -49954,6 +50666,14 @@
     {
       "id": "OPZX7_OP3_SSGSWP256_KEEP",
       "name": "OPZX7S Op4 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_SSGSWP256_STRICT_R",
+      "name": "OPZX7S Op4 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -51933,6 +52653,14 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP4_SSGSW256_STRICT_R",
+      "name": "OPZX7S Op5 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP4_PRMENV_ENABLE",
       "name": "OPZX7S Op5 ParamEnv Enable",
       "type": "Bool",
@@ -52008,6 +52736,14 @@
     {
       "id": "OPZX7_OP4_PRMENV_KEEP",
       "name": "OPZX7S Op5 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_PRMENV_STRICT_R",
+      "name": "OPZX7S Op5 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -52145,6 +52881,14 @@
     {
       "id": "OPZX7_OP4_SSGSWP256_KEEP",
       "name": "OPZX7S Op5 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_SSGSWP256_STRICT_R",
+      "name": "OPZX7S Op5 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -54124,6 +54868,14 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP5_SSGSW256_STRICT_R",
+      "name": "OPZX7S Op6 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP5_PRMENV_ENABLE",
       "name": "OPZX7S Op6 ParamEnv Enable",
       "type": "Bool",
@@ -54199,6 +54951,14 @@
     {
       "id": "OPZX7_OP5_PRMENV_KEEP",
       "name": "OPZX7S Op6 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_PRMENV_STRICT_R",
+      "name": "OPZX7S Op6 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -54336,6 +55096,14 @@
     {
       "id": "OPZX7_OP5_SSGSWP256_KEEP",
       "name": "OPZX7S Op6 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_SSGSWP256_STRICT_R",
+      "name": "OPZX7S Op6 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -56315,6 +57083,14 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP6_SSGSW256_STRICT_R",
+      "name": "OPZX7S Op7 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP6_PRMENV_ENABLE",
       "name": "OPZX7S Op7 ParamEnv Enable",
       "type": "Bool",
@@ -56390,6 +57166,14 @@
     {
       "id": "OPZX7_OP6_PRMENV_KEEP",
       "name": "OPZX7S Op7 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_PRMENV_STRICT_R",
+      "name": "OPZX7S Op7 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -56527,6 +57311,14 @@
     {
       "id": "OPZX7_OP6_SSGSWP256_KEEP",
       "name": "OPZX7S Op7 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_SSGSWP256_STRICT_R",
+      "name": "OPZX7S Op7 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -58506,6 +59298,14 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP7_SSGSW256_STRICT_R",
+      "name": "OPZX7S Op8 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP7_PRMENV_ENABLE",
       "name": "OPZX7S Op8 ParamEnv Enable",
       "type": "Bool",
@@ -58581,6 +59381,14 @@
     {
       "id": "OPZX7_OP7_PRMENV_KEEP",
       "name": "OPZX7S Op8 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_PRMENV_STRICT_R",
+      "name": "OPZX7S Op8 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -58718,6 +59526,14 @@
     {
       "id": "OPZX7_OP7_SSGSWP256_KEEP",
       "name": "OPZX7S Op8 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_SSGSWP256_STRICT_R",
+      "name": "OPZX7S Op8 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -60339,6 +61155,14 @@
       "default": false
     },
     {
+      "id": "SSG_PRMENV_STRICT_R",
+      "name": "SSG ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "SSG_LEVEL",
       "name": "SSG Level",
       "type": "Float",
@@ -60674,6 +61498,14 @@
       "default": false
     },
     {
+      "id": "SSG_DUTYENV_STRICT_R",
+      "name": "SSG SSG DutyEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "SSG_PEAKENV_ENABLE",
       "name": "SSG SSG PeakEnv Enable",
       "type": "Bool",
@@ -60768,6 +61600,14 @@
     {
       "id": "SSG_PEAKENV_KEEP",
       "name": "SSG SSG PeakEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PEAKENV_STRICT_R",
+      "name": "SSG SSG PeakEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -62438,6 +63278,14 @@
       "default": false
     },
     {
+      "id": "SSG_SSGSW256_STRICT_R",
+      "name": "SSG SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "SSG_SSGSWP256_STEPS",
       "name": "SSG SSG SwPEnv256 Steps",
       "type": "Int",
@@ -62521,6 +63369,14 @@
     {
       "id": "SSG_SSGSWP256_KEEP",
       "name": "SSG SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_SSGSWP256_STRICT_R",
+      "name": "SSG SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -63083,6 +63939,14 @@
     {
       "id": "WT_PRMENV_KEEP",
       "name": "WT ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_PRMENV_STRICT_R",
+      "name": "WT ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -64514,6 +65378,14 @@
       "default": false
     },
     {
+      "id": "WT_SSGSW256_STRICT_R",
+      "name": "WT SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT_SSGSWP256_STEPS",
       "name": "WT SSG SwPEnv256 Steps",
       "type": "Int",
@@ -64597,6 +65469,14 @@
     {
       "id": "WT_SSGSWP256_KEEP",
       "name": "WT SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_SSGSWP256_STRICT_R",
+      "name": "WT SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -69783,6 +70663,14 @@
       "default": false
     },
     {
+      "id": "WT2_PRMENV_STRICT_R",
+      "name": "WT2 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT2_LEVEL",
       "name": "WT2 Level",
       "type": "Float",
@@ -71208,6 +72096,14 @@
       "default": false
     },
     {
+      "id": "WT2_SSGSW256_STRICT_R",
+      "name": "WT2 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT2_SSGSWP256_STEPS",
       "name": "WT2 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -71291,6 +72187,14 @@
     {
       "id": "WT2_SSGSWP256_KEEP",
       "name": "WT2 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_SSGSWP256_STRICT_R",
+      "name": "WT2 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -75997,6 +76901,14 @@
       "default": false
     },
     {
+      "id": "WTPLUS_PRMENV_STRICT_R",
+      "name": "WT+ ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WTPLUS_LEVEL",
       "name": "WT+ Level",
       "type": "Float",
@@ -80297,6 +81209,14 @@
       "default": false
     },
     {
+      "id": "WTPLUS_SSGSW256_STRICT_R",
+      "name": "WT+ SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WTPLUS_SSGSWP256_STEPS",
       "name": "WT+ SSG SwPEnv256 Steps",
       "type": "Int",
@@ -80380,6 +81300,14 @@
     {
       "id": "WTPLUS_SSGSWP256_KEEP",
       "name": "WT+ SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_SSGSWP256_STRICT_R",
+      "name": "WT+ SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -81246,6 +82174,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PRMENV_STRICT_R",
+      "name": "RHYTHM ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_LEVEL",
       "name": "RHYTHM Vol",
       "type": "Float",
@@ -81906,6 +82842,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD0_SSGSW256_STRICT_R",
+      "name": "RHYTHM Pad1 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD0_SSGSWP256_STEPS",
       "name": "RHYTHM Pad1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -81989,6 +82933,14 @@
     {
       "id": "RHYTHM_PAD0_SSGSWP256_KEEP",
       "name": "RHYTHM Pad1 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_SSGSWP256_STRICT_R",
+      "name": "RHYTHM Pad1 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -82762,6 +83714,14 @@
     {
       "id": "RHYTHM_PAD0_PRMENV_KEEP",
       "name": "RHYTHM Pad1 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_STRICT_R",
+      "name": "RHYTHM Pad1 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -84069,6 +85029,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD1_SSGSW256_STRICT_R",
+      "name": "RHYTHM Pad2 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD1_SSGSWP256_STEPS",
       "name": "RHYTHM Pad2 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -84152,6 +85120,14 @@
     {
       "id": "RHYTHM_PAD1_SSGSWP256_KEEP",
       "name": "RHYTHM Pad2 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_SSGSWP256_STRICT_R",
+      "name": "RHYTHM Pad2 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -84925,6 +85901,14 @@
     {
       "id": "RHYTHM_PAD1_PRMENV_KEEP",
       "name": "RHYTHM Pad2 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_STRICT_R",
+      "name": "RHYTHM Pad2 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -86232,6 +87216,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD2_SSGSW256_STRICT_R",
+      "name": "RHYTHM Pad3 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD2_SSGSWP256_STEPS",
       "name": "RHYTHM Pad3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -86315,6 +87307,14 @@
     {
       "id": "RHYTHM_PAD2_SSGSWP256_KEEP",
       "name": "RHYTHM Pad3 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_SSGSWP256_STRICT_R",
+      "name": "RHYTHM Pad3 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -87088,6 +88088,14 @@
     {
       "id": "RHYTHM_PAD2_PRMENV_KEEP",
       "name": "RHYTHM Pad3 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_STRICT_R",
+      "name": "RHYTHM Pad3 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -88395,6 +89403,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD3_SSGSW256_STRICT_R",
+      "name": "RHYTHM Pad4 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD3_SSGSWP256_STEPS",
       "name": "RHYTHM Pad4 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -88478,6 +89494,14 @@
     {
       "id": "RHYTHM_PAD3_SSGSWP256_KEEP",
       "name": "RHYTHM Pad4 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_SSGSWP256_STRICT_R",
+      "name": "RHYTHM Pad4 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -89251,6 +90275,14 @@
     {
       "id": "RHYTHM_PAD3_PRMENV_KEEP",
       "name": "RHYTHM Pad4 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_STRICT_R",
+      "name": "RHYTHM Pad4 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -90558,6 +91590,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD4_SSGSW256_STRICT_R",
+      "name": "RHYTHM Pad5 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD4_SSGSWP256_STEPS",
       "name": "RHYTHM Pad5 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -90641,6 +91681,14 @@
     {
       "id": "RHYTHM_PAD4_SSGSWP256_KEEP",
       "name": "RHYTHM Pad5 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_SSGSWP256_STRICT_R",
+      "name": "RHYTHM Pad5 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -91414,6 +92462,14 @@
     {
       "id": "RHYTHM_PAD4_PRMENV_KEEP",
       "name": "RHYTHM Pad5 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_STRICT_R",
+      "name": "RHYTHM Pad5 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -92721,6 +93777,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD5_SSGSW256_STRICT_R",
+      "name": "RHYTHM Pad6 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD5_SSGSWP256_STEPS",
       "name": "RHYTHM Pad6 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -92804,6 +93868,14 @@
     {
       "id": "RHYTHM_PAD5_SSGSWP256_KEEP",
       "name": "RHYTHM Pad6 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_SSGSWP256_STRICT_R",
+      "name": "RHYTHM Pad6 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -93577,6 +94649,14 @@
     {
       "id": "RHYTHM_PAD5_PRMENV_KEEP",
       "name": "RHYTHM Pad6 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_STRICT_R",
+      "name": "RHYTHM Pad6 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -94884,6 +95964,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD6_SSGSW256_STRICT_R",
+      "name": "RHYTHM Pad7 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD6_SSGSWP256_STEPS",
       "name": "RHYTHM Pad7 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -94967,6 +96055,14 @@
     {
       "id": "RHYTHM_PAD6_SSGSWP256_KEEP",
       "name": "RHYTHM Pad7 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_SSGSWP256_STRICT_R",
+      "name": "RHYTHM Pad7 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -95740,6 +96836,14 @@
     {
       "id": "RHYTHM_PAD6_PRMENV_KEEP",
       "name": "RHYTHM Pad7 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_STRICT_R",
+      "name": "RHYTHM Pad7 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -97047,6 +98151,14 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD7_SSGSW256_STRICT_R",
+      "name": "RHYTHM Pad8 SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD7_SSGSWP256_STEPS",
       "name": "RHYTHM Pad8 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -97130,6 +98242,14 @@
     {
       "id": "RHYTHM_PAD7_SSGSWP256_KEEP",
       "name": "RHYTHM Pad8 SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_SSGSWP256_STRICT_R",
+      "name": "RHYTHM Pad8 SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -97903,6 +99023,14 @@
     {
       "id": "RHYTHM_PAD7_PRMENV_KEEP",
       "name": "RHYTHM Pad8 ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_STRICT_R",
+      "name": "RHYTHM Pad8 ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -98978,6 +100106,14 @@
       "default": false
     },
     {
+      "id": "ADPCM_PRMENV_STRICT_R",
+      "name": "ADPCM ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCM_LEVEL",
       "name": "ADPCM Level",
       "type": "Float",
@@ -99427,6 +100563,14 @@
       "default": false
     },
     {
+      "id": "ADPCM_SSGSW256_STRICT_R",
+      "name": "ADPCM SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCM_SSGSWP256_STEPS",
       "name": "ADPCM SSG SwPEnv256 Steps",
       "type": "Int",
@@ -99510,6 +100654,14 @@
     {
       "id": "ADPCM_SSGSWP256_KEEP",
       "name": "ADPCM SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_SSGSWP256_STRICT_R",
+      "name": "ADPCM SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -101408,6 +102560,14 @@
     {
       "id": "ADPCMP_PRMENV_KEEP",
       "name": "ADPCMP ParamEnv Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_PRMENV_STRICT_R",
+      "name": "ADPCMP ParamEnv Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -106645,6 +107805,14 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SSGSW256_STRICT_R",
+      "name": "ADPCMP SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCMP_SSGSWP256_STEPS",
       "name": "ADPCMP SSG SwPEnv256 Steps",
       "type": "Int",
@@ -106728,6 +107896,14 @@
     {
       "id": "ADPCMP_SSGSWP256_KEEP",
       "name": "ADPCMP SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SSGSWP256_STRICT_R",
+      "name": "ADPCMP SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -108632,6 +109808,14 @@
       "default": false
     },
     {
+      "id": "BEEP_PRMENV_STRICT_R",
+      "name": "BEEP ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "BEEP_LEVEL",
       "name": "BEEP Level",
       "type": "Float",
@@ -108943,6 +110127,14 @@
       "default": false
     },
     {
+      "id": "BEEP_SSGSW256_STRICT_R",
+      "name": "BEEP SSG SwEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "BEEP_SSGSWP256_STEPS",
       "name": "BEEP SSG SwPEnv256 Steps",
       "type": "Int",
@@ -109026,6 +110218,14 @@
     {
       "id": "BEEP_SSGSWP256_KEEP",
       "name": "BEEP SSG SwPEnv256 Keep",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_SSGSWP256_STRICT_R",
+      "name": "BEEP SSG SwPEnv256 Strict R",
       "type": "Bool",
       "min": false,
       "max": true,

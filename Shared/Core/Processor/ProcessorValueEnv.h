@@ -26,7 +26,7 @@ namespace ValueEnv
 	struct Keys
 	{
 		juce::String base;
-		juce::String enable, steps, loop, loopTo, loopCount, loopMode, stl, lr, rr, endl, endlEnable, keep;
+		juce::String enable, steps, loop, loopTo, loopCount, loopMode, stl, lr, rr, endl, endlEnable, keep, strictRate;
 
 		explicit Keys(const juce::String& b) :
 			base(b),
@@ -41,7 +41,8 @@ namespace ValueEnv
 			rr(b + "_RR"),
 			endl(b + "_ENDL"),
 			endlEnable(b + "_ENDL_EN"),
-			keep(b + "_KEEP")
+			keep(b + "_KEEP"),
+			strictRate(b + "_STRICT_R")
 		{
 		}
 	};
@@ -132,6 +133,8 @@ namespace ValueEnv
 		PrHelper::addBool(layout, prefix + k.endlEnable, n + " EndL Enable", false);
 
 		if (!s.alwaysKeep) PrHelper::addBool(layout, prefix + k.keep, n + " Keep", false);
+
+		PrHelper::addBool(layout, prefix + k.strictRate, n + " Strict R", false);
 	}
 
 	inline void setupPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, const Spec& s, Ptrs& p, StepTableStore& tables)
@@ -150,6 +153,7 @@ namespace ValueEnv
 		p.endl = apvts.getRawParameterValue(prefix + k.endl);
 		p.endlEnable = apvts.getRawParameterValue(prefix + k.endlEnable);
 		p.keep = s.alwaysKeep ? nullptr : apvts.getRawParameterValue(prefix + k.keep);
+		p.strictRate = apvts.getRawParameterValue(prefix + k.strictRate);
 
 		// 段の R / L はプロセッサが持つ表から引く
 		p.table = &tables.get(prefix + k.base, rateInitial, s.levelInitial);
@@ -170,6 +174,7 @@ namespace ValueEnv
 		params.endl = PrHelper::getFloat(p.endl);
 		params.endlEnable = PrHelper::getBool(p.endlEnable);
 		params.keep = p.keep == nullptr || PrHelper::getBool(p.keep);
+		params.strictRate = PrHelper::getBool(p.strictRate);
 		params.table = p.table;
 	}
 }

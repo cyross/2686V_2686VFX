@@ -261,6 +261,7 @@ SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置�
 | **Bypass / Enable** | 使う・使わない。チャンネルでは「バイパス」、オペレータでは「有効」の意味になる | False / True | True | [`SSG_SSGSW256_BYPASS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-bypass) |
 | **STEP** | 使う段の数 | 1 〜 256 | 10 | [`SSG_SSGSW256_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-steps) |
 | **KEEP** | 段のあいだを斜めに繋がず、その段の頭の値を保つ | False / True | False | [`SSG_SSGSW256_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-keep) |
+| **STRICT R** | 段は R 秒、リリースは RR 秒たったところで終える。切ると行き先の値に着いたところで終えるので、前の段と同じ値の段はすぐ終わる (4.3.0) | False / True | False | [`SSG_SSGSW256_STRICT_R`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-strict-r) |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW256_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loop) |
 | **LOOP MODE** | 繰り返し方。Original Mode / Rich Mode（[下](#loop-mode--rich-mode)） | 0 〜 1 | 0（Original） | [`SSG_SSGSW256_LOOPMODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopmode) |
 | **LOOP.TO** | Original Mode。戻り先の段 | 0 〜 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopto) |
@@ -342,7 +343,7 @@ TARGET に並ぶパラメータは [TAP PARAM SEQUENCER](#tap-param-sequencer) �
 - 値は**指し先のパラメータの範囲の割合**で持ち、画面には指し先の書き方で出します（TL なら 0〜127、
   FIX の FREQ なら Hz）
 - 値（STL・L1〜L256・LR・ENDL）は **TARGET ごとに別に持ちます**。TARGET を変えると、その指し先の値に
-  切り替わります（はじめは指し先のパラメータの初期値）。R・STEP・LOOP・RR・Use Endl・KEEP は TARGET によらず
+  切り替わります（はじめは指し先のパラメータの初期値）。R・STEP・LOOP・RR・Use Endl・KEEP・STRICT R は TARGET によらず
   1 つです。プリセットなどには全部の TARGET の値を保存し、区分のパラメータファイルには、いまの TARGET の値を書きます
 - 名前は STL が **STL**、L が **L1〜L256**、対象のつまみが **L.TARGET**、値のつまみが **VALUE** です。
   値のつまみの下のボタンは **MIN** / **-10%** / **-1** / **+1** / **+10%** / **MAX**（±1 は指し先の 1 刻み）
@@ -446,6 +447,7 @@ Enable にすると 1 オクターブの範囲で音程が動きます。MIN と
 | **Bypass / Enable** | 使う・使わない | False / True | True | [`SSG_SSGSWP256_BYPASS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-bypass) |
 | **STEP** | 使う段の数 | 1 〜 256 | 10 | [`SSG_SSGSWP256_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-steps) |
 | **KEEP** | 段の頭の値を保つ | False / True | False | [`SSG_SSGSWP256_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-keep) |
+| **STRICT R** | 段は R 秒、リリースは RR 秒たったところで終える。切ると行き先の値に着いたところで終えるので、前の段と同じ値の段はすぐ終わる (4.3.0) | False / True | False | [`SSG_SSGSWP256_STRICT_R`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-strict-r) |
 | **LOOP** / **LOOP MODE** / **LOOP.TO** / **LOOP.CNT** | 繰り返し。LOOP MODE（[Rich Mode](#loop-mode--rich-mode)）も AMP と同じ | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-loop) など |
 | **LP.TARGET** / **START** / **END** / **COUNT** / **ADD** / **DELETE** | Rich Mode のループの組 | — | — | —（表で持つ） |
 | **R.TARGET** / **RATE** | R を変える段と、その段の時間（秒） | 1 〜 STEP / 0.001 〜 10 | — / 0.001 | —（表で持つ） |

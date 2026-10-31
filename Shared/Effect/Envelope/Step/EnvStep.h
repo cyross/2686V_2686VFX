@@ -46,6 +46,11 @@ struct StepEnvParams
 
 	bool keep = false;
 
+	// R を厳密に守る (4.3.0)。入れると、段もリリースも R (RR) 秒たったところで終える。
+	// 切っていると、行き先の値に着いたところで終える (4.2.x までと同じ。前の段と
+	// 同じ値の段はすぐ終わる)
+	bool strictRate = false;
+
 	// 段の R / L。nullptr なら表を持たない (段の値はすべて 0)。
 	const StepTable* table = nullptr;
 
@@ -103,6 +108,7 @@ private:
 	float endl = 0.0f;
 	bool endlEnable = false;
 	bool keep = false;
+	bool strictRate = false;
 
 	// [0] が STL、[1] 以降が段の値。R は [1] から。
 	std::array<float, maxSteps + 1> r{};

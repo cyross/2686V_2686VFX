@@ -34,6 +34,7 @@ void StepEnv::setParameters(const StepEnvParams& p)
 	endl = p.endl;
 	endlEnable = p.endlEnable;
 	keep = p.keep;
+	strictRate = p.strictRate;
 	l[0] = p.stl;
 
 	// 画面でも直しているが、念のためここでもループできる形にする。
@@ -178,7 +179,13 @@ void StepEnv::advance()
 		}
 		else {
 			current += inc;
-			ended = (inc >= 0.0f && current >= target) || (inc < 0.0f && current <= target);
+
+			const bool reached = (inc >= 0.0f && current >= target) || (inc < 0.0f && current <= target);
+
+			if (reached) current = target;
+
+			// R を厳密に守るなら RR 秒たつまで待つ (値が同じでも RR 秒かけてから ENDL へ移る)
+			ended = strictRate ? elapsed >= stepLength : reached;
 		}
 
 		if (ended) {
@@ -216,11 +223,13 @@ void StepEnv::advance()
 			// 行き先に着いたら、そこで止めておく
 			current += inc;
 
-			if ((inc >= 0.0f && current >= target) || (inc < 0.0f && current <= target)) current = target;
+			const bool reached = (inc >= 0.0f && current >= target) || (inc < 0.0f && current <= target);
 
-			// 段は R 秒たったところで終える。着いたかで決めると、前の段と同じ値の段
-			// (傾きが 0) がすぐ終わってしまい、R が効かなかった (4.3.0 で直した)
-			ended = elapsed >= stepLength;
+			if (reached) current = target;
+
+			// R を厳密に守るなら、段は R 秒たったところで終える。着いたかで決めると、
+			// 前の段と同じ値の段 (傾きが 0) がすぐ終わり、R が効かない (4.2.x までの鳴り方)
+			ended = strictRate ? elapsed >= stepLength : reached;
 		}
 	}
 

@@ -96,10 +96,11 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - チャンネルのグラフの切り替えと、FM 音源のオペレーターのグラフの切り替えに **PRM** (PARAM ENV[256]) を足した。値は TARGET の組で描き、見出しに指し先の名前を出す。整数や選択肢の指し先は段を保つ絵になる。RHYTHM はパッドのグラフの切り替えに足した (パッドの PARAM ENV を描く)
   - 波形プレビューの計算で鳴らした音は、鳴っている位置に出さない
   - 全プラグイン (2686VFX は TAP SEQUENCER の設定だけ)
-- **段のエンベロープで、前の段と同じ値の段がすぐ終わっていたのを直した**
-  - 段は「行き先の値に着いたとき」に終えていたので、前の段と同じ値の段は R 秒を待たずに終わり、その後の段が早く来ていた。KEEP のときも同じ。段は R 秒たったところで終えるようにした
-  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE。カーブを入れているときは、もとから R 秒で終えていた
-  - **同じ値の段が続くパッチは、段の進み方 (鳴り方) が変わる。** 値の違う段の長さは変わらない
+- **段のエンベロープに STRICT R を足した (前の段と同じ値の段も R 秒保つ)**
+  - 段は「行き先の値に着いたとき」に終えるので、前の段と同じ値の段は R 秒を待たずに終わり、その後の段が早く来る。KEEP のときも同じ。リリースも、最後の段と LR が同じ値なら RR を待たずに ENDL へ移る
+  - KEEP の下の **STRICT R** を入れると、段は R 秒、リリースは RR 秒たったところで終える
+  - 初期値は切で、これまでのパッチの鳴り方は変わらない。カーブを入れているときは、もとから R 秒で終えている
+  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE。区分ごとに持つ。チャンネルパラメータ・区分のパラメータファイル (`strictRate`)・プリセット・DAW の状態に保存。オートメーションは `_SSGSW256_STRICT_R` / `_SSGSWP256_STRICT_R` / `_PRMENV_STRICT_R` / `_ALGENV_STRICT_R` / `_DUTYENV_STRICT_R` / `_PEAKENV_STRICT_R`
   - 全プラグイン (2686VFX を除く)
 - **グラフのサスティンの区間を見分けられるようにした**
   - AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] のグラフで、鍵を押しているあいだ保つ区間 (サスティン) を、決まった幅・別の色 (黄緑) で描く

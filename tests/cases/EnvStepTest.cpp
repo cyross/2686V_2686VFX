@@ -69,7 +69,7 @@ TEST_CASE("StepEnv: R 秒かけて次の段へ進む")
     CHECK(v == doctest::Approx(1.0f));
 }
 
-TEST_CASE("StepEnv: 前の段と同じ値の段も、R 秒ぶん保つ")
+TEST_CASE("StepEnv: STRICT R を入れると、前の段と同じ値の段も R 秒ぶん保つ")
 {
     StepTable t(0.0f, 0.0f);
     t.setRate(1, 0.1f);   // 100 サンプル
@@ -82,6 +82,7 @@ TEST_CASE("StepEnv: 前の段と同じ値の段も、R 秒ぶん保つ")
 
         auto p = makeParams(t, 3);
         p.keep = keep;
+        p.strictRate = true;
 
         StepEnv env;
         env.prepare(0, -1, kRate);
@@ -104,6 +105,72 @@ TEST_CASE("StepEnv: 前の段と同じ値の段も、R 秒ぶん保つ")
         for (int i = 0; i < 60; ++i) v = env.process();
 
         CHECK(v == doctest::Approx(0.0f));
+    }
+}
+
+TEST_CASE("StepEnv: STRICT R を切ると、前の段と同じ値の段はすぐ終わる (4.2.x までの鳴り方)")
+{
+    StepTable t(0.0f, 0.0f);
+    t.setRate(1, 0.1f);   // 100 サンプル
+    t.setRate(2, 0.1f);
+    t.setRate(3, 0.1f);
+    fill(t, { 1.0f, 1.0f, 0.0f });
+
+    auto p = makeParams(t, 3);
+
+    REQUIRE_FALSE(p.strictRate);
+
+    StepEnv env;
+    env.prepare(0, -1, kRate);
+    env.setParameters(p);
+    env.noteOn();
+
+    float v = 0.0f;
+
+    // 段 1 で 1 へ着くと段 2 はすぐ終わり、段 3 で 0 へ向かう。200 サンプルで走り終える
+    for (int i = 0; i < 150; ++i) v = env.process();
+
+    CHECK(v == doctest::Approx(0.5f).epsilon(0.05));
+
+    for (int i = 0; i < 60; ++i) v = env.process();
+
+    CHECK(v == doctest::Approx(0.0f));
+}
+
+TEST_CASE("StepEnv: STRICT R を入れると、リリースも RR 秒を待ってから ENDL へ移る")
+{
+    StepTable t(0.0f, 0.0f);
+    fill(t, { 0.5f });
+
+    for (bool strict : { false, true }) {
+        CAPTURE(strict);
+
+        auto p = makeParams(t, 1);
+        p.lr = 0.5f;          // 最後の段と同じ値
+        p.rr = 0.1f;          // 100 サンプル
+        p.endlEnable = true;
+        p.endl = 0.0f;
+        p.strictRate = strict;
+
+        StepEnv env;
+        env.prepare(0, -1, kRate);
+        env.setParameters(p);
+        env.noteOn();
+        env.process();
+        env.noteOff();
+
+        float v = 0.0f;
+
+        for (int i = 0; i < 50; ++i) v = env.process();
+
+        // 切っていれば LR に着いていて、すぐ ENDL へ落ちる。入れていれば RR のあいだ LR を保つ
+        if (strict) CHECK(v == doctest::Approx(0.5f));
+        else CHECK(v == doctest::Approx(0.0f));
+
+        for (int i = 0; i < 60; ++i) v = env.process();
+
+        CHECK(v == doctest::Approx(0.0f));
+        CHECK(env.isIdle());
     }
 }
 

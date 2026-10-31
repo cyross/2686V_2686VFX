@@ -157,13 +157,14 @@ separately and lets you choose the rate from 15 / 30 / 60 / 120 FPS (all start o
 The channel graph switch, the FM operator graph switch and the RHYTHM pad graph switch gain **PRM** (PARAM ENV[256]). See
 [Where the sound is playing on the graphs](/2686V_2686VFX/en/guide/screen/#where-the-sound-is-playing-on-the-graphs).
 
-## Step envelopes hold a repeated value for R seconds
+## Step envelopes gain STRICT R
 
-A step used to end when it reached its target value, so a step with the same value as the one before ended without waiting
-R seconds and the later steps came early (KEEP behaved the same way). Steps now end once R seconds have passed. This applies to
-SSG SW AMP / PITCH ENV[256], PARAM ENV[256], ALG ENV, DUTY RATIO ENVELOPE and PEAK RATIO ENVELOPE.
+A step ends when it reaches its target value, so a step with the same value as the one before ends without waiting
+R seconds and the later steps come early (KEEP behaves the same way). The release also moves on to ENDL without waiting RR
+when LR equals the last step's value. Turn on **STRICT R** (below KEEP) to end each step after R seconds and the release after
+RR seconds. Each SSG SW AMP / PITCH ENV[256], PARAM ENV[256], ALG ENV, DUTY RATIO ENVELOPE and PEAK RATIO ENVELOPE section has its own.
 
-Patches with repeated values in a row step differently. Steps with different values keep their length.
+It is off by default, so existing patches sound the same.
 
 ## The sustain part of the graphs stands out
 

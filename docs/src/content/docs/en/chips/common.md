@@ -265,6 +265,7 @@ release (sustain; the last step's value is held even with KEEP on). On release i
 | **Bypass / Enable** | Use it or not. "Bypass" on a channel, "Enable" on an operator | False / True | True | [`SSG_SSGSW256_BYPASS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-bypass) |
 | **STEP** | Number of steps | 1 – 256 | 10 | [`SSG_SSGSW256_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-steps) |
 | **KEEP** | Hold each step's starting value instead of sloping between steps | False / True | False | [`SSG_SSGSW256_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-keep) |
+| **STRICT R** | End each step after R seconds and the release after RR seconds. When off, a step ends when it reaches its target, so a step with the same value as the previous one ends at once (4.3.0) | False / True | False | [`SSG_SSGSW256_STRICT_R`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-strict-r) |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSW256_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loop) |
 | **LOOP MODE** | How to repeat: Original Mode / Rich Mode ([below](#loop-mode--rich-mode)) | 0 – 1 | 0 (Original) | [`SSG_SSGSW256_LOOPMODE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopmode) |
 | **LOOP.TO** | Original Mode. Step to return to | 0 – 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopto) |
@@ -350,7 +351,7 @@ TARGET lists the same parameters as [TAP PARAM SEQUENCER](#tap-param-sequencer).
 - Values are kept as **a fraction of the target parameter's range** and shown the way the target shows them
   (0–127 for TL, Hz for FIX FREQ)
 - The values (STL, L1–L256, LR, ENDL) are **kept separately for each TARGET**. Changing TARGET switches to that
-  target's values (which start at the target parameter's default). R, STEP, LOOP, RR, Use Endl and KEEP are shared
+  target's values (which start at the target parameter's default). R, STEP, LOOP, RR, Use Endl, KEEP and STRICT R are shared
   by every TARGET. Presets and the like save the values of every TARGET; a section parameter file holds the values of the current TARGET
 - STL is called **STL**, the L values **L1–L256**, the target knob **L.TARGET** and the value knob **VALUE**.
   The buttons under the value knob are **MIN** / **-10%** / **-1** / **+1** / **+10%** / **MAX** (±1 is one step of the target)
@@ -454,6 +455,7 @@ normal (with Use Endl it holds ENDL).
 | **Bypass / Enable** | Use it or not | False / True | True | [`SSG_SSGSWP256_BYPASS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-bypass) |
 | **STEP** | Number of steps | 1 – 256 | 10 | [`SSG_SSGSWP256_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-steps) |
 | **KEEP** | Hold each step's starting value | False / True | False | [`SSG_SSGSWP256_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-keep) |
+| **STRICT R** | End each step after R seconds and the release after RR seconds. When off, a step ends when it reaches its target, so a step with the same value as the previous one ends at once (4.3.0) | False / True | False | [`SSG_SSGSWP256_STRICT_R`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-strict-r) |
 | **LOOP** / **LOOP MODE** / **LOOP.TO** / **LOOP.CNT** | Repeat. LOOP MODE ([Rich Mode](#loop-mode--rich-mode)) works as on AMP | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-loop) etc. |
 | **LP.TARGET** / **START** / **END** / **COUNT** / **ADD** / **DELETE** | The Rich Mode loop sets | — | — | — (kept in a table) |
 | **R.TARGET** / **RATE** | The step whose R you edit, and its time (seconds) | 1 – STEP / 0.001 – 10 | — / 0.001 | — (kept in a table) |

@@ -96,10 +96,11 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The channel graph switch and the FM operator graph switch gain **PRM** (PARAM ENV[256]). The values drawn are those of the current TARGET, and the title shows the target's name. Integer and choice targets are drawn holding each step. RHYTHM gains it on the pad graph switch (it draws the pad's PARAM ENV)
   - Notes played to compute the waveform previews are not shown
   - Every plugin (2686VFX only has the TAP SEQUENCER setting)
-- **Step envelopes: a step with the same value as the one before no longer ends at once**
-  - A step used to end when it reached its target value, so a step with the same value as the previous one ended without waiting R seconds and the later steps came early. KEEP behaved the same way. Steps now end once R seconds have passed
-  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE. With a curve on, steps already ended after R seconds
-  - **Patches with repeated values in a row step differently (sound different).** Steps with different values keep their length
+- **Step envelopes gain STRICT R (a step with the same value as the one before is held for R seconds)**
+  - A step ends when it reaches its target value, so a step with the same value as the previous one ends without waiting R seconds and the later steps come early. KEEP behaves the same way. The release also moves on to ENDL without waiting RR when LR equals the last step's value
+  - Turn on **STRICT R** (below KEEP) to end each step after R seconds and the release after RR seconds
+  - It is off by default, so existing patches sound the same. With a curve on, steps already end after R seconds
+  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE, one per section. Saved in channel parameters, the section parameter file (`strictRate`), presets and the DAW state. Automation IDs are `_SSGSW256_STRICT_R` / `_SSGSWP256_STRICT_R` / `_PRMENV_STRICT_R` / `_ALGENV_STRICT_R` / `_DUTYENV_STRICT_R` / `_PEAKENV_STRICT_R`
   - Every plugin except 2686VFX
 - **The sustain part of the graphs stands out**
   - On the AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] graphs, the part held while the key is down (the sustain) is drawn with a fixed width in its own colour (yellow-green)
