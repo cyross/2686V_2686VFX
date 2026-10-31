@@ -493,6 +493,10 @@ void GuiPreset::setup()
 
                     // 各タブのプリセット名をリセット
                     editorOf(ctx).updatePresetNameToTabs(pluginOf(ctx).presetName);
+
+                    // 全部のタブへ並べ直しの印を立てる。前へ出たときに、
+                    // TARGET が指していないオペレーター・パッドの絵も描き直す
+                    editorOf(ctx).resized();
                 }
             }
         );

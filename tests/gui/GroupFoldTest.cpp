@@ -4,6 +4,7 @@
 // FM 音源のオペレーター・RHYTHM のパッド・2686VFX の枠は、見出しを押すと
 // 幅が 30px になり、もう一度押すと戻る。全て開く「<>」・全て閉じる「><」もある。
 // どれを畳んだかは state に残るので、読み直した画面でも畳んだまま出る。
+// 何も残っていない state (立ち上げた直後) では、畳める枠をすべて畳んで出す。
 #include "doctest/doctest.h"
 
 #include <JuceHeader.h>
@@ -148,6 +149,10 @@ TEST_CASE("GroupFold: 見出しを押すと幅が 30px になり、もう一度�
 			return;
 		}
 
+		// 最初はすべて畳んであるので、開いてから試す
+		click(*e.button("<>"));
+		e.ed().resized();
+
 		auto* group = e.foldables().front();
 
 		title = group->getText();
@@ -211,6 +216,28 @@ TEST_CASE("GroupFold: 見出しを押すと幅が 30px になり、もう一度�
 	REQUIRE_FALSE(found.empty());
 	CHECK(found.front()->isFolded());
 	CHECK(found.front()->getWidth() == ColoredGroupComponent::foldedWidth);
+}
+
+TEST_CASE("GroupFold: 立ち上げた直後は、畳める枠がすべて畳んである")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	Editor e(*processor);
+
+	if (!e.openFoldableTab())
+	{
+		if (kRequireAll) FAIL("畳める枠が見つからない");
+
+		MESSAGE("畳める枠が無いので飛ばす");
+
+		return;
+	}
+
+	for (auto* g : e.foldables())
+	{
+		CHECK(g->isFolded());
+		CHECK(g->getWidth() == ColoredGroupComponent::foldedWidth);
+	}
 }
 
 TEST_CASE("GroupFold: 「><」で全て畳み、「<>」で全て開く")
@@ -294,6 +321,9 @@ TEST_CASE("GroupFold: 見出しにマウスが乗ると色を変える。畳ん�
 
 		return;
 	}
+
+	click(*e.button("<>"));
+	e.ed().resized();
 
 	auto* group = e.foldables().front();
 

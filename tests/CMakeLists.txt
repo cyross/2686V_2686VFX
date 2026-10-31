@@ -296,7 +296,8 @@ foreach(CY_PLUGIN IN LISTS CY_GUI_TEST_PLUGINS)
             "${CMAKE_CURRENT_SOURCE_DIR}/gui/VoicePitchTest.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/gui/TapSeqVoiceTest.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/gui/TapSeqLayoutTest.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/gui/ParamModTest.cpp")
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/ParamModTest.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/gui/InitRedrawTest.cpp")
     endif()
 
     target_link_libraries(${CY_GUI_TEST} PRIVATE ${CY_PLUGIN})

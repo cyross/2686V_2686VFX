@@ -151,6 +151,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - With any PARAM ENV TARGET, MUL / DET / FIX changed while notes played even when SETTINGS "Apply MUL/DET and FIX while notes play" was off. The frequency is now re-read while notes play only when the PARAM ENV points at MUL, DT, FIX FREQ or SPEED (every plugin)
   - The noise More Real FC could not reach the four fastest 2A03 rates (period 4 to 32). The N.FREQ range is now stretched up to the fastest rate, so all 16 rates can be reached (plugins with SSG)
   - The DAW could crash when it loaded a state on another thread at the same time as the editor was opened or closed (including when a tab is rebuilt after switching the language). Group folds are now re-applied by checking how many times the state has been loaded, instead of listening to the state (every plugin)
+  - After the PRESET tab's initialise or RESET, the small graphs of FM operators and RHYTHM pads that TARGET was not pointing at were not redrawn, so they looked uninitialised until TARGET pointed at them. The values themselves had been reset. The window is now laid out again after initialising, which redraws every graph (plugins with FM chips or RHYTHM)
 - **Lighter sound engine calculations (the sound does not change)**
   - When LFO PM is off, the pitch ratio calculation (pow) is skipped. SSG, WT, WT2, WT+, ADPCM, ADPCM+, BEEP and the RHYTHM pads
   - Choosing a rate from the 16 2A03 rates for the noise More Real FC now takes one log instead of 16
