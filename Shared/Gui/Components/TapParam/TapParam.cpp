@@ -528,10 +528,27 @@ void GuiComponentTapParam::timerCallback()
 
     LiveGraph::pace(*this, LiveGraph::hzOf(live, ctx.audioProcessor.tapLiveFps));
 
+    // 隠れたタブ・閉じた区分では映さない (見えたときの次の回で映す)
+    if (!isShowing()) return;
+
     auto* t = table();
 
     if (t == nullptr) return;
-    if (t->version.load() == seenVersion && (!live || t->cursor.load() == seenCursor)) return;
+
+    if (t->version.load() == seenVersion) {
+        const int c = t->cursor.load();
+
+        if (!live || c == seenCursor) return;
+
+        // いまの段が進んだだけなら、印だけ動かす (全部の段の文字を作り直さない)
+        const int n = stepCount();
+
+        seenCursor = c;
+        list.cursor = (c >= 0 && c < n) ? c : -1;
+        list.repaint();
+        loops.refresh();
+        return;
+    }
 
     const int before = list.getNaturalHeight();
 

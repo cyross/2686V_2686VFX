@@ -44,7 +44,14 @@ void GuiWaveformPreview::strokeWave(juce::Graphics& g, const std::vector<float>&
 void GuiWaveformPreview::pushBuffer(const float* data, int numSamples)
 {
     if (numSamples <= 0) return;
+
+    // 前と同じ (音が出ていなければずっと 0) なら描き直さない。毎秒 30 回、背景から描き直していた
+    const bool same = (int)m_displayBuffer.size() == numSamples && std::equal(data, data + numSamples, m_displayBuffer.begin());
+
+    if (same && !m_dryChanged) return;
+
     m_displayBuffer.assign(data, data + numSamples);
+    m_dryChanged = false;
     repaint(); // データが来たら再描画
 }
 
@@ -52,7 +59,10 @@ void GuiWaveformPreview::pushDryBuffer(const float* data, int numSamples)
 {
     if (numSamples <= 0) return;
 
+    if ((int)m_dryBuffer.size() == numSamples && std::equal(data, data + numSamples, m_dryBuffer.begin())) return;
+
     m_dryBuffer.assign(data, data + numSamples);
+    m_dryChanged = true;
 
     // 描き直しは加工後の側から起こす。両方でやると二度描きになる。
 }
@@ -126,7 +136,13 @@ void ColoredGroupComponent::setTitleIdle(bool idle)
     if (titleIdle == idle) return;
 
     titleIdle = idle;
-    repaint();
+    repaintTitle();
+}
+
+void ColoredGroupComponent::repaintTitle()
+{
+    // 影のぶんも含める
+    repaint(titleChipBounds().expanded(6.0f).getSmallestIntegerContainer());
 }
 
 void ColoredGroupComponent::paint(juce::Graphics& g)
@@ -198,9 +214,14 @@ juce::Rectangle<float> ColoredGroupComponent::titleChipBounds() const
 
     auto bounds = getLocalBounds().toFloat();
 
-    auto font = juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold);
+    if (title != measuredTitle) {
+        auto font = juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold);
 
-    float textWidth = (float)juce::GlyphArrangement::getStringWidthInt(font, title);
+        measuredTitle = title;
+        measuredTitleWidth = (float)juce::GlyphArrangement::getStringWidthInt(font, title);
+    }
+
+    const float textWidth = measuredTitleWidth;
 
     if (folded) {
         // 縦の帯。丈は枠の内側まで
@@ -289,7 +310,7 @@ void ColoredGroupComponent::updateTitleHover(std::optional<juce::Point<float>> p
 
     titleHovered = hovered;
 
-    repaint();
+    repaintTitle();
 }
 
 void GuiGroup::mouseDown(const juce::MouseEvent& e)
@@ -1502,6 +1523,9 @@ struct GuiCategoryBackdropHover : private juce::MouseListener
     std::vector<GuiCategoryBackdrop*> backdrops;
     GuiCategoryBackdrop* current = nullptr;
 
+    // update の作業場所 (出来事のたびに確保しない)
+    std::vector<GuiCategoryBackdrop*> candidates;
+
     static GuiCategoryBackdropHover& get()
     {
         static GuiCategoryBackdropHover instance;
@@ -1524,39 +1548,64 @@ struct GuiCategoryBackdropHover : private juce::MouseListener
         if (backdrops.empty()) juce::Desktop::getInstance().removeGlobalMouseListener(this);
     }
 
-    // 板が見えていて、その場所にある部品が板と同じ親の中にあるか。
-    // 送り棒で隠れた場所や、手前の別の窓に重なった場所では明るくしない
-    static bool isUnder(GuiCategoryBackdrop& b, juce::Point<float> screenPos)
+    // 板が画面に出ていて (隠れたタブ・畳んだ枠の中ではなく)、マウスが板の範囲にあるか
+    static bool covers(GuiCategoryBackdrop& b, juce::Point<float> screenPos)
     {
-        if (!b.isVisible() || b.getParentComponent() == nullptr) return false;
+        if (b.getParentComponent() == nullptr) return false;
 
-        if (!b.getLocalBounds().toFloat().contains(b.getLocalPoint(nullptr, screenPos))) return false;
+        // isShowing はデスクトップに載っていない木では偽になるので、親までの見え方だけを見る
+        for (auto* c = static_cast<juce::Component*>(&b); c != nullptr; c = c->getParentComponent()) {
+            if (!c->isVisible()) return false;
+        }
 
-        auto* top = b.getTopLevelComponent();
+        return b.getLocalBounds().toFloat().contains(b.getLocalPoint(nullptr, screenPos));
+    }
 
+    // マウスの下にある部品。送り棒で隠れた場所や、手前の別の窓に重なった場所では nullptr。
+    // 部品の木を降りるのは重いので、1 回の出来事につき窓ごとに 1 回だけ求める
+    static juce::Component* componentUnder(juce::Component* top, juce::Point<float> screenPos)
+    {
         if (top->isOnDesktop()) {
             auto* front = juce::Desktop::getInstance().findComponentAt(screenPos.roundToInt());
 
-            if (front == nullptr || front->getTopLevelComponent() != top) return false;
+            if (front == nullptr || front->getTopLevelComponent() != top) return nullptr;
         }
 
-        auto* under = top->getComponentAt(top->getLocalPoint(nullptr, screenPos).roundToInt());
-
-        auto* parent = b.getParentComponent();
-
-        return under != nullptr && (under == parent || parent->isParentOf(under));
+        return top->getComponentAt(top->getLocalPoint(nullptr, screenPos).roundToInt());
     }
 
     void update(juce::Point<float> screenPos)
     {
-        // 大区分の板は中の小区分の板も覆うので、乗っている中でいちばん小さい板を選ぶ
+        // 範囲に入った板を、小さい順に並べる。大区分の板は中の小区分の板も覆うので、
+        // その場所の部品が板と同じ親の中にある板のうち、いちばん小さいものを選ぶ
+        candidates.clear();
+
+        for (auto* b : backdrops) {
+            if (covers(*b, screenPos)) candidates.push_back(b);
+        }
+
+        std::sort(candidates.begin(), candidates.end(), [](const GuiCategoryBackdrop* a, const GuiCategoryBackdrop* b) {
+            return a->getWidth() * a->getHeight() < b->getWidth() * b->getHeight();
+        });
+
         GuiCategoryBackdrop* best = nullptr;
+        juce::Component* probedTop = nullptr;
+        juce::Component* under = nullptr;
 
-        for (auto* b : backdrops)
-        {
-            if (!isUnder(*b, screenPos)) continue;
+        for (auto* b : candidates) {
+            auto* top = b->getTopLevelComponent();
 
-            if (best == nullptr || b->getWidth() * b->getHeight() < best->getWidth() * best->getHeight()) best = b;
+            if (top != probedTop) {
+                probedTop = top;
+                under = componentUnder(top, screenPos);
+            }
+
+            auto* parent = b->getParentComponent();
+
+            if (under != nullptr && (under == parent || parent->isParentOf(under))) {
+                best = b;
+                break;
+            }
         }
 
         if (best == current) return;
@@ -1577,7 +1626,8 @@ struct GuiCategoryBackdropHover : private juce::MouseListener
     void refresh() { update(juce::Desktop::getInstance().getMainMouseSource().getScreenPosition()); }
 
     void mouseMove(const juce::MouseEvent&) override { refresh(); }
-    void mouseDrag(const juce::MouseEvent&) override { refresh(); }
+    // 引いているあいだは板を変えない (つまみを引くたびに探さない)
+    void mouseDrag(const juce::MouseEvent&) override {}
     void mouseEnter(const juce::MouseEvent&) override { refresh(); }
     void mouseExit(const juce::MouseEvent&) override { refresh(); }
     void mouseWheelMove(const juce::MouseEvent&, const juce::MouseWheelDetails&) override { refresh(); }

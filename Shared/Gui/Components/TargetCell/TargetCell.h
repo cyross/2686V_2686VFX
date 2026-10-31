@@ -48,6 +48,13 @@ class GuiTargetCell : public GuiBase, private juce::Timer
     // 写し元 (TARGET の大きな枠のときだけ)。見出し・波形・絵をそのまま写す。
     const GuiTargetCell* m_source = nullptr;
 
+    // 最後に写したときの写し元の番号と入切。変わったときだけ写して描き直す
+    std::uint32_t seenGraphRevision = 0;
+    std::uint32_t seenPreviewRevision = 0;
+    bool seenGraphEnabled = false;
+    bool seenPreviewEnabled = false;
+    bool copied = false;
+
     void timerCallback() override;
 public:
     GuiTargetCell(const GuiContext& context) :

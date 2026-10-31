@@ -17,6 +17,7 @@ struct UnisonState {
         m_spread = spread;
         m_paraDetuneCents = paraDetuneCents;
         m_paraDistance = paraDistance;
+        m_gainComp = total <= 1 ? 1.0f : 1.0f / std::sqrt((float)total);
     }
 
     bool isActive() const { return m_total > 1; }
@@ -56,11 +57,9 @@ struct UnisonState {
         panR = std::clamp(panR + panOffset, 0.0f, 1.0f);
     }
 
-    // 音量補正 (ボイス数が増えると爆音になるため下げる)
-    float getGainComp() const {
-        if (m_total <= 1) return 1.0f;
-        return 1.0f / std::sqrt((float)m_total);
-    }
+    // 音量補正 (ボイス数が増えると爆音になるため下げる)。サンプルごとに呼ばれるので、
+    // setParams で 1 回だけ求めておく
+    float getGainComp() const { return m_gainComp; }
 
 private:
     int m_index = 0;
@@ -69,4 +68,5 @@ private:
     float m_spread = 0.0f;
     float m_paraDetuneCents = 0.0f;
     float m_paraDistance = 0.0f;
+    float m_gainComp = 1.0f;
 };

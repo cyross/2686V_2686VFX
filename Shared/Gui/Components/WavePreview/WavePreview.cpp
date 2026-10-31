@@ -11,6 +11,8 @@ void GuiWavePreview::setup(juce::Component& parent, juce::Colour lineColour)
 
 void GuiWavePreview::setLineColour(juce::Colour lineColour)
 {
+    ++m_revision;
+
     if (m_lineColour == lineColour) return;
 
     m_lineColour = lineColour;
@@ -20,6 +22,8 @@ void GuiWavePreview::setLineColour(juce::Colour lineColour)
 
 void GuiWavePreview::setPoints(const std::vector<float>& points, bool bipolar)
 {
+    ++m_revision;
+
     m_points = points;
     m_mins.clear();
     m_maxs.clear();
@@ -33,6 +37,8 @@ void GuiWavePreview::setPoints(const std::vector<float>& points, bool bipolar)
 
 void GuiWavePreview::setEnvelope(const std::vector<float>& mins, const std::vector<float>& maxs)
 {
+    ++m_revision;
+
     m_points.clear();
     m_mins = mins;
     m_maxs = maxs;
@@ -46,6 +52,8 @@ void GuiWavePreview::setEnvelope(const std::vector<float>& mins, const std::vect
 
 void GuiWavePreview::setMarkers(const std::vector<float>& positions)
 {
+    ++m_revision;
+
     m_markers = positions;
 
     repaint();
@@ -53,6 +61,8 @@ void GuiWavePreview::setMarkers(const std::vector<float>& positions)
 
 void GuiWavePreview::clear()
 {
+    ++m_revision;
+
     m_points.clear();
     m_mins.clear();
     m_maxs.clear();

@@ -91,6 +91,7 @@ void N88LfoCore::getSample()
     // 両方無効なら何も計算せずに現在のスムージング値だけ返して終了
     if (!this->pmEnable && !this->amEnable) {
         this->value.pm = 0.0f;
+        this->pmRatio = 1.0f;
         // AMのスムージング（0に向かって減衰する処理）だけは行うか、必要に応じて処理
         this->amSmooth += (0.0f - this->amSmooth) * this->m_amSmoothRate;
         this->value.am = this->amSmooth;
@@ -199,4 +200,7 @@ void N88LfoCore::getSample()
 
     this->value.am = this->amSmooth;
     this->value.pm = pmVal;
+
+    // オペレーターごとに同じ pow を回していたのを、ここで 1 回にする (式はそのまま)
+    this->pmRatio = this->pmEnable ? std::pow(2.0f, (pmVal * this->depthNorm * 1200.0f) / 1200.0f) : 1.0f;
 }

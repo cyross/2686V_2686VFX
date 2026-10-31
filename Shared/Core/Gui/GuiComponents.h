@@ -133,6 +133,13 @@ private:
 
     // 見出しの帯の場所。開いていれば左上に横向き、畳んでいれば上から縦向き
     juce::Rectangle<float> titleChipBounds() const;
+
+    // 見出しの帯だけを描き直す (色が変わるだけのとき。枠の中の部品まで描き直さない)
+    void repaintTitle();
+
+    // 見出しの文字の幅。hitTest はマウスが動くたびに呼ばれるので、文字が変わったときだけ測る
+    mutable juce::String measuredTitle;
+    mutable float measuredTitleWidth = 0.0f;
 };
 
 // ============================================================================
@@ -184,6 +191,9 @@ private:
 
     std::vector<float> m_displayBuffer;
     std::vector<float> m_dryBuffer;
+
+    // 加工前の側が前と変わったか。描き直しは加工後の側 (pushBuffer) から起こす
+    bool m_dryChanged = false;
 };
 
 class GuiStateView : public juce::Component
