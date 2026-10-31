@@ -81,18 +81,15 @@ void GuiGroupFolds::save()
         if (e.group->isFolded()) names.add(e.name);
     }
 
-    // 何も畳んでいなければ属性ごと消す。古いプリセットと同じ形になる
-    if (names.isEmpty()) {
-        ctx.apvts.state.removeProperty(key, nullptr);
-
-        return;
-    }
-
+    // 何も畳んでいなくても空の文字で書く。属性が無いと「既定 (全て畳む)」に読まれる
     ctx.apvts.state.setProperty(key, names.joinIntoString(separator), nullptr);
 }
 
 bool GuiGroupFolds::load()
 {
+    // 属性が無ければ (立ち上げたばかり・属性を持たないプリセット) 全て畳む
+    const bool foldAll = !ctx.apvts.state.hasProperty(key);
+
     juce::StringArray names;
 
     names.addTokens(ctx.apvts.state.getProperty(key).toString(), separator, {});
@@ -100,7 +97,7 @@ bool GuiGroupFolds::load()
     bool changed = false;
 
     for (auto& e : entries) {
-        const bool folded = names.contains(e.name);
+        const bool folded = foldAll || names.contains(e.name);
 
         if (e.group->isFolded() == folded) continue;
 

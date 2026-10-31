@@ -199,6 +199,10 @@ namespace GuiColor {
 		// 見出しを「いまは休んでいる」と見せるときの帯。2686VFX のキーアサインで、
 		// 割り当てた鍵盤が押されていない区分に使う。押されると TitleBg へ戻る。
 		inline Entry TitleBgIdle{ "Group.TitleBgIdle", []() -> juce::Colour { return juce::Colours::grey; } };
+
+		// 畳んだ枠の見出しにマウスが乗ったときの帯 (4.3.0)。明るい黄色にして、
+		// 押せば開くことが灰の帯の中で目に付くようにする
+		inline Entry TitleBgFoldedHover{ "Group.TitleBgFoldedHover", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0xF1, 0x76); } };
 	};
 
 	// ==========================================================

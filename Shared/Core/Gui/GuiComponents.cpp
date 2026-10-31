@@ -179,10 +179,14 @@ void ColoredGroupComponent::paint(juce::Graphics& g)
 
     GuiShadow::drawRounded(g, chip, titleCornerRadius);
 
-    // 畳んでいるときも灰にする。マウスが乗っていれば差し色へ寄せる
+    // 畳んでいるときも灰にする。マウスが乗っていれば差し色へ寄せる。
+    // 畳んだ見出しに乗ったときだけは明るい黄色にする
     juce::Colour chipColour = titleIdle || folded ? GuiColor::Group::TitleBgIdle : GuiColor::Group::TitleBg;
 
-    if (titleHovered) chipColour = chipColour.interpolatedWith(GuiColor::Hover::TitleTint, GuiColor::Hover::titleTintAmount);
+    if (titleHovered) {
+        chipColour = folded ? juce::Colour(GuiColor::Group::TitleBgFoldedHover)
+                            : chipColour.interpolatedWith(GuiColor::Hover::TitleTint, GuiColor::Hover::titleTintAmount);
+    }
 
     g.setColour(chipColour);
     g.fillRoundedRectangle(chip, titleCornerRadius);
