@@ -185,7 +185,10 @@ public:
         bool isCurveMode = false,
         int posIdx = 0
     );
-    void updateBypass(bool bypass) { this->isBypass = bypass; }
+    void updateBypass(bool bypass) { this->isBypass = bypass; ++m_revision; }
+
+    // 絵の中身を変えるたびに進む番号。写す側 (TARGET の大きな枠) が、変わったときだけ写すのに使う
+    std::uint32_t revision() const { return m_revision; }
 
     // ほかの絵と同じものを描く (TARGET の大きな枠が、指している小さな枠を写す)
     void copyFrom(const GuiEnvelopeGraph& other)
@@ -214,6 +217,8 @@ private:
     juce::String currentTitle;
     std::vector<PhaseDef> currentPhases;
     bool isBypass;
+
+    std::uint32_t m_revision = 0;
 
     // 段のエンベロープの並びを組む。種類ごとに違うのは色・見出し・カーブの的だけ。
     void updateStepEnv(EnvType type, const juce::String& title, juce::Colour color, int curveTarget,

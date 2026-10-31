@@ -155,6 +155,16 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - When LFO PM is off, the pitch ratio calculation (pow) is skipped. SSG, WT, WT2, WT+, ADPCM, ADPCM+, BEEP and the RHYTHM pads
   - Choosing a rate from the 16 2A03 rates for the noise More Real FC now takes one log instead of 16
   - When PARAM ENV points at something other than MUL, DT, FIX FREQ or SPEED, the frequency is no longer rebuilt while notes play (the same change as the LIVE DETUNE fix above)
+  - Voices that are not playing no longer receive the sound parameters every block; the latest values are handed over when a key is pressed. A voice that had once used PARAM ENV / TAP PARAM SEQUENCER kept copying and re-reading all values after it finished (up to 80 voices with unison)
+  - The OPNA and OPN LFO PM ratio (pow) is computed once per sample instead of once per operator
+  - The unison gain compensation (sqrt) is computed once when its value is set instead of every sample
+  - The TAP AMP SEQUENCER work buffer is allocated when playback is prepared instead of on the audio thread
+- **Lighter screen drawing (the look does not change)**
+  - Hit-testing for the category backdrops now runs once per mouse movement instead of once per backdrop. Backdrops in hidden tabs or folded frames are skipped, and nothing is searched while a knob is being dragged
+  - Frame title widths are measured only when the text changes (they were measured on every mouse move). When a title changes colour, only the title band is redrawn instead of the whole frame
+  - The large TARGET frame copies and redraws only when its source changes (it redrew 10 times a second even when nothing happened)
+  - Graphs and TAP SEQUENCER / TAP PARAM SEQUENCER in hidden tabs or closed sections no longer read the play position. When only the current step moves, the TAP views move just the marker (they rebuilt the text of every step)
+  - The real-time waveforms are not redrawn when they are the same as before (no sound)
 
 ### 3-0-2. What v4.2.0 adds and changes
 

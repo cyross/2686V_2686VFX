@@ -205,6 +205,7 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
             voice->prepare(sampleRate);
+            voice->reserveBlock(samplesPerBlock);
         }
     }
 

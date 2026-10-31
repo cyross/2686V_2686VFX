@@ -11,6 +11,8 @@ GuiEnvelopeGraph::GuiEnvelopeGraph() {
 
 void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, const std::vector<PhaseDef>& phases)
 {
+    ++m_revision;
+
     currentType = type;
     currentTitle = title;
     currentPhases = phases;
@@ -69,6 +71,8 @@ void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, cons
 
 void GuiEnvelopeGraph::setLiveSource(const LivePosition* position, std::function<int()> fps)
 {
+    ++m_revision;
+
     liveTable = position;
     liveFps = std::move(fps);
 
@@ -98,6 +102,9 @@ void GuiEnvelopeGraph::timerCallback()
     const int fps = liveFps();
 
     LiveGraph::pace(*this, fps > 0 ? fps : LiveGraph::idleHz);
+
+    // 隠れたタブ・閉じた区分のグラフは読みに行かない (見えたときの次の回で追いつく)
+    if (!isShowing()) return;
 
     const auto live = liveTable->read();
     const auto now = juce::Time::getMillisecondCounter();

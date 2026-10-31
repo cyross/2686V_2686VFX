@@ -62,6 +62,10 @@ public:
 
 	N88LfoValues value;
 
+	// PM の周波数の倍率 (2 ^ (value.pm * depthNorm))。どのオペレーターでも同じなので、
+	// getSample で 1 回だけ求める。PM を切っているときは 1
+	float pmRatio = 1.0f;
+
 	void prepare(double sampleRate);
 	void updateTargetSampleRate(double newSampleRate);
 	void setParameters(const LfoN88Params &params);

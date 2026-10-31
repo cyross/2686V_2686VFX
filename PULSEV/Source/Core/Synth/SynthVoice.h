@@ -23,6 +23,10 @@ public:
     SynthVoice();
 
     void prepare(double sampleRate);
+
+    // TAP AMP SEQUENCER の作業場所を、ブロックの長さぶん先に取っておく。
+    // 音のスレッドで確保しないため (ホストがもっと長いブロックを渡したときだけ、そこで足す)
+    void reserveBlock(int samplesPerBlock);
     void setParameters(const SynthParams& params);
 
 
@@ -128,6 +132,10 @@ private:
     double m_arpPhase = 0.0; // スロット単位の位相 (1.0 で次のボイスへ)
 
     OscMode m_mode = OscMode::SSG;
+
+    // 最後に配られた値。鳴っていないあいだはコアへ配らずに持っておき、押したときに配る。
+    // 指す先 (プロセッサの m_currentParams など) は、ボイスより長く生きる
+    const SynthParams* m_latestParams = nullptr;
 
     // TAP AMP / PITCH SEQUENCER の、打鍵 1 回ぶんの値 (割合とセント)。
     // 音量は鳴らしているあいだ出力へ掛け、音程は押したときの周波数へ掛ける。

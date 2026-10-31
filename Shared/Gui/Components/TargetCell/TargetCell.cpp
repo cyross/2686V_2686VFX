@@ -95,6 +95,7 @@ void GuiTargetCell::mouseDown(const juce::MouseEvent&)
 void GuiTargetCell::follow(const GuiTargetCell* source)
 {
     m_source = source;
+    copied = false;
 
     timerCallback();
 
@@ -104,10 +105,29 @@ void GuiTargetCell::follow(const GuiTargetCell* source)
 
 void GuiTargetCell::timerCallback()
 {
-    if (m_source == nullptr) return;
+    // 見えていないあいだは写さない (見えたときの次の回で写す)
+    if (m_source == nullptr || !isShowing()) return;
 
     titleLabel.setText(m_source->titleLabel.getText(), juce::dontSendNotification);
-    m_graph.copyFrom(m_source->m_graph);
 
-    if (hasPreview && m_source->hasPreview) m_preview.copyFrom(m_source->m_preview);
+    // 写し元が変わっていなければ写さない。写すと描き直しになり、エンベロープの絵は重い
+    const auto& graph = m_source->m_graph;
+
+    if (!copied || graph.revision() != seenGraphRevision || graph.isEnabled() != seenGraphEnabled) {
+        seenGraphRevision = graph.revision();
+        seenGraphEnabled = graph.isEnabled();
+        m_graph.copyFrom(graph);
+    }
+
+    if (hasPreview && m_source->hasPreview) {
+        const auto& preview = m_source->m_preview;
+
+        if (!copied || preview.revision() != seenPreviewRevision || preview.isEnabled() != seenPreviewEnabled) {
+            seenPreviewRevision = preview.revision();
+            seenPreviewEnabled = preview.isEnabled();
+            m_preview.copyFrom(preview);
+        }
+    }
+
+    copied = true;
 }
