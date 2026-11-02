@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include <array>
+#include <limits>
 #include <vector>
 
 #include "./ProcessorHelper.h"
@@ -488,7 +489,7 @@ namespace ParamEnv
 	struct Keys
 	{
 		juce::String base;
-		juce::String enable, target, steps, loop, loopTo, loopCount, loopMode, rr, endlEnable, keep, strictRate;
+		juce::String enable, target, steps, loop, loopTo, loopCount, loopMode, rr, endlEnable, keep, strictRate, startNow, tickSync;
 
 		explicit Keys(const juce::String& b) :
 			base(b),
@@ -502,7 +503,9 @@ namespace ParamEnv
 			rr(b + "_RR"),
 			endlEnable(b + "_ENDL_EN"),
 			keep(b + "_KEEP"),
-			strictRate(b + "_STRICT_R")
+			strictRate(b + "_STRICT_R"),
+			startNow(b + "_START_NOW"),
+			tickSync(b + "_TSYNC")
 		{
 		}
 	};
@@ -542,6 +545,8 @@ namespace ParamEnv
 		PrHelper::addBool(layout, prefix + k.endlEnable, n + " EndL Enable", false);
 		PrHelper::addBool(layout, prefix + k.keep, n + " Keep", false);
 		PrHelper::addBool(layout, prefix + k.strictRate, n + " Strict R", false);
+		PrHelper::addBool(layout, prefix + k.startNow, n + " Start Now", false);
+		PrHelper::addBool(layout, prefix + k.tickSync, n + " T Sync", false);
 	}
 
 	// defaults は指し先ごとの値の組の初期値 (TARGET の並びの順)
@@ -560,6 +565,8 @@ namespace ParamEnv
 		p.endlEnable = apvts.getRawParameterValue(prefix + k.endlEnable);
 		p.keep = apvts.getRawParameterValue(prefix + k.keep);
 		p.strictRate = apvts.getRawParameterValue(prefix + k.strictRate);
+		p.startNow = apvts.getRawParameterValue(prefix + k.startNow);
+		p.tickSync = apvts.getRawParameterValue(prefix + k.tickSync);
 
 		// 段の R と、指し先ごとの値の組はプロセッサが持つ表から引く
 		p.table = &tables.getWithLevelSets(prefix + k.base, rateInitial, defaults);
@@ -584,6 +591,8 @@ namespace ParamEnv
 		params.endlEnable = PrHelper::getBool(p.endlEnable);
 		params.keep = stepped || PrHelper::getBool(p.keep);
 		params.strictRate = PrHelper::getBool(p.strictRate);
+		params.startNow = PrHelper::getBool(p.startNow);
+		params.tickSync = PrHelper::getBool(p.tickSync);
 		params.table = p.table;
 		params.levelSet = set;
 	}
@@ -749,6 +758,7 @@ public:
 		out.live = isLive(scope, index);
 
 		ParamEnv::applyEnv(p, out.env, out.stepped, target);
+		out.env.idleStart = knobOf(scope, index);
 	}
 
 	// オペレーターの PARAM ENV を音の側の値にする。TL を指しているときは、
@@ -765,6 +775,7 @@ public:
 		out.live = isLive(opIndex, index);
 
 		ParamEnv::applyEnv(p, out.env, stepped, index);
+		out.env.idleStart = knobOf(opIndex, index);
 
 		if (index == catalog->tlIndex) {
 			out.enable = false;
@@ -790,6 +801,17 @@ public:
 		out.live = isLive(opIndex, index);
 
 		ParamEnv::applyEnv(p, out.env, out.stepped, index);
+		out.env.idleStart = knobOf(opIndex, index);
+	}
+
+	// 指し先のつまみの今の値 (0〜1)。START NOW で、止まっていた声が始める値 (4.3.0)
+	float knobOf(int scope, int index) const
+	{
+		const auto* s = slot(scope, index);
+
+		if (s == nullptr || s->ptr == nullptr || s->param == nullptr) return std::numeric_limits<float>::quiet_NaN();
+
+		return s->param->convertTo0to1(s->ptr->load(std::memory_order_relaxed));
 	}
 
 	// 音源の値に、ARP FREQ の在りかと範囲を入れる

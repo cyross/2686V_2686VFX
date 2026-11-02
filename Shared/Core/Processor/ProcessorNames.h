@@ -266,6 +266,8 @@ namespace CPN
 		static inline const juce::String endlEnable = " SSG SwEnv256 EndL Enable";
 		static inline const juce::String keep = " SSG SwEnv256 Keep";
 		static inline const juce::String strictRate = " SSG SwEnv256 Strict R";
+		static inline const juce::String startNow = " SSG SwEnv256 Start Now";
+		static inline const juce::String tickSync = " SSG SwEnv256 T Sync";
 	};
 
 	namespace SsgSwPEnv256
@@ -284,6 +286,8 @@ namespace CPN
 		static inline const juce::String endlEnable = " SSG SwPEnv256 EndL Enable";
 		static inline const juce::String keep = " SSG SwPEnv256 Keep";
 		static inline const juce::String strictRate = " SSG SwPEnv256 Strict R";
+		static inline const juce::String startNow = " SSG SwPEnv256 Start Now";
+		static inline const juce::String tickSync = " SSG SwPEnv256 T Sync";
 	};
 
 	namespace Opzx7Lfo

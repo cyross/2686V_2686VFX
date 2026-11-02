@@ -8,6 +8,7 @@
 #include "./GuiColor.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "Shared/Core/Synth/StepLoop.h"
+#include "Shared/Core/Synth/StepRate.h"
 #include "Shared/Core/Synth/LivePosition.h"
 #include "./GuiLiveGraph.h"
 
@@ -85,6 +86,10 @@ public:
 
         // KEEP のときも形を変えない (行き先へ移る縦の線など)
         bool keepShape = false;
+
+        // 刻みで動く RATE の段 (4.3.0)。1 刻みの幅 (区間の幅に対する割合)。0 なら階段にしない。
+        // 値は curveFunc が返す (刻みの位置で段が上がる)
+        float stairPeriod = 0.0f;
     };
 
     // サスティン (鍵を押しているあいだ保つ区間) の幅。時間ではなく、決まった長さで描く
@@ -152,6 +157,17 @@ public:
         // リリースを走り終えたあとに保つ値 (Use Endl)
         bool endlEnable = false;
         float endl = 0.0f;
+
+        // 段の進め方 (4.3.0)。[s] が段 s (r と同じ並び)。足りない段は TIME
+        std::vector<StepRate::Step> rates;
+        StepRate::Step releaseRateStep;
+
+        // T SYNC と、そのとき 1 刻みを決めるテンポ
+        bool tickSync = false;
+        double bpm = StepRate::defaultBpm;
+
+        // START NOW。STL の点を中抜きの丸にする
+        bool startNow = false;
     };
 
     void updateSsgSwEnv256(
@@ -198,6 +214,8 @@ public:
         currentPhases = other.currentPhases;
         isBypass = other.isBypass;
         keepLevels = other.keepLevels;
+        hollowStart = other.hollowStart;
+        tempoText = other.tempoText;
         setEnabled(other.isEnabled());
         setLiveSource(other.liveTable, other.liveFps);
         repaint();
@@ -223,6 +241,15 @@ private:
     // 段のエンベロープの並びを組む。種類ごとに違うのは色・見出し・カーブの的だけ。
     void updateStepEnv(EnvType type, const juce::String& title, juce::Colour color, int curveTarget,
         const StepEnvValues& v, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
+
+    // 段のエンベロープの絵を置き、STL の丸とテンポの文字を付ける
+    void setStepEnvelope(EnvType type, const juce::String& title, const std::vector<PhaseDef>& phases, const StepEnvValues& v);
+
+    // START NOW のとき、STL の点を中抜きの丸にする (4.3.0)
+    bool hollowStart = false;
+
+    // T SYNC の刻みを描くのに使ったテンポ。空なら出さない (4.3.0)
+    juce::String tempoText;
 
     // 段のあいだレベルを保つか。KEEP を入れた区分から立てられる。
     bool keepLevels = false;

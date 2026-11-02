@@ -1,6 +1,7 @@
 ﻿#include "./EnvStep.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace
 {
@@ -35,6 +36,9 @@ void StepEnv::setParameters(const StepEnvParams& p)
 	endlEnable = p.endlEnable;
 	keep = p.keep;
 	strictRate = p.strictRate;
+	startNow = p.startNow;
+	idleStart = p.idleStart;
+	tickSync = p.tickSync;
 	l[0] = p.stl;
 
 	// 画面でも直しているが、念のためここでもループできる形にする。
@@ -65,6 +69,8 @@ void StepEnv::setParameters(const StepEnvParams& p)
 				r[(size_t)s] = table->rate(s);
 				l[(size_t)s] = fromSet ? table->setValue(levelSet, s) : table->level(s);
 			}
+
+			for (int s = 1; s <= StepTable::releaseStep; ++s) rates[(size_t)s] = table->rateStep(s);
 		}
 
 		// PARAM ENV。STL・LR・ENDL も指し先の組から取る
@@ -77,6 +83,7 @@ void StepEnv::setParameters(const StepEnvParams& p)
 	else {
 		std::fill(r.begin() + 1, r.end(), 0.0f);
 		std::fill(l.begin() + 1, l.end(), 0.0f);
+		rates.fill({});
 	}
 }
 
@@ -87,9 +94,16 @@ float StepEnv::curve(int param, float x) const
 
 void StepEnv::noteOn()
 {
+	// START NOW。まだ走っていれば (離したあとの余韻など)、いま出している値から始める。
+	// 止まっていたら STL (PARAM ENV は指し先のつまみの今の値)
+	const bool resume = startNow && state != State::Idle;
+
 	loopCounter = 0;
 	richState.clear();
-	current = l[0];
+
+	if (resume) current = value();
+	else current = startNow && !std::isnan(idleStart) ? idleStart : l[0];
+
 	keepLevel = current;
 	state = State::Running;
 
@@ -131,12 +145,20 @@ void StepEnv::noteOff()
 	target = lr;
 	progress = 0.0f;
 	instant = false;
+	elapsed = 0.0f;
+	rateRun.active = false;
+
+	// RATE のリリース。D が 0 だと (打ち切らなければ) いつまでも終わらないので、そのときは TIME で進める
+	if (const auto& rel = rates[(size_t)StepTable::releaseStep]; rel.rate && rel.delta > 0.0f) {
+		inc = 0.0f;
+		stepLength = beginRate(StepTable::releaseStep, rr);
+		return;
+	}
 
 	const float rate = std::max(instantRate, rr);
 
 	inc = sampleRate > 0.0 ? (lr - current) / (rate * (float)sampleRate) : (lr - current);
 
-	elapsed = 0.0f;
 	stepLength = rate * (float)sampleRate;
 
 	// KEEP の値はここでは取り直さない。[11] と同じく、リリースのあいだは
@@ -152,14 +174,77 @@ void StepEnv::beginStep(int s)
 	startLevel = current;
 	target = looping ? levelOf(loopTo) : levelOf(s);
 	progress = 0.0f;
+	elapsed = 0.0f;
+	rateRun.active = false;
+
+	// RATE の段。R は打ち切りの時間 (最小なら打ち切らない)
+	if (rates[(size_t)s].rate) {
+		instant = false;
+		inc = 0.0f;
+		stepLength = beginRate(s, r[(size_t)s]);
+		return;
+	}
 
 	const float rate = r[(size_t)s];
 
 	instant = rate <= instantRate || sampleRate <= 0.0;
 	inc = instant ? (target - current) : (target - current) / (rate * (float)sampleRate);
 
-	elapsed = 0.0f;
 	stepLength = instant ? 1.0f : rate * (float)sampleRate;
+}
+
+float StepEnv::tickSamples(int slot) const
+{
+	const double bpm = table != nullptr ? table->tempoBpm() : StepRate::defaultBpm;
+
+	return (float)(StepRate::tickSeconds(rates[(size_t)slot], tickSync, bpm) * sampleRate);
+}
+
+float StepEnv::beginRate(int slot, float limitSeconds)
+{
+	rateRun.active = true;
+	rateRun.slot = slot;
+	rateRun.sinceTick = 0.0f;
+	rateRun.limit = StepRate::limited(limitSeconds) && sampleRate > 0.0 ? limitSeconds * (float)sampleRate : -1.0f;
+
+	if (sampleRate <= 0.0) return 1.0f;
+
+	// 鳴っている位置の長さ。動かず打ち切りもしない段は長さが無いので、頭に置いたままにする
+	const auto seg = StepRate::segment(current, target, rates[(size_t)slot].delta, tickSamples(slot) / sampleRate, limitSeconds);
+
+	if (seg.endless) return std::numeric_limits<float>::max();
+
+	return std::max(1.0f, (float)(seg.seconds * sampleRate));
+}
+
+// 行き先に着いたら止める (行き過ぎない)。打ち切りの時間が来たら、着いていなくても終える。
+// 刻みは前の刻みから T たったところで動く (段に入った瞬間は動かない)
+bool StepEnv::advanceRate()
+{
+	if (current == target) return true;
+
+	const auto& st = rates[(size_t)rateRun.slot];
+	const float tick = tickSamples(rateRun.slot);
+
+	float move = 0.0f;
+
+	if (tick > 0.0f) {
+		rateRun.sinceTick += 1.0f;
+
+		if (rateRun.sinceTick >= tick) {
+			rateRun.sinceTick -= tick;
+			move = st.delta;
+		}
+	}
+	else if (sampleRate > 0.0) {
+		move = st.delta / (float)sampleRate;
+	}
+
+	if (move > 0.0f) current = target >= current ? std::min(target, current + move) : std::max(target, current - move);
+
+	if (current == target) return true;
+
+	return rateRun.limit >= 0.0f && elapsed >= rateRun.limit;
 }
 
 void StepEnv::advance()
@@ -171,7 +256,10 @@ void StepEnv::advance()
 	if (state == State::Release) {
 		bool ended = false;
 
-		if (useCurve()) {
+		if (rateRun.active) {
+			ended = advanceRate();
+		}
+		else if (useCurve()) {
 			progress += 1.0f / (std::max(instantRate, rr) * (float)sampleRate);
 			ended = progress >= 1.0f;
 
@@ -189,7 +277,10 @@ void StepEnv::advance()
 		}
 
 		if (ended) {
-			current = target;
+			// RATE で打ち切ったときは、着いたところで止める
+			if (!rateRun.active) current = target;
+
+			rateRun.active = false;
 			state = State::Idle;
 
 			if (endlEnable) current = endl;
@@ -202,8 +293,10 @@ void StepEnv::advance()
 
 	// 最後の段を走り終えて保っているところ (サステイン)。値を動かしたときに追うよう、
 	// 毎回取り直す。KEEP のときも、ここからは最後の段の値を出す。
+	// RATE の段を打ち切って保っているときは、着いたところの値を保つ
 	if (holding) {
-		current = levelOf(step);
+		if (!rateRun.active) current = levelOf(step);
+
 		keepLevel = current;
 		return;
 	}
@@ -211,7 +304,10 @@ void StepEnv::advance()
 	bool ended = instant;
 
 	if (!ended) {
-		if (useCurve()) {
+		if (rateRun.active) {
+			ended = advanceRate();
+		}
+		else if (useCurve()) {
 			progress += 1.0f / (r[(size_t)step] * (float)sampleRate);
 			ended = progress >= 1.0f;
 
@@ -235,7 +331,8 @@ void StepEnv::advance()
 
 	if (!ended) return;
 
-	current = target;
+	// RATE の段を打ち切ったときは、着いたところから次の段を始める
+	if (!rateRun.active) current = target;
 
 	if (looping) {
 		if (loopCount > 0) ++loopCounter;

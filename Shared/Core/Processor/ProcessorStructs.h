@@ -90,6 +90,8 @@ struct PrPtrsStepEnv {
     std::atomic<float>* endlEnable = nullptr;
     std::atomic<float>* keep = nullptr;
     std::atomic<float>* strictRate = nullptr;
+    std::atomic<float>* startNow = nullptr;
+    std::atomic<float>* tickSync = nullptr;
     const StepTable* table = nullptr;
 };
 

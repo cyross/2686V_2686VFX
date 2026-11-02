@@ -166,6 +166,23 @@ RR seconds. Each SSG SW AMP / PITCH ENV[256], PARAM ENV[256], ALG ENV, DUTY RATI
 
 It is off by default, so existing patches sound the same.
 
+## Step envelopes can move by a fixed amount (RATE steps), start from the current value, and sync ticks to the tempo
+
+A step moves from its starting value to L in R seconds, so the same R moves at a different speed when the starting value
+differs. Each step now has a **MODE** (under R.TARGET). A **RATE** step moves toward L by a fixed amount, **DELTA**, and ends on
+reaching L or after R seconds (R at its minimum never cuts it short). With **TICK** above 0 it moves DELTA every TICK seconds,
+which suits moving the volume 1/16 at a time or the pitch a semitone at a time. The release has the same choice in **RR MODE**.
+
+- **START NOW** starts the first step from the current value when the envelope is still running at key-on (during the release
+  and so on). PARAM ENV starts a stopped voice from the target knob's current value
+- **T SYNC** takes the tick from **TICK NOTE** (1/1–1/64, dotted and triplet) at the host tempo (120 BPM without one)
+- The graph follows the levels the sound actually reaches, draws ticks as stairs, draws STL as a hollow circle with START NOW,
+  and shows the tempo used at the top right when note ticks are in use
+
+They are in SSG SW AMP / PITCH ENV[256], PARAM ENV[256], ALG ENV, DUTY RATIO ENVELOPE and PEAK RATIO ENVELOPE. Everything starts
+as TIME with START NOW and T SYNC off, so existing patches sound the same. See
+[MODE – RATE steps](/2686V_2686VFX/en/chips/common/#mode--rate-steps-move-by-a-fixed-amount).
+
 ## The sustain part of the graphs stands out
 
 On the AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] graphs, the part held while the key

@@ -149,22 +149,66 @@ namespace StepTableIo
         }
     }
 
+    // 段の進め方 (TIME / RATE・D・T) を文字にする (4.3.0)。初期値と違う段だけを
+    // "段:RATE か:D:T 秒:T の音符;..." で並べる。段は 1 から、257 がリリース
+    inline juce::String rateStepsToText(const StepTable& table)
+    {
+        juce::StringArray parts;
+
+        for (int s = 1; s <= StepTable::releaseStep; ++s) {
+            const auto v = table.rateStep(s);
+
+            if (v == StepRate::Step{}) continue;
+
+            parts.add(juce::String(s) + ":" + juce::String(v.rate ? 1 : 0) + ":" + juce::String(v.delta, 6)
+                + ":" + juce::String(v.tickSec, 6) + ":" + juce::String(v.tickNote));
+        }
+
+        return parts.joinIntoString(";");
+    }
+
+    // 書かれていない段は TIME (D 0・T 0) に戻す。版は進めない (呼ぶ側が進める)
+    inline void rateStepsFromText(StepTable& table, const juce::String& text)
+    {
+        table.resetRateSteps();
+
+        for (const auto& part : juce::StringArray::fromTokens(text, ";", "")) {
+            const auto v = juce::StringArray::fromTokens(part, ":", "");
+
+            if (v.size() < 5) continue;
+
+            const int s = v[0].getIntValue();
+
+            if (s < 1 || s > StepTable::releaseStep) continue;
+
+            const auto i = (size_t)s - 1;
+
+            table.rateModes[i].store(v[1].getIntValue() != 0, std::memory_order_relaxed);
+            table.deltas[i].store(juce::jmax(0.0f, v[2].getFloatValue()), std::memory_order_relaxed);
+            table.tickSecs[i].store(juce::jmax(0.0f, v[3].getFloatValue()), std::memory_order_relaxed);
+            table.tickNotes[i].store(juce::jlimit(0, StepRate::noteCount - 1, v[4].getIntValue()), std::memory_order_relaxed);
+        }
+    }
+
     // 文字で書き出す。"r1,r2,...|l1,l2,..."。後ろの既定の値は省く。
     // ループの組があるときだけ、後ろへ "|start:end:count;..." を足す (4.1.0)。
     // SKIP の段があるときは、さらに後ろへ "|s1,s2,..." を足す (組が無ければ空のまま挟む)。
+    // 段の進め方 (RATE の段) があるときは、さらに後ろへ "|段:..." を足す (4.3.0。前が無ければ空のまま挟む)。
     inline juce::String toText(const StepTable& table)
     {
         auto text = detail::join(table.r, table.defaultR) + "|" + detail::join(table.l, table.defaultL);
 
         const bool skips = table.hasSkips();
+        const bool rates = table.hasRateSteps();
 
-        if (table.loopCount() > 0 || skips) text << "|" << loopsToText(table.loopList());
-        if (skips) text << "|" << skipsToText(table);
+        if (table.loopCount() > 0 || skips || rates) text << "|" << loopsToText(table.loopList());
+        if (skips || rates) text << "|" << skipsToText(table);
+        if (rates) text << "|" << rateStepsToText(table);
 
         return text;
     }
 
-    // toText の逆。書かれていない段は既定の値に戻す。ループの組や SKIP が無ければ空にする。
+    // toText の逆。書かれていない段は既定の値に戻す。ループの組や SKIP、段の進め方が無ければ空にする。
     inline void fromText(StepTable& table, const juce::String& text)
     {
         const auto halves = juce::StringArray::fromTokens(text, "|", "");
@@ -172,6 +216,7 @@ namespace StepTableIo
         detail::split(halves.size() > 0 ? halves[0] : juce::String(), table.r, table.defaultR);
         detail::split(halves.size() > 1 ? halves[1] : juce::String(), table.l, table.defaultL);
         skipsFromText(table, halves.size() > 3 ? halves[3] : juce::String());
+        rateStepsFromText(table, halves.size() > 4 ? halves[4] : juce::String());
 
         // 版を進めるのは setLoops がする
         table.setLoops(loopsFromText(halves.size() > 2 ? halves[2] : juce::String()));

@@ -38,12 +38,17 @@
 //   STEPS
 //   KEEP
 //   STRICT R     (4.3.0。段もリリースも R 秒を守る)
+//   START NOW    (4.3.0。押したときにまだ走っていれば、その時点の値から始める)
+//   T SYNC       (4.3.0。RATE の段の 1 刻みをテンポに合わせる)
 //   LOOP / LOOP MODE
 //     Original Mode : LOOP.TO / LOOP.CNT
 //     Rich Mode     : LP.TARGET / START / END / COUNT / ADD・DELETE / 一覧 (4.1.0)
-//   R.TARGET / RATE / 帯 (R1〜)
+//   R.TARGET / RATE / MODE / DELTA / TICK / TICK NOTE / 帯 (R1〜。RATE の段は D1〜)
 //   L.TARGET / LEVEL / (STEPS) / 帯 (STL, L1〜)
-//   RR / LR      リリース
+//   RR / LR / RR MODE / RR DELTA / RR TICK / RR NOTE   リリース
+//
+// MODE / DELTA / TICK / TICK NOTE は段ごとの進め方 (4.3.0, StepRate.h)。表に持ち、
+// R.TARGET で選んだ段のものを出す。RR の 4 つはリリースのもの (表の releaseStep)。
 //   Use Endl / ENDL
 //
 // 種類ごとに違うところ (見出し・鍵・値の範囲・補正ボタンなど) は Spec で渡す。
@@ -70,6 +75,9 @@ public:
 
         // STRICT R (4.3.0)。入れると段もリリースも R 秒を守る。空なら置かない
         juce::String strictRate;
+
+        // START NOW / T SYNC (4.3.0)。空なら置かない
+        juce::String startNow, tickSync;
 
         // 値の範囲。整数なら interval を 1 にする
         double rateMin = 0.0, rateMax = 1.0, rateInterval = 0.001;
@@ -191,6 +199,8 @@ private:
     // 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
     GuiToggleButton keep;
     GuiToggleButton strictRate;
+    GuiToggleButton startNow;
+    GuiToggleButton tickSync;
     NormalSeparator keepSeparator;
     GuiToggleButton loop;
 
@@ -208,6 +218,13 @@ private:
     // RATE を動かすボタン。±0.001〜±1.0 と、0.001 / 0.01 / 0.1 / 1.0 を直に置くもの。
     // RATE の下限は 0.001 なので、「0」ではなく「0.001」を置く。
     GuiComponentValueButtons rateNudge;
+    // R.TARGET で選んだ段の進め方 (TIME / RATE)・変化量・1 刻みの時間 (秒と音符)
+    GuiComboBox rateMode;
+    GuiSlider delta;
+    GuiComponentValueButtons deltaBtns;
+    GuiSlider tick;
+    GuiComponentValueButtons tickBtns;
+    GuiComboBox tickNote;
     GuiStepValues rateValues;
     NormalSeparator rateSeparator;
 
@@ -229,6 +246,12 @@ private:
     // RR / LR を動かすボタン。RR は RATE と、LR は値 (LEVEL など) と同じ並び
     GuiComponentValueButtons releaseRateBtns;
     GuiComponentValueButtons releaseLevelBtns;
+
+    // リリースの進め方 (表の releaseStep)
+    GuiComboBox releaseMode;
+    GuiSlider releaseDelta;
+    GuiSlider releaseTick;
+    GuiComboBox releaseTickNote;
 
     NormalSeparator endLevelSeparator;
     GuiToggleButton endLevelEnable;
@@ -289,6 +312,32 @@ private:
     // KEEP の札を持つもの (ALG ENV は常に KEEP)
     bool hasKeep() const { return spec.keep.isNotEmpty(); }
     bool hasStrictRate() const { return spec.strictRate.isNotEmpty(); }
+    bool hasStartNow() const { return spec.startNow.isNotEmpty(); }
+    bool hasTickSync() const { return spec.tickSync.isNotEmpty(); }
+
+    // 頭のトグルの並び (KEEP / STRICT R / START NOW / T SYNC) のどれかを持つか
+    bool hasHeadToggles() const { return hasKeep() || hasStrictRate() || hasStartNow() || hasTickSync(); }
+
+    // ---- 段の進め方 (4.3.0)
+    // 段 (1〜256) かリリース (StepTable::releaseStep) の進め方
+    StepRate::Step rateStepAt(int step) const;
+    void setRateStepAt(int step, const StepRate::Step& value);
+
+    // R.TARGET の段 (とリリース) の進め方を、つまみへ映す
+    void loadRateStep();
+
+    // 進め方のつまみが動いた。release ならリリースのもの
+    void onRateStepChanged(bool release);
+
+    // DELTA の範囲 (値の幅) と書き方。PARAM ENV は 0〜1 で、指し先の 1 刻み
+    void setDeltaRange();
+    std::vector<GuiComponentValueButtons::Entry> deltaButtonEntries() const;
+    static std::vector<GuiComponentValueButtons::Entry> tickButtonEntries();
+    bool isTickSync() const { return hasTickSync() && tickSync.getToggleState(); }
+
+    // 段の進め方をパラメータファイルへ出し入れする
+    void readRateSteps(const Io::ParamReader& r);
+    void writeRateSteps(Io::ParamWriter& w) const;
 
     // 0〜1 の値を少しずつ動かすボタン (ampBtns) を使うもの
     bool usesUnitButtons() const { return spec.kind == Spec::Kind::Amp || spec.kind == Spec::Kind::Peak; }

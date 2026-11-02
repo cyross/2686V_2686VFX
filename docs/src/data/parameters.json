@@ -1,7 +1,7 @@
 {
   "plugin": "ParamDump",
   "version": "4.3.0",
-  "count": 13599,
+  "count": 13899,
   "parameters": [
     {
       "id": "MODE",
@@ -239,6 +239,22 @@
     {
       "id": "OPNA_PRMENV_STRICT_R",
       "name": "OPNA ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_PRMENV_START_NOW",
+      "name": "OPNA ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_PRMENV_TSYNC",
+      "name": "OPNA ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -1664,6 +1680,22 @@
       "default": false
     },
     {
+      "id": "OPNA_SSGSW256_START_NOW",
+      "name": "OPNA SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_SSGSW256_TSYNC",
+      "name": "OPNA SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_SSGSWP256_STEPS",
       "name": "OPNA SSG SwPEnv256 Steps",
       "type": "Int",
@@ -1755,6 +1787,22 @@
     {
       "id": "OPNA_SSGSWP256_STRICT_R",
       "name": "OPNA SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_SSGSWP256_START_NOW",
+      "name": "OPNA SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_SSGSWP256_TSYNC",
+      "name": "OPNA SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2053,6 +2101,22 @@
     {
       "id": "OPNA_ALGENV_STRICT_R",
       "name": "OPNA AlgEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_ALGENV_START_NOW",
+      "name": "OPNA AlgEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_ALGENV_TSYNC",
+      "name": "OPNA AlgEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2452,6 +2516,22 @@
       "default": false
     },
     {
+      "id": "OPNA_OP0_SSGSW256_START_NOW",
+      "name": "OPNA Op1 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_SSGSW256_TSYNC",
+      "name": "OPNA Op1 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP0_PRMENV_ENABLE",
       "name": "OPNA Op1 ParamEnv Enable",
       "type": "Bool",
@@ -2535,6 +2615,22 @@
     {
       "id": "OPNA_OP0_PRMENV_STRICT_R",
       "name": "OPNA Op1 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_PRMENV_START_NOW",
+      "name": "OPNA Op1 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_PRMENV_TSYNC",
+      "name": "OPNA Op1 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -2680,6 +2776,22 @@
     {
       "id": "OPNA_OP0_SSGSWP256_STRICT_R",
       "name": "OPNA Op1 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_SSGSWP256_START_NOW",
+      "name": "OPNA Op1 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP0_SSGSWP256_TSYNC",
+      "name": "OPNA Op1 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -4190,6 +4302,22 @@
       "default": false
     },
     {
+      "id": "OPNA_OP1_SSGSW256_START_NOW",
+      "name": "OPNA Op2 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_SSGSW256_TSYNC",
+      "name": "OPNA Op2 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP1_PRMENV_ENABLE",
       "name": "OPNA Op2 ParamEnv Enable",
       "type": "Bool",
@@ -4273,6 +4401,22 @@
     {
       "id": "OPNA_OP1_PRMENV_STRICT_R",
       "name": "OPNA Op2 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_PRMENV_START_NOW",
+      "name": "OPNA Op2 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_PRMENV_TSYNC",
+      "name": "OPNA Op2 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -4418,6 +4562,22 @@
     {
       "id": "OPNA_OP1_SSGSWP256_STRICT_R",
       "name": "OPNA Op2 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_SSGSWP256_START_NOW",
+      "name": "OPNA Op2 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP1_SSGSWP256_TSYNC",
+      "name": "OPNA Op2 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -5928,6 +6088,22 @@
       "default": false
     },
     {
+      "id": "OPNA_OP2_SSGSW256_START_NOW",
+      "name": "OPNA Op3 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_SSGSW256_TSYNC",
+      "name": "OPNA Op3 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP2_PRMENV_ENABLE",
       "name": "OPNA Op3 ParamEnv Enable",
       "type": "Bool",
@@ -6011,6 +6187,22 @@
     {
       "id": "OPNA_OP2_PRMENV_STRICT_R",
       "name": "OPNA Op3 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_PRMENV_START_NOW",
+      "name": "OPNA Op3 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_PRMENV_TSYNC",
+      "name": "OPNA Op3 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -6156,6 +6348,22 @@
     {
       "id": "OPNA_OP2_SSGSWP256_STRICT_R",
       "name": "OPNA Op3 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_SSGSWP256_START_NOW",
+      "name": "OPNA Op3 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP2_SSGSWP256_TSYNC",
+      "name": "OPNA Op3 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -7666,6 +7874,22 @@
       "default": false
     },
     {
+      "id": "OPNA_OP3_SSGSW256_START_NOW",
+      "name": "OPNA Op4 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_SSGSW256_TSYNC",
+      "name": "OPNA Op4 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPNA_OP3_PRMENV_ENABLE",
       "name": "OPNA Op4 ParamEnv Enable",
       "type": "Bool",
@@ -7749,6 +7973,22 @@
     {
       "id": "OPNA_OP3_PRMENV_STRICT_R",
       "name": "OPNA Op4 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_PRMENV_START_NOW",
+      "name": "OPNA Op4 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_PRMENV_TSYNC",
+      "name": "OPNA Op4 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -7894,6 +8134,22 @@
     {
       "id": "OPNA_OP3_SSGSWP256_STRICT_R",
       "name": "OPNA Op4 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_SSGSWP256_START_NOW",
+      "name": "OPNA Op4 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPNA_OP3_SSGSWP256_TSYNC",
+      "name": "OPNA Op4 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -9238,6 +9494,22 @@
     {
       "id": "OPN_PRMENV_STRICT_R",
       "name": "OPN ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_PRMENV_START_NOW",
+      "name": "OPN ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_PRMENV_TSYNC",
+      "name": "OPN ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -10655,6 +10927,22 @@
       "default": false
     },
     {
+      "id": "OPN_SSGSW256_START_NOW",
+      "name": "OPN SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_SSGSW256_TSYNC",
+      "name": "OPN SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_SSGSWP256_STEPS",
       "name": "OPN SSG SwPEnv256 Steps",
       "type": "Int",
@@ -10746,6 +11034,22 @@
     {
       "id": "OPN_SSGSWP256_STRICT_R",
       "name": "OPN SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_SSGSWP256_START_NOW",
+      "name": "OPN SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_SSGSWP256_TSYNC",
+      "name": "OPN SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -11044,6 +11348,22 @@
     {
       "id": "OPN_ALGENV_STRICT_R",
       "name": "OPN AlgEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_ALGENV_START_NOW",
+      "name": "OPN AlgEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_ALGENV_TSYNC",
+      "name": "OPN AlgEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -11378,6 +11698,22 @@
       "default": false
     },
     {
+      "id": "OPN_OP0_SSGSW256_START_NOW",
+      "name": "OPN Op1 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_SSGSW256_TSYNC",
+      "name": "OPN Op1 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP0_PRMENV_ENABLE",
       "name": "OPN Op1 ParamEnv Enable",
       "type": "Bool",
@@ -11461,6 +11797,22 @@
     {
       "id": "OPN_OP0_PRMENV_STRICT_R",
       "name": "OPN Op1 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_PRMENV_START_NOW",
+      "name": "OPN Op1 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_PRMENV_TSYNC",
+      "name": "OPN Op1 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -11606,6 +11958,22 @@
     {
       "id": "OPN_OP0_SSGSWP256_STRICT_R",
       "name": "OPN Op1 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_SSGSWP256_START_NOW",
+      "name": "OPN Op1 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP0_SSGSWP256_TSYNC",
+      "name": "OPN Op1 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -13051,6 +13419,22 @@
       "default": false
     },
     {
+      "id": "OPN_OP1_SSGSW256_START_NOW",
+      "name": "OPN Op2 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_SSGSW256_TSYNC",
+      "name": "OPN Op2 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP1_PRMENV_ENABLE",
       "name": "OPN Op2 ParamEnv Enable",
       "type": "Bool",
@@ -13134,6 +13518,22 @@
     {
       "id": "OPN_OP1_PRMENV_STRICT_R",
       "name": "OPN Op2 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_PRMENV_START_NOW",
+      "name": "OPN Op2 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_PRMENV_TSYNC",
+      "name": "OPN Op2 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -13279,6 +13679,22 @@
     {
       "id": "OPN_OP1_SSGSWP256_STRICT_R",
       "name": "OPN Op2 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_SSGSWP256_START_NOW",
+      "name": "OPN Op2 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP1_SSGSWP256_TSYNC",
+      "name": "OPN Op2 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -14724,6 +15140,22 @@
       "default": false
     },
     {
+      "id": "OPN_OP2_SSGSW256_START_NOW",
+      "name": "OPN Op3 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_SSGSW256_TSYNC",
+      "name": "OPN Op3 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP2_PRMENV_ENABLE",
       "name": "OPN Op3 ParamEnv Enable",
       "type": "Bool",
@@ -14807,6 +15239,22 @@
     {
       "id": "OPN_OP2_PRMENV_STRICT_R",
       "name": "OPN Op3 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_PRMENV_START_NOW",
+      "name": "OPN Op3 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_PRMENV_TSYNC",
+      "name": "OPN Op3 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -14952,6 +15400,22 @@
     {
       "id": "OPN_OP2_SSGSWP256_STRICT_R",
       "name": "OPN Op3 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_SSGSWP256_START_NOW",
+      "name": "OPN Op3 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP2_SSGSWP256_TSYNC",
+      "name": "OPN Op3 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -16397,6 +16861,22 @@
       "default": false
     },
     {
+      "id": "OPN_OP3_SSGSW256_START_NOW",
+      "name": "OPN Op4 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_SSGSW256_TSYNC",
+      "name": "OPN Op4 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPN_OP3_PRMENV_ENABLE",
       "name": "OPN Op4 ParamEnv Enable",
       "type": "Bool",
@@ -16480,6 +16960,22 @@
     {
       "id": "OPN_OP3_PRMENV_STRICT_R",
       "name": "OPN Op4 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_PRMENV_START_NOW",
+      "name": "OPN Op4 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_PRMENV_TSYNC",
+      "name": "OPN Op4 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -16625,6 +17121,22 @@
     {
       "id": "OPN_OP3_SSGSWP256_STRICT_R",
       "name": "OPN Op4 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_SSGSWP256_START_NOW",
+      "name": "OPN Op4 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPN_OP3_SSGSWP256_TSYNC",
+      "name": "OPN Op4 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -17975,6 +18487,22 @@
       "default": false
     },
     {
+      "id": "OPL_PRMENV_START_NOW",
+      "name": "OPL ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_PRMENV_TSYNC",
+      "name": "OPL ParamEnv T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_LEVEL",
       "name": "OPL Level",
       "type": "Float",
@@ -19313,6 +19841,22 @@
       "default": false
     },
     {
+      "id": "OPL_SSGSW256_START_NOW",
+      "name": "OPL SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_SSGSW256_TSYNC",
+      "name": "OPL SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_SSGSWP256_STEPS",
       "name": "OPL SSG SwPEnv256 Steps",
       "type": "Int",
@@ -19404,6 +19948,22 @@
     {
       "id": "OPL_SSGSWP256_STRICT_R",
       "name": "OPL SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_SSGSWP256_START_NOW",
+      "name": "OPL SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_SSGSWP256_TSYNC",
+      "name": "OPL SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -19702,6 +20262,22 @@
     {
       "id": "OPL_ALGENV_STRICT_R",
       "name": "OPL AlgEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_ALGENV_START_NOW",
+      "name": "OPL AlgEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_ALGENV_TSYNC",
+      "name": "OPL AlgEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -20079,6 +20655,22 @@
       "default": false
     },
     {
+      "id": "OPL_OP0_SSGSW256_START_NOW",
+      "name": "OPL Op1 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_SSGSW256_TSYNC",
+      "name": "OPL Op1 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_OP0_PRMENV_ENABLE",
       "name": "OPL Op1 ParamEnv Enable",
       "type": "Bool",
@@ -20162,6 +20754,22 @@
     {
       "id": "OPL_OP0_PRMENV_STRICT_R",
       "name": "OPL Op1 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_PRMENV_START_NOW",
+      "name": "OPL Op1 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_PRMENV_TSYNC",
+      "name": "OPL Op1 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -20307,6 +20915,22 @@
     {
       "id": "OPL_OP0_SSGSWP256_STRICT_R",
       "name": "OPL Op1 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_SSGSWP256_START_NOW",
+      "name": "OPL Op1 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP0_SSGSWP256_TSYNC",
+      "name": "OPL Op1 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -21795,6 +22419,22 @@
       "default": false
     },
     {
+      "id": "OPL_OP1_SSGSW256_START_NOW",
+      "name": "OPL Op2 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_SSGSW256_TSYNC",
+      "name": "OPL Op2 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL_OP1_PRMENV_ENABLE",
       "name": "OPL Op2 ParamEnv Enable",
       "type": "Bool",
@@ -21878,6 +22518,22 @@
     {
       "id": "OPL_OP1_PRMENV_STRICT_R",
       "name": "OPL Op2 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_PRMENV_START_NOW",
+      "name": "OPL Op2 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_PRMENV_TSYNC",
+      "name": "OPL Op2 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -22023,6 +22679,22 @@
     {
       "id": "OPL_OP1_SSGSWP256_STRICT_R",
       "name": "OPL Op2 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_SSGSWP256_START_NOW",
+      "name": "OPL Op2 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL_OP1_SSGSWP256_TSYNC",
+      "name": "OPL Op2 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -23373,6 +24045,22 @@
       "default": false
     },
     {
+      "id": "OPL3_PRMENV_START_NOW",
+      "name": "OPL3 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_PRMENV_TSYNC",
+      "name": "OPL3 ParamEnv T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_LEVEL",
       "name": "OPL3 Level",
       "type": "Float",
@@ -24711,6 +25399,22 @@
       "default": false
     },
     {
+      "id": "OPL3_SSGSW256_START_NOW",
+      "name": "OPL3 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_SSGSW256_TSYNC",
+      "name": "OPL3 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_SSGSWP256_STEPS",
       "name": "OPL3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -24802,6 +25506,22 @@
     {
       "id": "OPL3_SSGSWP256_STRICT_R",
       "name": "OPL3 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_SSGSWP256_START_NOW",
+      "name": "OPL3 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_SSGSWP256_TSYNC",
+      "name": "OPL3 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25100,6 +25820,22 @@
     {
       "id": "OPL3_ALGENV_STRICT_R",
       "name": "OPL3 AlgEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_ALGENV_START_NOW",
+      "name": "OPL3 AlgEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_ALGENV_TSYNC",
+      "name": "OPL3 AlgEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25469,6 +26205,22 @@
       "default": false
     },
     {
+      "id": "OPL3_OP0_SSGSW256_START_NOW",
+      "name": "OPL3 Op1 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_SSGSW256_TSYNC",
+      "name": "OPL3 Op1 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP0_PRMENV_ENABLE",
       "name": "OPL3 Op1 ParamEnv Enable",
       "type": "Bool",
@@ -25552,6 +26304,22 @@
     {
       "id": "OPL3_OP0_PRMENV_STRICT_R",
       "name": "OPL3 Op1 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_PRMENV_START_NOW",
+      "name": "OPL3 Op1 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_PRMENV_TSYNC",
+      "name": "OPL3 Op1 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -25697,6 +26465,22 @@
     {
       "id": "OPL3_OP0_SSGSWP256_STRICT_R",
       "name": "OPL3 Op1 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_SSGSWP256_START_NOW",
+      "name": "OPL3 Op1 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP0_SSGSWP256_TSYNC",
+      "name": "OPL3 Op1 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -27177,6 +27961,22 @@
       "default": false
     },
     {
+      "id": "OPL3_OP1_SSGSW256_START_NOW",
+      "name": "OPL3 Op2 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_SSGSW256_TSYNC",
+      "name": "OPL3 Op2 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP1_PRMENV_ENABLE",
       "name": "OPL3 Op2 ParamEnv Enable",
       "type": "Bool",
@@ -27260,6 +28060,22 @@
     {
       "id": "OPL3_OP1_PRMENV_STRICT_R",
       "name": "OPL3 Op2 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_PRMENV_START_NOW",
+      "name": "OPL3 Op2 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_PRMENV_TSYNC",
+      "name": "OPL3 Op2 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -27405,6 +28221,22 @@
     {
       "id": "OPL3_OP1_SSGSWP256_STRICT_R",
       "name": "OPL3 Op2 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_SSGSWP256_START_NOW",
+      "name": "OPL3 Op2 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP1_SSGSWP256_TSYNC",
+      "name": "OPL3 Op2 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -28885,6 +29717,22 @@
       "default": false
     },
     {
+      "id": "OPL3_OP2_SSGSW256_START_NOW",
+      "name": "OPL3 Op3 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_SSGSW256_TSYNC",
+      "name": "OPL3 Op3 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP2_PRMENV_ENABLE",
       "name": "OPL3 Op3 ParamEnv Enable",
       "type": "Bool",
@@ -28968,6 +29816,22 @@
     {
       "id": "OPL3_OP2_PRMENV_STRICT_R",
       "name": "OPL3 Op3 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_PRMENV_START_NOW",
+      "name": "OPL3 Op3 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_PRMENV_TSYNC",
+      "name": "OPL3 Op3 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -29113,6 +29977,22 @@
     {
       "id": "OPL3_OP2_SSGSWP256_STRICT_R",
       "name": "OPL3 Op3 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_SSGSWP256_START_NOW",
+      "name": "OPL3 Op3 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP2_SSGSWP256_TSYNC",
+      "name": "OPL3 Op3 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -30593,6 +31473,22 @@
       "default": false
     },
     {
+      "id": "OPL3_OP3_SSGSW256_START_NOW",
+      "name": "OPL3 Op4 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_SSGSW256_TSYNC",
+      "name": "OPL3 Op4 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPL3_OP3_PRMENV_ENABLE",
       "name": "OPL3 Op4 ParamEnv Enable",
       "type": "Bool",
@@ -30676,6 +31572,22 @@
     {
       "id": "OPL3_OP3_PRMENV_STRICT_R",
       "name": "OPL3 Op4 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_PRMENV_START_NOW",
+      "name": "OPL3 Op4 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_PRMENV_TSYNC",
+      "name": "OPL3 Op4 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -30821,6 +31733,22 @@
     {
       "id": "OPL3_OP3_SSGSWP256_STRICT_R",
       "name": "OPL3 Op4 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_SSGSWP256_START_NOW",
+      "name": "OPL3 Op4 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPL3_OP3_SSGSWP256_TSYNC",
+      "name": "OPL3 Op4 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -32165,6 +33093,22 @@
     {
       "id": "OPM_PRMENV_STRICT_R",
       "name": "OPM ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_PRMENV_START_NOW",
+      "name": "OPM ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_PRMENV_TSYNC",
+      "name": "OPM ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33606,6 +34550,22 @@
       "default": false
     },
     {
+      "id": "OPM_SSGSW256_START_NOW",
+      "name": "OPM SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_SSGSW256_TSYNC",
+      "name": "OPM SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_SSGSWP256_STEPS",
       "name": "OPM SSG SwPEnv256 Steps",
       "type": "Int",
@@ -33697,6 +34657,22 @@
     {
       "id": "OPM_SSGSWP256_STRICT_R",
       "name": "OPM SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_SSGSWP256_START_NOW",
+      "name": "OPM SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_SSGSWP256_TSYNC",
+      "name": "OPM SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -33995,6 +34971,22 @@
     {
       "id": "OPM_ALGENV_STRICT_R",
       "name": "OPM AlgEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_ALGENV_START_NOW",
+      "name": "OPM AlgEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_ALGENV_TSYNC",
+      "name": "OPM AlgEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -34379,6 +35371,22 @@
       "default": false
     },
     {
+      "id": "OPM_OP0_SSGSW256_START_NOW",
+      "name": "OPM Op1 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_SSGSW256_TSYNC",
+      "name": "OPM Op1 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP0_PRMENV_ENABLE",
       "name": "OPM Op1 ParamEnv Enable",
       "type": "Bool",
@@ -34462,6 +35470,22 @@
     {
       "id": "OPM_OP0_PRMENV_STRICT_R",
       "name": "OPM Op1 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_PRMENV_START_NOW",
+      "name": "OPM Op1 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_PRMENV_TSYNC",
+      "name": "OPM Op1 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -34607,6 +35631,22 @@
     {
       "id": "OPM_OP0_SSGSWP256_STRICT_R",
       "name": "OPM Op1 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_SSGSWP256_START_NOW",
+      "name": "OPM Op1 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP0_SSGSWP256_TSYNC",
+      "name": "OPM Op1 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -36102,6 +37142,22 @@
       "default": false
     },
     {
+      "id": "OPM_OP1_SSGSW256_START_NOW",
+      "name": "OPM Op2 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_SSGSW256_TSYNC",
+      "name": "OPM Op2 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP1_PRMENV_ENABLE",
       "name": "OPM Op2 ParamEnv Enable",
       "type": "Bool",
@@ -36185,6 +37241,22 @@
     {
       "id": "OPM_OP1_PRMENV_STRICT_R",
       "name": "OPM Op2 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_PRMENV_START_NOW",
+      "name": "OPM Op2 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_PRMENV_TSYNC",
+      "name": "OPM Op2 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -36330,6 +37402,22 @@
     {
       "id": "OPM_OP1_SSGSWP256_STRICT_R",
       "name": "OPM Op2 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_SSGSWP256_START_NOW",
+      "name": "OPM Op2 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP1_SSGSWP256_TSYNC",
+      "name": "OPM Op2 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -37825,6 +38913,22 @@
       "default": false
     },
     {
+      "id": "OPM_OP2_SSGSW256_START_NOW",
+      "name": "OPM Op3 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_SSGSW256_TSYNC",
+      "name": "OPM Op3 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP2_PRMENV_ENABLE",
       "name": "OPM Op3 ParamEnv Enable",
       "type": "Bool",
@@ -37908,6 +39012,22 @@
     {
       "id": "OPM_OP2_PRMENV_STRICT_R",
       "name": "OPM Op3 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_PRMENV_START_NOW",
+      "name": "OPM Op3 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_PRMENV_TSYNC",
+      "name": "OPM Op3 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -38053,6 +39173,22 @@
     {
       "id": "OPM_OP2_SSGSWP256_STRICT_R",
       "name": "OPM Op3 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_SSGSWP256_START_NOW",
+      "name": "OPM Op3 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP2_SSGSWP256_TSYNC",
+      "name": "OPM Op3 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -39548,6 +40684,22 @@
       "default": false
     },
     {
+      "id": "OPM_OP3_SSGSW256_START_NOW",
+      "name": "OPM Op4 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_SSGSW256_TSYNC",
+      "name": "OPM Op4 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPM_OP3_PRMENV_ENABLE",
       "name": "OPM Op4 ParamEnv Enable",
       "type": "Bool",
@@ -39631,6 +40783,22 @@
     {
       "id": "OPM_OP3_PRMENV_STRICT_R",
       "name": "OPM Op4 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_PRMENV_START_NOW",
+      "name": "OPM Op4 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_PRMENV_TSYNC",
+      "name": "OPM Op4 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -39776,6 +40944,22 @@
     {
       "id": "OPM_OP3_SSGSWP256_STRICT_R",
       "name": "OPM Op4 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_SSGSWP256_START_NOW",
+      "name": "OPM Op4 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPM_OP3_SSGSWP256_TSYNC",
+      "name": "OPM Op4 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -41120,6 +42304,22 @@
     {
       "id": "OPZX7_PRMENV_STRICT_R",
       "name": "OPZX7S ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_PRMENV_START_NOW",
+      "name": "OPZX7S ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_PRMENV_TSYNC",
+      "name": "OPZX7S ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -43000,6 +44200,22 @@
       "default": false
     },
     {
+      "id": "OPZX7_SSGSW256_START_NOW",
+      "name": "OPZX7S SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_SSGSW256_TSYNC",
+      "name": "OPZX7S SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_SSGSWP256_STEPS",
       "name": "OPZX7S SSG SwPEnv256 Steps",
       "type": "Int",
@@ -43091,6 +44307,22 @@
     {
       "id": "OPZX7_SSGSWP256_STRICT_R",
       "name": "OPZX7S SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_SSGSWP256_START_NOW",
+      "name": "OPZX7S SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_SSGSWP256_TSYNC",
+      "name": "OPZX7S SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -43204,6 +44436,22 @@
     {
       "id": "OPZX7_ALGENV_STRICT_R",
       "name": "OPZX7S AlgEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_ALGENV_START_NOW",
+      "name": "OPZX7S AlgEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_ALGENV_TSYNC",
+      "name": "OPZX7S AlgEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -43801,6 +45049,22 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP0_SSGSW256_START_NOW",
+      "name": "OPZX7S Op1 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_SSGSW256_TSYNC",
+      "name": "OPZX7S Op1 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP0_PRMENV_ENABLE",
       "name": "OPZX7S Op1 ParamEnv Enable",
       "type": "Bool",
@@ -43884,6 +45148,22 @@
     {
       "id": "OPZX7_OP0_PRMENV_STRICT_R",
       "name": "OPZX7S Op1 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_PRMENV_START_NOW",
+      "name": "OPZX7S Op1 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_PRMENV_TSYNC",
+      "name": "OPZX7S Op1 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -44029,6 +45309,22 @@
     {
       "id": "OPZX7_OP0_SSGSWP256_STRICT_R",
       "name": "OPZX7S Op1 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_SSGSWP256_START_NOW",
+      "name": "OPZX7S Op1 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP0_SSGSWP256_TSYNC",
+      "name": "OPZX7S Op1 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -46016,6 +47312,22 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP1_SSGSW256_START_NOW",
+      "name": "OPZX7S Op2 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_SSGSW256_TSYNC",
+      "name": "OPZX7S Op2 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP1_PRMENV_ENABLE",
       "name": "OPZX7S Op2 ParamEnv Enable",
       "type": "Bool",
@@ -46099,6 +47411,22 @@
     {
       "id": "OPZX7_OP1_PRMENV_STRICT_R",
       "name": "OPZX7S Op2 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_PRMENV_START_NOW",
+      "name": "OPZX7S Op2 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_PRMENV_TSYNC",
+      "name": "OPZX7S Op2 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -46244,6 +47572,22 @@
     {
       "id": "OPZX7_OP1_SSGSWP256_STRICT_R",
       "name": "OPZX7S Op2 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_SSGSWP256_START_NOW",
+      "name": "OPZX7S Op2 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP1_SSGSWP256_TSYNC",
+      "name": "OPZX7S Op2 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -48231,6 +49575,22 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP2_SSGSW256_START_NOW",
+      "name": "OPZX7S Op3 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_SSGSW256_TSYNC",
+      "name": "OPZX7S Op3 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP2_PRMENV_ENABLE",
       "name": "OPZX7S Op3 ParamEnv Enable",
       "type": "Bool",
@@ -48314,6 +49674,22 @@
     {
       "id": "OPZX7_OP2_PRMENV_STRICT_R",
       "name": "OPZX7S Op3 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_PRMENV_START_NOW",
+      "name": "OPZX7S Op3 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_PRMENV_TSYNC",
+      "name": "OPZX7S Op3 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -48459,6 +49835,22 @@
     {
       "id": "OPZX7_OP2_SSGSWP256_STRICT_R",
       "name": "OPZX7S Op3 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_SSGSWP256_START_NOW",
+      "name": "OPZX7S Op3 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP2_SSGSWP256_TSYNC",
+      "name": "OPZX7S Op3 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -50446,6 +51838,22 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP3_SSGSW256_START_NOW",
+      "name": "OPZX7S Op4 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_SSGSW256_TSYNC",
+      "name": "OPZX7S Op4 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP3_PRMENV_ENABLE",
       "name": "OPZX7S Op4 ParamEnv Enable",
       "type": "Bool",
@@ -50529,6 +51937,22 @@
     {
       "id": "OPZX7_OP3_PRMENV_STRICT_R",
       "name": "OPZX7S Op4 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_PRMENV_START_NOW",
+      "name": "OPZX7S Op4 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_PRMENV_TSYNC",
+      "name": "OPZX7S Op4 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -50674,6 +52098,22 @@
     {
       "id": "OPZX7_OP3_SSGSWP256_STRICT_R",
       "name": "OPZX7S Op4 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_SSGSWP256_START_NOW",
+      "name": "OPZX7S Op4 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP3_SSGSWP256_TSYNC",
+      "name": "OPZX7S Op4 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -52661,6 +54101,22 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP4_SSGSW256_START_NOW",
+      "name": "OPZX7S Op5 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_SSGSW256_TSYNC",
+      "name": "OPZX7S Op5 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP4_PRMENV_ENABLE",
       "name": "OPZX7S Op5 ParamEnv Enable",
       "type": "Bool",
@@ -52744,6 +54200,22 @@
     {
       "id": "OPZX7_OP4_PRMENV_STRICT_R",
       "name": "OPZX7S Op5 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_PRMENV_START_NOW",
+      "name": "OPZX7S Op5 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_PRMENV_TSYNC",
+      "name": "OPZX7S Op5 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -52889,6 +54361,22 @@
     {
       "id": "OPZX7_OP4_SSGSWP256_STRICT_R",
       "name": "OPZX7S Op5 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_SSGSWP256_START_NOW",
+      "name": "OPZX7S Op5 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP4_SSGSWP256_TSYNC",
+      "name": "OPZX7S Op5 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -54876,6 +56364,22 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP5_SSGSW256_START_NOW",
+      "name": "OPZX7S Op6 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_SSGSW256_TSYNC",
+      "name": "OPZX7S Op6 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP5_PRMENV_ENABLE",
       "name": "OPZX7S Op6 ParamEnv Enable",
       "type": "Bool",
@@ -54959,6 +56463,22 @@
     {
       "id": "OPZX7_OP5_PRMENV_STRICT_R",
       "name": "OPZX7S Op6 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_PRMENV_START_NOW",
+      "name": "OPZX7S Op6 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_PRMENV_TSYNC",
+      "name": "OPZX7S Op6 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -55104,6 +56624,22 @@
     {
       "id": "OPZX7_OP5_SSGSWP256_STRICT_R",
       "name": "OPZX7S Op6 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_SSGSWP256_START_NOW",
+      "name": "OPZX7S Op6 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP5_SSGSWP256_TSYNC",
+      "name": "OPZX7S Op6 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -57091,6 +58627,22 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP6_SSGSW256_START_NOW",
+      "name": "OPZX7S Op7 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_SSGSW256_TSYNC",
+      "name": "OPZX7S Op7 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP6_PRMENV_ENABLE",
       "name": "OPZX7S Op7 ParamEnv Enable",
       "type": "Bool",
@@ -57174,6 +58726,22 @@
     {
       "id": "OPZX7_OP6_PRMENV_STRICT_R",
       "name": "OPZX7S Op7 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_PRMENV_START_NOW",
+      "name": "OPZX7S Op7 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_PRMENV_TSYNC",
+      "name": "OPZX7S Op7 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -57319,6 +58887,22 @@
     {
       "id": "OPZX7_OP6_SSGSWP256_STRICT_R",
       "name": "OPZX7S Op7 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_SSGSWP256_START_NOW",
+      "name": "OPZX7S Op7 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP6_SSGSWP256_TSYNC",
+      "name": "OPZX7S Op7 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -59306,6 +60890,22 @@
       "default": false
     },
     {
+      "id": "OPZX7_OP7_SSGSW256_START_NOW",
+      "name": "OPZX7S Op8 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_SSGSW256_TSYNC",
+      "name": "OPZX7S Op8 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "OPZX7_OP7_PRMENV_ENABLE",
       "name": "OPZX7S Op8 ParamEnv Enable",
       "type": "Bool",
@@ -59389,6 +60989,22 @@
     {
       "id": "OPZX7_OP7_PRMENV_STRICT_R",
       "name": "OPZX7S Op8 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_PRMENV_START_NOW",
+      "name": "OPZX7S Op8 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_PRMENV_TSYNC",
+      "name": "OPZX7S Op8 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -59534,6 +61150,22 @@
     {
       "id": "OPZX7_OP7_SSGSWP256_STRICT_R",
       "name": "OPZX7S Op8 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_SSGSWP256_START_NOW",
+      "name": "OPZX7S Op8 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "OPZX7_OP7_SSGSWP256_TSYNC",
+      "name": "OPZX7S Op8 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -61163,6 +62795,22 @@
       "default": false
     },
     {
+      "id": "SSG_PRMENV_START_NOW",
+      "name": "SSG ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PRMENV_TSYNC",
+      "name": "SSG ParamEnv T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "SSG_LEVEL",
       "name": "SSG Level",
       "type": "Float",
@@ -61506,6 +63154,22 @@
       "default": false
     },
     {
+      "id": "SSG_DUTYENV_START_NOW",
+      "name": "SSG SSG DutyEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_DUTYENV_TSYNC",
+      "name": "SSG SSG DutyEnv T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "SSG_PEAKENV_ENABLE",
       "name": "SSG SSG PeakEnv Enable",
       "type": "Bool",
@@ -61608,6 +63272,22 @@
     {
       "id": "SSG_PEAKENV_STRICT_R",
       "name": "SSG SSG PeakEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PEAKENV_START_NOW",
+      "name": "SSG SSG PeakEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_PEAKENV_TSYNC",
+      "name": "SSG SSG PeakEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -63286,6 +64966,22 @@
       "default": false
     },
     {
+      "id": "SSG_SSGSW256_START_NOW",
+      "name": "SSG SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_SSGSW256_TSYNC",
+      "name": "SSG SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "SSG_SSGSWP256_STEPS",
       "name": "SSG SSG SwPEnv256 Steps",
       "type": "Int",
@@ -63377,6 +65073,22 @@
     {
       "id": "SSG_SSGSWP256_STRICT_R",
       "name": "SSG SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_SSGSWP256_START_NOW",
+      "name": "SSG SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "SSG_SSGSWP256_TSYNC",
+      "name": "SSG SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -63947,6 +65659,22 @@
     {
       "id": "WT_PRMENV_STRICT_R",
       "name": "WT ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_PRMENV_START_NOW",
+      "name": "WT ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_PRMENV_TSYNC",
+      "name": "WT ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -65386,6 +67114,22 @@
       "default": false
     },
     {
+      "id": "WT_SSGSW256_START_NOW",
+      "name": "WT SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_SSGSW256_TSYNC",
+      "name": "WT SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT_SSGSWP256_STEPS",
       "name": "WT SSG SwPEnv256 Steps",
       "type": "Int",
@@ -65477,6 +67221,22 @@
     {
       "id": "WT_SSGSWP256_STRICT_R",
       "name": "WT SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_SSGSWP256_START_NOW",
+      "name": "WT SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT_SSGSWP256_TSYNC",
+      "name": "WT SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -70671,6 +72431,22 @@
       "default": false
     },
     {
+      "id": "WT2_PRMENV_START_NOW",
+      "name": "WT2 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_PRMENV_TSYNC",
+      "name": "WT2 ParamEnv T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT2_LEVEL",
       "name": "WT2 Level",
       "type": "Float",
@@ -72104,6 +73880,22 @@
       "default": false
     },
     {
+      "id": "WT2_SSGSW256_START_NOW",
+      "name": "WT2 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_SSGSW256_TSYNC",
+      "name": "WT2 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WT2_SSGSWP256_STEPS",
       "name": "WT2 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -72195,6 +73987,22 @@
     {
       "id": "WT2_SSGSWP256_STRICT_R",
       "name": "WT2 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_SSGSWP256_START_NOW",
+      "name": "WT2 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WT2_SSGSWP256_TSYNC",
+      "name": "WT2 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -76909,6 +78717,22 @@
       "default": false
     },
     {
+      "id": "WTPLUS_PRMENV_START_NOW",
+      "name": "WT+ ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_PRMENV_TSYNC",
+      "name": "WT+ ParamEnv T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WTPLUS_LEVEL",
       "name": "WT+ Level",
       "type": "Float",
@@ -81217,6 +83041,22 @@
       "default": false
     },
     {
+      "id": "WTPLUS_SSGSW256_START_NOW",
+      "name": "WT+ SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_SSGSW256_TSYNC",
+      "name": "WT+ SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "WTPLUS_SSGSWP256_STEPS",
       "name": "WT+ SSG SwPEnv256 Steps",
       "type": "Int",
@@ -81308,6 +83148,22 @@
     {
       "id": "WTPLUS_SSGSWP256_STRICT_R",
       "name": "WT+ SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_SSGSWP256_START_NOW",
+      "name": "WT+ SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "WTPLUS_SSGSWP256_TSYNC",
+      "name": "WT+ SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -82182,6 +84038,22 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PRMENV_START_NOW",
+      "name": "RHYTHM ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PRMENV_TSYNC",
+      "name": "RHYTHM ParamEnv T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_LEVEL",
       "name": "RHYTHM Vol",
       "type": "Float",
@@ -82850,6 +84722,22 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD0_SSGSW256_START_NOW",
+      "name": "RHYTHM Pad1 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_SSGSW256_TSYNC",
+      "name": "RHYTHM Pad1 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD0_SSGSWP256_STEPS",
       "name": "RHYTHM Pad1 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -82941,6 +84829,22 @@
     {
       "id": "RHYTHM_PAD0_SSGSWP256_STRICT_R",
       "name": "RHYTHM Pad1 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_SSGSWP256_START_NOW",
+      "name": "RHYTHM Pad1 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_SSGSWP256_TSYNC",
+      "name": "RHYTHM Pad1 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -83722,6 +85626,22 @@
     {
       "id": "RHYTHM_PAD0_PRMENV_STRICT_R",
       "name": "RHYTHM Pad1 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_START_NOW",
+      "name": "RHYTHM Pad1 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD0_PRMENV_TSYNC",
+      "name": "RHYTHM Pad1 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -85037,6 +86957,22 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD1_SSGSW256_START_NOW",
+      "name": "RHYTHM Pad2 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_SSGSW256_TSYNC",
+      "name": "RHYTHM Pad2 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD1_SSGSWP256_STEPS",
       "name": "RHYTHM Pad2 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -85128,6 +87064,22 @@
     {
       "id": "RHYTHM_PAD1_SSGSWP256_STRICT_R",
       "name": "RHYTHM Pad2 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_SSGSWP256_START_NOW",
+      "name": "RHYTHM Pad2 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_SSGSWP256_TSYNC",
+      "name": "RHYTHM Pad2 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -85909,6 +87861,22 @@
     {
       "id": "RHYTHM_PAD1_PRMENV_STRICT_R",
       "name": "RHYTHM Pad2 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_START_NOW",
+      "name": "RHYTHM Pad2 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD1_PRMENV_TSYNC",
+      "name": "RHYTHM Pad2 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -87224,6 +89192,22 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD2_SSGSW256_START_NOW",
+      "name": "RHYTHM Pad3 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_SSGSW256_TSYNC",
+      "name": "RHYTHM Pad3 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD2_SSGSWP256_STEPS",
       "name": "RHYTHM Pad3 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -87315,6 +89299,22 @@
     {
       "id": "RHYTHM_PAD2_SSGSWP256_STRICT_R",
       "name": "RHYTHM Pad3 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_SSGSWP256_START_NOW",
+      "name": "RHYTHM Pad3 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_SSGSWP256_TSYNC",
+      "name": "RHYTHM Pad3 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -88096,6 +90096,22 @@
     {
       "id": "RHYTHM_PAD2_PRMENV_STRICT_R",
       "name": "RHYTHM Pad3 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_START_NOW",
+      "name": "RHYTHM Pad3 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD2_PRMENV_TSYNC",
+      "name": "RHYTHM Pad3 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -89411,6 +91427,22 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD3_SSGSW256_START_NOW",
+      "name": "RHYTHM Pad4 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_SSGSW256_TSYNC",
+      "name": "RHYTHM Pad4 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD3_SSGSWP256_STEPS",
       "name": "RHYTHM Pad4 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -89502,6 +91534,22 @@
     {
       "id": "RHYTHM_PAD3_SSGSWP256_STRICT_R",
       "name": "RHYTHM Pad4 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_SSGSWP256_START_NOW",
+      "name": "RHYTHM Pad4 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_SSGSWP256_TSYNC",
+      "name": "RHYTHM Pad4 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -90283,6 +92331,22 @@
     {
       "id": "RHYTHM_PAD3_PRMENV_STRICT_R",
       "name": "RHYTHM Pad4 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_START_NOW",
+      "name": "RHYTHM Pad4 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD3_PRMENV_TSYNC",
+      "name": "RHYTHM Pad4 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -91598,6 +93662,22 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD4_SSGSW256_START_NOW",
+      "name": "RHYTHM Pad5 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_SSGSW256_TSYNC",
+      "name": "RHYTHM Pad5 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD4_SSGSWP256_STEPS",
       "name": "RHYTHM Pad5 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -91689,6 +93769,22 @@
     {
       "id": "RHYTHM_PAD4_SSGSWP256_STRICT_R",
       "name": "RHYTHM Pad5 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_SSGSWP256_START_NOW",
+      "name": "RHYTHM Pad5 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_SSGSWP256_TSYNC",
+      "name": "RHYTHM Pad5 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -92470,6 +94566,22 @@
     {
       "id": "RHYTHM_PAD4_PRMENV_STRICT_R",
       "name": "RHYTHM Pad5 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_START_NOW",
+      "name": "RHYTHM Pad5 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD4_PRMENV_TSYNC",
+      "name": "RHYTHM Pad5 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -93785,6 +95897,22 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD5_SSGSW256_START_NOW",
+      "name": "RHYTHM Pad6 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_SSGSW256_TSYNC",
+      "name": "RHYTHM Pad6 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD5_SSGSWP256_STEPS",
       "name": "RHYTHM Pad6 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -93876,6 +96004,22 @@
     {
       "id": "RHYTHM_PAD5_SSGSWP256_STRICT_R",
       "name": "RHYTHM Pad6 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_SSGSWP256_START_NOW",
+      "name": "RHYTHM Pad6 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_SSGSWP256_TSYNC",
+      "name": "RHYTHM Pad6 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -94657,6 +96801,22 @@
     {
       "id": "RHYTHM_PAD5_PRMENV_STRICT_R",
       "name": "RHYTHM Pad6 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_START_NOW",
+      "name": "RHYTHM Pad6 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD5_PRMENV_TSYNC",
+      "name": "RHYTHM Pad6 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -95972,6 +98132,22 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD6_SSGSW256_START_NOW",
+      "name": "RHYTHM Pad7 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_SSGSW256_TSYNC",
+      "name": "RHYTHM Pad7 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD6_SSGSWP256_STEPS",
       "name": "RHYTHM Pad7 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -96063,6 +98239,22 @@
     {
       "id": "RHYTHM_PAD6_SSGSWP256_STRICT_R",
       "name": "RHYTHM Pad7 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_SSGSWP256_START_NOW",
+      "name": "RHYTHM Pad7 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_SSGSWP256_TSYNC",
+      "name": "RHYTHM Pad7 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -96844,6 +99036,22 @@
     {
       "id": "RHYTHM_PAD6_PRMENV_STRICT_R",
       "name": "RHYTHM Pad7 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_START_NOW",
+      "name": "RHYTHM Pad7 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD6_PRMENV_TSYNC",
+      "name": "RHYTHM Pad7 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -98159,6 +100367,22 @@
       "default": false
     },
     {
+      "id": "RHYTHM_PAD7_SSGSW256_START_NOW",
+      "name": "RHYTHM Pad8 SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_SSGSW256_TSYNC",
+      "name": "RHYTHM Pad8 SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "RHYTHM_PAD7_SSGSWP256_STEPS",
       "name": "RHYTHM Pad8 SSG SwPEnv256 Steps",
       "type": "Int",
@@ -98250,6 +100474,22 @@
     {
       "id": "RHYTHM_PAD7_SSGSWP256_STRICT_R",
       "name": "RHYTHM Pad8 SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_SSGSWP256_START_NOW",
+      "name": "RHYTHM Pad8 SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_SSGSWP256_TSYNC",
+      "name": "RHYTHM Pad8 SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -99031,6 +101271,22 @@
     {
       "id": "RHYTHM_PAD7_PRMENV_STRICT_R",
       "name": "RHYTHM Pad8 ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_START_NOW",
+      "name": "RHYTHM Pad8 ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "RHYTHM_PAD7_PRMENV_TSYNC",
+      "name": "RHYTHM Pad8 ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -100114,6 +102370,22 @@
       "default": false
     },
     {
+      "id": "ADPCM_PRMENV_START_NOW",
+      "name": "ADPCM ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_PRMENV_TSYNC",
+      "name": "ADPCM ParamEnv T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCM_LEVEL",
       "name": "ADPCM Level",
       "type": "Float",
@@ -100571,6 +102843,22 @@
       "default": false
     },
     {
+      "id": "ADPCM_SSGSW256_START_NOW",
+      "name": "ADPCM SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_SSGSW256_TSYNC",
+      "name": "ADPCM SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCM_SSGSWP256_STEPS",
       "name": "ADPCM SSG SwPEnv256 Steps",
       "type": "Int",
@@ -100662,6 +102950,22 @@
     {
       "id": "ADPCM_SSGSWP256_STRICT_R",
       "name": "ADPCM SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_SSGSWP256_START_NOW",
+      "name": "ADPCM SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCM_SSGSWP256_TSYNC",
+      "name": "ADPCM SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -102568,6 +104872,22 @@
     {
       "id": "ADPCMP_PRMENV_STRICT_R",
       "name": "ADPCMP ParamEnv Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_PRMENV_START_NOW",
+      "name": "ADPCMP ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_PRMENV_TSYNC",
+      "name": "ADPCMP ParamEnv T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -107813,6 +110133,22 @@
       "default": false
     },
     {
+      "id": "ADPCMP_SSGSW256_START_NOW",
+      "name": "ADPCMP SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SSGSW256_TSYNC",
+      "name": "ADPCMP SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "ADPCMP_SSGSWP256_STEPS",
       "name": "ADPCMP SSG SwPEnv256 Steps",
       "type": "Int",
@@ -107904,6 +110240,22 @@
     {
       "id": "ADPCMP_SSGSWP256_STRICT_R",
       "name": "ADPCMP SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SSGSWP256_START_NOW",
+      "name": "ADPCMP SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "ADPCMP_SSGSWP256_TSYNC",
+      "name": "ADPCMP SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,
@@ -109816,6 +112168,22 @@
       "default": false
     },
     {
+      "id": "BEEP_PRMENV_START_NOW",
+      "name": "BEEP ParamEnv Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_PRMENV_TSYNC",
+      "name": "BEEP ParamEnv T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "BEEP_LEVEL",
       "name": "BEEP Level",
       "type": "Float",
@@ -110135,6 +112503,22 @@
       "default": false
     },
     {
+      "id": "BEEP_SSGSW256_START_NOW",
+      "name": "BEEP SSG SwEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_SSGSW256_TSYNC",
+      "name": "BEEP SSG SwEnv256 T Sync",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
       "id": "BEEP_SSGSWP256_STEPS",
       "name": "BEEP SSG SwPEnv256 Steps",
       "type": "Int",
@@ -110226,6 +112610,22 @@
     {
       "id": "BEEP_SSGSWP256_STRICT_R",
       "name": "BEEP SSG SwPEnv256 Strict R",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_SSGSWP256_START_NOW",
+      "name": "BEEP SSG SwPEnv256 Start Now",
+      "type": "Bool",
+      "min": false,
+      "max": true,
+      "default": false
+    },
+    {
+      "id": "BEEP_SSGSWP256_TSYNC",
+      "name": "BEEP SSG SwPEnv256 T Sync",
       "type": "Bool",
       "min": false,
       "max": true,

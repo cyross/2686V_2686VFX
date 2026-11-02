@@ -2,8 +2,12 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
+
+#include <limits>
 
 #include "Shared/Core/Synth/StepTable.h"
+#include "Shared/Core/Synth/StepRate.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 
 // ============================================================================
@@ -22,6 +26,10 @@
 //   離す        : そのときの値から RR 秒で LR へ。走り終えたら LR を保つ
 //                 (Use Endl のときは ENDL)
 //   KEEP        : 段のあいだ値を斜めに繋がず、段の頭の値を保つ
+//   RATE の段   : 段ごとに選べる (4.3.0)。R 秒で L へ着くのではなく、決まった変化量 D で
+//                 L へ向かい、L に届くか R 秒たつかで終える (StepRate.h)。リリースも同じ
+//   START NOW   : 押したときにまだ走っていれば (離したあとの余韻など)、STL ではなく
+//                 その時点の値から始める (4.3.0)
 //
 // 段の R / L は StepTable (プロセッサが持つ表) から写す。表の版が変わった
 // ときだけ写し直す。
@@ -56,6 +64,16 @@ struct StepEnvParams
 
 	// PARAM ENV (4.3.0)。0 以上なら、STL・段の L・LR・ENDL を表の値の組 (指し先ごと) から取る
 	int levelSet = -1;
+
+	// START NOW (4.3.0)。押したときにまだ走っていれば、その時点の値から始める
+	bool startNow = false;
+
+	// START NOW で、止まっていた (走っていない) ときに始める値。NaN なら STL。
+	// PARAM ENV が指し先のつまみの今の値を入れる
+	float idleStart = std::numeric_limits<float>::quiet_NaN();
+
+	// T SYNC (4.3.0)。RATE の段の 1 刻みを、秒ではなくテンポに合わせた音符の長さで取る
+	bool tickSync = false;
 };
 
 class StepEnv
@@ -109,10 +127,16 @@ private:
 	bool endlEnable = false;
 	bool keep = false;
 	bool strictRate = false;
+	bool startNow = false;
+	float idleStart = std::numeric_limits<float>::quiet_NaN();
+	bool tickSync = false;
 
 	// [0] が STL、[1] 以降が段の値。R は [1] から。
 	std::array<float, maxSteps + 1> r{};
 	std::array<float, maxSteps + 1> l{};
+
+	// 段の進め方。[1〜256] が段、[257] がリリース (StepTable::releaseStep)
+	std::array<StepRate::Step, StepTable::releaseStep + 1> rates{};
 
 	const StepTable* table = nullptr;
 	std::uint32_t tableVersion = 0;
@@ -145,6 +169,27 @@ private:
 
 	// KEEP で返す値。段が変わるたびに取り直す。
 	float keepLevel = 0.0f;
+
+	// RATE の段 (リリース) を走っているところ。変化量 D で行き先へ向かう
+	// D と T は毎サンプル rates から読む (鳴らしながら直したときや、テンポが変わったときに追う)
+	struct RateRun
+	{
+		bool active = false;
+		float sinceTick = 0.0f;   // 前の刻みからのサンプル数
+		float limit = -1.0f;      // 打ち切るサンプル数。負なら打ち切らない
+		int slot = 0;             // rates の番号
+	};
+
+	RateRun rateRun;
+
+	// RATE の段を始める。終わりまでのサンプル数 (鳴っている位置の長さ) を返す
+	float beginRate(int slot, float limitSeconds);
+
+	// RATE の段を 1 サンプル進める。終えたら true
+	bool advanceRate();
+
+	// 1 刻みのサンプル数。0 は線形
+	float tickSamples(int slot) const;
 
 	// カーブ
 	int targetIndex = 0;

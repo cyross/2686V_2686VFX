@@ -37,6 +37,31 @@ namespace
     // [11] は 6 + 22 = 28 行、6 段は 6 + 12 = 18 行。
     constexpr int legacyLines = 6 + legacyRelease * 2;
 
+    // 段の進め方 (MODE / RR MODE) の並び。並びの番号が StepRate::Step::rate (0 が TIME)
+    const std::vector<SelectItem>& rateModeItems()
+    {
+        static const std::vector<SelectItem> items = {
+            { .name = "TIME", .value = 1 },
+            { .name = "RATE", .value = 2 },
+        };
+
+        return items;
+    }
+
+    // T SYNC の 1 刻み (TICK NOTE / RR NOTE) の並び。並びの番号が StepRate::Step::tickNote
+    const std::vector<SelectItem>& tickNoteItems()
+    {
+        static const std::vector<SelectItem> items = [] {
+            std::vector<SelectItem> v;
+
+            for (int i = 0; i < StepRate::noteCount; ++i) v.push_back({ .name = StepRate::notes[(size_t)i].label, .value = i + 1 });
+
+            return v;
+        }();
+
+        return items;
+    }
+
     // LOOP MODE の並び。並びの番号がパラメータの値 (StepLoop::Mode) になる
     const std::vector<SelectItem>& loopModeItems()
     {
@@ -86,6 +111,8 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     stepsSeparator(context),
     keep(context),
     strictRate(context),
+    startNow(context),
+    tickSync(context),
     keepSeparator(context),
     loop(context),
     loopMode(context),
@@ -96,6 +123,12 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     rateTarget(context),
     rate(context),
     rateNudge(context),
+    rateMode(context),
+    delta(context),
+    deltaBtns(context),
+    tick(context),
+    tickBtns(context),
+    tickNote(context),
     rateSeparator(context),
     levelTarget(context),
     level(context),
@@ -107,6 +140,10 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     releaseLevel(context),
     releaseRateBtns(context),
     releaseLevelBtns(context),
+    releaseMode(context),
+    releaseDelta(context),
+    releaseTick(context),
+    releaseTickNote(context),
     endLevelSeparator(context),
     endLevelEnable(context),
     endLevel(context),
@@ -206,7 +243,30 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
         strictRate.setExplicitFocusOrder(++tabOrder);
     }
 
-    if (hasKeep() || hasStrictRate()) keepSeparator.setupComponent(parent);
+    // 押したときにまだ走っていれば (離したあとの余韻など)、STL ではなくその時点の値から始める
+    if (hasStartNow()) {
+        startNow.setup({ .parent = parent, .id = code + spec.startNow, .title = "START NOW", .isReset = true });
+        startNow.setTooltip(isParam()
+            ? I18n::pick(u8"押したときにまだ走っていれば、その時点の値から始める。止まっていれば、指し先のつまみの今の値から",
+                u8"If the envelope is still running when a key is pressed, start from its current value. Otherwise start from the target knob's current value")
+            : I18n::pick(u8"押したときにまだ走っていれば (離したあとの余韻など)、STL ではなくその時点の値から始める",
+                u8"If the envelope is still running when a key is pressed (such as during the release), start from its current value instead of STL"));
+        startNow.setWantsKeyboardFocus(true);
+        startNow.setExplicitFocusOrder(++tabOrder);
+        startNow.onStateChange = [this] { changed(); };
+    }
+
+    // RATE の段の 1 刻みを、秒 (TICK) ではなくテンポに合わせた音符の長さ (TICK NOTE) で取る
+    if (hasTickSync()) {
+        tickSync.setup({ .parent = parent, .id = code + spec.tickSync, .title = "T SYNC", .isReset = true });
+        tickSync.setTooltip(I18n::pick(u8"RATE の段の 1 刻みを、TICK (秒) ではなく TICK NOTE (テンポに合わせた音符の長さ) で取る",
+            u8"Take each tick of a RATE step from TICK NOTE (a note length at the host tempo) instead of TICK (seconds)"));
+        tickSync.setWantsKeyboardFocus(true);
+        tickSync.setExplicitFocusOrder(++tabOrder);
+        tickSync.onStateChange = [this] { changed(); };
+    }
+
+    if (hasHeadToggles()) keepSeparator.setupComponent(parent);
 
     loop.setup({ .parent = parent, .id = code + spec.loop, .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
@@ -258,6 +318,41 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     rateNudge.setupComponent(parent, rate.getSlider(), tabOrder, rateButtonEntries(), labelFont, 4);
 
+    // 段の進め方 (4.3.0)。TIME は R 秒で L へ、RATE は DELTA ずつ L へ (R は打ち切りの時間。最小なら打ち切らない)
+    rateMode.setup({ .parent = parent, .title = "MODE", .items = rateModeItems(), .isReset = false, .labelFont = labelFont });
+    rateMode.setTooltip(I18n::pick(u8"TIME: R 秒で L へ進む。RATE: DELTA ずつ L へ進み、L に届くか R 秒たったら終える (R が最小なら時間で打ち切らない)",
+        u8"TIME: reach L in R seconds. RATE: move toward L by DELTA, and end on reaching L or after R seconds (R at its minimum never cuts it short)"));
+    rateMode.setWantsKeyboardFocus(true);
+    rateMode.setExplicitFocusOrder(++tabOrder);
+    rateMode.onChange = [this] { onRateStepChanged(false); };
+
+    delta.setup({ .parent = parent, .title = "DELTA", .isReset = false, .labelFont = labelFont });
+    delta.setTooltip(I18n::pick(u8"RATE の段の変化量。TICK が 0 なら 1 秒あたり、0 より大きければ 1 刻みあたりに動く量",
+        u8"How far a RATE step moves: per second when TICK is 0, otherwise per tick"));
+    delta.setWantsKeyboardFocus(true);
+    delta.setExplicitFocusOrder(++tabOrder);
+    delta.onValueChange = [this] { onRateStepChanged(false); };
+
+    deltaBtns.setupComponent(parent, delta, tabOrder, deltaButtonEntries(), labelFont, isParam() ? 4 : GuiComponentValueButtons::defaultPerRow);
+
+    tick.setup({ .parent = parent, .title = "TICK", .isReset = false, .labelFont = labelFont });
+    tick.setRange(0.0, spec.rateMax, spec.rateInterval);
+    tick.setNumDecimalPlacesToDisplay(3);
+    tick.setTooltip(I18n::pick(u8"RATE の段の 1 刻みの秒。段に入ってから TICK 秒ごとに DELTA ずつ動く。0 なら線形",
+        u8"Seconds per tick of a RATE step. It moves by DELTA every TICK seconds after the step begins. 0 moves smoothly"));
+    tick.setWantsKeyboardFocus(true);
+    tick.setExplicitFocusOrder(++tabOrder);
+    tick.onValueChange = [this] { onRateStepChanged(false); };
+
+    tickBtns.setupComponent(parent, tick, tabOrder, tickButtonEntries(), labelFont, 4);
+
+    tickNote.setup({ .parent = parent, .title = "TICK NOTE", .items = tickNoteItems(), .isReset = false, .labelFont = labelFont });
+    tickNote.setTooltip(I18n::pick(u8"T SYNC のときの 1 刻みの長さ (ホストのテンポに合わせる。LINEAR は線形)",
+        u8"Length of a tick when T SYNC is on (follows the host tempo. LINEAR moves smoothly)"));
+    tickNote.setWantsKeyboardFocus(true);
+    tickNote.setExplicitFocusOrder(++tabOrder);
+    tickNote.onChange = [this] { onRateStepChanged(false); };
+
     parent.addAndMakeVisible(rateValues);
 
     rateSeparator.setupComponent(parent);
@@ -298,6 +393,37 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     if (hasReleaseLevelButtons()) releaseLevelBtns.setupComponent(parent, releaseLevel, tabOrder, releaseLevelEntries(), labelFont, isParam() ? 6 : GuiComponentValueButtons::defaultPerRow);
 
+    // リリースの進め方 (4.3.0)。RATE なら RR は打ち切りの時間 (最小なら打ち切らない)。
+    // RR DELTA が 0 のときは、いつまでも終わらないので TIME と同じに進める
+    releaseMode.setup({ .parent = parent, .title = "RR MODE", .items = rateModeItems(), .isReset = false, .labelFont = labelFont });
+    releaseMode.setTooltip(I18n::pick(u8"TIME: RR 秒で LR へ進む。RATE: RR DELTA ずつ LR へ進み、LR に届くか RR 秒たったら終える (RR DELTA が 0 なら TIME と同じ)",
+        u8"TIME: reach LR in RR seconds. RATE: move toward LR by RR DELTA, and end on reaching LR or after RR seconds (with RR DELTA at 0 it works as TIME)"));
+    releaseMode.setWantsKeyboardFocus(true);
+    releaseMode.setExplicitFocusOrder(++tabOrder);
+    releaseMode.onChange = [this] { onRateStepChanged(true); };
+
+    releaseDelta.setup({ .parent = parent, .title = "RR DELTA", .isReset = false, .labelFont = labelFont });
+    releaseDelta.setWantsKeyboardFocus(true);
+    releaseDelta.setExplicitFocusOrder(++tabOrder);
+    releaseDelta.onValueChange = [this] { onRateStepChanged(true); };
+
+    releaseTick.setup({ .parent = parent, .title = "RR TICK", .isReset = false, .labelFont = labelFont });
+    releaseTick.setRange(0.0, spec.rateMax, spec.rateInterval);
+    releaseTick.setNumDecimalPlacesToDisplay(3);
+    releaseTick.setWantsKeyboardFocus(true);
+    releaseTick.setExplicitFocusOrder(++tabOrder);
+    releaseTick.onValueChange = [this] { onRateStepChanged(true); };
+
+    releaseTickNote.setup({ .parent = parent, .title = "RR NOTE", .items = tickNoteItems(), .isReset = false, .labelFont = labelFont });
+    releaseTickNote.setWantsKeyboardFocus(true);
+    releaseTickNote.setExplicitFocusOrder(++tabOrder);
+    releaseTickNote.onChange = [this] { onRateStepChanged(true); };
+
+    setDeltaRange();
+
+    // PARAM ENV の DELTA の ±1 も指し先の 1 刻み
+    if (isParam()) deltaBtns.setStepSize([this] { return paramInterval; });
+
     // PARAM ENV の ±1 は指し先の 1 刻み
     if (isParam()) {
         valueBtns.setStepSize([this] { return paramInterval; });
@@ -337,6 +463,8 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
     loop.watchToggle([this] { applyActive(); });
     endLevelEnable.watchToggle([this] { applyActive(); });
 
+    if (hasTickSync()) tickSync.watchToggle([this] { applyActive(); });
+
     applyActive();
 
     startTimerHz(10);
@@ -352,6 +480,8 @@ void GuiComponentStepEnv::rebind(const juce::String& code)
     steps.rebind(code + spec.steps);
     if (hasKeep()) keep.rebind(code + spec.keep);
     if (hasStrictRate()) strictRate.rebind(code + spec.strictRate);
+    if (hasStartNow()) startNow.rebind(code + spec.startNow);
+    if (hasTickSync()) tickSync.rebind(code + spec.tickSync);
     loop.rebind(code + spec.loop);
     loopMode.rebind(code + spec.loopMode);
     loopTo.rebind(code + spec.loopTo);
@@ -425,6 +555,7 @@ void GuiComponentStepEnv::applyTargetDisplay()
     }
 
     loadSetLevels();
+    setDeltaRange();
     refreshStepValues();
 }
 
@@ -585,6 +716,31 @@ std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::rateButtonEntr
              { "0.001", false, 0.001 }, { "0.01", false, 0.01 }, { "0.1", false, 0.1 }, { "1.0", false, 1.0 } };
 }
 
+// DELTA のボタン。値の刻みに合わせて、足し引きと、よく使う量を直に置くもの
+std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::deltaButtonEntries() const
+{
+    // PARAM ENV は 0〜1。指し先の 1 刻みと、範囲の 1 割
+    if (isParam()) return { { "-10%", true, -0.1 }, { "-1", true, -1.0, true }, { "+1", true, 1.0, true }, { "+10%", true, 0.1 } };
+
+    if (isPitch()) {
+        return { { "-1200", true, -1200.0 }, { "-100", true, -100.0 }, { "100", false, 100.0 }, { "+100", true, 100.0 }, { "+1200", true, 1200.0 } };
+    }
+
+    if (isDuty()) return { { "-1", true, -1.0 }, { "6.25", false, 6.25 }, { "12.5", false, 12.5 }, { "+1", true, 1.0 } };
+
+    if (isAlg()) return { { "-1", true, -1.0 }, { "1", false, 1.0 }, { "+1", true, 1.0 } };
+
+    // 0〜1 の値 (AMP / PEAK)。1/16 は SSG の音量の 1 段ぶん
+    return { { "-0.1", true, -0.1 }, { "-0.01", true, -0.01 }, { "1/16", false, 1.0 / 16.0 }, { "+0.01", true, 0.01 }, { "+0.1", true, 0.1 } };
+}
+
+// TICK のボタン。足し引きと、よく使う長さ (1/60 は 60Hz の 1 コマ)
+std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::tickButtonEntries()
+{
+    return { { "-0.1", true, -0.1 }, { "-0.01", true, -0.01 }, { "+0.01", true, 0.01 }, { "+0.1", true, 0.1 },
+             { "0", false, 0.0 }, { "1/60", false, 1.0 / 60.0 }, { "0.05", false, 0.05 }, { "0.1", false, 0.1 } };
+}
+
 // LR のボタン。値のつまみ (LEVEL / CENT / DUTY / PEAK / ALG / PARAM) と同じ刻み
 std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::releaseLevelEntries() const
 {
@@ -596,6 +752,139 @@ std::vector<GuiComponentValueButtons::Entry> GuiComponentStepEnv::releaseLevelEn
 
     // 0〜1 の値 (AMP / PEAK)
     return { { "-0.01", true, -0.01 }, { "-0.1", true, -0.1 }, { "0.0", false, 0.0 }, { "1.0", false, 1.0 }, { "+0.1", true, 0.1 }, { "+0.01", true, 0.01 } };
+}
+
+// ---------------------------------------------------------------- 段の進め方 (4.3.0)
+StepRate::Step GuiComponentStepEnv::rateStepAt(int step) const
+{
+    const auto* t = table();
+
+    return t != nullptr ? t->rateStep(step) : StepRate::Step{};
+}
+
+void GuiComponentStepEnv::setRateStepAt(int step, const StepRate::Step& value)
+{
+    if (auto* t = table()) t->setRateStep(step, value);
+}
+
+// DELTA は値の幅まで。PARAM ENV は 0〜1 を指し先の 1 刻みで
+void GuiComponentStepEnv::setDeltaRange()
+{
+    const juce::ScopedValueSetter<bool> loading(isLoadingValue, true);
+
+    for (auto* slider : { &delta, &releaseDelta }) {
+        if (isParam()) {
+            slider->setRange(0.0, 1.0, paramInterval);
+            slider->setNumDecimalPlacesToDisplay(3);
+        }
+        else {
+            slider->setRange(0.0, juce::jmax(spec.levelInterval, spec.levelMax - spec.levelMin), spec.levelInterval);
+            slider->setNumDecimalPlacesToDisplay(spec.levelInterval >= 1.0 ? 0 : spec.levelDecimals);
+        }
+    }
+
+    loadRateStep();
+}
+
+void GuiComponentStepEnv::loadRateStep()
+{
+    if (paramCode.isEmpty()) return;
+
+    const juce::ScopedValueSetter<bool> loading(isLoadingValue, true);
+
+    const auto st = rateStepAt(juce::jlimit(1, stepCount(), (int)rateTarget.getValue()));
+
+    rateMode.setSelectedItemIndex(st.rate ? 1 : 0, juce::dontSendNotification);
+    delta.setValue(st.delta, juce::dontSendNotification);
+    tick.setValue(st.tickSec, juce::dontSendNotification);
+    tickNote.setSelectedItemIndex(juce::jlimit(0, StepRate::noteCount - 1, st.tickNote), juce::dontSendNotification);
+
+    const auto rel = rateStepAt(StepTable::releaseStep);
+
+    releaseMode.setSelectedItemIndex(rel.rate ? 1 : 0, juce::dontSendNotification);
+    releaseDelta.setValue(rel.delta, juce::dontSendNotification);
+    releaseTick.setValue(rel.tickSec, juce::dontSendNotification);
+    releaseTickNote.setSelectedItemIndex(juce::jlimit(0, StepRate::noteCount - 1, rel.tickNote), juce::dontSendNotification);
+
+    applyActive();
+}
+
+void GuiComponentStepEnv::onRateStepChanged(bool release)
+{
+    if (isLoadingValue) return;
+
+    StepRate::Step st;
+
+    if (release) {
+        st.rate = releaseMode.getSelectedItemIndex() == 1;
+        st.delta = (float)releaseDelta.getValue();
+        st.tickSec = (float)releaseTick.getValue();
+        st.tickNote = juce::jmax(0, releaseTickNote.getSelectedItemIndex());
+
+        setRateStepAt(StepTable::releaseStep, st);
+    }
+    else {
+        st.rate = rateMode.getSelectedItemIndex() == 1;
+        st.delta = (float)delta.getValue();
+        st.tickSec = (float)tick.getValue();
+        st.tickNote = juce::jmax(0, tickNote.getSelectedItemIndex());
+
+        setRateStepAt(juce::jlimit(1, stepCount(), (int)rateTarget.getValue()), st);
+    }
+
+    markSeen();
+    applyActive();
+    refreshStepValues();
+    changed();
+}
+
+// 段の進め方は 256 段ぶんとリリース。後ろの TIME のままの段は書かない
+void GuiComponentStepEnv::writeRateSteps(Io::ParamWriter& w) const
+{
+    std::vector<float> modes, deltas, ticks, notes;
+
+    int last = StepTable::size;
+
+    while (last > 0 && rateStepAt(last) == StepRate::Step{}) --last;
+
+    for (int s = 1; s <= last; ++s) {
+        const auto st = rateStepAt(s);
+
+        modes.push_back(st.rate ? 1.0f : 0.0f);
+        deltas.push_back(st.delta);
+        ticks.push_back(st.tickSec);
+        notes.push_back((float)st.tickNote);
+    }
+
+    w.setArray("rateModes", modes);
+    w.setArray("deltas", deltas);
+    w.setArray("tickSecs", ticks);
+    w.setArray("tickNotes", notes);
+
+    const auto rel = rateStepAt(StepTable::releaseStep);
+
+    w.set("releaseMode", rel.rate);
+    w.set("releaseDelta", rel.delta);
+    w.set("releaseTick", rel.tickSec);
+    w.set("releaseTickNote", (float)rel.tickNote);
+}
+
+// 4.3.0 より前のファイルには無い。無ければすべて TIME (これまでの鳴り方) にする
+void GuiComponentStepEnv::readRateSteps(const Io::ParamReader& r)
+{
+    const auto modes = r.getFloatArray("rateModes");
+    const auto deltas = r.getFloatArray("deltas");
+    const auto ticks = r.getFloatArray("tickSecs");
+    const auto notes = r.getFloatArray("tickNotes");
+
+    auto at = [](const std::vector<float>& v, int s) { return s <= (int)v.size() ? v[(size_t)s - 1] : 0.0f; };
+
+    for (int s = 1; s <= StepTable::size; ++s) {
+        setRateStepAt(s, { at(modes, s) != 0.0f, at(deltas, s), at(ticks, s), (int)at(notes, s) });
+    }
+
+    setRateStepAt(StepTable::releaseStep, { r.getBool("releaseMode", false), r.getFloat("releaseDelta", 0.0f),
+        r.getFloat("releaseTick", 0.0f), r.getInt("releaseTickNote", 0) });
 }
 
 // ---------------------------------------------------------------- 段の数
@@ -682,6 +971,7 @@ void GuiComponentStepEnv::rebindRate()
         rate.getSlider().setValue(t->rate(idx), juce::dontSendNotification);
     }
 
+    loadRateStep();
     refreshStepValues();
 }
 
@@ -743,10 +1033,17 @@ void GuiComponentStepEnv::refreshStepValues()
 
     rateValues.labels.clear();
     rateValues.values.clear();
+    rateValues.texts.clear();
+
+    // RATE の段は、見出しを D にして変化量を出す (R は打ち切りの時間なので、つまみで見る)
+    const int deltaDecimals = isParam() ? 3 : (spec.levelInterval >= 1.0 ? 0 : spec.levelDecimals);
 
     for (int s = 1; s <= n; ++s) {
-        rateValues.labels.push_back("R" + juce::String(s));
+        const auto st = rateStepAt(s);
+
+        rateValues.labels.push_back((st.rate ? "D" : "R") + juce::String(s));
         rateValues.values.push_back(t != nullptr ? t->rate(s) : 0.0f);
+        rateValues.texts.push_back(st.rate ? juce::String(st.delta, deltaDecimals) : juce::String());
     }
 
     rateValues.selected = juce::jlimit(1, n, (int)rateTarget.getValue()) - 1;
@@ -789,7 +1086,9 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     stepsSeparator.setVisible(visible);
     keep.setVisible(visible && hasKeep());
     strictRate.setVisible(visible && hasStrictRate());
-    keepSeparator.setVisible(visible && (hasKeep() || hasStrictRate()));
+    startNow.setVisible(visible && hasStartNow());
+    tickSync.setVisible(visible && hasTickSync());
+    keepSeparator.setVisible(visible && hasHeadToggles());
     loop.setVisible(visible);
     loopMode.setVisibleWithLabel(visible);
     loopTo.setVisibleWithLabel(visible && !isRich());
@@ -799,6 +1098,12 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     rateTarget.setVisibleWithLabel(visible);
     rate.setVisibleWithLabel(visible);
     rateNudge.setVisibles(visible && rate.isVisibleNudge());
+    rateMode.setVisibleWithLabel(visible);
+    delta.setVisibleWithLabel(visible);
+    deltaBtns.setVisibles(visible && rate.isVisibleNudge());
+    tick.setVisibleWithLabel(visible);
+    tickBtns.setVisibles(visible && rate.isVisibleNudge());
+    tickNote.setVisibleWithLabel(visible);
     rateValues.setVisible(visible);
     rateSeparator.setVisible(visible);
     levelTarget.setVisibleWithLabel(visible);
@@ -813,6 +1118,10 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     releaseLevel.setVisibleWithLabel(visible);
     releaseRateBtns.setVisibles(visible && rate.isVisibleNudge());
     releaseLevelBtns.setVisibles(visible && hasReleaseLevelButtons() && level.isVisibleNudge());
+    releaseMode.setVisibleWithLabel(visible);
+    releaseDelta.setVisibleWithLabel(visible);
+    releaseTick.setVisibleWithLabel(visible);
+    releaseTickNote.setVisibleWithLabel(visible);
     endLevelSeparator.setVisible(visible);
     endLevelEnable.setVisible(visible);
     endLevel.setVisibleWithLabel(visible);
@@ -833,7 +1142,9 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     stepsSeparator.layoutComponent(rect);
     if (hasKeep()) layoutMain({ .mainRect = rect, .component = &keep, .rowHeight = h });
     if (hasStrictRate()) layoutMain({ .mainRect = rect, .component = &strictRate, .rowHeight = h });
-    if (hasKeep() || hasStrictRate()) keepSeparator.layoutComponent(rect);
+    if (hasStartNow()) layoutMain({ .mainRect = rect, .component = &startNow, .rowHeight = h });
+    if (hasTickSync()) layoutMain({ .mainRect = rect, .component = &tickSync, .rowHeight = h });
+    if (hasHeadToggles()) keepSeparator.layoutComponent(rect);
     layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = h });
     layoutMain({ .mainRect = rect, .label = &loopMode.label, .component = &loopMode, .rowHeight = h });
 
@@ -851,6 +1162,12 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     layoutMain({ .mainRect = rect, .label = &rateTarget.label, .component = &rateTarget, .rowHeight = h });
     rate.layoutComponent(rect, h);
     if (rate.isVisibleNudge()) rateNudge.layoutComponent(rect, h);
+    layoutMain({ .mainRect = rect, .label = &rateMode.label, .component = &rateMode, .rowHeight = h });
+    layoutMain({ .mainRect = rect, .label = &delta.label, .component = &delta, .rowHeight = h });
+    if (rate.isVisibleNudge()) deltaBtns.layoutComponent(rect, h);
+    layoutMain({ .mainRect = rect, .label = &tick.label, .component = &tick, .rowHeight = h });
+    if (rate.isVisibleNudge()) tickBtns.layoutComponent(rect, h);
+    layoutMain({ .mainRect = rect, .label = &tickNote.label, .component = &tickNote, .rowHeight = h });
     layoutStrip(rect, rateValues);
     rateSeparator.layoutComponent(rect);
 
@@ -872,6 +1189,10 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     if (rate.isVisibleNudge()) releaseRateBtns.layoutComponent(rect, h);
     layoutMain({ .mainRect = rect, .label = &releaseLevel.label, .component = &releaseLevel, .rowHeight = h });
     if (hasReleaseLevelButtons() && level.isVisibleNudge()) releaseLevelBtns.layoutComponent(rect, h);
+    layoutMain({ .mainRect = rect, .label = &releaseMode.label, .component = &releaseMode, .rowHeight = h });
+    layoutMain({ .mainRect = rect, .label = &releaseDelta.label, .component = &releaseDelta, .rowHeight = h });
+    layoutMain({ .mainRect = rect, .label = &releaseTick.label, .component = &releaseTick, .rowHeight = h });
+    layoutMain({ .mainRect = rect, .label = &releaseTickNote.label, .component = &releaseTickNote, .rowHeight = h });
 
     endLevelSeparator.layoutComponent(rect);
     layoutMain({ .mainRect = rect, .component = &endLevelEnable, .rowHeight = h });
@@ -916,6 +1237,12 @@ void GuiComponentStepEnv::drawParamGraph(GuiEnvelopeGraph& graph, const GuiConte
     v.endlEnable = GuiGraphValues::flag(apvts, code + spec.endlEnable);
 
     const auto* targetParam = spec.targetParamId ? apvts.getParameter(spec.targetParamId(code, target)) : nullptr;
+
+    // START NOW (4.3.0)。止まっていた声は、指し先のつまみの今の値から始める。絵もそこから描く
+    v.tickSync = spec.tickSync.isNotEmpty() && GuiGraphValues::flag(apvts, code + spec.tickSync);
+    v.startNow = false;
+
+    if (spec.startNow.isNotEmpty() && GuiGraphValues::flag(apvts, code + spec.startNow) && targetParam != nullptr) v.l[0] = targetParam->getValue();
     const auto label = target >= 0 && target < spec.targetLabels.size() ? spec.targetLabels[target] : juce::String();
 
     graph.updateBypass(!GuiGraphValues::flag(apvts, code + ParamEnv::keys().enable));
@@ -932,8 +1259,11 @@ void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curv
         return;
     }
 
-    const auto v = GuiGraphValues::stepEnv256(ctx.apvts, ctx.audioProcessor.stepTables, paramCode, spec.tableKey,
+    auto v = GuiGraphValues::stepEnv256(ctx.apvts, ctx.audioProcessor.stepTables, paramCode, spec.tableKey,
         spec.steps, spec.loop, spec.loopTo, spec.loopCount, spec.loopMode, spec.stl, spec.rr, spec.lr, (float)spec.levelMax);
+
+    v.startNow = hasStartNow() && startNow.getToggleState();
+    v.tickSync = isTickSync();
 
     graph.updateBypass(isCategoryBypassed());
 
@@ -980,6 +1310,10 @@ void GuiComponentStepEnv::applyActive()
     keep.setDimmed(!active);
     strictRate.setEnabled(outerEnabled);
     strictRate.setDimmed(!active);
+    startNow.setEnabled(outerEnabled);
+    startNow.setDimmed(!active);
+    tickSync.setEnabled(outerEnabled);
+    tickSync.setDimmed(!active);
     keepSeparator.setEnabled(active);
 
     loop.setEnabled(outerEnabled);
@@ -996,6 +1330,23 @@ void GuiComponentStepEnv::applyActive()
     rateNudge.setEnables(active);
     rateValues.setEnabled(active);
     rateSeparator.setEnabled(active);
+
+    // DELTA / TICK は RATE の段だけ。TICK (秒) と TICK NOTE は T SYNC で入れ替わる
+    const bool sync = isTickSync();
+    const bool stepRate = active && rateMode.getSelectedItemIndex() == 1;
+    const bool releaseIsRate = active && releaseMode.getSelectedItemIndex() == 1;
+
+    rateMode.setEnabledWithLabel(active);
+    delta.setEnabledWithLabel(stepRate);
+    deltaBtns.setEnables(stepRate);
+    tick.setEnabledWithLabel(stepRate && !sync);
+    tickBtns.setEnables(stepRate && !sync);
+    tickNote.setEnabledWithLabel(stepRate && sync);
+
+    releaseMode.setEnabledWithLabel(active);
+    releaseDelta.setEnabledWithLabel(releaseIsRate);
+    releaseTick.setEnabledWithLabel(releaseIsRate && !sync);
+    releaseTickNote.setEnabledWithLabel(releaseIsRate && sync);
 
     levelTarget.setEnabledWithLabel(active);
     level.setEnabled(active);
@@ -1145,6 +1496,8 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r, float levelScale)
 
     // 4.3.0 で足した。古いファイルには無いので、無ければ切 (4.2.x までの鳴り方) にする
     if (hasStrictRate()) strictRate.setToggleState(r.getBool("strictRate", false), juce::sendNotification);
+    if (hasStartNow()) startNow.setToggleState(r.getBool("startNow", false), juce::sendNotification);
+    if (hasTickSync()) tickSync.setToggleState(r.getBool("tickSync", false), juce::sendNotification);
     putSetLevel(endLevel, StepTable::setEndl, r.getFloat("endLevel", (float)endLevel.getValue() / levelScale) * levelScale);
     endLevelEnable.setToggleState(r.getBool("endLevelEnable", endLevelEnable.getToggleState()), juce::sendNotification);
 
@@ -1172,10 +1525,16 @@ void GuiComponentStepEnv::readValues(const Io::ParamReader& r, float levelScale)
             // ループの組 (4.1.0)。無ければ空にする
             t->setLoops(unflattenLoops(r.getFloatArray("loops")));
         }
+
+        // 段の進め方 (4.3.0)。無ければすべて TIME
+        readRateSteps(r);
     }
     else {
-        // 3.6.3 までの [11] の形。1〜10 段が表、11 番目がリリース。ループの組は無い
-        if (t != nullptr) t->setLoops({});
+        // 3.6.3 までの [11] の形。1〜10 段が表、11 番目がリリース。ループの組と段の進め方は無い
+        if (t != nullptr) {
+            t->setLoops({});
+            t->resetRateSteps();
+        }
 
         for (int i = 1; i <= legacyRelease; ++i) {
             const juce::String no(i);
@@ -1209,6 +1568,8 @@ void GuiComponentStepEnv::readSixStepValues(const Io::ParamReader& r)
     loopMode.setSelectedItemIndex(StepLoop::Original, juce::sendNotification);
     keep.setToggleState(false, juce::sendNotification);
     strictRate.setToggleState(false, juce::sendNotification);
+    startNow.setToggleState(false, juce::sendNotification);
+    tickSync.setToggleState(false, juce::sendNotification);
     endLevelEnable.setToggleState(false, juce::sendNotification);
 
     if (auto* p = ctx.apvts.getParameter(paramCode + spec.stl)) {
@@ -1249,6 +1610,8 @@ void GuiComponentStepEnv::setImportingSixStepParams(juce::StringArray& lines, in
     loopMode.setSelectedItemIndex(StepLoop::Original, juce::sendNotification);
     keep.setToggleState(false, juce::sendNotification);
     strictRate.setToggleState(false, juce::sendNotification);
+    startNow.setToggleState(false, juce::sendNotification);
+    tickSync.setToggleState(false, juce::sendNotification);
     endLevelEnable.setToggleState(false, juce::sendNotification);
 
     if (auto* p = ctx.apvts.getParameter(paramCode + spec.stl)) p->setValueNotifyingHost(p->convertTo0to1(lines[index].getFloatValue()));
@@ -1331,6 +1694,8 @@ void GuiComponentStepEnv::writeValues(Io::ParamWriter& w)
     w.set("loopMode", (float)juce::jmax(0, loopMode.getSelectedItemIndex()));
     if (hasKeep()) w.set("keep", keep.getToggleState());
     if (hasStrictRate()) w.set("strictRate", strictRate.getToggleState());
+    if (hasStartNow()) w.set("startNow", startNow.getToggleState());
+    if (hasTickSync()) w.set("tickSync", tickSync.getToggleState());
     w.set("endLevel", (float)endLevel.getValue());
     w.set("endLevelEnable", endLevelEnable.getToggleState());
 
@@ -1359,6 +1724,8 @@ void GuiComponentStepEnv::writeValues(Io::ParamWriter& w)
     w.setArray("levels", levels);
 
     if (auto* t = table()) w.setArray("loops", flattenLoops(t->loopList()));
+
+    writeRateSteps(w);
 }
 
 // 3.0.0 より前の、行の並びで書いたファイル。並びは [11] のもの。
@@ -1377,7 +1744,10 @@ void GuiComponentStepEnv::setImportingParams(juce::StringArray& lines, int& inde
 
     auto* t = table();
 
-    if (t != nullptr) t->setLoops({});
+    if (t != nullptr) {
+        t->setLoops({});
+        t->resetRateSteps();
+    }
 
     for (int i = 1; i <= legacyRelease; ++i) {
         const float r = lines[index++].getFloatValue();

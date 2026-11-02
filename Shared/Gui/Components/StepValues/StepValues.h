@@ -37,6 +37,9 @@ public:
     // 値の代わりに「SKIP」と出す段 (TAP SEQUENCER)。空なら無し。
     std::vector<bool> skipped;
 
+    // 値の代わりに出す文字。空でない段だけ使う (RATE の段の D など)。空なら無し。
+    std::vector<juce::String> texts;
+
     // いま値のつまみが束縛されている段。-1 なら無し。
     int selected = -1;
 

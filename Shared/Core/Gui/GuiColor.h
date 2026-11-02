@@ -292,6 +292,12 @@ namespace GuiColor {
 		inline Entry LiveFill{ "EnvelopeGraph.LiveFill", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.5f); } };
 
 		inline Entry LiveLine{ "EnvelopeGraph.LiveLine", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.85f); } };
+
+		// START NOW のときの、STL の中抜きの丸の中 (4.3.0)。絵の下地と同じ黒
+		inline Entry MarkerFill{ "EnvelopeGraph.MarkerFill", []() -> juce::Colour { return juce::Colours::black; } };
+
+		// T SYNC の刻みを描くのに使ったテンポの文字 (4.3.0)。見出しより一段引いた白
+		inline Entry TempoText{ "EnvelopeGraph.TempoText", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.6f); } };
 	};
 
 	namespace WavePreview {

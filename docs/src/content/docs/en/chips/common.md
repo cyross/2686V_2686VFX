@@ -266,17 +266,23 @@ release (sustain; the last step's value is held even with KEEP on). On release i
 | **STEP** | Number of steps | 1 – 256 | 10 | [`SSG_SSGSW256_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-steps) |
 | **KEEP** | Hold each step's starting value instead of sloping between steps | False / True | False | [`SSG_SSGSW256_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-keep) |
 | **STRICT R** | End each step after R seconds and the release after RR seconds. When off, a step ends when it reaches its target, so a step with the same value as the previous one ends at once (4.3.0) | False / True | False | [`SSG_SSGSW256_STRICT_R`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-strict-r) |
+| **START NOW** | If the envelope is still running when a key is pressed (such as during the release), start from its current value instead of STL ([below](#start-now--start-from-the-current-value), 4.3.0) | False / True | False | [`SSG_SSGSW256_START_NOW`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-start-now) |
+| **T SYNC** | Take each tick of a RATE step from TICK NOTE (a note length at the host tempo) instead of TICK (seconds) (4.3.0) | False / True | False | [`SSG_SSGSW256_TSYNC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-tsync) |
 | **LOOP** | Repeat | False / True | False | [`SSG_SSGSW256_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loop) |
 | **LOOP MODE** | How to repeat: Original Mode / Rich Mode ([below](#loop-mode--rich-mode)) | 0 – 1 | 0 (Original) | [`SSG_SSGSW256_LOOPMODE`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopmode) |
 | **LOOP.TO** | Original Mode. Step to return to | 0 – 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopto) |
 | **LOOP.CNT** | Original Mode. How many times. **0 repeats forever** | 0 – 200 | 0 | [`SSG_SSGSW256_LOOPCNT`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-loopcnt) |
 | **LP.TARGET** / **START** / **END** / **COUNT** | Rich Mode. The loop set you edit, and its START, END and COUNT | 1 – number of sets / 1 – STEP / 1 – STEP / 0 – 200 | — | — (kept in a table) |
 | **ADD** / **DELETE** | Rich Mode. Add or remove a loop set (up to 256) | — | — | — |
-| **R.TARGET** / **RATE** | The step whose R you edit, and its time (seconds) | 1 – STEP / 0.001 – 10 | — / 0.001 | — (kept in a table) |
+| **R.TARGET** / **RATE** | The step whose R you edit, and its time (seconds). On a RATE step, the time limit | 1 – STEP / 0.001 – 10 | — / 0.001 | — (kept in a table) |
+| **MODE** | How the R.TARGET step moves: TIME (reach L in R seconds) / RATE (move toward L by DELTA) ([below](#mode--rate-steps-move-by-a-fixed-amount), 4.3.0) | TIME / RATE | TIME | — (kept in a table) |
+| **DELTA** | How far a RATE step moves: per second when TICK is 0, otherwise per tick | 0 – 1 | 0 | — (kept in a table) |
+| **TICK** / **TICK NOTE** | Length of a tick of a RATE step. TICK is in seconds (0 moves smoothly); TICK NOTE is the note length used with T SYNC (LINEAR moves smoothly) | 0 – 10 / LINEAR, 1/1–1/64T | 0 / LINEAR | — (kept in a table) |
 | **L.TARGET** / **LEVEL** | The step whose L you edit (0 is STL), and its volume | 0 – STEP / 0 – 1 | — / 1 | STL only: [`SSG_SSGSW256_STL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-stl) |
 | **STEPS** | Snap LEVEL, LR and ENDL to fixed steps (screen only, not saved) | free / 1/2–1/256, 1/3, 1/6, 1/7, 1/10, 1/100 | free | — |
 | **RR** | Time from release to reaching LR (seconds) | 0.001 – 10 | 0.001 | [`SSG_SSGSW256_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-rr) |
 | **LR** | Volume to head for after release | 0 – 1 | 0 | [`SSG_SSGSW256_LR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-lr) |
+| **RR MODE** / **RR DELTA** / **RR TICK** / **RR NOTE** | How the release moves. Same as a step's MODE / DELTA / TICK / TICK NOTE (with RATE, RR is the time limit; with RR DELTA at 0 it works as TIME) (4.3.0) | — | TIME / 0 / 0 / LINEAR | — (kept in a table) |
 | **Use Endl** | After the release, hold ENDL instead of LR | False / True | False | [`SSG_SSGSW256_ENDL_EN`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-endl-en) |
 | **ENDL** | The volume to hold then | 0 – 1 | 0 | [`SSG_SSGSW256_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgsw256-endl) |
 
@@ -291,6 +297,45 @@ presets and channel parameters, not as parameters**, so they can't be automated
 - **N** next to RATE / LEVEL shows nudge buttons
 - Right-clicking the heading copies the table too (CUT / COPY / PASTE / CLEAR /
   DUPLICATE)
+
+#### MODE – RATE steps (move by a fixed amount)
+
+Normally (**TIME**) a step moves from its starting value to L **in R seconds**, so the same R moves at a
+different speed when the starting value differs. A step whose **MODE** (under R.TARGET) is **RATE** moves
+toward L by a fixed amount, **DELTA**, and ends **on reaching L or after R seconds, whichever comes first**.
+It moves at the same speed wherever it starts (from 4.3.0).
+
+- With **TICK at 0** it moves smoothly, DELTA per second
+- With **TICK above 0** it moves in ticks: DELTA every TICK seconds after the step begins (it does not move at
+  the moment the step begins). For example, the volume can move 1/16 at a time and the pitch 100 cents (a semitone)
+  at a time. The **1/60** button under TICK is one 60 Hz frame
+- The direction comes from L (DELTA is only the size). It stops on reaching L and never overshoots
+- **With R at its minimum (0.001) the time never cuts it short** (it runs until it reaches L). When R cuts a step
+  short, the next step starts from where it stopped (the last step holds that value until release)
+- With DELTA at 0 it does not move and ends after R seconds. If nothing cuts it short either, it stays on that step until release
+- The release has the same choice in **RR MODE** (RR is the time limit). A release with RR DELTA at 0 would never end,
+  so it heads for LR in RR seconds as with TIME
+- With **T SYNC** on, a tick is taken from **TICK NOTE** (1/1–1/64, dotted and triplet; 1/64T is 1/96 of a whole note)
+  instead of TICK (seconds). The length follows the host tempo and picks up a tempo change from the next tick.
+  Without a tempo from the host (Standalone and so on) it uses 120 BPM
+- Curves do not apply to RATE steps. KEEP and STRICT R work as before (STRICT R only affects TIME steps)
+- In the R strip, a RATE step is labelled **D** and shows its DELTA
+- The graph walks the steps from STL and works out each length and end value with the same formula as the sound.
+  Ticks are drawn as stairs, and a step that never moves and is never cut short is drawn dashed. When T SYNC note ticks
+  are in use, the tempo used is shown at the top right
+- Each step's MODE / DELTA / TICK / TICK NOTE is kept in the table with R / L and saved in presets, channel parameters
+  and section parameter files. It can't be automated. Everything starts as TIME, so existing patches sound the same
+
+#### START NOW – start from the current value
+
+With **START NOW** on, if the envelope is still running when a key is pressed (during the release, or when a legato note
+restarts the pitch envelope, and so on), the first step starts **from the current value** instead of going back to STL
+(from 4.3.0). When it was stopped (a note on a free voice), it starts from STL.
+
+- It matters mostly when, in mono, the next key is pressed while the previous note is still releasing; when legato is set to
+  restart the pitch envelope; and when a voice is stolen in poly
+- On the graph, STL is drawn as a hollow circle, since the envelope does not always start there
+- Combined with RATE steps, it moves at the same speed wherever it starts
 
 #### LOOP MODE – Rich Mode
 
@@ -351,15 +396,18 @@ TARGET lists the same parameters as [TAP PARAM SEQUENCER](#tap-param-sequencer).
 - Values are kept as **a fraction of the target parameter's range** and shown the way the target shows them
   (0–127 for TL, Hz for FIX FREQ)
 - The values (STL, L1–L256, LR, ENDL) are **kept separately for each TARGET**. Changing TARGET switches to that
-  target's values (which start at the target parameter's default). R, STEP, LOOP, RR, Use Endl, KEEP and STRICT R are shared
-  by every TARGET. Presets and the like save the values of every TARGET; a section parameter file holds the values of the current TARGET
+  target's values (which start at the target parameter's default). R, STEP, LOOP, RR, Use Endl, KEEP, STRICT R, START NOW,
+  T SYNC and each step's MODE / DELTA / TICK / TICK NOTE are shared by every TARGET (DELTA is a fraction of the range). Presets and the like save the values of every TARGET; a section parameter file holds the values of the current TARGET
 - STL is called **STL**, the L values **L1–L256**, the target knob **L.TARGET** and the value knob **VALUE**.
   The buttons under the value knob are **MIN** / **-10%** / **-1** / **+1** / **+10%** / **MAX** (±1 is one step of the target)
 - Integer and choice parameters (AR, MUL, ALG, waveform numbers and so on) hold their value for each step, whatever
   KEEP says. Real-valued parameters (FIX FREQ, LFO FREQ and so on) glide between steps when KEEP is off
 - Only **that note** is changed; the parameter itself keeps its value. Values are read again while the note plays,
   so parameters that only act at key-on (MUL, DT, FIX FREQ, AR and so on) also change with each step, whatever LIVE DETUNE in SETTINGS says
-- Key-on behaviour, RATE, STEP, LOOP (including LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- Key-on behaviour, RATE, STEP, LOOP (including LOOP MODE), RR / LR, Use Endl / ENDL, MODE (RATE steps), START NOW and
+  T SYNC work as in SSG SW AMP ENV[256]. DELTA is a fraction of the range, and ±1 under it is one step of the target
+- With **START NOW** on, a voice that was stopped starts from **the target knob's current value** instead of STL.
+  The graph is drawn from the knob's value too
 - The section parameter file is `.paramEnv`, read and written from the heading's right-click menu. The target is written by
   name as well, so a file from another channel lands on the same target when the name matches
 - **PRM** in the graph switch shows it on the channel (operator / pad) graph, drawn with the values of the current TARGET.
@@ -388,7 +436,8 @@ values are **ALG numbers** instead of levels.
   **ALG.TARGET** and the value knob **ALG**
 - A value is held for its step (always KEEP, so there is no KEEP switch). There are no value buttons
   and no STEPS
-- RATE, STEP, LOOP (including LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]
+- RATE, STEP, LOOP (including LOOP MODE), RR / LR, Use Endl / ENDL, STRICT R, MODE (RATE steps), START NOW and
+  T SYNC work as in SSG SW AMP ENV[256]. DELTA counts ALG numbers, so ticks can step through the numbers one by one
 - Which operator gets FEEDBACK is decided by the ALG at the start of each block
 - The section's parameter file is `.algEnv`, read and written from the heading's right-click menu
 
@@ -456,11 +505,14 @@ normal (with Use Endl it holds ENDL).
 | **STEP** | Number of steps | 1 – 256 | 10 | [`SSG_SSGSWP256_STEPS`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-steps) |
 | **KEEP** | Hold each step's starting value | False / True | False | [`SSG_SSGSWP256_KEEP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-keep) |
 | **STRICT R** | End each step after R seconds and the release after RR seconds. When off, a step ends when it reaches its target, so a step with the same value as the previous one ends at once (4.3.0) | False / True | False | [`SSG_SSGSWP256_STRICT_R`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-strict-r) |
+| **START NOW** / **T SYNC** | As on AMP ([START NOW](#start-now--start-from-the-current-value), 4.3.0) | False / True | False | [`SSG_SSGSWP256_START_NOW`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-start-now) / [`SSG_SSGSWP256_TSYNC`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-tsync) |
 | **LOOP** / **LOOP MODE** / **LOOP.TO** / **LOOP.CNT** | Repeat. LOOP MODE ([Rich Mode](#loop-mode--rich-mode)) works as on AMP | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-loop) etc. |
 | **LP.TARGET** / **START** / **END** / **COUNT** / **ADD** / **DELETE** | The Rich Mode loop sets | — | — | — (kept in a table) |
 | **R.TARGET** / **RATE** | The step whose R you edit, and its time (seconds) | 1 – STEP / 0.001 – 10 | — / 0.001 | — (kept in a table) |
+| **MODE** / **DELTA** / **TICK** / **TICK NOTE** | How each step moves. As on AMP ([MODE](#mode--rate-steps-move-by-a-fixed-amount), 4.3.0). DELTA is in cents | — / 0 – 9600 / 0 – 10 / — | TIME / 0 / 0 / LINEAR | — (kept in a table) |
 | **L.TARGET** / **LEVEL** | The step whose L you edit (0 is STL), and its pitch (cents) | 0 – STEP / -4800 – 4800 | — / 0 | STL only: [`SSG_SSGSWP256_STL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-stl) |
 | **RR** / **LR** | Time from release to LR, and the pitch to head for | 0.001 – 10 / -4800 – 4800 | 0.001 / 0 | [`SSG_SSGSWP256_RR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-rr) / [`SSG_SSGSWP256_LR`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-lr) |
+| **RR MODE** / **RR DELTA** / **RR TICK** / **RR NOTE** | How the release moves. As on AMP (4.3.0) | — | TIME / 0 / 0 / LINEAR | — (kept in a table) |
 | **Use Endl** / **ENDL** | Keep a pitch after the release | — | — | [`SSG_SSGSWP256_ENDL`](/2686V_2686VFX/en/reference/automation/ssg/#ssg-ssgswp256-endl) |
 
 **N** next to LEVEL shows pitch buttons (semitone, octave and so on). [11] data from

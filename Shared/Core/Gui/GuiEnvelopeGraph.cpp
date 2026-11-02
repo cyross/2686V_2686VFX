@@ -66,6 +66,10 @@ void GuiEnvelopeGraph::setEnvelope(EnvType type, const juce::String& title, cons
     // 鳴っている位置も同じ。付けるのは絵を組んだ側 (setLiveSource)
     setLiveSource(nullptr, nullptr);
 
+    // STL の中抜きの丸とテンポの文字も同じ。付けるのは段のエンベロープ (setStepEnvelope)
+    hollowStart = false;
+    tempoText.clear();
+
     repaint();
 }
 
@@ -374,6 +378,13 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
         g.drawText(currentTitle, graphArea.withTrimmedLeft(4).withTrimmedTop(2), juce::Justification::topLeft, false);
     }
 
+    // T SYNC の刻みを描くのに使ったテンポ (4.3.0)
+    if (tempoText.isNotEmpty()) {
+        g.setColour(GuiColor::EnvelopeGraph::TempoText);
+        g.setFont(11.0f);
+        g.drawText(tempoText, graphArea.withTrimmedRight(4).withTrimmedTop(2), juce::Justification::topRight, false);
+    }
+
     if (isBypass) {
         g.setColour(juce::Colours::white.withAlpha(0.8f));
         g.setFont(14.0f);
@@ -476,6 +487,47 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
 
         envPath.startNewSubPath(currentPixelX, startY);
 
+        // 刻みで動く RATE の段 (4.3.0)。刻みごとに横へ引いてから縦に動かす (階段)。
+        // 刻みが多すぎるときは、ふつうの線として描く
+        if (phase.stairPeriod > 0.0f && phase.stairPeriod * 4096.0f >= 1.0f && phase.endLevel != phase.startLevel) {
+            auto levelAt = [&phase](float t) {
+                return phase.startLevel + (phase.endLevel - phase.startLevel) * phase.curveFunc(juce::jmin(1.0f, t));
+            };
+
+            float prevY = startY;
+
+            for (int k = 1;; ++k) {
+                const float t = (float)k * phase.stairPeriod;
+
+                if (t >= 1.0f - 1.0e-4f) {
+                    envPath.lineTo(currentPixelX + actualWidth, prevY);
+                    envPath.lineTo(currentPixelX + actualWidth, basePixelY - phase.endLevel * heightScale);
+                    break;
+                }
+
+                const float px = currentPixelX + t * actualWidth;
+
+                // 刻みの位置ちょうどで引くと、丸めでその刻みを取りこぼすことがあるので、少し後ろで引く
+                const float py = basePixelY - levelAt(t + phase.stairPeriod * 1.0e-3f) * heightScale;
+
+                envPath.lineTo(px, prevY);
+                envPath.lineTo(px, py);
+                prevY = py;
+            }
+
+            g.setColour(phase.color);
+            g.strokePath(envPath, juce::PathStrokeType(2.0f));
+
+            currentPixelX += actualWidth;
+
+            if (phase.drawPhaseLine) {
+                g.setColour(phase.phaseLineColor.withAlpha(0.3f));
+                g.drawLine(currentPixelX, graphArea.getY(), currentPixelX, graphArea.getBottom(), 2.0f);
+            }
+
+            continue;
+        }
+
         int resolution = std::max(10, (int)actualWidth / 2);
 
         float yStart = phase.curveFunc(phase.curveStartX);
@@ -545,6 +597,25 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     if (hasMax) {
         g.setColour(maxColour);
         g.drawLine(maxX, maxY, maxX, basePixelY, 2.0f);
+    }
+
+    // START NOW (4.3.0)。押したときにまだ走っていれば STL からは始まらないので、STL の点を中抜きの丸にする
+    if (hollowStart) {
+        const auto& first = currentPhases.front();
+        constexpr float radius = 4.0f;
+
+        // 左端ちょうどに置くと枠で半分切れるので、半径ぶん内へ寄せる
+        const float x = graphArea.getX() - offsetX + radius + 1.0f;
+        const float y = basePixelY - first.startLevel * heightScale;
+
+        if (std::isfinite(y)) {
+            const juce::Rectangle<float> dot(x - radius, y - radius, radius * 2.0f, radius * 2.0f);
+
+            g.setColour(GuiColor::EnvelopeGraph::MarkerFill);
+            g.fillEllipse(dot);
+            g.setColour(first.color);
+            g.drawEllipse(dot, 1.5f);
+        }
     }
 
     // 保っているあいだ (サスティン) は、区間を半透明の黄色で塗る。ほかは縦線
@@ -714,6 +785,85 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
 
     auto levelAt = [&](int i) { return v.l[(size_t)juce::jlimit(0, (int)v.l.size() - 1, i)] / lMax; };
     auto rateAt = [&](int i) { return v.r[(size_t)juce::jlimit(0, (int)v.r.size() - 1, i)]; };
+    auto rateStepAt = [&](int s) { return s >= 1 && s < (int)v.rates.size() ? v.rates[(size_t)s] : StepRate::Step{}; };
+
+    // RATE の段 (4.3.0)。長さと終わりの値は、音の側と同じ式 (StepRate) で start から出す。
+    // 値は絵の値 (lMax で割ったもの) なので、D も同じく割る。刻みは階段で描く。
+    // 動かず打ち切りもしない段は終わらないので、破線を引いて endless を立てる
+    auto ratePhase = [&](const StepRate::Step& st, float start, float target, float limit, PhaseDef phase, bool& endless) {
+        const double tick = StepRate::tickSeconds(st, v.tickSync, v.bpm);
+        const float d = st.delta / lMax;
+        const auto seg = StepRate::segment(start, target, d, tick, limit);
+
+        endless = seg.endless;
+        phase.startLevel = start;
+
+        if (seg.endless) {
+            phase.widthPx = 30.0f;
+            phase.endLevel = start;
+            phase.isDashed = true;
+            return phase;
+        }
+
+        const double dur = seg.seconds;
+        const float end = seg.end;
+
+        phase.widthPx = rateToWidth((float)dur, v.rMax);
+        phase.endLevel = end;
+        phase.curveFunc = [start, target, d, tick, dur, end](float x) {
+            if (end == start) return x;
+
+            return (StepRate::valueAt(start, target, d, tick, (double)x * dur) - start) / (end - start);
+        };
+
+        if (tick > 0.0 && dur > 0.0) phase.stairPeriod = (float)(tick / dur);
+
+        return phase;
+    };
+
+    // 段 s を start から target へ進める区間を足す。終わったときの値を返す
+    auto addStep = [&](std::vector<PhaseDef>& phases, int s, float start, float target, int prmIdx, juce::Colour col, int liveStep, bool& endless) {
+        PhaseDef phase{
+            .widthPx = rateToWidth(rateAt(s), v.rMax), .startLevel = start, .endLevel = target, .color = col,
+            .curveFunc = getCurveFunc(prmIdx),
+            .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+            .liveStep = liveStep
+        };
+
+        endless = false;
+
+        if (const auto st = rateStepAt(s); st.rate) phase = ratePhase(st, start, target, rateAt(s), phase, endless);
+
+        phases.push_back(phase);
+
+        return phase.endLevel;
+    };
+
+    // リリースの区間を足す。走り終えたときの値を返す
+    auto addRelease = [&](std::vector<PhaseDef>& phases, float start, bool moveToStart, float startXOffsetPx) {
+        PhaseDef phase{
+            .widthPx = rateToWidth(v.rr, v.rMax),
+            .startLevel = start,
+            .endLevel = v.lr / lMax,
+            .color = GuiColor::EnvelopeGraph::ReleaseLine,
+            .curveFunc = getCurveFunc(curveRelease),
+            .moveToStart = moveToStart,
+            .startXOffsetPx = startXOffsetPx,
+            .liveStep = LivePosition::release,
+            .isRelease = true
+        };
+
+        // RATE のリリース。D が 0 なら音の側も TIME で進める
+        if (v.releaseRateStep.rate && v.releaseRateStep.delta > 0.0f) {
+            bool endless = false;
+
+            phase = ratePhase(v.releaseRateStep, start, v.lr / lMax, v.rr, phase, endless);
+        }
+
+        phases.push_back(phase);
+
+        return phase.endLevel;
+    };
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
 
@@ -734,14 +884,10 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
         bool endless = false;
 
         while (s <= steps) {
-            phases.push_back({
-                .widthPx = rateToWidth(rateAt(s), v.rMax), .startLevel = level, .endLevel = levelAt(s), .color = color,
-                .curveFunc = getCurveFunc(std::min(s, curveStepParams) - 1),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
-                .liveStep = s
-                });
+            level = addStep(phases, s, level, levelAt(s), std::min(s, curveStepParams) - 1, color, s, endless);
 
-            level = levelAt(s);
+            // 動かず打ち切りもしない RATE の段。離すまでここにいる
+            if (endless) break;
 
             const int nextStep = StepLoop::next(loops, num, steps, state, s);
 
@@ -776,19 +922,11 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
                 });
         }
 
-        phases.push_back({
-            .widthPx = rateToWidth(v.rr, v.rMax),
-            .startLevel = level,
-            .endLevel = v.lr / lMax,
-            .color = GuiColor::EnvelopeGraph::ReleaseLine,
-            .curveFunc = getCurveFunc(curveRelease),
-            .liveStep = LivePosition::release,
-            .isRelease = true
-            });
+        const float releaseEnd = addRelease(phases, level, false, 0.0f);
 
-        if (v.endlEnable) appendEndLevel(phases, v.lr / lMax, v.endl / lMax);
+        if (v.endlEnable) appendEndLevel(phases, releaseEnd, v.endl / lMax);
 
-        setEnvelope(type, title, phases);
+        setStepEnvelope(type, title, phases, v);
         return;
     }
 
@@ -796,93 +934,110 @@ void GuiEnvelopeGraph::updateStepEnv(EnvType type, const juce::String& title, ju
     const float loopToLevel = isLoop ? levelAt(loopTo) : 0.0f;
     float loopEndWidth = 0.0f;
 
+    // 段の頭の値。TIME の段は行き先に着いて終わるが、RATE の段は打ち切られると手前で終わる
+    float level = levelAt(0);
+
+    // ループで戻る段を走り終えたときの値 (無限のループなら、離すとここから)
+    float loopBackLevel = loopToLevel;
+    bool endless = false;
+
     for (int s = 1; s <= steps; ++s) {
-        const float startL = levelAt(s - 1);
-        const float endL = levelAt(s);
+        const float startL = level;
         const int prmIdx = (isLoop && s == steps) ? curveLoopTo : std::min(s, curveStepParams) - 1;
-        const float width = rateToWidth(rateAt(s), v.rMax);
 
         if (isLoop && s == steps) {
-            phases.push_back({
-                .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
-                .curveFunc = getCurveFunc(prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
-                .liveStep = s
-                });
-
             loopEndWidth = currentTotalWidth;
 
-            if (loopCount > 0) {
+            loopBackLevel = addStep(phases, s, startL, loopToLevel, prmIdx, color, s, endless);
+
+            const float width = phases.back().widthPx;
+
+            if (loopCount > 0 && !endless) {
                 phases.push_back({
                     .widthPx = 30.0f,
-                    .startLevel = loopToLevel,
-                    .endLevel = loopToLevel,
+                    .startLevel = loopBackLevel,
+                    .endLevel = loopBackLevel,
                     .isDashed = true,
                     .color = color,
                     .drawPhaseLine = false
                     });
-                phases.push_back({
-                    .widthPx = width,
-                    .startLevel = startL,
-                    .endLevel = endL,
-                    .color = color.darker(0.3f),
-                    .curveFunc = getCurveFunc(prmIdx),
-                    .moveToStart = true,
-                    .startXOffsetPx = loopEndWidth,
-                    .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine
-                    });
+
+                // 回り終えたあとの最後の段。頭の値は 1 回目と同じとして描く
+                bool lastEndless = false;
+
+                level = addStep(phases, s, startL, levelAt(s), prmIdx, color.darker(0.3f), LivePosition::idle, lastEndless);
+                phases.back().moveToStart = true;
+                phases.back().startXOffsetPx = loopEndWidth;
 
                 // 回り終えたら、離すまで最後の段を保つ (サスティン)
-                phases.push_back({
-                    .widthPx = sustainWidthPx, .startLevel = endL, .endLevel = endL,
-                    .color = GuiColor::EnvelopeGraph::SustainLine,
-                    .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
-                    .liveStep = LivePosition::sustain
-                    });
+                if (!lastEndless) {
+                    phases.push_back({
+                        .widthPx = sustainWidthPx, .startLevel = level, .endLevel = level,
+                        .color = GuiColor::EnvelopeGraph::SustainLine,
+                        .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
+                        .liveStep = LivePosition::sustain
+                        });
+                }
+            }
+            else {
+                level = loopBackLevel;
             }
 
             loopEndWidth += width;
 
             if (loopCount > 0) loopEndWidth += sustainWidthPx;
+
+            currentTotalWidth += width;
         }
         else {
-            phases.push_back({
-                .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
-                .curveFunc = getCurveFunc(prmIdx),
-                .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
-                .liveStep = s
-                });
+            level = addStep(phases, s, startL, levelAt(s), prmIdx, color, s, endless);
+
+            currentTotalWidth += phases.back().widthPx;
         }
 
-        currentTotalWidth += width;
+        // 動かず打ち切りもしない RATE の段。離すまでここにいる
+        if (endless) break;
     }
 
     // ループしないときは、最後の段を走り終えたら離すまで保つ (サスティン。決まった幅・別の色)
-    if (!isLoop) {
+    if (!isLoop && !endless) {
         phases.push_back({
-            .widthPx = sustainWidthPx, .startLevel = levelAt(steps), .endLevel = levelAt(steps),
+            .widthPx = sustainWidthPx, .startLevel = level, .endLevel = level,
             .color = GuiColor::EnvelopeGraph::SustainLine,
             .phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine,
             .liveStep = LivePosition::sustain
             });
     }
 
-    // Release
-    phases.push_back({
-        .widthPx = rateToWidth(v.rr, v.rMax),
-        .startLevel = (isLoop && loopCount == 0) ? loopToLevel : levelAt(steps),
-        .endLevel = v.lr / lMax,
-        .color = GuiColor::EnvelopeGraph::ReleaseLine,
-        .curveFunc = getCurveFunc(curveRelease),
-        .moveToStart = isLoop,
-        .startXOffsetPx = loopEndWidth,
-        .liveStep = LivePosition::release,
-        .isRelease = true
-        });
+    // Release。ループの段まで来ずに止まったときは、止まった値から続けて描く
+    const bool jump = isLoop && !endless;
+    const float releaseStart = jump && loopCount == 0 ? loopBackLevel : level;
+    const float releaseEnd = addRelease(phases, releaseStart, jump, loopEndWidth);
 
-    if (v.endlEnable) appendEndLevel(phases, v.lr / lMax, v.endl / lMax);
+    if (v.endlEnable) appendEndLevel(phases, releaseEnd, v.endl / lMax);
 
+    setStepEnvelope(type, title, phases, v);
+}
+
+// 段のエンベロープの絵を置く。START NOW なら STL の点を中抜きの丸に、T SYNC で音符の
+// 刻みを使っていれば、計算に使ったテンポを右上に出す (どちらも setEnvelope が外す)
+void GuiEnvelopeGraph::setStepEnvelope(EnvType type, const juce::String& title, const std::vector<PhaseDef>& phases, const StepEnvValues& v)
+{
     setEnvelope(type, title, phases);
+
+    hollowStart = v.startNow;
+
+    bool usesNotes = false;
+
+    if (v.tickSync) {
+        const int steps = juce::jmin(v.head.steps, (int)v.rates.size() - 1);
+
+        for (int s = 1; s <= steps; ++s) usesNotes = usesNotes || (v.rates[(size_t)s].rate && v.rates[(size_t)s].tickNote > 0);
+
+        usesNotes = usesNotes || (v.releaseRateStep.rate && v.releaseRateStep.tickNote > 0);
+    }
+
+    tempoText = usesNotes ? juce::String(v.bpm, 1) + " BPM" : juce::String();
 }
 
 void GuiEnvelopeGraph::updateAmpEnv(

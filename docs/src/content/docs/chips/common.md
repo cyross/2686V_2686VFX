@@ -262,17 +262,23 @@ SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置�
 | **STEP** | 使う段の数 | 1 〜 256 | 10 | [`SSG_SSGSW256_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-steps) |
 | **KEEP** | 段のあいだを斜めに繋がず、その段の頭の値を保つ | False / True | False | [`SSG_SSGSW256_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-keep) |
 | **STRICT R** | 段は R 秒、リリースは RR 秒たったところで終える。切ると行き先の値に着いたところで終えるので、前の段と同じ値の段はすぐ終わる (4.3.0) | False / True | False | [`SSG_SSGSW256_STRICT_R`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-strict-r) |
+| **START NOW** | 押したときにまだ走っていれば（離したあとの余韻など）、STL ではなくその時点の値から始める（[下](#start-now--押した時点の値から始める)。4.3.0） | False / True | False | [`SSG_SSGSW256_START_NOW`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-start-now) |
+| **T SYNC** | RATE の段の 1 刻みを、TICK（秒）ではなく TICK NOTE（テンポに合わせた音符の長さ）で取る（4.3.0） | False / True | False | [`SSG_SSGSW256_TSYNC`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-tsync) |
 | **LOOP** | 繰り返す | False / True | False | [`SSG_SSGSW256_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loop) |
 | **LOOP MODE** | 繰り返し方。Original Mode / Rich Mode（[下](#loop-mode--rich-mode)） | 0 〜 1 | 0（Original） | [`SSG_SSGSW256_LOOPMODE`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopmode) |
 | **LOOP.TO** | Original Mode。戻り先の段 | 0 〜 254 | 0 | [`SSG_SSGSW256_LOOPTO`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopto) |
 | **LOOP.CNT** | Original Mode。繰り返す回数。**0 で無限** | 0 〜 200 | 0 | [`SSG_SSGSW256_LOOPCNT`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-loopcnt) |
 | **LP.TARGET** / **START** / **END** / **COUNT** | Rich Mode。直すループの組と、その START・END・COUNT | 1 〜 組の数 / 1 〜 STEP / 1 〜 STEP / 0 〜 200 | — | —（表で持つ） |
 | **ADD** / **DELETE** | Rich Mode。ループの組を足す・消す（最大 256 個） | — | — | — |
-| **R.TARGET** / **RATE** | R を変える段と、その段の時間（秒） | 1 〜 STEP / 0.001 〜 10 | — / 0.001 | —（表で持つ） |
+| **R.TARGET** / **RATE** | R を変える段と、その段の時間（秒）。RATE の段では打ち切りの時間 | 1 〜 STEP / 0.001 〜 10 | — / 0.001 | —（表で持つ） |
+| **MODE** | R.TARGET の段の進め方。TIME（R 秒で L へ）/ RATE（DELTA ずつ L へ）（[下](#mode--変化量で進む段-rate)。4.3.0） | TIME / RATE | TIME | —（表で持つ） |
+| **DELTA** | RATE の段の変化量。TICK が 0 なら 1 秒あたり、0 より大きければ 1 刻みあたり | 0 〜 1 | 0 | —（表で持つ） |
+| **TICK** / **TICK NOTE** | RATE の段の 1 刻みの長さ。TICK は秒（0 で線形）、TICK NOTE は T SYNC のときの音符の長さ（LINEAR で線形） | 0 〜 10 / LINEAR・1/1〜1/64T | 0 / LINEAR | —（表で持つ） |
 | **L.TARGET** / **LEVEL** | L を変える段（0 が STL）と、その段の音量 | 0 〜 STEP / 0 〜 1 | — / 1 | STL だけ [`SSG_SSGSW256_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-stl) |
 | **STEPS** | LEVEL・LR・ENDL を決まった刻みへ丸める（画面だけ・保存しない） | 自由 / 1/2〜1/256・1/3・1/6・1/7・1/10・1/100 | 自由 | — |
 | **RR** | 離してから LR へ届くまでの時間（秒） | 0.001 〜 10 | 0.001 | [`SSG_SSGSW256_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-rr) |
 | **LR** | 離したあとに向かう音量 | 0 〜 1 | 0 | [`SSG_SSGSW256_LR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-lr) |
+| **RR MODE** / **RR DELTA** / **RR TICK** / **RR NOTE** | リリースの進め方。段の MODE / DELTA / TICK / TICK NOTE と同じ（RATE なら RR は打ち切りの時間。RR DELTA が 0 なら TIME と同じ）（4.3.0） | — | TIME / 0 / 0 / LINEAR | —（表で持つ） |
 | **Use Endl** | リリースを走り終えたあと、LR の代わりに ENDL を保つ | False / True | False | [`SSG_SSGSW256_ENDL_EN`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-endl-en) |
 | **ENDL** | そのときに保つ音量 | 0 〜 1 | 0 | [`SSG_SSGSW256_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgsw256-endl) |
 
@@ -286,6 +292,45 @@ SSG SW AMP ENV[11]（10 段 + リリース）と 6 段の SSG SW AMP ENV に置�
 - RATE / LEVEL の右の **N** で、値を少しずつ動かすボタンが出ます
 - 区分の見出しの右クリックで、表ごと写せます（CUT / COPY / PASTE / CLEAR /
   DUPLICATE）
+
+#### MODE — 変化量で進む段 (RATE)
+
+段はふつう（**TIME**）、段の頭の値から L へ **R 秒で**進みます。始まる値が違うと、同じ R でも
+動く速さが変わります。R.TARGET の下の **MODE** を **RATE** にした段は、決まった変化量
+**DELTA** で L へ向かい、**L に届くか R 秒たつかの早いほうで**終えます。どこから始まっても
+同じ速さで動きます（4.3.0 から）。
+
+- **TICK が 0** なら線形で、1 秒あたり DELTA ずつ動きます
+- **TICK が 0 より大きい**と刻みで動きます。段に入ってから TICK 秒待つたびに DELTA ずつ動きます
+  （入った瞬間は動きません）。たとえば音量を 1/16 ずつ、音程を 100 セント（半音）ずつ動かせます。
+  TICK の下のボタンの **1/60** は 60Hz の 1 コマです
+- 向きは L で決まります（DELTA は大きさだけ）。L に届いたら止め、行き過ぎません
+- **R が最小（0.001）なら時間では打ち切りません**（L に届くまで進みます）。R で打ち切ったときは、
+  着いたところの値から次の段を始めます（最後の段なら、その値を離すまで保ちます）
+- DELTA が 0 なら動かず、R 秒たったら終えます。打ち切りもしないなら、離すまでその段にいます
+- リリースも **RR MODE** で同じように選べます（RR は打ち切りの時間）。RR DELTA が 0 のリリースは
+  いつまでも終わらないので、TIME と同じく RR 秒で LR へ向かいます
+- **T SYNC** を入れると、1 刻みを TICK（秒）ではなく **TICK NOTE**（1/1〜1/64、付点・3 連。1/64T は
+  全音符の 1/96）で取ります。長さはホストのテンポに合わせ、曲の途中でテンポが変わっても次の刻みから追います。
+  テンポをもらえないとき（Standalone など）は 120 BPM です
+- RATE の段にはカーブは効きません。KEEP と STRICT R はこれまでどおりです（STRICT R は TIME の段だけに効きます）
+- R の帯では、RATE の段は見出しが **D** になり、DELTA を出します
+- グラフは、STL から段を順にたどって、音の側と同じ式で長さと終わりの値を出して描きます。刻みは階段で、
+  動かず打ち切りもしない段は破線で描きます。T SYNC で音符の刻みを使っているときは、計算に使ったテンポを右上に出します
+- 段ごとの MODE / DELTA / TICK / TICK NOTE は R / L と同じく表に持ち、プリセット・チャンネルパラメータ・
+  区分のパラメータファイルに保存します。オートメーションでは動かせません。初期値は TIME なので、
+  これまでのパッチの鳴り方は変わりません
+
+#### START NOW — 押した時点の値から始める
+
+**START NOW** を入れると、押したときにまだエンベロープが走っていれば（離したあとの余韻や、
+レガートで音程をやり直すときなど）、STL へ戻らずに**その時点の値から**1 段目を始めます（4.3.0 から）。
+止まっていたとき（ふつうに空いている声で鳴らしたとき）は STL から始めます。
+
+- 効くのは主に、モノで前の音を離したあと鳴り残っているうちに次を押したとき、レガートで音程を
+  やり直す設定のとき、ポリで声を奪ったときです
+- グラフでは、STL から始まるとは限らないことが分かるよう、STL の点を中抜きの丸で描きます
+- RATE の段と組むと、どこから始まっても同じ速さで動きます
 
 #### LOOP MODE — Rich Mode
 
@@ -343,15 +388,18 @@ TARGET に並ぶパラメータは [TAP PARAM SEQUENCER](#tap-param-sequencer) �
 - 値は**指し先のパラメータの範囲の割合**で持ち、画面には指し先の書き方で出します（TL なら 0〜127、
   FIX の FREQ なら Hz）
 - 値（STL・L1〜L256・LR・ENDL）は **TARGET ごとに別に持ちます**。TARGET を変えると、その指し先の値に
-  切り替わります（はじめは指し先のパラメータの初期値）。R・STEP・LOOP・RR・Use Endl・KEEP・STRICT R は TARGET によらず
-  1 つです。プリセットなどには全部の TARGET の値を保存し、区分のパラメータファイルには、いまの TARGET の値を書きます
+  切り替わります（はじめは指し先のパラメータの初期値）。R・STEP・LOOP・RR・Use Endl・KEEP・STRICT R・START NOW・T SYNC と、
+  段の MODE / DELTA / TICK / TICK NOTE は TARGET によらず 1 つです（DELTA は範囲の割合）。プリセットなどには全部の TARGET の値を保存し、区分のパラメータファイルには、いまの TARGET の値を書きます
 - 名前は STL が **STL**、L が **L1〜L256**、対象のつまみが **L.TARGET**、値のつまみが **VALUE** です。
   値のつまみの下のボタンは **MIN** / **-10%** / **-1** / **+1** / **+10%** / **MAX**（±1 は指し先の 1 刻み）
 - 整数や選択肢のパラメータ（AR・MUL・ALG・波形の番号など）は、段のあいだ値を保ちます（KEEP の札によらず）。
   実数のパラメータ（FIX の FREQ・LFO の FREQ など）は、KEEP を切ると段のあいだを斜めに繋ぎます
 - 置き換えるのは**その音だけ**です。パラメータそのものの値は変わりません。値は鳴っているあいだ読み直すので、
   押したときだけ効くパラメータ（MUL・DT・FIX の FREQ・AR など）も段ごとに変わります（SETTINGS の LIVE DETUNE によらず）
-- 押してからの動き・RATE・STEP・LOOP（LOOP MODE を含む）・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- 押してからの動き・RATE・STEP・LOOP（LOOP MODE を含む）・RR / LR・Use Endl / ENDL・MODE（RATE の段）・START NOW・
+  T SYNC は SSG SW AMP ENV[256] と同じです。DELTA は範囲の割合で、下のボタンの ±1 は指し先の 1 刻みです
+- **START NOW** を入れると、止まっていた（走っていない）声は STL ではなく**指し先のつまみの今の値**から始めます。
+  グラフもつまみの値から描きます
 - 区分のパラメータファイルは `.paramEnv` で、見出しの右クリックから読み書きします。指し先は名前でも書くので、
   別のチャンネルのファイルでも名前が合えば同じ指し先になります
 - グラフの切り替えの **PRM** で、チャンネル（オペレーター・パッド）のグラフに映せます。値はいまの TARGET の組で描きます。
@@ -379,7 +427,8 @@ ALGORITHM/FEEDBACK の FEEDBACK の下に並びます（4.0.0 から）。**ALG�
 - 値は ALG の番号（0 から。OPNA / OPN / OPM / OPL3 は 0〜7、OPL は 0〜1、OPZX7S は ALG の数まで）。
   名前は STL が **STALG**、L が **ALG1〜ALG256**、対象のつまみが **ALG.TARGET**、値のつまみが **ALG** です
 - 段のあいだは値を保ちます（常に KEEP。KEEP の札はありません）。値を動かすボタンと STEPS はありません
-- RATE・STEP・LOOP（LOOP MODE を含む）・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じです
+- RATE・STEP・LOOP（LOOP MODE を含む）・RR / LR・Use Endl / ENDL・STRICT R・MODE（RATE の段）・START NOW・
+  T SYNC は SSG SW AMP ENV[256] と同じです。DELTA は ALG の番号の数で、刻みで動かすと番号を 1 つずつ進められます
 - FEEDBACK を掛けるオペレーターは、ブロックの頭の ALG で決まります
 - 区分のパラメータファイルは `.algEnv` で、見出しの右クリックから読み書きします
 
@@ -448,11 +497,14 @@ Enable にすると 1 オクターブの範囲で音程が動きます。MIN と
 | **STEP** | 使う段の数 | 1 〜 256 | 10 | [`SSG_SSGSWP256_STEPS`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-steps) |
 | **KEEP** | 段の頭の値を保つ | False / True | False | [`SSG_SSGSWP256_KEEP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-keep) |
 | **STRICT R** | 段は R 秒、リリースは RR 秒たったところで終える。切ると行き先の値に着いたところで終えるので、前の段と同じ値の段はすぐ終わる (4.3.0) | False / True | False | [`SSG_SSGSWP256_STRICT_R`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-strict-r) |
+| **START NOW** / **T SYNC** | AMP と同じ（[START NOW](#start-now--押した時点の値から始める)。4.3.0） | False / True | False | [`SSG_SSGSWP256_START_NOW`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-start-now) / [`SSG_SSGSWP256_TSYNC`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-tsync) |
 | **LOOP** / **LOOP MODE** / **LOOP.TO** / **LOOP.CNT** | 繰り返し。LOOP MODE（[Rich Mode](#loop-mode--rich-mode)）も AMP と同じ | — | — | [`SSG_SSGSWP256_LOOP`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-loop) など |
 | **LP.TARGET** / **START** / **END** / **COUNT** / **ADD** / **DELETE** | Rich Mode のループの組 | — | — | —（表で持つ） |
 | **R.TARGET** / **RATE** | R を変える段と、その段の時間（秒） | 1 〜 STEP / 0.001 〜 10 | — / 0.001 | —（表で持つ） |
+| **MODE** / **DELTA** / **TICK** / **TICK NOTE** | 段の進め方。AMP と同じ（[MODE](#mode--変化量で進む段-rate)。4.3.0）。DELTA はセント | — / 0 〜 9600 / 0 〜 10 / — | TIME / 0 / 0 / LINEAR | —（表で持つ） |
 | **L.TARGET** / **LEVEL** | L を変える段（0 が STL）と、その段の音程（セント） | 0 〜 STEP / -4800 〜 4800 | — / 0 | STL だけ [`SSG_SSGSWP256_STL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-stl) |
 | **RR** / **LR** | 離してから LR へ届くまでの時間と、向かう音程 | 0.001 〜 10 / -4800 〜 4800 | 0.001 / 0 | [`SSG_SSGSWP256_RR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-rr) / [`SSG_SSGSWP256_LR`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-lr) |
+| **RR MODE** / **RR DELTA** / **RR TICK** / **RR NOTE** | リリースの進め方。AMP と同じ（4.3.0） | — | TIME / 0 / 0 / LINEAR | —（表で持つ） |
 | **Use Endl** / **ENDL** | リリースのあとも音程を残す | — | — | [`SSG_SSGSWP256_ENDL`](/2686V_2686VFX/reference/automation/ssg/#ssg-ssgswp256-endl) |
 
 LEVEL の右の **N** では、半音・オクターブなど音程向けのボタンが出ます。
