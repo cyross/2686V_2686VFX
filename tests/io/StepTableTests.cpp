@@ -319,3 +319,56 @@ TEST_CASE("StepTableUndo: TAP PARAM SEQUENCER の組も戻る")
     CHECK(table.pairAt(5, 0).index == 3);
     CHECK(table.skipped(7));
 }
+
+TEST_CASE("StepTable: 段の進め方 (RATE・D・T) も文字へ書き出して読み戻せる。無ければ TIME に戻す")
+{
+    StepTable a(0.001f, 1.0f);
+    a.setLevel(2, 0.5f);
+
+    const auto plain = StepTableIo::toText(a);
+
+    // 進め方が無ければ、4.2.x までと同じ文字
+    CHECK(plain.indexOfChar('|') == plain.lastIndexOfChar('|'));
+
+    a.setRateStep(2, { true, 0.0625f, 0.05f, 0 });
+    a.setRateStep(10, { true, 100.0f, 0.0f, 11 });
+    a.setRateStep(StepTable::releaseStep, { true, 0.25f, 0.0f, 0 });
+
+    StepTable b(0.001f, 1.0f);
+    b.setRateStep(7, { true, 1.0f, 1.0f, 1 });
+    StepTableIo::fromText(b, StepTableIo::toText(a));
+
+    CHECK(b.rateStep(2) == StepRate::Step{ true, 0.0625f, 0.05f, 0 });
+    CHECK(b.rateStep(10) == StepRate::Step{ true, 100.0f, 0.0f, 11 });
+    CHECK(b.rateStep(StepTable::releaseStep) == StepRate::Step{ true, 0.25f, 0.0f, 0 });
+    CHECK(b.level(2) == doctest::Approx(0.5f));
+
+    // 書かれていない段は TIME へ戻る
+    CHECK(b.rateStep(7) == StepRate::Step{});
+
+    // 4.2.x までの文字を読むと、すべて TIME になる
+    StepTableIo::fromText(b, plain);
+
+    CHECK_FALSE(b.hasRateSteps());
+}
+
+TEST_CASE("StepTableUndo: 段の進め方も戻る")
+{
+    StepTable t(0.001f, 1.0f);
+
+    const auto before = StepTableUndo::Snapshot::take(t);
+
+    t.setRateStep(3, { true, 0.5f, 0.1f, 0 });
+
+    const auto after = StepTableUndo::Snapshot::take(t);
+
+    CHECK(before != after);
+
+    before.apply(t);
+
+    CHECK(t.rateStep(3) == StepRate::Step{});
+
+    after.apply(t);
+
+    CHECK(t.rateStep(3) == StepRate::Step{ true, 0.5f, 0.1f, 0 });
+}

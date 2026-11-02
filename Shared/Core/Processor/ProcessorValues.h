@@ -781,6 +781,18 @@ namespace CPV
 		{
 			inline constexpr float initial = false;
 		}
+
+		// 押したときにまだ走っていれば、その時点の値から始める (4.3.0)。切ると STL から
+		namespace StartNow
+		{
+			inline constexpr float initial = false;
+		}
+
+		// RATE の段の 1 刻みをテンポに合わせる (4.3.0)。切ると秒
+		namespace TickSync
+		{
+			inline constexpr float initial = false;
+		}
 	}
 
 	namespace SsgSwPEnv256
@@ -799,6 +811,18 @@ namespace CPV
 
 		// R を厳密に守る (4.3.0)。切ると 4.2.x までと同じく、行き先に着いたら段を終える
 		namespace StrictRate
+		{
+			inline constexpr float initial = false;
+		}
+
+		// 押したときにまだ走っていれば、その時点の値から始める (4.3.0)。切ると STL から
+		namespace StartNow
+		{
+			inline constexpr float initial = false;
+		}
+
+		// RATE の段の 1 刻みをテンポに合わせる (4.3.0)。切ると秒
+		namespace TickSync
 		{
 			inline constexpr float initial = false;
 		}

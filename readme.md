@@ -102,6 +102,17 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - 初期値は切で、これまでのパッチの鳴り方は変わらない。カーブを入れているときは、もとから R 秒で終えている
   - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE。区分ごとに持つ。チャンネルパラメータ・区分のパラメータファイル (`strictRate`)・プリセット・DAW の状態に保存。オートメーションは `_SSGSW256_STRICT_R` / `_SSGSWP256_STRICT_R` / `_PRMENV_STRICT_R` / `_ALGENV_STRICT_R` / `_DUTYENV_STRICT_R` / `_PEAKENV_STRICT_R`
   - 全プラグイン (2686VFX を除く)
+- **段のエンベロープを変化量で進められるようにした (RATE の段)。START NOW と T SYNC を足した**
+  - 段は段の頭の値から L へ R 秒で進むので、始まる値が違うと、同じ R でも動く速さが変わる。段ごとに **MODE** (TIME / RATE) を足し、R.TARGET で選んだ段の **MODE** / **DELTA** / **TICK** / **TICK NOTE** を直せるようにした
+  - **RATE** の段は、変化量 DELTA で L へ向かい、L に届くか R 秒たったら終える (行き過ぎない。R が最小 (0.001) なら時間で打ち切らない。打ち切ったら着いたところから次の段を始める)。TICK が 0 なら 1 秒あたり DELTA の線形、0 より大きければ段に入ってから TICK 秒ごとに DELTA ずつ動く (入った瞬間は動かない)。DELTA が 0 で打ち切りもしない段は、離すまでその段にいる
+  - リリースも **RR MODE** / **RR DELTA** / **RR TICK** / **RR NOTE** で同じように選べる (RR は打ち切りの時間)。RR DELTA が 0 のリリースは、TIME と同じく RR 秒で LR へ向かう
+  - **START NOW**: 押したときにまだ走っていれば (離したあとの余韻・レガートで音程をやり直すとき・声を奪ったときなど)、STL ではなくその時点の値から始める。PARAM ENV は、止まっていた声を指し先のつまみの今の値から始める
+  - **T SYNC**: RATE の段の 1 刻みを、TICK (秒) ではなく **TICK NOTE** (LINEAR / 1/1〜1/64、付点・3 連) で取る。ホストのテンポに合わせ、途中で変わっても次の刻みから追う。もらえないとき (Standalone など) は 120 BPM
+  - RATE の段にはカーブは効かない。KEEP はこれまでどおり。STRICT R は TIME の段だけに効く。R の帯では、RATE の段は見出しを D にして DELTA を出す
+  - グラフ (パラメータグラフ) は、STL から段を順にたどり、音の側と同じ式で段の長さと終わりの値を出して描く。刻みは階段で、動かず打ち切りもしない段は破線で描く。START NOW なら STL の点を中抜きの丸にする (PARAM ENV はつまみの今の値から描く)。T SYNC で音符の刻みを使っているときは、計算に使ったテンポを右上に出す。COLORS タブの名前は EnvelopeGraph.TempoText / EnvelopeGraph.MarkerFill
+  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE。段ごとの MODE / DELTA / TICK / TICK NOTE とリリースのものは段の表に持ち (オートメーション不可)、プリセット・DAW の状態・チャンネルパラメータ・区分のパラメータファイル (`rateModes` / `deltas` / `tickSecs` / `tickNotes` / `releaseMode` など) に保存。START NOW / T SYNC は区分ごとのパラメータ (`startNow` / `tickSync`)。オートメーションは `_SSGSW256_START_NOW` / `_SSGSW256_TSYNC` / `_SSGSWP256_START_NOW` / `_SSGSWP256_TSYNC` / `_PRMENV_START_NOW` / `_PRMENV_TSYNC` / `_ALGENV_START_NOW` / `_ALGENV_TSYNC` / `_DUTYENV_START_NOW` / `_DUTYENV_TSYNC` / `_PEAKENV_START_NOW` / `_PEAKENV_TSYNC`
+  - 初期値はすべて TIME で、START NOW / T SYNC も切なので、これまでのパッチの鳴り方は変わらない
+  - 全プラグイン (2686VFX を除く)
 - **グラフのサスティンの区間を見分けられるようにした**
   - AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] のグラフで、鍵を押しているあいだ保つ区間 (サスティン) を、決まった幅・別の色 (黄緑) で描く
   - 段のエンベロープ (SSG SW AMP / PITCH ENV[256]・PARAM ENV[256]) には、これまでサスティンの区間が無く、最後の段のすぐ後にリリースを描いていた。最後の段を走り終えて保つところ (ループしないとき・回数のあるループを回り終えたとき) に区間を足した

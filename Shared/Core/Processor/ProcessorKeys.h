@@ -287,6 +287,8 @@ namespace CPK
 		static inline const juce::String endlEnable = "_SSGSW256_ENDL_EN";
 		static inline const juce::String keep = "_SSGSW256_KEEP";
 		static inline const juce::String strictRate = "_SSGSW256_STRICT_R";
+		static inline const juce::String startNow = "_SSGSW256_START_NOW";
+		static inline const juce::String tickSync = "_SSGSW256_TSYNC";
 	};
 
 	namespace SsgSwPEnv256
@@ -305,6 +307,8 @@ namespace CPK
 		static inline const juce::String endlEnable = "_SSGSWP256_ENDL_EN";
 		static inline const juce::String keep = "_SSGSWP256_KEEP";
 		static inline const juce::String strictRate = "_SSGSWP256_STRICT_R";
+		static inline const juce::String startNow = "_SSGSWP256_START_NOW";
+		static inline const juce::String tickSync = "_SSGSWP256_TSYNC";
 	};
 
 	namespace Opzx7Lfo

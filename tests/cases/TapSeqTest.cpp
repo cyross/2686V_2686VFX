@@ -120,19 +120,22 @@ TEST_CASE("TapSeq: INCREMENT / DECREMENT は開始前から 1 段目・最後の
 
 namespace
 {
-    // 再生しているかだけを返す、DAW (juce::AudioPlayHead) の代わり
+    // 再生しているかとテンポだけを返す、DAW (juce::AudioPlayHead) の代わり
     struct FakePlayHead
     {
         struct Position
         {
             bool playing = false;
+            std::optional<double> bpm;
 
             bool getIsPlaying() const { return playing; }
+            std::optional<double> getBpm() const { return bpm; }
         };
 
         bool playing = false;
+        std::optional<double> bpm;
 
-        std::optional<Position> getPosition() const { return Position{ playing }; }
+        std::optional<Position> getPosition() const { return Position{ playing, bpm }; }
     };
 }
 
@@ -167,4 +170,25 @@ TEST_CASE("TapSeq: DAW の再生を止めたら、すべて開始前へ戻す")
     store.followTransport<FakePlayHead>(nullptr);
 
     CHECK(amp.cursor.load() == 1);
+}
+
+TEST_CASE("TapSeq: ホストのテンポを読み、くれないときは前の値のまま")
+{
+    StepTableStore store;
+    auto& table = store.get("A_SSGSW256", 0.0f, 1.0f);
+
+    CHECK(table.tempoBpm() == doctest::Approx(StepRate::defaultBpm));
+
+    FakePlayHead head;
+
+    head.bpm = 150.0;
+    store.followTransport(&head);
+
+    CHECK(table.tempoBpm() == doctest::Approx(150.0));
+
+    // テンポをくれない (Standalone など) ときは、最後に読んだ値を使い続ける
+    head.bpm.reset();
+    store.followTransport(&head);
+
+    CHECK(table.tempoBpm() == doctest::Approx(150.0));
 }

@@ -13,6 +13,7 @@
 
 #include "./StepLoop.h"
 #include "./LivePosition.h"
+#include "./StepRate.h"
 
 // ============================================================================
 // 段の表 (SSG SW AMP / PITCH ENV[256] など)
@@ -38,6 +39,10 @@
 // PARAM ENV[256] (4.3.0) は、指し先 (TARGET) ごとに値 (STL・段の L・LR・ENDL) を別に持つ。
 // 値の組 (sets) も、それを使う表だけが持つ (StepTableStore::getWithLevelSets)。R・ループ・
 // SKIP は指し先によらず 1 つ。
+//
+// 段ごとの進め方 (TIME / RATE)・変化量 D・1 刻みの時間 T (4.3.0, StepRate.h) もここに持つ。
+// リリースのぶんは段の後ろ (releaseStep) に置く。T SYNC で使うホストのテンポは
+// StepTableStore が持ち、表はそれを指す (tempo)。
 //
 // 文字や state (XML) への出し入れは StepTableIo.h にある。
 
@@ -104,9 +109,22 @@ struct StepTable
         }
     };
 
+    // 段ごとの進め方を持つ数。段 (1〜256) のあとに、リリースのぶんが 1 つ続く
+    static constexpr int releaseStep = size + 1;
+    static constexpr int rateSlots = size + 1;
+
     std::array<std::atomic<float>, size> r;
     std::array<std::atomic<float>, size> l;
     std::atomic<std::uint32_t> version{ 1 };
+
+    // 段ごとの進め方 (StepRate::Step を分けて持つ)。[0〜255] が段、[256] がリリース
+    std::array<std::atomic<bool>, rateSlots> rateModes{};
+    std::array<std::atomic<float>, rateSlots> deltas{};
+    std::array<std::atomic<float>, rateSlots> tickSecs{};
+    std::array<std::atomic<int>, rateSlots> tickNotes{};
+
+    // T SYNC で使うホストのテンポ (StepTableStore が持つ)。nullptr なら StepRate::defaultBpm
+    const std::atomic<double>* tempo = nullptr;
 
     // いまの段 (0 から。最後に鍵で使った段)。負は開始前で、次に押すと 1 段目を使う。
     // TAP SEQUENCER が鍵を押すたびに進める。保存はしない (読み込みや初期化、
@@ -241,6 +259,45 @@ struct StepTable
         version.fetch_add(1, std::memory_order_release);
     }
 
+    // step は 1〜256、releaseStep (257) がリリース
+    StepRate::Step rateStep(int step) const
+    {
+        const auto i = (size_t)rateIndex(step);
+
+        return {
+            rateModes[i].load(std::memory_order_relaxed),
+            deltas[i].load(std::memory_order_relaxed),
+            tickSecs[i].load(std::memory_order_relaxed),
+            tickNotes[i].load(std::memory_order_relaxed)
+        };
+    }
+
+    void setRateStep(int step, const StepRate::Step& value)
+    {
+        const auto i = (size_t)rateIndex(step);
+
+        rateModes[i].store(value.rate, std::memory_order_relaxed);
+        deltas[i].store(std::max(0.0f, value.delta), std::memory_order_relaxed);
+        tickSecs[i].store(std::max(0.0f, value.tickSec), std::memory_order_relaxed);
+        tickNotes[i].store(std::clamp(value.tickNote, 0, StepRate::noteCount - 1), std::memory_order_relaxed);
+        version.fetch_add(1, std::memory_order_release);
+    }
+
+    // 初期値 (TIME・D 0・T 0) と違う段があるか
+    bool hasRateSteps() const
+    {
+        for (int s = 1; s <= releaseStep; ++s) if (rateStep(s) != StepRate::Step{}) return true;
+
+        return false;
+    }
+
+    double tempoBpm() const
+    {
+        const double bpm = tempo != nullptr ? tempo->load(std::memory_order_relaxed) : 0.0;
+
+        return bpm > 0.0 ? bpm : StepRate::defaultBpm;
+    }
+
     bool skipped(int step) const { return skips[(size_t)index(step)].load(std::memory_order_relaxed); }
 
     void setSkip(int step, bool value)
@@ -320,9 +377,22 @@ struct StepTable
             for (auto& v : *sets->values[(size_t)set]) v.store(sets->defaults[(size_t)set], std::memory_order_relaxed);
         }
 
+        resetRateSteps();
+
         loopNum.store(0, std::memory_order_relaxed);
         clearCursor();
         version.fetch_add(1, std::memory_order_release);
+    }
+
+    // 段の進め方をすべて TIME (D 0・T 0) へ戻す。版は進めない (呼ぶ側が進める)
+    void resetRateSteps()
+    {
+        for (int i = 0; i < rateSlots; ++i) {
+            rateModes[(size_t)i].store(false, std::memory_order_relaxed);
+            deltas[(size_t)i].store(0.0f, std::memory_order_relaxed);
+            tickSecs[(size_t)i].store(0.0f, std::memory_order_relaxed);
+            tickNotes[(size_t)i].store(0, std::memory_order_relaxed);
+        }
     }
 
     // PARAM ENV の指し先ごとの値を初期値へ戻す
@@ -337,6 +407,7 @@ struct StepTable
 
 private:
     static int index(int step) { return std::clamp(step - 1, 0, size - 1); }
+    static int rateIndex(int step) { return std::clamp(step - 1, 0, rateSlots - 1); }
 };
 
 // プラグインの実体ごとに 1 つ。キーは APVTS のパラメータ ID と同じ形
@@ -362,6 +433,8 @@ public:
 
         if (it == tables.end()) it = tables.emplace(key, std::make_unique<StepTable>(defaultR, defaultL)).first;
 
+        it->second->tempo = &bpm;
+
         return *it->second;
     }
 
@@ -372,6 +445,8 @@ public:
 
         if (it == tables.end()) it = tables.emplace(key, std::make_unique<StepTable>(defaultR, 0.0f, false, &defaults)).first;
 
+        it->second->tempo = &bpm;
+
         return *it->second;
     }
 
@@ -381,6 +456,8 @@ public:
         auto it = tables.find(key);
 
         if (it == tables.end()) it = tables.emplace(key, std::make_unique<StepTable>(0.0f, 0.0f, true)).first;
+
+        it->second->tempo = &bpm;
 
         return *it->second;
     }
@@ -433,19 +510,31 @@ public:
     //
     // head は juce::AudioPlayHead。型を決め打ちしないのは、この表を音のモジュール
     // (juce_audio_basics) を組まないテストでも使うため。
+    //
+    // ホストのテンポもここで読む (T SYNC, 4.3.0)。くれないときは前の値のまま
+    // (初めから無ければ StepRate::defaultBpm)。
     template <typename PlayHead>
     void followTransport(PlayHead* head)
     {
         bool playing = false;
 
         if (head != nullptr) {
-            if (const auto position = head->getPosition()) playing = position->getIsPlaying();
+            if (const auto position = head->getPosition()) {
+                playing = position->getIsPlaying();
+
+                if (const auto hostBpm = position->getBpm(); hostBpm && *hostBpm > 0.0) bpm.store(*hostBpm, std::memory_order_relaxed);
+            }
         }
 
         if (wasPlaying && !playing) clearCursors();
 
         wasPlaying = playing;
     }
+
+    // ホストのテンポ (followTransport が書く)。表は tempo でこれを指す
+    std::atomic<double> bpm{ StepRate::defaultBpm };
+
+    double tempoBpm() const { return bpm.load(std::memory_order_relaxed); }
 
 private:
     std::map<juce::String, std::unique_ptr<StepTable>> tables;

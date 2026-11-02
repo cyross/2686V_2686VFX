@@ -168,6 +168,9 @@ namespace ParamMod
 				if (!config[(size_t)i].enable) continue;
 				if (isLegato && started[(size_t)i]) continue;
 
+				// 指し先が変わって走らせ直すところ。前の指し先の値から START NOW で始めないよう、止めておく
+				if (!started[(size_t)i]) envs[(size_t)i].stop();
+
 				envs[(size_t)i].noteOn();
 				started[(size_t)i] = true;
 				last[(size_t)i] = envs[(size_t)i].value();
