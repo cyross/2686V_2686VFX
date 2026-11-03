@@ -13,8 +13,8 @@ namespace AboutGuiText
 	{
 		static inline const I18n::Text navigate{ u8"ユーザーズマニュアル", u8"User's manual" };
 		static inline const I18n::Text linkUrl{
-			u8"https://cyross.github.io/2686V_2686VFX/",
-			u8"https://cyross.github.io/2686V_2686VFX/en/"
+			u8"https://cyross.github.io/2686V-v4-Manual/",
+			u8"https://cyross.github.io/2686V-v4-Manual/en/"
 		};
 	}
 }

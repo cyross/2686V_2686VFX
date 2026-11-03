@@ -125,8 +125,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - PARAM ENV[256] and TAP PARAM SEQUENCER are whitish dark blue
   - They can be changed in the COLORS tab as Category.TapAmpBg / Category.TapPitchBg / Category.ParamBg. On the graph, the PARAM ENV line is EnvelopeGraph.ParamLine and the playing-position line is EnvelopeGraph.LiveLine
   - Every plugin (2686VFX only has TAP AMP / PITCH SEQUENCER)
-- **A "Tutorials" chapter in the manual**
-  - Pages that teach the controls while you build sounds will be added over time. They can embed videos (.mp4 / .webm) and animated pictures (.gif)
+- **The manual and the tutorials now live on separate sites**
+  - The manual moved to https://cyross.github.io/2686V-v4-Manual/en/ and the tutorials to https://cyross.github.io/2686V-v4-Tutrial/en/ . Each is managed in its own repository
+  - Tutorial pages that teach the controls while you build sounds will be added over time. They can embed videos (.mp4 / .webm) and animated pictures (.gif)
+  - The User's manual button on the ABOUT tab opens the new manual (Japanese or English, following the language in SETTINGS)
+  - The old https://cyross.github.io/2686V_2686VFX/ is no longer updated
+  - Every plugin
 - **The SSG gains more chip-accurate modes (More Real SSG, More Real FC for triangle and noise)**
   - The pulse settings gain **More Real SSG**, which mimics the SSG (YM2203 / YM2608B): the duty cycle is fixed at 50% (the DUTY settings are dimmed and have no effect), the output swings only upwards from 0, a DC cut at about 30 Hz adds the sag and the "click" when the volume jumps, volume goes through the SSG's logarithmic table (whatever CHIP DAC says), and tone and noise are combined with a logical AND (MIX 0 is tone only, 1 noise only, 0.5 the AND). It is exclusive with FC Mode / More Real FC / More Real NES
   - The triangle settings gain **More Real FC**, which mimics the 2A03 triangle (a 4-bit × 32-step staircase, the 11-bit timer pitch, the triangle/noise DAC curve and a 37 Hz high-pass). PEAK and PEAK RATIO ENVELOPE are dimmed and have no effect
@@ -1631,7 +1635,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
 ## 12. Operation manual
 
 - Provided on `GitHub Pages`.
-  - [2686V Series Users manual](https://cyross.github.io/2686V_2686VFX/)
+  - [2686V Series Users manual](https://cyross.github.io/2686V-v4-Manual/en/)
+  - [2686V Series Tutorials](https://cyross.github.io/2686V-v4-Tutrial/en/)
 
 ## 13. License
 
