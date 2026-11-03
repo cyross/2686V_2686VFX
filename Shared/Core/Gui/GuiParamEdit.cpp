@@ -47,6 +47,10 @@ namespace ParamEdit
 		// 段の表のキー。"table:" + 表のキー (チャンネル・単位の名前を外したもの)
 		const juce::String tablePrefix = "table:";
 
+		// 同じ表の TAP PARAM SEQUENCER の組と、PARAM ENV の指し先ごとの値 (4.3.0)
+		const juce::String tablePairsPrefix = "tablePairs:";
+		const juce::String tableSetsPrefix = "tableSets:";
+
 		// ID を "_" で切った頭の 2 つ
 		std::pair<juce::String, juce::String> firstTokens(const juce::String& id)
 		{
@@ -333,7 +337,14 @@ namespace ParamEdit
 		for (const auto& key : tablesOf(ctx, target))
 		{
 			if (auto* table = ctx.audioProcessor.stepTables.find(key))
-				s.assets[tablePrefix + relativeTableKey(key, target)] = StepTableIo::toText(*table);
+			{
+				const auto rel = relativeTableKey(key, target);
+
+				s.assets[tablePrefix + rel] = StepTableIo::toText(*table);
+
+				if (table->hasAnyPairs()) s.assets[tablePairsPrefix + rel] = StepTableIo::pairsToText(*table);
+				if (table->setCount() > 0) s.assets[tableSetsPrefix + rel] = StepTableIo::setsToText(*table);
+			}
 		}
 
 		// タブが持つ素材
@@ -389,9 +400,23 @@ namespace ParamEdit
 
 			if (table == nullptr) continue;
 
-			auto it = snapshot.assets.find(tablePrefix + relativeTableKey(key, target));
+			const auto rel = relativeTableKey(key, target);
+			auto it = snapshot.assets.find(tablePrefix + rel);
 
-			if (it != snapshot.assets.end()) StepTableIo::fromText(*table, it->second);
+			if (it != snapshot.assets.end())
+			{
+				StepTableIo::fromText(*table, it->second);
+
+				// 組と指し先ごとの値は、写し元に無ければ空 (初期値) にする
+				auto pairs = snapshot.assets.find(tablePairsPrefix + rel);
+				auto sets = snapshot.assets.find(tableSetsPrefix + rel);
+
+				StepTableIo::pairsFromText(*table, pairs != snapshot.assets.end() ? pairs->second : juce::String());
+
+				table->resetSets();
+
+				if (sets != snapshot.assets.end()) StepTableIo::setsFromText(*table, sets->second);
+			}
 			else if (snapshot.scope == target.scope && target.scope != Scope::Category) table->reset();
 		}
 

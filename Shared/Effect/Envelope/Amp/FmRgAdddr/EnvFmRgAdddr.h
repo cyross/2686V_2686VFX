@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "./EnvFmRgAdddrParams.h"
+#include "Shared/Core/Synth/LivePosition.h"
 #include "../../../KeyScale/Opn/KSOpn.h"
 #include "../../../KeyScale/Opp/KSOpp.h"
 #include "../../../../Advanced/Curve/AdvancedCurve.h"
@@ -68,6 +69,32 @@ class FmRgAdddr
 
 	int calcRateScaling() const;
 	float calcLevelScalingDb() const;
+	// 鳴っている位置 (グラフの縦線。4.3.0)
+	LivePosition* m_livePos = nullptr;
+	LiveLevelWriter m_live;
+
+	float advanceEnvelope(float currentLevel);
+
+	int livePhase() const
+	{
+		switch (state) {
+		case State::Attack: return LivePosition::attack;
+		case State::Decay: return LivePosition::decay;
+		case State::Sustain: return LivePosition::sustain;
+		case State::Release: return LivePosition::release;
+		default: return LivePosition::idle;
+		}
+	}
+
+	// 区間の行き先の音量。サスティンは SR (D2R) で下がるなら 0 へ
+	float liveTarget() const
+	{
+		switch (state) {
+		case State::Attack: return 1.0f;
+		case State::Decay: return m_sustain;
+		default: return 0.0f;
+		}
+	}
 public:
 
 	// 押したときに TL で下げた量 (dB)。KSL は含まない。TL ENV がこれを
@@ -86,7 +113,15 @@ public:
 	float noteOn(float velocity, int noteNumber);
 	void noteOff();
 	void updateIncrementsWithKeyScale(int noteNumber);
-	float updateEnvelopeState(float currentLevel);
+	// 1 サンプル進める。鳴っている位置もここで書く (グラフの縦線。4.3.0)
+	float updateEnvelopeState(float currentLevel)
+	{
+		const float level = advanceEnvelope(currentLevel);
+
+		if (m_live.active()) m_live.write(livePhase(), level, liveTarget());
+
+		return level;
+	}
 	void setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl);
 	void bypassedReleasedProcess();
 };

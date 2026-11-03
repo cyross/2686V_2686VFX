@@ -362,10 +362,10 @@ namespace CPV
 		{
 			// 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
 			inline constexpr int min = 1; // Raw (32bit)
-			inline constexpr int max = 21; // K054539
+			inline constexpr int max = 21; // K54
 			inline constexpr int initial = 13; // YM2608 ADPCM
 
-			// ここから先は符号化するモード (13: YM2608 ADPCM 〜 21: K054539)。
+			// ここから先は符号化するモード (13: YM2608 ADPCM 〜 21: K54)。
 			// GenPcmHelper の PcmCodecMode::first と同じ。
 			inline constexpr int encodedFirst = 13;
 		}
@@ -775,6 +775,24 @@ namespace CPV
 		{
 			inline constexpr float initial = false;
 		}
+
+		// R を厳密に守る (4.3.0)。切ると 4.2.x までと同じく、行き先に着いたら段を終える
+		namespace StrictRate
+		{
+			inline constexpr float initial = false;
+		}
+
+		// 押したときにまだ走っていれば、その時点の値から始める (4.3.0)。切ると STL から
+		namespace StartNow
+		{
+			inline constexpr float initial = false;
+		}
+
+		// RATE の段の 1 刻みをテンポに合わせる (4.3.0)。切ると秒
+		namespace TickSync
+		{
+			inline constexpr float initial = false;
+		}
 	}
 
 	namespace SsgSwPEnv256
@@ -787,6 +805,24 @@ namespace CPV
 		// 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
 		// 切ってあるときは補間する。
 		namespace Keep
+		{
+			inline constexpr float initial = false;
+		}
+
+		// R を厳密に守る (4.3.0)。切ると 4.2.x までと同じく、行き先に着いたら段を終える
+		namespace StrictRate
+		{
+			inline constexpr float initial = false;
+		}
+
+		// 押したときにまだ走っていれば、その時点の値から始める (4.3.0)。切ると STL から
+		namespace StartNow
+		{
+			inline constexpr float initial = false;
+		}
+
+		// RATE の段の 1 刻みをテンポに合わせる (4.3.0)。切ると秒
+		namespace TickSync
 		{
 			inline constexpr float initial = false;
 		}
@@ -1919,8 +1955,8 @@ namespace CPV
 		//   0    : 正弦波 (FDS の簡易版)
 		//   1〜4 : FDS(2C33) の 32ステップ階段テーブル
 		//          (1:Triangle / 2:Saw / 3:Reset / 4:Pulse)
-		//   5, 6 : WonderSwan ch3 のハードウェアスイープ (上昇 / 下降)
-		//   7    : PC Engine HuC6280 の LFO (32サンプルの波形メモリで変調)
+		//   5, 6 : WS ch3 のハードウェアスイープ (上昇 / 下降)
+		//   7    : PCE の LFO (32サンプルの波形メモリで変調)
 		//   8    : FDS(2C33) の 32ステップ階段テーブル (ユーザー編集)
 		namespace Shape
 		{
@@ -1947,7 +1983,7 @@ namespace CPV
 			inline constexpr int max = 7;
 		}
 
-		// HuC6280 の波形メモリは 32 サンプル。変調用の波形もそれに合わせる。
+		// PCE の波形メモリは 32 サンプル。変調用の波形もそれに合わせる。
 		namespace WaveSize
 		{
 			inline constexpr int size = 32;
@@ -2079,6 +2115,11 @@ namespace CPV
 		{
 			inline constexpr bool initial = false;
 		}
+
+		namespace MoreSsg
+		{
+			inline constexpr bool initial = false;
+		}
 	}
 
 	namespace SsgTri
@@ -2100,6 +2141,19 @@ namespace CPV
 			inline constexpr float min = 0.0f;
 			inline constexpr float max = 8000.0f;
 			inline constexpr float initial = 440.0f;
+		}
+
+		namespace MoreFc
+		{
+			inline constexpr bool initial = false;
+		}
+	}
+
+	namespace SsgNoise
+	{
+		namespace MoreFc
+		{
+			inline constexpr bool initial = false;
 		}
 	}
 

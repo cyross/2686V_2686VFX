@@ -17,8 +17,8 @@
 //
 // 返すのは搬送波の周波数に掛ける比。中身は 3 系統に分かれる。
 //   FDS (2C33)      : 周波数そのものを動かす
-//   WonderSwan ch3  : 周波数分周器を動かす (比は逆数側に効く)
-//   HuC6280         : 別チャンネルの波形メモリ 32 サンプルで分周器を動かす
+//   WS ch3  : 周波数分周器を動かす (比は逆数側に効く)
+//   PCE         : 別チャンネルの波形メモリ 32 サンプルで分周器を動かす
 class WtModulator {
     bool m_modEnable = false;
     float m_modDepth = 0.0f;
@@ -28,7 +28,7 @@ class WtModulator {
     // モジュレーションホイールぶんの上乗せ (0.0〜1.0)
     float m_modWheel = 0.0f;
 
-    // HuC6280 モード用の変調波形
+    // PCE モード用の変調波形
     std::array<float, 32> m_modWave = { 0.0f };
 
     // FdsUser モード用。レジスタ値のテーブルと、それを積算した階段波。
@@ -96,7 +96,7 @@ public:
             if (m_modShape == (int)WtModShape::WsSweepUp
                 || m_modShape == (int)WtModShape::WsSweepDown)
             {
-                // --- WonderSwan ch3 のハードウェアスイープ ---
+                // --- WS ch3 のハードウェアスイープ ---
                 // 実機は 375Hz 刻みで符号付き値を 11bit の周波数分周器へ加算し、
                 // 2047 -> 0 でラップする。分周器は周期に比例するので、等間隔に
                 // 足していくとピッチ変化は加速し、ラップした瞬間に反対の端へ飛ぶ。
@@ -108,9 +108,9 @@ public:
                     ? 1.0f / (1.0f - u * (span / (1.0f + span)))
                     : 1.0f / (1.0f + u * span);
             }
-            else if (m_modShape == (int)WtModShape::HuC6280Wave)
+            else if (m_modShape == (int)WtModShape::PceWave)
             {
-                // --- PC Engine HuC6280 の LFO ---
+                // --- PCE の LFO ---
                 // 実機は「もう 1 本のチャンネルの波形メモリ(32 サンプル)」の値を、
                 // 相手チャンネルの周波数レジスタ(=分周器)へ加算する。
                 // 分周器は周期に比例するため、FDS と違って比は逆数側に効く。
@@ -123,7 +123,7 @@ public:
             }
             else
             {
-                // --- ファミコンディスクシステム(2C33) の波形変調 ---
+                // --- FDS(2C33) の波形変調 ---
                 // 実機は変調器の出力 temp(-64〜63) に対して freq * (1 + temp / 64)。
                 // こちらは分周器ではなく周波数そのものを動かす。
                 // Shape 0 が正弦波、1 以降が FdsMod のテーブル番号 0 以降。

@@ -4,6 +4,7 @@
 //
 // いくつかのテストで使うので、ここへ 1 つだけ置く。
 #include "Core/Editor/PluginEditor.h"
+#include "Shared/Core/Gui/GuiGroupFolds.h"
 
 struct EditorTestAccess
 {
@@ -16,4 +17,13 @@ struct EditorTestAccess
         if constexpr (requires { e.materializeAllTabs(); }) e.materializeAllTabs();
     }
     static juce::TabbedComponent& tabs(AudioPlugin2686VEditor& e) { return e.tabs; }
+
+    // 畳める枠をすべて開いた state にする。画面を作る前に呼ぶ。
+    // 立ち上げた直後は枠を畳んで出すので、中の部品の場所を調べるテストはこれで開いておく
+    static void unfoldAllGroups(juce::AudioProcessorValueTreeState& apvts)
+    {
+        for (const auto& key : { GuiGroupFoldKey::opn, GuiGroupFoldKey::opna, GuiGroupFoldKey::opl, GuiGroupFoldKey::opl3,
+            GuiGroupFoldKey::opm, GuiGroupFoldKey::opzx7, GuiGroupFoldKey::rhythm, GuiGroupFoldKey::fx })
+            apvts.state.setProperty(key, juce::String(), nullptr);
+    }
 };

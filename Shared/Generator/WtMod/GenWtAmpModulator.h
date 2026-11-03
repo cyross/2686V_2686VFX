@@ -23,8 +23,8 @@
 // 変調波形の系統は 3 つとも受け付ける。ピッチ側では周波数分周器の扱いが
 // 系統ごとに違ったが、音量側では「-1.0〜1.0 の波」として同じに扱える。
 //   FDS (2C33)      : 32 段の階段波 (作り置き 4 種とユーザー編集)
-//   WonderSwan ch3  : 1 周でひと続きに動くスイープ
-//   HuC6280         : 波形メモリ 32 サンプル
+//   WS ch3  : 1 周でひと続きに動くスイープ
+//   PCE         : 波形メモリ 32 サンプル
 class WtAmpModulator {
     bool m_modEnable = false;
     float m_modDepth = 0.0f;
@@ -38,7 +38,7 @@ class WtAmpModulator {
     // モジュレーションホイールぶんの上乗せ (0.0〜1.0)
     float m_modWheel = 0.0f;
 
-    // HuC6280 モード用の変調波形
+    // PCE モード用の変調波形
     std::array<float, 32> m_modWave = { 0.0f };
 
     // FdsUser モード用。レジスタ値のテーブルと、それを積算した階段波。
@@ -111,7 +111,7 @@ public:
         else if (m_modShape == (int)WtModShape::WsSweepDown) {
             modLfoVal = (float)(1.0 - phase * 2.0);
         }
-        else if (m_modShape == (int)WtModShape::HuC6280Wave) {
+        else if (m_modShape == (int)WtModShape::PceWave) {
             int index = (int)((float)phase * 32.0f) & 31;
 
             modLfoVal = m_modWave[index];

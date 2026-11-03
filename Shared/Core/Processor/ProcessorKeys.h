@@ -286,6 +286,9 @@ namespace CPK
 		static inline const juce::String endl = "_SSGSW256_ENDL";
 		static inline const juce::String endlEnable = "_SSGSW256_ENDL_EN";
 		static inline const juce::String keep = "_SSGSW256_KEEP";
+		static inline const juce::String strictRate = "_SSGSW256_STRICT_R";
+		static inline const juce::String startNow = "_SSGSW256_START_NOW";
+		static inline const juce::String tickSync = "_SSGSW256_TSYNC";
 	};
 
 	namespace SsgSwPEnv256
@@ -303,6 +306,9 @@ namespace CPK
 		static inline const juce::String endl = "_SSGSWP256_ENDL";
 		static inline const juce::String endlEnable = "_SSGSWP256_ENDL_EN";
 		static inline const juce::String keep = "_SSGSWP256_KEEP";
+		static inline const juce::String strictRate = "_SSGSWP256_STRICT_R";
+		static inline const juce::String startNow = "_SSGSWP256_START_NOW";
+		static inline const juce::String tickSync = "_SSGSWP256_TSYNC";
 	};
 
 	namespace Opzx7Lfo
@@ -434,9 +440,12 @@ namespace CPK
 		static inline const juce::String fc = "_DUTY_FC_MODE";
 		static inline const juce::String fcFluc = "_DUTY_FC_FLUC";
 
-		// ファミコン / NES (2A03) の鳴り方。FC と合わせて 3 つのうち 1 つだけ入る。
+		// FC / NES (2A03) の鳴り方。FC と合わせて 3 つのうち 1 つだけ入る。
 		static inline const juce::String moreFc = "_DUTY_MORE_FC";
 		static inline const juce::String moreNes = "_DUTY_MORE_NES";
+
+		// SSG (YM2203 / YM2608B) の鳴り方 (4.3.0)。上の 3 つとも排他
+		static inline const juce::String moreSsg = "_DUTY_MORE_SSG";
 	};
 
 	namespace SsgTri
@@ -444,6 +453,16 @@ namespace CPK
 		static inline const juce::String keyTrk = "_TRI_KEYTRK";
 		static inline const juce::String peak = "_TRI_PEAK";
 		static inline const juce::String freq = "_TRI_FREQ";
+
+		// FC (2A03) の三角波の鳴り方 (4.3.0)
+		static inline const juce::String moreFc = "_TRI_MORE_FC";
+	};
+
+	// SSG のノイズ (4.3.0)
+	namespace SsgNoise
+	{
+		// FC (2A03) のノイズの鳴り方
+		static inline const juce::String moreFc = "_NOISE_MORE_FC";
 	};
 
 	namespace SsgHwEnv

@@ -42,6 +42,7 @@ struct SsgParams
     FixModeParams fix;
     SsgDutyParams duty;
     SsgTriParams tri;
+    SsgNoiseParams noise;
 
     // DUTY RATIO ENV (値はデューティ比の % 0〜100) / PEAK RATIO ENV (頂点 0〜1)
     bool dutyEnvEnable = false;

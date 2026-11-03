@@ -39,7 +39,13 @@ class GuiWavePreview : public juce::Component, public GuiBaseComponent
 
     // 折れ線の色。何を映しているかで変える。
     juce::Colour m_lineColour = GuiColor::WavePreview::AmpEnv;
+
+    // 中身を変えるたびに進む番号 (revision)
+    std::uint32_t m_revision = 0;
 public:
+    // 写す側 (TARGET の大きな枠) が、変わったときだけ写すのに使う
+    std::uint32_t revision() const { return m_revision; }
+
     GuiWavePreview(const GuiContext& context) : GuiBaseComponent(context)
     {
         setInterceptsMouseClicks(false, false);

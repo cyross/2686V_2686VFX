@@ -55,6 +55,10 @@ public:
     // プロセッサが持つ値を指すので、ブロックのあいだは生きている。
     const SynthCoreParams* m_paramModSrc = nullptr;
 
+    // PARAM ENV が鳴らしている最中に値を動かしているか。MUL/DET・FIX は押したときの値で
+    // 周波数を決めるので、このあいだは SETTINGS の「鳴らしながら反映」と同じく作り直す
+    bool m_paramModLive = false;
+
     // 置き換えた値で読み直す。setParameters を同じ値で呼び直すだけ
     void reapplyParamMod()
     {
@@ -66,6 +70,7 @@ public:
     {
         m_paramModSrc = &params;
         m_paramMod.configure(chip.paramMod);
+        m_paramModLive = m_paramMod.envRunning();
 
         std::array<ParamMod::Override, ParamMod::maxOverrides> list;
 

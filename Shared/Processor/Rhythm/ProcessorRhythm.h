@@ -43,8 +43,9 @@ class RhythmProcessor : public PrBase, public ParamMod::Applier
     // TAP PARAM SEQUENCER / PARAM ENV[256] (チャンネル) (4.3.0)
     TapSeq::Ptrs pTapParam;
 
-    // TAP PARAM SEQUENCER (パッドごと)
+    // TAP PARAM SEQUENCER と PARAM ENV[256] (パッドごと)
     std::array<TapSeq::Ptrs, RhythmPrValue::maxPads> pOpTapParam;
+    std::array<ParamEnv::Ptrs, RhythmPrValue::maxPads> pOpParamEnv;
     ParamEnv::Ptrs pParamEnv;
 
     // PARAM ENV / TAP PARAM SEQUENCER の指し先

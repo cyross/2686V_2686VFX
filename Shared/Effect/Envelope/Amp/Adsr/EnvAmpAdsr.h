@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "./EnvAmpAdsrParams.h"
+#include "Shared/Core/Synth/LivePosition.h"
 #include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 class AmpAdsrEnv {
@@ -49,6 +50,33 @@ class AmpAdsrEnv {
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
 
 	void updateIncrements();
+
+	// 鳴っている位置 (グラフの縦線。4.3.0)
+	LivePosition* m_livePos = nullptr;
+	LiveLevelWriter m_live;
+
+	float advance(float currentLevel);
+
+	int livePhase() const
+	{
+		switch (this->state) {
+		case State::Attack: return LivePosition::attack;
+		case State::Decay: return LivePosition::decay;
+		case State::Sustain: return LivePosition::sustain;
+		case State::Release: return LivePosition::release;
+		default: return LivePosition::idle;
+		}
+	}
+
+	// 区間の行き先の音量
+	float liveTarget() const
+	{
+		switch (this->state) {
+		case State::Attack: return 1.0f;
+		case State::Decay: return this->sl;
+		default: return 0.0f;
+		}
+	}
 public:
 	AmpAdsrEnv();
 	void prepare(double sampleRate);

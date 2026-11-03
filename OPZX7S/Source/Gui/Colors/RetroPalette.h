@@ -19,11 +19,11 @@ class RetroPalette : public juce::Component
 public:
 	enum class Machine
 	{
-		Pc8801,     // RGB 各 3bit
-		Pc9801,     // RGB 各 4bit
-		PcEngine,   // RGB 各 3bit
-		MegaDrive,  // RGB 各 3bit (段が等間隔でない)
-		X68000,     // RGB 各 5bit + 輝度 1bit
+		Pc88,     // RGB 各 3bit
+		Pc98,     // RGB 各 4bit
+		Pce,   // RGB 各 3bit
+		Md,  // RGB 各 3bit (段が等間隔でない)
+		X68k,     // RGB 各 5bit + 輝度 1bit
 	};
 
 	// その機種が出せる色をすべて作る
@@ -46,7 +46,7 @@ public:
 	void paint(juce::Graphics& g) override;
 	void mouseDown(const juce::MouseEvent& e) override;
 private:
-	Machine m_machine = Machine::Pc8801;
+	Machine m_machine = Machine::Pc88;
 	std::vector<juce::Colour> m_colours;
 
 	// 1 色ぶんの大きさ

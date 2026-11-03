@@ -134,7 +134,7 @@ TEST_CASE("WT MODULATION preview draws every shape")
     const std::array<float, 32> emptyWave = { 0.0f };
     const std::array<int, 32> emptyTable = { 0 };
 
-    // HuC6280 と FdsUser は読み込んだデータが要る。それ以外は Shape だけで
+    // PCE と FdsUser は読み込んだデータが要る。それ以外は Shape だけで
     // 形が決まるので、何も渡さなくても振れていなければならない。
     for (int shape = 0; shape <= (int)WtModShape::WsSweepDown; ++shape) {
         CAPTURE(shape);
@@ -151,15 +151,15 @@ TEST_CASE("WT MODULATION preview follows the loaded wave and table")
     const std::array<float, 32> emptyWave = { 0.0f };
     const std::array<int, 32> emptyTable = { 0 };
 
-    // ---- HuC6280 : 32 サンプルの波形メモリ ----
+    // ---- PCE : 32 サンプルの波形メモリ ----
     // 何も読み込んでいなければ変調しないので横一直線でよい。
-    CHECK_FALSE(hasSwing(WavePreviewSource::wtMod((int)WtModShape::HuC6280Wave, emptyWave, emptyTable)));
+    CHECK_FALSE(hasSwing(WavePreviewSource::wtMod((int)WtModShape::PceWave, emptyWave, emptyTable)));
 
     std::array<float, 32> ramp = { 0.0f };
 
     for (int i = 0; i < 32; ++i) ramp[(size_t)i] = (float)i / 31.0f * 2.0f - 1.0f;
 
-    CHECK(hasSwing(WavePreviewSource::wtMod((int)WtModShape::HuC6280Wave, ramp, emptyTable)));
+    CHECK(hasSwing(WavePreviewSource::wtMod((int)WtModShape::PceWave, ramp, emptyTable)));
 
     // ---- FdsUser : 32 エントリの増減テーブル ----
     CHECK_FALSE(hasSwing(WavePreviewSource::wtMod((int)WtModShape::FdsUser, emptyWave, emptyTable)));

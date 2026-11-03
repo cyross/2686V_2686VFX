@@ -1,0 +1,121 @@
+﻿#include "GuiGroupFolds.h"
+
+#include "Shared/Core/Gui/GuiI18n.h"
+
+namespace
+{
+    const juce::String separator = "|";
+}
+
+GuiGroupFolds::GuiGroupFolds(const GuiContext& context, const juce::String& stateKey) :
+    openAllButton(context),
+    closeAllButton(context),
+    ctx(context),
+    key(stateKey)
+{
+    seenLoads = ctx.audioProcessor.stateLoads.load(std::memory_order_acquire);
+
+    startTimer(pollMs);
+}
+
+GuiGroupFolds::~GuiGroupFolds()
+{
+    stopTimer();
+}
+
+void GuiGroupFolds::add(ColoredGroupComponent& group, const juce::String& name)
+{
+    entries.push_back({ &group, name.isNotEmpty() ? name : group.getText() });
+
+    group.setFoldable(true);
+
+    group.onTitleClick = [this, &group] {
+        group.setFolded(!group.isFolded());
+
+        save();
+
+        ctx.editor.resized();
+        };
+
+    load();
+}
+
+void GuiGroupFolds::setAllFolded(bool folded)
+{
+    for (auto& e : entries) e.group->setFolded(folded);
+
+    save();
+
+    ctx.editor.resized();
+}
+
+void GuiGroupFolds::setupButtons(juce::Component& parent, int& tabOrder)
+{
+    // 開くほうは濃い緑、閉じるほうは濃い青
+    openAllButton.setup({ .parent = parent, .title = "<>", .textColor = GuiColor::GroupFoldBtn::Text, .textOnColor = GuiColor::GroupFoldBtn::Text, .bgColor = GuiColor::GroupFoldBtn::OpenBg });
+    openAllButton.setTooltip(I18n::pick(u8"枠をすべて開く", u8"Open all groups"));
+    openAllButton.setWantsKeyboardFocus(true);
+    openAllButton.setExplicitFocusOrder(++tabOrder);
+    openAllButton.onClick = [this] { setAllFolded(false); };
+
+    closeAllButton.setup({ .parent = parent, .title = "><", .textColor = GuiColor::GroupFoldBtn::Text, .textOnColor = GuiColor::GroupFoldBtn::Text, .bgColor = GuiColor::GroupFoldBtn::CloseBg });
+    closeAllButton.setTooltip(I18n::pick(u8"枠をすべて閉じる", u8"Close all groups"));
+    closeAllButton.setWantsKeyboardFocus(true);
+    closeAllButton.setExplicitFocusOrder(++tabOrder);
+    closeAllButton.onClick = [this] { setAllFolded(true); };
+}
+
+void GuiGroupFolds::layoutButtons(juce::Rectangle<int>& row, int height)
+{
+    row.removeFromLeft(buttonGap);
+
+    openAllButton.setBounds(row.removeFromLeft(buttonWidth).withHeight(height));
+    closeAllButton.setBounds(row.removeFromLeft(buttonWidth).withHeight(height));
+}
+
+void GuiGroupFolds::save()
+{
+    juce::StringArray names;
+
+    for (auto& e : entries) {
+        if (e.group->isFolded()) names.add(e.name);
+    }
+
+    // 何も畳んでいなくても空の文字で書く。属性が無いと「既定 (全て畳む)」に読まれる
+    ctx.apvts.state.setProperty(key, names.joinIntoString(separator), nullptr);
+}
+
+bool GuiGroupFolds::load()
+{
+    // 属性が無ければ (立ち上げたばかり・属性を持たないプリセット) 全て畳む
+    const bool foldAll = !ctx.apvts.state.hasProperty(key);
+
+    juce::StringArray names;
+
+    names.addTokens(ctx.apvts.state.getProperty(key).toString(), separator, {});
+
+    bool changed = false;
+
+    for (auto& e : entries) {
+        const bool folded = foldAll || names.contains(e.name);
+
+        if (e.group->isFolded() == folded) continue;
+
+        e.group->setFolded(folded);
+
+        changed = true;
+    }
+
+    return changed;
+}
+
+void GuiGroupFolds::timerCallback()
+{
+    const int loads = ctx.audioProcessor.stateLoads.load(std::memory_order_acquire);
+
+    if (loads == seenLoads) return;
+
+    seenLoads = loads;
+
+    if (load()) ctx.editor.resized();
+}

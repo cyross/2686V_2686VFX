@@ -995,6 +995,33 @@ void GuiFx::setup()
     addAndMakeVisible(stripViewport);
 
     moveToStrip();
+
+    // 見出しを押して幅を畳めるようにする。メインは BYPASS と順番を持つので畳まない。
+    // 名前は覚えるときに使う。見出しは言語で変わるので、名前を決めて渡す
+    groupFolds.add(filterGroup, "filter");
+    groupFolds.add(eq3bGroup, "eq3b");
+    groupFolds.add(tremGroup, "tremolo");
+    groupFolds.add(vibGroup, "vibrato");
+    groupFolds.add(nrGroup, "nr");
+    groupFolds.add(mbcGroup, "mbc");
+    groupFolds.add(pcmGroup, "pcm");
+    groupFolds.add(delayGroup, "delay");
+    groupFolds.add(reverbGroup, "reverb");
+    groupFolds.add(sfceGroup, "sfcEcho");
+
+    groupFolds.add(modAmpEnvGroup, "ampEnv");
+    groupFolds.add(modSsgHwEnvGroup, "ssgHwAmpEnv");
+    groupFolds.add(modWtAmpModGroup, "wtAmpMod");
+    groupFolds.add(modSsgSwEnv256Group, "ssgSwAmpEnv256");
+    groupFolds.add(modTapAmpGroup, "ampSeq");
+    groupFolds.add(modPitchEnvGroup, "pitchEnv");
+    groupFolds.add(modSsgHwPEnvGroup, "ssgHwPitchEnv");
+    groupFolds.add(modSsgSwPEnv256Group, "ssgSwPitchEnv256");
+    groupFolds.add(modWtModGroup, "wtPitchMod");
+    groupFolds.add(modTapPitchGroup, "pitchSeq");
+    groupFolds.add(modLfoGroup, "lfo");
+    groupFolds.add(modMulDetuneGroup, "mulDet");
+    groupFolds.add(modUnisonGroup, "unison");
 }
 
 // メインに残すもの以外を、横へ送る板の子にする。
@@ -1051,32 +1078,56 @@ void GuiFx::layout(juce::Rectangle<int> content)
     // 縦長の枠にして横へ並べるので、縦には送らない。
     stripViewport.setBounds(pageArea);
 
-    // 変調の列は簡易表示モードで隠れることがある。出す枚数をここで数えて、
+    // 効果は仲間どうしを 1 列へ縦に積み、4 列にまとめる。
+    // 並びは種類でそろえたもので、メインの順番 (掛かる順) とは関係ない。
+    //
+    // 枠の幅は見出しで畳める (4.3.0)。畳んだ枠は 30px。効果の列は、
+    // 積んだ枠がみな畳まれているときだけ狭める。
+    const std::array<std::vector<GuiGroup*>, FxGuiValue::Fx::EffectCols> effectCols = { {
+        { &filterGroup, &eq3bGroup },
+        { &tremGroup, &vibGroup, &nrGroup },
+        { &mbcGroup, &pcmGroup },
+        { &delayGroup, &reverbGroup, &sfceGroup },
+    } };
+
+    auto effectColWidth = [](const std::vector<GuiGroup*>& groups) {
+        for (auto* group : groups) {
+            if (!group->isFolded()) return FxGuiValue::Fx::ColWidth;
+        }
+
+        return ColoredGroupComponent::foldedWidth;
+    };
+
+    // 変調の列は簡易表示モードで隠れることがある。出す列の幅をここで足して、
     // 送り台の幅をそれに合わせる。
     //
     // 以前は決め打ちの ModPanels (9) から出していた。実際の列は 11 あるので
     // 右端の MUL/DET と UNISON/HARMONY が送り台からはみ出して出てこず、
     // 逆に列を隠したときは、隠したぶんの空きが右に残っていた。
-    static const SimpleView::Cat modCats[] = {
-        SimpleView::AmpEnv, SimpleView::SsgHwAmpEnv, SimpleView::WtAmpMod,
-        SimpleView::SsgSwAmpEnv256, SimpleView::PitchEnv, SimpleView::SsgHwPitchEnv,
-        SimpleView::SsgSwPitchEnv256, SimpleView::WtPitchMod, SimpleView::Lfo,
-        SimpleView::MulDet, SimpleView::Unison,
+    //
+    // AMP / PITCH SEQUENCER の 2 列は、まとめて TAP SEQUENCER として隠す
+    const std::pair<GuiScrollGroup*, SimpleView::Cat> modCols[] = {
+        { &modAmpEnvGroup, SimpleView::AmpEnv }, { &modSsgHwEnvGroup, SimpleView::SsgHwAmpEnv },
+        { &modWtAmpModGroup, SimpleView::WtAmpMod }, { &modSsgSwEnv256Group, SimpleView::SsgSwAmpEnv256 },
+        { &modTapAmpGroup, SimpleView::TapSeq }, { &modPitchEnvGroup, SimpleView::PitchEnv },
+        { &modSsgHwPEnvGroup, SimpleView::SsgHwPitchEnv }, { &modSsgSwPEnv256Group, SimpleView::SsgSwPitchEnv256 },
+        { &modWtModGroup, SimpleView::WtPitchMod }, { &modTapPitchGroup, SimpleView::TapSeq },
+        { &modLfoGroup, SimpleView::Lfo }, { &modMulDetuneGroup, SimpleView::MulDet },
+        { &modUnisonGroup, SimpleView::Unison },
     };
 
-    int modColumns = 0;
+    int effectsWidth = 0;
 
-    for (auto cat : modCats) {
-        if (pluginOf(ctx).isSimpleShown(cat)) ++modColumns;
+    for (const auto& groups : effectCols) effectsWidth += effectColWidth(groups) + FxGuiValue::Fx::ColGap;
+
+    int canvasWidth = effectsWidth;
+
+    for (const auto& [group, cat] : modCols) {
+        if (pluginOf(ctx).isSimpleShown(cat)) canvasWidth += group->columnWidth(FxGuiValue::Fx::ColWidth) + FxGuiValue::Fx::ColGap;
     }
 
-    // AMP / PITCH SEQUENCER の 2 列は、まとめて TAP SEQUENCER として隠す
-    if (pluginOf(ctx).isSimpleShown(SimpleView::TapSeq)) modColumns += 2;
-
-    int columns = FxGuiValue::Fx::EffectCols + modColumns;
-
-    int canvasWidth = columns * FxGuiValue::Fx::ColWidth
-        + juce::jmax(0, columns - 1) * FxGuiValue::Fx::ColGap;
+    // 最後の列の右には隙間を置かない
+    canvasWidth = juce::jmax(1, canvasWidth - FxGuiValue::Fx::ColGap);
 
     // 横の送り棒が出るぶんだけ、中身の丈を短くする。
     int canvasHeight = juce::jmax(1, pageArea.getHeight() - stripViewport.getScrollBarThickness());
@@ -1088,7 +1139,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     // 変調は効果の右へ続くので、そのぶんだけ進めた位置から始める。
     juce::Rectangle<int> modStrip = strip;
 
-    modStrip.removeFromLeft(FxGuiValue::Fx::EffectCols * (FxGuiValue::Fx::ColWidth + FxGuiValue::Fx::ColGap));
+    modStrip.removeFromLeft(effectsWidth);
 
     // 変調は効果の右へ続けて並べる。
     {
@@ -1109,11 +1160,14 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
             group.setVisible(true);
 
-            auto colArea = row.removeFromLeft(FxGuiValue::Fx::ColWidth);
+            // 畳んだ列は 30px。中身は開いているときの幅で並べたまま隠す
+            auto colArea = row.removeFromLeft(group.columnWidth(FxGuiValue::Fx::ColWidth));
 
             row.removeFromLeft(FxGuiValue::Fx::ColGap);
 
             group.setBounds(colArea);
+
+            colArea.setWidth(FxGuiValue::Fx::ColWidth);
 
             auto inner = colArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
 
@@ -1194,10 +1248,11 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
 
 
-    // 効果は仲間どうしを 1 列へ縦に積み、4 列にまとめる。
-    // 並びは種類でそろえたもので、メインの順番 (掛かる順) とは関係ない。
+    // 効果の列を左から切り出す。並びは effectCols のとおり
+    int effectColIndex = 0;
+
     auto nextColumn = [&]() {
-        auto col = strip.removeFromLeft(FxGuiValue::Fx::ColWidth);
+        auto col = strip.removeFromLeft(effectColWidth(effectCols[(size_t)effectColIndex++]));
 
         strip.removeFromLeft(FxGuiValue::Fx::ColGap);
 
@@ -1206,22 +1261,31 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     // 枠を 1 つ、列の上から中身の丈だけ取って置く。列の最後の枠は下まで
     // 伸ばして、隣の変調の列と下端をそろえる。
+    //
+    // 中身は枠の子ではなく、枠の上へ並べてある。畳んだ枠では、中身を
+    // 送り台の外 (左のずっと先) へ開いたときの幅のまま並べて見えなくする。
+    // 丈は開いているときと同じにして、下の枠の位置を動かさない。
     auto stackGroup = [&](juce::Rectangle<int>& col, GuiGroup& group, bool last, auto&& layoutBody) {
-        auto inner = col.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+        const int away = group.isFolded() ? -100000 : 0;
+
+        auto inner = col.withWidth(FxGuiValue::Fx::ColWidth).translated(away, 0)
+            .reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
 
         inner.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
 
         layoutBody(inner);
 
+        const int frameWidth = group.columnWidth(col.getWidth());
+
         if (last) {
-            group.setBounds(col);
+            group.setBounds(col.withWidth(frameWidth));
 
             return;
         }
 
         int height = inner.getY() + FxGuiValue::Group::Padding::height - col.getY();
 
-        group.setBounds(col.removeFromTop(height));
+        group.setBounds(col.removeFromTop(height).withWidth(frameWidth));
 
         col.removeFromTop(FxGuiValue::Fx::SectionGap);
     };

@@ -29,6 +29,21 @@ namespace
 
 		return items;
 	}
+
+	// DUTY / PEAK RATIO ENVELOPE (4.3.0)。並びは 1/10・1/4・1/5・1/8・1/16
+	const std::vector<SelectItem>& ratioItems()
+	{
+		static const std::vector<SelectItem> items = {
+			{ I18n::pick(u8" 1: 自由設定", u8" 1: Free"), 1 },
+			{ I18n::pick(u8" 2: 1 / 10 刻み", u8" 2: by 1 / 10"), 2 },
+			{ I18n::pick(u8" 3: 1 / 4 刻み", u8" 3: by 1 / 4"), 3 },
+			{ I18n::pick(u8" 4: 1 / 5 刻み", u8" 4: by 1 / 5"), 4 },
+			{ I18n::pick(u8" 5: 1 / 8 刻み", u8" 5: by 1 / 8"), 5 },
+			{ I18n::pick(u8" 6: 1 / 16 刻み", u8" 6: by 1 / 16"), 6 },
+		};
+
+		return items;
+	}
 }
 
 GuiComponentStepSnap::GuiComponentStepSnap(const GuiContext& context) :
@@ -42,25 +57,41 @@ GuiComponentStepSnap::~GuiComponentStepSnap()
 	for (auto* s : m_sliders) s->removeListener(this);
 }
 
-int GuiComponentStepSnap::stepsOf(int index)
+int GuiComponentStepSnap::stepsOf(int index, Choices choices)
 {
-	static constexpr int table[] = { 0, 2, 4, 8, 16, 32, 64, 128, 256, 3, 6, 7, 10, 100 };
+	static constexpr int level[] = { 0, 2, 4, 8, 16, 32, 64, 128, 256, 3, 6, 7, 10, 100 };
+	static constexpr int ratio[] = { 0, 10, 4, 5, 8, 16 };
 
-	if (index < 0 || index >= (int)std::size(table)) return 0;
+	if (choices == Choices::Ratio) return index >= 0 && index < (int)std::size(ratio) ? ratio[index] : 0;
 
-	return table[index];
+	if (index < 0 || index >= (int)std::size(level)) return 0;
+
+	return level[index];
 }
 
-double GuiComponentStepSnap::snap(double value, int steps, double lo, double hi)
+double GuiComponentStepSnap::snap(double value, int steps, double lo, double hi, double scale)
 {
-	if (steps <= 0) return value;
+	if (steps <= 0 || scale <= 0.0) return value;
 
-	return juce::jlimit(lo, hi, std::round(value * steps) / steps);
+	const double step = scale / steps;
+
+	return juce::jlimit(lo, hi, std::round(value / step) * step);
+}
+
+double GuiComponentStepSnap::scaleOf(const GuiSlider& slider) const
+{
+	if (m_choices != Choices::Ratio) return 1.0;
+
+	const double span = slider.getMaximum() - slider.getMinimum();
+
+	return span > 0.0 ? span : 1.0;
 }
 
 void GuiComponentStepSnap::setupComponent(juce::Component& parent, const std::vector<GuiSlider*>& sliders, int& tabOrder,
-	const juce::String& title, std::optional<juce::Font> labelFont)
+	const juce::String& title, std::optional<juce::Font> labelFont, Choices choices)
 {
+	m_choices = choices;
+
 	for (auto* s : m_sliders) s->removeListener(this);
 
 	m_sliders = sliders;
@@ -70,7 +101,7 @@ void GuiComponentStepSnap::setupComponent(juce::Component& parent, const std::ve
 	// 初めは自由
 	for (auto* s : m_sliders) s->setSnapSteps(0);
 
-	stepSelector.setup({ .parent = parent, .id = "", .title = title, .items = stepItems(), .isReset = false, .labelFont = labelFont });
+	stepSelector.setup({ .parent = parent, .id = "", .title = title, .items = choices == Choices::Ratio ? ratioItems() : stepItems(), .isReset = false, .labelFont = labelFont });
 	stepSelector.setSelectedItemIndex(0, juce::dontSendNotification); // 初めは自由
 	stepSelector.setWantsKeyboardFocus(true);
 	stepSelector.setExplicitFocusOrder(++tabOrder);
@@ -81,12 +112,12 @@ void GuiComponentStepSnap::setupComponent(juce::Component& parent, const std::ve
 
 void GuiComponentStepSnap::snapOne(GuiSlider& slider)
 {
-	const int steps = stepsOf(stepSelector.getSelectedItemIndex());
+	const int steps = stepsOf(stepSelector.getSelectedItemIndex(), m_choices);
 
 	if (steps <= 0) return;
 
 	const double now = slider.getValue();
-	const double snapped = snap(now, steps, slider.getMinimum(), slider.getMaximum());
+	const double snapped = snap(now, steps, slider.getMinimum(), slider.getMaximum(), scaleOf(slider));
 
 	// 既に丸まっているなら書き戻さない。書き戻すと知らせがもう一巡する
 	if (std::abs(now - snapped) < 1.0e-6) return;
@@ -98,9 +129,12 @@ void GuiComponentStepSnap::snapOne(GuiSlider& slider)
 void GuiComponentStepSnap::snapAll()
 {
 	// ラベルのドラッグやナッジの並びが、選んだ刻みで動かせるよう知らせる
-	const int steps = stepsOf(stepSelector.getSelectedItemIndex());
+	const int steps = stepsOf(stepSelector.getSelectedItemIndex(), m_choices);
 
-	for (auto* s : m_sliders) s->setSnapSteps(steps);
+	for (auto* s : m_sliders) {
+		s->setSnapSteps(steps);
+		s->setSnapScale(scaleOf(*s));
+	}
 
 	for (auto* s : m_sliders) snapOne(*s);
 }

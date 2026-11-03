@@ -157,7 +157,7 @@ TEST_CASE("きれいな間引きを入れると、符号化したあとの雑音
     const auto src = sine(1000.0, 44100.0, 44100);
     const double step = 44100.0 / 16000.0;
 
-    // SNES BRR: 符号化そのものの雑音より、間引きの雑音のほうが大きい
+    // SFC BRR: 符号化そのものの雑音より、間引きの雑音のほうが大きい
     std::vector<int16_t> plain, clean;
     GenPcmHelper::encodeBuffer(src, step, 15, false, plain);
     GenPcmHelper::encodeBuffer(src, step, 15, true, clean);
@@ -165,7 +165,7 @@ TEST_CASE("きれいな間引きを入れると、符号化したあとの雑音
     const double plainDb = sinadDb(middle(plain), 1000.0, 16000.0);
     const double cleanDb = sinadDb(middle(clean), 1000.0, 16000.0);
 
-    MESSAGE("SNES BRR 16kHz: " << plainDb << " dB -> " << cleanDb << " dB");
+    MESSAGE("SFC BRR 16kHz: " << plainDb << " dB -> " << cleanDb << " dB");
 
     CHECK(cleanDb > plainDb + 6.0);
 }

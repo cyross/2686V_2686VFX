@@ -6,9 +6,9 @@
 static inline double getBeepTimerClock(int index)
 {
     switch (index) {
-    case 2: return 1193182.0;  // IBM PC / PC-AT  (14.31818MHz / 12)
-    case 3: return 1996800.0;  // PC-9801 8MHz系  (7.9872MHz / 4)
-    case 4: return 2457600.0;  // PC-9801 5MHz系  (9.8304MHz / 4)
+    case 2: return 1193182.0;  // PCAT  (14.31818MHz / 12)
+    case 3: return 1996800.0;  // 98 8MHz系  (7.9872MHz / 4)
+    case 4: return 2457600.0;  // 98 5MHz系  (9.8304MHz / 4)
     }
 
     return 0.0; // 1: Free (分周しない)
@@ -95,7 +95,7 @@ void BeepCore::setParameters(const SynthCoreParams& params) {
     m_timerClock = getBeepTimerClock(chipParams.timerClock);
 
     // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
-    if (params.liveDetune && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
+    if ((params.liveDetune || m_paramModLive) && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
 }
 
 // MUL/DET・FIX から周波数を決める
@@ -267,7 +267,8 @@ float BeepCore::getSample() {
     }
 
     // セントを周波数倍率(レシオ)に変換
-    float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+    // PM を切っていれば 1 倍。pow は重いので、0 セントのときは呼ばない
+    const float opzx7PitchMod = pitchModCents != 0.0f ? std::pow(2.0f, pitchModCents / 1200.0f) : 1.0f;
 
     float modDepth = m_modWheel * 0.03f;
     float mwPitchMod = 1.0f + (m_lfo.value.pm * modDepth);

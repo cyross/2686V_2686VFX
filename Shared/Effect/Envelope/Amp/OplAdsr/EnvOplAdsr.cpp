@@ -46,6 +46,7 @@ void OplAdsr::updateSampleRate(double newSampleRate) {
 }
 
 void OplAdsr::setParameters(const OplAdsrParams& params) {
+    m_livePos = params.live;
     this->ar = params.ar;
     this->dr = params.dr;
     this->sl = params.sl;
@@ -113,6 +114,9 @@ float OplAdsr::noteOn(float velocity, int noteNumber) {
     }
 
     this->state = State::Attack;
+
+    // いちばん新しく押した音の位置をグラフへ見せる
+    m_live.start(m_livePos);
 
     // 目標レベルの計算 (Linear / Curve 共通)
     float attenuationDb = (this->m_curveCore == nullptr)
@@ -257,7 +261,7 @@ void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
     }
 }
 
-float OplAdsr::updateEnvelopeState(float currentLevel)
+float OplAdsr::advanceEnvelope(float currentLevel)
 {
     // 返すのは 0.0〜1.0 の包絡線。
     // 音量 (velocity / TL / KSL) はオペレータ側が m_targetLevel を掛けて反映するので、

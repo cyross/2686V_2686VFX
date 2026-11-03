@@ -124,7 +124,7 @@ void GuiComponentTapParam::setupComponent(juce::Component& parent, const juce::S
 
     const auto& keys = TapParam::spec().keys;
 
-    cat.setupSwCategory({ .parent = parent, .title = "TAP PARAM SEQUENCER", .enableChangeDetailVisible = true });
+    cat.setupParamCategory({ .parent = parent, .title = "TAP PARAM SEQUENCER", .enableChangeDetailVisible = true });
 
     enable.setup({ .parent = parent, .id = code + keys.enable, .title = "Enable", .isReset = true });
     enable.setWantsKeyboardFocus(true);
@@ -243,7 +243,7 @@ void GuiComponentTapParam::setupComponent(juce::Component& parent, const juce::S
     applyStepCount();
     applyActive();
 
-    startTimerHz(10);
+    startTimerHz(LiveGraph::idleHz);
 }
 
 // 束縛先を丸ごと差し替える。setup で組んだ見た目はそのままに、繋ぎと表だけを張り替える
@@ -298,6 +298,7 @@ void GuiComponentTapParam::rebindValue()
     if (t != nullptr) showSkip(t->skipped(currentStep()));
 
     rebindPair();
+    applyActive();
 }
 
 // P.TARGET の組へ合わせる。組が無ければ、つまみは次に足す組の中身として残す
@@ -519,12 +520,35 @@ void GuiComponentTapParam::refresh()
 
 // 表は外から書き換わる (読み込み・初期化・貼り付け)。いまの段は鍵を押すと進み、
 // DAW の再生を止めると開始前へ戻る。
+// 表の書き換えと、いまの段の動きを見に行く。いまの段は SETTINGS で入れたときだけ、
+// 選んだ速さ (FPS) で追う。切っているときは、表を書き換えたときにだけ映し直す
 void GuiComponentTapParam::timerCallback()
 {
+    const bool live = ctx.audioProcessor.tapLiveGraph;
+
+    LiveGraph::pace(*this, LiveGraph::hzOf(live, ctx.audioProcessor.tapLiveFps));
+
+    // 隠れたタブ・閉じた区分では映さない (見えたときの次の回で映す)
+    if (!isShowing()) return;
+
     auto* t = table();
 
     if (t == nullptr) return;
-    if (t->version.load() == seenVersion && t->cursor.load() == seenCursor) return;
+
+    if (t->version.load() == seenVersion) {
+        const int c = t->cursor.load();
+
+        if (!live || c == seenCursor) return;
+
+        // いまの段が進んだだけなら、印だけ動かす (全部の段の文字を作り直さない)
+        const int n = stepCount();
+
+        seenCursor = c;
+        list.cursor = (c >= 0 && c < n) ? c : -1;
+        list.repaint();
+        loops.refresh();
+        return;
+    }
 
     const int before = list.getNaturalHeight();
 
@@ -627,11 +651,14 @@ void GuiComponentTapParam::applyActive()
     loops.setEnables(active && loop.getToggleState());
     loopSeparator.setEnabled(active);
 
-    target.setEnabledWithLabel(active);
+    // 1 段・組が 1 つ以下のときは選ぶものが無い
+    const auto* t = table();
+
+    target.setEnabledWithLabel(active && stepCount() > 1);
     skipLabel.setEnabled(active);
     skip.setEnabled(active);
     skipSeparator.setEnabled(active);
-    pairTarget.setEnabledWithLabel(active);
+    pairTarget.setEnabledWithLabel(active && t != nullptr && t->pairCount(currentStep()) > 1);
     param.setEnabledWithLabel(active);
     value.setEnabled(active);
 

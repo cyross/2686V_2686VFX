@@ -6,7 +6,7 @@
 
 class DpcmCodec {
 private:
-    // ファミコンのDPCMは 7bit(0〜127) のデルタカウンタを使用する
+    // FC のDPCMは 7bit(0〜127) のデルタカウンタを使用する
     // 初期値は中心の64とする
     int counter = 64;
 

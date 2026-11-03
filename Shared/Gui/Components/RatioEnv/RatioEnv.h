@@ -41,6 +41,7 @@ public:
 //
 //   オペレーター : FM 音源のオペレーターごと。TARGET はオペレーターの指し先で、初期値は TL。
 //                  4.0.0 の TL ENV の代わりで、TL ENV のファイルも読める (TL の最大値で割る)
+//   パッド       : RHYTHM のパッドごと。TARGET はそのパッドの指し先
 //   チャンネル   : チャンネルに 1 本。TARGET はチャンネルの指し先 (RHYTHM はパッドの指し先も)
 class GuiComponentParamEnv : public GuiComponentStepEnv {
 public:
@@ -48,6 +49,9 @@ public:
 
     // tlMax は TL の最大値 (OPNA / OPN / OPM は 127、OPL / OPL3 / OPZX7 は 63)
     static Spec opSpec(const ParamModCatalog::Catalog& catalog, float tlMax);
+
+    // RHYTHM のパッドごと。TARGET はパッドの指し先。TL が無いので TL ENV のファイルは読まない
+    static Spec padSpec(const ParamModCatalog::Catalog& catalog);
 
     // ops はオペレーター (パッド) の数
     static Spec channelSpec(const ParamModCatalog::Catalog& catalog, int ops);

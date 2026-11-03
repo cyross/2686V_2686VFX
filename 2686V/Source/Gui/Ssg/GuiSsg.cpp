@@ -272,10 +272,18 @@ void GuiSsg::setup()
     dutyMoreNesButton.setWantsKeyboardFocus(true);
     dutyMoreNesButton.setExplicitFocusOrder(++tabOrder);
 
-    // FC Mode / More Real FC / More Real NES は 1 つだけ入る。入れたときに残りを切る。
+    // 入れているあいだはデューティ比 50% に決まるので、DUTY の設定を薄くする (並べ直しで)
+    dutyMoreSsgButton.setup({ .parent = dutyGroup.contentCanvas, .id = code + CPK::SsgDuty::moreSsg, .title = SsgGuiText::Ssg::Duty::moreSsg, .isReset = true, .isResized = true });
+    dutyMoreSsgButton.setWantsKeyboardFocus(true);
+    dutyMoreSsgButton.setExplicitFocusOrder(++tabOrder);
+
+    // FC Mode / More Real FC / More Real NES / More Real SSG は 1 つだけ入る。入れたときに残りを切る。
     // すべて切るのはかまわない。
+    // setup が入れた onClick (isResized の並べ直し) は消さずに、先に呼ぶ。
     auto makeExclusive = [this](GuiToggleButton& self, std::vector<GuiToggleButton*> others) {
-        self.onClick = [&self, others] {
+        self.onClick = [&self, others, before = std::move(self.onClick)] {
+            if (before) before();
+
             if (!self.getToggleState()) return;
 
             for (auto* other : others) {
@@ -284,9 +292,10 @@ void GuiSsg::setup()
             };
         };
 
-    makeExclusive(dutyFcButton, { &dutyMoreFcButton, &dutyMoreNesButton });
-    makeExclusive(dutyMoreFcButton, { &dutyFcButton, &dutyMoreNesButton });
-    makeExclusive(dutyMoreNesButton, { &dutyFcButton, &dutyMoreFcButton });
+    makeExclusive(dutyFcButton, { &dutyMoreFcButton, &dutyMoreNesButton, &dutyMoreSsgButton });
+    makeExclusive(dutyMoreFcButton, { &dutyFcButton, &dutyMoreNesButton, &dutyMoreSsgButton });
+    makeExclusive(dutyMoreNesButton, { &dutyFcButton, &dutyMoreFcButton, &dutyMoreSsgButton });
+    makeExclusive(dutyMoreSsgButton, { &dutyFcButton, &dutyMoreFcButton, &dutyMoreNesButton });
 
     pulseInvCat.setupSwCategory({ .parent = dutyGroup.contentCanvas, .title = SsgGuiText::Category::invert });
 
@@ -308,6 +317,11 @@ void GuiSsg::setup()
     triFreqSlider.setup({ .parent = triGroup.contentCanvas, .id = code + CPK::SsgTri::freq, .title = SsgGuiText::Ssg::Tri::manualFreq, .isReset = true });
     triFreqSlider.setWantsKeyboardFocus(true);
     triFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    // 入れているあいだは PEAK を使わないので、PEAK の区分を薄くする (並べ直しで)
+    triMoreFcButton.setup({ .parent = triGroup.contentCanvas, .id = code + CPK::SsgTri::moreFc, .title = SsgGuiText::Ssg::Tri::moreFc, .isReset = true, .isResized = true });
+    triMoreFcButton.setWantsKeyboardFocus(true);
+    triMoreFcButton.setExplicitFocusOrder(++tabOrder);
 
     triPeakCat.setupSwCategory({ .parent = triGroup.contentCanvas, .title = SsgGuiText::Category::peak });
 
@@ -334,6 +348,13 @@ void GuiSsg::setup()
     peakEnvComponent.setupComponent(triGroup.contentCanvas, code, tabOrder, ValueEnv::peak().keys.enable, "Enable", true);
     peakEnvComponent.category().onImport = [this] { peakEnvComponent.importParams(); };
     peakEnvComponent.category().onExport = [this] { peakEnvComponent.exportParams(); };
+
+    // NOISE (4.3.0)。波形のグループの下半分
+    noiseGroup.setup(*this, SsgGuiText::Group::ssgNoise);
+
+    noiseMoreFcButton.setup({ .parent = noiseGroup.contentCanvas, .id = code + CPK::SsgNoise::moreFc, .title = SsgGuiText::Ssg::Noise::moreFc, .isReset = true });
+    noiseMoreFcButton.setWantsKeyboardFocus(true);
+    noiseMoreFcButton.setExplicitFocusOrder(++tabOrder);
 
     setupGraph();
     updateGraph();
@@ -458,6 +479,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     // 一番下に段の数で伸びるエンベロープを持つので、欄の下まで使って中を縦に送る
     auto waveArea = paramArea;
 
+    // 下半分は NOISE グループ (4.3.0)
+    auto noiseArea = waveArea.removeFromBottom(waveArea.getHeight() / 2);
+
     // 送る中身の高さを決めるための仮の長さ
     constexpr int canvasHeight = 20000;
 
@@ -467,6 +491,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triGroup.setVisible(false);
 
         triKeyTrackButton.setVisible(false);
+        triMoreFcButton.setVisible(false);
         triPeakSlider.setVisibleWithLabel(false);
         triFreqSlider.setVisibleWithLabel(false);
         triSetSawDown.setVisible(false);
@@ -479,7 +504,17 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyFcFlucSlider.setVisibleWithLabel(true);
         dutyMoreFcButton.setVisible(true);
         dutyMoreNesButton.setVisible(true);
+        dutyMoreSsgButton.setVisible(true);
         dutyInvertButton.setVisible(true);
+
+        // More Real SSG はデューティ比 50% に決まるので、DUTY の設定は効かない
+        const bool ssgReal = dutyMoreSsgButton.getToggleState();
+
+        dutyModeSelector.setEnabledWithLabel(!ssgReal);
+        dutyPresetSelector.setEnabledWithLabel(!ssgReal);
+        dutyVarSlider.setEnabledWithLabel(!ssgReal);
+        dutyInvertButton.setEnabled(!ssgReal);
+        dutyEnvComponent.setEnabled(!ssgReal);
 
         dutyGroup.setBounds(waveArea);
 
@@ -504,6 +539,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = dRect, .label = &dutyFcFlucSlider.label, .component = &dutyFcFlucSlider, });
         layoutRow({ .rowRect = dRect, .component = &dutyMoreFcButton });
         layoutRow({ .rowRect = dRect, .component = &dutyMoreNesButton });
+        layoutRow({ .rowRect = dRect, .component = &dutyMoreSsgButton });
 
         layoutRow({ .rowRect = dRect, .component = &dutyInvertButton });
 
@@ -524,9 +560,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyFcFlucSlider.setVisibleWithLabel(false);
         dutyMoreFcButton.setVisible(false);
         dutyMoreNesButton.setVisible(false);
+        dutyMoreSsgButton.setVisible(false);
         dutyVarSlider.setVisibleWithLabel(false);
 
         triKeyTrackButton.setVisible(true);
+        triMoreFcButton.setVisible(true);
         triFreqSlider.setVisibleWithLabel(true);
         triPeakSlider.setVisibleWithLabel(true);
         triSetSawDown.setVisible(true);
@@ -550,6 +588,17 @@ void GuiSsg::layout(juce::Rectangle<int> content)
             tRect.removeFromTop(SsgGuiValue::Category::paddingTop);
         }
 
+        layoutRow({ .rowRect = tRect, .component = &triMoreFcButton });
+
+        // More Real FC は 2A03 の三角波なので、PEAK (と PEAK RATIO ENV) は効かない
+        const bool triFc = triMoreFcButton.getToggleState();
+
+        triPeakSlider.setEnabledWithLabel(!triFc);
+        triSetSawDown.setEnabled(!triFc);
+        triSetTri.setEnabled(!triFc);
+        triSetSawUp.setEnabled(!triFc);
+        peakEnvComponent.setEnabled(!triFc);
+
         layoutRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
         layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp });
 
@@ -558,6 +607,15 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         triGroup.setContentHeight(canvasHeight - tRect.getHeight() + SsgGuiValue::Group::Padding::height);
     }
+
+    // NOISE (4.3.0)
+    noiseGroup.setBounds(noiseArea);
+
+    auto nRect = juce::Rectangle<int>(0, 0, noiseGroup.getContentWidth(), canvasHeight).reduced(SsgGuiValue::Group::Padding::width - 4, 0);
+
+    layoutRow({ .rowRect = nRect, .component = &noiseMoreFcButton });
+
+    noiseGroup.setContentHeight(canvasHeight - nRect.getHeight() + SsgGuiValue::Group::Padding::height);
 }
 
 void GuiSsg::updatePresetName(const juce::String& name)
@@ -708,6 +766,10 @@ void GuiSsg::setupGraph()
     graphBtnSsgP256.setup({ .parent = *this, .title = "P256", .isReset = false, .isResized = false });
     graphBtnSsgP256.onClick = [this] { setGraphMode(GraphMode::SsgSwP256); };
 
+    // PARAM ENV[256] (4.3.0)。鳴っている位置も出す
+    graphBtnParam.setup({ .parent = *this, .title = "PRM", .isReset = false, .isResized = false });
+    graphBtnParam.onClick = [this] { setGraphMode(GraphMode::ParamEnv256); };
+
     auto repaintGraph = [this]() {
         if (this->isUpdatingGraph) return; // 既に更新中なら無視
 
@@ -719,6 +781,7 @@ void GuiSsg::setupGraph()
         };
 
     ampEnvComponent.setupGraph(repaintGraph);
+    paramEnv.setupGraph(repaintGraph);
 
     pitchEnvComponent.setupGraph(repaintGraph);
 
@@ -739,6 +802,7 @@ void GuiSsg::setGraphMode(GraphMode mode)
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg256.setToggleState(mode == GraphMode::SsgSw256, juce::dontSendNotification);
     graphBtnSsgP256.setToggleState(mode == GraphMode::SsgSwP256, juce::dontSendNotification);
+    graphBtnParam.setToggleState(mode == GraphMode::ParamEnv256, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -752,12 +816,13 @@ void GuiSsg::layoutGraph(juce::Rectangle<int>& rect)
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(SsgGuiValue::MainGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 4;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnSsg256.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsgP256.setBounds(btnArea);
+    graphBtnSsgP256.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnParam.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -790,6 +855,12 @@ void GuiSsg::updateGraph()
     // =============================================================
     else if (mode == GraphMode::SsgSwP256) {
         ssgSwPEnv256Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // PARAM ENV[256] (4.3.0)
+    // =============================================================
+    else if (mode == GraphMode::ParamEnv256) {
+        paramEnv.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
@@ -1044,11 +1115,17 @@ void GuiSsg::applyChParamFile(const juce::File& file) {
     // 4.0.0 で足した。古いファイルには無いので、無ければ切にする。
     dutyMoreFcButton.setToggleState(reader->getBool("dutyMoreFc", false), juce::sendNotification);
     dutyMoreNesButton.setToggleState(reader->getBool("dutyMoreNes", false), juce::sendNotification);
+    // 4.3.0 で足した。古いファイルには無いので、無ければ切にする。
+    dutyMoreSsgButton.setToggleState(reader->getBool("dutyMoreSsg", false), juce::sendNotification);
 
     // Triangle
     triKeyTrackButton.setToggleState(reader->getBool("triKeyTrack", triKeyTrackButton.getToggleState()), juce::sendNotification);
     triFreqSlider.setValue(reader->getFloat("triFreq", (float)triFreqSlider.getValue()), juce::sendNotification);
     triPeakSlider.setValue(reader->getFloat("triPeak", (float)triPeakSlider.getValue()), juce::sendNotification);
+    triMoreFcButton.setToggleState(reader->getBool("triMoreFc", false), juce::sendNotification);
+
+    // Noise (4.3.0 で足した。無ければ切にする)
+    noiseMoreFcButton.setToggleState(reader->getBool("noiseMoreFc", false), juce::sendNotification);
 
     // Components
     ssgHwEnvComponent.readParams(*reader, "ssgHwEnv");
@@ -1170,11 +1247,16 @@ void GuiSsg::writeChParams(Io::ParamWriter& writer) {
 	writer.set("dutyFcFluc", (float)dutyFcFlucSlider.getValue());
 	writer.set("dutyMoreFc", dutyMoreFcButton.getToggleState());
 	writer.set("dutyMoreNes", dutyMoreNesButton.getToggleState());
+	writer.set("dutyMoreSsg", dutyMoreSsgButton.getToggleState());
 
 	// Triangle
 	writer.set("triKeyTrack", triKeyTrackButton.getToggleState());
 	writer.set("triFreq", (float)triFreqSlider.getValue());
 	writer.set("triPeak", (float)triPeakSlider.getValue());
+	writer.set("triMoreFc", triMoreFcButton.getToggleState());
+
+	// Noise
+	writer.set("noiseMoreFc", noiseMoreFcButton.getToggleState());
 
 	// Components
 	ssgHwEnvComponent.writeParams(writer, "ssgHwEnv");

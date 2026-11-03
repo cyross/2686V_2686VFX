@@ -1,4 +1,5 @@
 ﻿#include "./AmpEnv.h"
+#include "Shared/Core/Gui/GuiGraphValues.h"
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
 
 #include "Shared/Core/Gui/GuiRefresh.h"
@@ -20,6 +21,8 @@ namespace
 void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder,
     const juce::String& bypassText)
 {
+    liveCode = code;
+
 	cat.setupSwAmpCategory({
         .parent = parent,
         .title = juce::String("") + "AMP ENV",
@@ -84,6 +87,8 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 // 張り替える。
 void GuiComponentAmpEnv::rebind(const juce::String& code)
 {
+    liveCode = code;
+
     bypass.rebind(code + CPK::adsr + CPK::bypass);
     startLevel.rebind(code + CPK::Adsr::stl);
     attack.rebind(code + CPK::Adsr::ar);
@@ -236,6 +241,7 @@ void GuiComponentAmpEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curve
 		isCurveMode,
 		posIdx
 	);
+	graph.setLiveSource(GuiGraphValues::liveOf(ctx.audioProcessor.stepTables, liveCode + LiveKey::ampEnv), ctx.audioProcessor.envLiveRate());
 }
 
 void GuiComponentAmpEnv::setEnabled(bool enabled) {

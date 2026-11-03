@@ -339,7 +339,7 @@ void AudioPlugin2686V::setCurrentProgram(int index) {}
 const juce::String AudioPlugin2686V::getProgramName(int index) { return {}; }
 void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName) {}
 
-// WT PITCH MOD (HuC6280 モード) の変調波形を読み込む。
+// WT PITCH MOD (PCE モード) の変調波形を読み込む。
 //
 // 実機の波形メモリは 32 サンプルなので、そこへ落としてから持つ。
 // 落とし方は Smooth の設定で変わる。
@@ -521,6 +521,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         fillMissingParamsWithDefaults(*xmlState);
 
         apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+        stateLoads.fetch_add(1, std::memory_order_release); // 画面が畳み具合などを当て直す (GuiGroupFolds)
 
         // メタデータ復帰
         presetName = xmlState->getStringAttribute(PresetKey::name, PresetValue::MetaData::Initial::name);

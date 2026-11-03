@@ -139,7 +139,7 @@ void AdpcmCore::setParameters(const SynthCoreParams& params)
     }
 
     // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
-    if (params.liveDetune && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
+    if ((params.liveDetune || m_paramModLive) && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
 }
 
 // Set sample data from external source
@@ -722,7 +722,8 @@ float AdpcmCore::getSample()
     }
 
     // セントを周波数倍率(レシオ)に変換
-    float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+    // PM を切っていれば 1 倍。pow は重いので、0 セントのときは呼ばない
+    const float opzx7PitchMod = pitchModCents != 0.0f ? std::pow(2.0f, pitchModCents / 1200.0f) : 1.0f;
     float mwPitchMod = 1.0f + (m_lfo.value.pm * (m_modWheel * 0.03f));
     double currentIncrement = m_pitchAdsr.process(m_pitchRatio * m_pitchBendRatio * mwPitchMod);
     currentIncrement = m_ssgSwPenv256.process(currentIncrement);

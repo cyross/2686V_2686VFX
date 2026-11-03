@@ -37,6 +37,7 @@ namespace SsgGuiText
 		static inline const I18n::Text mainGroup{ u8"SSGチャンネル設定", u8"SSG channel" };
 		static inline const I18n::Text ssgDuty{ u8"矩形波(デューティ比)設定", u8"Pulse wave (duty)" };
 		static inline const I18n::Text ssgTri{ u8"三角波設定", u8"Triangle wave" };
+		static inline const I18n::Text ssgNoise{ u8"NOISE", u8"NOISE" };
 	}
 
 	namespace Adsr
@@ -99,6 +100,7 @@ namespace SsgGuiText
 			static inline const juce::String fcFluc = u8"FC FLUC";
 			static inline const juce::String moreFc = u8"More Real FC";
 			static inline const juce::String moreNes = u8"More Real NES";
+			static inline const juce::String moreSsg = u8"More Real SSG";
 		}
 
 		namespace Tri
@@ -109,7 +111,13 @@ namespace SsgGuiText
 			static inline const juce::String peakTo00 = u8"0.0 (Down)";
 			static inline const juce::String peakTo05 = u8"0.5 (Tri)";
 			static inline const juce::String peakTo10 = u8"1.0 (Up)";
+			static inline const juce::String moreFc = u8"More Real FC";
 
+		}
+
+		namespace Noise
+		{
+			static inline const juce::String moreFc = u8"More Real FC";
 		}
 
 		namespace HwEnv

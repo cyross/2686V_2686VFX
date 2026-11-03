@@ -26,6 +26,7 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addSsgBasicParameters(layout, prefix, prefixName);
     PrHelper::addSsgDutyParameters(layout, prefix, prefixName);
     PrHelper::addSsgTriParameters(layout, prefix, prefixName);
+    PrHelper::addSsgNoiseParameters(layout, prefix, prefixName);
     ValueEnv::addParameters(layout, prefix, prefixName, ValueEnv::duty());
     ValueEnv::addParameters(layout, prefix, prefixName, ValueEnv::peak());
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
@@ -51,15 +52,17 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
     TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
-    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::channelTargetIds(prefix, ParamModCatalog::ssg(), 0)));
     modResolver.init(apvts, prefix, ParamModCatalog::ssg(), 0);
 
     PrHelper::setupSsgBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
+    pAmpEnv.live = &stepTables.position(prefix + LiveKey::ampEnv);
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
+    pPitchEnv.live = &stepTables.position(prefix + LiveKey::pitchEnv);
     PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256, stepTables);
     PrHelper::setupSsgSwPEnv256Ptrs(apvts, prefix, pSsgSwPEnv256, stepTables);
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
@@ -68,6 +71,7 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
     PrHelper::setupToneNoise(apvts, prefix, pToneNoise);
     PrHelper::setupSsgDuty(apvts, prefix, pDuty);
     PrHelper::setupSsgTri(apvts, prefix, pTri);
+    PrHelper::setupSsgNoise(apvts, prefix, pNoise);
     ValueEnv::setupPtrs(apvts, prefix, ValueEnv::duty(), pDutyEnv, stepTables);
     ValueEnv::setupPtrs(apvts, prefix, ValueEnv::peak(), pPeakEnv, stepTables);
     PrHelper::setupSsgHwEnv(apvts, prefix, pHwEnv);
@@ -106,6 +110,7 @@ void SsgProcessor::applyChannel(SsgParams& p)
     PrHelper::applyToneNoise(pToneNoise, p.tn);
     PrHelper::applySsgDuty(pDuty, p.duty);
     PrHelper::applySsgTri(pTri, p.tri);
+    PrHelper::applySsgNoise(pNoise, p.noise);
     ValueEnv::apply(pDutyEnv, p.dutyEnv, p.dutyEnvEnable);
     ValueEnv::apply(pPeakEnv, p.peakEnv, p.peakEnvEnable);
     PrHelper::applySsgHwEnv(pHwEnv, p.env);

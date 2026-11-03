@@ -8,6 +8,9 @@
 #include "./GuiColor.h"
 #include "Shared/Advanced/Curve/AdvancedCurve.h"
 #include "Shared/Core/Synth/StepLoop.h"
+#include "Shared/Core/Synth/StepRate.h"
+#include "Shared/Core/Synth/LivePosition.h"
+#include "./GuiLiveGraph.h"
 
 // 拡大率のつまみ。帯をドラッグしているあいだ、押しているキーで刻みへそろえる
 // (Shift で 0.1、Ctrl で 1、Ctrl + Shift で 10。つまみのラベルのドラッグと同じ決まり)
@@ -27,7 +30,7 @@ public:
     static double align(double value, double step, double lo, double hi);
 };
 
-class GuiEnvelopeGraph : public juce::Component, private juce::ScrollBar::Listener
+class GuiEnvelopeGraph : public juce::Component, private juce::ScrollBar::Listener, private juce::Timer
 {
 public:
     GuiEnvelopeGraph();
@@ -52,7 +55,7 @@ public:
     void mouseDown(const juce::MouseEvent& e) override;
     void mouseDrag(const juce::MouseEvent& e) override;
 
-    enum class EnvType { Amp, Pitch, SsgSw256, SsgSwP256 };
+    enum class EnvType { Amp, Pitch, SsgSw256, SsgSwP256, ParamEnv256 };
 
     struct PhaseDef {
         float widthPx;
@@ -72,7 +75,25 @@ public:
         bool drawPhaseLine = true;
         juce::Colour phaseLineColor = GuiColor::EnvelopeGraph::PhaseLine;
         bool isMax = false; // 値が最大値 = 縦の直線
+
+        // 鳴っている位置の印 (4.3.0。LivePosition の区間)。段のエンベロープの段なら段の番号 (1〜)、
+        // ADSR のアタック・ディケイなら LivePosition::attack / decay、リリース・サスティンは
+        // LivePosition::release / sustain。0 は印を付けない (ループの破線など)
+        int liveStep = LivePosition::idle;
+
+        // リリースの区間か。KEEP のときは、走り終えるまで前の値を保ち、終わりで行き先へ移る
+        bool isRelease = false;
+
+        // KEEP のときも形を変えない (行き先へ移る縦の線など)
+        bool keepShape = false;
+
+        // 刻みで動く RATE の段 (4.3.0)。1 刻みの幅 (区間の幅に対する割合)。0 なら階段にしない。
+        // 値は curveFunc が返す (刻みの位置で段が上がる)
+        float stairPeriod = 0.0f;
     };
+
+    // サスティン (鍵を押しているあいだ保つ区間) の幅。時間ではなく、決まった長さで描く
+    static constexpr float sustainWidthPx = 60.0f;
 
 
     // つまみではなく値で受け取るための束。
@@ -136,6 +157,17 @@ public:
         // リリースを走り終えたあとに保つ値 (Use Endl)
         bool endlEnable = false;
         float endl = 0.0f;
+
+        // 段の進め方 (4.3.0)。[s] が段 s (r と同じ並び)。足りない段は TIME
+        std::vector<StepRate::Step> rates;
+        StepRate::Step releaseRateStep;
+
+        // T SYNC と、そのとき 1 刻みを決めるテンポ
+        bool tickSync = false;
+        double bpm = StepRate::defaultBpm;
+
+        // START NOW。STL の点を中抜きの丸にする
+        bool startNow = false;
     };
 
     void updateSsgSwEnv256(
@@ -150,13 +182,29 @@ public:
         bool isCurveMode = false,
         int posIdx = 0
     );
+
+    // PARAM ENV[256] (4.3.0)。値は指し先の範囲の割合 (0〜1)。カーブは無い
+    void updateParamEnv256(const StepEnvValues& v, const juce::String& title);
+
+    // ---- 鳴っている位置 (4.3.0)
+    //
+    // 音の側が書いた位置 (LivePosition) を読み、区間の印 (PhaseDef::liveStep) を
+    // 持つ絵の上へ縦線を引く。fps は読みに行く速さで、0 を返すあいだは引かない
+    // (SETTINGS で切っているとき)。
+    //
+    // setEnvelope で外れるので、絵を組んだあとに付けること。グラフは区分ごとに
+    // 使い回すため、関係のない区分の絵に線を残さない。
+    void setLiveSource(const LivePosition* position, std::function<int()> fps);
     void updateAmpEnv(
         const AmpEnvValues& v,
         CurveCore* p_curveCore = nullptr,
         bool isCurveMode = false,
         int posIdx = 0
     );
-    void updateBypass(bool bypass) { this->isBypass = bypass; }
+    void updateBypass(bool bypass) { this->isBypass = bypass; ++m_revision; }
+
+    // 絵の中身を変えるたびに進む番号。写す側 (TARGET の大きな枠) が、変わったときだけ写すのに使う
+    std::uint32_t revision() const { return m_revision; }
 
     // ほかの絵と同じものを描く (TARGET の大きな枠が、指している小さな枠を写す)
     void copyFrom(const GuiEnvelopeGraph& other)
@@ -166,7 +214,10 @@ public:
         currentPhases = other.currentPhases;
         isBypass = other.isBypass;
         keepLevels = other.keepLevels;
+        hollowStart = other.hollowStart;
+        tempoText = other.tempoText;
         setEnabled(other.isEnabled());
+        setLiveSource(other.liveTable, other.liveFps);
         repaint();
     }
 
@@ -185,9 +236,20 @@ private:
     std::vector<PhaseDef> currentPhases;
     bool isBypass;
 
+    std::uint32_t m_revision = 0;
+
     // 段のエンベロープの並びを組む。種類ごとに違うのは色・見出し・カーブの的だけ。
     void updateStepEnv(EnvType type, const juce::String& title, juce::Colour color, int curveTarget,
         const StepEnvValues& v, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
+
+    // 段のエンベロープの絵を置き、STL の丸とテンポの文字を付ける
+    void setStepEnvelope(EnvType type, const juce::String& title, const std::vector<PhaseDef>& phases, const StepEnvValues& v);
+
+    // START NOW のとき、STL の点を中抜きの丸にする (4.3.0)
+    bool hollowStart = false;
+
+    // T SYNC の刻みを描くのに使ったテンポ。空なら出さない (4.3.0)
+    juce::String tempoText;
 
     // 段のあいだレベルを保つか。KEEP を入れた区分から立てられる。
     bool keepLevels = false;
@@ -208,6 +270,19 @@ private:
     bool isScrollDrag = false;
 
     bool isSyncingScrollBar = false;
+
+    // ---- 鳴っている位置
+    const LivePosition* liveTable = nullptr;
+    std::function<int()> liveFps;
+    int liveStep = LivePosition::idle;
+    float liveFrac = 0.0f;
+    std::uint32_t liveSeq = 0;
+    juce::uint32 liveSeqMs = 0;
+
+    // 位置がこの間 (ms) 書かれなければ、鳴っていないとみなす
+    static constexpr juce::uint32 liveStaleMs = 200;
+
+    void timerCallback() override;
 
     juce::ScrollBar scrollBar{ false };
     GuiZoomSlider zoomSlider;

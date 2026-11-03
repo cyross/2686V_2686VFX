@@ -265,6 +265,9 @@ namespace CPN
 		static inline const juce::String endl = " SSG SwEnv256 EndL";
 		static inline const juce::String endlEnable = " SSG SwEnv256 EndL Enable";
 		static inline const juce::String keep = " SSG SwEnv256 Keep";
+		static inline const juce::String strictRate = " SSG SwEnv256 Strict R";
+		static inline const juce::String startNow = " SSG SwEnv256 Start Now";
+		static inline const juce::String tickSync = " SSG SwEnv256 T Sync";
 	};
 
 	namespace SsgSwPEnv256
@@ -282,6 +285,9 @@ namespace CPN
 		static inline const juce::String endl = " SSG SwPEnv256 EndL";
 		static inline const juce::String endlEnable = " SSG SwPEnv256 EndL Enable";
 		static inline const juce::String keep = " SSG SwPEnv256 Keep";
+		static inline const juce::String strictRate = " SSG SwPEnv256 Strict R";
+		static inline const juce::String startNow = " SSG SwPEnv256 Start Now";
+		static inline const juce::String tickSync = " SSG SwPEnv256 T Sync";
 	};
 
 	namespace Opzx7Lfo
@@ -407,6 +413,7 @@ namespace CPN
 		static inline const juce::String fcFluc = " Duty FC Fluctuation";
 		static inline const juce::String moreFc = " Duty More Real FC";
 		static inline const juce::String moreNes = " Duty More Real NES";
+		static inline const juce::String moreSsg = " Duty More Real SSG";
 	}
 
 	namespace SsgTri
@@ -414,6 +421,12 @@ namespace CPN
 		static inline const juce::String keyTrack = " Triangle Key Track";
 		static inline const juce::String peak = " Triangle Peak";
 		static inline const juce::String manualFreq = " Tri Manual Freq";
+		static inline const juce::String moreFc = " Triangle More Real FC";
+	}
+
+	namespace SsgNoise
+	{
+		static inline const juce::String moreFc = " Noise More Real FC";
 	}
 
 	namespace SsgHwEnv

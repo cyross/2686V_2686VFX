@@ -1,6 +1,7 @@
 ﻿// ============================================================================
 // STEPS: LEVEL のほかの 0.0〜1.0 のつまみ (AMP ENV の SL、SSG HW / SW AMP ENV、
 // WT AMP MOD / WT PITCH MOD の DEPTH) を決まった刻みへ丸める
+// DUTY / PEAK RATIO ENVELOPE は範囲に対する 1/10・1/4・1/5・1/8・1/16 (4.3.0)
 // ============================================================================
 #include "doctest/doctest.h"
 
@@ -213,6 +214,95 @@ TEST_CASE("STEPS: TARGET の切り替え (束縛し直し) では、切り替え
 	// 切り替えた後に動かせば丸める
 	slider.setValue(0.4, juce::sendNotificationSync);
 	CHECK(slider.getValue() == doctest::Approx(0.5));
+
+	editor.reset();
+}
+
+namespace
+{
+	// DUTY / PEAK RATIO ENVELOPE の STEPS の選択肢か (自由・1/10・1/4・1/5・1/8・1/16 の 6 個)
+	bool isRatioSnap(GuiComboBox& box)
+	{
+		return box.getNumItems() == 6 && box.getItemText(1).contains("1 / 10") && box.getItemText(5).contains("1 / 16");
+	}
+}
+
+TEST_CASE("STEPS (DUTY / PEAK RATIO ENVELOPE): 1/10・1/4・1/5・1/8・1/16 で、範囲の幅に対して丸める")
+{
+	using Snap = GuiComponentStepSnap;
+
+	CHECK(Snap::stepsOf(0, Snap::Choices::Ratio) == 0);    // 自由
+	CHECK(Snap::stepsOf(1, Snap::Choices::Ratio) == 10);
+	CHECK(Snap::stepsOf(2, Snap::Choices::Ratio) == 4);
+	CHECK(Snap::stepsOf(3, Snap::Choices::Ratio) == 5);
+	CHECK(Snap::stepsOf(4, Snap::Choices::Ratio) == 8);
+	CHECK(Snap::stepsOf(5, Snap::Choices::Ratio) == 16);
+	CHECK(Snap::stepsOf(6, Snap::Choices::Ratio) == 0);
+
+	// PEAK (0〜1): 0.1 / 0.25 / 0.2 / 0.125 / 0.0625 単位
+	CHECK(Snap::snap(0.33, 10, 0.0, 1.0, 1.0) == doctest::Approx(0.3));
+	CHECK(Snap::snap(0.33, 5, 0.0, 1.0, 1.0) == doctest::Approx(0.4));
+	CHECK(Snap::snap(0.33, 16, 0.0, 1.0, 1.0) == doctest::Approx(0.3125));
+
+	// DUTY (0〜100%): 10% / 25% / 20% / 12.5% / 6.25% 単位
+	CHECK(Snap::snap(37.0, 10, 0.0, 100.0, 100.0) == doctest::Approx(40.0));
+	CHECK(Snap::snap(37.0, 4, 0.0, 100.0, 100.0) == doctest::Approx(25.0));
+	CHECK(Snap::snap(37.0, 8, 0.0, 100.0, 100.0) == doctest::Approx(37.5));
+	CHECK(Snap::snap(37.0, 16, 0.0, 100.0, 100.0) == doctest::Approx(37.5));
+}
+
+TEST_CASE("STEPS (DUTY / PEAK RATIO ENVELOPE): 区分の値のつまみの下にあり、選ぶと値を丸める")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	auto boxes = findAll<GuiComboBox>(*editor, [](GuiComboBox& b) { return isRatioSnap(b); });
+
+	// SSG を持たないプラグインには無い
+	if (boxes.empty()) return;
+
+	int checked = 0;
+
+	for (auto* box : boxes)
+	{
+		// 同じ区分の値のつまみ (名前が DUTY / PEAK)。三角波の PEAK (パラメータ) は除く
+		GuiSlider* value = nullptr;
+
+		for (auto* s : findAll<GuiSlider>(*box->getParentComponent(), [](GuiSlider&) { return true; }))
+		{
+			if (s->getParentComponent() != box->getParentComponent()) continue;
+			if (s->getComponentID().endsWith(CPK::SsgTri::peak)) continue;
+
+			const auto name = s->label.getText();
+
+			if (name == "DUTY" || name == "PEAK") value = s;
+		}
+
+		if (value == nullptr) continue;
+
+		const double span = value->getMaximum() - value->getMinimum();
+
+		CAPTURE(span);
+
+		value->setValue(0.33 * span, juce::sendNotificationSync);
+
+		// 1/10 刻み
+		box->setSelectedItemIndex(1, juce::sendNotificationSync);
+
+		CHECK(value->getValue() == doctest::Approx(0.3 * span));
+		CHECK(value->getSnapSteps() == 10);
+		CHECK(value->getSnapScale() == doctest::Approx(span));
+
+		// 自由へ戻す
+		box->setSelectedItemIndex(0, juce::sendNotificationSync);
+
+		++checked;
+	}
+
+	MESSAGE("DUTY / PEAK の STEPS を確かめた数: " << checked);
+	CHECK(checked > 0);
 
 	editor.reset();
 }

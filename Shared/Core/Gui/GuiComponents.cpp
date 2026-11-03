@@ -44,7 +44,14 @@ void GuiWaveformPreview::strokeWave(juce::Graphics& g, const std::vector<float>&
 void GuiWaveformPreview::pushBuffer(const float* data, int numSamples)
 {
     if (numSamples <= 0) return;
+
+    // 前と同じ (音が出ていなければずっと 0) なら描き直さない。毎秒 30 回、背景から描き直していた
+    const bool same = (int)m_displayBuffer.size() == numSamples && std::equal(data, data + numSamples, m_displayBuffer.begin());
+
+    if (same && !m_dryChanged) return;
+
     m_displayBuffer.assign(data, data + numSamples);
+    m_dryChanged = false;
     repaint(); // データが来たら再描画
 }
 
@@ -52,7 +59,10 @@ void GuiWaveformPreview::pushDryBuffer(const float* data, int numSamples)
 {
     if (numSamples <= 0) return;
 
+    if ((int)m_dryBuffer.size() == numSamples && std::equal(data, data + numSamples, m_dryBuffer.begin())) return;
+
     m_dryBuffer.assign(data, data + numSamples);
+    m_dryChanged = true;
 
     // 描き直しは加工後の側から起こす。両方でやると二度描きになる。
 }
@@ -126,7 +136,13 @@ void ColoredGroupComponent::setTitleIdle(bool idle)
     if (titleIdle == idle) return;
 
     titleIdle = idle;
-    repaint();
+    repaintTitle();
+}
+
+void ColoredGroupComponent::repaintTitle()
+{
+    // 影のぶんも含める
+    repaint(titleChipBounds().expanded(6.0f).getSmallestIntegerContainer());
 }
 
 void ColoredGroupComponent::paint(juce::Graphics& g)
@@ -154,28 +170,151 @@ void ColoredGroupComponent::paint(juce::Graphics& g)
     // 枠線より後に描くことで、線が文字の後ろを通らないようにする。
     auto title = getText();
 
-    if (title.isEmpty()) return;
+    auto chip = titleChipBounds();
 
-    auto font = juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold);
-
-    float textWidth = (float)juce::GlyphArrangement::getStringWidthInt(font, title);
-    float chipWidth = juce::jmin(textWidth + titlePaddingX * 2.0f, bounds.getWidth() - titleInsetX * 2.0f);
-
-    if (chipWidth <= 0.0f) return;
-
-    juce::Rectangle<float> chip(bounds.getX() + titleInsetX, bounds.getY(), chipWidth, titleHeight);
+    if (title.isEmpty() || chip.isEmpty()) return;
 
     // 見出しの帯も面を持つので、同じ影を落とす
     chip = GuiShadow::reserve(chip);
 
     GuiShadow::drawRounded(g, chip, titleCornerRadius);
 
-    g.setColour(titleIdle ? GuiColor::Group::TitleBgIdle : GuiColor::Group::TitleBg);
+    // 畳んでいるときも灰にする。マウスが乗っていれば差し色へ寄せる。
+    // 畳んだ見出しに乗ったときだけは明るい黄色にする
+    juce::Colour chipColour = titleIdle || folded ? GuiColor::Group::TitleBgIdle : GuiColor::Group::TitleBg;
+
+    if (titleHovered) {
+        chipColour = folded ? juce::Colour(GuiColor::Group::TitleBgFoldedHover)
+                            : chipColour.interpolatedWith(GuiColor::Hover::TitleTint, GuiColor::Hover::titleTintAmount);
+    }
+
+    g.setColour(chipColour);
     g.fillRoundedRectangle(chip, titleCornerRadius);
 
     g.setColour(GuiColor::Group::TitleText);
-    g.setFont(font);
-    g.drawText(title, chip, juce::Justification::centred, true);
+    g.setFont(juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold));
+
+    if (!folded) {
+        g.drawText(title, chip, juce::Justification::centred, true);
+
+        return;
+    }
+
+    // 畳んだ帯は縦長なので、文字を右へ 90 度寝かせて上から下へ書く
+    const auto centre = chip.getCentre();
+
+    juce::Graphics::ScopedSaveState save(g);
+
+    g.addTransform(juce::AffineTransform::rotation(juce::MathConstants<float>::halfPi, centre.x, centre.y));
+    g.drawText(title, juce::Rectangle<float>(chip.getHeight(), chip.getWidth()).withCentre(centre),
+        juce::Justification::centred, true);
+}
+
+juce::Rectangle<float> ColoredGroupComponent::titleChipBounds() const
+{
+    auto title = getText();
+
+    if (title.isEmpty()) return {};
+
+    auto bounds = getLocalBounds().toFloat();
+
+    if (title != measuredTitle) {
+        auto font = juce::Font(juce::FontOptions(titleFontHeight)).withStyle(juce::Font::bold);
+
+        measuredTitle = title;
+        measuredTitleWidth = (float)juce::GlyphArrangement::getStringWidthInt(font, title);
+    }
+
+    const float textWidth = measuredTitleWidth;
+
+    if (folded) {
+        // 縦の帯。丈は枠の内側まで
+        float chipLength = juce::jmin(textWidth + titlePaddingX * 2.0f, bounds.getHeight() - titleInsetX * 2.0f);
+
+        if (chipLength <= 0.0f) return {};
+
+        return { bounds.getCentreX() - titleHeight * 0.5f, bounds.getY(), titleHeight, chipLength };
+    }
+
+    float chipWidth = juce::jmin(textWidth + titlePaddingX * 2.0f, bounds.getWidth() - titleInsetX * 2.0f);
+
+    if (chipWidth <= 0.0f) return {};
+
+    return { bounds.getX() + titleInsetX, bounds.getY(), chipWidth, titleHeight };
+}
+
+void ColoredGroupComponent::setFoldable(bool shouldFold)
+{
+    foldable = shouldFold;
+
+    setMouseCursor(foldable ? juce::MouseCursor::PointingHandCursor : juce::MouseCursor::NormalCursor);
+}
+
+void ColoredGroupComponent::setFolded(bool shouldFold)
+{
+    if (folded == shouldFold) return;
+
+    folded = shouldFold;
+
+    foldedChanged();
+    repaint();
+}
+
+bool ColoredGroupComponent::hitTest(int x, int y)
+{
+    // 枠そのものはマウスを受けない (中身へ通す) ので、見出しの上だけ受ける
+    if (foldable && titleChipBounds().expanded(2.0f).contains((float)x, (float)y)) return true;
+
+    return juce::GroupComponent::hitTest(x, y);
+}
+
+void ColoredGroupComponent::mouseDown(const juce::MouseEvent& e)
+{
+    if (foldable && e.mods.isLeftButtonDown() && onTitleClick != nullptr
+        && titleChipBounds().expanded(2.0f).contains(e.position))
+    {
+        onTitleClick();
+
+        // 畳むと見出しの場所が変わるので、マウスがまだ乗っているかを見直す
+        updateTitleHover(getMouseXYRelative().toFloat());
+
+        return;
+    }
+
+    juce::GroupComponent::mouseDown(e);
+}
+
+void ColoredGroupComponent::mouseEnter(const juce::MouseEvent& e)
+{
+    updateTitleHover(e.position);
+
+    juce::GroupComponent::mouseEnter(e);
+}
+
+void ColoredGroupComponent::mouseMove(const juce::MouseEvent& e)
+{
+    updateTitleHover(e.position);
+
+    juce::GroupComponent::mouseMove(e);
+}
+
+void ColoredGroupComponent::mouseExit(const juce::MouseEvent& e)
+{
+    updateTitleHover(std::nullopt);
+
+    juce::GroupComponent::mouseExit(e);
+}
+
+void ColoredGroupComponent::updateTitleHover(std::optional<juce::Point<float>> position)
+{
+    const bool hovered = foldable && position.has_value()
+        && titleChipBounds().expanded(2.0f).contains(*position);
+
+    if (titleHovered == hovered) return;
+
+    titleHovered = hovered;
+
+    repaintTitle();
 }
 
 void GuiGroup::mouseDown(const juce::MouseEvent& e)
@@ -511,7 +650,7 @@ std::vector<GuiSlider::NudgeSpec> GuiSlider::nudgeSpecs() const
     {
         // STEPS で丸めているあいだは、刻みの倍数だけ動かす。
         // 半端な幅で動かすと、丸めで元の値へ戻されてしまう
-        const double step = 1.0 / snapSteps;
+        const double step = snapScale / snapSteps;
 
         auto name = [this](int k) {
             return snapSteps == 1 ? juce::String(k) : juce::String(k) + "/" + juce::String(snapSteps);
@@ -594,7 +733,7 @@ double GuiSlider::valueForLabelDrag(double startValue, int dy, double alignStep)
     const double pixels = V::pixelsForFullRange;
 
     // STEPS で丸めているあいだは、その刻み。キーでそろえる刻みより先に効く
-    const double step = snapSteps > 0 ? 1.0 / snapSteps : alignStep;
+    const double step = snapSteps > 0 ? snapScale / snapSteps : alignStep;
 
     // 範囲より粗い刻みでは、そろえる先が端しか無いので使わない
     if (step > 0.0 && step <= hi - lo)
@@ -1015,7 +1154,12 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     // 角の丸みは他の部品と揃える。小さな四角なので、辺の半分を上限にする。
     float boxRadius = juce::jmin(guiCornerRadius, juce::jmin(boxW, boxH) * 0.5f);
 
-    g.setColour(GuiColor::ToggleButton::Box.get().withMultipliedAlpha(alpha));
+    // マウスが乗っているときは、枠とランプをそれぞれの色に合わせて変える (4.3.0)
+    const bool hovered = shouldDrawButtonAsHighlighted && isEnabled() && !dimmed;
+
+    juce::Colour frame = GuiColor::ToggleButton::Box.get().withMultipliedAlpha(alpha);
+
+    g.setColour(hovered ? GuiColor::Hover::border(frame) : frame);
     g.drawRoundedRectangle(box, boxRadius, 1.0f);
 
     // 2. 中のランプ。消えているときも枠の中を塗って、
@@ -1027,7 +1171,9 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
         ? GuiColor::ToggleButton::LampOn.get()
         : GuiColor::ToggleButton::LampOff.get();
 
-    g.setColour(lamp.withMultipliedAlpha(alpha));
+    lamp = lamp.withMultipliedAlpha(alpha);
+
+    g.setColour(hovered ? GuiColor::Hover::face(lamp) : lamp);
     g.fillRoundedRectangle(inner, juce::jmin(boxRadius, juce::jmin(inner.getWidth(), inner.getHeight()) * 0.5f));
 
     // 3. テキストの描画
@@ -1311,6 +1457,20 @@ void GuiCategoryLabel::mouseDown(const juce::MouseEvent& e)
     GuiLabel::mouseDown(e);
 }
 
+void GuiCategoryLabel::mouseEnter(const juce::MouseEvent& e)
+{
+    if (onClick != nullptr) repaint();
+
+    GuiLabel::mouseEnter(e);
+}
+
+void GuiCategoryLabel::mouseExit(const juce::MouseEvent& e)
+{
+    if (onClick != nullptr) repaint();
+
+    GuiLabel::mouseExit(e);
+}
+
 void GuiCategoryLabel::paint(juce::Graphics& g)
 {
     auto bounds = getLocalBounds().toFloat();
@@ -1323,7 +1483,10 @@ void GuiCategoryLabel::paint(juce::Graphics& g)
 
     GuiShadow::drawRounded(g, bounds, cornerRadius);
 
-    g.setColour(bgColor);
+    // 押して開閉できる見出しは、マウスが乗っていれば差し色へ寄せる
+    const bool hovered = onClick != nullptr && isMouseOver();
+
+    g.setColour(hovered ? bgColor.interpolatedWith(GuiColor::Hover::TitleTint, GuiColor::Hover::titleTintAmount) : bgColor);
     g.fillRoundedRectangle(bounds, cornerRadius);
 
     auto textArea = bounds.reduced(paddingX, 0.0f);
@@ -1352,6 +1515,143 @@ void GuiCategoryLabel::paint(juce::Graphics& g)
     g.setColour(GuiColor::Category::Text);
     g.setFont(font);
     g.drawText(captionText, textArea, getJustificationType(), false);
+}
+
+// ----------------------------------------------------------------------------
+// マウスが乗っている区分の板 (4.3.0)
+// ----------------------------------------------------------------------------
+// 板はマウスを受けないので、画面全体のマウスの動きを 1 か所で受けて、
+// 乗っている板を探す。板ができているあいだだけ受ける。
+struct GuiCategoryBackdropHover : private juce::MouseListener
+{
+    std::vector<GuiCategoryBackdrop*> backdrops;
+    GuiCategoryBackdrop* current = nullptr;
+
+    // update の作業場所 (出来事のたびに確保しない)
+    std::vector<GuiCategoryBackdrop*> candidates;
+
+    static GuiCategoryBackdropHover& get()
+    {
+        static GuiCategoryBackdropHover instance;
+        return instance;
+    }
+
+    void add(GuiCategoryBackdrop* b)
+    {
+        if (backdrops.empty()) juce::Desktop::getInstance().addGlobalMouseListener(this);
+
+        backdrops.push_back(b);
+    }
+
+    void remove(GuiCategoryBackdrop* b)
+    {
+        std::erase(backdrops, b);
+
+        if (current == b) current = nullptr;
+
+        if (backdrops.empty()) juce::Desktop::getInstance().removeGlobalMouseListener(this);
+    }
+
+    // 板が画面に出ていて (隠れたタブ・畳んだ枠の中ではなく)、マウスが板の範囲にあるか
+    static bool covers(GuiCategoryBackdrop& b, juce::Point<float> screenPos)
+    {
+        if (b.getParentComponent() == nullptr) return false;
+
+        // isShowing はデスクトップに載っていない木では偽になるので、親までの見え方だけを見る
+        for (auto* c = static_cast<juce::Component*>(&b); c != nullptr; c = c->getParentComponent()) {
+            if (!c->isVisible()) return false;
+        }
+
+        return b.getLocalBounds().toFloat().contains(b.getLocalPoint(nullptr, screenPos));
+    }
+
+    // マウスの下にある部品。送り棒で隠れた場所や、手前の別の窓に重なった場所では nullptr。
+    // 部品の木を降りるのは重いので、1 回の出来事につき窓ごとに 1 回だけ求める
+    static juce::Component* componentUnder(juce::Component* top, juce::Point<float> screenPos)
+    {
+        if (top->isOnDesktop()) {
+            auto* front = juce::Desktop::getInstance().findComponentAt(screenPos.roundToInt());
+
+            if (front == nullptr || front->getTopLevelComponent() != top) return nullptr;
+        }
+
+        return top->getComponentAt(top->getLocalPoint(nullptr, screenPos).roundToInt());
+    }
+
+    void update(juce::Point<float> screenPos)
+    {
+        // 範囲に入った板を、小さい順に並べる。大区分の板は中の小区分の板も覆うので、
+        // その場所の部品が板と同じ親の中にある板のうち、いちばん小さいものを選ぶ
+        candidates.clear();
+
+        for (auto* b : backdrops) {
+            if (covers(*b, screenPos)) candidates.push_back(b);
+        }
+
+        std::sort(candidates.begin(), candidates.end(), [](const GuiCategoryBackdrop* a, const GuiCategoryBackdrop* b) {
+            return a->getWidth() * a->getHeight() < b->getWidth() * b->getHeight();
+        });
+
+        GuiCategoryBackdrop* best = nullptr;
+        juce::Component* probedTop = nullptr;
+        juce::Component* under = nullptr;
+
+        for (auto* b : candidates) {
+            auto* top = b->getTopLevelComponent();
+
+            if (top != probedTop) {
+                probedTop = top;
+                under = componentUnder(top, screenPos);
+            }
+
+            auto* parent = b->getParentComponent();
+
+            if (under != nullptr && (under == parent || parent->isParentOf(under))) {
+                best = b;
+                break;
+            }
+        }
+
+        if (best == current) return;
+
+        if (current != nullptr) {
+            current->hovered = false;
+            current->repaint();
+        }
+
+        current = best;
+
+        if (current != nullptr) {
+            current->hovered = true;
+            current->repaint();
+        }
+    }
+
+    void refresh() { update(juce::Desktop::getInstance().getMainMouseSource().getScreenPosition()); }
+
+    void mouseMove(const juce::MouseEvent&) override { refresh(); }
+    // 引いているあいだは板を変えない (つまみを引くたびに探さない)
+    void mouseDrag(const juce::MouseEvent&) override {}
+    void mouseEnter(const juce::MouseEvent&) override { refresh(); }
+    void mouseExit(const juce::MouseEvent&) override { refresh(); }
+    void mouseWheelMove(const juce::MouseEvent&, const juce::MouseWheelDetails&) override { refresh(); }
+};
+
+GuiCategoryBackdrop::GuiCategoryBackdrop()
+{
+    setInterceptsMouseClicks(false, false);
+
+    GuiCategoryBackdropHover::get().add(this);
+}
+
+GuiCategoryBackdrop::~GuiCategoryBackdrop()
+{
+    GuiCategoryBackdropHover::get().remove(this);
+}
+
+void GuiCategoryBackdrop::updateHover(juce::Point<float> screenPos)
+{
+    GuiCategoryBackdropHover::get().update(screenPos);
 }
 
 // ----------------------------------------------------------------------------
@@ -1468,6 +1768,21 @@ void GuiCategoryLabel::setupSwPitchCategory(const Config& c)
 void GuiCategoryLabel::setupSwLfoCategory(const Config& c)
 {
     setupInner(c, GuiColor::Category::SwLfoBg);
+}
+
+void GuiCategoryLabel::setupTapAmpCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::TapAmpBg);
+}
+
+void GuiCategoryLabel::setupTapPitchCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::TapPitchBg);
+}
+
+void GuiCategoryLabel::setupParamCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::ParamBg);
 }
 
 void GuiCategoryLabel::setupOtherCategory(const Config& c)

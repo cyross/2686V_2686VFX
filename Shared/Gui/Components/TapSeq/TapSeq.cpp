@@ -107,8 +107,8 @@ void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::Str
 
     const GuiCategoryLabel::Config catConfig{ .parent = parent, .title = isAmp() ? "TAP AMP SEQUENCER" : "TAP PITCH SEQUENCER", .enableChangeDetailVisible = true };
 
-    if (isAmp()) cat.setupSwAmpCategory(catConfig);
-    else cat.setupSwPitchCategory(catConfig);
+    if (isAmp()) cat.setupTapAmpCategory(catConfig);
+    else cat.setupTapPitchCategory(catConfig);
 
     enable.setup({ .parent = parent, .id = code + spec.keys.enable, .title = "Enable", .isReset = true });
     enable.setWantsKeyboardFocus(true);
@@ -195,7 +195,7 @@ void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::Str
 
     isReady = true;
 
-    startTimerHz(10);
+    startTimerHz(LiveGraph::idleHz);
 }
 
 // ---------------------------------------------------------------- 段
@@ -210,6 +210,7 @@ void GuiComponentTapSeq::applyStepCount()
     if ((int)target.getValue() > n) target.setValue(n, juce::dontSendNotification);
 
     rebindValue();
+    applyActive();
 
     // 行の数や棒の高さが変わると区分の高さが変わるので、並べ直してもらう
     if (isReady && (rowsBefore != list.getRowCount() || barsBefore != bars.getNaturalHeight())) ctx.editor.resized();
@@ -355,12 +356,35 @@ void GuiComponentTapSeq::refresh()
 
 // 表は外から書き換わる (読み込み・初期化・貼り付け)。いまの段は鍵を押すと進み、
 // DAW の再生を止めると開始前へ戻る。
+// 表の書き換えと、いまの段の動きを見に行く。いまの段は SETTINGS で入れたときだけ、
+// 選んだ速さ (FPS) で追う。切っているときは、表を書き換えたときにだけ映し直す
 void GuiComponentTapSeq::timerCallback()
 {
+    const bool live = ctx.audioProcessor.tapLiveGraph;
+
+    LiveGraph::pace(*this, LiveGraph::hzOf(live, ctx.audioProcessor.tapLiveFps));
+
+    // 隠れたタブ・閉じた区分では映さない (見えたときの次の回で映す)
+    if (!isShowing()) return;
+
     auto* t = table();
 
     if (t == nullptr) return;
-    if (t->version.load() == seenVersion && t->cursor.load() == seenCursor) return;
+
+    if (t->version.load() == seenVersion) {
+        const int c = t->cursor.load();
+
+        if (!live || c == seenCursor) return;
+
+        // いまの段が進んだだけなら、印だけ動かす (全部の段を作り直さない)
+        const int n = stepCount();
+
+        seenCursor = c;
+        bars.cursor = (c >= 0 && c < n) ? c : -1;
+        bars.repaint();
+        loops.refresh();
+        return;
+    }
 
     rebindValue();
 }
@@ -450,7 +474,8 @@ void GuiComponentTapSeq::applyActive()
     loops.setEnables(active && loop.getToggleState());
     loopSeparator.setEnabled(active);
 
-    target.setEnabledWithLabel(active);
+    // 1 段のときは選ぶ段が無い
+    target.setEnabledWithLabel(active && stepCount() > 1);
     value.setEnabled(active);
     skipLabel.setEnabled(active);
     skip.setEnabled(active);

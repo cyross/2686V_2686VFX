@@ -1,5 +1,7 @@
 ﻿#include "./GenNoiseSsg.h"
 
+#include "Shared/Core/Processor/ProcessorValues.h"
+
 void SsgNoiseGen::prepare(double newTargetRate) {
 	this->lfsr = 0x1FFFF;
 	this->currentSample = 0.0f;
@@ -22,6 +24,11 @@ void SsgNoiseGen::generate() {
 		{
 			this->phase -= 1.0f;
 
+			if (this->fcMode) {
+				this->currentSample = Tnd2A03::stepNoise(this->lfsrFc);
+				continue;
+			}
+
 			// LFSRの更新
 			unsigned int bit0 = this->lfsr & 1;
 			unsigned int bit3 = (this->lfsr >> 3) & 1;
@@ -40,7 +47,10 @@ void SsgNoiseGen::generate() {
 }
 
 void SsgNoiseGen::updateDelta() {
-	if (this->targetSampleRate > 0.0) this->delta = this->targetFreq / this->targetSampleRate;
+	// More Real FC は、進む速さを 2A03 の 16 段の表へ寄せる (N.FREQ の範囲で 16 段すべてに届く)
+	const double rate = this->fcMode ? Tnd2A03::noiseRateFromSsg(this->targetFreq, (double)CPV::Tn::Freq::max) : (double)this->targetFreq;
+
+	if (this->targetSampleRate > 0.0) this->delta = (float)(rate / this->targetSampleRate);
 }
 
 void SsgNoiseGen::updateFrequency(float currentFreq)

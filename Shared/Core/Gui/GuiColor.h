@@ -142,22 +142,22 @@ namespace GuiColor {
 			inline Entry P66mk2Label{ "Palette.Retro.P66mk2Label", []() -> juce::Colour { return juce::Colour::fromRGB(0x61, 0x68, 0x70); } }; // P66mk2 Label   PC-6601mk2 のラベル背景色
 			inline Entry P66mk2Key{ "Palette.Retro.P66mk2Key", []() -> juce::Colour { return juce::Colour::fromRGB(0xB6, 0xB1, 0x94); } }; // P66mk2 Key     PC-6601mk2 のキー色
 			inline Entry P66mk2FncKey{ "Palette.Retro.P66mk2FncKey", []() -> juce::Colour { return juce::Colour::fromRGB(0x5D, 0x58, 0x52); } }; // P66mk2 FncKey  PC-6601mk2 のファンクションキー色
-			inline Entry Pc88Ma2Hd{ "Palette.Retro.Pc88Ma2Hd", []() -> juce::Colour { return juce::Colour::fromRGB(0xF7, 0xA1, 0x0C); } }; // PC88MA2 2HD    PC-8801MA2 の「2HD」ラベル背景色
-			inline Entry Pc98FBody2{ "Palette.Retro.Pc98FBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x47, 0x42, 0x3E); } }; // PC98F Body2    PC-9801F の筐体に入っていた灰色
-			inline Entry Pc98RxBody{ "Palette.Retro.Pc98RxBody", []() -> juce::Colour { return juce::Colour::fromRGB(0xB1, 0xB2, 0xAB); } }; // PC98RX Body    PC-9801RX21 の筐体色
-			inline Entry Pc98RxLogo{ "Palette.Retro.Pc98RxLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0x36, 0x35, 0x39); } }; // PC98RX Logo    PC-9801RX21 のロゴ色
-			inline Entry MdGold{ "Palette.Retro.MdGold", []() -> juce::Colour { return juce::Colour::fromRGB(0xD0, 0xA6, 0x70); } }; // MD Gold        メガドライブの「16-BIT」の文字色
-			inline Entry MdBody2{ "Palette.Retro.MdBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x9E, 0x2B, 0x58); } }; // MD Body2       メガドライブの差し色のマゼンタ
-			inline Entry MdSwitch{ "Palette.Retro.MdSwitch", []() -> juce::Colour { return juce::Colour::fromRGB(0x00, 0x68, 0xAB); } }; // MD Switch      メガドライブのスイッチの青
-			inline Entry PceLogo{ "Palette.Retro.PceLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0x5C, 0x42); } }; // PCE Logo       PC エンジンのロゴのオレンジ
-			inline Entry PceBody2{ "Palette.Retro.PceBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x65, 0x64, 0x64); } }; // PCE Body2      PC エンジンのコントローラーの灰色
-			inline Entry PceBody{ "Palette.Retro.PceBody", []() -> juce::Colour { return juce::Colour::fromRGB(0xE8, 0xE7, 0xE4); } }; // PCE Body       初代 PC エンジンの筐体の白
-			inline Entry FcLabel{ "Palette.Retro.FcLabel", []() -> juce::Colour { return juce::Colour::fromRGB(0xCF, 0x29, 0x37); } }; // FC Label       初代ファミコンのレバーやカバーの赤
-			inline Entry FcGold{ "Palette.Retro.FcGold", []() -> juce::Colour { return juce::Colour::fromRGB(0xD1, 0xB6, 0x8C); } }; // FC Gold        初代ファミコンのロゴの金
-			inline Entry GbScrOn{ "Palette.Retro.GbScrOn", []() -> juce::Colour { return juce::Colour::fromRGB(0x33, 0x52, 0x3A); } }; // GB SCR ON      初代ゲームボーイの液晶 (点灯)
-			inline Entry GbScrOff{ "Palette.Retro.GbScrOff", []() -> juce::Colour { return juce::Colour::fromRGB(0x89, 0x97, 0x28); } }; // GB SCR OFF     初代ゲームボーイの液晶 (消灯)
-			inline Entry TownsBody{ "Palette.Retro.TownsBody", []() -> juce::Colour { return juce::Colour::fromRGB(0x45, 0x4E, 0x5C); } }; // TOWNS Body     初代 FM-TOWNS の筐体色
-			inline Entry TownsLogo{ "Palette.Retro.TownsLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0x34, 0x81, 0x78); } }; // TOWNS Logo     初代 FM-TOWNS のロゴ
+			inline Entry Pc88Ma2Hd{ "Palette.Retro.Pc88Ma2Hd", []() -> juce::Colour { return juce::Colour::fromRGB(0xF7, 0xA1, 0x0C); } }; // 88MA2 2HD    88MA2 の「2HD」ラベル背景色
+			inline Entry Pc98FBody2{ "Palette.Retro.Pc98FBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x47, 0x42, 0x3E); } }; // 98F Body2    98F の筐体に入っていた灰色
+			inline Entry Pc98RxBody{ "Palette.Retro.Pc98RxBody", []() -> juce::Colour { return juce::Colour::fromRGB(0xB1, 0xB2, 0xAB); } }; // 98RX Body    98RX21 の筐体色
+			inline Entry Pc98RxLogo{ "Palette.Retro.Pc98RxLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0x36, 0x35, 0x39); } }; // 98RX Logo    98RX21 のロゴ色
+			inline Entry MdGold{ "Palette.Retro.MdGold", []() -> juce::Colour { return juce::Colour::fromRGB(0xD0, 0xA6, 0x70); } }; // MD Gold        MD の「16-BIT」の文字色
+			inline Entry MdBody2{ "Palette.Retro.MdBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x9E, 0x2B, 0x58); } }; // MD Body2       MD の差し色のマゼンタ
+			inline Entry MdSwitch{ "Palette.Retro.MdSwitch", []() -> juce::Colour { return juce::Colour::fromRGB(0x00, 0x68, 0xAB); } }; // MD Switch      MD のスイッチの青
+			inline Entry PceLogo{ "Palette.Retro.PceLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0x5C, 0x42); } }; // PCE Logo       PCE のロゴのオレンジ
+			inline Entry PceBody2{ "Palette.Retro.PceBody2", []() -> juce::Colour { return juce::Colour::fromRGB(0x65, 0x64, 0x64); } }; // PCE Body2      PCE のコントローラーの灰色
+			inline Entry PceBody{ "Palette.Retro.PceBody", []() -> juce::Colour { return juce::Colour::fromRGB(0xE8, 0xE7, 0xE4); } }; // PCE Body       初代 PCE の筐体の白
+			inline Entry FcLabel{ "Palette.Retro.FcLabel", []() -> juce::Colour { return juce::Colour::fromRGB(0xCF, 0x29, 0x37); } }; // FC Label       初代 FC のレバーやカバーの赤
+			inline Entry FcGold{ "Palette.Retro.FcGold", []() -> juce::Colour { return juce::Colour::fromRGB(0xD1, 0xB6, 0x8C); } }; // FC Gold        初代 FC のロゴの金
+			inline Entry GbScrOn{ "Palette.Retro.GbScrOn", []() -> juce::Colour { return juce::Colour::fromRGB(0x33, 0x52, 0x3A); } }; // GB SCR ON      初代 GB の液晶 (点灯)
+			inline Entry GbScrOff{ "Palette.Retro.GbScrOff", []() -> juce::Colour { return juce::Colour::fromRGB(0x89, 0x97, 0x28); } }; // GB SCR OFF     初代 GB の液晶 (消灯)
+			inline Entry TownsBody{ "Palette.Retro.TownsBody", []() -> juce::Colour { return juce::Colour::fromRGB(0x45, 0x4E, 0x5C); } }; // TOWNS Body     初代 TOWNS の筐体色
+			inline Entry TownsLogo{ "Palette.Retro.TownsLogo", []() -> juce::Colour { return juce::Colour::fromRGB(0x34, 0x81, 0x78); } }; // TOWNS Logo     初代 TOWNS のロゴ
 		};
 
 		// ------------------------------------------------------------------
@@ -199,6 +199,48 @@ namespace GuiColor {
 		// 見出しを「いまは休んでいる」と見せるときの帯。2686VFX のキーアサインで、
 		// 割り当てた鍵盤が押されていない区分に使う。押されると TitleBg へ戻る。
 		inline Entry TitleBgIdle{ "Group.TitleBgIdle", []() -> juce::Colour { return juce::Colours::grey; } };
+
+		// 畳んだ枠の見出しにマウスが乗ったときの帯 (4.3.0)。明るい黄色にして、
+		// 押せば開くことが灰の帯の中で目に付くようにする
+		inline Entry TitleBgFoldedHover{ "Group.TitleBgFoldedHover", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0xF1, 0x76); } };
+	};
+
+	// ==========================================================
+	// 枠をすべて開く「<>」・すべて閉じる「><」のボタン (4.3.0)
+	// ==========================================================
+	// 開くほうが濃い緑、閉じるほうが濃い青。並んでいても取り違えないようにする
+	namespace GroupFoldBtn {
+		inline Entry OpenBg{ "GroupFoldBtn.OpenBg", []() -> juce::Colour { return juce::Colour(0xff006400); } };   // darkgreen
+		inline Entry CloseBg{ "GroupFoldBtn.CloseBg", []() -> juce::Colour { return juce::Colour(0xff00008b); } }; // darkblue
+		inline Entry Text{ "GroupFoldBtn.Text", []() -> juce::Colour { return Palette::OffWhite; } };
+	};
+
+	// ==========================================================
+	// 押せる見出しにマウスが乗ったとき (4.3.0)
+	// ==========================================================
+	// 区分の見出しと、畳める枠の見出しの帯を、この色へ少し寄せて描く。
+	// 見出しの地はどれも明るいので、明るくするより差し色を混ぜるほうが見て分かる
+	namespace Hover {
+		inline Entry TitleTint{ "Hover.TitleTint", []() -> juce::Colour { return Palette::MikuPink; } };
+
+		// 地の色へ TitleTint を混ぜる割合
+		inline constexpr float titleTintAmount = 0.35f;
+
+		// 部品 (テキストボタン・コンボボックス・トグルボタン・スライダー・
+		// テキストエディタ) にマウスが乗ったときの地と枠。決まった色へは変えず、
+		// 元の色から作る。暗い色は明るく、明るい色は少し暗くし、
+		// 透けている色は少し濃くする。枠は地より強く変える。
+		inline juce::Colour shifted(juce::Colour c, float brighten, float darken, float alphaGain)
+		{
+			auto out = c.getPerceivedBrightness() > 0.75f ? c.darker(darken) : c.brighter(brighten);
+
+			if (c.getFloatAlpha() < 1.0f) out = out.withAlpha(juce::jmin(1.0f, c.getFloatAlpha() + alphaGain));
+
+			return out;
+		}
+
+		inline juce::Colour face(juce::Colour c) { return shifted(c, 0.4f, 0.2f, 0.2f); }
+		inline juce::Colour border(juce::Colour c) { return shifted(c, 0.8f, 0.4f, 0.4f); }
 	};
 
 	// ==========================================================
@@ -237,6 +279,25 @@ namespace GuiColor {
 		// 区間の切れ目に引く縦線。目盛りとして読めればよいので、
 		// 本体より一段引いた白にして色数を増やさない。
 		inline Entry PhaseLine{ "EnvelopeGraph.PhaseLine", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.35f); } };
+
+		// PARAM ENV[256] の線 (4.3.0)。区分の見出しと同じダークブルーを、暗い下地で読めるよう白へ寄せる
+		inline Entry ParamLine{ "EnvelopeGraph.ParamLine", []() -> juce::Colour { return juce::Colour(0xff00008b).interpolatedWith(juce::Colours::white, 0.55f); } };
+
+		// 鍵を押しているあいだ保つ区間 (サスティン。4.3.0)。幅は時間ではなく決まった長さで描くので、
+		// 時間で進む区間と見分けられるよう別の色にする
+		inline Entry SustainLine{ "EnvelopeGraph.SustainLine", []() -> juce::Colour { return juce::Colours::lime.interpolatedWith(juce::Colours::white, 0.45f); } };
+
+		// 鳴っている位置の縦線 (4.3.0)。線の色と紛れないよう、明るい黄色にする
+		// 保っているあいだ (サスティン) の塗り (4.3.0)。縦線と同じ黄色を、線が透けて見える濃さで
+		inline Entry LiveFill{ "EnvelopeGraph.LiveFill", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.5f); } };
+
+		inline Entry LiveLine{ "EnvelopeGraph.LiveLine", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.85f); } };
+
+		// START NOW のときの、STL の中抜きの丸の中 (4.3.0)。絵の下地と同じ黒
+		inline Entry MarkerFill{ "EnvelopeGraph.MarkerFill", []() -> juce::Colour { return juce::Colours::black; } };
+
+		// T SYNC の刻みを描くのに使ったテンポの文字 (4.3.0)。見出しより一段引いた白
+		inline Entry TempoText{ "EnvelopeGraph.TempoText", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.6f); } };
 	};
 
 	namespace WavePreview {
@@ -416,6 +477,16 @@ namespace GuiColor {
 		// 音程にかかわるもの (PITCH ENV / SSG SW PITCH ENV / WT PITCH MOD など)
 		inline Entry SwPitchBg{ "Category.SwPitchBg", []() -> juce::Colour { return juce::Colours::turquoise.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
 
+		// TAP AMP / PITCH SEQUENCER (4.3.0)。鍵を押すたびに段を進める区分は、
+		// 時間で動くエンベロープの区分と見分けられるよう、色の組を変える。
+		// 音量がシアン、音程が白寄りの紫
+		inline Entry TapAmpBg{ "Category.TapAmpBg", []() -> juce::Colour { return juce::Colour(0xff00ffff).interpolatedWith(juce::Colours::white, 0.35f); } };      // cyan
+		inline Entry TapPitchBg{ "Category.TapPitchBg", []() -> juce::Colour { return juce::Colour(0xff9370db).interpolatedWith(juce::Colours::white, 0.4f); } }; // mediumpurple
+
+		// パラメータを動かす区分 (PARAM ENV[256] / TAP PARAM SEQUENCER。4.3.0)。
+		// 白寄りのダークブルー
+		inline Entry ParamBg{ "Category.ParamBg", []() -> juce::Colour { return juce::Colour(0xff00008b).interpolatedWith(juce::Colours::white, 0.5f); } };     // darkblue
+
 		// LFO。音量と音程の両方へ掛かるので、どちらとも別の色相にする。
 		inline Entry SwLfoBg{ "Category.SwLfoBg", []() -> juce::Colour { return juce::Colours::purple.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
 		inline Entry OtherBg{ "Category.OtherBg", []() -> juce::Colour { return juce::Colours::lime.brighter(0.5f).interpolatedWith(juce::Colours::white, 0.5f); } };
@@ -434,6 +505,9 @@ namespace GuiColor {
 
 		// カテゴリを開いたとき、中身の背後へ敷く色。
 		inline Entry ContentBg{ "Category.ContentBg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.5f); } };
+
+		// マウスが乗っている区分の中身の背後。ContentBg より少し明るい (4.3.0)
+		inline Entry ContentBgHover{ "Category.ContentBgHover", []() -> juce::Colour { return ContentBg.get().brighter(0.3f); } };
 
 		// 開閉マーカー。閉じているときは黒、開いているときはピンク。
 		// ピンクは初音ミクの髪留めやイヤホンの色を参照した差し色。

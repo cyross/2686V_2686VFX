@@ -8,6 +8,7 @@
 
 #include "../Processor/PluginProcessor.h"
 #include "Shared/Core/Gui/GuiLF.h"
+#include "Shared/Core/Gui/GuiStepTableUndo.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
 
@@ -199,6 +200,10 @@ public:
 private:
     AudioPlugin2686V& audioProcessor;
 
+    // 段の表の書き換えを Undo に載せ、DAW へ知らせる。ここではプロセッサの型がまだ
+    // 揃っていない (ヘッダが互いを読む) ので、コンストラクタで作る
+    std::unique_ptr<GuiStepTableUndo> stepTableUndo;
+
     static inline constexpr int previewHz = 30;
     static inline constexpr int playingLampHz = 30;
     float uiScale = 1.0f;
@@ -259,6 +264,10 @@ private:
     SystemButtonLF categoryToggleBtnLF;
     juce::TextButton openCategoriesBtn;
     juce::TextButton closeCategoriesBtn;
+
+    // 枠を全て開く「<>」・全て閉じる「><」(4.3.0)。CPHIST の左に置く
+    juce::TextButton openGroupsBtn;
+    juce::TextButton closeGroupsBtn;
 
     // コピー履歴 (CPHIST)。押したときに作って重ねる
     juce::TextButton copyHistoryBtn;

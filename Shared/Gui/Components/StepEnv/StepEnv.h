@@ -37,12 +37,18 @@
 //   TARGET       (PARAM ENV だけ。動かすパラメータ)
 //   STEPS
 //   KEEP
+//   STRICT R     (4.3.0。段もリリースも R 秒を守る)
+//   START NOW    (4.3.0。押したときにまだ走っていれば、その時点の値から始める)
+//   T SYNC       (4.3.0。RATE の段の 1 刻みをテンポに合わせる)
 //   LOOP / LOOP MODE
 //     Original Mode : LOOP.TO / LOOP.CNT
 //     Rich Mode     : LP.TARGET / START / END / COUNT / ADD・DELETE / 一覧 (4.1.0)
-//   R.TARGET / RATE / 帯 (R1〜)
+//   R.TARGET / RATE / MODE / DELTA / TICK / TICK NOTE / 帯 (R1〜。RATE の段は D1〜)
 //   L.TARGET / LEVEL / (STEPS) / 帯 (STL, L1〜)
-//   RR / LR      リリース
+//   RR / LR / RR MODE / RR DELTA / RR TICK / RR NOTE   リリース
+//
+// MODE / DELTA / TICK / TICK NOTE は段ごとの進め方 (4.3.0, StepRate.h)。表に持ち、
+// R.TARGET で選んだ段のものを出す。RR の 4 つはリリースのもの (表の releaseStep)。
 //   Use Endl / ENDL
 //
 // 種類ごとに違うところ (見出し・鍵・値の範囲・補正ボタンなど) は Spec で渡す。
@@ -64,8 +70,14 @@ public:
         // 表の鍵とパラメータの頭 (CPK::ssgSwEnv256 など)。表は code + tableKey。
         juce::String tableKey;
 
-        // パラメータの鍵 (code の後ろ)
+        // パラメータの鍵 (code の後ろ)。PARAM ENV は STL / LR / ENDL を持たない (表の値の組にある)
         juce::String steps, keep, loop, loopTo, loopCount, loopMode, stl, lr, rr, endl, endlEnable;
+
+        // STRICT R (4.3.0)。入れると段もリリースも R 秒を守る。空なら置かない
+        juce::String strictRate;
+
+        // START NOW / T SYNC (4.3.0)。空なら置かない
+        juce::String startNow, tickSync;
 
         // 値の範囲。整数なら interval を 1 にする
         double rateMin = 0.0, rateMax = 1.0, rateInterval = 0.001;
@@ -134,6 +146,14 @@ public:
 
     // Curve を持たないプラグインは graph だけを渡す。
     void updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore = nullptr, bool isCurveMode = false, int posIdx = 0);
+
+    const Spec& getSpec() const { return spec; }
+
+    // PARAM ENV[256] の絵を、つまみを通さずにパラメータと表 (TARGET の組) から描く。
+    // 鳴っている位置の縦線も付ける (SETTINGS で入れているとき)。オペレーターの枠は
+    // TARGET で選んでいないものも描くので、部品を通さずにここから描く。
+    // code はチャンネルかオペレーター・パッドの頭 (OPNA / OPNA_OP0)
+    static void drawParamGraph(GuiEnvelopeGraph& graph, const GuiContext& ctx, const Spec& spec, const juce::String& code);
     void setEnabled(bool enabled);
 
     // 外から止められているか (鳴っていないオペレーターなど)。setEnabled で入る。
@@ -178,6 +198,9 @@ private:
 
     // 段ごとのレベルを斜めに繋がず、その段のあいだ保ち続ける。
     GuiToggleButton keep;
+    GuiToggleButton strictRate;
+    GuiToggleButton startNow;
+    GuiToggleButton tickSync;
     NormalSeparator keepSeparator;
     GuiToggleButton loop;
 
@@ -195,6 +218,13 @@ private:
     // RATE を動かすボタン。±0.001〜±1.0 と、0.001 / 0.01 / 0.1 / 1.0 を直に置くもの。
     // RATE の下限は 0.001 なので、「0」ではなく「0.001」を置く。
     GuiComponentValueButtons rateNudge;
+    // R.TARGET で選んだ段の進め方 (TIME / RATE)・変化量・1 刻みの時間 (秒と音符)
+    GuiComboBox rateMode;
+    GuiSlider delta;
+    GuiComponentValueButtons deltaBtns;
+    GuiSlider tick;
+    GuiComponentValueButtons tickBtns;
+    GuiComboBox tickNote;
     GuiStepValues rateValues;
     NormalSeparator rateSeparator;
 
@@ -216,6 +246,12 @@ private:
     // RR / LR を動かすボタン。RR は RATE と、LR は値 (LEVEL など) と同じ並び
     GuiComponentValueButtons releaseRateBtns;
     GuiComponentValueButtons releaseLevelBtns;
+
+    // リリースの進め方 (表の releaseStep)
+    GuiComboBox releaseMode;
+    GuiSlider releaseDelta;
+    GuiSlider releaseTick;
+    GuiComboBox releaseTickNote;
 
     NormalSeparator endLevelSeparator;
     GuiToggleButton endLevelEnable;
@@ -246,6 +282,7 @@ private:
     bool isAmp() const { return spec.kind == Spec::Kind::Amp; }
     bool isPitch() const { return spec.kind == Spec::Kind::Pitch; }
     bool isDuty() const { return spec.kind == Spec::Kind::Duty; }
+    bool isPeak() const { return spec.kind == Spec::Kind::Peak; }
     bool isAlg() const { return spec.kind == Spec::Kind::Alg; }
     bool isParam() const { return spec.kind == Spec::Kind::Param; }
 
@@ -269,10 +306,38 @@ private:
     void readLegacyTl(const Io::ParamReader& r);
 
     // LEVEL・LR・ENDL を決まった刻みへ丸める STEPS を持つもの
-    bool hasLevelSteps() const { return isAmp(); }
+    // DUTY / PEAK RATIO ENVELOPE にもある (4.3.0。範囲に対する 1/10・1/4・1/5・1/8・1/16)
+    bool hasLevelSteps() const { return isAmp() || isDuty() || isPeak(); }
 
     // KEEP の札を持つもの (ALG ENV は常に KEEP)
     bool hasKeep() const { return spec.keep.isNotEmpty(); }
+    bool hasStrictRate() const { return spec.strictRate.isNotEmpty(); }
+    bool hasStartNow() const { return spec.startNow.isNotEmpty(); }
+    bool hasTickSync() const { return spec.tickSync.isNotEmpty(); }
+
+    // 頭のトグルの並び (KEEP / STRICT R / START NOW / T SYNC) のどれかを持つか
+    bool hasHeadToggles() const { return hasKeep() || hasStrictRate() || hasStartNow() || hasTickSync(); }
+
+    // ---- 段の進め方 (4.3.0)
+    // 段 (1〜256) かリリース (StepTable::releaseStep) の進め方
+    StepRate::Step rateStepAt(int step) const;
+    void setRateStepAt(int step, const StepRate::Step& value);
+
+    // R.TARGET の段 (とリリース) の進め方を、つまみへ映す
+    void loadRateStep();
+
+    // 進め方のつまみが動いた。release ならリリースのもの
+    void onRateStepChanged(bool release);
+
+    // DELTA の範囲 (値の幅) と書き方。PARAM ENV は 0〜1 で、指し先の 1 刻み
+    void setDeltaRange();
+    std::vector<GuiComponentValueButtons::Entry> deltaButtonEntries() const;
+    static std::vector<GuiComponentValueButtons::Entry> tickButtonEntries();
+    bool isTickSync() const { return hasTickSync() && tickSync.getToggleState(); }
+
+    // 段の進め方をパラメータファイルへ出し入れする
+    void readRateSteps(const Io::ParamReader& r);
+    void writeRateSteps(Io::ParamWriter& w) const;
 
     // 0〜1 の値を少しずつ動かすボタン (ampBtns) を使うもの
     bool usesUnitButtons() const { return spec.kind == Spec::Kind::Amp || spec.kind == Spec::Kind::Peak; }
@@ -301,6 +366,24 @@ private:
     void rebindRate();
     void rebindLevel();
     void refreshStepValues();
+
+    // PARAM ENV の値の組 (いまの TARGET の値)。PARAM ENV でなければ -1
+    int levelSet() const;
+
+    // 値。slot の 0 は開始の値 (STL)、1〜256 は段、StepTable::setLr / setEndl は LR / ENDL
+    // (この 2 つは PARAM ENV だけ)。PARAM ENV は TARGET の組から、ほかは STL がパラメータ、段が表
+    float levelAt(int slot) const;
+    void setLevelAt(int slot, float value);
+    float levelDefault() const;
+
+    // PARAM ENV の LR / ENDL のつまみへ、TARGET の組の値を映す
+    void loadSetLevels();
+
+    // LR / ENDL のつまみが動いた。PARAM ENV なら TARGET の組へ書く
+    void onSetLevelChanged(GuiSlider& slider, int slot);
+
+    // LR / ENDL へ値を置く (ファイルを読むとき)。PARAM ENV は組へ直に書く
+    void putSetLevel(GuiSlider& slider, int slot, float value);
     void onRateChanged();
     void onLevelChanged();
     void changed();

@@ -67,14 +67,14 @@ void BrrCodec::process(std::vector<int16_t>& samples)
 {
     if (samples.empty()) return;
 
-    std::vector<int16_t> block(SnesBrr::samplesPerBlock);
-    std::vector<int16_t> best(SnesBrr::samplesPerBlock);
+    std::vector<int16_t> block(SfcBrr::samplesPerBlock);
+    std::vector<int16_t> best(SfcBrr::samplesPerBlock);
 
     int prev1 = 0;
     int prev2 = 0;
 
-    for (size_t pos = 0; pos < samples.size(); pos += SnesBrr::samplesPerBlock) {
-        int count = (int)std::min((size_t)SnesBrr::samplesPerBlock, samples.size() - pos);
+    for (size_t pos = 0; pos < samples.size(); pos += SfcBrr::samplesPerBlock) {
+        int count = (int)std::min((size_t)SfcBrr::samplesPerBlock, samples.size() - pos);
 
         double bestError = -1.0;
         int bestPrev1 = prev1;
@@ -82,11 +82,11 @@ void BrrCodec::process(std::vector<int16_t>& samples)
 
         // shift と filter の全組み合わせを試し、誤差が最小のものを採用する。
         // 実機のエンコーダも同じ考え方で総当りする。
-        for (int filter = 0; filter < SnesBrr::filterCount; ++filter) {
+        for (int filter = 0; filter < SfcBrr::filterCount; ++filter) {
             // 先頭ブロックは直前サンプルが無いので、予測なし(filter 0)しか使えない
             if (pos == 0 && filter != 0) continue;
 
-            for (int shift = 0; shift <= SnesBrr::maxShift; ++shift) {
+            for (int shift = 0; shift <= SfcBrr::maxShift; ++shift) {
                 double error = encodeBlock(&samples[pos], count, shift, filter, prev1, prev2, block.data());
 
                 if (bestError < 0.0 || error < bestError) {

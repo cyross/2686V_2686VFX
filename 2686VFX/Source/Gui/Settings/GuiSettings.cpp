@@ -622,6 +622,35 @@ void GuiSettings::setup()
         editorOf(ctx).setTooltipState(newState); // 即座に反映
         };
 
+    separatorLiveGraph.setupComponent(*this);
+
+    // グラフの、鳴っている位置を動かして見せるか (4.3.0)。見た目だけで、音は変わらない。
+    // 動かすときの速さ (FPS) も選ぶ。切っているあいだは速さを選べない
+    auto setupLive = [&](GuiToggleButton& toggle, GuiComboBox& selector, const I18n::Text& title, bool& live, int& fps) {
+        toggle.setup({ .parent = *this, .title = title, .font = toggleFont, .isReset = false });
+        toggle.setToggleState(live, juce::dontSendNotification);
+        toggle.setWantsKeyboardFocus(true);
+        toggle.setExplicitFocusOrder(++tabOrder);
+
+        std::vector<SelectItem> items;
+
+        for (int f : LiveGraph::fpsChoices) items.push_back({ .name = juce::String(f) + " FPS", .value = f });
+
+        selector.setup({ .parent = *this, .id = "", .title = SettingsGuiText::liveGraphFps, .items = items, .isReset = false });
+        selector.setSelectedId(LiveGraph::clampFps(fps), juce::dontSendNotification);
+        selector.setWantsKeyboardFocus(true);
+        selector.setExplicitFocusOrder(++tabOrder);
+        selector.setEnabledWithLabel(live);
+
+        toggle.onClick = [&toggle, &selector, &live] {
+            live = toggle.getToggleState();
+            selector.setEnabledWithLabel(live);
+            };
+        selector.onChange = [&selector, &fps] { fps = selector.getSelectedId(); };
+        };
+
+    setupLive(tapLiveToggle, tapLiveFpsSelector, SettingsGuiText::tapLiveGraph, pluginOf(ctx).tapLiveGraph, pluginOf(ctx).tapLiveFps);
+
     separator4.setupComponent(*this);
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
@@ -1025,6 +1054,18 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto rowTooltip = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
+    separatorLiveGraph.layoutComponent(sRect);
+
+    // 18-1. グラフの、鳴っている位置を動かして見せる (4.3.0)。同じ行に速さ (FPS)
+    for (auto [toggle, selector] : std::initializer_list<std::pair<GuiToggleButton*, GuiComboBox*>>{ { &tapLiveToggle, &tapLiveFpsSelector } }) {
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        toggle->setBounds(row.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+        row.removeFromLeft(SettingsGuiValue::Settings::PaddingWidth);
+        selector->label.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LiveFpsLabelWidth));
+        selector->setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LiveFpsSelectorWidth));
+    }
+
     separator4.layoutComponent(sRect);
 
     // 21. Virtual Keyboard Row
@@ -1085,6 +1126,9 @@ void GuiSettings::setSettings()
     }
 
     tooltipToggle.setToggleState(pluginOf(ctx).showTooltips, juce::dontSendNotification);
+    tapLiveToggle.setToggleState(pluginOf(ctx).tapLiveGraph, juce::dontSendNotification);
+    tapLiveFpsSelector.setSelectedId(LiveGraph::clampFps(pluginOf(ctx).tapLiveFps), juce::dontSendNotification);
+    tapLiveFpsSelector.setEnabledWithLabel(pluginOf(ctx).tapLiveGraph);
     virtualMidiKeyboardToggle.setToggleState(pluginOf(ctx).showVirtualKeyboard, juce::dontSendNotification);
 }
 

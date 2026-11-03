@@ -287,11 +287,11 @@ public:
 private:
 	// 並べる順番。色数の少ないものから。
 	static inline const std::vector<RetroPalette::Machine> machines = {
-		RetroPalette::Machine::Pc8801,
-		RetroPalette::Machine::PcEngine,
-		RetroPalette::Machine::MegaDrive,
-		RetroPalette::Machine::Pc9801,
-		RetroPalette::Machine::X68000,
+		RetroPalette::Machine::Pc88,
+		RetroPalette::Machine::Pce,
+		RetroPalette::Machine::Md,
+		RetroPalette::Machine::Pc98,
+		RetroPalette::Machine::X68k,
 	};
 
 	void setPalette(RetroPalette::Machine machine)

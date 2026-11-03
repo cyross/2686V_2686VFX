@@ -13,6 +13,14 @@ void SynthVoice::prepare(double sampleRate) {
     m_wtPlusCore.prepare(sampleRate);
 }
 
+void SynthVoice::reserveBlock(int samplesPerBlock)
+{
+    const auto n = (size_t)juce::jmax(0, samplesPerBlock);
+
+    if (m_tapKeepL.size() < n) m_tapKeepL.resize(n);
+    if (m_tapKeepR.size() < n) m_tapKeepR.resize(n);
+}
+
 void SynthVoice::setParameters(const SynthParams& params)
 {
     m_mode = params.mode;
@@ -26,6 +34,15 @@ void SynthVoice::setParameters(const SynthParams& params)
     // 音源を切り替えた直後でも、新しいコアは鳴る前に必ず最新の値を受け取る。
     // 各コアの setParameters は代入と派生値の作り直しだけで、値を溜め込まない
     // (refreshPcmBuffer や updatePhaseDelta も、そのとき持っている値から作り直すだけ)。
+    //
+    // 鳴っていないボイスへも配ると、ボイスの数 (ユニゾン込みで 80) だけ値の写しと
+    // 派生値の作り直しが毎ブロック走る。PARAM ENV / TAP PARAM SEQUENCER を一度でも
+    // 使ったボイスは、さらに値の丸ごとのコピーと読み直しまで続ける。鳴っていない
+    // ボイスには配らず、押したとき (startNote の頭) に最新の値を配る (4.3.0)。
+    m_latestParams = &params;
+
+    if (!isVoiceActive()) return;
+
     if (auto* core = activeCore()) core->setParameters(params);
 }
 
@@ -35,6 +52,9 @@ void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*
     auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNote);
 
     auto* core = activeCore();
+
+    // 鳴っていないあいだに配られた値を、押す前に渡す
+    if (m_latestParams != nullptr) core->setParameters(*m_latestParams);
 
     // 再生遅延は 1 音ごとに数え直す
     core->setDelaySampleRate(getSampleRate());

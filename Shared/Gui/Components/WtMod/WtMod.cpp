@@ -31,7 +31,7 @@ static std::vector<SelectItem> wtModShapeItems = {
     {.name = "4: FDS Pulse",       .value = 5 },
     {.name = "5: WS Sweep Up",     .value = 6 },
     {.name = "6: WS Sweep Down",   .value = 7 },
-    {.name = "7: HuC6280 Wave",    .value = 8 },
+    {.name = "7: PCE Wave",    .value = 8 },
     {.name = "8: FDS Table",       .value = 9 },
 };
 
@@ -650,7 +650,7 @@ void GuiComponentWtMod::updateModPreview()
     // 読み込み中は溜めておき、読み終えてから 1 度だけ作り直す
     if (GuiRefresh::defer(this, [this] { updateModPreview(); })) return;
 
-    // HuC6280 モードで使う 32 サンプル。実データはプロセッサが持つ。
+    // PCE モードで使う 32 サンプル。実データはプロセッサが持つ。
     std::array<float, Global::WtMod::waveSize> wave = { 0.0f };
 
     auto it = ctx.audioProcessor.modWaveSlots.find(m_code);

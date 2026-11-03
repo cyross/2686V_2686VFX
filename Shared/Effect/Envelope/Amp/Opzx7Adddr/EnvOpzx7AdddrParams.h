@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Shared/Core/Synth/LivePosition.h"
+
 #include "../../../KeyScale/Ma7/KSMa7Params.h"
 #include "../../../KeyScale/Opz/KSOpzParams.h"
 #include "../../../KeyScale/Ops/KSOpsParams.h"
@@ -32,6 +34,9 @@ struct Opzx7RgAdssrParams
 
 struct Opzx7AdddrParams
 {
+	// 鳴っている位置を書く先 (グラフの縦線。4.3.0)。nullptr なら書かない
+	LivePosition* live = nullptr;
+
 	bool rgEnable = false;
 	Opzx7RealAdssrParams real;
 	Opzx7RgAdssrParams rg;

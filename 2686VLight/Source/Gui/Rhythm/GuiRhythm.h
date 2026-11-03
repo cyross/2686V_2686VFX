@@ -12,6 +12,7 @@
 #include <array>
 
 #include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiGroupFolds.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiContext.h"
 #include "Shared/Core/Gui/GuiEnvelopeGraph.h"
@@ -66,8 +67,12 @@ class RhythmPadGui: public GuiBase
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg256;
     GuiToggleButton graphBtnSsgP256;
+    GuiToggleButton graphBtnParam;
 
     GuiEnvGraphMode currentGraphMode = GuiEnvGraphMode::Amp;
+
+    // 枠の幅の畳み (4.3.0)。見出しを押すと幅が 30px になる
+    GuiGroupFolds groupFolds{ ctx, GuiGroupFoldKey::rhythm };
 
     // 札を押したときに、絵をまとめて切り替えてもらう。
     void setGraphMode(GuiEnvGraphMode mode);
@@ -95,8 +100,9 @@ private:
     GuiScrollGroup colSsgSwPEnv256;
     GuiScrollGroup colMod;
     GuiScrollGroup colLfo;
-    GuiScrollGroup colMulDet;
+    GuiScrollGroup colParamEnv;
     GuiScrollGroup colTapParam;
+    GuiScrollGroup colEdit;
 
     GuiLabel fileNameLabel;
     GuiTextButton loadButton;
@@ -141,8 +147,7 @@ private:
 
     QualityPcm qualityPcmComponent;
 
-    // パッド 1 つぶんの EDIT 区分 (QUALITY の下)。RHYTHM には MASK が無いので、
-    // FORM / PAN / QUALITY の列の最後に置く。
+    // パッド 1 つぶんの EDIT 区分。区分の並びの一番右に、独立した列で置く。
     GuiComponentUnitEdit padEditComponent;
 
     GuiCategoryLabel panCat;
@@ -190,6 +195,9 @@ private:
     GuiComponentSsgSwEnv256 ssgSwEnv256Component;
     GuiComponentSsgSwPEnv256 ssgSwPEnv256Component;
 
+    // PARAM ENV[256] (パッド)。そのパッドのパラメータを段ごとに動かす
+    GuiComponentParamEnv paramEnvComponent;
+
     // TAP PARAM SEQUENCER (パッド)。そのパッドのパラメータを打鍵ごとに置き換える
     GuiComponentTapParam tapParamComponent;
 
@@ -220,6 +228,7 @@ public:
         graphBtnPitch(context),
         graphBtnSsg256(context),
         graphBtnSsgP256(context),
+        graphBtnParam(context),
         colForm(context),
         colOptional(context),
         colAmpEnv(context),
@@ -231,8 +240,9 @@ public:
         colSsgSwPEnv256(context),
         colMod(context),
         colLfo(context),
-        colMulDet(context),
+        colParamEnv(context),
         colTapParam(context),
+        colEdit(context),
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
@@ -281,6 +291,7 @@ public:
         pitchEnvComponent(context),
         ssgSwEnv256Component(context),
         ssgSwPEnv256Component(context),
+        paramEnvComponent(context, GuiComponentParamEnv::padSpec(ParamModCatalog::rhythm())),
         tapParamComponent(context, ParamModCatalog::rhythm(), true),
         mulDetuneComponent(context),
         lfoComponent(context),
@@ -303,6 +314,9 @@ public:
 
     // TARGET のつまみ。鍵で動かすために外から触れるようにしてある。
     GuiSlider& targetSlider() { return padTarget; }
+
+    // PARAM ENV[256] (パッド) の形。グラフを描くときに使う
+    const GuiComponentStepEnv::Spec& paramEnvSpec() const { return paramEnvComponent.getSpec(); }
 
     // TARGET の値 (1 から数える)。
     double getTargetValue() const { return padTarget.getValue(); }

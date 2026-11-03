@@ -10,8 +10,8 @@ The "2686V" family is made up of the following plugins.
 
 - **2686V**: my dream ultimate retro sound VST plugin. Everything is in here.
 - **2686VLight**: a lightweight version of 2686V
-- **26V**: 2686VLight brought closer to the "PC-9801-26(K)" configuration
-- **86V**: 2686VLight brought closer to the "PC-9801-86" configuration
+- **26V**: 2686VLight brought closer to the "26" configuration
+- **86V**: 2686VLight brought closer to the "86" configuration
 - **OPNV**: the OPN-family channels lifted out of 2686V
 - **OPLV**: the OPL-family channels lifted out of 2686V
 - **OPMV**: the OPM-family channels lifted out of 2686V
@@ -23,7 +23,7 @@ The "2686V" family is made up of the following plugins.
 
 ## 2. Purpose
 
-I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26" or a "PC-9801-86", and nothing out there met my standards. So I set out to build a plugin... or at least, that was the plan...
+I wanted to write tracks in my DAW that sounded like they came off a "26" or a "86", and nothing out there met my standards. So I set out to build a plugin... or at least, that was the plan...
 
 *The original goal was met in v3.0.0.*
 
@@ -42,13 +42,30 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **New column order for FM operators**
   - The KEY SCALE / MUL/DET column (with FIX and LFO) now sits right next to the AMP ENV / OPTIONAL column. On OPZX7 it comes before the WAVEFORM column
   - OPNA / OPN / OPL / OPL3 / OPM / OPZX7. Every plugin with FM channels
+- **New column order for RHYTHM pads (laid out like FM operators)**
+  - MUL/DET and FIX moved below OPTIONAL, in the same column. The column is now called "OPTIONAL / MUL/DET / FIX"
+  - To its right come the pad's "PARAM ENV" column (see PARAM ENV[256] below) and its "TAP PARAM SEQUENCER" column
+  - The pad's EDIT section left the OPTIONAL column and now has its own "EDIT" column at the far right
+  - The order is FORM / PAN / QUALITY → OPTIONAL / MUL/DET / FIX → PARAM ENV → TAP PARAM SEQUENCER → AMP ENV → … → LFO → EDIT
+  - Plugins with RHYTHM (2686V, 2686VLight, 86V, PCMV)
+- **The groups laid out side by side can be folded to a narrow width (accordion)**
+  - Click a group's name (its title) and the group shrinks to 30 px wide. The title turns into a grey strip written vertically, and the contents are hidden. Click it again to get the full width back
+  - Added **<>** (open all groups) and **><** (fold all groups). On FM chips and RHYTHM they sit a little to the right of the operator / pad graph switches (AMP / PIT / S256 / P256 / PRM); in 2686VFX they sit a little to the left of CPHIST at the top of the window. **<>** is dark green and **><** dark blue, both with off-white text
+  - Which groups are folded is saved in the preset and the DAW state (2686VFX has no presets, so only in the DAW state). Right after opening, every foldable group starts folded. Older presets without fold information also open with every group folded
+  - FM operator columns (OPNA / OPN / OPL / OPL3 / OPM / OPZX7), RHYTHM pad columns, and the effect and modulation groups of 2686VFX. In 2686VFX two or three effects are stacked in one column, so the column only becomes 30 px wide once all of its groups are folded. The main group does not fold
+  - Plugins with an FM chip or RHYTHM, and 2686VFX
+- **Things under the mouse change colour**
+  - The titles of sections that open and close on a click, and the titles of foldable groups, turn pinkish while the mouse is over them. The vertical strip of a folded group turns light yellow
+  - The panel behind the contents of the section under the mouse gets a little lighter. Inside a major section, only the minor section under the mouse lights up
+  - Text buttons, combo boxes, toggle buttons, sliders and text editors change their fill and border colour while the mouse is over them. How they change depends on the colour (dark colours get lighter, light colours a little darker, see-through colours a little more solid). On toggle buttons it is the square's frame and the lamp inside; on sliders, the bar and the value box
+  - All plugins (including 2686VFX)
 - **Alt key for slider dragging**
   - While dragging a label, or the bar of a graph's zoom slider, holding **Alt** aligns the value to steps of 100. Sliders whose range is narrower than 100 are left alone
   - All plugins (including 2686VFX)
 - **"TAP PARAM SEQUENCER" added to [[TAP SEQUENCER]]**
   - Each key press advances one step and replaces parameters with the (parameter, value) pairs stored in that step, for the length of that note
   - As an extension of our own, one step holds up to 16 pairs
-  - There is one per channel (inside [[TAP SEQUENCER]], choosing channel parameters) and one per FM operator and per RHYTHM pad (the "TAP PARAM SEQUENCER" column of the operator / pad settings, right of KEY SCALE / MUL/DET, or of MUL/DET / FIX on RHYTHM, choosing that operator's or pad's parameters). Each advances on its own with every key press
+  - There is one per channel (inside [[TAP SEQUENCER]], choosing channel parameters) and one per FM operator and per RHYTHM pad (the "TAP PARAM SEQUENCER" column of the operator / pad settings, right of PARAM ENV on both FM chips and RHYTHM, choosing that operator's or pad's parameters). Each advances on its own with every key press
   - Parameters you can choose: the numeric parameters of FM operators (TL / AR / DR / SR / SL / RR / KS / MUL / DT; OPM's D1R / D1L / D2R, DT2 and KSR / KSL; OPL / OPL3's KSL, EG and LFO; OPZX7's real-valued envelope, KS details, DT2 / DT3, WS, PCM SPEED and LFO, and so on) and FIX frequency, the channel's ALG / FB (FB OP1-8 on OPZX7), the WT PITCH MOD / WT AMP MOD waveform and speed, the WT+ waveform, the ADPCM+ voice (slot), SSG duty (PRESET / variable) and triangle peak, FIX frequency, and the various frequencies and speeds (LFO FREQ, SSG HW ENV / SSG HW PITCH ENV period, noise frequency, triangle frequency, SPEED, TIMER CLOCK, ARP FREQ and so on). On/off toggles are not offered
   - Steps advance exactly as in TAP AMP / PITCH SEQUENCER (LOOP, SKIP, INCREMENT / DECREMENT / CLEAR STEP; one step per key press; stopping DAW playback returns to before the start)
   - Pick the step with S.TARGET and the pair with **P.TARGET**, then set it with **PARAM** / **VALUE**. **ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** add and remove pairs. Values are shown the way the target parameter shows them, and the MIN / -1 / +1 / MAX buttons move them
@@ -58,19 +75,112 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - Every channel. All plugins except 2686VFX
 - **"PARAM ENV[256]" added; TL ENV is now part of it**
   - The same 256-step envelope as SSG SW AMP ENV[256], driving the parameter chosen with **TARGET**. The choice of parameters is the same as TAP PARAM SEQUENCER
-  - One per channel (the new [[PARAM ENV]] major section, above [[TAP SEQUENCER]]). FM channels also have one per operator (just below the AMP ENV section, where TL ENV used to be). The RHYTHM channel's PARAM ENV can also point at pad parameters
-  - Values are kept as a fraction of the target parameter's range and shown the way the target shows them (0-127 for TL, and so on). Changing TARGET keeps each value as "where in the range"
+  - One per channel (the new [[PARAM ENV]] major section, above [[TAP SEQUENCER]]). FM channels also have one per operator (in its own "PARAM ENV" column of the settings, right of KEY SCALE / MUL/DET / FIX). RHYTHM also has one per pad (the "PARAM ENV" column of the pad settings, right of OPTIONAL / MUL/DET / FIX, choosing that pad's parameters). The RHYTHM channel's PARAM ENV can still point at pad parameters too
+  - Values are kept as a fraction of the target parameter's range and shown the way the target shows them (0-127 for TL, and so on)
+  - The values (STL, L1-L256, LR, ENDL) are **kept separately for each TARGET**. Changing TARGET switches to that target's values (which start at the target parameter's default). R, STEP, LOOP, RR, Use Endl and KEEP are shared by every TARGET. The values of every TARGET are saved; a section parameter file holds the values of the current TARGET
+  - Parameters that are set at key-on (MUL, DT, FIX FREQ and so on) also change with each step while the note plays, whatever LIVE DETUNE in SETTINGS says
   - Integer and choice parameters hold their value through each step whatever KEEP says. Real-valued parameters glide between steps when KEEP is off
   - STEP, LOOP (with LOOP MODE), RR / LR and Use Endl / ENDL work as in SSG SW AMP ENV[256]. The buttons below the value slider are MIN / -10% / -1 / +1 / +10% / MAX (±1 is one step of the target)
+  - With STEP at 1, R.TARGET is disabled (there is no step to choose). The same goes for sections of the same shape (SSG SW AMP / PITCH ENV[256], ALG ENV and so on). S.TARGET in TAP SEQUENCER (with STEPS at 1), P.TARGET in TAP PARAM SEQUENCER (with one pair or none) and LP.TARGET in Rich Mode (with one set) are disabled the same way
   - TARGET can be automated
   - **TL ENV on FM operators became PARAM ENV with TARGET set to TL**. Presets, DAW state, channel parameters and section parameter files (`.tlEnv`) from 4.2.x and earlier are converted to PARAM ENV when loaded, and sound the same
-  - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again
+  - The parameter IDs changed from `_TLENV_*` to `_PRMENV_*`. If you automated TL ENV in your DAW, assign the automation again. STL, the step values, LR and ENDL are now kept per TARGET, so they are no longer parameters and cannot be automated (there is nothing to re-assign them to)
   - Saved in presets, DAW state and channel parameters (`paramEnv`). The section's parameter file is `.paramEnv` (right-click the heading)
   - Hidden in simple view mode. "PARAM ENV[256]" was added to the simple view customization in SETTINGS, and [Bypass hidden sections] turns it off too
-  - Every channel and every FM operator. All plugins except 2686VFX
+  - Every channel, every FM operator and every RHYTHM pad. All plugins except 2686VFX
+- **Graphs can show where the sound is playing**
+  - TAP SEQUENCER (TAP AMP / PITCH / PARAM SEQUENCER) moves the current-step mark (the bar and list highlight) as you play
+  - PARAM ENV[256] shows where it is playing as a yellow vertical line on the graph. It follows the most recent note, moves into the release when you let go, and disappears when the note ends
+  - The graph's AMP / PIT / S256 / P256 views show the same yellow line: AMP ENV, PITCH ENV and SSG SW AMP / PITCH ENV[256] (channel, operator and pad), and the FM operator EG (AR / DR / SR / SL / RR). Within a part, volume envelopes (AMP ENV, EG) place it by the current level and the others by the time elapsed
+  - SETTINGS gains "Move the current TAP SEQUENCER step as you play", "Show where PARAM ENV[256] is playing on the graph" and "Show where AMP / PITCH ENV, SSG SW ENV and EG are playing on the graph". All start on. On the same row you choose the rate from 15 / 30 / 60 / 120 FPS (30 FPS to start). When off, nothing moves and the display only updates when values change. It only affects the display, not the sound
+  - The channel graph switch and the FM operator graph switch gain **PRM** (PARAM ENV[256]). The values drawn are those of the current TARGET, and the title shows the target's name. Integer and choice targets are drawn holding each step. RHYTHM gains it on the pad graph switch (it draws the pad's PARAM ENV)
+  - Notes played to compute the waveform previews are not shown
+  - Every plugin (2686VFX only has the TAP SEQUENCER setting)
+- **Step envelopes gain STRICT R (a step with the same value as the one before is held for R seconds)**
+  - A step ends when it reaches its target value, so a step with the same value as the previous one ends without waiting R seconds and the later steps come early. KEEP behaves the same way. The release also moves on to ENDL without waiting RR when LR equals the last step's value
+  - Turn on **STRICT R** (below KEEP) to end each step after R seconds and the release after RR seconds
+  - It is off by default, so existing patches sound the same. With a curve on, steps already end after R seconds
+  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE, one per section. Saved in channel parameters, the section parameter file (`strictRate`), presets and the DAW state. Automation IDs are `_SSGSW256_STRICT_R` / `_SSGSWP256_STRICT_R` / `_PRMENV_STRICT_R` / `_ALGENV_STRICT_R` / `_DUTYENV_STRICT_R` / `_PEAKENV_STRICT_R`
+  - Every plugin except 2686VFX
+- **Step envelopes can move by a fixed amount (RATE steps), and gain START NOW and T SYNC**
+  - A step moves from its starting value to L in R seconds, so the same R moves at a different speed when the starting value differs. Each step now has a **MODE** (TIME / RATE); the **MODE** / **DELTA** / **TICK** / **TICK NOTE** of the step chosen with R.TARGET can be edited
+  - A **RATE** step moves toward L by DELTA and ends on reaching L or after R seconds (it never overshoots; with R at its minimum (0.001) the time never cuts it short; when cut short, the next step starts from where it stopped). With TICK at 0 it moves smoothly, DELTA per second; above 0 it moves DELTA every TICK seconds after the step begins (not at the moment it begins). A step with DELTA at 0 that is never cut short stays there until release
+  - The release has the same choice in **RR MODE** / **RR DELTA** / **RR TICK** / **RR NOTE** (RR is the time limit). A release with RR DELTA at 0 heads for LR in RR seconds as with TIME
+  - **START NOW**: if the envelope is still running at key-on (during the release, when legato restarts the pitch envelope, when a voice is stolen and so on), start from the current value instead of STL. PARAM ENV starts a stopped voice from the target knob's current value
+  - **T SYNC**: take a RATE step's tick from **TICK NOTE** (LINEAR / 1/1–1/64, dotted and triplet) instead of TICK (seconds). It follows the host tempo and picks up a change from the next tick; without a tempo (Standalone and so on) it uses 120 BPM
+  - Curves do not apply to RATE steps. KEEP works as before. STRICT R only affects TIME steps. In the R strip, a RATE step is labelled D and shows its DELTA
+  - The graph (parameter graph) walks the steps from STL and works out each length and end value with the same formula as the sound. Ticks are drawn as stairs, and a step that never moves and is never cut short is drawn dashed. With START NOW, STL is drawn as a hollow circle (PARAM ENV is drawn from the knob's current value). When T SYNC note ticks are in use, the tempo used is shown at the top right. Their COLORS tab names are EnvelopeGraph.TempoText / EnvelopeGraph.MarkerFill
+  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE. Each step's MODE / DELTA / TICK / TICK NOTE and the release's are kept in the step table (not automatable) and saved in presets, the DAW state, channel parameters and the section parameter file (`rateModes` / `deltas` / `tickSecs` / `tickNotes` / `releaseMode` and so on). START NOW / T SYNC are parameters of each section (`startNow` / `tickSync`). Automation IDs are `_SSGSW256_START_NOW` / `_SSGSW256_TSYNC` / `_SSGSWP256_START_NOW` / `_SSGSWP256_TSYNC` / `_PRMENV_START_NOW` / `_PRMENV_TSYNC` / `_ALGENV_START_NOW` / `_ALGENV_TSYNC` / `_DUTYENV_START_NOW` / `_DUTYENV_TSYNC` / `_PEAKENV_START_NOW` / `_PEAKENV_TSYNC`
+  - Everything starts as TIME, with START NOW and T SYNC off, so existing patches sound the same
+  - Every plugin except 2686VFX
+- **The sustain part of the graphs stands out**
+  - On the AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] graphs, the part held while the key is down (the sustain) is drawn with a fixed width in its own colour (yellow-green)
+  - The step envelopes (SSG SW AMP / PITCH ENV[256] and PARAM ENV[256]) had no sustain part and drew the release right after the last step. They now show it where the last step is held (without a loop, or after a counted loop ends)
+  - With KEEP (always on for integer and choice PARAM ENV targets) the release was flattened too, so the move to LR at its end was missing. The graph now draws the move to LR (ENDL with Use Endl) at the end of the release
+  - While the envelope is held (sustain), the playing position is shown by filling the whole sustain part in translucent yellow instead of a line (COLORS tab name: EnvelopeGraph.LiveFill)
+  - Its COLORS tab name is EnvelopeGraph.SustainLine. The FM operator EG graphs (AR / DR / SR / SL / RR) are unchanged
+  - Every plugin
+- **New section heading colours**
+  - TAP AMP SEQUENCER is now cyan and TAP PITCH SEQUENCER whitish purple (the other way round from before)
+  - PARAM ENV[256] and TAP PARAM SEQUENCER are whitish dark blue
+  - They can be changed in the COLORS tab as Category.TapAmpBg / Category.TapPitchBg / Category.ParamBg. On the graph, the PARAM ENV line is EnvelopeGraph.ParamLine and the playing-position line is EnvelopeGraph.LiveLine
+  - Every plugin (2686VFX only has TAP AMP / PITCH SEQUENCER)
+- **The manual and the tutorials now live on separate sites**
+  - The manual moved to https://cyross.github.io/2686V-v4-Manual/en/ and the tutorials to https://cyross.github.io/2686V-v4-Tutrial/en/ . Each is managed in its own repository
+  - Tutorial pages that teach the controls while you build sounds will be added over time. They can embed videos (.mp4 / .webm) and animated pictures (.gif)
+  - The User's manual button on the ABOUT tab opens the new manual (Japanese or English, following the language in SETTINGS)
+  - The old https://cyross.github.io/2686V_2686VFX/ is no longer updated
+  - Every plugin
+- **The SSG gains more chip-accurate modes (More Real SSG, More Real FC for triangle and noise)**
+  - The pulse settings gain **More Real SSG**, which mimics the SSG (YM2203 / YM2608B): the duty cycle is fixed at 50% (the DUTY settings are dimmed and have no effect), the output swings only upwards from 0, a DC cut at about 30 Hz adds the sag and the "click" when the volume jumps, volume goes through the SSG's logarithmic table (whatever CHIP DAC says), and tone and noise are combined with a logical AND (MIX 0 is tone only, 1 noise only, 0.5 the AND). It is exclusive with FC Mode / More Real FC / More Real NES
+  - The triangle settings gain **More Real FC**, which mimics the 2A03 triangle (a 4-bit × 32-step staircase, the 11-bit timer pitch, the triangle/noise DAC curve and a 37 Hz high-pass). PEAK and PEAK RATIO ENVELOPE are dimmed and have no effect
+  - The lower half of the pulse / triangle group is now the **NOISE** group, with **More Real FC**: the 2A03 noise (the long mode of a 15-bit LFSR, 32,767 steps, rates from the 16-entry table, and a 37 Hz high-pass). As on the early FC, there is no short mode
+  - All of them start off, so existing sounds don't change. Saved in channel parameters, presets and DAW state. Automation: `SSG_DUTY_MORE_SSG` / `SSG_TRI_MORE_FC` / `SSG_NOISE_MORE_FC`
+  - Plugins with SSG (2686V, 2686VLight, 26V, 86V, PULSEV)
+- **STEPS for DUTY RATIO ENVELOPE and PEAK RATIO ENVELOPE**
+  - A **STEPS** selector sits under the value knob and snaps the values (STL, the step values, LR, ENDL) to fixed steps: Free, 1/10, 1/4, 1/5, 1/8 or 1/16
+  - The steps follow the range: DUTY RATIO ENVELOPE (0–100%) uses 10% / 25% / 20% / 12.5% / 6.25%, PEAK RATIO ENVELOPE (0–1) uses 0.1 / 0.25 / 0.2 / 0.125 / 0.0625
+  - The choice is only on screen and isn't saved (as with the STEPS of SSG SW AMP ENV[256] and the like)
+  - Plugins with SSG (2686V, 2686VLight, 26V, 86V, PULSEV)
 - **ADPCM+ now keeps every loaded slot encoded**
   - Changing VOICE with TAP PARAM SEQUENCER / PARAM ENV can play slots other than the selected one. Every loaded slot is encoded again when QUALITY changes
   - Plugins with ADPCM+ (2686V / 2686VLight / PCMV)
+- **Machine and part names are now written as short forms**
+  - The screens, the manual and this readme now use short forms such as FC, PCE, MD, 98, 88, X68K, 26 and 86 for machine and part names. This covers the real-machine palettes of the COLORS tab, the machine choice of QUALITY (MSX is split into 2413 and TR), "7: PCE Wave" of WT PITCH / AMP MOD, "15: SFC BRR", "19: Z280", "20: K53" and "21: K54" of the QUALITY(PCM) BIT, "PCAT" and "98" of the BEEP TIMER CLOCK, and so on
+  - Only the names change. The sound, the parameter IDs and the saved format stay the same, so existing presets and DAW states load as before
+  - The titles in the references are left as they are
+  - Every plugin
+
+- **Step table edits can now be undone and redone**
+  - The PARAM ENV[256] STL, step values, LR and ENDL (the per-TARGET values) are not parameters, so until now Undo did not bring them back and the DAW was not told they had changed (the project was not marked as unsaved). An edit now becomes one Undo step and the DAW is notified
+  - The same goes for everything else kept in the step tables: the step R / L of SSG SW AMP / PITCH ENV[256], ALG ENV and DUTY / PEAK RATIO ENVELOPE, the TAP SEQUENCER steps and SKIP, the TAP PARAM SEQUENCER pairs and the step loop sets
+  - Dragging in a graph becomes one step when the mouse button is released. Operations that also change parameters, such as pasting a section, are undone together in one Undo
+  - Loading a preset or a DAW state is not put on the Undo history
+  - Every plugin
+- **Fixed problems found in review**
+  - The SSG channel parameter export and import did not include More Real SSG or the triangle and noise More Real FC, so the settings were lost after exporting and importing again. Older files do not have them, so they are read as off (plugins with SSG)
+  - Turning More Real SSG on or off did not update the dimming of the DUTY settings (plugins with SSG)
+  - Copying and pasting a channel, operator or category did not copy the PARAM ENV[256] STL, step values, LR and ENDL (the per-TARGET values) or the TAP PARAM SEQUENCER pairs (every plugin)
+  - The vertical line in the graphs stayed on screen after a voice finished, or after the PARAM ENV TARGET or ENABLE was changed while a note played. The line is now removed once its position stops being written (every plugin)
+  - The section and progress of the graph's vertical line are now read and written together. On ARM64 a new section could be read with an old progress, and the line jumped for a moment (every plugin)
+  - With any PARAM ENV TARGET, MUL / DET / FIX changed while notes played even when SETTINGS "Apply MUL/DET and FIX while notes play" was off. The frequency is now re-read while notes play only when the PARAM ENV points at MUL, DT, FIX FREQ or SPEED (every plugin)
+  - The noise More Real FC could not reach the four fastest 2A03 rates (period 4 to 32). The N.FREQ range is now stretched up to the fastest rate, so all 16 rates can be reached (plugins with SSG)
+  - The DAW could crash when it loaded a state on another thread at the same time as the editor was opened or closed (including when a tab is rebuilt after switching the language). Group folds are now re-applied by checking how many times the state has been loaded, instead of listening to the state (every plugin)
+  - After the PRESET tab's initialise or RESET, the small graphs of FM operators and RHYTHM pads that TARGET was not pointing at were not redrawn, so they looked uninitialised until TARGET pointed at them. The values themselves had been reset. The window is now laid out again after initialising, which redraws every graph (plugins with FM chips or RHYTHM)
+- **Lighter sound engine calculations (the sound does not change)**
+  - When LFO PM is off, the pitch ratio calculation (pow) is skipped. SSG, WT, WT2, WT+, ADPCM, ADPCM+, BEEP and the RHYTHM pads
+  - Choosing a rate from the 16 2A03 rates for the noise More Real FC now takes one log instead of 16
+  - When PARAM ENV points at something other than MUL, DT, FIX FREQ or SPEED, the frequency is no longer rebuilt while notes play (the same change as the LIVE DETUNE fix above)
+  - Voices that are not playing no longer receive the sound parameters every block; the latest values are handed over when a key is pressed. A voice that had once used PARAM ENV / TAP PARAM SEQUENCER kept copying and re-reading all values after it finished (up to 80 voices with unison)
+  - The OPNA and OPN LFO PM ratio (pow) is computed once per sample instead of once per operator
+  - The unison gain compensation (sqrt) is computed once when its value is set instead of every sample
+  - The TAP AMP SEQUENCER work buffer is allocated when playback is prepared instead of on the audio thread
+- **Lighter screen drawing (the look does not change)**
+  - Hit-testing for the category backdrops now runs once per mouse movement instead of once per backdrop. Backdrops in hidden tabs or folded frames are skipped, and nothing is searched while a knob is being dragged
+  - Frame title widths are measured only when the text changes (they were measured on every mouse move). When a title changes colour, only the title band is redrawn instead of the whole frame
+  - The large TARGET frame copies and redraws only when its source changes (it redrew 10 times a second even when nothing happened)
+  - Graphs and TAP SEQUENCER / TAP PARAM SEQUENCER in hidden tabs or closed sections no longer read the play position. When only the current step moves, the TAP views move just the marker (they rebuilt the text of every step)
+  - The real-time waveforms are not redrawn when they are the same as before (no sound)
 
 ### 3-0-2. What v4.2.0 adds and changes
 
@@ -152,7 +262,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - The channel-wide LEVEL, STEPS and DELAY, which had no heading, now sit under "UNCATEGORIZED". It can be folded and starts open
   - Every channel. 2686VFX's output LEVEL is unchanged
 - **SSG: "More Real FC" and "More Real NES" for the pulse wave**
-  - Below FC FLUC in the pulse (duty) settings. They mimic the Famicom / NES (2A03) pulse channel (unrelated to FC FLUC)
+  - Below FC FLUC in the pulse (duty) settings. They mimic the FC / NES (2A03) pulse channel (unrelated to FC FLUC)
   - The duty snaps to the chip's 12.5 / 25 / 50 / 75%, the pitch to the 11-bit timer and the volume to 16 steps through the DAC curve. The output filter is a 37 Hz high-pass for FC, and 90 Hz / 440 Hz high-passes plus a 14 kHz low-pass for NES
   - Only one of FC Mode, More Real FC and More Real NES can be on (all off is fine). Off by default, so existing sounds are unchanged
   - Saved in parameter files and presets (`dutyMoreFc` / `dutyMoreNes`)
@@ -247,7 +357,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - OP8's colour is lighter, and the diagram is shorter
 - **QUALITY gains a "DAC" row**
   - In non-PCM and PCM QUALITY, and in the 2686VFX PCM Bit Crusher
-  - Pick a machine (98/88, MSX, X68K, FC, SFC, PCE, MD, GB, TOWNS, PS1) and press Apply to set BIT, RATE and INTERP in one go
+  - Pick a machine (98/88, 2413, TR, X68K, FC, SFC, PCE, MD, GB, TOWNS, PS1) and press Apply to set BIT, RATE and INTERP in one go
   - The machine you pick is not saved to presets or channel parameter files
 - **2686VFX: noise reduction**
   - The gate and high cut from the instruments' QUALITY(PCM) are now an effect of their own, "Noise reduction" (RATE sets where the LPF cuts)
@@ -269,7 +379,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - On AMP ENV's SL, SSG HW AMP ENV's MIN / MAX, SSG SW AMP ENV's L1–L6, SSG SW AMP ENV[11]'s L1–L11 and ENDL, WT PITCH MOD's DEPTH (steps below 0.1 go to 0.1) and WT AMP MOD's DEPTH, on every channel, operator and pad
   - Screen only, not saved; it starts at Free, so existing sounds do not change
 - **Show the FM envelope and TL the N88-BASIC(86) way**
-  - SETTINGS has "Show some FM parameters as in PC-9801 N88-BASIC(86)" (off by default), below "Apply MUL/DET and FIX while notes play", after a separator
+  - SETTINGS has "Show some FM parameters as in 98 N88-BASIC(86)" (off by default), below "Apply MUL/DET and FIX while notes play", after a separator
   - Turned on, the register knobs AR / DR / SR / RR / SL / TL (D1R / D2R / D1L on OPM / OPZX7) of OPNA, OPN, OPL, OPL3, OPM and OPZX7 (OPZX7S included) show reversed numbers and bars: 0 on screen is 31 inside for AR
   - MML input reads AR / DR / SR / RR / SL / TL (D1R / D2R / D1L) reversed as well
   - Only the display changes; processing uses the values as they are with it off, so the sound and parameter values stay the same
@@ -653,7 +763,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
     - Swings between MIN and MAX (MIN=0.0 / MAX=1.0 by default).
       - MIN/MAX apply across every wave and every SLOT it carries.
     - Nudge buttons included.
-    - HuC6280 and FDS TABLE supported.
+    - PCE and FDS TABLE supported.
     - Available on every channel (FM included), every operator and every RHYTHM pad.
     - Import / export supported (`.wtampmod`).
   - **FDS TABLE is now two tables**
@@ -721,10 +831,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
   - A lightweight version of 2686V.
   - Curve Edit Mode is removed from 2686V to lower the CPU load.
 - **26V**:
-  - 2686VLight brought closer to the "PC-9801-26(K)" configuration.
+  - 2686VLight brought closer to the "26" configuration.
     - Channels are OPN and SSG only.
 - **86V**:
-  - 2686VLight brought closer to the "PC-9801-86" configuration.
+  - 2686VLight brought closer to the "86" configuration.
     - Channels are OPNA, SSG, RHYTHM and PCM only.
     - The "ADPCM" channel is renamed "PCM", and its initial audio quality is changed to "4-bit PCM".
     - The RHYTHM channel has 6 pads.
@@ -898,10 +1008,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - The SSG (PSG) channel, familiar from the YM2303/YM2608
   - Not an exact reproduction, but an enhanced version that folds in PSG features.
   - Square and triangle waves are provided.
-  - The pulse wave covers the duty ratios of the SSG, the Famicom and the KONAMI VRC VI.
+  - The pulse wave covers the duty ratios of the SSG, the FC and the KONAMI VRC VI.
   - The duty ratio can also be set freely.
   - The phase can be inverted.
-  - A switch changes the waveform to a Famicom-like one.
+  - A switch changes the waveform to a FC-like one.
   - The triangle wave's peak position can be adjusted.
     - This also gives you a sawtooth.
   - As software features, global envelopes
@@ -1169,7 +1279,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 - **Colour customisation (the COLORS tab)**
   - Customise the colours used in the UI.
   - One button restores the defaults.
-  - Besides RGB/HSV, colours can be taken from colour names (JUCE plus original ones) and palettes (PC-8801/PC-9801/X68000/PC Engine/Mega Drive).
+  - Besides RGB/HSV, colours can be taken from colour names (JUCE plus original ones) and palettes (88/98/X68K/PCE/MD).
   - Take a look through the entries — you may spot a few names you recognise...
 - **A major UI overhaul**
   - The tabs are a little wider.
@@ -1525,7 +1635,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "PC-9801-26
 ## 12. Operation manual
 
 - Provided on `GitHub Pages`.
-  - [2686V Series Users manual](https://cyross.github.io/2686V_2686VFX/)
+  - [2686V Series Users manual](https://cyross.github.io/2686V-v4-Manual/en/)
+  - [2686V Series Tutorials](https://cyross.github.io/2686V-v4-Tutrial/en/)
 
 ## 13. License
 

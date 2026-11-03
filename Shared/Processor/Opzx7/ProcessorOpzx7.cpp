@@ -77,7 +77,7 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
     TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
-    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::channelTargetIds(prefix, ParamModCatalog::opzx7(), Opzx7PrValue::ops)));
     modResolver.init(apvts, prefix, ParamModCatalog::opzx7(), Opzx7PrValue::ops);
 
     PrHelper::setupOpzx7BasicPtrs(apvts, prefix, pBasic);
@@ -88,6 +88,7 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
     PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
     PrHelper::setupSsgHwPEnv(apvts, prefix, pSsgHwPEnv);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
+    pAmpEnvG.live = &stepTables.position(prefix + LiveKey::ampEnv);
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256g, stepTables);
@@ -101,6 +102,7 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
 
         PrHelper::setupOpzx7DetunePtrs(apvts, p, pOpzx7Detune[op]);
         PrHelper::setupOpzx7AdsrPtrs(apvts, p, pOpAdsr[op]);
+        pOpAdsr[op].live = &stepTables.position(p + LiveKey::eg);
         PrHelper::setupSsgEgPtrs(apvts, p, pOpSsgEg[op]);
         PrHelper::setupWsPtrs(apvts, p, pOpWs[op]);
         PrHelper::setupFixPtrs(apvts, p, pFix[op]);
@@ -108,8 +110,9 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveSt
         PrHelper::setupPcm(apvts, p, pPcm[op]);
         PrHelper::setupLp(apvts, p, pLp[op]);
         PrHelper::setupPitchEnvPtrsOp(apvts, p, pOpPitchEnv[op]);
+        pOpPitchEnv[op].live = &stepTables.position(p + LiveKey::pitchEnv);
         PrHelper::setupSsgSwEnv256PtrsOp(apvts, p, pOpSsgSwEnv256[op], stepTables);
-        ParamEnv::setupPtrs(apvts, p, pOpParamEnv[op], stepTables);
+        ParamEnv::setupPtrs(apvts, p, pOpParamEnv[op], stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::opTargetIds(p, ParamModCatalog::opzx7())));
         TapParam::setupPtrs(apvts, p, pOpTapParam[op], stepTables);
         PrHelper::setupSsgSwPEnv256PtrsOp(apvts, p, pOpSsgSwPEnv256[op], stepTables);
         PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);

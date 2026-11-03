@@ -46,6 +46,7 @@ void FmRgAdssr::updateSampleRate(double newSampleRate) {
 }
 
 void FmRgAdssr::setParameters(const FmRgAdssrParams& params) {
+    m_livePos = params.live;
     this->ar = params.ar;
     this->dr = params.dr;
     this->sr = params.sr;
@@ -113,6 +114,9 @@ float FmRgAdssr::noteOn(float velocity, int noteNumber) {
     }
 
     state = State::Attack;
+
+    // いちばん新しく押した音の位置をグラフへ見せる
+    m_live.start(m_livePos);
 
     if (this->m_curveCore == nullptr) {
         // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
@@ -258,7 +262,7 @@ void FmRgAdssr::updateIncrementsWithKeyScale(int noteNumber)
     }
 }
 
-float FmRgAdssr::updateEnvelopeState(float currentLevel)
+float FmRgAdssr::advanceEnvelope(float currentLevel)
 {
     if (this->bypass) {
         return 1.0f;

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Shared/Core/Synth/LivePosition.h"
+
 #include <array>
 #include <atomic>
 
@@ -59,6 +61,9 @@ struct PrPtrsQualityPcm {
 };
 
 struct PrPtrsAdsrAmpEnv {
+    // 鳴っている位置を書く先 (グラフの縦線。4.3.0)。StepTableStore::position
+    LivePosition* live = nullptr;
+
     std::atomic<float>* bypass = nullptr;
     std::atomic<float>* stl = nullptr;
     std::atomic<float>* ar = nullptr;
@@ -84,6 +89,9 @@ struct PrPtrsStepEnv {
     std::atomic<float>* endl = nullptr;
     std::atomic<float>* endlEnable = nullptr;
     std::atomic<float>* keep = nullptr;
+    std::atomic<float>* strictRate = nullptr;
+    std::atomic<float>* startNow = nullptr;
+    std::atomic<float>* tickSync = nullptr;
     const StepTable* table = nullptr;
 };
 
@@ -96,6 +104,9 @@ struct PrPtrsSsgSwEnv256Op : PrPtrsStepEnv {
 };
 
 struct PrPtrsPitchEnv {
+    // 鳴っている位置を書く先 (グラフの縦線。4.3.0)。StepTableStore::position
+    LivePosition* live = nullptr;
+
     std::atomic<float>* bypass = nullptr;
     std::atomic<float>* ar = nullptr;
     std::atomic<float>* dr = nullptr;
@@ -110,6 +121,9 @@ struct PrPtrsPitchEnv {
 };
 
 struct PrPtrsPitchEnvOp {
+    // 鳴っている位置を書く先 (グラフの縦線。4.3.0)。StepTableStore::position
+    LivePosition* live = nullptr;
+
     std::atomic<float>* enable = nullptr;
     std::atomic<float>* ar = nullptr;
     std::atomic<float>* dr = nullptr;
@@ -313,12 +327,18 @@ struct PrPtrsSsgDuty {
     std::atomic<float>* fcFluc = nullptr;
     std::atomic<float>* moreFc = nullptr;
     std::atomic<float>* moreNes = nullptr;
+    std::atomic<float>* moreSsg = nullptr;
 };
 
 struct PrPtrsSsgTri {
     std::atomic<float>* keyTrk = nullptr;
     std::atomic<float>* peak = nullptr;
     std::atomic<float>* freq = nullptr;
+    std::atomic<float>* moreFc = nullptr;
+};
+
+struct PrPtrsSsgNoise {
+    std::atomic<float>* moreFc = nullptr;
 };
 
 struct PrPtrsSsgHwEnv {
@@ -488,6 +508,9 @@ struct PrPtrsSsgBasic {
 };
 
 struct PrPtrsOplAdsr {
+    // 鳴っている位置を書く先 (グラフの縦線。4.3.0)。StepTableStore::position
+    LivePosition* live = nullptr;
+
     std::atomic<float>* bypass = nullptr;
     std::atomic<float>* ar = nullptr;
     std::atomic<float>* dr = nullptr;
@@ -503,6 +526,9 @@ struct PrPtrsOplAdsr {
 };
 
 struct PrPtrsOpl3Adsr {
+    // 鳴っている位置を書く先 (グラフの縦線。4.3.0)。StepTableStore::position
+    LivePosition* live = nullptr;
+
     std::atomic<float>* bypass = nullptr;
     std::atomic<float>* ar = nullptr;
     std::atomic<float>* dr = nullptr;
@@ -517,6 +543,9 @@ struct PrPtrsOpl3Adsr {
 };
 
 struct PrPtrsOpmAdsr {
+    // 鳴っている位置を書く先 (グラフの縦線。4.3.0)。StepTableStore::position
+    LivePosition* live = nullptr;
+
     std::atomic<float>* bypass = nullptr;
     std::atomic<float>* ar = nullptr;
     std::atomic<float>* d1r = nullptr;
@@ -533,6 +562,9 @@ struct PrPtrsOpmAdsr {
 };
 
 struct PrPtrsOpnAdsr {
+    // 鳴っている位置を書く先 (グラフの縦線。4.3.0)。StepTableStore::position
+    LivePosition* live = nullptr;
+
     std::atomic<float>* bypass = nullptr;
     std::atomic<float>* ar = nullptr;
     std::atomic<float>* dr = nullptr;
@@ -546,6 +578,9 @@ struct PrPtrsOpnAdsr {
 };
 
 struct PrPtrsOpzx7Adsr {
+    // 鳴っている位置を書く先 (グラフの縦線。4.3.0)。StepTableStore::position
+    LivePosition* live = nullptr;
+
     std::atomic<float>* bypass = nullptr;
     std::atomic<float>* rgEnable = nullptr;
     std::atomic<float>* realAr = nullptr;

@@ -25,6 +25,7 @@ class SsgProcessor : public PrBase, public ParamMod::Applier
     PrPtrsToneNoise pToneNoise;
     PrPtrsSsgDuty pDuty;
     PrPtrsSsgTri pTri;
+    PrPtrsSsgNoise pNoise;
     ValueEnv::Ptrs pDutyEnv;
     ValueEnv::Ptrs pPeakEnv;
     PrPtrsSsgHwEnv pHwEnv;

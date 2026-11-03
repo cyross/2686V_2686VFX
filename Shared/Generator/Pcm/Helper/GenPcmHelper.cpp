@@ -199,7 +199,7 @@ void GenPcmHelper::encodeBuffer(
     case PcmCodecMode::dpcm:
         DpcmCodec::process(dest);
         break;
-    case PcmCodecMode::snesBrr:
+    case PcmCodecMode::sfcBrr:
         BrrCodec::process(dest);
         break;
     case PcmCodecMode::psxVag:
@@ -211,13 +211,13 @@ void GenPcmHelper::encodeBuffer(
     case PcmCodecMode::cdromXa:
         PsxAdpcmCodec::process(dest, PsxAdpcm::xaFilterCount);
         break;
-    case PcmCodecMode::ymz280b:
-        Ymz280bAdpcmCodec::process(dest);
+    case PcmCodecMode::z280:
+        Z280AdpcmCodec::process(dest);
         break;
-    case PcmCodecMode::k053260:
+    case PcmCodecMode::k53:
         KonamiAdpcmCodec::process(dest, false);
         break;
-    case PcmCodecMode::k054539:
+    case PcmCodecMode::k54:
         KonamiAdpcmCodec::process(dest, true);
         break;
     case PcmCodecMode::ym2608Adpcm:

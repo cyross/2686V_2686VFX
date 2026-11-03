@@ -29,7 +29,7 @@ namespace
 }
 
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
-    : AudioProcessorEditor(&p), audioProcessor(p)
+    : AudioProcessorEditor(&p), audioProcessor(p), stepTableUndo(std::make_unique<GuiStepTableUndo>(p, p))
 {
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -244,6 +244,26 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     closeCategoriesBtn.setButtonText(EditorGuiText::CategoryToggle::titleClose);
     closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
     closeCategoriesBtn.onClick = [this] { closeBypassedCategories(); };
+
+    // 枠を全て開く・全て閉じる。開くほうは濃い緑、閉じるほうは濃い青
+    for (auto [button, bg] : { std::pair{ &openGroupsBtn, GuiColor::GroupFoldBtn::OpenBg.get() },
+                               std::pair{ &closeGroupsBtn, GuiColor::GroupFoldBtn::CloseBg.get() } })
+    {
+        addAndMakeVisible(button);
+        button->setLookAndFeel(&categoryToggleBtnLF);
+        button->setColour(juce::TextButton::textColourOnId, GuiColor::GroupFoldBtn::Text);
+        button->setColour(juce::TextButton::textColourOffId, GuiColor::GroupFoldBtn::Text);
+        button->setColour(juce::TextButton::buttonColourId, bg);
+        button->setColour(juce::TextButton::buttonOnColourId, bg);
+    }
+
+    openGroupsBtn.setButtonText(EditorGuiText::GroupFold::titleOpen);
+    openGroupsBtn.setTooltip(EditorGuiText::GroupFold::tooltipOpen);
+    openGroupsBtn.onClick = [this] { fxGui->setAllGroupsFolded(false); };
+
+    closeGroupsBtn.setButtonText(EditorGuiText::GroupFold::titleClose);
+    closeGroupsBtn.setTooltip(EditorGuiText::GroupFold::tooltipClose);
+    closeGroupsBtn.onClick = [this] { fxGui->setAllGroupsFolded(true); };
 
     // コピー履歴。区分の一括開閉と見分けられるよう青にする
     addAndMakeVisible(copyHistoryBtn);
@@ -523,6 +543,8 @@ void AudioPlugin2686VEditor::resized()
     redoButton.setVisible(isFull);
     initParamsButton.setVisible(isFull);
     copyHistoryBtn.setVisible(isFull);
+    openGroupsBtn.setVisible(isFull);
+    closeGroupsBtn.setVisible(isFull);
     togglePreviewBtn.setVisible(isFull);
 
     if (midiKeyboard != nullptr) {
@@ -712,6 +734,13 @@ void AudioPlugin2686VEditor::resized()
 
     x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::historyButtonWidth;
     copyHistoryBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::historyButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    // CPHIST の左に、少し空けて枠を全て閉じる・全て開く
+    x -= EditorGuiValue::SystemBtns::groupFoldGap + EditorGuiValue::SystemBtns::buttonWidth;
+    closeGroupsBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
+    openGroupsBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
     // 開いているコピー履歴は、画面全体に重ね直す
     if (copyHistory != nullptr && copyHistory->isVisible()) copyHistory->setBounds(getLocalBounds());
@@ -1277,6 +1306,9 @@ void AudioPlugin2686VEditor::rebuildForLanguage()
     closeCategoriesBtn.setTooltip(EditorGuiText::CategoryToggle::tooltipClose);
 
     copyHistoryBtn.setTooltip(EditorGuiText::CopyHistory::tooltip);
+
+    openGroupsBtn.setTooltip(EditorGuiText::GroupFold::tooltipOpen);
+    closeGroupsBtn.setTooltip(EditorGuiText::GroupFold::tooltipClose);
 
     resized();
 

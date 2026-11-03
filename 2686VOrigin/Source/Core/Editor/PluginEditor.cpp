@@ -40,7 +40,7 @@ namespace
 }
 
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
-    : AudioProcessorEditor(&p), audioProcessor(p)
+    : AudioProcessorEditor(&p), audioProcessor(p), stepTableUndo(std::make_unique<GuiStepTableUndo>(p, p))
 {
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -244,6 +244,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     initParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::white);
     initParamsButton.onClick = [this] {
         initParams();
+
+        // 並べ直すと、TARGET が指していないオペレーター・パッドの絵も描き直す
+        resized();
         };
 
     updateParameterInitializeButtons();

@@ -159,7 +159,7 @@ void Opl3Core::setParameters(const SynthCoreParams& params) {
     updateRoutingCache();
 
     // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
-    if (params.liveDetune) {
+    if ((params.liveDetune || m_paramModLive)) {
         for (auto& op : m_operators) op.refreshFrequency();
     }
 }

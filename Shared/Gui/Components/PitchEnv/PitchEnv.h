@@ -120,6 +120,9 @@ public:
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, const juce::String& flagKey, const juce::String& flagText, bool isEnable = false);
     // 束縛先を丸ごと差し替える。TARGET で指し先を切り替えるときに使う。
     void rebind(const juce::String& code);
+
+    // 鳴っている位置を読む頭 (グラフの縦線。4.3.0)。setup / rebind で受けたもの
+    juce::String liveCode;
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);

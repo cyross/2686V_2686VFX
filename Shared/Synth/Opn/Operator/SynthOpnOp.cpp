@@ -279,7 +279,7 @@ void OpnOperator::getSample(float& output, float modulator, float feedbackModula
         // 最大で ±1オクターブ (1200セント) の揺れ幅と定義する
         // pmLfoVal は -1.0 ~ 1.0
         // セント値を周波数の倍率に変換 (2 ^ (cent / 1200))
-        lfoPitchMod = std::pow(2.0f, (n88Lfo.value.pm * n88Lfo.depthNorm * 1200.0f) / 1200.0f);
+        lfoPitchMod = n88Lfo.pmRatio;
     }
 
     // ③ モジュレーションホイール (Global LFO を使う)

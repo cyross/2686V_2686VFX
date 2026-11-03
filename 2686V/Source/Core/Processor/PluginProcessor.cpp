@@ -246,6 +246,7 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
             voice->prepare(sampleRate);
+            voice->reserveBlock(samplesPerBlock);
         }
     }
 
@@ -764,6 +765,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         fillMissingParamsWithDefaults(*xmlState);
 
         apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+        stateLoads.fetch_add(1, std::memory_order_release); // 画面が畳み具合などを当て直す (GuiGroupFolds)
 
         // メタデータ復帰
         presetName = xmlState->getStringAttribute(PresetKey::name, PresetValue::MetaData::Initial::name);
@@ -1885,7 +1887,7 @@ void AudioPlugin2686V::loadWtPlusWaveFile(int slot, const juce::File& file)
     wtPlusWavePaths[slot] = file.getFullPathName();
 }
 
-// WT PITCH MOD (HuC6280 モード) の変調波形を読み込む。
+// WT PITCH MOD (PCE モード) の変調波形を読み込む。
 //
 // 実機の波形メモリは 32 サンプルなので、そこへ落としてから持つ。
 // 落とし方は Smooth の設定で変わる。

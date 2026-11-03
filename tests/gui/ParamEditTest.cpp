@@ -25,6 +25,7 @@ namespace
 		Env()
 		{
 			processor = std::make_unique<AudioPlugin2686V>();
+			EditorTestAccess::unfoldAllGroups(processor->apvts);
 			editor.reset(processor->createEditor());
 
 			EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));

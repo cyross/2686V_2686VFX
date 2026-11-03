@@ -87,7 +87,80 @@ public:
     void setTitleIdle(bool idle);
     bool isTitleIdle() const { return titleIdle; }
 
+    // ---------------- 幅の畳み (4.3.0) ----------------
+    // 見出しを押すと、枠の幅を foldedWidth まで縮める。もう一度押すと戻る。
+    // 畳んでいるあいだ、見出しは灰の帯にして縦に書く。中身は隠れてよい。
+    // 状態を覚えて並べ直すのは GuiGroupFolds (GuiGroupFolds.h) の役目。
+    static inline constexpr int foldedWidth = 30;
+
+    // 見出しを押して畳めるようにする
+    void setFoldable(bool foldable);
+    bool isFoldable() const { return foldable; }
+
+    void setFolded(bool folded);
+    bool isFolded() const { return folded; }
+
+    // 列の幅。畳んでいれば foldedWidth、開いていれば openWidth
+    int columnWidth(int openWidth) const { return folded ? foldedWidth : openWidth; }
+
+    // 見出しが押されたとき。畳むかどうかは受け取った側が決める
+    std::function<void()> onTitleClick;
+
     void paint(juce::Graphics& g) override;
+    bool hitTest(int x, int y) override;
+    void mouseDown(const juce::MouseEvent& e) override;
+
+    // 畳める見出しにマウスが乗ると、帯の色を変える
+    void mouseEnter(const juce::MouseEvent& e) override;
+    void mouseMove(const juce::MouseEvent& e) override;
+    void mouseExit(const juce::MouseEvent& e) override;
+
+    bool isTitleHovered() const { return titleHovered; }
+
+protected:
+    // 畳み具合が変わったとき。中身を隠すのは派生の側
+    virtual void foldedChanged() {}
+
+private:
+    bool foldable = false;
+    bool folded = false;
+
+    // 畳める見出しの上にマウスが乗っているか
+    bool titleHovered = false;
+
+    // 見出しの上にマウスが乗っているかを見直す。外へ出たときは nullopt
+    void updateTitleHover(std::optional<juce::Point<float>> position);
+
+    // 見出しの帯の場所。開いていれば左上に横向き、畳んでいれば上から縦向き
+    juce::Rectangle<float> titleChipBounds() const;
+
+    // 見出しの帯だけを描き直す (色が変わるだけのとき。枠の中の部品まで描き直さない)
+    void repaintTitle();
+
+    // 見出しの文字の幅。hitTest はマウスが動くたびに呼ばれるので、文字が変わったときだけ測る
+    mutable juce::String measuredTitle;
+    mutable float measuredTitleWidth = 0.0f;
+};
+
+// ============================================================================
+// 部品にマウスが乗ったか乗らなくなったかを見て、描き直す (4.3.0)
+// ============================================================================
+// 子を持つ部品 (値の枠を持つスライダー、中に字の欄を持つテキストエディタ) は、
+// 子へ乗ったときに親の mouseExit が来る。子の出入りもまとめて受けて、
+// 部品の丸ごとを描き直す。乗っているかどうかは描くときに isMouseOver(true) で見る。
+class GuiHoverWatch : private juce::MouseListener
+{
+public:
+    explicit GuiHoverWatch(juce::Component& target) : owner(target) { owner.addMouseListener(this, true); }
+    ~GuiHoverWatch() override { owner.removeMouseListener(this); }
+
+private:
+    juce::Component& owner;
+
+    void mouseEnter(const juce::MouseEvent&) override { owner.repaint(); }
+    void mouseExit(const juce::MouseEvent&) override { owner.repaint(); }
+
+    JUCE_DECLARE_NON_COPYABLE(GuiHoverWatch)
 };
 
 class GuiWaveformPreview : public juce::Component
@@ -118,6 +191,9 @@ private:
 
     std::vector<float> m_displayBuffer;
     std::vector<float> m_dryBuffer;
+
+    // 加工前の側が前と変わったか。描き直しは加工後の側 (pushBuffer) から起こす
+    bool m_dryChanged = false;
 };
 
 class GuiStateView : public juce::Component
@@ -268,6 +344,10 @@ public:
         // 渡ってくる高さには末尾の余白が含まれているため、そのぶんを引く。
         closeCategoryBackdrops(&contentCanvas, totalHeight - categoryContentTrailingPadding);
     }
+
+protected:
+    // 畳んでいるあいだは中身ごと隠す。並べ方は開いているときのまま残す
+    void foldedChanged() override { viewport.setVisible(!isFolded()); }
 };
 
 class GuiLabel : public juce::Label, public GuiBaseComponent
@@ -396,7 +476,12 @@ protected:
 
             if (slider.isEnabled()) GuiShadow::drawRounded(g, bar, guiCornerRadius);
 
-            g.setColour(GuiColor::Slider::Trough.get().withMultipliedAlpha(alpha));
+            // マウスが乗っているときは、地と枠をそれぞれの色に合わせて変える
+            const bool hovered = slider.isEnabled() && slider.isMouseOver(true);
+
+            juce::Colour trough = GuiColor::Slider::Trough.get().withMultipliedAlpha(alpha);
+
+            g.setColour(hovered ? GuiColor::Hover::face(trough) : trough);
             g.fillRoundedRectangle(bar, guiCornerRadius);
 
             // sliderPos は絶対座標で来る。左端からの塗り幅に直す。
@@ -414,7 +499,9 @@ protected:
                 g.fillRoundedRectangle(bar, guiCornerRadius);
             }
 
-            g.setColour(GuiColor::Slider::Frame.get().withMultipliedAlpha(alpha));
+            juce::Colour frame = GuiColor::Slider::Frame.get().withMultipliedAlpha(alpha);
+
+            g.setColour(hovered ? GuiColor::Hover::border(frame) : frame);
             g.drawRoundedRectangle(bar.reduced(0.5f), guiCornerRadius, 1.0f);
         }
 
@@ -424,7 +511,13 @@ protected:
         {
             auto bounds = label.getLocalBounds().toFloat();
 
-            g.setColour(label.findColour(juce::Label::backgroundColourId));
+            // 値の枠はスライダーの子。スライダーのどこかへマウスが乗っていれば変える
+            auto* slider = label.getParentComponent();
+            const bool hovered = label.isEnabled() && slider != nullptr && slider->isMouseOver(true);
+
+            juce::Colour bg = label.findColour(juce::Label::backgroundColourId);
+
+            g.setColour(hovered ? GuiColor::Hover::face(bg) : bg);
             g.fillRoundedRectangle(bounds, guiCornerRadius);
 
             float alpha = label.isEnabled() ? 1.0f : 0.5f;
@@ -441,7 +534,9 @@ protected:
                     label.getMinimumHorizontalScale());
             }
 
-            g.setColour(label.findColour(juce::Label::outlineColourId).withMultipliedAlpha(alpha));
+            juce::Colour outline = label.findColour(juce::Label::outlineColourId).withMultipliedAlpha(alpha);
+
+            g.setColour(hovered ? GuiColor::Hover::border(outline) : outline);
             g.drawRoundedRectangle(bounds.reduced(0.5f), guiCornerRadius, 1.0f);
         }
 
@@ -485,6 +580,9 @@ protected:
     // 画面 1 枚で数百個できるので、そこが起動時間として出ていた。
     juce::SharedResourcePointer<SliderLF> sharedLF;
 
+    // マウスが乗ったら描き直す。値の枠 (子) の出入りもまとめて受ける
+    GuiHoverWatch hoverWatch{ *this };
+
     // いま N88-BASIC(86) の向きで見せているか
     bool n88Displayed = false;
 
@@ -503,6 +601,7 @@ protected:
     // 値を 1 / snapSteps の刻みへ丸めているとき、その刻みの数。0 は自由。
     // 丸めるのは STEPS の側で、ここでは動かす幅を刻みに合わせるのに使う。
     int snapSteps = 0;
+    double snapScale = 1.0;
 
     // 並びへ足す、値を直に置くボタン (カーブ編集の K の「1」など)。内部の値
     std::vector<std::pair<juce::String, double>> nudgeExtras;
@@ -578,7 +677,7 @@ public:
     }
 
     // ---- N88-BASIC(86) 準拠の表示
-    // FM のレジスタの AR / DR / SR / RR / SL / TL は、PC-9801 の N88-BASIC(86) では
+    // FM のレジスタの AR / DR / SR / RR / SL / TL は、98 の N88-BASIC(86) では
     // 大小が逆になっている。
     // 環境設定 (fmN88Display) を入れると、つまみの数字と帯の向きを逆にして
     // 見せる。AR を 0 にすると内部では 31、31 にすると 0。TL も同じく逆
@@ -618,6 +717,11 @@ public:
     // ラベルのドラッグとナッジの並びが、動かす幅を刻みに合わせる。
     void setSnapSteps(int steps) { snapSteps = juce::jmax(0, steps); }
     int getSnapSteps() const { return snapSteps; }
+
+    // 刻みの基準の幅。刻みは snapScale / snapSteps になる。既定は 1 (0〜1 のつまみ)。
+    // 0〜100% のつまみ (DUTY RATIO ENVELOPE) は 100 にして、1/10 刻みを 10% にする
+    void setSnapScale(double scale) { snapScale = scale > 0.0 ? scale : 1.0; }
+    double getSnapScale() const { return snapScale; }
 
     // ---- ラベルのドラッグ
     // ドラッグを始めたときの値 startValue から、上へ dy (px) 動かしたときの値。
@@ -849,10 +953,16 @@ protected:
 
             if (box.isEnabled()) GuiShadow::drawRounded(g, face, guiCornerRadius);
 
-            g.setColour(box.findColour(juce::ComboBox::backgroundColourId).withMultipliedAlpha(alpha));
+            // マウスが乗っているときは、地と枠をそれぞれの色に合わせて変える
+            const bool hovered = box.isEnabled() && box.isMouseOver(true);
+
+            juce::Colour bg = box.findColour(juce::ComboBox::backgroundColourId).withMultipliedAlpha(alpha);
+            juce::Colour outline = box.findColour(juce::ComboBox::outlineColourId).withMultipliedAlpha(alpha);
+
+            g.setColour(hovered ? GuiColor::Hover::face(bg) : bg);
             g.fillRoundedRectangle(face, guiCornerRadius);
 
-            g.setColour(box.findColour(juce::ComboBox::outlineColourId).withMultipliedAlpha(alpha));
+            g.setColour(hovered ? GuiColor::Hover::border(outline) : outline);
             g.drawRoundedRectangle(face.reduced(0.5f), guiCornerRadius, 1.0f);
 
             // 右端の矢印
@@ -884,6 +994,9 @@ protected:
 
     // クラスのメンバとして保持する
     ComboBoxLF customLF;
+
+    // マウスが乗ったら描き直す
+    GuiHoverWatch hoverWatch{ *this };
 public:
     GuiComboBox(const GuiContext& context) : GuiBaseComponent(context), label(context) {
         this->setLookAndFeel(&customLF);
@@ -1063,18 +1176,28 @@ protected:
             // 背景の塗りつぶし
             juce::Colour baseColour = face0.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f);
 
+            // マウスが乗っているかどうか。押しているときは別に扱う
+            const bool hovered = shouldDrawButtonAsHighlighted && !shouldDrawButtonAsDown && button.isEnabled();
+
             if (darkens && (shouldDrawButtonAsDown || button.getToggleState()))
                 baseColour = baseColour.darker(pressedDarkness);
-            // マウスホバー時やクリック時は少し明るくする
-            else if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
+            // クリック時は少し明るくする
+            else if (shouldDrawButtonAsDown)
                 baseColour = baseColour.brighter(0.5f);
+            // マウスが乗っているときは、地の色に合わせて変える
+            else if (hovered)
+                baseColour = GuiColor::Hover::face(baseColour);
 
             g.setColour(baseColour);
             g.fillRoundedRectangle(face, guiCornerRadius);
 
             // 縁取りはカテゴリ見出しのマーカーと同じ色。明るい面が背景へ
             // 溶けないよう、輪郭だけ引き締める。
-            g.setColour(GuiColor::Outline.get().withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f));
+            juce::Colour outline = GuiColor::Outline.get().withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f);
+
+            if (hovered) outline = GuiColor::Hover::border(outline);
+
+            g.setColour(outline);
             g.drawRoundedRectangle(face.reduced(0.5f), guiCornerRadius, 1.0f);
         }
     };
@@ -1258,8 +1381,48 @@ class GuiTextEditor : public juce::TextEditor, public GuiBaseComponent
 {
 protected:
     std::unique_ptr<ButtonAttachment> att;
+
+    // マウスが乗っているとき、地と枠をそれぞれの色に合わせて変える (4.3.0)。
+    // それ以外は JUCE の既定 (LookAndFeel_V4) のまま描く
+    class TextEditorLF : public juce::LookAndFeel_V4
+    {
+    public:
+        static bool hovered(juce::TextEditor& editor) { return editor.isEnabled() && editor.isMouseOver(true); }
+
+        void fillTextEditorBackground(juce::Graphics& g, int width, int height, juce::TextEditor& editor) override
+        {
+            juce::Colour bg = editor.findColour(juce::TextEditor::backgroundColourId);
+
+            g.setColour(hovered(editor) ? GuiColor::Hover::face(bg) : bg);
+            g.fillRect(0, 0, width, height);
+        }
+
+        void drawTextEditorOutline(juce::Graphics& g, int width, int height, juce::TextEditor& editor) override
+        {
+            if (!editor.isEnabled()) return;
+
+            // 入力中は JUCE の既定どおり、太い枠で見せる
+            if (editor.hasKeyboardFocus(true) && !editor.isReadOnly()) {
+                g.setColour(editor.findColour(juce::TextEditor::focusedOutlineColourId));
+                g.drawRect(0, 0, width, height, 2);
+
+                return;
+            }
+
+            juce::Colour outline = editor.findColour(juce::TextEditor::outlineColourId);
+
+            g.setColour(hovered(editor) ? GuiColor::Hover::border(outline) : outline);
+            g.drawRect(0, 0, width, height);
+        }
+    };
+
+    juce::SharedResourcePointer<TextEditorLF> sharedLF;
+
+    // マウスが乗ったら描き直す。中の字の欄 (子) の出入りもまとめて受ける
+    GuiHoverWatch hoverWatch{ *this };
 public:
-    GuiTextEditor(const GuiContext& context) : GuiBaseComponent(context), label(context) {}
+    GuiTextEditor(const GuiContext& context) : GuiBaseComponent(context), label(context) { setLookAndFeel(&sharedLF.get()); }
+    ~GuiTextEditor() override { setLookAndFeel(nullptr); }
 
     GuiLabel label;
 
@@ -1339,16 +1502,32 @@ public:
 // カテゴリを開いたときに、その中身の背後へ敷く半透明の黒。
 // 見出しの下から次の見出し (または欄の終わり) までを覆う。
 // 装飾なのでマウスは素通しにしてある。
+//
+// マウスが乗っているあいだは少し明るくする (4.3.0)。板はマウスを受けないので、
+// 画面全体のマウスの動きを見て、乗っている板を探す (GuiComponents.cpp)。
+// 大区分の板の中に小区分の板があるときは、内側の板だけを明るくする。
 class GuiCategoryBackdrop : public juce::Component
 {
 public:
-    GuiCategoryBackdrop() { setInterceptsMouseClicks(false, false); }
+    GuiCategoryBackdrop();
+    ~GuiCategoryBackdrop() override;
 
     void paint(juce::Graphics& g) override
     {
-        g.setColour(GuiColor::Category::ContentBg);
+        g.setColour(hovered ? GuiColor::Category::ContentBgHover : GuiColor::Category::ContentBg);
         g.fillRoundedRectangle(getLocalBounds().toFloat(), 3.0f);
     }
+
+    bool isHovered() const { return hovered; }
+
+    // 画面上の位置 screenPos にマウスがあるものとして、乗っている板を選び直す。
+    // マウスが動くたびに呼ばれる。テストからも呼ぶ
+    static void updateHover(juce::Point<float> screenPos);
+
+private:
+    bool hovered = false;
+
+    friend struct GuiCategoryBackdropHover;
 };
 
 // 操作面の一番上の帯 (TARGET・名前・映すものの切り替え) の背後へ敷く板。
@@ -1418,6 +1597,9 @@ public:
 	void setupSwAmpCategory(const Config& c);   // ソフトウェア(音量系)カテゴリ用
 	void setupSwPitchCategory(const Config& c); // ソフトウェア(ピッチ系)カテゴリ用
 	void setupSwLfoCategory(const Config& c);   // ソフトウェア(LFO)カテゴリ用
+	void setupTapAmpCategory(const Config& c);   // TAP AMP SEQUENCER 用
+	void setupTapPitchCategory(const Config& c); // TAP PITCH SEQUENCER 用
+	void setupParamCategory(const Config& c);    // PARAM ENV[256] / TAP PARAM SEQUENCER 用
 	void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
 
 	// 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって
@@ -1441,6 +1623,10 @@ public:
     // 右クリックで、区分の中身の切り取り・コピー・貼り付け・初期化・複写と
     // 読み込み・書き出しを出す (ParamEdit::showCategoryMenu)。
     void mouseDown(const juce::MouseEvent& e) override;
+
+    // 押して開閉できる見出しは、マウスが乗ると地の色を変える
+    void mouseEnter(const juce::MouseEvent& e) override;
+    void mouseExit(const juce::MouseEvent& e) override;
 
     // 右クリックの「読み込み (IMPORT)」「書き出し (EXPORT)」で呼ぶもの。
     // UTILITY の [IM] / [EX] と同じ処理をつなぐ (GuiComponentImportExport::bindCategory)。

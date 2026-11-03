@@ -19,6 +19,20 @@
 // だけなので、接頭辞さえ分かれば同じものが直に採れる。
 namespace GuiGraphValues
 {
+    // 鳴っている位置 (グラフの縦線。4.3.0)。段の表を持つエンベロープは表の中、
+    // 持たないもの (AMP / PITCH ENV・FM 音源の EG) は StepTableStore::position にある
+    inline const LivePosition* liveOfTable(const StepTableStore& tables, const juce::String& key)
+    {
+        const auto* table = tables.find(key);
+
+        return table != nullptr ? &table->live : nullptr;
+    }
+
+    inline const LivePosition* liveOf(const StepTableStore& tables, const juce::String& key)
+    {
+        return tables.findPosition(key);
+    }
+
     // ------------------------------------------------------
     // パラメータを引く
     // ------------------------------------------------------
@@ -134,6 +148,15 @@ namespace GuiGraphValues
             v.l[(size_t)s] = table->level(s);
         }
 
+        // 段の進め方 (4.3.0) と、T SYNC の刻みを決めるテンポ
+        v.rates.assign((size_t)v.head.steps + 1, StepRate::Step{});
+
+        for (int s = 1; s <= v.head.steps && table != nullptr; ++s) v.rates[(size_t)s] = table->rateStep(s);
+
+        if (table != nullptr) v.releaseRateStep = table->rateStep(StepTable::releaseStep);
+
+        v.bpm = tables.tempoBpm();
+
         v.rr = value(apvts, code + rrKey);
         v.lr = value(apvts, code + lrKey);
         v.rMax = maxOf(apvts, code + rrKey);
@@ -145,6 +168,10 @@ namespace GuiGraphValues
 
             v.endlEnable = flag(apvts, code + head + "_ENDL_EN");
             v.endl = value(apvts, code + head + "_ENDL");
+
+            // START NOW / T SYNC (4.3.0) も同じ頭を持つ (<頭>_START_NOW / <頭>_TSYNC)
+            v.startNow = flag(apvts, code + head + "_START_NOW");
+            v.tickSync = flag(apvts, code + head + "_TSYNC");
         }
 
         return v;

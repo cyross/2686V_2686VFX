@@ -17,6 +17,9 @@ namespace
 
         x.steps = v.keys.steps;
         x.keep = v.keys.keep;
+        x.strictRate = v.keys.strictRate;
+        x.startNow = v.keys.startNow;
+        x.tickSync = v.keys.tickSync;
         x.loop = v.keys.loop;
         x.loopTo = v.keys.loopTo;
         x.loopCount = v.keys.loopCount;
@@ -135,14 +138,14 @@ namespace
 
         x.steps = k.steps;
         x.keep = k.keep;
+        x.strictRate = k.strictRate;
+        x.startNow = k.startNow;
+        x.tickSync = k.tickSync;
         x.loop = k.loop;
         x.loopTo = k.loopTo;
         x.loopCount = k.loopCount;
         x.loopMode = k.loopMode;
-        x.stl = k.stl;
-        x.lr = k.lr;
         x.rr = k.rr;
-        x.endl = k.endl;
         x.endlEnable = k.endlEnable;
         x.target = k.target;
 
@@ -183,6 +186,20 @@ GuiComponentStepEnv::Spec GuiComponentParamEnv::opSpec(const ParamModCatalog::Ca
     x.legacyTlKey = "tlEnv";
     x.tlTarget = juce::jmax(0, catalog.tlIndex);
     x.tlMax = tlMax;
+
+    return x;
+}
+
+GuiComponentStepEnv::Spec GuiComponentParamEnv::padSpec(const ParamModCatalog::Catalog& catalog)
+{
+    Spec x = paramEnvBase();
+
+    x.targetLabels = ParamModCatalog::opTargetLabels(catalog);
+
+    // code はパッドの頭 (RHYTHM_PAD0)。尻尾を足せば指し先の鍵
+    x.targetParamId = [&catalog](const juce::String& code, int target) {
+        return target >= 0 && target < (int)catalog.op.size() ? code + catalog.op[(size_t)target].suffix : juce::String();
+    };
 
     return x;
 }

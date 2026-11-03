@@ -9,6 +9,7 @@
 #include "Shared/Core/Gui/GuiLF.h"
 #include "Shared/Core/Gui/GuiLazy.h"
 #include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiStepTableUndo.h"
 #include "Shared/Gui/Components/Edit/CopyHistory.h"
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
@@ -298,6 +299,10 @@ public:
     void updateFxOrder();
 private:
     AudioPlugin2686V& audioProcessor;
+
+    // 段の表の書き換えを Undo に載せ、DAW へ知らせる。ここではプロセッサの型がまだ
+    // 揃っていない (ヘッダが互いを読む) ので、コンストラクタで作る
+    std::unique_ptr<GuiStepTableUndo> stepTableUndo;
 
     static inline constexpr int previewHz = 30;
     static inline constexpr int playingLampHz = 30;

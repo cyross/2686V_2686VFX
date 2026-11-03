@@ -8,8 +8,10 @@
 #include <memory>
 
 #include "./GuiToggleAlign.h"
+#include "./GuiLiveGraph.h"
 #include "../Synth/WtModWave.h"
 #include "../Synth/StepTable.h"
+#include "../Synth/StepTableUndo.h"
 #include "../Io/IoPathRoot.h"
 
 // ============================================================================
@@ -46,6 +48,11 @@ class GuiProcessorHost
 public:
     virtual ~GuiProcessorHost() = default;
 
+    // ---- state を差し替えた回数 (プリセット・DAW の状態を読んだとき)。
+    // DAW がほかのスレッドで差し替えることもあるので、画面は apvts.state へ
+    // リスナーを付けずに、この回数が変わったかを見に行く (GuiGroupFolds)
+    std::atomic<int> stateLoads{ 0 };
+
     // ---- 区分ごとのパラメータファイルの既定の置き場
     juce::String defaultWavetableDir; // 波形メモリ (WT / WT2)
     juce::String defaultChannelParamDir;
@@ -79,14 +86,40 @@ public:
     // 持つと数が膨大になるため、ここが持って state へ書く。
     StepTableStore stepTables;
 
+    // 段の表の書き換えを Undo に載せるための、最後に載せた中身 (GuiStepTableUndo)
+    StepTableUndo::History stepTableHistory;
+
     // トグルボタンの並べ方。ToggleAlign::Centred で従来どおり行の真ん中、
     // ToggleAlign::Left で左端へ寄せる。見た目だけの話で、音には影響しない。
     int toggleAlign = ToggleAlign::Centred;
 
-    // FM のレジスタの AR / DR / SR / RR / SL / TL を、PC-9801 の N88-BASIC(86) と
+    // FM のレジスタの AR / DR / SR / RR / SL / TL を、98 の N88-BASIC(86) と
     // 同じ向き (大小を逆にした値) で見せるか。見た目だけの話で、パラメータの
     // 値と音は変わらない (GuiSlider::applyN88Display)。
     bool fmN88Display = false;
+
+    // ---- グラフの、鳴っている位置を動かして見せるか (4.3.0。GuiLiveGraph.h)
+    // TAP SEQUENCER はいまの段、PARAM ENV[256] はエンベロープの位置。
+    // 見た目だけの話で、音には影響しない。
+    bool tapLiveGraph = true;
+    int tapLiveFps = LiveGraph::fpsInitial;
+    bool paramEnvLiveGraph = true;
+    int paramEnvLiveFps = LiveGraph::fpsInitial;
+
+    // AMP / PITCH ENV・SSG SW AMP / PITCH ENV[256]・FM 音源の EG (グラフの AMP / PIT / S256 / P256)
+    bool envLiveGraph = true;
+    int envLiveFps = LiveGraph::fpsInitial;
+
+    // グラフが読みに行く速さ。切っているあいだは 0 (GuiEnvelopeGraph::setLiveSource)
+    std::function<int()> paramEnvLiveRate()
+    {
+        return [this] { return paramEnvLiveGraph ? LiveGraph::clampFps(paramEnvLiveFps) : 0; };
+    }
+
+    std::function<int()> envLiveRate()
+    {
+        return [this] { return envLiveGraph ? LiveGraph::clampFps(envLiveFps) : 0; };
+    }
 
     // ---- 音声・波形ファイルの場所をどこからの相対で書くか (Io::PathRoot)
     // 環境設定に 1 つだけ持つ。どのチャンネルの UTILITY から変えても同じ値。

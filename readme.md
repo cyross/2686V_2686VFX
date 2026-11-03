@@ -10,8 +10,8 @@
 
 - **2686V**: ぼくのかんがえたさいきょうのレトロ音源VSTプラグイン。全部入り。
 - **2686VLight**: 2686Vの軽量版
-- **26V**: 2686V Lightの構成を「PC-9801-26(K)」に近づけたもの
-- **86V**: 2686V Lightの構成を「PC-9801-86」に近づけたもの
+- **26V**: 2686V Lightの構成を「26」に近づけたもの
+- **86V**: 2686V Lightの構成を「86」に近づけたもの
 - **OPNV**: 2686V から OPN系チャンネルを抜き出したプラグイン
 - **OPLV**: 2686V から OPL系チャンネルを抜き出したプラグイン
 - **OPMV**: 2686V から OPM系チャンネルを抜き出したプラグイン
@@ -23,7 +23,7 @@
 
 ## 2. 目的
 
-DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作りたかったけど眼鏡にかなうものがなかったので、プラグインを作ろう…としたはずだったが…
+DAW上で、「26」と「86」を再現したような曲を作りたかったけど眼鏡にかなうものがなかったので、プラグインを作ろう…としたはずだったが…
 
 ※v3.0.0で当初の目的を達成しました。
 
@@ -42,13 +42,30 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 - **FM 音源のオペレーターの列の並びを変えた**
   - KEY SCALE / MUL/DET (FIX・LFO を含む列) を、AMP ENV / OPTIONAL の列のすぐ右へ移した。OPZX7 は WAVEFORM の列より左に来る
   - OPNA / OPN / OPL / OPL3 / OPM / OPZX7。FM 音源を持つ全プラグイン
+- **RHYTHM のパッドの列の並びを変えた (FM 音源のオペレーターと同じ形)**
+  - MUL/DET と FIX を、OPTIONAL の下 (同じ列) へ移した。列の名前は「OPTIONAL / MUL/DET / FIX」
+  - その右に、パッドの「PARAM ENV」の列 (下の PARAM ENV[256] を参照) と「TAP PARAM SEQUENCER」の列を置いた
+  - パッドの EDIT 区分を OPTIONAL の下から外し、区分の並びの一番右の「EDIT」の列へ移した
+  - 並びは FORM / PAN / QUALITY → OPTIONAL / MUL/DET / FIX → PARAM ENV → TAP PARAM SEQUENCER → AMP ENV → … → LFO → EDIT
+  - RHYTHM を持つプラグイン (2686V・2686VLight・86V・PCMV)
+- **横に並べた枠の幅を畳めるようにした (アコーディオン)**
+  - 枠の名前 (見出し) をクリックすると、枠の幅が 30px になる。見出しは灰色の帯になり、縦書きで出る。中身は隠れる。もう一度クリックすると元の幅に戻る
+  - 枠を全て開く **<>** と全て閉じる **><** のボタンを足した。FM 音源・RHYTHM はオペレーター・パッドのグラフの切り替え (AMP / PIT / S256 / P256 / PRM) の右、2686VFX は画面上の CPHIST の左に、少し空けて置く。**<>** は濃い緑、**><** は濃い青の地にオフホワイトの文字
+  - どの枠を畳んだかはプリセットと DAW の状態に保存する (2686VFX はプリセットが無いので DAW の状態だけ)。開いた直後は、畳める枠をすべて畳んだ状態で出す。畳み具合を持たない古いプリセットも、すべて畳んだ状態で読む
+  - FM 音源のオペレーターの列 (OPNA / OPN / OPL / OPL3 / OPM / OPZX7)・RHYTHM のパッドの列・2686VFX の効果と変調の枠。2686VFX の効果は 1 列に 2〜3 枠を積んでいるので、列の幅が 30px になるのは、その列の枠をみな畳んだとき。メインの枠は畳まない
+  - FM 音源または RHYTHM を持つプラグインと 2686VFX
+- **マウスが乗っているものの色が変わるようにした**
+  - クリックで開閉できる区分の見出しと、畳める枠の見出し は、マウスが乗っているあいだピンク寄りの色になる。畳んだ枠の縦の帯は、明るい黄色になる
+  - マウスが乗っている区分は、中身の背後の板が少し明るくなる。大区分の中では、乗っている小区分だけが明るくなる
+  - テキストボタン・コンボボックス・トグルボタン・スライダー・テキストエディタは、マウスが乗っているあいだ地と枠の色が変わる。変わり方は元の色による (暗い色は明るく、明るい色は少し暗く、透けている色は少し濃く)。トグルボタンは四角の枠と中のランプ、スライダーは帯と値の枠が変わる
+  - すべてのプラグイン (2686VFX も)
 - **スライダーの値の動かし方に Alt キーを足した**
   - ラベルのドラッグと、グラフの拡大率のつまみのドラッグで、**Alt** を押しているあいだ 100 刻みへそろう。範囲が 100 より狭いスライダーでは何もしない
   - 全プラグイン (2686VFX を含む)
 - **[[TAP SEQUENCER]] に「TAP PARAM SEQUENCER」を足した**
   - 鍵を押すたびに段を 1 つ進め、その段に入れた (パラメータ, 値) の組で、パラメータをその音のあいだ置き換える
   - 独自拡張として、1 つの段に組を最大 16 個入れられる
-  - チャンネルに 1 つ ([[TAP SEQUENCER]] の中。チャンネルのパラメータを選ぶ) と、FM 音源のオペレーターごと・RHYTHM のパッドごとに 1 つずつ (オペレーター・パッドの設定の列「TAP PARAM SEQUENCER」。KEY SCALE / MUL/DET、RHYTHM は MUL/DET / FIX の右。そのオペレーター・パッドのパラメータを選ぶ) ある。どれも打鍵ごとに別々に段を進める
+  - チャンネルに 1 つ ([[TAP SEQUENCER]] の中。チャンネルのパラメータを選ぶ) と、FM 音源のオペレーターごと・RHYTHM のパッドごとに 1 つずつ (オペレーター・パッドの設定の列「TAP PARAM SEQUENCER」。FM 音源・RHYTHM とも PARAM ENV の右。そのオペレーター・パッドのパラメータを選ぶ) ある。どれも打鍵ごとに別々に段を進める
   - 選べるパラメータ: FM 音源のオペレーターの数値のパラメータ (TL / AR / DR / SR / SL / RR / KS / MUL / DT。OPM の D1R / D1L / D2R・DT2・KSR / KSL、OPL / OPL3 の KSL・EG・LFO、OPZX7 の実数のエンベロープ・KS の細目・DT2 / DT3・WS・PCM SPEED・LFO など) と FIX の周波数、チャンネルの ALG / FB (OPZX7 は FB OP1〜8)、WT PITCH MOD / WT AMP MOD の波形と速さ、WT+ の波形、ADPCM+ の音声 (スロット)、SSG のデューティ比 (PRESET / 可変) と三角波の頂点、FIX の周波数、各種の周波数・速さ (LFO の FREQ・SSG HW ENV / SSG HW PITCH ENV の周期・ノイズの周波数・三角波の周波数・SPEED・TIMER CLOCK・ARP FREQ など)。オン/オフのトグルは選べない
   - 段の進め方は TAP AMP / PITCH SEQUENCER と同じ (LOOP・SKIP・INCREMENT / DECREMENT / CLEAR STEP。打鍵 1 回につき 1 段。DAW の再生を止めると開始前へ戻る)
   - S.TARGET で段を、**P.TARGET** で組を選び、**PARAM** / **VALUE** で中身を決める。**ADD PAIR** / **DELETE PAIR** / **CLEAR PAIRS** で組を足し引きする。値は指し先のパラメータの書き方で出し、MIN / -1 / +1 / MAX のボタンで動かせる
@@ -58,19 +75,112 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 全チャンネル。2686VFX 以外の全プラグイン
 - **「PARAM ENV[256]」を足した。TL ENV はこの機能にまとめた**
   - SSG SW AMP ENV[256] と同じ 256 段のエンベロープで、**TARGET** で選んだパラメータを動かす。選べるパラメータは TAP PARAM SEQUENCER と同じ
-  - チャンネルに 1 本 (新しい大区分 [[PARAM ENV]]。[[TAP SEQUENCER]] の上)。FM 音源はオペレーターごとにも 1 本 (AMP ENV 区分のすぐ下。これまでの TL ENV の場所)。RHYTHM のチャンネルの PARAM ENV は、パッドごとのパラメータも選べる
-  - 値は指し先のパラメータの範囲の割合で持ち、画面には指し先の書き方 (TL なら 0〜127 など) で出す。TARGET を変えても、値は「範囲のどのあたりか」として残る
+  - チャンネルに 1 本 (新しい大区分 [[PARAM ENV]]。[[TAP SEQUENCER]] の上)。FM 音源はオペレーターごとにも 1 本 (設定の列「PARAM ENV」。KEY SCALE / MUL/DET / FIX の右に、独立した列で置く)。RHYTHM はパッドごとにも 1 本 (設定の列「PARAM ENV」。OPTIONAL / MUL/DET / FIX の右。そのパッドのパラメータを選ぶ)。RHYTHM のチャンネルの PARAM ENV は、これまでどおりパッドごとのパラメータも選べる
+  - 値は指し先のパラメータの範囲の割合で持ち、画面には指し先の書き方 (TL なら 0〜127 など) で出す
+  - 値 (STL・L1〜L256・LR・ENDL) は **TARGET ごとに別に持つ**。TARGET を変えると、その指し先の値に切り替わる (はじめは指し先のパラメータの初期値)。R・STEP・LOOP・RR・Use Endl・KEEP は TARGET によらず 1 つ。保存されるのは全部の TARGET の値。区分のパラメータファイルには、いまの TARGET の値を書く
+  - 押したときに決まるパラメータ (MUL・DT・FIX の FREQ など) も、鳴っているあいだ段ごとに変わる (SETTINGS の LIVE DETUNE によらず)
   - 整数や選択肢のパラメータは、段のあいだ値を保つ (KEEP の札によらず)。実数のパラメータは KEEP を切ると斜めに繋ぐ
   - STEP・LOOP (LOOP MODE を含む)・RR / LR・Use Endl / ENDL は SSG SW AMP ENV[256] と同じ。値のつまみの下のボタンは MIN / -10% / -1 / +1 / +10% / MAX (±1 は指し先の 1 刻み)
+  - STEP が 1 のときは R.TARGET を動かせない (選ぶ段が無い)。SSG SW AMP / PITCH ENV[256]・ALG ENV など同じ形の区分も同じ。TAP SEQUENCER の S.TARGET (STEPS が 1 のとき)・TAP PARAM SEQUENCER の P.TARGET (組が 1 つ以下のとき)・Rich Mode の LP.TARGET (組が 1 つのとき) も同じく止める
   - TARGET はオートメーションでも動かせる
   - **FM 音源のオペレーターの TL ENV は、PARAM ENV (TARGET が TL) になった**。4.2.x までのプリセット・DAW の状態・チャンネルパラメータ・区分のパラメータファイル (`.tlEnv`) は、読み込むときに PARAM ENV へ写す。同じように鳴る
-  - パラメータの ID は `_TLENV_*` から `_PRMENV_*` に変わった。DAW で TL ENV をオートメーションしていたときは割り当て直しが要る
+  - パラメータの ID は `_TLENV_*` から `_PRMENV_*` に変わった。DAW で TL ENV をオートメーションしていたときは割り当て直しが要る。ただし STL・段の値・LR・ENDL は TARGET ごとに値を持つようにしたのでパラメータではなくなり、オートメーションでは動かせない (割り当て直す先も無い)
   - プリセット・DAW の状態・チャンネルパラメータ (`paramEnv`) に保存。区分のパラメータファイルは `.paramEnv` (見出しの右クリック)
   - 簡易表示モードでは隠す。SETTINGS の簡易表示モードカスタマイズに「PARAM ENV[256]」を足した。[非表示中の区分をバイパス] でも切れる
-  - 全チャンネル・FM 音源のオペレーター。2686VFX 以外の全プラグイン
+  - 全チャンネル・FM 音源のオペレーター・RHYTHM のパッド。2686VFX 以外の全プラグイン
+- **グラフに、鳴っている位置を動かして出せるようにした**
+  - TAP SEQUENCER (TAP AMP / PITCH / PARAM SEQUENCER) は、いまの段の印 (棒・一覧の地の色) を弾くのに合わせて動かす
+  - PARAM ENV[256] は、グラフの上に黄色の縦線で鳴っている位置を出す。いちばん新しく押した音の位置で、離すとリリースへ移り、鳴り終えると消える
+  - グラフの AMP / PIT / S256 / P256 でも、同じく黄色の縦線で鳴っている位置を出す。AMP ENV・PITCH ENV・SSG SW AMP / PITCH ENV[256] (チャンネル・オペレーター・パッド) と、FM 音源のオペレーターの EG (AR / DR / SR / SL / RR)。区間の中の位置は、音量のエンベロープ (AMP ENV・EG) はいまの音量、ほかは経った時間で決める
+  - SETTINGS に「TAP SEQUENCER のいまの段を、弾くのに合わせて動かす」「PARAM ENV[256] の鳴っている位置を、グラフに動かして出す」「AMP / PITCH ENV・SSG SW ENV・EG の鳴っている位置を、グラフに動かして出す」を足した。どれも初期値は入。同じ行で速さを 15 / 30 / 60 / 120 FPS から選ぶ (初期値は 30 FPS)。切ると動かさず、値を書き換えたときだけ映し直す。見た目だけの設定で、音は変わらない
+  - チャンネルのグラフの切り替えと、FM 音源のオペレーターのグラフの切り替えに **PRM** (PARAM ENV[256]) を足した。値は TARGET の組で描き、見出しに指し先の名前を出す。整数や選択肢の指し先は段を保つ絵になる。RHYTHM はパッドのグラフの切り替えに足した (パッドの PARAM ENV を描く)
+  - 波形プレビューの計算で鳴らした音は、鳴っている位置に出さない
+  - 全プラグイン (2686VFX は TAP SEQUENCER の設定だけ)
+- **段のエンベロープに STRICT R を足した (前の段と同じ値の段も R 秒保つ)**
+  - 段は「行き先の値に着いたとき」に終えるので、前の段と同じ値の段は R 秒を待たずに終わり、その後の段が早く来る。KEEP のときも同じ。リリースも、最後の段と LR が同じ値なら RR を待たずに ENDL へ移る
+  - KEEP の下の **STRICT R** を入れると、段は R 秒、リリースは RR 秒たったところで終える
+  - 初期値は切で、これまでのパッチの鳴り方は変わらない。カーブを入れているときは、もとから R 秒で終えている
+  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE。区分ごとに持つ。チャンネルパラメータ・区分のパラメータファイル (`strictRate`)・プリセット・DAW の状態に保存。オートメーションは `_SSGSW256_STRICT_R` / `_SSGSWP256_STRICT_R` / `_PRMENV_STRICT_R` / `_ALGENV_STRICT_R` / `_DUTYENV_STRICT_R` / `_PEAKENV_STRICT_R`
+  - 全プラグイン (2686VFX を除く)
+- **段のエンベロープを変化量で進められるようにした (RATE の段)。START NOW と T SYNC を足した**
+  - 段は段の頭の値から L へ R 秒で進むので、始まる値が違うと、同じ R でも動く速さが変わる。段ごとに **MODE** (TIME / RATE) を足し、R.TARGET で選んだ段の **MODE** / **DELTA** / **TICK** / **TICK NOTE** を直せるようにした
+  - **RATE** の段は、変化量 DELTA で L へ向かい、L に届くか R 秒たったら終える (行き過ぎない。R が最小 (0.001) なら時間で打ち切らない。打ち切ったら着いたところから次の段を始める)。TICK が 0 なら 1 秒あたり DELTA の線形、0 より大きければ段に入ってから TICK 秒ごとに DELTA ずつ動く (入った瞬間は動かない)。DELTA が 0 で打ち切りもしない段は、離すまでその段にいる
+  - リリースも **RR MODE** / **RR DELTA** / **RR TICK** / **RR NOTE** で同じように選べる (RR は打ち切りの時間)。RR DELTA が 0 のリリースは、TIME と同じく RR 秒で LR へ向かう
+  - **START NOW**: 押したときにまだ走っていれば (離したあとの余韻・レガートで音程をやり直すとき・声を奪ったときなど)、STL ではなくその時点の値から始める。PARAM ENV は、止まっていた声を指し先のつまみの今の値から始める
+  - **T SYNC**: RATE の段の 1 刻みを、TICK (秒) ではなく **TICK NOTE** (LINEAR / 1/1〜1/64、付点・3 連) で取る。ホストのテンポに合わせ、途中で変わっても次の刻みから追う。もらえないとき (Standalone など) は 120 BPM
+  - RATE の段にはカーブは効かない。KEEP はこれまでどおり。STRICT R は TIME の段だけに効く。R の帯では、RATE の段は見出しを D にして DELTA を出す
+  - グラフ (パラメータグラフ) は、STL から段を順にたどり、音の側と同じ式で段の長さと終わりの値を出して描く。刻みは階段で、動かず打ち切りもしない段は破線で描く。START NOW なら STL の点を中抜きの丸にする (PARAM ENV はつまみの今の値から描く)。T SYNC で音符の刻みを使っているときは、計算に使ったテンポを右上に出す。COLORS タブの名前は EnvelopeGraph.TempoText / EnvelopeGraph.MarkerFill
+  - SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] / ALG ENV / DUTY RATIO ENVELOPE / PEAK RATIO ENVELOPE。段ごとの MODE / DELTA / TICK / TICK NOTE とリリースのものは段の表に持ち (オートメーション不可)、プリセット・DAW の状態・チャンネルパラメータ・区分のパラメータファイル (`rateModes` / `deltas` / `tickSecs` / `tickNotes` / `releaseMode` など) に保存。START NOW / T SYNC は区分ごとのパラメータ (`startNow` / `tickSync`)。オートメーションは `_SSGSW256_START_NOW` / `_SSGSW256_TSYNC` / `_SSGSWP256_START_NOW` / `_SSGSWP256_TSYNC` / `_PRMENV_START_NOW` / `_PRMENV_TSYNC` / `_ALGENV_START_NOW` / `_ALGENV_TSYNC` / `_DUTYENV_START_NOW` / `_DUTYENV_TSYNC` / `_PEAKENV_START_NOW` / `_PEAKENV_TSYNC`
+  - 初期値はすべて TIME で、START NOW / T SYNC も切なので、これまでのパッチの鳴り方は変わらない
+  - 全プラグイン (2686VFX を除く)
+- **グラフのサスティンの区間を見分けられるようにした**
+  - AMP ENV / PITCH ENV / SSG SW AMP ENV[256] / SSG SW PITCH ENV[256] / PARAM ENV[256] のグラフで、鍵を押しているあいだ保つ区間 (サスティン) を、決まった幅・別の色 (黄緑) で描く
+  - 段のエンベロープ (SSG SW AMP / PITCH ENV[256]・PARAM ENV[256]) には、これまでサスティンの区間が無く、最後の段のすぐ後にリリースを描いていた。最後の段を走り終えて保つところ (ループしないとき・回数のあるループを回り終えたとき) に区間を足した
+  - KEEP のとき (PARAM ENV の整数・選択肢の指し先は常に KEEP)、リリースも横一直線に均していたため、走り終えて LR へ移るところが描かれていなかった。リリースの終わりで LR (Use Endl なら ENDL) へ移る線を描くようにした
+  - 保っているあいだ (サスティン) は、鳴っている位置を縦線ではなく、サスティンの区間ごと半透明の黄色で塗る (COLORS タブの名前は EnvelopeGraph.LiveFill)
+  - COLORS タブの名前は EnvelopeGraph.SustainLine。FM 音源のオペレーターの EG (AR / DR / SR / SL / RR) の絵は変えていない
+  - 全プラグイン
+- **区分の見出しの色を変えた**
+  - TAP AMP SEQUENCER はシアン、TAP PITCH SEQUENCER は白寄りの紫にした (これまでと逆の組み合わせ)
+  - PARAM ENV[256] と TAP PARAM SEQUENCER は白寄りのダークブルーにした
+  - COLORS タブで変えられる。名前は Category.TapAmpBg / Category.TapPitchBg / Category.ParamBg。グラフの PARAM ENV の線は EnvelopeGraph.ParamLine、鳴っている位置の線は EnvelopeGraph.LiveLine
+  - 全プラグイン (2686VFX は TAP AMP / PITCH SEQUENCER だけ)
+- **マニュアルとチュートリアルを別のサイトに分けた**
+  - マニュアルは https://cyross.github.io/2686V-v4-Manual/ 、チュートリアルは https://cyross.github.io/2686V-v4-Tutrial/ に移した。どちらも別のリポジトリで管理する
+  - チュートリアルは、音を作りながら操作を覚えるページを、これから足していく。動画 (.mp4 / .webm) や動く絵 (.gif) を貼れる
+  - ABOUT タブのユーザーズマニュアルのボタンは、新しいマニュアルを開く (SETTINGS の言語に合わせて日本語版または英語版)
+  - これまでの https://cyross.github.io/2686V_2686VFX/ は更新しない
+  - 全プラグイン
+- **SSG に実機の鳴り方を足した (More Real SSG / 三角波・ノイズの More Real FC)**
+  - 矩形波の設定に **More Real SSG** を足した。SSG (YM2203 / YM2608B) の鳴り方を真似る。デューティ比は 50% に固定 (DUTY の設定は薄くなり効かない)、0 から上だけに振れる単極で鳴らし、約 30Hz の直流カット (サグと、音量を急に上げたときの「パツッ」)、音量は SSG の対数の表 (CHIP DAC によらず)、トーンとノイズは論理積 (AND) で混ぜる (MIX 0 でトーンだけ、1 でノイズだけ、0.5 で AND)。FC Mode / More Real FC / More Real NES と排他
+  - 三角波の設定に **More Real FC** を足した。2A03 の三角波 (4bit × 32 段の階段、11bit タイマーの音程、三角波とノイズの DAC の曲がり、37Hz のハイパス) を真似る。PEAK と PEAK RATIO ENVELOPE は薄くなり効かない
+  - 矩形波・三角波のグループの下半分を **NOISE** グループにし、**More Real FC** を置いた。2A03 のノイズ (15bit LFSR の長周期 32,767 段、16 段の表の速さ、37Hz のハイパス) を真似る。初期型 FC と同じく短周期は無い
+  - どれも初期値は切で、これまでの音は変わらない。チャンネルパラメータ・プリセット・DAW の状態に保存。オートメーションは `SSG_DUTY_MORE_SSG` / `SSG_TRI_MORE_FC` / `SSG_NOISE_MORE_FC`
+  - SSG を持つプラグイン (2686V・2686VLight・26V・86V・PULSEV)
+- **DUTY RATIO ENVELOPE と PEAK RATIO ENVELOPE に STEPS を足した**
+  - 値のつまみの下に **STEPS** を置いた。値 (STL・段の値・LR・ENDL) を決まった刻みへ丸める。選択肢は自由・1/10・1/4・1/5・1/8・1/16
+  - 刻みは範囲に対して決まる。DUTY RATIO ENVELOPE (0〜100%) は 10% / 25% / 20% / 12.5% / 6.25%、PEAK RATIO ENVELOPE (0〜1) は 0.1 / 0.25 / 0.2 / 0.125 / 0.0625 単位
+  - 選んだ刻みは画面だけのもので保存しない (SSG SW AMP ENV[256] などの STEPS と同じ)
+  - SSG を持つプラグイン (2686V・2686VLight・26V・86V・PULSEV)
 - **ADPCM+ の、選んでいないスロットも符号化しておくようにした**
   - TAP PARAM SEQUENCER / PARAM ENV で VOICE を変えると、選んでいないスロットも鳴るため。読み込んであるスロットは、QUALITY を変えたときにすべて符号化し直す
   - ADPCM+ を持つプラグイン (2686V / 2686VLight / PCMV)
+- **機種名・部品名を略記で書くようにした**
+  - 画面の文字・マニュアル・この readme の機種名と部品名を、FC・PCE・MD・98・88・X68K・26・86 などの略記にした。COLORS タブの実機のパレット、QUALITY の機種選び (MSX は 2413 と TR に分けた)、WT PITCH / AMP MOD の「7: PCE Wave」、QUALITY(PCM) の BIT の「15: SFC BRR」「19: Z280」「20: K53」「21: K54」、BEEP の TIMER CLOCK の「PCAT」「98」など
+  - 名前だけの変更で、音・パラメータの ID・保存の形は変わらない。これまでのプリセットや DAW の状態はそのまま読める
+  - 参考文献の書名はそのまま
+  - 全プラグイン
+
+- **段の表の書き換えも Undo / Redo で戻せるようにした**
+  - PARAM ENV[256] の STL・段の値・LR・ENDL (TARGET ごとの値) はパラメータではないので、これまでは Undo で戻らず、DAW にも変わったことが伝わらなかった (保存していない印が付かない)。書き換えると Undo の 1 手にし、DAW へ知らせるようにした
+  - 同じ表に持つ SSG SW AMP / PITCH ENV[256]・ALG ENV・DUTY / PEAK RATIO ENVELOPE の段の R / L、TAP SEQUENCER の段と SKIP、TAP PARAM SEQUENCER の組、段のループの組も同じ
+  - グラフを引いたときは、ボタンを離すまでを 1 手にまとめる。区分の貼り付けなどパラメータも一緒に変わる操作は、Undo 1 回で両方が戻る
+  - プリセット・DAW の状態を読み込んだときは Undo に載せない
+  - 全プラグイン
+- **見直しで見つかった不具合を直した**
+  - SSG のチャンネルパラメータの書き出し・読み込みに、More Real SSG と三角波・ノイズの More Real FC が入っていなかった。書き出して読み直すと設定が消えていた。古いファイルには無いので、無ければ切にする (SSG を持つプラグイン)
+  - More Real SSG を入れたり切ったりしても、DUTY の設定の薄表示が変わらなかった (SSG を持つプラグイン)
+  - チャンネル・オペレーター・区分のコピーと貼り付けで、PARAM ENV[256] の STL・段の値・LR・ENDL (TARGET ごとの値) と、TAP PARAM SEQUENCER の組が写っていなかった (全プラグイン)
+  - ボイスが鳴り終えたときや、鳴っている最中に PARAM ENV の TARGET・ENABLE を変えたときに、グラフの縦線が残ったままになっていた。位置が書かれなくなったら消すようにした (全プラグイン)
+  - グラフの縦線の区間と進みを 1 つにまとめて読み書きするようにした。ARM64 で、新しい区間と古い進みの組を読み、線が一瞬跳ぶことがあった (全プラグイン)
+  - PARAM ENV がどの TARGET を指していても、SETTINGS の「MUL/DET・FIX を鳴らしながら反映」を切っていても、MUL / DET / FIX が鳴りながら変わっていた。MUL・DT・FIX FREQ・SPEED を指しているときだけ、鳴っている最中に周波数を読み直すようにした (全プラグイン)
+  - ノイズの More Real FC で、2A03 の速い 4 段 (period 4〜32) が選べなかった。N.FREQ の範囲を表のいちばん速い段まで引き伸ばし、16 段すべてに届くようにした (SSG を持つプラグイン)
+  - DAW がほかのスレッドで状態を読み込むのと、エディターを開く・閉じる (言語を切り替えてタブを作り直すときも) のが重なると、DAW ごと落ちることがあった。枠の畳み具合を当て直す仕組みを、state を聞く形から、読み込んだ回数を時々見に行く形に変えた (全プラグイン)
+  - PRESET タブの初期化や RESET のあと、FM 音源のオペレーター・RHYTHM のパッドの小さなグラフのうち、TARGET が指していないものが描き直されず、TARGET で指し直すまで初期化されていないように見えた。値は戻っていた。初期化のあとに画面を並べ直し、どのグラフも描き直すようにした (FM 音源または RHYTHM を持つプラグイン)
+- **音源の計算を軽くした (音は変わらない)**
+  - LFO の PM を切っているときは、ピッチの倍率を求める計算 (pow) を飛ばす。SSG・WT・WT2・WT+・ADPCM・ADPCM+・BEEP・RHYTHM のパッド
+  - ノイズの More Real FC で、2A03 の 16 段から速さを選ぶ計算 (log) を 16 回から 1 回にした
+  - PARAM ENV が MUL・DT・FIX FREQ・SPEED 以外を指しているときは、鳴っている最中に周波数を作り直さない (上の LIVE DETUNE の直しと同じもの)
+  - 鳴っていないボイスには、ブロックごとに音源の値を配らない。押したときに最新の値を配る。PARAM ENV / TAP PARAM SEQUENCER を一度使ったボイスが、鳴り終えたあとも値の丸ごとのコピーと読み直しを続けていた (ユニゾン込みで最大 80 ボイス)
+  - OPNA・OPN の LFO の PM の倍率 (pow) を、オペレーターごとではなく 1 サンプルに 1 回だけ求める
+  - ユニゾンの音量補正 (sqrt) を、サンプルごとではなく値が決まったときに 1 回だけ求める
+  - TAP AMP SEQUENCER の作業場所を、音のスレッドではなく再生の準備のときに取っておく
+- **画面を軽くした (見た目は変わらない)**
+  - 区分の板のマウスの当たり判定を、板ごとではなく 1 回の動きにつき 1 回にした。隠れたタブや畳んだ枠の中の板は調べない。つまみを引いているあいだは探さない
+  - 枠の見出しの文字幅を、文字が変わったときだけ測る (マウスが動くたびに測っていた)。見出しの色が変わったときは、枠全体ではなく見出しの帯だけを描き直す
+  - TARGET の大きな枠は、写し元が変わったときだけ写して描き直す (何もしなくても毎秒 10 回描き直していた)
+  - 隠れたタブ・閉じた区分のグラフと TAP SEQUENCER / TAP PARAM SEQUENCER は、鳴っている位置を読みに行かない。TAP 系は、いまの段が進んだだけなら印だけを動かす (全部の段の文字を作り直していた)
+  - リアルタイムの波形は、前と同じ (音が出ていない) なら描き直さない
 
 ### 3-0-2. v4.2.0での追加・変更
 
@@ -152,7 +262,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - どの区分にも入っていなかったチャンネルのグローバルの LEVEL・STEPS・DELAY を、見出し「UNCATEGORIZED」の下へ。開閉でき、最初は開いている
   - 全チャンネルが対象。2686VFX の出力の LEVEL はこれまでどおり
 - **SSG: 矩形波に「More Real FC」「More Real NES」を追加**
-  - 矩形波(デューティ比)設定の FC FLUC の下。ファミコン / NES (2A03) の矩形波の鳴り方を真似る (FC FLUC とは別物)
+  - 矩形波(デューティ比)設定の FC FLUC の下。FC / NES (2A03) の矩形波の鳴り方を真似る (FC FLUC とは別物)
   - デューティ比を実機の 12.5 / 25 / 50 / 75% へ寄せ、音程を 11bit タイマーの刻みへ、音量を 16 段と DAC の曲がりへ。出力のフィルタは FC が 37Hz のハイパス、NES が 90Hz・440Hz のハイパスと 14kHz のローパス
   - FC Mode・More Real FC・More Real NES はどれか 1 つだけ入る (すべて切も可)。初期状態は切で、これまでの音は変わらない
   - パラメータファイル・プリセットにも保存 (`dutyMoreFc` / `dutyMoreNes`)
@@ -247,7 +357,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - OP8 の色を白へ寄せた。図の高さも低く
 - **QUALITY に「DAC」を追加**
   - 非 PCM 系・PCM 系の QUALITY と、2686VFX の PCM ビットクラッシャーが対象
-  - 機種(98/88・MSX・X68K・FC・SFC・PCE・MD・GB・TOWNS・PS1)を選んで「適応」を押すと、BIT・RATE・INTERP をまとめて切り替える
+  - 機種(98/88・2413・TR・X68K・FC・SFC・PCE・MD・GB・TOWNS・PS1)を選んで「適応」を押すと、BIT・RATE・INTERP をまとめて切り替える
   - 選んだ機種はプリセットやチャンネルパラメータへは保存しない
 - **2686VFX: ノイズリダクションを追加**
   - 音源の QUALITY(PCM) のゲートと高域カットを、単独の効果「ノイズリダクション」として追加(LPF の基準は RATE で選ぶ)
@@ -269,7 +379,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - AMP ENV の SL、SSG HW AMP ENV の MIN / MAX、SSG SW AMP ENV の L1〜L6、SSG SW AMP ENV[11] の L1〜L11・ENDL、WT PITCH MOD の DEPTH (0.1 より下の刻みは 0.1 に寄る)、WT AMP MOD の DEPTH。チャンネル・オペレーター・パッドのすべて
   - 画面だけの選択で保存しない。初めは自由で、これまでの音は変わらない
 - **FM のエンベロープと TL を N88-BASIC(86) の向きで表示できるように**
-  - SETTINGS に「一部の FM パラメータ表示を、PC-9801 の N88-BASIC(86) 準拠にする」を追加 (初期状態は切)。「MUL/DET・FIX を鳴らしながら反映」の下、区切り線の下
+  - SETTINGS に「一部の FM パラメータ表示を、98 の N88-BASIC(86) 準拠にする」を追加 (初期状態は切)。「MUL/DET・FIX を鳴らしながら反映」の下、区切り線の下
   - 入れると、OPNA / OPN / OPL / OPL3 / OPM / OPZX7 (OPZX7S を含む) のレジスタの AR / DR / SR / RR / SL / TL (OPM / OPZX7 は D1R / D2R / D1L) の数字と帯の向きを逆にして見せる。AR なら画面の 0 が内部の 31
   - MML 入力の AR / DR / SR / RR / SL / TL (D1R / D2R / D1L) も逆にして読む
   - 見え方だけの切り替えで、内部は切っているときの値で処理する。音とパラメータの値は変わらない
@@ -655,7 +765,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
     - MIN～MAXの範囲で変調(初期値 MIN=0.0 / MAX=1.0)
       - MIN/MAX は受け持つ波形・SLOT全てに適用
     - ナッジボタン付属
-    - HuC6280 / FDS TABLE 対応
+    - PCE / FDS TABLE 対応
     - 全チャンネル(FM含む)・全オペレーター・RHYTHMの全パッドで使用可能
     - インポート・エクスポート対応(`.wtampmod`)
   - **FDS TABLE の名称を分離**
@@ -722,10 +832,10 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 2686Vの軽量版
   - 2686Vからカーブ編集モードを省いて負荷を下げたもの
 - **26V**:
-  - 2686V Lightの構成を「PC-9801-26(K)」に近づけたもの
+  - 2686V Lightの構成を「26」に近づけたもの
     - チャンネルはOPN、SSGのみ
 - **86V**:
-  - 2686V Lightの構成を「PC-9801-86」に近づけたもの
+  - 2686V Lightの構成を「86」に近づけたもの
     - チャンネルはOPNA、SSG、RHYTHM、PCMのみ
     - 「ADPCM」のチャンネル名を「PCM」に変更、初期の音質を「4-bit PCM」に変更
     - RHYTHMチャンネルのパッド数を6に変更
@@ -899,10 +1009,10 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 - YM2303/YM2608でおなじみ、SSG(PSG)チャンネル
   - 完全再現ではなく、PSGの機能も盛り込んだ強化版
   - 矩形波と三角波を用意
-  - パルス波は、SSGだけではなくファミコンやKONAMI VRC VIのデューティ比に対応
+  - パルス波は、SSGだけではなく FC やKONAMI VRC VIのデューティ比に対応
   - デューティ比の任意設定も可能
   - 位相逆転可能
-  - ファミコン風の波形に変更するスイッチを搭載
+  - FC 風の波形に変更するスイッチを搭載
   - 三角波は、ピーク位置の調整が可能
     - これにより、鋸波も実現
   - ソフトウェア機能として、グローバルに各種エンベロープを搭載
@@ -1170,7 +1280,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 - **色のカスタマイズ(COLORSタブ)**
   - UIで使用する色のカスタマイズ
   - ボタンひとつで初期値に戻せる
-  - RGB/HSVの他に、色名(JUCE+独自)、パレット(PC-8801/PC-9801/X68000/PCエンジン/メガドライブ)から取得可能
+  - RGB/HSVの他に、色名(JUCE+独自)、パレット(88/98/X68K/PCE/MD)から取得可能
   - 「項目」を見てみると、聞いたことが有る名前もちらほら…
 - **UIの大幅刷新**
   - タブの幅を少し拡張
@@ -1427,7 +1537,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
         - [Dir]SsgSwEnv11          : SSG SW AMP ENV(11) 用。v4.0.0 から [256] の形 (.ssgSwEnv256) に置き換え
       - [Dir]fromCC2               : Claude Code に作ってもらったファイルフォルダ(v3.2.0～)
       - [Dir]fromCCv4              : Claude Code に作ってもらったファイルフォルダ(v4.0.0～。v4.0.0 の機能を使った版)
-        - [Dir]SsgSwEnv256         : SSG SW AMP ENV[256] 用 (Amp: エコー・ファミコン風の減衰・ゲート・トレモロなど) (-ch はチャンネルの頭、-op はオペレーター・パッド向け。ON/OFF の向きが逆のため)
+        - [Dir]SsgSwEnv256         : SSG SW AMP ENV[256] 用 (Amp: エコー・FC 風の減衰・ゲート・トレモロなど) (-ch はチャンネルの頭、-op はオペレーター・パッド向け。ON/OFF の向きが逆のため)
         - [Dir]DutyEnv             : DUTY RATIO ENVELOPE 用
         - [Dir]PeakEnv             : PEAK RATIO ENVELOPE 用
         - [Dir]TlEnv               : TL ENV 用 (-tl127 は OPNA / OPN / OPM、-tl63 は OPL / OPL3 / OPZX7S 向け)。v4.3.0 からはオペレーターの PARAM ENV[256] (TARGET が TL) として読み込む
@@ -1526,7 +1636,8 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 ## 12. 操作マニュアル
 
 - `GitHub Pages` で提供いたします。
-  - [2686Vファミリー ユーザーズマニュアル](https://cyross.github.io/2686V_2686VFX/)
+  - [2686Vファミリー ユーザーズマニュアル](https://cyross.github.io/2686V-v4-Manual/)
+  - [2686Vファミリー チュートリアル](https://cyross.github.io/2686V-v4-Tutrial/)
 
 ## 13. ライセンス / License
 

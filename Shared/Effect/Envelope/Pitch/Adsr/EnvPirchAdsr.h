@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "./EnvPirchAdsrParams.h"
+#include "Shared/Core/Synth/LivePosition.h"
 #include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 class PitchAdsrEnv {
@@ -51,6 +52,23 @@ class PitchAdsrEnv {
 	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
+
+	// 鳴っている位置 (グラフの縦線。4.3.0)。区間の中の進みは時間 (phaseProgress)
+	LivePosition* m_livePos = nullptr;
+	LiveWriter m_live;
+
+	float advance(float phaseDelta);
+
+	int livePhase() const
+	{
+		switch (this->state) {
+		case State::Attack: return LivePosition::attack;
+		case State::Decay: return LivePosition::decay;
+		case State::Sustain: return LivePosition::sustain;
+		case State::Release: return LivePosition::release;
+		default: return LivePosition::idle;
+		}
+	}
 public:
 	PitchAdsrEnv();
 	void prepare(int targetIndex, double sampleRate);

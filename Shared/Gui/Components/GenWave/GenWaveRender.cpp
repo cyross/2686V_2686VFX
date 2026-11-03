@@ -4,9 +4,13 @@
 #include <cstring>
 
 #include "../../../Core/Const/ConstFileValues.h"
+#include "../../../Core/Synth/LivePosition.h"
 
 GenWaveRender::Wave GenWaveRender::render(GuiRenderRig& rig)
 {
+    // 計算で鳴らした音は、グラフの鳴っている位置に出さない
+    const LivePosition::Mute mute;
+
     Wave out;
 
     out.sampleRate = storeRate;

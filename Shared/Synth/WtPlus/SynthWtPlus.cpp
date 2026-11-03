@@ -98,7 +98,7 @@ void WtPlusCore::setParameters(const SynthCoreParams& params)
     updatePhaseDelta();
 
     // MUL/DET・FIX を鳴らしている最中にも反映する (SETTINGS)
-    if (params.liveDetune && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
+    if ((params.liveDetune || m_paramModLive) && m_keyFreq > 0.0f && isPlaying()) updateFrequency();
 }
 
 // MUL/DET・FIX から周波数を決める
@@ -311,7 +311,8 @@ float WtPlusCore::getSample()
         if (m_lfo.pm.enable) {
             pitchModCents += m_lfo.value.pm * m_lfo.pm.depthCent;
         }
-        float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+        // PM を切っていれば 1 倍。pow は重いので、0 セントのときは呼ばない
+        const float opzx7PitchMod = pitchModCents != 0.0f ? std::pow(2.0f, pitchModCents / 1200.0f) : 1.0f;
 
         // ==========================================
         // Wavetable固有の Modulation (Vibrato / Table Scan)

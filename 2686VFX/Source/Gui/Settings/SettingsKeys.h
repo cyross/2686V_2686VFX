@@ -36,6 +36,8 @@ namespace SettingsKey
 	// プリセット・チャンネルパラメータに書く音声・波形の場所の基準 (Io::PathRoot)
 	static inline const juce::String relativePathRoot = "relativePathRoot";
 	static inline const juce::String showVirtualKeyboard = "showVirtualKeyboard";
+	static inline const juce::String tapLiveGraph = "tapLiveGraph";
+	static inline const juce::String tapLiveFps = "tapLiveFps";
 	static inline const juce::String fmParameterCopyType = "fmParameterCopyType";
 	static inline const juce::String fxOrder = "fxOrder";
 };

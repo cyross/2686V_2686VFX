@@ -72,7 +72,7 @@ void OplProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
     TapSeq::setupPtrs(apvts, prefix, TapSeq::amp(), pTapAmp, stepTables);
     TapSeq::setupPtrs(apvts, prefix, TapSeq::pitch(), pTapPitch, stepTables);
     TapParam::setupPtrs(apvts, prefix, pTapParam, stepTables);
-    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables);
+    ParamEnv::setupPtrs(apvts, prefix, pParamEnv, stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::channelTargetIds(prefix, ParamModCatalog::opl(), OplPrValue::ops)));
     modResolver.init(apvts, prefix, ParamModCatalog::opl(), OplPrValue::ops);
 
     PrHelper::setupOplBasicPtrs(apvts, prefix, pBasic);
@@ -81,6 +81,7 @@ void OplProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
     PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
     PrHelper::setupSsgHwPEnv(apvts, prefix, pSsgHwPEnv);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnvG);
+    pAmpEnvG.live = &stepTables.position(prefix + LiveKey::ampEnv);
     PrHelper::setupWtMod(apvts, prefix, pWtMod, modWaves);
     PrHelper::setupWtAmpMod(apvts, prefix, pWtAmpMod, modWaves);
     PrHelper::setupSsgSwEnv256Ptrs(apvts, prefix, pSsgSwEnv256g, stepTables);
@@ -94,11 +95,13 @@ void OplProcessor::init(juce::AudioProcessorValueTreeState& apvts, WtModWaveStor
 
         PrHelper::setupOplDetunePtrs(apvts, p, pOpDetune[op]);
         PrHelper::setupOplAdsrPtrs(apvts, p, pOpAdsr[op]);
+        pOpAdsr[op].live = &stepTables.position(p + LiveKey::eg);
         PrHelper::setupOplEgPtrs(apvts, p, pOpEg[op]);
         PrHelper::setupOplLfoPtrs(apvts, p, pLfo[op]);
         PrHelper::setupPitchEnvPtrsOp(apvts, p, pPitchEnv[op]);
+        pPitchEnv[op].live = &stepTables.position(p + LiveKey::pitchEnv);
         PrHelper::setupSsgSwEnv256PtrsOp(apvts, p, pSsgSwEnv256[op], stepTables);
-        ParamEnv::setupPtrs(apvts, p, pOpParamEnv[op], stepTables);
+        ParamEnv::setupPtrs(apvts, p, pOpParamEnv[op], stepTables, ParamModCatalog::defaultsOf(apvts, ParamModCatalog::opTargetIds(p, ParamModCatalog::opl())));
         TapParam::setupPtrs(apvts, p, pOpTapParam[op], stepTables);
         PrHelper::setupSsgSwPEnv256PtrsOp(apvts, p, pSsgSwPEnv256[op], stepTables);
         PrHelper::setupSsgHwPEnv(apvts, p, pOpSsgHwPEnv[op]);

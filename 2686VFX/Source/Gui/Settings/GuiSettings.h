@@ -129,6 +129,12 @@ class GuiSettings : public GuiBase
     // Tooltip Visible Switch
     GuiToggleButton tooltipToggle;
 
+    NormalSeparator separatorLiveGraph;
+
+    // TAP SEQUENCER のいまの段を、弾くのに合わせて動かすか (4.3.0) と、その速さ
+    GuiToggleButton tapLiveToggle;
+    GuiComboBox tapLiveFpsSelector;
+
     NormalSeparator separator4;
 
     // 仮想MIDIキーボード表示制御
@@ -217,6 +223,9 @@ public:
         separatorSimple(context),
         toggleAlignSelector(context),
         separatorToggleAlign(context),
+        separatorLiveGraph(context),
+        tapLiveToggle(context),
+        tapLiveFpsSelector(context),
         separator4(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),
