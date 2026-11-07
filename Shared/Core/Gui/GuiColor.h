@@ -270,7 +270,7 @@ namespace GuiColor {
 
 	namespace LevelMeter {
 		// レベルメーター (4.4.0)。壁紙と UI のあいだに描くので、上の文字が読めるよう透かす。
-		// 描き方ごとに分けてあり、COLORS タブでそれぞれ変えられる
+		// 描き方ごとに分けてあり、COLORS タブでそれぞれ変えられる。L / R の柱は Lr の下で別に変えられる
 
 		// LED。低いところは緑、上へ行くと黄色、てっぺんは赤 (昔のグラフィックイコライザーの並び)
 		namespace Led {
@@ -327,6 +327,55 @@ namespace GuiColor {
 			inline Entry Scale{ "LevelMeter.Retro04.Scale", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.55f); } };
 			inline Entry Mark{ "LevelMeter.Retro04.Mark", []() -> juce::Colour { return juce::Colours::red.withAlpha(0.8f); } };
 			inline Entry Peak{ "LevelMeter.Retro04.Peak", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.9f); } };
+		};
+
+		// L / R の柱 (4.4.0)。スペクトラムとは別に変えられる。既定は同じ描き方のスペクトラムの色
+		namespace Lr {
+			namespace Led {
+				inline Entry Low{ "LevelMeter.Lr.Led.Low", []() -> juce::Colour { return ::GuiColor::LevelMeter::Led::Low; } };
+				inline Entry Mid{ "LevelMeter.Lr.Led.Mid", []() -> juce::Colour { return ::GuiColor::LevelMeter::Led::Mid; } };
+				inline Entry High{ "LevelMeter.Lr.Led.High", []() -> juce::Colour { return ::GuiColor::LevelMeter::Led::High; } };
+				inline Entry Off{ "LevelMeter.Lr.Led.Off", []() -> juce::Colour { return ::GuiColor::LevelMeter::Led::Off; } };
+				inline Entry Peak{ "LevelMeter.Lr.Led.Peak", []() -> juce::Colour { return ::GuiColor::LevelMeter::Led::Peak; } };
+			};
+
+			namespace Bar {
+				inline Entry Low{ "LevelMeter.Lr.Bar.Low", []() -> juce::Colour { return ::GuiColor::LevelMeter::Bar::Low; } };
+				inline Entry Mid{ "LevelMeter.Lr.Bar.Mid", []() -> juce::Colour { return ::GuiColor::LevelMeter::Bar::Mid; } };
+				inline Entry High{ "LevelMeter.Lr.Bar.High", []() -> juce::Colour { return ::GuiColor::LevelMeter::Bar::High; } };
+				inline Entry Peak{ "LevelMeter.Lr.Bar.Peak", []() -> juce::Colour { return ::GuiColor::LevelMeter::Bar::Peak; } };
+			};
+
+			namespace Line {
+				inline Entry Stroke{ "LevelMeter.Lr.Line.Stroke", []() -> juce::Colour { return ::GuiColor::LevelMeter::Line::Stroke; } };
+				inline Entry Fill{ "LevelMeter.Lr.Line.Fill", []() -> juce::Colour { return ::GuiColor::LevelMeter::Line::Fill; } };
+				inline Entry Peak{ "LevelMeter.Lr.Line.Peak", []() -> juce::Colour { return ::GuiColor::LevelMeter::Line::Peak; } };
+			};
+
+			namespace Retro01 {
+				inline Entry Dot{ "LevelMeter.Lr.Retro01.Dot", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro01::Dot; } };
+				inline Entry Glow{ "LevelMeter.Lr.Retro01.Glow", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro01::Glow; } };
+				inline Entry Off{ "LevelMeter.Lr.Retro01.Off", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro01::Off; } };
+				inline Entry Peak{ "LevelMeter.Lr.Retro01.Peak", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro01::Peak; } };
+			};
+
+			namespace Retro02 {
+				inline Entry Top{ "LevelMeter.Lr.Retro02.Top", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro02::Top; } };
+				inline Entry Bottom{ "LevelMeter.Lr.Retro02.Bottom", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro02::Bottom; } };
+				inline Entry Peak{ "LevelMeter.Lr.Retro02.Peak", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro02::Peak; } };
+			};
+
+			namespace Retro03 {
+				inline Entry Segment{ "LevelMeter.Lr.Retro03.Segment", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro03::Segment; } };
+				inline Entry Glow{ "LevelMeter.Lr.Retro03.Glow", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro03::Glow; } };
+				inline Entry Peak{ "LevelMeter.Lr.Retro03.Peak", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro03::Peak; } };
+			};
+
+			namespace Retro04 {
+				inline Entry Dot{ "LevelMeter.Lr.Retro04.Dot", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro04::Dot; } };
+				inline Entry Off{ "LevelMeter.Lr.Retro04.Off", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro04::Off; } };
+				inline Entry Peak{ "LevelMeter.Lr.Retro04.Peak", []() -> juce::Colour { return ::GuiColor::LevelMeter::Retro04::Peak; } };
+			};
 		};
 	};
 

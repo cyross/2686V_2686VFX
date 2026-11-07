@@ -123,20 +123,22 @@ private:
 		int size = 0;
 	};
 
-	mutable std::array<Tile, tileSlots> tiles;
+	// スペクトラムと L / R で色が違うので、別々に持つ
+	mutable std::array<Tile, tileSlots * 2> tiles;
 
-	const juce::Image& tileFor(TileSlot slot, int size, juce::Colour fill, juce::Colour glow) const;
+	const juce::Image& tileFor(TileSlot slot, bool lr, int size, juce::Colour fill, juce::Colour glow) const;
 
 	// ---- 描き方ごと。column は 1 本の柱の矩形、level / peak は 0〜1
-	void drawColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, int style, bool peakHold) const;
+	// lr は L / R の柱か (色を Lr の下から取る)
+	void drawColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, int style, bool peakHold, bool lr) const;
 
-	void drawLed(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
-	void drawBar(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
-	void drawLineColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
-	void drawBlueDots(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
-	void drawStripes(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
-	void drawVfd(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
-	void drawDotMatrix(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
+	void drawLed(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const;
+	void drawBar(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const;
+	void drawLineColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const;
+	void drawBlueDots(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const;
+	void drawStripes(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const;
+	void drawVfd(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const;
+	void drawDotMatrix(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const;
 
 	// スペクトラムを 1 枚の絵として描くもの (線・奥へすぼまる柱)
 	void drawSpectrumLine(juce::Graphics& g, juce::Rectangle<float> area, int bands, bool peakHold) const;

@@ -330,6 +330,14 @@ TEST_CASE("SETTINGS: レベルメーターは入り切りでき、切るとほ�
 	CHECK(meter->getHeight() >= content.getHeight() * 3 / 4 - 20);
 	CHECK(meter->getHeight() <= content.getHeight() * 3 / 4);
 
+	// L / R の柱の色は、スペクトラムとは別に COLORS タブで変えられる。既定は同じ色
+	for (const char* id : { "LevelMeter.Lr.Led.Low", "LevelMeter.Lr.Retro01.Dot", "LevelMeter.Lr.Retro04.Peak" }) {
+		INFO(id);
+		CHECK(GuiColor::registry().count(id) == 1);
+	}
+
+	CHECK(GuiColor::LevelMeter::Lr::Led::Low.defaultColour() == GuiColor::LevelMeter::Led::Low.defaultColour());
+
 	// どの描き方でも、広い枠・狭い枠ともに描ける。音を入れて、段が灯った状態で描く
 	processor->levelMeterShow = true;
 	processor->levelMeterPeakHold = true;

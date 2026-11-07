@@ -58,12 +58,15 @@ namespace
 
 	static_assert(std::size(styleNames) == GuiLevelMeter::styleCount);
 
-	juce::Colour ledColourAt(float height)
-	{
-		if (height >= highFrom) return GuiColor::LevelMeter::Led::High;
-		if (height >= midFrom) return GuiColor::LevelMeter::Led::Mid;
+	// 柱の色。L / R の柱 (lr) は Lr の下の色を使う (スペクトラムとは別に変えられる)
+	#define LEVEL_METER_COLOUR(style, name) (lr ? (juce::Colour)GuiColor::LevelMeter::Lr::style::name : (juce::Colour)GuiColor::LevelMeter::style::name)
 
-		return GuiColor::LevelMeter::Led::Low;
+	juce::Colour ledColourAt(float height, bool lr)
+	{
+		if (height >= highFrom) return LEVEL_METER_COLOUR(Led, High);
+		if (height >= midFrom) return LEVEL_METER_COLOUR(Led, Mid);
+
+		return LEVEL_METER_COLOUR(Led, Low);
 	}
 
 	// 下から数えて、level (0〜1) のうち灯る段の数
@@ -73,7 +76,7 @@ namespace
 	int peakIndex(float peak, int count) { return peak > 0.0f ? juce::jlimit(0, count - 1, (int)std::ceil(peak * (float)count) - 1) : -1; }
 
 	// 縞の柱 (80s-90s 02)。mapX で横の位置を変える (奥へすぼめる)。t は下から 0〜1
-	void drawStriped(juce::Graphics& g, float x0, float x1, juce::Rectangle<float> area, float level, float peak, bool peakHold,
+	void drawStriped(juce::Graphics& g, float x0, float x1, juce::Rectangle<float> area, float level, float peak, bool peakHold, bool lr,
 		float pitch, const std::function<float(float x, float t)>& mapX)
 	{
 		const float bottom = area.getBottom();
@@ -100,7 +103,7 @@ namespace
 			const float yHigh = yLow - pitch * 0.6f;
 			const float t = (float)(i + 1) / (float)count;
 
-			g.setColour(GuiColor::LevelMeter::Retro02::Bottom.get().interpolatedWith(GuiColor::LevelMeter::Retro02::Top, t));
+			g.setColour(LEVEL_METER_COLOUR(Retro02, Bottom).interpolatedWith(LEVEL_METER_COLOUR(Retro02, Top), t));
 			g.fillPath(quad(yLow, yHigh));
 		}
 
@@ -109,7 +112,7 @@ namespace
 		if (peakHold && pi >= 0) {
 			const float yLow = bottom - pitch * (float)pi - 1.0f;
 
-			g.setColour(GuiColor::LevelMeter::Retro02::Peak);
+			g.setColour(LEVEL_METER_COLOUR(Retro02, Peak));
 			g.fillPath(quad(yLow, yLow - pitch * 0.6f));
 		}
 	}
@@ -365,7 +368,7 @@ void GuiLevelMeter::paint(juce::Graphics& g)
 
 				const juce::Rectangle<float> column(x + (style == retro03 ? gap * 0.5f : 0.0f), spectrum.getY(), pitch - gap, spectrum.getHeight());
 
-				drawColumn(g, column, bandLevel[(size_t)b], bandPeak[(size_t)b], style, peakHold);
+				drawColumn(g, column, bandLevel[(size_t)b], bandPeak[(size_t)b], style, peakHold, false);
 			}
 
 			if (style == retro03) drawVfdScale(g, spectrum.getRight(), spectrum);
@@ -382,25 +385,25 @@ void GuiLevelMeter::paint(juce::Graphics& g)
 
 		lr.removeFromLeft(gap);
 
-		drawColumn(g, area, lrLevel[ch], lrPeak[ch], style, peakHold);
+		drawColumn(g, area, lrLevel[ch], lrPeak[ch], style, peakHold, true);
 	}
 }
 
-void GuiLevelMeter::drawColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, int style, bool peakHold) const
+void GuiLevelMeter::drawColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, int style, bool peakHold, bool lr) const
 {
 	switch (style) {
-	case bar:     drawBar(g, column, level, peak, peakHold); break;
-	case line:    drawLineColumn(g, column, level, peak, peakHold); break;
-	case retro01: drawBlueDots(g, column, level, peak, peakHold); break;
-	case retro02: drawStripes(g, column, level, peak, peakHold); break;
-	case retro03: drawVfd(g, column, level, peak, peakHold); break;
-	case retro04: drawDotMatrix(g, column, level, peak, peakHold); break;
-	default:      drawLed(g, column, level, peak, peakHold); break;
+	case bar:     drawBar(g, column, level, peak, peakHold, lr); break;
+	case line:    drawLineColumn(g, column, level, peak, peakHold, lr); break;
+	case retro01: drawBlueDots(g, column, level, peak, peakHold, lr); break;
+	case retro02: drawStripes(g, column, level, peak, peakHold, lr); break;
+	case retro03: drawVfd(g, column, level, peak, peakHold, lr); break;
+	case retro04: drawDotMatrix(g, column, level, peak, peakHold, lr); break;
+	default:      drawLed(g, column, level, peak, peakHold, lr); break;
 	}
 }
 
 // ---------------------------------------------------------------- LED
-void GuiLevelMeter::drawLed(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const
+void GuiLevelMeter::drawLed(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const
 {
 	const float pitch = pitchOf(led);
 	const int count = juce::jmax(1, (int)(column.getHeight() / pitch));
@@ -413,20 +416,20 @@ void GuiLevelMeter::drawLed(juce::Graphics& g, juce::Rectangle<float> column, fl
 
 		const bool on = i < lit || i == pi;
 
-		g.setColour(on ? ledColourAt((float)(i + 1) / (float)count) : (juce::Colour)GuiColor::LevelMeter::Led::Off);
+		g.setColour(on ? ledColourAt((float)(i + 1) / (float)count, lr) : LEVEL_METER_COLOUR(Led, Off));
 		g.fillRect(seg);
 	}
 
 	if (pi >= 0) {
 		const float y = column.getBottom() - pitch * (float)(pi + 1);
 
-		g.setColour(GuiColor::LevelMeter::Led::Peak);
+		g.setColour(LEVEL_METER_COLOUR(Led, Peak));
 		g.drawRect(juce::Rectangle<float>(column.getX(), y + 1.0f, column.getWidth(), pitch - 2.0f), 1.0f);
 	}
 }
 
 // ---------------------------------------------------------------- バー
-void GuiLevelMeter::drawBar(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const
+void GuiLevelMeter::drawBar(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const
 {
 	const float h = column.getHeight();
 	const float bottom = column.getBottom();
@@ -434,8 +437,8 @@ void GuiLevelMeter::drawBar(juce::Graphics& g, juce::Rectangle<float> column, fl
 	if (level > 0.0f) {
 		const float top = bottom - h * level;
 
-		juce::ColourGradient grad(GuiColor::LevelMeter::Bar::Low, 0.0f, bottom, GuiColor::LevelMeter::Bar::High, 0.0f, column.getY(), false);
-		grad.addColour(midFrom, GuiColor::LevelMeter::Bar::Mid);
+		juce::ColourGradient grad(LEVEL_METER_COLOUR(Bar, Low), 0.0f, bottom, LEVEL_METER_COLOUR(Bar, High), 0.0f, column.getY(), false);
+		grad.addColour(midFrom, LEVEL_METER_COLOUR(Bar, Mid));
 
 		g.setGradientFill(grad);
 		g.fillRect(juce::Rectangle<float>(column.getX(), top, column.getWidth(), bottom - top));
@@ -444,36 +447,36 @@ void GuiLevelMeter::drawBar(juce::Graphics& g, juce::Rectangle<float> column, fl
 	if (peakHold && peak > 0.0f) {
 		const float y = bottom - h * peak;
 
-		g.setColour(GuiColor::LevelMeter::Bar::Peak);
+		g.setColour(LEVEL_METER_COLOUR(Bar, Peak));
 		g.drawLine(column.getX(), y, column.getRight(), y, 2.0f);
 	}
 }
 
 // ---------------------------------------------------------------- 線 (L / R の柱)
-void GuiLevelMeter::drawLineColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const
+void GuiLevelMeter::drawLineColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const
 {
 	const float h = column.getHeight();
 	const float bottom = column.getBottom();
 	const float top = bottom - h * level;
 
-	g.setColour(GuiColor::LevelMeter::Line::Fill);
+	g.setColour(LEVEL_METER_COLOUR(Line, Fill));
 	g.fillRect(juce::Rectangle<float>(column.getX(), top, column.getWidth(), bottom - top));
 
 	if (level > 0.0f) {
-		g.setColour(GuiColor::LevelMeter::Line::Stroke);
+		g.setColour(LEVEL_METER_COLOUR(Line, Stroke));
 		g.drawLine(column.getX(), top, column.getRight(), top, 2.0f);
 	}
 
 	if (peakHold && peak > 0.0f) {
 		const float y = bottom - h * peak;
 
-		g.setColour(GuiColor::LevelMeter::Line::Peak);
+		g.setColour(LEVEL_METER_COLOUR(Line, Peak));
 		g.drawLine(column.getX(), y, column.getRight(), y, 2.0f);
 	}
 }
 
 // ---------------------------------------------------------------- 80s-90s 01 (青い丸い LED)
-void GuiLevelMeter::drawBlueDots(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const
+void GuiLevelMeter::drawBlueDots(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const
 {
 	const float pitch = pitchOf(retro01);
 	const int p = juce::roundToInt(pitch);
@@ -486,8 +489,8 @@ void GuiLevelMeter::drawBlueDots(juce::Graphics& g, juce::Rectangle<float> colum
 	const float x = column.getCentreX() - w * 0.5f;
 	const float bottom = column.getBottom();
 
-	const auto& off = tileFor(dotsOff, p, GuiColor::LevelMeter::Retro01::Off, juce::Colours::transparentBlack);
-	const auto& on = tileFor(dotsOn, p, GuiColor::LevelMeter::Retro01::Dot, GuiColor::LevelMeter::Retro01::Glow);
+	const auto& off = tileFor(dotsOff, lr, p, LEVEL_METER_COLOUR(Retro01, Off), juce::Colours::transparentBlack);
+	const auto& on = tileFor(dotsOn, lr, p, LEVEL_METER_COLOUR(Retro01, Dot), LEVEL_METER_COLOUR(Retro01, Glow));
 
 	const float litTop = bottom - pitch * (float)lit;
 
@@ -500,15 +503,15 @@ void GuiLevelMeter::drawBlueDots(juce::Graphics& g, juce::Rectangle<float> colum
 	}
 
 	if (pi >= 0) {
-		g.setTiledImageFill(tileFor(dotsPeak, p, GuiColor::LevelMeter::Retro01::Peak, GuiColor::LevelMeter::Retro01::Glow), juce::roundToInt(x), juce::roundToInt(bottom), 1.0f);
+		g.setTiledImageFill(tileFor(dotsPeak, lr, p, LEVEL_METER_COLOUR(Retro01, Peak), LEVEL_METER_COLOUR(Retro01, Glow)), juce::roundToInt(x), juce::roundToInt(bottom), 1.0f);
 		g.fillRect(juce::Rectangle<float>(x, bottom - pitch * (float)(pi + 1), w, pitch));
 	}
 }
 
 // ---------------------------------------------------------------- 80s-90s 02 (縞の柱)
-void GuiLevelMeter::drawStripes(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const
+void GuiLevelMeter::drawStripes(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const
 {
-	drawStriped(g, column.getX(), column.getRight(), column, level, peak, peakHold, pitchOf(retro02), [](float x, float) { return x; });
+	drawStriped(g, column.getX(), column.getRight(), column, level, peak, peakHold, lr, pitchOf(retro02), [](float x, float) { return x; });
 }
 
 void GuiLevelMeter::drawSpectrumPerspective(juce::Graphics& g, juce::Rectangle<float> area, int bands, bool peakHold) const
@@ -540,12 +543,12 @@ void GuiLevelMeter::drawSpectrumPerspective(juce::Graphics& g, juce::Rectangle<f
 		const float x0 = area.getX() + pitch * (float)b + gap * 0.5f;
 		const float x1 = x0 + pitch - gap;
 
-		drawStriped(g, x0, x1, area, bandLevel[(size_t)b], bandPeak[(size_t)b], peakHold, pitchOf(retro02), mapX);
+		drawStriped(g, x0, x1, area, bandLevel[(size_t)b], bandPeak[(size_t)b], peakHold, false, pitchOf(retro02), mapX);
 	}
 }
 
 // ---------------------------------------------------------------- 80s-90s 03 (蛍光表示管)
-void GuiLevelMeter::drawVfd(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const
+void GuiLevelMeter::drawVfd(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const
 {
 	const float pitch = pitchOf(retro03);
 	const int count = juce::jmax(1, (int)(column.getHeight() / pitch));
@@ -563,20 +566,20 @@ void GuiLevelMeter::drawVfd(juce::Graphics& g, juce::Rectangle<float> column, fl
 	if (lit > 0) {
 		const float top = segment(lit - 1).getY();
 
-		g.setColour(GuiColor::LevelMeter::Retro03::Glow);
+		g.setColour(LEVEL_METER_COLOUR(Retro03, Glow));
 		g.fillRect(juce::Rectangle<float>(column.getX() - 1.5f, top - 1.5f, column.getWidth() + 3.0f, column.getBottom() - top + 1.5f));
 	}
 
-	g.setColour(GuiColor::LevelMeter::Retro03::Segment);
+	g.setColour(LEVEL_METER_COLOUR(Retro03, Segment));
 
 	for (int i = 0; i < lit; ++i) g.fillRect(segment(i));
 
 	if (pi >= 0 && pi >= lit) {
 		const auto seg = segment(pi);
 
-		g.setColour(GuiColor::LevelMeter::Retro03::Glow);
+		g.setColour(LEVEL_METER_COLOUR(Retro03, Glow));
 		g.fillRect(seg.expanded(1.5f));
-		g.setColour(GuiColor::LevelMeter::Retro03::Peak);
+		g.setColour(LEVEL_METER_COLOUR(Retro03, Peak));
 		g.fillRect(seg);
 	}
 }
@@ -597,7 +600,7 @@ void GuiLevelMeter::drawVfdScale(juce::Graphics& g, float x, juce::Rectangle<flo
 }
 
 // ---------------------------------------------------------------- 80s-90s 04 (点を敷きつめた柱)
-void GuiLevelMeter::drawDotMatrix(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const
+void GuiLevelMeter::drawDotMatrix(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold, bool lr) const
 {
 	// 1 段は、点 2 行と空き 1 行
 	const float dot = pitchOf(retro04);
@@ -612,8 +615,8 @@ void GuiLevelMeter::drawDotMatrix(juce::Graphics& g, juce::Rectangle<float> colu
 	const float x = column.getCentreX() - w * 0.5f;
 	const float bottom = column.getBottom();
 
-	const auto& off = tileFor(matrixOff, d, GuiColor::LevelMeter::Retro04::Off, juce::Colours::transparentBlack);
-	const auto& on = tileFor(matrixOn, d, GuiColor::LevelMeter::Retro04::Dot, juce::Colours::transparentBlack);
+	const auto& off = tileFor(matrixOff, lr, d, LEVEL_METER_COLOUR(Retro04, Off), juce::Colours::transparentBlack);
+	const auto& on = tileFor(matrixOn, lr, d, LEVEL_METER_COLOUR(Retro04, Dot), juce::Colours::transparentBlack);
 
 	const float litTop = bottom - segPitch * (float)lit;
 
@@ -626,7 +629,7 @@ void GuiLevelMeter::drawDotMatrix(juce::Graphics& g, juce::Rectangle<float> colu
 	}
 
 	if (pi >= 0) {
-		g.setTiledImageFill(tileFor(matrixPeak, d, GuiColor::LevelMeter::Retro04::Peak, juce::Colours::transparentBlack), juce::roundToInt(x), juce::roundToInt(bottom), 1.0f);
+		g.setTiledImageFill(tileFor(matrixPeak, lr, d, LEVEL_METER_COLOUR(Retro04, Peak), juce::Colours::transparentBlack), juce::roundToInt(x), juce::roundToInt(bottom), 1.0f);
 		g.fillRect(juce::Rectangle<float>(x, bottom - segPitch * (float)(pi + 1), w, segPitch));
 	}
 }
@@ -686,9 +689,9 @@ void GuiLevelMeter::drawSpectrumLine(juce::Graphics& g, juce::Rectangle<float> a
 }
 
 // ---------------------------------------------------------------- 点を敷きつめる絵
-const juce::Image& GuiLevelMeter::tileFor(TileSlot slot, int size, juce::Colour fill, juce::Colour glow) const
+const juce::Image& GuiLevelMeter::tileFor(TileSlot slot, bool lr, int size, juce::Colour fill, juce::Colour glow) const
 {
-	auto& t = tiles[(size_t)slot];
+	auto& t = tiles[(size_t)slot + (lr ? (size_t)tileSlots : 0)];
 
 	if (t.image.isValid() && t.size == size && t.fill == fill && t.glow == glow) return t.image;
 
@@ -728,3 +731,5 @@ const juce::Image& GuiLevelMeter::tileFor(TileSlot slot, int size, juce::Colour 
 
 	return t.image;
 }
+
+#undef LEVEL_METER_COLOUR
