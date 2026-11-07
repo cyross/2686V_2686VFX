@@ -1,5 +1,6 @@
 ﻿#include "./GuiI18n.h"
 #include <cmath>
+#include <limits>
 
 #include "./GuiEnvelopeGraph.h"
 #include "Shared/Advanced/Curve/AdvancedCurveParams.h"
@@ -450,12 +451,30 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     float liveStartX = 0.0f;
     float liveWidth = 0.0f;
 
+    // 離したところ (最初のリリースの区間の頭)。FM の SR のように、サスティンの区間の
+    // 途中から離すことがあるので、区間の終わりの区切りとは別に線を引く (4.4.0)
+    bool hasKeyOff = false;
+    bool keyOffDrawn = false;
+    float keyOffX = 0.0f;
+    juce::Colour keyOffColour = GuiColor::EnvelopeGraph::PhaseLine;
+
+    // 最後に引いた区切りの位置。離したところが前の区間の終わりと重なるなら、二重に引かない
+    float lastPhaseLineX = std::numeric_limits<float>::quiet_NaN();
+
     for (const auto& phase : currentPhases) {
         if (phase.widthPx <= 0.0f && !phase.isMax) continue;
 
         // ジャンプ指定がある場合、X座標を移動させて新しい線を引く準備をする
         if (phase.moveToStart) {
             currentPixelX = graphArea.getX() - offsetX + (phase.startXOffsetPx * scaleX);
+        }
+
+        if (phase.liveStep == LivePosition::sustain) keyOffColour = phase.phaseLineColor;
+
+        if (!hasKeyOff && (phase.liveStep == LivePosition::release || phase.isRelease)) {
+            hasKeyOff = true;
+            keyOffX = currentPixelX;
+            keyOffDrawn = std::abs(keyOffX - lastPhaseLineX) < 0.5f;
         }
 
         if (phase.isMax) {
@@ -523,6 +542,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
             if (phase.drawPhaseLine) {
                 g.setColour(phase.phaseLineColor.withAlpha(0.3f));
                 g.drawLine(currentPixelX, graphArea.getY(), currentPixelX, graphArea.getBottom(), 2.0f);
+                lastPhaseLineX = currentPixelX;
             }
 
             continue;
@@ -591,7 +611,14 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
             // フェーズの区切り線
             g.setColour(phase.phaseLineColor.withAlpha(0.3f));
             g.drawLine(currentPixelX, graphArea.getY(), currentPixelX, graphArea.getBottom(), 2.0f);
+            lastPhaseLineX = currentPixelX;
         }
+    }
+
+    // 離したところの区切り。前の区間の終わりと重なるときは、もう引いてある
+    if (hasKeyOff && !keyOffDrawn && std::isfinite(keyOffX)) {
+        g.setColour(keyOffColour.withAlpha(0.3f));
+        g.drawLine(keyOffX, graphArea.getY(), keyOffX, graphArea.getBottom(), 2.0f);
     }
 
     if (hasMax) {
@@ -618,10 +645,15 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
         }
     }
 
-    // 保っているあいだ (サスティン) は、区間を半透明の黄色で塗る。ほかは縦線
+    // 保っているあいだ (サスティン) は、サスティンの頭から離したところまでを半透明の黄色で
+    // 塗る。ほかは縦線。離したところがサスティンの区間の途中にある (FM の SR) なら、そこで止める
     if (hasLive && liveStep == LivePosition::sustain && std::isfinite(liveStartX) && std::isfinite(liveWidth)) {
+        float fillEnd = liveStartX + liveWidth;
+
+        if (hasKeyOff && std::isfinite(keyOffX) && keyOffX > liveStartX) fillEnd = juce::jmin(fillEnd, keyOffX);
+
         g.setColour(GuiColor::EnvelopeGraph::LiveFill);
-        g.fillRect(juce::Rectangle<float>(liveStartX, graphArea.getY(), juce::jmax(2.0f, liveWidth), graphArea.getHeight()));
+        g.fillRect(juce::Rectangle<float>(liveStartX, graphArea.getY(), juce::jmax(2.0f, fillEnd - liveStartX), graphArea.getHeight()));
     }
     else if (hasLive && std::isfinite(liveX)) {
         g.setColour(GuiColor::EnvelopeGraph::LiveLine);
