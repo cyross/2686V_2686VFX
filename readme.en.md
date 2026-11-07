@@ -43,7 +43,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The "level meter" row in SETTINGS chooses whether to show them, the rate (15 to 120 FPS, 15 by default), the style, the number of bands and peak hold. These are saved in the settings file (`levelMeterShow` and so on)
   - Display only; the sound does not change. All plugins (including 2686VFX)
 - **Added: vertical zoom for the real-time oscilloscopes**
-  - 0.1x to 8x. L / M / R always share the same zoom. When it is not 1x, the zoom is shown in the top right of each scope
+  - 0.1x to 16x. L / M / R always share the same zoom. When it is not 1x, the zoom is shown in the top right of each scope
   - In the full view, change it with "V zoom" under the waveform preview heading (double-click for 1x). In any view, turning the mouse wheel over a scope also changes it
   - Saved in the settings file (`scopeZoom`). All plugins
 - **Fixed: the graph sometimes had no divider where the key is released (the start of the release)**

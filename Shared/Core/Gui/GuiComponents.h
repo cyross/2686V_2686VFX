@@ -185,7 +185,7 @@ public:
 
     void paint(juce::Graphics& g) override;
 
-    // 縦の倍率 (4.4.0。0.1〜8 倍)。小さな音を大きく見たり、大きな音を枠へ収めたりする。
+    // 縦の倍率 (4.4.0。0.1〜16 倍)。小さな音を大きく見たり、大きな音を枠へ収めたりする。
     // 1 倍以外のときは、右上に倍率を出す
     void setVerticalZoom(float zoom);
     float getVerticalZoom() const { return m_verticalZoom; }

@@ -402,7 +402,7 @@ TEST_CASE("SETTINGS: レベルメーターは入り切りでき、切るとほ�
 	editor.reset();
 }
 
-TEST_CASE("オシロ: 縦の倍率は 0.1〜8 倍で、L / M / R をそろえて変える。ホイールでも変えられる")
+TEST_CASE("オシロ: 縦の倍率は 0.1〜16 倍で、L / M / R をそろえて変える。ホイールでも変えられる")
 {
 	auto processor = std::make_unique<AudioPlugin2686V>();
 	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());

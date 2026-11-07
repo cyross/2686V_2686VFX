@@ -13,7 +13,7 @@ class GuiWaveformPreview;
 // ============================================================================
 // リアルタイムのオシロの縦の倍率 (4.4.0)
 // ============================================================================
-// 0.1〜8 倍。値は GuiProcessorHost::scopeZoom に持ち、設定ファイルへ保存する。
+// 0.1〜16 倍。値は GuiProcessorHost::scopeZoom に持ち、設定ファイルへ保存する。
 // L / M / R のオシロはいつも同じ倍率にそろえる。
 //
 // フルビューでは、オシロの見出しの下につまみを置く (この部品)。ミニプレイヤーの
@@ -22,7 +22,7 @@ class GuiScopeZoom : public juce::Component
 {
 public:
 	static constexpr float zoomMin = 0.1f;
-	static constexpr float zoomMax = 8.0f;
+	static constexpr float zoomMax = 16.0f;
 
 	static float clampZoom(float zoom) { return juce::jlimit(zoomMin, zoomMax, std::isfinite(zoom) ? zoom : 1.0f); }
 
