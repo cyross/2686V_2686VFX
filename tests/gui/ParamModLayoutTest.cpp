@@ -401,3 +401,46 @@ TEST_CASE("SETTINGS: レベルメーターは入り切りでき、切るとほ�
 
 	editor.reset();
 }
+
+TEST_CASE("オシロ: 縦の倍率は 0.1〜8 倍で、L / M / R をそろえて変える。ホイールでも変えられる")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto zooms = findAll<GuiScopeZoom>(*editor, [](GuiScopeZoom&) { return true; });
+
+	REQUIRE(zooms.size() == 1);
+
+	auto* zoom = zooms[0];
+
+	// 倍率をそろえるオシロは L / M / R の 3 つ
+	auto scopes = findAll<GuiWaveformPreview>(*editor, [](GuiWaveformPreview& w) { return (bool)w.onVerticalZoomWheel; });
+
+	REQUIRE(scopes.size() == 3);
+
+	CHECK(processor->scopeZoom == doctest::Approx(1.0f));
+
+	for (auto* scope : scopes) CHECK(scope->getVerticalZoom() == doctest::Approx(1.0f));
+
+	// 範囲を超えた値は端へ寄せる
+	zoom->setZoom(20.0f);
+
+	CHECK(processor->scopeZoom == doctest::Approx(GuiScopeZoom::zoomMax));
+
+	for (auto* scope : scopes) CHECK(scope->getVerticalZoom() == doctest::Approx(GuiScopeZoom::zoomMax));
+
+	// ホイールで変えると、3 つともそろって変わる
+	scopes[1]->onVerticalZoomWheel(0.01f);
+
+	CHECK(processor->scopeZoom == doctest::Approx(GuiScopeZoom::zoomMin));
+
+	for (auto* scope : scopes) CHECK(scope->getVerticalZoom() == doctest::Approx(GuiScopeZoom::zoomMin));
+
+	// 設定から読んだ値を映す
+	processor->scopeZoom = 2.5f;
+	zoom->sync();
+
+	for (auto* scope : scopes) CHECK(scope->getVerticalZoom() == doctest::Approx(2.5f));
+
+	editor.reset();
+}

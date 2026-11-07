@@ -45,6 +45,9 @@ namespace SettingsKey
 	static inline const juce::String levelMeterStyle = "levelMeterStyle";
 	static inline const juce::String levelMeterBands = "levelMeterBands";
 	static inline const juce::String levelMeterPeakHold = "levelMeterPeakHold";
+
+	// リアルタイムのオシロの縦の倍率 (4.4.0)
+	static inline const juce::String scopeZoom = "scopeZoom";
 	static inline const juce::String fmParameterCopyType = "fmParameterCopyType";
 	static inline const juce::String fxOrder = "fxOrder";
 };

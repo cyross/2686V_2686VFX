@@ -263,6 +263,7 @@ public:
         visit(SettingsKey::levelMeterStyle, levelMeterStyle);
         visit(SettingsKey::levelMeterBands, levelMeterBands);
         visit(SettingsKey::levelMeterPeakHold, levelMeterPeakHold);
+        visit(SettingsKey::scopeZoom, scopeZoom);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
 

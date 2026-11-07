@@ -30,6 +30,7 @@
 #include "Shared/Core/Gui/GuiCopyObj.h"
 #include "Shared/Core/Gui/GuiHost.h"
 #include "Shared/Core/Gui/GuiLevelMeter.h"
+#include "Shared/Core/Gui/GuiScopeZoom.h"
 
 class SystemButtonLF : public juce::LookAndFeel_V4
 {
@@ -532,6 +533,9 @@ private:
 
     // レベルメーター (4.4.0)。壁紙と UI のあいだに描くので、子のいちばん奥に置く
     std::unique_ptr<GuiLevelMeter> levelMeter;
+
+    // リアルタイムのオシロの縦の倍率 (4.4.0)。フルビューで見出しの下に置く
+    std::unique_ptr<GuiScopeZoom> scopeZoom;
 
     // メーターを置く場所。枠 (box) の下から 3/4 の高さ
     static juce::Rectangle<int> levelMeterArea(juce::Rectangle<int> box);

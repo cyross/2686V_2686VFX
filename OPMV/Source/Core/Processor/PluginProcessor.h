@@ -641,6 +641,7 @@ public:
         visit(SettingsKey::levelMeterStyle, levelMeterStyle);
         visit(SettingsKey::levelMeterBands, levelMeterBands);
         visit(SettingsKey::levelMeterPeakHold, levelMeterPeakHold);
+        visit(SettingsKey::scopeZoom, scopeZoom);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop

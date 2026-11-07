@@ -42,6 +42,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - Each style has its own colours, which can be changed in the COLORS tab (`LevelMeter.Led.Low`, `LevelMeter.Retro01.Dot` and so on). The L / R columns can be coloured separately from the spectrum (`LevelMeter.Lr.Led.Low` and so on; by default they match the spectrum)
   - The "level meter" row in SETTINGS chooses whether to show them, the rate (15 to 120 FPS, 15 by default), the style, the number of bands and peak hold. These are saved in the settings file (`levelMeterShow` and so on)
   - Display only; the sound does not change. All plugins (including 2686VFX)
+- **Added: vertical zoom for the real-time oscilloscopes**
+  - 0.1x to 8x. L / M / R always share the same zoom. When it is not 1x, the zoom is shown in the top right of each scope
+  - In the full view, change it with "V zoom" under the waveform preview heading (double-click for 1x). In any view, turning the mouse wheel over a scope also changes it
+  - Saved in the settings file (`scopeZoom`). All plugins
 - **Fixed: the graph sometimes had no divider where the key is released (the start of the release)**
   - In the FM AMP ENV with SR set, the sustain section is drawn as a line falling to 0 and the key is released partway through it. Dividers were only drawn at the end of each section, so there was no line where the key is released
   - In the step envelopes (PARAM ENV, SSG SW AMP / PITCH ENV and so on), an infinite loop in Rich Mode also went straight from the dashed line back to the loop start into the release, with no divider

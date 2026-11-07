@@ -184,7 +184,20 @@ public:
     void pushDryBuffer(const float* data, int numSamples);
 
     void paint(juce::Graphics& g) override;
+
+    // 縦の倍率 (4.4.0。0.1〜8 倍)。小さな音を大きく見たり、大きな音を枠へ収めたりする。
+    // 1 倍以外のときは、右上に倍率を出す
+    void setVerticalZoom(float zoom);
+    float getVerticalZoom() const { return m_verticalZoom; }
+
+    // 上でホイールを回したときに、新しい倍率を渡す。受ける側が値を決めて setVerticalZoom で返す
+    // (L / M / R をそろえて動かすため)。入れなければホイールは親へ流す
+    std::function<void(float)> onVerticalZoomWheel;
+
+    void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override;
 private:
+    float m_verticalZoom = 1.0f;
+
     // 線を 1 本描く。加工前と加工後で太さと色だけを変える。
     void strokeWave(juce::Graphics& g, const std::vector<float>& buffer,
         juce::Colour colour, float thickness);

@@ -132,6 +132,9 @@ public:
     // 音の側が出し終えた音を書き、メーターが読む
     LevelMeterFeed levelMeterFeed;
 
+    // ---- リアルタイムのオシロの縦の倍率 (4.4.0。GuiScopeZoom)。0.1〜8 倍
+    float scopeZoom = 1.0f;
+
     // ---- 音声・波形ファイルの場所をどこからの相対で書くか (Io::PathRoot)
     // 環境設定に 1 つだけ持つ。どのチャンネルの UTILITY から変えても同じ値。
     int relativePathRoot = Io::PathRoot::settingsFolder;

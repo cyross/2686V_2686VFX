@@ -354,6 +354,11 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     levelMeter = std::make_unique<GuiLevelMeter>(audioProcessor);
     addAndMakeVisible(*levelMeter);
     levelMeter->toBack();
+
+    // リアルタイムのオシロの縦の倍率 (4.4.0)。L / M / R をそろえ、オシロの上のホイールでも変えられる
+    scopeZoom = std::make_unique<GuiScopeZoom>(audioProcessor);
+    addChildComponent(*scopeZoom);
+    scopeZoom->attach({ &realtimePreviewL, &realtimePreviewMono, &realtimePreviewR });
     resized();
 
     updateTimerState();
@@ -582,6 +587,13 @@ void AudioPlugin2686VEditor::resized()
     // プレビューの表示判定 (FullでトグルがON、またはMiniPlayerの時)
     bool showPreview = (isFull && isPreviewVisible) || isMini;
     previewTitleLabel.setVisible(showPreview);
+
+    // オシロの縦の倍率のつまみはフルビューだけ (ほかはオシロの上のホイールで変える)。
+    // 設定を読み直したあとも、ここで値を映す
+    if (scopeZoom != nullptr) {
+        scopeZoom->setVisible(isFull && showPreview);
+        scopeZoom->sync();
+    }
     previewLabels[0].setVisible(showPreview);
     realtimePreviewL.setVisible(showPreview);
     previewLabels[1].setVisible(showPreview);
@@ -720,6 +732,9 @@ void AudioPlugin2686VEditor::resized()
         int x = rightArea.getX() + EditorGuiValue::Preview::paddingLeft;
         int y = EditorGuiValue::Preview::paddingTop;
         previewTitleLabel.setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::labelHeight);
+
+        // 縦の倍率は、見出しと [L] のあいだの空きに置く
+        if (scopeZoom != nullptr) scopeZoom->setBounds(x, y + EditorGuiValue::Preview::labelHeight + 1, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::paddingInnerY - 2);
 
         y += EditorGuiValue::Preview::labelHeight + EditorGuiValue::Preview::paddingInnerY;
         previewLabels[0].setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::labelHeight);
