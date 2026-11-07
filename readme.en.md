@@ -34,7 +34,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
 - **Added: level meters (between the wallpaper and the controls)**
   - Between the wallpaper and the on-screen controls, a spectrum (level per frequency band) is shown on the left and the L / R levels on the right. They measure the finished output (after the FX)
   - In the full view they fill the bottom 3/4 of the tab content area (not the FX column). The mini player and the minimum view show them inside their own frames at the same proportion
-  - The style can be LED, bar or line. The spectrum has 16 or 32 bands. Peak hold can be turned on and off
+  - The style can be LED, bar, line, or one of "80s-90s 01" to "80s-90s 04", which recall the displays of audio gear from that era. The spectrum has 16 or 32 bands. Peak hold can be turned on and off
+    - 80s-90s 01: rows of round blue LEDs; lit ones glow
+    - 80s-90s 02: striped columns, pink at the base and light blue at the top, narrowing into the distance over a floor grid
+    - 80s-90s 03: wide, thin segments like a vacuum fluorescent display, with dotted scales between the columns
+    - 80s-90s 04: columns packed with fine white dots, with scale dots and a red mark at both ends
+  - Each style has its own colours, which can be changed in the COLORS tab (`LevelMeter.Led.Low`, `LevelMeter.Retro01.Dot` and so on)
   - The "level meter" row in SETTINGS chooses whether to show them, the rate (15 to 120 FPS, 15 by default), the style, the number of bands and peak hold. These are saved in the settings file (`levelMeterShow` and so on)
   - Display only; the sound does not change. All plugins (including 2686VFX)
 - **Fixed: the graph sometimes had no divider where the key is released (the start of the release)**

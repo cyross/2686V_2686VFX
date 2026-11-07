@@ -47,9 +47,6 @@ namespace SettingsGuiText
 	static inline const I18n::Text envLiveGraph{ u8"AMP / PITCH ENV・SSG SW ENV・EG の鳴っている位置を、グラフに動かして出す", u8"Show where AMP / PITCH ENV, SSG SW ENV and EG are playing on the graph" };
 	static inline const I18n::Text levelMeter{ u8"レベルメーターを、壁紙と画面のあいだに出す (左に周波数ごと、右に L / R)", u8"Show level meters between the wallpaper and the controls (spectrum on the left, L / R on the right)" };
 	static inline const I18n::Text levelMeterStyle{ u8"表示", u8"Style" };
-	static inline const I18n::Text levelMeterStyleLed{ u8"LED", u8"LED" };
-	static inline const I18n::Text levelMeterStyleBar{ u8"バー", u8"Bar" };
-	static inline const I18n::Text levelMeterStyleLine{ u8"線", u8"Line" };
 	static inline const I18n::Text levelMeterBands{ u8"帯の数", u8"Bands" };
 	static inline const I18n::Text levelMeterPeakHold{ u8"ピークホールド", u8"Peak hold" };
 	static inline const I18n::Text liveGraphFps{ u8"速さ", u8"Rate" };

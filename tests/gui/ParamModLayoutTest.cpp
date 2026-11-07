@@ -275,12 +275,16 @@ TEST_CASE("SETTINGS: レベルメーターは入り切りでき、切るとほ�
 	GuiComboBox* bands = nullptr;
 
 	for (auto* b : selectors) {
-		if (b->getNumItems() == 3) style = b;
+		if (b->getNumItems() == GuiLevelMeter::styleCount) style = b;
 		if (b->getNumItems() == 2) bands = b;
 	}
 
 	REQUIRE(style != nullptr);
 	REQUIRE(bands != nullptr);
+
+	// 80s-90s 01〜04 も選べる
+	CHECK(style->getItemText(GuiLevelMeter::retro01) == "80s-90s 01");
+	CHECK(style->getItemText(GuiLevelMeter::retro04) == "80s-90s 04");
 
 	// 選ぶとプロセッサの値が変わる
 	style->setSelectedId(GuiLevelMeter::line + 1, juce::sendNotificationSync);
@@ -325,6 +329,67 @@ TEST_CASE("SETTINGS: レベルメーターは入り切りでき、切るとほ�
 	CHECK(meter->getBottom() >= content.getBottom() - 20);
 	CHECK(meter->getHeight() >= content.getHeight() * 3 / 4 - 20);
 	CHECK(meter->getHeight() <= content.getHeight() * 3 / 4);
+
+	// どの描き方でも、広い枠・狭い枠ともに描ける。音を入れて、段が灯った状態で描く
+	processor->levelMeterShow = true;
+	processor->levelMeterPeakHold = true;
+
+	meter->setVisible(true);
+	meter->refresh();
+
+	REQUIRE(processor->levelMeterFeed.active.load());
+
+	{
+		// 低いほうから高いほうへ、大きさを変えた正弦波をいくつか重ねる
+		std::vector<float> l(4096), r(4096);
+		const double freqs[] = { 60.0, 150.0, 400.0, 1000.0, 2400.0, 6000.0, 12000.0 };
+		const float amps[] = { 0.5f, 0.3f, 0.2f, 0.12f, 0.08f, 0.04f, 0.02f };
+
+		for (size_t i = 0; i < l.size(); ++i) {
+			float v = 0.0f;
+
+			for (size_t k = 0; k < std::size(freqs); ++k) v += amps[k] * (float)std::sin(juce::MathConstants<double>::twoPi * freqs[k] * (double)i / 48000.0);
+
+			l[i] = v;
+			r[i] = v * 0.6f;
+		}
+
+		processor->levelMeterFeed.push(l.data(), r.data(), (int)l.size(), 48000.0);
+	}
+
+	for (int st = 0; st < GuiLevelMeter::styleCount; ++st) {
+		for (bool compact : { false, true }) {
+			for (int bandCount : GuiLevelMeter::bandChoices) {
+				INFO("style " << st << " compact " << compact << " bands " << bandCount);
+
+				processor->levelMeterStyle = st;
+				processor->levelMeterBands = bandCount;
+				meter->setCompact(compact);
+
+				meter->pull();
+
+				const auto image = meter->createComponentSnapshot(meter->getLocalBounds());
+
+				CHECK(image.isValid());
+
+				// 見た目を確かめたいときは、置き場を環境変数で渡すと PNG に書き出す
+				if (const auto dir = juce::SystemStats::getEnvironmentVariable("LEVEL_METER_SNAPSHOT_DIR", {}); dir.isNotEmpty()) {
+					juce::Image framed(juce::Image::ARGB, image.getWidth(), image.getHeight(), true);
+					{
+						juce::Graphics fg(framed);
+						fg.fillAll(juce::Colours::black);
+						fg.drawImageAt(image, 0, 0);
+					}
+
+					juce::File file = juce::File(dir).getChildFile("meter_" + juce::String(st) + (compact ? "_compact" : "") + "_" + juce::String(bandCount) + ".png");
+					file.deleteFile();
+
+					juce::FileOutputStream out(file);
+					juce::PNGImageFormat().writeImageToStream(framed, out);
+				}
+			}
+		}
+	}
 
 	editor.reset();
 }

@@ -780,11 +780,9 @@ void GuiSettings::setup()
         levelMeterFpsSelector.onChange = [this] { pluginOf(ctx).levelMeterFps = levelMeterFpsSelector.getSelectedId(); };
 
         // 番号は 1 から (0 は「選んでいない」になる)
-        std::vector<SelectItem> styleItems = {
-            { .name = SettingsGuiText::levelMeterStyleLed, .value = GuiLevelMeter::led + 1 },
-            { .name = SettingsGuiText::levelMeterStyleBar, .value = GuiLevelMeter::bar + 1 },
-            { .name = SettingsGuiText::levelMeterStyleLine, .value = GuiLevelMeter::line + 1 },
-        };
+        std::vector<SelectItem> styleItems;
+
+        for (int i = 0; i < GuiLevelMeter::styleCount; ++i) styleItems.push_back({ .name = GuiLevelMeter::styleName(i), .value = i + 1 });
 
         levelMeterStyleSelector.setup({ .parent = *this, .id = "", .title = SettingsGuiText::levelMeterStyle, .items = styleItems, .isReset = false });
         levelMeterStyleSelector.setSelectedId(GuiLevelMeter::clampStyle(plugin.levelMeterStyle) + 1, juce::dontSendNotification);

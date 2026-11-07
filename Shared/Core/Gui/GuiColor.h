@@ -270,20 +270,64 @@ namespace GuiColor {
 
 	namespace LevelMeter {
 		// レベルメーター (4.4.0)。壁紙と UI のあいだに描くので、上の文字が読めるよう透かす。
-		// 低いところは緑、上へ行くと黄色、てっぺんは赤 (昔のグラフィックイコライザーの並び)
-		inline Entry Low{ "LevelMeter.Low", []() -> juce::Colour { return juce::Colours::lime.withAlpha(0.45f); } };
-		inline Entry Mid{ "LevelMeter.Mid", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.5f); } };
-		inline Entry High{ "LevelMeter.High", []() -> juce::Colour { return juce::Colours::red.withAlpha(0.55f); } };
+		// 描き方ごとに分けてあり、COLORS タブでそれぞれ変えられる
 
-		// LED の灯っていない段
-		inline Entry LedOff{ "LevelMeter.LedOff", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.06f); } };
+		// LED。低いところは緑、上へ行くと黄色、てっぺんは赤 (昔のグラフィックイコライザーの並び)
+		namespace Led {
+			inline Entry Low{ "LevelMeter.Led.Low", []() -> juce::Colour { return juce::Colours::lime.withAlpha(0.45f); } };
+			inline Entry Mid{ "LevelMeter.Led.Mid", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.5f); } };
+			inline Entry High{ "LevelMeter.Led.High", []() -> juce::Colour { return juce::Colours::red.withAlpha(0.55f); } };
+			inline Entry Off{ "LevelMeter.Led.Off", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.06f); } };
+			inline Entry Peak{ "LevelMeter.Led.Peak", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.7f); } };
+		};
 
-		// ピークホールドの横線
-		inline Entry Peak{ "LevelMeter.Peak", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.7f); } };
+		// バー。下から上へ色を移す
+		namespace Bar {
+			inline Entry Low{ "LevelMeter.Bar.Low", []() -> juce::Colour { return juce::Colours::lime.withAlpha(0.45f); } };
+			inline Entry Mid{ "LevelMeter.Bar.Mid", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.5f); } };
+			inline Entry High{ "LevelMeter.Bar.High", []() -> juce::Colour { return juce::Colours::red.withAlpha(0.55f); } };
+			inline Entry Peak{ "LevelMeter.Bar.Peak", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.7f); } };
+		};
 
-		// 線で描くときの線と、その下の塗り
-		inline Entry Line{ "LevelMeter.Line", []() -> juce::Colour { return juce::Colours::turquoise.withAlpha(0.7f); } };
-		inline Entry LineFill{ "LevelMeter.LineFill", []() -> juce::Colour { return juce::Colours::turquoise.withAlpha(0.15f); } };
+		// 線。線と、その下の塗り
+		namespace Line {
+			inline Entry Stroke{ "LevelMeter.Line.Stroke", []() -> juce::Colour { return juce::Colours::turquoise.withAlpha(0.7f); } };
+			inline Entry Fill{ "LevelMeter.Line.Fill", []() -> juce::Colour { return juce::Colours::turquoise.withAlpha(0.15f); } };
+			inline Entry Peak{ "LevelMeter.Line.Peak", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.7f); } };
+		};
+
+		// 80s-90s 01。青い丸い LED を縦に並べ、灯ったものはにじませる
+		namespace Retro01 {
+			inline Entry Dot{ "LevelMeter.Retro01.Dot", []() -> juce::Colour { return juce::Colour::fromRGB(0x5A, 0x6B, 0xFF).withAlpha(0.8f); } };
+			inline Entry Glow{ "LevelMeter.Retro01.Glow", []() -> juce::Colour { return juce::Colour::fromRGB(0x30, 0x30, 0xFF).withAlpha(0.25f); } };
+			inline Entry Off{ "LevelMeter.Retro01.Off", []() -> juce::Colour { return juce::Colour::fromRGB(0x30, 0x40, 0xA0).withAlpha(0.18f); } };
+			inline Entry Peak{ "LevelMeter.Retro01.Peak", []() -> juce::Colour { return juce::Colour::fromRGB(0xB0, 0xC0, 0xFF).withAlpha(0.9f); } };
+		};
+
+		// 80s-90s 02。カーオーディオの液晶のような、奥へすぼまる縞の柱。根元は桃色、上は水色
+		namespace Retro02 {
+			inline Entry Top{ "LevelMeter.Retro02.Top", []() -> juce::Colour { return juce::Colour::fromRGB(0x9F, 0xE8, 0xFF).withAlpha(0.6f); } };
+			inline Entry Bottom{ "LevelMeter.Retro02.Bottom", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0x66, 0xCC).withAlpha(0.55f); } };
+			inline Entry Grid{ "LevelMeter.Retro02.Grid", []() -> juce::Colour { return juce::Colour::fromRGB(0x9F, 0xE8, 0xFF).withAlpha(0.12f); } };
+			inline Entry Peak{ "LevelMeter.Retro02.Peak", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.8f); } };
+		};
+
+		// 80s-90s 03。蛍光表示管 (VFD) の横長の段。柱のあいだに点線の目盛り
+		namespace Retro03 {
+			inline Entry Segment{ "LevelMeter.Retro03.Segment", []() -> juce::Colour { return juce::Colour::fromRGB(0xB8, 0xFF, 0xEE).withAlpha(0.65f); } };
+			inline Entry Glow{ "LevelMeter.Retro03.Glow", []() -> juce::Colour { return juce::Colour::fromRGB(0x60, 0xFF, 0xD0).withAlpha(0.15f); } };
+			inline Entry Scale{ "LevelMeter.Retro03.Scale", []() -> juce::Colour { return juce::Colour::fromRGB(0xB8, 0xFF, 0xEE).withAlpha(0.35f); } };
+			inline Entry Peak{ "LevelMeter.Retro03.Peak", []() -> juce::Colour { return juce::Colour::fromRGB(0xE0, 0xFF, 0xF8).withAlpha(0.85f); } };
+		};
+
+		// 80s-90s 04。細かな白い点を敷きつめた柱。両端に目盛りの点と、赤い印
+		namespace Retro04 {
+			inline Entry Dot{ "LevelMeter.Retro04.Dot", []() -> juce::Colour { return juce::Colour::fromRGB(0xF0, 0xF0, 0xF0).withAlpha(0.65f); } };
+			inline Entry Off{ "LevelMeter.Retro04.Off", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.05f); } };
+			inline Entry Scale{ "LevelMeter.Retro04.Scale", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.55f); } };
+			inline Entry Mark{ "LevelMeter.Retro04.Mark", []() -> juce::Colour { return juce::Colours::red.withAlpha(0.8f); } };
+			inline Entry Peak{ "LevelMeter.Retro04.Peak", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.9f); } };
+		};
 	};
 
 	namespace EnvelopeGraph {

@@ -19,15 +19,32 @@ class GuiProcessorHost;
 // 音の側は出し終えた音を LevelMeterFeed へ書くだけで、FFT はここでやる。
 // 入り切り・速さ (FPS)・描き方・帯の数・ピークホールドは SETTINGS で選び、
 // GuiProcessorHost に持つ (設定ファイルへ保存)。値は毎回の刻みで読み直すので、
-// SETTINGS で変えたらそのまま効く。
+// SETTINGS で変えたらそのまま効く。色は描き方ごとに GuiColor::LevelMeter に
+// あり、COLORS タブで変えられる。
 //
 // 下から伸びる帯なので、描き直すのは自分の矩形だけ。上に重なる部品も
 // その範囲は描き直しになるので、速さの初期値は低めにしてある。
 class GuiLevelMeter : public juce::Component, private juce::Timer
 {
 public:
-	// 描き方
-	enum Style { led = 0, bar = 1, line = 2, styleCount };
+	// 描き方。番号は設定ファイルに書くので、並びを変えないこと (足すのは後ろへ)
+	enum Style
+	{
+		led = 0,
+		bar,
+		line,
+
+		// 80s-90s 01〜04。当時のオーディオ機器の表示を思わせる描き方
+		retro01,	// 青い丸い LED の点の並び
+		retro02,	// 奥へすぼまる縞の柱 (カーオーディオの液晶)
+		retro03,	// 蛍光表示管の横長の段と、点線の目盛り
+		retro04,	// 細かな点を敷きつめた柱と、両端の目盛り
+
+		styleCount
+	};
+
+	// 画面に出す名前 (SETTINGS の選択肢)
+	static juce::String styleName(int style);
 
 	// 選べる帯の数。初期値は GuiProcessorHost::levelMeterBands
 	static constexpr int bandChoices[] = { 16, 32 };
@@ -39,13 +56,16 @@ public:
 	explicit GuiLevelMeter(GuiProcessorHost& host);
 	~GuiLevelMeter() override;
 
-	// 狭い枠 (ミニプレイヤー・ミニマム) では、L / R の幅と LED の刻みを詰める
+	// 狭い枠 (ミニプレイヤー・ミニマム) では、L / R の幅と段の刻みを詰める
 	void setCompact(bool compact);
 
 	void paint(juce::Graphics& g) override;
 
 	// 出すかどうかが変わったとき (SETTINGS・表示モード) に呼ぶ。描き直しの速さも合わせる
 	void refresh();
+
+	// 音の側が書いた音を取り込み、値を進めて描き直す。刻みごとに呼ばれる (出していないときは何もしない)
+	void pull();
 
 private:
 	GuiProcessorHost& host;
@@ -87,6 +107,42 @@ private:
 	juce::Rectangle<float> lrArea() const;
 	juce::Rectangle<float> spectrumArea() const;
 
+	// 段の刻み (px)。描き方と枠の広さで変わる
+	float pitchOf(int style) const;
+
+	// 点を敷きつめる描き方 (80s-90s 01 / 04) の、1 刻みぶんの絵。柱ごとに点を 1 つずつ
+	// 描くと数千回になるので、絵を作っておいて柱は 1 回の塗りで済ませる。
+	// 色か大きさが変わったときだけ作り直す
+	enum TileSlot { dotsOff = 0, dotsOn, dotsPeak, matrixOff, matrixOn, matrixPeak, tileSlots };
+
+	struct Tile
+	{
+		juce::Image image;
+		juce::Colour fill;
+		juce::Colour glow;
+		int size = 0;
+	};
+
+	mutable std::array<Tile, tileSlots> tiles;
+
+	const juce::Image& tileFor(TileSlot slot, int size, juce::Colour fill, juce::Colour glow) const;
+
+	// ---- 描き方ごと。column は 1 本の柱の矩形、level / peak は 0〜1
 	void drawColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, int style, bool peakHold) const;
+
+	void drawLed(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
+	void drawBar(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
+	void drawLineColumn(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
+	void drawBlueDots(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
+	void drawStripes(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
+	void drawVfd(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
+	void drawDotMatrix(juce::Graphics& g, juce::Rectangle<float> column, float level, float peak, bool peakHold) const;
+
+	// スペクトラムを 1 枚の絵として描くもの (線・奥へすぼまる柱)
 	void drawSpectrumLine(juce::Graphics& g, juce::Rectangle<float> area, int bands, bool peakHold) const;
+	void drawSpectrumPerspective(juce::Graphics& g, juce::Rectangle<float> area, int bands, bool peakHold) const;
+
+	// 柱の並びの飾り (蛍光表示管の点線、点の柱の両端の目盛り)
+	void drawVfdScale(juce::Graphics& g, float x, juce::Rectangle<float> area) const;
+	void drawDotScale(juce::Graphics& g, float x, juce::Rectangle<float> area) const;
 };
