@@ -386,6 +386,12 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     updateAdpcmFileNames("Reload");
     updateAdpcmPlusFileNames("Reload");
 
+    // レベルメーター (4.4.0)。壁紙と UI のあいだに描くので、子のいちばん奥へ入れる
+    levelMeter = std::make_unique<GuiLevelMeter>(audioProcessor);
+    addAndMakeVisible(*levelMeter);
+    levelMeter->toBack();
+    resized();
+
     updateTimerState();
 
     askInitialSettings();
@@ -733,6 +739,12 @@ void AudioPlugin2686VEditor::resized()
             );
         }
 
+        // レベルメーター (4.4.0)。paint で敷いている枠の中に置く
+        if (levelMeter != nullptr) {
+            levelMeter->setCompact(true);
+            levelMeter->setBounds(levelMeterArea(isMini ? juce::Rectangle<int>(5, 5, 630, 290) : juce::Rectangle<int>(5, 5, 630, 90)));
+        }
+
         return; // Full Viewの計算は行わずに終了
     }
 
@@ -813,6 +825,12 @@ void AudioPlugin2686VEditor::resized()
 
     tabs.setBounds(area);
 
+    // レベルメーター (4.4.0)。タブの中身の範囲の、下から 3/4 の高さ。FX の列には描かない
+    if (levelMeter != nullptr) {
+        levelMeter->setCompact(false);
+        levelMeter->setBounds(levelMeterArea(tabs.getBounds().withTrimmedTop(tabs.getTabBarDepth()).withTrimmedRight(EditorGuiValue::Fx::width)));
+    }
+
     auto content = tabs.getLocalBounds();
     auto tabContent = content.removeFromLeft(content.getWidth() - EditorGuiValue::Fx::width);
     tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
@@ -843,6 +861,14 @@ void AudioPlugin2686VEditor::resized()
             EditorGuiValue::StateBtns::height
         );
     }
+}
+
+// レベルメーターを置く場所 (4.4.0)。枠の下から 3/4 の高さで、枠の内側へ少し寄せる
+juce::Rectangle<int> AudioPlugin2686VEditor::levelMeterArea(juce::Rectangle<int> box)
+{
+    box = box.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
+
+    return box.removeFromBottom(box.getHeight() * 3 / 4);
 }
 
 void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)

@@ -96,6 +96,11 @@ namespace SettingsGuiValue
 		// グラフの、鳴っている位置を動かす速さ (FPS)。入り切りのトグルと同じ行に置く
 		static inline constexpr int LiveFpsLabelWidth = 50;
 		static inline constexpr int LiveFpsSelectorWidth = 100;
+		// レベルメーターの行 (4.4.0)
+		static inline constexpr int LevelMeterLabelWidth = 60;
+		static inline constexpr int LevelMeterStyleSelectorWidth = 100;
+		static inline constexpr int LevelMeterBandsSelectorWidth = 70;
+		static inline constexpr int LevelMeterPeakHoldWidth = 200;
 		static inline constexpr int ModeSelectorWidth = 320;
 		static inline constexpr int BrowseButtonWidth = 80;
 		static inline constexpr int ClearButtonWidth = 60;

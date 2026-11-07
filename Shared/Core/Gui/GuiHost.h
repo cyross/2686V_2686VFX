@@ -12,6 +12,7 @@
 #include "../Synth/WtModWave.h"
 #include "../Synth/StepTable.h"
 #include "../Synth/StepTableUndo.h"
+#include "../Synth/LevelMeterFeed.h"
 #include "../Io/IoPathRoot.h"
 
 // ============================================================================
@@ -120,6 +121,16 @@ public:
     {
         return [this] { return envLiveGraph ? LiveGraph::clampFps(envLiveFps) : 0; };
     }
+
+    // ---- レベルメーター (4.4.0。GuiLevelMeter)。壁紙と UI のあいだに描く。見た目だけで、音は変わらない
+    bool levelMeterShow = true;
+    int levelMeterFps = 15;
+    int levelMeterStyle = 0;      // GuiLevelMeter::Style (0 = LED, 1 = バー, 2 = 線)
+    int levelMeterBands = 32;     // スペクトラムの帯の数 (16 / 32)
+    bool levelMeterPeakHold = true;
+
+    // 音の側が出し終えた音を書き、メーターが読む
+    LevelMeterFeed levelMeterFeed;
 
     // ---- 音声・波形ファイルの場所をどこからの相対で書くか (Io::PathRoot)
     // 環境設定に 1 つだけ持つ。どのチャンネルの UTILITY から変えても同じ値。

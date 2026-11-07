@@ -38,6 +38,13 @@ namespace SettingsKey
 	static inline const juce::String showVirtualKeyboard = "showVirtualKeyboard";
 	static inline const juce::String tapLiveGraph = "tapLiveGraph";
 	static inline const juce::String tapLiveFps = "tapLiveFps";
+
+	// レベルメーター (4.4.0)
+	static inline const juce::String levelMeterShow = "levelMeterShow";
+	static inline const juce::String levelMeterFps = "levelMeterFps";
+	static inline const juce::String levelMeterStyle = "levelMeterStyle";
+	static inline const juce::String levelMeterBands = "levelMeterBands";
+	static inline const juce::String levelMeterPeakHold = "levelMeterPeakHold";
 	static inline const juce::String fmParameterCopyType = "fmParameterCopyType";
 	static inline const juce::String fxOrder = "fxOrder";
 };

@@ -21,6 +21,7 @@
 
 #include "Shared/Core/Gui/GuiCopyObj.h"
 #include "Shared/Core/Gui/GuiHost.h"
+#include "Shared/Core/Gui/GuiLevelMeter.h"
 
 // プロセッサのヘッダーはクラスを宣言する前にここを読み込むので、名前だけ先に出す
 class AudioPlugin2686V;
@@ -292,6 +293,12 @@ private:
     std::unique_ptr<GuiAbout> aboutGui;
     std::unique_ptr<GuiColors> colorsGui;
 
+
+    // レベルメーター (4.4.0)。壁紙と UI のあいだに描くので、子のいちばん奥に置く
+    std::unique_ptr<GuiLevelMeter> levelMeter;
+
+    // メーターを置く場所。枠 (box) の下から 3/4 の高さ
+    static juce::Rectangle<int> levelMeterArea(juce::Rectangle<int> box);
     juce::Image backgroundImage; // Cache for wallpaper
     juce::Image blurredBackgroundImage; // ぼかし背景用のキャッシュ
 

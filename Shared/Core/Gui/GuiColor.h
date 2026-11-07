@@ -268,6 +268,24 @@ namespace GuiColor {
 		inline Entry Line{ "Separator.Line", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.45f); } };
 	};
 
+	namespace LevelMeter {
+		// レベルメーター (4.4.0)。壁紙と UI のあいだに描くので、上の文字が読めるよう透かす。
+		// 低いところは緑、上へ行くと黄色、てっぺんは赤 (昔のグラフィックイコライザーの並び)
+		inline Entry Low{ "LevelMeter.Low", []() -> juce::Colour { return juce::Colours::lime.withAlpha(0.45f); } };
+		inline Entry Mid{ "LevelMeter.Mid", []() -> juce::Colour { return juce::Colours::yellow.withAlpha(0.5f); } };
+		inline Entry High{ "LevelMeter.High", []() -> juce::Colour { return juce::Colours::red.withAlpha(0.55f); } };
+
+		// LED の灯っていない段
+		inline Entry LedOff{ "LevelMeter.LedOff", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.06f); } };
+
+		// ピークホールドの横線
+		inline Entry Peak{ "LevelMeter.Peak", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.7f); } };
+
+		// 線で描くときの線と、その下の塗り
+		inline Entry Line{ "LevelMeter.Line", []() -> juce::Colour { return juce::Colours::turquoise.withAlpha(0.7f); } };
+		inline Entry LineFill{ "LevelMeter.LineFill", []() -> juce::Colour { return juce::Colours::turquoise.withAlpha(0.15f); } };
+	};
+
 	namespace EnvelopeGraph {
 		// 線の色は波形プレビューと同じ体系。何のエンベロープかで分ける。
 		inline Entry AmpLine{ "EnvelopeGraph.AmpLine", []() -> juce::Colour { return juce::Colours::turquoise.interpolatedWith(juce::Colours::white, 0.6f); } };

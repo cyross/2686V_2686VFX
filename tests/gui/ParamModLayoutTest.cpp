@@ -16,6 +16,7 @@
 #include "Core/Editor/PluginEditor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
+#include "Gui/Settings/GuiSettingsText.h"
 #include "./EditorTestAccess.h"
 
 namespace
@@ -169,8 +170,9 @@ TEST_CASE("SETTINGS: グラフの鳴っている位置の表示は入り切り�
 
 	settings->layout(page->getLocalBounds());
 
-	// 入り切りは、速さと同じ行の左に置いてある
+	// 入り切りは、速さと同じ行の左に置いてある。レベルメーター (4.4.0) の行も速さを選ぶので、それは除く
 	std::vector<GuiToggleButton*> toggles;
+	std::vector<GuiComboBox*> liveSelectors;
 
 	for (auto* selector : selectors)
 	{
@@ -184,8 +186,13 @@ TEST_CASE("SETTINGS: グラフの鳴っている位置の表示は入り切り�
 		// 頁からはみ出さない
 		CHECK(selector->getBottom() <= page->getHeight());
 
+		if (row[0]->getButtonText() == SettingsGuiText::levelMeter.get()) continue;
+
 		toggles.push_back(row[0]);
+		liveSelectors.push_back(selector);
 	}
+
+	selectors = liveSelectors;
 
 #if GUI_TEST_IS_FX
 	// 2686VFX は TAP SEQUENCER だけ
@@ -223,6 +230,101 @@ TEST_CASE("SETTINGS: グラフの鳴っている位置の表示は入り切り�
 
 	CHECK_FALSE(processor->tapLiveGraph);
 	CHECK_FALSE(selectors[0]->isEnabled());
+
+	editor.reset();
+}
+
+TEST_CASE("SETTINGS: レベルメーターは入り切りでき、切るとほかの項目は選べない。メーターは子のいちばん奥で、タブの下 3/4 にある")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	auto toggles = findAll<GuiToggleButton>(*editor, [](GuiToggleButton& t) { return t.getButtonText() == SettingsGuiText::levelMeter.get(); });
+
+	REQUIRE(toggles.size() == 1);
+
+	auto* toggle = toggles[0];
+	auto* page = toggle->getParentComponent();
+	auto* settings = dynamic_cast<GuiBase*>(page);
+
+	REQUIRE(settings != nullptr);
+
+	settings->layout(page->getLocalBounds());
+
+	// 同じ行に、速さ・描き方・帯の数・ピークホールド
+	auto selectors = findAll<GuiComboBox>(*page, [toggle](GuiComboBox& b) { return b.isVisible() && b.getY() == toggle->getY() && b.getX() >= toggle->getRight(); });
+	auto peakHolds = findAll<GuiToggleButton>(*page, [](GuiToggleButton& t) { return t.getButtonText() == SettingsGuiText::levelMeterPeakHold.get(); });
+
+	REQUIRE(selectors.size() == 3);
+	REQUIRE(peakHolds.size() == 1);
+
+	CHECK(peakHolds[0]->getY() == toggle->getY());
+	CHECK(peakHolds[0]->getBottom() <= page->getHeight());
+	CHECK(peakHolds[0]->getRight() <= page->getWidth());
+
+	// 初期値は入、15 FPS、LED、32 帯、ピークホールド入
+	CHECK(processor->levelMeterShow);
+	CHECK(processor->levelMeterFps == 15);
+	CHECK(processor->levelMeterStyle == GuiLevelMeter::led);
+	CHECK(processor->levelMeterBands == 32);
+	CHECK(processor->levelMeterPeakHold);
+
+	GuiComboBox* style = nullptr;
+	GuiComboBox* bands = nullptr;
+
+	for (auto* b : selectors) {
+		if (b->getNumItems() == 3) style = b;
+		if (b->getNumItems() == 2) bands = b;
+	}
+
+	REQUIRE(style != nullptr);
+	REQUIRE(bands != nullptr);
+
+	// 選ぶとプロセッサの値が変わる
+	style->setSelectedId(GuiLevelMeter::line + 1, juce::sendNotificationSync);
+	bands->setSelectedId(16, juce::sendNotificationSync);
+
+	CHECK(processor->levelMeterStyle == GuiLevelMeter::line);
+	CHECK(processor->levelMeterBands == 16);
+
+	// 切るとほかの項目は選べない
+	toggle->setToggleState(false, juce::dontSendNotification);
+
+	REQUIRE(toggle->onClick != nullptr);
+
+	toggle->onClick();
+
+	CHECK_FALSE(processor->levelMeterShow);
+
+	for (auto* b : selectors) CHECK_FALSE(b->isEnabled());
+
+	CHECK_FALSE(peakHolds[0]->isEnabled());
+
+	// メーターは子のいちばん奥 (壁紙のすぐ上) にあり、タブの中身の下 3/4 に収まる
+	auto meters = findAll<GuiLevelMeter>(*editor, [](GuiLevelMeter&) { return true; });
+
+	REQUIRE(meters.size() == 1);
+
+	auto* meter = meters[0];
+
+	CHECK(meter->getParentComponent() == editor.get());
+	CHECK(editor->getIndexOfChildComponent(meter) == 0);
+	bool clicks = true, childClicks = true;
+	meter->getInterceptsMouseClicks(clicks, childClicks);
+
+	CHECK_FALSE(clicks);
+
+	editor->resized();
+
+	auto* tabs = findAll<juce::TabbedComponent>(*editor, [](juce::TabbedComponent&) { return true; }).front();
+	const auto content = tabs->getBounds().withTrimmedTop(tabs->getTabBarDepth());
+
+	CHECK(content.contains(meter->getBounds()));
+	CHECK(meter->getBottom() >= content.getBottom() - 20);
+	CHECK(meter->getHeight() >= content.getHeight() * 3 / 4 - 20);
+	CHECK(meter->getHeight() <= content.getHeight() * 3 / 4);
 
 	editor.reset();
 }

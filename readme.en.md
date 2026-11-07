@@ -29,8 +29,14 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
 
 ## 3. Overview
 
-### 3-0-1. What v4.4.0 fixes and changes
+### 3-0-1. What v4.4.0 adds and changes
 
+- **Added: level meters (between the wallpaper and the controls)**
+  - Between the wallpaper and the on-screen controls, a spectrum (level per frequency band) is shown on the left and the L / R levels on the right. They measure the finished output (after the FX)
+  - In the full view they fill the bottom 3/4 of the tab content area (not the FX column). The mini player and the minimum view show them inside their own frames at the same proportion
+  - The style can be LED, bar or line. The spectrum has 16 or 32 bands. Peak hold can be turned on and off
+  - The "level meter" row in SETTINGS chooses whether to show them, the rate (15 to 120 FPS, 15 by default), the style, the number of bands and peak hold. These are saved in the settings file (`levelMeterShow` and so on)
+  - Display only; the sound does not change. All plugins (including 2686VFX)
 - **Fixed: the graph sometimes had no divider where the key is released (the start of the release)**
   - In the FM AMP ENV with SR set, the sustain section is drawn as a line falling to 0 and the key is released partway through it. Dividers were only drawn at the end of each section, so there was no line where the key is released
   - In the step envelopes (PARAM ENV, SSG SW AMP / PITCH ENV and so on), an infinite loop in Rich Mode also went straight from the dashed line back to the loop start into the release, with no divider

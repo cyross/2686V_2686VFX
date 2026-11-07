@@ -258,6 +258,11 @@ public:
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
         visit(SettingsKey::tapLiveGraph, tapLiveGraph);
         visit(SettingsKey::tapLiveFps, tapLiveFps);
+        visit(SettingsKey::levelMeterShow, levelMeterShow);
+        visit(SettingsKey::levelMeterFps, levelMeterFps);
+        visit(SettingsKey::levelMeterStyle, levelMeterStyle);
+        visit(SettingsKey::levelMeterBands, levelMeterBands);
+        visit(SettingsKey::levelMeterPeakHold, levelMeterPeakHold);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
 
