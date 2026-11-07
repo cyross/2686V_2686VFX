@@ -7,6 +7,8 @@
 #include "./SynthCoreParams.h"
 #include "./ParamMod.h"
 #include "./UnisonState.h"
+#include "./StageProbe.h"
+#include "./StageSwitch.h"
 
 class SynthCore
 {
@@ -109,6 +111,50 @@ public:
             if (!isActive) return;
         }
     }
+    // --- 生成中の波形の窓 (4.4.0) ---
+    //
+    // 計算用の音源だけが m_probe を持つ。鳴らしている音源では nullptr のまま。
+    // 各コアは getSample の中で m_probeRaw / m_probeOps を書き、renderNextBlock で
+    // probeWrite を呼ぶ。
+    StageProbe* m_probe = nullptr;
+
+    // FM の変調を切って回す (オペレーターの変調前の音を見るため)
+    bool m_probeNoMod = false;
+
+    // EG を切ったとき、鍵を押しているあいだは鳴っているものとして扱う
+    // (EG を全部切ると、コアは「鳴り終わった」と見てボイスを手放すため)。
+    // 離したところでは計算の側がボイスを止める
+    bool m_probeHold = false;
+
+    float m_probeRaw = 0.0f;
+    std::array<float, StageProbe::maxOps> m_probeOps{};
+
+    void setStageProbe(StageProbe* probe, bool noModulation)
+    {
+        m_probe = probe;
+        m_probeNoMod = (probe != nullptr) && noModulation;
+    }
+
+    // どの種類の音源か。オペレーター (パッド) の数と、持っているまとまり
+    virtual StageProbe::Kind stageKind() const { return StageProbe::Kind::other; }
+    virtual int stageOpCount() const { return 0; }
+    virtual StageSwitch::Mask stageModules() const { return 0; }
+
+    // 1 サンプルぶん書く。ユニゾンは 1 本目だけ
+    void probeWrite(float coreValue)
+    {
+        if (m_probe == nullptr) return;
+
+        m_probe->unisonSeen = std::max(m_probe->unisonSeen, m_unison.getTotal());
+
+        if (m_unison.getIndex() != 0) {
+            ++m_probe->cursor;
+            return;
+        }
+
+        m_probe->write(m_probeRaw, coreValue, m_probeOps.data(), stageOpCount());
+    }
+
     // 全コアが override せず、この既定実装を使う
     void virtual setUnisonParams(int index, int total, float detune, float spread,
                                  float paraDetune = 0.0f, float paraDistance = 0.0f) {

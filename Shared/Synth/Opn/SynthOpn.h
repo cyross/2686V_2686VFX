@@ -36,6 +36,11 @@ public:
     void setPitchBend(int pitchWheelValue) override;
     void setModulationWheel(int wheelValue) override;
     float getSample() override;
+
+    // 生成中の波形の窓 (4.4.0)
+    StageProbe::Kind stageKind() const override { return StageProbe::Kind::fm; }
+    int stageOpCount() const override { return OpnPrValue::ops; }
+    StageSwitch::Mask stageModules() const override { return StageSwitch::present<OpnParams>(); }
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 
     void renderRange(float* outR, float* outL, int startSample, int count, bool& isActive) override

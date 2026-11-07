@@ -200,6 +200,14 @@ public:
     void setModulationWheel(int wheelValue) override;
     void setPitchBendRatio(float ratio) override;
     void getSampleStereo(float& outL, float& outR);
+
+    // 生成中の波形の窓 (4.4.0)。パッドごとの音を、オペレーターの代わりに写す
+    StageProbe::Kind stageKind() const override { return StageProbe::Kind::rhythm; }
+    int stageOpCount() const override { return m_padCount; }
+    StageSwitch::Mask stageModules() const override { return StageSwitch::present<RhythmParams>(); }
+
+    // パンを振る前に、鳴っているパッドを足した音
+    float m_probeCore = 0.0f;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 
     void renderRange(float* outR, float* outL, int startSample, int count, bool& isActive) override

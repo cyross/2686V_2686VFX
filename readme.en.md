@@ -46,6 +46,27 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - 0.1x to 16x. L / M / R always share the same zoom. When it is not 1x, the zoom is shown in the top right of each scope
   - In the full view, change it with "V zoom" under the waveform preview heading (double-click for 1x). In any view, turning the mouse wheel over a scope also changes it
   - Saved in the settings file (`scopeZoom`). All plugins
+- **Added: the "Waveform stages" window (the generated waveform display has moved into it)**
+  - The "Open waveform stages" button under the oscilloscopes opens and closes a separate window (Ctrl+M opens it and builds). It shows, stage by stage, how the waveform is built inside the sound source
+    - Row 1: for FM, each operator before modulation; for RHYTHM, each pad (each played on its own key); otherwise the sound before processing
+    - Row 2: FM only. Each operator after modulation
+    - Row 3: (1) before processing (the operators simply added up) (2) after the processing inside the sound source (SSG HW ENV, WT AMP MOD, AMP ENV, SSG SW ENV, BIT, interpolation, LEVEL) (3) after unison (4) after CHIP DAC (5) after FX (final). (1) is FM only. Unused stages keep their frame and show "OFF". From (3) on, L / M / R are drawn on top of each other
+    - For RHYTHM, row 3 is the mix of only the pads ticked under "Pads to mix"
+  - Eight frames per row. The vertical zoom (x1 to x8; the mouse wheel over the frames also changes it) and the horizontal width (1, 2, 5 or 10 cycles) are shared by every frame, and the frames keep their size
+  - It is built only when Generate is pressed, and a window moves along the built waveform (as the generated waveform did; pause and frame stepping work too). No sound is played
+  - The note pattern can be set
+    - Key: chosen with a slider (C3 at first). The key decides the width of one cycle. Hidden for RHYTHM
+    - Tempo: a number, a list of common values, and "Follow DAW" (uses the DAW's tempo and time signature at the moment Generate is pressed; not available in the standalone app)
+    - Bars (1 to 16). The time signature is 4/4 (the DAW's when following it)
+    - Interval (how often a key is pressed) and Note (how long it is held): whole to 32nd notes, with triplet and dotted
+    - The defaults are tempo 120, 1 bar, a whole-note interval and a dotted half note, which is close to the old "one note released at 3/4 of the way"
+    - Up to 30 seconds (anything longer is cut off, and the window says so). After the last release it keeps going until the sound has been silent for 0.5 seconds
+  - Under "Use", groups such as envelopes and LFOs (AMP ENV, OP EG, PITCH ENV, LFO, SSG HW ENV, SSG SW ENV, WT MOD, STEP ENV, PARAM ENV) can be switched off for the build. Only the groups the current channel has are listed
+    - They are switched off only when building in this window. The patch does not change, and nothing is saved
+    - With an envelope off, the sound stays at full level while held and stops on release. With OP EG off, TL no longer applies either, just as when BYPASS is pressed
+  - The note pattern, key and horizontal width are saved in the settings file (`stageBpm`, `stageBars` and so on), not in the patch
+  - The row previews that the parameter browser stores are still built under the same fixed conditions (one A2 note), so files can be compared with each other
+  - All plugins with a sound source (not 2686VFX)
 - **Fixed: the graph sometimes had no divider where the key is released (the start of the release)**
   - In the FM AMP ENV with SR set, the sustain section is drawn as a line falling to 0 and the key is released partway through it. Dividers were only drawn at the end of each section, so there was no line where the key is released
   - In the step envelopes (PARAM ENV, SSG SW AMP / PITCH ENV and so on), an infinite loop in Rich Mode also went straight from the dashed line back to the loop start into the release, with no divider
@@ -1264,6 +1285,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The oscilloscope trace while a key is held, in real time
     - Drawn as L, M and R
   - **The generated waveform has been added to the preview (v3.2.0 onwards)**
+    - From v4.4.0 it lives in the separate "Waveform stages" window, which adds the waveform of each stage and a note pattern
     - Drawn as L, M and R
     - Built with the generate (regenerate) button
       - It is never built on its own, to keep the CPU load down

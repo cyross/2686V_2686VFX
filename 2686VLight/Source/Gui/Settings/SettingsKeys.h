@@ -55,6 +55,19 @@ namespace SettingsKey
 
 	// リアルタイムのオシロの縦の倍率 (4.4.0)
 	static inline const juce::String scopeZoom = "scopeZoom";
+
+	// 生成中の波形の窓 (4.4.0)。打鍵の並びと見せ方
+	static inline const juce::String stageBpm = "stageBpm";
+	static inline const juce::String stageFollowDaw = "stageFollowDaw";
+	static inline const juce::String stageBars = "stageBars";
+	static inline const juce::String stageIntervalDiv = "stageIntervalDiv";
+	static inline const juce::String stageIntervalTriplet = "stageIntervalTriplet";
+	static inline const juce::String stageIntervalDotted = "stageIntervalDotted";
+	static inline const juce::String stageLengthDiv = "stageLengthDiv";
+	static inline const juce::String stageLengthTriplet = "stageLengthTriplet";
+	static inline const juce::String stageLengthDotted = "stageLengthDotted";
+	static inline const juce::String stageMidiNote = "stageMidiNote";
+	static inline const juce::String stageCycles = "stageCycles";
 	static inline const juce::String showVirtualKeyboard = "showVirtualKeyboard";
 	static inline const juce::String fmParameterCopyType = "fmParameterCopyType";
 	static inline const juce::String fxOrder = "fxOrder";

@@ -1,4 +1,5 @@
 ﻿#include "PluginProcessor.h"
+#include "Shared/Gui/Components/StageWave/StageRig.h"
 #include "Shared/Core/Synth/StepTableIo.h"
 #include "Shared/Core/Io/IoStepEnvLegacy.h"
 #include "Shared/Core/Io/IoParamEnvLegacy.h"
@@ -268,6 +269,9 @@ void AudioPlugin2686V::releaseResources()
 void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+
+    // 生成中の波形の窓の「DAW 追従」で使う、DAW のテンポと拍子 (4.4.0)
+    captureHostTempo(getPlayHead());
 
     // DAW の再生を止めたら、TAP SEQUENCER を開始前へ戻す。鍵を見る前に
     stepTables.followTransport(getPlayHead());
@@ -2395,6 +2399,33 @@ std::unique_ptr<GuiRenderRig> AudioPlugin2686V::createRenderRig(double sampleRat
     rig->synth.useVelocity = rig->params.useVelocity;
     rig->synth.pitchResetOnLegato = rig->params.pitchResetOnLegato;
     rig->synth.fixedVelocity = rig->params.fixedVelocity;
+
+    return rig;
+}
+
+// ============================================================================
+// 生成中の波形の窓 (4.4.0) の音源一式 (窓口 GuiProcessorHost::createStageRig)
+// ============================================================================
+// 生成波形と同じボイスとパラメータに、CHIP DAC・ヘッドルーム・FX を足したもの。
+// FX は鳴らしているものとは別に作る (余韻の残りが混ざらないように)。
+std::unique_ptr<GuiStageRig> AudioPlugin2686V::createStageRig(double sampleRate, StageSwitch::Mask off, bool noModulation, int voices)
+{
+    auto rig = std::make_unique<StageRig<RetroSynthesiser, SynthVoice, SynthSound, FxProcessor, SynthParams>>();
+
+    rig->params = buildRenderParams();
+
+    // 切ったまとまりは、写しの値だけを書き換える (パッチは変わらない)
+    StageSwitch::applyAll(rig->params, off);
+
+    rig->prepareSynth(voices, sampleRate, noModulation, [this, sampleRate](SynthVoice& voice) { prepareRenderVoice(voice, sampleRate); });
+
+    rig->dac = chipDacOf(rig->params);
+    rig->headroom = useHeadroom ? headroomGain : 1.0f;
+    rig->apvts = &apvts;
+
+    rig->fx.init(apvts);
+    rig->fx.prepare(sampleRate);
+    rig->fx.updateOrder(prFx.getOrder());
 
     return rig;
 }

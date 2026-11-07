@@ -389,6 +389,9 @@ float WtPlusCore::getSample()
             : raw1;
 
         // 量子化(ビットクラッシャー)の前に AM（トレモロ）を適用する
+        // 生成中の波形の窓 (4.4.0)。音源の中の加工を通す前の音
+        if (m_probe != nullptr) m_probeRaw = rawSample * m_baseLevel * 8.0f;
+
         rawSample *= amMultiplier;
 
         // ==========================================
@@ -465,6 +468,8 @@ void WtPlusCore::updatePhaseDelta()
 void WtPlusCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
 {
     float sample = getSample();
+
+    probeWrite(sample);
 
     // ユニゾン・ハーモニー向けに変更
     float basePanL = 1.0f;

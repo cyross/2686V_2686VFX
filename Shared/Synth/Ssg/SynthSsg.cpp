@@ -552,6 +552,9 @@ float SsgCore::getSample()
         }
 
         // AM（トレモロ効果）をここで掛け合わせる
+        // 生成中の波形の窓 (4.4.0)。音源の中の加工を通す前の音
+        if (m_probe != nullptr) m_probeRaw = rawMixed * m_baseLevel * 4.0f;
+
         rawMixed *= hwEnvGain * amMultiplier;
 
         // ==========================================
@@ -604,6 +607,8 @@ float SsgCore::getSample()
 void SsgCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
 {
     float sample = getSample();
+
+    probeWrite(sample);
 
     // ユニゾン・ハーモニー向けに変更
     float basePanL = 1.0f;

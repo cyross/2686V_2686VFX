@@ -513,6 +513,13 @@ float Opzx7Core::getSample() {
         // =================================================================
         processAllOperators(std::make_index_sequence<Opzx7PrValue::ops>{}, currentOut, finalOut);
 
+        // 生成中の波形の窓 (4.4.0)。オペレーターごとの音と、足しただけの音を写す
+        if (m_probe != nullptr) {
+            for (int i = 0; i < Opzx7PrValue::ops; ++i) m_probeOps[(size_t)i] = currentOut[i];
+
+            m_probeRaw = finalOut * 2.0f;
+        }
+
         // =================================================================
         // 履歴 (History) のシフト
         // =================================================================
@@ -592,6 +599,8 @@ void Opzx7Core::renderNextBlock(float* outR, float* outL, int startSample, int s
 {
     float sample = getSample();
 
+    probeWrite(sample);
+
     // ユニゾン・ハーモニー向けに変更
     float basePanL = m_panpot_l_rate;
     float basePanR = m_panpot_r_rate;
@@ -602,7 +611,7 @@ void Opzx7Core::renderNextBlock(float* outR, float* outL, int startSample, int s
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;
 
-    isActive = isPlaying();
+    isActive = isPlaying() || m_probeHold;
 }
 
 void Opzx7Core::clearPcmBuffer(int opIndex) {
@@ -719,6 +728,12 @@ inline void Opzx7Core::processSingleOperator(float* currentOut, float& finalOut)
     }
 
     // 3. オペレータを計算
+    // 生成中の波形の窓 (4.4.0)。変調前の音を見るときは、変調を入れずに回す
+    if (m_probeNoMod) {
+        modulator = 0.0f;
+        fbModulator = 0.0f;
+    }
+
     m_operators[I].getSample(currentOut[I], modulator, fbModulator, m_lfo, m_modWheel);
 
     if (m_opMask[I]) currentOut[I] = 0.0f;

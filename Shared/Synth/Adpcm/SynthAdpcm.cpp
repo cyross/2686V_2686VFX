@@ -754,6 +754,9 @@ float AdpcmCore::getSample()
     float noiseGain = m_mix;
     float rawMixed = (output * m_tone * toneGain * 4.0f) + m_noiseGen.generateSample(noiseGain) * 0.4f;
 
+    // 生成中の波形の窓 (4.4.0)。音源の中の加工を通す前の音
+    if (m_probe != nullptr) m_probeRaw = rawMixed * m_baseLevel;
+
     return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier * sshHwEnvVal;
 }
 
@@ -761,6 +764,8 @@ float AdpcmCore::getSample()
 void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
 {
     float sample = getSample();
+
+    probeWrite(sample);
     float pan = getCurrentPan();
 
     // ユニゾン・ハーモニー向けに変更

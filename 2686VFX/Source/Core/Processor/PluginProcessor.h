@@ -132,6 +132,7 @@ public:
 
     // 生成波形の計算に使う音源一式 (窓口)。2686VFX は音源を持たないので作らない。
     std::unique_ptr<GuiRenderRig> createRenderRig(double) override { return nullptr; }
+    std::unique_ptr<GuiStageRig> createStageRig(double, StageSwitch::Mask, bool, int) override { return nullptr; }
 
     // 画面へ波形を描くために持っておくサンプル。
     // 音は各ボイスが自分の持ち分で鳴らすので、こちらは表示専用。
@@ -264,6 +265,17 @@ public:
         visit(SettingsKey::levelMeterBands, levelMeterBands);
         visit(SettingsKey::levelMeterPeakHold, levelMeterPeakHold);
         visit(SettingsKey::scopeZoom, scopeZoom);
+        visit(SettingsKey::stageBpm, stageBpm);
+        visit(SettingsKey::stageFollowDaw, stageFollowDaw);
+        visit(SettingsKey::stageBars, stageBars);
+        visit(SettingsKey::stageIntervalDiv, stageIntervalDiv);
+        visit(SettingsKey::stageIntervalTriplet, stageIntervalTriplet);
+        visit(SettingsKey::stageIntervalDotted, stageIntervalDotted);
+        visit(SettingsKey::stageLengthDiv, stageLengthDiv);
+        visit(SettingsKey::stageLengthTriplet, stageLengthTriplet);
+        visit(SettingsKey::stageLengthDotted, stageLengthDotted);
+        visit(SettingsKey::stageMidiNote, stageMidiNote);
+        visit(SettingsKey::stageCycles, stageCycles);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
 

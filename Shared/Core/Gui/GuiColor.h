@@ -522,6 +522,11 @@ namespace GuiColor {
 		// シークバーの進んだぶんと、コマの番号
 		inline Entry SeekFill{ "GenWave.SeekFill", []() -> juce::Colour { return Palette::MikuPink.get().withAlpha(0.3f); } };
 		inline Entry SeekText{ "GenWave.SeekText", []() -> juce::Colour { return Palette::OffWhite; } };
+
+		// 生成中の波形の窓 (4.4.0)。窓の地・段の見出し・使わない段の「OFF」
+		inline Entry WindowBg{ "GenWave.WindowBg", []() -> juce::Colour { return juce::Colour(0xff16161d); } };
+		inline Entry RowText{ "GenWave.RowText", []() -> juce::Colour { return Palette::OffWhite; } };
+		inline Entry OffText{ "GenWave.OffText", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.35f); } };
 	};
 
 	namespace WaveFile {
