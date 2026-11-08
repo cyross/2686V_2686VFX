@@ -99,8 +99,10 @@ namespace
 // ----------------------------------------------------------------------------
 // コマ
 // ----------------------------------------------------------------------------
-double GenWavePlayer::frameSamples(const GenWaveRender::Wave& wave)
+double GenWavePlayer::frameSamples(const GenWaveRender::Wave& wave) const
 {
+    if (m_fps > 0.0) return juce::jmax(1.0, wave.sampleRate / m_fps);
+
     const double perCycle = wave.samplesPerCycle();
 
     if (perCycle > 0.0) return perCycle;
@@ -108,7 +110,7 @@ double GenWavePlayer::frameSamples(const GenWaveRender::Wave& wave)
     return juce::jmax(1.0, wave.sampleRate * fallbackFrameSeconds);
 }
 
-int GenWavePlayer::frameCount(const GenWaveRender::Wave& wave)
+int GenWavePlayer::frameCount(const GenWaveRender::Wave& wave) const
 {
     if (wave.isEmpty()) return 1;
 
@@ -145,8 +147,14 @@ int GenWavePlayer::windowStart(const GenWaveRender::Wave& wave, int window, doub
 
     // 窓の頭は周期の切れ目へ合わせる。合わせないと 1 周期が 1 コマの
     // 間に何周も流れてしまい、形が読めない。オシロの同期と同じ考え方。
-    return juce::jlimit(0, juce::jmax(0, total - window),
-        (int)std::lround(frame(wave, nowMs) * frameSamples(wave)));
+    double start = frame(wave, nowMs) * frameSamples(wave);
+
+    // コマを秒で決めているときは、コマの頭を手前の周期の切れ目へ寄せる
+    const double perCycle = wave.samplesPerCycle();
+
+    if (m_fps > 0.0 && perCycle > 0.0) start = std::floor(start / perCycle) * perCycle;
+
+    return juce::jlimit(0, juce::jmax(0, total - window), (int)std::lround(start));
 }
 
 float GenWavePlayer::progress(const GenWaveRender::Wave& wave, double nowMs) const

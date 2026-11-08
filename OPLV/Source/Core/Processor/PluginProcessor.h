@@ -677,6 +677,7 @@ public:
         visit(SettingsKey::stageLengthDotted, stageLengthDotted);
         visit(SettingsKey::stageMidiNote, stageMidiNote);
         visit(SettingsKey::stageCycles, stageCycles);
+        visit(SettingsKey::stageFps, stageFps);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop

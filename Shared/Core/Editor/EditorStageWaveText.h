@@ -14,8 +14,8 @@ namespace EditorGuiText
 		static inline const I18n::Text windowTitle{ u8"生成中の波形", u8"Waveform stages" };
 
 		// エディタに置く、窓を開くボタン
-		static inline const I18n::Text open{ u8"生成中の波形を開く", u8"Open waveform stages" };
-		static inline const I18n::Text close{ u8"生成中の波形を閉じる", u8"Close waveform stages" };
+		static inline const I18n::Text open{ u8"生成過程をプレビュー", u8"Preview build process" };
+		static inline const I18n::Text close{ u8"生成過程のプレビューを閉じる", u8"Close build process preview" };
 		static inline const I18n::Text openTooltip{ u8"音源の中で波形がどう作られていくかを、段ごとに別の窓で見せます。Ctrl+M で開いて作ります。", u8"Shows, in a separate window, how the waveform is built inside the sound source, stage by stage. Ctrl+M opens it and builds." };
 
 		static inline const I18n::Text generate{ u8"生成", u8"Generate" };
@@ -29,6 +29,8 @@ namespace EditorGuiText
 
 		static inline const I18n::Text key{ u8"キー", u8"Key" };
 		static inline const I18n::Text cycles{ u8"周期", u8"Cycles" };
+		static inline const I18n::Text fps{ u8"FPS", u8"FPS" };
+		static inline const I18n::Text fpsTooltip{ u8"再生の 1 秒あたりのコマ数。上げるほどコマが細かくなり、コマの数 (長さ × FPS) も増えます。", u8"Frames per second for playback. Higher values give finer frames and more of them (length × FPS)." };
 		static inline const I18n::Text tempo{ u8"テンポ", u8"Tempo" };
 		static inline const I18n::Text followDaw{ u8"DAW 追従", u8"Follow DAW" };
 		static inline const I18n::Text followDawTooltip{ u8"「生成」を押した瞬間の DAW のテンポと拍子を使います。スタンドアロンでは使えません。", u8"Uses the DAW's tempo and time signature at the moment Generate is pressed. Not available in the standalone app." };

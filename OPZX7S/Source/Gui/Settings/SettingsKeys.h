@@ -68,6 +68,7 @@ namespace SettingsKey
 	static inline const juce::String stageLengthDotted = "stageLengthDotted";
 	static inline const juce::String stageMidiNote = "stageMidiNote";
 	static inline const juce::String stageCycles = "stageCycles";
+	static inline const juce::String stageFps = "stageFps";
 	static inline const juce::String showVirtualKeyboard = "showVirtualKeyboard";
 	static inline const juce::String fmParameterCopyType = "fmParameterCopyType";
 	static inline const juce::String fxOrder = "fxOrder";

@@ -39,8 +39,14 @@ public:
     enum class Hit { none = 0, handled = 1, zoomMenu = 2, frameInput = 3 };
 
     // 1 コマの点数と、コマの数
-    static double frameSamples(const GenWaveRender::Wave& wave);
-    static int frameCount(const GenWaveRender::Wave& wave);
+    double frameSamples(const GenWaveRender::Wave& wave) const;
+    int frameCount(const GenWaveRender::Wave& wave) const;
+
+    // 1 秒あたりのコマ数。0 (既定) なら 1 周期を 1 コマにする。
+    // 決めると 1/fps 秒が 1 コマになり、コマの数は長さ × fps になる。
+    // 窓の頭はそれでも周期の切れ目へ合わせる (形が流れないように)。
+    void setFramesPerSecond(double fps) { m_fps = juce::jmax(0.0, fps); }
+    double framesPerSecond() const { return m_fps; }
 
     // 頭から再生し直す。波形を作り直したときに呼ぶ。
     void restart(double nowMs);
@@ -122,6 +128,7 @@ private:
     int m_zoom = zoomMin;
     bool m_dragging = false;
     bool m_zoomInRow = true;
+    double m_fps = 0.0;
 
     struct Parts
     {

@@ -44,7 +44,8 @@ public:
 
 	static constexpr std::array<int, 13> tempoPresets{ 60, 80, 90, 100, 110, 120, 130, 140, 150, 160, 174, 180, 200 };
 
-	static constexpr int frameMs = 33;
+	// 再生の 1 秒あたりのコマ数の選択肢
+	static constexpr std::array<int, 4> fpsChoices{ 15, 30, 60, 120 };
 
 	explicit GuiStageWave(const GuiContext& context);
 	~GuiStageWave() override;
@@ -79,6 +80,9 @@ private:
 
 	juce::Label keyLabel;
 	juce::Slider keySlider;
+
+	juce::Label fpsLabel;
+	juce::ComboBox fpsBox;
 
 	juce::Label tempoLabel;
 	juce::Slider tempoSlider;
@@ -116,6 +120,9 @@ private:
 
 	// 様子を見直す間隔を数える
 	int m_idleTicks = 0;
+
+	// FPS を再生と描き直しの間隔へ当てる
+	void applyFps();
 
 	void setupNoteControls(NoteControls& c, const juce::String& title, int& division, bool& triplet, bool& dotted);
 	void syncFromHost();

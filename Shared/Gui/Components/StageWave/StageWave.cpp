@@ -1,5 +1,6 @@
 ﻿#include "./StageWave.h"
 
+#include <algorithm>
 #include <cmath>
 
 #include "Shared/Core/Editor/EditorStageWaveText.h"
@@ -86,6 +87,21 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	keySlider.onValueChange = [this] { ctx.audioProcessor.stageMidiNote = (int)keySlider.getValue(); };
 	addAndMakeVisible(keySlider);
 
+	// ---- 再生の FPS
+	styleLabel(fpsLabel, EditorGuiText::StageWave::fps);
+	fpsLabel.setTooltip(EditorGuiText::StageWave::fpsTooltip);
+	addAndMakeVisible(fpsLabel);
+
+	for (int i = 0; i < (int)fpsChoices.size(); ++i) fpsBox.addItem(juce::String(fpsChoices[(size_t)i]), fpsChoices[(size_t)i]);
+
+	fpsBox.setTooltip(EditorGuiText::StageWave::fpsTooltip);
+	fpsBox.onChange = [this] {
+		if (fpsBox.getSelectedId() > 0) ctx.audioProcessor.stageFps = fpsBox.getSelectedId();
+
+		applyFps();
+	};
+	addAndMakeVisible(fpsBox);
+
 	// ---- テンポ
 	styleLabel(tempoLabel, EditorGuiText::StageWave::tempo);
 	addAndMakeVisible(tempoLabel);
@@ -169,7 +185,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 
 	refreshInfo();
 
-	startTimer(frameMs);
+	applyFps();
 }
 
 GuiStageWave::~GuiStageWave()
@@ -218,11 +234,11 @@ void GuiStageWave::applyColours()
 	deleteBtn.setColour(juce::TextButton::textColourOffId, DeleteText);
 	deleteBtn.setColour(juce::TextButton::textColourOnId, DeleteText);
 
-	for (auto* label : { &keyLabel, &tempoLabel, &barsLabel, &intervalControls.label, &lengthControls.label, &switchesLabel, &padsLabel }) {
+	for (auto* label : { &keyLabel, &fpsLabel, &tempoLabel, &barsLabel, &intervalControls.label, &lengthControls.label, &switchesLabel, &padsLabel }) {
 		label->setColour(juce::Label::textColourId, RowText);
 	}
 
-	for (auto* box : { &tempoPresetBox, &barsBox, &intervalControls.division, &lengthControls.division })
+	for (auto* box : { &fpsBox, &tempoPresetBox, &barsBox, &intervalControls.division, &lengthControls.division })
 	{
 		box->setColour(juce::ComboBox::backgroundColourId, WindowControlBg);
 		box->setColour(juce::ComboBox::textColourId, WindowControlText);
@@ -256,6 +272,35 @@ void GuiStageWave::applyColours()
 	repaint();
 }
 
+void GuiStageWave::applyFps()
+{
+	int fps = ctx.audioProcessor.stageFps;
+
+	if (std::find(fpsChoices.begin(), fpsChoices.end(), fps) == fpsChoices.end()) fps = 30;
+
+	ctx.audioProcessor.stageFps = fps;
+
+	// コマの番号が変わるので、見ている位置を保ったまま頭から数え直す
+	const double nowMs = juce::Time::getMillisecondCounterHiRes();
+	const auto* wave = timeline();
+	const bool paused = m_player.isPaused();
+	const double seconds = (wave != nullptr) ? m_player.frame(*wave, nowMs) * m_player.frameSamples(*wave) / wave->sampleRate : 0.0;
+
+	m_player.setFramesPerSecond(fps);
+
+	if (wave != nullptr)
+	{
+		m_player.showFrame(*wave, (int)std::floor(seconds * wave->sampleRate / m_player.frameSamples(*wave)), nowMs);
+
+		if (!paused) m_player.resume(wave, nowMs);
+	}
+
+	// 描き直しはコマの速さに合わせる
+	startTimerHz(fps);
+
+	repaint();
+}
+
 // 設定ファイルから読んだ値を画面へ映す
 void GuiStageWave::syncFromHost()
 {
@@ -276,6 +321,10 @@ void GuiStageWave::syncFromHost()
 	lengthControls.dotted.setToggleState(host.stageLengthDotted, juce::dontSendNotification);
 
 	host.stageCycles = juce::jlimit(0, (int)cycleChoices.size() - 1, host.stageCycles);
+
+	if (std::find(fpsChoices.begin(), fpsChoices.end(), host.stageFps) == fpsChoices.end()) host.stageFps = 30;
+
+	fpsBox.setSelectedId(host.stageFps, juce::dontSendNotification);
 }
 
 void GuiStageWave::refreshInfo()
@@ -359,7 +408,13 @@ void GuiStageWave::resized()
 	place(keyLabel, 34);
 	place(keySlider, 260);
 
-	// 周期の欄は cycleArea で描く
+	// 周期の欄は cycleArea、倍率の欄は zoomBox で描く。その右に FPS
+	{
+		const auto zoom = zoomBox();
+
+		fpsLabel.setBounds(zoom.getRight() + groupGap, margin, 30, controlHeight);
+		fpsBox.setBounds(fpsLabel.getRight() + itemGap, margin, 70, controlHeight);
+	}
 
 	// ---- その下に再生の段 (playerArea で描く)。2 段目: テンポ・小節・間隔・音符
 	x = margin;
@@ -534,7 +589,7 @@ void GuiStageWave::mouseDown(const juce::MouseEvent& event)
 
 		juce::Component::SafePointer<GuiStageWave> safe(this);
 
-		GenWavePlayer::showFrameInput(*this, playerArea(), m_player.frame(*wave, nowMs) + 1, GenWavePlayer::frameCount(*wave),
+		GenWavePlayer::showFrameInput(*this, playerArea(), m_player.frame(*wave, nowMs) + 1, m_player.frameCount(*wave),
 			[safe](int shown) {
 				if (safe == nullptr || safe->timeline() == nullptr) return;
 
@@ -694,8 +749,8 @@ void GuiStageWave::paint(juce::Graphics& g)
 		m_player.drawZoom(g, zoomBox());
 
 		// 様子 (作っている最中・打ち切り・音源が無い)
-		auto status = juce::Rectangle<int>(zoomBox().getRight() + groupGap, margin,
-			contentWidth - margin - zoomBox().getRight() - groupGap, controlHeight);
+		auto status = juce::Rectangle<int>(fpsBox.getRight() + groupGap, margin,
+			contentWidth - margin - fpsBox.getRight() - groupGap, controlHeight);
 
 		juce::String text;
 

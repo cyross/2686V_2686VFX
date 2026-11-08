@@ -17,6 +17,20 @@ namespace ColorsGuiText
 		static inline const I18n::Text item{ u8"項目", u8"Item" };
 		static inline const I18n::Text value{ u8"設定値", u8"Value" };
 		static inline const I18n::Text reset{ u8"既定", u8"Default" };
+		static inline const I18n::Text importTarget{ u8"読込", u8"Load" };
+	}
+
+	// 読み込みの対象を絞る (4.4.0)
+	namespace Filter
+	{
+		static inline const I18n::Text search{ u8"検索", u8"Search" };
+		static inline const I18n::Text searchTooltip{ u8"項目の名前で絞ります。* と ? のワイルドカードも使えます (例: LevelMeter.Bar.*)。", u8"Filters items by name. The * and ? wildcards work too (e.g. LevelMeter.Bar.*)." };
+		static inline const I18n::Text checkAll{ u8"全てチェック", u8"Check all" };
+		static inline const I18n::Text uncheckAll{ u8"全て外す", u8"Uncheck all" };
+		static inline const I18n::Text bulkTooltip{ u8"表示している行 (検索で絞っていればその行だけ) の「読込」をまとめて入り切りします。", u8"Turns Load on or off for every row shown (only the matching rows while searching)." };
+		static inline const I18n::Text wildcard{ u8"ワイルドカード", u8"Wildcard" };
+		static inline const I18n::Text wildcardTooltip{ u8"入れると、「読込」のチェックを、同じ親を持つ項目へまとめて当てます (例: Category.ContentBg なら Category.*、LevelMeter.Bar.Low なら LevelMeter.Bar.*)。", u8"When on, a Load check applies to every item with the same parent (e.g. Category.ContentBg applies to Category.*, LevelMeter.Bar.Low to LevelMeter.Bar.*)." };
+		static inline const I18n::Text importTooltip{ u8"チェックした色だけを「読み込み」で読みます。外した色は、読み込んでも今の色のままです。", u8"Only checked colours are read by Load. Unchecked colours keep their current value." };
 	}
 
 	static inline const I18n::Text hint{ u8"行をダブルクリックすると色を変更できます", u8"Double-click a row to change its colour" };

@@ -191,6 +191,7 @@ public:
     bool stageLengthDotted = true;
     int stageMidiNote = 60;           // C3
     int stageCycles = 1;              // 枠の幅 (周期の数の選択肢の番号)
+    int stageFps = 30;                // 再生の 1 秒あたりのコマ数 (15 / 30 / 60 / 120)
 
     // DAW のテンポと拍子。音の側が書き、「生成」を押したときに画面が読む。0 なら分からない
     std::atomic<double> hostBpm{ 0.0 };

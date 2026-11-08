@@ -1428,7 +1428,7 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
             const auto file = item.file;
 
             GenWavePlayer::showFrameInput(*this, box,
-                item.player.frame(item.wave, nowMs) + 1, GenWavePlayer::frameCount(item.wave),
+                item.player.frame(item.wave, nowMs) + 1, item.player.frameCount(item.wave),
                 [safe, file](int shown) {
                     if (safe == nullptr) return;
 

@@ -47,13 +47,14 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - In the full view, change it with "V zoom" under the waveform preview heading (double-click for 1x). In any view, turning the mouse wheel over a scope also changes it
   - Saved in the settings file (`scopeZoom`). All plugins
 - **Added: the "Waveform stages" window (the generated waveform display has moved into it)**
-  - The "Open waveform stages" button under the oscilloscopes opens and closes a separate window (Ctrl+M opens it and builds). It shows, stage by stage, how the waveform is built inside the sound source
+  - The "Preview build process" button under the oscilloscopes opens and closes a separate window (Ctrl+M opens it and builds). It shows, stage by stage, how the waveform is built inside the sound source
     - Row 1: for FM, each operator before modulation; for RHYTHM, each pad (each played on its own key); otherwise the sound before processing
     - Row 2: FM only. Each operator after modulation
     - Row 3: (1) before processing (the operators simply added up) (2) after the processing inside the sound source (SSG HW ENV, WT AMP MOD, AMP ENV, SSG SW ENV, BIT, interpolation, LEVEL) (3) after unison (4) after CHIP DAC (5) after FX (final). (1) is FM only. Unused stages keep their frame and show "OFF". From (3) on, L / M / R are drawn on top of each other
     - For RHYTHM, row 3 is the mix of only the pads ticked under "Pads to mix"
   - Eight frames per row. The vertical zoom (x1 to x8; the mouse wheel over the frames also changes it) and the horizontal width (1, 2, 5 or 10 cycles) are shared by every frame, and the frames keep their size
     - Each frame is 210×129 (the window is about 1740 wide). The pause and seek bar row sits right under the Generate row, and the vertical zoom box sits to the right of the cycle buttons
+    - The playback FPS can be chosen (15, 30, 60 or 120; 30 by default). One frame is 1/FPS seconds, so the number of frames is length × FPS. The window start still snaps to a cycle boundary. Saved in the settings file (`stageFps`)
     - The pause / play button now has an off-white background with an off-black symbol (the row previews in the parameter browser too)
   - The window's colours can be changed on the COLORS tab and the window follows at once: the background (`GenWave.WindowBg`), headings (`GenWave.RowText`), the OFF text (`GenWave.OffText`), the choice and number boxes (`GenWave.WindowControlBg` / `Text` / `Outline` / `Accent`), the pause / play button (`GenWave.PlayBg` / `GenWave.PlayIcon`) and the other colours starting with `GenWave.`
   - It is built only when Generate is pressed, and a window moves along the built waveform (as the generated waveform did; pause and frame stepping work too). No sound is played
@@ -70,6 +71,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The note pattern, key and horizontal width are saved in the settings file (`stageBpm`, `stageBars` and so on), not in the patch
   - The row previews that the parameter browser stores are still built under the same fixed conditions (one A2 note), so files can be compared with each other
   - All plugins with a sound source (not 2686VFX)
+- **Changed: COLORS can limit which colours are loaded**
+  - Each row gains a "Load" check. Load reads only the checked colours (unchecked ones keep their current value). Checked colours missing from the file are reset to their defaults, as before
+  - "Check all" / "Uncheck all" turn every row shown on or off (only the matching rows while searching)
+  - "Wildcard": when on, a check applies to every item with the same parent (Category.ContentBg applies to Category.*, LevelMeter.Bar.Low to LevelMeter.Bar.*)
+  - "Search" filters the rows by item name. The `*` and `?` wildcards work too (e.g. `LevelMeter.Bar.*`)
+  - The checks are kept until the window is closed (they are not saved)
 - **Fixed: the graph sometimes had no divider where the key is released (the start of the release)**
   - In the FM AMP ENV with SR set, the sustain section is drawn as a line falling to 0 and the key is released partway through it. Dividers were only drawn at the end of each section, so there was no line where the key is released
   - In the step envelopes (PARAM ENV, SSG SW AMP / PITCH ENV and so on), an infinite loop in Rich Mode also went straight from the dashed line back to the loop start into the release, with no divider
