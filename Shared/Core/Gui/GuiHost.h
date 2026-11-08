@@ -193,6 +193,7 @@ public:
     int stageCycles = 1;              // 枠の幅 (周期の数の選択肢の番号)
     int stageFps = 30;                // 再生の 1 秒あたりのコマ数 (15 / 30 / 60 / 120)
     bool stageLoop = true;            // 再生を最後まで行ったら頭へ戻るか
+    bool stageReleaseTail = true;     // 最後に離したあとの余韻 (リリース) まで作るか。切ると打鍵の並びの長さで切る
     int stageBeatDiv = 4;             // 1 小節の拍の音符 (4 = 4 分音符, 8 = 8 分音符)
     int stageBeatCount = 4;           // 1 小節の拍の数 (1〜12)
 

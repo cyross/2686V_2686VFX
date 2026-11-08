@@ -24,8 +24,9 @@ namespace
 
 	float clip(float v) { return juce::jlimit(-1.0f, 1.0f, v); }
 
-	// 打鍵の並びどおりに回す。gate なら、離した音を余韻を待たずに止める
-	void runPass(GuiStageRig& rig, const std::vector<StageWaveRender::Event>& events, bool gate, Collected& out)
+	// 打鍵の並びどおりに回す。gate なら、離した音を余韻を待たずに止める。
+	// stopAt が 0 より大きければ、余韻を待たずにそこ (サンプル) で止める
+	void runPass(GuiStageRig& rig, const std::vector<StageWaveRender::Event>& events, bool gate, Collected& out, int stopAt = 0)
 	{
 		using namespace StageWaveRender;
 
@@ -41,7 +42,7 @@ namespace
 
 		for (const auto& e : events) endAt = juce::jmax(endAt, e.at);
 
-		const int hardEnd = endAt + (int)(maxTailSeconds * renderRate);
+		const int hardEnd = stopAt > 0 ? stopAt : endAt + (int)(maxTailSeconds * renderRate);
 		const int silentLimit = (int)(tailSeconds * renderRate);
 
 		const size_t reserve = (size_t)(hardEnd / storeStep + 1);
@@ -115,7 +116,7 @@ namespace
 
 			pos += n;
 
-			if (pos >= endAt && silentFor >= silentLimit) break;
+			if (stopAt <= 0 && pos >= endAt && silentFor >= silentLimit) break;
 		}
 	}
 
@@ -152,6 +153,14 @@ namespace
 
 		return keys;
 	}
+}
+
+double StageWaveRender::patternSeconds(const Pattern& pattern)
+{
+	const double bpm = juce::jlimit(1.0, 999.0, std::isfinite(pattern.bpm) ? pattern.bpm : 120.0);
+	const double barQuarters = (double)juce::jmax(1, pattern.sigNumerator) * 4.0 / (double)juce::jmax(1, pattern.sigDenominator);
+
+	return juce::jmin(maxPatternSeconds, (double)juce::jmax(1, pattern.bars) * barQuarters * 60.0 / bpm);
 }
 
 std::vector<StageWaveRender::Event> StageWaveRender::buildEvents(const Pattern& pattern, const std::vector<int>& notes,
@@ -308,7 +317,10 @@ StageWaveRender::Result StageWaveRender::run(Job& job)
 
 	Collected main;
 
-	runPass(*job.main, buildEvents(pattern, mainKeys, renderRate, truncated), gate, main);
+	// 余韻を入れないときは、打鍵の並びのちょうどの長さで止める (繰り返してもつなぎ目が空かない)
+	const int stopAt = job.options.releaseTail ? 0 : juce::jmax(1, (int)std::lround(patternSeconds(pattern) * renderRate));
+
+	runPass(*job.main, buildEvents(pattern, mainKeys, renderRate, truncated), gate, main, stopAt);
 
 	out.truncated = truncated;
 
@@ -320,7 +332,7 @@ StageWaveRender::Result StageWaveRender::run(Job& job)
 
 		bool cut = false;
 
-		runPass(*job.extra, buildEvents(pattern, keys, renderRate, cut), gate, extra);
+		runPass(*job.extra, buildEvents(pattern, keys, renderRate, cut), gate, extra, stopAt);
 	}
 
 	const int ops = juce::jlimit(0, viewsPerRow, info.opCount);

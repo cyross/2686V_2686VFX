@@ -57,6 +57,10 @@ public:
 	// 区分のあいだの縦線の太さ
 	static constexpr int dividerWidth = 2;
 
+	// 「表示周期」の見出しの幅と、周期のボタン 1 つの幅
+	static constexpr int cycleLabelWidth = 58;
+	static constexpr int cycleCellWidth = 34;
+
 	explicit GuiStageWave(const GuiContext& context);
 	~GuiStageWave() override;
 
@@ -117,6 +121,9 @@ private:
 
 	NoteControls intervalControls;
 	NoteControls lengthControls;
+
+	// 最後のリリースを反映するか
+	juce::ToggleButton releaseTailToggle;
 
 	juce::Label switchesLabel;
 	std::array<juce::ToggleButton, StageSwitch::count> moduleToggles;

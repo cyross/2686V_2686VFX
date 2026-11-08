@@ -216,6 +216,39 @@ TEST_CASE("生成中の波形: 1 小節の拍 (音符と数) で小節の長さ�
 	}
 }
 
+TEST_CASE("生成中の波形: 最後のリリースを切ると、打鍵の並びのちょうどの長さになる")
+{
+	auto holder = std::make_unique<AudioPlugin2686V>();
+	auto& plugin = *holder;
+
+	plugin.prepareToPlay(48000.0, 512);
+
+	StageWaveRender::Options options;
+
+	options.pattern.bpm = 240.0; // 1 小節 = 1 秒
+	options.pattern.bars = 1;
+	options.pattern.interval = { 4, false, false };
+	options.pattern.length = { 4, false, false };
+
+	CHECK(StageWaveRender::patternSeconds(options.pattern) == doctest::Approx(1.0));
+
+	const auto lengthOf = [&](bool tail) {
+		options.releaseTail = tail;
+
+		auto job = StageWaveRender::prepare(plugin, options);
+
+		REQUIRE(job != nullptr);
+
+		return StageWaveRender::run(*job).stages[StageWaveRender::stageFx].lengthSeconds();
+	};
+
+	// 切れば 1 秒ちょうど (間引いた 1 点ぶんの誤差まで)
+	CHECK(lengthOf(false) == doctest::Approx(1.0).epsilon(0.001));
+
+	// 入れれば、離したあとの余韻のぶん長い
+	CHECK(lengthOf(true) > 1.0 + StageWaveRender::tailSeconds * 0.5);
+}
+
 TEST_CASE("生成中の波形: ループを切ると最後で止まり、押すと頭から流れる")
 {
 	GenWaveRender::Wave wave;

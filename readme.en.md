@@ -58,6 +58,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
     - The pause / play button now has an off-white background with an off-black symbol (the row previews in the parameter browser too)
     - A loop button sits to the right of the play button (on by default). When off, playback stops at the end and the play button starts it again from the top. Saved in the settings file (`stageLoop`)
     - The window title is "Build process preview". Vertical dividers (2px, off-white, `GenWave.GroupDivider`) separate the key, cycles, FPS, tempo, beat, bars, interval and note groups
+    - An "Include last release" toggle (on by default). When off, the release after the last key-up is not built and the result is cut at exactly the length of the pattern (the bars), so looped playback has no gap at the seam. Press Generate again for it to take effect. Saved in the settings file (`stageReleaseTail`)
+    - The "Cycles" heading on the top row is now "View cycles" (how many cycles each frame shows)
     - "Beat" is added between "Tempo" and "Bars": the note of one beat (quarter or eighth) and how many per bar (1 to 12). Changing the note resets the count to its default (4 for quarter, 6 for eighth). With Follow DAW on, the DAW's time signature is used. Saved in the settings file (`stageBeatDiv` / `stageBeatCount`)
   - The window's colours can be changed on the COLORS tab and the window follows at once: the background (`GenWave.WindowBg`), headings (`GenWave.RowText`), the OFF text (`GenWave.OffText`), the choice and number boxes (`GenWave.WindowControlBg` / `Text` / `Outline` / `Accent`), the pause / play button (`GenWave.PlayBg` / `GenWave.PlayIcon`) and the other colours starting with `GenWave.`
   - It is built only when Generate is pressed, and a window moves along the built waveform (as the generated waveform did; pause and frame stepping work too). No sound is played
@@ -94,6 +96,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
 - **Changed: the live-position fill for sustain now runs from the start of the sustain to where the key is released**
   - It used to fill the whole sustain section, so when the release point sits partway through it (as with SR on the FM chips), the part after the release was filled too
   - It now fills from the start of the sustain to the release point. All plugins
+- **(For developers) Added `tools/run_tests.py`, which runs the tests in parallel chunks**
+  - `python tools/run_tests.py` splits the built test executables into chunks and runs them at the same time (pass a name to run only that executable). It prints one progress line per finished chunk
+  - The tests themselves are unchanged; a full run went from about 16 minutes to about 4
 
 ### 3-0-2. What v4.3.0 adds and changes
 

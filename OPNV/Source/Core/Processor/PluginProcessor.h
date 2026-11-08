@@ -679,6 +679,7 @@ public:
         visit(SettingsKey::stageCycles, stageCycles);
         visit(SettingsKey::stageFps, stageFps);
         visit(SettingsKey::stageLoop, stageLoop);
+        visit(SettingsKey::stageReleaseTail, stageReleaseTail);
         visit(SettingsKey::stageBeatDiv, stageBeatDiv);
         visit(SettingsKey::stageBeatCount, stageBeatCount);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);

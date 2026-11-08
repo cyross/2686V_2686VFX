@@ -176,6 +176,12 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	setupNoteControls(lengthControls, EditorGuiText::StageWave::length,
 		host.stageLengthDiv, host.stageLengthTriplet, host.stageLengthDotted);
 
+	// ---- 最後のリリースを反映するか
+	releaseTailToggle.setButtonText(EditorGuiText::StageWave::releaseTail);
+	releaseTailToggle.setTooltip(EditorGuiText::StageWave::releaseTailTooltip);
+	releaseTailToggle.onClick = [this] { ctx.audioProcessor.stageReleaseTail = releaseTailToggle.getToggleState(); };
+	addAndMakeVisible(releaseTailToggle);
+
 	// ---- 入れ切り
 	styleLabel(switchesLabel, EditorGuiText::StageWave::switches);
 	switchesLabel.setTooltip(EditorGuiText::StageWave::switchesTooltip);
@@ -289,7 +295,7 @@ void GuiStageWave::applyColours()
 		slider->setColour(juce::Slider::thumbColourId, WindowControlAccent);
 	}
 
-	std::vector<juce::ToggleButton*> toggles{ &followDawToggle,
+	std::vector<juce::ToggleButton*> toggles{ &followDawToggle, &releaseTailToggle,
 		&intervalControls.triplet, &intervalControls.dotted, &lengthControls.triplet, &lengthControls.dotted };
 
 	for (auto& t : moduleToggles) toggles.push_back(&t);
@@ -343,6 +349,7 @@ void GuiStageWave::syncFromHost()
 	tempoSlider.setValue(juce::jlimit(20.0, 300.0, (double)host.stageBpm), juce::dontSendNotification);
 	followDawToggle.setToggleState(host.stageFollowDaw && dawFollowAvailable(), juce::dontSendNotification);
 	barsBox.setSelectedId(juce::jlimit(1, 16, host.stageBars), juce::dontSendNotification);
+	releaseTailToggle.setToggleState(host.stageReleaseTail, juce::dontSendNotification);
 
 	if (std::find(beatNotes.begin(), beatNotes.end(), host.stageBeatDiv) == beatNotes.end()) host.stageBeatDiv = beatNotes[0];
 
@@ -434,6 +441,8 @@ StageWaveRender::Options GuiStageWave::currentOptions() const
 
 	for (int i = 0; i < StageProbe::maxOps; ++i) options.padChecked[(size_t)i] = padToggles[(size_t)i].getToggleState();
 
+	options.releaseTail = ctx.audioProcessor.stageReleaseTail;
+
 	return options;
 }
 
@@ -507,7 +516,11 @@ void GuiStageWave::resized()
 		place(c->dotted, 56);
 	}
 
-	// 区分のあいだの縦線: テンポ | 拍 | 小節 | 間隔 | 音符
+	x += groupGap;
+	place(releaseTailToggle, 150);
+
+	// 区分のあいだの縦線: テンポ | 拍 | 小節 | 間隔 | 音符 | リリース
+	addDivider(lengthControls.dotted.getRight(), releaseTailToggle.getX(), y);
 	addDivider(followDawToggle.getRight(), beatLabel.getX(), y);
 	addDivider(beatCountSlider.getRight(), barsLabel.getX(), y);
 	addDivider(barsBox.getRight(), intervalControls.label.getX(), y);
@@ -561,16 +574,16 @@ juce::Rectangle<int> GuiStageWave::viewArea(int row, int column) const
 juce::Rectangle<int> GuiStageWave::cycleArea() const
 {
 	// 1 段目の右側
-	const int width = 40 + (int)cycleChoices.size() * 34;
+	const int width = cycleLabelWidth + (int)cycleChoices.size() * cycleCellWidth;
 
 	return { margin + 90 + 60 + itemGap * 2 + groupGap + 34 + 260 + itemGap * 2 + groupGap, margin, width, controlHeight };
 }
 
 juce::Rectangle<int> GuiStageWave::cycleCell(int index) const
 {
-	auto area = cycleArea().withTrimmedLeft(40);
+	auto area = cycleArea().withTrimmedLeft(cycleLabelWidth);
 
-	return { area.getX() + index * 34, area.getY(), 34, area.getHeight() };
+	return { area.getX() + index * cycleCellWidth, area.getY(), cycleCellWidth, area.getHeight() };
 }
 
 juce::Rectangle<int> GuiStageWave::zoomBox() const
@@ -827,7 +840,7 @@ void GuiStageWave::paint(juce::Graphics& g)
 	{
 		g.setFont(juce::FontOptions(12.0f));
 		g.setColour(GuiColor::GenWave::RowText);
-		g.drawText(EditorGuiText::StageWave::cycles, cycleArea().withWidth(40), juce::Justification::centredLeft, false);
+		g.drawText(EditorGuiText::StageWave::cycles, cycleArea().withWidth(cycleLabelWidth), juce::Justification::centredLeft, false);
 
 		for (int i = 0; i < (int)cycleChoices.size(); ++i)
 		{

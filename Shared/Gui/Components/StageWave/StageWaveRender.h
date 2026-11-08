@@ -87,6 +87,9 @@ namespace StageWaveRender
 
 		// RHYTHM の第 3 段に混ぜるパッド
 		std::array<bool, StageProbe::maxOps> padChecked{ true, true, true, true, true, true, true, true };
+
+		// 最後に離したあとの余韻 (リリース) まで作るか。切ると打鍵の並びのちょうどの長さで止める
+		bool releaseTail = true;
 	};
 
 	// 押す・離すの時刻 (サンプル)
@@ -96,6 +99,9 @@ namespace StageWaveRender
 		int note = 0;
 		bool on = false;
 	};
+
+	// 打鍵の並びの長さ (秒)。小節数 × 1 小節。上限 (maxPatternSeconds) で切る
+	double patternSeconds(const Pattern& pattern);
 
 	// 打鍵の並びから、押す・離すの一覧を作る。truncated には上限で切ったかを返す
 	std::vector<Event> buildEvents(const Pattern& pattern, const std::vector<int>& notes, double sampleRate, bool& truncated);

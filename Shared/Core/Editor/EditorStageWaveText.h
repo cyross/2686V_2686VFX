@@ -28,12 +28,14 @@ namespace EditorGuiText
 		static inline const I18n::Text noSynth{ u8"このプラグインには音源がありません", u8"This plugin has no sound source" };
 
 		static inline const I18n::Text key{ u8"キー", u8"Key" };
-		static inline const I18n::Text cycles{ u8"周期", u8"Cycles" };
+		static inline const I18n::Text cycles{ u8"表示周期", u8"View cycles" };
 		static inline const I18n::Text fps{ u8"FPS", u8"FPS" };
 		static inline const I18n::Text fpsTooltip{ u8"再生の 1 秒あたりのコマ数。上げるほどコマが細かくなり、コマの数 (長さ × FPS) も増えます。", u8"Frames per second for playback. Higher values give finer frames and more of them (length × FPS)." };
 		static inline const I18n::Text tempo{ u8"テンポ", u8"Tempo" };
 		static inline const I18n::Text followDaw{ u8"DAW 追従", u8"Follow DAW" };
 		static inline const I18n::Text followDawTooltip{ u8"「生成」を押した瞬間の DAW のテンポと拍子を使います。スタンドアロンでは使えません。", u8"Uses the DAW's tempo and time signature at the moment Generate is pressed. Not available in the standalone app." };
+		static inline const I18n::Text releaseTail{ u8"最後のリリースを反映", u8"Include last release" };
+		static inline const I18n::Text releaseTailTooltip{ u8"入れると、最後に離したあとの余韻 (リリース) まで作ります。切ると打鍵の並び (小節数) のちょうどの長さで切るので、繰り返し再生してもつなぎ目で間が空きません。「生成」を押し直すと効きます。", u8"When on, the build runs on through the release after the last key-up. When off, it stops at exactly the length of the pattern (the bars), so looped playback has no gap at the seam. Press Generate again for it to take effect." };
 		static inline const I18n::Text beat{ u8"拍", u8"Beat" };
 		static inline const I18n::Text beatTooltip{ u8"1 小節の拍。音符と、その数 (1〜12)。4 分音符なら 4、8 分音符なら 6 が既定です。DAW 追従のときは DAW の拍子を使います。", u8"Beats per bar: the note and how many (1-12). The default is 4 for quarter notes and 6 for eighth notes. With Follow DAW on, the DAW's time signature is used." };
 		static inline const I18n::Text bars{ u8"小節", u8"Bars" };
