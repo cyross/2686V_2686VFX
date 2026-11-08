@@ -5,6 +5,7 @@
 
 #include "Shared/Core/Editor/EditorStageWaveText.h"
 #include "Shared/Core/Gui/GuiColor.h"
+#include "Shared/Core/Gui/GuiValues.h"
 
 namespace
 {
@@ -210,6 +211,11 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 		addChildComponent(t);
 	}
 
+	// 操作の段を横へずらすスクロールバー
+	m_controlScrollBar.setAutoHide(false);
+	m_controlScrollBar.addListener(this);
+	addChildComponent(m_controlScrollBar);
+
 	// 縦の倍率は再生の段に置かず、周期のボタンの右に置く
 	m_player.setZoomInRow(false);
 
@@ -264,6 +270,8 @@ void GuiStageWave::setupNoteControls(NoteControls& c, const juce::String& title,
 void GuiStageWave::applyColours()
 {
 	using namespace GuiColor::GenWave;
+
+	m_controlScrollBar.setColour(juce::ScrollBar::thumbColourId, GuiColor::ScrollBar::Thumb);
 
 	generateBtn.setColour(juce::TextButton::buttonColourId, GenerateBg);
 	generateBtn.setColour(juce::TextButton::textColourOffId, GenerateText);
@@ -451,15 +459,19 @@ StageWaveRender::Options GuiStageWave::currentOptions() const
 // ============================================================================
 void GuiStageWave::resized()
 {
+	// 操作の段は m_controlScroll だけ左へずらして置く。x はずらす前の位置で数える
+	const int scroll = m_controlScroll;
 	int x = margin;
 	int y = margin;
+	int right = 0;
 
 	m_dividers.clear();
 
 	const auto place = [&](juce::Component& c, int width) {
 		if (c.isVisible()) {
-			c.setBounds(x, y, width, controlHeight);
+			c.setBounds(x - scroll, y, width, controlHeight);
 			x += width + itemGap;
+			right = juce::jmax(right, x);
 		}
 	};
 
@@ -476,6 +488,8 @@ void GuiStageWave::resized()
 
 		fpsLabel.setBounds(zoom.getRight() + groupGap, margin, 30, controlHeight);
 		fpsBox.setBounds(fpsLabel.getRight() + itemGap, margin, 70, controlHeight);
+
+		right = juce::jmax(right, fpsBox.getRight() + scroll);
 
 		// 区分のあいだの縦線: 生成・削除 | キー | 周期・倍率 | FPS
 		if (keySlider.isVisible())
@@ -534,7 +548,31 @@ void GuiStageWave::resized()
 
 	for (auto& t : moduleToggles) place(t, 112);
 
-	// ---- RHYTHM の混ぜるパッドは、第 3 段の見出しの右に置く
+	// ---- 操作の段が窓に収まらなければ、その下に横のスクロールバーを出す
+	m_controlsWidth = right - itemGap + margin;
+
+	const int hidden = juce::jmax(0, m_controlsWidth - getWidth());
+
+	if (m_controlScroll > hidden)
+	{
+		// 窓を広げて、ずらしすぎになった。ずらしを詰めて置き直す
+		m_controlScroll = hidden;
+		resized();
+		return;
+	}
+
+	const bool scrollShown = hidden > 0;
+
+	m_controlScrollBar.setVisible(scrollShown);
+
+	if (scrollShown)
+	{
+		m_controlScrollBar.setBounds(0, y + controlHeight + viewGap / 2, getWidth(), controlScrollHeight);
+		m_controlScrollBar.setRangeLimits(0.0, (double)m_controlsWidth, juce::dontSendNotification);
+		m_controlScrollBar.setCurrentRange((double)m_controlScroll, (double)getWidth(), juce::dontSendNotification);
+	}
+
+	// ---- RHYTHM の混ぜるパッドは、第 3 段の見出しの右に置く。狭ければ 1 つの幅を詰める
 	auto strip = rowArea(2).withHeight(rowLabelHeight);
 
 	x = strip.getX() + 220;
@@ -543,14 +581,31 @@ void GuiStageWave::resized()
 	padsLabel.setBounds(x, y, 90, rowLabelHeight);
 	x += 90;
 
+	const int padWidth = juce::jlimit(60, 104, (strip.getRight() - x) / StageProbe::maxOps);
+
 	for (auto& t : padToggles)
 	{
-		t.setBounds(x, y, 104, rowLabelHeight);
-		x += 104;
+		t.setBounds(x, y, padWidth, rowLabelHeight);
+		x += padWidth;
 	}
 
 	// 枠の大きさが変わるので描き直す
 	repaint();
+}
+
+void GuiStageWave::setControlScroll(int newScroll)
+{
+	const int clamped = juce::jlimit(0, juce::jmax(0, m_controlsWidth - getWidth()), newScroll);
+
+	if (clamped == m_controlScroll) return;
+
+	m_controlScroll = clamped;
+	resized();
+}
+
+void GuiStageWave::scrollBarMoved(juce::ScrollBar*, double newRangeStart)
+{
+	setControlScroll((int)std::lround(newRangeStart));
 }
 
 void GuiStageWave::addDivider(int leftEdge, int rightEdge, int y)
@@ -562,27 +617,44 @@ void GuiStageWave::addDivider(int leftEdge, int rightEdge, int y)
 
 juce::Rectangle<int> GuiStageWave::rowArea(int row) const
 {
-	const int top = margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap;
+	const int top = viewsTop(m_controlScrollBar.isVisible());
 
 	const int h = currentViewHeight();
 
-	return { margin, top + row * (rowLabelHeight + h + rowGap), juce::jmax(contentWidth, getWidth()) - margin * 2, rowLabelHeight + h };
+	return { margin, top + row * (rowLabelHeight + h + rowGap), getWidth() - margin * 2, rowLabelHeight + h };
 }
 
 int GuiStageWave::currentViewWidth() const
 {
 	const int n = StageWaveRender::viewsPerRow;
 
-	return juce::jmax(viewWidth, (getWidth() - margin * 2 - (n - 1) * viewGap) / n);
+	return juce::jmax(minViewWidth, (getWidth() - margin * 2 - (n - 1) * viewGap) / n);
 }
 
 int GuiStageWave::currentViewHeight() const
 {
 	// 枠の 3 段より上 (操作と再生の段) と下の余白を引いた残りを 3 段で分ける
-	const int top = margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap;
-	const int rows = getHeight() - top - margin + rowGap;
+	const int rows = getHeight() - viewsTop(m_controlScrollBar.isVisible()) - margin + rowGap;
 
-	return juce::jmax(viewHeight, rows / 3 - rowLabelHeight - rowGap);
+	return juce::jmax(minViewHeight, rows / 3 - rowLabelHeight - rowGap);
+}
+
+int GuiStageWave::viewsTop(bool controlScrollShown) const
+{
+	return margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap
+		+ (controlScrollShown ? controlScrollHeight + viewGap : 0);
+}
+
+int GuiStageWave::minimumWidth() const
+{
+	const int n = StageWaveRender::viewsPerRow;
+
+	return margin * 2 + n * minViewWidth + (n - 1) * viewGap;
+}
+
+int GuiStageWave::minimumHeight(int forWidth) const
+{
+	return viewsTop(m_controlsWidth > forWidth) + (rowLabelHeight + minViewHeight + rowGap) * 3 - rowGap + margin;
 }
 
 juce::Rectangle<int> GuiStageWave::viewArea(int row, int column) const
@@ -599,7 +671,7 @@ juce::Rectangle<int> GuiStageWave::cycleArea() const
 	// 1 段目の右側
 	const int width = cycleLabelWidth + (int)cycleChoices.size() * cycleCellWidth;
 
-	return { margin + 90 + 60 + itemGap * 2 + groupGap + 34 + 260 + itemGap * 2 + groupGap, margin, width, controlHeight };
+	return { margin + 90 + 60 + itemGap * 2 + groupGap + 34 + 260 + itemGap * 2 + groupGap - m_controlScroll, margin, width, controlHeight };
 }
 
 juce::Rectangle<int> GuiStageWave::cycleCell(int index) const
@@ -618,7 +690,7 @@ juce::Rectangle<int> GuiStageWave::zoomBox() const
 juce::Rectangle<int> GuiStageWave::playerArea() const
 {
 	// 1 段目 (生成・削除・キー・周期) のすぐ下
-	return { margin, margin + controlHeight + viewGap, juce::jmax(contentWidth, getWidth()) - margin * 2, GenWavePlayer::height };
+	return { margin, margin + controlHeight + viewGap, getWidth() - margin * 2, GenWavePlayer::height };
 }
 
 // ============================================================================
@@ -773,6 +845,18 @@ void GuiStageWave::mouseWheelMove(const juce::MouseEvent& event, const juce::Mou
 		return;
 	}
 
+	// 操作の段の上の横ホイール (Shift + ホイール) は、操作の段を横へずらす
+	if (m_controlScrollBar.isVisible() && event.getPosition().y < rowArea(0).getY() && !playerArea().contains(event.getPosition()))
+	{
+		const float delta = wheel.deltaX != 0.0f ? wheel.deltaX : (event.mods.isShiftDown() ? wheel.deltaY : 0.0f);
+
+		if (delta != 0.0f)
+		{
+			setControlScroll(m_controlScroll - (int)std::lround(delta * 120.0f));
+			return;
+		}
+	}
+
 	// 倍率の欄と枠の上のホイールは縦の倍率 (全部の枠で同じ)
 	if ((zoomBox().contains(event.getPosition()) || event.getPosition().y >= rowArea(0).getY()) && wheel.deltaY != 0.0f)
 	{
@@ -882,7 +966,7 @@ void GuiStageWave::paint(juce::Graphics& g)
 
 		// 様子 (作っている最中・打ち切り・音源が無い)
 		auto status = juce::Rectangle<int>(fpsBox.getRight() + groupGap, margin,
-			juce::jmax(contentWidth, getWidth()) - margin - fpsBox.getRight() - groupGap, controlHeight);
+			getWidth() - margin - fpsBox.getRight() - groupGap, controlHeight);
 
 		juce::String text;
 
@@ -1017,6 +1101,57 @@ void GuiStageWave::drawView(juce::Graphics& g, juce::Rectangle<int> area, const 
 // ============================================================================
 // 別の窓
 // ============================================================================
+namespace
+{
+	// 窓が中身の最小より小さいときに、縦横のスクロールで見せる
+	class StageWaveScroller : public juce::Viewport
+	{
+	public:
+		explicit StageWaveScroller(GuiStageWave& stage) : m_stage(stage)
+		{
+			setViewedComponent(&stage, true);
+			setScrollBarsShown(true, true);
+			setScrollBarThickness(CoreGuiValue::ScrollBar::vertical);
+			applyColours();
+		}
+
+		void resized() override
+		{
+			// 縦横のスクロールバーが出ると、見える幅・高さがそのぶん減る
+			const int thickness = getScrollBarThickness();
+			int w = getWidth();
+			int h = getHeight();
+			bool needW = false;
+			bool needH = false;
+
+			for (int pass = 0; pass < 2; ++pass)
+			{
+				needW = m_stage.minimumWidth() > w;
+				needH = m_stage.minimumHeight(juce::jmax(w, m_stage.minimumWidth())) > h;
+				w = getWidth() - (needH ? thickness : 0);
+				h = getHeight() - (needW ? thickness : 0);
+			}
+
+			const int width = juce::jmax(w, m_stage.minimumWidth());
+
+			m_stage.setSize(width, juce::jmax(h, m_stage.minimumHeight(width)));
+
+			juce::Viewport::resized();
+		}
+
+	private:
+		GuiStageWave& m_stage;
+
+		void applyColours()
+		{
+			getVerticalScrollBar().setColour(juce::ScrollBar::thumbColourId, GuiColor::ScrollBar::Thumb);
+			getHorizontalScrollBar().setColour(juce::ScrollBar::thumbColourId, GuiColor::ScrollBar::Thumb);
+		}
+
+		GuiColor::Refresher m_colourRefresher{ [this] { applyColours(); } };
+	};
+}
+
 GuiStageWaveWindow::GuiStageWaveWindow(const GuiContext& context, std::function<void()> onClose)
 	: juce::DocumentWindow(EditorGuiText::StageWave::windowTitle, GuiColor::GenWave::WindowBg, juce::DocumentWindow::closeButton),
 	m_onClose(std::move(onClose))
@@ -1025,11 +1160,16 @@ GuiStageWaveWindow::GuiStageWaveWindow(const GuiContext& context, std::function<
 
 	m_content = content.get();
 
+	auto scroller = std::make_unique<StageWaveScroller>(*content.release());
+
+	scroller->setSize(GuiStageWave::contentWidth, GuiStageWave::contentHeight);
+
 	setUsingNativeTitleBar(true);
-	setContentOwned(content.release(), true);
-	// 広げると枠も広がる。作った大きさより小さくはしない
+	setContentOwned(scroller.release(), true);
+
+	// 枠は窓に合わせて伸び縮みする。窓の最小は最初の大きさの縦横半分
 	setResizable(true, false);
-	setResizeLimits(GuiStageWave::contentWidth, GuiStageWave::contentHeight,
+	setResizeLimits(GuiStageWave::minWindowWidth, GuiStageWave::minWindowHeight,
 		GuiStageWave::maxContentWidth, GuiStageWave::maxContentHeight);
 
 	// DAW の窓の後ろへ隠れないように

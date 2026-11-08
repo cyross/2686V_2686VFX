@@ -183,12 +183,12 @@ public:
     float stageBpm = 120.0f;
     bool stageFollowDaw = false;      // 「生成」を押した瞬間の DAW のテンポ・拍子を使う
     int stageBars = 1;                // 1〜16 小節
-    int stageIntervalDiv = 1;         // 打鍵の間隔 (1 = 全音符, 2, 4, 8, 16, 32)
+    int stageIntervalDiv = 4;         // 打鍵の間隔 (1 = 全音符, 2, 4, 8, 16, 32)。既定は 4 分音符
     bool stageIntervalTriplet = false;
     bool stageIntervalDotted = false;
-    int stageLengthDiv = 2;           // 押している長さ。既定は付点 2 分音符 (4/4 の 3/4 小節)
+    int stageLengthDiv = 4;           // 押している長さ。既定は 4 分音符
     bool stageLengthTriplet = false;
-    bool stageLengthDotted = true;
+    bool stageLengthDotted = false;
     int stageMidiNote = 60;           // C3
     int stageCycles = 1;              // 枠の幅 (周期の数の選択肢の番号)
     int stageFps = 30;                // 再生の 1 秒あたりのコマ数 (15 / 30 / 60 / 120)

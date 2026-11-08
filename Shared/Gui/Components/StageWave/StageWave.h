@@ -22,16 +22,21 @@
 //   第 2 段: FM だけ。変調後の各オペレーター
 //   第 3 段: ① 加工前 ② 音源の加工後 ③ ユニゾン後 ④ CHIP DAC 後 ⑤ FX 後 (完成)
 //
-// 枠は横に 8 個。縦・横の倍率は全部の枠で同じ。窓を広げると枠も同じだけ広がる
-// (contentWidth / contentHeight が窓の最小の大きさ)。
+// 枠は横に 8 個。縦・横の倍率は全部の枠で同じ。枠は窓の大きさに合わせて伸び縮みする
+// (最小は最初の大きさの縦横半分)。窓の最小も最初の大きさ (contentWidth / contentHeight)
+// の縦横半分で、操作の段が窓に収まらないときは、操作の段だけを横へずらすスクロールバーを出す。
 // 「生成」を押したときだけ作り、作ったものの上を窓が動いていく (従来の生成波形と同じ)。
-class GuiStageWave : public juce::Component, private juce::Timer
+class GuiStageWave : public juce::Component, private juce::Timer, private juce::ScrollBar::Listener
 {
 public:
 	static constexpr int margin = 10;
-	// 枠 1 つの最小の大きさ。窓を広げるとこれより大きくなる (currentViewWidth / currentViewHeight)
+	// 枠 1 つの最初の大きさ。窓に合わせて伸び縮みする (currentViewWidth / currentViewHeight)
 	static constexpr int viewWidth = 210;
 	static constexpr int viewHeight = 129;
+
+	// 枠 1 つの最小の大きさ (最初の大きさの縦横半分)
+	static constexpr int minViewWidth = viewWidth / 2;
+	static constexpr int minViewHeight = viewHeight / 2;
 	static constexpr int viewGap = 6;
 	static constexpr int controlHeight = 24;
 	static constexpr int rowLabelHeight = 20;
@@ -42,9 +47,14 @@ public:
 	static constexpr int contentHeight = margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap
 		+ (rowLabelHeight + viewHeight + rowGap) * 3 - rowGap + margin;
 
-	// 窓をこれより大きくはしない
+	// 窓の最小 (最初の大きさの縦横半分) と最大
+	static constexpr int minWindowWidth = contentWidth / 2;
+	static constexpr int minWindowHeight = contentHeight / 2;
 	static constexpr int maxContentWidth = 8000;
 	static constexpr int maxContentHeight = 6000;
+
+	// 操作の段を横へずらすスクロールバーの太さ
+	static constexpr int controlScrollHeight = 12;
 
 	// 窓の幅の選択肢 (周期数)。RHYTHM は 1 周期を 10ms とみなす
 	static constexpr std::array<int, 4> cycleChoices{ 1, 2, 5, 10 };
@@ -85,9 +95,19 @@ public:
 	// 今の画面の値から作る条件を組む (テストからも使う)
 	StageWaveRender::Options currentOptions() const;
 
-	// 今の窓の大きさでの枠 1 つの大きさ (最小は viewWidth / viewHeight)
+	// 今の窓の大きさでの枠 1 つの大きさ (最小は minViewWidth / minViewHeight)
 	int currentViewWidth() const;
 	int currentViewHeight() const;
+
+	// 中身がつぶれずに並ぶ最小の大きさ。窓がこれより小さければ外側のスクロールで見せる
+	int minimumWidth() const;
+	int minimumHeight(int forWidth) const;
+
+	// 操作の段の幅 (ずらす前の右端 + 余白) と、横へのずらし
+	int controlsWidth() const { return m_controlsWidth; }
+	bool isControlScrollShown() const { return m_controlScrollBar.isVisible(); }
+	int controlScroll() const { return m_controlScroll; }
+	void setControlScroll(int x);
 
 	void paint(juce::Graphics& g) override;
 	void resized() override;
@@ -155,6 +175,16 @@ private:
 
 	// 区分のあいだに引く縦線 (resized で決める)
 	std::vector<juce::Rectangle<int>> m_dividers;
+
+	// 操作の段 (1〜3 段目) を横へずらす。窓に収まらないときだけ出す
+	juce::ScrollBar m_controlScrollBar{ false };
+	int m_controlScroll = 0;
+	int m_controlsWidth = 0;
+
+	void scrollBarMoved(juce::ScrollBar* bar, double newRangeStart) override;
+
+	// 枠の段の上端 (操作の段・再生の段・スクロールバーの下)
+	int viewsTop(bool controlScrollShown) const;
 
 	// 左の部品の右端と、右の部品の左端のあいだへ縦線を足す
 	void addDivider(int leftEdge, int rightEdge, int y);

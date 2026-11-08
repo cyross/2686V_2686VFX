@@ -84,7 +84,7 @@ TEST_CASE("生成中の波形: 打鍵の並びどおりに押す・離すが並�
 
 	const double rate = 1000.0;
 
-	SUBCASE("既定は 1 小節に 1 音。付点 2 分音符 (3 拍) で離す")
+	SUBCASE("既定は 1 小節に 4 分音符で 4 回押し、それぞれ 4 分音符で離す")
 	{
 		Pattern p;
 		bool truncated = true;
@@ -92,11 +92,16 @@ TEST_CASE("生成中の波形: 打鍵の並びどおりに押す・離すが並�
 		const auto events = buildEvents(p, { 60 }, rate, truncated);
 
 		CHECK_FALSE(truncated);
-		REQUIRE(events.size() == 2);
-		CHECK(events[0].on);
-		CHECK(events[0].at == 0);
-		CHECK_FALSE(events[1].on);
-		CHECK(events[1].at == 1500); // 120 BPM の 3 拍 = 1.5 秒
+		REQUIRE(events.size() == 8);
+
+		std::vector<int> ons;
+		std::vector<int> offs;
+
+		for (const auto& e : events) (e.on ? ons : offs).push_back(e.at);
+
+		// 120 BPM の 1 拍 = 0.5 秒
+		CHECK(ons == std::vector<int>{ 0, 500, 1000, 1500 });
+		CHECK(offs == std::vector<int>{ 500, 1000, 1500, 2000 });
 	}
 
 	SUBCASE("音符が間隔より長ければ、押し直すまで離さない (最後の音だけ離す)")
@@ -443,12 +448,20 @@ TEST_CASE("生成中の波形: エディタのボタンから別の窓を開け�
 	CHECK(options.pattern.bpm == doctest::Approx(120.0));
 	CHECK(options.off == 0);
 
-	// 広げると枠も広がり、最小より小さくはならない
+	// 枠は窓に合わせて伸び縮みし、最初の大きさの縦横半分より小さくはならない
 	{
 		auto& stage = *launcher->stageWave();
 
+		// 窓の最小は最初の大きさの縦横半分
+		auto* window = stage.findParentComponentOfClass<juce::ResizableWindow>();
+
+		REQUIRE(window != nullptr);
+		CHECK(window->getConstrainer()->getMinimumWidth() == GuiStageWave::contentWidth / 2);
+		CHECK(window->getConstrainer()->getMinimumHeight() == GuiStageWave::contentHeight / 2);
+
 		CHECK(stage.currentViewWidth() == GuiStageWave::viewWidth);
 		CHECK(stage.currentViewHeight() == GuiStageWave::viewHeight);
+		CHECK_FALSE(stage.isControlScrollShown());
 
 		stage.setSize(GuiStageWave::contentWidth + StageWaveRender::viewsPerRow * 50, GuiStageWave::contentHeight + 3 * 40);
 
@@ -457,8 +470,61 @@ TEST_CASE("生成中の波形: エディタのボタンから別の窓を開け�
 
 		stage.setSize(100, 100);
 
-		CHECK(stage.currentViewWidth() == GuiStageWave::viewWidth);
-		CHECK(stage.currentViewHeight() == GuiStageWave::viewHeight);
+		CHECK(stage.currentViewWidth() == GuiStageWave::minViewWidth);
+		CHECK(stage.currentViewHeight() == GuiStageWave::minViewHeight);
+
+		// 操作の段が収まらなければ横のスクロールバーが出て、操作の段だけがずれる
+		stage.setSize(stage.minimumWidth(), stage.minimumHeight(stage.minimumWidth()));
+
+		REQUIRE(stage.isControlScrollShown());
+		CHECK(stage.controlsWidth() > stage.getWidth());
+
+		const int playerRight = stage.getWidth();
+		const auto before = stage.getChildComponent(0)->getX();
+
+		stage.setControlScroll(100);
+
+		CHECK(stage.controlScroll() == 100);
+		CHECK(stage.getChildComponent(0)->getX() == before - 100);
+		CHECK(stage.getWidth() == playerRight);
+
+		// ずらしすぎは詰める
+		stage.setControlScroll(100000);
+
+		CHECK(stage.controlScroll() == stage.controlsWidth() - stage.getWidth());
+
+		// 広げて収まれば、スクロールバーは消えて、ずらしも戻る
+		stage.setSize(GuiStageWave::contentWidth, GuiStageWave::contentHeight);
+
+		CHECK_FALSE(stage.isControlScrollShown());
+		CHECK(stage.controlScroll() == 0);
+
+		// 見た目を確かめたいときは、置き場を環境変数で渡すと窓の中身を PNG に書き出す
+		if (const auto dir = juce::SystemStats::getEnvironmentVariable("STAGE_WAVE_SNAPSHOT_DIR", {}); dir.isNotEmpty())
+		{
+			auto* scroller = window->getContentComponent();
+
+			REQUIRE(scroller != nullptr);
+
+			const std::array<juce::Point<int>, 3> sizes{ {
+				{ GuiStageWave::contentWidth, GuiStageWave::contentHeight },
+				{ 1200, 520 },
+				{ GuiStageWave::minWindowWidth, GuiStageWave::minWindowHeight },
+			} };
+
+			for (const auto& size : sizes)
+			{
+				scroller->setSize(size.x, size.y);
+
+				const auto image = scroller->createComponentSnapshot(scroller->getLocalBounds());
+				auto file = juce::File(dir).getChildFile("stage_" + juce::String(size.x) + "x" + juce::String(size.y) + ".png");
+
+				file.deleteFile();
+
+				juce::FileOutputStream out(file);
+				juce::PNGImageFormat().writeImageToStream(image, out);
+			}
+		}
 	}
 
 	launcher->setWindowOpen(false);

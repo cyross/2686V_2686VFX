@@ -71,8 +71,8 @@ namespace StageWaveRender
 		int bars = 1;
 		int sigNumerator = 4;
 		int sigDenominator = 4;
-		NoteValue interval{ 1, false, false };
-		NoteValue length{ 2, false, true };
+		NoteValue interval{ 4, false, false };
+		NoteValue length{ 4, false, false };
 
 		// 鳴らす鍵 (RHYTHM 以外)
 		int midiNote = 60;
