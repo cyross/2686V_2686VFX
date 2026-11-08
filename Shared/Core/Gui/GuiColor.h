@@ -519,6 +519,9 @@ namespace GuiColor {
 
 		// 一時停止・シークバー・拡大率の段。地と枠は周期の切り替えと揃える。
 		inline Entry ControlIcon{ "GenWave.ControlIcon", []() -> juce::Colour { return Palette::OffWhite; } };
+		// 一時停止 / 再生のボタン。目に付くよう地をオフホワイト、記号をオフブラックにする。
+		inline Entry PlayBg{ "GenWave.PlayBg", []() -> juce::Colour { return Palette::OffWhite; } };
+		inline Entry PlayIcon{ "GenWave.PlayIcon", []() -> juce::Colour { return Palette::OffBlack; } };
 		// シークバーの進んだぶんと、コマの番号
 		inline Entry SeekFill{ "GenWave.SeekFill", []() -> juce::Colour { return Palette::MikuPink.get().withAlpha(0.3f); } };
 		inline Entry SeekText{ "GenWave.SeekText", []() -> juce::Colour { return Palette::OffWhite; } };
@@ -527,6 +530,11 @@ namespace GuiColor {
 		inline Entry WindowBg{ "GenWave.WindowBg", []() -> juce::Colour { return juce::Colour(0xff16161d); } };
 		inline Entry RowText{ "GenWave.RowText", []() -> juce::Colour { return Palette::OffWhite; } };
 		inline Entry OffText{ "GenWave.OffText", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.35f); } };
+		// 窓の中の操作 (選択肢・数値の欄・チェック)。地・文字・縁・チェックの印とスライダーの差し色
+		inline Entry WindowControlBg{ "GenWave.WindowControlBg", []() -> juce::Colour { return juce::Colour(0xff26262f); } };
+		inline Entry WindowControlText{ "GenWave.WindowControlText", []() -> juce::Colour { return Palette::OffWhite; } };
+		inline Entry WindowControlOutline{ "GenWave.WindowControlOutline", []() -> juce::Colour { return Palette::BorderGray; } };
+		inline Entry WindowControlAccent{ "GenWave.WindowControlAccent", []() -> juce::Colour { return Palette::MikuPink; } };
 	};
 
 	namespace WaveFile {

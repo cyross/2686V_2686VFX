@@ -46,7 +46,6 @@ namespace
 	{
 		label.setText(text, juce::dontSendNotification);
 		label.setFont(juce::FontOptions(12.0f));
-		label.setColour(juce::Label::textColourId, GuiColor::GenWave::RowText);
 		label.setJustificationType(juce::Justification::centredLeft);
 	}
 }
@@ -59,15 +58,11 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	auto& host = ctx.audioProcessor;
 
 	generateBtn.setButtonText(EditorGuiText::StageWave::generate);
-	generateBtn.setColour(juce::TextButton::buttonColourId, GuiColor::GenWave::GenerateBg);
-	generateBtn.setColour(juce::TextButton::textColourOffId, GuiColor::GenWave::GenerateText);
 	generateBtn.setTooltip(EditorGuiText::StageWave::generateTooltip);
 	generateBtn.onClick = [this] { startGenerate(); };
 	addAndMakeVisible(generateBtn);
 
 	deleteBtn.setButtonText(EditorGuiText::StageWave::remove);
-	deleteBtn.setColour(juce::TextButton::buttonColourId, GuiColor::GenWave::DeleteBg);
-	deleteBtn.setColour(juce::TextButton::textColourOffId, GuiColor::GenWave::DeleteText);
 	deleteBtn.onClick = [this] { clearResult(); };
 	deleteBtn.setEnabled(false);
 	addAndMakeVisible(deleteBtn);
@@ -165,6 +160,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	}
 
 	syncFromHost();
+	applyColours();
 
 	setSize(contentWidth, contentHeight);
 
@@ -204,6 +200,57 @@ void GuiStageWave::setupNoteControls(NoteControls& c, const juce::String& title,
 	c.dotted.setButtonText(EditorGuiText::StageWave::dotted);
 	c.dotted.onClick = [&c, &dotted] { dotted = c.dotted.getToggleState(); };
 	addAndMakeVisible(c.dotted);
+}
+
+// 色を部品へ写す。部品の色は写したときの値が残るので、COLORS で変えたら写し直す
+void GuiStageWave::applyColours()
+{
+	using namespace GuiColor::GenWave;
+
+	generateBtn.setColour(juce::TextButton::buttonColourId, GenerateBg);
+	generateBtn.setColour(juce::TextButton::textColourOffId, GenerateText);
+	generateBtn.setColour(juce::TextButton::textColourOnId, GenerateText);
+
+	deleteBtn.setColour(juce::TextButton::buttonColourId, DeleteBg);
+	deleteBtn.setColour(juce::TextButton::textColourOffId, DeleteText);
+	deleteBtn.setColour(juce::TextButton::textColourOnId, DeleteText);
+
+	for (auto* label : { &keyLabel, &tempoLabel, &barsLabel, &intervalControls.label, &lengthControls.label, &switchesLabel, &padsLabel }) {
+		label->setColour(juce::Label::textColourId, RowText);
+	}
+
+	for (auto* box : { &tempoPresetBox, &barsBox, &intervalControls.division, &lengthControls.division })
+	{
+		box->setColour(juce::ComboBox::backgroundColourId, WindowControlBg);
+		box->setColour(juce::ComboBox::textColourId, WindowControlText);
+		box->setColour(juce::ComboBox::outlineColourId, WindowControlOutline);
+		box->setColour(juce::ComboBox::arrowColourId, WindowControlText);
+	}
+
+	for (auto* slider : { &keySlider, &tempoSlider })
+	{
+		slider->setColour(juce::Slider::textBoxBackgroundColourId, WindowControlBg);
+		slider->setColour(juce::Slider::textBoxTextColourId, WindowControlText);
+		slider->setColour(juce::Slider::textBoxOutlineColourId, WindowControlOutline);
+		slider->setColour(juce::Slider::backgroundColourId, WindowControlBg);
+		slider->setColour(juce::Slider::trackColourId, WindowControlAccent);
+		slider->setColour(juce::Slider::thumbColourId, WindowControlAccent);
+	}
+
+	std::vector<juce::ToggleButton*> toggles{ &followDawToggle,
+		&intervalControls.triplet, &intervalControls.dotted, &lengthControls.triplet, &lengthControls.dotted };
+
+	for (auto& t : moduleToggles) toggles.push_back(&t);
+	for (auto& t : padToggles) toggles.push_back(&t);
+
+	for (auto* t : toggles)
+	{
+		t->setColour(juce::ToggleButton::textColourId, RowText);
+		t->setColour(juce::ToggleButton::tickColourId, WindowControlAccent);
+		t->setColour(juce::ToggleButton::tickDisabledColourId, WindowControlOutline);
+	}
+
+	repaint();
 }
 
 // 設定ファイルから読んだ値を画面へ映す
@@ -311,9 +358,9 @@ void GuiStageWave::resized()
 
 	// 周期の欄は cycleArea で描く
 
-	// ---- 2 段目: テンポ・小節・間隔・音符
+	// ---- その下に再生の段 (playerArea で描く)。2 段目: テンポ・小節・間隔・音符
 	x = margin;
-	y += controlHeight + viewGap;
+	y = playerArea().getBottom() + viewGap;
 
 	place(tempoLabel, 48);
 	place(tempoSlider, 110);
@@ -358,7 +405,7 @@ void GuiStageWave::resized()
 
 juce::Rectangle<int> GuiStageWave::rowArea(int row) const
 {
-	const int top = margin + (controlHeight + viewGap) * 3 + rowGap;
+	const int top = margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap;
 
 	return { margin, top + row * (rowLabelHeight + viewHeight + rowGap), contentWidth - margin * 2, rowLabelHeight + viewHeight };
 }
@@ -387,9 +434,8 @@ juce::Rectangle<int> GuiStageWave::cycleCell(int index) const
 
 juce::Rectangle<int> GuiStageWave::playerArea() const
 {
-	const auto last = rowArea(2);
-
-	return { margin, last.getBottom() + rowGap, contentWidth - margin * 2, GenWavePlayer::height };
+	// 1 段目 (生成・削除・キー・周期) のすぐ下
+	return { margin, margin + controlHeight + viewGap, contentWidth - margin * 2, GenWavePlayer::height };
 }
 
 // ============================================================================

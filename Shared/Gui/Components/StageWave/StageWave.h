@@ -7,6 +7,7 @@
 #include <JuceHeader.h>
 
 #include "./StageWaveRender.h"
+#include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiContext.h"
 #include "Shared/Gui/Components/GenWave/GenWavePlayer.h"
 
@@ -26,16 +27,17 @@ class GuiStageWave : public juce::Component, private juce::Timer
 {
 public:
 	static constexpr int margin = 10;
-	static constexpr int viewWidth = 140;
-	static constexpr int viewHeight = 86;
+	static constexpr int viewWidth = 210;
+	static constexpr int viewHeight = 129;
 	static constexpr int viewGap = 6;
 	static constexpr int controlHeight = 24;
 	static constexpr int rowLabelHeight = 20;
 	static constexpr int rowGap = 8;
 
 	static constexpr int contentWidth = margin * 2 + StageWaveRender::viewsPerRow * viewWidth + (StageWaveRender::viewsPerRow - 1) * viewGap;
-	static constexpr int contentHeight = margin + (controlHeight + viewGap) * 3 + rowGap
-		+ (rowLabelHeight + viewHeight + rowGap) * 3 + GenWavePlayer::height + margin;
+	// 操作 3 段と、1 段目のすぐ下に置く再生の段、その下に枠を 3 段
+	static constexpr int contentHeight = margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap
+		+ (rowLabelHeight + viewHeight + rowGap) * 3 - rowGap + margin;
 
 	// 窓の幅の選択肢 (周期数)。RHYTHM は 1 周期を 10ms とみなす
 	static constexpr std::array<int, 4> cycleChoices{ 1, 2, 5, 10 };
@@ -141,6 +143,12 @@ private:
 	juce::String viewTitle(int row, int column) const;
 
 	void timerCallback() override;
+
+	// 色を部品へ写す。COLORS で変えたときにも呼ばれる
+	void applyColours();
+
+	// 部品より後に置く (先に壊れて、壊れた部品へ写しに来ないように)
+	GuiColor::Refresher m_colourRefresher{ [this] { applyColours(); } };
 };
 
 // 生成中の波形を入れる別の窓
@@ -156,4 +164,7 @@ public:
 private:
 	GuiStageWave* m_content = nullptr;
 	std::function<void()> m_onClose;
+
+	// 窓の地も COLORS の変更に付いていく
+	GuiColor::Refresher m_colourRefresher{ [this] { setBackgroundColour(GuiColor::GenWave::WindowBg); } };
 };

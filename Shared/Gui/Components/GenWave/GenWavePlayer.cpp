@@ -271,14 +271,14 @@ void GenWavePlayer::draw(juce::Graphics& g, juce::Rectangle<int> area,
     {
         const auto box = parts.play.toFloat();
 
-        g.setColour(GuiColor::GenWave::CycleBg.get().withMultipliedAlpha(alpha));
+        g.setColour(GuiColor::GenWave::PlayBg.get().withMultipliedAlpha(alpha));
         g.fillRect(box);
         g.setColour(GuiColor::GenWave::Border.get().withMultipliedAlpha(alpha));
         g.drawRect(box, 1.0f);
 
         const auto icon = box.withSizeKeepingCentre(10.0f, 10.0f);
 
-        g.setColour(GuiColor::GenWave::ControlIcon.get().withMultipliedAlpha(alpha));
+        g.setColour(GuiColor::GenWave::PlayIcon.get().withMultipliedAlpha(alpha));
 
         if (!timed || m_paused)
         {
