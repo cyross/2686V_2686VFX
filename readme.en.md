@@ -52,8 +52,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
     - Row 2: FM only. Each operator after modulation
     - Row 3: (1) before processing (the operators simply added up) (2) after the processing inside the sound source (SSG HW ENV, WT AMP MOD, AMP ENV, SSG SW ENV, BIT, interpolation, LEVEL) (3) after unison (4) after CHIP DAC (5) after FX (final). (1) is FM only. Unused stages keep their frame and show "OFF". From (3) on, L / M / R are drawn on top of each other
     - For RHYTHM, row 3 is the mix of only the pads ticked under "Pads to mix"
-  - Eight frames per row. The vertical zoom (x1 to x8; the mouse wheel over the frames also changes it) and the horizontal width (1, 2, 5 or 10 cycles) are shared by every frame, and the frames keep their size
-    - Each frame is 210×129 (the window is about 1740 wide). The pause and seek bar row sits right under the Generate row, and the vertical zoom box sits to the right of the cycle buttons
+  - Eight frames per row. The vertical zoom (x1 to x8; the mouse wheel over the frames also changes it) and the horizontal width (1, 2, 5 or 10 cycles) are shared by every frame
+    - Each frame starts at 210×129 (the window is about 1740 wide) and grows and shrinks with the window (see below). The pause and seek bar row sits right under the Generate row, and the vertical zoom box sits to the right of the cycle buttons
     - The playback FPS can be chosen (15, 30, 60 or 120; 30 by default). One frame is 1/FPS seconds, so the number of frames is length × FPS. The window start still snaps to a cycle boundary. Saved in the settings file (`stageFps`)
     - The pause / play button now has an off-white background with an off-black symbol (the row previews in the parameter browser too)
     - A loop button sits to the right of the play button (on by default). When off, playback stops at the end and the play button starts it again from the top. Saved in the settings file (`stageLoop`)
@@ -68,7 +68,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The note pattern can be set
     - Key: chosen with a slider (C3 at first). The key decides the width of one cycle. Hidden for RHYTHM
     - Tempo: a number, a list of common values, and "Follow DAW" (uses the DAW's tempo and time signature at the moment Generate is pressed; not available in the standalone app)
-    - Bars (1 to 16). The time signature is 4/4 (the DAW's when following it)
+    - Bars (1 to 16). The time signature is chosen with "Beat" (4/4 at first; the DAW's when following it)
     - Interval (how often a key is pressed) and Note (how long it is held): whole to 32nd notes, with triplet and dotted
     - The defaults are tempo 120, 1 bar, a quarter-note interval and a quarter note (triplet and dotted both off), so a bar has four key presses
     - Up to 30 seconds (anything longer is cut off, and the window says so). After the last release it keeps going until the sound has been silent for 0.5 seconds
