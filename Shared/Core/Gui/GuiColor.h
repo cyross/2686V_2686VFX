@@ -906,6 +906,11 @@ namespace GuiColor {
 		inline Entry LightButtonText{ "PresetTab.LightButtonText", []() -> juce::Colour { return juce::Colours::black; } };
 		inline Entry LightButtonTextDisabled{ "PresetTab.LightButtonTextDisabled", []() -> juce::Colour { return juce::Colours::white; } };
 	};
+	// COLORS タブ。検索の欄を空にするボタン
+	namespace ColorsTab {
+		inline Entry SearchClearBg{ "ColorsTab.SearchClearBg", []() -> juce::Colour { return juce::Colours::yellow; } };
+		inline Entry SearchClearText{ "ColorsTab.SearchClearText", []() -> juce::Colour { return Palette::OffBlack; } };
+	};
 	// SETTINGS タブ。見出しの字、場所の欄の枠、ボタン
 	namespace SettingsTab {
 		inline Entry HeadingText{ "SettingsTab.HeadingText", []() -> juce::Colour { return juce::Colours::yellow; } };

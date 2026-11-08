@@ -367,6 +367,17 @@ void GuiColors::setup()
 	searchEditor.setExplicitFocusOrder(++tabOrder);
 	searchEditor.onTextChange = [this] { rebuildRows(); };
 
+	searchClearButton.setup({ .parent = *this, .title = ColorsGuiText::Filter::clear,
+		.textColor = GuiColor::ColorsTab::SearchClearText, .bgColor = GuiColor::ColorsTab::SearchClearBg, .isReset = false });
+	searchClearButton.setTooltip(ColorsGuiText::Filter::clearTooltip);
+	searchClearButton.setExplicitFocusOrder(++tabOrder);
+	searchClearButton.onClick = [this] {
+		if (searchEditor.isEmpty()) return;
+
+		searchEditor.clear();
+		rebuildRows();
+		};
+
 	checkAllButton.setup({ .parent = *this, .title = ColorsGuiText::Filter::checkAll, .isReset = false });
 	checkAllButton.setTooltip(ColorsGuiText::Filter::bulkTooltip);
 	checkAllButton.setExplicitFocusOrder(++tabOrder);
@@ -655,6 +666,8 @@ void GuiColors::layout(juce::Rectangle<int> content)
 	searchEditor.label.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::searchLabelWidth));
 	filterRow.removeFromLeft(ColorsGuiValue::Row::padding);
 	searchEditor.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::searchWidth));
+	filterRow.removeFromLeft(ColorsGuiValue::Row::padding);
+	searchClearButton.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::searchClearWidth));
 	filterRow.removeFromLeft(ColorsGuiValue::Row::padding * 2);
 	checkAllButton.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::bulkWidth));
 	filterRow.removeFromLeft(ColorsGuiValue::Row::padding);

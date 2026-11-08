@@ -25,6 +25,8 @@ namespace ColorsGuiText
 	{
 		static inline const I18n::Text search{ u8"検索", u8"Search" };
 		static inline const I18n::Text searchTooltip{ u8"項目の名前で絞ります。* と ? のワイルドカードも使えます (例: LevelMeter.Bar.*)。", u8"Filters items by name. The * and ? wildcards work too (e.g. LevelMeter.Bar.*)." };
+		static inline const I18n::Text clear{ u8"クリア", u8"Clear" };
+		static inline const I18n::Text clearTooltip{ u8"検索の欄を空にして、全部の行を出します。", u8"Empties the search box and shows every row." };
 		static inline const I18n::Text checkAll{ u8"全てチェック", u8"Check all" };
 		static inline const I18n::Text uncheckAll{ u8"全て外す", u8"Uncheck all" };
 		static inline const I18n::Text bulkTooltip{ u8"表示している行 (検索で絞っていればその行だけ) の「読込」をまとめて入り切りします。", u8"Turns Load on or off for every row shown (only the matching rows while searching)." };

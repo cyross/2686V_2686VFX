@@ -33,6 +33,7 @@ class GuiColors : public GuiBase
 
 	// 読み込みの対象を絞る (4.4.0)。検索の欄・全てチェック・全て外す・ワイルドカード
 	GuiTextEditor searchEditor;
+	GuiTextButton searchClearButton;
 	GuiTextButton checkAllButton;
 	GuiTextButton uncheckAllButton;
 	GuiToggleButton wildcardToggle;
@@ -74,6 +75,7 @@ public:
 		loadButton(context),
 		saveButton(context),
 		searchEditor(context),
+		searchClearButton(context),
 		checkAllButton(context),
 		uncheckAllButton(context),
 		wildcardToggle(context)

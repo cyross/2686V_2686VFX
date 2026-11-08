@@ -77,6 +77,9 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - 「ワイルドカード」: 入れると、チェックを同じ親を持つ項目へまとめて当てる (Category.ContentBg なら Category.*、LevelMeter.Bar.Low なら LevelMeter.Bar.*)
   - 「検索」: 項目の名前で行を絞る。`*` と `?` のワイルドカードも使える (例: `LevelMeter.Bar.*`)
   - チェックは画面を閉じるまで覚えている (保存はしない)
+  - 検索の欄の右に「クリア」のボタンを追加。押すと検索の欄を空にして全部の行を出す (色は `ColorsTab.SearchClearBg` / `ColorsTab.SearchClearText`)
+- **ファイルの一覧で書き出す先を選ぶとき、既にあるファイルをダブルクリックしてから書き出すと、拡張子が二重 (abc.ccolor.ccolor.json など) になるのを修正**
+  - 名前の欄に付いている拡張子は書き出すときに外し、今の形式の拡張子を付け直す
 - **COLORS で変えられなかった色を、変えられるようにした**
   - 各部品に直書きしていた色を洗い出し、COLORS の項目にした (既定の色は今までと同じ)
   - 増えた項目: `Header.*` (上の段のボタン・小さい表示の板)、`Scope.*` (リアルタイムのオシロ)、`PlayingState.*`、`FmEnvGraph.*` (FM のエンベロープのグラフ)、`EnvelopeGraphBase.*`、`CurveGraph.*` (ADVANCED のカーブ)、`AlgRouting.*` (アルゴリズム図と行列、オペレーターごとの色)、`Button.*` (パラメータの写し・消去など)、`FileButton.*` ([IM] / [EX])、`FxTab.*`、`PresetTab.*`、`SettingsTab.*`、`AboutTab.*`、`TabBar.*`、`MulRatio.*`、`LevelNudge.*`、`ValueNudge.*`、`SsgSwButtons.*`、`MidiButtons.*`、`FixButton.*`、`PresetName.*`、`WtModButtons.*`、`WtCustom.*` (WT のカスタム波形)、`Wt2Grid.*`、`ValueBubble.*`、`FileLabel.*`、`WavePreviewShade.*`、`TableRow.*`

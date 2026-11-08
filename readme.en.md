@@ -77,6 +77,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - "Wildcard": when on, a check applies to every item with the same parent (Category.ContentBg applies to Category.*, LevelMeter.Bar.Low to LevelMeter.Bar.*)
   - "Search" filters the rows by item name. The `*` and `?` wildcards work too (e.g. `LevelMeter.Bar.*`)
   - The checks are kept until the window is closed (they are not saved)
+  - A "Clear" button next to the search box empties it and shows every row (colours: `ColorsTab.SearchClearBg` / `ColorsTab.SearchClearText`)
+- **Fixed: saving from the file list after double-clicking an existing file doubled the extension (e.g. abc.ccolor.ccolor.json)**
+  - The extension in the name box is removed when saving, and the current format's extension is added again
 - **Changed: colours that COLORS could not change can now be changed**
   - Colours written directly into components were collected and turned into COLORS items (the defaults are unchanged)
   - New items: `Header.*` (top-row buttons and the small-view boards), `Scope.*` (real-time oscilloscopes), `PlayingState.*`, `FmEnvGraph.*` (FM envelope graphs), `EnvelopeGraphBase.*`, `CurveGraph.*` (ADVANCED curves), `AlgRouting.*` (algorithm diagram and matrix, one colour per operator), `Button.*` (parameter copy, clear and so on), `FileButton.*` ([IM] / [EX]), `FxTab.*`, `PresetTab.*`, `SettingsTab.*`, `AboutTab.*`, `TabBar.*`, `MulRatio.*`, `LevelNudge.*`, `ValueNudge.*`, `SsgSwButtons.*`, `MidiButtons.*`, `FixButton.*`, `PresetName.*`, `WtModButtons.*`, `WtCustom.*` (WT custom wave), `Wt2Grid.*`, `ValueBubble.*`, `FileLabel.*`, `WavePreviewShade.*`, `TableRow.*`

@@ -771,7 +771,8 @@ void GuiParamBrowser::chooseAt(int viewIndex)
     {
         // 書き出す先を決めているときは、名前を写すだけにする。
         // 押した拍子に上書きされては困る。
-        nameEditor.setText(item.file.getFileNameWithoutExtension(), juce::dontSendNotification);
+        // 既定の名前と同じく拡張子まで出す。書くときに形式へ揃え直す。
+        nameEditor.setText(item.file.getFileName(), juce::dontSendNotification);
 
         return;
     }
@@ -883,6 +884,29 @@ void GuiParamBrowser::deleteSelectedFolder()
         }), true);
 }
 
+juce::String GuiParamBrowser::withoutSaveExtension(const juce::String& name) const
+{
+    if (m_extension.isEmpty()) return name;
+
+    if (name.endsWithIgnoreCase(m_extension)) return name.dropLastCharacters(m_extension.length());
+
+    // 「.ccolor.json」なら「.ccolor」。形式の拡張子だけのとき (.json) は空になる。
+    const juce::String mark = m_extension.upToLastOccurrenceOf(".", false, false);
+
+    if (mark.isEmpty()) return name;
+
+    for (const char* format : { ".json", ".yaml" })
+    {
+        const juce::String full = mark + format;
+
+        if (name.endsWithIgnoreCase(full)) return name.dropLastCharacters(full.length());
+    }
+
+    if (name.endsWithIgnoreCase(mark)) return name.dropLastCharacters(mark.length());
+
+    return name;
+}
+
 void GuiParamBrowser::commitSave()
 {
     if (m_mode != Mode::save || !m_root.isDirectory()) return;
@@ -891,12 +915,11 @@ void GuiParamBrowser::commitSave()
 
     if (name.isEmpty()) return;
 
-    juce::String fileName = juce::File::createLegalFileName(name);
+    juce::String fileName = withoutSaveExtension(juce::File::createLegalFileName(name));
 
-    if (m_extension.isNotEmpty() && !fileName.endsWithIgnoreCase(m_extension))
-    {
-        fileName += m_extension;
-    }
+    if (fileName.isEmpty()) return;
+
+    fileName += m_extension;
 
     const auto target = m_root.getChildFile(fileName);
 

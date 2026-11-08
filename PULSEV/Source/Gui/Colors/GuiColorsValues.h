@@ -44,6 +44,7 @@ namespace ColorsGuiValue
 		// 読み込みの対象を絞る段
 		static inline constexpr int searchLabelWidth = 50;
 		static inline constexpr int searchWidth = 260;
+		static inline constexpr int searchClearWidth = 64;
 		static inline constexpr int bulkWidth = 110;
 		static inline constexpr int wildcardWidth = 140;
 	}
